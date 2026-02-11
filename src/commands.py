@@ -872,6 +872,76 @@ COMMANDS: list[JarvisCommand] = [
         "snap assist", "bureaux virtuels reglages",
     ], "ms_settings", "ms-settings:multitasking"),
 
+    # ── Vague 7: Energie / Stockage / Apps defaut / Sauvegarde / Restauration ──
+    JarvisCommand("apps_par_defaut", "systeme", "Gerer les applications par defaut", [
+        "applications par defaut", "apps par defaut", "ouvre avec",
+        "navigateur par defaut", "lecteur par defaut",
+    ], "ms_settings", "ms-settings:defaultapps"),
+    JarvisCommand("param_stockage_avance", "systeme", "Gestion du stockage et assistant", [
+        "assistant stockage", "nettoyage automatique", "stockage intelligent",
+        "storage sense", "gestion stockage avancee",
+    ], "ms_settings", "ms-settings:storagepolicies"),
+    JarvisCommand("sauvegarder_windows", "systeme", "Parametres de sauvegarde Windows", [
+        "sauvegarde windows", "backup windows", "parametres backup",
+        "sauvegarde systeme", "backup systeme",
+    ], "ms_settings", "ms-settings:backup"),
+    JarvisCommand("restauration_systeme", "systeme", "Ouvrir la restauration du systeme", [
+        "restauration systeme", "point de restauration", "system restore",
+        "restaure le systeme", "reviens en arriere",
+    ], "powershell", "Start-Process rstrui"),
+    JarvisCommand("a_propos_pc", "systeme", "Informations sur le PC (A propos)", [
+        "a propos du pc", "about pc", "nom du pc",
+        "version windows", "specs du pc", "quel windows",
+    ], "ms_settings", "ms-settings:about"),
+    JarvisCommand("param_ethernet", "systeme", "Parametres Ethernet", [
+        "parametres ethernet", "cable reseau", "connexion filaire",
+        "config ethernet", "reseau filaire",
+    ], "ms_settings", "ms-settings:network-ethernet"),
+    JarvisCommand("param_data_usage", "systeme", "Utilisation des donnees reseau", [
+        "utilisation donnees", "data usage", "consommation reseau",
+        "combien de donnees", "bande passante utilisee",
+    ], "ms_settings", "ms-settings:datausage"),
+    JarvisCommand("tracert", "systeme", "Tracer la route vers un hote", [
+        "trace la route vers {host}", "traceroute {host}", "tracert {host}",
+        "chemin vers {host}",
+    ], "powershell", "tracert {host} | Out-String", ["host"]),
+    JarvisCommand("netstat", "systeme", "Afficher les connexions reseau actives", [
+        "connexions actives", "netstat", "ports ouverts",
+        "quels ports sont utilises", "connexions reseau actives",
+    ], "powershell", "netstat -an | Select-Object -First 30 | Out-String"),
+    JarvisCommand("uptime", "systeme", "Temps de fonctionnement du PC", [
+        "uptime", "depuis quand le pc tourne", "temps de fonctionnement",
+        "depuis combien de temps", "depuis quand",
+    ], "powershell", "$boot = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; $up = (Get-Date) - $boot; \"Uptime: $($up.Days)j $($up.Hours)h $($up.Minutes)m (boot: $boot)\""),
+    JarvisCommand("temperature_cpu", "systeme", "Temperature du processeur", [
+        "temperature cpu", "temperature processeur", "cpu temperature",
+        "chauffe le cpu", "le pc chauffe",
+    ], "powershell", "Get-CimInstance MSAcpi_ThermalZoneTemperature -Namespace root/WMI -ErrorAction SilentlyContinue | ForEach-Object { $t = ($_.CurrentTemperature - 2732) / 10; \"CPU: $([math]::Round($t,1)) C\" }"),
+    JarvisCommand("liste_utilisateurs", "systeme", "Lister les utilisateurs du PC", [
+        "liste les utilisateurs", "quels utilisateurs", "comptes locaux",
+        "qui utilise le pc", "users",
+    ], "powershell", "Get-LocalUser | Select Name, Enabled, LastLogon | Out-String"),
+    JarvisCommand("adresse_mac", "systeme", "Afficher les adresses MAC", [
+        "adresse mac", "mac address", "adresses mac",
+        "quelle est mon adresse mac",
+    ], "powershell", "Get-NetAdapter | Select Name, MacAddress, Status | Out-String"),
+    JarvisCommand("vitesse_reseau", "systeme", "Tester la vitesse de la carte reseau", [
+        "vitesse reseau", "speed test", "debit reseau",
+        "quelle vitesse", "bande passante",
+    ], "powershell", "Get-NetAdapter | Where Status -eq 'Up' | Select Name, LinkSpeed | Out-String"),
+    JarvisCommand("param_optionnel", "systeme", "Gerer les fonctionnalites optionnelles Windows", [
+        "fonctionnalites optionnelles", "optional features", "features windows",
+        "activer des fonctionnalites", "composants windows",
+    ], "ms_settings", "ms-settings:optionalfeatures"),
+    JarvisCommand("ouvrir_sandbox", "systeme", "Ouvrir Windows Sandbox", [
+        "ouvre la sandbox", "sandbox", "windows sandbox",
+        "bac a sable", "lance la sandbox",
+    ], "powershell", "Start-Process WindowsSandbox"),
+    JarvisCommand("verifier_fichiers", "systeme", "Verifier l'integrite des fichiers systeme", [
+        "verifie les fichiers systeme", "sfc scan", "scan integrite",
+        "repare les fichiers", "sfc scannow",
+    ], "powershell", "Start-Process powershell -ArgumentList '/c sfc /scannow' -Verb RunAs", confirm=True),
+
     # ══════════════════════════════════════════════════════════════════════
     # TRADING & IA (10 commandes)
     # ══════════════════════════════════════════════════════════════════════
@@ -1324,6 +1394,21 @@ VOICE_CORRECTIONS: dict[str, str] = {
     "dark mods": "dark mode",
     "light mods": "light mode",
     "theme somb": "theme sombre",
+    # Vague 7 — Reseau / Systeme avance
+    "traceroute": "tracert",
+    "traceroutte": "tracert",
+    "netstate": "netstat",
+    "netestat": "netstat",
+    "sandboxe": "sandbox",
+    "sandeboks": "sandbox",
+    "restaurassion": "restauration",
+    "restoracion": "restauration",
+    "upttaime": "uptime",
+    "temperatur": "temperature",
+    "temperatture": "temperature",
+    "euthernet": "ethernet",
+    "eternet": "ethernet",
+    "macadresse": "mac address",
     # Mode avion / Micro / Camera
     "mod avion": "mode avion",
     "mode avillion": "mode avion",

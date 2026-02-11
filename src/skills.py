@@ -1027,4 +1027,55 @@ def _default_skills() -> list[Skill]:
             ],
             category="productivite",
         ),
+
+        # ── VAGUE 7: Pipelines diagnostic / sauvegarde / reseau avance ──
+
+        Skill(
+            name="diagnostic_reseau_complet",
+            description="Diagnostic reseau complet: IP, MAC, vitesse, tracert, netstat, DNS, ping",
+            triggers=[
+                "diagnostic reseau complet", "analyse reseau complete",
+                "tout le reseau", "deep network check",
+            ],
+            steps=[
+                SkillStep("network_info", {}, "Infos reseau"),
+                SkillStep("powershell_run", {"command": "Get-NetAdapter | Select Name, MacAddress, Status, LinkSpeed | Out-String"}, "Adaptateurs reseau"),
+                SkillStep("wifi_networks", {}, "Reseaux Wi-Fi"),
+                SkillStep("ping", {"host": "8.8.8.8"}, "Ping Google"),
+                SkillStep("powershell_run", {"command": "ipconfig /flushdns; 'DNS flush OK'"}, "Flush DNS"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Diagnostic reseau complet termine."}, "Notification"),
+            ],
+            category="systeme",
+        ),
+        Skill(
+            name="diagnostic_sante_pc",
+            description="Diagnostic sante: CPU temp, uptime, espace disque, RAM, GPU",
+            triggers=[
+                "diagnostic sante", "sante du pc", "health check complet",
+                "comment va le pc", "etat de sante",
+            ],
+            steps=[
+                SkillStep("system_info", {}, "Infos systeme"),
+                SkillStep("gpu_info", {}, "Infos GPU"),
+                SkillStep("powershell_run", {"command": "$boot = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; $up = (Get-Date) - $boot; \"Uptime: $($up.Days)j $($up.Hours)h $($up.Minutes)m\""}, "Uptime"),
+                SkillStep("powershell_run", {"command": "Get-CimInstance Win32_LogicalDisk | Select DeviceID, @{N='Free(GB)';E={[math]::Round($_.FreeSpace/1GB,1)}} | Out-String"}, "Espace disque"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Diagnostic sante termine."}, "Notification"),
+            ],
+            category="systeme",
+        ),
+        Skill(
+            name="preparation_backup",
+            description="Preparation sauvegarde: save tout, check espace, ouvre parametres backup",
+            triggers=[
+                "prepare le backup", "preparation sauvegarde",
+                "avant la sauvegarde", "pre-backup",
+            ],
+            steps=[
+                SkillStep("press_hotkey", {"keys": "ctrl+s"}, "Sauvegarder fichier actif"),
+                SkillStep("powershell_run", {"command": "Get-CimInstance Win32_LogicalDisk | Select DeviceID, @{N='Free(GB)';E={[math]::Round($_.FreeSpace/1GB,1)}} | Out-String"}, "Espace disque"),
+                SkillStep("system_info", {}, "Check systeme"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Pre-backup OK. Pret pour la sauvegarde."}, "Notification"),
+            ],
+            category="systeme",
+        ),
     ]

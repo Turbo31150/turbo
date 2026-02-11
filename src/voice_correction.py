@@ -165,6 +165,17 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "regedit": "ouvre le registre",
     "hdr": "parametres hdr",
     "multitache": "parametres multitache",
+    # Vague 7 - Reseau / Systeme avance
+    "uptime": "depuis quand le pc tourne",
+    "temperature": "temperature cpu",
+    "netstat": "connexions actives",
+    "sandbox": "ouvre la sandbox",
+    "restauration": "restauration systeme",
+    "backup": "sauvegarde windows",
+    "ethernet": "parametres ethernet",
+    "specs": "a propos du pc",
+    "mac": "adresse mac",
+    "sfc": "verifie les fichiers systeme",
 }
 
 
