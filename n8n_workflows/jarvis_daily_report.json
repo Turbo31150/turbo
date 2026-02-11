@@ -1,0 +1,91 @@
+{
+  "name": "JARVIS - Daily Morning Report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 * * *" }] }
+      },
+      "id": "schedule-morning",
+      "name": "Every Day 8:00 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:1234/v1/models",
+        "options": { "timeout": 5000 }
+      },
+      "id": "cluster-check",
+      "name": "Check Cluster M1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, -100],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "http://192.168.1.26:1234/v1/models",
+        "options": { "timeout": 5000 }
+      },
+      "id": "cluster-m2",
+      "name": "Check Cluster M2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 0],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "http://192.168.1.113:1234/v1/models",
+        "options": { "timeout": 5000 }
+      },
+      "id": "cluster-m3",
+      "name": "Check Cluster M3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 100],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "command": "powershell -NoProfile -Command \"$os = Get-CimInstance Win32_OperatingSystem; $cpu = (Get-CimInstance Win32_Processor).LoadPercentage; $boot = $os.LastBootUpTime; $up = (Get-Date) - $boot; $ramTotal = [math]::Round($os.TotalVisibleMemorySize/1MB,1); $ramFree = [math]::Round($os.FreePhysicalMemory/1MB,1); $disks = Get-CimInstance Win32_LogicalDisk | ForEach-Object { \\\"$($_.DeviceID) $(if($_.Size){[math]::Round($_.FreeSpace/1GB,1)})GB free\\\" }; Write-Output \\\"CPU: $cpu% | RAM: $($ramTotal - $ramFree)/$ramTotal GB | Uptime: $($up.Days)j $($up.Hours)h | Disks: $($disks -join ', ')\\\"\""
+      },
+      "id": "system-info",
+      "name": "System Info",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [220, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "const m1 = $('Check Cluster M1').first();\nconst m2 = $('Check Cluster M2').first();\nconst m3 = $('Check Cluster M3').first();\nconst sys = $('System Info').first();\n\nconst m1Online = m1.json?.data ? true : false;\nconst m2Online = m2.json?.data ? true : false;\nconst m3Online = m3.json?.data ? true : false;\nconst online = [m1Online, m2Online, m3Online].filter(Boolean).length;\n\nconst now = new Date();\nconst report = [\n  `=== JARVIS RAPPORT MATIN ${now.toLocaleDateString('fr-FR')} ===`,\n  '',\n  `CLUSTER IA: ${online}/3 nodes`,\n  `  M1 (qwen3-30b, 5GPU/43GB): ${m1Online ? 'ONLINE' : 'OFFLINE'}`,\n  `  M2 (gpt-oss-20b, 3GPU/24GB): ${m2Online ? 'ONLINE' : 'OFFLINE'}`,\n  `  M3 (mistral-7b, 2GPU/16GB): ${m3Online ? 'ONLINE' : 'OFFLINE'}`,\n  '',\n  `SYSTEME: ${sys.json?.stdout || 'N/A'}`,\n  '',\n  `TRADING: MEXC Futures | Levier 10x | TP 0.4% | SL 0.25%`,\n  `  Paires: BTC ETH SOL SUI PEPE DOGE XRP ADA AVAX LINK`,\n  '',\n  `JARVIS v10.1 | 69 tools | 295 cmds | 66 skills | 5 agents`,\n].join('\\n');\n\nreturn [{ json: { report, online, timestamp: now.toISOString() } }];"
+      },
+      "id": "build-report",
+      "name": "Build Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0]
+    },
+    {
+      "parameters": {
+        "command": "=powershell -NoProfile -Command \"Add-Type -AssemblyName System.Speech; $s = New-Object System.Speech.Synthesis.SpeechSynthesizer; $s.Speak('Bonjour. Rapport du matin: {{ $json.online }} noeuds IA en ligne. Systeme operationnel. JARVIS pret.')\""
+      },
+      "id": "tts-report",
+      "name": "Speak Report",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [700, 0]
+    }
+  ],
+  "connections": {
+    "Every Day 8:00 AM": { "main": [[{ "node": "Check Cluster M1", "type": "main", "index": 0 }, { "node": "Check Cluster M2", "type": "main", "index": 0 }, { "node": "Check Cluster M3", "type": "main", "index": 0 }, { "node": "System Info", "type": "main", "index": 0 }]] },
+    "Check Cluster M1": { "main": [[{ "node": "Build Report", "type": "main", "index": 0 }]] },
+    "Check Cluster M2": { "main": [[{ "node": "Build Report", "type": "main", "index": 0 }]] },
+    "Check Cluster M3": { "main": [[{ "node": "Build Report", "type": "main", "index": 0 }]] },
+    "System Info": { "main": [[{ "node": "Build Report", "type": "main", "index": 0 }]] },
+    "Build Report": { "main": [[{ "node": "Speak Report", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "JARVIS" }, { "name": "Daily" }]
+}

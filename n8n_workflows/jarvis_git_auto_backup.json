@@ -1,0 +1,65 @@
+{
+  "name": "JARVIS - Git Auto Backup",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "hours", "hoursInterval": 6 }] }
+      },
+      "id": "schedule-backup",
+      "name": "Every 6 Hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "command": "cd F:\\BUREAU\\turbo && git status --porcelain"
+      },
+      "id": "git-status",
+      "name": "Git Status",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = $input.first().json.stdout || '';\nconst hasChanges = output.trim().length > 0;\nconst files = output.trim().split('\\n').filter(l => l.length > 0);\n\nreturn [{\n  json: {\n    has_changes: hasChanges,\n    changed_files: files.length,\n    files: files,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "check-changes",
+      "name": "Check Changes",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [{ "value1": "={{ $json.has_changes }}", "value2": true }]
+        }
+      },
+      "id": "if-changes",
+      "name": "Has Changes?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [660, 0]
+    },
+    {
+      "parameters": {
+        "command": "=cd F:\\BUREAU\\turbo && git add -A && git commit -m \"Auto-backup: {{ $json.changed_files }} fichiers modifies [n8n]\" && git push origin main"
+      },
+      "id": "git-commit-push",
+      "name": "Git Commit & Push",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [880, -50]
+    }
+  ],
+  "connections": {
+    "Every 6 Hours": { "main": [[{ "node": "Git Status", "type": "main", "index": 0 }]] },
+    "Git Status": { "main": [[{ "node": "Check Changes", "type": "main", "index": 0 }]] },
+    "Check Changes": { "main": [[{ "node": "Has Changes?", "type": "main", "index": 0 }]] },
+    "Has Changes?": { "main": [[{ "node": "Git Commit & Push", "type": "main", "index": 0 }], []] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "JARVIS" }, { "name": "Backup" }]
+}

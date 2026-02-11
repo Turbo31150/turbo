@@ -230,6 +230,13 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "dns": "vide le cache dns",
     "ip publique": "mon ip publique",
     "partages": "partages reseau",
+    # Vague 14 - Fichiers avances
+    "doublons": "fichiers en double",
+    "zip": "compresse",
+    "hash": "hash de",
+    "grep": "cherche dans les fichiers",
+    "recents": "derniers fichiers modifies",
+    "gros fichiers": "plus gros fichiers",
 }
 
 

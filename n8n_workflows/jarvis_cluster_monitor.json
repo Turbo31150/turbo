@@ -1,0 +1,93 @@
+{
+  "name": "JARVIS - Cluster Monitor",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "minutes", "minutesInterval": 5 }] }
+      },
+      "id": "schedule-1",
+      "name": "Every 5 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:1234/v1/models",
+        "options": { "timeout": 5000 }
+      },
+      "id": "http-m1",
+      "name": "Check M1 (localhost)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, -100],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "http://192.168.1.26:1234/v1/models",
+        "options": { "timeout": 5000 }
+      },
+      "id": "http-m2",
+      "name": "Check M2 (192.168.1.26)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 0],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "http://192.168.1.113:1234/v1/models",
+        "options": { "timeout": 5000 }
+      },
+      "id": "http-m3",
+      "name": "Check M3 (192.168.1.113)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 100],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const m1 = $input.all()[0];\nconst m2 = $input.all()[1];\nconst m3 = $input.all()[2];\n\nconst nodes = [\n  { name: 'M1', url: 'localhost:1234', gpus: 5, vram: 43, status: m1.json?.data ? 'ONLINE' : 'OFFLINE', models: m1.json?.data?.length || 0 },\n  { name: 'M2', url: '192.168.1.26:1234', gpus: 3, vram: 24, status: m2.json?.data ? 'ONLINE' : 'OFFLINE', models: m2.json?.data?.length || 0 },\n  { name: 'M3', url: '192.168.1.113:1234', gpus: 2, vram: 16, status: m3.json?.data ? 'ONLINE' : 'OFFLINE', models: m3.json?.data?.length || 0 },\n];\n\nconst online = nodes.filter(n => n.status === 'ONLINE').length;\nconst totalGPU = nodes.reduce((s, n) => s + n.gpus, 0);\nconst totalVRAM = nodes.reduce((s, n) => s + n.vram, 0);\n\nreturn [{\n  json: {\n    cluster_status: `${online}/3 nodes online`,\n    total_gpu: totalGPU,\n    total_vram_gb: totalVRAM,\n    nodes: nodes,\n    timestamp: new Date().toISOString(),\n    alert: online < 3\n  }\n}];"
+      },
+      "id": "code-aggregate",
+      "name": "Aggregate Status",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [{ "value1": "={{ $json.alert }}", "value2": true }]
+        }
+      },
+      "id": "if-alert",
+      "name": "Node Offline?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [660, 0]
+    },
+    {
+      "parameters": {
+        "command": "powershell -NoProfile -Command \"[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType=WindowsRuntime] | Out-Null; $xml = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent(0); $text = $xml.GetElementsByTagName('text'); $text.Item(0).AppendChild($xml.CreateTextNode('JARVIS CLUSTER ALERT')) | Out-Null; $notif = [Windows.UI.Notifications.ToastNotification]::new($xml); [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('JARVIS').Show($notif)\""
+      },
+      "id": "notify-alert",
+      "name": "Windows Alert",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [880, -50]
+    }
+  ],
+  "connections": {
+    "Every 5 Minutes": { "main": [[{ "node": "Check M1 (localhost)", "type": "main", "index": 0 }, { "node": "Check M2 (192.168.1.26)", "type": "main", "index": 0 }, { "node": "Check M3 (192.168.1.113)", "type": "main", "index": 0 }]] },
+    "Check M1 (localhost)": { "main": [[{ "node": "Aggregate Status", "type": "main", "index": 0 }]] },
+    "Check M2 (192.168.1.26)": { "main": [[{ "node": "Aggregate Status", "type": "main", "index": 0 }]] },
+    "Check M3 (192.168.1.113)": { "main": [[{ "node": "Aggregate Status", "type": "main", "index": 0 }]] },
+    "Aggregate Status": { "main": [[{ "node": "Node Offline?", "type": "main", "index": 0 }]] },
+    "Node Offline?": { "main": [[{ "node": "Windows Alert", "type": "main", "index": 0 }], []] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "JARVIS" }]
+}

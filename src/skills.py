@@ -1386,4 +1386,51 @@ def _default_skills() -> list[Skill]:
             ],
             category="systeme",
         ),
+
+        # ── VAGUE 14: Pipelines fichiers / nettoyage / organisation ──
+
+        Skill(
+            name="nettoyage_fichiers",
+            description="Nettoyage fichiers: doublons + gros fichiers + dossiers vides + temp",
+            triggers=[
+                "nettoyage fichiers", "organise les fichiers", "fais le menage",
+                "clean les fichiers", "libere de l'espace",
+            ],
+            steps=[
+                SkillStep("powershell_run", {"command": "Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"}, "Vider temp"),
+                SkillStep("powershell_run", {"command": "$e = Get-ChildItem -Directory -Recurse -Path $env:USERPROFILE -ErrorAction SilentlyContinue | Where { (Get-ChildItem $_.FullName -Force -ErrorAction SilentlyContinue).Count -eq 0 }; \"$($e.Count) dossiers vides trouves\""}, "Dossiers vides"),
+                SkillStep("powershell_run", {"command": "Get-ChildItem $env:USERPROFILE -Recurse -File -ErrorAction SilentlyContinue | Sort Length -Desc | Select -First 10 Name, @{N='MB';E={[math]::Round($_.Length/1MB,1)}} | Out-String"}, "Top 10 gros fichiers"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Analyse fichiers terminee."}, "Notification"),
+            ],
+            category="fichiers",
+        ),
+        Skill(
+            name="backup_projet",
+            description="Backup projet: compresse le dossier turbo + git status + timestamp",
+            triggers=[
+                "backup du projet", "sauvegarde le projet", "archive le projet",
+                "compresse turbo", "backup turbo",
+            ],
+            steps=[
+                SkillStep("powershell_run", {"command": "cd F:\\BUREAU\\turbo; git status --short | Out-String"}, "Git status"),
+                SkillStep("powershell_run", {"command": "$ts = Get-Date -Format 'yyyyMMdd_HHmm'; Compress-Archive -Path 'F:\\BUREAU\\turbo\\src' -DestinationPath \"F:\\BUREAU\\turbo_backup_$ts.zip\" -Force; \"Backup: turbo_backup_$ts.zip\""}, "Compression"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Backup projet termine."}, "Notification"),
+            ],
+            category="dev",
+        ),
+        Skill(
+            name="analyse_code",
+            description="Analyse code: fichiers Python, lignes, taille, structure",
+            triggers=[
+                "analyse le code", "stats du code", "combien de lignes de code",
+                "metriques du projet", "analyse le projet",
+            ],
+            steps=[
+                SkillStep("powershell_run", {"command": "$py = Get-ChildItem 'F:\\BUREAU\\turbo\\src' -Filter '*.py' -Recurse; \"$($py.Count) fichiers Python\""}, "Fichiers Python"),
+                SkillStep("powershell_run", {"command": "$lines = (Get-ChildItem 'F:\\BUREAU\\turbo\\src' -Filter '*.py' -Recurse | Get-Content | Measure-Object -Line).Lines; \"$lines lignes de code\""}, "Lignes de code"),
+                SkillStep("powershell_run", {"command": "$s = (Get-ChildItem 'F:\\BUREAU\\turbo\\src' -Recurse -File | Measure-Object Length -Sum).Sum / 1KB; \"Taille src: $([math]::Round($s,1)) KB\""}, "Taille"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Analyse code terminee."}, "Notification"),
+            ],
+            category="dev",
+        ),
     ]

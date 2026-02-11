@@ -1,0 +1,89 @@
+{
+  "name": "JARVIS - Trading Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "minutes", "minutesInterval": 15 }] }
+      },
+      "id": "schedule-trading",
+      "name": "Every 15 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:1234/v1/chat/completions",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"model\": \"qwen/qwen3-30b-a3b-2507\",\n  \"messages\": [{\"role\": \"user\", \"content\": \"Analyse rapide marche crypto. BTC ETH SOL SUI. Tendance 15min, signal buy/sell/neutral pour chaque. Format JSON: {pair, signal, confidence, entry, tp, sl}\"}],\n  \"temperature\": 0.3,\n  \"max_tokens\": 2048\n}",
+        "options": { "timeout": 60000 }
+      },
+      "id": "m1-analysis",
+      "name": "M1 Deep Analysis",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, -50],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "http://192.168.1.26:1234/v1/chat/completions",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"model\": \"openai/gpt-oss-20b\",\n  \"messages\": [{\"role\": \"user\", \"content\": \"Quick crypto signal scan: BTC ETH SOL SUI. Signal buy/sell/neutral per pair. JSON format.\"}],\n  \"temperature\": 0.3,\n  \"max_tokens\": 1024\n}",
+        "options": { "timeout": 30000 }
+      },
+      "id": "m2-fast",
+      "name": "M2 Fast Signal",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 50],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const m1 = $input.all()[0];\nconst m2 = $input.all()[1];\n\nconst m1Response = m1.json?.choices?.[0]?.message?.content || 'M1 offline';\nconst m2Response = m2.json?.choices?.[0]?.message?.content || 'M2 offline';\n\nreturn [{\n  json: {\n    m1_analysis: m1Response,\n    m2_signal: m2Response,\n    timestamp: new Date().toISOString(),\n    config: {\n      exchange: 'MEXC Futures',\n      leverage: 10,\n      tp_percent: 0.4,\n      sl_percent: 0.25,\n      pairs: ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'SUI/USDT']\n    }\n  }\n}];"
+      },
+      "id": "merge-signals",
+      "name": "Merge Signals",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "url": "http://192.168.1.113:1234/v1/chat/completions",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"mistral-7b-instruct-v0.3\",\n  \"messages\": [{\"role\": \"user\", \"content\": \"Valide ce consensus trading: M1 dit {{ $json.m1_analysis.substring(0, 200) }}. M2 dit {{ $json.m2_signal.substring(0, 200) }}. Confirme ou infirme en JSON.\"}],\n  \"temperature\": 0.2,\n  \"max_tokens\": 512\n}",
+        "options": { "timeout": 30000 }
+      },
+      "id": "m3-validate",
+      "name": "M3 Validation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 0],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst validation = data?.choices?.[0]?.message?.content || 'No validation';\n\nreturn [{\n  json: {\n    consensus: {\n      m1: $('Merge Signals').first().json.m1_analysis,\n      m2: $('Merge Signals').first().json.m2_signal,\n      m3_validation: validation\n    },\n    timestamp: new Date().toISOString(),\n    status: 'CONSENSUS_COMPLETE'\n  }\n}];"
+      },
+      "id": "final-consensus",
+      "name": "Final Consensus",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 0]
+    }
+  ],
+  "connections": {
+    "Every 15 Minutes": { "main": [[{ "node": "M1 Deep Analysis", "type": "main", "index": 0 }, { "node": "M2 Fast Signal", "type": "main", "index": 0 }]] },
+    "M1 Deep Analysis": { "main": [[{ "node": "Merge Signals", "type": "main", "index": 0 }]] },
+    "M2 Fast Signal": { "main": [[{ "node": "Merge Signals", "type": "main", "index": 0 }]] },
+    "Merge Signals": { "main": [[{ "node": "M3 Validation", "type": "main", "index": 0 }]] },
+    "M3 Validation": { "main": [[{ "node": "Final Consensus", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "JARVIS" }, { "name": "Trading" }]
+}

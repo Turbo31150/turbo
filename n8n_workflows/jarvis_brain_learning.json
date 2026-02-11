@@ -1,0 +1,76 @@
+{
+  "name": "JARVIS - Brain Auto-Learning",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "hours", "hoursInterval": 1 }] }
+      },
+      "id": "schedule-brain",
+      "name": "Every Hour",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "command": "cd F:\\BUREAU\\turbo && .venv\\Scripts\\python.exe -c \"import json; from src.skills import get_action_history, load_skills; h = get_action_history(100); s = load_skills(); print(json.dumps({'history_count': len(h), 'skills_count': len(s), 'last_actions': [a['action'] for a in h[-5:]]}))\""
+      },
+      "id": "check-history",
+      "name": "Check Action History",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = $input.first().json.stdout || '{}';\nlet data;\ntry {\n  data = JSON.parse(output);\n} catch {\n  data = { history_count: 0, skills_count: 0, last_actions: [] };\n}\n\nconst shouldLearn = data.history_count >= 10;\n\nreturn [{\n  json: {\n    ...data,\n    should_learn: shouldLearn,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "analyze-history",
+      "name": "Analyze Patterns",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [{ "value1": "={{ $json.should_learn }}", "value2": true }]
+        }
+      },
+      "id": "if-learn",
+      "name": "Enough Data?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [660, 0]
+    },
+    {
+      "parameters": {
+        "command": "cd F:\\BUREAU\\turbo && .venv\\Scripts\\python.exe -c \"from src.brain import analyze_and_learn; import json; r = analyze_and_learn(auto_create=True, min_confidence=0.6); print(json.dumps(r, default=str))\""
+      },
+      "id": "brain-learn",
+      "name": "Brain Auto-Learn",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [880, -50]
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = $input.first().json.stdout || '{}';\nlet result;\ntry {\n  result = JSON.parse(output);\n} catch {\n  result = { patterns_found: 0, skills_created: [] };\n}\n\nreturn [{\n  json: {\n    ...result,\n    learning_timestamp: new Date().toISOString(),\n    status: result.skills_created?.length > 0 ? 'NEW_SKILLS_CREATED' : 'NO_NEW_SKILLS'\n  }\n}];"
+      },
+      "id": "parse-result",
+      "name": "Parse Learning Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, -50]
+    }
+  ],
+  "connections": {
+    "Every Hour": { "main": [[{ "node": "Check Action History", "type": "main", "index": 0 }]] },
+    "Check Action History": { "main": [[{ "node": "Analyze Patterns", "type": "main", "index": 0 }]] },
+    "Analyze Patterns": { "main": [[{ "node": "Enough Data?", "type": "main", "index": 0 }]] },
+    "Enough Data?": { "main": [[{ "node": "Brain Auto-Learn", "type": "main", "index": 0 }], []] },
+    "Brain Auto-Learn": { "main": [[{ "node": "Parse Learning Result", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "JARVIS" }, { "name": "Brain" }]
+}

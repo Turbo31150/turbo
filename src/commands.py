@@ -1298,6 +1298,60 @@ COMMANDS: list[JarvisCommand] = [
         "verifie le ssl de {site}", "https {site}",
     ], "powershell", "$r = [Net.HttpWebRequest]::Create('https://{site}'); $r.GetResponse() | Out-Null; $c = $r.ServicePoint.Certificate; \"Emetteur: $($c.Issuer)`nExpire: $($c.GetExpirationDateString())\"", ["site"]),
 
+    # ── Vague 14: Fichiers avances / Compression / Hash / Recherche contenu ──
+    JarvisCommand("compresser_dossier", "fichiers", "Compresser un dossier en ZIP", [
+        "compresse {dossier}", "zip {dossier}", "archive {dossier}",
+        "cree un zip de {dossier}", "compresse le dossier {dossier}",
+    ], "powershell", "Compress-Archive -Path '{dossier}' -DestinationPath '{dossier}.zip' -Force; 'Archive creee: {dossier}.zip'", ["dossier"]),
+    JarvisCommand("decompresser_zip", "fichiers", "Decompresser un fichier ZIP", [
+        "decompresse {fichier}", "unzip {fichier}", "extrais {fichier}",
+        "dezippe {fichier}", "ouvre l'archive {fichier}",
+    ], "powershell", "Expand-Archive -Path '{fichier}' -DestinationPath (Split-Path '{fichier}') -Force; 'Extrait dans: ' + (Split-Path '{fichier}')", ["fichier"]),
+    JarvisCommand("hash_fichier", "fichiers", "Calculer le hash SHA256 d'un fichier", [
+        "hash de {fichier}", "sha256 de {fichier}", "checksum de {fichier}",
+        "verifie l'integrite de {fichier}", "hash {fichier}",
+    ], "powershell", "(Get-FileHash '{fichier}' -Algorithm SHA256).Hash", ["fichier"]),
+    JarvisCommand("chercher_contenu", "fichiers", "Chercher du texte dans les fichiers", [
+        "cherche {texte} dans les fichiers", "grep {texte}",
+        "trouve {texte} dans les fichiers", "recherche {texte} dans le code",
+    ], "powershell", "Get-ChildItem -Recurse -File -ErrorAction SilentlyContinue | Select-String -Pattern '{texte}' -List | Select Path, LineNumber | Select -First 20 | Out-String", ["texte"]),
+    JarvisCommand("derniers_fichiers", "fichiers", "Derniers fichiers modifies", [
+        "derniers fichiers modifies", "fichiers recents", "quoi de nouveau",
+        "derniers changements", "fichiers changes recemment",
+    ], "powershell", "Get-ChildItem -Recurse -File -ErrorAction SilentlyContinue | Sort LastWriteTime -Descending | Select -First 15 Name, LastWriteTime, @{N='Size(KB)';E={[math]::Round($_.Length/1KB,1)}} | Out-String"),
+    JarvisCommand("doublons_fichiers", "fichiers", "Trouver les fichiers en double", [
+        "fichiers en double", "doublons", "trouve les doublons",
+        "fichiers dupliques", "duplicates",
+    ], "powershell", "Get-ChildItem -Recurse -File -ErrorAction SilentlyContinue | Group-Object Length | Where Count -gt 1 | ForEach-Object { $_.Group | Select Name, Length, DirectoryName } | Select -First 20 | Out-String"),
+    JarvisCommand("gros_fichiers", "fichiers", "Trouver les plus gros fichiers", [
+        "plus gros fichiers", "fichiers les plus lourds", "gros fichiers",
+        "quoi prend de la place", "fichiers volumineux",
+    ], "powershell", "Get-ChildItem -Recurse -File -ErrorAction SilentlyContinue | Sort Length -Descending | Select -First 20 Name, @{N='Size(MB)';E={[math]::Round($_.Length/1MB,1)}}, DirectoryName | Out-String"),
+    JarvisCommand("fichiers_type", "fichiers", "Lister les fichiers d'un type", [
+        "fichiers {ext}", "tous les {ext}", "liste les {ext}",
+        "trouve les fichiers {ext}", "combien de {ext}",
+    ], "powershell", "$f = Get-ChildItem -Recurse -Filter '*.{ext}' -File -ErrorAction SilentlyContinue; \"$($f.Count) fichiers .{ext} trouves\"; $f | Select -First 15 Name, @{N='Size(KB)';E={[math]::Round($_.Length/1KB,1)}} | Out-String", ["ext"]),
+    JarvisCommand("renommer_masse", "fichiers", "Renommer des fichiers en masse", [
+        "renomme les fichiers {ancien} en {nouveau}",
+        "remplace {ancien} par {nouveau} dans les noms",
+    ], "powershell", "Get-ChildItem -File | Where Name -match '{ancien}' | Rename-Item -NewName { $_.Name -replace '{ancien}','{nouveau}' } -WhatIf | Out-String", ["ancien", "nouveau"]),
+    JarvisCommand("dossiers_vides", "fichiers", "Trouver les dossiers vides", [
+        "dossiers vides", "repertoires vides", "trouve les dossiers vides",
+        "empty folders",
+    ], "powershell", "Get-ChildItem -Directory -Recurse -ErrorAction SilentlyContinue | Where { (Get-ChildItem $_.FullName -Force -ErrorAction SilentlyContinue).Count -eq 0 } | Select FullName | Out-String"),
+    JarvisCommand("proprietes_fichier", "fichiers", "Proprietes detaillees d'un fichier", [
+        "proprietes de {fichier}", "details de {fichier}", "info sur {fichier}",
+        "quand a ete cree {fichier}", "taille de {fichier}",
+    ], "powershell", "$f = Get-Item '{fichier}'; \"Nom: $($f.Name)`nTaille: $([math]::Round($f.Length/1KB,1)) KB`nCree: $($f.CreationTime)`nModifie: $($f.LastWriteTime)`nType: $($f.Extension)\"", ["fichier"]),
+    JarvisCommand("copier_fichier", "fichiers", "Copier un fichier vers un dossier", [
+        "copie {source} dans {destination}", "copie {source} vers {destination}",
+        "duplique {source} dans {destination}",
+    ], "powershell", "Copy-Item '{source}' '{destination}' -Force; 'Copie effectuee'", ["source", "destination"]),
+    JarvisCommand("deplacer_fichier", "fichiers", "Deplacer un fichier", [
+        "deplace {source} dans {destination}", "deplace {source} vers {destination}",
+        "bouge {source} dans {destination}",
+    ], "powershell", "Move-Item '{source}' '{destination}' -Force; 'Deplacement effectue'", ["source", "destination"]),
+
     # ══════════════════════════════════════════════════════════════════════
     # TRADING & IA (10 commandes)
     # ══════════════════════════════════════════════════════════════════════
@@ -1910,6 +1964,24 @@ VOICE_CORRECTIONS: dict[str, str] = {
     "portt": "port",
     "ip publique": "ip publique",
     "ip publiq": "ip publique",
+    # Vague 14 — Fichiers / Compression / Hash
+    "zippe": "zip",
+    "zipe": "zip",
+    "dezippe": "decompresse",
+    "dezipe": "decompresse",
+    "hache": "hash",
+    "hachage": "hash",
+    "sha 256": "sha256",
+    "sha256": "sha256",
+    "checksom": "checksum",
+    "doublon": "doublons",
+    "doubllon": "doublons",
+    "comprresse": "compresse",
+    "kompresse": "compresse",
+    "renomme": "renomme",
+    "renome": "renomme",
+    "propriete": "proprietes",
+    "propriaite": "proprietes",
 }
 
 

@@ -1,0 +1,65 @@
+{
+  "name": "JARVIS - System Health Monitor",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "minutes", "minutesInterval": 10 }] }
+      },
+      "id": "schedule-health",
+      "name": "Every 10 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "command": "powershell -NoProfile -Command \"$cpu = (Get-CimInstance Win32_Processor).LoadPercentage; $os = Get-CimInstance Win32_OperatingSystem; $ramPct = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory) / $os.TotalVisibleMemorySize * 100, 1); $disks = Get-CimInstance Win32_LogicalDisk | ForEach-Object { @{Drive=$_.DeviceID; FreePct=if($_.Size -gt 0){[math]::Round($_.FreeSpace/$_.Size*100,1)}else{0}} }; $diskAlert = ($disks | Where-Object { $_.FreePct -lt 10 }).Count; Write-Output \\\"CPU:$cpu|RAM:$ramPct|DiskAlerts:$diskAlert\\\"\""
+      },
+      "id": "system-metrics",
+      "name": "Get System Metrics",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = $input.first().json.stdout || '';\nconst parts = output.split('|');\nconst cpu = parseInt(parts[0]?.replace('CPU:', '') || '0');\nconst ram = parseFloat(parts[1]?.replace('RAM:', '') || '0');\nconst diskAlerts = parseInt(parts[2]?.replace('DiskAlerts:', '') || '0');\n\nconst alert = cpu > 90 || ram > 90 || diskAlerts > 0;\nconst severity = cpu > 95 || ram > 95 ? 'CRITICAL' : alert ? 'WARNING' : 'OK';\n\nreturn [{\n  json: {\n    cpu_percent: cpu,\n    ram_percent: ram,\n    disk_alerts: diskAlerts,\n    alert: alert,\n    severity: severity,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "parse-metrics",
+      "name": "Parse Metrics",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [{ "value1": "={{ $json.alert }}", "value2": true }]
+        }
+      },
+      "id": "if-alert-health",
+      "name": "Health Alert?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [660, 0]
+    },
+    {
+      "parameters": {
+        "command": "=powershell -NoProfile -Command \"Add-Type -AssemblyName System.Speech; $s = New-Object System.Speech.Synthesis.SpeechSynthesizer; $s.Speak('Attention. {{ $json.severity }}. CPU a {{ $json.cpu_percent }} pourcent. RAM a {{ $json.ram_percent }} pourcent.')\""
+      },
+      "id": "voice-alert",
+      "name": "Voice Alert",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [880, -50]
+    }
+  ],
+  "connections": {
+    "Every 10 Minutes": { "main": [[{ "node": "Get System Metrics", "type": "main", "index": 0 }]] },
+    "Get System Metrics": { "main": [[{ "node": "Parse Metrics", "type": "main", "index": 0 }]] },
+    "Parse Metrics": { "main": [[{ "node": "Health Alert?", "type": "main", "index": 0 }]] },
+    "Health Alert?": { "main": [[{ "node": "Voice Alert", "type": "main", "index": 0 }], []] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "JARVIS" }, { "name": "Monitoring" }]
+}
