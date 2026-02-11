@@ -351,4 +351,198 @@ def _default_skills() -> list[Skill]:
             category="systeme",
             confirm=True,
         ),
+
+        # ── NOUVEAUX PIPELINES ──
+
+        Skill(
+            name="mode_presentation",
+            description="Mode presentation: mode nuit off, luminosite max, volume moyen, projeter ecran",
+            triggers=[
+                "mode presentation", "lance la presentation",
+                "mode pres", "je presente", "active la presentation",
+            ],
+            steps=[
+                SkillStep("press_hotkey", {"keys": "win+p"}, "Ouvrir projection ecran"),
+                SkillStep("powershell_run", {"command": "$b = 100; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"}, "Luminosite max"),
+                SkillStep("volume_down", {}, "Baisser le volume"),
+                SkillStep("press_hotkey", {"keys": "win+d"}, "Afficher le bureau"),
+            ],
+            category="productivite",
+        ),
+        Skill(
+            name="mode_focus",
+            description="Mode focus: ferme les distractions, active ne pas deranger, plein ecran",
+            triggers=[
+                "mode focus", "mode concentration", "je bosse",
+                "pas de distraction", "focus total", "mode travail",
+            ],
+            steps=[
+                SkillStep("close_app", {"name": "discord"}, "Fermer Discord"),
+                SkillStep("close_app", {"name": "spotify"}, "Fermer Spotify"),
+                SkillStep("close_app", {"name": "telegram"}, "Fermer Telegram"),
+                SkillStep("volume_mute", {}, "Couper le son"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Mode Focus actif. Aucune distraction."}, "Notification"),
+            ],
+            category="productivite",
+        ),
+        Skill(
+            name="mode_musique",
+            description="Mode musique: lance Spotify, volume agreable, mode nuit",
+            triggers=[
+                "mode musique", "mets de la musique", "ambiance musicale",
+                "lance la musique de fond", "background music",
+            ],
+            steps=[
+                SkillStep("app_open", {"name": "spotify"}, "Lancer Spotify"),
+                SkillStep("volume_down", {}, "Baisser un peu le volume"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Mode musique actif. Spotify lance."}, "Notification"),
+            ],
+            category="loisir",
+        ),
+        Skill(
+            name="routine_soir",
+            description="Routine du soir: sauvegarde, ferme apps, mode nuit, veille",
+            triggers=[
+                "routine du soir", "bonne nuit", "fin de journee",
+                "je vais dormir", "routine nuit", "au dodo",
+            ],
+            steps=[
+                SkillStep("press_hotkey", {"keys": "ctrl+s"}, "Sauvegarder le travail en cours"),
+                SkillStep("close_app", {"name": "chrome"}, "Fermer Chrome"),
+                SkillStep("close_app", {"name": "code"}, "Fermer VSCode"),
+                SkillStep("close_app", {"name": "discord"}, "Fermer Discord"),
+                SkillStep("press_hotkey", {"keys": "win+a"}, "Activer mode nuit"),
+                SkillStep("powershell_run", {"command": "$b = 20; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"}, "Luminosite basse"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Bonne nuit. Routine terminee."}, "Notification"),
+            ],
+            category="routine",
+            confirm=True,
+        ),
+        Skill(
+            name="workspace_frontend",
+            description="Workspace frontend: Chrome DevTools, VSCode, terminal, localhost",
+            triggers=[
+                "workspace frontend", "mode frontend", "session front",
+                "lance le front", "workspace web",
+            ],
+            steps=[
+                SkillStep("app_open", {"name": "code"}, "Ouvrir VSCode"),
+                SkillStep("app_open", {"name": "wt"}, "Ouvrir Terminal"),
+                SkillStep("open_url", {"url": "http://localhost:3000"}, "Ouvrir localhost:3000"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Workspace frontend pret."}, "Notification"),
+            ],
+            category="dev",
+        ),
+        Skill(
+            name="workspace_backend",
+            description="Workspace backend: terminal, VSCode, Postman, LM Studio",
+            triggers=[
+                "workspace backend", "mode backend", "session back",
+                "lance le back", "workspace api",
+            ],
+            steps=[
+                SkillStep("app_open", {"name": "code"}, "Ouvrir VSCode"),
+                SkillStep("app_open", {"name": "wt"}, "Ouvrir Terminal"),
+                SkillStep("app_open", {"name": "lmstudio"}, "Ouvrir LM Studio"),
+                SkillStep("lm_cluster_status", {}, "Verifier le cluster"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Workspace backend pret."}, "Notification"),
+            ],
+            category="dev",
+        ),
+        Skill(
+            name="optimiser_pc",
+            description="Optimisation PC: vider corbeille, nettoyer RAM, diagnostic disque",
+            triggers=[
+                "optimise le pc", "nettoie le pc", "optimisation",
+                "accelere le pc", "pc lent", "boost pc",
+            ],
+            steps=[
+                SkillStep("system_info", {}, "Diagnostic systeme"),
+                SkillStep("list_processes", {"filter": ""}, "Lister processus gourmands"),
+                SkillStep("powershell_run", {"command": "Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe'"}, "Vider la corbeille"),
+                SkillStep("gpu_info", {}, "Verifier les GPU"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Optimisation terminee. Verifie les resultats."}, "Notification"),
+            ],
+            category="systeme",
+            confirm=True,
+        ),
+        Skill(
+            name="monitoring_complet",
+            description="Monitoring en temps reel: systeme, GPU, reseau, cluster, services",
+            triggers=[
+                "monitoring complet", "surveillance complete",
+                "tout surveiller", "dashboard monitoring", "status global",
+            ],
+            steps=[
+                SkillStep("system_info", {}, "Infos systeme"),
+                SkillStep("gpu_info", {}, "Infos GPU"),
+                SkillStep("network_info", {}, "Infos reseau"),
+                SkillStep("lm_cluster_status", {}, "Cluster IA"),
+                SkillStep("screen_resolution", {}, "Resolution ecran"),
+                SkillStep("wifi_networks", {}, "Reseaux Wi-Fi"),
+                SkillStep("list_services", {}, "Services Windows"),
+            ],
+            category="systeme",
+        ),
+        Skill(
+            name="split_screen_travail",
+            description="Ecran divise: navigateur a gauche, editeur a droite",
+            triggers=[
+                "ecran divise", "split screen", "deux fenetres",
+                "moitie moitie", "cote a cote",
+            ],
+            steps=[
+                SkillStep("app_open", {"name": "chrome"}, "Ouvrir Chrome"),
+                SkillStep("press_hotkey", {"keys": "win+left"}, "Chrome a gauche"),
+                SkillStep("app_open", {"name": "code"}, "Ouvrir VSCode"),
+                SkillStep("press_hotkey", {"keys": "win+right"}, "VSCode a droite"),
+            ],
+            category="productivite",
+        ),
+        Skill(
+            name="backup_rapide",
+            description="Sauvegarde rapide: save tout, screenshot, copier dans presse-papier",
+            triggers=[
+                "backup rapide", "sauvegarde rapide", "save all",
+                "tout sauvegarder", "sauve tout",
+            ],
+            steps=[
+                SkillStep("press_hotkey", {"keys": "ctrl+s"}, "Sauvegarder fichier actif"),
+                SkillStep("screenshot", {}, "Capture d'ecran"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Sauvegarde rapide effectuee."}, "Notification"),
+            ],
+            category="productivite",
+        ),
+        Skill(
+            name="mode_stream",
+            description="Mode streaming: lance OBS, Chrome, volume optimal, mode nuit off",
+            triggers=[
+                "mode stream", "lance le stream", "session stream",
+                "je stream", "streaming mode",
+            ],
+            steps=[
+                SkillStep("app_open", {"name": "obs64"}, "Lancer OBS Studio"),
+                SkillStep("app_open", {"name": "chrome"}, "Ouvrir Chrome"),
+                SkillStep("volume_up", {}, "Monter le volume"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Mode stream actif. OBS pret."}, "Notification"),
+            ],
+            category="loisir",
+        ),
+        Skill(
+            name="check_trading_complet",
+            description="Check trading complet: status, positions, signaux, cluster, consensus",
+            triggers=[
+                "check trading complet", "bilan trading",
+                "revue trading", "analyse complete trading",
+                "tout le trading",
+            ],
+            steps=[
+                SkillStep("trading_status", {}, "Status pipeline trading"),
+                SkillStep("trading_positions", {}, "Positions ouvertes"),
+                SkillStep("trading_pending_signals", {}, "Signaux en attente"),
+                SkillStep("lm_cluster_status", {}, "Cluster IA"),
+                SkillStep("consensus", {"prompt": "Analyse marche crypto: BTC ETH SOL. Tendance, risque, signal.", "nodes": "M1,M2,M3"}, "Consensus multi-IA"),
+            ],
+            category="trading",
+        ),
     ]

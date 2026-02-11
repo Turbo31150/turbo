@@ -1,0 +1,994 @@
+[
+  {
+    "name": "rapport_matin",
+    "description": "Rapport complet du matin: cluster, trading, systeme",
+    "triggers": [
+      "rapport du matin",
+      "rapport matin",
+      "briefing matin",
+      "resume du matin",
+      "status complet",
+      "etat general"
+    ],
+    "steps": [
+      {
+        "tool": "lm_cluster_status",
+        "args": {},
+        "description": "Statut du cluster IA",
+        "wait_for_result": true
+      },
+      {
+        "tool": "system_info",
+        "args": {},
+        "description": "Infos systeme",
+        "wait_for_result": true
+      },
+      {
+        "tool": "trading_status",
+        "args": {},
+        "description": "Status pipeline trading",
+        "wait_for_result": true
+      },
+      {
+        "tool": "trading_pending_signals",
+        "args": {},
+        "description": "Signaux en attente",
+        "wait_for_result": true
+      }
+    ],
+    "category": "routine",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "mode_trading",
+    "description": "Active le mode trading: ouvre Chrome sur les graphes, lance le scanner",
+    "triggers": [
+      "mode trading",
+      "lance le trading",
+      "session trading",
+      "active le trading",
+      "demarre le trading"
+    ],
+    "steps": [
+      {
+        "tool": "app_open",
+        "args": {
+          "name": "chrome"
+        },
+        "description": "Ouvrir Chrome",
+        "wait_for_result": true
+      },
+      {
+        "tool": "open_url",
+        "args": {
+          "url": "https://www.tradingview.com"
+        },
+        "description": "TradingView",
+        "wait_for_result": true
+      },
+      {
+        "tool": "trading_status",
+        "args": {},
+        "description": "Verifier le pipeline",
+        "wait_for_result": true
+      },
+      {
+        "tool": "lm_cluster_status",
+        "args": {},
+        "description": "Verifier le cluster IA",
+        "wait_for_result": true
+      }
+    ],
+    "category": "trading",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "mode_dev",
+    "description": "Active le mode developpement: terminal, VSCode, status git",
+    "triggers": [
+      "mode dev",
+      "mode developpement",
+      "session dev",
+      "lance le dev",
+      "mode code",
+      "mode programmation"
+    ],
+    "steps": [
+      {
+        "tool": "app_open",
+        "args": {
+          "name": "cursor"
+        },
+        "description": "Ouvrir Cursor IDE",
+        "wait_for_result": true
+      },
+      {
+        "tool": "app_open",
+        "args": {
+          "name": "wt"
+        },
+        "description": "Ouvrir Terminal",
+        "wait_for_result": true
+      },
+      {
+        "tool": "lm_cluster_status",
+        "args": {},
+        "description": "Verifier le cluster IA",
+        "wait_for_result": true
+      }
+    ],
+    "category": "dev",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "mode_gaming",
+    "description": "Active le mode gaming: ferme Chrome, lance Steam, volume max",
+    "triggers": [
+      "mode gaming",
+      "mode jeu",
+      "lance le gaming",
+      "session gaming",
+      "on joue"
+    ],
+    "steps": [
+      {
+        "tool": "close_app",
+        "args": {
+          "name": "chrome"
+        },
+        "description": "Fermer Chrome",
+        "wait_for_result": true
+      },
+      {
+        "tool": "app_open",
+        "args": {
+          "name": "steam"
+        },
+        "description": "Lancer Steam",
+        "wait_for_result": true
+      },
+      {
+        "tool": "volume_up",
+        "args": {},
+        "description": "Monter le volume",
+        "wait_for_result": true
+      },
+      {
+        "tool": "volume_up",
+        "args": {},
+        "description": "Monter le volume",
+        "wait_for_result": true
+      }
+    ],
+    "category": "loisir",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "diagnostic_complet",
+    "description": "Diagnostic complet: systeme, GPU, cluster, reseau, disques",
+    "triggers": [
+      "diagnostic complet",
+      "check complet",
+      "verification complete",
+      "tout verifier",
+      "health check",
+      "bilan complet"
+    ],
+    "steps": [
+      {
+        "tool": "system_info",
+        "args": {},
+        "description": "Infos systeme",
+        "wait_for_result": true
+      },
+      {
+        "tool": "gpu_info",
+        "args": {},
+        "description": "Infos GPU",
+        "wait_for_result": true
+      },
+      {
+        "tool": "lm_cluster_status",
+        "args": {},
+        "description": "Statut cluster",
+        "wait_for_result": true
+      },
+      {
+        "tool": "network_info",
+        "args": {},
+        "description": "Infos reseau",
+        "wait_for_result": true
+      }
+    ],
+    "category": "systeme",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "consensus_trading",
+    "description": "Consensus multi-IA sur le marche crypto",
+    "triggers": [
+      "consensus trading",
+      "avis du cluster",
+      "consensus crypto",
+      "que pensent les ia",
+      "analyse multi ia"
+    ],
+    "steps": [
+      {
+        "tool": "trading_status",
+        "args": {},
+        "description": "Status pipeline",
+        "wait_for_result": true
+      },
+      {
+        "tool": "consensus",
+        "args": {
+          "prompt": "Analyse rapide du marche crypto. BTC, ETH, SOL. Tendance et signal en 3 lignes.",
+          "nodes": "M1,M2,M3"
+        },
+        "description": "Consensus cluster",
+        "wait_for_result": true
+      }
+    ],
+    "category": "trading",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "cleanup_ram",
+    "description": "Nettoyer la RAM: lister les processus gourmands et suggerer",
+    "triggers": [
+      "nettoie la ram",
+      "libere la memoire",
+      "cleanup ram",
+      "ram pleine",
+      "trop de ram utilisee"
+    ],
+    "steps": [
+      {
+        "tool": "system_info",
+        "args": {},
+        "description": "Verifier la RAM",
+        "wait_for_result": true
+      },
+      {
+        "tool": "list_processes",
+        "args": {
+          "filter": ""
+        },
+        "description": "Lister les processus",
+        "wait_for_result": true
+      }
+    ],
+    "category": "systeme",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "ferme_tout",
+    "description": "Fermer toutes les applications non essentielles",
+    "triggers": [
+      "ferme tout",
+      "tout fermer",
+      "clean desktop",
+      "bureau propre",
+      "ferme les applications"
+    ],
+    "steps": [
+      {
+        "tool": "close_app",
+        "args": {
+          "name": "chrome"
+        },
+        "description": "Fermer Chrome",
+        "wait_for_result": true
+      },
+      {
+        "tool": "close_app",
+        "args": {
+          "name": "discord"
+        },
+        "description": "Fermer Discord",
+        "wait_for_result": true
+      },
+      {
+        "tool": "close_app",
+        "args": {
+          "name": "spotify"
+        },
+        "description": "Fermer Spotify",
+        "wait_for_result": true
+      },
+      {
+        "tool": "press_hotkey",
+        "args": {
+          "keys": "win+d"
+        },
+        "description": "Afficher le bureau",
+        "wait_for_result": true
+      }
+    ],
+    "category": "systeme",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": true
+  },
+  {
+    "name": "mode_presentation",
+    "description": "Mode presentation: mode nuit off, luminosite max, volume moyen, projeter ecran",
+    "triggers": [
+      "mode presentation",
+      "lance la presentation",
+      "mode pres",
+      "je presente",
+      "active la presentation"
+    ],
+    "steps": [
+      {
+        "tool": "press_hotkey",
+        "args": {
+          "keys": "win+p"
+        },
+        "description": "Ouvrir projection ecran",
+        "wait_for_result": true
+      },
+      {
+        "tool": "powershell_run",
+        "args": {
+          "command": "$b = 100; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"
+        },
+        "description": "Luminosite max",
+        "wait_for_result": true
+      },
+      {
+        "tool": "volume_down",
+        "args": {},
+        "description": "Baisser le volume",
+        "wait_for_result": true
+      },
+      {
+        "tool": "press_hotkey",
+        "args": {
+          "keys": "win+d"
+        },
+        "description": "Afficher le bureau",
+        "wait_for_result": true
+      }
+    ],
+    "category": "productivite",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "mode_focus",
+    "description": "Mode focus: ferme les distractions, active ne pas deranger, plein ecran",
+    "triggers": [
+      "mode focus",
+      "mode concentration",
+      "je bosse",
+      "pas de distraction",
+      "focus total",
+      "mode travail"
+    ],
+    "steps": [
+      {
+        "tool": "close_app",
+        "args": {
+          "name": "discord"
+        },
+        "description": "Fermer Discord",
+        "wait_for_result": true
+      },
+      {
+        "tool": "close_app",
+        "args": {
+          "name": "spotify"
+        },
+        "description": "Fermer Spotify",
+        "wait_for_result": true
+      },
+      {
+        "tool": "close_app",
+        "args": {
+          "name": "telegram"
+        },
+        "description": "Fermer Telegram",
+        "wait_for_result": true
+      },
+      {
+        "tool": "volume_mute",
+        "args": {},
+        "description": "Couper le son",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "title": "JARVIS",
+          "message": "Mode Focus actif. Aucune distraction."
+        },
+        "description": "Notification",
+        "wait_for_result": true
+      }
+    ],
+    "category": "productivite",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "mode_musique",
+    "description": "Mode musique: lance Spotify, volume agreable, mode nuit",
+    "triggers": [
+      "mode musique",
+      "mets de la musique",
+      "ambiance musicale",
+      "lance la musique de fond",
+      "background music"
+    ],
+    "steps": [
+      {
+        "tool": "app_open",
+        "args": {
+          "name": "spotify"
+        },
+        "description": "Lancer Spotify",
+        "wait_for_result": true
+      },
+      {
+        "tool": "volume_down",
+        "args": {},
+        "description": "Baisser un peu le volume",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "title": "JARVIS",
+          "message": "Mode musique actif. Spotify lance."
+        },
+        "description": "Notification",
+        "wait_for_result": true
+      }
+    ],
+    "category": "loisir",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "routine_soir",
+    "description": "Routine du soir: sauvegarde, ferme apps, mode nuit, veille",
+    "triggers": [
+      "routine du soir",
+      "bonne nuit",
+      "fin de journee",
+      "je vais dormir",
+      "routine nuit",
+      "au dodo"
+    ],
+    "steps": [
+      {
+        "tool": "press_hotkey",
+        "args": {
+          "keys": "ctrl+s"
+        },
+        "description": "Sauvegarder le travail en cours",
+        "wait_for_result": true
+      },
+      {
+        "tool": "close_app",
+        "args": {
+          "name": "chrome"
+        },
+        "description": "Fermer Chrome",
+        "wait_for_result": true
+      },
+      {
+        "tool": "close_app",
+        "args": {
+          "name": "code"
+        },
+        "description": "Fermer VSCode",
+        "wait_for_result": true
+      },
+      {
+        "tool": "close_app",
+        "args": {
+          "name": "discord"
+        },
+        "description": "Fermer Discord",
+        "wait_for_result": true
+      },
+      {
+        "tool": "press_hotkey",
+        "args": {
+          "keys": "win+a"
+        },
+        "description": "Activer mode nuit",
+        "wait_for_result": true
+      },
+      {
+        "tool": "powershell_run",
+        "args": {
+          "command": "$b = 20; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"
+        },
+        "description": "Luminosite basse",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "title": "JARVIS",
+          "message": "Bonne nuit. Routine terminee."
+        },
+        "description": "Notification",
+        "wait_for_result": true
+      }
+    ],
+    "category": "routine",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": true
+  },
+  {
+    "name": "workspace_frontend",
+    "description": "Workspace frontend: Chrome DevTools, VSCode, terminal, localhost",
+    "triggers": [
+      "workspace frontend",
+      "mode frontend",
+      "session front",
+      "lance le front",
+      "workspace web"
+    ],
+    "steps": [
+      {
+        "tool": "app_open",
+        "args": {
+          "name": "code"
+        },
+        "description": "Ouvrir VSCode",
+        "wait_for_result": true
+      },
+      {
+        "tool": "app_open",
+        "args": {
+          "name": "wt"
+        },
+        "description": "Ouvrir Terminal",
+        "wait_for_result": true
+      },
+      {
+        "tool": "open_url",
+        "args": {
+          "url": "http://localhost:3000"
+        },
+        "description": "Ouvrir localhost:3000",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "title": "JARVIS",
+          "message": "Workspace frontend pret."
+        },
+        "description": "Notification",
+        "wait_for_result": true
+      }
+    ],
+    "category": "dev",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "workspace_backend",
+    "description": "Workspace backend: terminal, VSCode, Postman, LM Studio",
+    "triggers": [
+      "workspace backend",
+      "mode backend",
+      "session back",
+      "lance le back",
+      "workspace api"
+    ],
+    "steps": [
+      {
+        "tool": "app_open",
+        "args": {
+          "name": "code"
+        },
+        "description": "Ouvrir VSCode",
+        "wait_for_result": true
+      },
+      {
+        "tool": "app_open",
+        "args": {
+          "name": "wt"
+        },
+        "description": "Ouvrir Terminal",
+        "wait_for_result": true
+      },
+      {
+        "tool": "app_open",
+        "args": {
+          "name": "lmstudio"
+        },
+        "description": "Ouvrir LM Studio",
+        "wait_for_result": true
+      },
+      {
+        "tool": "lm_cluster_status",
+        "args": {},
+        "description": "Verifier le cluster",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "title": "JARVIS",
+          "message": "Workspace backend pret."
+        },
+        "description": "Notification",
+        "wait_for_result": true
+      }
+    ],
+    "category": "dev",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "optimiser_pc",
+    "description": "Optimisation PC: vider corbeille, nettoyer RAM, diagnostic disque",
+    "triggers": [
+      "optimise le pc",
+      "nettoie le pc",
+      "optimisation",
+      "accelere le pc",
+      "pc lent",
+      "boost pc"
+    ],
+    "steps": [
+      {
+        "tool": "system_info",
+        "args": {},
+        "description": "Diagnostic systeme",
+        "wait_for_result": true
+      },
+      {
+        "tool": "list_processes",
+        "args": {
+          "filter": ""
+        },
+        "description": "Lister processus gourmands",
+        "wait_for_result": true
+      },
+      {
+        "tool": "powershell_run",
+        "args": {
+          "command": "Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe'"
+        },
+        "description": "Vider la corbeille",
+        "wait_for_result": true
+      },
+      {
+        "tool": "gpu_info",
+        "args": {},
+        "description": "Verifier les GPU",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "title": "JARVIS",
+          "message": "Optimisation terminee. Verifie les resultats."
+        },
+        "description": "Notification",
+        "wait_for_result": true
+      }
+    ],
+    "category": "systeme",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": true
+  },
+  {
+    "name": "monitoring_complet",
+    "description": "Monitoring en temps reel: systeme, GPU, reseau, cluster, services",
+    "triggers": [
+      "monitoring complet",
+      "surveillance complete",
+      "tout surveiller",
+      "dashboard monitoring",
+      "status global"
+    ],
+    "steps": [
+      {
+        "tool": "system_info",
+        "args": {},
+        "description": "Infos systeme",
+        "wait_for_result": true
+      },
+      {
+        "tool": "gpu_info",
+        "args": {},
+        "description": "Infos GPU",
+        "wait_for_result": true
+      },
+      {
+        "tool": "network_info",
+        "args": {},
+        "description": "Infos reseau",
+        "wait_for_result": true
+      },
+      {
+        "tool": "lm_cluster_status",
+        "args": {},
+        "description": "Cluster IA",
+        "wait_for_result": true
+      },
+      {
+        "tool": "screen_resolution",
+        "args": {},
+        "description": "Resolution ecran",
+        "wait_for_result": true
+      },
+      {
+        "tool": "wifi_networks",
+        "args": {},
+        "description": "Reseaux Wi-Fi",
+        "wait_for_result": true
+      },
+      {
+        "tool": "list_services",
+        "args": {},
+        "description": "Services Windows",
+        "wait_for_result": true
+      }
+    ],
+    "category": "systeme",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "split_screen_travail",
+    "description": "Ecran divise: navigateur a gauche, editeur a droite",
+    "triggers": [
+      "ecran divise",
+      "split screen",
+      "deux fenetres",
+      "moitie moitie",
+      "cote a cote"
+    ],
+    "steps": [
+      {
+        "tool": "app_open",
+        "args": {
+          "name": "chrome"
+        },
+        "description": "Ouvrir Chrome",
+        "wait_for_result": true
+      },
+      {
+        "tool": "press_hotkey",
+        "args": {
+          "keys": "win+left"
+        },
+        "description": "Chrome a gauche",
+        "wait_for_result": true
+      },
+      {
+        "tool": "app_open",
+        "args": {
+          "name": "code"
+        },
+        "description": "Ouvrir VSCode",
+        "wait_for_result": true
+      },
+      {
+        "tool": "press_hotkey",
+        "args": {
+          "keys": "win+right"
+        },
+        "description": "VSCode a droite",
+        "wait_for_result": true
+      }
+    ],
+    "category": "productivite",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "backup_rapide",
+    "description": "Sauvegarde rapide: save tout, screenshot, copier dans presse-papier",
+    "triggers": [
+      "backup rapide",
+      "sauvegarde rapide",
+      "save all",
+      "tout sauvegarder",
+      "sauve tout"
+    ],
+    "steps": [
+      {
+        "tool": "press_hotkey",
+        "args": {
+          "keys": "ctrl+s"
+        },
+        "description": "Sauvegarder fichier actif",
+        "wait_for_result": true
+      },
+      {
+        "tool": "screenshot",
+        "args": {},
+        "description": "Capture d'ecran",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "title": "JARVIS",
+          "message": "Sauvegarde rapide effectuee."
+        },
+        "description": "Notification",
+        "wait_for_result": true
+      }
+    ],
+    "category": "productivite",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "mode_stream",
+    "description": "Mode streaming: lance OBS, Chrome, volume optimal, mode nuit off",
+    "triggers": [
+      "mode stream",
+      "lance le stream",
+      "session stream",
+      "je stream",
+      "streaming mode"
+    ],
+    "steps": [
+      {
+        "tool": "app_open",
+        "args": {
+          "name": "obs64"
+        },
+        "description": "Lancer OBS Studio",
+        "wait_for_result": true
+      },
+      {
+        "tool": "app_open",
+        "args": {
+          "name": "chrome"
+        },
+        "description": "Ouvrir Chrome",
+        "wait_for_result": true
+      },
+      {
+        "tool": "volume_up",
+        "args": {},
+        "description": "Monter le volume",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "title": "JARVIS",
+          "message": "Mode stream actif. OBS pret."
+        },
+        "description": "Notification",
+        "wait_for_result": true
+      }
+    ],
+    "category": "loisir",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "check_trading_complet",
+    "description": "Check trading complet: status, positions, signaux, cluster, consensus",
+    "triggers": [
+      "check trading complet",
+      "bilan trading",
+      "revue trading",
+      "analyse complete trading",
+      "tout le trading"
+    ],
+    "steps": [
+      {
+        "tool": "trading_status",
+        "args": {},
+        "description": "Status pipeline trading",
+        "wait_for_result": true
+      },
+      {
+        "tool": "trading_positions",
+        "args": {},
+        "description": "Positions ouvertes",
+        "wait_for_result": true
+      },
+      {
+        "tool": "trading_pending_signals",
+        "args": {},
+        "description": "Signaux en attente",
+        "wait_for_result": true
+      },
+      {
+        "tool": "lm_cluster_status",
+        "args": {},
+        "description": "Cluster IA",
+        "wait_for_result": true
+      },
+      {
+        "tool": "consensus",
+        "args": {
+          "prompt": "Analyse marche crypto: BTC ETH SOL. Tendance, risque, signal.",
+          "nodes": "M1,M2,M3"
+        },
+        "description": "Consensus multi-IA",
+        "wait_for_result": true
+      }
+    ],
+    "category": "trading",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  }
+]
