@@ -388,6 +388,14 @@ COMMANDS: list[JarvisCommand] = [
         "notifie {message}", "notification {message}",
         "envoie une notification {message}", "alerte {message}",
     ], "jarvis_tool", "notify:JARVIS:{message}", ["message"]),
+    JarvisCommand("jarvis_skills", "jarvis", "Lister les skills/pipelines appris", [
+        "quels skills existent", "liste les skills", "montre les skills",
+        "skills disponibles", "mes pipelines", "liste les pipelines",
+    ], "list_commands", "skills"),
+    JarvisCommand("jarvis_suggestions", "jarvis", "Suggestions d'actions", [
+        "que me suggeres tu", "suggestions", "quoi faire",
+        "propose quelque chose", "next actions",
+    ], "list_commands", "suggestions"),
 ]
 
 

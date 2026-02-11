@@ -104,7 +104,57 @@ async def execute_command(cmd: JarvisCommand, params: dict[str, str]) -> str:
             action = action.replace(f"{{{k}}}", v)
         return f"__TOOL__{action}"
 
+    if cmd.action_type == "pipeline":
+        return f"__PIPELINE__{cmd.action}"
+
     return f"Type d'action inconnu: {cmd.action_type}"
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SKILL / PIPELINE EXECUTION
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def execute_skill_step(step, mcp_call) -> str:
+    """Execute a single skill step using the MCP callback.
+
+    Args:
+        step: SkillStep with tool name and args
+        mcp_call: async callable(tool_name, args) -> str
+    """
+    from src.skills import log_action
+    try:
+        result = await mcp_call(step.tool, step.args)
+        log_action(f"{step.tool}({step.args})", result, True)
+        return result
+    except Exception as e:
+        log_action(f"{step.tool}({step.args})", str(e), False)
+        return f"Erreur {step.tool}: {e}"
+
+
+async def execute_skill(skill, mcp_call) -> str:
+    """Execute a full skill pipeline.
+
+    Args:
+        skill: Skill object with steps
+        mcp_call: async callable(tool_name, args) -> str
+    """
+    from src.skills import record_skill_use
+    results = []
+    all_success = True
+
+    for i, step in enumerate(skill.steps):
+        desc = step.description or step.tool
+        results.append(f"[{i+1}/{len(skill.steps)}] {desc}...")
+        result = await execute_skill_step(step, mcp_call)
+        if "ERREUR" in result.upper():
+            all_success = False
+            results.append(f"  Erreur: {result[:100]}")
+        else:
+            results.append(f"  OK: {result[:150]}")
+
+    record_skill_use(skill.name, all_success)
+    status = "termine" if all_success else "termine avec erreurs"
+    return f"Skill '{skill.name}' {status}.\n" + "\n".join(results)
 
 
 # ═══════════════════════════════════════════════════════════════════════════

@@ -356,6 +356,93 @@ async def handle_scheduled_tasks(args: dict) -> list[TextContent]:
     return _text(await _ps("Get-ScheduledTask | Where-Object {$_.State -ne 'Disabled'} | Select-Object TaskName, State, TaskPath | Format-Table -AutoSize | Out-String"))
 
 
+# ── Trading execution tools ────────────────────────────────────────────────
+
+async def handle_trading_pending_signals(args: dict) -> list[TextContent]:
+    from src.trading import get_pending_signals
+    min_score = args.get("min_score")
+    limit = int(args.get("limit", 10))
+    signals = await _run(get_pending_signals, min_score, None, limit)
+    return _text(json.dumps(signals, default=str, ensure_ascii=False, indent=2))
+
+
+async def handle_trading_execute_signal(args: dict) -> list[TextContent]:
+    from src.trading import execute_signal
+    signal_id = int(args["signal_id"])
+    dry_run_str = str(args.get("dry_run", "true")).lower()
+    dry_run = dry_run_str in ("true", "1", "yes", "oui")
+    result = await _run(execute_signal, signal_id, dry_run)
+    return _text(json.dumps(result, default=str, ensure_ascii=False, indent=2))
+
+
+async def handle_trading_positions(args: dict) -> list[TextContent]:
+    from src.trading import get_mexc_positions
+    positions = await _run(get_mexc_positions)
+    return _text(json.dumps(positions, default=str, ensure_ascii=False, indent=2))
+
+
+async def handle_trading_status(args: dict) -> list[TextContent]:
+    from src.trading import pipeline_status
+    status = await _run(pipeline_status)
+    return _text(json.dumps(status, default=str, ensure_ascii=False, indent=2))
+
+
+async def handle_trading_close_position(args: dict) -> list[TextContent]:
+    from src.trading import close_position
+    result = await _run(close_position, args["symbol"])
+    return _text(json.dumps(result, default=str, ensure_ascii=False, indent=2))
+
+
+# ── Skills & Pipelines ─────────────────────────────────────────────────────
+
+async def handle_list_skills(args: dict) -> list[TextContent]:
+    from src.skills import format_skills_list
+    return _text(await _run(format_skills_list))
+
+async def handle_create_skill(args: dict) -> list[TextContent]:
+    from src.skills import add_skill, Skill, SkillStep
+    steps = []
+    for s in json.loads(args.get("steps", "[]")):
+        steps.append(SkillStep(
+            tool=s["tool"],
+            args=s.get("args", {}),
+            description=s.get("description", ""),
+        ))
+    if not steps:
+        return _error("Aucune etape definie pour le skill.")
+    triggers = [t.strip() for t in args.get("triggers", args["name"]).split(",")]
+    skill = Skill(
+        name=args["name"],
+        description=args.get("description", ""),
+        triggers=triggers,
+        steps=steps,
+        category=args.get("category", "custom"),
+    )
+    add_skill(skill)
+    return _text(f"Skill '{skill.name}' cree avec {len(steps)} etapes. Triggers: {', '.join(triggers)}")
+
+async def handle_remove_skill(args: dict) -> list[TextContent]:
+    from src.skills import remove_skill
+    ok = await _run(remove_skill, args["name"])
+    return _text(f"Skill '{args['name']}' supprime." if ok else f"Skill '{args['name']}' introuvable.")
+
+async def handle_suggest_actions(args: dict) -> list[TextContent]:
+    from src.skills import suggest_next_actions
+    suggestions = suggest_next_actions(args.get("context", "general"))
+    return _text("Suggestions:\n" + "\n".join(f"  - {s}" for s in suggestions))
+
+async def handle_action_history(args: dict) -> list[TextContent]:
+    from src.skills import get_action_history
+    history = get_action_history(int(args.get("limit", 20)))
+    if not history:
+        return _text("Aucun historique d'actions.")
+    lines = []
+    for h in history[-10:]:
+        status = "OK" if h.get("success") else "FAIL"
+        lines.append(f"  [{status}] {h['action']}: {h['result'][:80]}")
+    return _text(f"Historique ({len(history)} actions):\n" + "\n".join(lines))
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # TOOL REGISTRY
 # ═══════════════════════════════════════════════════════════════════════════
@@ -431,6 +518,18 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     ("notify", "Envoyer une notification Windows.", {"title": "string", "message": "string"}, handle_notify),
     ("speak", "Synthese vocale TTS.", {"text": "string"}, handle_speak),
     ("scheduled_tasks", "Lister les taches planifiees.", {}, handle_scheduled_tasks),
+    # Trading Execution (5)
+    ("trading_pending_signals", "Signaux trading en attente (score >= seuil, frais).", {"min_score": "number", "limit": "number"}, handle_trading_pending_signals),
+    ("trading_execute_signal", "Executer un signal (dry_run par defaut).", {"signal_id": "number", "dry_run": "boolean"}, handle_trading_execute_signal),
+    ("trading_positions", "Positions ouvertes sur MEXC Futures.", {}, handle_trading_positions),
+    ("trading_status", "Status global du pipeline trading.", {}, handle_trading_status),
+    ("trading_close_position", "Fermer une position ouverte.", {"symbol": "string"}, handle_trading_close_position),
+    # Skills & Pipelines (5)
+    ("list_skills", "Lister les skills/pipelines JARVIS appris.", {}, handle_list_skills),
+    ("create_skill", "Creer un nouveau skill/pipeline.", {"name": "string", "description": "string", "triggers": "string", "steps": "json_array", "category": "string"}, handle_create_skill),
+    ("remove_skill", "Supprimer un skill.", {"name": "string"}, handle_remove_skill),
+    ("suggest_actions", "Suggerer des actions selon le contexte.", {"context": "string"}, handle_suggest_actions),
+    ("action_history", "Historique des actions executees.", {"limit": "number"}, handle_action_history),
 ]
 
 # Build handler map

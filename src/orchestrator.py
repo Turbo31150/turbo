@@ -32,7 +32,7 @@ Reponds TOUJOURS en francais. Sois concis — tes sorties alimentent un pipeline
   - M2 (192.168.1.26) — 3 GPU, 24 GB VRAM — inference rapide (nemotron-3-nano)
   - M3 (192.168.1.113) — 2 GPU, 16 GB VRAM — validation (mistral-7b)
 
-## Tools MCP Jarvis (52 outils — prefixe mcp__jarvis__)
+## Tools MCP Jarvis (57 outils — prefixe mcp__jarvis__)
 
 ### IA & Cluster (4)
 lm_query, lm_models, lm_cluster_status, consensus
@@ -80,6 +80,13 @@ registry_read, registry_write
 
 ### Notifications & Voix (3)
 notify, speak, scheduled_tasks
+
+### Trading Execution (5)
+trading_pending_signals — Signaux en attente (score >= seuil, frais)
+trading_execute_signal — Executer un signal (dry_run=true par defaut, JAMAIS live sans confirmation)
+trading_positions — Positions ouvertes MEXC Futures
+trading_status — Status global pipeline (signaux, trades, PnL)
+trading_close_position — Fermer une position ouverte
 
 ## Subagents (via Task)
 - `ia-deep` (Opus) — Analyse approfondie, architecture, strategie
@@ -238,16 +245,19 @@ async def run_voice(cwd: str | None = None) -> None:
     """
     from src.voice import listen_voice, speak_text
     from src.commands import correct_voice_text, match_command, format_commands_help
-    from src.executor import execute_command, process_voice_input, correct_with_ia
+    from src.executor import execute_command, execute_skill, process_voice_input, correct_with_ia
     from src.voice_correction import full_correction_pipeline, VoiceSession, format_suggestions
+    from src.skills import find_skill, load_skills, format_skills_list, suggest_next_actions, log_action
 
     options = build_options(cwd)
     session = VoiceSession()
     pending_confirm: tuple | None = None
 
+    # Load skills on startup
+    skills = load_skills()
     print(f"=== JARVIS v{JARVIS_VERSION} | MODE VOCAL ===")
-    print("52 outils MCP | Correction vocale IA | Suggestions intelligentes")
-    await speak_text("JARVIS actif. Que veux-tu faire?")
+    print(f"57 outils MCP | {len(skills)} skills | Correction vocale IA")
+    await speak_text(f"JARVIS actif. {len(skills)} skills charges. Que veux-tu faire?")
 
     async with ClaudeSDKClient(options=options) as client:
         while True:
@@ -303,11 +313,60 @@ async def run_voice(cwd: str | None = None) -> None:
                 await speak_text("Session vocale terminee. A bientot.")
                 break
 
-            # Help command
+            # Help command — include skills
             if cmd and cmd.name == "jarvis_aide":
                 help_text = format_commands_help()
+                skills_text = format_skills_list()
                 print(help_text, flush=True)
-                await speak_text("Voici les commandes disponibles. Regarde l'ecran pour la liste complete.")
+                print("\n" + skills_text, flush=True)
+                await speak_text(f"J'ai {len(load_skills())} skills et 80 commandes. Regarde l'ecran.")
+                continue
+
+            # Check for skill match BEFORE command execution
+            intent_text = cr["intent"] or cr["corrected"] or raw_text
+            skill, skill_score = find_skill(intent_text)
+            if skill and skill_score >= 0.65:
+                print(f"[SKILL] {skill.name} (score={skill_score:.2f}, {len(skill.steps)} etapes)", flush=True)
+                session.add_to_history(intent_text)
+
+                if hasattr(skill, 'confirm') and skill.confirm:
+                    pending_confirm = (skill, {})
+                    await speak_text(f"Confirme le skill {skill.name}: {skill.description}? Dis oui ou non.")
+                    continue
+
+                await speak_text(f"Lancement du skill {skill.name}.")
+
+                # Execute skill via Claude (send as freeform with context)
+                skill_prompt = (
+                    f"Execute le skill '{skill.name}': {skill.description}. "
+                    f"Etapes: " + "; ".join(
+                        f"{i+1}) {s.tool}({s.args})" if s.args else f"{i+1}) {s.tool}"
+                        for i, s in enumerate(skill.steps)
+                    ) + ". Execute chaque etape avec les outils MCP et resume les resultats."
+                )
+                print(f"[SKILL PROMPT] {skill_prompt[:100]}...", flush=True)
+                await client.query(skill_prompt)
+                rp = []
+                async for msg in client.receive_response():
+                    if isinstance(msg, AssistantMessage):
+                        for b in msg.content:
+                            if isinstance(b, TextBlock):
+                                rp.append(b.text)
+                                print(b.text, end="", flush=True)
+                            elif isinstance(b, ToolUseBlock):
+                                print(f"\n  [TOOL] {b.name}", flush=True)
+                    if isinstance(msg, ResultMessage):
+                        if msg.total_cost_usd:
+                            print(f"\n  [$] {msg.total_cost_usd:.4f} USD", flush=True)
+                fr = "".join(rp).strip()
+                if fr:
+                    await speak_text(fr[:500])
+                    log_action(f"skill:{skill.name}", fr[:200], True)
+
+                # Suggest next actions
+                suggestions = suggest_next_actions(intent_text)
+                if suggestions:
+                    print(f"\n[SUGGESTIONS] {', '.join(s.split(' — ')[0] for s in suggestions)}", flush=True)
                 continue
 
             # High confidence match → execute
