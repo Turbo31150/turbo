@@ -1078,4 +1078,70 @@ def _default_skills() -> list[Skill]:
             ],
             category="systeme",
         ),
+
+        # ── VAGUE 8: Pipelines Docker / Git / Dev / ML ──
+
+        Skill(
+            name="mode_docker",
+            description="Mode Docker: liste conteneurs, images, espace disque",
+            triggers=[
+                "mode docker", "check docker", "etat docker",
+                "docker complet", "environnement docker",
+            ],
+            steps=[
+                SkillStep("powershell_run", {"command": "docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' | Out-String"}, "Conteneurs actifs"),
+                SkillStep("powershell_run", {"command": "docker images --format 'table {{.Repository}}\t{{.Tag}}\t{{.Size}}' | Out-String"}, "Images Docker"),
+                SkillStep("powershell_run", {"command": "docker system df | Out-String"}, "Espace Docker"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Check Docker termine."}, "Notification"),
+            ],
+            category="dev",
+        ),
+        Skill(
+            name="git_workflow",
+            description="Workflow Git: status, diff, log recent, pull",
+            triggers=[
+                "git workflow", "check git", "etat du repo",
+                "synchronise git", "mise a jour git",
+            ],
+            steps=[
+                SkillStep("powershell_run", {"command": "cd F:\\BUREAU\\turbo; git status"}, "Git status"),
+                SkillStep("powershell_run", {"command": "cd F:\\BUREAU\\turbo; git diff --stat | Out-String"}, "Git diff"),
+                SkillStep("powershell_run", {"command": "cd F:\\BUREAU\\turbo; git log --oneline -5 | Out-String"}, "Log recent"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Git workflow check termine."}, "Notification"),
+            ],
+            category="dev",
+        ),
+        Skill(
+            name="workspace_ml",
+            description="Workspace ML: Jupyter + LM Studio + GPU check",
+            triggers=[
+                "workspace ml", "mode machine learning", "lance le workspace ml",
+                "mode ia", "workspace ia locale",
+            ],
+            steps=[
+                SkillStep("powershell_run", {"command": "Start-Process lmstudio"}, "Lancer LM Studio"),
+                SkillStep("app_open", {"name": "chrome"}, "Ouvrir Chrome"),
+                SkillStep("powershell_run", {"command": "Start-Process 'http://localhost:8888'"}, "Ouvrir Jupyter"),
+                SkillStep("gpu_info", {}, "Check GPU"),
+                SkillStep("lm_cluster_status", {}, "Statut cluster"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Workspace ML pret."}, "Notification"),
+            ],
+            category="dev",
+        ),
+        Skill(
+            name="debug_docker",
+            description="Debug Docker: logs, restart conteneurs, nettoyage volumes",
+            triggers=[
+                "debug docker", "probleme docker", "docker ne marche pas",
+                "repare docker", "clean docker",
+            ],
+            steps=[
+                SkillStep("powershell_run", {"command": "docker ps -a --format 'table {{.Names}}\t{{.Status}}' | Out-String"}, "Tous les conteneurs"),
+                SkillStep("powershell_run", {"command": "docker volume ls | Out-String"}, "Volumes Docker"),
+                SkillStep("powershell_run", {"command": "docker system prune -f 2>&1 | Out-String"}, "Nettoyage Docker"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Debug Docker termine."}, "Notification"),
+            ],
+            category="dev",
+            confirm=True,
+        ),
     ]

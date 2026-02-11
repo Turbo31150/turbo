@@ -942,6 +942,68 @@ COMMANDS: list[JarvisCommand] = [
         "repare les fichiers", "sfc scannow",
     ], "powershell", "Start-Process powershell -ArgumentList '/c sfc /scannow' -Verb RunAs", confirm=True),
 
+    # ── Vague 8: Docker / Git / Python / n8n / Wi-Fi avance / IA locale ──
+    JarvisCommand("docker_ps", "dev", "Lister les conteneurs Docker", [
+        "liste les conteneurs", "docker ps", "conteneurs docker",
+        "quels conteneurs", "docker actifs",
+    ], "powershell", "docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' | Out-String"),
+    JarvisCommand("docker_images", "dev", "Lister les images Docker", [
+        "images docker", "docker images", "quelles images",
+        "liste les images docker",
+    ], "powershell", "docker images --format 'table {{.Repository}}\t{{.Tag}}\t{{.Size}}' | Out-String"),
+    JarvisCommand("docker_stop_all", "dev", "Arreter tous les conteneurs Docker", [
+        "arrete tous les conteneurs", "docker stop all", "stoppe docker",
+        "ferme tous les conteneurs",
+    ], "powershell", "docker stop $(docker ps -q) 2>$null; 'Tous les conteneurs arretes'", confirm=True),
+    JarvisCommand("git_status", "dev", "Git status du projet courant", [
+        "git status", "statut git", "etat du repo",
+        "quels changements git", "modifs en cours",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git status"),
+    JarvisCommand("git_log", "dev", "Git log recent", [
+        "git log", "historique git", "derniers commits",
+        "quels commits", "log git",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git log --oneline -10"),
+    JarvisCommand("git_pull", "dev", "Git pull origin main", [
+        "git pull", "tire les changements", "pull git",
+        "mets a jour le repo", "recupere les commits",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git pull origin main"),
+    JarvisCommand("git_push", "dev", "Git push origin main", [
+        "git push", "pousse les commits", "push git",
+        "envoie sur github", "pousse sur le repo",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git push origin main", confirm=True),
+    JarvisCommand("pip_list", "dev", "Lister les packages Python installes", [
+        "pip list", "packages python", "quels packages",
+        "librairies python", "modules python",
+    ], "powershell", "& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run --directory F:\\BUREAU\\turbo pip list | Out-String"),
+    JarvisCommand("python_version", "dev", "Version Python et uv", [
+        "version python", "quelle version python", "python version",
+        "quelle version uv",
+    ], "powershell", "& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run --directory F:\\BUREAU\\turbo python --version; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' --version"),
+    JarvisCommand("wifi_connecter", "systeme", "Se connecter a un reseau Wi-Fi", [
+        "connecte moi au wifi {ssid}", "connecte au wifi {ssid}",
+        "rejoins le wifi {ssid}", "wifi connect {ssid}",
+    ], "powershell", "netsh wlan connect name='{ssid}'", ["ssid"]),
+    JarvisCommand("wifi_deconnecter", "systeme", "Se deconnecter du Wi-Fi", [
+        "deconnecte le wifi", "deconnecte du wifi", "wifi off",
+        "coupe le wifi", "deconnecte moi du wifi",
+    ], "powershell", "netsh wlan disconnect"),
+    JarvisCommand("wifi_profils", "systeme", "Lister les profils Wi-Fi sauvegardes", [
+        "profils wifi", "wifi sauvegardes", "reseaux memorises",
+        "wifi connus", "wifi enregistres",
+    ], "powershell", "netsh wlan show profiles | Out-String"),
+    JarvisCommand("ouvrir_n8n", "dev", "Ouvrir n8n dans le navigateur", [
+        "ouvre n8n", "lance n8n", "n8n",
+        "ouvre les workflows", "automatisation n8n",
+    ], "browser", "navigate:http://localhost:5678"),
+    JarvisCommand("lm_studio_restart", "dev", "Relancer LM Studio", [
+        "relance lm studio", "redemarre lm studio", "restart lm studio",
+        "reboot lm studio",
+    ], "powershell", "Stop-Process -Name 'LM Studio' -Force -ErrorAction SilentlyContinue; Start-Sleep 2; Start-Process lmstudio; 'LM Studio relance'"),
+    JarvisCommand("ouvrir_jupyter", "dev", "Ouvrir Jupyter dans le navigateur", [
+        "ouvre jupyter", "lance jupyter", "jupyter notebook",
+        "jupyter lab", "ouvre le notebook",
+    ], "browser", "navigate:http://localhost:8888"),
+
     # ══════════════════════════════════════════════════════════════════════
     # TRADING & IA (10 commandes)
     # ══════════════════════════════════════════════════════════════════════
@@ -1431,6 +1493,38 @@ VOICE_CORRECTIONS: dict[str, str] = {
     "reunnion": "reunion",
     "visio": "visio",
     "visioconference": "visioconference",
+    # Vague 8 — Docker / Git / Dev / n8n / Jupyter
+    "dockerr": "docker",
+    "dokeur": "docker",
+    "doker": "docker",
+    "dok air": "docker",
+    "conteneurr": "conteneur",
+    "conteneure": "conteneur",
+    "contener": "conteneur",
+    "imaje docker": "images docker",
+    "gite": "git",
+    "guitte": "git",
+    "guit": "git",
+    "git states": "git status",
+    "git statu": "git status",
+    "git poul": "git pull",
+    "git pouche": "git push",
+    "pippe": "pip",
+    "pippe liste": "pip list",
+    "jupiter": "jupyter",
+    "jupiterre": "jupyter",
+    "jupitter": "jupyter",
+    "notebok": "notebook",
+    "notebouk": "notebook",
+    "n huit n": "n8n",
+    "n8 n": "n8n",
+    "ennuit n": "n8n",
+    "lm studio": "lm studio",
+    "lm studiot": "lm studio",
+    "wiffi": "wifi",
+    "why fi": "wifi",
+    "profilz": "profils",
+    "profille": "profils",
 }
 
 

@@ -176,6 +176,16 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "specs": "a propos du pc",
     "mac": "adresse mac",
     "sfc": "verifie les fichiers systeme",
+    # Vague 8 - Docker / Git / Dev
+    "docker": "liste les conteneurs",
+    "conteneurs": "liste les conteneurs",
+    "git": "git status",
+    "pip": "pip list",
+    "jupyter": "ouvre jupyter",
+    "notebook": "ouvre jupyter",
+    "n8n": "ouvre n8n",
+    "workflows": "ouvre n8n",
+    "profils wifi": "profils wifi",
 }
 
 
