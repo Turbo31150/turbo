@@ -542,6 +542,114 @@ COMMANDS: list[JarvisCommand] = [
         "bloque l'ecran",
     ], "hotkey", "win+l"),
 
+    # ── Accessibilite Windows ──
+    JarvisCommand("loupe", "systeme", "Activer la loupe / zoom accessibilite", [
+        "active la loupe", "loupe", "magnifier",
+        "zoom accessibilite", "agrandis l'ecran",
+    ], "hotkey", "win++"),
+    JarvisCommand("loupe_off", "systeme", "Desactiver la loupe", [
+        "desactive la loupe", "ferme la loupe", "loupe off",
+        "arrete la loupe",
+    ], "hotkey", "win+escape"),
+    JarvisCommand("narrateur", "systeme", "Activer/desactiver le narrateur", [
+        "active le narrateur", "narrateur", "narrator",
+        "desactive le narrateur", "lecteur ecran",
+    ], "hotkey", "ctrl+win+enter"),
+    JarvisCommand("clavier_visuel", "systeme", "Ouvrir le clavier visuel", [
+        "clavier visuel", "ouvre le clavier", "clavier ecran",
+        "on screen keyboard", "clavier tactile",
+    ], "powershell", "Start-Process osk"),
+    JarvisCommand("dictee", "systeme", "Activer la dictee vocale Windows", [
+        "dictee", "dictee vocale", "lance la dictee",
+        "mode dictee", "dicte", "ecrire avec la voix",
+    ], "hotkey", "win+h"),
+    JarvisCommand("contraste_eleve", "systeme", "Activer le mode contraste eleve", [
+        "contraste eleve", "high contrast", "mode contraste",
+        "active le contraste",
+    ], "hotkey", "alt+shift+print"),
+    JarvisCommand("param_accessibilite", "systeme", "Parametres d'accessibilite", [
+        "parametres accessibilite", "reglages accessibilite",
+        "accessibilite", "options accessibilite",
+    ], "ms_settings", "ms-settings:easeofaccess"),
+
+    # ── Multimedia / Enregistrement ──
+    JarvisCommand("enregistrer_ecran", "systeme", "Enregistrer l'ecran (Xbox Game Bar)", [
+        "enregistre l'ecran", "lance l'enregistrement", "record",
+        "capture video", "enregistrement ecran", "screen record",
+    ], "hotkey", "win+alt+r"),
+    JarvisCommand("game_bar", "systeme", "Ouvrir la Xbox Game Bar", [
+        "ouvre la game bar", "game bar", "xbox game bar",
+        "barre de jeu",
+    ], "hotkey", "win+g"),
+    JarvisCommand("snap_layout", "systeme", "Ouvrir les dispositions Snap", [
+        "snap layout", "disposition fenetre", "snap",
+        "dispositions", "arrange les fenetres",
+    ], "hotkey", "win+z"),
+
+    # ── Gestion alimentation ──
+    JarvisCommand("plan_performance", "systeme", "Activer le mode performances", [
+        "mode performance", "performances maximales", "haute performance",
+        "plan performance", "max power",
+    ], "powershell", "powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c; 'Mode haute performance active'"),
+    JarvisCommand("plan_equilibre", "systeme", "Activer le mode equilibre", [
+        "mode equilibre", "plan equilibre", "balanced",
+        "mode normal", "puissance normale",
+    ], "powershell", "powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e; 'Mode equilibre active'"),
+    JarvisCommand("plan_economie", "systeme", "Activer le mode economie d'energie", [
+        "mode economie", "economie d'energie", "power saver",
+        "economise la batterie", "mode batterie",
+    ], "powershell", "powercfg /setactive a1841308-3541-4fab-bc81-f71556f20b4a; 'Mode economie active'"),
+
+    # ── Reseau avance ──
+    JarvisCommand("ipconfig", "systeme", "Afficher la configuration IP", [
+        "montre l'ip", "quelle est mon adresse ip", "ipconfig",
+        "adresse ip", "config ip",
+    ], "jarvis_tool", "get_ip"),
+    JarvisCommand("vider_dns", "systeme", "Vider le cache DNS", [
+        "vide le cache dns", "flush dns", "nettoie le dns",
+        "vider dns", "purge dns",
+    ], "powershell", "ipconfig /flushdns"),
+    JarvisCommand("param_vpn", "systeme", "Parametres VPN", [
+        "parametres vpn", "reglages vpn", "config vpn",
+        "ouvre le vpn", "vpn",
+    ], "ms_settings", "ms-settings:network-vpn"),
+    JarvisCommand("param_proxy", "systeme", "Parametres proxy", [
+        "parametres proxy", "reglages proxy", "config proxy",
+        "ouvre le proxy",
+    ], "ms_settings", "ms-settings:network-proxy"),
+
+    # ── Fichiers rapides ──
+    JarvisCommand("ouvrir_recents", "fichiers", "Ouvrir les fichiers recents", [
+        "fichiers recents", "ouvre les recents", "derniers fichiers",
+        "fichiers ouverts recemment",
+    ], "powershell", "Start-Process explorer.exe -ArgumentList 'shell:Recent'"),
+    JarvisCommand("ouvrir_temp", "fichiers", "Ouvrir le dossier temporaire", [
+        "ouvre le dossier temp", "fichiers temporaires", "dossier temp",
+        "ouvre temp",
+    ], "powershell", "Start-Process explorer.exe -ArgumentList $env:TEMP"),
+    JarvisCommand("ouvrir_appdata", "fichiers", "Ouvrir le dossier AppData", [
+        "ouvre appdata", "dossier appdata", "ouvre app data",
+        "appdata",
+    ], "powershell", "Start-Process explorer.exe -ArgumentList $env:APPDATA"),
+
+    # ── Navigation Chrome avancee ──
+    JarvisCommand("mode_incognito", "navigation", "Ouvrir Chrome en mode incognito", [
+        "mode incognito", "navigation privee", "ouvre en prive",
+        "incognito", "mode prive",
+    ], "powershell", "Start-Process chrome '-incognito'"),
+    JarvisCommand("historique_chrome", "navigation", "Ouvrir l'historique Chrome", [
+        "historique chrome", "ouvre l'historique", "historique navigateur",
+        "historique de navigation",
+    ], "hotkey", "ctrl+h"),
+    JarvisCommand("favoris_chrome", "navigation", "Ouvrir les favoris Chrome", [
+        "ouvre les favoris", "favoris", "bookmarks",
+        "mes favoris", "signets",
+    ], "hotkey", "ctrl+d"),
+    JarvisCommand("telecharger_chrome", "navigation", "Ouvrir les telechargements Chrome", [
+        "telechargements chrome", "ouvre les downloads",
+        "mes telechargements navigateur",
+    ], "hotkey", "ctrl+j"),
+
     # ══════════════════════════════════════════════════════════════════════
     # TRADING & IA (10 commandes)
     # ══════════════════════════════════════════════════════════════════════
@@ -908,6 +1016,38 @@ VOICE_CORRECTIONS: dict[str, str] = {
     # Bureau virtuel
     "burot": "bureau",
     "buro": "bureau",
+    # Vague 3 — Accessibilite
+    "louppe": "loupe",
+    "narateur": "narrateur",
+    "narrateure": "narrateur",
+    "clavie": "clavier",
+    "dictee vocale": "dictee vocale",
+    "contrast": "contraste",
+    "accessibilitee": "accessibilite",
+    "accessiblite": "accessibilite",
+    # Vague 3 — Game Bar / Snap
+    "gambar": "game bar",
+    "game barre": "game bar",
+    "snappe": "snap",
+    "snape": "snap",
+    # Vague 3 — Performance / Energie
+    "performanse": "performance",
+    "performence": "performance",
+    "equilibree": "equilibre",
+    "economee": "economie",
+    "economi": "economie",
+    # Vague 3 — Reseau avance
+    "ip config": "ipconfig",
+    "denes": "dns",
+    "proxie": "proxy",
+    "procksy": "proxy",
+    "incognitau": "incognito",
+    "incognitto": "incognito",
+    # Vague 3 — Chrome
+    "historike": "historique",
+    "favouris": "favoris",
+    "favori": "favoris",
+    "boucmarque": "bookmarks",
     # Mode avion / Micro / Camera
     "mod avion": "mode avion",
     "mode avillion": "mode avion",

@@ -733,4 +733,132 @@ def _default_skills() -> list[Skill]:
             ],
             category="routine",
         ),
+
+        # ── VAGUE 3: Pipelines accessibilite / performance / reseau / creatif ──
+
+        Skill(
+            name="mode_cinema",
+            description="Mode cinema: ferme tout, volume max, luminosite min, plein ecran",
+            triggers=[
+                "mode cinema", "mode film", "lance un film",
+                "session cinema", "regarde un film",
+            ],
+            steps=[
+                SkillStep("close_app", {"name": "discord"}, "Fermer Discord"),
+                SkillStep("close_app", {"name": "telegram"}, "Fermer Telegram"),
+                SkillStep("volume_up", {}, "Monter le volume"),
+                SkillStep("volume_up", {}, "Volume max"),
+                SkillStep("powershell_run", {"command": "$b = 30; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"}, "Luminosite tamisee"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Mode cinema actif. Bon film."}, "Notification"),
+            ],
+            category="loisir",
+        ),
+        Skill(
+            name="mode_securite",
+            description="Mode securite: mode avion, verrouillage, bluetooth off",
+            triggers=[
+                "mode securite", "securise le pc", "mode panique",
+                "coupe tout", "mode offline",
+            ],
+            steps=[
+                SkillStep("press_hotkey", {"keys": "ctrl+s"}, "Sauvegarder"),
+                SkillStep("powershell_run", {"command": "Add-Type -AssemblyName System.Runtime.WindowsRuntime; $radio = [Windows.Devices.Radios.Radio,Windows.System.Devices,ContentType=WindowsRuntime]::GetRadiosAsync().GetAwaiter().GetResult() | Where-Object { $_.Kind -eq 'Bluetooth' }; if($radio) { $radio[0].SetStateAsync('Off').GetAwaiter().GetResult() | Out-Null; 'Bluetooth off' }"}, "Couper Bluetooth"),
+                SkillStep("volume_mute", {}, "Couper le son"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Mode securite actif."}, "Notification"),
+            ],
+            category="systeme",
+            confirm=True,
+        ),
+        Skill(
+            name="mode_accessibilite",
+            description="Mode accessibilite: loupe, narrateur, contraste eleve, clavier visuel",
+            triggers=[
+                "mode accessibilite", "aide visuelle", "active l'accessibilite",
+                "j'ai du mal a voir", "mode malvoyant",
+            ],
+            steps=[
+                SkillStep("press_hotkey", {"keys": "win++"}, "Activer la loupe"),
+                SkillStep("powershell_run", {"command": "Start-Process osk"}, "Ouvrir clavier visuel"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Mode accessibilite actif: loupe + clavier visuel."}, "Notification"),
+            ],
+            category="systeme",
+        ),
+        Skill(
+            name="mode_economie_energie",
+            description="Mode economie: plan eco, luminosite basse, bluetooth off, mode nuit",
+            triggers=[
+                "mode economie", "economise la batterie", "mode batterie",
+                "economie d'energie", "mode eco",
+            ],
+            steps=[
+                SkillStep("powershell_run", {"command": "powercfg /setactive a1841308-3541-4fab-bc81-f71556f20b4a; 'Mode economie active'"}, "Plan economie"),
+                SkillStep("powershell_run", {"command": "$b = 20; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"}, "Luminosite basse"),
+                SkillStep("powershell_run", {"command": "Add-Type -AssemblyName System.Runtime.WindowsRuntime; $radio = [Windows.Devices.Radios.Radio,Windows.System.Devices,ContentType=WindowsRuntime]::GetRadiosAsync().GetAwaiter().GetResult() | Where-Object { $_.Kind -eq 'Bluetooth' }; if($radio) { $radio[0].SetStateAsync('Off').GetAwaiter().GetResult() | Out-Null; 'Bluetooth off' }"}, "Couper Bluetooth"),
+                SkillStep("press_hotkey", {"keys": "win+a"}, "Mode nuit"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Mode economie actif. Batterie preservee."}, "Notification"),
+            ],
+            category="systeme",
+        ),
+        Skill(
+            name="mode_performance_max",
+            description="Mode performance: plan haute perf, luminosite max, bluetooth off",
+            triggers=[
+                "mode performance", "performances max", "full power",
+                "mode turbo pc", "puissance maximale",
+            ],
+            steps=[
+                SkillStep("powershell_run", {"command": "powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c; 'Mode haute performance active'"}, "Plan haute performance"),
+                SkillStep("powershell_run", {"command": "$b = 100; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"}, "Luminosite max"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Mode performance max actif."}, "Notification"),
+            ],
+            category="systeme",
+        ),
+        Skill(
+            name="clean_reseau",
+            description="Nettoyage reseau complet: flush DNS, check IP, scan wifi, ping",
+            triggers=[
+                "clean reseau", "nettoie le reseau", "repare internet",
+                "flush dns complet", "reset reseau",
+            ],
+            steps=[
+                SkillStep("powershell_run", {"command": "ipconfig /flushdns"}, "Vider le cache DNS"),
+                SkillStep("network_info", {}, "Infos reseau"),
+                SkillStep("wifi_networks", {}, "Scanner Wi-Fi"),
+                SkillStep("ping", {"host": "8.8.8.8"}, "Ping Google DNS"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Nettoyage reseau termine."}, "Notification"),
+            ],
+            category="systeme",
+        ),
+        Skill(
+            name="workspace_data",
+            description="Workspace data science: Chrome, LM Studio, terminal, Jupyter",
+            triggers=[
+                "workspace data", "mode data science", "session data",
+                "lance le data", "workspace analyse",
+            ],
+            steps=[
+                SkillStep("app_open", {"name": "chrome"}, "Ouvrir Chrome"),
+                SkillStep("app_open", {"name": "lmstudio"}, "Ouvrir LM Studio"),
+                SkillStep("app_open", {"name": "wt"}, "Ouvrir Terminal"),
+                SkillStep("open_url", {"url": "http://localhost:8888"}, "Ouvrir Jupyter"),
+                SkillStep("lm_cluster_status", {}, "Verifier le cluster"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Workspace data pret."}, "Notification"),
+            ],
+            category="dev",
+        ),
+        Skill(
+            name="session_creative",
+            description="Session creative: Spotify, mode focus, snap layout, luminosite agreable",
+            triggers=[
+                "session creative", "mode creatif", "inspiration",
+                "mode creation", "lance la creation",
+            ],
+            steps=[
+                SkillStep("app_open", {"name": "spotify"}, "Lancer Spotify"),
+                SkillStep("close_app", {"name": "discord"}, "Fermer Discord"),
+                SkillStep("powershell_run", {"command": "$b = 60; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"}, "Luminosite agreable"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Mode creatif actif. Bonne inspiration."}, "Notification"),
+            ],
+            category="productivite",
+        ),
     ]

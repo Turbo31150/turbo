@@ -111,6 +111,23 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "stream": "mode stream",
     "gaming": "mode gaming",
     "dev": "mode dev",
+    # Vague 3 - Accessibilite / Multimedia / Reseau
+    "loupe": "active la loupe",
+    "narrateur": "active le narrateur",
+    "dictee": "lance la dictee",
+    "contraste": "contraste eleve",
+    "accessibilite": "parametres accessibilite",
+    "incognito": "mode incognito",
+    "historique": "historique chrome",
+    "performance": "mode performance",
+    "economie": "mode economie",
+    "dns": "vide le cache dns",
+    "vpn": "parametres vpn",
+    "snap": "snap layout",
+    "record": "enregistre l'ecran",
+    "ipconfig": "montre l'ip",
+    "proxy": "parametres proxy",
+    "gamebare": "game bar",
 }
 
 

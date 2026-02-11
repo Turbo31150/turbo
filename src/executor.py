@@ -302,6 +302,45 @@ HOTKEY_MAP: dict[str, str] = {
     "F5": "(New-Object -ComObject WScript.Shell).SendKeys('{F5}')",
     "delete": "(New-Object -ComObject WScript.Shell).SendKeys('{DELETE}')",
     "alt+enter": "(New-Object -ComObject WScript.Shell).SendKeys('%{ENTER}')",
+    # Vague 3 — Accessibilite
+    "win++": (
+        "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;"
+        "public class K{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; "
+        "[K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0xBB,0,0,0); "
+        "[K]::keybd_event(0xBB,0,2,0); [K]::keybd_event(0x5B,0,2,0)"
+    ),
+    "win+escape": (
+        "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;"
+        "public class K{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; "
+        "[K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x1B,0,0,0); "
+        "[K]::keybd_event(0x1B,0,2,0); [K]::keybd_event(0x5B,0,2,0)"
+    ),
+    "ctrl+win+enter": (
+        "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;"
+        "public class K{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; "
+        "[K]::keybd_event(0x11,0,0,0); [K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x0D,0,0,0); "
+        "[K]::keybd_event(0x0D,0,2,0); [K]::keybd_event(0x5B,0,2,0); [K]::keybd_event(0x11,0,2,0)"
+    ),
+    "win+h": _win_hotkey_ps("H"),           # Dictee vocale
+    "alt+shift+print": (
+        "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;"
+        "public class K{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; "
+        "[K]::keybd_event(0x12,0,0,0); [K]::keybd_event(0x10,0,0,0); [K]::keybd_event(0x2C,0,0,0); "
+        "[K]::keybd_event(0x2C,0,2,0); [K]::keybd_event(0x10,0,2,0); [K]::keybd_event(0x12,0,2,0)"
+    ),
+    # Vague 3 — Multimedia / Game Bar
+    "win+alt+r": (
+        "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;"
+        "public class K{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; "
+        "[K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x12,0,0,0); [K]::keybd_event(0x52,0,0,0); "
+        "[K]::keybd_event(0x52,0,2,0); [K]::keybd_event(0x12,0,2,0); [K]::keybd_event(0x5B,0,2,0)"
+    ),
+    "win+g": _win_hotkey_ps("G"),           # Xbox Game Bar
+    "win+z": _win_hotkey_ps("Z"),           # Snap Layout
+    # Vague 3 — Chrome navigation
+    "ctrl+h": "(New-Object -ComObject WScript.Shell).SendKeys('^h')",
+    "ctrl+d": "(New-Object -ComObject WScript.Shell).SendKeys('^d')",
+    "ctrl+j": "(New-Object -ComObject WScript.Shell).SendKeys('^j')",
 }
 
 
