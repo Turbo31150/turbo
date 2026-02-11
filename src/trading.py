@@ -118,8 +118,8 @@ def validate_signal(signal: dict, current_price: float | None = None) -> tuple[b
     if risk <= 0:
         return False, "Risk = 0 (entry == sl)"
     rr = reward / risk
-    if rr < 1.5:
-        return False, f"R/R insuffisant: {rr:.2f} (min 1.5)"
+    if rr < 1.3:
+        return False, f"R/R insuffisant: {rr:.2f} (min 1.3)"
 
     return True, "OK"
 
