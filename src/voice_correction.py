@@ -128,6 +128,19 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "ipconfig": "montre l'ip",
     "proxy": "parametres proxy",
     "gamebare": "game bar",
+    # Vague 4 - Multi-ecran / Focus / Disques / Taskbar
+    "alarme": "ouvre les alarmes",
+    "minuteur": "ouvre les alarmes",
+    "timer": "ouvre les alarmes",
+    "chronometre": "ouvre les alarmes",
+    "disques": "info disques",
+    "batterie": "parametres batterie",
+    "heure": "parametres heure",
+    "langue": "parametres langue",
+    "souris": "parametres souris",
+    "clavier": "parametres clavier",
+    "comptes": "parametres comptes",
+    "timeline": "historique activite",
 }
 
 

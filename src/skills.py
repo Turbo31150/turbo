@@ -861,4 +861,70 @@ def _default_skills() -> list[Skill]:
             ],
             category="productivite",
         ),
+
+        # ── VAGUE 4: Pipelines multi-ecran / nettoyage / confort ──
+
+        Skill(
+            name="mode_double_ecran",
+            description="Mode double ecran: etend l'affichage, snap layout, navigateur + editeur",
+            triggers=[
+                "mode double ecran", "deux ecrans", "active le second ecran",
+                "dual screen", "mode etendu",
+            ],
+            steps=[
+                SkillStep("powershell_run", {"command": "DisplaySwitch.exe /extend"}, "Etendre l'affichage"),
+                SkillStep("app_open", {"name": "chrome"}, "Ouvrir Chrome"),
+                SkillStep("press_hotkey", {"keys": "win+left"}, "Chrome a gauche"),
+                SkillStep("app_open", {"name": "code"}, "Ouvrir VSCode"),
+                SkillStep("press_hotkey", {"keys": "win+right"}, "VSCode a droite"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Mode double ecran actif."}, "Notification"),
+            ],
+            category="productivite",
+        ),
+        Skill(
+            name="nettoyage_complet",
+            description="Nettoyage complet: temp + corbeille + DNS + diagnostic",
+            triggers=[
+                "nettoyage complet", "grand nettoyage", "clean complet",
+                "nettoie tout", "purge complete",
+            ],
+            steps=[
+                SkillStep("powershell_run", {"command": "Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"}, "Vider temp"),
+                SkillStep("powershell_run", {"command": "Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe'"}, "Vider corbeille"),
+                SkillStep("powershell_run", {"command": "ipconfig /flushdns"}, "Vider DNS"),
+                SkillStep("system_info", {}, "Diagnostic systeme"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Nettoyage complet termine."}, "Notification"),
+            ],
+            category="systeme",
+            confirm=True,
+        ),
+        Skill(
+            name="mode_confort",
+            description="Mode confort: night light, luminosite agreable, volume moyen, focus assist",
+            triggers=[
+                "mode confort", "ambiance confortable", "mode relax",
+                "mode zen", "ambiance douce",
+            ],
+            steps=[
+                SkillStep("powershell_run", {"command": "$b = 50; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"}, "Luminosite 50%"),
+                SkillStep("volume_down", {}, "Volume moyen"),
+                SkillStep("press_hotkey", {"keys": "win+a"}, "Mode nuit"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Mode confort actif. Ambiance douce."}, "Notification"),
+            ],
+            category="loisir",
+        ),
+        Skill(
+            name="check_espace_disque",
+            description="Verification espace disque + temp + diagnostic stockage",
+            triggers=[
+                "check espace disque", "verifie l'espace", "combien de place reste",
+                "disques pleins", "espace restant",
+            ],
+            steps=[
+                SkillStep("powershell_run", {"command": "Get-CimInstance Win32_LogicalDisk | Select DeviceID, @{N='Total(GB)';E={[math]::Round($_.Size/1GB,1)}}, @{N='Free(GB)';E={[math]::Round($_.FreeSpace/1GB,1)}} | Out-String"}, "Espace disque"),
+                SkillStep("powershell_run", {"command": "$s = (Get-ChildItem $env:TEMP -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum / 1MB; \"Temp: $([math]::Round($s,1)) MB\""}, "Taille fichiers temp"),
+                SkillStep("notify", {"title": "JARVIS", "message": "Verification espace terminee."}, "Notification"),
+            ],
+            category="systeme",
+        ),
     ]

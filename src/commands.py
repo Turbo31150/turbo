@@ -650,6 +650,88 @@ COMMANDS: list[JarvisCommand] = [
         "mes telechargements navigateur",
     ], "hotkey", "ctrl+j"),
 
+    # ── Vague 4: Multi-ecran / Focus Assist / Taskbar / Night Light / Disques ──
+    JarvisCommand("etendre_ecran", "systeme", "Etendre l'affichage sur un second ecran", [
+        "etends l'ecran", "double ecran", "ecran etendu",
+        "affiche sur deux ecrans", "mode etendu",
+    ], "powershell", "DisplaySwitch.exe /extend"),
+    JarvisCommand("dupliquer_ecran", "systeme", "Dupliquer l'affichage", [
+        "duplique l'ecran", "meme image", "ecran duplique",
+        "miroir", "copie l'ecran",
+    ], "powershell", "DisplaySwitch.exe /clone"),
+    JarvisCommand("ecran_principal_seul", "systeme", "Afficher uniquement sur l'ecran principal", [
+        "ecran principal seulement", "un seul ecran", "desactive le second ecran",
+        "ecran principal uniquement",
+    ], "powershell", "DisplaySwitch.exe /internal"),
+    JarvisCommand("ecran_secondaire_seul", "systeme", "Afficher uniquement sur le second ecran", [
+        "ecran secondaire seulement", "second ecran uniquement",
+        "affiche sur l'autre ecran", "ecran externe",
+    ], "powershell", "DisplaySwitch.exe /external"),
+    JarvisCommand("focus_assist_on", "systeme", "Activer l'aide a la concentration (ne pas deranger)", [
+        "ne pas deranger", "focus assist", "mode silencieux",
+        "active ne pas deranger", "desactive les notifications",
+    ], "powershell", "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Notifications\\Settings' -Name 'NOC_GLOBAL_SETTING_ALLOW_NOTIFICATION_SOUND' -Value 0; 'Focus Assist active'"),
+    JarvisCommand("focus_assist_off", "systeme", "Desactiver l'aide a la concentration", [
+        "desactive ne pas deranger", "reactive les notifications",
+        "focus assist off", "notifications normales",
+    ], "powershell", "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Notifications\\Settings' -Name 'NOC_GLOBAL_SETTING_ALLOW_NOTIFICATION_SOUND' -Value 1; 'Focus Assist desactive'"),
+    JarvisCommand("taskbar_hide", "systeme", "Masquer la barre des taches", [
+        "cache la barre des taches", "masque la taskbar",
+        "barre des taches invisible", "hide taskbar",
+    ], "powershell", "$p = 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StuckRects3'; $v = (Get-ItemProperty -Path $p).Settings; $v[8] = 3; Set-ItemProperty -Path $p -Name Settings -Value $v; Stop-Process -Name explorer -Force; 'Taskbar masquee'"),
+    JarvisCommand("taskbar_show", "systeme", "Afficher la barre des taches", [
+        "montre la barre des taches", "affiche la taskbar",
+        "barre des taches visible", "show taskbar",
+    ], "powershell", "$p = 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StuckRects3'; $v = (Get-ItemProperty -Path $p).Settings; $v[8] = 2; Set-ItemProperty -Path $p -Name Settings -Value $v; Stop-Process -Name explorer -Force; 'Taskbar affichee'"),
+    JarvisCommand("night_light_on", "systeme", "Activer l'eclairage nocturne", [
+        "active la lumiere nocturne", "night light on", "eclairage nocturne",
+        "lumiere chaude", "filtre lumiere bleue on",
+    ], "powershell", "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\CloudStore\\Store\\DefaultAccount\\Current\\default$windows.data.bluelightreduction.settings\\windows.data.bluelightreduction.settings' -Name 'Data' -Value ([byte[]](2,0,0,0,0x38,0,0,0,2,1,0xCA,0x14,0x0E,0x15,0,0,0,0x2A,6,0xFE,0xD2,0xB3,0xA5,0x04,0,0,0x43,0x42,1,0)); 'Night Light active'"),
+    JarvisCommand("night_light_off", "systeme", "Desactiver l'eclairage nocturne", [
+        "desactive la lumiere nocturne", "night light off",
+        "lumiere normale", "filtre lumiere bleue off",
+    ], "powershell", "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\CloudStore\\Store\\DefaultAccount\\Current\\default$windows.data.bluelightreduction.settings\\windows.data.bluelightreduction.settings' -Name 'Data' -Value ([byte[]](2,0,0,0,0x38,0,0,0,0,1,0xCA,0x14,0x0E,0x15,0,0,0,0x2A,6,0xFE,0xD2,0xB3,0xA5,0x04,0,0,0x43,0x42,1,0)); 'Night Light desactive'"),
+    JarvisCommand("info_disques", "systeme", "Afficher l'espace disque", [
+        "espace disque", "info disques", "combien de place",
+        "espace libre", "taille des disques",
+    ], "powershell", "Get-CimInstance Win32_LogicalDisk | Select DeviceID, @{N='Total(GB)';E={[math]::Round($_.Size/1GB,1)}}, @{N='Free(GB)';E={[math]::Round($_.FreeSpace/1GB,1)}}, @{N='Used%';E={[math]::Round(($_.Size-$_.FreeSpace)/$_.Size*100,1)}} | Out-String"),
+    JarvisCommand("vider_temp", "systeme", "Vider les fichiers temporaires", [
+        "vide les fichiers temporaires", "nettoie les temp",
+        "supprime les temp", "clean temp",
+    ], "powershell", "$before = (Get-ChildItem $env:TEMP -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum / 1MB; Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; $after = (Get-ChildItem $env:TEMP -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum / 1MB; \"Temp nettoye: $([math]::Round($before - $after, 1)) MB liberes\"", confirm=True),
+    JarvisCommand("ouvrir_alarmes", "systeme", "Ouvrir l'application Horloge/Alarmes", [
+        "ouvre les alarmes", "alarme", "minuteur", "timer",
+        "chronometre", "ouvre l'horloge",
+    ], "app_open", "ms-clock:"),
+    JarvisCommand("historique_activite", "systeme", "Ouvrir l'historique d'activite Windows", [
+        "historique activite", "timeline", "activites recentes",
+        "que faisais-je", "historique windows",
+    ], "ms_settings", "ms-settings:privacy-activityhistory"),
+    JarvisCommand("param_clavier", "systeme", "Parametres clavier", [
+        "parametres clavier", "reglages clavier", "config clavier",
+        "langue du clavier", "disposition clavier",
+    ], "ms_settings", "ms-settings:keyboard"),
+    JarvisCommand("param_souris", "systeme", "Parametres souris", [
+        "parametres souris", "reglages souris", "config souris",
+        "vitesse souris", "sensibilite souris",
+    ], "ms_settings", "ms-settings:mousetouchpad"),
+    JarvisCommand("param_batterie", "systeme", "Parametres batterie", [
+        "parametres batterie", "etat batterie", "batterie",
+        "niveau batterie", "autonomie",
+    ], "ms_settings", "ms-settings:batterysaver"),
+    JarvisCommand("param_comptes", "systeme", "Parametres des comptes utilisateur", [
+        "parametres comptes", "comptes utilisateur", "mon compte",
+        "gestion comptes",
+    ], "ms_settings", "ms-settings:accounts"),
+    JarvisCommand("param_heure", "systeme", "Parametres date et heure", [
+        "parametres heure", "reglages heure", "date et heure",
+        "quelle heure est-il", "fuseau horaire",
+    ], "ms_settings", "ms-settings:dateandtime"),
+    JarvisCommand("param_langue", "systeme", "Parametres de langue", [
+        "parametres langue", "changer la langue", "langue windows",
+        "langue du systeme",
+    ], "ms_settings", "ms-settings:regionlanguage"),
+
     # ══════════════════════════════════════════════════════════════════════
     # TRADING & IA (10 commandes)
     # ══════════════════════════════════════════════════════════════════════
@@ -1048,6 +1130,23 @@ VOICE_CORRECTIONS: dict[str, str] = {
     "favouris": "favoris",
     "favori": "favoris",
     "boucmarque": "bookmarks",
+    # Vague 4 — Multi-ecran / Focus / Taskbar
+    "etends": "etends",
+    "dupliqe": "duplique",
+    "taskbarre": "taskbar",
+    "barre de tache": "barre des taches",
+    "barre de taches": "barre des taches",
+    "nuit light": "night light",
+    "naïte laïte": "night light",
+    "focusse": "focus",
+    "minuteure": "minuteur",
+    "chrono": "chronometre",
+    "allarm": "alarme",
+    "alarrme": "alarme",
+    "batterie": "batterie",
+    "battri": "batterie",
+    "fuso": "fuseau",
+    "horaire": "horaire",
     # Mode avion / Micro / Camera
     "mod avion": "mode avion",
     "mode avillion": "mode avion",
