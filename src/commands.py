@@ -151,6 +151,7 @@ COMMANDS: list[JarvisCommand] = [
     ], "app_open", "lmstudio"),
     JarvisCommand("ouvrir_discord", "app", "Ouvrir Discord", [
         "ouvre discord", "lance discord", "va sur discord",
+        "ouvre diskord", "lance diskord",
     ], "app_open", "discord"),
     JarvisCommand("ouvrir_spotify", "app", "Ouvrir Spotify", [
         "ouvre spotify", "lance spotify", "mets spotify",
@@ -1648,6 +1649,9 @@ VOICE_CORRECTIONS: dict[str, str] = {
     "git hub": "github",
     "guithub": "github",
     "git-hub": "github",
+    "diskord": "discord",
+    "discorde": "discord",
+    "disscord": "discord",
     "tredingview": "tradingview",
     "traiding view": "tradingview",
     "trading vue": "tradingview",
@@ -2035,7 +2039,7 @@ def match_command(voice_text: str, threshold: float = 0.55) -> tuple[JarvisComma
 
                 match = re.match(pattern, corrected, re.IGNORECASE)
                 if match:
-                    score = 0.95
+                    score = 0.85  # Parameterized match: lower than exact non-param match (0.90)
                     params = {param_names[i]: match.group(i + 1).strip() for i in range(len(param_names))}
                     if score > best_score:
                         best_score = score
