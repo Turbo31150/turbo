@@ -80,6 +80,10 @@ COMMANDS: list[JarvisCommand] = [
         "nouvel onglet", "nouveau tab", "ouvre un nouvel onglet",
         "ouvre un nouveau tab",
     ], "hotkey", "ctrl+t"),
+    JarvisCommand("fermer_onglet", "navigation", "Fermer l'onglet actif", [
+        "ferme l'onglet", "ferme cet onglet", "ferme le tab",
+        "close tab", "fermer l'onglet",
+    ], "hotkey", "ctrl+w"),
 
     # ══════════════════════════════════════════════════════════════════════
     # FICHIERS & DOCUMENTS (7 commandes)
@@ -112,6 +116,22 @@ COMMANDS: list[JarvisCommand] = [
         "ouvre mes projets", "va dans les projets", "ouvre le dossier turbo",
         "ouvre les projets", "ouvre turbo",
     ], "powershell", "Start-Process explorer.exe -ArgumentList 'F:\\BUREAU\\turbo'"),
+    JarvisCommand("ouvrir_explorateur", "fichiers", "Ouvrir l'explorateur de fichiers", [
+        "ouvre l'explorateur", "ouvre l'explorateur de fichiers",
+        "explorateur de fichiers", "ouvre explorer",
+    ], "hotkey", "win+e"),
+    JarvisCommand("lister_dossier", "fichiers", "Lister le contenu d'un dossier", [
+        "que contient {dossier}", "liste le dossier {dossier}",
+        "contenu du dossier {dossier}", "affiche le dossier {dossier}",
+    ], "jarvis_tool", "list_folder:{dossier}", ["dossier"]),
+    JarvisCommand("creer_dossier", "fichiers", "Creer un nouveau dossier", [
+        "cree un dossier {nom}", "nouveau dossier {nom}",
+        "cree le dossier {nom}", "creer dossier {nom}",
+    ], "jarvis_tool", "create_folder:{nom}", ["nom"]),
+    JarvisCommand("chercher_fichier", "fichiers", "Chercher un fichier", [
+        "cherche le fichier {nom}", "trouve le fichier {nom}",
+        "ou est le fichier {nom}", "recherche fichier {nom}",
+    ], "jarvis_tool", "search_files:{nom}", ["nom"]),
 
     # ══════════════════════════════════════════════════════════════════════
     # APPLICATIONS (10 commandes)
@@ -254,6 +274,26 @@ COMMANDS: list[JarvisCommand] = [
         "ecris {texte}", "tape {texte}", "saisis {texte}",
         "ecrit {texte}", "entre {texte}",
     ], "jarvis_tool", "type_text:{texte}", ["texte"]),
+    JarvisCommand("sauvegarder", "clipboard", "Sauvegarder le fichier actif", [
+        "sauvegarde", "enregistre", "save", "sauvegarder",
+        "enregistrer", "ctrl s",
+    ], "hotkey", "ctrl+s"),
+    JarvisCommand("refaire", "clipboard", "Refaire la derniere action annulee", [
+        "refais", "redo", "refaire", "ctrl y",
+        "retablis", "retablir",
+    ], "hotkey", "ctrl+y"),
+    JarvisCommand("recherche_page", "clipboard", "Rechercher dans la page", [
+        "recherche dans la page", "cherche dans la page", "find",
+        "ctrl f", "recherche texte",
+    ], "hotkey", "ctrl+f"),
+    JarvisCommand("lire_presse_papier", "clipboard", "Lire le contenu du presse-papier", [
+        "lis le presse-papier", "qu'est-ce qui est copie",
+        "contenu du presse-papier", "montre le presse-papier",
+    ], "jarvis_tool", "clipboard_get"),
+    JarvisCommand("historique_clipboard", "clipboard", "Historique du presse-papier", [
+        "historique du presse-papier", "clipboard history",
+        "historique presse-papier", "historique copie",
+    ], "hotkey", "win+v"),
 
     # ══════════════════════════════════════════════════════════════════════
     # SYSTEME WINDOWS (14 commandes)
@@ -396,6 +436,19 @@ COMMANDS: list[JarvisCommand] = [
         "que me suggeres tu", "suggestions", "quoi faire",
         "propose quelque chose", "next actions",
     ], "list_commands", "suggestions"),
+    # Brain / Apprentissage
+    JarvisCommand("jarvis_brain_status", "jarvis", "Etat du cerveau JARVIS", [
+        "etat du cerveau", "brain status", "cerveau jarvis",
+        "comment va ton cerveau", "apprentissage status",
+    ], "jarvis_tool", "brain_status"),
+    JarvisCommand("jarvis_brain_learn", "jarvis", "Apprendre de nouveaux patterns", [
+        "apprends", "brain learn", "auto apprends",
+        "apprends de mes actions", "detecte des patterns",
+    ], "jarvis_tool", "brain_learn"),
+    JarvisCommand("jarvis_brain_suggest", "jarvis", "Demander une suggestion de skill a l'IA", [
+        "suggere un skill", "brain suggest", "invente un skill",
+        "cree un nouveau skill", "propose un pipeline",
+    ], "jarvis_tool", "brain_suggest"),
 ]
 
 

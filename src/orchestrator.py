@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import sys
 from typing import Any
 
 from claude_agent_sdk import (
@@ -32,7 +33,7 @@ Reponds TOUJOURS en francais. Sois concis — tes sorties alimentent un pipeline
   - M2 (192.168.1.26) — 3 GPU, 24 GB VRAM — inference rapide (nemotron-3-nano)
   - M3 (192.168.1.113) — 2 GPU, 16 GB VRAM — validation (mistral-7b)
 
-## Tools MCP Jarvis (57 outils — prefixe mcp__jarvis__)
+## Tools MCP Jarvis (69 outils — prefixe mcp__jarvis__)
 
 ### IA & Cluster (4)
 lm_query, lm_models, lm_cluster_status, consensus
@@ -88,6 +89,15 @@ trading_positions — Positions ouvertes MEXC Futures
 trading_status — Status global pipeline (signaux, trades, PnL)
 trading_close_position — Fermer une position ouverte
 
+### Skills & Pipelines (5)
+list_skills, create_skill, remove_skill, suggest_actions, action_history
+
+### Brain — Apprentissage Autonome (4)
+brain_status — Etat du cerveau (patterns, skills appris)
+brain_analyze — Analyser les patterns d'utilisation et suggerer des skills
+brain_suggest — Demander au cluster IA de creer un nouveau skill
+brain_learn — Auto-apprendre: detecter et creer des skills automatiquement
+
 ## Subagents (via Task)
 - `ia-deep` (Opus) — Analyse approfondie, architecture, strategie
 - `ia-fast` (Haiku) — Code, execution rapide, commandes
@@ -125,6 +135,15 @@ trading_close_position — Fermer une position ouverte
 """
 
 
+def _safe_print(text: str, **kwargs):
+    """Print text safely on Windows cp1252 consoles."""
+    try:
+        print(text, **kwargs)
+    except UnicodeEncodeError:
+        enc = sys.stdout.encoding or "utf-8"
+        print(text.encode(enc, errors="replace").decode(enc, errors="replace"), **kwargs)
+
+
 async def log_tool_use(
     input_data: dict[str, Any],
     tool_use_id: str | None,
@@ -132,7 +151,7 @@ async def log_tool_use(
 ) -> dict[str, Any]:
     """Log tool usage for audit trail."""
     tool_name = input_data.get("tool_name", "unknown")
-    print(f"  [HOOK] Tool: {tool_name}")
+    _safe_print(f"  [HOOK] Tool: {tool_name}")
     return {}
 
 
@@ -158,7 +177,7 @@ def build_options(cwd: str | None = None) -> ClaudeAgentOptions:
             # Claude Code tools
             "Read", "Write", "Edit", "Bash", "Glob", "Grep",
             "WebSearch", "WebFetch", "Task",
-            # JARVIS MCP — all 52 tools authorized
+            # JARVIS MCP — all 69 tools authorized
             "mcp__jarvis__*",
         ],
         mcp_servers={"jarvis": _jarvis_mcp_config()},
@@ -174,24 +193,36 @@ async def run_once(prompt: str, cwd: str | None = None) -> str | None:
     from claude_agent_sdk import query
 
     result_text: str | None = None
+    collected: list[str] = []
     try:
         async for message in query(prompt=prompt, options=options):
             if isinstance(message, AssistantMessage):
                 for block in message.content:
                     if isinstance(block, TextBlock):
-                        print(block.text, end="", flush=True)
+                        collected.append(block.text)
+                        _safe_print(block.text, end="", flush=True)
+                    elif isinstance(block, ToolUseBlock):
+                        _safe_print(f"\n  [TOOL] {block.name}", flush=True)
             if isinstance(message, ResultMessage):
                 result_text = message.result
-                print(f"\n  [JARVIS] Cost: ${message.total_cost_usd or 0:.4f} | "
-                      f"Turns: {message.num_turns} | "
-                      f"Duration: {message.duration_ms}ms")
-    except ExceptionGroup as eg:
+                _safe_print(f"\n  [JARVIS] Cost: ${message.total_cost_usd or 0:.4f} | "
+                            f"Turns: {message.num_turns} | "
+                            f"Duration: {message.duration_ms}ms")
+    except (ExceptionGroup, BaseExceptionGroup) as eg:
         # SDK transport cleanup errors — non-fatal
         for exc in eg.exceptions:
-            if "ProcessTransport" in str(exc):
-                pass  # Ignore transport close errors
+            if "cancel scope" in str(exc).lower() or "ProcessTransport" in str(exc):
+                pass  # Ignore transport/scope close errors
             else:
                 raise
+    except RuntimeError as e:
+        if "cancel scope" in str(e).lower():
+            pass  # Ignore anyio cancel scope cleanup error
+        else:
+            raise
+
+    if result_text is None and collected:
+        result_text = "".join(collected)
     return result_text
 
 
@@ -222,14 +253,14 @@ async def run_interactive(cwd: str | None = None) -> None:
                 if isinstance(message, AssistantMessage):
                     for block in message.content:
                         if isinstance(block, TextBlock):
-                            print(block.text, end="", flush=True)
+                            _safe_print(block.text, end="", flush=True)
                         elif isinstance(block, ToolUseBlock):
-                            print(f"\n  [TOOL] {block.name}", flush=True)
+                            _safe_print(f"\n  [TOOL] {block.name}", flush=True)
                 if isinstance(message, ResultMessage):
                     if message.total_cost_usd:
-                        print(f"\n  [$] {message.total_cost_usd:.4f} USD", flush=True)
+                        _safe_print(f"\n  [$] {message.total_cost_usd:.4f} USD", flush=True)
 
-    print("\n[JARVIS] Session terminee.")
+    _safe_print("\n[JARVIS] Session terminee.")
 
 
 async def run_voice(cwd: str | None = None) -> None:

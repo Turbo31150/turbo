@@ -1,4 +1,4 @@
-"""JARVIS MCP Server — Standalone stdio server (52 tools).
+"""JARVIS MCP Server — Standalone stdio server (69 tools).
 
 Run directly: python -m src.mcp_server
 Used by the Claude Agent SDK as an external subprocess MCP server.
@@ -443,6 +443,55 @@ async def handle_action_history(args: dict) -> list[TextContent]:
     return _text(f"Historique ({len(history)} actions):\n" + "\n".join(lines))
 
 
+# ── Brain (Autonomous Learning) ──────────────────────────────────────────
+
+async def handle_brain_status(args: dict) -> list[TextContent]:
+    from src.brain import format_brain_report
+    return _text(await _run(format_brain_report))
+
+async def handle_brain_analyze(args: dict) -> list[TextContent]:
+    from src.brain import analyze_and_learn
+    auto = args.get("auto_create", "false").lower() == "true"
+    min_conf = float(args.get("min_confidence", 0.6))
+    report = await _run(analyze_and_learn, auto, min_conf)
+    lines = [
+        f"Analyse cerveau JARVIS:",
+        f"  Patterns detectes: {report['patterns_found']}",
+        f"  Skills total: {report['total_skills']}",
+        f"  Historique: {report['history_size']} actions",
+    ]
+    if report["patterns"]:
+        lines.append("  Patterns:")
+        for p in report["patterns"]:
+            lines.append(f"    - {p['suggested_name']}: {p['count']}x (conf={p['confidence']:.0%})")
+            lines.append(f"      Actions: {', '.join(p['actions'][:3])}")
+    if report["skills_created"]:
+        lines.append(f"  Skills auto-crees: {', '.join(report['skills_created'])}")
+    return _text("\n".join(lines))
+
+async def handle_brain_suggest(args: dict) -> list[TextContent]:
+    from src.brain import cluster_suggest_skill
+    context = args.get("context", "general")
+    node_url = args.get("node_url", "http://localhost:1234")
+    suggestion = await cluster_suggest_skill(context, node_url)
+    if suggestion is None:
+        return _text("Pas de suggestion disponible (cluster IA injoignable).")
+    return _text(json.dumps(suggestion, ensure_ascii=False, indent=2))
+
+async def handle_brain_learn(args: dict) -> list[TextContent]:
+    """Auto-detect patterns and create skills if confident enough."""
+    from src.brain import analyze_and_learn
+    report = await _run(analyze_and_learn, True, 0.5)
+    if report["skills_created"]:
+        return _text(f"Skills auto-appris: {', '.join(report['skills_created'])}. "
+                     f"Total: {report['total_skills']} skills.")
+    elif report["patterns"]:
+        return _text(f"{report['patterns_found']} patterns detectes mais confiance insuffisante. "
+                     f"Continue a utiliser JARVIS pour renforcer les patterns.")
+    else:
+        return _text("Pas assez d'historique pour apprendre. Continue a utiliser JARVIS.")
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # TOOL REGISTRY
 # ═══════════════════════════════════════════════════════════════════════════
@@ -530,6 +579,11 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     ("remove_skill", "Supprimer un skill.", {"name": "string"}, handle_remove_skill),
     ("suggest_actions", "Suggerer des actions selon le contexte.", {"context": "string"}, handle_suggest_actions),
     ("action_history", "Historique des actions executees.", {"limit": "number"}, handle_action_history),
+    # Brain — Autonomous Learning (4)
+    ("brain_status", "Status du cerveau JARVIS (patterns, skills appris).", {}, handle_brain_status),
+    ("brain_analyze", "Analyser les patterns d'utilisation.", {"auto_create": "boolean", "min_confidence": "number"}, handle_brain_analyze),
+    ("brain_suggest", "Demander au cluster IA de suggerer un nouveau skill.", {"context": "string", "node_url": "string"}, handle_brain_suggest),
+    ("brain_learn", "Auto-apprendre: detecter patterns et creer skills.", {}, handle_brain_learn),
 ]
 
 # Build handler map
