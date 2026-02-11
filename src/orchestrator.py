@@ -106,6 +106,7 @@ notify, speak, scheduled_tasks
 4. Mode Voice-First: phrases courtes, pas de markdown, reponses directes
 5. Ecrire sur le systeme de fichiers via les tools Read/Write/Edit/Bash
 6. Reporter le consensus_score dans chaque output structurée
+7. IMPORTANT: Max 4 outils MCP jarvis en parallele (limite transport stdio). Si >4 outils, batch par groupes de 3-4.
 
 ## Routage IA
 - Reponse courte → M3, M2

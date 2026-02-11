@@ -57,20 +57,64 @@ def _ps_json(cmd: str, timeout: int = 15) -> Any:
 # ═══════════════════════════════════════════════════════════════════════════
 
 def get_system_info() -> dict[str, str]:
-    """Get complete Windows system information."""
-    commands = {
-        "hostname": "hostname",
-        "os_version": "[System.Environment]::OSVersion.VersionString",
-        "cpu": "(Get-CimInstance Win32_Processor).Name",
-        "ram_gb": "[math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory/1GB, 1)",
-        "gpu": "(Get-CimInstance Win32_VideoController).Name -join ', '",
-        "disk_free": "Get-PSDrive -PSProvider FileSystem | ForEach-Object { $_.Name + ': ' + [math]::Round($_.Free/1GB,1).ToString() + 'GB free' } | Out-String",
-        "uptime": "(Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime | ForEach-Object { $_.Days.ToString() + 'j ' + $_.Hours.ToString() + 'h ' + $_.Minutes.ToString() + 'm' }",
-        "user": "[Environment]::UserName",
+    """Get system info in pure Python — no PowerShell, no blocking."""
+    import platform
+    import os
+    import ctypes
+
+    info = {
+        "hostname": platform.node(),
+        "os_version": platform.platform(),
+        "cpu": platform.processor(),
+        "user": os.environ.get("USERNAME", "unknown"),
     }
-    info = {}
-    for key, cmd in commands.items():
-        info[key] = _ps(cmd, timeout=10)
+
+    # RAM via ctypes (fast, no subprocess)
+    try:
+        class MEMORYSTATUSEX(ctypes.Structure):
+            _fields_ = [
+                ("dwLength", ctypes.c_ulong),
+                ("dwMemoryLoad", ctypes.c_ulong),
+                ("ullTotalPhys", ctypes.c_ulonglong),
+                ("ullAvailPhys", ctypes.c_ulonglong),
+                ("ullTotalPageFile", ctypes.c_ulonglong),
+                ("ullAvailPageFile", ctypes.c_ulonglong),
+                ("ullTotalVirtual", ctypes.c_ulonglong),
+                ("ullAvailVirtual", ctypes.c_ulonglong),
+                ("ullAvailExtendedVirtual", ctypes.c_ulonglong),
+            ]
+        mem = MEMORYSTATUSEX()
+        mem.dwLength = ctypes.sizeof(MEMORYSTATUSEX)
+        ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(mem))
+        total_gb = round(mem.ullTotalPhys / (1024**3), 1)
+        avail_gb = round(mem.ullAvailPhys / (1024**3), 1)
+        info["ram_total_gb"] = str(total_gb)
+        info["ram_available_gb"] = str(avail_gb)
+        info["ram_usage_pct"] = str(mem.dwMemoryLoad)
+    except Exception:
+        info["ram"] = "unknown"
+
+    # Disk free via ctypes (fast)
+    try:
+        disks = []
+        bitmask = ctypes.windll.kernel32.GetLogicalDrives()
+        for i, letter in enumerate("ABCDEFGHIJKLMNOPQRSTUVWXYZ"):
+            if bitmask & (1 << i):
+                free = ctypes.c_ulonglong(0)
+                total = ctypes.c_ulonglong(0)
+                if ctypes.windll.kernel32.GetDiskFreeSpaceExW(
+                    f"{letter}:\\", None, ctypes.byref(total), ctypes.byref(free)
+                ):
+                    free_gb = round(free.value / (1024**3), 1)
+                    total_gb = round(total.value / (1024**3), 1)
+                    disks.append(f"{letter}: {free_gb}/{total_gb}GB free")
+        info["disks"] = "; ".join(disks)
+    except Exception:
+        info["disks"] = "unknown"
+
+    # GPU via quick PowerShell (single command, fast)
+    info["gpu"] = _ps("(Get-CimInstance Win32_VideoController).Name -join ', '", timeout=5)
+
     return info
 
 

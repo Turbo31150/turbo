@@ -280,7 +280,10 @@ async def handle_screen_resolution(args: dict) -> list[TextContent]:
 async def handle_system_info(args: dict) -> list[TextContent]:
     from src.windows import get_system_info
     result = await _run(get_system_info)
-    return _text(json.dumps(result, ensure_ascii=False, indent=2) if isinstance(result, dict) else str(result))
+    if isinstance(result, dict):
+        lines = [f"{k}: {v}" for k, v in result.items()]
+        return _text("\n".join(lines))
+    return _text(str(result))
 
 async def handle_gpu_info(args: dict) -> list[TextContent]:
     from src.windows import get_gpu_info
