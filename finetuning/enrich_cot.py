@@ -477,7 +477,7 @@ COT_MULTISTEP = [
             "   e) DNS IPv6 si localhost utilise au lieu de 127.0.0.1\n"
             "   f) VRAM saturee → swap GPU\n"
             "2. Diagnostic systematique:\n"
-            "   - Mesurer latence LM Studio: curl 10.5.0.2:1234/v1/models\n"
+            "   - Mesurer latence LM Studio: curl 10.5.0.2:1234/api/v1/models\n"
             "   - Verifier GPU avec nvidia-smi\n"
             "   - Verifier config: localhost vs 127.0.0.1\n"
             "   - Verifier charge CPU/RAM\n"
