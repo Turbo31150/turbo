@@ -59,18 +59,22 @@ function Test-Api {
 }
 
 function Invoke-Warmup {
-    param([string]$Url, [string]$Model)
+    param([string]$Url, [string]$Model, [string]$ApiKey)
     try {
+        $warmupHeaders = @{}
+        if ($ApiKey) { $warmupHeaders["Authorization"] = "Bearer $ApiKey" }
         $body = @{
             model = $Model
-            messages = @(@{ role = "user"; content = "Reponds OK." })
+            input = "Reponds OK."
             temperature = 0.1
-            max_tokens = 5
+            max_output_tokens = 5
+            stream = $false
+            store = $false
         } | ConvertTo-Json -Depth 3
         $sw = [System.Diagnostics.Stopwatch]::StartNew()
-        $r = Invoke-RestMethod -Uri "$Url/v1/chat/completions" -Method Post -ContentType "application/json" -Body $body -TimeoutSec 30
+        $r = Invoke-RestMethod -Uri "$Url/api/v1/chat" -Method Post -ContentType "application/json" -Headers $warmupHeaders -Body $body -TimeoutSec 30
         $sw.Stop()
-        $content = $r.choices[0].message.content
+        $content = if ($r.output.Count -gt 0) { $r.output[0].content } else { "(vide)" }
         return @{ OK = $true; LatencyMs = $sw.ElapsedMilliseconds; Content = $content }
     } catch {
         return @{ OK = $false; LatencyMs = -1; Error = $_.Exception.Message }
@@ -83,13 +87,13 @@ if ($Status) {
     & $LMS_PATH ps
     Write-Host ""
     # M1
-    if (Test-Api "http://10.5.0.2:${Port}/v1/models") {
+    if (Test-Api "http://10.5.0.2:${Port}/api/v1/models") {
         Write-Log "M1 (10.5.0.2:$Port): ONLINE" "OK" "Green"
     } else {
         Write-Log "M1 (10.5.0.2:$Port): OFFLINE" "WARN" "Red"
     }
     # M2
-    if (Test-Api "$M2_URL/v1/models") {
+    if (Test-Api "$M2_URL/api/v1/models") {
         Write-Log "M2 (192.168.1.26:1234): ONLINE" "OK" "Green"
     } else {
         Write-Log "M2 (192.168.1.26:1234): OFFLINE" "WARN" "Yellow"
@@ -145,7 +149,7 @@ if ($serverStatus -match "not running" -or $serverStatus -match "error") {
     $ready = $false
     for ($i = 0; $i -lt 10; $i++) {
         Start-Sleep -Seconds 2
-        if (Test-Api "http://10.5.0.2:${Port}/v1/models") {
+        if (Test-Api "http://10.5.0.2:${Port}/api/v1/models") {
             $ready = $true
             break
         }
@@ -217,7 +221,7 @@ if ($warmup.OK) {
 
 # ── Step 6: Check M2 ─────────────────────────────────────────────────────
 Write-Log "Verification M2 ($M2_URL)..." "INFO" "Cyan"
-if (Test-Api "$M2_URL/v1/models") {
+if (Test-Api "$M2_URL/api/v1/models") {
     Write-Log "M2: ONLINE" "OK" "Green"
     if ($Benchmark) {
         $m2w = Invoke-Warmup -Url $M2_URL -Model "deepseek-coder-v2-lite-instruct"
@@ -278,7 +282,7 @@ Write-Host "  ══════════════════════
 Write-Host "    CLUSTER BOOT COMPLETE" -ForegroundColor Green
 Write-Host "  ══════════════════════════════════════════════════" -ForegroundColor Green
 Write-Host ""
-Write-Log "M1 API:  http://10.5.0.2:$Port/v1/chat/completions" "INFO" "White"
-Write-Log "M2 API:  $M2_URL/v1/chat/completions" "INFO" "White"
+Write-Log "M1 API:  http://10.5.0.2:$Port/api/v1/chat" "INFO" "White"
+Write-Log "M2 API:  $M2_URL/api/v1/chat" "INFO" "White"
 Write-Log "Ollama:  $OLLAMA_URL/api/chat" "INFO" "White"
 Write-Host ""
