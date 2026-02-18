@@ -4,3 +4,7 @@ __pycache__/
 *.pyc
 *.pyo
 .claude/settings.local.json
+*.db
+logs/
+_test_*.py
+_benchmark_*.py

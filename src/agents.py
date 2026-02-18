@@ -1,4 +1,4 @@
-"""JARVIS subagents — IA_DEEP, IA_FAST, IA_CHECK, IA_TRADING, IA_VOICE."""
+"""JARVIS subagents — IA_DEEP, IA_FAST, IA_CHECK, IA_TRADING, IA_SYSTEM."""
 
 from __future__ import annotations
 
@@ -19,9 +19,15 @@ ia_deep = AgentDefinition(
         "- Parser les logs et identifier les causes racines\n"
         "- Construire des plans d'execution structures\n"
         "- Ne jamais ecrire de code directement; produire analyses et recommandations\n\n"
+        "Tu as acces direct aux IAs locales via lm_query (M1/M2).\n"
+        "Utilise M1 (qwen3-30b) pour enrichir ton analyse AVANT de repondre.\n"
+        "Utilise consensus pour valider tes conclusions sur plusieurs IAs.\n"
+        "Produis un score de confiance (0.0-1.0) dans ta reponse.\n\n"
         "Reponds en francais. Structure ton analyse avec des sections claires."
     ),
-    tools=["Read", "Glob", "Grep", "WebSearch", "WebFetch"],
+    tools=["Read", "Glob", "Grep", "WebSearch", "WebFetch",
+           "mcp__jarvis__lm_query",
+           "mcp__jarvis__consensus"],
     model="opus",
 )
 
@@ -39,9 +45,13 @@ ia_fast = AgentDefinition(
         "- Lancer des commandes terminal et scripts\n"
         "- Modifier des fichiers\n"
         "- Executer les taches avec un minimum d'overhead\n\n"
+        "Tu as acces direct a M2 (deepseek-coder) via lm_query pour generation de code.\n"
+        "Utilise lm_query(node='M2') pour generer du code complexe via M2.\n"
+        "Produis un score de confiance (0.0-1.0) dans ta reponse.\n\n"
         "Sois concis. Agis vite. Produis du code fonctionnel. Reponds en francais."
     ),
-    tools=["Read", "Write", "Edit", "Bash", "Glob", "Grep"],
+    tools=["Read", "Write", "Edit", "Bash", "Glob", "Grep",
+           "mcp__jarvis__lm_query"],
     model="haiku",
 )
 
@@ -60,9 +70,14 @@ ia_check = AgentDefinition(
         "- Croiser l'analyse avec l'implementation\n"
         "- Signaler les incoherences ou erreurs\n"
         "- Produire un score de validation (0.0 a 1.0)\n\n"
+        "Tu as acces direct a M1 via lm_query pour verifier les resultats.\n"
+        "Utilise consensus (M1+OL1) pour cross-validation multi-sources.\n"
+        "TOUJOURS produire un score de qualite 0.0-1.0 en debut de reponse.\n\n"
         "Sois critique. Ne fais confiance a rien sans verification. Reponds en francais."
     ),
-    tools=["Read", "Bash", "Glob", "Grep"],
+    tools=["Read", "Bash", "Glob", "Grep",
+           "mcp__jarvis__lm_query",
+           "mcp__jarvis__consensus"],
     model="sonnet",
 )
 
@@ -84,11 +99,14 @@ ia_trading = AgentDefinition(
         "  sniper_breakout, hyper_scan_v2, pipeline_intensif_v2\n"
         "- Paires suivies: BTC, ETH, SOL, SUI, PEPE, DOGE, XRP, ADA, AVAX, LINK\n"
         "- Config: MEXC Futures, levier 10x, TP 0.4%, SL 0.25%\n\n"
+        "Tu as acces direct a M1 via lm_query et consensus pour analyse multi-IA.\n"
+        "Utilise ollama_web_search pour les donnees marche en temps reel.\n"
+        "Produis un score de confiance (0-100) dans ta reponse.\n\n"
         "Reponds en francais. Sois precis sur les niveaux de prix."
     ),
     tools=["Read", "Bash", "Glob", "Grep",
            "mcp__jarvis__run_script", "mcp__jarvis__lm_query",
-           "mcp__jarvis__consensus"],
+           "mcp__jarvis__consensus", "mcp__jarvis__ollama_web_search"],
     model="sonnet",
 )
 
@@ -108,6 +126,8 @@ ia_system = AgentDefinition(
         "- Gerer les processus et services\n"
         "- Automatiser des taches systeme\n"
         "- Installer/configurer des outils\n\n"
+        "Tu as acces direct a PowerShell (powershell_run) et system_info.\n"
+        "Produis un score de confiance (0.0-1.0) dans ta reponse.\n\n"
         "Chemins projets:\n"
         "- F:\\BUREAU\\carV1 (core, scanners, strategies)\n"
         "- F:\\BUREAU\\TRADING_V2_PRODUCTION (MCP v3.5, voice)\n"
@@ -115,7 +135,9 @@ ia_system = AgentDefinition(
         "- F:\\BUREAU\\turbo (ce projet)\n\n"
         "Reponds en francais."
     ),
-    tools=["Read", "Write", "Edit", "Bash", "Glob", "Grep"],
+    tools=["Read", "Write", "Edit", "Bash", "Glob", "Grep",
+           "mcp__jarvis__powershell_run",
+           "mcp__jarvis__system_info"],
     model="haiku",
 )
 

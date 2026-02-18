@@ -95,6 +95,7 @@ async def handle_lm_models(args: dict) -> list[TextContent]:
 
 async def handle_lm_cluster_status(args: dict) -> list[TextContent]:
     results, online = [], 0
+    total_nodes = len(config.lm_nodes) + len(config.ollama_nodes)
     async with httpx.AsyncClient(timeout=5) as c:
         for n in config.lm_nodes:
             try:
@@ -105,7 +106,16 @@ async def handle_lm_cluster_status(args: dict) -> list[TextContent]:
                 online += 1
             except Exception:
                 results.append(f"  {n.name} ({n.role}): OFFLINE")
-    header = f"Cluster: {online}/{len(config.lm_nodes)} noeuds en ligne"
+        for n in config.ollama_nodes:
+            try:
+                r = await c.get(f"{n.url}/api/tags")
+                r.raise_for_status()
+                cnt = len(r.json().get("models", []))
+                results.append(f"  {n.name} ({n.role}): ONLINE — {cnt} modeles [Ollama]")
+                online += 1
+            except Exception:
+                results.append(f"  {n.name} ({n.role}): OFFLINE [Ollama]")
+    header = f"Cluster: {online}/{total_nodes} noeuds en ligne"
     return _text(f"{header}\n" + "\n".join(results))
 
 
@@ -115,7 +125,25 @@ async def handle_consensus(args: dict) -> list[TextContent]:
     responses = []
     async with httpx.AsyncClient(timeout=60) as c:
         for name in nodes:
-            node = config.get_node(name.strip())
+            name = name.strip()
+            # Check Ollama nodes first
+            ol_node = config.get_ollama_node(name)
+            if ol_node:
+                try:
+                    r = await c.post(f"{ol_node.url}/api/chat", json={
+                        "model": ol_node.default_model,
+                        "messages": [{"role": "user", "content": prompt}],
+                        "stream": False, "think": False,
+                        "options": {"temperature": 0.3, "num_predict": 2048},
+                    })
+                    r.raise_for_status()
+                    text = r.json()["message"]["content"]
+                    responses.append(f"[{ol_node.name}/Ollama] {text}")
+                except Exception as e:
+                    responses.append(f"[{ol_node.name}/Ollama] ERREUR: {e}")
+                continue
+            # LM Studio nodes
+            node = config.get_node(name)
             if not node:
                 continue
             try:
@@ -130,6 +158,79 @@ async def handle_consensus(args: dict) -> list[TextContent]:
             except Exception as e:
                 responses.append(f"[{node.name}] ERREUR: {e}")
     return _text(f"Consensus ({len(responses)} sources):\n" + "\n---\n".join(responses))
+
+
+# ── Ollama handlers ─────────────────────────────────────────────────────
+
+async def handle_ollama_query(args: dict) -> list[TextContent]:
+    node = config.get_ollama_node("OL1")
+    if not node:
+        return _error("Noeud Ollama OL1 non configure")
+    model = args.get("model", node.default_model)
+    try:
+        async with httpx.AsyncClient(timeout=120) as c:
+            r = await c.post(f"{node.url}/api/chat", json={
+                "model": model,
+                "messages": [{"role": "user", "content": args["prompt"]}],
+                "stream": False, "think": False,
+                "options": {"temperature": config.temperature, "num_predict": config.max_tokens},
+            })
+            r.raise_for_status()
+            return _text(f"[OL1/{model}] {r.json()['message']['content']}")
+    except httpx.ConnectError:
+        return _error("Ollama hors ligne (127.0.0.1:11434)")
+    except Exception as e:
+        return _error(str(e))
+
+
+async def handle_ollama_models(args: dict) -> list[TextContent]:
+    node = config.get_ollama_node("OL1")
+    if not node:
+        return _error("Noeud Ollama OL1 non configure")
+    try:
+        async with httpx.AsyncClient(timeout=10) as c:
+            r = await c.get(f"{node.url}/api/tags")
+            r.raise_for_status()
+            models = [m["name"] for m in r.json().get("models", [])]
+            return _text(f"Modeles Ollama: {', '.join(models) if models else 'aucun'}")
+    except Exception as e:
+        return _error(str(e))
+
+
+async def handle_ollama_pull(args: dict) -> list[TextContent]:
+    node = config.get_ollama_node("OL1")
+    if not node:
+        return _error("Noeud Ollama OL1 non configure")
+    model_name = args["model_name"]
+    try:
+        async with httpx.AsyncClient(timeout=600) as c:
+            r = await c.post(f"{node.url}/api/pull", json={"name": model_name, "stream": False})
+            r.raise_for_status()
+            return _text(f"Modele '{model_name}' telecharge.")
+    except Exception as e:
+        return _error(str(e))
+
+
+async def handle_ollama_status(args: dict) -> list[TextContent]:
+    node = config.get_ollama_node("OL1")
+    if not node:
+        return _error("Noeud Ollama OL1 non configure")
+    try:
+        async with httpx.AsyncClient(timeout=5) as c:
+            r = await c.get(f"{node.url}/api/tags")
+            r.raise_for_status()
+            data = r.json()
+            models = [m["name"] for m in data.get("models", [])]
+            return _text(
+                f"Ollama OL1: ONLINE\n"
+                f"  URL: {node.url}\n"
+                f"  Modeles: {len(models)} ({', '.join(models) if models else 'aucun'})\n"
+                f"  Role: {node.role}"
+            )
+    except httpx.ConnectError:
+        return _error("Ollama OL1: OFFLINE")
+    except Exception as e:
+        return _error(str(e))
 
 
 async def handle_run_script(args: dict) -> list[TextContent]:
@@ -402,14 +503,36 @@ async def handle_list_skills(args: dict) -> list[TextContent]:
 async def handle_create_skill(args: dict) -> list[TextContent]:
     from src.skills import add_skill, Skill, SkillStep
     steps = []
-    for s in json.loads(args.get("steps", "[]")):
-        steps.append(SkillStep(
-            tool=s["tool"],
-            args=s.get("args", {}),
-            description=s.get("description", ""),
-        ))
+
+    # Parse steps: can be JSON array or pipe-separated string
+    steps_raw = args.get("steps", "")
+    if not steps_raw:
+        return _error("Paramettre 'steps' requis.")
+
+    # Try to parse as JSON array first
+    try:
+        steps_data = json.loads(steps_raw)
+        if not isinstance(steps_data, list):
+            steps_data = [steps_data]
+    except (json.JSONDecodeError, ValueError):
+        # Fallback: parse as pipe-separated string (simple tool names)
+        steps_data = [{"tool": t.strip()} for t in steps_raw.split("|") if t.strip()]
+
+    for s in steps_data:
+        if isinstance(s, str):
+            # Simple tool name
+            steps.append(SkillStep(tool=s, args={}, description=""))
+        elif isinstance(s, dict):
+            # Complex step with args/description
+            steps.append(SkillStep(
+                tool=s["tool"],
+                args=s.get("args", {}),
+                description=s.get("description", ""),
+            ))
+
     if not steps:
         return _error("Aucune etape definie pour le skill.")
+
     triggers = [t.strip() for t in args.get("triggers", args["name"]).split(",")]
     skill = Skill(
         name=args["name"],
@@ -451,7 +574,12 @@ async def handle_brain_status(args: dict) -> list[TextContent]:
 
 async def handle_brain_analyze(args: dict) -> list[TextContent]:
     from src.brain import analyze_and_learn
-    auto = args.get("auto_create", "false").lower() == "true"
+    auto_raw = args.get("auto_create", "false")
+    # Accepte booléen ET string ("true"/"false")
+    if isinstance(auto_raw, bool):
+        auto = auto_raw
+    else:
+        auto = str(auto_raw).lower() == "true"
     min_conf = float(args.get("min_confidence", 0.6))
     report = await _run(analyze_and_learn, auto, min_conf)
     lines = [
@@ -472,7 +600,7 @@ async def handle_brain_analyze(args: dict) -> list[TextContent]:
 async def handle_brain_suggest(args: dict) -> list[TextContent]:
     from src.brain import cluster_suggest_skill
     context = args.get("context", "general")
-    node_url = args.get("node_url", "http://localhost:1234")
+    node_url = args.get("node_url", "http://10.5.0.2:1234")
     suggestion = await cluster_suggest_skill(context, node_url)
     if suggestion is None:
         return _text("Pas de suggestion disponible (cluster IA injoignable).")
@@ -500,8 +628,13 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     # LM Studio (4)
     ("lm_query", "Interroger un noeud LM Studio.", {"prompt": "string", "node": "string", "model": "string"}, handle_lm_query),
     ("lm_models", "Lister les modeles charges sur un noeud.", {"node": "string"}, handle_lm_models),
-    ("lm_cluster_status", "Sante de tous les noeuds du cluster.", {}, handle_lm_cluster_status),
+    ("lm_cluster_status", "Sante de tous les noeuds du cluster (LM Studio + Ollama).", {}, handle_lm_cluster_status),
     ("consensus", "Consensus multi-IA sur une question.", {"prompt": "string", "nodes": "string"}, handle_consensus),
+    # Ollama Cloud (4)
+    ("ollama_query", "Interroger Ollama (local ou cloud).", {"prompt": "string", "model": "string"}, handle_ollama_query),
+    ("ollama_models", "Lister les modeles Ollama disponibles.", {}, handle_ollama_models),
+    ("ollama_pull", "Telecharger un modele Ollama.", {"model_name": "string"}, handle_ollama_pull),
+    ("ollama_status", "Sante du backend Ollama.", {}, handle_ollama_status),
     # Scripts (3)
     ("run_script", "Executer un script indexe.", {"name": "string", "args": "string"}, handle_run_script),
     ("list_scripts", "Lister tous les scripts indexes.", {}, handle_list_scripts),

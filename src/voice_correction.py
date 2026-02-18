@@ -214,6 +214,8 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "motherboard": "info carte mere",
     "gpu": "info gpu detaille",
     "ssd": "sante des disques",
+    "meteo": "dis moi la meteo",
+    "logs": "voir les logs",
     # Vague 12 - Chrome / Fenetres / Accessibilite
     "favoris": "ouvre les favoris",
     "bookmarks": "ouvre les favoris",
@@ -420,8 +422,8 @@ def format_suggestions(suggestions: list[tuple[JarvisCommand, float]]) -> str:
 async def full_correction_pipeline(
     raw_text: str,
     use_ia: bool = True,
-    ia_url: str = "http://localhost:1234",
-    ia_model: str = "openai/gpt-oss-20b",
+    ia_url: str = "http://127.0.0.1:11434",
+    ia_model: str = "qwen3:1.7b",
 ) -> dict[str, Any]:
     """Complete voice correction pipeline.
 
@@ -462,11 +464,22 @@ async def full_correction_pipeline(
     corrected = correct_voice_text(cleaned)
     result["corrected"] = corrected
 
-    # Step 4: Extract action intent (remove fillers, normalize verbs)
+    # Step 4: IA correction EARLY — let LM Studio fix transcription errors FIRST
+    ia_corrected = None
+    if use_ia:
+        try:
+            ia_corrected = await _ia_correct(corrected, ia_url, ia_model)
+            if ia_corrected and ia_corrected.lower().strip() != corrected.lower().strip():
+                result["corrected"] = ia_corrected
+                corrected = ia_corrected
+        except Exception:
+            pass
+
+    # Step 5: Extract action intent (remove fillers, normalize verbs)
     intent = extract_action_intent(corrected)
     result["intent"] = intent
 
-    # Step 5: Try exact/fuzzy match with commands
+    # Step 6: Try exact/fuzzy match with commands
     from src.commands import match_command
     cmd, params, score = match_command(intent)
 
@@ -474,10 +487,10 @@ async def full_correction_pipeline(
         result["command"] = cmd
         result["params"] = params
         result["confidence"] = score
-        result["method"] = result.get("method", "") or "direct"
+        result["method"] = "ia_direct" if ia_corrected else "direct"
         return result
 
-    # Step 6: Try phonetic matching
+    # Step 7: Try phonetic matching
     best_phon_cmd = None
     best_phon_score = 0.0
     for c in COMMANDS:
@@ -495,28 +508,22 @@ async def full_correction_pipeline(
         result["method"] = "phonetic"
         return result
 
-    # Step 7: IA correction (if enabled and text is complex enough)
-    if use_ia and len(intent.split()) >= 2:
-        try:
-            ia_corrected = await _ia_correct(intent, ia_url, ia_model)
-            if ia_corrected and ia_corrected != intent:
-                result["corrected"] = ia_corrected
-                # Re-try matching with IA-corrected text
-                cmd2, params2, score2 = match_command(ia_corrected)
-                if cmd2 and score2 >= 0.60:
-                    result["command"] = cmd2
-                    result["params"] = params2
-                    result["confidence"] = score2
-                    result["method"] = "ia_correction"
-                    return result
-        except Exception:
-            pass
+    # Step 8: If IA corrected but still no match, try matching the IA intent directly
+    if ia_corrected:
+        ia_intent = extract_action_intent(ia_corrected)
+        if ia_intent != intent:
+            cmd3, params3, score3 = match_command(ia_intent)
+            if cmd3 and score3 >= 0.55:
+                result["command"] = cmd3
+                result["params"] = params3
+                result["confidence"] = score3
+                result["method"] = "ia_rematch"
+                return result
 
-    # Step 8: If still no match, get suggestions
+    # Step 9: Get suggestions
     suggestions = get_suggestions(intent)
     result["suggestions"] = suggestions
 
-    # If top suggestion is strong enough, use it
     if suggestions and suggestions[0][1] >= 0.55:
         top_cmd, top_score = suggestions[0]
         result["command"] = top_cmd
@@ -531,28 +538,60 @@ async def full_correction_pipeline(
 
 
 async def _ia_correct(text: str, url: str, model: str) -> str:
-    """Use local LM Studio to correct voice transcription."""
+    """Use Ollama qwen3:1.7b (fast, 1.36 GB) to correct voice transcription.
+
+    Primary: Ollama qwen3:1.7b (lightweight, always loaded, <1s)
+    Fallback: LM Studio M1/qwen3-30b (heavier but more accurate)
+    """
     import httpx
+    from src.config import config
     prompt = (
-        "Corrige cette transcription vocale francaise. "
-        "Garde le sens original. Reponds UNIQUEMENT avec le texte corrige.\n\n"
+        "Tu es le correcteur ORTHOGRAPHIQUE de JARVIS.\n"
+        "REGLE ABSOLUE: corrige UNIQUEMENT les fautes d'orthographe et de grammaire.\n"
+        "NE CHANGE JAMAIS le sens, NE RAJOUTE JAMAIS de mots, NE MODIFIE PAS l'intention.\n"
+        "Exemples:\n"
+        "- 'ouvre moa les chart mexc' → 'ouvre moi les charts mexc'\n"
+        "- 'ferm tout les fenaitre' → 'ferme toutes les fenetres'\n"
+        "- 'statu du clusteur' → 'statut du cluster'\n"
+        "- 'repete' → 'repete'\n"
+        "- 'ouvre youtube' → 'ouvre youtube'\n"
+        "- 'mets youtube' → 'mets youtube'\n"
+        "- 'kel heurre il ait' → 'quelle heure il est'\n"
+        "Reponds UNIQUEMENT avec le texte corrige, RIEN d'autre. Pas de /no_think.\n\n"
         f"Texte: {text}"
     )
-    try:
-        async with httpx.AsyncClient(timeout=8) as c:
-            r = await c.post(
-                f"{url}/v1/chat/completions",
-                json={
-                    "model": model,
-                    "messages": [{"role": "user", "content": prompt}],
-                    "temperature": 0.1,
-                    "max_tokens": 200,
-                },
-            )
-            r.raise_for_status()
-            return r.json()["choices"][0]["message"]["content"].strip()
-    except Exception:
-        return text
+    messages = [{"role": "user", "content": prompt}]
+    # Primary: Ollama qwen3:1.7b (fast, lightweight, always available)
+    ol = config.get_ollama_node("OL1")
+    if ol:
+        try:
+            async with httpx.AsyncClient(timeout=5) as c:
+                r = await c.post(
+                    f"{ol.url}/api/chat",
+                    json={
+                        "model": model, "messages": messages,
+                        "stream": False, "think": False,
+                        "options": {"temperature": 0.1, "num_predict": 200},
+                    },
+                )
+                r.raise_for_status()
+                return r.json()["message"]["content"].strip()
+        except Exception:
+            pass
+    # Fallback: LM Studio M1 (qwen3-30b — heavier but accurate)
+    node = config.get_node("M1")
+    if node:
+        try:
+            async with httpx.AsyncClient(timeout=5) as c:
+                r = await c.post(
+                    f"{node.url}/v1/chat/completions",
+                    json={"model": node.default_model, "messages": messages, "temperature": 0.1, "max_tokens": 200},
+                )
+                r.raise_for_status()
+                return r.json()["choices"][0]["message"]["content"].strip()
+        except Exception:
+            pass
+    return text
 
 
 # ═══════════════════════════════════════════════════════════════════════════

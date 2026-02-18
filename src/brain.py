@@ -257,7 +257,7 @@ def get_brain_status() -> dict:
     }
 
 
-async def cluster_suggest_skill(context: str, node_url: str = "http://localhost:1234") -> dict | None:
+async def cluster_suggest_skill(context: str, node_url: str = "http://10.5.0.2:1234") -> dict | None:
     """Ask the LM Studio cluster for skill suggestions based on context.
 
     Uses M1 (deep analysis) for best results.
@@ -301,7 +301,18 @@ async def cluster_suggest_skill(context: str, node_url: str = "http://localhost:
 
             data = json.loads(text)
             return data
-    except Exception:
+    except httpx.ConnectError as e:
+        # Cluster unreachable — log for debugging
+        import logging
+        logging.warning(f"cluster_suggest_skill: Connexion impossible a {node_url} - {e}")
+        return None
+    except (json.JSONDecodeError, KeyError, IndexError) as e:
+        import logging
+        logging.warning(f"cluster_suggest_skill: Erreur parsing JSON - {e}")
+        return None
+    except Exception as e:
+        import logging
+        logging.warning(f"cluster_suggest_skill: Erreur inattendue - {type(e).__name__}: {e}")
         return None
 
 

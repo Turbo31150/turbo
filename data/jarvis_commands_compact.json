@@ -1,0 +1,3702 @@
+{
+ "version": "10.1",
+ "commands_count": 450,
+ "categories": {
+  "navigation": [
+   {
+    "name": "ouvrir_chrome",
+    "triggers": [
+     "ouvre chrome",
+     "ouvrir chrome"
+    ],
+    "action": "chrome"
+   },
+   {
+    "name": "ouvrir_comet",
+    "triggers": [
+     "ouvre comet",
+     "ouvrir comet"
+    ],
+    "action": "comet"
+   },
+   {
+    "name": "aller_sur_site",
+    "triggers": [
+     "va sur {site}",
+     "ouvre {site}"
+    ],
+    "action": "navigate:{site}"
+   },
+   {
+    "name": "chercher_google",
+    "triggers": [
+     "cherche {requete}",
+     "recherche {requete}"
+    ],
+    "action": "search:{requete}"
+   },
+   {
+    "name": "chercher_youtube",
+    "triggers": [
+     "cherche sur youtube {requete}",
+     "youtube {requete}"
+    ],
+    "action": "navigate:https://www.youtube.com/results?search_query={requete}"
+   },
+   {
+    "name": "ouvrir_gmail",
+    "triggers": [
+     "ouvre gmail",
+     "ouvrir gmail"
+    ],
+    "action": "navigate:https://mail.google.com"
+   },
+   {
+    "name": "ouvrir_youtube",
+    "triggers": [
+     "ouvre youtube",
+     "va sur youtube"
+    ],
+    "action": "navigate:https://youtube.com"
+   },
+   {
+    "name": "ouvrir_github",
+    "triggers": [
+     "ouvre github",
+     "va sur github"
+    ],
+    "action": "navigate:https://github.com"
+   },
+   {
+    "name": "ouvrir_tradingview",
+    "triggers": [
+     "ouvre tradingview",
+     "va sur tradingview"
+    ],
+    "action": "navigate:https://www.tradingview.com"
+   },
+   {
+    "name": "ouvrir_mexc",
+    "triggers": [
+     "ouvre mexc",
+     "va sur mexc"
+    ],
+    "action": "navigate:https://www.mexc.com"
+   },
+   {
+    "name": "nouvel_onglet",
+    "triggers": [
+     "nouvel onglet",
+     "nouveau tab"
+    ],
+    "action": "ctrl+t"
+   },
+   {
+    "name": "fermer_onglet",
+    "triggers": [
+     "ferme l'onglet",
+     "ferme cet onglet"
+    ],
+    "action": "ctrl+w"
+   },
+   {
+    "name": "mode_incognito",
+    "triggers": [
+     "mode incognito",
+     "navigation privee"
+    ],
+    "action": "Start-Process chrome '-incognito'"
+   },
+   {
+    "name": "historique_chrome",
+    "triggers": [
+     "historique chrome",
+     "ouvre l'historique"
+    ],
+    "action": "ctrl+h"
+   },
+   {
+    "name": "favoris_chrome",
+    "triggers": [
+     "ouvre les favoris",
+     "favoris"
+    ],
+    "action": "ctrl+d"
+   },
+   {
+    "name": "telecharger_chrome",
+    "triggers": [
+     "telechargements chrome",
+     "ouvre les downloads"
+    ],
+    "action": "ctrl+j"
+   },
+   {
+    "name": "nouvel_onglet",
+    "triggers": [
+     "nouvel onglet",
+     "ouvre un onglet"
+    ],
+    "action": "ctrl+t"
+   },
+   {
+    "name": "onglet_precedent",
+    "triggers": [
+     "onglet precedent",
+     "tab precedent"
+    ],
+    "action": "ctrl+shift+tab"
+   },
+   {
+    "name": "onglet_suivant",
+    "triggers": [
+     "onglet suivant",
+     "tab suivant"
+    ],
+    "action": "ctrl+tab"
+   },
+   {
+    "name": "rouvrir_onglet",
+    "triggers": [
+     "rouvre l'onglet",
+     "rouvrir onglet"
+    ],
+    "action": "ctrl+shift+t"
+   },
+   {
+    "name": "chrome_favoris",
+    "triggers": [
+     "ouvre les favoris",
+     "mes favoris"
+    ],
+    "action": "ctrl+shift+o"
+   },
+   {
+    "name": "chrome_telechargements",
+    "triggers": [
+     "telechargements chrome",
+     "mes telechargements chrome"
+    ],
+    "action": "ctrl+j"
+   },
+   {
+    "name": "chrome_plein_ecran",
+    "triggers": [
+     "plein ecran",
+     "chrome plein ecran"
+    ],
+    "action": "f11"
+   },
+   {
+    "name": "chrome_zoom_plus",
+    "triggers": [
+     "zoom avant chrome",
+     "agrandir la page"
+    ],
+    "action": "ctrl+plus"
+   },
+   {
+    "name": "chrome_zoom_moins",
+    "triggers": [
+     "zoom arriere chrome",
+     "reduire la page"
+    ],
+    "action": "ctrl+minus"
+   },
+   {
+    "name": "chrome_zoom_reset",
+    "triggers": [
+     "zoom normal",
+     "zoom 100"
+    ],
+    "action": "ctrl+0"
+   }
+  ],
+  "fichiers": [
+   {
+    "name": "ouvrir_documents",
+    "triggers": [
+     "ouvre mes documents",
+     "ouvrir mes documents"
+    ],
+    "action": "Start-Process explorer.exe -ArgumentList ([Environment]::GetFolderPath('MyDocuments'))"
+   },
+   {
+    "name": "ouvrir_bureau",
+    "triggers": [
+     "ouvre le bureau",
+     "ouvrir le bureau"
+    ],
+    "action": "Start-Process explorer.exe -ArgumentList 'F:\\BUREAU'"
+   },
+   {
+    "name": "ouvrir_dossier",
+    "triggers": [
+     "ouvre le dossier {dossier}",
+     "ouvrir le dossier {dossier}"
+    ],
+    "action": "Start-Process explorer.exe -ArgumentList '{dossier}'"
+   },
+   {
+    "name": "ouvrir_telechargements",
+    "triggers": [
+     "ouvre les telechargements",
+     "ouvre mes telechargements"
+    ],
+    "action": "Start-Process explorer.exe -ArgumentList ([Environment]::GetFolderPath('UserProfile') + '\\Downloads')"
+   },
+   {
+    "name": "ouvrir_images",
+    "triggers": [
+     "ouvre mes images",
+     "ouvre mes photos"
+    ],
+    "action": "Start-Process explorer.exe -ArgumentList ([Environment]::GetFolderPath('MyPictures'))"
+   },
+   {
+    "name": "ouvrir_musique",
+    "triggers": [
+     "ouvre ma musique",
+     "ouvre le dossier musique"
+    ],
+    "action": "Start-Process explorer.exe -ArgumentList ([Environment]::GetFolderPath('MyMusic'))"
+   },
+   {
+    "name": "ouvrir_projets",
+    "triggers": [
+     "ouvre mes projets",
+     "va dans les projets"
+    ],
+    "action": "Start-Process explorer.exe -ArgumentList 'F:\\BUREAU\\turbo'"
+   },
+   {
+    "name": "ouvrir_explorateur",
+    "triggers": [
+     "ouvre l'explorateur",
+     "ouvre l'explorateur de fichiers"
+    ],
+    "action": "win+e"
+   },
+   {
+    "name": "lister_dossier",
+    "triggers": [
+     "que contient {dossier}",
+     "liste le dossier {dossier}"
+    ],
+    "action": "list_folder:{dossier}"
+   },
+   {
+    "name": "creer_dossier",
+    "triggers": [
+     "cree un dossier {nom}",
+     "nouveau dossier {nom}"
+    ],
+    "action": "create_folder:{nom}"
+   },
+   {
+    "name": "chercher_fichier",
+    "triggers": [
+     "cherche le fichier {nom}",
+     "trouve le fichier {nom}"
+    ],
+    "action": "search_files:{nom}"
+   },
+   {
+    "name": "ouvrir_recents",
+    "triggers": [
+     "fichiers recents",
+     "ouvre les recents"
+    ],
+    "action": "Start-Process explorer.exe -ArgumentList 'shell:Recent'"
+   },
+   {
+    "name": "ouvrir_temp",
+    "triggers": [
+     "ouvre le dossier temp",
+     "fichiers temporaires"
+    ],
+    "action": "Start-Process explorer.exe -ArgumentList $env:TEMP"
+   },
+   {
+    "name": "ouvrir_appdata",
+    "triggers": [
+     "ouvre appdata",
+     "dossier appdata"
+    ],
+    "action": "Start-Process explorer.exe -ArgumentList $env:APPDATA"
+   },
+   {
+    "name": "espace_dossier",
+    "triggers": [
+     "taille du dossier {dossier}",
+     "combien pese {dossier}"
+    ],
+    "action": "$s = (Get-ChildItem '{dossier}' -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum / 1GB; \"Taille: $([math]::Round($s,2)) GB\""
+   },
+   {
+    "name": "nombre_fichiers",
+    "triggers": [
+     "combien de fichiers dans {dossier}",
+     "nombre de fichiers {dossier}"
+    ],
+    "action": "$n = (Get-ChildItem '{dossier}' -Recurse -File -ErrorAction SilentlyContinue).Count; \"$n fichiers dans {dossier}\""
+   },
+   {
+    "name": "compresser_dossier",
+    "triggers": [
+     "compresse {dossier}",
+     "zip {dossier}"
+    ],
+    "action": "Compress-Archive -Path '{dossier}' -DestinationPath '{dossier}.zip' -Force; 'Archive creee: {dossier}.zip'"
+   },
+   {
+    "name": "decompresser_zip",
+    "triggers": [
+     "decompresse {fichier}",
+     "unzip {fichier}"
+    ],
+    "action": "Expand-Archive -Path '{fichier}' -DestinationPath (Split-Path '{fichier}') -Force; 'Extrait dans: ' + (Split-Path '{fichier}')"
+   },
+   {
+    "name": "hash_fichier",
+    "triggers": [
+     "hash de {fichier}",
+     "sha256 de {fichier}"
+    ],
+    "action": "(Get-FileHash '{fichier}' -Algorithm SHA256).Hash"
+   },
+   {
+    "name": "chercher_contenu",
+    "triggers": [
+     "cherche {texte} dans les fichiers",
+     "grep {texte}"
+    ],
+    "action": "Get-ChildItem -Recurse -File -ErrorAction SilentlyContinue | Select-String -Pattern '{texte}' -List | Select Path, LineNumber | Select -First 20 | Out-String"
+   },
+   {
+    "name": "derniers_fichiers",
+    "triggers": [
+     "derniers fichiers modifies",
+     "fichiers recents"
+    ],
+    "action": "Get-ChildItem -Recurse -File -ErrorAction SilentlyContinue | Sort LastWriteTime -Descending | Select -First 15 Name, LastWriteTime, @{N='Size(KB)';E={[math]::Round($_.Length/1KB,1)}} | Out-String"
+   },
+   {
+    "name": "doublons_fichiers",
+    "triggers": [
+     "fichiers en double",
+     "doublons"
+    ],
+    "action": "Get-ChildItem -Recurse -File -ErrorAction SilentlyContinue | Group-Object Length | Where Count -gt 1 | ForEach-Object { $_.Group | Select Name, Length, DirectoryName } | Select -First 20 | Out-String"
+   },
+   {
+    "name": "gros_fichiers",
+    "triggers": [
+     "plus gros fichiers",
+     "fichiers les plus lourds"
+    ],
+    "action": "Get-ChildItem -Recurse -File -ErrorAction SilentlyContinue | Sort Length -Descending | Select -First 20 Name, @{N='Size(MB)';E={[math]::Round($_.Length/1MB,1)}}, DirectoryName | Out-String"
+   },
+   {
+    "name": "fichiers_type",
+    "triggers": [
+     "fichiers {ext}",
+     "tous les {ext}"
+    ],
+    "action": "$f = Get-ChildItem -Recurse -Filter '*.{ext}' -File -ErrorAction SilentlyContinue; \"$($f.Count) fichiers .{ext} trouves\"; $f | Select -First 15 Name, @{N='Size(KB)';E={[math]::Round($_.Length/1KB,1)}} | Out-String"
+   },
+   {
+    "name": "renommer_masse",
+    "triggers": [
+     "renomme les fichiers {ancien} en {nouveau}",
+     "remplace {ancien} par {nouveau} dans les noms"
+    ],
+    "action": "Get-ChildItem -File | Where Name -match '{ancien}' | Rename-Item -NewName { $_.Name -replace '{ancien}','{nouveau}' } -WhatIf | Out-String"
+   },
+   {
+    "name": "dossiers_vides",
+    "triggers": [
+     "dossiers vides",
+     "repertoires vides"
+    ],
+    "action": "Get-ChildItem -Directory -Recurse -ErrorAction SilentlyContinue | Where { (Get-ChildItem $_.FullName -Force -ErrorAction SilentlyContinue).Count -eq 0 } | Select FullName | Out-String"
+   },
+   {
+    "name": "proprietes_fichier",
+    "triggers": [
+     "proprietes de {fichier}",
+     "details de {fichier}"
+    ],
+    "action": "$f = Get-Item '{fichier}'; \"Nom: $($f.Name)`nTaille: $([math]::Round($f.Length/1KB,1)) KB`nCree: $($f.CreationTime)`nModifie: $($f.LastWriteTime)`nType: $($f.Extension)\""
+   },
+   {
+    "name": "copier_fichier",
+    "triggers": [
+     "copie {source} dans {destination}",
+     "copie {source} vers {destination}"
+    ],
+    "action": "Copy-Item '{source}' '{destination}' -Force; 'Copie effectuee'"
+   },
+   {
+    "name": "deplacer_fichier",
+    "triggers": [
+     "deplace {source} dans {destination}",
+     "deplace {source} vers {destination}"
+    ],
+    "action": "Move-Item '{source}' '{destination}' -Force; 'Deplacement effectue'"
+   },
+   {
+    "name": "explorer_nouvel_onglet",
+    "triggers": [
+     "nouvel onglet explorateur",
+     "onglet explorateur"
+    ],
+    "action": "Start-Process explorer.exe"
+   },
+   {
+    "name": "dossier_captures",
+    "triggers": [
+     "dossier captures",
+     "ouvre les captures"
+    ],
+    "action": "Start-Process ([Environment]::GetFolderPath('MyPictures') + '\\Screenshots')"
+   }
+  ],
+  "app": [
+   {
+    "name": "ouvrir_vscode",
+    "triggers": [
+     "ouvre vscode",
+     "ouvrir vscode"
+    ],
+    "action": "code"
+   },
+   {
+    "name": "ouvrir_terminal",
+    "triggers": [
+     "ouvre le terminal",
+     "ouvrir le terminal"
+    ],
+    "action": "wt"
+   },
+   {
+    "name": "ouvrir_lmstudio",
+    "triggers": [
+     "ouvre lm studio",
+     "lance lm studio"
+    ],
+    "action": "lmstudio"
+   },
+   {
+    "name": "ouvrir_discord",
+    "triggers": [
+     "ouvre discord",
+     "lance discord"
+    ],
+    "action": "discord"
+   },
+   {
+    "name": "ouvrir_spotify",
+    "triggers": [
+     "ouvre spotify",
+     "lance spotify"
+    ],
+    "action": "spotify"
+   },
+   {
+    "name": "ouvrir_task_manager",
+    "triggers": [
+     "ouvre le gestionnaire de taches",
+     "task manager"
+    ],
+    "action": "taskmgr"
+   },
+   {
+    "name": "ouvrir_notepad",
+    "triggers": [
+     "ouvre notepad",
+     "ouvre bloc notes"
+    ],
+    "action": "notepad"
+   },
+   {
+    "name": "ouvrir_calculatrice",
+    "triggers": [
+     "ouvre la calculatrice",
+     "lance la calculatrice"
+    ],
+    "action": "calc"
+   },
+   {
+    "name": "fermer_app",
+    "triggers": [
+     "ferme {app}",
+     "fermer {app}"
+    ],
+    "action": "close_app:{app}"
+   },
+   {
+    "name": "ouvrir_app",
+    "triggers": [
+     "ouvre {app}",
+     "ouvrir {app}"
+    ],
+    "action": "{app}"
+   },
+   {
+    "name": "ouvrir_paint",
+    "triggers": [
+     "ouvre paint",
+     "lance paint"
+    ],
+    "action": "mspaint"
+   },
+   {
+    "name": "ouvrir_wordpad",
+    "triggers": [
+     "ouvre wordpad",
+     "lance wordpad"
+    ],
+    "action": "wordpad"
+   },
+   {
+    "name": "ouvrir_snipping",
+    "triggers": [
+     "ouvre l'outil capture",
+     "lance l'outil capture"
+    ],
+    "action": "snippingtool"
+   },
+   {
+    "name": "ouvrir_magnifier",
+    "triggers": [
+     "ouvre la loupe windows",
+     "loupe windows"
+    ],
+    "action": "win+plus"
+   },
+   {
+    "name": "fermer_loupe",
+    "triggers": [
+     "ferme la loupe",
+     "desactive la loupe"
+    ],
+    "action": "win+escape"
+   },
+   {
+    "name": "ouvrir_obs",
+    "triggers": [
+     "ouvre obs",
+     "lance obs"
+    ],
+    "action": "obs64"
+   },
+   {
+    "name": "ouvrir_vlc",
+    "triggers": [
+     "ouvre vlc",
+     "lance vlc"
+    ],
+    "action": "vlc"
+   },
+   {
+    "name": "ouvrir_7zip",
+    "triggers": [
+     "ouvre 7zip",
+     "lance 7zip"
+    ],
+    "action": "7zFM"
+   },
+   {
+    "name": "store_ouvrir",
+    "triggers": [
+     "ouvre le store",
+     "microsoft store"
+    ],
+    "action": "Start-Process ms-windows-store:"
+   },
+   {
+    "name": "store_updates",
+    "triggers": [
+     "mises a jour store",
+     "store updates"
+    ],
+    "action": "Start-Process ms-windows-store://downloadsandupdates"
+   },
+   {
+    "name": "ouvrir_phone_link",
+    "triggers": [
+     "ouvre phone link",
+     "liaison telephone"
+    ],
+    "action": "Start-Process ms-phone:"
+   },
+   {
+    "name": "terminal_settings",
+    "triggers": [
+     "parametres du terminal",
+     "reglages terminal"
+    ],
+    "action": "wt -p 'Settings'"
+   },
+   {
+    "name": "copilot_lancer",
+    "triggers": [
+     "lance copilot",
+     "ouvre copilot"
+    ],
+    "action": "win+c"
+   }
+  ],
+  "media": [
+   {
+    "name": "media_play_pause",
+    "triggers": [
+     "play",
+     "pause"
+    ],
+    "action": "media_play_pause"
+   },
+   {
+    "name": "media_next",
+    "triggers": [
+     "suivant",
+     "piste suivante"
+    ],
+    "action": "media_next"
+   },
+   {
+    "name": "media_previous",
+    "triggers": [
+     "precedent",
+     "piste precedente"
+    ],
+    "action": "media_previous"
+   },
+   {
+    "name": "volume_haut",
+    "triggers": [
+     "monte le volume",
+     "augmente le volume"
+    ],
+    "action": "volume_up"
+   },
+   {
+    "name": "volume_bas",
+    "triggers": [
+     "baisse le volume",
+     "diminue le volume"
+    ],
+    "action": "volume_down"
+   },
+   {
+    "name": "muet",
+    "triggers": [
+     "coupe le son",
+     "mute"
+    ],
+    "action": "volume_mute"
+   },
+   {
+    "name": "volume_precis",
+    "triggers": [
+     "mets le volume a {niveau}",
+     "volume a {niveau}"
+    ],
+    "action": "powershell -NoProfile -Command \"$vol = {niveau} / 100; (New-Object -ComObject WScript.Shell).SendKeys([char]173); Start-Sleep -Milliseconds 200\""
+   }
+  ],
+  "fenetre": [
+   {
+    "name": "minimiser_tout",
+    "triggers": [
+     "minimise tout",
+     "montre le bureau"
+    ],
+    "action": "win+d"
+   },
+   {
+    "name": "alt_tab",
+    "triggers": [
+     "change de fenetre",
+     "fenetre suivante"
+    ],
+    "action": "alt+tab"
+   },
+   {
+    "name": "fermer_fenetre",
+    "triggers": [
+     "ferme la fenetre",
+     "ferme ca"
+    ],
+    "action": "alt+F4"
+   },
+   {
+    "name": "maximiser_fenetre",
+    "triggers": [
+     "maximise",
+     "plein ecran"
+    ],
+    "action": "win+up"
+   },
+   {
+    "name": "minimiser_fenetre",
+    "triggers": [
+     "minimise",
+     "reduis la fenetre"
+    ],
+    "action": "win+down"
+   },
+   {
+    "name": "fenetre_gauche",
+    "triggers": [
+     "fenetre a gauche",
+     "mets a gauche"
+    ],
+    "action": "win+left"
+   },
+   {
+    "name": "fenetre_droite",
+    "triggers": [
+     "fenetre a droite",
+     "mets a droite"
+    ],
+    "action": "win+right"
+   },
+   {
+    "name": "focus_fenetre",
+    "triggers": [
+     "focus sur {titre}",
+     "va sur la fenetre {titre}"
+    ],
+    "action": "focus_window:{titre}"
+   },
+   {
+    "name": "liste_fenetres",
+    "triggers": [
+     "quelles fenetres sont ouvertes",
+     "liste les fenetres"
+    ],
+    "action": "list_windows"
+   },
+   {
+    "name": "fenetre_haut_gauche",
+    "triggers": [
+     "fenetre en haut a gauche",
+     "snap haut gauche"
+    ],
+    "action": "Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public class K { [DllImport(\"user32.dll\")] public static extern void keybd_event(byte vk, byte scan, int flags, int extra); }'; [K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x25,0,0,0); [K]::keybd_event(0x25,0,2,0); [K]::keybd_event(0x5B,0,2,0); Start-Sleep -Milliseconds 300; [K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x26,0,0,0); [K]::keybd_event(0x26,0,2,0); [K]::keybd_event(0x5B,0,2,0)"
+   },
+   {
+    "name": "fenetre_haut_droite",
+    "triggers": [
+     "fenetre en haut a droite",
+     "snap haut droite"
+    ],
+    "action": "Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public class K { [DllImport(\"user32.dll\")] public static extern void keybd_event(byte vk, byte scan, int flags, int extra); }'; [K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x27,0,0,0); [K]::keybd_event(0x27,0,2,0); [K]::keybd_event(0x5B,0,2,0); Start-Sleep -Milliseconds 300; [K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x26,0,0,0); [K]::keybd_event(0x26,0,2,0); [K]::keybd_event(0x5B,0,2,0)"
+   },
+   {
+    "name": "fenetre_bas_gauche",
+    "triggers": [
+     "fenetre en bas a gauche",
+     "snap bas gauche"
+    ],
+    "action": "Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public class K { [DllImport(\"user32.dll\")] public static extern void keybd_event(byte vk, byte scan, int flags, int extra); }'; [K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x25,0,0,0); [K]::keybd_event(0x25,0,2,0); [K]::keybd_event(0x5B,0,2,0); Start-Sleep -Milliseconds 300; [K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x28,0,0,0); [K]::keybd_event(0x28,0,2,0); [K]::keybd_event(0x5B,0,2,0)"
+   },
+   {
+    "name": "fenetre_bas_droite",
+    "triggers": [
+     "fenetre en bas a droite",
+     "snap bas droite"
+    ],
+    "action": "Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public class K { [DllImport(\"user32.dll\")] public static extern void keybd_event(byte vk, byte scan, int flags, int extra); }'; [K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x27,0,0,0); [K]::keybd_event(0x27,0,2,0); [K]::keybd_event(0x5B,0,2,0); Start-Sleep -Milliseconds 300; [K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x28,0,0,0); [K]::keybd_event(0x28,0,2,0); [K]::keybd_event(0x5B,0,2,0)"
+   }
+  ],
+  "clipboard": [
+   {
+    "name": "copier",
+    "triggers": [
+     "copie",
+     "copier"
+    ],
+    "action": "ctrl+c"
+   },
+   {
+    "name": "coller",
+    "triggers": [
+     "colle",
+     "coller"
+    ],
+    "action": "ctrl+v"
+   },
+   {
+    "name": "couper",
+    "triggers": [
+     "coupe",
+     "couper"
+    ],
+    "action": "ctrl+x"
+   },
+   {
+    "name": "tout_selectionner",
+    "triggers": [
+     "selectionne tout",
+     "tout selectionner"
+    ],
+    "action": "ctrl+a"
+   },
+   {
+    "name": "annuler",
+    "triggers": [
+     "annule",
+     "annuler"
+    ],
+    "action": "ctrl+z"
+   },
+   {
+    "name": "ecrire_texte",
+    "triggers": [
+     "ecris {texte}",
+     "tape {texte}"
+    ],
+    "action": "type_text:{texte}"
+   },
+   {
+    "name": "sauvegarder",
+    "triggers": [
+     "sauvegarde",
+     "enregistre"
+    ],
+    "action": "ctrl+s"
+   },
+   {
+    "name": "refaire",
+    "triggers": [
+     "refais",
+     "redo"
+    ],
+    "action": "ctrl+y"
+   },
+   {
+    "name": "recherche_page",
+    "triggers": [
+     "recherche dans la page",
+     "cherche dans la page"
+    ],
+    "action": "ctrl+f"
+   },
+   {
+    "name": "lire_presse_papier",
+    "triggers": [
+     "lis le presse-papier",
+     "qu'est-ce qui est copie"
+    ],
+    "action": "clipboard_get"
+   },
+   {
+    "name": "historique_clipboard",
+    "triggers": [
+     "historique du presse-papier",
+     "clipboard history"
+    ],
+    "action": "win+v"
+   },
+   {
+    "name": "clipboard_historique",
+    "triggers": [
+     "historique presse papier",
+     "clipboard history"
+    ],
+    "action": "win+v"
+   },
+   {
+    "name": "coller_sans_format",
+    "triggers": [
+     "colle sans format",
+     "coller sans mise en forme"
+    ],
+    "action": "ctrl+shift+v"
+   }
+  ],
+  "systeme": [
+   {
+    "name": "verrouiller",
+    "triggers": [
+     "verrouille le pc",
+     "verrouille l'ecran"
+    ],
+    "action": "rundll32.exe user32.dll,LockWorkStation"
+   },
+   {
+    "name": "eteindre",
+    "triggers": [
+     "eteins le pc",
+     "eteindre le pc"
+    ],
+    "action": "Stop-Computer -Force"
+   },
+   {
+    "name": "redemarrer",
+    "triggers": [
+     "redemarre le pc",
+     "redemarrer le pc"
+    ],
+    "action": "Restart-Computer -Force"
+   },
+   {
+    "name": "veille",
+    "triggers": [
+     "mets en veille",
+     "veille"
+    ],
+    "action": "rundll32.exe powrprof.dll,SetSuspendState 0,1,0"
+   },
+   {
+    "name": "capture_ecran",
+    "triggers": [
+     "capture ecran",
+     "screenshot"
+    ],
+    "action": "win+shift+s"
+   },
+   {
+    "name": "info_systeme",
+    "triggers": [
+     "info systeme",
+     "infos systeme"
+    ],
+    "action": "system_info"
+   },
+   {
+    "name": "info_gpu",
+    "triggers": [
+     "info gpu",
+     "infos gpu"
+    ],
+    "action": "gpu_info"
+   },
+   {
+    "name": "info_reseau",
+    "triggers": [
+     "info reseau",
+     "infos reseau"
+    ],
+    "action": "network_info"
+   },
+   {
+    "name": "processus",
+    "triggers": [
+     "liste les processus",
+     "montre les processus"
+    ],
+    "action": "list_processes"
+   },
+   {
+    "name": "kill_process",
+    "triggers": [
+     "tue le processus {nom}",
+     "kill {nom}"
+    ],
+    "action": "kill_process:{nom}"
+   },
+   {
+    "name": "wifi_scan",
+    "triggers": [
+     "scan wifi",
+     "wifi scan"
+    ],
+    "action": "wifi_networks"
+   },
+   {
+    "name": "ping_host",
+    "triggers": [
+     "ping {host}",
+     "teste la connexion a {host}"
+    ],
+    "action": "ping:{host}"
+   },
+   {
+    "name": "vider_corbeille",
+    "triggers": [
+     "vide la corbeille",
+     "nettoie la corbeille"
+    ],
+    "action": "Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe'"
+   },
+   {
+    "name": "mode_nuit",
+    "triggers": [
+     "mode nuit",
+     "lumiere bleue"
+    ],
+    "action": "win+a"
+   },
+   {
+    "name": "ouvrir_run",
+    "triggers": [
+     "ouvre executer",
+     "boite de dialogue executer"
+    ],
+    "action": "win+r"
+   },
+   {
+    "name": "recherche_windows",
+    "triggers": [
+     "recherche windows",
+     "cherche sur le pc"
+    ],
+    "action": "win+s"
+   },
+   {
+    "name": "centre_notifications",
+    "triggers": [
+     "ouvre les notifications",
+     "notifications"
+    ],
+    "action": "win+n"
+   },
+   {
+    "name": "ouvrir_widgets",
+    "triggers": [
+     "ouvre les widgets",
+     "widgets"
+    ],
+    "action": "win+w"
+   },
+   {
+    "name": "ouvrir_emojis",
+    "triggers": [
+     "ouvre les emojis",
+     "emojis"
+    ],
+    "action": "win+;"
+   },
+   {
+    "name": "projeter_ecran",
+    "triggers": [
+     "projette l'ecran",
+     "duplique l'ecran"
+    ],
+    "action": "win+p"
+   },
+   {
+    "name": "vue_taches",
+    "triggers": [
+     "vue des taches",
+     "bureaux virtuels"
+    ],
+    "action": "win+tab"
+   },
+   {
+    "name": "bureau_suivant",
+    "triggers": [
+     "bureau suivant",
+     "prochain bureau"
+    ],
+    "action": "ctrl+win+right"
+   },
+   {
+    "name": "bureau_precedent",
+    "triggers": [
+     "bureau precedent",
+     "bureau virtuel precedent"
+    ],
+    "action": "ctrl+win+left"
+   },
+   {
+    "name": "ouvrir_parametres",
+    "triggers": [
+     "ouvre les parametres",
+     "parametres"
+    ],
+    "action": "ms-settings:"
+   },
+   {
+    "name": "param_wifi",
+    "triggers": [
+     "parametres wifi",
+     "reglages wifi"
+    ],
+    "action": "ms-settings:network-wifi"
+   },
+   {
+    "name": "param_bluetooth",
+    "triggers": [
+     "parametres bluetooth",
+     "reglages bluetooth"
+    ],
+    "action": "ms-settings:bluetooth"
+   },
+   {
+    "name": "param_affichage",
+    "triggers": [
+     "parametres affichage",
+     "reglages ecran"
+    ],
+    "action": "ms-settings:display"
+   },
+   {
+    "name": "param_son",
+    "triggers": [
+     "parametres son",
+     "reglages audio"
+    ],
+    "action": "ms-settings:sound"
+   },
+   {
+    "name": "param_stockage",
+    "triggers": [
+     "espace disque",
+     "stockage"
+    ],
+    "action": "ms-settings:storagesense"
+   },
+   {
+    "name": "param_mises_a_jour",
+    "triggers": [
+     "mises a jour",
+     "windows update"
+    ],
+    "action": "ms-settings:windowsupdate"
+   },
+   {
+    "name": "param_alimentation",
+    "triggers": [
+     "parametres alimentation",
+     "economie energie"
+    ],
+    "action": "ms-settings:powersleep"
+   },
+   {
+    "name": "bluetooth_on",
+    "triggers": [
+     "active le bluetooth",
+     "allume bluetooth"
+    ],
+    "action": "Add-Type -AssemblyName System.Runtime.WindowsRuntime; $radio = [Windows.Devices.Radios.Radio,Windows.System.Devices,ContentType=WindowsRuntime]::GetRadiosAsync().GetAwaiter().GetResult() | Where-Object { $_.Kind -eq 'Bluetooth' }; if($radio) { $radio[0].SetStateAsync('On').GetAwaiter().GetResult() | Out-Null; 'Bluetooth active' } else { 'Aucun adaptateur Bluetooth' }"
+   },
+   {
+    "name": "bluetooth_off",
+    "triggers": [
+     "desactive le bluetooth",
+     "coupe bluetooth"
+    ],
+    "action": "Add-Type -AssemblyName System.Runtime.WindowsRuntime; $radio = [Windows.Devices.Radios.Radio,Windows.System.Devices,ContentType=WindowsRuntime]::GetRadiosAsync().GetAwaiter().GetResult() | Where-Object { $_.Kind -eq 'Bluetooth' }; if($radio) { $radio[0].SetStateAsync('Off').GetAwaiter().GetResult() | Out-Null; 'Bluetooth desactive' } else { 'Aucun adaptateur Bluetooth' }"
+   },
+   {
+    "name": "luminosite_haut",
+    "triggers": [
+     "augmente la luminosite",
+     "plus lumineux"
+    ],
+    "action": "$b = (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightness).CurrentBrightness; $n = [Math]::Min(100, $b + 10); (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $n); \"Luminosite: $n%\""
+   },
+   {
+    "name": "luminosite_bas",
+    "triggers": [
+     "baisse la luminosite",
+     "moins lumineux"
+    ],
+    "action": "$b = (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightness).CurrentBrightness; $n = [Math]::Max(0, $b - 10); (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $n); \"Luminosite: $n%\""
+   },
+   {
+    "name": "lister_services",
+    "triggers": [
+     "liste les services",
+     "services windows"
+    ],
+    "action": "list_services"
+   },
+   {
+    "name": "demarrer_service",
+    "triggers": [
+     "demarre le service {nom}",
+     "start service {nom}"
+    ],
+    "action": "start_service:{nom}"
+   },
+   {
+    "name": "arreter_service",
+    "triggers": [
+     "arrete le service {nom}",
+     "stop service {nom}"
+    ],
+    "action": "stop_service:{nom}"
+   },
+   {
+    "name": "resolution_ecran",
+    "triggers": [
+     "resolution ecran",
+     "quelle resolution"
+    ],
+    "action": "screen_resolution"
+   },
+   {
+    "name": "taches_planifiees",
+    "triggers": [
+     "taches planifiees",
+     "taches automatiques"
+    ],
+    "action": "scheduled_tasks"
+   },
+   {
+    "name": "mode_avion_on",
+    "triggers": [
+     "active le mode avion",
+     "mode avion"
+    ],
+    "action": "ms-settings:network-airplanemode"
+   },
+   {
+    "name": "micro_mute",
+    "triggers": [
+     "coupe le micro",
+     "mute le micro"
+    ],
+    "action": "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class A{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; [A]::keybd_event(0xAD,0,0,0); [A]::keybd_event(0xAD,0,2,0)"
+   },
+   {
+    "name": "micro_unmute",
+    "triggers": [
+     "reactive le micro",
+     "unmute micro"
+    ],
+    "action": "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class A{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; [A]::keybd_event(0xAD,0,0,0); [A]::keybd_event(0xAD,0,2,0)"
+   },
+   {
+    "name": "param_camera",
+    "triggers": [
+     "parametres camera",
+     "reglages camera"
+    ],
+    "action": "ms-settings:privacy-webcam"
+   },
+   {
+    "name": "nouveau_bureau",
+    "triggers": [
+     "nouveau bureau",
+     "cree un bureau"
+    ],
+    "action": "ctrl+win+d"
+   },
+   {
+    "name": "fermer_bureau",
+    "triggers": [
+     "ferme le bureau",
+     "ferme ce bureau"
+    ],
+    "action": "ctrl+win+F4"
+   },
+   {
+    "name": "zoom_avant",
+    "triggers": [
+     "zoom avant",
+     "zoom plus"
+    ],
+    "action": "ctrl++"
+   },
+   {
+    "name": "zoom_arriere",
+    "triggers": [
+     "zoom arriere",
+     "zoom moins"
+    ],
+    "action": "ctrl+-"
+   },
+   {
+    "name": "zoom_reset",
+    "triggers": [
+     "zoom normal",
+     "zoom reset"
+    ],
+    "action": "ctrl+0"
+   },
+   {
+    "name": "imprimer",
+    "triggers": [
+     "imprime",
+     "imprimer"
+    ],
+    "action": "ctrl+p"
+   },
+   {
+    "name": "renommer",
+    "triggers": [
+     "renomme",
+     "renommer"
+    ],
+    "action": "F2"
+   },
+   {
+    "name": "supprimer",
+    "triggers": [
+     "supprime",
+     "supprimer"
+    ],
+    "action": "delete"
+   },
+   {
+    "name": "proprietes",
+    "triggers": [
+     "proprietes",
+     "proprietes du fichier"
+    ],
+    "action": "alt+enter"
+   },
+   {
+    "name": "actualiser",
+    "triggers": [
+     "actualise",
+     "rafraichis"
+    ],
+    "action": "F5"
+   },
+   {
+    "name": "verrouiller_rapide",
+    "triggers": [
+     "verrouille",
+     "lock"
+    ],
+    "action": "win+l"
+   },
+   {
+    "name": "loupe",
+    "triggers": [
+     "active la loupe",
+     "loupe"
+    ],
+    "action": "win++"
+   },
+   {
+    "name": "loupe_off",
+    "triggers": [
+     "desactive la loupe",
+     "ferme la loupe"
+    ],
+    "action": "win+escape"
+   },
+   {
+    "name": "narrateur",
+    "triggers": [
+     "active le narrateur",
+     "narrateur"
+    ],
+    "action": "ctrl+win+enter"
+   },
+   {
+    "name": "clavier_visuel",
+    "triggers": [
+     "clavier visuel",
+     "ouvre le clavier"
+    ],
+    "action": "Start-Process osk"
+   },
+   {
+    "name": "dictee",
+    "triggers": [
+     "dictee",
+     "dictee vocale"
+    ],
+    "action": "win+h"
+   },
+   {
+    "name": "contraste_eleve",
+    "triggers": [
+     "contraste eleve",
+     "high contrast"
+    ],
+    "action": "alt+shift+print"
+   },
+   {
+    "name": "param_accessibilite",
+    "triggers": [
+     "parametres accessibilite",
+     "reglages accessibilite"
+    ],
+    "action": "ms-settings:easeofaccess"
+   },
+   {
+    "name": "enregistrer_ecran",
+    "triggers": [
+     "enregistre l'ecran",
+     "lance l'enregistrement"
+    ],
+    "action": "win+alt+r"
+   },
+   {
+    "name": "game_bar",
+    "triggers": [
+     "ouvre la game bar",
+     "game bar"
+    ],
+    "action": "win+g"
+   },
+   {
+    "name": "snap_layout",
+    "triggers": [
+     "snap layout",
+     "disposition fenetre"
+    ],
+    "action": "win+z"
+   },
+   {
+    "name": "plan_performance",
+    "triggers": [
+     "mode performance",
+     "performances maximales"
+    ],
+    "action": "powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c; 'Mode haute performance active'"
+   },
+   {
+    "name": "plan_equilibre",
+    "triggers": [
+     "mode equilibre",
+     "plan equilibre"
+    ],
+    "action": "powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e; 'Mode equilibre active'"
+   },
+   {
+    "name": "plan_economie",
+    "triggers": [
+     "mode economie",
+     "economie d'energie"
+    ],
+    "action": "powercfg /setactive a1841308-3541-4fab-bc81-f71556f20b4a; 'Mode economie active'"
+   },
+   {
+    "name": "ipconfig",
+    "triggers": [
+     "montre l'ip",
+     "quelle est mon adresse ip"
+    ],
+    "action": "get_ip"
+   },
+   {
+    "name": "vider_dns",
+    "triggers": [
+     "vide le cache dns",
+     "flush dns"
+    ],
+    "action": "ipconfig /flushdns"
+   },
+   {
+    "name": "param_vpn",
+    "triggers": [
+     "parametres vpn",
+     "reglages vpn"
+    ],
+    "action": "ms-settings:network-vpn"
+   },
+   {
+    "name": "param_proxy",
+    "triggers": [
+     "parametres proxy",
+     "reglages proxy"
+    ],
+    "action": "ms-settings:network-proxy"
+   },
+   {
+    "name": "etendre_ecran",
+    "triggers": [
+     "etends l'ecran",
+     "double ecran"
+    ],
+    "action": "DisplaySwitch.exe /extend"
+   },
+   {
+    "name": "dupliquer_ecran",
+    "triggers": [
+     "duplique l'ecran",
+     "meme image"
+    ],
+    "action": "DisplaySwitch.exe /clone"
+   },
+   {
+    "name": "ecran_principal_seul",
+    "triggers": [
+     "ecran principal seulement",
+     "un seul ecran"
+    ],
+    "action": "DisplaySwitch.exe /internal"
+   },
+   {
+    "name": "ecran_secondaire_seul",
+    "triggers": [
+     "ecran secondaire seulement",
+     "second ecran uniquement"
+    ],
+    "action": "DisplaySwitch.exe /external"
+   },
+   {
+    "name": "focus_assist_on",
+    "triggers": [
+     "ne pas deranger",
+     "focus assist"
+    ],
+    "action": "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Notifications\\Settings' -Name 'NOC_GLOBAL_SETTING_ALLOW_NOTIFICATION_SOUND' -Value 0; 'Focus Assist active'"
+   },
+   {
+    "name": "focus_assist_off",
+    "triggers": [
+     "desactive ne pas deranger",
+     "reactive les notifications"
+    ],
+    "action": "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Notifications\\Settings' -Name 'NOC_GLOBAL_SETTING_ALLOW_NOTIFICATION_SOUND' -Value 1; 'Focus Assist desactive'"
+   },
+   {
+    "name": "taskbar_hide",
+    "triggers": [
+     "cache la barre des taches",
+     "masque la taskbar"
+    ],
+    "action": "$p = 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StuckRects3'; $v = (Get-ItemProperty -Path $p).Settings; $v[8] = 3; Set-ItemProperty -Path $p -Name Settings -Value $v; Stop-Process -Name explorer -Force; 'Taskbar masquee'"
+   },
+   {
+    "name": "taskbar_show",
+    "triggers": [
+     "montre la barre des taches",
+     "affiche la taskbar"
+    ],
+    "action": "$p = 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StuckRects3'; $v = (Get-ItemProperty -Path $p).Settings; $v[8] = 2; Set-ItemProperty -Path $p -Name Settings -Value $v; Stop-Process -Name explorer -Force; 'Taskbar affichee'"
+   },
+   {
+    "name": "night_light_on",
+    "triggers": [
+     "active la lumiere nocturne",
+     "night light on"
+    ],
+    "action": "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\CloudStore\\Store\\DefaultAccount\\Current\\default$windows.data.bluelightreduction.settings\\windows.data.bluelightreduction.settings' -Name 'Data' -Value ([byte[]](2,0,0,0,0x38,0,0,0,2,1,0xCA,0x14,0x0E,0x15,0,0,0,0x2A,6,0xFE,0xD2,0xB3,0xA5,0x04,0,0,0x43,0x42,1,0)); 'Night Light active'"
+   },
+   {
+    "name": "night_light_off",
+    "triggers": [
+     "desactive la lumiere nocturne",
+     "night light off"
+    ],
+    "action": "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\CloudStore\\Store\\DefaultAccount\\Current\\default$windows.data.bluelightreduction.settings\\windows.data.bluelightreduction.settings' -Name 'Data' -Value ([byte[]](2,0,0,0,0x38,0,0,0,0,1,0xCA,0x14,0x0E,0x15,0,0,0,0x2A,6,0xFE,0xD2,0xB3,0xA5,0x04,0,0,0x43,0x42,1,0)); 'Night Light desactive'"
+   },
+   {
+    "name": "info_disques",
+    "triggers": [
+     "espace disque",
+     "info disques"
+    ],
+    "action": "Get-CimInstance Win32_LogicalDisk | Select DeviceID, @{N='Total(GB)';E={[math]::Round($_.Size/1GB,1)}}, @{N='Free(GB)';E={[math]::Round($_.FreeSpace/1GB,1)}}, @{N='Used%';E={[math]::Round(($_.Size-$_.FreeSpace)/$_.Size*100,1)}} | Out-String"
+   },
+   {
+    "name": "vider_temp",
+    "triggers": [
+     "vide les fichiers temporaires",
+     "nettoie les temp"
+    ],
+    "action": "$before = (Get-ChildItem $env:TEMP -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum / 1MB; Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; $after = (Get-ChildItem $env:TEMP -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum / 1MB; \"Temp nettoye: $([math]::Round($before - $after, 1)) MB liberes\""
+   },
+   {
+    "name": "ouvrir_alarmes",
+    "triggers": [
+     "ouvre les alarmes",
+     "alarme"
+    ],
+    "action": "ms-clock:"
+   },
+   {
+    "name": "historique_activite",
+    "triggers": [
+     "historique activite",
+     "timeline"
+    ],
+    "action": "ms-settings:privacy-activityhistory"
+   },
+   {
+    "name": "param_clavier",
+    "triggers": [
+     "parametres clavier",
+     "reglages clavier"
+    ],
+    "action": "ms-settings:keyboard"
+   },
+   {
+    "name": "param_souris",
+    "triggers": [
+     "parametres souris",
+     "reglages souris"
+    ],
+    "action": "ms-settings:mousetouchpad"
+   },
+   {
+    "name": "param_batterie",
+    "triggers": [
+     "parametres batterie",
+     "etat batterie"
+    ],
+    "action": "ms-settings:batterysaver"
+   },
+   {
+    "name": "param_comptes",
+    "triggers": [
+     "parametres comptes",
+     "comptes utilisateur"
+    ],
+    "action": "ms-settings:accounts"
+   },
+   {
+    "name": "param_heure",
+    "triggers": [
+     "parametres heure",
+     "reglages heure"
+    ],
+    "action": "ms-settings:dateandtime"
+   },
+   {
+    "name": "param_langue",
+    "triggers": [
+     "parametres langue",
+     "changer la langue"
+    ],
+    "action": "ms-settings:regionlanguage"
+   },
+   {
+    "name": "windows_security",
+    "triggers": [
+     "ouvre la securite",
+     "securite windows"
+    ],
+    "action": "windowsdefender:"
+   },
+   {
+    "name": "pare_feu",
+    "triggers": [
+     "parametres pare-feu",
+     "firewall"
+    ],
+    "action": "ms-settings:windowsdefender"
+   },
+   {
+    "name": "partage_proximite",
+    "triggers": [
+     "partage a proximite",
+     "nearby sharing"
+    ],
+    "action": "ms-settings:crossdevice"
+   },
+   {
+    "name": "hotspot",
+    "triggers": [
+     "point d'acces",
+     "hotspot"
+    ],
+    "action": "ms-settings:network-mobilehotspot"
+   },
+   {
+    "name": "defrag_disque",
+    "triggers": [
+     "defragmente",
+     "optimise les disques"
+    ],
+    "action": "Start-Process dfrgui"
+   },
+   {
+    "name": "gestion_disques",
+    "triggers": [
+     "gestionnaire de disques",
+     "gestion des disques"
+    ],
+    "action": "Start-Process diskmgmt.msc"
+   },
+   {
+    "name": "variables_env",
+    "triggers": [
+     "variables d'environnement",
+     "variables env"
+    ],
+    "action": "Start-Process rundll32.exe -ArgumentList 'sysdm.cpl,EditEnvironmentVariables'"
+   },
+   {
+    "name": "evenements_windows",
+    "triggers": [
+     "observateur d'evenements",
+     "event viewer"
+    ],
+    "action": "Start-Process eventvwr.msc"
+   },
+   {
+    "name": "moniteur_ressources",
+    "triggers": [
+     "moniteur de ressources",
+     "resource monitor"
+    ],
+    "action": "Start-Process resmon"
+   },
+   {
+    "name": "info_systeme_detaille",
+    "triggers": [
+     "informations systeme detaillees",
+     "msinfo"
+    ],
+    "action": "Start-Process msinfo32"
+   },
+   {
+    "name": "nettoyage_disque",
+    "triggers": [
+     "nettoyage de disque",
+     "disk cleanup"
+    ],
+    "action": "Start-Process cleanmgr"
+   },
+   {
+    "name": "gestionnaire_peripheriques",
+    "triggers": [
+     "gestionnaire de peripheriques",
+     "device manager"
+    ],
+    "action": "Start-Process devmgmt.msc"
+   },
+   {
+    "name": "connexions_reseau",
+    "triggers": [
+     "connexions reseau",
+     "adaptateurs reseau"
+    ],
+    "action": "Start-Process ncpa.cpl"
+   },
+   {
+    "name": "programmes_installees",
+    "triggers": [
+     "programmes installes",
+     "applications installees"
+    ],
+    "action": "ms-settings:appsfeatures"
+   },
+   {
+    "name": "demarrage_apps",
+    "triggers": [
+     "applications demarrage",
+     "programmes au demarrage"
+    ],
+    "action": "ms-settings:startupapps"
+   },
+   {
+    "name": "param_confidentialite",
+    "triggers": [
+     "parametres confidentialite",
+     "privacy"
+    ],
+    "action": "ms-settings:privacy"
+   },
+   {
+    "name": "param_reseau_avance",
+    "triggers": [
+     "parametres reseau avances",
+     "reseau avance"
+    ],
+    "action": "ms-settings:network-advancedsettings"
+   },
+   {
+    "name": "partager_ecran",
+    "triggers": [
+     "partage l'ecran",
+     "miracast"
+    ],
+    "action": "win+k"
+   },
+   {
+    "name": "param_imprimantes",
+    "triggers": [
+     "parametres imprimantes",
+     "imprimante"
+    ],
+    "action": "ms-settings:printers"
+   },
+   {
+    "name": "param_fond_ecran",
+    "triggers": [
+     "fond d'ecran",
+     "change le fond"
+    ],
+    "action": "ms-settings:personalization-background"
+   },
+   {
+    "name": "param_couleurs",
+    "triggers": [
+     "couleurs windows",
+     "couleur d'accent"
+    ],
+    "action": "ms-settings:personalization-colors"
+   },
+   {
+    "name": "param_ecran_veille",
+    "triggers": [
+     "ecran de veille",
+     "ecran de verrouillage"
+    ],
+    "action": "ms-settings:lockscreen"
+   },
+   {
+    "name": "param_polices",
+    "triggers": [
+     "polices",
+     "fonts"
+    ],
+    "action": "ms-settings:fonts"
+   },
+   {
+    "name": "param_themes",
+    "triggers": [
+     "themes windows",
+     "change le theme"
+    ],
+    "action": "ms-settings:themes"
+   },
+   {
+    "name": "mode_sombre",
+    "triggers": [
+     "active le mode sombre",
+     "dark mode on"
+    ],
+    "action": "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'AppsUseLightTheme' -Value 0; Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'SystemUsesLightTheme' -Value 0; 'Mode sombre active'"
+   },
+   {
+    "name": "mode_clair",
+    "triggers": [
+     "active le mode clair",
+     "light mode on"
+    ],
+    "action": "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'AppsUseLightTheme' -Value 1; Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'SystemUsesLightTheme' -Value 1; 'Mode clair active'"
+   },
+   {
+    "name": "param_son_avance",
+    "triggers": [
+     "parametres audio avances",
+     "son avance"
+    ],
+    "action": "ms-settings:sound"
+   },
+   {
+    "name": "param_hdr",
+    "triggers": [
+     "parametres hdr",
+     "active le hdr"
+    ],
+    "action": "ms-settings:display-advancedgraphics"
+   },
+   {
+    "name": "ouvrir_regedit",
+    "triggers": [
+     "ouvre le registre",
+     "regedit"
+    ],
+    "action": "Start-Process regedit"
+   },
+   {
+    "name": "ouvrir_mmc",
+    "triggers": [
+     "console de gestion",
+     "mmc"
+    ],
+    "action": "Start-Process compmgmt.msc"
+   },
+   {
+    "name": "ouvrir_politique_groupe",
+    "triggers": [
+     "politique de groupe",
+     "group policy"
+    ],
+    "action": "Start-Process gpedit.msc"
+   },
+   {
+    "name": "taux_rafraichissement",
+    "triggers": [
+     "taux de rafraichissement",
+     "hertz ecran"
+    ],
+    "action": "ms-settings:display-advancedgraphics"
+   },
+   {
+    "name": "param_notifications_avance",
+    "triggers": [
+     "parametres notifications avances",
+     "gere les notifications"
+    ],
+    "action": "ms-settings:notifications"
+   },
+   {
+    "name": "param_multitache",
+    "triggers": [
+     "parametres multitache",
+     "multitasking"
+    ],
+    "action": "ms-settings:multitasking"
+   },
+   {
+    "name": "apps_par_defaut",
+    "triggers": [
+     "applications par defaut",
+     "apps par defaut"
+    ],
+    "action": "ms-settings:defaultapps"
+   },
+   {
+    "name": "param_stockage_avance",
+    "triggers": [
+     "assistant stockage",
+     "nettoyage automatique"
+    ],
+    "action": "ms-settings:storagepolicies"
+   },
+   {
+    "name": "sauvegarder_windows",
+    "triggers": [
+     "sauvegarde windows",
+     "backup windows"
+    ],
+    "action": "ms-settings:backup"
+   },
+   {
+    "name": "restauration_systeme",
+    "triggers": [
+     "restauration systeme",
+     "point de restauration"
+    ],
+    "action": "Start-Process rstrui"
+   },
+   {
+    "name": "a_propos_pc",
+    "triggers": [
+     "a propos du pc",
+     "about pc"
+    ],
+    "action": "ms-settings:about"
+   },
+   {
+    "name": "param_ethernet",
+    "triggers": [
+     "parametres ethernet",
+     "cable reseau"
+    ],
+    "action": "ms-settings:network-ethernet"
+   },
+   {
+    "name": "param_data_usage",
+    "triggers": [
+     "utilisation donnees",
+     "data usage"
+    ],
+    "action": "ms-settings:datausage"
+   },
+   {
+    "name": "tracert",
+    "triggers": [
+     "trace la route vers {host}",
+     "traceroute {host}"
+    ],
+    "action": "tracert {host} | Out-String"
+   },
+   {
+    "name": "netstat",
+    "triggers": [
+     "connexions actives",
+     "netstat"
+    ],
+    "action": "netstat -an | Select-Object -First 30 | Out-String"
+   },
+   {
+    "name": "uptime",
+    "triggers": [
+     "uptime",
+     "depuis quand le pc tourne"
+    ],
+    "action": "$boot = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; $up = (Get-Date) - $boot; \"Uptime: $($up.Days)j $($up.Hours)h $($up.Minutes)m (boot: $boot)\""
+   },
+   {
+    "name": "temperature_cpu",
+    "triggers": [
+     "temperature cpu",
+     "temperature processeur"
+    ],
+    "action": "Get-CimInstance MSAcpi_ThermalZoneTemperature -Namespace root/WMI -ErrorAction SilentlyContinue | ForEach-Object { $t = ($_.CurrentTemperature - 2732) / 10; \"CPU: $([math]::Round($t,1)) C\" }"
+   },
+   {
+    "name": "liste_utilisateurs",
+    "triggers": [
+     "liste les utilisateurs",
+     "quels utilisateurs"
+    ],
+    "action": "Get-LocalUser | Select Name, Enabled, LastLogon | Out-String"
+   },
+   {
+    "name": "adresse_mac",
+    "triggers": [
+     "adresse mac",
+     "mac address"
+    ],
+    "action": "Get-NetAdapter | Select Name, MacAddress, Status | Out-String"
+   },
+   {
+    "name": "vitesse_reseau",
+    "triggers": [
+     "vitesse reseau",
+     "speed test"
+    ],
+    "action": "Get-NetAdapter | Where Status -eq 'Up' | Select Name, LinkSpeed | Out-String"
+   },
+   {
+    "name": "param_optionnel",
+    "triggers": [
+     "fonctionnalites optionnelles",
+     "optional features"
+    ],
+    "action": "ms-settings:optionalfeatures"
+   },
+   {
+    "name": "ouvrir_sandbox",
+    "triggers": [
+     "ouvre la sandbox",
+     "sandbox"
+    ],
+    "action": "Start-Process WindowsSandbox"
+   },
+   {
+    "name": "verifier_fichiers",
+    "triggers": [
+     "verifie les fichiers systeme",
+     "sfc scan"
+    ],
+    "action": "Start-Process powershell -ArgumentList '/c sfc /scannow' -Verb RunAs"
+   },
+   {
+    "name": "wifi_connecter",
+    "triggers": [
+     "connecte moi au wifi {ssid}",
+     "connecte au wifi {ssid}"
+    ],
+    "action": "netsh wlan connect name='{ssid}'"
+   },
+   {
+    "name": "wifi_deconnecter",
+    "triggers": [
+     "deconnecte le wifi",
+     "deconnecte du wifi"
+    ],
+    "action": "netsh wlan disconnect"
+   },
+   {
+    "name": "wifi_profils",
+    "triggers": [
+     "profils wifi",
+     "wifi sauvegardes"
+    ],
+    "action": "netsh wlan show profiles | Out-String"
+   },
+   {
+    "name": "clipboard_vider",
+    "triggers": [
+     "vide le presse-papier",
+     "efface le clipboard"
+    ],
+    "action": "Set-Clipboard -Value $null; 'Presse-papier vide'"
+   },
+   {
+    "name": "clipboard_compter",
+    "triggers": [
+     "combien de caracteres dans le presse-papier",
+     "taille du presse-papier"
+    ],
+    "action": "$c = Get-Clipboard; \"Clipboard: $($c.Length) caracteres\""
+   },
+   {
+    "name": "recherche_everywhere",
+    "triggers": [
+     "recherche partout {terme}",
+     "cherche partout {terme}"
+    ],
+    "action": "Get-ChildItem -Path C:\\ -Recurse -Filter '*{terme}*' -ErrorAction SilentlyContinue | Select -First 20 FullName | Out-String"
+   },
+   {
+    "name": "tache_planifier",
+    "triggers": [
+     "planifie une tache {nom}",
+     "cree une tache planifiee {nom}"
+    ],
+    "action": "Write-Output 'Pour creer une tache planifiee, precisez: nom, heure, commande'"
+   },
+   {
+    "name": "variables_utilisateur",
+    "triggers": [
+     "variables utilisateur",
+     "mes variables"
+    ],
+    "action": "[Environment]::GetEnvironmentVariables('User') | Out-String"
+   },
+   {
+    "name": "chemin_path",
+    "triggers": [
+     "montre le path",
+     "affiche le path"
+    ],
+    "action": "$env:PATH -split ';' | ForEach-Object { $_ } | Out-String"
+   },
+   {
+    "name": "deconnexion_windows",
+    "triggers": [
+     "deconnecte moi",
+     "deconnexion"
+    ],
+    "action": "shutdown /l"
+   },
+   {
+    "name": "hibernation",
+    "triggers": [
+     "hiberne",
+     "hibernation"
+    ],
+    "action": "shutdown /h"
+   },
+   {
+    "name": "planifier_arret",
+    "triggers": [
+     "eteins dans {minutes} minutes",
+     "arret dans {minutes} minutes"
+    ],
+    "action": "shutdown /s /t ([int]'{minutes}' * 60); \"Arret programme dans {minutes} min\""
+   },
+   {
+    "name": "annuler_arret",
+    "triggers": [
+     "annule l'arret",
+     "annuler shutdown"
+    ],
+    "action": "shutdown /a; 'Arret programme annule'"
+   },
+   {
+    "name": "heure_actuelle",
+    "triggers": [
+     "quelle heure est-il",
+     "quelle heure"
+    ],
+    "action": "Get-Date -Format 'dddd dd MMMM yyyy HH:mm:ss'"
+   },
+   {
+    "name": "date_actuelle",
+    "triggers": [
+     "quelle date",
+     "quel jour on est"
+    ],
+    "action": "Get-Date -Format 'dddd dd MMMM yyyy'"
+   },
+   {
+    "name": "ecran_externe_etendre",
+    "triggers": [
+     "etends l'ecran",
+     "ecran etendu"
+    ],
+    "action": "displayswitch.exe /extend"
+   },
+   {
+    "name": "ecran_duplique",
+    "triggers": [
+     "duplique l'ecran",
+     "ecran duplique"
+    ],
+    "action": "displayswitch.exe /clone"
+   },
+   {
+    "name": "ecran_interne_seul",
+    "triggers": [
+     "ecran principal seulement",
+     "ecran interne seul"
+    ],
+    "action": "displayswitch.exe /internal"
+   },
+   {
+    "name": "ecran_externe_seul",
+    "triggers": [
+     "ecran externe seulement",
+     "ecran externe seul"
+    ],
+    "action": "displayswitch.exe /external"
+   },
+   {
+    "name": "ram_usage",
+    "triggers": [
+     "utilisation ram",
+     "combien de ram"
+    ],
+    "action": "$os = Get-CimInstance Win32_OperatingSystem; $total = [math]::Round($os.TotalVisibleMemorySize/1MB,1); $free = [math]::Round($os.FreePhysicalMemory/1MB,1); $used = $total - $free; \"RAM: $used/$total GB utilise ($free GB libre)\""
+   },
+   {
+    "name": "cpu_usage",
+    "triggers": [
+     "utilisation cpu",
+     "charge du processeur"
+    ],
+    "action": "$cpu = (Get-CimInstance Win32_Processor).LoadPercentage; \"CPU: $cpu% utilise\""
+   },
+   {
+    "name": "cpu_info",
+    "triggers": [
+     "quel processeur",
+     "info cpu"
+    ],
+    "action": "Get-CimInstance Win32_Processor | Select Name, NumberOfCores, NumberOfLogicalProcessors, MaxClockSpeed | Out-String"
+   },
+   {
+    "name": "ram_info",
+    "triggers": [
+     "info ram",
+     "details ram"
+    ],
+    "action": "Get-CimInstance Win32_PhysicalMemory | Select Manufacturer, Capacity, Speed, MemoryType | Out-String"
+   },
+   {
+    "name": "batterie_niveau",
+    "triggers": [
+     "niveau de batterie",
+     "combien de batterie"
+    ],
+    "action": "$b = Get-CimInstance Win32_Battery; if ($b) { \"Batterie: $($b.EstimatedChargeRemaining)% - $($b.BatteryStatus)\" } else { 'Pas de batterie detectee (PC fixe)' }"
+   },
+   {
+    "name": "disque_sante",
+    "triggers": [
+     "sante des disques",
+     "etat des disques"
+    ],
+    "action": "Get-PhysicalDisk | Select FriendlyName, MediaType, HealthStatus, Size | Out-String"
+   },
+   {
+    "name": "carte_mere",
+    "triggers": [
+     "info carte mere",
+     "quelle carte mere"
+    ],
+    "action": "Get-CimInstance Win32_BaseBoard | Select Manufacturer, Product, SerialNumber | Out-String"
+   },
+   {
+    "name": "bios_info",
+    "triggers": [
+     "info bios",
+     "version bios"
+    ],
+    "action": "Get-CimInstance Win32_BIOS | Select Manufacturer, SMBIOSBIOSVersion, ReleaseDate | Out-String"
+   },
+   {
+    "name": "top_ram",
+    "triggers": [
+     "quoi consomme la ram",
+     "top ram"
+    ],
+    "action": "Get-Process | Sort WorkingSet64 -Descending | Select -First 10 Name, @{N='RAM(MB)';E={[math]::Round($_.WorkingSet64/1MB,0)}} | Out-String"
+   },
+   {
+    "name": "top_cpu",
+    "triggers": [
+     "quoi consomme le cpu",
+     "top cpu"
+    ],
+    "action": "Get-Process | Sort CPU -Descending | Select -First 10 Name, @{N='CPU(s)';E={[math]::Round($_.CPU,1)}} | Out-String"
+   },
+   {
+    "name": "carte_graphique",
+    "triggers": [
+     "quelle carte graphique",
+     "info gpu detaille"
+    ],
+    "action": "Get-CimInstance Win32_VideoController | Select Name, DriverVersion, AdapterRAM, VideoProcessor | Out-String"
+   },
+   {
+    "name": "windows_version",
+    "triggers": [
+     "version de windows",
+     "quelle version windows"
+    ],
+    "action": "[System.Environment]::OSVersion.VersionString + ' - Build ' + (Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion').DisplayVersion"
+   },
+   {
+    "name": "dns_changer_google",
+    "triggers": [
+     "mets le dns google",
+     "change le dns en google"
+    ],
+    "action": "Set-DnsClientServerAddress -InterfaceAlias 'Wi-Fi' -ServerAddresses ('8.8.8.8','8.8.4.4'); 'DNS Google configure'"
+   },
+   {
+    "name": "dns_changer_cloudflare",
+    "triggers": [
+     "mets le dns cloudflare",
+     "change le dns en cloudflare"
+    ],
+    "action": "Set-DnsClientServerAddress -InterfaceAlias 'Wi-Fi' -ServerAddresses ('1.1.1.1','1.0.0.1'); 'DNS Cloudflare configure'"
+   },
+   {
+    "name": "dns_reset",
+    "triggers": [
+     "dns automatique",
+     "reset le dns"
+    ],
+    "action": "Set-DnsClientServerAddress -InterfaceAlias 'Wi-Fi' -ResetServerAddresses; 'DNS remis en automatique'"
+   },
+   {
+    "name": "ports_ouverts",
+    "triggers": [
+     "ports ouverts",
+     "quels ports sont ouverts"
+    ],
+    "action": "Get-NetTCPConnection -State Listen | Select LocalPort, OwningProcess, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Sort LocalPort | Out-String"
+   },
+   {
+    "name": "ip_publique",
+    "triggers": [
+     "mon ip publique",
+     "quelle est mon ip publique"
+    ],
+    "action": "(Invoke-WebRequest -Uri 'https://api.ipify.org' -UseBasicParsing).Content"
+   },
+   {
+    "name": "partage_reseau",
+    "triggers": [
+     "partages reseau",
+     "dossiers partages"
+    ],
+    "action": "Get-SmbShare | Select Name, Path, Description | Out-String"
+   },
+   {
+    "name": "connexions_actives",
+    "triggers": [
+     "connexions actives",
+     "qui est connecte"
+    ],
+    "action": "Get-NetTCPConnection -State Established | Select RemoteAddress, RemotePort, OwningProcess, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Sort RemoteAddress | Out-String"
+   },
+   {
+    "name": "vitesse_reseau",
+    "triggers": [
+     "vitesse reseau",
+     "debit carte reseau"
+    ],
+    "action": "Get-NetAdapter | Where Status -eq Up | Select Name, LinkSpeed, MacAddress | Out-String"
+   },
+   {
+    "name": "arp_table",
+    "triggers": [
+     "table arp",
+     "arp"
+    ],
+    "action": "Get-NetNeighbor | Where State -ne Unreachable | Select IPAddress, LinkLayerAddress, State | Out-String"
+   },
+   {
+    "name": "test_port",
+    "triggers": [
+     "teste le port {port} sur {host}",
+     "port {port} ouvert sur {host}"
+    ],
+    "action": "Test-NetConnection -ComputerName '{host}' -Port {port} | Select ComputerName, TcpTestSucceeded, RemotePort | Out-String"
+   },
+   {
+    "name": "route_table",
+    "triggers": [
+     "table de routage",
+     "routes reseau"
+    ],
+    "action": "Get-NetRoute | Where DestinationPrefix -ne '::' | Select DestinationPrefix, NextHop, InterfaceAlias | Out-String"
+   },
+   {
+    "name": "nslookup",
+    "triggers": [
+     "nslookup {domaine}",
+     "resous {domaine}"
+    ],
+    "action": "Resolve-DnsName '{domaine}' | Select Name, Type, IPAddress | Out-String"
+   },
+   {
+    "name": "certificat_ssl",
+    "triggers": [
+     "certificat ssl de {site}",
+     "check ssl {site}"
+    ],
+    "action": "$r = [Net.HttpWebRequest]::Create('https://{site}'); $r.GetResponse() | Out-Null; $c = $r.ServicePoint.Certificate; \"Emetteur: $($c.Issuer)`nExpire: $($c.GetExpirationDateString())\""
+   },
+   {
+    "name": "ouvrir_widgets",
+    "triggers": [
+     "ouvre les widgets",
+     "widgets windows"
+    ],
+    "action": "win+w"
+   },
+   {
+    "name": "partage_proximite_on",
+    "triggers": [
+     "active le partage de proximite",
+     "nearby sharing on"
+    ],
+    "action": "Start-Process ms-settings:crossdevice"
+   },
+   {
+    "name": "screen_recording",
+    "triggers": [
+     "enregistre l'ecran",
+     "screen recording"
+    ],
+    "action": "win+alt+r"
+   },
+   {
+    "name": "game_bar",
+    "triggers": [
+     "ouvre la game bar",
+     "game bar"
+    ],
+    "action": "win+g"
+   },
+   {
+    "name": "parametres_notifications",
+    "triggers": [
+     "parametres notifications",
+     "gere les notifications"
+    ],
+    "action": "Start-Process ms-settings:notifications"
+   },
+   {
+    "name": "parametres_apps_defaut",
+    "triggers": [
+     "apps par defaut",
+     "applications par defaut"
+    ],
+    "action": "Start-Process ms-settings:defaultapps"
+   },
+   {
+    "name": "parametres_about",
+    "triggers": [
+     "a propos du pc",
+     "about this pc"
+    ],
+    "action": "Start-Process ms-settings:about"
+   },
+   {
+    "name": "verifier_sante_disque",
+    "triggers": [
+     "sante des disques",
+     "health check disque"
+    ],
+    "action": "Get-PhysicalDisk | Select FriendlyName, MediaType, HealthStatus, Size, @{N='Size(GB)';E={[math]::Round($_.Size/1GB)}} | Out-String"
+   },
+   {
+    "name": "vitesse_internet",
+    "triggers": [
+     "test de vitesse",
+     "speed test"
+    ],
+    "action": "$ping = (Test-Connection 8.8.8.8 -Count 4 -ErrorAction SilentlyContinue | Measure ResponseTime -Average).Average; \"Latence moyenne: $([math]::Round($ping,1)) ms\""
+   },
+   {
+    "name": "historique_mises_a_jour",
+    "triggers": [
+     "historique updates",
+     "dernieres mises a jour"
+    ],
+    "action": "Get-HotFix | Sort InstalledOn -Descending | Select -First 10 HotFixID, Description, InstalledOn | Out-String"
+   },
+   {
+    "name": "taches_planifiees",
+    "triggers": [
+     "taches planifiees",
+     "scheduled tasks"
+    ],
+    "action": "Get-ScheduledTask | Where State -eq 'Ready' | Select -First 15 TaskName, State | Out-String"
+   },
+   {
+    "name": "demarrage_apps",
+    "triggers": [
+     "apps au demarrage",
+     "startup apps"
+    ],
+    "action": "Get-CimInstance Win32_StartupCommand | Select Name, Command, Location | Out-String"
+   },
+   {
+    "name": "certificats_ssl",
+    "triggers": [
+     "verifie le ssl de {site}",
+     "certificat ssl {site}"
+    ],
+    "action": "$r = [Net.HttpWebRequest]::Create('https://{site}'); $r.GetResponse() | Out-Null; $c = $r.ServicePoint.Certificate; \"SSL {site}: $($c.Subject) | Expire: $($c.GetExpirationDateString())\""
+   },
+   {
+    "name": "audio_sortie",
+    "triggers": [
+     "change la sortie audio",
+     "sortie audio"
+    ],
+    "action": "Start-Process ms-settings:sound"
+   },
+   {
+    "name": "audio_entree",
+    "triggers": [
+     "configure le micro",
+     "entree audio"
+    ],
+    "action": "Start-Process ms-settings:sound"
+   },
+   {
+    "name": "volume_app",
+    "triggers": [
+     "mixer volume",
+     "volume par application"
+    ],
+    "action": "Start-Process ms-settings:apps-volume"
+   },
+   {
+    "name": "micro_mute_toggle",
+    "triggers": [
+     "coupe le micro",
+     "mute le micro"
+    ],
+    "action": "$wshell = New-Object -ComObject WScript.Shell; $wshell.SendKeys([char]0xAD)"
+   },
+   {
+    "name": "liste_imprimantes",
+    "triggers": [
+     "liste les imprimantes",
+     "quelles imprimantes"
+    ],
+    "action": "Get-Printer | Select Name, DriverName, PortName, PrinterStatus | Out-String"
+   },
+   {
+    "name": "imprimante_defaut",
+    "triggers": [
+     "imprimante par defaut",
+     "quelle imprimante"
+    ],
+    "action": "(Get-CimInstance -ClassName Win32_Printer | Where Default -eq $true).Name"
+   },
+   {
+    "name": "param_imprimantes",
+    "triggers": [
+     "parametres imprimantes",
+     "settings imprimantes"
+    ],
+    "action": "Start-Process ms-settings:printers"
+   },
+   {
+    "name": "sandbox_ouvrir",
+    "triggers": [
+     "ouvre la sandbox",
+     "windows sandbox"
+    ],
+    "action": "Start-Process WindowsSandbox"
+   },
+   {
+    "name": "plan_alimentation_actif",
+    "triggers": [
+     "quel plan alimentation",
+     "power plan actif"
+    ],
+    "action": "(powercfg /getactivescheme) -replace '.*: ','' | Out-String"
+   },
+   {
+    "name": "batterie_rapport",
+    "triggers": [
+     "rapport batterie",
+     "battery report"
+    ],
+    "action": "powercfg /batteryreport /output $env:USERPROFILE\\Desktop\\battery_report.html; Start-Process $env:USERPROFILE\\Desktop\\battery_report.html; 'Rapport genere sur le Bureau'"
+   },
+   {
+    "name": "ecran_timeout",
+    "triggers": [
+     "timeout ecran",
+     "ecran en veille apres"
+    ],
+    "action": "Start-Process ms-settings:powersleep"
+   },
+   {
+    "name": "detecter_ecrans",
+    "triggers": [
+     "detecte les ecrans",
+     "detect displays"
+    ],
+    "action": "Get-CimInstance -Namespace root\\wmi -ClassName WmiMonitorBasicDisplayParams | Select InstanceName, Active | Out-String"
+   },
+   {
+    "name": "param_affichage",
+    "triggers": [
+     "parametres affichage",
+     "settings display"
+    ],
+    "action": "Start-Process ms-settings:display"
+   },
+   {
+    "name": "kill_process_nom",
+    "triggers": [
+     "tue le processus {nom}",
+     "kill {nom}"
+    ],
+    "action": "Stop-Process -Name '{nom}' -Force -ErrorAction SilentlyContinue; 'Processus {nom} arrete'"
+   },
+   {
+    "name": "processus_details",
+    "triggers": [
+     "details du processus {nom}",
+     "info processus {nom}"
+    ],
+    "action": "Get-Process '{nom}' -ErrorAction SilentlyContinue | Select Name, CPU, @{N='RAM(MB)';E={[math]::Round($_.WorkingSet64/1MB,1)}}, StartTime | Out-String"
+   },
+   {
+    "name": "diagnostic_reseau",
+    "triggers": [
+     "diagnostic reseau",
+     "diagnostique le reseau"
+    ],
+    "action": "$ping = Test-Connection 8.8.8.8 -Count 2 -ErrorAction SilentlyContinue; $dns = Resolve-DnsName google.com -ErrorAction SilentlyContinue; if($ping){'Ping: OK'}else{'Ping: ECHEC'}; if($dns){'DNS: OK'}else{'DNS: ECHEC'}"
+   },
+   {
+    "name": "wifi_mot_de_passe",
+    "triggers": [
+     "mot de passe wifi",
+     "password wifi"
+    ],
+    "action": "$p = (netsh wlan show profile name=(netsh wlan show interfaces | Select-String 'Profil' | ForEach-Object { ($_ -split ':')[1].Trim() }) key=clear | Select-String 'Contenu de la cl' | ForEach-Object { ($_ -split ':')[1].Trim() }); if($p){\"WiFi Password: $p\"}else{'Non disponible'}"
+   },
+   {
+    "name": "ouvrir_evenements",
+    "triggers": [
+     "observateur evenements",
+     "event viewer"
+    ],
+    "action": "Start-Process eventvwr.msc"
+   },
+   {
+    "name": "ouvrir_services",
+    "triggers": [
+     "ouvre les services",
+     "services windows"
+    ],
+    "action": "Start-Process services.msc"
+   },
+   {
+    "name": "ouvrir_moniteur_perf",
+    "triggers": [
+     "moniteur de performance",
+     "performance monitor"
+    ],
+    "action": "Start-Process perfmon.msc"
+   },
+   {
+    "name": "ouvrir_fiabilite",
+    "triggers": [
+     "moniteur de fiabilite",
+     "reliability monitor"
+    ],
+    "action": "Start-Process perfmon /rel"
+   },
+   {
+    "name": "action_center",
+    "triggers": [
+     "centre de notifications",
+     "notification center"
+    ],
+    "action": "win+n"
+   },
+   {
+    "name": "quick_settings",
+    "triggers": [
+     "parametres rapides",
+     "quick settings"
+    ],
+    "action": "win+a"
+   },
+   {
+    "name": "search_windows",
+    "triggers": [
+     "recherche windows",
+     "windows search"
+    ],
+    "action": "win+s"
+   },
+   {
+    "name": "hyper_v_manager",
+    "triggers": [
+     "ouvre hyper-v",
+     "lance hyper-v"
+    ],
+    "action": "virtmgmt.msc"
+   },
+   {
+    "name": "storage_sense",
+    "triggers": [
+     "active l'assistant de stockage",
+     "storage sense"
+    ],
+    "action": "Start-Process ms-settings:storagepolicies"
+   },
+   {
+    "name": "creer_point_restauration",
+    "triggers": [
+     "cree un point de restauration",
+     "point de restauration"
+    ],
+    "action": "Checkpoint-Computer -Description 'JARVIS' -RestorePointType MODIFY_SETTINGS"
+   },
+   {
+    "name": "voir_hosts",
+    "triggers": [
+     "montre le fichier hosts",
+     "affiche hosts"
+    ],
+    "action": "Get-Content C:\\Windows\\System32\\drivers\\etc\\hosts"
+   },
+   {
+    "name": "dxdiag",
+    "triggers": [
+     "lance dxdiag",
+     "diagnostic directx"
+    ],
+    "action": "dxdiag"
+   },
+   {
+    "name": "memoire_diagnostic",
+    "triggers": [
+     "diagnostic memoire",
+     "teste la memoire"
+    ],
+    "action": "MdSched.exe"
+   },
+   {
+    "name": "reset_reseau",
+    "triggers": [
+     "reinitialise le reseau",
+     "reset reseau"
+    ],
+    "action": "netsh winsock reset; netsh int ip reset"
+   },
+   {
+    "name": "bitlocker_status",
+    "triggers": [
+     "statut bitlocker",
+     "etat bitlocker"
+    ],
+    "action": "manage-bde -status"
+   },
+   {
+    "name": "windows_update_pause",
+    "triggers": [
+     "pause les mises a jour",
+     "suspends les mises a jour"
+    ],
+    "action": "Start-Process ms-settings:windowsupdate"
+   },
+   {
+    "name": "mode_developpeur",
+    "triggers": [
+     "active le mode developpeur",
+     "mode developpeur"
+    ],
+    "action": "Start-Process ms-settings:developers"
+   },
+   {
+    "name": "remote_desktop",
+    "triggers": [
+     "bureau a distance",
+     "remote desktop"
+    ],
+    "action": "Start-Process ms-settings:remotedesktop"
+   },
+   {
+    "name": "credential_manager",
+    "triggers": [
+     "gestionnaire d'identifiants",
+     "credential manager"
+    ],
+    "action": "control /name Microsoft.CredentialManager"
+   },
+   {
+    "name": "certmgr",
+    "triggers": [
+     "gestionnaire de certificats",
+     "certificats windows"
+    ],
+    "action": "certmgr.msc"
+   },
+   {
+    "name": "chkdsk_check",
+    "triggers": [
+     "verifie le disque",
+     "check disk"
+    ],
+    "action": "chkdsk C: /scan"
+   },
+   {
+    "name": "file_history",
+    "triggers": [
+     "historique des fichiers",
+     "file history"
+    ],
+    "action": "Start-Process ms-settings:backup"
+   },
+   {
+    "name": "troubleshoot_reseau",
+    "triggers": [
+     "depanne le reseau",
+     "depannage reseau"
+    ],
+    "action": "msdt.exe /id NetworkDiagnosticsWeb"
+   },
+   {
+    "name": "troubleshoot_audio",
+    "triggers": [
+     "depanne le son",
+     "depannage audio"
+    ],
+    "action": "msdt.exe /id AudioPlaybackDiagnostic"
+   },
+   {
+    "name": "troubleshoot_update",
+    "triggers": [
+     "depanne windows update",
+     "depannage mises a jour"
+    ],
+    "action": "msdt.exe /id WindowsUpdateDiagnostic"
+   },
+   {
+    "name": "power_options",
+    "triggers": [
+     "options d'alimentation",
+     "power options"
+    ],
+    "action": "powercfg.cpl"
+   },
+   {
+    "name": "copilot_parametres",
+    "triggers": [
+     "parametres copilot",
+     "reglages copilot"
+    ],
+    "action": "ms-settings:copilot"
+   },
+   {
+    "name": "cortana_desactiver",
+    "triggers": [
+     "desactive cortana",
+     "coupe cortana"
+    ],
+    "action": "Get-AppxPackage -Name Microsoft.549981C3F5F10 | Remove-AppxPackage -ErrorAction SilentlyContinue; 'Cortana desactivee'"
+   },
+   {
+    "name": "capture_fenetre",
+    "triggers": [
+     "capture la fenetre",
+     "screenshot fenetre"
+    ],
+    "action": "alt+printscreen"
+   },
+   {
+    "name": "capture_retardee",
+    "triggers": [
+     "capture retardee",
+     "screenshot retarde"
+    ],
+    "action": "Start-Process snippingtool /clip; Start-Sleep 1; Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait('%{d}'); 'Capture retardee lancee'"
+   },
+   {
+    "name": "planificateur_ouvrir",
+    "triggers": [
+     "planificateur de taches",
+     "ouvre le planificateur"
+    ],
+    "action": "Start-Process taskschd.msc"
+   },
+   {
+    "name": "creer_tache_planifiee",
+    "triggers": [
+     "cree une tache planifiee",
+     "nouvelle tache planifiee"
+    ],
+    "action": "Start-Process taskschd.msc -ArgumentList '/Create'"
+   },
+   {
+    "name": "lister_usb",
+    "triggers": [
+     "liste les usb",
+     "peripheriques usb"
+    ],
+    "action": "Get-PnpDevice -PresentOnly | Where-Object { $_.InstanceId -like 'USB*' } | Select FriendlyName, Status | Out-String"
+   },
+   {
+    "name": "ejecter_usb",
+    "triggers": [
+     "ejecte l'usb",
+     "ejecter usb"
+    ],
+    "action": "$vol = (Get-Volume | Where-Object { $_.DriveType -eq 'Removable' } | Select -First 1); if($vol){ $dl = $vol.DriveLetter; (New-Object -ComObject Shell.Application).Namespace(17).ParseName(\"${dl}:\").InvokeVerb('Eject'); \"USB ${dl}: ejecte\" } else { 'Aucun USB amovible detecte' }"
+   },
+   {
+    "name": "peripheriques_connectes",
+    "triggers": [
+     "peripheriques connectes",
+     "liste les peripheriques"
+    ],
+    "action": "Get-PnpDevice -PresentOnly -Status OK | Select -First 25 Class, FriendlyName | Sort Class | Out-String"
+   },
+   {
+    "name": "lister_adaptateurs",
+    "triggers": [
+     "liste les adaptateurs reseau",
+     "adaptateurs reseau"
+    ],
+    "action": "Get-NetAdapter | Select Name, InterfaceDescription, Status, LinkSpeed | Out-String"
+   },
+   {
+    "name": "desactiver_wifi_adaptateur",
+    "triggers": [
+     "desactive le wifi",
+     "coupe l'adaptateur wifi"
+    ],
+    "action": "Disable-NetAdapter -Name 'Wi-Fi' -Confirm:$false; 'Adaptateur Wi-Fi desactive'"
+   },
+   {
+    "name": "activer_wifi_adaptateur",
+    "triggers": [
+     "active l'adaptateur wifi",
+     "reactive le wifi"
+    ],
+    "action": "Enable-NetAdapter -Name 'Wi-Fi' -Confirm:$false; 'Adaptateur Wi-Fi active'"
+   },
+   {
+    "name": "firewall_status",
+    "triggers": [
+     "statut pare-feu",
+     "statut firewall"
+    ],
+    "action": "Get-NetFirewallProfile | Select Name, Enabled, DefaultInboundAction, DefaultOutboundAction | Out-String"
+   },
+   {
+    "name": "firewall_regles",
+    "triggers": [
+     "regles pare-feu",
+     "regles firewall"
+    ],
+    "action": "Get-NetFirewallRule -Enabled True -Direction Inbound | Select -First 20 DisplayName, Action | Out-String"
+   },
+   {
+    "name": "firewall_reset",
+    "triggers": [
+     "reinitialise le pare-feu",
+     "reset firewall"
+    ],
+    "action": "netsh advfirewall reset; 'Pare-feu reinitialise aux parametres par defaut'"
+   },
+   {
+    "name": "ajouter_langue",
+    "triggers": [
+     "ajoute une langue",
+     "installer une langue"
+    ],
+    "action": "ms-settings:regionlanguage-adddisplaylanguage"
+   },
+   {
+    "name": "ajouter_clavier",
+    "triggers": [
+     "ajoute un clavier",
+     "nouveau clavier"
+    ],
+    "action": "ms-settings:keyboard"
+   },
+   {
+    "name": "langues_installees",
+    "triggers": [
+     "langues installees",
+     "quelles langues"
+    ],
+    "action": "Get-WinUserLanguageList | Select LanguageTag, InputMethodTips, Spellchecking | Out-String"
+   },
+   {
+    "name": "synchroniser_heure",
+    "triggers": [
+     "synchronise l'heure",
+     "sync heure"
+    ],
+    "action": "w32tm /resync /force; 'Heure synchronisee avec le serveur NTP'"
+   },
+   {
+    "name": "serveur_ntp",
+    "triggers": [
+     "serveur ntp",
+     "quel serveur ntp"
+    ],
+    "action": "w32tm /query /status | Out-String"
+   },
+   {
+    "name": "windows_hello",
+    "triggers": [
+     "windows hello",
+     "hello biometrique"
+    ],
+    "action": "ms-settings:signinoptions"
+   },
+   {
+    "name": "securite_comptes",
+    "triggers": [
+     "securite des comptes",
+     "securite compte"
+    ],
+    "action": "ms-settings:signinoptions-launchfaceenrollment"
+   },
+   {
+    "name": "activation_windows",
+    "triggers": [
+     "activation windows",
+     "windows active"
+    ],
+    "action": "$l = (Get-CimInstance SoftwareLicensingProduct -Filter \"Name like 'Windows%'\" | Where PartialProductKey).LicenseStatus; if($l -eq 1){'Windows est ACTIVE'}else{'Windows NON active'}"
+   },
+   {
+    "name": "recuperation_systeme",
+    "triggers": [
+     "recuperation systeme",
+     "options de recuperation"
+    ],
+    "action": "ms-settings:recovery"
+   }
+  ],
+  "dev": [
+   {
+    "name": "docker_ps",
+    "triggers": [
+     "liste les conteneurs",
+     "docker ps"
+    ],
+    "action": "docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' | Out-String"
+   },
+   {
+    "name": "docker_images",
+    "triggers": [
+     "images docker",
+     "docker images"
+    ],
+    "action": "docker images --format 'table {{.Repository}}\t{{.Tag}}\t{{.Size}}' | Out-String"
+   },
+   {
+    "name": "docker_stop_all",
+    "triggers": [
+     "arrete tous les conteneurs",
+     "docker stop all"
+    ],
+    "action": "docker stop $(docker ps -q) 2>$null; 'Tous les conteneurs arretes'"
+   },
+   {
+    "name": "git_status",
+    "triggers": [
+     "git status",
+     "statut git"
+    ],
+    "action": "cd F:\\BUREAU\\turbo; git status"
+   },
+   {
+    "name": "git_log",
+    "triggers": [
+     "git log",
+     "historique git"
+    ],
+    "action": "cd F:\\BUREAU\\turbo; git log --oneline -10"
+   },
+   {
+    "name": "git_pull",
+    "triggers": [
+     "git pull",
+     "tire les changements"
+    ],
+    "action": "cd F:\\BUREAU\\turbo; git pull origin main"
+   },
+   {
+    "name": "git_push",
+    "triggers": [
+     "git push",
+     "pousse les commits"
+    ],
+    "action": "cd F:\\BUREAU\\turbo; git push origin main"
+   },
+   {
+    "name": "pip_list",
+    "triggers": [
+     "pip list",
+     "packages python"
+    ],
+    "action": "& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run --directory F:\\BUREAU\\turbo pip list | Out-String"
+   },
+   {
+    "name": "python_version",
+    "triggers": [
+     "version python",
+     "quelle version python"
+    ],
+    "action": "& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run --directory F:\\BUREAU\\turbo python --version; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' --version"
+   },
+   {
+    "name": "ouvrir_n8n",
+    "triggers": [
+     "ouvre n8n",
+     "lance n8n"
+    ],
+    "action": "navigate:http://localhost:5678"
+   },
+   {
+    "name": "lm_studio_restart",
+    "triggers": [
+     "relance lm studio",
+     "redemarre lm studio"
+    ],
+    "action": "Stop-Process -Name 'LM Studio' -Force -ErrorAction SilentlyContinue; Start-Sleep 2; Start-Process lmstudio; 'LM Studio relance'"
+   },
+   {
+    "name": "ouvrir_jupyter",
+    "triggers": [
+     "ouvre jupyter",
+     "lance jupyter"
+    ],
+    "action": "navigate:http://localhost:8888"
+   },
+   {
+    "name": "wsl_lancer",
+    "triggers": [
+     "lance wsl",
+     "ouvre wsl"
+    ],
+    "action": "wsl"
+   },
+   {
+    "name": "wsl_liste",
+    "triggers": [
+     "liste les distributions wsl",
+     "wsl liste"
+    ],
+    "action": "wsl --list --verbose"
+   },
+   {
+    "name": "wsl_shutdown",
+    "triggers": [
+     "arrete wsl",
+     "stoppe wsl"
+    ],
+    "action": "wsl --shutdown"
+   }
+  ],
+  "jarvis": [
+   {
+    "name": "historique_commandes",
+    "triggers": [
+     "historique des commandes",
+     "quelles commandes j'ai utilise"
+    ],
+    "action": "if (Test-Path 'F:\\BUREAU\\turbo\\data\\action_history.json') { Get-Content 'F:\\BUREAU\\turbo\\data\\action_history.json' | ConvertFrom-Json | Select -Last 10 | Out-String } else { 'Aucun historique' }"
+   },
+   {
+    "name": "jarvis_aide",
+    "triggers": [
+     "aide",
+     "help"
+    ],
+    "action": "all"
+   },
+   {
+    "name": "jarvis_stop",
+    "triggers": [
+     "jarvis stop",
+     "jarvis arrete"
+    ],
+    "action": "stop"
+   },
+   {
+    "name": "jarvis_repete",
+    "triggers": [
+     "repete",
+     "redis"
+    ],
+    "action": "last"
+   },
+   {
+    "name": "jarvis_scripts",
+    "triggers": [
+     "quels scripts sont disponibles",
+     "liste les scripts"
+    ],
+    "action": "list_scripts"
+   },
+   {
+    "name": "jarvis_projets",
+    "triggers": [
+     "quels projets existent",
+     "liste les projets"
+    ],
+    "action": "list_project_paths"
+   },
+   {
+    "name": "jarvis_notification",
+    "triggers": [
+     "notifie {message}",
+     "notification {message}"
+    ],
+    "action": "notify:JARVIS:{message}"
+   },
+   {
+    "name": "jarvis_skills",
+    "triggers": [
+     "quels skills existent",
+     "liste les skills"
+    ],
+    "action": "skills"
+   },
+   {
+    "name": "jarvis_suggestions",
+    "triggers": [
+     "que me suggeres tu",
+     "suggestions"
+    ],
+    "action": "suggestions"
+   },
+   {
+    "name": "jarvis_brain_status",
+    "triggers": [
+     "etat du cerveau",
+     "brain status"
+    ],
+    "action": "brain_status"
+   },
+   {
+    "name": "jarvis_brain_learn",
+    "triggers": [
+     "apprends",
+     "brain learn"
+    ],
+    "action": "brain_learn"
+   },
+   {
+    "name": "jarvis_brain_suggest",
+    "triggers": [
+     "suggere un skill",
+     "brain suggest"
+    ],
+    "action": "brain_suggest"
+   }
+  ],
+  "saisie": [
+   {
+    "name": "texte_majuscule",
+    "triggers": [
+     "en majuscules",
+     "tout en majuscules"
+    ],
+    "action": "$t = Get-Clipboard; Set-Clipboard ($t.ToUpper()); 'Texte converti en majuscules'"
+   },
+   {
+    "name": "texte_minuscule",
+    "triggers": [
+     "en minuscules",
+     "tout en minuscules"
+    ],
+    "action": "$t = Get-Clipboard; Set-Clipboard ($t.ToLower()); 'Texte converti en minuscules'"
+   },
+   {
+    "name": "ouvrir_emojis",
+    "triggers": [
+     "ouvre les emojis",
+     "panneau emojis"
+    ],
+    "action": "win+."
+   },
+   {
+    "name": "ouvrir_dictee",
+    "triggers": [
+     "dicte",
+     "dictee windows"
+    ],
+    "action": "win+h"
+   }
+  ],
+  "accessibilite": [
+   {
+    "name": "taille_texte_grand",
+    "triggers": [
+     "texte plus grand",
+     "agrandis le texte"
+    ],
+    "action": "ms-settings:easeofaccess-display"
+   },
+   {
+    "name": "clavier_virtuel",
+    "triggers": [
+     "clavier virtuel",
+     "ouvre le clavier virtuel"
+    ],
+    "action": "Start-Process osk"
+   },
+   {
+    "name": "filtre_couleur",
+    "triggers": [
+     "filtre de couleur",
+     "active le filtre couleur"
+    ],
+    "action": "ms-settings:easeofaccess-colorfilter"
+   },
+   {
+    "name": "sous_titres",
+    "triggers": [
+     "sous-titres",
+     "parametres sous-titres"
+    ],
+    "action": "ms-settings:easeofaccess-closedcaptioning"
+   },
+   {
+    "name": "contraste_eleve_toggle",
+    "triggers": [
+     "contraste eleve",
+     "high contrast"
+    ],
+    "action": "Start-Process ms-settings:easeofaccess-highcontrast"
+   },
+   {
+    "name": "sous_titres_live",
+    "triggers": [
+     "sous titres en direct",
+     "live captions"
+    ],
+    "action": "Start-Process ms-settings:easeofaccess-closedcaptioning"
+   },
+   {
+    "name": "filtre_couleur_toggle",
+    "triggers": [
+     "filtre de couleur",
+     "color filter"
+    ],
+    "action": "Start-Process ms-settings:easeofaccess-colorfilter"
+   },
+   {
+    "name": "taille_curseur",
+    "triggers": [
+     "agrandis le curseur",
+     "curseur plus grand"
+    ],
+    "action": "Start-Process ms-settings:easeofaccess-cursorandpointersize"
+   },
+   {
+    "name": "narrateur_toggle",
+    "triggers": [
+     "active le narrateur",
+     "narrateur windows"
+    ],
+    "action": "Start-Process ms-settings:easeofaccess-narrator"
+   },
+   {
+    "name": "sticky_keys_toggle",
+    "triggers": [
+     "active les touches remanentes",
+     "desactive les touches remanentes"
+    ],
+    "action": "Start-Process ms-settings:easeofaccess-keyboard"
+   }
+  ],
+  "trading": [
+   {
+    "name": "scanner_marche",
+    "triggers": [
+     "scanne le marche",
+     "scanner le marche"
+    ],
+    "action": "mexc_scanner"
+   },
+   {
+    "name": "detecter_breakout",
+    "triggers": [
+     "detecte les breakouts",
+     "cherche les breakouts"
+    ],
+    "action": "breakout_detector"
+   },
+   {
+    "name": "pipeline_trading",
+    "triggers": [
+     "lance le pipeline",
+     "pipeline intensif"
+    ],
+    "action": "pipeline_intensif_v2"
+   },
+   {
+    "name": "sniper_breakout",
+    "triggers": [
+     "lance le sniper",
+     "sniper breakout"
+    ],
+    "action": "sniper_breakout"
+   },
+   {
+    "name": "river_scalp",
+    "triggers": [
+     "lance river scalp",
+     "river scalp"
+    ],
+    "action": "river_scalp_1min"
+   },
+   {
+    "name": "hyper_scan",
+    "triggers": [
+     "lance hyper scan",
+     "hyper scan"
+    ],
+    "action": "hyper_scan_v2"
+   },
+   {
+    "name": "statut_cluster",
+    "triggers": [
+     "statut du cluster",
+     "etat du cluster"
+    ],
+    "action": "lm_cluster_status"
+   },
+   {
+    "name": "modeles_charges",
+    "triggers": [
+     "quels modeles sont charges",
+     "liste les modeles"
+    ],
+    "action": "lm_models"
+   },
+   {
+    "name": "ollama_status",
+    "triggers": [
+     "statut ollama",
+     "etat ollama"
+    ],
+    "action": "ollama_status"
+   },
+   {
+    "name": "ollama_modeles",
+    "triggers": [
+     "modeles ollama",
+     "liste modeles ollama"
+    ],
+    "action": "ollama_models"
+   },
+   {
+    "name": "recherche_web_ia",
+    "triggers": [
+     "recherche web {requete}",
+     "cherche sur le web {requete}"
+    ],
+    "action": "ollama_query:{requete}"
+   },
+   {
+    "name": "consensus_ia",
+    "triggers": [
+     "consensus sur {question}",
+     "demande un consensus sur {question}"
+    ],
+    "action": "consensus:{question}"
+   },
+   {
+    "name": "query_ia",
+    "triggers": [
+     "demande a {node} {prompt}",
+     "interroge {node} sur {prompt}"
+    ],
+    "action": "lm_query:{node}:{prompt}"
+   },
+   {
+    "name": "signaux_trading",
+    "triggers": [
+     "signaux en attente",
+     "quels signaux"
+    ],
+    "action": "trading_pending_signals"
+   },
+   {
+    "name": "positions_trading",
+    "triggers": [
+     "mes positions",
+     "positions ouvertes"
+    ],
+    "action": "trading_positions"
+   },
+   {
+    "name": "statut_trading",
+    "triggers": [
+     "statut trading",
+     "etat du trading"
+    ],
+    "action": "trading_status"
+   },
+   {
+    "name": "executer_signal",
+    "triggers": [
+     "execute le signal {id}",
+     "lance le signal {id}"
+    ],
+    "action": "trading_execute_signal:{id}"
+   }
+  ],
+  "launcher": [
+   {
+    "name": "launch_pipeline_10",
+    "triggers": [
+     "lance le pipeline 10 cycles",
+     "pipeline 10 cycles"
+    ],
+    "action": "auto_cycle_10"
+   },
+   {
+    "name": "launch_sniper_10",
+    "triggers": [
+     "lance le sniper 10 cycles",
+     "sniper 10 cycles"
+    ],
+    "action": "sniper_10cycles"
+   },
+   {
+    "name": "launch_sniper_breakout",
+    "triggers": [
+     "lance sniper breakout",
+     "sniper breakout"
+    ],
+    "action": "sniper_breakout"
+   },
+   {
+    "name": "launch_trident",
+    "triggers": [
+     "lance trident",
+     "trident execute"
+    ],
+    "action": "execute_trident"
+   },
+   {
+    "name": "launch_hyper_scan",
+    "triggers": [
+     "lance hyper scan",
+     "hyper scan v2"
+    ],
+    "action": "hyper_scan_v2"
+   },
+   {
+    "name": "launch_monitor_river",
+    "triggers": [
+     "lance river",
+     "monitor river"
+    ],
+    "action": "river_scalp_1min"
+   },
+   {
+    "name": "launch_command_center",
+    "triggers": [
+     "ouvre le command center",
+     "command center"
+    ],
+    "action": "jarvis_gui"
+   },
+   {
+    "name": "launch_electron_app",
+    "triggers": [
+     "lance electron",
+     "jarvis electron"
+    ],
+    "action": "jarvis_api"
+   },
+   {
+    "name": "launch_widget",
+    "triggers": [
+     "lance le widget jarvis",
+     "jarvis widget"
+    ],
+    "action": "jarvis_widget"
+   },
+   {
+    "name": "launch_disk_cleaner",
+    "triggers": [
+     "nettoie le disque",
+     "disk cleaner"
+    ],
+    "action": "disk_cleaner"
+   },
+   {
+    "name": "launch_master_node",
+    "triggers": [
+     "lance le master node",
+     "master interaction"
+    ],
+    "action": "master_interaction"
+   },
+   {
+    "name": "launch_fs_agent",
+    "triggers": [
+     "lance l'agent fichiers",
+     "fs agent"
+    ],
+    "action": "fs_agent"
+   }
+  ]
+ },
+ "scripts": [
+  "multi_ia_orchestrator",
+  "unified_orchestrator",
+  "gpu_pipeline",
+  "mexc_scanner",
+  "breakout_detector",
+  "gap_detector",
+  "live_data_connector",
+  "coinglass_client",
+  "position_tracker",
+  "perplexity_client",
+  "all_strategies",
+  "advanced_strategies",
+  "trading_mcp_v3",
+  "lmstudio_mcp_bridge",
+  "pipeline_intensif_v2",
+  "pipeline_intensif",
+  "river_scalp_1min",
+  "execute_trident",
+  "sniper_breakout",
+  "sniper_10cycles",
+  "auto_cycle_10",
+  "hyper_scan_v2",
+  "voice_driver",
+  "voice_jarvis",
+  "commander_v2",
+  "dashboard",
+  "jarvis_gui",
+  "jarvis_api",
+  "jarvis_widget",
+  "jarvis_main",
+  "jarvis_mcp_legacy",
+  "fs_agent",
+  "master_interaction",
+  "disk_cleaner"
+ ],
+ "routing": {
+  "short_answer": [
+   "M2"
+  ],
+  "deep_analysis": [
+   "M1"
+  ],
+  "trading_signal": [
+   "M2",
+   "M1"
+  ],
+  "code_generation": [
+   "M2"
+  ],
+  "validation": [
+   "M1",
+   "M2"
+  ],
+  "critical": [
+   "M1",
+   "M2"
+  ],
+  "consensus": [
+   "M1",
+   "M2"
+  ],
+  "web_research": [
+   "OL1"
+  ],
+  "reasoning": [
+   "OL1",
+   "M1"
+  ]
+ }
+}

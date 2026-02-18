@@ -382,31 +382,32 @@ async def process_voice_input(text: str) -> tuple[str, float]:
     return result, score
 
 
-async def correct_with_ia(text: str, node_url: str = "http://192.168.1.26:1234") -> str:
-    """Use a local LM Studio model to correct voice transcription errors.
-
-    Uses M2 (fast inference) by default for speed.
-    """
+async def correct_with_ia(text: str, node_url: str = "http://127.0.0.1:11434") -> str:
+    """Use Ollama qwen3:1.7b (primary) or M1 fallback to correct voice transcription."""
     import httpx
+    from src.config import config
     prompt = (
         "Tu es un correcteur de texte francais specialise dans la correction "
         "de transcriptions vocales. Corrige les erreurs sans changer le sens. "
         "Reponds UNIQUEMENT avec le texte corrige, rien d'autre.\n\n"
         f"Texte a corriger: {text}"
     )
-    try:
-        async with httpx.AsyncClient(timeout=10) as client:
-            resp = await client.post(
-                f"{node_url}/v1/chat/completions",
-                json={
-                    "model": "openai/gpt-oss-20b",
-                    "messages": [{"role": "user", "content": prompt}],
-                    "temperature": 0.1,
-                    "max_tokens": 256,
-                },
-            )
-            resp.raise_for_status()
-            return resp.json()["choices"][0]["message"]["content"].strip()
-    except Exception:
-        # Fallback: return original corrected text
-        return correct_voice_text(text)
+    messages = [{"role": "user", "content": prompt}]
+    # Primary: Ollama qwen3:1.7b (fast, lightweight)
+    ol = config.get_ollama_node("OL1")
+    if ol:
+        try:
+            async with httpx.AsyncClient(timeout=5) as client:
+                resp = await client.post(
+                    f"{ol.url}/api/chat",
+                    json={
+                        "model": "qwen3:1.7b", "messages": messages,
+                        "stream": False, "think": False,
+                        "options": {"temperature": 0.1, "num_predict": 256},
+                    },
+                )
+                resp.raise_for_status()
+                return resp.json()["message"]["content"].strip()
+        except Exception:
+            pass
+    return correct_voice_text(text)

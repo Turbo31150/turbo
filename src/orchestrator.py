@@ -6,6 +6,8 @@ import asyncio
 import sys
 from typing import Any
 
+import httpx
+
 from claude_agent_sdk import (
     ClaudeSDKClient,
     ClaudeAgentOptions,
@@ -23,20 +25,40 @@ from src.output import JARVIS_OUTPUT_SCHEMA
 
 
 SYSTEM_PROMPT = f"""\
-Tu es JARVIS v{JARVIS_VERSION}, orchestrateur IA distribue sur un cluster de 3 machines.
+Tu es JARVIS v{JARVIS_VERSION}, orchestrateur IA distribue sur un cluster de 2 machines + Ollama cloud.
 Reponds TOUJOURS en francais. Sois concis — tes sorties alimentent un pipeline vocal.
 
 ## Architecture
-- Moteur: CLAUDE (Agent SDK) + LM Studio local (DUAL_CORE)
-- Cluster: 16 GPU, 105 GB VRAM total
-  - M1 (192.168.1.85) — 6 GPU, 36 GB VRAM — analyse profonde (qwen3-30b)
-  - M2 (192.168.1.26) — 3 GPU, 24 GB VRAM — inference rapide (gpt-oss-20b)
-  - M3 (192.168.1.113) — 2 GPU, 16 GB VRAM — validation (mistral-7b)
+- Moteur: CLAUDE (Agent SDK) + LM Studio local + Ollama (TRI_CORE)
+- Cluster LM Studio: 9 GPU, ~70 GB VRAM total (M1 + M2)
+  - M1 (10.5.0.2:1234) — 6 GPU (RTX 2060 12GB + 4x GTX 1660S 6GB + RTX 3080 10GB) = 46GB VRAM
+    - qwen3-30b PERMANENT (18.56 GB, MoE 3B actifs, ctx 32K, 4 parallel, flash attention)
+    - On-demand: qwen3-coder-30b (code), devstral (dev), gpt-oss-20b (general)
+  - M2 (192.168.1.26:1234) — 3 GPU, 24GB VRAM — deepseek-coder-v2-lite (code rapide)
+- Ollama (127.0.0.1:11434) — qwen3:1.7b local + cloud (minimax-m2.5, glm-5, kimi-k2.5)
 
-## Tools MCP Jarvis (69 outils — prefixe mcp__jarvis__)
+## Tools MCP Jarvis (83 outils — prefixe mcp__jarvis__)
 
-### IA & Cluster (4)
-lm_query, lm_models, lm_cluster_status, consensus
+### IA & Cluster LM Studio (4)
+lm_query — Interroger LM Studio. Args: prompt, node, model, mode (fast/deep/default)
+lm_models, lm_cluster_status, consensus
+
+### LM Studio Model Management (7)
+lm_load_model — Charger un modele sur M1 (on-demand)
+lm_unload_model — Decharger un modele
+lm_switch_coder — Basculer en mode code (qwen3-coder-30b)
+lm_switch_dev — Basculer en mode dev (devstral)
+lm_gpu_stats — Statistiques GPU VRAM detaillees
+lm_benchmark — Benchmark latence inference
+lm_perf_metrics — Metriques de performance (latences moyennes)
+
+### Ollama Local (4)
+ollama_query, ollama_models, ollama_pull, ollama_status
+
+### Ollama Cloud — Web Search + Sous-agents (3)
+ollama_web_search — Recherche web NATIVE via modeles cloud
+ollama_subagents — 3 sous-agents paralleles (minimax + glm + kimi)
+ollama_trading_analysis — 3 agents trading paralleles (scanner + analyste + stratege)
 
 ### Scripts & Projets (3)
 run_script, list_scripts, list_project_paths
@@ -83,20 +105,14 @@ registry_read, registry_write
 notify, speak, scheduled_tasks
 
 ### Trading Execution (5)
-trading_pending_signals — Signaux en attente (score >= seuil, frais)
-trading_execute_signal — Executer un signal (dry_run=true par defaut, JAMAIS live sans confirmation)
-trading_positions — Positions ouvertes MEXC Futures
-trading_status — Status global pipeline (signaux, trades, PnL)
-trading_close_position — Fermer une position ouverte
+trading_pending_signals, trading_execute_signal, trading_positions,
+trading_status, trading_close_position
 
 ### Skills & Pipelines (5)
 list_skills, create_skill, remove_skill, suggest_actions, action_history
 
 ### Brain — Apprentissage Autonome (4)
-brain_status — Etat du cerveau (patterns, skills appris)
-brain_analyze — Analyser les patterns d'utilisation et suggerer des skills
-brain_suggest — Demander au cluster IA de creer un nouveau skill
-brain_learn — Auto-apprendre: detecter et creer des skills automatiquement
+brain_status, brain_analyze, brain_suggest, brain_learn
 
 ## Subagents (via Task)
 - `ia-deep` (Opus) — Analyse approfondie, architecture, strategie
@@ -110,28 +126,76 @@ brain_learn — Auto-apprendre: detecter et creer des skills automatiquement
 - Paires: {', '.join(p.split('/')[0] for p in config.pairs)}
 - TP: {config.tp_percent}% | SL: {config.sl_percent}%
 
-## Projets indexes
-- carV1: scanners, strategies, orchestrateurs, GPU pipeline
-- trading_v2: MCP v3.5 (70+ tools), scripts trading, voice system
-- prod_intensive: pipeline autonome intensif
-- turbo: ce projet (Agent SDK)
-
 ## Protocole
 1. Decomposer les requetes complexes en micro-taches → dispatcher aux subagents
-2. Pour les decisions critiques: consensus (min 2 sources: subagents + LM Studio)
-3. Structurer la sortie en JSON JARVIS quand demande
+2. TOUJOURS utiliser le cluster IA local (M1 qwen3-30b) pour analyser AVANT d'agir
+3. Pour les decisions critiques: consensus (min 2 sources: M1 + OL1)
 4. Mode Voice-First: phrases courtes, pas de markdown, reponses directes
-5. Ecrire sur le systeme de fichiers via les tools Read/Write/Edit/Bash
-6. Reporter le consensus_score dans chaque output structurée
-7. IMPORTANT: Max 4 outils MCP jarvis en parallele (limite transport stdio). Si >4 outils, batch par groupes de 3-4.
+5. IMPORTANT: Max 4 outils MCP jarvis en parallele (limite stdio). Batch par groupes de 3-4.
+6. Pour le code: utiliser lm_switch_coder puis lm_query avec qwen3-coder-30b
+7. Pour les recherches web: utiliser ollama_web_search (recherche web NATIVE)
+8. Pour les analyses complexes: utiliser ollama_subagents (3 agents paralleles)
+9. Monitorer les performances: lm_perf_metrics + lm_gpu_stats regulierement
+10. Auto-apprentissage: brain_learn pour detecter et creer des skills automatiquement
 
-## Routage IA
-- Reponse courte → M3, M2
-- Analyse profonde → M1
-- Signal trading → M2, M1
-- Code → M2
-- Validation → M3
-- Critique/Consensus → M1, M2, M3
+## Routage IA (auto-tune par latence)
+- Reponse courte → M1 (qwen3-30b MoE rapide, mode=fast)
+- Analyse profonde → M1 (mode=deep, 16K tokens)
+- Code → M2 (deepseek-coder) ou M1 (qwen3-coder-30b on-demand)
+- Signal trading → M1, OL1 (parallele)
+- Recherche web → OL1 (cloud avec recherche web native)
+- Correction vocale → OL1 (qwen3:1.7b local, ultra-rapide)
+"""
+
+
+COMMANDER_PROMPT = f"""\
+Tu es JARVIS v{JARVIS_VERSION}, COMMANDANT IA distribue.
+
+## REGLE ABSOLUE
+Tu ne fais JAMAIS le travail toi-meme. Tu ORDONNES, VERIFIES et ORCHESTRES.
+Pour TOUTE demande, tu DOIS deleguer aux agents et IAs locales.
+
+## Tes Ordres
+Pour TOUTE demande:
+1. CLASSIFIE la tache (code/analyse/trading/systeme/web/simple)
+2. DECOMPOSE en sous-taches atomiques
+3. DISPATCHE aux agents et IAs en PARALLELE:
+   - ia-deep (Task): analyse profonde, architecture, strategie
+   - ia-fast (Task): code, edits, execution rapide
+   - ia-check (Task): validation, review, score qualite
+   - ia-trading (Task): trading MEXC, scanners, breakout
+   - ia-system (Task): operations Windows, PowerShell, fichiers
+   - mcp__jarvis__lm_query: interroger M1 (qwen3-30b) ou M2 (deepseek-coder) directement
+   - mcp__jarvis__consensus: consensus multi-IA (M1+OL1)
+   - mcp__jarvis__ollama_web_search: recherche web via cloud
+   - mcp__jarvis__ollama_subagents: 3 sous-agents paralleles (minimax+glm+kimi)
+4. COLLECTE tous les resultats
+5. VERIFIE la qualite via ia-check (score 0-1)
+6. Si score < 0.7 → RE-DISPATCHE les taches faibles (max 2 cycles)
+7. SYNTHETISE la reponse finale avec attribution [AGENT/modele]
+
+## Cluster IA
+- M1 (10.5.0.2:1234) — 6 GPU 46GB — qwen3-30b permanent (lm_query node=M1)
+- M2 (192.168.1.26:1234) — 3 GPU 24GB — deepseek-coder (lm_query node=M2)
+- OL1 (127.0.0.1:11434) — Ollama cloud (ollama_web_search, ollama_subagents)
+
+## Subagents (via Task)
+- `ia-deep` (Opus) — Analyse approfondie, architecture
+- `ia-fast` (Haiku) — Code, execution rapide
+- `ia-check` (Sonnet) — Validation, tests, score qualite
+- `ia-trading` (Sonnet) — Trading MEXC Futures
+- `ia-system` (Haiku) — Operations systeme Windows
+
+## Trading Config
+- Exchange: MEXC Futures | Levier: {config.leverage}x
+- Paires: {', '.join(p.split('/')[0] for p in config.pairs)}
+- TP: {config.tp_percent}% | SL: {config.sl_percent}%
+
+## Format Reponse
+[SYNTHESE COMMANDANT]
+- Resume concis avec attribution [AGENT/modele] pour chaque contribution
+- Score qualite global (0-1)
+- Liste des agents utilises
 """
 
 
@@ -168,16 +232,21 @@ def _jarvis_mcp_config() -> dict:
     }
 
 
-def build_options(cwd: str | None = None) -> ClaudeAgentOptions:
-    """Build ClaudeAgentOptions for the JARVIS orchestrator."""
+def build_options(cwd: str | None = None, commander: bool = True) -> ClaudeAgentOptions:
+    """Build ClaudeAgentOptions for the JARVIS orchestrator.
+
+    Args:
+        cwd: Working directory.
+        commander: If True (default), use COMMANDER_PROMPT (Claude = pure orchestrateur).
+    """
     return ClaudeAgentOptions(
-        system_prompt=SYSTEM_PROMPT,
+        system_prompt=COMMANDER_PROMPT if commander else SYSTEM_PROMPT,
         permission_mode="acceptEdits",
         allowed_tools=[
             # Claude Code tools
             "Read", "Write", "Edit", "Bash", "Glob", "Grep",
             "WebSearch", "WebFetch", "Task",
-            # JARVIS MCP — all 69 tools authorized
+            # JARVIS MCP — all 83 tools authorized
             "mcp__jarvis__*",
         ],
         mcp_servers={"jarvis": _jarvis_mcp_config()},
@@ -187,22 +256,31 @@ def build_options(cwd: str | None = None) -> ClaudeAgentOptions:
 
 
 async def run_once(prompt: str, cwd: str | None = None) -> str | None:
-    """Single-shot query: send prompt, collect full result."""
+    """Single-shot query with Commander pipeline: classify -> decompose -> enrich -> dispatch."""
+    from src.commander import classify_task, decompose_task, build_commander_enrichment, format_commander_header
+
     options = build_options(cwd or "F:/BUREAU/turbo")
+
+    # Commander pipeline: classify + decompose + enrich
+    classification = await classify_task(prompt)
+    tasks = decompose_task(prompt, classification)
+    header = format_commander_header(classification, tasks)
+    _safe_print(header, flush=True)
+    enriched = build_commander_enrichment(prompt, classification, tasks)
 
     from claude_agent_sdk import query
 
     result_text: str | None = None
     collected: list[str] = []
     try:
-        async for message in query(prompt=prompt, options=options):
+        async for message in query(prompt=enriched, options=options):
             if isinstance(message, AssistantMessage):
                 for block in message.content:
                     if isinstance(block, TextBlock):
                         collected.append(block.text)
                         _safe_print(block.text, end="", flush=True)
                     elif isinstance(block, ToolUseBlock):
-                        _safe_print(f"\n  [TOOL] {block.name}", flush=True)
+                        _safe_print(f"\n  [DISPATCH] {block.name}", flush=True)
             if isinstance(message, ResultMessage):
                 result_text = message.result
                 _safe_print(f"\n  [JARVIS] Cost: ${message.total_cost_usd or 0:.4f} | "
@@ -227,16 +305,19 @@ async def run_once(prompt: str, cwd: str | None = None) -> str | None:
 
 
 async def run_interactive(cwd: str | None = None) -> None:
-    """Interactive REPL mode with continuous conversation."""
+    """Interactive REPL mode — Commander pipeline permanent."""
+    from src.commander import classify_task, decompose_task, build_commander_enrichment, format_commander_header
+
     options = build_options(cwd)
 
-    print(f"=== JARVIS v{JARVIS_VERSION} | DUAL_CORE | Interactive ===")
-    print("Commands: 'exit' to quit, 'status' for cluster check\n")
+    print(f"=== JARVIS v{JARVIS_VERSION} | MODE COMMANDANT | Interactive ===")
+    print("Claude = orchestrateur pur. Agents + IAs font le travail.")
+    print("Commands: 'exit' pour quitter, 'status' pour cluster check\n")
 
     async with ClaudeSDKClient(options=options) as client:
         while True:
             try:
-                user_input = input("\n[JARVIS] > ")
+                user_input = input("\n[COMMANDANT] > ")
             except (EOFError, KeyboardInterrupt):
                 break
 
@@ -245,9 +326,16 @@ async def run_interactive(cwd: str | None = None) -> None:
             if user_input.strip().lower() == "exit":
                 break
             if user_input.strip().lower() == "status":
-                user_input = "Use the lm_cluster_status tool and report the results."
+                user_input = "Use lm_cluster_status and report results."
 
-            await client.query(user_input)
+            # Commander pipeline: classify -> decompose -> enrich
+            classification = await classify_task(user_input)
+            tasks = decompose_task(user_input, classification)
+            header = format_commander_header(classification, tasks)
+            _safe_print(header, flush=True)
+            enriched = build_commander_enrichment(user_input, classification, tasks)
+
+            await client.query(enriched)
 
             async for message in client.receive_response():
                 if isinstance(message, AssistantMessage):
@@ -255,12 +343,166 @@ async def run_interactive(cwd: str | None = None) -> None:
                         if isinstance(block, TextBlock):
                             _safe_print(block.text, end="", flush=True)
                         elif isinstance(block, ToolUseBlock):
-                            _safe_print(f"\n  [TOOL] {block.name}", flush=True)
+                            _safe_print(f"\n  [DISPATCH] {block.name}", flush=True)
                 if isinstance(message, ResultMessage):
                     if message.total_cost_usd:
                         _safe_print(f"\n  [$] {message.total_cost_usd:.4f} USD", flush=True)
 
     _safe_print("\n[JARVIS] Session terminee.")
+
+
+async def run_commander(cwd: str | None = None) -> None:
+    """Commander mode: Claude ne fait que deleguer aux agents et IAs.
+
+    Claude recoit le COMMANDER_PROMPT et DOIT utiliser Task + lm_query +
+    consensus pour dispatcher le travail. Il ne traite RIEN lui-meme.
+    """
+    from src.commander import classify_task, decompose_task, build_commander_enrichment, format_commander_header
+
+    options = build_options(cwd)
+    options.system_prompt = COMMANDER_PROMPT
+
+    print(f"=== JARVIS v{JARVIS_VERSION} | MODE COMMANDANT | Claude = Orchestrateur ===")
+    print("Claude ne fait que deleguer. Agents + IAs font le travail.")
+    print("Commands: 'exit' pour quitter, 'status' pour cluster check\n")
+
+    async with ClaudeSDKClient(options=options) as client:
+        while True:
+            try:
+                user_input = input("\n[COMMANDANT] > ")
+            except (EOFError, KeyboardInterrupt):
+                break
+
+            if not user_input.strip():
+                continue
+            if user_input.strip().lower() == "exit":
+                break
+            if user_input.strip().lower() == "status":
+                user_input = "Use lm_cluster_status and report results."
+
+            # Step 1: Classify via M1 (fast, <1s)
+            _safe_print("[COMMANDANT] Classification en cours...", flush=True)
+            classification = await classify_task(user_input)
+            _safe_print(f"[COMMANDANT] Type: {classification}", flush=True)
+
+            # Step 2: Decompose into TaskUnits
+            tasks = decompose_task(user_input, classification)
+            header = format_commander_header(classification, tasks)
+            _safe_print(header, flush=True)
+
+            # Step 3: Build enriched prompt for Claude
+            enriched = build_commander_enrichment(user_input, classification, tasks)
+
+            # Step 4: Send to Claude — it will dispatch via Task/lm_query/consensus
+            await client.query(enriched)
+
+            async for message in client.receive_response():
+                if isinstance(message, AssistantMessage):
+                    for block in message.content:
+                        if isinstance(block, TextBlock):
+                            _safe_print(block.text, end="", flush=True)
+                        elif isinstance(block, ToolUseBlock):
+                            _safe_print(f"\n  [DISPATCH] {block.name}", flush=True)
+                if isinstance(message, ResultMessage):
+                    if message.total_cost_usd:
+                        _safe_print(f"\n  [$] {message.total_cost_usd:.4f} USD | "
+                                    f"Turns: {message.num_turns}", flush=True)
+
+    _safe_print("\n[JARVIS] Session commandant terminee.")
+
+
+_KNOWLEDGE_CACHE: str | None = None
+
+
+def _load_knowledge() -> str:
+    """Load the compact M1 knowledge prompt (~2.3KB, cached in memory).
+
+    Loads from data/jarvis_m1_prompt.txt (generated by gen_compact_prompt.py).
+    Falls back to a minimal inline summary if the file is missing.
+    """
+    global _KNOWLEDGE_CACHE
+    if _KNOWLEDGE_CACHE is not None:
+        return _KNOWLEDGE_CACHE
+
+    from pathlib import Path
+    prompt_path = Path(__file__).resolve().parent.parent / "data" / "jarvis_m1_prompt.txt"
+    if prompt_path.exists():
+        _KNOWLEDGE_CACHE = prompt_path.read_text(encoding="utf-8")
+    else:
+        # Fallback: generate minimal summary from code
+        from collections import defaultdict
+        from src.commands import COMMANDS
+        categories: dict[str, list] = defaultdict(list)
+        for cmd in COMMANDS:
+            categories[cmd.category].append(cmd)
+        lines = [f"JARVIS v{JARVIS_VERSION} | {len(COMMANDS)} cmds vocales"]
+        for cat, cmds in sorted(categories.items()):
+            top = [c.triggers[0] for c in cmds[:5]]
+            extra = f" +{len(cmds)-5}" if len(cmds) > 5 else ""
+            lines.append(f"{cat}({len(cmds)}): {' | '.join(top)}{extra}")
+        lines.append("")
+        lines.append("Si commande: ACTION=nom_commande")
+        lines.append("Si outil: OUTIL=nom_outil(args)")
+        lines.append("Sinon reponds en francais, concis.")
+        _KNOWLEDGE_CACHE = "\n".join(lines)
+    return _KNOWLEDGE_CACHE
+
+
+async def _local_ia_analyze(query: str, timeout: float = 10.0) -> str | None:
+    """Query LM Studio M1 to analyze user intent with compact knowledge.
+
+    Uses qwen3-30b (MoE 3B actifs, ctx 32K, 6 GPU, 46GB VRAM, flash attention).
+    Timeout 10s — prompt compact + flash attention = inference rapide.
+    Retry once on transient error. Falls back to Ollama if M1 offline.
+    """
+    from src.tools import _get_client
+
+    system_msg = _load_knowledge()
+    messages = [
+        {"role": "system", "content": system_msg},
+        {"role": "user", "content": query},
+    ]
+
+    # Try LM Studio M1 first (qwen3-30b, 6 GPU, 46GB VRAM)
+    node = config.get_node("M1")
+    if node:
+        for attempt in range(2):
+            try:
+                client = await _get_client()
+                r = await client.post(f"{node.url}/v1/chat/completions", json={
+                    "model": node.default_model,
+                    "messages": messages,
+                    "temperature": 0.2,
+                    "max_tokens": config.fast_max_tokens,
+                }, timeout=timeout)
+                r.raise_for_status()
+                content = r.json()["choices"][0]["message"]["content"].strip()
+                # Remove thinking tags if present (qwen3 sometimes wraps in <think>)
+                if content.startswith("<think>"):
+                    think_end = content.find("</think>")
+                    if think_end != -1:
+                        content = content[think_end + 8:].strip()
+                return content
+            except Exception:
+                if attempt == 0:
+                    await asyncio.sleep(0.5)
+
+    # Fallback: Ollama (native API with think:false for speed)
+    ol = config.get_ollama_node("OL1")
+    if ol:
+        try:
+            client = await _get_client()
+            r = await client.post(f"{ol.url}/api/chat", json={
+                "model": ol.default_model,
+                "messages": messages,
+                "stream": False, "think": False,
+                "options": {"temperature": 0.3, "num_predict": config.fast_max_tokens},
+            }, timeout=timeout)
+            r.raise_for_status()
+            return r.json()["message"]["content"].strip()
+        except Exception:
+            pass
+    return None
 
 
 async def run_voice(cwd: str | None = None) -> None:
@@ -274,7 +516,7 @@ async def run_voice(cwd: str | None = None) -> None:
     5. If no match → send to Claude orchestrator (IA path)
     6. Speak the response (Windows SAPI TTS)
     """
-    from src.voice import listen_voice, speak_text
+    from src.voice import listen_voice, speak_text, HAS_KEYBOARD, PTT_KEY, check_microphone, start_whisper, stop_whisper
     from src.commands import correct_voice_text, match_command, format_commands_help
     from src.executor import execute_command, execute_skill, process_voice_input, correct_with_ia
     from src.voice_correction import full_correction_pipeline, VoiceSession, format_suggestions
@@ -284,25 +526,85 @@ async def run_voice(cwd: str | None = None) -> None:
     session = VoiceSession()
     pending_confirm: tuple | None = None
 
+    # Start persistent Whisper worker (loads model once)
+    _safe_print("[JARVIS] Chargement Whisper (faster-whisper CUDA)...")
+    whisper_ok = start_whisper()
+    if not whisper_ok:
+        _safe_print("[WARN] Whisper worker failed — transcription sera plus lente")
+
     # Load skills on startup
     skills = load_skills()
     from src.commands import COMMANDS
     n_cmds = len(COMMANDS)
     n_tools = len(__import__("src.mcp_server", fromlist=["TOOL_DEFINITIONS"]).TOOL_DEFINITIONS)
-    _safe_print(f"=== JARVIS v{JARVIS_VERSION} | MODE VOCAL | {n_cmds} commandes ===")
-    _safe_print(f"{n_tools} outils MCP | {len(skills)} skills | Correction vocale IA")
-    await speak_text(f"JARVIS actif. {len(skills)} skills, {n_cmds} commandes vocales. Que veux-tu faire?")
+    has_mic = check_microphone()
+    if has_mic:
+        ptt_label = f"Push-to-talk: {PTT_KEY.upper()}" if HAS_KEYBOARD else "Ecoute continue"
+        mode_label = "MODE VOCAL"
+    else:
+        ptt_label = "Clavier + TTS (pas de micro)"
+        mode_label = "MODE HYBRIDE"
+        _safe_print("[WARN] Aucun micro detecte — fallback clavier + TTS")
+    _safe_print(f"=== JARVIS v{JARVIS_VERSION} | {mode_label} | {n_cmds} commandes ===")
+    _safe_print(f"{n_tools} outils MCP | {len(skills)} skills | {ptt_label}")
+    if has_mic:
+        await speak_text(f"JARVIS actif. {len(skills)} skills, {n_cmds} commandes. Maintiens controle pour parler.")
+    else:
+        await speak_text(f"JARVIS actif en mode hybride. {len(skills)} skills. Tape tes commandes.")
 
     async with ClaudeSDKClient(options=options) as client:
         while True:
             print("\n[JARVIS] Ecoute...", flush=True)
-            raw_text = await listen_voice(timeout=15.0)
+            raw_text = await listen_voice(timeout=15.0, use_ptt=True)
 
             if not raw_text:
                 continue
 
             print(f"[VOICE RAW] {raw_text}", flush=True)
             session.last_raw = raw_text
+
+            # ── Wake word + conversational detection ──────────────────────
+            # Regex handles all Whisper punctuation: "Jarvis, ...", "Jarvis! ..."
+            import re
+            _JARVIS_RE = re.compile(
+                r'^((?:hey |ok |dis |bonjour |salut )?jarvis)[,.:;!?\s]*',
+                re.IGNORECASE,
+            )
+            _CONV_STARTERS = (
+                "j'ai une question", "jai une question", "une question", "question",
+                "j'ai besoin", "jai besoin", "aide moi", "aide-moi",
+                "j'ai un probleme", "jai un probleme", "j'ai un souci",
+                "je veux te demander", "je voudrais", "je veux savoir",
+                "tu peux m'aider", "help", "j'ai quelque chose",
+                "est-ce que tu peux", "dis-moi", "dis moi",
+            )
+
+            stripped = raw_text.strip().lower()
+            m = _JARVIS_RE.match(stripped)
+
+            if m:
+                after = stripped[m.end():].strip().rstrip("?!.,;:")
+                if not after:
+                    # "jarvis" seul → demande la commande
+                    await speak_text("Quelle est ta question ou action?")
+                    print("[WAKE] Activation — en attente de commande", flush=True)
+                    continue
+                # Conversationnel court SEULEMENT (< 6 mots) → demande plus
+                # Phrases longues = vraies questions → laisser passer au pipeline
+                if len(after.split()) < 6 and (after in _CONV_STARTERS or any(after == cs for cs in _CONV_STARTERS)):
+                    await speak_text("Oui, dis-moi?")
+                    print(f"[WAKE] Conversationnel: {after} — en attente", flush=True)
+                    continue
+                # Commande ou question apres "jarvis" → strip et traiter
+                raw_text = raw_text.strip()[m.end():].strip()
+                print(f"[WAKE] Prefixe retire → {raw_text}", flush=True)
+            else:
+                # Pas de "jarvis" — check conversationnel court seulement
+                check = stripped.rstrip("?!.,;:")
+                if len(check.split()) < 6 and (check in _CONV_STARTERS or any(check == cs for cs in _CONV_STARTERS)):
+                    await speak_text("Dis-moi, quelle est ta question?")
+                    print(f"[CONV] Conversationnel → en attente", flush=True)
+                    continue
 
             # Handle pending confirmation
             if pending_confirm is not None:
@@ -342,10 +644,14 @@ async def run_voice(cwd: str | None = None) -> None:
             params = cr["params"]
             confidence = cr["confidence"]
 
-            # Exit command
-            if cmd and cmd.name == "jarvis_stop":
+            # Exit command — strict match only (>= 0.85) to avoid accidental exits
+            if cmd and cmd.name == "jarvis_stop" and confidence >= 0.85:
                 await speak_text("Session vocale terminee. A bientot.")
                 break
+            elif cmd and cmd.name == "jarvis_stop" and confidence < 0.85:
+                # Faux positif probable — ignorer le match stop
+                cmd = None
+                print(f"[SAFE] jarvis_stop ignore (confidence={confidence:.2f} < 0.85)", flush=True)
 
             # Help command — include skills
             if cmd and cmd.name == "jarvis_aide":
@@ -356,10 +662,10 @@ async def run_voice(cwd: str | None = None) -> None:
                 await speak_text(f"J'ai {len(load_skills())} skills et {n_cmds} commandes. Regarde l'ecran.")
                 continue
 
-            # Check for skill match BEFORE command execution
+            # Check for skill match BEFORE command execution (only if pipeline found a command-like input)
             intent_text = cr["intent"] or cr["corrected"] or raw_text
             skill, skill_score = find_skill(intent_text)
-            if skill and skill_score >= 0.65:
+            if skill and skill_score >= 0.72:
                 print(f"[SKILL] {skill.name} (score={skill_score:.2f}, {len(skill.steps)} etapes)", flush=True)
                 session.add_to_history(intent_text)
 
@@ -436,38 +742,81 @@ async def run_voice(cwd: str | None = None) -> None:
                     await speak_text(result)
                 continue
 
-            # Low confidence with suggestions → propose
-            if cr["suggestions"] and confidence < 0.65:
+            # Low confidence with suggestions → propose ONLY if pipeline found a plausible match
+            # Skip if method="freeform" (no good match = don't show noisy suggestions)
+            if (cr["suggestions"] and confidence < 0.65
+                    and cr["method"] == "suggestion" and check_microphone()):
                 session.last_suggestions = cr["suggestions"]
                 sug_text = format_suggestions(cr["suggestions"])
                 print(sug_text, flush=True)
-                # Voice: just say the top suggestion
                 top = cr["suggestions"][0][0]
                 await speak_text(f"Tu voulais dire: {top.triggers[0]}? Dis oui, ou repete ta commande.")
                 pending_confirm = (top, {})
                 continue
 
-            # No match at all → send to Claude as freeform
+            # No match → MODE COMMANDANT (M1 pre-analyse + Claude dispatche)
             freeform = cr["intent"] or cr["corrected"] or raw_text
-            print(f"[FREEFORM] → Claude: {freeform}", flush=True)
             session.add_to_history(freeform)
-            await client.query(freeform)
-            rp = []
-            async for msg in client.receive_response():
-                if isinstance(msg, AssistantMessage):
-                    for b in msg.content:
-                        if isinstance(b, TextBlock):
-                            rp.append(b.text)
-                            print(b.text, end="", flush=True)
-                        elif isinstance(b, ToolUseBlock):
-                            print(f"\n  [TOOL] {b.name}", flush=True)
-                if isinstance(msg, ResultMessage):
-                    if msg.total_cost_usd:
-                        print(f"\n  [$] {msg.total_cost_usd:.4f} USD", flush=True)
-            fr = "".join(rp).strip()
-            if fr:
-                await speak_text(fr[:500])
 
+            try:
+                # Step 1: Ask local IA (M1/qwen3-30b) for analysis
+                print(f"[FREEFORM] → IA locale (M1): {freeform}", flush=True)
+                local_response = await _local_ia_analyze(freeform)
+
+                if local_response:
+                    print(f"[LOCAL IA] {local_response[:200]}", flush=True)
+
+                    # If the local IA gives a direct answer (no tool needed), use it
+                    needs_tools = any(kw in local_response.lower() for kw in [
+                        "outil", "tool", "mcp", "execute", "lancer", "ouvrir", "fermer",
+                        "powershell", "script", "fichier", "dossier", "trading", "cluster",
+                    ])
+
+                    if not needs_tools:
+                        # Local IA answered directly — no need for Claude
+                        await speak_text(local_response[:500])
+                        continue
+
+                    # Step 2: Commander pattern — Claude dispatche aux agents/IAs
+                    enriched = (
+                        f"MODE COMMANDANT. Demande utilisateur: \"{freeform}\"\n"
+                        f"Pre-analyse M1: {local_response}\n\n"
+                        f"ORDRES: Decompose cette tache et dispatche aux agents/IAs. "
+                        f"Ne traite RIEN toi-meme. Delegue TOUT.\n"
+                        f"Resume le resultat en francais, concis (pipeline vocal)."
+                    )
+                    print(f"[FREEFORM] → Claude COMMANDANT (enrichi par M1)", flush=True)
+                else:
+                    # M1 indisponible → Claude commandant sans pre-analyse
+                    enriched = (
+                        f"MODE COMMANDANT. Demande utilisateur: \"{freeform}\"\n\n"
+                        f"ORDRES: Decompose cette tache et dispatche aux agents/IAs. "
+                        f"Ne traite RIEN toi-meme. Delegue TOUT.\n"
+                        f"Resume le resultat en francais, concis (pipeline vocal)."
+                    )
+                    print(f"[FREEFORM] → Claude COMMANDANT (direct): {freeform}", flush=True)
+
+                await client.query(enriched)
+                rp = []
+                async for msg in client.receive_response():
+                    if isinstance(msg, AssistantMessage):
+                        for b in msg.content:
+                            if isinstance(b, TextBlock):
+                                rp.append(b.text)
+                                print(b.text, end="", flush=True)
+                            elif isinstance(b, ToolUseBlock):
+                                print(f"\n  [DISPATCH] {b.name}", flush=True)
+                    if isinstance(msg, ResultMessage):
+                        if msg.total_cost_usd:
+                            print(f"\n  [$] {msg.total_cost_usd:.4f} USD", flush=True)
+                fr = "".join(rp).strip()
+                if fr:
+                    await speak_text(fr[:500])
+            except Exception as e:
+                print(f"\n  [ERREUR FREEFORM] {e}", flush=True)
+                await speak_text("Desole, une erreur s'est produite. Repete ta demande.")
+
+    stop_whisper()
     _safe_print("\n[JARVIS] Session vocale terminee.")
 
 
@@ -489,8 +838,8 @@ async def run_hybrid(cwd: str | None = None) -> None:
     skills = load_skills()
     from src.commands import COMMANDS
     n_cmds = len(COMMANDS)
-    _safe_print(f"=== JARVIS v{JARVIS_VERSION} | MODE HYBRIDE (clavier) ===")
-    _safe_print(f"69 outils MCP | {len(skills)} skills | {n_cmds} commandes")
+    _safe_print(f"=== JARVIS v{JARVIS_VERSION} | MODE COMMANDANT HYBRIDE (clavier) ===")
+    _safe_print(f"83 outils MCP | {len(skills)} skills | {n_cmds} commandes")
     _safe_print("Tape tes commandes comme si tu parlais. 'exit' pour quitter.\n")
 
     async with ClaudeSDKClient(options=options) as client:
@@ -544,7 +893,7 @@ async def run_hybrid(cwd: str | None = None) -> None:
             # Check for skill match
             intent_text = cr["intent"] or cr["corrected"] or raw_text
             skill, skill_score = find_skill(intent_text)
-            if skill and skill_score >= 0.65:
+            if skill and skill_score >= 0.72:
                 _safe_print(f"[SKILL] {skill.name} (score={skill_score:.2f}, {len(skill.steps)} etapes)")
                 session.add_to_history(intent_text)
 
@@ -612,8 +961,8 @@ async def run_hybrid(cwd: str | None = None) -> None:
                     _safe_print(f"[EXEC] {result}")
                 continue
 
-            # Low confidence with suggestions
-            if cr["suggestions"] and confidence < 0.65:
+            # Low confidence with suggestions — only if pipeline found a plausible match
+            if cr["suggestions"] and confidence < 0.65 and cr["method"] == "suggestion":
                 session.last_suggestions = cr["suggestions"]
                 sug_text = format_suggestions(cr["suggestions"])
                 _safe_print(sug_text)
@@ -622,11 +971,32 @@ async def run_hybrid(cwd: str | None = None) -> None:
                 pending_confirm = (top, {})
                 continue
 
-            # No match → freeform to Claude
+            # No match → MODE COMMANDANT (M1 pre-analyse + Claude dispatche)
+            from src.commander import classify_task as _classify, decompose_task as _decompose, build_commander_enrichment as _enrich, format_commander_header as _header
             freeform = cr["intent"] or cr["corrected"] or raw_text
-            _safe_print(f"[FREEFORM] -> Claude: {freeform}")
             session.add_to_history(freeform)
-            await client.query(freeform)
+
+            # Commander pipeline: classify -> decompose -> enrich
+            _safe_print(f"[FREEFORM] -> Commandant: {freeform}")
+            _cls = await _classify(freeform)
+            _tasks = _decompose(freeform, _cls)
+            _safe_print(_header(_cls, _tasks), flush=True)
+
+            # Pre-analyse M1
+            local_response = await _local_ia_analyze(freeform)
+            if local_response:
+                _safe_print(f"[LOCAL IA] {local_response[:200]}", flush=True)
+                # Reponse directe si pas d'outil necessaire
+                needs_tools = any(kw in local_response.lower() for kw in [
+                    "outil", "tool", "mcp", "execute", "lancer", "ouvrir", "fermer",
+                    "powershell", "script", "fichier", "dossier", "trading", "cluster",
+                ])
+                if not needs_tools:
+                    _safe_print(f"[LOCAL] {local_response}")
+                    continue
+
+            enriched = _enrich(freeform, _cls, _tasks, pre_analysis=local_response)
+            await client.query(enriched)
             rp = []
             async for msg in client.receive_response():
                 if isinstance(msg, AssistantMessage):
@@ -635,7 +1005,7 @@ async def run_hybrid(cwd: str | None = None) -> None:
                             rp.append(b.text)
                             _safe_print(b.text, end="", flush=True)
                         elif isinstance(b, ToolUseBlock):
-                            _safe_print(f"\n  [TOOL] {b.name}", flush=True)
+                            _safe_print(f"\n  [DISPATCH] {b.name}", flush=True)
                 if isinstance(msg, ResultMessage):
                     if msg.total_cost_usd:
                         _safe_print(f"\n  [$] {msg.total_cost_usd:.4f} USD", flush=True)

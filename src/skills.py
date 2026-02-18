@@ -428,7 +428,7 @@ def _default_skills() -> list[Skill]:
             steps=[
                 SkillStep("app_open", {"name": "code"}, "Ouvrir VSCode"),
                 SkillStep("app_open", {"name": "wt"}, "Ouvrir Terminal"),
-                SkillStep("open_url", {"url": "http://localhost:3000"}, "Ouvrir localhost:3000"),
+                SkillStep("open_url", {"url": "http://127.0.0.1:3000"}, "Ouvrir 127.0.0.1:3000"),
                 SkillStep("notify", {"title": "JARVIS", "message": "Workspace frontend pret."}, "Notification"),
             ],
             category="dev",
@@ -841,7 +841,7 @@ def _default_skills() -> list[Skill]:
                 SkillStep("app_open", {"name": "chrome"}, "Ouvrir Chrome"),
                 SkillStep("app_open", {"name": "lmstudio"}, "Ouvrir LM Studio"),
                 SkillStep("app_open", {"name": "wt"}, "Ouvrir Terminal"),
-                SkillStep("open_url", {"url": "http://localhost:8888"}, "Ouvrir Jupyter"),
+                SkillStep("open_url", {"url": "http://127.0.0.1:8888"}, "Ouvrir Jupyter"),
                 SkillStep("lm_cluster_status", {}, "Verifier le cluster"),
                 SkillStep("notify", {"title": "JARVIS", "message": "Workspace data pret."}, "Notification"),
             ],
@@ -1122,7 +1122,7 @@ def _default_skills() -> list[Skill]:
             steps=[
                 SkillStep("powershell_run", {"command": "Start-Process lmstudio"}, "Lancer LM Studio"),
                 SkillStep("app_open", {"name": "chrome"}, "Ouvrir Chrome"),
-                SkillStep("powershell_run", {"command": "Start-Process 'http://localhost:8888'"}, "Ouvrir Jupyter"),
+                SkillStep("powershell_run", {"command": "Start-Process 'http://127.0.0.1:8888'"}, "Ouvrir Jupyter"),
                 SkillStep("gpu_info", {}, "Check GPU"),
                 SkillStep("lm_cluster_status", {}, "Statut cluster"),
                 SkillStep("notify", {"title": "JARVIS", "message": "Workspace ML pret."}, "Notification"),
@@ -1433,5 +1433,172 @@ def _default_skills() -> list[Skill]:
                 SkillStep("notify", {"title": "JARVIS", "message": "Analyse code terminee."}, "Notification"),
             ],
             category="dev",
+        ),
+
+        # ── VAGUE 15: Pipelines Multi-Agent (MAO) ──
+
+        Skill(
+            name="forge_code",
+            description="The Forge: M2 genere le code, M1 review logique, correction auto si erreur",
+            triggers=[
+                "forge du code", "genere du code", "code autonome",
+                "auto code", "la forge", "lance la forge",
+            ],
+            steps=[
+                SkillStep("lm_cluster_status", {}, "Verifier cluster disponible"),
+                SkillStep("lm_query", {"prompt": "Genere le code Python demande. Code uniquement, pas d'explication.", "node": "M2"}, "M2 genere le code"),
+                SkillStep("lm_query", {"prompt": "Review ce code. Identifie bugs, problemes logiques, optimisations. Sois precis.", "node": "M1"}, "M1 review logique"),
+                SkillStep("notify", {"title": "JARVIS Forge", "message": "Code genere par M2 et review par M1."}, "Notification"),
+            ],
+            category="dev",
+        ),
+        Skill(
+            name="shield_audit",
+            description="The Shield: Audit securite multi-IA parallele (M1 + M2 analysent en parallele)",
+            triggers=[
+                "audit de securite", "shield", "scan de securite",
+                "verifie la securite du code", "audit code",
+            ],
+            steps=[
+                SkillStep("lm_query", {"prompt": "Analyse ce code pour les failles de securite: injections SQL, XSS, fuites de cles API, OWASP top 10. Liste chaque probleme.", "node": "M1"}, "M1 analyse securite"),
+                SkillStep("lm_query", {"prompt": "Verifie ce code pour les bugs logiques, race conditions, et erreurs de gestion memoire.", "node": "M2"}, "M2 analyse logique"),
+                SkillStep("notify", {"title": "JARVIS Shield", "message": "Audit securite termine. M1 + M2 ont analyse."}, "Notification"),
+            ],
+            category="dev",
+        ),
+        Skill(
+            name="brain_index",
+            description="The Brain: Indexe le projet dans la memoire JARVIS via M1",
+            triggers=[
+                "indexe le projet", "memorise le projet", "brain index",
+                "mets a jour la memoire", "apprends le projet",
+            ],
+            steps=[
+                SkillStep("powershell_run", {"command": "$py = Get-ChildItem 'F:\\BUREAU\\turbo\\src' -Filter '*.py' -Recurse; $py | Select Name, @{N='KB';E={[math]::Round($_.Length/1KB,1)}} | Out-String"}, "Lister fichiers source"),
+                SkillStep("powershell_run", {"command": "$lines = (Get-ChildItem 'F:\\BUREAU\\turbo\\src' -Filter '*.py' -Recurse | Get-Content | Measure-Object -Line).Lines; \"$lines lignes de code total\""}, "Compter les lignes"),
+                SkillStep("lm_query", {"prompt": "Resume en 5 lignes l'architecture de ce projet Python: structure des fichiers, patterns utilises, technologies.", "node": "M1"}, "M1 resume le projet"),
+                SkillStep("notify", {"title": "JARVIS Brain", "message": "Projet indexe dans la memoire."}, "Notification"),
+            ],
+            category="dev",
+        ),
+        Skill(
+            name="medic_repair",
+            description="The Medic: Auto-reparation cluster — verifie et relance M1, M2, Ollama",
+            triggers=[
+                "medic", "repare le cluster", "auto reparation",
+                "le cluster est casse", "relance les agents", "repare les ia",
+            ],
+            steps=[
+                SkillStep("lm_cluster_status", {}, "Check cluster complet"),
+                SkillStep("powershell_run", {"command": "$r = try { (Invoke-WebRequest -Uri 'http://10.5.0.2:1234/v1/models' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 3).StatusCode } catch { 0 }; if ($r -eq 200) { 'M1 OK' } else { 'M1 OFFLINE — relance LM Studio' }"}, "Check M1"),
+                SkillStep("powershell_run", {"command": "$r = try { (Invoke-WebRequest -Uri 'http://192.168.1.26:1234/v1/models' -Headers @{Authorization='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -TimeoutSec 3).StatusCode } catch { 0 }; if ($r -eq 200) { 'M2 OK' } else { 'M2 OFFLINE' }"}, "Check M2"),
+                SkillStep("powershell_run", {"command": "$r = try { (Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3).StatusCode } catch { 0 }; if ($r -eq 200) { 'Ollama OK' } else { Start-Process ollama -ArgumentList 'serve' -WindowStyle Hidden; 'Ollama relance' }"}, "Check/Relance Ollama"),
+                SkillStep("notify", {"title": "JARVIS Medic", "message": "Diagnostic cluster termine. Agents verifies."}, "Notification"),
+            ],
+            category="systeme",
+        ),
+        Skill(
+            name="consensus_mao",
+            description="MAO Consensus: Question envoyee a M1 + M2 + OL1, synthese des reponses",
+            triggers=[
+                "consensus complet", "mao consensus", "avis de tous les agents",
+                "demande a tout le monde", "consensus multi agent",
+            ],
+            steps=[
+                SkillStep("lm_cluster_status", {}, "Verifier disponibilite agents"),
+                SkillStep("consensus", {"prompt": "Reponds a cette question avec ta recommandation + niveau de confiance (1-10) + justification courte.", "nodes": "M1,M2"}, "Consensus M1+M2"),
+                SkillStep("lm_query", {"prompt": "Donne ton avis sur cette question en 3 lignes. Niveau de confiance 1-10.", "node": "OL1"}, "Avis OL1"),
+                SkillStep("notify", {"title": "JARVIS MAO", "message": "Consensus multi-agent termine."}, "Notification"),
+            ],
+            category="dev",
+        ),
+
+        # ── VAGUE 16: Skills avances Multi-Agent ──
+
+        Skill(
+            name="lab_tests",
+            description="The Lab: M1 genere les tests, execute localement, M2 analyse les echecs",
+            triggers=[
+                "lance les tests", "genere des tests", "test automatique",
+                "lab tests", "teste le code", "pytest",
+            ],
+            steps=[
+                SkillStep("lm_query", {"prompt": "Genere un script pytest complet pour tester le code demande. Code uniquement.", "node": "M1"}, "M1 genere les tests"),
+                SkillStep("powershell_run", {"command": "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m pytest src/ --tb=short -q 2>&1 | Out-String"}, "Executer pytest"),
+                SkillStep("notify", {"title": "JARVIS Lab", "message": "Tests executes. Resultats disponibles."}, "Notification"),
+            ],
+            category="dev",
+        ),
+        Skill(
+            name="architect_diagram",
+            description="The Architect: M1 analyse le code et genere un diagramme Mermaid de l'architecture",
+            triggers=[
+                "diagramme architecture", "documente l'architecture",
+                "schema du projet", "architect", "mermaid",
+            ],
+            steps=[
+                SkillStep("powershell_run", {"command": "$py = Get-ChildItem 'F:\\BUREAU\\turbo\\src' -Filter '*.py' -Recurse; $py | ForEach-Object { $_.Name + ': ' + (Select-String -Path $_.FullName -Pattern '^(class |def |async def )' | Measure-Object).Count + ' definitions' } | Out-String"}, "Scanner structure code"),
+                SkillStep("lm_query", {"prompt": "Analyse cette structure de fichiers Python et genere un diagramme Mermaid.js montrant les relations entre modules. Format: ```mermaid ... ```", "node": "M1"}, "M1 genere le diagramme"),
+                SkillStep("notify", {"title": "JARVIS Architect", "message": "Diagramme architecture genere."}, "Notification"),
+            ],
+            category="dev",
+        ),
+        Skill(
+            name="oracle_veille",
+            description="The Oracle: Recherche web via OL1 cloud (minimax) + synthese M1",
+            triggers=[
+                "veille technologique", "recherche sur le web", "oracle",
+                "cherche des infos", "renseigne toi sur",
+            ],
+            steps=[
+                SkillStep("ollama_web_search", {"query": "Recherche les dernieres informations sur le sujet demande"}, "OL1 cloud recherche web"),
+                SkillStep("lm_query", {"prompt": "Synthese en 5 points des informations trouvees. Sois factuel et precis.", "node": "M1"}, "M1 synthetise"),
+                SkillStep("notify", {"title": "JARVIS Oracle", "message": "Veille technologique terminee."}, "Notification"),
+            ],
+            category="dev",
+        ),
+        Skill(
+            name="sentinel_securite",
+            description="The Sentinel: Scan ports ouverts, connexions actives, processus suspects",
+            triggers=[
+                "sentinel", "scan de menaces", "cyber defense",
+                "connexions suspectes", "qui est connecte", "scan securite reseau",
+            ],
+            steps=[
+                SkillStep("powershell_run", {"command": "Get-NetTCPConnection -State Listen | Select LocalPort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Sort LocalPort | Out-String"}, "Ports en ecoute"),
+                SkillStep("powershell_run", {"command": "Get-NetTCPConnection -State Established | Where { $_.RemoteAddress -notmatch '^(127|10|192\\.168|0\\.0)' } | Select RemoteAddress, RemotePort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Out-String"}, "Connexions externes"),
+                SkillStep("powershell_run", {"command": "Get-NetFirewallRule -Enabled True -Direction Inbound | Where Action -eq Allow | Select DisplayName, Profile | Select -First 10 | Out-String"}, "Regles pare-feu entrantes"),
+                SkillStep("notify", {"title": "JARVIS Sentinel", "message": "Scan securite termine."}, "Notification"),
+            ],
+            category="systeme",
+        ),
+        Skill(
+            name="alchemist_transform",
+            description="The Alchemist: M1 transforme des donnees d'un format a un autre (CSV, JSON, SQL...)",
+            triggers=[
+                "transforme les donnees", "convertis le fichier", "alchemist",
+                "change le format", "csv vers json", "json vers csv",
+            ],
+            steps=[
+                SkillStep("lm_query", {"prompt": "Transforme ces donnees dans le format demande. Retourne uniquement les donnees converties, pas d'explication.", "node": "M1"}, "M1 transforme les donnees"),
+                SkillStep("notify", {"title": "JARVIS Alchemist", "message": "Transformation de donnees terminee."}, "Notification"),
+            ],
+            category="dev",
+        ),
+        Skill(
+            name="director_standup",
+            description="The Director: Rapport quotidien basé sur git log + status systeme + trading",
+            triggers=[
+                "rapport quotidien", "standup", "director",
+                "resume de la journee", "qu'est ce qui s'est passe",
+            ],
+            steps=[
+                SkillStep("powershell_run", {"command": "cd F:\\BUREAU\\turbo; git log --since='24 hours ago' --oneline 2>&1 | Out-String"}, "Git log 24h"),
+                SkillStep("system_info", {}, "Status systeme"),
+                SkillStep("trading_status", {}, "Status trading"),
+                SkillStep("lm_query", {"prompt": "En tant que chef de projet, fais un rapport vocal court (5 lignes max) de l'avancement basé sur ces infos: commits recents, status systeme, status trading.", "node": "M1"}, "M1 genere le rapport"),
+                SkillStep("notify", {"title": "JARVIS Director", "message": "Rapport quotidien genere."}, "Notification"),
+            ],
+            category="routine",
         ),
     ]

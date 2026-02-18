@@ -75,6 +75,8 @@ COMMANDS: list[JarvisCommand] = [
     ], "browser", "navigate:https://www.tradingview.com"),
     JarvisCommand("ouvrir_mexc", "navigation", "Ouvrir MEXC", [
         "ouvre mexc", "va sur mexc", "lance mexc", "ouvre l'exchange",
+        "ouvre les charts mexc", "ouvre les chart mexc",
+        "charts mexc", "mexc charts",
     ], "browser", "navigate:https://www.mexc.com"),
     JarvisCommand("nouvel_onglet", "navigation", "Ouvrir un nouvel onglet", [
         "nouvel onglet", "nouveau tab", "ouvre un nouvel onglet",
@@ -95,6 +97,7 @@ COMMANDS: list[JarvisCommand] = [
     JarvisCommand("ouvrir_bureau", "fichiers", "Ouvrir le dossier Bureau", [
         "ouvre le bureau", "ouvrir le bureau", "affiche le bureau",
         "ouvre mes fichiers bureau", "va sur le bureau",
+        "ouvre le dossier bureau", "ouvre bureau",
     ], "powershell", "Start-Process explorer.exe -ArgumentList 'F:\\BUREAU'"),
     JarvisCommand("ouvrir_dossier", "fichiers", "Ouvrir un dossier specifique", [
         "ouvre le dossier {dossier}", "ouvrir le dossier {dossier}",
@@ -127,6 +130,7 @@ COMMANDS: list[JarvisCommand] = [
     JarvisCommand("creer_dossier", "fichiers", "Creer un nouveau dossier", [
         "cree un dossier {nom}", "nouveau dossier {nom}",
         "cree le dossier {nom}", "creer dossier {nom}",
+        "cree un dossier", "nouveau dossier", "creer un dossier",
     ], "jarvis_tool", "create_folder:{nom}", ["nom"]),
     JarvisCommand("chercher_fichier", "fichiers", "Chercher un fichier", [
         "cherche le fichier {nom}", "trouve le fichier {nom}",
@@ -139,6 +143,7 @@ COMMANDS: list[JarvisCommand] = [
     JarvisCommand("ouvrir_vscode", "app", "Ouvrir Visual Studio Code", [
         "ouvre vscode", "ouvrir vscode", "lance vscode", "ouvre visual studio code",
         "ouvre vs code", "lance vs code", "ouvre l'editeur", "ouvre l'editeur de code",
+        "ouvre le code", "lance le code", "lance visual studio",
     ], "app_open", "code"),
     JarvisCommand("ouvrir_terminal", "app", "Ouvrir un terminal", [
         "ouvre le terminal", "ouvrir le terminal", "lance powershell",
@@ -184,6 +189,8 @@ COMMANDS: list[JarvisCommand] = [
     JarvisCommand("media_play_pause", "media", "Play/Pause media", [
         "play", "pause", "mets pause", "reprends", "lecture",
         "mets en pause", "stop la musique", "reprends la musique",
+        "joue la musique", "lance la musique", "pause la musique",
+        "mets la musique", "joue", "relance la musique",
     ], "hotkey", "media_play_pause"),
     JarvisCommand("media_next", "media", "Piste suivante", [
         "suivant", "piste suivante", "chanson suivante",
@@ -194,6 +201,7 @@ COMMANDS: list[JarvisCommand] = [
         "precedent", "piste precedente", "chanson precedente",
         "musique precedente", "previous", "morceau precedent",
         "morceau d'avant", "chanson d'avant", "musique d'avant",
+        "reviens en arriere", "retour", "en arriere",
     ], "hotkey", "media_previous"),
     JarvisCommand("volume_haut", "media", "Augmenter le volume", [
         "monte le volume", "augmente le volume", "volume plus fort",
@@ -225,7 +233,8 @@ COMMANDS: list[JarvisCommand] = [
     ], "hotkey", "alt+tab"),
     JarvisCommand("fermer_fenetre", "fenetre", "Fermer la fenetre active", [
         "ferme la fenetre", "ferme ca", "ferme cette fenetre",
-        "close", "ferme",
+        "close", "ferme", "ferme tout", "ferme toutes les fenetres",
+        "ferm tout", "ferme les fenetres",
     ], "hotkey", "alt+F4"),
     JarvisCommand("maximiser_fenetre", "fenetre", "Maximiser la fenetre active", [
         "maximise", "plein ecran", "maximiser la fenetre",
@@ -305,11 +314,13 @@ COMMANDS: list[JarvisCommand] = [
     ], "powershell", "rundll32.exe user32.dll,LockWorkStation", confirm=True),
     JarvisCommand("eteindre", "systeme", "Eteindre le PC", [
         "eteins le pc", "eteindre le pc", "arrete le pc",
-        "shutdown", "eteindre l'ordinateur",
+        "shutdown", "eteindre l'ordinateur", "arrete l'ordinateur",
+        "eteins l'ordinateur", "eteins tout", "arrete tout le pc",
     ], "powershell", "Stop-Computer -Force", confirm=True),
     JarvisCommand("redemarrer", "systeme", "Redemarrer le PC", [
         "redemarre le pc", "redemarrer le pc", "reboot",
-        "redemarre l'ordinateur", "restart",
+        "redemarre l'ordinateur", "restart", "redemarrage",
+        "redemarage", "redemarre", "relance le pc",
     ], "powershell", "Restart-Computer -Force", confirm=True),
     JarvisCommand("veille", "systeme", "Mettre en veille", [
         "mets en veille", "veille", "sleep", "dors",
@@ -322,6 +333,8 @@ COMMANDS: list[JarvisCommand] = [
     JarvisCommand("info_systeme", "systeme", "Infos systeme", [
         "info systeme", "infos systeme", "statut systeme",
         "etat du systeme", "donne moi les infos systeme",
+        "montre les infos systeme", "informations systeme",
+        "montre les informations systeme",
     ], "jarvis_tool", "system_info"),
     JarvisCommand("info_gpu", "systeme", "Infos GPU", [
         "info gpu", "infos gpu", "statut gpu", "etat des gpu",
@@ -524,9 +537,11 @@ COMMANDS: list[JarvisCommand] = [
         "renomme", "renommer", "rename",
         "renomme le fichier", "change le nom",
     ], "hotkey", "F2"),
-    JarvisCommand("supprimer", "systeme", "Supprimer le fichier selectionne", [
+    JarvisCommand("supprimer", "systeme", "Supprimer le fichier/element selectionne", [
         "supprime", "supprimer", "delete",
         "envoie a la corbeille", "mets a la corbeille",
+        "efface", "efface le fichier", "supprime le fichier",
+        "supprime ca", "efface ca",
     ], "hotkey", "delete"),
     JarvisCommand("proprietes", "systeme", "Proprietes du fichier selectionne", [
         "proprietes", "proprietes du fichier", "infos fichier",
@@ -995,7 +1010,7 @@ COMMANDS: list[JarvisCommand] = [
     JarvisCommand("ouvrir_n8n", "dev", "Ouvrir n8n dans le navigateur", [
         "ouvre n8n", "lance n8n", "n8n",
         "ouvre les workflows", "automatisation n8n",
-    ], "browser", "navigate:http://localhost:5678"),
+    ], "browser", "navigate:http://127.0.0.1:5678"),
     JarvisCommand("lm_studio_restart", "dev", "Relancer LM Studio", [
         "relance lm studio", "redemarre lm studio", "restart lm studio",
         "reboot lm studio",
@@ -1003,7 +1018,7 @@ COMMANDS: list[JarvisCommand] = [
     JarvisCommand("ouvrir_jupyter", "dev", "Ouvrir Jupyter dans le navigateur", [
         "ouvre jupyter", "lance jupyter", "jupyter notebook",
         "jupyter lab", "ouvre le notebook",
-    ], "browser", "navigate:http://localhost:8888"),
+    ], "browser", "navigate:http://127.0.0.1:8888"),
 
     # ── Vague 9: Clipboard avance / Raccourcis app / Recherche / Automation ──
     JarvisCommand("clipboard_vider", "systeme", "Vider le presse-papier", [
@@ -1101,6 +1116,8 @@ COMMANDS: list[JarvisCommand] = [
     JarvisCommand("heure_actuelle", "systeme", "Donner l'heure actuelle", [
         "quelle heure est-il", "quelle heure", "l'heure",
         "donne moi l'heure", "heure actuelle",
+        "quelle heure il est", "il est quelle heure",
+        "dis moi l'heure", "kel heure",
     ], "powershell", "Get-Date -Format 'dddd dd MMMM yyyy HH:mm:ss'"),
     JarvisCommand("date_actuelle", "systeme", "Donner la date actuelle", [
         "quelle date", "quel jour on est", "on est quel jour",
@@ -1368,7 +1385,8 @@ COMMANDS: list[JarvisCommand] = [
     ], "script", "breakout_detector"),
     JarvisCommand("pipeline_trading", "trading", "Lancer le pipeline intensif", [
         "lance le pipeline", "pipeline intensif", "demarre le pipeline",
-        "lance le trading", "pipeline trading",
+        "lance le trading", "pipeline trading", "demarre le trading",
+        "trading start", "start trading", "lance trading",
     ], "script", "pipeline_intensif_v2", confirm=True),
     JarvisCommand("sniper_breakout", "trading", "Lancer le sniper breakout", [
         "lance le sniper", "sniper breakout", "demarre le sniper",
@@ -1390,6 +1408,28 @@ COMMANDS: list[JarvisCommand] = [
         "quels modeles sont charges", "liste les modeles",
         "modeles charges", "modeles actifs", "quels modeles",
     ], "jarvis_tool", "lm_models"),
+    JarvisCommand("ollama_status", "trading", "Statut du backend Ollama", [
+        "statut ollama", "etat ollama", "status ollama",
+        "comment va ollama", "ollama status", "verifie ollama",
+    ], "jarvis_tool", "ollama_status"),
+    JarvisCommand("ollama_modeles", "trading", "Modeles Ollama disponibles", [
+        "modeles ollama", "liste modeles ollama", "quels modeles ollama",
+    ], "jarvis_tool", "ollama_models"),
+    JarvisCommand("recherche_web_ia", "trading", "Recherche web via Ollama cloud", [
+        "recherche web {requete}", "cherche sur le web {requete}",
+        "recherche internet {requete}", "web search {requete}",
+    ], "jarvis_tool", "ollama_query:{requete}", ["requete"]),
+    JarvisCommand("meteo", "navigation", "Afficher la meteo", [
+        "meteo", "la meteo", "quelle meteo", "dis moi la meteo",
+        "quel temps fait il", "quel temps il fait", "fait il beau",
+        "temperature dehors", "previsions meteo", "meteo du jour",
+        "c'est quoi la meteo", "donne moi la meteo",
+    ], "browser", "navigate:https://www.google.com/search?q=meteo"),
+    JarvisCommand("voir_logs", "systeme", "Voir les logs systeme ou JARVIS", [
+        "les logs", "voir les logs", "montre les logs", "affiche les logs",
+        "je veux voir les logs", "ouvre les logs", "log jarvis",
+        "logs systeme", "event viewer", "observateur evenements",
+    ], "powershell", "Get-WinEvent -LogName System -MaxEvents 20 | Format-Table TimeCreated, LevelDisplayName, Message -AutoSize -Wrap | Out-String -Width 200"),
     JarvisCommand("consensus_ia", "trading", "Consensus multi-IA", [
         "consensus sur {question}", "demande un consensus sur {question}",
         "lance un consensus {question}", "consensus {question}",
@@ -1424,8 +1464,10 @@ COMMANDS: list[JarvisCommand] = [
         "qu'est ce que tu peux faire", "tes capacites",
     ], "list_commands", "all"),
     JarvisCommand("jarvis_stop", "jarvis", "Arreter JARVIS", [
-        "stop", "arrete", "quitte", "exit", "jarvis stop",
-        "arrete jarvis", "ferme jarvis", "au revoir",
+        "jarvis stop", "jarvis arrete", "arrete jarvis",
+        "ferme jarvis", "au revoir jarvis", "exit jarvis",
+        "quitte jarvis", "stop jarvis", "stop", "arrete",
+        "arrete toi", "quitter", "exit", "au revoir",
     ], "exit", "stop"),
     JarvisCommand("jarvis_repete", "jarvis", "Repeter la derniere reponse", [
         "repete", "redis", "repete ca", "dis le encore",
@@ -1912,6 +1954,60 @@ COMMANDS: list[JarvisCommand] = [
         "recuperation systeme", "options de recuperation", "recovery",
         "reinstaller windows", "reset pc",
     ], "ms_settings", "ms-settings:recovery"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # LAUNCHERS JARVIS — Raccourcis bureau (12 commandes)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("launch_pipeline_10", "launcher", "Lancer le Pipeline 10 Cycles", [
+        "lance le pipeline 10 cycles", "pipeline 10 cycles", "pipeline 10",
+        "lance le pipeline dix cycles", "demarre pipeline 10",
+        "auto cycle 10", "lance auto cycle",
+    ], "script", "auto_cycle_10", confirm=True),
+    JarvisCommand("launch_sniper_10", "launcher", "Lancer le Sniper 10 Cycles", [
+        "lance le sniper 10 cycles", "sniper 10 cycles", "sniper 10",
+        "lance sniper dix cycles", "demarre sniper 10",
+    ], "script", "sniper_10cycles", confirm=True),
+    JarvisCommand("launch_sniper_breakout", "launcher", "Lancer le Sniper Breakout", [
+        "lance sniper breakout", "sniper breakout", "detection breakout",
+        "pre pump detection", "lance la detection pre pump",
+    ], "script", "sniper_breakout", confirm=True),
+    JarvisCommand("launch_trident", "launcher", "Lancer Trident Execute (dry run)", [
+        "lance trident", "trident execute", "execute trident",
+        "lance les multi ordres", "multi orders mexc",
+    ], "script", "execute_trident", confirm=True),
+    JarvisCommand("launch_hyper_scan", "launcher", "Lancer l'Hyper Scan V2", [
+        "lance hyper scan", "hyper scan v2", "grid computing scan",
+        "lance le scan grid", "scan complet",
+    ], "script", "hyper_scan_v2"),
+    JarvisCommand("launch_monitor_river", "launcher", "Lancer le Monitor RIVER Scalp", [
+        "lance river", "monitor river", "lance le monitor river",
+        "scalp 1 minute river", "lance river scalp", "demarre le scalping",
+    ], "script", "river_scalp_1min", confirm=True),
+    JarvisCommand("launch_command_center", "launcher", "Ouvrir le JARVIS Command Center (GUI)", [
+        "ouvre le command center", "command center", "lance le cockpit",
+        "ouvre le cockpit jarvis", "jarvis gui", "lance la gui",
+        "ouvre le tableau de bord jarvis",
+    ], "script", "jarvis_gui"),
+    JarvisCommand("launch_electron_app", "launcher", "Ouvrir JARVIS Electron App", [
+        "lance electron", "jarvis electron", "ouvre l'application jarvis",
+        "lance l'app jarvis", "ouvre jarvis electron",
+    ], "script", "jarvis_api"),
+    JarvisCommand("launch_widget", "launcher", "Ouvrir le Widget JARVIS", [
+        "lance le widget jarvis", "jarvis widget", "widget trading",
+        "ouvre le widget", "affiche le widget jarvis",
+    ], "script", "jarvis_widget"),
+    JarvisCommand("launch_disk_cleaner", "launcher", "Lancer le nettoyeur de disque", [
+        "nettoie le disque", "disk cleaner", "lance le nettoyeur",
+        "nettoyage disque", "libere de l'espace", "nettoie le pc",
+    ], "script", "disk_cleaner"),
+    JarvisCommand("launch_master_node", "launcher", "Lancer le Master Interaction Node", [
+        "lance le master node", "master interaction", "noeud principal",
+        "lance le noeud maitre", "master node",
+    ], "script", "master_interaction"),
+    JarvisCommand("launch_fs_agent", "launcher", "Lancer l'agent fichiers JARVIS", [
+        "lance l'agent fichiers", "fs agent", "agent systeme fichiers",
+        "lance le file agent", "agent de fichiers",
+    ], "script", "fs_agent"),
 ]
 
 
@@ -1923,7 +2019,7 @@ APP_PATHS: dict[str, str] = {
     # Navigateurs
     "chrome": "chrome",
     "google chrome": "chrome",
-    "comet": "comet-browser",
+    "comet": r"C:\Users\franc\AppData\Local\Perplexity\Comet\Application\comet.exe",
     "firefox": "firefox",
     "edge": "msedge",
     "brave": "brave",
@@ -2034,9 +2130,9 @@ SITE_ALIASES: dict[str, str] = {
     "coingecko": "https://www.coingecko.com",
     "dexscreener": "https://dexscreener.com",
     # Local / Self-hosted
-    "n8n": "http://localhost:5678",
-    "lm studio": "http://localhost:1234",
-    "dashboard": "http://localhost:3000",
+    "n8n": "http://127.0.0.1:5678",
+    "lm studio": "http://10.5.0.2:1234",
+    "dashboard": "http://127.0.0.1:3000",
     # Utilitaires
     "amazon": "https://www.amazon.fr",
     "leboncoin": "https://www.leboncoin.fr",
@@ -2133,6 +2229,8 @@ VOICE_CORRECTIONS: dict[str, str] = {
     "spotifai": "spotify",
     "spottifaille": "spotify",
     "spottifai": "spotify",
+    "spotifaille": "spotify",
+    "spotifaile": "spotify",
     # Docker variantes STT
     "dockeur": "docker",
     "dokeur": "docker",
@@ -2620,6 +2718,41 @@ VOICE_CORRECTIONS: dict[str, str] = {
     "crée": "cree",
     "nou vo": "nouveau",
     "nouvo": "nouveau",
+    # Vague 20 — Auto-training corrections
+    "scrinchotte": "screenshot",
+    "screenchotte": "screenshot",
+    "scrinshot": "screenshot",
+    "rechersh": "recherche",
+    "rechairche": "recherche",
+    "googl": "google",
+    "gitmub": "github",
+    "arrette": "arrete",
+    "ordinateurre": "ordinateur",
+    "pecee": "pc",
+    "pozissions": "positions",
+    "pozision": "position",
+    "tradingue": "trading",
+    "mecse": "mexc",
+    "fenaitre": "fenetre",
+    "fenaitres": "fenetres",
+    "gestionaire": "gestionnaire",
+    "redemarage": "redemarrage",
+    "redemmarage": "redemarrage",
+    "augmante": "augmente",
+    "vollume": "volume",
+    "diminu": "diminue",
+    "fermme": "ferme",
+    "touttes": "toutes",
+    "lanse": "lance",
+    "lansse": "lance",
+    "stim": "steam",
+    "heurre": "heure",
+    "heur": "heure",
+    "ait": "est",
+    "kel": "quelle",
+    "ecrants": "ecran",
+    "ecrant": "ecran",
+    "pleins": "plein",
 }
 
 

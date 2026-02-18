@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS Cluster Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0e14;
+    color: #e0e0e0;
+    font-family: 'Consolas', 'Courier New', monospace;
+    min-height: 100vh;
+  }
+  .header {
+    text-align: center;
+    padding: 24px 0 16px;
+    border-bottom: 1px solid #1a2a3a;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #00d4ff;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+  }
+  .header .subtitle {
+    font-size: 12px;
+    color: #4a6a8a;
+    margin-top: 4px;
+  }
+  .status-bar {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 12px;
+    background: #0d1117;
+    border-bottom: 1px solid #1a2a3a;
+    font-size: 12px;
+  }
+  .status-bar .item { color: #6a8a9a; }
+  .status-bar .val { color: #00d4ff; font-weight: bold; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 16px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .card {
+    background: #0d1117;
+    border: 1px solid #1a2a3a;
+    border-radius: 8px;
+    padding: 20px;
+    transition: border-color 0.3s;
+  }
+  .card:hover { border-color: #00d4ff33; }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #e0e0e0;
+  }
+  .badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .badge-online { background: #0d3320; color: #00ff88; border: 1px solid #00ff8844; }
+  .badge-offline { background: #331111; color: #ff4444; border: 1px solid #ff444444; }
+
+  .agent-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .info-item {
+    background: #161b22;
+    padding: 8px 12px;
+    border-radius: 4px;
+  }
+  .info-label { font-size: 10px; color: #4a6a8a; text-transform: uppercase; letter-spacing: 1px; }
+  .info-value { font-size: 14px; color: #e0e0e0; margin-top: 2px; }
+  .info-value.highlight { color: #00d4ff; }
+
+  .latency-bar {
+    height: 4px;
+    background: #161b22;
+    border-radius: 2px;
+    margin-top: 12px;
+    overflow: hidden;
+  }
+  .latency-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+  .latency-good { background: #00ff88; }
+  .latency-warn { background: #ffaa00; }
+  .latency-bad { background: #ff4444; }
+
+  .models-list {
+    margin-top: 12px;
+    border-top: 1px solid #1a2a3a;
+    padding-top: 12px;
+  }
+  .models-title { font-size: 11px; color: #4a6a8a; margin-bottom: 6px; text-transform: uppercase; }
+  .model-tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    margin: 2px;
+    background: #161b22;
+    border: 1px solid #1a2a3a;
+    border-radius: 4px;
+    color: #8ab4d0;
+  }
+  .model-tag.default { border-color: #00d4ff44; color: #00d4ff; }
+
+  .footer {
+    text-align: center;
+    padding: 16px;
+    color: #2a3a4a;
+    font-size: 11px;
+    border-top: 1px solid #1a2a3a;
+    margin-top: 20px;
+  }
+
+  .pulse {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: pulse-anim 2s infinite;
+  }
+  .pulse-green { background: #00ff88; box-shadow: 0 0 6px #00ff8888; }
+  .pulse-red { background: #ff4444; box-shadow: 0 0 6px #ff444488; }
+  @keyframes pulse-anim {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 16px;
+    padding: 0 20px;
+    max-width: 1200px;
+    margin: 16px auto 0;
+  }
+  .summary-card {
+    background: #0d1117;
+    border: 1px solid #1a2a3a;
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+  .summary-card h3 { font-size: 12px; color: #4a6a8a; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .summary-big { font-size: 32px; font-weight: 700; color: #00d4ff; }
+  .summary-sub { font-size: 12px; color: #6a8a9a; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>JARVIS Cluster</h1>
+  <div class="subtitle">Multi-Agent Dashboard</div>
+</div>
+
+<div class="status-bar">
+  <span class="item">Agents: <span class="val" id="total-agents">-</span></span>
+  <span class="item">En ligne: <span class="val" id="online-agents">-</span></span>
+  <span class="item">Modeles: <span class="val" id="total-models">-</span></span>
+  <span class="item">VRAM: <span class="val" id="total-vram">-</span></span>
+  <span class="item">MAJ: <span class="val" id="last-update">-</span></span>
+</div>
+
+<div class="summary-grid">
+  <div class="summary-card">
+    <h3>GPU Totaux</h3>
+    <span class="summary-big" id="total-gpus">-</span>
+    <span class="summary-sub"> GPU sur le cluster</span>
+  </div>
+  <div class="summary-card">
+    <h3>VRAM Totale</h3>
+    <span class="summary-big" id="total-vram-big">-</span>
+    <span class="summary-sub"> GB disponibles</span>
+  </div>
+  <div class="summary-card">
+    <h3>Latence Moyenne</h3>
+    <span class="summary-big" id="avg-latency">-</span>
+    <span class="summary-sub"> ms (agents en ligne)</span>
+  </div>
+</div>
+
+<div class="grid" id="agents-grid"></div>
+
+<div class="footer">
+  JARVIS Turbo v10.2 — Polling toutes les 5s — <span id="uptime"></span>
+</div>
+
+<script>
+const startTime = Date.now();
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.textContent;
+}
+
+function createAgentCard(agent) {
+  const isOnline = agent.status === 'online';
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  // Header
+  const header = document.createElement('div');
+  header.className = 'card-header';
+
+  const left = document.createElement('div');
+  const pulse = document.createElement('span');
+  pulse.className = 'pulse ' + (isOnline ? 'pulse-green' : 'pulse-red');
+  const title = document.createElement('span');
+  title.className = 'card-title';
+  title.textContent = agent.name;
+  left.appendChild(pulse);
+  left.appendChild(title);
+
+  const badge = document.createElement('span');
+  badge.className = 'badge ' + (isOnline ? 'badge-online' : 'badge-offline');
+  badge.textContent = isOnline ? 'EN LIGNE' : 'HORS LIGNE';
+
+  header.appendChild(left);
+  header.appendChild(badge);
+  card.appendChild(header);
+
+  // Info grid
+  const infoGrid = document.createElement('div');
+  infoGrid.className = 'agent-info';
+
+  const fields = [
+    { label: 'Type', value: agent.type, hl: false },
+    { label: 'Role', value: agent.role, hl: false },
+    { label: 'GPU / VRAM', value: agent.gpus + ' GPU / ' + agent.vram_gb + ' GB', hl: true },
+    { label: 'Latence', value: isOnline ? agent.latency_ms + ' ms' : '---', hl: isOnline },
+  ];
+  fields.forEach(function(f) {
+    const item = document.createElement('div');
+    item.className = 'info-item';
+    const lbl = document.createElement('div');
+    lbl.className = 'info-label';
+    lbl.textContent = f.label;
+    const val = document.createElement('div');
+    val.className = 'info-value' + (f.hl ? ' highlight' : '');
+    val.textContent = f.value;
+    item.appendChild(lbl);
+    item.appendChild(val);
+    infoGrid.appendChild(item);
+  });
+  card.appendChild(infoGrid);
+
+  // Latency bar
+  const barOuter = document.createElement('div');
+  barOuter.className = 'latency-bar';
+  const barInner = document.createElement('div');
+  let latencyWidth = 0;
+  let latencyClass = 'latency-good';
+  if (isOnline) {
+    latencyWidth = Math.min(agent.latency_ms / 30, 100);
+    if (agent.latency_ms > 500) latencyClass = 'latency-warn';
+    if (agent.latency_ms > 2000) latencyClass = 'latency-bad';
+  }
+  barInner.className = 'latency-fill ' + latencyClass;
+  barInner.style.width = latencyWidth + '%';
+  barOuter.appendChild(barInner);
+  card.appendChild(barOuter);
+
+  // Models list
+  const modelsSec = document.createElement('div');
+  modelsSec.className = 'models-list';
+  const modelsTitle = document.createElement('div');
+  modelsTitle.className = 'models-title';
+  modelsTitle.textContent = 'Modeles charges (' + agent.model_count + ')';
+  modelsSec.appendChild(modelsTitle);
+
+  if (agent.models.length === 0) {
+    const none = document.createElement('span');
+    none.style.color = '#4a6a8a';
+    none.style.fontSize = '11px';
+    none.textContent = 'Aucun';
+    modelsSec.appendChild(none);
+  } else {
+    agent.models.forEach(function(m) {
+      const tag = document.createElement('span');
+      tag.className = 'model-tag' + (m === agent.default_model ? ' default' : '');
+      tag.textContent = m;
+      modelsSec.appendChild(tag);
+    });
+  }
+  card.appendChild(modelsSec);
+
+  return card;
+}
+
+async function refresh() {
+  try {
+    var res = await fetch('/api/cluster');
+    var data = await res.json();
+    var agents = Object.values(data.agents);
+
+    // Render agent cards using safe DOM methods
+    var grid = document.getElementById('agents-grid');
+    grid.replaceChildren();
+    agents.forEach(function(agent) {
+      grid.appendChild(createAgentCard(agent));
+    });
+
+    // Status bar
+    var online = agents.filter(function(a) { return a.status === 'online'; });
+    var totalModels = agents.reduce(function(s, a) { return s + a.model_count; }, 0);
+    var totalVram = agents.reduce(function(s, a) { return s + a.vram_gb; }, 0);
+    var totalGpus = agents.reduce(function(s, a) { return s + a.gpus; }, 0);
+    var avgLatency = online.length > 0
+      ? Math.round(online.reduce(function(s, a) { return s + a.latency_ms; }, 0) / online.length)
+      : 0;
+
+    document.getElementById('total-agents').textContent = agents.length;
+    document.getElementById('online-agents').textContent = online.length;
+    document.getElementById('total-models').textContent = totalModels;
+    document.getElementById('total-vram').textContent = totalVram + ' GB';
+    document.getElementById('total-gpus').textContent = totalGpus;
+    document.getElementById('total-vram-big').textContent = totalVram;
+    document.getElementById('avg-latency').textContent = avgLatency;
+
+    var updateTime = new Date(data.last_update * 1000);
+    document.getElementById('last-update').textContent = updateTime.toLocaleTimeString('fr-FR');
+  } catch (e) {
+    // silencieux
+  }
+
+  // Uptime
+  var elapsed = Math.floor((Date.now() - startTime) / 1000);
+  var mins = Math.floor(elapsed / 60);
+  var secs = elapsed % 60;
+  document.getElementById('uptime').textContent = 'Uptime: ' + mins + 'm ' + secs + 's';
+}
+
+refresh();
+setInterval(refresh, 5000);
+</script>
+</body>
+</html>
