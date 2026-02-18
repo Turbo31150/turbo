@@ -94,7 +94,7 @@ def check_lms_server() -> bool:
     Retourne: True si serveur accessible, False sinon
     """
     try:
-        response = requests.get(f"{LMS_SERVER_URL}/v1/models", timeout=5)
+        response = requests.get(f"{LMS_SERVER_URL}/api/v1/models", timeout=5)
         return response.status_code == 200
     except Exception:
         return False

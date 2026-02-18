@@ -63,9 +63,9 @@ async def test_pipeline():
                 print(f"  {name}: NON CONFIGURE")
                 continue
             try:
-                r = await c.get(f"{node.url}/v1/models")
+                r = await c.get(f"{node.url}/api/v1/models")
                 r.raise_for_status()
-                cnt = len(r.json().get("data", []))
+                cnt = len(r.json().get("models", []))
                 print(f"  {name}: ONLINE ({cnt} modeles)")
             except Exception:
                 print(f"  {name}: OFFLINE")

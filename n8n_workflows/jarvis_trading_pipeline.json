@@ -13,10 +13,12 @@
     },
     {
       "parameters": {
-        "url": "http://localhost:1234/v1/chat/completions",
+        "url": "http://10.5.0.2:1234/api/v1/chat",
         "sendBody": true,
+        "sendHeaders": true,
+        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer LMSTUDIO_KEY_M1_REDACTED"}, {"name": "Content-Type", "value": "application/json"}]},
         "specifyBody": "json",
-        "jsonBody": "{\n  \"model\": \"qwen/qwen3-30b-a3b-2507\",\n  \"messages\": [{\"role\": \"user\", \"content\": \"Analyse rapide marche crypto. BTC ETH SOL SUI. Tendance 15min, signal buy/sell/neutral pour chaque. Format JSON: {pair, signal, confidence, entry, tp, sl}\"}],\n  \"temperature\": 0.3,\n  \"max_tokens\": 2048\n}",
+        "jsonBody": "{\n  \"model\": \"qwen/qwen3-30b-a3b-2507\",\n  \"input\": \"Analyse rapide marche crypto. BTC ETH SOL SUI. Tendance 15min, signal buy/sell/neutral pour chaque. Format JSON: {pair, signal, confidence, entry, tp, sl}\",\n  \"temperature\": 0.3,\n  \"max_output_tokens\": 2048,\n  \"stream\": false,\n  \"store\": false\n}",
         "options": { "timeout": 60000 }
       },
       "id": "m1-analysis",
@@ -28,10 +30,12 @@
     },
     {
       "parameters": {
-        "url": "http://192.168.1.26:1234/v1/chat/completions",
+        "url": "http://192.168.1.26:1234/api/v1/chat",
         "sendBody": true,
+        "sendHeaders": true,
+        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer LMSTUDIO_KEY_M2_REDACTED"}, {"name": "Content-Type", "value": "application/json"}]},
         "specifyBody": "json",
-        "jsonBody": "{\n  \"model\": \"openai/gpt-oss-20b\",\n  \"messages\": [{\"role\": \"user\", \"content\": \"Quick crypto signal scan: BTC ETH SOL SUI. Signal buy/sell/neutral per pair. JSON format.\"}],\n  \"temperature\": 0.3,\n  \"max_tokens\": 1024\n}",
+        "jsonBody": "{\n  \"model\": \"deepseek-coder-v2-lite-instruct\",\n  \"input\": \"Quick crypto signal scan: BTC ETH SOL SUI. Signal buy/sell/neutral per pair. JSON format.\",\n  \"temperature\": 0.3,\n  \"max_output_tokens\": 1024,\n  \"stream\": false,\n  \"store\": false\n}",
         "options": { "timeout": 30000 }
       },
       "id": "m2-fast",
@@ -43,7 +47,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const m1 = $input.all()[0];\nconst m2 = $input.all()[1];\n\nconst m1Response = m1.json?.choices?.[0]?.message?.content || 'M1 offline';\nconst m2Response = m2.json?.choices?.[0]?.message?.content || 'M2 offline';\n\nreturn [{\n  json: {\n    m1_analysis: m1Response,\n    m2_signal: m2Response,\n    timestamp: new Date().toISOString(),\n    config: {\n      exchange: 'MEXC Futures',\n      leverage: 10,\n      tp_percent: 0.4,\n      sl_percent: 0.25,\n      pairs: ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'SUI/USDT']\n    }\n  }\n}];"
+        "jsCode": "const m1 = $input.all()[0];\nconst m2 = $input.all()[1];\n\nconst m1Response = m1.json?.output?.[0]?.content || 'M1 offline';\nconst m2Response = m2.json?.output?.[0]?.content || 'M2 offline';\n\nreturn [{\n  json: {\n    m1_analysis: m1Response,\n    m2_signal: m2Response,\n    timestamp: new Date().toISOString(),\n    config: {\n      exchange: 'MEXC Futures',\n      leverage: 10,\n      tp_percent: 0.4,\n      sl_percent: 0.25,\n      pairs: ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'SUI/USDT']\n    }\n  }\n}];"
       },
       "id": "merge-signals",
       "name": "Merge Signals",
@@ -53,10 +57,10 @@
     },
     {
       "parameters": {
-        "url": "http://192.168.1.113:1234/v1/chat/completions",
+        "url": "http://192.168.1.113:1234/api/v1/chat",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"model\": \"mistral-7b-instruct-v0.3\",\n  \"messages\": [{\"role\": \"user\", \"content\": \"Valide ce consensus trading: M1 dit {{ $json.m1_analysis.substring(0, 200) }}. M2 dit {{ $json.m2_signal.substring(0, 200) }}. Confirme ou infirme en JSON.\"}],\n  \"temperature\": 0.2,\n  \"max_tokens\": 512\n}",
+        "jsonBody": "={\n  \"model\": \"mistral-7b-instruct-v0.3\",\n  \"input\": \"Valide ce consensus trading: M1 dit {{ $json.m1_analysis.substring(0, 200) }}. M2 dit {{ $json.m2_signal.substring(0, 200) }}. Confirme ou infirme en JSON.\",\n  \"temperature\": 0.2,\n  \"max_output_tokens\": 512,\n  \"stream\": false,\n  \"store\": false\n}",
         "options": { "timeout": 30000 }
       },
       "id": "m3-validate",
@@ -68,7 +72,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const data = $input.first().json;\nconst validation = data?.choices?.[0]?.message?.content || 'No validation';\n\nreturn [{\n  json: {\n    consensus: {\n      m1: $('Merge Signals').first().json.m1_analysis,\n      m2: $('Merge Signals').first().json.m2_signal,\n      m3_validation: validation\n    },\n    timestamp: new Date().toISOString(),\n    status: 'CONSENSUS_COMPLETE'\n  }\n}];"
+        "jsCode": "const data = $input.first().json;\nconst validation = data?.output?.[0]?.content || 'No validation';\n\nreturn [{\n  json: {\n    consensus: {\n      m1: $('Merge Signals').first().json.m1_analysis,\n      m2: $('Merge Signals').first().json.m2_signal,\n      m3_validation: validation\n    },\n    timestamp: new Date().toISOString(),\n    status: 'CONSENSUS_COMPLETE'\n  }\n}];"
       },
       "id": "final-consensus",
       "name": "Final Consensus",
