@@ -78,17 +78,17 @@ async def classify_task(prompt: str) -> str:
     if node:
         try:
             client = await _get_client()
-            r = await client.post(f"{node.url}/v1/chat/completions", json={
+            r = await client.post(f"{node.url}/api/v1/chat", json={
                 "model": node.default_model,
-                "messages": [
-                    {"role": "system", "content": CLASSIFY_PROMPT},
-                    {"role": "user", "content": prompt},
-                ],
+                "input": prompt,
+                "system_prompt": CLASSIFY_PROMPT,
                 "temperature": 0.1,
-                "max_tokens": 32,
+                "max_output_tokens": 32,
+                "stream": False,
+                "store": False,
             }, timeout=config.fast_timeout)
             r.raise_for_status()
-            content = r.json()["choices"][0]["message"]["content"].strip().lower()
+            content = r.json()["output"][0]["content"].strip().lower()
             # Strip thinking tags if present
             if content.startswith("<think>"):
                 think_end = content.find("</think>")

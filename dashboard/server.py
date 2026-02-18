@@ -64,13 +64,13 @@ def _check_lm_studio(name: str, agent: dict) -> dict:
     try:
         start = time.time()
         req = urllib.request.Request(
-            f"{agent['url']}/v1/models",
+            f"{agent['url']}/api/v1/models",
             headers={"Authorization": f"Bearer {agent['api_key']}"},
         )
         with urllib.request.urlopen(req, timeout=3) as resp:
             data = json.loads(resp.read())
             latency = int((time.time() - start) * 1000)
-            models = [m.get("id", "?") for m in data.get("data", [])]
+            models = [m.get("key", "?") for m in data.get("models", []) if m.get("loaded_instances")]
             result.update({
                 "status": "online",
                 "models": models,

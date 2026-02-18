@@ -1,0 +1,69 @@
+###############################################################################
+# JARVIS Docker Stack — Open WebUI + Ollama + LM Studio Bridge
+# Config: 5 GPUs (RTX 3080 10GB, RTX 2060 12GB, 3x GTX 1660S 6GB)
+# Stockage: F:\BUREAU\turbo\docker\data
+###############################################################################
+
+services:
+  # === Open WebUI — Interface web pour LLMs ===
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:cuda
+    container_name: jarvis-webui
+    restart: unless-stopped
+    ports:
+      # Accessible depuis tous les appareils du reseau local
+      - "0.0.0.0:3000:8080"
+    environment:
+      # Connexion a Ollama sur le host Windows
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      # Connexion a LM Studio sur le host Windows
+      - OPENAI_API_BASE_URLS=http://host.docker.internal:1234/v1
+      - OPENAI_API_KEYS=lm-studio
+      # Config generale
+      - WEBUI_AUTH=false
+      - ENABLE_SIGNUP=false
+      - DEFAULT_MODELS=qwen3-30b-a3b
+      - WEBUI_NAME=JARVIS WebUI
+      # GPU: utiliser la RTX 3080 (GPU principal, moins de latence)
+      - NVIDIA_VISIBLE_DEVICES=0,1,2,3,4
+    volumes:
+      - ./data/open-webui:/app/backend/data
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # === Monitoring GPU — Dashboard temps reel ===
+  gpu-monitor:
+    image: nvidia/cuda:12.8.0-base-ubuntu24.04
+    container_name: jarvis-gpu-monitor
+    restart: unless-stopped
+    command: >
+      bash -c "apt-get update -qq && apt-get install -y -qq procps > /dev/null 2>&1;
+      while true; do
+        clear;
+        echo '=== JARVIS GPU Monitor ===';
+        nvidia-smi --query-gpu=index,name,temperature.gpu,utilization.gpu,memory.used,memory.total,power.draw --format=csv,noheader,nounits |
+        while IFS=',' read -r idx name temp util mem_used mem_total power; do
+          echo \"GPU$idx: $name | ${temp}C | ${util}% | ${mem_used}/${mem_total} MiB | ${power}W\";
+        done;
+        echo '';
+        echo \"Updated: $(date '+%H:%M:%S')\";
+        sleep 5;
+      done"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+volumes:
+  open-webui-data:
+    driver: local

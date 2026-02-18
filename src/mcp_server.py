@@ -65,14 +65,16 @@ async def handle_lm_query(args: dict) -> list[TextContent]:
     model = args.get("model", node.default_model)
     try:
         async with httpx.AsyncClient(timeout=120) as c:
-            r = await c.post(f"{node.url}/v1/chat/completions", json={
+            r = await c.post(f"{node.url}/api/v1/chat", json={
                 "model": model,
-                "messages": [{"role": "user", "content": args["prompt"]}],
+                "input": args["prompt"],
                 "temperature": config.temperature,
-                "max_tokens": config.max_tokens,
+                "max_output_tokens": config.max_tokens,
+                "stream": False,
+                "store": False,
             })
             r.raise_for_status()
-            return _text(f"[{node.name}/{model}] {r.json()['choices'][0]['message']['content']}")
+            return _text(f"[{node.name}/{model}] {r.json()['output'][0]['content']}")
     except httpx.ConnectError:
         return _error(f"Noeud {node.name} hors ligne")
     except Exception as e:
@@ -85,9 +87,9 @@ async def handle_lm_models(args: dict) -> list[TextContent]:
         return _error("Noeud inconnu")
     try:
         async with httpx.AsyncClient(timeout=10) as c:
-            r = await c.get(f"{url}/v1/models")
+            r = await c.get(f"{url}/api/v1/models")
             r.raise_for_status()
-            models = [m["id"] for m in r.json().get("data", [])]
+            models = [m["key"] for m in r.json().get("models", []) if m.get("loaded_instances")]
             return _text(f"Modeles: {', '.join(models) if models else 'aucun'}")
     except Exception as e:
         return _error(str(e))
@@ -99,9 +101,9 @@ async def handle_lm_cluster_status(args: dict) -> list[TextContent]:
     async with httpx.AsyncClient(timeout=5) as c:
         for n in config.lm_nodes:
             try:
-                r = await c.get(f"{n.url}/v1/models")
+                r = await c.get(f"{n.url}/api/v1/models")
                 r.raise_for_status()
-                cnt = len(r.json().get("data", []))
+                cnt = len([m for m in r.json().get("models", []) if m.get("loaded_instances")])
                 results.append(f"  {n.name} ({n.role}): ONLINE — {cnt} modeles, {n.gpus} GPU, {n.vram_gb}GB VRAM")
                 online += 1
             except Exception:
@@ -147,13 +149,14 @@ async def handle_consensus(args: dict) -> list[TextContent]:
             if not node:
                 continue
             try:
-                r = await c.post(f"{node.url}/v1/chat/completions", json={
+                r = await c.post(f"{node.url}/api/v1/chat", json={
                     "model": node.default_model,
-                    "messages": [{"role": "user", "content": prompt}],
-                    "temperature": 0.3, "max_tokens": 2048,
+                    "input": prompt,
+                    "temperature": 0.3, "max_output_tokens": 2048,
+                    "stream": False, "store": False,
                 })
                 r.raise_for_status()
-                text = r.json()["choices"][0]["message"]["content"]
+                text = r.json()["output"][0]["content"]
                 responses.append(f"[{node.name}] {text}")
             except Exception as e:
                 responses.append(f"[{node.name}] ERREUR: {e}")

@@ -1,0 +1,48 @@
+{
+  "model": {
+    "base_model_id": "Qwen/Qwen3-30B-A3B",
+    "lora_adapter_auto_detect": true,
+    "lora_adapter_path": "F:/BUREAU/turbo/finetuning/output/final",
+    "quantization": {
+      "load_in_4bit": true,
+      "bnb_4bit_use_double_quant": true,
+      "bnb_4bit_quant_type": "nf4",
+      "bnb_4bit_compute_dtype": "bfloat16"
+    },
+    "device_map": "auto",
+    "torch_dtype": "bfloat16"
+  },
+  "generation": {
+    "max_new_tokens": 128,
+    "temperature": 0.7,
+    "top_p": 0.9,
+    "do_sample": true,
+    "timeout_seconds": 30
+  },
+  "benchmark": {
+    "num_prompts": 30,
+    "categories": {
+      "commandes_vocales": 10,
+      "corrections_vocales": 10,
+      "tool_routing": 10
+    }
+  },
+  "metrics": {
+    "compute_cosine_similarity": true,
+    "count_keyword_matches": true,
+    "compute_jarvis_relevance": true
+  },
+  "output": {
+    "output_dir": "F:/BUREAU/turbo/finetuning",
+    "json_report_filename": "benchmark_results.json",
+    "text_report_filename": "benchmark_report.txt",
+    "charts_filename": "benchmark_charts.png",
+    "save_embeddings": false
+  },
+  "logging": {
+    "verbose": true,
+    "log_level": "INFO",
+    "show_gpu_memory": true,
+    "show_timings": true
+  }
+}

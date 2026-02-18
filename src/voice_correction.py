@@ -584,11 +584,11 @@ async def _ia_correct(text: str, url: str, model: str) -> str:
         try:
             async with httpx.AsyncClient(timeout=5) as c:
                 r = await c.post(
-                    f"{node.url}/v1/chat/completions",
-                    json={"model": node.default_model, "messages": messages, "temperature": 0.1, "max_tokens": 200},
+                    f"{node.url}/api/v1/chat",
+                    json={"model": node.default_model, "input": text, "system_prompt": messages[0]["content"] if messages and messages[0]["role"] == "system" else "", "temperature": 0.1, "max_output_tokens": 200, "stream": False, "store": False},
                 )
                 r.raise_for_status()
-                return r.json()["choices"][0]["message"]["content"].strip()
+                return r.json()["output"][0]["content"].strip()
         except Exception:
             pass
     return text

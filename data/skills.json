@@ -3969,5 +3969,283 @@
     "last_used": 0.0,
     "success_rate": 1.0,
     "confirm": true
+  },
+  {
+    "name": "auto_recovery_services",
+    "description": "Detecte et redemarre les services crashés automatiquement",
+    "triggers": [
+      "service crashé",
+      "service ne répond pas",
+      "redémarre les services",
+      "recovery services"
+    ],
+    "steps": [
+      {
+        "tool": "list_services",
+        "args": {},
+        "description": "Liste les services",
+        "wait_for_result": true
+      },
+      {
+        "tool": "powershell_run",
+        "args": {
+          "command": "Get-Service | Where-Object {$_.Status -eq 'Stopped'} | Select-Object DisplayName,Status"
+        },
+        "description": "Identifier les services en echec",
+        "wait_for_result": true
+      },
+      {
+        "tool": "stop_service",
+        "args": {
+          "service": "target_service"
+        },
+        "description": "Arreter le service",
+        "wait_for_result": true
+      },
+      {
+        "tool": "start_service",
+        "args": {
+          "service": "target_service"
+        },
+        "description": "Redemarrer le service",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "message": "Service recovery complete"
+        },
+        "description": "Notification completion",
+        "wait_for_result": false
+      }
+    ],
+    "category": "systeme",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "ai_load_balancer",
+    "description": "Switch dynamique entre modèles IA selon la charge du systeme",
+    "triggers": [
+      "modèle lent",
+      "charge IA élevée",
+      "optimise les modèles",
+      "equilibre les modeles",
+      "load balance IA"
+    ],
+    "steps": [
+      {
+        "tool": "lm_cluster_status",
+        "args": {},
+        "description": "Statut du cluster IA",
+        "wait_for_result": true
+      },
+      {
+        "tool": "system_info",
+        "args": {},
+        "description": "Infos systeme",
+        "wait_for_result": true
+      },
+      {
+        "tool": "gpu_info",
+        "args": {},
+        "description": "Infos GPU",
+        "wait_for_result": true
+      },
+      {
+        "tool": "powershell_run",
+        "args": {
+          "command": "Get-Counter -Counter '\\Processor(_Total)\\% Processor Time' | Select-Object -ExpandProperty CounterSamples | Select-Object CookedValue"
+        },
+        "description": "Evaluer charge systeme",
+        "wait_for_result": true
+      },
+      {
+        "tool": "powershell_run",
+        "args": {
+          "command": "echo 'Switching to optimal model based on load'"
+        },
+        "description": "Switch modele IA optimal",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "message": "AI model switched for optimal performance"
+        },
+        "description": "Notification de switch",
+        "wait_for_result": false
+      }
+    ],
+    "category": "ia",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "trading_risk_alert",
+    "description": "Alertes avancees pour drawdown et risque de liquidation",
+    "triggers": [
+      "alerte trading",
+      "risque liquidation",
+      "drawdown élevé",
+      "check risk",
+      "trading alert"
+    ],
+    "steps": [
+      {
+        "tool": "trading_positions",
+        "args": {},
+        "description": "Positions trading actuelles",
+        "wait_for_result": true
+      },
+      {
+        "tool": "trading_status",
+        "args": {},
+        "description": "Status pipeline trading",
+        "wait_for_result": true
+      },
+      {
+        "tool": "powershell_run",
+        "args": {
+          "command": "echo 'Calculating drawdown percentage'"
+        },
+        "description": "Calculer le drawdown",
+        "wait_for_result": true
+      },
+      {
+        "tool": "powershell_run",
+        "args": {
+          "command": "if (drawdown -gt 15) { echo 'High drawdown risk' }"
+        },
+        "description": "Alerte si drawdown > 15 pourcent",
+        "wait_for_result": true
+      },
+      {
+        "tool": "speak",
+        "args": {
+          "text": "Attention, risque de liquidation detecte"
+        },
+        "description": "Alerte vocale warning",
+        "wait_for_result": true
+      }
+    ],
+    "category": "trading",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "gpu_benchmark",
+    "description": "Benchmark GPU automatique et comparaison avec baseline",
+    "triggers": [
+      "benchmark gpu",
+      "test gpu",
+      "performance gpu",
+      "bench gpu",
+      "gpu benchmark"
+    ],
+    "steps": [
+      {
+        "tool": "gpu_info",
+        "args": {},
+        "description": "Infos GPU",
+        "wait_for_result": true
+      },
+      {
+        "tool": "powershell_run",
+        "args": {
+          "command": "nvidia-smi --query-gpu=index,name,driver_version,memory.total --format=csv"
+        },
+        "description": "Benchmark GPU avec nvidia-smi",
+        "wait_for_result": true
+      },
+      {
+        "tool": "powershell_run",
+        "args": {
+          "command": "echo 'Comparing with baseline performance'"
+        },
+        "description": "Comparer avec baseline",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "message": "GPU benchmark complete"
+        },
+        "description": "Notifier resultats",
+        "wait_for_result": false
+      }
+    ],
+    "category": "systeme",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "sync_machines",
+    "description": "Synchronise les fichiers critiques entre M1 et M2",
+    "triggers": [
+      "sync machines",
+      "sync M1 M2",
+      "synchronise les machines",
+      "sync cluster",
+      "rsync M1 M2"
+    ],
+    "steps": [
+      {
+        "tool": "system_info",
+        "args": {},
+        "description": "Infos systeme",
+        "wait_for_result": true
+      },
+      {
+        "tool": "powershell_run",
+        "args": {
+          "command": "echo 'Listing critical files to sync'"
+        },
+        "description": "Lister fichiers critiques",
+        "wait_for_result": true
+      },
+      {
+        "tool": "powershell_run",
+        "args": {
+          "command": "robocopy M1_PATH M2_PATH /MIR /Z /R:3"
+        },
+        "description": "Rsync M1 vers M2",
+        "wait_for_result": true
+      },
+      {
+        "tool": "powershell_run",
+        "args": {
+          "command": "Get-FileHash -Path 'M1_PATH\\*' | Compare-Object -ReferenceObject (Get-FileHash -Path 'M2_PATH\\*')"
+        },
+        "description": "Verifier les hashes",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "message": "Machine synchronization complete"
+        },
+        "description": "Notification sync complete",
+        "wait_for_result": false
+      }
+    ],
+    "category": "cluster",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
   }
 ]

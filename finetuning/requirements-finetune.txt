@@ -1,0 +1,23 @@
+# JARVIS Fine-Tuning — Dependencies
+# Install: uv pip install -r finetuning/requirements-finetune.txt
+
+# PyTorch CUDA (installer separement avec --index-url)
+# torch
+# torchvision
+# torchaudio
+
+# HuggingFace ecosystem
+transformers>=4.46.0
+peft>=0.13.0
+trl>=0.12.0
+accelerate>=1.0.0
+datasets>=3.0.0
+bitsandbytes>=0.44.0
+
+# Tokenizer & utils
+sentencepiece
+protobuf
+scipy
+
+# Monitoring (optionnel)
+tensorboard

@@ -60,10 +60,10 @@ async def _fetch_cluster() -> list[dict]:
                 "models_count": 0,
             }
             try:
-                r = await c.get(f"{node.url}/v1/models")
+                r = await c.get(f"{node.url}/api/v1/models")
                 r.raise_for_status()
                 entry["online"] = True
-                entry["models_count"] = len(r.json().get("data", []))
+                entry["models_count"] = len([m for m in r.json().get("models", []) if m.get("loaded_instances")])
             except Exception:
                 pass
             results.append(entry)
@@ -489,14 +489,16 @@ class JarvisDashboard(App):
             node = config.lm_nodes[0]
             self._log(f"Envoi a {node.name} ({node.default_model})...")
             async with httpx.AsyncClient(timeout=60) as c:
-                r = await c.post(f"{node.url}/v1/chat/completions", json={
+                r = await c.post(f"{node.url}/api/v1/chat", json={
                     "model": node.default_model,
-                    "messages": [{"role": "user", "content": text}],
+                    "input": text,
                     "temperature": 0.7,
-                    "max_tokens": 1024,
+                    "max_output_tokens": 1024,
+                    "stream": False,
+                    "store": False,
                 })
                 r.raise_for_status()
-                response = r.json()["choices"][0]["message"]["content"]
+                response = r.json()["output"][0]["content"]
                 self._log(f"[green][{node.name}][/green] {response[:500]}")
         except Exception as e:
             self._log(f"[red]Erreur query: {e}[/red]")

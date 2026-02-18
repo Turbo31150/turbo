@@ -179,17 +179,19 @@ async def _warmup_model(url: str, model: str, timeout: float = 15.0) -> dict[str
     try:
         t0 = time.monotonic()
         async with httpx.AsyncClient(timeout=timeout) as c:
-            r = await c.post(f"{url}/v1/chat/completions", json={
+            r = await c.post(f"{url}/api/v1/chat", json={
                 "model": model,
-                "messages": [{"role": "user", "content": WARMUP_PROMPT}],
+                "input": WARMUP_PROMPT,
                 "temperature": 0.1,
-                "max_tokens": WARMUP_MAX_TOKENS,
+                "max_output_tokens": WARMUP_MAX_TOKENS,
+                "stream": False,
+                "store": False,
             })
             r.raise_for_status()
             latency = int((time.monotonic() - t0) * 1000)
             data = r.json()
-            usage = data.get("usage", {})
-            completion_tokens = usage.get("completion_tokens", 1)
+            stats = data.get("stats", {})
+            completion_tokens = stats.get("total_output_tokens", 1)
             tps = completion_tokens / max((time.monotonic() - t0), 0.01)
             return {"ok": True, "latency_ms": latency, "tokens_per_sec": round(tps, 1)}
     except Exception as e:
@@ -327,9 +329,9 @@ async def _check_m2() -> dict[str, Any]:
         return {"ok": False, "error": "M2 non configure"}
     try:
         async with httpx.AsyncClient(timeout=5) as c:
-            r = await c.get(f"{m2.url}/v1/models")
+            r = await c.get(f"{m2.url}/api/v1/models")
             r.raise_for_status()
-            models = [m["id"] for m in r.json().get("data", [])]
+            models = [m["key"] for m in r.json().get("models", []) if m.get("loaded_instances")]
             has_coder = any("deepseek" in m or "coder" in m for m in models)
             return {
                 "ok": True,
@@ -589,10 +591,10 @@ async def quick_health_check() -> dict[str, str]:
     # M1
     try:
         async with httpx.AsyncClient(timeout=3) as c:
-            r = await c.get(f"{config.get_node_url('M1')}/v1/models")
+            r = await c.get(f"{config.get_node_url('M1')}/api/v1/models")
             r.raise_for_status()
-            models = [m["id"] for m in r.json().get("data", [])]
-            has_main = "qwen/qwen3-30b-a3b-2507" in models
+            models = [m["key"] for m in r.json().get("models", []) if m.get("loaded_instances")]
+            has_main = any("qwen3-30b" in m for m in models)
             status["m1"] = f"OK ({len(models)} modeles)" if has_main else f"WARN (pas de qwen3-30b)"
     except Exception:
         status["m1"] = "OFFLINE"
@@ -600,7 +602,7 @@ async def quick_health_check() -> dict[str, str]:
     # M2
     try:
         async with httpx.AsyncClient(timeout=3) as c:
-            r = await c.get(f"{config.get_node_url('M2')}/v1/models")
+            r = await c.get(f"{config.get_node_url('M2')}/api/v1/models")
             r.raise_for_status()
             status["m2"] = "OK"
     except Exception:

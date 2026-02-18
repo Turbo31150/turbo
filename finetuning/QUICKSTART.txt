@@ -1,0 +1,165 @@
+================================================================================
+QUICKSTART - BENCHMARK JARVIS
+================================================================================
+
+1. VERIFICATION INITIALE (5 min)
+   cd F:\BUREAU\turbo
+   uv run python finetuning/check_setup.py
+
+   Resultat attendu: "OK CONFIGURATION OK"
+
+2. TEST RAPIDE (5 min)
+   cd F:\BUREAU\turbo
+   uv run python finetuning/quick_test.py
+
+   Resultat attendu: "OK QUICK TEST REUSSI"
+
+3. BENCHMARK COMPLET (3-5 min)
+   cd F:\BUREAU\turbo
+   uv run python finetuning/benchmark.py
+
+   Resultat attendu: JSON report + console output
+
+4. ANALYSER RESULTATS (1 min)
+   cd F:\BUREAU\turbo
+   uv run python finetuning/analyze_results.py
+
+   Resultat attendu: Rapport texte + graphiques
+
+5. CONSULTER RESULTATS
+   - Rapport texte: F:\BUREAU\turbo\finetuning\benchmark_report.txt
+   - Rapport JSON:  F:\BUREAU\turbo\finetuning\benchmark_results.json
+   - Graphiques:    F:\BUREAU\turbo\finetuning\benchmark_charts.png
+
+================================================================================
+ALTERNATIVE: LAUNCHER WINDOWS
+================================================================================
+
+Double-cliquer: F:\BUREAU\turbo\finetuning\run_benchmark.bat
+
+(Lance directement le benchmark complet)
+
+================================================================================
+FICHIERS DISPONIBLES
+================================================================================
+
+Scripts:
+  benchmark.py            - Script principal (1,300+ lignes)
+  analyze_results.py      - Analyseur de resultats
+  check_setup.py         - Verification configuration
+  quick_test.py          - Test rapide
+
+Configuration:
+  benchmark_config.json   - Configuration
+
+Documentation:
+  INDEX.md               - Navigation complete
+  README_BENCHMARK.md    - Details techniques
+  INSTALLATION.md        - Guide installation
+  QUICKSTART.txt         - Ce fichier
+
+Launcher:
+  run_benchmark.bat      - Windows launcher
+
+================================================================================
+POINTS CLES
+================================================================================
+
+Base Model:     Qwen/Qwen3-30B-A3B
+Fine-tuned:     Avec LoRA adapters (auto-detection)
+Quantization:   4-bit (double quant)
+Device:         GPU auto ou CPU fallback
+
+30 Prompts:
+  - 10 commandes vocales JARVIS
+  - 10 corrections vocales
+  - 10 tool routing tests
+
+3 Metriques:
+  1. Similarite cosinus (0.0-1.0)
+  2. Correspondance mots-cles (N/total)
+  3. Pertinence JARVIS (0.0-1.0)
+
+Sortie:
+  - benchmark_results.json    (rapport complet)
+  - benchmark_report.txt      (rapport lisible)
+  - benchmark_charts.png      (graphiques)
+
+================================================================================
+REQUIREMENTS
+================================================================================
+
+Python: 3.13+
+PyTorch: 2.0+
+CUDA: 11.8+ (optionnel mais recommande)
+RAM GPU: 20GB+ (pour 4-bit quantization)
+
+Dependencies:
+  - transformers
+  - peft
+  - bitsandbytes
+  - scikit-learn
+  - matplotlib (optionnel pour graphiques)
+
+Installation:
+  uv pip install transformers peft bitsandbytes scikit-learn matplotlib
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+GPU out of memory:
+  - Reduire max_new_tokens: 128 -> 64
+  - Utiliser 8-bit au lieu de 4-bit
+
+Import error:
+  uv pip install --force-reinstall transformers peft bitsandbytes
+
+Adaptateur LoRA non trouve:
+  - Placer dans: F:\BUREAU\turbo\finetuning\output\final\
+  - Verifier: adapter_config.json existe
+
+Benchmark tres lent:
+  - Verifier GPU: uv run python -c "import torch; print(torch.cuda.is_available())"
+  - Reduire max_new_tokens
+  - Fermer applications gourmandes
+
+================================================================================
+PERFORMANCE ATTENDUE
+================================================================================
+
+GPU RTX 4090:   ~5-6 min total
+GPU RTX 3090:   ~6-8 min total
+GPU RTX 3080:   ~8-10 min total
+CPU i9:         ~45+ min (non recommande)
+
+Par test: 3-5s (generation) + 1s (metriques)
+
+================================================================================
+INTERPRETATION RAPIDE
+================================================================================
+
+Bon fine-tuning = Amelioration JARVIS Relevance > 10%
+
+Exemple:
+  Base:      0.421
+  Fine-tune: 0.687
+  Gain:      +0.266 = +63% ✓ EXCELLENT
+
+Threshold:
+  > 10% = Efficace ✓
+  5-10% = Modere ~
+  < 5%  = Insuffisant ✗
+
+================================================================================
+POUR PLUS D'INFORMATIONS
+================================================================================
+
+Debutant:        Consulter INSTALLATION.md
+Technique:       Consulter README_BENCHMARK.md
+Navigation:      Consulter INDEX.md
+Code:            Consulter benchmark.py
+
+Questions?       Executer: uv run python finetuning/check_setup.py
+
+================================================================================

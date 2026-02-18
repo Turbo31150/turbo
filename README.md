@@ -101,17 +101,20 @@
 
 **Blacklist M1** (gaspillent VRAM) : `nemotron-3-nano`, `glm-4.7-flash`
 
-**Appel M1 :**
+**Appel M1 (API native v1) :**
 ```bash
-curl -s http://10.5.0.2:1234/v1/chat/completions \
+curl -s http://10.5.0.2:1234/api/v1/chat \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer LMSTUDIO_KEY_M1_REDACTED" \
   -d '{
     "model": "qwen/qwen3-30b-a3b-2507",
-    "messages": [{"role": "user", "content": "VOTRE PROMPT"}],
+    "input": "VOTRE PROMPT",
     "temperature": 0.4,
-    "max_tokens": 8192
+    "max_output_tokens": 8192,
+    "stream": false,
+    "store": false
   }'
+# Reponse: {"output":[{"content":"..."}], "stats":{"total_output_tokens":...}}
 ```
 
 ### M2 — Code Rapide (3 GPU, 24 GB VRAM)
@@ -125,17 +128,20 @@ curl -s http://10.5.0.2:1234/v1/chat/completions \
 | **Modele** | `deepseek-coder-v2-lite-instruct` |
 | **Role** | Generation code rapide |
 
-**Appel M2 :**
+**Appel M2 (API native v1) :**
 ```bash
-curl -s http://192.168.1.26:1234/v1/chat/completions \
+curl -s http://192.168.1.26:1234/api/v1/chat \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer LMSTUDIO_KEY_M2_REDACTED" \
   -d '{
     "model": "deepseek-coder-v2-lite-instruct",
-    "messages": [{"role": "user", "content": "VOTRE PROMPT"}],
+    "input": "VOTRE PROMPT",
     "temperature": 0.3,
-    "max_tokens": 8192
+    "max_output_tokens": 8192,
+    "stream": false,
+    "store": false
   }'
+# Reponse: {"output":[{"content":"..."}], "stats":{"total_output_tokens":...}}
 ```
 
 ### M3 — Backup (ONLINE)
@@ -209,17 +215,17 @@ lms unload --all
 ### Health Check Cluster
 
 ```bash
-# M1
-curl -s --max-time 3 http://10.5.0.2:1234/v1/models \
+# M1 (API native v1)
+curl -s --max-time 3 http://10.5.0.2:1234/api/v1/models \
   -H "Authorization: Bearer LMSTUDIO_KEY_M1_REDACTED" \
-  | python -c "import sys,json;print('M1 OK:',len(json.load(sys.stdin).get('data',[])),'modeles')"
+  | python -c "import sys,json;d=json.load(sys.stdin);print('M1 OK:',len([m for m in d.get('models',[]) if m.get('loaded_instances')]),'modeles charges')"
 
-# M2
-curl -s --max-time 3 http://192.168.1.26:1234/v1/models \
+# M2 (API native v1)
+curl -s --max-time 3 http://192.168.1.26:1234/api/v1/models \
   -H "Authorization: Bearer LMSTUDIO_KEY_M2_REDACTED" \
-  | python -c "import sys,json;print('M2 OK:',len(json.load(sys.stdin).get('data',[])),'modeles')"
+  | python -c "import sys,json;d=json.load(sys.stdin);print('M2 OK:',len([m for m in d.get('models',[]) if m.get('loaded_instances')]),'modeles charges')"
 
-# OL1
+# OL1 (Ollama)
 curl -s --max-time 3 http://127.0.0.1:11434/api/tags \
   | python -c "import sys,json;print('OL1 OK:',len(json.load(sys.stdin).get('models',[])),'modeles')"
 ```
@@ -814,22 +820,22 @@ Date: 2026-02-18
 
 ## Appels API — Exemples Complets
 
-### Classification via M1
+### Classification via M1 (API native v1)
 
 ```bash
-curl -s http://10.5.0.2:1234/v1/chat/completions \
+curl -s http://10.5.0.2:1234/api/v1/chat \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer LMSTUDIO_KEY_M1_REDACTED" \
   -d '{
     "model": "qwen/qwen3-30b-a3b-2507",
-    "messages": [
-      {"role": "system", "content": "Classifie cette demande en UNE categorie: code, analyse, trading, systeme, web, simple. Reponds UNIQUEMENT avec le mot-cle."},
-      {"role": "user", "content": "debug le segfault dans main.py"}
-    ],
+    "input": "debug le segfault dans main.py",
+    "system_prompt": "Classifie cette demande en UNE categorie: code, analyse, trading, systeme, web, simple. Reponds UNIQUEMENT avec le mot-cle.",
     "temperature": 0.1,
-    "max_tokens": 32
+    "max_output_tokens": 32,
+    "stream": false,
+    "store": false
   }'
-# Reponse: {"choices":[{"message":{"content":"code"}}]}
+# Reponse: {"output":[{"content":"code"}], "stats":{"total_output_tokens":1}}
 ```
 
 ### Consensus Multi-Noeuds

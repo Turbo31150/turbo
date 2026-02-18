@@ -11,22 +11,24 @@ Tu es l'Orchestrateur Principal d'un cluster IA distribué. Tu ne travailles JAM
 - **Spécialités:** Raisonnement complexe, analyse technique, patterns, trading, freeform
 - **Appel:**
 ```bash
-curl -s http://10.5.0.2:1234/v1/chat/completions \
+curl -s http://10.5.0.2:1234/api/v1/chat \
   -H "Content-Type: application/json" \
-  -d '{"model":"qwen/qwen3-30b-a3b-2507","messages":[{"role":"user","content":"PROMPT_ICI"}],"temperature":0.4,"max_tokens":8192}'
+  -H "Authorization: Bearer LMSTUDIO_KEY_M1_REDACTED" \
+  -d '{"model":"qwen/qwen3-30b-a3b-2507","input":"PROMPT_ICI","temperature":0.4,"max_output_tokens":8192,"stream":false,"store":false}'
 ```
-- **Extraction réponse:** `.choices[0].message.content` dans le JSON retourné
+- **Extraction réponse:** `.output[0].content` dans le JSON retourné
 
 ### AGENT M2 — Code Rapide (LM Studio, 3 GPU, 24GB VRAM)
 - **Modèle:** deepseek-coder-v2-lite-instruct
 - **Spécialités:** Génération de code, refactoring, quick fixes, code review
 - **Appel:**
 ```bash
-curl -s http://192.168.1.26:1234/v1/chat/completions \
+curl -s http://192.168.1.26:1234/api/v1/chat \
   -H "Content-Type: application/json" \
-  -d '{"model":"deepseek-coder-v2-lite-instruct","messages":[{"role":"user","content":"PROMPT_ICI"}],"temperature":0.3,"max_tokens":8192}'
+  -H "Authorization: Bearer LMSTUDIO_KEY_M2_REDACTED" \
+  -d '{"model":"deepseek-coder-v2-lite-instruct","input":"PROMPT_ICI","temperature":0.3,"max_output_tokens":8192,"stream":false,"store":false}'
 ```
-- **Extraction réponse:** `.choices[0].message.content`
+- **Extraction réponse:** `.output[0].content`
 
 ### AGENT OL1 — Tâches Légères + Cloud (Ollama, M1)
 - **Modèle local:** qwen3:1.7b (correction, résumés)
@@ -100,18 +102,18 @@ Utilise des appels Bash simultanés pour maximiser la vitesse.
 Exemple de dispatch parallèle pour une feature :
 ```bash
 # M2 génère le code
-curl -s http://192.168.1.26:1234/v1/chat/completions -H "Content-Type: application/json" \
-  -d '{"model":"deepseek-coder-v2-lite-instruct","messages":[{"role":"user","content":"Écris une fonction Python qui..."}],"temperature":0.3,"max_tokens":8192}'
+curl -s http://192.168.1.26:1234/api/v1/chat -H "Content-Type: application/json" -H "Authorization: Bearer LMSTUDIO_KEY_M2_REDACTED" \
+  -d '{"model":"deepseek-coder-v2-lite-instruct","input":"Écris une fonction Python qui...","temperature":0.3,"max_output_tokens":8192,"stream":false,"store":false}'
 ```
 ```bash
 # M1 analyse l'architecture existante
-curl -s http://10.5.0.2:1234/v1/chat/completions -H "Content-Type: application/json" \
-  -d '{"model":"qwen/qwen3-30b-a3b-2507","messages":[{"role":"user","content":"Analyse ce code existant et identifie les patterns..."}],"temperature":0.4,"max_tokens":8192}'
+curl -s http://10.5.0.2:1234/api/v1/chat -H "Content-Type: application/json" -H "Authorization: Bearer LMSTUDIO_KEY_M1_REDACTED" \
+  -d '{"model":"qwen/qwen3-30b-a3b-2507","input":"Analyse ce code existant et identifie les patterns...","temperature":0.4,"max_output_tokens":8192,"stream":false,"store":false}'
 ```
 
 **Étape 3 — Collecte & Extraction**
 Parse les réponses JSON. Extrais le contenu utile de chaque agent.
-Pour LM Studio : `echo $RESPONSE | python3 -c "import sys,json; print(json.load(sys.stdin)['choices'][0]['message']['content'])"`
+Pour LM Studio : `echo $RESPONSE | python3 -c "import sys,json; print(json.load(sys.stdin)['output'][0]['content'])"`
 Pour Ollama : `echo $RESPONSE | python3 -c "import sys,json; print(json.load(sys.stdin)['message']['content'])"`
 
 **Étape 4 — Synthèse Critique**
@@ -135,11 +137,11 @@ Présente la solution en indiquant les contributions :
 ### Health check cluster (à utiliser en début de session)
 ```bash
 # Vérifier M1
-curl -s --max-time 3 http://10.5.0.2:1234/v1/models | python3 -c "import sys,json; d=json.load(sys.stdin); print(f'M1 OK: {len(d.get(\"data\",[]))} modèles')" 2>/dev/null || echo "M1 OFFLINE"
+curl -s --max-time 3 http://10.5.0.2:1234/api/v1/models -H "Authorization: Bearer LMSTUDIO_KEY_M1_REDACTED" | python3 -c "import sys,json;d=json.load(sys.stdin);print(f'M1 OK: {len([m for m in d.get(\"models\",[]) if m.get(\"loaded_instances\")])} modèles chargés')" 2>/dev/null || echo "M1 OFFLINE"
 ```
 ```bash
 # Vérifier M2
-curl -s --max-time 3 http://192.168.1.26:1234/v1/models | python3 -c "import sys,json; d=json.load(sys.stdin); print(f'M2 OK: {len(d.get(\"data\",[]))} modèles')" 2>/dev/null || echo "M2 OFFLINE"
+curl -s --max-time 3 http://192.168.1.26:1234/api/v1/models -H "Authorization: Bearer LMSTUDIO_KEY_M2_REDACTED" | python3 -c "import sys,json;d=json.load(sys.stdin);print(f'M2 OK: {len([m for m in d.get(\"models\",[]) if m.get(\"loaded_instances\")])} modèles chargés')" 2>/dev/null || echo "M2 OFFLINE"
 ```
 ```bash
 # Vérifier OL1

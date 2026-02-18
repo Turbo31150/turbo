@@ -39,7 +39,7 @@ SYSTEM_PYTHON = Path("C:/Users/franc/AppData/Local/Programs/Python/Python312/pyt
 WHISPER_WORKER_SCRIPT = Path(__file__).parent / "whisper_worker.py"
 
 # LM Studio config for voice correction (M1 fallback, primary is Ollama qwen3:1.7b)
-LM_STUDIO_URL = "http://10.5.0.2:1234/v1/chat/completions"
+LM_STUDIO_URL = "http://10.5.0.2:1234/api/v1/chat"
 LM_CORRECTION_MODEL = "qwen/qwen3-30b-a3b-2507"  # M1 fallback (primary: Ollama qwen3:1.7b)
 
 
@@ -195,12 +195,14 @@ async def analyze_with_lm(raw_text: str) -> dict:
         async with httpx.AsyncClient(timeout=8.0) as client:
             resp = await client.post(LM_STUDIO_URL, json={
                 "model": LM_CORRECTION_MODEL,
-                "messages": [{"role": "user", "content": prompt}],
-                "max_tokens": 150,
+                "input": prompt,
+                "max_output_tokens": 150,
                 "temperature": 0.1,
+                "stream": False,
+                "store": False,
             })
             if resp.status_code == 200:
-                content = resp.json()["choices"][0]["message"]["content"].strip()
+                content = resp.json()["output"][0]["content"].strip()
                 # Parse JSON response
                 import json
                 # Handle possible markdown wrapping

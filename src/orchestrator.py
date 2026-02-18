@@ -469,14 +469,17 @@ async def _local_ia_analyze(query: str, timeout: float = 10.0) -> str | None:
         for attempt in range(2):
             try:
                 client = await _get_client()
-                r = await client.post(f"{node.url}/v1/chat/completions", json={
+                r = await client.post(f"{node.url}/api/v1/chat", json={
                     "model": node.default_model,
-                    "messages": messages,
+                    "input": query,
+                    "system_prompt": system_msg,
                     "temperature": 0.2,
-                    "max_tokens": config.fast_max_tokens,
+                    "max_output_tokens": config.fast_max_tokens,
+                    "stream": False,
+                    "store": False,
                 }, timeout=timeout)
                 r.raise_for_status()
-                content = r.json()["choices"][0]["message"]["content"].strip()
+                content = r.json()["output"][0]["content"].strip()
                 # Remove thinking tags if present (qwen3 sometimes wraps in <think>)
                 if content.startswith("<think>"):
                     think_end = content.find("</think>")

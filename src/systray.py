@@ -71,9 +71,9 @@ def _quick_cluster_status() -> None:
         async with httpx.AsyncClient(timeout=5) as c:
             for node in config.lm_nodes:
                 try:
-                    r = await c.get(f"{node.url}/v1/models")
+                    r = await c.get(f"{node.url}/api/v1/models")
                     r.raise_for_status()
-                    cnt = len(r.json().get("data", []))
+                    cnt = len([m for m in r.json().get("models", []) if m.get("loaded_instances")])
                     results.append(f"{node.name}: OK ({cnt} modeles)")
                 except Exception:
                     results.append(f"{node.name}: OFFLINE")

@@ -1490,8 +1490,8 @@ def _default_skills() -> list[Skill]:
             ],
             steps=[
                 SkillStep("lm_cluster_status", {}, "Check cluster complet"),
-                SkillStep("powershell_run", {"command": "$r = try { (Invoke-WebRequest -Uri 'http://10.5.0.2:1234/v1/models' -Headers @{Authorization='Bearer LMSTUDIO_KEY_M1_REDACTED'} -TimeoutSec 3).StatusCode } catch { 0 }; if ($r -eq 200) { 'M1 OK' } else { 'M1 OFFLINE — relance LM Studio' }"}, "Check M1"),
-                SkillStep("powershell_run", {"command": "$r = try { (Invoke-WebRequest -Uri 'http://192.168.1.26:1234/v1/models' -Headers @{Authorization='Bearer LMSTUDIO_KEY_M2_REDACTED'} -TimeoutSec 3).StatusCode } catch { 0 }; if ($r -eq 200) { 'M2 OK' } else { 'M2 OFFLINE' }"}, "Check M2"),
+                SkillStep("powershell_run", {"command": "$r = try { (Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/models' -Headers @{Authorization='Bearer LMSTUDIO_KEY_M1_REDACTED'} -TimeoutSec 3).StatusCode } catch { 0 }; if ($r -eq 200) { 'M1 OK' } else { 'M1 OFFLINE — relance LM Studio' }"}, "Check M1"),
+                SkillStep("powershell_run", {"command": "$r = try { (Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{Authorization='Bearer LMSTUDIO_KEY_M2_REDACTED'} -TimeoutSec 3).StatusCode } catch { 0 }; if ($r -eq 200) { 'M2 OK' } else { 'M2 OFFLINE' }"}, "Check M2"),
                 SkillStep("powershell_run", {"command": "$r = try { (Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3).StatusCode } catch { 0 }; if ($r -eq 200) { 'Ollama OK' } else { Start-Process ollama -ArgumentList 'serve' -WindowStyle Hidden; 'Ollama relance' }"}, "Check/Relance Ollama"),
                 SkillStep("notify", {"title": "JARVIS Medic", "message": "Diagnostic cluster termine. Agents verifies."}, "Notification"),
             ],

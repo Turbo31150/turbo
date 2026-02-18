@@ -281,16 +281,18 @@ async def cluster_suggest_skill(context: str, node_url: str = "http://10.5.0.2:1
     try:
         async with httpx.AsyncClient(timeout=30) as client:
             resp = await client.post(
-                f"{node_url}/v1/chat/completions",
+                f"{node_url}/api/v1/chat",
                 json={
                     "model": "qwen/qwen3-30b-a3b-2507",
-                    "messages": [{"role": "user", "content": prompt}],
+                    "input": prompt,
                     "temperature": 0.3,
-                    "max_tokens": 512,
+                    "max_output_tokens": 512,
+                    "stream": False,
+                    "store": False,
                 },
             )
             resp.raise_for_status()
-            text = resp.json()["choices"][0]["message"]["content"].strip()
+            text = resp.json()["output"][0]["content"].strip()
 
             # Extract JSON from response (may have markdown code blocks)
             if "```" in text:

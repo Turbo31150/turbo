@@ -128,20 +128,22 @@ async def lm_query(args: dict[str, Any]) -> dict[str, Any]:
 
     try:
         t0 = time.monotonic()
-        r = await _retry_request("POST", f"{node.url}/v1/chat/completions", json={
+        r = await _retry_request("POST", f"{node.url}/api/v1/chat", json={
             "model": model,
-            "messages": [{"role": "user", "content": prompt}],
+            "input": prompt,
             "temperature": temp,
-            "max_tokens": max_tokens,
+            "max_output_tokens": max_tokens,
+            "stream": False,
+            "store": False,
         }, timeout=timeout)
         latency = (time.monotonic() - t0) * 1000
         _track_latency(node.name, latency)
         data = r.json()
-        content = data["choices"][0]["message"]["content"]
-        usage = data.get("usage", {})
+        content = data["output"][0]["content"]
+        usage = data.get("stats", {})
         return _text(
             f"[{node.name}/{model}] {content}\n"
-            f"--- {int(latency)}ms | {usage.get('completion_tokens', '?')} tokens"
+            f"--- {int(latency)}ms | {usage.get('total_output_tokens', '?')} tokens"
         )
     except httpx.ConnectError:
         return _error(f"Noeud {node.name} hors ligne ({node.url})")
@@ -157,8 +159,8 @@ async def lm_models(args: dict[str, Any]) -> dict[str, Any]:
     if not url:
         return _error("Noeud inconnu")
     try:
-        r = await _retry_request("GET", f"{url}/v1/models", timeout=config.health_timeout)
-        models = [m["id"] for m in r.json().get("data", [])]
+        r = await _retry_request("GET", f"{url}/api/v1/models", timeout=config.health_timeout)
+        models = [m["key"] for m in r.json().get("models", []) if m.get("loaded_instances")]
         return _text(f"Modeles: {', '.join(models) if models else 'aucun'}")
     except Exception as e:
         return _error(str(e))
@@ -174,10 +176,10 @@ async def lm_cluster_status(args: dict[str, Any]) -> dict[str, Any]:
     for n in config.lm_nodes:
         try:
             t0 = time.monotonic()
-            r = await client.get(f"{n.url}/v1/models", timeout=config.health_timeout)
+            r = await client.get(f"{n.url}/api/v1/models", timeout=config.health_timeout)
             r.raise_for_status()
             latency = int((time.monotonic() - t0) * 1000)
-            models = [m["id"] for m in r.json().get("data", [])]
+            models = [m["key"] for m in r.json().get("models", []) if m.get("loaded_instances")]
             cnt = len(models)
             total_models += cnt
             online += 1
@@ -240,14 +242,16 @@ async def consensus(args: dict[str, Any]) -> dict[str, Any]:
         if not node:
             return f"[{name}] ERREUR: inconnu"
         try:
-            r = await client.post(f"{node.url}/v1/chat/completions", json={
+            r = await client.post(f"{node.url}/api/v1/chat", json={
                 "model": node.default_model,
-                "messages": [{"role": "user", "content": prompt}],
+                "input": prompt,
                 "temperature": config.temperature,
-                "max_tokens": config.max_tokens,
+                "max_output_tokens": config.max_tokens,
+                "stream": False,
+                "store": False,
             }, timeout=config.inference_timeout)
             r.raise_for_status()
-            return f"[{name}/{node.default_model}] {r.json()['choices'][0]['message']['content']}"
+            return f"[{name}/{node.default_model}] {r.json()['output'][0]['content']}"
         except Exception as e:
             return f"[{name}] ERREUR: {e}"
 

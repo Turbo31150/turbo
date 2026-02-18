@@ -1,0 +1,7 @@
+[
+  {
+    "model_format": "gguf",
+    "name": "llama.cpp-win-x86_64-nvidia-cuda12-avx2",
+    "version": "2.3.0"
+  }
+]

@@ -1,0 +1,535 @@
+# JARVIS v10.1 — Reference Commandes pour IA locale
+# Genere le 2026-02-17 21:25
+# 450 commandes, 34 scripts, 8 projets
+
+
+## ACCESSIBILITE (10 commandes)
+- taille_texte_grand: Agrandir la taille du texte systeme | triggers: [texte plus grand, agrandis le texte, taille texte grande] | action: ms_settings:ms-settings:easeofaccess-display
+- clavier_virtuel: Ouvrir le clavier virtuel | triggers: [clavier virtuel, ouvre le clavier virtuel, clavier a l'ecran] | action: powershell:Start-Process osk
+- filtre_couleur: Activer/desactiver le filtre de couleur | triggers: [filtre de couleur, active le filtre couleur, mode daltonien] | action: ms_settings:ms-settings:easeofaccess-colorfilter
+- sous_titres: Parametres des sous-titres | triggers: [sous-titres, parametres sous-titres, active les sous-titres] | action: ms_settings:ms-settings:easeofaccess-closedcaptioning
+- contraste_eleve_toggle: Activer/desactiver le contraste eleve | triggers: [contraste eleve, high contrast, active le contraste] | action: powershell:Start-Process ms-settings:easeofaccess-highcontrast
+- sous_titres_live: Activer les sous-titres en direct | triggers: [sous titres en direct, live captions, active les sous titres] | action: powershell:Start-Process ms-settings:easeofaccess-closedcaptioning
+- filtre_couleur_toggle: Activer les filtres de couleur | triggers: [filtre de couleur, color filter, daltonien] | action: powershell:Start-Process ms-settings:easeofaccess-colorfilter
+- taille_curseur: Changer la taille du curseur | triggers: [agrandis le curseur, curseur plus grand, taille curseur] | action: powershell:Start-Process ms-settings:easeofaccess-cursorandpointersize
+- narrateur_toggle: Activer/desactiver le narrateur | triggers: [active le narrateur, narrateur windows, desactive le narrateur] | action: powershell:Start-Process ms-settings:easeofaccess-narrator
+- sticky_keys_toggle: Activer/desactiver les touches remanentes | triggers: [active les touches remanentes, desactive les touches remanentes, sticky keys] | action: powershell:Start-Process ms-settings:easeofaccess-keyboard
+
+## APP (23 commandes)
+- ouvrir_vscode: Ouvrir Visual Studio Code | triggers: [ouvre vscode, ouvrir vscode, lance vscode] | action: app_open:code
+- ouvrir_terminal: Ouvrir un terminal | triggers: [ouvre le terminal, ouvrir le terminal, lance powershell] | action: app_open:wt
+- ouvrir_lmstudio: Ouvrir LM Studio | triggers: [ouvre lm studio, lance lm studio, demarre lm studio] | action: app_open:lmstudio
+- ouvrir_discord: Ouvrir Discord | triggers: [ouvre discord, lance discord, va sur discord] | action: app_open:discord
+- ouvrir_spotify: Ouvrir Spotify | triggers: [ouvre spotify, lance spotify, mets spotify] | action: app_open:spotify
+- ouvrir_task_manager: Ouvrir le gestionnaire de taches | triggers: [ouvre le gestionnaire de taches, task manager, gestionnaire de taches] | action: app_open:taskmgr
+- ouvrir_notepad: Ouvrir Notepad | triggers: [ouvre notepad, ouvre bloc notes, ouvre le bloc notes] | action: app_open:notepad
+- ouvrir_calculatrice: Ouvrir la calculatrice | triggers: [ouvre la calculatrice, lance la calculatrice, calculatrice] | action: app_open:calc
+- fermer_app: Fermer une application | triggers: [ferme {app}, fermer {app}, quitte {app}] | action: jarvis_tool:close_app:{app}
+- ouvrir_app: Ouvrir une application par nom | triggers: [ouvre {app}, ouvrir {app}, lance {app}] | action: app_open:{app}
+- ouvrir_paint: Ouvrir Paint | triggers: [ouvre paint, lance paint, ouvrir paint] | action: app_open:mspaint
+- ouvrir_wordpad: Ouvrir WordPad | triggers: [ouvre wordpad, lance wordpad, ouvrir wordpad] | action: app_open:wordpad
+- ouvrir_snipping: Ouvrir l'Outil Capture | triggers: [ouvre l'outil capture, lance l'outil capture, outil de capture] | action: app_open:snippingtool
+- ouvrir_magnifier: Ouvrir la loupe Windows | triggers: [ouvre la loupe windows, loupe windows, loupe ecran] | action: hotkey:win+plus
+- fermer_loupe: Fermer la loupe Windows | triggers: [ferme la loupe, desactive la loupe, arrete la loupe] | action: hotkey:win+escape
+- ouvrir_obs: Ouvrir OBS Studio | triggers: [ouvre obs, lance obs, obs studio] | action: app_open:obs64
+- ouvrir_vlc: Ouvrir VLC Media Player | triggers: [ouvre vlc, lance vlc, ouvrir vlc] | action: app_open:vlc
+- ouvrir_7zip: Ouvrir 7-Zip | triggers: [ouvre 7zip, lance 7zip, ouvrir 7zip] | action: app_open:7zFM
+- store_ouvrir: Ouvrir le Microsoft Store | triggers: [ouvre le store, microsoft store, ouvre le magasin] | action: powershell:Start-Process ms-windows-store:
+- store_updates: Verifier les mises a jour du Store | triggers: [mises a jour store, store updates, update les apps] | action: powershell:Start-Process ms-windows-store://downloadsandupdates
+- ouvrir_phone_link: Ouvrir Phone Link (liaison telephone) | triggers: [ouvre phone link, liaison telephone, phone link] | action: powershell:Start-Process ms-phone:
+- terminal_settings: Ouvrir les parametres Windows Terminal | triggers: [parametres du terminal, reglages terminal, settings terminal] | action: powershell:wt -p 'Settings'
+- copilot_lancer: Lancer Windows Copilot | triggers: [lance copilot, ouvre copilot, copilot] | action: hotkey:win+c
+
+## CLIPBOARD (13 commandes)
+- copier: Copier la selection | triggers: [copie, copier, copy] | action: hotkey:ctrl+c
+- coller: Coller le contenu | triggers: [colle, coller, paste] | action: hotkey:ctrl+v
+- couper: Couper la selection | triggers: [coupe, couper, cut] | action: hotkey:ctrl+x
+- tout_selectionner: Selectionner tout | triggers: [selectionne tout, tout selectionner, select all] | action: hotkey:ctrl+a
+- annuler: Annuler la derniere action | triggers: [annule, annuler, undo] | action: hotkey:ctrl+z
+- ecrire_texte: Ecrire du texte au clavier | triggers: [ecris {texte}, tape {texte}, saisis {texte}] | action: jarvis_tool:type_text:{texte}
+- sauvegarder: Sauvegarder le fichier actif | triggers: [sauvegarde, enregistre, save] | action: hotkey:ctrl+s
+- refaire: Refaire la derniere action annulee | triggers: [refais, redo, refaire] | action: hotkey:ctrl+y
+- recherche_page: Rechercher dans la page | triggers: [recherche dans la page, cherche dans la page, find] | action: hotkey:ctrl+f
+- lire_presse_papier: Lire le contenu du presse-papier | triggers: [lis le presse-papier, qu'est-ce qui est copie, contenu du presse-papier] | action: jarvis_tool:clipboard_get
+- historique_clipboard: Historique du presse-papier | triggers: [historique du presse-papier, clipboard history, historique presse-papier] | action: hotkey:win+v
+- clipboard_historique: Ouvrir l'historique du presse-papier | triggers: [historique presse papier, clipboard history, ouvre l'historique clipboard] | action: hotkey:win+v
+- coller_sans_format: Coller sans mise en forme | triggers: [colle sans format, coller sans mise en forme, colle en texte brut] | action: hotkey:ctrl+shift+v
+
+## DEV (15 commandes)
+- docker_ps: Lister les conteneurs Docker | triggers: [liste les conteneurs, docker ps, conteneurs docker] | action: powershell:docker ps --format 'table {{.Names}}	{{.Status}}	{{.Ports}}' | Out-String
+- docker_images: Lister les images Docker | triggers: [images docker, docker images, quelles images] | action: powershell:docker images --format 'table {{.Repository}}	{{.Tag}}	{{.Size}}' | Out-String
+- docker_stop_all: Arreter tous les conteneurs Docker | triggers: [arrete tous les conteneurs, docker stop all, stoppe docker] | action: powershell:docker stop $(docker ps -q) 2>$null; 'Tous les conteneurs arretes'
+- git_status: Git status du projet courant | triggers: [git status, statut git, etat du repo] | action: powershell:cd F:\BUREAU\turbo; git status
+- git_log: Git log recent | triggers: [git log, historique git, derniers commits] | action: powershell:cd F:\BUREAU\turbo; git log --oneline -10
+- git_pull: Git pull origin main | triggers: [git pull, tire les changements, pull git] | action: powershell:cd F:\BUREAU\turbo; git pull origin main
+- git_push: Git push origin main | triggers: [git push, pousse les commits, push git] | action: powershell:cd F:\BUREAU\turbo; git push origin main
+- pip_list: Lister les packages Python installes | triggers: [pip list, packages python, quels packages] | action: powershell:& 'C:\Users\franc\.local\bin\uv.exe' run --directory F:\BUREAU\turbo pip list | Out-String
+- python_version: Version Python et uv | triggers: [version python, quelle version python, python version] | action: powershell:& 'C:\Users\franc\.local\bin\uv.exe' run --directory F:\BUREAU\turbo python --version; & 'C:\Users\franc\.local\bin\uv.exe' --version
+- ouvrir_n8n: Ouvrir n8n dans le navigateur | triggers: [ouvre n8n, lance n8n, n8n] | action: browser:navigate:http://localhost:5678
+- lm_studio_restart: Relancer LM Studio | triggers: [relance lm studio, redemarre lm studio, restart lm studio] | action: powershell:Stop-Process -Name 'LM Studio' -Force -ErrorAction SilentlyContinue; Start-Sleep 2; Start-Process lmstudio; 'LM Studio relance'
+- ouvrir_jupyter: Ouvrir Jupyter dans le navigateur | triggers: [ouvre jupyter, lance jupyter, jupyter notebook] | action: browser:navigate:http://localhost:8888
+- wsl_lancer: Lancer WSL (Windows Subsystem for Linux) | triggers: [lance wsl, ouvre wsl, lance linux] | action: powershell:wsl
+- wsl_liste: Lister les distributions WSL installees | triggers: [liste les distributions wsl, wsl liste, distributions linux] | action: powershell:wsl --list --verbose
+- wsl_shutdown: Arreter toutes les distributions WSL | triggers: [arrete wsl, stoppe wsl, ferme wsl] | action: powershell:wsl --shutdown
+
+## FENETRE (13 commandes)
+- minimiser_tout: Minimiser toutes les fenetres | triggers: [minimise tout, montre le bureau, affiche le bureau] | action: hotkey:win+d
+- alt_tab: Basculer entre les fenetres | triggers: [change de fenetre, fenetre suivante, bascule] | action: hotkey:alt+tab
+- fermer_fenetre: Fermer la fenetre active | triggers: [ferme la fenetre, ferme ca, ferme cette fenetre] | action: hotkey:alt+F4
+- maximiser_fenetre: Maximiser la fenetre active | triggers: [maximise, plein ecran, maximiser la fenetre] | action: hotkey:win+up
+- minimiser_fenetre: Minimiser la fenetre active | triggers: [minimise, reduis la fenetre, minimiser] | action: hotkey:win+down
+- fenetre_gauche: Fenetre a gauche | triggers: [fenetre a gauche, mets a gauche, snap gauche] | action: hotkey:win+left
+- fenetre_droite: Fenetre a droite | triggers: [fenetre a droite, mets a droite, snap droite] | action: hotkey:win+right
+- focus_fenetre: Mettre le focus sur une fenetre | triggers: [focus sur {titre}, va sur la fenetre {titre}, montre {titre}] | action: jarvis_tool:focus_window:{titre}
+- liste_fenetres: Lister les fenetres ouvertes | triggers: [quelles fenetres sont ouvertes, liste les fenetres, montre les fenetres] | action: jarvis_tool:list_windows
+- fenetre_haut_gauche: Fenetre en haut a gauche | triggers: [fenetre en haut a gauche, snap haut gauche, coin haut gauche] | action: powershell:Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public class K { [DllImport("user32.dll")] public static extern void keybd_event(byte vk, byte scan, int flags, int extra); }'; [K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x25,0,0,0); [K]::keybd_event(0x25,0,2,0); [K]::keybd_event(0x5B,0,2,0); Start-Sleep -Milliseconds 300; [K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x26,0,0,0); [K]::keybd_event(0x26,0,2,0); [K]::keybd_event(0x5B,0,2,0)
+- fenetre_haut_droite: Fenetre en haut a droite | triggers: [fenetre en haut a droite, snap haut droite, coin haut droite] | action: powershell:Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public class K { [DllImport("user32.dll")] public static extern void keybd_event(byte vk, byte scan, int flags, int extra); }'; [K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x27,0,0,0); [K]::keybd_event(0x27,0,2,0); [K]::keybd_event(0x5B,0,2,0); Start-Sleep -Milliseconds 300; [K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x26,0,0,0); [K]::keybd_event(0x26,0,2,0); [K]::keybd_event(0x5B,0,2,0)
+- fenetre_bas_gauche: Fenetre en bas a gauche | triggers: [fenetre en bas a gauche, snap bas gauche, coin bas gauche] | action: powershell:Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public class K { [DllImport("user32.dll")] public static extern void keybd_event(byte vk, byte scan, int flags, int extra); }'; [K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x25,0,0,0); [K]::keybd_event(0x25,0,2,0); [K]::keybd_event(0x5B,0,2,0); Start-Sleep -Milliseconds 300; [K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x28,0,0,0); [K]::keybd_event(0x28,0,2,0); [K]::keybd_event(0x5B,0,2,0)
+- fenetre_bas_droite: Fenetre en bas a droite | triggers: [fenetre en bas a droite, snap bas droite, coin bas droite] | action: powershell:Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public class K { [DllImport("user32.dll")] public static extern void keybd_event(byte vk, byte scan, int flags, int extra); }'; [K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x27,0,0,0); [K]::keybd_event(0x27,0,2,0); [K]::keybd_event(0x5B,0,2,0); Start-Sleep -Milliseconds 300; [K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x28,0,0,0); [K]::keybd_event(0x28,0,2,0); [K]::keybd_event(0x5B,0,2,0)
+
+## FICHIERS (31 commandes)
+- ouvrir_documents: Ouvrir le dossier Documents | triggers: [ouvre mes documents, ouvrir mes documents, ouvre documents] | action: powershell:Start-Process explorer.exe -ArgumentList ([Environment]::GetFolderPath('MyDocuments'))
+- ouvrir_bureau: Ouvrir le dossier Bureau | triggers: [ouvre le bureau, ouvrir le bureau, affiche le bureau] | action: powershell:Start-Process explorer.exe -ArgumentList 'F:\BUREAU'
+- ouvrir_dossier: Ouvrir un dossier specifique | triggers: [ouvre le dossier {dossier}, ouvrir le dossier {dossier}, va dans {dossier}] | action: powershell:Start-Process explorer.exe -ArgumentList '{dossier}'
+- ouvrir_telechargements: Ouvrir Telechargements | triggers: [ouvre les telechargements, ouvre mes telechargements, ouvrir telechargements] | action: powershell:Start-Process explorer.exe -ArgumentList ([Environment]::GetFolderPath('UserProfile') + '\Downloads')
+- ouvrir_images: Ouvrir le dossier Images | triggers: [ouvre mes images, ouvre mes photos, ouvre le dossier images] | action: powershell:Start-Process explorer.exe -ArgumentList ([Environment]::GetFolderPath('MyPictures'))
+- ouvrir_musique: Ouvrir le dossier Musique | triggers: [ouvre ma musique, ouvre le dossier musique, va dans ma musique] | action: powershell:Start-Process explorer.exe -ArgumentList ([Environment]::GetFolderPath('MyMusic'))
+- ouvrir_projets: Ouvrir le dossier projets | triggers: [ouvre mes projets, va dans les projets, ouvre le dossier turbo] | action: powershell:Start-Process explorer.exe -ArgumentList 'F:\BUREAU\turbo'
+- ouvrir_explorateur: Ouvrir l'explorateur de fichiers | triggers: [ouvre l'explorateur, ouvre l'explorateur de fichiers, explorateur de fichiers] | action: hotkey:win+e
+- lister_dossier: Lister le contenu d'un dossier | triggers: [que contient {dossier}, liste le dossier {dossier}, contenu du dossier {dossier}] | action: jarvis_tool:list_folder:{dossier}
+- creer_dossier: Creer un nouveau dossier | triggers: [cree un dossier {nom}, nouveau dossier {nom}, cree le dossier {nom}] | action: jarvis_tool:create_folder:{nom}
+- chercher_fichier: Chercher un fichier | triggers: [cherche le fichier {nom}, trouve le fichier {nom}, ou est le fichier {nom}] | action: jarvis_tool:search_files:{nom}
+- ouvrir_recents: Ouvrir les fichiers recents | triggers: [fichiers recents, ouvre les recents, derniers fichiers] | action: powershell:Start-Process explorer.exe -ArgumentList 'shell:Recent'
+- ouvrir_temp: Ouvrir le dossier temporaire | triggers: [ouvre le dossier temp, fichiers temporaires, dossier temp] | action: powershell:Start-Process explorer.exe -ArgumentList $env:TEMP
+- ouvrir_appdata: Ouvrir le dossier AppData | triggers: [ouvre appdata, dossier appdata, ouvre app data] | action: powershell:Start-Process explorer.exe -ArgumentList $env:APPDATA
+- espace_dossier: Taille d'un dossier | triggers: [taille du dossier {dossier}, combien pese {dossier}, espace utilise par {dossier}] | action: powershell:$s = (Get-ChildItem '{dossier}' -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum / 1GB; "Taille: $([math]::Round($s,2)) GB"
+- nombre_fichiers: Compter les fichiers dans un dossier | triggers: [combien de fichiers dans {dossier}, nombre de fichiers {dossier}, compte les fichiers dans {dossier}] | action: powershell:$n = (Get-ChildItem '{dossier}' -Recurse -File -ErrorAction SilentlyContinue).Count; "$n fichiers dans {dossier}"
+- compresser_dossier: Compresser un dossier en ZIP | triggers: [compresse {dossier}, zip {dossier}, archive {dossier}] | action: powershell:Compress-Archive -Path '{dossier}' -DestinationPath '{dossier}.zip' -Force; 'Archive creee: {dossier}.zip'
+- decompresser_zip: Decompresser un fichier ZIP | triggers: [decompresse {fichier}, unzip {fichier}, extrais {fichier}] | action: powershell:Expand-Archive -Path '{fichier}' -DestinationPath (Split-Path '{fichier}') -Force; 'Extrait dans: ' + (Split-Path '{fichier}')
+- hash_fichier: Calculer le hash SHA256 d'un fichier | triggers: [hash de {fichier}, sha256 de {fichier}, checksum de {fichier}] | action: powershell:(Get-FileHash '{fichier}' -Algorithm SHA256).Hash
+- chercher_contenu: Chercher du texte dans les fichiers | triggers: [cherche {texte} dans les fichiers, grep {texte}, trouve {texte} dans les fichiers] | action: powershell:Get-ChildItem -Recurse -File -ErrorAction SilentlyContinue | Select-String -Pattern '{texte}' -List | Select Path, LineNumber | Select -First 20 | Out-String
+- derniers_fichiers: Derniers fichiers modifies | triggers: [derniers fichiers modifies, fichiers recents, quoi de nouveau] | action: powershell:Get-ChildItem -Recurse -File -ErrorAction SilentlyContinue | Sort LastWriteTime -Descending | Select -First 15 Name, LastWriteTime, @{N='Size(KB)';E={[math]::Round($_.Length/1KB,1)}} | Out-String
+- doublons_fichiers: Trouver les fichiers en double | triggers: [fichiers en double, doublons, trouve les doublons] | action: powershell:Get-ChildItem -Recurse -File -ErrorAction SilentlyContinue | Group-Object Length | Where Count -gt 1 | ForEach-Object { $_.Group | Select Name, Length, DirectoryName } | Select -First 20 | Out-String
+- gros_fichiers: Trouver les plus gros fichiers | triggers: [plus gros fichiers, fichiers les plus lourds, gros fichiers] | action: powershell:Get-ChildItem -Recurse -File -ErrorAction SilentlyContinue | Sort Length -Descending | Select -First 20 Name, @{N='Size(MB)';E={[math]::Round($_.Length/1MB,1)}}, DirectoryName | Out-String
+- fichiers_type: Lister les fichiers d'un type | triggers: [fichiers {ext}, tous les {ext}, liste les {ext}] | action: powershell:$f = Get-ChildItem -Recurse -Filter '*.{ext}' -File -ErrorAction SilentlyContinue; "$($f.Count) fichiers .{ext} trouves"; $f | Select -First 15 Name, @{N='Size(KB)';E={[math]::Round($_.Length/1KB,1)}} | Out-String
+- renommer_masse: Renommer des fichiers en masse | triggers: [renomme les fichiers {ancien} en {nouveau}, remplace {ancien} par {nouveau} dans les noms] | action: powershell:Get-ChildItem -File | Where Name -match '{ancien}' | Rename-Item -NewName { $_.Name -replace '{ancien}','{nouveau}' } -WhatIf | Out-String
+- dossiers_vides: Trouver les dossiers vides | triggers: [dossiers vides, repertoires vides, trouve les dossiers vides] | action: powershell:Get-ChildItem -Directory -Recurse -ErrorAction SilentlyContinue | Where { (Get-ChildItem $_.FullName -Force -ErrorAction SilentlyContinue).Count -eq 0 } | Select FullName | Out-String
+- proprietes_fichier: Proprietes detaillees d'un fichier | triggers: [proprietes de {fichier}, details de {fichier}, info sur {fichier}] | action: powershell:$f = Get-Item '{fichier}'; "Nom: $($f.Name)`nTaille: $([math]::Round($f.Length/1KB,1)) KB`nCree: $($f.CreationTime)`nModifie: $($f.LastWriteTime)`nType: $($f.Extension)"
+- copier_fichier: Copier un fichier vers un dossier | triggers: [copie {source} dans {destination}, copie {source} vers {destination}, duplique {source} dans {destination}] | action: powershell:Copy-Item '{source}' '{destination}' -Force; 'Copie effectuee'
+- deplacer_fichier: Deplacer un fichier | triggers: [deplace {source} dans {destination}, deplace {source} vers {destination}, bouge {source} dans {destination}] | action: powershell:Move-Item '{source}' '{destination}' -Force; 'Deplacement effectue'
+- explorer_nouvel_onglet: Nouvel onglet dans l'Explorateur | triggers: [nouvel onglet explorateur, onglet explorateur, new tab explorer] | action: powershell:Start-Process explorer.exe
+- dossier_captures: Ouvrir le dossier captures d'ecran | triggers: [dossier captures, ouvre les captures, dossier screenshots] | action: powershell:Start-Process ([Environment]::GetFolderPath('MyPictures') + '\Screenshots')
+
+## JARVIS (12 commandes)
+- historique_commandes: Voir l'historique des commandes JARVIS | triggers: [historique des commandes, quelles commandes j'ai utilise, dernieres commandes] | action: powershell:if (Test-Path 'F:\BUREAU\turbo\data\action_history.json') { Get-Content 'F:\BUREAU\turbo\data\action_history.json' | ConvertFrom-Json | Select -Last 10 | Out-String } else { 'Aucun historique' }
+- jarvis_aide: Afficher l'aide JARVIS | triggers: [aide, help, quelles commandes] | action: list_commands:all
+- jarvis_stop: Arreter JARVIS | triggers: [jarvis stop, jarvis arrete, arrete jarvis] | action: exit:stop
+- jarvis_repete: Repeter la derniere reponse | triggers: [repete, redis, repete ca] | action: jarvis_repeat:last
+- jarvis_scripts: Lister les scripts disponibles | triggers: [quels scripts sont disponibles, liste les scripts, montre les scripts] | action: jarvis_tool:list_scripts
+- jarvis_projets: Lister les projets indexes | triggers: [quels projets existent, liste les projets, montre les projets] | action: jarvis_tool:list_project_paths
+- jarvis_notification: Envoyer une notification | triggers: [notifie {message}, notification {message}, envoie une notification {message}] | action: jarvis_tool:notify:JARVIS:{message}
+- jarvis_skills: Lister les skills/pipelines appris | triggers: [quels skills existent, liste les skills, montre les skills] | action: list_commands:skills
+- jarvis_suggestions: Suggestions d'actions | triggers: [que me suggeres tu, suggestions, quoi faire] | action: list_commands:suggestions
+- jarvis_brain_status: Etat du cerveau JARVIS | triggers: [etat du cerveau, brain status, cerveau jarvis] | action: jarvis_tool:brain_status
+- jarvis_brain_learn: Apprendre de nouveaux patterns | triggers: [apprends, brain learn, auto apprends] | action: jarvis_tool:brain_learn
+- jarvis_brain_suggest: Demander une suggestion de skill a l'IA | triggers: [suggere un skill, brain suggest, invente un skill] | action: jarvis_tool:brain_suggest
+
+## LAUNCHER (12 commandes)
+- launch_pipeline_10: Lancer le Pipeline 10 Cycles | triggers: [lance le pipeline 10 cycles, pipeline 10 cycles, pipeline 10] | action: script:auto_cycle_10
+- launch_sniper_10: Lancer le Sniper 10 Cycles | triggers: [lance le sniper 10 cycles, sniper 10 cycles, sniper 10] | action: script:sniper_10cycles
+- launch_sniper_breakout: Lancer le Sniper Breakout | triggers: [lance sniper breakout, sniper breakout, detection breakout] | action: script:sniper_breakout
+- launch_trident: Lancer Trident Execute (dry run) | triggers: [lance trident, trident execute, execute trident] | action: script:execute_trident
+- launch_hyper_scan: Lancer l'Hyper Scan V2 | triggers: [lance hyper scan, hyper scan v2, grid computing scan] | action: script:hyper_scan_v2
+- launch_monitor_river: Lancer le Monitor RIVER Scalp | triggers: [lance river, monitor river, lance le monitor river] | action: script:river_scalp_1min
+- launch_command_center: Ouvrir le JARVIS Command Center (GUI) | triggers: [ouvre le command center, command center, lance le cockpit] | action: script:jarvis_gui
+- launch_electron_app: Ouvrir JARVIS Electron App | triggers: [lance electron, jarvis electron, ouvre l'application jarvis] | action: script:jarvis_api
+- launch_widget: Ouvrir le Widget JARVIS | triggers: [lance le widget jarvis, jarvis widget, widget trading] | action: script:jarvis_widget
+- launch_disk_cleaner: Lancer le nettoyeur de disque | triggers: [nettoie le disque, disk cleaner, lance le nettoyeur] | action: script:disk_cleaner
+- launch_master_node: Lancer le Master Interaction Node | triggers: [lance le master node, master interaction, noeud principal] | action: script:master_interaction
+- launch_fs_agent: Lancer l'agent fichiers JARVIS | triggers: [lance l'agent fichiers, fs agent, agent systeme fichiers] | action: script:fs_agent
+
+## MEDIA (7 commandes)
+- media_play_pause: Play/Pause media | triggers: [play, pause, mets pause] | action: hotkey:media_play_pause
+- media_next: Piste suivante | triggers: [suivant, piste suivante, chanson suivante] | action: hotkey:media_next
+- media_previous: Piste precedente | triggers: [precedent, piste precedente, chanson precedente] | action: hotkey:media_previous
+- volume_haut: Augmenter le volume | triggers: [monte le volume, augmente le volume, volume plus fort] | action: hotkey:volume_up
+- volume_bas: Baisser le volume | triggers: [baisse le volume, diminue le volume, volume moins fort] | action: hotkey:volume_down
+- muet: Couper/activer le son | triggers: [coupe le son, mute, silence] | action: hotkey:volume_mute
+- volume_precis: Mettre le volume a un niveau precis | triggers: [mets le volume a {niveau}, volume a {niveau}, regle le volume a {niveau}] | action: powershell:powershell -NoProfile -Command "$vol = {niveau} / 100; (New-Object -ComObject WScript.Shell).SendKeys([char]173); Start-Sleep -Milliseconds 200"
+
+## NAVIGATION (26 commandes)
+- ouvrir_chrome: Ouvrir Google Chrome | triggers: [ouvre chrome, ouvrir chrome, lance chrome] | action: app_open:chrome
+- ouvrir_comet: Ouvrir Comet Browser | triggers: [ouvre comet, ouvrir comet, lance comet] | action: app_open:comet
+- aller_sur_site: Naviguer vers un site web | triggers: [va sur {site}, ouvre {site}, navigue vers {site}] | action: browser:navigate:{site}
+- chercher_google: Rechercher sur Google | triggers: [cherche {requete}, recherche {requete}, google {requete}] | action: browser:search:{requete}
+- chercher_youtube: Rechercher sur YouTube | triggers: [cherche sur youtube {requete}, youtube {requete}, recherche sur youtube {requete}] | action: browser:navigate:https://www.youtube.com/results?search_query={requete}
+- ouvrir_gmail: Ouvrir Gmail | triggers: [ouvre gmail, ouvrir gmail, ouvre mes mails] | action: browser:navigate:https://mail.google.com
+- ouvrir_youtube: Ouvrir YouTube | triggers: [ouvre youtube, va sur youtube, lance youtube] | action: browser:navigate:https://youtube.com
+- ouvrir_github: Ouvrir GitHub | triggers: [ouvre github, va sur github, ouvrir github] | action: browser:navigate:https://github.com
+- ouvrir_tradingview: Ouvrir TradingView | triggers: [ouvre tradingview, va sur tradingview, lance tradingview] | action: browser:navigate:https://www.tradingview.com
+- ouvrir_mexc: Ouvrir MEXC | triggers: [ouvre mexc, va sur mexc, lance mexc] | action: browser:navigate:https://www.mexc.com
+- nouvel_onglet: Ouvrir un nouvel onglet | triggers: [nouvel onglet, nouveau tab, ouvre un nouvel onglet] | action: hotkey:ctrl+t
+- fermer_onglet: Fermer l'onglet actif | triggers: [ferme l'onglet, ferme cet onglet, ferme le tab] | action: hotkey:ctrl+w
+- mode_incognito: Ouvrir Chrome en mode incognito | triggers: [mode incognito, navigation privee, ouvre en prive] | action: powershell:Start-Process chrome '-incognito'
+- historique_chrome: Ouvrir l'historique Chrome | triggers: [historique chrome, ouvre l'historique, historique navigateur] | action: hotkey:ctrl+h
+- favoris_chrome: Ouvrir les favoris Chrome | triggers: [ouvre les favoris, favoris, bookmarks] | action: hotkey:ctrl+d
+- telecharger_chrome: Ouvrir les telechargements Chrome | triggers: [telechargements chrome, ouvre les downloads, mes telechargements navigateur] | action: hotkey:ctrl+j
+- nouvel_onglet: Ouvrir un nouvel onglet Chrome | triggers: [nouvel onglet, ouvre un onglet, nouveau tab] | action: hotkey:ctrl+t
+- onglet_precedent: Onglet precedent Chrome | triggers: [onglet precedent, tab precedent, onglet d'avant] | action: hotkey:ctrl+shift+tab
+- onglet_suivant: Onglet suivant Chrome | triggers: [onglet suivant, tab suivant, prochain onglet] | action: hotkey:ctrl+tab
+- rouvrir_onglet: Rouvrir le dernier onglet ferme | triggers: [rouvre l'onglet, rouvrir onglet, restaure l'onglet] | action: hotkey:ctrl+shift+t
+- chrome_favoris: Ouvrir les favoris Chrome | triggers: [ouvre les favoris, mes favoris, bookmarks] | action: hotkey:ctrl+shift+o
+- chrome_telechargements: Ouvrir les telechargements Chrome | triggers: [telechargements chrome, mes telechargements chrome, fichiers telecharges] | action: hotkey:ctrl+j
+- chrome_plein_ecran: Chrome en plein ecran (F11) | triggers: [plein ecran, chrome plein ecran, fullscreen] | action: hotkey:f11
+- chrome_zoom_plus: Zoom avant Chrome | triggers: [zoom avant chrome, agrandir la page, plus grand] | action: hotkey:ctrl+plus
+- chrome_zoom_moins: Zoom arriere Chrome | triggers: [zoom arriere chrome, reduire la page, plus petit] | action: hotkey:ctrl+minus
+- chrome_zoom_reset: Reinitialiser le zoom Chrome | triggers: [zoom normal, zoom 100, reinitialise le zoom] | action: hotkey:ctrl+0
+
+## SAISIE (4 commandes)
+- texte_majuscule: Convertir le presse-papier en majuscules | triggers: [en majuscules, tout en majuscules, texte en majuscules] | action: powershell:$t = Get-Clipboard; Set-Clipboard ($t.ToUpper()); 'Texte converti en majuscules'
+- texte_minuscule: Convertir le presse-papier en minuscules | triggers: [en minuscules, tout en minuscules, texte en minuscules] | action: powershell:$t = Get-Clipboard; Set-Clipboard ($t.ToLower()); 'Texte converti en minuscules'
+- ouvrir_emojis: Ouvrir le panneau emojis | triggers: [ouvre les emojis, panneau emojis, emoji picker] | action: hotkey:win+.
+- ouvrir_dictee: Activer la dictee vocale Windows | triggers: [dicte, dictee windows, active la dictee] | action: hotkey:win+h
+
+## SYSTEME (267 commandes)
+- verrouiller: Verrouiller le PC | triggers: [verrouille le pc, verrouille l'ecran, lock] | action: powershell:rundll32.exe user32.dll,LockWorkStation
+- eteindre: Eteindre le PC | triggers: [eteins le pc, eteindre le pc, arrete le pc] | action: powershell:Stop-Computer -Force
+- redemarrer: Redemarrer le PC | triggers: [redemarre le pc, redemarrer le pc, reboot] | action: powershell:Restart-Computer -Force
+- veille: Mettre en veille | triggers: [mets en veille, veille, sleep] | action: powershell:rundll32.exe powrprof.dll,SetSuspendState 0,1,0
+- capture_ecran: Capture d'ecran | triggers: [capture ecran, screenshot, prends une capture] | action: hotkey:win+shift+s
+- info_systeme: Infos systeme | triggers: [info systeme, infos systeme, statut systeme] | action: jarvis_tool:system_info
+- info_gpu: Infos GPU | triggers: [info gpu, infos gpu, statut gpu] | action: jarvis_tool:gpu_info
+- info_reseau: Infos reseau | triggers: [info reseau, infos reseau, statut reseau] | action: jarvis_tool:network_info
+- processus: Lister les processus | triggers: [liste les processus, montre les processus, quels processus tournent] | action: jarvis_tool:list_processes
+- kill_process: Tuer un processus | triggers: [tue le processus {nom}, kill {nom}, ferme le processus {nom}] | action: jarvis_tool:kill_process:{nom}
+- wifi_scan: Scanner les reseaux Wi-Fi | triggers: [scan wifi, wifi scan, reseaux wifi] | action: jarvis_tool:wifi_networks
+- ping_host: Ping un hote | triggers: [ping {host}, teste la connexion a {host}, verifie {host}] | action: jarvis_tool:ping:{host}
+- vider_corbeille: Vider la corbeille | triggers: [vide la corbeille, nettoie la corbeille, vider la corbeille] | action: powershell:Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe'
+- mode_nuit: Activer/desactiver le mode nuit | triggers: [mode nuit, lumiere bleue, filtre bleu] | action: hotkey:win+a
+- ouvrir_run: Ouvrir la boite Executer | triggers: [ouvre executer, boite de dialogue executer, run] | action: hotkey:win+r
+- recherche_windows: Recherche Windows | triggers: [recherche windows, cherche sur le pc, recherche sur le pc] | action: hotkey:win+s
+- centre_notifications: Ouvrir le centre de notifications | triggers: [ouvre les notifications, notifications, centre de notifications] | action: hotkey:win+n
+- ouvrir_widgets: Ouvrir les widgets | triggers: [ouvre les widgets, widgets, affiche les widgets] | action: hotkey:win+w
+- ouvrir_emojis: Ouvrir le panneau emojis | triggers: [ouvre les emojis, emojis, panneau emojis] | action: hotkey:win+;
+- projeter_ecran: Projeter l'ecran | triggers: [projette l'ecran, duplique l'ecran, mode ecran] | action: hotkey:win+p
+- vue_taches: Vue des taches / bureaux virtuels | triggers: [vue des taches, bureaux virtuels, task view] | action: hotkey:win+tab
+- bureau_suivant: Passer au bureau virtuel suivant | triggers: [bureau suivant, prochain bureau, next desktop] | action: hotkey:ctrl+win+right
+- bureau_precedent: Passer au bureau virtuel precedent | triggers: [bureau precedent, bureau virtuel precedent, previous desktop] | action: hotkey:ctrl+win+left
+- ouvrir_parametres: Ouvrir les parametres Windows | triggers: [ouvre les parametres, parametres, reglages] | action: ms_settings:ms-settings:
+- param_wifi: Parametres Wi-Fi | triggers: [parametres wifi, reglages wifi, ouvre les parametres wifi] | action: ms_settings:ms-settings:network-wifi
+- param_bluetooth: Parametres Bluetooth | triggers: [parametres bluetooth, reglages bluetooth, ouvre les parametres bluetooth] | action: ms_settings:ms-settings:bluetooth
+- param_affichage: Parametres d'affichage | triggers: [parametres affichage, reglages ecran, parametres ecran] | action: ms_settings:ms-settings:display
+- param_son: Parametres son | triggers: [parametres son, reglages audio, parametres audio] | action: ms_settings:ms-settings:sound
+- param_stockage: Espace disque et stockage | triggers: [espace disque, stockage, parametres stockage] | action: ms_settings:ms-settings:storagesense
+- param_mises_a_jour: Mises a jour Windows | triggers: [mises a jour, windows update, mise a jour] | action: ms_settings:ms-settings:windowsupdate
+- param_alimentation: Parametres d'alimentation | triggers: [parametres alimentation, economie energie, reglages alimentation] | action: ms_settings:ms-settings:powersleep
+- bluetooth_on: Activer le Bluetooth | triggers: [active le bluetooth, allume bluetooth, bluetooth on] | action: powershell:Add-Type -AssemblyName System.Runtime.WindowsRuntime; $radio = [Windows.Devices.Radios.Radio,Windows.System.Devices,ContentType=WindowsRuntime]::GetRadiosAsync().GetAwaiter().GetResult() | Where-Object { $_.Kind -eq 'Bluetooth' }; if($radio) { $radio[0].SetStateAsync('On').GetAwaiter().GetResult() | Out-Null; 'Bluetooth active' } else { 'Aucun adaptateur Bluetooth' }
+- bluetooth_off: Desactiver le Bluetooth | triggers: [desactive le bluetooth, coupe bluetooth, bluetooth off] | action: powershell:Add-Type -AssemblyName System.Runtime.WindowsRuntime; $radio = [Windows.Devices.Radios.Radio,Windows.System.Devices,ContentType=WindowsRuntime]::GetRadiosAsync().GetAwaiter().GetResult() | Where-Object { $_.Kind -eq 'Bluetooth' }; if($radio) { $radio[0].SetStateAsync('Off').GetAwaiter().GetResult() | Out-Null; 'Bluetooth desactive' } else { 'Aucun adaptateur Bluetooth' }
+- luminosite_haut: Augmenter la luminosite | triggers: [augmente la luminosite, plus lumineux, luminosite plus] | action: powershell:$b = (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightness).CurrentBrightness; $n = [Math]::Min(100, $b + 10); (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $n); "Luminosite: $n%"
+- luminosite_bas: Baisser la luminosite | triggers: [baisse la luminosite, moins lumineux, luminosite moins] | action: powershell:$b = (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightness).CurrentBrightness; $n = [Math]::Max(0, $b - 10); (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $n); "Luminosite: $n%"
+- lister_services: Lister les services Windows | triggers: [liste les services, services windows, quels services] | action: jarvis_tool:list_services
+- demarrer_service: Demarrer un service Windows | triggers: [demarre le service {nom}, start service {nom}, lance le service {nom}] | action: jarvis_tool:start_service:{nom}
+- arreter_service: Arreter un service Windows | triggers: [arrete le service {nom}, stop service {nom}, stoppe le service {nom}] | action: jarvis_tool:stop_service:{nom}
+- resolution_ecran: Resolution de l'ecran | triggers: [resolution ecran, quelle resolution, resolution de l'ecran] | action: jarvis_tool:screen_resolution
+- taches_planifiees: Taches planifiees Windows | triggers: [taches planifiees, taches automatiques, scheduled tasks] | action: jarvis_tool:scheduled_tasks
+- mode_avion_on: Activer le mode avion | triggers: [active le mode avion, mode avion, mode avion on] | action: ms_settings:ms-settings:network-airplanemode
+- micro_mute: Couper le microphone | triggers: [coupe le micro, mute le micro, micro off] | action: powershell:Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class A{[DllImport("user32.dll")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; [A]::keybd_event(0xAD,0,0,0); [A]::keybd_event(0xAD,0,2,0)
+- micro_unmute: Reactiver le microphone | triggers: [reactive le micro, unmute micro, micro on] | action: powershell:Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class A{[DllImport("user32.dll")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; [A]::keybd_event(0xAD,0,0,0); [A]::keybd_event(0xAD,0,2,0)
+- param_camera: Parametres camera | triggers: [parametres camera, reglages camera, config camera] | action: ms_settings:ms-settings:privacy-webcam
+- nouveau_bureau: Creer un nouveau bureau virtuel | triggers: [nouveau bureau, cree un bureau, ajoute un bureau] | action: hotkey:ctrl+win+d
+- fermer_bureau: Fermer le bureau virtuel actif | triggers: [ferme le bureau, ferme ce bureau, supprime le bureau] | action: hotkey:ctrl+win+F4
+- zoom_avant: Zoomer | triggers: [zoom avant, zoom plus, agrandis] | action: hotkey:ctrl++
+- zoom_arriere: Dezoomer | triggers: [zoom arriere, zoom moins, retrecis] | action: hotkey:ctrl+-
+- zoom_reset: Reinitialiser le zoom | triggers: [zoom normal, zoom reset, taille normale] | action: hotkey:ctrl+0
+- imprimer: Imprimer | triggers: [imprime, imprimer, print] | action: hotkey:ctrl+p
+- renommer: Renommer le fichier selectionne | triggers: [renomme, renommer, rename] | action: hotkey:F2
+- supprimer: Supprimer le fichier selectionne | triggers: [supprime, supprimer, delete] | action: hotkey:delete
+- proprietes: Proprietes du fichier selectionne | triggers: [proprietes, proprietes du fichier, infos fichier] | action: hotkey:alt+enter
+- actualiser: Actualiser la page ou le dossier | triggers: [actualise, rafraichis, refresh] | action: hotkey:F5
+- verrouiller_rapide: Verrouiller le PC rapidement | triggers: [verrouille, lock, verrouille vite] | action: hotkey:win+l
+- loupe: Activer la loupe / zoom accessibilite | triggers: [active la loupe, loupe, magnifier] | action: hotkey:win++
+- loupe_off: Desactiver la loupe | triggers: [desactive la loupe, ferme la loupe, loupe off] | action: hotkey:win+escape
+- narrateur: Activer/desactiver le narrateur | triggers: [active le narrateur, narrateur, narrator] | action: hotkey:ctrl+win+enter
+- clavier_visuel: Ouvrir le clavier visuel | triggers: [clavier visuel, ouvre le clavier, clavier ecran] | action: powershell:Start-Process osk
+- dictee: Activer la dictee vocale Windows | triggers: [dictee, dictee vocale, lance la dictee] | action: hotkey:win+h
+- contraste_eleve: Activer le mode contraste eleve | triggers: [contraste eleve, high contrast, mode contraste] | action: hotkey:alt+shift+print
+- param_accessibilite: Parametres d'accessibilite | triggers: [parametres accessibilite, reglages accessibilite, accessibilite] | action: ms_settings:ms-settings:easeofaccess
+- enregistrer_ecran: Enregistrer l'ecran (Xbox Game Bar) | triggers: [enregistre l'ecran, lance l'enregistrement, record] | action: hotkey:win+alt+r
+- game_bar: Ouvrir la Xbox Game Bar | triggers: [ouvre la game bar, game bar, xbox game bar] | action: hotkey:win+g
+- snap_layout: Ouvrir les dispositions Snap | triggers: [snap layout, disposition fenetre, snap] | action: hotkey:win+z
+- plan_performance: Activer le mode performances | triggers: [mode performance, performances maximales, haute performance] | action: powershell:powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c; 'Mode haute performance active'
+- plan_equilibre: Activer le mode equilibre | triggers: [mode equilibre, plan equilibre, balanced] | action: powershell:powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e; 'Mode equilibre active'
+- plan_economie: Activer le mode economie d'energie | triggers: [mode economie, economie d'energie, power saver] | action: powershell:powercfg /setactive a1841308-3541-4fab-bc81-f71556f20b4a; 'Mode economie active'
+- ipconfig: Afficher la configuration IP | triggers: [montre l'ip, quelle est mon adresse ip, ipconfig] | action: jarvis_tool:get_ip
+- vider_dns: Vider le cache DNS | triggers: [vide le cache dns, flush dns, nettoie le dns] | action: powershell:ipconfig /flushdns
+- param_vpn: Parametres VPN | triggers: [parametres vpn, reglages vpn, config vpn] | action: ms_settings:ms-settings:network-vpn
+- param_proxy: Parametres proxy | triggers: [parametres proxy, reglages proxy, config proxy] | action: ms_settings:ms-settings:network-proxy
+- etendre_ecran: Etendre l'affichage sur un second ecran | triggers: [etends l'ecran, double ecran, ecran etendu] | action: powershell:DisplaySwitch.exe /extend
+- dupliquer_ecran: Dupliquer l'affichage | triggers: [duplique l'ecran, meme image, ecran duplique] | action: powershell:DisplaySwitch.exe /clone
+- ecran_principal_seul: Afficher uniquement sur l'ecran principal | triggers: [ecran principal seulement, un seul ecran, desactive le second ecran] | action: powershell:DisplaySwitch.exe /internal
+- ecran_secondaire_seul: Afficher uniquement sur le second ecran | triggers: [ecran secondaire seulement, second ecran uniquement, affiche sur l'autre ecran] | action: powershell:DisplaySwitch.exe /external
+- focus_assist_on: Activer l'aide a la concentration (ne pas deranger) | triggers: [ne pas deranger, focus assist, mode silencieux] | action: powershell:Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings' -Name 'NOC_GLOBAL_SETTING_ALLOW_NOTIFICATION_SOUND' -Value 0; 'Focus Assist active'
+- focus_assist_off: Desactiver l'aide a la concentration | triggers: [desactive ne pas deranger, reactive les notifications, focus assist off] | action: powershell:Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings' -Name 'NOC_GLOBAL_SETTING_ALLOW_NOTIFICATION_SOUND' -Value 1; 'Focus Assist desactive'
+- taskbar_hide: Masquer la barre des taches | triggers: [cache la barre des taches, masque la taskbar, barre des taches invisible] | action: powershell:$p = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3'; $v = (Get-ItemProperty -Path $p).Settings; $v[8] = 3; Set-ItemProperty -Path $p -Name Settings -Value $v; Stop-Process -Name explorer -Force; 'Taskbar masquee'
+- taskbar_show: Afficher la barre des taches | triggers: [montre la barre des taches, affiche la taskbar, barre des taches visible] | action: powershell:$p = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3'; $v = (Get-ItemProperty -Path $p).Settings; $v[8] = 2; Set-ItemProperty -Path $p -Name Settings -Value $v; Stop-Process -Name explorer -Force; 'Taskbar affichee'
+- night_light_on: Activer l'eclairage nocturne | triggers: [active la lumiere nocturne, night light on, eclairage nocturne] | action: powershell:Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CloudStore\Store\DefaultAccount\Current\default$windows.data.bluelightreduction.settings\windows.data.bluelightreduction.settings' -Name 'Data' -Value ([byte[]](2,0,0,0,0x38,0,0,0,2,1,0xCA,0x14,0x0E,0x15,0,0,0,0x2A,6,0xFE,0xD2,0xB3,0xA5,0x04,0,0,0x43,0x42,1,0)); 'Night Light active'
+- night_light_off: Desactiver l'eclairage nocturne | triggers: [desactive la lumiere nocturne, night light off, lumiere normale] | action: powershell:Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CloudStore\Store\DefaultAccount\Current\default$windows.data.bluelightreduction.settings\windows.data.bluelightreduction.settings' -Name 'Data' -Value ([byte[]](2,0,0,0,0x38,0,0,0,0,1,0xCA,0x14,0x0E,0x15,0,0,0,0x2A,6,0xFE,0xD2,0xB3,0xA5,0x04,0,0,0x43,0x42,1,0)); 'Night Light desactive'
+- info_disques: Afficher l'espace disque | triggers: [espace disque, info disques, combien de place] | action: powershell:Get-CimInstance Win32_LogicalDisk | Select DeviceID, @{N='Total(GB)';E={[math]::Round($_.Size/1GB,1)}}, @{N='Free(GB)';E={[math]::Round($_.FreeSpace/1GB,1)}}, @{N='Used%';E={[math]::Round(($_.Size-$_.FreeSpace)/$_.Size*100,1)}} | Out-String
+- vider_temp: Vider les fichiers temporaires | triggers: [vide les fichiers temporaires, nettoie les temp, supprime les temp] | action: powershell:$before = (Get-ChildItem $env:TEMP -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum / 1MB; Remove-Item $env:TEMP\* -Recurse -Force -ErrorAction SilentlyContinue; $after = (Get-ChildItem $env:TEMP -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum / 1MB; "Temp nettoye: $([math]::Round($before - $after, 1)) MB liberes"
+- ouvrir_alarmes: Ouvrir l'application Horloge/Alarmes | triggers: [ouvre les alarmes, alarme, minuteur] | action: app_open:ms-clock:
+- historique_activite: Ouvrir l'historique d'activite Windows | triggers: [historique activite, timeline, activites recentes] | action: ms_settings:ms-settings:privacy-activityhistory
+- param_clavier: Parametres clavier | triggers: [parametres clavier, reglages clavier, config clavier] | action: ms_settings:ms-settings:keyboard
+- param_souris: Parametres souris | triggers: [parametres souris, reglages souris, config souris] | action: ms_settings:ms-settings:mousetouchpad
+- param_batterie: Parametres batterie | triggers: [parametres batterie, etat batterie, batterie] | action: ms_settings:ms-settings:batterysaver
+- param_comptes: Parametres des comptes utilisateur | triggers: [parametres comptes, comptes utilisateur, mon compte] | action: ms_settings:ms-settings:accounts
+- param_heure: Parametres date et heure | triggers: [parametres heure, reglages heure, date et heure] | action: ms_settings:ms-settings:dateandtime
+- param_langue: Parametres de langue | triggers: [parametres langue, changer la langue, langue windows] | action: ms_settings:ms-settings:regionlanguage
+- windows_security: Ouvrir Windows Security | triggers: [ouvre la securite, securite windows, windows security] | action: app_open:windowsdefender:
+- pare_feu: Parametres du pare-feu | triggers: [parametres pare-feu, firewall, ouvre le pare-feu] | action: ms_settings:ms-settings:windowsdefender
+- partage_proximite: Parametres de partage a proximite | triggers: [partage a proximite, nearby sharing, partage rapide] | action: ms_settings:ms-settings:crossdevice
+- hotspot: Activer le point d'acces mobile | triggers: [point d'acces, hotspot, partage de connexion] | action: ms_settings:ms-settings:network-mobilehotspot
+- defrag_disque: Optimiser les disques (defragmentation) | triggers: [defragmente, optimise les disques, defragmentation] | action: powershell:Start-Process dfrgui
+- gestion_disques: Ouvrir le gestionnaire de disques | triggers: [gestionnaire de disques, gestion des disques, disk manager] | action: powershell:Start-Process diskmgmt.msc
+- variables_env: Ouvrir les variables d'environnement | triggers: [variables d'environnement, variables env, env variables] | action: powershell:Start-Process rundll32.exe -ArgumentList 'sysdm.cpl,EditEnvironmentVariables'
+- evenements_windows: Ouvrir l'observateur d'evenements | triggers: [observateur d'evenements, event viewer, journaux windows] | action: powershell:Start-Process eventvwr.msc
+- moniteur_ressources: Ouvrir le moniteur de ressources | triggers: [moniteur de ressources, resource monitor, ressources systeme] | action: powershell:Start-Process resmon
+- info_systeme_detaille: Ouvrir les informations systeme detaillees | triggers: [informations systeme detaillees, msinfo, infos systeme avancees] | action: powershell:Start-Process msinfo32
+- nettoyage_disque: Ouvrir le nettoyage de disque Windows | triggers: [nettoyage de disque, disk cleanup, nettoie le disque] | action: powershell:Start-Process cleanmgr
+- gestionnaire_peripheriques: Ouvrir le gestionnaire de peripheriques | triggers: [gestionnaire de peripheriques, device manager, mes peripheriques] | action: powershell:Start-Process devmgmt.msc
+- connexions_reseau: Ouvrir les connexions reseau | triggers: [connexions reseau, adaptateurs reseau, network connections] | action: powershell:Start-Process ncpa.cpl
+- programmes_installees: Ouvrir programmes et fonctionnalites | triggers: [programmes installes, applications installees, liste des programmes] | action: ms_settings:ms-settings:appsfeatures
+- demarrage_apps: Gerer les applications au demarrage | triggers: [applications demarrage, programmes au demarrage, gere le demarrage] | action: ms_settings:ms-settings:startupapps
+- param_confidentialite: Parametres de confidentialite | triggers: [parametres confidentialite, privacy, confidentialite] | action: ms_settings:ms-settings:privacy
+- param_reseau_avance: Parametres reseau avances | triggers: [parametres reseau avances, reseau avance, advanced network] | action: ms_settings:ms-settings:network-advancedsettings
+- partager_ecran: Partager l'ecran via Miracast | triggers: [partage l'ecran, miracast, cast] | action: hotkey:win+k
+- param_imprimantes: Parametres imprimantes et scanners | triggers: [parametres imprimantes, imprimante, ouvre les imprimantes] | action: ms_settings:ms-settings:printers
+- param_fond_ecran: Personnaliser le fond d'ecran | triggers: [fond d'ecran, change le fond, wallpaper] | action: ms_settings:ms-settings:personalization-background
+- param_couleurs: Personnaliser les couleurs Windows | triggers: [couleurs windows, couleur d'accent, theme couleur] | action: ms_settings:ms-settings:personalization-colors
+- param_ecran_veille: Parametres ecran de verrouillage | triggers: [ecran de veille, ecran de verrouillage, lock screen] | action: ms_settings:ms-settings:lockscreen
+- param_polices: Gerer les polices installees | triggers: [polices, fonts, gere les polices] | action: ms_settings:ms-settings:fonts
+- param_themes: Gerer les themes Windows | triggers: [themes windows, change le theme, personnalise le theme] | action: ms_settings:ms-settings:themes
+- mode_sombre: Activer le mode sombre Windows | triggers: [active le mode sombre, dark mode on, theme sombre] | action: powershell:Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'AppsUseLightTheme' -Value 0; Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'SystemUsesLightTheme' -Value 0; 'Mode sombre active'
+- mode_clair: Activer le mode clair Windows | triggers: [active le mode clair, light mode on, theme clair] | action: powershell:Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'AppsUseLightTheme' -Value 1; Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'SystemUsesLightTheme' -Value 1; 'Mode clair active'
+- param_son_avance: Parametres audio avances | triggers: [parametres audio avances, son avance, mixer audio] | action: ms_settings:ms-settings:sound
+- param_hdr: Parametres HDR | triggers: [parametres hdr, active le hdr, hdr] | action: ms_settings:ms-settings:display-advancedgraphics
+- ouvrir_regedit: Ouvrir l'editeur de registre | triggers: [ouvre le registre, regedit, editeur de registre] | action: powershell:Start-Process regedit
+- ouvrir_mmc: Ouvrir la console de gestion (MMC) | triggers: [console de gestion, mmc, ouvre mmc] | action: powershell:Start-Process compmgmt.msc
+- ouvrir_politique_groupe: Ouvrir l'editeur de strategie de groupe | triggers: [politique de groupe, group policy, gpedit] | action: powershell:Start-Process gpedit.msc
+- taux_rafraichissement: Parametres taux de rafraichissement ecran | triggers: [taux de rafraichissement, hertz ecran, frequence ecran] | action: ms_settings:ms-settings:display-advancedgraphics
+- param_notifications_avance: Parametres notifications avances | triggers: [parametres notifications avances, gere les notifications, quelles apps notifient] | action: ms_settings:ms-settings:notifications
+- param_multitache: Parametres multitache Windows | triggers: [parametres multitache, multitasking, reglages multitache] | action: ms_settings:ms-settings:multitasking
+- apps_par_defaut: Gerer les applications par defaut | triggers: [applications par defaut, apps par defaut, ouvre avec] | action: ms_settings:ms-settings:defaultapps
+- param_stockage_avance: Gestion du stockage et assistant | triggers: [assistant stockage, nettoyage automatique, stockage intelligent] | action: ms_settings:ms-settings:storagepolicies
+- sauvegarder_windows: Parametres de sauvegarde Windows | triggers: [sauvegarde windows, backup windows, parametres backup] | action: ms_settings:ms-settings:backup
+- restauration_systeme: Ouvrir la restauration du systeme | triggers: [restauration systeme, point de restauration, system restore] | action: powershell:Start-Process rstrui
+- a_propos_pc: Informations sur le PC (A propos) | triggers: [a propos du pc, about pc, nom du pc] | action: ms_settings:ms-settings:about
+- param_ethernet: Parametres Ethernet | triggers: [parametres ethernet, cable reseau, connexion filaire] | action: ms_settings:ms-settings:network-ethernet
+- param_data_usage: Utilisation des donnees reseau | triggers: [utilisation donnees, data usage, consommation reseau] | action: ms_settings:ms-settings:datausage
+- tracert: Tracer la route vers un hote | triggers: [trace la route vers {host}, traceroute {host}, tracert {host}] | action: powershell:tracert {host} | Out-String
+- netstat: Afficher les connexions reseau actives | triggers: [connexions actives, netstat, ports ouverts] | action: powershell:netstat -an | Select-Object -First 30 | Out-String
+- uptime: Temps de fonctionnement du PC | triggers: [uptime, depuis quand le pc tourne, temps de fonctionnement] | action: powershell:$boot = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; $up = (Get-Date) - $boot; "Uptime: $($up.Days)j $($up.Hours)h $($up.Minutes)m (boot: $boot)"
+- temperature_cpu: Temperature du processeur | triggers: [temperature cpu, temperature processeur, cpu temperature] | action: powershell:Get-CimInstance MSAcpi_ThermalZoneTemperature -Namespace root/WMI -ErrorAction SilentlyContinue | ForEach-Object { $t = ($_.CurrentTemperature - 2732) / 10; "CPU: $([math]::Round($t,1)) C" }
+- liste_utilisateurs: Lister les utilisateurs du PC | triggers: [liste les utilisateurs, quels utilisateurs, comptes locaux] | action: powershell:Get-LocalUser | Select Name, Enabled, LastLogon | Out-String
+- adresse_mac: Afficher les adresses MAC | triggers: [adresse mac, mac address, adresses mac] | action: powershell:Get-NetAdapter | Select Name, MacAddress, Status | Out-String
+- vitesse_reseau: Tester la vitesse de la carte reseau | triggers: [vitesse reseau, speed test, debit reseau] | action: powershell:Get-NetAdapter | Where Status -eq 'Up' | Select Name, LinkSpeed | Out-String
+- param_optionnel: Gerer les fonctionnalites optionnelles Windows | triggers: [fonctionnalites optionnelles, optional features, features windows] | action: ms_settings:ms-settings:optionalfeatures
+- ouvrir_sandbox: Ouvrir Windows Sandbox | triggers: [ouvre la sandbox, sandbox, windows sandbox] | action: powershell:Start-Process WindowsSandbox
+- verifier_fichiers: Verifier l'integrite des fichiers systeme | triggers: [verifie les fichiers systeme, sfc scan, scan integrite] | action: powershell:Start-Process powershell -ArgumentList '/c sfc /scannow' -Verb RunAs
+- wifi_connecter: Se connecter a un reseau Wi-Fi | triggers: [connecte moi au wifi {ssid}, connecte au wifi {ssid}, rejoins le wifi {ssid}] | action: powershell:netsh wlan connect name='{ssid}'
+- wifi_deconnecter: Se deconnecter du Wi-Fi | triggers: [deconnecte le wifi, deconnecte du wifi, wifi off] | action: powershell:netsh wlan disconnect
+- wifi_profils: Lister les profils Wi-Fi sauvegardes | triggers: [profils wifi, wifi sauvegardes, reseaux memorises] | action: powershell:netsh wlan show profiles | Out-String
+- clipboard_vider: Vider le presse-papier | triggers: [vide le presse-papier, efface le clipboard, nettoie le presse-papier] | action: powershell:Set-Clipboard -Value $null; 'Presse-papier vide'
+- clipboard_compter: Compter les caracteres du presse-papier | triggers: [combien de caracteres dans le presse-papier, taille du presse-papier, longueur du clipboard] | action: powershell:$c = Get-Clipboard; "Clipboard: $($c.Length) caracteres"
+- recherche_everywhere: Rechercher partout sur le PC | triggers: [recherche partout {terme}, cherche partout {terme}, trouve {terme} sur le pc] | action: powershell:Get-ChildItem -Path C:\ -Recurse -Filter '*{terme}*' -ErrorAction SilentlyContinue | Select -First 20 FullName | Out-String
+- tache_planifier: Creer une tache planifiee | triggers: [planifie une tache {nom}, cree une tache planifiee {nom}, programme {nom}] | action: powershell:Write-Output 'Pour creer une tache planifiee, precisez: nom, heure, commande'
+- variables_utilisateur: Afficher les variables d'environnement utilisateur | triggers: [variables utilisateur, mes variables, env utilisateur] | action: powershell:[Environment]::GetEnvironmentVariables('User') | Out-String
+- chemin_path: Afficher le PATH systeme | triggers: [montre le path, affiche le path, variable path] | action: powershell:$env:PATH -split ';' | ForEach-Object { $_ } | Out-String
+- deconnexion_windows: Deconnexion de la session Windows | triggers: [deconnecte moi, deconnexion, log out] | action: powershell:shutdown /l
+- hibernation: Mettre en hibernation | triggers: [hiberne, hibernation, mise en hibernation] | action: powershell:shutdown /h
+- planifier_arret: Planifier un arret dans X minutes | triggers: [eteins dans {minutes} minutes, arret dans {minutes} minutes, programme l'arret dans {minutes}] | action: powershell:shutdown /s /t ([int]'{minutes}' * 60); "Arret programme dans {minutes} min"
+- annuler_arret: Annuler un arret programme | triggers: [annule l'arret, annuler shutdown, cancel shutdown] | action: powershell:shutdown /a; 'Arret programme annule'
+- heure_actuelle: Donner l'heure actuelle | triggers: [quelle heure est-il, quelle heure, l'heure] | action: powershell:Get-Date -Format 'dddd dd MMMM yyyy HH:mm:ss'
+- date_actuelle: Donner la date actuelle | triggers: [quelle date, quel jour on est, on est quel jour] | action: powershell:Get-Date -Format 'dddd dd MMMM yyyy'
+- ecran_externe_etendre: Etendre sur ecran externe | triggers: [etends l'ecran, ecran etendu, mode etendu] | action: powershell:displayswitch.exe /extend
+- ecran_duplique: Dupliquer l'ecran | triggers: [duplique l'ecran, ecran duplique, mode duplique] | action: powershell:displayswitch.exe /clone
+- ecran_interne_seul: Ecran interne uniquement | triggers: [ecran principal seulement, ecran interne seul, desactive l'ecran externe] | action: powershell:displayswitch.exe /internal
+- ecran_externe_seul: Ecran externe uniquement | triggers: [ecran externe seulement, ecran externe seul, desactive l'ecran principal] | action: powershell:displayswitch.exe /external
+- ram_usage: Utilisation de la RAM | triggers: [utilisation ram, combien de ram, memoire utilisee] | action: powershell:$os = Get-CimInstance Win32_OperatingSystem; $total = [math]::Round($os.TotalVisibleMemorySize/1MB,1); $free = [math]::Round($os.FreePhysicalMemory/1MB,1); $used = $total - $free; "RAM: $used/$total GB utilise ($free GB libre)"
+- cpu_usage: Utilisation du processeur | triggers: [utilisation cpu, charge du processeur, combien de cpu] | action: powershell:$cpu = (Get-CimInstance Win32_Processor).LoadPercentage; "CPU: $cpu% utilise"
+- cpu_info: Informations sur le processeur | triggers: [quel processeur, info cpu, nom du processeur] | action: powershell:Get-CimInstance Win32_Processor | Select Name, NumberOfCores, NumberOfLogicalProcessors, MaxClockSpeed | Out-String
+- ram_info: Informations detaillees sur la RAM | triggers: [info ram, details ram, combien de barrettes] | action: powershell:Get-CimInstance Win32_PhysicalMemory | Select Manufacturer, Capacity, Speed, MemoryType | Out-String
+- batterie_niveau: Niveau de batterie | triggers: [niveau de batterie, combien de batterie, batterie restante] | action: powershell:$b = Get-CimInstance Win32_Battery; if ($b) { "Batterie: $($b.EstimatedChargeRemaining)% - $($b.BatteryStatus)" } else { 'Pas de batterie detectee (PC fixe)' }
+- disque_sante: Sante des disques (SMART) | triggers: [sante des disques, etat des disques, smart disque] | action: powershell:Get-PhysicalDisk | Select FriendlyName, MediaType, HealthStatus, Size | Out-String
+- carte_mere: Informations carte mere | triggers: [info carte mere, quelle carte mere, modele carte mere] | action: powershell:Get-CimInstance Win32_BaseBoard | Select Manufacturer, Product, SerialNumber | Out-String
+- bios_info: Informations BIOS | triggers: [info bios, version bios, quel bios] | action: powershell:Get-CimInstance Win32_BIOS | Select Manufacturer, SMBIOSBIOSVersion, ReleaseDate | Out-String
+- top_ram: Top 10 processus par RAM | triggers: [quoi consomme la ram, top ram, processus gourmands ram] | action: powershell:Get-Process | Sort WorkingSet64 -Descending | Select -First 10 Name, @{N='RAM(MB)';E={[math]::Round($_.WorkingSet64/1MB,0)}} | Out-String
+- top_cpu: Top 10 processus par CPU | triggers: [quoi consomme le cpu, top cpu, processus gourmands cpu] | action: powershell:Get-Process | Sort CPU -Descending | Select -First 10 Name, @{N='CPU(s)';E={[math]::Round($_.CPU,1)}} | Out-String
+- carte_graphique: Informations carte graphique | triggers: [quelle carte graphique, info gpu detaille, specs gpu] | action: powershell:Get-CimInstance Win32_VideoController | Select Name, DriverVersion, AdapterRAM, VideoProcessor | Out-String
+- windows_version: Version exacte de Windows | triggers: [version de windows, quelle version windows, build windows] | action: powershell:[System.Environment]::OSVersion.VersionString + ' - Build ' + (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').DisplayVersion
+- dns_changer_google: Changer DNS vers Google (8.8.8.8) | triggers: [mets le dns google, change le dns en google, dns google] | action: powershell:Set-DnsClientServerAddress -InterfaceAlias 'Wi-Fi' -ServerAddresses ('8.8.8.8','8.8.4.4'); 'DNS Google configure'
+- dns_changer_cloudflare: Changer DNS vers Cloudflare (1.1.1.1) | triggers: [mets le dns cloudflare, change le dns en cloudflare, dns cloudflare] | action: powershell:Set-DnsClientServerAddress -InterfaceAlias 'Wi-Fi' -ServerAddresses ('1.1.1.1','1.0.0.1'); 'DNS Cloudflare configure'
+- dns_reset: Remettre le DNS en automatique | triggers: [dns automatique, reset le dns, dns par defaut] | action: powershell:Set-DnsClientServerAddress -InterfaceAlias 'Wi-Fi' -ResetServerAddresses; 'DNS remis en automatique'
+- ports_ouverts: Lister les ports ouverts | triggers: [ports ouverts, quels ports sont ouverts, liste les ports] | action: powershell:Get-NetTCPConnection -State Listen | Select LocalPort, OwningProcess, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Sort LocalPort | Out-String
+- ip_publique: Obtenir l'IP publique | triggers: [mon ip publique, quelle est mon ip publique, ip externe] | action: powershell:(Invoke-WebRequest -Uri 'https://api.ipify.org' -UseBasicParsing).Content
+- partage_reseau: Lister les partages reseau | triggers: [partages reseau, dossiers partages, quels dossiers sont partages] | action: powershell:Get-SmbShare | Select Name, Path, Description | Out-String
+- connexions_actives: Connexions reseau actives | triggers: [connexions actives, qui est connecte, connexions etablies] | action: powershell:Get-NetTCPConnection -State Established | Select RemoteAddress, RemotePort, OwningProcess, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Sort RemoteAddress | Out-String
+- vitesse_reseau: Vitesse de la carte reseau | triggers: [vitesse reseau, debit carte reseau, link speed] | action: powershell:Get-NetAdapter | Where Status -eq Up | Select Name, LinkSpeed, MacAddress | Out-String
+- arp_table: Afficher la table ARP | triggers: [table arp, arp, appareils sur le reseau] | action: powershell:Get-NetNeighbor | Where State -ne Unreachable | Select IPAddress, LinkLayerAddress, State | Out-String
+- test_port: Tester si un port est ouvert sur une machine | triggers: [teste le port {port} sur {host}, port {port} ouvert sur {host}, check port {port} {host}] | action: powershell:Test-NetConnection -ComputerName '{host}' -Port {port} | Select ComputerName, TcpTestSucceeded, RemotePort | Out-String
+- route_table: Afficher la table de routage | triggers: [table de routage, routes reseau, route table] | action: powershell:Get-NetRoute | Where DestinationPrefix -ne '::' | Select DestinationPrefix, NextHop, InterfaceAlias | Out-String
+- nslookup: Resolution DNS d'un domaine | triggers: [nslookup {domaine}, resous {domaine}, dns de {domaine}] | action: powershell:Resolve-DnsName '{domaine}' | Select Name, Type, IPAddress | Out-String
+- certificat_ssl: Verifier le certificat SSL d'un site | triggers: [certificat ssl de {site}, check ssl {site}, verifie le ssl de {site}] | action: powershell:$r = [Net.HttpWebRequest]::Create('https://{site}'); $r.GetResponse() | Out-Null; $c = $r.ServicePoint.Certificate; "Emetteur: $($c.Issuer)`nExpire: $($c.GetExpirationDateString())"
+- ouvrir_widgets: Ouvrir le panneau Widgets Windows | triggers: [ouvre les widgets, widgets windows, panneau widgets] | action: hotkey:win+w
+- partage_proximite_on: Activer le partage de proximite | triggers: [active le partage de proximite, nearby sharing on, partage proximite actif] | action: powershell:Start-Process ms-settings:crossdevice
+- screen_recording: Lancer l'enregistrement d'ecran (Game Bar) | triggers: [enregistre l'ecran, screen recording, capture video] | action: hotkey:win+alt+r
+- game_bar: Ouvrir la Game Bar Xbox | triggers: [ouvre la game bar, game bar, xbox game bar] | action: hotkey:win+g
+- parametres_notifications: Ouvrir les parametres de notifications | triggers: [parametres notifications, gere les notifications, reglages notifications] | action: powershell:Start-Process ms-settings:notifications
+- parametres_apps_defaut: Ouvrir les apps par defaut | triggers: [apps par defaut, applications par defaut, change les apps par defaut] | action: powershell:Start-Process ms-settings:defaultapps
+- parametres_about: A propos de ce PC | triggers: [a propos du pc, about this pc, infos pc] | action: powershell:Start-Process ms-settings:about
+- verifier_sante_disque: Verifier la sante des disques | triggers: [sante des disques, health check disque, smart disque] | action: powershell:Get-PhysicalDisk | Select FriendlyName, MediaType, HealthStatus, Size, @{N='Size(GB)';E={[math]::Round($_.Size/1GB)}} | Out-String
+- vitesse_internet: Tester la vitesse internet | triggers: [test de vitesse, speed test, vitesse internet] | action: powershell:$ping = (Test-Connection 8.8.8.8 -Count 4 -ErrorAction SilentlyContinue | Measure ResponseTime -Average).Average; "Latence moyenne: $([math]::Round($ping,1)) ms"
+- historique_mises_a_jour: Voir l'historique des mises a jour Windows | triggers: [historique updates, dernieres mises a jour, updates windows recentes] | action: powershell:Get-HotFix | Sort InstalledOn -Descending | Select -First 10 HotFixID, Description, InstalledOn | Out-String
+- taches_planifiees: Lister les taches planifiees | triggers: [taches planifiees, scheduled tasks, task scheduler] | action: powershell:Get-ScheduledTask | Where State -eq 'Ready' | Select -First 15 TaskName, State | Out-String
+- demarrage_apps: Voir les apps au demarrage | triggers: [apps au demarrage, startup apps, programmes au demarrage] | action: powershell:Get-CimInstance Win32_StartupCommand | Select Name, Command, Location | Out-String
+- certificats_ssl: Verifier un certificat SSL | triggers: [verifie le ssl de {site}, certificat ssl {site}, check ssl {site}] | action: powershell:$r = [Net.HttpWebRequest]::Create('https://{site}'); $r.GetResponse() | Out-Null; $c = $r.ServicePoint.Certificate; "SSL {site}: $($c.Subject) | Expire: $($c.GetExpirationDateString())"
+- audio_sortie: Changer la sortie audio | triggers: [change la sortie audio, sortie audio, output audio] | action: powershell:Start-Process ms-settings:sound
+- audio_entree: Configurer le microphone | triggers: [configure le micro, entree audio, input audio] | action: powershell:Start-Process ms-settings:sound
+- volume_app: Mixer de volume par application | triggers: [mixer volume, volume par application, volume des apps] | action: powershell:Start-Process ms-settings:apps-volume
+- micro_mute_toggle: Couper/reactiver le micro | triggers: [coupe le micro, mute le micro, micro off] | action: powershell:$wshell = New-Object -ComObject WScript.Shell; $wshell.SendKeys([char]0xAD)
+- liste_imprimantes: Lister les imprimantes | triggers: [liste les imprimantes, quelles imprimantes, imprimantes disponibles] | action: powershell:Get-Printer | Select Name, DriverName, PortName, PrinterStatus | Out-String
+- imprimante_defaut: Voir l'imprimante par defaut | triggers: [imprimante par defaut, quelle imprimante, default printer] | action: powershell:(Get-CimInstance -ClassName Win32_Printer | Where Default -eq $true).Name
+- param_imprimantes: Ouvrir les parametres imprimantes | triggers: [parametres imprimantes, settings imprimantes, gere les imprimantes] | action: powershell:Start-Process ms-settings:printers
+- sandbox_ouvrir: Ouvrir Windows Sandbox | triggers: [ouvre la sandbox, windows sandbox, lance la sandbox] | action: powershell:Start-Process WindowsSandbox
+- plan_alimentation_actif: Voir le plan d'alimentation actif | triggers: [quel plan alimentation, power plan actif, plan energie actif] | action: powershell:(powercfg /getactivescheme) -replace '.*: ','' | Out-String
+- batterie_rapport: Generer un rapport de batterie | triggers: [rapport batterie, battery report, sante de la batterie] | action: powershell:powercfg /batteryreport /output $env:USERPROFILE\Desktop\battery_report.html; Start-Process $env:USERPROFILE\Desktop\battery_report.html; 'Rapport genere sur le Bureau'
+- ecran_timeout: Configurer la mise en veille ecran | triggers: [timeout ecran, ecran en veille apres, delai mise en veille ecran] | action: powershell:Start-Process ms-settings:powersleep
+- detecter_ecrans: Detecter les ecrans connectes | triggers: [detecte les ecrans, detect displays, cherche les ecrans] | action: powershell:Get-CimInstance -Namespace root\wmi -ClassName WmiMonitorBasicDisplayParams | Select InstanceName, Active | Out-String
+- param_affichage: Ouvrir les parametres d'affichage | triggers: [parametres affichage, settings display, reglages ecran] | action: powershell:Start-Process ms-settings:display
+- kill_process_nom: Tuer un processus par nom | triggers: [tue le processus {nom}, kill {nom}, ferme le processus {nom}] | action: powershell:Stop-Process -Name '{nom}' -Force -ErrorAction SilentlyContinue; 'Processus {nom} arrete'
+- processus_details: Details d'un processus | triggers: [details du processus {nom}, info processus {nom}, combien consomme {nom}] | action: powershell:Get-Process '{nom}' -ErrorAction SilentlyContinue | Select Name, CPU, @{N='RAM(MB)';E={[math]::Round($_.WorkingSet64/1MB,1)}}, StartTime | Out-String
+- diagnostic_reseau: Lancer un diagnostic reseau complet | triggers: [diagnostic reseau, diagnostique le reseau, probleme reseau] | action: powershell:$ping = Test-Connection 8.8.8.8 -Count 2 -ErrorAction SilentlyContinue; $dns = Resolve-DnsName google.com -ErrorAction SilentlyContinue; if($ping){'Ping: OK'}else{'Ping: ECHEC'}; if($dns){'DNS: OK'}else{'DNS: ECHEC'}
+- wifi_mot_de_passe: Afficher le mot de passe WiFi actuel | triggers: [mot de passe wifi, password wifi, cle wifi] | action: powershell:$p = (netsh wlan show profile name=(netsh wlan show interfaces | Select-String 'Profil' | ForEach-Object { ($_ -split ':')[1].Trim() }) key=clear | Select-String 'Contenu de la cl' | ForEach-Object { ($_ -split ':')[1].Trim() }); if($p){"WiFi Password: $p"}else{'Non disponible'}
+- ouvrir_evenements: Ouvrir l'observateur d'evenements | triggers: [observateur evenements, event viewer, journaux windows] | action: powershell:Start-Process eventvwr.msc
+- ouvrir_services: Ouvrir les services Windows | triggers: [ouvre les services, services windows, gere les services] | action: powershell:Start-Process services.msc
+- ouvrir_moniteur_perf: Ouvrir le moniteur de performances | triggers: [moniteur de performance, performance monitor, moniteur perf] | action: powershell:Start-Process perfmon.msc
+- ouvrir_fiabilite: Ouvrir le moniteur de fiabilite | triggers: [moniteur de fiabilite, reliability monitor, fiabilite windows] | action: powershell:Start-Process perfmon /rel
+- action_center: Ouvrir le centre de notifications | triggers: [centre de notifications, notification center, action center] | action: hotkey:win+n
+- quick_settings: Ouvrir les parametres rapides | triggers: [parametres rapides, quick settings, raccourcis rapides] | action: hotkey:win+a
+- search_windows: Ouvrir la recherche Windows | triggers: [recherche windows, windows search, ouvre la recherche] | action: hotkey:win+s
+- hyper_v_manager: Ouvrir le gestionnaire Hyper-V | triggers: [ouvre hyper-v, lance hyper-v, gestionnaire hyper-v] | action: powershell:virtmgmt.msc
+- storage_sense: Activer l'assistant de stockage | triggers: [active l'assistant de stockage, storage sense, nettoyage automatique] | action: powershell:Start-Process ms-settings:storagepolicies
+- creer_point_restauration: Creer un point de restauration systeme | triggers: [cree un point de restauration, point de restauration, creer point de restauration] | action: powershell:Checkpoint-Computer -Description 'JARVIS' -RestorePointType MODIFY_SETTINGS
+- voir_hosts: Afficher le fichier hosts | triggers: [montre le fichier hosts, affiche hosts, ouvre hosts] | action: powershell:Get-Content C:\Windows\System32\drivers\etc\hosts
+- dxdiag: Lancer le diagnostic DirectX | triggers: [lance dxdiag, diagnostic directx, dxdiag] | action: powershell:dxdiag
+- memoire_diagnostic: Lancer le diagnostic memoire Windows | triggers: [diagnostic memoire, teste la memoire, test ram] | action: powershell:MdSched.exe
+- reset_reseau: Reinitialiser la pile reseau | triggers: [reinitialise le reseau, reset reseau, reset network] | action: powershell:netsh winsock reset; netsh int ip reset
+- bitlocker_status: Verifier le statut BitLocker | triggers: [statut bitlocker, etat bitlocker, bitlocker status] | action: powershell:manage-bde -status
+- windows_update_pause: Mettre en pause les mises a jour Windows | triggers: [pause les mises a jour, suspends les mises a jour, mets en pause windows update] | action: powershell:Start-Process ms-settings:windowsupdate
+- mode_developpeur: Activer/desactiver le mode developpeur | triggers: [active le mode developpeur, mode developpeur, developer mode] | action: powershell:Start-Process ms-settings:developers
+- remote_desktop: Parametres Bureau a distance | triggers: [bureau a distance, remote desktop, ouvre remote desktop] | action: powershell:Start-Process ms-settings:remotedesktop
+- credential_manager: Ouvrir le gestionnaire d'identifiants | triggers: [gestionnaire d'identifiants, credential manager, identifiants windows] | action: powershell:control /name Microsoft.CredentialManager
+- certmgr: Ouvrir le gestionnaire de certificats | triggers: [gestionnaire de certificats, certificats windows, certmgr] | action: powershell:certmgr.msc
+- chkdsk_check: Verifier les erreurs du disque | triggers: [verifie le disque, check disk, chkdsk] | action: powershell:chkdsk C: /scan
+- file_history: Parametres historique des fichiers | triggers: [historique des fichiers, file history, sauvegarde fichiers] | action: powershell:Start-Process ms-settings:backup
+- troubleshoot_reseau: Lancer le depannage reseau | triggers: [depanne le reseau, depannage reseau, troubleshoot reseau] | action: powershell:msdt.exe /id NetworkDiagnosticsWeb
+- troubleshoot_audio: Lancer le depannage audio | triggers: [depanne le son, depannage audio, troubleshoot audio] | action: powershell:msdt.exe /id AudioPlaybackDiagnostic
+- troubleshoot_update: Lancer le depannage Windows Update | triggers: [depanne windows update, depannage mises a jour, troubleshoot update] | action: powershell:msdt.exe /id WindowsUpdateDiagnostic
+- power_options: Options d'alimentation avancees | triggers: [options d'alimentation, power options, alimentation avancee] | action: powershell:powercfg.cpl
+- copilot_parametres: Parametres de Copilot | triggers: [parametres copilot, reglages copilot, config copilot] | action: ms_settings:ms-settings:copilot
+- cortana_desactiver: Desactiver Cortana | triggers: [desactive cortana, coupe cortana, cortana off] | action: powershell:Get-AppxPackage -Name Microsoft.549981C3F5F10 | Remove-AppxPackage -ErrorAction SilentlyContinue; 'Cortana desactivee'
+- capture_fenetre: Capturer la fenetre active | triggers: [capture la fenetre, screenshot fenetre, capture fenetre active] | action: hotkey:alt+printscreen
+- capture_retardee: Capture d'ecran avec delai | triggers: [capture retardee, screenshot retarde, capture dans 5 secondes] | action: powershell:Start-Process snippingtool /clip; Start-Sleep 1; Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait('%{d}'); 'Capture retardee lancee'
+- planificateur_ouvrir: Ouvrir le planificateur de taches | triggers: [planificateur de taches, ouvre le planificateur, task scheduler] | action: powershell:Start-Process taskschd.msc
+- creer_tache_planifiee: Creer une tache planifiee | triggers: [cree une tache planifiee, nouvelle tache planifiee, ajoute une tache planifiee] | action: powershell:Start-Process taskschd.msc -ArgumentList '/Create'
+- lister_usb: Lister les peripheriques USB connectes | triggers: [liste les usb, peripheriques usb, usb connectes] | action: powershell:Get-PnpDevice -PresentOnly | Where-Object { $_.InstanceId -like 'USB*' } | Select FriendlyName, Status | Out-String
+- ejecter_usb: Ejecter un peripherique USB en securite | triggers: [ejecte l'usb, ejecter usb, retire l'usb] | action: powershell:$vol = (Get-Volume | Where-Object { $_.DriveType -eq 'Removable' } | Select -First 1); if($vol){ $dl = $vol.DriveLetter; (New-Object -ComObject Shell.Application).Namespace(17).ParseName("${dl}:").InvokeVerb('Eject'); "USB ${dl}: ejecte" } else { 'Aucun USB amovible detecte' }
+- peripheriques_connectes: Lister tous les peripheriques connectes | triggers: [peripheriques connectes, liste les peripheriques, appareils connectes] | action: powershell:Get-PnpDevice -PresentOnly -Status OK | Select -First 25 Class, FriendlyName | Sort Class | Out-String
+- lister_adaptateurs: Lister les adaptateurs reseau | triggers: [liste les adaptateurs reseau, adaptateurs reseau, interfaces reseau] | action: powershell:Get-NetAdapter | Select Name, InterfaceDescription, Status, LinkSpeed | Out-String
+- desactiver_wifi_adaptateur: Desactiver l'adaptateur Wi-Fi | triggers: [desactive le wifi, coupe l'adaptateur wifi, wifi off adaptateur] | action: powershell:Disable-NetAdapter -Name 'Wi-Fi' -Confirm:$false; 'Adaptateur Wi-Fi desactive'
+- activer_wifi_adaptateur: Activer l'adaptateur Wi-Fi | triggers: [active l'adaptateur wifi, reactive le wifi, wifi on adaptateur] | action: powershell:Enable-NetAdapter -Name 'Wi-Fi' -Confirm:$false; 'Adaptateur Wi-Fi active'
+- firewall_status: Afficher le statut du pare-feu | triggers: [statut pare-feu, statut firewall, firewall status] | action: powershell:Get-NetFirewallProfile | Select Name, Enabled, DefaultInboundAction, DefaultOutboundAction | Out-String
+- firewall_regles: Lister les regles du pare-feu | triggers: [regles pare-feu, regles firewall, firewall rules] | action: powershell:Get-NetFirewallRule -Enabled True -Direction Inbound | Select -First 20 DisplayName, Action | Out-String
+- firewall_reset: Reinitialiser le pare-feu | triggers: [reinitialise le pare-feu, reset firewall, firewall reset] | action: powershell:netsh advfirewall reset; 'Pare-feu reinitialise aux parametres par defaut'
+- ajouter_langue: Ajouter une langue au systeme | triggers: [ajoute une langue, installer une langue, nouvelle langue] | action: ms_settings:ms-settings:regionlanguage-adddisplaylanguage
+- ajouter_clavier: Ajouter une disposition de clavier | triggers: [ajoute un clavier, nouveau clavier, ajouter disposition clavier] | action: ms_settings:ms-settings:keyboard
+- langues_installees: Lister les langues installees | triggers: [langues installees, quelles langues, liste des langues] | action: powershell:Get-WinUserLanguageList | Select LanguageTag, InputMethodTips, Spellchecking | Out-String
+- synchroniser_heure: Synchroniser l'heure avec le serveur NTP | triggers: [synchronise l'heure, sync heure, mettre a l'heure] | action: powershell:w32tm /resync /force; 'Heure synchronisee avec le serveur NTP'
+- serveur_ntp: Afficher le serveur NTP configure | triggers: [serveur ntp, quel serveur ntp, serveur de temps] | action: powershell:w32tm /query /status | Out-String
+- windows_hello: Parametres Windows Hello | triggers: [windows hello, hello biometrique, parametres hello] | action: ms_settings:ms-settings:signinoptions
+- securite_comptes: Securite des comptes Windows | triggers: [securite des comptes, securite compte, protection compte] | action: ms_settings:ms-settings:signinoptions-launchfaceenrollment
+- activation_windows: Verifier l'activation Windows | triggers: [activation windows, windows active, statut activation] | action: powershell:$l = (Get-CimInstance SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where PartialProductKey).LicenseStatus; if($l -eq 1){'Windows est ACTIVE'}else{'Windows NON active'}
+- recuperation_systeme: Options de recuperation systeme | triggers: [recuperation systeme, options de recuperation, recovery] | action: ms_settings:ms-settings:recovery
+
+## TRADING (17 commandes)
+- scanner_marche: Scanner le marche MEXC | triggers: [scanne le marche, scanner le marche, lance le scanner] | action: script:mexc_scanner
+- detecter_breakout: Detecter les breakouts | triggers: [detecte les breakouts, cherche les breakouts, breakout detector] | action: script:breakout_detector
+- pipeline_trading: Lancer le pipeline intensif | triggers: [lance le pipeline, pipeline intensif, demarre le pipeline] | action: script:pipeline_intensif_v2
+- sniper_breakout: Lancer le sniper breakout | triggers: [lance le sniper, sniper breakout, demarre le sniper] | action: script:sniper_breakout
+- river_scalp: Lancer le River Scalp 1min | triggers: [lance river scalp, river scalp, scalp 1 minute] | action: script:river_scalp_1min
+- hyper_scan: Lancer l'hyper scan V2 | triggers: [lance hyper scan, hyper scan, scan intensif] | action: script:hyper_scan_v2
+- statut_cluster: Statut du cluster IA | triggers: [statut du cluster, etat du cluster, statut cluster] | action: jarvis_tool:lm_cluster_status
+- modeles_charges: Modeles charges sur le cluster | triggers: [quels modeles sont charges, liste les modeles, modeles charges] | action: jarvis_tool:lm_models
+- ollama_status: Statut du backend Ollama | triggers: [statut ollama, etat ollama, status ollama] | action: jarvis_tool:ollama_status
+- ollama_modeles: Modeles Ollama disponibles | triggers: [modeles ollama, liste modeles ollama, quels modeles ollama] | action: jarvis_tool:ollama_models
+- recherche_web_ia: Recherche web via Ollama cloud | triggers: [recherche web {requete}, cherche sur le web {requete}, recherche internet {requete}] | action: jarvis_tool:ollama_query:{requete}
+- consensus_ia: Consensus multi-IA | triggers: [consensus sur {question}, demande un consensus sur {question}, lance un consensus {question}] | action: jarvis_tool:consensus:{question}
+- query_ia: Interroger une IA locale | triggers: [demande a {node} {prompt}, interroge {node} sur {prompt}, pose a {node} la question {prompt}] | action: jarvis_tool:lm_query:{node}:{prompt}
+- signaux_trading: Signaux de trading en attente | triggers: [signaux en attente, quels signaux, signaux trading] | action: jarvis_tool:trading_pending_signals
+- positions_trading: Positions de trading ouvertes | triggers: [mes positions, positions ouvertes, quelles positions] | action: jarvis_tool:trading_positions
+- statut_trading: Statut global du trading | triggers: [statut trading, etat du trading, status trading] | action: jarvis_tool:trading_status
+- executer_signal: Executer un signal de trading | triggers: [execute le signal {id}, lance le signal {id}, trade le signal {id}] | action: jarvis_tool:trading_execute_signal:{id}
+
+
+## SCRIPTS DISPONIBLES (34)
+- advanced_strategies: F:\BUREAU\carV1\python_scripts\strategies\advanced_strategies.py [OK]
+- all_strategies: F:\BUREAU\carV1\python_scripts\strategies\all_strategies.py [OK]
+- auto_cycle_10: F:\BUREAU\TRADING_V2_PRODUCTION\scripts\auto_cycle_10.py [OK]
+- breakout_detector: F:\BUREAU\carV1\python_scripts\scanners\breakout_detector.py [OK]
+- coinglass_client: F:\BUREAU\carV1\python_scripts\utils\coinglass_client.py [OK]
+- commander_v2: F:\BUREAU\TRADING_V2_PRODUCTION\voice_system\commander_v2.py [OK]
+- dashboard: F:\BUREAU\MCP_MCPLMSTUDIO1\dashboard\app.py [OK]
+- disk_cleaner: F:\BUREAU\disk_cleaner\disk_cleaner.py [OK]
+- execute_trident: F:\BUREAU\TRADING_V2_PRODUCTION\scripts\execute_trident.py [OK]
+- fs_agent: F:\BUREAU\JARVIS\fs_agent.py [OK]
+- gap_detector: F:\BUREAU\carV1\python_scripts\scanners\gap_detector.py [OK]
+- gpu_pipeline: F:\BUREAU\carV1\python_scripts\core\gpu_pipeline.py [OK]
+- hyper_scan_v2: F:\BUREAU\TRADING_V2_PRODUCTION\scripts\hyper_scan_v2.py [OK]
+- jarvis_api: F:\BUREAU\TRADING_V2_PRODUCTION\scripts\jarvis_api.py [OK]
+- jarvis_gui: F:\BUREAU\TRADING_V2_PRODUCTION\scripts\jarvis_gui.py [OK]
+- jarvis_main: F:\BUREAU\JARVIS\jarvis.py [OK]
+- jarvis_mcp_legacy: F:\BUREAU\JARVIS\jarvis_mcp_server.py [OK]
+- jarvis_widget: F:\BUREAU\TRADING_V2_PRODUCTION\scripts\jarvis_widget.py [OK]
+- live_data_connector: F:\BUREAU\carV1\python_scripts\utils\live_data_connector.py [OK]
+- lmstudio_mcp_bridge: F:\BUREAU\LMSTUDIO_BACKUP\mcp_configs\lmstudio_mcp_bridge.py [OK]
+- master_interaction: F:\BUREAU\JARVIS\master_interaction_node.py [OK]
+- mexc_scanner: F:\BUREAU\carV1\python_scripts\scanners\mexc_scanner.py [OK]
+- multi_ia_orchestrator: F:\BUREAU\carV1\python_scripts\core\multi_ia_orchestrator.py [OK]
+- perplexity_client: F:\BUREAU\carV1\python_scripts\utils\perplexity_client.py [OK]
+- pipeline_intensif: F:\BUREAU\MCP_MCPLMSTUDIO1\scripts\pipeline_intensif.py [OK]
+- pipeline_intensif_v2: F:\BUREAU\PROD_INTENSIVE_V1\scripts\pipeline_intensif_v2.py [OK]
+- position_tracker: F:\BUREAU\carV1\python_scripts\utils\position_tracker.py [OK]
+- river_scalp_1min: F:\BUREAU\TRADING_V2_PRODUCTION\scripts\river_scalp_1min.py [OK]
+- sniper_10cycles: F:\BUREAU\TRADING_V2_PRODUCTION\scripts\sniper_10cycles.py [OK]
+- sniper_breakout: F:\BUREAU\TRADING_V2_PRODUCTION\scripts\sniper_breakout.py [OK]
+- trading_mcp_v3: F:\BUREAU\TRADING_V2_PRODUCTION\trading_mcp_ultimate_v3.py [OK]
+- unified_orchestrator: F:\BUREAU\carV1\python_scripts\core\unified_orchestrator.py [OK]
+- voice_driver: F:\BUREAU\TRADING_V2_PRODUCTION\voice_system\voice_driver.py [OK]
+- voice_jarvis: F:\BUREAU\TRADING_V2_PRODUCTION\voice_system\voice_jarvis.py [OK]
+
+
+## ROUTAGE IA
+- short_answer: M2
+- deep_analysis: M1
+- trading_signal: M2 -> M1
+- code_generation: M2
+- validation: M1 -> M2
+- critical: M1 -> M2
+- consensus: M1 -> M2
+- web_research: OL1
+- reasoning: OL1 -> M1
+
+
+## CLUSTER
+- M1 (http://10.5.0.2:1234): deep_analysis, 6 GPU, 46GB, model=qwen/qwen3-30b-a3b-2507
+- M2 (http://192.168.1.26:1234): fast_inference, 3 GPU, 24GB, model=openai/gpt-oss-20b
+- OL1 (http://127.0.0.1:11434): cloud_inference, model=minimax-m2.5:cloud
