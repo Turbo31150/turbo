@@ -88,7 +88,8 @@ async def classify_task(prompt: str) -> str:
                 "store": False,
             }, timeout=config.fast_timeout)
             r.raise_for_status()
-            content = r.json()["output"][0]["content"].strip().lower()
+            from src.tools import extract_lms_output
+            content = extract_lms_output(r.json()).strip().lower()
             # Strip thinking tags if present
             if content.startswith("<think>"):
                 think_end = content.find("</think>")

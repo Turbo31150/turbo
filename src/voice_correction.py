@@ -588,7 +588,8 @@ async def _ia_correct(text: str, url: str, model: str) -> str:
                     json={"model": node.default_model, "input": text, "system_prompt": messages[0]["content"] if messages and messages[0]["role"] == "system" else "", "temperature": 0.1, "max_output_tokens": 200, "stream": False, "store": False},
                 )
                 r.raise_for_status()
-                return r.json()["output"][0]["content"].strip()
+                from src.tools import extract_lms_output
+                return extract_lms_output(r.json()).strip()
         except Exception:
             pass
     return text

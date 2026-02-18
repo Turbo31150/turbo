@@ -202,7 +202,8 @@ async def analyze_with_lm(raw_text: str) -> dict:
                 "store": False,
             })
             if resp.status_code == 200:
-                content = resp.json()["output"][0]["content"].strip()
+                from src.tools import extract_lms_output
+                content = extract_lms_output(resp.json()).strip()
                 # Parse JSON response
                 import json
                 # Handle possible markdown wrapping

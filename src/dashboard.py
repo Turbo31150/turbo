@@ -498,7 +498,8 @@ class JarvisDashboard(App):
                     "store": False,
                 })
                 r.raise_for_status()
-                response = r.json()["output"][0]["content"]
+                from src.tools import extract_lms_output
+                response = extract_lms_output(r.json())
                 self._log(f"[green][{node.name}][/green] {response[:500]}")
         except Exception as e:
             self._log(f"[red]Erreur query: {e}[/red]")

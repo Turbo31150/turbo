@@ -23,6 +23,18 @@ from claude_agent_sdk import tool, create_sdk_mcp_server
 from src.config import config, SCRIPTS, PATHS
 
 
+def extract_lms_output(data: dict) -> str:
+    """Extract content from LM Studio native API response.
+
+    Handles the edge case where output is an empty list
+    (e.g. max_output_tokens=1 produces output=[] with stats showing 1 token).
+    """
+    output = data.get("output", [])
+    if output:
+        return output[0].get("content", "")
+    return ""
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # CONNECTION POOL — Shared async client for all LM Studio/Ollama calls
 # ═══════════════════════════════════════════════════════════════════════════
@@ -139,7 +151,7 @@ async def lm_query(args: dict[str, Any]) -> dict[str, Any]:
         latency = (time.monotonic() - t0) * 1000
         _track_latency(node.name, latency)
         data = r.json()
-        content = data["output"][0]["content"]
+        content = extract_lms_output(data)
         usage = data.get("stats", {})
         return _text(
             f"[{node.name}/{model}] {content}\n"
@@ -251,7 +263,7 @@ async def consensus(args: dict[str, Any]) -> dict[str, Any]:
                 "store": False,
             }, timeout=config.inference_timeout)
             r.raise_for_status()
-            return f"[{name}/{node.default_model}] {r.json()['output'][0]['content']}"
+            return f"[{name}/{node.default_model}] {extract_lms_output(r.json())}"
         except Exception as e:
             return f"[{name}] ERREUR: {e}"
 

@@ -479,7 +479,8 @@ async def _local_ia_analyze(query: str, timeout: float = 10.0) -> str | None:
                     "store": False,
                 }, timeout=timeout)
                 r.raise_for_status()
-                content = r.json()["output"][0]["content"].strip()
+                from src.tools import extract_lms_output
+                content = extract_lms_output(r.json()).strip()
                 # Remove thinking tags if present (qwen3 sometimes wraps in <think>)
                 if content.startswith("<think>"):
                     think_end = content.find("</think>")

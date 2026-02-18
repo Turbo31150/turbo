@@ -156,7 +156,8 @@ async def handle_consensus(args: dict) -> list[TextContent]:
                     "stream": False, "store": False,
                 })
                 r.raise_for_status()
-                text = r.json()["output"][0]["content"]
+                from src.tools import extract_lms_output
+                text = extract_lms_output(r.json())
                 responses.append(f"[{node.name}] {text}")
             except Exception as e:
                 responses.append(f"[{node.name}] ERREUR: {e}")
