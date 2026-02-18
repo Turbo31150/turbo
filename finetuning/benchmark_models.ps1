@@ -1,11 +1,12 @@
 ###############################################################################
-# JARVIS — Benchmark Multi-Modeles LM Studio
+# JARVIS — Benchmark Multi-Modeles LM Studio (Native API /api/v1/chat)
 # Teste tous les modeles GGUF et compare latence / qualite
 # Usage: powershell -File benchmark_models.ps1
 ###############################################################################
 
 $LMS = "C:\Users\franc\.lmstudio\bin\lms.exe"
-$API = "http://10.5.0.2:1234/v1"
+$API = "http://10.5.0.2:1234"
+$AUTH_HEADERS = @{ Authorization = "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" }
 $RESULTS_FILE = "F:\BUREAU\turbo\finetuning\benchmark_results.json"
 
 # Modeles a tester (exclure les blacklistes et trop gros)
@@ -77,20 +78,20 @@ foreach ($model in $Models) {
 
         $body = @{
             model = $modelName
-            messages = @(
-                @{ role = "user"; content = $prompt }
-            )
-            max_tokens = 500
+            input = $prompt
+            max_output_tokens = 500
             temperature = 0.7
+            stream = $false
+            store = $false
         } | ConvertTo-Json -Depth 5
 
         $start = Get-Date
         try {
-            $response = Invoke-RestMethod -Uri "$API/chat/completions" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 60
+            $response = Invoke-RestMethod -Uri "$API/api/v1/chat" -Method Post -Body $body -ContentType "application/json" -Headers $AUTH_HEADERS -TimeoutSec 60
             $elapsed = ((Get-Date) - $start).TotalSeconds
-            $tokens = $response.usage.completion_tokens
+            $tokens = $response.stats.total_output_tokens
             $tps = if ($elapsed -gt 0) { [math]::Round($tokens / $elapsed, 1) } else { 0 }
-            $answer = $response.choices[0].message.content
+            $answer = if ($response.output.Count -gt 0) { $response.output[0].content } else { "(output vide)" }
 
             Write-Host "  Temps: $([math]::Round($elapsed, 1))s | Tokens: $tokens | TPS: $tps" -ForegroundColor Green
             Write-Host "  Reponse: $($answer.Substring(0, [math]::Min(100, $answer.Length)))..."

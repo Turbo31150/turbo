@@ -188,17 +188,14 @@ def health_check() -> Tuple[bool, dict]:
     try:
         start_time = time.time()
         response = requests.post(
-            f"{LMS_SERVER_URL}/v1/chat/completions",
+            f"{LMS_SERVER_URL}/api/v1/chat",
             json={
                 "model": MODEL_NAME,
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": "Bonjour, comment tu fonctionnes?"
-                    }
-                ],
-                "max_tokens": 50,
-                "temperature": 0.1
+                "input": "Bonjour, comment tu fonctionnes?",
+                "max_output_tokens": 50,
+                "temperature": 0.1,
+                "stream": False,
+                "store": False,
             },
             timeout=30
         )
@@ -207,8 +204,8 @@ def health_check() -> Tuple[bool, dict]:
 
         if response.status_code == 200:
             response_json = response.json()
-            if "choices" in response_json and len(response_json["choices"]) > 0:
-                reply = response_json["choices"][0]["message"]["content"]
+            if "output" in response_json and len(response_json["output"]) > 0:
+                reply = response_json["output"][0]["content"]
                 health_data["success"] = True
                 health_data["response"] = reply
                 log_message(

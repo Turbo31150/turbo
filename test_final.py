@@ -85,16 +85,19 @@ try:
         async with httpx.AsyncClient(timeout=20) as client:
             start = time.time()
             resp = await client.post(
-                "http://10.5.0.2:1234/v1/chat/completions",
+                "http://10.5.0.2:1234/api/v1/chat",
+                headers={"Authorization": "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"},
                 json={
                     "model": "qwen/qwen3-30b-a3b-2507",
-                    "messages": [{"role": "user", "content": "Reponds juste OK"}],
-                    "max_tokens": 10,
+                    "input": "Reponds juste OK",
+                    "max_output_tokens": 10,
                     "temperature": 0.1,
+                    "stream": False,
+                    "store": False,
                 }
             )
             resp.raise_for_status()
-            content = resp.json()["choices"][0]["message"]["content"]
+            content = resp.json()["output"][0]["content"]
             elapsed = time.time() - start
             return content.strip(), elapsed
 
