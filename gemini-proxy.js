@@ -11,7 +11,9 @@
  * Features: timeout 2min, fallback flash→pro, filtrage warnings, mode JSON
  */
 
-const { spawn } = require('child_process');
+// Supprimer DEP0190 (shell:true + args) — requis sur Windows pour .cmd wrappers npm
+process.noDeprecation = true;
+const { execFile } = require('child_process');
 
 const TIMEOUT_MS = 120_000;
 const MODELS = ['gemini-2.5-pro', 'gemini-2.5-flash'];
@@ -41,25 +43,16 @@ async function callGemini(text, model) {
     if (model) geminiArgs.push('-m', model);
     geminiArgs.push(text);
 
-    const child = spawn('gemini', geminiArgs, {
-      stdio: ['ignore', 'pipe', 'pipe'],
+    // execFile avec shell pour resoudre gemini dans PATH (wrapper npm .cmd)
+    // Pas de DEP0190 car execFile ne trigger pas ce warning
+    const child = execFile('gemini', geminiArgs, {
       timeout: TIMEOUT_MS,
       shell: true,
-    });
-
-    let stdout = '', stderr = '';
-    child.stdout.on('data', d => stdout += d);
-    child.stderr.on('data', d => stderr += d);
-
-    const timer = setTimeout(() => {
-      child.kill('SIGTERM');
-      reject(new Error(`TIMEOUT: Gemini n'a pas repondu en ${TIMEOUT_MS / 1000}s`));
-    }, TIMEOUT_MS);
-
-    child.on('close', code => {
-      clearTimeout(timer);
-      // Filtrer les warnings Node.js (punycode) et les erreurs d'extension
-      const cleanStderr = stderr.split('\n')
+      maxBuffer: 1024 * 1024,
+      env: { ...process.env, NODE_NO_WARNINGS: '1' },
+    }, (error, stdout, stderr) => {
+      // Filtrer les warnings Node.js
+      const cleanStderr = (stderr || '').split('\n')
         .filter(l =>
           !l.includes('DeprecationWarning') &&
           !l.includes('trace-deprecation') &&
@@ -68,15 +61,13 @@ async function callGemini(text, model) {
         )
         .join('\n').trim();
 
-      if (code !== 0 && !stdout.trim()) {
-        const is429 = stderr.includes('429') || stderr.includes('RESOURCE_EXHAUSTED');
-        reject(Object.assign(new Error(cleanStderr || `Exit code ${code}`), { is429 }));
+      if (error && !stdout.trim()) {
+        const is429 = (stderr || '').includes('429') || (stderr || '').includes('RESOURCE_EXHAUSTED');
+        reject(Object.assign(new Error(cleanStderr || error.message), { is429 }));
       } else {
-        resolve({ text: stdout.trim(), model: model || 'default' });
+        resolve({ text: (stdout || '').trim(), model: model || 'default' });
       }
     });
-
-    child.on('error', reject);
   });
 }
 
@@ -116,6 +107,7 @@ async function callWithFallback(text) {
     } else {
       console.log(result.text);
     }
+    process.exit(0);
   } catch (err) {
     if (jsonMode) {
       console.log(JSON.stringify({
