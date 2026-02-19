@@ -83,6 +83,8 @@ class LMStudioNode:
     default_model: str = ""
     weight: float = 1.0
     use_cases: list[str] = field(default_factory=list)
+    # MCP support (LM Studio 0.4.0+)
+    context_length: int = 32768
 
 
 @dataclass
@@ -201,6 +203,24 @@ class JarvisConfig:
         ],
     })
 
+    # ── Serveurs MCP disponibles pour LM Studio (ephemeral) ────────────
+    mcp_servers: dict[str, dict] = field(default_factory=lambda: {
+        "huggingface": {
+            "type": "ephemeral_mcp",
+            "server_label": "huggingface",
+            "server_url": "https://huggingface.co/mcp",
+        },
+        "playwright": {
+            "type": "plugin",
+            "id": "mcp/playwright",
+        },
+        "context7": {
+            "type": "ephemeral_mcp",
+            "server_label": "context7",
+            "server_url": "https://mcp.context7.com/mcp",
+        },
+    })
+
     # ── Inference parameters (optimized) ──────────────────────────────────
     temperature: float = 0.4
     max_tokens: int = 8192
@@ -289,6 +309,19 @@ class JarvisConfig:
     def update_latency(self, node: str, latency_ms: int) -> None:
         """Update latency cache for auto-tune routing."""
         self._latency_cache[node] = latency_ms
+
+    def get_mcp_integrations(self, server_names: list[str], allowed_tools: list[str] | None = None) -> list[dict]:
+        """Construit la liste integrations[] pour l'API LM Studio 0.4.0+."""
+        integrations = []
+        for name in server_names:
+            server = self.mcp_servers.get(name)
+            if not server:
+                continue
+            entry = dict(server)
+            if allowed_tools:
+                entry["allowed_tools"] = allowed_tools
+            integrations.append(entry)
+        return integrations
 
     def get_timeout(self, mode: str = "default") -> float:
         """Get appropriate timeout for the mode."""
