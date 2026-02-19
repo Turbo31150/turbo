@@ -97,7 +97,7 @@ async def handle_lm_models(args: dict) -> list[TextContent]:
 
 async def handle_lm_cluster_status(args: dict) -> list[TextContent]:
     results, online = [], 0
-    total_nodes = len(config.lm_nodes) + len(config.ollama_nodes)
+    total_nodes = len(config.lm_nodes) + len(config.ollama_nodes) + 1  # +1 for Gemini
     async with httpx.AsyncClient(timeout=5) as c:
         for n in config.lm_nodes:
             try:
@@ -117,17 +117,52 @@ async def handle_lm_cluster_status(args: dict) -> list[TextContent]:
                 online += 1
             except Exception:
                 results.append(f"  {n.name} ({n.role}): OFFLINE [Ollama]")
+        # Gemini check via simple proxy call
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                "node", config.gemini_node.proxy_path, "ping",
+                stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+            )
+            _, _ = await asyncio.wait_for(proc.communicate(), timeout=10)
+            if proc.returncode == 0:
+                results.append(f"  GEMINI ({config.gemini_node.role}): ONLINE — {', '.join(config.gemini_node.models)} [Proxy]")
+                online += 1
+            else:
+                results.append(f"  GEMINI ({config.gemini_node.role}): OFFLINE [Proxy]")
+        except Exception:
+            results.append(f"  GEMINI ({config.gemini_node.role}): OFFLINE [Proxy]")
     header = f"Cluster: {online}/{total_nodes} noeuds en ligne"
     return _text(f"{header}\n" + "\n".join(results))
 
 
 async def handle_consensus(args: dict) -> list[TextContent]:
     prompt = args["prompt"]
-    nodes = args.get("nodes", "M1,M2,M3").split(",")
+    nodes = args.get("nodes", "M1,M2,OL1").split(",")
     responses = []
     async with httpx.AsyncClient(timeout=60) as c:
         for name in nodes:
             name = name.strip()
+
+            # Gemini via subprocess
+            if name.upper() == "GEMINI":
+                try:
+                    proc = await asyncio.create_subprocess_exec(
+                        "node", config.gemini_node.proxy_path, prompt,
+                        stdout=asyncio.subprocess.PIPE,
+                        stderr=asyncio.subprocess.PIPE,
+                    )
+                    stdout, _ = await asyncio.wait_for(
+                        proc.communicate(),
+                        timeout=config.gemini_node.timeout_ms / 1000,
+                    )
+                    if proc.returncode == 0:
+                        responses.append(f"[GEMINI/{config.gemini_node.default_model}] {stdout.decode(errors='replace').strip()}")
+                    else:
+                        responses.append(f"[GEMINI] ERREUR (exit {proc.returncode})")
+                except Exception as e:
+                    responses.append(f"[GEMINI] ERREUR: {e}")
+                continue
+
             # Check Ollama nodes first
             ol_node = config.get_ollama_node(name)
             if ol_node:
@@ -162,6 +197,145 @@ async def handle_consensus(args: dict) -> list[TextContent]:
             except Exception as e:
                 responses.append(f"[{node.name}] ERREUR: {e}")
     return _text(f"Consensus ({len(responses)} sources):\n" + "\n---\n".join(responses))
+
+
+# ── Gemini + Bridge handlers ─────────────────────────────────────────────
+
+async def handle_gemini_query(args: dict) -> list[TextContent]:
+    prompt = args["prompt"]
+    json_mode = str(args.get("json_mode", "false")).lower() == "true"
+
+    cmd = ["node", config.gemini_node.proxy_path]
+    if json_mode:
+        cmd.append("--json")
+    cmd.append(prompt)
+
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        stdout, stderr = await asyncio.wait_for(
+            proc.communicate(),
+            timeout=config.gemini_node.timeout_ms / 1000,
+        )
+        if proc.returncode != 0:
+            err = stderr.decode(errors="replace").strip()
+            return _error(f"Gemini erreur (exit {proc.returncode}): {err[:500]}")
+        output = stdout.decode(errors="replace").strip()
+        return _text(f"[GEMINI/{config.gemini_node.default_model}] {output}")
+    except asyncio.TimeoutError:
+        return _error(f"Gemini timeout ({config.gemini_node.timeout_ms / 1000}s)")
+    except Exception as e:
+        return _error(f"Erreur Gemini: {e}")
+
+
+async def handle_bridge_query(args: dict) -> list[TextContent]:
+    prompt = args["prompt"]
+    task_type = args.get("task_type", "short_answer")
+    preferred = args.get("preferred_node", "")
+
+    if preferred:
+        nodes = [preferred] + [n for n in config.route(task_type) if n != preferred]
+    else:
+        nodes = config.route(task_type)
+    if not nodes:
+        nodes = ["M1"]
+
+    async with httpx.AsyncClient(timeout=120) as c:
+        for name in nodes:
+            upper = name.upper()
+            try:
+                if upper == "GEMINI":
+                    result = await handle_gemini_query({"prompt": prompt})
+                    if result and not any("ERREUR" in tc.text for tc in result):
+                        return result
+                    continue
+
+                ol_node = config.get_ollama_node(name)
+                if ol_node:
+                    r = await c.post(f"{ol_node.url}/api/chat", json={
+                        "model": ol_node.default_model,
+                        "messages": [{"role": "user", "content": prompt}],
+                        "stream": False, "think": False,
+                        "options": {"temperature": 0.3, "num_predict": 2048},
+                    })
+                    r.raise_for_status()
+                    return _text(f"[{name}/{ol_node.default_model}] {r.json()['message']['content']}")
+
+                node = config.get_node(name)
+                if not node:
+                    continue
+                r = await c.post(f"{node.url}/api/v1/chat", json={
+                    "model": node.default_model, "input": prompt,
+                    "temperature": 0.3, "max_output_tokens": 2048,
+                    "stream": False, "store": False,
+                })
+                r.raise_for_status()
+                from src.tools import extract_lms_output
+                return _text(f"[{name}/{node.default_model}] {extract_lms_output(r.json())}")
+            except Exception:
+                continue
+    return _error(f"Tous les noeuds ont echoue: {nodes}")
+
+
+async def handle_bridge_mesh(args: dict) -> list[TextContent]:
+    prompt = args["prompt"]
+    names = [n.strip() for n in args.get("nodes", "M1,M2,OL1,GEMINI").split(",")]
+    per_timeout = int(args.get("timeout_per_node", 60))
+    responses = []
+    ok_count = 0
+
+    async def _query_one(name: str) -> str:
+        upper = name.upper()
+        try:
+            if upper == "GEMINI":
+                proc = await asyncio.create_subprocess_exec(
+                    "node", config.gemini_node.proxy_path, prompt,
+                    stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+                )
+                stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=per_timeout)
+                if proc.returncode != 0:
+                    return f"[GEMINI] ERREUR (exit {proc.returncode})"
+                return f"[GEMINI/{config.gemini_node.default_model}] {stdout.decode(errors='replace').strip()}"
+
+            async with httpx.AsyncClient(timeout=per_timeout) as c:
+                ol_node = config.get_ollama_node(name)
+                if ol_node:
+                    r = await c.post(f"{ol_node.url}/api/chat", json={
+                        "model": ol_node.default_model,
+                        "messages": [{"role": "user", "content": prompt}],
+                        "stream": False, "think": False,
+                        "options": {"temperature": 0.3, "num_predict": 2048},
+                    })
+                    r.raise_for_status()
+                    return f"[{name}/{ol_node.default_model}] {r.json()['message']['content']}"
+
+                node = config.get_node(name)
+                if not node:
+                    return f"[{name}] ERREUR: noeud inconnu"
+                r = await c.post(f"{node.url}/api/v1/chat", json={
+                    "model": node.default_model, "input": prompt,
+                    "temperature": 0.3, "max_output_tokens": 2048,
+                    "stream": False, "store": False,
+                })
+                r.raise_for_status()
+                from src.tools import extract_lms_output
+                return f"[{name}/{node.default_model}] {extract_lms_output(r.json())}"
+        except asyncio.TimeoutError:
+            return f"[{name}] TIMEOUT ({per_timeout}s)"
+        except Exception as e:
+            return f"[{name}] ERREUR: {e}"
+
+    results = await asyncio.gather(*[_query_one(n) for n in names], return_exceptions=True)
+    for r in results:
+        text = str(r) if isinstance(r, Exception) else r
+        responses.append(text)
+        if "ERREUR" not in text and "TIMEOUT" not in text:
+            ok_count += 1
+
+    return _text(f"Bridge Mesh ({ok_count}/{len(names)} OK):\n\n" + "\n\n---\n\n".join(responses))
 
 
 # ── Ollama handlers ─────────────────────────────────────────────────────
@@ -634,6 +808,10 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     ("lm_models", "Lister les modeles charges sur un noeud.", {"node": "string"}, handle_lm_models),
     ("lm_cluster_status", "Sante de tous les noeuds du cluster (LM Studio + Ollama).", {}, handle_lm_cluster_status),
     ("consensus", "Consensus multi-IA sur une question.", {"prompt": "string", "nodes": "string"}, handle_consensus),
+    # Gemini + Bridge Multi-Noeuds (3)
+    ("gemini_query", "Interroger Gemini via proxy.", {"prompt": "string", "json_mode": "boolean"}, handle_gemini_query),
+    ("bridge_query", "Routage intelligent vers le meilleur noeud.", {"prompt": "string", "task_type": "string", "preferred_node": "string"}, handle_bridge_query),
+    ("bridge_mesh", "Requete parallele sur N noeuds.", {"prompt": "string", "nodes": "string", "timeout_per_node": "number"}, handle_bridge_mesh),
     # Ollama Cloud (4)
     ("ollama_query", "Interroger Ollama (local ou cloud).", {"prompt": "string", "model": "string"}, handle_ollama_query),
     ("ollama_models", "Lister les modeles Ollama disponibles.", {}, handle_ollama_models),
