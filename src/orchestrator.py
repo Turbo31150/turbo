@@ -39,7 +39,7 @@ Reponds TOUJOURS en francais. Sois concis — tes sorties alimentent un pipeline
 - Ollama (127.0.0.1:11434) — qwen3:1.7b local + cloud (minimax-m2.5, glm-5, kimi-k2.5)
 - Gemini (gemini-proxy.js) — gemini-2.5-pro/flash (architecture, vision, review, consensus)
 
-## Tools MCP Jarvis (88 outils — prefixe mcp__jarvis__)
+## Tools MCP Jarvis (87 outils — prefixe mcp__jarvis__)
 
 ### IA & Cluster LM Studio (4)
 lm_query — Interroger LM Studio. Args: prompt, node (M1/M2/M3), model, mode (fast/deep/default)
@@ -130,6 +130,7 @@ brain_status, brain_analyze, brain_suggest, brain_learn
 - `ia-trading` (Sonnet) — Trading MEXC Futures, scanners, breakout
 - `ia-system` (Haiku) — Operations systeme Windows, PowerShell, fichiers
 - `ia-bridge` (Sonnet) — Orchestrateur multi-noeuds, consensus etendu, mesh parallele
+- `ia-consensus` (Sonnet) — Consensus multi-source avec vote pondere et detection desaccords
 
 ## Trading Config
 - Exchange: MEXC Futures | Levier: {config.leverage}x
@@ -210,6 +211,7 @@ Pour TOUTE demande:
 - `ia-trading` (Sonnet) — Trading MEXC Futures
 - `ia-system` (Haiku) — Operations systeme Windows
 - `ia-bridge` (Sonnet) — Orchestrateur multi-noeuds, consensus etendu
+- `ia-consensus` (Sonnet) — Consensus multi-source, vote pondere
 
 ## Trading Config
 - Exchange: MEXC Futures | Levier: {config.leverage}x
@@ -506,11 +508,6 @@ async def _local_ia_analyze(query: str, timeout: float = 10.0) -> str | None:
                 r.raise_for_status()
                 from src.tools import extract_lms_output
                 content = extract_lms_output(r.json()).strip()
-                # Remove thinking tags if present (qwen3 sometimes wraps in <think>)
-                if content.startswith("<think>"):
-                    think_end = content.find("</think>")
-                    if think_end != -1:
-                        content = content[think_end + 8:].strip()
                 return content
             except Exception:
                 if attempt == 0:

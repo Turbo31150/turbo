@@ -90,11 +90,6 @@ async def classify_task(prompt: str) -> str:
             r.raise_for_status()
             from src.tools import extract_lms_output
             content = extract_lms_output(r.json()).strip().lower()
-            # Strip thinking tags if present
-            if content.startswith("<think>"):
-                think_end = content.find("</think>")
-                if think_end != -1:
-                    content = content[think_end + 8:].strip()
             # Extract first word only
             word = content.split()[0].rstrip(".,;:!?") if content else ""
             if word in VALID_TYPES:

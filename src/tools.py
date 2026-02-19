@@ -12,6 +12,7 @@ Optimizations:
 from __future__ import annotations
 
 import asyncio
+import re
 import subprocess
 import sys
 import time
@@ -23,29 +24,56 @@ from claude_agent_sdk import tool, create_sdk_mcp_server
 from src.config import config, SCRIPTS, PATHS
 
 
+def _strip_thinking_tags(text: str) -> str:
+    """Remove <think>...</think> blocks from LLM output."""
+    return re.sub(r'<think>.*?</think>\s*', '', text, flags=re.DOTALL).strip()
+
+
 def extract_lms_output(data: dict) -> str:
     """Extract content from LM Studio native API response.
 
-    Handles MCP responses with mixed output types:
-    - message: text content
-    - tool_call: MCP tool invocation + result
-    - reasoning: model thinking (ignored)
+    Handles all known response formats:
+    - output[]: list of {type: message/text/tool_call/reasoning}
+    - output as string (direct)
+    - OpenAI fallback: choices[0].message.content
+    - Strips <think>...</think> tags from all content
     """
+    # Try native output field
     output = data.get("output", [])
-    if not output:
-        return ""
-    parts = []
-    for item in output:
-        item_type = item.get("type", "message")
-        if item_type == "message":
-            c = item.get("content", "")
-            if c:
-                parts.append(c)
-        elif item_type == "tool_call":
-            tool_name = item.get("tool", "?")
-            tool_output = item.get("output", "")
-            parts.append(f"[MCP:{tool_name}] {tool_output}")
-    return "\n".join(parts) if parts else ""
+
+    # String output (some models return plain string)
+    if isinstance(output, str):
+        return _strip_thinking_tags(output)
+
+    # List output (standard LM Studio format)
+    if isinstance(output, list) and output:
+        parts = []
+        for item in output:
+            if isinstance(item, str):
+                parts.append(item)
+                continue
+            item_type = item.get("type", "message")
+            if item_type in ("message", "text"):
+                c = item.get("content", "")
+                if c:
+                    parts.append(c)
+            elif item_type == "tool_call":
+                tool_name = item.get("tool", "?")
+                tool_output = item.get("output", "")
+                parts.append(f"[MCP:{tool_name}] {tool_output}")
+            # reasoning/thinking types: ignored
+        if parts:
+            return _strip_thinking_tags("\n".join(parts))
+
+    # OpenAI-compatible fallback: choices[0].message.content
+    choices = data.get("choices", [])
+    if choices:
+        msg = choices[0].get("message", {})
+        content = msg.get("content", "")
+        if content:
+            return _strip_thinking_tags(content)
+
+    return ""
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -81,6 +109,7 @@ async def _get_client() -> httpx.AsyncClient:
 async def _retry_request(
     method: str, url: str, json: dict | None = None,
     max_retries: int = 2, timeout: float | None = None,
+    headers: dict[str, str] | None = None,
 ) -> httpx.Response:
     """Execute HTTP request with retry and exponential backoff."""
     client = await _get_client()
@@ -92,6 +121,8 @@ async def _retry_request(
                 kwargs["json"] = json
             if timeout:
                 kwargs["timeout"] = timeout
+            if headers:
+                kwargs["headers"] = headers
             if method == "GET":
                 r = await client.get(**kwargs)
             else:
@@ -160,7 +191,7 @@ async def lm_query(args: dict[str, Any]) -> dict[str, Any]:
             "max_output_tokens": max_tokens,
             "stream": False,
             "store": False,
-        }, timeout=timeout)
+        }, timeout=timeout, headers=node.auth_headers)
         latency = (time.monotonic() - t0) * 1000
         _track_latency(node.name, latency)
         data = r.json()
@@ -209,7 +240,7 @@ async def lm_mcp_query(args: dict[str, Any]) -> dict[str, Any]:
             "max_output_tokens": config.max_tokens,
             "stream": False,
             "store": False,
-        }, timeout=config.inference_timeout)
+        }, timeout=config.inference_timeout, headers=node.auth_headers)
         latency = (time.monotonic() - t0) * 1000
         _track_latency(node.name, latency)
         data = r.json()
@@ -263,13 +294,13 @@ async def gemini_query(args: dict[str, Any]) -> dict[str, Any]:
         latency = int((time.monotonic() - t0) * 1000)
         _track_latency("GEMINI", latency)
 
-        if proc.returncode != 0:
+        output = stdout.decode(errors="replace").strip()
+        if proc.returncode != 0 and not output:
             err = stderr.decode(errors="replace").strip()
             return _error(f"Gemini erreur (exit {proc.returncode}): {err[:500]}")
 
-        output = stdout.decode(errors="replace").strip()
         model = config.gemini_node.default_model
-        return _text(f"[GEMINI/{model}] {output}\n--- {latency}ms")
+        return _text(f"[GEMINI/{model}] {_strip_thinking_tags(output)}\n--- {latency}ms")
     except asyncio.TimeoutError:
         return _error(f"Gemini timeout ({config.gemini_node.timeout_ms / 1000}s)")
     except FileNotFoundError:
@@ -333,9 +364,9 @@ async def bridge_mesh(args: dict[str, Any]) -> dict[str, Any]:
                 stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=per_timeout)
                 output = stdout.decode(errors="replace").strip()
                 latency = int((time.monotonic() - t0) * 1000)
-                if proc.returncode != 0:
+                if proc.returncode != 0 and not output:
                     return f"[GEMINI] ERREUR (exit {proc.returncode})"
-                return f"[GEMINI/{config.gemini_node.default_model}] {output} --- {latency}ms"
+                return f"[GEMINI/{config.gemini_node.default_model}] {_strip_thinking_tags(output)} --- {latency}ms"
 
             ol_node = config.get_ollama_node(name)
             if ol_node:
@@ -358,7 +389,7 @@ async def bridge_mesh(args: dict[str, Any]) -> dict[str, Any]:
                 "temperature": config.temperature,
                 "max_output_tokens": config.max_tokens,
                 "stream": False, "store": False,
-            }, timeout=per_timeout)
+            }, timeout=per_timeout, headers=node.auth_headers)
             r.raise_for_status()
             latency = int((time.monotonic() - t0) * 1000)
             return f"[{name}/{node.default_model}] {extract_lms_output(r.json())} --- {latency}ms"
@@ -387,11 +418,12 @@ async def bridge_mesh(args: dict[str, Any]) -> dict[str, Any]:
 
 @tool("lm_models", "Lister les modeles charges sur un noeud LM Studio.", {"node": str})
 async def lm_models(args: dict[str, Any]) -> dict[str, Any]:
-    url = config.get_node_url(args.get("node", "M1"))
-    if not url:
+    node_name = args.get("node", "M1")
+    node = config.get_node(node_name)
+    if not node:
         return _error("Noeud inconnu")
     try:
-        r = await _retry_request("GET", f"{url}/api/v1/models", timeout=config.health_timeout)
+        r = await _retry_request("GET", f"{node.url}/api/v1/models", timeout=config.health_timeout, headers=node.auth_headers)
         models = [m["key"] for m in r.json().get("models", []) if m.get("loaded_instances")]
         return _text(f"Modeles: {', '.join(models) if models else 'aucun'}")
     except Exception as e:
@@ -408,7 +440,7 @@ async def lm_cluster_status(args: dict[str, Any]) -> dict[str, Any]:
     for n in config.lm_nodes:
         try:
             t0 = time.monotonic()
-            r = await client.get(f"{n.url}/api/v1/models", timeout=config.health_timeout)
+            r = await client.get(f"{n.url}/api/v1/models", timeout=config.health_timeout, headers=n.auth_headers)
             r.raise_for_status()
             latency = int((time.monotonic() - t0) * 1000)
             models = [m["key"] for m in r.json().get("models", []) if m.get("loaded_instances")]
@@ -448,10 +480,11 @@ async def lm_cluster_status(args: dict[str, Any]) -> dict[str, Any]:
     )
 
 
-@tool("consensus", "Consensus multi-noeuds IA (M1,M2,OL1,GEMINI). Args: prompt, nodes.", {"prompt": str, "nodes": str})
+@tool("consensus", "Consensus multi-noeuds IA (M1,M2,OL1,GEMINI). Args: prompt, nodes, timeout_per_node.", {"prompt": str, "nodes": str, "timeout_per_node": int})
 async def consensus(args: dict[str, Any]) -> dict[str, Any]:
     prompt = args["prompt"]
     names = [n.strip() for n in args.get("nodes", "M1,M2,OL1").split(",")]
+    per_timeout = args.get("timeout_per_node", 60)
     responses = []
     client = await _get_client()
 
@@ -466,28 +499,31 @@ async def consensus(args: dict[str, Any]) -> dict[str, Any]:
                     *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
                 )
                 stdout, _ = await asyncio.wait_for(
-                    proc.communicate(), timeout=config.gemini_node.timeout_ms / 1000,
+                    proc.communicate(), timeout=per_timeout,
                 )
-                if proc.returncode != 0:
-                    return f"[GEMINI] ERREUR (exit {proc.returncode})"
                 output = stdout.decode(errors="replace").strip()
-                return f"[GEMINI/{config.gemini_node.default_model}] {output}"
+                if proc.returncode != 0 and not output:
+                    return f"[GEMINI] ERREUR (exit {proc.returncode})"
+                return f"[GEMINI/{config.gemini_node.default_model}] {_strip_thinking_tags(output)}"
             except asyncio.TimeoutError:
-                return f"[GEMINI] TIMEOUT"
+                return f"[GEMINI] TIMEOUT ({per_timeout}s)"
             except Exception as e:
                 return f"[GEMINI] ERREUR: {e}"
 
         ol_node = config.get_ollama_node(name)
         if ol_node:
             try:
-                r = await client.post(f"{ol_node.url}/api/chat", json={
+                r = await asyncio.wait_for(client.post(f"{ol_node.url}/api/chat", json={
                     "model": ol_node.default_model,
                     "messages": [{"role": "user", "content": prompt}],
                     "stream": False, "think": False,
                     "options": {"temperature": config.temperature, "num_predict": config.max_tokens},
-                }, timeout=config.inference_timeout)
+                }, timeout=per_timeout), timeout=per_timeout)
                 r.raise_for_status()
-                return f"[{name}/{ol_node.default_model}] {r.json()['message']['content']}"
+                content = r.json()["message"]["content"]
+                return f"[{name}/{ol_node.default_model}] {_strip_thinking_tags(content)}"
+            except asyncio.TimeoutError:
+                return f"[{name}/Ollama] TIMEOUT ({per_timeout}s)"
             except Exception as e:
                 return f"[{name}/Ollama] ERREUR: {e}"
 
@@ -495,16 +531,18 @@ async def consensus(args: dict[str, Any]) -> dict[str, Any]:
         if not node:
             return f"[{name}] ERREUR: inconnu"
         try:
-            r = await client.post(f"{node.url}/api/v1/chat", json={
+            r = await asyncio.wait_for(client.post(f"{node.url}/api/v1/chat", json={
                 "model": node.default_model,
                 "input": prompt,
                 "temperature": config.temperature,
                 "max_output_tokens": config.max_tokens,
                 "stream": False,
                 "store": False,
-            }, timeout=config.inference_timeout)
+            }, timeout=per_timeout, headers=node.auth_headers), timeout=per_timeout)
             r.raise_for_status()
             return f"[{name}/{node.default_model}] {extract_lms_output(r.json())}"
+        except asyncio.TimeoutError:
+            return f"[{name}] TIMEOUT ({per_timeout}s)"
         except Exception as e:
             return f"[{name}] ERREUR: {e}"
 
@@ -1240,7 +1278,7 @@ def _error(text: str) -> dict[str, Any]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# ASSEMBLE MCP SERVER — ALL TOOLS (88 tools)
+# ASSEMBLE MCP SERVER — ALL TOOLS (74 SDK tools)
 # ═══════════════════════════════════════════════════════════════════════════
 
 jarvis_server = create_sdk_mcp_server(

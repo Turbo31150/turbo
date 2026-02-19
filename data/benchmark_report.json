@@ -1,0 +1,422 @@
+{
+  "version": "10.2",
+  "timestamp": "2026-02-19T19:27:43",
+  "duration_ms": 112400,
+  "phases": {
+    "1_health": {
+      "name": "1_health",
+      "score": 0.8,
+      "duration_ms": 10418,
+      "details": {
+        "nodes": {
+          "M1": {
+            "status": "ONLINE",
+            "models": [
+              "qwen/qwen3-30b-a3b-2507"
+            ],
+            "gpus": 6,
+            "vram_gb": 46
+          },
+          "M2": {
+            "status": "ONLINE",
+            "models": [
+              "deepseek-coder-v2-lite-instruct"
+            ],
+            "gpus": 3,
+            "vram_gb": 24
+          },
+          "M3": {
+            "status": "ONLINE",
+            "models": [
+              "mistral-7b-instruct-v0.3"
+            ],
+            "gpus": 1,
+            "vram_gb": 8
+          },
+          "OL1": {
+            "status": "ONLINE",
+            "models": [
+              "qwen3:1.7b"
+            ]
+          },
+          "GEMINI": {
+            "status": "OFFLINE",
+            "error": ""
+          }
+        },
+        "online": 4,
+        "total": 5,
+        "gpu": {
+          "count": 6,
+          "total_vram_mb": 47104,
+          "used_vram_mb": 27585,
+          "utilization_pct": 59
+        }
+      },
+      "issues": []
+    },
+    "2_inference": {
+      "name": "2_inference",
+      "score": 1.0,
+      "duration_ms": 39869,
+      "details": {
+        "tests": [
+          {
+            "node": "M1",
+            "model": "qwen/qwen3-30b-a3b-2507",
+            "status": "OK",
+            "latency_ms": 15161,
+            "output_len": 327,
+            "has_think_tags": false,
+            "is_empty": false,
+            "preview": "Un MoE (Mixture of Experts) est une architecture d'intelligence artificielle qui combine plusieurs m"
+          },
+          {
+            "node": "M2",
+            "model": "deepseek-coder-v2-lite-instruct",
+            "status": "OK",
+            "latency_ms": 1228,
+            "output_len": 228,
+            "has_think_tags": false,
+            "is_empty": false,
+            "preview": "Un modèle de moindres obstacles (MoO) est une approche d'apprentissage automatique qui combine plusi"
+          },
+          {
+            "node": "M3",
+            "model": "mistral-7b-instruct-v0.3",
+            "status": "OK",
+            "latency_ms": 2151,
+            "output_len": 252,
+            "has_think_tags": false,
+            "is_empty": false,
+            "preview": "Un MoE (Metric of Evaluation) dans l'IA est une mesure utilisée pour évaluer la performance d'un mod"
+          },
+          {
+            "node": "OL1",
+            "model": "qwen3:1.7b",
+            "status": "OK",
+            "latency_ms": 687,
+            "output_len": 323,
+            "preview": "Un MoE (Model of Everything) est un modèle d'IA qui intègre toutes les parties du système d'IA, y co"
+          },
+          {
+            "node": "GEMINI",
+            "model": "gemini-2.5-pro",
+            "status": "OK",
+            "latency_ms": 20585,
+            "output_len": 416,
+            "preview": "Un modèle \"Mixture of Experts\" (MoE) est une architecture d'intelligence artificielle qui utilise pl"
+          }
+        ],
+        "ok": 5,
+        "total": 5
+      },
+      "issues": []
+    },
+    "3_consensus": {
+      "name": "3_consensus",
+      "score": 1.0,
+      "duration_ms": 53044,
+      "details": {
+        "tests": [
+          {
+            "label": "2-nodes",
+            "nodes": "M1,OL1",
+            "latency_ms": 14238,
+            "responses_count": 2,
+            "ok": 2,
+            "errors": 0,
+            "empty": 0
+          },
+          {
+            "label": "3-nodes",
+            "nodes": "M1,M2,OL1",
+            "latency_ms": 14403,
+            "responses_count": 3,
+            "ok": 3,
+            "errors": 0,
+            "empty": 0
+          },
+          {
+            "label": "4-nodes",
+            "nodes": "M1,M2,OL1,GEMINI",
+            "latency_ms": 24387,
+            "responses_count": 4,
+            "ok": 4,
+            "errors": 0,
+            "empty": 0
+          }
+        ]
+      },
+      "issues": []
+    },
+    "4_bridge": {
+      "name": "4_bridge",
+      "score": 0.9285714285714286,
+      "duration_ms": 6776,
+      "details": {
+        "tests": [
+          {
+            "task_type": "short_answer",
+            "expected_nodes": [
+              "M1"
+            ],
+            "first_node_reachable": true,
+            "status": "OK"
+          },
+          {
+            "task_type": "deep_analysis",
+            "expected_nodes": [
+              "M1"
+            ],
+            "first_node_reachable": true,
+            "status": "OK"
+          },
+          {
+            "task_type": "trading_signal",
+            "expected_nodes": [
+              "M1",
+              "OL1"
+            ],
+            "first_node_reachable": true,
+            "status": "OK"
+          },
+          {
+            "task_type": "code_generation",
+            "expected_nodes": [
+              "M2",
+              "M1"
+            ],
+            "first_node_reachable": true,
+            "status": "OK"
+          },
+          {
+            "task_type": "validation",
+            "expected_nodes": [
+              "M1",
+              "M2"
+            ],
+            "first_node_reachable": true,
+            "status": "OK"
+          },
+          {
+            "task_type": "critical",
+            "expected_nodes": [
+              "M1",
+              "OL1"
+            ],
+            "first_node_reachable": true,
+            "status": "OK"
+          },
+          {
+            "task_type": "web_research",
+            "expected_nodes": [
+              "OL1"
+            ],
+            "first_node_reachable": true,
+            "status": "OK"
+          },
+          {
+            "task_type": "reasoning",
+            "expected_nodes": [
+              "M1",
+              "OL1"
+            ],
+            "first_node_reachable": true,
+            "status": "OK"
+          },
+          {
+            "task_type": "voice_correction",
+            "expected_nodes": [
+              "OL1"
+            ],
+            "first_node_reachable": true,
+            "status": "OK"
+          },
+          {
+            "task_type": "auto_learn",
+            "expected_nodes": [
+              "M1"
+            ],
+            "first_node_reachable": true,
+            "status": "OK"
+          },
+          {
+            "task_type": "embedding",
+            "expected_nodes": [
+              "M1"
+            ],
+            "first_node_reachable": true,
+            "status": "OK"
+          },
+          {
+            "task_type": "consensus",
+            "expected_nodes": [
+              "M1",
+              "M2",
+              "OL1",
+              "GEMINI"
+            ],
+            "first_node_reachable": true,
+            "status": "OK"
+          },
+          {
+            "task_type": "architecture",
+            "expected_nodes": [
+              "GEMINI",
+              "M1"
+            ],
+            "first_node_reachable": false,
+            "status": "UNREACHABLE"
+          },
+          {
+            "task_type": "bridge",
+            "expected_nodes": [
+              "M1",
+              "M2",
+              "M3",
+              "OL1",
+              "GEMINI"
+            ],
+            "first_node_reachable": true,
+            "status": "OK"
+          },
+          {
+            "type": "bridge_mesh",
+            "nodes": "M1,OL1",
+            "status": "OK",
+            "latency_ms": 1481,
+            "responses": 2
+          }
+        ],
+        "task_types_tested": 14
+      },
+      "issues": []
+    },
+    "5_agents": {
+      "name": "5_agents",
+      "score": 1.0,
+      "duration_ms": 1,
+      "details": {
+        "agents": {
+          "ia-deep": {
+            "model": "opus",
+            "tools_count": 9,
+            "missing_mcp_tools": []
+          },
+          "ia-fast": {
+            "model": "haiku",
+            "tools_count": 7,
+            "missing_mcp_tools": []
+          },
+          "ia-check": {
+            "model": "sonnet",
+            "tools_count": 8,
+            "missing_mcp_tools": []
+          },
+          "ia-trading": {
+            "model": "sonnet",
+            "tools_count": 8,
+            "missing_mcp_tools": []
+          },
+          "ia-system": {
+            "model": "haiku",
+            "tools_count": 8,
+            "missing_mcp_tools": []
+          },
+          "ia-bridge": {
+            "model": "sonnet",
+            "tools_count": 10,
+            "missing_mcp_tools": []
+          },
+          "ia-consensus": {
+            "model": "sonnet",
+            "tools_count": 11,
+            "missing_mcp_tools": []
+          }
+        },
+        "mismatches": [],
+        "mcp_tool_count": 87,
+        "agent_count": 7
+      },
+      "issues": []
+    },
+    "6_stress": {
+      "name": "6_stress",
+      "score": 1.0,
+      "duration_ms": 2290,
+      "details": {
+        "calls": 10,
+        "ok": 10,
+        "errors": 0,
+        "avg_latency_ms": 1827,
+        "min_latency_ms": 1483,
+        "max_latency_ms": 2275,
+        "throughput_calls_per_sec": 4.37
+      },
+      "issues": []
+    },
+    "7_errors": {
+      "name": "7_errors",
+      "score": 1.0,
+      "duration_ms": 0,
+      "details": {
+        "checks": [
+          {
+            "check": "extract_thinking_tags",
+            "pass": true,
+            "result": "La vraie reponse"
+          },
+          {
+            "check": "extract_string_output",
+            "pass": true,
+            "result": "Direct string output"
+          },
+          {
+            "check": "extract_openai_fallback",
+            "pass": true,
+            "result": "OpenAI format"
+          },
+          {
+            "check": "mcp_tool_count",
+            "count": 87
+          },
+          {
+            "check": "routing_consensus",
+            "pass": true,
+            "nodes": [
+              "M1",
+              "M2",
+              "OL1",
+              "GEMINI"
+            ]
+          },
+          {
+            "check": "no_localhost",
+            "pass": true
+          },
+          {
+            "check": "agent_tool_refs",
+            "pass": true,
+            "issues": []
+          },
+          {
+            "check": "commander_routing_consensus",
+            "pass": true
+          }
+        ],
+        "passed": 8,
+        "total": 8
+      },
+      "issues": []
+    }
+  },
+  "issues": [],
+  "recommendations": [],
+  "summary": {
+    "phases_run": 7,
+    "avg_score": 0.961,
+    "critical_issues": 0,
+    "warnings": 0
+  }
+}
