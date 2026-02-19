@@ -99,6 +99,20 @@ class OllamaNode:
 
 
 @dataclass
+class GeminiNode:
+    name: str = "GEMINI"
+    proxy_path: str = "F:/BUREAU/turbo/gemini-proxy.js"
+    role: str = "architecture"
+    models: list[str] = field(default_factory=lambda: ["gemini-2.5-pro", "gemini-2.5-flash"])
+    default_model: str = "gemini-2.5-pro"
+    timeout_ms: int = 120_000
+    weight: float = 1.2
+    use_cases: list[str] = field(default_factory=lambda: [
+        "Architecture", "Vision", "Review code", "Consensus critique"
+    ])
+
+
+@dataclass
 class JarvisConfig:
     version: str = JARVIS_VERSION
     mode: str = "DUAL_CORE"
@@ -122,6 +136,13 @@ class JarvisConfig:
             default_model="deepseek-coder-v2-lite-instruct", weight=1.0,
             use_cases=["Code generation", "Quick responses", "Trading signals"],
         ),
+        LMStudioNode(
+            "M3", os.getenv("LM_STUDIO_3_URL", "http://192.168.1.113:1234"),
+            "general_inference", gpus=1, vram_gb=8,
+            default_model="mistral-7b-instruct-v0.3", weight=0.5,
+            use_cases=["Quick responses", "Lightweight tasks", "Fallback"],
+            context_length=8192,
+        ),
     ])
 
     default_model: str = field(
@@ -137,6 +158,9 @@ class JarvisConfig:
             use_cases=["Recherche web", "Raisonnement cloud", "Resume", "Correction vocale"],
         ),
     ])
+
+    # ── Gemini node ────────────────────────────────────────────────────────
+    gemini_node: GeminiNode = field(default_factory=GeminiNode)
 
     # ── Model catalog (all available models) ──────────────────────────────
     # M1 permanent: qwen3-30b (18.56 GB, ctx 32768, MoE 3B actifs)
@@ -175,6 +199,9 @@ class JarvisConfig:
         "voice_correction": ["OL1"],
         "auto_learn":      ["M1"],
         "embedding":       ["M1"],
+        "consensus":       ["M1", "M2", "OL1", "GEMINI"],
+        "architecture":    ["GEMINI", "M1"],
+        "bridge":          ["M1", "M2", "M3", "OL1", "GEMINI"],
     })
 
     # ── Commander Mode routing (agent + IA per task type) ──────────────
@@ -200,6 +227,10 @@ class JarvisConfig:
         ],
         "simple": [
             {"agent": None, "ia": "M1", "role": "responder"},
+        ],
+        "architecture": [
+            {"agent": "ia-bridge", "ia": "GEMINI", "role": "analyzer"},
+            {"agent": "ia-deep", "ia": "M1", "role": "reviewer"},
         ],
     })
 
@@ -294,6 +325,16 @@ class JarvisConfig:
     def get_ollama_url(self, name: str = "OL1") -> str | None:
         node = self.get_ollama_node(name)
         return node.url if node else None
+
+    def get_any_node(self, name: str) -> LMStudioNode | OllamaNode | GeminiNode | None:
+        """Lookup universel: M1/M2/M3 (LMStudio), OL1 (Ollama), GEMINI."""
+        upper = name.upper()
+        if upper == "GEMINI":
+            return self.gemini_node
+        ol = self.get_ollama_node(name)
+        if ol:
+            return ol
+        return self.get_node(name)
 
     def route(self, task_type: str) -> list[str]:
         """Return node names for a given task type.
