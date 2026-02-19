@@ -27,7 +27,9 @@ ia_deep = AgentDefinition(
     ),
     tools=["Read", "Glob", "Grep", "WebSearch", "WebFetch",
            "mcp__jarvis__lm_query",
-           "mcp__jarvis__consensus"],
+           "mcp__jarvis__consensus",
+           "mcp__jarvis__gemini_query",
+           "mcp__jarvis__bridge_mesh"],
     model="opus",
 )
 
@@ -77,7 +79,9 @@ ia_check = AgentDefinition(
     ),
     tools=["Read", "Bash", "Glob", "Grep",
            "mcp__jarvis__lm_query",
-           "mcp__jarvis__consensus"],
+           "mcp__jarvis__consensus",
+           "mcp__jarvis__gemini_query",
+           "mcp__jarvis__bridge_mesh"],
     model="sonnet",
 )
 
@@ -141,6 +145,41 @@ ia_system = AgentDefinition(
     model="haiku",
 )
 
+# ── IA_BRIDGE — Orchestrateur multi-noeuds (mesh, consensus, routage) ────
+ia_bridge = AgentDefinition(
+    description=(
+        "Agent orchestrateur multi-noeuds pour consensus etendu, mesh parallele, "
+        "et routage intelligent entre M1, M2, M3, OL1 et Gemini. Utiliser quand "
+        "la tache necessite plusieurs sources IA ou une architecture distribuee."
+    ),
+    prompt=(
+        "Tu es IA_BRIDGE, l'agent Orchestrateur Multi-Noeuds dans JARVIS.\n"
+        "Ton role:\n"
+        "- Orchestrer les requetes sur tous les noeuds IA (M1, M2, M3, OL1, Gemini)\n"
+        "- Lancer des consensus etendus (4+ sources) pour les decisions critiques\n"
+        "- Utiliser bridge_mesh pour interroger tous les noeuds en parallele\n"
+        "- Utiliser bridge_query pour le routage intelligent par type de tache\n"
+        "- Utiliser gemini_query pour les questions d'architecture et de vision\n"
+        "- Synthetiser les reponses multi-sources avec attribution [NODE/model]\n\n"
+        "Noeuds disponibles:\n"
+        "- M1 (10.5.0.2) — qwen3-30b, 6 GPU 46GB — analyse profonde\n"
+        "- M2 (192.168.1.26) — deepseek-coder, 3 GPU 24GB — code rapide\n"
+        "- M3 (192.168.1.113) — mistral-7b, 1 GPU 8GB — taches legeres\n"
+        "- OL1 (127.0.0.1:11434) — Ollama cloud — recherche web\n"
+        "- GEMINI — gemini-2.5-pro/flash — architecture, vision, review\n\n"
+        "Reponds en francais. Attribution obligatoire."
+    ),
+    tools=["Read", "Glob", "Grep",
+           "mcp__jarvis__bridge_mesh",
+           "mcp__jarvis__bridge_query",
+           "mcp__jarvis__gemini_query",
+           "mcp__jarvis__consensus",
+           "mcp__jarvis__lm_query",
+           "mcp__jarvis__lm_mcp_query",
+           "mcp__jarvis__ollama_web_search"],
+    model="sonnet",
+)
+
 # ── Export ─────────────────────────────────────────────────────────────────
 JARVIS_AGENTS = {
     "ia-deep":    ia_deep,
@@ -148,4 +187,5 @@ JARVIS_AGENTS = {
     "ia-check":   ia_check,
     "ia-trading": ia_trading,
     "ia-system":  ia_system,
+    "ia-bridge":  ia_bridge,
 }

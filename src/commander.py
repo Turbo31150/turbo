@@ -187,13 +187,15 @@ def _classify_heuristic(prompt: str) -> str:
 # ══════════════════════════════════════════════════════════════════════════
 
 def _apply_thermal_rerouting(target: str, thermal_status: dict) -> str:
-    """Re-route une cible si M1 est en surchauffe thermique.
+    """Re-route une cible si M1/M2 est en surchauffe thermique.
 
-    - critical: M1 -> M2 (code) ou OL1 (web/simple) ou GEMINI (analyse)
+    - critical: M1 -> M2 -> M3 (cascade fallback)
     - warning: M1 reste, mais les taches code vont sur M2
     """
     if thermal_status.get("status") == "critical" and target == "M1":
         return "M2"  # Deporter vers M2
+    if thermal_status.get("status") == "critical" and target == "M2":
+        return "M3"  # Deporter vers M3
     if thermal_status.get("status") == "critical" and target == "ia-deep":
         return "ia-deep"  # Agent reste, mais il utilisera M2 via lm_query
     return target

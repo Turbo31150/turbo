@@ -239,6 +239,152 @@ async def lm_list_mcp_servers(args: dict[str, Any]) -> dict[str, Any]:
     return _text("Serveurs MCP:\n" + "\n".join(lines))
 
 
+@tool("gemini_query", "Interroger Gemini via proxy. Args: prompt, model (gemini-2.5-pro/flash), json_mode.", {"prompt": str, "model": str, "json_mode": bool})
+async def gemini_query(args: dict[str, Any]) -> dict[str, Any]:
+    prompt = args["prompt"]
+    json_mode = args.get("json_mode", False)
+
+    cmd = ["node", config.gemini_node.proxy_path]
+    if json_mode:
+        cmd.append("--json")
+    cmd.append(prompt)
+
+    try:
+        t0 = time.monotonic()
+        proc = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        stdout, stderr = await asyncio.wait_for(
+            proc.communicate(),
+            timeout=config.gemini_node.timeout_ms / 1000,
+        )
+        latency = int((time.monotonic() - t0) * 1000)
+        _track_latency("GEMINI", latency)
+
+        if proc.returncode != 0:
+            err = stderr.decode(errors="replace").strip()
+            return _error(f"Gemini erreur (exit {proc.returncode}): {err[:500]}")
+
+        output = stdout.decode(errors="replace").strip()
+        model = config.gemini_node.default_model
+        return _text(f"[GEMINI/{model}] {output}\n--- {latency}ms")
+    except asyncio.TimeoutError:
+        return _error(f"Gemini timeout ({config.gemini_node.timeout_ms / 1000}s)")
+    except FileNotFoundError:
+        return _error("node.js non trouve — gemini-proxy.js necessite Node.js")
+    except Exception as e:
+        return _error(f"Erreur Gemini: {e}")
+
+
+@tool("bridge_query", "Routage intelligent vers le meilleur noeud selon task_type. Args: prompt, task_type, preferred_node.", {"prompt": str, "task_type": str, "preferred_node": str})
+async def bridge_query(args: dict[str, Any]) -> dict[str, Any]:
+    prompt = args["prompt"]
+    task_type = args.get("task_type", "short_answer")
+    preferred = args.get("preferred_node", "")
+
+    if preferred:
+        nodes = [preferred] + [n for n in config.route(task_type) if n != preferred]
+    else:
+        nodes = config.route(task_type)
+
+    if not nodes:
+        nodes = ["M1"]
+
+    for name in nodes:
+        upper = name.upper()
+        try:
+            if upper == "GEMINI":
+                result = await gemini_query({"prompt": prompt})
+            elif config.get_ollama_node(name):
+                result = await ollama_query({"prompt": prompt, "model": config.get_ollama_node(name).default_model})
+            else:
+                node = config.get_node(name)
+                if not node:
+                    continue
+                result = await lm_query({"prompt": prompt, "node": name})
+
+            if not result.get("is_error"):
+                return result
+        except Exception:
+            continue
+
+    return _error(f"Tous les noeuds ont echoue pour task_type={task_type}: {nodes}")
+
+
+@tool("bridge_mesh", "Requete parallele sur N noeuds. Args: prompt, nodes (M1,M2,OL1,GEMINI), timeout_per_node.", {"prompt": str, "nodes": str, "timeout_per_node": int})
+async def bridge_mesh(args: dict[str, Any]) -> dict[str, Any]:
+    prompt = args["prompt"]
+    names = [n.strip() for n in args.get("nodes", "M1,M2,OL1,GEMINI").split(",")]
+    per_timeout = args.get("timeout_per_node", 60)
+    client = await _get_client()
+
+    async def _query_one(name: str) -> str:
+        upper = name.upper()
+        try:
+            t0 = time.monotonic()
+
+            if upper == "GEMINI":
+                cmd = ["node", config.gemini_node.proxy_path, prompt]
+                proc = await asyncio.create_subprocess_exec(
+                    *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+                )
+                stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=per_timeout)
+                output = stdout.decode(errors="replace").strip()
+                latency = int((time.monotonic() - t0) * 1000)
+                if proc.returncode != 0:
+                    return f"[GEMINI] ERREUR (exit {proc.returncode})"
+                return f"[GEMINI/{config.gemini_node.default_model}] {output} --- {latency}ms"
+
+            ol_node = config.get_ollama_node(name)
+            if ol_node:
+                r = await client.post(f"{ol_node.url}/api/chat", json={
+                    "model": ol_node.default_model,
+                    "messages": [{"role": "user", "content": prompt}],
+                    "stream": False, "think": False,
+                    "options": {"temperature": config.temperature, "num_predict": config.max_tokens},
+                }, timeout=per_timeout)
+                r.raise_for_status()
+                latency = int((time.monotonic() - t0) * 1000)
+                return f"[{name}/{ol_node.default_model}] {r.json()['message']['content']} --- {latency}ms"
+
+            node = config.get_node(name)
+            if not node:
+                return f"[{name}] ERREUR: noeud inconnu"
+            r = await client.post(f"{node.url}/api/v1/chat", json={
+                "model": node.default_model,
+                "input": prompt,
+                "temperature": config.temperature,
+                "max_output_tokens": config.max_tokens,
+                "stream": False, "store": False,
+            }, timeout=per_timeout)
+            r.raise_for_status()
+            latency = int((time.monotonic() - t0) * 1000)
+            return f"[{name}/{node.default_model}] {extract_lms_output(r.json())} --- {latency}ms"
+
+        except asyncio.TimeoutError:
+            return f"[{name}] TIMEOUT ({per_timeout}s)"
+        except Exception as e:
+            return f"[{name}] ERREUR: {e}"
+
+    results = await asyncio.gather(*[_query_one(n) for n in names], return_exceptions=True)
+    responses = []
+    ok_count = 0
+    for r in results:
+        if isinstance(r, Exception):
+            responses.append(f"[?] EXCEPTION: {r}")
+        else:
+            responses.append(str(r))
+            if "ERREUR" not in str(r) and "TIMEOUT" not in str(r):
+                ok_count += 1
+
+    return _text(
+        f"Bridge Mesh ({ok_count}/{len(names)} OK):\n\n"
+        + "\n\n---\n\n".join(responses)
+    )
+
+
 @tool("lm_models", "Lister les modeles charges sur un noeud LM Studio.", {"node": str})
 async def lm_models(args: dict[str, Any]) -> dict[str, Any]:
     url = config.get_node_url(args.get("node", "M1"))
@@ -302,14 +448,35 @@ async def lm_cluster_status(args: dict[str, Any]) -> dict[str, Any]:
     )
 
 
-@tool("consensus", "Consensus multi-noeuds IA. Args: prompt, nodes (M1,M2,OL1).", {"prompt": str, "nodes": str})
+@tool("consensus", "Consensus multi-noeuds IA (M1,M2,OL1,GEMINI). Args: prompt, nodes.", {"prompt": str, "nodes": str})
 async def consensus(args: dict[str, Any]) -> dict[str, Any]:
     prompt = args["prompt"]
-    names = [n.strip() for n in args.get("nodes", "M1,OL1").split(",")]
+    names = [n.strip() for n in args.get("nodes", "M1,M2,OL1").split(",")]
     responses = []
     client = await _get_client()
 
     async def _query_node(name: str) -> str:
+        upper = name.upper()
+
+        # Gemini via subprocess
+        if upper == "GEMINI":
+            try:
+                cmd = ["node", config.gemini_node.proxy_path, prompt]
+                proc = await asyncio.create_subprocess_exec(
+                    *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+                )
+                stdout, _ = await asyncio.wait_for(
+                    proc.communicate(), timeout=config.gemini_node.timeout_ms / 1000,
+                )
+                if proc.returncode != 0:
+                    return f"[GEMINI] ERREUR (exit {proc.returncode})"
+                output = stdout.decode(errors="replace").strip()
+                return f"[GEMINI/{config.gemini_node.default_model}] {output}"
+            except asyncio.TimeoutError:
+                return f"[GEMINI] TIMEOUT"
+            except Exception as e:
+                return f"[GEMINI] ERREUR: {e}"
+
         ol_node = config.get_ollama_node(name)
         if ol_node:
             try:
@@ -1073,16 +1240,18 @@ def _error(text: str) -> dict[str, Any]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# ASSEMBLE MCP SERVER — ALL TOOLS (85 tools)
+# ASSEMBLE MCP SERVER — ALL TOOLS (88 tools)
 # ═══════════════════════════════════════════════════════════════════════════
 
 jarvis_server = create_sdk_mcp_server(
     name="jarvis",
-    version="3.2.0",
+    version="3.3.0",
     tools=[
         # LM Studio (4 + 2 MCP)
         lm_query, lm_mcp_query, lm_list_mcp_servers,
         lm_models, lm_cluster_status, consensus,
+        # Gemini + Bridge Multi-Noeuds (3)
+        gemini_query, bridge_query, bridge_mesh,
         # LM Studio Model Management (7)
         lm_load_model, lm_unload_model, lm_switch_coder, lm_switch_dev,
         lm_gpu_stats, lm_benchmark, lm_perf_metrics,
