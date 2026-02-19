@@ -5,6 +5,7 @@ __pycache__/
 *.pyo
 .claude/settings.local.json
 *.db
+!etoile.db
 logs/
 _test_*.py
 _benchmark_*.py
