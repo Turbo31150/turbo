@@ -26,13 +26,26 @@ from src.config import config, SCRIPTS, PATHS
 def extract_lms_output(data: dict) -> str:
     """Extract content from LM Studio native API response.
 
-    Handles the edge case where output is an empty list
-    (e.g. max_output_tokens=1 produces output=[] with stats showing 1 token).
+    Handles MCP responses with mixed output types:
+    - message: text content
+    - tool_call: MCP tool invocation + result
+    - reasoning: model thinking (ignored)
     """
     output = data.get("output", [])
-    if output:
-        return output[0].get("content", "")
-    return ""
+    if not output:
+        return ""
+    parts = []
+    for item in output:
+        item_type = item.get("type", "message")
+        if item_type == "message":
+            c = item.get("content", "")
+            if c:
+                parts.append(c)
+        elif item_type == "tool_call":
+            tool_name = item.get("tool", "?")
+            tool_output = item.get("output", "")
+            parts.append(f"[MCP:{tool_name}] {tool_output}")
+    return "\n".join(parts) if parts else ""
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -163,6 +176,67 @@ async def lm_query(args: dict[str, Any]) -> dict[str, Any]:
         return _error(f"Timeout {node.name} ({timeout}s) — essaie mode=fast pour limiter les tokens")
     except Exception as e:
         return _error(f"Erreur LM Studio: {e}")
+
+
+@tool("lm_mcp_query", "Interroger M1/M2 avec serveurs MCP (HuggingFace, Playwright, etc). Args: prompt, node, model, servers, allowed_tools, context_length.",
+      {"prompt": str, "node": str, "model": str, "servers": str, "allowed_tools": str, "context_length": int})
+async def lm_mcp_query(args: dict[str, Any]) -> dict[str, Any]:
+    prompt = args["prompt"]
+    node = config.get_node(args.get("node", "M1"))
+    if not node:
+        return _error(f"Noeud inconnu: {args.get('node')}")
+    model = args.get("model", node.default_model)
+
+    # Parse servers: "huggingface,context7" -> ["huggingface", "context7"]
+    server_names = [s.strip() for s in args.get("servers", "huggingface").split(",")]
+    allowed_tools_raw = args.get("allowed_tools", "")
+    allowed_tools = [t.strip() for t in allowed_tools_raw.split(",") if t.strip()] or None
+
+    integrations = config.get_mcp_integrations(server_names, allowed_tools)
+    if not integrations:
+        return _error(f"Aucun serveur MCP valide: {server_names}. Disponibles: {list(config.mcp_servers.keys())}")
+
+    ctx_len = args.get("context_length", node.context_length)
+
+    try:
+        t0 = time.monotonic()
+        r = await _retry_request("POST", f"{node.url}/api/v1/chat", json={
+            "model": model,
+            "input": prompt,
+            "integrations": integrations,
+            "context_length": ctx_len,
+            "temperature": config.temperature,
+            "max_output_tokens": config.max_tokens,
+            "stream": False,
+            "store": False,
+        }, timeout=config.inference_timeout)
+        latency = (time.monotonic() - t0) * 1000
+        _track_latency(node.name, latency)
+        data = r.json()
+        content = extract_lms_output(data)
+        usage = data.get("stats", {})
+        tool_calls = [o for o in data.get("output", []) if o.get("type") == "tool_call"]
+        tc_info = f" | {len(tool_calls)} tool_call(s)" if tool_calls else ""
+        return _text(
+            f"[{node.name}/{model} +MCP:{','.join(server_names)}] {content}\n"
+            f"--- {int(latency)}ms | {usage.get('total_output_tokens', '?')} tokens{tc_info}"
+        )
+    except httpx.ConnectError:
+        return _error(f"Noeud {node.name} hors ligne ({node.url})")
+    except httpx.ReadTimeout:
+        return _error(f"Timeout {node.name} (MCP peut etre lent) — essaie context_length plus petit")
+    except Exception as e:
+        return _error(f"Erreur LM Studio MCP: {e}")
+
+
+@tool("lm_list_mcp_servers", "Lister les serveurs MCP disponibles pour LM Studio.", {})
+async def lm_list_mcp_servers(args: dict[str, Any]) -> dict[str, Any]:
+    lines = []
+    for name, srv in config.mcp_servers.items():
+        stype = srv.get("type", "?")
+        url = srv.get("server_url", srv.get("id", "?"))
+        lines.append(f"  {name}: [{stype}] {url}")
+    return _text("Serveurs MCP:\n" + "\n".join(lines))
 
 
 @tool("lm_models", "Lister les modeles charges sur un noeud LM Studio.", {"node": str})
@@ -999,15 +1073,16 @@ def _error(text: str) -> dict[str, Any]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# ASSEMBLE MCP SERVER — ALL TOOLS (83 tools)
+# ASSEMBLE MCP SERVER — ALL TOOLS (85 tools)
 # ═══════════════════════════════════════════════════════════════════════════
 
 jarvis_server = create_sdk_mcp_server(
     name="jarvis",
     version="3.2.0",
     tools=[
-        # LM Studio (4)
-        lm_query, lm_models, lm_cluster_status, consensus,
+        # LM Studio (4 + 2 MCP)
+        lm_query, lm_mcp_query, lm_list_mcp_servers,
+        lm_models, lm_cluster_status, consensus,
         # LM Studio Model Management (7)
         lm_load_model, lm_unload_model, lm_switch_coder, lm_switch_dev,
         lm_gpu_stats, lm_benchmark, lm_perf_metrics,
