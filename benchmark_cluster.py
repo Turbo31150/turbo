@@ -119,10 +119,10 @@ async def phase_health() -> PhaseResult:
     # Gemini
     try:
         proc = await asyncio.create_subprocess_exec(
-            "node", config.gemini_node.proxy_path, "ping",
+            "node", config.gemini_node.proxy_path, "--ping",
             stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
         )
-        stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=10)
+        stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=60)
         output = stdout.decode(errors="replace").strip()
         if proc.returncode == 0 or output:
             nodes_status["GEMINI"] = {"status": "ONLINE", "models": config.gemini_node.models}
@@ -396,10 +396,10 @@ async def phase_bridge() -> PhaseResult:
         try:
             if first == "GEMINI":
                 proc = await asyncio.create_subprocess_exec(
-                    "node", config.gemini_node.proxy_path, "ping",
+                    "node", config.gemini_node.proxy_path, "--ping",
                     stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
                 )
-                stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=5)
+                stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=60)
                 reachable = proc.returncode == 0 or bool(stdout.decode().strip())
             elif config.get_ollama_node(first):
                 ol = config.get_ollama_node(first)
