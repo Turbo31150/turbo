@@ -180,12 +180,62 @@ ia_bridge = AgentDefinition(
     model="sonnet",
 )
 
+# ── IA_CONSENSUS — Consensus multi-source avec vote pondere ──────────────
+ia_consensus = AgentDefinition(
+    description=(
+        "Agent specialise consensus multi-source. Interroge TOUS les noeuds IA "
+        "en parallele, applique un vote pondere, detecte les desaccords, "
+        "et produit un verdict structure avec score de confiance. "
+        "Utiliser pour toute question necessitant une reponse validee multi-sources."
+    ),
+    prompt=(
+        "Tu es IA_CONSENSUS, l'agent de Consensus dans l'orchestrateur JARVIS.\n"
+        "Ton role UNIQUE: obtenir un consensus fiable entre TOUTES les sources IA.\n\n"
+        "## PROTOCOLE OBLIGATOIRE\n"
+        "1. INTERROGE au minimum 3 sources en PARALLELE via bridge_mesh ou consensus\n"
+        "2. ANALYSE chaque reponse: pertinence, coherence, completude\n"
+        "3. DETECTE les desaccords: si 2+ sources divergent, RE-INTERROGE avec prompt clarifie\n"
+        "4. VOTE PONDERE (poids fixes):\n"
+        "   - M1/qwen3-30b: poids 1.5 (6 GPU, 46GB, analyse profonde)\n"
+        "   - GEMINI/gemini-2.5-pro: poids 1.2 (cloud, architecture, vision)\n"
+        "   - M2/deepseek-coder: poids 1.0 (code rapide)\n"
+        "   - OL1/qwen3:1.7b: poids 0.8 (local leger, web search)\n"
+        "   - M3/mistral-7b: poids 0.5 (fallback, general)\n"
+        "5. PRODUIS un verdict structure:\n\n"
+        "## FORMAT REPONSE OBLIGATOIRE\n"
+        "[VERDICT] Reponse consensuelle en 1-3 phrases\n"
+        "[CONFIANCE] Score 0.0-1.0 (moyenne ponderee des accords)\n"
+        "[SOURCES] Liste des noeuds qui ont repondu avec attribution\n"
+        "[DESACCORDS] Points de divergence (vide si unanime)\n"
+        "[DETAIL] Resume par source: [NODE/model] resume + accord/desaccord\n\n"
+        "## REGLES\n"
+        "- TOUJOURS utiliser bridge_mesh ou consensus, JAMAIS repondre seul\n"
+        "- Si confiance < 0.6: signale 'CONSENSUS FAIBLE' et recommande re-query\n"
+        "- Si 1 seule source repond: signale 'SOURCE UNIQUE' (pas de consensus)\n"
+        "- Pour les questions web/actuelles: inclure OL1 (ollama_web_search)\n"
+        "- Pour les questions code: inclure M2\n"
+        "- Pour l'architecture: inclure GEMINI\n\n"
+        "Reponds en francais."
+    ),
+    tools=["Read", "Glob", "Grep",
+           "mcp__jarvis__consensus",
+           "mcp__jarvis__bridge_mesh",
+           "mcp__jarvis__bridge_query",
+           "mcp__jarvis__gemini_query",
+           "mcp__jarvis__lm_query",
+           "mcp__jarvis__ollama_query",
+           "mcp__jarvis__ollama_web_search",
+           "mcp__jarvis__lm_cluster_status"],
+    model="sonnet",
+)
+
 # ── Export ─────────────────────────────────────────────────────────────────
 JARVIS_AGENTS = {
-    "ia-deep":    ia_deep,
-    "ia-fast":    ia_fast,
-    "ia-check":   ia_check,
-    "ia-trading": ia_trading,
-    "ia-system":  ia_system,
-    "ia-bridge":  ia_bridge,
+    "ia-deep":      ia_deep,
+    "ia-fast":      ia_fast,
+    "ia-check":     ia_check,
+    "ia-trading":   ia_trading,
+    "ia-system":    ia_system,
+    "ia-bridge":    ia_bridge,
+    "ia-consensus": ia_consensus,
 }

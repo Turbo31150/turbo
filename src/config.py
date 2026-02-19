@@ -85,6 +85,13 @@ class LMStudioNode:
     use_cases: list[str] = field(default_factory=list)
     # MCP support (LM Studio 0.4.0+)
     context_length: int = 32768
+    api_key: str = ""
+
+    @property
+    def auth_headers(self) -> dict[str, str]:
+        if self.api_key:
+            return {"Authorization": f"Bearer {self.api_key}"}
+        return {}
 
 
 @dataclass
@@ -129,12 +136,14 @@ class JarvisConfig:
             default_model="qwen/qwen3-30b-a3b-2507", weight=1.5,
             use_cases=["Analyse technique", "Raisonnement", "Patterns complexes",
                        "Freeform", "Voice commands", "Auto-apprentissage"],
+            api_key=os.getenv("LM_STUDIO_1_KEY", "sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"),
         ),
         LMStudioNode(
             "M2", os.getenv("LM_STUDIO_2_URL", "http://192.168.1.26:1234"),
             "fast_inference", gpus=3, vram_gb=24,
             default_model="deepseek-coder-v2-lite-instruct", weight=1.0,
             use_cases=["Code generation", "Quick responses", "Trading signals"],
+            api_key=os.getenv("LM_STUDIO_2_KEY", "sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4"),
         ),
         LMStudioNode(
             "M3", os.getenv("LM_STUDIO_3_URL", "http://192.168.1.113:1234"),
@@ -193,7 +202,6 @@ class JarvisConfig:
         "code_generation": ["M2", "M1"],
         "validation":      ["M1", "M2"],
         "critical":        ["M1", "OL1"],
-        "consensus":       ["M1", "OL1"],
         "web_research":    ["OL1"],
         "reasoning":       ["M1", "OL1"],
         "voice_correction": ["OL1"],
@@ -231,6 +239,9 @@ class JarvisConfig:
         "architecture": [
             {"agent": "ia-bridge", "ia": "GEMINI", "role": "analyzer"},
             {"agent": "ia-deep", "ia": "M1", "role": "reviewer"},
+        ],
+        "consensus": [
+            {"agent": "ia-consensus", "ia": "M1", "role": "analyzer"},
         ],
     })
 

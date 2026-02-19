@@ -1,4 +1,4 @@
-"""JARVIS MCP Server — Standalone stdio server (69 tools).
+"""JARVIS MCP Server — Standalone stdio server (87 tools).
 
 Run directly: python -m src.mcp_server
 Used by the Claude Agent SDK as an external subprocess MCP server.
@@ -72,9 +72,10 @@ async def handle_lm_query(args: dict) -> list[TextContent]:
                 "max_output_tokens": config.max_tokens,
                 "stream": False,
                 "store": False,
-            })
+            }, headers=node.auth_headers)
             r.raise_for_status()
-            return _text(f"[{node.name}/{model}] {r.json()['output'][0]['content']}")
+            from src.tools import extract_lms_output
+            return _text(f"[{node.name}/{model}] {extract_lms_output(r.json())}")
     except httpx.ConnectError:
         return _error(f"Noeud {node.name} hors ligne")
     except Exception as e:
@@ -82,12 +83,12 @@ async def handle_lm_query(args: dict) -> list[TextContent]:
 
 
 async def handle_lm_models(args: dict) -> list[TextContent]:
-    url = config.get_node_url(args.get("node", "M1"))
-    if not url:
+    node = config.get_node(args.get("node", "M1"))
+    if not node:
         return _error("Noeud inconnu")
     try:
         async with httpx.AsyncClient(timeout=10) as c:
-            r = await c.get(f"{url}/api/v1/models")
+            r = await c.get(f"{node.url}/api/v1/models", headers=node.auth_headers)
             r.raise_for_status()
             models = [m["key"] for m in r.json().get("models", []) if m.get("loaded_instances")]
             return _text(f"Modeles: {', '.join(models) if models else 'aucun'}")
@@ -101,7 +102,7 @@ async def handle_lm_cluster_status(args: dict) -> list[TextContent]:
     async with httpx.AsyncClient(timeout=5) as c:
         for n in config.lm_nodes:
             try:
-                r = await c.get(f"{n.url}/api/v1/models")
+                r = await c.get(f"{n.url}/api/v1/models", headers=n.auth_headers)
                 r.raise_for_status()
                 cnt = len([m for m in r.json().get("models", []) if m.get("loaded_instances")])
                 results.append(f"  {n.name} ({n.role}): ONLINE — {cnt} modeles, {n.gpus} GPU, {n.vram_gb}GB VRAM")
@@ -136,66 +137,73 @@ async def handle_lm_cluster_status(args: dict) -> list[TextContent]:
 
 
 async def handle_consensus(args: dict) -> list[TextContent]:
+    from src.tools import extract_lms_output, _strip_thinking_tags
     prompt = args["prompt"]
     nodes = args.get("nodes", "M1,M2,OL1").split(",")
+    per_timeout = int(args.get("timeout_per_node", 60))
     responses = []
-    async with httpx.AsyncClient(timeout=60) as c:
-        for name in nodes:
-            name = name.strip()
 
-            # Gemini via subprocess
-            if name.upper() == "GEMINI":
-                try:
-                    proc = await asyncio.create_subprocess_exec(
-                        "node", config.gemini_node.proxy_path, prompt,
-                        stdout=asyncio.subprocess.PIPE,
-                        stderr=asyncio.subprocess.PIPE,
-                    )
-                    stdout, _ = await asyncio.wait_for(
-                        proc.communicate(),
-                        timeout=config.gemini_node.timeout_ms / 1000,
-                    )
-                    if proc.returncode == 0:
-                        responses.append(f"[GEMINI/{config.gemini_node.default_model}] {stdout.decode(errors='replace').strip()}")
-                    else:
-                        responses.append(f"[GEMINI] ERREUR (exit {proc.returncode})")
-                except Exception as e:
-                    responses.append(f"[GEMINI] ERREUR: {e}")
-                continue
+    async def _query_node(name: str) -> str:
+        name = name.strip()
+        upper = name.upper()
 
-            # Check Ollama nodes first
-            ol_node = config.get_ollama_node(name)
-            if ol_node:
-                try:
-                    r = await c.post(f"{ol_node.url}/api/chat", json={
+        if upper == "GEMINI":
+            try:
+                proc = await asyncio.create_subprocess_exec(
+                    "node", config.gemini_node.proxy_path, prompt,
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE,
+                )
+                stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=per_timeout)
+                output = stdout.decode(errors="replace").strip()
+                if proc.returncode != 0 and not output:
+                    return f"[GEMINI] ERREUR (exit {proc.returncode})"
+                return f"[GEMINI/{config.gemini_node.default_model}] {_strip_thinking_tags(output)}"
+            except asyncio.TimeoutError:
+                return f"[GEMINI] TIMEOUT ({per_timeout}s)"
+            except Exception as e:
+                return f"[GEMINI] ERREUR: {e}"
+
+        ol_node = config.get_ollama_node(name)
+        if ol_node:
+            try:
+                async with httpx.AsyncClient(timeout=per_timeout) as c:
+                    r = await asyncio.wait_for(c.post(f"{ol_node.url}/api/chat", json={
                         "model": ol_node.default_model,
                         "messages": [{"role": "user", "content": prompt}],
                         "stream": False, "think": False,
                         "options": {"temperature": 0.3, "num_predict": 2048},
-                    })
+                    }), timeout=per_timeout)
                     r.raise_for_status()
-                    text = r.json()["message"]["content"]
-                    responses.append(f"[{ol_node.name}/Ollama] {text}")
-                except Exception as e:
-                    responses.append(f"[{ol_node.name}/Ollama] ERREUR: {e}")
-                continue
-            # LM Studio nodes
-            node = config.get_node(name)
-            if not node:
-                continue
-            try:
-                r = await c.post(f"{node.url}/api/v1/chat", json={
+                    text = _strip_thinking_tags(r.json()["message"]["content"])
+                    return f"[{ol_node.name}/Ollama] {text}"
+            except asyncio.TimeoutError:
+                return f"[{ol_node.name}/Ollama] TIMEOUT ({per_timeout}s)"
+            except Exception as e:
+                return f"[{ol_node.name}/Ollama] ERREUR: {e}"
+
+        node = config.get_node(name)
+        if not node:
+            return f"[{name}] ERREUR: inconnu"
+        try:
+            async with httpx.AsyncClient(timeout=per_timeout) as c:
+                r = await asyncio.wait_for(c.post(f"{node.url}/api/v1/chat", json={
                     "model": node.default_model,
                     "input": prompt,
                     "temperature": 0.3, "max_output_tokens": 2048,
                     "stream": False, "store": False,
-                })
+                }, headers=node.auth_headers), timeout=per_timeout)
                 r.raise_for_status()
-                from src.tools import extract_lms_output
                 text = extract_lms_output(r.json())
-                responses.append(f"[{node.name}] {text}")
-            except Exception as e:
-                responses.append(f"[{node.name}] ERREUR: {e}")
+                return f"[{node.name}] {text}"
+        except asyncio.TimeoutError:
+            return f"[{name}] TIMEOUT ({per_timeout}s)"
+        except Exception as e:
+            return f"[{node.name}] ERREUR: {e}"
+
+    results = await asyncio.gather(*[_query_node(n) for n in nodes], return_exceptions=True)
+    for r in results:
+        responses.append(str(r) if isinstance(r, Exception) else r)
     return _text(f"Consensus ({len(responses)} sources):\n" + "\n---\n".join(responses))
 
 
@@ -220,11 +228,12 @@ async def handle_gemini_query(args: dict) -> list[TextContent]:
             proc.communicate(),
             timeout=config.gemini_node.timeout_ms / 1000,
         )
-        if proc.returncode != 0:
+        output = stdout.decode(errors="replace").strip()
+        if proc.returncode != 0 and not output:
             err = stderr.decode(errors="replace").strip()
             return _error(f"Gemini erreur (exit {proc.returncode}): {err[:500]}")
-        output = stdout.decode(errors="replace").strip()
-        return _text(f"[GEMINI/{config.gemini_node.default_model}] {output}")
+        from src.tools import _strip_thinking_tags
+        return _text(f"[GEMINI/{config.gemini_node.default_model}] {_strip_thinking_tags(output)}")
     except asyncio.TimeoutError:
         return _error(f"Gemini timeout ({config.gemini_node.timeout_ms / 1000}s)")
     except Exception as e:
@@ -271,7 +280,7 @@ async def handle_bridge_query(args: dict) -> list[TextContent]:
                     "model": node.default_model, "input": prompt,
                     "temperature": 0.3, "max_output_tokens": 2048,
                     "stream": False, "store": False,
-                })
+                }, headers=node.auth_headers)
                 r.raise_for_status()
                 from src.tools import extract_lms_output
                 return _text(f"[{name}/{node.default_model}] {extract_lms_output(r.json())}")
@@ -296,9 +305,11 @@ async def handle_bridge_mesh(args: dict) -> list[TextContent]:
                     stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
                 )
                 stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=per_timeout)
-                if proc.returncode != 0:
+                output = stdout.decode(errors="replace").strip()
+                if proc.returncode != 0 and not output:
                     return f"[GEMINI] ERREUR (exit {proc.returncode})"
-                return f"[GEMINI/{config.gemini_node.default_model}] {stdout.decode(errors='replace').strip()}"
+                from src.tools import _strip_thinking_tags
+                return f"[GEMINI/{config.gemini_node.default_model}] {_strip_thinking_tags(output)}"
 
             async with httpx.AsyncClient(timeout=per_timeout) as c:
                 ol_node = config.get_ollama_node(name)
@@ -319,7 +330,7 @@ async def handle_bridge_mesh(args: dict) -> list[TextContent]:
                     "model": node.default_model, "input": prompt,
                     "temperature": 0.3, "max_output_tokens": 2048,
                     "stream": False, "store": False,
-                })
+                }, headers=node.auth_headers)
                 r.raise_for_status()
                 from src.tools import extract_lms_output
                 return f"[{name}/{node.default_model}] {extract_lms_output(r.json())}"
@@ -744,6 +755,189 @@ async def handle_action_history(args: dict) -> list[TextContent]:
     return _text(f"Historique ({len(history)} actions):\n" + "\n".join(lines))
 
 
+# ── LM Studio MCP + Model Management + GPU + Benchmark ──────────────────
+
+async def handle_lm_mcp_query(args: dict) -> list[TextContent]:
+    from src.tools import extract_lms_output
+    node = config.get_node(args.get("node", "M1"))
+    if not node:
+        return _error(f"Noeud inconnu: {args.get('node')}")
+    model = args.get("model", node.default_model)
+    server_names = [s.strip() for s in args.get("servers", "huggingface").split(",")]
+    allowed_tools_raw = args.get("allowed_tools", "")
+    allowed_tools = [t.strip() for t in allowed_tools_raw.split(",") if t.strip()] or None
+    integrations = config.get_mcp_integrations(server_names, allowed_tools)
+    if not integrations:
+        return _error(f"Aucun serveur MCP valide: {server_names}")
+    try:
+        async with httpx.AsyncClient(timeout=120) as c:
+            r = await c.post(f"{node.url}/api/v1/chat", json={
+                "model": model, "input": args["prompt"],
+                "integrations": integrations,
+                "context_length": args.get("context_length", node.context_length),
+                "temperature": config.temperature,
+                "max_output_tokens": config.max_tokens,
+                "stream": False, "store": False,
+            }, headers=node.auth_headers)
+            r.raise_for_status()
+            data = r.json()
+            content = extract_lms_output(data)
+            tool_calls = [o for o in data.get("output", []) if isinstance(o, dict) and o.get("type") == "tool_call"]
+            tc_info = f" | {len(tool_calls)} tool_call(s)" if tool_calls else ""
+            return _text(f"[{node.name}/{model} +MCP:{','.join(server_names)}] {content}{tc_info}")
+    except Exception as e:
+        return _error(str(e))
+
+
+async def handle_lm_list_mcp_servers(args: dict) -> list[TextContent]:
+    lines = []
+    for name, srv in config.mcp_servers.items():
+        stype = srv.get("type", "?")
+        url = srv.get("server_url", srv.get("id", "?"))
+        lines.append(f"  {name}: [{stype}] {url}")
+    return _text("Serveurs MCP:\n" + "\n".join(lines))
+
+
+async def handle_lm_load_model(args: dict) -> list[TextContent]:
+    from src.cluster_startup import load_model_on_demand
+    model = args["model"]
+    context = int(args.get("context", 16384))
+    parallel = int(args.get("parallel", 2))
+    result = await load_model_on_demand(model, context=context, parallel=parallel)
+    if result["ok"]:
+        bench = result.get("bench", {})
+        return _text(f"Modele {model} charge — {bench.get('latency_ms', '?')}ms warmup")
+    return _error(f"Echec chargement {model}: {result.get('status', '?')}")
+
+
+async def handle_lm_unload_model(args: dict) -> list[TextContent]:
+    from src.cluster_startup import _lms_unload
+    model = args["model"]
+    ok = await _run(_lms_unload, model)
+    return _text(f"Modele {model} {'decharge' if ok else 'echec decharge'}")
+
+
+async def handle_lm_switch_coder(args: dict) -> list[TextContent]:
+    from src.cluster_startup import switch_to_coder_mode
+    result = await switch_to_coder_mode()
+    return _text(f"Mode coder: {result['status']}") if result["ok"] else _error(f"Echec: {result['status']}")
+
+
+async def handle_lm_switch_dev(args: dict) -> list[TextContent]:
+    from src.cluster_startup import switch_to_dev_mode
+    result = await switch_to_dev_mode()
+    return _text(f"Mode dev: {result['status']}") if result["ok"] else _error(f"Echec: {result['status']}")
+
+
+async def handle_lm_gpu_stats(args: dict) -> list[TextContent]:
+    from src.cluster_startup import _get_gpu_stats
+    gpus = await _run(_get_gpu_stats)
+    if not gpus:
+        return _error("nvidia-smi non disponible")
+    lines = []
+    total_used = sum(g["vram_used_mb"] for g in gpus)
+    total_avail = sum(g["vram_total_mb"] for g in gpus)
+    lines.append(f"VRAM Total: {total_used}MB / {total_avail}MB ({round(total_used/max(total_avail,1)*100)}%)")
+    for g in gpus:
+        bar = "#" * int(g["vram_pct"] / 5) + "." * (20 - int(g["vram_pct"] / 5))
+        lines.append(f"GPU{g['index']} {g['name']} [{bar}] {g['vram_used_mb']}MB/{g['vram_total_mb']}MB ({g['vram_pct']}%)")
+    return _text("\n".join(lines))
+
+
+async def handle_lm_benchmark(args: dict) -> list[TextContent]:
+    from src.cluster_startup import _warmup_model, _warmup_ollama
+    nodes = [n.strip() for n in args.get("nodes", "M1,M2,OL1").split(",")]
+    results = []
+    for name in nodes:
+        ol = config.get_ollama_node(name)
+        if ol:
+            bench = await _warmup_ollama(ol.url, ol.default_model)
+            results.append(f"  {name} (Ollama/{ol.default_model}): {'OK' if bench['ok'] else 'ECHEC'} — {bench['latency_ms']}ms")
+            continue
+        node = config.get_node(name)
+        if node:
+            bench = await _warmup_model(node.url, node.default_model)
+            if bench["ok"]:
+                results.append(f"  {name} ({node.default_model}): OK — {bench['latency_ms']}ms, {bench['tokens_per_sec']} tok/s")
+            else:
+                results.append(f"  {name}: ECHEC — {bench.get('error', '?')}")
+    return _text("Benchmark:\n" + "\n".join(results))
+
+
+# ── Ollama Cloud tools ──────────────────────────────────────────────────
+
+async def _ollama_cloud_query_mcp(prompt: str, model: str, timeout: float = 60.0, system: str | None = None) -> str:
+    """Query Ollama cloud model for mcp_server handlers."""
+    node = config.get_ollama_node("OL1")
+    if not node:
+        raise ConnectionError("Ollama OL1 non configure")
+    messages = []
+    if system:
+        messages.append({"role": "system", "content": system})
+    messages.append({"role": "user", "content": prompt})
+    async with httpx.AsyncClient(timeout=timeout) as c:
+        r = await c.post(f"{node.url}/api/chat", json={
+            "model": model, "messages": messages,
+            "stream": False, "think": False,
+            "options": {"temperature": 0.3, "num_predict": config.max_tokens},
+        })
+        r.raise_for_status()
+        return r.json()["message"].get("content", "")
+
+
+async def handle_ollama_web_search(args: dict) -> list[TextContent]:
+    model = args.get("model", "minimax-m2.5:cloud")
+    system = "Tu es un assistant de recherche. Utilise ta capacite de recherche web. Reponds en francais avec des donnees precises."
+    try:
+        result = await _ollama_cloud_query_mcp(args["query"], model, timeout=60, system=system)
+        return _text(f"[WEB/{model}] {result}")
+    except Exception as e:
+        return _error(f"Erreur web search: {e}")
+
+
+async def handle_ollama_subagents(args: dict) -> list[TextContent]:
+    task = args["task"]
+    aspects_raw = args.get("aspects", "")
+    aspects = [a.strip() for a in aspects_raw.split(",")][:3] if aspects_raw else ["analyse technique", "donnees actuelles", "recommandation"]
+    while len(aspects) < 3:
+        aspects.append(f"perspective {len(aspects)+1}")
+    cloud_models = ["minimax-m2.5:cloud", "glm-5:cloud", "kimi-k2.5:cloud"]
+    system = "Tu es un sous-agent specialise. Analyse le sujet sous l'angle specifie. Sois precis, concis. Reponds en francais."
+
+    async def _run_agent(model: str, aspect: str) -> str:
+        prompt = f"TACHE: {task}\nANGLE: {aspect}\n\nAnalyse ce sujet sous cet angle."
+        try:
+            result = await _ollama_cloud_query_mcp(prompt, model, timeout=90, system=system)
+            return f"[{model.split(':')[0].upper()} — {aspect}]\n{result}"
+        except Exception as e:
+            return f"[{model}] Erreur: {e}"
+
+    results = await asyncio.gather(*[_run_agent(cloud_models[i % 3], aspects[i]) for i in range(len(aspects))])
+    output_parts = [str(r) if isinstance(r, Exception) else r for r in results]
+    return _text(f"=== SOUS-AGENTS OLLAMA ({len(aspects)} paralleles) ===\n\n" + "\n\n---\n\n".join(output_parts))
+
+
+async def handle_ollama_trading_analysis(args: dict) -> list[TextContent]:
+    pair = args.get("pair", "BTC/USDT")
+    timeframe = args.get("timeframe", "1h")
+    agents_config = [
+        ("minimax-m2.5:cloud", "SCANNER", f"Recherche les dernieres donnees de marche pour {pair}. Prix actuel, volume 24h, variation."),
+        ("glm-5:cloud", "ANALYSTE", f"Analyse technique de {pair} en {timeframe}. RSI, MACD, supports/resistances."),
+        ("kimi-k2.5:cloud", "STRATEGE", f"Recommandation trading pour {pair} en {timeframe}. Entry, TP, SL, score 0-100."),
+    ]
+    system = "Tu es un expert trading crypto. Reponds en francais, sois precis et concis."
+
+    async def _run(model: str, role: str, prompt: str) -> str:
+        try:
+            result = await _ollama_cloud_query_mcp(prompt, model, timeout=90, system=system)
+            return f"[{role}] {result}"
+        except Exception as e:
+            return f"[{role}] Erreur: {e}"
+
+    results = await asyncio.gather(*[_run(m, r, p) for m, r, p in agents_config])
+    return _text(f"=== TRADING ANALYSIS {pair} ({timeframe}) — 3 AGENTS ===\n\n" + "\n\n---\n\n".join(results))
+
+
 # ── Brain (Autonomous Learning) ──────────────────────────────────────────
 
 async def handle_brain_status(args: dict) -> list[TextContent]:
@@ -807,16 +1001,31 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     ("lm_query", "Interroger un noeud LM Studio.", {"prompt": "string", "node": "string", "model": "string"}, handle_lm_query),
     ("lm_models", "Lister les modeles charges sur un noeud.", {"node": "string"}, handle_lm_models),
     ("lm_cluster_status", "Sante de tous les noeuds du cluster (LM Studio + Ollama).", {}, handle_lm_cluster_status),
-    ("consensus", "Consensus multi-IA sur une question.", {"prompt": "string", "nodes": "string"}, handle_consensus),
+    ("consensus", "Consensus multi-IA sur une question.", {"prompt": "string", "nodes": "string", "timeout_per_node": "number"}, handle_consensus),
+    # LM Studio MCP (2)
+    ("lm_mcp_query", "Interroger LM Studio avec serveurs MCP.", {"prompt": "string", "node": "string", "model": "string", "servers": "string", "allowed_tools": "string", "context_length": "number"}, handle_lm_mcp_query),
+    ("lm_list_mcp_servers", "Lister les serveurs MCP disponibles.", {}, handle_lm_list_mcp_servers),
     # Gemini + Bridge Multi-Noeuds (3)
     ("gemini_query", "Interroger Gemini via proxy.", {"prompt": "string", "json_mode": "boolean"}, handle_gemini_query),
     ("bridge_query", "Routage intelligent vers le meilleur noeud.", {"prompt": "string", "task_type": "string", "preferred_node": "string"}, handle_bridge_query),
     ("bridge_mesh", "Requete parallele sur N noeuds.", {"prompt": "string", "nodes": "string", "timeout_per_node": "number"}, handle_bridge_mesh),
-    # Ollama Cloud (4)
+    # LM Studio Model Management (5)
+    ("lm_load_model", "Charger un modele sur M1.", {"model": "string", "context": "number", "parallel": "number"}, handle_lm_load_model),
+    ("lm_unload_model", "Decharger un modele de M1.", {"model": "string"}, handle_lm_unload_model),
+    ("lm_switch_coder", "Basculer M1 en mode code.", {}, handle_lm_switch_coder),
+    ("lm_switch_dev", "Basculer M1 en mode dev.", {}, handle_lm_switch_dev),
+    ("lm_gpu_stats", "Statistiques GPU detaillees.", {}, handle_lm_gpu_stats),
+    # Benchmark (1)
+    ("lm_benchmark", "Benchmark latence inference.", {"nodes": "string"}, handle_lm_benchmark),
+    # Ollama Cloud (4 + 3 cloud)
     ("ollama_query", "Interroger Ollama (local ou cloud).", {"prompt": "string", "model": "string"}, handle_ollama_query),
     ("ollama_models", "Lister les modeles Ollama disponibles.", {}, handle_ollama_models),
     ("ollama_pull", "Telecharger un modele Ollama.", {"model_name": "string"}, handle_ollama_pull),
     ("ollama_status", "Sante du backend Ollama.", {}, handle_ollama_status),
+    # Ollama Cloud — Web Search + Sub-agents (3)
+    ("ollama_web_search", "Recherche web via Ollama cloud.", {"query": "string", "model": "string"}, handle_ollama_web_search),
+    ("ollama_subagents", "3 sous-agents Ollama cloud en parallele.", {"task": "string", "aspects": "string"}, handle_ollama_subagents),
+    ("ollama_trading_analysis", "Analyse trading via 3 agents cloud.", {"pair": "string", "timeframe": "string"}, handle_ollama_trading_analysis),
     # Scripts (3)
     ("run_script", "Executer un script indexe.", {"name": "string", "args": "string"}, handle_run_script),
     ("list_scripts", "Lister tous les scripts indexes.", {}, handle_list_scripts),
