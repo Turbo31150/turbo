@@ -110,8 +110,8 @@ class GeminiNode:
     name: str = "GEMINI"
     proxy_path: str = "F:/BUREAU/turbo/gemini-proxy.js"
     role: str = "architecture"
-    models: list[str] = field(default_factory=lambda: ["gemini-2.5-pro", "gemini-2.5-flash"])
-    default_model: str = "gemini-2.5-pro"
+    models: list[str] = field(default_factory=lambda: ["gemini-3-pro", "gemini-3-flash", "gemini-2.5-pro", "gemini-2.5-flash"])
+    default_model: str = "gemini-3-pro"
     timeout_ms: int = 120_000
     weight: float = 1.2
     use_cases: list[str] = field(default_factory=lambda: [
