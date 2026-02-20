@@ -1,12 +1,12 @@
 {
   "version": "10.2",
-  "timestamp": "2026-02-19T21:08:21",
-  "duration_ms": 81183,
+  "timestamp": "2026-02-20T08:02:08",
+  "duration_ms": 89664,
   "phases": {
     "1_health": {
       "name": "1_health",
       "score": 1.0,
-      "duration_ms": 16340,
+      "duration_ms": 18917,
       "details": {
         "nodes": {
           "M1": {
@@ -54,8 +54,8 @@
         "gpu": {
           "count": 6,
           "total_vram_mb": 47104,
-          "used_vram_mb": 29841,
-          "utilization_pct": 63
+          "used_vram_mb": 24664,
+          "utilization_pct": 52
         }
       },
       "issues": []
@@ -63,54 +63,54 @@
     "2_inference": {
       "name": "2_inference",
       "score": 1.0,
-      "duration_ms": 64840,
+      "duration_ms": 70743,
       "details": {
         "tests": [
           {
             "node": "M1",
             "model": "qwen/qwen3-30b-a3b-2507",
             "status": "OK",
-            "latency_ms": 12496,
-            "output_len": 345,
+            "latency_ms": 12606,
+            "output_len": 357,
             "has_think_tags": false,
             "is_empty": false,
-            "preview": "Un MoE (Mixture of Experts) est une architecture d'intelligence artificielle qui combine plusieurs m"
+            "preview": "Un MoE (Mixture of Experts) est une architecture d'intelligence artificielle qui utilise plusieurs m"
           },
           {
             "node": "M2",
             "model": "deepseek-coder-v2-lite-instruct",
             "status": "OK",
-            "latency_ms": 1327,
-            "output_len": 267,
+            "latency_ms": 3792,
+            "output_len": 269,
             "has_think_tags": false,
             "is_empty": false,
-            "preview": "Un modèle de moindres obstacles (MoO) est une technique d'apprentissage automatique qui combine plus"
+            "preview": "Un modèle de moindres obstacles (MoO) est une technique d'intelligence artificielle qui combine plus"
           },
           {
             "node": "M3",
             "model": "mistral-7b-instruct-v0.3",
             "status": "OK",
-            "latency_ms": 2542,
-            "output_len": 283,
+            "latency_ms": 2241,
+            "output_len": 236,
             "has_think_tags": false,
             "is_empty": false,
-            "preview": "Un MoE (Métrique d'erreur) dans l'IA est une mesure quantitative utilisée pour évaluer la performanc"
+            "preview": "Un MoE (Metric of Evaluation) dans l'IA est une mesure utilisée pour évaluer la performance d'un mod"
           },
           {
             "node": "OL1",
             "model": "qwen3:1.7b",
             "status": "OK",
-            "latency_ms": 560,
-            "output_len": 275,
-            "preview": "Un MoE (Model of Everything) est un modèle d'IA capable de gérer et de gérer toutes les parties d'un"
+            "latency_ms": 6417,
+            "output_len": 274,
+            "preview": "Un MoE (Model of Experience) en IA est un modèle de langage qui simule l'expérience humaine, en repr"
           },
           {
             "node": "GEMINI",
             "model": "gemini-3-pro",
             "status": "OK",
-            "latency_ms": 47889,
-            "output_len": 429,
-            "preview": "Un modèle MoE (Mixture of Experts) est une architecture de réseau de neurones qui, au lieu d'utilise"
+            "latency_ms": 45663,
+            "output_len": 449,
+            "preview": "Un \"Mixture of Experts\" (MoE) est une architecture de réseau de neurones composée de plusieurs sous-"
           }
         ],
         "ok": 5,
@@ -121,7 +121,7 @@
     "5_agents": {
       "name": "5_agents",
       "score": 1.0,
-      "duration_ms": 1,
+      "duration_ms": 2,
       "details": {
         "agents": {
           "ia-deep": {
@@ -195,9 +195,10 @@
             "check": "routing_consensus",
             "pass": true,
             "nodes": [
-              "M1",
               "M2",
               "OL1",
+              "M3",
+              "M1",
               "GEMINI"
             ]
           },

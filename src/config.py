@@ -133,23 +133,25 @@ class JarvisConfig:
         LMStudioNode(
             "M1", os.getenv("LM_STUDIO_1_URL", "http://10.5.0.2:1234"),
             "deep_analysis", gpus=6, vram_gb=46,
-            default_model="qwen/qwen3-30b-a3b-2507", weight=1.5,
-            use_cases=["Analyse technique", "Raisonnement", "Patterns complexes",
-                       "Freeform", "Voice commands", "Auto-apprentissage"],
+            default_model="qwen/qwen3-30b-a3b-2507", weight=0.7,
+            use_cases=["Embedding", "Consensus participant", "Fallback validation",
+                       "On-demand models (coder/devstral)"],
             api_key=os.getenv("LM_STUDIO_1_KEY", "sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"),
         ),
         LMStudioNode(
             "M2", os.getenv("LM_STUDIO_2_URL", "http://192.168.1.26:1234"),
             "fast_inference", gpus=3, vram_gb=24,
-            default_model="deepseek-coder-v2-lite-instruct", weight=1.0,
-            use_cases=["Code generation", "Quick responses", "Trading signals"],
+            default_model="deepseek-coder-v2-lite-instruct", weight=1.4,
+            use_cases=["Code generation", "Analyse profonde", "Raisonnement",
+                       "Quick responses", "Trading signals", "Validation"],
             api_key=os.getenv("LM_STUDIO_2_KEY", "sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4"),
         ),
         LMStudioNode(
             "M3", os.getenv("LM_STUDIO_3_URL", "http://192.168.1.113:1234"),
             "general_inference", gpus=1, vram_gb=8,
-            default_model="mistral-7b-instruct-v0.3", weight=0.5,
-            use_cases=["Quick responses", "Lightweight tasks", "Fallback"],
+            default_model="mistral-7b-instruct-v0.3", weight=1.0,
+            use_cases=["General inference", "Raisonnement", "Code review",
+                       "Quick responses", "Fallback fiable"],
             context_length=8192,
         ),
     ])
@@ -163,8 +165,9 @@ class JarvisConfig:
         OllamaNode(
             "OL1", os.getenv("OLLAMA_URL", "http://127.0.0.1:11434"),
             "cloud_inference",
-            default_model=os.getenv("OLLAMA_DEFAULT_MODEL", "qwen3:1.7b"), weight=1.0,
-            use_cases=["Recherche web", "Raisonnement cloud", "Resume", "Correction vocale"],
+            default_model=os.getenv("OLLAMA_DEFAULT_MODEL", "qwen3:1.7b"), weight=1.3,
+            use_cases=["Recherche web", "Raisonnement cloud", "Resume", "Correction vocale",
+                       "Short answers", "Polyvalent rapide"],
         ),
     ])
 
@@ -194,54 +197,58 @@ class JarvisConfig:
         "general":    "kimi-k2.5:cloud",      # Cloud — polyvalent
     })
 
-    # ── Routing rules (M1 + M2 + OL1) ────────────────────────────────────
+    # ── Routing rules (benchmark-tuned 2026-02-20) ─────────────────────
+    # M2 champion (92%), OL1 fastest+polyvalent (88%), M3 solide (89%)
+    # M1 lent (12s trivial, timeout 7/10 complexes) — reserve embedding/consensus
     routing: dict[str, list[str]] = field(default_factory=lambda: {
-        "short_answer":    ["M1"],
-        "deep_analysis":   ["M1"],
-        "trading_signal":  ["M1", "OL1"],
-        "code_generation": ["M2", "M1"],
-        "validation":      ["M1", "M2"],
-        "critical":        ["M1", "OL1"],
+        "short_answer":    ["OL1", "M3"],
+        "deep_analysis":   ["M2", "GEMINI"],
+        "trading_signal":  ["OL1", "M2"],
+        "code_generation": ["M2", "M3"],
+        "validation":      ["M2", "OL1"],
+        "critical":        ["M2", "OL1", "GEMINI"],
         "web_research":    ["OL1"],
-        "reasoning":       ["M1", "OL1"],
+        "reasoning":       ["M2", "OL1"],
         "voice_correction": ["OL1"],
-        "auto_learn":      ["M1"],
+        "auto_learn":      ["OL1", "M2"],
         "embedding":       ["M1"],
-        "consensus":       ["M1", "M2", "OL1", "GEMINI"],
-        "architecture":    ["GEMINI", "M1"],
-        "bridge":          ["M1", "M2", "M3", "OL1", "GEMINI"],
+        "consensus":       ["M2", "OL1", "M3", "M1", "GEMINI"],
+        "architecture":    ["GEMINI", "M2"],
+        "bridge":          ["M2", "OL1", "M3", "M1", "GEMINI"],
     })
 
-    # ── Commander Mode routing (agent + IA per task type) ──────────────
+    # ── Commander Mode routing (benchmark-tuned 2026-02-20) ─────────────
+    # M2 primary (champion 92%), OL1 rapide (88%), M3 solide (89%)
+    # M1 reserve consensus/embedding (23%, timeout complexe)
     commander_routing: dict[str, list[dict]] = field(default_factory=lambda: {
         "code": [
             {"agent": "ia-fast", "ia": "M2", "role": "coder"},
-            {"agent": "ia-check", "ia": "M1", "role": "reviewer"},
+            {"agent": "ia-check", "ia": "M3", "role": "reviewer"},
         ],
         "analyse": [
-            {"agent": "ia-deep", "ia": "M1", "role": "analyzer"},
+            {"agent": "ia-deep", "ia": "M2", "role": "analyzer"},
         ],
         "trading": [
-            {"agent": "ia-trading", "ia": "M1", "role": "scanner"},
+            {"agent": "ia-trading", "ia": "OL1", "role": "scanner"},
             {"agent": None, "ia": "OL1", "role": "web_data"},
-            {"agent": "ia-check", "ia": "M1", "role": "validator"},
+            {"agent": "ia-check", "ia": "M2", "role": "validator"},
         ],
         "systeme": [
             {"agent": "ia-system", "ia": None, "role": "executor"},
         ],
         "web": [
             {"agent": None, "ia": "OL1", "role": "searcher"},
-            {"agent": "ia-deep", "ia": "M1", "role": "synthesizer"},
+            {"agent": "ia-deep", "ia": "M2", "role": "synthesizer"},
         ],
         "simple": [
-            {"agent": None, "ia": "M1", "role": "responder"},
+            {"agent": None, "ia": "OL1", "role": "responder"},
         ],
         "architecture": [
             {"agent": "ia-bridge", "ia": "GEMINI", "role": "analyzer"},
-            {"agent": "ia-deep", "ia": "M1", "role": "reviewer"},
+            {"agent": "ia-deep", "ia": "M2", "role": "reviewer"},
         ],
         "consensus": [
-            {"agent": "ia-consensus", "ia": "M1", "role": "analyzer"},
+            {"agent": "ia-consensus", "ia": "M2", "role": "analyzer"},
         ],
     })
 
