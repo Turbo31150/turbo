@@ -1,0 +1,731 @@
+{
+  "timestamp": "2026-02-19T21:39:08",
+  "duration_ms": 1469290,
+  "nodes": {
+    "M1": {
+      "model": "qwen/qwen3-30b-a3b-2507",
+      "avg_score": 23.4,
+      "avg_latency_ms": 40463,
+      "failures": 7,
+      "profile": "LIMITE",
+      "scores_by_level": [
+        65,
+        90,
+        79,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "M2": {
+      "model": "deepseek-coder-v2-lite-instruct",
+      "avg_score": 91.7,
+      "avg_latency_ms": 35046,
+      "failures": 0,
+      "profile": "PUISSANT LENT",
+      "scores_by_level": [
+        90,
+        100,
+        71,
+        95,
+        94,
+        87,
+        100,
+        85,
+        100,
+        95
+      ]
+    },
+    "M3": {
+      "model": "mistral-7b-instruct-v0.3",
+      "avg_score": 88.8,
+      "avg_latency_ms": 37472,
+      "failures": 0,
+      "profile": "PUISSANT LENT",
+      "scores_by_level": [
+        100,
+        100,
+        71,
+        95,
+        83,
+        79,
+        93,
+        85,
+        100,
+        82
+      ]
+    },
+    "OL1": {
+      "model": "qwen3:1.7b",
+      "avg_score": 87.7,
+      "avg_latency_ms": 7722,
+      "failures": 0,
+      "profile": "POLYVALENT",
+      "scores_by_level": [
+        65,
+        100,
+        71,
+        95,
+        77,
+        79,
+        100,
+        95,
+        100,
+        95
+      ]
+    },
+    "GEMINI": {
+      "model": "gemini-3-pro",
+      "avg_score": 74.1,
+      "avg_latency_ms": 74861,
+      "failures": 1,
+      "profile": "PUISSANT LENT",
+      "scores_by_level": [
+        90,
+        100,
+        63,
+        95,
+        100,
+        20,
+        100,
+        85,
+        0,
+        88
+      ]
+    }
+  },
+  "results_by_level": {
+    "level_1": {
+      "M1": {
+        "node": "M1",
+        "model": "qwen/qwen3-30b-a3b-2507",
+        "status": "OK",
+        "latency_ms": 2120,
+        "output_len": 42,
+        "scoring": {
+          "score": 65,
+          "keyword_hits": "3/3",
+          "quality": "BON"
+        }
+      },
+      "M2": {
+        "node": "M2",
+        "model": "deepseek-coder-v2-lite-instruct",
+        "status": "OK",
+        "latency_ms": 685,
+        "output_len": 66,
+        "scoring": {
+          "score": 90,
+          "keyword_hits": "3/3",
+          "quality": "EXCELLENT"
+        }
+      },
+      "M3": {
+        "node": "M3",
+        "model": "mistral-7b-instruct-v0.3",
+        "status": "OK",
+        "latency_ms": 3214,
+        "output_len": 290,
+        "scoring": {
+          "score": 100,
+          "keyword_hits": "3/3",
+          "quality": "EXCELLENT"
+        }
+      },
+      "OL1": {
+        "node": "OL1",
+        "model": "qwen3:1.7b",
+        "status": "OK",
+        "latency_ms": 3511,
+        "output_len": 42,
+        "scoring": {
+          "score": 65,
+          "keyword_hits": "3/3",
+          "quality": "BON"
+        }
+      },
+      "GEMINI": {
+        "node": "GEMINI",
+        "model": "gemini-3-pro",
+        "status": "OK",
+        "latency_ms": 41899,
+        "output_len": 53,
+        "scoring": {
+          "score": 90,
+          "keyword_hits": "3/3",
+          "quality": "EXCELLENT"
+        }
+      }
+    },
+    "level_2": {
+      "M1": {
+        "node": "M1",
+        "model": "qwen/qwen3-30b-a3b-2507",
+        "status": "OK",
+        "latency_ms": 3826,
+        "output_len": 145,
+        "scoring": {
+          "score": 90,
+          "keyword_hits": "4/4",
+          "quality": "EXCELLENT"
+        }
+      },
+      "M2": {
+        "node": "M2",
+        "model": "deepseek-coder-v2-lite-instruct",
+        "status": "OK",
+        "latency_ms": 2068,
+        "output_len": 303,
+        "scoring": {
+          "score": 100,
+          "keyword_hits": "4/4",
+          "quality": "EXCELLENT"
+        }
+      },
+      "M3": {
+        "node": "M3",
+        "model": "mistral-7b-instruct-v0.3",
+        "status": "OK",
+        "latency_ms": 5230,
+        "output_len": 463,
+        "scoring": {
+          "score": 100,
+          "keyword_hits": "4/4",
+          "quality": "EXCELLENT"
+        }
+      },
+      "OL1": {
+        "node": "OL1",
+        "model": "qwen3:1.7b",
+        "status": "OK",
+        "latency_ms": 1615,
+        "output_len": 793,
+        "scoring": {
+          "score": 100,
+          "keyword_hits": "4/4",
+          "quality": "EXCELLENT"
+        }
+      },
+      "GEMINI": {
+        "node": "GEMINI",
+        "model": "gemini-3-pro",
+        "status": "OK",
+        "latency_ms": 51734,
+        "output_len": 588,
+        "scoring": {
+          "score": 100,
+          "keyword_hits": "4/4",
+          "quality": "EXCELLENT"
+        }
+      }
+    },
+    "level_3": {
+      "M1": {
+        "node": "M1",
+        "model": "qwen/qwen3-30b-a3b-2507",
+        "status": "OK",
+        "latency_ms": 115445,
+        "output_len": 2421,
+        "scoring": {
+          "score": 79,
+          "keyword_hits": "3/5",
+          "quality": "BON"
+        }
+      },
+      "M2": {
+        "node": "M2",
+        "model": "deepseek-coder-v2-lite-instruct",
+        "status": "OK",
+        "latency_ms": 11207,
+        "output_len": 1906,
+        "scoring": {
+          "score": 71,
+          "keyword_hits": "2/5",
+          "quality": "BON"
+        }
+      },
+      "M3": {
+        "node": "M3",
+        "model": "mistral-7b-instruct-v0.3",
+        "status": "OK",
+        "latency_ms": 12596,
+        "output_len": 1041,
+        "scoring": {
+          "score": 71,
+          "keyword_hits": "2/5",
+          "quality": "BON"
+        }
+      },
+      "OL1": {
+        "node": "OL1",
+        "model": "qwen3:1.7b",
+        "status": "OK",
+        "latency_ms": 4402,
+        "output_len": 3191,
+        "scoring": {
+          "score": 71,
+          "keyword_hits": "2/5",
+          "quality": "BON"
+        }
+      },
+      "GEMINI": {
+        "node": "GEMINI",
+        "model": "gemini-3-pro",
+        "status": "OK",
+        "latency_ms": 71146,
+        "output_len": 2407,
+        "scoring": {
+          "score": 63,
+          "keyword_hits": "1/5",
+          "quality": "BON"
+        }
+      }
+    },
+    "level_4": {
+      "M1": {
+        "node": "M1",
+        "model": "qwen/qwen3-30b-a3b-2507",
+        "status": "ERREUR",
+        "latency_ms": 180023,
+        "output_len": 0,
+        "error": "",
+        "scoring": {
+          "score": 0,
+          "keyword_hits": "0/0",
+          "quality": "ECHEC"
+        }
+      },
+      "M2": {
+        "node": "M2",
+        "model": "deepseek-coder-v2-lite-instruct",
+        "status": "OK",
+        "latency_ms": 28634,
+        "output_len": 4892,
+        "scoring": {
+          "score": 95,
+          "keyword_hits": "4/4",
+          "quality": "EXCELLENT"
+        }
+      },
+      "M3": {
+        "node": "M3",
+        "model": "mistral-7b-instruct-v0.3",
+        "status": "OK",
+        "latency_ms": 56385,
+        "output_len": 5381,
+        "scoring": {
+          "score": 95,
+          "keyword_hits": "4/4",
+          "quality": "EXCELLENT"
+        }
+      },
+      "OL1": {
+        "node": "OL1",
+        "model": "qwen3:1.7b",
+        "status": "OK",
+        "latency_ms": 5359,
+        "output_len": 4166,
+        "scoring": {
+          "score": 95,
+          "keyword_hits": "4/4",
+          "quality": "EXCELLENT"
+        }
+      },
+      "GEMINI": {
+        "node": "GEMINI",
+        "model": "gemini-3-pro",
+        "status": "OK",
+        "latency_ms": 85167,
+        "output_len": 8830,
+        "scoring": {
+          "score": 95,
+          "keyword_hits": "4/4",
+          "quality": "EXCELLENT"
+        }
+      }
+    },
+    "level_5": {
+      "M1": {
+        "node": "M1",
+        "model": "qwen/qwen3-30b-a3b-2507",
+        "status": "ERREUR",
+        "latency_ms": 180017,
+        "output_len": 0,
+        "error": "",
+        "scoring": {
+          "score": 0,
+          "keyword_hits": "0/0",
+          "quality": "ECHEC"
+        }
+      },
+      "M2": {
+        "node": "M2",
+        "model": "deepseek-coder-v2-lite-instruct",
+        "status": "OK",
+        "latency_ms": 26196,
+        "output_len": 3006,
+        "scoring": {
+          "score": 94,
+          "keyword_hits": "6/7",
+          "quality": "EXCELLENT"
+        }
+      },
+      "M3": {
+        "node": "M3",
+        "model": "mistral-7b-instruct-v0.3",
+        "status": "OK",
+        "latency_ms": 15891,
+        "output_len": 1520,
+        "scoring": {
+          "score": 83,
+          "keyword_hits": "4/7",
+          "quality": "EXCELLENT"
+        }
+      },
+      "OL1": {
+        "node": "OL1",
+        "model": "qwen3:1.7b",
+        "status": "OK",
+        "latency_ms": 4480,
+        "output_len": 3428,
+        "scoring": {
+          "score": 77,
+          "keyword_hits": "3/7",
+          "quality": "BON"
+        }
+      },
+      "GEMINI": {
+        "node": "GEMINI",
+        "model": "gemini-3-pro",
+        "status": "OK",
+        "latency_ms": 86330,
+        "output_len": 6952,
+        "scoring": {
+          "score": 100,
+          "keyword_hits": "7/7",
+          "quality": "EXCELLENT"
+        }
+      }
+    },
+    "level_6": {
+      "M1": {
+        "node": "M1",
+        "model": "qwen/qwen3-30b-a3b-2507",
+        "status": "ERREUR",
+        "latency_ms": 180024,
+        "output_len": 0,
+        "error": "",
+        "scoring": {
+          "score": 0,
+          "keyword_hits": "0/0",
+          "quality": "ECHEC"
+        }
+      },
+      "M2": {
+        "node": "M2",
+        "model": "deepseek-coder-v2-lite-instruct",
+        "status": "OK",
+        "latency_ms": 29023,
+        "output_len": 2659,
+        "scoring": {
+          "score": 87,
+          "keyword_hits": "4/5",
+          "quality": "EXCELLENT"
+        }
+      },
+      "M3": {
+        "node": "M3",
+        "model": "mistral-7b-instruct-v0.3",
+        "status": "OK",
+        "latency_ms": 17481,
+        "output_len": 1458,
+        "scoring": {
+          "score": 79,
+          "keyword_hits": "3/5",
+          "quality": "BON"
+        }
+      },
+      "OL1": {
+        "node": "OL1",
+        "model": "qwen3:1.7b",
+        "status": "OK",
+        "latency_ms": 4536,
+        "output_len": 2506,
+        "scoring": {
+          "score": 79,
+          "keyword_hits": "3/5",
+          "quality": "BON"
+        }
+      },
+      "GEMINI": {
+        "node": "GEMINI",
+        "model": "gemini-3-pro",
+        "status": "OK",
+        "latency_ms": 54605,
+        "output_len": 291,
+        "scoring": {
+          "score": 20,
+          "keyword_hits": "0/5",
+          "quality": "FAIBLE"
+        }
+      }
+    },
+    "level_7": {
+      "M1": {
+        "node": "M1",
+        "model": "qwen/qwen3-30b-a3b-2507",
+        "status": "ERREUR",
+        "latency_ms": 180026,
+        "output_len": 0,
+        "error": "",
+        "scoring": {
+          "score": 0,
+          "keyword_hits": "0/0",
+          "quality": "ECHEC"
+        }
+      },
+      "M2": {
+        "node": "M2",
+        "model": "deepseek-coder-v2-lite-instruct",
+        "status": "OK",
+        "latency_ms": 40390,
+        "output_len": 4180,
+        "scoring": {
+          "score": 100,
+          "keyword_hits": "6/6",
+          "quality": "EXCELLENT"
+        }
+      },
+      "M3": {
+        "node": "M3",
+        "model": "mistral-7b-instruct-v0.3",
+        "status": "OK",
+        "latency_ms": 36005,
+        "output_len": 3388,
+        "scoring": {
+          "score": 93,
+          "keyword_hits": "5/6",
+          "quality": "EXCELLENT"
+        }
+      },
+      "OL1": {
+        "node": "OL1",
+        "model": "qwen3:1.7b",
+        "status": "OK",
+        "latency_ms": 6335,
+        "output_len": 4811,
+        "scoring": {
+          "score": 100,
+          "keyword_hits": "6/6",
+          "quality": "EXCELLENT"
+        }
+      },
+      "GEMINI": {
+        "node": "GEMINI",
+        "model": "gemini-3-pro",
+        "status": "OK",
+        "latency_ms": 91277,
+        "output_len": 8780,
+        "scoring": {
+          "score": 100,
+          "keyword_hits": "6/6",
+          "quality": "EXCELLENT"
+        }
+      }
+    },
+    "level_8": {
+      "M1": {
+        "node": "M1",
+        "model": "qwen/qwen3-30b-a3b-2507",
+        "status": "ERREUR",
+        "latency_ms": 180015,
+        "output_len": 0,
+        "error": "",
+        "scoring": {
+          "score": 0,
+          "keyword_hits": "0/0",
+          "quality": "ECHEC"
+        }
+      },
+      "M2": {
+        "node": "M2",
+        "model": "deepseek-coder-v2-lite-instruct",
+        "status": "OK",
+        "latency_ms": 42185,
+        "output_len": 3529,
+        "scoring": {
+          "score": 85,
+          "keyword_hits": "3/4",
+          "quality": "EXCELLENT"
+        }
+      },
+      "M3": {
+        "node": "M3",
+        "model": "mistral-7b-instruct-v0.3",
+        "status": "OK",
+        "latency_ms": 85291,
+        "output_len": 6792,
+        "scoring": {
+          "score": 85,
+          "keyword_hits": "3/4",
+          "quality": "EXCELLENT"
+        }
+      },
+      "OL1": {
+        "node": "OL1",
+        "model": "qwen3:1.7b",
+        "status": "OK",
+        "latency_ms": 19331,
+        "output_len": 10572,
+        "scoring": {
+          "score": 95,
+          "keyword_hits": "4/4",
+          "quality": "EXCELLENT"
+        }
+      },
+      "GEMINI": {
+        "node": "GEMINI",
+        "model": "gemini-3-pro",
+        "status": "OK",
+        "latency_ms": 90277,
+        "output_len": 4439,
+        "scoring": {
+          "score": 85,
+          "keyword_hits": "3/4",
+          "quality": "EXCELLENT"
+        }
+      }
+    },
+    "level_9": {
+      "M1": {
+        "node": "M1",
+        "model": "qwen/qwen3-30b-a3b-2507",
+        "status": "ERREUR",
+        "latency_ms": 180032,
+        "output_len": 0,
+        "error": "",
+        "scoring": {
+          "score": 0,
+          "keyword_hits": "0/0",
+          "quality": "ECHEC"
+        }
+      },
+      "M2": {
+        "node": "M2",
+        "model": "deepseek-coder-v2-lite-instruct",
+        "status": "OK",
+        "latency_ms": 107409,
+        "output_len": 10458,
+        "scoring": {
+          "score": 100,
+          "keyword_hits": "7/7",
+          "quality": "EXCELLENT"
+        }
+      },
+      "M3": {
+        "node": "M3",
+        "model": "mistral-7b-instruct-v0.3",
+        "status": "OK",
+        "latency_ms": 78229,
+        "output_len": 7461,
+        "scoring": {
+          "score": 100,
+          "keyword_hits": "7/7",
+          "quality": "EXCELLENT"
+        }
+      },
+      "OL1": {
+        "node": "OL1",
+        "model": "qwen3:1.7b",
+        "status": "OK",
+        "latency_ms": 14345,
+        "output_len": 12903,
+        "scoring": {
+          "score": 100,
+          "keyword_hits": "7/7",
+          "quality": "EXCELLENT"
+        }
+      },
+      "GEMINI": {
+        "node": "GEMINI",
+        "model": "gemini-3-pro",
+        "status": "ERREUR",
+        "latency_ms": 151017,
+        "output_len": 0,
+        "error": "[GEMINI ERROR] Le processus ne peut pas acc�der au fichier car ce fichier est utilis� par un autre processus.\n",
+        "scoring": {
+          "score": 0,
+          "keyword_hits": "0/0",
+          "quality": "ECHEC"
+        }
+      }
+    },
+    "level_10": {
+      "M1": {
+        "node": "M1",
+        "model": "qwen/qwen3-30b-a3b-2507",
+        "status": "ERREUR",
+        "latency_ms": 180017,
+        "output_len": 0,
+        "error": "",
+        "scoring": {
+          "score": 0,
+          "keyword_hits": "0/0",
+          "quality": "ECHEC"
+        }
+      },
+      "M2": {
+        "node": "M2",
+        "model": "deepseek-coder-v2-lite-instruct",
+        "status": "OK",
+        "latency_ms": 62670,
+        "output_len": 4742,
+        "scoring": {
+          "score": 95,
+          "keyword_hits": "6/6",
+          "quality": "EXCELLENT"
+        }
+      },
+      "M3": {
+        "node": "M3",
+        "model": "mistral-7b-instruct-v0.3",
+        "status": "OK",
+        "latency_ms": 64406,
+        "output_len": 5028,
+        "scoring": {
+          "score": 82,
+          "keyword_hits": "4/6",
+          "quality": "EXCELLENT"
+        }
+      },
+      "OL1": {
+        "node": "OL1",
+        "model": "qwen3:1.7b",
+        "status": "OK",
+        "latency_ms": 13309,
+        "output_len": 11158,
+        "scoring": {
+          "score": 95,
+          "keyword_hits": "6/6",
+          "quality": "EXCELLENT"
+        }
+      },
+      "GEMINI": {
+        "node": "GEMINI",
+        "model": "gemini-3-pro",
+        "status": "OK",
+        "latency_ms": 101321,
+        "output_len": 13210,
+        "scoring": {
+          "score": 88,
+          "keyword_hits": "5/6",
+          "quality": "EXCELLENT"
+        }
+      }
+    }
+  }
+}
