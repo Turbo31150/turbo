@@ -1,16 +1,16 @@
-# JARVIS Etoile v10.2 — Orchestrateur IA Distribue
+# JARVIS Etoile v10.3 — Orchestrateur IA Distribue
 
 **Repo prive — Turbo31150**
 
 **Claude = Commandant Pur. Il ne fait JAMAIS le travail lui-meme. Il ORDONNE, VERIFIE et ORCHESTRE.**
 
 ```
-                    ╔═══════════════════════════════════════╗
-                    ║       JARVIS ETOILE v10.2             ║
-                    ║   Orchestrateur IA Multi-GPU Distribue║
-                    ║   9 GPU | 70 GB VRAM | 4 Noeuds IA   ║
-                    ║   5 Agents | 83 Outils MCP | Voice    ║
-                    ╚═══════════════════════════════════════╝
+                    ╔═══════════════════════════════════════════╗
+                    ║       JARVIS ETOILE v10.3                 ║
+                    ║   Orchestrateur IA Multi-GPU Distribue    ║
+                    ║   10 GPU | 78 GB VRAM | 5 Noeuds IA      ║
+                    ║   7 Agents | 87 Outils MCP | Voice       ║
+                    ╚═══════════════════════════════════════════╝
 ```
 
 ---
@@ -18,21 +18,22 @@
 ## Table des Matieres
 
 1. [Architecture Globale](#architecture-globale)
-2. [Cluster IA — Noeuds & Cles](#cluster-ia--noeuds--cles)
-3. [Pipeline Commander](#pipeline-commander--workflow-complet)
-4. [5 Agents Claude SDK](#5-agents-claude-sdk)
-5. [Routage Commander](#routage-commander)
-6. [Seuil Thermique GPU](#seuil-thermique-gpu)
-7. [83 Outils MCP](#83-outils-mcp)
-8. [n8n Workflow Etoile](#n8n-workflow-etoile)
-9. [Architecture Vocale](#architecture-vocale)
-10. [Trading MEXC](#trading-mexc-futures)
-11. [Modes de Lancement](#modes-de-lancement)
-12. [Structure du Projet](#structure-du-projet)
-13. [Bases de Donnees](#bases-de-donnees)
-14. [Installation & Configuration](#installation--configuration)
-15. [Benchmark](#benchmark)
-16. [Appels API — Exemples Complets](#appels-api--exemples-complets)
+2. [Benchmark Reel — Resultats & Decisions](#benchmark-reel--resultats--decisions)
+3. [Cluster IA — Noeuds & Cles](#cluster-ia--noeuds--cles)
+4. [Pipeline Commander — Workflow Detaille](#pipeline-commander--workflow-detaille)
+5. [7 Agents Claude SDK](#7-agents-claude-sdk)
+6. [Routage Commander (benchmark-tuned)](#routage-commander-benchmark-tuned)
+7. [Workflow Consensus Multi-Source](#workflow-consensus-multi-source)
+8. [Seuil Thermique GPU](#seuil-thermique-gpu)
+9. [87 Outils MCP](#87-outils-mcp)
+10. [n8n Workflow Etoile](#n8n-workflow-etoile)
+11. [Architecture Vocale](#architecture-vocale)
+12. [Trading MEXC](#trading-mexc-futures)
+13. [Modes de Lancement](#modes-de-lancement)
+14. [Structure du Projet](#structure-du-projet)
+15. [Bases de Donnees](#bases-de-donnees)
+16. [Installation & Configuration](#installation--configuration)
+17. [Appels API — Exemples Complets](#appels-api--exemples-complets)
 
 ---
 
@@ -42,82 +43,191 @@
  UTILISATEUR (voix / clavier / one-shot)
        |
        v
- +---------------------------------------------+
- |            JARVIS COMMANDER                  |
- |       (Claude Agent SDK - Opus/Sonnet)       |
- |                                              |
- |  1. classify_task()  --> M1 qwen3-30b (5ms)  |
- |  2. decompose_task() --> TaskUnit[]           |
- |  3. thermal_check()  --> GPU temp < 85C ?     |
- |  4. enrich_prompt()  --> COMMANDER_PROMPT     |
- +-----+-------+-------+-------+-------+-------+
+ +-------------------------------------------------------------+
+ |                    JARVIS COMMANDER                          |
+ |              (Claude Agent SDK - Opus/Sonnet)                |
+ |                                                              |
+ |  1. classify_task()  --> M1 qwen3-30b (5ms) / heuristique   |
+ |  2. decompose_task() --> TaskUnit[]                          |
+ |  3. thermal_check()  --> GPU temp < 85C ?                    |
+ |  4. enrich_prompt()  --> COMMANDER_PROMPT                    |
+ +-----+-------+-------+-------+-------+-------+-------+------+
+       |       |       |       |       |       |       |
+       v       v       v       v       v       v       v
+  +---------+------+-------+--------+------+--------+-----------+
+  |ia-deep  |ia-   |ia-    |ia-     |ia-   |ia-     |ia-        |
+  |Opus     |fast  |check  |trading |system|bridge  |consensus  |
+  |Archi    |Haiku |Sonnet |Sonnet  |Haiku |Sonnet  |Sonnet     |
+  +---------+------+-------+--------+------+--------+-----------+
+       |       |       |       |       |       |         |
+       v       v       v       v       v       v         v
+  +------+ +------+ +------+ +------+ +------+ +----------+
+  |  M2  | |  OL1 | |  M3  | |GEMINI| |  M1  | |PowerShell|
+  |deep- | |qwen3 | |mistr-| |proxy | |qwen3 | | Windows  |
+  |seek  | |1.7b  | |al-7b | | .js  | | 30b  | |  SAPI    |
+  |3 GPU | |local | |1 GPU | |cloud | |6 GPU | |  87 MCP  |
+  |24 GB | |+cloud| |8 GB  | |      | |46 GB | |  tools   |
+  | 92%  | | 88%  | | 89%  | | 74%  | | 23%  | |          |
+  +------+ +------+ +------+ +------+ +------+ +----------+
        |       |       |       |       |
-       v       v       v       v       v
-  +--------+------+-------+--------+--------+
-  |ia-deep |ia-fast|ia-check|ia-trade|ia-sys |  <-- 5 Agents Claude SDK
-  | Opus   |Haiku  |Sonnet  |Sonnet  |Haiku  |
-  +---+----+--+---+---+----+---+----+---+----+
-      |       |       |       |       |
-      v       v       v       v       v
-  +------+ +------+ +------+ +------+ +----------+
-  |  M1  | |  M2  | |  OL1 | |GEMINI| |PowerShell|
-  |qwen3 | |deep- | |qwen3 | |proxy | | Windows  |
-  | 30b  | |seek  | |1.7b  | | .js  | |  SAPI    |
-  |6 GPU | |3 GPU | |local | |cloud | |  83 MCP  |
-  |46 GB | |24 GB | |+cloud| |      | |  tools   |
-  +------+ +------+ +------+ +------+ +----------+
-      |       |       |       |
-      +-------+-------+-------+
-              |
-              v
-      SYNTHESE COMMANDANT
-      [AGENT/modele] attribution
-      Score qualite 0-1
-      Re-dispatch si < 0.7
+       +-------+-------+-------+-------+
+                       |
+                       v
+               SYNTHESE COMMANDANT
+               [AGENT/modele] attribution
+               Score qualite 0-1
+               Re-dispatch si < 0.7
 ```
+
+---
+
+## Benchmark Reel — Resultats & Decisions
+
+### Methodologie (2026-02-20)
+
+Benchmark en 2 phases :
+1. **benchmark_cluster.py** — 7 phases automatisees (health, inference, consensus, bridge, agents, stress, erreurs)
+2. **benchmark_real_test.py** — 10 niveaux de difficulte envoyes simultanement aux 5 noeuds
+
+Les 10 niveaux testent des capacites croissantes :
+
+```
+ Niveau 1  [TRIVIAL]     Inverser une chaine de caracteres
+ Niveau 2  [FACILE]      Algorithme LRU Cache
+ Niveau 3  [MOYEN]       Debug async avec race condition
+ Niveau 4  [MOYEN+]      Refactoring Design Pattern
+ Niveau 5  [COMPLEXE]    Pipeline ETL avec gestion d'erreurs
+ Niveau 6  [COMPLEXE+]   Analyse de complexite algorithmique
+ Niveau 7  [DIFFICILE]   Systeme de cache distribue
+ Niveau 8  [DIFFICILE+]  Raisonnement multi-etapes
+ Niveau 9  [EXPERT]      Mini interpreteur de langage
+ Niveau 10 [EXPERT+]     Architecture distribuee complete
+```
+
+### Resultats par Noeud
+
+```
+ SCORE GLOBAL (%)
+ ┌─────────────────────────────────────────────────────────┐
+ │                                                         │
+ │  M2 /deepseek-coder   ████████████████████████████ 92%  │  CHAMPION
+ │  M3 /mistral-7b       ███████████████████████████  89%  │  SOLIDE
+ │  OL1/qwen3:1.7b       ██████████████████████████   88%  │  RAPIDE
+ │  GEMINI/gemini-3-pro  ██████████████████████        74%  │  VARIABLE
+ │  M1 /qwen3-30b        ██████                       23%  │  TIMEOUT
+ │                                                         │
+ └─────────────────────────────────────────────────────────┘
+
+ LATENCE MOYENNE (secondes)
+ ┌─────────────────────────────────────────────────────────┐
+ │                                                         │
+ │  OL1   █           0.5s                                 │  LE + RAPIDE
+ │  M2    ██          1.3s                                 │
+ │  M3    ███         2.5s                                 │
+ │  M1    █████████████████ 12.0s  (quand il repond)       │
+ │  GEMINI████████████████████████████████████████ 75.0s    │
+ │                                                         │
+ └─────────────────────────────────────────────────────────┘
+```
+
+### Detail par Noeud
+
+#### M2 — deepseek-coder-v2-lite — CHAMPION (92%)
+
+| Metrique | Valeur |
+|----------|--------|
+| **Score** | 92% (46/50 points) |
+| **Fails** | 0 / 10 niveaux |
+| **Latence moy** | 1.3s |
+| **Limite** | Niveau 10 (meta-analyse) |
+| **Forces** | Code, algorithmes, debug, refactoring |
+| **Poids** | 1.4 (promu primary) |
+
+#### M3 — mistral-7b — SOLIDE (89%)
+
+| Metrique | Valeur |
+|----------|--------|
+| **Score** | 89% (44.5/50 points) |
+| **Fails** | 0 / 10 niveaux |
+| **Latence moy** | 2.5s |
+| **Limite** | Aucune (surprenant pour 8GB VRAM) |
+| **Forces** | Polyvalent, raisonnement, general |
+| **Poids** | 1.0 (promu de 0.5) |
+
+#### OL1 — qwen3:1.7b — PLUS RAPIDE (88%)
+
+| Metrique | Valeur |
+|----------|--------|
+| **Score** | 88% (44/50 points) |
+| **Fails** | 0 / 10 niveaux |
+| **Latence moy** | 0.5s (22x plus rapide que M1) |
+| **Limite** | Qualite code expert (N9-N10) |
+| **Forces** | Vitesse, polyvalence, short answers, web |
+| **Poids** | 1.3 (promu de 1.0) |
+
+#### GEMINI — gemini-3-pro — ARCHITECTURE (74%)
+
+| Metrique | Valeur |
+|----------|--------|
+| **Score** | 74% (37/50 points) |
+| **Fails** | 1 / 10 niveaux |
+| **Latence moy** | 75s |
+| **Limite** | Variable (100% LRU, 0% interpreteur) |
+| **Forces** | Architecture, vision, review |
+| **Poids** | 1.2 (inchange) |
+
+#### M1 — qwen3-30b — LENT (23%)
+
+| Metrique | Valeur |
+|----------|--------|
+| **Score** | 23% (11.5/50 points) |
+| **Fails** | 7 / 10 niveaux (TIMEOUT) |
+| **Latence moy** | 12.0s (meme trivial) |
+| **Limite** | Niveau 3 (tout ce qui est > moyen timeout) |
+| **Cause** | Chain-of-thought de qwen3-30b (MoE 3B actifs) trop long |
+| **Poids** | 0.7 (demote de 1.5) |
+
+### Decisions de Routage
+
+Le benchmark a provoque une **reorganisation complete** du routage :
+
+```
+ AVANT (2026-02-19)                    APRES (2026-02-20)
+ ─────────────────                     ──────────────────
+
+ short_answer  → [M1]                  short_answer  → [OL1, M3]
+ deep_analysis → [M1]                  deep_analysis → [M2, GEMINI]
+ code_gen      → [M2, M1]             code_gen      → [M2, M3]
+ trading       → [M1, OL1]            trading       → [OL1, M2]
+ validation    → [M1, M2]             validation    → [M2, OL1]
+ critical      → [M1, OL1]            critical      → [M2, OL1, GEMINI]
+ reasoning     → [M1, OL1]            reasoning     → [M2, OL1]
+ auto_learn    → [M1]                  auto_learn    → [OL1, M2]
+ embedding     → [M1]                  embedding     → [M1]  (seul use case)
+ consensus     → [M1,M2,OL1,GEM]      consensus     → [M2,OL1,M3,M1,GEM]
+ architecture  → [GEMINI, M1]         architecture  → [GEMINI, M2]
+```
+
+### Scripts Benchmark
+
+```bash
+# Benchmark rapide (4 phases: health, inference, agents, erreurs)
+uv run python benchmark_cluster.py --quick
+
+# Benchmark complet (7 phases incluant consensus, bridge, stress)
+uv run python benchmark_cluster.py
+
+# Benchmark reel (10 niveaux de difficulte sur 5 noeuds)
+uv run python benchmark_real_test.py
+```
+
+Rapports generes dans `data/benchmark_report.json` et `data/benchmark_real_report.json`.
 
 ---
 
 ## Cluster IA — Noeuds & Cles
 
-### M1 — Analyse Profonde (6 GPU, 46 GB VRAM)
-
-| Parametre | Valeur |
-|-----------|--------|
-| **IP** | `http://10.5.0.2:1234` |
-| **API Key** | `sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7` |
-| **GPU** | RTX 2060 + 4x GTX 1660 Super + RTX 3080 |
-| **VRAM** | 46 GB total |
-| **CUDA_VISIBLE_DEVICES** | `5,0,1,2,3,4` |
-| **Modele permanent** | `qwen/qwen3-30b-a3b-2507` |
-| **Role** | Classification, analyse profonde, raisonnement |
-
-**Modeles on-demand M1 :**
-| Modele | VRAM | Usage |
-|--------|------|-------|
-| `qwen3-coder-30b` | 18.63 GB | Code specialise |
-| `devstral-small-2` | 15.21 GB | Dev tasks |
-| `gpt-oss-20b` | 12.11 GB | General purpose |
-
-**Blacklist M1** (gaspillent VRAM) : `nemotron-3-nano`, `glm-4.7-flash`
-
-**Appel M1 (API native v1) :**
-```bash
-curl -s http://10.5.0.2:1234/api/v1/chat \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" \
-  -d '{
-    "model": "qwen/qwen3-30b-a3b-2507",
-    "input": "VOTRE PROMPT",
-    "temperature": 0.4,
-    "max_output_tokens": 8192,
-    "stream": false,
-    "store": false
-  }'
-# Reponse: {"output":[{"content":"..."}], "stats":{"total_output_tokens":...}}
-```
-
-### M2 — Code Rapide (3 GPU, 24 GB VRAM)
+### M2 — CHAMPION Code (3 GPU, 24 GB VRAM) — Score: 92%
 
 | Parametre | Valeur |
 |-----------|--------|
@@ -126,7 +236,8 @@ curl -s http://10.5.0.2:1234/api/v1/chat \
 | **GPU** | 3 GPU |
 | **VRAM** | 24 GB total |
 | **Modele** | `deepseek-coder-v2-lite-instruct` |
-| **Role** | Generation code rapide |
+| **Poids** | 1.4 |
+| **Role** | PRIMARY — Code, analyse, raisonnement, validation |
 
 **Appel M2 (API native v1) :**
 ```bash
@@ -141,18 +252,9 @@ curl -s http://192.168.1.26:1234/api/v1/chat \
     "stream": false,
     "store": false
   }'
-# Reponse: {"output":[{"content":"..."}], "stats":{"total_output_tokens":...}}
 ```
 
-### M3 — Backup (ONLINE)
-
-| Parametre | Valeur |
-|-----------|--------|
-| **IP** | `http://192.168.1.113:1234` |
-| **Modeles** | mistral-7b, phi-3.1-mini |
-| **Role** | Backup, reasoning leger |
-
-### OL1 — Ollama Local + Cloud
+### OL1 — PLUS RAPIDE + Polyvalent — Score: 88%
 
 | Parametre | Valeur |
 |-----------|--------|
@@ -160,21 +262,20 @@ curl -s http://192.168.1.26:1234/api/v1/chat \
 | **Version** | Ollama v0.16.1 |
 | **Local** | `qwen3:1.7b` (1.36 GB) |
 | **Cloud** | minimax-m2.5, glm-5, kimi-k2.5 |
-| **Role** | Correction vocale, recherche web, taches legeres |
+| **Poids** | 1.3 |
+| **Role** | SHORT ANSWERS, web search, polyvalent rapide |
 
 **IMPORTANT** : `"think": false` OBLIGATOIRE pour les modeles cloud.
 
-**Appel OL1 local :**
 ```bash
+# Local (0.5s avg)
 curl -s http://127.0.0.1:11434/api/chat -d '{
   "model": "qwen3:1.7b",
   "messages": [{"role": "user", "content": "VOTRE PROMPT"}],
   "stream": false
 }'
-```
 
-**Appel OL1 cloud (minimax) :**
-```bash
+# Cloud web search (minimax)
 curl -s http://127.0.0.1:11434/api/chat -d '{
   "model": "minimax-m2.5:cloud",
   "messages": [{"role": "user", "content": "VOTRE PROMPT"}],
@@ -183,20 +284,56 @@ curl -s http://127.0.0.1:11434/api/chat -d '{
 }'
 ```
 
-### GEMINI — Architecture & Vision (Cloud)
+### M3 — SOLIDE General (1 GPU, 8 GB VRAM) — Score: 89%
+
+| Parametre | Valeur |
+|-----------|--------|
+| **IP** | `http://192.168.1.113:1234` |
+| **GPU** | 1 GPU |
+| **VRAM** | 8 GB |
+| **Modele** | `mistral-7b-instruct-v0.3` |
+| **Poids** | 1.0 (promu de 0.5) |
+| **Role** | FALLBACK FIABLE — review, raisonnement, general |
+
+### GEMINI — Architecture & Vision (Cloud) — Score: 74%
 
 | Parametre | Valeur |
 |-----------|--------|
 | **Proxy** | `node F:/BUREAU/turbo/gemini-proxy.js` |
-| **Modeles** | Gemini 2.5 Pro / Flash |
+| **Modeles** | Gemini 3 Pro / Flash + 2.5 Pro / Flash (fallback) |
 | **Timeout** | 2 minutes |
-| **Fallback** | Pro -> Flash auto |
+| **Poids** | 1.2 |
+| **Role** | Architecture, vision, review (qualite variable) |
 
-**Appel Gemini :**
 ```bash
 node F:/BUREAU/turbo/gemini-proxy.js "VOTRE PROMPT"
 node F:/BUREAU/turbo/gemini-proxy.js --json "VOTRE PROMPT"
+node F:/BUREAU/turbo/gemini-proxy.js --ping   # Health check
 ```
+
+### M1 — Reserve Embedding (6 GPU, 46 GB VRAM) — Score: 23%
+
+| Parametre | Valeur |
+|-----------|--------|
+| **IP** | `http://10.5.0.2:1234` |
+| **API Key** | `sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7` |
+| **GPU** | RTX 2060 + 4x GTX 1660 Super + RTX 3080 |
+| **VRAM** | 46 GB total |
+| **CUDA_VISIBLE_DEVICES** | `5,0,1,2,3,4` |
+| **Modele permanent** | `qwen/qwen3-30b-a3b-2507` |
+| **Poids** | 0.7 (demote de 1.5) |
+| **Role** | EMBEDDING ONLY + consensus participant (lent, timeout complexe) |
+
+**Modeles on-demand M1 :**
+| Modele | VRAM | Usage |
+|--------|------|-------|
+| `qwen3-coder-30b` | 18.63 GB | Code specialise |
+| `devstral-small-2` | 15.21 GB | Dev tasks |
+| `gpt-oss-20b` | 12.11 GB | General purpose |
+
+**Blacklist M1** (gaspillent VRAM) : `nemotron-3-nano`, `glm-4.7-flash`
+
+**ATTENTION** : M1 timeout sur 7/10 requetes complexes. Latence 12s+ meme pour du trivial. Ne pas utiliser en primary sauf embedding.
 
 ### LM Studio CLI
 
@@ -204,7 +341,6 @@ node F:/BUREAU/turbo/gemini-proxy.js --json "VOTRE PROMPT"
 C:\Users\franc\.lmstudio\bin\lms.exe
 ```
 
-**Commandes utiles :**
 ```bash
 lms status          # Status serveur
 lms ls              # Modeles charges
@@ -215,12 +351,7 @@ lms unload --all
 ### Health Check Cluster
 
 ```bash
-# M1 (API native v1)
-curl -s --max-time 3 http://10.5.0.2:1234/api/v1/models \
-  -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" \
-  | python -c "import sys,json;d=json.load(sys.stdin);print('M1 OK:',len([m for m in d.get('models',[]) if m.get('loaded_instances')]),'modeles charges')"
-
-# M2 (API native v1)
+# M2 (CHAMPION — verifier en premier)
 curl -s --max-time 3 http://192.168.1.26:1234/api/v1/models \
   -H "Authorization: Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4" \
   | python -c "import sys,json;d=json.load(sys.stdin);print('M2 OK:',len([m for m in d.get('models',[]) if m.get('loaded_instances')]),'modeles charges')"
@@ -228,58 +359,109 @@ curl -s --max-time 3 http://192.168.1.26:1234/api/v1/models \
 # OL1 (Ollama)
 curl -s --max-time 3 http://127.0.0.1:11434/api/tags \
   | python -c "import sys,json;print('OL1 OK:',len(json.load(sys.stdin).get('models',[])),'modeles')"
+
+# M3
+curl -s --max-time 3 http://192.168.1.113:1234/api/v1/models \
+  | python -c "import sys,json;d=json.load(sys.stdin);print('M3 OK:',len([m for m in d.get('models',[]) if m.get('loaded_instances')]),'modeles charges')"
+
+# GEMINI
+node F:/BUREAU/turbo/gemini-proxy.js --ping
+
+# M1 (reserve)
+curl -s --max-time 3 http://10.5.0.2:1234/api/v1/models \
+  -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" \
+  | python -c "import sys,json;d=json.load(sys.stdin);print('M1 OK:',len([m for m in d.get('models',[]) if m.get('loaded_instances')]),'modeles charges')"
 ```
 
 ---
 
-## Pipeline Commander — Workflow Complet
+## Pipeline Commander — Workflow Detaille
 
 Le mode Commandant est **PERMANENT** sur tous les modes (interactif, vocal, hybride, one-shot).
 
+### Workflow Complet (schema)
+
 ```
-ENTREE UTILISATEUR (voix / clavier / one-shot)
-       |
-       v
-+------------------+
-| classify_task()  |  M1 qwen3-30b (5ms avg)
-| 6 categories:    |  Fallback: heuristique (0ms)
-| code / analyse / |
-| trading / systeme|
-| web / simple     |
-+--------+---------+
-         |
-         v
-+------------------+
-| decompose_task() |  Matrice commander_routing (config.py)
-| TaskUnit[]       |  + check thermique GPU (nvidia-smi)
-| Dependances      |  + re-routage si GPU > 85C
-+--------+---------+
-         |
-         v
-+------------------+
-| build_enrichment |  Prompt enrichi pour Claude:
-| MODE COMMANDANT  |  - Classification
-| PLAN DE DISPATCH |  - Sous-taches avec cibles
-| ORDRES           |  - Pre-analyse M1 (optionnel)
-+--------+---------+
-         |
-         v
-+------------------+
-| Claude dispatche |  Via Task (agents) + lm_query (IAs directes)
-| EN PARALLELE     |  Max 4 outils MCP simultanes
-+--------+---------+
-         |
-         v
-+------------------+
-| ia-check valide  |  Score qualite 0.0 - 1.0
-| Si < 0.7 :       |  Re-dispatch (max 2 cycles)
-+--------+---------+
-         |
-         v
-+------------------+
-| SYNTHESE FINALE  |  Attribution [AGENT/modele]
-| Vocal ou texte   |  Score global + agents utilises
-+------------------+
+ ENTREE UTILISATEUR
+ (voix / clavier / one-shot / webhook n8n)
+          |
+          v
+ +─────────────────────────────────────────────────────────────+
+ |                  PHASE 1: CLASSIFICATION                     |
+ |                                                              |
+ |  classify_task(input)                                        |
+ |  ├── M1 qwen3-30b (5ms avg)  ← si cluster online            |
+ |  └── Heuristique fallback (0ms) ← si M1 offline             |
+ |                                                              |
+ |  Categories: code | analyse | trading | systeme | web |      |
+ |               simple | architecture | consensus              |
+ +──────────────────────────┬──────────────────────────────────+
+                            |
+                            v
+ +─────────────────────────────────────────────────────────────+
+ |                  PHASE 2: DECOMPOSITION                      |
+ |                                                              |
+ |  decompose_task(input, task_type)                            |
+ |  ├── Lookup commander_routing[task_type]                     |
+ |  ├── Genere TaskUnit[] avec dependances                      |
+ |  ├── check_thermal_status() → GPU temp < 85C ?              |
+ |  └── Si GPU > 85C → re-routage cascade M1→M2→M3→OL1        |
+ |                                                              |
+ |  Exemple pour task_type="code":                              |
+ |  ┌──────────────────────────────────────────────┐            |
+ |  │ t1: ia-fast + M2 (coder)     priority=1     │            |
+ |  │ t2: ia-check + M3 (reviewer) priority=2     │ depends t1 |
+ |  └──────────────────────────────────────────────┘            |
+ +──────────────────────────┬──────────────────────────────────+
+                            |
+                            v
+ +─────────────────────────────────────────────────────────────+
+ |                  PHASE 3: ENRICHISSEMENT                     |
+ |                                                              |
+ |  build_commander_enrichment(task_type, subtasks, thermal)    |
+ |  ├── Construit le COMMANDER_PROMPT enrichi                   |
+ |  ├── Injecte: classification + sous-taches + cibles          |
+ |  └── Optionnel: pre-analyse M2 (si complexe)                |
+ +──────────────────────────┬──────────────────────────────────+
+                            |
+                            v
+ +─────────────────────────────────────────────────────────────+
+ |                  PHASE 4: DISPATCH PARALLELE                 |
+ |                                                              |
+ |  Claude recoit COMMANDER_PROMPT + prompt enrichi             |
+ |  ├── Lance agents via Task tool (ia-deep, ia-fast, etc.)    |
+ |  ├── Lance IAs directes via mcp__jarvis__lm_query           |
+ |  ├── Max 4 outils MCP jarvis en parallele (limite stdio)    |
+ |  └── Batch par groupes de 3-4 si > 4 appels                |
+ |                                                              |
+ |  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐          |
+ |  │ ia-fast │ │ M2 query│ │ OL1 web │ │ GEMINI  │          |
+ |  │ + M2    │ │ direct  │ │ search  │ │ query   │          |
+ |  └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘          |
+ |       └──────┬─────┘──────┬────┘──────┬────┘               |
+ |              v            v           v                      |
+ |         COLLECTE RESULTATS                                   |
+ +──────────────────────────┬──────────────────────────────────+
+                            |
+                            v
+ +─────────────────────────────────────────────────────────────+
+ |                  PHASE 5: VALIDATION                         |
+ |                                                              |
+ |  ia-check valide chaque resultat                             |
+ |  ├── Score qualite 0.0 - 1.0                                |
+ |  ├── Si score < 0.7 → RE-DISPATCH (max 2 cycles)           |
+ |  └── Cross-validation via consensus (M2+OL1+M3)            |
+ +──────────────────────────┬──────────────────────────────────+
+                            |
+                            v
+ +─────────────────────────────────────────────────────────────+
+ |                  PHASE 6: SYNTHESE                           |
+ |                                                              |
+ |  Claude synthetise tous les resultats                        |
+ |  ├── Attribution obligatoire: [AGENT/modele]                |
+ |  ├── Score global + agents utilises                         |
+ |  └── Output vocal (TTS) ou texte selon mode                 |
+ +─────────────────────────────────────────────────────────────+
 ```
 
 ### Classification Heuristique (24/24 correct)
@@ -303,7 +485,7 @@ class TaskUnit:
     id: str               # t1, t2, t3...
     prompt: str           # Prompt adapte au role
     task_type: str        # code/analyse/trading/systeme/web/simple
-    target: str           # ia-deep/ia-fast/ia-check/ia-trading/ia-system/M1/M2/OL1/GEMINI
+    target: str           # ia-deep/ia-fast/ia-check/.../M1/M2/OL1/GEMINI
     priority: int = 1     # 1=haute, 3=basse
     depends_on: list[str] # IDs des taches prealables
     result: str | None    # Resultat de l'agent/IA
@@ -313,7 +495,7 @@ class TaskUnit:
 
 ---
 
-## 5 Agents Claude SDK
+## 7 Agents Claude SDK
 
 Definis dans `src/agents.py`, utilisant le Claude Agent SDK Python v0.1.35.
 
@@ -323,8 +505,8 @@ Definis dans `src/agents.py`, utilisant le Claude Agent SDK Python v0.1.35.
 |-----------|--------|
 | **Modele** | Claude Opus |
 | **Role** | Analyse profonde, architecture, strategie, logs |
-| **Outils** | Read, Glob, Grep, WebSearch, WebFetch, lm_query, consensus |
-| **Prompt** | "Analyser les problemes en profondeur... Utilise M1 pour enrichir..." |
+| **Outils** | Read, Glob, Grep, WebSearch, WebFetch, lm_query, consensus, gemini_query, bridge_mesh |
+| **IA cible** | M2 (champion) pour enrichir, consensus pour valider |
 
 ### ia-fast (Haiku) — Ingenieur Code
 
@@ -333,7 +515,7 @@ Definis dans `src/agents.py`, utilisant le Claude Agent SDK Python v0.1.35.
 | **Modele** | Claude Haiku |
 | **Role** | Code rapide, edits, execution |
 | **Outils** | Read, Write, Edit, Bash, Glob, Grep, lm_query |
-| **Prompt** | "Ecrire du code rapidement... Utilise M2 via lm_query..." |
+| **IA cible** | M2 (deepseek-coder champion 92%), M3 en fallback |
 
 ### ia-check (Sonnet) — Validateur
 
@@ -341,8 +523,8 @@ Definis dans `src/agents.py`, utilisant le Claude Agent SDK Python v0.1.35.
 |-----------|--------|
 | **Modele** | Claude Sonnet |
 | **Role** | Review, validation, score qualite 0-1 |
-| **Outils** | Read, Bash, Glob, Grep, lm_query, consensus |
-| **Prompt** | "Reviewer et valider... TOUJOURS produire un score 0.0-1.0..." |
+| **Outils** | Read, Bash, Glob, Grep, lm_query, consensus, gemini_query, bridge_mesh |
+| **IA cible** | M2 (champion) + OL1 (rapide) pour cross-validation |
 
 ### ia-trading (Sonnet) — Trading MEXC
 
@@ -351,7 +533,7 @@ Definis dans `src/agents.py`, utilisant le Claude Agent SDK Python v0.1.35.
 | **Modele** | Claude Sonnet |
 | **Role** | Scanner marche, breakout, signaux, positions |
 | **Outils** | Read, Bash, Glob, Grep, run_script, lm_query, consensus, ollama_web_search |
-| **Prompt** | "Scanner MEXC Futures... Paires: BTC ETH SOL SUI PEPE DOGE XRP ADA AVAX LINK..." |
+| **IA cible** | OL1 (web search), M2 (analyse) |
 
 ### ia-system (Haiku) — Systeme Windows
 
@@ -360,28 +542,97 @@ Definis dans `src/agents.py`, utilisant le Claude Agent SDK Python v0.1.35.
 | **Modele** | Claude Haiku |
 | **Role** | Fichiers, registre, processus, PowerShell |
 | **Outils** | Read, Write, Edit, Bash, Glob, Grep, powershell_run, system_info |
-| **Prompt** | "Acces complet au systeme Windows... C:\\Users\\franc, F:\\BUREAU..." |
+
+### ia-bridge (Sonnet) — Orchestrateur Multi-Noeuds
+
+| Parametre | Valeur |
+|-----------|--------|
+| **Modele** | Claude Sonnet |
+| **Role** | Mesh parallele, consensus etendu, routage intelligent |
+| **Outils** | Read, Glob, Grep, bridge_mesh, bridge_query, gemini_query, consensus, lm_query, lm_mcp_query, ollama_web_search |
+| **Noeuds** | M2 (champion 92%), OL1 (rapide 88%), M3 (solide 89%), GEMINI (archi 74%), M1 (lent 23%) |
+
+### ia-consensus (Sonnet) — Consensus Multi-Source
+
+| Parametre | Valeur |
+|-----------|--------|
+| **Modele** | Claude Sonnet |
+| **Role** | Vote pondere multi-source, detection desaccords |
+| **Outils** | Read, Glob, Grep, consensus, bridge_mesh, bridge_query, gemini_query, lm_query, ollama_query, ollama_web_search, lm_cluster_status |
+| **Protocole** | Min 3 sources, vote pondere, seuil confiance 0.6 |
 
 ---
 
-## Routage Commander
+## Routage Commander (benchmark-tuned)
 
-Matrice definie dans `config.py` → `commander_routing` :
+Matrice definie dans `config.py` → `commander_routing` — **ajustee le 2026-02-20** :
 
-| Type | Agent | IA Cible | Role | Priorite |
-|------|-------|----------|------|----------|
-| **code** | ia-fast | M2 (deepseek) | coder | 1 (haute) |
-| **code** | ia-check | M1 (qwen3) | reviewer | 2 (depends) |
-| **analyse** | ia-deep | M1 (qwen3) | analyzer | 1 |
-| **trading** | ia-trading | M1 (qwen3) | scanner | 1 |
-| **trading** | - | OL1 | web_data | 1 |
-| **trading** | ia-check | M1 (qwen3) | validator | 2 (depends) |
-| **systeme** | ia-system | - | executor | 1 |
-| **web** | - | OL1 | searcher | 1 |
-| **web** | ia-deep | M1 (qwen3) | synthesizer | 2 (depends) |
-| **simple** | - | M1 (qwen3) | responder | 1 |
+| Type | Agent | IA Cible | Role | Benchmark |
+|------|-------|----------|------|-----------|
+| **code** | ia-fast | M2 (deepseek) | coder | M2 champion 92% |
+| **code** | ia-check | M3 (mistral) | reviewer | M3 solide 89% |
+| **analyse** | ia-deep | M2 (deepseek) | analyzer | M2 fiable, M1 timeout |
+| **trading** | ia-trading | OL1 (ollama) | scanner | OL1 web search rapide |
+| **trading** | - | OL1 | web_data | OL1 cloud natif |
+| **trading** | ia-check | M2 (deepseek) | validator | M2 champion |
+| **systeme** | ia-system | - | executor | N/A (Windows direct) |
+| **web** | - | OL1 | searcher | OL1 plus rapide 0.5s |
+| **web** | ia-deep | M2 (deepseek) | synthesizer | M2 champion |
+| **simple** | - | OL1 | responder | OL1 rapide (vs M1 12s) |
+| **architecture** | ia-bridge | GEMINI | analyzer | GEMINI specialise archi |
+| **architecture** | ia-deep | M2 (deepseek) | reviewer | M2 champion |
+| **consensus** | ia-consensus | M2 (deepseek) | analyzer | M2 primary |
 
-**Regle** : Les reviewers/validators/synthesizers **dependent** des taches principales (priority 2).
+**Regle** : Les reviewers/validators/synthesizers **dependent** des taches principales.
+
+---
+
+## Workflow Consensus Multi-Source
+
+```
+ QUESTION UTILISATEUR
+          |
+          v
+ +──────────────────────────────────────────────+
+ |  ia-consensus (ou consensus MCP tool)         |
+ |                                               |
+ |  1. INTERROGATION PARALLELE (bridge_mesh)     |
+ |     ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐     |
+ |     │  M2  │ │  OL1 │ │  M3  │ │GEMINI│     |
+ |     │ w=1.4│ │ w=1.3│ │ w=1.0│ │ w=1.0│     |
+ |     └──┬───┘ └──┬───┘ └──┬───┘ └──┬───┘     |
+ |        │        │        │        │          |
+ |        v        v        v        v          |
+ |  2. COLLECTE (+ M1 w=0.7 si disponible)      |
+ |                                               |
+ |  3. VOTE PONDERE                              |
+ |     Score = sum(reponse_i * poids_i) / total  |
+ |                                               |
+ |  4. DETECTION DESACCORDS                      |
+ |     Si 2+ sources divergent:                  |
+ |     → Re-query avec prompt clarifie           |
+ |                                               |
+ |  5. VERDICT                                   |
+ |     [VERDICT]    Reponse consensuelle         |
+ |     [CONFIANCE]  Score 0.0-1.0                |
+ |     [SOURCES]    Noeuds + attribution         |
+ |     [DESACCORDS] Points de divergence         |
+ |     [DETAIL]     Resume par source            |
+ |                                               |
+ |  Si confiance < 0.6: "CONSENSUS FAIBLE"       |
+ |  Si 1 seule source: "SOURCE UNIQUE"           |
+ +──────────────────────────────────────────────+
+```
+
+### Poids de Vote (benchmark-tuned)
+
+```
+ M2  /deepseek-coder  ████████████████ 1.4  (champion 92%, fiable)
+ OL1 /qwen3:1.7b      ██████████████   1.3  (88%, plus rapide)
+ M3  /mistral-7b       ████████████     1.0  (89%, solide)
+ GEM /gemini-3-pro     ████████████     1.0  (74%, variable archi)
+ M1  /qwen3-30b        ████████         0.7  (23%, lent timeout)
+```
 
 ---
 
@@ -392,28 +643,38 @@ Verifie a chaque `decompose_task()` via `nvidia-smi --query-gpu=temperature.gpu`
 | Niveau | Temperature | Action |
 |--------|------------|--------|
 | **Normal** | < 75C | Routage standard |
-| **Warning** | 75-84C | Preferer M2 pour code, reduire charge M1 |
+| **Warning** | 75-84C | Preferer M2/OL1, reduire charge M1 |
 | **Critical** | >= 85C | Deporter M1 -> M2/OL1/GEMINI, alerte dans prompt |
 
 ```python
 # Fonction: check_thermal_status() -> dict
 # Retourne: {ok, max_temp, status, hot_gpus, recommendation}
-# Exemple: {"ok": True, "max_temp": 34, "status": "normal", "hot_gpus": []}
 ```
 
 ---
 
-## 83 Outils MCP
+## 87 Outils MCP
 
 Prefixe: `mcp__jarvis__`
 
 ### IA & Cluster (4)
 | Outil | Description |
 |-------|-------------|
-| `lm_query` | Interroger M1/M2/M3/OL1 directement |
+| `lm_query` | Interroger M1/M2/M3 directement |
 | `lm_models` | Lister les modeles charges |
-| `lm_cluster_status` | Status complet du cluster |
-| `consensus` | Consensus multi-noeuds (M1+OL1) |
+| `lm_cluster_status` | Status complet du cluster (5 noeuds) |
+| `consensus` | Consensus multi-noeuds (M2+OL1+M3+M1+GEMINI) |
+
+### Gemini (1)
+| Outil | Description |
+|-------|-------------|
+| `gemini_query` | Interroger Gemini 3 Pro/Flash via proxy |
+
+### Bridge Multi-Noeuds (2)
+| Outil | Description |
+|-------|-------------|
+| `bridge_query` | Routage intelligent par task_type avec fallback |
+| `bridge_mesh` | Requete parallele sur N noeuds simultanement |
 
 ### Model Management (7)
 | Outil | Description |
@@ -447,20 +708,19 @@ Prefixe: `mcp__jarvis__`
 ### Windows (47)
 | Categorie | Nombre | Exemples |
 |-----------|--------|----------|
-| Applications | 3 | open_app, close_app, list_apps |
+| Applications | 3 | open_app, close_app, open_url |
 | Processus | 2 | kill_process, list_processes |
 | Fenetres | 4 | focus_window, minimize, maximize, list_windows |
 | Clavier/Souris | 4 | send_keys, click, type_text, hotkey |
 | Clipboard | 2 | get_clipboard, set_clipboard |
-| Fichiers | 9 | read_file, write_file, copy_file, move_file, delete_file, list_dir, create_dir, file_info, search_files |
-| Audio | 3 | set_volume, get_volume, mute_toggle |
-| Ecran | 2 | screenshot, screen_info |
-| Systeme | 8 | system_info, disk_space, memory_usage, cpu_usage, uptime, env_var, hostname, os_version |
+| Fichiers | 9 | read_file, write_file, copy, move, delete, list, create, search |
+| Audio | 3 | volume_up, volume_down, volume_mute |
+| Ecran | 2 | screenshot, screen_resolution |
+| Systeme | 8 | system_info, gpu_info, network, powershell, lock, shutdown, restart, sleep |
 | Services | 3 | list_services, start_service, stop_service |
-| Reseau | 3 | network_info, ping, dns_lookup |
-| Registre | 2 | reg_read, reg_write |
-| Notifications | 3 | toast_notification, balloon_tip, message_box |
-| Power | 3 | shutdown, restart, sleep |
+| Reseau | 3 | wifi_networks, ping, get_ip |
+| Registre | 2 | registry_read, registry_write |
+| Notifications | 3 | notify, speak, scheduled_tasks |
 
 ### Trading (5)
 | Outil | Description |
@@ -503,7 +763,7 @@ Prefixe: `mcp__jarvis__`
 | **MCP Endpoint** | `http://127.0.0.1:5678/mcp-server/http` |
 | **Auto-start** | Hook `startup.ps1` dans `.claude/hooks/` |
 
-### Workflow "Etoile - JARVIS Commander Pipeline v10.2"
+### Workflow "Etoile - JARVIS Commander Pipeline v10.3"
 
 **ID** : `4Y2SrFR256HIFT42`
 **Status** : ACTIF
@@ -517,28 +777,26 @@ Prefixe: `mcp__jarvis__`
                              │
                              v
                     ┌──────────────────┐
-                    │ 1. M1 Classify   │  qwen3-30b → code/analyse/trading/
-                    │ (qwen3-30b)      │  systeme/web/simple
+                    │ 1. Classify      │  M1 qwen3-30b (5ms) / heuristique
                     └────────┬─────────┘
                              │
                              v
                     ┌──────────────────┐
-                    │ 2. Route by Type │  Switch 6 branches
-                    │ (Switch Node)    │
+                    │ 2. Route by Type │  Switch 8 branches
                     └──┬───┬───┬───┬───┘
                        │   │   │   │
           ┌────────────┘   │   │   └───────────────┐
           v                v   v                    v
   ┌───────────────┐ ┌──────────────┐ ┌──────────────┐ ┌────────────────┐
-  │3a. M2 Code    │ │3b. M1 Analyse│ │3c. M1 Trading│ │3d. OL1 Web     │
-  │(deepseek)     │ │(qwen3-30b)   │ │(qwen3-30b)   │ │(qwen3:1.7b)    │
+  │3a. M2 Code    │ │3b. M2 Analyse│ │3c. OL1 Trade │ │3d. OL1 Web     │
+  │(champion 92%) │ │(deepseek)    │ │(web search)  │ │(qwen3:1.7b)    │
   └───────┬───────┘ └──────┬───────┘ └──────┬───────┘ └────────┬───────┘
           │                │                │                   │
           └────────┬───────┘────────┬───────┘───────────────────┘
                    v                v
           ┌──────────────────┐
-          │4. M1 Verify      │  Score qualite 0.0-1.0
-          │Quality           │  JSON: {score, issues, recommendation}
+          │4. M2 Verify      │  Score qualite 0.0-1.0
+          │Quality (champion)│  JSON: {score, issues, recommendation}
           └────────┬─────────┘
                    │
                    v
@@ -548,26 +806,12 @@ Prefixe: `mcp__jarvis__`
           └──────────────────┘
 ```
 
-### Appeler le Workflow Etoile
-
-```bash
-# Via webhook (quand actif)
-curl -s -X POST http://127.0.0.1:5678/webhook/etoile-commander \
-  -H "Content-Type: application/json" \
-  -d '{"input": "analyse le code de config.py"}'
-
-# Via API n8n (execution manuelle)
-curl -s -X POST "http://127.0.0.1:5678/api/v1/workflows/4Y2SrFR256HIFT42/execute" \
-  -H "X-N8N-API-KEY: VOTRE_CLE" \
-  -H "Content-Type: application/json"
-```
-
 ### Autres Workflows n8n
 
 | Workflow | ID | Description |
 |----------|-----|-------------|
 | Trading Ultimate | `4ovJaOxtAzITyJEd` | Pipeline trading complet |
-| Multi IA Consensus | `lJEz0hbG66DceXYA` | Consensus M1+M2+Gemini |
+| Multi IA Consensus | `lJEz0hbG66DceXYA` | Consensus M2+OL1+M3+GEMINI |
 | Ancrage Manager | `jGlSm9FWTYb7OKZF` | Gestion ancrages trading |
 | Scanner Pro | `PruXHoV67xhxwRZC` | Scanner breakout avance |
 | Telegram Signals | `HtIDKlxK6UWHJux8` | Alertes trading Telegram |
@@ -600,7 +844,7 @@ MATCH     NO MATCH
 (execute)  (Commander Mode)
              |
              v
-        M1 pre-analyse (qwen3-30b)
+        M2 pre-analyse (deepseek-coder, champion)
              |
              v
         Claude dispatche (COMMANDER_PROMPT)
@@ -687,7 +931,9 @@ MATCH     NO MATCH
 F:\BUREAU\turbo\
 |-- main.py                      # Point d'entree (7 modes: -i -c -v -k -o -s "prompt")
 |-- pyproject.toml               # Dependencies (uv, Python 3.13)
-|-- gemini-proxy.js              # Proxy Gemini 2.5 Pro/Flash (timeout 2min, fallback)
+|-- gemini-proxy.js              # Proxy Gemini 3 Pro/Flash (timeout 2min, fallback 4 modeles)
+|-- benchmark_cluster.py         # Benchmark cluster 7 phases (health/inference/consensus/...)
+|-- benchmark_real_test.py       # Benchmark reel 10 niveaux de difficulte
 |-- CLAUDE_MULTI_AGENT.md        # Protocole MAO complet
 |-- .env                         # Variables d'env (API keys, DB paths)
 |-- .gitignore                   # .env, .venv/, __pycache__/, *.db, logs/
@@ -696,10 +942,10 @@ F:\BUREAU\turbo\
 |   |-- __init__.py              # Package init
 |   |-- orchestrator.py          # Moteur principal + COMMANDER_PROMPT + run_*()
 |   |-- commander.py             # Pipeline Commander (classify/decompose/verify/synthesize)
-|   |-- config.py                # Config cluster + routage + thermal + 33 scripts indexes
-|   |-- agents.py                # 5 agents Claude SDK (ia-deep/fast/check/trading/system)
-|   |-- tools.py                 # 83 outils MCP (IA, Windows, Trading, Brain, Skills)
-|   |-- mcp_server.py            # Serveur MCP stdio pour Claude Code
+|   |-- config.py                # Config cluster + routage benchmark-tuned + thermal
+|   |-- agents.py                # 7 agents Claude SDK (deep/fast/check/trading/system/bridge/consensus)
+|   |-- tools.py                 # 87 outils MCP SDK (IA, Windows, Trading, Brain, Skills)
+|   |-- mcp_server.py            # Serveur MCP stdio pour Claude Code (87 handlers)
 |   |-- commands.py              # 438 commandes vocales (18 vagues)
 |   |-- skills.py                # 86+ skills dynamiques (16 vagues)
 |   |-- voice.py                 # Whisper STT + SAPI TTS + push-to-talk
@@ -722,6 +968,8 @@ F:\BUREAU\turbo\
 |
 |-- data/
 |   |-- jarvis.db                # Base SQLite principale (6 tables)
+|   |-- benchmark_report.json    # Rapport benchmark cluster
+|   |-- benchmark_real_report.json # Rapport benchmark reel 10 niveaux
 |   |-- skills.json              # Skills persistantes
 |   |-- brain_state.json         # Etat cerveau auto-apprenant
 |   |-- jarvis_m1_prompt.txt     # Prompt compact pour M1
@@ -754,9 +1002,10 @@ F:\BUREAU\turbo\
 - Python 3.13
 - uv v0.10.2 (`C:\Users\franc\.local\bin\uv.exe`)
 - CUDA (pour Whisper + LM Studio)
-- LM Studio (M1 + M2)
+- LM Studio (M1 + M2 + M3)
 - Ollama v0.16.1
 - Node.js (pour gemini-proxy.js)
+- Gemini CLI v0.25.1
 - n8n v2.4.8
 
 ### Installation
@@ -800,49 +1049,31 @@ uv run python main.py "scanne le marche crypto"
 
 ---
 
-## Benchmark
-
-Date: 2026-02-18
-
-| Metrique | Valeur |
-|----------|--------|
-| Classification M1 | 24/24 correct, 5ms avg |
-| Classification heuristique | 24/24 correct, 0ms |
-| Pipeline complet (classify+decompose+enrich) | 150ms avg |
-| M1 inference (qwen3-30b) | 1.3-17.6s selon complexite |
-| M2 inference (deepseek-coder) | 1.1-7.2s |
-| OL1 inference (qwen3:1.7b) | 0.3-1.2s |
-| Parallele M1+M2+OL1 | 2.2s (vs 3.7s sequentiel, +40%) |
-| GPU | 6 GPU, 57% VRAM utilisee, 34C max |
-| Thermal | Normal (< 75C) |
-
----
-
 ## Appels API — Exemples Complets
 
-### Classification via M1 (API native v1)
+### Query M2 Champion (API native v1)
 
 ```bash
-curl -s http://10.5.0.2:1234/api/v1/chat \
+curl -s http://192.168.1.26:1234/api/v1/chat \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" \
+  -H "Authorization: Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4" \
   -d '{
-    "model": "qwen/qwen3-30b-a3b-2507",
-    "input": "debug le segfault dans main.py",
-    "system_prompt": "Classifie cette demande en UNE categorie: code, analyse, trading, systeme, web, simple. Reponds UNIQUEMENT avec le mot-cle.",
-    "temperature": 0.1,
-    "max_output_tokens": 32,
+    "model": "deepseek-coder-v2-lite-instruct",
+    "input": "Ecris un decorateur Python de cache LRU",
+    "temperature": 0.3,
+    "max_output_tokens": 8192,
     "stream": false,
     "store": false
   }'
-# Reponse: {"output":[{"content":"code"}], "stats":{"total_output_tokens":1}}
+# Reponse: {"output":[{"content":"..."}], "stats":{"total_output_tokens":...}}
 ```
 
 ### Consensus Multi-Noeuds
 
 ```bash
-# M1 + M2 + OL1 en parallele, puis synthese
+# M2 + OL1 + M3 + M1 + GEMINI en parallele, puis synthese
 # Voir src/tools.py → consensus()
+# Ou via MCP: mcp__jarvis__consensus
 ```
 
 ### Trading Signal
@@ -869,22 +1100,24 @@ Documentation complete: `CLAUDE_MULTI_AGENT.md`
 
 | Commande | Action |
 |----------|--------|
-| `MAO check` | Health check M1+M2+OL1+Gemini |
-| `MAO consensus [question]` | Question sur M1+M2+GEMINI, synthese |
-| `MAO code [description]` | M2 code → M1 review → presentation |
-| `MAO archi [sujet]` | GEMINI avis → M1 validation |
+| `MAO check` | Health check M1+M2+M3+OL1+Gemini (5 noeuds) |
+| `MAO consensus [question]` | Question sur M2+OL1+M3+GEMINI, synthese |
+| `MAO code [description]` | M2 code → M3 review → presentation |
+| `MAO archi [sujet]` | GEMINI avis → M2 validation |
 
-### Matrice MAO
+### Matrice MAO (benchmark-tuned)
 
 | Tache | Principal | Secondaire | Verificateur |
 |-------|-----------|------------|--------------|
-| Code nouveau | M2 | M1 (review) | GEMINI (archi) |
-| Bug fix | M1 | M2 (patch) | - |
-| Architecture | GEMINI | M1 (faisabilite) | - |
-| Refactoring | M2 | M1 (validation) | - |
-| Trading | M1 | OL1-cloud (web) | - |
-| Question simple | OL1 | - | - |
-| Consensus critique | M1+M2+GEMINI | Vote majoritaire | - |
+| Code nouveau | M2 (champion) | M3 (review) | GEMINI (archi) |
+| Bug fix | M2 | M3 (patch) | - |
+| Architecture | GEMINI | M2 (faisabilite) | - |
+| Refactoring | M2 | M3 (validation) | - |
+| Trading | OL1 (web) | M2 (analyse) | - |
+| Question simple | OL1 (0.5s) | M3 (2.5s) | - |
+| Recherche web | OL1-cloud | GEMINI | - |
+| Consensus critique | M2+OL1+M3+GEMINI | Vote pondere | - |
+| Embedding | M1 (seul use case) | - | - |
 
 ---
 
@@ -918,8 +1151,8 @@ Documentation complete: `CLAUDE_MULTI_AGENT.md`
 
 | Disque | Capacite | Libre | Contenu |
 |--------|----------|-------|---------|
-| **C:\\** | 476 GB | ~20 GB | Systeme, Python, uv |
-| **F:\\** | 446 GB | ~45 GB | Projets, modeles LM Studio (~300 GB) |
+| **C:\\** | 476 GB | ~82 GB | Systeme, Python, uv |
+| **F:\\** | 446 GB | ~104 GB | Projets, modeles LM Studio (~300 GB) |
 
 ---
 
