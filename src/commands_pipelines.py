@@ -721,4 +721,205 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
         "mode scrum", "mode scrum master", "session scrum",
         "lance le daily", "mode agile",
     ], "pipeline", "browser:navigate:https://github.com/projects;;sleep:1;;browser:navigate:https://calendar.google.com;;sleep:1;;powershell:cd F:\\BUREAU\\turbo; git log --since='yesterday' --oneline 2>&1 | Out-String;;powershell:$end = (Get-Date).AddMinutes(15).ToString('HH:mm'); \"Standup demarre — max $end\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 1 — RÉVEIL & DÉMARRAGE JOURNÉE
+    # Scénario: "Jarvis, demarre la journee" → boot complet sans toucher la souris
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_reveil_complet", "pipeline", "Simulation reveil: cluster + mails + trading + news + dashboard + café", [
+        "demarre la journee complete", "simulation reveil", "boot complet",
+        "lance tout pour la journee", "reveil total",
+        "initialise ma journee",
+    ], "pipeline", "powershell:powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c; 'Mode performance active';;app_open:lmstudio;;sleep:2;;browser:navigate:http://127.0.0.1:8080;;sleep:1;;browser:navigate:https://mail.google.com;;sleep:1;;browser:navigate:https://www.tradingview.com;;sleep:1;;browser:navigate:https://news.google.com;;powershell:$h = (Get-Date).ToString('HH:mm'); \"Bonjour! Il est $h — tout est pret\""),
+    JarvisCommand("sim_check_matinal", "pipeline", "Check matinal rapide: cluster health + GPU + RAM + trading", [
+        "check matinal", "tout va bien ce matin", "etat du matin",
+        "check rapide matinal", "comment va le systeme",
+    ], "pipeline", "powershell:$m2 = try{(Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; $ol1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; \"Cluster — M2: $(if($m2 -eq 200){'OK'}else{'OFF'}) | OL1: $(if($ol1 -eq 200){'OK'}else{'OFF'})\";;powershell:nvidia-smi --query-gpu=name,temperature.gpu,memory.used --format=csv,noheader,nounits 2>&1 | Out-String;;powershell:$os = Get-CimInstance Win32_OperatingSystem; $ram = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); $total = [math]::Round($os.TotalVisibleMemorySize/1MB,1); \"RAM: $ram/$total GB\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 2 — SESSION DE TRAVAIL DEV COMPLÈTE
+    # Scénario: Workflow dev du début à la fin sans souris
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_start_coding", "pipeline", "Demarrer une session de code: git pull + VSCode + terminal + snap", [
+        "je commence a coder", "start coding session", "session de code",
+        "lance le dev", "je vais coder",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git pull --rebase 2>&1 | Out-String;;app_open:code;;sleep:2;;hotkey:win+left;;sleep:1;;app_open:wt;;sleep:1;;hotkey:win+right;;powershell:cd F:\\BUREAU\\turbo; git status -sb"),
+    JarvisCommand("sim_code_and_test", "pipeline", "Code + test: lancer les tests + lint + afficher résultats", [
+        "teste mon code", "code and test", "verifie tout mon code",
+        "lint et test", "validation du code",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff check src/ 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pytest -x --tb=short 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:\\BUREAU\\turbo; git diff --stat 2>&1 | Out-String"),
+    JarvisCommand("sim_commit_and_push", "pipeline", "Commiter et pusher le code", [
+        "commit et push", "sauvegarde et pousse", "envoie le code",
+        "git push tout", "publie le code",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git add -A; git status -sb;;powershell:cd F:\\BUREAU\\turbo; git commit -m 'Update auto-JARVIS' 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; git push 2>&1 | Out-String", confirm=True),
+    JarvisCommand("sim_debug_session", "pipeline", "Session debug: devtools + terminal + logs + monitoring", [
+        "session debug complete", "je debug", "mode debug complet",
+        "lance le debugging", "debug total",
+    ], "pipeline", "app_open:code;;sleep:1;;hotkey:ctrl+`;;sleep:1;;hotkey:f12;;powershell:Get-WinEvent -FilterHashtable @{LogName='Application';Level=2} -MaxEvents 5 -ErrorAction SilentlyContinue | Select TimeCreated, Message | Out-String -Width 150"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 3 — RÉUNION VIRTUELLE (avant, pendant, après)
+    # Scénario: Préparer → Rejoindre → Présenter → Terminer
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_avant_reunion", "pipeline", "Avant reunion: fermer distractions + notes + agenda + micro check", [
+        "prepare la reunion", "avant le meeting", "pre reunion",
+        "setup avant la visio", "bientot en reunion",
+    ], "pipeline", f"powershell:Stop-Process -Name 'spotify','obs64' -Force -ErrorAction SilentlyContinue;;{MINIMIZE_ALL};;sleep:1;;ms_settings:ms-settings:quiethours;;sleep:1;;browser:navigate:https://calendar.google.com;;sleep:1;;browser:navigate:https://docs.google.com"),
+    JarvisCommand("sim_rejoindre_reunion", "pipeline", "Rejoindre: ouvrir Discord/Teams + partage ecran pret", [
+        "rejoins la reunion", "join meeting", "entre en reunion",
+        "lance la visio maintenant", "rejoins le call",
+    ], "pipeline", "app_open:discord;;sleep:2;;hotkey:win+p;;powershell:\"En reunion — partage ecran disponible via Win+P\""),
+    JarvisCommand("sim_presenter_ecran", "pipeline", "Presenter: dupliquer ecran + ouvrir dashboard + plein ecran", [
+        "presente mon ecran", "partage ecran presentation",
+        "lance la presentation maintenant", "montre mon ecran",
+    ], "pipeline", "powershell:DisplaySwitch.exe /clone;;sleep:2;;browser:navigate:http://127.0.0.1:8080;;sleep:2;;hotkey:f11;;powershell:\"Presentation en cours\""),
+    JarvisCommand("sim_apres_reunion", "pipeline", "Après reunion: fermer visio + restaurer musique + reprendre le dev", [
+        "reunion terminee reprends", "apres le meeting", "fin de la visio reprends",
+        "reviens au travail apres reunion", "post meeting",
+    ], "pipeline", "powershell:Stop-Process -Name 'teams','zoom','discord' -Force -ErrorAction SilentlyContinue; 'Visio fermee';;sleep:1;;app_open:spotify;;sleep:1;;app_open:code;;sleep:1;;app_open:wt;;powershell:\"Reunion terminee — retour au dev\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 4 — PAUSE & DÉTENTE SANS SOURIS
+    # Scénario: Transition travail → pause → retour au travail
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_pause_cafe", "pipeline", "Pause cafe: minimiser + verrouiller + 10 min", [
+        "pause cafe", "je prends un cafe", "coffee break",
+        "5 minutes de pause cafe", "petite pause",
+    ], "pipeline", f"{MINIMIZE_ALL};;sleep:1;;powershell:rundll32.exe user32.dll,LockWorkStation;;powershell:\"Pause cafe — reviens frais!\""),
+    JarvisCommand("sim_pause_longue", "pipeline", "Pause longue: save + musique + nuit + verrouiller", [
+        "longue pause", "grande pause", "je fais une grande pause",
+        "pause dejeuner complete", "pause d'une heure",
+    ], "pipeline", f"powershell:cd F:\\BUREAU\\turbo; git add -A; git commit -m 'Auto-save pause JARVIS' --allow-empty 2>&1 | Out-String;;{MINIMIZE_ALL};;sleep:1;;powershell:Start-Process ms-settings:nightlight;;sleep:1;;app_open:spotify;;sleep:1;;powershell:rundll32.exe user32.dll,LockWorkStation"),
+    JarvisCommand("sim_retour_pause", "pipeline", "Retour de pause: performance + rouvrir le dev + check cluster", [
+        "je suis de retour", "retour de pause", "fin de la pause",
+        "reprends le travail", "je reviens de pause",
+    ], "pipeline", "powershell:powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c;;app_open:code;;sleep:1;;app_open:wt;;sleep:1;;powershell:$m2 = try{(Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; \"Cluster M2: $(if($m2 -eq 200){'OK'}else{'OFF'}) — pret a bosser\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 5 — RECHERCHE & APPRENTISSAGE INTENSIF
+    # Scénario: Session de recherche complète multi-sources
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_recherche_intensive", "pipeline", "Recherche intensive: Claude + Perplexity + Scholar + Wikipedia + notes", [
+        "recherche intensive", "session recherche complete",
+        "lance une grosse recherche", "mode investigation profonde",
+    ], "pipeline", "browser:navigate:https://claude.ai;;sleep:1;;browser:navigate:https://www.perplexity.ai;;sleep:1;;browser:navigate:https://scholar.google.com;;sleep:1;;browser:navigate:https://fr.wikipedia.org;;sleep:1;;browser:navigate:https://docs.google.com;;powershell:\"5 sources ouvertes — bonne recherche!\""),
+    JarvisCommand("sim_formation_video", "pipeline", "Formation video: YouTube + notes + VSCode + timer 2h", [
+        "formation video complete", "session formation", "apprends en video",
+        "cours video complet", "tuto complet",
+    ], "pipeline", f"ms_settings:ms-settings:quiethours;;sleep:1;;{MINIMIZE_ALL};;sleep:1;;browser:navigate:https://www.youtube.com;;sleep:1;;app_open:code;;sleep:1;;browser:navigate:https://docs.google.com;;powershell:$end = (Get-Date).AddHours(2).ToString('HH:mm'); \"Formation jusqu'a $end\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 6 — TRADING COMPLET (analyse → execution → monitoring)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_analyse_trading", "pipeline", "Analyse trading: multi-timeframe + indicateurs + news crypto", [
+        "analyse trading complete", "session analyse trading",
+        "analyse les marches", "etude des charts",
+    ], "pipeline", "browser:navigate:https://www.tradingview.com/chart/?symbol=BINANCE:BTCUSDT;;sleep:1;;browser:navigate:https://www.coingecko.com;;sleep:1;;browser:navigate:https://coinmarketcap.com;;sleep:1;;browser:navigate:https://www.coindesk.com;;powershell:\"Analyse en cours — 4 sources ouvertes\""),
+    JarvisCommand("sim_execution_trading", "pipeline", "Execution trading: MEXC + TradingView + terminal signaux", [
+        "execute le trading", "passe les ordres", "session execution trades",
+        "trading actif", "lance le trading actif",
+    ], "pipeline", "browser:navigate:https://www.mexc.com/exchange/BTC_USDT;;sleep:1;;browser:navigate:https://www.tradingview.com;;sleep:1;;app_open:wt;;powershell:\"Mode trading actif — attention aux positions\""),
+    JarvisCommand("sim_monitoring_positions", "pipeline", "Monitoring positions: MEXC + alertes + DexScreener", [
+        "surveille mes positions", "monitoring trading", "check mes trades",
+        "comment vont mes positions", "etat de mes trades",
+    ], "pipeline", "browser:navigate:https://www.mexc.com/exchange/BTC_USDT;;sleep:1;;browser:navigate:https://dexscreener.com;;sleep:1;;browser:navigate:https://www.tradingview.com;;powershell:\"Monitoring actif — surveille tes positions\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 7 — GESTION MULTI-FENÊTRES VOCALE
+    # Scénario: Organiser son espace de travail 100% à la voix
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_layout_dev_split", "pipeline", "Layout dev split: VSCode gauche + navigateur droite", [
+        "layout dev split", "code a gauche navigateur a droite",
+        "split dev layout", "organise mon ecran pour coder",
+    ], "pipeline", "app_open:code;;sleep:2;;hotkey:win+left;;sleep:1;;browser:navigate:http://127.0.0.1:8080;;sleep:1;;hotkey:win+right;;powershell:\"Layout: VSCode gauche | Dashboard droite\""),
+    JarvisCommand("sim_layout_triple", "pipeline", "Layout triple: code + terminal + navigateur en quadrants", [
+        "layout triple", "trois fenetres organisees", "quadrant layout",
+        "organise trois apps", "layout travail",
+    ], "pipeline", "app_open:code;;sleep:2;;hotkey:win+left;;hotkey:win+up;;sleep:1;;app_open:wt;;sleep:1;;hotkey:win+left;;hotkey:win+down;;sleep:1;;browser:navigate:http://127.0.0.1:8080;;sleep:1;;hotkey:win+right;;powershell:\"Triple layout organise\""),
+    JarvisCommand("sim_tout_fermer_propre", "pipeline", "Fermeture propre: sauvegarder + fermer apps + minimiser + night light", [
+        "ferme tout proprement", "clean shutdown apps", "termine proprement",
+        "arrete tout et range", "finis proprement",
+    ], "pipeline", f"powershell:cd F:\\BUREAU\\turbo; git add -A; git commit -m 'Clean close JARVIS' --allow-empty 2>&1 | Out-String;;powershell:Stop-Process -Name 'code','wt','obs64','discord','telegram' -Force -ErrorAction SilentlyContinue; 'Apps dev fermees';;sleep:1;;{MINIMIZE_ALL};;powershell:Start-Process ms-settings:nightlight;;\"Tout ferme proprement\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 8 — FIN DE JOURNÉE COMPLÈTE
+    # Scénario: Sauvegarder → Rapport → Fermer → Night mode → Verrouiller
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_fin_journee_complete", "pipeline", "Fin de journee complete: backup + stats + nuit + economie + verrouiller", [
+        "fin de journee complete", "termine la journee proprement",
+        "bonne nuit complete", "arrete tout pour la nuit",
+        "shutdown de fin de journee",
+    ], "pipeline", f"powershell:cd F:\\BUREAU\\turbo; git add -A; git commit -m 'Fin de journee auto-JARVIS' --allow-empty 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; $c = (git log --since='today' --oneline | Measure-Object).Count; \"$c commits aujourd'hui\";;powershell:Stop-Process -Name 'code','wt','obs64','discord','telegram','slack','chrome','msedge' -Force -ErrorAction SilentlyContinue; 'Toutes les apps fermees';;sleep:1;;{MINIMIZE_ALL};;powershell:Start-Process ms-settings:nightlight;;sleep:1;;powershell:powercfg /setactive a1841308-3541-4fab-bc81-f71556f20b4a; 'Mode economie active';;powershell:rundll32.exe user32.dll,LockWorkStation", confirm=True),
+    JarvisCommand("sim_weekend_mode", "pipeline", "Mode weekend: fermer tout le dev + musique + news + Netflix", [
+        "mode weekend complet", "c'est le weekend enfin",
+        "plus de travail weekend", "transition weekend",
+    ], "pipeline", f"powershell:cd F:\\BUREAU\\turbo; git add -A; git commit -m 'Weekend save JARVIS' --allow-empty 2>&1 | Out-String;;powershell:Stop-Process -Name 'code','wt','lmstudio' -Force -ErrorAction SilentlyContinue; 'Dev ferme';;sleep:1;;{MINIMIZE_ALL};;sleep:1;;powershell:Start-Process ms-settings:nightlight;;sleep:1;;app_open:spotify;;sleep:1;;browser:navigate:https://www.netflix.com;;powershell:\"Bon weekend!\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 9 — URGENCES & DÉPANNAGE
+    # Scénario: Réagir rapidement à un problème sans souris
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_urgence_gpu", "pipeline", "Urgence GPU: check temperatures + vram + killprocess gourmand", [
+        "urgence gpu", "les gpu chauffent trop", "gpu en surchauffe",
+        "sauve les gpu", "urgence temperature",
+    ], "pipeline", "powershell:nvidia-smi --query-gpu=name,temperature.gpu,utilization.gpu,memory.used,memory.total --format=csv,noheader,nounits | ForEach-Object { $f = $_ -split ','; \"$($f[0].Trim()): $($f[1].Trim())C GPU $($f[2].Trim())% VRAM $($f[3].Trim())/$($f[4].Trim()) MB\" };;powershell:Get-Process | Sort WS -Descending | Select -First 5 Name, @{N='RAM(MB)';E={[math]::Round($_.WS/1MB)}} | Format-Table -AutoSize | Out-String;;powershell:\"Check GPU termine — tue les processus gourmands si necessaire\""),
+    JarvisCommand("sim_urgence_reseau", "pipeline", "Urgence reseau: flush DNS + reset adapter + ping + diagnostic", [
+        "urgence reseau", "internet ne marche plus", "plus de connexion",
+        "repare le reseau", "debug internet",
+    ], "pipeline", "powershell:ipconfig /flushdns; 'DNS purge';;powershell:$p = Test-Connection 8.8.8.8 -Count 2 -ErrorAction SilentlyContinue; if($p){\"Ping Google: OK ($([math]::Round(($p | Measure-Object -Property Latency -Average).Average))ms)\"}else{'Ping Google: ECHEC'};;powershell:$d = Resolve-DnsName google.com -ErrorAction SilentlyContinue; if($d){'DNS: OK'}else{'DNS: ECHEC'};;powershell:netsh wlan show interfaces | Select-String 'SSID|Signal|Etat' | Out-String"),
+    JarvisCommand("sim_urgence_espace", "pipeline", "Urgence espace disque: taille disques + temp + downloads + cache", [
+        "urgence espace disque", "plus de place", "disque plein",
+        "libere de l'espace", "urgence stockage",
+    ], "pipeline", "powershell:Get-PSDrive -PSProvider FileSystem | Where Used -gt 0 | Select Name, @{N='Libre(GB)';E={[math]::Round($_.Free/1GB,1)}} | Out-String;;powershell:$t = (Get-ChildItem $env:TEMP -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1MB; \"TEMP: $([math]::Round($t)) MB\";;powershell:$d = (Get-ChildItem $env:USERPROFILE\\Downloads -File -ErrorAction SilentlyContinue | Where { $_.LastWriteTime -lt (Get-Date).AddDays(-30) } | Measure-Object Length -Sum).Sum/1MB; \"Vieux downloads: $([math]::Round($d)) MB\";;powershell:$c = (Get-ChildItem \"$env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Default\\Cache\" -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1MB; \"Cache Chrome: $([math]::Round($c)) MB\""),
+    JarvisCommand("sim_urgence_performance", "pipeline", "Urgence performance: CPU + RAM + processus zombies + services en echec", [
+        "urgence performance", "le pc rame", "tout est lent",
+        "pourquoi c'est lent", "debug performance",
+    ], "pipeline", "powershell:$cpu = (Get-Counter '\\Processor(_Total)\\% Processor Time' -SampleInterval 1 -MaxSamples 1).CounterSamples.CookedValue; \"CPU: $([math]::Round($cpu))%\";;powershell:$os = Get-CimInstance Win32_OperatingSystem; $used = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); $total = [math]::Round($os.TotalVisibleMemorySize/1MB,1); \"RAM: $used/$total GB ($([math]::Round($used/$total*100))%)\";;powershell:Get-Process | Where { $_.Responding -eq $false } | Select Name, Id | Out-String;;powershell:Get-Process | Sort CPU -Descending | Select -First 5 Name, @{N='CPU(s)';E={[math]::Round($_.CPU,1)}}, @{N='RAM(MB)';E={[math]::Round($_.WS/1MB)}} | Format-Table -AutoSize | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 10 — MULTITÂCHE & PRODUCTIVITÉ AVANCÉE
+    # Scénario: Jongler entre plusieurs activités sans souris
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_multitask_dev_trading", "pipeline", "Multitask dev+trading: split code/charts + cluster monitoring", [
+        "multitask dev et trading", "code et trade en meme temps",
+        "dev plus trading", "double activite",
+    ], "pipeline", "app_open:code;;sleep:2;;hotkey:win+left;;sleep:1;;browser:navigate:https://www.tradingview.com;;sleep:1;;hotkey:win+right;;sleep:1;;powershell:$m2 = try{(Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; \"Cluster M2: $(if($m2 -eq 200){'OK'}else{'OFF'})\""),
+    JarvisCommand("sim_multitask_email_code", "pipeline", "Multitask email+code: mails a gauche + VSCode a droite", [
+        "mails et code", "email et dev", "reponds aux mails en codant",
+        "mail plus code", "inbox et vscode",
+    ], "pipeline", "browser:navigate:https://mail.google.com;;sleep:2;;hotkey:win+left;;sleep:1;;app_open:code;;sleep:1;;hotkey:win+right;;powershell:\"Split: Gmail gauche | VSCode droite\""),
+    JarvisCommand("sim_focus_extreme", "pipeline", "Focus extreme: fermer TOUT sauf VSCode + mute + night + timer 3h", [
+        "focus extreme", "concentration absolue", "zero distraction",
+        "mode monk", "plus rien ne me derange",
+    ], "pipeline", f"powershell:Stop-Process -Name 'chrome','msedge','discord','telegram','slack','spotify','obs64' -Force -ErrorAction SilentlyContinue;;{MINIMIZE_ALL};;sleep:1;;ms_settings:ms-settings:quiethours;;sleep:1;;powershell:Start-Process ms-settings:nightlight;;sleep:1;;app_open:code;;powershell:$end = (Get-Date).AddHours(3).ToString('HH:mm'); \"Focus extreme jusqu'a $end — ZERO distraction\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 11 — ENTERTAINMENT & LOISIRS COMPLETS
+    # Scénario: Transition travail → loisirs sans toucher la souris
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_soiree_gaming", "pipeline", "Soiree gaming: fermer dev + performance + Steam + Game Bar", [
+        "soiree gaming", "session jeu video", "mode gamer complet",
+        "lance une soiree jeu", "gaming time",
+    ], "pipeline", f"powershell:Stop-Process -Name 'code','wt','lmstudio' -Force -ErrorAction SilentlyContinue;;{MINIMIZE_ALL};;sleep:1;;powershell:powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c;;sleep:1;;app_open:steam;;sleep:3;;hotkey:win+g;;powershell:\"Mode gaming active — GG!\""),
+    JarvisCommand("sim_soiree_film", "pipeline", "Soiree film: fermer tout + nuit + volume + Netflix plein ecran", [
+        "soiree film complete", "on regarde un film", "movie night",
+        "mode cinema total", "prépare le film",
+    ], "pipeline", f"powershell:Stop-Process -Name 'code','wt','discord','lmstudio' -Force -ErrorAction SilentlyContinue;;{MINIMIZE_ALL};;sleep:1;;powershell:Start-Process ms-settings:nightlight;;sleep:1;;powershell:$w = New-Object -ComObject WScript.Shell; 1..10 | ForEach {{ $w.SendKeys([char]175) }}; 'Volume monte';;browser:navigate:https://www.netflix.com;;sleep:3;;hotkey:f11;;powershell:\"Bon film!\""),
+    JarvisCommand("sim_soiree_musique", "pipeline", "Soiree musique: minimiser + Spotify + ambiance + volume", [
+        "soiree musique", "ambiance musicale complete", "music night",
+        "met de la bonne musique", "soiree son",
+    ], "pipeline", f"{MINIMIZE_ALL};;sleep:1;;powershell:Start-Process ms-settings:nightlight;;sleep:1;;app_open:spotify;;sleep:1;;powershell:$w = New-Object -ComObject WScript.Shell; 1..7 | ForEach {{ $w.SendKeys([char]175) }}; 'Volume ajuste';;powershell:\"Soiree musique — profite!\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 12 — MAINTENANCE PLANIFIÉE HEBDO
+    # Scénario: Nettoyage/maintenance systeme complet une fois par semaine
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_maintenance_hebdo", "pipeline", "Maintenance hebdo: temp + cache + corbeille + DNS + logs + updates", [
+        "maintenance hebdomadaire", "grand nettoyage de la semaine",
+        "nettoyage hebdo", "maintenance weekly",
+    ], "pipeline", "powershell:Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye';;powershell:Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe';;powershell:Remove-Item \"$env:LOCALAPPDATA\\Microsoft\\Windows\\Explorer\\thumbcache_*\" -Force -ErrorAction SilentlyContinue; 'Thumbnails nettoyes';;powershell:ipconfig /flushdns; 'DNS purge';;powershell:Remove-Item \"$env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Default\\Cache\\*\" -Recurse -Force -ErrorAction SilentlyContinue; 'Cache Chrome nettoye';;powershell:cd F:\\BUREAU\\turbo; $pycache = (Get-ChildItem -Recurse -Directory -Filter '__pycache__' -ErrorAction SilentlyContinue).Count; Get-ChildItem -Recurse -Directory -Filter '__pycache__' -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force; \"$pycache __pycache__ supprimes\";;powershell:\"Maintenance hebdo terminee!\"", confirm=True),
+    JarvisCommand("sim_backup_hebdo", "pipeline", "Backup hebdo: tous les projets + snapshot + stats", [
+        "backup hebdomadaire", "sauvegarde de la semaine",
+        "backup weekly", "sauvegarde hebdo",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git add -A; git commit -m 'Weekly backup JARVIS' --allow-empty 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; $c = (git log --since='1 week ago' --oneline | Measure-Object).Count; $py = (Get-ChildItem src/*.py -Recurse | Get-Content | Measure-Object -Line).Lines; \"Semaine: $c commits | Code: $py lignes\";;powershell:$d = Get-Date -Format 'yyyy-MM-dd_HHmm'; $os = Get-CimInstance Win32_OperatingSystem; $ram = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); \"Snapshot $d — RAM: $ram GB\"", confirm=True),
 ]
