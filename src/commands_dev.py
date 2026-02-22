@@ -559,4 +559,176 @@ DEV_COMMANDS: list[JarvisCommand] = [
         "pull turbo", "git pull", "recupere les commits",
         "mets a jour le code",
     ], "powershell", "cd F:\\BUREAU\\turbo; git pull --rebase 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # WINDOWS TERMINAL — Controle avance du terminal
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("wt_split_horizontal", "dev", "Diviser le terminal Windows horizontalement", [
+        "split terminal horizontal", "divise le terminal", "terminal cote a cote",
+        "nouveau panneau horizontal",
+    ], "powershell", "wt -w 0 sp -H"),
+    JarvisCommand("wt_split_vertical", "dev", "Diviser le terminal Windows verticalement", [
+        "split terminal vertical", "divise le terminal vertical",
+        "nouveau panneau vertical",
+    ], "powershell", "wt -w 0 sp -V"),
+    JarvisCommand("wt_new_tab", "dev", "Nouvel onglet dans Windows Terminal", [
+        "nouvel onglet terminal", "new tab terminal", "nouveau tab wt",
+        "ajoute un onglet terminal",
+    ], "powershell", "wt -w 0 nt"),
+    JarvisCommand("wt_new_tab_powershell", "dev", "Nouvel onglet PowerShell dans Windows Terminal", [
+        "terminal powershell", "onglet powershell", "ouvre un powershell",
+        "new powershell tab",
+    ], "powershell", "wt -w 0 nt -p 'PowerShell'"),
+    JarvisCommand("wt_new_tab_cmd", "dev", "Nouvel onglet CMD dans Windows Terminal", [
+        "terminal cmd", "onglet cmd", "ouvre un cmd",
+        "new cmd tab",
+    ], "powershell", "wt -w 0 nt -p 'Command Prompt'"),
+    JarvisCommand("wt_quake_mode", "dev", "Ouvrir le terminal en mode quake (dropdown)", [
+        "terminal quake", "quake mode", "terminal dropdown",
+        "terminal flottant",
+    ], "hotkey", "win+`"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # VSCODE AVANCÉ — Commandes editeur puissantes
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("vscode_zen_mode", "dev", "Activer le mode zen dans VSCode", [
+        "mode zen vscode", "zen mode", "vscode zen",
+        "plein ecran code", "distraction free",
+    ], "hotkey", "ctrl+k z"),
+    JarvisCommand("vscode_format_document", "dev", "Formater le document dans VSCode", [
+        "formate le document", "format code", "prettier",
+        "auto format", "shift alt f",
+    ], "hotkey", "shift+alt+f"),
+    JarvisCommand("vscode_word_wrap", "dev", "Basculer le retour a la ligne dans VSCode", [
+        "word wrap vscode", "retour a la ligne", "toggle wrap",
+        "alt z", "wrap lines",
+    ], "hotkey", "alt+z"),
+    JarvisCommand("vscode_minimap", "dev", "Afficher/masquer la minimap VSCode", [
+        "minimap vscode", "toggle minimap", "carte du code",
+        "affiche la minimap",
+    ], "powershell", "code --command 'editor.action.toggleMinimap' 2>$null; 'Minimap toggled'"),
+    JarvisCommand("vscode_multi_cursor_down", "dev", "Ajouter un curseur en dessous dans VSCode", [
+        "multi curseur bas", "curseur en dessous", "ctrl alt down",
+        "ajoute un curseur",
+    ], "hotkey", "ctrl+alt+down"),
+    JarvisCommand("vscode_multi_cursor_up", "dev", "Ajouter un curseur au dessus dans VSCode", [
+        "multi curseur haut", "curseur au dessus", "ctrl alt up",
+        "curseur supplementaire",
+    ], "hotkey", "ctrl+alt+up"),
+    JarvisCommand("vscode_rename_symbol", "dev", "Renommer un symbole dans VSCode (refactoring)", [
+        "renomme le symbole", "rename symbol", "refactor rename",
+        "f2 vscode", "renomme la variable",
+    ], "hotkey", "f2"),
+    JarvisCommand("vscode_go_to_definition", "dev", "Aller a la definition dans VSCode", [
+        "va a la definition", "go to definition", "f12 vscode",
+        "definition du symbole",
+    ], "hotkey", "f12"),
+    JarvisCommand("vscode_peek_definition", "dev", "Apercu de la definition (peek) dans VSCode", [
+        "peek definition", "apercu definition", "alt f12",
+        "regarde la definition",
+    ], "hotkey", "alt+f12"),
+    JarvisCommand("vscode_find_all_references", "dev", "Trouver toutes les references dans VSCode", [
+        "toutes les references", "find references", "shift f12",
+        "qui utilise ce symbole", "references vscode",
+    ], "hotkey", "shift+f12"),
+    JarvisCommand("vscode_fold_all", "dev", "Plier tout le code dans VSCode", [
+        "plie tout le code", "fold all", "ferme les blocs",
+        "replie tout", "collapse all",
+    ], "hotkey", "ctrl+k ctrl+0"),
+    JarvisCommand("vscode_unfold_all", "dev", "Deplier tout le code dans VSCode", [
+        "deplie tout le code", "unfold all", "ouvre les blocs",
+        "deplie tout", "expand all",
+    ], "hotkey", "ctrl+k ctrl+j"),
+    JarvisCommand("vscode_toggle_comment", "dev", "Commenter/decommenter la ligne ou selection", [
+        "commente", "decommente", "toggle comment", "ctrl slash",
+        "met en commentaire",
+    ], "hotkey", "ctrl+/"),
+    JarvisCommand("vscode_problems_panel", "dev", "Ouvrir le panneau des problemes VSCode", [
+        "panneau problemes", "errors vscode", "problems panel",
+        "montre les erreurs", "ctrl shift m",
+    ], "hotkey", "ctrl+shift+m"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DOCKER — Gestion des conteneurs
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("docker_ps_all", "dev", "Lister tous les conteneurs Docker", [
+        "tous les conteneurs", "docker ps all", "conteneurs docker",
+        "docker containers all",
+    ], "powershell", "docker ps -a --format 'table {{.Names}}\\t{{.Status}}\\t{{.Image}}' 2>&1 | Out-String"),
+    JarvisCommand("docker_logs_last", "dev", "Logs du dernier conteneur lance", [
+        "logs docker", "docker logs", "logs du conteneur",
+        "voir les logs docker",
+    ], "powershell", "$c = docker ps -q --latest 2>$null; if($c){ docker logs --tail 30 $c 2>&1 | Out-String }else{ 'Aucun conteneur actif' }"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PYTHON TOOLING — Tests, lint, format, typage
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("pytest_turbo", "dev", "Lancer les tests pytest du projet turbo", [
+        "lance les tests", "pytest", "run tests",
+        "teste le projet", "tests turbo",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pytest -x -v 2>&1 | Out-String"),
+    JarvisCommand("pytest_last_failed", "dev", "Relancer les tests qui ont echoue", [
+        "relance les tests echoues", "pytest lf", "rerun failed",
+        "tests echoues",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pytest --lf -v 2>&1 | Out-String"),
+    JarvisCommand("ruff_check", "dev", "Lancer ruff (linter Python) sur turbo", [
+        "ruff check", "lint python", "verifie le code python",
+        "linter turbo",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff check src/ 2>&1 | Out-String"),
+    JarvisCommand("ruff_format", "dev", "Formater le code Python avec ruff format", [
+        "ruff format", "formate le python", "format python",
+        "auto format python",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff format src/ 2>&1 | Out-String"),
+    JarvisCommand("mypy_check", "dev", "Verifier les types Python avec mypy", [
+        "mypy check", "verifie les types", "type check python",
+        "mypy turbo",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run mypy src/ --ignore-missing-imports 2>&1 | Out-String"),
+    JarvisCommand("pip_list_turbo", "dev", "Lister les packages Python du projet turbo", [
+        "packages python", "pip list", "quels packages python",
+        "dependances python", "pip freeze turbo",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' pip list 2>&1 | Out-String"),
+    JarvisCommand("count_lines_python", "dev", "Compter les lignes de code Python du projet", [
+        "combien de lignes de code", "lignes python", "count lines",
+        "taille du code", "loc python",
+    ], "powershell", "$py = Get-ChildItem F:\\BUREAU\\turbo\\src\\*.py -Recurse; $lines = ($py | Get-Content | Measure-Object -Line).Lines; $files = $py.Count; \"$files fichiers Python | $lines lignes de code\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DATABASE CLI — Outils base de donnees
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sqlite_jarvis", "dev", "Ouvrir la base JARVIS en SQLite", [
+        "ouvre la base jarvis", "sqlite jarvis", "base de donnees jarvis",
+        "explore la db",
+    ], "powershell", "sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db '.tables' 2>&1; sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db 'SELECT COUNT(*) as total FROM skills;' 2>&1 | Out-String"),
+    JarvisCommand("sqlite_etoile", "dev", "Explorer la base etoile.db", [
+        "ouvre etoile db", "base etoile", "sqlite etoile",
+        "explore etoile",
+    ], "powershell", "sqlite3 F:\\BUREAU\\etoile.db '.tables' 2>&1; sqlite3 F:\\BUREAU\\etoile.db 'SELECT category, COUNT(*) as c FROM map GROUP BY category ORDER BY c DESC;' 2>&1 | Out-String"),
+    JarvisCommand("sqlite_tables", "dev", "Lister les tables d'une base SQLite", [
+        "tables sqlite {db}", "quelles tables dans {db}", "schema {db}",
+        "structure de la base {db}",
+    ], "powershell", "sqlite3 '{db}' '.tables' 2>&1 | Out-String", ["db"]),
+    JarvisCommand("redis_ping", "dev", "Ping Redis local", [
+        "ping redis", "redis ok", "test redis",
+        "redis status",
+    ], "powershell", "redis-cli ping 2>&1 | Out-String"),
+    JarvisCommand("redis_info", "dev", "Informations Redis (memoire, clients)", [
+        "info redis", "redis info", "etat redis",
+        "memoire redis",
+    ], "powershell", "redis-cli info server 2>&1 | Select-String 'redis_version|used_memory_human|connected_clients' | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # MONITORING PROJET — Stats et metriques de code
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("turbo_file_count", "dev", "Nombre de fichiers par type dans turbo", [
+        "combien de fichiers turbo", "types de fichiers", "file count",
+        "inventaire fichiers",
+    ], "powershell", "Get-ChildItem F:\\BUREAU\\turbo -Recurse -File -ErrorAction SilentlyContinue | Where { $_.FullName -notmatch '\\.git|__pycache__|node_modules|\\.venv|dist' } | Group-Object Extension | Sort Count -Descending | Select -First 15 @{N='Type';E={$_.Name}}, Count | Format-Table -AutoSize | Out-String"),
+    JarvisCommand("turbo_todo_scan", "dev", "Scanner les TODO/FIXME/HACK dans le code", [
+        "trouve les todo", "scan todo", "fixme dans le code",
+        "quoi reste a faire", "todos turbo",
+    ], "powershell", "Get-ChildItem F:\\BUREAU\\turbo\\src\\*.py -Recurse | Select-String -Pattern 'TODO|FIXME|HACK|XXX' | Select Filename, LineNumber, Line | Format-Table -AutoSize | Out-String -Width 200"),
+    JarvisCommand("turbo_import_graph", "dev", "Voir les imports entre modules turbo", [
+        "graph des imports", "imports turbo", "dependances modules",
+        "qui importe quoi",
+    ], "powershell", "Get-ChildItem F:\\BUREAU\\turbo\\src\\*.py | ForEach-Object { $f = $_.BaseName; Get-Content $_.FullName | Select-String '^from src\\.' | ForEach-Object { \"$f -> $($_.Line -replace 'from src\\.(\\w+).*','$1')\" } } | Sort -Unique | Out-String"),
 ]

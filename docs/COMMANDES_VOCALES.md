@@ -1,16 +1,16 @@
-# Commandes Vocales JARVIS - Reference Complete
+Generated 1337 lines, 165337 chars
+1235 commandes documentees, 212 pipelines
+026-02-22 | Voice Pipeline v2
 
-> Mise a jour automatique: 2026-02-22 | Voice Pipeline v2
-
-**1092 commandes** au total, dont **191 pipelines** multi-etapes, reparties en **14 categories**.
+**1235 commandes** au total, dont **212 pipelines** multi-etapes, reparties en **14 categories**.
 
 | Categorie | Nombre |
 |-----------|--------|
-| Systeme Windows | 463 |
-| Pipelines Multi-Etapes | 191 |
-| Navigation Web | 167 |
-| Developpement & Outils | 126 |
-| Fichiers & Documents | 32 |
+| Systeme Windows | 511 |
+| Pipelines Multi-Etapes | 212 |
+| Navigation Web | 197 |
+| Developpement & Outils | 163 |
+| Fichiers & Documents | 39 |
 | Applications | 23 |
 | Trading & IA | 19 |
 | Fenetres Windows | 13 |
@@ -20,7 +20,7 @@
 | Accessibilite | 10 |
 | Controle Media | 7 |
 | Saisie & Texte | 4 |
-| **TOTAL** | **1092** |
+| **TOTAL** | **1235** |
 
 ---
 
@@ -221,12 +221,33 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | sim_soiree_musique | "soiree musique" | MinimizeAll > pause 1s > Start-Process ms-settings:nightlight > pause 1s > Ouvrir spotify > pause 1s > $w = New-Objec... |
 | sim_maintenance_hebdo | "maintenance hebdomadaire" | Remove-Item $env:TEMP\* -Recurse -Force -ErrorActi... > Clear-RecycleBin -Force -ErrorAction SilentlyConti... > Remov... (confirm) |
 | sim_backup_hebdo | "backup hebdomadaire" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Wee... > cd F:\BUREAU\turbo; $c = (git log --since='1 week ... > $d = ... (confirm) |
+| sim_diag_reseau_complet | "diagnostic reseau complet" | ping 8.8.8.8 -n 3 | Select-String 'Moyenne|Average... > ipconfig /flushdns; nslookup google.com 2>&1 | Sel... > trace... |
+| sim_diag_wifi | "probleme wifi complet" | netsh wlan show interfaces | Select-String 'SSID|S... > ping 192.168.1.1 -n 3 | Select-String 'Moyenne|Ave... > ping ... |
+| sim_diag_cluster_deep | "diagnostic cluster profond" | $m2 = try{(Invoke-WebRequest -Uri 'http://192.168.... > nvidia-smi --query-gpu=name,temperature.gpu,utiliz... > (Invo... |
+| sim_audit_securite | "audit securite complet" | Get-NetTCPConnection -State Listen | Group-Object ... > Get-NetTCPConnection -State Established | Where Re... > $rdp ... |
+| sim_hardening_check | "check hardening" | Get-NetFirewallProfile | Select Name, Enabled | Out-String > $uac = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft... > ... |
+| sim_audit_mots_de_passe | "audit mots de passe" | net accounts 2>&1 | Out-String > Get-LocalUser | Select Name, Enabled, PasswordRequ... > "Audit mots de passe termine" |
+| sim_new_project_python | "nouveau projet python" | $name = 'new_project_' + (Get-Date -Format 'yyyyMM... > cd "F:\BUREAU\$((Get-ChildItem F:\BUREAU -Director... > Ouvri... |
+| sim_new_project_node | "nouveau projet node" | $name = 'node_project_' + (Get-Date -Format 'yyyyM... > cd "F:\BUREAU\$((Get-ChildItem F:\BUREAU -Director... > Ouvri... |
+| sim_clone_and_setup | "clone et setup {repo}" | cd F:\BUREAU; git clone '{repo}' 2>&1 | Out-String > pause 2s > Ouvrir code > pause 2s > "Repo clone et ouvert dans V... |
+| sim_grand_nettoyage_disque | "grand nettoyage du disque" | $s1 = (Get-ChildItem $env:TEMP -Recurse -File -Err... > Remove-Item "$env:LOCALAPPDATA\Google\Chrome\User ... > Clear... (confirm) |
+| sim_archive_vieux_projets | "archive les vieux projets" | $old = Get-ChildItem F:\BUREAU -Directory | Where ... |
+| sim_scan_fichiers_orphelins | "scan fichiers orphelins" | "=== Fichiers > 100MB ==="; Get-ChildItem F:\BUREA... > "=== Doublons par nom ==="; Get-ChildItem F:\BUREA... > "=== ... |
+| sim_design_review | "review design complet" | Raccourci: win+shift+m > pause 3s > Raccourci: win+shift+c > pause 3s > Raccourci: win+shift+t > pause 3s > Raccourci... |
+| sim_layout_productif | "layout productif" | Ouvrir code > pause 2s > Raccourci: win+left > pause 1s > Web: http://127.0.0.1:8080 > pause 2s > Raccourci: win+righ... |
+| sim_copier_texte_image | "copie le texte de l'image" | Raccourci: win+shift+t > pause 5s > $clip = Get-Clipboard -ErrorAction SilentlyContinu... |
+| sim_db_health_check | "health check des bases" | $j = (Get-Item F:\BUREAU\turbo\data\jarvis.db -Err... > sqlite3 F:\BUREAU\turbo\data\jarvis.db 'PRAGMA int... > sqlit... |
+| sim_db_backup | "backup les bases" | $d = Get-Date -Format 'yyyy-MM-dd_HHmm'; Copy-Item... |
+| sim_db_stats | "stats des bases" | sqlite3 F:\BUREAU\turbo\data\jarvis.db '.tables' 2... > sqlite3 F:\BUREAU\turbo\data\jarvis.db 'SELECT "sk... > sqlit... |
+| sim_docker_full_status | "status docker complet" | docker ps --format 'table {{.Names}}\t{{.Status}}\... > docker images --format 'table {{.Repository}}\t{{.... > docke... |
+| sim_docker_cleanup | "nettoie docker a fond" | docker container prune -f 2>&1 | Out-String > docker image prune -a -f 2>&1 | Out-String > docker volume prune -f 2>&... (confirm) |
+| sim_docker_restart_all | "redemarre docker" | docker restart $(docker ps -q) 2>&1 | Out-String > pause 3s > docker ps --format 'table {{.Names}}\t{{.Status}}'... >... |
 
 ---
 
 ## Listing Complet par Categorie
 
-### Navigation Web (167 commandes)
+### Navigation Web (197 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -397,8 +418,38 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | chercher_google_colab | Rechercher un notebook Colab | "cherche un notebook {requete}", "colab {requete}", "notebook sur {requete}" | browser |
 | chercher_perplexity | Rechercher sur Perplexity AI | "cherche sur perplexity {requete}", "perplexity {requete}", "demande a perplexity {requete}" | browser |
 | chercher_google_maps | Rechercher sur Google Maps | "cherche sur maps {requete}", "maps {requete}", "trouve {requete} sur la carte", +1 | browser |
+| ouvrir_impots | Ouvrir impots.gouv.fr | "ouvre les impots", "impots gouv", "va sur les impots", +2 | browser |
+| ouvrir_ameli | Ouvrir Ameli (Assurance Maladie) | "ouvre ameli", "assurance maladie", "va sur ameli", +2 | browser |
+| ouvrir_caf | Ouvrir la CAF | "ouvre la caf", "allocations familiales", "va sur la caf", +1 | browser |
+| ouvrir_sncf | Ouvrir SNCF Connect (trains) | "ouvre sncf", "billets de train", "va sur sncf", +2 | browser |
+| ouvrir_doctolib | Ouvrir Doctolib (rendez-vous medical) | "ouvre doctolib", "prends un rdv medical", "va sur doctolib", +2 | browser |
+| ouvrir_la_poste | Ouvrir La Poste (suivi colis) | "ouvre la poste", "suivi colis", "va sur la poste", +2 | browser |
+| ouvrir_pole_emploi | Ouvrir France Travail (ex Pole Emploi) | "ouvre pole emploi", "france travail", "va sur pole emploi", +1 | browser |
+| ouvrir_service_public | Ouvrir Service-Public.fr | "service public", "demarches administratives", "va sur service public", +1 | browser |
+| ouvrir_fnac | Ouvrir Fnac.com | "ouvre la fnac", "va sur la fnac", "fnac en ligne", +1 | browser |
+| ouvrir_cdiscount | Ouvrir Cdiscount | "ouvre cdiscount", "va sur cdiscount", "cdiscount", +1 | browser |
+| ouvrir_amazon_fr | Ouvrir Amazon France | "ouvre amazon france", "amazon fr", "va sur amazon", +1 | browser |
+| ouvrir_boursorama | Ouvrir Boursorama (banque/bourse) | "ouvre boursorama", "va sur boursorama", "banque en ligne", +1 | browser |
+| ouvrir_free_mobile | Ouvrir Free Mobile (espace client) | "ouvre free", "espace client free", "va sur free", +1 | browser |
+| ouvrir_edf | Ouvrir EDF (electricite) | "ouvre edf", "mon compte edf", "facture electricite", +1 | browser |
+| ouvrir_aws_console | Ouvrir AWS Console | "ouvre aws", "console aws", "va sur aws", +2 | browser |
+| ouvrir_azure_portal | Ouvrir Azure Portal | "ouvre azure", "portal azure", "va sur azure", +2 | browser |
+| ouvrir_gcp_console | Ouvrir Google Cloud Console | "ouvre google cloud", "gcp console", "va sur google cloud", +2 | browser |
+| ouvrir_netlify | Ouvrir Netlify (deploiement) | "ouvre netlify", "va sur netlify", "netlify dashboard", +1 | browser |
+| ouvrir_digitalocean | Ouvrir DigitalOcean | "ouvre digitalocean", "va sur digital ocean", "digital ocean", +1 | browser |
+| ouvrir_le_monde | Ouvrir Le Monde | "ouvre le monde", "actualites le monde", "va sur le monde", +2 | browser |
+| ouvrir_le_figaro | Ouvrir Le Figaro | "ouvre le figaro", "actualites figaro", "va sur le figaro", +1 | browser |
+| ouvrir_liberation | Ouvrir Liberation | "ouvre liberation", "actualites liberation", "va sur libe", +1 | browser |
+| ouvrir_france_info | Ouvrir France Info | "ouvre france info", "actualites france", "va sur france info", +1 | browser |
+| ouvrir_techcrunch | Ouvrir TechCrunch (tech news) | "ouvre techcrunch", "news tech", "va sur techcrunch", +1 | browser |
+| ouvrir_hackernews | Ouvrir Hacker News | "ouvre hacker news", "va sur hacker news", "ycombinator news", +2 | browser |
+| ouvrir_ars_technica | Ouvrir Ars Technica | "ouvre ars technica", "va sur ars technica", "ars technica", +1 | browser |
+| ouvrir_the_verge | Ouvrir The Verge | "ouvre the verge", "va sur the verge", "the verge", +1 | browser |
+| ouvrir_deezer | Ouvrir Deezer | "ouvre deezer", "va sur deezer", "musique deezer", +1 | browser |
+| ouvrir_mycanal | Ouvrir MyCanal | "ouvre canal plus", "va sur mycanal", "canal+", +1 | browser |
+| chercher_leboncoin | Rechercher sur Leboncoin | "cherche sur leboncoin {requete}", "leboncoin {requete}", "annonce {requete}", +1 | browser |
 
-### Fichiers & Documents (32 commandes)
+### Fichiers & Documents (39 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -434,6 +485,13 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | explorer_nouvel_onglet | Nouvel onglet dans l'Explorateur | "nouvel onglet explorateur", "onglet explorateur", "new tab explorer", +1 | powershell |
 | dossier_captures | Ouvrir le dossier captures d'ecran | "dossier captures", "ouvre les captures", "dossier screenshots", +2 | powershell |
 | taille_dossiers_bureau | Taille de chaque dossier dans F:\BUREAU | "taille des projets", "poids des dossiers bureau", "combien pese chaque projet", +1 | powershell |
+| compresser_fichier | Compresser un dossier en ZIP | "compresse en zip", "zip le dossier", "cree un zip", +2 | powershell |
+| decompresser_fichier | Decompresser un fichier ZIP | "decompresse le zip", "unzip", "extrais l'archive", +2 | powershell |
+| compresser_turbo | Compresser le projet turbo en ZIP (sans .git ni venv) | "zip turbo", "archive turbo", "compresse le projet", +1 | powershell |
+| vider_dossier_temp | Supprimer les fichiers temporaires | "vide le temp", "nettoie les temporaires", "clean temp", +1 | powershell |
+| lister_fichiers_recents | Lister les 20 fichiers les plus recents sur le bureau | "fichiers recents", "derniers fichiers", "quoi de recent", +1 | powershell |
+| chercher_gros_fichiers | Trouver les fichiers > 100 MB sur F: | "gros fichiers partout", "fichiers enormes", "quoi prend toute la place", +1 | powershell |
+| doublons_bureau | Detecter les doublons potentiels par nom dans F:\BUREAU | "doublons bureau", "fichiers en double", "trouve les doublons", +2 | powershell |
 
 ### Applications (23 commandes)
 
@@ -511,7 +569,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | clipboard_historique | Ouvrir l'historique du presse-papier | "historique presse papier", "clipboard history", "ouvre l'historique clipboard", +2 | hotkey |
 | coller_sans_format | Coller sans mise en forme | "colle sans format", "coller sans mise en forme", "colle en texte brut", +1 | hotkey |
 
-### Systeme Windows (463 commandes)
+### Systeme Windows (511 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -978,6 +1036,54 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | projection_ecran | Options de projection ecran (etendre, dupliquer) | "projection ecran", "project screen", "win p", +2 | hotkey |
 | connecter_appareil | Ouvrir le panneau de connexion d'appareils (Cast) | "connecter un appareil", "cast screen", "win k", +2 | hotkey |
 | ouvrir_game_bar_direct | Ouvrir la Xbox Game Bar | "game bar directe", "xbox game bar", "win g direct", +1 | hotkey |
+| powertoys_color_picker | Lancer le Color Picker PowerToys | "color picker", "pipette couleur", "capture une couleur", +2 | hotkey |
+| powertoys_text_extractor | Extraire du texte de l'ecran (OCR PowerToys) | "text extractor", "ocr ecran", "lis le texte a l'ecran", +2 | hotkey |
+| powertoys_screen_ruler | Mesurer des distances a l'ecran (Screen Ruler) | "screen ruler", "regle ecran", "mesure l'ecran", +2 | hotkey |
+| powertoys_always_on_top | Epingler la fenetre au premier plan (PowerToys) | "pin powertoys", "epingle powertoys", "always on top powertoys", +1 | hotkey |
+| powertoys_paste_plain | Coller en texte brut (PowerToys) | "colle en texte brut", "paste plain", "coller sans mise en forme", +2 | hotkey |
+| powertoys_fancyzones | Activer FancyZones layout editor | "fancy zones", "editeur de zones", "layout fancyzones", +2 | hotkey |
+| powertoys_peek | Apercu rapide de fichier (PowerToys Peek) | "peek fichier", "apercu rapide", "preview powertoys", +1 | hotkey |
+| powertoys_launcher | Ouvrir PowerToys Run (lanceur rapide) | "powertoys run", "lanceur rapide", "quick launcher", +2 | hotkey |
+| traceroute_google | Traceroute vers Google DNS | "traceroute", "trace la route", "tracert google", +2 | powershell |
+| ping_google | Ping Google pour tester la connexion | "ping google", "teste internet", "j'ai internet", +2 | powershell |
+| ping_cluster_complet | Ping tous les noeuds du cluster IA | "ping tout le cluster", "tous les noeuds repondent", "test cluster complet", +1 | powershell |
+| netstat_ecoute | Ports en ecoute avec processus associes | "netstat listen", "ports en ecoute", "quels ports ecoutent", +1 | powershell |
+| flush_dns | Purger le cache DNS | "flush dns", "purge dns", "vide le cache dns", +2 | powershell |
+| flush_arp | Purger la table ARP | "flush arp", "vide la table arp", "purge arp", +1 | powershell |
+| ip_config_complet | Configuration IP complete de toutes les interfaces | "ipconfig all", "config ip complete", "toutes les ips", +2 | powershell |
+| speed_test_rapide | Test de debit internet rapide (download) | "speed test", "test de vitesse", "vitesse internet", +2 | powershell |
+| vpn_status | Verifier l'etat des connexions VPN actives | "etat vpn", "vpn status", "suis je en vpn", +2 | powershell |
+| shutdown_timer_30 | Programmer l'extinction dans 30 minutes | "eteins dans 30 minutes", "shutdown dans 30 min", "timer extinction 30", +1 | powershell |
+| shutdown_timer_60 | Programmer l'extinction dans 1 heure | "eteins dans une heure", "shutdown dans 1h", "timer extinction 1h", +1 | powershell |
+| shutdown_timer_120 | Programmer l'extinction dans 2 heures | "eteins dans deux heures", "shutdown dans 2h", "timer extinction 2h", +1 | powershell |
+| annuler_shutdown | Annuler l'extinction programmee | "annule l'extinction", "cancel shutdown", "arrete le timer", +2 | powershell |
+| restart_timer_30 | Programmer un redemarrage dans 30 minutes | "redemarre dans 30 minutes", "restart dans 30 min", "redemarrage programme 30" | powershell |
+| rappel_vocal | Creer un rappel vocal avec notification | "rappelle moi dans {minutes} minutes", "timer {minutes} min", "alarme dans {minutes} minutes", +1 | powershell |
+| generer_mot_de_passe | Generer un mot de passe securise aleatoire | "genere un mot de passe", "password random", "mot de passe aleatoire", +2 | powershell |
+| audit_rdp | Verifier si le Bureau a distance est active | "rdp actif", "bureau a distance", "remote desktop status", +2 | powershell |
+| audit_admin_users | Lister les utilisateurs administrateurs | "qui est admin", "utilisateurs administrateurs", "admin users", +2 | powershell |
+| sessions_actives | Lister les sessions utilisateur actives | "sessions actives", "qui est connecte", "user sessions", +1 | powershell |
+| check_hash_fichier | Calculer le hash SHA256 d'un fichier | "hash du fichier {path}", "sha256 {path}", "checksum {path}", +1 | powershell |
+| audit_software_recent | Logiciels installes recemment (30 derniers jours) | "logiciels recemment installes", "quoi de neuf installe", "installations recentes", +1 | powershell |
+| firewall_toggle_profil | Activer/desactiver le pare-feu pour le profil actif | "toggle firewall", "active le pare feu", "desactive le firewall", +2 | powershell |
+| luminosite_haute | Monter la luminosite au maximum | "luminosite max", "brightness max", "ecran au maximum", +2 | powershell |
+| luminosite_basse | Baisser la luminosite au minimum | "luminosite min", "brightness low", "ecran au minimum", +2 | powershell |
+| luminosite_moyenne | Luminosite a 50% | "luminosite moyenne", "brightness medium", "luminosite normale", +2 | powershell |
+| info_moniteurs | Informations sur les moniteurs connectes | "info moniteurs", "quels ecrans", "resolution ecran", +2 | powershell |
+| batterie_info | Etat de la batterie (si laptop) | "etat batterie", "battery status", "niveau batterie", +2 | powershell |
+| power_events_recent | Historique veille/reveil des dernieres 24h | "historique veille", "quand le pc s'est endormi", "power events", +1 | powershell |
+| night_light_toggle | Basculer l'eclairage nocturne | "lumiere de nuit", "night light", "eclairage nocturne", +2 | powershell |
+| imprimer_page | Imprimer la page/document actif | "imprime", "print", "lance l'impression", +2 | hotkey |
+| file_impression | Voir la file d'attente d'impression | "file d'impression", "print queue", "quoi dans l'imprimante", +2 | powershell |
+| annuler_impressions | Annuler toutes les impressions en attente | "annule les impressions", "cancel print", "arrete l'imprimante", +1 | powershell |
+| imprimante_par_defaut | Voir l'imprimante par defaut | "quelle imprimante par defaut", "default printer", "imprimante principale", +1 | powershell |
+| kill_chrome | Forcer la fermeture de Chrome | "tue chrome", "kill chrome", "force ferme chrome", +1 | powershell |
+| kill_edge | Forcer la fermeture d'Edge | "tue edge", "kill edge", "force ferme edge", +1 | powershell |
+| kill_discord | Forcer la fermeture de Discord | "tue discord", "kill discord", "ferme discord de force", +1 | powershell |
+| kill_spotify | Forcer la fermeture de Spotify | "tue spotify", "kill spotify", "ferme spotify de force", +1 | powershell |
+| kill_steam | Forcer la fermeture de Steam | "tue steam", "kill steam", "ferme steam de force", +1 | powershell |
+| priorite_haute | Passer la fenetre active en priorite haute CPU | "priorite haute", "high priority", "boost le processus", +1 | powershell |
+| processus_reseau | Processus utilisant le reseau actuellement | "qui utilise le reseau", "processus reseau", "network processes", +1 | powershell |
 
 ### Trading & IA (19 commandes)
 
@@ -1003,7 +1109,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | cluster_health | Health check rapide du cluster IA | "health check cluster", "verifie le cluster ia", "est ce que le cluster va bien", +3 | powershell |
 | ollama_running | Modeles Ollama actuellement en memoire | "quels modeles ollama tournent", "ollama running", "modeles en memoire ollama", +1 | powershell |
 
-### Developpement & Outils (126 commandes)
+### Developpement & Outils (163 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -1133,6 +1239,43 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | git_this_week | Commits de cette semaine | "commits de la semaine", "git this week", "cette semaine en git", +1 | powershell |
 | git_push_turbo | Pusher les commits du projet turbo | "push turbo", "git push", "pousse le code", +1 | powershell |
 | git_pull_turbo | Puller les commits du projet turbo | "pull turbo", "git pull", "recupere les commits", +1 | powershell |
+| wt_split_horizontal | Diviser le terminal Windows horizontalement | "split terminal horizontal", "divise le terminal", "terminal cote a cote", +1 | powershell |
+| wt_split_vertical | Diviser le terminal Windows verticalement | "split terminal vertical", "divise le terminal vertical", "nouveau panneau vertical" | powershell |
+| wt_new_tab | Nouvel onglet dans Windows Terminal | "nouvel onglet terminal", "new tab terminal", "nouveau tab wt", +1 | powershell |
+| wt_new_tab_powershell | Nouvel onglet PowerShell dans Windows Terminal | "terminal powershell", "onglet powershell", "ouvre un powershell", +1 | powershell |
+| wt_new_tab_cmd | Nouvel onglet CMD dans Windows Terminal | "terminal cmd", "onglet cmd", "ouvre un cmd", +1 | powershell |
+| wt_quake_mode | Ouvrir le terminal en mode quake (dropdown) | "terminal quake", "quake mode", "terminal dropdown", +1 | hotkey |
+| vscode_zen_mode | Activer le mode zen dans VSCode | "mode zen vscode", "zen mode", "vscode zen", +2 | hotkey |
+| vscode_format_document | Formater le document dans VSCode | "formate le document", "format code", "prettier", +2 | hotkey |
+| vscode_word_wrap | Basculer le retour a la ligne dans VSCode | "word wrap vscode", "retour a la ligne", "toggle wrap", +2 | hotkey |
+| vscode_minimap | Afficher/masquer la minimap VSCode | "minimap vscode", "toggle minimap", "carte du code", +1 | powershell |
+| vscode_multi_cursor_down | Ajouter un curseur en dessous dans VSCode | "multi curseur bas", "curseur en dessous", "ctrl alt down", +1 | hotkey |
+| vscode_multi_cursor_up | Ajouter un curseur au dessus dans VSCode | "multi curseur haut", "curseur au dessus", "ctrl alt up", +1 | hotkey |
+| vscode_rename_symbol | Renommer un symbole dans VSCode (refactoring) | "renomme le symbole", "rename symbol", "refactor rename", +2 | hotkey |
+| vscode_go_to_definition | Aller a la definition dans VSCode | "va a la definition", "go to definition", "f12 vscode", +1 | hotkey |
+| vscode_peek_definition | Apercu de la definition (peek) dans VSCode | "peek definition", "apercu definition", "alt f12", +1 | hotkey |
+| vscode_find_all_references | Trouver toutes les references dans VSCode | "toutes les references", "find references", "shift f12", +2 | hotkey |
+| vscode_fold_all | Plier tout le code dans VSCode | "plie tout le code", "fold all", "ferme les blocs", +2 | hotkey |
+| vscode_unfold_all | Deplier tout le code dans VSCode | "deplie tout le code", "unfold all", "ouvre les blocs", +2 | hotkey |
+| vscode_toggle_comment | Commenter/decommenter la ligne ou selection | "commente", "decommente", "toggle comment", +2 | hotkey |
+| vscode_problems_panel | Ouvrir le panneau des problemes VSCode | "panneau problemes", "errors vscode", "problems panel", +2 | hotkey |
+| docker_ps_all | Lister tous les conteneurs Docker | "tous les conteneurs", "docker ps all", "conteneurs docker", +1 | powershell |
+| docker_logs_last | Logs du dernier conteneur lance | "logs docker", "docker logs", "logs du conteneur", +1 | powershell |
+| pytest_turbo | Lancer les tests pytest du projet turbo | "lance les tests", "pytest", "run tests", +2 | powershell |
+| pytest_last_failed | Relancer les tests qui ont echoue | "relance les tests echoues", "pytest lf", "rerun failed", +1 | powershell |
+| ruff_check | Lancer ruff (linter Python) sur turbo | "ruff check", "lint python", "verifie le code python", +1 | powershell |
+| ruff_format | Formater le code Python avec ruff format | "ruff format", "formate le python", "format python", +1 | powershell |
+| mypy_check | Verifier les types Python avec mypy | "mypy check", "verifie les types", "type check python", +1 | powershell |
+| pip_list_turbo | Lister les packages Python du projet turbo | "packages python", "pip list", "quels packages python", +2 | powershell |
+| count_lines_python | Compter les lignes de code Python du projet | "combien de lignes de code", "lignes python", "count lines", +2 | powershell |
+| sqlite_jarvis | Ouvrir la base JARVIS en SQLite | "ouvre la base jarvis", "sqlite jarvis", "base de donnees jarvis", +1 | powershell |
+| sqlite_etoile | Explorer la base etoile.db | "ouvre etoile db", "base etoile", "sqlite etoile", +1 | powershell |
+| sqlite_tables | Lister les tables d'une base SQLite | "tables sqlite {db}", "quelles tables dans {db}", "schema {db}", +1 | powershell |
+| redis_ping | Ping Redis local | "ping redis", "redis ok", "test redis", +1 | powershell |
+| redis_info | Informations Redis (memoire, clients) | "info redis", "redis info", "etat redis", +1 | powershell |
+| turbo_file_count | Nombre de fichiers par type dans turbo | "combien de fichiers turbo", "types de fichiers", "file count", +1 | powershell |
+| turbo_todo_scan | Scanner les TODO/FIXME/HACK dans le code | "trouve les todo", "scan todo", "fixme dans le code", +2 | powershell |
+| turbo_import_graph | Voir les imports entre modules turbo | "graph des imports", "imports turbo", "dependances modules", +1 | powershell |
 
 ### Controle JARVIS (12 commandes)
 
