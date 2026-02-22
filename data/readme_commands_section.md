@@ -1,7 +1,7 @@
 
 ## 812 Commandes Vocales — Liste Complete
 
-**1497 commandes** au total dont **246 pipelines** multi-etapes.
+**1597 commandes** au total dont **259 pipelines** multi-etapes.
 Reparties en **14 categories**.
 
 | Categorie | Nb | Description |
@@ -9,16 +9,16 @@ Reparties en **14 categories**.
 | **accessibilite** | 10 | taille_texte_grand, clavier_virtuel, filtre_couleur... |
 | **app** | 23 | ouvrir_vscode, ouvrir_terminal, ouvrir_lmstudio... |
 | **clipboard** | 13 | copier, coller, couper... |
-| **dev** | 218 | docker_ps, docker_images, docker_stop_all... |
+| **dev** | 241 | docker_ps, docker_images, docker_stop_all... |
 | **fenetre** | 13 | minimiser_tout, alt_tab, fermer_fenetre... |
 | **fichiers** | 47 | ouvrir_documents, ouvrir_bureau, ouvrir_dossier... |
 | **jarvis** | 12 | historique_commandes, jarvis_aide, jarvis_stop... |
 | **launcher** | 12 | launch_pipeline_10, launch_sniper_10, launch_sniper_breakout... |
 | **media** | 7 | media_play_pause, media_next, media_previous... |
-| **navigation** | 272 | ouvrir_chrome, ouvrir_comet, aller_sur_site... |
-| **pipeline** | 246 | range_bureau, va_sur_mails_comet, mode_travail... |
+| **navigation** | 297 | ouvrir_chrome, ouvrir_comet, aller_sur_site... |
+| **pipeline** | 259 | range_bureau, va_sur_mails_comet, mode_travail... |
 | **saisie** | 4 | texte_majuscule, texte_minuscule, ouvrir_emojis... |
-| **systeme** | 601 | verrouiller, eteindre, redemarrer... |
+| **systeme** | 640 | verrouiller, eteindre, redemarrer... |
 | **trading** | 19 | scanner_marche, detecter_breakout, pipeline_trading... |
 
 <details>
@@ -85,7 +85,7 @@ Reparties en **14 categories**.
 | `clipboard_historique` | hotkey | Ouvrir l'historique du presse-papier | historique presse papier, clipboard history |
 | `coller_sans_format` | hotkey | Coller sans mise en forme | colle sans format, coller sans mise en forme |
 
-### DEV (218)
+### DEV (241)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -139,7 +139,6 @@ Reparties en **14 categories**.
 | `ouvrir_whatsapp` | app_open | Ouvrir WhatsApp Desktop | ouvre whatsapp, lance whatsapp |
 | `ouvrir_slack` | app_open | Ouvrir Slack Desktop | ouvre slack, lance slack |
 | `ouvrir_teams` | app_open | Ouvrir Microsoft Teams | ouvre teams, lance teams |
-| `ouvrir_zoom` | app_open | Ouvrir Zoom | ouvre zoom, lance zoom |
 | `bun_version` | powershell | Version de Bun | version bun, quelle version bun |
 | `deno_version` | powershell | Version de Deno | version deno, quelle version deno |
 | `rust_version` | powershell | Version de Rust/Cargo | version rust, quelle version rust |
@@ -197,7 +196,6 @@ Reparties en **14 categories**.
 | `uv_pip_install` | powershell | Installer un package Python via uv | installe {package} python, uv pip install {package} |
 | `turbo_test_file` | powershell | Lancer un fichier de test specifique | teste le fichier {fichier}, pytest {fichier} |
 | `turbo_coverage` | powershell | Couverture de tests du projet turbo | coverage turbo, couverture de tests |
-| `process_tree` | powershell | Arbre des processus actifs | arbre des processus, process tree |
 | `openssl_version` | powershell | Version d'OpenSSL | version openssl, openssl version |
 | `git_version` | powershell | Version de Git | version git, git version |
 | `cuda_version` | powershell | Version de CUDA installee | version cuda, cuda version |
@@ -307,6 +305,31 @@ Reparties en **14 categories**.
 | `whois_domain` | powershell | Whois d'un domaine | whois {domaine}, info domaine {domaine} |
 | `ssl_check` | powershell | Verifier le certificat SSL d'un site | check ssl {domaine}, certificat ssl {domaine} |
 | `dns_lookup` | powershell | Resoudre un domaine (DNS lookup complet) | dns {domaine}, resoudre {domaine} |
+| `pytest_verbose` | powershell | Lancer pytest en mode verbose | tests verbose, pytest verbose |
+| `pytest_file` | powershell | Lancer pytest sur un fichier specifique | teste le fichier {fichier}, pytest {fichier} |
+| `pytest_coverage` | powershell | Lancer pytest avec couverture de code | tests avec couverture, pytest coverage |
+| `pytest_markers` | powershell | Lister les markers pytest disponibles | markers pytest, pytest markers |
+| `pytest_quick` | powershell | Tests rapides (fail at first error) | tests rapides, pytest quick |
+| `sqlite_query` | powershell | Executer une requete SQLite | sqlite {requete}, requete sqlite {requete} |
+| `sqlite_schema` | powershell | Voir le schema d'une table | schema de {table}, structure table {table} |
+| `etoile_count` | powershell | Compter les entrees dans etoile.db | combien dans etoile, entries etoile |
+| `etoile_query` | powershell | Requete sur etoile.db | query etoile {requete}, etoile db {requete} |
+| `db_size_all` | powershell | Taille de toutes les bases de donnees | taille des bases, poids des db |
+| `json_validate` | powershell | Valider un fichier JSON | valide le json {fichier}, json valide {fichier} |
+| `json_pretty_file` | powershell | Formatter un fichier JSON (pretty print) | formate le json {fichier}, pretty json {fichier} |
+| `csv_to_json` | powershell | Convertir un CSV en JSON | csv en json {fichier}, convertis le csv {fichier} |
+| `count_lines_file` | powershell | Compter les lignes d'un fichier | combien de lignes {fichier}, lines count {fichier} |
+| `count_lines_src` | powershell | Compter les lignes de code du projet turbo | lignes de code turbo, combien de lignes de code |
+| `pip_audit` | powershell | Auditer les deps Python (vulnerabilites) | pip audit, vulnerabilites python |
+| `bandit_scan` | powershell | Scanner Python avec Bandit (securite) | bandit scan, securite code python |
+| `electron_dev` | powershell | Lancer Electron en mode dev | electron dev, lance electron |
+| `electron_build` | powershell | Builder l'app Electron | electron build, build electron |
+| `vite_dev` | powershell | Lancer Vite en mode dev | vite dev, lance vite |
+| `vite_build` | powershell | Builder avec Vite | vite build, build vite |
+| `vite_preview` | powershell | Previsualiser le build Vite | vite preview, preview build |
+| `python_profile` | powershell | Profiler un script Python | profile python {script}, profiling {script} |
+| `benchmark_import_time` | powershell | Mesurer le temps d'import de turbo | temps d'import turbo, import time |
+| `memory_usage_python` | powershell | Utilisation memoire de Python | memoire python, ram python |
 
 ### FENETRE (13)
 
@@ -424,7 +447,7 @@ Reparties en **14 categories**.
 | `muet` | hotkey | Couper/activer le son | coupe le son, mute |
 | `volume_precis` | powershell | Mettre le volume a un niveau precis | mets le volume a {niveau}, volume a {niveau} |
 
-### NAVIGATION (272)
+### NAVIGATION (297)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -700,8 +723,33 @@ Reparties en **14 categories**.
 | `ouvrir_unsplash` | browser | Ouvrir Unsplash (photos libres) | ouvre unsplash, photos gratuites |
 | `ouvrir_coolors` | browser | Ouvrir Coolors (palettes couleurs) | ouvre coolors, palette de couleurs |
 | `ouvrir_fontawesome` | browser | Ouvrir Font Awesome (icones) | ouvre font awesome, icones font awesome |
+| `ouvrir_claude_ai` | browser | Ouvrir Claude AI | ouvre claude, va sur claude |
+| `ouvrir_gemini_web` | browser | Ouvrir Google Gemini | ouvre gemini web, va sur gemini |
+| `ouvrir_midjourney` | browser | Ouvrir Midjourney | ouvre midjourney, va sur midjourney |
+| `ouvrir_replicate` | browser | Ouvrir Replicate (ML APIs) | ouvre replicate, va sur replicate |
+| `ouvrir_together_ai` | browser | Ouvrir Together AI (inference) | ouvre together ai, va sur together |
+| `ouvrir_ollama_web` | browser | Ouvrir Ollama (modeles locaux) | ouvre ollama site, va sur ollama |
+| `ouvrir_openrouter` | browser | Ouvrir OpenRouter (multi-model API) | ouvre openrouter, va sur openrouter |
+| `ouvrir_geeksforgeeks` | browser | Ouvrir GeeksForGeeks | ouvre geeksforgeeks, geeks for geeks |
+| `ouvrir_digitalocean_docs` | browser | Ouvrir DigitalOcean Tutorials | ouvre digitalocean, tutos digitalocean |
+| `ouvrir_realpython` | browser | Ouvrir Real Python (tutos Python) | ouvre real python, tutos python |
+| `ouvrir_css_tricks` | browser | Ouvrir CSS-Tricks | ouvre css tricks, astuces css |
+| `ouvrir_web_dev` | browser | Ouvrir web.dev (Google) | ouvre web dev, web dev google |
+| `ouvrir_bandcamp` | browser | Ouvrir Bandcamp | ouvre bandcamp, va sur bandcamp |
+| `ouvrir_data_gouv` | browser | Ouvrir data.gouv.fr (open data) | ouvre data gouv, open data france |
+| `ouvrir_seloger` | browser | Ouvrir SeLoger | ouvre seloger, va sur seloger |
+| `ouvrir_pap` | browser | Ouvrir PAP (particulier a particulier) | ouvre pap, pap immobilier |
+| `ouvrir_bienici` | browser | Ouvrir Bien'ici (immobilier) | ouvre bienici, bien ici |
+| `ouvrir_logic_immo` | browser | Ouvrir Logic-Immo | ouvre logic immo, logic immo |
+| `ouvrir_ratp` | browser | Ouvrir RATP (metro Paris) | ouvre ratp, metro paris |
+| `ouvrir_citymapper` | browser | Ouvrir Citymapper (itineraires) | ouvre citymapper, itineraire transport |
+| `ouvrir_onedrive_web` | browser | Ouvrir OneDrive Web | ouvre onedrive, va sur onedrive |
+| `ouvrir_dropbox` | browser | Ouvrir Dropbox | ouvre dropbox, va sur dropbox |
+| `ouvrir_mega` | browser | Ouvrir Mega (stockage chiffre) | ouvre mega, va sur mega |
+| `ouvrir_discord_web` | browser | Ouvrir Discord Web | ouvre discord web, discord en ligne |
+| `ouvrir_zoom` | browser | Ouvrir Zoom | ouvre zoom, va sur zoom |
 
-### PIPELINE (246)
+### PIPELINE (259)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -951,6 +999,19 @@ Reparties en **14 categories**.
 | `sim_evening_shutdown` | pipeline | Routine soir: git status + save + clear temp + veille | routine du soir, bonsoir jarvis |
 | `sim_freelance_setup` | pipeline | Setup freelance: Malt + factures + timer + mail | mode freelance, setup freelance |
 | `sim_client_meeting` | pipeline | Prep meeting client: Teams + notes + projet + timer | prepare le meeting client, meeting client |
+| `sim_db_backup_all` | pipeline | Backup toutes les DBs: jarvis + etoile + trading | backup toutes les bases, sauvegarde les bases |
+| `sim_security_full_audit` | pipeline | Audit secu: ports + firewall + users + certs + deps | audit securite complet, full security audit |
+| `sim_security_network` | pipeline | Audit reseau: connexions + DNS + ARP + routes | audit reseau, scan reseau complet |
+| `sim_benchmark_system` | pipeline | Benchmark: CPU + RAM + disque + GPU + reseau | benchmark systeme, performance complete |
+| `sim_benchmark_cluster` | pipeline | Benchmark cluster: ping tous les noeuds + latence | benchmark cluster, teste le cluster |
+| `sim_doc_session` | pipeline | Session docs: VSCode + docs + preview markdown | session documentation, ecris la doc |
+| `sim_doc_generate` | pipeline | Generer toute la doc: vocale + README + changelog | genere toute la doc, regenere la documentation |
+| `sim_ai_workspace` | pipeline | Workspace IA: HuggingFace + Papers + GPU monitor + terminal | workspace ia, espace de travail ia |
+| `sim_model_eval` | pipeline | Evaluation modele: benchmark cluster + comparaison | evalue les modeles, benchmark modeles |
+| `sim_home_office` | pipeline | Home office: Teams + Mail + Spotify + cluster + news | mode bureau, home office |
+| `sim_focus_deep_work` | pipeline | Deep work: ferme tout + focus assist + timer 90min + musique lo-fi | mode deep work, concentration maximale |
+| `sim_weekend_chill` | pipeline | Weekend: Netflix + Spotify + food delivery + mode eco | mode weekend, weekend chill |
+| `sim_movie_night` | pipeline | Soiree film: minimiser tout + Netflix + lumiere tamisee | soiree film, movie night |
 
 ### SAISIE (4)
 
@@ -961,7 +1022,7 @@ Reparties en **14 categories**.
 | `ouvrir_emojis` | hotkey | Ouvrir le panneau emojis | ouvre les emojis, panneau emojis |
 | `ouvrir_dictee` | hotkey | Activer la dictee vocale Windows | dicte, dictee windows |
 
-### SYSTEME (601)
+### SYSTEME (640)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -1566,6 +1627,45 @@ Reparties en **14 categories**.
 | `network_troubleshoot` | powershell | Lancer le depanneur reseau Windows | depanne le reseau, network troubleshoot |
 | `arp_table` | powershell | Afficher la table ARP (machines sur le reseau local) | table arp, machines sur le reseau |
 | `nslookup_domain` | powershell | Resoudre un nom de domaine (nslookup) | nslookup {domain}, resous {domain} |
+| `registry_backup` | powershell | Sauvegarder le registre complet | backup registre, sauvegarde le registre |
+| `registry_search` | powershell | Chercher une cle dans le registre | cherche dans le registre {cle}, registry search {cle} |
+| `registry_recent_changes` | powershell | Cles de registre recemment modifiees | registre recent, changements registre |
+| `registry_startup_entries` | powershell | Lister les entrees de demarrage dans le registre | startup registre, autorun registre |
+| `fonts_list` | powershell | Lister les polices installees | liste les polices, quelles fonts |
+| `fonts_count` | powershell | Compter les polices installees | combien de polices, nombre de fonts |
+| `fonts_folder` | powershell | Ouvrir le dossier des polices | dossier polices, ouvre les fonts |
+| `env_list_user` | powershell | Lister les variables d'environnement utilisateur | variables utilisateur, env vars user |
+| `env_list_system` | powershell | Lister les variables d'environnement systeme | variables systeme, env vars systeme |
+| `env_set_user` | powershell | Definir une variable d'environnement utilisateur | set variable {nom} {valeur}, definis {nom} a {valeur} |
+| `env_path_entries` | powershell | Lister les dossiers dans le PATH | montre le path, dossiers du path |
+| `env_add_to_path` | powershell | Ajouter un dossier au PATH utilisateur | ajoute au path {dossier}, path add {dossier} |
+| `schtask_running` | powershell | Lister les taches planifiees en cours d'execution | taches en cours, scheduled tasks running |
+| `schtask_next_run` | powershell | Prochaines taches planifiees | prochaines taches, next scheduled tasks |
+| `schtask_history` | powershell | Historique des taches planifiees recentes | historique taches, task history |
+| `firewall_status` | powershell | Statut du pare-feu Windows | statut pare feu, firewall status |
+| `firewall_rules_list` | powershell | Lister les regles du pare-feu actives | regles pare feu, firewall rules |
+| `firewall_block_ip` | powershell | Bloquer une adresse IP dans le pare-feu | bloque l'ip {ip}, firewall block {ip} |
+| `firewall_recent_blocks` | powershell | Voir les connexions recemment bloquees | connexions bloquees, firewall blocks |
+| `disk_smart_status` | powershell | Statut SMART des disques (sante) | sante des disques, smart status |
+| `disk_space_by_folder` | powershell | Espace utilise par dossier (top 15) | espace par dossier, quels dossiers prennent de la place |
+| `disk_temp_files_age` | powershell | Fichiers temporaires les plus anciens | vieux fichiers temp, anciens temp |
+| `usb_list_devices` | powershell | Lister les peripheriques USB connectes | peripheriques usb, usb connectes |
+| `usb_storage_list` | powershell | Lister les cles USB et disques amovibles | cles usb, disques amovibles |
+| `usb_safely_eject` | powershell | Ejecter un peripherique USB en securite | ejecte la cle usb, ejecter usb |
+| `usb_history` | powershell | Historique des peripheriques USB connectes | historique usb, anciens usb |
+| `screen_resolution` | powershell | Afficher la resolution de chaque ecran | resolution ecran, quelle resolution |
+| `screen_brightness_up` | powershell | Augmenter la luminosite | augmente la luminosite, plus de lumiere |
+| `screen_brightness_down` | powershell | Baisser la luminosite | baisse la luminosite, moins de lumiere |
+| `screen_night_light` | powershell | Activer/desactiver l'eclairage nocturne | eclairage nocturne, night light |
+| `screen_refresh_rate` | powershell | Voir la frequence de rafraichissement | frequence ecran, refresh rate |
+| `audio_list_devices` | powershell | Lister tous les peripheriques audio | peripheriques audio, devices audio |
+| `audio_default_speaker` | powershell | Voir le haut-parleur par defaut | haut parleur par defaut, quel speaker |
+| `audio_volume_level` | powershell | Voir le niveau de volume actuel | quel volume, niveau du son |
+| `audio_settings` | powershell | Ouvrir les parametres de son | parametres son, reglages audio |
+| `process_by_memory` | powershell | Top 15 processus par memoire | processus par memoire, qui consomme la ram |
+| `process_by_cpu` | powershell | Top 15 processus par CPU | processus par cpu, qui consomme le cpu |
+| `process_tree` | powershell | Arborescence des processus (parent-enfant) | arbre des processus, process tree |
+| `process_handles` | powershell | Processus avec le plus de handles ouverts | handles ouverts, processus handles |
 
 ### TRADING (19)
 

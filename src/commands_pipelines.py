@@ -1252,4 +1252,91 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
         "prepare le meeting client", "meeting client", "reunion client",
         "appel client",
     ], "pipeline", "app_open:ms-teams;;sleep:3;;app_open:notepad;;sleep:1;;powershell:cd F:\\BUREAU\\turbo; git log --oneline -5 2>&1 | Out-String;;powershell:\"Meeting client prepare — Teams + Notes + Status projet\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 35 — DATABASE MANAGEMENT
+    # Scénario: Gestion complète des bases de données
+    # ══════════════════════════════════════════════════════════════════════
+JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + etoile + trading", [
+        "backup toutes les bases", "sauvegarde les bases", "db backup all",
+        "backup databases",
+    ], "pipeline", "powershell:$d=Get-Date -Format yyyyMMdd; Copy-Item F:\\BUREAU\\turbo\\data\\jarvis.db F:\\BUREAU\\turbo\\data\\jarvis_backup_$d.db; \"jarvis.db backup OK\";;powershell:$d=Get-Date -Format yyyyMMdd; Copy-Item F:\\BUREAU\\etoile.db F:\\BUREAU\\etoile_backup_$d.db; \"etoile.db backup OK\";;powershell:\"Backup de toutes les bases termine\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 36 — SECURITY AUDIT
+    # Scénario: Audit de sécurité complet du système
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_security_full_audit", "pipeline", "Audit secu: ports + firewall + users + certs + deps", [
+        "audit securite complet", "full security audit",
+        "scan securite total", "verifie la securite du systeme",
+    ], "pipeline", "powershell:Get-NetTCPConnection -State Listen | Select -First 10 LocalPort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ea 0).Name}} | Format-Table | Out-String;;powershell:Get-NetFirewallProfile | Select Name, Enabled | Format-Table | Out-String;;powershell:Get-LocalUser | Where Enabled | Select Name, LastLogon | Format-Table | Out-String;;powershell:Get-ChildItem Cert:\\LocalMachine\\My -ErrorAction SilentlyContinue | Select Subject, NotAfter | Format-Table | Out-String;;powershell:\"Audit securite termine — 4 scans effectues\""),
+    JarvisCommand("sim_security_network", "pipeline", "Audit reseau: connexions + DNS + ARP + routes", [
+        "audit reseau", "scan reseau complet", "network security audit",
+        "verifie le reseau",
+    ], "pipeline", "powershell:Get-NetTCPConnection | Where { $_.State -eq 'Established' } | Group RemoteAddress | Sort Count -Descending | Select -First 10 Count, Name | Format-Table | Out-String;;powershell:Get-DnsClientCache | Select -First 15 Entry, Data | Format-Table | Out-String;;powershell:arp -a | Out-String;;powershell:route print -4 | Select -First 20 | Out-String;;powershell:\"Audit reseau termine\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 37 — PERFORMANCE BENCHMARK
+    # Scénario: Benchmark complet du système
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_benchmark_system", "pipeline", "Benchmark: CPU + RAM + disque + GPU + reseau", [
+        "benchmark systeme", "performance complete", "teste les performances",
+        "benchmark du pc",
+    ], "pipeline", "powershell:$cpu = Get-CimInstance Win32_Processor; \"CPU: $($cpu.Name) — $($cpu.NumberOfCores) cores, $($cpu.MaxClockSpeed)MHz\";;powershell:$ram = Get-CimInstance Win32_OperatingSystem; \"RAM: $([math]::Round(($ram.TotalVisibleMemorySize-$ram.FreePhysicalMemory)/1MB,1))GB / $([math]::Round($ram.TotalVisibleMemorySize/1MB,1))GB\";;powershell:Get-PhysicalDisk | Select FriendlyName, MediaType, @{N='Size(GB)';E={[math]::Round($_.Size/1GB)}} | Format-Table | Out-String;;powershell:nvidia-smi --query-gpu=name,temperature.gpu,memory.used,memory.total,utilization.gpu --format=csv,noheader 2>&1 | Out-String;;powershell:\"Benchmark systeme termine\""),
+    JarvisCommand("sim_benchmark_cluster", "pipeline", "Benchmark cluster: ping tous les noeuds + latence", [
+        "benchmark cluster", "teste le cluster", "latence cluster",
+        "performance du cluster",
+    ], "pipeline", "powershell:$sw=[Diagnostics.Stopwatch]::StartNew(); try{Invoke-WebRequest http://127.0.0.1:11434/api/tags -UseBasicParsing -TimeoutSec 3 >$null; $sw.Stop(); \"OL1: $($sw.ElapsedMilliseconds)ms\"}catch{\"OL1: OFFLINE\"};;powershell:$sw=[Diagnostics.Stopwatch]::StartNew(); try{Invoke-WebRequest http://192.168.1.26:1234/api/v1/models -Headers @{Authorization='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -UseBasicParsing -TimeoutSec 3 >$null; $sw.Stop(); \"M2: $($sw.ElapsedMilliseconds)ms\"}catch{\"M2: OFFLINE\"};;powershell:$sw=[Diagnostics.Stopwatch]::StartNew(); try{Invoke-WebRequest http://192.168.1.113:1234/api/v1/models -UseBasicParsing -TimeoutSec 3 >$null; $sw.Stop(); \"M3: $($sw.ElapsedMilliseconds)ms\"}catch{\"M3: OFFLINE\"};;powershell:\"Benchmark cluster termine\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 38 — DOCUMENTATION SESSION
+    # Scénario: Session de rédaction de documentation
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_doc_session", "pipeline", "Session docs: VSCode + docs + preview markdown", [
+        "session documentation", "ecris la doc", "mode documentation",
+        "redige la doc",
+    ], "pipeline", "powershell:code F:\\BUREAU\\turbo\\docs 2>$null;;sleep:2;;browser:navigate:https://devdocs.io;;sleep:1;;browser:navigate:https://markdownlivepreview.com;;powershell:\"Session documentation ouverte — VSCode + DevDocs + Markdown Preview\""),
+    JarvisCommand("sim_doc_generate", "pipeline", "Generer toute la doc: vocale + README + changelog", [
+        "genere toute la doc", "regenere la documentation",
+        "update la doc", "rafraichis la doc",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python scripts/gen_vocal_docs.py 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python scripts/gen_readme_commands.py 2>&1 | Out-String;;powershell:\"Documentation regeneree — vocale + README\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 39 — AI/ML WORKSPACE
+    # Scénario: Espace de travail IA et Machine Learning
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_ai_workspace", "pipeline", "Workspace IA: HuggingFace + Papers + GPU monitor + terminal", [
+        "workspace ia", "espace de travail ia", "mode machine learning",
+        "setup ia",
+    ], "pipeline", "browser:navigate:https://huggingface.co;;sleep:1;;browser:navigate:https://arxiv.org/list/cs.AI/recent;;sleep:1;;app_open:wt;;sleep:1;;powershell:nvidia-smi --query-gpu=name,temperature.gpu,memory.used,utilization.gpu --format=csv,noheader 2>&1 | Out-String;;powershell:\"Workspace IA pret — HuggingFace + arXiv + Terminal + GPU\""),
+    JarvisCommand("sim_model_eval", "pipeline", "Evaluation modele: benchmark cluster + comparaison", [
+        "evalue les modeles", "benchmark modeles", "compare les modeles",
+        "evaluation ia",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python benchmark_cluster.py 2>&1 | Select -Last 20 | Out-String;;powershell:\"Evaluation modeles terminee — voir data/benchmark_report.json\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 40 — HOME OFFICE SETUP
+    # Scénario: Configuration bureau à domicile complète
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_home_office", "pipeline", "Home office: Teams + Mail + Spotify + cluster + news", [
+        "mode bureau", "home office", "mode teletravail",
+        "setup bureau maison",
+    ], "pipeline", "app_open:ms-teams;;sleep:2;;browser:navigate:https://mail.google.com;;sleep:1;;app_open:spotify;;sleep:1;;powershell:try{Invoke-WebRequest http://127.0.0.1:11434/api/tags -UseBasicParsing -TimeoutSec 3 >$null; 'Cluster: OL1 OK'}catch{'Cluster: OL1 OFF'};;browser:navigate:https://news.google.com;;powershell:\"Home office setup complet — Teams + Mail + Spotify + Cluster + News\""),
+    JarvisCommand("sim_focus_deep_work", "pipeline", "Deep work: ferme tout + focus assist + timer 90min + musique lo-fi", [
+        "mode deep work", "concentration maximale", "focus profond",
+        "deep focus",
+    ], "pipeline", "powershell:(New-Object -ComObject Shell.Application).MinimizeAll();;ms_settings:quiethours;;sleep:1;;app_open:spotify;;powershell:\"Deep work active — Focus Assist ON, 90 minutes de concentration\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 41 — WEEKEND CHILL
+    # Scénario: Mode détente weekend
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_weekend_chill", "pipeline", "Weekend: Netflix + Spotify + food delivery + mode eco", [
+        "mode weekend", "weekend chill", "mode detente",
+        "c'est le weekend",
+    ], "pipeline", "browser:navigate:https://www.netflix.com;;sleep:1;;app_open:spotify;;sleep:1;;browser:navigate:https://www.ubereats.com;;powershell:powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e;;powershell:\"Mode weekend active — Netflix + Spotify + UberEats + Eco\""),
+    JarvisCommand("sim_movie_night", "pipeline", "Soiree film: minimiser tout + Netflix + lumiere tamisee", [
+        "soiree film", "movie night", "mode cinema maison",
+        "on regarde un film",
+    ], "pipeline", "powershell:(New-Object -ComObject Shell.Application).MinimizeAll();;sleep:1;;browser:navigate:https://www.netflix.com;;ms_settings:nightlight;;powershell:\"Soiree film prete — Netflix + Night Light\""),
 ]
