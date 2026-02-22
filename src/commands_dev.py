@@ -843,4 +843,160 @@ DEV_COMMANDS: list[JarvisCommand] = [
         "arborescence turbo", "tree turbo", "structure du projet",
         "arbre des fichiers",
     ], "powershell", "tree F:\\BUREAU\\turbo /F /A | Select -First 60 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # GITHUB CLI (gh) — Commandes GitHub depuis le terminal
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("gh_create_issue", "dev", "Creer une issue GitHub", [
+        "cree une issue {titre}", "nouvelle issue {titre}",
+        "github issue {titre}", "ouvre un ticket {titre}",
+    ], "powershell", "cd F:\\BUREAU\\turbo; gh issue create --title '{titre}' --body 'Created by JARVIS' 2>&1 | Out-String", ["titre"]),
+    JarvisCommand("gh_list_issues", "dev", "Lister les issues GitHub ouvertes", [
+        "liste les issues", "issues ouvertes", "github issues",
+        "quelles issues",
+    ], "powershell", "cd F:\\BUREAU\\turbo; gh issue list --limit 15 2>&1 | Out-String"),
+    JarvisCommand("gh_list_prs", "dev", "Lister les pull requests GitHub", [
+        "liste les pr", "pull requests", "github prs",
+        "quelles pr ouvertes",
+    ], "powershell", "cd F:\\BUREAU\\turbo; gh pr list --limit 10 2>&1 | Out-String"),
+    JarvisCommand("gh_view_pr", "dev", "Voir les details d'une PR", [
+        "montre la pr {num}", "detail pr {num}", "github pr {num}",
+        "voir la pr {num}",
+    ], "powershell", "cd F:\\BUREAU\\turbo; gh pr view {num} 2>&1 | Out-String", ["num"]),
+    JarvisCommand("gh_pr_checks", "dev", "Voir les checks d'une PR", [
+        "checks de la pr {num}", "status pr {num}", "ci pr {num}",
+        "tests de la pr {num}",
+    ], "powershell", "cd F:\\BUREAU\\turbo; gh pr checks {num} 2>&1 | Out-String", ["num"]),
+    JarvisCommand("gh_repo_view", "dev", "Voir les infos du repo GitHub courant", [
+        "info du repo", "github repo info", "details du repo",
+        "a propos du repo",
+    ], "powershell", "cd F:\\BUREAU\\turbo; gh repo view 2>&1 | Out-String"),
+    JarvisCommand("gh_workflow_list", "dev", "Lister les workflows GitHub Actions", [
+        "workflows github", "github actions", "liste les workflows",
+        "ci cd status",
+    ], "powershell", "cd F:\\BUREAU\\turbo; gh workflow list 2>&1 | Out-String"),
+    JarvisCommand("gh_release_list", "dev", "Lister les releases GitHub", [
+        "releases github", "liste les releases", "versions publiees",
+        "quelles releases",
+    ], "powershell", "cd F:\\BUREAU\\turbo; gh release list --limit 5 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # GO TOOLING — Outils pour le langage Go
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("go_build", "dev", "Compiler un projet Go", [
+        "go build", "compile en go", "build le projet go",
+    ], "powershell", "go build ./... 2>&1 | Out-String"),
+    JarvisCommand("go_test", "dev", "Lancer les tests Go", [
+        "go test", "tests go", "lance les tests go",
+        "go test all",
+    ], "powershell", "go test ./... -v 2>&1 | Out-String"),
+    JarvisCommand("go_fmt", "dev", "Formater le code Go", [
+        "go fmt", "formate le go", "gofmt",
+    ], "powershell", "gofmt -w . 2>&1; 'Go format applique'"),
+    JarvisCommand("go_mod_tidy", "dev", "Nettoyer les dependances Go", [
+        "go mod tidy", "nettoie les deps go", "clean go modules",
+    ], "powershell", "go mod tidy 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # VENV / CONDA — Gestion des environnements Python
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("venv_create", "dev", "Creer un environnement virtuel Python", [
+        "cree un venv", "nouveau virtualenv", "python venv",
+        "cree un environnement virtuel",
+    ], "powershell", "python -m venv .venv; '.venv cree avec succes'"),
+    JarvisCommand("venv_activate", "dev", "Activer le virtualenv courant", [
+        "active le venv", "activate venv", "source venv",
+    ], "powershell", "if(Test-Path .venv\\Scripts\\Activate.ps1){.venv\\Scripts\\Activate.ps1; 'venv active'}else{'Pas de .venv trouve'}"),
+    JarvisCommand("conda_list_envs", "dev", "Lister les environnements Conda", [
+        "conda envs", "liste les envs conda", "quels environnements conda",
+    ], "powershell", "conda env list 2>&1 | Out-String"),
+    JarvisCommand("conda_install_pkg", "dev", "Installer un package Conda", [
+        "conda install {package}", "installe avec conda {package}",
+    ], "powershell", "conda install -y {package} 2>&1 | Select -Last 5 | Out-String", ["package"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # API TESTING — Test rapide d'API depuis le terminal
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("curl_get", "dev", "Faire un GET sur une URL", [
+        "curl get {url}", "requete get {url}", "test api {url}",
+        "fetch {url}",
+    ], "powershell", "Invoke-RestMethod -Uri '{url}' -Method GET 2>&1 | ConvertTo-Json -Depth 3 | Out-String", ["url"]),
+    JarvisCommand("curl_post_json", "dev", "Faire un POST JSON sur une URL", [
+        "curl post {url}", "post json {url}", "envoie a {url}",
+    ], "powershell", "Invoke-RestMethod -Uri '{url}' -Method POST -ContentType 'application/json' -Body '{}' 2>&1 | Out-String", ["url"]),
+    JarvisCommand("api_health_check", "dev", "Verifier si une API repond (ping HTTP)", [
+        "ping api {url}", "api en ligne {url}", "health check {url}",
+        "l'api repond {url}",
+    ], "powershell", "try{$r=Invoke-WebRequest -Uri '{url}' -TimeoutSec 5 -UseBasicParsing;\"OK $($r.StatusCode) en $($r.Headers['X-Response-Time'] ?? 'N/A')\"}catch{\"ERREUR: $($_.Exception.Message)\"}", ["url"]),
+    JarvisCommand("api_response_time", "dev", "Mesurer le temps de reponse d'une URL", [
+        "temps de reponse {url}", "latence de {url}", "speed test {url}",
+    ], "powershell", "$sw=[Diagnostics.Stopwatch]::StartNew(); try{Invoke-WebRequest '{url}' -UseBasicParsing -TimeoutSec 10 >$null; $sw.Stop(); \"$($sw.ElapsedMilliseconds) ms\"}catch{$sw.Stop(); \"Erreur apres $($sw.ElapsedMilliseconds) ms\"}", ["url"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # LINTING / FORMATTING — Qualite de code
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("lint_ruff_check", "dev", "Linter Python avec Ruff", [
+        "ruff check", "lint python", "verifie le code python",
+        "lance ruff",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff check src/ --output-format=concise 2>&1 | Select -Last 20 | Out-String"),
+    JarvisCommand("lint_ruff_fix", "dev", "Auto-fixer les erreurs Ruff", [
+        "ruff fix", "fixe le lint", "corrige ruff",
+        "auto fix python",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff check src/ --fix 2>&1 | Out-String"),
+    JarvisCommand("format_black", "dev", "Formater Python avec Black", [
+        "black format", "formate avec black", "black le code",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run black src/ 2>&1 | Out-String"),
+    JarvisCommand("lint_mypy", "dev", "Verifier les types Python avec mypy", [
+        "mypy check", "verifie les types", "type check python",
+        "lance mypy",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run mypy src/ --ignore-missing-imports 2>&1 | Select -Last 15 | Out-String"),
+    JarvisCommand("lint_eslint", "dev", "Linter JavaScript avec ESLint", [
+        "eslint", "lint javascript", "verifie le js",
+        "lance eslint",
+    ], "powershell", "npx eslint . --max-warnings 50 2>&1 | Select -Last 20 | Out-String"),
+    JarvisCommand("format_prettier", "dev", "Formater JS/TS avec Prettier", [
+        "prettier format", "formate avec prettier", "prettier le code",
+    ], "powershell", "npx prettier --write . 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # LOGS — Consultation et gestion des logs
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("logs_turbo", "dev", "Voir les derniers logs JARVIS", [
+        "logs jarvis", "dernieres logs", "montre les logs",
+        "voir les logs turbo",
+    ], "powershell", "Get-Content F:\\BUREAU\\turbo\\data\\jarvis.log -Tail 30 -ErrorAction SilentlyContinue 2>&1 | Out-String"),
+    JarvisCommand("logs_windows_errors", "dev", "Voir les erreurs recentes Windows", [
+        "erreurs windows", "logs erreurs systeme", "event log errors",
+        "erreurs recentes",
+    ], "powershell", "Get-WinEvent -FilterHashtable @{LogName='Application';Level=1,2} -MaxEvents 10 -ErrorAction SilentlyContinue | Select TimeCreated, @{N='Src';E={$_.ProviderName}}, Message | Format-Table -Wrap | Out-String -Width 150"),
+    JarvisCommand("logs_clear_turbo", "dev", "Vider les logs JARVIS", [
+        "vide les logs", "efface les logs", "clear les logs",
+        "nettoie les logs jarvis",
+    ], "powershell", "if(Test-Path F:\\BUREAU\\turbo\\data\\jarvis.log){Clear-Content F:\\BUREAU\\turbo\\data\\jarvis.log; 'Logs JARVIS videes'}else{'Pas de fichier log'}"),
+    JarvisCommand("logs_search", "dev", "Chercher dans les logs JARVIS", [
+        "cherche dans les logs {pattern}", "grep les logs {pattern}",
+        "logs contenant {pattern}",
+    ], "powershell", "Select-String -Path F:\\BUREAU\\turbo\\data\\jarvis.log -Pattern '{pattern}' -Context 1 -ErrorAction SilentlyContinue | Select -Last 20 | Out-String", ["pattern"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CONTAINERS — Kubernetes et Docker Compose avancé
+    # ══════════════════════════════════════════════════════════════════════
+    # ══════════════════════════════════════════════════════════════════════
+    # RÉSEAU DEV — Outils réseau pour développeurs
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("netstat_listen", "dev", "Voir les ports en ecoute", [
+        "ports en ecoute", "quels ports ouverts", "netstat listen",
+        "liste les ports actifs",
+    ], "powershell", "Get-NetTCPConnection -State Listen | Select LocalPort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Sort LocalPort | Format-Table | Out-String"),
+    JarvisCommand("whois_domain", "dev", "Whois d'un domaine", [
+        "whois {domaine}", "info domaine {domaine}", "proprietaire de {domaine}",
+    ], "powershell", "whois {domaine} 2>&1 | Select -First 30 | Out-String", ["domaine"]),
+    JarvisCommand("ssl_check", "dev", "Verifier le certificat SSL d'un site", [
+        "check ssl {domaine}", "certificat ssl {domaine}", "expire quand {domaine}",
+        "verifie le ssl {domaine}",
+    ], "powershell", "$r=[Net.HttpWebRequest]::Create('https://{domaine}'); $r.Timeout=5000; try{$r.GetResponse()>$null}catch{}; $c=$r.ServicePoint.Certificate; if($c){\"Subject: $($c.Subject)`nExpire: $($c.GetExpirationDateString())`nIssuer: $($c.Issuer)\"}else{'Pas de certificat'}", ["domaine"]),
+    JarvisCommand("dns_lookup", "dev", "Resoudre un domaine (DNS lookup complet)", [
+        "dns {domaine}", "resoudre {domaine}", "ip de {domaine}",
+        "dns lookup {domaine}",
+    ], "powershell", "Resolve-DnsName {domaine} -ErrorAction SilentlyContinue | Select Name, Type, IPAddress, NameHost | Format-Table | Out-String", ["domaine"]),
 ]

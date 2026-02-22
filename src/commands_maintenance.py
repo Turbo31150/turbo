@@ -1398,4 +1398,224 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
         "nettoie le clipboard", "trim clipboard", "enleve les espaces",
         "clean le presse papier",
     ], "powershell", "$c = Get-Clipboard; if($c){$t = ($c -split '`n' | ForEach-Object { $_.Trim() }) -join \"`n\"; Set-Clipboard $t; \"Clipboard nettoye ($($t.Length) chars)\"}else{'Vide'}"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PARAMÈTRES WINDOWS — Accès direct aux pages Settings
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("param_camera", "systeme", "Parametres de confidentialite camera", [
+        "parametres camera", "privacy camera", "autoriser la camera",
+        "acces camera",
+    ], "powershell", "Start-Process ms-settings:privacy-webcam"),
+    JarvisCommand("param_microphone", "systeme", "Parametres de confidentialite microphone", [
+        "parametres microphone", "privacy micro", "autoriser le micro",
+        "acces microphone",
+    ], "powershell", "Start-Process ms-settings:privacy-microphone"),
+    JarvisCommand("param_localisation", "systeme", "Parametres de localisation/GPS", [
+        "parametres localisation", "privacy location", "active le gps",
+        "desactive la localisation", "position gps",
+    ], "powershell", "Start-Process ms-settings:privacy-location"),
+    JarvisCommand("param_gaming", "systeme", "Parametres de jeu Windows", [
+        "parametres gaming", "game settings", "mode jeu settings",
+        "xbox settings", "reglages jeu",
+    ], "powershell", "Start-Process ms-settings:gaming-gamebar"),
+    JarvisCommand("param_comptes", "systeme", "Parametres des comptes utilisateur", [
+        "parametres comptes", "account settings", "gerer les comptes",
+        "mon compte windows",
+    ], "powershell", "Start-Process ms-settings:accounts"),
+    JarvisCommand("param_connexion", "systeme", "Parametres de connexion (PIN, mot de passe)", [
+        "options de connexion", "sign in options", "changer le pin",
+        "windows hello", "mot de passe windows",
+    ], "powershell", "Start-Process ms-settings:signinoptions"),
+    JarvisCommand("param_apps_defaut", "systeme", "Parametres des apps par defaut", [
+        "apps par defaut", "default apps", "navigateur par defaut",
+        "lecteur pdf par defaut",
+    ], "powershell", "Start-Process ms-settings:defaultapps"),
+    JarvisCommand("param_fonctionnalites_optionnelles", "systeme", "Fonctionnalites optionnelles Windows", [
+        "fonctionnalites optionnelles", "optional features", "ajouter une fonctionnalite",
+        "features windows optionnelles",
+    ], "powershell", "Start-Process ms-settings:optionalfeatures"),
+    JarvisCommand("param_souris", "systeme", "Parametres de la souris", [
+        "parametres souris", "mouse settings", "vitesse souris",
+        "sensibilite souris",
+    ], "powershell", "Start-Process ms-settings:mousetouchpad"),
+    JarvisCommand("param_clavier", "systeme", "Parametres du clavier", [
+        "parametres clavier", "keyboard settings", "vitesse clavier",
+        "repetition clavier",
+    ], "powershell", "Start-Process ms-settings:keyboard"),
+    JarvisCommand("param_phone_link", "systeme", "Ouvrir Phone Link (connexion telephone)", [
+        "phone link", "lien telephone", "connecter mon telephone",
+        "votre telephone",
+    ], "powershell", "Start-Process ms-settings:mobile-devices"),
+    JarvisCommand("param_notifications_apps", "systeme", "Parametres notifications par application", [
+        "notifications par app", "gerer les notifications", "notifs par app",
+        "quelles apps notifient",
+    ], "powershell", "Start-Process ms-settings:notifications"),
+    JarvisCommand("param_multitache", "systeme", "Parametres multitache (snap, bureaux virtuels)", [
+        "parametres multitache", "multitasking settings", "snap settings",
+        "reglages snap",
+    ], "powershell", "Start-Process ms-settings:multitasking"),
+    JarvisCommand("param_stockage", "systeme", "Parametres de stockage (espace disque)", [
+        "parametres stockage", "storage settings", "gestion stockage",
+        "espace utilise",
+    ], "powershell", "Start-Process ms-settings:storagesense"),
+    JarvisCommand("param_proxy", "systeme", "Parametres de proxy reseau", [
+        "parametres proxy", "proxy settings", "configurer le proxy",
+        "proxy windows",
+    ], "powershell", "Start-Process ms-settings:network-proxy"),
+    JarvisCommand("param_vpn_settings", "systeme", "Parametres VPN Windows", [
+        "parametres vpn", "vpn settings", "configurer le vpn",
+        "ajouter un vpn",
+    ], "powershell", "Start-Process ms-settings:network-vpn"),
+    JarvisCommand("param_wifi_settings", "systeme", "Parametres WiFi avances", [
+        "parametres wifi", "wifi settings", "reseaux connus",
+        "gerer le wifi",
+    ], "powershell", "Start-Process ms-settings:network-wifi"),
+    JarvisCommand("param_update_avance", "systeme", "Parametres Windows Update avances", [
+        "update avance", "windows update settings", "options de mise a jour",
+        "maj avancees",
+    ], "powershell", "Start-Process ms-settings:windowsupdate-options"),
+    JarvisCommand("param_recovery", "systeme", "Options de recuperation systeme", [
+        "recovery options", "reinitialiser le pc", "restauration systeme",
+        "reset windows",
+    ], "powershell", "Start-Process ms-settings:recovery"),
+    JarvisCommand("param_developeurs", "systeme", "Parametres developpeur Windows", [
+        "mode developpeur", "developer settings", "active le mode dev",
+        "parametres dev windows",
+    ], "powershell", "Start-Process ms-settings:developers"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CALCULATRICE — Modes et conversions
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("calculatrice_standard", "systeme", "Ouvrir la calculatrice Windows", [
+        "ouvre la calculatrice", "calculatrice", "calc",
+        "lance la calculette",
+    ], "powershell", "Start-Process calc"),
+    JarvisCommand("calculer_expression", "systeme", "Calculer une expression mathematique", [
+        "calcule {expr}", "combien fait {expr}", "resultat de {expr}",
+        "{expr} egal combien",
+    ], "powershell", "$r = Invoke-Expression '{expr}' 2>&1; \"Resultat: $r\"", ["expr"]),
+    JarvisCommand("convertir_temperature", "systeme", "Convertir Celsius en Fahrenheit et inversement", [
+        "convertis {temp} degres", "celsius en fahrenheit {temp}",
+        "fahrenheit en celsius {temp}", "temperature {temp}",
+    ], "powershell", "$t = {temp}; if($t -gt 60){$c = [math]::Round(($t-32)*5/9,1); \"$t F = $c C\"}else{$f = [math]::Round($t*9/5+32,1); \"$t C = $f F\"}", ["temp"]),
+    JarvisCommand("convertir_octets", "systeme", "Convertir des octets en unites lisibles", [
+        "convertis {bytes} octets", "combien de go fait {bytes}",
+        "bytes en gb {bytes}", "taille {bytes}",
+    ], "powershell", "$b = [double]'{bytes}'; if($b -ge 1TB){\"$([math]::Round($b/1TB,2)) TB\"}elseif($b -ge 1GB){\"$([math]::Round($b/1GB,2)) GB\"}elseif($b -ge 1MB){\"$([math]::Round($b/1MB,2)) MB\"}else{\"$([math]::Round($b/1KB,2)) KB\"}", ["bytes"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # TEXTE & ENCODAGE — Transformations clipboard avancées
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("clipboard_base64_encode", "systeme", "Encoder le clipboard en Base64", [
+        "encode en base64", "base64 encode", "clipboard en base64",
+        "convertis en base64",
+    ], "powershell", "$c = Get-Clipboard; if($c){$b = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($c)); Set-Clipboard $b; \"Base64 ($($b.Length) chars) copie\"}else{'Vide'}"),
+    JarvisCommand("clipboard_base64_decode", "systeme", "Decoder le clipboard depuis Base64", [
+        "decode le base64", "base64 decode", "clipboard depuis base64",
+        "decodifie base64",
+    ], "powershell", "$c = Get-Clipboard; if($c){try{$d = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($c)); Set-Clipboard $d; \"Decode ($($d.Length) chars) copie\"}catch{'Pas du Base64 valide'}}else{'Vide'}"),
+    JarvisCommand("clipboard_url_encode", "systeme", "Encoder le clipboard en URL (percent-encode)", [
+        "url encode", "encode l'url", "percent encode",
+        "echappe l'url",
+    ], "powershell", "$c = Get-Clipboard; if($c){$e = [uri]::EscapeDataString($c); Set-Clipboard $e; \"URL encode ($($e.Length) chars) copie\"}else{'Vide'}"),
+    JarvisCommand("clipboard_json_format", "systeme", "Formatter le JSON du clipboard avec indentation", [
+        "formate le json", "json pretty", "indente le json",
+        "beautify json clipboard",
+    ], "powershell", "$c = Get-Clipboard; if($c){try{$j = $c | ConvertFrom-Json | ConvertTo-Json -Depth 10; Set-Clipboard $j; \"JSON formate copie\"}catch{'Pas du JSON valide'}}else{'Vide'}"),
+    JarvisCommand("clipboard_md5", "systeme", "Calculer le MD5 du texte dans le clipboard", [
+        "md5 du clipboard", "hash md5 texte", "md5 du texte copie",
+        "checksum clipboard",
+    ], "powershell", "$c = Get-Clipboard; if($c){$md5 = [System.Security.Cryptography.MD5]::Create(); $hash = [BitConverter]::ToString($md5.ComputeHash([Text.Encoding]::UTF8.GetBytes($c))) -replace '-',''; Set-Clipboard $hash; \"MD5: $hash (copie)\"}else{'Vide'}"),
+    JarvisCommand("clipboard_sort_lines", "systeme", "Trier les lignes du clipboard par ordre alphabetique", [
+        "trie les lignes", "sort lines clipboard", "ordonne le clipboard",
+        "classe les lignes",
+    ], "powershell", "$c = Get-Clipboard; if($c){$s = ($c -split '`n' | Sort-Object) -join \"`n\"; Set-Clipboard $s; \"$($s.Split(\"`n\").Count) lignes triees\"}else{'Vide'}"),
+    JarvisCommand("clipboard_unique_lines", "systeme", "Supprimer les lignes dupliquees du clipboard", [
+        "deduplique les lignes", "unique lines", "enleve les doublons texte",
+        "clipboard sans doublons",
+    ], "powershell", "$c = Get-Clipboard; if($c){$u = ($c -split '`n' | Select-Object -Unique) -join \"`n\"; $orig = ($c -split '`n').Count; $new = ($u -split '`n').Count; Set-Clipboard $u; \"$orig -> $new lignes (suppr $($orig-$new) doublons)\"}else{'Vide'}"),
+    JarvisCommand("clipboard_reverse", "systeme", "Inverser le texte du clipboard", [
+        "inverse le texte", "reverse clipboard", "texte a l'envers",
+        "retourne le texte",
+    ], "powershell", "$c = Get-Clipboard; if($c){$r = -join ($c.ToCharArray() | Sort-Object {$null} -Descending); Set-Clipboard $r; \"Texte inverse ($($r.Length) chars)\"}else{'Vide'}"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # FICHIERS — Gestion dossier Téléchargements & organisation
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("taille_telechargements", "fichiers", "Taille du dossier Telechargements", [
+        "taille telechargements", "poids downloads", "combien dans les telechargements",
+        "downloads size",
+    ], "powershell", "$d = \"$env:USERPROFILE\\Downloads\"; $s = (Get-ChildItem $d -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum; $c = (Get-ChildItem $d -File -ErrorAction SilentlyContinue).Count; \"Telechargements: $([math]::Round($s/1GB,2)) GB ($c fichiers)\""),
+    JarvisCommand("vider_telechargements", "fichiers", "Vider le dossier Telechargements (fichiers > 30 jours)", [
+        "vide les telechargements", "nettoie les downloads", "clean downloads",
+        "supprime les vieux telechargements",
+    ], "powershell", "$d = \"$env:USERPROFILE\\Downloads\"; $old = Get-ChildItem $d -File | Where { $_.LastWriteTime -lt (Get-Date).AddDays(-30) }; $old | Remove-Item -Force -ErrorAction SilentlyContinue; \"$($old.Count) fichiers > 30 jours supprimes\"", confirm=True),
+    JarvisCommand("lister_telechargements", "fichiers", "Derniers fichiers telecharges", [
+        "derniers telechargements", "quoi de telecharge", "recent downloads",
+        "fichiers telecharges",
+    ], "powershell", "Get-ChildItem \"$env:USERPROFILE\\Downloads\" -File | Sort LastWriteTime -Descending | Select -First 15 @{N='Date';E={$_.LastWriteTime.ToString('dd/MM HH:mm')}}, @{N='Taille(MB)';E={[math]::Round($_.Length/1MB,1)}}, Name | Format-Table -AutoSize | Out-String"),
+    JarvisCommand("ouvrir_telechargements", "fichiers", "Ouvrir le dossier Telechargements", [
+        "ouvre les telechargements", "dossier downloads", "va dans les telechargements",
+        "ouvre downloads",
+    ], "powershell", "Start-Process explorer \"$env:USERPROFILE\\Downloads\""),
+    JarvisCommand("ouvrir_documents", "fichiers", "Ouvrir le dossier Documents", [
+        "ouvre les documents", "dossier documents", "mes documents",
+        "ouvre mes fichiers",
+    ], "powershell", "Start-Process explorer \"$env:USERPROFILE\\Documents\""),
+    JarvisCommand("ouvrir_bureau_dossier", "fichiers", "Ouvrir F:\\BUREAU dans l'explorateur", [
+        "ouvre le bureau", "dossier bureau", "va dans bureau",
+        "explore le bureau",
+    ], "powershell", "Start-Process explorer 'F:\\BUREAU'"),
+    JarvisCommand("fichier_recent_modifie", "fichiers", "Trouver le dernier fichier modifie partout", [
+        "dernier fichier modifie", "quoi vient de changer", "last modified",
+        "fichier le plus recent",
+    ], "powershell", "Get-ChildItem F:\\BUREAU -Recurse -File -ErrorAction SilentlyContinue | Where { $_.FullName -notmatch '\\.git|__pycache__|node_modules' } | Sort LastWriteTime -Descending | Select -First 1 @{N='Modifie';E={$_.LastWriteTime.ToString('dd/MM/yyyy HH:mm')}}, FullName | Out-String"),
+    JarvisCommand("compter_fichiers_type", "fichiers", "Compter les fichiers par extension dans un dossier", [
+        "compte les fichiers par type", "extensions dans {path}",
+        "quels types de fichiers dans {path}",
+    ], "powershell", "Get-ChildItem '{path}' -Recurse -File -ErrorAction SilentlyContinue | Group Extension | Sort Count -Descending | Select @{N='Type';E={if($_.Name){$_.Name}else{'(sans)'}}} , Count | Select -First 15 | Format-Table -AutoSize | Out-String", ["path"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # POWER MANAGEMENT — Modes performance et économie
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("power_performance", "systeme", "Activer le plan d'alimentation Haute Performance", [
+        "mode performance", "high performance", "pleine puissance",
+        "plan performance", "boost le pc",
+    ], "powershell", "powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c; 'Plan Haute Performance active'"),
+    JarvisCommand("power_equilibre", "systeme", "Activer le plan d'alimentation Equilibre", [
+        "mode equilibre", "balanced power", "plan normal",
+        "performance normale",
+    ], "powershell", "powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e; 'Plan Equilibre active'"),
+    JarvisCommand("power_economie", "systeme", "Activer le plan d'alimentation Economie d'energie", [
+        "mode economie", "power saver", "economie energie",
+        "plan economique", "economise la batterie",
+    ], "powershell", "powercfg /setactive a1841308-3541-4fab-bc81-f71556f20b4a; 'Plan Economie d energie active'"),
+    JarvisCommand("power_plans_list", "systeme", "Lister les plans d'alimentation disponibles", [
+        "quels plans alimentation", "power plans", "modes d'alimentation disponibles",
+        "liste les plans",
+    ], "powershell", "powercfg /list | Out-String"),
+    JarvisCommand("sleep_timer_30", "systeme", "Mettre le PC en veille dans 30 minutes", [
+        "veille dans 30 minutes", "sleep dans 30 min", "dors dans une demi heure",
+        "timer veille 30",
+    ], "powershell", "Start-Job -ScriptBlock { Start-Sleep 1800; Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Application]::SetSuspendState('Suspend',$false,$false) } | Out-Null; 'Veille programmee dans 30 minutes'", confirm=True),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RÉSEAU — Reset et dépannage complet
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("network_reset", "systeme", "Reset complet de la pile reseau Windows", [
+        "reset reseau", "reinitialise le reseau", "network reset",
+        "repare le reseau",
+    ], "powershell", "netsh winsock reset; netsh int ip reset; ipconfig /flushdns; 'Pile reseau reinitialisee — redemarrage recommande'", confirm=True),
+    JarvisCommand("network_troubleshoot", "systeme", "Lancer le depanneur reseau Windows", [
+        "depanne le reseau", "network troubleshoot", "diagnostic reseau windows",
+        "aide reseau",
+    ], "powershell", "Start-Process msdt -ArgumentList '/id NetworkDiagnosticsWeb'"),
+    JarvisCommand("arp_table", "systeme", "Afficher la table ARP (machines sur le reseau local)", [
+        "table arp", "machines sur le reseau", "arp -a",
+        "qui est sur mon reseau",
+    ], "powershell", "arp -a | Out-String"),
+    JarvisCommand("nslookup_domain", "systeme", "Resoudre un nom de domaine (nslookup)", [
+        "nslookup {domain}", "resous {domain}", "ip de {domain}",
+        "dns lookup {domain}",
+    ], "powershell", "nslookup '{domain}' 2>&1 | Out-String", ["domain"]),
 ]
