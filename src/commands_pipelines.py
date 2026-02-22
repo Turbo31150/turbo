@@ -1339,4 +1339,97 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
         "soiree film", "movie night", "mode cinema maison",
         "on regarde un film",
     ], "pipeline", "powershell:(New-Object -ComObject Shell.Application).MinimizeAll();;sleep:1;;browser:navigate:https://www.netflix.com;;ms_settings:nightlight;;powershell:\"Soiree film prete — Netflix + Night Light\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 42 — TECH NEWS SESSION
+    # Scénario: Veille technologique complète
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_tech_news", "pipeline", "Veille tech: HN + TechCrunch + Reddit + The Verge", [
+        "veille tech", "news tech", "ouvre les news tech",
+        "actualites tech",
+    ], "pipeline", "browser:navigate:https://news.ycombinator.com;;sleep:1;;browser:navigate:https://techcrunch.com;;sleep:1;;browser:navigate:https://www.reddit.com/r/programming/;;sleep:1;;browser:navigate:https://www.theverge.com;;powershell:\"Veille tech ouverte — 4 sources\""),
+    JarvisCommand("sim_ai_news", "pipeline", "News IA: arXiv + HuggingFace + Semantic Scholar + Papers", [
+        "news ia", "actualites intelligence artificielle", "veille ia",
+        "quoi de neuf en ia",
+    ], "pipeline", "browser:navigate:https://arxiv.org/list/cs.AI/recent;;sleep:1;;browser:navigate:https://huggingface.co/papers;;sleep:1;;browser:navigate:https://www.semanticscholar.org;;sleep:1;;browser:navigate:https://paperswithcode.com;;powershell:\"Veille IA ouverte — 4 sources\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 43 — DEPLOYMENT PIPELINE
+    # Scénario: Pipeline de déploiement complet
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_deploy_vercel", "pipeline", "Deploy Vercel: build + push + deploy + verify", [
+        "deploie sur vercel", "deploy vercel", "push vercel",
+        "met en prod sur vercel",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git status -sb 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; git push origin main 2>&1 | Out-String;;browser:navigate:https://vercel.com/dashboard;;powershell:\"Deploy initie — verifier le dashboard Vercel\""),
+    JarvisCommand("sim_deploy_docker", "pipeline", "Deploy Docker: build image + tag + push registry", [
+        "deploie en docker", "docker deploy", "push docker image",
+        "build et deploy docker",
+    ], "pipeline", "powershell:docker build -t jarvis-turbo:latest . 2>&1 | Select -Last 5 | Out-String;;powershell:docker tag jarvis-turbo:latest jarvis-turbo:$(Get-Date -Format yyyyMMdd) 2>&1 | Out-String;;powershell:docker images jarvis-turbo --format 'table {{.Repository}}\t{{.Tag}}\t{{.Size}}' 2>&1 | Out-String;;powershell:\"Build Docker termine — image taggee\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 44 — DATA SCIENCE WORKSPACE
+    # Scénario: Espace de travail data science
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_datascience_setup", "pipeline", "Data Science: Jupyter + HuggingFace + GPU monitor", [
+        "mode data science", "setup data science", "workspace datascience",
+        "lance jupyter et compagnie",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run jupyter lab --no-browser 2>&1 | Select -First 3 | Out-String;;browser:navigate:https://huggingface.co/datasets;;sleep:1;;powershell:nvidia-smi --query-gpu=name,memory.used,memory.total,utilization.gpu --format=csv,noheader 2>&1 | Out-String;;powershell:\"Data Science workspace pret — Jupyter + HuggingFace + GPU\""),
+    JarvisCommand("sim_kaggle_session", "pipeline", "Session Kaggle: competitions + notebooks + datasets", [
+        "session kaggle", "mode kaggle", "ouvre kaggle",
+        "competitions kaggle",
+    ], "pipeline", "browser:navigate:https://www.kaggle.com/competitions;;sleep:1;;browser:navigate:https://www.kaggle.com/datasets;;sleep:1;;browser:navigate:https://www.kaggle.com/code;;powershell:\"Session Kaggle ouverte — Competitions + Datasets + Notebooks\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 45 — INTERVIEW PREP
+    # Scénario: Préparation d'entretien technique
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_interview_prep", "pipeline", "Prep entretien: LeetCode + GeeksForGeeks + docs + notes", [
+        "prepare l'entretien", "mode interview", "practice coding",
+        "preparation entretien tech",
+    ], "pipeline", "browser:navigate:https://leetcode.com;;sleep:1;;browser:navigate:https://www.geeksforgeeks.org;;sleep:1;;browser:navigate:https://devdocs.io;;sleep:1;;app_open:notepad;;powershell:\"Preparation entretien prete — LeetCode + GFG + Docs + Notes\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 46 — PHOTO EDITING SESSION
+    # Scénario: Session d'édition photo/vidéo
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_photo_edit", "pipeline", "Photo edit: Photopea + Pexels + Remove.bg + Canva", [
+        "mode edition photo", "session photo", "edite des photos",
+        "retouche photo",
+    ], "pipeline", "browser:navigate:https://www.photopea.com;;sleep:2;;browser:navigate:https://www.pexels.com;;sleep:1;;browser:navigate:https://www.remove.bg;;sleep:1;;browser:navigate:https://www.canva.com;;powershell:\"Session photo ouverte — Photopea + Pexels + Remove.bg + Canva\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 47 — SYSTEM HARDENING
+    # Scénario: Renforcement de la sécurité système
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_system_hardening", "pipeline", "Hardening: firewall + users + ports + updates + audit", [
+        "renforce la securite", "system hardening", "securise le systeme",
+        "mode securite maximale",
+    ], "pipeline", "powershell:Get-NetFirewallProfile | Select Name, Enabled | Format-Table | Out-String;;powershell:Get-LocalUser | Where Enabled | Select Name, LastLogon | Format-Table | Out-String;;powershell:Get-NetTCPConnection -State Listen | Select -First 10 LocalPort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ea 0).Name}} | Format-Table | Out-String;;powershell:Get-HotFix | Sort InstalledOn -Desc | Select -First 5 HotFixID, InstalledOn | Format-Table | Out-String;;powershell:\"Audit de securite termine — 4 verifications effectuees\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 48 — COOKING / MEAL PREP
+    # Scénario: Planification de repas
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_meal_prep", "pipeline", "Meal prep: Marmiton + 750g + Uber Eats + notes", [
+        "meal prep", "planifie les repas", "qu'est ce qu'on mange",
+        "idees de repas",
+    ], "pipeline", "browser:navigate:https://www.marmiton.org;;sleep:1;;browser:navigate:https://www.750g.com;;sleep:1;;browser:navigate:https://www.ubereats.com;;sleep:1;;app_open:notepad;;powershell:\"Meal prep ouvert — Marmiton + 750g + UberEats + Notes\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 49 — FULL STACK MONITORING
+    # Scénario: Monitoring complet de la stack
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_monitoring_full", "pipeline", "Monitoring: GPU + cluster + ports + logs + disk", [
+        "monitoring complet", "check tout le monitoring", "surveillance totale",
+        "dashboard monitoring",
+    ], "pipeline", "powershell:nvidia-smi --query-gpu=name,temperature.gpu,memory.used,utilization.gpu --format=csv,noheader 2>&1 | Out-String;;powershell:@('http://127.0.0.1:11434/api/tags','http://192.168.1.26:1234/api/v1/models','http://192.168.1.113:1234/api/v1/models') | ForEach-Object { try{Invoke-WebRequest $_ -UseBasicParsing -TimeoutSec 2 >$null; \"$_`: OK\"}catch{\"$_`: OFFLINE\"} } | Out-String;;powershell:Get-NetTCPConnection -State Listen | Group LocalPort | Sort Count -Desc | Select -First 10 Count, Name | Format-Table | Out-String;;powershell:Get-Content F:\\BUREAU\\turbo\\data\\jarvis.log -Tail 5 -ErrorAction SilentlyContinue | Out-String;;powershell:Get-PSDrive -PSProvider FileSystem | Select Name, @{N='Free(GB)';E={[math]::Round($_.Free/1GB,1)}}, @{N='Used(GB)';E={[math]::Round($_.Used/1GB,1)}} | Format-Table | Out-String;;powershell:\"Monitoring complet termine — 5 checks\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 50 — JARVIS SELF-CHECK
+    # Scénario: Auto-diagnostic complet de JARVIS
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_jarvis_selfcheck", "pipeline", "Auto-diagnostic JARVIS: config + deps + DB + commands + cluster", [
+        "auto diagnostic jarvis", "jarvis self check", "verifie toi meme",
+        "diagnostic jarvis complet",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.config import *; print('Config: OK')\" 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.commands import COMMANDS; print(f'{len(COMMANDS)} commandes chargees')\" 2>&1 | Out-String;;powershell:$dbs=@('F:\\BUREAU\\turbo\\data\\jarvis.db','F:\\BUREAU\\etoile.db'); $dbs | ForEach-Object { if(Test-Path $_){$f=Get-Item $_; \"$($f.Name): $([math]::Round($f.Length/1KB))KB OK\"}else{\"$_ MANQUANT\"} } | Out-String;;powershell:try{Invoke-WebRequest http://127.0.0.1:11434/api/tags -UseBasicParsing -TimeoutSec 3 >$null; 'OL1: OK'}catch{'OL1: OFFLINE'};;powershell:\"Auto-diagnostic JARVIS termine\""),
 ]

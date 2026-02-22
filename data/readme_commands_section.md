@@ -1,7 +1,7 @@
 
 ## 812 Commandes Vocales — Liste Complete
 
-**1597 commandes** au total dont **259 pipelines** multi-etapes.
+**1668 commandes** au total dont **271 pipelines** multi-etapes.
 Reparties en **14 categories**.
 
 | Categorie | Nb | Description |
@@ -9,16 +9,16 @@ Reparties en **14 categories**.
 | **accessibilite** | 10 | taille_texte_grand, clavier_virtuel, filtre_couleur... |
 | **app** | 23 | ouvrir_vscode, ouvrir_terminal, ouvrir_lmstudio... |
 | **clipboard** | 13 | copier, coller, couper... |
-| **dev** | 241 | docker_ps, docker_images, docker_stop_all... |
+| **dev** | 255 | docker_ps, docker_images, docker_stop_all... |
 | **fenetre** | 13 | minimiser_tout, alt_tab, fermer_fenetre... |
 | **fichiers** | 47 | ouvrir_documents, ouvrir_bureau, ouvrir_dossier... |
 | **jarvis** | 12 | historique_commandes, jarvis_aide, jarvis_stop... |
 | **launcher** | 12 | launch_pipeline_10, launch_sniper_10, launch_sniper_breakout... |
 | **media** | 7 | media_play_pause, media_next, media_previous... |
-| **navigation** | 297 | ouvrir_chrome, ouvrir_comet, aller_sur_site... |
-| **pipeline** | 259 | range_bureau, va_sur_mails_comet, mode_travail... |
+| **navigation** | 316 | ouvrir_chrome, ouvrir_comet, aller_sur_site... |
+| **pipeline** | 271 | range_bureau, va_sur_mails_comet, mode_travail... |
 | **saisie** | 4 | texte_majuscule, texte_minuscule, ouvrir_emojis... |
-| **systeme** | 640 | verrouiller, eteindre, redemarrer... |
+| **systeme** | 666 | verrouiller, eteindre, redemarrer... |
 | **trading** | 19 | scanner_marche, detecter_breakout, pipeline_trading... |
 
 <details>
@@ -85,7 +85,7 @@ Reparties en **14 categories**.
 | `clipboard_historique` | hotkey | Ouvrir l'historique du presse-papier | historique presse papier, clipboard history |
 | `coller_sans_format` | hotkey | Coller sans mise en forme | colle sans format, coller sans mise en forme |
 
-### DEV (241)
+### DEV (255)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -330,6 +330,20 @@ Reparties en **14 categories**.
 | `python_profile` | powershell | Profiler un script Python | profile python {script}, profiling {script} |
 | `benchmark_import_time` | powershell | Mesurer le temps d'import de turbo | temps d'import turbo, import time |
 | `memory_usage_python` | powershell | Utilisation memoire de Python | memoire python, ram python |
+| `n8n_status` | powershell | Verifier si n8n tourne | n8n status, est ce que n8n tourne |
+| `n8n_open` | browser | Ouvrir n8n dans le navigateur | ouvre n8n, va sur n8n |
+| `n8n_workflows_count` | powershell | Compter les workflows n8n | combien de workflows n8n, n8n workflows |
+| `tsc_compile` | powershell | Compiler TypeScript | tsc compile, compile typescript |
+| `tsc_watch` | powershell | Lancer TypeScript en mode watch | tsc watch, typescript watch |
+| `tsc_version` | powershell | Version de TypeScript installee | version typescript, tsc version |
+| `tsc_check` | powershell | Type-check sans compiler | type check, tsc check |
+| `pip_show` | powershell | Infos sur un package Python installe | pip show {package}, info package {package} |
+| `npm_info` | powershell | Infos sur un package NPM | npm info {package}, details npm {package} |
+| `git_blame` | powershell | Voir l'auteur de chaque ligne d'un fichier | git blame {fichier}, qui a ecrit {fichier} |
+| `git_bisect_start` | powershell | Demarrer git bisect pour trouver un bug | git bisect, cherche le bug |
+| `python_version` | powershell | Version de Python installee | version python, quel python |
+| `which_command` | powershell | Trouver l'emplacement d'une commande | ou est {cmd}, which {cmd} |
+| `dev_env_summary` | powershell | Resume de l'environnement de dev | resume dev, environnement dev |
 
 ### FENETRE (13)
 
@@ -447,7 +461,7 @@ Reparties en **14 categories**.
 | `muet` | hotkey | Couper/activer le son | coupe le son, mute |
 | `volume_precis` | powershell | Mettre le volume a un niveau precis | mets le volume a {niveau}, volume a {niveau} |
 
-### NAVIGATION (297)
+### NAVIGATION (316)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -748,8 +762,27 @@ Reparties en **14 categories**.
 | `ouvrir_mega` | browser | Ouvrir Mega (stockage chiffre) | ouvre mega, va sur mega |
 | `ouvrir_discord_web` | browser | Ouvrir Discord Web | ouvre discord web, discord en ligne |
 | `ouvrir_zoom` | browser | Ouvrir Zoom | ouvre zoom, va sur zoom |
+| `ouvrir_heroku` | browser | Ouvrir Heroku | ouvre heroku, va sur heroku |
+| `ouvrir_nuget` | browser | Ouvrir NuGet (packages .NET) | ouvre nuget, va sur nuget |
+| `ouvrir_wired` | browser | Ouvrir Wired | ouvre wired, va sur wired |
+| `ouvrir_semantic_scholar` | browser | Ouvrir Semantic Scholar (IA papers) | ouvre semantic scholar, semantic scholar |
+| `ouvrir_researchgate` | browser | Ouvrir ResearchGate | ouvre researchgate, va sur researchgate |
+| `ouvrir_pubmed` | browser | Ouvrir PubMed (medecine) | ouvre pubmed, recherche pubmed |
+| `ouvrir_marmiton` | browser | Ouvrir Marmiton (recettes) | ouvre marmiton, va sur marmiton |
+| `ouvrir_750g` | browser | Ouvrir 750g (recettes) | ouvre 750g, recettes 750g |
+| `ouvrir_cuisine_az` | browser | Ouvrir Cuisine AZ | ouvre cuisine az, recettes cuisine az |
+| `ouvrir_pexels` | browser | Ouvrir Pexels (photos/videos gratuites) | ouvre pexels, photos pexels |
+| `ouvrir_pixabay` | browser | Ouvrir Pixabay (images libres) | ouvre pixabay, images pixabay |
+| `ouvrir_vimeo` | browser | Ouvrir Vimeo | ouvre vimeo, va sur vimeo |
+| `ouvrir_codecademy` | browser | Ouvrir Codecademy | ouvre codecademy, va sur codecademy |
+| `ouvrir_gmail` | browser | Ouvrir Gmail | ouvre gmail, va sur gmail |
+| `ouvrir_outlook_web` | browser | Ouvrir Outlook Web | ouvre outlook, va sur outlook |
+| `ouvrir_protonmail` | browser | Ouvrir ProtonMail (mail chiffre) | ouvre protonmail, va sur protonmail |
+| `ouvrir_windy` | browser | Ouvrir Windy (meteo avancee) | ouvre windy, meteo windy |
+| `ouvrir_openstreetmap` | browser | Ouvrir OpenStreetMap | ouvre openstreetmap, osm |
+| `ouvrir_waze` | browser | Ouvrir Waze (trafic) | ouvre waze, trafic waze |
 
-### PIPELINE (259)
+### PIPELINE (271)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -1012,6 +1045,18 @@ Reparties en **14 categories**.
 | `sim_focus_deep_work` | pipeline | Deep work: ferme tout + focus assist + timer 90min + musique lo-fi | mode deep work, concentration maximale |
 | `sim_weekend_chill` | pipeline | Weekend: Netflix + Spotify + food delivery + mode eco | mode weekend, weekend chill |
 | `sim_movie_night` | pipeline | Soiree film: minimiser tout + Netflix + lumiere tamisee | soiree film, movie night |
+| `sim_tech_news` | pipeline | Veille tech: HN + TechCrunch + Reddit + The Verge | veille tech, news tech |
+| `sim_ai_news` | pipeline | News IA: arXiv + HuggingFace + Semantic Scholar + Papers | news ia, actualites intelligence artificielle |
+| `sim_deploy_vercel` | pipeline | Deploy Vercel: build + push + deploy + verify | deploie sur vercel, deploy vercel |
+| `sim_deploy_docker` | pipeline | Deploy Docker: build image + tag + push registry | deploie en docker, docker deploy |
+| `sim_datascience_setup` | pipeline | Data Science: Jupyter + HuggingFace + GPU monitor | mode data science, setup data science |
+| `sim_kaggle_session` | pipeline | Session Kaggle: competitions + notebooks + datasets | session kaggle, mode kaggle |
+| `sim_interview_prep` | pipeline | Prep entretien: LeetCode + GeeksForGeeks + docs + notes | prepare l'entretien, mode interview |
+| `sim_photo_edit` | pipeline | Photo edit: Photopea + Pexels + Remove.bg + Canva | mode edition photo, session photo |
+| `sim_system_hardening` | pipeline | Hardening: firewall + users + ports + updates + audit | renforce la securite, system hardening |
+| `sim_meal_prep` | pipeline | Meal prep: Marmiton + 750g + Uber Eats + notes | meal prep, planifie les repas |
+| `sim_monitoring_full` | pipeline | Monitoring: GPU + cluster + ports + logs + disk | monitoring complet, check tout le monitoring |
+| `sim_jarvis_selfcheck` | pipeline | Auto-diagnostic JARVIS: config + deps + DB + commands + cluster | auto diagnostic jarvis, jarvis self check |
 
 ### SAISIE (4)
 
@@ -1022,7 +1067,7 @@ Reparties en **14 categories**.
 | `ouvrir_emojis` | hotkey | Ouvrir le panneau emojis | ouvre les emojis, panneau emojis |
 | `ouvrir_dictee` | hotkey | Activer la dictee vocale Windows | dicte, dictee windows |
 
-### SYSTEME (640)
+### SYSTEME (666)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -1666,6 +1711,32 @@ Reparties en **14 categories**.
 | `process_by_cpu` | powershell | Top 15 processus par CPU | processus par cpu, qui consomme le cpu |
 | `process_tree` | powershell | Arborescence des processus (parent-enfant) | arbre des processus, process tree |
 | `process_handles` | powershell | Processus avec le plus de handles ouverts | handles ouverts, processus handles |
+| `wu_check_updates` | powershell | Verifier les mises a jour Windows disponibles | verifie les mises a jour, check updates |
+| `wu_history` | powershell | Historique des mises a jour Windows | historique updates, mises a jour recentes |
+| `wu_pause_updates` | powershell | Parametres pour suspendre les mises a jour | pause les updates, suspends les mises a jour |
+| `wu_driver_updates` | powershell | Voir les mises a jour de pilotes optionnelles | mises a jour pilotes, driver updates |
+| `wu_last_reboot_reason` | powershell | Raison du dernier redemarrage | pourquoi le pc a redemarre, dernier reboot |
+| `restore_point_create` | powershell | Creer un point de restauration systeme | cree un point de restauration, restore point |
+| `restore_point_list` | powershell | Lister les points de restauration | liste les points de restauration, quels restore points |
+| `system_info_detailed` | powershell | Informations systeme detaillees | info systeme detaille, systeminfo |
+| `notif_clear_all` | powershell | Effacer toutes les notifications | efface les notifications, clear notifications |
+| `notif_dnd_toggle` | powershell | Activer/desactiver Ne pas deranger | ne pas deranger, do not disturb |
+| `notif_app_settings` | powershell | Parametres de notifications par application | notifs par appli, reglages notifications |
+| `default_browser_check` | powershell | Voir quel est le navigateur par defaut | quel navigateur par defaut, default browser |
+| `default_apps_settings` | powershell | Ouvrir les parametres d'applis par defaut | applis par defaut, apps par defaut |
+| `file_type_assoc` | powershell | Voir l'association d'un type de fichier | quelle appli pour {ext}, association {ext} |
+| `compress_folder` | powershell | Compresser un dossier en ZIP | compresse {dossier}, zip {dossier} |
+| `extract_archive` | powershell | Extraire une archive ZIP | extrais {archive}, dezippe {archive} |
+| `rename_files_batch` | powershell | Renommer des fichiers en lot (prefixe) | renomme en lot {prefix}, batch rename {prefix} |
+| `find_large_files` | powershell | Trouver les plus gros fichiers (top 20) | plus gros fichiers, fichiers les plus lourds |
+| `find_old_files` | powershell | Trouver les fichiers non modifies depuis 90 jours | vieux fichiers, fichiers anciens |
+| `motherboard_info` | powershell | Informations sur la carte mere | carte mere, motherboard |
+| `ram_details` | powershell | Details des barrettes RAM | details ram, barrettes memoire |
+| `windows_license` | powershell | Statut de la licence Windows | licence windows, windows active |
+| `boot_config` | powershell | Configuration de demarrage (BCD) | config demarrage, boot config |
+| `locale_current` | powershell | Afficher les parametres regionaux actuels | parametres regionaux, quelle locale |
+| `timezone_current` | powershell | Afficher le fuseau horaire actuel | quel fuseau horaire, timezone |
+| `timezone_list` | powershell | Lister les fuseaux horaires disponibles | liste fuseaux horaires, timezones disponibles |
 
 ### TRADING (19)
 
