@@ -322,6 +322,19 @@ class JarvisConfig:
     db_trading: Path = field(default_factory=lambda: PATHS["carV1"] / "database/trading_latest.db")
     db_predictions: Path = field(default_factory=lambda: PATHS["trading_v2"] / "database/trading.db")
 
+    # ── Voice Pipeline v2 ─────────────────────────────────────────────────
+    voice_wake_word: str = "jarvis"
+    voice_wake_threshold: float = 0.7
+    voice_beam_size: int = 1
+    voice_vad_silence_ms: int = 300
+    voice_cache_size: int = 200
+    voice_ollama_timeout: float = 3.0
+    voice_warmup_interval: float = 60.0
+    voice_max_record_duration: float = 5.0
+    voice_silence_threshold: int = 200
+    voice_tts_voice: str = "fr-FR-HenriNeural"
+    voice_tts_rate: str = "+10%"
+
     def get_node_url(self, name: str) -> str | None:
         for node in self.lm_nodes:
             if node.name == name:
