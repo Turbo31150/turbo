@@ -27,7 +27,7 @@
 8. [Seuil Thermique GPU](#seuil-thermique-gpu)
 9. [87 Outils MCP](#87-outils-mcp)
 10. [n8n Workflow Etoile](#n8n-workflow-etoile)
-11. [Architecture Vocale](#architecture-vocale)
+11. [Architecture Vocale — Pipeline v2](#architecture-vocale--pipeline-v2-2026-02-22)
 12. [Trading MEXC](#trading-mexc-futures)
 13. [Modes de Lancement](#modes-de-lancement)
 14. [Structure du Projet](#structure-du-projet)
@@ -821,47 +821,70 @@ Prefixe: `mcp__jarvis__`
 
 ---
 
-## Architecture Vocale
+## Architecture Vocale — Pipeline v2 (2026-02-22)
 
 ```
-Micro (Sony WH-1000XM4 Bluetooth)
+Micro (Sony WH-1000XM4 Bluetooth, 16kHz)
        |
        v
- Whisper (faster-whisper CUDA, GPU)
+ Wake Word (OpenWakeWord "jarvis", ~50ms, CPU)
+ OU Push-to-Talk (Ctrl, fallback)
        |
        v
- Correction Pipeline
- ├── Dictionnaire local (438 commandes)
- └── OL1 qwen3:1.7b (correction IA, timeout 8s)
+ Whisper Streaming (faster-whisper CUDA, beam=1, VAD 300ms)
+ Protocole: SEGMENT: texte partiel -> DONE: texte complet
        |
        v
- Command Match (fuzzy matching, 438 cmds)
+ Cache LRU (200 entrees)
+  +----+----+
+  |         |
+  HIT      MISS
+  |         |
+  |    Correction Pipeline
+  |    +-- Dictionnaire local (464 commandes, fuzzy match)
+  |    +-- Si confiance >= 85%: bypass IA (method=local_fast)
+  |    +-- OL1 qwen3:1.7b (correction IA, timeout 3s)
+  |         |
+  +----+----+
+       |
+       v
+ Command Match (fuzzy matching, 464 cmds dont 12 pipelines)
        |
   +----+----+
   |         |
   v         v
 MATCH     NO MATCH
 (execute)  (Commander Mode)
-             |
-             v
-        M2 pre-analyse (deepseek-coder, champion)
-             |
-             v
-        Claude dispatche (COMMANDER_PROMPT)
-             |
-             v
-        TTS (Windows SAPI)
+  |          |
+  |          v
+  |     M2 pre-analyse (deepseek-coder, champion)
+  |          |
+  |          v
+  |     Claude dispatche (COMMANDER_PROMPT)
+  |
+  +-- Si pipeline: execution multi-etapes (;;)
+  +-- Si powershell/browser/app: execution directe
+       |
+       v
+ TTS Streaming (Edge TTS, fr-FR-HenriNeural, +10%)
+ Fallback: Windows SAPI / PowerShell MediaPlayer
 ```
 
 | Parametre | Valeur |
 |-----------|--------|
 | Micro | Sony WH-1000XM4 Bluetooth |
-| STT | faster-whisper CUDA |
-| Wake word | "jarvis" → attend commande |
+| STT | faster-whisper CUDA, beam=1, streaming |
+| Wake word | OpenWakeWord "jarvis" (seuil 0.7, cooldown 1s) |
+| Fallback PTT | Ctrl (toujours disponible) |
 | Exit confidence | >= 0.85 |
-| Commandes | 438 commandes vocales |
-| TTS | Windows SAPI |
-| Cache micro | check_microphone() 30s |
+| Commandes | **464 commandes vocales** (dont 12 pipelines) |
+| TTS | Edge TTS fr-FR-HenriNeural (+10% rate) |
+| Cache | LRU 200 entrees, ~80% commandes en cache |
+| Correction IA | OL1 qwen3:1.7b (0.5s, timeout 3s) |
+| Warm-up | Ping OL1 toutes les 60s (keep model in GPU) |
+| Latence cible | < 1s (cache/local) / < 2s (IA) / < 3s (complexe) |
+
+> **Detail complet des 464 commandes vocales** : voir [`docs/COMMANDES_VOCALES.md`](docs/COMMANDES_VOCALES.md)
 
 ---
 
@@ -946,7 +969,7 @@ F:\BUREAU\turbo\
 |   |-- agents.py                # 7 agents Claude SDK (deep/fast/check/trading/system/bridge/consensus)
 |   |-- tools.py                 # 87 outils MCP SDK (IA, Windows, Trading, Brain, Skills)
 |   |-- mcp_server.py            # Serveur MCP stdio pour Claude Code (87 handlers)
-|   |-- commands.py              # 438 commandes vocales (18 vagues)
+|   |-- commands.py              # 464 commandes vocales (18 vagues + pipelines)
 |   |-- skills.py                # 86+ skills dynamiques (16 vagues)
 |   |-- voice.py                 # Whisper STT + SAPI TTS + push-to-talk
 |   |-- voice_correction.py      # Pipeline correction vocale (dict + OL1)
