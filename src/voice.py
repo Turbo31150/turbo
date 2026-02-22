@@ -306,6 +306,37 @@ def _save_wav(audio: np.ndarray, path: str) -> None:
         wf.writeframes(audio.tobytes())
 
 
+# ── Timed recording (post wake-word) ─────────────────────────────────────
+
+def _record_timed(max_duration: float = 5.0) -> np.ndarray | None:
+    """Record audio for a fixed duration with silence detection (after wake word)."""
+    import time
+    frames: list[np.ndarray] = []
+    device = get_cached_input_device()
+    if device is None:
+        return None
+    try:
+        with sd.InputStream(device=device, samplerate=SAMPLE_RATE, channels=CHANNELS,
+                            dtype='int16', blocksize=1024) as stream:
+            start = time.monotonic()
+            silence_count = 0
+            while time.monotonic() - start < max_duration:
+                data, _ = stream.read(1024)
+                frames.append(data.copy())
+                amplitude = np.abs(data).mean()
+                if amplitude < 200:
+                    silence_count += 1
+                else:
+                    silence_count = 0
+                if silence_count > 23:  # ~1.5s of silence at 16kHz/1024
+                    break
+    except Exception:
+        pass
+    if not frames:
+        return None
+    return np.concatenate(frames, axis=0)
+
+
 # ── Main listen function ─────────────────────────────────────────────────
 
 async def listen_voice(timeout: float = 15.0, keyboard_fallback: bool = True, use_ptt: bool = False) -> str | None:
@@ -366,6 +397,92 @@ async def listen_voice(timeout: float = 15.0, keyboard_fallback: bool = True, us
         print(f"  [IA] {corrected} (conf={confidence:.0%})", flush=True)
 
     return corrected
+
+
+# ── Voice Pipeline v2 ────────────────────────────────────────────────────
+
+async def listen_voice_v2(
+    use_wake_word: bool = True,
+    use_cache: bool = True,
+    timeout: float = 30.0,
+) -> dict | None:
+    """Voice Pipeline v2 — Wake word + streaming STT + local-first routing.
+
+    Returns full correction result dict, or None.
+    """
+    from src.voice_correction import full_correction_pipeline
+
+    # Step 1: Wait for wake word or PTT
+    if use_wake_word:
+        wake_event = asyncio.Event()
+
+        def on_wake():
+            wake_event.set()
+
+        from src.wake_word import WakeWordDetector
+        detector = WakeWordDetector(callback=on_wake)
+        device = get_cached_input_device()
+        if detector.start(device=device):
+            print("  [En attente de 'Jarvis'...]", flush=True)
+            try:
+                await asyncio.wait_for(wake_event.wait(), timeout=timeout)
+                print("  [Wake word detecte! Parle...]", flush=True)
+            except asyncio.TimeoutError:
+                detector.stop()
+                return None
+            finally:
+                detector.stop()
+        else:
+            # Fallback to PTT if wake word fails
+            print(f"  [Wake word indisponible, maintiens {PTT_KEY.upper()}...]", flush=True)
+            if not await wait_for_ptt(timeout=timeout):
+                return None
+
+        # Record after wake word (timed with silence detection)
+        audio = await asyncio.to_thread(_record_timed, 5.0)
+    else:
+        # PTT mode
+        if not await wait_for_ptt(timeout=timeout):
+            return None
+        audio = await asyncio.to_thread(_record_while_key_held, PTT_KEY, 15.0)
+
+    if audio is None or len(audio) < SAMPLE_RATE * 0.3:
+        return None
+
+    # Step 2: Save + transcribe
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+        wav_path = tmp.name
+    _save_wav(audio, wav_path)
+
+    try:
+        text = await asyncio.to_thread(_whisper_worker.transcribe, wav_path)
+    finally:
+        Path(wav_path).unlink(missing_ok=True)
+
+    if not text:
+        print("  [Pas de parole detectee]", flush=True)
+        return None
+
+    print(f"  [STT] {text}", flush=True)
+
+    # Step 3: Check cache
+    if use_cache:
+        cached = _cache_get(text)
+        if cached:
+            cached = dict(cached)  # Copy to avoid mutation
+            cached["method"] = "cache"
+            print(f"  [CACHE] {cached.get('intent', text)}", flush=True)
+            return cached
+
+    # Step 4: Full correction pipeline (local-first, IA only if needed)
+    result = await full_correction_pipeline(text, use_ia=True)
+    print(f"  [MATCH] method={result['method']}, confidence={result['confidence']:.0%}", flush=True)
+
+    # Step 5: Cache result if command found
+    if use_cache and result.get("command"):
+        _cache_set(text, result)
+
+    return result
 
 
 # ── TTS ───────────────────────────────────────────────────────────────────
@@ -434,16 +551,35 @@ def stop_whisper():
     _whisper_worker.stop()
 
 
-async def voice_loop(callback) -> None:
-    """Continuous voice listening loop."""
-    print("[JARVIS] Mode vocal actif. Maintiens CTRL pour parler.")
-    while True:
-        text = await listen_voice(timeout=15.0, use_ptt=True)
-        if text:
-            if text.lower().strip() in ("stop", "arrete", "exit", "quitter"):
-                await speak_text("Session vocale terminee.")
-                break
-            print(f"[VOICE] {text}")
-            response = await callback(text)
-            if response:
-                await speak_text(response)
+async def voice_loop(callback, use_wake_word: bool = True) -> None:
+    """Continuous voice listening loop (v2 with wake word support)."""
+    mode = "wake word" if use_wake_word else "PTT"
+    print(f"[JARVIS] Mode vocal v2 actif ({mode}).", flush=True)
+
+    # Start OL1 warm-up in background
+    warmup_task = asyncio.create_task(_warmup_ollama())
+
+    try:
+        while True:
+            result = await listen_voice_v2(use_wake_word=use_wake_word, timeout=30.0)
+            if result:
+                intent = result.get("intent", "")
+                if intent.lower().strip() in ("stop", "arrete", "exit", "quitter"):
+                    from src.tts_streaming import speak_quick
+                    await speak_quick("Session vocale terminee.")
+                    break
+
+                cmd = result.get("command")
+                if cmd:
+                    print(f"[VOICE] {cmd.triggers[0]} (conf={result['confidence']:.0%})", flush=True)
+                    response = await callback(intent)
+                else:
+                    # Freeform — send to Claude
+                    print(f"[VOICE] Freeform: {intent}", flush=True)
+                    response = await callback(intent)
+
+                if response:
+                    from src.tts_streaming import speak_streaming
+                    await speak_streaming(str(response))
+    finally:
+        warmup_task.cancel()
