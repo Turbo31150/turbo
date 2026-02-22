@@ -342,10 +342,6 @@ DEV_COMMANDS: list[JarvisCommand] = [
     # ══════════════════════════════════════════════════════════════════════
     # WSL & WINGET — Gestionnaires systeme
     # ══════════════════════════════════════════════════════════════════════
-    JarvisCommand("wsl_status", "dev", "Statut de WSL et distributions installees", [
-        "statut wsl", "wsl status", "distributions wsl",
-        "quelles distros linux", "wsl installees",
-    ], "powershell", "wsl --list --verbose 2>&1 | Out-String"),
     JarvisCommand("winget_search", "dev", "Rechercher un package via winget", [
         "winget search {requete}", "cherche {requete} sur winget",
         "package winget {requete}", "installe {requete} winget",
@@ -731,4 +727,120 @@ DEV_COMMANDS: list[JarvisCommand] = [
         "graph des imports", "imports turbo", "dependances modules",
         "qui importe quoi",
     ], "powershell", "Get-ChildItem F:\\BUREAU\\turbo\\src\\*.py | ForEach-Object { $f = $_.BaseName; Get-Content $_.FullName | Select-String '^from src\\.' | ForEach-Object { \"$f -> $($_.Line -replace 'from src\\.(\\w+).*','$1')\" } } | Sort -Unique | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # GIT AVANCÉ — Opérations spécialisées
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("git_cherry_pick", "dev", "Cherry-pick un commit specifique", [
+        "cherry pick {hash}", "git cherry pick {hash}",
+        "prends le commit {hash}",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git cherry-pick '{hash}' 2>&1 | Out-String", ["hash"]),
+    JarvisCommand("git_tags", "dev", "Lister les tags git", [
+        "tags git", "quels tags", "git tags", "versions git",
+        "releases",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git tag -l --sort=-version:refname | Select -First 10 | Out-String"),
+    JarvisCommand("git_branch_create", "dev", "Creer une nouvelle branche git", [
+        "cree une branche {branch}", "nouvelle branche {branch}",
+        "git branch {branch}",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git checkout -b '{branch}' 2>&1 | Out-String", ["branch"]),
+    JarvisCommand("git_branch_delete", "dev", "Supprimer une branche git locale", [
+        "supprime la branche {branch}", "delete branch {branch}",
+        "git branch delete {branch}",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git branch -d '{branch}' 2>&1 | Out-String", ["branch"], confirm=True),
+    JarvisCommand("git_branch_switch", "dev", "Changer de branche git", [
+        "va sur la branche {branch}", "switch {branch}",
+        "checkout {branch}", "git checkout {branch}",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git checkout '{branch}' 2>&1 | Out-String", ["branch"]),
+    JarvisCommand("git_merge_branch", "dev", "Merger une branche dans la branche actuelle", [
+        "merge {branch}", "fusionne {branch}", "git merge {branch}",
+        "integre {branch}",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git merge '{branch}' 2>&1 | Out-String", ["branch"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SSH & SCP — Transfert de fichiers distant
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ssh_keygen", "dev", "Generer une nouvelle cle SSH", [
+        "genere une cle ssh", "ssh keygen", "nouvelle cle ssh",
+        "cree une cle ssh",
+    ], "powershell", "if(Test-Path ~/.ssh/id_ed25519){'Cle SSH existe deja: ~/.ssh/id_ed25519'}else{ssh-keygen -t ed25519 -f \"$env:USERPROFILE/.ssh/id_ed25519\" -N '\"\"' 2>&1 | Out-String}"),
+    JarvisCommand("ssh_pubkey", "dev", "Afficher la cle publique SSH", [
+        "montre ma cle ssh", "cle publique ssh", "ssh public key",
+        "copie ma cle ssh",
+    ], "powershell", "$k = Get-Content \"$env:USERPROFILE/.ssh/id_ed25519.pub\" -ErrorAction SilentlyContinue; if($k){Set-Clipboard $k; \"Cle copiee: $k\"}else{$k2 = Get-Content \"$env:USERPROFILE/.ssh/id_rsa.pub\" -ErrorAction SilentlyContinue; if($k2){Set-Clipboard $k2; \"Cle copiee: $k2\"}else{'Aucune cle SSH trouvee'}}"),
+    JarvisCommand("ssh_known_hosts", "dev", "Voir les hosts SSH connus", [
+        "hosts ssh connus", "known hosts", "serveurs ssh",
+        "quels serveurs je connais",
+    ], "powershell", "Get-Content \"$env:USERPROFILE/.ssh/known_hosts\" -ErrorAction SilentlyContinue | ForEach-Object { ($_ -split ' ')[0] } | Sort -Unique | Out-String; if(-not $?){ 'Aucun known_hosts' }"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RUST TOOLING — Cargo et rustup
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("cargo_build", "dev", "Compiler un projet Rust (cargo build)", [
+        "cargo build", "compile en rust", "build rust",
+        "construit le projet rust",
+    ], "powershell", "cargo build 2>&1 | Out-String"),
+    JarvisCommand("cargo_test", "dev", "Lancer les tests Rust (cargo test)", [
+        "cargo test", "tests rust", "test en rust",
+        "lance les tests rust",
+    ], "powershell", "cargo test 2>&1 | Out-String"),
+    JarvisCommand("cargo_clippy", "dev", "Lancer le linter Rust (clippy)", [
+        "cargo clippy", "lint rust", "clippy rust",
+        "verifie le code rust",
+    ], "powershell", "cargo clippy 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # NPM / YARN / BUN AVANCÉ
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("npm_run_dev", "dev", "Lancer npm run dev", [
+        "npm run dev", "lance le dev node", "start node dev",
+        "developement node",
+    ], "powershell", "npm run dev 2>&1 | Out-String"),
+    JarvisCommand("npm_run_build", "dev", "Lancer npm run build", [
+        "npm run build", "build node", "compile le frontend",
+        "build le projet node",
+    ], "powershell", "npm run build 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PROFILING & PERFORMANCE — Analyse de code
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("python_profile_turbo", "dev", "Profiler le startup de JARVIS", [
+        "profile jarvis", "temps de demarrage", "performance startup",
+        "profiling python",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import time; t=time.time(); from src.config import Config; from src.commands import COMMANDS; print(f'Config+Commands: {time.time()-t:.3f}s ({len(COMMANDS)} cmds)')\" 2>&1 | Out-String"),
+    JarvisCommand("python_memory_usage", "dev", "Mesurer la memoire Python du projet", [
+        "memoire python", "python memory", "consommation python",
+        "ram python",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sys; from src.commands import COMMANDS; from src.config import Config; print(f'Objets charges: {len(COMMANDS)} commandes'); print(f'Taille sys.modules: {len(sys.modules)} modules')\" 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # ENVIRONNEMENT UV — Gestionnaire de packages Python
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("uv_add_package", "dev", "Ajouter un package Python avec uv", [
+        "uv add {package}", "installe {package}", "ajoute le package {package}",
+        "pip install {package}",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' add '{package}' 2>&1 | Out-String", ["package"]),
+    JarvisCommand("uv_remove_package", "dev", "Supprimer un package Python avec uv", [
+        "uv remove {package}", "desinstalle {package}", "enleve {package}",
+        "pip uninstall {package}",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' remove '{package}' 2>&1 | Out-String", ["package"]),
+    JarvisCommand("uv_lock", "dev", "Regenerer le lockfile uv", [
+        "uv lock", "lock les deps", "regenere le lockfile",
+        "verrouille les dependances",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' lock 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PROCESSUS & DEBUGGING — Outils de debug avancés
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("port_in_use", "dev", "Trouver quel processus utilise un port", [
+        "qui utilise le port {port}", "port {port} occupe",
+        "process sur port {port}", "libere le port {port}",
+    ], "powershell", "Get-NetTCPConnection -LocalPort {port} -ErrorAction SilentlyContinue | Select LocalPort, State, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}}, OwningProcess | Format-Table | Out-String", ["port"]),
+    JarvisCommand("env_var_get", "dev", "Lire une variable d'environnement", [
+        "variable {var}", "env {var}", "valeur de {var}",
+        "montre la variable {var}",
+    ], "powershell", "$v = [Environment]::GetEnvironmentVariable('{var}', 'User'); if(-not $v){$v = [Environment]::GetEnvironmentVariable('{var}', 'Machine')}; if($v){\"${var} = $v\"}else{\"Variable '{var}' non trouvee\"}", ["var"]),
+    JarvisCommand("tree_turbo", "dev", "Arborescence du projet turbo (2 niveaux)", [
+        "arborescence turbo", "tree turbo", "structure du projet",
+        "arbre des fichiers",
+    ], "powershell", "tree F:\\BUREAU\\turbo /F /A | Select -First 60 | Out-String"),
 ]

@@ -804,4 +804,156 @@ NAVIGATION_COMMANDS: list[JarvisCommand] = [
         "cherche sur leboncoin {requete}", "leboncoin {requete}",
         "annonce {requete}", "occasion {requete}",
     ], "browser", "navigate:https://www.leboncoin.fr/recherche?text={requete}", ["requete"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # ÉDUCATION & FORMATION — MOOC et tutoriels
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_khan_academy", "navigation", "Ouvrir Khan Academy", [
+        "ouvre khan academy", "va sur khan academy", "khan academy",
+        "apprendre gratuitement",
+    ], "browser", "navigate:https://www.khanacademy.org"),
+    JarvisCommand("ouvrir_edx", "navigation", "Ouvrir edX", [
+        "ouvre edx", "va sur edx", "mooc edx",
+        "universite en ligne",
+    ], "browser", "navigate:https://www.edx.org"),
+    JarvisCommand("ouvrir_freecodecamp", "navigation", "Ouvrir freeCodeCamp", [
+        "ouvre freecodecamp", "va sur freecodecamp", "apprendre a coder",
+        "free code camp",
+    ], "browser", "navigate:https://www.freecodecamp.org"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DOCUMENTATION DEV — Références techniques
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_caniuse", "navigation", "Ouvrir Can I Use (compatibilite navigateur)", [
+        "ouvre can i use", "compatibilite navigateur", "caniuse",
+        "support css", "support html",
+    ], "browser", "navigate:https://caniuse.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # NEWS TECH FR — Sites tech francophones
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_frandroid", "navigation", "Ouvrir Frandroid (tech FR)", [
+        "ouvre frandroid", "va sur frandroid", "actu tech frandroid",
+        "frandroid",
+    ], "browser", "navigate:https://www.frandroid.com"),
+    JarvisCommand("ouvrir_numerama", "navigation", "Ouvrir Numerama (tech FR)", [
+        "ouvre numerama", "va sur numerama", "actu numerama",
+        "numerama",
+    ], "browser", "navigate:https://www.numerama.com"),
+    JarvisCommand("ouvrir_les_numeriques", "navigation", "Ouvrir Les Numeriques (tests produits)", [
+        "ouvre les numeriques", "les numeriques", "tests produits",
+        "comparatifs tech",
+    ], "browser", "navigate:https://www.lesnumeriques.com"),
+    JarvisCommand("ouvrir_01net", "navigation", "Ouvrir 01net (tech FR)", [
+        "ouvre 01net", "va sur 01 net", "01net",
+        "actu informatique",
+    ], "browser", "navigate:https://www.01net.com"),
+    JarvisCommand("ouvrir_journal_du_net", "navigation", "Ouvrir Le Journal du Net", [
+        "ouvre journal du net", "jdn", "journal du net",
+        "actu digital",
+    ], "browser", "navigate:https://www.journaldunet.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CRYPTO & EXCHANGES — Plateformes crypto
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_binance", "navigation", "Ouvrir Binance", [
+        "ouvre binance", "va sur binance", "binance exchange",
+        "trading binance",
+    ], "browser", "navigate:https://www.binance.com"),
+    JarvisCommand("ouvrir_coinbase", "navigation", "Ouvrir Coinbase", [
+        "ouvre coinbase", "va sur coinbase", "coinbase exchange",
+        "acheter du bitcoin",
+    ], "browser", "navigate:https://www.coinbase.com"),
+    JarvisCommand("ouvrir_kraken", "navigation", "Ouvrir Kraken", [
+        "ouvre kraken", "va sur kraken", "kraken exchange",
+        "trading kraken",
+    ], "browser", "navigate:https://www.kraken.com"),
+    JarvisCommand("ouvrir_etherscan", "navigation", "Ouvrir Etherscan (explorateur Ethereum)", [
+        "ouvre etherscan", "etherscan", "explorateur ethereum",
+        "transactions eth",
+    ], "browser", "navigate:https://etherscan.io"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # VOYAGE & RÉSERVATION — Sites de voyage
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_booking", "navigation", "Ouvrir Booking.com (hotels)", [
+        "ouvre booking", "reserve un hotel", "va sur booking",
+        "hotels booking",
+    ], "browser", "navigate:https://www.booking.com"),
+    JarvisCommand("ouvrir_airbnb", "navigation", "Ouvrir Airbnb", [
+        "ouvre airbnb", "va sur airbnb", "location airbnb",
+        "reserve un airbnb",
+    ], "browser", "navigate:https://www.airbnb.fr"),
+    JarvisCommand("ouvrir_google_flights", "navigation", "Ouvrir Google Flights (vols)", [
+        "ouvre google flights", "billets d'avion", "cherche un vol",
+        "vols pas cher", "google vols",
+    ], "browser", "navigate:https://www.google.com/travel/flights"),
+    JarvisCommand("ouvrir_tripadvisor", "navigation", "Ouvrir TripAdvisor", [
+        "ouvre tripadvisor", "avis restaurants", "va sur tripadvisor",
+        "trip advisor",
+    ], "browser", "navigate:https://www.tripadvisor.fr"),
+    JarvisCommand("ouvrir_blablacar", "navigation", "Ouvrir BlaBlaCar (covoiturage)", [
+        "ouvre blablacar", "covoiturage", "va sur blablacar",
+        "trajet blablacar",
+    ], "browser", "navigate:https://www.blablacar.fr"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # JURIDIQUE & ADMINISTRATION FR
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_legifrance", "navigation", "Ouvrir Legifrance (textes de loi)", [
+        "ouvre legifrance", "textes de loi", "va sur legifrance",
+        "code juridique", "legislation",
+    ], "browser", "navigate:https://www.legifrance.gouv.fr"),
+    JarvisCommand("ouvrir_ants", "navigation", "Ouvrir ANTS (carte d'identite, permis)", [
+        "ouvre ants", "carte d'identite", "va sur ants",
+        "passeport", "permis de conduire",
+    ], "browser", "navigate:https://ants.gouv.fr"),
+    JarvisCommand("ouvrir_prefecture", "navigation", "Ouvrir la prise de RDV en prefecture", [
+        "rendez vous prefecture", "ouvre la prefecture", "va sur la prefecture",
+        "rdv prefecture",
+    ], "browser", "navigate:https://www.prefectures-regions.gouv.fr"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # GAMING — Plateformes de jeux
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_steam_store", "navigation", "Ouvrir le Steam Store", [
+        "ouvre le store steam", "magasin steam", "steam shop",
+        "jeux steam", "acheter un jeu steam",
+    ], "browser", "navigate:https://store.steampowered.com"),
+    JarvisCommand("ouvrir_epic_games", "navigation", "Ouvrir Epic Games Store", [
+        "ouvre epic games", "va sur epic games", "epic store",
+        "jeux epic", "jeux gratuits epic",
+    ], "browser", "navigate:https://store.epicgames.com"),
+    JarvisCommand("ouvrir_gog", "navigation", "Ouvrir GOG.com (jeux sans DRM)", [
+        "ouvre gog", "va sur gog", "jeux gog",
+        "jeux sans drm",
+    ], "browser", "navigate:https://www.gog.com"),
+    JarvisCommand("ouvrir_humble_bundle", "navigation", "Ouvrir Humble Bundle", [
+        "ouvre humble bundle", "humble bundle", "bundle de jeux",
+        "jeux en promo",
+    ], "browser", "navigate:https://www.humblebundle.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SANTÉ — Sites médicaux FR
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_vidal", "navigation", "Ouvrir Vidal (medicaments)", [
+        "ouvre vidal", "notice medicament", "va sur vidal",
+        "posologie",
+    ], "browser", "navigate:https://www.vidal.fr"),
+    JarvisCommand("ouvrir_doctissimo", "navigation", "Ouvrir Doctissimo (sante)", [
+        "ouvre doctissimo", "symptomes", "va sur doctissimo",
+        "sante en ligne",
+    ], "browser", "navigate:https://www.doctissimo.fr"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RECHERCHE SPÉCIALISÉE — Batch 8
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("chercher_github_repos", "navigation", "Rechercher un repo sur GitHub", [
+        "cherche un repo {requete}", "github repo {requete}",
+        "projet github {requete}",
+    ], "browser", "navigate:https://github.com/search?q={requete}&type=repositories", ["requete"]),
+    JarvisCommand("chercher_huggingface_models", "navigation", "Rechercher un modele sur Hugging Face", [
+        "cherche un modele {requete}", "huggingface model {requete}",
+        "modele ia {requete}",
+    ], "browser", "navigate:https://huggingface.co/models?search={requete}", ["requete"]),
 ]

@@ -1,15 +1,15 @@
-Generated 1337 lines, 165337 chars
-1235 commandes documentees, 212 pipelines
+Generated 1450 lines, 180579 chars
+1348 commandes documentees, 226 pipelines
 026-02-22 | Voice Pipeline v2
 
-**1235 commandes** au total, dont **212 pipelines** multi-etapes, reparties en **14 categories**.
+**1348 commandes** au total, dont **226 pipelines** multi-etapes, reparties en **14 categories**.
 
 | Categorie | Nombre |
 |-----------|--------|
-| Systeme Windows | 511 |
-| Pipelines Multi-Etapes | 212 |
-| Navigation Web | 197 |
-| Developpement & Outils | 163 |
+| Systeme Windows | 560 |
+| Navigation Web | 226 |
+| Pipelines Multi-Etapes | 226 |
+| Developpement & Outils | 184 |
 | Fichiers & Documents | 39 |
 | Applications | 23 |
 | Trading & IA | 19 |
@@ -20,7 +20,7 @@ Generated 1337 lines, 165337 chars
 | Accessibilite | 10 |
 | Controle Media | 7 |
 | Saisie & Texte | 4 |
-| **TOTAL** | **1235** |
+| **TOTAL** | **1348** |
 
 ---
 
@@ -242,12 +242,26 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | sim_docker_full_status | "status docker complet" | docker ps --format 'table {{.Names}}\t{{.Status}}\... > docker images --format 'table {{.Repository}}\t{{.... > docke... |
 | sim_docker_cleanup | "nettoie docker a fond" | docker container prune -f 2>&1 | Out-String > docker image prune -a -f 2>&1 | Out-String > docker volume prune -f 2>&... (confirm) |
 | sim_docker_restart_all | "redemarre docker" | docker restart $(docker ps -q) 2>&1 | Out-String > pause 3s > docker ps --format 'table {{.Names}}\t{{.Status}}'... >... |
+| sim_code_review_prep | "prepare la code review" | cd F:\BUREAU\turbo; git log --oneline -5 2>&1 | Out-String > cd F:\BUREAU\turbo; git diff --stat HEAD~3 2>&1 | Out-St... |
+| sim_code_review_split | "layout review" | Ouvrir code > pause 2s > Raccourci: win+left > pause 1s > Web: https://github.com/Turbo31150/turbo > pause 2s > Racco... |
+| sim_learn_topic | "session apprentissage {topic}" | Web: https://www.youtube.com/results?search_query={topic}+tutorial > pause 2s > Web: https://www.google.com/search?q=... |
+| sim_learn_python | "apprends moi python" | Web: https://docs.python.org/3/tutorial/ > pause 2s > Web: https://www.freecodecamp.org/learn/scientific-computing-wi... |
+| sim_learn_rust | "apprends moi rust" | Web: https://doc.rust-lang.org/book/ > pause 2s > Web: https://play.rust-lang.org/ > pause 1s > "Session Rust ouverte... |
+| sim_layout_4_quadrants | "4 quadrants" | Ouvrir code > pause 2s > Raccourci: win+left > Raccourci: win+up > pause 1s > Ouvrir wt > pause 1s > Raccourci: win+l... |
+| sim_layout_trading_full | "layout trading complet" | Web: https://futures.mexc.com > pause 3s > Raccourci: win+left > pause 1s > Web: https://www.coingecko.com > pause 2s... |
+| sim_layout_recherche | "layout recherche" | Web: https://www.perplexity.ai > pause 2s > Raccourci: win+left > pause 1s > Web: https://claude.ai > pause 2s > Racc... |
+| sim_remote_work_start | "mode teletravail" | MinimizeAll > pause 1s > Ouvrir code > pause 2s > Raccourci: win+left > pause 1s > Web: https://mail.google.com > pau... |
+| sim_standup_meeting | "prepare le standup" | cd F:\BUREAU\turbo; "=== HIER ==="; git log --sinc... > cd F:\BUREAU\turbo; "=== AUJOURD'HUI ==="; git log... > cd F:... |
+| sim_crypto_research | "recherche crypto complete" | Web: https://www.coingecko.com > pause 2s > Web: https://www.coindesk.com > pause 2s > Web: https://etherscan.io > pa... |
+| sim_trading_session | "session trading complete" | Web: https://futures.mexc.com > pause 3s > Web: https://www.tradingview.com > pause 2s > Ouvrir wt > pause 1s > cd F:... |
+| sim_post_crash_recovery | "recovery apres crash" | Get-PhysicalDisk | Select FriendlyName, HealthStat... > Get-WinEvent -FilterHashtable @{LogName='System';L... > Get-S... |
+| sim_repair_system | "repare le systeme" | DISM /Online /Cleanup-Image /CheckHealth 2>&1 | Out-String > sfc /verifyonly 2>&1 | Select -Last 3 | Out-String > "Ve... (confirm) |
 
 ---
 
 ## Listing Complet par Categorie
 
-### Navigation Web (197 commandes)
+### Navigation Web (226 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -448,6 +462,35 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | ouvrir_deezer | Ouvrir Deezer | "ouvre deezer", "va sur deezer", "musique deezer", +1 | browser |
 | ouvrir_mycanal | Ouvrir MyCanal | "ouvre canal plus", "va sur mycanal", "canal+", +1 | browser |
 | chercher_leboncoin | Rechercher sur Leboncoin | "cherche sur leboncoin {requete}", "leboncoin {requete}", "annonce {requete}", +1 | browser |
+| ouvrir_khan_academy | Ouvrir Khan Academy | "ouvre khan academy", "va sur khan academy", "khan academy", +1 | browser |
+| ouvrir_edx | Ouvrir edX | "ouvre edx", "va sur edx", "mooc edx", +1 | browser |
+| ouvrir_freecodecamp | Ouvrir freeCodeCamp | "ouvre freecodecamp", "va sur freecodecamp", "apprendre a coder", +1 | browser |
+| ouvrir_caniuse | Ouvrir Can I Use (compatibilite navigateur) | "ouvre can i use", "compatibilite navigateur", "caniuse", +2 | browser |
+| ouvrir_frandroid | Ouvrir Frandroid (tech FR) | "ouvre frandroid", "va sur frandroid", "actu tech frandroid", +1 | browser |
+| ouvrir_numerama | Ouvrir Numerama (tech FR) | "ouvre numerama", "va sur numerama", "actu numerama", +1 | browser |
+| ouvrir_les_numeriques | Ouvrir Les Numeriques (tests produits) | "ouvre les numeriques", "les numeriques", "tests produits", +1 | browser |
+| ouvrir_01net | Ouvrir 01net (tech FR) | "ouvre 01net", "va sur 01 net", "01net", +1 | browser |
+| ouvrir_journal_du_net | Ouvrir Le Journal du Net | "ouvre journal du net", "jdn", "journal du net", +1 | browser |
+| ouvrir_binance | Ouvrir Binance | "ouvre binance", "va sur binance", "binance exchange", +1 | browser |
+| ouvrir_coinbase | Ouvrir Coinbase | "ouvre coinbase", "va sur coinbase", "coinbase exchange", +1 | browser |
+| ouvrir_kraken | Ouvrir Kraken | "ouvre kraken", "va sur kraken", "kraken exchange", +1 | browser |
+| ouvrir_etherscan | Ouvrir Etherscan (explorateur Ethereum) | "ouvre etherscan", "etherscan", "explorateur ethereum", +1 | browser |
+| ouvrir_booking | Ouvrir Booking.com (hotels) | "ouvre booking", "reserve un hotel", "va sur booking", +1 | browser |
+| ouvrir_airbnb | Ouvrir Airbnb | "ouvre airbnb", "va sur airbnb", "location airbnb", +1 | browser |
+| ouvrir_google_flights | Ouvrir Google Flights (vols) | "ouvre google flights", "billets d'avion", "cherche un vol", +2 | browser |
+| ouvrir_tripadvisor | Ouvrir TripAdvisor | "ouvre tripadvisor", "avis restaurants", "va sur tripadvisor", +1 | browser |
+| ouvrir_blablacar | Ouvrir BlaBlaCar (covoiturage) | "ouvre blablacar", "covoiturage", "va sur blablacar", +1 | browser |
+| ouvrir_legifrance | Ouvrir Legifrance (textes de loi) | "ouvre legifrance", "textes de loi", "va sur legifrance", +2 | browser |
+| ouvrir_ants | Ouvrir ANTS (carte d'identite, permis) | "ouvre ants", "carte d'identite", "va sur ants", +2 | browser |
+| ouvrir_prefecture | Ouvrir la prise de RDV en prefecture | "rendez vous prefecture", "ouvre la prefecture", "va sur la prefecture", +1 | browser |
+| ouvrir_steam_store | Ouvrir le Steam Store | "ouvre le store steam", "magasin steam", "steam shop", +2 | browser |
+| ouvrir_epic_games | Ouvrir Epic Games Store | "ouvre epic games", "va sur epic games", "epic store", +2 | browser |
+| ouvrir_gog | Ouvrir GOG.com (jeux sans DRM) | "ouvre gog", "va sur gog", "jeux gog", +1 | browser |
+| ouvrir_humble_bundle | Ouvrir Humble Bundle | "ouvre humble bundle", "humble bundle", "bundle de jeux", +1 | browser |
+| ouvrir_vidal | Ouvrir Vidal (medicaments) | "ouvre vidal", "notice medicament", "va sur vidal", +1 | browser |
+| ouvrir_doctissimo | Ouvrir Doctissimo (sante) | "ouvre doctissimo", "symptomes", "va sur doctissimo", +1 | browser |
+| chercher_github_repos | Rechercher un repo sur GitHub | "cherche un repo {requete}", "github repo {requete}", "projet github {requete}" | browser |
+| chercher_huggingface_models | Rechercher un modele sur Hugging Face | "cherche un modele {requete}", "huggingface model {requete}", "modele ia {requete}" | browser |
 
 ### Fichiers & Documents (39 commandes)
 
@@ -569,7 +612,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | clipboard_historique | Ouvrir l'historique du presse-papier | "historique presse papier", "clipboard history", "ouvre l'historique clipboard", +2 | hotkey |
 | coller_sans_format | Coller sans mise en forme | "colle sans format", "coller sans mise en forme", "colle en texte brut", +1 | hotkey |
 
-### Systeme Windows (511 commandes)
+### Systeme Windows (560 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -1084,6 +1127,55 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | kill_steam | Forcer la fermeture de Steam | "tue steam", "kill steam", "ferme steam de force", +1 | powershell |
 | priorite_haute | Passer la fenetre active en priorite haute CPU | "priorite haute", "high priority", "boost le processus", +1 | powershell |
 | processus_reseau | Processus utilisant le reseau actuellement | "qui utilise le reseau", "processus reseau", "network processes", +1 | powershell |
+| wsl_status | Voir les distributions WSL installees | "distributions wsl", "wsl list", "quelles distros linux", +2 | powershell |
+| wsl_start | Demarrer WSL (distribution par defaut) | "lance wsl", "demarre linux", "ouvre wsl", +2 | powershell |
+| wsl_disk_usage | Espace disque utilise par WSL | "taille wsl", "espace wsl", "combien pese linux", +1 | powershell |
+| loupe_activer | Activer la loupe Windows | "active la loupe", "zoom ecran", "magnifier on", +2 | hotkey |
+| loupe_desactiver | Desactiver la loupe Windows | "desactive la loupe", "arrete le zoom", "magnifier off", +1 | hotkey |
+| haut_contraste_toggle | Basculer en mode haut contraste | "haut contraste", "high contrast", "mode contraste", +1 | hotkey |
+| touches_remanentes | Activer/desactiver les touches remanentes | "touches remanentes", "sticky keys", "touches collantes", +1 | powershell |
+| taille_texte_plus | Augmenter la taille du texte systeme | "texte plus grand", "agrandis le texte", "bigger text", +1 | powershell |
+| ouvrir_melangeur_audio | Ouvrir le melangeur de volume | "melangeur audio", "volume mixer", "mix audio", +2 | powershell |
+| ouvrir_param_son | Ouvrir les parametres de son | "parametres son", "reglages audio", "sound settings", +2 | powershell |
+| lister_audio_devices | Lister les peripheriques audio | "peripheriques audio", "quelles sorties son", "audio devices", +2 | powershell |
+| volume_50 | Mettre le volume a 50% | "volume a 50", "moitie volume", "volume moyen", +1 | powershell |
+| volume_25 | Mettre le volume a 25% | "volume a 25", "volume bas", "volume faible", +1 | powershell |
+| volume_max | Mettre le volume au maximum | "volume a fond", "volume maximum", "volume 100", +1 | powershell |
+| storage_sense_on | Activer Storage Sense (nettoyage auto) | "active storage sense", "nettoyage automatique", "auto clean", +1 | powershell |
+| disk_cleanup | Lancer le nettoyage de disque Windows (cleanmgr) | "nettoyage de disque", "disk cleanup", "cleanmgr", +1 | powershell |
+| defrag_status | Voir l'etat de fragmentation des disques | "etat defragmentation", "defrag status", "disques fragmentes", +1 | powershell |
+| optimiser_disques | Optimiser/defragmenter les disques | "optimise les disques", "defragmente", "defrag", +1 | powershell |
+| focus_assist_alarms | Focus Assist mode alarmes seulement | "alarmes seulement", "focus alarms only", "juste les alarmes", +1 | powershell |
+| startup_apps_list | Lister les apps qui demarrent au boot | "apps au demarrage", "startup apps", "quoi se lance au boot", +1 | powershell |
+| startup_settings | Ouvrir les parametres des apps au demarrage | "parametres demarrage", "startup settings", "gerer le demarrage", +1 | powershell |
+| credential_list | Lister les identifiants Windows enregistres | "liste les identifiants", "quels mots de passe", "credentials saved", +1 | powershell |
+| dns_serveurs | Voir les serveurs DNS configures | "quels serveurs dns", "dns configures", "dns servers", +2 | powershell |
+| sync_horloge | Synchroniser l'horloge avec le serveur NTP | "synchronise l'horloge", "sync ntp", "mets l'heure a jour", +2 | powershell |
+| timezone_info | Voir le fuseau horaire actuel | "quel fuseau horaire", "timezone", "heure locale", +2 | powershell |
+| calendrier_mois | Afficher le calendrier du mois en cours | "calendrier", "montre le calendrier", "quel jour on est", +1 | powershell |
+| ouvrir_rdp | Ouvrir le client Remote Desktop | "ouvre remote desktop", "lance rdp", "bureau a distance client", +2 | powershell |
+| rdp_connect | Connexion Remote Desktop a une machine | "connecte en rdp a {host}", "remote desktop {host}", "bureau a distance sur {host}", +1 | powershell |
+| ssh_connect | Connexion SSH a un serveur | "connecte en ssh a {host}", "ssh {host}", "terminal distant {host}", +1 | powershell |
+| changer_clavier | Changer la disposition clavier (FR/EN) | "change le clavier", "switch keyboard", "clavier francais", +2 | hotkey |
+| clavier_suivant | Passer a la disposition clavier suivante | "clavier suivant", "next keyboard", "alt shift", +1 | hotkey |
+| taskbar_cacher | Cacher la barre des taches automatiquement | "cache la taskbar", "hide taskbar", "barre des taches invisible", +1 | powershell |
+| wallpaper_info | Voir le fond d'ecran actuel | "quel fond d'ecran", "wallpaper actuel", "image de fond", +1 | powershell |
+| icones_bureau_toggle | Afficher/masquer les icones du bureau | "cache les icones", "montre les icones", "icones bureau", +2 | powershell |
+| sandbox_launch | Lancer Windows Sandbox | "lance la sandbox", "windows sandbox", "ouvre la sandbox", +1 | powershell |
+| hyperv_list_vms | Lister les machines virtuelles Hyper-V | "liste les vms", "virtual machines", "hyper v vms", +2 | powershell |
+| hyperv_start_vm | Demarrer une VM Hyper-V | "demarre la vm {vm}", "start vm {vm}", "lance la machine {vm}", +1 | powershell |
+| hyperv_stop_vm | Arreter une VM Hyper-V | "arrete la vm {vm}", "stop vm {vm}", "eteins la machine {vm}", +1 | powershell |
+| service_start | Demarrer un service Windows | "demarre le service {svc}", "start service {svc}", "lance le service {svc}" | powershell |
+| service_stop | Arreter un service Windows | "arrete le service {svc}", "stop service {svc}", "coupe le service {svc}" | powershell |
+| service_restart | Redemarrer un service Windows | "redemarre le service {svc}", "restart service {svc}", "relance le service {svc}" | powershell |
+| service_status | Voir l'etat d'un service Windows | "etat du service {svc}", "status service {svc}", "le service {svc} tourne" | powershell |
+| partitions_list | Lister toutes les partitions | "liste les partitions", "partitions disque", "volumes montes", +1 | powershell |
+| disques_physiques | Voir les disques physiques installes | "disques physiques", "quels disques", "ssd hdd", +2 | powershell |
+| clipboard_contenu | Voir le contenu actuel du presse-papier | "quoi dans le presse papier", "clipboard content", "montre le clipboard", +1 | powershell |
+| clipboard_en_majuscules | Convertir le texte du clipboard en majuscules | "clipboard en majuscules", "texte en majuscules", "uppercase clipboard", +1 | powershell |
+| clipboard_en_minuscules | Convertir le texte du clipboard en minuscules | "clipboard en minuscules", "texte en minuscules", "lowercase clipboard", +1 | powershell |
+| clipboard_compter_mots | Compter les mots dans le presse-papier | "combien de mots copies", "word count clipboard", "compte les mots", +1 | powershell |
+| clipboard_trim | Nettoyer les espaces du texte clipboard | "nettoie le clipboard", "trim clipboard", "enleve les espaces", +1 | powershell |
 
 ### Trading & IA (19 commandes)
 
@@ -1109,7 +1201,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | cluster_health | Health check rapide du cluster IA | "health check cluster", "verifie le cluster ia", "est ce que le cluster va bien", +3 | powershell |
 | ollama_running | Modeles Ollama actuellement en memoire | "quels modeles ollama tournent", "ollama running", "modeles en memoire ollama", +1 | powershell |
 
-### Developpement & Outils (163 commandes)
+### Developpement & Outils (184 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -1194,7 +1286,6 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | docker_volumes | Lister les volumes Docker | "volumes docker", "docker volumes", "liste les volumes docker", +1 | powershell |
 | docker_networks | Lister les reseaux Docker | "reseaux docker", "docker networks", "liste les networks docker", +1 | powershell |
 | docker_disk_usage | Espace disque utilise par Docker | "espace docker", "docker disk usage", "combien pese docker", +1 | powershell |
-| wsl_status | Statut de WSL et distributions installees | "statut wsl", "wsl status", "distributions wsl", +2 | powershell |
 | winget_search | Rechercher un package via winget | "winget search {requete}", "cherche {requete} sur winget", "package winget {requete}", +1 | powershell |
 | winget_list_installed | Lister les apps installees via winget | "winget list", "apps winget", "inventaire winget", +1 | powershell |
 | winget_upgrade_all | Mettre a jour toutes les apps via winget | "winget upgrade all", "mets a jour tout winget", "update tout winget", +1 | powershell |
@@ -1276,6 +1367,28 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | turbo_file_count | Nombre de fichiers par type dans turbo | "combien de fichiers turbo", "types de fichiers", "file count", +1 | powershell |
 | turbo_todo_scan | Scanner les TODO/FIXME/HACK dans le code | "trouve les todo", "scan todo", "fixme dans le code", +2 | powershell |
 | turbo_import_graph | Voir les imports entre modules turbo | "graph des imports", "imports turbo", "dependances modules", +1 | powershell |
+| git_cherry_pick | Cherry-pick un commit specifique | "cherry pick {hash}", "git cherry pick {hash}", "prends le commit {hash}" | powershell |
+| git_tags | Lister les tags git | "tags git", "quels tags", "git tags", +2 | powershell |
+| git_branch_create | Creer une nouvelle branche git | "cree une branche {branch}", "nouvelle branche {branch}", "git branch {branch}" | powershell |
+| git_branch_delete | Supprimer une branche git locale | "supprime la branche {branch}", "delete branch {branch}", "git branch delete {branch}" | powershell |
+| git_branch_switch | Changer de branche git | "va sur la branche {branch}", "switch {branch}", "checkout {branch}", +1 | powershell |
+| git_merge_branch | Merger une branche dans la branche actuelle | "merge {branch}", "fusionne {branch}", "git merge {branch}", +1 | powershell |
+| ssh_keygen | Generer une nouvelle cle SSH | "genere une cle ssh", "ssh keygen", "nouvelle cle ssh", +1 | powershell |
+| ssh_pubkey | Afficher la cle publique SSH | "montre ma cle ssh", "cle publique ssh", "ssh public key", +1 | powershell |
+| ssh_known_hosts | Voir les hosts SSH connus | "hosts ssh connus", "known hosts", "serveurs ssh", +1 | powershell |
+| cargo_build | Compiler un projet Rust (cargo build) | "cargo build", "compile en rust", "build rust", +1 | powershell |
+| cargo_test | Lancer les tests Rust (cargo test) | "cargo test", "tests rust", "test en rust", +1 | powershell |
+| cargo_clippy | Lancer le linter Rust (clippy) | "cargo clippy", "lint rust", "clippy rust", +1 | powershell |
+| npm_run_dev | Lancer npm run dev | "npm run dev", "lance le dev node", "start node dev", +1 | powershell |
+| npm_run_build | Lancer npm run build | "npm run build", "build node", "compile le frontend", +1 | powershell |
+| python_profile_turbo | Profiler le startup de JARVIS | "profile jarvis", "temps de demarrage", "performance startup", +1 | powershell |
+| python_memory_usage | Mesurer la memoire Python du projet | "memoire python", "python memory", "consommation python", +1 | powershell |
+| uv_add_package | Ajouter un package Python avec uv | "uv add {package}", "installe {package}", "ajoute le package {package}", +1 | powershell |
+| uv_remove_package | Supprimer un package Python avec uv | "uv remove {package}", "desinstalle {package}", "enleve {package}", +1 | powershell |
+| uv_lock | Regenerer le lockfile uv | "uv lock", "lock les deps", "regenere le lockfile", +1 | powershell |
+| port_in_use | Trouver quel processus utilise un port | "qui utilise le port {port}", "port {port} occupe", "process sur port {port}", +1 | powershell |
+| env_var_get | Lire une variable d'environnement | "variable {var}", "env {var}", "valeur de {var}", +1 | powershell |
+| tree_turbo | Arborescence du projet turbo (2 niveaux) | "arborescence turbo", "tree turbo", "structure du projet", +1 | powershell |
 
 ### Controle JARVIS (12 commandes)
 
