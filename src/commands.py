@@ -2067,6 +2067,35 @@ COMMANDS: list[JarvisCommand] = [
     ], "pipeline", "powershell:(New-Object -ComObject Shell.Application).MinimizeAll()", confirm=True),
 ]
 
+# ═══════════════════════════════════════════════════════════════════════════
+# EXTENSIONS PAR CATEGORIE (fichiers separes)
+# ═══════════════════════════════════════════════════════════════════════════
+
+def _load_extensions() -> None:
+    """Charge les commandes des fichiers par categorie."""
+    try:
+        from src.commands_pipelines import PIPELINE_COMMANDS
+        COMMANDS.extend(PIPELINE_COMMANDS)
+    except ImportError:
+        pass
+    try:
+        from src.commands_navigation import NAVIGATION_COMMANDS
+        COMMANDS.extend(NAVIGATION_COMMANDS)
+    except ImportError:
+        pass
+    try:
+        from src.commands_maintenance import MAINTENANCE_COMMANDS
+        COMMANDS.extend(MAINTENANCE_COMMANDS)
+    except ImportError:
+        pass
+    try:
+        from src.commands_dev import DEV_COMMANDS
+        COMMANDS.extend(DEV_COMMANDS)
+    except ImportError:
+        pass
+
+_load_extensions()
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # KNOWN APP PATHS (Windows)
@@ -2948,6 +2977,9 @@ def format_commands_help() -> str:
         "jarvis": "Controle JARVIS",
         "pipeline": "Pipelines Multi-Etapes",
         "launcher": "Launchers JARVIS",
+        "dev": "Developpement & Outils",
+        "saisie": "Saisie & Texte",
+        "accessibilite": "Accessibilite",
     }
     for cat, cmds in categories.items():
         lines.append(f"\n  {cat_names.get(cat, cat)}:")
