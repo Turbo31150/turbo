@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import subprocess
 from typing import Any
 
@@ -113,9 +114,56 @@ async def execute_command(cmd: JarvisCommand, params: dict[str, str]) -> str:
         return f"__TOOL__{action}"
 
     if cmd.action_type == "pipeline":
-        return f"__PIPELINE__{cmd.action}"
+        return await _execute_pipeline(cmd.action, params or {})
 
     return f"Type d'action inconnu: {cmd.action_type}"
+
+
+async def _execute_pipeline(action: str, params: dict[str, str]) -> str:
+    """Execute a multi-step pipeline. Steps separated by ';;'.
+
+    Each step: 'type:action' where type is powershell, app_open, browser, etc.
+    Special: 'sleep:N' pauses N seconds between steps.
+    """
+    steps = [s.strip() for s in action.split(";;") if s.strip()]
+    results = []
+
+    for step in steps:
+        if step.startswith("sleep:"):
+            try:
+                await asyncio.sleep(float(step[6:]))
+            except ValueError:
+                pass
+            continue
+
+        sep = step.find(":")
+        if sep == -1:
+            results.append(f"Step invalide: {step}")
+            continue
+
+        step_type = step[:sep].strip()
+        step_action = step[sep + 1:].strip()
+
+        if step_type == "pipeline":
+            results.append("Erreur: pipeline imbriquee non supportee")
+            continue
+
+        for k, v in params.items():
+            step_action = step_action.replace(f"{{{k}}}", v)
+
+        sub_cmd = JarvisCommand(
+            name="pipeline_step",
+            category="pipeline",
+            description="",
+            triggers=[],
+            action_type=step_type,
+            action=step_action,
+        )
+        result = await execute_command(sub_cmd, {})
+        if result and not result.startswith("__"):
+            results.append(result)
+
+    return " | ".join(results) if results else "Pipeline execute"
 
 
 # ═══════════════════════════════════════════════════════════════════════════

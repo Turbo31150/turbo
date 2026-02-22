@@ -233,8 +233,7 @@ COMMANDS: list[JarvisCommand] = [
     ], "hotkey", "alt+tab"),
     JarvisCommand("fermer_fenetre", "fenetre", "Fermer la fenetre active", [
         "ferme la fenetre", "ferme ca", "ferme cette fenetre",
-        "close", "ferme", "ferme tout", "ferme toutes les fenetres",
-        "ferm tout", "ferme les fenetres",
+        "close", "ferme",
     ], "hotkey", "alt+F4"),
     JarvisCommand("maximiser_fenetre", "fenetre", "Maximiser la fenetre active", [
         "maximise", "plein ecran", "maximiser la fenetre",
@@ -2008,6 +2007,64 @@ COMMANDS: list[JarvisCommand] = [
         "lance l'agent fichiers", "fs agent", "agent systeme fichiers",
         "lance le file agent", "agent de fichiers",
     ], "script", "fs_agent"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PIPELINES — Commandes multi-etapes pre-enregistrees (12 commandes)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("range_bureau", "pipeline", "Ranger le bureau (minimiser toutes les fenetres)", [
+        "range mon bureau", "range le bureau", "nettoie le bureau",
+        "minimise tout", "cache tout", "degage tout",
+        "range tout", "bureau propre", "range moi le bureau",
+    ], "pipeline", "powershell:(New-Object -ComObject Shell.Application).MinimizeAll()"),
+    JarvisCommand("va_sur_mails_comet", "pipeline", "Ouvrir Comet et aller sur Gmail", [
+        "va sur mes mails", "ouvre mes mails sur comet",
+        "check mes mails comet", "ouvre comet gmail",
+        "mails comet", "va sur ma boite mail",
+    ], "pipeline", r"powershell:Start-Process 'C:\Users\franc\AppData\Local\Perplexity\Comet\Application\comet.exe' -ArgumentList 'https://mail.google.com'"),
+    JarvisCommand("mode_travail", "pipeline", "Mode travail: VSCode + Terminal", [
+        "mode travail", "mode dev", "setup dev",
+        "ouvre mon setup dev", "lance le mode travail",
+        "lance le mode dev", "environnement de dev",
+    ], "pipeline", "app_open:vscode;;sleep:1;;app_open:terminal"),
+    JarvisCommand("mode_trading", "pipeline", "Mode trading: TradingView + MEXC + Dashboard", [
+        "mode trading", "ouvre mon setup trading", "setup trading",
+        "lance le mode trading", "ouvre tout le trading",
+        "ouvre mes charts trading",
+    ], "pipeline", "browser:navigate:https://www.tradingview.com;;browser:navigate:https://www.mexc.com;;browser:navigate:http://127.0.0.1:8080"),
+    JarvisCommand("rapport_matin", "pipeline", "Rapport du matin: Gmail Comet + TradingView + Dashboard", [
+        "rapport du matin", "routine du matin", "morning routine",
+        "lance la routine du matin", "demarre la journee",
+    ], "pipeline", r"powershell:Start-Process 'C:\Users\franc\AppData\Local\Perplexity\Comet\Application\comet.exe' -ArgumentList 'https://mail.google.com';;sleep:1;;browser:navigate:https://www.tradingview.com;;browser:navigate:http://127.0.0.1:8080"),
+    JarvisCommand("bonne_nuit", "pipeline", "Bonne nuit: minimiser tout + verrouiller le PC", [
+        "bonne nuit", "bonne nuit jarvis", "verrouille tout",
+        "je vais dormir", "au revoir jarvis",
+        "eteins tout et verrouille",
+    ], "pipeline", "powershell:(New-Object -ComObject Shell.Application).MinimizeAll();;sleep:1;;powershell:rundll32.exe user32.dll,LockWorkStation", confirm=True),
+    JarvisCommand("mode_focus", "pipeline", "Mode focus: minimiser tout + ne pas deranger", [
+        "mode focus", "mode concentration", "ne pas deranger",
+        "active le mode focus", "lance le mode focus",
+        "je veux me concentrer", "pas de distraction",
+    ], "pipeline", "powershell:(New-Object -ComObject Shell.Application).MinimizeAll();;ms_settings:ms-settings:quiethours"),
+    JarvisCommand("mode_cinema", "pipeline", "Mode cinema: minimiser tout + ouvrir Netflix", [
+        "mode cinema", "mode film", "lance le mode cinema",
+        "soiree film", "soiree cinema", "netflix and chill",
+    ], "pipeline", "powershell:(New-Object -ComObject Shell.Application).MinimizeAll();;sleep:1;;browser:navigate:https://www.netflix.com"),
+    JarvisCommand("ouvre_youtube_comet", "pipeline", "Ouvrir YouTube dans Comet", [
+        "ouvre youtube sur comet", "youtube comet",
+        "va sur youtube comet", "lance youtube comet",
+    ], "pipeline", r"powershell:Start-Process 'C:\Users\franc\AppData\Local\Perplexity\Comet\Application\comet.exe' -ArgumentList 'https://youtube.com'"),
+    JarvisCommand("ouvre_github_comet", "pipeline", "Ouvrir GitHub dans Comet", [
+        "ouvre github sur comet", "ouvre github comet",
+        "github comet", "va sur github comet", "lance github comet",
+    ], "pipeline", r"powershell:Start-Process 'C:\Users\franc\AppData\Local\Perplexity\Comet\Application\comet.exe' -ArgumentList 'https://github.com'"),
+    JarvisCommand("ouvre_cluster", "pipeline", "Ouvrir Dashboard cluster + LM Studio", [
+        "ouvre le cluster", "lance le cluster", "dashboard cluster",
+        "ouvre le dashboard cluster", "status cluster visuel",
+    ], "pipeline", "browser:navigate:http://127.0.0.1:8080;;browser:navigate:http://10.5.0.2:1234"),
+    JarvisCommand("ferme_tout", "pipeline", "Fermer toutes les fenetres", [
+        "ferme tout", "ferme toutes les fenetres", "close all",
+        "tout fermer", "ferme les fenetres",
+    ], "pipeline", "powershell:(New-Object -ComObject Shell.Application).MinimizeAll()", confirm=True),
 ]
 
 
@@ -2889,6 +2946,8 @@ def format_commands_help() -> str:
         "systeme": "Systeme Windows",
         "trading": "Trading & IA",
         "jarvis": "Controle JARVIS",
+        "pipeline": "Pipelines Multi-Etapes",
+        "launcher": "Launchers JARVIS",
     }
     for cat, cmds in categories.items():
         lines.append(f"\n  {cat_names.get(cat, cat)}:")
