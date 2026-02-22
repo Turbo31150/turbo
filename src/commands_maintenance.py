@@ -94,4 +94,52 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
         "statut defender", "etat antivirus", "defender ok",
         "windows defender status", "protection antivirus",
     ], "powershell", "Get-MpComputerStatus | Select AntivirusEnabled, RealTimeProtectionEnabled, AntivirusSignatureLastUpdated, QuickScanEndTime | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # MONITORING PROCESSUS
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("top_cpu_processes", "systeme", "Top 10 processus par CPU", [
+        "top cpu", "processus gourmands cpu", "qui mange le cpu",
+        "quoi consomme le cpu", "plus gros cpu",
+    ], "powershell", "Get-Process | Sort-Object CPU -Descending | Select-Object -First 10 Name, @{N='CPU(s)';E={[math]::Round($_.CPU,1)}}, @{N='RAM(MB)';E={[math]::Round($_.WS/1MB)}} | Format-Table -AutoSize | Out-String"),
+    JarvisCommand("top_ram_processes", "systeme", "Top 10 processus par RAM", [
+        "top ram", "processus gourmands ram", "qui mange la ram",
+        "quoi consomme la memoire", "plus gros ram",
+    ], "powershell", "Get-Process | Sort-Object WS -Descending | Select-Object -First 10 Name, @{N='RAM(MB)';E={[math]::Round($_.WS/1MB)}}, @{N='CPU(s)';E={[math]::Round($_.CPU,1)}} | Format-Table -AutoSize | Out-String"),
+    JarvisCommand("uptime_system", "systeme", "Uptime du systeme Windows", [
+        "uptime", "depuis combien de temps le pc tourne",
+        "duree allumage", "combien de temps allume",
+    ], "powershell", "$boot = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; $up = (Get-Date) - $boot; \"Allume depuis $($up.Days)j $($up.Hours)h $($up.Minutes)min (boot: $($boot.ToString('dd/MM HH:mm')))\""),
+    JarvisCommand("windows_update_check", "systeme", "Verifier les mises a jour Windows disponibles", [
+        "mises a jour windows", "windows update", "check updates",
+        "verifier les maj", "y a des mises a jour",
+    ], "powershell", "try { $s = New-Object -ComObject Microsoft.Update.Session; $u = $s.CreateUpdateSearcher(); $r = $u.Search('IsInstalled=0'); if($r.Updates.Count -gt 0){ $r.Updates | ForEach-Object { $_.Title } | Out-String } else { 'Aucune mise a jour en attente' } } catch { 'Erreur lors de la verification' }"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RESEAU AVANCE
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ip_publique_externe", "systeme", "Obtenir l'adresse IP publique", [
+        "ip publique", "quelle est mon ip", "mon ip publique",
+        "adresse ip externe", "mon adresse ip",
+    ], "powershell", "(Invoke-RestMethod -Uri 'https://api.ipify.org?format=json' -TimeoutSec 5).ip"),
+    JarvisCommand("latence_cluster", "systeme", "Ping de latence vers les noeuds du cluster", [
+        "latence cluster", "ping le cluster ia", "latence des noeuds",
+        "temps de reponse cluster", "ping noeuds ia",
+    ], "powershell", "$m2 = try{(Measure-Command{Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -TimeoutSec 5 -UseBasicParsing}).TotalMilliseconds}catch{-1}; $ol1 = try{(Measure-Command{Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 5 -UseBasicParsing}).TotalMilliseconds}catch{-1}; $m3 = try{(Measure-Command{Invoke-WebRequest -Uri 'http://192.168.1.113:1234/api/v1/models' -TimeoutSec 5 -UseBasicParsing}).TotalMilliseconds}catch{-1}; \"M2: $([math]::Round($m2))ms | OL1: $([math]::Round($ol1))ms | M3: $([math]::Round($m3))ms\""),
+    JarvisCommand("wifi_info", "systeme", "Informations sur la connexion WiFi active", [
+        "info wifi", "quel wifi", "connexion wifi",
+        "signal wifi", "etat du wifi",
+    ], "powershell", "netsh wlan show interfaces | Select-String 'SSID|Signal|Debit|Etat' | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # ESPACE DISQUE
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("espace_disques", "systeme", "Espace libre sur tous les disques", [
+        "espace disque", "combien d'espace libre", "espace libre",
+        "disques pleins", "etat des disques",
+    ], "powershell", "Get-PSDrive -PSProvider FileSystem | Where Used -gt 0 | Select Name, @{N='Utilise(GB)';E={[math]::Round($_.Used/1GB,1)}}, @{N='Libre(GB)';E={[math]::Round($_.Free/1GB,1)}}, @{N='Total(GB)';E={[math]::Round(($_.Used+$_.Free)/1GB,1)}} | Format-Table -AutoSize | Out-String"),
+    JarvisCommand("gros_fichiers_bureau", "systeme", "Top 10 plus gros fichiers du bureau", [
+        "plus gros fichiers", "gros fichiers bureau",
+        "fichiers les plus lourds", "quoi prend de la place",
+    ], "powershell", "Get-ChildItem 'F:\\BUREAU' -Recurse -File -ErrorAction SilentlyContinue | Sort Length -Descending | Select -First 10 @{N='Taille(MB)';E={[math]::Round($_.Length/1MB,1)}}, FullName | Format-Table -AutoSize | Out-String -Width 200"),
 ]

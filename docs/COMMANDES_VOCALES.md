@@ -2,14 +2,14 @@
 
 > Mise a jour automatique: 2026-02-22 | Voice Pipeline v2
 
-**560 commandes** au total, dont **37 pipelines** multi-etapes, reparties en **14 categories**.
+**626 commandes** au total, dont **55 pipelines** multi-etapes, reparties en **14 categories**.
 
 | Categorie | Nombre |
 |-----------|--------|
-| Systeme Windows | 283 |
-| Navigation Web | 57 |
-| Developpement & Outils | 38 |
-| Pipelines Multi-Etapes | 37 |
+| Systeme Windows | 292 |
+| Navigation Web | 77 |
+| Developpement & Outils | 57 |
+| Pipelines Multi-Etapes | 55 |
 | Fichiers & Documents | 32 |
 | Applications | 23 |
 | Trading & IA | 19 |
@@ -20,13 +20,13 @@
 | Accessibilite | 10 |
 | Controle Media | 7 |
 | Saisie & Texte | 4 |
-| **TOTAL** | **560** |
+| **TOTAL** | **626** |
 
 ---
 
 ## Pipelines Multi-Etapes
 
-Les pipelines executent plusieurs actions en sequence (separees par ).
+Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 
 | Pipeline | Trigger principal | Actions |
 |----------|------------------|---------|
@@ -43,20 +43,20 @@ Les pipelines executent plusieurs actions en sequence (separees par ).
 | ouvre_cluster | "ouvre le cluster" | Web: http://127.0.0.1:8080 > Web: http://10.5.0.2:1234 |
 | ferme_tout | "ferme tout" | MinimizeAll (confirm) |
 | mode_musique | "mode musique" | MinimizeAll > pause 1s > Ouvrir spotify |
-| mode_gaming | "mode gaming" | Performance mode > pause 1s > Ouvrir steam > pause 2s > ... |
-| mode_stream | "mode stream" | MinimizeAll > pause 1s > Ouvrir obs64 > pause 2s > ... |
-| mode_presentation | "mode presentation" | Display switch > pause 2s > Ouvrir powerpnt |
+| mode_gaming | "mode gaming" | powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c > pause 1s > Ouvrir steam > pause 2s > Raccourci: win+g |
+| mode_stream | "mode stream" | MinimizeAll > pause 1s > Ouvrir obs64 > pause 2s > Ouvrir spotify |
+| mode_presentation | "mode presentation" | DisplaySwitch.exe /clone > pause 2s > Ouvrir powerpnt |
 | mode_lecture | "mode lecture" | MinimizeAll > pause 1s > Comet: C:\Users\franc\AppData\Local\Perplexity\Comet\Application\comet.exe |
 | mode_reunion | "mode reunion" | Ouvrir discord > pause 1s > Settings |
-| mode_code_turbo | "mode code turbo" | Ouvrir code > pause 1s > Ouvrir wt > pause 1s > ... |
-| mode_detente | "mode detente" | MinimizeAll > pause 1s > Ouvrir spotify > pause 1s > ... |
-| routine_soir | "routine du soir" | Web: https://www.tradingview.com > pause 2s > Night Light > pause 1s > ... |
+| mode_code_turbo | "mode code turbo" | Ouvrir code > pause 1s > Ouvrir wt > pause 1s > Ouvrir lmstudio > pause 1s > Web: http://127.0.0.1:8080 |
+| mode_detente | "mode detente" | MinimizeAll > pause 1s > Ouvrir spotify > pause 1s > Start-Process ms-settings:nightlight |
+| routine_soir | "routine du soir" | Web: https://www.tradingview.com > pause 2s > Start-Process ms-settings:nightlight > pause 1s > MinimizeAll |
 | check_trading_rapide | "check trading rapide" | Web: https://www.tradingview.com > Web: https://www.mexc.com |
-| setup_ia | "setup ia" | Ouvrir lmstudio > pause 1s > Web: http://127.0.0.1:8080 > pause 1s > ... |
-| nettoyage_express | "nettoyage express" | Vider corbeille > Nettoyer temp > Flush DNS (confirm) |
-| diagnostic_complet | "diagnostic complet" | Tool: system_info > Tool: gpu_info > $os = Get-CimInstance Win32_OperatingSys > Get-PhysicalDisk | Select FriendlyName,  |
-| debug_reseau | "debug reseau" | Flush DNS > $p = Test-Connection 8.8.8.8 -Count 2 -E > $d = Resolve-DnsName google.com -ErrorAc |
-| veille_securisee | "veille securisee" | MinimizeAll > pause 1s > Lock PC > pause 2s > ... (confirm) |
+| setup_ia | "setup ia" | Ouvrir lmstudio > pause 1s > Web: http://127.0.0.1:8080 > pause 1s > Ouvrir wt |
+| nettoyage_express | "nettoyage express" | Clear-RecycleBin -Force -ErrorAction SilentlyConti... > Remove-Item $env:TEMP\* -Recurse -Force -ErrorActi... > ipcon... (confirm) |
+| diagnostic_complet | "diagnostic complet" | Tool: system_info > Tool: gpu_info > $os = Get-CimInstance Win32_OperatingSystem; $tota... > Get-PhysicalDisk | Selec... |
+| debug_reseau | "debug reseau" | ipconfig /flushdns; 'DNS purge' > $p = Test-Connection 8.8.8.8 -Count 2 -ErrorAction... > $d = Resolve-DnsName google... |
+| veille_securisee | "veille securisee" | MinimizeAll > pause 1s > Lock PC > pause 2s > Veille (confirm) |
 | ouvre_reddit_comet | "ouvre reddit sur comet" | Comet: https://www.reddit.com |
 | ouvre_twitter_comet | "ouvre twitter sur comet" | Comet: https://x.com |
 | ouvre_chatgpt_comet | "ouvre chatgpt sur comet" | Comet: https://chat.openai.com |
@@ -64,15 +64,33 @@ Les pipelines executent plusieurs actions en sequence (separees par ).
 | ouvre_linkedin_comet | "ouvre linkedin sur comet" | Comet: https://www.linkedin.com |
 | ouvre_amazon_comet | "ouvre amazon sur comet" | Comet: https://www.amazon.fr |
 | ouvre_twitch_comet | "ouvre twitch sur comet" | Comet: https://www.twitch.tv |
-| ouvre_social_comet | "ouvre les reseaux sociaux comet" | Comet: https://x.com > pause 1s > Comet: https://www.reddit.com > pause 1s > ... |
+| ouvre_social_comet | "ouvre les reseaux sociaux comet" | Comet: https://x.com > pause 1s > Comet: https://www.reddit.com > pause 1s > Ouvrir discord |
 | ouvre_perplexity_comet | "ouvre perplexity sur comet" | Comet: https://www.perplexity.ai |
 | ouvre_huggingface_comet | "ouvre hugging face sur comet" | Comet: https://huggingface.co |
+| mode_crypto | "mode crypto" | Web: https://www.tradingview.com > pause 1s > Web: https://www.mexc.com/exchange/BTC_USDT > pause 1s > Web: https://w... |
+| mode_ia_complet | "mode ia complet" | Ouvrir lmstudio > pause 1s > Web: http://127.0.0.1:8080 > pause 1s > Web: https://claude.ai > pause 1s > Web: https:/... |
+| mode_debug | "mode debug" | Ouvrir wt > pause 1s > nvidia-smi > Get-WinEvent -FilterHashtable @{LogName='System';L... |
+| mode_monitoring | "mode monitoring" | Web: http://127.0.0.1:8080 > pause 1s > nvidia-smi --query-gpu=name,temperature.gpu,utiliz... > $m2 = try{(Invoke-Web... |
+| mode_communication | "mode communication" | Ouvrir discord > pause 1s > Ouvrir telegram > pause 1s > Ouvrir whatsapp |
+| mode_documentation | "mode documentation" | Web: https://www.notion.so > pause 1s > Web: https://docs.google.com > pause 1s > Web: https://drive.google.com |
+| mode_focus_total | "mode focus total" | MinimizeAll > pause 1s > Settings > pause 1s > Start-Process ms-settings:nightlight > pause 1s > Ouvrir code |
+| mode_review | "mode review" | Ouvrir code > pause 1s > Web: https://github.com > pause 1s > Ouvrir wt |
+| routine_matin | "routine du matin" | Ouvrir lmstudio > pause 2s > Web: http://127.0.0.1:8080 > pause 1s > Web: https://www.tradingview.com > pause 1s > We... |
+| backup_express | "backup express" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Bac... (confirm) |
+| reboot_cluster | "reboot le cluster" | Stop-Process -Name 'ollama' -Force -ErrorAction Si... > pause 3s > $m2 = try{(Invoke-WebRequest -Uri 'http://192.168.... |
+| pause_travail | "pause travail" | MinimizeAll > pause 1s > Ouvrir spotify > pause 2s > Lock PC |
+| fin_journee | "fin de journee" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Fin... > pause 1s > Start-Process ms-settings:nightlight > pause 1s > ... |
+| ouvre_github_via_comet | "ouvre github sur comet" | Comet: https://github.com |
+| ouvre_youtube_via_comet | "ouvre youtube sur comet" | Comet: https://www.youtube.com |
+| ouvre_tradingview_comet | "ouvre tradingview sur comet" | Comet: https://www.tradingview.com |
+| ouvre_coingecko_comet | "ouvre coingecko sur comet" | Comet: https://www.coingecko.com |
+| ouvre_ia_comet | "ouvre toutes les ia comet" | Comet: https://chat.openai.com > pause 1s > Comet: https://claude.ai > pause 1s > Comet: https://www.perplexity.ai |
 
 ---
 
 ## Listing Complet par Categorie
 
-### Navigation Web (57 commandes)
+### Navigation Web (77 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -133,6 +151,26 @@ Les pipelines executent plusieurs actions en sequence (separees par ).
 | chercher_reddit | Rechercher sur Reddit | "cherche sur reddit {requete}", "reddit {requete}", "recherche reddit {requete}" | browser |
 | chercher_wikipedia | Rechercher sur Wikipedia | "cherche sur wikipedia {requete}", "wikipedia {requete}", "wiki {requete}" | browser |
 | chercher_amazon | Rechercher sur Amazon | "cherche sur amazon {requete}", "amazon {requete}", "recherche amazon {requete}", +1 | browser |
+| ouvrir_tradingview_web | Ouvrir TradingView | "ouvre tradingview", "va sur tradingview", "lance tradingview", +1 | browser |
+| ouvrir_coingecko | Ouvrir CoinGecko | "ouvre coingecko", "va sur coingecko", "lance coingecko", +1 | browser |
+| ouvrir_coinmarketcap | Ouvrir CoinMarketCap | "ouvre coinmarketcap", "va sur coinmarketcap", "lance coinmarketcap", +1 | browser |
+| ouvrir_mexc_exchange | Ouvrir MEXC Exchange | "ouvre mexc", "va sur mexc", "lance mexc", +1 | browser |
+| ouvrir_dexscreener | Ouvrir DexScreener | "ouvre dexscreener", "va sur dexscreener", "lance dexscreener", +1 | browser |
+| ouvrir_telegram_web | Ouvrir Telegram Web | "ouvre telegram web", "telegram web", "telegram en ligne", +1 | browser |
+| ouvrir_whatsapp_web | Ouvrir WhatsApp Web | "ouvre whatsapp web", "whatsapp web", "whatsapp en ligne", +1 | browser |
+| ouvrir_slack_web | Ouvrir Slack Web | "ouvre slack web", "slack web", "slack en ligne", +1 | browser |
+| ouvrir_teams_web | Ouvrir Microsoft Teams Web | "ouvre teams web", "teams web", "teams en ligne", +1 | browser |
+| ouvrir_youtube_music | Ouvrir YouTube Music | "ouvre youtube music", "youtube music", "lance youtube music", +1 | browser |
+| ouvrir_prime_video | Ouvrir Amazon Prime Video | "ouvre prime video", "va sur prime video", "lance prime video", +1 | browser |
+| ouvrir_crunchyroll | Ouvrir Crunchyroll | "ouvre crunchyroll", "va sur crunchyroll", "lance crunchyroll", +1 | browser |
+| ouvrir_github_web | Ouvrir GitHub | "ouvre github", "va sur github", "lance github", +1 | browser |
+| ouvrir_vercel | Ouvrir Vercel | "ouvre vercel", "va sur vercel", "lance vercel" | browser |
+| ouvrir_crates_io | Ouvrir crates.io (Rust packages) | "ouvre crates io", "va sur crates", "crates rust", +1 | browser |
+| chercher_video_youtube | Rechercher sur YouTube | "cherche sur youtube {requete}", "youtube {requete}", "recherche youtube {requete}", +1 | browser |
+| chercher_github | Rechercher sur GitHub | "cherche sur github {requete}", "github {requete}", "recherche github {requete}", +1 | browser |
+| chercher_stackoverflow | Rechercher sur Stack Overflow | "cherche sur stackoverflow {requete}", "stackoverflow {requete}", "stack overflow {requete}" | browser |
+| chercher_npm | Rechercher un package NPM | "cherche sur npm {requete}", "npm {requete}", "recherche npm {requete}", +1 | browser |
+| chercher_pypi | Rechercher un package PyPI | "cherche sur pypi {requete}", "pypi {requete}", "recherche pypi {requete}", +1 | browser |
 
 ### Fichiers & Documents (32 commandes)
 
@@ -247,7 +285,7 @@ Les pipelines executent plusieurs actions en sequence (separees par ).
 | clipboard_historique | Ouvrir l'historique du presse-papier | "historique presse papier", "clipboard history", "ouvre l'historique clipboard", +2 | hotkey |
 | coller_sans_format | Coller sans mise en forme | "colle sans format", "coller sans mise en forme", "colle en texte brut", +1 | hotkey |
 
-### Systeme Windows (283 commandes)
+### Systeme Windows (292 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -534,6 +572,15 @@ Les pipelines executent plusieurs actions en sequence (separees par ).
 | autorun_check | Verifier les programmes au demarrage | "quoi se lance au demarrage", "autorun check", "programmes auto start", +2 | powershell |
 | defender_scan_rapide | Lancer un scan rapide Windows Defender | "scan antivirus", "lance un scan defender", "scan rapide", +2 | powershell |
 | defender_status | Statut de Windows Defender | "statut defender", "etat antivirus", "defender ok", +2 | powershell |
+| top_cpu_processes | Top 10 processus par CPU | "top cpu", "processus gourmands cpu", "qui mange le cpu", +2 | powershell |
+| top_ram_processes | Top 10 processus par RAM | "top ram", "processus gourmands ram", "qui mange la ram", +2 | powershell |
+| uptime_system | Uptime du systeme Windows | "uptime", "depuis combien de temps le pc tourne", "duree allumage", +1 | powershell |
+| windows_update_check | Verifier les mises a jour Windows disponibles | "mises a jour windows", "windows update", "check updates", +2 | powershell |
+| ip_publique_externe | Obtenir l'adresse IP publique | "ip publique", "quelle est mon ip", "mon ip publique", +2 | powershell |
+| latence_cluster | Ping de latence vers les noeuds du cluster | "latence cluster", "ping le cluster ia", "latence des noeuds", +2 | powershell |
+| wifi_info | Informations sur la connexion WiFi active | "info wifi", "quel wifi", "connexion wifi", +2 | powershell |
+| espace_disques | Espace libre sur tous les disques | "espace disque", "combien d'espace libre", "espace libre", +2 | powershell |
+| gros_fichiers_bureau | Top 10 plus gros fichiers du bureau | "plus gros fichiers", "gros fichiers bureau", "fichiers les plus lourds", +1 | powershell |
 
 ### Trading & IA (19 commandes)
 
@@ -559,7 +606,7 @@ Les pipelines executent plusieurs actions en sequence (separees par ).
 | cluster_health | Health check rapide du cluster IA | "health check cluster", "verifie le cluster ia", "est ce que le cluster va bien", +3 | powershell |
 | ollama_running | Modeles Ollama actuellement en memoire | "quels modeles ollama tournent", "ollama running", "modeles en memoire ollama", +1 | powershell |
 
-### Developpement & Outils (38 commandes)
+### Developpement & Outils (57 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -601,6 +648,25 @@ Les pipelines executent plusieurs actions en sequence (separees par ).
 | turbo_lines | Compter les lignes de code du projet turbo | "combien de lignes de code", "lignes de code turbo", "lines of code", +2 | powershell |
 | turbo_size | Taille totale du projet turbo | "taille du projet turbo", "poids du projet", "combien pese turbo", +1 | powershell |
 | turbo_files | Compter les fichiers du projet turbo | "combien de fichiers turbo", "nombre de fichiers", "fichiers du projet", +1 | powershell |
+| lms_status | Statut du serveur LM Studio local | "statut lm studio", "lm studio status", "etat lm studio", +2 | powershell |
+| lms_list_loaded | Modeles actuellement charges dans LM Studio local | "modeles charges locaux", "lms loaded", "quels modeles tourment", +2 | powershell |
+| lms_load_model | Charger un modele dans LM Studio local | "charge le modele {model}", "lms load {model}", "load {model} dans lm studio", +1 | powershell |
+| lms_unload_model | Decharger un modele de LM Studio local | "decharge le modele {model}", "lms unload {model}", "unload {model}", +1 | powershell |
+| lms_list_available | Lister les modeles disponibles sur le disque | "modeles disponibles lm studio", "lms list", "quels modeles j'ai", +1 | powershell |
+| git_status_turbo | Statut git du projet turbo | "git status", "statut git", "etat du repo", +1 | powershell |
+| git_log_short | Derniers 10 commits (resume) | "historique git", "git log", "derniers commits", +2 | powershell |
+| git_remote_info | Informations sur le remote git | "remote git", "git remote", "quel remote", +2 | powershell |
+| ouvrir_telegram | Ouvrir Telegram Desktop | "ouvre telegram", "lance telegram", "va sur telegram", +1 | app_open |
+| ouvrir_whatsapp | Ouvrir WhatsApp Desktop | "ouvre whatsapp", "lance whatsapp", "va sur whatsapp", +1 | app_open |
+| ouvrir_slack | Ouvrir Slack Desktop | "ouvre slack", "lance slack", "va sur slack", +1 | app_open |
+| ouvrir_teams | Ouvrir Microsoft Teams | "ouvre teams", "lance teams", "va sur teams", +2 | app_open |
+| ouvrir_zoom | Ouvrir Zoom | "ouvre zoom", "lance zoom", "va sur zoom", +1 | app_open |
+| bun_version | Version de Bun | "version bun", "quelle version bun", "bun version" | powershell |
+| deno_version | Version de Deno | "version deno", "quelle version deno", "deno version" | powershell |
+| rust_version | Version de Rust/Cargo | "version rust", "quelle version rust", "rustc version", +2 | powershell |
+| python_uv_version | Version de Python et uv | "version python", "quelle version python", "python version", +1 | powershell |
+| turbo_recent_changes | Fichiers modifies recemment dans turbo | "fichiers recents turbo", "modifications recentes", "quoi de modifie recemment", +1 | powershell |
+| turbo_todo | Lister les TODO dans le code turbo | "liste les todo", "todo dans le code", "quels todo reste", +2 | powershell |
 
 ### Controle JARVIS (12 commandes)
 
@@ -636,57 +702,6 @@ Les pipelines executent plusieurs actions en sequence (separees par ).
 | launch_master_node | Lancer le Master Interaction Node | "lance le master node", "master interaction", "noeud principal", +2 | script |
 | launch_fs_agent | Lancer l'agent fichiers JARVIS | "lance l'agent fichiers", "fs agent", "agent systeme fichiers", +2 | script |
 
-### Pipelines Multi-Etapes (37 commandes)
-
-| Commande | Description | Triggers | Type |
-|----------|------------|----------|------|
-| range_bureau | Ranger le bureau (minimiser toutes les fenetres) | "range mon bureau", "range le bureau", "nettoie le bureau", +6 | pipeline |
-| va_sur_mails_comet | Ouvrir Comet et aller sur Gmail | "va sur mes mails", "ouvre mes mails sur comet", "check mes mails comet", +3 | pipeline |
-| mode_travail | Mode travail: VSCode + Terminal | "mode travail", "mode dev", "setup dev", +4 | pipeline |
-| mode_trading | Mode trading: TradingView + MEXC + Dashboard | "mode trading", "ouvre mon setup trading", "setup trading", +3 | pipeline |
-| rapport_matin | Rapport du matin: Gmail Comet + TradingView + Dashboard | "rapport du matin", "routine du matin", "morning routine", +2 | pipeline |
-| bonne_nuit | Bonne nuit: minimiser tout + verrouiller le PC | "bonne nuit", "bonne nuit jarvis", "verrouille tout", +3 | pipeline |
-| mode_focus | Mode focus: minimiser tout + ne pas deranger | "mode focus", "mode concentration", "ne pas deranger", +4 | pipeline |
-| mode_cinema | Mode cinema: minimiser tout + ouvrir Netflix | "mode cinema", "mode film", "lance le mode cinema", +3 | pipeline |
-| ouvre_youtube_comet | Ouvrir YouTube dans Comet | "ouvre youtube sur comet", "youtube comet", "va sur youtube comet", +1 | pipeline |
-| ouvre_github_comet | Ouvrir GitHub dans Comet | "ouvre github sur comet", "ouvre github comet", "github comet", +2 | pipeline |
-| ouvre_cluster | Ouvrir Dashboard cluster + LM Studio | "ouvre le cluster", "lance le cluster", "dashboard cluster", +2 | pipeline |
-| ferme_tout | Fermer toutes les fenetres | "ferme tout", "ferme toutes les fenetres", "close all", +2 | pipeline |
-| mode_musique | Mode musique: minimiser tout + ouvrir Spotify | "mode musique", "lance la musique en fond", "ambiance musicale", +2 | pipeline |
-| mode_gaming | Mode gaming: haute performance + Steam + Game Bar | "mode gaming", "mode jeu", "lance le mode gaming", +3 | pipeline |
-| mode_stream | Mode stream: minimiser tout + OBS + Spotify | "mode stream", "lance le stream", "mode streaming", +2 | pipeline |
-| mode_presentation | Mode presentation: dupliquer ecran + PowerPoint | "mode presentation", "lance la presentation", "mode pres", +2 | pipeline |
-| mode_lecture | Mode lecture: nuit + minimiser + Comet | "mode lecture", "mode lire", "lance le mode lecture", +2 | pipeline |
-| mode_reunion | Mode reunion: Discord + focus assist | "mode reunion", "lance la reunion", "mode meeting", +2 | pipeline |
-| mode_code_turbo | Mode dev turbo: VSCode + Terminal + LM Studio + Dashboard | "mode code turbo", "setup dev complet", "mode turbo dev", +3 | pipeline |
-| mode_detente | Mode detente: minimiser + Spotify + lumiere nocturne | "mode detente", "mode relax", "mode chill", +3 | pipeline |
-| routine_soir | Routine du soir: TradingView + night light + minimiser | "routine du soir", "routine soir", "fin de journee", +2 | pipeline |
-| check_trading_rapide | Check trading: TradingView + MEXC en parallele | "check trading rapide", "check rapide trading", "jette un oeil au trading", +2 | pipeline |
-| setup_ia | Setup IA: LM Studio + Dashboard + Terminal | "setup ia", "lance le setup ia", "ouvre tout le cluster", +3 | pipeline |
-| nettoyage_express | Nettoyage express: corbeille + temp + DNS | "nettoyage express", "nettoyage rapide", "clean express", +3 | pipeline |
-| diagnostic_complet | Diagnostic complet: systeme + GPU + RAM + disques | "diagnostic complet", "diagnostic du pc", "check complet", +3 | pipeline |
-| debug_reseau | Debug reseau: flush DNS + ping + diagnostic | "debug reseau", "debug le reseau", "diagnostic reseau rapide", +2 | pipeline |
-| veille_securisee | Veille securisee: minimiser + verrouiller + veille | "veille securisee", "mets en veille en securite", "veille et verrouille", +1 | pipeline |
-| ouvre_reddit_comet | Ouvrir Reddit dans Comet | "ouvre reddit sur comet", "reddit comet", "va sur reddit comet", +1 | pipeline |
-| ouvre_twitter_comet | Ouvrir Twitter/X dans Comet | "ouvre twitter sur comet", "twitter comet", "x comet", +2 | pipeline |
-| ouvre_chatgpt_comet | Ouvrir ChatGPT dans Comet | "ouvre chatgpt sur comet", "chatgpt comet", "va sur chatgpt comet", +1 | pipeline |
-| ouvre_claude_comet | Ouvrir Claude AI dans Comet | "ouvre claude sur comet", "claude comet", "va sur claude comet", +1 | pipeline |
-| ouvre_linkedin_comet | Ouvrir LinkedIn dans Comet | "ouvre linkedin sur comet", "linkedin comet", "va sur linkedin comet" | pipeline |
-| ouvre_amazon_comet | Ouvrir Amazon dans Comet | "ouvre amazon sur comet", "amazon comet", "va sur amazon comet" | pipeline |
-| ouvre_twitch_comet | Ouvrir Twitch dans Comet | "ouvre twitch sur comet", "twitch comet", "va sur twitch comet", +1 | pipeline |
-| ouvre_social_comet | Ouvrir les reseaux sociaux dans Comet (Twitter + Reddit + Discord) | "ouvre les reseaux sociaux comet", "social comet", "lance les reseaux sociaux", +1 | pipeline |
-| ouvre_perplexity_comet | Ouvrir Perplexity dans Comet | "ouvre perplexity sur comet", "perplexity comet", "va sur perplexity comet", +1 | pipeline |
-| ouvre_huggingface_comet | Ouvrir Hugging Face dans Comet | "ouvre hugging face sur comet", "huggingface comet", "va sur hugging face comet" | pipeline |
-
-### Saisie & Texte (4 commandes)
-
-| Commande | Description | Triggers | Type |
-|----------|------------|----------|------|
-| texte_majuscule | Convertir le presse-papier en majuscules | "en majuscules", "tout en majuscules", "texte en majuscules", +2 | powershell |
-| texte_minuscule | Convertir le presse-papier en minuscules | "en minuscules", "tout en minuscules", "texte en minuscules", +1 | powershell |
-| ouvrir_emojis | Ouvrir le panneau emojis | "ouvre les emojis", "panneau emojis", "emoji picker", +2 | hotkey |
-| ouvrir_dictee | Activer la dictee vocale Windows | "dicte", "dictee windows", "active la dictee", +2 | hotkey |
-
 ### Accessibilite (10 commandes)
 
 | Commande | Description | Triggers | Type |
@@ -701,3 +716,12 @@ Les pipelines executent plusieurs actions en sequence (separees par ).
 | taille_curseur | Changer la taille du curseur | "agrandis le curseur", "curseur plus grand", "taille curseur", +2 | powershell |
 | narrateur_toggle | Activer/desactiver le narrateur | "active le narrateur", "narrateur windows", "desactive le narrateur", +2 | powershell |
 | sticky_keys_toggle | Activer/desactiver les touches remanentes | "active les touches remanentes", "desactive les touches remanentes", "sticky keys", +1 | powershell |
+
+### Saisie & Texte (4 commandes)
+
+| Commande | Description | Triggers | Type |
+|----------|------------|----------|------|
+| texte_majuscule | Convertir le presse-papier en majuscules | "en majuscules", "tout en majuscules", "texte en majuscules", +2 | powershell |
+| texte_minuscule | Convertir le presse-papier en minuscules | "en minuscules", "tout en minuscules", "texte en minuscules", +1 | powershell |
+| ouvrir_emojis | Ouvrir le panneau emojis | "ouvre les emojis", "panneau emojis", "emoji picker", +2 | hotkey |
+| ouvrir_dictee | Activer la dictee vocale Windows | "dicte", "dictee windows", "active la dictee", +2 | hotkey |

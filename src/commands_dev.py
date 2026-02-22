@@ -120,4 +120,98 @@ DEV_COMMANDS: list[JarvisCommand] = [
         "combien de fichiers turbo", "nombre de fichiers",
         "fichiers du projet", "count files turbo",
     ], "powershell", "cd F:\\BUREAU\\turbo; $py = (Get-ChildItem -Recurse -Filter '*.py' | Where { $_.FullName -notmatch '__pycache__' }).Count; $js = (Get-ChildItem -Recurse -Filter '*.js' | Where { $_.FullName -notmatch 'node_modules' }).Count; $ts = (Get-ChildItem -Recurse -Filter '*.ts' | Where { $_.FullName -notmatch 'node_modules' }).Count; \"Python: $py | JS: $js | TS: $ts\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # LM STUDIO CLI (lms.exe)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("lms_status", "dev", "Statut du serveur LM Studio local", [
+        "statut lm studio", "lm studio status", "etat lm studio",
+        "lm studio marche", "lms status",
+    ], "powershell", "& 'C:\\Users\\franc\\.lmstudio\\bin\\lms.exe' status 2>&1 | Out-String"),
+    JarvisCommand("lms_list_loaded", "dev", "Modeles actuellement charges dans LM Studio local", [
+        "modeles charges locaux", "lms loaded", "quels modeles tourment",
+        "modeles en cours lm studio", "lms list loaded",
+    ], "powershell", "& 'C:\\Users\\franc\\.lmstudio\\bin\\lms.exe' ps 2>&1 | Out-String"),
+    JarvisCommand("lms_load_model", "dev", "Charger un modele dans LM Studio local", [
+        "charge le modele {model}", "lms load {model}",
+        "load {model} dans lm studio", "monte le modele {model}",
+    ], "powershell", "& 'C:\\Users\\franc\\.lmstudio\\bin\\lms.exe' load {model} 2>&1 | Out-String", ["model"]),
+    JarvisCommand("lms_unload_model", "dev", "Decharger un modele de LM Studio local", [
+        "decharge le modele {model}", "lms unload {model}",
+        "unload {model}", "libere le modele {model}",
+    ], "powershell", "& 'C:\\Users\\franc\\.lmstudio\\bin\\lms.exe' unload {model} 2>&1 | Out-String", ["model"]),
+    JarvisCommand("lms_list_available", "dev", "Lister les modeles disponibles sur le disque", [
+        "modeles disponibles lm studio", "lms list",
+        "quels modeles j'ai", "modeles telecharges",
+    ], "powershell", "& 'C:\\Users\\franc\\.lmstudio\\bin\\lms.exe' ls 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # GIT AVANCE — Supplementaire
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("git_status_turbo", "dev", "Statut git du projet turbo", [
+        "git status", "statut git", "etat du repo",
+        "quoi de neuf en git",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git status -sb"),
+    JarvisCommand("git_log_short", "dev", "Derniers 10 commits (resume)", [
+        "historique git", "git log", "derniers commits",
+        "montre l'historique", "log git recent",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git log --oneline -10"),
+    JarvisCommand("git_remote_info", "dev", "Informations sur le remote git", [
+        "remote git", "git remote", "quel remote",
+        "url du repo", "origine git",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git remote -v"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # COMMUNICATION — Apps desktop
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_telegram", "dev", "Ouvrir Telegram Desktop", [
+        "ouvre telegram", "lance telegram", "va sur telegram",
+        "ouvrir telegram",
+    ], "app_open", "telegram"),
+    JarvisCommand("ouvrir_whatsapp", "dev", "Ouvrir WhatsApp Desktop", [
+        "ouvre whatsapp", "lance whatsapp", "va sur whatsapp",
+        "ouvrir whatsapp",
+    ], "app_open", "whatsapp"),
+    JarvisCommand("ouvrir_slack", "dev", "Ouvrir Slack Desktop", [
+        "ouvre slack", "lance slack", "va sur slack",
+        "ouvrir slack",
+    ], "app_open", "slack"),
+    JarvisCommand("ouvrir_teams", "dev", "Ouvrir Microsoft Teams", [
+        "ouvre teams", "lance teams", "va sur teams",
+        "ouvrir teams", "ouvre microsoft teams",
+    ], "app_open", "teams"),
+    JarvisCommand("ouvrir_zoom", "dev", "Ouvrir Zoom", [
+        "ouvre zoom", "lance zoom", "va sur zoom",
+        "ouvrir zoom",
+    ], "app_open", "zoom"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # BUN / DENO / RUST
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("bun_version", "dev", "Version de Bun", [
+        "version bun", "quelle version bun", "bun version",
+    ], "powershell", "bun --version 2>&1 | Out-String"),
+    JarvisCommand("deno_version", "dev", "Version de Deno", [
+        "version deno", "quelle version deno", "deno version",
+    ], "powershell", "deno --version 2>&1 | Out-String"),
+    JarvisCommand("rust_version", "dev", "Version de Rust/Cargo", [
+        "version rust", "quelle version rust", "rustc version",
+        "version cargo", "cargo version",
+    ], "powershell", "rustc --version; cargo --version 2>&1 | Out-String"),
+    JarvisCommand("python_uv_version", "dev", "Version de Python et uv", [
+        "version python", "quelle version python", "python version",
+        "version uv",
+    ], "powershell", "python --version; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' --version 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PROJET TURBO — Commandes supplementaires
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("turbo_recent_changes", "dev", "Fichiers modifies recemment dans turbo", [
+        "fichiers recents turbo", "modifications recentes",
+        "quoi de modifie recemment", "derniers fichiers touches",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git diff --name-only HEAD~5 2>&1 | Out-String"),
+    JarvisCommand("turbo_todo", "dev", "Lister les TODO dans le code turbo", [
+        "liste les todo", "todo dans le code", "quels todo reste",
+        "cherche les todo", "todo turbo",
+    ], "powershell", "cd F:\\BUREAU\\turbo; Select-String -Path 'src\\*.py' -Pattern 'TODO|FIXME|HACK|XXX' | Select-Object Filename, LineNumber, Line | Format-Table -AutoSize | Out-String -Width 200"),
 ]
