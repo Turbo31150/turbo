@@ -2,7 +2,8 @@
 
 Protocol (line-based):
   IN:  /path/to/audio.wav
-  OUT: transcribed text (or empty line on error)
+  OUT: SEGMENT: partial text  (for each segment as it arrives)
+  OUT: DONE: full text        (final result, or empty on error/hallucination)
   IN:  QUIT
   (process exits)
 
@@ -63,19 +64,25 @@ def main():
             segments, info = model.transcribe(
                 path,
                 language=language,
-                beam_size=5,
+                beam_size=1,
                 vad_filter=True,
-                vad_parameters=dict(min_silence_duration_ms=500),
+                vad_parameters=dict(min_silence_duration_ms=300),
             )
-            text = " ".join(seg.text.strip() for seg in segments).strip()
+            parts = []
+            for seg in segments:
+                text_part = seg.text.strip()
+                if text_part:
+                    parts.append(text_part)
+                    print(f"SEGMENT: {text_part}", flush=True)
 
-            # Filter hallucinations
-            if text.lower() in HALLUCINATIONS or len(text) < 2:
-                print("", flush=True)
+            full_text = " ".join(parts).strip()
+
+            if full_text.lower() in HALLUCINATIONS or len(full_text) < 2:
+                print("DONE: ", flush=True)
             else:
-                print(text, flush=True)
+                print(f"DONE: {full_text}", flush=True)
         except Exception as e:
-            print("", flush=True)
+            print("DONE: ", flush=True)
             print(f"WHISPER_ERROR: {e}", file=sys.stderr, flush=True)
 
 
