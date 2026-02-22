@@ -313,4 +313,122 @@ NAVIGATION_COMMANDS: list[JarvisCommand] = [
         "cherche sur docker hub {requete}", "image docker {requete}",
         "docker hub {requete}",
     ], "browser", "navigate:https://hub.docker.com/search?q={requete}", ["requete"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # GOOGLE WORKSPACE
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_gmail_web", "navigation", "Ouvrir Gmail", [
+        "ouvre gmail", "va sur gmail", "lance gmail",
+        "ouvre mes mails", "ouvre ma boite mail",
+    ], "browser", "navigate:https://mail.google.com"),
+    JarvisCommand("ouvrir_google_keep", "navigation", "Ouvrir Google Keep (notes)", [
+        "ouvre google keep", "ouvre keep", "lance keep",
+        "mes notes google", "ouvre les notes",
+    ], "browser", "navigate:https://keep.google.com"),
+    JarvisCommand("ouvrir_google_photos", "navigation", "Ouvrir Google Photos", [
+        "ouvre google photos", "va sur google photos", "mes photos",
+        "ouvre les photos", "lance google photos",
+    ], "browser", "navigate:https://photos.google.com"),
+    JarvisCommand("ouvrir_google_meet", "navigation", "Ouvrir Google Meet", [
+        "ouvre google meet", "lance meet", "google meet",
+        "ouvre meet", "visio google",
+    ], "browser", "navigate:https://meet.google.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # TRADUCTION & RÉFÉRENCE
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_deepl", "navigation", "Ouvrir DeepL Traducteur", [
+        "ouvre deepl", "va sur deepl", "lance deepl",
+        "traducteur deepl", "deepl traduction",
+    ], "browser", "navigate:https://www.deepl.com/translator"),
+    JarvisCommand("ouvrir_wayback_machine", "navigation", "Ouvrir la Wayback Machine (archive web)", [
+        "ouvre wayback machine", "wayback machine", "archive internet",
+        "web archive", "ancienne version d'un site",
+    ], "browser", "navigate:https://web.archive.org"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DEV — Playgrounds & Communautés
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_codepen", "navigation", "Ouvrir CodePen", [
+        "ouvre codepen", "va sur codepen", "lance codepen",
+        "code pen", "playground codepen",
+    ], "browser", "navigate:https://codepen.io"),
+    JarvisCommand("ouvrir_jsfiddle", "navigation", "Ouvrir JSFiddle", [
+        "ouvre jsfiddle", "va sur jsfiddle", "lance jsfiddle",
+        "js fiddle",
+    ], "browser", "navigate:https://jsfiddle.net"),
+    JarvisCommand("ouvrir_dev_to", "navigation", "Ouvrir dev.to (communaute dev)", [
+        "ouvre dev to", "va sur dev to", "lance dev.to",
+        "ouvre dev point to", "communaute dev",
+    ], "browser", "navigate:https://dev.to"),
+    JarvisCommand("ouvrir_medium", "navigation", "Ouvrir Medium", [
+        "ouvre medium", "va sur medium", "lance medium",
+        "articles medium",
+    ], "browser", "navigate:https://medium.com"),
+    JarvisCommand("ouvrir_hacker_news", "navigation", "Ouvrir Hacker News", [
+        "ouvre hacker news", "va sur hacker news", "lance hacker news",
+        "ouvre hn", "ycombinator news",
+    ], "browser", "navigate:https://news.ycombinator.com"),
+    JarvisCommand("ouvrir_producthunt", "navigation", "Ouvrir Product Hunt", [
+        "ouvre product hunt", "va sur product hunt", "lance product hunt",
+        "producthunt", "nouveaux produits tech",
+    ], "browser", "navigate:https://www.producthunt.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # ÉDUCATION & DATA SCIENCE
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_coursera", "navigation", "Ouvrir Coursera", [
+        "ouvre coursera", "va sur coursera", "lance coursera",
+        "cours coursera", "formation coursera",
+    ], "browser", "navigate:https://www.coursera.org"),
+    JarvisCommand("ouvrir_kaggle", "navigation", "Ouvrir Kaggle", [
+        "ouvre kaggle", "va sur kaggle", "lance kaggle",
+        "datasets kaggle", "competitions kaggle",
+    ], "browser", "navigate:https://www.kaggle.com"),
+    JarvisCommand("ouvrir_arxiv", "navigation", "Ouvrir arXiv (articles scientifiques)", [
+        "ouvre arxiv", "va sur arxiv", "lance arxiv",
+        "papers arxiv", "articles arxiv",
+    ], "browser", "navigate:https://arxiv.org"),
+    JarvisCommand("ouvrir_gitlab", "navigation", "Ouvrir GitLab", [
+        "ouvre gitlab", "va sur gitlab", "lance gitlab",
+    ], "browser", "navigate:https://gitlab.com"),
+    JarvisCommand("ouvrir_bitbucket", "navigation", "Ouvrir Bitbucket", [
+        "ouvre bitbucket", "va sur bitbucket", "lance bitbucket",
+    ], "browser", "navigate:https://bitbucket.org"),
+    JarvisCommand("ouvrir_leetcode", "navigation", "Ouvrir LeetCode", [
+        "ouvre leetcode", "va sur leetcode", "lance leetcode",
+        "exercices code", "algo leetcode",
+    ], "browser", "navigate:https://leetcode.com"),
+    JarvisCommand("ouvrir_codewars", "navigation", "Ouvrir Codewars", [
+        "ouvre codewars", "va sur codewars", "lance codewars",
+        "kata codewars", "challenges code",
+    ], "browser", "navigate:https://www.codewars.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RECHERCHE SPÉCIALISÉE — Nouvelles
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("chercher_deepl", "navigation", "Traduire via DeepL", [
+        "traduis avec deepl {requete}", "deepl {requete}",
+        "traduction deepl {requete}", "deepl traduction {requete}",
+    ], "browser", "navigate:https://www.deepl.com/translator#auto/fr/{requete}", ["requete"]),
+    JarvisCommand("chercher_arxiv", "navigation", "Rechercher sur arXiv", [
+        "cherche sur arxiv {requete}", "arxiv {requete}",
+        "paper sur {requete}", "articles scientifiques sur {requete}",
+    ], "browser", "navigate:https://arxiv.org/search/?query={requete}", ["requete"]),
+    JarvisCommand("chercher_kaggle", "navigation", "Rechercher sur Kaggle", [
+        "cherche sur kaggle {requete}", "kaggle {requete}",
+        "dataset {requete}", "competition {requete}",
+    ], "browser", "navigate:https://www.kaggle.com/search?q={requete}", ["requete"]),
+    JarvisCommand("chercher_leetcode", "navigation", "Rechercher un probleme LeetCode", [
+        "cherche sur leetcode {requete}", "leetcode {requete}",
+        "probleme {requete} leetcode",
+    ], "browser", "navigate:https://leetcode.com/problemset/?search={requete}", ["requete"]),
+    JarvisCommand("chercher_medium", "navigation", "Rechercher sur Medium", [
+        "cherche sur medium {requete}", "medium {requete}",
+        "article medium {requete}",
+    ], "browser", "navigate:https://medium.com/search?q={requete}", ["requete"]),
+    JarvisCommand("chercher_hacker_news", "navigation", "Rechercher sur Hacker News", [
+        "cherche sur hacker news {requete}", "hn {requete}",
+        "hacker news {requete}",
+    ], "browser", "navigate:https://hn.algolia.com/?q={requete}", ["requete"]),
 ]
