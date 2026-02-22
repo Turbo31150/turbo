@@ -1,10 +1,10 @@
-"""JARVIS Voice Interface — Persistent Whisper + LM Studio analysis + TTS.
+"""JARVIS Voice Interface v2 — Streaming Whisper + OL1 correction + Cache.
 
 Flow:
-1. Ctrl press → record audio (sounddevice)
-2. Ctrl release → transcribe via persistent faster-whisper worker (CUDA)
-3. LM Studio (M1/M2) analyzes intent → proposes corrected command
-4. User validates → JARVIS executes
+1. Wake word 'jarvis' or Ctrl PTT → record audio
+2. Streaming transcribe via persistent faster-whisper worker (CUDA, beam=1)
+3. Local-first routing: cache → fuzzy match → OL1/qwen3:1.7b correction
+4. Command execution + streaming TTS
 """
 
 from __future__ import annotations
@@ -26,6 +26,22 @@ try:
 except ImportError:
     HAS_KEYBOARD = False
 
+# ── Command cache ────────────────────────────────────────────────────────
+_command_cache: dict[str, dict] = {}
+_CACHE_MAX = 200
+
+
+def _cache_get(text: str) -> dict | None:
+    return _command_cache.get(text.lower().strip())
+
+
+def _cache_set(text: str, result: dict):
+    key = text.lower().strip()
+    if len(_command_cache) >= _CACHE_MAX:
+        oldest = next(iter(_command_cache))
+        del _command_cache[oldest]
+    _command_cache[key] = result
+
 
 # Push-to-talk config
 PTT_KEY = "ctrl"
@@ -38,9 +54,9 @@ CHANNELS = 1
 SYSTEM_PYTHON = Path("C:/Users/franc/AppData/Local/Programs/Python/Python312/python.exe")
 WHISPER_WORKER_SCRIPT = Path(__file__).parent / "whisper_worker.py"
 
-# LM Studio config for voice correction (M1 fallback, primary is Ollama qwen3:1.7b)
-LM_STUDIO_URL = "http://10.5.0.2:1234/api/v1/chat"
-LM_CORRECTION_MODEL = "qwen/qwen3-30b-a3b-2507"  # M1 fallback (primary: Ollama qwen3:1.7b)
+# OL1 config for voice correction (fast, 192 tok/s, always loaded)
+OLLAMA_URL = "http://127.0.0.1:11434/api/chat"
+OLLAMA_MODEL = "qwen3:1.7b"
 
 
 # ── Mic detection ─────────────────────────────────────────────────────────
@@ -150,8 +166,18 @@ class WhisperWorker:
             try:
                 self._process.stdin.write(wav_path + "\n")
                 self._process.stdin.flush()
-                result = self._process.stdout.readline().strip()
-                return result if result else None
+                # Read streaming segments until DONE
+                full_text = ""
+                while True:
+                    line = self._process.stdout.readline().strip()
+                    if line.startswith("DONE:"):
+                        full_text = line[5:].strip()
+                        break
+                    elif line.startswith("SEGMENT:"):
+                        pass  # Future: could be used for early processing
+                    elif line == "":
+                        break  # Empty = error or EOF
+                return full_text if full_text else None
             except Exception as e:
                 print(f"  [WHISPER] Error: {e}", flush=True)
                 self._ready = False
@@ -173,10 +199,10 @@ class WhisperWorker:
 _whisper_worker = WhisperWorker()
 
 
-# ── LM Studio voice correction ───────────────────────────────────────────
+# ── OL1 voice correction ─────────────────────────────────────────────────
 
 async def analyze_with_lm(raw_text: str) -> dict:
-    """Ask LM Studio to analyze/correct voice transcription.
+    """Ask OL1/qwen3:1.7b to analyze/correct voice transcription.
 
     Returns: {"corrected": str, "intent": str, "confidence": float}
     """
@@ -192,21 +218,17 @@ async def analyze_with_lm(raw_text: str) -> dict:
     )
 
     try:
-        async with httpx.AsyncClient(timeout=8.0) as client:
-            resp = await client.post(LM_STUDIO_URL, json={
-                "model": LM_CORRECTION_MODEL,
-                "input": prompt,
-                "max_output_tokens": 150,
-                "temperature": 0.1,
+        async with httpx.AsyncClient(timeout=3.0) as client:
+            resp = await client.post(OLLAMA_URL, json={
+                "model": OLLAMA_MODEL,
+                "messages": [{"role": "user", "content": prompt}],
                 "stream": False,
-                "store": False,
+                "think": False,
+                "options": {"temperature": 0.1, "num_predict": 150},
             })
             if resp.status_code == 200:
-                from src.tools import extract_lms_output
-                content = extract_lms_output(resp.json()).strip()
-                # Parse JSON response
                 import json
-                # Handle possible markdown wrapping
+                content = resp.json().get("message", {}).get("content", "").strip()
                 if content.startswith("```"):
                     content = content.split("\n", 1)[1].rsplit("```", 1)[0].strip()
                 data = json.loads(content)
@@ -218,7 +240,6 @@ async def analyze_with_lm(raw_text: str) -> dict:
     except Exception:
         pass
 
-    # Fallback: return raw text as-is
     return {"corrected": raw_text, "intent": raw_text, "confidence": 0.5}
 
 
@@ -288,7 +309,7 @@ def _save_wav(audio: np.ndarray, path: str) -> None:
 # ── Main listen function ─────────────────────────────────────────────────
 
 async def listen_voice(timeout: float = 15.0, keyboard_fallback: bool = True, use_ptt: bool = False) -> str | None:
-    """Record voice → Whisper transcribe → LM Studio analyze.
+    """Record voice → Whisper transcribe → OL1 analyze.
 
     Returns the analyzed/corrected text, or None.
     """
@@ -382,6 +403,23 @@ async def speak_text(text: str, voice: str = "fr-FR") -> bool:
     finally:
         if ps_path:
             Path(ps_path).unlink(missing_ok=True)
+
+
+async def _warmup_ollama():
+    """Ping OL1 every 60s to keep model warm in GPU memory."""
+    import httpx
+    while True:
+        try:
+            async with httpx.AsyncClient(timeout=2) as c:
+                await c.post(OLLAMA_URL, json={
+                    "model": OLLAMA_MODEL,
+                    "messages": [{"role": "user", "content": "ping"}],
+                    "stream": False, "think": False,
+                    "options": {"num_predict": 1},
+                })
+        except Exception:
+            pass
+        await asyncio.sleep(60)
 
 
 # ── Startup / Shutdown ────────────────────────────────────────────────────
