@@ -1138,4 +1138,264 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
         "qui utilise le reseau", "processus reseau", "network processes",
         "quelles apps utilisent internet",
     ], "powershell", "Get-NetTCPConnection -State Established | Group-Object OwningProcess | ForEach-Object { $p = Get-Process -Id $_.Name -ErrorAction SilentlyContinue; [PSCustomObject]@{Process=$p.Name; PID=$_.Name; Connexions=$_.Count} } | Sort Connexions -Descending | Select -First 15 | Format-Table -AutoSize | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # WSL — Windows Subsystem for Linux
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("wsl_status", "systeme", "Voir les distributions WSL installees", [
+        "distributions wsl", "wsl list", "quelles distros linux",
+        "etat wsl", "linux installe",
+    ], "powershell", "wsl --list --verbose 2>&1 | Out-String"),
+    JarvisCommand("wsl_start", "systeme", "Demarrer WSL (distribution par defaut)", [
+        "lance wsl", "demarre linux", "ouvre wsl",
+        "start wsl", "lance ubuntu",
+    ], "powershell", "Start-Process wsl"),
+    JarvisCommand("wsl_disk_usage", "systeme", "Espace disque utilise par WSL", [
+        "taille wsl", "espace wsl", "combien pese linux",
+        "disque wsl",
+    ], "powershell", "Get-ChildItem \"$env:LOCALAPPDATA\\Packages\\*Linux*\\LocalState\\ext4.vhdx\" -ErrorAction SilentlyContinue | Select @{N='Distro';E={($_.Directory.Parent.Name -split '_')[0]}}, @{N='Taille(GB)';E={[math]::Round($_.Length/1GB,2)}} | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # ACCESSIBILITÉ — Outils d'aide Windows
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("loupe_activer", "systeme", "Activer la loupe Windows", [
+        "active la loupe", "zoom ecran", "magnifier on",
+        "agrandis l'ecran", "loupe windows",
+    ], "hotkey", "win+="),
+    JarvisCommand("loupe_desactiver", "systeme", "Desactiver la loupe Windows", [
+        "desactive la loupe", "arrete le zoom", "magnifier off",
+        "ferme la loupe",
+    ], "hotkey", "win+escape"),
+    JarvisCommand("haut_contraste_toggle", "systeme", "Basculer en mode haut contraste", [
+        "haut contraste", "high contrast", "mode contraste",
+        "contraste eleve",
+    ], "hotkey", "left_alt+left_shift+printscreen"),
+    JarvisCommand("touches_remanentes", "systeme", "Activer/desactiver les touches remanentes", [
+        "touches remanentes", "sticky keys", "touches collantes",
+        "toggle sticky keys",
+    ], "powershell", "Start-Process ms-settings:easeofaccess-keyboard; 'Parametres clavier accessibilite ouverts'"),
+    JarvisCommand("taille_texte_plus", "systeme", "Augmenter la taille du texte systeme", [
+        "texte plus grand", "agrandis le texte", "bigger text",
+        "taille texte plus",
+    ], "powershell", "Start-Process ms-settings:easeofaccess-display; 'Parametres taille texte ouverts'"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SON & AUDIO AVANCÉ — Gestion sortie/entrée audio
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_melangeur_audio", "systeme", "Ouvrir le melangeur de volume", [
+        "melangeur audio", "volume mixer", "mix audio",
+        "son par application", "ouvre le melangeur",
+    ], "powershell", "Start-Process sndvol.exe"),
+    JarvisCommand("ouvrir_param_son", "systeme", "Ouvrir les parametres de son", [
+        "parametres son", "reglages audio", "sound settings",
+        "config audio", "sortie audio",
+    ], "powershell", "Start-Process ms-settings:sound"),
+    JarvisCommand("lister_audio_devices", "systeme", "Lister les peripheriques audio", [
+        "peripheriques audio", "quelles sorties son", "audio devices",
+        "liste les hauts parleurs", "microphones disponibles",
+    ], "powershell", "Get-CimInstance Win32_SoundDevice | Select Name, Status | Format-Table -AutoSize | Out-String"),
+    JarvisCommand("volume_50", "systeme", "Mettre le volume a 50%", [
+        "volume a 50", "moitie volume", "volume moyen",
+        "baisse le volume a 50",
+    ], "powershell", "$w = New-Object -ComObject WScript.Shell; 1..50 | ForEach-Object { $w.SendKeys([char]174) }; 1..25 | ForEach-Object { $w.SendKeys([char]175) }; 'Volume ~50%'"),
+    JarvisCommand("volume_25", "systeme", "Mettre le volume a 25%", [
+        "volume a 25", "volume bas", "volume faible",
+        "baisse le volume",
+    ], "powershell", "$w = New-Object -ComObject WScript.Shell; 1..50 | ForEach-Object { $w.SendKeys([char]174) }; 1..12 | ForEach-Object { $w.SendKeys([char]175) }; 'Volume ~25%'"),
+    JarvisCommand("volume_max", "systeme", "Mettre le volume au maximum", [
+        "volume a fond", "volume maximum", "volume 100",
+        "monte le son a fond",
+    ], "powershell", "$w = New-Object -ComObject WScript.Shell; 1..50 | ForEach-Object { $w.SendKeys([char]175) }; 'Volume maximum'"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # STORAGE SENSE & NETTOYAGE INTELLIGENT
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("storage_sense_on", "systeme", "Activer Storage Sense (nettoyage auto)", [
+        "active storage sense", "nettoyage automatique", "auto clean",
+        "storage sense on",
+    ], "powershell", "Start-Process ms-settings:storagepolicies; 'Parametres Storage Sense ouverts'"),
+    JarvisCommand("disk_cleanup", "systeme", "Lancer le nettoyage de disque Windows (cleanmgr)", [
+        "nettoyage de disque", "disk cleanup", "cleanmgr",
+        "nettoie le disque windows",
+    ], "powershell", "Start-Process cleanmgr -ArgumentList '/d C' -Wait; 'Nettoyage de disque lance'"),
+    JarvisCommand("defrag_status", "systeme", "Voir l'etat de fragmentation des disques", [
+        "etat defragmentation", "defrag status", "disques fragmentes",
+        "optimisation disques",
+    ], "powershell", "Get-PhysicalDisk | ForEach-Object { $vol = Get-Volume | Where DriveLetter; $vol | Select DriveLetter, FileSystemType, @{N='Taille(GB)';E={[math]::Round($_.Size/1GB)}}, HealthStatus } | Out-String"),
+    JarvisCommand("optimiser_disques", "systeme", "Optimiser/defragmenter les disques", [
+        "optimise les disques", "defragmente", "defrag",
+        "optimize drives",
+    ], "powershell", "Start-Process dfrgui; 'Outil d optimisation des disques ouvert'"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # FOCUS ASSIST & NOTIFICATIONS — Modes concentration
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("focus_assist_alarms", "systeme", "Focus Assist mode alarmes seulement", [
+        "alarmes seulement", "focus alarms only", "juste les alarmes",
+        "notifications prioritaires",
+    ], "powershell", "Start-Process ms-settings:quietmomentshome; 'Regles automatiques Focus Assist ouvertes'"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # GESTION STARTUP — Apps au démarrage
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("startup_apps_list", "systeme", "Lister les apps qui demarrent au boot", [
+        "apps au demarrage", "startup apps", "quoi se lance au boot",
+        "programmes au demarrage",
+    ], "powershell", "Get-CimInstance Win32_StartupCommand | Select Name, Command | Format-Table -AutoSize | Out-String; '---Registre---'; Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -ErrorAction SilentlyContinue | Select * -ExcludeProperty PS* | Format-List | Out-String"),
+    JarvisCommand("startup_settings", "systeme", "Ouvrir les parametres des apps au demarrage", [
+        "parametres demarrage", "startup settings", "gerer le demarrage",
+        "config startup",
+    ], "powershell", "Start-Process ms-settings:startupapps"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CREDENTIAL MANAGER — Mots de passe enregistrés
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("credential_list", "systeme", "Lister les identifiants Windows enregistres", [
+        "liste les identifiants", "quels mots de passe", "credentials saved",
+        "identifiants sauvegardes",
+    ], "powershell", "cmdkey /list 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # HOSTS FILE & DNS AVANCÉ
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("dns_serveurs", "systeme", "Voir les serveurs DNS configures", [
+        "quels serveurs dns", "dns configures", "dns servers",
+        "resolver dns", "dns actifs",
+    ], "powershell", "Get-DnsClientServerAddress | Where ServerAddresses | Select InterfaceAlias, @{N='DNS';E={$_.ServerAddresses -join ', '}} | Format-Table -AutoSize | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DATE, HEURE & TIMEZONE
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sync_horloge", "systeme", "Synchroniser l'horloge avec le serveur NTP", [
+        "synchronise l'horloge", "sync ntp", "mets l'heure a jour",
+        "time sync", "horloge precise",
+    ], "powershell", "w32tm /resync /force 2>&1 | Out-String"),
+    JarvisCommand("timezone_info", "systeme", "Voir le fuseau horaire actuel", [
+        "quel fuseau horaire", "timezone", "heure locale",
+        "zone horaire", "utc offset",
+    ], "powershell", "$tz = Get-TimeZone; \"$($tz.DisplayName) | UTC$($tz.BaseUtcOffset.Hours):$($tz.BaseUtcOffset.Minutes.ToString('00')) | Heure: $(Get-Date -Format 'HH:mm:ss')\""),
+    JarvisCommand("calendrier_mois", "systeme", "Afficher le calendrier du mois en cours", [
+        "calendrier", "montre le calendrier", "quel jour on est",
+        "calendrier du mois",
+    ], "powershell", "$d = Get-Date; $first = Get-Date -Day 1; $last = $first.AddMonths(1).AddDays(-1); \"$($d.ToString('MMMM yyyy'))`n`nLun Mar Mer Jeu Ven Sam Dim\"; 1..$last.Day | ForEach-Object { $day = Get-Date -Day $_; if($_ -eq $d.Day){\"[$_]\"}else{\"$_\"} } | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # REMOTE DESKTOP & SSH
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_rdp", "systeme", "Ouvrir le client Remote Desktop", [
+        "ouvre remote desktop", "lance rdp", "bureau a distance client",
+        "connexion distante", "remote desktop",
+    ], "powershell", "Start-Process mstsc"),
+    JarvisCommand("rdp_connect", "systeme", "Connexion Remote Desktop a une machine", [
+        "connecte en rdp a {host}", "remote desktop {host}",
+        "bureau a distance sur {host}", "rdp {host}",
+    ], "powershell", "Start-Process mstsc -ArgumentList '/v:{host}'", ["host"]),
+    JarvisCommand("ssh_connect", "systeme", "Connexion SSH a un serveur", [
+        "connecte en ssh a {host}", "ssh {host}", "terminal distant {host}",
+        "connexion ssh {host}",
+    ], "powershell", "Start-Process ssh -ArgumentList '{host}' -NoNewWindow", ["host"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # LANGUE & CLAVIER — Changement de disposition
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("changer_clavier", "systeme", "Changer la disposition clavier (FR/EN)", [
+        "change le clavier", "switch keyboard", "clavier francais",
+        "clavier anglais", "change la langue",
+    ], "hotkey", "win+space"),
+    JarvisCommand("clavier_suivant", "systeme", "Passer a la disposition clavier suivante", [
+        "clavier suivant", "next keyboard", "alt shift",
+        "bascule clavier",
+    ], "hotkey", "alt+shift"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # TASKBAR & BUREAU — Personnalisation
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("taskbar_cacher", "systeme", "Cacher la barre des taches automatiquement", [
+        "cache la taskbar", "hide taskbar", "barre des taches invisible",
+        "masque la barre des taches",
+    ], "powershell", "Start-Process ms-settings:taskbar; 'Parametres barre des taches ouverts'"),
+    JarvisCommand("wallpaper_info", "systeme", "Voir le fond d'ecran actuel", [
+        "quel fond d'ecran", "wallpaper actuel", "image de fond",
+        "fond d ecran",
+    ], "powershell", "(Get-ItemProperty 'HKCU:\\Control Panel\\Desktop' TranscodedImageCache -ErrorAction SilentlyContinue | Out-Null); $p = (Get-ItemProperty 'HKCU:\\Control Panel\\Desktop').WallPaper; \"Fond d'ecran: $p\""),
+    JarvisCommand("icones_bureau_toggle", "systeme", "Afficher/masquer les icones du bureau", [
+        "cache les icones", "montre les icones", "icones bureau",
+        "toggle desktop icons", "bureau vide",
+    ], "powershell", "$r = 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced'; $v = (Get-ItemProperty $r).HideIcons; Set-ItemProperty $r HideIcons $(1-$v); Stop-Process -Name explorer -Force; Start-Process explorer; if($v){'Icones affichees'}else{'Icones masquees'}"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # HYPER-V & SANDBOX — Virtualisation
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sandbox_launch", "systeme", "Lancer Windows Sandbox", [
+        "lance la sandbox", "windows sandbox", "ouvre la sandbox",
+        "environnement isole",
+    ], "powershell", "Start-Process WindowsSandbox; 'Windows Sandbox lance'"),
+    JarvisCommand("hyperv_list_vms", "systeme", "Lister les machines virtuelles Hyper-V", [
+        "liste les vms", "virtual machines", "hyper v vms",
+        "quelles vms", "machines virtuelles",
+    ], "powershell", "Get-VM -ErrorAction SilentlyContinue | Select Name, State, @{N='RAM(GB)';E={[math]::Round($_.MemoryAssigned/1GB,1)}}, Uptime | Format-Table -AutoSize | Out-String; if(-not $?){ 'Hyper-V non disponible' }"),
+    JarvisCommand("hyperv_start_vm", "systeme", "Demarrer une VM Hyper-V", [
+        "demarre la vm {vm}", "start vm {vm}", "lance la machine {vm}",
+        "allume la vm {vm}",
+    ], "powershell", "Start-VM -Name '{vm}' -ErrorAction SilentlyContinue; 'VM {vm} demarree'", ["vm"]),
+    JarvisCommand("hyperv_stop_vm", "systeme", "Arreter une VM Hyper-V", [
+        "arrete la vm {vm}", "stop vm {vm}", "eteins la machine {vm}",
+        "shutdown vm {vm}",
+    ], "powershell", "Stop-VM -Name '{vm}' -ErrorAction SilentlyContinue; 'VM {vm} arretee'", ["vm"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # GESTION DES SERVICES — Start/Stop/Restart
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("service_start", "systeme", "Demarrer un service Windows", [
+        "demarre le service {svc}", "start service {svc}",
+        "lance le service {svc}",
+    ], "powershell", "Start-Service '{svc}' -ErrorAction SilentlyContinue; Get-Service '{svc}' | Select Name, Status | Out-String", ["svc"]),
+    JarvisCommand("service_stop", "systeme", "Arreter un service Windows", [
+        "arrete le service {svc}", "stop service {svc}",
+        "coupe le service {svc}",
+    ], "powershell", "Stop-Service '{svc}' -Force -ErrorAction SilentlyContinue; Get-Service '{svc}' | Select Name, Status | Out-String", ["svc"], confirm=True),
+    JarvisCommand("service_restart", "systeme", "Redemarrer un service Windows", [
+        "redemarre le service {svc}", "restart service {svc}",
+        "relance le service {svc}",
+    ], "powershell", "Restart-Service '{svc}' -Force -ErrorAction SilentlyContinue; Get-Service '{svc}' | Select Name, Status | Out-String", ["svc"]),
+    JarvisCommand("service_status", "systeme", "Voir l'etat d'un service Windows", [
+        "etat du service {svc}", "status service {svc}",
+        "le service {svc} tourne",
+    ], "powershell", "Get-Service '{svc}' -ErrorAction SilentlyContinue | Select Name, Status, StartType | Out-String", ["svc"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # GESTION DISQUES AVANCÉE — Partitions, lettre, format
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("partitions_list", "systeme", "Lister toutes les partitions", [
+        "liste les partitions", "partitions disque", "volumes montes",
+        "quelles partitions",
+    ], "powershell", "Get-Volume | Where DriveLetter | Select DriveLetter, FileSystemLabel, FileSystem, @{N='Taille(GB)';E={[math]::Round($_.Size/1GB,1)}}, @{N='Libre(GB)';E={[math]::Round($_.SizeRemaining/1GB,1)}}, HealthStatus | Format-Table -AutoSize | Out-String"),
+    JarvisCommand("disques_physiques", "systeme", "Voir les disques physiques installes", [
+        "disques physiques", "quels disques", "ssd hdd",
+        "physical disks", "stockage installe",
+    ], "powershell", "Get-PhysicalDisk | Select FriendlyName, MediaType, BusType, @{N='Taille(GB)';E={[math]::Round($_.Size/1GB)}}, HealthStatus | Format-Table -AutoSize | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CLIPBOARD AVANCÉ — Opérations presse-papier
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("clipboard_contenu", "systeme", "Voir le contenu actuel du presse-papier", [
+        "quoi dans le presse papier", "clipboard content", "montre le clipboard",
+        "qu'est ce que j'ai copie",
+    ], "powershell", "$c = Get-Clipboard -ErrorAction SilentlyContinue; if($c){\"Clipboard ($($c.Length) chars): $($c.Substring(0, [math]::Min($c.Length, 200)))$(if($c.Length -gt 200){'...'})\" }else{'Presse-papier vide'}"),
+    JarvisCommand("clipboard_en_majuscules", "systeme", "Convertir le texte du clipboard en majuscules", [
+        "clipboard en majuscules", "texte en majuscules", "uppercase clipboard",
+        "convertis en majuscules",
+    ], "powershell", "$c = Get-Clipboard; if($c){$u = $c.ToUpper(); Set-Clipboard $u; \"Converti en majuscules ($($u.Length) chars)\"}else{'Rien dans le clipboard'}"),
+    JarvisCommand("clipboard_en_minuscules", "systeme", "Convertir le texte du clipboard en minuscules", [
+        "clipboard en minuscules", "texte en minuscules", "lowercase clipboard",
+        "convertis en minuscules",
+    ], "powershell", "$c = Get-Clipboard; if($c){$l = $c.ToLower(); Set-Clipboard $l; \"Converti en minuscules ($($l.Length) chars)\"}else{'Rien dans le clipboard'}"),
+    JarvisCommand("clipboard_compter_mots", "systeme", "Compter les mots dans le presse-papier", [
+        "combien de mots copies", "word count clipboard", "compte les mots",
+        "mots dans le clipboard",
+    ], "powershell", "$c = Get-Clipboard; if($c){$w = ($c -split '\\s+').Count; $ch = $c.Length; $l = ($c -split '`n').Count; \"$w mots | $ch caracteres | $l lignes\"}else{'Presse-papier vide'}"),
+    JarvisCommand("clipboard_trim", "systeme", "Nettoyer les espaces du texte clipboard", [
+        "nettoie le clipboard", "trim clipboard", "enleve les espaces",
+        "clean le presse papier",
+    ], "powershell", "$c = Get-Clipboard; if($c){$t = ($c -split '`n' | ForEach-Object { $_.Trim() }) -join \"`n\"; Set-Clipboard $t; \"Clipboard nettoye ($($t.Length) chars)\"}else{'Vide'}"),
 ]

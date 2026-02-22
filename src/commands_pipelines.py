@@ -1041,4 +1041,90 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
         "redemarre docker", "restart all containers", "relance les conteneurs",
         "docker restart tout",
     ], "pipeline", "powershell:docker restart $(docker ps -q) 2>&1 | Out-String;;sleep:3;;powershell:docker ps --format 'table {{.Names}}\\t{{.Status}}' 2>&1 | Out-String;;powershell:\"Tous les conteneurs redemarres\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 20 — SESSION CODE REVIEW
+    # Scénario: Préparer et conduire une code review
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_code_review_prep", "pipeline", "Preparer une code review: git diff + VSCode + browser GitHub", [
+        "prepare la code review", "session review", "revue de code",
+        "je vais review du code",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git log --oneline -5 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; git diff --stat HEAD~3 2>&1 | Out-String;;app_open:code;;sleep:2;;browser:navigate:https://github.com/Turbo31150/turbo/pulls;;powershell:\"Code review prete — diff affiche\""),
+    JarvisCommand("sim_code_review_split", "pipeline", "Layout code review: VSCode gauche + GitHub droite", [
+        "layout review", "split code review", "cote a cote review",
+        "ecran review",
+    ], "pipeline", "app_open:code;;sleep:2;;hotkey:win+left;;sleep:1;;browser:navigate:https://github.com/Turbo31150/turbo;;sleep:2;;hotkey:win+right;;powershell:\"Layout review: VSCode | GitHub\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 21 — SESSION APPRENTISSAGE
+    # Scénario: Apprendre un nouveau sujet de dev
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_learn_topic", "pipeline", "Session apprentissage: YouTube + docs + notes", [
+        "session apprentissage {topic}", "je veux apprendre {topic}",
+        "cours sur {topic}", "tuto {topic}",
+    ], "pipeline", "browser:navigate:https://www.youtube.com/results?search_query={topic}+tutorial;;sleep:2;;browser:navigate:https://www.google.com/search?q={topic}+documentation;;sleep:1;;app_open:code;;sleep:1;;powershell:\"Session apprentissage {topic} prete\"", ["topic"]),
+    JarvisCommand("sim_learn_python", "pipeline", "Apprentissage Python: docs + exercices + REPL", [
+        "apprends moi python", "session python", "tuto python",
+        "cours python",
+    ], "pipeline", "browser:navigate:https://docs.python.org/3/tutorial/;;sleep:2;;browser:navigate:https://www.freecodecamp.org/learn/scientific-computing-with-python/;;sleep:1;;app_open:wt;;sleep:1;;powershell:\"Session Python ouverte — docs + exercices + terminal\""),
+    JarvisCommand("sim_learn_rust", "pipeline", "Apprentissage Rust: The Book + playground", [
+        "apprends moi rust", "session rust", "tuto rust",
+        "cours rust",
+    ], "pipeline", "browser:navigate:https://doc.rust-lang.org/book/;;sleep:2;;browser:navigate:https://play.rust-lang.org/;;sleep:1;;powershell:\"Session Rust ouverte — The Book + Playground\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 22 — MULTI-ÉCRAN WORKFLOWS
+    # Scénario: Configurations multi-fenêtres avancées
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_layout_4_quadrants", "pipeline", "Layout 4 quadrants: Code + Terminal + Browser + Dashboard", [
+        "4 quadrants", "layout quatre fenetres", "quatre ecrans",
+        "quad split", "quatre zones",
+    ], "pipeline", "app_open:code;;sleep:2;;hotkey:win+left;;hotkey:win+up;;sleep:1;;app_open:wt;;sleep:1;;hotkey:win+left;;hotkey:win+down;;sleep:1;;browser:navigate:http://127.0.0.1:8080;;sleep:2;;hotkey:win+right;;hotkey:win+up;;sleep:1;;app_open:spotify;;sleep:1;;hotkey:win+right;;hotkey:win+down;;powershell:\"Layout 4 quadrants configure\""),
+    JarvisCommand("sim_layout_trading_full", "pipeline", "Layout trading: MEXC + CoinGecko + Terminal + Dashboard", [
+        "layout trading complet", "ecran trading", "multi fenetre trading",
+        "vue trading",
+    ], "pipeline", "browser:navigate:https://futures.mexc.com;;sleep:3;;hotkey:win+left;;sleep:1;;browser:navigate:https://www.coingecko.com;;sleep:2;;hotkey:win+right;;hotkey:win+up;;sleep:1;;app_open:wt;;sleep:1;;hotkey:win+right;;hotkey:win+down;;powershell:\"Layout trading: MEXC | CoinGecko | Terminal\""),
+    JarvisCommand("sim_layout_recherche", "pipeline", "Layout recherche: Perplexity + Claude + Notes", [
+        "layout recherche", "ecran recherche", "mode recherche multi",
+        "split recherche",
+    ], "pipeline", "browser:navigate:https://www.perplexity.ai;;sleep:2;;hotkey:win+left;;sleep:1;;browser:navigate:https://claude.ai;;sleep:2;;hotkey:win+right;;powershell:\"Layout recherche: Perplexity | Claude\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 23 — REMOTE WORK SETUP
+    # Scénario: Configuration télétravail
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_remote_work_start", "pipeline", "Setup teletravail: VPN + Slack + Gmail + VSCode + focus", [
+        "mode teletravail", "start remote work", "je teletravaille",
+        "setup travail a distance",
+    ], "pipeline", f"{MINIMIZE_ALL};;sleep:1;;app_open:code;;sleep:2;;hotkey:win+left;;sleep:1;;browser:navigate:https://mail.google.com;;sleep:2;;hotkey:win+right;;sleep:1;;ms_settings:ms-settings:quiethours;;powershell:\"Teletravail configure — focus active\""),
+    JarvisCommand("sim_standup_meeting", "pipeline", "Preparer le standup: git log hier + today + blocker check", [
+        "prepare le standup", "daily standup", "scrum preparation",
+        "qu'est ce que j'ai fait hier",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; \"=== HIER ===\"; git log --since='yesterday' --until='today' --oneline 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; \"=== AUJOURD'HUI ===\"; git log --since='today' --oneline 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; \"=== EN COURS ===\"; git status -sb 2>&1 | Out-String;;powershell:\"Standup preparation terminee\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 24 — CRYPTO & TRADING AVANCÉ
+    # Scénario: Session de trading crypto complète
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_crypto_research", "pipeline", "Recherche crypto: CoinGecko + CoinDesk + Etherscan + Reddit", [
+        "recherche crypto complete", "analyse crypto", "research trading",
+        "etudie les cryptos",
+    ], "pipeline", "browser:navigate:https://www.coingecko.com;;sleep:2;;browser:navigate:https://www.coindesk.com;;sleep:2;;browser:navigate:https://etherscan.io;;sleep:2;;browser:navigate:https://www.reddit.com/r/CryptoCurrency/;;powershell:\"Recherche crypto: 4 sources ouvertes\""),
+    JarvisCommand("sim_trading_session", "pipeline", "Session trading: MEXC + TradingView + Terminal signaux", [
+        "session trading complete", "lance le trading", "je vais trader",
+        "ouvre tout le trading",
+    ], "pipeline", "browser:navigate:https://futures.mexc.com;;sleep:3;;browser:navigate:https://www.tradingview.com;;sleep:2;;app_open:wt;;sleep:1;;powershell:cd F:\\BUREAU\\turbo; \"Session trading active — MEXC + TradingView + Terminal\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 25 — SYSTEM RECOVERY
+    # Scénario: Récupération après crash ou problème
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_post_crash_recovery", "pipeline", "Post-crash: check disques + logs + services + GPU + cluster", [
+        "recovery apres crash", "le pc a plante", "post crash check",
+        "diagnostic apres plantage",
+    ], "pipeline", "powershell:Get-PhysicalDisk | Select FriendlyName, HealthStatus | Out-String;;powershell:Get-WinEvent -FilterHashtable @{LogName='System';Level=1,2} -MaxEvents 5 -ErrorAction SilentlyContinue | Select TimeCreated, LevelDisplayName, Message | Out-String -Width 150;;powershell:Get-Service | Where { $_.Status -eq 'Stopped' -and $_.StartType -eq 'Automatic' } | Select Name, Status | Select -First 10 | Out-String;;powershell:nvidia-smi --query-gpu=name,temperature.gpu,memory.used --format=csv,noheader 2>&1 | Out-String;;powershell:\"Diagnostic post-crash termine\""),
+    JarvisCommand("sim_repair_system", "pipeline", "Reparation systeme: DISM + SFC + services restart", [
+        "repare le systeme", "system repair", "fix windows",
+        "restaure les fichiers systeme",
+    ], "pipeline", "powershell:DISM /Online /Cleanup-Image /CheckHealth 2>&1 | Out-String;;powershell:sfc /verifyonly 2>&1 | Select -Last 3 | Out-String;;powershell:\"Verification systeme terminee — lancez 'sfc /scannow' si necessaire\"", confirm=True),
 ]
