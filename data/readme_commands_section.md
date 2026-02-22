@@ -1,7 +1,7 @@
 
 ## 812 Commandes Vocales — Liste Complete
 
-**1348 commandes** au total dont **226 pipelines** multi-etapes.
+**1497 commandes** au total dont **246 pipelines** multi-etapes.
 Reparties en **14 categories**.
 
 | Categorie | Nb | Description |
@@ -9,16 +9,16 @@ Reparties en **14 categories**.
 | **accessibilite** | 10 | taille_texte_grand, clavier_virtuel, filtre_couleur... |
 | **app** | 23 | ouvrir_vscode, ouvrir_terminal, ouvrir_lmstudio... |
 | **clipboard** | 13 | copier, coller, couper... |
-| **dev** | 184 | docker_ps, docker_images, docker_stop_all... |
+| **dev** | 218 | docker_ps, docker_images, docker_stop_all... |
 | **fenetre** | 13 | minimiser_tout, alt_tab, fermer_fenetre... |
-| **fichiers** | 39 | ouvrir_documents, ouvrir_bureau, ouvrir_dossier... |
+| **fichiers** | 47 | ouvrir_documents, ouvrir_bureau, ouvrir_dossier... |
 | **jarvis** | 12 | historique_commandes, jarvis_aide, jarvis_stop... |
 | **launcher** | 12 | launch_pipeline_10, launch_sniper_10, launch_sniper_breakout... |
 | **media** | 7 | media_play_pause, media_next, media_previous... |
-| **navigation** | 226 | ouvrir_chrome, ouvrir_comet, aller_sur_site... |
-| **pipeline** | 226 | range_bureau, va_sur_mails_comet, mode_travail... |
+| **navigation** | 272 | ouvrir_chrome, ouvrir_comet, aller_sur_site... |
+| **pipeline** | 246 | range_bureau, va_sur_mails_comet, mode_travail... |
 | **saisie** | 4 | texte_majuscule, texte_minuscule, ouvrir_emojis... |
-| **systeme** | 560 | verrouiller, eteindre, redemarrer... |
+| **systeme** | 601 | verrouiller, eteindre, redemarrer... |
 | **trading** | 19 | scanner_marche, detecter_breakout, pipeline_trading... |
 
 <details>
@@ -85,7 +85,7 @@ Reparties en **14 categories**.
 | `clipboard_historique` | hotkey | Ouvrir l'historique du presse-papier | historique presse papier, clipboard history |
 | `coller_sans_format` | hotkey | Coller sans mise en forme | colle sans format, coller sans mise en forme |
 
-### DEV (184)
+### DEV (218)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -273,6 +273,40 @@ Reparties en **14 categories**.
 | `port_in_use` | powershell | Trouver quel processus utilise un port | qui utilise le port {port}, port {port} occupe |
 | `env_var_get` | powershell | Lire une variable d'environnement | variable {var}, env {var} |
 | `tree_turbo` | powershell | Arborescence du projet turbo (2 niveaux) | arborescence turbo, tree turbo |
+| `gh_create_issue` | powershell | Creer une issue GitHub | cree une issue {titre}, nouvelle issue {titre} |
+| `gh_list_issues` | powershell | Lister les issues GitHub ouvertes | liste les issues, issues ouvertes |
+| `gh_list_prs` | powershell | Lister les pull requests GitHub | liste les pr, pull requests |
+| `gh_view_pr` | powershell | Voir les details d'une PR | montre la pr {num}, detail pr {num} |
+| `gh_pr_checks` | powershell | Voir les checks d'une PR | checks de la pr {num}, status pr {num} |
+| `gh_repo_view` | powershell | Voir les infos du repo GitHub courant | info du repo, github repo info |
+| `gh_workflow_list` | powershell | Lister les workflows GitHub Actions | workflows github, github actions |
+| `gh_release_list` | powershell | Lister les releases GitHub | releases github, liste les releases |
+| `go_build` | powershell | Compiler un projet Go | go build, compile en go |
+| `go_test` | powershell | Lancer les tests Go | go test, tests go |
+| `go_fmt` | powershell | Formater le code Go | go fmt, formate le go |
+| `go_mod_tidy` | powershell | Nettoyer les dependances Go | go mod tidy, nettoie les deps go |
+| `venv_create` | powershell | Creer un environnement virtuel Python | cree un venv, nouveau virtualenv |
+| `venv_activate` | powershell | Activer le virtualenv courant | active le venv, activate venv |
+| `conda_list_envs` | powershell | Lister les environnements Conda | conda envs, liste les envs conda |
+| `conda_install_pkg` | powershell | Installer un package Conda | conda install {package}, installe avec conda {package} |
+| `curl_get` | powershell | Faire un GET sur une URL | curl get {url}, requete get {url} |
+| `curl_post_json` | powershell | Faire un POST JSON sur une URL | curl post {url}, post json {url} |
+| `api_health_check` | powershell | Verifier si une API repond (ping HTTP) | ping api {url}, api en ligne {url} |
+| `api_response_time` | powershell | Mesurer le temps de reponse d'une URL | temps de reponse {url}, latence de {url} |
+| `lint_ruff_check` | powershell | Linter Python avec Ruff | ruff check, lint python |
+| `lint_ruff_fix` | powershell | Auto-fixer les erreurs Ruff | ruff fix, fixe le lint |
+| `format_black` | powershell | Formater Python avec Black | black format, formate avec black |
+| `lint_mypy` | powershell | Verifier les types Python avec mypy | mypy check, verifie les types |
+| `lint_eslint` | powershell | Linter JavaScript avec ESLint | eslint, lint javascript |
+| `format_prettier` | powershell | Formater JS/TS avec Prettier | prettier format, formate avec prettier |
+| `logs_turbo` | powershell | Voir les derniers logs JARVIS | logs jarvis, dernieres logs |
+| `logs_windows_errors` | powershell | Voir les erreurs recentes Windows | erreurs windows, logs erreurs systeme |
+| `logs_clear_turbo` | powershell | Vider les logs JARVIS | vide les logs, efface les logs |
+| `logs_search` | powershell | Chercher dans les logs JARVIS | cherche dans les logs {pattern}, grep les logs {pattern} |
+| `netstat_listen` | powershell | Voir les ports en ecoute | ports en ecoute, quels ports ouverts |
+| `whois_domain` | powershell | Whois d'un domaine | whois {domaine}, info domaine {domaine} |
+| `ssl_check` | powershell | Verifier le certificat SSL d'un site | check ssl {domaine}, certificat ssl {domaine} |
+| `dns_lookup` | powershell | Resoudre un domaine (DNS lookup complet) | dns {domaine}, resoudre {domaine} |
 
 ### FENETRE (13)
 
@@ -292,7 +326,7 @@ Reparties en **14 categories**.
 | `fenetre_bas_gauche` | powershell | Fenetre en bas a gauche | fenetre en bas a gauche, snap bas gauche |
 | `fenetre_bas_droite` | powershell | Fenetre en bas a droite | fenetre en bas a droite, snap bas droite |
 
-### FICHIERS (39)
+### FICHIERS (47)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -335,6 +369,14 @@ Reparties en **14 categories**.
 | `lister_fichiers_recents` | powershell | Lister les 20 fichiers les plus recents sur le bureau | fichiers recents, derniers fichiers |
 | `chercher_gros_fichiers` | powershell | Trouver les fichiers > 100 MB sur F: | gros fichiers partout, fichiers enormes |
 | `doublons_bureau` | powershell | Detecter les doublons potentiels par nom dans F:\BUREAU | doublons bureau, fichiers en double |
+| `taille_telechargements` | powershell | Taille du dossier Telechargements | taille telechargements, poids downloads |
+| `vider_telechargements` | powershell | Vider le dossier Telechargements (fichiers > 30 jours) | vide les telechargements, nettoie les downloads |
+| `lister_telechargements` | powershell | Derniers fichiers telecharges | derniers telechargements, quoi de telecharge |
+| `ouvrir_telechargements` | powershell | Ouvrir le dossier Telechargements | ouvre les telechargements, dossier downloads |
+| `ouvrir_documents` | powershell | Ouvrir le dossier Documents | ouvre les documents, dossier documents |
+| `ouvrir_bureau_dossier` | powershell | Ouvrir F:\BUREAU dans l'explorateur | ouvre le bureau, dossier bureau |
+| `fichier_recent_modifie` | powershell | Trouver le dernier fichier modifie partout | dernier fichier modifie, quoi vient de changer |
+| `compter_fichiers_type` | powershell | Compter les fichiers par extension dans un dossier | compte les fichiers par type, extensions dans {path} |
 
 ### JARVIS (12)
 
@@ -382,7 +424,7 @@ Reparties en **14 categories**.
 | `muet` | hotkey | Couper/activer le son | coupe le son, mute |
 | `volume_precis` | powershell | Mettre le volume a un niveau precis | mets le volume a {niveau}, volume a {niveau} |
 
-### NAVIGATION (226)
+### NAVIGATION (272)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -612,8 +654,54 @@ Reparties en **14 categories**.
 | `ouvrir_doctissimo` | browser | Ouvrir Doctissimo (sante) | ouvre doctissimo, symptomes |
 | `chercher_github_repos` | browser | Rechercher un repo sur GitHub | cherche un repo {requete}, github repo {requete} |
 | `chercher_huggingface_models` | browser | Rechercher un modele sur Hugging Face | cherche un modele {requete}, huggingface model {requete} |
+| `ouvrir_grafana_cloud` | browser | Ouvrir Grafana Cloud | ouvre grafana, va sur grafana |
+| `ouvrir_datadog` | browser | Ouvrir Datadog | ouvre datadog, va sur datadog |
+| `ouvrir_sentry` | browser | Ouvrir Sentry (error tracking) | ouvre sentry, va sur sentry |
+| `ouvrir_pagerduty` | browser | Ouvrir PagerDuty (alerting) | ouvre pagerduty, alertes pagerduty |
+| `ouvrir_newrelic` | browser | Ouvrir New Relic (APM) | ouvre new relic, va sur newrelic |
+| `ouvrir_uptime_robot` | browser | Ouvrir UptimeRobot (monitoring) | ouvre uptime robot, status sites |
+| `ouvrir_prometheus_docs` | browser | Ouvrir la doc Prometheus | doc prometheus, prometheus documentation |
+| `ouvrir_jenkins` | browser | Ouvrir Jenkins | ouvre jenkins, va sur jenkins |
+| `ouvrir_circleci` | browser | Ouvrir CircleCI | ouvre circleci, circle ci |
+| `ouvrir_travis_ci` | browser | Ouvrir Travis CI | ouvre travis, travis ci |
+| `ouvrir_gitlab_ci` | browser | Ouvrir GitLab CI/CD | ouvre gitlab ci, gitlab pipelines |
+| `ouvrir_postman_web` | browser | Ouvrir Postman Web | ouvre postman, va sur postman |
+| `ouvrir_swagger_editor` | browser | Ouvrir Swagger Editor | ouvre swagger, swagger editor |
+| `ouvrir_rapidapi` | browser | Ouvrir RapidAPI (marketplace API) | ouvre rapidapi, va sur rapidapi |
+| `ouvrir_httpbin` | browser | Ouvrir HTTPBin (test HTTP) | ouvre httpbin, test http |
+| `ouvrir_reqbin` | browser | Ouvrir ReqBin (HTTP client en ligne) | ouvre reqbin, client http en ligne |
+| `ouvrir_malt` | browser | Ouvrir Malt (freelance FR) | ouvre malt, va sur malt |
+| `ouvrir_fiverr` | browser | Ouvrir Fiverr | ouvre fiverr, va sur fiverr |
+| `ouvrir_upwork` | browser | Ouvrir Upwork | ouvre upwork, va sur upwork |
+| `ouvrir_welcome_jungle` | browser | Ouvrir Welcome to the Jungle (emploi tech) | ouvre welcome to the jungle, offres d'emploi tech |
+| `ouvrir_indeed` | browser | Ouvrir Indeed | ouvre indeed, va sur indeed |
+| `ouvrir_uber_eats` | browser | Ouvrir Uber Eats | ouvre uber eats, commande uber eats |
+| `ouvrir_deliveroo` | browser | Ouvrir Deliveroo | ouvre deliveroo, commande deliveroo |
+| `ouvrir_just_eat` | browser | Ouvrir Just Eat | ouvre just eat, commande just eat |
+| `ouvrir_tf1_plus` | browser | Ouvrir TF1+ (replay TF1) | ouvre tf1, replay tf1 |
+| `ouvrir_france_tv` | browser | Ouvrir France.tv (replay France TV) | ouvre france tv, replay france tv |
+| `ouvrir_arte_replay` | browser | Ouvrir Arte.tv (replay) | ouvre arte, replay arte |
+| `ouvrir_bfm_tv` | browser | Ouvrir BFM TV en direct | ouvre bfm, bfm tv |
+| `ouvrir_cnews` | browser | Ouvrir CNews | ouvre cnews, c news |
+| `ouvrir_mediapart` | browser | Ouvrir Mediapart | ouvre mediapart, va sur mediapart |
+| `ouvrir_trello` | browser | Ouvrir Trello | ouvre trello, va sur trello |
+| `ouvrir_asana` | browser | Ouvrir Asana | ouvre asana, va sur asana |
+| `ouvrir_monday` | browser | Ouvrir Monday.com | ouvre monday, va sur monday |
+| `ouvrir_clickup` | browser | Ouvrir ClickUp | ouvre clickup, va sur clickup |
+| `ouvrir_darty` | browser | Ouvrir Darty | ouvre darty, va sur darty |
+| `ouvrir_boulanger` | browser | Ouvrir Boulanger | ouvre boulanger, va sur boulanger |
+| `ouvrir_leroy_merlin` | browser | Ouvrir Leroy Merlin (bricolage) | ouvre leroy merlin, bricolage |
+| `ouvrir_castorama` | browser | Ouvrir Castorama (bricolage) | ouvre castorama, va sur castorama |
+| `ouvrir_vinted` | browser | Ouvrir Vinted | ouvre vinted, va sur vinted |
+| `ouvrir_revolut` | browser | Ouvrir Revolut | ouvre revolut, va sur revolut |
+| `ouvrir_n26` | browser | Ouvrir N26 (banque en ligne) | ouvre n26, va sur n26 |
+| `ouvrir_bankin` | browser | Ouvrir Bankin (agrégateur comptes) | ouvre bankin, va sur bankin |
+| `ouvrir_dribbble` | browser | Ouvrir Dribbble (inspiration design) | ouvre dribbble, inspiration design |
+| `ouvrir_unsplash` | browser | Ouvrir Unsplash (photos libres) | ouvre unsplash, photos gratuites |
+| `ouvrir_coolors` | browser | Ouvrir Coolors (palettes couleurs) | ouvre coolors, palette de couleurs |
+| `ouvrir_fontawesome` | browser | Ouvrir Font Awesome (icones) | ouvre font awesome, icones font awesome |
 
-### PIPELINE (226)
+### PIPELINE (246)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -843,6 +931,26 @@ Reparties en **14 categories**.
 | `sim_trading_session` | pipeline | Session trading: MEXC + TradingView + Terminal signaux | session trading complete, lance le trading |
 | `sim_post_crash_recovery` | pipeline | Post-crash: check disques + logs + services + GPU + cluster | recovery apres crash, le pc a plante |
 | `sim_repair_system` | pipeline | Reparation systeme: DISM + SFC + services restart | repare le systeme, system repair |
+| `sim_fullstack_build` | pipeline | Build complet: lint + tests + build + rapport | build complet du projet, full build |
+| `sim_deploy_check` | pipeline | Pre-deploy: git status + tests + deps check + commit | check avant deploiement, pre deploy check |
+| `sim_git_release` | pipeline | Release: tag + changelog + push tags | fais une release, prepare la release |
+| `sim_api_test_session` | pipeline | Session API: Postman + docs + terminal HTTP | session test api, teste les apis |
+| `sim_api_endpoints_check` | pipeline | Verifier tous les endpoints locaux (cluster) | check tous les endpoints, verifie les apis du cluster |
+| `sim_social_all` | pipeline | Ouvrir tous les reseaux sociaux | ouvre tous les reseaux sociaux, social media complet |
+| `sim_content_creation` | pipeline | Setup creation contenu: Canva + Unsplash + notes | setup creation contenu, je vais creer du contenu |
+| `sim_design_session` | pipeline | Session design: Figma + Dribbble + Coolors + Font Awesome | session design, mode design |
+| `sim_ui_inspiration` | pipeline | Inspiration UI: Dribbble + Behance + Awwwards | inspiration ui, inspiration design |
+| `sim_optimize_full` | pipeline | Optimisation: temp + startup + services + defrag check | optimise le systeme, full optimization |
+| `sim_cleanup_aggressive` | pipeline | Nettoyage agressif: temp + cache + logs + recycle bin | nettoyage agressif, nettoie tout a fond |
+| `sim_learn_coding` | pipeline | Learning code: YouTube + MDN + W3Schools + exercism | session apprentissage code, je veux apprendre |
+| `sim_learn_ai` | pipeline | Learning IA: HuggingFace + Papers + Cours + Playground | session apprentissage ia, apprendre le machine learning |
+| `sim_pomodoro_25` | pipeline | Pomodoro 25min: timer + focus assist + notification | lance un pomodoro, pomodoro 25 minutes |
+| `sim_backup_turbo` | pipeline | Backup turbo: git bundle + zip data + rapport | backup le projet, sauvegarde turbo |
+| `sim_backup_verify` | pipeline | Verifier les backups: taille + date + integrite | verifie les backups, check les sauvegardes |
+| `sim_morning_routine` | pipeline | Routine matin: meteo + news + mails + cluster + standup | routine du matin, bonjour jarvis |
+| `sim_evening_shutdown` | pipeline | Routine soir: git status + save + clear temp + veille | routine du soir, bonsoir jarvis |
+| `sim_freelance_setup` | pipeline | Setup freelance: Malt + factures + timer + mail | mode freelance, setup freelance |
+| `sim_client_meeting` | pipeline | Prep meeting client: Teams + notes + projet + timer | prepare le meeting client, meeting client |
 
 ### SAISIE (4)
 
@@ -853,7 +961,7 @@ Reparties en **14 categories**.
 | `ouvrir_emojis` | hotkey | Ouvrir le panneau emojis | ouvre les emojis, panneau emojis |
 | `ouvrir_dictee` | hotkey | Activer la dictee vocale Windows | dicte, dictee windows |
 
-### SYSTEME (560)
+### SYSTEME (601)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -1417,6 +1525,47 @@ Reparties en **14 categories**.
 | `clipboard_en_minuscules` | powershell | Convertir le texte du clipboard en minuscules | clipboard en minuscules, texte en minuscules |
 | `clipboard_compter_mots` | powershell | Compter les mots dans le presse-papier | combien de mots copies, word count clipboard |
 | `clipboard_trim` | powershell | Nettoyer les espaces du texte clipboard | nettoie le clipboard, trim clipboard |
+| `param_camera` | powershell | Parametres de confidentialite camera | parametres camera, privacy camera |
+| `param_microphone` | powershell | Parametres de confidentialite microphone | parametres microphone, privacy micro |
+| `param_localisation` | powershell | Parametres de localisation/GPS | parametres localisation, privacy location |
+| `param_gaming` | powershell | Parametres de jeu Windows | parametres gaming, game settings |
+| `param_comptes` | powershell | Parametres des comptes utilisateur | parametres comptes, account settings |
+| `param_connexion` | powershell | Parametres de connexion (PIN, mot de passe) | options de connexion, sign in options |
+| `param_apps_defaut` | powershell | Parametres des apps par defaut | apps par defaut, default apps |
+| `param_fonctionnalites_optionnelles` | powershell | Fonctionnalites optionnelles Windows | fonctionnalites optionnelles, optional features |
+| `param_souris` | powershell | Parametres de la souris | parametres souris, mouse settings |
+| `param_clavier` | powershell | Parametres du clavier | parametres clavier, keyboard settings |
+| `param_phone_link` | powershell | Ouvrir Phone Link (connexion telephone) | phone link, lien telephone |
+| `param_notifications_apps` | powershell | Parametres notifications par application | notifications par app, gerer les notifications |
+| `param_multitache` | powershell | Parametres multitache (snap, bureaux virtuels) | parametres multitache, multitasking settings |
+| `param_stockage` | powershell | Parametres de stockage (espace disque) | parametres stockage, storage settings |
+| `param_proxy` | powershell | Parametres de proxy reseau | parametres proxy, proxy settings |
+| `param_vpn_settings` | powershell | Parametres VPN Windows | parametres vpn, vpn settings |
+| `param_wifi_settings` | powershell | Parametres WiFi avances | parametres wifi, wifi settings |
+| `param_update_avance` | powershell | Parametres Windows Update avances | update avance, windows update settings |
+| `param_recovery` | powershell | Options de recuperation systeme | recovery options, reinitialiser le pc |
+| `param_developeurs` | powershell | Parametres developpeur Windows | mode developpeur, developer settings |
+| `calculatrice_standard` | powershell | Ouvrir la calculatrice Windows | ouvre la calculatrice, calculatrice |
+| `calculer_expression` | powershell | Calculer une expression mathematique | calcule {expr}, combien fait {expr} |
+| `convertir_temperature` | powershell | Convertir Celsius en Fahrenheit et inversement | convertis {temp} degres, celsius en fahrenheit {temp} |
+| `convertir_octets` | powershell | Convertir des octets en unites lisibles | convertis {bytes} octets, combien de go fait {bytes} |
+| `clipboard_base64_encode` | powershell | Encoder le clipboard en Base64 | encode en base64, base64 encode |
+| `clipboard_base64_decode` | powershell | Decoder le clipboard depuis Base64 | decode le base64, base64 decode |
+| `clipboard_url_encode` | powershell | Encoder le clipboard en URL (percent-encode) | url encode, encode l'url |
+| `clipboard_json_format` | powershell | Formatter le JSON du clipboard avec indentation | formate le json, json pretty |
+| `clipboard_md5` | powershell | Calculer le MD5 du texte dans le clipboard | md5 du clipboard, hash md5 texte |
+| `clipboard_sort_lines` | powershell | Trier les lignes du clipboard par ordre alphabetique | trie les lignes, sort lines clipboard |
+| `clipboard_unique_lines` | powershell | Supprimer les lignes dupliquees du clipboard | deduplique les lignes, unique lines |
+| `clipboard_reverse` | powershell | Inverser le texte du clipboard | inverse le texte, reverse clipboard |
+| `power_performance` | powershell | Activer le plan d'alimentation Haute Performance | mode performance, high performance |
+| `power_equilibre` | powershell | Activer le plan d'alimentation Equilibre | mode equilibre, balanced power |
+| `power_economie` | powershell | Activer le plan d'alimentation Economie d'energie | mode economie, power saver |
+| `power_plans_list` | powershell | Lister les plans d'alimentation disponibles | quels plans alimentation, power plans |
+| `sleep_timer_30` | powershell | Mettre le PC en veille dans 30 minutes | veille dans 30 minutes, sleep dans 30 min |
+| `network_reset` | powershell | Reset complet de la pile reseau Windows | reset reseau, reinitialise le reseau |
+| `network_troubleshoot` | powershell | Lancer le depanneur reseau Windows | depanne le reseau, network troubleshoot |
+| `arp_table` | powershell | Afficher la table ARP (machines sur le reseau local) | table arp, machines sur le reseau |
+| `nslookup_domain` | powershell | Resoudre un nom de domaine (nslookup) | nslookup {domain}, resous {domain} |
 
 ### TRADING (19)
 
@@ -1442,6 +1591,4 @@ Reparties en **14 categories**.
 | `cluster_health` | powershell | Health check rapide du cluster IA | health check cluster, verifie le cluster ia |
 | `ollama_running` | powershell | Modeles Ollama actuellement en memoire | quels modeles ollama tournent, ollama running |
 
-</deta
---- Generated 1446 lines for 1348 commands ---
-
+</details>

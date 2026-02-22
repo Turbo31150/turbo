@@ -1127,4 +1127,129 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
         "repare le systeme", "system repair", "fix windows",
         "restaure les fichiers systeme",
     ], "pipeline", "powershell:DISM /Online /Cleanup-Image /CheckHealth 2>&1 | Out-String;;powershell:sfc /verifyonly 2>&1 | Select -Last 3 | Out-String;;powershell:\"Verification systeme terminee — lancez 'sfc /scannow' si necessaire\"", confirm=True),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 26 — FULL STACK DEPLOY
+    # Scénario: Build, test et déploiement complet d'un projet
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_fullstack_build", "pipeline", "Build complet: lint + tests + build + rapport", [
+        "build complet du projet", "full build", "lance tout le build",
+        "compile et teste tout",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff check src/ --output-format=concise 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m pytest tests/ -x --tb=short 2>&1 | Select -Last 15 | Out-String;;powershell:\"Build complet termine\""),
+    JarvisCommand("sim_deploy_check", "pipeline", "Pre-deploy: git status + tests + deps check + commit", [
+        "check avant deploiement", "pre deploy check", "pret pour deployer",
+        "verifie avant push",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git status -sb 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m pytest tests/ -x --tb=line 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' pip check 2>&1 | Out-String;;powershell:\"Pre-deploy check termine — pret pour push\""),
+    JarvisCommand("sim_git_release", "pipeline", "Release: tag + changelog + push tags", [
+        "fais une release", "prepare la release", "git release",
+        "nouvelle version",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; $v = git describe --tags --abbrev=0 2>$null; if($v){\"Derniere version: $v\"}else{\"Aucun tag existant\"};;powershell:cd F:\\BUREAU\\turbo; git log --oneline -10 2>&1 | Out-String;;powershell:\"Pret pour tagging — utilisez 'git tag vX.Y.Z' puis 'git push --tags'\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 27 — API TESTING SESSION
+    # Scénario: Session complète de test d'API
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_api_test_session", "pipeline", "Session API: Postman + docs + terminal HTTP", [
+        "session test api", "teste les apis", "ouvre le setup api",
+        "api testing session",
+    ], "pipeline", "browser:navigate:https://web.postman.co;;sleep:2;;browser:navigate:https://httpbin.org;;sleep:1;;app_open:wt;;powershell:\"Session API testing ouverte — Postman + HTTPBin + Terminal\""),
+    JarvisCommand("sim_api_endpoints_check", "pipeline", "Verifier tous les endpoints locaux (cluster)", [
+        "check tous les endpoints", "verifie les apis du cluster",
+        "test endpoints locaux", "status des apis",
+    ], "pipeline", "powershell:try{$r=Invoke-WebRequest http://127.0.0.1:11434/api/tags -UseBasicParsing -TimeoutSec 3; \"OL1: OK ($($r.StatusCode))\"}catch{\"OL1: OFFLINE\"};;powershell:try{$r=Invoke-WebRequest http://192.168.1.26:1234/api/v1/models -Headers @{Authorization='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -UseBasicParsing -TimeoutSec 3; \"M2: OK ($($r.StatusCode))\"}catch{\"M2: OFFLINE\"};;powershell:try{$r=Invoke-WebRequest http://192.168.1.113:1234/api/v1/models -UseBasicParsing -TimeoutSec 3; \"M3: OK ($($r.StatusCode))\"}catch{\"M3: OFFLINE\"};;powershell:try{$r=Invoke-WebRequest http://10.5.0.2:1234/api/v1/models -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -UseBasicParsing -TimeoutSec 3; \"M1: OK ($($r.StatusCode))\"}catch{\"M1: OFFLINE\"};;powershell:\"Endpoints check termine\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 28 — SOCIAL MEDIA MANAGER
+    # Scénario: Ouvrir tous les réseaux sociaux + analytics
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_social_all", "pipeline", "Ouvrir tous les reseaux sociaux", [
+        "ouvre tous les reseaux sociaux", "social media complet",
+        "lance tous les socials", "ouvre tout social",
+    ], "pipeline", "browser:navigate:https://x.com;;sleep:1;;browser:navigate:https://www.linkedin.com;;sleep:1;;browser:navigate:https://www.instagram.com;;sleep:1;;browser:navigate:https://www.reddit.com;;sleep:1;;browser:navigate:https://www.tiktok.com;;powershell:\"5 reseaux sociaux ouverts\""),
+    JarvisCommand("sim_content_creation", "pipeline", "Setup creation contenu: Canva + Unsplash + notes", [
+        "setup creation contenu", "je vais creer du contenu",
+        "mode creation", "prepare la creation",
+    ], "pipeline", "browser:navigate:https://www.canva.com;;sleep:2;;browser:navigate:https://unsplash.com;;sleep:1;;app_open:notepad;;powershell:\"Setup creation de contenu pret — Canva + Unsplash + Notes\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 29 — DESIGN WORKFLOW
+    # Scénario: Session de design UI/UX complète
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_design_session", "pipeline", "Session design: Figma + Dribbble + Coolors + Font Awesome", [
+        "session design", "mode design", "lance le design",
+        "ouvre les outils design",
+    ], "pipeline", "browser:navigate:https://www.figma.com;;sleep:2;;browser:navigate:https://dribbble.com;;sleep:1;;browser:navigate:https://coolors.co;;sleep:1;;browser:navigate:https://fontawesome.com/icons;;powershell:\"Session design ouverte — Figma + Dribbble + Coolors + FontAwesome\""),
+    JarvisCommand("sim_ui_inspiration", "pipeline", "Inspiration UI: Dribbble + Behance + Awwwards", [
+        "inspiration ui", "inspiration design", "montre moi du beau",
+        "idees design",
+    ], "pipeline", "browser:navigate:https://dribbble.com;;sleep:1;;browser:navigate:https://www.behance.net;;sleep:1;;browser:navigate:https://www.awwwards.com;;powershell:\"3 sources d'inspiration ouvertes\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 30 — SYSTEM OPTIMIZATION
+    # Scénario: Optimisation complète du système Windows
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_optimize_full", "pipeline", "Optimisation: temp + startup + services + defrag check", [
+        "optimise le systeme", "full optimization", "accelere le pc",
+        "optimisation complete",
+    ], "pipeline", "powershell:$tmp = (Get-ChildItem $env:TEMP -Recurse -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum / 1MB; \"Temp: $([math]::Round($tmp))MB\";;powershell:Get-CimInstance Win32_StartupCommand | Select Name, Command | Format-Table | Out-String;;powershell:Get-Service | Where { $_.StartType -eq 'Automatic' -and $_.Status -ne 'Running' } | Select Name, Status | Format-Table | Out-String;;powershell:defrag C: /A 2>&1 | Out-String;;powershell:\"Analyse d'optimisation terminee\""),
+    JarvisCommand("sim_cleanup_aggressive", "pipeline", "Nettoyage agressif: temp + cache + logs + recycle bin", [
+        "nettoyage agressif", "nettoie tout a fond", "libere maximum",
+        "clean agressif",
+    ], "pipeline", "powershell:Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; \"Temp nettoye\";;powershell:Remove-Item \"$env:LOCALAPPDATA\\Microsoft\\Windows\\Explorer\\thumbcache_*\" -Force -ErrorAction SilentlyContinue; \"Thumbnail cache nettoye\";;powershell:Clear-RecycleBin -Force -ErrorAction SilentlyContinue; \"Corbeille videe\";;powershell:\"Nettoyage agressif termine\"", confirm=True),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 31 — LEARNING SESSION
+    # Scénario: Session d'apprentissage et formation
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_learn_coding", "pipeline", "Learning code: YouTube + MDN + W3Schools + exercism", [
+        "session apprentissage code", "je veux apprendre", "mode apprentissage",
+        "lance la formation",
+    ], "pipeline", "browser:navigate:https://www.youtube.com;;sleep:1;;browser:navigate:https://developer.mozilla.org;;sleep:1;;browser:navigate:https://www.w3schools.com;;sleep:1;;browser:navigate:https://exercism.org;;powershell:\"Session apprentissage code ouverte — 4 ressources\""),
+    JarvisCommand("sim_learn_ai", "pipeline", "Learning IA: HuggingFace + Papers + Cours + Playground", [
+        "session apprentissage ia", "apprendre le machine learning",
+        "mode apprentissage ia", "formation ia",
+    ], "pipeline", "browser:navigate:https://huggingface.co/learn;;sleep:1;;browser:navigate:https://arxiv.org/list/cs.AI/recent;;sleep:1;;browser:navigate:https://www.coursera.org/browse/data-science/machine-learning;;sleep:1;;browser:navigate:https://playground.tensorflow.org;;powershell:\"Session apprentissage IA ouverte — 4 ressources\""),
+    JarvisCommand("sim_pomodoro_25", "pipeline", "Pomodoro 25min: timer + focus assist + notification", [
+        "lance un pomodoro", "pomodoro 25 minutes", "timer pomodoro",
+        "focus 25 minutes",
+    ], "pipeline", "powershell:Add-Type -AssemblyName System.Speech; (New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak('Pomodoro demarre, 25 minutes');;ms_settings:quiethours;;powershell:Start-Sleep -Seconds 1500; Add-Type -AssemblyName PresentationFramework; [System.Windows.MessageBox]::Show('Pomodoro termine! Prends une pause de 5 minutes.', 'JARVIS Pomodoro');;powershell:\"Pomodoro 25min lance\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 32 — BACKUP STRATEGY
+    # Scénario: Sauvegarde complète du projet et données
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_backup_turbo", "pipeline", "Backup turbo: git bundle + zip data + rapport", [
+        "backup le projet", "sauvegarde turbo", "backup complet",
+        "fais un backup",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git bundle create F:\\BUREAU\\turbo_backup_$(Get-Date -Format yyyyMMdd).bundle --all 2>&1 | Out-String;;powershell:Compress-Archive -Path F:\\BUREAU\\turbo\\data -DestinationPath F:\\BUREAU\\turbo_data_backup_$(Get-Date -Format yyyyMMdd).zip -Force; \"Data backup cree\";;powershell:\"Backup turbo termine — bundle git + zip data\""),
+    JarvisCommand("sim_backup_verify", "pipeline", "Verifier les backups: taille + date + integrite", [
+        "verifie les backups", "check les sauvegardes", "status backup",
+        "les backups sont ok",
+    ], "pipeline", "powershell:Get-ChildItem F:\\BUREAU\\turbo_backup_*.bundle -ErrorAction SilentlyContinue | Select Name, @{N='Size(MB)';E={[math]::Round($_.Length/1MB,1)}}, LastWriteTime | Format-Table | Out-String;;powershell:Get-ChildItem F:\\BUREAU\\turbo_data_backup_*.zip -ErrorAction SilentlyContinue | Select Name, @{N='Size(MB)';E={[math]::Round($_.Length/1MB,1)}}, LastWriteTime | Format-Table | Out-String;;powershell:\"Verification backups terminee\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 33 — MORNING PRODUCTIVITY
+    # Scénario: Routine matinale complète de productivité
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_morning_routine", "pipeline", "Routine matin: meteo + news + mails + cluster + standup", [
+        "routine du matin", "bonjour jarvis", "demarre la journee",
+        "morning routine",
+    ], "pipeline", "browser:navigate:https://www.meteofrance.com;;sleep:1;;browser:navigate:https://news.google.com;;sleep:1;;browser:navigate:https://mail.google.com;;sleep:2;;powershell:try{$r=Invoke-WebRequest http://127.0.0.1:11434/api/tags -UseBasicParsing -TimeoutSec 3; \"OL1: OK\"}catch{\"OL1: OFF\"};;powershell:cd F:\\BUREAU\\turbo; git log --since='yesterday' --oneline 2>&1 | Out-String;;powershell:\"Routine matinale complete — bonne journee!\""),
+    JarvisCommand("sim_evening_shutdown", "pipeline", "Routine soir: git status + save + clear temp + veille", [
+        "routine du soir", "bonsoir jarvis", "fin de journee",
+        "evening routine",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git status -sb 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; git stash 2>&1 | Out-String;;powershell:Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; \"Temp nettoye\";;powershell:\"Fin de journee — travail sauvegarde, systeme propre\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 34 — FREELANCE WORKSPACE
+    # Scénario: Setup complet pour du travail freelance
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_freelance_setup", "pipeline", "Setup freelance: Malt + factures + timer + mail", [
+        "mode freelance", "setup freelance", "session freelance",
+        "je travaille en freelance",
+    ], "pipeline", "browser:navigate:https://www.malt.fr;;sleep:1;;browser:navigate:https://mail.google.com;;sleep:1;;app_open:wt;;powershell:\"Setup freelance pret — Malt + Mail + Terminal\""),
+    JarvisCommand("sim_client_meeting", "pipeline", "Prep meeting client: Teams + notes + projet + timer", [
+        "prepare le meeting client", "meeting client", "reunion client",
+        "appel client",
+    ], "pipeline", "app_open:ms-teams;;sleep:3;;app_open:notepad;;sleep:1;;powershell:cd F:\\BUREAU\\turbo; git log --oneline -5 2>&1 | Out-String;;powershell:\"Meeting client prepare — Teams + Notes + Status projet\""),
 ]

@@ -1,16 +1,16 @@
-Generated 1450 lines, 180579 chars
-1348 commandes documentees, 226 pipelines
-026-02-22 | Voice Pipeline v2
+# Commandes Vocales JARVIS - Reference Complete
 
-**1348 commandes** au total, dont **226 pipelines** multi-etapes, reparties en **14 categories**.
+> Mise a jour automatique: 2026-02-22 | Voice Pipeline v2
+
+**1497 commandes** au total, dont **246 pipelines** multi-etapes, reparties en **14 categories**.
 
 | Categorie | Nombre |
 |-----------|--------|
-| Systeme Windows | 560 |
-| Navigation Web | 226 |
-| Pipelines Multi-Etapes | 226 |
-| Developpement & Outils | 184 |
-| Fichiers & Documents | 39 |
+| Systeme Windows | 601 |
+| Navigation Web | 272 |
+| Pipelines Multi-Etapes | 246 |
+| Developpement & Outils | 218 |
+| Fichiers & Documents | 47 |
 | Applications | 23 |
 | Trading & IA | 19 |
 | Fenetres Windows | 13 |
@@ -20,7 +20,7 @@ Generated 1450 lines, 180579 chars
 | Accessibilite | 10 |
 | Controle Media | 7 |
 | Saisie & Texte | 4 |
-| **TOTAL** | **1348** |
+| **TOTAL** | **1497** |
 
 ---
 
@@ -256,12 +256,32 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | sim_trading_session | "session trading complete" | Web: https://futures.mexc.com > pause 3s > Web: https://www.tradingview.com > pause 2s > Ouvrir wt > pause 1s > cd F:... |
 | sim_post_crash_recovery | "recovery apres crash" | Get-PhysicalDisk | Select FriendlyName, HealthStat... > Get-WinEvent -FilterHashtable @{LogName='System';L... > Get-S... |
 | sim_repair_system | "repare le systeme" | DISM /Online /Cleanup-Image /CheckHealth 2>&1 | Out-String > sfc /verifyonly 2>&1 | Select -Last 3 | Out-String > "Ve... (confirm) |
+| sim_fullstack_build | "build complet du projet" | cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > "Buil... |
+| sim_deploy_check | "check avant deploiement" | cd F:\BUREAU\turbo; git status -sb 2>&1 | Out-String > cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:\... |
+| sim_git_release | "fais une release" | cd F:\BUREAU\turbo; $v = git describe --tags --abb... > cd F:\BUREAU\turbo; git log --oneline -10 2>&1 | Out-String >... |
+| sim_api_test_session | "session test api" | Web: https://web.postman.co > pause 2s > Web: https://httpbin.org > pause 1s > Ouvrir wt > "Session API testing ouver... |
+| sim_api_endpoints_check | "check tous les endpoints" | try{$r=Invoke-WebRequest http://127.0.0.1:11434/ap... > try{$r=Invoke-WebRequest http://192.168.1.26:1234/... > try{$... |
+| sim_social_all | "ouvre tous les reseaux sociaux" | Web: https://x.com > pause 1s > Web: https://www.linkedin.com > pause 1s > Web: https://www.instagram.com > pause 1s ... |
+| sim_content_creation | "setup creation contenu" | Web: https://www.canva.com > pause 2s > Web: https://unsplash.com > pause 1s > Ouvrir notepad > "Setup creation de co... |
+| sim_design_session | "session design" | Web: https://www.figma.com > pause 2s > Web: https://dribbble.com > pause 1s > Web: https://coolors.co > pause 1s > W... |
+| sim_ui_inspiration | "inspiration ui" | Web: https://dribbble.com > pause 1s > Web: https://www.behance.net > pause 1s > Web: https://www.awwwards.com > "3 s... |
+| sim_optimize_full | "optimise le systeme" | $tmp = (Get-ChildItem $env:TEMP -Recurse -ErrorAct... > Get-CimInstance Win32_StartupCommand | Select Name... > Get-S... |
+| sim_cleanup_aggressive | "nettoyage agressif" | Remove-Item $env:TEMP\* -Recurse -Force -ErrorActi... > Remove-Item "$env:LOCALAPPDATA\Microsoft\Windows\E... > Clear... (confirm) |
+| sim_learn_coding | "session apprentissage code" | Web: https://www.youtube.com > pause 1s > Web: https://developer.mozilla.org > pause 1s > Web: https://www.w3schools.... |
+| sim_learn_ai | "session apprentissage ia" | Web: https://huggingface.co/learn > pause 1s > Web: https://arxiv.org/list/cs.AI/recent > pause 1s > Web: https://www... |
+| sim_pomodoro_25 | "lance un pomodoro" | Add-Type -AssemblyName System.Speech; (New-Object ... > Settings > Start-Sleep -Seconds 1500; Add-Type -AssemblyName ... |
+| sim_backup_turbo | "backup le projet" | cd F:\BUREAU\turbo; git bundle create F:\BUREAU\tu... > Compress-Archive -Path F:\BUREAU\turbo\data -Desti... > "Back... |
+| sim_backup_verify | "verifie les backups" | Get-ChildItem F:\BUREAU\turbo_backup_*.bundle -Err... > Get-ChildItem F:\BUREAU\turbo_data_backup_*.zip -E... > "Veri... |
+| sim_morning_routine | "routine du matin" | Web: https://www.meteofrance.com > pause 1s > Web: https://news.google.com > pause 1s > Web: https://mail.google.com ... |
+| sim_evening_shutdown | "routine du soir" | cd F:\BUREAU\turbo; git status -sb 2>&1 | Out-String > cd F:\BUREAU\turbo; git stash 2>&1 | Out-String > Remove-Item ... |
+| sim_freelance_setup | "mode freelance" | Web: https://www.malt.fr > pause 1s > Web: https://mail.google.com > pause 1s > Ouvrir wt > "Setup freelance pret — M... |
+| sim_client_meeting | "prepare le meeting client" | Ouvrir ms-teams > pause 3s > Ouvrir notepad > pause 1s > cd F:\BUREAU\turbo; git log --oneline -5 2>&1 | Out-String >... |
 
 ---
 
 ## Listing Complet par Categorie
 
-### Navigation Web (226 commandes)
+### Navigation Web (272 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -491,8 +511,54 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | ouvrir_doctissimo | Ouvrir Doctissimo (sante) | "ouvre doctissimo", "symptomes", "va sur doctissimo", +1 | browser |
 | chercher_github_repos | Rechercher un repo sur GitHub | "cherche un repo {requete}", "github repo {requete}", "projet github {requete}" | browser |
 | chercher_huggingface_models | Rechercher un modele sur Hugging Face | "cherche un modele {requete}", "huggingface model {requete}", "modele ia {requete}" | browser |
+| ouvrir_grafana_cloud | Ouvrir Grafana Cloud | "ouvre grafana", "va sur grafana", "dashboard grafana", +1 | browser |
+| ouvrir_datadog | Ouvrir Datadog | "ouvre datadog", "va sur datadog", "monitoring datadog", +1 | browser |
+| ouvrir_sentry | Ouvrir Sentry (error tracking) | "ouvre sentry", "va sur sentry", "erreurs sentry", +1 | browser |
+| ouvrir_pagerduty | Ouvrir PagerDuty (alerting) | "ouvre pagerduty", "alertes pagerduty", "on call pagerduty" | browser |
+| ouvrir_newrelic | Ouvrir New Relic (APM) | "ouvre new relic", "va sur newrelic", "performance newrelic", +1 | browser |
+| ouvrir_uptime_robot | Ouvrir UptimeRobot (monitoring) | "ouvre uptime robot", "status sites", "monitoring uptime" | browser |
+| ouvrir_prometheus_docs | Ouvrir la doc Prometheus | "doc prometheus", "prometheus documentation", "ouvre prometheus" | browser |
+| ouvrir_jenkins | Ouvrir Jenkins | "ouvre jenkins", "va sur jenkins", "builds jenkins" | browser |
+| ouvrir_circleci | Ouvrir CircleCI | "ouvre circleci", "circle ci", "builds circleci" | browser |
+| ouvrir_travis_ci | Ouvrir Travis CI | "ouvre travis", "travis ci", "builds travis" | browser |
+| ouvrir_gitlab_ci | Ouvrir GitLab CI/CD | "ouvre gitlab ci", "gitlab pipelines", "builds gitlab" | browser |
+| ouvrir_postman_web | Ouvrir Postman Web | "ouvre postman", "va sur postman", "test api postman", +1 | browser |
+| ouvrir_swagger_editor | Ouvrir Swagger Editor | "ouvre swagger", "swagger editor", "editeur openapi" | browser |
+| ouvrir_rapidapi | Ouvrir RapidAPI (marketplace API) | "ouvre rapidapi", "va sur rapidapi", "marketplace api", +1 | browser |
+| ouvrir_httpbin | Ouvrir HTTPBin (test HTTP) | "ouvre httpbin", "test http", "httpbin test" | browser |
+| ouvrir_reqbin | Ouvrir ReqBin (HTTP client en ligne) | "ouvre reqbin", "client http en ligne", "tester une requete" | browser |
+| ouvrir_malt | Ouvrir Malt (freelance FR) | "ouvre malt", "va sur malt", "freelance malt", +1 | browser |
+| ouvrir_fiverr | Ouvrir Fiverr | "ouvre fiverr", "va sur fiverr", "services fiverr" | browser |
+| ouvrir_upwork | Ouvrir Upwork | "ouvre upwork", "va sur upwork", "jobs upwork", +1 | browser |
+| ouvrir_welcome_jungle | Ouvrir Welcome to the Jungle (emploi tech) | "ouvre welcome to the jungle", "offres d'emploi tech", "welcome jungle", +1 | browser |
+| ouvrir_indeed | Ouvrir Indeed | "ouvre indeed", "va sur indeed", "offres d'emploi", +1 | browser |
+| ouvrir_uber_eats | Ouvrir Uber Eats | "ouvre uber eats", "commande uber eats", "uber eats", +1 | browser |
+| ouvrir_deliveroo | Ouvrir Deliveroo | "ouvre deliveroo", "commande deliveroo", "livraison deliveroo" | browser |
+| ouvrir_just_eat | Ouvrir Just Eat | "ouvre just eat", "commande just eat", "livraison just eat" | browser |
+| ouvrir_tf1_plus | Ouvrir TF1+ (replay TF1) | "ouvre tf1", "replay tf1", "tf1 plus", +1 | browser |
+| ouvrir_france_tv | Ouvrir France.tv (replay France TV) | "ouvre france tv", "replay france tv", "france television", +1 | browser |
+| ouvrir_arte_replay | Ouvrir Arte.tv (replay) | "ouvre arte", "replay arte", "arte tv", +1 | browser |
+| ouvrir_bfm_tv | Ouvrir BFM TV en direct | "ouvre bfm", "bfm tv", "info en direct", +1 | browser |
+| ouvrir_cnews | Ouvrir CNews | "ouvre cnews", "c news", "cnews en direct" | browser |
+| ouvrir_mediapart | Ouvrir Mediapart | "ouvre mediapart", "va sur mediapart", "articles mediapart" | browser |
+| ouvrir_trello | Ouvrir Trello | "ouvre trello", "va sur trello", "mes boards trello", +1 | browser |
+| ouvrir_asana | Ouvrir Asana | "ouvre asana", "va sur asana", "projets asana" | browser |
+| ouvrir_monday | Ouvrir Monday.com | "ouvre monday", "va sur monday", "monday com" | browser |
+| ouvrir_clickup | Ouvrir ClickUp | "ouvre clickup", "va sur clickup", "projets clickup" | browser |
+| ouvrir_darty | Ouvrir Darty | "ouvre darty", "va sur darty", "electromenager darty" | browser |
+| ouvrir_boulanger | Ouvrir Boulanger | "ouvre boulanger", "va sur boulanger", "electromenager boulanger" | browser |
+| ouvrir_leroy_merlin | Ouvrir Leroy Merlin (bricolage) | "ouvre leroy merlin", "bricolage", "va sur leroy merlin" | browser |
+| ouvrir_castorama | Ouvrir Castorama (bricolage) | "ouvre castorama", "va sur castorama", "bricolage castorama" | browser |
+| ouvrir_vinted | Ouvrir Vinted | "ouvre vinted", "va sur vinted", "vetements vinted" | browser |
+| ouvrir_revolut | Ouvrir Revolut | "ouvre revolut", "va sur revolut", "compte revolut" | browser |
+| ouvrir_n26 | Ouvrir N26 (banque en ligne) | "ouvre n26", "va sur n26", "banque n26" | browser |
+| ouvrir_bankin | Ouvrir Bankin (agrégateur comptes) | "ouvre bankin", "va sur bankin", "mes comptes bankin", +1 | browser |
+| ouvrir_dribbble | Ouvrir Dribbble (inspiration design) | "ouvre dribbble", "inspiration design", "va sur dribbble" | browser |
+| ouvrir_unsplash | Ouvrir Unsplash (photos libres) | "ouvre unsplash", "photos gratuites", "images libres", +1 | browser |
+| ouvrir_coolors | Ouvrir Coolors (palettes couleurs) | "ouvre coolors", "palette de couleurs", "generateur couleurs" | browser |
+| ouvrir_fontawesome | Ouvrir Font Awesome (icones) | "ouvre font awesome", "icones font awesome", "cherche une icone" | browser |
 
-### Fichiers & Documents (39 commandes)
+### Fichiers & Documents (47 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -535,6 +601,14 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | lister_fichiers_recents | Lister les 20 fichiers les plus recents sur le bureau | "fichiers recents", "derniers fichiers", "quoi de recent", +1 | powershell |
 | chercher_gros_fichiers | Trouver les fichiers > 100 MB sur F: | "gros fichiers partout", "fichiers enormes", "quoi prend toute la place", +1 | powershell |
 | doublons_bureau | Detecter les doublons potentiels par nom dans F:\BUREAU | "doublons bureau", "fichiers en double", "trouve les doublons", +2 | powershell |
+| taille_telechargements | Taille du dossier Telechargements | "taille telechargements", "poids downloads", "combien dans les telechargements", +1 | powershell |
+| vider_telechargements | Vider le dossier Telechargements (fichiers > 30 jours) | "vide les telechargements", "nettoie les downloads", "clean downloads", +1 | powershell |
+| lister_telechargements | Derniers fichiers telecharges | "derniers telechargements", "quoi de telecharge", "recent downloads", +1 | powershell |
+| ouvrir_telechargements | Ouvrir le dossier Telechargements | "ouvre les telechargements", "dossier downloads", "va dans les telechargements", +1 | powershell |
+| ouvrir_documents | Ouvrir le dossier Documents | "ouvre les documents", "dossier documents", "mes documents", +1 | powershell |
+| ouvrir_bureau_dossier | Ouvrir F:\BUREAU dans l'explorateur | "ouvre le bureau", "dossier bureau", "va dans bureau", +1 | powershell |
+| fichier_recent_modifie | Trouver le dernier fichier modifie partout | "dernier fichier modifie", "quoi vient de changer", "last modified", +1 | powershell |
+| compter_fichiers_type | Compter les fichiers par extension dans un dossier | "compte les fichiers par type", "extensions dans {path}", "quels types de fichiers dans {path}" | powershell |
 
 ### Applications (23 commandes)
 
@@ -612,7 +686,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | clipboard_historique | Ouvrir l'historique du presse-papier | "historique presse papier", "clipboard history", "ouvre l'historique clipboard", +2 | hotkey |
 | coller_sans_format | Coller sans mise en forme | "colle sans format", "coller sans mise en forme", "colle en texte brut", +1 | hotkey |
 
-### Systeme Windows (560 commandes)
+### Systeme Windows (601 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -1176,6 +1250,47 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | clipboard_en_minuscules | Convertir le texte du clipboard en minuscules | "clipboard en minuscules", "texte en minuscules", "lowercase clipboard", +1 | powershell |
 | clipboard_compter_mots | Compter les mots dans le presse-papier | "combien de mots copies", "word count clipboard", "compte les mots", +1 | powershell |
 | clipboard_trim | Nettoyer les espaces du texte clipboard | "nettoie le clipboard", "trim clipboard", "enleve les espaces", +1 | powershell |
+| param_camera | Parametres de confidentialite camera | "parametres camera", "privacy camera", "autoriser la camera", +1 | powershell |
+| param_microphone | Parametres de confidentialite microphone | "parametres microphone", "privacy micro", "autoriser le micro", +1 | powershell |
+| param_localisation | Parametres de localisation/GPS | "parametres localisation", "privacy location", "active le gps", +2 | powershell |
+| param_gaming | Parametres de jeu Windows | "parametres gaming", "game settings", "mode jeu settings", +2 | powershell |
+| param_comptes | Parametres des comptes utilisateur | "parametres comptes", "account settings", "gerer les comptes", +1 | powershell |
+| param_connexion | Parametres de connexion (PIN, mot de passe) | "options de connexion", "sign in options", "changer le pin", +2 | powershell |
+| param_apps_defaut | Parametres des apps par defaut | "apps par defaut", "default apps", "navigateur par defaut", +1 | powershell |
+| param_fonctionnalites_optionnelles | Fonctionnalites optionnelles Windows | "fonctionnalites optionnelles", "optional features", "ajouter une fonctionnalite", +1 | powershell |
+| param_souris | Parametres de la souris | "parametres souris", "mouse settings", "vitesse souris", +1 | powershell |
+| param_clavier | Parametres du clavier | "parametres clavier", "keyboard settings", "vitesse clavier", +1 | powershell |
+| param_phone_link | Ouvrir Phone Link (connexion telephone) | "phone link", "lien telephone", "connecter mon telephone", +1 | powershell |
+| param_notifications_apps | Parametres notifications par application | "notifications par app", "gerer les notifications", "notifs par app", +1 | powershell |
+| param_multitache | Parametres multitache (snap, bureaux virtuels) | "parametres multitache", "multitasking settings", "snap settings", +1 | powershell |
+| param_stockage | Parametres de stockage (espace disque) | "parametres stockage", "storage settings", "gestion stockage", +1 | powershell |
+| param_proxy | Parametres de proxy reseau | "parametres proxy", "proxy settings", "configurer le proxy", +1 | powershell |
+| param_vpn_settings | Parametres VPN Windows | "parametres vpn", "vpn settings", "configurer le vpn", +1 | powershell |
+| param_wifi_settings | Parametres WiFi avances | "parametres wifi", "wifi settings", "reseaux connus", +1 | powershell |
+| param_update_avance | Parametres Windows Update avances | "update avance", "windows update settings", "options de mise a jour", +1 | powershell |
+| param_recovery | Options de recuperation systeme | "recovery options", "reinitialiser le pc", "restauration systeme", +1 | powershell |
+| param_developeurs | Parametres developpeur Windows | "mode developpeur", "developer settings", "active le mode dev", +1 | powershell |
+| calculatrice_standard | Ouvrir la calculatrice Windows | "ouvre la calculatrice", "calculatrice", "calc", +1 | powershell |
+| calculer_expression | Calculer une expression mathematique | "calcule {expr}", "combien fait {expr}", "resultat de {expr}", +1 | powershell |
+| convertir_temperature | Convertir Celsius en Fahrenheit et inversement | "convertis {temp} degres", "celsius en fahrenheit {temp}", "fahrenheit en celsius {temp}", +1 | powershell |
+| convertir_octets | Convertir des octets en unites lisibles | "convertis {bytes} octets", "combien de go fait {bytes}", "bytes en gb {bytes}", +1 | powershell |
+| clipboard_base64_encode | Encoder le clipboard en Base64 | "encode en base64", "base64 encode", "clipboard en base64", +1 | powershell |
+| clipboard_base64_decode | Decoder le clipboard depuis Base64 | "decode le base64", "base64 decode", "clipboard depuis base64", +1 | powershell |
+| clipboard_url_encode | Encoder le clipboard en URL (percent-encode) | "url encode", "encode l'url", "percent encode", +1 | powershell |
+| clipboard_json_format | Formatter le JSON du clipboard avec indentation | "formate le json", "json pretty", "indente le json", +1 | powershell |
+| clipboard_md5 | Calculer le MD5 du texte dans le clipboard | "md5 du clipboard", "hash md5 texte", "md5 du texte copie", +1 | powershell |
+| clipboard_sort_lines | Trier les lignes du clipboard par ordre alphabetique | "trie les lignes", "sort lines clipboard", "ordonne le clipboard", +1 | powershell |
+| clipboard_unique_lines | Supprimer les lignes dupliquees du clipboard | "deduplique les lignes", "unique lines", "enleve les doublons texte", +1 | powershell |
+| clipboard_reverse | Inverser le texte du clipboard | "inverse le texte", "reverse clipboard", "texte a l'envers", +1 | powershell |
+| power_performance | Activer le plan d'alimentation Haute Performance | "mode performance", "high performance", "pleine puissance", +2 | powershell |
+| power_equilibre | Activer le plan d'alimentation Equilibre | "mode equilibre", "balanced power", "plan normal", +1 | powershell |
+| power_economie | Activer le plan d'alimentation Economie d'energie | "mode economie", "power saver", "economie energie", +2 | powershell |
+| power_plans_list | Lister les plans d'alimentation disponibles | "quels plans alimentation", "power plans", "modes d'alimentation disponibles", +1 | powershell |
+| sleep_timer_30 | Mettre le PC en veille dans 30 minutes | "veille dans 30 minutes", "sleep dans 30 min", "dors dans une demi heure", +1 | powershell |
+| network_reset | Reset complet de la pile reseau Windows | "reset reseau", "reinitialise le reseau", "network reset", +1 | powershell |
+| network_troubleshoot | Lancer le depanneur reseau Windows | "depanne le reseau", "network troubleshoot", "diagnostic reseau windows", +1 | powershell |
+| arp_table | Afficher la table ARP (machines sur le reseau local) | "table arp", "machines sur le reseau", "arp -a", +1 | powershell |
+| nslookup_domain | Resoudre un nom de domaine (nslookup) | "nslookup {domain}", "resous {domain}", "ip de {domain}", +1 | powershell |
 
 ### Trading & IA (19 commandes)
 
@@ -1201,7 +1316,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | cluster_health | Health check rapide du cluster IA | "health check cluster", "verifie le cluster ia", "est ce que le cluster va bien", +3 | powershell |
 | ollama_running | Modeles Ollama actuellement en memoire | "quels modeles ollama tournent", "ollama running", "modeles en memoire ollama", +1 | powershell |
 
-### Developpement & Outils (184 commandes)
+### Developpement & Outils (218 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -1389,6 +1504,40 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | port_in_use | Trouver quel processus utilise un port | "qui utilise le port {port}", "port {port} occupe", "process sur port {port}", +1 | powershell |
 | env_var_get | Lire une variable d'environnement | "variable {var}", "env {var}", "valeur de {var}", +1 | powershell |
 | tree_turbo | Arborescence du projet turbo (2 niveaux) | "arborescence turbo", "tree turbo", "structure du projet", +1 | powershell |
+| gh_create_issue | Creer une issue GitHub | "cree une issue {titre}", "nouvelle issue {titre}", "github issue {titre}", +1 | powershell |
+| gh_list_issues | Lister les issues GitHub ouvertes | "liste les issues", "issues ouvertes", "github issues", +1 | powershell |
+| gh_list_prs | Lister les pull requests GitHub | "liste les pr", "pull requests", "github prs", +1 | powershell |
+| gh_view_pr | Voir les details d'une PR | "montre la pr {num}", "detail pr {num}", "github pr {num}", +1 | powershell |
+| gh_pr_checks | Voir les checks d'une PR | "checks de la pr {num}", "status pr {num}", "ci pr {num}", +1 | powershell |
+| gh_repo_view | Voir les infos du repo GitHub courant | "info du repo", "github repo info", "details du repo", +1 | powershell |
+| gh_workflow_list | Lister les workflows GitHub Actions | "workflows github", "github actions", "liste les workflows", +1 | powershell |
+| gh_release_list | Lister les releases GitHub | "releases github", "liste les releases", "versions publiees", +1 | powershell |
+| go_build | Compiler un projet Go | "go build", "compile en go", "build le projet go" | powershell |
+| go_test | Lancer les tests Go | "go test", "tests go", "lance les tests go", +1 | powershell |
+| go_fmt | Formater le code Go | "go fmt", "formate le go", "gofmt" | powershell |
+| go_mod_tidy | Nettoyer les dependances Go | "go mod tidy", "nettoie les deps go", "clean go modules" | powershell |
+| venv_create | Creer un environnement virtuel Python | "cree un venv", "nouveau virtualenv", "python venv", +1 | powershell |
+| venv_activate | Activer le virtualenv courant | "active le venv", "activate venv", "source venv" | powershell |
+| conda_list_envs | Lister les environnements Conda | "conda envs", "liste les envs conda", "quels environnements conda" | powershell |
+| conda_install_pkg | Installer un package Conda | "conda install {package}", "installe avec conda {package}" | powershell |
+| curl_get | Faire un GET sur une URL | "curl get {url}", "requete get {url}", "test api {url}", +1 | powershell |
+| curl_post_json | Faire un POST JSON sur une URL | "curl post {url}", "post json {url}", "envoie a {url}" | powershell |
+| api_health_check | Verifier si une API repond (ping HTTP) | "ping api {url}", "api en ligne {url}", "health check {url}", +1 | powershell |
+| api_response_time | Mesurer le temps de reponse d'une URL | "temps de reponse {url}", "latence de {url}", "speed test {url}" | powershell |
+| lint_ruff_check | Linter Python avec Ruff | "ruff check", "lint python", "verifie le code python", +1 | powershell |
+| lint_ruff_fix | Auto-fixer les erreurs Ruff | "ruff fix", "fixe le lint", "corrige ruff", +1 | powershell |
+| format_black | Formater Python avec Black | "black format", "formate avec black", "black le code" | powershell |
+| lint_mypy | Verifier les types Python avec mypy | "mypy check", "verifie les types", "type check python", +1 | powershell |
+| lint_eslint | Linter JavaScript avec ESLint | "eslint", "lint javascript", "verifie le js", +1 | powershell |
+| format_prettier | Formater JS/TS avec Prettier | "prettier format", "formate avec prettier", "prettier le code" | powershell |
+| logs_turbo | Voir les derniers logs JARVIS | "logs jarvis", "dernieres logs", "montre les logs", +1 | powershell |
+| logs_windows_errors | Voir les erreurs recentes Windows | "erreurs windows", "logs erreurs systeme", "event log errors", +1 | powershell |
+| logs_clear_turbo | Vider les logs JARVIS | "vide les logs", "efface les logs", "clear les logs", +1 | powershell |
+| logs_search | Chercher dans les logs JARVIS | "cherche dans les logs {pattern}", "grep les logs {pattern}", "logs contenant {pattern}" | powershell |
+| netstat_listen | Voir les ports en ecoute | "ports en ecoute", "quels ports ouverts", "netstat listen", +1 | powershell |
+| whois_domain | Whois d'un domaine | "whois {domaine}", "info domaine {domaine}", "proprietaire de {domaine}" | powershell |
+| ssl_check | Verifier le certificat SSL d'un site | "check ssl {domaine}", "certificat ssl {domaine}", "expire quand {domaine}", +1 | powershell |
+| dns_lookup | Resoudre un domaine (DNS lookup complet) | "dns {domaine}", "resoudre {domaine}", "ip de {domaine}", +1 | powershell |
 
 ### Controle JARVIS (12 commandes)
 
