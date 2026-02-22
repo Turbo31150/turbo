@@ -2,14 +2,14 @@
 
 > Mise a jour automatique: 2026-02-22 | Voice Pipeline v2
 
-**720 commandes** au total, dont **108 pipelines** multi-etapes, reparties en **14 categories**.
+**812 commandes** au total, dont **132 pipelines** multi-etapes, reparties en **14 categories**.
 
 | Categorie | Nombre |
 |-----------|--------|
-| Systeme Windows | 303 |
-| Pipelines Multi-Etapes | 108 |
-| Navigation Web | 93 |
-| Developpement & Outils | 71 |
+| Systeme Windows | 321 |
+| Pipelines Multi-Etapes | 132 |
+| Navigation Web | 118 |
+| Developpement & Outils | 96 |
 | Fichiers & Documents | 32 |
 | Applications | 23 |
 | Trading & IA | 19 |
@@ -20,7 +20,7 @@
 | Accessibilite | 10 |
 | Controle Media | 7 |
 | Saisie & Texte | 4 |
-| **TOTAL** | **720** |
+| **TOTAL** | **812** |
 
 ---
 
@@ -138,12 +138,36 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | mode_detox_digital | "detox digitale" | Stop-Process -Name 'chrome','msedge','discord','te... > pause 1s > MinimizeAll > pause 1s > Start-Process ms-settings... (confirm) |
 | mode_musique_travail | "musique de travail" | Ouvrir spotify > pause 1s > Settings |
 | check_tout_rapide | "check tout rapide" | $m2 = try{(Invoke-WebRequest -Uri 'http://192.168.... > $os = Get-CimInstance Win32_OperatingSystem; $ram ... > nvidi... |
+| mode_hackathon | "mode hackathon" | Ouvrir code > pause 1s > Ouvrir wt > pause 1s > Web: https://github.com > pause 1s > Web: https://claude.ai > $end = ... |
+| mode_data_science | "mode data science" | Ouvrir wt > pause 1s > Web: https://www.kaggle.com > pause 1s > Web: https://docs.python.org/3/ > pause 1s > Web: htt... |
+| mode_devops | "mode devops" | Ouvrir wt > pause 1s > Web: http://127.0.0.1:8080 > pause 1s > Web: https://github.com > docker ps --format 'table {{... |
+| mode_securite_audit | "mode securite" | Ouvrir wt > pause 1s > Get-MpComputerStatus | Select AntivirusEnabled, Re... > Get-NetTCPConnection -State Listen | G... |
+| mode_trading_scalp | "mode scalping" | Web: https://www.tradingview.com/chart/?symbol=BINANCE:BTCUSDT > pause 1s > Web: https://www.mexc.com/exchange/BTC_US... |
+| routine_midi | "routine midi" | MinimizeAll > pause 1s > Web: https://news.google.com > pause 1s > Web: https://www.tradingview.com > pause 1s > Ouvr... |
+| routine_nuit_urgence | "urgence nuit" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Eme... > pause 1s > MinimizeAll > Lock PC > pause 2s > Veille (confirm) |
+| setup_meeting_rapide | "meeting rapide" | Stop-Process -Name 'spotify' -Force -ErrorAction S... > MinimizeAll > pause 1s > Settings > pause 1s > Ouvrir discord |
+| mode_veille_tech | "veille tech" | Web: https://news.ycombinator.com > pause 1s > Web: https://dev.to > pause 1s > Web: https://www.producthunt.com > pa... |
+| mode_freelance | "mode freelance" | Web: https://mail.google.com > pause 1s > Web: https://calendar.google.com > pause 1s > Web: https://www.notion.so > ... |
+| mode_debug_production | "debug production" | Ouvrir wt > pause 1s > Web: http://127.0.0.1:8080 > pause 1s > Get-WinEvent -FilterHashtable @{LogName='Applicati... ... |
+| mode_apprentissage_code | "mode apprentissage code" | Web: https://leetcode.com > pause 1s > Ouvrir code > pause 1s > Web: https://docs.python.org/3/ > $end = (Get-Date).A... |
+| mode_tutorial | "mode tutorial" | Web: https://www.youtube.com > pause 1s > Ouvrir code > pause 1s > Ouvrir wt > pause 1s > Web: https://developer.mozi... |
+| mode_backup_total | "backup total" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Ful... > cd F:\BUREAU\carV1; if(Test-Path .git){git add -A;... > cd F:... (confirm) |
+| ouvre_dashboards_trading | "tous les dashboards trading" | Web: https://www.tradingview.com > pause 1s > Web: https://www.mexc.com/exchange/BTC_USDT > pause 1s > Web: https://w... |
+| mode_photo_edit | "mode photo" | Ouvrir mspaint > pause 1s > Web: https://www.pinterest.com > pause 1s > Web: https://www.canva.com |
+| mode_writing | "mode ecriture" | MinimizeAll > pause 1s > Start-Process ms-settings:nightlight > pause 1s > Settings > pause 1s > Web: https://docs.go... |
+| mode_video_marathon | "mode marathon" | MinimizeAll > pause 1s > Start-Process ms-settings:nightlight > pause 1s > Web: https://www.netflix.com > pause 2s > ... |
+| ouvre_kaggle_comet | "ouvre kaggle sur comet" | Comet: https://www.kaggle.com |
+| ouvre_arxiv_comet | "ouvre arxiv sur comet" | Comet: https://arxiv.org |
+| ouvre_notion_comet | "ouvre notion sur comet" | Comet: https://www.notion.so |
+| ouvre_stackoverflow_comet | "ouvre stackoverflow sur comet" | Comet: https://stackoverflow.com |
+| ouvre_medium_comet | "ouvre medium sur comet" | Comet: https://medium.com |
+| ouvre_gmail_comet | "ouvre gmail sur comet" | Comet: https://mail.google.com |
 
 ---
 
 ## Listing Complet par Categorie
 
-### Navigation Web (93 commandes)
+### Navigation Web (118 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -240,6 +264,31 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | chercher_google_scholar | Rechercher sur Google Scholar | "cherche sur scholar {requete}", "article sur {requete}", "recherche academique {requete}", +1 | browser |
 | chercher_huggingface | Rechercher un modele sur Hugging Face | "cherche sur hugging face {requete}", "modele {requete} huggingface", "hugging face {requete}" | browser |
 | chercher_docker_hub | Rechercher une image Docker Hub | "cherche sur docker hub {requete}", "image docker {requete}", "docker hub {requete}" | browser |
+| ouvrir_gmail_web | Ouvrir Gmail | "ouvre gmail", "va sur gmail", "lance gmail", +2 | browser |
+| ouvrir_google_keep | Ouvrir Google Keep (notes) | "ouvre google keep", "ouvre keep", "lance keep", +2 | browser |
+| ouvrir_google_photos | Ouvrir Google Photos | "ouvre google photos", "va sur google photos", "mes photos", +2 | browser |
+| ouvrir_google_meet | Ouvrir Google Meet | "ouvre google meet", "lance meet", "google meet", +2 | browser |
+| ouvrir_deepl | Ouvrir DeepL Traducteur | "ouvre deepl", "va sur deepl", "lance deepl", +2 | browser |
+| ouvrir_wayback_machine | Ouvrir la Wayback Machine (archive web) | "ouvre wayback machine", "wayback machine", "archive internet", +2 | browser |
+| ouvrir_codepen | Ouvrir CodePen | "ouvre codepen", "va sur codepen", "lance codepen", +2 | browser |
+| ouvrir_jsfiddle | Ouvrir JSFiddle | "ouvre jsfiddle", "va sur jsfiddle", "lance jsfiddle", +1 | browser |
+| ouvrir_dev_to | Ouvrir dev.to (communaute dev) | "ouvre dev to", "va sur dev to", "lance dev.to", +2 | browser |
+| ouvrir_medium | Ouvrir Medium | "ouvre medium", "va sur medium", "lance medium", +1 | browser |
+| ouvrir_hacker_news | Ouvrir Hacker News | "ouvre hacker news", "va sur hacker news", "lance hacker news", +2 | browser |
+| ouvrir_producthunt | Ouvrir Product Hunt | "ouvre product hunt", "va sur product hunt", "lance product hunt", +2 | browser |
+| ouvrir_coursera | Ouvrir Coursera | "ouvre coursera", "va sur coursera", "lance coursera", +2 | browser |
+| ouvrir_kaggle | Ouvrir Kaggle | "ouvre kaggle", "va sur kaggle", "lance kaggle", +2 | browser |
+| ouvrir_arxiv | Ouvrir arXiv (articles scientifiques) | "ouvre arxiv", "va sur arxiv", "lance arxiv", +2 | browser |
+| ouvrir_gitlab | Ouvrir GitLab | "ouvre gitlab", "va sur gitlab", "lance gitlab" | browser |
+| ouvrir_bitbucket | Ouvrir Bitbucket | "ouvre bitbucket", "va sur bitbucket", "lance bitbucket" | browser |
+| ouvrir_leetcode | Ouvrir LeetCode | "ouvre leetcode", "va sur leetcode", "lance leetcode", +2 | browser |
+| ouvrir_codewars | Ouvrir Codewars | "ouvre codewars", "va sur codewars", "lance codewars", +2 | browser |
+| chercher_deepl | Traduire via DeepL | "traduis avec deepl {requete}", "deepl {requete}", "traduction deepl {requete}", +1 | browser |
+| chercher_arxiv | Rechercher sur arXiv | "cherche sur arxiv {requete}", "arxiv {requete}", "paper sur {requete}", +1 | browser |
+| chercher_kaggle | Rechercher sur Kaggle | "cherche sur kaggle {requete}", "kaggle {requete}", "dataset {requete}", +1 | browser |
+| chercher_leetcode | Rechercher un probleme LeetCode | "cherche sur leetcode {requete}", "leetcode {requete}", "probleme {requete} leetcode" | browser |
+| chercher_medium | Rechercher sur Medium | "cherche sur medium {requete}", "medium {requete}", "article medium {requete}" | browser |
+| chercher_hacker_news | Rechercher sur Hacker News | "cherche sur hacker news {requete}", "hn {requete}", "hacker news {requete}" | browser |
 
 ### Fichiers & Documents (32 commandes)
 
@@ -354,7 +403,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | clipboard_historique | Ouvrir l'historique du presse-papier | "historique presse papier", "clipboard history", "ouvre l'historique clipboard", +2 | hotkey |
 | coller_sans_format | Coller sans mise en forme | "colle sans format", "coller sans mise en forme", "colle en texte brut", +1 | hotkey |
 
-### Systeme Windows (303 commandes)
+### Systeme Windows (321 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -661,6 +710,24 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | gpu_fan_speed | Vitesse des ventilateurs GPU | "ventilateurs gpu", "fans gpu", "vitesse fan gpu", +1 | powershell |
 | gpu_driver_version | Version du driver NVIDIA | "version driver nvidia", "driver gpu", "nvidia driver", +1 | powershell |
 | cluster_latence_detaillee | Latence detaillee de chaque noeud du cluster avec modeles | "latence detaillee cluster", "ping detaille cluster", "benchmark rapide cluster", +1 | powershell |
+| installed_apps_list | Lister les applications installees | "liste les applications", "apps installees", "quelles apps j'ai", +2 | powershell |
+| hotfix_history | Historique des correctifs Windows installes | "historique hotfix", "correctifs installes", "patches windows", +2 | powershell |
+| scheduled_tasks_active | Taches planifiees actives | "taches planifiees actives", "scheduled tasks", "quelles taches auto", +2 | powershell |
+| tpm_info | Informations sur le module TPM | "info tpm", "tpm status", "etat du tpm", +2 | powershell |
+| printer_list | Imprimantes installees et leur statut | "liste les imprimantes", "imprimantes installees", "quelles imprimantes", +2 | powershell |
+| startup_impact | Impact des programmes au demarrage sur le boot | "impact demarrage", "startup impact", "quoi ralentit le boot", +2 | powershell |
+| system_info_detaille | Infos systeme detaillees (OS, BIOS, carte mere) | "infos systeme detaillees", "system info", "details du pc", +2 | powershell |
+| ram_slots_detail | Details des barrettes RAM (type, vitesse, slots) | "details ram", "barrettes ram", "ram slots", +2 | powershell |
+| cpu_details | Details du processeur (coeurs, threads, frequence) | "details cpu", "info processeur", "specs cpu", +2 | powershell |
+| network_adapters_list | Adaptateurs reseau actifs et leur configuration | "adaptateurs reseau", "interfaces reseau", "network adapters", +2 | powershell |
+| dns_cache_view | Voir le cache DNS local | "cache dns", "dns cache", "voir le cache dns", +2 | powershell |
+| recycle_bin_size | Taille de la corbeille | "taille corbeille", "poids corbeille", "combien dans la corbeille", +2 | powershell |
+| temp_folder_size | Taille du dossier temporaire | "taille du temp", "dossier temp", "poids du temp", +2 | powershell |
+| last_shutdown_time | Heure du dernier arret du PC | "dernier arret", "quand le pc s'est eteint", "last shutdown", +2 | powershell |
+| bluescreen_history | Historique des ecrans bleus (BSOD) | "ecrans bleus", "bsod", "bluescreen", +3 | powershell |
+| disk_smart_health | Etat de sante SMART des disques | "sante disques", "smart disques", "disk health", +2 | powershell |
+| firewall_rules_count | Nombre de regles firewall par profil | "regles firewall", "combien de regles pare-feu", "firewall count", +2 | powershell |
+| env_variables_key | Variables d'environnement cles (PATH, TEMP, etc.) | "variables environnement", "env vars", "montre le path", +2 | powershell |
 
 ### Trading & IA (19 commandes)
 
@@ -686,7 +753,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | cluster_health | Health check rapide du cluster IA | "health check cluster", "verifie le cluster ia", "est ce que le cluster va bien", +3 | powershell |
 | ollama_running | Modeles Ollama actuellement en memoire | "quels modeles ollama tournent", "ollama running", "modeles en memoire ollama", +1 | powershell |
 
-### Developpement & Outils (71 commandes)
+### Developpement & Outils (96 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -761,6 +828,31 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | ports_dev_status | Statut des ports dev courants (3000, 5173, 8080, 8000, 9742) | "statut des ports dev", "ports dev", "quels ports dev tournent", +1 | powershell |
 | ollama_vram_detail | Detail VRAM utilisee par chaque modele Ollama | "vram ollama detail", "ollama vram", "memoire ollama", +1 | powershell |
 | ollama_stop_all | Decharger tous les modeles Ollama de la VRAM | "decharge tous les modeles ollama", "ollama stop all", "libere la vram ollama", +1 | powershell |
+| git_reflog | Voir le reflog git (historique complet) | "git reflog", "reflog", "historique complet git", +1 | powershell |
+| git_tag_list | Lister les tags git | "tags git", "git tags", "liste les tags", +2 | powershell |
+| git_search_commits | Rechercher dans les messages de commit | "cherche dans les commits {requete}", "git search {requete}", "commit contenant {requete}", +1 | powershell |
+| git_repo_size | Taille du depot git | "taille du repo git", "poids du git", "git size", +1 | powershell |
+| git_stash_list | Lister les stash git | "liste les stash", "git stash list", "stash en attente", +1 | powershell |
+| git_diff_staged | Voir les modifications stagees (pret a commit) | "diff staged", "git diff staged", "quoi va etre commite", +1 | powershell |
+| docker_images_list | Lister les images Docker locales | "images docker", "docker images", "liste les images docker", +1 | powershell |
+| docker_volumes | Lister les volumes Docker | "volumes docker", "docker volumes", "liste les volumes docker", +1 | powershell |
+| docker_networks | Lister les reseaux Docker | "reseaux docker", "docker networks", "liste les networks docker", +1 | powershell |
+| docker_disk_usage | Espace disque utilise par Docker | "espace docker", "docker disk usage", "combien pese docker", +1 | powershell |
+| wsl_status | Statut de WSL et distributions installees | "statut wsl", "wsl status", "distributions wsl", +2 | powershell |
+| winget_search | Rechercher un package via winget | "winget search {requete}", "cherche {requete} sur winget", "package winget {requete}", +1 | powershell |
+| winget_list_installed | Lister les apps installees via winget | "winget list", "apps winget", "inventaire winget", +1 | powershell |
+| winget_upgrade_all | Mettre a jour toutes les apps via winget | "winget upgrade all", "mets a jour tout winget", "update tout winget", +1 | powershell |
+| code_extensions_list | Lister les extensions VSCode installees | "extensions vscode", "liste les extensions", "vscode extensions", +1 | powershell |
+| code_install_ext | Installer une extension VSCode | "installe l'extension {ext}", "vscode install {ext}", "ajoute l'extension {ext}", +1 | powershell |
+| ssh_keys_list | Lister les cles SSH | "cles ssh", "ssh keys", "liste les cles ssh", +1 | powershell |
+| npm_cache_clean | Nettoyer le cache NPM | "nettoie le cache npm", "npm cache clean", "clean npm cache", +1 | powershell |
+| uv_pip_tree | Arbre de dependances Python du projet | "arbre de dependances", "pip tree", "dependency tree", +2 | powershell |
+| pip_show_package | Details d'un package Python installe | "details du package {package}", "pip show {package}", "info sur {package}", +1 | powershell |
+| turbo_imports | Imports utilises dans le projet turbo | "imports du projet", "quels imports", "dependances importees", +1 | powershell |
+| python_format_check | Verifier le formatage Python avec ruff format | "verifie le formatage", "ruff format check", "check formatting", +1 | powershell |
+| python_type_check | Verifier les types Python (pyright/mypy) | "verifie les types", "type check", "pyright check", +2 | powershell |
+| curl_test_endpoint | Tester un endpoint HTTP | "teste l'endpoint {url}", "curl {url}", "ping http {url}", +1 | powershell |
+| n8n_workflows_list | Lister les workflows n8n actifs | "workflows n8n", "liste les workflows", "n8n actifs", +1 | powershell |
 
 ### Controle JARVIS (12 commandes)
 

@@ -198,4 +198,80 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
         "latence detaillee cluster", "ping detaille cluster",
         "benchmark rapide cluster", "vitesse des noeuds",
     ], "powershell", "$m2t = (Measure-Command{try{Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -TimeoutSec 5 -UseBasicParsing}catch{}}).TotalMilliseconds; $m3t = (Measure-Command{try{Invoke-WebRequest -Uri 'http://192.168.1.113:1234/api/v1/models' -TimeoutSec 5 -UseBasicParsing}catch{}}).TotalMilliseconds; $ol1t = (Measure-Command{try{Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 5 -UseBasicParsing}catch{}}).TotalMilliseconds; \"M2: $([math]::Round($m2t))ms | M3: $([math]::Round($m3t))ms | OL1: $([math]::Round($ol1t))ms\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # INVENTAIRE SYSTÈME (inspiré PDQ PowerShell one-liners)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("installed_apps_list", "systeme", "Lister les applications installees", [
+        "liste les applications", "apps installees", "quelles apps j'ai",
+        "programmes installes", "inventaire logiciels",
+    ], "powershell", "Get-ItemProperty HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | Where DisplayName | Select DisplayName, DisplayVersion, Publisher | Sort DisplayName | Out-String -Width 200"),
+    JarvisCommand("hotfix_history", "systeme", "Historique des correctifs Windows installes", [
+        "historique hotfix", "correctifs installes", "patches windows",
+        "quels hotfix", "mises a jour installees",
+    ], "powershell", "Get-HotFix | Sort InstalledOn -Descending | Select -First 15 HotFixID, Description, InstalledOn | Format-Table -AutoSize | Out-String"),
+    JarvisCommand("scheduled_tasks_active", "systeme", "Taches planifiees actives", [
+        "taches planifiees actives", "scheduled tasks", "quelles taches auto",
+        "taches programmees", "cron windows",
+    ], "powershell", "Get-ScheduledTask | Where State -eq 'Ready' | Where TaskPath -notmatch '^\\\\Microsoft' | Select TaskName, State, @{N='Next';E={($_ | Get-ScheduledTaskInfo).NextRunTime}} | Out-String"),
+    JarvisCommand("tpm_info", "systeme", "Informations sur le module TPM", [
+        "info tpm", "tpm status", "etat du tpm",
+        "module tpm", "securite tpm",
+    ], "powershell", "Get-Tpm | Select TpmPresent, TpmReady, TpmEnabled, ManufacturerVersion | Out-String"),
+    JarvisCommand("printer_list", "systeme", "Imprimantes installees et leur statut", [
+        "liste les imprimantes", "imprimantes installees", "quelles imprimantes",
+        "printers", "etat des imprimantes",
+    ], "powershell", "Get-Printer | Select Name, DriverName, PortName, PrinterStatus | Format-Table -AutoSize | Out-String"),
+    JarvisCommand("startup_impact", "systeme", "Impact des programmes au demarrage sur le boot", [
+        "impact demarrage", "startup impact", "quoi ralentit le boot",
+        "programmes lents au demarrage", "performance boot",
+    ], "powershell", "Get-CimInstance Win32_StartupCommand | Select Name, Command, Location | Out-String; '---'; Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -ErrorAction SilentlyContinue | Select * -ExcludeProperty PS* | Out-String"),
+    JarvisCommand("system_info_detaille", "systeme", "Infos systeme detaillees (OS, BIOS, carte mere)", [
+        "infos systeme detaillees", "system info", "details du pc",
+        "specs du pc", "configuration materielle",
+    ], "powershell", "$os = Get-CimInstance Win32_OperatingSystem; $bios = Get-CimInstance Win32_BIOS; $mb = Get-CimInstance Win32_BaseBoard; \"OS: $($os.Caption) Build $($os.BuildNumber)`nBIOS: $($bios.Manufacturer) $($bios.SMBIOSBIOSVersion)`nCarte mere: $($mb.Manufacturer) $($mb.Product)\""),
+    JarvisCommand("ram_slots_detail", "systeme", "Details des barrettes RAM (type, vitesse, slots)", [
+        "details ram", "barrettes ram", "ram slots",
+        "type de ram", "vitesse ram",
+    ], "powershell", "Get-CimInstance Win32_PhysicalMemory | Select BankLabel, @{N='Capacite(GB)';E={[math]::Round($_.Capacity/1GB)}}, Speed, Manufacturer | Format-Table -AutoSize | Out-String"),
+    JarvisCommand("cpu_details", "systeme", "Details du processeur (coeurs, threads, frequence)", [
+        "details cpu", "info processeur", "specs cpu",
+        "coeurs cpu", "frequence processeur",
+    ], "powershell", "$cpu = Get-CimInstance Win32_Processor; \"$($cpu.Name)`nCoeurs: $($cpu.NumberOfCores) | Threads: $($cpu.NumberOfLogicalProcessors)`nFrequence: $($cpu.MaxClockSpeed) MHz | Cache L3: $([math]::Round($cpu.L3CacheSize/1024)) MB\""),
+    JarvisCommand("network_adapters_list", "systeme", "Adaptateurs reseau actifs et leur configuration", [
+        "adaptateurs reseau", "interfaces reseau", "network adapters",
+        "cartes reseau", "config reseau",
+    ], "powershell", "Get-NetAdapter | Where Status -eq 'Up' | Select Name, InterfaceDescription, LinkSpeed, MacAddress | Format-Table -AutoSize | Out-String"),
+    JarvisCommand("dns_cache_view", "systeme", "Voir le cache DNS local", [
+        "cache dns", "dns cache", "voir le cache dns",
+        "entrees dns", "dns local",
+    ], "powershell", "Get-DnsClientCache | Select Entry, Type, Data | Select -First 20 | Format-Table -AutoSize | Out-String"),
+    JarvisCommand("recycle_bin_size", "systeme", "Taille de la corbeille", [
+        "taille corbeille", "poids corbeille", "combien dans la corbeille",
+        "corbeille pleine", "espace corbeille",
+    ], "powershell", "$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); $count = $rb.Items().Count; $size = ($rb.Items() | ForEach-Object { $rb.GetDetailsOf($_, 3) }); \"Corbeille: $count elements\""),
+    JarvisCommand("temp_folder_size", "systeme", "Taille du dossier temporaire", [
+        "taille du temp", "dossier temp", "poids du temp",
+        "combien dans temp", "espace temporaire",
+    ], "powershell", "$s = (Get-ChildItem $env:TEMP -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum; \"Dossier TEMP: $([math]::Round($s/1MB)) MB ($((Get-ChildItem $env:TEMP -Recurse -File -ErrorAction SilentlyContinue).Count) fichiers)\""),
+    JarvisCommand("last_shutdown_time", "systeme", "Heure du dernier arret du PC", [
+        "dernier arret", "quand le pc s'est eteint", "last shutdown",
+        "dernier shutdown", "heure extinction",
+    ], "powershell", "$e = Get-WinEvent -FilterHashtable @{LogName='System';ID=1074} -MaxEvents 1 -ErrorAction SilentlyContinue; if($e){\"Dernier arret: $($e.TimeCreated.ToString('dd/MM/yyyy HH:mm')) — $($e.Message.Split([char]10)[0])\"}else{'Pas de donnees'}"),
+    JarvisCommand("bluescreen_history", "systeme", "Historique des ecrans bleus (BSOD)", [
+        "ecrans bleus", "bsod", "bluescreen", "historique bsod",
+        "crashs windows", "blue screen of death",
+    ], "powershell", "$dumps = Get-ChildItem 'C:\\Windows\\Minidump' -ErrorAction SilentlyContinue; if($dumps){$dumps | Select Name, @{N='Date';E={$_.LastWriteTime.ToString('dd/MM/yyyy HH:mm')}}, @{N='Taille(KB)';E={[math]::Round($_.Length/1KB)}} | Out-String}else{'Aucun BSOD enregistre'}"),
+    JarvisCommand("disk_smart_health", "systeme", "Etat de sante SMART des disques", [
+        "sante disques", "smart disques", "disk health",
+        "etat ssd", "disques en bonne sante",
+    ], "powershell", "Get-PhysicalDisk | Select FriendlyName, MediaType, HealthStatus, OperationalStatus, @{N='Taille(GB)';E={[math]::Round($_.Size/1GB)}} | Format-Table -AutoSize | Out-String"),
+    JarvisCommand("firewall_rules_count", "systeme", "Nombre de regles firewall par profil", [
+        "regles firewall", "combien de regles pare-feu", "firewall count",
+        "etat du pare-feu", "firewall stats",
+    ], "powershell", "$profiles = Get-NetFirewallProfile | Select Name, Enabled; $inbound = (Get-NetFirewallRule -Direction Inbound -Enabled True -ErrorAction SilentlyContinue).Count; $outbound = (Get-NetFirewallRule -Direction Outbound -Enabled True -ErrorAction SilentlyContinue).Count; $profiles | Out-String; \"Regles actives — Entrant: $inbound | Sortant: $outbound\""),
+    JarvisCommand("env_variables_key", "systeme", "Variables d'environnement cles (PATH, TEMP, etc.)", [
+        "variables environnement", "env vars", "montre le path",
+        "path systeme", "environnement windows",
+    ], "powershell", "\"COMPUTERNAME: $env:COMPUTERNAME`nUSERNAME: $env:USERNAME`nTEMP: $env:TEMP`nHOME: $env:USERPROFILE\"; '---PATH---'; $env:PATH -split ';' | Where { $_ } | Out-String"),
 ]

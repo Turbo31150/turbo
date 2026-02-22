@@ -476,4 +476,130 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
         "check tout rapide", "etat rapide de tout", "resume systeme",
         "quick check", "tout va bien",
     ], "pipeline", "powershell:$m2 = try{(Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; $ol1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; \"Cluster — M2: $(if($m2 -eq 200){'OK'}else{'OFF'}) | OL1: $(if($ol1 -eq 200){'OK'}else{'OFF'})\";;powershell:$os = Get-CimInstance Win32_OperatingSystem; $ram = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); $total = [math]::Round($os.TotalVisibleMemorySize/1MB,1); \"RAM: $ram/$total GB\";;powershell:nvidia-smi --query-gpu=temperature.gpu,memory.used,memory.total --format=csv,noheader,nounits 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # MODE — Hackathon, Data Science, DevOps
+    # (source: turbogeek.co.uk, PDQ, Windows 11 automation)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("mode_hackathon", "pipeline", "Mode hackathon: timer + VSCode + terminal + GitHub + Claude", [
+        "mode hackathon", "lance le hackathon", "setup hackathon",
+        "session hackathon", "mode competition",
+    ], "pipeline", "app_open:code;;sleep:1;;app_open:wt;;sleep:1;;browser:navigate:https://github.com;;sleep:1;;browser:navigate:https://claude.ai;;powershell:$end = (Get-Date).AddHours(4).ToString('HH:mm'); \"Hackathon demarre — deadline $end\""),
+    JarvisCommand("mode_data_science", "pipeline", "Mode data science: Jupyter + Kaggle + docs Python + terminal", [
+        "mode data science", "mode datascience", "lance jupyter",
+        "session data science", "mode machine learning",
+    ], "pipeline", "app_open:wt;;sleep:1;;browser:navigate:https://www.kaggle.com;;sleep:1;;browser:navigate:https://docs.python.org/3/;;sleep:1;;browser:navigate:https://scikit-learn.org"),
+    JarvisCommand("mode_devops", "pipeline", "Mode DevOps: Docker + dashboard + terminal + GitHub Actions", [
+        "mode devops", "mode ops", "lance le mode devops",
+        "setup devops", "mode infrastructure",
+    ], "pipeline", "app_open:wt;;sleep:1;;browser:navigate:http://127.0.0.1:8080;;sleep:1;;browser:navigate:https://github.com;;powershell:docker ps --format 'table {{.Names}}\\t{{.Status}}' 2>&1 | Out-String"),
+    JarvisCommand("mode_securite_audit", "pipeline", "Mode audit securite: Defender + ports + connexions + terminal", [
+        "mode securite", "mode audit securite", "lance un audit de securite",
+        "session securite", "mode pentest",
+    ], "pipeline", "app_open:wt;;sleep:1;;powershell:Get-MpComputerStatus | Select AntivirusEnabled, RealTimeProtectionEnabled | Out-String;;powershell:Get-NetTCPConnection -State Listen | Group-Object LocalPort | Select @{N='Port';E={$_.Name}}, Count | Sort Port | Select -First 15 | Out-String;;powershell:Get-NetTCPConnection -State Established | Where RemoteAddress -notmatch '^(127|10|192\\.168|0\\.)' | Select RemoteAddress, RemotePort -Unique | Select -First 10 | Out-String"),
+    JarvisCommand("mode_trading_scalp", "pipeline", "Mode scalping: TradingView multi-timeframe + MEXC + terminal", [
+        "mode scalping", "mode scalp", "trading scalp",
+        "session scalping", "mode day trading",
+    ], "pipeline", "browser:navigate:https://www.tradingview.com/chart/?symbol=BINANCE:BTCUSDT;;sleep:1;;browser:navigate:https://www.mexc.com/exchange/BTC_USDT;;sleep:1;;browser:navigate:https://www.coingecko.com/en/coins/bitcoin;;sleep:1;;app_open:wt"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # ROUTINE — Midi, urgence, meeting
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("routine_midi", "pipeline", "Routine midi: pause + news + trading check rapide", [
+        "routine midi", "pause midi", "lunch break",
+        "pause dejeuner", "c'est midi",
+    ], "pipeline", f"{MINIMIZE_ALL};;sleep:1;;browser:navigate:https://news.google.com;;sleep:1;;browser:navigate:https://www.tradingview.com;;sleep:1;;app_open:spotify"),
+    JarvisCommand("routine_nuit_urgence", "pipeline", "Mode urgence nuit: tout fermer + sauvegarder + veille immediate", [
+        "urgence nuit", "extinction d'urgence", "dors maintenant",
+        "veille immediatement", "shutdown rapide",
+    ], "pipeline", f"powershell:cd F:\\BUREAU\\turbo; git add -A; git commit -m 'Emergency save JARVIS' --allow-empty 2>&1 | Out-String;;sleep:1;;{MINIMIZE_ALL};;powershell:rundll32.exe user32.dll,LockWorkStation;;sleep:2;;powershell:rundll32.exe powrprof.dll,SetSuspendState 0,1,0", confirm=True),
+    JarvisCommand("setup_meeting_rapide", "pipeline", "Meeting rapide: micro check + fermer musique + Teams/Discord", [
+        "meeting rapide", "setup meeting", "prepare un call rapide",
+        "je dois appeler", "visio rapide",
+    ], "pipeline", f"powershell:Stop-Process -Name 'spotify' -Force -ErrorAction SilentlyContinue;;{MINIMIZE_ALL};;sleep:1;;ms_settings:ms-settings:quiethours;;sleep:1;;app_open:discord"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # VEILLE TECH & FREELANCE
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("mode_veille_tech", "pipeline", "Veille tech: Hacker News + dev.to + Product Hunt + Reddit/programming", [
+        "veille tech", "mode veille technologique", "quoi de neuf en tech",
+        "session veille", "news dev",
+    ], "pipeline", "browser:navigate:https://news.ycombinator.com;;sleep:1;;browser:navigate:https://dev.to;;sleep:1;;browser:navigate:https://www.producthunt.com;;sleep:1;;browser:navigate:https://www.reddit.com/r/programming"),
+    JarvisCommand("mode_freelance", "pipeline", "Mode freelance: factures + mails + calendar + Notion", [
+        "mode freelance", "mode client", "session freelance",
+        "mode travail client", "setup freelance",
+    ], "pipeline", "browser:navigate:https://mail.google.com;;sleep:1;;browser:navigate:https://calendar.google.com;;sleep:1;;browser:navigate:https://www.notion.so;;sleep:1;;browser:navigate:https://docs.google.com"),
+    JarvisCommand("mode_debug_production", "pipeline", "Debug prod: logs + monitoring + terminal + dashboard", [
+        "debug production", "mode debug prod", "urgence production",
+        "incident prod", "probleme en prod",
+    ], "pipeline", "app_open:wt;;sleep:1;;browser:navigate:http://127.0.0.1:8080;;sleep:1;;powershell:Get-WinEvent -FilterHashtable @{LogName='Application';Level=2} -MaxEvents 10 -ErrorAction SilentlyContinue | Select TimeCreated, Message | Out-String -Width 150;;powershell:nvidia-smi --query-gpu=name,temperature.gpu,utilization.gpu,memory.used --format=csv,noheader"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # APPRENTISSAGE & CODING CHALLENGES
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("mode_apprentissage_code", "pipeline", "Mode apprentissage code: LeetCode + VSCode + docs + timer", [
+        "mode apprentissage code", "session leetcode", "mode kata",
+        "exercices de code", "mode coding challenge",
+    ], "pipeline", "browser:navigate:https://leetcode.com;;sleep:1;;app_open:code;;sleep:1;;browser:navigate:https://docs.python.org/3/;;powershell:$end = (Get-Date).AddMinutes(45).ToString('HH:mm'); \"Session code demarre — fin a $end\""),
+    JarvisCommand("mode_tutorial", "pipeline", "Mode tutorial: YouTube + VSCode + terminal + docs", [
+        "mode tutorial", "mode tuto", "suis un tuto",
+        "session tutorial", "mode formation video",
+    ], "pipeline", "browser:navigate:https://www.youtube.com;;sleep:1;;app_open:code;;sleep:1;;app_open:wt;;sleep:1;;browser:navigate:https://developer.mozilla.org"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # BACKUP & MAINTENANCE AVANCÉE
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("mode_backup_total", "pipeline", "Backup total: tous les projets + snapshot systeme + rapport", [
+        "backup total", "sauvegarde totale", "backup complet",
+        "sauvegarde tout absolument", "full backup",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git add -A; git commit -m 'Full backup auto-JARVIS' --allow-empty 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\carV1; if(Test-Path .git){git add -A; git commit -m 'Backup auto-JARVIS' --allow-empty 2>&1 | Out-String};;powershell:cd F:\\BUREAU\\serveur; if(Test-Path .git){git add -A; git commit -m 'Backup auto-JARVIS' --allow-empty 2>&1 | Out-String};;powershell:$d = Get-Date -Format 'yyyy-MM-dd_HHmm'; $os = Get-CimInstance Win32_OperatingSystem; $ram = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); \"Backup complet OK — RAM: $ram GB — $d\"", confirm=True),
+    JarvisCommand("ouvre_dashboards_trading", "pipeline", "Tous les dashboards trading: TV + MEXC + CoinGecko + CoinMarketCap + DexScreener", [
+        "tous les dashboards trading", "ouvre tout le trading",
+        "full trading view", "tous les sites trading",
+        "dashboard trading complet",
+    ], "pipeline", "browser:navigate:https://www.tradingview.com;;sleep:1;;browser:navigate:https://www.mexc.com/exchange/BTC_USDT;;sleep:1;;browser:navigate:https://www.coingecko.com;;sleep:1;;browser:navigate:https://coinmarketcap.com;;sleep:1;;browser:navigate:https://dexscreener.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CREATIVE & MEDIA
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("mode_photo_edit", "pipeline", "Mode retouche photo: Paint + navigateur refs + Pinterest", [
+        "mode photo", "mode retouche", "retouche photo",
+        "mode edition photo", "session photo",
+    ], "pipeline", "app_open:mspaint;;sleep:1;;browser:navigate:https://www.pinterest.com;;sleep:1;;browser:navigate:https://www.canva.com"),
+    JarvisCommand("mode_writing", "pipeline", "Mode ecriture: Google Docs + focus + nuit + Claude aide", [
+        "mode ecriture", "mode redaction", "session ecriture",
+        "lance le mode ecriture", "ecris quelque chose",
+    ], "pipeline", f"{MINIMIZE_ALL};;sleep:1;;powershell:Start-Process ms-settings:nightlight;;sleep:1;;ms_settings:ms-settings:quiethours;;sleep:1;;browser:navigate:https://docs.google.com;;sleep:1;;browser:navigate:https://claude.ai"),
+    JarvisCommand("mode_video_marathon", "pipeline", "Mode marathon video: Netflix + nuit + plein ecran + snacks time", [
+        "mode marathon", "marathon video", "binge watching",
+        "session netflix", "mode series",
+    ], "pipeline", f"{MINIMIZE_ALL};;sleep:1;;powershell:Start-Process ms-settings:nightlight;;sleep:1;;browser:navigate:https://www.netflix.com;;sleep:2;;hotkey:f11;;powershell:\"Mode marathon active — bon visionnage!\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # COMET — Nouveaux sites via Comet
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvre_kaggle_comet", "pipeline", "Ouvrir Kaggle dans Comet", [
+        "ouvre kaggle sur comet", "kaggle comet",
+        "va sur kaggle comet",
+    ], "pipeline", f"powershell:Start-Process '{COMET}' -ArgumentList 'https://www.kaggle.com'"),
+    JarvisCommand("ouvre_arxiv_comet", "pipeline", "Ouvrir arXiv dans Comet", [
+        "ouvre arxiv sur comet", "arxiv comet",
+        "va sur arxiv comet",
+    ], "pipeline", f"powershell:Start-Process '{COMET}' -ArgumentList 'https://arxiv.org'"),
+    JarvisCommand("ouvre_notion_comet", "pipeline", "Ouvrir Notion dans Comet", [
+        "ouvre notion sur comet", "notion comet",
+        "va sur notion comet",
+    ], "pipeline", f"powershell:Start-Process '{COMET}' -ArgumentList 'https://www.notion.so'"),
+    JarvisCommand("ouvre_stackoverflow_comet", "pipeline", "Ouvrir Stack Overflow dans Comet", [
+        "ouvre stackoverflow sur comet", "stackoverflow comet",
+        "va sur stackoverflow comet",
+    ], "pipeline", f"powershell:Start-Process '{COMET}' -ArgumentList 'https://stackoverflow.com'"),
+    JarvisCommand("ouvre_medium_comet", "pipeline", "Ouvrir Medium dans Comet", [
+        "ouvre medium sur comet", "medium comet",
+        "va sur medium comet",
+    ], "pipeline", f"powershell:Start-Process '{COMET}' -ArgumentList 'https://medium.com'"),
+    JarvisCommand("ouvre_gmail_comet", "pipeline", "Ouvrir Gmail dans Comet", [
+        "ouvre gmail sur comet", "gmail comet",
+        "va sur gmail comet", "mails comet",
+    ], "pipeline", f"powershell:Start-Process '{COMET}' -ArgumentList 'https://mail.google.com'"),
 ]

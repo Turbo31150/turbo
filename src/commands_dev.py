@@ -290,4 +290,128 @@ DEV_COMMANDS: list[JarvisCommand] = [
         "decharge tous les modeles ollama", "ollama stop all",
         "libere la vram ollama", "vide ollama",
     ], "powershell", "$models = (Invoke-RestMethod -Uri 'http://127.0.0.1:11434/api/ps' -TimeoutSec 5).models; $models | ForEach-Object { Invoke-RestMethod -Method Post -Uri 'http://127.0.0.1:11434/api/generate' -Body ('{\"model\":\"' + $_.name + '\",\"keep_alive\":0}') -ContentType 'application/json' }; \"$($models.Count) modeles decharges\"", confirm=True),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # GIT AVANCÉ — Compléments
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("git_reflog", "dev", "Voir le reflog git (historique complet)", [
+        "git reflog", "reflog", "historique complet git",
+        "undo avance git",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git reflog -15 | Out-String"),
+    JarvisCommand("git_tag_list", "dev", "Lister les tags git", [
+        "tags git", "git tags", "liste les tags",
+        "versions git", "releases git",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git tag -l --sort=-version:refname | Select -First 15 | Out-String"),
+    JarvisCommand("git_search_commits", "dev", "Rechercher dans les messages de commit", [
+        "cherche dans les commits {requete}", "git search {requete}",
+        "commit contenant {requete}", "git log search {requete}",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git log --oneline --grep='{requete}' -15 | Out-String", ["requete"]),
+    JarvisCommand("git_repo_size", "dev", "Taille du depot git", [
+        "taille du repo git", "poids du git", "git size",
+        "combien pese le git",
+    ], "powershell", "cd F:\\BUREAU\\turbo; $s = (Get-ChildItem .git -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum; \"Depot .git: $([math]::Round($s/1MB,1)) MB\""),
+    JarvisCommand("git_stash_list", "dev", "Lister les stash git", [
+        "liste les stash", "git stash list", "stash en attente",
+        "quels stash j'ai",
+    ], "powershell", "cd F:\\BUREAU\\turbo; $s = git stash list 2>&1; if($s){$s | Out-String}else{'Aucun stash'}"),
+    JarvisCommand("git_diff_staged", "dev", "Voir les modifications stagees (pret a commit)", [
+        "diff staged", "git diff staged", "quoi va etre commite",
+        "modifications stagees",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git diff --cached --stat | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DOCKER AVANCÉ — Compléments
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("docker_images_list", "dev", "Lister les images Docker locales", [
+        "images docker", "docker images", "liste les images docker",
+        "quelles images docker",
+    ], "powershell", "docker images --format 'table {{.Repository}}\t{{.Tag}}\t{{.Size}}' | Out-String"),
+    JarvisCommand("docker_volumes", "dev", "Lister les volumes Docker", [
+        "volumes docker", "docker volumes", "liste les volumes docker",
+        "stockage docker",
+    ], "powershell", "docker volume ls --format 'table {{.Name}}\t{{.Driver}}' | Out-String"),
+    JarvisCommand("docker_networks", "dev", "Lister les reseaux Docker", [
+        "reseaux docker", "docker networks", "liste les networks docker",
+        "network docker",
+    ], "powershell", "docker network ls --format 'table {{.Name}}\t{{.Driver}}\t{{.Scope}}' | Out-String"),
+    JarvisCommand("docker_disk_usage", "dev", "Espace disque utilise par Docker", [
+        "espace docker", "docker disk usage", "combien pese docker",
+        "taille docker",
+    ], "powershell", "docker system df | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # WSL & WINGET — Gestionnaires systeme
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("wsl_status", "dev", "Statut de WSL et distributions installees", [
+        "statut wsl", "wsl status", "distributions wsl",
+        "quelles distros linux", "wsl installees",
+    ], "powershell", "wsl --list --verbose 2>&1 | Out-String"),
+    JarvisCommand("winget_search", "dev", "Rechercher un package via winget", [
+        "winget search {requete}", "cherche {requete} sur winget",
+        "package winget {requete}", "installe {requete} winget",
+    ], "powershell", "winget search {requete} --count 10 2>&1 | Out-String", ["requete"]),
+    JarvisCommand("winget_list_installed", "dev", "Lister les apps installees via winget", [
+        "winget list", "apps winget", "inventaire winget",
+        "quelles apps winget",
+    ], "powershell", "winget list --count 20 2>&1 | Out-String"),
+    JarvisCommand("winget_upgrade_all", "dev", "Mettre a jour toutes les apps via winget", [
+        "winget upgrade all", "mets a jour tout winget",
+        "update tout winget", "upgrade winget",
+    ], "powershell", "winget upgrade --all --accept-source-agreements --accept-package-agreements 2>&1 | Out-String", confirm=True),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # VSCODE & SSH — Outils dev
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("code_extensions_list", "dev", "Lister les extensions VSCode installees", [
+        "extensions vscode", "liste les extensions", "vscode extensions",
+        "quelles extensions j'ai",
+    ], "powershell", "code --list-extensions 2>&1 | Out-String"),
+    JarvisCommand("code_install_ext", "dev", "Installer une extension VSCode", [
+        "installe l'extension {ext}", "vscode install {ext}",
+        "ajoute l'extension {ext}", "code install {ext}",
+    ], "powershell", "code --install-extension {ext} 2>&1 | Out-String", ["ext"]),
+    JarvisCommand("ssh_keys_list", "dev", "Lister les cles SSH", [
+        "cles ssh", "ssh keys", "liste les cles ssh",
+        "quelles cles ssh j'ai",
+    ], "powershell", "Get-ChildItem $env:USERPROFILE\\.ssh\\*.pub -ErrorAction SilentlyContinue | ForEach-Object { \"$($_.Name): $(Get-Content $_.FullName | Select -First 1)\" } | Out-String"),
+    JarvisCommand("npm_cache_clean", "dev", "Nettoyer le cache NPM", [
+        "nettoie le cache npm", "npm cache clean", "clean npm cache",
+        "purge npm",
+    ], "powershell", "npm cache clean --force 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PYTHON / UV — Compléments
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("uv_pip_tree", "dev", "Arbre de dependances Python du projet", [
+        "arbre de dependances", "pip tree", "dependency tree",
+        "dependances python", "uv tree",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' tree 2>&1 | Select -First 40 | Out-String"),
+    JarvisCommand("pip_show_package", "dev", "Details d'un package Python installe", [
+        "details du package {package}", "pip show {package}",
+        "info sur {package}", "version de {package}",
+    ], "powershell", "& 'C:\\Users\\franc\\.local\\bin\\uv.exe' pip show {package} 2>&1 | Out-String", ["package"]),
+    JarvisCommand("turbo_imports", "dev", "Imports utilises dans le projet turbo", [
+        "imports du projet", "quels imports", "dependances importees",
+        "analyse les imports",
+    ], "powershell", "cd F:\\BUREAU\\turbo; Select-String -Path 'src\\*.py' -Pattern '^(import |from )' | ForEach-Object { $_.Line.Trim() } | Sort -Unique | Out-String"),
+    JarvisCommand("python_format_check", "dev", "Verifier le formatage Python avec ruff format", [
+        "verifie le formatage", "ruff format check", "check formatting",
+        "code bien formate",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff format --check src/ 2>&1 | Out-String"),
+    JarvisCommand("python_type_check", "dev", "Verifier les types Python (pyright/mypy)", [
+        "verifie les types", "type check", "pyright check",
+        "mypy check", "typage python",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pyright src/ 2>&1 | Select -Last 10 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RÉSEAU & SERVICES — Compléments dev
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("curl_test_endpoint", "dev", "Tester un endpoint HTTP", [
+        "teste l'endpoint {url}", "curl {url}", "ping http {url}",
+        "test api {url}",
+    ], "powershell", "$r = Invoke-WebRequest -Uri '{url}' -TimeoutSec 10 -UseBasicParsing -ErrorAction Stop; \"Status: $($r.StatusCode) | Taille: $($r.Content.Length) bytes\"", ["url"]),
+    JarvisCommand("n8n_workflows_list", "dev", "Lister les workflows n8n actifs", [
+        "workflows n8n", "liste les workflows", "n8n actifs",
+        "quels workflows tournent",
+    ], "powershell", "$r = Invoke-RestMethod -Uri 'http://127.0.0.1:5678/api/v1/workflows' -TimeoutSec 5 -ErrorAction SilentlyContinue; $r.data | Select id, name, active | Format-Table -AutoSize | Out-String"),
 ]
