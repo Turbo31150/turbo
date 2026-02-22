@@ -1253,4 +1253,100 @@ NAVIGATION_COMMANDS: list[JarvisCommand] = [
         "ouvre zoom", "va sur zoom", "lance zoom",
         "reunion zoom",
     ], "browser", "navigate:https://zoom.us"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # HÉBERGEMENT / DÉPLOIEMENT — Plateformes cloud
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_heroku", "navigation", "Ouvrir Heroku", [
+        "ouvre heroku", "va sur heroku", "apps heroku",
+    ], "browser", "navigate:https://dashboard.heroku.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # REGISTRES DE PACKAGES — NPM, PyPI, etc.
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_nuget", "navigation", "Ouvrir NuGet (packages .NET)", [
+        "ouvre nuget", "va sur nuget", "packages dotnet",
+    ], "browser", "navigate:https://www.nuget.org"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # TECH NEWS — Actualités tech
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_wired", "navigation", "Ouvrir Wired", [
+        "ouvre wired", "va sur wired", "news wired",
+    ], "browser", "navigate:https://www.wired.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SCIENCE / RECHERCHE — Moteurs de recherche académique
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_semantic_scholar", "navigation", "Ouvrir Semantic Scholar (IA papers)", [
+        "ouvre semantic scholar", "semantic scholar", "papers ia",
+    ], "browser", "navigate:https://www.semanticscholar.org"),
+    JarvisCommand("ouvrir_researchgate", "navigation", "Ouvrir ResearchGate", [
+        "ouvre researchgate", "va sur researchgate", "recherche researchgate",
+    ], "browser", "navigate:https://www.researchgate.net"),
+    JarvisCommand("ouvrir_pubmed", "navigation", "Ouvrir PubMed (medecine)", [
+        "ouvre pubmed", "recherche pubmed", "articles medicaux",
+    ], "browser", "navigate:https://pubmed.ncbi.nlm.nih.gov"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CUISINE / RECETTES FR — Sites de recettes
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_marmiton", "navigation", "Ouvrir Marmiton (recettes)", [
+        "ouvre marmiton", "va sur marmiton", "recettes marmiton",
+        "qu'est ce qu'on mange",
+    ], "browser", "navigate:https://www.marmiton.org"),
+    JarvisCommand("ouvrir_750g", "navigation", "Ouvrir 750g (recettes)", [
+        "ouvre 750g", "recettes 750g", "va sur 750 grammes",
+    ], "browser", "navigate:https://www.750g.com"),
+    JarvisCommand("ouvrir_cuisine_az", "navigation", "Ouvrir Cuisine AZ", [
+        "ouvre cuisine az", "recettes cuisine az", "va sur cuisine az",
+    ], "browser", "navigate:https://www.cuisineaz.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PHOTOS / VIDÉOS — Banques d'images et vidéo
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_pexels", "navigation", "Ouvrir Pexels (photos/videos gratuites)", [
+        "ouvre pexels", "photos pexels", "videos gratuites pexels",
+    ], "browser", "navigate:https://www.pexels.com"),
+    JarvisCommand("ouvrir_pixabay", "navigation", "Ouvrir Pixabay (images libres)", [
+        "ouvre pixabay", "images pixabay", "photos pixabay",
+    ], "browser", "navigate:https://pixabay.com"),
+    JarvisCommand("ouvrir_vimeo", "navigation", "Ouvrir Vimeo", [
+        "ouvre vimeo", "va sur vimeo", "videos vimeo",
+    ], "browser", "navigate:https://vimeo.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # FORMATION EN LIGNE — Plateformes d'apprentissage
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_codecademy", "navigation", "Ouvrir Codecademy", [
+        "ouvre codecademy", "va sur codecademy", "apprendre a coder",
+    ], "browser", "navigate:https://www.codecademy.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # EMAIL — Webmails
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_gmail", "navigation", "Ouvrir Gmail", [
+        "ouvre gmail", "va sur gmail", "mes mails gmail",
+        "boite mail",
+    ], "browser", "navigate:https://mail.google.com"),
+    JarvisCommand("ouvrir_outlook_web", "navigation", "Ouvrir Outlook Web", [
+        "ouvre outlook", "va sur outlook", "mails outlook",
+    ], "browser", "navigate:https://outlook.live.com"),
+    JarvisCommand("ouvrir_protonmail", "navigation", "Ouvrir ProtonMail (mail chiffre)", [
+        "ouvre protonmail", "va sur protonmail", "mail securise",
+    ], "browser", "navigate:https://mail.proton.me"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # MÉTÉO — Services météo
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_windy", "navigation", "Ouvrir Windy (meteo avancee)", [
+        "ouvre windy", "meteo windy", "carte meteo",
+        "previsions meteo avancees",
+    ], "browser", "navigate:https://www.windy.com"),
+    JarvisCommand("ouvrir_openstreetmap", "navigation", "Ouvrir OpenStreetMap", [
+        "ouvre openstreetmap", "osm", "carte libre",
+    ], "browser", "navigate:https://www.openstreetmap.org"),
+    JarvisCommand("ouvrir_waze", "navigation", "Ouvrir Waze (trafic)", [
+        "ouvre waze", "trafic waze", "embouteillages",
+    ], "browser", "navigate:https://www.waze.com/live-map"),
 ]

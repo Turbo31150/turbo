@@ -1,22 +1,22 @@
 # JARVIS Turbo — Catalogue Complet des Commandes Vocales
 
-> **1577 commandes** au total | Genere automatiquement le 2026-02-22
+> **1646 commandes** au total | Genere automatiquement le 2026-02-22
 
 ## Table des matieres
 
 - [Accessibilite](#accessibilite) — 10 commandes
 - [App](#app) — 23 commandes
 - [Clipboard](#clipboard) — 13 commandes
-- [Developpement & Outils](#developpement--outils) — 241 commandes
+- [Developpement & Outils](#developpement--outils) — 254 commandes
 - [Gestion des Fenetres](#gestion-des-fenetres) — 13 commandes
 - [Fichiers](#fichiers) — 45 commandes
 - [Jarvis](#jarvis) — 12 commandes
 - [Launcher](#launcher) — 12 commandes
 - [Media & Volume](#media--volume) — 7 commandes
-- [Navigation Web](#navigation-web) — 296 commandes
-- [Pipelines Multi-Etapes](#pipelines-multi-etapes) — 259 commandes (259 pipelines)
+- [Navigation Web](#navigation-web) — 314 commandes
+- [Pipelines Multi-Etapes](#pipelines-multi-etapes) — 271 commandes (271 pipelines)
 - [Saisie](#saisie) — 3 commandes
-- [Systeme & Maintenance](#systeme--maintenance) — 624 commandes
+- [Systeme & Maintenance](#systeme--maintenance) — 650 commandes
 - [Trading](#trading) — 19 commandes
 
 ---
@@ -90,7 +90,7 @@
 
 ## Developpement & Outils
 
-**241 commandes**
+**254 commandes**
 
 | # | Nom | Description | Declencheurs | Type | Params | Confirm |
 |---|-----|-------------|--------------|------|--------|---------|
@@ -335,6 +335,19 @@
 | 239 | `python_profile` | Profiler un script Python | `profile python {script}`, `profiling {script}`, `benchmark python {script}` | powershell | script | — |
 | 240 | `benchmark_import_time` | Mesurer le temps d'import de turbo | `temps d'import turbo`, `import time`, `benchmark import` +1 | powershell | — | — |
 | 241 | `memory_usage_python` | Utilisation memoire de Python | `memoire python`, `ram python`, `python memory` | powershell | — | — |
+| 242 | `n8n_status` | Verifier si n8n tourne | `n8n status`, `est ce que n8n tourne`, `n8n en ligne` | powershell | — | — |
+| 243 | `n8n_open` | Ouvrir n8n dans le navigateur | `ouvre n8n`, `va sur n8n`, `lance n8n` | browser | — | — |
+| 244 | `n8n_workflows_count` | Compter les workflows n8n | `combien de workflows n8n`, `n8n workflows`, `nombre workflows` | powershell | — | — |
+| 245 | `tsc_compile` | Compiler TypeScript | `tsc compile`, `compile typescript`, `typescript build` +1 | powershell | — | — |
+| 246 | `tsc_watch` | Lancer TypeScript en mode watch | `tsc watch`, `typescript watch`, `surveille les fichiers ts` | powershell | — | — |
+| 247 | `tsc_version` | Version de TypeScript installee | `version typescript`, `tsc version`, `quel typescript` | powershell | — | — |
+| 248 | `tsc_check` | Type-check sans compiler | `type check`, `tsc check`, `verifie les types ts` | powershell | — | — |
+| 249 | `pip_show` | Infos sur un package Python installe | `pip show {package}`, `info package {package}`, `details de {package}` | powershell | package | — |
+| 250 | `npm_info` | Infos sur un package NPM | `npm info {package}`, `details npm {package}`, `package npm {package}` | powershell | package | — |
+| 251 | `git_blame` | Voir l'auteur de chaque ligne d'un fichier | `git blame {fichier}`, `qui a ecrit {fichier}`, `blame {fichier}` | powershell | fichier | — |
+| 252 | `git_bisect_start` | Demarrer git bisect pour trouver un bug | `git bisect`, `cherche le bug`, `bisect start` | powershell | — | — |
+| 253 | `which_command` | Trouver l'emplacement d'une commande | `ou est {cmd}`, `which {cmd}`, `chemin de {cmd}` +1 | powershell | cmd | — |
+| 254 | `dev_env_summary` | Resume de l'environnement de dev | `resume dev`, `environnement dev`, `quels outils installes` +1 | powershell | — | — |
 
 ## Gestion des Fenetres
 
@@ -462,7 +475,7 @@
 
 ## Navigation Web
 
-**296 commandes**
+**314 commandes**
 
 | # | Nom | Description | Declencheurs | Type | Params | Confirm |
 |---|-----|-------------|--------------|------|--------|---------|
@@ -762,10 +775,28 @@
 | 294 | `ouvrir_mega` | Ouvrir Mega (stockage chiffre) | `ouvre mega`, `va sur mega`, `mega cloud` | browser | — | — |
 | 295 | `ouvrir_discord_web` | Ouvrir Discord Web | `ouvre discord web`, `discord en ligne`, `va sur discord` | browser | — | — |
 | 296 | `ouvrir_zoom` | Ouvrir Zoom | `ouvre zoom`, `va sur zoom`, `lance zoom` +1 | browser | — | — |
+| 297 | `ouvrir_heroku` | Ouvrir Heroku | `ouvre heroku`, `va sur heroku`, `apps heroku` | browser | — | — |
+| 298 | `ouvrir_nuget` | Ouvrir NuGet (packages .NET) | `ouvre nuget`, `va sur nuget`, `packages dotnet` | browser | — | — |
+| 299 | `ouvrir_wired` | Ouvrir Wired | `ouvre wired`, `va sur wired`, `news wired` | browser | — | — |
+| 300 | `ouvrir_semantic_scholar` | Ouvrir Semantic Scholar (IA papers) | `ouvre semantic scholar`, `semantic scholar`, `papers ia` | browser | — | — |
+| 301 | `ouvrir_researchgate` | Ouvrir ResearchGate | `ouvre researchgate`, `va sur researchgate`, `recherche researchgate` | browser | — | — |
+| 302 | `ouvrir_pubmed` | Ouvrir PubMed (medecine) | `ouvre pubmed`, `recherche pubmed`, `articles medicaux` | browser | — | — |
+| 303 | `ouvrir_marmiton` | Ouvrir Marmiton (recettes) | `ouvre marmiton`, `va sur marmiton`, `recettes marmiton` +1 | browser | — | — |
+| 304 | `ouvrir_750g` | Ouvrir 750g (recettes) | `ouvre 750g`, `recettes 750g`, `va sur 750 grammes` | browser | — | — |
+| 305 | `ouvrir_cuisine_az` | Ouvrir Cuisine AZ | `ouvre cuisine az`, `recettes cuisine az`, `va sur cuisine az` | browser | — | — |
+| 306 | `ouvrir_pexels` | Ouvrir Pexels (photos/videos gratuites) | `ouvre pexels`, `photos pexels`, `videos gratuites pexels` | browser | — | — |
+| 307 | `ouvrir_pixabay` | Ouvrir Pixabay (images libres) | `ouvre pixabay`, `images pixabay`, `photos pixabay` | browser | — | — |
+| 308 | `ouvrir_vimeo` | Ouvrir Vimeo | `ouvre vimeo`, `va sur vimeo`, `videos vimeo` | browser | — | — |
+| 309 | `ouvrir_codecademy` | Ouvrir Codecademy | `ouvre codecademy`, `va sur codecademy`, `apprendre a coder` | browser | — | — |
+| 310 | `ouvrir_outlook_web` | Ouvrir Outlook Web | `ouvre outlook`, `va sur outlook`, `mails outlook` | browser | — | — |
+| 311 | `ouvrir_protonmail` | Ouvrir ProtonMail (mail chiffre) | `ouvre protonmail`, `va sur protonmail`, `mail securise` | browser | — | — |
+| 312 | `ouvrir_windy` | Ouvrir Windy (meteo avancee) | `ouvre windy`, `meteo windy`, `carte meteo` +1 | browser | — | — |
+| 313 | `ouvrir_openstreetmap` | Ouvrir OpenStreetMap | `ouvre openstreetmap`, `osm`, `carte libre` | browser | — | — |
+| 314 | `ouvrir_waze` | Ouvrir Waze (trafic) | `ouvre waze`, `trafic waze`, `embouteillages` | browser | — | — |
 
 ## Pipelines Multi-Etapes
 
-**259 commandes**
+**271 commandes**
 
 | # | Nom | Description | Declencheurs | Type | Params | Confirm |
 |---|-----|-------------|--------------|------|--------|---------|
@@ -1028,6 +1059,18 @@
 | 257 | `sim_focus_deep_work` | Deep work: ferme tout + focus assist + timer 90min + musique lo-fi | `mode deep work`, `concentration maximale`, `focus profond` +1 | pipeline | — | — |
 | 258 | `sim_weekend_chill` | Weekend: Netflix + Spotify + food delivery + mode eco | `mode weekend`, `weekend chill`, `mode detente` +1 | pipeline | — | — |
 | 259 | `sim_movie_night` | Soiree film: minimiser tout + Netflix + lumiere tamisee | `soiree film`, `movie night`, `mode cinema maison` +1 | pipeline | — | — |
+| 260 | `sim_tech_news` | Veille tech: HN + TechCrunch + Reddit + The Verge | `veille tech`, `news tech`, `ouvre les news tech` +1 | pipeline | — | — |
+| 261 | `sim_ai_news` | News IA: arXiv + HuggingFace + Semantic Scholar + Papers | `news ia`, `actualites intelligence artificielle`, `veille ia` +1 | pipeline | — | — |
+| 262 | `sim_deploy_vercel` | Deploy Vercel: build + push + deploy + verify | `deploie sur vercel`, `deploy vercel`, `push vercel` +1 | pipeline | — | — |
+| 263 | `sim_deploy_docker` | Deploy Docker: build image + tag + push registry | `deploie en docker`, `docker deploy`, `push docker image` +1 | pipeline | — | — |
+| 264 | `sim_datascience_setup` | Data Science: Jupyter + HuggingFace + GPU monitor | `mode data science`, `setup data science`, `workspace datascience` +1 | pipeline | — | — |
+| 265 | `sim_kaggle_session` | Session Kaggle: competitions + notebooks + datasets | `session kaggle`, `mode kaggle`, `ouvre kaggle` +1 | pipeline | — | — |
+| 266 | `sim_interview_prep` | Prep entretien: LeetCode + GeeksForGeeks + docs + notes | `prepare l'entretien`, `mode interview`, `practice coding` +1 | pipeline | — | — |
+| 267 | `sim_photo_edit` | Photo edit: Photopea + Pexels + Remove.bg + Canva | `mode edition photo`, `session photo`, `edite des photos` +1 | pipeline | — | — |
+| 268 | `sim_system_hardening` | Hardening: firewall + users + ports + updates + audit | `renforce la securite`, `system hardening`, `securise le systeme` +1 | pipeline | — | — |
+| 269 | `sim_meal_prep` | Meal prep: Marmiton + 750g + Uber Eats + notes | `meal prep`, `planifie les repas`, `qu'est ce qu'on mange` +1 | pipeline | — | — |
+| 270 | `sim_monitoring_full` | Monitoring: GPU + cluster + ports + logs + disk | `monitoring complet`, `check tout le monitoring`, `surveillance totale` +1 | pipeline | — | — |
+| 271 | `sim_jarvis_selfcheck` | Auto-diagnostic JARVIS: config + deps + DB + commands + cluster | `auto diagnostic jarvis`, `jarvis self check`, `verifie toi meme` +1 | pipeline | — | — |
 
 ## Saisie
 
@@ -1041,7 +1084,7 @@
 
 ## Systeme & Maintenance
 
-**624 commandes**
+**650 commandes**
 
 | # | Nom | Description | Declencheurs | Type | Params | Confirm |
 |---|-----|-------------|--------------|------|--------|---------|
@@ -1669,6 +1712,32 @@
 | 622 | `process_by_cpu` | Top 15 processus par CPU | `processus par cpu`, `qui consomme le cpu`, `top cpu` +1 | powershell | — | — |
 | 623 | `process_tree` | Arborescence des processus (parent-enfant) | `arbre des processus`, `process tree`, `qui lance quoi` +1 | powershell | — | — |
 | 624 | `process_handles` | Processus avec le plus de handles ouverts | `handles ouverts`, `processus handles`, `qui a trop de handles` | powershell | — | — |
+| 625 | `wu_check_updates` | Verifier les mises a jour Windows disponibles | `verifie les mises a jour`, `check updates`, `y a des updates` +1 | powershell | — | — |
+| 626 | `wu_history` | Historique des mises a jour Windows | `historique updates`, `mises a jour recentes`, `update history` +1 | powershell | — | — |
+| 627 | `wu_pause_updates` | Parametres pour suspendre les mises a jour | `pause les updates`, `suspends les mises a jour`, `pas d'update` | powershell | — | — |
+| 628 | `wu_driver_updates` | Voir les mises a jour de pilotes optionnelles | `mises a jour pilotes`, `driver updates`, `updates optionnelles` | powershell | — | — |
+| 629 | `wu_last_reboot_reason` | Raison du dernier redemarrage | `pourquoi le pc a redemarre`, `dernier reboot`, `raison redemarrage` +1 | powershell | — | — |
+| 630 | `restore_point_create` | Creer un point de restauration systeme | `cree un point de restauration`, `restore point`, `sauvegarde systeme` +1 | powershell | — | Oui |
+| 631 | `restore_point_list` | Lister les points de restauration | `liste les points de restauration`, `quels restore points`, `points de restauration disponibles` | powershell | — | — |
+| 632 | `system_info_detailed` | Informations systeme detaillees | `info systeme detaille`, `systeminfo`, `tout sur le pc` +1 | powershell | — | — |
+| 633 | `notif_clear_all` | Effacer toutes les notifications | `efface les notifications`, `clear notifications`, `vire les notifs` +1 | powershell | — | — |
+| 634 | `notif_dnd_toggle` | Activer/desactiver Ne pas deranger | `ne pas deranger`, `do not disturb`, `mode silencieux` +1 | powershell | — | — |
+| 635 | `notif_app_settings` | Parametres de notifications par application | `notifs par appli`, `reglages notifications`, `quelles applis notifient` | powershell | — | — |
+| 636 | `default_browser_check` | Voir quel est le navigateur par defaut | `quel navigateur par defaut`, `default browser`, `navigateur principal` | powershell | — | — |
+| 637 | `default_apps_settings` | Ouvrir les parametres d'applis par defaut | `applis par defaut`, `apps par defaut`, `default apps` +1 | powershell | — | — |
+| 638 | `file_type_assoc` | Voir l'association d'un type de fichier | `quelle appli pour {ext}`, `association {ext}`, `qui ouvre les {ext}` | powershell | ext | — |
+| 639 | `compress_folder` | Compresser un dossier en ZIP | `compresse {dossier}`, `zip {dossier}`, `archive {dossier}` +1 | powershell | dossier | — |
+| 640 | `extract_archive` | Extraire une archive ZIP | `extrais {archive}`, `dezippe {archive}`, `decompresse {archive}` +1 | powershell | archive | — |
+| 641 | `rename_files_batch` | Renommer des fichiers en lot (prefixe) | `renomme en lot {prefix}`, `batch rename {prefix}`, `renomme les fichiers {prefix}` | powershell | prefix | Oui |
+| 642 | `find_large_files` | Trouver les plus gros fichiers (top 20) | `plus gros fichiers`, `fichiers les plus lourds`, `big files` +1 | powershell | — | — |
+| 643 | `find_old_files` | Trouver les fichiers non modifies depuis 90 jours | `vieux fichiers`, `fichiers anciens`, `old files` +1 | powershell | — | — |
+| 644 | `motherboard_info` | Informations sur la carte mere | `carte mere`, `motherboard`, `quelle carte mere` +1 | powershell | — | — |
+| 645 | `ram_details` | Details des barrettes RAM | `details ram`, `barrettes memoire`, `ram details` +1 | powershell | — | — |
+| 646 | `windows_license` | Statut de la licence Windows | `licence windows`, `windows active`, `statut activation` +1 | powershell | — | — |
+| 647 | `boot_config` | Configuration de demarrage (BCD) | `config demarrage`, `boot config`, `bcd edit` +1 | powershell | — | — |
+| 648 | `locale_current` | Afficher les parametres regionaux actuels | `parametres regionaux`, `quelle locale`, `region actuelle` | powershell | — | — |
+| 649 | `timezone_current` | Afficher le fuseau horaire actuel | `quel fuseau horaire`, `timezone`, `quelle heure on est` +1 | powershell | — | — |
+| 650 | `timezone_list` | Lister les fuseaux horaires disponibles | `liste fuseaux horaires`, `timezones disponibles`, `quels fuseaux` | powershell | — | — |
 
 ## Trading
 
@@ -1705,17 +1774,17 @@
 | Accessibilite | 10 | 0 |
 | App | 23 | 0 |
 | Clipboard | 13 | 0 |
-| Developpement & Outils | 241 | 0 |
+| Developpement & Outils | 254 | 0 |
 | Gestion des Fenetres | 13 | 0 |
 | Fichiers | 45 | 0 |
 | Jarvis | 12 | 0 |
 | Launcher | 12 | 0 |
 | Media & Volume | 7 | 0 |
-| Navigation Web | 296 | 0 |
-| Pipelines Multi-Etapes | 0 | 259 |
+| Navigation Web | 314 | 0 |
+| Pipelines Multi-Etapes | 0 | 271 |
 | Saisie | 3 | 0 |
-| Systeme & Maintenance | 624 | 0 |
+| Systeme & Maintenance | 650 | 0 |
 | Trading | 19 | 0 |
-| **TOTAL** | **1318** | **259** |
+| **TOTAL** | **1375** | **271** |
 
-> **Grand total: 1577 commandes vocales**
+> **Grand total: 1646 commandes vocales**
