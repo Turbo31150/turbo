@@ -660,4 +660,148 @@ NAVIGATION_COMMANDS: list[JarvisCommand] = [
         "cherche sur maps {requete}", "maps {requete}",
         "trouve {requete} sur la carte", "ou est {requete}",
     ], "browser", "navigate:https://www.google.com/maps/search/{requete}", ["requete"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SITES FRANÇAIS QUOTIDIENS — Administration, services publics
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_impots", "navigation", "Ouvrir impots.gouv.fr", [
+        "ouvre les impots", "impots gouv", "va sur les impots",
+        "site des impots", "declaration impots",
+    ], "browser", "navigate:https://www.impots.gouv.fr"),
+    JarvisCommand("ouvrir_ameli", "navigation", "Ouvrir Ameli (Assurance Maladie)", [
+        "ouvre ameli", "assurance maladie", "va sur ameli",
+        "securite sociale", "carte vitale",
+    ], "browser", "navigate:https://www.ameli.fr"),
+    JarvisCommand("ouvrir_caf", "navigation", "Ouvrir la CAF", [
+        "ouvre la caf", "allocations familiales", "va sur la caf",
+        "caf en ligne",
+    ], "browser", "navigate:https://www.caf.fr"),
+    JarvisCommand("ouvrir_sncf", "navigation", "Ouvrir SNCF Connect (trains)", [
+        "ouvre sncf", "billets de train", "va sur sncf",
+        "sncf connect", "reserv un train",
+    ], "browser", "navigate:https://www.sncf-connect.com"),
+    JarvisCommand("ouvrir_doctolib", "navigation", "Ouvrir Doctolib (rendez-vous medical)", [
+        "ouvre doctolib", "prends un rdv medical", "va sur doctolib",
+        "rendez vous docteur", "medecin en ligne",
+    ], "browser", "navigate:https://www.doctolib.fr"),
+    JarvisCommand("ouvrir_la_poste", "navigation", "Ouvrir La Poste (suivi colis)", [
+        "ouvre la poste", "suivi colis", "va sur la poste",
+        "ou est mon colis", "la poste tracking",
+    ], "browser", "navigate:https://www.laposte.fr"),
+    JarvisCommand("ouvrir_pole_emploi", "navigation", "Ouvrir France Travail (ex Pole Emploi)", [
+        "ouvre pole emploi", "france travail", "va sur pole emploi",
+        "offres d'emploi",
+    ], "browser", "navigate:https://www.francetravail.fr"),
+    JarvisCommand("ouvrir_service_public", "navigation", "Ouvrir Service-Public.fr", [
+        "service public", "demarches administratives", "va sur service public",
+        "site du gouvernement",
+    ], "browser", "navigate:https://www.service-public.fr"),
+    JarvisCommand("ouvrir_fnac", "navigation", "Ouvrir Fnac.com", [
+        "ouvre la fnac", "va sur la fnac", "fnac en ligne",
+        "acheter a la fnac",
+    ], "browser", "navigate:https://www.fnac.com"),
+    JarvisCommand("ouvrir_cdiscount", "navigation", "Ouvrir Cdiscount", [
+        "ouvre cdiscount", "va sur cdiscount", "cdiscount",
+        "acheter sur cdiscount",
+    ], "browser", "navigate:https://www.cdiscount.com"),
+    JarvisCommand("ouvrir_amazon_fr", "navigation", "Ouvrir Amazon France", [
+        "ouvre amazon france", "amazon fr", "va sur amazon",
+        "acheter sur amazon",
+    ], "browser", "navigate:https://www.amazon.fr"),
+    JarvisCommand("ouvrir_boursorama", "navigation", "Ouvrir Boursorama (banque/bourse)", [
+        "ouvre boursorama", "va sur boursorama", "banque en ligne",
+        "bourse boursorama",
+    ], "browser", "navigate:https://www.boursorama.com"),
+    JarvisCommand("ouvrir_free_mobile", "navigation", "Ouvrir Free Mobile (espace client)", [
+        "ouvre free", "espace client free", "va sur free",
+        "mon compte free",
+    ], "browser", "navigate:https://mobile.free.fr/account/"),
+    JarvisCommand("ouvrir_edf", "navigation", "Ouvrir EDF (electricite)", [
+        "ouvre edf", "mon compte edf", "facture electricite",
+        "va sur edf",
+    ], "browser", "navigate:https://www.edf.fr"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CLOUD & HOSTING — Plateformes cloud et deploiement
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_aws_console", "navigation", "Ouvrir AWS Console", [
+        "ouvre aws", "console aws", "va sur aws",
+        "amazon web services", "aws console",
+    ], "browser", "navigate:https://console.aws.amazon.com"),
+    JarvisCommand("ouvrir_azure_portal", "navigation", "Ouvrir Azure Portal", [
+        "ouvre azure", "portal azure", "va sur azure",
+        "microsoft azure", "azure console",
+    ], "browser", "navigate:https://portal.azure.com"),
+    JarvisCommand("ouvrir_gcp_console", "navigation", "Ouvrir Google Cloud Console", [
+        "ouvre google cloud", "gcp console", "va sur google cloud",
+        "cloud google", "google cloud platform",
+    ], "browser", "navigate:https://console.cloud.google.com"),
+    JarvisCommand("ouvrir_netlify", "navigation", "Ouvrir Netlify (deploiement)", [
+        "ouvre netlify", "va sur netlify", "netlify dashboard",
+        "deploiement netlify",
+    ], "browser", "navigate:https://app.netlify.com"),
+    JarvisCommand("ouvrir_digitalocean", "navigation", "Ouvrir DigitalOcean", [
+        "ouvre digitalocean", "va sur digital ocean", "digital ocean",
+        "droplets digitalocean",
+    ], "browser", "navigate:https://cloud.digitalocean.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # OUTILS DEV WEB — Editeurs, playgrounds, design
+    # ══════════════════════════════════════════════════════════════════════
+
+    # ══════════════════════════════════════════════════════════════════════
+    # NEWS & MÉDIAS — Actualites FR et tech
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_le_monde", "navigation", "Ouvrir Le Monde", [
+        "ouvre le monde", "actualites le monde", "va sur le monde",
+        "infos le monde", "lemonde",
+    ], "browser", "navigate:https://www.lemonde.fr"),
+    JarvisCommand("ouvrir_le_figaro", "navigation", "Ouvrir Le Figaro", [
+        "ouvre le figaro", "actualites figaro", "va sur le figaro",
+        "infos figaro",
+    ], "browser", "navigate:https://www.lefigaro.fr"),
+    JarvisCommand("ouvrir_liberation", "navigation", "Ouvrir Liberation", [
+        "ouvre liberation", "actualites liberation", "va sur libe",
+        "infos liberation",
+    ], "browser", "navigate:https://www.liberation.fr"),
+    JarvisCommand("ouvrir_france_info", "navigation", "Ouvrir France Info", [
+        "ouvre france info", "actualites france", "va sur france info",
+        "infos en direct",
+    ], "browser", "navigate:https://www.francetvinfo.fr"),
+    JarvisCommand("ouvrir_techcrunch", "navigation", "Ouvrir TechCrunch (tech news)", [
+        "ouvre techcrunch", "news tech", "va sur techcrunch",
+        "actualites tech",
+    ], "browser", "navigate:https://techcrunch.com"),
+    JarvisCommand("ouvrir_hackernews", "navigation", "Ouvrir Hacker News", [
+        "ouvre hacker news", "va sur hacker news", "ycombinator news",
+        "hn", "hackernews",
+    ], "browser", "navigate:https://news.ycombinator.com"),
+    JarvisCommand("ouvrir_ars_technica", "navigation", "Ouvrir Ars Technica", [
+        "ouvre ars technica", "va sur ars technica", "ars technica",
+        "tech reviews",
+    ], "browser", "navigate:https://arstechnica.com"),
+    JarvisCommand("ouvrir_the_verge", "navigation", "Ouvrir The Verge", [
+        "ouvre the verge", "va sur the verge", "the verge",
+        "tech the verge",
+    ], "browser", "navigate:https://www.theverge.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # STREAMING & ENTERTAINMENT — Plateformes de contenu
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_deezer", "navigation", "Ouvrir Deezer", [
+        "ouvre deezer", "va sur deezer", "musique deezer",
+        "streaming deezer",
+    ], "browser", "navigate:https://www.deezer.com"),
+    JarvisCommand("ouvrir_mycanal", "navigation", "Ouvrir MyCanal", [
+        "ouvre canal plus", "va sur mycanal", "canal+",
+        "mycanal streaming",
+    ], "browser", "navigate:https://www.mycanal.fr"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RECHERCHE SPÉCIALISÉE — Nouvelles catégories
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("chercher_leboncoin", "navigation", "Rechercher sur Leboncoin", [
+        "cherche sur leboncoin {requete}", "leboncoin {requete}",
+        "annonce {requete}", "occasion {requete}",
+    ], "browser", "navigate:https://www.leboncoin.fr/recherche?text={requete}", ["requete"]),
 ]

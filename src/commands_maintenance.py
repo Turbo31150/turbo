@@ -886,4 +886,256 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
         "game bar directe", "xbox game bar", "win g direct",
         "ouvre la barre de jeu",
     ], "hotkey", "win+g"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # POWERTOYS — Intégration outils Microsoft PowerToys
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("powertoys_color_picker", "systeme", "Lancer le Color Picker PowerToys", [
+        "color picker", "pipette couleur", "capture une couleur",
+        "quel est ce code couleur", "selectionne une couleur",
+    ], "hotkey", "win+shift+c"),
+    JarvisCommand("powertoys_text_extractor", "systeme", "Extraire du texte de l'ecran (OCR PowerToys)", [
+        "text extractor", "ocr ecran", "lis le texte a l'ecran",
+        "extrais le texte", "copie le texte de l'image",
+    ], "hotkey", "win+shift+t"),
+    JarvisCommand("powertoys_screen_ruler", "systeme", "Mesurer des distances a l'ecran (Screen Ruler)", [
+        "screen ruler", "regle ecran", "mesure l'ecran",
+        "regle powertoys", "mesurer a l'ecran",
+    ], "hotkey", "win+shift+m"),
+    JarvisCommand("powertoys_always_on_top", "systeme", "Epingler la fenetre au premier plan (PowerToys)", [
+        "pin powertoys", "epingle powertoys", "always on top powertoys",
+        "garde la fenetre devant",
+    ], "hotkey", "win+ctrl+t"),
+    JarvisCommand("powertoys_paste_plain", "systeme", "Coller en texte brut (PowerToys)", [
+        "colle en texte brut", "paste plain", "coller sans mise en forme",
+        "ctrl win alt v", "paste as plain text",
+    ], "hotkey", "ctrl+win+alt+v"),
+    JarvisCommand("powertoys_fancyzones", "systeme", "Activer FancyZones layout editor", [
+        "fancy zones", "editeur de zones", "layout fancyzones",
+        "zones powertoys", "arrange les zones ecran",
+    ], "hotkey", "win+shift+`"),
+    JarvisCommand("powertoys_peek", "systeme", "Apercu rapide de fichier (PowerToys Peek)", [
+        "peek fichier", "apercu rapide", "preview powertoys",
+        "regarde le fichier rapidement",
+    ], "hotkey", "ctrl+space"),
+    JarvisCommand("powertoys_launcher", "systeme", "Ouvrir PowerToys Run (lanceur rapide)", [
+        "powertoys run", "lanceur rapide", "quick launcher",
+        "alt space", "lance powertoys run",
+    ], "hotkey", "alt+space"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # OPÉRATIONS FICHIERS — Compression, manipulation, organisation
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("compresser_fichier", "fichiers", "Compresser un dossier en ZIP", [
+        "compresse en zip", "zip le dossier", "cree un zip",
+        "archive le dossier", "compress files",
+    ], "powershell", "$d = (Get-ChildItem F:\\BUREAU -Directory | Sort LastWriteTime -Descending | Select -First 1).FullName; $zip = \"$d.zip\"; Compress-Archive -Path $d -DestinationPath $zip -Force; \"Compresse: $zip\""),
+    JarvisCommand("decompresser_fichier", "fichiers", "Decompresser un fichier ZIP", [
+        "decompresse le zip", "unzip", "extrais l'archive",
+        "dezippe", "decompresser",
+    ], "powershell", "$z = Get-ChildItem F:\\BUREAU\\*.zip -ErrorAction SilentlyContinue | Sort LastWriteTime -Descending | Select -First 1; if($z){Expand-Archive $z.FullName -DestinationPath ($z.FullName -replace '\\.zip$','') -Force; \"Extrait: $($z.Name)\"}else{'Aucun ZIP trouve'}"),
+    JarvisCommand("compresser_turbo", "fichiers", "Compresser le projet turbo en ZIP (sans .git ni venv)", [
+        "zip turbo", "archive turbo", "compresse le projet",
+        "backup zip turbo",
+    ], "powershell", "$dest = \"F:\\BUREAU\\turbo_$(Get-Date -Format 'yyyy-MM-dd_HHmm').zip\"; Get-ChildItem F:\\BUREAU\\turbo -Recurse -File | Where { $_.FullName -notmatch '\\.git\\\\|__pycache__|node_modules|\\.venv|dist' } | Compress-Archive -DestinationPath $dest -Force; \"Archive: $dest\""),
+    JarvisCommand("vider_dossier_temp", "fichiers", "Supprimer les fichiers temporaires", [
+        "vide le temp", "nettoie les temporaires", "clean temp",
+        "supprime les fichiers temporaires",
+    ], "powershell", "$count = (Get-ChildItem $env:TEMP -Recurse -File -ErrorAction SilentlyContinue).Count; Remove-Item \"$env:TEMP\\*\" -Recurse -Force -ErrorAction SilentlyContinue; \"$count fichiers temporaires supprimes\"", confirm=True),
+    JarvisCommand("lister_fichiers_recents", "fichiers", "Lister les 20 fichiers les plus recents sur le bureau", [
+        "fichiers recents", "derniers fichiers", "quoi de recent",
+        "fichiers modifies recemment",
+    ], "powershell", "Get-ChildItem F:\\BUREAU -Recurse -File -ErrorAction SilentlyContinue | Sort LastWriteTime -Descending | Select -First 20 @{N='Modifie';E={$_.LastWriteTime.ToString('dd/MM HH:mm')}}, @{N='Taille(KB)';E={[math]::Round($_.Length/1KB)}}, Name | Format-Table -AutoSize | Out-String"),
+    JarvisCommand("chercher_gros_fichiers", "fichiers", "Trouver les fichiers > 100 MB sur F:", [
+        "gros fichiers partout", "fichiers enormes", "quoi prend toute la place",
+        "plus gros fichiers systeme",
+    ], "powershell", "Get-ChildItem F:\\ -Recurse -File -ErrorAction SilentlyContinue | Where Length -gt 100MB | Sort Length -Descending | Select -First 15 @{N='Taille(MB)';E={[math]::Round($_.Length/1MB)}}, FullName | Format-Table -AutoSize | Out-String -Width 200"),
+    JarvisCommand("doublons_bureau", "fichiers", "Detecter les doublons potentiels par nom dans F:\\BUREAU", [
+        "doublons bureau", "fichiers en double", "trouve les doublons",
+        "duplicate files", "doublons dans mes projets",
+    ], "powershell", "Get-ChildItem F:\\BUREAU -Recurse -File -ErrorAction SilentlyContinue | Group-Object Name | Where Count -gt 1 | Select Name, Count | Sort Count -Descending | Select -First 20 | Format-Table -AutoSize | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RÉSEAU AVANCÉ — Diagnostic, VPN, DNS
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("traceroute_google", "systeme", "Traceroute vers Google DNS", [
+        "traceroute", "trace la route", "tracert google",
+        "chemin reseau", "trace route",
+    ], "powershell", "tracert -d -h 15 8.8.8.8 2>&1 | Out-String"),
+    JarvisCommand("ping_google", "systeme", "Ping Google pour tester la connexion", [
+        "ping google", "teste internet", "j'ai internet",
+        "est ce que internet marche", "test connexion",
+    ], "powershell", "ping 8.8.8.8 -n 4 | Out-String"),
+    JarvisCommand("ping_cluster_complet", "systeme", "Ping tous les noeuds du cluster IA", [
+        "ping tout le cluster", "tous les noeuds repondent",
+        "test cluster complet", "ping m1 m2 m3",
+    ], "powershell", "$results = @(); @('192.168.1.26','192.168.1.113','10.5.0.2','127.0.0.1') | ForEach-Object { $t = Test-Connection $_ -Count 1 -TimeoutSeconds 2 -ErrorAction SilentlyContinue; $results += \"$_`: $(if($t){\"$([math]::Round($t.Latency))ms\"}else{'TIMEOUT'})\" }; $results -join ' | '"),
+    JarvisCommand("netstat_ecoute", "systeme", "Ports en ecoute avec processus associes", [
+        "netstat listen", "ports en ecoute", "quels ports ecoutent",
+        "qui ecoute sur quel port",
+    ], "powershell", "Get-NetTCPConnection -State Listen | Select LocalPort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Sort LocalPort | Format-Table -AutoSize | Out-String"),
+    JarvisCommand("flush_dns", "systeme", "Purger le cache DNS", [
+        "flush dns", "purge dns", "vide le cache dns",
+        "recharge le dns", "dns flush",
+    ], "powershell", "ipconfig /flushdns 2>&1 | Out-String"),
+    JarvisCommand("flush_arp", "systeme", "Purger la table ARP", [
+        "flush arp", "vide la table arp", "purge arp",
+        "nettoie arp",
+    ], "powershell", "arp -d * 2>&1; 'Table ARP purgee'"),
+    JarvisCommand("ip_config_complet", "systeme", "Configuration IP complete de toutes les interfaces", [
+        "ipconfig all", "config ip complete", "toutes les ips",
+        "detail reseau complet", "ip de tout",
+    ], "powershell", "ipconfig /all | Out-String"),
+    JarvisCommand("speed_test_rapide", "systeme", "Test de debit internet rapide (download)", [
+        "speed test", "test de vitesse", "vitesse internet",
+        "debit download", "teste ma connexion",
+    ], "powershell", "$t = Measure-Command { Invoke-WebRequest 'https://speed.cloudflare.com/__down?bytes=10000000' -UseBasicParsing -OutFile $null -TimeoutSec 15 }; $mbps = [math]::Round(80/$t.TotalSeconds,1); \"Download: ~$mbps Mbps\""),
+    JarvisCommand("vpn_status", "systeme", "Verifier l'etat des connexions VPN actives", [
+        "etat vpn", "vpn status", "suis je en vpn",
+        "vpn connecte", "quel vpn",
+    ], "powershell", "$vpn = Get-VpnConnection -ErrorAction SilentlyContinue | Where ConnectionStatus -eq 'Connected'; if($vpn){\"VPN actif: $($vpn.Name) — $($vpn.ServerAddress)\"}else{'Aucun VPN connecte'}"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # TIMERS & PLANIFICATION — Minuteries, alarmes, shutdown programme
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("shutdown_timer_30", "systeme", "Programmer l'extinction dans 30 minutes", [
+        "eteins dans 30 minutes", "shutdown dans 30 min", "timer extinction 30",
+        "arrete le pc dans une demi heure",
+    ], "powershell", "shutdown /s /t 1800; 'Extinction programmee dans 30 minutes'", confirm=True),
+    JarvisCommand("shutdown_timer_60", "systeme", "Programmer l'extinction dans 1 heure", [
+        "eteins dans une heure", "shutdown dans 1h", "timer extinction 1h",
+        "arrete le pc dans une heure",
+    ], "powershell", "shutdown /s /t 3600; 'Extinction programmee dans 1 heure'", confirm=True),
+    JarvisCommand("shutdown_timer_120", "systeme", "Programmer l'extinction dans 2 heures", [
+        "eteins dans deux heures", "shutdown dans 2h", "timer extinction 2h",
+        "arrete le pc dans 2 heures",
+    ], "powershell", "shutdown /s /t 7200; 'Extinction programmee dans 2 heures'", confirm=True),
+    JarvisCommand("annuler_shutdown", "systeme", "Annuler l'extinction programmee", [
+        "annule l'extinction", "cancel shutdown", "arrete le timer",
+        "n'eteins plus", "abort shutdown",
+    ], "powershell", "shutdown /a 2>&1; 'Extinction programmee annulee'"),
+    JarvisCommand("restart_timer_30", "systeme", "Programmer un redemarrage dans 30 minutes", [
+        "redemarre dans 30 minutes", "restart dans 30 min",
+        "redemarrage programme 30",
+    ], "powershell", "shutdown /r /t 1800; 'Redemarrage programme dans 30 minutes'", confirm=True),
+    JarvisCommand("rappel_vocal", "systeme", "Creer un rappel vocal avec notification", [
+        "rappelle moi dans {minutes} minutes", "timer {minutes} min",
+        "alarme dans {minutes} minutes", "minuterie {minutes}",
+    ], "powershell", "$t = {minutes}; Start-Job -ScriptBlock { param($m) Start-Sleep ($m*60); [System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms'); [System.Windows.Forms.MessageBox]::Show(\"Rappel JARVIS: $m minutes ecoulees!\", 'JARVIS Timer') } -ArgumentList $t | Out-Null; \"Timer $t minutes lance en arriere-plan\"", ["minutes"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SÉCURITÉ ÉTENDUE — Audit, mots de passe, chiffrement
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("generer_mot_de_passe", "systeme", "Generer un mot de passe securise aleatoire", [
+        "genere un mot de passe", "password random", "mot de passe aleatoire",
+        "cree un password", "genere un password",
+    ], "powershell", "$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*'; $pwd = -join (1..20 | ForEach-Object { $chars[(Get-Random -Max $chars.Length)] }); Set-Clipboard $pwd; \"Mot de passe (20 chars) copie dans le presse-papier\""),
+    JarvisCommand("audit_rdp", "systeme", "Verifier si le Bureau a distance est active", [
+        "rdp actif", "bureau a distance", "remote desktop status",
+        "check rdp", "est ce que rdp est active",
+    ], "powershell", "$rdp = (Get-ItemProperty 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server').fDenyTSConnections; if($rdp -eq 0){'RDP ACTIVE — attention securite!'}else{'RDP desactive (ok)'}"),
+    JarvisCommand("audit_admin_users", "systeme", "Lister les utilisateurs administrateurs", [
+        "qui est admin", "utilisateurs administrateurs", "admin users",
+        "comptes admin", "quels comptes ont les droits admin",
+    ], "powershell", "Get-LocalGroupMember -Group Administrators -ErrorAction SilentlyContinue | Select Name, ObjectClass | Out-String"),
+    JarvisCommand("sessions_actives", "systeme", "Lister les sessions utilisateur actives", [
+        "sessions actives", "qui est connecte", "user sessions",
+        "quelles sessions sont ouvertes",
+    ], "powershell", "quser 2>$null | Out-String; if(-not $?){ query user 2>$null | Out-String }"),
+    JarvisCommand("check_hash_fichier", "systeme", "Calculer le hash SHA256 d'un fichier", [
+        "hash du fichier {path}", "sha256 {path}", "checksum {path}",
+        "verifie l'integrite de {path}",
+    ], "powershell", "(Get-FileHash '{path}' -Algorithm SHA256).Hash", ["path"]),
+    JarvisCommand("audit_software_recent", "systeme", "Logiciels installes recemment (30 derniers jours)", [
+        "logiciels recemment installes", "quoi de neuf installe",
+        "installations recentes", "derniers logiciels",
+    ], "powershell", "Get-ItemProperty HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | Where InstallDate | Where { try { [datetime]::ParseExact($_.InstallDate,'yyyyMMdd',$null) -gt (Get-Date).AddDays(-30) } catch { $false } } | Select DisplayName, InstallDate | Sort InstallDate -Descending | Format-Table -AutoSize | Out-String"),
+    JarvisCommand("firewall_toggle_profil", "systeme", "Activer/desactiver le pare-feu pour le profil actif", [
+        "toggle firewall", "active le pare feu", "desactive le firewall",
+        "firewall on off", "bascule le pare feu",
+    ], "powershell", "$p = (Get-NetConnectionProfile).NetworkCategory; $f = (Get-NetFirewallProfile -Name $p).Enabled; if($f){Set-NetFirewallProfile -Name $p -Enabled False; \"Firewall $p DESACTIVE\"}else{Set-NetFirewallProfile -Name $p -Enabled True; \"Firewall $p ACTIVE\"}", confirm=True),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # HARDWARE & AFFICHAGE — Luminosité, moniteurs, batterie
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("luminosite_haute", "systeme", "Monter la luminosite au maximum", [
+        "luminosite max", "brightness max", "ecran au maximum",
+        "monte la luminosite", "pleine luminosite",
+    ], "powershell", "(Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightnessMethods -ErrorAction SilentlyContinue).WmiSetBrightness(1,100); 'Luminosite: 100%'"),
+    JarvisCommand("luminosite_basse", "systeme", "Baisser la luminosite au minimum", [
+        "luminosite min", "brightness low", "ecran au minimum",
+        "baisse la luminosite", "luminosite basse",
+    ], "powershell", "(Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightnessMethods -ErrorAction SilentlyContinue).WmiSetBrightness(1,20); 'Luminosite: 20%'"),
+    JarvisCommand("luminosite_moyenne", "systeme", "Luminosite a 50%", [
+        "luminosite moyenne", "brightness medium", "luminosite normale",
+        "ecran a moitie", "luminosite 50",
+    ], "powershell", "(Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightnessMethods -ErrorAction SilentlyContinue).WmiSetBrightness(1,50); 'Luminosite: 50%'"),
+    JarvisCommand("info_moniteurs", "systeme", "Informations sur les moniteurs connectes", [
+        "info moniteurs", "quels ecrans", "resolution ecran",
+        "moniteurs connectes", "screens info",
+    ], "powershell", "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Screen]::AllScreens | ForEach-Object { \"$($_.DeviceName): $($_.Bounds.Width)x$($_.Bounds.Height) $(if($_.Primary){'(Principal)'}else{''})\" }"),
+    JarvisCommand("batterie_info", "systeme", "Etat de la batterie (si laptop)", [
+        "etat batterie", "battery status", "niveau batterie",
+        "combien de batterie", "autonomie restante",
+    ], "powershell", "$b = Get-CimInstance Win32_Battery -ErrorAction SilentlyContinue; if($b){\"Batterie: $($b.EstimatedChargeRemaining)% | Etat: $($b.Status) | Branchee: $(if($b.BatteryStatus -eq 2){'Oui'}else{'Non'})\"}else{'Pas de batterie detectee (PC fixe)'}"),
+    JarvisCommand("power_events_recent", "systeme", "Historique veille/reveil des dernieres 24h", [
+        "historique veille", "quand le pc s'est endormi", "power events",
+        "veille et reveil recent",
+    ], "powershell", "Get-WinEvent -FilterHashtable @{LogName='System';ProviderName='Microsoft-Windows-Power-Troubleshooter','Microsoft-Windows-Kernel-Power'} -MaxEvents 10 -ErrorAction SilentlyContinue | Select TimeCreated, @{N='Event';E={$_.Message.Split([char]10)[0]}} | Out-String"),
+    JarvisCommand("night_light_toggle", "systeme", "Basculer l'eclairage nocturne", [
+        "lumiere de nuit", "night light", "eclairage nocturne",
+        "mode nuit ecran", "filtre bleu",
+    ], "powershell", "Start-Process ms-settings:nightlight; 'Parametres eclairage nocturne ouverts'"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # IMPRESSION — Gestion imprimante et PDF
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("imprimer_page", "systeme", "Imprimer la page/document actif", [
+        "imprime", "print", "lance l'impression",
+        "imprime la page", "ctrl p",
+    ], "hotkey", "ctrl+p"),
+    JarvisCommand("file_impression", "systeme", "Voir la file d'attente d'impression", [
+        "file d'impression", "print queue", "quoi dans l'imprimante",
+        "impressions en attente", "queue d'impression",
+    ], "powershell", "Get-PrintJob -PrinterName (Get-Printer | Select -First 1 -ExpandProperty Name) -ErrorAction SilentlyContinue | Select DocumentName, JobStatus, Size | Out-String; if(-not $?){ 'Aucune imprimante ou file vide' }"),
+    JarvisCommand("annuler_impressions", "systeme", "Annuler toutes les impressions en attente", [
+        "annule les impressions", "cancel print", "arrete l'imprimante",
+        "vide la file d'impression",
+    ], "powershell", "Get-Printer | ForEach-Object { Get-PrintJob -PrinterName $_.Name -ErrorAction SilentlyContinue | Remove-PrintJob -ErrorAction SilentlyContinue }; 'File d'impression videe'"),
+    JarvisCommand("imprimante_par_defaut", "systeme", "Voir l'imprimante par defaut", [
+        "quelle imprimante par defaut", "default printer", "imprimante principale",
+        "imprimante active",
+    ], "powershell", "$p = Get-CimInstance Win32_Printer | Where Default -eq $true; if($p){\"Par defaut: $($p.Name) | Etat: $($p.PrinterStatus)\"}else{'Aucune imprimante par defaut'}"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PROCESSUS AVANCÉ — Kill ciblé, priorité, affinité
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("kill_chrome", "systeme", "Forcer la fermeture de Chrome", [
+        "tue chrome", "kill chrome", "force ferme chrome",
+        "arrete chrome de force",
+    ], "powershell", "Stop-Process -Name chrome -Force -ErrorAction SilentlyContinue; 'Chrome ferme'", confirm=True),
+    JarvisCommand("kill_edge", "systeme", "Forcer la fermeture d'Edge", [
+        "tue edge", "kill edge", "force ferme edge",
+        "arrete edge de force",
+    ], "powershell", "Stop-Process -Name msedge -Force -ErrorAction SilentlyContinue; 'Edge ferme'", confirm=True),
+    JarvisCommand("kill_discord", "systeme", "Forcer la fermeture de Discord", [
+        "tue discord", "kill discord", "ferme discord de force",
+        "arrete discord",
+    ], "powershell", "Stop-Process -Name discord -Force -ErrorAction SilentlyContinue; 'Discord ferme'", confirm=True),
+    JarvisCommand("kill_spotify", "systeme", "Forcer la fermeture de Spotify", [
+        "tue spotify", "kill spotify", "ferme spotify de force",
+        "arrete spotify",
+    ], "powershell", "Stop-Process -Name spotify -Force -ErrorAction SilentlyContinue; 'Spotify ferme'", confirm=True),
+    JarvisCommand("kill_steam", "systeme", "Forcer la fermeture de Steam", [
+        "tue steam", "kill steam", "ferme steam de force",
+        "arrete steam",
+    ], "powershell", "Stop-Process -Name steam -Force -ErrorAction SilentlyContinue; 'Steam ferme'", confirm=True),
+    JarvisCommand("priorite_haute", "systeme", "Passer la fenetre active en priorite haute CPU", [
+        "priorite haute", "high priority", "boost le processus",
+        "accelere cette app",
+    ], "powershell", "$fg = [System.Diagnostics.Process]::GetCurrentProcess(); Add-Type @\"`nusing System;using System.Runtime.InteropServices;public class FG{[DllImport(\"user32.dll\")]public static extern IntPtr GetForegroundWindow();[DllImport(\"user32.dll\")]public static extern uint GetWindowThreadProcessId(IntPtr h,out uint pid);}`n\"@; $pid = 0; [FG]::GetWindowThreadProcessId([FG]::GetForegroundWindow(),[ref]$pid); if($pid){(Get-Process -Id $pid).PriorityClass = 'High'; \"PID $pid passe en priorite haute\"}else{'Impossible'}"),
+    JarvisCommand("processus_reseau", "systeme", "Processus utilisant le reseau actuellement", [
+        "qui utilise le reseau", "processus reseau", "network processes",
+        "quelles apps utilisent internet",
+    ], "powershell", "Get-NetTCPConnection -State Established | Group-Object OwningProcess | ForEach-Object { $p = Get-Process -Id $_.Name -ErrorAction SilentlyContinue; [PSCustomObject]@{Process=$p.Name; PID=$_.Name; Connexions=$_.Count} } | Sort Connexions -Descending | Select -First 15 | Format-Table -AutoSize | Out-String"),
 ]

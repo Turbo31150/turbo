@@ -922,4 +922,123 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
         "backup hebdomadaire", "sauvegarde de la semaine",
         "backup weekly", "sauvegarde hebdo",
     ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git add -A; git commit -m 'Weekly backup JARVIS' --allow-empty 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; $c = (git log --since='1 week ago' --oneline | Measure-Object).Count; $py = (Get-ChildItem src/*.py -Recurse | Get-Content | Measure-Object -Line).Lines; \"Semaine: $c commits | Code: $py lignes\";;powershell:$d = Get-Date -Format 'yyyy-MM-dd_HHmm'; $os = Get-CimInstance Win32_OperatingSystem; $ram = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); \"Snapshot $d — RAM: $ram GB\"", confirm=True),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 13 — DIAGNOSTIC RÉSEAU COMPLET
+    # Scénario: Investiguer un problème réseau de A à Z
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_diag_reseau_complet", "pipeline", "Diagnostic reseau: ping + DNS + traceroute + ports + IP publique", [
+        "diagnostic reseau complet", "probleme internet complet",
+        "analyse le reseau a fond", "debug reseau total",
+    ], "pipeline", "powershell:ping 8.8.8.8 -n 3 | Select-String 'Moyenne|Average|100%' | Out-String;;powershell:ipconfig /flushdns; nslookup google.com 2>&1 | Select-String 'Address' | Out-String;;powershell:tracert -d -h 10 8.8.8.8 2>&1 | Select -Last 5 | Out-String;;powershell:Get-NetTCPConnection -State Listen | Group-Object LocalPort | Select @{N='Port';E={$_.Name}}, @{N='Process';E={(Get-Process -Id ($_.Group[0].OwningProcess) -ErrorAction SilentlyContinue).Name}} | Sort Port | Select -First 10 | Out-String;;powershell:(Invoke-RestMethod -Uri 'https://api.ipify.org?format=json' -TimeoutSec 5).ip;;powershell:\"Diagnostic reseau termine\""),
+    JarvisCommand("sim_diag_wifi", "pipeline", "Diagnostic WiFi: signal + SSID + vitesse + DNS + latence", [
+        "probleme wifi complet", "diagnostic wifi", "le wifi deconne",
+        "analyse le wifi",
+    ], "pipeline", "powershell:netsh wlan show interfaces | Select-String 'SSID|Signal|Debit|Etat' | Out-String;;powershell:ping 192.168.1.1 -n 3 | Select-String 'Moyenne|Average' | Out-String;;powershell:ping 8.8.8.8 -n 3 | Select-String 'Moyenne|Average' | Out-String;;powershell:\"Diagnostic WiFi termine\""),
+    JarvisCommand("sim_diag_cluster_deep", "pipeline", "Diagnostic cluster profond: ping + models + GPU + latence", [
+        "diagnostic cluster profond", "debug cluster complet",
+        "le cluster repond plus", "analyse cluster deep",
+    ], "pipeline", "powershell:$m2 = try{(Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; $ol1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; $m3 = try{(Invoke-WebRequest -Uri 'http://192.168.1.113:1234/api/v1/models' -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; \"M2: $(if($m2-eq 200){'OK'}else{'OFFLINE'}) | OL1: $(if($ol1-eq 200){'OK'}else{'OFFLINE'}) | M3: $(if($m3-eq 200){'OK'}else{'OFFLINE'})\";;powershell:nvidia-smi --query-gpu=name,temperature.gpu,utilization.gpu,memory.used,memory.total --format=csv,noheader,nounits | ForEach-Object { $f=$_-split','; \"$($f[0].Trim()): $($f[1].Trim())C | GPU$($f[2].Trim())% | VRAM $($f[3].Trim())/$($f[4].Trim())MB\" };;powershell:(Invoke-RestMethod -Uri 'http://127.0.0.1:11434/api/ps' -TimeoutSec 5).models | ForEach-Object { \"$($_.name) | VRAM: $([math]::Round($_.size_vram/1GB,2))GB\" };;powershell:\"Diagnostic cluster termine\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 14 — AUDIT SÉCURITÉ EXPRESS
+    # Scénario: Vérification sécurité rapide du système
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_audit_securite", "pipeline", "Audit securite: ports + connexions + autorun + defender + RDP + admin", [
+        "audit securite complet", "check securite", "scan securite total",
+        "est ce que je suis securise", "verification securite",
+    ], "pipeline", "powershell:Get-NetTCPConnection -State Listen | Group-Object LocalPort | Select @{N='Port';E={$_.Name}}, @{N='Process';E={(Get-Process -Id ($_.Group[0].OwningProcess) -ErrorAction SilentlyContinue).Name}}, Count | Sort Port | Select -First 10 | Out-String;;powershell:Get-NetTCPConnection -State Established | Where RemoteAddress -notmatch '^(127|10|192\\.168|0\\.)' | Select RemoteAddress, RemotePort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Sort RemoteAddress -Unique | Select -First 10 | Out-String;;powershell:$rdp = (Get-ItemProperty 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server').fDenyTSConnections; \"RDP: $(if($rdp -eq 0){'ACTIVE - ATTENTION'}else{'Desactive (OK)'})\";;powershell:$mp = Get-MpComputerStatus; \"Defender: $(if($mp.RealTimeProtectionEnabled){'OK'}else{'DESACTIVE!'}) | Signatures: $($mp.AntivirusSignatureLastUpdated.ToString('dd/MM'))\";;powershell:Get-LocalGroupMember -Group Administrators -ErrorAction SilentlyContinue | Select Name | Out-String;;powershell:\"Audit securite termine\""),
+    JarvisCommand("sim_hardening_check", "pipeline", "Check durcissement: firewall + UAC + BitLocker + updates", [
+        "check hardening", "durcissement systeme", "securite avancee",
+        "est ce que le systeme est blinde",
+    ], "pipeline", "powershell:Get-NetFirewallProfile | Select Name, Enabled | Out-String;;powershell:$uac = (Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System').EnableLUA; \"UAC: $(if($uac){'Active'}else{'DESACTIVE!'})\";;powershell:try{$bl = Get-BitLockerVolume -ErrorAction Stop; $bl | Select MountPoint, ProtectionStatus | Out-String}catch{'BitLocker: Non disponible ou non configure'};;powershell:try{$s = New-Object -ComObject Microsoft.Update.Session; $u = $s.CreateUpdateSearcher(); $r = $u.Search('IsInstalled=0'); \"Updates en attente: $($r.Updates.Count)\"}catch{'Verification updates impossible'};;powershell:\"Check hardening termine\""),
+    JarvisCommand("sim_audit_mots_de_passe", "pipeline", "Audit mots de passe: politique + comptes + expiration", [
+        "audit mots de passe", "politique password", "securite comptes",
+        "check passwords",
+    ], "pipeline", "powershell:net accounts 2>&1 | Out-String;;powershell:Get-LocalUser | Select Name, Enabled, PasswordRequired, PasswordLastSet | Format-Table -AutoSize | Out-String;;powershell:\"Audit mots de passe termine\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 15 — SETUP NOUVEAU PROJET
+    # Scénario: Initialiser un nouveau projet de dev de A à Z
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_new_project_python", "pipeline", "Nouveau projet Python: dossier + venv + git + VSCode", [
+        "nouveau projet python", "init projet python", "cree un projet python",
+        "setup python project",
+    ], "pipeline", "powershell:$name = 'new_project_' + (Get-Date -Format 'yyyyMMdd'); $path = \"F:\\BUREAU\\$name\"; New-Item $path -ItemType Directory -Force | Out-Null; cd $path; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' init 2>&1 | Out-String; \"Projet cree: $path\";;powershell:cd \"F:\\BUREAU\\$((Get-ChildItem F:\\BUREAU -Directory | Sort LastWriteTime -Descending | Select -First 1).Name)\"; git init 2>&1 | Out-String;;app_open:code;;sleep:2;;powershell:\"Projet Python initialise et ouvert dans VSCode\""),
+    JarvisCommand("sim_new_project_node", "pipeline", "Nouveau projet Node.js: dossier + npm init + git + VSCode", [
+        "nouveau projet node", "init projet javascript", "cree un projet node",
+        "setup node project",
+    ], "pipeline", "powershell:$name = 'node_project_' + (Get-Date -Format 'yyyyMMdd'); $path = \"F:\\BUREAU\\$name\"; New-Item $path -ItemType Directory -Force | Out-Null; cd $path; npm init -y 2>&1 | Out-String; \"Projet cree: $path\";;powershell:cd \"F:\\BUREAU\\$((Get-ChildItem F:\\BUREAU -Directory | Sort LastWriteTime -Descending | Select -First 1).Name)\"; git init 2>&1 | Out-String;;app_open:code;;sleep:2;;powershell:\"Projet Node.js initialise et ouvert dans VSCode\""),
+    JarvisCommand("sim_clone_and_setup", "pipeline", "Cloner un repo et l'ouvrir: git clone + VSCode + install deps", [
+        "clone et setup {repo}", "git clone et ouvre {repo}",
+        "clone le projet {repo}", "setup repo {repo}",
+    ], "pipeline", "powershell:cd F:\\BUREAU; git clone '{repo}' 2>&1 | Out-String;;sleep:2;;app_open:code;;sleep:2;;powershell:\"Repo clone et ouvert dans VSCode\"", ["repo"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 16 — GESTION FICHIERS MASSIVE
+    # Scénario: Organiser, nettoyer, archiver des fichiers en masse
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_grand_nettoyage_disque", "pipeline", "Grand nettoyage: temp + cache + corbeille + thumbnails + crash dumps + pycache", [
+        "grand nettoyage du disque", "mega clean", "libere de l'espace",
+        "nettoyage massif", "purge totale",
+    ], "pipeline", "powershell:$s1 = (Get-ChildItem $env:TEMP -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1MB; Remove-Item \"$env:TEMP\\*\" -Recurse -Force -ErrorAction SilentlyContinue; \"TEMP: $([math]::Round($s1)) MB liberes\";;powershell:Remove-Item \"$env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Default\\Cache\\*\" -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item \"$env:LOCALAPPDATA\\Microsoft\\Edge\\User Data\\Default\\Cache\\*\" -Recurse -Force -ErrorAction SilentlyContinue; 'Caches navigateur nettoyes';;powershell:Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe';;powershell:Remove-Item \"$env:LOCALAPPDATA\\Microsoft\\Windows\\Explorer\\thumbcache_*\" -Force -ErrorAction SilentlyContinue; 'Thumbnails nettoyes';;powershell:Remove-Item \"$env:LOCALAPPDATA\\CrashDumps\\*\" -Force -ErrorAction SilentlyContinue; 'Crash dumps supprimes';;powershell:Get-ChildItem F:\\BUREAU -Recurse -Directory -Filter '__pycache__' -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force; 'Pycache nettoyes';;powershell:$f = (Get-PSDrive F).Free/1GB; $c = (Get-PSDrive C).Free/1GB; \"Espace libre — C: $([math]::Round($c,1)) GB | F: $([math]::Round($f,1)) GB\"", confirm=True),
+    JarvisCommand("sim_archive_vieux_projets", "pipeline", "Archiver les projets non modifies depuis 30 jours", [
+        "archive les vieux projets", "zip les anciens projets",
+        "range les projets inactifs", "archivage projets",
+    ], "pipeline", "powershell:$old = Get-ChildItem F:\\BUREAU -Directory | Where { $_.Name -ne 'turbo' -and $_.LastWriteTime -lt (Get-Date).AddDays(-30) }; if($old){ $old | ForEach-Object { \"Inactif: $($_.Name) (modifie: $($_.LastWriteTime.ToString('dd/MM')))\"}; \"$($old.Count) projets inactifs detectes\" }else{ 'Tous les projets sont recents' }"),
+    JarvisCommand("sim_scan_fichiers_orphelins", "pipeline", "Scanner fichiers orphelins: gros fichiers + doublons + anciens", [
+        "scan fichiers orphelins", "nettoyage intelligent", "analyse les fichiers",
+        "quoi supprimer",
+    ], "pipeline", "powershell:\"=== Fichiers > 100MB ===\"; Get-ChildItem F:\\BUREAU -Recurse -File -ErrorAction SilentlyContinue | Where Length -gt 100MB | Sort Length -Desc | Select -First 5 @{N='MB';E={[math]::Round($_.Length/1MB)}}, FullName | Out-String;;powershell:\"=== Doublons par nom ===\"; Get-ChildItem F:\\BUREAU -Recurse -File -ErrorAction SilentlyContinue | Group Name | Where Count -gt 2 | Sort Count -Desc | Select -First 10 Name, Count | Out-String;;powershell:\"=== Fichiers > 1 an ===\"; Get-ChildItem F:\\BUREAU -Recurse -File -ErrorAction SilentlyContinue | Where { $_.LastWriteTime -lt (Get-Date).AddYears(-1) } | Measure-Object | Select @{N='Fichiers anciens (>1 an)';E={$_.Count}} | Out-String;;powershell:\"Scan fichiers termine\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 17 — POWERTOYS WORKFLOWS
+    # Scénario: Enchainer les outils PowerToys pour être productif
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_design_review", "pipeline", "Design review: screen ruler + color picker + text extractor + screenshot", [
+        "review design complet", "analyse visuelle", "design review",
+        "mesure et capture", "inspection ui",
+    ], "pipeline", "hotkey:win+shift+m;;sleep:3;;hotkey:win+shift+c;;sleep:3;;hotkey:win+shift+t;;sleep:3;;hotkey:win+shift+s;;powershell:\"Design review complete — outils fermes\""),
+    JarvisCommand("sim_layout_productif", "pipeline", "Layout productif: FancyZones + always on top + snap windows", [
+        "layout productif", "arrange mon ecran", "organise mes fenetres",
+        "setup fenetres productif",
+    ], "pipeline", "app_open:code;;sleep:2;;hotkey:win+left;;sleep:1;;browser:navigate:http://127.0.0.1:8080;;sleep:2;;hotkey:win+right;;sleep:1;;hotkey:win+ctrl+t;;powershell:\"Layout productif: VSCode gauche | Dashboard droite (epingle)\""),
+    JarvisCommand("sim_copier_texte_image", "pipeline", "Copier du texte depuis une image: OCR + clipboard + notification", [
+        "copie le texte de l'image", "ocr et copie", "lis l'image",
+        "texte depuis screenshot",
+    ], "pipeline", "hotkey:win+shift+t;;sleep:5;;powershell:$clip = Get-Clipboard -ErrorAction SilentlyContinue; if($clip){\"Texte copie: $($clip.Substring(0, [math]::Min($clip.Length, 100)))...\"}else{'Aucun texte capture'}"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 18 — DATABASE MANAGEMENT
+    # Scénario: Gestion des bases de données du projet
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_db_health_check", "pipeline", "Health check bases: jarvis.db + etoile.db + taille + integrite", [
+        "health check des bases", "check les db", "bases de donnees ok",
+        "diagnostic bases de donnees",
+    ], "pipeline", "powershell:$j = (Get-Item F:\\BUREAU\\turbo\\data\\jarvis.db -ErrorAction SilentlyContinue).Length/1KB; $e = (Get-Item F:\\BUREAU\\etoile.db -ErrorAction SilentlyContinue).Length/1KB; \"jarvis.db: $([math]::Round($j)) KB | etoile.db: $([math]::Round($e)) KB\";;powershell:sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db 'PRAGMA integrity_check;' 2>&1 | Out-String;;powershell:sqlite3 F:\\BUREAU\\etoile.db 'PRAGMA integrity_check;' 2>&1 | Out-String;;powershell:sqlite3 F:\\BUREAU\\etoile.db 'SELECT category, COUNT(*) as c FROM map GROUP BY category ORDER BY c DESC;' 2>&1 | Out-String;;powershell:\"Health check DB termine\""),
+    JarvisCommand("sim_db_backup", "pipeline", "Backup toutes les bases de donnees", [
+        "backup les bases", "sauvegarde les db", "copie les bases de donnees",
+        "backup database",
+    ], "pipeline", "powershell:$d = Get-Date -Format 'yyyy-MM-dd_HHmm'; Copy-Item F:\\BUREAU\\turbo\\data\\jarvis.db \"F:\\BUREAU\\turbo\\data\\jarvis_backup_$d.db\" -Force; Copy-Item F:\\BUREAU\\etoile.db \"F:\\BUREAU\\etoile_backup_$d.db\" -Force; \"Backup DB: jarvis_backup_$d.db + etoile_backup_$d.db\""),
+    JarvisCommand("sim_db_stats", "pipeline", "Statistiques des bases: tables, lignes, taille par table", [
+        "stats des bases", "metriques db", "combien dans les bases",
+        "taille des tables",
+    ], "pipeline", "powershell:sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db '.tables' 2>&1 | Out-String;;powershell:sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db 'SELECT \"skills\" as tbl, COUNT(*) as rows FROM skills UNION ALL SELECT \"actions\", COUNT(*) FROM actions UNION ALL SELECT \"historique\", COUNT(*) FROM historique;' 2>&1 | Out-String;;powershell:sqlite3 F:\\BUREAU\\etoile.db 'SELECT \"map\" as tbl, COUNT(*) as rows FROM map UNION ALL SELECT \"agents\", COUNT(*) FROM agents UNION ALL SELECT \"memories\", COUNT(*) FROM memories;' 2>&1 | Out-String;;powershell:\"Stats DB terminees\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 19 — DOCKER WORKFLOWS
+    # Scénario: Gestion de conteneurs Docker en vocal
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_docker_full_status", "pipeline", "Status Docker complet: containers + images + volumes + espace", [
+        "status docker complet", "etat complet docker", "docker overview",
+        "resume docker",
+    ], "pipeline", "powershell:docker ps --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}' 2>&1 | Out-String;;powershell:docker images --format 'table {{.Repository}}\\t{{.Tag}}\\t{{.Size}}' 2>&1 | Out-String;;powershell:docker system df 2>&1 | Out-String;;powershell:\"Status Docker complet\""),
+    JarvisCommand("sim_docker_cleanup", "pipeline", "Nettoyage Docker: prune containers + images + volumes + build cache", [
+        "nettoie docker a fond", "docker cleanup total", "purge docker complete",
+        "libere espace docker",
+    ], "pipeline", "powershell:docker container prune -f 2>&1 | Out-String;;powershell:docker image prune -a -f 2>&1 | Out-String;;powershell:docker volume prune -f 2>&1 | Out-String;;powershell:docker builder prune -f 2>&1 | Out-String;;powershell:docker system df 2>&1 | Out-String;;powershell:\"Docker nettoye a fond\"", confirm=True),
+    JarvisCommand("sim_docker_restart_all", "pipeline", "Redemarrer tous les conteneurs Docker", [
+        "redemarre docker", "restart all containers", "relance les conteneurs",
+        "docker restart tout",
+    ], "pipeline", "powershell:docker restart $(docker ps -q) 2>&1 | Out-String;;sleep:3;;powershell:docker ps --format 'table {{.Names}}\\t{{.Status}}' 2>&1 | Out-String;;powershell:\"Tous les conteneurs redemarres\""),
 ]
