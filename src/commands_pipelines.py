@@ -218,4 +218,134 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
         "ouvre toutes les ia comet", "ia comet",
         "lance les ia sur comet", "ouvre les chatbots comet",
     ], "pipeline", f"powershell:Start-Process '{COMET}' -ArgumentList 'https://chat.openai.com';;sleep:1;;powershell:Start-Process '{COMET}' -ArgumentList 'https://claude.ai';;sleep:1;;powershell:Start-Process '{COMET}' -ArgumentList 'https://www.perplexity.ai'"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # INSPIRÉ ALEXA ROUTINES — Modes ambiance et vie quotidienne
+    # (source: reolink.com/blog/alexa-routines, the-ambient.com)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("mode_cinema_complet", "pipeline", "Mode cinema complet: minimiser + nuit + plein ecran + Netflix", [
+        "mode cinema complet", "soiree film", "movie time",
+        "lance un film", "mode film complet",
+    ], "pipeline", f"{MINIMIZE_ALL};;sleep:1;;powershell:Start-Process ms-settings:nightlight;;sleep:1;;browser:navigate:https://www.netflix.com;;sleep:2;;hotkey:f11"),
+    JarvisCommand("mode_workout", "pipeline", "Mode workout: Spotify energique + YouTube fitness + timer", [
+        "mode workout", "mode sport", "lance le sport",
+        "mode entrainement", "session sport",
+        "mode fitness",
+    ], "pipeline", "app_open:spotify;;sleep:2;;browser:navigate:https://www.youtube.com/results?search_query=workout+timer+30+min;;sleep:1;;powershell:$t=New-TimeSpan -Minutes 30; \"Timer: $($t.Minutes) minutes — GO!\""),
+    JarvisCommand("mode_etude", "pipeline", "Mode etude: focus + Wikipedia + Pomodoro mindset", [
+        "mode etude", "mode revision", "mode etudiant",
+        "lance le mode etude", "session revision",
+    ], "pipeline", f"{MINIMIZE_ALL};;sleep:1;;ms_settings:ms-settings:quiethours;;sleep:1;;browser:navigate:https://fr.wikipedia.org;;sleep:1;;browser:navigate:https://docs.google.com"),
+    JarvisCommand("mode_diner", "pipeline", "Mode diner: minimiser + ambiance calme + Spotify", [
+        "mode diner", "ambiance diner", "dinner time",
+        "mode repas", "ambiance repas",
+    ], "pipeline", f"{MINIMIZE_ALL};;sleep:1;;powershell:Start-Process ms-settings:nightlight;;sleep:1;;app_open:spotify"),
+    JarvisCommand("routine_depart", "pipeline", "Routine depart: sauvegarder + minimiser + verrouiller + economie", [
+        "routine depart", "je pars", "je m'en vais",
+        "a plus tard", "je quitte la maison",
+        "mode absence",
+    ], "pipeline", f"powershell:cd F:\\BUREAU\\turbo; git add -A; git commit -m 'Auto-save depart JARVIS' --allow-empty 2>&1 | Out-String;;sleep:1;;{MINIMIZE_ALL};;sleep:1;;powershell:powercfg /setactive a1841308-3541-4fab-bc81-f71556f20b4a;;sleep:1;;powershell:rundll32.exe user32.dll,LockWorkStation", confirm=True),
+    JarvisCommand("routine_retour", "pipeline", "Routine retour: performance + cluster + mails + dashboard", [
+        "routine retour", "je suis rentre", "je suis la",
+        "je reviens", "mode retour",
+    ], "pipeline", "powershell:powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c;;sleep:1;;app_open:lmstudio;;sleep:2;;browser:navigate:https://mail.google.com;;sleep:1;;browser:navigate:http://127.0.0.1:8080"),
+    JarvisCommand("mode_nuit_totale", "pipeline", "Mode nuit: fermer tout + nuit + volume bas + verrouiller", [
+        "mode nuit totale", "dodo", "je vais dormir",
+        "extinction totale", "mode sommeil",
+    ], "pipeline", f"{MINIMIZE_ALL};;sleep:1;;powershell:Start-Process ms-settings:nightlight;;sleep:1;;powershell:(New-Object -ComObject WScript.Shell).SendKeys([char]174);(New-Object -ComObject WScript.Shell).SendKeys([char]174);(New-Object -ComObject WScript.Shell).SendKeys([char]174);;sleep:1;;powershell:rundll32.exe user32.dll,LockWorkStation", confirm=True),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # INSPIRÉ XDA/MEDIUM — Workflows developpeur (gated launch)
+    # (source: xda-developers.com, bhavyansh001.medium.com)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("dev_morning_setup", "pipeline", "Dev morning: git pull + Docker + VSCode + browser tabs travail", [
+        "dev morning", "setup dev du matin", "prepare le dev",
+        "ouvre mon environnement dev", "lance le setup dev",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git pull --rebase 2>&1 | Out-String;;sleep:1;;app_open:code;;sleep:2;;app_open:wt;;sleep:1;;browser:navigate:https://github.com;;sleep:1;;browser:navigate:http://127.0.0.1:8080"),
+    JarvisCommand("dev_deep_work", "pipeline", "Deep work: fermer distractions + VSCode + focus + terminal", [
+        "deep work", "travail profond", "mode deep focus",
+        "concentration dev", "code sans distraction",
+    ], "pipeline", f"powershell:Stop-Process -Name 'discord','telegram','slack' -Force -ErrorAction SilentlyContinue; 'Distractions fermees';;sleep:1;;{MINIMIZE_ALL};;sleep:1;;ms_settings:ms-settings:quiethours;;sleep:1;;app_open:code;;sleep:1;;app_open:wt"),
+    JarvisCommand("dev_standup_prep", "pipeline", "Standup prep: git log hier + board + dashboard", [
+        "standup prep", "prepare le standup", "qu'est ce que j'ai fait hier",
+        "recap hier", "preparation standup",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git log --since='yesterday' --oneline 2>&1 | Out-String;;sleep:1;;browser:navigate:https://github.com;;sleep:1;;browser:navigate:http://127.0.0.1:8080"),
+    JarvisCommand("dev_deploy_check", "pipeline", "Pre-deploy check: tests + git status + Docker status", [
+        "check avant deploy", "pre deploy", "verification deploy",
+        "pret a deployer", "deploy check",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pytest -x --tb=short 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:\\BUREAU\\turbo; git status -sb;;powershell:docker ps --format 'table {{.Names}}\\t{{.Status}}' 2>&1 | Out-String"),
+    JarvisCommand("dev_friday_report", "pipeline", "Rapport vendredi: stats git semaine + dashboard + todos", [
+        "rapport vendredi", "friday report", "recap de la semaine",
+        "bilan semaine", "rapport hebdo",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; 'Commits cette semaine:'; git log --since='last monday' --oneline 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; $py = (Get-ChildItem src/*.py -Recurse | Get-Content | Measure-Object -Line).Lines; \"Lignes de code: $py\";;browser:navigate:http://127.0.0.1:8080"),
+    JarvisCommand("dev_code_review_setup", "pipeline", "Code review setup: GitHub PRs + VSCode + diff terminal", [
+        "setup code review", "prepare la review", "code review setup",
+        "lance la revue de code",
+    ], "pipeline", "browser:navigate:https://github.com/pulls;;sleep:1;;app_open:code;;sleep:1;;powershell:cd F:\\BUREAU\\turbo; git diff --stat 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # INSPIRÉ POWERSHELL AUTOMATION — Audit, rapport, maintenance
+    # (source: attuneops.io, ninjaone.com, learn.microsoft.com)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("audit_securite_complet", "pipeline", "Audit securite: Defender + ports + connexions + firewall + autorun", [
+        "audit securite complet", "scan securite total", "audit de securite",
+        "check securite complet", "securite totale",
+    ], "pipeline", "powershell:Get-MpComputerStatus | Select AntivirusEnabled, RealTimeProtectionEnabled | Out-String;;powershell:Get-NetTCPConnection -State Listen | Group-Object LocalPort | Select @{N='Port';E={$_.Name}}, Count | Sort Port | Select -First 10 | Out-String;;powershell:Get-NetTCPConnection -State Established | Where RemoteAddress -notmatch '^(127|10|192\\.168|0\\.)' | Select RemoteAddress, RemotePort -Unique | Select -First 10 | Out-String;;powershell:Get-NetFirewallProfile | Select Name, Enabled | Out-String;;powershell:Get-CimInstance Win32_StartupCommand | Select Name, Command | Select -First 10 | Out-String"),
+    JarvisCommand("rapport_systeme_complet", "pipeline", "Rapport systeme: CPU + RAM + GPU + disques + uptime + reseau", [
+        "rapport systeme complet", "rapport systeme", "etat complet du pc",
+        "bilan systeme", "diagnostic total",
+    ], "pipeline", "powershell:$cpu = (Get-CimInstance Win32_Processor).Name; $usage = (Get-Counter '\\Processor(_Total)\\% Processor Time' -SampleInterval 1 -MaxSamples 1).CounterSamples.CookedValue; \"CPU: $cpu ($([math]::Round($usage))%)\";;powershell:$os = Get-CimInstance Win32_OperatingSystem; $used = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); $total = [math]::Round($os.TotalVisibleMemorySize/1MB,1); \"RAM: $used/$total GB\";;powershell:nvidia-smi --query-gpu=name,temperature.gpu,memory.used,memory.total --format=csv,noheader,nounits 2>&1 | Out-String;;powershell:Get-PSDrive -PSProvider FileSystem | Where Used -gt 0 | Select Name, @{N='Libre(GB)';E={[math]::Round($_.Free/1GB,1)}} | Out-String;;powershell:$boot = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; $up = (Get-Date) - $boot; \"Uptime: $($up.Days)j $($up.Hours)h $($up.Minutes)min\""),
+    JarvisCommand("maintenance_totale", "pipeline", "Maintenance totale: corbeille + temp + prefetch + DNS + thumbnails + check updates", [
+        "maintenance totale", "grand nettoyage", "maintenance complete",
+        "nettoie tout le pc", "gros menage",
+    ], "pipeline", "powershell:Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe';;powershell:Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye';;powershell:Remove-Item C:\\Windows\\Prefetch\\* -Force -ErrorAction SilentlyContinue; 'Prefetch nettoye';;powershell:ipconfig /flushdns; 'DNS purge';;powershell:Remove-Item \"$env:LOCALAPPDATA\\Microsoft\\Windows\\Explorer\\thumbcache_*\" -Force -ErrorAction SilentlyContinue; 'Thumbnails nettoyes';;powershell:wevtutil el | ForEach-Object { wevtutil cl $_ 2>$null }; 'Logs nettoyes'", confirm=True),
+    JarvisCommand("sauvegarde_tous_projets", "pipeline", "Backup tous projets: git commit turbo + carV1 + serveur", [
+        "sauvegarde tous les projets", "backup tous les projets",
+        "backup global", "sauvegarde globale",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git add -A; git commit -m 'Backup global auto-JARVIS' --allow-empty 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\carV1; if(Test-Path .git){git add -A; git commit -m 'Backup auto-JARVIS' --allow-empty 2>&1 | Out-String}else{'carV1: pas de repo git'};;powershell:cd F:\\BUREAU\\serveur; if(Test-Path .git){git add -A; git commit -m 'Backup auto-JARVIS' --allow-empty 2>&1 | Out-String}else{'serveur: pas de repo git'}", confirm=True),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # INSPIRÉ PRODUCTIVITÉ — Pomodoro, focus, pauses
+    # (source: smarthomeinsider.co.uk, workbrighter.co)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("pomodoro_start", "pipeline", "Pomodoro: fermer distractions + focus + VSCode + timer 25min", [
+        "pomodoro", "lance un pomodoro", "pomodoro start",
+        "25 minutes de focus", "session pomodoro",
+    ], "pipeline", f"powershell:Stop-Process -Name 'discord','telegram','slack' -Force -ErrorAction SilentlyContinue; 'Distractions fermees';;{MINIMIZE_ALL};;sleep:1;;app_open:code;;powershell:$end = (Get-Date).AddMinutes(25).ToString('HH:mm'); \"Pomodoro demarre — fin a $end\""),
+    JarvisCommand("pomodoro_break", "pipeline", "Pause Pomodoro: minimiser + Spotify + 5 min", [
+        "pause pomodoro", "break pomodoro", "pomodoro break",
+        "5 minutes de pause", "petite pause pomodoro",
+    ], "pipeline", f"{MINIMIZE_ALL};;sleep:1;;app_open:spotify;;powershell:$end = (Get-Date).AddMinutes(5).ToString('HH:mm'); \"Pause jusqu'a $end — profite!\""),
+    JarvisCommand("mode_entretien", "pipeline", "Mode entretien/call: fermer musique + focus + navigateur", [
+        "mode entretien", "j'ai un call", "mode appel",
+        "mode interview", "lance le mode call",
+    ], "pipeline", f"powershell:Stop-Process -Name 'spotify' -Force -ErrorAction SilentlyContinue;;{MINIMIZE_ALL};;sleep:1;;ms_settings:ms-settings:quiethours;;sleep:1;;app_open:discord"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # MULTI-PLATEFORME — Routines contextuelles avancees
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("mode_recherche", "pipeline", "Mode recherche: Perplexity + Google Scholar + Wikipedia + Claude", [
+        "mode recherche", "lance le mode recherche", "mode exploration",
+        "session recherche", "mode investigation",
+    ], "pipeline", "browser:navigate:https://www.perplexity.ai;;sleep:1;;browser:navigate:https://scholar.google.com;;sleep:1;;browser:navigate:https://fr.wikipedia.org;;sleep:1;;browser:navigate:https://claude.ai"),
+    JarvisCommand("mode_youtube", "pipeline", "Mode YouTube: minimiser + plein ecran + YouTube", [
+        "mode youtube", "lance youtube en grand", "session youtube",
+        "regarde youtube", "youtube plein ecran",
+    ], "pipeline", f"{MINIMIZE_ALL};;sleep:1;;browser:navigate:https://www.youtube.com;;sleep:2;;hotkey:f11"),
+    JarvisCommand("mode_spotify_focus", "pipeline", "Spotify focus: minimiser + Spotify + focus assist", [
+        "spotify focus", "musique et concentration", "musique de travail",
+        "lance la musique de focus",
+    ], "pipeline", f"{MINIMIZE_ALL};;sleep:1;;app_open:spotify;;sleep:1;;ms_settings:ms-settings:quiethours"),
+    JarvisCommand("ouvre_tout_dev_web", "pipeline", "Dev web complet: VSCode + terminal + localhost + npm docs", [
+        "dev web complet", "setup dev web", "lance le dev web",
+        "ouvre mon stack web", "mode web dev",
+    ], "pipeline", "app_open:code;;sleep:1;;app_open:wt;;sleep:1;;browser:navigate:http://localhost:3000;;sleep:1;;browser:navigate:https://www.npmjs.com"),
+    JarvisCommand("mode_twitch_stream", "pipeline", "Mode stream Twitch: OBS + Twitch dashboard + Spotify + chat", [
+        "mode twitch", "setup stream twitch", "lance le stream twitch",
+        "ouvre mon stream",
+    ], "pipeline", "app_open:obs64;;sleep:2;;browser:navigate:https://dashboard.twitch.tv;;sleep:1;;app_open:spotify;;sleep:1;;browser:navigate:https://www.twitch.tv/popout/chat"),
+    JarvisCommand("mode_email_productif", "pipeline", "Email productif: Gmail + Calendar + fermer distractions", [
+        "mode email", "traite les mails", "session email",
+        "mode inbox zero", "gere les mails",
+    ], "pipeline", f"powershell:Stop-Process -Name 'discord','telegram','slack' -Force -ErrorAction SilentlyContinue;;{MINIMIZE_ALL};;sleep:1;;browser:navigate:https://mail.google.com;;sleep:1;;browser:navigate:https://calendar.google.com"),
 ]

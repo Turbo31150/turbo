@@ -2,14 +2,14 @@
 
 > Mise a jour automatique: 2026-02-22 | Voice Pipeline v2
 
-**626 commandes** au total, dont **55 pipelines** multi-etapes, reparties en **14 categories**.
+**652 commandes** au total, dont **81 pipelines** multi-etapes, reparties en **14 categories**.
 
 | Categorie | Nombre |
 |-----------|--------|
 | Systeme Windows | 292 |
+| Pipelines Multi-Etapes | 81 |
 | Navigation Web | 77 |
 | Developpement & Outils | 57 |
-| Pipelines Multi-Etapes | 55 |
 | Fichiers & Documents | 32 |
 | Applications | 23 |
 | Trading & IA | 19 |
@@ -20,7 +20,7 @@
 | Accessibilite | 10 |
 | Controle Media | 7 |
 | Saisie & Texte | 4 |
-| **TOTAL** | **626** |
+| **TOTAL** | **652** |
 
 ---
 
@@ -85,6 +85,32 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | ouvre_tradingview_comet | "ouvre tradingview sur comet" | Comet: https://www.tradingview.com |
 | ouvre_coingecko_comet | "ouvre coingecko sur comet" | Comet: https://www.coingecko.com |
 | ouvre_ia_comet | "ouvre toutes les ia comet" | Comet: https://chat.openai.com > pause 1s > Comet: https://claude.ai > pause 1s > Comet: https://www.perplexity.ai |
+| mode_cinema_complet | "mode cinema complet" | MinimizeAll > pause 1s > Start-Process ms-settings:nightlight > pause 1s > Web: https://www.netflix.com > pause 2s > ... |
+| mode_workout | "mode workout" | Ouvrir spotify > pause 2s > Web: https://www.youtube.com/results?search_query=workout+timer+30+min > pause 1s > $t=Ne... |
+| mode_etude | "mode etude" | MinimizeAll > pause 1s > Settings > pause 1s > Web: https://fr.wikipedia.org > pause 1s > Web: https://docs.google.com |
+| mode_diner | "mode diner" | MinimizeAll > pause 1s > Start-Process ms-settings:nightlight > pause 1s > Ouvrir spotify |
+| routine_depart | "routine depart" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Aut... > pause 1s > MinimizeAll > pause 1s > powercfg /setactive a1841... (confirm) |
+| routine_retour | "routine retour" | powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c > pause 1s > Ouvrir lmstudio > pause 2s > Web: https://mail.... |
+| mode_nuit_totale | "mode nuit totale" | MinimizeAll > pause 1s > Start-Process ms-settings:nightlight > pause 1s > (New-Object -ComObject WScript.Shell).Send... (confirm) |
+| dev_morning_setup | "dev morning" | cd F:\BUREAU\turbo; git pull --rebase 2>&1 | Out-String > pause 1s > Ouvrir code > pause 2s > Ouvrir wt > pause 1s > ... |
+| dev_deep_work | "deep work" | Stop-Process -Name 'discord','telegram','slack' -F... > pause 1s > MinimizeAll > pause 1s > Settings > pause 1s > Ouv... |
+| dev_standup_prep | "standup prep" | cd F:\BUREAU\turbo; git log --since='yesterday' --... > pause 1s > Web: https://github.com > pause 1s > Web: http://1... |
+| dev_deploy_check | "check avant deploy" | cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:\BUREAU\turbo; git status -sb > docker ps --format 'tabl... |
+| dev_friday_report | "rapport vendredi" | cd F:\BUREAU\turbo; 'Commits cette semaine:'; git ... > cd F:\BUREAU\turbo; $py = (Get-ChildItem src/*.py ... > Web: ... |
+| dev_code_review_setup | "setup code review" | Web: https://github.com/pulls > pause 1s > Ouvrir code > pause 1s > cd F:\BUREAU\turbo; git diff --stat 2>&1 | Out-St... |
+| audit_securite_complet | "audit securite complet" | Get-MpComputerStatus | Select AntivirusEnabled, Re... > Get-NetTCPConnection -State Listen | Group-Object ... > Get-N... |
+| rapport_systeme_complet | "rapport systeme complet" | $cpu = (Get-CimInstance Win32_Processor).Name; $us... > $os = Get-CimInstance Win32_OperatingSystem; $used... > nvidi... |
+| maintenance_totale | "maintenance totale" | Clear-RecycleBin -Force -ErrorAction SilentlyConti... > Remove-Item $env:TEMP\* -Recurse -Force -ErrorActi... > Remov... (confirm) |
+| sauvegarde_tous_projets | "sauvegarde tous les projets" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Bac... > cd F:\BUREAU\carV1; if(Test-Path .git){git add -A;... > cd F:... (confirm) |
+| pomodoro_start | "pomodoro" | Stop-Process -Name 'discord','telegram','slack' -F... > MinimizeAll > pause 1s > Ouvrir code > $end = (Get-Date).AddM... |
+| pomodoro_break | "pause pomodoro" | MinimizeAll > pause 1s > Ouvrir spotify > $end = (Get-Date).AddMinutes(5).ToString('HH:mm');... |
+| mode_entretien | "mode entretien" | Stop-Process -Name 'spotify' -Force -ErrorAction S... > MinimizeAll > pause 1s > Settings > pause 1s > Ouvrir discord |
+| mode_recherche | "mode recherche" | Web: https://www.perplexity.ai > pause 1s > Web: https://scholar.google.com > pause 1s > Web: https://fr.wikipedia.or... |
+| mode_youtube | "mode youtube" | MinimizeAll > pause 1s > Web: https://www.youtube.com > pause 2s > Raccourci: f11 |
+| mode_spotify_focus | "spotify focus" | MinimizeAll > pause 1s > Ouvrir spotify > pause 1s > Settings |
+| ouvre_tout_dev_web | "dev web complet" | Ouvrir code > pause 1s > Ouvrir wt > pause 1s > Web: http://localhost:3000 > pause 1s > Web: https://www.npmjs.com |
+| mode_twitch_stream | "mode twitch" | Ouvrir obs64 > pause 2s > Web: https://dashboard.twitch.tv > pause 1s > Ouvrir spotify > pause 1s > Web: https://www.... |
+| mode_email_productif | "mode email" | Stop-Process -Name 'discord','telegram','slack' -F... > MinimizeAll > pause 1s > Web: https://mail.google.com > pause... |
 
 ---
 
