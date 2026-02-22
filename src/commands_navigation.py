@@ -146,4 +146,103 @@ NAVIGATION_COMMANDS: list[JarvisCommand] = [
         "cherche sur amazon {requete}", "amazon {requete}",
         "recherche amazon {requete}", "acheter {requete}",
     ], "browser", "navigate:https://www.amazon.fr/s?k={requete}", ["requete"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CRYPTO & TRADING
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_tradingview_web", "navigation", "Ouvrir TradingView", [
+        "ouvre tradingview", "va sur tradingview", "lance tradingview",
+        "ouvre trading view",
+    ], "browser", "navigate:https://www.tradingview.com"),
+    JarvisCommand("ouvrir_coingecko", "navigation", "Ouvrir CoinGecko", [
+        "ouvre coingecko", "va sur coingecko", "lance coingecko",
+        "ouvre coin gecko",
+    ], "browser", "navigate:https://www.coingecko.com"),
+    JarvisCommand("ouvrir_coinmarketcap", "navigation", "Ouvrir CoinMarketCap", [
+        "ouvre coinmarketcap", "va sur coinmarketcap",
+        "lance coinmarketcap", "ouvre cmc",
+    ], "browser", "navigate:https://coinmarketcap.com"),
+    JarvisCommand("ouvrir_mexc_exchange", "navigation", "Ouvrir MEXC Exchange", [
+        "ouvre mexc", "va sur mexc", "lance mexc",
+        "ouvre l'exchange",
+    ], "browser", "navigate:https://www.mexc.com"),
+    JarvisCommand("ouvrir_dexscreener", "navigation", "Ouvrir DexScreener", [
+        "ouvre dexscreener", "va sur dexscreener", "lance dexscreener",
+        "ouvre dex screener",
+    ], "browser", "navigate:https://dexscreener.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # COMMUNICATION WEB
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_telegram_web", "navigation", "Ouvrir Telegram Web", [
+        "ouvre telegram web", "telegram web", "telegram en ligne",
+        "va sur telegram web",
+    ], "browser", "navigate:https://web.telegram.org"),
+    JarvisCommand("ouvrir_whatsapp_web", "navigation", "Ouvrir WhatsApp Web", [
+        "ouvre whatsapp web", "whatsapp web", "whatsapp en ligne",
+        "va sur whatsapp web",
+    ], "browser", "navigate:https://web.whatsapp.com"),
+    JarvisCommand("ouvrir_slack_web", "navigation", "Ouvrir Slack Web", [
+        "ouvre slack web", "slack web", "slack en ligne",
+        "va sur slack web",
+    ], "browser", "navigate:https://app.slack.com"),
+    JarvisCommand("ouvrir_teams_web", "navigation", "Ouvrir Microsoft Teams Web", [
+        "ouvre teams web", "teams web", "teams en ligne",
+        "va sur teams web",
+    ], "browser", "navigate:https://teams.microsoft.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # VIDEO & STREAMING
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_youtube_music", "navigation", "Ouvrir YouTube Music", [
+        "ouvre youtube music", "youtube music", "lance youtube music",
+        "ouvre la musique youtube",
+    ], "browser", "navigate:https://music.youtube.com"),
+    JarvisCommand("ouvrir_prime_video", "navigation", "Ouvrir Amazon Prime Video", [
+        "ouvre prime video", "va sur prime video", "lance prime video",
+        "ouvre amazon prime",
+    ], "browser", "navigate:https://www.primevideo.com"),
+    JarvisCommand("ouvrir_crunchyroll", "navigation", "Ouvrir Crunchyroll", [
+        "ouvre crunchyroll", "va sur crunchyroll", "lance crunchyroll",
+        "ouvre crunchy",
+    ], "browser", "navigate:https://www.crunchyroll.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DEV & TECH — Sites supplementaires
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_github_web", "navigation", "Ouvrir GitHub", [
+        "ouvre github", "va sur github", "lance github",
+        "ouvrir github",
+    ], "browser", "navigate:https://github.com"),
+    JarvisCommand("ouvrir_vercel", "navigation", "Ouvrir Vercel", [
+        "ouvre vercel", "va sur vercel", "lance vercel",
+    ], "browser", "navigate:https://vercel.com"),
+    JarvisCommand("ouvrir_crates_io", "navigation", "Ouvrir crates.io (Rust packages)", [
+        "ouvre crates io", "va sur crates", "crates rust",
+        "packages rust",
+    ], "browser", "navigate:https://crates.io"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RECHERCHE SPECIALISEE — Supplementaire
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("chercher_video_youtube", "navigation", "Rechercher sur YouTube", [
+        "cherche sur youtube {requete}", "youtube {requete}",
+        "recherche youtube {requete}", "video {requete}",
+    ], "browser", "navigate:https://www.youtube.com/results?search_query={requete}", ["requete"]),
+    JarvisCommand("chercher_github", "navigation", "Rechercher sur GitHub", [
+        "cherche sur github {requete}", "github {requete}",
+        "recherche github {requete}", "repo {requete}",
+    ], "browser", "navigate:https://github.com/search?q={requete}", ["requete"]),
+    JarvisCommand("chercher_stackoverflow", "navigation", "Rechercher sur Stack Overflow", [
+        "cherche sur stackoverflow {requete}", "stackoverflow {requete}",
+        "stack overflow {requete}",
+    ], "browser", "navigate:https://stackoverflow.com/search?q={requete}", ["requete"]),
+    JarvisCommand("chercher_npm", "navigation", "Rechercher un package NPM", [
+        "cherche sur npm {requete}", "npm {requete}",
+        "recherche npm {requete}", "package npm {requete}",
+    ], "browser", "navigate:https://www.npmjs.com/search?q={requete}", ["requete"]),
+    JarvisCommand("chercher_pypi", "navigation", "Rechercher un package PyPI", [
+        "cherche sur pypi {requete}", "pypi {requete}",
+        "recherche pypi {requete}", "package python {requete}",
+    ], "browser", "navigate:https://pypi.org/search/?q={requete}", ["requete"]),
 ]
