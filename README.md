@@ -34,7 +34,7 @@
 15. [Bases de Donnees](#bases-de-donnees)
 16. [Installation & Configuration](#installation--configuration)
 17. [Appels API — Exemples Complets](#appels-api--exemples-complets)
-18. [955 Commandes Vocales — Liste Complete](#812-commandes-vocales--liste-complete)
+18. [1092 Commandes Vocales — Liste Complete](#812-commandes-vocales--liste-complete)
 
 ---
 
@@ -849,7 +849,7 @@ Micro (Sony WH-1000XM4 Bluetooth, 16kHz)
   +----+----+
        |
        v
- Command Match (fuzzy matching, 955 cmds dont 156 pipelines)
+ Command Match (fuzzy matching, 955 cmds dont 191 pipelines)
        |
   +----+----+
   |         |
@@ -878,14 +878,14 @@ MATCH     NO MATCH
 | Wake word | OpenWakeWord "jarvis" (seuil 0.7, cooldown 1s) |
 | Fallback PTT | Ctrl (toujours disponible) |
 | Exit confidence | >= 0.85 |
-| Commandes | **955 commandes vocales** (dont 156 pipelines) |
+| Commandes | **1092 commandes vocales** (dont 191 pipelines) |
 | TTS | Edge TTS fr-FR-HenriNeural (+10% rate) |
 | Cache | LRU 200 entrees, ~80% commandes en cache |
 | Correction IA | OL1 qwen3:1.7b (0.5s, timeout 3s) |
 | Warm-up | Ping OL1 toutes les 60s (keep model in GPU) |
 | Latence cible | < 1s (cache/local) / < 2s (IA) / < 3s (complexe) |
 
-> **Detail complet des 955 commandes vocales** : voir [`docs/COMMANDES_VOCALES.md`](docs/COMMANDES_VOCALES.md)
+> **Detail complet des 1092 commandes vocales** : voir [`docs/COMMANDES_VOCALES.md`](docs/COMMANDES_VOCALES.md)
 
 ---
 
@@ -970,8 +970,8 @@ F:\BUREAU\turbo\
 |   |-- agents.py                # 7 agents Claude SDK (deep/fast/check/trading/system/bridge/consensus)
 |   |-- tools.py                 # 87 outils MCP SDK (IA, Windows, Trading, Brain, Skills)
 |   |-- mcp_server.py            # Serveur MCP stdio pour Claude Code (87 handlers)
-|   |-- commands.py              # 955 commandes vocales (18 vagues + 4 extensions categories)
-|   |-- commands_pipelines.py    # 144 pipelines multi-etapes (modes, routines, Comet, dev, lifestyle)
+|   |-- commands.py              # 1092 commandes vocales (18 vagues + 4 extensions categories)
+|   |-- commands_pipelines.py    # 191 pipelines multi-etapes (modes, routines, Comet, dev, lifestyle)
 |   |-- commands_navigation.py   # 121 commandes navigation (social, IA, services, recherche)
 |   |-- commands_maintenance.py  # 126 commandes maintenance (monitoring, nettoyage, securite, inventaire)
 |   |-- commands_dev.py          # 100 commandes dev (git, ollama, docker, python, winget, WSL)
@@ -1186,9 +1186,9 @@ Documentation complete: `CLAUDE_MULTI_AGENT.md`
 
 
 
-## 955 Commandes Vocales — Liste Complete
+## 1092 Commandes Vocales — Liste Complete
 
-**955 commandes** au total dont **156 pipelines** multi-etapes.
+**955 commandes** au total dont **191 pipelines** multi-etapes.
 Reparties en **14 categories**.
 
 | Categorie | Nb | Description |

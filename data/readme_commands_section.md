@@ -1,7 +1,7 @@
 
 ## 812 Commandes Vocales — Liste Complete
 
-**955 commandes** au total dont **156 pipelines** multi-etapes.
+**1092 commandes** au total dont **191 pipelines** multi-etapes.
 Reparties en **14 categories**.
 
 | Categorie | Nb | Description |
@@ -9,16 +9,16 @@ Reparties en **14 categories**.
 | **accessibilite** | 10 | taille_texte_grand, clavier_virtuel, filtre_couleur... |
 | **app** | 23 | ouvrir_vscode, ouvrir_terminal, ouvrir_lmstudio... |
 | **clipboard** | 13 | copier, coller, couper... |
-| **dev** | 115 | docker_ps, docker_images, docker_stop_all... |
+| **dev** | 126 | docker_ps, docker_images, docker_stop_all... |
 | **fenetre** | 13 | minimiser_tout, alt_tab, fermer_fenetre... |
 | **fichiers** | 32 | ouvrir_documents, ouvrir_bureau, ouvrir_dossier... |
 | **jarvis** | 12 | historique_commandes, jarvis_aide, jarvis_stop... |
 | **launcher** | 12 | launch_pipeline_10, launch_sniper_10, launch_sniper_breakout... |
 | **media** | 7 | media_play_pause, media_next, media_previous... |
-| **navigation** | 148 | ouvrir_chrome, ouvrir_comet, aller_sur_site... |
-| **pipeline** | 156 | range_bureau, va_sur_mails_comet, mode_travail... |
+| **navigation** | 167 | ouvrir_chrome, ouvrir_comet, aller_sur_site... |
+| **pipeline** | 191 | range_bureau, va_sur_mails_comet, mode_travail... |
 | **saisie** | 4 | texte_majuscule, texte_minuscule, ouvrir_emojis... |
-| **systeme** | 391 | verrouiller, eteindre, redemarrer... |
+| **systeme** | 463 | verrouiller, eteindre, redemarrer... |
 | **trading** | 19 | scanner_marche, detecter_breakout, pipeline_trading... |
 
 <details>
@@ -85,7 +85,7 @@ Reparties en **14 categories**.
 | `clipboard_historique` | hotkey | Ouvrir l'historique du presse-papier | historique presse papier, clipboard history |
 | `coller_sans_format` | hotkey | Coller sans mise en forme | colle sans format, coller sans mise en forme |
 
-### DEV (115)
+### DEV (126)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -204,6 +204,17 @@ Reparties en **14 categories**.
 | `cuda_version` | powershell | Version de CUDA installee | version cuda, cuda version |
 | `powershell_version` | powershell | Version de PowerShell | version powershell, powershell version |
 | `dotnet_version` | powershell | Versions de .NET installees | version dotnet, dotnet version |
+| `turbo_skills_count` | powershell | Compter les skills et commandes vocales du projet | combien de skills, nombre de commandes vocales |
+| `turbo_find_duplicates` | powershell | Detecter les commandes vocales en doublon | cherche les doublons, duplicates commands |
+| `turbo_generate_docs` | powershell | Regenerer la documentation des commandes vocales | regenere la doc, update la doc vocale |
+| `turbo_generate_readme` | powershell | Regenerer la section commandes du README | regenere le readme, update le readme |
+| `check_all_versions` | powershell | Toutes les versions d'outils installes | toutes les versions, all versions |
+| `env_check_paths` | powershell | Verifier que les outils essentiels sont dans le PATH | check le path, outils disponibles |
+| `disk_space_summary` | powershell | Resume espace disque pour le dev | espace disque dev, combien de place pour coder |
+| `git_today` | powershell | Commits d'aujourd'hui | commits du jour, git today |
+| `git_this_week` | powershell | Commits de cette semaine | commits de la semaine, git this week |
+| `git_push_turbo` | powershell | Pusher les commits du projet turbo | push turbo, git push |
+| `git_pull_turbo` | powershell | Puller les commits du projet turbo | pull turbo, git pull |
 
 ### FENETRE (13)
 
@@ -306,7 +317,7 @@ Reparties en **14 categories**.
 | `muet` | hotkey | Couper/activer le son | coupe le son, mute |
 | `volume_precis` | powershell | Mettre le volume a un niveau precis | mets le volume a {niveau}, volume a {niveau} |
 
-### NAVIGATION (148)
+### NAVIGATION (167)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -458,8 +469,27 @@ Reparties en **14 categories**.
 | `chercher_alternativeto` | browser | Chercher une alternative a un logiciel | alternative a {requete}, cherche une alternative a {requete} |
 | `chercher_mdn` | browser | Rechercher sur MDN Web Docs | cherche sur mdn {requete}, mdn {requete} |
 | `chercher_can_i_use` | browser | Verifier la compatibilite d'une feature web | can i use {requete}, compatibilite de {requete} |
+| `ouvrir_chatgpt_plugins` | browser | Ouvrir ChatGPT (avec GPTs) | ouvre les gpts, chatgpt gpts |
+| `ouvrir_anthropic_console` | browser | Ouvrir la console Anthropic API | ouvre anthropic console, console anthropic |
+| `ouvrir_openai_platform` | browser | Ouvrir la plateforme OpenAI API | ouvre openai platform, console openai |
+| `ouvrir_google_colab` | browser | Ouvrir Google Colab | ouvre google colab, colab |
+| `ouvrir_overleaf` | browser | Ouvrir Overleaf (LaTeX en ligne) | ouvre overleaf, va sur overleaf |
+| `ouvrir_whimsical` | browser | Ouvrir Whimsical (diagrams & flowcharts) | ouvre whimsical, whimsical |
+| `ouvrir_grammarly` | browser | Ouvrir Grammarly | ouvre grammarly, grammarly |
+| `ouvrir_remove_bg` | browser | Ouvrir Remove.bg (supprimer arriere-plan) | ouvre remove bg, supprime l'arriere plan |
+| `ouvrir_tinypng` | browser | Ouvrir TinyPNG (compression images) | ouvre tinypng, compresse une image |
+| `ouvrir_draw_io` | browser | Ouvrir draw.io (diagrammes) | ouvre draw io, drawio |
+| `ouvrir_notion_calendar` | browser | Ouvrir Notion Calendar | ouvre notion calendar, calendrier notion |
+| `ouvrir_todoist` | browser | Ouvrir Todoist (gestion de taches) | ouvre todoist, va sur todoist |
+| `ouvrir_google_finance` | browser | Ouvrir Google Finance | ouvre google finance, google finance |
+| `ouvrir_yahoo_finance` | browser | Ouvrir Yahoo Finance | ouvre yahoo finance, yahoo finance |
+| `ouvrir_coindesk` | browser | Ouvrir CoinDesk (news crypto) | ouvre coindesk, news crypto |
+| `ouvrir_meteo` | browser | Ouvrir la meteo | ouvre la meteo, quel temps fait il |
+| `chercher_google_colab` | browser | Rechercher un notebook Colab | cherche un notebook {requete}, colab {requete} |
+| `chercher_perplexity` | browser | Rechercher sur Perplexity AI | cherche sur perplexity {requete}, perplexity {requete} |
+| `chercher_google_maps` | browser | Rechercher sur Google Maps | cherche sur maps {requete}, maps {requete} |
 
-### PIPELINE (156)
+### PIPELINE (191)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -619,6 +649,41 @@ Reparties en **14 categories**.
 | `mode_retrospective` | pipeline | Retrospective: bilan semaine + git stats + Notion + Calendar | mode retro, retrospective |
 | `mode_demo` | pipeline | Mode demo: dupliquer ecran + navigateur + dashboard + presentation | mode demo, prepare la demo |
 | `mode_scrum_master` | pipeline | Mode Scrum: board + standup + Calendar + timer | mode scrum, mode scrum master |
+| `sim_reveil_complet` | pipeline | Simulation reveil: cluster + mails + trading + news + dashboard + café | demarre la journee complete, simulation reveil |
+| `sim_check_matinal` | pipeline | Check matinal rapide: cluster health + GPU + RAM + trading | check matinal, tout va bien ce matin |
+| `sim_start_coding` | pipeline | Demarrer une session de code: git pull + VSCode + terminal + snap | je commence a coder, start coding session |
+| `sim_code_and_test` | pipeline | Code + test: lancer les tests + lint + afficher résultats | teste mon code, code and test |
+| `sim_commit_and_push` | pipeline | Commiter et pusher le code | commit et push, sauvegarde et pousse |
+| `sim_debug_session` | pipeline | Session debug: devtools + terminal + logs + monitoring | session debug complete, je debug |
+| `sim_avant_reunion` | pipeline | Avant reunion: fermer distractions + notes + agenda + micro check | prepare la reunion, avant le meeting |
+| `sim_rejoindre_reunion` | pipeline | Rejoindre: ouvrir Discord/Teams + partage ecran pret | rejoins la reunion, join meeting |
+| `sim_presenter_ecran` | pipeline | Presenter: dupliquer ecran + ouvrir dashboard + plein ecran | presente mon ecran, partage ecran presentation |
+| `sim_apres_reunion` | pipeline | Après reunion: fermer visio + restaurer musique + reprendre le dev | reunion terminee reprends, apres le meeting |
+| `sim_pause_cafe` | pipeline | Pause cafe: minimiser + verrouiller + 10 min | pause cafe, je prends un cafe |
+| `sim_pause_longue` | pipeline | Pause longue: save + musique + nuit + verrouiller | longue pause, grande pause |
+| `sim_retour_pause` | pipeline | Retour de pause: performance + rouvrir le dev + check cluster | je suis de retour, retour de pause |
+| `sim_recherche_intensive` | pipeline | Recherche intensive: Claude + Perplexity + Scholar + Wikipedia + notes | recherche intensive, session recherche complete |
+| `sim_formation_video` | pipeline | Formation video: YouTube + notes + VSCode + timer 2h | formation video complete, session formation |
+| `sim_analyse_trading` | pipeline | Analyse trading: multi-timeframe + indicateurs + news crypto | analyse trading complete, session analyse trading |
+| `sim_execution_trading` | pipeline | Execution trading: MEXC + TradingView + terminal signaux | execute le trading, passe les ordres |
+| `sim_monitoring_positions` | pipeline | Monitoring positions: MEXC + alertes + DexScreener | surveille mes positions, monitoring trading |
+| `sim_layout_dev_split` | pipeline | Layout dev split: VSCode gauche + navigateur droite | layout dev split, code a gauche navigateur a droite |
+| `sim_layout_triple` | pipeline | Layout triple: code + terminal + navigateur en quadrants | layout triple, trois fenetres organisees |
+| `sim_tout_fermer_propre` | pipeline | Fermeture propre: sauvegarder + fermer apps + minimiser + night light | ferme tout proprement, clean shutdown apps |
+| `sim_fin_journee_complete` | pipeline | Fin de journee complete: backup + stats + nuit + economie + verrouiller | fin de journee complete, termine la journee proprement |
+| `sim_weekend_mode` | pipeline | Mode weekend: fermer tout le dev + musique + news + Netflix | mode weekend complet, c'est le weekend enfin |
+| `sim_urgence_gpu` | pipeline | Urgence GPU: check temperatures + vram + killprocess gourmand | urgence gpu, les gpu chauffent trop |
+| `sim_urgence_reseau` | pipeline | Urgence reseau: flush DNS + reset adapter + ping + diagnostic | urgence reseau, internet ne marche plus |
+| `sim_urgence_espace` | pipeline | Urgence espace disque: taille disques + temp + downloads + cache | urgence espace disque, plus de place |
+| `sim_urgence_performance` | pipeline | Urgence performance: CPU + RAM + processus zombies + services en echec | urgence performance, le pc rame |
+| `sim_multitask_dev_trading` | pipeline | Multitask dev+trading: split code/charts + cluster monitoring | multitask dev et trading, code et trade en meme temps |
+| `sim_multitask_email_code` | pipeline | Multitask email+code: mails a gauche + VSCode a droite | mails et code, email et dev |
+| `sim_focus_extreme` | pipeline | Focus extreme: fermer TOUT sauf VSCode + mute + night + timer 3h | focus extreme, concentration absolue |
+| `sim_soiree_gaming` | pipeline | Soiree gaming: fermer dev + performance + Steam + Game Bar | soiree gaming, session jeu video |
+| `sim_soiree_film` | pipeline | Soiree film: fermer tout + nuit + volume + Netflix plein ecran | soiree film complete, on regarde un film |
+| `sim_soiree_musique` | pipeline | Soiree musique: minimiser + Spotify + ambiance + volume | soiree musique, ambiance musicale complete |
+| `sim_maintenance_hebdo` | pipeline | Maintenance hebdo: temp + cache + corbeille + DNS + logs + updates | maintenance hebdomadaire, grand nettoyage de la semaine |
+| `sim_backup_hebdo` | pipeline | Backup hebdo: tous les projets + snapshot + stats | backup hebdomadaire, sauvegarde de la semaine |
 
 ### SAISIE (4)
 
@@ -629,7 +694,7 @@ Reparties en **14 categories**.
 | `ouvrir_emojis` | hotkey | Ouvrir le panneau emojis | ouvre les emojis, panneau emojis |
 | `ouvrir_dictee` | hotkey | Activer la dictee vocale Windows | dicte, dictee windows |
 
-### SYSTEME (391)
+### SYSTEME (463)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -1024,6 +1089,78 @@ Reparties en **14 categories**.
 | `explorer_nouveau_dossier` | hotkey | Creer un nouveau dossier dans l'Explorateur | nouveau dossier, cree un dossier |
 | `explorer_afficher_caches` | powershell | Afficher les fichiers caches dans l'Explorateur | montre les fichiers caches, fichiers caches |
 | `explorer_masquer_caches` | powershell | Masquer les fichiers caches | cache les fichiers caches, masque les fichiers invisibles |
+| `scroll_haut` | hotkey | Scroller vers le haut | scroll up, monte la page |
+| `scroll_bas` | hotkey | Scroller vers le bas | scroll down, descends la page |
+| `page_haut` | hotkey | Page precedente (Page Up) | page up, page precedente |
+| `page_bas` | hotkey | Page suivante (Page Down) | page down, page suivante |
+| `scroll_rapide_haut` | hotkey | Scroller rapidement vers le haut (5 pages) | scroll rapide haut, monte vite |
+| `scroll_rapide_bas` | hotkey | Scroller rapidement vers le bas (5 pages) | scroll rapide bas, descends vite |
+| `snap_gauche` | hotkey | Ancrer la fenetre a gauche (moitie ecran) | fenetre a gauche, snap left |
+| `snap_droite` | hotkey | Ancrer la fenetre a droite (moitie ecran) | fenetre a droite, snap right |
+| `snap_haut_gauche` | hotkey | Ancrer la fenetre en haut a gauche (quart ecran) | fenetre haut gauche, snap top left |
+| `snap_bas_gauche` | hotkey | Ancrer la fenetre en bas a gauche (quart ecran) | fenetre bas gauche, snap bottom left |
+| `snap_haut_droite` | hotkey | Ancrer la fenetre en haut a droite (quart ecran) | fenetre haut droite, snap top right |
+| `snap_bas_droite` | hotkey | Ancrer la fenetre en bas a droite (quart ecran) | fenetre bas droite, snap bottom right |
+| `restaurer_fenetre` | hotkey | Restaurer la fenetre a sa taille precedente | restaure la fenetre, taille normale |
+| `onglet_1` | hotkey | Aller au 1er onglet | onglet 1, premier onglet |
+| `onglet_2` | hotkey | Aller au 2eme onglet | onglet 2, deuxieme onglet |
+| `onglet_3` | hotkey | Aller au 3eme onglet | onglet 3, troisieme onglet |
+| `onglet_4` | hotkey | Aller au 4eme onglet | onglet 4, quatrieme onglet |
+| `onglet_5` | hotkey | Aller au 5eme onglet | onglet 5, cinquieme onglet |
+| `onglet_dernier` | hotkey | Aller au dernier onglet | dernier onglet, last tab |
+| `nouvel_onglet_vierge` | hotkey | Ouvrir un nouvel onglet vierge | nouvel onglet vierge, new tab blank |
+| `mute_onglet` | powershell | Couper le son de l'onglet (clic droit requis) | mute l'onglet, coupe le son de l'onglet |
+| `browser_devtools` | hotkey | Ouvrir les DevTools du navigateur | ouvre les devtools, developer tools |
+| `browser_devtools_console` | hotkey | Ouvrir la console DevTools directement | ouvre la console navigateur, console chrome |
+| `browser_source_view` | hotkey | Voir le code source de la page | voir le code source, view source |
+| `curseur_mot_gauche` | hotkey | Deplacer le curseur d'un mot a gauche | mot precedent, word left |
+| `curseur_mot_droite` | hotkey | Deplacer le curseur d'un mot a droite | mot suivant, word right |
+| `selectionner_mot` | hotkey | Selectionner le mot sous le curseur | selectionne le mot, select word |
+| `selectionner_mot_gauche` | hotkey | Etendre la selection d'un mot a gauche | selection mot gauche, select word left |
+| `selectionner_mot_droite` | hotkey | Etendre la selection d'un mot a droite | selection mot droite, select word right |
+| `selectionner_tout` | hotkey | Selectionner tout le contenu | selectionne tout, select all |
+| `copier_texte` | hotkey | Copier la selection | copie, copy |
+| `couper_texte` | hotkey | Couper la selection | coupe, cut |
+| `coller_texte` | hotkey | Coller le contenu du presse-papier | colle, paste |
+| `annuler_action` | hotkey | Annuler la derniere action (undo) | annule, undo |
+| `retablir_action` | hotkey | Retablir l'action annulee (redo) | retablis, redo |
+| `rechercher_dans_page` | hotkey | Ouvrir la recherche dans la page | cherche dans la page, find |
+| `rechercher_et_remplacer` | hotkey | Ouvrir rechercher et remplacer | cherche et remplace, find replace |
+| `supprimer_mot_gauche` | hotkey | Supprimer le mot precedent | supprime le mot precedent, delete word left |
+| `supprimer_mot_droite` | hotkey | Supprimer le mot suivant | supprime le mot suivant, delete word right |
+| `menu_contextuel` | hotkey | Ouvrir le menu contextuel (clic droit) | clic droit, menu contextuel |
+| `valider_entree` | hotkey | Appuyer sur Entree (valider) | entree, valide |
+| `echapper` | hotkey | Appuyer sur Echap (annuler/fermer) | echap, escape |
+| `tabulation` | hotkey | Naviguer au champ suivant (Tab) | tab, champ suivant |
+| `tabulation_inverse` | hotkey | Naviguer au champ precedent (Shift+Tab) | shift tab, champ precedent |
+| `ouvrir_selection` | hotkey | Ouvrir/activer l'element selectionne (Espace) | espace, active |
+| `media_suivant` | powershell | Piste suivante | piste suivante, next track |
+| `media_precedent` | powershell | Piste precedente | piste precedente, previous track |
+| `screenshot_complet` | hotkey | Capture d'ecran complete (dans presse-papier) | screenshot, capture d'ecran |
+| `screenshot_fenetre` | hotkey | Capture d'ecran de la fenetre active | screenshot fenetre, capture la fenetre |
+| `snip_screen` | hotkey | Outil de capture d'ecran (selection libre) | snip, outil capture |
+| `task_view` | hotkey | Ouvrir la vue des taches (Task View) | task view, vue des taches |
+| `creer_bureau_virtuel` | hotkey | Creer un nouveau bureau virtuel | nouveau bureau virtuel, cree un bureau |
+| `fermer_bureau_virtuel` | hotkey | Fermer le bureau virtuel actuel | ferme le bureau virtuel, supprime ce bureau |
+| `zoom_in` | hotkey | Zoomer (agrandir) | zoom in, zoome |
+| `zoom_out` | hotkey | Dezoomer (reduire) | zoom out, dezoome |
+| `switch_app` | hotkey | Basculer entre les applications (Alt+Tab) | switch app, alt tab |
+| `switch_app_inverse` | hotkey | Basculer en arriere entre les apps | app precedente alt tab, reverse alt tab |
+| `ouvrir_start_menu` | hotkey | Ouvrir le menu Demarrer | ouvre le menu demarrer, start menu |
+| `ouvrir_centre_notifications` | hotkey | Ouvrir le centre de notifications | ouvre les notifications, centre de notifications |
+| `ouvrir_clipboard_history` | hotkey | Ouvrir l'historique du presse-papier | historique presse papier, clipboard history |
+| `ouvrir_emojis_clavier` | hotkey | Ouvrir le panneau emojis | panneau emojis, emoji keyboard |
+| `plein_ecran_toggle` | hotkey | Basculer en plein ecran (F11) | plein ecran, fullscreen |
+| `renommer_fichier` | hotkey | Renommer le fichier/dossier selectionne (F2) | renomme, rename |
+| `supprimer_selection` | hotkey | Supprimer la selection | supprime, delete |
+| `ouvrir_proprietes` | hotkey | Voir les proprietes du fichier selectionne | proprietes, properties |
+| `fermer_fenetre_active` | hotkey | Fermer la fenetre/app active (Alt+F4) | ferme la fenetre, close window |
+| `ouvrir_parametres_systeme` | hotkey | Ouvrir les Parametres Windows | ouvre les parametres, parametres windows |
+| `ouvrir_centre_accessibilite` | hotkey | Ouvrir les options d'accessibilite | accessibilite, options accessibilite |
+| `dictee_vocale_windows` | hotkey | Activer la dictee vocale Windows | dictee vocale, voice typing |
+| `projection_ecran` | hotkey | Options de projection ecran (etendre, dupliquer) | projection ecran, project screen |
+| `connecter_appareil` | hotkey | Ouvrir le panneau de connexion d'appareils (Cast) | connecter un appareil, cast screen |
+| `ouvrir_game_bar_direct` | hotkey | Ouvrir la Xbox Game Bar | game bar directe, xbox game bar |
 
 ### TRADING (19)
 
@@ -1049,6 +1186,6 @@ Reparties en **14 categories**.
 | `cluster_health` | powershell | Health check rapide du cluster IA | health check cluster, verifie le cluster ia |
 | `ollama_running` | powershell | Modeles Ollama actuellement en memoire | quels modeles ollama tournent, ollama running |
 
-</details
---- Generated 1053 lines for 955 commands ---
+</deta
+--- Generated 1190 lines for 1092 commands ---
 

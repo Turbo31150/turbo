@@ -558,4 +558,332 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
         "cache les fichiers caches", "masque les fichiers invisibles", "hide hidden files",
         "desactive les fichiers caches",
     ], "powershell", "Set-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' Hidden 2; Stop-Process -Name explorer -Force; Start-Process explorer; 'Fichiers caches masques'"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SCROLL & NAVIGATION PAGE — Contrôle sans souris
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("scroll_haut", "systeme", "Scroller vers le haut", [
+        "scroll up", "monte la page", "scrolle vers le haut",
+        "remonte", "scroll haut",
+    ], "hotkey", "up;;up;;up;;up;;up"),
+    JarvisCommand("scroll_bas", "systeme", "Scroller vers le bas", [
+        "scroll down", "descends la page", "scrolle vers le bas",
+        "descends", "scroll bas",
+    ], "hotkey", "down;;down;;down;;down;;down"),
+    JarvisCommand("page_haut", "systeme", "Page precedente (Page Up)", [
+        "page up", "page precedente", "monte d'une page",
+        "remonte d'une page", "page vers le haut",
+    ], "hotkey", "pageup"),
+    JarvisCommand("page_bas", "systeme", "Page suivante (Page Down)", [
+        "page down", "page suivante", "descends d'une page",
+        "avance d'une page", "page vers le bas",
+    ], "hotkey", "pagedown"),
+    JarvisCommand("scroll_rapide_haut", "systeme", "Scroller rapidement vers le haut (5 pages)", [
+        "scroll rapide haut", "monte vite", "remonte rapidement",
+        "scroll fast up",
+    ], "hotkey", "pageup;;pageup;;pageup;;pageup;;pageup"),
+    JarvisCommand("scroll_rapide_bas", "systeme", "Scroller rapidement vers le bas (5 pages)", [
+        "scroll rapide bas", "descends vite", "descends rapidement",
+        "scroll fast down",
+    ], "hotkey", "pagedown;;pagedown;;pagedown;;pagedown;;pagedown"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # WINDOW SNAPPING — Ancrage précis des fenêtres
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("snap_gauche", "systeme", "Ancrer la fenetre a gauche (moitie ecran)", [
+        "fenetre a gauche", "snap left", "colle a gauche",
+        "moitie gauche", "ancre a gauche",
+    ], "hotkey", "win+left"),
+    JarvisCommand("snap_droite", "systeme", "Ancrer la fenetre a droite (moitie ecran)", [
+        "fenetre a droite", "snap right", "colle a droite",
+        "moitie droite", "ancre a droite",
+    ], "hotkey", "win+right"),
+    JarvisCommand("snap_haut_gauche", "systeme", "Ancrer la fenetre en haut a gauche (quart ecran)", [
+        "fenetre haut gauche", "snap top left", "quart haut gauche",
+        "coin haut gauche",
+    ], "hotkey", "win+left;;win+up"),
+    JarvisCommand("snap_bas_gauche", "systeme", "Ancrer la fenetre en bas a gauche (quart ecran)", [
+        "fenetre bas gauche", "snap bottom left", "quart bas gauche",
+        "coin bas gauche",
+    ], "hotkey", "win+left;;win+down"),
+    JarvisCommand("snap_haut_droite", "systeme", "Ancrer la fenetre en haut a droite (quart ecran)", [
+        "fenetre haut droite", "snap top right", "quart haut droite",
+        "coin haut droite",
+    ], "hotkey", "win+right;;win+up"),
+    JarvisCommand("snap_bas_droite", "systeme", "Ancrer la fenetre en bas a droite (quart ecran)", [
+        "fenetre bas droite", "snap bottom right", "quart bas droite",
+        "coin bas droite",
+    ], "hotkey", "win+right;;win+down"),
+    JarvisCommand("restaurer_fenetre", "systeme", "Restaurer la fenetre a sa taille precedente", [
+        "restaure la fenetre", "taille normale", "restore window",
+        "fenetre normale", "desmaximise",
+    ], "hotkey", "win+down"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # ONGLETS NAVIGATEUR — Gestion complète sans souris
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("onglet_1", "systeme", "Aller au 1er onglet", [
+        "onglet 1", "premier onglet", "tab 1",
+        "va au premier onglet",
+    ], "hotkey", "ctrl+1"),
+    JarvisCommand("onglet_2", "systeme", "Aller au 2eme onglet", [
+        "onglet 2", "deuxieme onglet", "tab 2",
+        "va au deuxieme onglet",
+    ], "hotkey", "ctrl+2"),
+    JarvisCommand("onglet_3", "systeme", "Aller au 3eme onglet", [
+        "onglet 3", "troisieme onglet", "tab 3",
+        "va au troisieme onglet",
+    ], "hotkey", "ctrl+3"),
+    JarvisCommand("onglet_4", "systeme", "Aller au 4eme onglet", [
+        "onglet 4", "quatrieme onglet", "tab 4",
+        "va au quatrieme onglet",
+    ], "hotkey", "ctrl+4"),
+    JarvisCommand("onglet_5", "systeme", "Aller au 5eme onglet", [
+        "onglet 5", "cinquieme onglet", "tab 5",
+        "va au cinquieme onglet",
+    ], "hotkey", "ctrl+5"),
+    JarvisCommand("onglet_dernier", "systeme", "Aller au dernier onglet", [
+        "dernier onglet", "last tab", "va au dernier onglet",
+        "onglet le plus a droite",
+    ], "hotkey", "ctrl+9"),
+    JarvisCommand("nouvel_onglet_vierge", "systeme", "Ouvrir un nouvel onglet vierge", [
+        "nouvel onglet vierge", "new tab blank", "ouvre un onglet vide",
+        "onglet vierge",
+    ], "hotkey", "ctrl+t"),
+    JarvisCommand("mute_onglet", "systeme", "Couper le son de l'onglet (clic droit requis)", [
+        "mute l'onglet", "coupe le son de l'onglet", "silence onglet",
+        "mute tab",
+    ], "powershell", "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait('m'); 'Tentative de mute — fonctionne si menu contextuel ouvert'"),
+    JarvisCommand("browser_devtools", "systeme", "Ouvrir les DevTools du navigateur", [
+        "ouvre les devtools", "developer tools", "ouvre la console",
+        "f12", "outils developpeur",
+    ], "hotkey", "f12"),
+    JarvisCommand("browser_devtools_console", "systeme", "Ouvrir la console DevTools directement", [
+        "ouvre la console navigateur", "console chrome", "console edge",
+        "ctrl shift j", "javascript console",
+    ], "hotkey", "ctrl+shift+j"),
+    JarvisCommand("browser_source_view", "systeme", "Voir le code source de la page", [
+        "voir le code source", "view source", "source de la page",
+        "ctrl u", "code html de la page",
+    ], "hotkey", "ctrl+u"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # TEXTE — Sélection, copier/coller, navigation par mot
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("curseur_mot_gauche", "systeme", "Deplacer le curseur d'un mot a gauche", [
+        "mot precedent", "word left", "recule d'un mot",
+        "curseur mot gauche",
+    ], "hotkey", "ctrl+left"),
+    JarvisCommand("curseur_mot_droite", "systeme", "Deplacer le curseur d'un mot a droite", [
+        "mot suivant", "word right", "avance d'un mot",
+        "curseur mot droite",
+    ], "hotkey", "ctrl+right"),
+    JarvisCommand("selectionner_mot", "systeme", "Selectionner le mot sous le curseur", [
+        "selectionne le mot", "select word", "prends le mot",
+        "mot selectionne",
+    ], "hotkey", "ctrl+shift+left;;ctrl+shift+right"),
+    JarvisCommand("selectionner_mot_gauche", "systeme", "Etendre la selection d'un mot a gauche", [
+        "selection mot gauche", "select word left", "etends la selection a gauche",
+        "ajoute le mot precedent",
+    ], "hotkey", "ctrl+shift+left"),
+    JarvisCommand("selectionner_mot_droite", "systeme", "Etendre la selection d'un mot a droite", [
+        "selection mot droite", "select word right", "etends la selection a droite",
+        "ajoute le mot suivant",
+    ], "hotkey", "ctrl+shift+right"),
+    JarvisCommand("selectionner_tout", "systeme", "Selectionner tout le contenu", [
+        "selectionne tout", "select all", "tout selectionner",
+        "ctrl a", "prends tout",
+    ], "hotkey", "ctrl+a"),
+    JarvisCommand("copier_texte", "systeme", "Copier la selection", [
+        "copie", "copy", "copier", "ctrl c",
+        "copie ca",
+    ], "hotkey", "ctrl+c"),
+    JarvisCommand("couper_texte", "systeme", "Couper la selection", [
+        "coupe", "cut", "couper", "ctrl x",
+        "coupe ca",
+    ], "hotkey", "ctrl+x"),
+    JarvisCommand("coller_texte", "systeme", "Coller le contenu du presse-papier", [
+        "colle", "paste", "coller", "ctrl v",
+        "colle ca",
+    ], "hotkey", "ctrl+v"),
+    JarvisCommand("annuler_action", "systeme", "Annuler la derniere action (undo)", [
+        "annule", "undo", "ctrl z", "defais",
+        "annule ca",
+    ], "hotkey", "ctrl+z"),
+    JarvisCommand("retablir_action", "systeme", "Retablir l'action annulee (redo)", [
+        "retablis", "redo", "ctrl y", "refais",
+        "retablis ca",
+    ], "hotkey", "ctrl+y"),
+    JarvisCommand("rechercher_dans_page", "systeme", "Ouvrir la recherche dans la page", [
+        "cherche dans la page", "find", "ctrl f",
+        "recherche dans la page", "trouve dans la page",
+    ], "hotkey", "ctrl+f"),
+    JarvisCommand("rechercher_et_remplacer", "systeme", "Ouvrir rechercher et remplacer", [
+        "cherche et remplace", "find replace", "ctrl h",
+        "remplacer dans la page",
+    ], "hotkey", "ctrl+h"),
+    JarvisCommand("supprimer_mot_gauche", "systeme", "Supprimer le mot precedent", [
+        "supprime le mot precedent", "delete word left", "efface le mot avant",
+        "ctrl backspace",
+    ], "hotkey", "ctrl+backspace"),
+    JarvisCommand("supprimer_mot_droite", "systeme", "Supprimer le mot suivant", [
+        "supprime le mot suivant", "delete word right", "efface le mot apres",
+        "ctrl delete",
+    ], "hotkey", "ctrl+delete"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # MENU CONTEXTUEL & INTERACTIONS SOURIS ALTERNATIVES
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("menu_contextuel", "systeme", "Ouvrir le menu contextuel (clic droit)", [
+        "clic droit", "menu contextuel", "right click",
+        "ouvre le menu", "shift f10",
+    ], "hotkey", "shift+f10"),
+    JarvisCommand("valider_entree", "systeme", "Appuyer sur Entree (valider)", [
+        "entree", "valide", "enter", "ok",
+        "appuie sur entree", "confirme",
+    ], "hotkey", "enter"),
+    JarvisCommand("echapper", "systeme", "Appuyer sur Echap (annuler/fermer)", [
+        "echap", "escape", "annule", "ferme le menu",
+        "quitte le dialogue",
+    ], "hotkey", "escape"),
+    JarvisCommand("tabulation", "systeme", "Naviguer au champ suivant (Tab)", [
+        "tab", "champ suivant", "element suivant",
+        "tabulation", "passe au suivant",
+    ], "hotkey", "tab"),
+    JarvisCommand("tabulation_inverse", "systeme", "Naviguer au champ precedent (Shift+Tab)", [
+        "shift tab", "champ precedent", "element precedent",
+        "retour tab", "reviens au precedent",
+    ], "hotkey", "shift+tab"),
+    JarvisCommand("ouvrir_selection", "systeme", "Ouvrir/activer l'element selectionne (Espace)", [
+        "espace", "active", "coche", "decoche",
+        "appuie sur espace",
+    ], "hotkey", "space"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # VOLUME & MÉDIA — Contrôle audio complet
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("media_suivant", "systeme", "Piste suivante", [
+        "piste suivante", "next track", "chanson suivante",
+        "musique suivante", "skip",
+    ], "powershell", "(New-Object -ComObject WScript.Shell).SendKeys([char]176); 'Piste suivante'"),
+    JarvisCommand("media_precedent", "systeme", "Piste precedente", [
+        "piste precedente", "previous track", "chanson precedente",
+        "musique precedente", "reviens en arriere musique",
+    ], "powershell", "(New-Object -ComObject WScript.Shell).SendKeys([char]177); 'Piste precedente'"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CAPTURE D'ÉCRAN & ENREGISTREMENT
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("screenshot_complet", "systeme", "Capture d'ecran complete (dans presse-papier)", [
+        "screenshot", "capture d'ecran", "print screen",
+        "fais un screenshot", "copie l'ecran",
+    ], "hotkey", "win+shift+s"),
+    JarvisCommand("screenshot_fenetre", "systeme", "Capture d'ecran de la fenetre active", [
+        "screenshot fenetre", "capture la fenetre", "alt print screen",
+        "screenshot de la fenetre",
+    ], "hotkey", "alt+printscreen"),
+    JarvisCommand("snip_screen", "systeme", "Outil de capture d'ecran (selection libre)", [
+        "snip", "outil capture", "snipping tool",
+        "decoupe l'ecran", "capture selective",
+    ], "hotkey", "win+shift+s"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # BUREAUX VIRTUELS & TASK VIEW
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("task_view", "systeme", "Ouvrir la vue des taches (Task View)", [
+        "task view", "vue des taches", "montre les fenetres",
+        "toutes les fenetres", "win tab",
+    ], "hotkey", "win+tab"),
+    JarvisCommand("creer_bureau_virtuel", "systeme", "Creer un nouveau bureau virtuel", [
+        "nouveau bureau virtuel", "cree un bureau", "new desktop",
+        "ajoute un bureau virtuel",
+    ], "hotkey", "win+ctrl+d"),
+    JarvisCommand("fermer_bureau_virtuel", "systeme", "Fermer le bureau virtuel actuel", [
+        "ferme le bureau virtuel", "supprime ce bureau", "close desktop",
+        "enleve le bureau virtuel",
+    ], "hotkey", "win+ctrl+f4"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # ZOOM — Contrôle du zoom dans les apps
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("zoom_in", "systeme", "Zoomer (agrandir)", [
+        "zoom in", "zoome", "agrandis", "plus gros",
+        "ctrl plus", "augmente le zoom",
+    ], "hotkey", "ctrl+="),
+    JarvisCommand("zoom_out", "systeme", "Dezoomer (reduire)", [
+        "zoom out", "dezoome", "reduis", "plus petit",
+        "ctrl moins", "diminue le zoom",
+    ], "hotkey", "ctrl+-"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SYSTÈME WINDOWS — Raccourcis fondamentaux
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("switch_app", "systeme", "Basculer entre les applications (Alt+Tab)", [
+        "switch app", "alt tab", "change d'application",
+        "bascule entre les apps", "app suivante",
+    ], "hotkey", "alt+tab"),
+    JarvisCommand("switch_app_inverse", "systeme", "Basculer en arriere entre les apps", [
+        "app precedente alt tab", "reverse alt tab", "reviens a l'app precedente",
+        "shift alt tab",
+    ], "hotkey", "shift+alt+tab"),
+    JarvisCommand("ouvrir_start_menu", "systeme", "Ouvrir le menu Demarrer", [
+        "ouvre le menu demarrer", "start menu", "menu demarrer",
+        "ouvre start", "touche windows",
+    ], "hotkey", "win"),
+    JarvisCommand("ouvrir_centre_notifications", "systeme", "Ouvrir le centre de notifications", [
+        "ouvre les notifications", "centre de notifications", "notification center",
+        "montre les notifs", "win n",
+    ], "hotkey", "win+n"),
+    JarvisCommand("ouvrir_clipboard_history", "systeme", "Ouvrir l'historique du presse-papier", [
+        "historique presse papier", "clipboard history", "win v",
+        "anciens copier coller", "historique clipboard",
+    ], "hotkey", "win+v"),
+    JarvisCommand("ouvrir_emojis_clavier", "systeme", "Ouvrir le panneau emojis", [
+        "panneau emojis", "emoji keyboard", "win point",
+        "insere un emoji", "ouvre les emojis clavier",
+    ], "hotkey", "win+."),
+    JarvisCommand("plein_ecran_toggle", "systeme", "Basculer en plein ecran (F11)", [
+        "plein ecran", "fullscreen", "f11",
+        "mode plein ecran", "toggle fullscreen",
+    ], "hotkey", "f11"),
+    JarvisCommand("renommer_fichier", "systeme", "Renommer le fichier/dossier selectionne (F2)", [
+        "renomme", "rename", "f2",
+        "renomme le fichier", "change le nom",
+    ], "hotkey", "f2"),
+    JarvisCommand("supprimer_selection", "systeme", "Supprimer la selection", [
+        "supprime", "delete", "supprimer",
+        "efface ca", "enleve ca",
+    ], "hotkey", "delete"),
+    JarvisCommand("ouvrir_proprietes", "systeme", "Voir les proprietes du fichier selectionne", [
+        "proprietes", "properties", "alt enter",
+        "voir les proprietes", "details du fichier",
+    ], "hotkey", "alt+enter"),
+    JarvisCommand("fermer_fenetre_active", "systeme", "Fermer la fenetre/app active (Alt+F4)", [
+        "ferme la fenetre", "close window", "alt f4",
+        "ferme l'application", "quitte l'app",
+    ], "hotkey", "alt+f4"),
+    JarvisCommand("ouvrir_parametres_systeme", "systeme", "Ouvrir les Parametres Windows", [
+        "ouvre les parametres", "parametres windows", "settings",
+        "ouvre les reglages", "win i",
+    ], "hotkey", "win+i"),
+    JarvisCommand("ouvrir_centre_accessibilite", "systeme", "Ouvrir les options d'accessibilite", [
+        "accessibilite", "options accessibilite", "ease of access",
+        "loupe windows", "narrateur",
+    ], "hotkey", "win+u"),
+    JarvisCommand("dictee_vocale_windows", "systeme", "Activer la dictee vocale Windows", [
+        "dictee vocale", "voice typing", "win h",
+        "dicte du texte", "tape a la voix",
+    ], "hotkey", "win+h"),
+    JarvisCommand("projection_ecran", "systeme", "Options de projection ecran (etendre, dupliquer)", [
+        "projection ecran", "project screen", "win p",
+        "dupliquer ecran", "etendre ecran",
+    ], "hotkey", "win+p"),
+    JarvisCommand("connecter_appareil", "systeme", "Ouvrir le panneau de connexion d'appareils (Cast)", [
+        "connecter un appareil", "cast screen", "win k",
+        "diffuser ecran", "partage ecran",
+    ], "hotkey", "win+k"),
+    JarvisCommand("ouvrir_game_bar_direct", "systeme", "Ouvrir la Xbox Game Bar", [
+        "game bar directe", "xbox game bar", "win g direct",
+        "ouvre la barre de jeu",
+    ], "hotkey", "win+g"),
 ]

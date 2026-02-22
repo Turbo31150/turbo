@@ -572,4 +572,92 @@ NAVIGATION_COMMANDS: list[JarvisCommand] = [
         "can i use {requete}", "compatibilite de {requete}",
         "support de {requete}",
     ], "browser", "navigate:https://caniuse.com/?search={requete}", ["requete"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PRODUCTIVITÉ & OUTILS QUOTIDIENS
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_chatgpt_plugins", "navigation", "Ouvrir ChatGPT (avec GPTs)", [
+        "ouvre les gpts", "chatgpt gpts", "custom gpt",
+        "lance les gpts",
+    ], "browser", "navigate:https://chat.openai.com/gpts"),
+    JarvisCommand("ouvrir_anthropic_console", "navigation", "Ouvrir la console Anthropic API", [
+        "ouvre anthropic console", "console anthropic", "api anthropic",
+        "dashboard claude api",
+    ], "browser", "navigate:https://console.anthropic.com"),
+    JarvisCommand("ouvrir_openai_platform", "navigation", "Ouvrir la plateforme OpenAI API", [
+        "ouvre openai platform", "console openai", "api openai",
+        "dashboard openai",
+    ], "browser", "navigate:https://platform.openai.com"),
+    JarvisCommand("ouvrir_google_colab", "navigation", "Ouvrir Google Colab", [
+        "ouvre google colab", "colab", "lance colab",
+        "jupyter colab", "notebook colab",
+    ], "browser", "navigate:https://colab.research.google.com"),
+    JarvisCommand("ouvrir_overleaf", "navigation", "Ouvrir Overleaf (LaTeX en ligne)", [
+        "ouvre overleaf", "va sur overleaf", "latex en ligne",
+        "editeur latex",
+    ], "browser", "navigate:https://www.overleaf.com"),
+    JarvisCommand("ouvrir_whimsical", "navigation", "Ouvrir Whimsical (diagrams & flowcharts)", [
+        "ouvre whimsical", "whimsical", "diagrammes whimsical",
+        "flowchart en ligne",
+    ], "browser", "navigate:https://whimsical.com"),
+    JarvisCommand("ouvrir_grammarly", "navigation", "Ouvrir Grammarly", [
+        "ouvre grammarly", "grammarly", "correcteur anglais",
+        "check grammaire",
+    ], "browser", "navigate:https://app.grammarly.com"),
+    JarvisCommand("ouvrir_remove_bg", "navigation", "Ouvrir Remove.bg (supprimer arriere-plan)", [
+        "ouvre remove bg", "supprime l'arriere plan", "remove background",
+        "detourage image",
+    ], "browser", "navigate:https://www.remove.bg"),
+    JarvisCommand("ouvrir_tinypng", "navigation", "Ouvrir TinyPNG (compression images)", [
+        "ouvre tinypng", "compresse une image", "tiny png",
+        "optimise les images",
+    ], "browser", "navigate:https://tinypng.com"),
+    JarvisCommand("ouvrir_draw_io", "navigation", "Ouvrir draw.io (diagrammes)", [
+        "ouvre draw io", "drawio", "diagramme en ligne",
+        "lance draw io",
+    ], "browser", "navigate:https://app.diagrams.net"),
+    JarvisCommand("ouvrir_notion_calendar", "navigation", "Ouvrir Notion Calendar", [
+        "ouvre notion calendar", "calendrier notion", "notion agenda",
+        "lance notion calendar",
+    ], "browser", "navigate:https://calendar.notion.so"),
+    JarvisCommand("ouvrir_todoist", "navigation", "Ouvrir Todoist (gestion de taches)", [
+        "ouvre todoist", "va sur todoist", "mes taches todoist",
+        "todo list en ligne",
+    ], "browser", "navigate:https://todoist.com/app"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # FINANCE & ACTUALITÉS
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_google_finance", "navigation", "Ouvrir Google Finance", [
+        "ouvre google finance", "google finance", "cours de bourse",
+        "actions google",
+    ], "browser", "navigate:https://www.google.com/finance"),
+    JarvisCommand("ouvrir_yahoo_finance", "navigation", "Ouvrir Yahoo Finance", [
+        "ouvre yahoo finance", "yahoo finance", "yahoo bourse",
+        "finance yahoo",
+    ], "browser", "navigate:https://finance.yahoo.com"),
+    JarvisCommand("ouvrir_coindesk", "navigation", "Ouvrir CoinDesk (news crypto)", [
+        "ouvre coindesk", "news crypto", "coindesk",
+        "actualites crypto",
+    ], "browser", "navigate:https://www.coindesk.com"),
+    JarvisCommand("ouvrir_meteo", "navigation", "Ouvrir la meteo", [
+        "ouvre la meteo", "quel temps fait il", "meteo",
+        "previsions meteo", "meteo du jour",
+    ], "browser", "navigate:https://www.google.com/search?q=meteo"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RECHERCHE SPÉCIALISÉE — Nouvelles
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("chercher_google_colab", "navigation", "Rechercher un notebook Colab", [
+        "cherche un notebook {requete}", "colab {requete}",
+        "notebook sur {requete}",
+    ], "browser", "navigate:https://www.google.com/search?q={requete}+site:colab.research.google.com", ["requete"]),
+    JarvisCommand("chercher_perplexity", "navigation", "Rechercher sur Perplexity AI", [
+        "cherche sur perplexity {requete}", "perplexity {requete}",
+        "demande a perplexity {requete}",
+    ], "browser", "navigate:https://www.perplexity.ai/search?q={requete}", ["requete"]),
+    JarvisCommand("chercher_google_maps", "navigation", "Rechercher sur Google Maps", [
+        "cherche sur maps {requete}", "maps {requete}",
+        "trouve {requete} sur la carte", "ou est {requete}",
+    ], "browser", "navigate:https://www.google.com/maps/search/{requete}", ["requete"]),
 ]

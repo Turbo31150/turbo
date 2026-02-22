@@ -2,14 +2,14 @@
 
 > Mise a jour automatique: 2026-02-22 | Voice Pipeline v2
 
-**955 commandes** au total, dont **156 pipelines** multi-etapes, reparties en **14 categories**.
+**1092 commandes** au total, dont **191 pipelines** multi-etapes, reparties en **14 categories**.
 
 | Categorie | Nombre |
 |-----------|--------|
-| Systeme Windows | 391 |
-| Pipelines Multi-Etapes | 156 |
-| Navigation Web | 148 |
-| Developpement & Outils | 115 |
+| Systeme Windows | 463 |
+| Pipelines Multi-Etapes | 191 |
+| Navigation Web | 167 |
+| Developpement & Outils | 126 |
 | Fichiers & Documents | 32 |
 | Applications | 23 |
 | Trading & IA | 19 |
@@ -20,7 +20,7 @@
 | Accessibilite | 10 |
 | Controle Media | 7 |
 | Saisie & Texte | 4 |
-| **TOTAL** | **955** |
+| **TOTAL** | **1092** |
 
 ---
 
@@ -186,12 +186,47 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | mode_retrospective | "mode retro" | cd F:\BUREAU\turbo; 'Commits semaine:'; git log --... > Web: https://www.notion.so > pause 1s > Web: https://calendar... |
 | mode_demo | "mode demo" | DisplaySwitch.exe /clone > pause 2s > Web: http://127.0.0.1:8080 > pause 1s > Web: https://github.com > pause 1s > "D... |
 | mode_scrum_master | "mode scrum" | Web: https://github.com/projects > pause 1s > Web: https://calendar.google.com > pause 1s > cd F:\BUREAU\turbo; git l... |
+| sim_reveil_complet | "demarre la journee complete" | powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a... > Ouvrir lmstudio > pause 2s > Web: http://127.0.0.1:8080 > pau... |
+| sim_check_matinal | "check matinal" | $m2 = try{(Invoke-WebRequest -Uri 'http://192.168.... > nvidia-smi --query-gpu=name,temperature.gpu,memory... > $os =... |
+| sim_start_coding | "je commence a coder" | cd F:\BUREAU\turbo; git pull --rebase 2>&1 | Out-String > Ouvrir code > pause 2s > Raccourci: win+left > pause 1s > O... |
+| sim_code_and_test | "teste mon code" | cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:... |
+| sim_commit_and_push | "commit et push" | cd F:\BUREAU\turbo; git add -A; git status -sb > cd F:\BUREAU\turbo; git commit -m 'Update auto-JAR... > cd F:\BUREAU... (confirm) |
+| sim_debug_session | "session debug complete" | Ouvrir code > pause 1s > Raccourci: ctrl+` > pause 1s > Raccourci: f12 > Get-WinEvent -FilterHashtable @{LogName='App... |
+| sim_avant_reunion | "prepare la reunion" | Stop-Process -Name 'spotify','obs64' -Force -Error... > MinimizeAll > pause 1s > Settings > pause 1s > Web: https://c... |
+| sim_rejoindre_reunion | "rejoins la reunion" | Ouvrir discord > pause 2s > Raccourci: win+p > "En reunion — partage ecran disponible via Win+P" |
+| sim_presenter_ecran | "presente mon ecran" | DisplaySwitch.exe /clone > pause 2s > Web: http://127.0.0.1:8080 > pause 2s > Raccourci: f11 > "Presentation en cours" |
+| sim_apres_reunion | "reunion terminee reprends" | Stop-Process -Name 'teams','zoom','discord' -Force... > pause 1s > Ouvrir spotify > pause 1s > Ouvrir code > pause 1s... |
+| sim_pause_cafe | "pause cafe" | MinimizeAll > pause 1s > Lock PC > "Pause cafe — reviens frais!" |
+| sim_pause_longue | "longue pause" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Aut... > MinimizeAll > pause 1s > Start-Process ms-settings:nightlight... |
+| sim_retour_pause | "je suis de retour" | powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c > Ouvrir code > pause 1s > Ouvrir wt > pause 1s > $m2 = try{... |
+| sim_recherche_intensive | "recherche intensive" | Web: https://claude.ai > pause 1s > Web: https://www.perplexity.ai > pause 1s > Web: https://scholar.google.com > pau... |
+| sim_formation_video | "formation video complete" | Settings > pause 1s > MinimizeAll > pause 1s > Web: https://www.youtube.com > pause 1s > Ouvrir code > pause 1s > Web... |
+| sim_analyse_trading | "analyse trading complete" | Web: https://www.tradingview.com/chart/?symbol=BINANCE:BTCUSDT > pause 1s > Web: https://www.coingecko.com > pause 1s... |
+| sim_execution_trading | "execute le trading" | Web: https://www.mexc.com/exchange/BTC_USDT > pause 1s > Web: https://www.tradingview.com > pause 1s > Ouvrir wt > "M... |
+| sim_monitoring_positions | "surveille mes positions" | Web: https://www.mexc.com/exchange/BTC_USDT > pause 1s > Web: https://dexscreener.com > pause 1s > Web: https://www.t... |
+| sim_layout_dev_split | "layout dev split" | Ouvrir code > pause 2s > Raccourci: win+left > pause 1s > Web: http://127.0.0.1:8080 > pause 1s > Raccourci: win+righ... |
+| sim_layout_triple | "layout triple" | Ouvrir code > pause 2s > Raccourci: win+left > Raccourci: win+up > pause 1s > Ouvrir wt > pause 1s > Raccourci: win+l... |
+| sim_tout_fermer_propre | "ferme tout proprement" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Cle... > Stop-Process -Name 'code','wt','obs64','discord','... > pause... |
+| sim_fin_journee_complete | "fin de journee complete" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Fin... > cd F:\BUREAU\turbo; $c = (git log --since='today' ... > Stop-... (confirm) |
+| sim_weekend_mode | "mode weekend complet" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Wee... > Stop-Process -Name 'code','wt','lmstudio' -Force -... > pause... |
+| sim_urgence_gpu | "urgence gpu" | nvidia-smi --query-gpu=name,temperature.gpu,utiliz... > Get-Process | Sort WS -Descending | Select -First ... > "Chec... |
+| sim_urgence_reseau | "urgence reseau" | ipconfig /flushdns; 'DNS purge' > $p = Test-Connection 8.8.8.8 -Count 2 -ErrorAction... > $d = Resolve-DnsName google... |
+| sim_urgence_espace | "urgence espace disque" | Get-PSDrive -PSProvider FileSystem | Where Used -g... > $t = (Get-ChildItem $env:TEMP -Recurse -File -Erro... > $d = ... |
+| sim_urgence_performance | "urgence performance" | $cpu = (Get-Counter '\Processor(_Total)\% Processo... > $os = Get-CimInstance Win32_OperatingSystem; $used... > Get-P... |
+| sim_multitask_dev_trading | "multitask dev et trading" | Ouvrir code > pause 2s > Raccourci: win+left > pause 1s > Web: https://www.tradingview.com > pause 1s > Raccourci: wi... |
+| sim_multitask_email_code | "mails et code" | Web: https://mail.google.com > pause 2s > Raccourci: win+left > pause 1s > Ouvrir code > pause 1s > Raccourci: win+ri... |
+| sim_focus_extreme | "focus extreme" | Stop-Process -Name 'chrome','msedge','discord','te... > MinimizeAll > pause 1s > Settings > pause 1s > Start-Process ... |
+| sim_soiree_gaming | "soiree gaming" | Stop-Process -Name 'code','wt','lmstudio' -Force -... > MinimizeAll > pause 1s > powercfg /setactive 8c5e7fda-e8bf-4a... |
+| sim_soiree_film | "soiree film complete" | Stop-Process -Name 'code','wt','discord','lmstudio... > MinimizeAll > pause 1s > Start-Process ms-settings:nightlight... |
+| sim_soiree_musique | "soiree musique" | MinimizeAll > pause 1s > Start-Process ms-settings:nightlight > pause 1s > Ouvrir spotify > pause 1s > $w = New-Objec... |
+| sim_maintenance_hebdo | "maintenance hebdomadaire" | Remove-Item $env:TEMP\* -Recurse -Force -ErrorActi... > Clear-RecycleBin -Force -ErrorAction SilentlyConti... > Remov... (confirm) |
+| sim_backup_hebdo | "backup hebdomadaire" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Wee... > cd F:\BUREAU\turbo; $c = (git log --since='1 week ... > $d = ... (confirm) |
 
 ---
 
 ## Listing Complet par Categorie
 
-### Navigation Web (148 commandes)
+### Navigation Web (167 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -343,6 +378,25 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | chercher_alternativeto | Chercher une alternative a un logiciel | "alternative a {requete}", "cherche une alternative a {requete}", "remplace {requete}" | browser |
 | chercher_mdn | Rechercher sur MDN Web Docs | "cherche sur mdn {requete}", "mdn {requete}", "doc web {requete}" | browser |
 | chercher_can_i_use | Verifier la compatibilite d'une feature web | "can i use {requete}", "compatibilite de {requete}", "support de {requete}" | browser |
+| ouvrir_chatgpt_plugins | Ouvrir ChatGPT (avec GPTs) | "ouvre les gpts", "chatgpt gpts", "custom gpt", +1 | browser |
+| ouvrir_anthropic_console | Ouvrir la console Anthropic API | "ouvre anthropic console", "console anthropic", "api anthropic", +1 | browser |
+| ouvrir_openai_platform | Ouvrir la plateforme OpenAI API | "ouvre openai platform", "console openai", "api openai", +1 | browser |
+| ouvrir_google_colab | Ouvrir Google Colab | "ouvre google colab", "colab", "lance colab", +2 | browser |
+| ouvrir_overleaf | Ouvrir Overleaf (LaTeX en ligne) | "ouvre overleaf", "va sur overleaf", "latex en ligne", +1 | browser |
+| ouvrir_whimsical | Ouvrir Whimsical (diagrams & flowcharts) | "ouvre whimsical", "whimsical", "diagrammes whimsical", +1 | browser |
+| ouvrir_grammarly | Ouvrir Grammarly | "ouvre grammarly", "grammarly", "correcteur anglais", +1 | browser |
+| ouvrir_remove_bg | Ouvrir Remove.bg (supprimer arriere-plan) | "ouvre remove bg", "supprime l'arriere plan", "remove background", +1 | browser |
+| ouvrir_tinypng | Ouvrir TinyPNG (compression images) | "ouvre tinypng", "compresse une image", "tiny png", +1 | browser |
+| ouvrir_draw_io | Ouvrir draw.io (diagrammes) | "ouvre draw io", "drawio", "diagramme en ligne", +1 | browser |
+| ouvrir_notion_calendar | Ouvrir Notion Calendar | "ouvre notion calendar", "calendrier notion", "notion agenda", +1 | browser |
+| ouvrir_todoist | Ouvrir Todoist (gestion de taches) | "ouvre todoist", "va sur todoist", "mes taches todoist", +1 | browser |
+| ouvrir_google_finance | Ouvrir Google Finance | "ouvre google finance", "google finance", "cours de bourse", +1 | browser |
+| ouvrir_yahoo_finance | Ouvrir Yahoo Finance | "ouvre yahoo finance", "yahoo finance", "yahoo bourse", +1 | browser |
+| ouvrir_coindesk | Ouvrir CoinDesk (news crypto) | "ouvre coindesk", "news crypto", "coindesk", +1 | browser |
+| ouvrir_meteo | Ouvrir la meteo | "ouvre la meteo", "quel temps fait il", "meteo", +2 | browser |
+| chercher_google_colab | Rechercher un notebook Colab | "cherche un notebook {requete}", "colab {requete}", "notebook sur {requete}" | browser |
+| chercher_perplexity | Rechercher sur Perplexity AI | "cherche sur perplexity {requete}", "perplexity {requete}", "demande a perplexity {requete}" | browser |
+| chercher_google_maps | Rechercher sur Google Maps | "cherche sur maps {requete}", "maps {requete}", "trouve {requete} sur la carte", +1 | browser |
 
 ### Fichiers & Documents (32 commandes)
 
@@ -457,7 +511,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | clipboard_historique | Ouvrir l'historique du presse-papier | "historique presse papier", "clipboard history", "ouvre l'historique clipboard", +2 | hotkey |
 | coller_sans_format | Coller sans mise en forme | "colle sans format", "coller sans mise en forme", "colle en texte brut", +1 | hotkey |
 
-### Systeme Windows (391 commandes)
+### Systeme Windows (463 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -852,6 +906,78 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | explorer_nouveau_dossier | Creer un nouveau dossier dans l'Explorateur | "nouveau dossier", "cree un dossier", "new folder", +1 | hotkey |
 | explorer_afficher_caches | Afficher les fichiers caches dans l'Explorateur | "montre les fichiers caches", "fichiers caches", "show hidden files", +1 | powershell |
 | explorer_masquer_caches | Masquer les fichiers caches | "cache les fichiers caches", "masque les fichiers invisibles", "hide hidden files", +1 | powershell |
+| scroll_haut | Scroller vers le haut | "scroll up", "monte la page", "scrolle vers le haut", +2 | hotkey |
+| scroll_bas | Scroller vers le bas | "scroll down", "descends la page", "scrolle vers le bas", +2 | hotkey |
+| page_haut | Page precedente (Page Up) | "page up", "page precedente", "monte d'une page", +2 | hotkey |
+| page_bas | Page suivante (Page Down) | "page down", "page suivante", "descends d'une page", +2 | hotkey |
+| scroll_rapide_haut | Scroller rapidement vers le haut (5 pages) | "scroll rapide haut", "monte vite", "remonte rapidement", +1 | hotkey |
+| scroll_rapide_bas | Scroller rapidement vers le bas (5 pages) | "scroll rapide bas", "descends vite", "descends rapidement", +1 | hotkey |
+| snap_gauche | Ancrer la fenetre a gauche (moitie ecran) | "fenetre a gauche", "snap left", "colle a gauche", +2 | hotkey |
+| snap_droite | Ancrer la fenetre a droite (moitie ecran) | "fenetre a droite", "snap right", "colle a droite", +2 | hotkey |
+| snap_haut_gauche | Ancrer la fenetre en haut a gauche (quart ecran) | "fenetre haut gauche", "snap top left", "quart haut gauche", +1 | hotkey |
+| snap_bas_gauche | Ancrer la fenetre en bas a gauche (quart ecran) | "fenetre bas gauche", "snap bottom left", "quart bas gauche", +1 | hotkey |
+| snap_haut_droite | Ancrer la fenetre en haut a droite (quart ecran) | "fenetre haut droite", "snap top right", "quart haut droite", +1 | hotkey |
+| snap_bas_droite | Ancrer la fenetre en bas a droite (quart ecran) | "fenetre bas droite", "snap bottom right", "quart bas droite", +1 | hotkey |
+| restaurer_fenetre | Restaurer la fenetre a sa taille precedente | "restaure la fenetre", "taille normale", "restore window", +2 | hotkey |
+| onglet_1 | Aller au 1er onglet | "onglet 1", "premier onglet", "tab 1", +1 | hotkey |
+| onglet_2 | Aller au 2eme onglet | "onglet 2", "deuxieme onglet", "tab 2", +1 | hotkey |
+| onglet_3 | Aller au 3eme onglet | "onglet 3", "troisieme onglet", "tab 3", +1 | hotkey |
+| onglet_4 | Aller au 4eme onglet | "onglet 4", "quatrieme onglet", "tab 4", +1 | hotkey |
+| onglet_5 | Aller au 5eme onglet | "onglet 5", "cinquieme onglet", "tab 5", +1 | hotkey |
+| onglet_dernier | Aller au dernier onglet | "dernier onglet", "last tab", "va au dernier onglet", +1 | hotkey |
+| nouvel_onglet_vierge | Ouvrir un nouvel onglet vierge | "nouvel onglet vierge", "new tab blank", "ouvre un onglet vide", +1 | hotkey |
+| mute_onglet | Couper le son de l'onglet (clic droit requis) | "mute l'onglet", "coupe le son de l'onglet", "silence onglet", +1 | powershell |
+| browser_devtools | Ouvrir les DevTools du navigateur | "ouvre les devtools", "developer tools", "ouvre la console", +2 | hotkey |
+| browser_devtools_console | Ouvrir la console DevTools directement | "ouvre la console navigateur", "console chrome", "console edge", +2 | hotkey |
+| browser_source_view | Voir le code source de la page | "voir le code source", "view source", "source de la page", +2 | hotkey |
+| curseur_mot_gauche | Deplacer le curseur d'un mot a gauche | "mot precedent", "word left", "recule d'un mot", +1 | hotkey |
+| curseur_mot_droite | Deplacer le curseur d'un mot a droite | "mot suivant", "word right", "avance d'un mot", +1 | hotkey |
+| selectionner_mot | Selectionner le mot sous le curseur | "selectionne le mot", "select word", "prends le mot", +1 | hotkey |
+| selectionner_mot_gauche | Etendre la selection d'un mot a gauche | "selection mot gauche", "select word left", "etends la selection a gauche", +1 | hotkey |
+| selectionner_mot_droite | Etendre la selection d'un mot a droite | "selection mot droite", "select word right", "etends la selection a droite", +1 | hotkey |
+| selectionner_tout | Selectionner tout le contenu | "selectionne tout", "select all", "tout selectionner", +2 | hotkey |
+| copier_texte | Copier la selection | "copie", "copy", "copier", +2 | hotkey |
+| couper_texte | Couper la selection | "coupe", "cut", "couper", +2 | hotkey |
+| coller_texte | Coller le contenu du presse-papier | "colle", "paste", "coller", +2 | hotkey |
+| annuler_action | Annuler la derniere action (undo) | "annule", "undo", "ctrl z", +2 | hotkey |
+| retablir_action | Retablir l'action annulee (redo) | "retablis", "redo", "ctrl y", +2 | hotkey |
+| rechercher_dans_page | Ouvrir la recherche dans la page | "cherche dans la page", "find", "ctrl f", +2 | hotkey |
+| rechercher_et_remplacer | Ouvrir rechercher et remplacer | "cherche et remplace", "find replace", "ctrl h", +1 | hotkey |
+| supprimer_mot_gauche | Supprimer le mot precedent | "supprime le mot precedent", "delete word left", "efface le mot avant", +1 | hotkey |
+| supprimer_mot_droite | Supprimer le mot suivant | "supprime le mot suivant", "delete word right", "efface le mot apres", +1 | hotkey |
+| menu_contextuel | Ouvrir le menu contextuel (clic droit) | "clic droit", "menu contextuel", "right click", +2 | hotkey |
+| valider_entree | Appuyer sur Entree (valider) | "entree", "valide", "enter", +3 | hotkey |
+| echapper | Appuyer sur Echap (annuler/fermer) | "echap", "escape", "annule", +2 | hotkey |
+| tabulation | Naviguer au champ suivant (Tab) | "tab", "champ suivant", "element suivant", +2 | hotkey |
+| tabulation_inverse | Naviguer au champ precedent (Shift+Tab) | "shift tab", "champ precedent", "element precedent", +2 | hotkey |
+| ouvrir_selection | Ouvrir/activer l'element selectionne (Espace) | "espace", "active", "coche", +2 | hotkey |
+| media_suivant | Piste suivante | "piste suivante", "next track", "chanson suivante", +2 | powershell |
+| media_precedent | Piste precedente | "piste precedente", "previous track", "chanson precedente", +2 | powershell |
+| screenshot_complet | Capture d'ecran complete (dans presse-papier) | "screenshot", "capture d'ecran", "print screen", +2 | hotkey |
+| screenshot_fenetre | Capture d'ecran de la fenetre active | "screenshot fenetre", "capture la fenetre", "alt print screen", +1 | hotkey |
+| snip_screen | Outil de capture d'ecran (selection libre) | "snip", "outil capture", "snipping tool", +2 | hotkey |
+| task_view | Ouvrir la vue des taches (Task View) | "task view", "vue des taches", "montre les fenetres", +2 | hotkey |
+| creer_bureau_virtuel | Creer un nouveau bureau virtuel | "nouveau bureau virtuel", "cree un bureau", "new desktop", +1 | hotkey |
+| fermer_bureau_virtuel | Fermer le bureau virtuel actuel | "ferme le bureau virtuel", "supprime ce bureau", "close desktop", +1 | hotkey |
+| zoom_in | Zoomer (agrandir) | "zoom in", "zoome", "agrandis", +3 | hotkey |
+| zoom_out | Dezoomer (reduire) | "zoom out", "dezoome", "reduis", +3 | hotkey |
+| switch_app | Basculer entre les applications (Alt+Tab) | "switch app", "alt tab", "change d'application", +2 | hotkey |
+| switch_app_inverse | Basculer en arriere entre les apps | "app precedente alt tab", "reverse alt tab", "reviens a l'app precedente", +1 | hotkey |
+| ouvrir_start_menu | Ouvrir le menu Demarrer | "ouvre le menu demarrer", "start menu", "menu demarrer", +2 | hotkey |
+| ouvrir_centre_notifications | Ouvrir le centre de notifications | "ouvre les notifications", "centre de notifications", "notification center", +2 | hotkey |
+| ouvrir_clipboard_history | Ouvrir l'historique du presse-papier | "historique presse papier", "clipboard history", "win v", +2 | hotkey |
+| ouvrir_emojis_clavier | Ouvrir le panneau emojis | "panneau emojis", "emoji keyboard", "win point", +2 | hotkey |
+| plein_ecran_toggle | Basculer en plein ecran (F11) | "plein ecran", "fullscreen", "f11", +2 | hotkey |
+| renommer_fichier | Renommer le fichier/dossier selectionne (F2) | "renomme", "rename", "f2", +2 | hotkey |
+| supprimer_selection | Supprimer la selection | "supprime", "delete", "supprimer", +2 | hotkey |
+| ouvrir_proprietes | Voir les proprietes du fichier selectionne | "proprietes", "properties", "alt enter", +2 | hotkey |
+| fermer_fenetre_active | Fermer la fenetre/app active (Alt+F4) | "ferme la fenetre", "close window", "alt f4", +2 | hotkey |
+| ouvrir_parametres_systeme | Ouvrir les Parametres Windows | "ouvre les parametres", "parametres windows", "settings", +2 | hotkey |
+| ouvrir_centre_accessibilite | Ouvrir les options d'accessibilite | "accessibilite", "options accessibilite", "ease of access", +2 | hotkey |
+| dictee_vocale_windows | Activer la dictee vocale Windows | "dictee vocale", "voice typing", "win h", +2 | hotkey |
+| projection_ecran | Options de projection ecran (etendre, dupliquer) | "projection ecran", "project screen", "win p", +2 | hotkey |
+| connecter_appareil | Ouvrir le panneau de connexion d'appareils (Cast) | "connecter un appareil", "cast screen", "win k", +2 | hotkey |
+| ouvrir_game_bar_direct | Ouvrir la Xbox Game Bar | "game bar directe", "xbox game bar", "win g direct", +1 | hotkey |
 
 ### Trading & IA (19 commandes)
 
@@ -877,7 +1003,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | cluster_health | Health check rapide du cluster IA | "health check cluster", "verifie le cluster ia", "est ce que le cluster va bien", +3 | powershell |
 | ollama_running | Modeles Ollama actuellement en memoire | "quels modeles ollama tournent", "ollama running", "modeles en memoire ollama", +1 | powershell |
 
-### Developpement & Outils (115 commandes)
+### Developpement & Outils (126 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -996,6 +1122,17 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | cuda_version | Version de CUDA installee | "version cuda", "cuda version", "quelle version cuda", +1 | powershell |
 | powershell_version | Version de PowerShell | "version powershell", "powershell version", "quelle version powershell" | powershell |
 | dotnet_version | Versions de .NET installees | "version dotnet", "dotnet version", "quelle version net", +1 | powershell |
+| turbo_skills_count | Compter les skills et commandes vocales du projet | "combien de skills", "nombre de commandes vocales", "inventaire skills", +1 | powershell |
+| turbo_find_duplicates | Detecter les commandes vocales en doublon | "cherche les doublons", "duplicates commands", "commandes en double", +1 | powershell |
+| turbo_generate_docs | Regenerer la documentation des commandes vocales | "regenere la doc", "update la doc vocale", "genere la doc commandes", +1 | powershell |
+| turbo_generate_readme | Regenerer la section commandes du README | "regenere le readme", "update le readme", "genere le readme commandes", +1 | powershell |
+| check_all_versions | Toutes les versions d'outils installes | "toutes les versions", "all versions", "inventaire outils", +1 | powershell |
+| env_check_paths | Verifier que les outils essentiels sont dans le PATH | "check le path", "outils disponibles", "verifier le path", +1 | powershell |
+| disk_space_summary | Resume espace disque pour le dev | "espace disque dev", "combien de place pour coder", "place restante", +1 | powershell |
+| git_today | Commits d'aujourd'hui | "commits du jour", "git today", "quoi de neuf aujourd'hui", +1 | powershell |
+| git_this_week | Commits de cette semaine | "commits de la semaine", "git this week", "cette semaine en git", +1 | powershell |
+| git_push_turbo | Pusher les commits du projet turbo | "push turbo", "git push", "pousse le code", +1 | powershell |
+| git_pull_turbo | Puller les commits du projet turbo | "pull turbo", "git pull", "recupere les commits", +1 | powershell |
 
 ### Controle JARVIS (12 commandes)
 

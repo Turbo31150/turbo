@@ -503,4 +503,60 @@ DEV_COMMANDS: list[JarvisCommand] = [
         "version dotnet", "dotnet version", "quelle version net",
         "versions dotnet installees",
     ], "powershell", "dotnet --list-sdks 2>&1 | Out-String; dotnet --list-runtimes 2>&1 | Select -First 5 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SCRIPTS & AUTOMATION JARVIS
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("turbo_skills_count", "dev", "Compter les skills et commandes vocales du projet", [
+        "combien de skills", "nombre de commandes vocales",
+        "inventaire skills", "stats commandes jarvis",
+    ], "powershell", "cd F:\\BUREAU\\turbo; $main = python -c \"from src.commands import COMMANDS; print(len(COMMANDS))\" 2>&1; $ext = python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; from src.commands_navigation import NAVIGATION_COMMANDS; from src.commands_maintenance import MAINTENANCE_COMMANDS; from src.commands_dev import DEV_COMMANDS; print(f'P:{len(PIPELINE_COMMANDS)} N:{len(NAVIGATION_COMMANDS)} M:{len(MAINTENANCE_COMMANDS)} D:{len(DEV_COMMANDS)}')\" 2>&1; \"Main: $main | Extensions: $ext\""),
+    JarvisCommand("turbo_find_duplicates", "dev", "Detecter les commandes vocales en doublon", [
+        "cherche les doublons", "duplicates commands", "commandes en double",
+        "doublons vocaux",
+    ], "powershell", "cd F:\\BUREAU\\turbo; python -c \"from src.commands import COMMANDS; from src.commands_pipelines import PIPELINE_COMMANDS; from src.commands_navigation import NAVIGATION_COMMANDS; from src.commands_maintenance import MAINTENANCE_COMMANDS; from src.commands_dev import DEV_COMMANDS; all_cmds = COMMANDS + PIPELINE_COMMANDS + NAVIGATION_COMMANDS + MAINTENANCE_COMMANDS + DEV_COMMANDS; names = [c.name for c in all_cmds]; dups = set(n for n in names if names.count(n) > 1); print(f'{len(dups)} doublons: {dups}' if dups else 'Aucun doublon')\" 2>&1"),
+    JarvisCommand("turbo_generate_docs", "dev", "Regenerer la documentation des commandes vocales", [
+        "regenere la doc", "update la doc vocale", "genere la doc commandes",
+        "mets a jour la doc",
+    ], "powershell", "cd F:\\BUREAU\\turbo; python scripts/gen_vocal_docs.py 2>&1 | Out-String"),
+    JarvisCommand("turbo_generate_readme", "dev", "Regenerer la section commandes du README", [
+        "regenere le readme", "update le readme", "genere le readme commandes",
+        "mets a jour le readme",
+    ], "powershell", "cd F:\\BUREAU\\turbo; python scripts/gen_readme_commands.py > data/readme_commands_section.md 2>&1; \"README section generee dans data/readme_commands_section.md\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # ENVIRONNEMENT & CONFIG — Checks rapides
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("check_all_versions", "dev", "Toutes les versions d'outils installes", [
+        "toutes les versions", "all versions", "inventaire outils",
+        "versions de tout",
+    ], "powershell", "\"Python: $(python --version 2>&1)\"; \"Node: $(node --version 2>&1)\"; \"Git: $(git --version 2>&1)\"; \"Docker: $(docker --version 2>&1)\"; \"uv: $(& 'C:\\Users\\franc\\.local\\bin\\uv.exe' --version 2>&1)\""),
+    JarvisCommand("env_check_paths", "dev", "Verifier que les outils essentiels sont dans le PATH", [
+        "check le path", "outils disponibles", "verifier le path",
+        "quels outils j'ai",
+    ], "powershell", "@('python','node','git','docker','ollama','code','npm','rustc') | ForEach-Object { $found = Get-Command $_ -ErrorAction SilentlyContinue; if($found){\"OK: $_ -> $($found.Source)\"}else{\"MANQUANT: $_\"} } | Out-String"),
+    JarvisCommand("disk_space_summary", "dev", "Resume espace disque pour le dev", [
+        "espace disque dev", "combien de place pour coder", "place restante",
+        "espace disponible",
+    ], "powershell", "$c = (Get-PSDrive C).Free/1GB; $f = (Get-PSDrive F).Free/1GB; \"C: $([math]::Round($c,1)) GB libre | F: $([math]::Round($f,1)) GB libre\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # GIT — Raccourcis contextuels projet turbo
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("git_today", "dev", "Commits d'aujourd'hui", [
+        "commits du jour", "git today", "quoi de neuf aujourd'hui",
+        "qu'est ce que j'ai fait aujourd'hui",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git log --since='today' --oneline 2>&1 | Out-String"),
+    JarvisCommand("git_this_week", "dev", "Commits de cette semaine", [
+        "commits de la semaine", "git this week", "cette semaine en git",
+        "quoi de neuf cette semaine",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git log --since='last monday' --oneline 2>&1 | Out-String"),
+    JarvisCommand("git_push_turbo", "dev", "Pusher les commits du projet turbo", [
+        "push turbo", "git push", "pousse le code",
+        "envoie les commits",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git push 2>&1 | Out-String", confirm=True),
+    JarvisCommand("git_pull_turbo", "dev", "Puller les commits du projet turbo", [
+        "pull turbo", "git pull", "recupere les commits",
+        "mets a jour le code",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git pull --rebase 2>&1 | Out-String"),
 ]
