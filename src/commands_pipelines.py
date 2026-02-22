@@ -1432,4 +1432,67 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
         "auto diagnostic jarvis", "jarvis self check", "verifie toi meme",
         "diagnostic jarvis complet",
     ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.config import *; print('Config: OK')\" 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.commands import COMMANDS; print(f'{len(COMMANDS)} commandes chargees')\" 2>&1 | Out-String;;powershell:$dbs=@('F:\\BUREAU\\turbo\\data\\jarvis.db','F:\\BUREAU\\etoile.db'); $dbs | ForEach-Object { if(Test-Path $_){$f=Get-Item $_; \"$($f.Name): $([math]::Round($f.Length/1KB))KB OK\"}else{\"$_ MANQUANT\"} } | Out-String;;powershell:try{Invoke-WebRequest http://127.0.0.1:11434/api/tags -UseBasicParsing -TimeoutSec 3 >$null; 'OL1: OK'}catch{'OL1: OFFLINE'};;powershell:\"Auto-diagnostic JARVIS termine\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 51 — WIFI & NETWORK DIAGNOSTIC
+    # Scénario: Diagnostic réseau complet
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_network_diag_full", "pipeline", "Diag reseau complet: wifi + ping + DNS + speed + ports", [
+        "diagnostic reseau complet", "teste tout le reseau",
+        "reseau complet check", "probleme internet",
+    ], "pipeline", "powershell:netsh wlan show interfaces | Select-String 'SSID|Signal|State' | Out-String;;powershell:Test-Connection 8.8.8.8 -Count 3 | Select Address, Latency, Status | Format-Table | Out-String;;powershell:Resolve-DnsName google.com | Select Name, Type, IPAddress | Format-Table | Out-String;;powershell:Get-NetTCPConnection -State Established | Group RemoteAddress | Sort Count -Desc | Select -First 8 Count, Name | Format-Table | Out-String;;powershell:\"Diagnostic reseau complet termine\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 52 — OPEN SOURCE CONTRIBUTION
+    # Scénario: Session de contribution open source
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_opensource_session", "pipeline", "Open source: GitHub + issues + fork + terminal", [
+        "mode open source", "session contribution", "contribute au code",
+        "open source session",
+    ], "pipeline", "browser:navigate:https://github.com/trending;;sleep:1;;browser:navigate:https://github.com/issues;;sleep:1;;app_open:wt;;sleep:1;;powershell:cd F:\\BUREAU\\turbo; git status -sb 2>&1 | Out-String;;powershell:\"Session open source prete — GitHub Trending + Issues + Terminal\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 53 — STREAMING SETUP
+    # Scénario: Configuration pour streamer
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_stream_setup_full", "pipeline", "Stream setup: OBS + Twitch + Spotify + chat + high perf", [
+        "setup stream complet", "je vais streamer", "mode streamer pro",
+        "lance tout le stream",
+    ], "pipeline", "powershell:powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c;;app_open:obs64;;sleep:3;;browser:navigate:https://dashboard.twitch.tv;;sleep:1;;app_open:spotify;;sleep:1;;browser:navigate:https://www.twitch.tv/popout/chat;;powershell:\"Stream setup complet — OBS + Twitch + Spotify + Chat + High Perf\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 54 — CRYPTO PORTFOLIO
+    # Scénario: Gestion de portefeuille crypto complet
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_crypto_portfolio", "pipeline", "Crypto portfolio: CoinGecko + DeFi Llama + Zapper + Dune", [
+        "portfolio crypto", "check mes cryptos", "gestion crypto complete",
+        "combien j'ai en crypto",
+    ], "pipeline", "browser:navigate:https://www.coingecko.com;;sleep:1;;browser:navigate:https://defillama.com;;sleep:1;;browser:navigate:https://zapper.xyz;;sleep:1;;browser:navigate:https://dune.com;;powershell:\"Portfolio crypto ouvert — 4 dashboards\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 55 — EMERGENCY RECOVERY
+    # Scénario: Récupération d'urgence après problème grave
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_emergency_recovery", "pipeline", "Recovery urgence: disques + events + services + GPU + restore points", [
+        "urgence recovery", "le pc va mal", "gros probleme",
+        "mode urgence systeme",
+    ], "pipeline", "powershell:Get-PhysicalDisk | Select FriendlyName, HealthStatus, OperationalStatus | Format-Table | Out-String;;powershell:Get-WinEvent -FilterHashtable @{LogName='System';Level=1,2} -MaxEvents 10 -ErrorAction SilentlyContinue | Select TimeCreated, LevelDisplayName, @{N='Msg';E={$_.Message.Substring(0,[Math]::Min(60,$_.Message.Length))}} | Format-Table -Wrap | Out-String;;powershell:Get-Service | Where { $_.StartType -eq 'Automatic' -and $_.Status -ne 'Running' } | Select -First 10 Name, Status | Format-Table | Out-String;;powershell:nvidia-smi --query-gpu=name,temperature.gpu,memory.used --format=csv,noheader 2>&1 | Out-String;;powershell:Get-ComputerRestorePoint | Select -Last 3 Description, CreationTime | Format-Table | Out-String;;powershell:\"Recovery urgence: 5 diagnostics effectues\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 56 — WEEKLY REVIEW
+    # Scénario: Revue hebdomadaire du projet
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_weekly_review", "pipeline", "Review hebdo: commits semaine + issues + LOC + DB + cluster perf", [
+        "review hebdomadaire", "bilan de la semaine", "weekly review",
+        "qu'est ce qu'on a fait cette semaine",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; \"=== COMMITS CETTE SEMAINE ===\"; git log --since='7 days ago' --oneline 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; $f=git diff --stat HEAD~10 2>&1 | Select -Last 1; \"Changements: $f\";;powershell:cd F:\\BUREAU\\turbo; $loc=(Get-ChildItem src/*.py -Recurse | ForEach-Object { (Get-Content $_.FullName | Measure-Object -Line).Lines } | Measure-Object -Sum).Sum; \"Lignes de code: $loc\";;powershell:cd F:\\BUREAU\\turbo; gh issue list --limit 5 2>&1 | Out-String;;powershell:\"Review hebdomadaire terminee\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SIMULATION 57 — PRESENTATION PREP
+    # Scénario: Préparation de présentation / démo
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sim_demo_prep", "pipeline", "Prep demo: clean bureau + full screen + terminal + slides", [
+        "prepare la demo", "mode demo", "setup presentation",
+        "je vais presenter",
+    ], "pipeline", "powershell:(New-Object -ComObject Shell.Application).MinimizeAll();;sleep:1;;app_open:wt;;sleep:1;;browser:navigate:https://docs.google.com/presentation;;powershell:\"Demo preparation terminee — Bureau propre + Terminal + Slides\""),
 ]

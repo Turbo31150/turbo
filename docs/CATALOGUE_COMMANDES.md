@@ -1,22 +1,22 @@
 # JARVIS Turbo — Catalogue Complet des Commandes Vocales
 
-> **1646 commandes** au total | Genere automatiquement le 2026-02-22
+> **1695 commandes** au total | Genere automatiquement le 2026-02-22
 
 ## Table des matieres
 
 - [Accessibilite](#accessibilite) — 10 commandes
 - [App](#app) — 23 commandes
 - [Clipboard](#clipboard) — 13 commandes
-- [Developpement & Outils](#developpement--outils) — 254 commandes
+- [Developpement & Outils](#developpement--outils) — 268 commandes
 - [Gestion des Fenetres](#gestion-des-fenetres) — 13 commandes
 - [Fichiers](#fichiers) — 45 commandes
 - [Jarvis](#jarvis) — 12 commandes
 - [Launcher](#launcher) — 12 commandes
 - [Media & Volume](#media--volume) — 7 commandes
-- [Navigation Web](#navigation-web) — 314 commandes
-- [Pipelines Multi-Etapes](#pipelines-multi-etapes) — 271 commandes (271 pipelines)
+- [Navigation Web](#navigation-web) — 323 commandes
+- [Pipelines Multi-Etapes](#pipelines-multi-etapes) — 278 commandes (278 pipelines)
 - [Saisie](#saisie) — 3 commandes
-- [Systeme & Maintenance](#systeme--maintenance) — 650 commandes
+- [Systeme & Maintenance](#systeme--maintenance) — 669 commandes
 - [Trading](#trading) — 19 commandes
 
 ---
@@ -90,7 +90,7 @@
 
 ## Developpement & Outils
 
-**254 commandes**
+**268 commandes**
 
 | # | Nom | Description | Declencheurs | Type | Params | Confirm |
 |---|-----|-------------|--------------|------|--------|---------|
@@ -348,6 +348,20 @@
 | 252 | `git_bisect_start` | Demarrer git bisect pour trouver un bug | `git bisect`, `cherche le bug`, `bisect start` | powershell | — | — |
 | 253 | `which_command` | Trouver l'emplacement d'une commande | `ou est {cmd}`, `which {cmd}`, `chemin de {cmd}` +1 | powershell | cmd | — |
 | 254 | `dev_env_summary` | Resume de l'environnement de dev | `resume dev`, `environnement dev`, `quels outils installes` +1 | powershell | — | — |
+| 255 | `redis_keys_count` | Compter les cles Redis | `combien de cles redis`, `redis keys count`, `taille redis` | powershell | — | — |
+| 256 | `redis_flush` | Vider la base Redis (ATTENTION) | `vide redis`, `redis flush`, `clear redis` | powershell | — | Oui |
+| 257 | `json_path_query` | Extraire une valeur d'un fichier JSON (jq-like) | `extrait du json {fichier} {path}`, `json extract {fichier} {path}` | powershell | fichier, path | — |
+| 258 | `yaml_to_json` | Convertir YAML en JSON | `yaml en json {fichier}`, `convertis le yaml {fichier}`, `yaml to json {fichier}` | powershell | fichier | — |
+| 259 | `diff_files` | Comparer deux fichiers | `compare {f1} et {f2}`, `diff {f1} {f2}`, `difference entre {f1} {f2}` | powershell | f1, f2 | — |
+| 260 | `base64_encode_file` | Encoder un fichier en Base64 | `encode en base64 {fichier}`, `base64 fichier {fichier}` | powershell | fichier | — |
+| 261 | `serve_static` | Lancer un serveur HTTP statique (Python) | `serveur http`, `serve static`, `lance un serveur web` +1 | powershell | — | — |
+| 262 | `lmstudio_status` | Status des serveurs LM Studio | `status lm studio`, `lm studio en ligne`, `serveurs ia status` | powershell | — | — |
+| 263 | `ollama_models_local` | Lister les modeles Ollama disponibles localement | `modeles ollama locaux`, `ollama list`, `quels modeles ollama` | powershell | — | — |
+| 264 | `run_python_expr` | Evaluer une expression Python | `python eval {expr}`, `calcule en python {expr}`, `execute python {expr}` | powershell | expr | — |
+| 265 | `run_powershell_expr` | Evaluer une expression PowerShell | `powershell eval {expr}`, `execute {expr}` | powershell | expr | — |
+| 266 | `generate_uuid` | Generer un UUID et le copier | `genere un uuid`, `nouvel uuid`, `random uuid` +1 | powershell | — | — |
+| 267 | `generate_password` | Generer un mot de passe aleatoire | `genere un mot de passe`, `password aleatoire`, `random password` +1 | powershell | — | — |
+| 268 | `generate_timestamp` | Generer un timestamp UNIX | `timestamp unix`, `epoch time`, `genere un timestamp` | powershell | — | — |
 
 ## Gestion des Fenetres
 
@@ -475,7 +489,7 @@
 
 ## Navigation Web
 
-**314 commandes**
+**323 commandes**
 
 | # | Nom | Description | Declencheurs | Type | Params | Confirm |
 |---|-----|-------------|--------------|------|--------|---------|
@@ -793,10 +807,19 @@
 | 312 | `ouvrir_windy` | Ouvrir Windy (meteo avancee) | `ouvre windy`, `meteo windy`, `carte meteo` +1 | browser | — | — |
 | 313 | `ouvrir_openstreetmap` | Ouvrir OpenStreetMap | `ouvre openstreetmap`, `osm`, `carte libre` | browser | — | — |
 | 314 | `ouvrir_waze` | Ouvrir Waze (trafic) | `ouvre waze`, `trafic waze`, `embouteillages` | browser | — | — |
+| 315 | `ouvrir_jsoncrack` | Ouvrir JSON Crack (visualiser JSON) | `ouvre json crack`, `visualise du json`, `json viewer` | browser | — | — |
+| 316 | `ouvrir_molotov` | Ouvrir Molotov TV (TV en direct) | `ouvre molotov`, `tv en direct`, `molotov tv` | browser | — | — |
+| 317 | `ouvrir_defillama` | Ouvrir DeFi Llama (TVL tracker) | `ouvre defi llama`, `tvl defi`, `defi llama` | browser | — | — |
+| 318 | `ouvrir_dune` | Ouvrir Dune Analytics (blockchain data) | `ouvre dune`, `analytics blockchain`, `dune analytics` | browser | — | — |
+| 319 | `ouvrir_uniswap` | Ouvrir Uniswap (DEX) | `ouvre uniswap`, `swap crypto`, `uniswap dex` | browser | — | — |
+| 320 | `ouvrir_zapper` | Ouvrir Zapper (portfolio DeFi) | `ouvre zapper`, `portfolio defi`, `zapper fi` | browser | — | — |
+| 321 | `ouvrir_archive_org` | Ouvrir Internet Archive / Wayback Machine | `ouvre archive org`, `wayback machine`, `internet archive` | browser | — | — |
+| 322 | `ouvrir_temp_mail` | Ouvrir Temp Mail (email jetable) | `email jetable`, `temp mail`, `mail temporaire` | browser | — | — |
+| 323 | `ouvrir_pastebin` | Ouvrir Pastebin | `ouvre pastebin`, `va sur pastebin`, `colle du texte` | browser | — | — |
 
 ## Pipelines Multi-Etapes
 
-**271 commandes**
+**278 commandes**
 
 | # | Nom | Description | Declencheurs | Type | Params | Confirm |
 |---|-----|-------------|--------------|------|--------|---------|
@@ -1071,6 +1094,13 @@
 | 269 | `sim_meal_prep` | Meal prep: Marmiton + 750g + Uber Eats + notes | `meal prep`, `planifie les repas`, `qu'est ce qu'on mange` +1 | pipeline | — | — |
 | 270 | `sim_monitoring_full` | Monitoring: GPU + cluster + ports + logs + disk | `monitoring complet`, `check tout le monitoring`, `surveillance totale` +1 | pipeline | — | — |
 | 271 | `sim_jarvis_selfcheck` | Auto-diagnostic JARVIS: config + deps + DB + commands + cluster | `auto diagnostic jarvis`, `jarvis self check`, `verifie toi meme` +1 | pipeline | — | — |
+| 272 | `sim_network_diag_full` | Diag reseau complet: wifi + ping + DNS + speed + ports | `diagnostic reseau complet`, `teste tout le reseau`, `reseau complet check` +1 | pipeline | — | — |
+| 273 | `sim_opensource_session` | Open source: GitHub + issues + fork + terminal | `mode open source`, `session contribution`, `contribute au code` +1 | pipeline | — | — |
+| 274 | `sim_stream_setup_full` | Stream setup: OBS + Twitch + Spotify + chat + high perf | `setup stream complet`, `je vais streamer`, `mode streamer pro` +1 | pipeline | — | — |
+| 275 | `sim_crypto_portfolio` | Crypto portfolio: CoinGecko + DeFi Llama + Zapper + Dune | `portfolio crypto`, `check mes cryptos`, `gestion crypto complete` +1 | pipeline | — | — |
+| 276 | `sim_emergency_recovery` | Recovery urgence: disques + events + services + GPU + restore points | `urgence recovery`, `le pc va mal`, `gros probleme` +1 | pipeline | — | — |
+| 277 | `sim_weekly_review` | Review hebdo: commits semaine + issues + LOC + DB + cluster perf | `review hebdomadaire`, `bilan de la semaine`, `weekly review` +1 | pipeline | — | — |
+| 278 | `sim_demo_prep` | Prep demo: clean bureau + full screen + terminal + slides | `prepare la demo`, `mode demo`, `setup presentation` +1 | pipeline | — | — |
 
 ## Saisie
 
@@ -1084,7 +1114,7 @@
 
 ## Systeme & Maintenance
 
-**650 commandes**
+**669 commandes**
 
 | # | Nom | Description | Declencheurs | Type | Params | Confirm |
 |---|-----|-------------|--------------|------|--------|---------|
@@ -1738,6 +1768,25 @@
 | 648 | `locale_current` | Afficher les parametres regionaux actuels | `parametres regionaux`, `quelle locale`, `region actuelle` | powershell | — | — |
 | 649 | `timezone_current` | Afficher le fuseau horaire actuel | `quel fuseau horaire`, `timezone`, `quelle heure on est` +1 | powershell | — | — |
 | 650 | `timezone_list` | Lister les fuseaux horaires disponibles | `liste fuseaux horaires`, `timezones disponibles`, `quels fuseaux` | powershell | — | — |
+| 651 | `wifi_profiles` | Lister les profils Wi-Fi enregistres | `profils wifi`, `reseaux wifi enregistres`, `wifi profiles` +1 | powershell | — | — |
+| 652 | `wifi_password` | Voir le mot de passe d'un reseau Wi-Fi | `mot de passe wifi {ssid}`, `password wifi {ssid}`, `cle wifi {ssid}` +1 | powershell | ssid | — |
+| 653 | `wifi_signal_strength` | Force du signal Wi-Fi actuel | `force du wifi`, `signal wifi`, `qualite wifi` +1 | powershell | — | — |
+| 654 | `wifi_disconnect` | Deconnecter le Wi-Fi | `deconnecte le wifi`, `coupe le wifi`, `wifi off` | powershell | — | — |
+| 655 | `hyperv_vms_list` | Lister les VMs Hyper-V | `liste les vms`, `machines virtuelles`, `hyper v vms` +1 | powershell | — | — |
+| 656 | `hyperv_vm_start` | Demarrer une VM Hyper-V | `demarre la vm {nom}`, `start vm {nom}`, `lance la vm {nom}` | powershell | nom | Oui |
+| 657 | `hyperv_vm_stop` | Arreter une VM Hyper-V | `arrete la vm {nom}`, `stop vm {nom}`, `eteins la vm {nom}` | powershell | nom | Oui |
+| 658 | `wsl_list_distros` | Lister les distributions WSL installees | `quelles distros wsl`, `linux installes`, `wsl distributions` | powershell | — | — |
+| 659 | `eventlog_critical` | Evenements critiques des dernieres 24h | `evenements critiques`, `erreurs critiques`, `crashes recents` +1 | powershell | — | — |
+| 660 | `eventlog_app_crashes` | Applications qui ont plante recemment | `applis qui ont plante`, `crashes d'applis`, `app crashes` +1 | powershell | — | — |
+| 661 | `eventlog_logins` | Connexions recentes au systeme | `qui s'est connecte`, `logins recents`, `connexions recentes` +1 | powershell | — | — |
+| 662 | `eventlog_shutdowns` | Historique des arrets et redemarrages | `historique arrets`, `quand le pc s'est eteint`, `shutdown history` +1 | powershell | — | — |
+| 663 | `shares_list` | Lister les dossiers partages | `dossiers partages`, `partages reseau`, `shares` +1 | powershell | — | — |
+| 664 | `shares_connections` | Voir les connexions aux partages | `qui est connecte aux partages`, `connexions smb`, `sessions partage` | powershell | — | — |
+| 665 | `mapped_drives` | Lister les lecteurs reseau mappes | `lecteurs reseau`, `mapped drives`, `disques reseau` +1 | powershell | — | — |
+| 666 | `printer_queue` | Voir la file d'attente de l'imprimante par defaut | `file d'impression`, `queue imprimante`, `travaux d'impression` +1 | powershell | — | — |
+| 667 | `printer_test_page` | Imprimer une page de test | `page de test imprimante`, `test print`, `imprime une page test` | powershell | — | Oui |
+| 668 | `jobs_list` | Lister les jobs PowerShell en arriere-plan | `jobs en cours`, `taches en arriere plan`, `background jobs` +1 | powershell | — | — |
+| 669 | `jobs_clean` | Nettoyer les jobs termines | `nettoie les jobs`, `clean jobs`, `supprime les jobs finis` | powershell | — | — |
 
 ## Trading
 
@@ -1774,17 +1823,17 @@
 | Accessibilite | 10 | 0 |
 | App | 23 | 0 |
 | Clipboard | 13 | 0 |
-| Developpement & Outils | 254 | 0 |
+| Developpement & Outils | 268 | 0 |
 | Gestion des Fenetres | 13 | 0 |
 | Fichiers | 45 | 0 |
 | Jarvis | 12 | 0 |
 | Launcher | 12 | 0 |
 | Media & Volume | 7 | 0 |
-| Navigation Web | 314 | 0 |
-| Pipelines Multi-Etapes | 0 | 271 |
+| Navigation Web | 323 | 0 |
+| Pipelines Multi-Etapes | 0 | 278 |
 | Saisie | 3 | 0 |
-| Systeme & Maintenance | 650 | 0 |
+| Systeme & Maintenance | 669 | 0 |
 | Trading | 19 | 0 |
-| **TOTAL** | **1375** | **271** |
+| **TOTAL** | **1417** | **278** |
 
-> **Grand total: 1646 commandes vocales**
+> **Grand total: 1695 commandes vocales**

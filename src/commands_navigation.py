@@ -1349,4 +1349,47 @@ NAVIGATION_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("ouvrir_waze", "navigation", "Ouvrir Waze (trafic)", [
         "ouvre waze", "trafic waze", "embouteillages",
     ], "browser", "navigate:https://www.waze.com/live-map"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # OUTILS DEV EN LIGNE — IDE et outils dans le navigateur
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_jsoncrack", "navigation", "Ouvrir JSON Crack (visualiser JSON)", [
+        "ouvre json crack", "visualise du json", "json viewer",
+    ], "browser", "navigate:https://jsoncrack.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DIVERTISSEMENT — Jeux et détente en ligne
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_molotov", "navigation", "Ouvrir Molotov TV (TV en direct)", [
+        "ouvre molotov", "tv en direct", "molotov tv",
+    ], "browser", "navigate:https://www.molotov.tv"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CRYPTO / DEFI — Outils DeFi et analytics
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_defillama", "navigation", "Ouvrir DeFi Llama (TVL tracker)", [
+        "ouvre defi llama", "tvl defi", "defi llama",
+    ], "browser", "navigate:https://defillama.com"),
+    JarvisCommand("ouvrir_dune", "navigation", "Ouvrir Dune Analytics (blockchain data)", [
+        "ouvre dune", "analytics blockchain", "dune analytics",
+    ], "browser", "navigate:https://dune.com"),
+    JarvisCommand("ouvrir_uniswap", "navigation", "Ouvrir Uniswap (DEX)", [
+        "ouvre uniswap", "swap crypto", "uniswap dex",
+    ], "browser", "navigate:https://app.uniswap.org"),
+    JarvisCommand("ouvrir_zapper", "navigation", "Ouvrir Zapper (portfolio DeFi)", [
+        "ouvre zapper", "portfolio defi", "zapper fi",
+    ], "browser", "navigate:https://zapper.xyz"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # UTILITAIRES WEB — Outils pratiques en ligne
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_archive_org", "navigation", "Ouvrir Internet Archive / Wayback Machine", [
+        "ouvre archive org", "wayback machine", "internet archive",
+    ], "browser", "navigate:https://web.archive.org"),
+    JarvisCommand("ouvrir_temp_mail", "navigation", "Ouvrir Temp Mail (email jetable)", [
+        "email jetable", "temp mail", "mail temporaire",
+    ], "browser", "navigate:https://temp-mail.org"),
+    JarvisCommand("ouvrir_pastebin", "navigation", "Ouvrir Pastebin", [
+        "ouvre pastebin", "va sur pastebin", "colle du texte",
+    ], "browser", "navigate:https://pastebin.com"),
 ]
