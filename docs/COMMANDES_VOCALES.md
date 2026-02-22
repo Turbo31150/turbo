@@ -2,14 +2,14 @@
 
 > Mise a jour automatique: 2026-02-22 | Voice Pipeline v2
 
-**1497 commandes** au total, dont **246 pipelines** multi-etapes, reparties en **14 categories**.
+**1597 commandes** au total, dont **259 pipelines** multi-etapes, reparties en **14 categories**.
 
 | Categorie | Nombre |
 |-----------|--------|
-| Systeme Windows | 601 |
-| Navigation Web | 272 |
-| Pipelines Multi-Etapes | 246 |
-| Developpement & Outils | 218 |
+| Systeme Windows | 640 |
+| Navigation Web | 297 |
+| Pipelines Multi-Etapes | 259 |
+| Developpement & Outils | 241 |
 | Fichiers & Documents | 47 |
 | Applications | 23 |
 | Trading & IA | 19 |
@@ -20,7 +20,7 @@
 | Accessibilite | 10 |
 | Controle Media | 7 |
 | Saisie & Texte | 4 |
-| **TOTAL** | **1497** |
+| **TOTAL** | **1597** |
 
 ---
 
@@ -276,12 +276,25 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | sim_evening_shutdown | "routine du soir" | cd F:\BUREAU\turbo; git status -sb 2>&1 | Out-String > cd F:\BUREAU\turbo; git stash 2>&1 | Out-String > Remove-Item ... |
 | sim_freelance_setup | "mode freelance" | Web: https://www.malt.fr > pause 1s > Web: https://mail.google.com > pause 1s > Ouvrir wt > "Setup freelance pret — M... |
 | sim_client_meeting | "prepare le meeting client" | Ouvrir ms-teams > pause 3s > Ouvrir notepad > pause 1s > cd F:\BUREAU\turbo; git log --oneline -5 2>&1 | Out-String >... |
+| sim_db_backup_all | "backup toutes les bases" | $d=Get-Date -Format yyyyMMdd; Copy-Item F:\BUREAU\... > $d=Get-Date -Format yyyyMMdd; Copy-Item F:\BUREAU\... > "Back... |
+| sim_security_full_audit | "audit securite complet" | Get-NetTCPConnection -State Listen | Select -First... > Get-NetFirewallProfile | Select Name, Enabled | Fo... > Get-L... |
+| sim_security_network | "audit reseau" | Get-NetTCPConnection | Where { $_.State -eq 'Estab... > Get-DnsClientCache | Select -First 15 Entry, Data ... > arp -... |
+| sim_benchmark_system | "benchmark systeme" | $cpu = Get-CimInstance Win32_Processor; "CPU: $($c... > $ram = Get-CimInstance Win32_OperatingSystem; "RAM... > Get-P... |
+| sim_benchmark_cluster | "benchmark cluster" | $sw=[Diagnostics.Stopwatch]::StartNew(); try{Invok... > $sw=[Diagnostics.Stopwatch]::StartNew(); try{Invok... > $sw=[... |
+| sim_doc_session | "session documentation" | code F:\BUREAU\turbo\docs 2>$null > pause 2s > Web: https://devdocs.io > pause 1s > Web: https://markdownlivepreview.... |
+| sim_doc_generate | "genere toute la doc" | cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > "Docu... |
+| sim_ai_workspace | "workspace ia" | Web: https://huggingface.co > pause 1s > Web: https://arxiv.org/list/cs.AI/recent > pause 1s > Ouvrir wt > pause 1s >... |
+| sim_model_eval | "evalue les modeles" | cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > "Evaluation modeles terminee — voir data/benchmark... |
+| sim_home_office | "mode bureau" | Ouvrir ms-teams > pause 2s > Web: https://mail.google.com > pause 1s > Ouvrir spotify > pause 1s > try{Invoke-WebRequ... |
+| sim_focus_deep_work | "mode deep work" | MinimizeAll > Settings > pause 1s > Ouvrir spotify > "Deep work active — Focus Assist ON, 90 minutes de... |
+| sim_weekend_chill | "mode weekend" | Web: https://www.netflix.com > pause 1s > Ouvrir spotify > pause 1s > Web: https://www.ubereats.com > powercfg /setac... |
+| sim_movie_night | "soiree film" | MinimizeAll > pause 1s > Web: https://www.netflix.com > Settings > "Soiree film prete — Netflix + Night Light" |
 
 ---
 
 ## Listing Complet par Categorie
 
-### Navigation Web (272 commandes)
+### Navigation Web (297 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -557,6 +570,31 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | ouvrir_unsplash | Ouvrir Unsplash (photos libres) | "ouvre unsplash", "photos gratuites", "images libres", +1 | browser |
 | ouvrir_coolors | Ouvrir Coolors (palettes couleurs) | "ouvre coolors", "palette de couleurs", "generateur couleurs" | browser |
 | ouvrir_fontawesome | Ouvrir Font Awesome (icones) | "ouvre font awesome", "icones font awesome", "cherche une icone" | browser |
+| ouvrir_claude_ai | Ouvrir Claude AI | "ouvre claude", "va sur claude", "lance claude ai" | browser |
+| ouvrir_gemini_web | Ouvrir Google Gemini | "ouvre gemini web", "va sur gemini", "google gemini" | browser |
+| ouvrir_midjourney | Ouvrir Midjourney | "ouvre midjourney", "va sur midjourney", "genere une image ia" | browser |
+| ouvrir_replicate | Ouvrir Replicate (ML APIs) | "ouvre replicate", "va sur replicate", "api ml replicate" | browser |
+| ouvrir_together_ai | Ouvrir Together AI (inference) | "ouvre together ai", "va sur together", "together inference" | browser |
+| ouvrir_ollama_web | Ouvrir Ollama (modeles locaux) | "ouvre ollama site", "va sur ollama", "site ollama" | browser |
+| ouvrir_openrouter | Ouvrir OpenRouter (multi-model API) | "ouvre openrouter", "va sur openrouter", "api openrouter" | browser |
+| ouvrir_geeksforgeeks | Ouvrir GeeksForGeeks | "ouvre geeksforgeeks", "geeks for geeks", "gfg" | browser |
+| ouvrir_digitalocean_docs | Ouvrir DigitalOcean Tutorials | "ouvre digitalocean", "tutos digitalocean", "digital ocean docs" | browser |
+| ouvrir_realpython | Ouvrir Real Python (tutos Python) | "ouvre real python", "tutos python", "real python" | browser |
+| ouvrir_css_tricks | Ouvrir CSS-Tricks | "ouvre css tricks", "astuces css", "css tricks" | browser |
+| ouvrir_web_dev | Ouvrir web.dev (Google) | "ouvre web dev", "web dev google", "bonnes pratiques web" | browser |
+| ouvrir_bandcamp | Ouvrir Bandcamp | "ouvre bandcamp", "va sur bandcamp", "musique bandcamp" | browser |
+| ouvrir_data_gouv | Ouvrir data.gouv.fr (open data) | "ouvre data gouv", "open data france", "donnees publiques" | browser |
+| ouvrir_seloger | Ouvrir SeLoger | "ouvre seloger", "va sur seloger", "cherche un appart", +1 | browser |
+| ouvrir_pap | Ouvrir PAP (particulier a particulier) | "ouvre pap", "pap immobilier", "de particulier a particulier" | browser |
+| ouvrir_bienici | Ouvrir Bien'ici (immobilier) | "ouvre bienici", "bien ici", "immobilier bienici" | browser |
+| ouvrir_logic_immo | Ouvrir Logic-Immo | "ouvre logic immo", "logic immo", "logement logic immo" | browser |
+| ouvrir_ratp | Ouvrir RATP (metro Paris) | "ouvre ratp", "metro paris", "plan ratp", +1 | browser |
+| ouvrir_citymapper | Ouvrir Citymapper (itineraires) | "ouvre citymapper", "itineraire transport", "citymapper" | browser |
+| ouvrir_onedrive_web | Ouvrir OneDrive Web | "ouvre onedrive", "va sur onedrive", "one drive web" | browser |
+| ouvrir_dropbox | Ouvrir Dropbox | "ouvre dropbox", "va sur dropbox", "fichiers dropbox" | browser |
+| ouvrir_mega | Ouvrir Mega (stockage chiffre) | "ouvre mega", "va sur mega", "mega cloud" | browser |
+| ouvrir_discord_web | Ouvrir Discord Web | "ouvre discord web", "discord en ligne", "va sur discord" | browser |
+| ouvrir_zoom | Ouvrir Zoom | "ouvre zoom", "va sur zoom", "lance zoom", +1 | browser |
 
 ### Fichiers & Documents (47 commandes)
 
@@ -686,7 +724,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | clipboard_historique | Ouvrir l'historique du presse-papier | "historique presse papier", "clipboard history", "ouvre l'historique clipboard", +2 | hotkey |
 | coller_sans_format | Coller sans mise en forme | "colle sans format", "coller sans mise en forme", "colle en texte brut", +1 | hotkey |
 
-### Systeme Windows (601 commandes)
+### Systeme Windows (640 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -1291,6 +1329,45 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | network_troubleshoot | Lancer le depanneur reseau Windows | "depanne le reseau", "network troubleshoot", "diagnostic reseau windows", +1 | powershell |
 | arp_table | Afficher la table ARP (machines sur le reseau local) | "table arp", "machines sur le reseau", "arp -a", +1 | powershell |
 | nslookup_domain | Resoudre un nom de domaine (nslookup) | "nslookup {domain}", "resous {domain}", "ip de {domain}", +1 | powershell |
+| registry_backup | Sauvegarder le registre complet | "backup registre", "sauvegarde le registre", "exporte le registre", +1 | powershell |
+| registry_search | Chercher une cle dans le registre | "cherche dans le registre {cle}", "registry search {cle}", "trouve la cle {cle}" | powershell |
+| registry_recent_changes | Cles de registre recemment modifiees | "registre recent", "changements registre", "modifications registre" | powershell |
+| registry_startup_entries | Lister les entrees de demarrage dans le registre | "startup registre", "autorun registre", "demarrage registre" | powershell |
+| fonts_list | Lister les polices installees | "liste les polices", "quelles fonts", "polices installees", +1 | powershell |
+| fonts_count | Compter les polices installees | "combien de polices", "nombre de fonts", "total polices" | powershell |
+| fonts_folder | Ouvrir le dossier des polices | "dossier polices", "ouvre les fonts", "ouvrir dossier fonts" | powershell |
+| env_list_user | Lister les variables d'environnement utilisateur | "variables utilisateur", "env vars user", "mes variables", +1 | powershell |
+| env_list_system | Lister les variables d'environnement systeme | "variables systeme", "env vars systeme", "environnement systeme" | powershell |
+| env_set_user | Definir une variable d'environnement utilisateur | "set variable {nom} {valeur}", "definis {nom} a {valeur}", "env set {nom} {valeur}" | powershell |
+| env_path_entries | Lister les dossiers dans le PATH | "montre le path", "dossiers du path", "contenu du path", +1 | powershell |
+| env_add_to_path | Ajouter un dossier au PATH utilisateur | "ajoute au path {dossier}", "path add {dossier}", "rajoute {dossier} au path" | powershell |
+| schtask_running | Lister les taches planifiees en cours d'execution | "taches en cours", "scheduled tasks running", "taches actives" | powershell |
+| schtask_next_run | Prochaines taches planifiees | "prochaines taches", "next scheduled tasks", "quand les taches" | powershell |
+| schtask_history | Historique des taches planifiees recentes | "historique taches", "task history", "dernieres taches executees" | powershell |
+| firewall_status | Statut du pare-feu Windows | "statut pare feu", "firewall status", "etat du firewall", +1 | powershell |
+| firewall_rules_list | Lister les regles du pare-feu actives | "regles pare feu", "firewall rules", "liste les regles firewall" | powershell |
+| firewall_block_ip | Bloquer une adresse IP dans le pare-feu | "bloque l'ip {ip}", "firewall block {ip}", "interdit {ip}", +1 | powershell |
+| firewall_recent_blocks | Voir les connexions recemment bloquees | "connexions bloquees", "firewall blocks", "qui est bloque" | powershell |
+| disk_smart_status | Statut SMART des disques (sante) | "sante des disques", "smart status", "etat des disques", +1 | powershell |
+| disk_space_by_folder | Espace utilise par dossier (top 15) | "espace par dossier", "quels dossiers prennent de la place", "gros dossiers", +1 | powershell |
+| disk_temp_files_age | Fichiers temporaires les plus anciens | "vieux fichiers temp", "anciens temp", "temp files age" | powershell |
+| usb_list_devices | Lister les peripheriques USB connectes | "peripheriques usb", "usb connectes", "quels usb", +1 | powershell |
+| usb_storage_list | Lister les cles USB et disques amovibles | "cles usb", "disques amovibles", "usb storage", +1 | powershell |
+| usb_safely_eject | Ejecter un peripherique USB en securite | "ejecte la cle usb", "ejecter usb", "safely eject", +1 | powershell |
+| usb_history | Historique des peripheriques USB connectes | "historique usb", "anciens usb", "usb history", +1 | powershell |
+| screen_resolution | Afficher la resolution de chaque ecran | "resolution ecran", "quelle resolution", "taille ecran", +1 | powershell |
+| screen_brightness_up | Augmenter la luminosite | "augmente la luminosite", "plus de lumiere", "brightness up", +1 | powershell |
+| screen_brightness_down | Baisser la luminosite | "baisse la luminosite", "moins de lumiere", "brightness down", +1 | powershell |
+| screen_night_light | Activer/desactiver l'eclairage nocturne | "eclairage nocturne", "night light", "mode nuit ecran", +1 | powershell |
+| screen_refresh_rate | Voir la frequence de rafraichissement | "frequence ecran", "refresh rate", "hertz ecran", +1 | powershell |
+| audio_list_devices | Lister tous les peripheriques audio | "peripheriques audio", "devices audio", "quels hauts parleurs", +1 | powershell |
+| audio_default_speaker | Voir le haut-parleur par defaut | "haut parleur par defaut", "quel speaker", "sortie audio", +1 | powershell |
+| audio_volume_level | Voir le niveau de volume actuel | "quel volume", "niveau du son", "volume level", +1 | powershell |
+| audio_settings | Ouvrir les parametres de son | "parametres son", "reglages audio", "settings audio", +1 | powershell |
+| process_by_memory | Top 15 processus par memoire | "processus par memoire", "qui consomme la ram", "top ram", +1 | powershell |
+| process_by_cpu | Top 15 processus par CPU | "processus par cpu", "qui consomme le cpu", "top cpu", +1 | powershell |
+| process_tree | Arborescence des processus (parent-enfant) | "arbre des processus", "process tree", "qui lance quoi", +1 | powershell |
+| process_handles | Processus avec le plus de handles ouverts | "handles ouverts", "processus handles", "qui a trop de handles" | powershell |
 
 ### Trading & IA (19 commandes)
 
@@ -1316,7 +1393,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | cluster_health | Health check rapide du cluster IA | "health check cluster", "verifie le cluster ia", "est ce que le cluster va bien", +3 | powershell |
 | ollama_running | Modeles Ollama actuellement en memoire | "quels modeles ollama tournent", "ollama running", "modeles en memoire ollama", +1 | powershell |
 
-### Developpement & Outils (218 commandes)
+### Developpement & Outils (241 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -1370,7 +1447,6 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | ouvrir_whatsapp | Ouvrir WhatsApp Desktop | "ouvre whatsapp", "lance whatsapp", "va sur whatsapp", +1 | app_open |
 | ouvrir_slack | Ouvrir Slack Desktop | "ouvre slack", "lance slack", "va sur slack", +1 | app_open |
 | ouvrir_teams | Ouvrir Microsoft Teams | "ouvre teams", "lance teams", "va sur teams", +2 | app_open |
-| ouvrir_zoom | Ouvrir Zoom | "ouvre zoom", "lance zoom", "va sur zoom", +1 | app_open |
 | bun_version | Version de Bun | "version bun", "quelle version bun", "bun version" | powershell |
 | deno_version | Version de Deno | "version deno", "quelle version deno", "deno version" | powershell |
 | rust_version | Version de Rust/Cargo | "version rust", "quelle version rust", "rustc version", +2 | powershell |
@@ -1428,7 +1504,6 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | uv_pip_install | Installer un package Python via uv | "installe {package} python", "uv pip install {package}", "ajoute {package}", +1 | powershell |
 | turbo_test_file | Lancer un fichier de test specifique | "teste le fichier {fichier}", "pytest {fichier}", "lance le test {fichier}", +1 | powershell |
 | turbo_coverage | Couverture de tests du projet turbo | "coverage turbo", "couverture de tests", "test coverage", +2 | powershell |
-| process_tree | Arbre des processus actifs | "arbre des processus", "process tree", "processus parent enfant", +1 | powershell |
 | openssl_version | Version d'OpenSSL | "version openssl", "openssl version", "quelle version ssl" | powershell |
 | git_version | Version de Git | "version git", "git version", "quelle version git" | powershell |
 | cuda_version | Version de CUDA installee | "version cuda", "cuda version", "quelle version cuda", +1 | powershell |
@@ -1538,6 +1613,31 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | whois_domain | Whois d'un domaine | "whois {domaine}", "info domaine {domaine}", "proprietaire de {domaine}" | powershell |
 | ssl_check | Verifier le certificat SSL d'un site | "check ssl {domaine}", "certificat ssl {domaine}", "expire quand {domaine}", +1 | powershell |
 | dns_lookup | Resoudre un domaine (DNS lookup complet) | "dns {domaine}", "resoudre {domaine}", "ip de {domaine}", +1 | powershell |
+| pytest_verbose | Lancer pytest en mode verbose | "tests verbose", "pytest verbose", "lance les tests en detail", +1 | powershell |
+| pytest_file | Lancer pytest sur un fichier specifique | "teste le fichier {fichier}", "pytest {fichier}", "lance les tests de {fichier}" | powershell |
+| pytest_coverage | Lancer pytest avec couverture de code | "tests avec couverture", "pytest coverage", "code coverage", +1 | powershell |
+| pytest_markers | Lister les markers pytest disponibles | "markers pytest", "pytest markers", "quels markers" | powershell |
+| pytest_quick | Tests rapides (fail at first error) | "tests rapides", "pytest quick", "teste vite fait", +1 | powershell |
+| sqlite_query | Executer une requete SQLite | "sqlite {requete}", "requete sqlite {requete}", "query sqlite {requete}" | powershell |
+| sqlite_schema | Voir le schema d'une table | "schema de {table}", "structure table {table}", "describe {table}" | powershell |
+| etoile_count | Compter les entrees dans etoile.db | "combien dans etoile", "entries etoile", "taille etoile db" | powershell |
+| etoile_query | Requete sur etoile.db | "query etoile {requete}", "etoile db {requete}", "cherche dans etoile {requete}" | powershell |
+| db_size_all | Taille de toutes les bases de donnees | "taille des bases", "poids des db", "db sizes", +1 | powershell |
+| json_validate | Valider un fichier JSON | "valide le json {fichier}", "json valide {fichier}", "check json {fichier}" | powershell |
+| json_pretty_file | Formatter un fichier JSON (pretty print) | "formate le json {fichier}", "pretty json {fichier}", "indente le json {fichier}" | powershell |
+| csv_to_json | Convertir un CSV en JSON | "csv en json {fichier}", "convertis le csv {fichier}", "csv to json {fichier}" | powershell |
+| count_lines_file | Compter les lignes d'un fichier | "combien de lignes {fichier}", "lines count {fichier}", "compte les lignes {fichier}" | powershell |
+| count_lines_src | Compter les lignes de code du projet turbo | "lignes de code turbo", "combien de lignes de code", "loc turbo", +1 | powershell |
+| pip_audit | Auditer les deps Python (vulnerabilites) | "pip audit", "vulnerabilites python", "securite deps python", +1 | powershell |
+| bandit_scan | Scanner Python avec Bandit (securite) | "bandit scan", "securite code python", "scan bandit", +1 | powershell |
+| electron_dev | Lancer Electron en mode dev | "electron dev", "lance electron", "electron en dev", +1 | powershell |
+| electron_build | Builder l'app Electron | "electron build", "build electron", "compile electron", +1 | powershell |
+| vite_dev | Lancer Vite en mode dev | "vite dev", "lance vite", "serveur vite", +1 | powershell |
+| vite_build | Builder avec Vite | "vite build", "build vite", "compile vite" | powershell |
+| vite_preview | Previsualiser le build Vite | "vite preview", "preview build", "previsualise le build" | powershell |
+| python_profile | Profiler un script Python | "profile python {script}", "profiling {script}", "benchmark python {script}" | powershell |
+| benchmark_import_time | Mesurer le temps d'import de turbo | "temps d'import turbo", "import time", "benchmark import", +1 | powershell |
+| memory_usage_python | Utilisation memoire de Python | "memoire python", "ram python", "python memory" | powershell |
 
 ### Controle JARVIS (12 commandes)
 

@@ -180,12 +180,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
         "ouvre teams", "lance teams", "va sur teams",
         "ouvrir teams", "ouvre microsoft teams",
     ], "app_open", "teams"),
-    JarvisCommand("ouvrir_zoom", "dev", "Ouvrir Zoom", [
-        "ouvre zoom", "lance zoom", "va sur zoom",
-        "ouvrir zoom",
-    ], "app_open", "zoom"),
-
-    # ══════════════════════════════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════════════
     # BUN / DENO / RUST
     # ══════════════════════════════════════════════════════════════════════
     JarvisCommand("bun_version", "dev", "Version de Bun", [
@@ -478,11 +473,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
     # ══════════════════════════════════════════════════════════════════════
     # SYSTÈME — Process et versions
     # ══════════════════════════════════════════════════════════════════════
-    JarvisCommand("process_tree", "dev", "Arbre des processus actifs", [
-        "arbre des processus", "process tree", "processus parent enfant",
-        "hierarchie processus",
-    ], "powershell", "Get-CimInstance Win32_Process | Select Name, ProcessId, ParentProcessId | Sort ParentProcessId | Select -First 25 | Format-Table -AutoSize | Out-String"),
-    JarvisCommand("openssl_version", "dev", "Version d'OpenSSL", [
+JarvisCommand("openssl_version", "dev", "Version d'OpenSSL", [
         "version openssl", "openssl version", "quelle version ssl",
     ], "powershell", "openssl version 2>&1 | Out-String"),
     JarvisCommand("git_version", "dev", "Version de Git", [
@@ -999,4 +990,121 @@ DEV_COMMANDS: list[JarvisCommand] = [
         "dns {domaine}", "resoudre {domaine}", "ip de {domaine}",
         "dns lookup {domaine}",
     ], "powershell", "Resolve-DnsName {domaine} -ErrorAction SilentlyContinue | Select Name, Type, IPAddress, NameHost | Format-Table | Out-String", ["domaine"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PYTHON TESTING — pytest et tests avancés
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("pytest_verbose", "dev", "Lancer pytest en mode verbose", [
+        "tests verbose", "pytest verbose", "lance les tests en detail",
+        "tests avec details",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m pytest tests/ -v --tb=short 2>&1 | Select -Last 30 | Out-String"),
+    JarvisCommand("pytest_file", "dev", "Lancer pytest sur un fichier specifique", [
+        "teste le fichier {fichier}", "pytest {fichier}",
+        "lance les tests de {fichier}",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m pytest tests/{fichier} -v --tb=short 2>&1 | Select -Last 25 | Out-String", ["fichier"]),
+    JarvisCommand("pytest_coverage", "dev", "Lancer pytest avec couverture de code", [
+        "tests avec couverture", "pytest coverage", "code coverage",
+        "couverture de tests",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m pytest tests/ --cov=src --cov-report=term-missing 2>&1 | Select -Last 30 | Out-String"),
+JarvisCommand("pytest_markers", "dev", "Lister les markers pytest disponibles", [
+        "markers pytest", "pytest markers", "quels markers",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m pytest --markers 2>&1 | Select -First 25 | Out-String"),
+    JarvisCommand("pytest_quick", "dev", "Tests rapides (fail at first error)", [
+        "tests rapides", "pytest quick", "teste vite fait",
+        "quick test",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m pytest tests/ -x -q 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DATABASE CLI — Outils de base de données
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sqlite_query", "dev", "Executer une requete SQLite", [
+        "sqlite {requete}", "requete sqlite {requete}",
+        "query sqlite {requete}",
+    ], "powershell", "sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db \"{requete}\" 2>&1 | Out-String", ["requete"]),
+JarvisCommand("sqlite_schema", "dev", "Voir le schema d'une table", [
+        "schema de {table}", "structure table {table}", "describe {table}",
+    ], "powershell", "sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db '.schema {table}' 2>&1 | Out-String", ["table"]),
+    JarvisCommand("etoile_count", "dev", "Compter les entrees dans etoile.db", [
+        "combien dans etoile", "entries etoile", "taille etoile db",
+    ], "powershell", "sqlite3 F:\\BUREAU\\etoile.db 'SELECT entity_type, COUNT(*) FROM map GROUP BY entity_type' 2>&1 | Out-String"),
+    JarvisCommand("etoile_query", "dev", "Requete sur etoile.db", [
+        "query etoile {requete}", "etoile db {requete}", "cherche dans etoile {requete}",
+    ], "powershell", "sqlite3 F:\\BUREAU\\etoile.db \"{requete}\" 2>&1 | Out-String", ["requete"]),
+    JarvisCommand("db_size_all", "dev", "Taille de toutes les bases de donnees", [
+        "taille des bases", "poids des db", "db sizes",
+        "combien pesent les bases",
+    ], "powershell", "@('F:\\BUREAU\\turbo\\data\\jarvis.db','F:\\BUREAU\\etoile.db','F:\\BUREAU\\carV1\\database\\trading_latest.db') | ForEach-Object { if(Test-Path $_){ $f=Get-Item $_; \"$($f.Name): $([math]::Round($f.Length/1MB,2)) MB\" } } | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # REGEX / DATA TOOLS — Manipulation de données
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("json_validate", "dev", "Valider un fichier JSON", [
+        "valide le json {fichier}", "json valide {fichier}",
+        "check json {fichier}",
+    ], "powershell", "try{Get-Content '{fichier}' -Raw | ConvertFrom-Json | Out-Null; 'JSON valide'}catch{\"JSON invalide: $($_.Exception.Message)\"}", ["fichier"]),
+    JarvisCommand("json_pretty_file", "dev", "Formatter un fichier JSON (pretty print)", [
+        "formate le json {fichier}", "pretty json {fichier}",
+        "indente le json {fichier}",
+    ], "powershell", "try{$j=Get-Content '{fichier}' -Raw | ConvertFrom-Json; $j | ConvertTo-Json -Depth 10 | Set-Content '{fichier}'; 'JSON formate'}catch{\"Erreur: $($_.Exception.Message)\"}", ["fichier"]),
+    JarvisCommand("csv_to_json", "dev", "Convertir un CSV en JSON", [
+        "csv en json {fichier}", "convertis le csv {fichier}",
+        "csv to json {fichier}",
+    ], "powershell", "$out = '{fichier}' -replace '\\.csv$','.json'; Import-Csv '{fichier}' | ConvertTo-Json | Set-Content $out; \"Converti: $out\"", ["fichier"]),
+    JarvisCommand("count_lines_file", "dev", "Compter les lignes d'un fichier", [
+        "combien de lignes {fichier}", "lines count {fichier}",
+        "compte les lignes {fichier}",
+    ], "powershell", "$c = (Get-Content '{fichier}' | Measure-Object -Line).Lines; \"$c lignes dans {fichier}\"", ["fichier"]),
+    JarvisCommand("count_lines_src", "dev", "Compter les lignes de code du projet turbo", [
+        "lignes de code turbo", "combien de lignes de code",
+        "loc turbo", "lines of code",
+    ], "powershell", "Get-ChildItem F:\\BUREAU\\turbo\\src\\*.py -Recurse | ForEach-Object { $l = (Get-Content $_.FullName | Measure-Object -Line).Lines; [PSCustomObject]@{Fichier=$_.Name;Lignes=$l} } | Sort Lignes -Descending | Format-Table | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SECURITY SCAN — Audit de sécurité des dépendances
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("pip_audit", "dev", "Auditer les deps Python (vulnerabilites)", [
+        "pip audit", "vulnerabilites python", "securite deps python",
+        "scan dependances",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pip-audit 2>&1 | Out-String"),
+JarvisCommand("bandit_scan", "dev", "Scanner Python avec Bandit (securite)", [
+        "bandit scan", "securite code python", "scan bandit",
+        "vulnerabilites code",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run bandit -r src/ -f screen 2>&1 | Select -Last 20 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # ELECTRON DEV — Développement Electron / Vite
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("electron_dev", "dev", "Lancer Electron en mode dev", [
+        "electron dev", "lance electron", "electron en dev",
+        "jarvis desktop dev",
+    ], "powershell", "cd F:\\BUREAU\\turbo\\electron; npm run dev 2>&1 | Select -Last 10 | Out-String"),
+    JarvisCommand("electron_build", "dev", "Builder l'app Electron", [
+        "electron build", "build electron", "compile electron",
+        "package electron",
+    ], "powershell", "cd F:\\BUREAU\\turbo\\electron; npm run build 2>&1 | Select -Last 10 | Out-String"),
+    JarvisCommand("vite_dev", "dev", "Lancer Vite en mode dev", [
+        "vite dev", "lance vite", "serveur vite",
+        "dev server vite",
+    ], "powershell", "cd F:\\BUREAU\\turbo\\electron; npx vite 2>&1 | Select -Last 5 | Out-String"),
+    JarvisCommand("vite_build", "dev", "Builder avec Vite", [
+        "vite build", "build vite", "compile vite",
+    ], "powershell", "cd F:\\BUREAU\\turbo\\electron; npx vite build 2>&1 | Out-String"),
+    JarvisCommand("vite_preview", "dev", "Previsualiser le build Vite", [
+        "vite preview", "preview build", "previsualise le build",
+    ], "powershell", "cd F:\\BUREAU\\turbo\\electron; npx vite preview 2>&1 | Select -Last 5 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PERFORMANCE / BENCHMARK — Mesures de performance
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("python_profile", "dev", "Profiler un script Python", [
+        "profile python {script}", "profiling {script}",
+        "benchmark python {script}",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m cProfile -s cumulative {script} 2>&1 | Select -Last 25 | Out-String", ["script"]),
+    JarvisCommand("benchmark_import_time", "dev", "Mesurer le temps d'import de turbo", [
+        "temps d'import turbo", "import time", "benchmark import",
+        "vitesse de chargement",
+    ], "powershell", "cd F:\\BUREAU\\turbo; $sw=[Diagnostics.Stopwatch]::StartNew(); & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c 'from src import config' 2>&1; $sw.Stop(); \"Import config: $($sw.ElapsedMilliseconds)ms\""),
+    JarvisCommand("memory_usage_python", "dev", "Utilisation memoire de Python", [
+        "memoire python", "ram python", "python memory",
+    ], "powershell", "Get-Process python* -ErrorAction SilentlyContinue | Select Name, @{N='RAM(MB)';E={[math]::Round($_.WorkingSet64/1MB)}}, CPU, Id | Format-Table | Out-String"),
 ]

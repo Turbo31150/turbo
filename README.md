@@ -1189,7 +1189,7 @@ Documentation complete: `CLAUDE_MULTI_AGENT.md`
 
 ## 812 Commandes Vocales — Liste Complete
 
-**1487 commandes** au total dont **246 pipelines** multi-etapes.
+**1586 commandes** au total dont **259 pipelines** multi-etapes.
 Reparties en **14 categories**.
 
 | Categorie | Nb | Description |

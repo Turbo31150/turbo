@@ -1618,4 +1618,188 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
         "nslookup {domain}", "resous {domain}", "ip de {domain}",
         "dns lookup {domain}",
     ], "powershell", "nslookup '{domain}' 2>&1 | Out-String", ["domain"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # REGISTRE WINDOWS — Manipulation du registre
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("registry_backup", "systeme", "Sauvegarder le registre complet", [
+        "backup registre", "sauvegarde le registre", "exporte le registre",
+        "backup registry",
+    ], "powershell", "reg export HKLM F:\\BUREAU\\registry_backup_$(Get-Date -Format yyyyMMdd).reg /y 2>&1; 'Registre HKLM exporte'", confirm=True),
+    JarvisCommand("registry_search", "systeme", "Chercher une cle dans le registre", [
+        "cherche dans le registre {cle}", "registry search {cle}",
+        "trouve la cle {cle}",
+    ], "powershell", "Get-ChildItem -Path HKCU:\\Software -Recurse -ErrorAction SilentlyContinue | Where-Object { $_.Name -like '*{cle}*' } | Select -First 10 | Out-String", ["cle"]),
+    JarvisCommand("registry_recent_changes", "systeme", "Cles de registre recemment modifiees", [
+        "registre recent", "changements registre", "modifications registre",
+    ], "powershell", "Get-ChildItem HKCU:\\Software -ErrorAction SilentlyContinue | Sort LastWriteTime -Descending | Select -First 15 Name, @{N='Modified';E={$_.LastWriteTime}} | Format-Table | Out-String"),
+    JarvisCommand("registry_startup_entries", "systeme", "Lister les entrees de demarrage dans le registre", [
+        "startup registre", "autorun registre", "demarrage registre",
+    ], "powershell", "Get-ItemProperty HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run -ErrorAction SilentlyContinue | Format-List | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # POLICES — Gestion des fonts Windows
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("fonts_list", "systeme", "Lister les polices installees", [
+        "liste les polices", "quelles fonts", "polices installees",
+        "mes polices",
+    ], "powershell", "(New-Object System.Drawing.Text.InstalledFontCollection).Families | Select -First 40 | ForEach-Object { $_.Name } | Out-String"),
+    JarvisCommand("fonts_count", "systeme", "Compter les polices installees", [
+        "combien de polices", "nombre de fonts", "total polices",
+    ], "powershell", "$c = (New-Object System.Drawing.Text.InstalledFontCollection).Families.Count; \"$c polices installees\""),
+    JarvisCommand("fonts_folder", "systeme", "Ouvrir le dossier des polices", [
+        "dossier polices", "ouvre les fonts", "ouvrir dossier fonts",
+    ], "powershell", "Start-Process 'C:\\Windows\\Fonts'"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # VARIABLES D'ENVIRONNEMENT — Gestion des env vars
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("env_list_user", "systeme", "Lister les variables d'environnement utilisateur", [
+        "variables utilisateur", "env vars user", "mes variables",
+        "environnement utilisateur",
+    ], "powershell", "[Environment]::GetEnvironmentVariables('User') | Format-Table -AutoSize | Out-String"),
+    JarvisCommand("env_list_system", "systeme", "Lister les variables d'environnement systeme", [
+        "variables systeme", "env vars systeme", "environnement systeme",
+    ], "powershell", "[Environment]::GetEnvironmentVariables('Machine') | Format-Table -AutoSize | Out-String"),
+    JarvisCommand("env_set_user", "systeme", "Definir une variable d'environnement utilisateur", [
+        "set variable {nom} {valeur}", "definis {nom} a {valeur}",
+        "env set {nom} {valeur}",
+    ], "powershell", "[Environment]::SetEnvironmentVariable('{nom}', '{valeur}', 'User'); \"Variable {nom} = {valeur} definie\"", ["nom", "valeur"]),
+    JarvisCommand("env_path_entries", "systeme", "Lister les dossiers dans le PATH", [
+        "montre le path", "dossiers du path", "contenu du path",
+        "qu'est ce qu'il y a dans le path",
+    ], "powershell", "$env:PATH -split ';' | Where-Object { $_ } | ForEach-Object { $i=0 } { $i++; \"$i. $_\" } | Out-String"),
+    JarvisCommand("env_add_to_path", "systeme", "Ajouter un dossier au PATH utilisateur", [
+        "ajoute au path {dossier}", "path add {dossier}",
+        "rajoute {dossier} au path",
+    ], "powershell", "$p = [Environment]::GetEnvironmentVariable('PATH','User'); if($p -notlike '*{dossier}*'){[Environment]::SetEnvironmentVariable('PATH',\"$p;{dossier}\",'User'); '{dossier} ajoute au PATH'}else{'Deja dans le PATH'}", ["dossier"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # TÂCHES PLANIFIÉES — Gestion avancée
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("schtask_running", "systeme", "Lister les taches planifiees en cours d'execution", [
+        "taches en cours", "scheduled tasks running", "taches actives",
+    ], "powershell", "Get-ScheduledTask | Where-Object { $_.State -eq 'Running' } | Select TaskName, State, TaskPath | Format-Table | Out-String"),
+    JarvisCommand("schtask_next_run", "systeme", "Prochaines taches planifiees", [
+        "prochaines taches", "next scheduled tasks", "quand les taches",
+    ], "powershell", "Get-ScheduledTask | Get-ScheduledTaskInfo -ErrorAction SilentlyContinue | Where-Object { $_.NextRunTime -gt (Get-Date) } | Sort NextRunTime | Select -First 15 TaskName, NextRunTime | Format-Table | Out-String"),
+    JarvisCommand("schtask_history", "systeme", "Historique des taches planifiees recentes", [
+        "historique taches", "task history", "dernieres taches executees",
+    ], "powershell", "Get-ScheduledTask | Get-ScheduledTaskInfo -ErrorAction SilentlyContinue | Where-Object { $_.LastRunTime -gt (Get-Date).AddDays(-1) } | Sort LastRunTime -Descending | Select -First 15 TaskName, LastRunTime, LastTaskResult | Format-Table | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PARE-FEU WINDOWS — Gestion du firewall
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("firewall_status", "systeme", "Statut du pare-feu Windows", [
+        "statut pare feu", "firewall status", "etat du firewall",
+        "le pare feu est actif",
+    ], "powershell", "Get-NetFirewallProfile | Select Name, Enabled, DefaultInboundAction, DefaultOutboundAction | Format-Table | Out-String"),
+    JarvisCommand("firewall_rules_list", "systeme", "Lister les regles du pare-feu actives", [
+        "regles pare feu", "firewall rules", "liste les regles firewall",
+    ], "powershell", "Get-NetFirewallRule -Enabled True -Direction Inbound | Select -First 20 DisplayName, Action, Profile | Format-Table | Out-String"),
+    JarvisCommand("firewall_block_ip", "systeme", "Bloquer une adresse IP dans le pare-feu", [
+        "bloque l'ip {ip}", "firewall block {ip}", "interdit {ip}",
+        "ban {ip}",
+    ], "powershell", "New-NetFirewallRule -DisplayName 'JARVIS Block {ip}' -Direction Inbound -RemoteAddress {ip} -Action Block; 'IP {ip} bloquee dans le pare-feu'", ["ip"], confirm=True),
+    JarvisCommand("firewall_recent_blocks", "systeme", "Voir les connexions recemment bloquees", [
+        "connexions bloquees", "firewall blocks", "qui est bloque",
+    ], "powershell", "Get-WinEvent -FilterHashtable @{LogName='Security';Id=5157} -MaxEvents 15 -ErrorAction SilentlyContinue | Select TimeCreated, @{N='Details';E={$_.Message.Substring(0,[Math]::Min(100,$_.Message.Length))}} | Format-Table -Wrap | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DISQUE — Santé et performance
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("disk_smart_status", "systeme", "Statut SMART des disques (sante)", [
+        "sante des disques", "smart status", "etat des disques",
+        "disques en bonne sante",
+    ], "powershell", "Get-PhysicalDisk | Select FriendlyName, MediaType, HealthStatus, OperationalStatus, @{N='Size(GB)';E={[math]::Round($_.Size/1GB)}} | Format-Table | Out-String"),
+    JarvisCommand("disk_space_by_folder", "systeme", "Espace utilise par dossier (top 15)", [
+        "espace par dossier", "quels dossiers prennent de la place",
+        "gros dossiers", "qui prend de la place",
+    ], "powershell", "Get-ChildItem F:\\ -Directory -ErrorAction SilentlyContinue | ForEach-Object { $s = (Get-ChildItem $_.FullName -Recurse -File -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum; [PSCustomObject]@{Dossier=$_.Name; 'Taille(GB)'=[math]::Round($s/1GB,2)} } | Sort 'Taille(GB)' -Descending | Select -First 15 | Format-Table | Out-String"),
+    JarvisCommand("disk_temp_files_age", "systeme", "Fichiers temporaires les plus anciens", [
+        "vieux fichiers temp", "anciens temp", "temp files age",
+    ], "powershell", "Get-ChildItem $env:TEMP -File -ErrorAction SilentlyContinue | Where { $_.LastWriteTime -lt (Get-Date).AddDays(-7) } | Sort LastWriteTime | Select -First 15 Name, @{N='Age(j)';E={((Get-Date)-$_.LastWriteTime).Days}}, @{N='MB';E={[math]::Round($_.Length/1MB,1)}} | Format-Table | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # USB — Gestion des périphériques USB
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("usb_list_devices", "systeme", "Lister les peripheriques USB connectes", [
+        "peripheriques usb", "usb connectes", "quels usb",
+        "liste les usb",
+    ], "powershell", "Get-PnpDevice -Class USB -Status OK -ErrorAction SilentlyContinue | Select FriendlyName, Status, InstanceId | Format-Table | Out-String"),
+    JarvisCommand("usb_storage_list", "systeme", "Lister les cles USB et disques amovibles", [
+        "cles usb", "disques amovibles", "usb storage",
+        "quelles cles usb",
+    ], "powershell", "Get-WmiObject Win32_DiskDrive | Where { $_.InterfaceType -eq 'USB' } | Select Model, @{N='Size(GB)';E={[math]::Round($_.Size/1GB)}} | Format-Table | Out-String"),
+    JarvisCommand("usb_safely_eject", "systeme", "Ejecter un peripherique USB en securite", [
+        "ejecte la cle usb", "ejecter usb", "safely eject",
+        "retire la cle",
+    ], "powershell", "$d = (Get-WmiObject Win32_DiskDrive | Where { $_.InterfaceType -eq 'USB' } | Select -First 1); if($d){$eject = New-Object -ComObject Shell.Application; $eject.Namespace(17).ParseName(($d.DeviceID)).InvokeVerb('Eject'); 'Ejection demandee'}else{'Aucun USB trouve'}", confirm=True),
+    JarvisCommand("usb_history", "systeme", "Historique des peripheriques USB connectes", [
+        "historique usb", "anciens usb", "usb history",
+        "quels usb ont ete branches",
+    ], "powershell", "Get-ItemProperty HKLM:\\SYSTEM\\CurrentControlSet\\Enum\\USBSTOR\\*\\* -ErrorAction SilentlyContinue | Select FriendlyName, @{N='LastSeen';E={$_.ContainerID}} | Select -First 20 | Format-Table | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # ÉCRAN / AFFICHAGE — Paramètres d'écran
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("screen_resolution", "systeme", "Afficher la resolution de chaque ecran", [
+        "resolution ecran", "quelle resolution", "taille ecran",
+        "resolution affichage",
+    ], "powershell", "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Screen]::AllScreens | ForEach-Object { \"$($_.DeviceName): $($_.Bounds.Width)x$($_.Bounds.Height) $(if($_.Primary){'(Principal)'}else{''})\" } | Out-String"),
+    JarvisCommand("screen_brightness_up", "systeme", "Augmenter la luminosite", [
+        "augmente la luminosite", "plus de lumiere", "brightness up",
+        "ecran plus lumineux",
+    ], "powershell", "$b = (Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightness -ErrorAction SilentlyContinue).CurrentBrightness; if($b -ne $null){$n=[math]::Min(100,$b+10); (Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightnessMethods).WmiSetBrightness(0,$n); \"Luminosite: $n%\"}else{'Non supporte (desktop)'}"),
+    JarvisCommand("screen_brightness_down", "systeme", "Baisser la luminosite", [
+        "baisse la luminosite", "moins de lumiere", "brightness down",
+        "ecran moins lumineux",
+    ], "powershell", "$b = (Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightness -ErrorAction SilentlyContinue).CurrentBrightness; if($b -ne $null){$n=[math]::Max(0,$b-10); (Get-WmiObject -Namespace root/WMI -Class WmiMonitorBrightnessMethods).WmiSetBrightness(0,$n); \"Luminosite: $n%\"}else{'Non supporte (desktop)'}"),
+    JarvisCommand("screen_night_light", "systeme", "Activer/desactiver l'eclairage nocturne", [
+        "eclairage nocturne", "night light", "mode nuit ecran",
+        "lumiere bleue",
+    ], "powershell", "Start-Process ms-settings:nightlight"),
+    JarvisCommand("screen_refresh_rate", "systeme", "Voir la frequence de rafraichissement", [
+        "frequence ecran", "refresh rate", "hertz ecran",
+        "combien de hertz",
+    ], "powershell", "Get-CimInstance Win32_VideoController | Select Name, @{N='RefreshRate(Hz)';E={$_.CurrentRefreshRate}}, @{N='Resolution';E={\"$($_.CurrentHorizontalResolution)x$($_.CurrentVerticalResolution)\"}} | Format-Table | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # AUDIO — Gestion des périphériques audio
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("audio_list_devices", "systeme", "Lister tous les peripheriques audio", [
+        "peripheriques audio", "devices audio", "quels hauts parleurs",
+        "liste les devices son",
+    ], "powershell", "Get-PnpDevice -Class AudioEndpoint -Status OK -ErrorAction SilentlyContinue | Select FriendlyName, Status | Format-Table | Out-String"),
+    JarvisCommand("audio_default_speaker", "systeme", "Voir le haut-parleur par defaut", [
+        "haut parleur par defaut", "quel speaker", "sortie audio",
+        "default speaker",
+    ], "powershell", "Get-AudioDevice -Playback -ErrorAction SilentlyContinue | Select Name, Default | Format-Table | Out-String; if($?-eq $false){Get-CimInstance Win32_SoundDevice | Select Name, Status | Format-Table | Out-String}"),
+    JarvisCommand("audio_volume_level", "systeme", "Voir le niveau de volume actuel", [
+        "quel volume", "niveau du son", "volume level",
+        "le son est a combien",
+    ], "powershell", "Add-Type -TypeDefinition 'using System.Runtime.InteropServices; [Guid(\"5CDF2C82-841E-4546-9722-0CF74078229A\"),InterfaceType(ComInterfaceType.InterfaceIsIUnknown)] interface IAudioEndpointVolume { int a(); int b(); int c(); int d(); int e(); int f(); int g(); int h(); int GetMasterVolumeLevelScalar(out float pfLevel); }'; 'Volume: voir Parametres > Son'"),
+    JarvisCommand("audio_settings", "systeme", "Ouvrir les parametres de son", [
+        "parametres son", "reglages audio", "settings audio",
+        "ouvre les parametres de son",
+    ], "powershell", "Start-Process ms-settings:sound"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PROCESSUS AVANCÉ — Gestion des processus détaillée
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("process_by_memory", "systeme", "Top 15 processus par memoire", [
+        "processus par memoire", "qui consomme la ram", "top ram",
+        "memory hogs",
+    ], "powershell", "Get-Process | Sort WorkingSet64 -Descending | Select -First 15 Name, @{N='RAM(MB)';E={[math]::Round($_.WorkingSet64/1MB)}}, CPU, Id | Format-Table | Out-String"),
+    JarvisCommand("process_by_cpu", "systeme", "Top 15 processus par CPU", [
+        "processus par cpu", "qui consomme le cpu", "top cpu",
+        "cpu hogs",
+    ], "powershell", "Get-Process | Where { $_.CPU -gt 0 } | Sort CPU -Descending | Select -First 15 Name, @{N='CPU(s)';E={[math]::Round($_.CPU,1)}}, @{N='RAM(MB)';E={[math]::Round($_.WorkingSet64/1MB)}}, Id | Format-Table | Out-String"),
+    JarvisCommand("process_tree", "systeme", "Arborescence des processus (parent-enfant)", [
+        "arbre des processus", "process tree", "qui lance quoi",
+        "hierarchie processus",
+    ], "powershell", "Get-CimInstance Win32_Process | Select Name, ProcessId, ParentProcessId | Sort ParentProcessId | Select -First 30 | Format-Table | Out-String"),
+    JarvisCommand("process_handles", "systeme", "Processus avec le plus de handles ouverts", [
+        "handles ouverts", "processus handles", "qui a trop de handles",
+    ], "powershell", "Get-Process | Sort HandleCount -Descending | Select -First 15 Name, HandleCount, @{N='RAM(MB)';E={[math]::Round($_.WorkingSet64/1MB)}} | Format-Table | Out-String"),
 ]
