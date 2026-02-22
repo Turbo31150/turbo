@@ -2,14 +2,14 @@
 
 > Mise a jour automatique: 2026-02-22 | Voice Pipeline v2
 
-**652 commandes** au total, dont **81 pipelines** multi-etapes, reparties en **14 categories**.
+**720 commandes** au total, dont **108 pipelines** multi-etapes, reparties en **14 categories**.
 
 | Categorie | Nombre |
 |-----------|--------|
-| Systeme Windows | 292 |
-| Pipelines Multi-Etapes | 81 |
-| Navigation Web | 77 |
-| Developpement & Outils | 57 |
+| Systeme Windows | 303 |
+| Pipelines Multi-Etapes | 108 |
+| Navigation Web | 93 |
+| Developpement & Outils | 71 |
 | Fichiers & Documents | 32 |
 | Applications | 23 |
 | Trading & IA | 19 |
@@ -20,7 +20,7 @@
 | Accessibilite | 10 |
 | Controle Media | 7 |
 | Saisie & Texte | 4 |
-| **TOTAL** | **652** |
+| **TOTAL** | **720** |
 
 ---
 
@@ -111,12 +111,39 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | ouvre_tout_dev_web | "dev web complet" | Ouvrir code > pause 1s > Ouvrir wt > pause 1s > Web: http://localhost:3000 > pause 1s > Web: https://www.npmjs.com |
 | mode_twitch_stream | "mode twitch" | Ouvrir obs64 > pause 2s > Web: https://dashboard.twitch.tv > pause 1s > Ouvrir spotify > pause 1s > Web: https://www.... |
 | mode_email_productif | "mode email" | Stop-Process -Name 'discord','telegram','slack' -F... > MinimizeAll > pause 1s > Web: https://mail.google.com > pause... |
+| mode_podcast | "mode podcast" | MinimizeAll > pause 1s > Ouvrir spotify > $w = New-Object -ComObject WScript.Shell; 1..5 | F... |
+| mode_apprentissage | "mode apprentissage" | Settings > pause 1s > Web: https://www.udemy.com > pause 1s > Web: https://docs.google.com > pause 1s > MinimizeAll |
+| mode_news | "mode news" | Web: https://news.google.com > pause 1s > Web: https://www.reddit.com > pause 1s > Web: https://x.com |
+| mode_shopping | "mode shopping" | Web: https://www.amazon.fr > pause 1s > Web: https://www.leboncoin.fr > pause 1s > Web: https://www.google.com/shopping |
+| mode_design | "mode design" | Web: https://www.figma.com > pause 1s > Web: https://www.pinterest.com > pause 1s > Web: https://www.canva.com |
+| mode_musique_decouverte | "decouverte musicale" | Ouvrir spotify > pause 1s > Web: https://music.youtube.com > pause 1s > Web: https://soundcloud.com |
+| routine_weekend | "routine weekend" | MinimizeAll > pause 1s > Start-Process ms-settings:nightlight > pause 1s > Web: https://news.google.com > pause 1s > ... |
+| mode_social_complet | "mode social complet" | Web: https://x.com > pause 1s > Web: https://www.reddit.com > pause 1s > Web: https://www.instagram.com > pause 1s > ... |
+| mode_planning | "mode planning" | Web: https://calendar.google.com > pause 1s > Web: https://www.notion.so > pause 1s > Web: https://mail.google.com/ta... |
+| mode_brainstorm | "mode brainstorm" | Web: https://claude.ai > pause 1s > Web: https://www.notion.so > $end = (Get-Date).AddMinutes(30).ToString('HH:mm')... |
+| nettoyage_downloads | "nettoie les telechargements" | $count = (Get-ChildItem $env:USERPROFILE\Downloads... (confirm) |
+| rapport_reseau_complet | "rapport reseau complet" | (Invoke-RestMethod -Uri 'https://api.ipify.org?for... > $dns = Resolve-DnsName google.com -ErrorAction Sil... > $p = ... |
+| verif_toutes_mises_a_jour | "verifie toutes les mises a jour" | try{$s=New-Object -ComObject Microsoft.Update.Sess... > & 'C:\Users\franc\.local\bin\uv.exe' pip list --ou... > npm o... |
+| snapshot_systeme | "snapshot systeme" | $d = Get-Date -Format 'yyyy-MM-dd_HHmm'; $f = "F:\... |
+| dev_hotfix | "hotfix" | cd F:\BUREAU\turbo; $branch = 'hotfix/' + (Get-Dat... > pause 1s > Ouvrir code > pause 1s > Ouvrir wt |
+| dev_new_feature | "nouvelle feature" | cd F:\BUREAU\turbo; $branch = 'feature/' + (Get-Da... > pause 1s > Ouvrir code > pause 1s > Ouvrir wt > cd F:\BUREAU\... |
+| dev_merge_prep | "prepare le merge" | cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:... |
+| dev_database_check | "check les databases" | $j = (Get-Item 'F:\BUREAU\turbo\data\jarvis.db' -E... > $e = (Get-Item 'F:\BUREAU\etoile.db' -ErrorAction ... > $t = ... |
+| dev_live_coding | "live coding" | Ouvrir obs64 > pause 2s > Ouvrir code > pause 1s > Ouvrir wt > pause 1s > Web: http://localhost:3000 |
+| dev_cleanup | "dev cleanup" | cd F:\BUREAU\turbo; $pycache = (Get-ChildItem -Rec... > cd F:\BUREAU\turbo; $ruff = & 'C:\Users\franc\.loc... |
+| mode_double_ecran_dev | "mode double ecran dev" | DisplaySwitch.exe /extend > pause 2s > Ouvrir code > pause 1s > Raccourci: win+left > pause 1s > Web: http://127.0.0.... |
+| mode_presentation_zoom | "mode presentation zoom" | Stop-Process -Name 'spotify','discord' -Force -Err... > MinimizeAll > pause 1s > DisplaySwitch.exe /clone > pause 2s ... |
+| mode_dashboard_complet | "dashboard complet" | Web: http://127.0.0.1:8080 > pause 1s > Web: https://www.tradingview.com > pause 1s > Web: http://127.0.0.1:5678 > pa... |
+| ferme_tout_sauf_code | "ferme tout sauf le code" | Stop-Process -Name 'chrome','msedge','discord','te... > pause 1s > Get-Process code -ErrorAction SilentlyContinue | S... |
+| mode_detox_digital | "detox digitale" | Stop-Process -Name 'chrome','msedge','discord','te... > pause 1s > MinimizeAll > pause 1s > Start-Process ms-settings... (confirm) |
+| mode_musique_travail | "musique de travail" | Ouvrir spotify > pause 1s > Settings |
+| check_tout_rapide | "check tout rapide" | $m2 = try{(Invoke-WebRequest -Uri 'http://192.168.... > $os = Get-CimInstance Win32_OperatingSystem; $ram ... > nvidi... |
 
 ---
 
 ## Listing Complet par Categorie
 
-### Navigation Web (77 commandes)
+### Navigation Web (93 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -197,6 +224,22 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | chercher_stackoverflow | Rechercher sur Stack Overflow | "cherche sur stackoverflow {requete}", "stackoverflow {requete}", "stack overflow {requete}" | browser |
 | chercher_npm | Rechercher un package NPM | "cherche sur npm {requete}", "npm {requete}", "recherche npm {requete}", +1 | browser |
 | chercher_pypi | Rechercher un package PyPI | "cherche sur pypi {requete}", "pypi {requete}", "recherche pypi {requete}", +1 | browser |
+| ouvrir_google_translate | Ouvrir Google Translate | "ouvre google translate", "traducteur", "google traduction", +2 | browser |
+| ouvrir_google_news | Ouvrir Google Actualites | "ouvre google news", "google actualites", "lance les news", +1 | browser |
+| ouvrir_figma | Ouvrir Figma | "ouvre figma", "va sur figma", "lance figma" | browser |
+| ouvrir_canva | Ouvrir Canva | "ouvre canva", "va sur canva", "lance canva" | browser |
+| ouvrir_pinterest | Ouvrir Pinterest | "ouvre pinterest", "va sur pinterest", "lance pinterest" | browser |
+| ouvrir_udemy | Ouvrir Udemy | "ouvre udemy", "va sur udemy", "lance udemy", +1 | browser |
+| ouvrir_regex101 | Ouvrir Regex101 (testeur de regex) | "ouvre regex101", "testeur regex", "lance regex101", +1 | browser |
+| ouvrir_jsonformatter | Ouvrir un formatteur JSON en ligne | "ouvre json formatter", "formatte du json", "json en ligne", +1 | browser |
+| ouvrir_speedtest | Ouvrir Speedtest | "ouvre speedtest", "lance un speed test", "test de debit", +1 | browser |
+| ouvrir_excalidraw | Ouvrir Excalidraw (tableau blanc) | "ouvre excalidraw", "tableau blanc", "lance excalidraw", +1 | browser |
+| ouvrir_soundcloud | Ouvrir SoundCloud | "ouvre soundcloud", "va sur soundcloud", "lance soundcloud" | browser |
+| ouvrir_google_scholar | Ouvrir Google Scholar | "ouvre google scholar", "google scholar", "recherche academique", +1 | browser |
+| chercher_traduction | Traduire un texte via Google Translate | "traduis {requete}", "traduction de {requete}", "translate {requete}", +1 | browser |
+| chercher_google_scholar | Rechercher sur Google Scholar | "cherche sur scholar {requete}", "article sur {requete}", "recherche academique {requete}", +1 | browser |
+| chercher_huggingface | Rechercher un modele sur Hugging Face | "cherche sur hugging face {requete}", "modele {requete} huggingface", "hugging face {requete}" | browser |
+| chercher_docker_hub | Rechercher une image Docker Hub | "cherche sur docker hub {requete}", "image docker {requete}", "docker hub {requete}" | browser |
 
 ### Fichiers & Documents (32 commandes)
 
@@ -311,7 +354,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | clipboard_historique | Ouvrir l'historique du presse-papier | "historique presse papier", "clipboard history", "ouvre l'historique clipboard", +2 | hotkey |
 | coller_sans_format | Coller sans mise en forme | "colle sans format", "coller sans mise en forme", "colle en texte brut", +1 | hotkey |
 
-### Systeme Windows (292 commandes)
+### Systeme Windows (303 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -607,6 +650,17 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | wifi_info | Informations sur la connexion WiFi active | "info wifi", "quel wifi", "connexion wifi", +2 | powershell |
 | espace_disques | Espace libre sur tous les disques | "espace disque", "combien d'espace libre", "espace libre", +2 | powershell |
 | gros_fichiers_bureau | Top 10 plus gros fichiers du bureau | "plus gros fichiers", "gros fichiers bureau", "fichiers les plus lourds", +1 | powershell |
+| processus_zombies | Detecter les processus qui ne repondent pas | "processus zombies", "processus bloques", "applications gelees", +2 | powershell |
+| dernier_crash | Dernier crash ou erreur critique Windows | "dernier crash", "derniere erreur critique", "dernier plantage", +1 | powershell |
+| temps_allumage_apps | Depuis combien de temps chaque app tourne | "duree des apps", "depuis quand les apps tournent", "temps d'execution des processus", +1 | powershell |
+| taille_cache_navigateur | Taille des caches navigateur Chrome/Edge | "taille cache navigateur", "cache chrome", "cache edge", +1 | powershell |
+| nettoyer_cache_navigateur | Vider les caches Chrome et Edge | "vide le cache navigateur", "nettoie le cache chrome", "clean cache web", +1 | powershell |
+| nettoyer_crash_dumps | Supprimer les crash dumps Windows | "nettoie les crash dumps", "supprime les dumps", "clean crash dumps", +1 | powershell |
+| nettoyer_windows_old | Taille du dossier Windows.old (ancien systeme) | "taille windows old", "windows old", "combien pese windows old", +1 | powershell |
+| gpu_power_draw | Consommation electrique des GPU | "consommation gpu", "watt gpu", "puissance gpu", +2 | powershell |
+| gpu_fan_speed | Vitesse des ventilateurs GPU | "ventilateurs gpu", "fans gpu", "vitesse fan gpu", +1 | powershell |
+| gpu_driver_version | Version du driver NVIDIA | "version driver nvidia", "driver gpu", "nvidia driver", +1 | powershell |
+| cluster_latence_detaillee | Latence detaillee de chaque noeud du cluster avec modeles | "latence detaillee cluster", "ping detaille cluster", "benchmark rapide cluster", +1 | powershell |
 
 ### Trading & IA (19 commandes)
 
@@ -632,7 +686,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | cluster_health | Health check rapide du cluster IA | "health check cluster", "verifie le cluster ia", "est ce que le cluster va bien", +3 | powershell |
 | ollama_running | Modeles Ollama actuellement en memoire | "quels modeles ollama tournent", "ollama running", "modeles en memoire ollama", +1 | powershell |
 
-### Developpement & Outils (57 commandes)
+### Developpement & Outils (71 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -693,6 +747,20 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | python_uv_version | Version de Python et uv | "version python", "quelle version python", "python version", +1 | powershell |
 | turbo_recent_changes | Fichiers modifies recemment dans turbo | "fichiers recents turbo", "modifications recentes", "quoi de modifie recemment", +1 | powershell |
 | turbo_todo | Lister les TODO dans le code turbo | "liste les todo", "todo dans le code", "quels todo reste", +2 | powershell |
+| git_blame_file | Git blame sur un fichier | "git blame de {fichier}", "blame {fichier}", "qui a modifie {fichier}", +1 | powershell |
+| git_clean_branches | Nettoyer les branches git mergees | "nettoie les branches", "clean branches", "supprime les branches mergees", +1 | powershell |
+| git_contributors | Lister les contributeurs du projet | "contributeurs git", "qui a contribue", "git contributors", +1 | powershell |
+| git_file_history | Historique d'un fichier | "historique du fichier {fichier}", "git log de {fichier}", "modifications de {fichier}" | powershell |
+| git_undo_last | Annuler le dernier commit (soft reset) | "annule le dernier commit", "undo last commit", "git undo", +1 | powershell |
+| npm_audit | Audit de securite NPM | "npm audit", "audit securite npm", "vulnerabilites npm", +1 | powershell |
+| npm_outdated | Packages NPM obsoletes | "npm outdated", "packages npm a jour", "quels packages npm a mettre a jour", +1 | powershell |
+| pip_outdated | Packages Python obsoletes | "pip outdated", "packages python a mettre a jour", "quels packages python perime" | powershell |
+| python_repl | Lancer un REPL Python | "lance python", "python repl", "ouvre python", +1 | powershell |
+| kill_port | Tuer le processus sur un port specifique | "tue le port {port}", "kill port {port}", "libere le port {port}", +1 | powershell |
+| qui_ecoute_port | Quel processus ecoute sur un port | "qui ecoute sur le port {port}", "quel process sur {port}", "port {port} utilise par", +1 | powershell |
+| ports_dev_status | Statut des ports dev courants (3000, 5173, 8080, 8000, 9742) | "statut des ports dev", "ports dev", "quels ports dev tournent", +1 | powershell |
+| ollama_vram_detail | Detail VRAM utilisee par chaque modele Ollama | "vram ollama detail", "ollama vram", "memoire ollama", +1 | powershell |
+| ollama_stop_all | Decharger tous les modeles Ollama de la VRAM | "decharge tous les modeles ollama", "ollama stop all", "libere la vram ollama", +1 | powershell |
 
 ### Controle JARVIS (12 commandes)
 
