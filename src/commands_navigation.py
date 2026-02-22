@@ -245,4 +245,72 @@ NAVIGATION_COMMANDS: list[JarvisCommand] = [
         "cherche sur pypi {requete}", "pypi {requete}",
         "recherche pypi {requete}", "package python {requete}",
     ], "browser", "navigate:https://pypi.org/search/?q={requete}", ["requete"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # OUTILS EN LIGNE — Developpement & Utilitaires
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_google_translate", "navigation", "Ouvrir Google Translate", [
+        "ouvre google translate", "traducteur", "google traduction",
+        "ouvre le traducteur", "lance google translate",
+    ], "browser", "navigate:https://translate.google.com"),
+    JarvisCommand("ouvrir_google_news", "navigation", "Ouvrir Google Actualites", [
+        "ouvre google news", "google actualites", "lance les news",
+        "ouvre les actualites",
+    ], "browser", "navigate:https://news.google.com"),
+    JarvisCommand("ouvrir_figma", "navigation", "Ouvrir Figma", [
+        "ouvre figma", "va sur figma", "lance figma",
+    ], "browser", "navigate:https://www.figma.com"),
+    JarvisCommand("ouvrir_canva", "navigation", "Ouvrir Canva", [
+        "ouvre canva", "va sur canva", "lance canva",
+    ], "browser", "navigate:https://www.canva.com"),
+    JarvisCommand("ouvrir_pinterest", "navigation", "Ouvrir Pinterest", [
+        "ouvre pinterest", "va sur pinterest", "lance pinterest",
+    ], "browser", "navigate:https://www.pinterest.com"),
+    JarvisCommand("ouvrir_udemy", "navigation", "Ouvrir Udemy", [
+        "ouvre udemy", "va sur udemy", "lance udemy",
+        "cours en ligne",
+    ], "browser", "navigate:https://www.udemy.com"),
+    JarvisCommand("ouvrir_regex101", "navigation", "Ouvrir Regex101 (testeur de regex)", [
+        "ouvre regex101", "testeur regex", "lance regex101",
+        "regex en ligne",
+    ], "browser", "navigate:https://regex101.com"),
+    JarvisCommand("ouvrir_jsonformatter", "navigation", "Ouvrir un formatteur JSON en ligne", [
+        "ouvre json formatter", "formatte du json", "json en ligne",
+        "json formatter",
+    ], "browser", "navigate:https://jsonformatter.org"),
+    JarvisCommand("ouvrir_speedtest", "navigation", "Ouvrir Speedtest", [
+        "ouvre speedtest", "lance un speed test", "test de debit",
+        "teste ma connexion",
+    ], "browser", "navigate:https://www.speedtest.net"),
+    JarvisCommand("ouvrir_excalidraw", "navigation", "Ouvrir Excalidraw (tableau blanc)", [
+        "ouvre excalidraw", "tableau blanc", "lance excalidraw",
+        "whiteboard en ligne",
+    ], "browser", "navigate:https://excalidraw.com"),
+    JarvisCommand("ouvrir_soundcloud", "navigation", "Ouvrir SoundCloud", [
+        "ouvre soundcloud", "va sur soundcloud", "lance soundcloud",
+    ], "browser", "navigate:https://soundcloud.com"),
+    JarvisCommand("ouvrir_google_scholar", "navigation", "Ouvrir Google Scholar", [
+        "ouvre google scholar", "google scholar", "recherche academique",
+        "articles scientifiques",
+    ], "browser", "navigate:https://scholar.google.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RECHERCHE SPECIALISEE — Supplementaire
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("chercher_traduction", "navigation", "Traduire un texte via Google Translate", [
+        "traduis {requete}", "traduction de {requete}",
+        "translate {requete}", "comment on dit {requete}",
+    ], "browser", "navigate:https://translate.google.com/?sl=auto&tl=fr&text={requete}", ["requete"]),
+    JarvisCommand("chercher_google_scholar", "navigation", "Rechercher sur Google Scholar", [
+        "cherche sur scholar {requete}", "article sur {requete}",
+        "recherche academique {requete}", "scholar {requete}",
+    ], "browser", "navigate:https://scholar.google.com/scholar?q={requete}", ["requete"]),
+    JarvisCommand("chercher_huggingface", "navigation", "Rechercher un modele sur Hugging Face", [
+        "cherche sur hugging face {requete}", "modele {requete} huggingface",
+        "hugging face {requete}",
+    ], "browser", "navigate:https://huggingface.co/models?search={requete}", ["requete"]),
+    JarvisCommand("chercher_docker_hub", "navigation", "Rechercher une image Docker Hub", [
+        "cherche sur docker hub {requete}", "image docker {requete}",
+        "docker hub {requete}",
+    ], "browser", "navigate:https://hub.docker.com/search?q={requete}", ["requete"]),
 ]

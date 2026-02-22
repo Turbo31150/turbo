@@ -214,4 +214,80 @@ DEV_COMMANDS: list[JarvisCommand] = [
         "liste les todo", "todo dans le code", "quels todo reste",
         "cherche les todo", "todo turbo",
     ], "powershell", "cd F:\\BUREAU\\turbo; Select-String -Path 'src\\*.py' -Pattern 'TODO|FIXME|HACK|XXX' | Select-Object Filename, LineNumber, Line | Format-Table -AutoSize | Out-String -Width 200"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # GIT — Commandes supplementaires
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("git_blame_file", "dev", "Git blame sur un fichier", [
+        "git blame de {fichier}", "blame {fichier}",
+        "qui a modifie {fichier}", "auteur de {fichier}",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git blame {fichier} | Select -Last 15 | Out-String", ["fichier"]),
+    JarvisCommand("git_clean_branches", "dev", "Nettoyer les branches git mergees", [
+        "nettoie les branches", "clean branches", "supprime les branches mergees",
+        "git clean branches",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git branch --merged main | Where { $_ -notmatch 'main' } | ForEach { git branch -d $_.Trim() 2>&1 } | Out-String"),
+    JarvisCommand("git_contributors", "dev", "Lister les contributeurs du projet", [
+        "contributeurs git", "qui a contribue", "git contributors",
+        "auteurs du projet",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git shortlog -sn --all | Out-String"),
+    JarvisCommand("git_file_history", "dev", "Historique d'un fichier", [
+        "historique du fichier {fichier}", "git log de {fichier}",
+        "modifications de {fichier}",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git log --oneline -10 -- {fichier} | Out-String", ["fichier"]),
+    JarvisCommand("git_undo_last", "dev", "Annuler le dernier commit (soft reset)", [
+        "annule le dernier commit", "undo last commit", "git undo",
+        "defais le dernier commit",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git reset --soft HEAD~1; 'Dernier commit annule (changements gardes)'", confirm=True),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # NPM / BUN AVANCÉ
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("npm_audit", "dev", "Audit de securite NPM", [
+        "npm audit", "audit securite npm", "vulnerabilites npm",
+        "scan npm",
+    ], "powershell", "npm audit --omit=dev 2>&1 | Select -Last 15 | Out-String"),
+    JarvisCommand("npm_outdated", "dev", "Packages NPM obsoletes", [
+        "npm outdated", "packages npm a jour", "quels packages npm a mettre a jour",
+        "npm perime",
+    ], "powershell", "npm outdated -g 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PYTHON AVANCÉ
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("pip_outdated", "dev", "Packages Python obsoletes", [
+        "pip outdated", "packages python a mettre a jour",
+        "quels packages python perime",
+    ], "powershell", "& 'C:\\Users\\franc\\.local\\bin\\uv.exe' pip list --outdated 2>&1 | Select -First 15 | Out-String"),
+    JarvisCommand("python_repl", "dev", "Lancer un REPL Python", [
+        "lance python", "python repl", "ouvre python",
+        "interprete python",
+    ], "powershell", "python -i -c \"print('Python REPL JARVIS')\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RÉSEAU & PORTS — Dev operations
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("kill_port", "dev", "Tuer le processus sur un port specifique", [
+        "tue le port {port}", "kill port {port}", "libere le port {port}",
+        "ferme le port {port}",
+    ], "powershell", "$pid = (Get-NetTCPConnection -LocalPort {port} -ErrorAction SilentlyContinue).OwningProcess | Select -First 1; if($pid){$name = (Get-Process -Id $pid).Name; Stop-Process -Id $pid -Force; \"Port {port}: processus $name (PID $pid) tue\"}else{\"Port {port}: aucun processus\"}", ["port"], confirm=True),
+    JarvisCommand("qui_ecoute_port", "dev", "Quel processus ecoute sur un port", [
+        "qui ecoute sur le port {port}", "quel process sur {port}",
+        "port {port} utilise par", "check port {port}",
+    ], "powershell", "$c = Get-NetTCPConnection -LocalPort {port} -State Listen -ErrorAction SilentlyContinue; if($c){$name = (Get-Process -Id $c.OwningProcess[0]).Name; \"Port {port}: $name (PID $($c.OwningProcess[0]))\"}else{\"Port {port}: libre\"}", ["port"]),
+    JarvisCommand("ports_dev_status", "dev", "Statut des ports dev courants (3000, 5173, 8080, 8000, 9742)", [
+        "statut des ports dev", "ports dev", "quels ports dev tournent",
+        "services dev actifs",
+    ], "powershell", "@(3000,5173,8080,8000,9742,5678,1234) | ForEach-Object { $c = Get-NetTCPConnection -LocalPort $_ -State Listen -ErrorAction SilentlyContinue; if($c){ $name = (Get-Process -Id $c.OwningProcess[0] -ErrorAction SilentlyContinue).Name; \"Port $($_): $name\" } else { \"Port $($_): libre\" } } | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # OLLAMA AVANCÉ
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ollama_vram_detail", "dev", "Detail VRAM utilisee par chaque modele Ollama", [
+        "vram ollama detail", "ollama vram", "memoire ollama",
+        "combien de vram ollama utilise",
+    ], "powershell", "(Invoke-RestMethod -Uri 'http://127.0.0.1:11434/api/ps' -TimeoutSec 5).models | ForEach-Object { \"$($_.name): $([math]::Round($_.size_vram/1GB,2)) GB VRAM | expires: $($_.expires_at)\" } | Out-String"),
+    JarvisCommand("ollama_stop_all", "dev", "Decharger tous les modeles Ollama de la VRAM", [
+        "decharge tous les modeles ollama", "ollama stop all",
+        "libere la vram ollama", "vide ollama",
+    ], "powershell", "$models = (Invoke-RestMethod -Uri 'http://127.0.0.1:11434/api/ps' -TimeoutSec 5).models; $models | ForEach-Object { Invoke-RestMethod -Method Post -Uri 'http://127.0.0.1:11434/api/generate' -Body ('{\"model\":\"' + $_.name + '\",\"keep_alive\":0}') -ContentType 'application/json' }; \"$($models.Count) modeles decharges\"", confirm=True),
 ]
