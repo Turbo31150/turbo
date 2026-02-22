@@ -464,6 +464,30 @@ async def full_correction_pipeline(
     corrected = correct_voice_text(cleaned)
     result["corrected"] = corrected
 
+    # Step 3.5: EARLY EXIT — If local match is high confidence, skip IA entirely
+    from src.commands import match_command
+    early_intent = extract_action_intent(corrected)
+    early_cmd, early_params, early_score = match_command(early_intent)
+    if early_cmd and early_score >= 0.85:
+        result["command"] = early_cmd
+        result["params"] = early_params
+        result["confidence"] = early_score
+        result["intent"] = early_intent
+        result["method"] = "local_fast"
+        return result
+
+    # Also check implicit commands with high confidence
+    if single in IMPLICIT_COMMANDS and result["method"] == "implicit":
+        impl_intent = extract_action_intent(IMPLICIT_COMMANDS[single])
+        impl_cmd, impl_params, impl_score = match_command(impl_intent)
+        if impl_cmd:
+            result["command"] = impl_cmd
+            result["params"] = impl_params
+            result["confidence"] = max(impl_score, 0.95)
+            result["intent"] = impl_intent
+            result["method"] = "implicit_fast"
+            return result
+
     # Step 4: IA correction EARLY — let LM Studio fix transcription errors FIRST
     ia_corrected = None
     if use_ia:
