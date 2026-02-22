@@ -414,4 +414,93 @@ DEV_COMMANDS: list[JarvisCommand] = [
         "workflows n8n", "liste les workflows", "n8n actifs",
         "quels workflows tournent",
     ], "powershell", "$r = Invoke-RestMethod -Uri 'http://127.0.0.1:5678/api/v1/workflows' -TimeoutSec 5 -ErrorAction SilentlyContinue; $r.data | Select id, name, active | Format-Table -AutoSize | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # GIT AVANCÉ — Worktrees, submodules, bisect
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("git_worktree_list", "dev", "Lister les worktrees git", [
+        "worktrees git", "git worktrees", "liste les worktrees",
+        "arbres de travail git",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git worktree list 2>&1 | Out-String"),
+    JarvisCommand("git_submodule_status", "dev", "Statut des submodules git", [
+        "submodules git", "git submodules", "etat des submodules",
+        "sous modules git",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git submodule status 2>&1 | Out-String"),
+    JarvisCommand("git_cherry_unpicked", "dev", "Commits non cherry-picked entre branches", [
+        "git cherry", "commits non picks", "cherry pick restant",
+        "quels commits manquent",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git cherry -v main HEAD 2>&1 | Select -First 10 | Out-String"),
+    JarvisCommand("git_branch_age", "dev", "Age de chaque branche git", [
+        "age des branches", "branches vieilles", "quand les branches ont ete crees",
+        "branches recentes",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git for-each-ref --sort=-committerdate --format='%(committerdate:short) %(refname:short)' refs/heads/ | Out-String"),
+    JarvisCommand("git_commit_stats", "dev", "Statistiques de commits (par jour/semaine)", [
+        "stats commits", "frequence commits", "git stats",
+        "combien de commits par jour",
+    ], "powershell", "cd F:\\BUREAU\\turbo; $total = (git rev-list --count HEAD); $week = (git log --since='1 week ago' --oneline | Measure-Object).Count; $today = (git log --since='today' --oneline | Measure-Object).Count; \"Total: $total | Semaine: $week | Aujourd'hui: $today\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DOCKER — Compose & avancé
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("docker_compose_up", "dev", "Docker compose up (demarrer les services)", [
+        "docker compose up", "lance les conteneurs", "demarre docker compose",
+        "up docker",
+    ], "powershell", "cd F:\\BUREAU\\turbo; docker compose up -d 2>&1 | Out-String"),
+    JarvisCommand("docker_compose_down", "dev", "Docker compose down (arreter les services)", [
+        "docker compose down", "arrete les conteneurs", "stop docker compose",
+        "down docker",
+    ], "powershell", "cd F:\\BUREAU\\turbo; docker compose down 2>&1 | Out-String"),
+    JarvisCommand("docker_compose_logs", "dev", "Voir les logs Docker Compose", [
+        "logs docker compose", "compose logs", "docker compose logs",
+        "journaux docker compose",
+    ], "powershell", "cd F:\\BUREAU\\turbo; docker compose logs --tail=20 2>&1 | Out-String"),
+    JarvisCommand("docker_compose_ps", "dev", "Statut des services Docker Compose", [
+        "services docker compose", "compose ps", "docker compose status",
+        "etat docker compose",
+    ], "powershell", "cd F:\\BUREAU\\turbo; docker compose ps 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # UV & PYTHON — Avancé
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("uv_cache_clean", "dev", "Nettoyer le cache uv", [
+        "nettoie le cache uv", "uv cache clean", "clean cache python",
+        "purge uv",
+    ], "powershell", "& 'C:\\Users\\franc\\.local\\bin\\uv.exe' cache clean 2>&1 | Out-String"),
+    JarvisCommand("uv_pip_install", "dev", "Installer un package Python via uv", [
+        "installe {package} python", "uv pip install {package}",
+        "ajoute {package}", "pip install {package}",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' add {package} 2>&1 | Out-String", ["package"]),
+    JarvisCommand("turbo_test_file", "dev", "Lancer un fichier de test specifique", [
+        "teste le fichier {fichier}", "pytest {fichier}",
+        "lance le test {fichier}", "run test {fichier}",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pytest {fichier} -v --tb=short 2>&1 | Select -Last 20 | Out-String", ["fichier"]),
+    JarvisCommand("turbo_coverage", "dev", "Couverture de tests du projet turbo", [
+        "coverage turbo", "couverture de tests", "test coverage",
+        "combien de couverture", "pytest coverage",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pytest --cov=src --cov-report=term-missing 2>&1 | Select -Last 15 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SYSTÈME — Process et versions
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("process_tree", "dev", "Arbre des processus actifs", [
+        "arbre des processus", "process tree", "processus parent enfant",
+        "hierarchie processus",
+    ], "powershell", "Get-CimInstance Win32_Process | Select Name, ProcessId, ParentProcessId | Sort ParentProcessId | Select -First 25 | Format-Table -AutoSize | Out-String"),
+    JarvisCommand("openssl_version", "dev", "Version d'OpenSSL", [
+        "version openssl", "openssl version", "quelle version ssl",
+    ], "powershell", "openssl version 2>&1 | Out-String"),
+    JarvisCommand("git_version", "dev", "Version de Git", [
+        "version git", "git version", "quelle version git",
+    ], "powershell", "git --version"),
+    JarvisCommand("cuda_version", "dev", "Version de CUDA installee", [
+        "version cuda", "cuda version", "quelle version cuda",
+        "nvidia cuda",
+    ], "powershell", "nvcc --version 2>&1 | Select-String 'release' | Out-String"),
+    JarvisCommand("powershell_version", "dev", "Version de PowerShell", [
+        "version powershell", "powershell version", "quelle version powershell",
+    ], "powershell", "$PSVersionTable.PSVersion | Out-String"),
+    JarvisCommand("dotnet_version", "dev", "Versions de .NET installees", [
+        "version dotnet", "dotnet version", "quelle version net",
+        "versions dotnet installees",
+    ], "powershell", "dotnet --list-sdks 2>&1 | Out-String; dotnet --list-runtimes 2>&1 | Select -First 5 | Out-String"),
 ]

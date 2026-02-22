@@ -34,7 +34,7 @@
 15. [Bases de Donnees](#bases-de-donnees)
 16. [Installation & Configuration](#installation--configuration)
 17. [Appels API — Exemples Complets](#appels-api--exemples-complets)
-18. [812 Commandes Vocales — Liste Complete](#812-commandes-vocales--liste-complete)
+18. [955 Commandes Vocales — Liste Complete](#812-commandes-vocales--liste-complete)
 
 ---
 
@@ -849,7 +849,7 @@ Micro (Sony WH-1000XM4 Bluetooth, 16kHz)
   +----+----+
        |
        v
- Command Match (fuzzy matching, 812 cmds dont 132 pipelines)
+ Command Match (fuzzy matching, 955 cmds dont 156 pipelines)
        |
   +----+----+
   |         |
@@ -878,14 +878,14 @@ MATCH     NO MATCH
 | Wake word | OpenWakeWord "jarvis" (seuil 0.7, cooldown 1s) |
 | Fallback PTT | Ctrl (toujours disponible) |
 | Exit confidence | >= 0.85 |
-| Commandes | **812 commandes vocales** (dont 132 pipelines) |
+| Commandes | **955 commandes vocales** (dont 156 pipelines) |
 | TTS | Edge TTS fr-FR-HenriNeural (+10% rate) |
 | Cache | LRU 200 entrees, ~80% commandes en cache |
 | Correction IA | OL1 qwen3:1.7b (0.5s, timeout 3s) |
 | Warm-up | Ping OL1 toutes les 60s (keep model in GPU) |
 | Latence cible | < 1s (cache/local) / < 2s (IA) / < 3s (complexe) |
 
-> **Detail complet des 812 commandes vocales** : voir [`docs/COMMANDES_VOCALES.md`](docs/COMMANDES_VOCALES.md)
+> **Detail complet des 955 commandes vocales** : voir [`docs/COMMANDES_VOCALES.md`](docs/COMMANDES_VOCALES.md)
 
 ---
 
@@ -970,11 +970,11 @@ F:\BUREAU\turbo\
 |   |-- agents.py                # 7 agents Claude SDK (deep/fast/check/trading/system/bridge/consensus)
 |   |-- tools.py                 # 87 outils MCP SDK (IA, Windows, Trading, Brain, Skills)
 |   |-- mcp_server.py            # Serveur MCP stdio pour Claude Code (87 handlers)
-|   |-- commands.py              # 812 commandes vocales (18 vagues + 4 extensions categories)
-|   |-- commands_pipelines.py    # 120 pipelines multi-etapes (modes, routines, Comet, dev, lifestyle)
-|   |-- commands_navigation.py   # 91 commandes navigation (social, IA, services, recherche)
-|   |-- commands_maintenance.py  # 56 commandes maintenance (monitoring, nettoyage, securite, inventaire)
-|   |-- commands_dev.py          # 81 commandes dev (git, ollama, docker, python, winget, WSL)
+|   |-- commands.py              # 955 commandes vocales (18 vagues + 4 extensions categories)
+|   |-- commands_pipelines.py    # 144 pipelines multi-etapes (modes, routines, Comet, dev, lifestyle)
+|   |-- commands_navigation.py   # 121 commandes navigation (social, IA, services, recherche)
+|   |-- commands_maintenance.py  # 126 commandes maintenance (monitoring, nettoyage, securite, inventaire)
+|   |-- commands_dev.py          # 100 commandes dev (git, ollama, docker, python, winget, WSL)
 |   |-- skills.py                # 86+ skills dynamiques (16 vagues)
 |   |-- voice.py                 # Whisper STT + SAPI TTS + push-to-talk
 |   |-- voice_correction.py      # Pipeline correction vocale (dict + OL1)
@@ -1185,9 +1185,10 @@ Documentation complete: `CLAUDE_MULTI_AGENT.md`
 ---
 
 
-## 812 Commandes Vocales — Liste Complete
 
-**812 commandes** au total dont **132 pipelines** multi-etapes.
+## 955 Commandes Vocales — Liste Complete
+
+**955 commandes** au total dont **156 pipelines** multi-etapes.
 Reparties en **14 categories**.
 
 | Categorie | Nb | Description |
@@ -1195,16 +1196,16 @@ Reparties en **14 categories**.
 | **accessibilite** | 10 | taille_texte_grand, clavier_virtuel, filtre_couleur... |
 | **app** | 23 | ouvrir_vscode, ouvrir_terminal, ouvrir_lmstudio... |
 | **clipboard** | 13 | copier, coller, couper... |
-| **dev** | 96 | docker_ps, docker_images, docker_stop_all... |
+| **dev** | 115 | docker_ps, docker_images, docker_stop_all... |
 | **fenetre** | 13 | minimiser_tout, alt_tab, fermer_fenetre... |
 | **fichiers** | 32 | ouvrir_documents, ouvrir_bureau, ouvrir_dossier... |
 | **jarvis** | 12 | historique_commandes, jarvis_aide, jarvis_stop... |
 | **launcher** | 12 | launch_pipeline_10, launch_sniper_10, launch_sniper_breakout... |
 | **media** | 7 | media_play_pause, media_next, media_previous... |
-| **navigation** | 118 | ouvrir_chrome, ouvrir_comet, aller_sur_site... |
-| **pipeline** | 132 | range_bureau, va_sur_mails_comet, mode_travail... |
+| **navigation** | 148 | ouvrir_chrome, ouvrir_comet, aller_sur_site... |
+| **pipeline** | 156 | range_bureau, va_sur_mails_comet, mode_travail... |
 | **saisie** | 4 | texte_majuscule, texte_minuscule, ouvrir_emojis... |
-| **systeme** | 321 | verrouiller, eteindre, redemarrer... |
+| **systeme** | 391 | verrouiller, eteindre, redemarrer... |
 | **trading** | 19 | scanner_marche, detecter_breakout, pipeline_trading... |
 
 <details>
@@ -1271,7 +1272,7 @@ Reparties en **14 categories**.
 | `clipboard_historique` | hotkey | Ouvrir l'historique du presse-papier | historique presse papier, clipboard history |
 | `coller_sans_format` | hotkey | Coller sans mise en forme | colle sans format, coller sans mise en forme |
 
-### DEV (96)
+### DEV (115)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -1371,6 +1372,25 @@ Reparties en **14 categories**.
 | `python_type_check` | powershell | Verifier les types Python (pyright/mypy) | verifie les types, type check |
 | `curl_test_endpoint` | powershell | Tester un endpoint HTTP | teste l'endpoint {url}, curl {url} |
 | `n8n_workflows_list` | powershell | Lister les workflows n8n actifs | workflows n8n, liste les workflows |
+| `git_worktree_list` | powershell | Lister les worktrees git | worktrees git, git worktrees |
+| `git_submodule_status` | powershell | Statut des submodules git | submodules git, git submodules |
+| `git_cherry_unpicked` | powershell | Commits non cherry-picked entre branches | git cherry, commits non picks |
+| `git_branch_age` | powershell | Age de chaque branche git | age des branches, branches vieilles |
+| `git_commit_stats` | powershell | Statistiques de commits (par jour/semaine) | stats commits, frequence commits |
+| `docker_compose_up` | powershell | Docker compose up (demarrer les services) | docker compose up, lance les conteneurs |
+| `docker_compose_down` | powershell | Docker compose down (arreter les services) | docker compose down, arrete les conteneurs |
+| `docker_compose_logs` | powershell | Voir les logs Docker Compose | logs docker compose, compose logs |
+| `docker_compose_ps` | powershell | Statut des services Docker Compose | services docker compose, compose ps |
+| `uv_cache_clean` | powershell | Nettoyer le cache uv | nettoie le cache uv, uv cache clean |
+| `uv_pip_install` | powershell | Installer un package Python via uv | installe {package} python, uv pip install {package} |
+| `turbo_test_file` | powershell | Lancer un fichier de test specifique | teste le fichier {fichier}, pytest {fichier} |
+| `turbo_coverage` | powershell | Couverture de tests du projet turbo | coverage turbo, couverture de tests |
+| `process_tree` | powershell | Arbre des processus actifs | arbre des processus, process tree |
+| `openssl_version` | powershell | Version d'OpenSSL | version openssl, openssl version |
+| `git_version` | powershell | Version de Git | version git, git version |
+| `cuda_version` | powershell | Version de CUDA installee | version cuda, cuda version |
+| `powershell_version` | powershell | Version de PowerShell | version powershell, powershell version |
+| `dotnet_version` | powershell | Versions de .NET installees | version dotnet, dotnet version |
 
 ### FENETRE (13)
 
@@ -1473,7 +1493,7 @@ Reparties en **14 categories**.
 | `muet` | hotkey | Couper/activer le son | coupe le son, mute |
 | `volume_precis` | powershell | Mettre le volume a un niveau precis | mets le volume a {niveau}, volume a {niveau} |
 
-### NAVIGATION (118)
+### NAVIGATION (148)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -1595,8 +1615,38 @@ Reparties en **14 categories**.
 | `chercher_leetcode` | browser | Rechercher un probleme LeetCode | cherche sur leetcode {requete}, leetcode {requete} |
 | `chercher_medium` | browser | Rechercher sur Medium | cherche sur medium {requete}, medium {requete} |
 | `chercher_hacker_news` | browser | Rechercher sur Hacker News | cherche sur hacker news {requete}, hn {requete} |
+| `ouvrir_linear` | browser | Ouvrir Linear (gestion de projet dev) | ouvre linear, va sur linear |
+| `ouvrir_miro` | browser | Ouvrir Miro (whiteboard collaboratif) | ouvre miro, va sur miro |
+| `ouvrir_loom` | browser | Ouvrir Loom (enregistrement ecran) | ouvre loom, va sur loom |
+| `ouvrir_supabase` | browser | Ouvrir Supabase | ouvre supabase, va sur supabase |
+| `ouvrir_firebase` | browser | Ouvrir Firebase Console | ouvre firebase, va sur firebase |
+| `ouvrir_railway` | browser | Ouvrir Railway (deploy) | ouvre railway, va sur railway |
+| `ouvrir_cloudflare` | browser | Ouvrir Cloudflare Dashboard | ouvre cloudflare, va sur cloudflare |
+| `ouvrir_render` | browser | Ouvrir Render (hosting) | ouvre render, va sur render |
+| `ouvrir_fly_io` | browser | Ouvrir Fly.io | ouvre fly io, va sur fly |
+| `ouvrir_mdn` | browser | Ouvrir MDN Web Docs | ouvre mdn, va sur mdn |
+| `ouvrir_devdocs` | browser | Ouvrir DevDocs.io (toute la doc dev) | ouvre devdocs, va sur devdocs |
+| `ouvrir_can_i_use` | browser | Ouvrir Can I Use (compatibilite navigateurs) | ouvre can i use, can i use |
+| `ouvrir_bundlephobia` | browser | Ouvrir Bundlephobia (taille des packages) | ouvre bundlephobia, bundlephobia |
+| `ouvrir_w3schools` | browser | Ouvrir W3Schools | ouvre w3schools, va sur w3schools |
+| `ouvrir_python_docs` | browser | Ouvrir la documentation Python officielle | ouvre la doc python, doc python |
+| `ouvrir_rust_docs` | browser | Ouvrir la documentation Rust (The Book) | ouvre la doc rust, doc rust |
+| `ouvrir_replit` | browser | Ouvrir Replit (IDE en ligne) | ouvre replit, va sur replit |
+| `ouvrir_codesandbox` | browser | Ouvrir CodeSandbox | ouvre codesandbox, va sur codesandbox |
+| `ouvrir_stackblitz` | browser | Ouvrir StackBlitz | ouvre stackblitz, va sur stackblitz |
+| `ouvrir_typescript_playground` | browser | Ouvrir TypeScript Playground | ouvre typescript playground, typescript playground |
+| `ouvrir_rust_playground` | browser | Ouvrir Rust Playground | ouvre rust playground, rust playground |
+| `ouvrir_google_trends` | browser | Ouvrir Google Trends | ouvre google trends, google trends |
+| `ouvrir_alternativeto` | browser | Ouvrir AlternativeTo (alternatives logiciels) | ouvre alternativeto, alternativeto |
+| `ouvrir_downdetector` | browser | Ouvrir DownDetector (status services) | ouvre downdetector, downdetector |
+| `ouvrir_virustotal` | browser | Ouvrir VirusTotal (scan fichiers/URLs) | ouvre virustotal, virustotal |
+| `ouvrir_haveibeenpwned` | browser | Ouvrir Have I Been Pwned (verification email) | ouvre have i been pwned, haveibeenpwned |
+| `chercher_crates_io` | browser | Rechercher un crate Rust | cherche sur crates {requete}, crate rust {requete} |
+| `chercher_alternativeto` | browser | Chercher une alternative a un logiciel | alternative a {requete}, cherche une alternative a {requete} |
+| `chercher_mdn` | browser | Rechercher sur MDN Web Docs | cherche sur mdn {requete}, mdn {requete} |
+| `chercher_can_i_use` | browser | Verifier la compatibilite d'une feature web | can i use {requete}, compatibilite de {requete} |
 
-### PIPELINE (132)
+### PIPELINE (156)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -1732,6 +1782,30 @@ Reparties en **14 categories**.
 | `ouvre_stackoverflow_comet` | pipeline | Ouvrir Stack Overflow dans Comet | ouvre stackoverflow sur comet, stackoverflow comet |
 | `ouvre_medium_comet` | pipeline | Ouvrir Medium dans Comet | ouvre medium sur comet, medium comet |
 | `ouvre_gmail_comet` | pipeline | Ouvrir Gmail dans Comet | ouvre gmail sur comet, gmail comet |
+| `mode_go_live` | pipeline | Go Live: OBS + Twitch dashboard + Spotify + chat overlay | go live, lance le stream maintenant |
+| `mode_end_stream` | pipeline | End stream: fermer OBS + Twitch + recap | arrete le stream, fin du live |
+| `mode_daily_report` | pipeline | Daily report: git log + stats code + dashboard + Google Sheets | rapport quotidien, daily report |
+| `mode_api_test` | pipeline | Mode API testing: terminal + navigateur API docs + outils test | mode api test, teste les api |
+| `mode_conference_full` | pipeline | Conference: fermer distractions + Teams + micro + focus assist | mode conference, mode visio complete |
+| `mode_end_meeting` | pipeline | Fin meeting: fermer Teams/Discord/Zoom + restaurer musique | fin du meeting, fin de la reunion |
+| `mode_home_theater` | pipeline | Home theater: minimiser + nuit + volume max + Disney+/Netflix plein ecran | mode home theater, mode cinema maison |
+| `mode_refactoring` | pipeline | Mode refactoring: VSCode + ruff + tests + git diff | mode refactoring, session refactoring |
+| `mode_testing_complet` | pipeline | Mode tests complet: pytest + coverage + lint + terminal | mode testing complet, lance tous les tests |
+| `mode_deploy_checklist` | pipeline | Checklist deploy: tests + lint + status git + build check | checklist deploy, mode deploy |
+| `mode_documentation_code` | pipeline | Mode doc code: VSCode + readthedocs + terminal + Notion | mode documentation code, documente le code |
+| `mode_open_source` | pipeline | Mode open source: GitHub issues + PRs + VSCode + terminal | mode open source, mode contribution |
+| `mode_side_project` | pipeline | Mode side project: VSCode + navigateur + terminal + timer 2h | mode side project, mode projet perso |
+| `mode_admin_sys` | pipeline | Mode sysadmin: terminal + Event Viewer + services + ports | mode sysadmin, mode administrateur |
+| `mode_reseau_complet` | pipeline | Mode reseau complet: ping + DNS + WiFi + ports + IP | mode reseau complet, diagnostic reseau total |
+| `mode_finance` | pipeline | Mode finance: banque + budget + trading + calculatrice | mode finance, mode budget |
+| `mode_voyage` | pipeline | Mode voyage: Google Flights + Maps + Booking + meteo | mode voyage, planifie un voyage |
+| `routine_aperitif` | pipeline | Routine apero: fermer le travail + musique + ambiance | routine apero, aperitif |
+| `mode_cuisine` | pipeline | Mode cuisine: YouTube recettes + timer + Spotify musique | mode cuisine, je fais a manger |
+| `mode_meditation` | pipeline | Mode meditation: minimiser + nuit + sons relaxants | mode meditation, medite |
+| `mode_pair_programming` | pipeline | Pair programming: VSCode Live Share + terminal + Discord | mode pair programming, pair prog |
+| `mode_retrospective` | pipeline | Retrospective: bilan semaine + git stats + Notion + Calendar | mode retro, retrospective |
+| `mode_demo` | pipeline | Mode demo: dupliquer ecran + navigateur + dashboard + presentation | mode demo, prepare la demo |
+| `mode_scrum_master` | pipeline | Mode Scrum: board + standup + Calendar + timer | mode scrum, mode scrum master |
 
 ### SAISIE (4)
 
@@ -1742,7 +1816,7 @@ Reparties en **14 categories**.
 | `ouvrir_emojis` | hotkey | Ouvrir le panneau emojis | ouvre les emojis, panneau emojis |
 | `ouvrir_dictee` | hotkey | Activer la dictee vocale Windows | dicte, dictee windows |
 
-### SYSTEME (321)
+### SYSTEME (391)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -2067,6 +2141,76 @@ Reparties en **14 categories**.
 | `disk_smart_health` | powershell | Etat de sante SMART des disques | sante disques, smart disques |
 | `firewall_rules_count` | powershell | Nombre de regles firewall par profil | regles firewall, combien de regles pare-feu |
 | `env_variables_key` | powershell | Variables d'environnement cles (PATH, TEMP, etc.) | variables environnement, env vars |
+| `sfc_scan` | powershell | Lancer un scan d'integrite systeme (sfc /scannow) | scan integrite, sfc scannow |
+| `dism_health_check` | powershell | Verifier la sante de l'image Windows (DISM) | dism health, sante windows |
+| `system_restore_points` | powershell | Lister les points de restauration systeme | points de restauration, restore points |
+| `usb_devices_list` | powershell | Lister les peripheriques USB connectes | peripheriques usb, usb connectes |
+| `bluetooth_devices` | powershell | Lister les peripheriques Bluetooth | peripheriques bluetooth, bluetooth connectes |
+| `certificates_list` | powershell | Certificats systeme installes (racine) | certificats installes, certificates |
+| `page_file_info` | powershell | Configuration du fichier de pagination (swap) | page file, fichier de pagination |
+| `windows_features` | powershell | Fonctionnalites Windows activees | fonctionnalites windows, features windows |
+| `power_plan_active` | powershell | Plan d'alimentation actif et ses details | plan alimentation, power plan |
+| `bios_version` | powershell | Version du BIOS et date | version bios, bios info |
+| `windows_version_detail` | powershell | Version detaillee de Windows (build, edition) | version windows, quelle version windows |
+| `network_connections_count` | powershell | Nombre de connexions reseau actives par etat | connexions reseau actives, combien de connexions |
+| `drivers_probleme` | powershell | Pilotes en erreur ou problematiques | pilotes en erreur, drivers probleme |
+| `shared_folders` | powershell | Dossiers partages sur ce PC | dossiers partages, partages reseau |
+| `focus_app_name` | powershell | Mettre le focus sur une application par son nom | va sur {app}, bascule sur {app} |
+| `fermer_app_name` | powershell | Fermer une application par son nom | ferme {app}, tue {app} |
+| `liste_fenetres_ouvertes` | powershell | Lister toutes les fenetres ouvertes avec leur titre | quelles fenetres sont ouvertes, liste les fenetres |
+| `fenetre_toujours_visible` | powershell | Rendre la fenetre active always-on-top | toujours visible, always on top |
+| `deplacer_fenetre_moniteur` | hotkey | Deplacer la fenetre active vers l'autre moniteur | fenetre autre ecran, deplace sur l'autre ecran |
+| `centrer_fenetre` | powershell | Centrer la fenetre active sur l'ecran | centre la fenetre, fenetre au centre |
+| `switch_audio_output` | powershell | Lister et changer la sortie audio | change la sortie audio, switch audio |
+| `toggle_wifi` | powershell | Activer/desactiver le WiFi | toggle wifi, active le wifi |
+| `toggle_bluetooth` | powershell | Activer/desactiver le Bluetooth | toggle bluetooth, active le bluetooth |
+| `toggle_dark_mode` | powershell | Basculer entre mode sombre et mode clair | mode sombre, dark mode |
+| `taper_date` | powershell | Taper la date du jour automatiquement | tape la date, ecris la date |
+| `taper_heure` | powershell | Taper l'heure actuelle automatiquement | tape l'heure, ecris l'heure |
+| `vider_clipboard` | powershell | Vider le presse-papier | vide le presse papier, clear clipboard |
+| `dismiss_notifications` | hotkey | Fermer toutes les notifications Windows | ferme les notifications, dismiss notifications |
+| `ouvrir_gestionnaire_peripheriques` | powershell | Ouvrir le Gestionnaire de peripheriques | gestionnaire de peripheriques, device manager |
+| `ouvrir_gestionnaire_disques` | powershell | Ouvrir la Gestion des disques | gestion des disques, disk management |
+| `ouvrir_services_windows` | powershell | Ouvrir la console Services Windows | services windows, console services |
+| `ouvrir_registre` | powershell | Ouvrir l'editeur de registre | editeur de registre, regedit |
+| `ouvrir_event_viewer` | powershell | Ouvrir l'observateur d'evenements | observateur d'evenements, event viewer |
+| `hibernation_profonde` | powershell | Mettre le PC en hibernation profonde | hiberne le pc maintenant, hibernation profonde |
+| `restart_bios` | powershell | Redemarrer vers le BIOS/UEFI | redemarre dans le bios, restart bios |
+| `taskbar_app_1` | hotkey | Lancer la 1ere app epinglee dans la taskbar | premiere app taskbar, app 1 taskbar |
+| `taskbar_app_2` | hotkey | Lancer la 2eme app epinglee dans la taskbar | deuxieme app taskbar, app 2 taskbar |
+| `taskbar_app_3` | hotkey | Lancer la 3eme app epinglee dans la taskbar | troisieme app taskbar, app 3 taskbar |
+| `taskbar_app_4` | hotkey | Lancer la 4eme app epinglee dans la taskbar | quatrieme app taskbar, app 4 taskbar |
+| `taskbar_app_5` | hotkey | Lancer la 5eme app epinglee dans la taskbar | cinquieme app taskbar, app 5 taskbar |
+| `fenetre_autre_bureau` | hotkey | Deplacer la fenetre vers le bureau virtuel suivant | fenetre bureau suivant, deplace la fenetre sur l'autre bureau |
+| `browser_retour` | hotkey | Page precedente dans le navigateur | page precedente, retour arriere |
+| `browser_avancer` | hotkey | Page suivante dans le navigateur | page suivante, avance |
+| `browser_rafraichir` | hotkey | Rafraichir la page web | rafraichis la page, reload |
+| `browser_hard_refresh` | hotkey | Rafraichir sans cache | hard refresh, rafraichis sans cache |
+| `browser_private` | hotkey | Ouvrir une fenetre de navigation privee | navigation privee, fenetre privee |
+| `browser_bookmark` | hotkey | Ajouter la page aux favoris | ajoute aux favoris, bookmark |
+| `browser_address_bar` | hotkey | Aller dans la barre d'adresse | barre d'adresse, address bar |
+| `browser_fermer_tous_onglets` | powershell | Fermer tous les onglets sauf l'actif | ferme tous les onglets, close all tabs |
+| `browser_epingler_onglet` | powershell | Epingler/detacher l'onglet actif | epingle l'onglet, pin tab |
+| `texte_debut_ligne` | hotkey | Aller au debut de la ligne | debut de ligne, home |
+| `texte_fin_ligne` | hotkey | Aller a la fin de la ligne | fin de ligne, end |
+| `texte_debut_document` | hotkey | Aller au debut du document | debut du document, tout en haut |
+| `texte_fin_document` | hotkey | Aller a la fin du document | fin du document, tout en bas |
+| `texte_selectionner_ligne` | hotkey | Selectionner la ligne entiere | selectionne la ligne, select line |
+| `texte_supprimer_ligne` | hotkey | Supprimer la ligne entiere (VSCode) | supprime la ligne, delete line |
+| `texte_dupliquer_ligne` | hotkey | Dupliquer la ligne (VSCode) | duplique la ligne, duplicate line |
+| `texte_deplacer_ligne_haut` | hotkey | Deplacer la ligne vers le haut (VSCode) | monte la ligne, move line up |
+| `texte_deplacer_ligne_bas` | hotkey | Deplacer la ligne vers le bas (VSCode) | descends la ligne, move line down |
+| `vscode_palette` | hotkey | Ouvrir la palette de commandes VSCode | palette de commandes, command palette |
+| `vscode_terminal` | hotkey | Ouvrir/fermer le terminal VSCode | terminal vscode, ouvre le terminal intergre |
+| `vscode_sidebar` | hotkey | Afficher/masquer la sidebar VSCode | sidebar vscode, panneau lateral |
+| `vscode_go_to_file` | hotkey | Rechercher et ouvrir un fichier dans VSCode | ouvre un fichier vscode, go to file |
+| `vscode_go_to_line` | hotkey | Aller a une ligne dans VSCode | va a la ligne, go to line |
+| `vscode_split_editor` | hotkey | Diviser l'editeur VSCode en deux | divise l'editeur, split editor |
+| `vscode_close_all` | hotkey | Fermer tous les fichiers ouverts dans VSCode | ferme tous les fichiers vscode, close all tabs vscode |
+| `explorer_dossier_parent` | hotkey | Remonter au dossier parent dans l'Explorateur | dossier parent, remonte d'un dossier |
+| `explorer_nouveau_dossier` | hotkey | Creer un nouveau dossier dans l'Explorateur | nouveau dossier, cree un dossier |
+| `explorer_afficher_caches` | powershell | Afficher les fichiers caches dans l'Explorateur | montre les fichiers caches, fichiers caches |
+| `explorer_masquer_caches` | powershell | Masquer les fichiers caches | cache les fichiers caches, masque les fichiers invisibles |
 
 ### TRADING (19)
 
@@ -2093,7 +2237,7 @@ Reparties en **14 categories**.
 | `ollama_running` | powershell | Modeles Ollama actuellement en memoire | quels modeles ollama tournent, ollama running |
 
 </details
---- Generated 910 lines for 812 commands ---
+--- Generated 1053 lines for 955 commands ---
 
 
 ---

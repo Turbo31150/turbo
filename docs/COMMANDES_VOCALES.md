@@ -2,14 +2,14 @@
 
 > Mise a jour automatique: 2026-02-22 | Voice Pipeline v2
 
-**812 commandes** au total, dont **132 pipelines** multi-etapes, reparties en **14 categories**.
+**955 commandes** au total, dont **156 pipelines** multi-etapes, reparties en **14 categories**.
 
 | Categorie | Nombre |
 |-----------|--------|
-| Systeme Windows | 321 |
-| Pipelines Multi-Etapes | 132 |
-| Navigation Web | 118 |
-| Developpement & Outils | 96 |
+| Systeme Windows | 391 |
+| Pipelines Multi-Etapes | 156 |
+| Navigation Web | 148 |
+| Developpement & Outils | 115 |
 | Fichiers & Documents | 32 |
 | Applications | 23 |
 | Trading & IA | 19 |
@@ -20,7 +20,7 @@
 | Accessibilite | 10 |
 | Controle Media | 7 |
 | Saisie & Texte | 4 |
-| **TOTAL** | **812** |
+| **TOTAL** | **955** |
 
 ---
 
@@ -162,12 +162,36 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | ouvre_stackoverflow_comet | "ouvre stackoverflow sur comet" | Comet: https://stackoverflow.com |
 | ouvre_medium_comet | "ouvre medium sur comet" | Comet: https://medium.com |
 | ouvre_gmail_comet | "ouvre gmail sur comet" | Comet: https://mail.google.com |
+| mode_go_live | "go live" | Ouvrir obs64 > pause 2s > Web: https://dashboard.twitch.tv > pause 1s > Ouvrir spotify > pause 1s > Web: https://www.... |
+| mode_end_stream | "arrete le stream" | Stop-Process -Name 'obs64' -Force -ErrorAction Sil... > pause 1s > "Stream termine — GG!" |
+| mode_daily_report | "rapport quotidien" | cd F:\BUREAU\turbo; 'Commits du jour:'; git log --... > cd F:\BUREAU\turbo; $py = (Get-ChildItem src/*.py ... > Web: ... |
+| mode_api_test | "mode api test" | Ouvrir wt > pause 1s > Web: http://127.0.0.1:8080 > pause 1s > Web: https://httpie.io/app > pause 1s > Web: https://r... |
+| mode_conference_full | "mode conference" | Stop-Process -Name 'spotify','obs64' -Force -Error... > MinimizeAll > pause 1s > Settings > pause 1s > Ouvrir teams >... |
+| mode_end_meeting | "fin du meeting" | Stop-Process -Name 'teams','zoom' -Force -ErrorAct... > pause 1s > Ouvrir spotify > "Reunion terminee — retour au tra... |
+| mode_home_theater | "mode home theater" | MinimizeAll > pause 1s > Start-Process ms-settings:nightlight > pause 1s > $w = New-Object -ComObject WScript.Shell; ... |
+| mode_refactoring | "mode refactoring" | Ouvrir code > pause 1s > cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:\BUREAU\turbo; git diff --stat ... |
+| mode_testing_complet | "mode testing complet" | Ouvrir wt > pause 1s > cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:\BUREAU\turbo; & 'C:\Users\franc\... |
+| mode_deploy_checklist | "checklist deploy" | cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:... |
+| mode_documentation_code | "mode documentation code" | Ouvrir code > pause 1s > Web: https://www.notion.so > pause 1s > Ouvrir wt > pause 1s > Web: https://docs.python.org/3/ |
+| mode_open_source | "mode open source" | Web: https://github.com/pulls > pause 1s > Web: https://github.com/issues > pause 1s > Ouvrir code > pause 1s > Ouvri... |
+| mode_side_project | "mode side project" | Ouvrir code > pause 1s > Ouvrir wt > pause 1s > Web: https://github.com > $end = (Get-Date).AddHours(2).ToString('HH:... |
+| mode_admin_sys | "mode sysadmin" | Ouvrir wt > pause 1s > Get-Service | Where Status -eq 'Stopped' | Where S... > Get-NetTCPConnection -State Listen | G... |
+| mode_reseau_complet | "mode reseau complet" | $p = Test-Connection 8.8.8.8 -Count 2 -ErrorAction... > Resolve-DnsName google.com -ErrorAction SilentlyCo... > netsh... |
+| mode_finance | "mode finance" | Web: https://www.google.com/finance > pause 1s > Web: https://sheets.google.com > pause 1s > Web: https://www.trading... |
+| mode_voyage | "mode voyage" | Web: https://www.google.com/flights > pause 1s > Web: https://maps.google.com > pause 1s > Web: https://www.booking.c... |
+| routine_aperitif | "routine apero" | Stop-Process -Name 'code','wt' -Force -ErrorAction... > MinimizeAll > pause 1s > Start-Process ms-settings:nightlight... |
+| mode_cuisine | "mode cuisine" | Web: https://www.youtube.com/results?search_query=recette+facile+rapide > pause 1s > Ouvrir spotify > $end = (Get-Dat... |
+| mode_meditation | "mode meditation" | MinimizeAll > pause 1s > Start-Process ms-settings:nightlight > pause 1s > Web: https://www.youtube.com/results?searc... |
+| mode_pair_programming | "mode pair programming" | Ouvrir code > pause 1s > Ouvrir discord > pause 1s > Ouvrir wt > pause 1s > Web: https://github.com |
+| mode_retrospective | "mode retro" | cd F:\BUREAU\turbo; 'Commits semaine:'; git log --... > Web: https://www.notion.so > pause 1s > Web: https://calendar... |
+| mode_demo | "mode demo" | DisplaySwitch.exe /clone > pause 2s > Web: http://127.0.0.1:8080 > pause 1s > Web: https://github.com > pause 1s > "D... |
+| mode_scrum_master | "mode scrum" | Web: https://github.com/projects > pause 1s > Web: https://calendar.google.com > pause 1s > cd F:\BUREAU\turbo; git l... |
 
 ---
 
 ## Listing Complet par Categorie
 
-### Navigation Web (118 commandes)
+### Navigation Web (148 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -289,6 +313,36 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | chercher_leetcode | Rechercher un probleme LeetCode | "cherche sur leetcode {requete}", "leetcode {requete}", "probleme {requete} leetcode" | browser |
 | chercher_medium | Rechercher sur Medium | "cherche sur medium {requete}", "medium {requete}", "article medium {requete}" | browser |
 | chercher_hacker_news | Rechercher sur Hacker News | "cherche sur hacker news {requete}", "hn {requete}", "hacker news {requete}" | browser |
+| ouvrir_linear | Ouvrir Linear (gestion de projet dev) | "ouvre linear", "va sur linear", "lance linear", +2 | browser |
+| ouvrir_miro | Ouvrir Miro (whiteboard collaboratif) | "ouvre miro", "va sur miro", "lance miro", +2 | browser |
+| ouvrir_loom | Ouvrir Loom (enregistrement ecran) | "ouvre loom", "va sur loom", "lance loom", +1 | browser |
+| ouvrir_supabase | Ouvrir Supabase | "ouvre supabase", "va sur supabase", "lance supabase", +1 | browser |
+| ouvrir_firebase | Ouvrir Firebase Console | "ouvre firebase", "va sur firebase", "lance firebase", +1 | browser |
+| ouvrir_railway | Ouvrir Railway (deploy) | "ouvre railway", "va sur railway", "lance railway", +1 | browser |
+| ouvrir_cloudflare | Ouvrir Cloudflare Dashboard | "ouvre cloudflare", "va sur cloudflare", "lance cloudflare", +1 | browser |
+| ouvrir_render | Ouvrir Render (hosting) | "ouvre render", "va sur render", "lance render", +1 | browser |
+| ouvrir_fly_io | Ouvrir Fly.io | "ouvre fly io", "va sur fly", "lance fly io", +1 | browser |
+| ouvrir_mdn | Ouvrir MDN Web Docs | "ouvre mdn", "va sur mdn", "docs mdn", +2 | browser |
+| ouvrir_devdocs | Ouvrir DevDocs.io (toute la doc dev) | "ouvre devdocs", "va sur devdocs", "lance devdocs", +2 | browser |
+| ouvrir_can_i_use | Ouvrir Can I Use (compatibilite navigateurs) | "ouvre can i use", "can i use", "compatibilite navigateur", +1 | browser |
+| ouvrir_bundlephobia | Ouvrir Bundlephobia (taille des packages) | "ouvre bundlephobia", "bundlephobia", "taille package npm", +1 | browser |
+| ouvrir_w3schools | Ouvrir W3Schools | "ouvre w3schools", "va sur w3schools", "tuto w3schools", +1 | browser |
+| ouvrir_python_docs | Ouvrir la documentation Python officielle | "ouvre la doc python", "doc python", "python docs", +1 | browser |
+| ouvrir_rust_docs | Ouvrir la documentation Rust (The Book) | "ouvre la doc rust", "doc rust", "rust book", +1 | browser |
+| ouvrir_replit | Ouvrir Replit (IDE en ligne) | "ouvre replit", "va sur replit", "lance replit", +1 | browser |
+| ouvrir_codesandbox | Ouvrir CodeSandbox | "ouvre codesandbox", "va sur codesandbox", "lance codesandbox", +1 | browser |
+| ouvrir_stackblitz | Ouvrir StackBlitz | "ouvre stackblitz", "va sur stackblitz", "lance stackblitz", +1 | browser |
+| ouvrir_typescript_playground | Ouvrir TypeScript Playground | "ouvre typescript playground", "typescript playground", "teste du typescript", +1 | browser |
+| ouvrir_rust_playground | Ouvrir Rust Playground | "ouvre rust playground", "rust playground", "teste du rust", +1 | browser |
+| ouvrir_google_trends | Ouvrir Google Trends | "ouvre google trends", "google trends", "tendances google", +1 | browser |
+| ouvrir_alternativeto | Ouvrir AlternativeTo (alternatives logiciels) | "ouvre alternativeto", "alternativeto", "alternative a un logiciel", +1 | browser |
+| ouvrir_downdetector | Ouvrir DownDetector (status services) | "ouvre downdetector", "downdetector", "c'est en panne", +2 | browser |
+| ouvrir_virustotal | Ouvrir VirusTotal (scan fichiers/URLs) | "ouvre virustotal", "virustotal", "scan un fichier", +1 | browser |
+| ouvrir_haveibeenpwned | Ouvrir Have I Been Pwned (verification email) | "ouvre have i been pwned", "haveibeenpwned", "mon email a ete pirate", +2 | browser |
+| chercher_crates_io | Rechercher un crate Rust | "cherche sur crates {requete}", "crate rust {requete}", "package rust {requete}" | browser |
+| chercher_alternativeto | Chercher une alternative a un logiciel | "alternative a {requete}", "cherche une alternative a {requete}", "remplace {requete}" | browser |
+| chercher_mdn | Rechercher sur MDN Web Docs | "cherche sur mdn {requete}", "mdn {requete}", "doc web {requete}" | browser |
+| chercher_can_i_use | Verifier la compatibilite d'une feature web | "can i use {requete}", "compatibilite de {requete}", "support de {requete}" | browser |
 
 ### Fichiers & Documents (32 commandes)
 
@@ -403,7 +457,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | clipboard_historique | Ouvrir l'historique du presse-papier | "historique presse papier", "clipboard history", "ouvre l'historique clipboard", +2 | hotkey |
 | coller_sans_format | Coller sans mise en forme | "colle sans format", "coller sans mise en forme", "colle en texte brut", +1 | hotkey |
 
-### Systeme Windows (321 commandes)
+### Systeme Windows (391 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -728,6 +782,76 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | disk_smart_health | Etat de sante SMART des disques | "sante disques", "smart disques", "disk health", +2 | powershell |
 | firewall_rules_count | Nombre de regles firewall par profil | "regles firewall", "combien de regles pare-feu", "firewall count", +2 | powershell |
 | env_variables_key | Variables d'environnement cles (PATH, TEMP, etc.) | "variables environnement", "env vars", "montre le path", +2 | powershell |
+| sfc_scan | Lancer un scan d'integrite systeme (sfc /scannow) | "scan integrite", "sfc scannow", "verifie les fichiers systeme", +2 | powershell |
+| dism_health_check | Verifier la sante de l'image Windows (DISM) | "dism health", "sante windows", "dism check", +2 | powershell |
+| system_restore_points | Lister les points de restauration systeme | "points de restauration", "restore points", "sauvegardes systeme", +1 | powershell |
+| usb_devices_list | Lister les peripheriques USB connectes | "peripheriques usb", "usb connectes", "quels usb", +2 | powershell |
+| bluetooth_devices | Lister les peripheriques Bluetooth | "peripheriques bluetooth", "bluetooth connectes", "quels bluetooth", +2 | powershell |
+| certificates_list | Certificats systeme installes (racine) | "certificats installes", "certificates", "liste les certificats", +2 | powershell |
+| page_file_info | Configuration du fichier de pagination (swap) | "page file", "fichier de pagination", "swap windows", +2 | powershell |
+| windows_features | Fonctionnalites Windows activees | "fonctionnalites windows", "features windows", "quelles features activees", +2 | powershell |
+| power_plan_active | Plan d'alimentation actif et ses details | "plan alimentation", "power plan", "mode d'alimentation", +2 | powershell |
+| bios_version | Version du BIOS et date | "version bios", "bios info", "quel bios", +2 | powershell |
+| windows_version_detail | Version detaillee de Windows (build, edition) | "version windows", "quelle version windows", "build windows", +2 | powershell |
+| network_connections_count | Nombre de connexions reseau actives par etat | "connexions reseau actives", "combien de connexions", "network connections", +2 | powershell |
+| drivers_probleme | Pilotes en erreur ou problematiques | "pilotes en erreur", "drivers probleme", "drivers defaillants", +2 | powershell |
+| shared_folders | Dossiers partages sur ce PC | "dossiers partages", "partages reseau", "shared folders", +2 | powershell |
+| focus_app_name | Mettre le focus sur une application par son nom | "va sur {app}", "bascule sur {app}", "focus {app}", +2 | powershell |
+| fermer_app_name | Fermer une application par son nom | "ferme {app}", "tue {app}", "arrete {app}", +2 | powershell |
+| liste_fenetres_ouvertes | Lister toutes les fenetres ouvertes avec leur titre | "quelles fenetres sont ouvertes", "liste les fenetres", "fenetres actives", +2 | powershell |
+| fenetre_toujours_visible | Rendre la fenetre active always-on-top | "toujours visible", "always on top", "epingle la fenetre", +2 | powershell |
+| deplacer_fenetre_moniteur | Deplacer la fenetre active vers l'autre moniteur | "fenetre autre ecran", "deplace sur l'autre ecran", "bouge la fenetre", +2 | hotkey |
+| centrer_fenetre | Centrer la fenetre active sur l'ecran | "centre la fenetre", "fenetre au centre", "center window", +1 | powershell |
+| switch_audio_output | Lister et changer la sortie audio | "change la sortie audio", "switch audio", "quel sortie son", +2 | powershell |
+| toggle_wifi | Activer/desactiver le WiFi | "toggle wifi", "active le wifi", "desactive le wifi", +2 | powershell |
+| toggle_bluetooth | Activer/desactiver le Bluetooth | "toggle bluetooth", "active le bluetooth", "desactive le bluetooth", +2 | powershell |
+| toggle_dark_mode | Basculer entre mode sombre et mode clair | "mode sombre", "dark mode", "toggle dark mode", +3 | powershell |
+| taper_date | Taper la date du jour automatiquement | "tape la date", "ecris la date", "insere la date", +2 | powershell |
+| taper_heure | Taper l'heure actuelle automatiquement | "tape l'heure", "ecris l'heure", "insere l'heure", +2 | powershell |
+| vider_clipboard | Vider le presse-papier | "vide le presse papier", "clear clipboard", "efface le clipboard", +1 | powershell |
+| dismiss_notifications | Fermer toutes les notifications Windows | "ferme les notifications", "dismiss notifications", "efface les notifs", +2 | hotkey |
+| ouvrir_gestionnaire_peripheriques | Ouvrir le Gestionnaire de peripheriques | "gestionnaire de peripheriques", "device manager", "ouvre le gestionnaire peripheriques", +1 | powershell |
+| ouvrir_gestionnaire_disques | Ouvrir la Gestion des disques | "gestion des disques", "disk management", "ouvre la gestion des disques", +1 | powershell |
+| ouvrir_services_windows | Ouvrir la console Services Windows | "services windows", "console services", "ouvre les services", +1 | powershell |
+| ouvrir_registre | Ouvrir l'editeur de registre | "editeur de registre", "regedit", "ouvre le registre", +1 | powershell |
+| ouvrir_event_viewer | Ouvrir l'observateur d'evenements | "observateur d'evenements", "event viewer", "ouvre les logs windows", +1 | powershell |
+| hibernation_profonde | Mettre le PC en hibernation profonde | "hiberne le pc maintenant", "hibernation profonde", "mode hibernation profonde", +1 | powershell |
+| restart_bios | Redemarrer vers le BIOS/UEFI | "redemarre dans le bios", "restart bios", "acces uefi", +1 | powershell |
+| taskbar_app_1 | Lancer la 1ere app epinglee dans la taskbar | "premiere app taskbar", "app 1 taskbar", "lance l'app 1", +1 | hotkey |
+| taskbar_app_2 | Lancer la 2eme app epinglee dans la taskbar | "deuxieme app taskbar", "app 2 taskbar", "lance l'app 2", +1 | hotkey |
+| taskbar_app_3 | Lancer la 3eme app epinglee dans la taskbar | "troisieme app taskbar", "app 3 taskbar", "lance l'app 3", +1 | hotkey |
+| taskbar_app_4 | Lancer la 4eme app epinglee dans la taskbar | "quatrieme app taskbar", "app 4 taskbar", "lance l'app 4", +1 | hotkey |
+| taskbar_app_5 | Lancer la 5eme app epinglee dans la taskbar | "cinquieme app taskbar", "app 5 taskbar", "lance l'app 5", +1 | hotkey |
+| fenetre_autre_bureau | Deplacer la fenetre vers le bureau virtuel suivant | "fenetre bureau suivant", "deplace la fenetre sur l'autre bureau", "move to next desktop", +1 | hotkey |
+| browser_retour | Page precedente dans le navigateur | "page precedente", "retour arriere", "go back", +2 | hotkey |
+| browser_avancer | Page suivante dans le navigateur | "page suivante", "avance", "go forward", +1 | hotkey |
+| browser_rafraichir | Rafraichir la page web | "rafraichis la page", "reload", "refresh", +2 | hotkey |
+| browser_hard_refresh | Rafraichir sans cache | "hard refresh", "rafraichis sans cache", "ctrl f5", +1 | hotkey |
+| browser_private | Ouvrir une fenetre de navigation privee | "navigation privee", "fenetre privee", "incognito", +2 | hotkey |
+| browser_bookmark | Ajouter la page aux favoris | "ajoute aux favoris", "bookmark", "favori cette page", +1 | hotkey |
+| browser_address_bar | Aller dans la barre d'adresse | "barre d'adresse", "address bar", "tape une url", +1 | hotkey |
+| browser_fermer_tous_onglets | Fermer tous les onglets sauf l'actif | "ferme tous les onglets", "close all tabs", "garde juste cet onglet", +1 | powershell |
+| browser_epingler_onglet | Epingler/detacher l'onglet actif | "epingle l'onglet", "pin tab", "detache l'onglet", +1 | powershell |
+| texte_debut_ligne | Aller au debut de la ligne | "debut de ligne", "home", "va au debut", +1 | hotkey |
+| texte_fin_ligne | Aller a la fin de la ligne | "fin de ligne", "end", "va a la fin", +1 | hotkey |
+| texte_debut_document | Aller au debut du document | "debut du document", "tout en haut", "ctrl home", +1 | hotkey |
+| texte_fin_document | Aller a la fin du document | "fin du document", "tout en bas", "ctrl end", +1 | hotkey |
+| texte_selectionner_ligne | Selectionner la ligne entiere | "selectionne la ligne", "select line", "prends toute la ligne" | hotkey |
+| texte_supprimer_ligne | Supprimer la ligne entiere (VSCode) | "supprime la ligne", "delete line", "efface la ligne", +1 | hotkey |
+| texte_dupliquer_ligne | Dupliquer la ligne (VSCode) | "duplique la ligne", "duplicate line", "copie la ligne en dessous" | hotkey |
+| texte_deplacer_ligne_haut | Deplacer la ligne vers le haut (VSCode) | "monte la ligne", "move line up", "ligne vers le haut" | hotkey |
+| texte_deplacer_ligne_bas | Deplacer la ligne vers le bas (VSCode) | "descends la ligne", "move line down", "ligne vers le bas" | hotkey |
+| vscode_palette | Ouvrir la palette de commandes VSCode | "palette de commandes", "command palette", "ctrl shift p", +1 | hotkey |
+| vscode_terminal | Ouvrir/fermer le terminal VSCode | "terminal vscode", "ouvre le terminal intergre", "toggle terminal", +1 | hotkey |
+| vscode_sidebar | Afficher/masquer la sidebar VSCode | "sidebar vscode", "panneau lateral", "toggle sidebar", +2 | hotkey |
+| vscode_go_to_file | Rechercher et ouvrir un fichier dans VSCode | "ouvre un fichier vscode", "go to file", "ctrl p", +1 | hotkey |
+| vscode_go_to_line | Aller a une ligne dans VSCode | "va a la ligne", "go to line", "ctrl g", +1 | hotkey |
+| vscode_split_editor | Diviser l'editeur VSCode en deux | "divise l'editeur", "split editor", "editeur cote a cote", +1 | hotkey |
+| vscode_close_all | Fermer tous les fichiers ouverts dans VSCode | "ferme tous les fichiers vscode", "close all tabs vscode", "nettoie vscode", +1 | hotkey |
+| explorer_dossier_parent | Remonter au dossier parent dans l'Explorateur | "dossier parent", "remonte d'un dossier", "go up folder", +1 | hotkey |
+| explorer_nouveau_dossier | Creer un nouveau dossier dans l'Explorateur | "nouveau dossier", "cree un dossier", "new folder", +1 | hotkey |
+| explorer_afficher_caches | Afficher les fichiers caches dans l'Explorateur | "montre les fichiers caches", "fichiers caches", "show hidden files", +1 | powershell |
+| explorer_masquer_caches | Masquer les fichiers caches | "cache les fichiers caches", "masque les fichiers invisibles", "hide hidden files", +1 | powershell |
 
 ### Trading & IA (19 commandes)
 
@@ -753,7 +877,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | cluster_health | Health check rapide du cluster IA | "health check cluster", "verifie le cluster ia", "est ce que le cluster va bien", +3 | powershell |
 | ollama_running | Modeles Ollama actuellement en memoire | "quels modeles ollama tournent", "ollama running", "modeles en memoire ollama", +1 | powershell |
 
-### Developpement & Outils (96 commandes)
+### Developpement & Outils (115 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -853,6 +977,25 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | python_type_check | Verifier les types Python (pyright/mypy) | "verifie les types", "type check", "pyright check", +2 | powershell |
 | curl_test_endpoint | Tester un endpoint HTTP | "teste l'endpoint {url}", "curl {url}", "ping http {url}", +1 | powershell |
 | n8n_workflows_list | Lister les workflows n8n actifs | "workflows n8n", "liste les workflows", "n8n actifs", +1 | powershell |
+| git_worktree_list | Lister les worktrees git | "worktrees git", "git worktrees", "liste les worktrees", +1 | powershell |
+| git_submodule_status | Statut des submodules git | "submodules git", "git submodules", "etat des submodules", +1 | powershell |
+| git_cherry_unpicked | Commits non cherry-picked entre branches | "git cherry", "commits non picks", "cherry pick restant", +1 | powershell |
+| git_branch_age | Age de chaque branche git | "age des branches", "branches vieilles", "quand les branches ont ete crees", +1 | powershell |
+| git_commit_stats | Statistiques de commits (par jour/semaine) | "stats commits", "frequence commits", "git stats", +1 | powershell |
+| docker_compose_up | Docker compose up (demarrer les services) | "docker compose up", "lance les conteneurs", "demarre docker compose", +1 | powershell |
+| docker_compose_down | Docker compose down (arreter les services) | "docker compose down", "arrete les conteneurs", "stop docker compose", +1 | powershell |
+| docker_compose_logs | Voir les logs Docker Compose | "logs docker compose", "compose logs", "docker compose logs", +1 | powershell |
+| docker_compose_ps | Statut des services Docker Compose | "services docker compose", "compose ps", "docker compose status", +1 | powershell |
+| uv_cache_clean | Nettoyer le cache uv | "nettoie le cache uv", "uv cache clean", "clean cache python", +1 | powershell |
+| uv_pip_install | Installer un package Python via uv | "installe {package} python", "uv pip install {package}", "ajoute {package}", +1 | powershell |
+| turbo_test_file | Lancer un fichier de test specifique | "teste le fichier {fichier}", "pytest {fichier}", "lance le test {fichier}", +1 | powershell |
+| turbo_coverage | Couverture de tests du projet turbo | "coverage turbo", "couverture de tests", "test coverage", +2 | powershell |
+| process_tree | Arbre des processus actifs | "arbre des processus", "process tree", "processus parent enfant", +1 | powershell |
+| openssl_version | Version d'OpenSSL | "version openssl", "openssl version", "quelle version ssl" | powershell |
+| git_version | Version de Git | "version git", "git version", "quelle version git" | powershell |
+| cuda_version | Version de CUDA installee | "version cuda", "cuda version", "quelle version cuda", +1 | powershell |
+| powershell_version | Version de PowerShell | "version powershell", "powershell version", "quelle version powershell" | powershell |
+| dotnet_version | Versions de .NET installees | "version dotnet", "dotnet version", "quelle version net", +1 | powershell |
 
 ### Controle JARVIS (12 commandes)
 
