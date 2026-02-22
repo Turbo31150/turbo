@@ -431,4 +431,145 @@ NAVIGATION_COMMANDS: list[JarvisCommand] = [
         "cherche sur hacker news {requete}", "hn {requete}",
         "hacker news {requete}",
     ], "browser", "navigate:https://hn.algolia.com/?q={requete}", ["requete"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DEV MODERNE — Cloud & DevOps platforms
+    # (source: Raycast extensions, Alfred workflows)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_linear", "navigation", "Ouvrir Linear (gestion de projet dev)", [
+        "ouvre linear", "va sur linear", "lance linear",
+        "issues linear", "board linear",
+    ], "browser", "navigate:https://linear.app"),
+    JarvisCommand("ouvrir_miro", "navigation", "Ouvrir Miro (whiteboard collaboratif)", [
+        "ouvre miro", "va sur miro", "lance miro",
+        "whiteboard miro", "tableau miro",
+    ], "browser", "navigate:https://miro.com"),
+    JarvisCommand("ouvrir_loom", "navigation", "Ouvrir Loom (enregistrement ecran)", [
+        "ouvre loom", "va sur loom", "lance loom",
+        "enregistre avec loom",
+    ], "browser", "navigate:https://www.loom.com"),
+    JarvisCommand("ouvrir_supabase", "navigation", "Ouvrir Supabase", [
+        "ouvre supabase", "va sur supabase", "lance supabase",
+        "dashboard supabase",
+    ], "browser", "navigate:https://supabase.com/dashboard"),
+    JarvisCommand("ouvrir_firebase", "navigation", "Ouvrir Firebase Console", [
+        "ouvre firebase", "va sur firebase", "lance firebase",
+        "console firebase",
+    ], "browser", "navigate:https://console.firebase.google.com"),
+    JarvisCommand("ouvrir_railway", "navigation", "Ouvrir Railway (deploy)", [
+        "ouvre railway", "va sur railway", "lance railway",
+        "dashboard railway",
+    ], "browser", "navigate:https://railway.app/dashboard"),
+    JarvisCommand("ouvrir_cloudflare", "navigation", "Ouvrir Cloudflare Dashboard", [
+        "ouvre cloudflare", "va sur cloudflare", "lance cloudflare",
+        "dashboard cloudflare",
+    ], "browser", "navigate:https://dash.cloudflare.com"),
+    JarvisCommand("ouvrir_render", "navigation", "Ouvrir Render (hosting)", [
+        "ouvre render", "va sur render", "lance render",
+        "dashboard render",
+    ], "browser", "navigate:https://dashboard.render.com"),
+    JarvisCommand("ouvrir_fly_io", "navigation", "Ouvrir Fly.io", [
+        "ouvre fly io", "va sur fly", "lance fly io",
+        "dashboard fly",
+    ], "browser", "navigate:https://fly.io/dashboard"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DOCUMENTATION DEV — Références essentielles
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_mdn", "navigation", "Ouvrir MDN Web Docs", [
+        "ouvre mdn", "va sur mdn", "docs mdn",
+        "mozilla docs", "mdn web docs",
+    ], "browser", "navigate:https://developer.mozilla.org"),
+    JarvisCommand("ouvrir_devdocs", "navigation", "Ouvrir DevDocs.io (toute la doc dev)", [
+        "ouvre devdocs", "va sur devdocs", "lance devdocs",
+        "documentation dev", "all docs",
+    ], "browser", "navigate:https://devdocs.io"),
+    JarvisCommand("ouvrir_can_i_use", "navigation", "Ouvrir Can I Use (compatibilite navigateurs)", [
+        "ouvre can i use", "can i use", "compatibilite navigateur",
+        "support navigateur",
+    ], "browser", "navigate:https://caniuse.com"),
+    JarvisCommand("ouvrir_bundlephobia", "navigation", "Ouvrir Bundlephobia (taille des packages)", [
+        "ouvre bundlephobia", "bundlephobia", "taille package npm",
+        "poids d'un package",
+    ], "browser", "navigate:https://bundlephobia.com"),
+    JarvisCommand("ouvrir_w3schools", "navigation", "Ouvrir W3Schools", [
+        "ouvre w3schools", "va sur w3schools", "tuto w3schools",
+        "w3 schools",
+    ], "browser", "navigate:https://www.w3schools.com"),
+    JarvisCommand("ouvrir_python_docs", "navigation", "Ouvrir la documentation Python officielle", [
+        "ouvre la doc python", "doc python", "python docs",
+        "documentation python officielle",
+    ], "browser", "navigate:https://docs.python.org/3/"),
+    JarvisCommand("ouvrir_rust_docs", "navigation", "Ouvrir la documentation Rust (The Book)", [
+        "ouvre la doc rust", "doc rust", "rust book",
+        "documentation rust",
+    ], "browser", "navigate:https://doc.rust-lang.org/book/"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PLAYGROUNDS & IDE EN LIGNE
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_replit", "navigation", "Ouvrir Replit (IDE en ligne)", [
+        "ouvre replit", "va sur replit", "lance replit",
+        "code en ligne replit",
+    ], "browser", "navigate:https://replit.com"),
+    JarvisCommand("ouvrir_codesandbox", "navigation", "Ouvrir CodeSandbox", [
+        "ouvre codesandbox", "va sur codesandbox", "lance codesandbox",
+        "sandbox en ligne",
+    ], "browser", "navigate:https://codesandbox.io"),
+    JarvisCommand("ouvrir_stackblitz", "navigation", "Ouvrir StackBlitz", [
+        "ouvre stackblitz", "va sur stackblitz", "lance stackblitz",
+        "ide stackblitz",
+    ], "browser", "navigate:https://stackblitz.com"),
+    JarvisCommand("ouvrir_typescript_playground", "navigation", "Ouvrir TypeScript Playground", [
+        "ouvre typescript playground", "typescript playground",
+        "teste du typescript", "ts playground",
+    ], "browser", "navigate:https://www.typescriptlang.org/play"),
+    JarvisCommand("ouvrir_rust_playground", "navigation", "Ouvrir Rust Playground", [
+        "ouvre rust playground", "rust playground",
+        "teste du rust", "playground rust",
+    ], "browser", "navigate:https://play.rust-lang.org"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # UTILITAIRES & TENDANCES
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_google_trends", "navigation", "Ouvrir Google Trends", [
+        "ouvre google trends", "google trends", "tendances google",
+        "quoi est tendance",
+    ], "browser", "navigate:https://trends.google.com"),
+    JarvisCommand("ouvrir_alternativeto", "navigation", "Ouvrir AlternativeTo (alternatives logiciels)", [
+        "ouvre alternativeto", "alternativeto", "alternative a un logiciel",
+        "trouve une alternative",
+    ], "browser", "navigate:https://alternativeto.net"),
+    JarvisCommand("ouvrir_downdetector", "navigation", "Ouvrir DownDetector (status services)", [
+        "ouvre downdetector", "downdetector", "c'est en panne",
+        "status d'un service", "est ce que c'est down",
+    ], "browser", "navigate:https://downdetector.com"),
+    JarvisCommand("ouvrir_virustotal", "navigation", "Ouvrir VirusTotal (scan fichiers/URLs)", [
+        "ouvre virustotal", "virustotal", "scan un fichier",
+        "analyse de virus",
+    ], "browser", "navigate:https://www.virustotal.com"),
+    JarvisCommand("ouvrir_haveibeenpwned", "navigation", "Ouvrir Have I Been Pwned (verification email)", [
+        "ouvre have i been pwned", "haveibeenpwned", "mon email a ete pirate",
+        "check email breach", "verification piratage",
+    ], "browser", "navigate:https://haveibeenpwned.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RECHERCHE SPÉCIALISÉE — Nouvelles
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("chercher_crates_io", "navigation", "Rechercher un crate Rust", [
+        "cherche sur crates {requete}", "crate rust {requete}",
+        "package rust {requete}",
+    ], "browser", "navigate:https://crates.io/search?q={requete}", ["requete"]),
+    JarvisCommand("chercher_alternativeto", "navigation", "Chercher une alternative a un logiciel", [
+        "alternative a {requete}", "cherche une alternative a {requete}",
+        "remplace {requete}",
+    ], "browser", "navigate:https://alternativeto.net/software/{requete}/", ["requete"]),
+    JarvisCommand("chercher_mdn", "navigation", "Rechercher sur MDN Web Docs", [
+        "cherche sur mdn {requete}", "mdn {requete}",
+        "doc web {requete}",
+    ], "browser", "navigate:https://developer.mozilla.org/search?q={requete}", ["requete"]),
+    JarvisCommand("chercher_can_i_use", "navigation", "Verifier la compatibilite d'une feature web", [
+        "can i use {requete}", "compatibilite de {requete}",
+        "support de {requete}",
+    ], "browser", "navigate:https://caniuse.com/?search={requete}", ["requete"]),
 ]

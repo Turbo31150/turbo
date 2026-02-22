@@ -602,4 +602,123 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
         "ouvre gmail sur comet", "gmail comet",
         "va sur gmail comet", "mails comet",
     ], "pipeline", f"powershell:Start-Process '{COMET}' -ArgumentList 'https://mail.google.com'"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # INSPIRÉ STREAM DECK — Action Flows multi-actions (one-click)
+    # (source: vsdinside.com, asianefficiency.com, xda-developers.com)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("mode_go_live", "pipeline", "Go Live: OBS + Twitch dashboard + Spotify + chat overlay", [
+        "go live", "lance le stream maintenant", "on est en direct",
+        "mode live", "demarre le live",
+    ], "pipeline", "app_open:obs64;;sleep:2;;browser:navigate:https://dashboard.twitch.tv;;sleep:1;;app_open:spotify;;sleep:1;;browser:navigate:https://www.twitch.tv/popout/chat;;powershell:\"LIVE — Stream demarre!\""),
+    JarvisCommand("mode_end_stream", "pipeline", "End stream: fermer OBS + Twitch + recap", [
+        "arrete le stream", "fin du live", "end stream",
+        "coupe le stream", "stop live",
+    ], "pipeline", "powershell:Stop-Process -Name 'obs64' -Force -ErrorAction SilentlyContinue; 'OBS ferme';;sleep:1;;powershell:\"Stream termine — GG!\""),
+    JarvisCommand("mode_daily_report", "pipeline", "Daily report: git log + stats code + dashboard + Google Sheets", [
+        "rapport quotidien", "daily report", "genere le rapport",
+        "rapport du jour", "stats du jour",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; 'Commits du jour:'; git log --since='today' --oneline 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; $py = (Get-ChildItem src/*.py -Recurse | Get-Content | Measure-Object -Line).Lines; \"Code: $py lignes Python\";;browser:navigate:http://127.0.0.1:8080;;sleep:1;;browser:navigate:https://sheets.google.com"),
+    JarvisCommand("mode_api_test", "pipeline", "Mode API testing: terminal + navigateur API docs + outils test", [
+        "mode api test", "teste les api", "mode postman",
+        "session api testing", "debug api",
+    ], "pipeline", "app_open:wt;;sleep:1;;browser:navigate:http://127.0.0.1:8080;;sleep:1;;browser:navigate:https://httpie.io/app;;sleep:1;;browser:navigate:https://reqbin.com"),
+    JarvisCommand("mode_conference_full", "pipeline", "Conference: fermer distractions + Teams + micro + focus assist", [
+        "mode conference", "mode visio complete", "setup conference",
+        "lance la visio complete", "reunion complete",
+    ], "pipeline", f"powershell:Stop-Process -Name 'spotify','obs64' -Force -ErrorAction SilentlyContinue;;{MINIMIZE_ALL};;sleep:1;;ms_settings:ms-settings:quiethours;;sleep:1;;app_open:teams;;sleep:1;;powershell:\"Conference prete — micro et cam actifs\""),
+    JarvisCommand("mode_end_meeting", "pipeline", "Fin meeting: fermer Teams/Discord/Zoom + restaurer musique", [
+        "fin du meeting", "fin de la reunion", "end meeting",
+        "ferme la visio", "reunion terminee",
+    ], "pipeline", "powershell:Stop-Process -Name 'teams','zoom' -Force -ErrorAction SilentlyContinue; 'Apps reunion fermees';;sleep:1;;app_open:spotify;;powershell:\"Reunion terminee — retour au travail\""),
+    JarvisCommand("mode_home_theater", "pipeline", "Home theater: minimiser + nuit + volume max + Disney+/Netflix plein ecran", [
+        "mode home theater", "mode cinema maison", "soiree film maison",
+        "home cinema", "mode salle de cinema",
+    ], "pipeline", f"{MINIMIZE_ALL};;sleep:1;;powershell:Start-Process ms-settings:nightlight;;sleep:1;;powershell:$w = New-Object -ComObject WScript.Shell; 1..10 | ForEach {{ $w.SendKeys([char]175) }}; 'Volume monte';;browser:navigate:https://www.netflix.com;;sleep:2;;hotkey:f11"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DEV WORKFLOWS AVANCÉS — Refactoring, testing, deploy
+    # (source: Raycast workflows, Alfred dev patterns)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("mode_refactoring", "pipeline", "Mode refactoring: VSCode + ruff + tests + git diff", [
+        "mode refactoring", "session refactoring", "lance le refactoring",
+        "mode refacto", "nettoie le code",
+    ], "pipeline", "app_open:code;;sleep:1;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff check src/ --statistics 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:\\BUREAU\\turbo; git diff --stat 2>&1 | Out-String"),
+    JarvisCommand("mode_testing_complet", "pipeline", "Mode tests complet: pytest + coverage + lint + terminal", [
+        "mode testing complet", "lance tous les tests", "session testing",
+        "mode tests", "teste tout le projet",
+    ], "pipeline", "app_open:wt;;sleep:1;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pytest -v --tb=short 2>&1 | Select -Last 20 | Out-String;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff check src/ 2>&1 | Select -Last 5 | Out-String"),
+    JarvisCommand("mode_deploy_checklist", "pipeline", "Checklist deploy: tests + lint + status git + build check", [
+        "checklist deploy", "mode deploy", "pret pour le deploiement",
+        "verification deploiement", "deploy checklist",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pytest -x --tb=short 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff check src/ 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:\\BUREAU\\turbo; git status -sb;;powershell:cd F:\\BUREAU\\turbo; git log --oneline -3"),
+    JarvisCommand("mode_documentation_code", "pipeline", "Mode doc code: VSCode + readthedocs + terminal + Notion", [
+        "mode documentation code", "documente le code", "session docs code",
+        "mode javadoc", "ecris la doc",
+    ], "pipeline", "app_open:code;;sleep:1;;browser:navigate:https://www.notion.so;;sleep:1;;app_open:wt;;sleep:1;;browser:navigate:https://docs.python.org/3/"),
+    JarvisCommand("mode_open_source", "pipeline", "Mode open source: GitHub issues + PRs + VSCode + terminal", [
+        "mode open source", "mode contribution", "session open source",
+        "contribue a un projet", "mode oss",
+    ], "pipeline", "browser:navigate:https://github.com/pulls;;sleep:1;;browser:navigate:https://github.com/issues;;sleep:1;;app_open:code;;sleep:1;;app_open:wt"),
+    JarvisCommand("mode_side_project", "pipeline", "Mode side project: VSCode + navigateur + terminal + timer 2h", [
+        "mode side project", "mode projet perso", "lance le side project",
+        "session projet perso", "mode hobby code",
+    ], "pipeline", "app_open:code;;sleep:1;;app_open:wt;;sleep:1;;browser:navigate:https://github.com;;powershell:$end = (Get-Date).AddHours(2).ToString('HH:mm'); \"Side project demarre — fin a $end\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SYSADMIN — Workflows systeme avances
+    # (source: turbogeek.co.uk, PDQ, wholesalebackup.com)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("mode_admin_sys", "pipeline", "Mode sysadmin: terminal + Event Viewer + services + ports", [
+        "mode sysadmin", "mode administrateur", "mode admin systeme",
+        "session admin", "mode it",
+    ], "pipeline", "app_open:wt;;sleep:1;;powershell:Get-Service | Where Status -eq 'Stopped' | Where StartType -eq 'Automatic' | Select -First 5 Name, Status | Out-String;;powershell:Get-NetTCPConnection -State Listen | Group-Object LocalPort | Select @{N='Port';E={$_.Name}}, Count | Sort Port | Select -First 10 | Out-String;;powershell:Get-WinEvent -FilterHashtable @{LogName='System';Level=2} -MaxEvents 5 -ErrorAction SilentlyContinue | Select TimeCreated, Message | Out-String -Width 150"),
+    JarvisCommand("mode_reseau_complet", "pipeline", "Mode reseau complet: ping + DNS + WiFi + ports + IP", [
+        "mode reseau complet", "diagnostic reseau total", "analyse reseau complete",
+        "tout le reseau", "reseau en detail",
+    ], "pipeline", "powershell:$p = Test-Connection 8.8.8.8 -Count 2 -ErrorAction SilentlyContinue; if($p){\"Ping Google: $([math]::Round(($p | Measure-Object -Property Latency -Average).Average))ms\"}else{'Ping: ECHEC'};;powershell:Resolve-DnsName google.com -ErrorAction SilentlyContinue | Select -First 2 | Out-String;;powershell:netsh wlan show interfaces | Select-String 'SSID|Signal|Debit' | Out-String;;powershell:(Invoke-RestMethod -Uri 'https://api.ipify.org?format=json' -TimeoutSec 5).ip;;powershell:Get-NetTCPConnection -State Listen | Group-Object LocalPort | Select @{N='Port';E={$_.Name}}, Count | Sort Port | Select -First 10 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # LIFESTYLE — Finance, voyage, apéritif
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("mode_finance", "pipeline", "Mode finance: banque + budget + trading + calculatrice", [
+        "mode finance", "mode budget", "gere mes finances",
+        "session finance", "mode comptabilite",
+    ], "pipeline", "browser:navigate:https://www.google.com/finance;;sleep:1;;browser:navigate:https://sheets.google.com;;sleep:1;;browser:navigate:https://www.tradingview.com;;sleep:1;;app_open:calc"),
+    JarvisCommand("mode_voyage", "pipeline", "Mode voyage: Google Flights + Maps + Booking + meteo", [
+        "mode voyage", "planifie un voyage", "mode vacances",
+        "session voyage", "organise le voyage",
+    ], "pipeline", "browser:navigate:https://www.google.com/flights;;sleep:1;;browser:navigate:https://maps.google.com;;sleep:1;;browser:navigate:https://www.booking.com;;sleep:1;;browser:navigate:https://www.google.com/search?q=meteo"),
+    JarvisCommand("routine_aperitif", "pipeline", "Routine apero: fermer le travail + musique + ambiance", [
+        "routine apero", "aperitif", "c'est l'heure de l'apero",
+        "mode apero", "apero time",
+    ], "pipeline", f"powershell:Stop-Process -Name 'code','wt' -Force -ErrorAction SilentlyContinue;;{MINIMIZE_ALL};;sleep:1;;powershell:Start-Process ms-settings:nightlight;;sleep:1;;app_open:spotify;;powershell:\"Apero time! Bon moment!\""),
+    JarvisCommand("mode_cuisine", "pipeline", "Mode cuisine: YouTube recettes + timer + Spotify musique", [
+        "mode cuisine", "je fais a manger", "mode recette",
+        "session cuisine", "lance une recette",
+    ], "pipeline", "browser:navigate:https://www.youtube.com/results?search_query=recette+facile+rapide;;sleep:1;;app_open:spotify;;powershell:$end = (Get-Date).AddMinutes(45).ToString('HH:mm'); \"Cuisine demarre — pret vers $end\""),
+    JarvisCommand("mode_meditation", "pipeline", "Mode meditation: minimiser + nuit + sons relaxants", [
+        "mode meditation", "medite", "mode calme",
+        "session meditation", "mode zen total",
+    ], "pipeline", f"{MINIMIZE_ALL};;sleep:1;;powershell:Start-Process ms-settings:nightlight;;sleep:1;;browser:navigate:https://www.youtube.com/results?search_query=meditation+guidee+10+minutes;;sleep:2;;hotkey:f11"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # REMOTE WORK & COLLABORATION
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("mode_pair_programming", "pipeline", "Pair programming: VSCode Live Share + terminal + Discord", [
+        "mode pair programming", "pair prog", "session pair programming",
+        "code a deux", "mode collaboration code",
+    ], "pipeline", "app_open:code;;sleep:1;;app_open:discord;;sleep:1;;app_open:wt;;sleep:1;;browser:navigate:https://github.com"),
+    JarvisCommand("mode_retrospective", "pipeline", "Retrospective: bilan semaine + git stats + Notion + Calendar", [
+        "mode retro", "retrospective", "bilan de la semaine",
+        "session retro", "mode retrospective",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; 'Commits semaine:'; git log --since='last monday' --oneline 2>&1 | Out-String;;browser:navigate:https://www.notion.so;;sleep:1;;browser:navigate:https://calendar.google.com;;sleep:1;;browser:navigate:http://127.0.0.1:8080"),
+    JarvisCommand("mode_demo", "pipeline", "Mode demo: dupliquer ecran + navigateur + dashboard + presentation", [
+        "mode demo", "prepare la demo", "session demo",
+        "lance la demo", "mode demonstration",
+    ], "pipeline", "powershell:DisplaySwitch.exe /clone;;sleep:2;;browser:navigate:http://127.0.0.1:8080;;sleep:1;;browser:navigate:https://github.com;;sleep:1;;powershell:\"Demo prete — go!\""),
+    JarvisCommand("mode_scrum_master", "pipeline", "Mode Scrum: board + standup + Calendar + timer", [
+        "mode scrum", "mode scrum master", "session scrum",
+        "lance le daily", "mode agile",
+    ], "pipeline", "browser:navigate:https://github.com/projects;;sleep:1;;browser:navigate:https://calendar.google.com;;sleep:1;;powershell:cd F:\\BUREAU\\turbo; git log --since='yesterday' --oneline 2>&1 | Out-String;;powershell:$end = (Get-Date).AddMinutes(15).ToString('HH:mm'); \"Standup demarre — max $end\""),
 ]
