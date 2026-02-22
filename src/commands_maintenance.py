@@ -142,4 +142,60 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
         "plus gros fichiers", "gros fichiers bureau",
         "fichiers les plus lourds", "quoi prend de la place",
     ], "powershell", "Get-ChildItem 'F:\\BUREAU' -Recurse -File -ErrorAction SilentlyContinue | Sort Length -Descending | Select -First 10 @{N='Taille(MB)';E={[math]::Round($_.Length/1MB,1)}}, FullName | Format-Table -AutoSize | Out-String -Width 200"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # MONITORING AVANCÉ
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("processus_zombies", "systeme", "Detecter les processus qui ne repondent pas", [
+        "processus zombies", "processus bloques", "applications gelees",
+        "quoi est bloque", "processes not responding",
+    ], "powershell", "Get-Process | Where { $_.Responding -eq $false } | Select Name, Id, @{N='RAM(MB)';E={[math]::Round($_.WS/1MB)}} | Out-String"),
+    JarvisCommand("dernier_crash", "systeme", "Dernier crash ou erreur critique Windows", [
+        "dernier crash", "derniere erreur critique", "dernier plantage",
+        "quand le pc a plante",
+    ], "powershell", "Get-WinEvent -FilterHashtable @{LogName='System';Level=1,2} -MaxEvents 5 -ErrorAction SilentlyContinue | Select TimeCreated, LevelDisplayName, Message | Out-String -Width 200"),
+    JarvisCommand("temps_allumage_apps", "systeme", "Depuis combien de temps chaque app tourne", [
+        "duree des apps", "depuis quand les apps tournent",
+        "temps d'execution des processus", "uptime des apps",
+    ], "powershell", "Get-Process | Where { $_.CPU -gt 10 } | Sort CPU -Descending | Select -First 10 Name, @{N='Uptime';E={(Get-Date) - $_.StartTime}}, @{N='CPU(s)';E={[math]::Round($_.CPU,1)}} | Format-Table -AutoSize | Out-String"),
+    JarvisCommand("taille_cache_navigateur", "systeme", "Taille des caches navigateur Chrome/Edge", [
+        "taille cache navigateur", "cache chrome", "cache edge",
+        "combien pese le cache web",
+    ], "powershell", "$chrome = (Get-ChildItem \"$env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Default\\Cache\" -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1MB; $edge = (Get-ChildItem \"$env:LOCALAPPDATA\\Microsoft\\Edge\\User Data\\Default\\Cache\" -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1MB; \"Chrome cache: $([math]::Round($chrome,1)) MB | Edge cache: $([math]::Round($edge,1)) MB\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # NETTOYAGE AVANCÉ
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("nettoyer_cache_navigateur", "systeme", "Vider les caches Chrome et Edge", [
+        "vide le cache navigateur", "nettoie le cache chrome",
+        "clean cache web", "purge cache navigateur",
+    ], "powershell", "Remove-Item \"$env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Default\\Cache\\*\" -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item \"$env:LOCALAPPDATA\\Microsoft\\Edge\\User Data\\Default\\Cache\\*\" -Recurse -Force -ErrorAction SilentlyContinue; 'Caches navigateur nettoyes'", confirm=True),
+    JarvisCommand("nettoyer_crash_dumps", "systeme", "Supprimer les crash dumps Windows", [
+        "nettoie les crash dumps", "supprime les dumps",
+        "clean crash dumps", "vide les crash dumps",
+    ], "powershell", "$count = (Get-ChildItem \"$env:LOCALAPPDATA\\CrashDumps\" -File -ErrorAction SilentlyContinue).Count; Remove-Item \"$env:LOCALAPPDATA\\CrashDumps\\*\" -Force -ErrorAction SilentlyContinue; \"$count crash dumps supprimes\""),
+    JarvisCommand("nettoyer_windows_old", "systeme", "Taille du dossier Windows.old (ancien systeme)", [
+        "taille windows old", "windows old", "combien pese windows old",
+        "ancien systeme",
+    ], "powershell", "if(Test-Path 'C:\\Windows.old'){ $s = (Get-ChildItem 'C:\\Windows.old' -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1GB; \"Windows.old: $([math]::Round($s,1)) GB\" }else{ 'Pas de dossier Windows.old' }"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CLUSTER IA — Monitoring avance
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("gpu_power_draw", "systeme", "Consommation electrique des GPU", [
+        "consommation gpu", "watt gpu", "puissance gpu",
+        "combien consomment les gpu", "power draw gpu",
+    ], "powershell", "nvidia-smi --query-gpu=name,power.draw,power.limit --format=csv,noheader,nounits | ForEach-Object { $f = $_ -split ','; \"$($f[0].Trim()): $($f[1].Trim())W / $($f[2].Trim())W max\" }"),
+    JarvisCommand("gpu_fan_speed", "systeme", "Vitesse des ventilateurs GPU", [
+        "ventilateurs gpu", "fans gpu", "vitesse fan gpu",
+        "les gpu ventilent combien",
+    ], "powershell", "nvidia-smi --query-gpu=name,fan.speed --format=csv,noheader | Out-String"),
+    JarvisCommand("gpu_driver_version", "systeme", "Version du driver NVIDIA", [
+        "version driver nvidia", "driver gpu", "nvidia driver",
+        "quel driver gpu",
+    ], "powershell", "nvidia-smi --query-gpu=name,driver_version --format=csv,noheader | Out-String"),
+    JarvisCommand("cluster_latence_detaillee", "systeme", "Latence detaillee de chaque noeud du cluster avec modeles", [
+        "latence detaillee cluster", "ping detaille cluster",
+        "benchmark rapide cluster", "vitesse des noeuds",
+    ], "powershell", "$m2t = (Measure-Command{try{Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -TimeoutSec 5 -UseBasicParsing}catch{}}).TotalMilliseconds; $m3t = (Measure-Command{try{Invoke-WebRequest -Uri 'http://192.168.1.113:1234/api/v1/models' -TimeoutSec 5 -UseBasicParsing}catch{}}).TotalMilliseconds; $ol1t = (Measure-Command{try{Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 5 -UseBasicParsing}catch{}}).TotalMilliseconds; \"M2: $([math]::Round($m2t))ms | M3: $([math]::Round($m3t))ms | OL1: $([math]::Round($ol1t))ms\""),
 ]

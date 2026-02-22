@@ -348,4 +348,132 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
         "mode email", "traite les mails", "session email",
         "mode inbox zero", "gere les mails",
     ], "pipeline", f"powershell:Stop-Process -Name 'discord','telegram','slack' -Force -ErrorAction SilentlyContinue;;{MINIMIZE_ALL};;sleep:1;;browser:navigate:https://mail.google.com;;sleep:1;;browser:navigate:https://calendar.google.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # INSPIRÉ GOOGLE HOME / SIRI SHORTCUTS — Contextuels et lifestyle
+    # (source: android.gadgethacks.com, glpwireless.com, beebom.com)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("mode_podcast", "pipeline", "Mode podcast: minimiser + Spotify + volume confortable", [
+        "mode podcast", "lance un podcast", "ecoute un podcast",
+        "session podcast", "podcasts",
+    ], "pipeline", f"{MINIMIZE_ALL};;sleep:1;;app_open:spotify;;powershell:$w = New-Object -ComObject WScript.Shell; 1..5 | ForEach {{ $w.SendKeys([char]175) }}; 'Volume ajuste'"),
+    JarvisCommand("mode_apprentissage", "pipeline", "Mode apprentissage: focus + Udemy/Coursera + notes", [
+        "mode apprentissage", "mode formation", "lance une formation",
+        "session apprentissage", "mode cours en ligne",
+    ], "pipeline", f"ms_settings:ms-settings:quiethours;;sleep:1;;browser:navigate:https://www.udemy.com;;sleep:1;;browser:navigate:https://docs.google.com;;sleep:1;;{MINIMIZE_ALL}"),
+    JarvisCommand("mode_news", "pipeline", "Mode news: Google Actualites + Reddit + Twitter", [
+        "mode news", "mode actualites", "quoi de neuf dans le monde",
+        "lance les news", "session actualites",
+    ], "pipeline", "browser:navigate:https://news.google.com;;sleep:1;;browser:navigate:https://www.reddit.com;;sleep:1;;browser:navigate:https://x.com"),
+    JarvisCommand("mode_shopping", "pipeline", "Mode shopping: Amazon + Leboncoin + comparateur", [
+        "mode shopping", "mode achats", "session shopping",
+        "lance le shopping", "ouvre les boutiques",
+    ], "pipeline", "browser:navigate:https://www.amazon.fr;;sleep:1;;browser:navigate:https://www.leboncoin.fr;;sleep:1;;browser:navigate:https://www.google.com/shopping"),
+    JarvisCommand("mode_design", "pipeline", "Mode design: Figma + Pinterest + Canva", [
+        "mode design", "mode graphisme", "lance le mode design",
+        "session design", "ouvre les outils design",
+    ], "pipeline", "browser:navigate:https://www.figma.com;;sleep:1;;browser:navigate:https://www.pinterest.com;;sleep:1;;browser:navigate:https://www.canva.com"),
+    JarvisCommand("mode_musique_decouverte", "pipeline", "Decouverte musicale: Spotify + YouTube Music + SoundCloud", [
+        "decouverte musicale", "explore la musique", "nouvelle musique",
+        "mode decouverte musique",
+    ], "pipeline", "app_open:spotify;;sleep:1;;browser:navigate:https://music.youtube.com;;sleep:1;;browser:navigate:https://soundcloud.com"),
+    JarvisCommand("routine_weekend", "pipeline", "Routine weekend: relax + news + musique + Netflix", [
+        "routine weekend", "mode weekend", "c'est le weekend",
+        "lance le mode weekend", "samedi matin",
+    ], "pipeline", f"{MINIMIZE_ALL};;sleep:1;;powershell:Start-Process ms-settings:nightlight;;sleep:1;;browser:navigate:https://news.google.com;;sleep:1;;app_open:spotify"),
+    JarvisCommand("mode_social_complet", "pipeline", "Social complet: Twitter + Reddit + Instagram + LinkedIn + Discord", [
+        "mode social complet", "tous les reseaux", "ouvre tout les reseaux sociaux",
+        "social media complet", "session reseaux sociaux",
+    ], "pipeline", "browser:navigate:https://x.com;;sleep:1;;browser:navigate:https://www.reddit.com;;sleep:1;;browser:navigate:https://www.instagram.com;;sleep:1;;browser:navigate:https://www.linkedin.com;;sleep:1;;app_open:discord"),
+    JarvisCommand("mode_planning", "pipeline", "Mode planning: Calendar + Notion + Google Tasks", [
+        "mode planning", "mode planification", "organise ma semaine",
+        "session planning", "mode agenda",
+    ], "pipeline", "browser:navigate:https://calendar.google.com;;sleep:1;;browser:navigate:https://www.notion.so;;sleep:1;;browser:navigate:https://mail.google.com/tasks/canvas"),
+    JarvisCommand("mode_brainstorm", "pipeline", "Mode brainstorm: Claude + Notion + timer", [
+        "mode brainstorm", "session brainstorm", "lance un brainstorm",
+        "mode idees", "reflexion creative",
+    ], "pipeline", "browser:navigate:https://claude.ai;;sleep:1;;browser:navigate:https://www.notion.so;;powershell:$end = (Get-Date).AddMinutes(30).ToString('HH:mm'); \"Brainstorm demarre — fin a $end\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # INSPIRÉ HONGKIAT / WINDOWS AUTOMATION — Nettoyage et gestion
+    # (source: hongkiat.com, xda-developers.com, windowsforum.com)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("nettoyage_downloads", "pipeline", "Nettoyer les vieux telechargements (>30 jours)", [
+        "nettoie les telechargements", "clean downloads",
+        "vide les vieux downloads", "nettoie le dossier telechargements",
+    ], "pipeline", "powershell:$count = (Get-ChildItem $env:USERPROFILE\\Downloads -File | Where { $_.LastWriteTime -lt (Get-Date).AddDays(-30) }).Count; Get-ChildItem $env:USERPROFILE\\Downloads -File | Where { $_.LastWriteTime -lt (Get-Date).AddDays(-30) } | Remove-Item -Force -ErrorAction SilentlyContinue; \"$count fichiers de plus de 30 jours supprimes\"", confirm=True),
+    JarvisCommand("rapport_reseau_complet", "pipeline", "Rapport reseau: IP + DNS + latence + ports + WiFi", [
+        "rapport reseau complet", "rapport reseau", "bilan reseau",
+        "diagnostic reseau complet", "etat complet du reseau",
+    ], "pipeline", "powershell:(Invoke-RestMethod -Uri 'https://api.ipify.org?format=json' -TimeoutSec 5).ip;;powershell:$dns = Resolve-DnsName google.com -ErrorAction SilentlyContinue; if($dns){'DNS: OK — ' + $dns[0].IPAddress}else{'DNS: ECHEC'};;powershell:$p = Test-Connection 8.8.8.8 -Count 2 -ErrorAction SilentlyContinue; if($p){\"Ping Google: $([math]::Round(($p | Measure-Object -Property Latency -Average).Average))ms\"}else{'Ping: ECHEC'};;powershell:netsh wlan show interfaces | Select-String 'SSID|Signal' | Out-String"),
+    JarvisCommand("verif_toutes_mises_a_jour", "pipeline", "Verifier MAJ: Windows Update + pip + npm + ollama", [
+        "verifie toutes les mises a jour", "check toutes les updates",
+        "mises a jour globales", "tout est a jour",
+    ], "pipeline", "powershell:try{$s=New-Object -ComObject Microsoft.Update.Session;$r=$s.CreateUpdateSearcher().Search('IsInstalled=0');\"Windows: $($r.Updates.Count) MAJ en attente\"}catch{'Windows: erreur verification'};;powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' pip list --outdated 2>&1 | Select -First 5 | Out-String;;powershell:npm outdated -g 2>&1 | Select -First 5 | Out-String"),
+    JarvisCommand("snapshot_systeme", "pipeline", "Snapshot systeme: sauvegarder toutes les stats dans un fichier", [
+        "snapshot systeme", "capture l'etat du systeme",
+        "sauvegarde les stats", "photo du systeme",
+    ], "pipeline", "powershell:$d = Get-Date -Format 'yyyy-MM-dd_HHmm'; $f = \"F:\\BUREAU\\turbo\\data\\snapshot_$d.txt\"; $os = Get-CimInstance Win32_OperatingSystem; $cpu = (Get-Counter '\\Processor(_Total)\\% Processor Time' -SampleInterval 1 -MaxSamples 1).CounterSamples.CookedValue; $ram = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); $gpu = nvidia-smi --query-gpu=name,temperature.gpu,memory.used --format=csv,noheader 2>&1; \"Date: $d`nCPU: $([math]::Round($cpu))%`nRAM: $ram GB`nGPU: $gpu\" | Out-File $f -Encoding utf8; \"Snapshot sauvegarde: $f\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DEVELOPER WORKFLOWS AVANCÉS — Git, tests, features
+    # (source: medium.com/@utkarshraj, process.st)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("dev_hotfix", "pipeline", "Hotfix: nouvelle branche + VSCode + tests", [
+        "hotfix", "lance un hotfix", "dev hotfix",
+        "correction urgente", "bug fix rapide",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; $branch = 'hotfix/' + (Get-Date -Format 'yyyyMMdd-HHmm'); git checkout -b $branch 2>&1 | Out-String;;sleep:1;;app_open:code;;sleep:1;;app_open:wt"),
+    JarvisCommand("dev_new_feature", "pipeline", "Nouvelle feature: branche + VSCode + terminal + tests", [
+        "nouvelle feature", "dev new feature", "lance une feature",
+        "commence une nouvelle fonctionnalite",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; $branch = 'feature/' + (Get-Date -Format 'yyyyMMdd-HHmm'); git checkout -b $branch 2>&1 | Out-String;;sleep:1;;app_open:code;;sleep:1;;app_open:wt;;powershell:cd F:\\BUREAU\\turbo; git status -sb"),
+    JarvisCommand("dev_merge_prep", "pipeline", "Preparation merge: lint + tests + git status + diff", [
+        "prepare le merge", "pre merge", "merge prep",
+        "pret a merger", "verification avant merge",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff check src/ 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pytest -x --tb=short 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:\\BUREAU\\turbo; git diff --stat 2>&1 | Out-String"),
+    JarvisCommand("dev_database_check", "pipeline", "Check databases: taille + tables de jarvis.db et etoile.db", [
+        "check les databases", "verifie les bases de donnees",
+        "etat des databases", "database check",
+    ], "pipeline", "powershell:$j = (Get-Item 'F:\\BUREAU\\turbo\\data\\jarvis.db' -ErrorAction SilentlyContinue).Length/1MB; \"jarvis.db: $([math]::Round($j,1)) MB\";;powershell:$e = (Get-Item 'F:\\BUREAU\\etoile.db' -ErrorAction SilentlyContinue).Length/1MB; \"etoile.db: $([math]::Round($e,1)) MB\";;powershell:$t = (Get-Item 'F:\\BUREAU\\carV1\\database\\trading_latest.db' -ErrorAction SilentlyContinue).Length/1MB; \"trading.db: $([math]::Round($t,1)) MB\""),
+    JarvisCommand("dev_live_coding", "pipeline", "Live coding: OBS + VSCode + terminal + navigateur localhost", [
+        "live coding", "mode live code", "lance le live coding",
+        "session live code", "code en direct",
+    ], "pipeline", "app_open:obs64;;sleep:2;;app_open:code;;sleep:1;;app_open:wt;;sleep:1;;browser:navigate:http://localhost:3000"),
+    JarvisCommand("dev_cleanup", "pipeline", "Dev cleanup: git clean + cache Python + node_modules check", [
+        "dev cleanup", "nettoie le projet", "clean le code",
+        "nettoyage dev", "purge dev",
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; $pycache = (Get-ChildItem -Recurse -Directory -Filter '__pycache__').Count; Get-ChildItem -Recurse -Directory -Filter '__pycache__' | Remove-Item -Recurse -Force; \"$pycache dossiers __pycache__ supprimes\";;powershell:cd F:\\BUREAU\\turbo; $ruff = & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff check src/ --statistics 2>&1 | Select -Last 3 | Out-String; $ruff"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # MULTI-ÉCRANS & PRODUCTIVITÉ AVANCÉE
+    # (source: Siri focus modes, Google Home media triggers)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("mode_double_ecran_dev", "pipeline", "Double ecran dev: etendre + VSCode gauche + navigateur droite", [
+        "mode double ecran dev", "setup double ecran", "dev deux ecrans",
+        "double screen dev",
+    ], "pipeline", "powershell:DisplaySwitch.exe /extend;;sleep:2;;app_open:code;;sleep:1;;hotkey:win+left;;sleep:1;;browser:navigate:http://127.0.0.1:8080;;sleep:1;;hotkey:win+right"),
+    JarvisCommand("mode_presentation_zoom", "pipeline", "Presentation Zoom/Teams: fermer distractions + dupliquer ecran + app", [
+        "mode presentation zoom", "setup presentation teams",
+        "je fais une presentation", "lance la visio",
+    ], "pipeline", f"powershell:Stop-Process -Name 'spotify','discord' -Force -ErrorAction SilentlyContinue;;{MINIMIZE_ALL};;sleep:1;;powershell:DisplaySwitch.exe /clone;;sleep:2;;app_open:teams"),
+    JarvisCommand("mode_dashboard_complet", "pipeline", "Dashboard complet: JARVIS + TradingView + cluster + n8n", [
+        "dashboard complet", "ouvre tous les dashboards",
+        "mode tableau de bord", "tous les dashboards",
+    ], "pipeline", "browser:navigate:http://127.0.0.1:8080;;sleep:1;;browser:navigate:https://www.tradingview.com;;sleep:1;;browser:navigate:http://127.0.0.1:5678;;sleep:1;;browser:navigate:http://192.168.1.26:1234"),
+    JarvisCommand("ferme_tout_sauf_code", "pipeline", "Fermer tout sauf VSCode et terminal", [
+        "ferme tout sauf le code", "garde juste vscode",
+        "nettoie sauf l'editeur", "focus sur le code",
+    ], "pipeline", f"powershell:Stop-Process -Name 'chrome','msedge','discord','telegram','slack','spotify','obs64' -Force -ErrorAction SilentlyContinue; 'Apps fermees';;sleep:1;;powershell:Get-Process code -ErrorAction SilentlyContinue | Select -First 1 | ForEach {{ 'VSCode actif' }}"),
+    JarvisCommand("mode_detox_digital", "pipeline", "Detox digitale: fermer TOUT + verrouiller + night light", [
+        "detox digitale", "mode detox", "deconnexion totale",
+        "digital detox", "arrete tout les ecrans",
+    ], "pipeline", f"powershell:Stop-Process -Name 'chrome','msedge','discord','telegram','slack','spotify','code','obs64' -Force -ErrorAction SilentlyContinue;;sleep:1;;{MINIMIZE_ALL};;sleep:1;;powershell:Start-Process ms-settings:nightlight;;sleep:1;;powershell:rundll32.exe user32.dll,LockWorkStation", confirm=True),
+    JarvisCommand("mode_musique_travail", "pipeline", "Musique de travail: Spotify + focus assist (pas de distractions)", [
+        "musique de travail", "met de la musique pour bosser",
+        "musique focus", "ambiance travail",
+    ], "pipeline", "app_open:spotify;;sleep:1;;ms_settings:ms-settings:quiethours"),
+    JarvisCommand("check_tout_rapide", "pipeline", "Check rapide tout: cluster + GPU + RAM + disques en 1 commande", [
+        "check tout rapide", "etat rapide de tout", "resume systeme",
+        "quick check", "tout va bien",
+    ], "pipeline", "powershell:$m2 = try{(Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; $ol1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; \"Cluster — M2: $(if($m2 -eq 200){'OK'}else{'OFF'}) | OL1: $(if($ol1 -eq 200){'OK'}else{'OFF'})\";;powershell:$os = Get-CimInstance Win32_OperatingSystem; $ram = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); $total = [math]::Round($os.TotalVisibleMemorySize/1MB,1); \"RAM: $ram/$total GB\";;powershell:nvidia-smi --query-gpu=temperature.gpu,memory.used,memory.total --format=csv,noheader,nounits 2>&1 | Out-String"),
 ]
