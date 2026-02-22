@@ -1,7 +1,7 @@
 
 ## 812 Commandes Vocales — Liste Complete
 
-**1668 commandes** au total dont **271 pipelines** multi-etapes.
+**1719 commandes** au total dont **278 pipelines** multi-etapes.
 Reparties en **14 categories**.
 
 | Categorie | Nb | Description |
@@ -9,16 +9,16 @@ Reparties en **14 categories**.
 | **accessibilite** | 10 | taille_texte_grand, clavier_virtuel, filtre_couleur... |
 | **app** | 23 | ouvrir_vscode, ouvrir_terminal, ouvrir_lmstudio... |
 | **clipboard** | 13 | copier, coller, couper... |
-| **dev** | 255 | docker_ps, docker_images, docker_stop_all... |
+| **dev** | 269 | docker_ps, docker_images, docker_stop_all... |
 | **fenetre** | 13 | minimiser_tout, alt_tab, fermer_fenetre... |
 | **fichiers** | 47 | ouvrir_documents, ouvrir_bureau, ouvrir_dossier... |
 | **jarvis** | 12 | historique_commandes, jarvis_aide, jarvis_stop... |
 | **launcher** | 12 | launch_pipeline_10, launch_sniper_10, launch_sniper_breakout... |
 | **media** | 7 | media_play_pause, media_next, media_previous... |
-| **navigation** | 316 | ouvrir_chrome, ouvrir_comet, aller_sur_site... |
-| **pipeline** | 271 | range_bureau, va_sur_mails_comet, mode_travail... |
+| **navigation** | 325 | ouvrir_chrome, ouvrir_comet, aller_sur_site... |
+| **pipeline** | 278 | range_bureau, va_sur_mails_comet, mode_travail... |
 | **saisie** | 4 | texte_majuscule, texte_minuscule, ouvrir_emojis... |
-| **systeme** | 666 | verrouiller, eteindre, redemarrer... |
+| **systeme** | 687 | verrouiller, eteindre, redemarrer... |
 | **trading** | 19 | scanner_marche, detecter_breakout, pipeline_trading... |
 
 <details>
@@ -85,7 +85,7 @@ Reparties en **14 categories**.
 | `clipboard_historique` | hotkey | Ouvrir l'historique du presse-papier | historique presse papier, clipboard history |
 | `coller_sans_format` | hotkey | Coller sans mise en forme | colle sans format, coller sans mise en forme |
 
-### DEV (255)
+### DEV (269)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -344,6 +344,20 @@ Reparties en **14 categories**.
 | `python_version` | powershell | Version de Python installee | version python, quel python |
 | `which_command` | powershell | Trouver l'emplacement d'une commande | ou est {cmd}, which {cmd} |
 | `dev_env_summary` | powershell | Resume de l'environnement de dev | resume dev, environnement dev |
+| `redis_keys_count` | powershell | Compter les cles Redis | combien de cles redis, redis keys count |
+| `redis_flush` | powershell | Vider la base Redis (ATTENTION) | vide redis, redis flush |
+| `json_path_query` | powershell | Extraire une valeur d'un fichier JSON (jq-like) | extrait du json {fichier} {path}, json extract {fichier} {path} |
+| `yaml_to_json` | powershell | Convertir YAML en JSON | yaml en json {fichier}, convertis le yaml {fichier} |
+| `diff_files` | powershell | Comparer deux fichiers | compare {f1} et {f2}, diff {f1} {f2} |
+| `base64_encode_file` | powershell | Encoder un fichier en Base64 | encode en base64 {fichier}, base64 fichier {fichier} |
+| `serve_static` | powershell | Lancer un serveur HTTP statique (Python) | serveur http, serve static |
+| `lmstudio_status` | powershell | Status des serveurs LM Studio | status lm studio, lm studio en ligne |
+| `ollama_models_local` | powershell | Lister les modeles Ollama disponibles localement | modeles ollama locaux, ollama list |
+| `run_python_expr` | powershell | Evaluer une expression Python | python eval {expr}, calcule en python {expr} |
+| `run_powershell_expr` | powershell | Evaluer une expression PowerShell | powershell eval {expr}, execute {expr} |
+| `generate_uuid` | powershell | Generer un UUID et le copier | genere un uuid, nouvel uuid |
+| `generate_password` | powershell | Generer un mot de passe aleatoire | genere un mot de passe, password aleatoire |
+| `generate_timestamp` | powershell | Generer un timestamp UNIX | timestamp unix, epoch time |
 
 ### FENETRE (13)
 
@@ -461,7 +475,7 @@ Reparties en **14 categories**.
 | `muet` | hotkey | Couper/activer le son | coupe le son, mute |
 | `volume_precis` | powershell | Mettre le volume a un niveau precis | mets le volume a {niveau}, volume a {niveau} |
 
-### NAVIGATION (316)
+### NAVIGATION (325)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -781,8 +795,17 @@ Reparties en **14 categories**.
 | `ouvrir_windy` | browser | Ouvrir Windy (meteo avancee) | ouvre windy, meteo windy |
 | `ouvrir_openstreetmap` | browser | Ouvrir OpenStreetMap | ouvre openstreetmap, osm |
 | `ouvrir_waze` | browser | Ouvrir Waze (trafic) | ouvre waze, trafic waze |
+| `ouvrir_jsoncrack` | browser | Ouvrir JSON Crack (visualiser JSON) | ouvre json crack, visualise du json |
+| `ouvrir_molotov` | browser | Ouvrir Molotov TV (TV en direct) | ouvre molotov, tv en direct |
+| `ouvrir_defillama` | browser | Ouvrir DeFi Llama (TVL tracker) | ouvre defi llama, tvl defi |
+| `ouvrir_dune` | browser | Ouvrir Dune Analytics (blockchain data) | ouvre dune, analytics blockchain |
+| `ouvrir_uniswap` | browser | Ouvrir Uniswap (DEX) | ouvre uniswap, swap crypto |
+| `ouvrir_zapper` | browser | Ouvrir Zapper (portfolio DeFi) | ouvre zapper, portfolio defi |
+| `ouvrir_archive_org` | browser | Ouvrir Internet Archive / Wayback Machine | ouvre archive org, wayback machine |
+| `ouvrir_temp_mail` | browser | Ouvrir Temp Mail (email jetable) | email jetable, temp mail |
+| `ouvrir_pastebin` | browser | Ouvrir Pastebin | ouvre pastebin, va sur pastebin |
 
-### PIPELINE (271)
+### PIPELINE (278)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -1057,6 +1080,13 @@ Reparties en **14 categories**.
 | `sim_meal_prep` | pipeline | Meal prep: Marmiton + 750g + Uber Eats + notes | meal prep, planifie les repas |
 | `sim_monitoring_full` | pipeline | Monitoring: GPU + cluster + ports + logs + disk | monitoring complet, check tout le monitoring |
 | `sim_jarvis_selfcheck` | pipeline | Auto-diagnostic JARVIS: config + deps + DB + commands + cluster | auto diagnostic jarvis, jarvis self check |
+| `sim_network_diag_full` | pipeline | Diag reseau complet: wifi + ping + DNS + speed + ports | diagnostic reseau complet, teste tout le reseau |
+| `sim_opensource_session` | pipeline | Open source: GitHub + issues + fork + terminal | mode open source, session contribution |
+| `sim_stream_setup_full` | pipeline | Stream setup: OBS + Twitch + Spotify + chat + high perf | setup stream complet, je vais streamer |
+| `sim_crypto_portfolio` | pipeline | Crypto portfolio: CoinGecko + DeFi Llama + Zapper + Dune | portfolio crypto, check mes cryptos |
+| `sim_emergency_recovery` | pipeline | Recovery urgence: disques + events + services + GPU + restore points | urgence recovery, le pc va mal |
+| `sim_weekly_review` | pipeline | Review hebdo: commits semaine + issues + LOC + DB + cluster perf | review hebdomadaire, bilan de la semaine |
+| `sim_demo_prep` | pipeline | Prep demo: clean bureau + full screen + terminal + slides | prepare la demo, mode demo |
 
 ### SAISIE (4)
 
@@ -1067,7 +1097,7 @@ Reparties en **14 categories**.
 | `ouvrir_emojis` | hotkey | Ouvrir le panneau emojis | ouvre les emojis, panneau emojis |
 | `ouvrir_dictee` | hotkey | Activer la dictee vocale Windows | dicte, dictee windows |
 
-### SYSTEME (666)
+### SYSTEME (687)
 
 | Commande | Type | Description | Triggers |
 |----------|------|-------------|----------|
@@ -1737,6 +1767,27 @@ Reparties en **14 categories**.
 | `locale_current` | powershell | Afficher les parametres regionaux actuels | parametres regionaux, quelle locale |
 | `timezone_current` | powershell | Afficher le fuseau horaire actuel | quel fuseau horaire, timezone |
 | `timezone_list` | powershell | Lister les fuseaux horaires disponibles | liste fuseaux horaires, timezones disponibles |
+| `wifi_profiles` | powershell | Lister les profils Wi-Fi enregistres | profils wifi, reseaux wifi enregistres |
+| `wifi_password` | powershell | Voir le mot de passe d'un reseau Wi-Fi | mot de passe wifi {ssid}, password wifi {ssid} |
+| `wifi_signal_strength` | powershell | Force du signal Wi-Fi actuel | force du wifi, signal wifi |
+| `wifi_disconnect` | powershell | Deconnecter le Wi-Fi | deconnecte le wifi, coupe le wifi |
+| `wifi_scan` | powershell | Scanner les reseaux Wi-Fi disponibles | scan wifi, reseaux wifi disponibles |
+| `hyperv_vms_list` | powershell | Lister les VMs Hyper-V | liste les vms, machines virtuelles |
+| `hyperv_vm_start` | powershell | Demarrer une VM Hyper-V | demarre la vm {nom}, start vm {nom} |
+| `hyperv_vm_stop` | powershell | Arreter une VM Hyper-V | arrete la vm {nom}, stop vm {nom} |
+| `wsl_list_distros` | powershell | Lister les distributions WSL installees | quelles distros wsl, linux installes |
+| `wsl_shutdown` | powershell | Arreter toutes les instances WSL | arrete wsl, shutdown wsl |
+| `eventlog_critical` | powershell | Evenements critiques des dernieres 24h | evenements critiques, erreurs critiques |
+| `eventlog_app_crashes` | powershell | Applications qui ont plante recemment | applis qui ont plante, crashes d'applis |
+| `eventlog_logins` | powershell | Connexions recentes au systeme | qui s'est connecte, logins recents |
+| `eventlog_shutdowns` | powershell | Historique des arrets et redemarrages | historique arrets, quand le pc s'est eteint |
+| `shares_list` | powershell | Lister les dossiers partages | dossiers partages, partages reseau |
+| `shares_connections` | powershell | Voir les connexions aux partages | qui est connecte aux partages, connexions smb |
+| `mapped_drives` | powershell | Lister les lecteurs reseau mappes | lecteurs reseau, mapped drives |
+| `printer_queue` | powershell | Voir la file d'attente de l'imprimante par defaut | file d'impression, queue imprimante |
+| `printer_test_page` | powershell | Imprimer une page de test | page de test imprimante, test print |
+| `jobs_list` | powershell | Lister les jobs PowerShell en arriere-plan | jobs en cours, taches en arriere plan |
+| `jobs_clean` | powershell | Nettoyer les jobs termines | nettoie les jobs, clean jobs |
 
 ### TRADING (19)
 

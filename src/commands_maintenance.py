@@ -1926,4 +1926,105 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("timezone_list", "systeme", "Lister les fuseaux horaires disponibles", [
         "liste fuseaux horaires", "timezones disponibles", "quels fuseaux",
     ], "powershell", "Get-TimeZone -ListAvailable | Where { $_.Id -like '*Euro*' -or $_.Id -like '*US*' -or $_.Id -like '*Asia*' } | Select Id, DisplayName | Format-Table | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RÉSEAU WI-FI — Gestion du sans-fil
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("wifi_profiles", "systeme", "Lister les profils Wi-Fi enregistres", [
+        "profils wifi", "reseaux wifi enregistres", "wifi profiles",
+        "quels wifi connus",
+    ], "powershell", "netsh wlan show profiles | Out-String"),
+    JarvisCommand("wifi_password", "systeme", "Voir le mot de passe d'un reseau Wi-Fi", [
+        "mot de passe wifi {ssid}", "password wifi {ssid}",
+        "cle wifi {ssid}", "code wifi {ssid}",
+    ], "powershell", "netsh wlan show profile name='{ssid}' key=clear | Select-String 'Key Content' | Out-String", ["ssid"]),
+    JarvisCommand("wifi_signal_strength", "systeme", "Force du signal Wi-Fi actuel", [
+        "force du wifi", "signal wifi", "qualite wifi",
+        "wifi signal strength",
+    ], "powershell", "netsh wlan show interfaces | Select-String 'Signal|SSID|State|Channel' | Out-String"),
+    JarvisCommand("wifi_disconnect", "systeme", "Deconnecter le Wi-Fi", [
+        "deconnecte le wifi", "coupe le wifi", "wifi off",
+    ], "powershell", "netsh wlan disconnect; 'Wi-Fi deconnecte'"),
+    JarvisCommand("wifi_scan", "systeme", "Scanner les reseaux Wi-Fi disponibles", [
+        "scan wifi", "reseaux wifi disponibles", "quels wifi autour",
+        "cherche les wifi",
+    ], "powershell", "netsh wlan show networks mode=bssid | Select-String 'SSID|Signal|Authentication' | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # VIRTUALISATION — Hyper-V et WSL avancé
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("hyperv_vms_list", "systeme", "Lister les VMs Hyper-V", [
+        "liste les vms", "machines virtuelles", "hyper v vms",
+        "quelles vms",
+    ], "powershell", "Get-VM -ErrorAction SilentlyContinue | Select Name, State, @{N='RAM(GB)';E={[math]::Round($_.MemoryAssigned/1GB,1)}}, Uptime | Format-Table | Out-String"),
+    JarvisCommand("hyperv_vm_start", "systeme", "Demarrer une VM Hyper-V", [
+        "demarre la vm {nom}", "start vm {nom}", "lance la vm {nom}",
+    ], "powershell", "Start-VM -Name '{nom}' -ErrorAction Stop; 'VM {nom} demarree'", ["nom"], confirm=True),
+    JarvisCommand("hyperv_vm_stop", "systeme", "Arreter une VM Hyper-V", [
+        "arrete la vm {nom}", "stop vm {nom}", "eteins la vm {nom}",
+    ], "powershell", "Stop-VM -Name '{nom}' -Force -ErrorAction Stop; 'VM {nom} arretee'", ["nom"], confirm=True),
+    JarvisCommand("wsl_list_distros", "systeme", "Lister les distributions WSL installees", [
+        "quelles distros wsl", "linux installes", "wsl distributions",
+    ], "powershell", "wsl --list --verbose 2>&1 | Out-String"),
+    JarvisCommand("wsl_shutdown", "systeme", "Arreter toutes les instances WSL", [
+        "arrete wsl", "shutdown wsl", "eteins linux",
+    ], "powershell", "wsl --shutdown; 'WSL arrete'"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # ÉVÉNEMENTS SYSTÈME — Journal d'événements
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("eventlog_critical", "systeme", "Evenements critiques des dernieres 24h", [
+        "evenements critiques", "erreurs critiques", "crashes recents",
+        "problemes systeme",
+    ], "powershell", "Get-WinEvent -FilterHashtable @{LogName='System','Application';Level=1,2;StartTime=(Get-Date).AddDays(-1)} -MaxEvents 15 -ErrorAction SilentlyContinue | Select TimeCreated, LevelDisplayName, @{N='Source';E={$_.ProviderName}}, @{N='Msg';E={$_.Message.Substring(0,[Math]::Min(80,$_.Message.Length))}} | Format-Table -Wrap | Out-String"),
+    JarvisCommand("eventlog_app_crashes", "systeme", "Applications qui ont plante recemment", [
+        "applis qui ont plante", "crashes d'applis", "app crashes",
+        "quoi a plante",
+    ], "powershell", "Get-WinEvent -FilterHashtable @{LogName='Application';Id=1000,1001,1002} -MaxEvents 10 -ErrorAction SilentlyContinue | Select TimeCreated, @{N='App';E={$_.Properties[0].Value}}, @{N='Version';E={$_.Properties[1].Value}} | Format-Table | Out-String"),
+    JarvisCommand("eventlog_logins", "systeme", "Connexions recentes au systeme", [
+        "qui s'est connecte", "logins recents", "connexions recentes",
+        "historique connexions",
+    ], "powershell", "Get-WinEvent -FilterHashtable @{LogName='Security';Id=4624} -MaxEvents 15 -ErrorAction SilentlyContinue | Select TimeCreated, @{N='User';E={$_.Properties[5].Value}}, @{N='Type';E={$_.Properties[8].Value}} | Format-Table | Out-String"),
+    JarvisCommand("eventlog_shutdowns", "systeme", "Historique des arrets et redemarrages", [
+        "historique arrets", "quand le pc s'est eteint", "shutdown history",
+        "redemarrages recents",
+    ], "powershell", "Get-WinEvent -FilterHashtable @{LogName='System';Id=1074,6005,6006,6008} -MaxEvents 15 -ErrorAction SilentlyContinue | Select TimeCreated, Id, @{N='Msg';E={$_.Message.Substring(0,[Math]::Min(80,$_.Message.Length))}} | Format-Table -Wrap | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PARTAGE RÉSEAU — Dossiers partagés
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("shares_list", "systeme", "Lister les dossiers partages", [
+        "dossiers partages", "partages reseau", "shares",
+        "quoi est partage",
+    ], "powershell", "Get-SmbShare | Where { $_.Name -notlike '*$' } | Select Name, Path, Description | Format-Table | Out-String"),
+    JarvisCommand("shares_connections", "systeme", "Voir les connexions aux partages", [
+        "qui est connecte aux partages", "connexions smb",
+        "sessions partage",
+    ], "powershell", "Get-SmbSession -ErrorAction SilentlyContinue | Select ClientComputerName, ClientUserName, NumOpens | Format-Table | Out-String"),
+    JarvisCommand("mapped_drives", "systeme", "Lister les lecteurs reseau mappes", [
+        "lecteurs reseau", "mapped drives", "disques reseau",
+        "quels lecteurs mappes",
+    ], "powershell", "Get-PSDrive -PSProvider FileSystem | Where { $_.DisplayRoot } | Select Name, DisplayRoot, @{N='Free(GB)';E={[math]::Round($_.Free/1GB,1)}} | Format-Table | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # IMPRESSION — Gestion des imprimantes avancée
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("printer_queue", "systeme", "Voir la file d'attente de l'imprimante par defaut", [
+        "file d'impression", "queue imprimante", "travaux d'impression",
+        "qu'est ce qui s'imprime",
+    ], "powershell", "Get-PrintJob -PrinterName (Get-Printer | Where Default).Name -ErrorAction SilentlyContinue | Select DocumentName, JobStatus, Size, SubmittedTime | Format-Table | Out-String"),
+    JarvisCommand("printer_test_page", "systeme", "Imprimer une page de test", [
+        "page de test imprimante", "test print", "imprime une page test",
+    ], "powershell", "$p = (Get-Printer | Where Default).Name; if($p){(New-Object -ComObject WScript.Network).PrinterConnections; 'Page de test envoyee a ' + $p}else{'Aucune imprimante par defaut'}", confirm=True),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # TÂCHES ARRIÈRE-PLAN — Jobs PowerShell
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("jobs_list", "systeme", "Lister les jobs PowerShell en arriere-plan", [
+        "jobs en cours", "taches en arriere plan", "background jobs",
+        "quels jobs",
+    ], "powershell", "Get-Job | Select Id, Name, State, @{N='Duration';E={if($_.PSEndTime -and $_.PSBeginTime){($_.PSEndTime-$_.PSBeginTime).ToString('hh\\:mm\\:ss')}else{'en cours'}}} | Format-Table | Out-String"),
+    JarvisCommand("jobs_clean", "systeme", "Nettoyer les jobs termines", [
+        "nettoie les jobs", "clean jobs", "supprime les jobs finis",
+    ], "powershell", "$c = (Get-Job -State Completed,Failed | Measure-Object).Count; Get-Job -State Completed,Failed | Remove-Job; \"$c jobs nettoyes\""),
 ]

@@ -1170,4 +1170,67 @@ DEV_COMMANDS: list[JarvisCommand] = [
         "resume dev", "environnement dev", "quels outils installes",
         "dev setup info",
     ], "powershell", "@('python','node','npm','git','docker','rustc','go') | ForEach-Object { $v = & $_ --version 2>&1; if($LASTEXITCODE -eq 0){\"$_`: $v\"}else{\"$_`: non installe\"} } | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # REDIS / CACHE — Outils Redis
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("redis_keys_count", "dev", "Compter les cles Redis", [
+        "combien de cles redis", "redis keys count", "taille redis",
+    ], "powershell", "redis-cli dbsize 2>&1 | Out-String"),
+    JarvisCommand("redis_flush", "dev", "Vider la base Redis (ATTENTION)", [
+        "vide redis", "redis flush", "clear redis",
+    ], "powershell", "redis-cli flushdb 2>&1 | Out-String", confirm=True),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # WRANGLING — Manipulation de données CLI
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("json_path_query", "dev", "Extraire une valeur d'un fichier JSON (jq-like)", [
+        "extrait du json {fichier} {path}", "json extract {fichier} {path}",
+    ], "powershell", "$j = Get-Content '{fichier}' -Raw | ConvertFrom-Json; $j.{path} | ConvertTo-Json -Depth 5 | Out-String", ["fichier", "path"]),
+    JarvisCommand("yaml_to_json", "dev", "Convertir YAML en JSON", [
+        "yaml en json {fichier}", "convertis le yaml {fichier}",
+        "yaml to json {fichier}",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import yaml,json,sys; print(json.dumps(yaml.safe_load(open(sys.argv[1])),indent=2))\" {fichier} 2>&1 | Out-String", ["fichier"]),
+    JarvisCommand("diff_files", "dev", "Comparer deux fichiers", [
+        "compare {f1} et {f2}", "diff {f1} {f2}", "difference entre {f1} {f2}",
+    ], "powershell", "Compare-Object (Get-Content '{f1}') (Get-Content '{f2}') | Format-Table -AutoSize | Out-String", ["f1", "f2"]),
+    JarvisCommand("base64_encode_file", "dev", "Encoder un fichier en Base64", [
+        "encode en base64 {fichier}", "base64 fichier {fichier}",
+    ], "powershell", "$b=[Convert]::ToBase64String([IO.File]::ReadAllBytes('{fichier}')); Set-Clipboard $b; \"Base64 ($($b.Length) chars) copie dans le clipboard\"", ["fichier"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SERVEURS LOCAUX — Gestion des services dev locaux
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("serve_static", "dev", "Lancer un serveur HTTP statique (Python)", [
+        "serveur http", "serve static", "lance un serveur web",
+        "python http server",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m http.server 8000 2>&1 | Select -First 3 | Out-String"),
+    JarvisCommand("lmstudio_status", "dev", "Status des serveurs LM Studio", [
+        "status lm studio", "lm studio en ligne", "serveurs ia status",
+    ], "powershell", "@{M1='http://10.5.0.2:1234';M2='http://192.168.1.26:1234';M3='http://192.168.1.113:1234'}.GetEnumerator() | ForEach-Object { try{Invoke-WebRequest \"$($_.Value)/api/v1/models\" -UseBasicParsing -TimeoutSec 3 >$null; \"$($_.Key): OK\"}catch{\"$($_.Key): OFFLINE\"} } | Out-String"),
+    JarvisCommand("ollama_models_local", "dev", "Lister les modeles Ollama disponibles localement", [
+        "modeles ollama locaux", "ollama list", "quels modeles ollama",
+    ], "powershell", "try{$r=Invoke-RestMethod http://127.0.0.1:11434/api/tags -TimeoutSec 3; $r.models | ForEach-Object { \"$($_.name) — $([math]::Round($_.size/1GB,1))GB\" } | Out-String}catch{'Ollama OFFLINE'}"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SCRIPTING — Génération et exécution de scripts
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("run_python_expr", "dev", "Evaluer une expression Python", [
+        "python eval {expr}", "calcule en python {expr}",
+        "execute python {expr}",
+    ], "powershell", "& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"print({expr})\" 2>&1 | Out-String", ["expr"]),
+    JarvisCommand("run_powershell_expr", "dev", "Evaluer une expression PowerShell", [
+        "powershell eval {expr}", "execute {expr}",
+    ], "powershell", "Invoke-Expression '{expr}' | Out-String", ["expr"]),
+    JarvisCommand("generate_uuid", "dev", "Generer un UUID et le copier", [
+        "genere un uuid", "nouvel uuid", "random uuid",
+        "cree un identifiant unique",
+    ], "powershell", "$u = [guid]::NewGuid().ToString(); Set-Clipboard $u; \"UUID: $u (copie)\""),
+    JarvisCommand("generate_password", "dev", "Generer un mot de passe aleatoire", [
+        "genere un mot de passe", "password aleatoire", "random password",
+        "nouveau mot de passe",
+    ], "powershell", "$c='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#%&*'; $p=-join(1..20|%{$c[(Get-Random -Max $c.Length)]}); Set-Clipboard $p; \"Password: $p (copie)\""),
+    JarvisCommand("generate_timestamp", "dev", "Generer un timestamp UNIX", [
+        "timestamp unix", "epoch time", "genere un timestamp",
+    ], "powershell", "$t=[int](Get-Date -UFormat %s); Set-Clipboard $t; \"Timestamp: $t (copie)\""),
 ]

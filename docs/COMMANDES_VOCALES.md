@@ -2,14 +2,14 @@
 
 > Mise a jour automatique: 2026-02-22 | Voice Pipeline v2
 
-**1668 commandes** au total, dont **271 pipelines** multi-etapes, reparties en **14 categories**.
+**1719 commandes** au total, dont **278 pipelines** multi-etapes, reparties en **14 categories**.
 
 | Categorie | Nombre |
 |-----------|--------|
-| Systeme Windows | 666 |
-| Navigation Web | 316 |
-| Pipelines Multi-Etapes | 271 |
-| Developpement & Outils | 255 |
+| Systeme Windows | 687 |
+| Navigation Web | 325 |
+| Pipelines Multi-Etapes | 278 |
+| Developpement & Outils | 269 |
 | Fichiers & Documents | 47 |
 | Applications | 23 |
 | Trading & IA | 19 |
@@ -20,7 +20,7 @@
 | Accessibilite | 10 |
 | Controle Media | 7 |
 | Saisie & Texte | 4 |
-| **TOTAL** | **1668** |
+| **TOTAL** | **1719** |
 
 ---
 
@@ -301,12 +301,19 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | sim_meal_prep | "meal prep" | Web: https://www.marmiton.org > pause 1s > Web: https://www.750g.com > pause 1s > Web: https://www.ubereats.com > pau... |
 | sim_monitoring_full | "monitoring complet" | nvidia-smi --query-gpu=name,temperature.gpu,memory... > @('http://127.0.0.1:11434/api/tags','http://192.16... > Get-N... |
 | sim_jarvis_selfcheck | "auto diagnostic jarvis" | cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > $dbs=... |
+| sim_network_diag_full | "diagnostic reseau complet" | netsh wlan show interfaces | Select-String 'SSID|S... > Test-Connection 8.8.8.8 -Count 3 | Select Address,... > Resol... |
+| sim_opensource_session | "mode open source" | Web: https://github.com/trending > pause 1s > Web: https://github.com/issues > pause 1s > Ouvrir wt > pause 1s > cd F... |
+| sim_stream_setup_full | "setup stream complet" | powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c > Ouvrir obs64 > pause 3s > Web: https://dashboard.twitch.tv... |
+| sim_crypto_portfolio | "portfolio crypto" | Web: https://www.coingecko.com > pause 1s > Web: https://defillama.com > pause 1s > Web: https://zapper.xyz > pause 1... |
+| sim_emergency_recovery | "urgence recovery" | Get-PhysicalDisk | Select FriendlyName, HealthStat... > Get-WinEvent -FilterHashtable @{LogName='System';L... > Get-S... |
+| sim_weekly_review | "review hebdomadaire" | cd F:\BUREAU\turbo; "=== COMMITS CETTE SEMAINE ===... > cd F:\BUREAU\turbo; $f=git diff --stat HEAD~10 2>&... > cd F:... |
+| sim_demo_prep | "prepare la demo" | MinimizeAll > pause 1s > Ouvrir wt > pause 1s > Web: https://docs.google.com/presentation > "Demo preparation termine... |
 
 ---
 
 ## Listing Complet par Categorie
 
-### Navigation Web (316 commandes)
+### Navigation Web (325 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -626,6 +633,15 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | ouvrir_windy | Ouvrir Windy (meteo avancee) | "ouvre windy", "meteo windy", "carte meteo", +1 | browser |
 | ouvrir_openstreetmap | Ouvrir OpenStreetMap | "ouvre openstreetmap", "osm", "carte libre" | browser |
 | ouvrir_waze | Ouvrir Waze (trafic) | "ouvre waze", "trafic waze", "embouteillages" | browser |
+| ouvrir_jsoncrack | Ouvrir JSON Crack (visualiser JSON) | "ouvre json crack", "visualise du json", "json viewer" | browser |
+| ouvrir_molotov | Ouvrir Molotov TV (TV en direct) | "ouvre molotov", "tv en direct", "molotov tv" | browser |
+| ouvrir_defillama | Ouvrir DeFi Llama (TVL tracker) | "ouvre defi llama", "tvl defi", "defi llama" | browser |
+| ouvrir_dune | Ouvrir Dune Analytics (blockchain data) | "ouvre dune", "analytics blockchain", "dune analytics" | browser |
+| ouvrir_uniswap | Ouvrir Uniswap (DEX) | "ouvre uniswap", "swap crypto", "uniswap dex" | browser |
+| ouvrir_zapper | Ouvrir Zapper (portfolio DeFi) | "ouvre zapper", "portfolio defi", "zapper fi" | browser |
+| ouvrir_archive_org | Ouvrir Internet Archive / Wayback Machine | "ouvre archive org", "wayback machine", "internet archive" | browser |
+| ouvrir_temp_mail | Ouvrir Temp Mail (email jetable) | "email jetable", "temp mail", "mail temporaire" | browser |
+| ouvrir_pastebin | Ouvrir Pastebin | "ouvre pastebin", "va sur pastebin", "colle du texte" | browser |
 
 ### Fichiers & Documents (47 commandes)
 
@@ -755,7 +771,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | clipboard_historique | Ouvrir l'historique du presse-papier | "historique presse papier", "clipboard history", "ouvre l'historique clipboard", +2 | hotkey |
 | coller_sans_format | Coller sans mise en forme | "colle sans format", "coller sans mise en forme", "colle en texte brut", +1 | hotkey |
 
-### Systeme Windows (666 commandes)
+### Systeme Windows (687 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -1425,6 +1441,27 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | locale_current | Afficher les parametres regionaux actuels | "parametres regionaux", "quelle locale", "region actuelle" | powershell |
 | timezone_current | Afficher le fuseau horaire actuel | "quel fuseau horaire", "timezone", "quelle heure on est", +1 | powershell |
 | timezone_list | Lister les fuseaux horaires disponibles | "liste fuseaux horaires", "timezones disponibles", "quels fuseaux" | powershell |
+| wifi_profiles | Lister les profils Wi-Fi enregistres | "profils wifi", "reseaux wifi enregistres", "wifi profiles", +1 | powershell |
+| wifi_password | Voir le mot de passe d'un reseau Wi-Fi | "mot de passe wifi {ssid}", "password wifi {ssid}", "cle wifi {ssid}", +1 | powershell |
+| wifi_signal_strength | Force du signal Wi-Fi actuel | "force du wifi", "signal wifi", "qualite wifi", +1 | powershell |
+| wifi_disconnect | Deconnecter le Wi-Fi | "deconnecte le wifi", "coupe le wifi", "wifi off" | powershell |
+| wifi_scan | Scanner les reseaux Wi-Fi disponibles | "scan wifi", "reseaux wifi disponibles", "quels wifi autour", +1 | powershell |
+| hyperv_vms_list | Lister les VMs Hyper-V | "liste les vms", "machines virtuelles", "hyper v vms", +1 | powershell |
+| hyperv_vm_start | Demarrer une VM Hyper-V | "demarre la vm {nom}", "start vm {nom}", "lance la vm {nom}" | powershell |
+| hyperv_vm_stop | Arreter une VM Hyper-V | "arrete la vm {nom}", "stop vm {nom}", "eteins la vm {nom}" | powershell |
+| wsl_list_distros | Lister les distributions WSL installees | "quelles distros wsl", "linux installes", "wsl distributions" | powershell |
+| wsl_shutdown | Arreter toutes les instances WSL | "arrete wsl", "shutdown wsl", "eteins linux" | powershell |
+| eventlog_critical | Evenements critiques des dernieres 24h | "evenements critiques", "erreurs critiques", "crashes recents", +1 | powershell |
+| eventlog_app_crashes | Applications qui ont plante recemment | "applis qui ont plante", "crashes d'applis", "app crashes", +1 | powershell |
+| eventlog_logins | Connexions recentes au systeme | "qui s'est connecte", "logins recents", "connexions recentes", +1 | powershell |
+| eventlog_shutdowns | Historique des arrets et redemarrages | "historique arrets", "quand le pc s'est eteint", "shutdown history", +1 | powershell |
+| shares_list | Lister les dossiers partages | "dossiers partages", "partages reseau", "shares", +1 | powershell |
+| shares_connections | Voir les connexions aux partages | "qui est connecte aux partages", "connexions smb", "sessions partage" | powershell |
+| mapped_drives | Lister les lecteurs reseau mappes | "lecteurs reseau", "mapped drives", "disques reseau", +1 | powershell |
+| printer_queue | Voir la file d'attente de l'imprimante par defaut | "file d'impression", "queue imprimante", "travaux d'impression", +1 | powershell |
+| printer_test_page | Imprimer une page de test | "page de test imprimante", "test print", "imprime une page test" | powershell |
+| jobs_list | Lister les jobs PowerShell en arriere-plan | "jobs en cours", "taches en arriere plan", "background jobs", +1 | powershell |
+| jobs_clean | Nettoyer les jobs termines | "nettoie les jobs", "clean jobs", "supprime les jobs finis" | powershell |
 
 ### Trading & IA (19 commandes)
 
@@ -1450,7 +1487,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | cluster_health | Health check rapide du cluster IA | "health check cluster", "verifie le cluster ia", "est ce que le cluster va bien", +3 | powershell |
 | ollama_running | Modeles Ollama actuellement en memoire | "quels modeles ollama tournent", "ollama running", "modeles en memoire ollama", +1 | powershell |
 
-### Developpement & Outils (255 commandes)
+### Developpement & Outils (269 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -1709,6 +1746,20 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | python_version | Version de Python installee | "version python", "quel python", "python version" | powershell |
 | which_command | Trouver l'emplacement d'une commande | "ou est {cmd}", "which {cmd}", "chemin de {cmd}", +1 | powershell |
 | dev_env_summary | Resume de l'environnement de dev | "resume dev", "environnement dev", "quels outils installes", +1 | powershell |
+| redis_keys_count | Compter les cles Redis | "combien de cles redis", "redis keys count", "taille redis" | powershell |
+| redis_flush | Vider la base Redis (ATTENTION) | "vide redis", "redis flush", "clear redis" | powershell |
+| json_path_query | Extraire une valeur d'un fichier JSON (jq-like) | "extrait du json {fichier} {path}", "json extract {fichier} {path}" | powershell |
+| yaml_to_json | Convertir YAML en JSON | "yaml en json {fichier}", "convertis le yaml {fichier}", "yaml to json {fichier}" | powershell |
+| diff_files | Comparer deux fichiers | "compare {f1} et {f2}", "diff {f1} {f2}", "difference entre {f1} {f2}" | powershell |
+| base64_encode_file | Encoder un fichier en Base64 | "encode en base64 {fichier}", "base64 fichier {fichier}" | powershell |
+| serve_static | Lancer un serveur HTTP statique (Python) | "serveur http", "serve static", "lance un serveur web", +1 | powershell |
+| lmstudio_status | Status des serveurs LM Studio | "status lm studio", "lm studio en ligne", "serveurs ia status" | powershell |
+| ollama_models_local | Lister les modeles Ollama disponibles localement | "modeles ollama locaux", "ollama list", "quels modeles ollama" | powershell |
+| run_python_expr | Evaluer une expression Python | "python eval {expr}", "calcule en python {expr}", "execute python {expr}" | powershell |
+| run_powershell_expr | Evaluer une expression PowerShell | "powershell eval {expr}", "execute {expr}" | powershell |
+| generate_uuid | Generer un UUID et le copier | "genere un uuid", "nouvel uuid", "random uuid", +1 | powershell |
+| generate_password | Generer un mot de passe aleatoire | "genere un mot de passe", "password aleatoire", "random password", +1 | powershell |
+| generate_timestamp | Generer un timestamp UNIX | "timestamp unix", "epoch time", "genere un timestamp" | powershell |
 
 ### Controle JARVIS (12 commandes)
 
