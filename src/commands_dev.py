@@ -180,7 +180,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
         "ouvre teams", "lance teams", "va sur teams",
         "ouvrir teams", "ouvre microsoft teams",
     ], "app_open", "teams"),
-# ══════════════════════════════════════════════════════════════════════
+    # ══════════════════════════════════════════════════════════════════════
     # BUN / DENO / RUST
     # ══════════════════════════════════════════════════════════════════════
     JarvisCommand("bun_version", "dev", "Version de Bun", [
@@ -473,7 +473,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
     # ══════════════════════════════════════════════════════════════════════
     # SYSTÈME — Process et versions
     # ══════════════════════════════════════════════════════════════════════
-JarvisCommand("openssl_version", "dev", "Version d'OpenSSL", [
+    JarvisCommand("openssl_version", "dev", "Version d'OpenSSL", [
         "version openssl", "openssl version", "quelle version ssl",
     ], "powershell", "openssl version 2>&1 | Out-String"),
     JarvisCommand("git_version", "dev", "Version de Git", [
@@ -1006,7 +1006,7 @@ JarvisCommand("openssl_version", "dev", "Version d'OpenSSL", [
         "tests avec couverture", "pytest coverage", "code coverage",
         "couverture de tests",
     ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m pytest tests/ --cov=src --cov-report=term-missing 2>&1 | Select -Last 30 | Out-String"),
-JarvisCommand("pytest_markers", "dev", "Lister les markers pytest disponibles", [
+    JarvisCommand("pytest_markers", "dev", "Lister les markers pytest disponibles", [
         "markers pytest", "pytest markers", "quels markers",
     ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m pytest --markers 2>&1 | Select -First 25 | Out-String"),
     JarvisCommand("pytest_quick", "dev", "Tests rapides (fail at first error)", [
@@ -1021,7 +1021,7 @@ JarvisCommand("pytest_markers", "dev", "Lister les markers pytest disponibles", 
         "sqlite {requete}", "requete sqlite {requete}",
         "query sqlite {requete}",
     ], "powershell", "sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db \"{requete}\" 2>&1 | Out-String", ["requete"]),
-JarvisCommand("sqlite_schema", "dev", "Voir le schema d'une table", [
+    JarvisCommand("sqlite_schema", "dev", "Voir le schema d'une table", [
         "schema de {table}", "structure table {table}", "describe {table}",
     ], "powershell", "sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db '.schema {table}' 2>&1 | Out-String", ["table"]),
     JarvisCommand("etoile_count", "dev", "Compter les entrees dans etoile.db", [
@@ -1066,7 +1066,7 @@ JarvisCommand("sqlite_schema", "dev", "Voir le schema d'une table", [
         "pip audit", "vulnerabilites python", "securite deps python",
         "scan dependances",
     ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pip-audit 2>&1 | Out-String"),
-JarvisCommand("bandit_scan", "dev", "Scanner Python avec Bandit (securite)", [
+    JarvisCommand("bandit_scan", "dev", "Scanner Python avec Bandit (securite)", [
         "bandit scan", "securite code python", "scan bandit",
         "vulnerabilites code",
     ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run bandit -r src/ -f screen 2>&1 | Select -Last 20 | Out-String"),
@@ -1107,4 +1107,67 @@ JarvisCommand("bandit_scan", "dev", "Scanner Python avec Bandit (securite)", [
     JarvisCommand("memory_usage_python", "dev", "Utilisation memoire de Python", [
         "memoire python", "ram python", "python memory",
     ], "powershell", "Get-Process python* -ErrorAction SilentlyContinue | Select Name, @{N='RAM(MB)';E={[math]::Round($_.WorkingSet64/1MB)}}, CPU, Id | Format-Table | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # n8n — Automatisation de workflows
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("n8n_status", "dev", "Verifier si n8n tourne", [
+        "n8n status", "est ce que n8n tourne", "n8n en ligne",
+    ], "powershell", "try{$r=Invoke-WebRequest http://127.0.0.1:5678 -UseBasicParsing -TimeoutSec 3; \"n8n: OK ($($r.StatusCode))\"}catch{\"n8n: OFFLINE\"}"),
+    JarvisCommand("n8n_open", "dev", "Ouvrir n8n dans le navigateur", [
+        "ouvre n8n", "va sur n8n", "lance n8n",
+    ], "browser", "navigate:http://127.0.0.1:5678"),
+    JarvisCommand("n8n_workflows_count", "dev", "Compter les workflows n8n", [
+        "combien de workflows n8n", "n8n workflows", "nombre workflows",
+    ], "powershell", "try{$r=Invoke-RestMethod http://127.0.0.1:5678/api/v1/workflows -TimeoutSec 3; \"$($r.data.Count) workflows n8n\"}catch{\"n8n: impossible de lister les workflows\"}"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # TYPESCRIPT — Outils TypeScript
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("tsc_compile", "dev", "Compiler TypeScript", [
+        "tsc compile", "compile typescript", "typescript build",
+        "lance tsc",
+    ], "powershell", "npx tsc 2>&1 | Out-String"),
+    JarvisCommand("tsc_watch", "dev", "Lancer TypeScript en mode watch", [
+        "tsc watch", "typescript watch", "surveille les fichiers ts",
+    ], "powershell", "npx tsc --watch 2>&1 | Select -First 10 | Out-String"),
+    JarvisCommand("tsc_version", "dev", "Version de TypeScript installee", [
+        "version typescript", "tsc version", "quel typescript",
+    ], "powershell", "npx tsc --version 2>&1 | Out-String"),
+    JarvisCommand("tsc_check", "dev", "Type-check sans compiler", [
+        "type check", "tsc check", "verifie les types ts",
+    ], "powershell", "npx tsc --noEmit 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PACKAGE INFO — Informations sur les packages
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("pip_show", "dev", "Infos sur un package Python installe", [
+        "pip show {package}", "info package {package}", "details de {package}",
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pip show {package} 2>&1 | Out-String", ["package"]),
+    JarvisCommand("npm_info", "dev", "Infos sur un package NPM", [
+        "npm info {package}", "details npm {package}", "package npm {package}",
+    ], "powershell", "npm info {package} version description homepage 2>&1 | Out-String", ["package"]),
+    # ══════════════════════════════════════════════════════════════════════
+    # GIT WORKFLOW AVANCÉ — Commandes git power-user
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("git_blame", "dev", "Voir l'auteur de chaque ligne d'un fichier", [
+        "git blame {fichier}", "qui a ecrit {fichier}", "blame {fichier}",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git blame {fichier} | Select -Last 20 | Out-String", ["fichier"]),
+    JarvisCommand("git_bisect_start", "dev", "Demarrer git bisect pour trouver un bug", [
+        "git bisect", "cherche le bug", "bisect start",
+    ], "powershell", "cd F:\\BUREAU\\turbo; git bisect start 2>&1; 'Bisect demarre — utilisez good/bad pour naviguer' | Out-String"),
+    # ══════════════════════════════════════════════════════════════════════
+    # SYSTEM DEV — Environnement de développement
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("python_version", "dev", "Version de Python installee", [
+        "version python", "quel python", "python version",
+    ], "powershell", "python --version 2>&1; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' --version 2>&1 | Out-String"),
+    JarvisCommand("which_command", "dev", "Trouver l'emplacement d'une commande", [
+        "ou est {cmd}", "which {cmd}", "chemin de {cmd}",
+        "trouve {cmd}",
+    ], "powershell", "Get-Command '{cmd}' -ErrorAction SilentlyContinue | Select Name, Source, Version | Format-List | Out-String", ["cmd"]),
+    JarvisCommand("dev_env_summary", "dev", "Resume de l'environnement de dev", [
+        "resume dev", "environnement dev", "quels outils installes",
+        "dev setup info",
+    ], "powershell", "@('python','node','npm','git','docker','rustc','go') | ForEach-Object { $v = & $_ --version 2>&1; if($LASTEXITCODE -eq 0){\"$_`: $v\"}else{\"$_`: non installe\"} } | Out-String"),
 ]

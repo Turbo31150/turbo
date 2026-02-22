@@ -2,14 +2,14 @@
 
 > Mise a jour automatique: 2026-02-22 | Voice Pipeline v2
 
-**1597 commandes** au total, dont **259 pipelines** multi-etapes, reparties en **14 categories**.
+**1668 commandes** au total, dont **271 pipelines** multi-etapes, reparties en **14 categories**.
 
 | Categorie | Nombre |
 |-----------|--------|
-| Systeme Windows | 640 |
-| Navigation Web | 297 |
-| Pipelines Multi-Etapes | 259 |
-| Developpement & Outils | 241 |
+| Systeme Windows | 666 |
+| Navigation Web | 316 |
+| Pipelines Multi-Etapes | 271 |
+| Developpement & Outils | 255 |
 | Fichiers & Documents | 47 |
 | Applications | 23 |
 | Trading & IA | 19 |
@@ -20,7 +20,7 @@
 | Accessibilite | 10 |
 | Controle Media | 7 |
 | Saisie & Texte | 4 |
-| **TOTAL** | **1597** |
+| **TOTAL** | **1668** |
 
 ---
 
@@ -289,12 +289,24 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | sim_focus_deep_work | "mode deep work" | MinimizeAll > Settings > pause 1s > Ouvrir spotify > "Deep work active — Focus Assist ON, 90 minutes de... |
 | sim_weekend_chill | "mode weekend" | Web: https://www.netflix.com > pause 1s > Ouvrir spotify > pause 1s > Web: https://www.ubereats.com > powercfg /setac... |
 | sim_movie_night | "soiree film" | MinimizeAll > pause 1s > Web: https://www.netflix.com > Settings > "Soiree film prete — Netflix + Night Light" |
+| sim_tech_news | "veille tech" | Web: https://news.ycombinator.com > pause 1s > Web: https://techcrunch.com > pause 1s > Web: https://www.reddit.com/r... |
+| sim_ai_news | "news ia" | Web: https://arxiv.org/list/cs.AI/recent > pause 1s > Web: https://huggingface.co/papers > pause 1s > Web: https://ww... |
+| sim_deploy_vercel | "deploie sur vercel" | cd F:\BUREAU\turbo; git status -sb 2>&1 | Out-String > cd F:\BUREAU\turbo; git push origin main 2>&1 | Out-String > W... |
+| sim_deploy_docker | "deploie en docker" | docker build -t jarvis-turbo:latest . 2>&1 | Selec... > docker tag jarvis-turbo:latest jarvis-turbo:$(Get-... > docke... |
+| sim_datascience_setup | "mode data science" | cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > Web: https://huggingface.co/datasets > pause 1s > nvidia-smi ... |
+| sim_kaggle_session | "session kaggle" | Web: https://www.kaggle.com/competitions > pause 1s > Web: https://www.kaggle.com/datasets > pause 1s > Web: https://... |
+| sim_interview_prep | "prepare l'entretien" | Web: https://leetcode.com > pause 1s > Web: https://www.geeksforgeeks.org > pause 1s > Web: https://devdocs.io > paus... |
+| sim_photo_edit | "mode edition photo" | Web: https://www.photopea.com > pause 2s > Web: https://www.pexels.com > pause 1s > Web: https://www.remove.bg > paus... |
+| sim_system_hardening | "renforce la securite" | Get-NetFirewallProfile | Select Name, Enabled | Fo... > Get-LocalUser | Where Enabled | Select Name, LastL... > Get-N... |
+| sim_meal_prep | "meal prep" | Web: https://www.marmiton.org > pause 1s > Web: https://www.750g.com > pause 1s > Web: https://www.ubereats.com > pau... |
+| sim_monitoring_full | "monitoring complet" | nvidia-smi --query-gpu=name,temperature.gpu,memory... > @('http://127.0.0.1:11434/api/tags','http://192.16... > Get-N... |
+| sim_jarvis_selfcheck | "auto diagnostic jarvis" | cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > $dbs=... |
 
 ---
 
 ## Listing Complet par Categorie
 
-### Navigation Web (297 commandes)
+### Navigation Web (316 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -595,6 +607,25 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | ouvrir_mega | Ouvrir Mega (stockage chiffre) | "ouvre mega", "va sur mega", "mega cloud" | browser |
 | ouvrir_discord_web | Ouvrir Discord Web | "ouvre discord web", "discord en ligne", "va sur discord" | browser |
 | ouvrir_zoom | Ouvrir Zoom | "ouvre zoom", "va sur zoom", "lance zoom", +1 | browser |
+| ouvrir_heroku | Ouvrir Heroku | "ouvre heroku", "va sur heroku", "apps heroku" | browser |
+| ouvrir_nuget | Ouvrir NuGet (packages .NET) | "ouvre nuget", "va sur nuget", "packages dotnet" | browser |
+| ouvrir_wired | Ouvrir Wired | "ouvre wired", "va sur wired", "news wired" | browser |
+| ouvrir_semantic_scholar | Ouvrir Semantic Scholar (IA papers) | "ouvre semantic scholar", "semantic scholar", "papers ia" | browser |
+| ouvrir_researchgate | Ouvrir ResearchGate | "ouvre researchgate", "va sur researchgate", "recherche researchgate" | browser |
+| ouvrir_pubmed | Ouvrir PubMed (medecine) | "ouvre pubmed", "recherche pubmed", "articles medicaux" | browser |
+| ouvrir_marmiton | Ouvrir Marmiton (recettes) | "ouvre marmiton", "va sur marmiton", "recettes marmiton", +1 | browser |
+| ouvrir_750g | Ouvrir 750g (recettes) | "ouvre 750g", "recettes 750g", "va sur 750 grammes" | browser |
+| ouvrir_cuisine_az | Ouvrir Cuisine AZ | "ouvre cuisine az", "recettes cuisine az", "va sur cuisine az" | browser |
+| ouvrir_pexels | Ouvrir Pexels (photos/videos gratuites) | "ouvre pexels", "photos pexels", "videos gratuites pexels" | browser |
+| ouvrir_pixabay | Ouvrir Pixabay (images libres) | "ouvre pixabay", "images pixabay", "photos pixabay" | browser |
+| ouvrir_vimeo | Ouvrir Vimeo | "ouvre vimeo", "va sur vimeo", "videos vimeo" | browser |
+| ouvrir_codecademy | Ouvrir Codecademy | "ouvre codecademy", "va sur codecademy", "apprendre a coder" | browser |
+| ouvrir_gmail | Ouvrir Gmail | "ouvre gmail", "va sur gmail", "mes mails gmail", +1 | browser |
+| ouvrir_outlook_web | Ouvrir Outlook Web | "ouvre outlook", "va sur outlook", "mails outlook" | browser |
+| ouvrir_protonmail | Ouvrir ProtonMail (mail chiffre) | "ouvre protonmail", "va sur protonmail", "mail securise" | browser |
+| ouvrir_windy | Ouvrir Windy (meteo avancee) | "ouvre windy", "meteo windy", "carte meteo", +1 | browser |
+| ouvrir_openstreetmap | Ouvrir OpenStreetMap | "ouvre openstreetmap", "osm", "carte libre" | browser |
+| ouvrir_waze | Ouvrir Waze (trafic) | "ouvre waze", "trafic waze", "embouteillages" | browser |
 
 ### Fichiers & Documents (47 commandes)
 
@@ -724,7 +755,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | clipboard_historique | Ouvrir l'historique du presse-papier | "historique presse papier", "clipboard history", "ouvre l'historique clipboard", +2 | hotkey |
 | coller_sans_format | Coller sans mise en forme | "colle sans format", "coller sans mise en forme", "colle en texte brut", +1 | hotkey |
 
-### Systeme Windows (640 commandes)
+### Systeme Windows (666 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -1368,6 +1399,32 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | process_by_cpu | Top 15 processus par CPU | "processus par cpu", "qui consomme le cpu", "top cpu", +1 | powershell |
 | process_tree | Arborescence des processus (parent-enfant) | "arbre des processus", "process tree", "qui lance quoi", +1 | powershell |
 | process_handles | Processus avec le plus de handles ouverts | "handles ouverts", "processus handles", "qui a trop de handles" | powershell |
+| wu_check_updates | Verifier les mises a jour Windows disponibles | "verifie les mises a jour", "check updates", "y a des updates", +1 | powershell |
+| wu_history | Historique des mises a jour Windows | "historique updates", "mises a jour recentes", "update history", +1 | powershell |
+| wu_pause_updates | Parametres pour suspendre les mises a jour | "pause les updates", "suspends les mises a jour", "pas d'update" | powershell |
+| wu_driver_updates | Voir les mises a jour de pilotes optionnelles | "mises a jour pilotes", "driver updates", "updates optionnelles" | powershell |
+| wu_last_reboot_reason | Raison du dernier redemarrage | "pourquoi le pc a redemarre", "dernier reboot", "raison redemarrage", +1 | powershell |
+| restore_point_create | Creer un point de restauration systeme | "cree un point de restauration", "restore point", "sauvegarde systeme", +1 | powershell |
+| restore_point_list | Lister les points de restauration | "liste les points de restauration", "quels restore points", "points de restauration disponibles" | powershell |
+| system_info_detailed | Informations systeme detaillees | "info systeme detaille", "systeminfo", "tout sur le pc", +1 | powershell |
+| notif_clear_all | Effacer toutes les notifications | "efface les notifications", "clear notifications", "vire les notifs", +1 | powershell |
+| notif_dnd_toggle | Activer/desactiver Ne pas deranger | "ne pas deranger", "do not disturb", "mode silencieux", +1 | powershell |
+| notif_app_settings | Parametres de notifications par application | "notifs par appli", "reglages notifications", "quelles applis notifient" | powershell |
+| default_browser_check | Voir quel est le navigateur par defaut | "quel navigateur par defaut", "default browser", "navigateur principal" | powershell |
+| default_apps_settings | Ouvrir les parametres d'applis par defaut | "applis par defaut", "apps par defaut", "default apps", +1 | powershell |
+| file_type_assoc | Voir l'association d'un type de fichier | "quelle appli pour {ext}", "association {ext}", "qui ouvre les {ext}" | powershell |
+| compress_folder | Compresser un dossier en ZIP | "compresse {dossier}", "zip {dossier}", "archive {dossier}", +1 | powershell |
+| extract_archive | Extraire une archive ZIP | "extrais {archive}", "dezippe {archive}", "decompresse {archive}", +1 | powershell |
+| rename_files_batch | Renommer des fichiers en lot (prefixe) | "renomme en lot {prefix}", "batch rename {prefix}", "renomme les fichiers {prefix}" | powershell |
+| find_large_files | Trouver les plus gros fichiers (top 20) | "plus gros fichiers", "fichiers les plus lourds", "big files", +1 | powershell |
+| find_old_files | Trouver les fichiers non modifies depuis 90 jours | "vieux fichiers", "fichiers anciens", "old files", +1 | powershell |
+| motherboard_info | Informations sur la carte mere | "carte mere", "motherboard", "quelle carte mere", +1 | powershell |
+| ram_details | Details des barrettes RAM | "details ram", "barrettes memoire", "ram details", +1 | powershell |
+| windows_license | Statut de la licence Windows | "licence windows", "windows active", "statut activation", +1 | powershell |
+| boot_config | Configuration de demarrage (BCD) | "config demarrage", "boot config", "bcd edit", +1 | powershell |
+| locale_current | Afficher les parametres regionaux actuels | "parametres regionaux", "quelle locale", "region actuelle" | powershell |
+| timezone_current | Afficher le fuseau horaire actuel | "quel fuseau horaire", "timezone", "quelle heure on est", +1 | powershell |
+| timezone_list | Lister les fuseaux horaires disponibles | "liste fuseaux horaires", "timezones disponibles", "quels fuseaux" | powershell |
 
 ### Trading & IA (19 commandes)
 
@@ -1393,7 +1450,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | cluster_health | Health check rapide du cluster IA | "health check cluster", "verifie le cluster ia", "est ce que le cluster va bien", +3 | powershell |
 | ollama_running | Modeles Ollama actuellement en memoire | "quels modeles ollama tournent", "ollama running", "modeles en memoire ollama", +1 | powershell |
 
-### Developpement & Outils (241 commandes)
+### Developpement & Outils (255 commandes)
 
 | Commande | Description | Triggers | Type |
 |----------|------------|----------|------|
@@ -1638,6 +1695,20 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | python_profile | Profiler un script Python | "profile python {script}", "profiling {script}", "benchmark python {script}" | powershell |
 | benchmark_import_time | Mesurer le temps d'import de turbo | "temps d'import turbo", "import time", "benchmark import", +1 | powershell |
 | memory_usage_python | Utilisation memoire de Python | "memoire python", "ram python", "python memory" | powershell |
+| n8n_status | Verifier si n8n tourne | "n8n status", "est ce que n8n tourne", "n8n en ligne" | powershell |
+| n8n_open | Ouvrir n8n dans le navigateur | "ouvre n8n", "va sur n8n", "lance n8n" | browser |
+| n8n_workflows_count | Compter les workflows n8n | "combien de workflows n8n", "n8n workflows", "nombre workflows" | powershell |
+| tsc_compile | Compiler TypeScript | "tsc compile", "compile typescript", "typescript build", +1 | powershell |
+| tsc_watch | Lancer TypeScript en mode watch | "tsc watch", "typescript watch", "surveille les fichiers ts" | powershell |
+| tsc_version | Version de TypeScript installee | "version typescript", "tsc version", "quel typescript" | powershell |
+| tsc_check | Type-check sans compiler | "type check", "tsc check", "verifie les types ts" | powershell |
+| pip_show | Infos sur un package Python installe | "pip show {package}", "info package {package}", "details de {package}" | powershell |
+| npm_info | Infos sur un package NPM | "npm info {package}", "details npm {package}", "package npm {package}" | powershell |
+| git_blame | Voir l'auteur de chaque ligne d'un fichier | "git blame {fichier}", "qui a ecrit {fichier}", "blame {fichier}" | powershell |
+| git_bisect_start | Demarrer git bisect pour trouver un bug | "git bisect", "cherche le bug", "bisect start" | powershell |
+| python_version | Version de Python installee | "version python", "quel python", "python version" | powershell |
+| which_command | Trouver l'emplacement d'une commande | "ou est {cmd}", "which {cmd}", "chemin de {cmd}", +1 | powershell |
+| dev_env_summary | Resume de l'environnement de dev | "resume dev", "environnement dev", "quels outils installes", +1 | powershell |
 
 ### Controle JARVIS (12 commandes)
 

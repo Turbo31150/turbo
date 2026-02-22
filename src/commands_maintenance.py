@@ -1802,4 +1802,128 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("process_handles", "systeme", "Processus avec le plus de handles ouverts", [
         "handles ouverts", "processus handles", "qui a trop de handles",
     ], "powershell", "Get-Process | Sort HandleCount -Descending | Select -First 15 Name, HandleCount, @{N='RAM(MB)';E={[math]::Round($_.WorkingSet64/1MB)}} | Format-Table | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # WINDOWS UPDATE — Gestion des mises à jour
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("wu_check_updates", "systeme", "Verifier les mises a jour Windows disponibles", [
+        "verifie les mises a jour", "check updates", "y a des updates",
+        "windows update check",
+    ], "powershell", "Start-Process ms-settings:windowsupdate"),
+    JarvisCommand("wu_history", "systeme", "Historique des mises a jour Windows", [
+        "historique updates", "mises a jour recentes", "update history",
+        "quelles mises a jour",
+    ], "powershell", "Get-HotFix | Sort InstalledOn -Descending | Select -First 15 HotFixID, Description, InstalledOn | Format-Table | Out-String"),
+    JarvisCommand("wu_pause_updates", "systeme", "Parametres pour suspendre les mises a jour", [
+        "pause les updates", "suspends les mises a jour", "pas d'update",
+    ], "powershell", "Start-Process ms-settings:windowsupdate-options"),
+    JarvisCommand("wu_driver_updates", "systeme", "Voir les mises a jour de pilotes optionnelles", [
+        "mises a jour pilotes", "driver updates", "updates optionnelles",
+    ], "powershell", "Start-Process ms-settings:windowsupdate-optionalupdates"),
+    JarvisCommand("wu_last_reboot_reason", "systeme", "Raison du dernier redemarrage", [
+        "pourquoi le pc a redemarre", "dernier reboot", "raison redemarrage",
+        "last reboot reason",
+    ], "powershell", "Get-WinEvent -FilterHashtable @{LogName='System';Id=1074} -MaxEvents 3 -ErrorAction SilentlyContinue | Select TimeCreated, @{N='Raison';E={$_.Properties[2].Value}}, @{N='Processus';E={$_.Properties[0].Value}} | Format-Table -Wrap | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RESTAURATION SYSTÈME — Points de restauration
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("restore_point_create", "systeme", "Creer un point de restauration systeme", [
+        "cree un point de restauration", "restore point", "sauvegarde systeme",
+        "point de restauration",
+    ], "powershell", "Checkpoint-Computer -Description 'JARVIS Restore Point' -RestorePointType MODIFY_SETTINGS; 'Point de restauration cree'", confirm=True),
+    JarvisCommand("restore_point_list", "systeme", "Lister les points de restauration", [
+        "liste les points de restauration", "quels restore points",
+        "points de restauration disponibles",
+    ], "powershell", "Get-ComputerRestorePoint | Select -Last 10 SequenceNumber, Description, CreationTime | Format-Table | Out-String"),
+    JarvisCommand("system_info_detailed", "systeme", "Informations systeme detaillees", [
+        "info systeme detaille", "systeminfo", "tout sur le pc",
+        "details du systeme",
+    ], "powershell", "systeminfo | Select -First 25 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # NOTIFICATIONS — Gestion des notifications Windows
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("notif_clear_all", "systeme", "Effacer toutes les notifications", [
+        "efface les notifications", "clear notifications", "vire les notifs",
+        "supprime les notifications",
+    ], "powershell", "Start-Process ms-settings:notifications"),
+    JarvisCommand("notif_dnd_toggle", "systeme", "Activer/desactiver Ne pas deranger", [
+        "ne pas deranger", "do not disturb", "mode silencieux",
+        "desactive les notifs",
+    ], "powershell", "Start-Process ms-settings:quiethours"),
+    JarvisCommand("notif_app_settings", "systeme", "Parametres de notifications par application", [
+        "notifs par appli", "reglages notifications", "quelles applis notifient",
+    ], "powershell", "Start-Process ms-settings:notifications"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # ASSOCIATIONS DE FICHIERS — Apps par défaut
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("default_browser_check", "systeme", "Voir quel est le navigateur par defaut", [
+        "quel navigateur par defaut", "default browser", "navigateur principal",
+    ], "powershell", "$b = (Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice' -ErrorAction SilentlyContinue).ProgId; \"Navigateur par defaut: $b\""),
+    JarvisCommand("default_apps_settings", "systeme", "Ouvrir les parametres d'applis par defaut", [
+        "applis par defaut", "apps par defaut", "default apps",
+        "choisis les applis par defaut",
+    ], "powershell", "Start-Process ms-settings:defaultapps"),
+    JarvisCommand("file_type_assoc", "systeme", "Voir l'association d'un type de fichier", [
+        "quelle appli pour {ext}", "association {ext}", "qui ouvre les {ext}",
+    ], "powershell", "cmd /c assoc .{ext} 2>&1; cmd /c ftype $(cmd /c assoc .{ext} 2>$null) 2>&1 | Out-String", ["ext"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # OPÉRATIONS BATCH — Traitement de fichiers en lot
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("compress_folder", "systeme", "Compresser un dossier en ZIP", [
+        "compresse {dossier}", "zip {dossier}", "archive {dossier}",
+        "met en zip {dossier}",
+    ], "powershell", "Compress-Archive -Path '{dossier}' -DestinationPath '{dossier}.zip' -Force; \"Archive creee: {dossier}.zip\"", ["dossier"]),
+    JarvisCommand("extract_archive", "systeme", "Extraire une archive ZIP", [
+        "extrais {archive}", "dezippe {archive}", "decompresse {archive}",
+        "unzip {archive}",
+    ], "powershell", "$dest = '{archive}' -replace '\\.zip$',''; Expand-Archive -Path '{archive}' -DestinationPath $dest -Force; \"Extrait dans: $dest\"", ["archive"]),
+    JarvisCommand("rename_files_batch", "systeme", "Renommer des fichiers en lot (prefixe)", [
+        "renomme en lot {prefix}", "batch rename {prefix}",
+        "renomme les fichiers {prefix}",
+    ], "powershell", "$i=1; Get-ChildItem -File | ForEach-Object { Rename-Item $_.FullName \"{prefix}_$($i.ToString('D3'))$($_.Extension)\"; $i++ }; \"Fichiers renommes avec prefixe {prefix}\"", ["prefix"], confirm=True),
+    JarvisCommand("find_large_files", "systeme", "Trouver les plus gros fichiers (top 20)", [
+        "plus gros fichiers", "fichiers les plus lourds", "big files",
+        "qui prend de la place",
+    ], "powershell", "Get-ChildItem F:\\ -Recurse -File -ErrorAction SilentlyContinue | Sort Length -Descending | Select -First 20 @{N='Size(MB)';E={[math]::Round($_.Length/1MB,1)}}, FullName | Format-Table | Out-String"),
+    JarvisCommand("find_old_files", "systeme", "Trouver les fichiers non modifies depuis 90 jours", [
+        "vieux fichiers", "fichiers anciens", "old files",
+        "fichiers pas touches depuis longtemps",
+    ], "powershell", "Get-ChildItem F:\\BUREAU -Recurse -File -ErrorAction SilentlyContinue | Where { $_.LastWriteTime -lt (Get-Date).AddDays(-90) } | Sort LastWriteTime | Select -First 20 @{N='Age(j)';E={((Get-Date)-$_.LastWriteTime).Days}}, @{N='MB';E={[math]::Round($_.Length/1MB,1)}}, Name | Format-Table | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # INFO MATÉRIEL — Détails hardware avancés
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("motherboard_info", "systeme", "Informations sur la carte mere", [
+        "carte mere", "motherboard", "quelle carte mere",
+        "info carte mere",
+    ], "powershell", "Get-CimInstance Win32_BaseBoard | Select Manufacturer, Product, SerialNumber | Format-List | Out-String"),
+    JarvisCommand("ram_details", "systeme", "Details des barrettes RAM", [
+        "details ram", "barrettes memoire", "ram details",
+        "combien de ram et quel type",
+    ], "powershell", "Get-CimInstance Win32_PhysicalMemory | Select BankLabel, @{N='Size(GB)';E={$_.Capacity/1GB}}, Speed, Manufacturer | Format-Table | Out-String"),
+    JarvisCommand("windows_license", "systeme", "Statut de la licence Windows", [
+        "licence windows", "windows active", "statut activation",
+        "est ce que windows est active",
+    ], "powershell", "cscript //nologo C:\\Windows\\System32\\slmgr.vbs /dli 2>&1 | Out-String"),
+    JarvisCommand("boot_config", "systeme", "Configuration de demarrage (BCD)", [
+        "config demarrage", "boot config", "bcd edit",
+        "configuration boot",
+    ], "powershell", "bcdedit /enum ACTIVE 2>&1 | Out-String"),
+    # ══════════════════════════════════════════════════════════════════════
+    # LOCALE / RÉGION — Paramètres régionaux
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("locale_current", "systeme", "Afficher les parametres regionaux actuels", [
+        "parametres regionaux", "quelle locale", "region actuelle",
+    ], "powershell", "Get-Culture | Select Name, DisplayName, @{N='DateFormat';E={$_.DateTimeFormat.ShortDatePattern}} | Format-List | Out-String"),
+    JarvisCommand("timezone_current", "systeme", "Afficher le fuseau horaire actuel", [
+        "quel fuseau horaire", "timezone", "quelle heure on est",
+        "fuseau horaire actuel",
+    ], "powershell", "$tz = Get-TimeZone; \"Fuseau: $($tz.DisplayName) ($($tz.Id)) — UTC$($tz.BaseUtcOffset)\""),
+    JarvisCommand("timezone_list", "systeme", "Lister les fuseaux horaires disponibles", [
+        "liste fuseaux horaires", "timezones disponibles", "quels fuseaux",
+    ], "powershell", "Get-TimeZone -ListAvailable | Where { $_.Id -like '*Euro*' -or $_.Id -like '*US*' -or $_.Id -like '*Asia*' } | Select Id, DisplayName | Format-Table | Out-String"),
 ]
