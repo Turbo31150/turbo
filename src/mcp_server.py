@@ -136,6 +136,23 @@ async def handle_lm_cluster_status(args: dict) -> list[TextContent]:
     return _text(f"{header}\n" + "\n".join(results))
 
 
+async def handle_system_audit(args: dict) -> list[TextContent]:
+    """Full cluster audit — 10 sections + scores."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "system_audit",
+        str(Path(__file__).parent.parent / "scripts" / "system_audit.py")
+    )
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    mode = args.get("mode", "full")
+    quick = mode == "quick"
+    report = await mod.run_audit(quick=quick)
+    text = mod.format_report(report)
+    return _text(text)
+
+
 async def handle_consensus(args: dict) -> list[TextContent]:
     from src.tools import extract_lms_output, _strip_thinking_tags
     prompt = args["prompt"]
@@ -1001,6 +1018,7 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     ("lm_query", "Interroger un noeud LM Studio.", {"prompt": "string", "node": "string", "model": "string"}, handle_lm_query),
     ("lm_models", "Lister les modeles charges sur un noeud.", {"node": "string"}, handle_lm_models),
     ("lm_cluster_status", "Sante de tous les noeuds du cluster (LM Studio + Ollama).", {}, handle_lm_cluster_status),
+    ("system_audit", "Audit complet du cluster — 10 sections, risques, scores readiness (0-100).", {"mode": "string (full|quick)"}, handle_system_audit),
     ("consensus", "Consensus multi-IA sur une question.", {"prompt": "string", "nodes": "string", "timeout_per_node": "number"}, handle_consensus),
     # LM Studio MCP (2)
     ("lm_mcp_query", "Interroger LM Studio avec serveurs MCP.", {"prompt": "string", "node": "string", "model": "string", "servers": "string", "allowed_tools": "string", "context_length": "number"}, handle_lm_mcp_query),

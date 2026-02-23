@@ -633,6 +633,16 @@ COMMANDS: list[JarvisCommand] = [
         "ouvre le proxy",
     ], "ms_settings", "ms-settings:network-proxy"),
 
+    # ── Audit systeme ──
+    JarvisCommand("audit_systeme", "systeme", "Lancer un audit complet du cluster", [
+        "audit systeme", "audit du systeme", "audit cluster", "diagnostic cluster",
+        "etat du systeme", "verification systeme",
+    ], "script", "system_audit"),
+    JarvisCommand("check_cluster_rapide", "systeme", "Verifier la sante du cluster rapidement", [
+        "check cluster", "sante cluster", "etat du cluster", "health check",
+        "verifier cluster",
+    ], "script", "system_audit --quick"),
+
     # ── Fichiers rapides ──
     JarvisCommand("ouvrir_recents", "fichiers", "Ouvrir les fichiers recents", [
         "fichiers recents", "ouvre les recents", "derniers fichiers",
