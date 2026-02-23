@@ -27,7 +27,8 @@ from src.config import config, JARVIS_VERSION
 
 # ── Constants ────────────────────────────────────────────────────────────────
 
-AUDIT_TIMEOUT = 5.0  # seconds per node check
+AUDIT_TIMEOUT = 5.0      # seconds per node check
+GEMINI_TIMEOUT = 45.0    # Gemini proxy ~30-40s via API (cold start)
 
 KNOWN_PORTS = {
     "127.0.0.1": [1234, 11434, 8080, 9742, 5678],
@@ -182,13 +183,13 @@ async def check_gemini(gemini_node) -> dict:
         )
         try:
             stdout, stderr = await asyncio.wait_for(
-                proc.communicate(), timeout=AUDIT_TIMEOUT
+                proc.communicate(), timeout=GEMINI_TIMEOUT
             )
         except asyncio.TimeoutError:
             proc.kill()
             await proc.wait()
             result["status"] = "TIMEOUT"
-            result["error"] = f"Timeout after {AUDIT_TIMEOUT}s"
+            result["error"] = f"Timeout after {GEMINI_TIMEOUT}s"
             return result
 
         latency = (time.monotonic() - t0) * 1000
