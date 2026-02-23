@@ -480,6 +480,23 @@ async def lm_cluster_status(args: dict[str, Any]) -> dict[str, Any]:
     )
 
 
+@tool("system_audit", "Audit complet du cluster — 10 sections + scores readiness.", {"mode": str})
+async def system_audit(args: dict[str, Any]) -> dict[str, Any]:
+    """Run complete system audit with readiness scores."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "system_audit", str(PATHS["turbo"] / "scripts" / "system_audit.py")
+    )
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    mode = args.get("mode", "full")
+    quick = mode == "quick"
+    report = await mod.run_audit(quick=quick)
+    text = mod.format_report(report)
+    return _text(text)
+
+
 @tool("consensus", "Consensus multi-noeuds IA (M1,M2,OL1,GEMINI). Args: prompt, nodes, timeout_per_node.", {"prompt": str, "nodes": str, "timeout_per_node": int})
 async def consensus(args: dict[str, Any]) -> dict[str, Any]:
     prompt = args["prompt"]
