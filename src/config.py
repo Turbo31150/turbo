@@ -153,6 +153,7 @@ class JarvisConfig:
             use_cases=["General inference", "Raisonnement", "Code review",
                        "Quick responses", "Fallback fiable"],
             context_length=8192,
+            api_key=os.getenv("LM_STUDIO_3_KEY", "LMSTUDIO_KEY_M3_REDACTED"),
         ),
     ])
 
