@@ -325,7 +325,9 @@ async def test():
         print("[8] format_report + save_report...")
 
         # Use the report from test 7 (or generate a minimal one)
-        if "report" not in dir():
+        try:
+            _ = report  # noqa: F841 — use report from test 7
+        except NameError:
             report = await run_audit(quick=True)
 
         # format_report

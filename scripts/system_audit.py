@@ -465,13 +465,15 @@ def analyze_security(nodes: list[dict], ports: dict) -> list[dict]:
 
     # Check API key hardcoding
     for node in config.lm_nodes:
-        if node.api_key and not os.getenv(f"LM_STUDIO_{node.name[1:]}_KEY"):
-            # Key is hardcoded as default, not purely from env
-            issues.append({
-                "issue": f"API key for {node.name} uses hardcoded default",
-                "severity": "low",
-                "details": "Key is in config.py default — prefer LM_STUDIO_*_KEY env var",
-            })
+        if node.api_key:
+            env_key = os.getenv(f"LM_STUDIO_{node.name[1:]}_KEY")
+            if not env_key or node.api_key == env_key:
+                # Key came from hardcoded default, not a separate env override
+                issues.append({
+                    "issue": f"API key for {node.name} uses hardcoded default",
+                    "severity": "low",
+                    "details": "Key is in config.py default — prefer LM_STUDIO_*_KEY env var",
+                })
 
     # Check if any LM nodes lack auth
     for node in config.lm_nodes:
@@ -690,7 +692,7 @@ async def run_audit(quick: bool = False) -> dict:
     if isinstance(gpus, dict) and "error" in gpus:
         gpus = []
     system_info = collected.get("system_info", {})
-    if not isinstance(system_info, dict) or "error" in system_info and "os_version" not in system_info:
+    if (not isinstance(system_info, dict)) or ("error" in system_info and "os_version" not in system_info):
         system_info = {"os_version": "unknown", "ram_total_gb": 0, "ram_free_gb": 0, "disks": []}
     ports = collected.get("ports", {})
     if not isinstance(ports, dict):
