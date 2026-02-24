@@ -72,6 +72,7 @@ SCRIPTS = {
     "disk_cleaner":          PATHS["disk_cleaner"] / "disk_cleaner.py",
     # Trading AI v2.2 GPU Pipeline
     "trading_v2_pipeline":   PATHS["turbo"] / "scripts/trading_v2/gpu_pipeline.py",
+    "scan_sniper":           PATHS["turbo"] / "scripts/scan_sniper.py",
     "trading_v2_consensus":  PATHS["turbo"] / "scripts/trading_v2/ai_consensus.py",
     "trading_v2_data":       PATHS["turbo"] / "scripts/trading_v2/data_fetcher.py",
     "trading_v2_strategies": PATHS["turbo"] / "scripts/trading_v2/strategies.py",
