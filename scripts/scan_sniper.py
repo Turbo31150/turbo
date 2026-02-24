@@ -14,6 +14,9 @@ import json
 import math
 import time
 import subprocess
+import sqlite3
+from datetime import datetime, timezone
+from pathlib import Path
 from dataclasses import dataclass, field, asdict
 from typing import Optional
 from concurrent.futures import ThreadPoolExecutor
@@ -54,6 +57,7 @@ MIN_VOL_24H = 500_000
 TP_MULT = 1.5
 SL_MULT = 1.0
 MIN_SCORE = 40
+DB_PATH = Path("F:/BUREAU/turbo/data/sniper.db")
 
 
 @dataclass
@@ -85,6 +89,309 @@ class Signal:
     bb_squeeze: bool = False
     regime: str = "unknown"
     open_interest_chg: float = 0.0
+
+
+# ========== SQL DATABASE ==========
+
+def init_db(db_path=DB_PATH):
+    """Cree/ouvre la base sniper.db avec toutes les tables."""
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(str(db_path))
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA synchronous=NORMAL")
+    conn.executescript("""
+        -- Coins: fiche maitre par symbole, categorie, stats aggregees
+        CREATE TABLE IF NOT EXISTS coins (
+            symbol TEXT PRIMARY KEY,
+            name TEXT,
+            category TEXT DEFAULT 'unknown',
+            sub_category TEXT DEFAULT '',
+            first_seen TEXT,
+            last_seen TEXT,
+            scan_count INTEGER DEFAULT 0,
+            signal_count INTEGER DEFAULT 0,
+            avg_score REAL DEFAULT 0,
+            max_score INTEGER DEFAULT 0,
+            dominant_direction TEXT DEFAULT '',
+            long_count INTEGER DEFAULT 0,
+            short_count INTEGER DEFAULT 0,
+            avg_volume_24h REAL DEFAULT 0,
+            best_strategies TEXT DEFAULT '[]',
+            regime_history TEXT DEFAULT '[]',
+            notes TEXT DEFAULT ''
+        );
+
+        -- Signals: chaque signal detecte par cycle
+        CREATE TABLE IF NOT EXISTS signals (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            cycle INTEGER,
+            timestamp TEXT,
+            symbol TEXT,
+            direction TEXT,
+            score INTEGER,
+            last_price REAL,
+            entry REAL,
+            tp REAL,
+            sl REAL,
+            atr REAL,
+            rsi REAL,
+            mfi REAL,
+            williams_r REAL,
+            adx REAL,
+            cmf REAL,
+            chaikin_osc REAL,
+            obv_trend TEXT,
+            macd_signal TEXT,
+            bb_squeeze INTEGER,
+            regime TEXT,
+            funding_rate REAL,
+            change_24h REAL,
+            volume_24h REAL,
+            liquidity_bias TEXT,
+            strategies TEXT,
+            reasons TEXT,
+            ob_analysis TEXT,
+            FOREIGN KEY (symbol) REFERENCES coins(symbol)
+        );
+
+        -- Categories: definitions des categories de coins
+        CREATE TABLE IF NOT EXISTS categories (
+            id TEXT PRIMARY KEY,
+            label TEXT,
+            description TEXT,
+            keywords TEXT,
+            color TEXT DEFAULT '#888'
+        );
+
+        -- Scans: meta-donnees par cycle de scan
+        CREATE TABLE IF NOT EXISTS scans (
+            cycle INTEGER PRIMARY KEY,
+            timestamp TEXT,
+            coins_scanned INTEGER,
+            signals_found INTEGER,
+            scan_time_s REAL,
+            gpu_used INTEGER,
+            gpu_count INTEGER,
+            top1_symbol TEXT,
+            top1_score INTEGER,
+            thermal_max INTEGER DEFAULT 0
+        );
+
+        -- Index pour rapidite
+        CREATE INDEX IF NOT EXISTS idx_signals_symbol ON signals(symbol);
+        CREATE INDEX IF NOT EXISTS idx_signals_cycle ON signals(cycle);
+        CREATE INDEX IF NOT EXISTS idx_signals_score ON signals(score DESC);
+        CREATE INDEX IF NOT EXISTS idx_signals_ts ON signals(timestamp);
+        CREATE INDEX IF NOT EXISTS idx_coins_category ON coins(category);
+        CREATE INDEX IF NOT EXISTS idx_coins_score ON coins(avg_score DESC);
+    """)
+
+    # Insert default categories
+    default_cats = [
+        ("blue_chip", "Blue Chip", "BTC, ETH, majeurs haute liquidite", "BTC,ETH,BNB,SOL,XRP", "#3B82F6"),
+        ("defi", "DeFi", "Finance decentralisee, DEX, lending", "UNI,AAVE,COMP,MKR,CRV,SUSHI,DYDX,SNX,1INCH,CAKE,JUP", "#8B5CF6"),
+        ("layer1", "Layer 1", "Blockchains principales", "SOL,ADA,AVAX,DOT,ATOM,NEAR,APT,SUI,SEI,TIA,ICP,FTM,ALGO", "#10B981"),
+        ("layer2", "Layer 2", "Scaling solutions Ethereum", "ARB,OP,MATIC,STRK,ZK,MANTA,BLAST,MODE,SCROLL", "#06B6D4"),
+        ("meme", "Meme", "Memecoins haute volatilite", "DOGE,SHIB,PEPE,FLOKI,BONK,WIF,BRETT,NEIRO,TURBO,MOODENG,PNUT", "#F59E0B"),
+        ("ai", "AI & Data", "Intelligence artificielle, compute", "FET,RENDER,TAO,RNDR,AGIX,OCEAN,AKT,AI16Z,VIRTUAL,GRIFFAIN", "#EC4899"),
+        ("gaming", "Gaming & Metaverse", "Jeux, NFT, metaverse", "IMX,GALA,AXS,SAND,MANA,ILV,PIXEL,PORTAL,RONIN,PRIME", "#F97316"),
+        ("infra", "Infrastructure", "Oracles, storage, bridges", "LINK,FIL,GRT,PYTH,RENDER,AR,THETA,HNT,STX,W", "#6366F1"),
+        ("rwa", "RWA", "Real World Assets, commodities", "XAUT,SILVER,ONDO,MKR,PAXG", "#D4A843"),
+        ("exchange", "Exchange", "Tokens de plateformes", "BNB,OKB,CRO,GT,MX,KCS", "#EF4444"),
+        ("unknown", "Non classe", "Coins pas encore categorises", "", "#6B7280"),
+    ]
+    conn.executemany(
+        "INSERT OR IGNORE INTO categories (id, label, description, keywords, color) VALUES (?,?,?,?,?)",
+        default_cats
+    )
+    conn.commit()
+    return conn
+
+
+def classify_coin(symbol: str, conn: sqlite3.Connection) -> str:
+    """Classe un coin dans sa categorie via les keywords des categories."""
+    coin = symbol.replace("_USDT", "")
+    rows = conn.execute("SELECT id, keywords FROM categories WHERE keywords != ''").fetchall()
+    for cat_id, keywords in rows:
+        if coin in [k.strip() for k in keywords.split(",")]:
+            return cat_id
+    return "unknown"
+
+
+def save_signals_to_db(signals: list, cycle: int, scan_time: float,
+                       coins_scanned: int, thermal_max: int = 0, conn=None):
+    """Sauvegarde les signaux d'un cycle dans la DB."""
+    close_after = False
+    if conn is None:
+        conn = init_db()
+        close_after = True
+
+    now = datetime.now(timezone.utc).isoformat()
+
+    # Save scan meta
+    top1 = signals[0] if signals else None
+    conn.execute("""
+        INSERT OR REPLACE INTO scans (cycle, timestamp, coins_scanned, signals_found,
+            scan_time_s, gpu_used, gpu_count, top1_symbol, top1_score, thermal_max)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (cycle, now, coins_scanned, len(signals), round(scan_time, 2),
+          1 if GPU_AVAILABLE else 0, GPU_COUNT,
+          top1.symbol if top1 else None, top1.score if top1 else 0, thermal_max))
+
+    for s in signals:
+        # Save signal
+        conn.execute("""
+            INSERT INTO signals (cycle, timestamp, symbol, direction, score, last_price,
+                entry, tp, sl, atr, rsi, mfi, williams_r, adx, cmf, chaikin_osc,
+                obv_trend, macd_signal, bb_squeeze, regime, funding_rate, change_24h,
+                volume_24h, liquidity_bias, strategies, reasons, ob_analysis)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (cycle, now, s.symbol, s.direction, s.score, s.last_price,
+              s.entry, s.tp, s.sl, s.atr, s.rsi, s.mfi, s.williams_r, s.adx,
+              s.cmf, s.chaikin_osc, s.obv_trend, s.macd_signal,
+              1 if s.bb_squeeze else 0, s.regime, s.funding_rate, s.change_24h,
+              s.volume_24h, s.liquidity_bias,
+              json.dumps(s.strategies), json.dumps(s.reasons, ensure_ascii=False),
+              json.dumps(s.ob_analysis)))
+
+        # Upsert coin master record
+        category = classify_coin(s.symbol, conn)
+        existing = conn.execute("SELECT scan_count, signal_count, avg_score, max_score, "
+                                "long_count, short_count, avg_volume_24h, best_strategies "
+                                "FROM coins WHERE symbol = ?", (s.symbol,)).fetchone()
+        if existing:
+            sc, sig_c, avg_sc, max_sc, lc, shc, avg_v, best_str = existing
+            new_sig_c = sig_c + 1
+            new_avg = (avg_sc * sig_c + s.score) / new_sig_c
+            new_max = max(max_sc, s.score)
+            new_lc = lc + (1 if s.direction == "LONG" else 0)
+            new_shc = shc + (1 if s.direction == "SHORT" else 0)
+            new_avg_v = (avg_v * sig_c + s.volume_24h) / new_sig_c
+            dom = "LONG" if new_lc > new_shc else "SHORT" if new_shc > new_lc else "MIXED"
+            # Merge best strategies
+            try:
+                old_strats = json.loads(best_str) if best_str else []
+            except (json.JSONDecodeError, TypeError):
+                old_strats = []
+            merged = list(set(old_strats + s.strategies))[:20]
+            conn.execute("""
+                UPDATE coins SET last_seen=?, scan_count=scan_count+1, signal_count=?,
+                    avg_score=?, max_score=?, long_count=?, short_count=?,
+                    dominant_direction=?, avg_volume_24h=?, best_strategies=?, category=?
+                WHERE symbol=?
+            """, (now, new_sig_c, round(new_avg, 1), new_max, new_lc, new_shc,
+                  dom, round(new_avg_v, 0), json.dumps(merged), category, s.symbol))
+        else:
+            conn.execute("""
+                INSERT INTO coins (symbol, name, category, first_seen, last_seen,
+                    scan_count, signal_count, avg_score, max_score, dominant_direction,
+                    long_count, short_count, avg_volume_24h, best_strategies)
+                VALUES (?, ?, ?, ?, ?, 1, 1, ?, ?, ?, ?, ?, ?, ?)
+            """, (s.symbol, s.symbol.replace("_USDT", ""), category, now, now,
+                  s.score, s.score, s.direction,
+                  1 if s.direction == "LONG" else 0,
+                  1 if s.direction == "SHORT" else 0,
+                  round(s.volume_24h, 0), json.dumps(s.strategies)))
+
+    conn.commit()
+    if close_after:
+        conn.close()
+
+
+def get_db_summary(conn=None) -> str:
+    """Resume rapide de la DB pour affichage."""
+    close_after = False
+    if conn is None:
+        conn = init_db()
+        close_after = True
+
+    lines = []
+    # Stats globales
+    total_coins = conn.execute("SELECT COUNT(*) FROM coins").fetchone()[0]
+    total_signals = conn.execute("SELECT COUNT(*) FROM signals").fetchone()[0]
+    total_scans = conn.execute("SELECT COUNT(*) FROM scans").fetchone()[0]
+
+    lines.append(f"\n  DB: {total_coins} coins | {total_signals} signaux | {total_scans} scans")
+
+    # Par categorie
+    cats = conn.execute("""
+        SELECT c.category, cat.label, COUNT(*) as cnt, ROUND(AVG(c.avg_score),0) as avg,
+               MAX(c.max_score) as best, SUM(c.signal_count) as sigs
+        FROM coins c LEFT JOIN categories cat ON c.category = cat.id
+        GROUP BY c.category ORDER BY avg DESC
+    """).fetchall()
+    if cats:
+        lines.append(f"  {'Categorie':<16} {'Coins':>5} {'Avg':>5} {'Best':>5} {'Signaux':>8}")
+        lines.append(f"  {'-'*45}")
+        for cat_id, label, cnt, avg, best, sigs in cats:
+            lines.append(f"  {(label or cat_id):<16} {cnt:>5} {avg:>5.0f} {best:>5} {sigs:>8}")
+
+    # Top 10 coins par score moyen
+    top = conn.execute("""
+        SELECT symbol, category, avg_score, max_score, signal_count,
+               dominant_direction, best_strategies
+        FROM coins ORDER BY avg_score DESC LIMIT 10
+    """).fetchall()
+    if top:
+        lines.append(f"\n  --- Top 10 Coins ---")
+        lines.append(f"  {'Coin':<12} {'Cat':<10} {'Avg':>5} {'Max':>5} {'Sigs':>5} {'Dir':<6}")
+        lines.append(f"  {'-'*48}")
+        for sym, cat, avg, mx, sigs, dir_, _ in top:
+            coin = sym.replace("_USDT", "")
+            lines.append(f"  {coin:<12} {(cat or '?'):<10} {avg:>5.0f} {mx:>5} {sigs:>5} {dir_:<6}")
+
+    # Strategies les plus frequentes
+    all_strats = conn.execute("SELECT strategies FROM signals ORDER BY id DESC LIMIT 500").fetchall()
+    strat_count = {}
+    for (strats_json,) in all_strats:
+        try:
+            for s in json.loads(strats_json):
+                strat_count[s] = strat_count.get(s, 0) + 1
+        except (json.JSONDecodeError, TypeError):
+            pass
+    if strat_count:
+        sorted_strats = sorted(strat_count.items(), key=lambda x: -x[1])[:10]
+        lines.append(f"\n  --- Top Strategies ---")
+        for strat, cnt in sorted_strats:
+            lines.append(f"    {strat:<35} {cnt:>4}x")
+
+    result = "\n".join(lines)
+    if close_after:
+        conn.close()
+    return result
+
+
+def get_coin_history(symbol: str, conn=None) -> str:
+    """Historique detaille d'un coin specifique."""
+    close_after = False
+    if conn is None:
+        conn = init_db()
+        close_after = True
+
+    coin = conn.execute("SELECT * FROM coins WHERE symbol = ?", (symbol,)).fetchone()
+    if not coin:
+        if close_after: conn.close()
+        return f"  Coin {symbol} non trouve dans la DB"
+
+    lines = [f"\n  === {symbol} ==="]
+    lines.append(f"  Categorie: {coin[2]} | First: {coin[4][:10]} | Last: {coin[5][:10]}")
+    lines.append(f"  Scans: {coin[6]} | Signaux: {coin[7]} | Avg: {coin[8]:.0f} | Max: {coin[9]}")
+    lines.append(f"  Direction: {coin[10]} (L:{coin[11]} S:{coin[12]}) | Vol: {coin[13]:,.0f}")
+
+    # Last 5 signals
+    sigs = conn.execute("""
+        SELECT cycle, timestamp, direction, score, last_price, regime, strategies
+        FROM signals WHERE symbol = ? ORDER BY id DESC LIMIT 5
+    """, (symbol,)).fetchall()
+    if sigs:
+        lines.append(f"\n  Derniers signaux:")
+        for cy, ts, dir_, sc, price, regime, strats in sigs:
+            n_strats = len(json.loads(strats)) if strats else 0
+            lines.append(f"    C{cy} {ts[:16]} {dir_:<5} {sc}/100 {price:.6g} {regime} ({n_strats} strats)")
+
+    result = "\n".join(lines)
+    if close_after: conn.close()
+    return result
 
 
 # ========== GPU THERMAL ==========
@@ -1502,8 +1809,9 @@ def print_results(signals, elapsed, cycle=0):
     print(f"{'='*60}")
 
 
-def run_single(top_n=3, min_score=MIN_SCORE, output_json=False, cycle=0, total_cycles=0):
-    """Execute un seul cycle de scan."""
+def run_single(top_n=3, min_score=MIN_SCORE, output_json=False,
+               cycle=0, total_cycles=0, db_conn=None):
+    """Execute un seul cycle de scan + sauvegarde DB."""
     thermal = print_banner(cycle, total_cycles)
     if thermal["status"] == "critical":
         print("  GPU thermal critique — pause 30s", file=sys.stderr)
@@ -1513,6 +1821,11 @@ def run_single(top_n=3, min_score=MIN_SCORE, output_json=False, cycle=0, total_c
     signals = asyncio.run(scan_sniper(top_n=top_n, min_score=min_score))
     elapsed = time.time() - t0
 
+    # Sauvegarde DB
+    if signals and cycle > 0:
+        thermal_max = thermal.get("max_temp", 0)
+        save_signals_to_db(signals, cycle, elapsed, TOP_VOLUME, thermal_max, conn=db_conn)
+
     if output_json:
         gpu_label = f"PyTorch {GPU_COUNT}xGPU" if GPU_AVAILABLE else "CPU"
         print(json.dumps({
@@ -1521,7 +1834,7 @@ def run_single(top_n=3, min_score=MIN_SCORE, output_json=False, cycle=0, total_c
                      "signals_found": len(signals), "min_score": min_score,
                      "strategies_count": 31, "version": "v4", "gpu": gpu_label,
                      "gpu_count": GPU_COUNT, "cycle": cycle,
-                     "thermal": thermal}
+                     "thermal": thermal, "db": str(DB_PATH)}
         }, indent=2, ensure_ascii=False))
     else:
         print_results(signals, elapsed, cycle)
@@ -1537,15 +1850,38 @@ def main():
     parser.add_argument("--interval", type=int, default=45, help="Intervalle entre cycles (sec)")
     parser.add_argument("--json", action="store_true", help="Output JSON")
     parser.add_argument("--no-gpu", action="store_true", help="Desactiver GPU")
+    parser.add_argument("--db-summary", action="store_true", help="Afficher resume DB et quitter")
+    parser.add_argument("--coin", type=str, help="Historique d'un coin specifique (ex: BTC_USDT)")
     args = parser.parse_args()
+
+    # Mode consultation DB
+    if args.db_summary:
+        conn = init_db()
+        print(get_db_summary(conn))
+        conn.close()
+        return
+    if args.coin:
+        conn = init_db()
+        sym = args.coin if "_USDT" in args.coin else f"{args.coin}_USDT"
+        print(get_coin_history(sym, conn))
+        conn.close()
+        return
 
     if args.no_gpu:
         global GPU_AVAILABLE, GPU_COUNT
         GPU_AVAILABLE = False
         GPU_COUNT = 0
 
+    # Init DB
+    db_conn = init_db()
+    print(f"  DB: {DB_PATH}", file=sys.stderr)
+
     if args.cycles == 1:
-        run_single(top_n=args.top, min_score=args.min_score, output_json=args.json)
+        run_single(top_n=args.top, min_score=args.min_score,
+                   output_json=args.json, cycle=1, db_conn=db_conn)
+        # Afficher resume DB apres scan unique
+        if not args.json:
+            print(get_db_summary(db_conn))
     else:
         cycle = 0
         total = args.cycles if args.cycles > 0 else 0
@@ -1553,21 +1889,26 @@ def main():
         t_start = time.time()
         print(f"\n{'*'*60}")
         gpu_label = f"PyTorch {GPU_COUNT}xGPU" if GPU_AVAILABLE else "CPU"
-        print(f"  SCAN SNIPER v4 — MODE CONTINU")
+        print(f"  SCAN SNIPER v4 — MODE CONTINU + SQL")
         print(f"  {total if total else 'infini'} cycles | interval {args.interval}s | {gpu_label}")
         print(f"  {TOP_VOLUME} coins x 31 strategies | Top {args.top}")
+        print(f"  DB: {DB_PATH}")
         print(f"{'*'*60}")
 
         try:
             while total == 0 or cycle < total:
                 cycle += 1
                 signals = run_single(top_n=args.top, min_score=args.min_score,
-                                     output_json=args.json, cycle=cycle, total_cycles=total)
+                                     output_json=args.json, cycle=cycle,
+                                     total_cycles=total, db_conn=db_conn)
                 cumul_signals += len(signals)
                 elapsed_total = time.time() - t_start
                 avg_per_cycle = elapsed_total / cycle
 
+                # Stats + resume DB toutes les 10 cycles
                 print(f"\n  --- Stats: {cycle} cycles | {cumul_signals} signaux cumules | {avg_per_cycle:.1f}s/cycle ---")
+                if cycle % 10 == 0 and not args.json:
+                    print(get_db_summary(db_conn))
 
                 if total == 0 or cycle < total:
                     thermal = check_gpu_thermal()
@@ -1584,9 +1925,13 @@ def main():
             elapsed_total = time.time() - t_start
             print(f"\n\n  Arret apres {cycle} cycles | {cumul_signals} signaux | {elapsed_total:.0f}s total")
 
+        # Resume final DB
         print(f"\n{'*'*60}")
         print(f"  SCAN TERMINE: {cycle} cycles | {cumul_signals} signaux | {time.time()-t_start:.0f}s")
         print(f"{'*'*60}")
+        print(get_db_summary(db_conn))
+
+    db_conn.close()
 
 
 if __name__ == "__main__":
