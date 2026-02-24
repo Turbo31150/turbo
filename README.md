@@ -1,17 +1,36 @@
-# JARVIS Etoile v10.3 — Orchestrateur IA Distribue
+# JARVIS Etoile v10.3 — Orchestrateur IA Distribue Multi-GPU
 
-**Repo prive — Turbo31150**
+**Repo prive — Turbo31150 | Derniere MAJ: 2026-02-24**
 
-**Claude = Commandant Pur. Il ne fait JAMAIS le travail lui-meme. Il ORDONNE, VERIFIE et ORCHESTRE.**
+> **Claude = Commandant Pur. Il ne fait JAMAIS le travail lui-meme. Il ORDONNE, VERIFIE et ORCHESTRE.**
 
 ```
-                    ╔═══════════════════════════════════════════╗
-                    ║       JARVIS ETOILE v10.3                 ║
-                    ║   Orchestrateur IA Multi-GPU Distribue    ║
-                    ║   10 GPU | 78 GB VRAM | 5 Noeuds IA      ║
-                    ║   7 Agents | 87 Outils MCP | Voice       ║
-                    ╚═══════════════════════════════════════════╝
+  ╔══════════════════════════════════════════════════════════════════╗
+  ║                     JARVIS ETOILE v10.3                         ║
+  ║           Orchestrateur IA Multi-GPU Distribue                  ║
+  ╠══════════════════════════════════════════════════════════════════╣
+  ║  10 GPU  |  78 GB VRAM  |  6 Noeuds IA (HEXA_CORE)            ║
+  ║  7 Agents Claude SDK  |  75 Outils + 88 Handlers MCP          ║
+  ║  1697 Commandes Vocales  |  278 Pipelines  |  84 Skills        ║
+  ║  28 Modules Source  |  26,768 Lignes Python  |  17 Launchers   ║
+  ║  Trading AI v2.3 Multi-GPU  |  Electron Desktop  |  Voice      ║
+  ╚══════════════════════════════════════════════════════════════════╝
 ```
+
+### Chiffres Cles
+
+| Metrique | Valeur | Detail |
+|----------|--------|--------|
+| **GPU** | 10 GPU / 78 GB VRAM | RTX 3080, RTX 2060, 3x GTX 1660S, 5x remote |
+| **Noeuds IA** | 6 (HEXA_CORE) | M1, M2, M3, OL1, GEMINI, CLAUDE |
+| **Agents** | 7 Claude SDK | deep, fast, check, trading, system, bridge, consensus |
+| **Outils MCP** | 75 SDK + 88 handlers | IA, Windows, Trading, Bridge, Brain, Skills |
+| **Commandes** | 1,697 vocales | 278 pipelines multi-etapes |
+| **Skills** | 84 dynamiques | 16 vagues |
+| **Modules** | 28 Python source | 26,768 lignes |
+| **Launchers** | 17 | .bat + .ps1 |
+| **Desktop** | Electron 33 + React 19 | Portable 72.5 MB |
+| **Trading** | v2.3 Multi-GPU | PyTorch 5xGPU + 6 IA consensus |
 
 ---
 
@@ -25,16 +44,19 @@
 6. [Routage Commander (benchmark-tuned)](#routage-commander-benchmark-tuned)
 7. [Workflow Consensus Multi-Source](#workflow-consensus-multi-source)
 8. [Seuil Thermique GPU](#seuil-thermique-gpu)
-9. [87 Outils MCP](#87-outils-mcp)
+9. [88 Outils MCP](#88-outils-mcp)
 10. [n8n Workflow Etoile](#n8n-workflow-etoile)
 11. [Architecture Vocale — Pipeline v2](#architecture-vocale--pipeline-v2-2026-02-22)
-12. [Trading MEXC](#trading-mexc-futures)
-13. [Modes de Lancement](#modes-de-lancement)
-14. [Structure du Projet](#structure-du-projet)
-15. [Bases de Donnees](#bases-de-donnees)
-16. [Installation & Configuration](#installation--configuration)
-17. [Appels API — Exemples Complets](#appels-api--exemples-complets)
-18. [1348 Commandes Vocales — Liste Complete](#812-commandes-vocales--liste-complete)
+12. [Trading MEXC Futures](#trading-mexc-futures)
+13. [Trading AI v2.3 — Pipeline GPU Multi-GPU](#trading-ai-v23--pipeline-gpu-multi-gpu)
+14. [JARVIS Desktop (Electron)](#jarvis-desktop-electron)
+15. [System Audit](#system-audit)
+16. [Modes de Lancement](#modes-de-lancement)
+17. [Structure du Projet](#structure-du-projet)
+18. [Bases de Donnees](#bases-de-donnees)
+19. [Installation & Configuration](#installation--configuration)
+20. [Appels API — Exemples Complets](#appels-api--exemples-complets)
+21. [1697 Commandes Vocales — Liste Complete](#1697-commandes-vocales--liste-complete)
 
 ---
 
@@ -914,6 +936,175 @@ MATCH     NO MATCH
 
 ---
 
+## Trading AI v2.3 — Pipeline GPU Multi-GPU
+
+**Pipeline vectorise PyTorch sur 5 GPU locaux avec consensus 6 IA en parallele.**
+
+```
+  ┌─────────────┐    ┌──────────────┐    ┌─────────────────────┐    ┌──────────────┐
+  │ DATA FETCH   │───>│ TENSOR 3D    │───>│ STRATEGIES (5 GPU)  │───>│ AI CONSENSUS │
+  │ MEXC API     │    │ [N,512,5]    │    │ PyTorch CUDA        │    │ 6 IA //      │
+  │ klines+depth │    │ OHLCV float32│    │ 100 strategies      │    │ vote pondere │
+  └─────────────┘    └──────────────┘    └─────────────────────┘    └──────────────┘
+       ~5s                 0ms              ~10s (multi-GPU)            15-97s
+```
+
+### Architecture Multi-GPU
+
+| GPU | Modele | VRAM | Role |
+|-----|--------|------|------|
+| GPU0 | RTX 2060 | 12 GB | Orchestrateur + chunk coins |
+| GPU1 | GTX 1660S | 6 GB | Worker chunk coins |
+| GPU2 | GTX 1660S | 6 GB | Worker chunk coins |
+| GPU3 | GTX 1660S | 6 GB | Worker chunk coins |
+| GPU4 | RTX 3080 | 10 GB | Primary (plus rapide) + chunk coins |
+
+Les coins sont splittes equitablement sur les 5 GPU via `ThreadPoolExecutor`. Chaque GPU calcule ses indicateurs et strategies independamment, puis les resultats sont merges CPU-side.
+
+### 3 Modes de Consensus
+
+| Mode | Flag | IA | Temps | Usage |
+|------|------|----|-------|-------|
+| **Quick** | `--quick` | M3 + OL1 (2 IA) | ~19s | Test rapide |
+| **Fast** | `--no-gemini` | M3 + OL1 + M1 + M2 + OL1-cloud (5 IA) | ~15-34s | Production recommande |
+| **Full** | (defaut) | + GEMINI (6 IA) | ~65-97s | Analyse profonde |
+
+### Consensus Parallele
+
+```
+  ThreadPoolExecutor (5 groups en parallele)
+  ├── M3/mistral-7b     (w=1.0)  ──> LONG/SHORT/HOLD + confidence
+  ├── GEMINI/proxy       (w=1.1)  ──> LONG/SHORT/HOLD + confidence
+  ├── OL1/minimax-cloud  (w=1.3)  ──> LONG/SHORT/HOLD + confidence
+  │   └── OL1/qwen3-1.7b (w=0.8) ──> (sequentiel meme machine)
+  ├── M1/qwen3-30b       (w=1.5)  ──> LONG/SHORT/HOLD + confidence
+  └── M2/gpt-oss-20b     (w=1.2)  ──> LONG/SHORT/HOLD + confidence
+
+  Vote pondere → bias + confidence + permission (>=60% + >=50%)
+  Signal types: STRONG_LONG | LONG | HOLD | SHORT | STRONG_SHORT
+```
+
+### 100 Strategies Vectorisees
+
+| Categorie | Nombre | Exemples |
+|-----------|--------|----------|
+| Breakout | 5 | EMA55 cross, volume spike, range break |
+| Reversal | 8 | Hammer, double bottom, divergence RSI, stoch RSI |
+| Momentum | 15+ | EMA stack, MACD, RSI trend, VWAP, BB width |
+| Mean Reversion | 3 | Z-score, BB bounce |
+| Order Book | 8 | Strong bid, extreme imbalance, momentum 30/35/40 |
+| EMA Cross | 10 | EMA 10/15/20/25/30/35/40/45/50/55 cross |
+
+### Commandes
+
+```bash
+# Quick scan (50 coins, 2 IA)
+python scripts/trading_v2/gpu_pipeline.py --coins 50 --top 5 --quick --json
+
+# Fast scan (100 coins, 5 IA sans Gemini) — RECOMMANDE
+python scripts/trading_v2/gpu_pipeline.py --coins 100 --top 10 --no-gemini --json
+
+# Full scan (200 coins, 6 IA)
+python scripts/trading_v2/gpu_pipeline.py --coins 200 --top 10 --json
+
+# Mode continu (boucle 5 min)
+python scripts/trading_v2/gpu_pipeline.py --coins 200 --top 10 --no-gemini --cycles 0 --interval 300 --json
+
+# Technique seul (sans consensus IA)
+python scripts/trading_v2/gpu_pipeline.py --coins 100 --top 10 --no-ai --json
+```
+
+### Fichiers Trading v2.3
+
+| Fichier | Lignes | Role |
+|---------|--------|------|
+| `scripts/trading_v2/gpu_pipeline.py` | ~290 | Pipeline principal, orchestration 5 phases |
+| `scripts/trading_v2/strategies.py` | ~745 | 100 strategies PyTorch multi-GPU |
+| `scripts/trading_v2/ai_consensus.py` | ~350 | Consensus 6 IA parallele, vote pondere |
+| `scripts/trading_v2/data_fetcher.py` | ~200 | Fetch MEXC API, tenseur 3D |
+| `scripts/trading_v2/dashboard_pro.html` | ~500 | Dashboard HTML interactif |
+
+---
+
+## JARVIS Desktop (Electron)
+
+**Application desktop Electron + React + Vite avec backend Python WebSocket.**
+
+```
+  ┌─────────────────────────────────┐     ┌─────────────────────────┐
+  │  ELECTRON 33 + React 19        │     │  PYTHON WS (FastAPI)    │
+  │  ├── Dashboard (cluster live)  │◄───►│  Port 9742              │
+  │  ├── Chat (IA conversationnel) │ WS  │  ├── /ws/cluster        │
+  │  ├── Trading (signaux live)    │     │  ├── /ws/trading        │
+  │  ├── Voice (STT/TTS controls)  │     │  ├── /ws/voice          │
+  │  └── Settings (config cluster) │     │  ├── /ws/chat           │
+  │                                │     │  ├── /ws/files          │
+  │  Widgets detachables:          │     │  └── /ws/system         │
+  │  ├── MiniCluster (320x200)     │     └─────────────────────────┘
+  │  ├── MiniTrading (320x180)     │
+  │  └── MiniVoice (200x100)       │
+  └─────────────────────────────────┘
+```
+
+| Composant | Tech | Detail |
+|-----------|------|--------|
+| Frontend | Electron 33 + React 19 + Vite 6 | Pages lazy-loaded, dark theme |
+| Backend | FastAPI + uvicorn | Port 9742, 6 canaux WebSocket |
+| Widgets | Always-on-top, detachables | MiniCluster, MiniTrading, MiniVoice |
+| System Tray | Icone cyan "J" | Navigation + widget toggles |
+| Shortcut | `Ctrl+Shift+J` | Toggle fenetre principale |
+| Build | Portable 72.5 MB / NSIS 80 MB | `electron/dist-release/` |
+
+### Fichiers Electron
+
+```
+electron/
+├── src/
+│   ├── main/          # Main process Electron
+│   ├── preload/       # Preload scripts (IPC bridge)
+│   └── renderer/      # React app (pages + components)
+├── package.json       # Electron 33, React 19, Vite 6
+└── electron-builder.yml
+
+python_ws/
+├── server.py          # FastAPI + uvicorn port 9742
+├── bridge.py          # Bridge cluster <-> Electron
+└── routes/
+    ├── cluster.py     # Cluster status live
+    ├── trading.py     # Signaux trading live
+    ├── voice.py       # STT/TTS controls
+    ├── chat.py        # Chat IA
+    ├── files.py       # File browser
+    └── system.py      # System info
+```
+
+---
+
+## System Audit
+
+**Diagnostic distribue asynchrone du cluster complet.**
+
+```bash
+# CLI
+uv run python scripts/system_audit.py [--json|--quick|--save]
+
+# Voix: "audit systeme", "diagnostic cluster", "health check"
+# MCP: system_audit tool
+```
+
+| Metrique | Dernier Audit (2026-02-23) |
+|----------|---------------------------|
+| **Noeuds online** | 5/5 |
+| **Grade** | A (82/100) |
+| **Latences** | OL1: 41ms, M3: 58ms, M2: 76ms, M1: 141ms, GEMINI: 41.4s |
+| **Stability** | 70/100 |
+| **Resilience** | 100/100 |
+| **Security** | 45/100 (6 issues) |
+| **Scalability** | 100/100 |
+| **SPOFs** | 4 identifies |
+
+---
+
 ## Modes de Lancement
 
 | Mode | Flag | Launcher | Description |
@@ -928,19 +1119,22 @@ MATCH     NO MATCH
 
 **TOUS les modes utilisent le COMMANDER_PROMPT par defaut.**
 
-### Launchers (.bat)
+### 17 Launchers
 
 | Launcher | Description |
 |----------|-------------|
-| `JARVIS_VOICE.bat` | Mode vocal complet |
+| `JARVIS.bat` | **Unified Electron** (auto-detecte portable vs dev) |
+| `JARVIS_VOICE.bat` | Mode vocal complet (wake word + Whisper + TTS) |
 | `JARVIS_KEYBOARD.bat` | Mode clavier + TTS |
 | `JARVIS_COMMANDER.bat` | Commander explicite |
 | `JARVIS_STATUS.bat` | Status cluster |
 | `JARVIS_OLLAMA.bat` | Mode Ollama cloud |
 | `JARVIS_BOOT.bat` | Boot cluster M1+M2 |
-| `JARVIS_FINETUNE.bat` | Pipeline fine-tuning |
-| `JARVIS_DASHBOARD.bat` | Dashboard web |
-| `PIPELINE_10.bat` | 10 paires trading |
+| `JARVIS_FINETUNE.bat` | Pipeline fine-tuning QLoRA |
+| `JARVIS_DASHBOARD.bat` | Dashboard web (port 8080) |
+| `JARVIS_DESKTOP.bat` | Dev Electron (hot reload) |
+| `JARVIS_GPU_PIPELINE.bat` | **Trading AI v2.3** (6 modes: quick/fast/full/tech/continu/dashboard) |
+| `PIPELINE_10.bat` | 10 paires trading legacy |
 | `SNIPER.bat` | Sniper breakout |
 | `SNIPER_10.bat` | Sniper 10 paires |
 | `TRIDENT.bat` | Triple strategie |
@@ -952,61 +1146,85 @@ MATCH     NO MATCH
 ## Structure du Projet
 
 ```
-F:\BUREAU\turbo\
-|-- main.py                      # Point d'entree (7 modes: -i -c -v -k -o -s "prompt")
-|-- pyproject.toml               # Dependencies (uv, Python 3.13)
-|-- gemini-proxy.js              # Proxy Gemini 3 Pro/Flash (timeout 2min, fallback 4 modeles)
-|-- benchmark_cluster.py         # Benchmark cluster 7 phases (health/inference/consensus/...)
-|-- benchmark_real_test.py       # Benchmark reel 10 niveaux de difficulte
-|-- CLAUDE_MULTI_AGENT.md        # Protocole MAO complet
-|-- .env                         # Variables d'env (API keys, DB paths)
-|-- .gitignore                   # .env, .venv/, __pycache__/, *.db, logs/
-|
-|-- src/
-|   |-- __init__.py              # Package init
-|   |-- orchestrator.py          # Moteur principal + COMMANDER_PROMPT + run_*()
-|   |-- commander.py             # Pipeline Commander (classify/decompose/verify/synthesize)
-|   |-- config.py                # Config cluster + routage benchmark-tuned + thermal
-|   |-- agents.py                # 7 agents Claude SDK (deep/fast/check/trading/system/bridge/consensus)
-|   |-- tools.py                 # 87 outils MCP SDK (IA, Windows, Trading, Brain, Skills)
-|   |-- mcp_server.py            # Serveur MCP stdio pour Claude Code (87 handlers)
-|   |-- commands.py              # 1348 commandes vocales (18 vagues + 4 extensions categories)
-|   |-- commands_pipelines.py    # 226 pipelines multi-etapes (modes, routines, Comet, dev, lifestyle)
-|   |-- commands_navigation.py   # 121 commandes navigation (social, IA, services, recherche)
-|   |-- commands_maintenance.py  # 126 commandes maintenance (monitoring, nettoyage, securite, inventaire)
-|   |-- commands_dev.py          # 100 commandes dev (git, ollama, docker, python, winget, WSL)
-|   |-- skills.py                # 86+ skills dynamiques (16 vagues)
-|   |-- voice.py                 # Whisper STT + SAPI TTS + push-to-talk
-|   |-- voice_correction.py      # Pipeline correction vocale (dict + OL1)
-|   |-- cluster_startup.py       # Boot cluster + thermal monitoring + GPU stats
-|   |-- trading.py               # Trading MEXC Futures (CCXT)
-|   |-- brain.py                 # Auto-apprentissage (patterns, suggestions)
-|   |-- executor.py              # Execution commandes/skills
-|   |-- windows.py               # API Windows (PowerShell, COM, WMI)
-|   |-- database.py              # SQLite persistence (jarvis.db)
-|   |-- scenarios.py             # 79+ scenarios validation (tests)
-|   |-- output.py                # Schema sortie JSON
-|   |-- whisper_worker.py        # Worker Whisper persistent (process separe)
-|   |-- dashboard.py             # API dashboard REST
-|   |-- systray.py               # System tray icon (Windows)
-|
-|-- dashboard/
-|   |-- server.py                # Serveur HTTP dashboard (stdlib, zero dep)
-|   |-- index.html               # UI dashboard (HTML/CSS/JS)
-|
-|-- data/
-|   |-- jarvis.db                # Base SQLite principale (6 tables)
-|   |-- benchmark_report.json    # Rapport benchmark cluster
-|   |-- benchmark_real_report.json # Rapport benchmark reel 10 niveaux
-|   |-- skills.json              # Skills persistantes
-|   |-- brain_state.json         # Etat cerveau auto-apprenant
-|   |-- jarvis_m1_prompt.txt     # Prompt compact pour M1
-|   |-- action_history.json      # Historique actions
-|   |-- etoile_workflow.json     # Workflow n8n Etoile (backup)
-|
-|-- launchers/                   # 14 fichiers .bat
-|-- finetuning/                  # Pipeline QLoRA (Qwen3-30B, 55k exemples)
-|-- scripts/                     # Scripts startup M1/M2
+F:\BUREAU\turbo\                            # 26,768 lignes Python
+│
+├── main.py                                 # Point d'entree (7 modes: -i -c -v -k -o -s "prompt")
+├── pyproject.toml                          # Dependencies (uv, Python 3.13)
+├── gemini-proxy.js                         # Proxy Gemini 3 Pro/Flash (timeout 2min, fallback)
+├── claude-proxy.js                         # Proxy Claude opus/sonnet/haiku (spawn, sanitize env)
+├── claude-openai-bridge.js                 # Bridge OpenAI-compatible pour Claude
+├── benchmark_cluster.py                    # Benchmark cluster 7 phases (score 96%)
+├── CLAUDE_MULTI_AGENT.md                   # Protocole MAO (Multi-Agent Orchestrator)
+│
+├── src/                                    # 28 modules source
+│   ├── orchestrator.py                     # Moteur principal + COMMANDER_PROMPT
+│   ├── commander.py                        # Pipeline Commander (classify/decompose/enrich)
+│   ├── config.py                           # Config cluster + routage + 22 regles
+│   ├── agents.py                           # 7 agents Claude SDK
+│   ├── tools.py                            # 75 outils MCP SDK (v3.4.0+)
+│   ├── mcp_server.py                       # 88 handlers MCP standalone
+│   ├── commands.py                         # Commandes vocales principales
+│   ├── commands_pipelines.py               # 278 pipelines multi-etapes
+│   ├── commands_navigation.py              # Commandes navigation
+│   ├── commands_maintenance.py             # Commandes maintenance
+│   ├── commands_dev.py                     # Commandes dev (git, ollama, docker)
+│   ├── skills.py                           # 84 skills dynamiques
+│   ├── voice.py                            # Pipeline vocale (Whisper + TTS)
+│   ├── voice_correction.py                 # Correction vocale (dict + OL1)
+│   ├── wake_word.py                        # OpenWakeWord "jarvis" (seuil 0.7)
+│   ├── tts_streaming.py                    # TTS streaming Edge fr-FR-HenriNeural
+│   ├── whisper_worker.py                   # Whisper large-v3-turbo CUDA (process)
+│   ├── cluster_startup.py                  # Boot cluster + thermal + GPU stats
+│   ├── trading.py                          # Trading MEXC Futures (CCXT)
+│   ├── brain.py                            # Auto-apprentissage (patterns)
+│   ├── executor.py                         # Execution commandes/skills
+│   ├── windows.py                          # API Windows (PowerShell, COM, WMI)
+│   ├── database.py                         # SQLite persistence
+│   ├── scenarios.py                        # Scenarios validation
+│   ├── output.py                           # Schema sortie JSON
+│   ├── dashboard.py                        # API dashboard REST
+│   └── systray.py                          # System tray icon
+│
+├── scripts/
+│   ├── system_audit.py                     # Audit distribue (~1010 lignes, 8 tests)
+│   ├── gpu_trading_pipeline.py             # Pipeline trading GPU legacy
+│   ├── scan_sniper.py                      # Scanner sniper breakout
+│   ├── update_etoile_full.py               # MAJ etoile.db
+│   ├── gen_catalogue.py                    # Generateur catalogue commandes
+│   └── trading_v2/                         # Trading AI v2.3 Multi-GPU
+│       ├── gpu_pipeline.py                 # Pipeline 5 phases (PyTorch 5xGPU)
+│       ├── strategies.py                   # 100 strategies vectorisees PyTorch
+│       ├── ai_consensus.py                 # Consensus 6 IA parallele
+│       ├── data_fetcher.py                 # Fetch MEXC API + tenseur 3D
+│       └── dashboard_pro.html              # Dashboard HTML interactif
+│
+├── electron/                               # JARVIS Desktop (Electron 33 + React 19)
+│   ├── src/main/                           # Main process
+│   ├── src/preload/                        # Preload IPC bridge
+│   ├── src/renderer/                       # React app (5 pages)
+│   └── electron-builder.yml                # Build config
+│
+├── python_ws/                              # Backend WebSocket (FastAPI port 9742)
+│   ├── server.py                           # Serveur FastAPI + uvicorn
+│   ├── bridge.py                           # Bridge cluster <-> Electron
+│   └── routes/                             # 6 routes WS (cluster/trading/voice/chat/files/system)
+│
+├── dashboard/                              # Dashboard web (stdlib, port 8080)
+│   ├── server.py                           # Serveur HTTP zero dep
+│   └── index.html                          # UI dashboard
+│
+├── launchers/                              # 17 fichiers (.bat + .ps1)
+├── finetuning/                             # Pipeline QLoRA (Qwen3-30B, 55k exemples)
+├── docs/                                   # Documentation + plans
+│   ├── CATALOGUE_COMMANDES.md
+│   ├── COMMANDES_VOCALES.md
+│   ├── INSTALL.md
+│   ├── JARVIS_COMPLETE_REFERENCE.md
+│   ├── N8N_WORKFLOWS.md
+│   └── plans/                              # Design docs
+└── data/                                   # Donnees runtime
+    ├── jarvis.db                           # Base principale (6 tables)
+    └── trading_v2/                         # Signaux pipeline JSON
 ```
 
 ---
@@ -1015,10 +1233,10 @@ F:\BUREAU\turbo\
 
 | Base | Chemin | Tables | Usage |
 |------|--------|--------|-------|
-| **jarvis.db** | `F:\BUREAU\turbo\data\` | 6 (skills, actions, historique...) | Base principale JARVIS |
-| **etoile.db** | `F:\BUREAU\` | 6 (agents, api_keys, skills_log, sessions, memories, metrics) | Orchestration distribuee |
+| **jarvis.db** | `data/` | 6 (skills, actions, historique...) | Base principale JARVIS |
+| **etoile.db** | `F:\BUREAU\` | 11 tables, 2273 map entries | Carte HEXA_CORE, cles API, agents |
 | **trading_latest.db** | `F:\BUREAU\carV1\database\` | trades, signaux | Trading carV1 |
-| **trading.db** | `F:\BUREAU\TRADING_V2_PRODUCTION\database\` | predictions | Trading v2 |
+| **trading.db** | `F:\BUREAU\TRADING_V2_PRODUCTION\database\` | predictions | Trading v2 production |
 
 ---
 

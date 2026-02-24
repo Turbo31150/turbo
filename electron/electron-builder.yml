@@ -1,0 +1,25 @@
+appId: com.jarvis.desktop
+productName: JARVIS Turbo
+
+directories:
+  output: dist-release
+
+files:
+  - dist/**
+  - dist-electron/**
+
+extraResources:
+  - from: ../python_ws
+    to: python_ws
+    filter:
+      - "**/*.py"
+      - "**/__init__.py"
+
+win:
+  target:
+    - nsis
+    - portable
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true

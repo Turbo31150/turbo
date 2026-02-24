@@ -1,0 +1,1 @@
+Place jarvis-icon.ico and tray-icon.png here

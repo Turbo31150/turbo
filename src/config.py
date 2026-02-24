@@ -70,6 +70,11 @@ SCRIPTS = {
     "master_interaction":    PATHS["jarvis_legacy"] / "master_interaction_node.py",
     # Disk Cleaner
     "disk_cleaner":          PATHS["disk_cleaner"] / "disk_cleaner.py",
+    # Trading AI v2.2 GPU Pipeline
+    "trading_v2_pipeline":   PATHS["turbo"] / "scripts/trading_v2/gpu_pipeline.py",
+    "trading_v2_consensus":  PATHS["turbo"] / "scripts/trading_v2/ai_consensus.py",
+    "trading_v2_data":       PATHS["turbo"] / "scripts/trading_v2/data_fetcher.py",
+    "trading_v2_strategies": PATHS["turbo"] / "scripts/trading_v2/strategies.py",
 }
 
 
@@ -116,6 +121,20 @@ class GeminiNode:
     weight: float = 1.2
     use_cases: list[str] = field(default_factory=lambda: [
         "Architecture", "Vision", "Review code", "Consensus critique"
+    ])
+
+
+@dataclass
+class ClaudeNode:
+    name: str = "CLAUDE"
+    proxy_path: str = "F:/BUREAU/turbo/claude-proxy.js"
+    role: str = "cloud_reasoning"
+    models: list[str] = field(default_factory=lambda: ["opus", "sonnet", "haiku"])
+    default_model: str = "opus"
+    timeout_ms: int = 120_000
+    weight: float = 1.2
+    use_cases: list[str] = field(default_factory=lambda: [
+        "Raisonnement cloud", "Review code avance", "Consensus critique", "Architecture"
     ])
 
 
@@ -175,6 +194,9 @@ class JarvisConfig:
     # ── Gemini node ────────────────────────────────────────────────────────
     gemini_node: GeminiNode = field(default_factory=GeminiNode)
 
+    # ── Claude node (via claude-proxy.js) ─────────────────────────────────
+    claude_node: ClaudeNode = field(default_factory=ClaudeNode)
+
     # ── Model catalog (all available models) ──────────────────────────────
     # M1 permanent: qwen3-30b (18.56 GB, ctx 32768, MoE 3B actifs)
     # M1 on-demand: qwen3-coder-30b (code), devstral (dev), gpt-oss-20b (general)
@@ -209,13 +231,13 @@ class JarvisConfig:
         "validation":      ["M2", "OL1"],
         "critical":        ["M2", "OL1", "GEMINI"],
         "web_research":    ["OL1"],
-        "reasoning":       ["M2", "OL1"],
+        "reasoning":       ["CLAUDE", "M2"],
         "voice_correction": ["OL1"],
         "auto_learn":      ["OL1", "M2"],
         "embedding":       ["M1"],
-        "consensus":       ["M2", "OL1", "M3", "M1", "GEMINI"],
-        "architecture":    ["GEMINI", "M2"],
-        "bridge":          ["M2", "OL1", "M3", "M1", "GEMINI"],
+        "consensus":       ["M2", "OL1", "M3", "M1", "GEMINI", "CLAUDE"],
+        "architecture":    ["GEMINI", "CLAUDE", "M2"],
+        "bridge":          ["M2", "OL1", "M3", "M1", "GEMINI", "CLAUDE"],
     })
 
     # ── Commander Mode routing (benchmark-tuned 2026-02-20) ─────────────

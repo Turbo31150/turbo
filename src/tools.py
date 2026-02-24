@@ -934,6 +934,37 @@ async def list_project_paths(args: dict[str, Any]) -> dict[str, Any]:
     return _text("Projets:\n" + "\n".join(lines))
 
 
+@tool("trading_pipeline_v2", "Pipeline GPU Trading AI v2.2 — 100 strategies + consensus 5 IA. Args: coins (int), top (int), quick (bool), no_ai (bool), json_output (bool).", {"coins": int, "top": int, "quick": bool, "no_ai": bool, "json_output": bool})
+async def trading_pipeline_v2(args: dict[str, Any]) -> dict[str, Any]:
+    """Lance le pipeline GPU Trading AI v2.2."""
+    script = SCRIPTS.get("trading_v2_pipeline")
+    if not script or not script.exists():
+        return _error("Script trading_v2_pipeline absent")
+    cmd = [sys.executable, str(script)]
+    if args.get("coins"):
+        cmd.extend(["--coins", str(args["coins"])])
+    if args.get("top"):
+        cmd.extend(["--top", str(args["top"])])
+    if args.get("quick"):
+        cmd.append("--quick")
+    if args.get("no_ai"):
+        cmd.append("--no-ai")
+    if args.get("json_output"):
+        cmd.append("--json")
+    try:
+        env = {**__import__("os").environ, "PYTHONIOENCODING": "utf-8"}
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=300,
+                           cwd=str(script.parent), env=env)
+        out = r.stdout[-4000:] if len(r.stdout) > 4000 else r.stdout
+        if r.returncode != 0:
+            out += f"\n[STDERR] {r.stderr[-1000:]}"
+        return _text(f"[Trading AI v2.2] exit={r.returncode}\n{out}")
+    except subprocess.TimeoutExpired:
+        return _error("Timeout 300s: pipeline GPU")
+    except Exception as e:
+        return _error(str(e))
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # WINDOWS — APPLICATIONS
 # ═══════════════════════════════════════════════════════════════════════════
