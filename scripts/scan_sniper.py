@@ -963,14 +963,23 @@ async def ai_consensus_signals(signals, mtf_data=None):
 
     t0 = time.time()
     async with httpx.AsyncClient() as client:
-        results = await asyncio.gather(
-            ai_query_lmstudio(client, LM_M1, prompt_reason, timeout=60),
+        tasks = [
             ai_query_lmstudio(client, LM_M2, prompt_tech, timeout=45),
             ai_query_lmstudio(client, LM_M3, prompt_valid, timeout=30),
             ai_query_ollama(client, prompt_fast, timeout=15),
             ai_query_gemini(prompt_vision, timeout=45),
-            return_exceptions=True,
-        )
+        ]
+        # M1 uniquement si disponible (souvent timeout/bloque)
+        try:
+            r = await asyncio.wait_for(
+                client.get(f"{LM_M1['url'].replace('/chat','')}/models",
+                           headers={"Authorization": f"Bearer {LM_M1['key']}"}, timeout=3),
+                timeout=3)
+            if r.status_code == 200:
+                tasks.insert(0, ai_query_lmstudio(client, LM_M1, prompt_reason, timeout=45))
+        except Exception:
+            pass  # M1 offline, skip
+        results = await asyncio.gather(*tasks, return_exceptions=True)
     elapsed = int((time.time() - t0) * 1000)
 
     consensus = {"agents": [], "elapsed_ms": elapsed, "votes": {}}
@@ -2102,10 +2111,11 @@ async def scan_sniper(top_n=3, min_score=MIN_SCORE, use_gpu=True, use_ai=True):
         # === PHASE 7: AI Consensus (5 agents paralleles) ===
         ai_result = {}
         if use_ai and all_signals:
-            print(f"[7/7] AI Consensus: M1/qwq + M2/deepseek + M3/mistral + OL1/qwen3 + GEMINI...", file=sys.stderr)
+            print(f"[7/7] AI Consensus: M1?+M2+M3+OL1+GEMINI (5 agents, M1 si dispo)...", file=sys.stderr)
             ai_result = await ai_consensus_signals(all_signals[:top_n], mtf_analysis)
+            n_total = len(ai_result.get("agents", []))
             n_ok = sum(1 for a in ai_result.get("agents", []) if a.get("ok"))
-            print(f"[7/7] AI: {n_ok}/5 agents repondus ({ai_result.get('elapsed_ms', 0)}ms)", file=sys.stderr)
+            print(f"[7/7] AI: {n_ok}/{n_total} agents repondus ({ai_result.get('elapsed_ms', 0)}ms)", file=sys.stderr)
 
             # Print AI responses
             for agent in ai_result.get("agents", []):
