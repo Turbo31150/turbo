@@ -1409,6 +1409,27 @@ COMMANDS: list[JarvisCommand] = [
         "lance hyper scan", "hyper scan", "scan intensif",
         "lance le scan intensif",
     ], "script", "hyper_scan_v2"),
+    JarvisCommand("pipeline_gpu_v2", "trading", "Lancer le pipeline GPU Trading AI v2.2", [
+        "lance le pipeline gpu", "pipeline gpu", "trading ai v2",
+        "lance trading v2", "gpu trading", "lance gpu pipeline",
+        "demarre le pipeline gpu", "scan gpu", "trading gpu",
+    ], "script", "trading_v2_pipeline", confirm=True),
+    JarvisCommand("pipeline_gpu_quick", "trading", "Pipeline GPU mode rapide (M3+OL1)", [
+        "pipeline rapide", "quick scan", "scan rapide",
+        "pipeline gpu rapide", "gpu quick",
+    ], "script", "trading_v2_pipeline --quick --coins 50 --top 5"),
+    JarvisCommand("pipeline_gpu_fast", "trading", "Pipeline GPU 5 IA sans Gemini (rapide)", [
+        "pipeline fast", "scan fast", "pipeline sans gemini",
+        "gpu fast", "pipeline cinq ia", "scan rapide cinq ia",
+    ], "script", "trading_v2_pipeline --no-gemini --coins 100 --top 10 --json"),
+    JarvisCommand("pipeline_gpu_no_ai", "trading", "Pipeline GPU sans consensus IA", [
+        "scan technique", "analyse technique pure",
+        "pipeline sans ia", "scan sans consensus",
+    ], "script", "trading_v2_pipeline --no-ai --coins 100"),
+    JarvisCommand("consensus_trading", "trading", "Consensus 5 IA sur un signal trading", [
+        "consensus trading {symbol}", "analyse ia {symbol}",
+        "consensus sur {symbol}", "demande aux ia {symbol}",
+    ], "jarvis_tool", "trading_pipeline_v2:consensus:{symbol}", ["symbol"]),
     JarvisCommand("statut_cluster", "trading", "Statut du cluster IA", [
         "statut du cluster", "etat du cluster", "statut cluster",
         "status cluster", "verifie le cluster", "comment va le cluster",

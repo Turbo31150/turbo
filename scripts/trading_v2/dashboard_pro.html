@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trading AI v2.2 | Dashboard Pro</title>
+<style>
+  :root {
+    --bg: #0a0e17; --card: #131a2b; --border: #1e2a3f;
+    --cyan: #00d4ff; --green: #00ff88; --red: #ff4466;
+    --yellow: #ffaa00; --text: #e0e8f0; --muted: #6b7b8d;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', monospace; }
+  .header { display:flex; justify-content:space-between; align-items:center; padding:16px 24px; border-bottom:1px solid var(--border); }
+  .header h1 { font-size:20px; color:var(--cyan); }
+  .header .meta { font-size:12px; color:var(--muted); }
+  .grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; padding:16px 24px; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px; }
+  .card h3 { font-size:13px; color:var(--muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:1px; }
+  .signals { grid-column:1/3; }
+  .cluster { grid-column:1/4; }
+  .signal-row { display:grid; grid-template-columns:40px 100px 60px 1fr 80px 80px; gap:8px; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); font-size:13px; cursor:pointer; }
+  .long { color:var(--green); } .short { color:var(--red); } .hold { color:var(--yellow); }
+  .stats { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .stat { text-align:center; }
+  .stat .value { font-size:28px; font-weight:bold; color:var(--cyan); }
+  .stat .label { font-size:11px; color:var(--muted); }
+  .cluster-grid { display:grid; grid-template-columns:repeat(5, 1fr); gap:12px; }
+  .node { background:#0d1320; border:1px solid var(--border); border-radius:6px; padding:12px; text-align:center; }
+  .node .name { font-weight:bold; font-size:14px; }
+  .node .model { font-size:11px; color:var(--muted); }
+  .refresh-btn { background:var(--cyan); color:#000; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; font-weight:bold; }
+  #log { background:#0d1320; padding:12px; border-radius:6px; font-size:11px; font-family:monospace; max-height:200px; overflow-y:auto; color:var(--muted); white-space:pre-wrap; }
+  .detail-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:12px; font-family:monospace; font-size:12px; }
+  .detail-grid .sl { color:var(--red); } .detail-grid .tp { color:var(--green); } .detail-grid .entry { color:var(--cyan); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>TRADING AI v2.2 | GPU Pipeline</h1>
+  <div class="meta" id="timestamp">--</div>
+  <button class="refresh-btn" onclick="loadData()">Charger JSON</button>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h3>Pipeline Stats</h3>
+    <div class="stats">
+      <div class="stat"><div class="value" id="st-coins">--</div><div class="label">Coins scannes</div></div>
+      <div class="stat"><div class="value" id="st-signals">--</div><div class="label">Signaux</div></div>
+      <div class="stat"><div class="value" id="st-time">--</div><div class="label">Temps (ms)</div></div>
+      <div class="stat"><div class="value" id="st-strats">100</div><div class="label">Strategies</div></div>
+    </div>
+  </div>
+
+  <div class="card signals">
+    <h3>Top Signaux</h3>
+    <div id="signals-body"></div>
+  </div>
+
+  <div class="card">
+    <h3>AI Consensus</h3>
+    <div id="consensus-body"></div>
+  </div>
+
+  <div class="card cluster">
+    <h3>Cluster JARVIS</h3>
+    <div class="cluster-grid" id="cluster-nodes"></div>
+  </div>
+
+  <div class="card" style="grid-column:1/3;">
+    <h3>Entry/Exit Detail</h3>
+    <div id="entry-detail"></div>
+  </div>
+
+  <div class="card">
+    <h3>Log</h3>
+    <div id="log">Dashboard initialise.</div>
+  </div>
+</div>
+
+<script>
+/* Note: Ce dashboard est local, les donnees proviennent de fichiers JSON generes par le pipeline.
+   Utilisation de DOM API safe (createElement/textContent) au lieu de innerHTML. */
+
+const CLUSTER_NODES = [
+  {name:'M2', model:'deepseek-coder', info:'w=1.2 | Code', status:'ok'},
+  {name:'M3', model:'mistral-7b', info:'w=1.0 | Fast', status:'ok'},
+  {name:'OL1', model:'minimax-cloud', info:'w=1.3 | Web', status:'ok'},
+  {name:'M1', model:'qwen3-30b', info:'w=1.5 | Think', status:'warn'},
+  {name:'GEMINI', model:'proxy', info:'w=1.1 | Valid', status:'ok'},
+];
+
+let pipelineData = null;
+
+function log(msg) {
+  const el = document.getElementById('log');
+  el.textContent += '\n' + new Date().toLocaleTimeString() + ' ' + msg;
+  el.scrollTop = el.scrollHeight;
+}
+
+function el(tag, attrs, children) {
+  const e = document.createElement(tag);
+  if (attrs) Object.entries(attrs).forEach(([k,v]) => {
+    if (k === 'style' && typeof v === 'object') Object.assign(e.style, v);
+    else if (k === 'className') e.className = v;
+    else if (k === 'onclick') e.onclick = v;
+    else e.setAttribute(k, v);
+  });
+  if (children) {
+    if (typeof children === 'string') e.textContent = children;
+    else if (Array.isArray(children)) children.forEach(c => { if (c) e.appendChild(c); });
+  }
+  return e;
+}
+
+function initCluster() {
+  const container = document.getElementById('cluster-nodes');
+  CLUSTER_NODES.forEach(n => {
+    const node = el('div', {className:'node'}, [
+      el('div', {className:'name'}, n.name),
+      el('div', {className:'model'}, n.model),
+      el('div', {className:'latency', style:{color: n.status==='ok'?'var(--green)':'var(--yellow)'}}, n.info),
+    ]);
+    container.appendChild(node);
+  });
+}
+
+function loadData() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        pipelineData = JSON.parse(ev.target.result);
+        renderData(pipelineData);
+        log('Donnees chargees: ' + file.name);
+      } catch(err) {
+        log('Erreur JSON: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function renderData(data) {
+  const meta = data.meta || {};
+  const signals = data.signals || [];
+
+  document.getElementById('st-coins').textContent = meta.coins_scanned || '--';
+  document.getElementById('st-signals').textContent = meta.signals_found || signals.length;
+  document.getElementById('st-time').textContent = meta.total_ms || '--';
+  document.getElementById('timestamp').textContent = meta.timestamp || '--';
+
+  const body = document.getElementById('signals-body');
+  while (body.firstChild) body.removeChild(body.firstChild);
+
+  // Header row
+  const header = el('div', {className:'signal-row', style:{fontWeight:'bold', color:'var(--muted)', fontSize:'11px'}}, [
+    el('div', null, '#'), el('div', null, 'Symbol'), el('div', null, 'Dir'),
+    el('div', null, 'Confiance'), el('div', null, 'Regime'), el('div', null, 'OB Imb'),
+  ]);
+  body.appendChild(header);
+
+  signals.forEach(function(sig) {
+    const dirClass = sig.direction === 'LONG' ? 'long' : 'short';
+    const confPct = Math.round(sig.confidence * 100);
+    const regime = sig.market_regime || 'transition';
+
+    const row = el('div', {className:'signal-row', onclick:function(){showDetail(sig);}}, [
+      el('div', {style:{color:'var(--muted)', textAlign:'center'}}, String(sig.rank)),
+      el('div', {style:{fontWeight:'bold'}}, sig.symbol.replace('_USDT','')),
+      el('div', {className:dirClass}, sig.direction),
+      el('div', null, confPct + '%'),
+      el('div', null, regime),
+      el('div', null, sig.ob_imbalance != null ? sig.ob_imbalance.toFixed(2) : '--'),
+    ]);
+    body.appendChild(row);
+  });
+}
+
+function showDetail(sig) {
+  const ee = sig.entry_exit || {};
+  const detail = document.getElementById('entry-detail');
+  while (detail.firstChild) detail.removeChild(detail.firstChild);
+
+  const title = el('div', {style:{fontSize:'16px', fontWeight:'bold', marginBottom:'8px'}}, [
+    document.createTextNode(sig.symbol + ' '),
+    el('span', {className: sig.direction==='LONG'?'long':'short'}, sig.direction),
+  ]);
+  detail.appendChild(title);
+
+  const grid = el('div', {className:'detail-grid'}, [
+    el('div', null, [el('div', {style:{color:'var(--muted)'}}, 'Entry'), el('div', {className:'entry'}, String(ee.entry_price || '--'))]),
+    el('div', null, [el('div', {style:{color:'var(--muted)'}}, 'Stop Loss'), el('div', {className:'sl'}, String(ee.sl || '--'))]),
+    el('div', null, [el('div', {style:{color:'var(--muted)'}}, 'TP1'), el('div', {className:'tp'}, String(ee.tp1 || '--'))]),
+    el('div', null, [el('div', {style:{color:'var(--muted)'}}, 'TP2'), el('div', {className:'tp'}, String(ee.tp2 || '--'))]),
+  ]);
+  detail.appendChild(grid);
+
+  const info = el('div', {style:{marginTop:'8px', fontSize:'11px', color:'var(--muted)'}},
+    'ATR: ' + sig.atr + ' | Strategies: ' + sig.strategies_count + ' | OB: ' + sig.ob_imbalance +
+    '\nTop: ' + (sig.strategies||[]).slice(0,5).join(', '));
+  detail.appendChild(info);
+
+  // Consensus
+  const cb = document.getElementById('consensus-body');
+  while (cb.firstChild) cb.removeChild(cb.firstChild);
+
+  if (sig.consensus) {
+    const c = sig.consensus;
+    const rows = [
+      ['Bias', c.bias, c.bias==='LONG'?'long':c.bias==='SHORT'?'short':'hold'],
+      ['Confiance', (c.confidence*100).toFixed(1) + '%', ''],
+      ['Consensus', (c.pct*100).toFixed(1) + '%', ''],
+      ['Permission', c.permission?'OUI':'NON', c.permission?'long':'short'],
+      ['Votes', c.votes, ''],
+      ['Tag', c.market_tag, ''],
+      ['Temps', c.timing_ms + 'ms', ''],
+    ];
+    rows.forEach(function(r) {
+      const row = el('div', {style:{display:'flex', justifyContent:'space-between', padding:'4px 0', fontSize:'12px', borderBottom:'1px solid var(--border)'}}, [
+        el('span', {style:{color:'var(--muted)'}}, r[0]),
+        el('span', r[2] ? {className:r[2]} : null, r[1]),
+      ]);
+      cb.appendChild(row);
+    });
+  } else {
+    cb.appendChild(el('div', {style:{color:'var(--muted)', fontSize:'12px'}}, 'Pas de consensus IA'));
+  }
+
+  log('Detail: ' + sig.symbol + ' ' + sig.direction);
+}
+
+initCluster();
+
+// WebSocket pour live updates
+try {
+  const ws = new WebSocket('ws://127.0.0.1:9742/ws/trading');
+  ws.onmessage = function(e) {
+    try {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'pipeline_result') {
+        pipelineData = msg.data;
+        renderData(msg.data);
+        log('Live update recu');
+      }
+    } catch(err) {}
+  };
+  ws.onopen = function() { log('WebSocket connecte'); };
+  ws.onerror = function() { log('WebSocket non disponible (mode fichier)'); };
+} catch(e) {}
+</script>
+
+</body>
+</html>

@@ -461,6 +461,36 @@ async def handle_list_scripts(args: dict) -> list[TextContent]:
     return _text(f"Scripts ({len(SCRIPTS)}):\n" + "\n".join(lines))
 
 
+async def handle_trading_pipeline_v2(args: dict) -> list[TextContent]:
+    """Pipeline GPU Trading AI v2.2 — 100 strategies + consensus 5 IA."""
+    import subprocess
+    script = SCRIPTS.get("trading_v2_pipeline")
+    if not script or not script.exists():
+        return _error("Script trading_v2_pipeline absent")
+    cmd_args = [sys.executable, str(script)]
+    coins = args.get("coins", 50)
+    top = args.get("top", 5)
+    cmd_args.extend(["--coins", str(coins), "--top", str(top)])
+    if args.get("quick"):
+        cmd_args.append("--quick")
+    if args.get("no_ai"):
+        cmd_args.append("--no-ai")
+    if args.get("json_output"):
+        cmd_args.append("--json")
+    def _do():
+        import os
+        env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
+        r = subprocess.run(cmd_args, capture_output=True, text=True,
+                           timeout=300, cwd=str(script.parent), env=env)
+        return r.stdout[:5000] if r.returncode == 0 else f"ERREUR (exit={r.returncode}):\n{r.stderr[:2000]}"
+    try:
+        return _text(await asyncio.to_thread(_do))
+    except subprocess.TimeoutExpired:
+        return _error("Timeout 300s: pipeline GPU v2.2")
+    except Exception as e:
+        return _error(str(e))
+
+
 async def handle_list_project_paths(args: dict) -> list[TextContent]:
     lines = [f"  {k}: {v}" for k, v in PATHS.items()]
     return _text(f"Projets ({len(PATHS)}):\n" + "\n".join(lines))
@@ -1044,6 +1074,8 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     ("ollama_web_search", "Recherche web via Ollama cloud.", {"query": "string", "model": "string"}, handle_ollama_web_search),
     ("ollama_subagents", "3 sous-agents Ollama cloud en parallele.", {"task": "string", "aspects": "string"}, handle_ollama_subagents),
     ("ollama_trading_analysis", "Analyse trading via 3 agents cloud.", {"pair": "string", "timeframe": "string"}, handle_ollama_trading_analysis),
+    # Trading AI v2.2 (1)
+    ("trading_pipeline_v2", "Pipeline GPU Trading AI v2.2 — 100 strategies + consensus 5 IA.", {"coins": "number", "top": "number", "quick": "boolean", "no_ai": "boolean", "json_output": "boolean"}, handle_trading_pipeline_v2),
     # Scripts (3)
     ("run_script", "Executer un script indexe.", {"name": "string", "args": "string"}, handle_run_script),
     ("list_scripts", "Lister tous les scripts indexes.", {}, handle_list_scripts),

@@ -1,11 +1,56 @@
-.env
+# Python
 .venv/
 __pycache__/
 *.pyc
 *.pyo
+*.egg-info/
+
+# Environment & secrets
+.env
+.env.*
+*.secret
+
+# Claude Code
 .claude/settings.local.json
+
+# Databases (sensitive data)
 *.db
-!etoile.db
+!data/etoile_schema.sql
+
+# Logs
 logs/
+*.log
+
+# Test/benchmark artifacts
 _test_*.py
 _benchmark_*.py
+
+# Trading data (generated, large)
+data/audit_*.json
+data/pipeline_*.json
+data/trading_v2/pipeline_*.json
+data/benchmark_report.json
+
+# Electron build artifacts
+electron/dist/
+electron/dist-release/
+electron/node_modules/
+electron/.vite/
+
+# Python WS
+python_ws/__pycache__/
+
+# Fine-tuning offload
+finetuning/offload/
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Node
+node_modules/
+package-lock.json
+
+# Temp
+0
