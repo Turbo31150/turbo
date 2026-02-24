@@ -891,7 +891,7 @@ async def ai_query_lmstudio(client, node, prompt, timeout=15):
     """Query un noeud LM Studio (M2 ou M3)."""
     try:
         payload = {"model": node["model"], "input": prompt,
-                   "temperature": 0.3, "max_output_tokens": 512, "stream": False, "store": False}
+                   "temperature": 0.3, "max_output_tokens": 128, "stream": False, "store": False}
         headers = {"Content-Type": "application/json",
                    "Authorization": f"Bearer {node['key']}"}
         r = await client.post(node["url"], json=payload, headers=headers, timeout=timeout)
@@ -953,18 +953,18 @@ async def ai_consensus_signals(signals, mtf_data=None):
         )
     market = "\n".join(sig_lines)
 
-    prompt_tech = f"Analyse technique concise. Pour chaque coin: GO/WAIT/SKIP + confiance 0-100. Max 3 lignes/coin.\n\n{market}"
-    prompt_valid = f"Valide ou invalide ces signaux. Pour chaque: OK/DANGER + raison 1 ligne.\n\n{market}"
-    prompt_fast = f"Top signal parmi ceux-ci? 2 lignes max.\n{market}"
-    prompt_vision = f"Analyse macro {len(signals)} signaux futures. Tendance? Risque? Meilleur entry? 5 lignes.\n\n{market}"
+    prompt_tech = f"GO/WAIT/SKIP pour chaque coin. 1 mot par coin.\n{market}"
+    prompt_valid = f"OK ou DANGER pour chaque. 1 mot par coin.\n{market}"
+    prompt_fast = f"Meilleur coin? 1 ligne.\n{market}"
+    prompt_vision = f"Tendance + meilleur entry? 3 lignes max.\n{market}"
 
     t0 = time.time()
     async with httpx.AsyncClient() as client:
         results = await asyncio.gather(
-            ai_query_lmstudio(client, LM_M2, prompt_tech, timeout=20),
-            ai_query_lmstudio(client, LM_M3, prompt_valid, timeout=20),
-            ai_query_ollama(client, prompt_fast, timeout=10),
-            ai_query_gemini(prompt_vision, timeout=30),
+            ai_query_lmstudio(client, LM_M2, prompt_tech, timeout=45),
+            ai_query_lmstudio(client, LM_M3, prompt_valid, timeout=30),
+            ai_query_ollama(client, prompt_fast, timeout=15),
+            ai_query_gemini(prompt_vision, timeout=45),
             return_exceptions=True,
         )
     elapsed = int((time.time() - t0) * 1000)
