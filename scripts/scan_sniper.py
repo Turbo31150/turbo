@@ -683,6 +683,311 @@ class GpuBatchEngine:
 _gpu_engine = GpuBatchEngine() if torch is not None else None
 
 
+# ========== MULTI-TIMEFRAME GPU ==========
+
+TIMEFRAMES = [
+    ("Min5", 96),    # 8h de data 5min
+    ("Min15", 96),   # 24h de data 15min
+    ("Min30", 96),   # 48h de data 30min
+    ("Min60", 96),   # 96h de data 1h
+]
+
+
+async def fetch_multi_timeframe(client, symbols, timeframes=TIMEFRAMES, batch_size=30):
+    """Fetch klines sur TOUS les timeframes pour tous les coins en parallele."""
+    result = {}
+    for tf_name, tf_limit in timeframes:
+        for i in range(0, len(symbols), batch_size):
+            batch = symbols[i:i + batch_size]
+            tasks = []
+            for s in batch:
+                url = f"{BASE}/kline/{s}?interval={tf_name}&limit={tf_limit}"
+                tasks.append(_fetch_json_raw(client, url))
+            results = await asyncio.gather(*tasks)
+            for sym, data in zip(batch, results):
+                if data:
+                    if sym not in result:
+                        result[sym] = {}
+                    result[sym][tf_name] = data
+            if i + batch_size < len(symbols):
+                await asyncio.sleep(0.1)
+    return result
+
+
+async def _fetch_json_raw(client, url):
+    try:
+        r = await client.get(url, timeout=12)
+        data = r.json()
+        if data.get("success"):
+            return data.get("data")
+    except Exception:
+        pass
+    return None
+
+
+def gpu_multi_timeframe_analysis(mtf_data, gpu_engine):
+    """Analyse GPU batch sur CHAQUE timeframe, puis synthese.
+    mtf_data: {symbol: {tf: kdata}}
+    Retourne: {symbol: {tf_scores}} avec score composite multi-TF."""
+    if not gpu_engine or not mtf_data:
+        return {}
+
+    results = {}
+    tf_weights = {"Min5": 0.15, "Min15": 0.35, "Min30": 0.25, "Min60": 0.25}
+
+    for tf_name, _ in TIMEFRAMES:
+        tf_klines = {}
+        for sym, tfs in mtf_data.items():
+            if tf_name in tfs and tfs[tf_name] and "close" in tfs[tf_name]:
+                if len(tfs[tf_name]["close"]) >= 30:
+                    tf_klines[sym] = tfs[tf_name]
+
+        if not tf_klines:
+            continue
+
+        tf_indicators = gpu_engine.compute_all(tf_klines)
+
+        for sym, ind in tf_indicators.items():
+            if sym not in results:
+                results[sym] = {"timeframes": {}, "composite_score": 0, "tf_alignment": ""}
+            results[sym]["timeframes"][tf_name] = ind
+
+    # Synthese multi-timeframe
+    for sym, data in results.items():
+        bullish_tfs = 0
+        bearish_tfs = 0
+        composite = 0
+        for tf_name, ind in data["timeframes"].items():
+            w = tf_weights.get(tf_name, 0.25)
+            tf_score = 0
+            if ind["rsi"] < 35: tf_score += 10
+            if ind["cmf"] > 0.1: tf_score += 10
+            if ind["obv_trend"] in ("accumulation", "bullish_divergence"): tf_score += 10
+            if ind["macd_hist"] > 0: tf_score += 5
+            if ind["ema8"] > ind["ema21"]: tf_score += 5
+            if ind["bb_width"] < 2.0: tf_score += 5
+            if ind["vol_ratio"] > 1.5: tf_score += 5
+            composite += tf_score * w
+            bull = (ind["ema8"] > ind["ema21"] and ind["cmf"] > 0)
+            bear = (ind["ema8"] < ind["ema21"] and ind["cmf"] < 0)
+            if bull: bullish_tfs += 1
+            elif bear: bearish_tfs += 1
+
+        data["composite_score"] = round(composite, 1)
+        total_tfs = len(data["timeframes"])
+        if bullish_tfs == total_tfs:
+            data["tf_alignment"] = "ALL_BULLISH"
+        elif bearish_tfs == total_tfs:
+            data["tf_alignment"] = "ALL_BEARISH"
+        elif bullish_tfs > bearish_tfs:
+            data["tf_alignment"] = f"MOSTLY_BULL({bullish_tfs}/{total_tfs})"
+        elif bearish_tfs > bullish_tfs:
+            data["tf_alignment"] = f"MOSTLY_BEAR({bearish_tfs}/{total_tfs})"
+        else:
+            data["tf_alignment"] = "MIXED"
+
+    return results
+
+
+# ========== GPU PATTERN RECOGNITION ==========
+
+def gpu_batch_patterns(close, open_, high, low, vol):
+    """Detecte patterns candlestick en batch GPU. Retourne dict de scores [N]."""
+    if not GPU_AVAILABLE or close is None:
+        return {}
+    with torch.no_grad():
+        n = close.shape[0]
+        body = (close[:, -1] - open_[:, -1]).abs()
+        body_prev = (close[:, -2] - open_[:, -2]).abs()
+        wick_low = torch.min(close[:, -1], open_[:, -1]) - low[:, -1]
+        wick_high = high[:, -1] - torch.max(close[:, -1], open_[:, -1])
+        range_last = high[:, -1] - low[:, -1]
+
+        hammer = (wick_low > body * 2.5) & (body > 1e-12)
+        shooting = (wick_high > body * 2.5) & (body > 1e-12)
+        doji = body < range_last * 0.1
+        bull_eng = (close[:, -1] > open_[:, -1]) & (close[:, -2] < open_[:, -2]) & (body > body_prev * 1.3)
+        bear_eng = (close[:, -1] < open_[:, -1]) & (close[:, -2] > open_[:, -2]) & (body > body_prev * 1.3)
+        if close.shape[1] >= 3:
+            ms_1 = close[:, -3] < open_[:, -3]
+            ms_2 = (close[:, -2] - open_[:, -2]).abs() < body_prev * 0.3
+            ms_3 = close[:, -1] > open_[:, -1]
+            morning_star = ms_1 & ms_2 & ms_3
+            tws = ((close[:, -1] > open_[:, -1]) & (close[:, -2] > open_[:, -2]) &
+                   (close[:, -3] > open_[:, -3]) & (close[:, -1] > close[:, -2]) &
+                   (close[:, -2] > close[:, -3]))
+        else:
+            morning_star = torch.zeros(n, dtype=torch.bool, device=close.device)
+            tws = torch.zeros(n, dtype=torch.bool, device=close.device)
+
+        vol_confirm = vol[:, -1] > vol[:, -20:].mean(dim=1) * 1.5
+
+        pattern_score = torch.zeros(n, device=close.device)
+        pattern_score += hammer.float() * 12
+        pattern_score += shooting.float() * 10
+        pattern_score += doji.float() * 5
+        pattern_score += bull_eng.float() * 15
+        pattern_score += bear_eng.float() * 12
+        pattern_score += morning_star.float() * 18
+        pattern_score += tws.float() * 16
+        pattern_score += vol_confirm.float() * 5
+
+    return {
+        "pattern_score": pattern_score.cpu().numpy(),
+        "hammer": hammer.cpu().numpy(),
+        "shooting_star": shooting.cpu().numpy(),
+        "doji": doji.cpu().numpy(),
+        "bull_engulfing": bull_eng.cpu().numpy(),
+        "bear_engulfing": bear_eng.cpu().numpy(),
+        "morning_star": morning_star.cpu().numpy(),
+        "three_white_soldiers": tws.cpu().numpy(),
+        "volume_confirm": vol_confirm.cpu().numpy(),
+    }
+
+
+# ========== GPU MOMENTUM + CORRELATION ==========
+
+def gpu_momentum_ranking(close_tensor):
+    """Momentum multi-period batch GPU. Score normalise par coin."""
+    if not GPU_AVAILABLE or close_tensor is None:
+        return None
+    with torch.no_grad():
+        mom_5 = (close_tensor[:, -1] - close_tensor[:, -5]) / (close_tensor[:, -5] + 1e-12) * 100
+        mom_10 = (close_tensor[:, -1] - close_tensor[:, -10]) / (close_tensor[:, -10] + 1e-12) * 100
+        mom_20 = (close_tensor[:, -1] - close_tensor[:, -20]) / (close_tensor[:, -20] + 1e-12) * 100
+        score = mom_5 * 0.5 + mom_10 * 0.3 + mom_20 * 0.2
+        accel = mom_5 - mom_10
+    return {"momentum_score": score.cpu().numpy(), "acceleration": accel.cpu().numpy()}
+
+
+def gpu_correlation_matrix(close_tensor, top_n=20):
+    """Matrice de correlation GPU. Coins a faible corr = alpha potentiel."""
+    if not GPU_AVAILABLE or close_tensor is None or close_tensor.shape[0] < 2:
+        return None
+    with torch.no_grad():
+        returns = (close_tensor[:, 1:] - close_tensor[:, :-1]) / (close_tensor[:, :-1] + 1e-12)
+        n = min(returns.shape[0], top_n)
+        r = returns[:n]
+        r_mean = r.mean(dim=1, keepdim=True)
+        r_centered = r - r_mean
+        cov = r_centered @ r_centered.T / (r.shape[1] - 1)
+        std = r_centered.std(dim=1, keepdim=True)
+        corr = cov / (std @ std.T + 1e-12)
+        avg_corr = corr.mean(dim=1)
+    return {"avg_correlation": avg_corr.cpu().numpy(), "n_coins": n}
+
+
+# ========== AI CLUSTER CONSENSUS ==========
+
+LM_M2 = {"url": "http://192.168.1.26:1234/api/v1/chat", "model": "deepseek-coder-v2-lite-instruct",
+          "key": "sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4", "name": "M2/deepseek"}
+LM_M3 = {"url": "http://192.168.1.113:1234/api/v1/chat", "model": "mistral-7b-instruct-v0.3",
+          "key": "sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux", "name": "M3/mistral"}
+LM_OL1 = {"url": "http://127.0.0.1:11434/api/chat", "model": "qwen3:1.7b", "name": "OL1/qwen3"}
+GEMINI_PROXY = "F:/BUREAU/turbo/gemini-proxy.js"
+
+
+async def ai_query_lmstudio(client, node, prompt, timeout=15):
+    """Query un noeud LM Studio (M2 ou M3)."""
+    try:
+        payload = {"model": node["model"], "input": prompt,
+                   "temperature": 0.3, "max_output_tokens": 512, "stream": False, "store": False}
+        headers = {"Content-Type": "application/json",
+                   "Authorization": f"Bearer {node['key']}"}
+        r = await client.post(node["url"], json=payload, headers=headers, timeout=timeout)
+        data = r.json()
+        output = data.get("output", [{}])
+        if isinstance(output, list) and output:
+            return {"agent": node["name"], "response": output[0].get("content", ""), "ok": True}
+    except Exception as e:
+        return {"agent": node["name"], "response": str(e), "ok": False}
+    return {"agent": node["name"], "response": "", "ok": False}
+
+
+async def ai_query_ollama(client, prompt, timeout=10):
+    """Query OL1 Ollama local (ultra-rapide)."""
+    try:
+        payload = {"model": LM_OL1["model"],
+                   "messages": [{"role": "user", "content": prompt}],
+                   "stream": False}
+        r = await client.post(LM_OL1["url"], json=payload, timeout=timeout)
+        data = r.json()
+        content = data.get("message", {}).get("content", "")
+        if "</think>" in content:
+            content = content.split("</think>")[-1].strip()
+        return {"agent": LM_OL1["name"], "response": content, "ok": True}
+    except Exception as e:
+        return {"agent": LM_OL1["name"], "response": str(e), "ok": False}
+
+
+async def ai_query_gemini(prompt, timeout=30):
+    """Query Gemini via proxy (subprocess safe)."""
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            "node", GEMINI_PROXY, prompt,
+            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+        )
+        stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=timeout)
+        return {"agent": "GEMINI/pro", "response": stdout.decode("utf-8", errors="replace").strip(), "ok": True}
+    except Exception as e:
+        return {"agent": "GEMINI/pro", "response": str(e), "ok": False}
+
+
+async def ai_consensus_signals(signals, mtf_data=None):
+    """Consensus IA 4 agents paralleles: M2 + M3 + OL1 + GEMINI."""
+    if not signals:
+        return {}
+
+    sig_lines = []
+    for i, s in enumerate(signals[:5], 1):
+        coin = s.symbol.replace("_USDT", "")
+        mtf_info = ""
+        if mtf_data and s.symbol in mtf_data:
+            md = mtf_data[s.symbol]
+            mtf_info = f" MTF:{md.get('tf_alignment','?')} composite={md.get('composite_score',0)}"
+        sig_lines.append(
+            f"#{i} {coin} {s.direction} score={s.score} price={s.last_price} "
+            f"RSI={s.rsi:.0f} CMF={s.cmf:+.2f} ADX={s.adx:.0f} OBV={s.obv_trend} "
+            f"ATR={s.atr:.4g} regime={s.regime} funding={s.funding_rate:.6f} "
+            f"strats={','.join(s.strategies[:5])}{mtf_info}"
+        )
+    market = "\n".join(sig_lines)
+
+    prompt_tech = f"Analyse technique concise. Pour chaque coin: GO/WAIT/SKIP + confiance 0-100. Max 3 lignes/coin.\n\n{market}"
+    prompt_valid = f"Valide ou invalide ces signaux. Pour chaque: OK/DANGER + raison 1 ligne.\n\n{market}"
+    prompt_fast = f"Top signal parmi ceux-ci? 2 lignes max.\n{market}"
+    prompt_vision = f"Analyse macro {len(signals)} signaux futures. Tendance? Risque? Meilleur entry? 5 lignes.\n\n{market}"
+
+    t0 = time.time()
+    async with httpx.AsyncClient() as client:
+        results = await asyncio.gather(
+            ai_query_lmstudio(client, LM_M2, prompt_tech, timeout=20),
+            ai_query_lmstudio(client, LM_M3, prompt_valid, timeout=20),
+            ai_query_ollama(client, prompt_fast, timeout=10),
+            ai_query_gemini(prompt_vision, timeout=30),
+            return_exceptions=True,
+        )
+    elapsed = int((time.time() - t0) * 1000)
+
+    consensus = {"agents": [], "elapsed_ms": elapsed, "votes": {}}
+    for r in results:
+        if isinstance(r, Exception):
+            consensus["agents"].append({"agent": "?", "ok": False, "response": str(r)})
+            continue
+        if isinstance(r, dict):
+            consensus["agents"].append(r)
+            resp = r.get("response", "").upper()
+            for s in signals[:5]:
+                coin = s.symbol.replace("_USDT", "")
+                if coin in resp:
+                    if any(w in resp for w in ["GO", " OK", "BULLISH", "BUY", "LONG"]):
+                        consensus["votes"][s.symbol] = consensus["votes"].get(s.symbol, 0) + 1
+                    elif any(w in resp for w in ["SKIP", "DANGER", "BEARISH", "SELL", "SHORT", "WAIT"]):
+                        consensus["votes"][s.symbol] = consensus["votes"].get(s.symbol, 0) - 1
+
+    return consensus
+
+
 # ========== FETCH ==========
 
 async def fetch_json(client: httpx.AsyncClient, url: str) -> dict | None:
@@ -1666,43 +1971,92 @@ async def fetch_all_klines(client, tickers, batch_size=40):
     return klines_cache
 
 
-async def scan_sniper(top_n=3, min_score=MIN_SCORE, use_gpu=True):
-    async with httpx.AsyncClient(limits=httpx.Limits(max_connections=50, max_keepalive_connections=30)) as client:
+async def scan_sniper(top_n=3, min_score=MIN_SCORE, use_gpu=True, use_ai=True):
+    async with httpx.AsyncClient(limits=httpx.Limits(max_connections=60, max_keepalive_connections=40)) as client:
         gpu_label = f"PyTorch {GPU_COUNT}xGPU" if GPU_AVAILABLE and use_gpu else "CPU"
-        print(f"[1/4] Recuperation tickers MEXC Futures...", file=sys.stderr)
+
+        # === PHASE 1: Tickers ===
+        print(f"[1/7] Recuperation tickers MEXC Futures...", file=sys.stderr)
         tickers = await get_all_tickers(client)
         if not tickers:
             print("Erreur: aucun ticker MEXC", file=sys.stderr)
-            return []
-        print(f"[1/4] {len(tickers)} coins (vol > {MIN_VOL_24H:,} USDT)", file=sys.stderr)
+            return [], {}
+        symbols = [t["symbol"] for t in tickers]
+        print(f"[1/7] {len(tickers)} coins (vol > {MIN_VOL_24H:,} USDT)", file=sys.stderr)
 
-        # Phase 2: Fetch toutes les klines en parallele (haute concurrence)
+        # === PHASE 2: Fetch multi-timeframe (4 TF x N coins) ===
         t_fetch = time.time()
-        print(f"[2/4] Fetch klines batch (concurrence x50)...", file=sys.stderr)
-        klines_cache = await fetch_all_klines(client, tickers, batch_size=40)
+        print(f"[2/7] Fetch multi-timeframe (4 TF x {len(symbols)} coins, concurrence x60)...", file=sys.stderr)
+        mtf_raw = await fetch_multi_timeframe(client, symbols, TIMEFRAMES, batch_size=30)
+        # Aussi fetch klines Min15 pour strategies classiques
+        klines_cache = {}
+        for sym, tfs in mtf_raw.items():
+            if "Min15" in tfs:
+                klines_cache[sym] = tfs["Min15"]
         fetch_ms = int((time.time() - t_fetch) * 1000)
-        print(f"[2/4] {len(klines_cache)} klines recuperees ({fetch_ms}ms)", file=sys.stderr)
+        total_klines = sum(len(tfs) for tfs in mtf_raw.values())
+        print(f"[2/7] {total_klines} klines ({len(mtf_raw)} coins x {len(TIMEFRAMES)} TF) ({fetch_ms}ms)", file=sys.stderr)
 
-        # Phase 3: GPU batch indicators
+        # === PHASE 3: GPU batch indicators Min15 ===
         gpu_indicators = {}
         gpu_ms = 0
         if GPU_AVAILABLE and use_gpu and _gpu_engine and klines_cache:
             t_gpu = time.time()
-            # Build format pour GPU engine
-            gpu_klines = {}
-            for sym, kdata in klines_cache.items():
-                if kdata and "close" in kdata and len(kdata["close"]) >= 30:
-                    gpu_klines[sym] = kdata
+            gpu_klines = {s: k for s, k in klines_cache.items() if k and "close" in k and len(k["close"]) >= 30}
             if gpu_klines:
-                print(f"[3/4] GPU batch {len(gpu_klines)} coins sur {GPU_COUNT} GPU...", file=sys.stderr)
+                print(f"[3/7] GPU batch {len(gpu_klines)} coins x indicateurs sur {GPU_COUNT} GPU...", file=sys.stderr)
                 gpu_indicators = _gpu_engine.compute_all(gpu_klines)
                 gpu_ms = int((time.time() - t_gpu) * 1000)
-                print(f"[3/4] GPU batch: {len(gpu_indicators)} coins en {gpu_ms}ms ({gpu_label})", file=sys.stderr)
-        else:
-            print(f"[3/4] GPU: desactive, mode CPU", file=sys.stderr)
+                print(f"[3/7] GPU batch Min15: {len(gpu_indicators)} coins en {gpu_ms}ms", file=sys.stderr)
 
-        # Phase 4: Strategies + Orderbook (async)
-        print(f"[4/4] Strategies 31 + orderbook ultra...", file=sys.stderr)
+        # === PHASE 4: GPU multi-timeframe analysis (4x GPU work) ===
+        mtf_analysis = {}
+        mtf_ms = 0
+        if GPU_AVAILABLE and use_gpu and _gpu_engine and mtf_raw:
+            t_mtf = time.time()
+            print(f"[4/7] GPU multi-TF analysis (5min/15min/30min/1h) sur {GPU_COUNT} GPU...", file=sys.stderr)
+            mtf_analysis = gpu_multi_timeframe_analysis(mtf_raw, _gpu_engine)
+            mtf_ms = int((time.time() - t_mtf) * 1000)
+            # Count alignments
+            all_bull = sum(1 for m in mtf_analysis.values() if m["tf_alignment"] == "ALL_BULLISH")
+            all_bear = sum(1 for m in mtf_analysis.values() if m["tf_alignment"] == "ALL_BEARISH")
+            print(f"[4/7] MTF: {len(mtf_analysis)} coins | {all_bull} ALL_BULL | {all_bear} ALL_BEAR | {mtf_ms}ms", file=sys.stderr)
+
+        # === PHASE 5: GPU patterns + momentum + correlation ===
+        patterns_data = {}
+        momentum_data = None
+        corr_data = None
+        extra_gpu_ms = 0
+        if GPU_AVAILABLE and use_gpu and _gpu_engine and klines_cache:
+            t_extra = time.time()
+            # Build tensors for pattern + momentum
+            valid_syms = [s for s in symbols if s in klines_cache and klines_cache[s] and
+                          "close" in klines_cache[s] and len(klines_cache[s]["close"]) >= 30]
+            if valid_syms:
+                close_t = _gpu_engine._to_tensor([klines_cache[s]["close"] for s in valid_syms])
+                open_t = _gpu_engine._to_tensor([klines_cache[s].get("open", klines_cache[s]["close"]) for s in valid_syms])
+                high_t = _gpu_engine._to_tensor([klines_cache[s]["high"] for s in valid_syms])
+                low_t = _gpu_engine._to_tensor([klines_cache[s]["low"] for s in valid_syms])
+                vol_t = _gpu_engine._to_tensor([klines_cache[s]["vol"] for s in valid_syms])
+
+                print(f"[5/7] GPU patterns + momentum + correlation ({len(valid_syms)} coins)...", file=sys.stderr)
+                patterns_raw = gpu_batch_patterns(close_t, open_t, high_t, low_t, vol_t)
+                momentum_data = gpu_momentum_ranking(close_t)
+                corr_data = gpu_correlation_matrix(close_t, top_n=min(30, len(valid_syms)))
+
+                # Map patterns to symbols
+                for idx, sym in enumerate(valid_syms):
+                    patterns_data[sym] = {k: (v[idx] if hasattr(v, '__getitem__') else v)
+                                          for k, v in patterns_raw.items()}
+
+                extra_gpu_ms = int((time.time() - t_extra) * 1000)
+                print(f"[5/7] Patterns: {sum(1 for p in patterns_data.values() if p.get('pattern_score', 0) > 0)} detectes | "
+                      f"Momentum + Corr | {extra_gpu_ms}ms", file=sys.stderr)
+
+        total_gpu_ms = gpu_ms + mtf_ms + extra_gpu_ms
+
+        # === PHASE 6: Strategies + Orderbook ===
+        print(f"[6/7] 31 strategies + orderbook ultra...", file=sys.stderr)
         all_signals = []
         batch_size = 30
         for i in range(0, len(tickers), batch_size):
@@ -1711,14 +2065,57 @@ async def scan_sniper(top_n=3, min_score=MIN_SCORE, use_gpu=True):
             results = await asyncio.gather(*tasks)
             for s in results:
                 if s is not None and s.score >= min_score:
+                    # Bonus multi-timeframe alignment
+                    if s.symbol in mtf_analysis:
+                        mtf = mtf_analysis[s.symbol]
+                        if mtf["tf_alignment"] == "ALL_BULLISH" and s.direction == "LONG":
+                            s.score = min(100, s.score + 10)
+                            s.strategies.append("mtf_all_bullish")
+                            s.reasons.append(f"Multi-TF ALL BULLISH (5m/15m/30m/1h alignes) composite={mtf['composite_score']}")
+                        elif mtf["tf_alignment"] == "ALL_BEARISH" and s.direction == "SHORT":
+                            s.score = min(100, s.score + 10)
+                            s.strategies.append("mtf_all_bearish")
+                            s.reasons.append(f"Multi-TF ALL BEARISH alignes composite={mtf['composite_score']}")
+                    # Bonus pattern GPU
+                    if s.symbol in patterns_data:
+                        p = patterns_data[s.symbol]
+                        ps = float(p.get("pattern_score", 0))
+                        if ps > 10:
+                            s.score = min(100, s.score + int(ps * 0.3))
+                            s.strategies.append("gpu_pattern_confirmed")
+                            pats = [k for k in ["hammer", "morning_star", "bull_engulfing", "three_white_soldiers",
+                                                  "doji", "shooting_star", "bear_engulfing"]
+                                    if p.get(k, False)]
+                            s.reasons.append(f"GPU patterns: {', '.join(pats)} (score={ps:.0f})")
                     all_signals.append(s)
             if i + batch_size < len(tickers):
                 await asyncio.sleep(0.1)
 
         all_signals.sort(key=lambda s: s.score, reverse=True)
         total_strats = sum(len(s.strategies) for s in all_signals)
-        print(f"[4/4] {len(all_signals)} signaux ({total_strats} triggers) | fetch {fetch_ms}ms + GPU {gpu_ms}ms", file=sys.stderr)
-        return all_signals[:top_n]
+        print(f"[6/7] {len(all_signals)} signaux ({total_strats} triggers) | GPU total {total_gpu_ms}ms", file=sys.stderr)
+
+        # === PHASE 7: AI Consensus (4 agents paralleles) ===
+        ai_result = {}
+        if use_ai and all_signals:
+            print(f"[7/7] AI Consensus: M2/deepseek + M3/mistral + OL1/qwen3 + GEMINI...", file=sys.stderr)
+            ai_result = await ai_consensus_signals(all_signals[:top_n], mtf_analysis)
+            n_ok = sum(1 for a in ai_result.get("agents", []) if a.get("ok"))
+            print(f"[7/7] AI: {n_ok}/4 agents repondus ({ai_result.get('elapsed_ms', 0)}ms)", file=sys.stderr)
+
+            # Print AI responses
+            for agent in ai_result.get("agents", []):
+                status = "OK" if agent.get("ok") else "FAIL"
+                resp = agent.get("response", "")[:200].replace("\n", " ")
+                print(f"  [{agent.get('agent', '?')}] {status}: {resp}", file=sys.stderr)
+
+            if ai_result.get("votes"):
+                print(f"  Votes: {ai_result['votes']}", file=sys.stderr)
+        else:
+            print(f"[7/7] AI: {'desactive' if not use_ai else 'aucun signal'}", file=sys.stderr)
+
+        return all_signals[:top_n], {"mtf": mtf_analysis, "ai": ai_result,
+                                      "gpu_ms": total_gpu_ms, "fetch_ms": fetch_ms}
 
 
 # ========== AFFICHAGE ==========
@@ -1777,7 +2174,7 @@ def print_banner(cycle=0, total_cycles=0):
     thermal = check_gpu_thermal()
     ts = time.strftime("%Y-%m-%d %H:%M:%S")
     print(f"\n{'#'*60}")
-    print(f"  SCAN SNIPER v4 — GPU Multi-GPU + 31 Strategies Pre-Pump")
+    print(f"  SCAN SNIPER v5 — GPU Multi-TF + 31 Strats + AI Cluster")
     print(f"  {ts} | {gpu_label} | {TOP_VOLUME} coins")
     if cycle > 0:
         print(f"  Cycle {cycle}/{total_cycles}" if total_cycles else f"  Cycle {cycle} (continu)")
@@ -1792,25 +2189,38 @@ def print_banner(cycle=0, total_cycles=0):
     return thermal
 
 
-def print_results(signals, elapsed, cycle=0):
+def print_results(signals, elapsed, cycle=0, extra=None):
     if not signals:
         print(f"\n  Aucun signal >= {MIN_SCORE}/100 ({elapsed:.1f}s)")
         return
     gpu_label = f"PyTorch {GPU_COUNT}xGPU" if GPU_AVAILABLE else "CPU"
+    gpu_ms = extra.get("gpu_ms", 0) if extra else 0
+    n_ai = len(extra.get("ai", {}).get("agents", [])) if extra else 0
     print(f"\n{'#'*60}")
     cycle_str = f" | Cycle {cycle}" if cycle else ""
     print(f"  TOP {len(signals)} Pre-Pump | {gpu_label} | {elapsed:.1f}s{cycle_str}")
-    print(f"  31 strategies + Chaikin/CMF/OBV/MFI/ADX + OB Ultra")
+    print(f"  31 strats + 4TF GPU + Patterns + {n_ai} IA agents")
+    print(f"  GPU: {gpu_ms}ms | Fetch: {extra.get('fetch_ms', 0) if extra else 0}ms")
     print(f"{'#'*60}")
     for i, s in enumerate(signals, 1):
         print(format_signal(s, i))
+    # AI consensus summary
+    if extra and extra.get("ai", {}).get("agents"):
+        ai = extra["ai"]
+        print(f"\n  --- AI Consensus ({ai.get('elapsed_ms', 0)}ms) ---")
+        for ag in ai.get("agents", []):
+            status = "OK" if ag.get("ok") else "FAIL"
+            resp = ag.get("response", "")[:120].replace("\n", " | ")
+            print(f"  [{ag.get('agent', '?'):>14}] {status}: {resp}")
+        if ai.get("votes"):
+            print(f"  Votes: {ai['votes']}")
     print(f"\n{'='*60}")
     print(f"  Config: Levier 10x | TP ATRx{TP_MULT} | SL ATRx{SL_MULT}")
     print(f"{'='*60}")
 
 
 def run_single(top_n=3, min_score=MIN_SCORE, output_json=False,
-               cycle=0, total_cycles=0, db_conn=None):
+               cycle=0, total_cycles=0, db_conn=None, use_ai=True):
     """Execute un seul cycle de scan + sauvegarde DB."""
     thermal = print_banner(cycle, total_cycles)
     if thermal["status"] == "critical":
@@ -1818,7 +2228,7 @@ def run_single(top_n=3, min_score=MIN_SCORE, output_json=False,
         time.sleep(30)
 
     t0 = time.time()
-    signals = asyncio.run(scan_sniper(top_n=top_n, min_score=min_score))
+    signals, extra = asyncio.run(scan_sniper(top_n=top_n, min_score=min_score, use_ai=use_ai))
     elapsed = time.time() - t0
 
     # Sauvegarde DB
@@ -1832,12 +2242,14 @@ def run_single(top_n=3, min_score=MIN_SCORE, output_json=False,
             "signals": [asdict(s) for s in signals],
             "meta": {"scan_time_s": round(elapsed, 1), "coins_scanned": TOP_VOLUME,
                      "signals_found": len(signals), "min_score": min_score,
-                     "strategies_count": 31, "version": "v4", "gpu": gpu_label,
+                     "strategies_count": 31, "version": "v5", "gpu": gpu_label,
                      "gpu_count": GPU_COUNT, "cycle": cycle,
+                     "gpu_ms": extra.get("gpu_ms", 0),
+                     "ai_agents": len(extra.get("ai", {}).get("agents", [])),
                      "thermal": thermal, "db": str(DB_PATH)}
         }, indent=2, ensure_ascii=False))
     else:
-        print_results(signals, elapsed, cycle)
+        print_results(signals, elapsed, cycle, extra)
     return signals
 
 
@@ -1850,6 +2262,7 @@ def main():
     parser.add_argument("--interval", type=int, default=45, help="Intervalle entre cycles (sec)")
     parser.add_argument("--json", action="store_true", help="Output JSON")
     parser.add_argument("--no-gpu", action="store_true", help="Desactiver GPU")
+    parser.add_argument("--no-ai", action="store_true", help="Desactiver consensus IA")
     parser.add_argument("--db-summary", action="store_true", help="Afficher resume DB et quitter")
     parser.add_argument("--coin", type=str, help="Historique d'un coin specifique (ex: BTC_USDT)")
     args = parser.parse_args()
@@ -1876,9 +2289,11 @@ def main():
     db_conn = init_db()
     print(f"  DB: {DB_PATH}", file=sys.stderr)
 
+    use_ai = not args.no_ai
+
     if args.cycles == 1:
         run_single(top_n=args.top, min_score=args.min_score,
-                   output_json=args.json, cycle=1, db_conn=db_conn)
+                   output_json=args.json, cycle=1, db_conn=db_conn, use_ai=use_ai)
         # Afficher resume DB apres scan unique
         if not args.json:
             print(get_db_summary(db_conn))
@@ -1889,7 +2304,7 @@ def main():
         t_start = time.time()
         print(f"\n{'*'*60}")
         gpu_label = f"PyTorch {GPU_COUNT}xGPU" if GPU_AVAILABLE else "CPU"
-        print(f"  SCAN SNIPER v4 — MODE CONTINU + SQL")
+        print(f"  SCAN SNIPER v5 — MODE CONTINU + GPU MTF + AI + SQL")
         print(f"  {total if total else 'infini'} cycles | interval {args.interval}s | {gpu_label}")
         print(f"  {TOP_VOLUME} coins x 31 strategies | Top {args.top}")
         print(f"  DB: {DB_PATH}")
@@ -1900,7 +2315,7 @@ def main():
                 cycle += 1
                 signals = run_single(top_n=args.top, min_score=args.min_score,
                                      output_json=args.json, cycle=cycle,
-                                     total_cycles=total, db_conn=db_conn)
+                                     total_cycles=total, db_conn=db_conn, use_ai=use_ai)
                 cumul_signals += len(signals)
                 elapsed_total = time.time() - t_start
                 avg_per_cycle = elapsed_total / cycle
