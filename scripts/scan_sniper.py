@@ -883,6 +883,8 @@ LM_M2 = {"url": "http://192.168.1.26:1234/api/v1/chat", "model": "deepseek-coder
           "key": "sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4", "name": "M2/deepseek"}
 LM_M3 = {"url": "http://192.168.1.113:1234/api/v1/chat", "model": "mistral-7b-instruct-v0.3",
           "key": "sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux", "name": "M3/mistral"}
+LM_M1 = {"url": "http://10.5.0.2:1234/api/v1/chat", "model": "qwen/qwq-32b",
+          "key": "sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7", "name": "M1/qwq-32b"}
 LM_OL1 = {"url": "http://127.0.0.1:11434/api/chat", "model": "qwen3:1.7b", "name": "OL1/qwen3"}
 GEMINI_PROXY = "F:/BUREAU/turbo/gemini-proxy.js"
 
@@ -934,7 +936,7 @@ async def ai_query_gemini(prompt, timeout=30):
 
 
 async def ai_consensus_signals(signals, mtf_data=None):
-    """Consensus IA 4 agents paralleles: M2 + M3 + OL1 + GEMINI."""
+    """Consensus IA 5 agents paralleles: M1 + M2 + M3 + OL1 + GEMINI."""
     if not signals:
         return {}
 
@@ -953,6 +955,7 @@ async def ai_consensus_signals(signals, mtf_data=None):
         )
     market = "\n".join(sig_lines)
 
+    prompt_reason = f"Raisonnement: quel coin a le meilleur risk/reward? Analyse chaque. 3 lignes max.\n{market}"
     prompt_tech = f"GO/WAIT/SKIP pour chaque coin. 1 mot par coin.\n{market}"
     prompt_valid = f"OK ou DANGER pour chaque. 1 mot par coin.\n{market}"
     prompt_fast = f"Meilleur coin? 1 ligne.\n{market}"
@@ -961,6 +964,7 @@ async def ai_consensus_signals(signals, mtf_data=None):
     t0 = time.time()
     async with httpx.AsyncClient() as client:
         results = await asyncio.gather(
+            ai_query_lmstudio(client, LM_M1, prompt_reason, timeout=60),
             ai_query_lmstudio(client, LM_M2, prompt_tech, timeout=45),
             ai_query_lmstudio(client, LM_M3, prompt_valid, timeout=30),
             ai_query_ollama(client, prompt_fast, timeout=15),
@@ -2095,13 +2099,13 @@ async def scan_sniper(top_n=3, min_score=MIN_SCORE, use_gpu=True, use_ai=True):
         total_strats = sum(len(s.strategies) for s in all_signals)
         print(f"[6/7] {len(all_signals)} signaux ({total_strats} triggers) | GPU total {total_gpu_ms}ms", file=sys.stderr)
 
-        # === PHASE 7: AI Consensus (4 agents paralleles) ===
+        # === PHASE 7: AI Consensus (5 agents paralleles) ===
         ai_result = {}
         if use_ai and all_signals:
-            print(f"[7/7] AI Consensus: M2/deepseek + M3/mistral + OL1/qwen3 + GEMINI...", file=sys.stderr)
+            print(f"[7/7] AI Consensus: M1/qwq + M2/deepseek + M3/mistral + OL1/qwen3 + GEMINI...", file=sys.stderr)
             ai_result = await ai_consensus_signals(all_signals[:top_n], mtf_analysis)
             n_ok = sum(1 for a in ai_result.get("agents", []) if a.get("ok"))
-            print(f"[7/7] AI: {n_ok}/4 agents repondus ({ai_result.get('elapsed_ms', 0)}ms)", file=sys.stderr)
+            print(f"[7/7] AI: {n_ok}/5 agents repondus ({ai_result.get('elapsed_ms', 0)}ms)", file=sys.stderr)
 
             # Print AI responses
             for agent in ai_result.get("agents", []):
