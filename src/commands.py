@@ -1426,6 +1426,11 @@ COMMANDS: list[JarvisCommand] = [
         "scan technique", "analyse technique pure",
         "pipeline sans ia", "scan sans consensus",
     ], "script", "trading_v2_pipeline --no-ai --coins 100"),
+    JarvisCommand("scan_sniper_v2", "trading", "Scan sniper pre-pump: 18 strategies + liquidite sur 100 coins", [
+        "scan sniper", "sniper scan", "lance le scan sniper",
+        "analyse pre pump", "detection pre pump", "scan pre pump",
+        "sniper", "analyse sniper",
+    ], "script", "scan_sniper --top 3 --json"),
     JarvisCommand("consensus_trading", "trading", "Consensus 5 IA sur un signal trading", [
         "consensus trading {symbol}", "analyse ia {symbol}",
         "consensus sur {symbol}", "demande aux ia {symbol}",
