@@ -1,10 +1,11 @@
 """
-JARVIS Scan Sniper v3 — Detecteur pre-pump ultra-avance
-30+ strategies: Chaikin, CMF, OBV, ADL, MFI, Williams %R, ADX,
-Volume Profile, orderbook minutieux (gradient, absorption, spoofing, voids).
+JARVIS Scan Sniper v4 — GPU Multi-GPU + 31 strategies pre-pump
+PyTorch batch sur 5 GPU (RTX 3080 + RTX 2060 + 3x GTX 1660S = 40GB VRAM)
+31 strategies: Chaikin, CMF, OBV, ADL, MFI, Williams %R, ADX,
+Volume Profile, orderbook ultra (gradient, absorption, spoofing, voids).
 
 Commande vocale: "scan sniper"
-Usage: python scripts/scan_sniper.py [--json] [--top N] [--min-score N]
+Usage: python scripts/scan_sniper.py [--json] [--top N] [--cycles N] [--interval N]
 """
 import asyncio
 import httpx
@@ -12,8 +13,38 @@ import sys
 import json
 import math
 import time
+import subprocess
 from dataclasses import dataclass, field, asdict
 from typing import Optional
+from concurrent.futures import ThreadPoolExecutor
+
+# ========== GPU SETUP ==========
+try:
+    import torch
+    if torch.cuda.is_available():
+        GPU_AVAILABLE = True
+        GPU_COUNT = torch.cuda.device_count()
+        GPU_DEVICES = [torch.device(f"cuda:{i}") for i in range(GPU_COUNT)]
+        _vrams = [torch.cuda.get_device_properties(i).total_memory for i in range(GPU_COUNT)]
+        PRIMARY_GPU = torch.device(f"cuda:{_vrams.index(max(_vrams))}")
+    else:
+        GPU_AVAILABLE = False
+        GPU_COUNT = 0
+        GPU_DEVICES = []
+        PRIMARY_GPU = None
+except ImportError:
+    torch = None
+    GPU_AVAILABLE = False
+    GPU_COUNT = 0
+    GPU_DEVICES = []
+    PRIMARY_GPU = None
+
+# Force UTF-8 stdout (Windows cp1252 crashe sur caracteres speciaux)
+import io
+if hasattr(sys.stdout, 'buffer'):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+if hasattr(sys.stderr, 'buffer'):
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 BASE = "https://contract.mexc.com/api/v1/contract"
 
@@ -54,6 +85,295 @@ class Signal:
     bb_squeeze: bool = False
     regime: str = "unknown"
     open_interest_chg: float = 0.0
+
+
+# ========== GPU THERMAL ==========
+
+GPU_TEMP_WARNING = 75
+GPU_TEMP_CRITICAL = 85
+
+def check_gpu_thermal() -> dict:
+    try:
+        result = subprocess.run(
+            ["nvidia-smi", "--query-gpu=index,name,temperature.gpu,utilization.gpu,memory.used,memory.total",
+             "--format=csv,noheader,nounits"],
+            capture_output=True, text=True, timeout=5
+        )
+        if result.returncode != 0:
+            return {"status": "unavailable", "gpus": []}
+        gpus = []
+        max_temp = 0
+        for line in result.stdout.strip().split("\n"):
+            parts = [p.strip() for p in line.split(",")]
+            if len(parts) >= 6:
+                temp = int(parts[2])
+                max_temp = max(max_temp, temp)
+                gpus.append({"index": int(parts[0]), "name": parts[1], "temp_c": temp,
+                             "util_pct": int(parts[3]), "mem_used_mb": int(parts[4]),
+                             "mem_total_mb": int(parts[5])})
+        status = "critical" if max_temp >= GPU_TEMP_CRITICAL else "warning" if max_temp >= GPU_TEMP_WARNING else "ok"
+        return {"status": status, "max_temp": max_temp, "gpus": gpus}
+    except Exception:
+        return {"status": "unavailable", "gpus": []}
+
+
+# ========== GPU BATCH INDICATOR ENGINE ==========
+
+class GpuBatchEngine:
+    """Calcule TOUS les indicateurs de N coins simultanement sur GPU PyTorch.
+    Tensor shape: [N_coins, T_candles] pour chaque serie (close, high, low, vol, open).
+    Multi-GPU: coins repartis equitablement sur tous les GPU disponibles."""
+
+    def __init__(self):
+        self.device = PRIMARY_GPU if GPU_AVAILABLE else torch.device("cpu") if torch is not None else None
+
+    def _to_tensor(self, data_list, device=None):
+        """Convertit une liste de listes en tenseur GPU [N, T]."""
+        if device is None:
+            device = self.device
+        max_len = max(len(d) for d in data_list) if data_list else 0
+        padded = []
+        for d in data_list:
+            if len(d) < max_len:
+                d = [d[0]] * (max_len - len(d)) + d
+            padded.append(d)
+        return torch.tensor(padded, dtype=torch.float32, device=device)
+
+    def batch_ema(self, close, period):
+        """EMA batch. close shape [N, T], retourne [N, T]."""
+        alpha = 2.0 / (period + 1)
+        result = torch.zeros_like(close)
+        result[:, 0] = close[:, 0]
+        for t in range(1, close.shape[1]):
+            result[:, t] = alpha * close[:, t] + (1 - alpha) * result[:, t - 1]
+        return result
+
+    def batch_sma(self, close, period):
+        """SMA batch via cumsum trick. [N, T] -> [N]."""
+        if close.shape[1] < period:
+            return close[:, -1]
+        cs = close.cumsum(dim=1)
+        sma = (cs[:, period - 1:] - torch.cat([torch.zeros(close.shape[0], 1, device=close.device), cs[:, :-period]], dim=1)) / period
+        return sma[:, -1]
+
+    def batch_rsi(self, close, period=14):
+        """RSI batch. [N, T] -> [N]."""
+        deltas = close[:, 1:] - close[:, :-1]
+        gains = torch.clamp(deltas[:, -period:], min=0).mean(dim=1)
+        losses = torch.clamp(-deltas[:, -period:], min=0).mean(dim=1)
+        rs = gains / (losses + 1e-12)
+        rsi = 100.0 - (100.0 / (1.0 + rs))
+        return rsi
+
+    def batch_atr(self, high, low, close, period=14):
+        """ATR batch. [N, T] -> [N]."""
+        tr1 = high[:, 1:] - low[:, 1:]
+        tr2 = (high[:, 1:] - close[:, :-1]).abs()
+        tr3 = (low[:, 1:] - close[:, :-1]).abs()
+        tr = torch.max(torch.max(tr1, tr2), tr3)
+        return tr[:, -period:].mean(dim=1)
+
+    def batch_bollinger(self, close, period=20, mult=2.0):
+        """Bollinger batch. [N, T] -> (upper[N], mid[N], lower[N], width[N])."""
+        w = close[:, -period:]
+        mid = w.mean(dim=1)
+        std = w.std(dim=1)
+        upper = mid + mult * std
+        lower = mid - mult * std
+        width = (upper - lower) / (mid + 1e-12) * 100
+        return upper, mid, lower, width
+
+    def batch_macd(self, close):
+        """MACD batch. [N, T] -> (macd[N], signal[N], hist[N])."""
+        ema12 = self.batch_ema(close, 12)
+        ema26 = self.batch_ema(close, 26)
+        macd_line = ema12 - ema26
+        signal = self.batch_ema(macd_line[:, 26:], 9)
+        macd_val = macd_line[:, -1]
+        sig_val = signal[:, -1] if signal.shape[1] > 0 else torch.zeros(close.shape[0], device=close.device)
+        hist = macd_val - sig_val
+        return macd_val, sig_val, hist
+
+    def batch_cmf(self, high, low, close, volume, period=20):
+        """Chaikin Money Flow batch. [N, T] -> [N]."""
+        hl = high - low
+        mfm = torch.where(hl > 0, ((close - low) - (high - close)) / hl, torch.zeros_like(hl))
+        mfv = mfm * volume
+        cmf = mfv[:, -period:].sum(dim=1) / (volume[:, -period:].sum(dim=1) + 1e-12)
+        return cmf
+
+    def batch_obv(self, close, volume):
+        """OBV batch. [N, T] -> [N, T]."""
+        sign = torch.sign(close[:, 1:] - close[:, :-1])
+        signed_vol = sign * volume[:, 1:]
+        obv = torch.cumsum(signed_vol, dim=1)
+        return torch.cat([torch.zeros(close.shape[0], 1, device=close.device), obv], dim=1)
+
+    def batch_mfi(self, high, low, close, volume, period=14):
+        """Money Flow Index batch. [N, T] -> [N]."""
+        tp = (high + low + close) / 3
+        tp_diff = tp[:, 1:] - tp[:, :-1]
+        mf = tp[:, 1:] * volume[:, 1:]
+        pos = torch.where(tp_diff > 0, mf, torch.zeros_like(mf))[:, -period:]
+        neg = torch.where(tp_diff <= 0, mf, torch.zeros_like(mf))[:, -period:]
+        pos_sum = pos.sum(dim=1)
+        neg_sum = neg.sum(dim=1)
+        ratio = pos_sum / (neg_sum + 1e-12)
+        return 100.0 - (100.0 / (1.0 + ratio))
+
+    def batch_williams_r(self, high, low, close, period=14):
+        """Williams %R batch. [N, T] -> [N]."""
+        hh = high[:, -period:].max(dim=1).values
+        ll = low[:, -period:].min(dim=1).values
+        wr = -100 * (hh - close[:, -1]) / (hh - ll + 1e-12)
+        return wr
+
+    def batch_adl(self, high, low, close, volume):
+        """ADL batch. [N, T] -> [N, T]."""
+        hl = high - low
+        mfm = torch.where(hl > 0, ((close - low) - (high - close)) / hl, torch.zeros_like(hl))
+        mfv = mfm * volume
+        return torch.cumsum(mfv, dim=1)
+
+    def batch_chaikin_osc(self, high, low, close, volume):
+        """Chaikin Oscillator batch. [N, T] -> [N]."""
+        adl = self.batch_adl(high, low, close, volume)
+        ema3 = self.batch_ema(adl, 3)
+        ema10 = self.batch_ema(adl, 10)
+        return (ema3[:, -1] - ema10[:, -1])
+
+    def compute_all(self, klines_dict):
+        """Calcule TOUS les indicateurs pour N coins en batch GPU.
+        klines_dict: {symbol: {"close": [...], "high": [...], "low": [...], "vol": [...], "open": [...]}}
+        Retourne: {symbol: {rsi, atr, bb_width, macd_hist, cmf, mfi, williams_r, chaikin_osc, ...}}
+        """
+        if not klines_dict or self.device is None:
+            return {}
+
+        symbols = list(klines_dict.keys())
+        n = len(symbols)
+        if n == 0:
+            return {}
+
+        # Build tensors
+        closes_list = [klines_dict[s]["close"] for s in symbols]
+        highs_list = [klines_dict[s]["high"] for s in symbols]
+        lows_list = [klines_dict[s]["low"] for s in symbols]
+        vols_list = [klines_dict[s]["vol"] for s in symbols]
+        opens_list = [klines_dict[s].get("open", klines_dict[s]["close"]) for s in symbols]
+
+        # Multi-GPU: split across devices
+        if GPU_AVAILABLE and GPU_COUNT > 1:
+            return self._compute_multi_gpu(symbols, closes_list, highs_list, lows_list, vols_list, opens_list)
+
+        # Single GPU/CPU
+        close = self._to_tensor(closes_list)
+        high = self._to_tensor(highs_list)
+        low = self._to_tensor(lows_list)
+        vol = self._to_tensor(vols_list)
+
+        return self._compute_on_device(symbols, close, high, low, vol)
+
+    def _compute_on_device(self, symbols, close, high, low, vol):
+        """Compute all indicators on a single device."""
+        n = len(symbols)
+        results = {}
+
+        with torch.no_grad():
+            rsi = self.batch_rsi(close)
+            atr = self.batch_atr(high, low, close)
+            bb_up, bb_mid, bb_lo, bb_width = self.batch_bollinger(close)
+            macd_val, macd_sig, macd_hist = self.batch_macd(close)
+            cmf = self.batch_cmf(high, low, close, vol)
+            mfi = self.batch_mfi(high, low, close, vol)
+            wr = self.batch_williams_r(high, low, close)
+            chaikin = self.batch_chaikin_osc(high, low, close, vol)
+            obv = self.batch_obv(close, vol)
+            sma20 = self.batch_sma(close, 20)
+            sma50 = self.batch_sma(close, 50)
+
+            # EMA ribbon
+            ema8 = self.batch_ema(close, 8)[:, -1]
+            ema13 = self.batch_ema(close, 13)[:, -1]
+            ema21 = self.batch_ema(close, 21)[:, -1]
+            ema55 = self.batch_ema(close, 55)[:, -1] if close.shape[1] >= 55 else sma50
+
+            # Volume ratio
+            avg_vol = vol[:, -20:].mean(dim=1)
+            vol_ratio = vol[:, -1] / (avg_vol + 1e-12)
+
+            # OBV trend (slope)
+            if obv.shape[1] >= 20:
+                obv_slope = (obv[:, -1] - obv[:, -20]) / (obv[:, -20].abs() + 1e-12)
+            else:
+                obv_slope = torch.zeros(n, device=close.device)
+
+            # Price slope for divergence detection
+            price_slope = (close[:, -1] - close[:, -20]) / (close[:, -20] + 1e-12) if close.shape[1] >= 20 else torch.zeros(n, device=close.device)
+
+        # Convert to per-symbol dict
+        for i, sym in enumerate(symbols):
+            # OBV trend classification
+            os_val = obv_slope[i].item()
+            ps_val = price_slope[i].item()
+            if os_val > 0.05 and ps_val < -0.01:
+                obv_t = "bullish_divergence"
+            elif os_val < -0.05 and ps_val > 0.01:
+                obv_t = "bearish_divergence"
+            elif os_val > 0.05:
+                obv_t = "accumulation"
+            elif os_val < -0.05:
+                obv_t = "distribution"
+            else:
+                obv_t = "neutral"
+
+            results[sym] = {
+                "rsi": rsi[i].item(), "atr": atr[i].item(),
+                "bb_up": bb_up[i].item(), "bb_mid": bb_mid[i].item(),
+                "bb_lo": bb_lo[i].item(), "bb_width": bb_width[i].item(),
+                "macd_val": macd_val[i].item(), "macd_sig": macd_sig[i].item(),
+                "macd_hist": macd_hist[i].item(),
+                "cmf": cmf[i].item(), "mfi": mfi[i].item(),
+                "williams_r": wr[i].item(), "chaikin_osc": chaikin[i].item(),
+                "obv_trend": obv_t, "obv_slope": os_val,
+                "sma20": sma20[i].item(), "sma50": sma50[i].item(),
+                "ema8": ema8[i].item(), "ema13": ema13[i].item(),
+                "ema21": ema21[i].item(), "ema55": ema55[i].item(),
+                "vol_ratio": vol_ratio[i].item(),
+            }
+
+        return results
+
+    def _compute_multi_gpu(self, symbols, closes_list, highs_list, lows_list, vols_list, opens_list):
+        """Distribute computation across all available GPUs."""
+        n = len(symbols)
+        chunk_size = max(1, n // GPU_COUNT)
+        results = {}
+
+        def compute_chunk(gpu_idx, start, end):
+            device = GPU_DEVICES[gpu_idx]
+            chunk_syms = symbols[start:end]
+            close = self._to_tensor(closes_list[start:end], device)
+            high = self._to_tensor(highs_list[start:end], device)
+            low = self._to_tensor(lows_list[start:end], device)
+            vol = self._to_tensor(vols_list[start:end], device)
+            return self._compute_on_device(chunk_syms, close, high, low, vol)
+
+        with ThreadPoolExecutor(max_workers=GPU_COUNT) as pool:
+            futures = []
+            for g in range(GPU_COUNT):
+                start = g * chunk_size
+                end = min(start + chunk_size, n) if g < GPU_COUNT - 1 else n
+                if start < end:
+                    futures.append(pool.submit(compute_chunk, g, start, end))
+            for f in futures:
+                results.update(f.result())
+
+        return results
+
+
+# GPU engine singleton
+_gpu_engine = GpuBatchEngine() if torch is not None else None
 
 
 # ========== FETCH ==========
@@ -496,7 +816,7 @@ def analyze_depth_ultra(depth_data: dict, last_price: float) -> dict:
                                 "gap_pct": round(gap_pct, 3)})
     if void_zones:
         biggest = max(void_zones, key=lambda v: v["gap_pct"])
-        reasons.append(f"VOID {biggest['side'].upper()} {biggest['from']:.6g}→{biggest['to']:.6g} ({biggest['gap_pct']:.3f}%)")
+        reasons.append(f"VOID {biggest['side'].upper()} {biggest['from']:.6g}->{biggest['to']:.6g} ({biggest['gap_pct']:.3f}%)")
         ob_score += 3
 
     # --- 8. Bid/Ask depth at 0.5%, 1%, 2% ---
@@ -509,7 +829,7 @@ def analyze_depth_ultra(depth_data: dict, last_price: float) -> dict:
         if ratio > 2.0:
             reasons.append(f"Depth {pct_level}%: bids {ratio:.1f}x les asks (fort support)")
             ob_score += 4
-        elif ratio < 0.5:
+        elif 0 < ratio < 0.5:
             reasons.append(f"Depth {pct_level}%: asks {1/ratio:.1f}x les bids (forte resistance)")
             ob_score += 4
 
@@ -610,13 +930,13 @@ def analyze_klines_advanced(kdata: dict) -> dict:
         reasons.append(f"Volume spike x{vol_ratio:.1f}")
         scores.append(min(20, int(vol_ratio * 5)))
 
-    # 4. Volume dry-up → expansion
+    # 4. Volume dry-up -> expansion
     if n >= 15:
         recent_avg = sum(volumes[-5:]) / 5
         older_avg = sum(volumes[-15:-5]) / 10
         if older_avg > 0 and recent_avg < older_avg * 0.4 and last_vol > recent_avg * 2:
             strategies.append("volume_dryup_expansion")
-            reasons.append("Volume dry-up → expansion (accumulation)")
+            reasons.append("Volume dry-up -> expansion (accumulation)")
             scores.append(18)
 
     # 5. RSI survendu
@@ -802,7 +1122,7 @@ def analyze_klines_advanced(kdata: dict) -> dict:
         mfi_prev = calc_mfi(highs[:-5], lows[:-5], closes[:-5], volumes[:-5], 14)
         if mfi > mfi_prev + 10 and closes[-1] < closes[-6]:
             strategies.append("mfi_bullish_divergence")
-            reasons.append(f"DIVERGENCE MFI: flux monte ({mfi_prev:.0f}→{mfi:.0f}) mais prix baisse")
+            reasons.append(f"DIVERGENCE MFI: flux monte ({mfi_prev:.0f}->{mfi:.0f}) mais prix baisse")
             scores.append(14)
 
     # 25. Williams %R
@@ -860,7 +1180,7 @@ def analyze_klines_advanced(kdata: dict) -> dict:
     # 31. Smart Money: CMF + OBV + Chaikin alignes
     if cmf > 0.1 and obv_trend in ("accumulation", "bullish_divergence") and chaikin_osc > 0:
         strategies.append("smart_money_inflow")
-        reasons.append(f"SMART MONEY: CMF({cmf:+.2f}) + OBV({obv_trend}) + Chaikin(+) alignes → inflow massif")
+        reasons.append(f"SMART MONEY: CMF({cmf:+.2f}) + OBV({obv_trend}) + Chaikin(+) alignes -> inflow massif")
         scores.append(20)
 
     macd_signal = "bullish" if macd_hist > 0 else "bearish" if macd_hist < 0 else "neutral"
@@ -877,17 +1197,38 @@ def analyze_klines_advanced(kdata: dict) -> dict:
 
 # ========== ANALYSE COMPLETE ==========
 
-async def analyze_pair(client: httpx.AsyncClient, ticker: dict) -> Signal | None:
+async def analyze_pair(client: httpx.AsyncClient, ticker: dict,
+                       gpu_indicators: dict = None, klines_cache: dict = None) -> Signal | None:
     symbol = ticker["symbol"]
 
-    klines_data, depth_data = await asyncio.gather(
-        get_klines(client, symbol, "Min15", 96),
-        get_depth(client, symbol, 50),
-    )
+    # Si klines pre-fetched (mode GPU batch), utiliser le cache
+    if klines_cache and symbol in klines_cache:
+        klines_data = klines_cache[symbol]
+    else:
+        klines_data = await get_klines(client, symbol, "Min15", 96)
+
+    depth_data = await get_depth(client, symbol, 50)
 
     kline = analyze_klines_advanced(klines_data)
     last_price = ticker["lastPrice"]
     depth = analyze_depth_ultra(depth_data, last_price)
+
+    # Override indicateurs avec calcul GPU batch si disponible
+    if gpu_indicators and symbol in gpu_indicators:
+        gi = gpu_indicators[symbol]
+        kline["rsi"] = gi["rsi"]
+        kline["atr"] = gi["atr"]
+        kline["cmf"] = gi["cmf"]
+        kline["mfi"] = gi["mfi"]
+        kline["williams_r"] = gi["williams_r"]
+        kline["chaikin_osc"] = gi["chaikin_osc"]
+        kline["obv_trend"] = gi["obv_trend"]
+        if gi["macd_hist"] > 0:
+            kline["macd_signal"] = "bullish"
+        elif gi["macd_hist"] < 0:
+            kline["macd_signal"] = "bearish"
+        else:
+            kline["macd_signal"] = "neutral"
 
     all_strategies = list(kline["strategies"])
     all_reasons = list(kline["reasons"]) + depth["reasons"]
@@ -1002,30 +1343,74 @@ def _price_decimals(price):
 
 # ========== SCAN ==========
 
-async def scan_sniper(top_n=3, min_score=MIN_SCORE):
-    async with httpx.AsyncClient(limits=httpx.Limits(max_connections=30)) as client:
-        print(f"[1/3] Recuperation tickers MEXC Futures...", file=sys.stderr)
+async def fetch_all_klines(client, tickers, batch_size=40):
+    """Fetch toutes les klines en parallele haute cadence."""
+    klines_cache = {}
+    symbols = [t["symbol"] for t in tickers]
+    for i in range(0, len(symbols), batch_size):
+        batch = symbols[i:i + batch_size]
+        tasks = [get_klines(client, s, "Min15", 96) for s in batch]
+        results = await asyncio.gather(*tasks)
+        for sym, data in zip(batch, results):
+            if data:
+                klines_cache[sym] = data
+        if i + batch_size < len(symbols):
+            await asyncio.sleep(0.15)
+    return klines_cache
+
+
+async def scan_sniper(top_n=3, min_score=MIN_SCORE, use_gpu=True):
+    async with httpx.AsyncClient(limits=httpx.Limits(max_connections=50, max_keepalive_connections=30)) as client:
+        gpu_label = f"PyTorch {GPU_COUNT}xGPU" if GPU_AVAILABLE and use_gpu else "CPU"
+        print(f"[1/4] Recuperation tickers MEXC Futures...", file=sys.stderr)
         tickers = await get_all_tickers(client)
         if not tickers:
             print("Erreur: aucun ticker MEXC", file=sys.stderr)
             return []
-        print(f"[1/3] {len(tickers)} coins (vol > {MIN_VOL_24H:,} USDT)", file=sys.stderr)
+        print(f"[1/4] {len(tickers)} coins (vol > {MIN_VOL_24H:,} USDT)", file=sys.stderr)
 
-        print(f"[2/3] Analyse 31 strategies + orderbook ultra...", file=sys.stderr)
+        # Phase 2: Fetch toutes les klines en parallele (haute concurrence)
+        t_fetch = time.time()
+        print(f"[2/4] Fetch klines batch (concurrence x50)...", file=sys.stderr)
+        klines_cache = await fetch_all_klines(client, tickers, batch_size=40)
+        fetch_ms = int((time.time() - t_fetch) * 1000)
+        print(f"[2/4] {len(klines_cache)} klines recuperees ({fetch_ms}ms)", file=sys.stderr)
+
+        # Phase 3: GPU batch indicators
+        gpu_indicators = {}
+        gpu_ms = 0
+        if GPU_AVAILABLE and use_gpu and _gpu_engine and klines_cache:
+            t_gpu = time.time()
+            # Build format pour GPU engine
+            gpu_klines = {}
+            for sym, kdata in klines_cache.items():
+                if kdata and "close" in kdata and len(kdata["close"]) >= 30:
+                    gpu_klines[sym] = kdata
+            if gpu_klines:
+                print(f"[3/4] GPU batch {len(gpu_klines)} coins sur {GPU_COUNT} GPU...", file=sys.stderr)
+                gpu_indicators = _gpu_engine.compute_all(gpu_klines)
+                gpu_ms = int((time.time() - t_gpu) * 1000)
+                print(f"[3/4] GPU batch: {len(gpu_indicators)} coins en {gpu_ms}ms ({gpu_label})", file=sys.stderr)
+        else:
+            print(f"[3/4] GPU: desactive, mode CPU", file=sys.stderr)
+
+        # Phase 4: Strategies + Orderbook (async)
+        print(f"[4/4] Strategies 31 + orderbook ultra...", file=sys.stderr)
         all_signals = []
-        batch_size = 20
+        batch_size = 30
         for i in range(0, len(tickers), batch_size):
             batch = tickers[i:i + batch_size]
-            tasks = [analyze_pair(client, t) for t in batch]
+            tasks = [analyze_pair(client, t, gpu_indicators=gpu_indicators, klines_cache=klines_cache) for t in batch]
             results = await asyncio.gather(*tasks)
             for s in results:
                 if s is not None and s.score >= min_score:
                     all_signals.append(s)
             if i + batch_size < len(tickers):
-                await asyncio.sleep(0.3)
+                await asyncio.sleep(0.1)
 
         all_signals.sort(key=lambda s: s.score, reverse=True)
-        print(f"[3/3] {len(all_signals)} signaux, top {top_n}", file=sys.stderr)
+        total_strats = sum(len(s.strategies) for s in all_signals)
+        print(f"[4/4] {len(all_signals)} signaux ({total_strats} triggers) | fetch {fetch_ms}ms + GPU {gpu_ms}ms", file=sys.stderr)
         return all_signals[:top_n]
 
 
@@ -1080,42 +1465,128 @@ def format_signal(s: Signal, rank: int) -> str:
     return "\n".join(lines)
 
 
-def main():
-    args = sys.argv[1:]
-    output_json = "--json" in args
-    top_n = 3
-    min_score = MIN_SCORE
-    for i, a in enumerate(args):
-        if a == "--top" and i + 1 < len(args):
-            top_n = int(args[i + 1])
-        elif a == "--min-score" and i + 1 < len(args):
-            min_score = int(args[i + 1])
+def print_banner(cycle=0, total_cycles=0):
+    gpu_label = f"PyTorch {GPU_COUNT}xGPU" if GPU_AVAILABLE else "CPU"
+    thermal = check_gpu_thermal()
+    ts = time.strftime("%Y-%m-%d %H:%M:%S")
+    print(f"\n{'#'*60}")
+    print(f"  SCAN SNIPER v4 — GPU Multi-GPU + 31 Strategies Pre-Pump")
+    print(f"  {ts} | {gpu_label} | {TOP_VOLUME} coins")
+    if cycle > 0:
+        print(f"  Cycle {cycle}/{total_cycles}" if total_cycles else f"  Cycle {cycle} (continu)")
+    if thermal["gpus"]:
+        temps = " | ".join(f"GPU{g['index']}:{g['temp_c']}C/{g['util_pct']}%" for g in thermal["gpus"])
+        print(f"  Thermal: {temps}")
+        if thermal["status"] == "critical":
+            print(f"  *** ALERTE CRITIQUE: {thermal['max_temp']}C — GPU throttle ***")
+        elif thermal["status"] == "warning":
+            print(f"  *** WARNING: {thermal['max_temp']}C — surveillance ***")
+    print(f"{'#'*60}")
+    return thermal
+
+
+def print_results(signals, elapsed, cycle=0):
+    if not signals:
+        print(f"\n  Aucun signal >= {MIN_SCORE}/100 ({elapsed:.1f}s)")
+        return
+    gpu_label = f"PyTorch {GPU_COUNT}xGPU" if GPU_AVAILABLE else "CPU"
+    print(f"\n{'#'*60}")
+    cycle_str = f" | Cycle {cycle}" if cycle else ""
+    print(f"  TOP {len(signals)} Pre-Pump | {gpu_label} | {elapsed:.1f}s{cycle_str}")
+    print(f"  31 strategies + Chaikin/CMF/OBV/MFI/ADX + OB Ultra")
+    print(f"{'#'*60}")
+    for i, s in enumerate(signals, 1):
+        print(format_signal(s, i))
+    print(f"\n{'='*60}")
+    print(f"  Config: Levier 10x | TP ATRx{TP_MULT} | SL ATRx{SL_MULT}")
+    print(f"{'='*60}")
+
+
+def run_single(top_n=3, min_score=MIN_SCORE, output_json=False, cycle=0, total_cycles=0):
+    """Execute un seul cycle de scan."""
+    thermal = print_banner(cycle, total_cycles)
+    if thermal["status"] == "critical":
+        print("  GPU thermal critique — pause 30s", file=sys.stderr)
+        time.sleep(30)
 
     t0 = time.time()
     signals = asyncio.run(scan_sniper(top_n=top_n, min_score=min_score))
     elapsed = time.time() - t0
 
     if output_json:
+        gpu_label = f"PyTorch {GPU_COUNT}xGPU" if GPU_AVAILABLE else "CPU"
         print(json.dumps({
             "signals": [asdict(s) for s in signals],
             "meta": {"scan_time_s": round(elapsed, 1), "coins_scanned": TOP_VOLUME,
                      "signals_found": len(signals), "min_score": min_score,
-                     "strategies_count": 31, "version": "v3"}
+                     "strategies_count": 31, "version": "v4", "gpu": gpu_label,
+                     "gpu_count": GPU_COUNT, "cycle": cycle,
+                     "thermal": thermal}
         }, indent=2, ensure_ascii=False))
     else:
-        if not signals:
-            print(f"\nAucun signal >= {min_score}/100 sur {TOP_VOLUME} coins ({elapsed:.1f}s)")
-            return
-        print(f"\n{'#'*56}")
-        print(f"  SCAN SNIPER v3 MEXC — Top {len(signals)} Pre-Pump")
-        print(f"  {TOP_VOLUME} coins | {elapsed:.1f}s | 31 strategies")
-        print(f"  Chaikin + CMF + OBV + MFI + ADX + OrderBook Ultra")
-        print(f"{'#'*56}")
-        for i, s in enumerate(signals, 1):
-            print(format_signal(s, i))
-        print(f"\n{'='*56}")
-        print(f"  Config: Levier 10x | TP ATRx{TP_MULT} | SL ATRx{SL_MULT}")
-        print(f"{'='*56}")
+        print_results(signals, elapsed, cycle)
+    return signals
+
+
+def main():
+    import argparse
+    parser = argparse.ArgumentParser(description="JARVIS Scan Sniper v4 — GPU Multi-GPU Pre-Pump Detector")
+    parser.add_argument("--top", type=int, default=3, help="Top N signaux")
+    parser.add_argument("--min-score", type=int, default=MIN_SCORE, help="Score minimum")
+    parser.add_argument("--cycles", type=int, default=1, help="Nombre de cycles (0=infini)")
+    parser.add_argument("--interval", type=int, default=45, help="Intervalle entre cycles (sec)")
+    parser.add_argument("--json", action="store_true", help="Output JSON")
+    parser.add_argument("--no-gpu", action="store_true", help="Desactiver GPU")
+    args = parser.parse_args()
+
+    if args.no_gpu:
+        global GPU_AVAILABLE, GPU_COUNT
+        GPU_AVAILABLE = False
+        GPU_COUNT = 0
+
+    if args.cycles == 1:
+        run_single(top_n=args.top, min_score=args.min_score, output_json=args.json)
+    else:
+        cycle = 0
+        total = args.cycles if args.cycles > 0 else 0
+        cumul_signals = 0
+        t_start = time.time()
+        print(f"\n{'*'*60}")
+        gpu_label = f"PyTorch {GPU_COUNT}xGPU" if GPU_AVAILABLE else "CPU"
+        print(f"  SCAN SNIPER v4 — MODE CONTINU")
+        print(f"  {total if total else 'infini'} cycles | interval {args.interval}s | {gpu_label}")
+        print(f"  {TOP_VOLUME} coins x 31 strategies | Top {args.top}")
+        print(f"{'*'*60}")
+
+        try:
+            while total == 0 or cycle < total:
+                cycle += 1
+                signals = run_single(top_n=args.top, min_score=args.min_score,
+                                     output_json=args.json, cycle=cycle, total_cycles=total)
+                cumul_signals += len(signals)
+                elapsed_total = time.time() - t_start
+                avg_per_cycle = elapsed_total / cycle
+
+                print(f"\n  --- Stats: {cycle} cycles | {cumul_signals} signaux cumules | {avg_per_cycle:.1f}s/cycle ---")
+
+                if total == 0 or cycle < total:
+                    thermal = check_gpu_thermal()
+                    wait = args.interval
+                    if thermal["status"] == "warning":
+                        wait = max(wait, 60)
+                        print(f"  Thermal warning — interval augmente a {wait}s")
+                    elif thermal["status"] == "critical":
+                        wait = max(wait, 120)
+                        print(f"  Thermal CRITIQUE — pause {wait}s")
+                    print(f"  Prochain cycle dans {wait}s...")
+                    time.sleep(wait)
+        except KeyboardInterrupt:
+            elapsed_total = time.time() - t_start
+            print(f"\n\n  Arret apres {cycle} cycles | {cumul_signals} signaux | {elapsed_total:.0f}s total")
+
+        print(f"\n{'*'*60}")
+        print(f"  SCAN TERMINE: {cycle} cycles | {cumul_signals} signaux | {time.time()-t_start:.0f}s")
+        print(f"{'*'*60}")
 
 
 if __name__ == "__main__":
