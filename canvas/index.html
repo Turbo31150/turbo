@@ -36,6 +36,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg-deep);color:var(--text
 .logo{font-family:var(--font-display);font-weight:900;font-size:15px;letter-spacing:3px;color:var(--cyan);text-shadow:var(--glow);display:flex;align-items:center;gap:8px;user-select:none}
 .logo-dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+@keyframes pulse-warning{0%,100%{opacity:1}50%{opacity:.5}}
 .topbar-r{display:flex;align-items:center;gap:8px;margin-left:auto}
 .tbtn{background:none;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;padding:3px 10px;cursor:pointer;font-size:10px;font-family:var(--font-mono);transition:all .15s;white-space:nowrap}
 .tbtn:hover{border-color:var(--cyan-dim);color:var(--text)}
@@ -776,8 +777,10 @@ function addCockpitMsg(text,modelInfo,agentUsed,toolsUsed,turns){
       b.textContent=toolIcon(t.tool)+' '+t.tool;
       badges.appendChild(b);
     });
-    var turnBadge=el('span','tool-badge');turnBadge.style.borderColor='var(--cyan-dim)';turnBadge.style.color='var(--cyan)';
-    turnBadge.textContent='\u21BB '+turns+' tour'+(turns>1?'s':'');
+    var turnBadge=el('span','tool-badge');
+    if(turns>5){turnBadge.style.borderColor='var(--orange)';turnBadge.style.color='var(--orange)';turnBadge.style.animation='pulse-warning 1.5s ease-in-out infinite'}
+    else{turnBadge.style.borderColor='var(--cyan-dim)';turnBadge.style.color='var(--cyan)'}
+    turnBadge.textContent='\u21BB '+turns+' tour'+(turns>1?'s':'')+(turns>5?' \u26A0':'');
     badges.appendChild(turnBadge);
     d.appendChild(badges);
 
