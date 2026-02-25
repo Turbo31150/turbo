@@ -9,7 +9,7 @@ const store = new Store({
   },
 });
 
-const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
+const isDev = process.env.NODE_ENV !== 'production' && (process.env.NODE_ENV === 'development' || !app.isPackaged);
 
 let mainWindow: BrowserWindow | null = null;
 const widgetWindows = new Map<string, BrowserWindow>();
@@ -30,7 +30,7 @@ export function createMainWindow(): BrowserWindow {
     backgroundColor: '#0a0e14',
     frame: false,
     titleBarStyle: 'hidden',
-    show: false,
+    show: true,
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'index.js'),
       nodeIntegration: false,
@@ -43,7 +43,7 @@ export function createMainWindow(): BrowserWindow {
     mainWindow.loadURL('http://localhost:5173');
     mainWindow.webContents.openDevTools({ mode: 'detach' });
   } else {
-    mainWindow.loadFile(path.join(__dirname, '..', '..', 'dist', 'index.html'));
+    mainWindow.loadURL('http://127.0.0.1:18800/');
   }
 
   mainWindow.once('ready-to-show', () => {
