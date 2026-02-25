@@ -13,7 +13,7 @@
 #>
 param(
     [Parameter(Position=0)]
-    [ValidateSet("ask","status","heal","arena","history","bench","filter","route","score","scores","help")]
+    [ValidateSet("ask","status","heal","arena","history","bench","filter","route","score","scores","consensus","help")]
     [string]$Command = "help",
 
     [Parameter(Position=1, ValueFromRemainingArguments=$true)]
@@ -497,6 +497,81 @@ if h['runs']:
         }
     }
 
+    "consensus" {
+        $prompt = ($Args_ -join " ").Trim()
+        if (-not $prompt) { Write-Host 'Usage: jarvis consensus "votre question"' ; exit 1 }
+
+        # Poids par noeud (benchmark-tuned)
+        $weights = @{ "M1" = 1.8; "M2" = 1.4; "M3" = 1.0; "OL1" = 1.3 }
+        $detectedDomain = Detect-Domain $prompt
+
+        Write-Host ('[CONSENSUS] Domain: {0} | Noeuds: M1+M2+M3+OL1' -f $detectedDomain) -ForegroundColor Cyan
+        Write-Host '[CONSENSUS] Interrogation en cours...' -ForegroundColor DarkGray
+
+        # Query all nodes sequentially (PowerShell Jobs overhead > sequential for 4 nodes)
+        $results = @{}
+        foreach ($nid in @("OL1","M3","M2","M1")) {
+            Write-Host ('  {0}...' -f $nid) -ForegroundColor DarkGray -NoNewline
+            $r = Query-Node $nid $prompt
+            $results[$nid] = $r
+            $status = if ($r.Error) { 'FAIL' } else { 'OK' }
+            $color = if ($r.Error) { 'Red' } else { 'Green' }
+            Write-Host (' {0} ({1}ms)' -f $status, $r.Latency) -ForegroundColor $color
+            Log-Result $nid $detectedDomain $r.Latency (-not [bool]$r.Error)
+        }
+
+        # Display responses
+        Write-Host ''
+        foreach ($nid in @("OL1","M3","M2","M1")) {
+            $r = $results[$nid]
+            if ($r.Error) {
+                Write-Host ('{0} (w={1}): [ERREUR] {2}' -f $nid, $weights[$nid], $r.Error) -ForegroundColor Red
+            } else {
+                $preview = $r.Text.Substring(0, [Math]::Min(200, $r.Text.Length))
+                if ($r.Text.Length -gt 200) { $preview += '...' }
+                Write-Host ('{0} (w={1}, {2}ms):' -f $nid, $weights[$nid], $r.Latency) -ForegroundColor Yellow
+                Write-Host "  $preview"
+                Write-Host ''
+            }
+        }
+
+        # Weighted vote - pick best by weight among successful
+        $successNodes = @($results.Keys | Where-Object { -not $results[$_].Error })
+        if ($successNodes.Count -eq 0) {
+            Write-Host '[CONSENSUS] Aucun noeud disponible!' -ForegroundColor Red
+        } else {
+            $bestNode = ($successNodes | Sort-Object { $weights[$_] } -Descending)[0]
+            $totalWeight = ($successNodes | ForEach-Object { $weights[$_] } | Measure-Object -Sum).Sum
+            $bestWeight = $weights[$bestNode]
+            $confidence = [Math]::Round($bestWeight / $totalWeight * 100, 0)
+            Write-Host ('--- CONSENSUS ({0}/{1} noeuds) ---' -f $successNodes.Count, $results.Count) -ForegroundColor Green
+            Write-Host ('Meilleure reponse: {0} (poids={1}, confiance={2}%)' -f $bestNode, $bestWeight, $confidence) -ForegroundColor Green
+            Write-Host ''
+            Write-Output $results[$bestNode].Text
+        }
+
+        if ($Json) {
+            $jsonOut = @{
+                domain = $detectedDomain
+                nodes_queried = $results.Count
+                nodes_ok = $successNodes.Count
+                best_node = $bestNode
+                confidence_pct = $confidence
+                responses = @{}
+            }
+            foreach ($nid in $results.Keys) {
+                $r = $results[$nid]
+                $jsonOut.responses[$nid] = @{
+                    text = $r.Text
+                    latency_ms = $r.Latency
+                    error = $r.Error
+                    weight = $weights[$nid]
+                }
+            }
+            $jsonOut | ConvertTo-Json -Depth 4
+        }
+    }
+
     "help" {
         $helpText = @'
 
@@ -517,6 +592,8 @@ if h['runs']:
     jarvis history               Historique des scores
     jarvis score                 Score champion actuel
     jarvis scores                Scores adaptatifs par noeud x domaine
+
+    jarvis consensus "question"  Vote pondere M1+M2+M3+OL1
 
     jarvis heal --status         Etat du healer
     jarvis heal                  Lance le daemon healer
