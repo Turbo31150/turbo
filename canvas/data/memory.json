@@ -1,0 +1,75 @@
+{
+  "conversations": [
+    {
+      "agent": "coding",
+      "category": "code",
+      "userText": "hello, test autolearn",
+      "responseText": "Bonjour ! Quel type de test \"autolearn\" parles-tu ? Pourrais-tu fournir plus de détails ou un contexte spécifique pour que je puisse t'aider de manière plus précise ?",
+      "nodeId": "M2",
+      "latencyMs": 20741,
+      "ts": "2026-02-25T05:23:30.709Z",
+      "quality": 8
+    },
+    {
+      "agent": "trading-scanner",
+      "category": "trading",
+      "userText": "quel est le prix du BTC?",
+      "responseText": "Le prix du Bitcoin (BTC) est actuellement de **$63,800** (au moment de l'analyse). Cela peut varier en fonction des flux de marché, des événements économiques et des sentiments du marché. Pour une analyse plus approfondie, il serait utile de consulter des outils de surveillance du marché ou des indicateurs techniques.",
+      "nodeId": "OL1",
+      "latencyMs": 1381,
+      "ts": "2026-02-25T05:23:36.429Z",
+      "quality": 8
+    },
+    {
+      "agent": "windows",
+      "category": "system",
+      "userText": "comment voir les GPU installes?",
+      "responseText": "",
+      "nodeId": "M3",
+      "latencyMs": 0,
+      "ts": "2026-02-25T05:23:41.170Z",
+      "error": true
+    },
+    {
+      "agent": "main",
+      "category": "default",
+      "userText": "[INSTRUCTION SYSTEME: Reponds UNIQUEMENT en francais. Pas d'anglais.]\nauto amélioration",
+      "responseText": "L'auto-amélioration est un processus continuel par lequel une personne cherche à s'améliorer dans divers domaines de sa vie, que ce soit professionnellement, intellectuellement ou personnellement. Cela peut impliquer l'acquisition de nouvelles compétences, la modification de comportements et l'adoption de pratiques qui favorisent le développement et le bien-être à long terme. L'auto-amélioration est essentielle pour répondre aux changements dans un environnement dynamique et pour atteindre ses objectifs personnels et professionnels.",
+      "nodeId": "M2",
+      "latencyMs": 51065,
+      "ts": "2026-02-25T05:23:56.495Z",
+      "quality": 8
+    },
+    {
+      "agent": "windows",
+      "category": "system",
+      "userText": "comment voir les GPU installes?",
+      "responseText": "",
+      "nodeId": "M2",
+      "latencyMs": 0,
+      "ts": "2026-02-25T05:24:41.176Z",
+      "error": true
+    },
+    {
+      "agent": "windows",
+      "category": "system",
+      "userText": "comment voir les GPU installes?",
+      "responseText": "Pour voir les GPU installées sur un système Windows, vous pouvez utiliser différentes méthodes. Voici les principales :\n\n### 1. **Utilisation de PowerShell**\nVous pouvez utiliser la commande `Get-NVIDIAGPU` si vous avez installé le module PowerShell NVIDIA (ou `Get-MicrosoftSqlServerInstance` pour les GPU Microsoft). Cependant, il faut vérifier si ce module est installé.\n\n#### Étapes :\n1. Ouvrez PowerShell en tant qu'administrateur.\n2. Tapez :\n   ```powershell\n   Get-NVIDIAGPU\n   ```\n   Si ce commande n'est pas disponible, essayez :\n   ```powershell\n   Get-MicrosoftSqlServerInstance\n   ```\n   (Ce n'est pas spécifiquement pour les GPU, mais il peut afficher des informations sur les instances SQL Server.)\n\n### 2. **Utilisation de l'interface graphique**\n- Ouvrez l'**interface de gestion des appareils matériels** (via le menu **Gestion des appareils matériels** dans le **Panel de contrôle**).\n- Cliquez sur **Aperçu des appareils matériels**.\n- Recherchez **GPU** et cliquez sur le lien pour afficher les informations.\n\n### 3. **Utilisation de l'outil **NVIDIA Control Panel** (si installé)\n- Ouvrez **NVIDIA Control Panel**.\n- Cliquez sur **Aperçu des appareils matériels**.\n- Vous pouvez voir les informations sur les GPU installées.\n\n### 4. **Utilisation de l'outil **GPU-Z** (si installé)**\n- Téléchargez et installez [GPU-Z](https://www.techpowerup.com/gpu-z/).\n- Ouvrez l'outil et cliquez sur **Aperçu des appareils matériels** pour voir les GPU.\n\n---\n\n### Résumé :\n- Pour Windows, les GPU sont souvent affichées via l'**interface de gestion des appareils matériels** ou via **NVIDIA Control Panel**.\n- Si vous utilisez des GPU Microsoft (comme les GPU de Windows Server), vous pouvez utiliser `Get-MicrosoftSqlServerInstance` ou `Get-NVIDIAGPU`.\n\nVoulez-vous voir les GPU sur un système spécifique ?",
+      "nodeId": "OL1",
+      "latencyMs": 6352,
+      "ts": "2026-02-25T05:24:47.529Z",
+      "quality": 8
+    }
+  ],
+  "profile": {
+    "summary": "",
+    "topics": {
+      "code": 1,
+      "trading": 1,
+      "system": 3,
+      "default": 1
+    },
+    "preferences": {},
+    "updated_at": null
+  }
+}

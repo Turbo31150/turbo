@@ -4,6 +4,7 @@ const http = require('http');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const AutolearnEngine = require('./autolearn');
 
 const PORT = 18800;
 const CANVAS_HTML = path.join(__dirname, 'index.html');
@@ -87,6 +88,9 @@ const SYS_PROMPTS = {
   default: 'Tu es JARVIS, assistant IA polyvalent. Reponds en francais. Sois concis et utile.'
 };
 
+// ── Autolearn Engine ────────────────────────────────────────────────────────
+const autolearn = new AutolearnEngine(callNode, ROUTING, SYS_PROMPTS);
+
 // ── HTTP helper ─────────────────────────────────────────────────────────────
 function httpRequest(urlStr, body, headers, timeout) {
   return new Promise((resolve, reject) => {
@@ -156,7 +160,11 @@ async function callNode(nodeId, messages) {
 async function routeAndCall(agentId, userText) {
   const cat = AGENT_CAT[agentId] || 'default';
   const chain = ROUTING[cat] || ROUTING.default;
-  const sysProm = SYS_PROMPTS[cat] || SYS_PROMPTS.default;
+  let sysProm = SYS_PROMPTS[cat] || SYS_PROMPTS.default;
+
+  // Autolearn: inject memory context into system prompt
+  const ctxInjection = autolearn.getContextInjection(cat);
+  if (ctxInjection) sysProm = sysProm + '\n' + ctxInjection;
 
   const messages = [
     { role: 'system', content: sysProm },
@@ -167,12 +175,34 @@ async function routeAndCall(agentId, userText) {
   for (const nodeId of chain) {
     try {
       console.log(`[chat] ${agentId} (${cat}) -> ${nodeId}/${NODES[nodeId].model}`);
+      const t0 = Date.now();
       const result = await callNode(nodeId, messages);
-      console.log(`[chat] OK from ${nodeId} (${result.text.length} chars)`);
+      const latencyMs = Date.now() - t0;
+      console.log(`[chat] OK from ${nodeId} (${result.text.length} chars, ${latencyMs}ms)`);
+
+      // Autolearn: record + background quality scoring
+      const entry = {
+        agent: agentId, category: cat, userText, responseText: result.text,
+        nodeId, latencyMs, ts: new Date().toISOString()
+      };
+      autolearn.scoreResponse(entry).then(q => {
+        entry.quality = q;
+        autolearn.recordConversation(entry);
+      }).catch(() => {
+        entry.quality = 5;
+        autolearn.recordConversation(entry);
+      });
+
       return result;
     } catch (e) {
       console.log(`[chat] ${nodeId} FAILED: ${e.message}`);
       errors.push(`${nodeId}: ${e.message}`);
+
+      // Autolearn: record failure
+      autolearn.recordConversation({
+        agent: agentId, category: cat, userText, responseText: '',
+        nodeId, latencyMs: 0, ts: new Date().toISOString(), error: true
+      });
     }
   }
   throw new Error('All nodes failed: ' + errors.join(' | '));
@@ -247,6 +277,27 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ ok: false, error: e.message }));
     }
+  } else if (req.method === 'GET' && req.url === '/autolearn/status') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(autolearn.getStatus()));
+  } else if (req.method === 'GET' && req.url === '/autolearn/memory') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(autolearn.getMemory()));
+  } else if (req.method === 'GET' && req.url === '/autolearn/scores') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(autolearn.getScores()));
+  } else if (req.method === 'GET' && req.url === '/autolearn/history') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(autolearn.getHistory()));
+  } else if (req.method === 'POST' && req.url === '/autolearn/trigger') {
+    try {
+      const result = await autolearn.triggerReview();
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(result));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: false, error: e.message }));
+    }
   } else if (req.method === 'GET' && (req.url === '/' || req.url === '/index.html')) {
     // Serve canvas HTML
     try {
@@ -267,4 +318,6 @@ server.listen(PORT, '127.0.0.1', () => {
   console.log(`JARVIS Direct Proxy on http://127.0.0.1:${PORT}`);
   console.log('Nodes: M2(deepseek), M3(mistral), OL1(qwen3), M1(qwen3-30b)');
   console.log('Zero OpenClaw dependency');
+  autolearn.start();
+  console.log('Autolearn engine started — 3 pillars active');
 });
