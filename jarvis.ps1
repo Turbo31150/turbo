@@ -13,7 +13,7 @@
 #>
 param(
     [Parameter(Position=0)]
-    [ValidateSet("ask","status","heal","arena","history","bench","filter","route","score","scores","consensus","dashboard","help")]
+    [ValidateSet("ask","status","heal","arena","history","bench","filter","route","score","scores","consensus","dashboard","profile","export","help")]
     [string]$Command = "help",
 
     [Parameter(Position=1, ValueFromRemainingArguments=$true)]
@@ -365,6 +365,7 @@ switch ($Command) {
 
     "status" {
         $output = @()
+        $failedNodes = @()
         foreach ($nid in @("M1","M2","M3","OL1")) {
             $cfg = $Nodes[$nid]
             $healthy = Health-Check $nid
@@ -373,6 +374,7 @@ switch ($Command) {
             $tags = ($cfg.Tags -join ",")
             $line = "${nid}: $status | $($cfg.Model) | tags=$tags"
             Write-Host $line -ForegroundColor $color
+            if (-not $healthy) { $failedNodes += $nid }
             $output += [PSCustomObject]@{
                 Node = $nid
                 Status = $status
@@ -380,6 +382,21 @@ switch ($Command) {
                 Tags = $tags
                 Priority = $cfg.Priority
             }
+        }
+        # Autolearn status
+        try {
+            $al = Invoke-RestMethod -Uri $AutolearnUrl -TimeoutSec 2 -ErrorAction Stop
+            $alStatus = if ($al.running) { 'RUNNING' } else { 'STOPPED' }
+            $alColor = if ($al.running) { 'Green' } else { 'Red' }
+            Write-Host ('Autolearn: {0} | {1} msgs | {2} tuning cycles' -f $alStatus, $al.pillars.memory.total_messages, $al.pillars.tuning.history_count) -ForegroundColor $alColor
+        } catch {
+            Write-Host 'Autolearn: OFFLINE (port 18800)' -ForegroundColor Red
+        }
+        # Alerts
+        if ($failedNodes.Count -gt 0) {
+            Write-Host ''
+            Write-Host ('  ALERTE: {0} noeud(s) en panne: {1}' -f $failedNodes.Count, ($failedNodes -join ', ')) -ForegroundColor Red
+            Write-Host '  Lancez "jarvis heal --status" pour diagnostiquer' -ForegroundColor Yellow
         }
         if ($Json) { $output | ConvertTo-Json }
     }
@@ -640,6 +657,71 @@ if h['runs']:
         Start-Process $dashPath
     }
 
+    "profile" {
+        Write-Host '[PROFILE] Chargement du profil autolearn...' -ForegroundColor Cyan
+        try {
+            $resp = Invoke-RestMethod -Uri "http://127.0.0.1:18800/autolearn/memory" -TimeoutSec 5 -ErrorAction Stop
+            Write-Host ''
+            Write-Host '  Profil utilisateur' -ForegroundColor Green
+            Write-Host ('  {0}' -f ('-' * 50)) -ForegroundColor DarkGray
+            if ($resp.profile_summary) {
+                Write-Host ('  {0}' -f $resp.profile_summary) -ForegroundColor White
+            } else {
+                Write-Host '  (profil en construction)' -ForegroundColor Yellow
+            }
+            Write-Host ''
+            Write-Host ('  Messages totaux: {0}' -f $resp.total_messages) -ForegroundColor Cyan
+            if ($resp.top_topics -and $resp.top_topics.Count -gt 0) {
+                Write-Host '  Top topics:' -ForegroundColor Cyan
+                foreach ($t in $resp.top_topics) {
+                    $topic = $t[0]; $count = $t[1]
+                    Write-Host ('    {0,-20} {1} msgs' -f $topic, $count) -ForegroundColor White
+                }
+            }
+            Write-Host ''
+            if ($resp.last_conversations -and $resp.last_conversations.Count -gt 0) {
+                Write-Host '  Dernieres conversations:' -ForegroundColor Cyan
+                $last5 = $resp.last_conversations | Select-Object -Last 5
+                foreach ($c in $last5) {
+                    $preview = if ($c.user_msg) { $c.user_msg.Substring(0, [Math]::Min(60, $c.user_msg.Length)) } else { '?' }
+                    $ts = if ($c.timestamp) { $c.timestamp.Substring(11,5) } else { '' }
+                    Write-Host ('    [{0}] {1}...' -f $ts, $preview) -ForegroundColor DarkGray
+                }
+            }
+            if ($Json) { $resp | ConvertTo-Json -Depth 4 }
+        }
+        catch {
+            Write-Host '[PROFILE] Autolearn proxy offline (port 18800)' -ForegroundColor Red
+        }
+    }
+
+    "export" {
+        $exportFile = "C:/Users/franc/jarvis_config_export.json"
+        $config = @{
+            timestamp = (Get-Date -Format "yyyy-MM-ddTHH:mm:ss")
+            nodes = @{}
+            routing = $Routing
+            domain_keywords = $DomainKeywords
+        }
+        foreach ($nid in $Nodes.Keys) {
+            $cfg = $Nodes[$nid]
+            $config.nodes[$nid] = @{
+                model = $cfg.Model
+                type = $cfg.Type
+                url = $cfg.Url
+                tags = $cfg.Tags
+                priority = $cfg.Priority
+            }
+        }
+        # Include adaptive data if available
+        if (Test-Path $RoutingLogFile) {
+            $config["adaptive_log_entries"] = (Load-RoutingLog).Count
+        }
+        $config | ConvertTo-Json -Depth 4 | Set-Content $exportFile -Encoding UTF8
+        Write-Host ('[EXPORT] Configuration exportee: {0}' -f $exportFile) -ForegroundColor Green
+        if ($Json) { $config | ConvertTo-Json -Depth 4 }
+    }
+
     "help" {
         $helpText = @'
 
@@ -663,6 +745,8 @@ if h['runs']:
 
     jarvis consensus "question"  Vote pondere M1+M2+M3+OL1
     jarvis dashboard             Ouvre le dashboard HTML
+    jarvis profile               Profil autolearn + topics + conversations
+    jarvis export                Exporte la config en JSON
 
     jarvis heal --status         Etat du healer
     jarvis heal                  Lance le daemon healer
