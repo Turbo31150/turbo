@@ -13,7 +13,7 @@
 #>
 param(
     [Parameter(Position=0)]
-    [ValidateSet("ask","status","heal","arena","history","bench","filter","route","score","help")]
+    [ValidateSet("ask","status","heal","arena","history","bench","filter","route","score","scores","help")]
     [string]$Command = "help",
 
     [Parameter(Position=1, ValueFromRemainingArguments=$true)]
@@ -96,6 +96,56 @@ $Routing = @{
     "web"           = @("M1","M2","OL1","M3")
 }
 
+# === ADAPTIVE ROUTING ===
+$RoutingLogFile = "C:/Users/franc/jarvis_routing_log.json"
+$MinDataPoints = 3
+
+function Load-RoutingLog {
+    if (Test-Path $RoutingLogFile) {
+        try { return (Get-Content $RoutingLogFile -Raw | ConvertFrom-Json) }
+        catch { return @() }
+    }
+    return @()
+}
+
+function Save-RoutingLog($log) {
+    $log | ConvertTo-Json -Depth 3 | Set-Content $RoutingLogFile -Encoding UTF8
+}
+
+function Log-Result([string]$NodeId, [string]$Domain, [int]$LatencyMs, [bool]$Success) {
+    $log = @(Load-RoutingLog)
+    $entry = @{
+        node = $NodeId
+        domain = $Domain
+        latency_ms = $LatencyMs
+        success = $Success
+        timestamp = (Get-Date -Format "yyyy-MM-ddTHH:mm:ss")
+    }
+    $log += $entry
+    # Keep last 500 entries
+    if ($log.Count -gt 500) { $log = $log[-500..-1] }
+    Save-RoutingLog $log
+}
+
+function Get-AdaptiveRoute([string]$Domain) {
+    $log = @(Load-RoutingLog)
+    $domEntries = @($log | Where-Object { $_.domain -eq $Domain })
+    if ($domEntries.Count -lt $MinDataPoints) { return $null }
+
+    $nodeScores = @{}
+    foreach ($nid in $Nodes.Keys) {
+        $nodeEntries = @($domEntries | Where-Object { $_.node -eq $nid })
+        if ($nodeEntries.Count -lt 1) { continue }
+        $successRate = ($nodeEntries | Where-Object { $_.success -eq $true }).Count / $nodeEntries.Count
+        $avgLatency = ($nodeEntries | Measure-Object -Property latency_ms -Average).Average
+        $speedScore = [Math]::Max(0, (10 - $avgLatency / 5000))
+        $finalScore = $speedScore * 0.4 + $successRate * 10 * 0.6
+        $nodeScores[$nid] = [Math]::Round($finalScore, 2)
+    }
+    if ($nodeScores.Count -eq 0) { return $null }
+    return @($nodeScores.GetEnumerator() | Sort-Object Value -Descending | ForEach-Object { $_.Key })
+}
+
 # === FUNCTIONS ===
 
 function Detect-Domain([string]$Text) {
@@ -114,6 +164,12 @@ function Detect-Domain([string]$Text) {
 
 function Pick-Node([string]$Domain, [string]$ForceNode) {
     if ($ForceNode -and $Nodes.ContainsKey($ForceNode)) { return $ForceNode }
+    $adaptive = @(Get-AdaptiveRoute $Domain)
+    if ($adaptive -and $adaptive[0]) {
+        $script:RoutingSource = "adaptive"
+        return $adaptive[0]
+    }
+    $script:RoutingSource = "static"
     $route = $Routing[$Domain]
     if (-not $route) { $route = @("M1","OL1","M2","M3") }
     return $route[0]
@@ -212,9 +268,9 @@ switch ($Command) {
         if (-not $prompt) { Write-Host "Usage: jarvis ask `"votre question`" [-Node M1] [-Domain code]"; exit 1 }
 
         # Auto-detect domain from keywords
+        $script:RoutingSource = "static"
         $detectedDomain = if ($Domain) { $Domain } else { Detect-Domain $prompt }
         $selectedNode = Pick-Node $detectedDomain $Node
-
         Write-Host ('[JARVIS] Domain: {0} | Node: {1} | Prompt: {2}...' -f $detectedDomain, $selectedNode, $prompt.Substring(0, [Math]::Min(60, $prompt.Length))) -ForegroundColor Cyan
         $result = Query-Node $selectedNode $prompt
 
@@ -233,6 +289,10 @@ switch ($Command) {
             }
         }
 
+        # Log result for adaptive routing
+        $querySuccess = -not [bool]$result.Error
+        Log-Result $result.Node $detectedDomain $result.Latency $querySuccess
+
         if ($Json) {
             @{
                 node = $result.Node
@@ -240,13 +300,14 @@ switch ($Command) {
                 latency_ms = $result.Latency
                 response = $result.Text
                 error = $result.Error
+                routing = $RoutingSource
             } | ConvertTo-Json -Depth 3
         }
         else {
             Write-Host ""
             Write-Output $result.Text
             Write-Host ""
-            Write-Host ('[{0} | {1} | {2}ms]' -f $result.Node, $detectedDomain, $result.Latency) -ForegroundColor DarkGray
+            Write-Host ('[{0} | {1} | {2}ms | {3}]' -f $result.Node, $detectedDomain, $result.Latency, $RoutingSource) -ForegroundColor DarkGray
         }
     }
 
@@ -370,12 +431,19 @@ switch ($Command) {
         if (-not $prompt) {
             Write-Host 'Usage: jarvis route "prompt" -- affiche quel noeud serait choisi' ; exit 1
         }
+        $script:RoutingSource = "static"
         $detectedDomain = Detect-Domain $prompt
         $selectedNode = Pick-Node $detectedDomain $Node
-        $route = $Routing[$detectedDomain]
+        $adaptive = @(Get-AdaptiveRoute $detectedDomain)
+        $staticRoute = $Routing[$detectedDomain]
         Write-Host ('[ROUTE] Domain detecte: {0}' -f $detectedDomain) -ForegroundColor Cyan
-        Write-Host ('[ROUTE] Noeud choisi: {0}' -f $selectedNode) -ForegroundColor Green
-        Write-Host ('[ROUTE] Ordre fallback: {0}' -f ($route -join ' -> ')) -ForegroundColor DarkGray
+        Write-Host ('[ROUTE] Noeud choisi: {0} ({1})' -f $selectedNode, $RoutingSource) -ForegroundColor Green
+        Write-Host ('[ROUTE] Statique:  {0}' -f ($staticRoute -join ' -> ')) -ForegroundColor DarkGray
+        if ($adaptive -and $adaptive[0]) {
+            Write-Host ('[ROUTE] Adaptatif: {0}' -f ($adaptive -join ' -> ')) -ForegroundColor Yellow
+        } else {
+            Write-Host '[ROUTE] Adaptatif: pas assez de donnees (min 3)' -ForegroundColor DarkGray
+        }
         Write-Host '[ROUTE] Keywords matches:' -ForegroundColor DarkGray
         foreach ($dom in $DomainKeywords.Keys) {
             $count = 0
@@ -401,6 +469,34 @@ if h['runs']:
 '@ | python3
     }
 
+    "scores" {
+        $log = @(Load-RoutingLog)
+        if ($log.Count -eq 0) {
+            Write-Host 'Aucune donnee de routage. Utilisez "jarvis ask" pour alimenter le log.' -ForegroundColor Yellow
+        }
+        else {
+            Write-Host ("`nRoutage adaptatif -- {0} requetes enregistrees" -f $log.Count) -ForegroundColor Cyan
+            Write-Host ("{0,-14} {1,-6} {2,-6} {3,-10} {4,-10} {5,-8}" -f "Domain", "Node", "Reqs", "AvgLatency", "Success%", "Score") -ForegroundColor Cyan
+            Write-Host ("-" * 60) -ForegroundColor DarkGray
+            $domains = $log | Select-Object -ExpandProperty domain -Unique | Sort-Object
+            foreach ($dom in $domains) {
+                $domEntries = @($log | Where-Object { $_.domain -eq $dom })
+                foreach ($nid in ($Nodes.Keys | Sort-Object)) {
+                    $nodeEntries = @($domEntries | Where-Object { $_.node -eq $nid })
+                    if ($nodeEntries.Count -eq 0) { continue }
+                    $successCount = @($nodeEntries | Where-Object { $_.success -eq $true }).Count
+                    $successPct = [Math]::Round($successCount * 100 / $nodeEntries.Count, 0)
+                    $avgLat = [Math]::Round(($nodeEntries | Measure-Object -Property latency_ms -Average).Average, 0)
+                    $speedScore = [Math]::Max(0, (10 - $avgLat / 5000))
+                    $finalScore = [Math]::Round($speedScore * 0.4 + ($successPct / 10) * 0.6, 2)
+                    $color = if ($finalScore -ge 7) { "Green" } elseif ($finalScore -ge 4) { "Yellow" } else { "Red" }
+                    Write-Host ("{0,-14} {1,-6} {2,-6} {3,-10} {4,-10} {5,-8}" -f $dom, $nid, $nodeEntries.Count, "${avgLat}ms", "${successPct}%", $finalScore) -ForegroundColor $color
+                }
+            }
+            Write-Host ("`nMin {0} requetes/domaine pour activer le routage adaptatif." -f $MinDataPoints) -ForegroundColor DarkGray
+        }
+    }
+
     "help" {
         $helpText = @'
 
@@ -420,6 +516,7 @@ if h['runs']:
     jarvis bench -Cycles 5       Lance un benchmark
     jarvis history               Historique des scores
     jarvis score                 Score champion actuel
+    jarvis scores                Scores adaptatifs par noeud x domaine
 
     jarvis heal --status         Etat du healer
     jarvis heal                  Lance le daemon healer
