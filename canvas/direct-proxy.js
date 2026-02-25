@@ -100,6 +100,25 @@ const ETOILE_DB = path.join(__dirname, '..', 'etoile.db');
 const MAX_FILE_SIZE = 100 * 1024;
 const MAX_TOOL_TURNS = 15;
 
+// ── Load etoile.db schemas at startup ──────────────────────────────────────
+let ETOILE_SCHEMAS = '';
+try {
+  const schemaTables = execSync('sqlite3 "' + ETOILE_DB + '" ".tables"', {
+    encoding: 'utf8', timeout: 3000, windowsHide: true
+  }).trim().split(/\s+/).filter(Boolean);
+  const schemaLines = [];
+  for (const t of schemaTables) {
+    const schema = execSync('sqlite3 "' + ETOILE_DB + '" ".schema ' + t + '"', {
+      encoding: 'utf8', timeout: 3000, windowsHide: true
+    }).trim();
+    if (schema) schemaLines.push('-- Table: ' + t + '\n' + schema);
+  }
+  ETOILE_SCHEMAS = schemaLines.join('\n\n');
+  console.log('[etoile] Schemas loaded: ' + schemaTables.length + ' tables (' + schemaTables.join(', ') + ')');
+} catch (e) {
+  console.warn('[etoile] Schema extraction failed:', e.message);
+}
+
 // ── Load etoile.db summary at startup ────────────────────────────────────────
 let ETOILE_SUMMARY = '';
 try {
@@ -137,7 +156,11 @@ try {
     agents.split('\n').map(l => { const p = l.split('|'); return '- ' + p[0] + ' (' + (p[1] || '?') + ') — ' + (p[2] || '?'); }).join('\n'),
     '',
     'Pour explorer etoile.db: utilise query_db avec SQL (tables: map, agents, api_keys, memories, metrics, sessions)',
-    'Pour lancer un launcher/script: utilise pipeline avec le nom exact'
+    'Pour lancer un launcher/script: utilise pipeline avec le nom exact',
+    '',
+    '=== DB SCHEMAS (etoile.db) ===',
+    ETOILE_SCHEMAS,
+    'IMPORTANT: Utilise UNIQUEMENT les colonnes listees ci-dessus pour query_db. Ne devine JAMAIS les noms de colonnes.'
   ].join('\n');
   console.log('[etoile] Loaded summary: ' + countByType.split('\n').length + ' types, ' + launchers.split('\n').length + ' launchers');
 } catch (e) {
@@ -275,7 +298,12 @@ const TOOLS = {
       try { return { ok: true, results: JSON.parse(output), db: path.basename(db) }; }
       catch (_) { return { ok: true, output: output.trim(), db: path.basename(db) }; }
     } catch (e) {
-      return { ok: false, error: (e.stderr || e.message || '').slice(0, 2000) };
+      let hint = '';
+      try {
+        const tbls = execSync('sqlite3 "' + ETOILE_DB + '" ".tables"', { encoding: 'utf8', timeout: 2000, windowsHide: true }).trim();
+        hint = 'Tables disponibles: ' + tbls + '. Verifie les noms de colonnes dans le schema injecte.';
+      } catch (_) {}
+      return { ok: false, error: (e.stderr || e.message || '').slice(0, 2000), hint };
     }
   },
 
@@ -452,6 +480,9 @@ async function agenticChat(agentId, userText) {
 
   const toolHistory = [];
   let lastModel = null, lastProvider = null;
+  const toolFailCount = {};  // anti-loop: { "tool_name": fail_count }
+  const MAX_SAME_FAIL = 3;
+  let noProgressCount = 0;
 
   for (let turn = 0; turn < MAX_TOOL_TURNS; turn++) {
     let aiResult, errors = [];
@@ -487,8 +518,53 @@ async function agenticChat(agentId, userText) {
     }
 
     toolHistory.push({ tool: toolCall.name, args: toolCall.args, result: toolResult, turn });
+
+    // Anti-loop: track failures per tool
+    if (!toolResult.ok && toolResult.error) {
+      toolFailCount[toolCall.name] = (toolFailCount[toolCall.name] || 0) + 1;
+      if (toolFailCount[toolCall.name] >= MAX_SAME_FAIL) {
+        console.log('[cockpit] ANTI-LOOP: ' + toolCall.name + ' failed ' + MAX_SAME_FAIL + 'x, stopping');
+        const stopMsg = '[SYSTEM] STOP: ' + toolCall.name + ' a echoue ' + MAX_SAME_FAIL + ' fois. Ne retente PAS cet outil. Reponds avec ce que tu sais.';
+        messages.push({ role: 'assistant', content: aiResult.text });
+        messages.push({ role: 'user', content: stopMsg });
+        // One last AI turn to wrap up
+        for (const nodeId of chain) {
+          try {
+            const final = await callNode(nodeId, messages);
+            return { text: final.text, model: final.model, provider: final.provider, tools_used: toolHistory, turns: turn + 1, anti_loop: true };
+          } catch (_) {}
+        }
+        return { text: stopMsg, model: lastModel, provider: lastProvider, tools_used: toolHistory, turns: turn + 1, anti_loop: true };
+      }
+    } else {
+      toolFailCount[toolCall.name] = 0; // reset on success
+    }
+
+    // Anti-loop: no progress detection (all tools in this turn failed)
+    if (!toolResult.ok && toolResult.error) {
+      noProgressCount++;
+    } else {
+      noProgressCount = 0;
+    }
+    if (noProgressCount >= 4) {
+      console.log('[cockpit] ANTI-LOOP: ' + noProgressCount + ' consecutive failures, forcing stop');
+      messages.push({ role: 'assistant', content: aiResult.text });
+      messages.push({ role: 'user', content: '[SYSTEM] ' + noProgressCount + ' echecs consecutifs. Reponds maintenant avec ce que tu sais.' });
+      for (const nodeId of chain) {
+        try {
+          const final = await callNode(nodeId, messages);
+          return { text: final.text, model: final.model, provider: final.provider, tools_used: toolHistory, turns: turn + 1, anti_loop: true };
+        } catch (_) {}
+      }
+      return { text: '[Anti-loop: trop d\'echecs consecutifs]', model: lastModel, provider: lastProvider, tools_used: toolHistory, turns: turn + 1, anti_loop: true };
+    }
+
+    // Build feedback with hint if available
+    let feedback = '[TOOL_RESULT:' + toolCall.name + ']\n' + JSON.stringify(toolResult).slice(0, 10000);
+    if (toolResult.hint) feedback += '\nHINT: ' + toolResult.hint;
+
     messages.push({ role: 'assistant', content: aiResult.text });
-    messages.push({ role: 'user', content: '[TOOL_RESULT:' + toolCall.name + ']\n' + JSON.stringify(toolResult).slice(0, 10000) });
+    messages.push({ role: 'user', content: feedback });
   }
 
   return { text: '[Limite de ' + MAX_TOOL_TURNS + ' tours atteinte]', model: lastModel, provider: lastProvider, tools_used: toolHistory, turns: MAX_TOOL_TURNS };
