@@ -86,7 +86,7 @@ $DomainKeywords = @{
 
 # Routing: domain -> preferred nodes
 $Routing = @{
-    "code"          = @("M1","M2","M3","OL1")
+    "code"          = @("M2","M1","M3","OL1")
     "math"          = @("M1","OL1","M2","M3")
     "raisonnement"  = @("M1","M2","OL1")
     "traduction"    = @("M1","OL1","M2","M3")
