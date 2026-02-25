@@ -525,12 +525,16 @@ async function reflexiveChat(agentId, userText) {
     if (!node) { console.log('[reflexive] skip ' + step.nodeId + ' (not configured)'); continue; }
 
     const stepStart = Date.now();
-    const sysProm = baseSys + '\n' + COCKPIT_TOOLS_PROMPT + step.systemSuffix;
+    // Only the first step (recherche) needs full tool prompt; analyse/review get lightweight prompt
+    const sysProm = step.role === 'recherche'
+      ? baseSys + '\n' + COCKPIT_TOOLS_PROMPT + step.systemSuffix
+      : baseSys + step.systemSuffix;
 
-    // Build messages with accumulated context from previous steps
+    // Build messages with accumulated context (capped at 8000 chars to avoid context overflow)
     let userContent = userText;
     if (accumulatedContext) {
-      userContent = userText + '\n\n=== CONTEXTE DES ETAPES PRECEDENTES ===\n' + accumulatedContext;
+      const cappedCtx = accumulatedContext.length > 8000 ? accumulatedContext.slice(-8000) : accumulatedContext;
+      userContent = userText + '\n\n=== CONTEXTE DES ETAPES PRECEDENTES ===\n' + cappedCtx;
     }
 
     const messages = [
