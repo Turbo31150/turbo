@@ -488,6 +488,159 @@ function classifyComplexity(userText, agentCat) {
   return 'simple';
 }
 
+// ── Reflexive Chain: OL1 (search) → M1 (analyze) → M2 (review) ──────────
+const REFLEXIVE_CHAIN = [
+  { nodeId: 'OL1', role: 'recherche', maxTurns: 4, systemSuffix: '\nTu es l\'etape 1 (RECHERCHE). Utilise les outils pour collecter les donnees brutes. Ne conclus pas, collecte seulement.' },
+  { nodeId: 'M1',  role: 'analyse',   maxTurns: 3, systemSuffix: '\nTu es l\'etape 2 (ANALYSE). A partir des donnees ci-dessous, raisonne et synthetise. Utilise des outils seulement si necessaire.' },
+  { nodeId: 'M2',  role: 'review',    maxTurns: 2, systemSuffix: '\nTu es l\'etape 3 (REVIEW). Verifie, corrige et complete la reponse. Donne la reponse FINALE au user.' }
+];
+
+async function reflexiveChat(agentId, userText) {
+  const cat = AGENT_CAT[agentId] || 'default';
+  const baseSys = (SYS_PROMPTS[cat] || SYS_PROMPTS.default);
+  const chainResults = [];
+  let accumulatedContext = '';
+  let totalTurns = 0;
+  let allToolsUsed = [];
+  let lastModel = null, lastProvider = null;
+  let finalText = '';
+
+  for (const step of REFLEXIVE_CHAIN) {
+    const node = NODES[step.nodeId];
+    if (!node) { console.log('[reflexive] skip ' + step.nodeId + ' (not configured)'); continue; }
+
+    const stepStart = Date.now();
+    const sysProm = baseSys + '\n' + COCKPIT_TOOLS_PROMPT + step.systemSuffix;
+
+    // Build messages with accumulated context from previous steps
+    let userContent = userText;
+    if (accumulatedContext) {
+      userContent = userText + '\n\n=== CONTEXTE DES ETAPES PRECEDENTES ===\n' + accumulatedContext;
+    }
+
+    const messages = [
+      { role: 'system', content: sysProm },
+      { role: 'user', content: userContent }
+    ];
+
+    const stepTools = [];
+    const callHashes = new Set();
+    let stepText = '';
+    let stepTurnCount = 0;
+
+    // Agentic loop for this step
+    for (let turn = 0; turn < step.maxTurns; turn++) {
+      stepTurnCount++;
+      totalTurns++;
+      let aiResult;
+      try {
+        console.log('[reflexive] step=' + step.role + ' turn=' + turn + ' -> ' + step.nodeId);
+        aiResult = await callNode(step.nodeId, messages);
+        lastModel = aiResult.model;
+        lastProvider = aiResult.provider;
+      } catch (e) {
+        console.log('[reflexive] ' + step.nodeId + ' FAILED: ' + e.message);
+        // Try fallback nodes
+        const fallbacks = (ROUTING[cat] || ROUTING.default).filter(function(n) { return n !== step.nodeId; });
+        let fallbackOk = false;
+        for (const fb of fallbacks) {
+          try {
+            aiResult = await callNode(fb, messages);
+            lastModel = aiResult.model;
+            lastProvider = aiResult.provider;
+            console.log('[reflexive] fallback ' + fb + ' OK for step ' + step.role);
+            fallbackOk = true;
+            break;
+          } catch (_) {}
+        }
+        if (!fallbackOk) break;
+      }
+
+      const toolCall = parseToolCall(aiResult.text);
+      if (!toolCall) {
+        stepText = aiResult.text;
+        break;
+      }
+
+      // Anti-loop v2: repeated call detection
+      const callHash = toolCall.name + ':' + JSON.stringify(toolCall.args);
+      if (callHashes.has(callHash)) {
+        console.log('[reflexive] ANTI-LOOP: repeated ' + toolCall.name + ' in step ' + step.role);
+        messages.push({ role: 'assistant', content: aiResult.text });
+        messages.push({ role: 'user', content: '[SYSTEM] Appel identique detecte. Reponds avec les resultats deja obtenus.' });
+        try {
+          const final = await callNode(step.nodeId, messages);
+          stepText = final.text;
+        } catch (_) {
+          stepText = aiResult.text;
+        }
+        break;
+      }
+      callHashes.add(callHash);
+
+      // Execute tool
+      const toolResult = await executeTool(toolCall.name, toolCall.args);
+
+      if (toolResult.needs_confirm) {
+        return {
+          text: aiResult.text, model: lastModel, provider: lastProvider,
+          tools_used: allToolsUsed.concat(stepTools), turns: totalTurns,
+          mode: 'reflexive', chain: chainResults,
+          needs_confirm: true, confirm_id: toolResult.confirm_id, confirm_action: toolResult.reason
+        };
+      }
+
+      stepTools.push({ tool: toolCall.name, args: toolCall.args, result: toolResult, turn: turn });
+      allToolsUsed.push({ tool: toolCall.name, args: toolCall.args, result: toolResult, turn: totalTurns - 1 });
+
+      // Feed result back to AI
+      var feedback = '[TOOL_RESULT:' + toolCall.name + ']\n' + JSON.stringify(toolResult).slice(0, 10000);
+      if (toolResult.hint) feedback += '\nHINT: ' + toolResult.hint;
+      messages.push({ role: 'assistant', content: aiResult.text });
+      messages.push({ role: 'user', content: feedback });
+    }
+
+    // If no stepText captured (all turns used tools), ask for summary
+    if (!stepText) {
+      messages.push({ role: 'user', content: '[SYSTEM] Budget de tours epuise. Donne ta synthese maintenant.' });
+      try {
+        const summary = await callNode(step.nodeId, messages);
+        stepText = summary.text;
+      } catch (_) {
+        stepText = '(pas de reponse de ' + step.nodeId + ')';
+      }
+    }
+
+    // Clean stepText
+    stepText = stepText.replace(/\[TOOL:\w+[^\]]*\]/g, '').replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/^\/no_think\s*/i, '').trim();
+
+    const stepDuration = Date.now() - stepStart;
+    chainResults.push({
+      node: step.nodeId,
+      role: step.role,
+      model: node.model,
+      turns: stepTurnCount,
+      tools_used: stepTools,
+      duration_ms: stepDuration,
+      summary: stepText.slice(0, 500)
+    });
+
+    // Accumulate context for next step
+    accumulatedContext += '\n[' + step.role.toUpperCase() + ' — ' + step.nodeId + '/' + node.model + ']\n' + stepText + '\n';
+    finalText = stepText;
+  }
+
+  return {
+    text: finalText,
+    model: lastModel,
+    provider: lastProvider,
+    tools_used: allToolsUsed,
+    turns: totalTurns,
+    mode: 'reflexive',
+    chain: chainResults
+  };
+}
+
 // ── Agentic loop ────────────────────────────────────────────────────────────
 async function agenticChat(agentId, userText) {
   const cat = AGENT_CAT[agentId] || 'default';
