@@ -153,9 +153,9 @@ class JarvisConfig:
         LMStudioNode(
             "M1", os.getenv("LM_STUDIO_1_URL", "http://10.5.0.2:1234"),
             "deep_analysis", gpus=6, vram_gb=46,
-            default_model="qwen/qwen3-30b-a3b-2507", weight=0.7,
-            use_cases=["Embedding", "Consensus participant", "Fallback validation",
-                       "On-demand models (coder/devstral)"],
+            default_model="qwen/qwen3-8b", weight=1.2,
+            use_cases=["Fast inference", "General tasks", "Consensus participant",
+                       "On-demand models (30b/coder/devstral)"],
             api_key=os.getenv("LM_STUDIO_1_KEY", "sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"),
         ),
         LMStudioNode(
@@ -178,7 +178,7 @@ class JarvisConfig:
     ])
 
     default_model: str = field(
-        default_factory=lambda: os.getenv("LM_STUDIO_DEFAULT_MODEL", "qwen/qwen3-30b-a3b-2507")
+        default_factory=lambda: os.getenv("LM_STUDIO_DEFAULT_MODEL", "qwen/qwen3-8b")
     )
 
     # ── Ollama nodes ──────────────────────────────────────────────────────
@@ -199,13 +199,13 @@ class JarvisConfig:
     claude_node: ClaudeNode = field(default_factory=ClaudeNode)
 
     # ── Model catalog (all available models) ──────────────────────────────
-    # M1 permanent: qwen3-30b (18.56 GB, ctx 32768, MoE 3B actifs)
+    # M1 permanent: qwen3-8b (4.7 GB, ctx 8192, dense 8B) + qwen3-30b (dual load disponible)
     # M1 on-demand: qwen3-coder-30b (code), devstral (dev), gpt-oss-20b (general)
     # M2 permanent: deepseek-coder-v2-lite (code rapide)
     # Ollama: qwen3:1.7b (local) + cloud (minimax, glm-5, kimi)
     models: dict[str, str] = field(default_factory=lambda: {
-        "default":    "qwen/qwen3-30b-a3b-2507",        # M1 — toujours charge
-        "fast":       "qwen/qwen3-30b-a3b-2507",        # M1 — MoE rapide (3B actifs)
+        "default":    "qwen/qwen3-8b",                   # M1 — rapide (1-2s)
+        "fast":       "qwen/qwen3-8b",                   # M1 — dense 8B (65 tok/s)
         "coding":     "deepseek-coder-v2-lite-instruct", # M2 — code rapide
         "coding_m1":  "qwen/qwen3-coder-30b",           # M1 — code specialise (on-demand)
         "dev":        "mistralai/devstral-small-2-2512", # M1 — dev tasks (on-demand)

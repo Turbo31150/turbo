@@ -5,7 +5,7 @@ from jarvis_bench_utils import append_run
 
 # === CONFIG ===
 NODES = {
-    "M1": {"url": "http://10.5.0.2:1234/api/v1/chat", "type": "lmstudio-responses", "model": "qwen/qwen3-30b-a3b-2507", "key": "sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7", "timeout": 90, "priority": 3},
+    "M1": {"url": "http://10.5.0.2:1234/api/v1/chat", "type": "lmstudio-responses", "model": "qwen/qwen3-8b", "key": "sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7", "timeout": 30, "priority": 2},
     "OL1": {"url": "http://127.0.0.1:11434/api/chat", "type": "ollama", "model": "qwen3:1.7b", "timeout": 20, "priority": 2},
     "M2": {"url": "http://192.168.1.26:1234/v1/chat/completions", "type": "lmstudio", "model": "deepseek-coder-v2-lite-instruct", "key": "sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4", "timeout": 60, "priority": 2},
     "M3": {"url": "http://192.168.1.113:1234/v1/chat/completions", "type": "lmstudio", "model": "mistral-7b-instruct-v0.3", "key": "sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux", "timeout": 30, "priority": 1},
@@ -101,8 +101,8 @@ def query_node(node_id, prompt):
             data = json.dumps({"model": cfg["model"], "messages": [{"role": "user", "content": prompt}], "stream": False, "think": False, "options": {"num_ctx": 4096, "temperature": 0.2}}).encode()
             req = urllib.request.Request(cfg["url"], data=data, headers={"Content-Type": "application/json"})
         elif cfg["type"] == "lmstudio-responses":
-            # LM Studio Responses API (M1) — max_output_tokens=1024 suffit, temp basse pour speed
-            data = json.dumps({"model": cfg["model"], "input": prompt, "temperature": 0.2, "max_output_tokens": 1024, "stream": False, "store": False}).encode()
+            # LM Studio Responses API (M1) — /nothink pour speed, max_output_tokens=1024
+            data = json.dumps({"model": cfg["model"], "input": "/nothink\n" + prompt, "temperature": 0.2, "max_output_tokens": 1024, "stream": False, "store": False}).encode()
             headers = {"Content-Type": "application/json", "Authorization": f"Bearer {cfg['key']}"}
             req = urllib.request.Request(cfg["url"], data=data, headers=headers)
         else:
@@ -119,9 +119,14 @@ def query_node(node_id, prompt):
         if cfg["type"] == "ollama":
             text = result.get("message", {}).get("content", "")
         elif cfg["type"] == "lmstudio-responses":
-            # Responses API: output[0].content
+            # Responses API: skip reasoning block, take message content
             output = result.get("output", [])
-            text = output[0].get("content", "") if output else ""
+            text = ""
+            for o in output:
+                if o.get("type") == "message" and o.get("content"):
+                    text = o["content"]
+            if not text and output:
+                text = output[-1].get("content", "")
         else:
             text = result.get("choices", [{}])[0].get("message", {}).get("content", "")
 

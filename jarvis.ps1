@@ -37,7 +37,7 @@ $Nodes = @{
         Url = "http://10.5.0.2:1234/api/v1/chat"
         HealthUrl = "http://10.5.0.2:1234/api/v1/models"
         Type = "lmstudio-responses"
-        Model = "qwen/qwen3-30b-a3b-2507"
+        Model = "qwen/qwen3-8b"
         Key = "sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"
         Tags = @("code","math","raisonnement","trading","securite","web","systeme","traduction")
         Priority = 3
@@ -295,14 +295,19 @@ function Query-Node([string]$NodeId, [string]$Prompt) {
         elseif ($cfg.Type -eq "lmstudio-responses") {
             $body = @{
                 model = $cfg.Model
-                input = "[Instruction: $sysMsg]`n`n$Prompt"
+                input = "/nothink`n[Instruction: $sysMsg]`n`n$Prompt"
                 temperature = 0.2
                 max_output_tokens = 1024
                 stream = $false
                 store = $false
             } | ConvertTo-Json -Depth 5
-            $resp = Invoke-RestMethod -Uri $cfg.Url -Method Post -Body $body -Headers $headers -TimeoutSec 90
-            $text = $resp.output[0].content
+            $resp = Invoke-RestMethod -Uri $cfg.Url -Method Post -Body $body -Headers $headers -TimeoutSec 30
+            # Extract message content (skip reasoning block if present)
+            $text = ""
+            foreach ($out in $resp.output) {
+                if ($out.type -eq "message" -and $out.content) { $text = $out.content }
+            }
+            if (-not $text -and $resp.output.Count -gt 0) { $text = $resp.output[-1].content }
         }
         else {
             if ($cfg.NoSystemRole) {

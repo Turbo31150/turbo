@@ -50,7 +50,7 @@ def load_m1(model_id, config):
         return False
 
 def warmup_m1(model_id):
-    for prompt in ["Reponds OK", "2+2?", "Bonjour"]:
+    for prompt in ["/nothink\nReponds OK", "/nothink\n2+2?", "/nothink\nBonjour"]:
         try:
             body = json.dumps({"model": model_id, "input": prompt, "temperature": 0.2, "max_output_tokens": 20, "stream": False, "store": False}).encode()
             req = urllib.request.Request(M1["chat_url"], data=body, headers={"Content-Type": "application/json", "Authorization": f"Bearer {M1['key']}"})

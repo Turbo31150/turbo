@@ -11,7 +11,7 @@ NODES = {
         "health_url": "http://10.5.0.2:1234/api/v1/models",
         "chat_url": "http://10.5.0.2:1234/api/v1/chat",
         "type": "lmstudio-responses",
-        "model": "qwen/qwen3-30b-a3b-2507",
+        "model": "qwen/qwen3-8b",
         "key": "sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7",
         "load_url": "http://10.5.0.2:1234/api/v1/models/load",
         "unload_url": "http://10.5.0.2:1234/api/v1/models/unload",
