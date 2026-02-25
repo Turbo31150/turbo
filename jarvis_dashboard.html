@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS Dashboard</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0e17; color: #e0e6ed; font-family: 'Segoe UI', system-ui, sans-serif; padding: 20px; }
+h1 { color: #00d4ff; font-size: 1.6em; margin-bottom: 20px; }
+h1 span { color: #4a5568; font-size: 0.6em; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.card { background: #131a2b; border: 1px solid #1e2d45; border-radius: 10px; padding: 16px; }
+.card h2 { color: #00d4ff; font-size: 1em; margin-bottom: 12px; border-bottom: 1px solid #1e2d45; padding-bottom: 8px; }
+.full { grid-column: 1 / -1; }
+table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
+th { text-align: left; color: #4a90d9; padding: 4px 8px; border-bottom: 1px solid #1e2d45; }
+td { padding: 4px 8px; border-bottom: 1px solid #0d1525; }
+.ok { color: #34d399; }
+.fail { color: #f87171; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75em; font-weight: bold; }
+.badge-green { background: #064e3b; color: #34d399; }
+.badge-red { background: #7f1d1d; color: #f87171; }
+.badge-blue { background: #1e3a5f; color: #60a5fa; }
+.stat { text-align: center; padding: 8px; }
+.stat .num { font-size: 2em; font-weight: bold; color: #00d4ff; }
+.stat .label { font-size: 0.75em; color: #4a5568; }
+.stats-row { display: flex; gap: 16px; justify-content: space-around; }
+.route-first { background: #064e3b; color: #34d399; display: inline-block; padding: 1px 6px; border-radius: 3px; margin: 1px; font-size: 0.8em; }
+.route-tag { display: inline-block; background: #1e2d45; padding: 1px 6px; border-radius: 3px; margin: 1px; font-size: 0.8em; }
+#lastUpdate { color: #4a5568; font-size: 0.75em; position: fixed; top: 10px; right: 20px; }
+.pillar { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.dot-active { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #34d399; }
+.progress { background: #1e2d45; border-radius: 4px; height: 6px; margin-top: 4px; }
+.progress-bar { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #00d4ff, #34d399); }
+.topic-row { margin-bottom: 6px; }
+.topic-header { display: flex; justify-content: space-between; }
+.topic-count { color: #4a5568; }
+.profile-text { margin-left: 18px; font-size: 0.8em; color: #4a5568; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<h1>JARVIS Dashboard <span>Cluster IA Distribue</span></h1>
+<div id="lastUpdate"></div>
+
+<div class="grid">
+  <div class="card">
+    <h2>Cluster Health</h2>
+    <table id="clusterTable">
+      <thead><tr><th>Noeud</th><th>Modele</th><th>Statut</th></tr></thead>
+      <tbody id="clusterBody"></tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h2>Autolearn Engine</h2>
+    <div id="autolearnStats" class="stats-row"></div>
+    <div id="autolearnBadges" style="margin-top:8px;text-align:center"></div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card full">
+    <h2>Routage Actif (Autolearn)</h2>
+    <table>
+      <thead><tr><th>Categorie</th><th>Ordre de routage</th></tr></thead>
+      <tbody id="routingBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>Piliers Autolearn</h2>
+    <div id="pillarsDetail"></div>
+  </div>
+  <div class="card">
+    <h2>Top Topics (Memory)</h2>
+    <div id="topTopics"></div>
+  </div>
+</div>
+
+<script>
+const AUTOLEARN_URL = 'http://127.0.0.1:18800/autolearn/status';
+const NODE_LIST = [
+  { id: 'M1', url: 'http://10.5.0.2:1234/api/v1/models', key: 'sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7', model: 'qwen3-30b', type: 'lmstudio' },
+  { id: 'M2', url: 'http://192.168.1.26:1234/api/v1/models', key: 'sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4', model: 'deepseek-coder', type: 'lmstudio' },
+  { id: 'M3', url: 'http://192.168.1.113:1234/api/v1/models', key: 'sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux', model: 'mistral-7b', type: 'lmstudio' },
+  { id: 'OL1', url: 'http://127.0.0.1:11434/api/tags', key: null, model: 'qwen3:1.7b', type: 'ollama' }
+];
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.textContent; }
+
+async function checkNode(cfg) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 3000);
+  try {
+    const opts = { signal: ctrl.signal };
+    if (cfg.key) opts.headers = { 'Authorization': 'Bearer ' + cfg.key };
+    const resp = await fetch(cfg.url, opts);
+    const data = await resp.json();
+    clearTimeout(timer);
+    if (cfg.type === 'ollama') return (data.models || []).length > 0;
+    const models = data.data || data.models || [];
+    return models.some(m => m.loaded_instances && m.loaded_instances.length > 0);
+  } catch(e) { clearTimeout(timer); return false; }
+}
+
+async function updateClusterHealth() {
+  const tbody = document.getElementById('clusterBody');
+  tbody.textContent = '';
+  for (const cfg of NODE_LIST) {
+    const ok = await checkNode(cfg);
+    const tr = document.createElement('tr');
+    const tdId = document.createElement('td');
+    tdId.textContent = cfg.id;
+    tdId.style.fontWeight = 'bold';
+    const tdModel = document.createElement('td');
+    tdModel.textContent = cfg.model;
+    const tdStatus = document.createElement('td');
+    const badge = document.createElement('span');
+    badge.className = ok ? 'badge badge-green' : 'badge badge-red';
+    badge.textContent = ok ? 'OK' : 'FAIL';
+    tdStatus.appendChild(badge);
+    tr.appendChild(tdId);
+    tr.appendChild(tdModel);
+    tr.appendChild(tdStatus);
+    tbody.appendChild(tr);
+  }
+}
+
+async function updateAutolearn() {
+  try {
+    const resp = await fetch(AUTOLEARN_URL);
+    const d = await resp.json();
+    const p = d.pillars;
+
+    // Stats
+    const statsEl = document.getElementById('autolearnStats');
+    statsEl.textContent = '';
+    const stats = [
+      { num: p.memory.total_messages, label: 'Messages' },
+      { num: p.tuning.history_count, label: 'Cycles Tuning' },
+      { num: p.review.cycles_count, label: 'Cycles Review' },
+      { num: p.review.applied_prompts, label: 'Prompts' }
+    ];
+    stats.forEach(s => {
+      const div = document.createElement('div');
+      div.className = 'stat';
+      const numEl = document.createElement('div');
+      numEl.className = 'num';
+      numEl.textContent = s.num;
+      const labelEl = document.createElement('div');
+      labelEl.className = 'label';
+      labelEl.textContent = s.label;
+      div.appendChild(numEl);
+      div.appendChild(labelEl);
+      statsEl.appendChild(div);
+    });
+
+    // Badges
+    const badgesEl = document.getElementById('autolearnBadges');
+    badgesEl.textContent = '';
+    const runBadge = document.createElement('span');
+    runBadge.className = d.running ? 'badge badge-green' : 'badge badge-red';
+    runBadge.textContent = d.running ? 'RUNNING' : 'STOPPED';
+    const rbBadge = document.createElement('span');
+    rbBadge.className = 'badge badge-blue';
+    rbBadge.textContent = p.review.rollback_stack_size + ' rollbacks';
+    badgesEl.appendChild(runBadge);
+    badgesEl.appendChild(document.createTextNode(' '));
+    badgesEl.appendChild(rbBadge);
+
+    // Routing
+    const routeBody = document.getElementById('routingBody');
+    routeBody.textContent = '';
+    const routing = p.tuning.current_routing;
+    Object.entries(routing).forEach(([cat, nodes]) => {
+      const tr = document.createElement('tr');
+      const tdCat = document.createElement('td');
+      tdCat.textContent = cat;
+      tdCat.style.fontWeight = 'bold';
+      const tdNodes = document.createElement('td');
+      nodes.forEach((n, i) => {
+        const tag = document.createElement('span');
+        tag.className = i === 0 ? 'route-first' : 'route-tag';
+        tag.textContent = n;
+        tdNodes.appendChild(tag);
+        tdNodes.appendChild(document.createTextNode(' '));
+      });
+      tr.appendChild(tdCat);
+      tr.appendChild(tdNodes);
+      routeBody.appendChild(tr);
+    });
+
+    // Pillars
+    const pillEl = document.getElementById('pillarsDetail');
+    pillEl.textContent = '';
+    const pillars = [
+      { name: 'Memory', detail: p.memory.total_messages + ' msgs, MAJ ' + new Date(p.memory.profile_updated).toLocaleString('fr-FR') },
+      { name: 'Tuning', detail: p.tuning.history_count + ' cycles, MAJ ' + new Date(p.tuning.last_cycle).toLocaleString('fr-FR') },
+      { name: 'Review', detail: p.review.cycles_count + ' cycles, ' + p.review.applied_prompts + ' prompts, MAJ ' + new Date(p.review.last_review).toLocaleString('fr-FR') }
+    ];
+    pillars.forEach(pi => {
+      const row = document.createElement('div');
+      row.className = 'pillar';
+      const dot = document.createElement('span');
+      dot.className = 'dot-active';
+      const text = document.createElement('span');
+      text.textContent = pi.name + ' -- ' + pi.detail;
+      row.appendChild(dot);
+      row.appendChild(text);
+      pillEl.appendChild(row);
+    });
+    if (p.memory.profile_summary) {
+      const prof = document.createElement('div');
+      prof.className = 'profile-text';
+      prof.textContent = p.memory.profile_summary.substring(0, 150) + '...';
+      pillEl.appendChild(prof);
+    }
+
+    // Topics
+    const topEl = document.getElementById('topTopics');
+    topEl.textContent = '';
+    const topics = p.memory.top_topics || [];
+    const maxCount = topics.length > 0 ? topics[0][1] : 1;
+    topics.forEach(([topic, count]) => {
+      const row = document.createElement('div');
+      row.className = 'topic-row';
+      const header = document.createElement('div');
+      header.className = 'topic-header';
+      const nameEl = document.createElement('span');
+      nameEl.textContent = topic;
+      const countEl = document.createElement('span');
+      countEl.className = 'topic-count';
+      countEl.textContent = count;
+      header.appendChild(nameEl);
+      header.appendChild(countEl);
+      const prog = document.createElement('div');
+      prog.className = 'progress';
+      const bar = document.createElement('div');
+      bar.className = 'progress-bar';
+      bar.style.width = Math.round(count / maxCount * 100) + '%';
+      prog.appendChild(bar);
+      row.appendChild(header);
+      row.appendChild(prog);
+      topEl.appendChild(row);
+    });
+
+  } catch(e) {
+    document.getElementById('autolearnStats').textContent = '';
+    const badge = document.createElement('span');
+    badge.className = 'badge badge-red';
+    badge.textContent = 'Proxy offline (port 18800)';
+    document.getElementById('autolearnBadges').textContent = '';
+    document.getElementById('autolearnBadges').appendChild(badge);
+  }
+}
+
+function updateTimestamp() {
+  document.getElementById('lastUpdate').textContent = 'MAJ: ' + new Date().toLocaleTimeString('fr-FR');
+}
+
+async function refresh() {
+  updateTimestamp();
+  await Promise.all([updateClusterHealth(), updateAutolearn()]);
+}
+
+refresh();
+setInterval(refresh, 30000);
+</script>
+</body>
+</html>
