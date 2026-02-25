@@ -689,7 +689,7 @@ function handleConfirm(confirmId,approved){
 
 function gwSend(agentId,text){
   var x=new XMLHttpRequest();x.open('POST',PROXY+'/chat',true);
-  x.setRequestHeader('Content-Type','application/json');x.timeout=120000;
+  x.setRequestHeader('Content-Type','application/json');x.timeout=180000;
   var tid='t'+Date.now();
   showTyping(tid);
   x.onload=function(){
