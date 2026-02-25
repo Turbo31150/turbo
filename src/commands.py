@@ -2101,6 +2101,58 @@ COMMANDS: list[JarvisCommand] = [
         "ferme tout", "ferme toutes les fenetres", "close all",
         "tout fermer", "ferme les fenetres",
     ], "pipeline", "powershell:(New-Object -ComObject Shell.Application).MinimizeAll()", confirm=True),
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # JARVIS CLI — Commandes cluster via jarvis.ps1
+    # ═══════════════════════════════════════════════════════════════════════
+
+    JarvisCommand("jarvis_status", "jarvis", "Statut du cluster IA", [
+        "jarvis status", "etat du cluster", "check cluster",
+        "statut cluster", "comment va le cluster", "sante du cluster",
+        "cluster status", "verifie le cluster",
+    ], "powershell", "C:/Users/franc/jarvis.ps1 status"),
+
+    JarvisCommand("jarvis_ask", "jarvis", "Poser une question au cluster", [
+        "jarvis demande {prompt}", "demande au cluster {prompt}",
+        "jarvis ask {prompt}", "pose la question {prompt}",
+        "interroge le cluster {prompt}", "cluster reponds {prompt}",
+    ], "powershell", "C:/Users/franc/jarvis.ps1 ask '{prompt}'", params=["prompt"]),
+
+    JarvisCommand("jarvis_consensus", "jarvis", "Vote pondere multi-noeuds", [
+        "jarvis consensus {prompt}", "consensus sur {prompt}",
+        "vote du cluster {prompt}", "avis du cluster {prompt}",
+        "demande a tout le monde {prompt}", "cluster consensus {prompt}",
+    ], "powershell", "C:/Users/franc/jarvis.ps1 consensus '{prompt}'", params=["prompt"]),
+
+    JarvisCommand("jarvis_scores", "jarvis", "Scores adaptatifs du routage", [
+        "jarvis scores", "montre les scores", "scores adaptatifs",
+        "scores du cluster", "performance du cluster", "scores routage",
+    ], "powershell", "C:/Users/franc/jarvis.ps1 scores"),
+
+    JarvisCommand("jarvis_heal", "jarvis", "Diagnostiquer et reparer le cluster", [
+        "jarvis heal", "repare le cluster", "soigne le cluster",
+        "diagnostique cluster", "heal cluster", "gueris le cluster",
+    ], "powershell", "C:/Users/franc/jarvis.ps1 heal --status"),
+
+    JarvisCommand("jarvis_profile", "jarvis", "Profil autolearn du cluster", [
+        "jarvis profile", "profil autolearn", "profil cluster",
+        "montre le profil", "profil apprentissage",
+    ], "powershell", "C:/Users/franc/jarvis.ps1 profile"),
+
+    JarvisCommand("jarvis_export", "jarvis", "Exporter la configuration cluster", [
+        "jarvis export", "exporte la config", "export cluster",
+        "sauvegarde config", "exporte configuration",
+    ], "powershell", "C:/Users/franc/jarvis.ps1 export"),
+
+    JarvisCommand("jarvis_bench", "jarvis", "Lancer un benchmark du cluster", [
+        "jarvis benchmark", "lance un benchmark", "benchmark cluster",
+        "teste le cluster", "bench cluster",
+    ], "powershell", "C:/Users/franc/jarvis.ps1 bench -Cycles 2"),
+
+    JarvisCommand("jarvis_arena", "jarvis", "Historique des tournois modeles", [
+        "jarvis arena", "historique arena", "tournoi modeles",
+        "arena historique", "resultats arena",
+    ], "powershell", "C:/Users/franc/jarvis.ps1 arena --history"),
 ]
 
 # ═══════════════════════════════════════════════════════════════════════════
