@@ -159,16 +159,25 @@ if __name__ == "__main__":
         print(f"\nAvailable candidates: {', '.join(CANDIDATE_MODELS.keys())}")
         sys.exit(0)
 
-    if sys.argv[1] == "--history":
+    args = sys.argv[1:]
+    if "--history" in args:
         show_history()
-    elif sys.argv[1] == "--all":
-        quick = "--quick" in sys.argv
+    elif "--auto" in args:
+        # Auto mode: run quick tournament on all candidates, silent output
+        for name in CANDIDATE_MODELS:
+            try:
+                tournament(name, quick=True)
+            except Exception as e:
+                print(f"Arena {name} error: {e}")
+    elif "--all" in args:
+        quick = "--quick" in args
         for name in CANDIDATE_MODELS:
             tournament(name, quick=quick)
-    elif sys.argv[1] == "--quick":
-        if len(sys.argv) > 2:
-            tournament(sys.argv[2], quick=True)
+    elif "--quick" in args:
+        others = [a for a in args if a != "--quick"]
+        if others:
+            tournament(others[0], quick=True)
         else:
             print("Usage: python3 jarvis_model_arena.py --quick <model-name>")
     else:
-        tournament(sys.argv[1])
+        tournament(args[0])
