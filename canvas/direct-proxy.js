@@ -98,7 +98,7 @@ const autolearn = new AutolearnEngine(callNode, ROUTING, SYS_PROMPTS);
 
 const ETOILE_DB = path.join(__dirname, '..', 'etoile.db');
 const MAX_FILE_SIZE = 100 * 1024;
-const MAX_TOOL_TURNS = 15;
+const MAX_TOOL_TURNS = 8;
 
 // ── Load etoile.db schemas at startup ──────────────────────────────────────
 let ETOILE_SCHEMAS = '';
@@ -483,6 +483,7 @@ async function agenticChat(agentId, userText) {
   const toolFailCount = {};  // anti-loop: { "tool_name": fail_count }
   const MAX_SAME_FAIL = 3;
   let noProgressCount = 0;
+  const callHashes = new Set();  // anti-loop v2: detect repeated identical calls
 
   for (let turn = 0; turn < MAX_TOOL_TURNS; turn++) {
     let aiResult, errors = [];
@@ -505,6 +506,23 @@ async function agenticChat(agentId, userText) {
     if (!toolCall) {
       return { text: aiResult.text, model: lastModel, provider: lastProvider, tools_used: toolHistory, turns: turn + 1 };
     }
+
+    // Anti-loop v2: detect repeated identical tool call (same name + same args)
+    const callHash = toolCall.name + ':' + JSON.stringify(toolCall.args);
+    if (callHashes.has(callHash)) {
+      console.log('[cockpit] ANTI-LOOP-V2: repeated call ' + toolCall.name + ', stopping');
+      const stopMsg = '[SYSTEM] STOP: Appel identique detecte (' + toolCall.name + '). Reponds avec les resultats que tu as deja.';
+      messages.push({ role: 'assistant', content: aiResult.text });
+      messages.push({ role: 'user', content: stopMsg });
+      for (const nodeId of chain) {
+        try {
+          const final = await callNode(nodeId, messages);
+          return { text: final.text, model: final.model, provider: final.provider, tools_used: toolHistory, turns: turn + 1, anti_loop: 'repeated_call' };
+        } catch (_) {}
+      }
+      return { text: stopMsg, model: lastModel, provider: lastProvider, tools_used: toolHistory, turns: turn + 1, anti_loop: 'repeated_call' };
+    }
+    callHashes.add(callHash);
 
     console.log('[cockpit] TOOL: ' + toolCall.name + '(' + JSON.stringify(toolCall.args).slice(0, 100) + ')');
     const toolResult = await executeTool(toolCall.name, toolCall.args);
