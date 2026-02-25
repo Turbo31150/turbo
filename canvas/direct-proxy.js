@@ -36,9 +36,9 @@ const NODES = {
   M1: {
     url: 'http://10.5.0.2:1234/v1/chat/completions',
     auth: 'Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7',
-    model: 'qwen/qwen3-30b-a3b-2507',
-    timeout: 120000,
-    name: 'M1/qwen3-30b'
+    model: 'qwen/qwen3-8b',
+    timeout: 30000,
+    name: 'M1/qwen3-8b'
   },
   GEMINI: {
     proxy: path.join(__dirname, '..', 'gemini-proxy.js'),
@@ -1156,7 +1156,7 @@ const server = http.createServer(async (req, res) => {
 const BIND = process.env.JARVIS_BIND || '0.0.0.0';
 server.listen(PORT, BIND, () => {
   console.log(`JARVIS Direct Proxy on http://${BIND}:${PORT}`);
-  console.log('Nodes: M2(deepseek), M3(mistral), OL1(qwen3), M1(qwen3-30b), GEMINI(gemini-3-pro), CLAUDE(sonnet)');
+  console.log('Nodes: M2(deepseek), M3(mistral), OL1(qwen3), M1(qwen3-8b), GEMINI(gemini-3-pro), CLAUDE(sonnet)');
   console.log('Zero OpenClaw dependency');
   autolearn.start();
   console.log('Autolearn engine started — 3 pillars active');
