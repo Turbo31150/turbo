@@ -464,6 +464,30 @@ const COCKPIT_TOOLS_PROMPT = [
   ETOILE_SUMMARY
 ].join('\n');
 
+// ── Complexity classifier — simple vs reflexive ──────────────────────────
+function classifyComplexity(userText, agentCat) {
+  // Force reflexive for certain categories
+  const reflexiveCats = ['code', 'archi', 'ia', 'sec'];
+  if (reflexiveCats.includes(agentCat)) return 'reflexive';
+
+  // Force simple for lightweight categories
+  const simpleCats = ['meta', 'media', 'default'];
+  if (simpleCats.includes(agentCat)) return 'simple';
+
+  // Keyword detection
+  const complexKeywords = /\b(analyse|compare|cherche.*explique|d[eé]taill[eé]|pourquoi|comment.*fonctionne|refactor|debug|optimise|audit|review|[eé]value|synth[eè]se|r[eé]sume.*tout|en d[eé]tail)\b/i;
+  if (complexKeywords.test(userText)) return 'reflexive';
+
+  // Length heuristic: long messages are likely complex
+  if (userText.length > 120) return 'reflexive';
+
+  // Tool-implying keywords
+  const toolKeywords = /\b(query_db|etoile|base de donn[eé]es|sql|fichier|dossier|pipeline|execute|lance|cherche dans)\b/i;
+  if (toolKeywords.test(userText)) return 'reflexive';
+
+  return 'simple';
+}
+
 // ── Agentic loop ────────────────────────────────────────────────────────────
 async function agenticChat(agentId, userText) {
   const cat = AGENT_CAT[agentId] || 'default';
