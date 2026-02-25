@@ -98,7 +98,36 @@ $Routing = @{
 
 # === ADAPTIVE ROUTING ===
 $RoutingLogFile = "C:/Users/franc/jarvis_routing_log.json"
+$AutolearnUrl = "http://127.0.0.1:18800/autolearn/status"
 $MinDataPoints = 3
+
+# Mapping autolearn categories -> jarvis domains
+$AutolearnMap = @{
+    "code"    = "code"
+    "sec"     = "securite"
+    "web"     = "web"
+    "system"  = "systeme"
+    "trading" = "trading"
+    "ia"      = "raisonnement"
+    "default" = "general"
+    "archi"   = "code"
+    "creat"   = "code"
+    "media"   = "web"
+    "meta"    = "raisonnement"
+    "auto"    = "general"
+}
+# Reverse: jarvis domain -> autolearn category
+$DomainToAutolearn = @{
+    "code"          = "code"
+    "securite"      = "sec"
+    "web"           = "web"
+    "systeme"       = "system"
+    "trading"       = "trading"
+    "raisonnement"  = "ia"
+    "math"          = "default"
+    "traduction"    = "default"
+    "general"       = "default"
+}
 
 function Load-RoutingLog {
     if (Test-Path $RoutingLogFile) {
@@ -125,6 +154,21 @@ function Log-Result([string]$NodeId, [string]$Domain, [int]$LatencyMs, [bool]$Su
     # Keep last 500 entries
     if ($log.Count -gt 500) { $log = $log[-500..-1] }
     Save-RoutingLog $log
+}
+
+function Get-AutolearnRoute([string]$Domain) {
+    $alCat = $DomainToAutolearn[$Domain]
+    if (-not $alCat) { $alCat = "default" }
+    try {
+        $resp = Invoke-RestMethod -Uri $AutolearnUrl -TimeoutSec 2 -ErrorAction Stop
+        $routing = $resp.pillars.tuning.current_routing
+        $route = $routing.$alCat
+        if ($route -and $route.Count -gt 0) {
+            return @($route)
+        }
+    }
+    catch { }
+    return $null
 }
 
 function Get-AdaptiveRoute([string]$Domain) {
@@ -164,11 +208,19 @@ function Detect-Domain([string]$Text) {
 
 function Pick-Node([string]$Domain, [string]$ForceNode) {
     if ($ForceNode -and $Nodes.ContainsKey($ForceNode)) { return $ForceNode }
+    # Priority 1: Autolearn engine (50+ tuning cycles)
+    $alRoute = @(Get-AutolearnRoute $Domain)
+    if ($alRoute -and $alRoute[0]) {
+        $script:RoutingSource = "autolearn"
+        return $alRoute[0]
+    }
+    # Priority 2: Local adaptive (jarvis.ps1 CLI data)
     $adaptive = @(Get-AdaptiveRoute $Domain)
     if ($adaptive -and $adaptive[0]) {
         $script:RoutingSource = "adaptive"
         return $adaptive[0]
     }
+    # Priority 3: Static defaults
     $script:RoutingSource = "static"
     $route = $Routing[$Domain]
     if (-not $route) { $route = @("M1","OL1","M2","M3") }
@@ -434,15 +486,21 @@ switch ($Command) {
         $script:RoutingSource = "static"
         $detectedDomain = Detect-Domain $prompt
         $selectedNode = Pick-Node $detectedDomain $Node
+        $alRoute = @(Get-AutolearnRoute $detectedDomain)
         $adaptive = @(Get-AdaptiveRoute $detectedDomain)
         $staticRoute = $Routing[$detectedDomain]
         Write-Host ('[ROUTE] Domain detecte: {0}' -f $detectedDomain) -ForegroundColor Cyan
         Write-Host ('[ROUTE] Noeud choisi: {0} ({1})' -f $selectedNode, $RoutingSource) -ForegroundColor Green
-        Write-Host ('[ROUTE] Statique:  {0}' -f ($staticRoute -join ' -> ')) -ForegroundColor DarkGray
-        if ($adaptive -and $adaptive[0]) {
-            Write-Host ('[ROUTE] Adaptatif: {0}' -f ($adaptive -join ' -> ')) -ForegroundColor Yellow
+        Write-Host ('[ROUTE] Statique:   {0}' -f ($staticRoute -join ' -> ')) -ForegroundColor DarkGray
+        if ($alRoute -and $alRoute[0]) {
+            Write-Host ('[ROUTE] Autolearn:  {0}' -f ($alRoute -join ' -> ')) -ForegroundColor Magenta
         } else {
-            Write-Host '[ROUTE] Adaptatif: pas assez de donnees (min 3)' -ForegroundColor DarkGray
+            Write-Host '[ROUTE] Autolearn:  proxy offline ou pas de donnees' -ForegroundColor DarkGray
+        }
+        if ($adaptive -and $adaptive[0]) {
+            Write-Host ('[ROUTE] Local CLI:  {0}' -f ($adaptive -join ' -> ')) -ForegroundColor Yellow
+        } else {
+            Write-Host '[ROUTE] Local CLI:  pas assez de donnees (min 3)' -ForegroundColor DarkGray
         }
         Write-Host '[ROUTE] Keywords matches:' -ForegroundColor DarkGray
         foreach ($dom in $DomainKeywords.Keys) {
