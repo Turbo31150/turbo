@@ -1,0 +1,11 @@
+{
+  "name": "jarvis-canvas",
+  "version": "1.0.0",
+  "description": "JARVIS Canvas Standalone — Direct Cluster Proxy, Zero OpenClaw",
+  "main": "electron-main.js",
+  "scripts": {
+    "start": "node direct-proxy.js",
+    "electron": "electron .",
+    "dev": "node direct-proxy.js & electron ."
+  }
+}
