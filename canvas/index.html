@@ -45,6 +45,24 @@ html,body{height:100%;overflow:hidden;background:var(--bg-deep);color:var(--text
 .hbadge.err{border:1px solid var(--red);color:var(--red)}
 .hdot{width:5px;height:5px;border-radius:50%;background:currentColor;box-shadow:0 0 4px currentColor}
 .topbar-sep{width:1px;height:20px;background:var(--border)}
+.al-badge{display:flex;align-items:center;gap:5px;padding:2px 10px;border-radius:12px;font-size:10px;font-weight:500;font-family:var(--font-mono);cursor:pointer;transition:all .2s;position:relative}
+.al-badge.ok{border:1px solid var(--purple);color:var(--purple)}
+.al-badge.warn{border:1px solid var(--orange);color:var(--orange)}
+.al-badge.off{border:1px solid var(--text-muted);color:var(--text-muted)}
+.al-badge:hover{background:rgba(168,85,247,.1)}
+.al-panel{display:none;position:absolute;top:40px;right:0;width:360px;max-height:460px;overflow-y:auto;background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.5);padding:14px;z-index:200;font-size:11px}
+.al-panel.show{display:block}
+.al-panel h4{font-family:var(--font-display);font-size:10px;letter-spacing:1.5px;color:var(--purple);margin:10px 0 6px;text-transform:uppercase}
+.al-panel h4:first-child{margin-top:0}
+.al-stat{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border)}
+.al-stat .label{color:var(--text-dim)}
+.al-stat .val{color:var(--text);font-family:var(--font-mono)}
+.al-bar{height:4px;border-radius:2px;background:var(--border);margin:4px 0 8px;overflow:hidden}
+.al-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--purple),var(--cyan));transition:width .3s}
+.al-route{display:flex;gap:4px;flex-wrap:wrap;margin:4px 0}
+.al-route span{padding:1px 6px;border-radius:4px;background:rgba(168,85,247,.15);color:var(--purple);font-family:var(--font-mono);font-size:9px}
+.al-trigger{margin-top:10px;padding:5px 12px;background:rgba(168,85,247,.15);border:1px solid var(--purple);color:var(--purple);border-radius:6px;cursor:pointer;font-family:var(--font-mono);font-size:10px;transition:all .15s}
+.al-trigger:hover{background:rgba(168,85,247,.25)}
 
 /* ═══ SIDEBAR ═══ */
 .sb-section{padding:10px 0 4px}
@@ -192,6 +210,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg-deep);color:var(--text
       <button class="tbtn" onclick="toggleSettings()" title="Ctrl+,">&#x2699;</button>
       <button class="tbtn" onclick="exportChat()" title="Exporter">&#x2B73;</button>
       <button class="tbtn" onclick="clearChat()" title="Ctrl+L">Nouveau</button>
+      <div class="al-badge off" id="al-badge" onclick="toggleAlPanel()" title="Autolearn Engine">
+        <span class="hdot"></span><span id="al-label">LEARN</span>
+        <div class="al-panel" id="al-panel"></div>
+      </div>
       <div class="hbadge ok" id="hb"><span class="hdot"></span><span id="ht">OK</span></div>
     </div>
   </header>
@@ -766,14 +788,96 @@ function checkCluster(){
   try{x.send()}catch(e){}
 }
 
+// ═══ AUTOLEARN PANEL ═══
+var alPanelOpen=false;
+function toggleAlPanel(){
+  alPanelOpen=!alPanelOpen;
+  document.getElementById('al-panel').className='al-panel'+(alPanelOpen?' show':'');
+  if(alPanelOpen)fetchAlStatus();
+}
+function fetchAlStatus(){
+  var x=new XMLHttpRequest();x.open('GET',PROXY+'/autolearn/status',true);x.timeout=4000;
+  x.onload=function(){
+    try{
+      var d=JSON.parse(x.responseText);
+      var badge=document.getElementById('al-badge');
+      var label=document.getElementById('al-label');
+      if(d.running){badge.className='al-badge ok';label.textContent='LEARN';}
+      else{badge.className='al-badge off';label.textContent='OFF';}
+      renderAlPanel(d);
+    }catch(e){
+      document.getElementById('al-badge').className='al-badge off';
+      document.getElementById('al-label').textContent='ERR';
+    }
+  };
+  x.onerror=function(){document.getElementById('al-badge').className='al-badge off'};
+  x.ontimeout=function(){document.getElementById('al-badge').className='al-badge warn'};
+  try{x.send()}catch(e){}
+}
+function alEl(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text)e.textContent=text;return e;}
+function alStat(label,val){
+  var row=alEl('div','al-stat');
+  row.appendChild(alEl('span','label',label));
+  row.appendChild(alEl('span','val',String(val)));
+  return row;
+}
+function renderAlPanel(d){
+  var panel=document.getElementById('al-panel');
+  panel.textContent='';
+  var p=d.pillars||{};
+  var mem=p.memory||{};
+  var tun=p.tuning||{};
+  var rev=p.review||{};
+  var topTopics=(mem.top_topics||[]).map(function(t){return t[0]+':'+t[1]}).join(', ')||'aucun';
+
+  panel.appendChild(alEl('h4',null,'Memoire'));
+  panel.appendChild(alStat('Messages',mem.total_messages||0));
+  panel.appendChild(alStat('Profil',mem.profile_summary||'en construction...'));
+  panel.appendChild(alStat('Topics',topTopics));
+
+  panel.appendChild(alEl('h4',null,'Auto-Tuning'));
+  panel.appendChild(alStat('Dernier cycle',tun.last_cycle?new Date(tun.last_cycle).toLocaleTimeString():'jamais'));
+  panel.appendChild(alStat('Historique',(tun.history_count||0)+' cycles'));
+
+  var rt=tun.current_routing||{};
+  var cats=Object.keys(rt).slice(0,6);
+  cats.forEach(function(c){
+    panel.appendChild(alStat(c,(rt[c]||[]).join(' \u2192 ')));
+  });
+
+  panel.appendChild(alEl('h4',null,'Auto-Review'));
+  panel.appendChild(alStat('Dernier review',rev.last_review?new Date(rev.last_review).toLocaleTimeString():'jamais'));
+  panel.appendChild(alStat('Cycles',rev.cycles_count||0));
+  panel.appendChild(alStat('Rollbacks',rev.rollback_stack_size||0));
+
+  var btn=alEl('button','al-trigger','Forcer review');
+  btn.addEventListener('click',triggerAlReview);
+  panel.appendChild(btn);
+}
+function triggerAlReview(){
+  var x=new XMLHttpRequest();x.open('POST',PROXY+'/autolearn/trigger',true);x.timeout=120000;
+  x.setRequestHeader('Content-Type','application/json');
+  x.onload=function(){fetchAlStatus()};
+  x.onerror=function(){};
+  try{x.send()}catch(e){}
+}
+document.addEventListener('click',function(e){
+  if(alPanelOpen&&!e.target.closest('#al-badge')){
+    alPanelOpen=false;
+    document.getElementById('al-panel').className='al-panel';
+  }
+});
+
 // ═══ INIT ═══
 initSettings();
 renderEngines();renderMcp();renderCluster();
 gwConnect();
 checkCluster();
 setInterval(checkCluster,30000);
+setInterval(fetchAlStatus,30000);
 rotateChips();
-addMsg('sys','JARVIS v2 en ligne \u2014 42 filtres \u00b7 8 outils MCP \u00b7 6 noeuds');
+fetchAlStatus();
+addMsg('sys','JARVIS v2 en ligne \u2014 42 filtres \u00b7 8 outils MCP \u00b7 6 noeuds \u00b7 autolearn');
 document.getElementById('cinput').focus();
 
 })();
