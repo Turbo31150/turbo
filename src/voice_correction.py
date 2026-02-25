@@ -565,7 +565,7 @@ async def _ia_correct(text: str, url: str, model: str) -> str:
     """Use Ollama qwen3:1.7b (fast, 1.36 GB) to correct voice transcription.
 
     Primary: Ollama qwen3:1.7b (lightweight, always loaded, <1s)
-    Fallback: LM Studio M1/qwen3-30b (heavier but more accurate)
+    Fallback: LM Studio M1/qwen3-8b (fast, accurate)
     """
     import httpx
     from src.config import config
@@ -602,7 +602,7 @@ async def _ia_correct(text: str, url: str, model: str) -> str:
                 return r.json()["message"]["content"].strip()
         except Exception:
             pass
-    # Fallback: LM Studio M1 (qwen3-30b — heavier but accurate)
+    # Fallback: LM Studio M1 (qwen3-8b — fast and accurate)
     node = config.get_node("M1")
     if node:
         try:

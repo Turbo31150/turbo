@@ -6,17 +6,25 @@ Tu es l'Orchestrateur Principal d'un cluster IA distribué. Tu ne travailles JAM
 
 ## 1. INFRASTRUCTURE — AGENTS DISPONIBLES
 
-### AGENT M1 — Analyse Profonde (LM Studio, 6 GPU, 46GB VRAM)
-- **Modèle:** qwen3-30b (MoE, 3B actifs, ctx 32768)
+### AGENT M1 — Fast Primary + Deep Dual (LM Studio, 6 GPU, 46GB VRAM)
+- **Modèle primaire:** qwen3-8b (fast, 0.6-2.5s)
+- **Modèle deep:** qwen3-30b (MoE, 3B actifs, pour taches complexes)
 - **Spécialités:** Raisonnement complexe, analyse technique, patterns, trading, freeform
-- **Appel:**
+- **Appel (primaire, /nothink pour reponse directe):**
+```bash
+curl -s http://10.5.0.2:1234/api/v1/chat \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" \
+  -d '{"model":"qwen/qwen3-8b","input":"/nothink PROMPT_ICI","temperature":0.4,"max_output_tokens":8192,"stream":false,"store":false}'
+```
+- **Appel (deep, pour taches complexes):**
 ```bash
 curl -s http://10.5.0.2:1234/api/v1/chat \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" \
   -d '{"model":"qwen/qwen3-30b-a3b-2507","input":"PROMPT_ICI","temperature":0.4,"max_output_tokens":8192,"stream":false,"store":false}'
 ```
-- **Extraction réponse:** `.output[0].content` dans le JSON retourné
+- **Extraction réponse:** `.output[0].content` dans le JSON retourné (peut contenir plusieurs blocs dans `output[]`, itérer si nécessaire)
 
 ### AGENT M2 — Code Rapide (LM Studio, 3 GPU, 24GB VRAM)
 - **Modèle:** deepseek-coder-v2-lite-instruct
@@ -106,9 +114,9 @@ curl -s http://192.168.1.26:1234/api/v1/chat -H "Content-Type: application/json"
   -d '{"model":"deepseek-coder-v2-lite-instruct","input":"Écris une fonction Python qui...","temperature":0.3,"max_output_tokens":8192,"stream":false,"store":false}'
 ```
 ```bash
-# M1 analyse l'architecture existante
+# M1 analyse l'architecture existante (fast mode avec /nothink)
 curl -s http://10.5.0.2:1234/api/v1/chat -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" \
-  -d '{"model":"qwen/qwen3-30b-a3b-2507","input":"Analyse ce code existant et identifie les patterns...","temperature":0.4,"max_output_tokens":8192,"stream":false,"store":false}'
+  -d '{"model":"qwen/qwen3-8b","input":"/nothink Analyse ce code existant et identifie les patterns...","temperature":0.4,"max_output_tokens":8192,"stream":false,"store":false}'
 ```
 
 **Étape 3 — Collecte & Extraction**
@@ -126,7 +134,7 @@ Compare les réponses des agents :
 Présente la solution en indiquant les contributions :
 ```
 [M2/deepseek-coder] Code généré : ...
-[M1/qwen3-30b] Validation logique : OK / Problème trouvé : ...
+[M1/qwen3-8b] Validation logique : OK / Problème trouvé : ...
 [GEMINI] Avis architectural : ...
 ```
 
@@ -263,6 +271,6 @@ Charge et applique le protocole MAO défini dans F:\BUREAU\turbo\CLAUDE_MULTI_AG
 - **Windows paths** : Utiliser `/` ou `\\` dans les commandes Bash (pas de `\` simple)
 - **JSON escaping** : Les guillemets dans les prompts curl doivent être échappés avec `\"`
 - **Latence réseau** : M1 (10.5.0.2) est sur le réseau local, latence < 1ms. M2 (192.168.1.26) idem.
-- **GPU partagés** : M1 a aussi qwen3-coder-30b, qwq-32b, devstral en on-demand. Ne pas les charger tous en même temps.
+- **GPU partagés** : M1 charge qwen3-8b (primary) + qwen3-30b (deep) en dual. Autres modeles (qwq-32b, devstral) en on-demand. Ne pas les charger tous en même temps.
 - **Ollama cloud** : Les modèles cloud (minimax, glm-5, kimi) nécessitent une connexion internet active.
 - **Gemini quotas** : Gratuit = ~1500 requêtes/jour. Si 429 persistant → attendre ou passer à l'API payante.

@@ -6,7 +6,7 @@ Modeles:
   M3/mistral-7b  (w=1.0) — Fallback rapide
   GEMINI/proxy    (w=1.1) — Validation externe
   OL1/minimax     (w=1.3) — Recherche web temps reel
-  M1/qwen3-30b   (w=1.5) — Raisonnement
+  M1/qwen3-8b    (w=1.5) — Rapide + raisonnement
   M2/gpt-oss-20b  (w=1.2) — Code/strategies
   OL1/qwen3-1.7b (w=0.8) — Ultra-rapide
 
@@ -58,14 +58,14 @@ MODELS = [
         "method": "ollama",
     },
     {
-        "id": "m1-qwen30b",
-        "name": "M1/qwen3-30b",
+        "id": "m1-qwen8b",
+        "name": "M1/qwen3-8b",
         "weight": 1.5,
         "type": "reasoning",
         "endpoint": "http://10.5.0.2:1234/api/v1/chat",
         "auth": "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7",
-        "model_id": "qwen/qwen3-30b-a3b-2507",
-        "timeout": 120,
+        "model_id": "qwen/qwen3-8b",
+        "timeout": 30,
         "method": "lmstudio",
     },
     {
@@ -278,7 +278,7 @@ MACHINE_GROUPS = {
     "M3":     ["m3-mistral"],
     "GEMINI": ["gemini"],
     "OL1":    ["ol1-minimax", "ol1-local"],   # Meme Ollama = sequentiel
-    "M1":     ["m1-qwen30b"],
+    "M1":     ["m1-qwen8b"],
     "M2":     ["m2-gptoss"],
 }
 

@@ -1,6 +1,6 @@
 # JARVIS Etoile v10.3 — Orchestrateur IA Distribue Multi-GPU
 
-**Repo prive — Turbo31150 | Derniere MAJ: 2026-02-24**
+**Repo prive — Turbo31150 | Derniere MAJ: 2026-02-26**
 
 > **Claude = Commandant Pur. Il ne fait JAMAIS le travail lui-meme. Il ORDONNE, VERIFIE et ORCHESTRE.**
 
@@ -70,7 +70,7 @@
  |                    JARVIS COMMANDER                          |
  |              (Claude Agent SDK - Opus/Sonnet)                |
  |                                                              |
- |  1. classify_task()  --> M1 qwen3-30b (5ms) / heuristique   |
+ |  1. classify_task()  --> M1 qwen3-8b (0.6s) / heuristique   |
  |  2. decompose_task() --> TaskUnit[]                          |
  |  3. thermal_check()  --> GPU temp < 85C ?                    |
  |  4. enrich_prompt()  --> COMMANDER_PROMPT                    |
@@ -87,10 +87,10 @@
   +------+ +------+ +------+ +------+ +------+ +----------+
   |  M2  | |  OL1 | |  M3  | |GEMINI| |  M1  | |PowerShell|
   |deep- | |qwen3 | |mistr-| |proxy | |qwen3 | | Windows  |
-  |seek  | |1.7b  | |al-7b | | .js  | | 30b  | |  SAPI    |
+  |seek  | |1.7b  | |al-7b | | .js  | | 8b   | |  SAPI    |
   |3 GPU | |local | |1 GPU | |cloud | |6 GPU | |  87 MCP  |
   |24 GB | |+cloud| |8 GB  | |      | |46 GB | |  tools   |
-  | 92%  | | 88%  | | 89%  | | 74%  | | 23%  | |          |
+  | 92%  | | 88%  | | 89%  | | 74%  | |100%  | |          |
   +------+ +------+ +------+ +------+ +------+ +----------+
        |       |       |       |       |
        +-------+-------+-------+-------+
@@ -130,24 +130,24 @@ Les 10 niveaux testent des capacites croissantes :
 ### Resultats par Noeud
 
 ```
- SCORE GLOBAL (%)
+ SCORE GLOBAL (%) — MaJ 2026-02-26
  ┌─────────────────────────────────────────────────────────┐
  │                                                         │
- │  M2 /deepseek-coder   ████████████████████████████ 92%  │  CHAMPION
+ │  M1 /qwen3-8b         ██████████████████████████████100% │  RAPIDE
+ │  M2 /deepseek-coder   ████████████████████████████ 92%  │  CODE
  │  M3 /mistral-7b       ███████████████████████████  89%  │  SOLIDE
- │  OL1/qwen3:1.7b       ██████████████████████████   88%  │  RAPIDE
+ │  OL1/qwen3:1.7b       ██████████████████████████   88%  │  LOCAL
  │  GEMINI/gemini-3-pro  ██████████████████████        74%  │  VARIABLE
- │  M1 /qwen3-30b        ██████                       23%  │  TIMEOUT
  │                                                         │
  └─────────────────────────────────────────────────────────┘
 
- LATENCE MOYENNE (secondes)
+ LATENCE MOYENNE (secondes) — MaJ 2026-02-26
  ┌─────────────────────────────────────────────────────────┐
  │                                                         │
- │  OL1   █           0.5s                                 │  LE + RAPIDE
+ │  OL1   █           0.5s                                 │  LOCAL RAPIDE
+ │  M1    █           0.7-2.5s (qwen3-8b, /nothink)       │  LE + RAPIDE
  │  M2    ██          1.3s                                 │
  │  M3    ███         2.5s                                 │
- │  M1    █████████████████ 12.0s  (quand il repond)       │
  │  GEMINI████████████████████████████████████████ 75.0s    │
  │                                                         │
  └─────────────────────────────────────────────────────────┘
@@ -199,36 +199,39 @@ Les 10 niveaux testent des capacites croissantes :
 | **Forces** | Architecture, vision, review |
 | **Poids** | 1.2 (inchange) |
 
-#### M1 — qwen3-30b — LENT (23%)
+#### M1 — qwen3-8b — RAPIDE (100%) — MaJ 2026-02-26
 
 | Metrique | Valeur |
 |----------|--------|
-| **Score** | 23% (11.5/50 points) |
-| **Fails** | 7 / 10 niveaux (TIMEOUT) |
-| **Latence moy** | 12.0s (meme trivial) |
-| **Limite** | Niveau 3 (tout ce qui est > moyen timeout) |
-| **Cause** | Chain-of-thought de qwen3-30b (MoE 3B actifs) trop long |
-| **Poids** | 0.7 (demote de 1.5) |
+| **Score** | 100% (60/60 autotest v3) |
+| **Fails** | 0 |
+| **Latence moy** | 0.7-2.5s (65 tok/s) |
+| **Modele** | qwen3-8b (dense 8B, 4.7 GB, Q4_K_M) tient sur 1 GPU |
+| **Dual-model** | qwen3-30b charge en parallele pour taches profondes |
+| **Optimisation** | `/nothink` prefix, 2 instances paralleles, ctx=8192 |
+| **Poids** | 1.2 (promu de 0.7) |
+
+> **Fix 2026-02-26** : qwen3-30b (18 GB MoE) causait un overhead inter-GPU massif sur 6 GPUs (12s+). Switch vers qwen3-8b (4.7 GB dense) = tient sur 1 seul GPU = **10x plus rapide**.
 
 ### Decisions de Routage
 
 Le benchmark a provoque une **reorganisation complete** du routage :
 
 ```
- AVANT (2026-02-19)                    APRES (2026-02-20)
- ─────────────────                     ──────────────────
+ AVANT (2026-02-20)                    APRES (2026-02-26, M1 qwen3-8b)
+ ─────────────────                     ──────────────────────────────
 
- short_answer  → [M1]                  short_answer  → [OL1, M3]
- deep_analysis → [M1]                  deep_analysis → [M2, GEMINI]
- code_gen      → [M2, M1]             code_gen      → [M2, M3]
- trading       → [M1, OL1]            trading       → [OL1, M2]
- validation    → [M1, M2]             validation    → [M2, OL1]
- critical      → [M1, OL1]            critical      → [M2, OL1, GEMINI]
- reasoning     → [M1, OL1]            reasoning     → [M2, OL1]
- auto_learn    → [M1]                  auto_learn    → [OL1, M2]
- embedding     → [M1]                  embedding     → [M1]  (seul use case)
- consensus     → [M1,M2,OL1,GEM]      consensus     → [M2,OL1,M3,M1,GEM]
- architecture  → [GEMINI, M1]         architecture  → [GEMINI, M2]
+ short_answer  → [OL1, M3]            short_answer  → [OL1, M1, M3]
+ deep_analysis → [M2, GEMINI]         deep_analysis → [M2, GEMINI]
+ code_gen      → [M2, M3]             code_gen      → [M1, M2, M3]
+ trading       → [OL1, M2]            trading       → [OL1, M2, M1]
+ validation    → [M2, OL1]            validation    → [M2, OL1]
+ critical      → [M2, OL1, GEMINI]    critical      → [M2, OL1, M1, GEMINI]
+ reasoning     → [M2, OL1]            reasoning     → [M1, M2, OL1]
+ auto_learn    → [OL1, M2]            auto_learn    → [OL1, M2]
+ embedding     → [M1]                  embedding     → [M1]
+ consensus     → [M2,OL1,M3,M1,GEM]   consensus     → [M2,OL1,M3,M1,GEM,CLAUDE]
+ architecture  → [GEMINI, M2]         architecture  → [GEMINI, CLAUDE, M2]
 ```
 
 ### Scripts Benchmark
@@ -334,7 +337,7 @@ node F:/BUREAU/turbo/gemini-proxy.js --json "VOTRE PROMPT"
 node F:/BUREAU/turbo/gemini-proxy.js --ping   # Health check
 ```
 
-### M1 — Reserve Embedding (6 GPU, 46 GB VRAM) — Score: 23%
+### M1 — RAPIDE (6 GPU, 46 GB VRAM) — Score: 100% — MaJ 2026-02-26
 
 | Parametre | Valeur |
 |-----------|--------|
@@ -343,20 +346,24 @@ node F:/BUREAU/turbo/gemini-proxy.js --ping   # Health check
 | **GPU** | RTX 2060 + 4x GTX 1660 Super + RTX 3080 |
 | **VRAM** | 46 GB total |
 | **CUDA_VISIBLE_DEVICES** | `5,0,1,2,3,4` |
-| **Modele permanent** | `qwen/qwen3-30b-a3b-2507` |
-| **Poids** | 0.7 (demote de 1.5) |
-| **Role** | EMBEDDING ONLY + consensus participant (lent, timeout complexe) |
+| **Modele principal** | `qwen/qwen3-8b` (4.7 GB, dense, 1 GPU) |
+| **Modele dual** | `qwen/qwen3-30b-a3b-2507` (charge en parallele pour deep tasks) |
+| **Poids** | 1.2 (promu de 0.7) |
+| **Latence** | 0.6-2.5s (65 tok/s) |
+| **Role** | RAPIDE — code, raisonnement, general, embedding, consensus |
+
+**Config optimale :** `context_length=8192, eval_batch_size=512, flash_attention=true, /nothink prefix`
+
+**Dual-model (22 GB / 46 GB) :** 2x qwen3-8b instances + 1x qwen3-30b = parallelisme
 
 **Modeles on-demand M1 :**
 | Modele | VRAM | Usage |
 |--------|------|-------|
-| `qwen3-coder-30b` | 18.63 GB | Code specialise |
-| `devstral-small-2` | 15.21 GB | Dev tasks |
-| `gpt-oss-20b` | 12.11 GB | General purpose |
+| `qwen3-coder-30b` | 18.63 GB | Code specialise (MoE) |
+| `devstral-small-2` | 15.21 GB | Dev tasks (vision) |
+| `gpt-oss-20b` | 12.11 GB | General purpose (MXFP4) |
 
-**Blacklist M1** (gaspillent VRAM) : `nemotron-3-nano`, `glm-4.7-flash`
-
-**ATTENTION** : M1 timeout sur 7/10 requetes complexes. Latence 12s+ meme pour du trivial. Ne pas utiliser en primary sauf embedding.
+**Blacklist M1** (trop lents multi-GPU) : `nemotron-3-nano`, `glm-4.7-flash`
 
 ### LM Studio CLI
 
@@ -367,7 +374,7 @@ C:\Users\franc\.lmstudio\bin\lms.exe
 ```bash
 lms status          # Status serveur
 lms ls              # Modeles charges
-lms load qwen/qwen3-30b-a3b-2507 --gpu max
+lms load qwen/qwen3-8b --gpu max -c 8192
 lms unload --all
 ```
 
@@ -413,7 +420,7 @@ Le mode Commandant est **PERMANENT** sur tous les modes (interactif, vocal, hybr
  |                  PHASE 1: CLASSIFICATION                     |
  |                                                              |
  |  classify_task(input)                                        |
- |  ├── M1 qwen3-30b (5ms avg)  ← si cluster online            |
+ |  ├── M1 qwen3-8b (0.6s avg)  ← si cluster online             |
  |  └── Heuristique fallback (0ms) ← si M1 offline             |
  |                                                              |
  |  Categories: code | analyse | trading | systeme | web |      |
@@ -654,7 +661,7 @@ Matrice definie dans `config.py` → `commander_routing` — **ajustee le 2026-0
  OL1 /qwen3:1.7b      ██████████████   1.3  (88%, plus rapide)
  M3  /mistral-7b       ████████████     1.0  (89%, solide)
  GEM /gemini-3-pro     ████████████     1.0  (74%, variable archi)
- M1  /qwen3-30b        ████████         0.7  (23%, lent timeout)
+ M1  /qwen3-8b         ████████████     1.2  (100%, 0.6-2.5s rapide)
 ```
 
 ---
@@ -800,7 +807,7 @@ Prefixe: `mcp__jarvis__`
                              │
                              v
                     ┌──────────────────┐
-                    │ 1. Classify      │  M1 qwen3-30b (5ms) / heuristique
+                    │ 1. Classify      │  M1 qwen3-8b (0.6s) / heuristique
                     └────────┬─────────┘
                              │
                              v
@@ -977,7 +984,7 @@ Les coins sont splittes equitablement sur les 5 GPU via `ThreadPoolExecutor`. Ch
   ├── GEMINI/proxy       (w=1.1)  ──> LONG/SHORT/HOLD + confidence
   ├── OL1/minimax-cloud  (w=1.3)  ──> LONG/SHORT/HOLD + confidence
   │   └── OL1/qwen3-1.7b (w=0.8) ──> (sequentiel meme machine)
-  ├── M1/qwen3-30b       (w=1.5)  ──> LONG/SHORT/HOLD + confidence
+  ├── M1/qwen3-8b        (w=1.2)  ──> LONG/SHORT/HOLD + confidence
   └── M2/gpt-oss-20b     (w=1.2)  ──> LONG/SHORT/HOLD + confidence
 
   Vote pondere → bias + confidence + permission (>=60% + >=50%)

@@ -38,7 +38,7 @@ if not exist ".env" (
     echo LM_STUDIO_1_URL=http://localhost:1234 > .env
     echo LM_STUDIO_2_URL=http://192.168.1.26:1234 >> .env
     echo LM_STUDIO_3_URL=http://192.168.1.113:1234 >> .env
-    echo LM_STUDIO_DEFAULT_MODEL=qwen/qwen3-30b-a3b-2507 >> .env
+    echo LM_STUDIO_DEFAULT_MODEL=qwen/qwen3-8b >> .env
     echo DRY_RUN=true >> .env
     echo [INFO] .env cree avec valeurs par defaut. Editez-le pour vos cles API.
 ) else (

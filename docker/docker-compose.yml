@@ -22,7 +22,7 @@ services:
       # Config generale
       - WEBUI_AUTH=false
       - ENABLE_SIGNUP=false
-      - DEFAULT_MODELS=qwen3-30b-a3b
+      - DEFAULT_MODELS=qwen3-8b
       - WEBUI_NAME=JARVIS WebUI
       # GPU: utiliser la RTX 3080 (GPU principal, moins de latence)
       - NVIDIA_VISIBLE_DEVICES=0,1,2,3,4

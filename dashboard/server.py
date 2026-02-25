@@ -25,8 +25,8 @@ AGENTS = {
         "url": "http://10.5.0.2:1234",
         "api_key": "sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7",
         "type": "lm_studio",
-        "model": "qwen/qwen3-30b-a3b-2507",
-        "role": "Analyse profonde",
+        "model": "qwen/qwen3-8b",
+        "role": "Rapide + analyse",
         "gpus": 6, "vram_gb": 46,
     },
     "M2": {

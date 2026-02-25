@@ -5,10 +5,10 @@
 $M1_Headers = @{ Authorization = "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" }
 $M2_Headers = @{ Authorization = "Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4" }
 
-# Test 1 — M1 qwen3-30b simple
+# Test 1 — M1 qwen3-8b simple
 $sw = [System.Diagnostics.Stopwatch]::StartNew()
 $body = @{
-    model = "qwen/qwen3-30b-a3b-2507"
+    model = "qwen/qwen3-8b"
     input = "Dis bonjour et donne l'heure"
     system_prompt = "Tu es JARVIS, assistant IA. Reponds en francais, sois concis."
     temperature = 0.5
@@ -20,7 +20,7 @@ $body = @{
 $r = Invoke-RestMethod -Uri "http://10.5.0.2:1234/api/v1/chat" -Method POST -ContentType "application/json" -Headers $M1_Headers -Body $body -TimeoutSec 30
 $sw.Stop()
 
-Write-Host "=== TEST PERFORMANCE M1 - qwen3-30b ==="
+Write-Host "=== TEST PERFORMANCE M1 - qwen3-8b ==="
 Write-Host ("Temps: " + $sw.ElapsedMilliseconds + "ms")
 $content = if ($r.output.Count -gt 0) { $r.output[0].content } else { "(output vide)" }
 Write-Host ("Reponse: " + $content.Substring(0, [Math]::Min(200, $content.Length)))
@@ -30,7 +30,7 @@ Write-Host ""
 # Test 2 — M1 identification commande
 $sw2 = [System.Diagnostics.Stopwatch]::StartNew()
 $body2 = @{
-    model = "qwen/qwen3-30b-a3b-2507"
+    model = "qwen/qwen3-8b"
     input = "ouvre chrome et va sur youtube"
     system_prompt = "Tu es le cerveau local de JARVIS v10.1. Tu connais 450 commandes vocales, 77 skills et 73 outils MCP. Identifie la commande ou le skill qui correspond. Reponds: COMMANDE: nom ou SKILL: nom."
     temperature = 0.5
