@@ -13,7 +13,7 @@
 #>
 param(
     [Parameter(Position=0)]
-    [ValidateSet("ask","status","heal","arena","history","bench","filter","route","score","scores","consensus","profile","export","help")]
+    [ValidateSet("ask","status","heal","arena","history","bench","filter","route","score","scores","consensus","profile","export","db","help")]
     [string]$Command = "help",
 
     [Parameter(Position=1, ValueFromRemainingArguments=$true)]
@@ -191,7 +191,51 @@ function Detect-Domain([string]$Text) {
     return ($scores.GetEnumerator() | Sort-Object Value -Descending | Select-Object -First 1).Key
 }
 
-function Pick-Node([string]$Domain, [string]$ForceNode) {
+function Get-ScenarioRoute([string]$Domain) {
+    try {
+        $raw = python3 $DbHelper scenario_route $Domain 2>$null
+        if ($raw -and $raw -ne "null") {
+            $parsed = $raw | ConvertFrom-Json
+            if ($parsed -and $parsed.Count -gt 0) {
+                return @($parsed | ForEach-Object { $_.agent })
+            }
+        }
+    } catch { }
+    return $null
+}
+
+function Get-KeywordRoute([string]$Prompt) {
+    try {
+        $raw = python3 $DbHelper keyword_match $Prompt 2>$null
+        if ($raw -and $raw -ne "null") {
+            $parsed = $raw | ConvertFrom-Json
+            if ($parsed -and $parsed.Count -gt 0) {
+                return $parsed[0].agent
+            }
+        }
+    } catch { }
+    return $null
+}
+
+function Run-Dominos([string]$TriggerCmd, [string]$Condition="always") {
+    try {
+        $raw = python3 $DbHelper dominos $TriggerCmd $Condition 2>$null
+        if (-not $raw -or $raw -eq "[]") { return }
+        $chains = $raw | ConvertFrom-Json
+        foreach ($chain in $chains) {
+            if (-not $chain.auto) { continue }
+            if ($chain.delay_ms -gt 0) { Start-Sleep -Milliseconds $chain.delay_ms }
+            Write-Host ('[DOMINO] {0} -> {1}' -f $TriggerCmd, $chain.next_cmd) -ForegroundColor Magenta
+            # Execute the chained command via jarvis.ps1 recursively
+            $cmdParts = $chain.next_cmd -split ' ', 2
+            $subCmd = $cmdParts[0]
+            $subArgs = if ($cmdParts.Count -gt 1) { $cmdParts[1] } else { "" }
+            powershell.exe -Command "& 'C:/Users/franc/jarvis.ps1' $subCmd $subArgs" 2>$null
+        }
+    } catch { }
+}
+
+function Pick-Node([string]$Domain, [string]$ForceNode, [string]$Prompt="") {
     if ($ForceNode -and $Nodes.ContainsKey($ForceNode)) { return $ForceNode }
     # Priority 1: Autolearn engine (50+ tuning cycles)
     $alRoute = @(Get-AutolearnRoute $Domain)
@@ -199,13 +243,27 @@ function Pick-Node([string]$Domain, [string]$ForceNode) {
         $script:RoutingSource = "autolearn"
         return $alRoute[0]
     }
-    # Priority 2: Local adaptive (jarvis.ps1 CLI data)
+    # Priority 2: Keyword match from etoile.db (188 keywords)
+    if ($Prompt) {
+        $kwMatch = Get-KeywordRoute $Prompt
+        if ($kwMatch -and $Nodes.ContainsKey($kwMatch)) {
+            $script:RoutingSource = "keyword"
+            return $kwMatch
+        }
+    }
+    # Priority 3: Scenario weights from etoile.db (51 entries)
+    $scenarioRoute = @(Get-ScenarioRoute $Domain)
+    if ($scenarioRoute -and $scenarioRoute[0]) {
+        $script:RoutingSource = "scenario"
+        return $scenarioRoute[0]
+    }
+    # Priority 4: Local adaptive (jarvis.ps1 CLI data)
     $adaptive = @(Get-AdaptiveRoute $Domain)
     if ($adaptive -and $adaptive[0]) {
         $script:RoutingSource = "adaptive"
         return $adaptive[0]
     }
-    # Priority 3: Static defaults
+    # Priority 5: Static defaults
     $script:RoutingSource = "static"
     $route = $Routing[$Domain]
     if (-not $route) { $route = @("M1","OL1","M2","M3") }
@@ -307,8 +365,8 @@ switch ($Command) {
         # Auto-detect domain from keywords
         $script:RoutingSource = "static"
         $detectedDomain = if ($Domain) { $Domain } else { Detect-Domain $prompt }
-        $selectedNode = Pick-Node $detectedDomain $Node
-        Write-Host ('[JARVIS] Domain: {0} | Node: {1} | Prompt: {2}...' -f $detectedDomain, $selectedNode, $prompt.Substring(0, [Math]::Min(60, $prompt.Length))) -ForegroundColor Cyan
+        $selectedNode = Pick-Node $detectedDomain $Node $prompt
+        Write-Host ('[JARVIS] Domain: {0} | Node: {1} | Source: {2} | Prompt: {3}...' -f $detectedDomain, $selectedNode, $RoutingSource, $prompt.Substring(0, [Math]::Min(50, $prompt.Length))) -ForegroundColor Cyan
         $result = Query-Node $selectedNode $prompt
 
         if ($result.Error) {
@@ -330,6 +388,10 @@ switch ($Command) {
         $querySuccess = -not [bool]$result.Error
         $respPreview = if ($result.Text) { $result.Text.Substring(0, [Math]::Min(200, $result.Text.Length)) } else { "" }
         Log-Result $result.Node $detectedDomain $result.Latency $querySuccess $RoutingSource $prompt $respPreview
+
+        # Domino chains
+        if ($result.Error) { Run-Dominos "ask" "timeout" }
+        else { Run-Dominos "ask" "success" }
 
         if ($Json) {
             @{
@@ -379,11 +441,14 @@ switch ($Command) {
         } catch {
             Write-Host 'Autolearn: OFFLINE (port 18800)' -ForegroundColor Red
         }
-        # Alerts
+        # Alerts + domino
         if ($failedNodes.Count -gt 0) {
             Write-Host ''
             Write-Host ('  ALERTE: {0} noeud(s) en panne: {1}' -f $failedNodes.Count, ($failedNodes -join ', ')) -ForegroundColor Red
             Write-Host '  Lancez "jarvis heal --status" pour diagnostiquer' -ForegroundColor Yellow
+            Run-Dominos "status" "node_fail"
+        } else {
+            Run-Dominos "status" "all_ok"
         }
         if ($Json) { $output | ConvertTo-Json }
     }
@@ -703,6 +768,36 @@ if h['runs']:
         }
     }
 
+    "db" {
+        $raw = python3 $DbHelper summary 2>$null
+        if (-not $raw) {
+            Write-Host '[DB] Erreur lecture etoile.db' -ForegroundColor Red
+        } else {
+            $data = $raw | ConvertFrom-Json
+            Write-Host ''
+            Write-Host '  ETOILE.DB -- Resume complet' -ForegroundColor Cyan
+            Write-Host ('  {0}' -f ('-' * 45)) -ForegroundColor DarkGray
+            Write-Host ('  Queries:          {0}' -f $data.jarvis_queries) -ForegroundColor White
+            Write-Host ('  Health checks:    {0}' -f $data.cluster_health) -ForegroundColor White
+            Write-Host ('  Consensus logs:   {0}' -f $data.consensus_log) -ForegroundColor White
+            Write-Host ('  Benchmarks:       {0}' -f $data.benchmark_results) -ForegroundColor White
+            Write-Host ('  Metrics:          {0}' -f $data.metrics) -ForegroundColor White
+            Write-Host ('  Map entries:      {0}' -f $data.map) -ForegroundColor White
+            Write-Host ''
+            Write-Host ('  Agent keywords:   {0}' -f $data.agent_keywords) -ForegroundColor Green
+            Write-Host ('  Pipelines:        {0}' -f $data.pipeline_dictionary) -ForegroundColor Green
+            Write-Host ('  Scenarios:        {0} ({1} weights)' -f $data.scenarios_count, $data.scenario_weights) -ForegroundColor Green
+            Write-Host ('  Domino chains:    {0}' -f $data.domino_chains) -ForegroundColor Green
+            Write-Host ''
+            Write-Host '  Keywords par agent:' -ForegroundColor Cyan
+            foreach ($prop in $data.agents_keywords.PSObject.Properties) {
+                Write-Host ('    {0,-10} {1} keywords' -f $prop.Name, $prop.Value) -ForegroundColor White
+            }
+            Write-Host ''
+        }
+        if ($Json) { Write-Output $raw }
+    }
+
     "help" {
         $helpText = @'
 
@@ -725,6 +820,7 @@ if h['runs']:
     jarvis scores                Scores adaptatifs par noeud x domaine
 
     jarvis consensus "question"  Vote pondere M1+M2+M3+OL1
+    jarvis db                    Resume etoile.db (toutes tables)
     jarvis profile               Profil autolearn + topics + conversations
     jarvis export                Exporte la config en JSON
 

@@ -107,6 +107,103 @@ def log_json(filepath, node, domain, latency_ms, success):
     with open(filepath, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False)
 
+def scenario_route(domain):
+    """Get best agent for a domain using scenario_weights + agent_keywords."""
+    conn = get_conn()
+    # Map domain to scenario
+    domain_map = {
+        "code": "code_generation", "securite": "critical", "math": "short_answer",
+        "raisonnement": "reasoning", "trading": "trading_signal", "web": "web_research",
+        "general": "short_answer", "traduction": "short_answer", "systeme": "cmd_systeme",
+    }
+    scenario = domain_map.get(domain, "short_answer")
+    rows = conn.execute(
+        "SELECT agent, weight, priority, chain_next FROM scenario_weights WHERE scenario=? ORDER BY priority ASC",
+        (scenario,)
+    ).fetchall()
+    conn.close()
+    if not rows:
+        print("null")
+        return
+    result = [{"agent": r["agent"], "weight": r["weight"], "priority": r["priority"], "chain_next": r["chain_next"]} for r in rows]
+    print(json.dumps(result))
+
+def get_dominos(trigger_cmd, condition="always"):
+    """Get domino chains for a trigger command."""
+    conn = get_conn()
+    rows = conn.execute(
+        "SELECT next_cmd, delay_ms, auto, description FROM domino_chains WHERE trigger_cmd=? AND (condition=? OR condition='always')",
+        (trigger_cmd, condition)
+    ).fetchall()
+    conn.close()
+    if not rows:
+        print("[]")
+        return
+    result = [{"next_cmd": r["next_cmd"], "delay_ms": r["delay_ms"], "auto": bool(r["auto"]), "desc": r["description"]} for r in rows]
+    print(json.dumps(result))
+
+def update_keyword_hit(agent, keyword):
+    """Increment hit count for an agent keyword pair."""
+    conn = get_conn()
+    conn.execute("UPDATE agent_keywords SET hit_count = hit_count + 1 WHERE agent=? AND keyword=?", (agent, keyword))
+    conn.commit()
+    conn.close()
+
+def keyword_match(text):
+    """Find best agent match based on keywords in text."""
+    conn = get_conn()
+    words = text.lower().split()
+    scores = {}
+    for word in words:
+        rows = conn.execute(
+            "SELECT agent, weight, domain FROM agent_keywords WHERE keyword=?", (word,)
+        ).fetchall()
+        for r in rows:
+            key = r["agent"]
+            if key not in scores:
+                scores[key] = {"score": 0, "domains": set(), "hits": 0}
+            scores[key]["score"] += r["weight"]
+            scores[key]["domains"].add(r["domain"])
+            scores[key]["hits"] += 1
+    conn.close()
+    if not scores:
+        print("null")
+        return
+    result = []
+    for agent, data in sorted(scores.items(), key=lambda x: x[1]["score"], reverse=True):
+        result.append({"agent": agent, "score": round(data["score"], 2), "hits": data["hits"], "domains": list(data["domains"])})
+    print(json.dumps(result))
+
+def db_summary():
+    """Full summary of all jarvis tables in etoile.db."""
+    conn = get_conn()
+    tables = {
+        "jarvis_queries": "SELECT COUNT(*) FROM jarvis_queries",
+        "cluster_health": "SELECT COUNT(*) FROM cluster_health",
+        "consensus_log": "SELECT COUNT(*) FROM consensus_log",
+        "agent_keywords": "SELECT COUNT(*) FROM agent_keywords",
+        "pipeline_dictionary": "SELECT COUNT(*) FROM pipeline_dictionary",
+        "scenario_weights": "SELECT COUNT(*) FROM scenario_weights",
+        "domino_chains": "SELECT COUNT(*) FROM domino_chains",
+        "benchmark_results": "SELECT COUNT(*) FROM benchmark_results",
+        "metrics": "SELECT COUNT(*) FROM metrics",
+        "map": "SELECT COUNT(*) FROM map",
+    }
+    result = {}
+    for name, query in tables.items():
+        try:
+            result[name] = conn.execute(query).fetchone()[0]
+        except:
+            result[name] = 0
+    # Top agents by keyword count
+    result["agents_keywords"] = {}
+    for row in conn.execute("SELECT agent, COUNT(*) as cnt FROM agent_keywords GROUP BY agent ORDER BY cnt DESC"):
+        result["agents_keywords"][row[0]] = row[1]
+    # Scenarios count
+    result["scenarios_count"] = conn.execute("SELECT COUNT(DISTINCT scenario) FROM scenario_weights").fetchone()[0]
+    conn.close()
+    print(json.dumps(result))
+
 def stats():
     conn = get_conn()
     total = conn.execute("SELECT COUNT(*) FROM jarvis_queries").fetchone()[0]
@@ -148,6 +245,16 @@ if __name__ == "__main__":
         show_scores(sys.argv[2] if len(sys.argv) > 2 else None)
     elif cmd == "stats":
         stats()
+    elif cmd == "scenario_route":
+        scenario_route(sys.argv[2])
+    elif cmd == "dominos":
+        get_dominos(sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else "always")
+    elif cmd == "keyword_match":
+        keyword_match(" ".join(sys.argv[2:]))
+    elif cmd == "hit":
+        update_keyword_hit(sys.argv[2], sys.argv[3])
+    elif cmd == "summary":
+        db_summary()
     else:
         print(f"Unknown command: {cmd}")
         sys.exit(1)
