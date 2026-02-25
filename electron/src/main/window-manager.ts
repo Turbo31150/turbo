@@ -9,7 +9,7 @@ const store = new Store({
   },
 });
 
-const isDev = process.env.NODE_ENV !== 'production' && (process.env.NODE_ENV === 'development' || !app.isPackaged);
+const isDev = process.env.NODE_ENV === 'development';
 
 let mainWindow: BrowserWindow | null = null;
 const widgetWindows = new Map<string, BrowserWindow>();
