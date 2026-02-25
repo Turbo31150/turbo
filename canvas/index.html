@@ -745,21 +745,25 @@ function langPrefix(){
 var _add=addMsg;
 addMsg=function(r,t,m,a){_add(r,t,m,a);if(r==='bot'&&t&&t.length<500){var c=t.replace(/<[^>]+>/g,'').replace(/\n/g,' ').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').trim();if(c)Voice.speak(c)}};
 
-// ═══ CLUSTER HEALTH CHECK ═══
+// ═══ CLUSTER HEALTH CHECK (via proxy — handles auth) ═══
 function checkCluster(){
   gwConnect();
-  var nodes=[
-    {url:'http://127.0.0.1:11434/api/tags',idx:0},
-    {url:'http://192.168.1.26:1234/v1/models',idx:1},
-    {url:'http://192.168.1.113:1234/v1/models',idx:2}
-  ];
-  nodes.forEach(function(n){
-    var x=new XMLHttpRequest();x.open('GET',n.url,true);x.timeout=3000;
-    x.onload=function(){CLUSTER[n.idx].d='on';renderCluster()};
-    x.onerror=function(){CLUSTER[n.idx].d='off';renderCluster()};
-    x.ontimeout=function(){CLUSTER[n.idx].d='warn';renderCluster()};
-    try{x.send()}catch(e){CLUSTER[n.idx].d='off';renderCluster()}
-  });
+  var x=new XMLHttpRequest();x.open('GET',PROXY+'/cluster',true);x.timeout=5000;
+  x.onload=function(){
+    try{
+      var d=JSON.parse(x.responseText);
+      if(d.ok&&d.nodes){
+        var map={OL1:0,M2:1,M3:2,M1:3};
+        d.nodes.forEach(function(n){
+          var idx=map[n.name];
+          if(idx!==undefined)CLUSTER[idx].d=n.ok?'on':'off';
+        });
+        renderCluster();
+      }
+    }catch(e){}
+  };
+  x.onerror=function(){};x.ontimeout=function(){};
+  try{x.send()}catch(e){}
 }
 
 // ═══ INIT ═══
