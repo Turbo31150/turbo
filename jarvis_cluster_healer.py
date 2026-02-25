@@ -65,7 +65,7 @@ def mini_benchmark(node_id):
                 body = json.dumps({"model": cfg["model"], "messages": [{"role": "user", "content": prompt}], "stream": False, "think": False, "options": {"num_ctx": 2048}}).encode()
                 req = urllib.request.Request(cfg["chat_url"], data=body, headers={"Content-Type": "application/json"})
             elif cfg["type"] == "lmstudio-responses":
-                body = json.dumps({"model": cfg["model"], "input": prompt, "temperature": 0.2, "max_output_tokens": 50, "stream": False, "store": False}).encode()
+                body = json.dumps({"model": cfg["model"], "input": "/nothink\n" + prompt, "temperature": 0.2, "max_output_tokens": 50, "stream": False, "store": False}).encode()
                 req = urllib.request.Request(cfg["chat_url"], data=body, headers={"Content-Type": "application/json", "Authorization": f"Bearer {cfg['key']}"})
             else:
                 body = json.dumps({"model": cfg["model"], "messages": [{"role": "user", "content": prompt}], "temperature": 0.2, "max_tokens": 50, "stream": False}).encode()
@@ -78,7 +78,12 @@ def mini_benchmark(node_id):
                 text = result.get("message", {}).get("content", "")
             elif cfg["type"] == "lmstudio-responses":
                 output = result.get("output", [])
-                text = output[0].get("content", "") if output else ""
+                text = ""
+                for o in output:
+                    if o.get("type") == "message" and o.get("content"):
+                        text = o["content"]
+                if not text and output:
+                    text = output[-1].get("content", "")
             else:
                 text = result.get("choices", [{}])[0].get("message", {}).get("content", "")
 
