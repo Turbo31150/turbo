@@ -13,7 +13,7 @@
 #>
 param(
     [Parameter(Position=0)]
-    [ValidateSet("ask","status","heal","arena","history","bench","filter","route","score","scores","consensus","help")]
+    [ValidateSet("ask","status","heal","arena","history","bench","filter","route","score","scores","consensus","dashboard","help")]
     [string]$Command = "help",
 
     [Parameter(Position=1, ValueFromRemainingArguments=$true)]
@@ -630,6 +630,16 @@ if h['runs']:
         }
     }
 
+    "dashboard" {
+        $dashPath = "C:/Users/franc/jarvis_dashboard.html"
+        if (-not (Test-Path $dashPath)) {
+            Write-Host '[DASHBOARD] Fichier non trouve: jarvis_dashboard.html' -ForegroundColor Red
+            exit 1
+        }
+        Write-Host '[DASHBOARD] Ouverture du dashboard JARVIS...' -ForegroundColor Cyan
+        Start-Process $dashPath
+    }
+
     "help" {
         $helpText = @'
 
@@ -652,6 +662,7 @@ if h['runs']:
     jarvis scores                Scores adaptatifs par noeud x domaine
 
     jarvis consensus "question"  Vote pondere M1+M2+M3+OL1
+    jarvis dashboard             Ouvre le dashboard HTML
 
     jarvis heal --status         Etat du healer
     jarvis heal                  Lance le daemon healer
