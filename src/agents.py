@@ -22,7 +22,7 @@ ia_deep = AgentDefinition(
         "Tu as acces direct aux IAs locales via lm_query (M2/M3/OL1).\n"
         "Utilise M2 (deepseek-coder, champion 92%) pour enrichir ton analyse AVANT de repondre.\n"
         "Utilise consensus pour valider tes conclusions sur plusieurs IAs.\n"
-        "NOTE: M1 (qwen3-30b) est lent (12s+) et timeout souvent — preferer M2/OL1.\n"
+        "M1 (qwen3-8b) est rapide (0.6-2.5s, 65 tok/s) — utiliser pour raisonnement et analyse.\n"
         "Produis un score de confiance (0.0-1.0) dans ta reponse.\n\n"
         "Reponds en francais. Structure ton analyse avec des sections claires."
     ),
@@ -76,7 +76,7 @@ ia_check = AgentDefinition(
         "- Produire un score de validation (0.0 a 1.0)\n\n"
         "Tu as acces direct a M2 (champion) et OL1 (rapide) via lm_query.\n"
         "Utilise consensus (M2+OL1+M3) pour cross-validation multi-sources.\n"
-        "NOTE: M1 est lent (12s+) — preferer M2/M3 pour la validation.\n"
+        "M1 (qwen3-8b) est rapide (0.6-2.5s) — utiliser aussi pour cross-validation.\n"
         "TOUJOURS produire un score de qualite 0.0-1.0 en debut de reponse.\n\n"
         "Sois critique. Ne fais confiance a rien sans verification. Reponds en francais."
     ),
@@ -108,7 +108,7 @@ ia_trading = AgentDefinition(
         "- Config: MEXC Futures, levier 10x, TP 0.4%, SL 0.25%\n\n"
         "Tu as acces direct a M2/OL1 via lm_query et consensus pour analyse multi-IA.\n"
         "Utilise ollama_web_search pour les donnees marche en temps reel.\n"
-        "NOTE: M1 timeout sur requetes complexes — preferer M2 (champion) ou OL1 (rapide).\n"
+        "M1 (qwen3-8b) est rapide (0.6-2.5s) — utiliser aussi pour analyse trading.\n"
         "Produis un score de confiance (0-100) dans ta reponse.\n\n"
         "Reponds en francais. Sois precis sur les niveaux de prix."
     ),
@@ -170,7 +170,7 @@ ia_bridge = AgentDefinition(
         "- OL1 (127.0.0.1:11434) — Ollama — PLUS RAPIDE (88%, 0.5s)\n"
         "- M3 (192.168.1.113) — mistral-7b, 1 GPU 8GB — SOLIDE (89%, 2.5s)\n"
         "- GEMINI — gemini-3-pro/flash — architecture, vision (74%, variable)\n"
-        "- M1 (10.5.0.2) — qwen3-30b, 6 GPU 46GB — LENT (23%, timeout complexe)\n\n"
+        "- M1 (10.5.0.2) — qwen3-8b, 6 GPU 46GB — RAPIDE (0.6-2.5s, 65 tok/s)\n\n"
         "Reponds en francais. Attribution obligatoire."
     ),
     tools=["Read", "Glob", "Grep",
@@ -204,7 +204,7 @@ ia_consensus = AgentDefinition(
         "   - OL1/qwen3:1.7b: poids 1.3 (88%, plus rapide 0.5s, polyvalent)\n"
         "   - M3/mistral-7b: poids 1.0 (89%, solide, sous-estime)\n"
         "   - GEMINI/gemini-3-pro: poids 1.0 (74%, variable, bon en archi)\n"
-        "   - M1/qwen3-30b: poids 0.7 (23%, lent 12s+, timeout complexe)\n"
+        "   - M1/qwen3-8b: poids 1.2 (rapide 0.6-2.5s, 65 tok/s)\n"
         "5. PRODUIS un verdict structure:\n\n"
         "## FORMAT REPONSE OBLIGATOIRE\n"
         "[VERDICT] Reponse consensuelle en 1-3 phrases\n"

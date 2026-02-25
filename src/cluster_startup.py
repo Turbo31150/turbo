@@ -26,11 +26,12 @@ from src.config import config
 LMS_CLI = r"C:\Users\franc\.lmstudio\bin\lms.exe"
 
 # ── M1 Model Policy ──────────────────────────────────────────────────────
-# Models loaded at boot with optimal settings
+# Primary model loaded at boot (fast, 0.6-1.7s, 65 tok/s)
+# qwen3-30b available as dual-model for deep tasks via on-demand loading
 M1_REQUIRED = {
-    "qwen/qwen3-30b-a3b-2507": {
+    "qwen/qwen3-8b": {
         "gpu": "max",
-        "context": 32768,
+        "context": 8192,
         "parallel": 4,
     },
 }
@@ -40,6 +41,7 @@ M1_BLACKLIST = {"nvidia/nemotron-3-nano", "zai-org/glm-4.7-flash"}
 
 # ── M1 On-demand models (available but not loaded at boot) ────────────────
 M1_AVAILABLE = {
+    "qwen/qwen3-30b-a3b-2507",      # Deep reasoning dual-model (18.63 GB)
     "qwen/qwen3-coder-30b",         # Code specialise (18.63 GB)
     "mistralai/devstral-small-2-2512",  # Dev tasks (15.21 GB)
     "openai/gpt-oss-20b",           # General purpose (12.11 GB)
@@ -512,7 +514,7 @@ async def ensure_cluster_ready(
     if verbose:
         print("=" * 55)
         # Summary line
-        m1_ok = any(m.get("id") == "qwen/qwen3-30b-a3b-2507" for m in final)
+        m1_ok = any(m.get("id") == "qwen/qwen3-8b" for m in final)
         m2_ok = m2_status["ok"]
         ol_ok = ollama_status["ok"]
         status = "OPTIMAL" if (m1_ok and m2_ok and ol_ok) else "PARTIEL" if m1_ok else "DEGRADE"
@@ -520,7 +522,7 @@ async def ensure_cluster_ready(
         print("=" * 55)
 
     report["status"] = "OPTIMAL" if all([
-        any(m.get("id") == "qwen/qwen3-30b-a3b-2507" for m in final),
+        any(m.get("id") == "qwen/qwen3-8b" for m in final),
         m2_status["ok"],
         ollama_status["ok"],
     ]) else "PARTIEL"
@@ -565,7 +567,7 @@ async def load_model_on_demand(
 
 
 async def switch_to_coder_mode() -> dict[str, Any]:
-    """Switch M1 to coding mode: load qwen3-coder-30b alongside qwen3-30b."""
+    """Switch M1 to coding mode: load qwen3-coder-30b alongside qwen3-8b."""
     return await load_model_on_demand(
         "qwen/qwen3-coder-30b",
         gpu="max", context=16384, parallel=2,
@@ -594,8 +596,8 @@ async def quick_health_check() -> dict[str, str]:
             r = await c.get(f"{config.get_node_url('M1')}/api/v1/models")
             r.raise_for_status()
             models = [m["key"] for m in r.json().get("models", []) if m.get("loaded_instances")]
-            has_main = any("qwen3-30b" in m for m in models)
-            status["m1"] = f"OK ({len(models)} modeles)" if has_main else f"WARN (pas de qwen3-30b)"
+            has_main = any("qwen3-8b" in m for m in models)
+            status["m1"] = f"OK ({len(models)} modeles)" if has_main else f"WARN (pas de qwen3-8b)"
     except Exception:
         status["m1"] = "OFFLINE"
 

@@ -66,7 +66,7 @@ VALID_TYPES = {"code", "analyse", "trading", "systeme", "web", "simple"}
 
 
 async def classify_task(prompt: str) -> str:
-    """Classifie via M1 qwen3-30b (mode fast, <1s).
+    """Classifie via M1 qwen3-8b (fast, 0.6-1.7s).
 
     Reutilise _local_ia_analyze de orchestrator.py mais avec CLASSIFY_PROMPT.
     Fallback: heuristiques par mots-cles.

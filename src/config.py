@@ -223,7 +223,7 @@ class JarvisConfig:
 
     # ── Routing rules (benchmark-tuned 2026-02-20) ─────────────────────
     # M2 champion (92%), OL1 fastest+polyvalent (88%), M3 solide (89%)
-    # M1 lent (12s trivial, timeout 7/10 complexes) — reserve embedding/consensus
+    # M1 rapide (qwen3-8b, 0.6-2.5s, 65 tok/s) — embedding/consensus/raisonnement
     routing: dict[str, list[str]] = field(default_factory=lambda: {
         "short_answer":    ["OL1", "M3"],
         "deep_analysis":   ["M2", "GEMINI"],
@@ -243,7 +243,7 @@ class JarvisConfig:
 
     # ── Commander Mode routing (benchmark-tuned 2026-02-20) ─────────────
     # M2 primary (champion 92%), OL1 rapide (88%), M3 solide (89%)
-    # M1 reserve consensus/embedding (23%, timeout complexe)
+    # M1 rapide (qwen3-8b, 0.6-2.5s) — embedding/consensus/raisonnement
     commander_routing: dict[str, list[dict]] = field(default_factory=lambda: {
         "code": [
             {"agent": "ia-fast", "ia": "M2", "role": "coder"},

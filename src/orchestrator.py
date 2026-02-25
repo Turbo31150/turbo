@@ -33,8 +33,8 @@ Reponds TOUJOURS en francais. Sois concis — tes sorties alimentent un pipeline
 - Cluster LM Studio: 10 GPU, ~78 GB VRAM total (M1 + M2 + M3)
   - M2 (192.168.1.26:1234) — 3 GPU, 24GB VRAM — deepseek-coder-v2-lite — CHAMPION (92%, 1.3s)
   - M3 (192.168.1.113:1234) — 1 GPU, 8GB VRAM — mistral-7b — SOLIDE (89%, 2.5s)
-  - M1 (10.5.0.2:1234) — 6 GPU 46GB — qwen3-30b — LENT (23%, timeout complexe, reserve embedding)
-    - On-demand: qwen3-coder-30b (code), devstral (dev), gpt-oss-20b (general)
+  - M1 (10.5.0.2:1234) — 6 GPU 46GB — qwen3-8b — RAPIDE (0.6-2.5s, 65 tok/s)
+    - Dual-model: qwen3-30b (deep), qwen3-coder-30b (code), devstral (dev), gpt-oss-20b (general)
 - Ollama (127.0.0.1:11434) — qwen3:1.7b — PLUS RAPIDE (88%, 0.5s) + cloud (minimax, glm-5, kimi)
 - Gemini (gemini-proxy.js) — gemini-3-pro/flash (architecture, vision, 74% variable)
 
@@ -147,11 +147,11 @@ brain_status, brain_analyze, brain_suggest, brain_learn
 8. Pour les analyses complexes: utiliser ollama_subagents (3 agents paralleles)
 9. Monitorer les performances: lm_perf_metrics + lm_gpu_stats regulierement
 10. Auto-apprentissage: brain_learn pour detecter et creer des skills automatiquement
-11. ATTENTION M1: qwen3-30b est LENT (12s+ trivial, timeout complexe) — NE PAS utiliser en primary
+11. M1 (qwen3-8b) est RAPIDE (0.6-2.5s) — utilisable en primary pour code, math, raisonnement
 
 ## Routage IA (benchmark-tuned 2026-02-20)
-- Reponse courte → OL1 (0.5s) ou M3 (2.5s) — PAS M1 (12s+)
-- Analyse profonde → M2 (deepseek-coder, champion) ou GEMINI
+- Reponse courte → OL1 (0.5s) ou M1 (0.6-1.7s) ou M3 (2.5s)
+- Analyse profonde → M1 (qwen3-8b, rapide) ou M2 (deepseek-coder, champion) ou GEMINI
 - Code → M2 (deepseek-coder champion 92%) ou M3 (fallback 89%)
 - Signal trading → OL1 (web search), M2 (analyse)
 - Recherche web → OL1 (cloud avec recherche web native)
@@ -159,7 +159,7 @@ brain_status, brain_analyze, brain_suggest, brain_learn
 - Architecture → GEMINI (gemini-3-pro) + M2 (validation)
 - Consensus etendu → M2 + OL1 + M3 + M1 + GEMINI (bridge_mesh ou consensus)
 - Bridge routage → bridge_query route automatiquement selon task_type
-- Embedding → M1 (seul use case ou M1 excelle, pas d'inference chat)
+- Embedding → M1 (qwen3-8b, rapide + dual-model qwen3-30b pour deep tasks)
 """
 
 
@@ -180,7 +180,7 @@ Pour TOUTE demande:
    - ia-check (Task): validation, review, score qualite
    - ia-trading (Task): trading MEXC, scanners, breakout
    - ia-system (Task): operations Windows, PowerShell, fichiers
-   - mcp__jarvis__lm_query: interroger M2 (champion), M3 (solide), OL1 (rapide) — M1 lent
+   - mcp__jarvis__lm_query: interroger M1 (rapide), M2 (champion), M3 (solide), OL1 (rapide)
    - mcp__jarvis__consensus: consensus multi-IA (M2+OL1+M3+M1+GEMINI)
    - mcp__jarvis__ollama_web_search: recherche web via cloud
    - mcp__jarvis__ollama_subagents: 3 sous-agents paralleles (minimax+glm+kimi)
@@ -194,7 +194,7 @@ Pour TOUTE demande:
 - OL1 (127.0.0.1:11434) — Ollama — PLUS RAPIDE (88%, 0.5s) ← SHORT/WEB
 - M3 (192.168.1.113:1234) — 1 GPU 8GB — mistral-7b — SOLIDE (89%, 2.5s) ← FALLBACK
 - GEMINI — gemini-3-pro/flash — ARCHITECTURE (74%, variable)
-- M1 (10.5.0.2:1234) — 6 GPU 46GB — qwen3-30b — LENT (23%) ← EMBEDDING ONLY
+- M1 (10.5.0.2:1234) — 6 GPU 46GB — qwen3-8b — RAPIDE (0.6-2.5s, 65 tok/s) ← CODE/MATH/REASONING
 
 ## Dispatchers IA
 - mcp__jarvis__lm_query: interroger M1/M2/M3 directement
@@ -479,9 +479,9 @@ def _load_knowledge() -> str:
 async def _local_ia_analyze(query: str, timeout: float = 10.0) -> str | None:
     """Query LM Studio M1 to analyze user intent with compact knowledge.
 
-    Uses qwen3-30b (MoE 3B actifs, ctx 32K, 6 GPU, 46GB VRAM, flash attention).
-    Timeout 10s — prompt compact + flash attention = inference rapide.
-    Retry once on transient error. Falls back to Ollama if M1 offline.
+    Uses qwen3-8b (6 GPU, 46GB VRAM, flash attention, 65 tok/s).
+    Fast inference 0.6-2.5s. Retry once on transient error.
+    Falls back to Ollama if M1 offline.
     """
     from src.tools import _get_client
 
@@ -491,7 +491,7 @@ async def _local_ia_analyze(query: str, timeout: float = 10.0) -> str | None:
         {"role": "user", "content": query},
     ]
 
-    # Try LM Studio M1 first (qwen3-30b, 6 GPU, 46GB VRAM)
+    # Try LM Studio M1 first (qwen3-8b, 6 GPU, 46GB VRAM, fast)
     node = config.get_node("M1")
     if node:
         for attempt in range(2):
@@ -786,7 +786,7 @@ async def run_voice(cwd: str | None = None) -> None:
             session.add_to_history(freeform)
 
             try:
-                # Step 1: Ask local IA (M1/qwen3-30b) for analysis
+                # Step 1: Ask local IA (M1/qwen3-8b) for analysis
                 print(f"[FREEFORM] → IA locale (M1): {freeform}", flush=True)
                 local_response = await _local_ia_analyze(freeform)
 

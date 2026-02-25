@@ -283,7 +283,7 @@ async def cluster_suggest_skill(context: str, node_url: str = "http://10.5.0.2:1
             resp = await client.post(
                 f"{node_url}/api/v1/chat",
                 json={
-                    "model": "qwen/qwen3-30b-a3b-2507",
+                    "model": "qwen/qwen3-8b",
                     "input": prompt,
                     "temperature": 0.3,
                     "max_output_tokens": 512,

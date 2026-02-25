@@ -1,5 +1,3929 @@
 {
-  "scores": {},
-  "history": [],
-  "last_cycle": null
+  "scores": {
+    "code": {
+      "M1": null,
+      "M2": null,
+      "M3": null,
+      "OL1": null
+    },
+    "archi": {
+      "M1": null,
+      "M2": null,
+      "M3": null,
+      "OL1": null
+    },
+    "trading": {
+      "M1": null,
+      "M2": null,
+      "M3": null,
+      "OL1": null
+    },
+    "system": {
+      "M1": null,
+      "M2": null,
+      "M3": null,
+      "OL1": null
+    },
+    "auto": {
+      "M1": null,
+      "M2": null,
+      "M3": null,
+      "OL1": null
+    },
+    "ia": {
+      "M1": null,
+      "M2": null,
+      "M3": null,
+      "OL1": null
+    },
+    "creat": {
+      "M1": null,
+      "M2": null,
+      "M3": null,
+      "OL1": null
+    },
+    "sec": {
+      "M1": null,
+      "M2": null,
+      "M3": null,
+      "OL1": null
+    },
+    "web": {
+      "M1": null,
+      "M2": null,
+      "M3": null,
+      "OL1": null
+    },
+    "media": {
+      "M1": null,
+      "M2": null,
+      "M3": null,
+      "OL1": null
+    },
+    "meta": {
+      "M1": null,
+      "M2": null,
+      "M3": null,
+      "OL1": null
+    },
+    "default": {
+      "M1": null,
+      "M2": null,
+      "M3": null,
+      "OL1": null
+    }
+  },
+  "history": [
+    {
+      "ts": "2026-02-25T19:05:30.752Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T19:10:30.763Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T19:15:30.774Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T19:20:30.776Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T19:31:06.508Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T19:36:06.514Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T19:41:06.520Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T19:46:06.526Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T19:54:22.106Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T19:59:49.905Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T20:04:49.908Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T20:09:49.919Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T20:14:49.929Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T20:19:49.933Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T20:24:49.935Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T20:29:49.949Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T20:34:49.964Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T20:39:49.967Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T20:44:49.976Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T20:49:49.977Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T20:54:49.990Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T20:59:49.994Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T21:04:49.995Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T21:09:49.998Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T21:19:31.970Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T21:24:31.969Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T21:33:44.229Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T21:41:59.533Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T21:46:59.542Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T21:52:04.185Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T21:57:04.194Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T22:03:31.079Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T22:08:31.085Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T22:13:31.094Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T22:18:31.141Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T22:23:31.148Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T22:28:31.148Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T22:33:31.172Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T22:38:31.254Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T22:43:31.260Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T22:48:31.266Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T22:53:31.272Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T22:58:31.330Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T23:03:31.337Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T23:08:31.342Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T23:13:31.446Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T23:18:31.458Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T23:23:31.462Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T23:28:31.468Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    },
+    {
+      "ts": "2026-02-25T23:33:41.466Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
+    }
+  ],
+  "last_cycle": "2026-02-25T23:33:41.466Z"
 }
