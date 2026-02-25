@@ -528,7 +528,13 @@ function resolveAgent(text){
 }
 
 // ═══ PROXY ═══
-var PROXY='http://127.0.0.1:18800';
+// Auto-detect: ?proxy=IP:PORT in URL, or same origin, or default localhost
+var PROXY=(function(){
+  var p=new URLSearchParams(window.location.search).get('proxy');
+  if(p)return p.startsWith('http')?p:'http://'+p;
+  if(window.location.port==='18800')return window.location.origin;
+  return'http://127.0.0.1:18800';
+})();
 var reconnTimer=null,gwOk=false;
 
 function gwConnect(){

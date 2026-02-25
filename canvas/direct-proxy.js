@@ -848,8 +848,9 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, '127.0.0.1', () => {
-  console.log(`JARVIS Direct Proxy on http://127.0.0.1:${PORT}`);
+const BIND = process.env.JARVIS_BIND || '0.0.0.0';
+server.listen(PORT, BIND, () => {
+  console.log(`JARVIS Direct Proxy on http://${BIND}:${PORT}`);
   console.log('Nodes: M2(deepseek), M3(mistral), OL1(qwen3), M1(qwen3-30b)');
   console.log('Zero OpenClaw dependency');
   autolearn.start();
