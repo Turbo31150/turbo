@@ -681,7 +681,7 @@ async function agenticChat(agentId, userText) {
 
     const toolCall = parseToolCall(aiResult.text);
     if (!toolCall) {
-      return { text: aiResult.text, model: lastModel, provider: lastProvider, tools_used: toolHistory, turns: turn + 1 };
+      return { text: aiResult.text, model: lastModel, provider: lastProvider, tools_used: toolHistory, turns: turn + 1, mode: 'simple' };
     }
 
     // Anti-loop v2: detect repeated identical tool call (same name + same args)
@@ -694,10 +694,10 @@ async function agenticChat(agentId, userText) {
       for (const nodeId of chain) {
         try {
           const final = await callNode(nodeId, messages);
-          return { text: final.text, model: final.model, provider: final.provider, tools_used: toolHistory, turns: turn + 1, anti_loop: 'repeated_call' };
+          return { text: final.text, model: final.model, provider: final.provider, tools_used: toolHistory, turns: turn + 1, anti_loop: 'repeated_call', mode: 'simple' };
         } catch (_) {}
       }
-      return { text: stopMsg, model: lastModel, provider: lastProvider, tools_used: toolHistory, turns: turn + 1, anti_loop: 'repeated_call' };
+      return { text: stopMsg, model: lastModel, provider: lastProvider, tools_used: toolHistory, turns: turn + 1, anti_loop: 'repeated_call', mode: 'simple' };
     }
     callHashes.add(callHash);
 
@@ -708,7 +708,8 @@ async function agenticChat(agentId, userText) {
       return {
         text: aiResult.text, model: lastModel, provider: lastProvider,
         tools_used: toolHistory, turns: turn + 1,
-        needs_confirm: true, confirm_id: toolResult.confirm_id, confirm_action: toolResult.reason
+        needs_confirm: true, confirm_id: toolResult.confirm_id, confirm_action: toolResult.reason,
+        mode: 'simple'
       };
     }
 
@@ -726,10 +727,10 @@ async function agenticChat(agentId, userText) {
         for (const nodeId of chain) {
           try {
             const final = await callNode(nodeId, messages);
-            return { text: final.text, model: final.model, provider: final.provider, tools_used: toolHistory, turns: turn + 1, anti_loop: true };
+            return { text: final.text, model: final.model, provider: final.provider, tools_used: toolHistory, turns: turn + 1, anti_loop: true, mode: 'simple' };
           } catch (_) {}
         }
-        return { text: stopMsg, model: lastModel, provider: lastProvider, tools_used: toolHistory, turns: turn + 1, anti_loop: true };
+        return { text: stopMsg, model: lastModel, provider: lastProvider, tools_used: toolHistory, turns: turn + 1, anti_loop: true, mode: 'simple' };
       }
     } else {
       toolFailCount[toolCall.name] = 0; // reset on success
@@ -748,10 +749,10 @@ async function agenticChat(agentId, userText) {
       for (const nodeId of chain) {
         try {
           const final = await callNode(nodeId, messages);
-          return { text: final.text, model: final.model, provider: final.provider, tools_used: toolHistory, turns: turn + 1, anti_loop: true };
+          return { text: final.text, model: final.model, provider: final.provider, tools_used: toolHistory, turns: turn + 1, anti_loop: true, mode: 'simple' };
         } catch (_) {}
       }
-      return { text: '[Anti-loop: trop d\'echecs consecutifs]', model: lastModel, provider: lastProvider, tools_used: toolHistory, turns: turn + 1, anti_loop: true };
+      return { text: '[Anti-loop: trop d\'echecs consecutifs]', model: lastModel, provider: lastProvider, tools_used: toolHistory, turns: turn + 1, anti_loop: true, mode: 'simple' };
     }
 
     // Build feedback with hint if available
@@ -762,7 +763,7 @@ async function agenticChat(agentId, userText) {
     messages.push({ role: 'user', content: feedback });
   }
 
-  return { text: '[Limite de ' + MAX_TOOL_TURNS + ' tours atteinte]', model: lastModel, provider: lastProvider, tools_used: toolHistory, turns: MAX_TOOL_TURNS };
+  return { text: '[Limite de ' + MAX_TOOL_TURNS + ' tours atteinte]', model: lastModel, provider: lastProvider, tools_used: toolHistory, turns: MAX_TOOL_TURNS, mode: 'simple' };
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -926,7 +927,11 @@ const server = http.createServer(async (req, res) => {
       try {
         const { agent, text } = JSON.parse(body);
         const agentId = agent || 'main';
-        const result = await agenticChat(agentId, text);
+        const complexity = classifyComplexity(text, AGENT_CAT[agentId] || 'default');
+        console.log('[cockpit] complexity=' + complexity + ' agent=' + agentId);
+        const result = complexity === 'reflexive'
+          ? await reflexiveChat(agentId, text)
+          : await agenticChat(agentId, text);
 
         // Autolearn: record the final result
         const entry = {
