@@ -39,23 +39,38 @@ const NODES = {
     model: 'qwen/qwen3-30b-a3b-2507',
     timeout: 120000,
     name: 'M1/qwen3-30b'
+  },
+  GEMINI: {
+    proxy: path.join(__dirname, '..', 'gemini-proxy.js'),
+    model: 'gemini-3-pro',
+    timeout: 120000,
+    name: 'GEMINI/gemini-3-pro',
+    isProxy: true
+  },
+  CLAUDE: {
+    proxy: path.join(__dirname, '..', 'claude-proxy.js'),
+    model: 'sonnet',
+    timeout: 120000,
+    name: 'CLAUDE/sonnet',
+    isProxy: true,
+    budget: '0.50'
   }
 };
 
 // ── Routing: agent category → primary node, fallbacks ───────────────────────
 const ROUTING = {
-  code:    ['M2', 'M3', 'OL1'],       // code, debug, review, devops
-  archi:   ['M2', 'M3', 'OL1'],       // architecture, database, perf
-  trading: ['OL1', 'M2', 'M3'],       // trading, market data
-  system:  ['M3', 'M2', 'OL1'],       // windows, cluster, maintenance
-  auto:    ['M3', 'OL1', 'M2'],       // pipelines, cron, workflows
-  ia:      ['M2', 'M3', 'OL1'],       // consensus, reasoning, analysis
-  creat:   ['M2', 'M3', 'OL1'],       // creative, docs, translation
-  sec:     ['M2', 'M3', 'OL1'],       // security, audit
-  web:     ['OL1', 'M2', 'M3'],       // search, browser
-  media:   ['M3', 'OL1', 'M2'],       // voice, image
-  meta:    ['OL1', 'M3', 'M2'],       // help, config
-  default: ['M2', 'M3', 'OL1']        // fallback
+  code:    ['M2', 'M3', 'OL1', 'GEMINI'],          // code, debug, review, devops
+  archi:   ['M2', 'GEMINI', 'M3', 'OL1'],           // architecture, database, perf — GEMINI excels
+  trading: ['OL1', 'M2', 'M3'],                     // trading, market data
+  system:  ['M3', 'M2', 'OL1'],                     // windows, cluster, maintenance
+  auto:    ['M3', 'OL1', 'M2'],                     // pipelines, cron, workflows
+  ia:      ['M2', 'GEMINI', 'CLAUDE', 'M3', 'OL1'], // consensus, reasoning — cloud IA
+  creat:   ['M2', 'GEMINI', 'M3', 'OL1'],           // creative, docs, translation
+  sec:     ['M2', 'GEMINI', 'M3', 'OL1'],           // security, audit
+  web:     ['OL1', 'GEMINI', 'M2', 'M3'],           // search, browser — GEMINI has web
+  media:   ['M3', 'OL1', 'M2'],                     // voice, image
+  meta:    ['OL1', 'M3', 'M2'],                     // help, config
+  default: ['M2', 'M3', 'OL1', 'GEMINI']            // fallback
 };
 
 // Agent → category mapping (mirrors canvas ROUTES)
@@ -804,6 +819,11 @@ async function callNode(nodeId, messages) {
   const node = NODES[nodeId];
   if (!node) throw new Error('Unknown node: ' + nodeId);
 
+  if (node.isProxy) {
+    // CLI proxy (gemini-proxy.js, claude-proxy.js)
+    return callProxyNode(nodeId, node, messages);
+  }
+
   const headers = {};
   if (node.auth) headers['Authorization'] = node.auth;
 
@@ -831,6 +851,71 @@ async function callNode(nodeId, messages) {
     const text = res.choices?.[0]?.message?.content || '';
     return { text: text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim(), model: node.model, provider: 'lm-studio' };
   }
+}
+
+// ── Call a proxy node (GEMINI, CLAUDE) via CLI ──────────────────────────────
+function callProxyNode(nodeId, node, messages) {
+  return new Promise((resolve, reject) => {
+    // Build a single prompt from messages (system + user + context)
+    const parts = [];
+    for (const m of messages) {
+      if (m.role === 'system') parts.push('[SYSTEM] ' + m.content);
+      else if (m.role === 'user') parts.push('[USER] ' + m.content);
+      else if (m.role === 'assistant') parts.push('[ASSISTANT] ' + m.content);
+    }
+    const prompt = parts.join('\n\n');
+
+    const args = ['--json'];
+    if (node.model && nodeId === 'CLAUDE') args.push('--model', node.model);
+    if (node.budget && nodeId === 'CLAUDE') args.push('--budget', node.budget);
+    if (node.model && nodeId === 'GEMINI') args.push('--model', node.model);
+    args.push(prompt.slice(0, 30000)); // limit prompt size for CLI
+
+    console.log('[proxy-node] ' + nodeId + ' calling ' + node.proxy);
+    const child = execFileSync ? null : null; // use spawn for async
+    const proc = spawn('node', [node.proxy, ...args], {
+      timeout: node.timeout,
+      env: { ...process.env },
+      stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true
+    });
+
+    let stdout = '', stderr = '';
+    proc.stdout.on('data', d => stdout += d);
+    proc.stderr.on('data', d => stderr += d);
+
+    const timer = setTimeout(() => {
+      proc.kill('SIGTERM');
+      reject(new Error(nodeId + ' timeout after ' + node.timeout + 'ms'));
+    }, node.timeout);
+
+    proc.on('close', code => {
+      clearTimeout(timer);
+      if (code !== 0 && !stdout.trim()) {
+        reject(new Error(nodeId + ' exit=' + code + ': ' + stderr.slice(0, 200)));
+        return;
+      }
+      // Try JSON parse first
+      try {
+        const json = JSON.parse(stdout);
+        const text = json.text || json.response || json.content || JSON.stringify(json);
+        resolve({ text: text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim(), model: node.model, provider: nodeId.toLowerCase() });
+      } catch (_) {
+        // Plain text output
+        const text = stdout.trim();
+        if (!text) {
+          reject(new Error(nodeId + ' returned empty response'));
+          return;
+        }
+        resolve({ text: text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim(), model: node.model, provider: nodeId.toLowerCase() });
+      }
+    });
+
+    proc.on('error', e => {
+      clearTimeout(timer);
+      reject(new Error(nodeId + ' spawn error: ' + e.message));
+    });
+  });
 }
 
 // ── Route and call with fallback ────────────────────────────────────────────
@@ -891,10 +976,26 @@ async function healthCheck() {
     { name: 'OL1', url: 'http://127.0.0.1:11434/api/tags' },
     { name: 'M2', url: 'http://192.168.1.26:1234/v1/models', headers: { Authorization: NODES.M2.auth } },
     { name: 'M3', url: 'http://192.168.1.113:1234/v1/models', headers: { Authorization: NODES.M3.auth } },
-    { name: 'M1', url: 'http://10.5.0.2:1234/v1/models', headers: { Authorization: NODES.M1.auth } }
+    { name: 'M1', url: 'http://10.5.0.2:1234/v1/models', headers: { Authorization: NODES.M1.auth } },
+    { name: 'GEMINI', proxy: true },
+    { name: 'CLAUDE', proxy: true }
   ];
 
   const results = await Promise.all(checks.map(n => {
+    if (n.proxy) {
+      // CLI proxy health check via --ping
+      return new Promise(resolve => {
+        const start = Date.now();
+        const proxyPath = NODES[n.name]?.proxy;
+        if (!proxyPath) { resolve({ name: n.name, ok: false, latency: 0 }); return; }
+        const proc = spawn('node', [proxyPath, '--ping'], { timeout: 8000, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true });
+        let out = '';
+        proc.stdout.on('data', d => out += d);
+        proc.on('close', code => resolve({ name: n.name, ok: code === 0 || out.includes('OK'), latency: Date.now() - start }));
+        proc.on('error', () => resolve({ name: n.name, ok: false, latency: 0 }));
+        setTimeout(() => { try { proc.kill(); } catch (_) {} }, 8000);
+      });
+    }
     return new Promise(resolve => {
       const start = Date.now();
       const url = new URL(n.url);
@@ -1051,7 +1152,7 @@ const server = http.createServer(async (req, res) => {
 const BIND = process.env.JARVIS_BIND || '0.0.0.0';
 server.listen(PORT, BIND, () => {
   console.log(`JARVIS Direct Proxy on http://${BIND}:${PORT}`);
-  console.log('Nodes: M2(deepseek), M3(mistral), OL1(qwen3), M1(qwen3-30b)');
+  console.log('Nodes: M2(deepseek), M3(mistral), OL1(qwen3), M1(qwen3-30b), GEMINI(gemini-3-pro), CLAUDE(sonnet)');
   console.log('Zero OpenClaw dependency');
   autolearn.start();
   console.log('Autolearn engine started — 3 pillars active');
