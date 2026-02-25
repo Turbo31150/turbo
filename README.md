@@ -23,7 +23,7 @@
 |----------|--------|--------|
 | **GPU** | 10 GPU / 78 GB VRAM | RTX 3080, RTX 2060, 3x GTX 1660S, 5x remote |
 | **Noeuds IA** | 6 (HEXA_CORE) | M1, M2, M3, OL1, GEMINI, CLAUDE |
-| **Agents** | 7 Claude SDK | deep, fast, check, trading, system, bridge, consensus |
+| **Agents** | 7 Claude SDK + 7 Plugin | deep, fast, check, trading, system, bridge, consensus + 7 plugin agents |
 | **Outils MCP** | 75 SDK + 88 handlers | IA, Windows, Trading, Bridge, Brain, Skills |
 | **Commandes** | 1,697 vocales | 278 pipelines multi-etapes |
 | **Skills** | 84 dynamiques | 16 vagues |
@@ -627,13 +627,13 @@ Matrice definie dans `config.py` → `commander_routing` — **ajustee le 2026-0
  |  ia-consensus (ou consensus MCP tool)         |
  |                                               |
  |  1. INTERROGATION PARALLELE (bridge_mesh)     |
- |     ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐     |
- |     │  M2  │ │  OL1 │ │  M3  │ │GEMINI│     |
- |     │ w=1.4│ │ w=1.3│ │ w=1.0│ │ w=1.0│     |
- |     └──┬───┘ └──┬───┘ └──┬───┘ └──┬───┘     |
- |        │        │        │        │          |
- |        v        v        v        v          |
- |  2. COLLECTE (+ M1 w=0.7 si disponible)      |
+ |  ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌────┐|
+ |  │  M1  │ │  M2  │ │  OL1 │ │  M3  │ │GEM │|
+ |  │w=1.8 │ │ w=1.4│ │ w=1.3│ │ w=1.0│ │1.2 │|
+ |  └──┬───┘ └──┬───┘ └──┬───┘ └──┬───┘ └─┬──┘|
+ |     │        │        │        │        │   |
+ |     v        v        v        v        v   |
+ |  2. COLLECTE (+ CLAUDE w=1.2 si disponible)  |
  |                                               |
  |  3. VOTE PONDERE                              |
  |     Score = sum(reponse_i * poids_i) / total  |
@@ -654,14 +654,15 @@ Matrice definie dans `config.py` → `commander_routing` — **ajustee le 2026-0
  +──────────────────────────────────────────────+
 ```
 
-### Poids de Vote (benchmark-tuned)
+### Poids de Vote (benchmark-tuned 2026-02-26)
 
 ```
- M2  /deepseek-coder  ████████████████ 1.4  (champion 92%, fiable)
- OL1 /qwen3:1.7b      ██████████████   1.3  (88%, plus rapide)
- M3  /mistral-7b       ████████████     1.0  (89%, solide)
- GEM /gemini-3-pro     ████████████     1.0  (74%, variable archi)
- M1  /qwen3-8b         ████████████     1.2  (100%, 0.6-2.5s rapide)
+ M1  /qwen3-8b         ████████████████████ 1.8  (100%, PRIORITAIRE, 0.6-2.5s)
+ M2  /deepseek-coder   ████████████████     1.4  (100%, champion code, 3.9s)
+ OL1 /qwen3:1.7b       ██████████████       1.3  (100%, ultra-rapide, 1.96s)
+ GEM /gemini-3-pro      ██████████████       1.2  (74%, architecture)
+ CLA /claude-opus       ██████████████       1.2  (cloud reasoning, 12-18s)
+ M3  /mistral-7b        ████████████         1.0  (100%, general, PAS logique)
 ```
 
 ---
@@ -1109,6 +1110,124 @@ uv run python scripts/system_audit.py [--json|--quick|--save]
 | **Security** | 45/100 (6 issues) |
 | **Scalability** | 100/100 |
 | **SPOFs** | 4 identifies |
+
+---
+
+## Plugin jarvis-turbo (Claude Code)
+
+**Plugin local**: `~/.claude/plugins/local/jarvis-turbo/` — 21 commandes, 7 agents, 10 skills, 2 hooks
+
+### 7 Agents Claude Code
+
+```
+┌───────────────────────────────────────────────────────────────────┐
+│                   JARVIS AGENT ORCHESTRA                          │
+│                                                                   │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐   │
+│  │ cluster-ops  │  │ code-        │  │ trading-analyst      │   │
+│  │ (haiku/cyan) │  │ architect    │  │ (sonnet/green)       │   │
+│  │              │  │ (sonnet/blue)│  │                      │   │
+│  │ Health check │  │ MAO protocol │  │ 6 IA consensus       │   │
+│  │ GPU monitor  │  │ M1+M2+GEM+  │  │ MEXC 10x pipeline    │   │
+│  │ Model mgmt   │  │ M3 review   │  │ 100 strategies       │   │
+│  └──────┬───────┘  └──────┬───────┘  └──────────┬───────────┘   │
+│         │                 │                      │               │
+│  ┌──────┴───────┐  ┌──────┴───────┐  ┌──────────┴───────────┐   │
+│  │ debug-       │  │ performance- │  │ smart-dispatcher     │   │
+│  │ specialist   │  │ monitor      │  │ (haiku/magenta)      │   │
+│  │ (sonnet/red) │  │(haiku/yellow)│  │                      │   │
+│  │              │  │              │  │ 5-level weighting     │   │
+│  │ Systematic   │  │ Latency      │  │ Dual-model M1        │   │
+│  │ debug + M1   │  │ Regression   │  │ qwen3-8b / 30b       │   │
+│  └──────┬───────┘  │ Benchmarks   │  │ Domain routing       │   │
+│         │          └──────┬───────┘  └──────────┬───────────┘   │
+│         │                 │                      │               │
+│         └────────┐  ┌─────┘       ┌──────────────┘               │
+│                  │  │             │                               │
+│           ┌──────┴──┴─────────────┴──────┐                       │
+│           │     auto-healer (haiku/red)   │                       │
+│           │                               │                       │
+│           │  Self-healing cluster          │                       │
+│           │  Weighted failover cascade     │                       │
+│           │  M1→M2→OL1→M3→GEM→CLAUDE     │                       │
+│           └───────────────────────────────┘                       │
+└───────────────────────────────────────────────────────────────────┘
+```
+
+### Ponderation Multiple (5 niveaux)
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│            WEIGHTED ROUTING — 5 LAYERS                           │
+│                                                                  │
+│  N1. Poids Noeud (statique)                                      │
+│      M1=1.8  M2=1.4  OL1=1.3  GEM=1.2  CLA=1.2  M3=1.0       │
+│                                                                  │
+│  N2. Ponderation Domaine (benchmark-driven)                      │
+│      code:   M1(50%) M2(30%) M3(15%) OL1(5%)                   │
+│      math:   M1(50%) OL1(30%) M2(15%) M3(5%)                   │
+│      reason: M1(60%) M2(25%) OL1(15%) [M3 EXCLU]               │
+│                                                                  │
+│  N3. Score Adaptatif (etoile.db, temps reel)                     │
+│      adaptive_routing: score=base*(success/100)*(1-lat_penalty)  │
+│                                                                  │
+│  N4. Thermique GPU (nvidia-smi)                                  │
+│      <70C=x1.0 | 70-75C=x0.9 | 75-85C=x0.7 | >85C=EXCLU      │
+│                                                                  │
+│  N5. Autolearn (canvas, toutes les 5 min)                        │
+│      speed*0.3 + quality*0.5 + reliability*0.2                   │
+│                                                                  │
+│  SCORE = N1 * N2 * N3/10 * N4 * N5/10 → meilleur noeud gagne   │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+### Hooks
+
+| Event | Action | Timeout |
+|-------|--------|---------|
+| **SessionStart** | GPU thermal check + cluster health check | 8s |
+| **SubagentStop** | Log agent completion metrics | 3s |
+
+### 10 Skills
+
+| Skill | Version | Description |
+|-------|---------|-------------|
+| mao-workflow | 1.0 | Multi-agent operations + consensus |
+| cluster-management | 1.0 | Load/unload models, thermal, recovery |
+| trading-pipeline | 1.0 | GPU trading v2.3 (quick/fast/full) |
+| **smart-routing** | **3.0** | Domain routing, M1 PRIORITAIRE |
+| **weighted-orchestration** | **1.0** | 5-level ponderation + dual-model M1 |
+| failover-recovery | 1.0 | Cascade M1→M2→M3→OL1→GEM→CLA |
+| security-audit | 1.0 | Credentials, network, permissions |
+| performance-tuning | 1.0 | Latency, throughput, model params |
+| continuous-improvement | 1.0 | TEST→ANALYSE→CORRECTION→RE-TEST |
+| autotest-analysis | 1.0 | Benchmark analysis, weak node detection |
+
+### 21 Slash Commands
+
+| Commande | Description |
+|----------|-------------|
+| `/cluster-check` | Health check 6 noeuds (parallel) |
+| `/mao-check` | Health + GPU + Canvas autolearn |
+| `/gpu-status` | Temperatures + VRAM + utilisation |
+| `/thermal` | Monitoring thermique detaille |
+| `/consensus [q]` | Vote pondere M1+M2+OL1+M3+GEM+CLA |
+| `/quick-ask [q]` | OL1 rapide (<1s) |
+| `/web-search [q]` | minimax cloud search |
+| `/trading-scan [mode]` | Pipeline GPU (quick/fast/full) |
+| `/trading-feedback` | Retro-analyse signaux |
+| `/heal-cluster` | Diagnostic + auto-repair |
+| `/model-swap [args]` | Load/unload modeles M1/M2/M3 |
+| `/cluster-benchmark` | Benchmark suite complet |
+| `/test-cluster` | Tests validation |
+| `/improve-loop` | Boucle amelioration continue |
+| `/canvas-status` | Proxy 18800 + autolearn |
+| `/canvas-restart` | Kill + restart proxy |
+| `/audit [mode]` | Audit systeme (10 sections, Grade A-F) |
+| `/deploy` | Git commit + push |
+| `/backup-db` | Backup databases |
+| `/n8n-trigger` | Trigger workflows n8n |
+| `/arena` | Tournoi modeles |
 
 ---
 
