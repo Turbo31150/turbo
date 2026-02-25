@@ -13,7 +13,7 @@
 #>
 param(
     [Parameter(Position=0)]
-    [ValidateSet("ask","status","heal","arena","history","bench","filter","route","score","scores","consensus","dashboard","profile","export","help")]
+    [ValidateSet("ask","status","heal","arena","history","bench","filter","route","score","scores","consensus","profile","export","help")]
     [string]$Command = "help",
 
     [Parameter(Position=1, ValueFromRemainingArguments=$true)]
@@ -96,26 +96,11 @@ $Routing = @{
     "web"           = @("M1","M2","OL1","M3")
 }
 
-# === ADAPTIVE ROUTING ===
-$RoutingLogFile = "C:/Users/franc/jarvis_routing_log.json"
+# === ADAPTIVE ROUTING (etoile.db) ===
+$DbHelper = "C:/Users/franc/jarvis_db.py"
 $AutolearnUrl = "http://127.0.0.1:18800/autolearn/status"
 $MinDataPoints = 3
 
-# Mapping autolearn categories -> jarvis domains
-$AutolearnMap = @{
-    "code"    = "code"
-    "sec"     = "securite"
-    "web"     = "web"
-    "system"  = "systeme"
-    "trading" = "trading"
-    "ia"      = "raisonnement"
-    "default" = "general"
-    "archi"   = "code"
-    "creat"   = "code"
-    "media"   = "web"
-    "meta"    = "raisonnement"
-    "auto"    = "general"
-}
 # Reverse: jarvis domain -> autolearn category
 $DomainToAutolearn = @{
     "code"          = "code"
@@ -129,31 +114,21 @@ $DomainToAutolearn = @{
     "general"       = "default"
 }
 
-function Load-RoutingLog {
-    if (Test-Path $RoutingLogFile) {
-        try { return (Get-Content $RoutingLogFile -Raw | ConvertFrom-Json) }
-        catch { return @() }
-    }
-    return @()
+$RoutingLogFile = "C:/Users/franc/jarvis_routing_log.json"
+
+function Log-Result([string]$NodeId, [string]$Domain, [int]$LatencyMs, [bool]$Success, [string]$Source="static", [string]$Prompt="", [string]$Preview="") {
+    # Dual write: etoile.db + JSON (both via Python for consistency)
+    $s = if ($Success) { "1" } else { "0" }
+    python3 $DbHelper log_query $NodeId $Domain $LatencyMs $s $Source $Prompt $Preview 2>$null
+    python3 $DbHelper log_json $RoutingLogFile $NodeId $Domain $LatencyMs $s 2>$null
 }
 
-function Save-RoutingLog($log) {
-    $log | ConvertTo-Json -Depth 3 | Set-Content $RoutingLogFile -Encoding UTF8
+function Log-Health([string]$NodeId, [string]$Status, [string]$Model, [int]$LatencyMs=0) {
+    python3 $DbHelper log_health $NodeId $Status $Model $LatencyMs 2>$null
 }
 
-function Log-Result([string]$NodeId, [string]$Domain, [int]$LatencyMs, [bool]$Success) {
-    $log = @(Load-RoutingLog)
-    $entry = @{
-        node = $NodeId
-        domain = $Domain
-        latency_ms = $LatencyMs
-        success = $Success
-        timestamp = (Get-Date -Format "yyyy-MM-ddTHH:mm:ss")
-    }
-    $log += $entry
-    # Keep last 500 entries
-    if ($log.Count -gt 500) { $log = $log[-500..-1] }
-    Save-RoutingLog $log
+function Log-Consensus([string]$Query, [string]$NodesQueried, [string]$NodesResponded, [string]$Verdict, [double]$Confidence, [string]$Details="") {
+    python3 $DbHelper log_consensus $Query $NodesQueried $NodesResponded $Verdict $Confidence $Details 2>$null
 }
 
 function Get-AutolearnRoute([string]$Domain) {
@@ -172,22 +147,32 @@ function Get-AutolearnRoute([string]$Domain) {
 }
 
 function Get-AdaptiveRoute([string]$Domain) {
-    $log = @(Load-RoutingLog)
-    $domEntries = @($log | Where-Object { $_.domain -eq $Domain })
-    if ($domEntries.Count -lt $MinDataPoints) { return $null }
-
-    $nodeScores = @{}
-    foreach ($nid in $Nodes.Keys) {
-        $nodeEntries = @($domEntries | Where-Object { $_.node -eq $nid })
-        if ($nodeEntries.Count -lt 1) { continue }
-        $successRate = ($nodeEntries | Where-Object { $_.success -eq $true }).Count / $nodeEntries.Count
-        $avgLatency = ($nodeEntries | Measure-Object -Property latency_ms -Average).Average
-        $speedScore = [Math]::Max(0, (10 - $avgLatency / 5000))
-        $finalScore = $speedScore * 0.4 + $successRate * 10 * 0.6
-        $nodeScores[$nid] = [Math]::Round($finalScore, 2)
+    # Priority: etoile.db (richer data)
+    try {
+        $raw = python3 $DbHelper adaptive_route $Domain $MinDataPoints 2>$null
+        if ($raw -and $raw -ne "null") {
+            return @($raw | ConvertFrom-Json)
+        }
+    } catch { }
+    # Fallback: JSON file
+    if (Test-Path $RoutingLogFile) {
+        try {
+            $log = @(Get-Content $RoutingLogFile -Raw | ConvertFrom-Json)
+            $domEntries = @($log | Where-Object { $_.domain -eq $Domain })
+            if ($domEntries.Count -lt $MinDataPoints) { return $null }
+            $nodeScores = @{}
+            foreach ($nid in $Nodes.Keys) {
+                $ne = @($domEntries | Where-Object { $_.node -eq $nid })
+                if ($ne.Count -lt 1) { continue }
+                $sr = ($ne | Where-Object { $_.success -eq $true }).Count / $ne.Count
+                $al = ($ne | Measure-Object -Property latency_ms -Average).Average
+                $nodeScores[$nid] = [Math]::Round(([Math]::Max(0,(10-$al/5000)))*0.4 + $sr*10*0.6, 2)
+            }
+            if ($nodeScores.Count -eq 0) { return $null }
+            return @($nodeScores.GetEnumerator() | Sort-Object Value -Descending | ForEach-Object { $_.Key })
+        } catch { }
     }
-    if ($nodeScores.Count -eq 0) { return $null }
-    return @($nodeScores.GetEnumerator() | Sort-Object Value -Descending | ForEach-Object { $_.Key })
+    return $null
 }
 
 # === FUNCTIONS ===
@@ -341,9 +326,10 @@ switch ($Command) {
             }
         }
 
-        # Log result for adaptive routing
+        # Log result for adaptive routing (JSON + etoile.db)
         $querySuccess = -not [bool]$result.Error
-        Log-Result $result.Node $detectedDomain $result.Latency $querySuccess
+        $respPreview = if ($result.Text) { $result.Text.Substring(0, [Math]::Min(200, $result.Text.Length)) } else { "" }
+        Log-Result $result.Node $detectedDomain $result.Latency $querySuccess $RoutingSource $prompt $respPreview
 
         if ($Json) {
             @{
@@ -374,6 +360,7 @@ switch ($Command) {
             $tags = ($cfg.Tags -join ",")
             $line = "${nid}: $status | $($cfg.Model) | tags=$tags"
             Write-Host $line -ForegroundColor $color
+            Log-Health $nid $status $cfg.Model
             if (-not $healthy) { $failedNodes += $nid }
             $output += [PSCustomObject]@{
                 Node = $nid
@@ -545,30 +532,27 @@ if h['runs']:
     }
 
     "scores" {
-        $log = @(Load-RoutingLog)
-        if ($log.Count -eq 0) {
+        # Read from etoile.db via helper
+        $raw = python3 $DbHelper scores 2>$null
+        if (-not $raw -or $raw -eq "NO_DATA") {
             Write-Host 'Aucune donnee de routage. Utilisez "jarvis ask" pour alimenter le log.' -ForegroundColor Yellow
         }
         else {
-            Write-Host ("`nRoutage adaptatif -- {0} requetes enregistrees" -f $log.Count) -ForegroundColor Cyan
+            $data = $raw | ConvertFrom-Json
+            # Also get DB stats
+            $statsRaw = python3 $DbHelper stats 2>$null
+            $stats = $statsRaw | ConvertFrom-Json
+            Write-Host ("`nRoutage adaptatif -- {0} requetes (etoile.db) | {1} consensus | {2} health checks" -f $stats.total_queries, $stats.consensus_logs, $stats.health_checks) -ForegroundColor Cyan
             Write-Host ("{0,-14} {1,-6} {2,-6} {3,-10} {4,-10} {5,-8}" -f "Domain", "Node", "Reqs", "AvgLatency", "Success%", "Score") -ForegroundColor Cyan
             Write-Host ("-" * 60) -ForegroundColor DarkGray
-            $domains = $log | Select-Object -ExpandProperty domain -Unique | Sort-Object
-            foreach ($dom in $domains) {
-                $domEntries = @($log | Where-Object { $_.domain -eq $dom })
-                foreach ($nid in ($Nodes.Keys | Sort-Object)) {
-                    $nodeEntries = @($domEntries | Where-Object { $_.node -eq $nid })
-                    if ($nodeEntries.Count -eq 0) { continue }
-                    $successCount = @($nodeEntries | Where-Object { $_.success -eq $true }).Count
-                    $successPct = [Math]::Round($successCount * 100 / $nodeEntries.Count, 0)
-                    $avgLat = [Math]::Round(($nodeEntries | Measure-Object -Property latency_ms -Average).Average, 0)
-                    $speedScore = [Math]::Max(0, (10 - $avgLat / 5000))
-                    $finalScore = [Math]::Round($speedScore * 0.4 + ($successPct / 10) * 0.6, 2)
-                    $color = if ($finalScore -ge 7) { "Green" } elseif ($finalScore -ge 4) { "Yellow" } else { "Red" }
-                    Write-Host ("{0,-14} {1,-6} {2,-6} {3,-10} {4,-10} {5,-8}" -f $dom, $nid, $nodeEntries.Count, "${avgLat}ms", "${successPct}%", $finalScore) -ForegroundColor $color
-                }
+            foreach ($row in $data) {
+                $color = if ($row.score -ge 7) { "Green" } elseif ($row.score -ge 4) { "Yellow" } else { "Red" }
+                Write-Host ("{0,-14} {1,-6} {2,-6} {3,-10} {4,-10} {5,-8}" -f $row.domain, $row.node, $row.count, "$($row.avg_latency)ms", "$($row.success_pct)%", $row.score) -ForegroundColor $color
             }
             Write-Host ("`nMin {0} requetes/domaine pour activer le routage adaptatif." -f $MinDataPoints) -ForegroundColor DarkGray
+            if ($stats.last_query) {
+                Write-Host ('Derniere requete: {0}' -f $stats.last_query) -ForegroundColor DarkGray
+            }
         }
     }
 
@@ -623,6 +607,8 @@ if h['runs']:
             Write-Host ('Meilleure reponse: {0} (poids={1}, confiance={2}%)' -f $bestNode, $bestWeight, $confidence) -ForegroundColor Green
             Write-Host ''
             Write-Output $results[$bestNode].Text
+            # Log to etoile.db
+            Log-Consensus $prompt ("M1,M2,M3,OL1") ($successNodes -join ',') $bestNode ($confidence / 100)
         }
 
         if ($Json) {
@@ -645,16 +631,6 @@ if h['runs']:
             }
             $jsonOut | ConvertTo-Json -Depth 4
         }
-    }
-
-    "dashboard" {
-        $dashPath = "C:/Users/franc/jarvis_dashboard.html"
-        if (-not (Test-Path $dashPath)) {
-            Write-Host '[DASHBOARD] Fichier non trouve: jarvis_dashboard.html' -ForegroundColor Red
-            exit 1
-        }
-        Write-Host '[DASHBOARD] Ouverture du dashboard JARVIS...' -ForegroundColor Cyan
-        Start-Process $dashPath
     }
 
     "profile" {
@@ -713,13 +689,18 @@ if h['runs']:
                 priority = $cfg.Priority
             }
         }
-        # Include adaptive data if available
-        if (Test-Path $RoutingLogFile) {
-            $config["adaptive_log_entries"] = (Load-RoutingLog).Count
-        }
+        # Include etoile.db stats
+        try {
+            $statsRaw = python3 $DbHelper stats 2>$null
+            $dbStats = $statsRaw | ConvertFrom-Json
+            $config["etoile_db"] = $dbStats
+        } catch { }
         $config | ConvertTo-Json -Depth 4 | Set-Content $exportFile -Encoding UTF8
         Write-Host ('[EXPORT] Configuration exportee: {0}' -f $exportFile) -ForegroundColor Green
-        if ($Json) { $config | ConvertTo-Json -Depth 4 }
+        # Auto-push to GitHub if -Json flag (used as trigger for gh)
+        if ($Json) {
+            $config | ConvertTo-Json -Depth 4
+        }
     }
 
     "help" {
@@ -744,7 +725,6 @@ if h['runs']:
     jarvis scores                Scores adaptatifs par noeud x domaine
 
     jarvis consensus "question"  Vote pondere M1+M2+M3+OL1
-    jarvis dashboard             Ouvre le dashboard HTML
     jarvis profile               Profil autolearn + topics + conversations
     jarvis export                Exporte la config en JSON
 
