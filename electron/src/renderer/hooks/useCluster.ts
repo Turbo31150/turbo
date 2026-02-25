@@ -117,7 +117,7 @@ export function useCluster() {
       if (msg.event === 'cluster_full_update' && msg.payload?.nodes) {
         setState(prev => ({
           ...prev,
-          nodes: msg.payload.nodes,
+          nodes: parseNodes(msg.payload.nodes),
           error: null,
         }));
       }

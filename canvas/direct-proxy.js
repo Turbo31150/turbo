@@ -1,9 +1,10 @@
-// JARVIS Canvas — Direct Cluster Proxy (no OpenClaw dependency)
-// Replaces chat-proxy.js by calling LM Studio / Ollama / Gemini / Claude directly
+// JARVIS Canvas — Direct Cluster Proxy v2 (Cockpit Autonome)
+// Chat conversationnel + Tool Engine + Boucle Agentique
 const http = require('http');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const { execFileSync, execSync, spawn } = require('child_process');
 const AutolearnEngine = require('./autolearn');
 
 const PORT = 18800;
@@ -90,6 +91,410 @@ const SYS_PROMPTS = {
 
 // ── Autolearn Engine ────────────────────────────────────────────────────────
 const autolearn = new AutolearnEngine(callNode, ROUTING, SYS_PROMPTS);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ══ TOOL ENGINE — 10 tools systeme pour le cockpit autonome ══════════════════
+// ══════════════════════════════════════════════════════════════════════════════
+
+const ETOILE_DB = path.join(__dirname, '..', 'etoile.db');
+const MAX_FILE_SIZE = 100 * 1024;
+const MAX_TOOL_TURNS = 15;
+
+// ── Load etoile.db summary at startup ────────────────────────────────────────
+let ETOILE_SUMMARY = '';
+try {
+  const countByType = execSync('sqlite3 "' + ETOILE_DB + '" "SELECT entity_type, COUNT(*) FROM map GROUP BY entity_type ORDER BY COUNT(*) DESC;"', {
+    timeout: 5000, encoding: 'utf8', windowsHide: true
+  }).trim();
+  const launchers = execSync('sqlite3 "' + ETOILE_DB + '" "SELECT entity_name, role FROM map WHERE entity_type=\'launcher\';"', {
+    timeout: 5000, encoding: 'utf8', windowsHide: true
+  }).trim();
+  const skills = execSync('sqlite3 "' + ETOILE_DB + '" "SELECT entity_name, role FROM map WHERE entity_type=\'skill\' LIMIT 30;"', {
+    timeout: 5000, encoding: 'utf8', windowsHide: true
+  }).trim();
+  const agents = execSync('sqlite3 "' + ETOILE_DB + '" "SELECT name, model, status FROM agents;"', {
+    timeout: 5000, encoding: 'utf8', windowsHide: true
+  }).trim();
+  const apiKeyCount = execSync('sqlite3 "' + ETOILE_DB + '" "SELECT COUNT(*) FROM api_keys;"', {
+    timeout: 5000, encoding: 'utf8', windowsHide: true
+  }).trim();
+  const memoryCount = execSync('sqlite3 "' + ETOILE_DB + '" "SELECT COUNT(*) FROM memories;"', {
+    timeout: 5000, encoding: 'utf8', windowsHide: true
+  }).trim();
+
+  ETOILE_SUMMARY = [
+    '\n=== BASE DE DONNEES etoile.db ===',
+    'Contenu: ' + countByType.split('\n').map(l => { const p = l.split('|'); return p[1] + ' ' + p[0]; }).join(', '),
+    apiKeyCount + ' cles API, ' + memoryCount + ' memories',
+    '',
+    'LAUNCHERS (executables via pipeline tool):',
+    launchers.split('\n').map(l => { const p = l.split('|'); return '- ' + p[0] + ': ' + (p[1] || ''); }).join('\n'),
+    '',
+    'SKILLS (modes et routines):',
+    skills.split('\n').map(l => { const p = l.split('|'); return '- ' + p[0] + ': ' + (p[1] || ''); }).join('\n'),
+    '',
+    'AGENTS IA:',
+    agents.split('\n').map(l => { const p = l.split('|'); return '- ' + p[0] + ' (' + (p[1] || '?') + ') — ' + (p[2] || '?'); }).join('\n'),
+    '',
+    'Pour explorer etoile.db: utilise query_db avec SQL (tables: map, agents, api_keys, memories, metrics, sessions)',
+    'Pour lancer un launcher/script: utilise pipeline avec le nom exact'
+  ].join('\n');
+  console.log('[etoile] Loaded summary: ' + countByType.split('\n').length + ' types, ' + launchers.split('\n').length + ' launchers');
+} catch (e) {
+  console.error('[etoile] Failed to load summary:', e.message);
+  ETOILE_SUMMARY = '\n[etoile.db non disponible — utilise query_db pour explorer]';
+}
+
+// ── Safety Gate ─────────────────────────────────────────────────────────────
+const DANGEROUS_EXEC = /\b(rm\s+-rf|del\s+\/[sfq]|rmdir\s+\/s|format\s|fdisk|drop\s+table|truncate\s|push\s+--force|reset\s+--hard|shutdown|restart-computer)\b/i;
+const DANGEROUS_WRITE = /\.(env|credentials|pem|key|p12)$|system32|\\windows\\/i;
+const DANGEROUS_SQL = /\b(DELETE|DROP|TRUNCATE|ALTER|UPDATE)\b/i;
+
+const pendingConfirms = new Map();
+
+function isDangerous(toolName, args) {
+  if (toolName === 'delete') return { dangerous: true, reason: 'Suppression de: ' + (args.path || '') };
+  if (toolName === 'exec' && DANGEROUS_EXEC.test(args.cmd || ''))
+    return { dangerous: true, reason: 'Commande dangereuse: ' + (args.cmd || '') };
+  if (toolName === 'write_file' && DANGEROUS_WRITE.test(args.path || ''))
+    return { dangerous: true, reason: 'Ecriture sur fichier sensible: ' + (args.path || '') };
+  if (toolName === 'query_db' && DANGEROUS_SQL.test(args.sql || ''))
+    return { dangerous: true, reason: 'SQL destructif: ' + (args.sql || '') };
+  return { dangerous: false };
+}
+
+// ── Tool implementations ────────────────────────────────────────────────────
+// NOTE: exec uses shell=true intentionally — this is the cockpit's purpose.
+// The Safety Gate above filters dangerous patterns before execution.
+const TOOLS = {
+  exec(args) {
+    const cmd = args.cmd || args.command || '';
+    if (!cmd) return { error: 'Pas de commande specifiee' };
+    try {
+      const output = execSync(cmd, {
+        timeout: 60000, maxBuffer: 1024 * 1024,
+        cwd: args.cwd || 'C:\\Users\\franc',
+        encoding: 'utf8', shell: true, windowsHide: true
+      });
+      return { ok: true, output: output.slice(0, 50000), cmd };
+    } catch (e) {
+      return { ok: false, error: (e.stderr || e.message || '').slice(0, 5000), exit_code: e.status, cmd };
+    }
+  },
+
+  read_file(args) {
+    const p = args.path;
+    if (!p) return { error: 'Pas de chemin specifie' };
+    try {
+      const stat = fs.statSync(p);
+      if (stat.size > MAX_FILE_SIZE) return { error: 'Fichier trop gros: ' + (stat.size/1024).toFixed(0) + 'KB (max 100KB)' };
+      return { ok: true, path: p, content: fs.readFileSync(p, 'utf8'), size: stat.size };
+    } catch (e) {
+      return { ok: false, error: e.message, path: p };
+    }
+  },
+
+  write_file(args) {
+    const p = args.path;
+    const content = args.content;
+    if (!p || content === undefined) return { error: 'path et content requis' };
+    try {
+      const dir = path.dirname(p);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(p, content, 'utf8');
+      return { ok: true, path: p, size: Buffer.byteLength(content, 'utf8') };
+    } catch (e) {
+      return { ok: false, error: e.message, path: p };
+    }
+  },
+
+  edit_file(args) {
+    const p = args.path;
+    const old_str = args.old || args.old_string;
+    const new_str = args.new || args.new_string;
+    if (!p || !old_str || new_str === undefined) return { error: 'path, old et new requis' };
+    try {
+      let content = fs.readFileSync(p, 'utf8');
+      if (!content.includes(old_str)) return { ok: false, error: 'Texte a remplacer non trouve' };
+      content = content.replace(old_str, new_str);
+      fs.writeFileSync(p, content, 'utf8');
+      return { ok: true, path: p, replaced: true };
+    } catch (e) {
+      return { ok: false, error: e.message, path: p };
+    }
+  },
+
+  list_dir(args) {
+    const p = args.path || '.';
+    try {
+      const entries = fs.readdirSync(p, { withFileTypes: true });
+      const items = entries.slice(0, 200).map(e => {
+        let size = null;
+        if (e.isFile()) { try { size = fs.statSync(path.join(p, e.name)).size; } catch(_) {} }
+        return { name: e.name, type: e.isDirectory() ? 'dir' : 'file', size };
+      });
+      return { ok: true, path: p, count: items.length, items };
+    } catch (e) {
+      return { ok: false, error: e.message, path: p };
+    }
+  },
+
+  mkdir(args) {
+    const p = args.path;
+    if (!p) return { error: 'Pas de chemin specifie' };
+    try {
+      fs.mkdirSync(p, { recursive: true });
+      return { ok: true, path: p, created: true };
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  },
+
+  delete(args) {
+    const p = args.path;
+    if (!p) return { error: 'Pas de chemin specifie' };
+    try {
+      const stat = fs.statSync(p);
+      if (stat.isDirectory()) fs.rmSync(p, { recursive: true, force: true });
+      else fs.unlinkSync(p);
+      return { ok: true, path: p, deleted: true };
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
+  },
+
+  query_db(args) {
+    const sql = args.sql;
+    const db = args.db || ETOILE_DB;
+    if (!sql) return { error: 'Pas de requete SQL' };
+    try {
+      const safeSql = sql.replace(/"/g, '\\"');
+      const output = execSync('sqlite3 -json "' + db + '" "' + safeSql + '"', {
+        timeout: 10000, encoding: 'utf8', windowsHide: true
+      });
+      try { return { ok: true, results: JSON.parse(output), db: path.basename(db) }; }
+      catch (_) { return { ok: true, output: output.trim(), db: path.basename(db) }; }
+    } catch (e) {
+      return { ok: false, error: (e.stderr || e.message || '').slice(0, 2000) };
+    }
+  },
+
+  pipeline(args) {
+    const name = args.name;
+    if (!name) return { error: 'Nom du pipeline requis' };
+    try {
+      const safeName = name.replace(/'/g, "''");
+      // Look up in etoile.db map by entity_name (launchers, scripts, skills)
+      const row = execSync('sqlite3 "' + ETOILE_DB + '" "SELECT entity_type, entity_name, role, metadata FROM map WHERE entity_name=\'' + safeName + '\' LIMIT 1;"', {
+        timeout: 5000, encoding: 'utf8', windowsHide: true
+      }).trim();
+      if (!row) {
+        // Try fuzzy match
+        const fuzzy = execSync('sqlite3 "' + ETOILE_DB + '" "SELECT entity_name, entity_type, role FROM map WHERE entity_name LIKE \'%' + safeName + '%\' LIMIT 5;"', {
+          timeout: 5000, encoding: 'utf8', windowsHide: true
+        }).trim();
+        if (fuzzy) return { ok: false, error: "'" + name + "' non trouve. Suggestions:\n" + fuzzy, pipeline: name };
+        return { ok: false, error: "Pipeline '" + name + "' non trouve dans etoile.db", pipeline: name };
+      }
+      const parts = row.split('|');
+      const entityType = parts[0];
+      const entityName = parts[1];
+      const role = parts[2] || '';
+      let meta = {};
+      try { meta = JSON.parse(parts[3] || '{}'); } catch (_) {}
+
+      // Launchers: .bat files in launchers/ — launched detached (non-blocking)
+      if (entityType === 'launcher') {
+        const batPath = 'F:\\BUREAU\\turbo\\launchers\\' + entityName + '.bat';
+        const exists = fs.existsSync(batPath);
+        if (!exists) return { ok: false, pipeline: entityName, type: entityType, role, error: 'Launcher bat non trouve: ' + batPath };
+        const child = spawn('cmd', ['/c', batPath], {
+          detached: true, stdio: 'ignore', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+        });
+        child.unref();
+        return { ok: true, pipeline: entityName, type: entityType, role, command: batPath, output: 'Launcher ' + entityName + ' demarre (PID ' + child.pid + '). Processus detache.' };
+      }
+
+      // Scripts: .py in scripts/ or root
+      if (entityType === 'script') {
+        let scriptPath = 'F:\\BUREAU\\turbo\\scripts\\' + entityName + (entityName.includes('.') ? '' : '.py');
+        if (!fs.existsSync(scriptPath)) scriptPath = 'F:\\BUREAU\\turbo\\' + entityName + (entityName.includes('.') ? '' : '.py');
+        if (!fs.existsSync(scriptPath)) return { ok: false, pipeline: entityName, type: entityType, role, error: 'Script non trouve: ' + entityName };
+        const isJs = scriptPath.endsWith('.js');
+        const cmd = isJs ? 'node "' + scriptPath + '"' : 'uv run python "' + scriptPath + '"';
+        try {
+          const output = execSync(cmd, { timeout: 120000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo' });
+          return { ok: true, pipeline: entityName, type: entityType, role, command: cmd, output: output.slice(0, 20000) };
+        } catch (e) {
+          return { ok: true, pipeline: entityName, type: entityType, role, command: cmd, output: (e.stdout || '').slice(0, 5000), error: (e.stderr || '').slice(0, 2000) };
+        }
+      }
+
+      // Other types: return info only
+      return { ok: true, pipeline: entityName, type: entityType, role, metadata: meta, info: 'Type ' + entityType + ' — non executable directement. Utilise exec ou query_db.' };
+    } catch (e) {
+      return { ok: false, error: (e.stderr || e.message || '').slice(0, 2000), pipeline: name };
+    }
+  }
+};
+
+// ── Execute tool (async for web_search) ─────────────────────────────────────
+async function executeTool(toolName, args) {
+  const safety = isDangerous(toolName, args);
+  if (safety.dangerous) {
+    const id = 'confirm_' + Date.now();
+    pendingConfirms.set(id, { tool: toolName, args });
+    setTimeout(() => pendingConfirms.delete(id), 60000);
+    return { needs_confirm: true, confirm_id: id, tool: toolName, reason: safety.reason };
+  }
+
+  if (toolName === 'web_search') {
+    try {
+      const query = args.query;
+      const messages = [
+        { role: 'system', content: 'Reponds en francais. Recherche web et synthese factuelle.' },
+        { role: 'user', content: query }
+      ];
+      const body = { model: 'minimax-m2.5:cloud', messages, stream: false, think: false };
+      const res = await httpRequest('http://127.0.0.1:11434/api/chat', body, {}, 30000);
+      const text = (res.message?.content || '').replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+      return { ok: true, query, results: text };
+    } catch (e) {
+      return { ok: false, error: e.message, query: args.query };
+    }
+  }
+
+  const fn = TOOLS[toolName];
+  if (!fn) return { error: 'Tool inconnu: ' + toolName };
+  return fn(args);
+}
+
+// ── Parse tool calls from AI response ───────────────────────────────────────
+// Supports multiple formats:
+//   [TOOL:name:args]  [TOOL:name(args)]  [TOOL:name:{json}]
+const TOOL_PATTERNS = [
+  /\[TOOL:(\w+):\{([\s\S]*?)\}\]/,           // [TOOL:name:{json}]
+  /\[TOOL:(\w+):([^\]]+)\]/,                  // [TOOL:name:simple_arg]
+  /\[TOOL:(\w+)\(([^)]*)\)\]/,               // [TOOL:name(arg)]
+  /\[TOOL:(\w+)\(\{([\s\S]*?)\}\)\]/,        // [TOOL:name({json})]
+];
+
+function parseToolCall(text) {
+  for (const regex of TOOL_PATTERNS) {
+    const m = text.match(regex);
+    if (m) {
+      const name = m[1];
+      let argsStr = m[2].trim();
+      // Try JSON parse first
+      try {
+        if (!argsStr.startsWith('{')) argsStr = '{' + argsStr + '}';
+        return { name, args: JSON.parse(argsStr) };
+      } catch (_) {
+        // Fallback: treat as primary argument
+        const raw = m[2].trim();
+        if (name === 'exec') return { name, args: { cmd: raw } };
+        if (name === 'read_file' || name === 'list_dir' || name === 'mkdir' || name === 'delete')
+          return { name, args: { path: raw } };
+        if (name === 'query_db') return { name, args: { sql: raw } };
+        if (name === 'pipeline') return { name, args: { name: raw } };
+        if (name === 'web_search') return { name, args: { query: raw } };
+        return { name, args: { value: raw } };
+      }
+    }
+  }
+  return null;
+}
+
+// ── Agent system prompt with tools ──────────────────────────────────────────
+const COCKPIT_TOOLS_PROMPT = [
+  '',
+  '=== OUTILS SYSTEME (OBLIGATOIRE) ===',
+  'Tu as acces au systeme Windows. Pour TOUTE action (lire fichier, lister dossier, executer commande, etc.),',
+  'tu DOIS utiliser un outil. NE REPONDS JAMAIS de memoire. Utilise TOUJOURS un outil.',
+  '',
+  'FORMAT EXACT (une seule ligne, debut de ta reponse):',
+  '[TOOL:nom:argument]',
+  '',
+  'Exemples:',
+  '[TOOL:list_dir:C:\\Users\\franc\\Desktop]',
+  '[TOOL:exec:dir C:\\Users\\franc\\Desktop]',
+  '[TOOL:read_file:F:\\BUREAU\\turbo\\README.md]',
+  '[TOOL:write_file:{"path":"C:\\Users\\franc\\Desktop\\test.txt","content":"hello"}]',
+  '[TOOL:edit_file:{"path":"fichier.py","old":"ancien","new":"nouveau"}]',
+  '[TOOL:mkdir:C:\\Users\\franc\\Desktop\\MonDossier]',
+  '[TOOL:delete:C:\\Users\\franc\\Desktop\\test.txt]',
+  '[TOOL:query_db:SELECT * FROM map LIMIT 5]',
+  '[TOOL:pipeline:trading-scan]',
+  '[TOOL:web_search:bitcoin prix aujourd hui]',
+  '',
+  'REGLES:',
+  '- UN SEUL [TOOL:...] par message, TOUJOURS en premiere ligne',
+  '- Attends le resultat avant de continuer',
+  '- NE FABRIQUE JAMAIS de donnees. Si on demande des fichiers, utilise list_dir ou exec.',
+  '- Quand tu as le resultat et que tu as fini, reponds normalement SANS [TOOL:]',
+  '- Contexte: Windows 11, user franc, C:\\ et F:\\, JARVIS: F:\\BUREAU\\turbo, Bureau: C:\\Users\\franc\\Desktop',
+  ETOILE_SUMMARY
+].join('\n');
+
+// ── Agentic loop ────────────────────────────────────────────────────────────
+async function agenticChat(agentId, userText) {
+  const cat = AGENT_CAT[agentId] || 'default';
+  const chain = ROUTING[cat] || ROUTING.default;
+  let sysProm = (SYS_PROMPTS[cat] || SYS_PROMPTS.default) + '\n' + COCKPIT_TOOLS_PROMPT;
+
+  const ctxInjection = autolearn.getContextInjection(cat);
+  if (ctxInjection) sysProm += '\n' + ctxInjection;
+
+  const messages = [
+    { role: 'system', content: sysProm },
+    { role: 'user', content: userText }
+  ];
+
+  const toolHistory = [];
+  let lastModel = null, lastProvider = null;
+
+  for (let turn = 0; turn < MAX_TOOL_TURNS; turn++) {
+    let aiResult, errors = [];
+    for (const nodeId of chain) {
+      try {
+        console.log('[cockpit] turn ' + turn + ' -> ' + nodeId + ' (' + messages.length + ' msgs)');
+        const t0 = Date.now();
+        aiResult = await callNode(nodeId, messages);
+        lastModel = aiResult.model;
+        lastProvider = aiResult.provider;
+        console.log('[cockpit] OK ' + nodeId + ' (' + aiResult.text.length + ' chars, ' + (Date.now()-t0) + 'ms)');
+        break;
+      } catch (e) {
+        errors.push(nodeId + ': ' + e.message);
+      }
+    }
+    if (!aiResult) throw new Error('All nodes failed: ' + errors.join(' | '));
+
+    const toolCall = parseToolCall(aiResult.text);
+    if (!toolCall) {
+      return { text: aiResult.text, model: lastModel, provider: lastProvider, tools_used: toolHistory, turns: turn + 1 };
+    }
+
+    console.log('[cockpit] TOOL: ' + toolCall.name + '(' + JSON.stringify(toolCall.args).slice(0, 100) + ')');
+    const toolResult = await executeTool(toolCall.name, toolCall.args);
+
+    if (toolResult.needs_confirm) {
+      return {
+        text: aiResult.text, model: lastModel, provider: lastProvider,
+        tools_used: toolHistory, turns: turn + 1,
+        needs_confirm: true, confirm_id: toolResult.confirm_id, confirm_action: toolResult.reason
+      };
+    }
+
+    toolHistory.push({ tool: toolCall.name, args: toolCall.args, result: toolResult, turn });
+    messages.push({ role: 'assistant', content: aiResult.text });
+    messages.push({ role: 'user', content: '[TOOL_RESULT:' + toolCall.name + ']\n' + JSON.stringify(toolResult).slice(0, 10000) });
+  }
+
+  return { text: '[Limite de ' + MAX_TOOL_TURNS + ' tours atteinte]', model: lastModel, provider: lastProvider, tools_used: toolHistory, turns: MAX_TOOL_TURNS };
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 
 // ── HTTP helper ─────────────────────────────────────────────────────────────
 function httpRequest(urlStr, body, headers, timeout) {
@@ -250,11 +655,64 @@ const server = http.createServer(async (req, res) => {
       try {
         const { agent, text } = JSON.parse(body);
         const agentId = agent || 'main';
-        const result = await routeAndCall(agentId, text);
+        const result = await agenticChat(agentId, text);
+
+        // Autolearn: record the final result
+        const entry = {
+          agent: agentId, category: AGENT_CAT[agentId] || 'default',
+          userText: text, responseText: result.text,
+          nodeId: 'cockpit', latencyMs: 0, ts: new Date().toISOString()
+        };
+        autolearn.recordConversation(entry);
+
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: true, data: result }));
       } catch (e) {
-        console.error('[chat] Error:', e.message);
+        console.error('[cockpit] Error:', e.message);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: false, error: e.message }));
+      }
+    });
+  } else if (req.method === 'POST' && req.url === '/tool') {
+    // Direct tool execution endpoint
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', async () => {
+      try {
+        const { name, args } = JSON.parse(body);
+        const result = await executeTool(name, args || {});
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: true, data: result }));
+      } catch (e) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: false, error: e.message }));
+      }
+    });
+  } else if (req.method === 'POST' && req.url === '/confirm') {
+    // Confirm a dangerous action
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', async () => {
+      try {
+        const { confirm_id, approved } = JSON.parse(body);
+        const pending = pendingConfirms.get(confirm_id);
+        if (!pending) {
+          res.writeHead(404, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ ok: false, error: 'Action expiree ou introuvable' }));
+          return;
+        }
+        pendingConfirms.delete(confirm_id);
+        if (!approved) {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ ok: true, cancelled: true }));
+          return;
+        }
+        // Execute the confirmed action (bypass safety gate)
+        const fn = TOOLS[pending.tool];
+        const result = fn ? fn(pending.args) : { error: 'Tool inconnu' };
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: true, data: result }));
+      } catch (e) {
         res.writeHead(500, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: false, error: e.message }));
       }
