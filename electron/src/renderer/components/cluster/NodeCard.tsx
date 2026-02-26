@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo } from 'react';
 import { ClusterNode } from '../../hooks/useCluster';
 
 interface NodeCardProps {
@@ -58,7 +58,7 @@ function getStatusStyle(status: ClusterNode['status']) {
   }
 }
 
-export default function NodeCard({ node }: NodeCardProps) {
+export default memo(function NodeCard({ node }: NodeCardProps) {
   const isOnline = node.status !== 'offline';
   const latencyColor = getLatencyColor(node.latency);
   const loadedModels = node.models.filter(m => m.loaded);
@@ -146,4 +146,4 @@ export default function NodeCard({ node }: NodeCardProps) {
       </div>
     </>
   );
-}
+});

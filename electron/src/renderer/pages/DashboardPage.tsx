@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { useLMStudio } from '../hooks/useLMStudio';
 
 // ═══════════════════════════════════════════════════════════════
@@ -84,7 +84,7 @@ const CSS = `
 // SAFE TEXT RENDERER (no innerHTML — XSS-safe)
 // ═══════════════════════════════════════════════════════════════
 
-function TextBlock({ text }: { text: string }) {
+const TextBlock = memo(function TextBlock({ text }: { text: string }) {
   // Split on code blocks first
   const parts = text.split(/(```[\s\S]*?```)/g);
   return (
@@ -103,7 +103,7 @@ function TextBlock({ text }: { text: string }) {
       })}
     </>
   );
-}
+});
 
 function InlineText({ text }: { text: string }) {
   const lines = text.split('\n');
@@ -226,7 +226,7 @@ export default function DashboardPage() {
       } catch { if (alive) setProxyOk(false); }
     };
     check();
-    const iv = setInterval(check, 10000);
+    const iv = setInterval(check, 20000);
     return () => { alive = false; clearInterval(iv); };
   }, []);
 
@@ -288,8 +288,8 @@ export default function DashboardPage() {
   };
 
   const toggle = (k: keyof typeof openSec) => setOpenSec(p => ({ ...p, [k]: !p[k] }));
-  const onlineCount = lmNodes.filter(n => n.status === 'online').length;
-  const totalModels = lmNodes.reduce((s, n) => s + n.models.filter(m => m.loaded).length, 0);
+  const onlineCount = useMemo(() => lmNodes.filter(n => n.status === 'online').length, [lmNodes]);
+  const totalModels = useMemo(() => lmNodes.reduce((s, n) => s + n.models.filter(m => m.loaded).length, 0), [lmNodes]);
 
   return (
     <>

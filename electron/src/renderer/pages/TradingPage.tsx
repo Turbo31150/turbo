@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useTrading, TradingSignal } from '../hooks/useTrading';
 
 const CSS = `
@@ -42,8 +42,8 @@ export default function TradingPage() {
   const { signals, positions, pnl, loading, executeSignal, closePosition, refreshTrading } = useTrading();
   const [confirm, setConfirm] = useState<TradingSignal | null>(null);
 
-  const activePositions = positions.filter(p => p.status === 'open');
-  const pendingSignals = signals.filter(s => s.status === 'pending');
+  const activePositions = useMemo(() => positions.filter(p => p.status === 'open'), [positions]);
+  const pendingSignals = useMemo(() => signals.filter(s => s.status === 'pending'), [signals]);
 
   const handleExec = useCallback(async () => {
     if (!confirm) return;

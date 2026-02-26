@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo, useMemo } from 'react';
 import { useLMStudio, LMNode, LMModel } from '../hooks/useLMStudio';
 
 const CSS = `
@@ -43,7 +43,7 @@ const S = {
   testLat: { fontSize: 10, color: '#10b981', marginTop: 4 } as React.CSSProperties,
 };
 
-function ModelItem({ model }: { model: LMModel }) {
+const ModelItem = memo(function ModelItem({ model }: { model: LMModel }) {
   return (
     <div style={S.modelRow}>
       <div style={{ ...S.dot, ...(model.loaded ? S.dotOn : S.dotOff) }} />
@@ -54,9 +54,9 @@ function ModelItem({ model }: { model: LMModel }) {
       {model.loaded && <span style={S.loadedTag}>LOADED</span>}
     </div>
   );
-}
+});
 
-function NodePanel({ node, onTest }: { node: LMNode; onTest: (nodeId: string, model: string, prompt: string) => Promise<{ text: string; latency: number }> }) {
+const NodePanel = memo(function NodePanel({ node, onTest }: { node: LMNode; onTest: (nodeId: string, model: string, prompt: string) => Promise<{ text: string; latency: number }> }) {
   const [prompt, setPrompt] = useState('Reponds OK en 1 mot.');
   const [result, setResult] = useState<{ text: string; latency: number } | null>(null);
   const [testing, setTesting] = useState(false);
@@ -120,13 +120,13 @@ function NodePanel({ node, onTest }: { node: LMNode; onTest: (nodeId: string, mo
       )}
     </div>
   );
-}
+});
 
 export default function LMStudioPage() {
   const { nodes, refreshing, refresh, testModel } = useLMStudio();
-  const onlineCount = nodes.filter(n => n.status === 'online').length;
-  const totalLoaded = nodes.reduce((sum, n) => sum + n.models.filter(m => m.loaded).length, 0);
-  const avgLatency = nodes.filter(n => n.latency > 0).reduce((sum, n, _, arr) => sum + n.latency / arr.length, 0);
+  const onlineCount = useMemo(() => nodes.filter(n => n.status === 'online').length, [nodes]);
+  const totalLoaded = useMemo(() => nodes.reduce((sum, n) => sum + n.models.filter(m => m.loaded).length, 0), [nodes]);
+  const avgLatency = useMemo(() => nodes.filter(n => n.latency > 0).reduce((sum, n, _, arr) => sum + n.latency / arr.length, 0), [nodes]);
 
   return (
     <>
