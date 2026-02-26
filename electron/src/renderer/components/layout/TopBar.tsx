@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-type Page = 'dashboard' | 'chat' | 'trading' | 'voice' | 'settings';
+type Page = 'dashboard' | 'chat' | 'trading' | 'voice' | 'lmstudio' | 'settings';
 
 interface TopBarProps {
   connected: boolean;
@@ -13,6 +13,7 @@ const PAGE_LABELS: Record<Page, string> = {
   chat: 'CHAT',
   trading: 'TRADING',
   voice: 'VOICE',
+  lmstudio: 'LM STUDIO',
   settings: 'SETTINGS',
 };
 
