@@ -4,7 +4,13 @@ import sqlite3
 import json
 from datetime import datetime
 
-conn = sqlite3.connect("F:/BUREAU/etoile.db")
+import os as _os
+try:
+    from src.config import PATHS
+    _etoile_path = str(PATHS["etoile_db"])
+except ImportError:
+    _etoile_path = _os.path.join(_os.path.dirname(__file__), "data", "etoile.db")
+conn = sqlite3.connect(_etoile_path)
 cur = conn.cursor()
 now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 

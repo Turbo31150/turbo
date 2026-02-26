@@ -374,7 +374,7 @@ const autolearn = new AutolearnEngine(callNode, ROUTING, SYS_PROMPTS);
 // ══ TOOL ENGINE — 10 tools systeme pour le cockpit autonome ══════════════════
 // ══════════════════════════════════════════════════════════════════════════════
 
-const ETOILE_DB = path.join(__dirname, '..', 'etoile.db');
+const ETOILE_DB = path.join(__dirname, '..', 'data', 'etoile.db');
 const MAX_FILE_SIZE = 100 * 1024;
 const MAX_TOOL_TURNS = 8;
 

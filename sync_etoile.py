@@ -6,7 +6,11 @@ import time
 import subprocess
 from datetime import datetime
 
-DB_PATH = "F:/BUREAU/etoile.db"
+try:
+    from src.config import PATHS
+    DB_PATH = str(PATHS["etoile_db"])
+except ImportError:
+    DB_PATH = os.path.join(os.path.dirname(__file__), "data", "etoile.db")
 NOW = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 

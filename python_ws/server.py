@@ -39,6 +39,7 @@ from python_ws.routes.chat import handle_chat_request
 from python_ws.routes.trading import handle_trading_request, push_trading_events
 from python_ws.routes.voice import handle_voice_request
 from python_ws.routes.files import handle_files_request
+from python_ws.routes.sql import sql_router
 
 # ── Logging ──────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -61,6 +62,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+# ── REST API routes ─────────────────────────────────────────────────────────
+app.include_router(sql_router, prefix="/sql")
 
 # ── HTTP endpoints ──────────────────────────────────────────────────────────
 

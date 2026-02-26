@@ -689,7 +689,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sqlite_etoile", "dev", "Explorer la base etoile.db", [
         "ouvre etoile db", "base etoile", "sqlite etoile",
         "explore etoile",
-    ], "powershell", "sqlite3 F:\\BUREAU\\etoile.db '.tables' 2>&1; sqlite3 F:\\BUREAU\\etoile.db 'SELECT category, COUNT(*) as c FROM map GROUP BY category ORDER BY c DESC;' 2>&1 | Out-String"),
+    ], "powershell", "sqlite3 F:\\BUREAU\\turbo\\data\\etoile.db '.tables' 2>&1; sqlite3 F:\\BUREAU\\turbo\\data\\etoile.db 'SELECT category, COUNT(*) as c FROM map GROUP BY category ORDER BY c DESC;' 2>&1 | Out-String"),
     JarvisCommand("sqlite_tables", "dev", "Lister les tables d'une base SQLite", [
         "tables sqlite {db}", "quelles tables dans {db}", "schema {db}",
         "structure de la base {db}",
@@ -1026,14 +1026,14 @@ DEV_COMMANDS: list[JarvisCommand] = [
     ], "powershell", "sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db '.schema {table}' 2>&1 | Out-String", ["table"]),
     JarvisCommand("etoile_count", "dev", "Compter les entrees dans etoile.db", [
         "combien dans etoile", "entries etoile", "taille etoile db",
-    ], "powershell", "sqlite3 F:\\BUREAU\\etoile.db 'SELECT entity_type, COUNT(*) FROM map GROUP BY entity_type' 2>&1 | Out-String"),
+    ], "powershell", "sqlite3 F:\\BUREAU\\turbo\\data\\etoile.db 'SELECT entity_type, COUNT(*) FROM map GROUP BY entity_type' 2>&1 | Out-String"),
     JarvisCommand("etoile_query", "dev", "Requete sur etoile.db", [
         "query etoile {requete}", "etoile db {requete}", "cherche dans etoile {requete}",
-    ], "powershell", "sqlite3 F:\\BUREAU\\etoile.db \"{requete}\" 2>&1 | Out-String", ["requete"]),
+    ], "powershell", "sqlite3 F:\\BUREAU\\turbo\\data\\etoile.db \"{requete}\" 2>&1 | Out-String", ["requete"]),
     JarvisCommand("db_size_all", "dev", "Taille de toutes les bases de donnees", [
         "taille des bases", "poids des db", "db sizes",
         "combien pesent les bases",
-    ], "powershell", "@('F:\\BUREAU\\turbo\\data\\jarvis.db','F:\\BUREAU\\etoile.db','F:\\BUREAU\\carV1\\database\\trading_latest.db') | ForEach-Object { if(Test-Path $_){ $f=Get-Item $_; \"$($f.Name): $([math]::Round($f.Length/1MB,2)) MB\" } } | Out-String"),
+    ], "powershell", "@('F:\\BUREAU\\turbo\\data\\jarvis.db','F:\\BUREAU\\turbo\\data\\etoile.db','F:\\BUREAU\\carV1\\database\\trading_latest.db') | ForEach-Object { if(Test-Path $_){ $f=Get-Item $_; \"$($f.Name): $([math]::Round($f.Length/1MB,2)) MB\" } } | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # REGEX / DATA TOOLS — Manipulation de données
