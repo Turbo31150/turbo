@@ -1,6 +1,7 @@
 """Update etoile.db with FULL detail: categories, all commands, pipelines, MCP tools."""
 import sqlite3
 import json
+import os
 import sys
 import shutil
 
@@ -123,7 +124,11 @@ MCP_TOOLS = [
 ]
 
 # ── Connect to etoile.db ──
-DB_PATH = r"F:\BUREAU\etoile.db"
+try:
+    from src.config import PATHS
+    DB_PATH = str(PATHS["etoile_db"])
+except ImportError:
+    DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "etoile.db")
 conn = sqlite3.connect(DB_PATH)
 cur = conn.cursor()
 
@@ -267,8 +272,11 @@ print(f"{'='*50}")
 
 conn.close()
 
-# ── Copy to data/etoile.db for GitHub ──
-DEST = r"F:\BUREAU\turbo\data\etoile.db"
-shutil.copy2(DB_PATH, DEST)
-print(f"\nCopied to {DEST}")
+# ── Ensure data/ copy is up to date ──
+DEST = str(PATHS["etoile_db"]) if 'PATHS' in dir() else os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "etoile.db")
+if os.path.abspath(DB_PATH) != os.path.abspath(DEST):
+    shutil.copy2(DB_PATH, DEST)
+    print(f"\nCopied to {DEST}")
+else:
+    print(f"\nDB already at {DEST}")
 print(f"DONE — {total} entries ({total_commands} commands + {total_pipelines} pipelines + {total_mcp} MCP tools + {len(cats)} categories + stats)")

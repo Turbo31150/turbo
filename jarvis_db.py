@@ -3,7 +3,11 @@
 import sqlite3, json, sys, os
 from datetime import datetime
 
-DB_PATH = r"F:\BUREAU\etoile.db"
+try:
+    from src.config import PATHS
+    DB_PATH = str(PATHS["etoile_db"])
+except ImportError:
+    DB_PATH = os.path.join(os.path.dirname(__file__), "data", "etoile.db")
 
 def get_conn():
     conn = sqlite3.connect(DB_PATH)

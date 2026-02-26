@@ -434,7 +434,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("dev_database_check", "pipeline", "Check databases: taille + tables de jarvis.db et etoile.db", [
         "check les databases", "verifie les bases de donnees",
         "etat des databases", "database check",
-    ], "pipeline", "powershell:$j = (Get-Item 'F:\\BUREAU\\turbo\\data\\jarvis.db' -ErrorAction SilentlyContinue).Length/1MB; \"jarvis.db: $([math]::Round($j,1)) MB\";;powershell:$e = (Get-Item 'F:\\BUREAU\\etoile.db' -ErrorAction SilentlyContinue).Length/1MB; \"etoile.db: $([math]::Round($e,1)) MB\";;powershell:$t = (Get-Item 'F:\\BUREAU\\carV1\\database\\trading_latest.db' -ErrorAction SilentlyContinue).Length/1MB; \"trading.db: $([math]::Round($t,1)) MB\""),
+    ], "pipeline", "powershell:$j = (Get-Item 'F:\\BUREAU\\turbo\\data\\jarvis.db' -ErrorAction SilentlyContinue).Length/1MB; \"jarvis.db: $([math]::Round($j,1)) MB\";;powershell:$e = (Get-Item 'F:\\BUREAU\\turbo\\data\\etoile.db' -ErrorAction SilentlyContinue).Length/1MB; \"etoile.db: $([math]::Round($e,1)) MB\";;powershell:$t = (Get-Item 'F:\\BUREAU\\carV1\\database\\trading_latest.db' -ErrorAction SilentlyContinue).Length/1MB; \"trading.db: $([math]::Round($t,1)) MB\""),
     JarvisCommand("dev_live_coding", "pipeline", "Live coding: OBS + VSCode + terminal + navigateur localhost", [
         "live coding", "mode live code", "lance le live coding",
         "session live code", "code en direct",
@@ -1015,15 +1015,15 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_db_health_check", "pipeline", "Health check bases: jarvis.db + etoile.db + taille + integrite", [
         "health check des bases", "check les db", "bases de donnees ok",
         "diagnostic bases de donnees",
-    ], "pipeline", "powershell:$j = (Get-Item F:\\BUREAU\\turbo\\data\\jarvis.db -ErrorAction SilentlyContinue).Length/1KB; $e = (Get-Item F:\\BUREAU\\etoile.db -ErrorAction SilentlyContinue).Length/1KB; \"jarvis.db: $([math]::Round($j)) KB | etoile.db: $([math]::Round($e)) KB\";;powershell:sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db 'PRAGMA integrity_check;' 2>&1 | Out-String;;powershell:sqlite3 F:\\BUREAU\\etoile.db 'PRAGMA integrity_check;' 2>&1 | Out-String;;powershell:sqlite3 F:\\BUREAU\\etoile.db 'SELECT category, COUNT(*) as c FROM map GROUP BY category ORDER BY c DESC;' 2>&1 | Out-String;;powershell:\"Health check DB termine\""),
+    ], "pipeline", "powershell:$j = (Get-Item F:\\BUREAU\\turbo\\data\\jarvis.db -ErrorAction SilentlyContinue).Length/1KB; $e = (Get-Item F:\\BUREAU\\turbo\\data\\etoile.db -ErrorAction SilentlyContinue).Length/1KB; \"jarvis.db: $([math]::Round($j)) KB | etoile.db: $([math]::Round($e)) KB\";;powershell:sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db 'PRAGMA integrity_check;' 2>&1 | Out-String;;powershell:sqlite3 F:\\BUREAU\\turbo\\data\\etoile.db 'PRAGMA integrity_check;' 2>&1 | Out-String;;powershell:sqlite3 F:\\BUREAU\\turbo\\data\\etoile.db 'SELECT category, COUNT(*) as c FROM map GROUP BY category ORDER BY c DESC;' 2>&1 | Out-String;;powershell:\"Health check DB termine\""),
     JarvisCommand("sim_db_backup", "pipeline", "Backup toutes les bases de donnees", [
         "backup les bases", "sauvegarde les db", "copie les bases de donnees",
         "backup database",
-    ], "pipeline", "powershell:$d = Get-Date -Format 'yyyy-MM-dd_HHmm'; Copy-Item F:\\BUREAU\\turbo\\data\\jarvis.db \"F:\\BUREAU\\turbo\\data\\jarvis_backup_$d.db\" -Force; Copy-Item F:\\BUREAU\\etoile.db \"F:\\BUREAU\\etoile_backup_$d.db\" -Force; \"Backup DB: jarvis_backup_$d.db + etoile_backup_$d.db\""),
+    ], "pipeline", "powershell:$d = Get-Date -Format 'yyyy-MM-dd_HHmm'; Copy-Item F:\\BUREAU\\turbo\\data\\jarvis.db \"F:\\BUREAU\\turbo\\data\\jarvis_backup_$d.db\" -Force; Copy-Item F:\\BUREAU\\turbo\\data\\etoile.db \"F:\\BUREAU\\etoile_backup_$d.db\" -Force; \"Backup DB: jarvis_backup_$d.db + etoile_backup_$d.db\""),
     JarvisCommand("sim_db_stats", "pipeline", "Statistiques des bases: tables, lignes, taille par table", [
         "stats des bases", "metriques db", "combien dans les bases",
         "taille des tables",
-    ], "pipeline", "powershell:sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db '.tables' 2>&1 | Out-String;;powershell:sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db 'SELECT \"skills\" as tbl, COUNT(*) as rows FROM skills UNION ALL SELECT \"actions\", COUNT(*) FROM actions UNION ALL SELECT \"historique\", COUNT(*) FROM historique;' 2>&1 | Out-String;;powershell:sqlite3 F:\\BUREAU\\etoile.db 'SELECT \"map\" as tbl, COUNT(*) as rows FROM map UNION ALL SELECT \"agents\", COUNT(*) FROM agents UNION ALL SELECT \"memories\", COUNT(*) FROM memories;' 2>&1 | Out-String;;powershell:\"Stats DB terminees\""),
+    ], "pipeline", "powershell:sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db '.tables' 2>&1 | Out-String;;powershell:sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db 'SELECT \"skills\" as tbl, COUNT(*) as rows FROM skills UNION ALL SELECT \"actions\", COUNT(*) FROM actions UNION ALL SELECT \"historique\", COUNT(*) FROM historique;' 2>&1 | Out-String;;powershell:sqlite3 F:\\BUREAU\\turbo\\data\\etoile.db 'SELECT \"map\" as tbl, COUNT(*) as rows FROM map UNION ALL SELECT \"agents\", COUNT(*) FROM agents UNION ALL SELECT \"memories\", COUNT(*) FROM memories;' 2>&1 | Out-String;;powershell:\"Stats DB terminees\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 19 — DOCKER WORKFLOWS
@@ -1260,7 +1260,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
 JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + etoile + trading", [
         "backup toutes les bases", "sauvegarde les bases", "db backup all",
         "backup databases",
-    ], "pipeline", "powershell:$d=Get-Date -Format yyyyMMdd; Copy-Item F:\\BUREAU\\turbo\\data\\jarvis.db F:\\BUREAU\\turbo\\data\\jarvis_backup_$d.db; \"jarvis.db backup OK\";;powershell:$d=Get-Date -Format yyyyMMdd; Copy-Item F:\\BUREAU\\etoile.db F:\\BUREAU\\etoile_backup_$d.db; \"etoile.db backup OK\";;powershell:\"Backup de toutes les bases termine\""),
+    ], "pipeline", "powershell:$d=Get-Date -Format yyyyMMdd; Copy-Item F:\\BUREAU\\turbo\\data\\jarvis.db F:\\BUREAU\\turbo\\data\\jarvis_backup_$d.db; \"jarvis.db backup OK\";;powershell:$d=Get-Date -Format yyyyMMdd; Copy-Item F:\\BUREAU\\turbo\\data\\etoile.db F:\\BUREAU\\etoile_backup_$d.db; \"etoile.db backup OK\";;powershell:\"Backup de toutes les bases termine\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 36 — SECURITY AUDIT
@@ -1431,7 +1431,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("sim_jarvis_selfcheck", "pipeline", "Auto-diagnostic JARVIS: config + deps + DB + commands + cluster", [
         "auto diagnostic jarvis", "jarvis self check", "verifie toi meme",
         "diagnostic jarvis complet",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.config import *; print('Config: OK')\" 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.commands import COMMANDS; print(f'{len(COMMANDS)} commandes chargees')\" 2>&1 | Out-String;;powershell:$dbs=@('F:\\BUREAU\\turbo\\data\\jarvis.db','F:\\BUREAU\\etoile.db'); $dbs | ForEach-Object { if(Test-Path $_){$f=Get-Item $_; \"$($f.Name): $([math]::Round($f.Length/1KB))KB OK\"}else{\"$_ MANQUANT\"} } | Out-String;;powershell:try{Invoke-WebRequest http://127.0.0.1:11434/api/tags -UseBasicParsing -TimeoutSec 3 >$null; 'OL1: OK'}catch{'OL1: OFFLINE'};;powershell:\"Auto-diagnostic JARVIS termine\""),
+    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.config import *; print('Config: OK')\" 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.commands import COMMANDS; print(f'{len(COMMANDS)} commandes chargees')\" 2>&1 | Out-String;;powershell:$dbs=@('F:\\BUREAU\\turbo\\data\\jarvis.db','F:\\BUREAU\\turbo\\data\\etoile.db'); $dbs | ForEach-Object { if(Test-Path $_){$f=Get-Item $_; \"$($f.Name): $([math]::Round($f.Length/1KB))KB OK\"}else{\"$_ MANQUANT\"} } | Out-String;;powershell:try{Invoke-WebRequest http://127.0.0.1:11434/api/tags -UseBasicParsing -TimeoutSec 3 >$null; 'OL1: OK'}catch{'OL1: OFFLINE'};;powershell:\"Auto-diagnostic JARVIS termine\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 51 — WIFI & NETWORK DIAGNOSTIC

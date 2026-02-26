@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """Populate etoile.db with pipeline dictionary, agent keywords, scenario weights, domino chains."""
 import sqlite3, json, re, sys, os
-sys.path.insert(0, r"F:\BUREAU\turbo\src")
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
-DB_PATH = r"F:\BUREAU\etoile.db"
+try:
+    from src.config import PATHS
+    DB_PATH = str(PATHS["etoile_db"])
+except ImportError:
+    DB_PATH = os.path.join(os.path.dirname(__file__), "data", "etoile.db")
 
 def get_conn():
     conn = sqlite3.connect(DB_PATH)

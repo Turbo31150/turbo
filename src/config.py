@@ -13,14 +13,24 @@ JARVIS_VERSION = "10.2"
 
 # ── Project paths (existing codebase) ──────────────────────────────────────
 PATHS = {
-    "carV1":          Path("F:/BUREAU/carV1"),
-    "mcp_lmstudio":   Path("F:/BUREAU/MCP_MCPLMSTUDIO1"),
-    "lmstudio_backup": Path("F:/BUREAU/LMSTUDIO_BACKUP"),
-    "prod_intensive":  Path("F:/BUREAU/PROD_INTENSIVE_V1"),
-    "trading_v2":      Path("F:/BUREAU/TRADING_V2_PRODUCTION"),
+    # ── Active projects ──
     "turbo":           Path("F:/BUREAU/turbo"),
-    "jarvis_legacy":   Path("F:/BUREAU/JARVIS"),
-    "disk_cleaner":    Path("F:/BUREAU/disk_cleaner"),
+    "carV1":           Path("F:/BUREAU/carV1"),
+    "lienDepart":      Path("F:/BUREAU/ACTIVE/lienDepart"),
+    # ── Tools & services ──
+    "lm_studio_system": Path("F:/BUREAU/TOOLS/lm_studio_system"),
+    "disk_cleaner":    Path("F:/BUREAU/TOOLS/disk_cleaner"),
+    # ── Trading ──
+    "trading_v2":      Path("F:/BUREAU/TRADING/TRADING_V2_PRODUCTION"),
+    # ── Data & backups ──
+    "lmstudio_backup": Path("F:/BUREAU/DATA/LMSTUDIO_BACKUP"),
+    # ── Legacy ──
+    "mcp_lmstudio":    Path("F:/BUREAU/LEGACY/MCP_MCPLMSTUDIO1"),
+    "prod_intensive":  Path("F:/BUREAU/LEGACY/PROD_INTENSIVE_V1"),
+    "jarvis_legacy":   Path("F:/BUREAU/LEGACY/JARVIS"),
+    # ── Databases ──
+    "etoile_db":       Path("F:/BUREAU/turbo/data/etoile.db"),
+    "jarvis_db":       Path("F:/BUREAU/turbo/data/jarvis.db"),
 }
 
 # ── Existing scripts index ─────────────────────────────────────────────────
