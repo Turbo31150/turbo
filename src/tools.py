@@ -12,6 +12,7 @@ Optimizations:
 from __future__ import annotations
 
 import asyncio
+import json
 import re
 import subprocess
 import sys
@@ -1344,7 +1345,90 @@ def _error(text: str) -> dict[str, Any]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# ASSEMBLE MCP SERVER — ALL TOOLS (74 SDK tools)
+# DATABASE — SQL QUERIES
+# ═══════════════════════════════════════════════════════════════════════════
+
+import sqlite3
+from pathlib import Path as _Path
+
+_DB_ALIASES = {
+    "etoile": PATHS.get("etoile_db", _Path("F:/BUREAU/turbo/data/etoile.db")),
+    "jarvis": PATHS.get("jarvis_db", _Path("F:/BUREAU/turbo/data/jarvis.db")),
+    "trading": config.db_trading,
+    "predictions": config.db_predictions,
+}
+
+_SQL_FORBIDDEN = re.compile(r"\b(DROP|ALTER|TRUNCATE|ATTACH|DETACH|PRAGMA\s+(?!table_info))\b", re.IGNORECASE)
+
+
+def _resolve_db(database: str) -> str:
+    """Resolve database alias to file path."""
+    db_path = _DB_ALIASES.get(database.lower())
+    if not db_path:
+        raise ValueError(f"Unknown database '{database}'. Available: {', '.join(_DB_ALIASES)}")
+    path_str = str(db_path)
+    if not _Path(path_str).exists():
+        raise FileNotFoundError(f"Database not found: {path_str}")
+    return path_str
+
+
+@tool("sql_query", "Execute une requete SQL (SELECT/INSERT/UPDATE/DELETE). Args: database (etoile|jarvis|trading|predictions), query, params (optional list).",
+      {"database": str, "query": str, "params": list})
+async def sql_query_tool(args: dict[str, Any]) -> dict[str, Any]:
+    try:
+        db_path = _resolve_db(args["database"])
+        query = args["query"].strip()
+        params = args.get("params") or []
+        if _SQL_FORBIDDEN.search(query):
+            return _error("Forbidden SQL operation (DROP/ALTER/TRUNCATE not allowed)")
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        cur = conn.execute(query, params)
+        upper = query.upper().lstrip()
+        if upper.startswith("SELECT") or upper.startswith("PRAGMA"):
+            rows = cur.fetchall()
+            result = [dict(r) for r in rows]
+            conn.close()
+            return _text(json.dumps(result, ensure_ascii=False, indent=2, default=str) if result else "No results")
+        else:
+            affected = cur.rowcount
+            conn.commit()
+            conn.close()
+            return _text(f"OK — {affected} row(s) affected")
+    except Exception as e:
+        return _error(f"SQL error: {e}")
+
+
+@tool("sql_list_tables", "Liste les tables d'une base de donnees. Args: database (etoile|jarvis|trading|predictions).",
+      {"database": str})
+async def sql_list_tables_tool(args: dict[str, Any]) -> dict[str, Any]:
+    try:
+        db_path = _resolve_db(args["database"])
+        conn = sqlite3.connect(db_path)
+        tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()]
+        conn.close()
+        return _text(f"Tables in {args['database']}: {', '.join(tables)}" if tables else "No tables found")
+    except Exception as e:
+        return _error(f"Error: {e}")
+
+
+@tool("sql_schema", "Affiche le CREATE TABLE d'une table. Args: database, table.",
+      {"database": str, "table": str})
+async def sql_schema_tool(args: dict[str, Any]) -> dict[str, Any]:
+    try:
+        db_path = _resolve_db(args["database"])
+        conn = sqlite3.connect(db_path)
+        row = conn.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name=?", (args["table"],)).fetchone()
+        conn.close()
+        if row:
+            return _text(row[0])
+        return _error(f"Table '{args['table']}' not found in {args['database']}")
+    except Exception as e:
+        return _error(f"Error: {e}")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ASSEMBLE MCP SERVER — ALL TOOLS (77 SDK tools)
 # ═══════════════════════════════════════════════════════════════════════════
 
 jarvis_server = create_sdk_mcp_server(
@@ -1394,5 +1478,7 @@ jarvis_server = create_sdk_mcp_server(
         registry_read_tool, registry_write_tool,
         # Notifications & voix (3)
         notify_tool, speak_tool, scheduled_tasks_tool,
+        # Database SQL (3)
+        sql_query_tool, sql_list_tables_tool, sql_schema_tool,
     ],
 )
