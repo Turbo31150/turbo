@@ -1,0 +1,60 @@
+{
+  "SessionStart": [
+    {
+      "matcher": "",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader 2>/dev/null | python3 -c \"import sys; temps=[int(t.strip()) for t in sys.stdin if t.strip()]; warn=[t for t in temps if t>=75]; crit=[t for t in temps if t>=85]; print(f'GPU WARNING: {len(warn)} GPU(s) >= 75C, max {max(temps)}C') if warn else None; print(f'GPU CRITICAL: {len(crit)} GPU(s) >= 85C!') if crit else None\" 2>/dev/null || true",
+          "timeout": 5000
+        },
+        {
+          "type": "command",
+          "command": "python3 -c \"import urllib.request,json,sys; nodes={'M1':('http://10.5.0.2:1234/api/v1/models','sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'),'M2':('http://192.168.1.26:1234/api/v1/models','sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'),'M3':('http://192.168.1.113:1234/api/v1/models','sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux')}; ol1=False; lm_ok=[]; lm_fail=[]\nfor n,(u,k) in nodes.items():\n try:\n  r=urllib.request.urlopen(urllib.request.Request(u,headers={'Authorization':f'Bearer {k}'}),timeout=3)\n  d=json.loads(r.read());loaded=[m for m in d.get('models',[]) if m.get('loaded_instances')]\n  if loaded: lm_ok.append(f'{n}({len(loaded)})')\n  else: lm_fail.append(n)\n except: lm_fail.append(n)\ntry:\n r=urllib.request.urlopen('http://127.0.0.1:11434/api/tags',timeout=3);d=json.loads(r.read());ol1=len(d.get('models',[]))>0\nexcept: pass\nif lm_fail or not ol1: print(f'CLUSTER: OK={\\\"|\\\".join(lm_ok)}{\\\" OL1\\\" if ol1 else \\\"\\\"} | OFFLINE={\\\",\\\".join(lm_fail)}{\\\" OL1\\\" if not ol1 else \\\"\\\"}')\" 2>/dev/null || true",
+          "timeout": 8000
+        },
+        {
+          "type": "command",
+          "command": "python3 -c \"import urllib.request,json\ntry:\n r=urllib.request.urlopen(urllib.request.Request('http://10.5.0.2:1234/api/v1/models',headers={'Authorization':'Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'}),timeout=5)\n d=json.loads(r.read());loaded=[m.get('id','?') for m in d.get('models',[]) if m.get('loaded_instances')]\n has_8b=any('qwen3-8b' in str(m) for m in loaded)\n if not has_8b: print('WARNING: M1 qwen3-8b NOT loaded! Loaded:',','.join(str(x) for x in loaded))\nexcept Exception as e: print('M1 check failed:',e)\" 2>/dev/null || true",
+          "timeout": 8000
+        }
+      ]
+    }
+  ],
+  "PreToolUse": [
+    {
+      "matcher": "Bash",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 -c \"import sqlite3\ntry:\n db=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db')\n db.execute('CREATE TABLE IF NOT EXISTS routing_log(id INTEGER PRIMARY KEY,ts TEXT,category TEXT,node TEXT,latency_ms REAL,success INTEGER)')\n db.commit();db.close()\nexcept: pass\" 2>/dev/null || true",
+          "timeout": 3000
+        }
+      ]
+    }
+  ],
+  "Stop": [
+    {
+      "matcher": "",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 -c \"import json,datetime,sqlite3\ntry:\n db=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db')\n db.execute('CREATE TABLE IF NOT EXISTS sessions(id INTEGER PRIMARY KEY,ts TEXT,event TEXT,data TEXT)')\n db.execute('INSERT INTO sessions(ts,event,data) VALUES(?,?,?)',(datetime.datetime.now().isoformat(),'session_end',json.dumps({'source':'hook'})))\n db.commit();db.close()\nexcept: pass\" 2>/dev/null || true",
+          "timeout": 5000
+        }
+      ]
+    }
+  ],
+  "SubagentStop": [
+    {
+      "matcher": "cluster-ops|smart-dispatcher|auto-healer|performance-monitor|raisonnement-specialist|benchmark-runner|routing-optimizer",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "python3 -c \"import json,datetime; entry={'timestamp':datetime.datetime.now().isoformat(),'event':'agent_complete'}; print(json.dumps(entry))\" 2>/dev/null || true",
+          "timeout": 3000
+        }
+      ]
+    }
+  ]
+}
