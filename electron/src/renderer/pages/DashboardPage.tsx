@@ -88,45 +88,69 @@ const TextBlock = memo(function TextBlock({ text }: { text: string }) {
   // Split on code blocks first
   const parts = text.split(/(```[\s\S]*?```)/g);
   return (
-    <>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       {parts.map((part, i) => {
         if (part.startsWith('```') && part.endsWith('```')) {
+          const langMatch = part.match(/^```(\w+)\n/);
+          const lang = langMatch?.[1] || '';
           const code = part.slice(3, -3).replace(/^\w*\n/, '');
           return (
-            <pre key={i} style={{ background: '#0a0e14', padding: '10px 12px', borderRadius: 6, overflowX: 'auto', border: '1px solid #2a3a4a', margin: '8px 0', fontSize: 12, lineHeight: 1.5, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-              <code>{code.trim()}</code>
-            </pre>
+            <div key={i} style={{ margin: '6px 0' }}>
+              {lang && <div style={{ fontSize: 9, color: '#6b7280', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 2, paddingLeft: 4 }}>{lang}</div>}
+              <pre style={{ background: '#080c12', padding: '10px 12px', borderRadius: 6, overflowX: 'auto', border: '1px solid #1a2a3a', fontSize: 12, lineHeight: 1.5, whiteSpace: 'pre-wrap', wordBreak: 'break-word', margin: 0 }}>
+                <code style={{ color: '#d4d4d4' }}>{code.trim()}</code>
+              </pre>
+            </div>
           );
         }
-        // Inline formatting
+        // Inline formatting — skip empty fragments
+        if (!part.trim()) return null;
         return <InlineText key={i} text={part} />;
       })}
-    </>
+    </div>
   );
 });
 
 function InlineText({ text }: { text: string }) {
-  const lines = text.split('\n');
+  // Split on double newlines for paragraphs, single newlines within
+  const paragraphs = text.split(/\n{2,}/);
   return (
     <>
-      {lines.map((line, li) => (
-        <React.Fragment key={li}>
-          {li > 0 && <br />}
-          <InlineLine line={line} />
-        </React.Fragment>
-      ))}
+      {paragraphs.map((para, pi) => {
+        const lines = para.split('\n');
+        return (
+          <div key={pi} style={pi > 0 ? { marginTop: 6 } : undefined}>
+            {lines.map((line, li) => (
+              <React.Fragment key={li}>
+                {li > 0 && <br />}
+                <InlineLine line={line} />
+              </React.Fragment>
+            ))}
+          </div>
+        );
+      })}
     </>
   );
 }
 
 function InlineLine({ line }: { line: string }) {
+  // Handle horizontal rule
+  if (/^[-*_]{3,}\s*$/.test(line)) return <hr style={{ border: 'none', borderTop: '1px solid #1a2a3a', margin: '8px 0' }} />;
   // Handle headings
-  if (line.startsWith('### ')) return <div style={{ fontSize: 14, fontWeight: 700, color: '#f97316', margin: '8px 0 4px' }}>{line.slice(4)}</div>;
-  if (line.startsWith('## ')) return <div style={{ fontSize: 15, fontWeight: 700, color: '#c084fc', margin: '10px 0 4px' }}>{line.slice(3)}</div>;
-  if (line.startsWith('# ')) return <div style={{ fontSize: 16, fontWeight: 700, color: '#e0e0e0', margin: '12px 0 6px' }}>{line.slice(2)}</div>;
+  if (line.startsWith('### ')) return <div style={{ fontSize: 13, fontWeight: 700, color: '#f97316', margin: '8px 0 3px' }}><InlineFormatted text={line.slice(4)} /></div>;
+  if (line.startsWith('## ')) return <div style={{ fontSize: 14, fontWeight: 700, color: '#c084fc', margin: '10px 0 3px' }}><InlineFormatted text={line.slice(3)} /></div>;
+  if (line.startsWith('# ')) return <div style={{ fontSize: 15, fontWeight: 700, color: '#e0e0e0', margin: '10px 0 4px' }}><InlineFormatted text={line.slice(2)} /></div>;
+  // Handle blockquote
+  if (line.startsWith('> ')) return <div style={{ borderLeft: '2px solid #f97316', paddingLeft: 10, color: '#9ca3af', fontStyle: 'italic' }}><InlineFormatted text={line.slice(2)} /></div>;
   // Handle list items
-  if (/^[-*] /.test(line)) return <div style={{ paddingLeft: 12 }}>{'\u2022'} <InlineFormatted text={line.slice(2)} /></div>;
-  if (/^\d+\. /.test(line)) return <div style={{ paddingLeft: 12 }}><InlineFormatted text={line} /></div>;
+  if (/^[-*] /.test(line)) return <div style={{ paddingLeft: 12, display: 'flex', gap: 6 }}><span style={{ color: '#f97316', flexShrink: 0 }}>{'\u2022'}</span><span><InlineFormatted text={line.slice(2)} /></span></div>;
+  if (/^\d+\. /.test(line)) {
+    const num = line.match(/^(\d+)\. /)?.[1] || '';
+    const rest = line.replace(/^\d+\. /, '');
+    return <div style={{ paddingLeft: 12, display: 'flex', gap: 6 }}><span style={{ color: '#6b7280', flexShrink: 0 }}>{num}.</span><span><InlineFormatted text={rest} /></span></div>;
+  }
+  // Empty line
+  if (!line.trim()) return null;
   return <span><InlineFormatted text={line} /></span>;
 }
 
@@ -184,10 +208,11 @@ const ST = {
   empty: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12 } as React.CSSProperties,
   emptyLogo: { fontSize: 42, fontWeight: 800, letterSpacing: 6, background: 'linear-gradient(135deg,#f97316,#c084fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' } as React.CSSProperties,
   emptyHint: { fontSize: 12, color: '#6b7280' } as React.CSSProperties,
-  userMsg: { alignSelf: 'flex-end', maxWidth: '70%', backgroundColor: 'rgba(249,115,22,.06)', borderLeft: '3px solid #f97316', borderRadius: '10px 10px 2px 10px', padding: '10px 14px', fontSize: 13, lineHeight: 1.6, wordBreak: 'break-word' } as React.CSSProperties,
-  botMsg: { alignSelf: 'flex-start', maxWidth: '85%', backgroundColor: '#161b22', borderLeft: '3px solid #c084fc', borderRadius: '10px 10px 10px 2px', padding: '10px 14px', fontSize: 13, lineHeight: 1.6, wordBreak: 'break-word' } as React.CSSProperties,
-  sysMsg: { alignSelf: 'center', maxWidth: '80%', border: '1px dashed #2a3a4a', borderRadius: 6, padding: '6px 14px', fontSize: 11, color: '#ef4444', textAlign: 'center' } as React.CSSProperties,
-  meta: { display: 'flex', gap: 10, marginTop: 6, fontSize: 10 } as React.CSSProperties,
+  userMsg: { alignSelf: 'flex-end', maxWidth: '65%', backgroundColor: 'rgba(249,115,22,.08)', border: '1px solid rgba(249,115,22,.15)', borderRadius: '14px 14px 4px 14px', padding: '10px 16px', fontSize: 13, lineHeight: 1.6, wordBreak: 'break-word' } as React.CSSProperties,
+  botMsg: { alignSelf: 'flex-start', maxWidth: '85%', backgroundColor: '#111820', border: '1px solid #1a2a3a', borderRadius: '14px 14px 14px 4px', padding: '12px 16px', fontSize: 13, lineHeight: 1.7, wordBreak: 'break-word' } as React.CSSProperties,
+  sysMsg: { alignSelf: 'center', maxWidth: '80%', border: '1px dashed rgba(239,68,68,.3)', borderRadius: 8, padding: '6px 14px', fontSize: 11, color: '#ef4444', textAlign: 'center' } as React.CSSProperties,
+  meta: { display: 'inline-flex', gap: 6, marginTop: 8, padding: '3px 0', fontSize: 10, borderTop: '1px solid rgba(255,255,255,.04)' } as React.CSSProperties,
+  metaTag: { padding: '1px 8px', borderRadius: 10, fontSize: 9, fontWeight: 600, letterSpacing: .5 } as React.CSSProperties,
   inputWrap: { borderTop: '1px solid #1a2a3a', padding: '10px 16px', backgroundColor: '#0d1117' } as React.CSSProperties,
   chips: { display: 'flex', gap: 6, marginBottom: 8, overflowX: 'auto', paddingBottom: 2 } as React.CSSProperties,
   chip: { padding: '4px 12px', borderRadius: 16, border: '1px solid #2a3a4a', background: 'transparent', color: '#6b7280', fontSize: 10, cursor: 'pointer', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: .5, whiteSpace: 'nowrap', transition: 'all .2s', flexShrink: 0 } as React.CSSProperties,
@@ -270,12 +295,21 @@ export default function DashboardPage() {
         body: JSON.stringify({ agent: eng?.agent || 'main', text: t }),
         signal: AbortSignal.timeout(180000),
       });
-      const d = await r.json();
+      const raw = await r.json();
+      // Proxy returns { ok, data: { text, model, provider, tools_used, turns, mode, chain } }
+      const d = raw.data || raw;
+      const text = d.text || d.response || d.output || '';
+      // Build clean chain summary if multi-node
+      let chainInfo = '';
+      if (d.chain && Array.isArray(d.chain) && d.chain.length > 1) {
+        chainInfo = d.chain.map((c: any) => `${c.node}/${c.role}`).join(' → ');
+      }
       setMsgs(p => [...p, {
         id: 'b_' + Date.now(), role: 'bot',
-        text: d.text || d.response || d.output || JSON.stringify(d),
-        agent: d.agent || d.filter, model: d.model,
-        latency: d.latency_ms || d.latency, ts: Date.now(),
+        text: text || '(pas de reponse)',
+        agent: d.mode === 'reflexive' ? (chainInfo || 'multi-IA') : (d.agent || d.provider || ''),
+        model: d.model || '',
+        latency: d.latency_ms || d.duration_ms || d.latency, ts: Date.now(),
       }]);
     } catch (e: any) {
       setMsgs(p => [...p, { id: 'e_' + Date.now(), role: 'sys', text: 'Erreur: ' + e.message, ts: Date.now() }]);
@@ -385,9 +419,9 @@ export default function DashboardPage() {
                   <TextBlock text={m.text} />
                   {m.role === 'bot' && (m.agent || m.model || m.latency) && (
                     <div style={ST.meta}>
-                      {m.agent && <span style={{ color: '#c084fc' }}>{m.agent}</span>}
-                      {m.model && <span style={{ color: '#f97316' }}>{m.model}</span>}
-                      {m.latency != null && m.latency > 0 && <span style={{ color: '#10b981' }}>{m.latency}ms</span>}
+                      {m.agent && <span style={{ ...ST.metaTag, backgroundColor: 'rgba(192,132,252,.1)', border: '1px solid rgba(192,132,252,.2)', color: '#c084fc' }}>{m.agent}</span>}
+                      {m.model && <span style={{ ...ST.metaTag, backgroundColor: 'rgba(249,115,22,.1)', border: '1px solid rgba(249,115,22,.2)', color: '#f97316' }}>{m.model}</span>}
+                      {m.latency != null && m.latency > 0 && <span style={{ ...ST.metaTag, backgroundColor: 'rgba(16,185,129,.1)', border: '1px solid rgba(16,185,129,.2)', color: '#10b981' }}>{m.latency}ms</span>}
                     </div>
                   )}
                 </div>
