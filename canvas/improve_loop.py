@@ -231,7 +231,7 @@ def analyze_cycle(results):
 
 # ── Main Loop ──────────────────────────────────────────────────────────────────
 def main():
-    total_cycles = 100
+    total_cycles = int(sys.argv[1]) if len(sys.argv) > 1 else 100
     tests_per_cycle = 5  # Random sample per cycle (40 total, 5 per cycle = ~100 total tests)
     all_scores = {}  # {cycle: {cat: avg_score}}
 

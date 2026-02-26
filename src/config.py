@@ -15,7 +15,7 @@ JARVIS_VERSION = "10.2"
 PATHS = {
     # ── Active projects ──
     "turbo":           Path("F:/BUREAU/turbo"),
-    "carV1":           Path("F:/BUREAU/carV1"),
+    "carV1":           Path("F:/BUREAU/carV1"),  # junction → ARCHIVES_USER/trading_legacy/carV1
     "lienDepart":      Path("F:/BUREAU/ACTIVE/lienDepart"),
     # ── Tools & services ──
     "lm_studio_system": Path("F:/BUREAU/TOOLS/lm_studio_system"),
@@ -24,10 +24,10 @@ PATHS = {
     "trading_v2":      Path("F:/BUREAU/TRADING/TRADING_V2_PRODUCTION"),
     # ── Data & backups ──
     "lmstudio_backup": Path("F:/BUREAU/DATA/LMSTUDIO_BACKUP"),
-    # ── Legacy ──
-    "mcp_lmstudio":    Path("F:/BUREAU/LEGACY/MCP_MCPLMSTUDIO1"),
-    "prod_intensive":  Path("F:/BUREAU/LEGACY/PROD_INTENSIVE_V1"),
-    "jarvis_legacy":   Path("F:/BUREAU/LEGACY/JARVIS"),
+    # ── Archives (legacy) ──
+    "mcp_lmstudio":    Path("F:/BUREAU/ARCHIVES/MCP_MCPLMSTUDIO1"),
+    "prod_intensive":  Path("F:/BUREAU/ARCHIVES/PROD_INTENSIVE_V1"),
+    "jarvis_legacy":   Path("F:/BUREAU/ARCHIVES/JARVIS"),
     # ── Databases ──
     "etoile_db":       Path("F:/BUREAU/turbo/data/etoile.db"),
     "jarvis_db":       Path("F:/BUREAU/turbo/data/jarvis.db"),
