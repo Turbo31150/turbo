@@ -1,288 +1,143 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useVoice } from '../hooks/useVoice';
-import AudioVisualizer from '../components/voice/AudioVisualizer';
-import TranscriptionLog, { TranscriptionEntry } from '../components/voice/TranscriptionLog';
 
-const pulseKeyframes = `
-@keyframes ptt-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.5); }
-  70% { box-shadow: 0 0 0 20px rgba(255, 68, 68, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0); }
-}
-@keyframes ring-expand {
-  0% { transform: scale(1); opacity: 0.6; }
-  100% { transform: scale(1.8); opacity: 0; }
-}
+const CSS = `
+@keyframes orbPulse{0%{box-shadow:0 0 0 0 rgba(249,115,22,.4)}70%{box-shadow:0 0 0 25px rgba(249,115,22,0)}100%{box-shadow:0 0 0 0 rgba(249,115,22,0)}}
+@keyframes orbGlow{0%,100%{box-shadow:0 0 20px rgba(249,115,22,.3)}50%{box-shadow:0 0 40px rgba(249,115,22,.6)}}
+@keyframes ringExpand{0%{transform:scale(1);opacity:.5}100%{transform:scale(2);opacity:0}}
+@keyframes barBounce{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.v-log-entry{animation:fadeIn .3s ease}
 `;
 
-const styles = {
-  page: {
-    display: 'flex',
-    flexDirection: 'column' as const,
-    alignItems: 'center',
-    padding: 24,
-    fontFamily: 'Consolas, Courier New, monospace',
-    height: '100%',
-    overflowY: 'auto' as const,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold' as const,
-    color: '#e0e0e0',
-    marginBottom: 32,
-  },
-  pttContainer: {
-    position: 'relative' as const,
-    display: 'flex',
-    flexDirection: 'column' as const,
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  pttButton: {
-    width: 120,
-    height: 120,
-    borderRadius: '50%',
-    border: '3px solid #1a2a3a',
-    backgroundColor: '#1a2a3a',
-    color: '#4a6a8a',
-    display: 'flex',
-    flexDirection: 'column' as const,
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    position: 'relative' as const,
-    zIndex: 2,
-    outline: 'none',
-  },
-  pttButtonRecording: {
-    border: '3px solid #ff4444',
-    backgroundColor: '#1a0808',
-    color: '#ff4444',
-    animation: 'ptt-pulse 1.5s ease-in-out infinite',
-  },
-  pttIcon: {
-    marginBottom: 4,
-  },
-  pttLabel: {
-    fontSize: 8,
-    letterSpacing: 2,
-    textTransform: 'uppercase' as const,
-    fontFamily: 'Consolas, Courier New, monospace',
-    fontWeight: 'bold' as const,
-  },
-  ring: {
-    position: 'absolute' as const,
-    top: 0,
-    left: 0,
-    width: 120,
-    height: 120,
-    borderRadius: '50%',
-    border: '2px solid #ff4444',
-    animation: 'ring-expand 1.5s ease-out infinite',
-    zIndex: 1,
-  },
-  statusText: {
-    fontSize: 12,
-    marginTop: 12,
-    letterSpacing: 2,
-    textTransform: 'uppercase' as const,
-    fontWeight: 'bold' as const,
-  },
-  visualizerSection: {
-    width: '100%',
-    maxWidth: 400,
-    marginBottom: 32,
-  },
-  transcriptionPreview: {
-    width: '100%',
-    maxWidth: 500,
-    marginBottom: 20,
-    padding: '10px 16px',
-    backgroundColor: '#0d1117',
-    border: '1px solid #1a2a3a',
-    borderRadius: 6,
-    fontSize: 13,
-    color: '#e0e0e0',
-    minHeight: 40,
-    textAlign: 'center' as const,
-  },
-  ttsSection: {
-    width: '100%',
-    maxWidth: 500,
-    marginBottom: 24,
-  },
-  ttsHeader: {
-    fontSize: 12,
-    color: '#4a6a8a',
-    textTransform: 'uppercase' as const,
-    letterSpacing: 1,
-    marginBottom: 8,
-  },
-  ttsRow: {
-    display: 'flex',
-    gap: 8,
-  },
-  ttsInput: {
-    flex: 1,
-    backgroundColor: '#0a0e14',
-    border: '1px solid #1a2a3a',
-    borderRadius: 4,
-    color: '#e0e0e0',
-    fontFamily: 'Consolas, Courier New, monospace',
-    fontSize: 12,
-    padding: '8px 12px',
-    outline: 'none',
-  },
-  ttsBtn: {
-    padding: '8px 16px',
-    backgroundColor: 'transparent',
-    border: '1px solid #00d4ff',
-    color: '#00d4ff',
-    borderRadius: 4,
-    fontSize: 11,
-    fontWeight: 'bold' as const,
-    cursor: 'pointer',
-    fontFamily: 'Consolas, Courier New, monospace',
-    textTransform: 'uppercase' as const,
-    letterSpacing: 1,
-    transition: 'all 0.2s ease',
-  },
-  transcriptionSection: {
-    width: '100%',
-    maxWidth: 600,
-    backgroundColor: '#0d1117',
-    border: '1px solid #1a2a3a',
-    borderRadius: 8,
-    padding: 16,
-  },
+const S = {
+  page: { display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 24, fontFamily: 'Consolas, "Courier New", monospace', height: '100%', overflow: 'hidden' } as React.CSSProperties,
+  title: { fontSize: 18, fontWeight: 700, color: '#e0e0e0', marginBottom: 4 } as React.CSSProperties,
+  subtitle: { fontSize: 11, color: '#6b7280', marginBottom: 30 } as React.CSSProperties,
+  orbWrap: { position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 30 } as React.CSSProperties,
+  orb: { width: 120, height: 120, borderRadius: '50%', border: '3px solid #2a3a4a', backgroundColor: '#0d1117', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all .3s', zIndex: 2, position: 'relative', flexDirection: 'column', gap: 4 } as React.CSSProperties,
+  orbActive: { borderColor: '#f97316', animation: 'orbGlow 2s ease infinite' },
+  orbIcon: { fontSize: 32 } as React.CSSProperties,
+  orbLabel: { fontSize: 10, letterSpacing: 1.5, textTransform: 'uppercase', fontWeight: 700 } as React.CSSProperties,
+  ring: { position: 'absolute', width: 120, height: 120, borderRadius: '50%', border: '2px solid #f97316', animation: 'ringExpand 1.5s ease infinite', zIndex: 1 } as React.CSSProperties,
+  bars: { display: 'flex', alignItems: 'center', gap: 3, height: 40, marginBottom: 24 } as React.CSSProperties,
+  bar: { width: 4, backgroundColor: '#f97316', borderRadius: 2, transition: 'height .1s' } as React.CSSProperties,
+  status: { fontSize: 13, color: '#6b7280', marginBottom: 20 } as React.CSSProperties,
+  transcription: { width: '100%', maxWidth: 600, backgroundColor: '#0d1117', border: '1px solid #1a2a3a', borderRadius: 8, padding: 16, minHeight: 60, fontSize: 14, color: '#e0e0e0', lineHeight: 1.6, textAlign: 'center', marginBottom: 20 } as React.CSSProperties,
+  ttsWrap: { display: 'flex', gap: 8, width: '100%', maxWidth: 600, marginBottom: 20 } as React.CSSProperties,
+  ttsInput: { flex: 1, backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 8, color: '#e0e0e0', fontFamily: 'inherit', fontSize: 13, padding: '10px 14px', outline: 'none' } as React.CSSProperties,
+  ttsBtn: { padding: '0 16px', background: 'linear-gradient(135deg,#c084fc,#9333ea)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontFamily: 'inherit', fontSize: 12, cursor: 'pointer' } as React.CSSProperties,
+  logWrap: { flex: 1, width: '100%', maxWidth: 600, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6 } as React.CSSProperties,
+  logEntry: { display: 'flex', justifyContent: 'space-between', padding: '6px 12px', borderRadius: 6, backgroundColor: '#0d1117', border: '1px solid #1a2a3a', fontSize: 12 } as React.CSSProperties,
+  logText: { color: '#e0e0e0', flex: 1 } as React.CSSProperties,
+  logTime: { color: '#6b7280', fontSize: 10, flexShrink: 0 } as React.CSSProperties,
+  controls: { display: 'flex', gap: 12, marginBottom: 20 } as React.CSSProperties,
+  toggle: { padding: '4px 12px', borderRadius: 6, border: '1px solid #2a3a4a', backgroundColor: 'transparent', color: '#6b7280', fontSize: 10, cursor: 'pointer', fontFamily: 'inherit', transition: 'all .2s', textTransform: 'uppercase', letterSpacing: 1 } as React.CSSProperties,
+  toggleOn: { borderColor: '#10b981', color: '#10b981', backgroundColor: 'rgba(16,185,129,.08)' },
 };
 
-const MicSvg = ({ size = 32 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <rect x="9" y="2" width="6" height="12" rx="3" />
-    <path d="M5 10a7 7 0 0 0 14 0" />
-    <line x1="12" y1="19" x2="12" y2="22" />
-  </svg>
-);
+interface LogEntry { text: string; ts: number; }
 
 export default function VoicePage() {
   const { recording, transcription, audioLevel, startRecording, stopRecording, speak } = useVoice();
-  const [ttsText, setTtsText] = useState('');
-  // Maintain a log of transcriptions locally
-  const [entries, setEntries] = useState<TranscriptionEntry[]>([]);
-  const prevTranscriptionRef = useRef('');
+  const [ttsInput, setTtsInput] = useState('');
+  const [log, setLog] = useState<LogEntry[]>([]);
+  const [ttsOn, setTtsOn] = useState(true);
+  const [wakeOn, setWakeOn] = useState(false);
+  const prevTranscription = useRef('');
 
-  // When transcription changes and recording stops, add to log
+  // Log transcriptions
   useEffect(() => {
-    if (!recording && transcription && transcription !== prevTranscriptionRef.current) {
-      setEntries((prev) => [
-        ...prev,
-        {
-          timestamp: Date.now(),
-          text: transcription,
-        },
-      ]);
-      prevTranscriptionRef.current = transcription;
+    if (transcription && transcription !== prevTranscription.current) {
+      setLog(p => [{ text: transcription, ts: Date.now() }, ...p].slice(0, 50));
+      prevTranscription.current = transcription;
     }
-  }, [recording, transcription]);
+  }, [transcription]);
 
-  const handlePttDown = () => {
-    if (!recording) startRecording();
-  };
-
-  const handlePttUp = () => {
+  const toggleRec = () => {
     if (recording) stopRecording();
+    else startRecording();
   };
 
-  const handleSpeak = () => {
-    if (ttsText.trim()) {
-      speak(ttsText.trim());
-      setTtsText('');
-    }
+  const handleTts = () => {
+    if (ttsInput.trim()) { speak(ttsInput.trim()); setTtsInput(''); }
   };
+
+  const formatTime = (ts: number) => new Date(ts).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+  // Generate bar heights from audio level
+  const barCount = 7;
+  const bars = Array.from({ length: barCount }, (_, i) => {
+    const center = Math.abs(i - Math.floor(barCount / 2));
+    const base = recording ? audioLevel * (1 - center * 0.15) : 0;
+    return Math.max(4, base * 36 + Math.random() * (recording ? 6 : 0));
+  });
 
   return (
     <>
-      <style>{pulseKeyframes}</style>
-      <div style={styles.page}>
-        <div style={styles.title}>Voice Control</div>
+      <style>{CSS}</style>
+      <div style={S.page}>
+        <div style={S.title}>Commande Vocale</div>
+        <div style={S.subtitle}>Push-to-talk · Whisper STT · Edge TTS</div>
 
-        {/* PTT Button */}
-        <div style={styles.pttContainer}>
-          {recording && <div style={styles.ring} />}
-          {recording && <div style={{ ...styles.ring, animationDelay: '0.5s' }} />}
-          <button
-            style={{
-              ...styles.pttButton,
-              ...(recording ? styles.pttButtonRecording : {}),
-            }}
-            onMouseDown={handlePttDown}
-            onMouseUp={handlePttUp}
-            onMouseLeave={handlePttUp}
-          >
-            <span style={styles.pttIcon}>
-              <MicSvg />
-            </span>
-            <span style={styles.pttLabel}>
-              {recording ? 'Release' : 'Push'}
-            </span>
+        {/* Controls */}
+        <div style={S.controls}>
+          <button style={{ ...S.toggle, ...(wakeOn ? S.toggleOn : {}) }} onClick={() => setWakeOn(!wakeOn)}>
+            Wake: {wakeOn ? 'ON' : 'OFF'}
           </button>
-          <span
-            style={{
-              ...styles.statusText,
-              color: recording ? '#ff4444' : '#4a6a8a',
-            }}
+          <button style={{ ...S.toggle, ...(ttsOn ? S.toggleOn : {}) }} onClick={() => setTtsOn(!ttsOn)}>
+            TTS: {ttsOn ? 'ON' : 'OFF'}
+          </button>
+        </div>
+
+        {/* PTT Orb */}
+        <div style={S.orbWrap}>
+          {recording && <div style={S.ring} />}
+          {recording && <div style={{ ...S.ring, animationDelay: '.5s' }} />}
+          <div
+            style={{ ...S.orb, ...(recording ? S.orbActive : {}), ...(recording ? { animation: 'orbPulse 1.5s ease infinite' } : {}) }}
+            onClick={toggleRec}
           >
-            {recording ? 'LISTENING...' : 'PUSH TO TALK'}
-          </span>
-        </div>
-
-        {/* Audio Level */}
-        <div style={styles.visualizerSection}>
-          <AudioVisualizer level={audioLevel} recording={recording} />
-        </div>
-
-        {/* Live transcription preview */}
-        {transcription && (
-          <div style={styles.transcriptionPreview as any}>
-            {transcription}
-          </div>
-        )}
-
-        {/* TTS Controls */}
-        <div style={styles.ttsSection}>
-          <div style={styles.ttsHeader}>Text-to-Speech</div>
-          <div style={styles.ttsRow}>
-            <input
-              style={styles.ttsInput}
-              value={ttsText}
-              onChange={(e) => setTtsText(e.target.value)}
-              placeholder="Saisir le texte a prononcer..."
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSpeak();
-              }}
-            />
-            <button
-              style={styles.ttsBtn}
-              onClick={handleSpeak}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#00d4ff';
-                e.currentTarget.style.color = '#0a0e14';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = '#00d4ff';
-              }}
-            >
-              Speak
-            </button>
+            <span style={S.orbIcon}>{recording ? '\uD83D\uDD34' : '\uD83C\uDF99'}</span>
+            <span style={{ ...S.orbLabel, color: recording ? '#f97316' : '#6b7280' }}>
+              {recording ? 'Ecoute...' : 'Push to Talk'}
+            </span>
           </div>
         </div>
 
-        {/* Transcription Log */}
-        <div style={styles.transcriptionSection}>
-          <TranscriptionLog entries={entries} />
+        {/* Audio bars */}
+        <div style={S.bars}>
+          {bars.map((h, i) => (
+            <div key={i} style={{ ...S.bar, height: h, opacity: recording ? 1 : .3 }} />
+          ))}
+        </div>
+
+        {/* Transcription */}
+        <div style={S.transcription}>
+          {transcription || <span style={{ color: '#4b5563' }}>En attente de voix...</span>}
+        </div>
+
+        {/* TTS input */}
+        <div style={S.ttsWrap}>
+          <input style={S.ttsInput} value={ttsInput} onChange={e => setTtsInput(e.target.value)}
+            placeholder="Texte a prononcer..." onKeyDown={e => e.key === 'Enter' && handleTts()} />
+          <button style={S.ttsBtn} onClick={handleTts}>Parler</button>
+        </div>
+
+        {/* Log */}
+        <div style={S.logWrap}>
+          {log.length === 0 ? (
+            <div style={{ textAlign: 'center', color: '#4b5563', fontSize: 12, padding: 20 }}>
+              Historique de transcription vide
+            </div>
+          ) : (
+            log.map((entry, i) => (
+              <div key={i} className="v-log-entry" style={S.logEntry}>
+                <span style={S.logText}>{entry.text}</span>
+                <span style={S.logTime}>{formatTime(entry.ts)}</span>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </>
