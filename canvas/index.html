@@ -418,6 +418,7 @@ var ENGINES=[
   {id:'auto',name:'Auto',desc:'Routage intelligent',ic:'\u2728',col:'var(--cyan)',bg:'linear-gradient(135deg,#00d4ff22,#00d4ff08)',agent:null,dot:'on'},
   {id:'lm',name:'LM Studio',desc:'Local (OL1/M2/M3)',ic:'\uD83D\uDDA5',col:'var(--purple)',bg:'linear-gradient(135deg,#a855f722,#a855f708)',agent:'ol1-fast',dot:'on'},
   {id:'claude',name:'Claude Code',desc:'Raisonnement cloud',ic:'\uD83E\uDDE0',col:'var(--green)',bg:'linear-gradient(135deg,#00e5a022,#00e5a008)',agent:'claude-reasoning',dot:'off'},
+  {id:'raison',name:'Raisonnement',desc:'Logique & Math (M1)',ic:'\uD83E\uDDEE',col:'#a855f7',bg:'linear-gradient(135deg,#a855f722,#a855f708)',agent:'raisonnement',dot:'on'},
   {id:'gemini',name:'Gemini',desc:'Architecture & vision',ic:'\u2B50',col:'var(--orange)',bg:'linear-gradient(135deg,#ff8c4222,#ff8c4208)',agent:'gemini-flash',dot:'off'},
   {id:'consensus',name:'Consensus',desc:'Vote multi-IA',ic:'\u2696',col:'var(--yellow)',bg:'linear-gradient(135deg,#fbbf2422,#fbbf2408)',agent:'consensus-master',dot:'on'}
 ];
@@ -477,7 +478,8 @@ var ROUTES=[
   {kw:['automatise','workflow','n8n','automatisation','scenario','enchaine'],agent:'devops-ci',cat:'auto'},
   // Intelligence & Analysis
   {kw:['consensus','vote','compare','plusieurs avis','multi ia','multi modele'],agent:'consensus-master',cat:'ia'},
-  {kw:['raisonne','explique pourquoi','analyse profonde','reflechis','pense','logique'],agent:'claude-reasoning',cat:'ia'},
+  {kw:['raisonne','explique pourquoi','analyse profonde','reflechis','pense','logique','conclure','syllogisme','premisse','dedui','deduction','preuve'],agent:'raisonnement',cat:'raison'},
+  {kw:['calcule','equation','mathematique','probabilite','somme','integrale','derivee','algebre','geometrie','trigono','factorielle'],agent:'math-solver',cat:'math'},
   {kw:['analyse','data','donnees','statistique','csv','graphe','tableau','excel'],agent:'data-analyst',cat:'ia'},
   {kw:['resume','synthese','recapitule','en bref','tldr','summarize'],agent:'recherche-synthese',cat:'ia'},
   // Creative & Content

@@ -570,9 +570,22 @@ const REFLEXIVE_CHAIN = [
   { nodeId: 'M2',  role: 'review',    maxTurns: 2, systemSuffix: '\nTu es l\'etape 3 (REVIEW). Verifie, corrige et complete la reponse. Donne la reponse FINALE au user.' }
 ];
 
+// ── Reasoning Chain: M1 (deep reasoning) → M2 (verification) — no tools ──
+const REASONING_CHAIN = [
+  { nodeId: 'M1', role: 'raisonnement', maxTurns: 1, systemSuffix: '\nTu es l\'etape 1 (RAISONNEMENT). Analyse logiquement, raisonne pas a pas. N\'utilise PAS d\'outils, raisonne uniquement.' },
+  { nodeId: 'M2', role: 'verification', maxTurns: 1, systemSuffix: '\nTu es l\'etape 2 (VERIFICATION). Verifie le raisonnement ci-dessous, corrige les erreurs logiques, et donne la reponse FINALE.' }
+];
+
+// Select chain based on category
+function getChainForCategory(cat) {
+  if (cat === 'raison' || cat === 'math') return REASONING_CHAIN;
+  return REFLEXIVE_CHAIN;
+}
+
 async function reflexiveChat(agentId, userText) {
   const cat = AGENT_CAT[agentId] || 'default';
   const baseSys = (SYS_PROMPTS[cat] || SYS_PROMPTS.default);
+  const selectedChain = getChainForCategory(cat);
   const chainResults = [];
   let accumulatedContext = '';
   let totalTurns = 0;
@@ -580,12 +593,12 @@ async function reflexiveChat(agentId, userText) {
   let lastModel = null, lastProvider = null;
   let finalText = '';
 
-  for (const step of REFLEXIVE_CHAIN) {
+  for (const step of selectedChain) {
     const node = NODES[step.nodeId];
     if (!node) { console.log('[reflexive] skip ' + step.nodeId + ' (not configured)'); continue; }
 
     const stepStart = Date.now();
-    // Only the first step (recherche) needs full tool prompt; analyse/review get lightweight prompt
+    // Only the recherche step needs full tool prompt; raisonnement/verification/analyse/review get lightweight prompt
     const sysProm = step.role === 'recherche'
       ? baseSys + '\n' + COCKPIT_TOOLS_PROMPT + step.systemSuffix
       : baseSys + step.systemSuffix;
@@ -917,15 +930,28 @@ async function callNode(nodeId, messages, category) {
     return { text: text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim(), model: node.model, provider: 'ollama' };
   } else {
     // OpenAI-compatible (LM Studio)
+    // Sanitize messages: ensure every message has a string content field
+    const cleanMsgs = messages.map(m => ({
+      role: m.role,
+      content: (m.content != null ? String(m.content) : '')
+    }));
+    // M1 qwen3-8b: prepend /nothink to first user message to disable thinking mode
+    if (nodeId === 'M1') {
+      const firstUser = cleanMsgs.find(m => m.role === 'user');
+      if (firstUser && !firstUser.content.startsWith('/nothink')) {
+        firstUser.content = '/nothink\n' + firstUser.content;
+      }
+    }
     const body = {
       model: node.model,
-      messages,
+      messages: cleanMsgs,
       temperature: params.temperature,
       max_tokens: params.max_tokens,
       stream: false
     };
     const res = await httpRequest(node.url, body, headers, node.timeout);
-    const text = res.choices?.[0]?.message?.content || '';
+    const text = res.choices?.[0]?.message?.content
+      || res.choices?.[0]?.message?.reasoning_content || '';
     return { text: text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim(), model: node.model, provider: 'lm-studio' };
   }
 }
@@ -1105,8 +1131,10 @@ const server = http.createServer(async (req, res) => {
     req.on('data', c => body += c);
     req.on('end', async () => {
       try {
-        const { agent, text } = JSON.parse(body);
-        const agentId = agent || 'main';
+        const parsed = JSON.parse(body);
+        const agentId = parsed.agent || 'main';
+        // Support both {text:"..."} and {messages:[{role:"user",content:"..."}]}
+        const text = parsed.text || (parsed.messages && parsed.messages.filter(m => m.role === 'user').map(m => m.content).join('\n')) || '';
         const complexity = classifyComplexity(text, AGENT_CAT[agentId] || 'default');
         console.log('[cockpit] complexity=' + complexity + ' agent=' + agentId);
         const result = complexity === 'reflexive'
