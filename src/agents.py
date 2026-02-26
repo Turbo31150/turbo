@@ -137,9 +137,9 @@ ia_system = AgentDefinition(
         "Tu as acces direct a PowerShell (powershell_run) et system_info.\n"
         "Produis un score de confiance (0.0-1.0) dans ta reponse.\n\n"
         "Chemins projets:\n"
-        "- F:\\BUREAU\\carV1 (core, scanners, strategies)\n"
-        "- F:\\BUREAU\\TRADING_V2_PRODUCTION (MCP v3.5, voice)\n"
-        "- F:\\BUREAU\\PROD_INTENSIVE_V1 (pipeline autonome)\n"
+        "- F:\\BUREAU\\carV1 (junction → trading legacy, scanners, strategies)\n"
+        "- F:\\BUREAU\\TRADING\\TRADING_V2_PRODUCTION (MCP v3.5, voice)\n"
+        "- F:\\BUREAU\\ARCHIVES\\PROD_INTENSIVE_V1 (pipeline autonome)\n"
         "- F:\\BUREAU\\turbo (ce projet)\n\n"
         "Reponds en francais."
     ),
