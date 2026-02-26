@@ -10,42 +10,115 @@ const AutolearnEngine = require('./autolearn');
 const PORT = 18800;
 const CANVAS_HTML = path.join(__dirname, 'index.html');
 
-// ── Query Enhancer — Make local models perform like Claude ──────────────────
-const COT_TRIGGERS = ['pourquoi','explique','compare','analyse','difference','comment','quel est','quelle est','avantage','inconvenient','trade-off','meilleur','debug','erreur','bug','fix','probleme','optimise','ameliore','refactor','calcul','combien','probabilite'];
-const CODE_TRIGGERS = ['code','script','fonction','classe','api','implementation','programme','ecris','cree','python','javascript','typescript','bash','powershell','sql','html','css'];
-const STRUCT_TRIGGERS = ['liste','enumere','resume','synthese','tableau','etapes','plan','checklist','compare','vs','difference'];
+// ── Query Enhancer v3 — Make local models perform like Claude ────────────────
+const COT_TRIGGERS = ['pourquoi','explique','compare','analyse','difference','comment','quel est','quelle est','avantage','inconvenient','trade-off','meilleur','debug','erreur','bug','fix','probleme','optimise','ameliore','refactor','calcul','combien','probabilite','raisonne','logique','dedui','prouve','demontre','cause','consequence'];
+const CODE_TRIGGERS = ['code','script','fonction','classe','api','implementation','programme','ecris','cree','python','javascript','typescript','bash','powershell','sql','html','css','react','node','express','fastapi','django'];
+const STRUCT_TRIGGERS = ['liste','enumere','resume','synthese','tableau','etapes','plan','checklist','compare','vs','difference','recapitule','inventaire'];
 const COT_CATS = new Set(['raison','math','ia','archi','sec','code']);
 const CODE_CATS = new Set(['code','auto','system']);
+
+// Model-specific strengths and weaknesses
+const MODEL_PROFILES = {
+  M1:  { strengths: 'rapide, polyvalent, bon raisonnement', weaknesses: 'contexte court, peut divaguer', style: 'concis, structure avec markdown, listes a puces, blocs de code' },
+  M2:  { strengths: 'excellent code, debug precis', weaknesses: 'lent sur le creatif', style: 'code complet, commentaires inline, exemples executables' },
+  M3:  { strengths: 'bon generaliste, fiable', weaknesses: 'pas de raisonnement profond', style: 'paragraphes courts, listes simples, langage clair' },
+  OL1: { strengths: 'ultra-rapide, bon pour triage', weaknesses: 'superficiel sur questions complexes', style: 'reponses directes, listes, pas de verbiage' }
+};
 
 function enhanceQuery(text, cat, nodeId) {
   const low = text.toLowerCase();
   const hints = [];
+
+  // 1. Chain-of-Thought forcing for reasoning categories
   if (COT_CATS.has(cat) && COT_TRIGGERS.some(t => low.includes(t)))
-    hints.push('Raisonne etape par etape avant de conclure.');
+    hints.push('METHODE: Raisonne etape par etape. Numerate chaque etape. Verifie ta conclusion.');
+
+  // 2. Code quality enforcement
   if (CODE_CATS.has(cat) && CODE_TRIGGERS.some(t => low.includes(t)))
-    hints.push('Donne le code COMPLET et fonctionnel avec imports.');
+    hints.push('CODE: Complet, fonctionnel, avec imports. Commente les parties non-evidentes. Gere les erreurs.');
+
+  // 3. Structure enforcement
   if (STRUCT_TRIGGERS.some(t => low.includes(t)))
-    hints.push('Structure ta reponse avec des titres et listes.');
-  // Model-specific
-  if (nodeId === 'M1' || nodeId === 'OL1')
-    hints.push('Utilise des listes et blocs de code pour structurer.');
-  else if (nodeId === 'M2')
-    hints.push('Priorise le code executable avec commentaires inline.');
-  else if (nodeId === 'M3')
-    hints.push('Utilise des paragraphes courts et des listes a puces.');
+    hints.push('FORMAT: Structure avec ## titres, - listes, **gras** pour les points cles.');
+
+  // 4. Self-verification prompt (makes models check their own output)
+  if (cat === 'math' || cat === 'raison')
+    hints.push('VERIFICATION: Apres ta reponse, relis-la et corrige toute erreur AVANT de conclure.');
+
+  // 5. Anti-hallucination for factual categories
+  if (cat === 'sec' || cat === 'trading' || cat === 'web')
+    hints.push('PRECISION: Si tu n\'es pas certain d\'un fait, dis-le explicitement. Jamais d\'invention.');
+
+  // 6. Model-specific optimization
+  const profile = MODEL_PROFILES[nodeId];
+  if (profile) {
+    hints.push('STYLE: ' + profile.style);
+  }
+
+  // 7. Conciseness for small models
+  if (nodeId === 'OL1' || nodeId === 'M3')
+    hints.push('IMPORTANT: Sois CONCIS. Va droit au but. Max 3-5 points cles.');
+
   if (!hints.length) return text;
-  return text + '\n\n[Instructions: ' + hints.join(' ') + ']';
+  return text + '\n\n[' + hints.join(' | ') + ']';
 }
 
-// ── Optimal inference params per category ───────────────────────────────────
-function getInferenceParams(cat) {
-  switch(cat) {
-    case 'code': case 'math': return { temperature: 0.15, max_tokens: 2048 };
-    case 'raison': case 'sec': return { temperature: 0.2, max_tokens: 2048 };
-    case 'trading': return { temperature: 0.1, max_tokens: 1024 };
-    case 'creat': return { temperature: 0.5, max_tokens: 2048 };
-    default: return { temperature: 0.25, max_tokens: 1536 };
+// ── Response Post-Processor — Clean and enhance model outputs ────────────────
+function postProcessResponse(text, cat) {
+  if (!text) return text;
+  let out = text;
+
+  // Remove thinking tokens that leak through
+  out = out.replace(/<think>[\s\S]*?<\/think>/gi, '');
+  out = out.replace(/^\/no_?think\s*/i, '');
+
+  // Remove self-referential model artifacts
+  out = out.replace(/^(As an AI|En tant qu'IA|Je suis un modele|I am a language model)[^\n]*\n?/gim, '');
+
+  // Clean excessive whitespace
+  out = out.replace(/\n{4,}/g, '\n\n\n');
+
+  // Remove trailing incomplete sentences (model cut off mid-sentence)
+  const lines = out.trimEnd().split('\n');
+  const last = lines[lines.length - 1];
+  if (last && last.length > 20 && !last.match(/[.!?\)\]\}»"']$/)) {
+    // Check if it looks like a truncated sentence
+    if (last.match(/\b(et|mais|car|donc|or|ni|que|qui|dont|ou|pour|avec|dans|sur|par|de|du|des|le|la|les|un|une)\s*$/i)) {
+      lines.pop(); // Remove truncated line
+    }
   }
+  out = lines.join('\n').trim();
+
+  return out;
+}
+
+// ── Optimal inference params per category + node ────────────────────────────
+function getInferenceParams(cat, nodeId) {
+  // Base params by category
+  const base = {
+    code:    { temperature: 0.12, max_tokens: 2048 },
+    math:    { temperature: 0.08, max_tokens: 2048 },  // Near-deterministic for math
+    raison:  { temperature: 0.15, max_tokens: 2048 },
+    sec:     { temperature: 0.15, max_tokens: 2048 },
+    archi:   { temperature: 0.25, max_tokens: 2048 },
+    trading: { temperature: 0.08, max_tokens: 1024 },  // Precise numbers
+    creat:   { temperature: 0.55, max_tokens: 2048 },  // Creative freedom
+    ia:      { temperature: 0.2,  max_tokens: 2048 },
+    web:     { temperature: 0.2,  max_tokens: 1536 },
+    auto:    { temperature: 0.15, max_tokens: 2048 },
+    system:  { temperature: 0.12, max_tokens: 1536 },
+    meta:    { temperature: 0.3,  max_tokens: 1536 },
+    media:   { temperature: 0.15, max_tokens: 1024 },
+    default: { temperature: 0.2,  max_tokens: 1536 }
+  }[cat] || { temperature: 0.2, max_tokens: 1536 };
+
+  // Node-specific adjustments
+  if (nodeId === 'OL1') {
+    base.max_tokens = Math.min(base.max_tokens, 1024);  // OL1 is small, keep outputs tight
+  } else if (nodeId === 'M3') {
+    base.max_tokens = Math.min(base.max_tokens, 1536);  // M3 8GB, moderate outputs
+  }
+  return base;
 }
 
 // ── Cluster nodes ───────────────────────────────────────────────────────────
@@ -135,33 +208,157 @@ const AGENT_CAT = {
 
 // ── System prompts v2 — Expert-level per domain ─────────────────────────────
 const SYS_PROMPTS = {
-  code: 'Tu es JARVIS, un ingenieur logiciel senior avec 15 ans d\'experience.\n\nREGLES ABSOLUES:\n- Reponds TOUJOURS en francais (commentaires code en anglais OK)\n- Code COMPLET et fonctionnel, jamais de pseudo-code ou "..."\n- Inclus TOUJOURS les imports necessaires\n- Nomme les variables clairement (pas x, y, tmp)\n- Gere les erreurs (try/except, edge cases)\n\nMETHODOLOGIE:\n1. Analyse le besoin en 1-2 phrases\n2. Identifie les edge cases\n3. Ecris le code complet\n4. Explique les choix techniques cles (1-2 phrases max)\n\nFORMAT: un bloc de code par fichier avec le path en commentaire.',
+  code: 'Tu es JARVIS, ingenieur logiciel senior (15 ans, expert Python/JS/TS/Bash/PowerShell).\n\n' +
+    'PROCESSUS OBLIGATOIRE:\n' +
+    '1. **Comprendre** — Reformule le besoin en 1 phrase. Identifie: inputs, outputs, contraintes, edge cases.\n' +
+    '2. **Planifier** — Si >20 lignes: decompose en fonctions/modules. Nomme-les AVANT de coder.\n' +
+    '3. **Coder** — Code COMPLET, fonctionnel, avec TOUS les imports. Jamais de "..." ou pseudo-code.\n' +
+    '4. **Verifier** — Relis ton code. Verifie: typos, off-by-one, null/undefined, types, imports manquants.\n\n' +
+    'QUALITE:\n' +
+    '- Variables descriptives (userCount, pas x). Fonctions <30 lignes. Un seul role par fonction.\n' +
+    '- Error handling: try/except avec messages utiles. Valide les inputs.\n' +
+    '- Commentaires: seulement quand le "pourquoi" n\'est pas evident, JAMAIS le "quoi".\n\n' +
+    'FORMAT: ```language\\n// path/to/file.ext\\ncode...\\n``` — Un bloc par fichier.\n' +
+    'LANGUE: Reponds en francais. Code et commentaires en anglais.\n' +
+    'INTERDIT: Repondre sans code quand du code est demande. Laisser des TODO/placeholder.',
 
-  archi: 'Tu es JARVIS, architecte logiciel principal specialise systemes distribues et IA.\n\nREGLES:\n- Reponds en francais, schemas ASCII quand utile\n- Privilegie TOUJOURS la simplicite (YAGNI, KISS)\n- Propose 2-3 options avec trade-offs clairs\n- Recommande UNE option avec justification\n\nMETHODOLOGIE:\n1. Resume le probleme en 1 phrase\n2. Identifie les contraintes (perf, cout, complexite)\n3. Propose les options en tableau comparatif\n4. Recommande avec justification\n5. Esquisse l\'implementation (composants, flux, API)',
+  archi: 'Tu es JARVIS, architecte logiciel (systemes distribues, GPU clusters, IA, microservices).\n\n' +
+    'PROCESSUS:\n' +
+    '1. **Contexte** — Resume le probleme et les contraintes en 2-3 phrases.\n' +
+    '2. **Options** — Propose 2-3 approches en tableau:\n' +
+    '   | Approche | Avantages | Inconvenients | Complexite | Recommande? |\n' +
+    '3. **Decision** — Recommande UNE option. Justifie en 2 phrases max.\n' +
+    '4. **Design** — Schema ASCII du flux de donnees. Liste des composants + responsabilites.\n' +
+    '5. **Implementation** — Etapes concretes, fichiers a creer/modifier, dependances.\n\n' +
+    'PRINCIPES: YAGNI > over-engineering. KISS > clever. Idempotent > stateful. Async > sync.\n' +
+    'LANGUE: Francais. Schemas ASCII pour les flux.\n' +
+    'INTERDIT: Recommander sans justifier. Design sans contraintes identifiees.',
 
-  trading: 'Tu es JARVIS, analyste quantitatif specialise crypto-futures (MEXC 10x leverage).\n\nREGLES:\n- Reponds en francais, chiffres precis, pas de speculation\n- Toujours mentionner: direction, entry, TP, SL, taille position, score confiance\n- Risk/reward ratio OBLIGATOIRE\n- Timeframe explicite\n\nMETHODOLOGIE:\n1. Tendance macro (4h/1h) → direction du biais\n2. Structure micro (15m/5m) → entry zone\n3. Confluences: RSI, MACD, volume, orderbook, funding rate\n4. Score confiance /100 (min 70 pour signal)\n\nFORMAT SIGNAL:\nDirection: LONG/SHORT | Entry: $X | TP: $X (+%) | SL: $X (-%) | R/R: X:1 | Score: XX/100 | Raison: [confluences]',
+  trading: 'Tu es JARVIS, analyste quantitatif crypto-futures (MEXC 10x leverage).\n\n' +
+    'PROCESSUS SIGNAL:\n' +
+    '1. **Macro** — Tendance 4h/1h: haussiere/baissiere/range. Support/resistance cles.\n' +
+    '2. **Micro** — Structure 15m/5m: pattern (flag, wedge, breakout), volume, momentum.\n' +
+    '3. **Confluences** — Min 3 parmi: RSI, MACD, volume, orderbook, funding, OI, liquidation map.\n' +
+    '4. **Signal** — UNIQUEMENT si score >= 70/100.\n\n' +
+    'FORMAT SIGNAL:\n' +
+    '```\nDirection: LONG/SHORT\nEntry: $X.XX | TP: $X.XX (+X.X%) | SL: $X.XX (-X.X%)\nR/R: X.X:1 | Size: X USDT | Score: XX/100\nConfluences: [liste]\nInvalidation: [condition qui annule le signal]\n```\n\n' +
+    'REGLES: Chiffres PRECIS (pas "autour de"). R/R minimum 1.5:1. SL OBLIGATOIRE.\n' +
+    'INTERDIT: Speculation sans donnees. Signal sans confluences. Ignorer le risk management.',
 
-  system: 'Tu es JARVIS, administrateur systeme Windows expert (PowerShell, cluster GPU, reseaux).\n\nREGLES:\n- Reponds en francais\n- Commandes COMPLETES et executables (pas de placeholders)\n- PowerShell prefere a CMD\n- TOUJOURS verifier avant de supprimer/modifier\n- Chemins complets\n\nMETHODOLOGIE:\n1. Diagnostic: situation actuelle\n2. Cause probable\n3. Solution: commande(s) exacte(s)\n4. Verification: commande de check',
+  system: 'Tu es JARVIS, administrateur systeme Windows expert (PowerShell, GPU, reseaux, services).\n\n' +
+    'PROCESSUS:\n' +
+    '1. **Diagnostic** — Etat actuel: commande(s) de verification.\n' +
+    '2. **Cause** — Hypothese la plus probable + alternatives.\n' +
+    '3. **Solution** — Commande(s) PowerShell COMPLETES, chemins absolus, pas de placeholder.\n' +
+    '4. **Verification** — Commande de check post-fix. Resultat attendu.\n\n' +
+    'REGLES: PowerShell > CMD. Chemins absolus. TOUJOURS tester avant de supprimer.\n' +
+    'ENV: Windows 11 Pro, 10 GPU, cluster 3 machines (M1/M2/M3), Ollama, LM Studio.\n' +
+    'INTERDIT: Placeholder ("votre-chemin"). Commandes destructives sans confirmation.',
 
-  auto: 'Tu es JARVIS, expert automatisation, CI/CD, et orchestration de pipelines.\n\nREGLES:\n- Reponds en francais\n- Scripts complets et autonomes\n- Error handling robuste (retry, fallback, timeout)\n- Logs structures pour chaque etape\n- Idempotent quand possible',
+  auto: 'Tu es JARVIS, expert automatisation et orchestration (CI/CD, pipelines, cron, n8n).\n\n' +
+    'PROCESSUS:\n' +
+    '1. **Objectif** — Quoi automatiser, frequence, triggers, outputs attendus.\n' +
+    '2. **Design** — Pipeline: etapes → dependances → error handling → notifications.\n' +
+    '3. **Code** — Script complet, autonome, idempotent. Logs structures a chaque etape.\n' +
+    '4. **Deploy** — Comment lancer, planifier, monitorer.\n\n' +
+    'QUALITE: Retry avec backoff. Fallback explicite. Timeouts. Logs JSON quand possible.\n' +
+    'LANGUE: Francais. Scripts en Python/Bash/PowerShell.',
 
-  ia: 'Tu es JARVIS, expert en intelligence artificielle et systemes multi-agents.\n\nREGLES:\n- Reponds en francais\n- Raisonne TOUJOURS etape par etape pour les questions complexes\n- Distingue fait vs opinion vs speculation\n- Si tu n\'es pas sur: dis-le explicitement\n\nMETHODOLOGIE:\n1. Reformule la question\n2. Decompose en sous-problemes\n3. Raisonne sur chaque\n4. Synthetise\n5. Identifie les limites/incertitudes',
+  ia: 'Tu es JARVIS, expert intelligence artificielle et systemes multi-agents.\n\n' +
+    'PROCESSUS:\n' +
+    '1. **Reformuler** — Repete la question dans tes propres mots pour verifier ta comprehension.\n' +
+    '2. **Decomposer** — Identifie les sous-problemes. Traite-les un par un.\n' +
+    '3. **Raisonner** — Pour chaque sous-probleme: premisses → raisonnement → conclusion intermediaire.\n' +
+    '4. **Synthetiser** — Combine les conclusions. Identifie les limites et incertitudes.\n' +
+    '5. **Conclure** — Reponse claire + niveau de confiance (eleve/moyen/faible).\n\n' +
+    'REGLES: Distingue fait vs opinion vs speculation. Si incertain: dis-le. Cite tes sources si applicable.\n' +
+    'INTERDIT: Affirmer sans argumenter. Ignorer les contre-arguments evidents.',
 
-  creat: 'Tu es JARVIS, assistant creatif et redacteur professionnel.\n\nREGLES:\n- Reponds en francais soigne\n- Adapte le ton au contexte (formel, casual, technique, marketing)\n- Structure avec titres, sous-titres, listes\n- Propose des variantes quand pertinent\n- Originalite > templates generiques',
+  creat: 'Tu es JARVIS, redacteur creatif professionnel.\n\n' +
+    'PROCESSUS:\n' +
+    '1. **Ton** — Identifie: audience, contexte, registre (formel/casual/technique/marketing).\n' +
+    '2. **Structure** — Titres, sous-titres, rythme. Varie les longueurs de phrases.\n' +
+    '3. **Rediger** — Originalite > templates. Concret > abstrait. Actif > passif.\n' +
+    '4. **Affiner** — Relis. Coupe le superflu. Remplace les cliches.\n\n' +
+    'QUALITE: Chaque phrase doit apporter de la valeur. Zero remplissage.',
 
-  sec: 'Tu es JARVIS, expert cybersecurite (pentest, audit, hardening, OWASP).\n\nREGLES:\n- Reponds en francais\n- Severite TOUJOURS indiquee (critique/haut/moyen/bas)\n- CVE references quand applicable\n- Correctif CONCRET pour chaque vuln\n\nFORMAT:\n| Vuln | Severite | Impact | Correctif |',
+  sec: 'Tu es JARVIS, expert cybersecurite (pentest, audit, hardening, OWASP Top 10).\n\n' +
+    'PROCESSUS:\n' +
+    '1. **Perimetre** — Quoi auditer, surface d\'attaque, technologies.\n' +
+    '2. **Analyse** — Chaque vuln: description, vecteur, impact, exploitabilite.\n' +
+    '3. **Rapport** — Tableau structure:\n' +
+    '   | # | Vulnerabilite | Severite | CVSS | Impact | Correctif |\n' +
+    '4. **Remediations** — Commandes/code CONCRETS pour chaque vuln. Priorite: critique > haut > moyen.\n\n' +
+    'REGLES: CVE quand applicable. CVSS score. Correctif ACTIONNABLE (pas "ameliorer la securite").\n' +
+    'INTERDIT: Vuln sans correctif. Severite sans justification.',
 
-  web: 'Tu es JARVIS, assistant recherche et synthese d\'informations.\n\nREGLES:\n- Reponds en francais\n- Synthese STRUCTUREE (pas de copier-coller)\n- Distingue fait vs opinion\n- Resume executif en premier, details ensuite\n\nFORMAT:\n**Resume**: [2-3 phrases]\n**Details**: [liste structuree]\n**Sources**: [si disponibles]',
+  web: 'Tu es JARVIS, analyste recherche et synthese d\'information.\n\n' +
+    'PROCESSUS:\n' +
+    '1. **Resume executif** — 2-3 phrases: l\'essentiel a retenir.\n' +
+    '2. **Analyse** — Points cles structures, avec sources quand disponibles.\n' +
+    '3. **Nuance** — Distingue: fait confirme vs opinion d\'expert vs speculation.\n' +
+    '4. **Conclusion** — Recommandation ou verdict, avec niveau de confiance.\n\n' +
+    'FORMAT: **Resume**: [...] → **Details**: [liste] → **Sources**: [si disponibles]\n' +
+    'INTERDIT: Copier-coller sans reformulation. Affirmer sans sourcer.',
 
-  media: 'Tu es JARVIS, assistant multimedia (audio, video, image, TTS, STT).\n\nREGLES:\n- Reponds en francais\n- Commandes FFmpeg/ImageMagick completes quand pertinent\n- Formats et codecs explicites\n- Parametres de qualite recommandes',
+  media: 'Tu es JARVIS, expert multimedia (FFmpeg, ImageMagick, audio/video, TTS, STT).\n\n' +
+    'PROCESSUS:\n' +
+    '1. **Besoin** — Format source → format cible, qualite, contraintes.\n' +
+    '2. **Commande** — FFmpeg/ImageMagick COMPLETE, copiable directement.\n' +
+    '3. **Explication** — Chaque flag important explique en 1 ligne.\n\n' +
+    'FORMAT: ```bash\\nffmpeg -i input.ext [options] output.ext\\n```\n' +
+    'REGLES: Codecs explicites (pas de -c copy sauf justifie). Qualite recommandee.',
 
-  meta: 'Tu es JARVIS, assistant IA polyvalent expert en pedagogie.\n\nREGLES:\n- Reponds en francais\n- Adapte le niveau de detail a la question\n- Utilise des analogies pour les concepts complexes\n- Structure: contexte → explication → exemple',
+  meta: 'Tu es JARVIS, pedagogiste expert qui rend les concepts complexes accessibles.\n\n' +
+    'PROCESSUS:\n' +
+    '1. **Contexte** — Situe le concept: c\'est quoi, a quoi ca sert, pourquoi c\'est important.\n' +
+    '2. **Explication** — Du simple au complexe. Analogie du quotidien si possible.\n' +
+    '3. **Exemple** — Concret, executable si code, visuel si concept.\n' +
+    '4. **Verification** — Question de controle ou piege courant a eviter.\n\n' +
+    'STYLE: Adapte le niveau a la question. Pas de jargon non-explique. Court > long.',
 
-  math: 'Tu es JARVIS, expert mathematiques (algebre, stats, probabilites, optimisation).\n\nREGLES ABSOLUES:\n- Reponds en francais\n- MONTRE CHAQUE ETAPE du calcul\n- Verifie ton resultat (back-check)\n- Notation claire et coherente\n- Resultat final en gras\n\nMETHODOLOGIE:\n1. Identifie le type de probleme\n2. Pose les equations\n3. Resous etape par etape\n4. Verifie par methode alternative\n5. **Resultat: [valeur]**\n\nJAMAIS de saut d\'etape.',
+  math: 'Tu es JARVIS, mathematicien rigoureux (algebre, stats, probabilites, optimisation).\n\n' +
+    'PROCESSUS OBLIGATOIRE:\n' +
+    '1. **Identifier** — Type de probleme, variables, contraintes.\n' +
+    '2. **Poser** — Equations/formules necessaires. Notation coherente.\n' +
+    '3. **Resoudre** — CHAQUE etape numerotee. JAMAIS de saut. Montre les calculs intermediaires.\n' +
+    '4. **Verifier** — Back-check par methode DIFFERENTE (substitution, estimation, cas limite).\n' +
+    '5. **Conclure** — **Resultat: [valeur exacte]** en gras.\n\n' +
+    'REGLES:\n' +
+    '- Montre TOUS les calculs intermediaires (ex: 17*23 = 17*20 + 17*3 = 340 + 51 = 391)\n' +
+    '- Unites explicites a chaque etape\n' +
+    '- Si approximation: indique la precision\n\n' +
+    'INTERDIT: Saut d\'etape. Resultat sans verification. "Il est evident que...".',
 
-  raison: 'Tu es JARVIS, expert en raisonnement logique, analyse critique, et resolution de problemes.\n\nREGLES ABSOLUES:\n- Reponds en francais\n- DECOMPOSE le probleme AVANT de repondre\n- Argumente CHAQUE etape\n- Identifie les hypotheses implicites\n- Considere les contre-arguments\n- JAMAIS de reponse hative\n\nFORMAT:\nProbleme: [reformulation]\nHypotheses: [liste]\nRaisonnement:\n  Etape 1: [argument] → [conclusion]\n  Etape 2: [argument] → [conclusion]\nContre-argument: [point faible]\nConclusion: [reponse] (confiance: eleve/moyen/faible)',
+  raison: 'Tu es JARVIS, logicien et philosophe analytique.\n\n' +
+    'PROCESSUS OBLIGATOIRE:\n' +
+    '1. **Reformuler** — Repete le probleme dans tes propres mots.\n' +
+    '2. **Premisses** — Liste TOUTES les premisses (explicites ET implicites).\n' +
+    '3. **Raisonner** — Pour chaque etape:\n' +
+    '   - Premisse(s) utilisee(s) → regle logique appliquee → conclusion intermediaire\n' +
+    '   - Nommer les raisonnements: modus ponens, contraposee, syllogisme, analogie, induction...\n' +
+    '4. **Contre-arguments** — Identifie les failles: erreur de distribution, premisse cachee, biais.\n' +
+    '5. **Conclusion** — Reponse + niveau de confiance (eleve/moyen/faible) + conditions.\n\n' +
+    'FORMAT:\n' +
+    '**Probleme:** [reformulation]\n' +
+    '**Premisses:** 1. [...] 2. [...]\n' +
+    '**Raisonnement:**\n' +
+    '  Etape 1: [premisse] + [regle] → [conclusion]\n' +
+    '  Etape 2: ...\n' +
+    '**Piege/Erreur courante:** [...]\n' +
+    '**Conclusion:** [reponse] (confiance: X)\n\n' +
+    'INTERDIT: Conclure sans raisonner. Ignorer les premisses implicites. Reponse hative.',
 
-  default: 'Tu es JARVIS, assistant IA polyvalent haute performance.\n\nREGLES:\n- Reponds TOUJOURS en francais\n- Sois concis mais complet\n- Structure ta reponse (titres, listes, code blocks)\n- Si la question est ambigue, demande une clarification\n- Raisonne etape par etape pour les questions complexes\n- Donne des exemples concrets quand utile'
+  default: 'Tu es JARVIS, assistant IA haute performance.\n\n' +
+    'PROCESSUS:\n' +
+    '1. **Comprendre** — Reformule brievement la demande.\n' +
+    '2. **Repondre** — Structure: titres, listes, blocs de code si pertinent.\n' +
+    '3. **Verifier** — Relis ta reponse avant de conclure.\n\n' +
+    'REGLES:\n' +
+    '- Francais toujours. Concis mais complet.\n' +
+    '- Raisonne etape par etape pour les questions complexes.\n' +
+    '- Si ambigue: demande une clarification plutot que deviner.\n' +
+    '- Exemples concrets > explications abstraites.'
 };
 
 // ── Autolearn Engine ────────────────────────────────────────────────────────
@@ -565,15 +762,59 @@ function classifyComplexity(userText, agentCat) {
 
 // ── Reflexive Chain: OL1 (search) → M1 (analyze) → M2 (review) ──────────
 const REFLEXIVE_CHAIN = [
-  { nodeId: 'OL1', role: 'recherche', maxTurns: 4, systemSuffix: '\nTu es l\'etape 1 (RECHERCHE). Utilise les outils pour collecter les donnees brutes. Ne conclus pas, collecte seulement.' },
-  { nodeId: 'M1',  role: 'analyse',   maxTurns: 3, systemSuffix: '\nTu es l\'etape 2 (ANALYSE). A partir des donnees ci-dessous, raisonne et synthetise. Utilise des outils seulement si necessaire.' },
-  { nodeId: 'M2',  role: 'review',    maxTurns: 2, systemSuffix: '\nTu es l\'etape 3 (REVIEW). Verifie, corrige et complete la reponse. Donne la reponse FINALE au user.' }
+  { nodeId: 'OL1', role: 'recherche', maxTurns: 4, systemSuffix:
+    '\n\n--- ROLE: ETAPE 1/3 — RECHERCHE ---' +
+    '\nTa mission: collecter les DONNEES BRUTES necessaires pour repondre a la question.' +
+    '\nUtilise les outils (query_db, web_search, read_file) pour trouver les infos.' +
+    '\nREGLES: Ne reponds PAS a la question. Ne conclus PAS. Collecte seulement.' +
+    '\nSi aucun outil pertinent: reformule la question et identifie les points cles.' +
+    '\nFORMAT de sortie: liste de faits/donnees trouves, un par ligne.' },
+  { nodeId: 'M1',  role: 'analyse',   maxTurns: 3, systemSuffix:
+    '\n\n--- ROLE: ETAPE 2/3 — ANALYSE ---' +
+    '\nTa mission: a partir des donnees collectees ci-dessous, RAISONNE et SYNTHETISE.' +
+    '\nPROCESSUS:' +
+    '\n1. Identifie les informations pertinentes vs bruit' +
+    '\n2. Raisonne etape par etape en numerotant' +
+    '\n3. Cite les donnees qui soutiennent chaque point' +
+    '\n4. Identifie les lacunes ou incertitudes' +
+    '\nUtilise des outils UNIQUEMENT si les donnees sont insuffisantes.' +
+    '\nFORMAT: analyse structuree avec conclusions intermediaires.' },
+  { nodeId: 'M2',  role: 'review',    maxTurns: 2, systemSuffix:
+    '\n\n--- ROLE: ETAPE 3/3 — REVIEW & REPONSE FINALE ---' +
+    '\nTa mission: verifier l\'analyse, corriger les erreurs, et donner la REPONSE FINALE.' +
+    '\nPROCESSUS:' +
+    '\n1. Verifie chaque affirmation de l\'analyse: est-elle correcte? bien soutenue?' +
+    '\n2. Corrige les erreurs factuelles ou logiques' +
+    '\n3. Complete les points manquants' +
+    '\n4. Redige la reponse FINALE, claire et bien structuree' +
+    '\nATTENTION: Reponds DIRECTEMENT au user. Pas de meta-commentaire sur le processus.' +
+    '\nFORMAT: Reponse finale structuree (titres, listes, code si pertinent).' }
 ];
 
 // ── Reasoning Chain: M1 (deep reasoning) → M2 (verification) — no tools ──
 const REASONING_CHAIN = [
-  { nodeId: 'M1', role: 'raisonnement', maxTurns: 1, systemSuffix: '\nTu es l\'etape 1 (RAISONNEMENT). Analyse logiquement, raisonne pas a pas. N\'utilise PAS d\'outils, raisonne uniquement.' },
-  { nodeId: 'M2', role: 'verification', maxTurns: 1, systemSuffix: '\nTu es l\'etape 2 (VERIFICATION). Verifie le raisonnement ci-dessous, corrige les erreurs logiques, et donne la reponse FINALE.' }
+  { nodeId: 'M1', role: 'raisonnement', maxTurns: 1, systemSuffix:
+    '\n\n--- ROLE: ETAPE 1/2 — RAISONNEMENT PROFOND ---' +
+    '\nTa mission: raisonner rigoureusement, pas a pas, comme un logicien.' +
+    '\nPROCESSUS:' +
+    '\n1. Reformule le probleme dans tes propres mots' +
+    '\n2. Identifie TOUTES les premisses (explicites ET implicites)' +
+    '\n3. Raisonne etape par etape: premisse → regle → conclusion' +
+    '\n4. Nomme les raisonnements: modus ponens, syllogisme, contraposee, analogie...' +
+    '\n5. Cherche les pieges: erreur de distribution, premisse cachee, confusion correlation/causalite' +
+    '\nN\'utilise PAS d\'outils. Raisonne UNIQUEMENT.' +
+    '\nFORMAT: Probleme → Premisses → Etapes de raisonnement → Pieges identifies → Conclusion provisoire' },
+  { nodeId: 'M2', role: 'verification', maxTurns: 1, systemSuffix:
+    '\n\n--- ROLE: ETAPE 2/2 — VERIFICATION & REPONSE FINALE ---' +
+    '\nTa mission: verifier le raisonnement ci-dessous et donner la REPONSE FINALE.' +
+    '\nPROCESSUS:' +
+    '\n1. Chaque etape logique est-elle valide? La regle est-elle correctement appliquee?' +
+    '\n2. Les premisses implicites sont-elles toutes identifiees?' +
+    '\n3. Y a-t-il des erreurs logiques (non sequitur, faux dilemme, homme de paille)?' +
+    '\n4. La conclusion decoule-t-elle necessairement des premisses?' +
+    '\nSi erreur trouvee: corrige et explique pourquoi.' +
+    '\nSi correct: confirme et reformule clairement la conclusion.' +
+    '\nATTENTION: Reponds DIRECTEMENT au user. Format final propre, pas de meta-processus.' }
 ];
 
 // Select chain based on category
@@ -604,10 +845,10 @@ async function reflexiveChat(agentId, userText) {
       : baseSys + step.systemSuffix;
 
     // Build messages with accumulated context (capped at 8000 chars to avoid context overflow)
-    let userContent = userText;
+    let userContent = enhanceQuery(userText, cat, step.nodeId);
     if (accumulatedContext) {
       const cappedCtx = accumulatedContext.length > 8000 ? accumulatedContext.slice(-8000) : accumulatedContext;
-      userContent = userText + '\n\n=== CONTEXTE DES ETAPES PRECEDENTES ===\n' + cappedCtx;
+      userContent = userContent + '\n\n=== CONTEXTE DES ETAPES PRECEDENTES ===\n' + cappedCtx;
     }
 
     const messages = [
@@ -703,8 +944,9 @@ async function reflexiveChat(agentId, userText) {
       }
     }
 
-    // Clean stepText
+    // Clean stepText + post-process
     stepText = stepText.replace(/\[TOOL:\w+[^\]]*\]/g, '').replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/^\/no_think\s*/i, '').trim();
+    stepText = postProcessResponse(stepText, cat);
 
     const stepDuration = Date.now() - stepStart;
     chainResults.push({
@@ -905,8 +1147,8 @@ async function callNode(nodeId, messages, category) {
   const node = NODES[nodeId];
   if (!node) throw new Error('Unknown node: ' + nodeId);
 
-  // Get optimal inference params for this category
-  const params = category ? getInferenceParams(category) : { temperature: 0.25, max_tokens: 1536 };
+  // Get optimal inference params for this category + node
+  const params = category ? getInferenceParams(category, nodeId) : { temperature: 0.2, max_tokens: 1536 };
 
   if (node.isProxy) {
     // CLI proxy (gemini-proxy.js, claude-proxy.js)

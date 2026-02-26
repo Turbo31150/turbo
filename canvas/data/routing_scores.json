@@ -16,12 +16,7 @@
       "M1": null,
       "M2": null,
       "M3": null,
-      "OL1": {
-        "speed": 9,
-        "quality": 5,
-        "reliability": 10,
-        "final": 7.2
-      }
+      "OL1": null
     },
     "math": {
       "M1": null,
@@ -36,12 +31,7 @@
       "OL1": null
     },
     "system": {
-      "M1": {
-        "speed": 8,
-        "quality": 5,
-        "reliability": 10,
-        "final": 6.9
-      },
+      "M1": null,
       "M2": null,
       "M3": null,
       "OL1": null
@@ -74,12 +64,7 @@
       "M1": null,
       "M2": null,
       "M3": null,
-      "OL1": {
-        "speed": 9,
-        "quality": 5,
-        "reliability": 10,
-        "final": 7.2
-      }
+      "OL1": null
     },
     "media": {
       "M1": null,
@@ -94,95 +79,13 @@
       "OL1": null
     },
     "default": {
-      "M1": {
-        "speed": 9,
-        "quality": 5,
-        "reliability": 10,
-        "final": 7.2
-      },
+      "M1": null,
       "M2": null,
       "M3": null,
       "OL1": null
     }
   },
   "history": [
-    {
-      "ts": "2026-02-25T20:39:49.967Z",
-      "scores": {
-        "code": {
-          "M1": null,
-          "M2": null,
-          "M3": null,
-          "OL1": null
-        },
-        "archi": {
-          "M1": null,
-          "M2": null,
-          "M3": null,
-          "OL1": null
-        },
-        "trading": {
-          "M1": null,
-          "M2": null,
-          "M3": null,
-          "OL1": null
-        },
-        "system": {
-          "M1": null,
-          "M2": null,
-          "M3": null,
-          "OL1": null
-        },
-        "auto": {
-          "M1": null,
-          "M2": null,
-          "M3": null,
-          "OL1": null
-        },
-        "ia": {
-          "M1": null,
-          "M2": null,
-          "M3": null,
-          "OL1": null
-        },
-        "creat": {
-          "M1": null,
-          "M2": null,
-          "M3": null,
-          "OL1": null
-        },
-        "sec": {
-          "M1": null,
-          "M2": null,
-          "M3": null,
-          "OL1": null
-        },
-        "web": {
-          "M1": null,
-          "M2": null,
-          "M3": null,
-          "OL1": null
-        },
-        "media": {
-          "M1": null,
-          "M2": null,
-          "M3": null,
-          "OL1": null
-        },
-        "meta": {
-          "M1": null,
-          "M2": null,
-          "M3": null,
-          "OL1": null
-        },
-        "default": {
-          "M1": null,
-          "M2": null,
-          "M3": null,
-          "OL1": null
-        }
-      }
-    },
     {
       "ts": "2026-02-25T20:44:49.976Z",
       "scores": {
@@ -4110,7 +4013,96 @@
           "OL1": null
         }
       }
+    },
+    {
+      "ts": "2026-02-26T01:26:56.507Z",
+      "scores": {
+        "code": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "archi": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "trading": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "math": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "raison": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "system": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "auto": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "ia": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "creat": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "sec": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "web": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "media": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "meta": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        },
+        "default": {
+          "M1": null,
+          "M2": null,
+          "M3": null,
+          "OL1": null
+        }
+      }
     }
   ],
-  "last_cycle": "2026-02-26T01:02:58.736Z"
+  "last_cycle": "2026-02-26T01:26:56.507Z"
 }
