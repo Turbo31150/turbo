@@ -17,15 +17,17 @@ const ChatPage = lazy(() => import('./pages/ChatPage'));
 const TradingPage = lazy(() => import('./pages/TradingPage'));
 const VoicePage = lazy(() => import('./pages/VoicePage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
+const LMStudioPage = lazy(() => import('./pages/LMStudioPage'));
 
 // Page type
-type Page = 'dashboard' | 'chat' | 'trading' | 'voice' | 'settings';
+type Page = 'dashboard' | 'chat' | 'trading' | 'voice' | 'lmstudio' | 'settings';
 
 const PAGE_COMPONENTS: Record<Page, React.LazyExoticComponent<React.ComponentType>> = {
   dashboard: DashboardPage,
   chat: ChatPage,
   trading: TradingPage,
   voice: VoicePage,
+  lmstudio: LMStudioPage,
   settings: SettingsPage,
 };
 

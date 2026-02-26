@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-type Page = 'dashboard' | 'chat' | 'trading' | 'voice' | 'settings';
+type Page = 'dashboard' | 'chat' | 'trading' | 'voice' | 'lmstudio' | 'settings';
 
 interface SidebarProps {
   currentPage: Page;
@@ -42,6 +42,17 @@ const MicIcon = () => (
   </svg>
 );
 
+const ServerIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <rect x="2" y="2" width="20" height="8" rx="2" />
+    <rect x="2" y="14" width="20" height="8" rx="2" />
+    <circle cx="6" cy="6" r="1" fill="currentColor" />
+    <circle cx="6" cy="18" r="1" fill="currentColor" />
+    <line x1="10" y1="6" x2="18" y2="6" />
+    <line x1="10" y1="18" x2="18" y2="18" />
+  </svg>
+);
+
 const GearIcon = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <circle cx="12" cy="12" r="3" />
@@ -54,6 +65,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'chat', label: 'Chat', icon: <MessageIcon /> },
   { id: 'trading', label: 'Trading', icon: <ChartIcon /> },
   { id: 'voice', label: 'Voice', icon: <MicIcon /> },
+  { id: 'lmstudio', label: 'LM Studio', icon: <ServerIcon /> },
   { id: 'settings', label: 'Settings', icon: <GearIcon /> },
 ];
 
