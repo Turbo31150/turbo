@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import AgentBadge from './AgentBadge';
 import { ChatMessage, ToolCall } from '../../hooks/useChat';
 
@@ -49,7 +49,7 @@ function getBubbleStyle(role: ChatMessage['role']) {
   }
 }
 
-export default function MessageBubble({ message }: MessageBubbleProps) {
+export default memo(function MessageBubble({ message }: MessageBubbleProps) {
   const [toolsExpanded, setToolsExpanded] = useState(false);
   const hasToolCalls = message.toolCalls && message.toolCalls.length > 0;
 
@@ -88,4 +88,4 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
       </div>
     </div>
   );
-}
+});

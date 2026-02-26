@@ -130,7 +130,7 @@ export function useCluster() {
   useEffect(() => {
     if (connected) {
       fetchClusterStatus();
-      intervalRef.current = window.setInterval(fetchClusterStatus, 15000);
+      intervalRef.current = window.setInterval(fetchClusterStatus, 30000);
     } else {
       setState(prev => ({ ...prev, loading: false, error: 'Not connected' }));
     }
