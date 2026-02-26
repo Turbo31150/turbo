@@ -59,18 +59,20 @@ const NODES = {
 
 // ── Routing: agent category → primary node, fallbacks ───────────────────────
 const ROUTING = {
-  code:    ['M2', 'M3', 'OL1', 'GEMINI'],          // code, debug, review, devops
-  archi:   ['M2', 'GEMINI', 'M3', 'OL1'],           // architecture, database, perf — GEMINI excels
-  trading: ['OL1', 'M2', 'M3'],                     // trading, market data
-  system:  ['M3', 'M2', 'OL1'],                     // windows, cluster, maintenance
-  auto:    ['M3', 'OL1', 'M2'],                     // pipelines, cron, workflows
-  ia:      ['M2', 'GEMINI', 'CLAUDE', 'M3', 'OL1'], // consensus, reasoning — cloud IA
-  creat:   ['M2', 'GEMINI', 'M3', 'OL1'],           // creative, docs, translation
-  sec:     ['M2', 'GEMINI', 'M3', 'OL1'],           // security, audit
-  web:     ['OL1', 'GEMINI', 'M2', 'M3'],           // search, browser — GEMINI has web
-  media:   ['M3', 'OL1', 'M2'],                     // voice, image
-  meta:    ['OL1', 'M3', 'M2'],                     // help, config
-  default: ['M2', 'M3', 'OL1', 'GEMINI']            // fallback
+  code:    ['M1', 'M2', 'M3', 'OL1'],                  // M1 100% bench, 0.6-2.5s
+  archi:   ['M1', 'M2', 'GEMINI', 'M3'],                // M1 validation
+  trading: ['OL1', 'M1', 'M2', 'M3'],                   // OL1 web, M1 analyse
+  math:    ['M1', 'OL1', 'M2'],                          // NOUVEAU — M1 prioritaire
+  raison:  ['M1', 'M2', 'OL1'],                          // NOUVEAU — JAMAIS M3
+  system:  ['M3', 'M2', 'OL1'],                          // inchange
+  auto:    ['M3', 'OL1', 'M2'],                          // inchange
+  ia:      ['M1', 'M2', 'GEMINI', 'CLAUDE', 'M3', 'OL1'], // M1 first
+  creat:   ['M2', 'M1', 'GEMINI', 'M3', 'OL1'],         // M2 creatif, M1 backup
+  sec:     ['M1', 'M2', 'GEMINI', 'M3', 'OL1'],         // M1 audit
+  web:     ['OL1', 'GEMINI', 'M2', 'M3'],                // inchange
+  media:   ['M3', 'OL1', 'M2'],                          // inchange
+  meta:    ['OL1', 'M3', 'M2'],                          // inchange
+  default: ['M1', 'M2', 'M3', 'OL1', 'GEMINI']           // M1 first
 };
 
 // Agent → category mapping (mirrors canvas ROUTES)
@@ -83,6 +85,8 @@ const AGENT_CAT = {
   'consensus-master': 'ia', 'claude-reasoning': 'ia', 'recherche-synthese': 'ia',
   'creative-brainstorm': 'creat', 'doc-writer': 'creat', 'translator': 'creat',
   'securite-audit': 'sec',
+  'math-solver': 'math', 'calculateur': 'math',
+  'raisonnement': 'raison', 'logique': 'raison',
   'ol1-web': 'web', 'pipeline-comet': 'web',
   'voice-assistant': 'media', 'gemini-flash': 'media',
   'main': 'default', 'fast-chat': 'default'
@@ -101,6 +105,8 @@ const SYS_PROMPTS = {
   web:     'Tu es JARVIS, assistant recherche web. Reponds en francais. Synthese claire des informations.',
   media:   'Tu es JARVIS, assistant multimedia. Reponds en francais.',
   meta:    'Tu es JARVIS, assistant IA polyvalent. Reponds en francais. Aide, explique, guide.',
+  math:    'Tu es JARVIS, expert mathematiques et calcul. Reponds en francais. Raisonne etape par etape. Montre ton travail.',
+  raison:  'Tu es JARVIS, expert raisonnement logique. Reponds en francais. Decompose le probleme, argumente chaque etape. JAMAIS de reponse hative.',
   default: 'Tu es JARVIS, assistant IA polyvalent. Reponds en francais. Sois concis et utile.'
 };
 
@@ -482,7 +488,7 @@ const COCKPIT_TOOLS_PROMPT = [
 // ── Complexity classifier — simple vs reflexive ──────────────────────────
 function classifyComplexity(userText, agentCat) {
   // Force reflexive for certain categories
-  const reflexiveCats = ['code', 'archi', 'ia', 'sec'];
+  const reflexiveCats = ['code', 'archi', 'ia', 'sec', 'math', 'raison'];
   if (reflexiveCats.includes(agentCat)) return 'reflexive';
 
   // Keyword detection BEFORE category check (keywords override 'default' category)
