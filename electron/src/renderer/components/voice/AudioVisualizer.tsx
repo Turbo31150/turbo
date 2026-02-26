@@ -1,62 +1,27 @@
 import React from 'react';
 
 interface AudioVisualizerProps {
-  level: number; // 0 to 1
+  level: number;
   recording: boolean;
 }
 
-const styles = {
-  container: {
-    width: '100%',
-    maxWidth: 300,
-    margin: '0 auto',
-    fontFamily: 'Consolas, Courier New, monospace',
-  },
-  label: {
-    fontSize: 10,
-    color: '#4a6a8a',
-    textTransform: 'uppercase' as const,
-    letterSpacing: 1,
-    marginBottom: 6,
-    textAlign: 'center' as const,
-  },
-  barContainer: {
-    width: '100%',
-    height: 6,
-    backgroundColor: '#1a2a3a',
-    borderRadius: 3,
-    overflow: 'hidden' as const,
-    position: 'relative' as const,
-  },
-  bar: {
-    height: '100%',
-    borderRadius: 3,
-    transition: 'width 0.08s ease-out',
-  },
-  barRecording: {
-    backgroundColor: '#00ff88',
-    boxShadow: '0 0 8px rgba(0, 255, 136, 0.4)',
-  },
-  barIdle: {
-    backgroundColor: '#4a6a8a',
-  },
+const S = {
+  container: { width: '100%', maxWidth: 300, margin: '0 auto', fontFamily: 'Consolas, "Courier New", monospace' } as React.CSSProperties,
+  label: { fontSize: 10, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6, textAlign: 'center' } as React.CSSProperties,
+  barBg: { width: '100%', height: 6, backgroundColor: '#1a2a3a', borderRadius: 3, overflow: 'hidden', position: 'relative' } as React.CSSProperties,
+  bar: { height: '100%', borderRadius: 3, transition: 'width .08s ease-out' } as React.CSSProperties,
+  barRec: { backgroundColor: '#10b981', boxShadow: '0 0 8px rgba(16,185,129,.4)' },
+  barIdle: { backgroundColor: '#6b7280' },
 };
 
 export default function AudioVisualizer({ level, recording }: AudioVisualizerProps) {
-  const clampedLevel = Math.max(0, Math.min(1, level));
-  const widthPercent = clampedLevel * 100;
+  const w = Math.max(0, Math.min(1, level)) * 100;
 
   return (
-    <div style={styles.container}>
-      <div style={styles.label as any}>Audio Level</div>
-      <div style={styles.barContainer}>
-        <div
-          style={{
-            ...styles.bar,
-            ...(recording ? styles.barRecording : styles.barIdle),
-            width: `${widthPercent}%`,
-          }}
-        />
+    <div style={S.container}>
+      <div style={S.label}>Audio Level</div>
+      <div style={S.barBg}>
+        <div style={{ ...S.bar, ...(recording ? S.barRec : S.barIdle), width: `${w}%` }} />
       </div>
     </div>
   );
