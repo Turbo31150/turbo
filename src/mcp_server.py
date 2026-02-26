@@ -202,12 +202,17 @@ async def handle_consensus(args: dict) -> list[TextContent]:
         node = config.get_node(name)
         if not node:
             return f"[{name}] ERREUR: inconnu"
+        # M1 Qwen3: /nothink prefix
+        input_text = prompt
+        if upper == "M1" and "qwen" in node.default_model.lower():
+            input_text = "/nothink\n" + prompt
+
         try:
             async with httpx.AsyncClient(timeout=per_timeout) as c:
                 r = await asyncio.wait_for(c.post(f"{node.url}/api/v1/chat", json={
                     "model": node.default_model,
-                    "input": prompt,
-                    "temperature": 0.3, "max_output_tokens": 2048,
+                    "input": input_text,
+                    "temperature": 0.2, "max_output_tokens": 1024,
                     "stream": False, "store": False,
                 }, headers=node.auth_headers), timeout=per_timeout)
                 r.raise_for_status()
@@ -221,7 +226,10 @@ async def handle_consensus(args: dict) -> list[TextContent]:
     results = await asyncio.gather(*[_query_node(n) for n in nodes], return_exceptions=True)
     for r in results:
         responses.append(str(r) if isinstance(r, Exception) else r)
-    return _text(f"Consensus ({len(responses)} sources):\n" + "\n---\n".join(responses))
+    # Weighted voting info
+    weights = config.node_weights
+    weight_info = " | ".join(f"{n.strip()}={weights.get(n.strip(), 1.0)}" for n in nodes)
+    return _text(f"Consensus ({len(responses)} sources, poids: {weight_info}):\n" + "\n---\n".join(responses))
 
 
 # ── Gemini + Bridge handlers ─────────────────────────────────────────────
@@ -293,9 +301,13 @@ async def handle_bridge_query(args: dict) -> list[TextContent]:
                 node = config.get_node(name)
                 if not node:
                     continue
+                # M1 Qwen3: /nothink prefix
+                input_text = prompt
+                if upper == "M1" and "qwen" in node.default_model.lower():
+                    input_text = "/nothink\n" + prompt
                 r = await c.post(f"{node.url}/api/v1/chat", json={
-                    "model": node.default_model, "input": prompt,
-                    "temperature": 0.3, "max_output_tokens": 2048,
+                    "model": node.default_model, "input": input_text,
+                    "temperature": 0.2, "max_output_tokens": 1024,
                     "stream": False, "store": False,
                 }, headers=node.auth_headers)
                 r.raise_for_status()
@@ -343,9 +355,13 @@ async def handle_bridge_mesh(args: dict) -> list[TextContent]:
                 node = config.get_node(name)
                 if not node:
                     return f"[{name}] ERREUR: noeud inconnu"
+                # M1 Qwen3: /nothink prefix
+                input_text = prompt
+                if upper == "M1" and "qwen" in node.default_model.lower():
+                    input_text = "/nothink\n" + prompt
                 r = await c.post(f"{node.url}/api/v1/chat", json={
-                    "model": node.default_model, "input": prompt,
-                    "temperature": 0.3, "max_output_tokens": 2048,
+                    "model": node.default_model, "input": input_text,
+                    "temperature": 0.2, "max_output_tokens": 1024,
                     "stream": False, "store": False,
                 }, headers=node.auth_headers)
                 r.raise_for_status()

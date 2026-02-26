@@ -609,7 +609,8 @@ async def _ia_correct(text: str, url: str, model: str) -> str:
             async with httpx.AsyncClient(timeout=5) as c:
                 r = await c.post(
                     f"{node.url}/api/v1/chat",
-                    json={"model": node.default_model, "input": text, "system_prompt": messages[0]["content"] if messages and messages[0]["role"] == "system" else "", "temperature": 0.1, "max_output_tokens": 200, "stream": False, "store": False},
+                    json={"model": node.default_model, "input": ("/nothink\n" if node.name == "M1" and "qwen" in node.default_model.lower() else "") + text, "system_prompt": messages[0]["content"] if messages and messages[0]["role"] == "system" else "", "temperature": 0.1, "max_output_tokens": 200, "stream": False, "store": False},
+                    headers=node.auth_headers,
                 )
                 r.raise_for_status()
                 from src.tools import extract_lms_output

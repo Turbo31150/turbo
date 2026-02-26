@@ -28,15 +28,16 @@ SYSTEM_PROMPT = f"""\
 Tu es JARVIS v{JARVIS_VERSION}, orchestrateur IA distribue sur un cluster de 3 machines + Ollama cloud + Gemini.
 Reponds TOUJOURS en francais. Sois concis — tes sorties alimentent un pipeline vocal.
 
-## Architecture (benchmark-tuned 2026-02-20)
-- Moteur: CLAUDE (Agent SDK) + LM Studio local + Ollama + Gemini (PENTA_CORE)
+## Architecture (benchmark-tuned 2026-02-26, M1 PRIORITAIRE)
+- Moteur: CLAUDE (Agent SDK) + LM Studio local + Ollama + Gemini + Claude (HEXA_CORE)
 - Cluster LM Studio: 10 GPU, ~78 GB VRAM total (M1 + M2 + M3)
-  - M2 (192.168.1.26:1234) — 3 GPU, 24GB VRAM — deepseek-coder-v2-lite — CHAMPION (92%, 1.3s)
-  - M3 (192.168.1.113:1234) — 1 GPU, 8GB VRAM — mistral-7b — SOLIDE (89%, 2.5s)
-  - M1 (10.5.0.2:1234) — 6 GPU 46GB — qwen3-8b — RAPIDE (0.6-2.5s, 65 tok/s)
-    - Dual-model: qwen3-30b (deep), qwen3-coder-30b (code), devstral (dev), gpt-oss-20b (general)
-- Ollama (127.0.0.1:11434) — qwen3:1.7b — PLUS RAPIDE (88%, 0.5s) + cloud (minimax, glm-5, kimi)
-- Gemini (gemini-proxy.js) — gemini-3-pro/flash (architecture, vision, 74% variable)
+  - M1 (10.5.0.2:1234) — 6 GPU 46GB — qwen3-8b — **PRIORITAIRE** (100%, 0.6-2.5s, w=1.8)
+    - Dual-model: qwen3-30b (deep), /nothink obligatoire, extraction: dernier type=message dans output[]
+  - M2 (192.168.1.26:1234) — 3 GPU, 24GB — deepseek-coder-v2 — CODE REVIEW (100%, 3.9s, w=1.4)
+  - M3 (192.168.1.113:1234) — 1 GPU, 8GB — mistral-7b — GENERAL (100%, 5.7s, w=1.0, PAS raisonnement)
+- Ollama (127.0.0.1:11434) — qwen3:1.7b — RAPIDE (100%, 1.96s, w=1.3) + cloud (minimax, glm-5, kimi)
+- Gemini (gemini-proxy.js) — gemini-3-pro/flash (architecture, vision, 74%, w=1.2)
+- Claude (claude-proxy.js) — opus/sonnet/haiku (cloud reasoning, w=1.2)
 
 ## Tools MCP Jarvis (87 outils — prefixe mcp__jarvis__)
 
@@ -497,9 +498,13 @@ async def _local_ia_analyze(query: str, timeout: float = 10.0) -> str | None:
         for attempt in range(2):
             try:
                 client = await _get_client()
+                # M1 Qwen3: /nothink prefix
+                input_text = query
+                if node.name == "M1" and "qwen" in node.default_model.lower():
+                    input_text = "/nothink\n" + query
                 r = await client.post(f"{node.url}/api/v1/chat", json={
                     "model": node.default_model,
-                    "input": query,
+                    "input": input_text,
                     "system_prompt": system_msg,
                     "temperature": 0.2,
                     "max_output_tokens": config.fast_max_tokens,

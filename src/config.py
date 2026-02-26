@@ -153,9 +153,9 @@ class JarvisConfig:
         LMStudioNode(
             "M1", os.getenv("LM_STUDIO_1_URL", "http://10.5.0.2:1234"),
             "deep_analysis", gpus=6, vram_gb=46,
-            default_model="qwen/qwen3-8b", weight=1.2,
-            use_cases=["Fast inference", "General tasks", "Consensus participant",
-                       "On-demand models (30b/coder/devstral)"],
+            default_model="qwen/qwen3-8b", weight=1.8,
+            use_cases=["PRIORITAIRE — code, math, raisonnement", "Fast inference 65 tok/s",
+                       "Dual-model: qwen3-8b (rapide) + qwen3-30b (profond)"],
             api_key=os.getenv("LM_STUDIO_1_KEY", "sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"),
         ),
         LMStudioNode(
@@ -221,58 +221,77 @@ class JarvisConfig:
         "general":    "kimi-k2.5:cloud",      # Cloud — polyvalent
     })
 
-    # ── Routing rules (benchmark-tuned 2026-02-20) ─────────────────────
-    # M2 champion (92%), OL1 fastest+polyvalent (88%), M3 solide (89%)
-    # M1 rapide (qwen3-8b, 0.6-2.5s, 65 tok/s) — embedding/consensus/raisonnement
+    # ── Routing rules (benchmark-tuned 2026-02-26, M1 PRIORITAIRE) ────
+    # M1 100% (qwen3-8b, 0.6-2.5s, 65 tok/s) — PRIORITAIRE code/math/raisonnement
+    # M2 100% (deepseek, 3.9s) — code review | OL1 100% (1.96s) — rapide | M3 100% (5.7s) — general
     routing: dict[str, list[str]] = field(default_factory=lambda: {
-        "short_answer":    ["OL1", "M3"],
-        "deep_analysis":   ["M2", "GEMINI"],
-        "trading_signal":  ["OL1", "M2"],
-        "code_generation": ["M2", "M3"],
-        "validation":      ["M2", "OL1"],
-        "critical":        ["M2", "OL1", "GEMINI"],
-        "web_research":    ["OL1"],
-        "reasoning":       ["CLAUDE", "M2"],
+        "short_answer":    ["OL1", "M1", "M3"],
+        "deep_analysis":   ["M1", "M2", "GEMINI"],
+        "trading_signal":  ["OL1", "M1", "M2"],
+        "code_generation": ["M1", "M2", "M3"],
+        "validation":      ["M2", "OL1", "M1"],
+        "critical":        ["M1", "M2", "OL1", "GEMINI"],
+        "web_research":    ["OL1", "M1"],
+        "reasoning":       ["M1", "M2", "OL1"],
         "voice_correction": ["OL1"],
         "auto_learn":      ["OL1", "M2"],
         "embedding":       ["M1"],
-        "consensus":       ["M2", "OL1", "M3", "M1", "GEMINI", "CLAUDE"],
-        "architecture":    ["GEMINI", "CLAUDE", "M2"],
-        "bridge":          ["M2", "OL1", "M3", "M1", "GEMINI", "CLAUDE"],
+        "consensus":       ["M1", "M2", "OL1", "M3", "GEMINI", "CLAUDE"],
+        "architecture":    ["GEMINI", "CLAUDE", "M1", "M2"],
+        "bridge":          ["M1", "M2", "OL1", "M3", "GEMINI", "CLAUDE"],
     })
 
-    # ── Commander Mode routing (benchmark-tuned 2026-02-20) ─────────────
-    # M2 primary (champion 92%), OL1 rapide (88%), M3 solide (89%)
-    # M1 rapide (qwen3-8b, 0.6-2.5s) — embedding/consensus/raisonnement
+    # ── Domain weights (benchmark v3 2026-02-26) ─────────────────────
+    # Probabilistic routing: domain → {node: weight %}
+    domain_weights: dict[str, dict[str, float]] = field(default_factory=lambda: {
+        "code":         {"M1": 0.50, "M2": 0.30, "M3": 0.15, "OL1": 0.05},
+        "math":         {"M1": 0.50, "OL1": 0.30, "M2": 0.15, "M3": 0.05},
+        "raisonnement": {"M1": 0.60, "M2": 0.25, "OL1": 0.15},
+        "traduction":   {"OL1": 0.40, "M1": 0.30, "M3": 0.20, "M2": 0.10},
+        "systeme":      {"M1": 0.40, "OL1": 0.35, "M3": 0.15, "M2": 0.10},
+        "trading":      {"OL1": 0.35, "M1": 0.30, "M2": 0.20, "M3": 0.15},
+        "securite":     {"M1": 0.45, "M2": 0.30, "M3": 0.15, "OL1": 0.10},
+        "web":          {"OL1": 0.40, "M1": 0.30, "M3": 0.20, "M2": 0.10},
+    })
+
+    # ── Node weights for consensus voting ─────────────────────────────
+    node_weights: dict[str, float] = field(default_factory=lambda: {
+        "M1": 1.8, "M2": 1.4, "OL1": 1.3, "GEMINI": 1.2, "CLAUDE": 1.2, "M3": 1.0,
+    })
+
+    # ── Commander Mode routing (benchmark-tuned 2026-02-26, M1 PRIORITAIRE) ──
+    # M1 PRIORITAIRE (100%, 0.6-2.5s) — code/math/raisonnement
+    # M2 review (100%, 3.9s) | OL1 rapide (100%, 1.96s) | M3 general (100%, 5.7s)
     commander_routing: dict[str, list[dict]] = field(default_factory=lambda: {
         "code": [
-            {"agent": "ia-fast", "ia": "M2", "role": "coder"},
-            {"agent": "ia-check", "ia": "M3", "role": "reviewer"},
+            {"agent": "ia-fast", "ia": "M1", "role": "coder"},
+            {"agent": "ia-check", "ia": "M2", "role": "reviewer"},
         ],
         "analyse": [
-            {"agent": "ia-deep", "ia": "M2", "role": "analyzer"},
+            {"agent": "ia-deep", "ia": "M1", "role": "analyzer"},
+            {"agent": "ia-check", "ia": "M2", "role": "reviewer"},
         ],
         "trading": [
             {"agent": "ia-trading", "ia": "OL1", "role": "scanner"},
             {"agent": None, "ia": "OL1", "role": "web_data"},
-            {"agent": "ia-check", "ia": "M2", "role": "validator"},
+            {"agent": "ia-check", "ia": "M1", "role": "validator"},
         ],
         "systeme": [
             {"agent": "ia-system", "ia": None, "role": "executor"},
         ],
         "web": [
             {"agent": None, "ia": "OL1", "role": "searcher"},
-            {"agent": "ia-deep", "ia": "M2", "role": "synthesizer"},
+            {"agent": "ia-deep", "ia": "M1", "role": "synthesizer"},
         ],
         "simple": [
             {"agent": None, "ia": "OL1", "role": "responder"},
         ],
         "architecture": [
             {"agent": "ia-bridge", "ia": "GEMINI", "role": "analyzer"},
-            {"agent": "ia-deep", "ia": "M2", "role": "reviewer"},
+            {"agent": "ia-deep", "ia": "M1", "role": "reviewer"},
         ],
         "consensus": [
-            {"agent": "ia-consensus", "ia": "M2", "role": "analyzer"},
+            {"agent": "ia-consensus", "ia": "M1", "role": "analyzer"},
         ],
     })
 
@@ -401,6 +420,34 @@ class JarvisConfig:
             return nodes
         # Sort by latency (fastest first), keeping order for equal latencies
         return sorted(nodes, key=lambda n: self._latency_cache.get(n, 0))
+
+    def weighted_route(self, domain: str, gpu_temps: dict[str, int] | None = None) -> list[str]:
+        """5-level weighted routing: node × domain × adaptive × thermal × autolearn.
+
+        Returns nodes sorted by combined score (highest first).
+        """
+        weights = self.domain_weights.get(domain, {"M1": 0.40, "OL1": 0.30, "M2": 0.20, "M3": 0.10})
+        scores = {}
+        for node, domain_w in weights.items():
+            # N1: node weight
+            n1 = self.node_weights.get(node, 1.0)
+            # N2: domain weight
+            n2 = domain_w
+            # N3: adaptive (latency penalty)
+            lat = self._latency_cache.get(node, 2000)
+            n3 = max(0.5, 1.0 - min(0.5, lat / 30000))
+            # N4: thermal
+            n4 = 1.0
+            if gpu_temps:
+                temp = gpu_temps.get(node, 40)
+                if temp >= 85:
+                    n4 = 0.0  # EXCLUDED
+                elif temp >= 75:
+                    n4 = 0.7
+                elif temp >= 70:
+                    n4 = 0.9
+            scores[node] = n1 * n2 * n3 * n4
+        return sorted(scores, key=lambda n: scores[n], reverse=True)
 
     def update_latency(self, node: str, latency_ms: int) -> None:
         """Update latency cache for auto-tune routing."""

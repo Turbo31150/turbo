@@ -182,11 +182,16 @@ async def lm_query(args: dict[str, Any]) -> dict[str, Any]:
     timeout = config.get_timeout(mode)
     temp = 0.2 if mode == "fast" else config.temperature
 
+    # M1 Qwen3: /nothink prefix to disable thinking tokens (2x speed)
+    input_text = prompt
+    if node.name == "M1" and "qwen" in model.lower():
+        input_text = "/nothink\n" + prompt
+
     try:
         t0 = time.monotonic()
         r = await _retry_request("POST", f"{node.url}/api/v1/chat", json={
             "model": model,
-            "input": prompt,
+            "input": input_text,
             "temperature": temp,
             "max_output_tokens": max_tokens,
             "stream": False,
@@ -383,15 +388,20 @@ async def bridge_mesh(args: dict[str, Any]) -> dict[str, Any]:
             node = config.get_node(name)
             if not node:
                 return f"[{name}] ERREUR: noeud inconnu"
+            # M1 Qwen3: /nothink prefix
+            input_text = prompt
+            if upper == "M1" and "qwen" in node.default_model.lower():
+                input_text = "/nothink\n" + prompt
             r = await client.post(f"{node.url}/api/v1/chat", json={
                 "model": node.default_model,
-                "input": prompt,
+                "input": input_text,
                 "temperature": config.temperature,
                 "max_output_tokens": config.max_tokens,
                 "stream": False, "store": False,
             }, timeout=per_timeout, headers=node.auth_headers)
             r.raise_for_status()
             latency = int((time.monotonic() - t0) * 1000)
+            _track_latency(name, latency)
             return f"[{name}/{node.default_model}] {extract_lms_output(r.json())} --- {latency}ms"
 
         except asyncio.TimeoutError:
@@ -547,10 +557,15 @@ async def consensus(args: dict[str, Any]) -> dict[str, Any]:
         node = config.get_node(name)
         if not node:
             return f"[{name}] ERREUR: inconnu"
+        # M1 Qwen3: /nothink prefix
+        input_text = prompt
+        if name.upper() == "M1" and "qwen" in node.default_model.lower():
+            input_text = "/nothink\n" + prompt
+
         try:
             r = await asyncio.wait_for(client.post(f"{node.url}/api/v1/chat", json={
                 "model": node.default_model,
-                "input": prompt,
+                "input": input_text,
                 "temperature": config.temperature,
                 "max_output_tokens": config.max_tokens,
                 "stream": False,
@@ -568,7 +583,10 @@ async def consensus(args: dict[str, Any]) -> dict[str, Any]:
     for r in results:
         responses.append(str(r) if isinstance(r, Exception) else r)
 
-    return _text("Consensus:\n\n" + "\n\n---\n\n".join(responses))
+    # Weighted voting summary
+    weights = config.node_weights
+    weight_info = " | ".join(f"{n}={weights.get(n, 1.0)}" for n in names)
+    return _text(f"Consensus (poids: {weight_info}):\n\n" + "\n\n---\n\n".join(responses))
 
 
 # ═══════════════════════════════════════════════════════════════════════════
