@@ -173,7 +173,7 @@ def _lms_load(
 # Inference Warmup & Benchmarking
 # ═══════════════════════════════════════════════════════════════════════════
 
-async def _warmup_model(url: str, model: str, timeout: float = 15.0) -> dict[str, Any]:
+async def _warmup_model(url: str, model: str, timeout: float = 15.0, headers: dict | None = None) -> dict[str, Any]:
     """Warmup a model and return latency benchmark.
 
     Returns: {"ok": bool, "latency_ms": int, "tokens_per_sec": float}
@@ -181,7 +181,7 @@ async def _warmup_model(url: str, model: str, timeout: float = 15.0) -> dict[str
     try:
         t0 = time.monotonic()
         async with httpx.AsyncClient(timeout=timeout) as c:
-            r = await c.post(f"{url}/api/v1/chat", json={
+            r = await c.post(f"{url}/api/v1/chat", headers=headers or {}, json={
                 "model": model,
                 "input": WARMUP_PROMPT,
                 "temperature": 0.1,
@@ -331,7 +331,7 @@ async def _check_m2() -> dict[str, Any]:
         return {"ok": False, "error": "M2 non configure"}
     try:
         async with httpx.AsyncClient(timeout=5) as c:
-            r = await c.get(f"{m2.url}/api/v1/models")
+            r = await c.get(f"{m2.url}/api/v1/models", headers=m2.auth_headers())
             r.raise_for_status()
             models = [m["key"] for m in r.json().get("models", []) if m.get("loaded_instances")]
             has_coder = any("deepseek" in m or "coder" in m for m in models)
@@ -441,7 +441,7 @@ async def ensure_cluster_ready(
             for model in M1_REQUIRED:
                 if verbose:
                     _log(f"Warmup {model}...")
-                bench = await _warmup_model(m1.url, model)
+                bench = await _warmup_model(m1.url, model, headers=m1.auth_headers())
                 report[f"warmup_{model}"] = bench
                 if bench["ok"] and verbose:
                     _log(f"Warmup OK — {bench['latency_ms']}ms, {bench['tokens_per_sec']} tok/s", "OK")
@@ -461,7 +461,7 @@ async def ensure_cluster_ready(
     if warmup and m2_status["ok"]:
         m2_node = config.get_node("M2")
         if m2_node:
-            bench = await _warmup_model(m2_node.url, m2_node.default_model)
+            bench = await _warmup_model(m2_node.url, m2_node.default_model, headers=m2_node.auth_headers())
             report["warmup_m2"] = bench
             if bench["ok"] and verbose:
                 _log(f"M2 warmup: {bench['latency_ms']}ms, {bench['tokens_per_sec']} tok/s", "OK")
@@ -561,7 +561,7 @@ async def load_model_on_demand(
     if ok:
         m1 = config.get_node("M1")
         if m1:
-            bench = await _warmup_model(m1.url, model)
+            bench = await _warmup_model(m1.url, model, headers=m1.auth_headers())
             return {"ok": True, "status": "charge + warmup", "bench": bench}
     return {"ok": ok, "status": "charge" if ok else "echec"}
 
@@ -592,8 +592,9 @@ async def quick_health_check() -> dict[str, str]:
 
     # M1
     try:
+        m1 = config.get_node("M1")
         async with httpx.AsyncClient(timeout=3) as c:
-            r = await c.get(f"{config.get_node_url('M1')}/api/v1/models")
+            r = await c.get(f"{config.get_node_url('M1')}/api/v1/models", headers=m1.auth_headers() if m1 else {})
             r.raise_for_status()
             models = [m["key"] for m in r.json().get("models", []) if m.get("loaded_instances")]
             has_main = any("qwen3-8b" in m for m in models)
@@ -603,8 +604,9 @@ async def quick_health_check() -> dict[str, str]:
 
     # M2
     try:
+        m2 = config.get_node("M2")
         async with httpx.AsyncClient(timeout=3) as c:
-            r = await c.get(f"{config.get_node_url('M2')}/api/v1/models")
+            r = await c.get(f"{config.get_node_url('M2')}/api/v1/models", headers=m2.auth_headers() if m2 else {})
             r.raise_for_status()
             status["m2"] = "OK"
     except Exception:
