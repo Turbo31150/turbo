@@ -107,7 +107,7 @@ export function useLMStudio() {
 
   useEffect(() => {
     refresh();
-    intervalRef.current = window.setInterval(refresh, 30000);
+    intervalRef.current = window.setInterval(refresh, 60000);
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [refresh]);
 
