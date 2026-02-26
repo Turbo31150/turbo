@@ -174,8 +174,8 @@ Les 10 niveaux testent des capacites croissantes :
 | **Fails** | 0 / 10 niveaux |
 | **Latence moy** | 2.5s |
 | **Limite** | Aucune (surprenant pour 8GB VRAM) |
-| **Forces** | Polyvalent, raisonnement, general |
-| **Poids** | 1.0 (promu de 0.5) |
+| **Forces** | Polyvalent, general |
+| **Poids** | 0.8 (general, PAS raisonnement) |
 
 #### OL1 — qwen3:1.7b — PLUS RAPIDE (88%)
 
@@ -206,12 +206,12 @@ Les 10 niveaux testent des capacites croissantes :
 | **Score** | 100% (60/60 autotest v3) |
 | **Fails** | 0 |
 | **Latence moy** | 0.7-2.5s (65 tok/s) |
-| **Modele** | qwen3-8b (dense 8B, 4.7 GB, Q4_K_M) tient sur 1 GPU |
-| **Dual-model** | qwen3-30b charge en parallele pour taches profondes |
+| **Modele** | qwen3-8b (dense 8B, 4.7 GB, Q4_K_M) dual-instance, 65 tok/s |
+| **VRAM** | 4.7 GB x 2 = ~10 GB (sur 46 GB) |
 | **Optimisation** | `/nothink` prefix, 2 instances paralleles, ctx=8192 |
-| **Poids** | 1.2 (promu de 0.7) |
+| **Poids** | 1.6 (Rapide + precis) |
 
-> **Fix 2026-02-26** : qwen3-30b (18 GB MoE) causait un overhead inter-GPU massif sur 6 GPUs (12s+). Switch vers qwen3-8b (4.7 GB dense) = tient sur 1 seul GPU = **10x plus rapide**.
+> **Fix 2026-02-26** : qwen3-8b dual-instance (4.7 GB x 2 = ~10 GB) sur 46 GB VRAM = ultra-rapide 0.6-2.5s, 65 tok/s.
 
 ### Decisions de Routage
 
@@ -318,8 +318,8 @@ curl -s http://127.0.0.1:11434/api/chat -d '{
 | **GPU** | 1 GPU |
 | **VRAM** | 8 GB |
 | **Modele** | `mistral-7b-instruct-v0.3` |
-| **Poids** | 1.0 (promu de 0.5) |
-| **Role** | FALLBACK FIABLE — review, raisonnement, general |
+| **Poids** | 0.8 (general, PAS raisonnement) |
+| **Role** | FALLBACK FIABLE — review, general |
 
 ### GEMINI — Architecture & Vision (Cloud) — Score: 74%
 
@@ -346,15 +346,15 @@ node F:/BUREAU/turbo/gemini-proxy.js --ping   # Health check
 | **GPU** | RTX 2060 + 4x GTX 1660 Super + RTX 3080 |
 | **VRAM** | 46 GB total |
 | **CUDA_VISIBLE_DEVICES** | `5,0,1,2,3,4` |
-| **Modele principal** | `qwen/qwen3-8b` (4.7 GB, dense, 1 GPU) |
-| **Modele dual** | `qwen/qwen3-30b-a3b-2507` (charge en parallele pour deep tasks) |
-| **Poids** | 1.2 (promu de 0.7) |
+| **Modele** | `qwen/qwen3-8b` (4.7 GB, dense, dual-instance, 65 tok/s) |
+| **VRAM** | 4.7 GB x 2 = ~10 GB (sur 46 GB) |
+| **Poids** | 1.6 (Rapide + precis) |
 | **Latence** | 0.6-2.5s (65 tok/s) |
 | **Role** | RAPIDE — code, raisonnement, general, embedding, consensus |
 
 **Config optimale :** `context_length=8192, eval_batch_size=512, flash_attention=true, /nothink prefix`
 
-**Dual-model (22 GB / 46 GB) :** 2x qwen3-8b instances + 1x qwen3-30b = parallelisme
+**Dual-instance (10 GB / 46 GB) :** 2x qwen3-8b instances = parallelisme sans overhead inter-GPU
 
 **Modeles on-demand M1 :**
 | Modele | VRAM | Usage |
@@ -595,25 +595,200 @@ Definis dans `src/agents.py`, utilisant le Claude Agent SDK Python v0.1.35.
 
 ## Routage Commander (benchmark-tuned)
 
-Matrice definie dans `config.py` → `commander_routing` — **ajustee le 2026-02-20** :
+Matrice definie dans `config.py` → `commander_routing` — **ajustee le 2026-02-26, M1 PRIORITAIRE** :
 
-| Type | Agent | IA Cible | Role | Benchmark |
-|------|-------|----------|------|-----------|
-| **code** | ia-fast | M2 (deepseek) | coder | M2 champion 92% |
-| **code** | ia-check | M3 (mistral) | reviewer | M3 solide 89% |
-| **analyse** | ia-deep | M2 (deepseek) | analyzer | M2 fiable, M1 timeout |
-| **trading** | ia-trading | OL1 (ollama) | scanner | OL1 web search rapide |
-| **trading** | - | OL1 | web_data | OL1 cloud natif |
-| **trading** | ia-check | M2 (deepseek) | validator | M2 champion |
-| **systeme** | ia-system | - | executor | N/A (Windows direct) |
-| **web** | - | OL1 | searcher | OL1 plus rapide 0.5s |
-| **web** | ia-deep | M2 (deepseek) | synthesizer | M2 champion |
-| **simple** | - | OL1 | responder | OL1 rapide (vs M1 12s) |
-| **architecture** | ia-bridge | GEMINI | analyzer | GEMINI specialise archi |
-| **architecture** | ia-deep | M2 (deepseek) | reviewer | M2 champion |
-| **consensus** | ia-consensus | M2 (deepseek) | analyzer | M2 primary |
+| Categorie | Chaine de routage (fallback gauche→droite) |
+|-----------|---------------------------------------------|
+| **code** | M1, M2, M3, OL1 |
+| **archi** | M1, M2, GEMINI, M3 |
+| **trading** | OL1, M1, M2, M3 |
+| **math** | M1, OL1, M2 (NOUVEAU) |
+| **raison** | M1, M2, OL1 (NOUVEAU, JAMAIS M3) |
+| **system** | M1, OL1, M3, M2 |
+| **ia** | M1, M2, GEMINI, CLAUDE, M3, OL1 |
+| **web** | OL1, M1, GEMINI, M2, M3 |
+| **default** | M1, M2, M3, OL1, GEMINI |
 
-**Regle** : Les reviewers/validators/synthesizers **dependent** des taches principales.
+**Regle** : M1 PRIORITAIRE pour code/math/raisonnement. OL1 pour trading/web (rapidite). JAMAIS M3 pour raisonnement.
+
+---
+
+## Architecture Workflow (7 schemas)
+
+### Schema 1 — Architecture Globale du Cluster
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    JARVIS v10.3 — CLUSTER                   │
+├──────────┬──────────┬──────────┬──────────┬────────┬────────┤
+│    M1    │    M2    │    M3    │   OL1    │ GEMINI │ CLAUDE │
+│ qwen3-8b │ deepseek │ mistral  │ qwen3    │ gemini │ claude │
+│ 6GPU/46G │ 3GPU/24G │ 1GPU/8G  │ 5GPU/40G │ cloud  │ cloud  │
+│ 0.6-2.5s │  1.3s    │  2.5s    │  0.5s    │  var   │ 12-18s │
+│ W=1.6    │ W=1.4    │ W=0.8   │ W=1.3    │ W=1.2  │ W=1.2  │
+│ PRIORITE │  REVIEW  │ GENERAL  │ RAPIDE   │ ARCHI  │ REASON │
+└──────────┴──────────┴──────────┴──────────┴────────┴────────┘
+```
+
+### Schema 2 — Routing Dynamique
+
+```
+                         ┌─────────────┐
+                         │  Requete IA  │
+                         └──────┬──────┘
+                                │
+                    ┌───────────▼───────────┐
+                    │ classifyComplexity()  │
+                    │ → categorie + mode    │
+                    └───────────┬───────────┘
+                                │
+               ┌────────────────▼────────────────┐
+               │    autolearn.getBestNode(cat)    │
+               │  score = speed*0.3 + quality*0.5│
+               │         + reliability*0.2       │
+               └────────┬───────────┬────────────┘
+                        │           │
+              ┌─────────▼──┐  ┌────▼─────────┐
+              │ Score dispo │  │ Pas de score │
+              │ → best node │  │ → ROUTING[]  │
+              └─────────┬──┘  └────┬─────────┘
+                        │          │
+                  ┌─────▼──────────▼─────┐
+                  │ orderedChain = [best, │
+                  │   ...fallbacks]      │
+                  └──────────┬───────────┘
+                             │
+                    ┌────────▼────────┐
+                    │ Fallback chain  │
+                    │ try → catch →   │
+                    │ next node       │
+                    └─────────────────┘
+```
+
+### Schema 3 — Consensus Vote Pondere
+
+```
+    ┌──────────────────────────────────┐
+    │      Question Consensus          │
+    └──────────────┬───────────────────┘
+                   │
+    ┌──────────────▼───────────────────┐
+    │   Dispatch parallele (gather)    │
+    ├──────┬──────┬──────┬──────┬──────┤
+    │  M1  │  M2  │ OL1  │GEMIN│CLAUDE│
+    │ w1.6 │ w1.4 │ w1.3 │w1.2 │ w1.2 │
+    └──┬───┴──┬───┴──┬───┴──┬──┴──┬───┘
+       │      │      │      │     │
+    ┌──▼──────▼──────▼──────▼─────▼───┐
+    │  Agregation ponderee             │
+    │  score = Sigma(opinion * poids)  │
+    │         / Sigma(poids)           │
+    │  Quorum >= 0.65                  │
+    └──────────────┬───────────────────┘
+                   │
+    ┌──────────────▼───────────────────┐
+    │  Synthese finale + attribution   │
+    │  [M1/qwen3-8b] [M2/deepseek]    │
+    └──────────────────────────────────┘
+```
+
+### Schema 4 — Autolearn Engine (3 Piliers)
+
+```
+    ┌────────────────────────────────────────────────┐
+    │              AUTOLEARN ENGINE                   │
+    ├────────────────┬───────────────┬────────────────┤
+    │   MEMOIRE      │  AUTO-TUNING  │  AUTO-REVIEW   │
+    │   (continu)    │  (cycle 5min) │  (cycle 30min) │
+    ├────────────────┼───────────────┼────────────────┤
+    │ recordConv()   │ speedScore()  │ M2 → propose   │
+    │ conversations  │ reliability() │ M3 → valide    │
+    │ profil user    │ quality 1-10  │ M1 → meta-OUI  │
+    │ topics freq    │ → reorder     │ → hot-swap     │
+    │ context inject │   ROUTING[]   │ rollback <15%  │
+    ├────────────────┼───────────────┼────────────────┤
+    │ memory.json    │ routing_scores│ autolearn_hist  │
+    │                │    .json      │     .json       │
+    └────────────────┴───────────────┴────────────────┘
+```
+
+### Schema 5 — Pipeline Hooks (4 hooks)
+
+```
+    ┌──────────────┐
+    │ SessionStart │──→ GPU Thermal Check (75C warn, 85C crit)
+    │              │──→ Cluster Health (M1/M2/M3/OL1 online?)
+    │              │──→ VRAM + M1 Model Check (qwen3-8b loaded?)
+    └──────────────┘
+    ┌──────────────┐
+    │ PreToolUse   │──→ Routing Logger (routing_log table etoile.db)
+    └──────────────┘
+    ┌──────────────┐
+    │ Stop         │──→ Metrics Saver (sessions table etoile.db)
+    └──────────────┘
+    ┌──────────────┐
+    │ SubagentStop │──→ Agent Complete Logger (7+3 agents)
+    └──────────────┘
+```
+
+### Schema 6 — Agents Plugin (10 agents)
+
+```
+    ┌─────────────────────────────────────────────────┐
+    │           PLUGIN jarvis-turbo — 10 Agents       │
+    ├────────────────────┬────────────────────────────┤
+    │ EXISTANTS (7)      │ NOUVEAUX (3)               │
+    ├────────────────────┼────────────────────────────┤
+    │ cluster-ops  cyan  │ raisonnement    purple     │
+    │ trading      green │ benchmark       yellow     │
+    │ code-archi   blue  │ routing-optim   orange     │
+    │ debug        red   │                            │
+    │ auto-healer  —     │                            │
+    │ perf-monitor —     │                            │
+    │ smart-disp   —     │                            │
+    └────────────────────┴────────────────────────────┘
+```
+
+### Schema 7 — Workflow Complet Requete-a-Reponse
+
+```
+    ┌──────────┐
+    │  User    │
+    │  Input   │
+    └────┬─────┘
+         │
+    ┌────▼─────────────────┐
+    │ classifyComplexity() │
+    │ categorie + mode     │
+    └────┬────────────┬────┘
+         │            │
+    ┌────▼────┐  ┌────▼──────────┐
+    │ SIMPLE  │  │  REFLEXIVE    │
+    │ 1 node  │  │  3 etapes     │
+    └────┬────┘  └────┬──────────┘
+         │            │
+         │       ┌────▼──────────────────────┐
+         │       │ 1. OL1 (recherche+outils) │
+         │       │    COCKPIT_TOOLS_PROMPT    │
+         │       │    → DB, fichiers, web     │
+         │       └────┬──────────────────────┘
+         │            │
+         │       ┌────▼──────────────────────┐
+         │       │ 2. M1 (analyse profonde)  │
+         │       │    prompt leger            │
+         │       │    context cappe 8000      │
+         │       └────┬──────────────────────┘
+         │            │
+         │       ┌────▼──────────────────────┐
+         │       │ 3. M2 (review+synthese)   │
+         │       │    reponse finale user     │
+         │       └────┬──────────────────────┘
+         │            │
+    ┌────▼────────────▼──┐
+    │ autolearn.record() │
+    │ → memory + scoring │
+    └────────────────────┘
+```
 
 ---
 
@@ -629,7 +804,7 @@ Matrice definie dans `config.py` → `commander_routing` — **ajustee le 2026-0
  |  1. INTERROGATION PARALLELE (bridge_mesh)     |
  |  ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌────┐|
  |  │  M1  │ │  M2  │ │  OL1 │ │  M3  │ │GEM │|
- |  │w=1.8 │ │ w=1.4│ │ w=1.3│ │ w=1.0│ │1.2 │|
+ |  │w=1.6 │ │ w=1.4│ │ w=1.3│ │ w=0.8│ │1.2 │|
  |  └──┬───┘ └──┬───┘ └──┬───┘ └──┬───┘ └─┬──┘|
  |     │        │        │        │        │   |
  |     v        v        v        v        v   |
@@ -656,13 +831,22 @@ Matrice definie dans `config.py` → `commander_routing` — **ajustee le 2026-0
 
 ### Poids de Vote (benchmark-tuned 2026-02-26)
 
+| Agent | Poids | Specialite |
+|-------|-------|------------|
+| **M1** | **1.6** | Rapide + precis (qwen3-8b dual-instance) |
+| M2 | 1.4 | Review solide (deepseek-coder) |
+| OL1 | 1.3 | Ultra-rapide 0.5s |
+| GEMINI | 1.2 | Architecture, vision |
+| CLAUDE | 1.2 | Raisonnement cloud |
+| M3 | 0.8 | General (PAS raisonnement) |
+
 ```
- M1  /qwen3-8b         ████████████████████ 1.8  (100%, PRIORITAIRE, 0.6-2.5s)
- M2  /deepseek-coder   ████████████████     1.4  (100%, champion code, 3.9s)
+ M1  /qwen3-8b         ██████████████████   1.6  (100%, Rapide+precis, 0.6-2.5s)
+ M2  /deepseek-coder   ████████████████     1.4  (100%, review solide, 3.9s)
  OL1 /qwen3:1.7b       ██████████████       1.3  (100%, ultra-rapide, 1.96s)
  GEM /gemini-3-pro      ██████████████       1.2  (74%, architecture)
  CLA /claude-opus       ██████████████       1.2  (cloud reasoning, 12-18s)
- M3  /mistral-7b        ████████████         1.0  (100%, general, PAS logique)
+ M3  /mistral-7b        █████████            0.8  (100%, general, PAS raisonnement)
 ```
 
 ---
@@ -1115,7 +1299,7 @@ uv run python scripts/system_audit.py [--json|--quick|--save]
 
 ## Plugin jarvis-turbo (Claude Code)
 
-**Plugin local**: `~/.claude/plugins/local/jarvis-turbo/` — 21 commandes, 7 agents, 10 skills, 2 hooks
+**Plugin local**: `~/.claude/plugins/local/jarvis-turbo/` — 27 commandes, 7 agents, 10 skills, 2 hooks
 
 ### 7 Agents Claude Code
 
@@ -1161,7 +1345,7 @@ uv run python scripts/system_audit.py [--json|--quick|--save]
 │            WEIGHTED ROUTING — 5 LAYERS                           │
 │                                                                  │
 │  N1. Poids Noeud (statique)                                      │
-│      M1=1.8  M2=1.4  OL1=1.3  GEM=1.2  CLA=1.2  M3=1.0       │
+│      M1=1.6  M2=1.4  OL1=1.3  GEM=1.2  CLA=1.2  M3=0.8       │
 │                                                                  │
 │  N2. Ponderation Domaine (benchmark-driven)                      │
 │      code:   M1(50%) M2(30%) M3(15%) OL1(5%)                   │
@@ -1203,7 +1387,7 @@ uv run python scripts/system_audit.py [--json|--quick|--save]
 | continuous-improvement | 1.0 | TEST→ANALYSE→CORRECTION→RE-TEST |
 | autotest-analysis | 1.0 | Benchmark analysis, weak node detection |
 
-### 21 Slash Commands
+### 27 Slash Commands
 
 | Commande | Description |
 |----------|-------------|
