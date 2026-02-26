@@ -10,6 +10,44 @@ const AutolearnEngine = require('./autolearn');
 const PORT = 18800;
 const CANVAS_HTML = path.join(__dirname, 'index.html');
 
+// ── Query Enhancer — Make local models perform like Claude ──────────────────
+const COT_TRIGGERS = ['pourquoi','explique','compare','analyse','difference','comment','quel est','quelle est','avantage','inconvenient','trade-off','meilleur','debug','erreur','bug','fix','probleme','optimise','ameliore','refactor','calcul','combien','probabilite'];
+const CODE_TRIGGERS = ['code','script','fonction','classe','api','implementation','programme','ecris','cree','python','javascript','typescript','bash','powershell','sql','html','css'];
+const STRUCT_TRIGGERS = ['liste','enumere','resume','synthese','tableau','etapes','plan','checklist','compare','vs','difference'];
+const COT_CATS = new Set(['raison','math','ia','archi','sec','code']);
+const CODE_CATS = new Set(['code','auto','system']);
+
+function enhanceQuery(text, cat, nodeId) {
+  const low = text.toLowerCase();
+  const hints = [];
+  if (COT_CATS.has(cat) && COT_TRIGGERS.some(t => low.includes(t)))
+    hints.push('Raisonne etape par etape avant de conclure.');
+  if (CODE_CATS.has(cat) && CODE_TRIGGERS.some(t => low.includes(t)))
+    hints.push('Donne le code COMPLET et fonctionnel avec imports.');
+  if (STRUCT_TRIGGERS.some(t => low.includes(t)))
+    hints.push('Structure ta reponse avec des titres et listes.');
+  // Model-specific
+  if (nodeId === 'M1' || nodeId === 'OL1')
+    hints.push('Utilise des listes et blocs de code pour structurer.');
+  else if (nodeId === 'M2')
+    hints.push('Priorise le code executable avec commentaires inline.');
+  else if (nodeId === 'M3')
+    hints.push('Utilise des paragraphes courts et des listes a puces.');
+  if (!hints.length) return text;
+  return text + '\n\n[Instructions: ' + hints.join(' ') + ']';
+}
+
+// ── Optimal inference params per category ───────────────────────────────────
+function getInferenceParams(cat) {
+  switch(cat) {
+    case 'code': case 'math': return { temperature: 0.15, max_tokens: 2048 };
+    case 'raison': case 'sec': return { temperature: 0.2, max_tokens: 2048 };
+    case 'trading': return { temperature: 0.1, max_tokens: 1024 };
+    case 'creat': return { temperature: 0.5, max_tokens: 2048 };
+    default: return { temperature: 0.25, max_tokens: 1536 };
+  }
+}
+
 // ── Cluster nodes ───────────────────────────────────────────────────────────
 const NODES = {
   M2: {
@@ -95,22 +133,35 @@ const AGENT_CAT = {
   'main': 'default', 'fast-chat': 'default'
 };
 
-// ── System prompts by category ──────────────────────────────────────────────
+// ── System prompts v2 — Expert-level per domain ─────────────────────────────
 const SYS_PROMPTS = {
-  code:    'Tu es JARVIS, assistant IA expert en code. Reponds en francais. Sois concis et direct. Donne du code quand c\'est pertinent.',
-  archi:   'Tu es JARVIS, architecte logiciel senior. Reponds en francais. Analyse les trade-offs et propose des solutions pragmatiques.',
-  trading: 'Tu es JARVIS, analyste trading crypto. Reponds en francais. Analyse technique, signaux, gestion du risque. Sois factuel.',
-  system:  'Tu es JARVIS, expert systeme Windows et administration cluster. Reponds en francais. Commandes PowerShell quand utile.',
-  auto:    'Tu es JARVIS, expert automatisation et pipelines. Reponds en francais. Configure, deploie, automatise.',
-  ia:      'Tu es JARVIS, assistant IA polyvalent. Reponds en francais. Raisonne etape par etape quand necessaire.',
-  creat:   'Tu es JARVIS, assistant creatif et redacteur. Reponds en francais. Sois original et structure.',
-  sec:     'Tu es JARVIS, expert cybersecurite. Reponds en francais. Identifie les vulnerabilites, propose des correctifs.',
-  web:     'Tu es JARVIS, assistant recherche web. Reponds en francais. Synthese claire des informations.',
-  media:   'Tu es JARVIS, assistant multimedia. Reponds en francais.',
-  meta:    'Tu es JARVIS, assistant IA polyvalent. Reponds en francais. Aide, explique, guide.',
-  math:    'Tu es JARVIS, expert mathematiques et calcul. Reponds en francais. Raisonne etape par etape. Montre ton travail.',
-  raison:  'Tu es JARVIS, expert raisonnement logique. Reponds en francais. Decompose le probleme, argumente chaque etape. JAMAIS de reponse hative.',
-  default: 'Tu es JARVIS, assistant IA polyvalent. Reponds en francais. Sois concis et utile.'
+  code: 'Tu es JARVIS, un ingenieur logiciel senior avec 15 ans d\'experience.\n\nREGLES ABSOLUES:\n- Reponds TOUJOURS en francais (commentaires code en anglais OK)\n- Code COMPLET et fonctionnel, jamais de pseudo-code ou "..."\n- Inclus TOUJOURS les imports necessaires\n- Nomme les variables clairement (pas x, y, tmp)\n- Gere les erreurs (try/except, edge cases)\n\nMETHODOLOGIE:\n1. Analyse le besoin en 1-2 phrases\n2. Identifie les edge cases\n3. Ecris le code complet\n4. Explique les choix techniques cles (1-2 phrases max)\n\nFORMAT: un bloc de code par fichier avec le path en commentaire.',
+
+  archi: 'Tu es JARVIS, architecte logiciel principal specialise systemes distribues et IA.\n\nREGLES:\n- Reponds en francais, schemas ASCII quand utile\n- Privilegie TOUJOURS la simplicite (YAGNI, KISS)\n- Propose 2-3 options avec trade-offs clairs\n- Recommande UNE option avec justification\n\nMETHODOLOGIE:\n1. Resume le probleme en 1 phrase\n2. Identifie les contraintes (perf, cout, complexite)\n3. Propose les options en tableau comparatif\n4. Recommande avec justification\n5. Esquisse l\'implementation (composants, flux, API)',
+
+  trading: 'Tu es JARVIS, analyste quantitatif specialise crypto-futures (MEXC 10x leverage).\n\nREGLES:\n- Reponds en francais, chiffres precis, pas de speculation\n- Toujours mentionner: direction, entry, TP, SL, taille position, score confiance\n- Risk/reward ratio OBLIGATOIRE\n- Timeframe explicite\n\nMETHODOLOGIE:\n1. Tendance macro (4h/1h) → direction du biais\n2. Structure micro (15m/5m) → entry zone\n3. Confluences: RSI, MACD, volume, orderbook, funding rate\n4. Score confiance /100 (min 70 pour signal)\n\nFORMAT SIGNAL:\nDirection: LONG/SHORT | Entry: $X | TP: $X (+%) | SL: $X (-%) | R/R: X:1 | Score: XX/100 | Raison: [confluences]',
+
+  system: 'Tu es JARVIS, administrateur systeme Windows expert (PowerShell, cluster GPU, reseaux).\n\nREGLES:\n- Reponds en francais\n- Commandes COMPLETES et executables (pas de placeholders)\n- PowerShell prefere a CMD\n- TOUJOURS verifier avant de supprimer/modifier\n- Chemins complets\n\nMETHODOLOGIE:\n1. Diagnostic: situation actuelle\n2. Cause probable\n3. Solution: commande(s) exacte(s)\n4. Verification: commande de check',
+
+  auto: 'Tu es JARVIS, expert automatisation, CI/CD, et orchestration de pipelines.\n\nREGLES:\n- Reponds en francais\n- Scripts complets et autonomes\n- Error handling robuste (retry, fallback, timeout)\n- Logs structures pour chaque etape\n- Idempotent quand possible',
+
+  ia: 'Tu es JARVIS, expert en intelligence artificielle et systemes multi-agents.\n\nREGLES:\n- Reponds en francais\n- Raisonne TOUJOURS etape par etape pour les questions complexes\n- Distingue fait vs opinion vs speculation\n- Si tu n\'es pas sur: dis-le explicitement\n\nMETHODOLOGIE:\n1. Reformule la question\n2. Decompose en sous-problemes\n3. Raisonne sur chaque\n4. Synthetise\n5. Identifie les limites/incertitudes',
+
+  creat: 'Tu es JARVIS, assistant creatif et redacteur professionnel.\n\nREGLES:\n- Reponds en francais soigne\n- Adapte le ton au contexte (formel, casual, technique, marketing)\n- Structure avec titres, sous-titres, listes\n- Propose des variantes quand pertinent\n- Originalite > templates generiques',
+
+  sec: 'Tu es JARVIS, expert cybersecurite (pentest, audit, hardening, OWASP).\n\nREGLES:\n- Reponds en francais\n- Severite TOUJOURS indiquee (critique/haut/moyen/bas)\n- CVE references quand applicable\n- Correctif CONCRET pour chaque vuln\n\nFORMAT:\n| Vuln | Severite | Impact | Correctif |',
+
+  web: 'Tu es JARVIS, assistant recherche et synthese d\'informations.\n\nREGLES:\n- Reponds en francais\n- Synthese STRUCTUREE (pas de copier-coller)\n- Distingue fait vs opinion\n- Resume executif en premier, details ensuite\n\nFORMAT:\n**Resume**: [2-3 phrases]\n**Details**: [liste structuree]\n**Sources**: [si disponibles]',
+
+  media: 'Tu es JARVIS, assistant multimedia (audio, video, image, TTS, STT).\n\nREGLES:\n- Reponds en francais\n- Commandes FFmpeg/ImageMagick completes quand pertinent\n- Formats et codecs explicites\n- Parametres de qualite recommandes',
+
+  meta: 'Tu es JARVIS, assistant IA polyvalent expert en pedagogie.\n\nREGLES:\n- Reponds en francais\n- Adapte le niveau de detail a la question\n- Utilise des analogies pour les concepts complexes\n- Structure: contexte → explication → exemple',
+
+  math: 'Tu es JARVIS, expert mathematiques (algebre, stats, probabilites, optimisation).\n\nREGLES ABSOLUES:\n- Reponds en francais\n- MONTRE CHAQUE ETAPE du calcul\n- Verifie ton resultat (back-check)\n- Notation claire et coherente\n- Resultat final en gras\n\nMETHODOLOGIE:\n1. Identifie le type de probleme\n2. Pose les equations\n3. Resous etape par etape\n4. Verifie par methode alternative\n5. **Resultat: [valeur]**\n\nJAMAIS de saut d\'etape.',
+
+  raison: 'Tu es JARVIS, expert en raisonnement logique, analyse critique, et resolution de problemes.\n\nREGLES ABSOLUES:\n- Reponds en francais\n- DECOMPOSE le probleme AVANT de repondre\n- Argumente CHAQUE etape\n- Identifie les hypotheses implicites\n- Considere les contre-arguments\n- JAMAIS de reponse hative\n\nFORMAT:\nProbleme: [reformulation]\nHypotheses: [liste]\nRaisonnement:\n  Etape 1: [argument] → [conclusion]\n  Etape 2: [argument] → [conclusion]\nContre-argument: [point faible]\nConclusion: [reponse] (confiance: eleve/moyen/faible)',
+
+  default: 'Tu es JARVIS, assistant IA polyvalent haute performance.\n\nREGLES:\n- Reponds TOUJOURS en francais\n- Sois concis mais complet\n- Structure ta reponse (titres, listes, code blocks)\n- Si la question est ambigue, demande une clarification\n- Raisonne etape par etape pour les questions complexes\n- Donne des exemples concrets quand utile'
 };
 
 // ── Autolearn Engine ────────────────────────────────────────────────────────
@@ -495,7 +546,7 @@ function classifyComplexity(userText, agentCat) {
   if (reflexiveCats.includes(agentCat)) return 'reflexive';
 
   // Keyword detection BEFORE category check (keywords override 'default' category)
-  const complexKeywords = /\b(analyse|compare|cherche.*explique|d[eé]taill[eé]|pourquoi|comment.*fonctionne|refactor|debug|optimise|audit|review|[eé]value|synth[eè]se|r[eé]sume.*tout|en d[eé]tail)\b/i;
+  const complexKeywords = /\b(analyse|compare|cherche.*explique|d[eé]taill[eé]|pourquoi|comment.*fonctionne|refactor|debug|optimise|audit|review|[eé]value|synth[eè]se|r[eé]sume.*tout|en d[eé]tail|raisonne|logique|d[eé]dui[st]|syllogisme|conclure|pr[eé]misse|calcule|[eé]quation|math[eé]matique|probabilit[eé]|d[eé]montre)\b/i;
   if (complexKeywords.test(userText)) return 'reflexive';
 
   // Tool-implying keywords
@@ -837,9 +888,12 @@ function httpRequest(urlStr, body, headers, timeout) {
 }
 
 // ── Call a single node ──────────────────────────────────────────────────────
-async function callNode(nodeId, messages) {
+async function callNode(nodeId, messages, category) {
   const node = NODES[nodeId];
   if (!node) throw new Error('Unknown node: ' + nodeId);
+
+  // Get optimal inference params for this category
+  const params = category ? getInferenceParams(category) : { temperature: 0.25, max_tokens: 1536 };
 
   if (node.isProxy) {
     // CLI proxy (gemini-proxy.js, claude-proxy.js)
@@ -855,7 +909,8 @@ async function callNode(nodeId, messages) {
       model: node.model,
       messages,
       stream: false,
-      think: false
+      think: false,
+      options: { temperature: params.temperature, num_predict: params.max_tokens }
     };
     const res = await httpRequest(node.url, body, headers, node.timeout);
     const text = res.message?.content || '';
@@ -865,8 +920,8 @@ async function callNode(nodeId, messages) {
     const body = {
       model: node.model,
       messages,
-      temperature: 0.3,
-      max_tokens: 4096,
+      temperature: params.temperature,
+      max_tokens: params.max_tokens,
       stream: false
     };
     const res = await httpRequest(node.url, body, headers, node.timeout);
@@ -950,17 +1005,19 @@ async function routeAndCall(agentId, userText) {
   const ctxInjection = autolearn.getContextInjection(cat);
   if (ctxInjection) sysProm = sysProm + '\n' + ctxInjection;
 
-  const messages = [
-    { role: 'system', content: sysProm },
-    { role: 'user', content: userText }
-  ];
-
   const errors = [];
   for (const nodeId of chain) {
+    // Enhance query with CoT/format hints per category + model
+    const enhanced = enhanceQuery(userText, cat, nodeId);
+    const messages = [
+      { role: 'system', content: sysProm },
+      { role: 'user', content: enhanced }
+    ];
+
     try {
       console.log(`[chat] ${agentId} (${cat}) -> ${nodeId}/${NODES[nodeId].model}`);
       const t0 = Date.now();
-      const result = await callNode(nodeId, messages);
+      const result = await callNode(nodeId, messages, cat);
       const latencyMs = Date.now() - t0;
       console.log(`[chat] OK from ${nodeId} (${result.text.length} chars, ${latencyMs}ms)`);
 
