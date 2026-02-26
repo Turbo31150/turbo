@@ -71,10 +71,10 @@ TEST_SUITE = [
     {"cat": "sec", "agent": "main", "q": "Comment securiser une API REST? Liste les bonnes pratiques.", "check": ["auth|token|https|rate.limit|valid"], "fmt": ["pratique|regle"]},
     {"cat": "sec", "agent": "main", "q": "Explique l'attaque SQL injection et comment s'en proteger", "check": ["sql", "inject", "param|prepar|sanitiz"], "fmt": ["correctif|protect"]},
 
-    # CREAT (3 tests)
-    {"cat": "creat", "agent": "main", "q": "Redige un pitch de 3 phrases pour une app de meditation IA personnalisee", "check": [], "fmt": [], "min_len": 50, "max_len": 500},
-    {"cat": "creat", "agent": "main", "q": "Ecris un slogan accrocheur pour un cafe tech a Paris", "check": [], "fmt": [], "min_len": 10, "max_len": 200},
-    {"cat": "creat", "agent": "main", "q": "Propose 5 noms creatifs pour un chatbot IA francais", "check": [], "fmt": [], "min_len": 30},
+    # CREAT (3 tests) — scoring needs check/fmt patterns to differentiate quality
+    {"cat": "creat", "agent": "main", "q": "Redige un pitch de 3 phrases pour une app de meditation IA personnalisee", "check": ["meditation|meditat", "ia|intelligen", "personnal|adapt"], "fmt": ["**", "1\\.|2\\.|3\\."], "min_len": 80, "max_len": 500},
+    {"cat": "creat", "agent": "main", "q": "Ecris un slogan accrocheur pour un cafe tech a Paris", "check": ["cafe|coffee", "tech|code|dev|numer"], "fmt": ["**|slogan"], "min_len": 20, "max_len": 300},
+    {"cat": "creat", "agent": "main", "q": "Propose 5 noms creatifs pour un chatbot IA francais", "check": ["1\\.|2\\.|3\\.|4\\.|5\\.", "chatbot|bot|ia|assistant"], "fmt": ["1\\.", "5\\."], "min_len": 60},
 
     # META (2 tests)
     {"cat": "meta", "agent": "main", "q": "Explique le concept de recursion a quelqu'un qui n'a jamais code", "check": ["recursion|recursif|appel"], "fmt": ["exemple|analogie"]},
