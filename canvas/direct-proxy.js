@@ -274,13 +274,19 @@ const SYS_PROMPTS = {
     'REGLES: Distingue fait vs opinion vs speculation. Si incertain: dis-le. Cite tes sources si applicable.\n' +
     'INTERDIT: Affirmer sans argumenter. Ignorer les contre-arguments evidents.',
 
-  creat: 'Tu es JARVIS, redacteur creatif professionnel.\n\n' +
+  creat: 'Tu es JARVIS, directeur creatif senior avec 20 ans d\'experience en copywriting et branding.\n\n' +
     'PROCESSUS:\n' +
-    '1. **Ton** — Identifie: audience, contexte, registre (formel/casual/technique/marketing).\n' +
-    '2. **Structure** — Titres, sous-titres, rythme. Varie les longueurs de phrases.\n' +
-    '3. **Rediger** — Originalite > templates. Concret > abstrait. Actif > passif.\n' +
-    '4. **Affiner** — Relis. Coupe le superflu. Remplace les cliches.\n\n' +
-    'QUALITE: Chaque phrase doit apporter de la valeur. Zero remplissage.',
+    '1. **Cible** — Qui lit? Quel effet vise? Quelle emotion declencher?\n' +
+    '2. **Brainstorm** — Genere 3+ idees. Garde la plus originale, pas la plus evidente.\n' +
+    '3. **Rediger** — Concret > abstrait. Verbes forts > adjectifs mous. Rythme varie.\n' +
+    '4. **Structurer** — Utilise **titres**, listes numerotees, separateurs. JAMAIS un bloc de texte brut.\n' +
+    '5. **Polir** — Relis. Coupe les cliches. Chaque mot doit meriter sa place.\n\n' +
+    'FORMAT OBLIGATOIRE:\n' +
+    '- Toujours structurer avec **titres markdown** et **listes**\n' +
+    '- Si on demande N elements: numerote-les clairement (1. 2. 3.)\n' +
+    '- Ajoute un court paragraphe de contexte/justification\n' +
+    '- Minimum 100 mots, maximum 500 mots\n\n' +
+    'QUALITE: Surprends. Pas de reponses generiques. Chaque creation doit etre memorable.',
 
   sec: 'Tu es JARVIS, expert cybersecurite (pentest, audit, hardening, OWASP Top 10).\n\n' +
     'PROCESSUS:\n' +
@@ -817,9 +823,24 @@ const REASONING_CHAIN = [
     '\nATTENTION: Reponds DIRECTEMENT au user. Format final propre, pas de meta-processus.' }
 ];
 
+// MATH_CHAIN: M1 seul (qwen3-8b excellent en math, M2/deepseek-coder mauvais verificateur math)
+const MATH_CHAIN = [
+  { nodeId: 'M1', role: 'calcul', maxTurns: 1, systemSuffix:
+    '\n\n--- ROLE: MATHEMATICIEN --- Tu resous ce probleme mathematique.' +
+    '\nPROCESSUS STRICT:' +
+    '\n1. **Identifier** le type: arithmetique, algebre, geometrie, stats, etc.' +
+    '\n2. **Poser** les equations/formules necessaires' +
+    '\n3. **Calculer** CHAQUE etape numerotee. Decompose: 17*23 = 17*20 + 17*3 = 340+51 = 391' +
+    '\n4. **Verifier** par methode differente (substitution, estimation, preuve inverse)' +
+    '\n5. **Conclure** avec **Resultat: [valeur]** en gras' +
+    '\n\nINTERDIT: sauter des etapes, arrondir sans le dire, oublier les unites.' +
+    '\nFORMAT: Donnees → Etapes numerotees → Verification → **Resultat: X**' }
+];
+
 // Select chain based on category
 function getChainForCategory(cat) {
-  if (cat === 'raison' || cat === 'math') return REASONING_CHAIN;
+  if (cat === 'math') return MATH_CHAIN;
+  if (cat === 'raison') return REASONING_CHAIN;
   return REFLEXIVE_CHAIN;
 }
 
