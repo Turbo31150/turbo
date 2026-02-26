@@ -1042,19 +1042,111 @@
       "nodeId": "cockpit",
       "latencyMs": 0,
       "ts": "2026-02-25T23:34:40.145Z"
+    },
+    {
+      "agent": "trading-scanner",
+      "category": "trading",
+      "userText": "[INSTRUCTION SYSTEME: Reponds UNIQUEMENT en francais. Pas d'anglais.]\nScan trading",
+      "responseText": "[TOOL:query_db:SELECT * FROM map WHERE entity_type = 'map' AND status = 'active']",
+      "nodeId": "cockpit",
+      "latencyMs": 0,
+      "ts": "2026-02-26T00:39:45.752Z"
+    },
+    {
+      "agent": "debug-detective",
+      "category": "code",
+      "userText": "[INSTRUCTION SYSTEME: Reponds UNIQUEMENT en francais. Pas d'anglais.]\nDebug ce bug",
+      "responseText": "Pour déboguer ce bug, nous avons besoin de plus d'informations. Voici un guide pour collecter les informations nécessaires :\n\n1. **Message d'erreur exact** : Le message d'erreur qui s'affiche lorsque le bug se produit.\n2. **Code concerné** : Le fragment de code où le bug est observé.\n3. **Étapes pour reproduire le problème** : Les étapes que vous suivez pour provoquer le bug.\n4. **Logs système ou serveur (si applicables)** : Tout journal ou trace qui pourrait aider à diagnostiquer le problème.\n\nUne fois ces informations collectées, nous pourrons analyser et corriger le bug de manière plus efficace.",
+      "nodeId": "cockpit",
+      "latencyMs": 0,
+      "ts": "2026-02-26T00:40:28.832Z"
+    },
+    {
+      "agent": "ol1-web",
+      "category": "web",
+      "userText": "[INSTRUCTION SYSTEME: Reponds UNIQUEMENT en francais. Pas d'anglais.]\nCherche sur le web",
+      "responseText": "[TOOL:list_dir:C:\\Users\\franc\\Desktop]",
+      "nodeId": "cockpit",
+      "latencyMs": 0,
+      "ts": "2026-02-26T00:41:23.641Z"
+    },
+    {
+      "agent": "main",
+      "category": "default",
+      "userText": "bonjour jarvis, ca va?",
+      "responseText": "Bonjour! Je suis Jarvis, votre assistant IA. Comment puis-je vous aider aujourd'hui?",
+      "nodeId": "cockpit",
+      "latencyMs": 0,
+      "ts": "2026-02-26T00:41:33.360Z"
+    },
+    {
+      "agent": "coding",
+      "category": "code",
+      "userText": "combien de tables dans etoile.db?",
+      "responseText": "Il y a bien 273 tables dans `etoile.db`. Voici la liste des tables :\n\n- 1 table `agents`\n- 4 tables (`map`, `metrics`, `api_keys`, `memories`)\n- 268 tables `sessions`\n\nTotal = 1 + 4 + 268 = **273**.",
+      "nodeId": "cockpit",
+      "latencyMs": 0,
+      "ts": "2026-02-26T00:42:01.102Z"
+    },
+    {
+      "agent": "math-solver",
+      "category": "math",
+      "userText": "calcule la somme des 100 premiers nombres entiers",
+      "responseText": "Pour calculer la somme des 100 premiers nombres entiers, nous allons utiliser la formule de la somme d'une suite arithmétique. La formule est donnée par :\n\n\\[ S = \\frac{n(n + 1)}{2} \\]\n\noù \\( n \\) est le nombre de termes dans la suite. Dans ce cas, \\( n = 100 \\).\n\n**Étape 1 : Substitution de \\( n \\) dans la formule**\n\n\\[ S = \\frac{100(100 + 1)}{2} \\]\n\n**Étape 2 : Calculer le produit à l'intérieur des parenthèses**\n\n\\[ 100 + 1 = 101 \\]\n\n**Étape 3 : Multiplier \\( 100 \\) par \\( 101 \\)**\n\n\\[ 100 \\times 101 = 10\\,100 \\]\n\n**Étape 4 : Diviser le résultat par 2**\n\n\\[ \\frac{10\\,100}{2} = 5\\,050 \\]\n\nAinsi, la somme des 100 premiers nombres entiers est bien \\( 5\\,050 \\).",
+      "nodeId": "cockpit",
+      "latencyMs": 0,
+      "ts": "2026-02-26T00:42:57.819Z"
+    },
+    {
+      "agent": "coding",
+      "category": "code",
+      "userText": "[INSTRUCTION SYSTEME: Reponds UNIQUEMENT en francais. Pas d'anglais.]\nbonjour jarvis, test du nouveau routing M1",
+      "responseText": "Bonjour ! Pour aider à l'analyse du test de routing M1, j'ai besoin de plus d'informations :\n\n1. **Contexte exact** (API, réseau, architecture) : Quel est le contexte dans lequel vous effectuez ce test ? Est-ce une nouvelle API que vous utilisez, ou un changement dans la configuration du réseau ? Quelle est l'architecture de votre système actuellement en place pour gérer les requêtes et les réponses ?\n\n2. **Critères de succès** : Quels sont les indicateurs clés ou les critères que vous utilisez pour déterminer si le test est considéré comme un succès ? Par exemple, des taux de réussite, des temps de réponse spécifiques, des erreurs rencontrées, etc.\n\n3. **Données ou logs** : Avez-vous accès aux données ou aux logs de la phase précédente (OL1/qwen3:1.7b) qui pourraient être utiles pour l'analyse actuelle ? Ces informations peuvent inclure des erreurs, des performances, ou tout autre indicateur pertinent pour comprendre le comportement du système avant de passer à M1.\n\nPour avancer dans l'analyse, il est essentiel d'avoir ces éléments clés. Pouvez-vous fournir plus de détails sur ces points ?",
+      "nodeId": "cockpit",
+      "latencyMs": 0,
+      "ts": "2026-02-26T00:44:39.112Z"
+    },
+    {
+      "agent": "main",
+      "category": "default",
+      "userText": "[INSTRUCTION SYSTEME: Reponds UNIQUEMENT en francais. Pas d'anglais.]\nlecturequel e st le resultat de 17 * d23 + 45u sys",
+      "responseText": "L'expression \"17 * d23 + 45u sys\" n'est pas valide mathématiquement. Veuillez clarifier votre question ou vérifier les termes utilisés (ex: \"d23\" et \"45u sys\" ne sont pas des opérations standard).",
+      "nodeId": "cockpit",
+      "latencyMs": 0,
+      "ts": "2026-02-26T00:46:38.558Z"
+    },
+    {
+      "agent": "pipeline-monitor",
+      "category": "system",
+      "userText": "[INSTRUCTION SYSTEME: Reponds UNIQUEMENT en francais. Pas d'anglais.]\nEtat du cluster",
+      "responseText": "Le launcher JARVIS_STATUS a été lancé avec succès (PID 102360). Pour obtenir des métriques détaillées sur l'état du cluster (CPU, RAM, agents, etc.), je peux interroger la base de données `etoile.db` via la table `metrics`. Voulez-vous voir les statistiques en temps réel ?",
+      "nodeId": "cockpit",
+      "latencyMs": 0,
+      "ts": "2026-02-26T00:47:09.384Z"
+    },
+    {
+      "agent": "main",
+      "category": "default",
+      "userText": "quel est le resultat de 17 * 23 + 45",
+      "responseText": "17 * 23 = 391  \n391 + 45 = 436  \n\nRésultat final : 436",
+      "nodeId": "cockpit",
+      "latencyMs": 0,
+      "ts": "2026-02-26T00:47:14.136Z"
     }
   ],
   "profile": {
     "summary": "L'utilisateur se concentre principalement sur l'analyse de systèmes, de bases de données (notamment \"etoile.db\") et de structures techniques, avec des requêtes répétées pour compter tables et entrées. Il sollicite régulièrement des explications et des analyses en français, souvent incomplètes ou fragmentaires. Son profil inclut des thèmes comme l'IA, la codification et l'architecture, mais ses messages récents montrent une préoccupation dominante pour les bases de données et leur gestion. Il sem",
     "topics": {
-      "code": 6,
-      "trading": 2,
-      "system": 14,
-      "default": 34,
+      "code": 9,
+      "trading": 3,
+      "system": 15,
+      "default": 37,
       "ia": 27,
       "auto": 1,
       "media": 14,
-      "archi": 14
+      "archi": 14,
+      "web": 1,
+      "math": 1
     },
     "preferences": {},
     "updated_at": "2026-02-26T00:28:50.638Z"
