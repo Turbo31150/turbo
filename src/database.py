@@ -8,17 +8,50 @@ import time
 from pathlib import Path
 from typing import Any
 
-DB_PATH = Path(__file__).resolve().parent.parent / "data" / "jarvis.db"
+DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+DB_PATH = DATA_DIR / "jarvis.db"
+ETOILE_DB_PATH = DATA_DIR / "etoile.db"
+SNIPER_DB_PATH = DATA_DIR / "sniper.db"
 
 
-def get_connection() -> sqlite3.Connection:
-    """Get a connection to the JARVIS database."""
+def get_connection(attach: bool = False) -> sqlite3.Connection:
+    """Get a connection to the JARVIS database.
+
+    Args:
+        attach: If True, ATTACH etoile.db and sniper.db for cross-DB queries.
+                Access tables via: etoile.pipeline_dictionary, sniper.signals, etc.
+                Main jarvis.db tables remain accessible without prefix.
+    """
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(str(DB_PATH))
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA foreign_keys=ON")
+    if attach:
+        _attach_databases(conn)
     return conn
+
+
+def get_unified_connection() -> sqlite3.Connection:
+    """Get a connection with all 3 databases attached (jarvis + etoile + sniper).
+
+    Usage:
+        conn = get_unified_connection()
+        # jarvis.db tables: commands, scenarios, skills, etc. (no prefix needed)
+        # etoile.db tables: etoile.pipeline_dictionary, etoile.domino_chains, etc.
+        # sniper.db tables: sniper.signals, sniper.coins, etc.
+        conn.execute("SELECT * FROM etoile.pipeline_dictionary WHERE category = ?", ("trading_adv",))
+        conn.execute("SELECT * FROM sniper.signals ORDER BY timestamp DESC LIMIT 10")
+    """
+    return get_connection(attach=True)
+
+
+def _attach_databases(conn: sqlite3.Connection):
+    """Attach etoile.db and sniper.db to an existing connection."""
+    if ETOILE_DB_PATH.exists():
+        conn.execute(f"ATTACH DATABASE '{ETOILE_DB_PATH}' AS etoile")
+    if SNIPER_DB_PATH.exists():
+        conn.execute(f"ATTACH DATABASE '{SNIPER_DB_PATH}' AS sniper")
 
 
 def init_db():
@@ -366,3 +399,84 @@ def export_full_db() -> dict:
         "voice_corrections": corrections,
         "scenarios": scenarios,
     }
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# CROSS-DB QUERIES (unified access via ATTACH)
+# ═══════════════════════════════════════════════════════════════════════════
+
+def get_unified_stats() -> dict:
+    """Get comprehensive stats across all 3 databases."""
+    conn = get_unified_connection()
+    stats = {}
+
+    # jarvis.db (main)
+    stats["commands"] = conn.execute("SELECT COUNT(*) FROM commands").fetchone()[0]
+    stats["skills"] = conn.execute("SELECT COUNT(*) FROM skills").fetchone()[0]
+    stats["scenarios"] = conn.execute("SELECT COUNT(*) FROM scenarios").fetchone()[0]
+    stats["corrections"] = conn.execute("SELECT COUNT(*) FROM voice_corrections").fetchone()[0]
+
+    # etoile.db
+    try:
+        stats["pipelines"] = conn.execute("SELECT COUNT(*) FROM etoile.pipeline_dictionary").fetchone()[0]
+        stats["domino_chains"] = conn.execute("SELECT COUNT(*) FROM etoile.domino_chains").fetchone()[0]
+        stats["scenario_weights"] = conn.execute("SELECT COUNT(*) FROM etoile.scenario_weights").fetchone()[0]
+        stats["cluster_agents"] = conn.execute("SELECT COUNT(*) FROM etoile.agents").fetchone()[0]
+        stats["map_entries"] = conn.execute("SELECT COUNT(*) FROM etoile.map").fetchone()[0]
+    except sqlite3.OperationalError:
+        pass
+
+    # sniper.db
+    try:
+        stats["trading_signals"] = conn.execute("SELECT COUNT(*) FROM sniper.signals").fetchone()[0]
+        stats["trading_coins"] = conn.execute("SELECT COUNT(*) FROM sniper.coins").fetchone()[0]
+        stats["trading_scans"] = conn.execute("SELECT COUNT(*) FROM sniper.scans").fetchone()[0]
+    except sqlite3.OperationalError:
+        pass
+
+    conn.close()
+    return stats
+
+
+def find_pipeline_for_voice(voice_input: str) -> dict | None:
+    """Find a matching pipeline for a voice command, searching across both DBs."""
+    conn = get_unified_connection()
+
+    # Search in jarvis.db commands first
+    row = conn.execute(
+        "SELECT name, action_type, action, category FROM commands WHERE triggers LIKE ?",
+        (f"%{voice_input}%",)
+    ).fetchone()
+    if row:
+        conn.close()
+        return {"source": "jarvis.commands", **dict(row)}
+
+    # Search in etoile.db pipeline_dictionary
+    try:
+        row = conn.execute(
+            "SELECT pipeline_id, trigger_phrase, steps, category FROM etoile.pipeline_dictionary WHERE trigger_phrase LIKE ?",
+            (f"%{voice_input}%",)
+        ).fetchone()
+        if row:
+            conn.close()
+            return {"source": "etoile.pipeline_dictionary", **dict(row)}
+    except sqlite3.OperationalError:
+        pass
+
+    conn.close()
+    return None
+
+
+def get_routing_weights(scenario: str) -> list[dict]:
+    """Get agent routing weights for a scenario from etoile.db."""
+    conn = get_unified_connection()
+    try:
+        rows = conn.execute(
+            "SELECT agent, weight, priority, chain_next, description FROM etoile.scenario_weights WHERE scenario = ? ORDER BY priority",
+            (scenario,)
+        ).fetchall()
+        conn.close()
+        return [dict(r) for r in rows]
+    except sqlite3.OperationalError:
+        conn.close()
+        return []
