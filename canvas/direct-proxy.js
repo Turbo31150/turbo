@@ -64,16 +64,19 @@ const ROUTING = {
   trading: ['OL1', 'M1', 'M2', 'M3'],                   // OL1 web, M1 analyse
   math:    ['M1', 'OL1', 'M2'],                          // NOUVEAU — M1 prioritaire
   raison:  ['M1', 'M2', 'OL1'],                          // NOUVEAU — JAMAIS M3
-  system:  ['M3', 'M2', 'OL1'],                          // inchange
-  auto:    ['M3', 'OL1', 'M2'],                          // inchange
+  system:  ['M1', 'OL1', 'M3', 'M2'],                     // M1 rapide systeme
+  auto:    ['M1', 'OL1', 'M3', 'M2'],                    // M1 pipelines
   ia:      ['M1', 'M2', 'GEMINI', 'CLAUDE', 'M3', 'OL1'], // M1 first
-  creat:   ['M2', 'M1', 'GEMINI', 'M3', 'OL1'],         // M2 creatif, M1 backup
+  creat:   ['M1', 'M2', 'GEMINI', 'M3', 'OL1'],         // M1 creatif
   sec:     ['M1', 'M2', 'GEMINI', 'M3', 'OL1'],         // M1 audit
-  web:     ['OL1', 'GEMINI', 'M2', 'M3'],                // inchange
-  media:   ['M3', 'OL1', 'M2'],                          // inchange
-  meta:    ['OL1', 'M3', 'M2'],                          // inchange
+  web:     ['OL1', 'M1', 'GEMINI', 'M2', 'M3'],          // OL1 web + M1 fallback
+  media:   ['M3', 'OL1', 'M1', 'M2'],                    // M3 media + M1
+  meta:    ['OL1', 'M1', 'M3', 'M2'],                    // OL1 rapide meta
   default: ['M1', 'M2', 'M3', 'OL1', 'GEMINI']           // M1 first
 };
+
+// ── Node weights for consensus voting (benchmark 2026-02-26) ─────────────────
+const NODE_WEIGHTS = { M1: 1.8, M2: 1.4, OL1: 1.3, GEMINI: 1.2, CLAUDE: 1.2, M3: 1.0 };
 
 // Agent → category mapping (mirrors canvas ROUTES)
 const AGENT_CAT = {
@@ -687,19 +690,28 @@ async function agenticChat(agentId, userText) {
   let noProgressCount = 0;
   const callHashes = new Set();  // anti-loop v2: detect repeated identical calls
 
+  // Dynamic routing: try autolearn best node first, then fallback chain
+  const bestNode = autolearn.getBestNode(cat);
+  const orderedChain = bestNode
+    ? [bestNode, ...chain.filter(n => n !== bestNode)]
+    : chain;
+
   for (let turn = 0; turn < MAX_TOOL_TURNS; turn++) {
     let aiResult, errors = [];
-    for (const nodeId of chain) {
+    for (const nodeId of orderedChain) {
       try {
         console.log('[cockpit] turn ' + turn + ' -> ' + nodeId + ' (' + messages.length + ' msgs)');
         const t0 = Date.now();
         aiResult = await callNode(nodeId, messages);
         lastModel = aiResult.model;
         lastProvider = aiResult.provider;
-        console.log('[cockpit] OK ' + nodeId + ' (' + aiResult.text.length + ' chars, ' + (Date.now()-t0) + 'ms)');
+        const elapsed = Date.now() - t0;
+        console.log('[cockpit] OK ' + nodeId + ' (' + aiResult.text.length + ' chars, ' + elapsed + 'ms)');
+        autolearn.recordCallResult(nodeId, cat, true, elapsed);
         break;
       } catch (e) {
         errors.push(nodeId + ': ' + e.message);
+        autolearn.recordCallResult(nodeId, cat, false, 60000);
       }
     }
     if (!aiResult) throw new Error('All nodes failed: ' + errors.join(' | '));
@@ -716,7 +728,7 @@ async function agenticChat(agentId, userText) {
       const stopMsg = '[SYSTEM] STOP: Appel identique detecte (' + toolCall.name + '). Reponds avec les resultats que tu as deja.';
       messages.push({ role: 'assistant', content: aiResult.text });
       messages.push({ role: 'user', content: stopMsg });
-      for (const nodeId of chain) {
+      for (const nodeId of orderedChain) {
         try {
           const final = await callNode(nodeId, messages);
           return { text: final.text, model: final.model, provider: final.provider, tools_used: toolHistory, turns: turn + 1, anti_loop: 'repeated_call', mode: 'simple' };
@@ -749,7 +761,7 @@ async function agenticChat(agentId, userText) {
         messages.push({ role: 'assistant', content: aiResult.text });
         messages.push({ role: 'user', content: stopMsg });
         // One last AI turn to wrap up
-        for (const nodeId of chain) {
+        for (const nodeId of orderedChain) {
           try {
             const final = await callNode(nodeId, messages);
             return { text: final.text, model: final.model, provider: final.provider, tools_used: toolHistory, turns: turn + 1, anti_loop: true, mode: 'simple' };
@@ -771,7 +783,7 @@ async function agenticChat(agentId, userText) {
       console.log('[cockpit] ANTI-LOOP: ' + noProgressCount + ' consecutive failures, forcing stop');
       messages.push({ role: 'assistant', content: aiResult.text });
       messages.push({ role: 'user', content: '[SYSTEM] ' + noProgressCount + ' echecs consecutifs. Reponds maintenant avec ce que tu sais.' });
-      for (const nodeId of chain) {
+      for (const nodeId of orderedChain) {
         try {
           const final = await callNode(nodeId, messages);
           return { text: final.text, model: final.model, provider: final.provider, tools_used: toolHistory, turns: turn + 1, anti_loop: true, mode: 'simple' };

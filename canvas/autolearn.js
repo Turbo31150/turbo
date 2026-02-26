@@ -141,6 +141,51 @@ Retourne UNIQUEMENT le resume, pas de markdown, pas de titre.`;
     return parts.join('\n');
   }
 
+  // ── Dynamic Routing — getBestNode ───────────────────────────────────────
+
+  recordCallResult(nodeId, category, ok, latencyMs) {
+    if (!this._callLog[nodeId]) this._callLog[nodeId] = {};
+    if (!this._callLog[nodeId][category]) this._callLog[nodeId][category] = [];
+    const log = this._callLog[nodeId][category];
+    log.push({ ok, latencyMs, quality: null, ts: Date.now() });
+    if (log.length > RELIABILITY_WINDOW) log.shift();
+  }
+
+  getBestNode(category, excludeNodes) {
+    excludeNodes = excludeNodes || [];
+    const candidates = (this._routing[category] || this._routing.default)
+      .filter(n => !excludeNodes.includes(n));
+    if (!candidates.length) return null;
+
+    // If no call log data (< 3 entries for any candidate), return first (hardcoded fallback)
+    const hasData = candidates.some(n =>
+      this._callLog[n] && this._callLog[n][category] && this._callLog[n][category].length >= 3
+    );
+    if (!hasData) return candidates[0];
+
+    // Score each candidate: speed*0.3 + quality*0.5 + reliability*0.2
+    let best = null, bestScore = -1;
+    for (const nodeId of candidates) {
+      const entries = (this._callLog[nodeId] && this._callLog[nodeId][category]) || [];
+      if (entries.length < 3) {
+        const posScore = 1 - (candidates.indexOf(nodeId) / candidates.length);
+        if (posScore > bestScore) { bestScore = posScore; best = nodeId; }
+        continue;
+      }
+      const recent = entries.slice(-RELIABILITY_WINDOW);
+      const avgLatency = recent.reduce((s, e) => s + e.latencyMs, 0) / recent.length;
+      const successRate = recent.filter(e => e.ok).length / recent.length;
+      const speedScore = Math.max(0, 1 - (avgLatency / 60000));
+      const qualityEntries = recent.filter(e => e.quality !== null);
+      const qualityScore = qualityEntries.length > 0
+        ? qualityEntries.reduce((s, e) => s + e.quality, 0) / qualityEntries.length / 10
+        : successRate; // fallback to success rate if no quality data
+      const score = speedScore * 0.3 + qualityScore * 0.5 + successRate * 0.2;
+      if (score > bestScore) { bestScore = score; best = nodeId; }
+    }
+    return best || candidates[0];
+  }
+
   // ── Pillar 2: Auto-Tuning ────────────────────────────────────────────────
 
   _speedScore(latencyMs) {
