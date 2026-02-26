@@ -143,11 +143,13 @@ def _query_lmstudio(model_cfg: dict, prompt: str) -> Optional[dict]:
 
     # Essai 2: /api/v1/chat (responses API — anciens LM Studio)
     try:
-        full_input = f"{SYSTEM_PROMPT}\n\n{prompt}"
+        # M1 Qwen3: /nothink prefix
+        input_prefix = "/nothink\n" if "qwen" in model_cfg.get("model_id", "").lower() else ""
+        full_input = f"{input_prefix}{SYSTEM_PROMPT}\n\n{prompt}"
         payload_resp = {
             "model": model_cfg["model_id"],
             "input": full_input,
-            "temperature": 0.3,
+            "temperature": 0.2,
             "max_output_tokens": 512,
             "stream": False,
             "store": False,
@@ -157,7 +159,15 @@ def _query_lmstudio(model_cfg: dict, prompt: str) -> Optional[dict]:
                           headers=headers, timeout=model_cfg["timeout"])
         r.raise_for_status()
         data = r.json()
-        content = data.get("output", [{}])[0].get("content", "")
+        # Extract last type=message from output[] (skip reasoning blocks)
+        output = data.get("output", [])
+        content = ""
+        if isinstance(output, list):
+            for o in output:
+                if isinstance(o, dict) and o.get("type") == "message" and o.get("content"):
+                    content = o["content"]
+            if not content and output:
+                content = output[-1].get("content", "") if isinstance(output[-1], dict) else str(output[-1])
         return _parse_json_response(content, model_cfg["id"])
     except Exception as e:
         logger.warning(f"{model_cfg['name']}: {e}")

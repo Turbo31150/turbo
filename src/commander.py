@@ -80,7 +80,7 @@ async def classify_task(prompt: str) -> str:
             client = await _get_client()
             r = await client.post(f"{node.url}/api/v1/chat", json={
                 "model": node.default_model,
-                "input": prompt,
+                "input": "/nothink\n" + prompt,
                 "system_prompt": CLASSIFY_PROMPT,
                 "temperature": 0.1,
                 "max_output_tokens": 32,

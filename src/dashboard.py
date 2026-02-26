@@ -489,14 +489,18 @@ class JarvisDashboard(App):
             node = config.lm_nodes[0]
             self._log(f"Envoi a {node.name} ({node.default_model})...")
             async with httpx.AsyncClient(timeout=60) as c:
+                # M1 Qwen3: /nothink prefix
+                input_text = text
+                if node.name == "M1" and "qwen" in node.default_model.lower():
+                    input_text = "/nothink\n" + text
                 r = await c.post(f"{node.url}/api/v1/chat", json={
                     "model": node.default_model,
-                    "input": text,
-                    "temperature": 0.7,
+                    "input": input_text,
+                    "temperature": 0.2,
                     "max_output_tokens": 1024,
                     "stream": False,
                     "store": False,
-                })
+                }, headers=node.auth_headers)
                 r.raise_for_status()
                 from src.tools import extract_lms_output
                 response = extract_lms_output(r.json())
