@@ -122,6 +122,9 @@ async def _handle_stop() -> dict:
                         "id": cmd.name,
                         "category": getattr(cmd, "category", ""),
                         "description": getattr(cmd, "description", ""),
+                        "action_type": getattr(cmd, "action_type", ""),
+                        "params": result.get("params", {}),
+                        "confidence": result.get("confidence", 0),
                     }
             elif isinstance(result, str):
                 corrected = result
