@@ -434,6 +434,195 @@
     padding-top: 8px;
     border-top: 1px solid var(--border);
   }
+
+  /* ── DICTIONARY PANEL ───────────────────────────────────── */
+  .dict-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    display: none;
+    align-items: stretch;
+    justify-content: center;
+  }
+  .dict-overlay.open { display: flex; }
+  .dict-panel {
+    background: var(--bg);
+    width: 100%;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .dict-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .dict-header .dict-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  .dict-search {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 5px 8px;
+    color: var(--text);
+    font-size: 12px;
+    outline: none;
+    font-family: inherit;
+  }
+  .dict-search:focus { border-color: var(--accent); }
+  .dict-close {
+    background: none; border: none; color: var(--dim);
+    cursor: pointer; font-size: 18px; padding: 0 4px;
+  }
+  .dict-close:hover { color: var(--text); }
+  .dict-stats {
+    display: flex;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .dict-stat {
+    font-size: 10px;
+    color: var(--dim);
+    padding: 2px 8px;
+    background: var(--surface2);
+    border-radius: 3px;
+  }
+  .dict-stat b { color: var(--accent); }
+  .dict-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 6px 12px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .dict-tab {
+    padding: 4px 10px;
+    border: none;
+    background: transparent;
+    color: var(--dim);
+    border-radius: 4px;
+    font-size: 10px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+  .dict-tab.active { background: var(--accent); color: #fff; }
+  .dict-tab:hover:not(.active) { background: var(--surface2); color: var(--text); }
+  .dict-tab .tab-count {
+    font-size: 9px;
+    opacity: 0.7;
+    margin-left: 3px;
+  }
+  .dict-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px;
+  }
+  .dict-body::-webkit-scrollbar { width: 5px; }
+  .dict-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .dict-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    padding: 6px 8px 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .dict-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .dict-item:hover { background: var(--surface2); }
+  .dict-item-icon {
+    width: 20px; height: 20px;
+    border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: bold;
+    flex-shrink: 0;
+  }
+  .dict-item-icon.cmd { background: rgba(68,138,255,0.2); color: var(--blue); }
+  .dict-item-icon.pipe { background: rgba(179,136,255,0.2); color: var(--purple); }
+  .dict-item-icon.chain { background: rgba(0,230,118,0.2); color: var(--green); }
+  .dict-item-icon.corr { background: rgba(255,171,64,0.2); color: #ffab40; }
+  .dict-item-info { flex: 1; min-width: 0; }
+  .dict-item-name {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .dict-item-desc {
+    font-size: 9px;
+    color: var(--dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .dict-item-triggers {
+    font-size: 9px;
+    color: var(--accent2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .dict-item-badge {
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: var(--surface);
+    color: var(--dim);
+    flex-shrink: 0;
+  }
+  .dict-item-exec {
+    width: 22px; height: 22px;
+    border: 1px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .dict-item:hover .dict-item-exec { opacity: 1; }
+  .dict-item-exec:hover { background: var(--accent); color: #fff; }
+  .dict-empty {
+    text-align: center;
+    color: var(--dim);
+    font-size: 12px;
+    padding: 30px 10px;
+    font-style: italic;
+  }
+  .dict-loading {
+    text-align: center;
+    color: var(--blue);
+    font-size: 12px;
+    padding: 30px 10px;
+    animation: textpulse 1.5s ease-in-out infinite;
+  }
 </style>
 </head>
 <body>
@@ -444,6 +633,7 @@
     <div class="title"><span>JARVIS</span> WhisperFlow</div>
   </div>
   <div class="header-right">
+    <button class="header-btn" id="dictBtn" title="Dictionnaire commandes" style="font-size:12px;">&#x1F4D6;</button>
     <button class="header-btn" id="pinBtn" title="Toujours visible">&#x1F4CC;</button>
     <button class="header-btn" id="settingsBtn" title="Parametres">&#x2699;</button>
     <button class="header-btn" id="minimizeBtn" title="Minimiser">&#x2500;</button>
@@ -496,6 +686,22 @@
 
   <div class="shortcuts">
     <kbd>Espace</kbd> PTT &nbsp; <kbd>Esc</kbd> Stop &nbsp; <kbd>Enter</kbd> Envoyer texte
+  </div>
+</div>
+
+<!-- DICTIONARY PANEL -->
+<div class="dict-overlay" id="dictOverlay">
+  <div class="dict-panel">
+    <div class="dict-header">
+      <div class="dict-title">DICTIONNAIRE</div>
+      <input class="dict-search" id="dictSearch" placeholder="Rechercher commande, pipeline, trigger..." autofocus />
+      <button class="dict-close" id="dictClose">&times;</button>
+    </div>
+    <div class="dict-stats" id="dictStats"></div>
+    <div class="dict-tabs" id="dictTabs"></div>
+    <div class="dict-body" id="dictBody">
+      <div class="dict-loading">Chargement du dictionnaire...</div>
+    </div>
   </div>
 </div>
 
@@ -1133,6 +1339,287 @@ document.getElementById('setWsUrl').addEventListener('change', (e) => {
     Object.defineProperty(window, '_wsUrl', { value: newUrl, writable: true });
   }
 });
+
+// ══════════════════════════════════════════════════════════════════
+// DICTIONARY — 1931 commands + 88 pipelines + etoile.db
+// ══════════════════════════════════════════════════════════════════
+const $dictOverlay = document.getElementById('dictOverlay');
+const $dictSearch = document.getElementById('dictSearch');
+const $dictStats = document.getElementById('dictStats');
+const $dictTabs = document.getElementById('dictTabs');
+const $dictBody = document.getElementById('dictBody');
+
+let dictData = null; // cached full dictionary
+let dictFilter = 'all'; // current tab filter
+let dictQuery = ''; // current search query
+
+document.getElementById('dictBtn').addEventListener('click', () => {
+  $dictOverlay.classList.toggle('open');
+  if ($dictOverlay.classList.contains('open')) {
+    $dictSearch.focus();
+    if (!dictData) loadDictionary();
+  }
+});
+document.getElementById('dictClose').addEventListener('click', () => {
+  $dictOverlay.classList.remove('open');
+});
+$dictOverlay.addEventListener('click', (e) => {
+  if (e.target === $dictOverlay) $dictOverlay.classList.remove('open');
+});
+
+// Search with debounce
+let dictSearchTimeout;
+$dictSearch.addEventListener('input', (e) => {
+  clearTimeout(dictSearchTimeout);
+  dictSearchTimeout = setTimeout(() => {
+    dictQuery = e.target.value.trim().toLowerCase();
+    renderDictionary();
+  }, 200);
+});
+
+async function loadDictionary() {
+  $dictBody.innerHTML = '<div class="dict-loading">Chargement du dictionnaire...</div>';
+  try {
+    const baseUrl = _loc.protocol === 'file:' ? 'http://127.0.0.1:9742' : '';
+    const resp = await fetch(`${baseUrl}/api/dictionary`);
+    const data = await resp.json();
+    onDictionaryData(data);
+  } catch(e) {
+    $dictBody.innerHTML = `<div class="dict-empty">Erreur: ${e.message}</div>`;
+  }
+}
+
+function onDictionaryData(payload) {
+  dictData = payload;
+  const s = payload.stats || {};
+  $dictStats.innerHTML = [
+    `<div class="dict-stat"><b>${s.commands||0}</b> commandes</div>`,
+    `<div class="dict-stat"><b>${s.pipelines||0}</b> pipelines</div>`,
+    `<div class="dict-stat"><b>${s.pipeline_dictionary||0}</b> dict DB</div>`,
+    `<div class="dict-stat"><b>${s.domino_chains||0}</b> domino chains</div>`,
+    `<div class="dict-stat"><b>${s.voice_corrections||0}</b> corrections</div>`,
+  ].join('');
+
+  // Build category tabs
+  const cats = new Map();
+  cats.set('all', 0);
+  let total = 0;
+  for (const c of (payload.commands || [])) {
+    cats.set(c.category, (cats.get(c.category)||0) + 1);
+    total++;
+  }
+  for (const p of (payload.pipelines || [])) {
+    cats.set('pipeline:'+p.category, (cats.get('pipeline:'+p.category)||0) + 1);
+    total++;
+  }
+  cats.set('all', total + (payload.pipeline_dictionary||[]).length);
+  cats.set('db:dict', (payload.pipeline_dictionary||[]).length);
+  cats.set('db:chains', (payload.domino_chains||[]).length);
+  cats.set('db:corrections', (payload.voice_corrections||[]).length);
+
+  const tabOrder = ['all'];
+  // Top command categories
+  const cmdCats = [...new Set((payload.commands||[]).map(c => c.category))].sort();
+  tabOrder.push(...cmdCats);
+  tabOrder.push('db:dict', 'db:chains', 'db:corrections');
+
+  $dictTabs.innerHTML = tabOrder.map(cat => {
+    const label = cat === 'all' ? 'Tout' :
+                  cat === 'db:dict' ? 'Dict DB' :
+                  cat === 'db:chains' ? 'Chains' :
+                  cat === 'db:corrections' ? 'Corrections' :
+                  cat.replace('pipeline:','P:');
+    const count = cats.get(cat) || 0;
+    return `<button class="dict-tab ${cat===dictFilter?'active':''}" data-cat="${cat}">${label}<span class="tab-count">${count}</span></button>`;
+  }).join('');
+
+  $dictTabs.querySelectorAll('.dict-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      dictFilter = btn.dataset.cat;
+      $dictTabs.querySelectorAll('.dict-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderDictionary();
+    });
+  });
+
+  renderDictionary();
+}
+
+function renderDictionary() {
+  if (!dictData) return;
+  const q = dictQuery;
+  const f = dictFilter;
+  let html = '';
+  let count = 0;
+  const MAX = 200;
+
+  // Helper: match query
+  function matches(item, fields) {
+    if (!q) return true;
+    for (const field of fields) {
+      const val = item[field];
+      if (!val) continue;
+      if (Array.isArray(val)) {
+        if (val.some(v => v.toLowerCase().includes(q))) return true;
+      } else if (typeof val === 'string' && val.toLowerCase().includes(q)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Commands
+  if (f === 'all' || (!f.startsWith('db:') && !f.startsWith('pipeline:'))) {
+    const cmds = (dictData.commands || []).filter(c => {
+      if (f !== 'all' && c.category !== f) return false;
+      return matches(c, ['name', 'description', 'triggers']);
+    });
+    if (cmds.length > 0) {
+      html += `<div class="dict-section-title">Commandes (${cmds.length})</div>`;
+      for (const c of cmds.slice(0, MAX - count)) {
+        const triggers = (c.triggers||[]).slice(0,3).join(', ');
+        html += `<div class="dict-item" data-exec-cmd="${c.name}">
+          <div class="dict-item-icon cmd">${c.action_type ? c.action_type[0].toUpperCase() : 'C'}</div>
+          <div class="dict-item-info">
+            <div class="dict-item-name">${esc(c.name)}</div>
+            <div class="dict-item-desc">${esc(c.description)}</div>
+            <div class="dict-item-triggers">${esc(triggers)}</div>
+          </div>
+          <div class="dict-item-badge">${c.action_type||''}</div>
+          <button class="dict-item-exec" title="Executer">&#x25B6;</button>
+        </div>`;
+        count++;
+      }
+    }
+  }
+
+  // Pipelines
+  if ((f === 'all' || f.startsWith('pipeline:')) && count < MAX) {
+    const pipes = (dictData.pipelines || []).filter(p => {
+      if (f.startsWith('pipeline:') && p.category !== f.replace('pipeline:','')) return false;
+      if (f === 'all' || f.startsWith('pipeline:')) return matches(p, ['id', 'description', 'trigger_vocal']);
+      return false;
+    });
+    if (pipes.length > 0) {
+      html += `<div class="dict-section-title">Pipelines (${pipes.length})</div>`;
+      for (const p of pipes.slice(0, MAX - count)) {
+        const triggers = (p.trigger_vocal||[]).slice(0,3).join(', ');
+        html += `<div class="dict-item" data-exec-domino="${p.id}">
+          <div class="dict-item-icon pipe">P</div>
+          <div class="dict-item-info">
+            <div class="dict-item-name">${esc(p.id)}</div>
+            <div class="dict-item-desc">${esc(p.description)} (${p.steps} etapes)</div>
+            <div class="dict-item-triggers">${esc(triggers)}</div>
+          </div>
+          <div class="dict-item-badge">${p.category||''}</div>
+          <button class="dict-item-exec" title="Executer">&#x25B6;</button>
+        </div>`;
+        count++;
+      }
+    }
+  }
+
+  // DB: pipeline_dictionary
+  if ((f === 'all' || f === 'db:dict') && count < MAX) {
+    const dicts = (dictData.pipeline_dictionary || []).filter(d => {
+      return matches(d, ['trigger_phrase', 'pipeline_id', 'category', 'steps']);
+    });
+    if (dicts.length > 0) {
+      html += `<div class="dict-section-title">Pipeline Dictionary DB (${dicts.length})</div>`;
+      for (const d of dicts.slice(0, MAX - count)) {
+        html += `<div class="dict-item" data-exec-text="${esc(d.trigger_phrase||'')}">
+          <div class="dict-item-icon chain">D</div>
+          <div class="dict-item-info">
+            <div class="dict-item-name">${esc(d.trigger_phrase||d.pipeline_id||'')}</div>
+            <div class="dict-item-desc">${esc(d.steps||'')} | ${esc(d.agents_involved||'')}</div>
+          </div>
+          <div class="dict-item-badge">${d.action_type||d.category||''}</div>
+          <button class="dict-item-exec" title="Executer">&#x25B6;</button>
+        </div>`;
+        count++;
+      }
+    }
+  }
+
+  // DB: domino_chains
+  if ((f === 'all' || f === 'db:chains') && count < MAX) {
+    const chains = (dictData.domino_chains || []).filter(d => {
+      return matches(d, ['trigger_cmd', 'next_cmd', 'description', 'condition']);
+    });
+    if (chains.length > 0) {
+      html += `<div class="dict-section-title">Domino Chains DB (${chains.length})</div>`;
+      for (const d of chains.slice(0, MAX - count)) {
+        html += `<div class="dict-item">
+          <div class="dict-item-icon chain">&#x26D3;</div>
+          <div class="dict-item-info">
+            <div class="dict-item-name">${esc(d.trigger_cmd||'')} &#x2192; ${esc(d.next_cmd||'')}</div>
+            <div class="dict-item-desc">${esc(d.description||'')} ${d.condition?'['+d.condition+']':''}</div>
+          </div>
+          <div class="dict-item-badge">${d.auto?'auto':d.delay_ms+'ms'}</div>
+        </div>`;
+        count++;
+      }
+    }
+  }
+
+  // DB: voice_corrections
+  if ((f === 'all' || f === 'db:corrections') && count < MAX) {
+    const corrs = (dictData.voice_corrections || []).filter(d => {
+      return matches(d, ['wrong', 'correct', 'category']);
+    });
+    if (corrs.length > 0) {
+      html += `<div class="dict-section-title">Corrections Vocales DB (${corrs.length})</div>`;
+      for (const d of corrs.slice(0, MAX - count)) {
+        html += `<div class="dict-item">
+          <div class="dict-item-icon corr">&#x270E;</div>
+          <div class="dict-item-info">
+            <div class="dict-item-name">"${esc(d.wrong||'')}" &#x2192; "${esc(d.correct||'')}"</div>
+            <div class="dict-item-desc">${d.category||''} | hits: ${d.hit_count||0}</div>
+          </div>
+        </div>`;
+        count++;
+      }
+    }
+  }
+
+  if (!html) {
+    html = '<div class="dict-empty">Aucun resultat</div>';
+  }
+
+  $dictBody.innerHTML = html;
+
+  // Attach click handlers for execution
+  $dictBody.querySelectorAll('[data-exec-cmd]').forEach(el => {
+    el.addEventListener('click', () => {
+      const cmdName = el.dataset.execCmd;
+      $dictOverlay.classList.remove('open');
+      $jarvisResponse.classList.add('show', 'thinking');
+      $jarvisText.textContent = `Execution: ${cmdName}...`;
+      wsSend('system', 'execute_command', { command_name: cmdName, params: {} });
+    });
+  });
+  $dictBody.querySelectorAll('[data-exec-domino]').forEach(el => {
+    el.addEventListener('click', () => {
+      const dominoId = el.dataset.execDomino;
+      $dictOverlay.classList.remove('open');
+      $jarvisResponse.classList.add('show', 'thinking');
+      $jarvisText.textContent = `Cascade: ${dominoId}...`;
+      wsSend('system', 'execute_domino', { domino_id: dominoId });
+    });
+  });
+  $dictBody.querySelectorAll('[data-exec-text]').forEach(el => {
+    el.addEventListener('click', () => {
+      const text = el.dataset.execText;
+      $dictOverlay.classList.remove('open');
+      processCommand(text);
+    });
+  });
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
 // ── INIT ──
 connectWS();
