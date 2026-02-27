@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "F:\BUREAU\turbo\gen_doc.py", line 31, in <module>
+    cur.execute('SELECT entity_name, parent, role FROM map WHERE entity_type="skill" ORDER BY parent')
+sqlite3.OperationalError: no such table: map
