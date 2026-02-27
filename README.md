@@ -28,10 +28,10 @@
 | **Noeuds IA** | 6 actifs (HEXA_CORE) | M1 (qwen3-8b), M2 (deepseek-coder), M3 (mistral), OL1 (ollama), GEMINI, CLAUDE |
 | **Agents** | 7 Claude SDK + 11 Plugin | deep, fast, check, trading, system, bridge, consensus + 11 plugin agents |
 | **Outils MCP** | 92 SDK + 89 handlers | IA, Windows, Trading, Bridge, Brain, SQL, Consensus |
-| **Commandes vocales** | 1,706 | + 656 pipelines multi-etapes, 12 domino chains |
-| **Skills** | 84 dynamiques | 16 vagues d'apprentissage, persistants en etoile.db |
+| **Commandes vocales** | 1,760 | + 290 pipelines multi-etapes, 771 total vocal |
+| **Skills** | 108 dynamiques | 16 vagues + 6 nouvelles categories IA, persistants en etoile.db |
 | **Source Python** | 28 modules / 22,994 lignes | src/ (39,812 total projet) |
-| **Databases** | 3 bases SQL | 34 tables, 10,895 rows (etoile + jarvis + sniper) |
+| **Databases** | 3 bases SQL + pipeline_tests | 35 tables, 2,342 map entries (etoile + jarvis + sniper) |
 | **Plugin** | 24 slash commands | + 24 skills + 11 agents + 4 hooks |
 | **Desktop** | Electron 33 + React 19 | Portable 72.5 MB |
 | **Trading** | v2.3 Multi-GPU | MEXC Futures 10x, 6 IA consensus |
@@ -39,8 +39,53 @@
 
 ---
 
+## Nouveautes v10.3.1 — Pipelines IA Cognitives
+
+> **+24 pipelines intelligentes** dans 6 nouvelles categories. Premiere integration du raisonnement IA dans les pipelines vocales — le systeme collecte les metriques systeme et les envoie au cluster pour analyse en temps reel.
+
+### Nouvelles categories de pipelines
+
+| Categorie | Pipelines | Description |
+|-----------|-----------|-------------|
+| **Cluster Management** | `cluster_health_live`, `cluster_model_status`, `cluster_reload_m1`, `cluster_restart_ollama` | Pilotage du cluster IA : health check, modeles charges, reload, restart |
+| **Diagnostic Intelligent** | `diag_intelligent_pc`, `diag_pourquoi_lent`, `diag_gpu_thermal`, `diag_processus_suspect` | Analyse systeme via M1/qwen3 : metriques collectees puis interpretees par IA |
+| **Cognitif** | `cognitif_resume_activite`, `cognitif_consensus_rapide`, `cognitif_analyse_erreurs`, `cognitif_suggestion_tache` | Raisonnement multi-etapes : resume, consensus M1+M2, analyse logs, suggestions |
+| **Securite Avancee** | `securite_ports_ouverts`, `securite_check_defender`, `securite_audit_services`, `securite_permissions_sensibles` | Audit securite : scan ports, Defender, services tiers, fichiers sensibles |
+| **Debug Reseau** | `debug_reseau_complet`, `debug_latence_cluster`, `debug_wifi_diagnostic`, `debug_dns_avance` | Diagnostic reseau : ping, latence cluster, WiFi, DNS multi-serveurs |
+| **Routines Conversationnelles** | `routine_bonjour_jarvis`, `routine_bilan_journee`, `routine_tout_va_bien`, `routine_jarvis_selfcheck` | Interactions naturelles : "Bonjour Jarvis", "Tout va bien?", bilan IA |
+
+### Architecture Diagnostic IA
+
+```
+Commande vocale → Collecte PowerShell (CPU/RAM/GPU/Disques)
+                → Envoi au cluster M1/qwen3-8b via REST API
+                → Analyse IA en temps reel (<2s)
+                → Reponse synthetisee avec recommandations
+```
+
+### Resultats des tests live
+
+```
+27/27 PASS — 65.2 secondes
+  Cluster:  M1 21ms | M2 7ms | M3 21ms | OL1 6ms (4/4 online)
+  GPU:      5 cartes 30-54C [OK]
+  IA:       Diagnostic, consensus, resume, suggestion fonctionnels
+  Securite: Defender ACTIF, 47 connexions, 13 .env detectes
+  Reseau:   DNS google 664ms, github 471ms, anthropic 447ms
+```
+
+### Learning Cycles (1,000 requetes cluster)
+
+| Script | Requetes | Duree | Champion | Score |
+|--------|----------|-------|----------|-------|
+| v3 (PowerShell) | 500 | 618s | M2-coder 79.5/100 | M1 83.2 avg |
+| v4 (Conversationnel) | 500 | 1,724s | M2-coder 71.2/100 | OL1 62.0 avg |
+
+---
+
 ## Table des Matieres
 
+- [Nouveautes v10.3.1](#nouveautes-v1031--pipelines-ia-cognitives)
 - [Architecture Globale](#architecture-globale)
 - [Cluster IA — HEXA_CORE](#cluster-ia--hexacore)
 - [Pipeline Commander](#pipeline-commander)
