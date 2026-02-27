@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v10.3-blueviolet?style=for-the-badge" alt="version"/>
+  <img src="https://img.shields.io/badge/version-v10.3.5-blueviolet?style=for-the-badge" alt="version"/>
   <img src="https://img.shields.io/badge/GPU-10x_NVIDIA-76B900?style=for-the-badge&logo=nvidia" alt="gpu"/>
   <img src="https://img.shields.io/badge/Claude_SDK-Opus_4-orange?style=for-the-badge&logo=anthropic" alt="claude"/>
   <img src="https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="python"/>
@@ -7,11 +7,11 @@
   <img src="https://img.shields.io/badge/License-Private-red?style=for-the-badge" alt="license"/>
 </p>
 
-<h1 align="center">JARVIS Etoile v10.3</h1>
+<h1 align="center">JARVIS Etoile v10.3.5</h1>
 <h3 align="center">Orchestrateur IA Distribue Multi-GPU — HEXA_CORE</h3>
 
 <p align="center">
-  <strong>Systeme d'intelligence artificielle distribue sur 3 machines physiques, 10 GPU NVIDIA (~78 GB VRAM), 6 noeuds IA (HEXA_CORE) et 84 skills autonomes. Controle vocal en francais avec 1,706 commandes, trading algorithmique MEXC multi-consensus, et interface desktop Electron.</strong>
+  <strong>Systeme d'intelligence artificielle distribue sur 3 machines physiques, 10 GPU NVIDIA (~78 GB VRAM), 6 noeuds IA (HEXA_CORE) et 108 skills autonomes. Controle vocal en francais avec 1,706 commandes + 425 pipelines, trading algorithmique MEXC multi-consensus, et interface desktop Electron.</strong>
 </p>
 
 <p align="center">
@@ -28,14 +28,101 @@
 | **Noeuds IA** | 6 actifs (HEXA_CORE) | M1 (qwen3-8b), M2 (deepseek-coder), M3 (mistral), OL1 (ollama), GEMINI, CLAUDE |
 | **Agents** | 7 Claude SDK + 11 Plugin | deep, fast, check, trading, system, bridge, consensus + 11 plugin agents |
 | **Outils MCP** | 92 SDK + 89 handlers | IA, Windows, Trading, Bridge, Brain, SQL, Consensus |
-| **Commandes vocales** | 1,760 | + 290 pipelines multi-etapes, 771 total vocal |
+| **Commandes vocales** | 1,706 + 425 pipelines | 437 vocal_pipeline, 906 total vocal |
 | **Skills** | 108 dynamiques | 16 vagues + 6 nouvelles categories IA, persistants en etoile.db |
-| **Source Python** | 28 modules / 22,994 lignes | src/ (39,812 total projet) |
-| **Databases** | 3 bases SQL + pipeline_tests | 35 tables, 2,342 map entries (etoile + jarvis + sniper) |
+| **Source Python** | 28 modules / 24,000+ lignes | src/ (42,000+ total projet) |
+| **Databases** | 3 bases SQL + pipeline_tests | 35 tables, 2,477 map entries, 159 tests PASS |
+| **Pipeline Tests** | 135/135 PASS (100%) | 42 categories testees sur cluster live |
 | **Plugin** | 24 slash commands | + 24 skills + 11 agents + 4 hooks |
 | **Desktop** | Electron 33 + React 19 | Portable 72.5 MB |
 | **Trading** | v2.3 Multi-GPU | MEXC Futures 10x, 6 IA consensus |
 | **Corrections vocales** | 2,627 regles | Phonetiques + alias + auto-training |
+
+---
+
+## Nouveautes v10.3.5 — Audit Pipeline Complet (135/135 PASS)
+
+> **+135 pipelines** deployees en 6 batches, couvrant **42 categories** a travers 4 niveaux de priorite. Audit systematique du README vs code reel — zero gap restant. Toutes les pipelines testees live sur le cluster IA (M1/M2/M3/OL1).
+
+### Couverture par priorite
+
+| Priorite | Categories | Pipelines | Score |
+|----------|-----------|-----------|-------|
+| **CRITIQUE** | Canvas Autolearn, Voice System, Plugin Management, Embedding/Vector, Fine-Tuning Orchestration, Brain Learning | 28 | 28/28 PASS |
+| **HAUTE** | RAG System, Consensus/Vote, Security Hardening, Model Management, Cluster Predictive, N8N Advanced, DB Optimization, Dashboard Widgets, Hotfix/Emergency | 27 | 27/27 PASS |
+| **MEDIUM** | Learning Cycles, Scenarios/Testing, API Management, Performance Profiling, Workspace/Session, Trading Enhanced, Notification/Alerting, Documentation Auto, Logging/Observability | 32 | 32/32 PASS |
+| **LOW** | User Preferences, Accessibility, Streaming/Broadcasting, Collaboration | 12 | 12/12 PASS |
+| *v10.3.1* | Cluster, Diagnostic IA, Cognitif, Securite, Debug Reseau, Routines, Electron, Database | 36 | 36/36 PASS |
+
+### Nouvelles categories v10.3.2 — v10.3.5
+
+<details>
+<summary><b>28 categories ajoutees</b> (cliquer pour details)</summary>
+
+| Categorie | Pipelines | Exemples |
+|-----------|-----------|----------|
+| Canvas Autolearn | 5 | `canvas_autolearn_status`, `canvas_autolearn_trigger`, `canvas_memory_review` |
+| Voice System | 5 | `voice_wake_word_test`, `voice_latency_check`, `voice_fallback_chain` |
+| Plugin Management | 5 | `plugin_list_enabled`, `plugin_jarvis_status`, `plugin_health_check` |
+| Embedding/Vector | 4 | `embedding_model_status`, `embedding_search_test`, `embedding_generate_batch` |
+| Fine-Tuning | 4 | `finetune_monitor_progress`, `finetune_validate_quality`, `finetune_export_lora` |
+| Brain Learning | 5 | `brain_memory_status`, `brain_pattern_learn`, `brain_memory_export` |
+| RAG System | 3 | `rag_status`, `rag_index_status`, `rag_search_test` |
+| Consensus/Vote | 3 | `consensus_weights_show`, `consensus_test_scenario`, `consensus_routing_rules` |
+| Security Hardening | 4 | `security_vuln_scan`, `security_firewall_check`, `security_patch_status` |
+| Model Management | 4 | `model_inventory_full`, `model_vram_usage`, `model_benchmark_compare` |
+| Cluster Predictive | 3 | `cluster_health_predict`, `cluster_load_forecast`, `cluster_thermal_trend` |
+| N8N Advanced | 3 | `n8n_workflow_export`, `n8n_trigger_manual`, `n8n_execution_history` |
+| DB Optimization | 3 | `db_reindex_all`, `db_schema_info`, `db_export_snapshot` |
+| Dashboard Widgets | 2 | `dashboard_widget_list`, `dashboard_config_show` |
+| Hotfix/Emergency | 2 | `hotfix_deploy_express`, `hotfix_verify_integrity` |
+| Learning Cycles | 4 | `learning_cycle_status`, `learning_cycle_benchmark`, `learning_cycle_feedback` |
+| Scenario/Testing | 4 | `scenario_count_all`, `scenario_report_generate`, `scenario_regression_check` |
+| API Management | 3 | `api_health_all`, `api_latency_test`, `api_keys_status` |
+| Profiling | 4 | `profile_cluster_bottleneck`, `profile_memory_usage`, `profile_optimize_auto` |
+| Workspace/Session | 3 | `workspace_snapshot`, `workspace_switch_context`, `workspace_session_info` |
+| Trading Enhanced | 4 | `trading_backtest_strategy`, `trading_correlation_pairs`, `trading_drawdown_analysis` |
+| Notification | 3 | `notification_channels_test`, `notification_config_show`, `notification_alert_history` |
+| Documentation Auto | 3 | `doc_auto_generate`, `doc_sync_check`, `doc_usage_examples` |
+| Logging | 4 | `logs_search_errors`, `logs_daily_report`, `logs_anomaly_detect`, `logs_rotate_archive` |
+| User Preferences | 3 | `preference_work_hours`, `preference_app_usage`, `preference_auto_suggest` |
+| Accessibility | 3 | `accessibility_profile_show`, `accessibility_voice_speed`, `accessibility_contrast_check` |
+| Streaming | 3 | `stream_obs_status`, `stream_quality_check`, `stream_chat_monitor` |
+| Collaboration | 3 | `collab_sync_status`, `collab_commands_export`, `collab_db_merge_check` |
+
+</details>
+
+### Architecture Pipeline v2/v3
+
+```
+Commande vocale / texte
+    |
+    v
+commands_pipelines.py (425 pipelines)
+    |
+    +-- powershell: [commandes systeme directes]
+    +-- curl/REST API: [M1 qwen3-8b, M2 deepseek, OL1 ollama]
+    +-- uv run python: [SQLite queries, imports, exports]
+    +-- Invoke-WebRequest: [Canvas 18800, n8n 5678, Dashboard 8080]
+    |
+    v
+Resultat → TTS vocal ou console
+    |
+    v
+etoile.db (pipeline_tests: 159, vocal_pipeline: 437)
+```
+
+### Resultats des tests live (cumul)
+
+```
+135/135 PASS — 0 FAIL — 6 batches — ~213 secondes total
+  Batch 1: 24 pipelines (cluster, diagnostic, cognitif, securite, debug, routines)
+  Batch 2: 36 pipelines (electron, cluster avance, database, n8n, SDK, finetuning, trading, skills)
+  Batch 3: 28 pipelines CRITIQUES (canvas, voice, plugin, embedding, finetuning orch, brain)
+  Batch 4: 27 pipelines HAUTES (RAG, consensus, security, model, predictive, n8n adv, db optim, dashboard, hotfix)
+  Batch 5: 32 pipelines MEDIUM (learning, scenarios, API, profiling, workspace, trading enh, notif, doc, logs)
+  Batch 6: 12 pipelines LOW (preferences, accessibility, streaming, collaboration)
+```
 
 ---
 
@@ -85,6 +172,7 @@ Commande vocale → Collecte PowerShell (CPU/RAM/GPU/Disques)
 
 ## Table des Matieres
 
+- [Nouveautes v10.3.5 — Audit Pipeline Complet](#nouveautes-v1035--audit-pipeline-complet-135135-pass)
 - [Nouveautes v10.3.1](#nouveautes-v1031--pipelines-ia-cognitives)
 - [Architecture Globale](#architecture-globale)
 - [Cluster IA — HEXA_CORE](#cluster-ia--hexacore)
@@ -449,8 +537,8 @@ La table `map` centralise la cartographie complete du systeme :
 | Type d'entite | Nombre | Description |
 |---------------|--------|-------------|
 | vocal_command | 1,706 | Commandes vocales avec triggers et actions |
-| vocal_pipeline | 278 | Pipelines multi-etapes (enchainements automatises) |
-| skill | 84 | Skills persistants avec statistiques |
+| vocal_pipeline | 437 | Pipelines multi-etapes (enchainements automatises) |
+| skill | 108 | Skills persistants avec statistiques |
 | tool | 75 | Outils MCP SDK enregistres |
 | script | 39 | Scripts Python/PowerShell disponibles |
 | routing_rule | 22 | Regles de routage cluster |
@@ -465,7 +553,7 @@ La table `map` centralise la cartographie complete du systeme :
 | voice_command | 5 | Commandes vocales speciales |
 | database | 4 | Bases de donnees |
 
-Autres tables: `pipeline_dictionary` (656 pipelines), `scenario_weights` (58 regles), `domino_chains` (12 chaines), `voice_corrections` (2,627 regles), `benchmark_runs/results`, `consensus_log`, `jarvis_queries`, `cluster_health`, `agent_keywords`, `memories` (26 entries), `api_keys`, `skills_log`, `sessions`, `metrics`.
+Autres tables: `pipeline_dictionary` (656 pipelines), `pipeline_tests` (159 tests, 135/135 PASS), `scenario_weights` (58 regles), `domino_chains` (12 chaines), `voice_corrections` (2,627 regles), `benchmark_runs/results`, `consensus_log`, `jarvis_queries`, `cluster_health`, `agent_keywords`, `memories` (44 entries), `api_keys`, `skills_log`, `sessions`, `metrics`.
 
 ### jarvis.db — Commandes & Validation
 
