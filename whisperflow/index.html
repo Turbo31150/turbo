@@ -693,6 +693,37 @@ function handleWSMessage(msg) {
     }
   }
 
+  // System command execution responses
+  if (msg.type === 'response' && msg.channel === 'system') {
+    if (msg.action === 'execute_command' && msg.payload) {
+      $jarvisResponse.classList.remove('thinking');
+      $jarvisResponse.classList.add('show');
+      if (msg.payload.executed) {
+        const desc = msg.payload.description || msg.payload.command_name;
+        const output = msg.payload.output || '';
+        const elapsed = msg.payload.elapsed || 0;
+        $jarvisText.textContent = `${desc}\n${output}`.trim();
+        // TTS confirmation
+        if (!settings.silent) {
+          const ttsText = cleanTextForTTS(desc);
+          if (ttsText.length > 2) wsSend('voice', 'tts_speak', { text: ttsText });
+        }
+      } else if (msg.error || msg.payload.error) {
+        $jarvisText.textContent = `Erreur: ${msg.error || msg.payload.error}`;
+      }
+    }
+    if (msg.action === 'execute_domino' && msg.payload) {
+      $jarvisResponse.classList.remove('thinking');
+      $jarvisResponse.classList.add('show');
+      if (msg.payload.executed) {
+        const d = msg.payload.domino || {};
+        $jarvisText.textContent = `Cascade ${d.domino_id || ''}: ${d.passed || 0} OK / ${d.failed || 0} FAIL (${d.total_ms || 0}ms)`;
+      } else if (msg.payload.error) {
+        $jarvisText.textContent = `Erreur domino: ${msg.payload.error}`;
+      }
+    }
+  }
+
   // Cluster status (response or push event)
   if (msg.channel === 'cluster') {
     const nodes = msg.payload?.nodes || msg.payload?.status;
@@ -823,8 +854,19 @@ function onTranscriptionResult(data) {
     $dominoResult.classList.add('show');
   }
 
-  // AUTO-SEND to chat for JARVIS response
+  // Send to chat — backend handles command execution OR IA fallback
   processCommand(text);
+}
+
+function executeCommand(domino) {
+  // Execute matched command on the system
+  $jarvisResponse.classList.add('show', 'thinking');
+  $jarvisText.textContent = `Execution: ${domino.description || domino.id}...`;
+
+  wsSend('system', 'execute_command', {
+    command_name: domino.id,
+    params: domino.params || {},
+  });
 }
 
 function processCommand(text) {

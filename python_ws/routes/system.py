@@ -1,13 +1,36 @@
-"""System channel — OS info, disk space, sanitized config."""
+"""System channel — OS info, disk space, sanitized config, command execution."""
 
 from __future__ import annotations
 
+import asyncio
+import logging
 import os
 import platform
 import shutil
+import subprocess
+import time
 from typing import Any
 
 from python_ws.bridge import get_config
+
+logger = logging.getLogger("jarvis.system")
+
+# Lazy-loaded executor
+_executor = None
+
+
+def _get_executor():
+    """Lazily load DominoExecutor."""
+    global _executor
+    if _executor is not None:
+        return _executor
+    try:
+        from src.domino_executor import DominoExecutor
+        _executor = DominoExecutor()
+        logger.info("DominoExecutor loaded")
+    except Exception as e:
+        logger.warning("DominoExecutor unavailable: %s", e)
+    return _executor
 
 
 async def handle_system_request(action: str, payload: dict | None) -> dict[str, Any]:
@@ -19,6 +42,12 @@ async def handle_system_request(action: str, payload: dict | None) -> dict[str, 
 
     if action == "config":
         return _sanitized_config()
+
+    if action == "execute_command":
+        return await _execute_command(payload)
+
+    if action == "execute_domino":
+        return await _execute_domino(payload)
 
     return {"error": f"unknown system action: {action}"}
 
@@ -113,3 +142,87 @@ def _sanitized_config() -> dict[str, Any]:
         "temperature": cfg.temperature,
         "max_tokens": cfg.max_tokens,
     }
+
+
+# ── Command execution ─────────────────────────────────────────────────────
+
+async def _execute_command(payload: dict) -> dict[str, Any]:
+    """Execute a matched JarvisCommand by name or action details.
+
+    Uses src.executor.execute_command which handles all 11 action types:
+    powershell, app_open, browser, ms_settings, hotkey, script, pipeline, etc.
+    """
+    cmd_name = payload.get("command_name", "")
+    params = payload.get("params", {})
+
+    if not cmd_name:
+        return {"error": "No command_name provided"}
+
+    try:
+        from src.commands import COMMANDS
+        from src.executor import execute_command
+    except ImportError as e:
+        return {"error": f"Modules not available: {e}"}
+
+    # Find command by name
+    cmd = next((c for c in COMMANDS if c.name == cmd_name), None)
+    if not cmd:
+        return {"error": f"Command '{cmd_name}' not found"}
+
+    t0 = time.time()
+    try:
+        result = await execute_command(cmd, params)
+        elapsed = round(time.time() - t0, 2)
+        logger.info("Executed %s (%s) in %ss", cmd_name, cmd.action_type, elapsed)
+
+        # Handle special return values
+        if result.startswith("__"):
+            return {
+                "executed": True,
+                "command_name": cmd_name,
+                "action_type": cmd.action_type,
+                "output": result,
+                "special": True,
+                "elapsed": elapsed,
+            }
+
+        return {
+            "executed": True,
+            "command_name": cmd_name,
+            "action_type": cmd.action_type,
+            "description": cmd.description,
+            "output": result[:500],
+            "elapsed": elapsed,
+        }
+    except Exception as e:
+        logger.error("Command execution error: %s", e)
+        return {"error": str(e), "command_name": cmd_name}
+
+
+async def _execute_domino(payload: dict) -> dict[str, Any]:
+    """Execute a domino cascade by ID or voice text."""
+    domino_id = payload.get("domino_id", "")
+    voice_text = payload.get("voice_text", "")
+
+    executor = _get_executor()
+    if not executor:
+        return {"error": "DominoExecutor not available"}
+
+    try:
+        if domino_id:
+            from src.domino_pipelines import DOMINO_PIPELINES
+            domino = next((d for d in DOMINO_PIPELINES if d.id == domino_id), None)
+            if not domino:
+                return {"error": f"Domino '{domino_id}' not found"}
+            result = await asyncio.to_thread(executor.run, domino)
+        elif voice_text:
+            result = await asyncio.to_thread(executor.run_by_voice, voice_text)
+            if not result:
+                return {"error": f"No domino matched for: {voice_text}"}
+        else:
+            return {"error": "Need domino_id or voice_text"}
+
+        return {"executed": True, "domino": result}
+    except Exception as e:
+        logger.error("Domino execution error: %s", e)
+        return {"error": str(e)}
