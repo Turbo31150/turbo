@@ -59,7 +59,7 @@ async def handle_chat_request(action: str, payload: dict) -> dict:
 
 
 async def _send_message(payload: dict) -> dict:
-    """Process a user message through the commander pipeline."""
+    """Process a user message: try command execution first, fallback to IA."""
     text = (payload.get("content") or payload.get("text") or "").strip()
     if not text:
         return {"error": "Empty message"}
@@ -70,7 +70,22 @@ async def _send_message(payload: dict) -> dict:
     start = time.time()
 
     try:
-        # Step 1: Classify task (if commander available)
+        # Step 1: Try to match a voice command and execute it
+        cmd_result = await _try_execute_command(text)
+        if cmd_result:
+            elapsed = time.time() - start
+            agent_msg = _session.add_message("assistant", cmd_result["response"], agent="ia-system")
+            agent_msg["task_type"] = "command"
+            agent_msg["elapsed"] = round(elapsed, 2)
+            agent_msg["command"] = cmd_result.get("command_name")
+            return {
+                "user_message": user_msg,
+                "agent_message": agent_msg,
+                "task_type": "command",
+                "executed": True,
+            }
+
+        # Step 2: No command matched — classify and route to IA
         task_type = "simple"
         if classify_task:
             try:
@@ -79,20 +94,16 @@ async def _send_message(payload: dict) -> dict:
                     task_type = await classify_task(text)
                 else:
                     task_type = await asyncio.to_thread(classify_task, text)
-                # Ensure task_type is a string
                 if not isinstance(task_type, str):
                     task_type = "simple"
             except Exception:
                 task_type = "simple"
 
-        # Step 2: For now, use a simple local IA query as response
-        # In production this would use Claude SDK streaming
         response_text = await _query_local_ia(text, task_type)
 
         agent_name = _get_agent_for_task(task_type)
         elapsed = time.time() - start
 
-        # Add agent response
         agent_msg = _session.add_message("assistant", response_text, agent=agent_name)
         agent_msg["task_type"] = task_type
         agent_msg["elapsed"] = round(elapsed, 2)
@@ -105,6 +116,45 @@ async def _send_message(payload: dict) -> dict:
     except Exception as e:
         error_msg = _session.add_message("system", f"Erreur: {str(e)}")
         return {"error": str(e), "message": error_msg}
+
+
+async def _try_execute_command(text: str) -> dict | None:
+    """Try to match text to a command and execute it. Returns None if no match."""
+    try:
+        from src.voice_correction import full_correction_pipeline
+        from src.executor import execute_command
+    except ImportError:
+        return None
+
+    try:
+        result = await full_correction_pipeline(text)
+    except Exception:
+        return None
+
+    cmd = result.get("command")
+    confidence = result.get("confidence", 0)
+    params = result.get("params", {})
+
+    if not cmd or confidence < 0.75:
+        return None
+
+    # Execute the command
+    try:
+        output = await execute_command(cmd, params)
+    except Exception as e:
+        output = f"Erreur execution: {e}"
+
+    # Skip special sentinel values — those need IA handling
+    if isinstance(output, str) and output.startswith("__"):
+        return None
+
+    return {
+        "command_name": cmd.name,
+        "description": cmd.description,
+        "action_type": cmd.action_type,
+        "confidence": confidence,
+        "response": output,
+    }
 
 
 JARVIS_SYSTEM = (
