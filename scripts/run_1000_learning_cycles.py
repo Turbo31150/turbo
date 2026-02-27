@@ -16,7 +16,7 @@ from src.domino_pipelines import DOMINO_PIPELINES
 # ══════════════════════════════════════════════════════════════════════════════
 
 JSONL_PATH = Path("F:/BUREAU/turbo/data/domino_learning_dataset.jsonl")
-TARGET_CYCLES = 1000
+TARGET_CYCLES = int(os.environ.get("CYCLES", "1000"))
 BATCH_SIZE = 10  # examples per cluster request
 MAX_WORKERS = 6
 
