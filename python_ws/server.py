@@ -40,6 +40,7 @@ from python_ws.routes.chat import handle_chat_request
 from python_ws.routes.trading import handle_trading_request, push_trading_events
 from python_ws.routes.voice import handle_voice_request
 from python_ws.routes.files import handle_files_request
+from python_ws.routes.dictionary import handle_dictionary_request
 from python_ws.routes.sql import sql_router
 
 # ── Logging ──────────────────────────────────────────────────────────────────
@@ -50,7 +51,7 @@ logging.basicConfig(
 logger = logging.getLogger("jarvis.ws")
 
 # ── Valid channels ───────────────────────────────────────────────────────────
-CHANNELS = {"cluster", "trading", "voice", "chat", "files", "system"}
+CHANNELS = {"cluster", "trading", "voice", "chat", "files", "system", "dictionary"}
 
 # ── FastAPI app ──────────────────────────────────────────────────────────────
 app = FastAPI(title="JARVIS Desktop WS", version="1.0.0")
@@ -72,6 +73,20 @@ app.include_router(sql_router, prefix="/sql")
 @app.get("/health")
 async def health():
     return JSONResponse({"status": "ok", "service": "jarvis-ws", "port": 9742})
+
+
+@app.get("/api/dictionary")
+async def api_dictionary():
+    """REST endpoint for full dictionary data (too large for WS)."""
+    result = await handle_dictionary_request("get_all", {})
+    return JSONResponse(result)
+
+
+@app.get("/api/dictionary/search")
+async def api_dictionary_search(q: str = "", limit: int = 50):
+    """Search commands, pipelines, and DB entries."""
+    result = await handle_dictionary_request("search", {"query": q, "limit": limit})
+    return JSONResponse(result)
 
 
 # ── WhisperFlow static serving ─────────────────────────────────────────────
@@ -108,6 +123,9 @@ async def _route_request(channel: str, action: str, payload: dict | None) -> dic
 
     if channel == "files":
         return await handle_files_request(action, payload or {})
+
+    if channel == "dictionary":
+        return await handle_dictionary_request(action, payload)
 
     return {"error": f"unknown channel: {channel}"}
 
