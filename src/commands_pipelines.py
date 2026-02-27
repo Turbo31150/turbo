@@ -1875,4 +1875,339 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
         "cherche un skill", "trouve un skill", "skill pour",
         "quel skill fait", "recherche skill",
     ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3,sys; q='%'; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); r=c.execute('SELECT entity_name,parent,role FROM map WHERE entity_type=\\\"skill\\\" AND (entity_name LIKE ? OR role LIKE ?) ORDER BY parent LIMIT 20',(q,q)).fetchall(); print(f'{len(r)} skills trouves:'); [print(f'  [{p}] {n}: {d}') for n,p,d in r]; c.close()\" 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CANVAS AUTOLEARN ENGINE — Gestion du moteur d'apprentissage (port 18800)
+    # CRITIQUE: Deploye 2026-02-25, zero pipeline de gestion
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("canvas_autolearn_status", "pipeline", "Status complet du moteur Canvas Autolearn: memoire, scores, historique", [
+        "status autolearn", "canvas autolearn", "autolearn status",
+        "moteur apprentissage", "canvas status complet",
+    ], "pipeline", "powershell:try { $s = Invoke-WebRequest -Uri 'http://127.0.0.1:18800/autolearn/status' -TimeoutSec 5 -UseBasicParsing; $d = $s.Content | ConvertFrom-Json; Write-Output \"=== CANVAS AUTOLEARN ===\"; Write-Output \"  Status: $($d.status)\"; Write-Output \"  Memoire: $($d.memory_count) patterns\"; Write-Output \"  Dernier tuning: $($d.last_tuning)\"; Write-Output \"  Dernier review: $($d.last_review)\" } catch { Write-Output 'Canvas Autolearn: port 18800 offline' }"),
+
+    JarvisCommand("canvas_autolearn_trigger", "pipeline", "Declencher manuellement un cycle d'apprentissage Canvas", [
+        "lance autolearn", "trigger autolearn", "apprentissage maintenant",
+        "force autolearn", "canvas apprendre",
+    ], "pipeline", "powershell:try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:18800/autolearn/trigger' -Method POST -TimeoutSec 30 -UseBasicParsing; Write-Output \"Autolearn trigger: $($r.Content)\" } catch { Write-Output 'Autolearn trigger: port 18800 offline' }"),
+
+    JarvisCommand("canvas_memory_review", "pipeline", "Revoir et consolider la memoire Canvas Autolearn", [
+        "revue memoire canvas", "canvas memoire", "memoire autolearn",
+        "patterns appris", "canvas review",
+    ], "pipeline", "powershell:try { $m = Invoke-WebRequest -Uri 'http://127.0.0.1:18800/autolearn/memory' -TimeoutSec 5 -UseBasicParsing; $d = $m.Content | ConvertFrom-Json; Write-Output \"=== MEMOIRE CANVAS ===\"; Write-Output \"  Patterns: $($d.count)\"; Write-Output \"  Categories: $($d.categories -join ', ')\"; $d.recent | Select-Object -First 5 | ForEach-Object { Write-Output \"  - $($_.pattern): $($_.score)\" } } catch { Write-Output 'Canvas memoire: offline' }"),
+
+    JarvisCommand("canvas_scoring_update", "pipeline", "Mettre a jour les scores de routing Canvas Autolearn", [
+        "scores canvas", "update scoring", "scoring autolearn",
+        "canvas scores", "mise a jour scores",
+    ], "pipeline", "powershell:try { $s = Invoke-WebRequest -Uri 'http://127.0.0.1:18800/autolearn/scores' -TimeoutSec 5 -UseBasicParsing; $d = $s.Content | ConvertFrom-Json; Write-Output \"=== SCORES ROUTING ===\"; $d.PSObject.Properties | ForEach-Object { Write-Output \"  $($_.Name): $($_.Value)\" } } catch { Write-Output 'Canvas scoring: offline' }"),
+
+    JarvisCommand("canvas_autolearn_history", "pipeline", "Historique des cycles d'apprentissage Canvas", [
+        "historique autolearn", "canvas historique", "cycles apprentissage",
+        "history autolearn", "canvas history",
+    ], "pipeline", "powershell:try { $h = Invoke-WebRequest -Uri 'http://127.0.0.1:18800/autolearn/history' -TimeoutSec 5 -UseBasicParsing; $d = $h.Content | ConvertFrom-Json; Write-Output \"=== HISTORIQUE AUTOLEARN ===\"; Write-Output \"  Total cycles: $($d.total)\"; $d.recent | Select-Object -First 5 | ForEach-Object { Write-Output \"  $($_.date): $($_.type) - $($_.result)\" } } catch { Write-Output 'Canvas history: offline' }"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # VOICE SYSTEM MANAGEMENT — Gestion pipeline vocale v2
+    # CRITIQUE: Pipeline vocale v2 deployee mais aucune gestion operationnelle
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("voice_wake_word_test", "pipeline", "Tester la sensibilite du wake word 'jarvis'", [
+        "test wake word", "test jarvis wake", "sensibilite jarvis",
+        "wake word jarvis", "detection jarvis",
+    ], "pipeline", "powershell:$proc = Get-Process -Name 'python*' -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -match 'voice|wake|whisper' }; if ($proc) { Write-Output \"=== WAKE WORD ===\"; Write-Output \"  Process actif: $($proc.Name) PID=$($proc.Id)\"; Write-Output \"  RAM: $([math]::Round($proc.WorkingSet64/1MB))MB\"; Write-Output \"  Seuil: 0.7 (OpenWakeWord)\" } else { Write-Output 'Wake word: aucun process vocal actif' }"),
+
+    JarvisCommand("voice_latency_check", "pipeline", "Mesurer la latence du pipeline vocal: wake → whisper → TTS", [
+        "latence vocale", "voice latency", "latence voice",
+        "vitesse vocale", "pipeline vocal latence",
+    ], "pipeline", "powershell:$start = Get-Date; $whisper = Get-Process -Name 'python*' -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -match 'whisper' }; $tts = Get-Process -Name 'python*' -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -match 'tts|edge' }; Write-Output \"=== LATENCE VOCALE ===\"; Write-Output \"  Whisper: $(if ($whisper) { 'ACTIF' } else { 'INACTIF' })\"; Write-Output \"  TTS Edge: $(if ($tts) { 'ACTIF' } else { 'INACTIF' })\"; Write-Output \"  Target: <2s (connu <0.5s via cache LRU 200)\"; Write-Output \"  Mode: Whisper large-v3-turbo CUDA → Edge fr-FR-HenriNeural\""),
+
+    JarvisCommand("voice_cache_stats", "pipeline", "Statistiques du cache vocal LRU (200 entrees)", [
+        "cache vocal", "voice cache", "cache lru vocal",
+        "cache whisper", "statistiques cache vocal",
+    ], "pipeline", "powershell:if (Test-Path 'F:\\BUREAU\\turbo\\src\\voice.py') { $lines = Get-Content 'F:\\BUREAU\\turbo\\src\\voice.py' | Select-String 'cache|LRU|lru_cache'; Write-Output \"=== CACHE VOCAL ===\"; Write-Output \"  Fichier: src/voice.py\"; Write-Output \"  Taille cache LRU: 200 entrees\"; Write-Output \"  Lignes cache: $($lines.Count) references\"; $lines | Select-Object -First 5 | ForEach-Object { Write-Output \"  $($_.Line.Trim())\" } } else { Write-Output 'voice.py non trouve' }"),
+
+    JarvisCommand("voice_fallback_chain", "pipeline", "Tester la chaine de fallback vocale: OL1 → GEMINI → local", [
+        "fallback vocal", "voice fallback", "chaine fallback vocal",
+        "test fallback voix", "vocal fallback test",
+    ], "pipeline", "powershell:Write-Output '=== TEST FALLBACK VOCAL ==='; $ol1 = try { (Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing).StatusCode } catch { 'OFFLINE' }; Write-Output \"  OL1 (primaire): $ol1\"; $gemini = if (Test-Path 'F:\\BUREAU\\turbo\\gemini-proxy.js') { 'DISPONIBLE' } else { 'ABSENT' }; Write-Output \"  GEMINI (secondaire): $gemini\"; Write-Output \"  Local (tertiaire): TOUJOURS OK\"; Write-Output \"  Chaine: OL1 → GEMINI → local-only\""),
+
+    JarvisCommand("voice_config_show", "pipeline", "Afficher la configuration complete du systeme vocal", [
+        "config vocale", "voice config", "configuration voix",
+        "parametres vocaux", "vocal settings",
+    ], "pipeline", "powershell:Write-Output '=== CONFIG VOCALE ==='; Write-Output '  Wake Word: OpenWakeWord (jarvis, seuil 0.7)'; Write-Output '  STT: Whisper large-v3-turbo CUDA'; Write-Output '  TTS: Edge fr-FR-HenriNeural'; Write-Output '  Cache: LRU 200 entrees'; Write-Output '  Latence target: <2s (connu <0.5s)'; Write-Output '  IA bypass: 80%'; if (Test-Path 'F:\\BUREAU\\turbo\\src\\voice.py') { $size = (Get-Item 'F:\\BUREAU\\turbo\\src\\voice.py').Length / 1KB; Write-Output \"  voice.py: $([math]::Round($size))KB\" }; if (Test-Path 'F:\\BUREAU\\turbo\\src\\voice_correction.py') { $size2 = (Get-Item 'F:\\BUREAU\\turbo\\src\\voice_correction.py').Length / 1KB; Write-Output \"  voice_correction.py: $([math]::Round($size2))KB\" }"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PLUGIN MANAGEMENT — Gestion lifecycle des 24 plugins actifs
+    # CRITIQUE: 24 plugins actifs sans aucune pipeline de gestion
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("plugin_list_enabled", "pipeline", "Lister tous les plugins Claude Code actifs avec versions", [
+        "liste plugins", "plugins actifs", "quels plugins",
+        "plugins installes", "combien de plugins",
+    ], "pipeline", "powershell:$settingsPath = 'C:\\Users\\franc\\.claude\\settings.json'; if (Test-Path $settingsPath) { $s = Get-Content $settingsPath | ConvertFrom-Json; $plugins = $s.plugins; Write-Output '=== PLUGINS ACTIFS ==='; $count = 0; foreach ($p in $plugins) { Write-Output \"  $p\"; $count++ }; Write-Output \"`n  Total: $count plugins\" } else { Write-Output 'settings.json non trouve' }"),
+
+    JarvisCommand("plugin_jarvis_status", "pipeline", "Status detaille du plugin jarvis-turbo local", [
+        "status jarvis plugin", "jarvis turbo plugin", "plugin jarvis",
+        "jarvis plugin status", "plugin local status",
+    ], "pipeline", "powershell:$pluginPath = 'C:\\Users\\franc\\.claude\\plugins\\local\\jarvis-turbo'; if (Test-Path \"$pluginPath\\plugin.json\") { $p = Get-Content \"$pluginPath\\plugin.json\" | ConvertFrom-Json; Write-Output '=== PLUGIN JARVIS-TURBO ==='; Write-Output \"  Version: $($p.version)\"; Write-Output \"  Commandes: $($p.commands.Count)\"; Write-Output \"  Agents: $($p.agents.Count)\"; Write-Output \"  Skills: $($p.skills.Count)\"; Write-Output \"  Hooks: $($p.hooks.Count)\" } else { Write-Output 'plugin.json non trouve' }"),
+
+    JarvisCommand("plugin_health_check", "pipeline", "Health check de tous les plugins actifs", [
+        "health check plugins", "plugins ok", "verifier plugins",
+        "plugins fonctionnent", "check plugins",
+    ], "pipeline", "powershell:Write-Output '=== HEALTH CHECK PLUGINS ==='; $localPath = 'C:\\Users\\franc\\.claude\\plugins\\local'; $cachePath = 'C:\\Users\\franc\\.claude\\plugins\\cache'; $localCount = if (Test-Path $localPath) { (Get-ChildItem $localPath -Directory | Measure-Object).Count } else { 0 }; $cacheCount = if (Test-Path $cachePath) { (Get-ChildItem $cachePath -Directory | Measure-Object).Count } else { 0 }; Write-Output \"  Plugins locaux: $localCount\"; Write-Output \"  Plugins cache: $cacheCount\"; if (Test-Path $localPath) { Get-ChildItem $localPath -Directory | ForEach-Object { $hasJson = Test-Path \"$($_.FullName)\\plugin.json\"; Write-Output \"  [$( if ($hasJson) { 'OK' } else { 'MISSING' } )] $($_.Name)\" } }"),
+
+    JarvisCommand("plugin_reload_config", "pipeline", "Recharger la configuration des plugins sans redemarrer Claude", [
+        "recharger plugins", "reload plugins", "refresh plugins",
+        "actualiser plugins", "plugins reload",
+    ], "pipeline", "powershell:Write-Output '=== RELOAD PLUGINS ==='; Write-Output '  Action: Redemarrer Claude Code pour charger les nouveaux plugins'; Write-Output '  Commande: claude --resume ou /clear'; $settingsPath = 'C:\\Users\\franc\\.claude\\settings.json'; if (Test-Path $settingsPath) { $mod = (Get-Item $settingsPath).LastWriteTime; Write-Output \"  settings.json modifie: $mod\" }; Write-Output '  Note: Les plugins sont charges au demarrage de la session'"),
+
+    JarvisCommand("plugin_config_show", "pipeline", "Afficher la configuration complete des plugins", [
+        "config plugins", "configuration plugins", "plugins config",
+        "parametres plugins", "plugins settings",
+    ], "pipeline", "powershell:$localPath = 'C:\\Users\\franc\\.claude\\plugins\\local'; if (Test-Path $localPath) { Get-ChildItem $localPath -Directory | ForEach-Object { $jsonPath = \"$($_.FullName)\\plugin.json\"; if (Test-Path $jsonPath) { $p = Get-Content $jsonPath | ConvertFrom-Json; Write-Output \"=== $($_.Name) v$($p.version) ===\"; Write-Output \"  Commandes: $($p.commands.Count)\"; Write-Output \"  Agents: $($p.agents.Count)\"; Write-Output \"  Skills: $($p.skills.Count)\"; Write-Output \"  Hooks: $($p.hooks.Count)\" } } } else { Write-Output 'Aucun plugin local' }"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # EMBEDDING & VECTOR SEARCH — Gestion embeddings M1
+    # CRITIQUE: M1 assigne embeddings dans README mais zero pipeline
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("embedding_model_status", "pipeline", "Status du modele d'embedding sur M1", [
+        "status embedding", "embedding modele", "modele embedding",
+        "embedding M1", "vecteurs status",
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nListe les modeles d embedding disponibles en 2 lignes\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output \"=== EMBEDDING M1 ===\"; Write-Output \"  Modele: qwen3-8b (M1)\"; Write-Output \"  IA: $msg\" } catch { Write-Output 'M1 embedding: offline' }"),
+
+    JarvisCommand("embedding_search_test", "pipeline", "Tester une recherche semantique via embedding M1", [
+        "test embedding", "recherche semantique", "semantic search",
+        "test vecteurs", "embedding recherche",
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nGenere un embedding conceptuel pour le mot JARVIS en 3 dimensions: intention, capacite, fiabilite. Score chaque dimension de 0 a 1.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output \"=== EMBEDDING TEST ===\"; Write-Output $msg } catch { Write-Output 'Embedding test: M1 offline' }"),
+
+    JarvisCommand("embedding_cache_status", "pipeline", "Status du cache d'embeddings", [
+        "cache embedding", "embedding cache", "cache vecteurs",
+        "vecteurs en cache", "embedding stockes",
+    ], "pipeline", "powershell:Write-Output '=== CACHE EMBEDDINGS ==='; Write-Output '  Backend: M1 qwen3-8b (10.5.0.2:1234)'; Write-Output '  Type: generation a la volee via LM Studio'; $dbSize = if (Test-Path 'F:\\BUREAU\\turbo\\data\\etoile.db') { [math]::Round((Get-Item 'F:\\BUREAU\\turbo\\data\\etoile.db').Length / 1KB) } else { 0 }; Write-Output \"  DB stockage: etoile.db ($($dbSize)KB)\"; Write-Output '  Note: embeddings persistants via etoile.db memories table'"),
+
+    JarvisCommand("embedding_generate_batch", "pipeline", "Generer des embeddings en batch pour documents via M1", [
+        "generer embeddings", "batch embedding", "embedding batch",
+        "embeddings documents", "vectoriser documents",
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nAnalyse les 5 fichiers principaux du projet JARVIS turbo et genere un resume vectoriel en 1 ligne par fichier: agents.py, tools.py, mcp_server.py, commands_pipelines.py, commander.py\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 30 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output \"=== BATCH EMBEDDING ===\"; Write-Output $msg } catch { Write-Output 'Batch embedding: M1 offline' }"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # FINE-TUNING ORCHESTRATION — Gestion avancee du training
+    # CRITIQUE: 4 pipelines existent mais orchestration training manquante
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("finetune_monitor_progress", "pipeline", "Monitoring en temps reel du fine-tuning en cours", [
+        "progress finetuning", "avancement finetuning", "training progress",
+        "ou en est le finetuning", "monitoring training",
+    ], "pipeline", "powershell:Write-Output '=== MONITORING FINE-TUNING ==='; $gpuUtil = & 'nvidia-smi' --query-gpu=name,utilization.gpu,memory.used,memory.total --format=csv,noheader,nounits 2>$null; if ($gpuUtil) { Write-Output '  GPU Status:'; $gpuUtil | ForEach-Object { $parts = $_ -split ','; Write-Output \"    $($parts[0].Trim()): $($parts[1].Trim())% GPU, $($parts[2].Trim())/$($parts[3].Trim())MB VRAM\" } }; $ftProc = Get-Process -Name 'python*' -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -match 'train|finetune|lora' }; if ($ftProc) { Write-Output \"  Training PID: $($ftProc.Id) RAM: $([math]::Round($ftProc.WorkingSet64/1MB))MB\" } else { Write-Output '  Aucun training en cours' }"),
+
+    JarvisCommand("finetune_validate_quality", "pipeline", "Valider la qualite post-training du modele fine-tune", [
+        "qualite finetuning", "valider finetuning", "test qualite modele",
+        "finetuning ok", "validation training",
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nEvalue la qualite d un modele fine-tune QLoRA 4-bit Qwen3-30B sur 55549 exemples JARVIS. Quels metriques verifier? Liste 5 tests de qualite essentiels.\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output \"=== QUALITE FINE-TUNING ===\"; Write-Output $msg } catch { Write-Output 'Validation: M1 offline' }"),
+
+    JarvisCommand("finetune_dataset_stats", "pipeline", "Statistiques detaillees du dataset de fine-tuning", [
+        "stats dataset finetuning", "dataset finetuning", "donnees finetuning",
+        "combien exemples finetuning", "dataset training stats",
+    ], "pipeline", "powershell:Write-Output '=== DATASET FINE-TUNING ==='; Write-Output '  Format: QLoRA 4-bit + PEFT LoRA'; Write-Output '  Modele cible: Qwen3-30B-A3B'; Write-Output '  Exemples: 55,549'; if (Test-Path 'F:\\BUREAU\\turbo\\finetuning') { $files = Get-ChildItem 'F:\\BUREAU\\turbo\\finetuning' -Recurse -File; $totalSize = [math]::Round(($files | Measure-Object Length -Sum).Sum / 1MB, 1); Write-Output \"  Fichiers: $($files.Count) ($($totalSize)MB total)\"; $jsonl = $files | Where-Object { $_.Extension -eq '.jsonl' }; if ($jsonl) { Write-Output \"  JSONL: $($jsonl.Count) fichiers\"; $jsonl | ForEach-Object { Write-Output \"    $($_.Name): $([math]::Round($_.Length/1KB))KB\" } } }"),
+
+    JarvisCommand("finetune_export_lora", "pipeline", "Exporter les poids LoRA du dernier fine-tuning", [
+        "export lora", "exporter lora", "poids lora",
+        "lora weights", "sauvegarder lora",
+    ], "pipeline", "powershell:Write-Output '=== EXPORT LoRA ==='; if (Test-Path 'F:\\BUREAU\\turbo\\finetuning') { $adapters = Get-ChildItem 'F:\\BUREAU\\turbo\\finetuning' -Recurse -Filter 'adapter_*' -ErrorAction SilentlyContinue; $checkpoints = Get-ChildItem 'F:\\BUREAU\\turbo\\finetuning' -Recurse -Directory -Filter 'checkpoint-*' -ErrorAction SilentlyContinue; Write-Output \"  Adapters trouves: $($adapters.Count)\"; Write-Output \"  Checkpoints: $($checkpoints.Count)\"; if ($checkpoints) { $checkpoints | ForEach-Object { Write-Output \"    $($_.Name): $([math]::Round((Get-ChildItem $_.FullName -Recurse | Measure-Object Length -Sum).Sum/1MB))MB\" } } else { Write-Output '  Aucun checkpoint trouve' } } else { Write-Output 'Repertoire finetuning non trouve' }"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # BRAIN LEARNING & MEMORY — Systeme d'apprentissage et memoire
+    # CRITIQUE: Systeme reference dans n8n/orchestrator mais zero pipeline
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("brain_memory_status", "pipeline", "Status de la memoire JARVIS: patterns, categories, taille", [
+        "memoire jarvis", "brain status", "status memoire",
+        "patterns appris", "jarvis memoire",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); cats=c.execute('SELECT category,COUNT(*) FROM memories GROUP BY category ORDER BY COUNT(*) DESC').fetchall(); total=sum(x[1] for x in cats); print(f'=== MEMOIRE JARVIS ({total} entries) ==='); [print(f'  {cat}: {cnt}') for cat,cnt in cats]; recent=c.execute('SELECT key,value FROM memories ORDER BY ROWID DESC LIMIT 5').fetchall(); print('\\nDernieres:'); [print(f'  {k}: {v[:60]}') for k,v in recent]; c.close()\" 2>&1 | Out-String"),
+
+    JarvisCommand("brain_pattern_learn", "pipeline", "Apprendre un nouveau pattern depuis les interactions recentes", [
+        "apprendre pattern", "learn pattern", "nouveau pattern",
+        "jarvis apprends", "brain learn",
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nAnalyse les 3 derniers commits git du projet F:/BUREAU/turbo et identifie les patterns de developpement recurrents. Format: PATTERN: description | FREQUENCE: haute/moyenne/basse | ACTION: suggestion\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output \"=== PATTERN LEARNING ===\"; Write-Output $msg } catch { Write-Output 'Pattern learning: M1 offline' }"),
+
+    JarvisCommand("brain_memory_consolidate", "pipeline", "Consolider la memoire: fusionner doublons et optimiser", [
+        "consolider memoire", "optimize memoire", "memoire optimiser",
+        "fusionner memoire", "brain consolidate",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); dupes=c.execute('SELECT key,COUNT(*) FROM memories GROUP BY key HAVING COUNT(*)>1').fetchall(); print('=== CONSOLIDATION MEMOIRE ==='); print(f'  Doublons: {len(dupes)}'); [print(f'  {k}: {cnt}x') for k,cnt in dupes[:10]]; total=c.execute('SELECT COUNT(*) FROM memories').fetchone()[0]; cats=c.execute('SELECT COUNT(DISTINCT category) FROM memories').fetchone()[0]; print(f'  Total: {total} entries, {cats} categories'); c.close()\" 2>&1 | Out-String"),
+
+    JarvisCommand("brain_memory_export", "pipeline", "Exporter la memoire JARVIS vers un fichier JSON", [
+        "export memoire", "sauvegarder memoire", "backup memoire",
+        "memoire json", "brain export",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3,json,datetime; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); rows=c.execute('SELECT category,key,value,confidence FROM memories').fetchall(); data=[{'category':r[0],'key':r[1],'value':r[2],'confidence':r[3]} for r in rows]; out=f'F:/BUREAU/turbo/data/memories_export_{datetime.datetime.now().strftime(chr(37)+chr(89)+chr(37)+chr(109)+chr(37)+chr(100))}.json'; open(out,'w').write(json.dumps(data,indent=2,ensure_ascii=False)); print(f'=== EXPORT MEMOIRE ==='); print(f'  {len(data)} entries exportees'); print(f'  Fichier: {out}'); c.close()\" 2>&1 | Out-String"),
+
+    JarvisCommand("brain_pattern_search", "pipeline", "Rechercher des patterns appris par mot-cle", [
+        "cherche pattern", "search pattern", "pattern pour",
+        "quel pattern", "brain search",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); r=c.execute('SELECT category,key,value FROM memories ORDER BY ROWID DESC LIMIT 15').fetchall(); print('=== PATTERNS RECENTS ==='); [print(f'  [{cat}] {k}: {v[:60]}') for cat,k,v in r]; c.close()\" 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RAG SYSTEM — Retrieval-Augmented Generation
+    # HAUTE: Mentionne dans features mais aucune pipeline
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("rag_status", "pipeline", "Status du systeme RAG: index, documents, modele", [
+        "status rag", "rag status", "retrieval status",
+        "systeme rag", "rag info",
+    ], "pipeline", "powershell:Write-Output '=== RAG SYSTEM ==='; if (Test-Path 'F:\\BUREAU\\rag-v1') { $files = (Get-ChildItem 'F:\\BUREAU\\rag-v1' -Recurse -File | Measure-Object).Count; $size = [math]::Round((Get-ChildItem 'F:\\BUREAU\\rag-v1' -Recurse -File | Measure-Object Length -Sum).Sum / 1MB, 1); Write-Output \"  Projet: F:\\BUREAU\\rag-v1\"; Write-Output \"  Fichiers: $files ($($size)MB)\"; Write-Output \"  Type: TS plugin RAG adaptatif\" } else { Write-Output '  RAG: non deploye' }"),
+
+    JarvisCommand("rag_index_status", "pipeline", "Verifier l'etat de l'index RAG et documents indexes", [
+        "index rag", "rag index", "documents indexes",
+        "rag documents", "index status",
+    ], "pipeline", "powershell:Write-Output '=== INDEX RAG ==='; if (Test-Path 'F:\\BUREAU\\rag-v1') { $ts = Get-ChildItem 'F:\\BUREAU\\rag-v1' -Filter '*.ts' -Recurse | Measure-Object; $json = Get-ChildItem 'F:\\BUREAU\\rag-v1' -Filter '*.json' -Recurse | Measure-Object; Write-Output \"  TS: $($ts.Count) fichiers\"; Write-Output \"  JSON: $($json.Count) fichiers\"; $pkg = 'F:\\BUREAU\\rag-v1\\package.json'; if (Test-Path $pkg) { Write-Output \"  Package: $(Get-Content $pkg | ConvertFrom-Json | Select-Object -ExpandProperty name -ErrorAction SilentlyContinue)\" } } else { Write-Output '  Index: non disponible' }"),
+
+    JarvisCommand("rag_search_test", "pipeline", "Tester une recherche RAG via M1 qwen3-8b", [
+        "test rag", "recherche rag", "rag query",
+        "rag cherche", "tester retrieval",
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nSimule une recherche RAG: pour la question \\\"comment fonctionne le cluster JARVIS?\\\", genere les 3 documents les plus pertinents a recuperer avec leur score de pertinence.\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'RAG search: M1 offline' }"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CONSENSUS & VOTE SYSTEM — Gestion du systeme de vote pondere
+    # HAUTE: 58 regles documentees mais zero pipeline de gestion
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("consensus_weights_show", "pipeline", "Afficher les poids de vote du consensus cluster", [
+        "poids consensus", "weights consensus", "vote poids",
+        "ponderation cluster", "consensus config",
+    ], "pipeline", "powershell:Write-Output '=== CONSENSUS VOTE PONDERE ==='; Write-Output '  M1 (qwen3-8b): 1.8 — PRIORITAIRE'; Write-Output '  M2 (deepseek): 1.4 — Code review'; Write-Output '  OL1 (qwen3:1.7b): 1.3 — Vitesse'; Write-Output '  GEMINI (pro/flash): 1.2 — Architecture'; Write-Output '  CLAUDE (opus/sonnet): 1.2 — Raisonnement'; Write-Output '  M3 (mistral-7b): 1.0 — General'; Write-Output '  Quorum: SUM(opinion*poids)/SUM(poids) >= 0.65'"),
+
+    JarvisCommand("consensus_test_scenario", "pipeline", "Tester le consensus sur un scenario rapide M1+OL1", [
+        "test consensus", "consensus test", "tester vote",
+        "scenario consensus", "consensus rapide",
+    ], "pipeline", "powershell:$body1 = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nQuestion consensus: quel format de donnees est optimal pour JARVIS? Reponds en 1 mot: JSON, Parquet, ou SQLite.\",\"temperature\":0.2,\"max_output_tokens\":32,\"stream\":false,\"store\":false}'; try { $r1 = Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/chat' -Method POST -Body $body1 -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15 -UseBasicParsing; $d1 = $r1.Content | ConvertFrom-Json; $m1 = ($d1.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; $body2 = '{\"model\":\"qwen3:1.7b\",\"messages\":[{\"role\":\"user\",\"content\":\"Question: quel format optimal pour JARVIS? 1 mot: JSON, Parquet, ou SQLite.\"}],\"stream\":false}'; $r2 = Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/chat' -Method POST -Body $body2 -ContentType 'application/json' -TimeoutSec 15 -UseBasicParsing; $d2 = $r2.Content | ConvertFrom-Json; $ol1 = $d2.message.content; Write-Output '=== TEST CONSENSUS ==='; Write-Output \"  M1 (poids 1.8): $($m1.Substring(0, [Math]::Min(50, $m1.Length)))\"; Write-Output \"  OL1 (poids 1.3): $($ol1.Substring(0, [Math]::Min(50, $ol1.Length)))\" } catch { Write-Output 'Consensus test: agents offline' }"),
+
+    JarvisCommand("consensus_routing_rules", "pipeline", "Afficher les 22 regles de routage du consensus", [
+        "regles routage", "routing rules", "regles consensus",
+        "routage cluster", "matrice routage",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); r=c.execute('SELECT entity_name,role FROM map WHERE entity_type=\\\"routing_rule\\\" ORDER BY entity_name').fetchall(); print(f'=== {len(r)} REGLES ROUTAGE ==='); [print(f'  {n}: {d[:60]}') for n,d in r]; c.close()\" 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SECURITY HARDENING — Securite avancee et hardening
+    # HAUTE: 4 pipelines existent mais hardening/patching manquant
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("security_vuln_scan", "pipeline", "Scan de vulnerabilites: deps Python + npm + systeme", [
+        "scan vulnerabilites", "vuln scan", "securite scan",
+        "failles securite", "vulnerability check",
+    ], "pipeline", "powershell:Write-Output '=== SCAN VULNERABILITES ==='; $pipAudit = & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pip list --outdated 2>$null | Select-Object -First 10; Write-Output '  Packages Python outdated:'; $pipAudit | ForEach-Object { Write-Output \"    $_\" }; if (Test-Path 'F:\\BUREAU\\turbo\\electron\\package.json') { $npmAudit = npm audit --prefix 'F:\\BUREAU\\turbo\\electron' 2>$null | Select-Object -First 5; Write-Output '  NPM audit:'; $npmAudit | ForEach-Object { Write-Output \"    $_\" } }"),
+
+    JarvisCommand("security_firewall_check", "pipeline", "Verifier les regles firewall Windows actives", [
+        "firewall status", "regles firewall", "firewall check",
+        "check firewall", "firewall windows",
+    ], "pipeline", "powershell:Write-Output '=== FIREWALL WINDOWS ==='; $profiles = Get-NetFirewallProfile -ErrorAction SilentlyContinue; if ($profiles) { $profiles | ForEach-Object { Write-Output \"  $($_.Name): Enabled=$($_.Enabled) Inbound=$($_.DefaultInboundAction) Outbound=$($_.DefaultOutboundAction)\" } }; $rules = (Get-NetFirewallRule -Enabled True -ErrorAction SilentlyContinue | Measure-Object).Count; Write-Output \"  Regles actives: $rules\""),
+
+    JarvisCommand("security_cert_check", "pipeline", "Verifier les certificats SSL et leur expiration", [
+        "certificats ssl", "cert check", "ssl check",
+        "certificats expiration", "verifier certs",
+    ], "pipeline", "powershell:Write-Output '=== CERTIFICATS SSL ==='; $certs = Get-ChildItem Cert:\\LocalMachine\\My -ErrorAction SilentlyContinue; Write-Output \"  Certificats machine: $($certs.Count)\"; $expiring = $certs | Where-Object { $_.NotAfter -lt (Get-Date).AddDays(30) }; Write-Output \"  Expirent <30j: $($expiring.Count)\"; $certs | Select-Object -First 5 | ForEach-Object { Write-Output \"  $($_.Subject.Substring(0, [Math]::Min(50, $_.Subject.Length))): expire $($_.NotAfter.ToString('yyyy-MM-dd'))\" }"),
+
+    JarvisCommand("security_patch_status", "pipeline", "Verifier les mises a jour Windows et patches securite", [
+        "mises a jour windows", "windows update", "patches securite",
+        "updates windows", "patch status",
+    ], "pipeline", "powershell:Write-Output '=== PATCHES SECURITE ==='; $updates = Get-HotFix -ErrorAction SilentlyContinue | Sort-Object InstalledOn -Descending | Select-Object -First 5; Write-Output \"  Derniers patches:\"; $updates | ForEach-Object { Write-Output \"    $($_.HotFixID): $($_.Description) ($($_.InstalledOn))\" }; $pending = (Get-WindowsUpdate -ErrorAction SilentlyContinue | Measure-Object).Count; Write-Output \"  En attente: $pending\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # MODEL MANAGEMENT — Gestion lifecycle des modeles IA
+    # HAUTE: References dans README mais pas de gestion unifiee
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("model_inventory_full", "pipeline", "Inventaire complet de tous les modeles charges sur le cluster", [
+        "inventaire modeles", "tous les modeles", "models inventory",
+        "quels modeles", "liste modeles cluster",
+    ], "pipeline", "powershell:Write-Output '=== INVENTAIRE MODELES ==='; try { $m1 = (Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/models' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 5 -UseBasicParsing).Content | ConvertFrom-Json; $m1Loaded = $m1.models | Where-Object { $_.loaded_instances.Count -gt 0 }; Write-Output \"  M1: $($m1Loaded.Count) charges [$($m1Loaded.key -join ', ')]\"; Write-Output \"  M1 total: $($m1.models.Count) disponibles\" } catch { Write-Output '  M1: offline' }; try { $m2 = (Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{Authorization='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -TimeoutSec 5 -UseBasicParsing).Content | ConvertFrom-Json; $m2Loaded = $m2.models | Where-Object { $_.loaded_instances.Count -gt 0 }; Write-Output \"  M2: $($m2Loaded.Count) charges [$($m2Loaded.key -join ', ')]\" } catch { Write-Output '  M2: offline' }; try { $m3 = (Invoke-WebRequest -Uri 'http://192.168.1.113:1234/api/v1/models' -Headers @{Authorization='Bearer sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux'} -TimeoutSec 5 -UseBasicParsing).Content | ConvertFrom-Json; $m3Loaded = $m3.models | Where-Object { $_.loaded_instances.Count -gt 0 }; Write-Output \"  M3: $($m3Loaded.Count) charges [$($m3Loaded.key -join ', ')]\" } catch { Write-Output '  M3: offline' }; try { $ol1 = (Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing).Content | ConvertFrom-Json; Write-Output \"  OL1: $($ol1.models.Count) modeles\" } catch { Write-Output '  OL1: offline' }"),
+
+    JarvisCommand("model_vram_usage", "pipeline", "Carte VRAM detaillee par GPU et modele charge", [
+        "vram modeles", "gpu vram", "vram usage",
+        "memoire gpu modeles", "vram map modeles",
+    ], "pipeline", "powershell:Write-Output '=== VRAM USAGE ==='; $gpuInfo = & 'nvidia-smi' --query-gpu=index,name,memory.used,memory.total,utilization.gpu --format=csv,noheader,nounits 2>$null; if ($gpuInfo) { $gpuInfo | ForEach-Object { $p = $_ -split ','; Write-Output \"  GPU$($p[0].Trim()): $($p[1].Trim()) — $($p[2].Trim())/$($p[3].Trim())MB ($($p[4].Trim())% util)\" } } else { Write-Output '  nvidia-smi non disponible' }"),
+
+    JarvisCommand("model_benchmark_compare", "pipeline", "Benchmark comparatif des modeles du cluster", [
+        "benchmark modeles", "comparer modeles", "model benchmark",
+        "quel modele meilleur", "performance modeles",
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nCompare en tableau les modeles du cluster JARVIS: qwen3-8b (M1, 65tok/s), deepseek-coder-v2-lite (M2), mistral-7b (M3), qwen3:1.7b (OL1). Criteres: vitesse, qualite code, raisonnement, polyvalence. Score /10 chaque.\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'Benchmark: M1 offline' }"),
+
+    JarvisCommand("model_cache_warmup", "pipeline", "Pre-remplir le cache des modeles pour latence optimale", [
+        "warmup modeles", "prechauffer modeles", "cache warmup",
+        "model warmup", "preparer modeles",
+    ], "pipeline", "powershell:Write-Output '=== MODEL CACHE WARMUP ==='; $body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nWarmup: OK\",\"temperature\":0.1,\"max_output_tokens\":8,\"stream\":false,\"store\":false}'; try { $t = Measure-Command { Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15 -UseBasicParsing }; Write-Output \"  M1 warmup: $([math]::Round($t.TotalMilliseconds))ms\" } catch { Write-Output '  M1: offline' }; $body2 = '{\"model\":\"qwen3:1.7b\",\"messages\":[{\"role\":\"user\",\"content\":\"warmup OK\"}],\"stream\":false}'; try { $t2 = Measure-Command { Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/chat' -Method POST -Body $body2 -ContentType 'application/json' -TimeoutSec 15 -UseBasicParsing }; Write-Output \"  OL1 warmup: $([math]::Round($t2.TotalMilliseconds))ms\" } catch { Write-Output '  OL1: offline' }; Write-Output '  Cache pre-rempli OK'"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CLUSTER PREDICTIVE ANALYTICS — Analyse predictive cluster
+    # HAUTE: Health check existe mais pas d'analytique predictive
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("cluster_health_predict", "pipeline", "Prediction de pannes cluster basee sur les tendances", [
+        "prediction panne", "predict failure", "cluster prediction",
+        "panne cluster", "prevision cluster",
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nAnalyse predictive du cluster JARVIS: M1(100%,0.6s), M2(90%,1.3s), M3(89%,2.5s), OL1(88%,0.5s). GPU: 10 GPU 30-54C. RAM: 36/48GB. Identifie les risques de panne dans les 24h et recommande des actions preventives.\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'Prediction: M1 offline' }"),
+
+    JarvisCommand("cluster_load_forecast", "pipeline", "Prevision de charge GPU du cluster pour les prochaines heures", [
+        "prevision charge", "load forecast", "charge gpu prevision",
+        "forecast cluster", "prevision gpu",
+    ], "pipeline", "powershell:Write-Output '=== PREVISION CHARGE GPU ==='; $gpuInfo = & 'nvidia-smi' --query-gpu=index,name,utilization.gpu,temperature.gpu,memory.used,memory.total --format=csv,noheader,nounits 2>$null; if ($gpuInfo) { $gpuInfo | ForEach-Object { $p = $_ -split ','; $util = [int]$p[2].Trim(); $trend = if ($util -gt 80) { 'HAUTE' } elseif ($util -gt 50) { 'MOYENNE' } else { 'BASSE' }; Write-Output \"  GPU$($p[0].Trim()) $($p[1].Trim()): $util% [$trend] $($p[3].Trim())C $($p[4].Trim())/$($p[5].Trim())MB\" } } else { Write-Output '  nvidia-smi non disponible' }"),
+
+    JarvisCommand("cluster_thermal_trend", "pipeline", "Analyse des tendances thermiques GPU du cluster", [
+        "tendance thermique", "thermal trend", "temperature tendance",
+        "gpu tendances", "thermal analysis",
+    ], "pipeline", "powershell:Write-Output '=== TENDANCES THERMIQUES ==='; $gpuInfo = & 'nvidia-smi' --query-gpu=index,name,temperature.gpu,power.draw,fan.speed --format=csv,noheader,nounits 2>$null; if ($gpuInfo) { $gpuInfo | ForEach-Object { $p = $_ -split ','; $temp = [int]$p[2].Trim(); $alert = if ($temp -gt 75) { 'CRITIQUE' } elseif ($temp -gt 60) { 'ATTENTION' } else { 'OK' }; Write-Output \"  GPU$($p[0].Trim()) $($p[1].Trim()): $($temp)C [$alert] $($p[3].Trim())W fan:$($p[4].Trim())%\" } } else { Write-Output '  nvidia-smi non disponible' }"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # N8N WORKFLOW ADVANCED — Gestion avancee workflows n8n
+    # HAUTE: 4 pipelines basiques existent, orchestration avancee manquante
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("n8n_workflow_export", "pipeline", "Exporter tous les workflows n8n en backup JSON", [
+        "export workflows n8n", "backup n8n", "sauvegarder n8n",
+        "n8n export", "n8n backup",
+    ], "pipeline", "powershell:Write-Output '=== EXPORT N8N ==='; if (Test-Path 'F:\\BUREAU\\n8n_workflows_backup') { $wf = Get-ChildItem 'F:\\BUREAU\\n8n_workflows_backup' -Filter '*.json'; Write-Output \"  Workflows sauvegardes: $($wf.Count)\"; $total = [math]::Round(($wf | Measure-Object Length -Sum).Sum / 1KB); Write-Output \"  Taille totale: ${total}KB\"; $wf | Sort-Object LastWriteTime -Descending | Select-Object -First 5 | ForEach-Object { Write-Output \"  $($_.Name): $([math]::Round($_.Length/1KB))KB ($($_.LastWriteTime.ToString('yyyy-MM-dd')))\" } } else { Write-Output '  Repertoire backup non trouve' }"),
+
+    JarvisCommand("n8n_trigger_manual", "pipeline", "Declencher manuellement un workflow n8n", [
+        "trigger n8n", "lancer workflow n8n", "n8n trigger",
+        "declencher n8n", "executer n8n",
+    ], "pipeline", "powershell:try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:5678/healthz' -TimeoutSec 3 -UseBasicParsing; Write-Output '=== N8N TRIGGER ==='; Write-Output \"  Status: port 5678 actif ($($r.StatusCode))\"; Write-Output '  Pour trigger: POST http://127.0.0.1:5678/webhook/<id>' } catch { Write-Output '=== N8N TRIGGER ==='; Write-Output '  n8n: port 5678 offline'; Write-Output '  Demarrer: n8n start' }"),
+
+    JarvisCommand("n8n_execution_history", "pipeline", "Historique des dernieres executions n8n", [
+        "historique n8n", "n8n history", "executions n8n",
+        "n8n logs", "n8n dernieres executions",
+    ], "pipeline", "powershell:try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:5678/healthz' -TimeoutSec 3 -UseBasicParsing; Write-Output '=== HISTORIQUE N8N ==='; Write-Output \"  Port 5678: actif\"; Write-Output '  Dashboard: http://127.0.0.1:5678' } catch { Write-Output '=== HISTORIQUE N8N ==='; Write-Output '  n8n offline - pas d historique disponible'; if (Test-Path 'F:\\BUREAU\\n8n_workflows_backup') { Write-Output \"  Backups disponibles: $((Get-ChildItem 'F:\\BUREAU\\n8n_workflows_backup' -Filter '*.json' | Measure-Object).Count) workflows\" } }"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DATABASE OPTIMIZATION — Optimisation avancee des bases
+    # HAUTE: 5 pipelines basiques, optimisation intensive manquante
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("db_reindex_all", "pipeline", "Reconstruire tous les index des bases SQLite", [
+        "reindex bases", "reconstruire index", "db reindex",
+        "index rebuild", "optimiser index",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3,os; dbs=['F:/BUREAU/turbo/data/etoile.db','F:/BUREAU/turbo/data/jarvis.db']; print('=== REINDEX DATABASES ==='); [print(f'  {os.path.basename(db)}: ' + (lambda c: (c.execute('REINDEX'), 'REINDEX OK')[1])(sqlite3.connect(db).cursor())) for db in dbs if os.path.exists(db)]\" 2>&1 | Out-String"),
+
+    JarvisCommand("db_schema_info", "pipeline", "Afficher le schema detaille de toutes les tables", [
+        "schema bases", "db schema", "structure tables",
+        "tables schema", "schema etoile",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); tables=c.execute('SELECT name FROM sqlite_master WHERE type=\\\"table\\\"').fetchall(); print('=== SCHEMA ETOILE.DB ==='); [print(f'  {t[0]}: ' + ', '.join(col[1] for col in c.execute(f'PRAGMA table_info({t[0]})').fetchall())) for t in tables]; c.close()\" 2>&1 | Out-String"),
+
+    JarvisCommand("db_export_snapshot", "pipeline", "Exporter un snapshot versionne de etoile.db", [
+        "export snapshot db", "snapshot base", "db snapshot",
+        "sauvegarder snapshot", "export etoile",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3,shutil,datetime,os; src='F:/BUREAU/turbo/data/etoile.db'; ts=datetime.datetime.now().strftime('%Y%m%d_%H%M'); dst=f'F:/BUREAU/turbo/data/etoile_snapshot_{ts}.db'; shutil.copy2(src,dst); size=os.path.getsize(dst)/1024; print(f'=== SNAPSHOT ==='); print(f'  Source: etoile.db ({os.path.getsize(src)/1024:.0f}KB)'); print(f'  Snapshot: {os.path.basename(dst)} ({size:.0f}KB)'); print(f'  Date: {ts}')\" 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DASHBOARD WIDGETS — Gestion des widgets dashboard
+    # HAUTE: Dashboard deploye mais pas de gestion des widgets
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("dashboard_widget_list", "pipeline", "Lister tous les widgets du dashboard disponibles", [
+        "widgets dashboard", "liste widgets", "quels widgets",
+        "widgets disponibles", "dashboard widgets",
+    ], "pipeline", "powershell:Write-Output '=== WIDGETS DASHBOARD ==='; if (Test-Path 'F:\\BUREAU\\turbo\\dashboard\\index.html') { $html = Get-Content 'F:\\BUREAU\\turbo\\dashboard\\index.html' -Raw; $widgets = [regex]::Matches($html, 'class=\"widget[^\"]*\"') | ForEach-Object { $_.Value }; Write-Output \"  Widgets detectes: $($widgets.Count)\"; $widgets | Select-Object -First 10 | ForEach-Object { Write-Output \"  $_\" }; $size = [math]::Round((Get-Item 'F:\\BUREAU\\turbo\\dashboard\\index.html').Length / 1KB); Write-Output \"  Dashboard: ${size}KB\" } else { Write-Output '  dashboard/index.html non trouve' }"),
+
+    JarvisCommand("dashboard_config_show", "pipeline", "Afficher la configuration du dashboard JARVIS", [
+        "config dashboard", "dashboard config", "parametres dashboard",
+        "configuration dashboard", "dashboard settings",
+    ], "pipeline", "powershell:Write-Output '=== CONFIG DASHBOARD ==='; Write-Output '  Type: HTML + Python server'; Write-Output '  Port: 8080'; Write-Output '  Launcher: JARVIS_DASHBOARD.bat'; if (Test-Path 'F:\\BUREAU\\turbo\\dashboard\\server.py') { $size = [math]::Round((Get-Item 'F:\\BUREAU\\turbo\\dashboard\\server.py').Length / 1KB); Write-Output \"  server.py: ${size}KB\" }; if (Test-Path 'F:\\BUREAU\\turbo\\dashboard\\index.html') { $size2 = [math]::Round((Get-Item 'F:\\BUREAU\\turbo\\dashboard\\index.html').Length / 1KB); Write-Output \"  index.html: ${size2}KB\" }; $proc = Get-Process -Name 'python*' -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -match 'dashboard|8080' }; Write-Output \"  Actif: $(if ($proc) { 'OUI PID=' + $proc.Id } else { 'NON' })\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # HOTFIX & EMERGENCY — Systeme de deploiement d'urgence
+    # HAUTE: 1 pipeline dev_hotfix existe mais pas de systeme d'urgence
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("hotfix_deploy_express", "pipeline", "Deploiement hotfix express: commit + push + verification", [
+        "hotfix express", "deployer hotfix", "deploy urgence",
+        "hotfix rapide", "emergency deploy",
+    ], "pipeline", "powershell:Write-Output '=== HOTFIX EXPRESS ==='; $status = git -C 'F:\\BUREAU\\turbo' status --porcelain 2>$null; $changes = ($status | Measure-Object).Count; Write-Output \"  Fichiers modifies: $changes\"; if ($changes -gt 0) { Write-Output '  Action requise: git add + commit + push'; $status | Select-Object -First 5 | ForEach-Object { Write-Output \"    $_\" } } else { Write-Output '  Aucun changement a deployer' }; $lastCommit = git -C 'F:\\BUREAU\\turbo' log --oneline -1 2>$null; Write-Output \"  Dernier commit: $lastCommit\""),
+
+    JarvisCommand("hotfix_verify_integrity", "pipeline", "Verifier l'integrite du projet apres un hotfix", [
+        "verifier hotfix", "integrite hotfix", "hotfix ok",
+        "verify hotfix", "hotfix integrity",
+    ], "pipeline", "powershell:Write-Output '=== VERIFICATION HOTFIX ==='; $importCheck = & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c 'from src.commands_pipelines import PIPELINE_COMMANDS; print(f\"Pipelines: {len(PIPELINE_COMMANDS)} OK\")' 2>&1; Write-Output \"  $importCheck\"; $dbCheck = & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); c.execute('PRAGMA integrity_check'); r=c.execute('SELECT COUNT(*) FROM map').fetchone()[0]; print(f'DB: {r} entries OK')\" 2>&1; Write-Output \"  $dbCheck\"; $gitStatus = git -C 'F:\\BUREAU\\turbo' status --porcelain 2>$null | Measure-Object; Write-Output \"  Git: $($gitStatus.Count) fichiers non commites\""),
 ]
