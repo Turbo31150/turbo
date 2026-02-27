@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v10.3.5-blueviolet?style=for-the-badge" alt="version"/>
+  <img src="https://img.shields.io/badge/version-v10.3.6-blueviolet?style=for-the-badge" alt="version"/>
   <img src="https://img.shields.io/badge/GPU-10x_NVIDIA-76B900?style=for-the-badge&logo=nvidia" alt="gpu"/>
   <img src="https://img.shields.io/badge/Claude_SDK-Opus_4-orange?style=for-the-badge&logo=anthropic" alt="claude"/>
   <img src="https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="python"/>
@@ -7,11 +7,11 @@
   <img src="https://img.shields.io/badge/License-Private-red?style=for-the-badge" alt="license"/>
 </p>
 
-<h1 align="center">JARVIS Etoile v10.3.5</h1>
+<h1 align="center">JARVIS Etoile v10.3.6</h1>
 <h3 align="center">Orchestrateur IA Distribue Multi-GPU — HEXA_CORE</h3>
 
 <p align="center">
-  <strong>Systeme d'intelligence artificielle distribue sur 3 machines physiques, 10 GPU NVIDIA (~78 GB VRAM), 6 noeuds IA (HEXA_CORE) et 108 skills autonomes. Controle vocal en francais avec 1,706 commandes + 425 pipelines, trading algorithmique MEXC multi-consensus, et interface desktop Electron.</strong>
+  <strong>Systeme d'intelligence artificielle distribue sur 3 machines physiques, 10 GPU NVIDIA (~78 GB VRAM), 6 noeuds IA (HEXA_CORE) et 108 skills autonomes. Controle vocal en francais avec 1,706 commandes + 461 pipelines, trading algorithmique MEXC multi-consensus, et interface desktop Electron.</strong>
 </p>
 
 <p align="center">
@@ -28,11 +28,11 @@
 | **Noeuds IA** | 6 actifs (HEXA_CORE) | M1 (qwen3-8b), M2 (deepseek-coder), M3 (mistral), OL1 (ollama), GEMINI, CLAUDE |
 | **Agents** | 7 Claude SDK + 11 Plugin | deep, fast, check, trading, system, bridge, consensus + 11 plugin agents |
 | **Outils MCP** | 92 SDK + 89 handlers | IA, Windows, Trading, Bridge, Brain, SQL, Consensus |
-| **Commandes vocales** | 1,706 + 425 pipelines | 437 vocal_pipeline, 906 total vocal |
+| **Commandes vocales** | 1,706 + 461 pipelines | 473 vocal_pipeline, 942 total vocal |
 | **Skills** | 108 dynamiques | 16 vagues + 6 nouvelles categories IA, persistants en etoile.db |
 | **Source Python** | 28 modules / 24,000+ lignes | src/ (42,000+ total projet) |
-| **Databases** | 3 bases SQL + pipeline_tests | 35 tables, 2,477 map entries, 159 tests PASS |
-| **Pipeline Tests** | 135/135 PASS (100%) | 42 categories testees sur cluster live |
+| **Databases** | 3 bases SQL + pipeline_tests | 35 tables, 2,513 map entries, 195 tests PASS |
+| **Pipeline Tests** | 171/171 PASS (100%) | 42+ categories testees sur cluster live |
 | **Plugin** | 24 slash commands | + 24 skills + 11 agents + 4 hooks |
 | **Desktop** | Electron 33 + React 19 | Portable 72.5 MB |
 | **Trading** | v2.3 Multi-GPU | MEXC Futures 10x, 6 IA consensus |
@@ -40,9 +40,9 @@
 
 ---
 
-## Nouveautes v10.3.5 — Audit Pipeline Complet (135/135 PASS)
+## Nouveautes v10.3.6 — Audit Pipeline Complet + Gaps Fermes (171/171 PASS)
 
-> **+135 pipelines** deployees en 6 batches, couvrant **42 categories** a travers 4 niveaux de priorite. Audit systematique du README vs code reel — zero gap restant. Toutes les pipelines testees live sur le cluster IA (M1/M2/M3/OL1).
+> **+171 pipelines** deployees en 7 batches, couvrant **42+ categories** a travers 4 niveaux de priorite + completions. Audit systematique du README vs code reel — zero gap restant, toutes lacunes combinees. **461 pipelines totales**, testees live sur le cluster IA (M1/M2/M3/OL1).
 
 ### Couverture par priorite
 
@@ -52,6 +52,7 @@
 | **HAUTE** | RAG System, Consensus/Vote, Security Hardening, Model Management, Cluster Predictive, N8N Advanced, DB Optimization, Dashboard Widgets, Hotfix/Emergency | 27 | 27/27 PASS |
 | **MEDIUM** | Learning Cycles, Scenarios/Testing, API Management, Performance Profiling, Workspace/Session, Trading Enhanced, Notification/Alerting, Documentation Auto, Logging/Observability | 32 | 32/32 PASS |
 | **LOW** | User Preferences, Accessibility, Streaming/Broadcasting, Collaboration | 12 | 12/12 PASS |
+| **COMPLETION** | 19 categories — gaps restants dans Fine-Tuning, Plugin, Voice, Embedding, Brain, Dashboard, RAG, DB, Consensus, Security, Model, Hotfix, Cluster, N8N, API, Workspace, Trading, Notification, Documentation | 36 | 36/36 PASS |
 | *v10.3.1* | Cluster, Diagnostic IA, Cognitif, Securite, Debug Reseau, Routines, Electron, Database | 36 | 36/36 PASS |
 
 ### Nouvelles categories v10.3.2 — v10.3.5
