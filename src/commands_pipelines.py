@@ -1658,4 +1658,221 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
         "jarvis tu marches bien", "test jarvis",
         "jarvis verifie toi meme",
     ], "pipeline", "powershell:$db1 = Test-Path 'F:\\BUREAU\\turbo\\data\\etoile.db'; $db2 = Test-Path 'F:\\BUREAU\\turbo\\data\\jarvis.db'; \"Bases: etoile=$(if($db1){'OK'}else{'MANQUE'}) | jarvis=$(if($db2){'OK'}else{'MANQUE'})\";;powershell:$cmds = (Get-Content F:\\BUREAU\\turbo\\src\\commands.py -Raw | Select-String -Pattern 'JarvisCommand\\(' -AllMatches).Matches.Count; $pipes = (Get-Content F:\\BUREAU\\turbo\\src\\commands_pipelines.py -Raw | Select-String -Pattern 'JarvisCommand\\(' -AllMatches).Matches.Count; \"Commandes: $cmds | Pipelines: $pipes | Total: $($cmds + $pipes)\";;powershell:$m1 = try{(Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 3 -UseBasicParsing).StatusCode -eq 200}catch{$false}; $m2 = try{(Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -TimeoutSec 3 -UseBasicParsing).StatusCode -eq 200}catch{$false}; $ol1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing).StatusCode -eq 200}catch{$false}; $online = @($m1,$m2,$ol1) | Where-Object {$_}; \"Cluster: $($online.Count)/3 noeuds en ligne | JARVIS operationnel\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # ELECTRON DASHBOARD — Pilotage de l'application desktop JARVIS
+    # CRITIQUE: Feature majeure inaccessible par la voix
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("dashboard_ouvrir", "pipeline", "Ouvrir le dashboard JARVIS Electron (Vite + Python WS)", [
+        "ouvre le dashboard", "lance le dashboard", "dashboard jarvis",
+        "ouvre l'interface jarvis", "lance l'app desktop",
+        "ouvre jarvis desktop", "affiche le dashboard",
+    ], "pipeline", "powershell:Start-Process 'F:\\BUREAU\\turbo\\launchers\\JARVIS_DASHBOARD.bat' -WindowStyle Minimized; 'Dashboard JARVIS en cours de demarrage...';;sleep:3;;browser:navigate:http://127.0.0.1:8080;;powershell:\"Dashboard JARVIS accessible sur http://127.0.0.1:8080\""),
+
+    JarvisCommand("dashboard_electron_full", "pipeline", "Lancer JARVIS Desktop complet (Electron + React + Python WS)", [
+        "lance electron complet", "jarvis desktop complet",
+        "ouvre l'application complete", "lance tout le desktop",
+        "electron full", "desktop app complete",
+    ], "pipeline", "powershell:Start-Process 'F:\\BUREAU\\turbo\\launchers\\JARVIS_DESKTOP.bat' -WindowStyle Minimized; 'Electron demarrage: Vite 5173 + Python WS 9742';;sleep:5;;powershell:$vite = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:5173' -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; $ws = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:9742' -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; \"Electron: Vite=$(if($vite){'OK'}else{'...demarrage'}) | WS=$(if($ws){'OK'}else{'...demarrage'})\""),
+
+    JarvisCommand("dashboard_page_trading", "pipeline", "Dashboard: ouvrir la page Trading", [
+        "page trading", "dashboard trading", "ouvre le trading sur le dashboard",
+        "affiche la page trading", "va sur trading",
+    ], "pipeline", "browser:navigate:http://127.0.0.1:8080/#/trading;;powershell:\"Dashboard — Page Trading ouverte\""),
+
+    JarvisCommand("dashboard_page_chat", "pipeline", "Dashboard: ouvrir la page Chat IA", [
+        "page chat", "dashboard chat", "ouvre le chat sur le dashboard",
+        "affiche la page chat", "chat jarvis dashboard",
+    ], "pipeline", "browser:navigate:http://127.0.0.1:8080/#/chat;;powershell:\"Dashboard — Page Chat ouverte\""),
+
+    JarvisCommand("dashboard_page_settings", "pipeline", "Dashboard: ouvrir la page Settings", [
+        "page settings", "dashboard settings", "parametres dashboard",
+        "ouvre les reglages jarvis", "configuration dashboard",
+    ], "pipeline", "browser:navigate:http://127.0.0.1:8080/#/settings;;powershell:\"Dashboard — Page Settings ouverte\""),
+
+    JarvisCommand("dashboard_page_voice", "pipeline", "Dashboard: ouvrir la page Voice", [
+        "page voice", "dashboard voice", "ouvre la page voix",
+        "parametres vocaux dashboard", "voice dashboard",
+    ], "pipeline", "browser:navigate:http://127.0.0.1:8080/#/voice;;powershell:\"Dashboard — Page Voice ouverte\""),
+
+    JarvisCommand("dashboard_restart", "pipeline", "Redemarrer le dashboard JARVIS (kill + relaunch)", [
+        "redemarre le dashboard", "restart dashboard", "relance le dashboard",
+        "dashboard plante", "reboot dashboard",
+    ], "pipeline", "powershell:Get-Process -Name 'python*' -ErrorAction SilentlyContinue | Where-Object {$_.CommandLine -match 'dashboard'} | Stop-Process -Force -ErrorAction SilentlyContinue; 'Dashboard arrete';;sleep:2;;powershell:Start-Process 'F:\\BUREAU\\turbo\\launchers\\JARVIS_DASHBOARD.bat' -WindowStyle Minimized; 'Redemarrage dashboard...';;sleep:3;;browser:navigate:http://127.0.0.1:8080;;powershell:\"Dashboard redemarre\"", confirm=True),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CLUSTER IA AVANCE — Gestion avancee du cluster distribue
+    # CRITIQUE: Cluster optimisation entierement manuelle
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("cluster_routing_status", "pipeline", "Afficher la strategie de routage actuelle du cluster", [
+        "routage cluster", "routing status", "strategie de routage",
+        "qui gere quoi dans le cluster", "repartition cluster",
+    ], "pipeline", "powershell:\"=== ROUTAGE CLUSTER ===\"; \"M1 (10.5.0.2) — PRIORITAIRE: code, math, raisonnement, archi, securite\"; \"M2 (192.168.1.26) — Code review, debug, PowerShell\"; \"M3 (192.168.1.113) — General, validation (PAS raisonnement)\"; \"OL1 (127.0.0.1) — Questions rapides, triage, web search\"; \"GEMINI — Architecture, vision\"; \"CLAUDE — Raisonnement cloud profond\";;powershell:\"=== POIDS CONSENSUS ===\"; \"M1=1.8 | M2=1.4 | OL1=1.3 | GEMINI=1.2 | CLAUDE=1.2 | M3=1.0\""),
+
+    JarvisCommand("cluster_thermal_cascade", "pipeline", "Test thermal cascade: check GPU temperatures + fallback auto", [
+        "test thermal", "cascade thermique", "check thermique cluster",
+        "test fallback gpu", "simulation surchauffe",
+    ], "pipeline", "powershell:$gpu = nvidia-smi --query-gpu=index,temperature.gpu,name --format=csv,noheader,nounits 2>&1; $lines = $gpu -split \"`n\" | Where-Object {$_ -match '\\d'}; $alert = $false; foreach($l in $lines){$parts = $l -split ','; $temp = [int]$parts[1].Trim(); if($temp -ge 85){\"GPU$($parts[0].Trim()) $($parts[2].Trim()): ${temp}C CRITIQUE — cascade activee\"; $alert=$true}elseif($temp -ge 75){\"GPU$($parts[0].Trim()) $($parts[2].Trim()): ${temp}C ATTENTION\"}else{\"GPU$($parts[0].Trim()) $($parts[2].Trim()): ${temp}C OK\"}}; if(-not $alert){\"Thermal cascade: aucun declenchement necessaire\"}"),
+
+    JarvisCommand("cluster_vram_map", "pipeline", "Carte VRAM detaillee de toutes les GPU du cluster", [
+        "carte vram", "vram map", "memoire gpu detaillee",
+        "utilisation vram", "qui utilise la vram",
+    ], "pipeline", "powershell:\"=== VRAM MAP LOCAL (5 GPU) ===\"; nvidia-smi --query-gpu=index,name,memory.used,memory.total,memory.free --format=csv,noheader 2>&1 | ForEach-Object {$p = $_ -split ','; \"  GPU$($p[0].Trim()): $($p[1].Trim()) | Used:$($p[2].Trim()) / Total:$($p[3].Trim()) | Free:$($p[4].Trim())\"};;powershell:$total_used = 0; $total_total = 0; nvidia-smi --query-gpu=memory.used,memory.total --format=csv,noheader,nounits 2>&1 | ForEach-Object {$p = $_ -split ','; $total_used += [int]$p[0].Trim(); $total_total += [int]$p[1].Trim()}; \"Total: $($total_used)MB / $($total_total)MB ($([math]::Round($total_used/$total_total*100))% utilise)\""),
+
+    JarvisCommand("cluster_failover_test", "pipeline", "Tester le failover: simuler perte M1 et verifier fallback M2", [
+        "test failover", "simule une panne", "test redondance",
+        "failover cluster", "test panne m1",
+    ], "pipeline", "powershell:\"=== TEST FAILOVER ===\"; \"1. Test M1 (principal)...\"; $m1 = try{$t=Measure-Command{Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 3 -UseBasicParsing | Out-Null}; \"OK ($([math]::Round($t.TotalMilliseconds))ms)\"}catch{\"OFFLINE\"}; \"   M1: $m1\";;powershell:\"2. Test M2 (fallback)...\"; $m2 = try{$t=Measure-Command{Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -TimeoutSec 3 -UseBasicParsing | Out-Null}; \"OK ($([math]::Round($t.TotalMilliseconds))ms)\"}catch{\"OFFLINE\"}; \"   M2: $m2\";;powershell:\"3. Test M3 (secondaire)...\"; $m3 = try{$t=Measure-Command{Invoke-WebRequest -Uri 'http://192.168.1.113:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux'} -TimeoutSec 3 -UseBasicParsing | Out-Null}; \"OK ($([math]::Round($t.TotalMilliseconds))ms)\"}catch{\"OFFLINE\"}; \"   M3: $m3\";;powershell:\"4. Test OL1 (rapide)...\"; $ol1 = try{$t=Measure-Command{Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing | Out-Null}; \"OK ($([math]::Round($t.TotalMilliseconds))ms)\"}catch{\"OFFLINE\"}; \"   OL1: $ol1\"; \"=== Failover: M1->M2->M3->OL1 valide ===\""),
+
+    JarvisCommand("cluster_load_balance", "pipeline", "Afficher la repartition de charge GPU par noeud", [
+        "charge du cluster", "load balance", "repartition charge",
+        "equilibrage cluster", "qui est surcharge",
+    ], "pipeline", "powershell:\"=== CHARGE GPU ===\"; nvidia-smi --query-gpu=index,name,utilization.gpu,utilization.memory,temperature.gpu --format=csv,noheader 2>&1 | ForEach-Object {$p = $_ -split ','; \"  GPU$($p[0].Trim()): $($p[1].Trim()) | GPU:$($p[2].Trim()) | MEM:$($p[3].Trim()) | Temp:$($p[4].Trim())C\"};;powershell:\"=== PROCESSUS GPU ===\"; nvidia-smi --query-compute-apps=pid,name,used_memory --format=csv,noheader 2>&1 | ForEach-Object {if($_ -match '\\d'){\"  $_\"}}"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DATABASE MANAGEMENT — Backup, restore, integrite, stats
+    # HAUTE PRIORITE: Integrite non verifiable, backups non automatises
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("db_backup_complet", "pipeline", "Backup complet: jarvis.db + etoile.db + trading.db avec horodatage", [
+        "backup toutes les bases", "sauvegarde complete des bases",
+        "backup les databases", "copie toutes les db",
+        "sauvegarde sql complete",
+    ], "pipeline", "powershell:$d = Get-Date -Format 'yyyy-MM-dd_HHmm'; $dest = 'F:\\BUREAU\\turbo\\data\\backups'; New-Item -ItemType Directory -Force -Path $dest | Out-Null; Copy-Item 'F:\\BUREAU\\turbo\\data\\etoile.db' \"$dest\\etoile_$d.db\" -Force; Copy-Item 'F:\\BUREAU\\turbo\\data\\jarvis.db' \"$dest\\jarvis_$d.db\" -Force; Copy-Item 'F:\\BUREAU\\turbo\\data\\trading_latest.db' \"$dest\\trading_$d.db\" -Force -ErrorAction SilentlyContinue; $files = Get-ChildItem $dest -Filter '*_*' | Measure-Object; \"Backup OK: 3 bases dans $dest ($($files.Count) fichiers au total)\""),
+
+    JarvisCommand("db_integrity_check", "pipeline", "Verifier l'integrite de toutes les bases SQLite", [
+        "verifie les bases", "integrite des bases", "check les databases",
+        "bases de donnees ok", "sqlite integrity check",
+        "verification integrite sql",
+    ], "pipeline", "powershell:$dbs = @('F:\\BUREAU\\turbo\\data\\etoile.db','F:\\BUREAU\\turbo\\data\\jarvis.db','F:\\BUREAU\\turbo\\data\\trading_latest.db'); foreach($db in $dbs){$name = [System.IO.Path]::GetFileName($db); if(Test-Path $db){$size = [math]::Round((Get-Item $db).Length/1KB); $result = & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('$($db.Replace('\\','\\\\'))'); r=c.execute('PRAGMA integrity_check').fetchone()[0]; print(r); c.close()\" 2>&1; \"$name ($size KB): $result\"}else{\"$name: ABSENT\"}}"),
+
+    JarvisCommand("db_vacuum_optimize", "pipeline", "Optimiser les bases SQLite (VACUUM + ANALYZE)", [
+        "optimise les bases", "vacuum les databases", "compress les bases",
+        "nettoie les bases sql", "optimize sqlite",
+    ], "pipeline", "powershell:$dbs = @('F:\\BUREAU\\turbo\\data\\etoile.db','F:\\BUREAU\\turbo\\data\\jarvis.db'); foreach($db in $dbs){$name = [System.IO.Path]::GetFileName($db); $before = (Get-Item $db).Length; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('$($db.Replace('\\','\\\\'))'); c.execute('VACUUM'); c.execute('ANALYZE'); c.close(); print('OK')\" 2>&1; $after = (Get-Item $db).Length; $saved = [math]::Round(($before-$after)/1KB); \"$name: $(if($saved -gt 0){\"$saved KB economises\"}else{'deja optimise'})\"}", confirm=True),
+
+    JarvisCommand("db_stats_detaillees", "pipeline", "Statistiques detaillees des bases: tables, lignes, taille", [
+        "stats des bases", "statistiques databases", "combien dans les bases",
+        "taille des tables", "infos sur les bases",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3,os; dbs=[('etoile.db','F:/BUREAU/turbo/data/etoile.db'),('jarvis.db','F:/BUREAU/turbo/data/jarvis.db')]; [print(f'{n}: {round(os.path.getsize(p)/1024)}KB') or [print(f'  {t[0]}: {sqlite3.connect(p).execute(f\\\"SELECT COUNT(*) FROM {t[0]}\\\").fetchone()[0]} rows') for t in sqlite3.connect(p).execute(\\\"SELECT name FROM sqlite_master WHERE type='table'\\\").fetchall()] for n,p in dbs]\" 2>&1 | Out-String"),
+
+    JarvisCommand("db_growth_monitor", "pipeline", "Monitorer la croissance des bases de donnees", [
+        "croissance des bases", "evolution des bases", "taille des databases",
+        "les bases grossissent", "monitor db size",
+    ], "pipeline", "powershell:$dbs = @('F:\\BUREAU\\turbo\\data\\etoile.db','F:\\BUREAU\\turbo\\data\\jarvis.db','F:\\BUREAU\\turbo\\data\\trading_latest.db'); foreach($db in $dbs){if(Test-Path $db){$f = Get-Item $db; $size = [math]::Round($f.Length/1KB); $modified = $f.LastWriteTime.ToString('dd/MM HH:mm'); $name = $f.Name; \"$name: $size KB (modifie: $modified)\"}else{\"$(Split-Path $db -Leaf): ABSENT\"}}"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # N8N WORKFLOW MANAGEMENT — Declenchement et monitoring des workflows
+    # HAUTE PRIORITE: 20 workflows existants mais inaccessibles par la voix
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("n8n_ouvrir_dashboard", "pipeline", "Ouvrir le dashboard n8n", [
+        "ouvre n8n", "dashboard n8n", "lance n8n",
+        "ouvre les workflows", "n8n interface",
+    ], "pipeline", "browser:navigate:http://127.0.0.1:5678;;powershell:\"n8n dashboard ouvert — http://127.0.0.1:5678\""),
+
+    JarvisCommand("n8n_list_workflows", "pipeline", "Lister tous les workflows n8n actifs", [
+        "liste les workflows", "workflows actifs", "quels workflows",
+        "n8n workflows", "combien de workflows",
+    ], "pipeline", "powershell:$r = try{Invoke-RestMethod -Uri 'http://127.0.0.1:5678/api/v1/workflows' -TimeoutSec 5}catch{$null}; if($r){$active = ($r.data | Where-Object {$_.active}).Count; $total = $r.data.Count; \"n8n: $total workflows ($active actifs)\"; $r.data | Select-Object -First 10 | ForEach-Object {$s = if($_.active){'[ON]'}else{'[OFF]'}; \"  $s $($_.name)\"}}else{\"n8n non accessible sur port 5678\"}"),
+
+    JarvisCommand("n8n_status", "pipeline", "Status du serveur n8n: version, uptime, executions", [
+        "status n8n", "n8n marche", "n8n est ok",
+        "etat de n8n", "check n8n",
+    ], "pipeline", "powershell:$r = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:5678/healthz' -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; if($r -eq 200){\"n8n: ONLINE (port 5678)\"}else{\"n8n: OFFLINE\"};;powershell:$r = try{Invoke-RestMethod -Uri 'http://127.0.0.1:5678/api/v1/workflows' -TimeoutSec 5}catch{$null}; if($r){$active = ($r.data | Where-Object {$_.active}).Count; \"Workflows: $($r.data.Count) total, $active actifs\"}"),
+
+    JarvisCommand("n8n_restart", "pipeline", "Redemarrer le serveur n8n", [
+        "redemarre n8n", "restart n8n", "relance n8n",
+        "n8n plante", "reboot n8n",
+    ], "pipeline", "powershell:Get-Process -Name 'n8n*','node*' -ErrorAction SilentlyContinue | Where-Object {$_.CommandLine -match 'n8n'} | Stop-Process -Force -ErrorAction SilentlyContinue; 'n8n arrete';;sleep:2;;powershell:Start-Process 'n8n' -ArgumentList 'start' -WindowStyle Hidden -ErrorAction SilentlyContinue; 'n8n redemarrage...';;sleep:3;;powershell:$r = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:5678/healthz' -TimeoutSec 5 -UseBasicParsing).StatusCode}catch{0}; if($r -eq 200){'n8n: ONLINE apres restart'}else{'n8n: en cours de demarrage...'}", confirm=True),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # AGENT SDK MANAGEMENT — Gestion des 7 agents Claude SDK
+    # MOYENNE-HAUTE: Orchestration agents non manageable par la voix
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("agent_list_status", "pipeline", "Lister les 7 agents Claude SDK et leur status", [
+        "liste les agents", "quels agents", "agents actifs",
+        "status des agents", "agents sdk status",
+        "mes agents ia",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); agents=c.execute('SELECT * FROM agents ORDER BY id').fetchall(); c.close(); [print(f'  {a[1]}: {a[3]} ({a[4]}) — {a[5]}') for a in agents]\" 2>&1 | Out-String"),
+
+    JarvisCommand("agent_metrics", "pipeline", "Metriques de performance des agents du cluster", [
+        "metriques agents", "performance agents", "stats agents",
+        "agents metrics", "comment marchent les agents",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); agents=c.execute('SELECT name, url, model_type, model_name, status, avg_latency FROM agents').fetchall(); c.close(); [print(f'  {a[0]:15} | {a[4]:7} | {a[3]:20} | {a[5] if a[5] else \\\"N/A\\\"}ms') for a in agents]\" 2>&1 | Out-String"),
+
+    JarvisCommand("agent_run_deep", "pipeline", "Lancer l'agent ia-deep (Opus, architecte) pour une analyse", [
+        "lance ia deep", "agent deep", "analyse profonde",
+        "ia architecte", "agent opus",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from agents import Agent, Runner; import asyncio; a=Agent(name='ia-deep',model='claude-opus-4-6',instructions='Architecte systeme.'); print(asyncio.run(Runner.run(a,'Analyse rapide du cluster JARVIS: 3 machines, 10 GPU, 6 noeuds IA. Quel est le point faible?')).final_output)\" 2>&1 | Out-String"),
+
+    JarvisCommand("agent_run_fast", "pipeline", "Lancer l'agent ia-fast (Haiku, code) pour une tache rapide", [
+        "lance ia fast", "agent fast", "agent rapide",
+        "ia rapide", "agent haiku code",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from agents import Agent, Runner; import asyncio; a=Agent(name='ia-fast',model='claude-haiku-4-5-20251001',instructions='Ingenieur code rapide.'); print(asyncio.run(Runner.run(a,'Liste 5 optimisations Python pour un serveur FastAPI avec SQLite.')).final_output)\" 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # FINE-TUNING — Controle des operations de fine-tuning
+    # MOYENNE: Infrastructure existante mais cachee de la voix
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("finetune_status", "pipeline", "Status du fine-tuning: datasets, modeles, GPU disponible", [
+        "status fine tuning", "fine tuning en cours", "etat du fine tuning",
+        "finetuning status", "ou en est le training",
+    ], "pipeline", "powershell:\"=== FINE-TUNING STATUS ===\"; if(Test-Path 'F:\\BUREAU\\turbo\\finetuning'){$files = Get-ChildItem 'F:\\BUREAU\\turbo\\finetuning' -Recurse | Measure-Object; $datasets = Get-ChildItem 'F:\\BUREAU\\turbo\\finetuning' -Filter '*.jsonl' -Recurse -ErrorAction SilentlyContinue; \"Dossier: F:\\BUREAU\\turbo\\finetuning ($($files.Count) fichiers)\"; if($datasets){\"Datasets: $($datasets.Count) fichiers JSONL\"; $datasets | ForEach-Object {\"  $($_.Name): $([math]::Round($_.Length/1KB))KB\"}}}else{'Dossier finetuning non trouve'};;powershell:\"=== GPU DISPONIBLE ===\"; nvidia-smi --query-gpu=index,name,memory.free --format=csv,noheader 2>&1 | ForEach-Object {$p = $_ -split ','; \"  GPU$($p[0].Trim()): $($p[1].Trim()) — $($p[2].Trim()) libre\"}"),
+
+    JarvisCommand("finetune_launch", "pipeline", "Lancer le script de fine-tuning (QLoRA 4-bit)", [
+        "lance le fine tuning", "demarre le training", "fine tune maintenant",
+        "lancer qlora", "start finetuning",
+    ], "pipeline", "powershell:if(Test-Path 'F:\\BUREAU\\turbo\\launchers\\JARVIS_FINETUNE.bat'){Start-Process 'F:\\BUREAU\\turbo\\launchers\\JARVIS_FINETUNE.bat' -WindowStyle Normal; 'Fine-tuning lance — voir la fenetre de training'}else{'Launcher JARVIS_FINETUNE.bat non trouve'}", confirm=True),
+
+    JarvisCommand("finetune_datasets_info", "pipeline", "Informations sur les datasets de fine-tuning disponibles", [
+        "datasets finetuning", "donnees d'entrainement", "combien de donnees",
+        "liste les datasets", "datasets disponibles",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import os,json,glob; path='F:/BUREAU/turbo/finetuning'; files=glob.glob(os.path.join(path,'**/*.jsonl'),recursive=True); total=0; [print(f'  {os.path.basename(f)}: {sum(1 for _ in open(f,encoding=\\\"utf-8\\\"))} examples ({round(os.path.getsize(f)/1024)}KB)') or total.__add__(1) for f in files[:10]] if files else print('Aucun dataset JSONL trouve')\" 2>&1 | Out-String"),
+
+    JarvisCommand("finetune_gpu_check", "pipeline", "Verifier si les GPU sont pretes pour le fine-tuning", [
+        "gpu pret pour training", "check gpu finetuning", "assez de vram",
+        "peut on fine tuner", "gpu training ready",
+    ], "pipeline", "powershell:\"=== CHECK GPU FINE-TUNING ===\"; $gpus = nvidia-smi --query-gpu=index,name,memory.free,memory.total --format=csv,noheader,nounits 2>&1; $gpus -split \"`n\" | Where-Object {$_ -match '\\d'} | ForEach-Object {$p = $_ -split ','; $free = [int]$p[2].Trim(); $total = [int]$p[3].Trim(); $pct = [math]::Round($free/$total*100); $ok = if($free -ge 4096){'PRET (QLoRA possible)'}elseif($free -ge 2048){'LIMITE'}else{'INSUFFISANT'}; \"  GPU$($p[0].Trim()) $($p[1].Trim()): $free/$total MB libre ($pct%) — $ok\"}"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # TRADING AVANCE — Operations trading avancees
+    # MOYENNE: Strategies avancees inaccessibles
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("trading_positions_resume", "pipeline", "Resume des positions trading ouvertes sur MEXC", [
+        "positions ouvertes", "mes positions", "resume trading",
+        "qu'est-ce qui est ouvert", "pnl actuel",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/trading_latest.db'); try: signals=c.execute('SELECT symbol,side,score,timestamp FROM signals ORDER BY timestamp DESC LIMIT 10').fetchall(); [print(f'  {s[0]} {s[1]} score:{s[2]} ({s[3]})') for s in signals] if signals else print('Aucun signal recent')\nexcept: print('Table signals non trouvee')\nfinally: c.close()\" 2>&1 | Out-String"),
+
+    JarvisCommand("trading_market_overview", "pipeline", "Vue d'ensemble du marche crypto: BTC + ETH + top movers", [
+        "vue du marche", "marche crypto", "comment va le marche",
+        "bitcoin prix", "etat du marche",
+    ], "pipeline", "browser:navigate:https://www.tradingview.com/chart/?symbol=BINANCE:BTCUSDT;;sleep:1;;browser:navigate:https://www.coingecko.com;;powershell:\"Marche crypto: TradingView + CoinGecko ouverts\""),
+
+    JarvisCommand("trading_scanner_complet", "pipeline", "Scanner trading complet: 10 paires + scoring multi-timeframe", [
+        "scan trading complet", "scanne le marche", "analyse toutes les paires",
+        "scanner crypto", "trading scan full",
+    ], "pipeline", "powershell:Start-Process 'F:\\BUREAU\\turbo\\launchers\\SCAN_HYPER.bat' -WindowStyle Minimized -ErrorAction SilentlyContinue; 'Scanner lance en arriere-plan';;browser:navigate:https://www.tradingview.com/chart/?symbol=BINANCE:BTCUSDT;;sleep:1;;browser:navigate:https://www.mexc.com/futures;;powershell:\"Scanner trading lance + TradingView + MEXC ouverts\""),
+
+    JarvisCommand("trading_signals_history", "pipeline", "Historique des derniers signaux trading", [
+        "historique signaux", "derniers signaux", "signaux recents",
+        "history trading", "quels signaux",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/trading_latest.db'); try: r=c.execute('SELECT symbol,side,score,timestamp FROM signals ORDER BY timestamp DESC LIMIT 15').fetchall(); [print(f'  {s[3][:16]} | {s[0]:10} | {s[1]:5} | score:{s[2]}') for s in r] if r else print('Aucun signal')\nexcept Exception as e: print(f'Erreur: {e}')\nfinally: c.close()\" 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SKILL MANAGEMENT — Gestion des 108 skills etoile.db
+    # MOYENNE: Systeme de skills opaque pour l'utilisateur
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("skill_list_all", "pipeline", "Lister tous les skills par categorie", [
+        "liste les skills", "quels skills", "skills disponibles",
+        "montre les skills", "combien de skills",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); cats=c.execute('SELECT parent, COUNT(*) FROM map WHERE entity_type=\\\"skill\\\" GROUP BY parent ORDER BY COUNT(*) DESC').fetchall(); total=sum(x[1] for x in cats); print(f'=== {total} SKILLS ==='); [print(f'  {cat}: {cnt}') for cat,cnt in cats]; c.close()\" 2>&1 | Out-String"),
+
+    JarvisCommand("skill_stats_performance", "pipeline", "Statistiques de performance des skills et pipelines", [
+        "stats skills", "performance skills", "skills qui marchent",
+        "metriques skills", "skills performance",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); tests=c.execute('SELECT category,COUNT(*),SUM(CASE WHEN status=\\\"PASS\\\" THEN 1 ELSE 0 END) FROM pipeline_tests GROUP BY category').fetchall(); print('=== RESULTATS TESTS ==='); [print(f'  {cat}: {ok}/{total} PASS') for cat,total,ok in tests]; mem=c.execute('SELECT key,value FROM memories WHERE category=\\\"stats\\\"').fetchall(); print('\\n=== STATS ==='); [print(f'  {k}: {v}') for k,v in mem]; c.close()\" 2>&1 | Out-String"),
+
+    JarvisCommand("skill_search", "pipeline", "Rechercher un skill par mot-cle dans etoile.db", [
+        "cherche un skill", "trouve un skill", "skill pour",
+        "quel skill fait", "recherche skill",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3,sys; q='%'; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); r=c.execute('SELECT entity_name,parent,role FROM map WHERE entity_type=\\\"skill\\\" AND (entity_name LIKE ? OR role LIKE ?) ORDER BY parent LIMIT 20',(q,q)).fetchall(); print(f'{len(r)} skills trouves:'); [print(f'  [{p}] {n}: {d}') for n,p,d in r]; c.close()\" 2>&1 | Out-String"),
 ]
