@@ -187,14 +187,64 @@ def execute_curl(action: str, timeout: int = 20) -> str:
     """Execute un appel API curl vers un noeud cluster."""
     url = action.replace("curl:", "", 1) if action.startswith("curl:") else action
     try:
-        req = urllib.request.Request(url)
-        # Add auth for LM Studio endpoints
-        for node_name, key in LM_STUDIO_KEYS.items():
-            if NODES[node_name]["url"] and NODES[node_name]["url"] in url:
-                req.add_header("Authorization", key)
-                break
+        # Chat endpoints need POST with a body
+        if "/api/v1/chat" in url:
+            # LM Studio Responses API — find which node
+            node_name = None
+            for n, info in NODES.items():
+                if info["url"] and info["url"] in url:
+                    node_name = n
+                    break
+            model = NODES[node_name]["model"] if node_name else "qwen3-8b"
+            body = json.dumps({
+                "model": model,
+                "input": "/nothink\nReponds OK si tu fonctionnes.",
+                "temperature": 0.1, "max_output_tokens": 32,
+                "stream": False, "store": False,
+            }).encode()
+            req = urllib.request.Request(url, data=body,
+                                        headers={"Content-Type": "application/json"})
+            if node_name and node_name in LM_STUDIO_KEYS:
+                req.add_header("Authorization", LM_STUDIO_KEYS[node_name])
+        elif "/api/chat" in url:
+            # Ollama chat endpoint — POST
+            body = json.dumps({
+                "model": "qwen3:1.7b",
+                "messages": [{"role": "user", "content": "Reponds OK."}],
+                "stream": False, "think": False,
+            }).encode()
+            req = urllib.request.Request(url, data=body,
+                                        headers={"Content-Type": "application/json"})
+        else:
+            # GET for models/tags/health endpoints
+            req = urllib.request.Request(url)
+            for node_name, key in LM_STUDIO_KEYS.items():
+                if NODES[node_name]["url"] and NODES[node_name]["url"] in url:
+                    req.add_header("Authorization", key)
+                    break
         resp = urllib.request.urlopen(req, timeout=timeout)
         data = resp.read().decode()
+        # Parse LM Studio response to extract content
+        if "/api/v1/chat" in url:
+            try:
+                d = json.loads(data)
+                for item in reversed(d.get("output", [])):
+                    if isinstance(item, dict) and item.get("type") == "message":
+                        content = item.get("content", "")
+                        if isinstance(content, str):
+                            return content[:300]
+                        if isinstance(content, list):
+                            for c in content:
+                                if isinstance(c, dict) and c.get("type") == "output_text":
+                                    return c["text"][:300]
+            except json.JSONDecodeError:
+                pass
+        elif "/api/chat" in url:
+            try:
+                d = json.loads(data)
+                return d.get("message", {}).get("content", data[:300])[:300]
+            except json.JSONDecodeError:
+                pass
         return data[:500]
     except Exception as e:
         return f"ERROR: {e}"
