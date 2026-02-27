@@ -7190,3 +7190,310 @@
 {"input": "test de bande passante s il te plait", "output": "domino:domino_network_bandwidth", "category": "network_diagnostics"}
 {"input": "hey test de bande passante vite", "output": "domino:domino_network_bandwidth", "category": "network_diagnostics"}
 {"input": "fais un test de bande passante", "output": "domino:domino_network_bandwidth", "category": "network_diagnostics"}
+{"input": "peut tu verifier si les serveurs sont en vie ?", "output": "domino:domino_test_cluster_health", "category": "testing_pipeline"}
+{"input": "j'vas faire un check health sur le cluster", "output": "domino:domino_test_cluster_health", "category": "testing_pipeline"}
+{"input": "ping des machines et temps gpu, ça va ?", "output": "domino:domino_test_cluster_health", "category": "testing_pipeline"}
+{"input": "faudrait checker la sante du cluster", "output": "domino:domino_test_cluster_health", "category": "testing_pipeline"}
+{"input": "les serveurs sont en forme ?", "output": "domino:domino_test_cluster_health", "category": "testing_pipeline"}
+{"input": "j'check le health cluster, t'es pret ?", "output": "domino:domino_test_cluster_health", "category": "testing_pipeline"}
+{"input": "t'as deja fait un test de sante ?", "output": "domino:domino_test_cluster_health", "category": "testing_pipeline"}
+{"input": "ca va les serveurs ?", "output": "domino:domino_test_cluster_health", "category": "testing_pipeline"}
+{"input": "check le cluster, y'a pas de probleme ?", "output": "domino:domino_test_cluster_health", "category": "testing_pipeline"}
+{"input": "verifie si tout le monde est en ligne", "output": "domino:domino_test_cluster_health", "category": "testing_pipeline"}
+{"input": "j'arrive pas a m'organiser, planifie ma journée", "output": "domino:domino_task_plan_day", "category": "task_scheduling"}
+{"input": "fais un plan pour la journée, j'suis paumé", "output": "domino:domino_task_plan_day", "category": "task_scheduling"}
+{"input": "démarre le planning, j'vais pas me faire surprendre", "output": "domino:domino_task_plan_day", "category": "task_scheduling"}
+{"input": "j'peux plus gérer mon temps, planifie un truc", "output": "domino:domino_task_plan_day", "category": "task_scheduling"}
+{"input": "pète les plombs, aide-moi à organiser ma journée", "output": "domino:domino_task_plan_day", "category": "task_scheduling"}
+{"input": "lance un pomodoro, j'veux me concentrer", "output": "domino:domino_timer_pomodoro", "category": "task_scheduling"}
+{"input": "démarre le timer 25 min, j'suis en mode focus", "output": "domino:domino_timer_pomodoro", "category": "task_scheduling"}
+{"input": "j'commence un pomodoro, t'as dit de me suivre", "output": "domino:domino_timer_pomodoro", "category": "task_scheduling"}
+{"input": "teste tous les dominos avant de démarer le run", "output": "domino:domino_test_all_dominos", "category": "testing_pipeline"}
+{"input": "Mets l'ordinateur en mode eco, j'ai besoin qu'il économise de l'énergie", "output": "domino:domino_power_eco", "category": "power_management"}
+{"input": "Fais un scan complet de sécurité, je veux que tout soit propre", "output": "domino:domino_security_full", "category": "security_sweep"}
+{"input": "Donne-moi le max de puissance à la carte graphique, c'est urgent", "output": "domino:domino_power_max", "category": "power_management"}
+{"input": "Démarrage express, j'ai besoin qu'il soit prêt en 5 minutes", "output": "domino:domino_reveil_rapide", "category": "routine_matin"}
+{"input": "Déploie le code standard, je veux que tout soit testé et pushé", "output": "domino:domino_deploy_standard", "category": "deploy_flow"}
+{"input": "Mets la machine en mode économie d'énergie, c'est pas chéri de gasper", "output": "domino:domino_power_eco", "category": "power_management"}
+{"input": "Fais un audit de sécurité à fond, ports, firewall, .env et processus, tout va bien ?", "output": "domino:domino_security_full", "category": "security_sweep"}
+{"input": "Donne-lui toute la puissance, j'ai besoin de performance sans trucoter", "output": "domino:domino_power_max", "category": "power_management"}
+{"input": "Réveille-moi en 3 minutes chrono, c'est express et avec confirmation vocale", "output": "domino:domino_reveil_rapide", "category": "routine_matin"}
+{"input": "Déploie le code comme d'hab, status + tests + commit + push, fait gaffe", "output": "domino:domino_deploy_standard", "category": "deploy_flow"}
+{"input": "rafraichis le cache svp", "output": "domino:domino_cache_refresh", "category": "data_pipeline"}
+{"input": "vide le contenu du cache", "output": "domino:domino_cache_refresh", "category": "data_pipeline"}
+{"input": "cache en panne, refais l'index", "output": "domino:domino_cache_refresh", "category": "data_pipeline"}
+{"input": "scan full pour les trades", "output": "domino:domino_trading_full_scan", "category": "trading_cascade"}
+{"input": "analyse complète du marché", "output": "domino:domino_trading_full_scan", "category": "trading_cascade"}
+{"input": "ferme toutes les positions", "output": "domino:domino_trading_close_all", "category": "trading_cascade"}
+{"input": "close all, donne le PnL", "output": "domino:domino_trading_close_all", "category": "trading_cascade"}
+{"input": "lance un pomodoro de 25min", "output": "domino:domino_pomodoro", "category": "wellness_productivity"}
+{"input": "focus, désactive les notifs", "output": "domino:domino_pomodoro", "category": "wellness_productivity"}
+{"input": "deploy le code standard", "output": "domino:domino_deploy_standard", "category": "deploy_flow"}
+{"input": "GPU en feu, faut baisser la temp et kill le processus", "output": "domino:domino_gpu_emergency", "category": "gpu_thermal"}
+{"input": "Le GPU est critique, faut reduire la puissance et kill", "output": "domino:domino_gpu_emergency", "category": "gpu_thermal"}
+{"input": "GPU en urgence, temps de cooldown et kill le truc", "output": "domino:domino_gpu_emergency", "category": "gpu_thermal"}
+{"input": "Mode survie, check les processus lourds qui chauffent", "output": "domino:domino_emergency_survival", "category": "emergency_protocol"}
+{"input": "On active mode survival, faut identifier les gros jobs", "output": "domino:domino_emergency_survival", "category": "emergency_protocol"}
+{"input": "Weekend arrive, faut backup et fermer le trading", "output": "domino:domino_weekend_shutdown", "category": "routine_soir"}
+{"input": "Mode weekend, clôturer les trades et eco GPU", "output": "domino:domino_weekend_shutdown", "category": "routine_soir"}
+{"input": "Nettoie le git, faut gc et supprimer les branches mortes", "output": "domino:domino_cleanup_git", "category": "system_cleanup"}
+{"input": "Git cleanup, check la taille et prune les branches lointaines", "output": "domino:domino_cleanup_git", "category": "system_cleanup"}
+{"input": "Hotfix urgent, stash, fix, commit et push vite", "output": "domino:domino_deploy_hotfix", "category": "deploy_flow"}
+{"input": "J'aimerais deployer le code maintenant, faites le standard svp", "output": "domino:domino_deploy_standard", "category": "deploy_flow"}
+{"input": "Deploie le code en mode standard avec tests et commit", "output": "domino:domino_deploy_standard", "category": "deploy_flow"}
+{"input": "Fait un deploy normal avec les tests et push dans git", "output": "domino:domino_deploy_standard", "category": "deploy_flow"}
+{"input": "Lance le deploy standard, je veux que tout soit en ordre", "output": "domino:domino_deploy_standard", "category": "deploy_flow"}
+{"input": "Je dois prendre des notes sur la reunion, fais un fichier markdown", "output": "domino:domino_meeting_notes", "category": "meeting_assistant"}
+{"input": "Créer un CR en markdown pour la réunion d'aujourd'hui", "output": "domino:domino_meeting_notes", "category": "meeting_assistant"}
+{"input": "Fais un fichier de notes pour la meeting, c'est urgent", "output": "domino:domino_meeting_notes", "category": "meeting_assistent"}
+{"input": "Prends des notes sur la réunion, je veux ça en markdown", "output": "domino:domino_meeting_notes", "category": "meeting_assistant"}
+{"input": "J'ai besoin d'un compte rendu, fait un fichier markdown s'il te plait", "output": "domino:domino_meeting_notes", "category": "meeting_assistant"}
+{"input": "Vérifie les réponses du modèle M1 et M2, y a-t-il un drift ?", "output": "domino:domino_predict_model_drift", "category": "maintenance_predictive"}
+{"input": "Teste la qualité des réponses des modèles, y'a-t-il un dérive ?", "output": "domino:domino_predict_model_drift", "category": "maintenance_predictive"}
+{"input": "Check si les modèles ont du drift, M1 et M2 en particulier", "output": "domino:domino_predict_model_drift", "category": "maintenance_predictive"}
+{"input": "Vérifiez vous vos clés API, il est temps d'un audit.", "output": "domino:domino_security_keys", "category": "unknown"}
+{"input": "Etes-vous sûr que vos clés sont en bonne santé? On doit faire un audit.", "output": "domino:domino_security_keys", "category": "unknown"}
+{"input": "Regardez vos API keys, il est temps d'un check.", "output": "domino:domino_security_keys", "category": "unknown"}
+{"input": "C'est le moment de vous assurer que vos clés API sont bonnes, on fait un audit.", "output": "domino:domino_security_keys", "category": "unknown"}
+{"input": "Dites-moi, ont-ils les bons API keys? On doit vérifier ça.", "output": "domino:domino_security_keys", "category": "unknown"}
+{"input": "C'est temps de vérifier nos API keys. Allez-y, on fait un audit.", "output": "domino:domino_security_keys", "category": "unknown"}
+{"input": "Faisons un speed test pour savoir combien nous avons de bande passante.", "output": "domino:domino_network_bandwidth", "category": "unknown"}
+{"input": "On doit faire un test pour savoir comment est notre vitesse de transfert.", "output": "domino:domino_network_bandwidth", "category": "unknown"}
+{"input": "Nous avons besoin d'un speed test pour connaître notre bande passante.", "output": "domino:domino_network_bandwidth", "category": "unknown"}
+{"input": "Testons la vitesse de transfert, c'est important.", "output": "domino:domino_network_bandwidth", "category": "unknown"}
+{"input": "Lancez le diagnostic prédictif sur nos disques. On va savoir s'ils sont en bon état.", "output": "domino:domino_predict_disk_health", "category": "unknown"}
+{"input": "Voyons comment sont nos disques, on doit lancer un diagnostic prédictif.", "output": "domino:domino_predict_disk_health", "category": "unknown"}
+{"input": "Je dois vérifier la puissance GPU en mode économie pour éviter les surcharges nocturnes.", "output": "domino:domino_power_eco", "category": "power_management"}
+{"input": "Il faut tester la bande passante pour éviter les pannes de réseau en pleine nuit.", "output": "domino:domino_network_bandwidth", "category": "network_diagnostics"}
+{"input": "Je dois activer le mode concentration pour rester concentré sur l'urgence.", "output": "domino:domino_focus_mode", "category": "wellness_productivity"}
+{"input": "Il est temps de déclencher le mode survie pour identifier les processus lourds.", "output": "domino:domino_emergency_survival", "category": "emergency_protocol"}
+{"input": "Je dois vérifier si les notifications sont désactivées pour éviter les distractions.", "output": "domino:domino_focus_mode", "category": "wellness_productivity"}
+{"input": "Il faut tester le téléchargement et la latence du réseau en pleine nuit.", "output": "domino:domino_network_bandwidth", "category": "network_diagnostics"}
+{"input": "Je dois activer le mode économie pour éviter les surcharges en pleine nuit.", "output": "domino:domino_power_eco", "category": "power_management"}
+{"input": "rafraichis le cache stp", "output": "domino:domino_cache_refresh", "category": "data_pipeline"}
+{"input": "vide le cache et reconstruis", "output": "domino:domino_cache_refresh", "category": "data_pipeline"}
+{"input": "cache en train de planter, rafraichi", "output": "domino:domino_cache_refresh", "category": "data_pipeline"}
+{"input": "ping les serveurs du cluster", "output": "domino:domino_network_latency", "category": "network_diagnostics"}
+{"input": "test de latence entre M1 et M3", "output": "domino:domino_network_latency", "category": "network_diagnostics"}
+{"input": "ping le cluster, check RTT", "output": "domino:domino_network_latency", "category": "network_diagnostics"}
+{"input": "stoppe le stream et sauve la VOD", "output": "domino:domino_stream_stop", "category": "streaming"}
+{"input": "arrete le streaming immédiatement", "output": "domino:domino_stream_stop", "category": "streaming"}
+{"input": "stop OBS et garde les logs de VOD", "output": "domino:domino_stream_stop", "category": "streaming"}
+{"input": "deploie le code avec tests", "output": "domino:domino_deploy_standard", "category": "deploy_flow"}
+{"input": "fermez tout les trades maintenant pour éviter les perte", "output": "domino:domino_trading_close_all", "category": "unknown"}
+{"input": "activez le mode benchmark pour tester les performances", "output": "domino:domino_learn_benchmark", "category": "unknown"}
+{"input": "scannez le reseau pour verifier les connexions", "output": "domino:domino_network_scan", "category": "unknown"}
+{"input": "verifiez les connexions suspects et les ips inconnues", "output": "domino:domino_security_network", "category": "unknown"}
+{"input": "generer le changelog des derniers commits", "output": "domino:domino_doc_changelog", "category": "unknown"}
+{"input": "fermez toutes les positions immediatement", "output": "domino:domino_trading_close_all", "category": "unknown"}
+{"input": "analysez le reseau pour detecter les anomalies", "output": "domino:domino_network_scan", "category": "unknown"}
+{"input": "checkez les connexions suspectes et les ips non identifiées", "output": "domino:domino_security_network", "category": "unknown"}
+{"input": "teste les performances de l'ia pour améliorer les résultats", "output": "domino:domino_learn_benchmark", "category": "unknown"}
+{"input": "fermez tout le trading avant le coucher", "output": "domino:domino_trading_close_all", "category": "unknown"}
+{"input": "Bonjour tout le monde! Alors on va faire une petite passerelle réseau aujourd'hui. On va voir ce qui se balance sur le réseau, toute la config IP et puis on envoie un petit ping aux noeuds du cluster pour voir si ça ronronne bien.", "output": "domino:domino_network_scan", "category": "network_diagnostics"}
+{"input": "Salut à tous! On va jeter un coup d'oeil à l'état des GPUs. Si y a un truc de mal, on va voir ce qui se passe avec les temps et puis on va réduire la puissance pour pas que ça crève.", "output": "domino:domino_gpu_emergency", "category": "gpu_thermal"}
+{"input": "Hey hey! On est en train de faire un truc de trading. On va voir ce qu'il se passe avec le drawdown, comment les PnL se portent et puis on va évaluer tout ça.", "output": "domino:domino_trading_drawdown_alert", "category": "trading_cascade"}
+{"input": "Coucou! On va mettre une playlist qui pourrait aider à rester concentré sur le travail. Des sons doux et calmes, comme si on était dans un studio d'enregistrement.", "output": "domino:domino_media_focus_playlist", "category": "media_control"}
+{"input": "Bonsoir tout le monde! On va faire une petite vérification de la performance système. CPU, RAM, GPU et IO, on va tous checker ça rapidement.", "output": "domino:domino_monitor_performance", "category": "monitoring_alert"}
+{"input": "Salut à tous les devs! Alors on va faire un tour rapide sur le réseau pour voir ce qui se passe. ARP table, IP config et puis on envoie des pings aux noeuds du cluster.", "output": "domino:domino_network_scan", "category": "network_diagnostics"}
+{"input": "Je veux un backup rapide des données de l'etoile.db", "output": "domino:domino_backup_quick", "category": "backup_chain"}
+{"input": "Je veux tout le potentiel de la GPU", "output": "domino:domino_power_max", "category": "power_management"}
+{"input": "Je sens que la GPU risque de s'usurer", "output": "domino:domino_predict_failure", "category": "maintenance_predictive"}
+{"input": "Je veux un backtest complet des stratégies", "output": "domino:domino_trading_backtest", "category": "trading_cascade"}
+{"input": "Je veux vérifier la santé des endpoints", "output": "domino:domino_debug_api_cascade", "category": "debug_cascade"}
+{"input": "vide le cache merde", "output": "domino:domino_cache_refresh", "category": "data_pipeline"}
+{"input": "lance le stream pff", "output": "domino:domino_stream_start", "category": "streaming"}
+{"input": "demarre le streaming enfin", "output": "domino:domino_stream_start", "category": "streaming"}
+{"input": "silence total putain", "output": "domino:domino_media_silence", "category": "media_control"}
+{"input": "puissance max svp", "output": "domino:domino_power_max", "category": "power_management"}
+{"input": "full power mon pote", "output": "domino:domino_power_max", "category": "power_management"}
+{"input": "scan reseau merde", "output": "domino:domino_network_scan", "category": "network_diagnostics"}
+{"input": "analyse le reseau mec", "output": "domino:domino_network_scan", "category": "network_diagnostics"}
+{"input": "prepare la reunion demain, j'ai besoin que tout soit en ordre", "output": "domino:domino_meeting_prep", "category": "meeting_assistant"}
+{"input": "verifie le net et l'audio avant la conference", "output": "domino:domino_meeting_prep", "category": "meeting_assistant"}
+{"input": "check les permissions des fichiers sensibles, je veux pas de fuite", "output": "domino:domino_security_permissions", "category": "security_sweep"}
+{"input": "audit des droits, surtout sur les docs confidentiels", "output": "domino:domino_security_permissions", "category": "security_sweep"}
+{"input": "salut weekend, fait gaffe au gpu et backup les données", "output": "domino:domino_matin_weekend", "category": "routine_matin"}
+{"input": "bonjour samedi, on commence doucement avec le matin tranquille", "output": "domino:domino_matin_weekend", "category": "routine_matin"}
+{"input": "check si les modeles ont des drifts, surtout sur M2", "output": "domino:domino_predict_model_drift", "category": "maintenance_predictive"}
+{"input": "verifie le drift des reponses pour les modeles en production", "output": "domino:domino_predict_model_drift", "category": "maintenance_predictive"}
+{"input": "met le gpu en eco, faut pas trop de puissance aujourd'hui", "output": "domino:domino_power_eco", "category": "power_management"}
+{"input": "active l'eco pour les serveurs, on economise un max d'energie", "output": "domino:domino_power_eco", "category": "power_management"}
+{"input": "Bonjour, c'est le week-end, j'deux faire mon routine light : GPU, backup et un message rapide", "output": "domino:domino_matin_weekend", "category": "routine_matin"}
+{"input": "Matin tranquille, je commence par la routine de weekend : GPU, sauvegarde et message", "output": "domino:domino_matin_weekend", "category": "routine_matin"}
+{"input": "Salut, j'vais lancer mon stream, faut que je vérifie le réseau et OBS", "output": "domino:domino_stream_start", "category": "streaming"}
+{"input": "Check les clés API, ça fait partie de mon audit sécurité ce matin", "output": "domino:domino_security_keys", "category": "security_sweep"}
+{"input": "J'veux vérifier ma bande passante avant de commencer les tests", "output": "domino:domino_network_bandwidth", "category": "network_diagnostics"}
+{"input": "Mon GPU est chaud, faut que j'check l'état complet des processus", "output": "domino:domino_gpu_monitor_full", "category": "gpu_thermal"}
+{"input": "J'deux commencer le stream, je lance OBS et surveille les commentaires", "output": "domino:domino_stream_start", "category": "streaming"}
+{"input": "Je fais mon audit de sécurité, clés API, .env et historique git", "output": "domino:domino_security_keys", "category": "security_sweep"}
+{"input": "Matière à réfléchir, j'vais commencer par le monitoring GPU complet", "output": "domino:domino_gpu_monitor_full", "category": "gpu_thermal"}
+{"input": "domino_trading_drawdown_alert: alerte sur le drawdown, pnp l'analyse, risque et perte", "output": "domino:domino_trading_drawdown_alert", "category": "trading_cascade"}
+{"input": "domino_gpu_monitor_full: status gpu complet, metriques et processus, evaluation de l'ia", "output": "domino:domino_gpu_monitor_full", "category": "gpu_thermal"}
+{"input": "domino_code_review_auto: revue de code, git diff, TODO count, evaluation du code", "output": "domino:domino_code_review_auto", "category": "code_generation"}
+{"input": "domino_monitor_performance: benchmark rapide, cpu, ram, gpu, io, systeme", "output": "domino:domino_monitor_performance", "category": "monitoring_alert"}
+{"input": "domino_cleanup_temp: nettoie les fichiers temporaires, compte taille temp, pip cache", "output": "domino:domino_cleanup_temp", "category": "system_cleanup"}
+{"input": "Je vais commencer le chrono pour la réunion", "output": "domino:domino_meeting_timer", "category": "meeting_assistant"}
+{"input": "On a besoin de vérifier l'internet et tester l'audio", "output": "domino:domino_meeting_prep", "category": "meeting_assistant"}
+{"input": "Faisons un ping sur tous les noeuds pour le débogage", "output": "domino:domino_debug_cluster", "category": "debug_cascade"}
+{"input": "On va tester la vitesse de téléchargement et la latence du cluster", "output": "domino:domino_network_bandwidth", "category": "network_diagnostics"}
+{"input": "Vérifions l'intégrité de la base, sa taille et ses comptages avec un vacuum conditionnel", "output": "domino:domino_debug_db", "category": "debug_cascade"}
+{"input": "jarvis, y a t'il des risques de pannes sur le gpu ?", "output": "domino:domino_predict_failure", "category": "maintenance_predictive"}
+{"input": "t'as vu les warnings du cluster ? faut pas que ça s'arrête en plein milieu", "output": "domino:domino_predict_failure", "category": "maintenance_predictive"}
+{"input": "je veux que tu me dises si le système va crasher avant 13h", "output": "domino:domino_predict_failure", "category": "maintenance_predictive"}
+{"input": "t'as pas des alerts sur les erreurs systeme ?", "output": "domino:domino_predict_failure", "category": "maintenance_predictive"}
+{"input": "c'est pas trop tôt pour vérifier l'état de santé du cluster ?", "output": "domino:domino_predict_failure", "category": "maintenance_predictive"}
+{"input": "jarvis, tu m'envoies un message sur telegram si y a des pannes ?", "output": "domino:domino_notif_telegram", "category": "notification_smart"}
+{"input": "je veux que tu notifies les gars sur telegram quand c'est pas bon", "output": "domino:domino_notif_telegram", "category": "notification_smart"}
+{"input": "je t'ai dit de m'avertir par telegram si le cluster est en danger", "output": "domino:domino_notif_telegram", "category": "notification_smart"}
+{"input": "salut jarvis, tu m'as l'habitude de me faire ton briefing matinal ?", "output": "domino:domino_matin_complet", "category": "routine_matin"}
+{"input": "Démarre rapidement JARVIS, je veux ma GPU à l'heure", "output": "domino:domino_reveil_rapide", "category": "unknown"}
+{"input": "Allez sync tous mes machines en cluster, m'envoie un rapport SVP", "output": "domino:domino_collab_sync_cluster", "category": "unknown"}
+{"input": "Rafraîchis le cache pour moi JARVIS, tout est lourd ce matin", "output": "domino:domino_cache_refresh", "category": "unknown"}
+{"input": "Focus la playlist, je veux du bruit de fond pour travailler", "output": "domino:domino_media_focus_playlist", "category": "unknown"}
+{"input": "Lance-moi l'ETL complet JARVIS, vérifie-le une fois terminé", "output": "domino:domino_etl_complet", "category": "unknown"}
+{"input": "Salut JARVIS, avant de lancer tous les tests, je voudrais juste m'assurer que tout est prêt. On compte combien de cascades et quels sont nos datasets pour ce run ?", "output": "domino:domino_test_all_dominos", "category": "testing_pipeline"}
+{"input": "Hey JARVIS, j'ai besoin d'aide pour me concentrer sur le travail. Est-ce que je peux activer le mode concentration pour éviter les interruptions et optimiser l'utilisation de la GPU ?", "output": "domino:domino_focus_mode", "category": "wellness_productivity"}
+{"input": "Bonsoir JARVIS, j'ai un peu de mal avec ma connexion internet. Pourrait-on faire un diagnostic rapide sur le DNS pour voir si ça peut aider ?", "output": "domino:domino_network_dns", "category": "network_diagnostics"}
+{"input": "Coucou JARVIS, je viens de constater que certains fichiers sensibles ont des permissions inappropriées. Est-ce possible d'effectuer un audit pour vérifier et ajuster les droits ?", "output": "domino:domino_security_permissions", "category": "security_sweep"}
+{"input": "Salut JARVIS, j'ai l'impression que notre API en cluster n8n a besoin d'un check sérieux. Pourrais-tu faire un health check sur tous les endpoints pour voir si tout fonctionne correctement ?", "output": "domino:domino_debug_api_cascade", "category": "debug_cascade"}
+{"input": "Bonsoir JARVIS, je me sens vraiment distrait avec toutes ces notifications. Est-ce que tu peux activer le mode concentration pour nous éviter de tomber dans le spam ?", "output": "domino:domino_focus_mode", "category": "wellness_productivity"}
+{"input": "Bonjour, je veux vérifier le cluster et la GPU pour le TTS.", "output": "domino:domino_notif_tts_broadcast", "category": "notification_smart"}
+{"input": "Je dois commencer un pomodoro maintenant.", "output": "domino:domino_timer_pomodoro", "category": "task_scheduling"}
+{"input": "Je me suis permis de consommer beaucoup de RAM.", "output": "domino:domino_perf_memory_optimize", "category": "performance_tuning"}
+{"input": "Je vais me lever pour un matin tranquille.", "output": "domino:domino_matin_weekend", "category": "routine_matin"}
+{"input": "Je dois vérifier le DNS pour ma connexion.", "output": "domino:domino_network_dns", "category": "network_diagnostics"}
+{"input": "Je dois libérer de la RAM en cas de surutilisation.", "output": "domino:domino_perf_memory_optimize", "category": "performance_tuning"}
+{"input": "Je dois vérifier si le DNS est configuré correctement.", "output": "domino:domino_network_dns", "category": "network_diagnostics"}
+{"input": "Je dois débriefer le pomodoro que je viens de terminer.", "output": "domino:domino_timer_pomodoro", "category": "task_scheduling"}
+{"input": "Je dois vérifier les consommateurs de RAM.", "output": "domino:domino_perf_memory_optimize", "category": "performance_tuning"}
+{"input": "Je dois vérifier le cluster et la GPU pour la prochaine annonce TTS.", "output": "domino:domino_notif_tts_broadcast", "category": "notification_smart"}
+{"input": "domino_doc_changelog: je ne peux pas générer de changelog, j'ai des fautes de frappe en français", "output": "domino:domino_doc_changelog", "category": "documentation"}
+{"input": "domino_perf_memory_optimize: je dois optimiser la mémoire, mais j'ai des erreurs de frappe en français", "output": "domino:domino_perf_memory_optimize", "category": "performance_tuning"}
+{"input": "domino_trading_execute: je dois exécuter un signal de trading, mais j'ai des fautes de frappe en français", "output": "domino:domino_trading_execute", "category": "trading_cascade"}
+{"input": "domino_focus_mode: je dois activer le mode de concentration, mais j'ai des fautes de frappe en français", "output": "domino:domino_focus_mode", "category": "wellness_productivity"}
+{"input": "domino_session_review: je dois résumer ma session, mais j'ai des fautes de frappe en français", "output": "domino:domino_session_review", "category": "wellness_productivity"}
+{"input": "domino_doc_changelog: je dois générer un changelog, mais j'ai des fautes de frappe en français", "output": "domino:domino_doc_changelog", "category": "documentation"}
+{"input": "domino_perf_memory_optimize: je dois optimiser la mémoire, mais j'ai des fautes de frappe en français", "output": "domino:domino_perf_memory_optimize", "category": "performance_tuning"}
+{"input": "Bonjour, je voudrais partager le modèle avec le cluster afin de vérifier sa performance.", "output": "domino:domino_collab_share_model", "category": "unknown"}
+{"input": "Il faut vider le cache pour éviter les conflits de version.", "output": "domino:domino_cache_refresh", "category": "unknown"}
+{"input": "Je dois effectuer une revue de code pour vérifier l'architecture.", "output": "domino:domino_code_review_auto", "category": "unknown"}
+{"input": "Pour les statistiques du projet, il faut compter les fichiers et lignes.", "output": "domino:domino_doc_stats", "category": "unknown"}
+{"input": "Je dois vérifier la santé de la base de données pour éviter les erreurs.", "output": "domino:domino_debug_db", "category": "unknown"}
+{"input": "Il faut réinitialiser le cache pour garantir une performance optimale.", "output": "domino:domino_cache_refresh", "category": "unknown"}
+{"input": "Je dois analyser le code pour détecter les TODOs et les différences.", "output": "domino:domino_code_review_auto", "category": "unknown"}
+{"input": "Pour les statistiques du projet, il faut reconstruire l'index.", "output": "domino:domino_doc_stats", "category": "unknown"}
+{"input": "Je dois vérifier la taille et l'intégrité de la base de données.", "output": "domino:domino_debug_db", "category": "unknown"}
+{"input": "Il faut réinitialiser le cache pour éviter les problèmes de version.", "output": "domino:domino_cache_refresh", "category": "unknown"}
+{"input": "déploie le code en standard pfff", "output": "domino:domino_deploy_standard", "category": "deploy_flow"}
+{"input": "j'arrête le stream maintenant", "output": "domino:domino_stream_stop", "category": "streaming"}
+{"input": "lance un quiz de révision", "output": "domino:domino_learn_quiz", "category": "learning_mode"}
+{"input": "restaure le backup svp", "output": "domino:domino_backup_restore", "category": "backup_chain"}
+{"input": "stoppe l'envoi de stream", "output": "domino:domino_stream_stop", "category": "streaming"}
+{"input": "déploiement standard, c'est parti", "output": "domino:domino_deploy_standard", "category": "deploy_flow"}
+{"input": "j'veux un quiz pour réviser", "output": "domino:domino_learn_quiz", "category": "learning_mode"}
+{"input": "restore le backup en cours", "output": "domino:domino_backup_restore", "category": "backup_chain"}
+{"input": "rollback du deploy, vite !", "output": "domino:domino_deploy_rollback", "category": "deploy_flow"}
+{"input": "check les alertes, c'est urgent", "output": "domino:domino_monitor_alerts_check", "category": "monitoring_alert"}
+{"input": "verifie les logs et les alertes", "output": "domino:domino_monitor_alerts_check", "category": "monitoring_alert"}
+{"input": "les erreurs, la température, le disque, check !", "output": "domino:domino_monitor_alerts_check", "category": "monitoring_alert"}
+{"input": "ping M1, M2 et M3 pour voir la latence", "output": "domino:domino_network_latency", "category": "network_diagnostics"}
+{"input": "test de ping sur le cluster, quick !", "output": "domino:domino_network_latency", "category": "network_diagnostics"}
+{"input": "mode eco, check la puissance des GPUs", "output": "domino:domino_power_eco", "category": "power_management"}
+{"input": "met en mode economie, c'est pas cher", "output": "domino:domino_power_eco", "category": "power_management"}
+{"input": "lance le linter pour vérifier le code", "output": "domino:domino_code_lint", "category": "code_generation"}
+{"input": "verifie la syntaxe et les imports, s'il te plait", "output": "domino:domino_code_lint", "category": "code_generation"}
+{"input": "pré-test : compte les cascades et les datasets", "output": "domino:domino_test_all_dominos", "category": "testing_pipeline"}
+{"input": "Je dois exécuter le trading avec validation et ordre, en TP/SL, avant dejeuner.", "output": "domino:domino_trading_execute", "category": "trading_cascade"}
+{"input": "Je veux vérifier le balanç et le statut du trading avant dejeuner.", "output": "domino:domino_trading_execute", "category": "trading_cascade"}
+{"input": "On a un signal de trading, je dois le faire maintenant.", "output": "domino:domino_trading_execute", "category": "trading_cascade"}
+{"input": "Le projet a des stats, je veux les voir avant dejeuner.", "output": "domino:domino_doc_stats", "category": "documentation"}
+{"input": "Il y a des commits et des fichiers modifiés, je veux le changelog.", "output": "domino:domino_doc_changelog", "category": "documentation"}
+{"input": "Je veux un backup de la base avant de deploier.", "output": "domino:domino_deploy_with_backup", "category": "deploy_flow"}
+{"input": "Je dois démarrer le stream avec reseau, OBS et chat monitor.", "output": "domino:domino_stream_start", "category": "streaming"}
+{"input": "Le projet a des commits récents, je veux les stats.", "output": "domino:domino_doc_stats", "category": "documentation"}
+{"input": "Je veux un backup de la base et des tests avant de deploier.", "output": "domino:domino_deploy_with_backup", "category": "deploy_flow"}
+{"input": "Il y a des modifications, je veux le changelog.", "output": "domino:domino_doc_changelog", "category": "documentation"}
+{"input": "checke l'autobench, faut pas oublier les nodes", "output": "domino:domino_auto_benchmark", "category": "ai_orchestration"}
+{"input": "le benchmark auto, c'est pour tester tous les noeuds et mettres a jour le routing", "output": "domino:domino_auto_benchmark", "category": "ai_orchestration"}
+{"input": "gpu tuning, faut pas oublier les clocks et power analysis", "output": "domino:domino_perf_gpu_optimize", "category": "performance_tuning"}
+{"input": "optimise les gpu, on a des ajustements a faire sur les clocks", "output": "domino:domino_perf_gpu_optimize", "category": "performance_tuning"}
+{"input": "debug la base de donnée, integrite et taille c'est important", "output": "domino:domino_debug_db", "category": "debug_cascade"}
+{"input": "probleme database, faut checker l'integrite et les comptages", "output": "domino:domino_debug_db", "category": "debug_cascade"}
+{"input": "revue de session, checke les commits et le bilan vocal", "output": "domino:domino_session_review", "category": "wellness_productivity"}
+{"input": "bilan de la journee, faut pas oublier le stats db et l'usage gpu", "output": "domino:domino_session_review", "category": "wellness_productivity"}
+{"input": "audit les cles api, checke .env et historique git", "output": "domino:domino_security_keys", "category": "security_sweep"}
+{"input": "verifie les keys api, faut pas oublier le db aussi", "output": "domino:domino_security_keys", "category": "security_sweep"}
+{"input": "Ferme tout trading immédiatement", "output": "domino:domino_trading_close_all", "category": "trading_cascade"}
+{"input": "Vérifie les permissions ACL et fichiers sensibles", "output": "domino:domino_security_permissions", "category": "security_sweep"}
+{"input": "Optimise la mémoire en évacuant les processus en charge", "output": "domino:domino_perf_memory_optimize", "category": "performance_tuning"}
+{"input": "Évacue les données en vérifiant le statut Git", "output": "domino:domino_emergency_backup", "category": "emergency_protocol"}
+{"input": "Ferme les positions en attendant la connexion", "output": "domino:domino_trading_close_all", "category": "trading_cascade"}
+{"input": "Vérifie les droits des fichiers sensibles", "output": "domino:domino_security_permissions", "category": "security_sweep"}
+{"input": "Optimise la mémoire en libérant les espaces occupés", "output": "domino:domino_perf_memory_optimize", "category": "performance_tuning"}
+{"input": "lance le linter pour vérifier la syntaxe et les imports", "output": "domino:domino_code_lint", "category": "code_generation"}
+{"input": "annule le dernier deploy pour éviter les pannes urgentes", "output": "domino:domino_deploy_rollback", "category": "deploy_flow"}
+{"input": "libère la ram en arrêtant les processus en charge", "output": "domino:domino_perf_memory_optimize", "category": "performance_tuning"}
+{"input": "réduise la puissance de la gpu en cas de surutilisation", "output": "domino:domino_gpu_emergency", "category": "gpu_thermal"}
+{"input": "verifie la qualité du code avec des tests automatiques", "output": "domino:domino_code_lint", "category": "code_generation"}
+{"input": "arrête les processus en charge pour libérer la ram", "output": "domino:domino_perf_memory_optimize", "category": "performance_tuning"}
+{"input": "urgence gpu : arrête les processus en charge", "output": "domino:domino_gpu_emergency", "category": "gpu_thermal"}
+{"input": "bonsoir, je veux nettoyer le git pour éviter les déséquilibres", "output": "domino:domino_cleanup_git", "category": "system_cleanup"}
+{"input": "je vais tester le benchmark rapide pour voir la performance", "output": "domino:domino_monitor_performance", "category": "monitoring_alert"}
+{"input": "je me réveille pour le trading matin, marche et portfolio", "output": "domino:domino_matin_trading", "category": "routine_matin"}
+{"input": "je debug le cluster pour vérifier les connexions", "output": "domino:domino_debug_cluster", "category": "debug_cascade"}
+{"input": "je vais vérifier les endpoints du cluster pour le debug", "output": "domino:domino_debug_api_cascade", "category": "debug_cascade"}
+{"input": "je vais nettoyer les branches et les commits", "output": "domino:domino_cleanup_git", "category": "system_cleanup"}
+{"input": "je vais tester la performance du système pour le matin", "output": "domino:domino_monitor_performance", "category": "monitoring_alert"}
+{"input": "je vais vérifier les signaux et les alertes matin", "output": "domino:domino_matin_trading", "category": "routine_matin"}
+{"input": "je vais vérifier les noeuds du cluster pour le debug", "output": "domino:domino_debug_cluster", "category": "debug_cascade"}
+{"input": "je vais tester les performances du système pour le matin", "output": "domino:domino_monitor_performance", "category": "monitoring_alert"}
+{"input": "Genre le changelog de ce matin, jarvis", "output": "domino:domino_doc_changelog", "category": "documentation"}
+{"input": "Fais un petit résumé des modifications du jour", "output": "domino:domino_doc_changelog", "category": "documentation"}
+{"input": "J'voulais voir les derniers commits, t'as ça?", "output": "domino:domino_doc_changelog", "category": "documentation"}
+{"input": "Dit-moi qui a changé quoi dans le projet", "output": "domino:domino_doc_changelog", "category": "documentation"}
+{"input": "Lance un consensus entre M1, M2 et OL1, s'il te plaît", "output": "domino:domino_collab_consensus", "category": "collaboration"}
+{"input": "Vote multi-agents sur la prochaine feature", "output": "domino:domino_collab_consensus", "category": "collaboration"}
+{"input": "Active le mode concentration, j'suis en pleine travail", "output": "domino:domino_focus_mode", "category": "wellness_productivity"}
+{"input": "Arrête les notifications et optimise la gpu", "output": "domino:domino_focus_mode", "category": "wellness_productivity"}
+{"input": "Donne-moi le bilan du projet en stats", "output": "domino:domino_doc_stats", "category": "documentation"}
+{"input": "Fais un comptage de fichiers et de lignes, s'il te plaît", "output": "domino:domino_doc_stats", "category": "documentation"}
+{"input": "domino_reveil_rapide: Demarrage ultra-rapide: GPU + heure + confirmation vocale, faute de frappe: 'Demarrage ultra-rapide' est trop formel, on dirait 'Demarrage rapide'", "output": "domino:domino_reveil_rapide", "category": "routine_matin"}
+{"input": "domino_profile_work: Profil travail: GPU check, faute de frappe: 'Profil travail' est trop formel, on dirait 'Profil de travail'", "output": "domino:domino_profile_work", "category": "voice_profiles"}
+{"input": "domino_trading_close_all: Fermeture urgente: lister + fermer + PnL + rapport, faute de frappe: 'Fermeture urgente' est trop formel, on dirait 'Fermeture rapide'", "output": "domino:domino_trading_close_all", "category": "trading_cascade"}
+{"input": "domino_code_scaffold: Scaffold projet: verifier outils disponibles, faute de frappe: 'Scaffold projet' est trop formel, on dirait 'Scaffold un projet'", "output": "domino:domino_code_scaffold", "category": "code_generation"}
+{"input": "domino_bonne_nuit: Routine soir: sauvegarder + backup + fermer trading + reduire GPU, faute de frappe: 'Routine soir' est trop formel, on dirait 'Routine du soir'", "output": "domino:domino_bonne_nuit", "category": "routine_soir"}
+{"input": "domino_reveil_rapide: Demarrage rapide: GPU + heure + confirmation vocale, faute de frappe: 'Demarrage rapide' est trop court, on dirait 'Demarrage ultra-rapide'", "output": "domino:domino_reveil_rapide", "category": "routine_matin"}
+{"input": "domino_profile_work: Profil de travail: GPU check, faute de frappe: 'Profil de travail' est trop court, on dirait 'Profil de travail'", "output": "domino:domino_profile_work", "category": "voice_profiles"}
+{"input": "prends des notes sur la reunion", "output": "domino:domino_meeting_notes", "category": "meeting_assistant"}
+{"input": "creer un fichier markdown pour le compte rendu", "output": "domino:domino_meeting_notes", "category": "meeting_assistant"}
+{"input": "note ce qu'on a discute", "output": "domino:domino_meeting_notes", "category": "meeting_assistant"}
+{"input": "check les alertes en temps reel", "output": "domino:domino_monitor_alerts_check", "category": "monitoring_alert"}
+{"input": "verifie si tout va bien sur le serveur", "output": "domino:domino_monitor_alerts_check", "category": "monitoring_alert"}
+{"input": "il y a des erreurs dans les logs ?", "output": "domino:domino_monitor_alerts_check", "category": "monitoring_alert"}
+{"input": "lance un quiz de revision", "output": "domino:domino_learn_quiz", "category": "learning_mode"}
+{"input": "devine le domino, je te donne la description", "output": "domino:domino_learn_quiz", "category": "learning_mode"}
+{"input": "joue au quiz avec moi", "output": "domino:domino_learn_quiz", "category": "learning_mode"}
+{"input": "scaffold un projet en python", "output": "domino:domino_code_scaffold", "category": "code_generation"}
+{"input": "Est-ce que tu pourrais me dire où en est l'entraînement maintenant STP?", "output": "domino:domino_learn_train_status", "category": "learning_mode"}
+{"input": "Le système fonctionne-t-il correctement? Je vois des alertes sur le monitoring complet.", "output": "domino:domino_monitor_system_full", "category": "monitoring_alert"}
+{"input": "On va se préparer pour la diffusion. Démarre le streaming, s'il te plaît.", "output": "domino:domino_stream_start", "category": "streaming"}
+{"input": "J'ai besoin de nettoyer un peu les fichiers temporaires. Quel est l'état actuel du TEMP?", "output": "domino:domino_cleanup_temp", "category": "system_cleanup"}
+{"input": "Il semble que je doive optimiser nos GPU. Vérifie s'il y a de la place en VRAM STP.", "output": "domino:domino_gpu_optimize", "category": "gpu_thermal"}
+{"input": "Bonjour! Quelqu'un a tourné le cluster ce matin pour le code café? Je vois que c'est configuré en mode VSCode avec git et de la musique.", "output": "domino:domino_cafe_code", "category": "routine_matin"}
+{"input": "Attention, il y a un drawdown sur les PnL. C'est temps d'examiner ça attentivement pour évaluer le risque.", "output": "domino:domino_trading_drawdown_alert", "category": "trading_cascade"}
+{"input": "J'ai une prédiction de panne à signaler. Il semblerait que les GPU soient sur le point d'usure, vérifiez l'uptime et la santé du cluster.", "output": "domino:domino_predict_failure", "category": "maintenance_predictive"}
+{"input": "On va éteindre le cluster ce week-end pour faire un backup et arrêter les transactions. Nous devrions aussi régler l'éco des GPU en veillant à fermer proprement.", "output": "domino:domino_weekend_shutdown", "category": "routine_soir"}
+{"input": "Hey, je pense qu'il y a un souci avec la base de données. Je vois des problèmes d'intégrité et de taille. On devrait faire une vérification conditionnelle.", "output": "domino:domino_debug_db", "category": "debug_cascade"}
+{"input": "Bonjour à tous! J'ai remarqué que le cluster était en cours de démarrage pour le code café aujourd'hui matin. C'est bien configuré avec VSCode, git et quelques chansons.", "output": "domino:domino_cafe_code", "category": "routine_matin"}
+{"input": "On dirait qu'il y a une alerte sur les pertes en trading. Il faut que je lance une analyse approfondie du drawdown pour évaluer le risque.", "output": "domino:domino_trading_drawdown_alert", "category": "trading_cascade"}
+{"input": "Le cache est en panne, il faut le refaire partir de zéro.", "output": "domino:domino_cache_refresh", "category": "unknown"}
+{"input": "Va vider tout ce cache, c'est pourri ou quoi ?", "output": "domino:domino_cache_refresh", "category": "unknown"}
+{"input": "Regenerer les données, le cache est de la foutue.", "output": "domino:domino_cache_refresh", "category": "unknown"}
+{"input": "Ouais tu t'occupe du cache ? Refresh à faire rapidement.", "output": "domino:domino_cache_refresh", "category": "unknown"}
+{"input": "Je veux démarrer en pleine vitesse, fais le GPU + heure + voix.", "output": "domino:domino_reveil_rapide", "category": "unknown"}
+{"input": "On doit lancer rapidement cette machine, synchronise tous les noeuds.", "output": "domino:domino_collab_sync_cluster", "category": "unknown"}
+{"input": "Merde, les réponses de mon modèle sont dégénérées. Check la driffe des modèles M1/M2/OL1.", "output": "domino:domino_predict_model_drift", "category": "unknown"}
+{"input": "Le profil travail est un peu louche, fais-le checker pour le GPU.", "output": "domino:domino_profile_work", "category": "unknown"}
+{"input": "Il y a une synchro à faire sur tout le cluster, je te dis ça justement.", "output": "domino:domino_collab_sync_cluster", "category": "unknown"}
+{"input": "Les réponses sont étranges ces derniers jours. On doit faire un check de dérive des modèles ?", "output": "domino:domino_predict_model_drift", "category": "unknown"}
