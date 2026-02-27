@@ -1,0 +1,102 @@
+[
+  {
+    "coin": "BTC",
+    "signal": "NEUTRE",
+    "confidence": 0,
+    "timing": "?",
+    "ai_analysis": "",
+    "price": 68405.1,
+    "change_24h": 1.54,
+    "rsi": 65
+  },
+  {
+    "coin": "ETH",
+    "signal": "NEUTRE",
+    "confidence": 0,
+    "timing": "?",
+    "ai_analysis": "",
+    "price": 2066.84,
+    "change_24h": 2.68,
+    "rsi": 68
+  },
+  {
+    "coin": "SOL",
+    "signal": "NEUTRE",
+    "confidence": 0,
+    "timing": "?",
+    "ai_analysis": "",
+    "price": 87.7,
+    "change_24h": 2.05,
+    "rsi": 51
+  },
+  {
+    "coin": "SUI",
+    "signal": "NEUTRE",
+    "confidence": 0,
+    "timing": "?",
+    "ai_analysis": "",
+    "price": 0.96,
+    "change_24h": 1.14,
+    "rsi": 52
+  },
+  {
+    "coin": "PEPE",
+    "signal": "NEUTRE",
+    "confidence": 0,
+    "timing": "?",
+    "ai_analysis": "",
+    "price": 6.56e-06,
+    "change_24h": -2.58,
+    "rsi": 54
+  },
+  {
+    "coin": "DOGE",
+    "signal": "NEUTRE",
+    "confidence": 0,
+    "timing": "?",
+    "ai_analysis": "",
+    "price": 0.1,
+    "change_24h": -1.28,
+    "rsi": 48
+  },
+  {
+    "coin": "XRP",
+    "signal": "NEUTRE",
+    "confidence": 0,
+    "timing": "?",
+    "ai_analysis": "",
+    "price": 1.45,
+    "change_24h": 0.43,
+    "rsi": 70
+  },
+  {
+    "coin": "ADA",
+    "signal": "NEUTRE",
+    "confidence": 0,
+    "timing": "?",
+    "ai_analysis": "",
+    "price": 0.29,
+    "change_24h": 1.61,
+    "rsi": 46
+  },
+  {
+    "coin": "AVAX",
+    "signal": "NEUTRE",
+    "confidence": 0,
+    "timing": "?",
+    "ai_analysis": "Erreur: timed out",
+    "price": 9.43,
+    "change_24h": -1.06,
+    "rsi": 46
+  },
+  {
+    "coin": "LINK",
+    "signal": "NEUTRE",
+    "confidence": 0,
+    "timing": "?",
+    "ai_analysis": "Erreur: timed out",
+    "price": 9.3,
+    "change_24h": 0.19,
+    "rsi": 67
+  }
+]
