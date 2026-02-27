@@ -82,7 +82,7 @@ async def check_lm_node(node) -> dict:
                 loaded = []
                 for m in models_list:
                     info = {
-                        "id": m.get("id", "unknown"),
+                        "id": m.get("key", m.get("id", "unknown")),
                         "loaded": bool(m.get("loaded_instances")),
                     }
                     loaded.append(info)
