@@ -1196,6 +1196,210 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         learning_context="Code — analyser changements recents",
         priority="normal",
     ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # SYSTEM CLEANUP (3 cascades) — nettoyage systeme
+    # ─────────────────────────────────────────────────────────────────────
+
+    DominoPipeline(
+        id="domino_cleanup_temp",
+        trigger_vocal=["nettoie les fichiers temporaires", "vide le temp", "clean temp files"],
+        steps=[
+            DominoStep("count_temp", "powershell:Get-ChildItem $env:TEMP -Recurse -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum | Select-Object Count, @{N='SizeMB';E={[math]::Round($_.Sum/1MB)}}", "powershell", timeout_s=15),
+            DominoStep("count_pip", "bash:pip cache info 2>/dev/null | head -3 || echo 'pip cache N/A'", "bash", timeout_s=10, on_fail="skip"),
+            DominoStep("tts_cleanup", "python:edge_tts_speak('Analyse des fichiers temporaires terminee.')", "python"),
+        ],
+        category="system_cleanup",
+        description="Analyse temp files: compter taille TEMP + pip cache",
+        learning_context="Nettoyage — identifier les fichiers temporaires a supprimer",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_cleanup_orphans",
+        trigger_vocal=["cherche les processus orphelins", "kill les zombies", "processus fantomes"],
+        steps=[
+            DominoStep("find_orphans", "powershell:Get-Process | Where-Object {$_.Responding -eq $false} | Select-Object Name, Id, @{N='MB';E={[math]::Round($_.WorkingSet64/1MB)}} | Format-Table", "powershell", timeout_s=10, on_fail="skip"),
+            DominoStep("high_cpu", "powershell:Get-Process | Sort-Object CPU -Descending | Select-Object Name, Id, CPU, @{N='MB';E={[math]::Round($_.WorkingSet64/1MB)}} -First 5 | Format-Table", "powershell", timeout_s=10),
+            DominoStep("tts_orphans", "python:edge_tts_speak('Processus orphelins et gros consommateurs identifies.')", "python"),
+        ],
+        category="system_cleanup",
+        description="Detecter processus orphelins et top CPU consumers",
+        learning_context="Nettoyage — trouver les processus bloques ou gourmands",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_cleanup_git",
+        trigger_vocal=["nettoie le git", "git cleanup", "git prune"],
+        steps=[
+            DominoStep("git_gc", "bash:cd F:/BUREAU/turbo && git gc --auto 2>&1 | tail -3", "bash", timeout_s=30, on_fail="skip"),
+            DominoStep("git_prune", "bash:cd F:/BUREAU/turbo && git remote prune origin 2>&1 | head -5", "bash", timeout_s=15, on_fail="skip"),
+            DominoStep("git_size", "bash:cd F:/BUREAU/turbo && du -sh .git 2>/dev/null || echo '.git size N/A'", "bash", timeout_s=10),
+            DominoStep("tts_git", "python:edge_tts_speak('Nettoyage git termine.')", "python"),
+        ],
+        category="system_cleanup",
+        description="Git cleanup: gc, prune remote branches, check size",
+        learning_context="Nettoyage — maintenance du depot git",
+        priority="normal",
+    ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # PERFORMANCE TUNING (2 cascades) — optimisation performances
+    # ─────────────────────────────────────────────────────────────────────
+
+    DominoPipeline(
+        id="domino_perf_gpu_optimize",
+        trigger_vocal=["optimise les gpu", "gpu tuning", "ajuste les performances gpu"],
+        steps=[
+            DominoStep("gpu_clocks", "powershell:nvidia-smi --query-gpu=name,clocks.current.graphics,clocks.current.memory,power.draw --format=csv,noheader", "powershell", timeout_s=10),
+            DominoStep("gpu_procs", "powershell:nvidia-smi --query-compute-apps=pid,name,used_memory --format=csv,noheader 2>$null || echo 'No GPU processes'", "powershell", timeout_s=10, on_fail="skip"),
+            DominoStep("tts_gpu_tune", "python:edge_tts_speak('Metriques GPU collectees. Optimisation analysee.')", "python"),
+        ],
+        category="performance_tuning",
+        description="GPU tuning: clocks, processes, power analysis",
+        learning_context="Performance — analyser et optimiser l'utilisation GPU",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_perf_memory_optimize",
+        trigger_vocal=["optimise la memoire", "libere de la ram", "memory cleanup"],
+        steps=[
+            DominoStep("ram_status", "powershell:$os=Get-CimInstance Win32_OperatingSystem; [math]::Round(($os.TotalVisibleMemorySize-$os.FreePhysicalMemory)/1MB,1).ToString()+'GB / '+[math]::Round($os.TotalVisibleMemorySize/1MB,1).ToString()+'GB'", "powershell", timeout_s=10),
+            DominoStep("top_ram", "powershell:Get-Process | Sort-Object WorkingSet64 -Descending | Select-Object Name, @{N='MB';E={[math]::Round($_.WorkingSet64/1MB)}} -First 8 | Format-Table", "powershell", timeout_s=10),
+            DominoStep("tts_mem", "python:edge_tts_speak('Memoire analysee. Top consommateurs affiches.')", "python"),
+        ],
+        category="performance_tuning",
+        description="Memory analysis: RAM usage + top consumers",
+        learning_context="Performance — identifier les processus gourmands en RAM",
+        priority="normal",
+    ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # TESTING PIPELINE (2 cascades) — execution de tests
+    # ─────────────────────────────────────────────────────────────────────
+
+    DominoPipeline(
+        id="domino_test_all_dominos",
+        trigger_vocal=["teste tous les dominos", "run all tests", "lance les tests complets"],
+        steps=[
+            DominoStep("count_dominos", "bash:cd F:/BUREAU/turbo && python3 -c \"from src.domino_pipelines import DOMINO_PIPELINES; print(f'{len(DOMINO_PIPELINES)} cascades')\"", "bash", timeout_s=10),
+            DominoStep("count_dataset", "bash:wc -l F:/BUREAU/turbo/data/domino_learning_dataset.jsonl", "bash", timeout_s=5),
+            DominoStep("tts_test", "python:edge_tts_speak('Preparation des tests. Cascades et dataset comptes.')", "python"),
+        ],
+        category="testing_pipeline",
+        description="Pre-test: compter cascades et dataset avant run",
+        learning_context="Tests — preparer et valider avant execution",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_test_cluster_health",
+        trigger_vocal=["test de sante cluster", "cluster health check", "verifie la sante du cluster"],
+        steps=[
+            DominoStep("ping_m1", "bash:curl -s --max-time 3 http://10.5.0.2:1234/api/v1/models -H 'Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7' > /dev/null 2>&1 && echo 'M1 OK' || echo 'M1 FAIL'", "bash", timeout_s=5),
+            DominoStep("ping_m2", "bash:curl -s --max-time 3 http://192.168.1.26:1234/api/v1/models -H 'Authorization: Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4' > /dev/null 2>&1 && echo 'M2 OK' || echo 'M2 FAIL'", "bash", timeout_s=5),
+            DominoStep("ping_ol1", "bash:curl -s --max-time 3 http://127.0.0.1:11434/api/tags > /dev/null 2>&1 && echo 'OL1 OK' || echo 'OL1 FAIL'", "bash", timeout_s=5),
+            DominoStep("gpu_temps", "powershell:nvidia-smi --query-gpu=name,temperature.gpu --format=csv,noheader", "powershell", timeout_s=10),
+            DominoStep("tts_health", "python:edge_tts_speak('Health check cluster termine.')", "python"),
+        ],
+        category="testing_pipeline",
+        description="Health check: ping M1/M2/OL1 + GPU temps",
+        learning_context="Tests — verifier la sante de tous les noeuds",
+        priority="high",
+    ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # DOCUMENTATION (2 cascades) — generation de docs
+    # ─────────────────────────────────────────────────────────────────────
+
+    DominoPipeline(
+        id="domino_doc_stats",
+        trigger_vocal=["statistiques du projet", "stats jarvis", "resume du projet"],
+        steps=[
+            DominoStep("count_files", "bash:cd F:/BUREAU/turbo && find src/ -name '*.py' | wc -l", "bash", timeout_s=10),
+            DominoStep("count_lines", "bash:cd F:/BUREAU/turbo && wc -l src/*.py src/**/*.py 2>/dev/null | tail -1 || echo 'N/A'", "bash", timeout_s=10, on_fail="skip"),
+            DominoStep("git_commits", "bash:cd F:/BUREAU/turbo && git rev-list --count HEAD", "bash", timeout_s=5),
+            DominoStep("tts_stats", "python:edge_tts_speak('Statistiques du projet affichees.')", "python"),
+        ],
+        category="documentation",
+        description="Stats projet: fichiers Python, lignes, commits",
+        learning_context="Documentation — generer des statistiques projet",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_doc_changelog",
+        trigger_vocal=["genere le changelog", "historique des changements", "quoi de neuf"],
+        steps=[
+            DominoStep("recent_commits", "bash:cd F:/BUREAU/turbo && git log --oneline --since='7 days ago' | head -20", "bash", timeout_s=10),
+            DominoStep("files_changed", "bash:cd F:/BUREAU/turbo && git diff --stat HEAD~10 2>/dev/null | tail -3", "bash", timeout_s=10),
+            DominoStep("tts_changelog", "python:edge_tts_speak('Changelog de la semaine affiche.')", "python"),
+        ],
+        category="documentation",
+        description="Changelog: commits recents + fichiers modifies",
+        learning_context="Documentation — suivre les changements recents",
+        priority="normal",
+    ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # ENRICHISSEMENT categories existantes
+    # ─────────────────────────────────────────────────────────────────────
+
+    DominoPipeline(
+        id="domino_meeting_timer",
+        trigger_vocal=["timer de reunion", "minuteur meeting", "chrono reunion"],
+        steps=[
+            DominoStep("tts_timer_start", "python:edge_tts_speak('Timer de reunion demarre.')", "python"),
+            DominoStep("log_meeting", "bash:echo \"$(date '+%Y-%m-%d %H:%M') MEETING START\" >> F:/BUREAU/turbo/data/meeting_log.txt", "bash", timeout_s=5),
+        ],
+        category="meeting_assistant",
+        description="Timer reunion: demarrer chrono + log",
+        learning_context="Reunion — chronometrer les reunions",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_code_lint",
+        trigger_vocal=["lance le linter", "verifie la qualite du code", "lint le code"],
+        steps=[
+            DominoStep("python_syntax", "bash:cd F:/BUREAU/turbo && python3 -m py_compile src/domino_pipelines.py 2>&1 && echo 'SYNTAX OK' || echo 'SYNTAX ERROR'", "bash", timeout_s=10),
+            DominoStep("import_check", "bash:cd F:/BUREAU/turbo && python3 -c 'from src.domino_pipelines import DOMINO_PIPELINES; print(f\"{len(DOMINO_PIPELINES)} cascades OK\")' 2>&1", "bash", timeout_s=10),
+            DominoStep("tts_lint", "python:edge_tts_speak('Verification du code terminee.')", "python"),
+        ],
+        category="code_generation",
+        description="Lint check: syntaxe Python + imports",
+        learning_context="Code — verifier la qualite syntaxique",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_learn_quiz",
+        trigger_vocal=["lance un quiz", "quiz de revision", "teste mes connaissances"],
+        steps=[
+            DominoStep("random_domino", "bash:cd F:/BUREAU/turbo && python3 -c \"import random; from src.domino_pipelines import DOMINO_PIPELINES; dp=random.choice(DOMINO_PIPELINES); print(f'Quiz: {dp.description}')\"", "bash", timeout_s=10),
+            DominoStep("tts_quiz", "python:edge_tts_speak('Quiz: devine quel domino correspond a cette description.')", "python"),
+        ],
+        category="learning_mode",
+        description="Quiz: afficher description random, deviner le domino",
+        learning_context="Apprentissage — tester ses connaissances des cascades",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_network_bandwidth",
+        trigger_vocal=["test de bande passante", "speed test", "test de vitesse reseau"],
+        steps=[
+            DominoStep("download_test", "bash:curl -s --max-time 10 -o /dev/null -w '%{speed_download}' https://speed.cloudflare.com/__down?bytes=10000000 2>/dev/null | python3 -c \"import sys; speed=float(sys.stdin.read()); print(f'{speed/1024/1024:.1f} MB/s download')\"", "bash", timeout_s=15, on_fail="skip"),
+            DominoStep("cluster_latency", "bash:for ip in 10.5.0.2 192.168.1.26 192.168.1.113; do ping -n 1 -w 500 $ip 2>/dev/null | grep -i 'time=' || echo \"$ip timeout\"; done", "bash", timeout_s=10),
+            DominoStep("tts_bandwidth", "python:edge_tts_speak('Test de bande passante termine.')", "python"),
+        ],
+        category="network_diagnostics",
+        description="Bandwidth test: download speed + cluster latency",
+        learning_context="Reseau — mesurer la bande passante et latence",
+        priority="normal",
+    ),
 ]
 
 

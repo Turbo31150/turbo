@@ -7087,3 +7087,106 @@
 {"input": "restore la derniere version", "output": "domino:domino_backup_restore", "category": "backup_chain"}
 {"input": "verifie l'integrite du backup", "output": "domino:domino_backup_restore", "category": "backup_chain"}
 {"input": "lance un pomodoro, TTS et log focus", "output": "domino:domino_timer_pomodoro", "category": "task_scheduling"}
+{"input": "nettoie les fichiers temporaires", "output": "domino:domino_cleanup_temp", "category": "system_cleanup"}
+{"input": "vide le temp", "output": "domino:domino_cleanup_temp", "category": "system_cleanup"}
+{"input": "clean temp files", "output": "domino:domino_cleanup_temp", "category": "system_cleanup"}
+{"input": "jarvis nettoie les fichiers temporaires", "output": "domino:domino_cleanup_temp", "category": "system_cleanup"}
+{"input": "est-ce que tu peux nettoie les fichiers temporaires", "output": "domino:domino_cleanup_temp", "category": "system_cleanup"}
+{"input": "nettoie les fichiers temporaires s il te plait", "output": "domino:domino_cleanup_temp", "category": "system_cleanup"}
+{"input": "hey nettoie les fichiers temporaires vite", "output": "domino:domino_cleanup_temp", "category": "system_cleanup"}
+{"input": "fais un nettoie les fichiers temporaires", "output": "domino:domino_cleanup_temp", "category": "system_cleanup"}
+{"input": "cherche les processus orphelins", "output": "domino:domino_cleanup_orphans", "category": "system_cleanup"}
+{"input": "kill les zombies", "output": "domino:domino_cleanup_orphans", "category": "system_cleanup"}
+{"input": "processus fantomes", "output": "domino:domino_cleanup_orphans", "category": "system_cleanup"}
+{"input": "jarvis cherche les processus orphelins", "output": "domino:domino_cleanup_orphans", "category": "system_cleanup"}
+{"input": "est-ce que tu peux cherche les processus orphelins", "output": "domino:domino_cleanup_orphans", "category": "system_cleanup"}
+{"input": "cherche les processus orphelins s il te plait", "output": "domino:domino_cleanup_orphans", "category": "system_cleanup"}
+{"input": "hey cherche les processus orphelins vite", "output": "domino:domino_cleanup_orphans", "category": "system_cleanup"}
+{"input": "fais un cherche les processus orphelins", "output": "domino:domino_cleanup_orphans", "category": "system_cleanup"}
+{"input": "nettoie le git", "output": "domino:domino_cleanup_git", "category": "system_cleanup"}
+{"input": "git cleanup", "output": "domino:domino_cleanup_git", "category": "system_cleanup"}
+{"input": "git prune", "output": "domino:domino_cleanup_git", "category": "system_cleanup"}
+{"input": "jarvis nettoie le git", "output": "domino:domino_cleanup_git", "category": "system_cleanup"}
+{"input": "est-ce que tu peux nettoie le git", "output": "domino:domino_cleanup_git", "category": "system_cleanup"}
+{"input": "nettoie le git s il te plait", "output": "domino:domino_cleanup_git", "category": "system_cleanup"}
+{"input": "hey nettoie le git vite", "output": "domino:domino_cleanup_git", "category": "system_cleanup"}
+{"input": "fais un nettoie le git", "output": "domino:domino_cleanup_git", "category": "system_cleanup"}
+{"input": "gpu tuning", "output": "domino:domino_perf_gpu_optimize", "category": "performance_tuning"}
+{"input": "ajuste les performances gpu", "output": "domino:domino_perf_gpu_optimize", "category": "performance_tuning"}
+{"input": "jarvis optimise les gpu", "output": "domino:domino_perf_gpu_optimize", "category": "performance_tuning"}
+{"input": "est-ce que tu peux optimise les gpu", "output": "domino:domino_perf_gpu_optimize", "category": "performance_tuning"}
+{"input": "optimise les gpu s il te plait", "output": "domino:domino_perf_gpu_optimize", "category": "performance_tuning"}
+{"input": "hey optimise les gpu vite", "output": "domino:domino_perf_gpu_optimize", "category": "performance_tuning"}
+{"input": "fais un optimise les gpu", "output": "domino:domino_perf_gpu_optimize", "category": "performance_tuning"}
+{"input": "optimise la memoire", "output": "domino:domino_perf_memory_optimize", "category": "performance_tuning"}
+{"input": "libere de la ram", "output": "domino:domino_perf_memory_optimize", "category": "performance_tuning"}
+{"input": "memory cleanup", "output": "domino:domino_perf_memory_optimize", "category": "performance_tuning"}
+{"input": "jarvis optimise la memoire", "output": "domino:domino_perf_memory_optimize", "category": "performance_tuning"}
+{"input": "est-ce que tu peux optimise la memoire", "output": "domino:domino_perf_memory_optimize", "category": "performance_tuning"}
+{"input": "optimise la memoire s il te plait", "output": "domino:domino_perf_memory_optimize", "category": "performance_tuning"}
+{"input": "hey optimise la memoire vite", "output": "domino:domino_perf_memory_optimize", "category": "performance_tuning"}
+{"input": "fais un optimise la memoire", "output": "domino:domino_perf_memory_optimize", "category": "performance_tuning"}
+{"input": "teste tous les dominos", "output": "domino:domino_test_all_dominos", "category": "testing_pipeline"}
+{"input": "run all tests", "output": "domino:domino_test_all_dominos", "category": "testing_pipeline"}
+{"input": "lance les tests complets", "output": "domino:domino_test_all_dominos", "category": "testing_pipeline"}
+{"input": "jarvis teste tous les dominos", "output": "domino:domino_test_all_dominos", "category": "testing_pipeline"}
+{"input": "est-ce que tu peux teste tous les dominos", "output": "domino:domino_test_all_dominos", "category": "testing_pipeline"}
+{"input": "teste tous les dominos s il te plait", "output": "domino:domino_test_all_dominos", "category": "testing_pipeline"}
+{"input": "hey teste tous les dominos vite", "output": "domino:domino_test_all_dominos", "category": "testing_pipeline"}
+{"input": "fais un teste tous les dominos", "output": "domino:domino_test_all_dominos", "category": "testing_pipeline"}
+{"input": "test de sante cluster", "output": "domino:domino_test_cluster_health", "category": "testing_pipeline"}
+{"input": "cluster health check", "output": "domino:domino_test_cluster_health", "category": "testing_pipeline"}
+{"input": "verifie la sante du cluster", "output": "domino:domino_test_cluster_health", "category": "testing_pipeline"}
+{"input": "jarvis test de sante cluster", "output": "domino:domino_test_cluster_health", "category": "testing_pipeline"}
+{"input": "est-ce que tu peux test de sante cluster", "output": "domino:domino_test_cluster_health", "category": "testing_pipeline"}
+{"input": "test de sante cluster s il te plait", "output": "domino:domino_test_cluster_health", "category": "testing_pipeline"}
+{"input": "hey test de sante cluster vite", "output": "domino:domino_test_cluster_health", "category": "testing_pipeline"}
+{"input": "fais un test de sante cluster", "output": "domino:domino_test_cluster_health", "category": "testing_pipeline"}
+{"input": "statistiques du projet", "output": "domino:domino_doc_stats", "category": "documentation"}
+{"input": "stats jarvis", "output": "domino:domino_doc_stats", "category": "documentation"}
+{"input": "resume du projet", "output": "domino:domino_doc_stats", "category": "documentation"}
+{"input": "jarvis statistiques du projet", "output": "domino:domino_doc_stats", "category": "documentation"}
+{"input": "est-ce que tu peux statistiques du projet", "output": "domino:domino_doc_stats", "category": "documentation"}
+{"input": "statistiques du projet s il te plait", "output": "domino:domino_doc_stats", "category": "documentation"}
+{"input": "hey statistiques du projet vite", "output": "domino:domino_doc_stats", "category": "documentation"}
+{"input": "fais un statistiques du projet", "output": "domino:domino_doc_stats", "category": "documentation"}
+{"input": "genere le changelog", "output": "domino:domino_doc_changelog", "category": "documentation"}
+{"input": "historique des changements", "output": "domino:domino_doc_changelog", "category": "documentation"}
+{"input": "quoi de neuf", "output": "domino:domino_doc_changelog", "category": "documentation"}
+{"input": "jarvis genere le changelog", "output": "domino:domino_doc_changelog", "category": "documentation"}
+{"input": "est-ce que tu peux genere le changelog", "output": "domino:domino_doc_changelog", "category": "documentation"}
+{"input": "genere le changelog s il te plait", "output": "domino:domino_doc_changelog", "category": "documentation"}
+{"input": "hey genere le changelog vite", "output": "domino:domino_doc_changelog", "category": "documentation"}
+{"input": "fais un genere le changelog", "output": "domino:domino_doc_changelog", "category": "documentation"}
+{"input": "timer de reunion", "output": "domino:domino_meeting_timer", "category": "meeting_assistant"}
+{"input": "minuteur meeting", "output": "domino:domino_meeting_timer", "category": "meeting_assistant"}
+{"input": "chrono reunion", "output": "domino:domino_meeting_timer", "category": "meeting_assistant"}
+{"input": "jarvis timer de reunion", "output": "domino:domino_meeting_timer", "category": "meeting_assistant"}
+{"input": "est-ce que tu peux timer de reunion", "output": "domino:domino_meeting_timer", "category": "meeting_assistant"}
+{"input": "timer de reunion s il te plait", "output": "domino:domino_meeting_timer", "category": "meeting_assistant"}
+{"input": "hey timer de reunion vite", "output": "domino:domino_meeting_timer", "category": "meeting_assistant"}
+{"input": "fais un timer de reunion", "output": "domino:domino_meeting_timer", "category": "meeting_assistant"}
+{"input": "lance le linter", "output": "domino:domino_code_lint", "category": "code_generation"}
+{"input": "verifie la qualite du code", "output": "domino:domino_code_lint", "category": "code_generation"}
+{"input": "lint le code", "output": "domino:domino_code_lint", "category": "code_generation"}
+{"input": "jarvis lance le linter", "output": "domino:domino_code_lint", "category": "code_generation"}
+{"input": "est-ce que tu peux lance le linter", "output": "domino:domino_code_lint", "category": "code_generation"}
+{"input": "lance le linter s il te plait", "output": "domino:domino_code_lint", "category": "code_generation"}
+{"input": "hey lance le linter vite", "output": "domino:domino_code_lint", "category": "code_generation"}
+{"input": "fais un lance le linter", "output": "domino:domino_code_lint", "category": "code_generation"}
+{"input": "lance un quiz", "output": "domino:domino_learn_quiz", "category": "learning_mode"}
+{"input": "quiz de revision", "output": "domino:domino_learn_quiz", "category": "learning_mode"}
+{"input": "teste mes connaissances", "output": "domino:domino_learn_quiz", "category": "learning_mode"}
+{"input": "jarvis lance un quiz", "output": "domino:domino_learn_quiz", "category": "learning_mode"}
+{"input": "est-ce que tu peux lance un quiz", "output": "domino:domino_learn_quiz", "category": "learning_mode"}
+{"input": "lance un quiz s il te plait", "output": "domino:domino_learn_quiz", "category": "learning_mode"}
+{"input": "hey lance un quiz vite", "output": "domino:domino_learn_quiz", "category": "learning_mode"}
+{"input": "fais un lance un quiz", "output": "domino:domino_learn_quiz", "category": "learning_mode"}
+{"input": "test de bande passante", "output": "domino:domino_network_bandwidth", "category": "network_diagnostics"}
+{"input": "speed test", "output": "domino:domino_network_bandwidth", "category": "network_diagnostics"}
+{"input": "test de vitesse reseau", "output": "domino:domino_network_bandwidth", "category": "network_diagnostics"}
+{"input": "jarvis test de bande passante", "output": "domino:domino_network_bandwidth", "category": "network_diagnostics"}
+{"input": "est-ce que tu peux test de bande passante", "output": "domino:domino_network_bandwidth", "category": "network_diagnostics"}
+{"input": "test de bande passante s il te plait", "output": "domino:domino_network_bandwidth", "category": "network_diagnostics"}
+{"input": "hey test de bande passante vite", "output": "domino:domino_network_bandwidth", "category": "network_diagnostics"}
+{"input": "fais un test de bande passante", "output": "domino:domino_network_bandwidth", "category": "network_diagnostics"}
