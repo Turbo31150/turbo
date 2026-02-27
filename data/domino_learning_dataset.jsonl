@@ -95,3 +95,48 @@
 {"input": "Dis bonsoir jarvis on arrete pour aujourd'hui.", "output": "domino:domino_bonne_nuit"}
 {"input": "Fais le consensus avec tout le monde.", "output": "domino:domino_collab_consensus"}
 {"input": "Hey jarvis on stream la ?", "output": "domino:domino_stream_start"}
+{"input": "verifie la sante des disques", "output": "domino:domino_predict_disk_health", "category": "maintenance_predictive"}
+{"input": "check les disques dur", "output": "domino:domino_predict_disk_health", "category": "maintenance_predictive"}
+{"input": "diagnostic disque stp", "output": "domino:domino_predict_disk_health", "category": "maintenance_predictive"}
+{"input": "est-ce que les modeles derivent", "output": "domino:domino_predict_model_drift", "category": "maintenance_predictive"}
+{"input": "check model drift", "output": "domino:domino_predict_model_drift", "category": "maintenance_predictive"}
+{"input": "qualite des modeles du cluster", "output": "domino:domino_predict_model_drift", "category": "maintenance_predictive"}
+{"input": "anticipe les pannes", "output": "domino:domino_predict_failure", "category": "maintenance_predictive"}
+{"input": "prediction de panne systeme", "output": "domino:domino_predict_failure", "category": "maintenance_predictive"}
+{"input": "maintenance preventive", "output": "domino:domino_predict_failure", "category": "maintenance_predictive"}
+{"input": "lance un consensus intelligent", "output": "domino:domino_consensus_smart", "category": "ai_orchestration"}
+{"input": "donne moi l'avis du cluster", "output": "domino:domino_consensus_smart", "category": "ai_orchestration"}
+{"input": "vote des modeles sur cette question", "output": "domino:domino_consensus_smart", "category": "ai_orchestration"}
+{"input": "change de modele", "output": "domino:domino_model_hot_swap", "category": "ai_orchestration"}
+{"input": "swap le modele actuel", "output": "domino:domino_model_hot_swap", "category": "ai_orchestration"}
+{"input": "echange le modele y'a trop de latence", "output": "domino:domino_model_hot_swap", "category": "ai_orchestration"}
+{"input": "benchmark automatique du cluster", "output": "domino:domino_auto_benchmark", "category": "ai_orchestration"}
+{"input": "teste tous les noeuds", "output": "domino:domino_auto_benchmark", "category": "ai_orchestration"}
+{"input": "benchmark les machines", "output": "domino:domino_auto_benchmark", "category": "ai_orchestration"}
+{"input": "lance l'ETL complet", "output": "domino:domino_etl_complet", "category": "data_pipeline"}
+{"input": "extraction des donnees", "output": "domino:domino_etl_complet", "category": "data_pipeline"}
+{"input": "pipeline de donnees stp", "output": "domino:domino_etl_complet", "category": "data_pipeline"}
+{"input": "rotation des logs", "output": "domino:domino_log_rotate", "category": "data_pipeline"}
+{"input": "nettoie les vieux logs", "output": "domino:domino_log_rotate", "category": "data_pipeline"}
+{"input": "archive et purge les logs", "output": "domino:domino_log_rotate", "category": "data_pipeline"}
+{"input": "rafraichis le cache", "output": "domino:domino_cache_refresh", "category": "data_pipeline"}
+{"input": "vide le cache et rebuild", "output": "domino:domino_cache_refresh", "category": "data_pipeline"}
+{"input": "rebuild le cache du systeme", "output": "domino:domino_cache_refresh", "category": "data_pipeline"}
+{"input": "lance un pomodoro", "output": "domino:domino_pomodoro", "category": "wellness_productivity"}
+{"input": "mode focus 25 minutes", "output": "domino:domino_pomodoro", "category": "wellness_productivity"}
+{"input": "timer pomodoro stp", "output": "domino:domino_pomodoro", "category": "wellness_productivity"}
+{"input": "mode concentration", "output": "domino:domino_focus_mode", "category": "wellness_productivity"}
+{"input": "active le focus zero distraction", "output": "domino:domino_focus_mode", "category": "wellness_productivity"}
+{"input": "ferme les distractions", "output": "domino:domino_focus_mode", "category": "wellness_productivity"}
+{"input": "bilan de la journee", "output": "domino:domino_session_review", "category": "wellness_productivity"}
+{"input": "resume ma session de travail", "output": "domino:domino_session_review", "category": "wellness_productivity"}
+{"input": "revue de fin de journee", "output": "domino:domino_session_review", "category": "wellness_productivity"}
+{"input": "envoie une alerte telegram", "output": "domino:domino_notif_telegram", "category": "notification_smart"}
+{"input": "notifie sur telegram urgent", "output": "domino:domino_notif_telegram", "category": "notification_smart"}
+{"input": "telegram alerte critique", "output": "domino:domino_notif_telegram", "category": "notification_smart"}
+{"input": "annonce vocale systeme", "output": "domino:domino_notif_tts_broadcast", "category": "notification_smart"}
+{"input": "broadcast vocal cluster", "output": "domino:domino_notif_tts_broadcast", "category": "notification_smart"}
+{"input": "fais une annonce a tout le monde", "output": "domino:domino_notif_tts_broadcast", "category": "notification_smart"}
+{"input": "notification sur le bureau", "output": "domino:domino_notif_desktop", "category": "notification_smart"}
+{"input": "alerte desktop toast", "output": "domino:domino_notif_desktop", "category": "notification_smart"}
+{"input": "montre une notif windows", "output": "domino:domino_notif_desktop", "category": "notification_smart"}
