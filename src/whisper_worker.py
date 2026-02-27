@@ -12,17 +12,121 @@ Uses faster-whisper with CUDA for ~4x speedup over openai-whisper.
 
 import sys
 import os
+import subprocess
+import tempfile
+import threading
 import warnings
+from pathlib import Path
 
 # Suppress noisy warnings
 warnings.filterwarnings("ignore")
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 # Force UTF-8 on Windows
-if sys.platform == "win32":
+if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
     sys.stdin.reconfigure(encoding="utf-8", errors="replace")
+
+
+class WhisperWorker:
+    """Manages a persistent whisper_worker subprocess for fast transcription.
+
+    Usage:
+        worker = WhisperWorker()
+        text = worker.transcribe(wav_bytes_or_path)
+    """
+
+    def __init__(self, model: str = "large-v3-turbo"):
+        self.model = model
+        self._proc = None
+        self._lock = threading.Lock()
+        self._ready = False
+        self._start()
+
+    def _start(self):
+        """Start the subprocess worker."""
+        turbo_root = str(Path(__file__).resolve().parent.parent)
+        env = os.environ.copy()
+        env["WHISPER_MODEL"] = self.model
+        env["PYTHONIOENCODING"] = "utf-8"
+
+        self._proc = subprocess.Popen(
+            [sys.executable, "-m", "src.whisper_worker"],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            cwd=turbo_root,
+            env=env,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+
+        # Wait for WHISPER_LOADED
+        for _ in range(120):  # 120s max startup
+            line = self._proc.stdout.readline().strip()
+            if "WHISPER_LOADED" in line:
+                self._ready = True
+                break
+            if "WHISPER_READY" in line:
+                continue
+            if self._proc.poll() is not None:
+                stderr = self._proc.stderr.read()
+                raise RuntimeError(f"Whisper subprocess died: {stderr[:500]}")
+
+        if not self._ready:
+            raise RuntimeError("Whisper subprocess did not become ready in 120s")
+
+    def transcribe(self, audio) -> str:
+        """Transcribe audio. Accepts bytes (WAV/WebM) or a file path string."""
+        with self._lock:
+            if self._proc is None or self._proc.poll() is not None:
+                self._start()
+
+            # Write audio to temp file if bytes
+            if isinstance(audio, (bytes, bytearray)):
+                suffix = ".webm" if audio[:4] == b"\x1a\x45\xdf\xa3" else ".wav"
+                tmp = tempfile.NamedTemporaryFile(suffix=suffix, delete=False)
+                tmp.write(audio)
+                tmp.close()
+                audio_path = tmp.name
+            else:
+                audio_path = str(audio)
+                tmp = None
+
+            try:
+                self._proc.stdin.write(audio_path + "\n")
+                self._proc.stdin.flush()
+
+                # Collect segments until DONE
+                full_text = ""
+                while True:
+                    line = self._proc.stdout.readline().strip()
+                    if line.startswith("DONE:"):
+                        full_text = line[5:].strip()
+                        break
+                    # SEGMENT lines are partial results
+                return full_text
+            finally:
+                if tmp:
+                    try:
+                        os.unlink(tmp.name)
+                    except OSError:
+                        pass
+
+    def close(self):
+        """Shut down the subprocess."""
+        if self._proc and self._proc.poll() is None:
+            try:
+                self._proc.stdin.write("QUIT\n")
+                self._proc.stdin.flush()
+                self._proc.wait(timeout=5)
+            except Exception:
+                self._proc.kill()
+
+    def __del__(self):
+        self.close()
 
 
 def main():
