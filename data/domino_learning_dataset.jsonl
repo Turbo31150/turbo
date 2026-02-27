@@ -5133,3 +5133,187 @@
 {"input": "Faut faire l’annonce vocale, vérifie les GPU et le cluster", "output": "domino:domino_notif_tts_broadcast", "category": "notification_smart"}
 {"input": "Déployer en securité, backup DB, config et test avant commit", "output": "domino:domino_deploy_with_backup", "category": "deploy_flow"}
 {"input": "Je veux deployer avec backup, tests obligatoires avant push", "output": "domino:domino_deploy_with_backup", "category": "deploy_flow"}
+{"input": "scan reseau", "output": "domino:domino_network_scan", "category": "network_diagnostics"}
+{"input": "analyse le reseau", "output": "domino:domino_network_scan", "category": "network_diagnostics"}
+{"input": "qui est connecte", "output": "domino:domino_network_scan", "category": "network_diagnostics"}
+{"input": "hey jarvis scan reseau", "output": "domino:domino_network_scan", "category": "network_diagnostics"}
+{"input": "est-ce que tu peux scan reseau stp", "output": "domino:domino_network_scan", "category": "network_diagnostics"}
+{"input": "scan reseau maintenant", "output": "domino:domino_network_scan", "category": "network_diagnostics"}
+{"input": "test de latence", "output": "domino:domino_network_latency", "category": "network_diagnostics"}
+{"input": "ping le cluster", "output": "domino:domino_network_latency", "category": "network_diagnostics"}
+{"input": "mesure la latence reseau", "output": "domino:domino_network_latency", "category": "network_diagnostics"}
+{"input": "hey jarvis test de latence", "output": "domino:domino_network_latency", "category": "network_diagnostics"}
+{"input": "est-ce que tu peux test de latence stp", "output": "domino:domino_network_latency", "category": "network_diagnostics"}
+{"input": "test de latence maintenant", "output": "domino:domino_network_latency", "category": "network_diagnostics"}
+{"input": "diagnostic dns", "output": "domino:domino_network_dns", "category": "network_diagnostics"}
+{"input": "verifie le dns", "output": "domino:domino_network_dns", "category": "network_diagnostics"}
+{"input": "test dns", "output": "domino:domino_network_dns", "category": "network_diagnostics"}
+{"input": "hey jarvis diagnostic dns", "output": "domino:domino_network_dns", "category": "network_diagnostics"}
+{"input": "est-ce que tu peux diagnostic dns stp", "output": "domino:domino_network_dns", "category": "network_diagnostics"}
+{"input": "diagnostic dns maintenant", "output": "domino:domino_network_dns", "category": "network_diagnostics"}
+{"input": "mode economie", "output": "domino:domino_power_eco", "category": "power_management"}
+{"input": "economise l'energie", "output": "domino:domino_power_eco", "category": "power_management"}
+{"input": "power save", "output": "domino:domino_power_eco", "category": "power_management"}
+{"input": "hey jarvis mode economie", "output": "domino:domino_power_eco", "category": "power_management"}
+{"input": "est-ce que tu peux mode economie stp", "output": "domino:domino_power_eco", "category": "power_management"}
+{"input": "mode economie maintenant", "output": "domino:domino_power_eco", "category": "power_management"}
+{"input": "puissance maximum", "output": "domino:domino_power_max", "category": "power_management"}
+{"input": "full power", "output": "domino:domino_power_max", "category": "power_management"}
+{"input": "mode performance", "output": "domino:domino_power_max", "category": "power_management"}
+{"input": "hey jarvis puissance maximum", "output": "domino:domino_power_max", "category": "power_management"}
+{"input": "est-ce que tu peux puissance maximum stp", "output": "domino:domino_power_max", "category": "power_management"}
+{"input": "puissance maximum maintenant", "output": "domino:domino_power_max", "category": "power_management"}
+{"input": "kill tous les gpu", "output": "domino:domino_emergency_gpu_kill", "category": "emergency_protocol"}
+{"input": "gpu emergency stop", "output": "domino:domino_emergency_gpu_kill", "category": "emergency_protocol"}
+{"input": "hey jarvis urgence gpu", "output": "domino:domino_emergency_gpu_kill", "category": "emergency_protocol"}
+{"input": "est-ce que tu peux urgence gpu stp", "output": "domino:domino_emergency_gpu_kill", "category": "emergency_protocol"}
+{"input": "urgence gpu maintenant", "output": "domino:domino_emergency_gpu_kill", "category": "emergency_protocol"}
+{"input": "evacuation donnees", "output": "domino:domino_emergency_backup", "category": "emergency_protocol"}
+{"input": "backup urgence", "output": "domino:domino_emergency_backup", "category": "emergency_protocol"}
+{"input": "sauvegarde d'urgence", "output": "domino:domino_emergency_backup", "category": "emergency_protocol"}
+{"input": "hey jarvis evacuation donnees", "output": "domino:domino_emergency_backup", "category": "emergency_protocol"}
+{"input": "est-ce que tu peux evacuation donnees stp", "output": "domino:domino_emergency_backup", "category": "emergency_protocol"}
+{"input": "evacuation donnees maintenant", "output": "domino:domino_emergency_backup", "category": "emergency_protocol"}
+{"input": "mode survie", "output": "domino:domino_emergency_survival", "category": "emergency_protocol"}
+{"input": "survival mode", "output": "domino:domino_emergency_survival", "category": "emergency_protocol"}
+{"input": "mode minimal", "output": "domino:domino_emergency_survival", "category": "emergency_protocol"}
+{"input": "hey jarvis mode survie", "output": "domino:domino_emergency_survival", "category": "emergency_protocol"}
+{"input": "est-ce que tu peux mode survie stp", "output": "domino:domino_emergency_survival", "category": "emergency_protocol"}
+{"input": "mode survie maintenant", "output": "domino:domino_emergency_survival", "category": "emergency_protocol"}
+{"input": "planifie ma journee", "output": "domino:domino_task_plan_day", "category": "task_scheduling"}
+{"input": "organise mon planning", "output": "domino:domino_task_plan_day", "category": "task_scheduling"}
+{"input": "plan du jour", "output": "domino:domino_task_plan_day", "category": "task_scheduling"}
+{"input": "hey jarvis planifie ma journee", "output": "domino:domino_task_plan_day", "category": "task_scheduling"}
+{"input": "est-ce que tu peux planifie ma journee stp", "output": "domino:domino_task_plan_day", "category": "task_scheduling"}
+{"input": "planifie ma journee maintenant", "output": "domino:domino_task_plan_day", "category": "task_scheduling"}
+{"input": "timer 25 minutes", "output": "domino:domino_timer_pomodoro", "category": "task_scheduling"}
+{"input": "pomodoro start", "output": "domino:domino_timer_pomodoro", "category": "task_scheduling"}
+{"input": "hey jarvis lance un pomodoro", "output": "domino:domino_timer_pomodoro", "category": "task_scheduling"}
+{"input": "est-ce que tu peux lance un pomodoro stp", "output": "domino:domino_timer_pomodoro", "category": "task_scheduling"}
+{"input": "lance un pomodoro maintenant", "output": "domino:domino_timer_pomodoro", "category": "task_scheduling"}
+{"input": "musique de concentration", "output": "domino:domino_media_focus_playlist", "category": "media_control"}
+{"input": "playlist focus", "output": "domino:domino_media_focus_playlist", "category": "media_control"}
+{"input": "mets de la musique calme", "output": "domino:domino_media_focus_playlist", "category": "media_control"}
+{"input": "hey jarvis musique de concentration", "output": "domino:domino_media_focus_playlist", "category": "media_control"}
+{"input": "est-ce que tu peux musique de concentration stp", "output": "domino:domino_media_focus_playlist", "category": "media_control"}
+{"input": "musique de concentration maintenant", "output": "domino:domino_media_focus_playlist", "category": "media_control"}
+{"input": "coupe le son", "output": "domino:domino_media_silence", "category": "media_control"}
+{"input": "silence total", "output": "domino:domino_media_silence", "category": "media_control"}
+{"input": "mute everything", "output": "domino:domino_media_silence", "category": "media_control"}
+{"input": "hey jarvis coupe le son", "output": "domino:domino_media_silence", "category": "media_control"}
+{"input": "est-ce que tu peux coupe le son stp", "output": "domino:domino_media_silence", "category": "media_control"}
+{"input": "coupe le son maintenant", "output": "domino:domino_media_silence", "category": "media_control"}
+{"input": "benchmark les modeles", "output": "domino:domino_learn_benchmark", "category": "learning_mode"}
+{"input": "teste les performances ia", "output": "domino:domino_learn_benchmark", "category": "learning_mode"}
+{"input": "evalue le cluster", "output": "domino:domino_learn_benchmark", "category": "learning_mode"}
+{"input": "hey jarvis benchmark les modeles", "output": "domino:domino_learn_benchmark", "category": "learning_mode"}
+{"input": "est-ce que tu peux benchmark les modeles stp", "output": "domino:domino_learn_benchmark", "category": "learning_mode"}
+{"input": "benchmark les modeles maintenant", "output": "domino:domino_learn_benchmark", "category": "learning_mode"}
+{"input": "statut du training", "output": "domino:domino_learn_train_status", "category": "learning_mode"}
+{"input": "ou en est l'entrainement", "output": "domino:domino_learn_train_status", "category": "learning_mode"}
+{"input": "progression apprentissage", "output": "domino:domino_learn_train_status", "category": "learning_mode"}
+{"input": "hey jarvis statut du training", "output": "domino:domino_learn_train_status", "category": "learning_mode"}
+{"input": "est-ce que tu peux statut du training stp", "output": "domino:domino_learn_train_status", "category": "learning_mode"}
+{"input": "statut du training maintenant", "output": "domino:domino_learn_train_status", "category": "learning_mode"}
+{"input": "prepare la reunion", "output": "domino:domino_meeting_prep", "category": "meeting_assistant"}
+{"input": "meeting prep", "output": "domino:domino_meeting_prep", "category": "meeting_assistant"}
+{"input": "briefing avant reunion", "output": "domino:domino_meeting_prep", "category": "meeting_assistant"}
+{"input": "hey jarvis prepare la reunion", "output": "domino:domino_meeting_prep", "category": "meeting_assistant"}
+{"input": "est-ce que tu peux prepare la reunion stp", "output": "domino:domino_meeting_prep", "category": "meeting_assistant"}
+{"input": "prepare la reunion maintenant", "output": "domino:domino_meeting_prep", "category": "meeting_assistant"}
+{"input": "prends des notes", "output": "domino:domino_meeting_notes", "category": "meeting_assistant"}
+{"input": "compte rendu reunion", "output": "domino:domino_meeting_notes", "category": "meeting_assistant"}
+{"input": "notes de meeting", "output": "domino:domino_meeting_notes", "category": "meeting_assistant"}
+{"input": "hey jarvis prends des notes", "output": "domino:domino_meeting_notes", "category": "meeting_assistant"}
+{"input": "est-ce que tu peux prends des notes stp", "output": "domino:domino_meeting_notes", "category": "meeting_assistant"}
+{"input": "prends des notes maintenant", "output": "domino:domino_meeting_notes", "category": "meeting_assistant"}
+{"input": "profil travail", "output": "domino:domino_profile_work", "category": "voice_profiles"}
+{"input": "mode productif", "output": "domino:domino_profile_work", "category": "voice_profiles"}
+{"input": "active le profil boulot", "output": "domino:domino_profile_work", "category": "voice_profiles"}
+{"input": "hey jarvis profil travail", "output": "domino:domino_profile_work", "category": "voice_profiles"}
+{"input": "est-ce que tu peux profil travail stp", "output": "domino:domino_profile_work", "category": "voice_profiles"}
+{"input": "profil travail maintenant", "output": "domino:domino_profile_work", "category": "voice_profiles"}
+{"input": "profil detente", "output": "domino:domino_profile_relax", "category": "voice_profiles"}
+{"input": "mode relax", "output": "domino:domino_profile_relax", "category": "voice_profiles"}
+{"input": "active le profil chill", "output": "domino:domino_profile_relax", "category": "voice_profiles"}
+{"input": "hey jarvis profil detente", "output": "domino:domino_profile_relax", "category": "voice_profiles"}
+{"input": "est-ce que tu peux profil detente stp", "output": "domino:domino_profile_relax", "category": "voice_profiles"}
+{"input": "profil detente maintenant", "output": "domino:domino_profile_relax", "category": "voice_profiles"}
+{"input": "scaffold un projet", "output": "domino:domino_code_scaffold", "category": "code_generation"}
+{"input": "cree un nouveau projet", "output": "domino:domino_code_scaffold", "category": "code_generation"}
+{"input": "initialise un repo", "output": "domino:domino_code_scaffold", "category": "code_generation"}
+{"input": "hey jarvis scaffold un projet", "output": "domino:domino_code_scaffold", "category": "code_generation"}
+{"input": "est-ce que tu peux scaffold un projet stp", "output": "domino:domino_code_scaffold", "category": "code_generation"}
+{"input": "scaffold un projet maintenant", "output": "domino:domino_code_scaffold", "category": "code_generation"}
+{"input": "revue de code", "output": "domino:domino_code_review_auto", "category": "code_generation"}
+{"input": "review le code", "output": "domino:domino_code_review_auto", "category": "code_generation"}
+{"input": "analyse le code recent", "output": "domino:domino_code_review_auto", "category": "code_generation"}
+{"input": "hey jarvis revue de code", "output": "domino:domino_code_review_auto", "category": "code_generation"}
+{"input": "est-ce que tu peux revue de code stp", "output": "domino:domino_code_review_auto", "category": "code_generation"}
+{"input": "revue de code maintenant", "output": "domino:domino_code_review_auto", "category": "code_generation"}
+{"input": "je vérifie le cluster et le GPU, et je fais un annonce vocale pour le TTS", "output": "domino:domino_notif_tts_broadcast", "category": "notification_smart"}
+{"input": "je me suis mise en mode café de développement avec VSCode, git et musique", "output": "domino:domino_cafe_code", "category": "routine_matin"}
+{"input": "je supervise tout le système : CPU, RAM, disque, GPU et cluster", "output": "domino:domino_monitor_system_full", "category": "monitoring_alert"}
+{"input": "je vais effectuer un scan complet sur le marché en trading", "output": "domino:domino_trading_full_scan", "category": "trading_cascade"}
+{"input": "je construis une notification pour Windows et je l'affiche vocal", "output": "domino:domino_notif_desktop", "category": "notification_smart"}
+{"input": "je dois vérifier le cluster et le GPU pour le TTS", "output": "domino:domino_notif_tts_broadcast", "category": "notification_smart"}
+{"input": "je m'active en mode café de développement avec VSCode, git et musique", "output": "domino:domino_cafe_code", "category": "routine_matin"}
+{"input": "Bonjour Jarvis, peux-tu me vérifier le profil detente ?", "output": "domino:domino_profile_relax", "category": "unknown"}
+{"input": "Il fait un peu froid ce matin, est-ce que tu peux me donner un briefing matinal ?", "output": "domino:domino_matin_complet", "category": "unknown"}
+{"input": "Je veux faire un déploiement sécurisé, peux-tu me guider ?", "output": "domino:domino_deploy_with_backup", "category": "unknown"}
+{"input": "Tu peux me dire rapidement ce que je peux sauvegarder ?", "output": "domino:domino_backup_quick", "category": "unknown"}
+{"input": "Je dois partager un modèle avec le cluster, comment le faire ?", "output": "domino:domino_collab_share_model", "category": "unknown"}
+{"input": "Je dois vérifier la température, peux-tu me faire un profil detente ?", "output": "domino:domino_profile_relax", "category": "unknown"}
+{"input": "Est-ce que tu peux m'expliquer comment faire un déploiement sécurisé ?", "output": "domino:domino_deploy_with_backup", "category": "unknown"}
+{"input": "Je veux sauvegarder justement l'etoile.db, comment le faire ?", "output": "domino:domino_backup_quick", "category": "unknown"}
+{"input": "Tu peux me dire comment partager un modèle avec le cluster ?", "output": "domino:domino_collab_share_model", "category": "unknown"}
+{"input": "Je dois vérifier les paramètres du cluster, peux-tu me faire un briefing matinal ?", "output": "domino:domino_matin_complet", "category": "unknown"}
+{"input": "bonjour, je vais faire un audit de sécurité complet pour domino", "output": "domino:domino_security_full", "category": "security_sweep"}
+{"input": "je vais tester le pomodoro pour me concentrer", "output": "domino:domino_pomodoro", "category": "wellness_productivity"}
+{"input": "je vais scaffolder un nouveau projet", "output": "domino:domino_code_scaffold", "category": "code_generation"}
+{"input": "je vais exécuter un signal de trading", "output": "domino:domino_trading_execute", "category": "trading_cascade"}
+{"input": "je vais vérifier les clés API", "output": "domino:domino_security_keys", "category": "security_sweep"}
+{"input": "je vais faire un pomodoro pour me concentrer", "output": "domino:domino_pomodoro", "category": "wellness_productivity"}
+{"input": "je vais scaffold un projet pour commencer", "output": "domino:domino_code_scaffold", "category": "code_generation"}
+{"input": "je vais executer un ordre de trading", "output": "domino:domino_trading_execute", "category": "trading_cascade"}
+{"input": "je vais checker les cles api pour le projet", "output": "domino:domino_security_keys", "category": "security_sweep"}
+{"input": "je vais faire un pause pour me reposer", "output": "domino:domino_pomodoro", "category": "wellness_productivity"}
+{"input": "coupe tout le son bordel", "output": "domino:domino_media_silence", "category": "media_control"}
+{"input": "tac tac silence total", "output": "domino:domino_media_silence", "category": "media_control"}
+{"input": "chut putain de bruit", "output": "domino:domino_media_silence", "category": "media_control"}
+{"input": "bonjour weekend t'es disponible ?", "output": "domino:domino_matin_weekend", "category": "routine_matin"}
+{"input": "matin tranquille c'est pas chiant", "output": "domino:domino_matin_weekend", "category": "routine_matin"}
+{"input": "benchmark automatique maintenant", "output": "domino:domino_auto_benchmark", "category": "ai_orchestration"}
+{"input": "teste tous les noeuds bordel", "output": "domino:domino_auto_benchmark", "category": "ai_orchestration"}
+{"input": "push commit test status", "output": "domino:domino_deploy_standard", "category": "deploy_flow"}
+{"input": "check alertes logs et disque", "output": "domino:domino_monitor_alerts_check", "category": "monitoring_alert"}
+{"input": "Bonsoir, je vais faire un rollback du dernier commit et le push", "output": "domino:domino_deploy_rollback", "category": "deploy_flow"}
+{"input": "On va vérifier le drawdown aujourd'hui et évaluer les pertes possibles", "output": "domino:domino_trading_drawdown_alert", "category": "trading_cascade"}
+{"input": "Je suis en mode eco pour voir si on peut réduire la consommation d'énergie des GPU", "output": "domino:domino_power_eco", "category": "power_management"}
+{"input": "On va faire un audit des permissions sur les fichiers sensibles", "output": "domino:domino_security_permissions", "category": "security_sweep"}
+{"input": "Il semble que le GPU a un problème de température, on va debugger ça", "output": "domino:domino_debug_gpu_thermal", "category": "debug_cascade"}
+{"input": "J'annule le dernier deploy et je recommence", "output": "domino:domino_deploy_rollback", "category": "deploy_flow"}
+{"input": "On doit surveiller les pertes, c'est important pour le trading", "output": "domino:domino_trading_drawdown_alert", "category": "trading_cascade"}
+{"input": "Je passe en mode économie sur les GPU pour épargner de l'électricité", "output": "domino:domino_power_eco", "category": "power_management"}
+{"input": "Il faut vérifier que personne n'a accès à des fichiers critiques sans raison", "output": "domino:domino_security_permissions", "category": "security_sweep"}
+{"input": "Le GPU a une température élevée, on va debugger ça pour pas qu'il crash", "output": "domino:domino_debug_gpu_thermal", "category": "debug_cascade"}
+{"input": "Je reverrai le dernier commit et je push si c'est nécessaire", "output": "domino:domino_deploy_rollback", "category": "deploy_flow"}
+{"input": "j'voudrais deploie mon code en standard, faut que le status soit bon et que les tests passent avant de push dans la prod", "output": "domino:domino_deploy_standard", "category": "deploy_flow"}
+{"input": "il faudrait faire un deploy standard maintenant, check le status, run les tests, commit et push comme d'habitude", "output": "domino:domino_deploy_standard", "category": "deploy_flow"}
+{"input": "je lance un deploy normal, j'attends que tout soit ok, puis je fais les tests, après je commit et je push dans la version de prod", "output": "domino:domino_deploy_standard", "category": "deploy_flow"}
+{"input": "faudrait checker le status du deploy, faire les tests, commit et push comme c'est toujours fait pour le standard", "output": "domino:domino_deploy_standard", "category": "deploy_flow"}
+{"input": "j'ai besoin d'un deploy standard, check status, run tests, commit, push dans la prod, tout comme d'habitude", "output": "domino:domino_deploy_standard", "category": "deploy_flow"}
+{"input": "je fais un benchmark rapide du systeme, j'check CPU, RAM, GPU et IO pour voir si c'est bon", "output": "domino:domino_monitor_performance", "category": "monitoring_alert"}
+{"input": "j'veux faire un test de performance du serveur, check CPU, RAM, GPU et les entrées/sorties, pas besoin de trop d'attente", "output": "domino:domino_monitor_performance", "category": "monitoring_alert"}
+{"input": "il faut bench le systeme vite, j'check si CPU, RAM, GPU et IO sont corrects pour le moment", "output": "domino:domino_monitor_performance", "category": "monitoring_alert"}
+{"input": "faut faire un benchmark rapide du systeme, j'check CPU, RAM, GPU et IO pour voir si tout va bien", "output": "domino:domino_monitor_performance", "category": "monitoring_alert"}
+{"input": "Bonjour, je dois effectuer un audit complet de sécurité sur le système. Je vérifie les ports, le firewall, le .env et les processus suspects. Cela est urgent.", "output": "domino:domino_security_full", "category": "unknown"}
+{"input": "Je dois faire un broadcast vocal pour vérifier le cluster et le GPU. Il faut que les annonces soient claires et précises.", "output": "domino:domino_notif_tts_broadcast", "category": "unknown"}
+{"input": "Je vais monter un monitoring complet pour surveiller le CPU, la RAM, le disque, le GPU et le cluster. C’est un suivi constant.", "output": "domino:domino_monitor_system_full", "category": "unknown"}
+{"input": "Je dois effectuer un backup rapide pour sauvegarder seulement l'ensemble des données de base de données. Il faut qu'il soit rapide et fiable.", "output": "domino:domino_backup_quick", "category": "unknown"}
+{"input": "Je dois analyser le consensus des nœuds M1, M2 et OL1. Je veux un vote pondéré et une synthèse des informations.", "output": "domino:domino_consensus_smart", "category": "unknown"}
+{"input": "Je veux vérifier mes droits sur ces fichiers sensibles, pouvez-vous auditer les permissions ACL pour moi ?", "output": "domino:domino_security_permissions", "category": "unknown"}
+{"input": "Voulez-vous me construire une alerte desktop en tant que notification avec confirmation vocale ?", "output": "domino:domino_notif_desktop", "category": "unknown"}
+{"input": "Puis-je savoir si vos outils peuvent analyser la santé de mes disques en utilisant le SMART et les latences d'IO ?", "output": "domino:domino_predict_disk_health", "category": "unknown"}
+{"input": "Doit-on arreter le streaming maintenant ? Si oui, veuillez sauvegarder les informations de la VOD pour moi.", "output": "domino:domino_stream_stop", "category": "unknown"}
+{"input": "Pouvez-vous me résumer ma session précédente et me donner des statistiques de commits, utilisation GPU et bilan vocal ?", "output": "domino:domino_session_review", "category": "unknown"}
