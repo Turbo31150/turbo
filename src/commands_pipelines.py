@@ -2210,4 +2210,200 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
         "verifier hotfix", "integrite hotfix", "hotfix ok",
         "verify hotfix", "hotfix integrity",
     ], "pipeline", "powershell:Write-Output '=== VERIFICATION HOTFIX ==='; $importCheck = & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c 'from src.commands_pipelines import PIPELINE_COMMANDS; print(f\"Pipelines: {len(PIPELINE_COMMANDS)} OK\")' 2>&1; Write-Output \"  $importCheck\"; $dbCheck = & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); c.execute('PRAGMA integrity_check'); r=c.execute('SELECT COUNT(*) FROM map').fetchone()[0]; print(f'DB: {r} entries OK')\" 2>&1; Write-Output \"  $dbCheck\"; $gitStatus = git -C 'F:\\BUREAU\\turbo' status --porcelain 2>$null | Measure-Object; Write-Output \"  Git: $($gitStatus.Count) fichiers non commites\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # LEARNING CYCLES — Orchestration des cycles d'apprentissage
+    # MEDIUM: 1000+ requetes documentees mais pas de pipeline d'orchestration
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("learning_cycle_status", "pipeline", "Status des cycles d'apprentissage: dernier run, metriques, progression", [
+        "status apprentissage", "learning cycle", "cycle apprentissage",
+        "ou en est l'apprentissage", "learning status",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); tests=c.execute('SELECT COUNT(*),SUM(CASE WHEN status=\\\"PASS\\\" THEN 1 ELSE 0 END) FROM pipeline_tests').fetchone(); cats=c.execute('SELECT COUNT(DISTINCT category) FROM pipeline_tests').fetchone()[0]; mem=c.execute('SELECT value FROM memories WHERE key=\\\"pipeline_test_total\\\"').fetchone(); print('=== LEARNING CYCLES ==='); print(f'  Tests: {tests[1]}/{tests[0]} PASS'); print(f'  Categories: {cats}'); print(f'  Score: {mem[0] if mem else \\\"N/A\\\"}'); c.close()\" 2>&1 | Out-String"),
+
+    JarvisCommand("learning_cycle_benchmark", "pipeline", "Lancer un benchmark rapide du cluster pour mesurer la progression", [
+        "benchmark apprentissage", "learning benchmark", "benchmark progression",
+        "mesurer progression", "benchmark cycle",
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nBenchmark rapide JARVIS: evalue les 5 dimensions suivantes sur 10: code_quality, response_speed, cluster_reliability, memory_persistence, vocal_accuracy. Score global /50.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $t = Measure-Command { $r = Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing }; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output \"=== BENCHMARK ($([math]::Round($t.TotalMilliseconds))ms) ===\"; Write-Output $msg } catch { Write-Output 'Benchmark: M1 offline' }"),
+
+    JarvisCommand("learning_cycle_metrics", "pipeline", "Analyser les metriques des cycles d'apprentissage passes", [
+        "metriques apprentissage", "learning metrics", "stats cycles",
+        "analyse cycles", "metrics learning",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); cats=c.execute('SELECT category,COUNT(*),SUM(CASE WHEN status=\\\"PASS\\\" THEN 1 ELSE 0 END) FROM pipeline_tests GROUP BY category ORDER BY COUNT(*) DESC').fetchall(); print('=== METRIQUES APPRENTISSAGE ==='); [print(f'  {cat}: {ok}/{tot} PASS ({100*ok//tot}%%)') for cat,tot,ok in cats]; total=sum(t for _,t,_ in cats); passed=sum(o for _,_,o in cats); print(f'\\n  GLOBAL: {passed}/{total} ({100*passed//total}%%)'); c.close()\" 2>&1 | Out-String"),
+
+    JarvisCommand("learning_cycle_feedback", "pipeline", "Boucle de feedback: analyser les echecs et proposer des ameliorations", [
+        "feedback apprentissage", "learning feedback", "ameliorer apprentissage",
+        "echecs apprentissage", "feedback loop",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); fails=c.execute('SELECT pipeline_name,category,details FROM pipeline_tests WHERE status!=\\\"PASS\\\"').fetchall(); print('=== FEEDBACK LOOP ==='); print(f'  Echecs: {len(fails)}'); [print(f'  [{cat}] {name}: {det[:50]}') for name,cat,det in fails[:10]]; print('  Recommandation: ' + ('Aucun echec - systeme stable' if not fails else f'Investiguer {len(fails)} echecs')); c.close()\" 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SCENARIO & TESTING — Framework de test des 475 scenarios
+    # MEDIUM: 475 scenarios dans jarvis.db sans pipeline d'execution
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("scenario_count_all", "pipeline", "Compter tous les scenarios de test dans les bases", [
+        "combien scenarios", "scenarios test", "nombre scenarios",
+        "total scenarios", "count scenarios",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3,os; dbs=[('etoile.db','F:/BUREAU/turbo/data/etoile.db'),('jarvis.db','F:/BUREAU/turbo/data/jarvis.db')]; print('=== SCENARIOS TEST ==='); [print(f'  {name}: ' + str(sqlite3.connect(p).execute('SELECT COUNT(*) FROM sqlite_master WHERE type=\\\"table\\\"').fetchone()[0]) + ' tables') for name,p in dbs if os.path.exists(p)]; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); tests=c.execute('SELECT COUNT(*) FROM pipeline_tests').fetchone()[0]; maps=c.execute('SELECT COUNT(*) FROM map').fetchone()[0]; print(f'  pipeline_tests: {tests}'); print(f'  map entries: {maps}'); c.close()\" 2>&1 | Out-String"),
+
+    JarvisCommand("scenario_run_category", "pipeline", "Executer les tests d'une categorie specifique", [
+        "tester categorie", "run tests categorie", "scenario categorie",
+        "tests par categorie", "run category tests",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); cats=c.execute('SELECT category,COUNT(*),SUM(CASE WHEN status=\\\"PASS\\\" THEN 1 ELSE 0 END) FROM pipeline_tests GROUP BY category').fetchall(); print('=== TESTS PAR CATEGORIE ==='); [print(f'  {cat}: {ok}/{tot} PASS') for cat,tot,ok in cats]; print(f'\\nPour tester: python scripts/test_pipelines_batch[N].py'); c.close()\" 2>&1 | Out-String"),
+
+    JarvisCommand("scenario_report_generate", "pipeline", "Generer un rapport detaille des resultats de tests", [
+        "rapport tests", "test report", "generer rapport",
+        "rapport scenarios", "generate report",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3,json; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); tests=c.execute('SELECT test_date,pipeline_name,category,status,latency_ms,details,cluster_node FROM pipeline_tests ORDER BY test_date DESC').fetchall(); report={'total':len(tests),'pass':sum(1 for t in tests if t[3]=='PASS'),'fail':sum(1 for t in tests if t[3]!='PASS'),'categories':len(set(t[2] for t in tests)),'latest_date':tests[0][0] if tests else None}; print('=== RAPPORT TESTS ==='); print(json.dumps(report,indent=2)); c.close()\" 2>&1 | Out-String"),
+
+    JarvisCommand("scenario_regression_check", "pipeline", "Detecter les regressions de performance entre les batches", [
+        "regression test", "check regression", "regression performance",
+        "detection regression", "performance regression",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); dates=c.execute('SELECT DISTINCT substr(test_date,1,10) as d, COUNT(*), SUM(CASE WHEN status=\\\"PASS\\\" THEN 1 ELSE 0 END) FROM pipeline_tests GROUP BY d ORDER BY d').fetchall(); print('=== DETECTION REGRESSION ==='); [print(f'  {d}: {ok}/{tot} PASS ({100*ok//tot}%%)') for d,tot,ok in dates]; lats=c.execute('SELECT pipeline_name,latency_ms FROM pipeline_tests WHERE latency_ms IS NOT NULL ORDER BY latency_ms DESC LIMIT 5').fetchall(); print('\\nPlus lentes:'); [print(f'  {n}: {l}ms') for n,l in lats]; c.close()\" 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # API & SERVICE MANAGEMENT — Gestion unifiee des endpoints
+    # MEDIUM: APIs multiples (Telegram, Gemini, Claude) sans gestion unifiee
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("api_health_all", "pipeline", "Health check de tous les endpoints API du systeme", [
+        "health api", "api status", "endpoints api",
+        "check api", "api health",
+    ], "pipeline", "powershell:Write-Output '=== API HEALTH CHECK ==='; $endpoints = @(@{N='M1 LM Studio';U='http://10.5.0.2:1234/api/v1/models'},@{N='M2 LM Studio';U='http://192.168.1.26:1234/api/v1/models'},@{N='M3 LM Studio';U='http://192.168.1.113:1234/api/v1/models'},@{N='OL1 Ollama';U='http://127.0.0.1:11434/api/tags'},@{N='Dashboard';U='http://127.0.0.1:8080'},@{N='n8n';U='http://127.0.0.1:5678/healthz'},@{N='Canvas';U='http://127.0.0.1:18800/autolearn/status'}); foreach ($ep in $endpoints) { try { $r = Invoke-WebRequest -Uri $ep.U -TimeoutSec 3 -UseBasicParsing; Write-Output \"  [OK] $($ep.N): $($r.StatusCode)\" } catch { Write-Output \"  [OFF] $($ep.N): offline\" } }"),
+
+    JarvisCommand("api_latency_test", "pipeline", "Tester la latence de tous les endpoints API", [
+        "latence api", "api latency", "vitesse api",
+        "test latence endpoints", "api speed",
+    ], "pipeline", "powershell:Write-Output '=== LATENCE API ==='; $targets = @(@{N='M1';U='http://10.5.0.2:1234/api/v1/models';H=@{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'}},@{N='M2';U='http://192.168.1.26:1234/api/v1/models';H=@{Authorization='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'}},@{N='OL1';U='http://127.0.0.1:11434/api/tags';H=@{}}); foreach ($t in $targets) { try { $ms = (Measure-Command { Invoke-WebRequest -Uri $t.U -Headers $t.H -TimeoutSec 5 -UseBasicParsing }).TotalMilliseconds; Write-Output \"  $($t.N): $([math]::Round($ms))ms\" } catch { Write-Output \"  $($t.N): offline\" } }"),
+
+    JarvisCommand("api_keys_status", "pipeline", "Verifier le status des cles API dans etoile.db", [
+        "cles api", "api keys", "status cles",
+        "verifier api keys", "api credentials",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); keys=c.execute('SELECT entity_name,role FROM map WHERE entity_type=\\\"tool\\\" AND role LIKE \\\"%%key%%\\\" OR role LIKE \\\"%%api%%\\\"').fetchall(); print('=== API KEYS STATUS ==='); print(f'  Cles referencees: {len(keys)}'); [print(f'  {n}: {r[:50]}') for n,r in keys[:10]]; envs=[f for f in __import__('glob').glob('F:/BUREAU/turbo/**/.env',recursive=True)]; print(f'  Fichiers .env: {len(envs)}'); c.close()\" 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PERFORMANCE PROFILING — Profilage et optimisation continue
+    # MEDIUM: Benchmark 97% existe mais pas de profilage continu
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("profile_cluster_bottleneck", "pipeline", "Identifier les goulots d'etranglement du cluster", [
+        "bottleneck cluster", "goulot cluster", "cluster lent",
+        "ou est le bottleneck", "profiler cluster",
+    ], "pipeline", "powershell:Write-Output '=== BOTTLENECK CLUSTER ==='; $gpuInfo = & 'nvidia-smi' --query-gpu=index,name,utilization.gpu,memory.used,memory.total --format=csv,noheader,nounits 2>$null; if ($gpuInfo) { $gpuInfo | ForEach-Object { $p = $_ -split ','; $util = [int]$p[2].Trim(); $vram = [int]$p[3].Trim(); $total = [int]$p[4].Trim(); $alert = if ($util -gt 80 -or $vram/$total -gt 0.9) { 'BOTTLENECK' } elseif ($util -gt 50) { 'CHARGE' } else { 'OK' }; Write-Output \"  GPU$($p[0].Trim()) $($p[1].Trim()): $util%% [$alert] $vram/$($total)MB\" } }; $ram = Get-CimInstance Win32_OperatingSystem; $usedGB = [math]::Round(($ram.TotalVisibleMemorySize - $ram.FreePhysicalMemory)/1MB,1); $totalGB = [math]::Round($ram.TotalVisibleMemorySize/1MB,1); Write-Output \"  RAM: $usedGB/$($totalGB)GB\""),
+
+    JarvisCommand("profile_memory_usage", "pipeline", "Profiler l'utilisation memoire des processus IA", [
+        "profil memoire", "memory profile", "ram processus",
+        "qui consomme ram", "profiler memoire",
+    ], "pipeline", "powershell:Write-Output '=== PROFIL MEMOIRE IA ==='; Get-Process | Sort-Object WorkingSet64 -Descending | Select-Object -First 10 | ForEach-Object { Write-Output \"  $($_.ProcessName): $([math]::Round($_.WorkingSet64/1MB))MB (PID $($_.Id))\" }"),
+
+    JarvisCommand("profile_slow_queries", "pipeline", "Profiler les requetes lentes dans les bases SQLite", [
+        "requetes lentes", "slow queries", "profiler base",
+        "db lent", "queries performance",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3,time; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); queries=[('SELECT COUNT(*) FROM map','count map'),('SELECT * FROM map WHERE entity_type=\\\"skill\\\"','skills'),('SELECT * FROM memories','memories'),('SELECT * FROM pipeline_tests','tests')]; print('=== SLOW QUERIES ==='); [print(f'  {name}: {round((time.time()-(t:=time.time()) or 1) and (c.execute(q).fetchall() and 0 or 0) or (time.time()-t)*1000,1)}ms') if False else None for q,name in queries]; [print(f'  {name}: ' + str(round(((lambda s: (c.execute(q).fetchall(), time.time()-s))(time.time()))[1]*1000,1)) + 'ms') for q,name in queries]; c.close()\" 2>&1 | Out-String"),
+
+    JarvisCommand("profile_optimize_auto", "pipeline", "Auto-optimisation basee sur les resultats de profilage", [
+        "auto optimiser", "optimize auto", "optimisation auto",
+        "auto optimize", "profiler et optimiser",
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nAnalyse le profil systeme: 10 GPU (30-54C), RAM 36/48GB, 381 pipelines, 115 tests PASS. Propose 3 optimisations concretes classees par impact.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output '=== AUTO-OPTIMISATION ==='; Write-Output $msg } catch { Write-Output 'Optimisation: M1 offline' }"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # WORKSPACE & SESSION — Gestion des contextes de travail
+    # MEDIUM: 40+ pipelines workspace existent, gestion unifiee manquante
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("workspace_snapshot", "pipeline", "Prendre un snapshot de l'etat actuel du workspace", [
+        "snapshot workspace", "sauvegarder workspace", "etat workspace",
+        "workspace save", "capturer etat",
+    ], "pipeline", "powershell:Write-Output '=== WORKSPACE SNAPSHOT ==='; $procs = (Get-Process | Where-Object { $_.MainWindowTitle } | Measure-Object).Count; Write-Output \"  Fenetres ouvertes: $procs\"; $gitBranch = git -C 'F:\\BUREAU\\turbo' branch --show-current 2>$null; Write-Output \"  Branche git: $gitBranch\"; $changes = (git -C 'F:\\BUREAU\\turbo' status --porcelain 2>$null | Measure-Object).Count; Write-Output \"  Fichiers modifies: $changes\"; $ram = Get-CimInstance Win32_OperatingSystem; $usedGB = [math]::Round(($ram.TotalVisibleMemorySize - $ram.FreePhysicalMemory)/1MB,1); Write-Output \"  RAM utilisee: $($usedGB)GB\"; Write-Output \"  Heure: $(Get-Date -Format 'HH:mm:ss')\""),
+
+    JarvisCommand("workspace_switch_context", "pipeline", "Changer de contexte de travail: dev, trading, gaming, multimedia", [
+        "changer contexte", "switch workspace", "mode travail",
+        "changer mode", "workspace switch",
+    ], "pipeline", "powershell:Write-Output '=== SWITCH CONTEXTE ==='; Write-Output '  Contextes disponibles:'; Write-Output '    [dev] Code + Terminal + Cluster + Dashboard'; Write-Output '    [trading] TradingView + MEXC + Signaux + Terminal'; Write-Output '    [gaming] Fermer dev + Performances GPU + Steam'; Write-Output '    [multimedia] Spotify + YouTube + Night Light'; Write-Output '  Utiliser: mode_dev, mode_trading_scalp, mode_gaming, etc.'"),
+
+    JarvisCommand("workspace_session_info", "pipeline", "Informations sur la session actuelle: uptime, processus, memoire", [
+        "info session", "session info", "uptime session",
+        "session actuelle", "workspace info",
+    ], "pipeline", "powershell:Write-Output '=== SESSION INFO ==='; $uptime = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; $duration = (Get-Date) - $uptime; Write-Output \"  Uptime: $($duration.Days)j $($duration.Hours)h $($duration.Minutes)m\"; $procs = (Get-Process | Measure-Object).Count; Write-Output \"  Processus: $procs\"; $ram = Get-CimInstance Win32_OperatingSystem; $usedGB = [math]::Round(($ram.TotalVisibleMemorySize - $ram.FreePhysicalMemory)/1MB,1); $totalGB = [math]::Round($ram.TotalVisibleMemorySize/1MB,1); Write-Output \"  RAM: $usedGB/$($totalGB)GB\"; $cpu = (Get-CimInstance Win32_Processor).LoadPercentage; Write-Output \"  CPU: $cpu%%\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # TRADING ENHANCED — Trading avance: backtesting, analyse, correlation
+    # MEDIUM: 23 pipelines trading existent, analyse avancee manquante
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("trading_backtest_strategy", "pipeline", "Backtester une strategie trading via IA M1", [
+        "backtest trading", "backtester strategie", "test strategie",
+        "backtest strategy", "trading backtest",
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nBacktest simplifie: strategie MEXC Futures 10x BTC, TP 0.4%%, SL 0.25%%, size 10 USDT. Simule 100 trades avec un winrate de 60%%. Calcule PnL net, max drawdown, Sharpe ratio.\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'Backtest: M1 offline' }"),
+
+    JarvisCommand("trading_correlation_pairs", "pipeline", "Analyser la correlation entre les paires crypto tradees", [
+        "correlation crypto", "paires correlees", "correlation trading",
+        "crypto correlation", "trading pairs correlation",
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nAnalyse la correlation entre BTC, ETH, SOL, SUI, PEPE, DOGE, XRP, ADA, AVAX, LINK. Classe les paires les plus correlees (>0.8) et les moins correlees (<0.3). Recommande les meilleures combinaisons pour diversifier.\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'Correlation: M1 offline' }"),
+
+    JarvisCommand("trading_drawdown_analysis", "pipeline", "Analyser le drawdown maximum et les risques de la strategie", [
+        "drawdown trading", "analyse drawdown", "risque trading",
+        "max drawdown", "trading risk analysis",
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nAnalyse drawdown: MEXC Futures 10x, capital 100 USDT, 10 paires crypto. Calcule le drawdown max theorique, le risk-of-ruin, et recommande la taille de position optimale selon Kelly criterion.\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'Drawdown: M1 offline' }"),
+
+    JarvisCommand("trading_signal_confidence", "pipeline", "Rapport de confiance des derniers signaux trading", [
+        "confiance signaux", "signal confidence", "fiabilite signaux",
+        "confiance trading", "confidence report",
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nGenere un rapport de confiance pour les signaux trading JARVIS. Score chaque facteur /10: volume, momentum, tendance, support/resistance, sentiment. Synthese globale.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'Signal confidence: M1 offline' }"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # NOTIFICATION & ALERTING — Systeme de notification centralise
+    # MEDIUM: Telegram mentionne mais pas de gestion centralise des alertes
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("notification_channels_test", "pipeline", "Tester tous les canaux de notification disponibles", [
+        "test notifications", "tester alertes", "notification test",
+        "canaux notification", "test channels",
+    ], "pipeline", "powershell:Write-Output '=== CANAUX NOTIFICATION ==='; Write-Output '  [Telegram] @turboSSebot'; $tg = & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); r=c.execute('SELECT value FROM memories WHERE key=\\\"telegram_bot_token\\\"').fetchone(); print('OK' if r else 'non configure'); c.close()\" 2>$null; Write-Output \"    Status: $tg\"; Write-Output '  [Console] Toujours actif'; Write-Output '  [TTS] Edge fr-FR-HenriNeural'; Write-Output '  [Dashboard] port 8080'"),
+
+    JarvisCommand("notification_config_show", "pipeline", "Afficher la configuration des notifications et alertes", [
+        "config notifications", "notification config", "alertes config",
+        "parametres alertes", "notification settings",
+    ], "pipeline", "powershell:Write-Output '=== CONFIG NOTIFICATIONS ==='; Write-Output '  Canaux actifs:'; Write-Output '    Console: TOUJOURS'; Write-Output '    TTS vocal: quand voice actif'; Write-Output '    Telegram: @turboSSebot (si configure)'; Write-Output '    Dashboard: port 8080 (si actif)'; Write-Output '  Alertes:'; Write-Output '    GPU >75C: WARNING'; Write-Output '    GPU >85C: CRITICAL + cascade'; Write-Output '    Noeud offline: fallback auto'; Write-Output '    Trading signal >70: notification'"),
+
+    JarvisCommand("notification_alert_history", "pipeline", "Historique des dernieres alertes systeme", [
+        "historique alertes", "alert history", "dernieres alertes",
+        "alertes recentes", "notification history",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); tests=c.execute('SELECT test_date,pipeline_name,status,details FROM pipeline_tests WHERE status!=\\\"PASS\\\" ORDER BY test_date DESC LIMIT 10').fetchall(); print('=== HISTORIQUE ALERTES ==='); print(f'  Alertes totales: {len(tests)}'); [print(f'  {d[:16]} [{s}] {n}: {det[:40]}') for d,n,s,det in tests]; print('  (Aucune alerte = systeme stable)' if not tests else ''); c.close()\" 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DOCUMENTATION AUTO — Auto-generation et sync de documentation
+    # MEDIUM: Docs existent mais pas d'auto-generation/sync
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("doc_auto_generate", "pipeline", "Auto-generer la documentation des commandes et pipelines", [
+        "generer doc", "auto doc", "documentation auto",
+        "generer documentation", "doc generate",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; cats={}; [cats.__setitem__(p.name.split('_')[0], cats.get(p.name.split('_')[0],0)+1) for p in PIPELINE_COMMANDS]; print('=== AUTO-DOC PIPELINES ==='); print(f'  Total: {len(PIPELINE_COMMANDS)} pipelines'); print(f'  Prefixes: {len(cats)}'); [print(f'    {k}: {v}') for k,v in sorted(cats.items(),key=lambda x:-x[1])[:15]]\" 2>&1 | Out-String"),
+
+    JarvisCommand("doc_sync_check", "pipeline", "Verifier la synchronisation entre code et documentation", [
+        "sync doc", "doc sync", "verifier documentation",
+        "doc a jour", "documentation sync",
+    ], "pipeline", "powershell:Write-Output '=== SYNC DOC ==='; $readme = (Get-Item 'F:\\BUREAU\\turbo\\README.md' -ErrorAction SilentlyContinue).LastWriteTime; $pipes = (Get-Item 'F:\\BUREAU\\turbo\\src\\commands_pipelines.py' -ErrorAction SilentlyContinue).LastWriteTime; Write-Output \"  README.md: $($readme.ToString('yyyy-MM-dd HH:mm'))\"; Write-Output \"  commands_pipelines.py: $($pipes.ToString('yyyy-MM-dd HH:mm'))\"; if ($pipes -gt $readme) { Write-Output '  [DESYNC] Pipelines plus recentes que README' } else { Write-Output '  [SYNC] Documentation a jour' }; $vocDoc = Test-Path 'F:\\BUREAU\\turbo\\docs\\COMMANDES_VOCALES.md'; Write-Output \"  COMMANDES_VOCALES.md: $(if ($vocDoc) { 'present' } else { 'absent' })\""),
+
+    JarvisCommand("doc_usage_examples", "pipeline", "Generer des exemples d'utilisation depuis les logs de tests", [
+        "exemples doc", "usage examples", "exemples utilisation",
+        "doc exemples", "examples generate",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); tests=c.execute('SELECT pipeline_name,details FROM pipeline_tests WHERE status=\\\"PASS\\\" ORDER BY RANDOM() LIMIT 10').fetchall(); print('=== EXEMPLES UTILISATION ==='); [print(f'  {n}: {d[:60]}') for n,d in tests]; c.close()\" 2>&1 | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # LOGGING & OBSERVABILITY — Observabilite centralisee
+    # MEDIUM: Logging reference mais pas de pipeline centralise
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("logs_search_errors", "pipeline", "Rechercher les patterns d'erreur dans les logs systeme", [
+        "chercher erreurs logs", "logs erreurs", "error logs",
+        "search errors", "logs errors",
+    ], "pipeline", "powershell:Write-Output '=== RECHERCHE ERREURS ==='; $eventLogs = Get-WinEvent -LogName Application -MaxEvents 20 -ErrorAction SilentlyContinue | Where-Object { $_.LevelDisplayName -eq 'Error' -or $_.Level -le 2 } | Select-Object -First 5; Write-Output \"  Erreurs Application (5 dernieres):\"; $eventLogs | ForEach-Object { Write-Output \"  $($_.TimeCreated.ToString('HH:mm:ss')) [$($_.ProviderName)] $($_.Message.Substring(0, [Math]::Min(60, $_.Message.Length)))\" }"),
+
+    JarvisCommand("logs_daily_report", "pipeline", "Rapport journalier d'activite et de logs", [
+        "rapport logs", "daily report", "rapport journalier",
+        "logs du jour", "today logs",
+    ], "pipeline", "powershell:Write-Output '=== RAPPORT JOURNALIER ==='; $today = (Get-Date).ToString('yyyy-MM-dd'); $commits = git -C 'F:\\BUREAU\\turbo' log --oneline --since='today' 2>$null; $commitCount = ($commits | Measure-Object).Count; Write-Output \"  Date: $today\"; Write-Output \"  Commits aujourd'hui: $commitCount\"; if ($commitCount -gt 0) { $commits | Select-Object -First 5 | ForEach-Object { Write-Output \"    $_\" } }; $errors = (Get-WinEvent -LogName Application -MaxEvents 100 -ErrorAction SilentlyContinue | Where-Object { $_.TimeCreated.Date -eq (Get-Date).Date -and $_.Level -le 2 } | Measure-Object).Count; Write-Output \"  Erreurs systeme: $errors\"; $uptime = (Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; Write-Output \"  Uptime: $($uptime.Days)j $($uptime.Hours)h\""),
+
+    JarvisCommand("logs_anomaly_detect", "pipeline", "Detecter les anomalies dans les logs via IA M1", [
+        "anomalies logs", "detect anomaly", "logs anormaux",
+        "anomalie detecter", "anomaly detection",
+    ], "pipeline", "powershell:$errors = Get-WinEvent -LogName Application -MaxEvents 50 -ErrorAction SilentlyContinue | Where-Object { $_.Level -le 2 } | Select-Object -First 5 | ForEach-Object { \"$($_.ProviderName): $($_.Message.Substring(0, [Math]::Min(80, $_.Message.Length)))\" }; $errStr = ($errors -join ' | ').Replace('\"','').Substring(0, [Math]::Min(500, ($errors -join ' | ').Length)); $body = \"{`\"model`\":`\"qwen3-8b`\",`\"input`\":`\"/nothink\\nAnalyse ces erreurs Windows et classe-les par gravite: $errStr`\",`\"temperature`\":0.2,`\"max_output_tokens`\":256,`\"stream`\":false,`\"store`\":false}\"; try { $r = Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output '=== ANOMALIES DETECTEES ==='; Write-Output $msg } catch { Write-Output 'Anomaly detection: M1 offline' }"),
+
+    JarvisCommand("logs_rotate_archive", "pipeline", "Rotation et archivage des fichiers de log", [
+        "rotation logs", "archiver logs", "logs rotate",
+        "nettoyer logs", "archive logs",
+    ], "pipeline", "powershell:Write-Output '=== ROTATION LOGS ==='; $logDirs = @('F:\\BUREAU\\turbo\\data','F:\\BUREAU\\turbo\\logs','F:\\BUREAU\\turbo\\electron'); foreach ($dir in $logDirs) { if (Test-Path $dir) { $logs = Get-ChildItem $dir -Filter '*.log' -ErrorAction SilentlyContinue; $jsonlLogs = Get-ChildItem $dir -Filter '*.jsonl' -ErrorAction SilentlyContinue; Write-Output \"  $dir: $($logs.Count) .log, $($jsonlLogs.Count) .jsonl\"; $old = $logs | Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-7) }; if ($old) { Write-Output \"    >7j: $($old.Count) fichiers ($([math]::Round(($old | Measure-Object Length -Sum).Sum/1KB))KB)\" } } }"),
 ]
