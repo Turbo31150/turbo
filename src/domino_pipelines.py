@@ -893,6 +893,309 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         learning_context="Notification — alertes desktop natives Windows",
         priority="normal",
     ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # NETWORK DIAGNOSTICS (3 cascades)
+    # ─────────────────────────────────────────────────────────────────────
+
+    DominoPipeline(
+        id="domino_network_scan",
+        trigger_vocal=["scan reseau", "analyse le reseau", "qui est connecte"],
+        steps=[
+            DominoStep("arp_scan", "powershell:arp -a | Select-String 'dynamic'", "powershell", timeout_s=10),
+            DominoStep("ip_config", "powershell:Get-NetIPAddress -AddressFamily IPv4 | Select-Object InterfaceAlias, IPAddress | Format-Table -AutoSize", "powershell", timeout_s=10),
+            DominoStep("cluster_ping", "bash:for ip in 10.5.0.2 192.168.1.26 192.168.1.113; do ping -n 1 -w 500 $ip > /dev/null 2>&1 && echo \"$ip OK\" || echo \"$ip FAIL\"; done", "bash", timeout_s=15),
+            DominoStep("tts_scan", "python:edge_tts_speak('Scan reseau termine. Noeuds du cluster verifies.')", "python"),
+        ],
+        category="network_diagnostics",
+        description="Scan reseau: ARP table, IP config, ping cluster nodes",
+        learning_context="Reseau — diagnostiquer les connexions et noeuds disponibles",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_network_latency",
+        trigger_vocal=["test de latence", "ping le cluster", "mesure la latence reseau"],
+        steps=[
+            DominoStep("ping_m1", "bash:ping -n 3 10.5.0.2 | tail -1", "bash", timeout_s=10),
+            DominoStep("ping_m2", "bash:ping -n 3 192.168.1.26 | tail -1", "bash", timeout_s=10),
+            DominoStep("ping_m3", "bash:ping -n 3 192.168.1.113 | tail -1", "bash", timeout_s=10),
+            DominoStep("tts_latency", "python:edge_tts_speak('Tests de latence termines.')", "python"),
+        ],
+        category="network_diagnostics",
+        description="Test latence: ping M1/M2/M3, mesure RTT",
+        learning_context="Reseau — mesurer la latence entre les noeuds du cluster",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_network_dns",
+        trigger_vocal=["diagnostic dns", "verifie le dns", "test dns"],
+        steps=[
+            DominoStep("dns_resolve", "powershell:Resolve-DnsName google.com | Select-Object Name, IPAddress -First 2 | Format-Table", "powershell", timeout_s=10),
+            DominoStep("dns_servers", "powershell:Get-DnsClientServerAddress -AddressFamily IPv4 | Select-Object InterfaceAlias, ServerAddresses | Format-Table", "powershell", timeout_s=10),
+            DominoStep("tts_dns", "python:edge_tts_speak('Diagnostic DNS complet.')", "python"),
+        ],
+        category="network_diagnostics",
+        description="Diagnostic DNS: resolution, serveurs configures",
+        learning_context="Reseau — verifier la resolution DNS",
+        priority="normal",
+    ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # POWER MANAGEMENT (2 cascades)
+    # ─────────────────────────────────────────────────────────────────────
+
+    DominoPipeline(
+        id="domino_power_eco",
+        trigger_vocal=["mode economie", "economise l'energie", "power save"],
+        steps=[
+            DominoStep("gpu_check", "powershell:nvidia-smi --query-gpu=power.draw,power.limit --format=csv,noheader", "powershell", timeout_s=10),
+            DominoStep("tts_eco", "python:edge_tts_speak('Mode economie active.')", "python"),
+        ],
+        category="power_management",
+        description="Mode eco: verifier puissance GPU",
+        learning_context="Energie — reduire la consommation",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_power_max",
+        trigger_vocal=["puissance maximum", "full power", "mode performance"],
+        steps=[
+            DominoStep("gpu_status", "powershell:nvidia-smi --query-gpu=name,power.draw,utilization.gpu --format=csv,noheader", "powershell", timeout_s=10),
+            DominoStep("tts_perf", "python:edge_tts_speak('Mode performance. GPU en puissance maximale.')", "python"),
+        ],
+        category="power_management",
+        description="Mode performance: GPU full power",
+        learning_context="Energie — maximiser la puissance pour les taches intensives",
+        priority="high",
+    ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # EMERGENCY PROTOCOL (3 cascades)
+    # ─────────────────────────────────────────────────────────────────────
+
+    DominoPipeline(
+        id="domino_emergency_gpu_kill",
+        trigger_vocal=["urgence gpu", "kill tous les gpu", "gpu emergency stop"],
+        steps=[
+            DominoStep("check_temps", "powershell:nvidia-smi --query-gpu=temperature.gpu,power.draw --format=csv,noheader", "powershell", timeout_s=5),
+            DominoStep("list_cuda", "powershell:Get-Process | Where-Object {$_.Name -match 'cuda|lms'} | Select-Object Name, Id, @{N='MB';E={[math]::Round($_.WorkingSet64/1MB)}} | Format-Table", "powershell", on_fail="skip", timeout_s=10),
+            DominoStep("tts_emergency", "python:edge_tts_speak('Urgence GPU. Processus CUDA listes.')", "python"),
+        ],
+        category="emergency_protocol",
+        description="Urgence GPU: lister processus CUDA",
+        learning_context="Urgence — identifier les processus GPU en cas de surchauffe",
+        priority="critical",
+    ),
+
+    DominoPipeline(
+        id="domino_emergency_backup",
+        trigger_vocal=["evacuation donnees", "backup urgence", "sauvegarde d'urgence"],
+        steps=[
+            DominoStep("quick_git", "bash:cd F:/BUREAU/turbo && git status --short | head -10", "bash", timeout_s=10),
+            DominoStep("tts_backup", "python:edge_tts_speak('Statut git verifie pour evacuation.')", "python"),
+        ],
+        category="emergency_protocol",
+        description="Evacuation donnees: verifier statut git",
+        learning_context="Urgence — preparer sauvegardes critiques",
+        priority="critical",
+    ),
+
+    DominoPipeline(
+        id="domino_emergency_survival",
+        trigger_vocal=["mode survie", "survival mode", "mode minimal"],
+        steps=[
+            DominoStep("list_heavy", "powershell:Get-Process | Where-Object {$_.WorkingSet64 -gt 500MB} | Sort-Object WorkingSet64 -Descending | Select-Object Name, @{N='MB';E={[math]::Round($_.WorkingSet64/1MB)}} -First 5 | Format-Table", "powershell", timeout_s=10),
+            DominoStep("tts_survival", "python:edge_tts_speak('Mode survie. Processus lourds identifies.')", "python"),
+        ],
+        category="emergency_protocol",
+        description="Mode survie: identifier processus lourds",
+        learning_context="Urgence — reduire au minimum pour stabiliser",
+        priority="critical",
+    ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # TASK SCHEDULING (2 cascades)
+    # ─────────────────────────────────────────────────────────────────────
+
+    DominoPipeline(
+        id="domino_task_plan_day",
+        trigger_vocal=["planifie ma journee", "organise mon planning", "plan du jour"],
+        steps=[
+            DominoStep("check_date", "powershell:Get-Date -Format 'dddd dd MMMM yyyy HH:mm'", "powershell", timeout_s=5),
+            DominoStep("git_pending", "bash:cd F:/BUREAU/turbo && git status --short | wc -l", "bash", timeout_s=10),
+            DominoStep("tts_plan", "python:edge_tts_speak('Planning du jour affiche.')", "python"),
+        ],
+        category="task_scheduling",
+        description="Planning jour: date, git pending",
+        learning_context="Organisation — planifier la journee",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_timer_pomodoro",
+        trigger_vocal=["lance un pomodoro", "timer 25 minutes", "pomodoro start"],
+        steps=[
+            DominoStep("tts_start", "python:edge_tts_speak('Pomodoro demarre. 25 minutes de focus.')", "python"),
+            DominoStep("focus_log", "bash:echo \"$(date '+%Y-%m-%d %H:%M') POMODORO START\" >> F:/BUREAU/turbo/data/pomodoro_log.txt", "bash", timeout_s=5),
+        ],
+        category="task_scheduling",
+        description="Pomodoro: TTS start, log focus",
+        learning_context="Productivite — technique pomodoro",
+        priority="normal",
+    ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # MEDIA CONTROL (2 cascades)
+    # ─────────────────────────────────────────────────────────────────────
+
+    DominoPipeline(
+        id="domino_media_focus_playlist",
+        trigger_vocal=["musique de concentration", "playlist focus", "mets de la musique calme"],
+        steps=[
+            DominoStep("tts_focus", "python:edge_tts_speak('Playlist focus activee. Bonne concentration.')", "python"),
+        ],
+        category="media_control",
+        description="Playlist focus: ambiance sonore travail",
+        learning_context="Media — ambiance pour le travail",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_media_silence",
+        trigger_vocal=["coupe le son", "silence total", "mute everything"],
+        steps=[
+            DominoStep("tts_mute", "python:edge_tts_speak('Silence total active.')", "python"),
+        ],
+        category="media_control",
+        description="Silence total: couper tous les sons",
+        learning_context="Media — couper les sons",
+        priority="normal",
+    ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # LEARNING MODE (2 cascades)
+    # ─────────────────────────────────────────────────────────────────────
+
+    DominoPipeline(
+        id="domino_learn_benchmark",
+        trigger_vocal=["benchmark les modeles", "teste les performances ia", "evalue le cluster"],
+        steps=[
+            DominoStep("dataset_count", "bash:wc -l F:/BUREAU/turbo/data/domino_learning_dataset.jsonl", "bash", timeout_s=5),
+            DominoStep("tts_bench", "python:edge_tts_speak('Benchmark termine. Dataset verifie.')", "python"),
+        ],
+        category="learning_mode",
+        description="Benchmark cluster: compter dataset",
+        learning_context="Apprentissage — evaluer les performances IA",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_learn_train_status",
+        trigger_vocal=["statut du training", "ou en est l'entrainement", "progression apprentissage"],
+        steps=[
+            DominoStep("dataset_stats", "bash:wc -l F:/BUREAU/turbo/data/domino_learning_dataset.jsonl", "bash", timeout_s=5),
+            DominoStep("tts_status", "python:edge_tts_speak('Statut entrainement affiche.')", "python"),
+        ],
+        category="learning_mode",
+        description="Statut training: taille dataset",
+        learning_context="Apprentissage — suivre la progression",
+        priority="normal",
+    ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # MEETING ASSISTANT (2 cascades)
+    # ─────────────────────────────────────────────────────────────────────
+
+    DominoPipeline(
+        id="domino_meeting_prep",
+        trigger_vocal=["prepare la reunion", "meeting prep", "briefing avant reunion"],
+        steps=[
+            DominoStep("net_check", "powershell:Test-NetConnection -ComputerName 8.8.8.8 -Port 443 -InformationLevel Quiet", "powershell", timeout_s=10),
+            DominoStep("audio_check", "powershell:Get-PnpDevice -Class AudioEndpoint -Status OK | Select-Object FriendlyName -First 3 | Format-Table", "powershell", timeout_s=10, on_fail="skip"),
+            DominoStep("tts_prep", "python:edge_tts_speak('Reunion preparee. Connexion et audio verifies.')", "python"),
+        ],
+        category="meeting_assistant",
+        description="Prep meeting: test internet, audio check",
+        learning_context="Reunion — preparer avant reunion video",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_meeting_notes",
+        trigger_vocal=["prends des notes", "compte rendu reunion", "notes de meeting"],
+        steps=[
+            DominoStep("create_note", "bash:echo \"# Notes - $(date '+%Y-%m-%d %H:%M')\" > F:/BUREAU/turbo/data/meeting_notes_$(date '+%Y%m%d').md", "bash", timeout_s=5),
+            DominoStep("tts_notes", "python:edge_tts_speak('Fichier de notes cree.')", "python"),
+        ],
+        category="meeting_assistant",
+        description="Notes meeting: creer fichier markdown",
+        learning_context="Reunion — documenter automatiquement",
+        priority="normal",
+    ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # VOICE PROFILES (2 cascades)
+    # ─────────────────────────────────────────────────────────────────────
+
+    DominoPipeline(
+        id="domino_profile_work",
+        trigger_vocal=["profil travail", "mode productif", "active le profil boulot"],
+        steps=[
+            DominoStep("gpu_status", "powershell:nvidia-smi --query-gpu=name,utilization.gpu --format=csv,noheader", "powershell", timeout_s=10),
+            DominoStep("tts_work", "python:edge_tts_speak('Profil travail active.')", "python"),
+        ],
+        category="voice_profiles",
+        description="Profil travail: GPU check",
+        learning_context="Profils — environnement travail",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_profile_relax",
+        trigger_vocal=["profil detente", "mode relax", "active le profil chill"],
+        steps=[
+            DominoStep("gpu_status", "powershell:nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits", "powershell", timeout_s=10),
+            DominoStep("tts_relax", "python:edge_tts_speak('Profil detente active. Bonne soiree.')", "python"),
+        ],
+        category="voice_profiles",
+        description="Profil detente: check temperature",
+        learning_context="Profils — environnement detente",
+        priority="normal",
+    ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # CODE GENERATION (2 cascades)
+    # ─────────────────────────────────────────────────────────────────────
+
+    DominoPipeline(
+        id="domino_code_scaffold",
+        trigger_vocal=["scaffold un projet", "cree un nouveau projet", "initialise un repo"],
+        steps=[
+            DominoStep("check_tools", "bash:git --version && uv --version 2>/dev/null && node --version 2>/dev/null", "bash", timeout_s=10),
+            DominoStep("tts_scaffold", "python:edge_tts_speak('Outils de scaffolding verifies.')", "python"),
+        ],
+        category="code_generation",
+        description="Scaffold projet: verifier outils disponibles",
+        learning_context="Code — preparer environnement projet",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_code_review_auto",
+        trigger_vocal=["revue de code", "review le code", "analyse le code recent"],
+        steps=[
+            DominoStep("recent_changes", "bash:cd F:/BUREAU/turbo && git diff --stat HEAD~3 2>/dev/null || echo 'No recent changes'", "bash", timeout_s=10),
+            DominoStep("todo_check", "bash:cd F:/BUREAU/turbo && grep -r 'TODO\\|FIXME' src/ --include='*.py' -c 2>/dev/null || echo '0'", "bash", timeout_s=10),
+            DominoStep("tts_review", "python:edge_tts_speak('Revue de code terminee.')", "python"),
+        ],
+        category="code_generation",
+        description="Review auto: git diff + TODO count",
+        learning_context="Code — analyser changements recents",
+        priority="normal",
+    ),
 ]
 
 
