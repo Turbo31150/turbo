@@ -111,21 +111,27 @@ async def _handle_stop() -> dict:
     # Voice correction (async function — returns dict with corrected text + command)
     corrected = text
     domino = None
+    execution = None
     if full_correction_pipeline and text and not text.startswith("["):
         try:
             result = await full_correction_pipeline(text)
             if isinstance(result, dict):
                 corrected = result.get("corrected", text)
                 cmd = result.get("command")
+                confidence = result.get("confidence", 0)
+                params = result.get("params", {})
                 if cmd and hasattr(cmd, "name"):
                     domino = {
                         "id": cmd.name,
                         "category": getattr(cmd, "category", ""),
                         "description": getattr(cmd, "description", ""),
                         "action_type": getattr(cmd, "action_type", ""),
-                        "params": result.get("params", {}),
-                        "confidence": result.get("confidence", 0),
+                        "params": params,
+                        "confidence": confidence,
                     }
+                    # EXECUTE command directly if high confidence
+                    if confidence >= 0.75:
+                        execution = await _execute_matched_command(cmd, params)
             elif isinstance(result, str):
                 corrected = result
         except Exception as e:
@@ -137,10 +143,36 @@ async def _handle_stop() -> dict:
         "original": text,
         "corrected": corrected,
         "domino": domino,
+        "execution": execution,
     }
     _transcriptions.append(entry)
 
     return {"transcription": entry}
+
+
+async def _execute_matched_command(cmd, params: dict) -> dict | None:
+    """Execute a matched voice command directly. Returns execution result."""
+    try:
+        from src.executor import execute_command
+    except ImportError:
+        logger.warning("src.executor not available")
+        return None
+
+    try:
+        output = await execute_command(cmd, params)
+        # Skip special sentinel values
+        if isinstance(output, str) and output.startswith("__"):
+            return None
+        logger.info("Voice executed: %s -> %s", cmd.name, output[:80])
+        return {
+            "executed": True,
+            "command_name": cmd.name,
+            "description": cmd.description,
+            "output": output[:300],
+        }
+    except Exception as e:
+        logger.error("Voice command execution error: %s", e)
+        return {"executed": False, "error": str(e)}
 
 
 async def _handle_tts(payload: dict) -> dict:

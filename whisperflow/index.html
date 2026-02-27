@@ -844,6 +844,7 @@ function onTranscriptionResult(data) {
 
   showTranscript(text, '');
   const domino = tr.domino || data.domino;
+  const execution = tr.execution || data.execution;
   addHistory(text, domino);
 
   // Show domino match if found
@@ -854,7 +855,21 @@ function onTranscriptionResult(data) {
     $dominoResult.classList.add('show');
   }
 
-  // Send to chat — backend handles command execution OR IA fallback
+  // If command was already executed by voice pipeline, show result
+  if (execution && execution.executed) {
+    $jarvisResponse.classList.remove('thinking');
+    $jarvisResponse.classList.add('show');
+    $jarvisText.textContent = execution.output || execution.description || 'Commande executee';
+    // TTS confirmation
+    if (!settings.silent) {
+      const desc = execution.description || execution.command_name || '';
+      const ttsText = cleanTextForTTS(desc);
+      if (ttsText.length > 2) wsSend('voice', 'tts_speak', { text: ttsText });
+    }
+    return;
+  }
+
+  // No command executed — send to chat for IA response
   processCommand(text);
 }
 
