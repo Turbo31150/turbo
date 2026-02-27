@@ -645,6 +645,254 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         description="Arret stream: stop OBS + sauvegarder VOD info",
         learning_context="Fin stream — arreter OBS proprement, log la VOD",
     ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # MAINTENANCE PREDICTIVE (3 cascades) — anticiper les pannes
+    # ─────────────────────────────────────────────────────────────────────
+
+    DominoPipeline(
+        id="domino_predict_disk_health",
+        trigger_vocal=["sante des disques", "check les disques", "diagnostic disque dur"],
+        steps=[
+            DominoStep("smart_status", "powershell:Get-PhysicalDisk | Select-Object FriendlyName, HealthStatus, OperationalStatus, Size | Format-Table", "powershell", timeout_s=15),
+            DominoStep("disk_space", "powershell:Get-PSDrive -PSProvider FileSystem | Select-Object Name, @{N='FreeGB';E={[math]::Round($_.Free/1GB,1)}}, @{N='UsedGB';E={[math]::Round($_.Used/1GB,1)}} | Format-Table", "powershell", timeout_s=10),
+            DominoStep("io_latency", "powershell:Get-Counter '\\PhysicalDisk(*)\\Avg. Disk sec/Read' -SampleInterval 1 -MaxSamples 1 | Select-Object -ExpandProperty CounterSamples | Select-Object InstanceName, CookedValue", "powershell", timeout_s=15),
+            DominoStep("tts_disk", "python:edge_tts_speak('Diagnostic disque termine. Tous les disques sont operationnels.')", "python"),
+        ],
+        category="maintenance_predictive",
+        description="Diagnostic predictif disques: SMART + espace + latence IO",
+        learning_context="Maintenance predictive — detecter les problemes disque avant panne",
+        priority="high",
+    ),
+
+    DominoPipeline(
+        id="domino_predict_model_drift",
+        trigger_vocal=["derive des modeles", "check model drift", "qualite des modeles"],
+        steps=[
+            DominoStep("test_m1", "curl:http://10.5.0.2:1234/api/v1/chat", "curl", timeout_s=20),
+            DominoStep("test_m2", "curl:http://192.168.1.26:1234/api/v1/chat", "curl", timeout_s=20),
+            DominoStep("test_ol1", "curl:http://127.0.0.1:11434/api/chat", "curl", timeout_s=15),
+            DominoStep("compare_quality", "python:compare_model_responses()", "python"),
+            DominoStep("tts_drift", "python:edge_tts_speak('Analyse de derive des modeles terminee.')", "python"),
+        ],
+        category="maintenance_predictive",
+        description="Detection derive modeles: tester qualite reponses M1/M2/OL1",
+        learning_context="Predictive — verifier que les modeles maintiennent leur qualite",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_predict_failure",
+        trigger_vocal=["prediction de panne", "anticipe les pannes", "maintenance preventive"],
+        steps=[
+            DominoStep("gpu_wear", "powershell:nvidia-smi --query-gpu=name,temperature.gpu,power.draw,memory.used --format=csv,noheader,nounits", "powershell", timeout_s=10),
+            DominoStep("uptime_check", "powershell:(Get-CimInstance Win32_OperatingSystem).LastBootUpTime", "powershell", timeout_s=10),
+            DominoStep("event_errors", "powershell:Get-EventLog -LogName System -EntryType Error -Newest 10 | Select-Object TimeGenerated, Source, Message | Format-Table -Wrap", "powershell", timeout_s=15),
+            DominoStep("cluster_health", "curl:http://10.5.0.2:1234/api/v1/models", "curl", timeout_s=10),
+            DominoStep("tts_predict", "python:edge_tts_speak('Analyse predictive terminee. Aucune panne imminente detectee.')", "python"),
+        ],
+        category="maintenance_predictive",
+        description="Prediction pannes: GPU usure, uptime, erreurs systeme, cluster health",
+        learning_context="Anticiper les defaillances avant qu'elles ne surviennent",
+        priority="high",
+    ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # AI ORCHESTRATION (3 cascades) — orchestration avancee multi-noeuds
+    # ─────────────────────────────────────────────────────────────────────
+
+    DominoPipeline(
+        id="domino_consensus_smart",
+        trigger_vocal=["consensus intelligent", "avis du cluster", "vote des modeles"],
+        steps=[
+            DominoStep("query_m1", "curl:http://10.5.0.2:1234/api/v1/chat", "curl", timeout_s=20),
+            DominoStep("query_m2", "curl:http://192.168.1.26:1234/api/v1/chat", "curl", timeout_s=20),
+            DominoStep("query_ol1", "curl:http://127.0.0.1:11434/api/chat", "curl", timeout_s=15),
+            DominoStep("weighted_vote", "python:calculate_weighted_consensus()", "python"),
+            DominoStep("tts_consensus", "python:edge_tts_speak('Consensus multi-agents calcule. Resultat pret.')", "python"),
+        ],
+        category="ai_orchestration",
+        description="Consensus intelligent: interroger M1+M2+OL1, vote pondere, synthese",
+        learning_context="Orchestration IA — consensus distribue multi-modeles",
+        priority="high",
+    ),
+
+    DominoPipeline(
+        id="domino_model_hot_swap",
+        trigger_vocal=["change de modele", "swap le modele", "echange de modele"],
+        steps=[
+            DominoStep("check_latency", "curl:http://10.5.0.2:1234/api/v1/models", "curl", timeout_s=10),
+            DominoStep("eval_performance", "python:evaluate_model_latency()", "python"),
+            DominoStep("swap_model", "python:trigger_model_swap()", "python", on_fail="skip"),
+            DominoStep("tts_swap", "python:edge_tts_speak('Modele echange avec succes. Nouveau modele actif.')", "python"),
+        ],
+        category="ai_orchestration",
+        description="Hot-swap modele: detecter latence, charger alternative, migrer trafic",
+        learning_context="Orchestration — basculer dynamiquement entre modeles selon performance",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_auto_benchmark",
+        trigger_vocal=["benchmark automatique", "teste tous les noeuds", "benchmark cluster"],
+        steps=[
+            DominoStep("bench_m1", "curl:http://10.5.0.2:1234/api/v1/chat", "curl", timeout_s=25),
+            DominoStep("bench_m2", "curl:http://192.168.1.26:1234/api/v1/chat", "curl", timeout_s=25),
+            DominoStep("bench_m3", "curl:http://192.168.1.113:1234/api/v1/chat", "curl", timeout_s=25),
+            DominoStep("bench_ol1", "curl:http://127.0.0.1:11434/api/chat", "curl", timeout_s=15),
+            DominoStep("tts_bench", "python:edge_tts_speak('Benchmark complet. Resultats enregistres.')", "python"),
+        ],
+        category="ai_orchestration",
+        description="Auto-benchmark: tester tous noeuds, scorer, mettre a jour routing",
+        learning_context="Benchmark automatique du cluster pour optimiser le routage",
+        priority="normal",
+    ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # DATA PIPELINE (3 cascades) — gestion des donnees et logs
+    # ─────────────────────────────────────────────────────────────────────
+
+    DominoPipeline(
+        id="domino_etl_complet",
+        trigger_vocal=["lance l'ETL", "extraction donnees", "pipeline de donnees"],
+        steps=[
+            DominoStep("extract_db", "python:extract_all_databases()", "python", timeout_s=20),
+            DominoStep("transform_data", "python:transform_and_clean()", "python", timeout_s=30),
+            DominoStep("load_target", "python:load_to_target_db()", "python", timeout_s=20),
+            DominoStep("verify_counts", "python:verify_etl_integrity()", "python"),
+            DominoStep("tts_etl", "python:edge_tts_speak('Pipeline ETL termine. Donnees extraites et chargees.')", "python"),
+        ],
+        category="data_pipeline",
+        description="ETL complet: extract DB -> transform -> load -> verify",
+        learning_context="Pipeline de donnees — extraire, transformer et charger",
+        priority="high",
+    ),
+
+    DominoPipeline(
+        id="domino_log_rotate",
+        trigger_vocal=["rotation des logs", "nettoie les logs", "archive les logs"],
+        steps=[
+            DominoStep("collect_logs", "powershell:Get-ChildItem F:\\BUREAU\\turbo\\logs -Filter *.log | Measure-Object -Property Length -Sum | Select-Object Count, @{N='SizeMB';E={[math]::Round($_.Sum/1MB,1)}}", "powershell", timeout_s=10),
+            DominoStep("archive_old", "powershell:Get-ChildItem F:\\BUREAU\\turbo\\logs -Filter *.log | Where-Object {$_.LastWriteTime -lt (Get-Date).AddDays(-7)} | Compress-Archive -DestinationPath F:\\BUREAU\\turbo\\logs\\archive_$(Get-Date -Format yyyyMMdd).zip -Force", "powershell", timeout_s=20, on_fail="skip"),
+            DominoStep("purge_archived", "powershell:Get-ChildItem F:\\BUREAU\\turbo\\logs -Filter *.log | Where-Object {$_.LastWriteTime -lt (Get-Date).AddDays(-7)} | Remove-Item -Force", "powershell", timeout_s=10, on_fail="skip"),
+            DominoStep("tts_logs", "python:edge_tts_speak('Rotation des logs terminee. Anciens logs archives.')", "python"),
+        ],
+        category="data_pipeline",
+        description="Rotation logs: collecter, archiver >7j, purger, rapport",
+        learning_context="Maintenance donnees — garder les logs propres et archives",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_cache_refresh",
+        trigger_vocal=["rafraichis le cache", "vide le cache", "rebuild le cache"],
+        steps=[
+            DominoStep("clear_cache", "python:clear_all_caches()", "python"),
+            DominoStep("rebuild_index", "python:rebuild_search_index()", "python", timeout_s=30),
+            DominoStep("warm_cache", "python:warm_up_cache()", "python", timeout_s=20),
+            DominoStep("tts_cache", "python:edge_tts_speak('Cache rafraichi et index reconstruit.')", "python"),
+        ],
+        category="data_pipeline",
+        description="Refresh cache: vider, reconstruire index, pre-charger",
+        learning_context="Performance — rafraichir le cache pour eviter la stale data",
+        priority="normal",
+    ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # WELLNESS PRODUCTIVITY (3 cascades) — bien-etre et productivite
+    # ─────────────────────────────────────────────────────────────────────
+
+    DominoPipeline(
+        id="domino_pomodoro",
+        trigger_vocal=["lance un pomodoro", "mode focus 25 minutes", "pomodoro timer"],
+        steps=[
+            DominoStep("start_timer", "python:start_pomodoro(25)", "python"),
+            DominoStep("disable_notifs", "powershell:Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\PushNotifications' -Name 'ToastEnabled' -Value 0 -ErrorAction SilentlyContinue", "powershell", on_fail="skip", timeout_s=10),
+            DominoStep("tts_start", "python:edge_tts_speak('Mode Pomodoro active. 25 minutes de concentration. Bon courage!')", "python"),
+            DominoStep("tts_end", "python:edge_tts_speak('Pomodoro termine! Prends 5 minutes de pause.')", "python"),
+        ],
+        category="wellness_productivity",
+        description="Timer Pomodoro 25min focus + desactive notifs + rappel pause",
+        learning_context="Productivite — methode Pomodoro avec support vocal",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_focus_mode",
+        trigger_vocal=["mode concentration", "active le focus", "zero distraction"],
+        steps=[
+            DominoStep("close_distractions", "powershell:Stop-Process -Name discord,slack,telegram -Force -ErrorAction SilentlyContinue", "powershell", on_fail="skip", timeout_s=10),
+            DominoStep("disable_notifs", "powershell:Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\PushNotifications' -Name 'ToastEnabled' -Value 0 -ErrorAction SilentlyContinue", "powershell", on_fail="skip", timeout_s=10),
+            DominoStep("gpu_optimize", "powershell:nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits", "powershell", timeout_s=10),
+            DominoStep("tts_focus", "python:edge_tts_speak('Mode concentration active. Distractions fermees. Bon travail!')", "python"),
+        ],
+        category="wellness_productivity",
+        description="Focus mode: fermer distractions, desactiver notifs, optimiser GPU",
+        learning_context="Productivite — eliminer les distractions pour le deep work",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_session_review",
+        trigger_vocal=["bilan de la journee", "resume ma session", "revue de session"],
+        steps=[
+            DominoStep("git_summary", "powershell:git -C F:\\BUREAU\\turbo log --oneline --since='8 hours ago' | Measure-Object -Line", "powershell", timeout_s=10),
+            DominoStep("gpu_usage", "powershell:nvidia-smi --query-gpu=name,utilization.gpu --format=csv,noheader", "powershell", timeout_s=10),
+            DominoStep("db_stats", "python:get_session_stats()", "python"),
+            DominoStep("tts_review", "python:edge_tts_speak('Bilan de session: commits, GPU, et statistiques resumes.')", "python"),
+        ],
+        category="wellness_productivity",
+        description="Revue de session: commits, GPU usage, stats DB, bilan vocal",
+        learning_context="Reflexion — faire le point sur le travail accompli",
+        priority="normal",
+    ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # NOTIFICATION SMART (3 cascades) — alertes multi-canal
+    # ─────────────────────────────────────────────────────────────────────
+
+    DominoPipeline(
+        id="domino_notif_telegram",
+        trigger_vocal=["envoie une alerte telegram", "notifie sur telegram", "telegram urgent"],
+        steps=[
+            DominoStep("collect_status", "powershell:nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits", "powershell", timeout_s=10),
+            DominoStep("build_message", "python:build_telegram_alert()", "python"),
+            DominoStep("send_telegram", "python:send_telegram_notification()", "python", on_fail="skip"),
+            DominoStep("tts_notif", "python:edge_tts_speak('Alerte Telegram envoyee.')", "python"),
+        ],
+        category="notification_smart",
+        description="Alerte Telegram: collecter status + construire message + envoyer",
+        learning_context="Notification — alerter via Telegram pour les evenements critiques",
+        priority="high",
+    ),
+
+    DominoPipeline(
+        id="domino_notif_tts_broadcast",
+        trigger_vocal=["annonce vocale", "broadcast vocal", "annonce a tout le monde"],
+        steps=[
+            DominoStep("check_cluster", "curl:http://10.5.0.2:1234/api/v1/models", "curl", timeout_s=10),
+            DominoStep("check_gpu", "powershell:nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits", "powershell", timeout_s=10),
+            DominoStep("tts_broadcast", "python:edge_tts_speak('Annonce systeme: tous les noeuds sont operationnels. Cluster en parfait etat.')", "python"),
+        ],
+        category="notification_smart",
+        description="Broadcast vocal: verifier cluster + GPU + annonce TTS",
+        learning_context="Notification — diffuser un message vocal sur l'etat du systeme",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_notif_desktop",
+        trigger_vocal=["notification bureau", "alerte desktop", "toast notification"],
+        steps=[
+            DominoStep("build_toast", "python:build_desktop_notification()", "python"),
+            DominoStep("show_toast", "powershell:[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > $null; $template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText01); $template.GetElementsByTagName('text')[0].AppendChild($template.CreateTextNode('JARVIS: Systeme OK')) > $null; [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('JARVIS').Show([Windows.UI.Notifications.ToastNotification]::new($template))", "powershell", on_fail="skip", timeout_s=15),
+            DominoStep("tts_toast", "python:edge_tts_speak('Notification desktop envoyee.')", "python"),
+        ],
+        category="notification_smart",
+        description="Toast Windows: construire notification + afficher + confirmer vocal",
+        learning_context="Notification — alertes desktop natives Windows",
+        priority="normal",
+    ),
 ]
 
 
