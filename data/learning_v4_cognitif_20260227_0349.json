@@ -1,0 +1,846 @@
+{
+  "version": "v4_cognitif",
+  "timestamp": "2026-02-27T03:49:27.490295",
+  "elapsed": 1724.0,
+  "total_requests": 500,
+  "system_prompt_len": 682,
+  "stats": {
+    "M3-mistral": {
+      "total": 100,
+      "score_sum": 0,
+      "lat_sum": 1.9100000000000013,
+      "errors": 100,
+      "wins": 0
+    },
+    "M2-coder": {
+      "total": 100,
+      "score_sum": 7123,
+      "lat_sum": 1091.8200000000002,
+      "errors": 0,
+      "wins": 55
+    },
+    "M1-qwen3": {
+      "total": 100,
+      "score_sum": 2721,
+      "lat_sum": 3287.0100000000034,
+      "errors": 60,
+      "wins": 12
+    },
+    "M1-dsr1": {
+      "total": 100,
+      "score_sum": 208,
+      "lat_sum": 3437.190000000003,
+      "errors": 97,
+      "wins": 1
+    },
+    "OL1-qwen": {
+      "total": 100,
+      "score_sum": 6200,
+      "lat_sum": 639.7100000000005,
+      "errors": 9,
+      "wins": 32
+    }
+  },
+  "results": [
+    {
+      "id": 1,
+      "cmd": "Jarvis, bonjour! C'est quoi le programme aujourd'hui?",
+      "cat": "routine",
+      "intent": "salutation + briefing matinal",
+      "winner": "M2-coder",
+      "best_score": 66
+    },
+    {
+      "id": 2,
+      "cmd": "Prepare mon espace de travail",
+      "cat": "routine",
+      "intent": "ouvrir IDE + terminal + dossier projet",
+      "winner": "M2-coder",
+      "best_score": 77
+    },
+    {
+      "id": 3,
+      "cmd": "J'arrive au bureau, lance tout ce qu'il faut",
+      "cat": "routine",
+      "intent": "pipeline demarrage journee",
+      "winner": "M1-qwen3",
+      "best_score": 58
+    },
+    {
+      "id": 4,
+      "cmd": "Fais le menage sur mon PC",
+      "cat": "routine",
+      "intent": "nettoyage fichiers temp + corbeille + cache",
+      "winner": "M2-coder",
+      "best_score": 85
+    },
+    {
+      "id": 5,
+      "cmd": "Je pars, ferme tout proprement",
+      "cat": "routine",
+      "intent": "sauvegarder + fermer apps + verrouiller",
+      "winner": "M1-qwen3",
+      "best_score": 68
+    },
+    {
+      "id": 6,
+      "cmd": "C'est l'heure de la pause, mets de la musique",
+      "cat": "routine",
+      "intent": "lancer lecteur musique",
+      "winner": "M2-coder",
+      "best_score": 81
+    },
+    {
+      "id": 7,
+      "cmd": "Reveil! Lance mon setup de dev",
+      "cat": "routine",
+      "intent": "IDE + terminal + serveur dev",
+      "winner": "M2-coder",
+      "best_score": 67
+    },
+    {
+      "id": 8,
+      "cmd": "Bonne nuit Jarvis, eteins tout dans 10 minutes",
+      "cat": "routine",
+      "intent": "extinction programmee",
+      "winner": "M2-coder",
+      "best_score": 70
+    },
+    {
+      "id": 9,
+      "cmd": "Fais une sauvegarde de mes trucs importants",
+      "cat": "routine",
+      "intent": "backup fichiers critiques",
+      "winner": "M2-coder",
+      "best_score": 84
+    },
+    {
+      "id": 10,
+      "cmd": "Rappelle moi dans une heure de faire la mise a jour",
+      "cat": "routine",
+      "intent": "creer rappel planifie",
+      "winner": "M2-coder",
+      "best_score": 80
+    },
+    {
+      "id": 11,
+      "cmd": "Verifie que tout tourne bien ce matin",
+      "cat": "routine",
+      "intent": "health check systeme + services",
+      "winner": "M2-coder",
+      "best_score": 64
+    },
+    {
+      "id": 12,
+      "cmd": "Active le mode focus, pas de distractions",
+      "cat": "routine",
+      "intent": "fermer apps sociales + activer mode concentration",
+      "winner": "M2-coder",
+      "best_score": 78
+    },
+    {
+      "id": 13,
+      "cmd": "Je reviens dans 5 min, verrouille",
+      "cat": "routine",
+      "intent": "verrouiller session",
+      "winner": "M2-coder",
+      "best_score": 84
+    },
+    {
+      "id": 14,
+      "cmd": "Ouvre mes mails et mon agenda",
+      "cat": "routine",
+      "intent": "ouvrir client mail + calendrier",
+      "winner": "M2-coder",
+      "best_score": 82
+    },
+    {
+      "id": 15,
+      "cmd": "C'est la fin de journee, fais le bilan",
+      "cat": "routine",
+      "intent": "resume activite du jour",
+      "winner": "OL1-qwen",
+      "best_score": 63
+    },
+    {
+      "id": 16,
+      "cmd": "Mon PC rame, c'est quoi le probleme?",
+      "cat": "debug",
+      "intent": "diagnostic performance + identifier processus gourmand",
+      "winner": "M1-qwen3",
+      "best_score": 81
+    },
+    {
+      "id": 17,
+      "cmd": "Internet marche plus, aide moi",
+      "cat": "debug",
+      "intent": "diagnostic connectivite reseau",
+      "winner": "OL1-qwen",
+      "best_score": 54
+    },
+    {
+      "id": 18,
+      "cmd": "Y'a un truc qui bouffe toute la RAM",
+      "cat": "debug",
+      "intent": "identifier processus memoire + option kill",
+      "winner": "M2-coder",
+      "best_score": 87
+    },
+    {
+      "id": 19,
+      "cmd": "Chrome a plante encore, debloque la situation",
+      "cat": "debug",
+      "intent": "kill chrome + relancer proprement",
+      "winner": "OL1-qwen",
+      "best_score": 80
+    },
+    {
+      "id": 20,
+      "cmd": "Le disque est presque plein, fais de la place",
+      "cat": "debug",
+      "intent": "diagnostic espace + nettoyage agressif",
+      "winner": "M2-coder",
+      "best_score": 75
+    },
+    {
+      "id": 21,
+      "cmd": "Le WiFi se deconnecte tout le temps",
+      "cat": "debug",
+      "intent": "diagnostic WiFi + reset adaptateur",
+      "winner": "OL1-qwen",
+      "best_score": 69
+    },
+    {
+      "id": 22,
+      "cmd": "Un programme refuse de se fermer",
+      "cat": "debug",
+      "intent": "force kill processus bloque",
+      "winner": "M1-qwen3",
+      "best_score": 76
+    },
+    {
+      "id": 23,
+      "cmd": "Mon ecran scintille c'est bizarre",
+      "cat": "debug",
+      "intent": "diagnostic affichage + driver GPU",
+      "winner": "M2-coder",
+      "best_score": 76
+    },
+    {
+      "id": 24,
+      "cmd": "Windows Update est bloque depuis ce matin",
+      "cat": "debug",
+      "intent": "reset service Windows Update",
+      "winner": "OL1-qwen",
+      "best_score": 69
+    },
+    {
+      "id": 25,
+      "cmd": "J'ai plus de son, aide",
+      "cat": "debug",
+      "intent": "diagnostic audio + redemarrer service",
+      "winner": "M1-qwen3",
+      "best_score": 74
+    },
+    {
+      "id": 26,
+      "cmd": "Le cluster M2 repond plus, verifie",
+      "cat": "debug",
+      "intent": "health check machine distante M2",
+      "winner": "OL1-qwen",
+      "best_score": 64
+    },
+    {
+      "id": 27,
+      "cmd": "Pourquoi le ventilateur tourne a fond?",
+      "cat": "debug",
+      "intent": "check temperatures + processus CPU/GPU",
+      "winner": "M1-qwen3",
+      "best_score": 77
+    },
+    {
+      "id": 28,
+      "cmd": "Y'a un processus suspect qui tourne",
+      "cat": "debug",
+      "intent": "lister processus + identifier inconnus",
+      "winner": "OL1-qwen",
+      "best_score": 81
+    },
+    {
+      "id": 29,
+      "cmd": "Mon VPN se connecte pas",
+      "cat": "debug",
+      "intent": "diagnostic VPN + tentative reconnexion",
+      "winner": "M2-coder",
+      "best_score": 68
+    },
+    {
+      "id": 30,
+      "cmd": "LM Studio sur M1 repond pas, relance",
+      "cat": "debug",
+      "intent": "check + restart LM Studio distant",
+      "winner": "M2-coder",
+      "best_score": 62
+    },
+    {
+      "id": 31,
+      "cmd": "Montre moi l'etat de sante de tout le systeme",
+      "cat": "systeme",
+      "intent": "dashboard systeme complet",
+      "winner": "M2-coder",
+      "best_score": 63
+    },
+    {
+      "id": 32,
+      "cmd": "Optimise les performances du PC",
+      "cat": "systeme",
+      "intent": "desactiver services inutiles + optimiser",
+      "winner": "M2-coder",
+      "best_score": 95
+    },
+    {
+      "id": 33,
+      "cmd": "Mets a jour tout ce qui peut l'etre",
+      "cat": "systeme",
+      "intent": "MAJ Windows + applications",
+      "winner": "M2-coder",
+      "best_score": 78
+    },
+    {
+      "id": 34,
+      "cmd": "Scanne le systeme pour des virus",
+      "cat": "systeme",
+      "intent": "scan antivirus complet",
+      "winner": "M2-coder",
+      "best_score": 64
+    },
+    {
+      "id": 35,
+      "cmd": "Cree un point de restauration au cas ou",
+      "cat": "systeme",
+      "intent": "point de restauration systeme",
+      "winner": "OL1-qwen",
+      "best_score": 69
+    },
+    {
+      "id": 36,
+      "cmd": "Active le mode sombre, j'en ai marre du blanc",
+      "cat": "systeme",
+      "intent": "basculer en mode sombre",
+      "winner": "M2-coder",
+      "best_score": 71
+    },
+    {
+      "id": 37,
+      "cmd": "Quelles apps se lancent au demarrage? Desactive les inutiles",
+      "cat": "systeme",
+      "intent": "audit + nettoyage demarrage",
+      "winner": "OL1-qwen",
+      "best_score": 73
+    },
+    {
+      "id": 38,
+      "cmd": "Combien de RAM et de CPU j'utilise la?",
+      "cat": "systeme",
+      "intent": "metriques temps reel CPU/RAM",
+      "winner": "OL1-qwen",
+      "best_score": 83
+    },
+    {
+      "id": 39,
+      "cmd": "Configure le pare-feu pour bloquer les connexions entrantes",
+      "cat": "systeme",
+      "intent": "renforcer securite pare-feu",
+      "winner": "OL1-qwen",
+      "best_score": 79
+    },
+    {
+      "id": 40,
+      "cmd": "Planifie un redemarrage cette nuit a 3h",
+      "cat": "systeme",
+      "intent": "redemarrage planifie nocturne",
+      "winner": "M2-coder",
+      "best_score": 70
+    },
+    {
+      "id": 41,
+      "cmd": "Montre les derniers crashs ou erreurs systeme",
+      "cat": "systeme",
+      "intent": "analyse logs erreurs",
+      "winner": "M2-coder",
+      "best_score": 82
+    },
+    {
+      "id": 42,
+      "cmd": "Verifie que les disques sont en bonne sante",
+      "cat": "systeme",
+      "intent": "diagnostic sante disques",
+      "winner": "M1-qwen3",
+      "best_score": 77
+    },
+    {
+      "id": 43,
+      "cmd": "Installe Python 3.13 et Node.js",
+      "cat": "systeme",
+      "intent": "installation logiciels via package manager",
+      "winner": "M2-coder",
+      "best_score": 70
+    },
+    {
+      "id": 44,
+      "cmd": "Bloque l'acces a YouTube pendant 2 heures",
+      "cat": "systeme",
+      "intent": "bloquer site via hosts/firewall",
+      "winner": "M2-coder",
+      "best_score": 85
+    },
+    {
+      "id": 45,
+      "cmd": "Partage mon dossier Projets sur le reseau",
+      "cat": "systeme",
+      "intent": "creer partage reseau",
+      "winner": "OL1-qwen",
+      "best_score": 66
+    },
+    {
+      "id": 46,
+      "cmd": "Verifie que toutes les machines du cluster sont en ligne",
+      "cat": "cluster",
+      "intent": "health check 3 machines",
+      "winner": "M2-coder",
+      "best_score": 64
+    },
+    {
+      "id": 47,
+      "cmd": "C'est quoi la temperature GPU sur chaque machine?",
+      "cat": "cluster",
+      "intent": "monitoring thermique cluster",
+      "winner": "M2-coder",
+      "best_score": 86
+    },
+    {
+      "id": 48,
+      "cmd": "Charge le modele qwen3-30b sur M1",
+      "cat": "cluster",
+      "intent": "charger modele IA specifique",
+      "winner": "M2-coder",
+      "best_score": 68
+    },
+    {
+      "id": 49,
+      "cmd": "Compare les performances de M1 et M2 sur une question",
+      "cat": "cluster",
+      "intent": "benchmark comparatif 2 noeuds",
+      "winner": "M2-coder",
+      "best_score": 79
+    },
+    {
+      "id": 50,
+      "cmd": "Combien de VRAM il reste sur M1?",
+      "cat": "cluster",
+      "intent": "check VRAM disponible",
+      "winner": "OL1-qwen",
+      "best_score": 77
+    },
+    {
+      "id": 51,
+      "cmd": "Decharge les modeles inutilises pour liberer de la VRAM",
+      "cat": "cluster",
+      "intent": "liberer VRAM en dechargeant modeles",
+      "winner": "OL1-qwen",
+      "best_score": 73
+    },
+    {
+      "id": 52,
+      "cmd": "Lance un consensus sur la meilleure strategie de trading",
+      "cat": "cluster",
+      "intent": "consensus multi-agent trading",
+      "winner": "M2-coder",
+      "best_score": 86
+    },
+    {
+      "id": 53,
+      "cmd": "Quel modele est le plus rapide en ce moment?",
+      "cat": "cluster",
+      "intent": "benchmark latence temps reel",
+      "winner": "OL1-qwen",
+      "best_score": 70
+    },
+    {
+      "id": 54,
+      "cmd": "Redemarre Ollama, il a l'air bloque",
+      "cat": "cluster",
+      "intent": "restart service Ollama",
+      "winner": "OL1-qwen",
+      "best_score": 80
+    },
+    {
+      "id": 55,
+      "cmd": "Fait tourner les 3 machines sur un probleme de code",
+      "cat": "cluster",
+      "intent": "dispatch code review 3 noeuds",
+      "winner": "M2-coder",
+      "best_score": 89
+    },
+    {
+      "id": 56,
+      "cmd": "Sauvegarde la config de tous les modeles charges",
+      "cat": "cluster",
+      "intent": "export config cluster",
+      "winner": "OL1-qwen",
+      "best_score": 79
+    },
+    {
+      "id": 57,
+      "cmd": "Montre moi le dashboard du cluster en temps reel",
+      "cat": "cluster",
+      "intent": "ouvrir dashboard web",
+      "winner": "OL1-qwen",
+      "best_score": 64
+    },
+    {
+      "id": 58,
+      "cmd": "Active le failover, si M1 tombe M2 prend le relais",
+      "cat": "cluster",
+      "intent": "configurer basculement automatique",
+      "winner": "OL1-qwen",
+      "best_score": 75
+    },
+    {
+      "id": 59,
+      "cmd": "Quelle est la charge totale du cluster?",
+      "cat": "cluster",
+      "intent": "metriques agregees cluster",
+      "winner": "M2-coder",
+      "best_score": 82
+    },
+    {
+      "id": 60,
+      "cmd": "Envoie cette question aux 5 IA et compare les reponses",
+      "cat": "cluster",
+      "intent": "query broadcast + comparaison",
+      "winner": "M2-coder",
+      "best_score": 78
+    },
+    {
+      "id": 61,
+      "cmd": "Analyse les logs d'erreur et dis moi ce qui cloche",
+      "cat": "cognitif",
+      "intent": "analyse intelligente des logs",
+      "winner": "M2-coder",
+      "best_score": 77
+    },
+    {
+      "id": 62,
+      "cmd": "Resume ce qui s'est passe sur le PC depuis ce matin",
+      "cat": "cognitif",
+      "intent": "synthese activite journaliere",
+      "winner": "OL1-qwen",
+      "best_score": 68
+    },
+    {
+      "id": 63,
+      "cmd": "Quels fichiers j'ai modifie cette semaine?",
+      "cat": "cognitif",
+      "intent": "historique modifications recentes",
+      "winner": "M2-coder",
+      "best_score": 68
+    },
+    {
+      "id": 64,
+      "cmd": "Dis moi si mon PC est en securite",
+      "cat": "cognitif",
+      "intent": "audit securite rapide",
+      "winner": "M2-coder",
+      "best_score": 69
+    },
+    {
+      "id": 65,
+      "cmd": "Recommande moi des optimisations pour ce PC",
+      "cat": "cognitif",
+      "intent": "recommendations intelligentes",
+      "winner": "M2-coder",
+      "best_score": 88
+    },
+    {
+      "id": 66,
+      "cmd": "C'est quoi ce processus bizarre que je vois?",
+      "cat": "cognitif",
+      "intent": "analyse processus inconnu",
+      "winner": "OL1-qwen",
+      "best_score": 69
+    },
+    {
+      "id": 67,
+      "cmd": "Explique moi pourquoi le PC est lent aujourd'hui",
+      "cat": "cognitif",
+      "intent": "diagnostic intelligent performance",
+      "winner": "OL1-qwen",
+      "best_score": 87
+    },
+    {
+      "id": 68,
+      "cmd": "Prevois combien d'espace disque il me reste pour 30 jours",
+      "cat": "cognitif",
+      "intent": "prediction stockage",
+      "winner": "M2-coder",
+      "best_score": 64
+    },
+    {
+      "id": 69,
+      "cmd": "Y'a t'il des mises a jour critiques a faire?",
+      "cat": "cognitif",
+      "intent": "audit MAJ critiques",
+      "winner": "OL1-qwen",
+      "best_score": 69
+    },
+    {
+      "id": 70,
+      "cmd": "Fais un rapport de sante complet du cluster",
+      "cat": "cognitif",
+      "intent": "rapport sante cluster complet",
+      "winner": "M2-coder",
+      "best_score": 86
+    },
+    {
+      "id": 71,
+      "cmd": "Compare mon utilisation CPU d'aujourd'hui vs hier",
+      "cat": "cognitif",
+      "intent": "analyse tendance performance",
+      "winner": "M2-coder",
+      "best_score": 75
+    },
+    {
+      "id": 72,
+      "cmd": "Quels services consomment le plus de ressources?",
+      "cat": "cognitif",
+      "intent": "audit services par consommation",
+      "winner": "M2-coder",
+      "best_score": 92
+    },
+    {
+      "id": 73,
+      "cmd": "Donne moi un score de sante global de 0 a 100",
+      "cat": "cognitif",
+      "intent": "score sante synthetique",
+      "winner": "OL1-qwen",
+      "best_score": 76
+    },
+    {
+      "id": 74,
+      "cmd": "Detecte si quelqu'un a essaye de se connecter a mon PC",
+      "cat": "cognitif",
+      "intent": "analyse tentatives connexion",
+      "winner": "M1-qwen3",
+      "best_score": 69
+    },
+    {
+      "id": 75,
+      "cmd": "Suggere les meilleurs moments pour faire les mises a jour",
+      "cat": "cognitif",
+      "intent": "planification intelligente maintenance",
+      "winner": "M2-coder",
+      "best_score": 64
+    },
+    {
+      "id": 76,
+      "cmd": "Ouvre mon projet turbo et lance les tests",
+      "cat": "workflow",
+      "intent": "ouvrir projet + executer tests",
+      "winner": "OL1-qwen",
+      "best_score": 78
+    },
+    {
+      "id": 77,
+      "cmd": "Deploie la derniere version sur GitHub",
+      "cat": "workflow",
+      "intent": "pipeline git commit + push",
+      "winner": "OL1-qwen",
+      "best_score": 68
+    },
+    {
+      "id": 78,
+      "cmd": "Cherche dans mon code ou j'utilise asyncio",
+      "cat": "workflow",
+      "intent": "recherche code dans projet",
+      "winner": "OL1-qwen",
+      "best_score": 82
+    },
+    {
+      "id": 79,
+      "cmd": "Lance le serveur de dev et ouvre le navigateur",
+      "cat": "workflow",
+      "intent": "demarrer serveur + ouvrir browser",
+      "winner": "M2-coder",
+      "best_score": 80
+    },
+    {
+      "id": 80,
+      "cmd": "Fais un git status et montre moi les changements",
+      "cat": "workflow",
+      "intent": "etat git du projet",
+      "winner": "M2-coder",
+      "best_score": 76
+    },
+    {
+      "id": 81,
+      "cmd": "Cree une branche pour la nouvelle feature",
+      "cat": "workflow",
+      "intent": "creer branche git",
+      "winner": "M1-qwen3",
+      "best_score": 78
+    },
+    {
+      "id": 82,
+      "cmd": "Compile le projet et montre les erreurs",
+      "cat": "workflow",
+      "intent": "build + diagnostic erreurs",
+      "winner": "M1-qwen3",
+      "best_score": 75
+    },
+    {
+      "id": 83,
+      "cmd": "Sauvegarde mon travail, commit et push",
+      "cat": "workflow",
+      "intent": "pipeline git save complet",
+      "winner": "OL1-qwen",
+      "best_score": 78
+    },
+    {
+      "id": 84,
+      "cmd": "Montre moi les TODO dans le code",
+      "cat": "workflow",
+      "intent": "chercher annotations TODO",
+      "winner": "M2-coder",
+      "best_score": 58
+    },
+    {
+      "id": 85,
+      "cmd": "Installe les dependances du projet",
+      "cat": "workflow",
+      "intent": "installer deps projet",
+      "winner": "M1-qwen3",
+      "best_score": 77
+    },
+    {
+      "id": 86,
+      "cmd": "Lance Docker et demarre mes containers",
+      "cat": "workflow",
+      "intent": "demarrer environnement Docker",
+      "winner": "OL1-qwen",
+      "best_score": 78
+    },
+    {
+      "id": 87,
+      "cmd": "Formate tout le code du projet proprement",
+      "cat": "workflow",
+      "intent": "formatage code automatique",
+      "winner": "OL1-qwen",
+      "best_score": 59
+    },
+    {
+      "id": 88,
+      "cmd": "Montre les derniers commits du projet",
+      "cat": "workflow",
+      "intent": "historique git recent",
+      "winner": "M2-coder",
+      "best_score": 78
+    },
+    {
+      "id": 89,
+      "cmd": "Compare la branche actuelle avec main",
+      "cat": "workflow",
+      "intent": "diff branche vs main",
+      "winner": "OL1-qwen",
+      "best_score": 72
+    },
+    {
+      "id": 90,
+      "cmd": "Ouvre la doc du projet dans le navigateur",
+      "cat": "workflow",
+      "intent": "ouvrir documentation",
+      "winner": "M2-coder",
+      "best_score": 75
+    },
+    {
+      "id": 91,
+      "cmd": "Jarvis, quelle heure il est a Tokyo?",
+      "cat": "perso",
+      "intent": "convertir fuseau horaire",
+      "winner": "M1-qwen3",
+      "best_score": 78
+    },
+    {
+      "id": 92,
+      "cmd": "Dis moi un truc interessant sur l'IA",
+      "cat": "perso",
+      "intent": "conversation knowledge (cognitif pur)",
+      "winner": "M2-coder",
+      "best_score": 76
+    },
+    {
+      "id": 93,
+      "cmd": "Mets un fond d'ecran cool",
+      "cat": "perso",
+      "intent": "changer fond ecran",
+      "winner": "M2-coder",
+      "best_score": 76
+    },
+    {
+      "id": 94,
+      "cmd": "C'est quoi la meteo dehors?",
+      "cat": "perso",
+      "intent": "recuperer meteo en ligne",
+      "winner": "M2-coder",
+      "best_score": 66
+    },
+    {
+      "id": 95,
+      "cmd": "Calcule combien ca fait 15% de 2450 euros",
+      "cat": "perso",
+      "intent": "calcul mathematique rapide",
+      "winner": "M2-coder",
+      "best_score": 74
+    },
+    {
+      "id": 96,
+      "cmd": "Chronometre 5 minutes et previens moi",
+      "cat": "perso",
+      "intent": "timer avec notification",
+      "winner": "M2-coder",
+      "best_score": 83
+    },
+    {
+      "id": 97,
+      "cmd": "Traduis 'hello world' en japonais",
+      "cat": "perso",
+      "intent": "traduction texte (cognitif)",
+      "winner": "M2-coder",
+      "best_score": 83
+    },
+    {
+      "id": 98,
+      "cmd": "Lis moi les dernieres news tech",
+      "cat": "perso",
+      "intent": "recuperer actualites tech",
+      "winner": "M2-coder",
+      "best_score": 76
+    },
+    {
+      "id": 99,
+      "cmd": "Ecris un script Python qui trie une liste",
+      "cat": "perso",
+      "intent": "generation de code a la demande",
+      "winner": "OL1-qwen",
+      "best_score": 86
+    },
+    {
+      "id": 100,
+      "cmd": "Merci Jarvis, t'es le meilleur!",
+      "cat": "perso",
+      "intent": "reponse empathique + statut",
+      "winner": "M1-dsr1",
+      "best_score": 56
+    }
+  ]
+}

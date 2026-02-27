@@ -1,0 +1,743 @@
+{
+  "ts": "2026-02-27T03:15:31.732219",
+  "elapsed": 618.3,
+  "stats": {
+    "OL1-qwen": {
+      "total": 100,
+      "score_sum": 4110,
+      "lat_sum": 124.59,
+      "errors": 1,
+      "wins": 4
+    },
+    "M2-coder": {
+      "total": 100,
+      "score_sum": 7950,
+      "lat_sum": 322.8299999999999,
+      "errors": 0,
+      "wins": 69
+    },
+    "M1-qwen3": {
+      "total": 100,
+      "score_sum": 8320,
+      "lat_sum": 388.7000000000001,
+      "errors": 0,
+      "wins": 17
+    },
+    "M3-mistral": {
+      "total": 100,
+      "score_sum": 7710,
+      "lat_sum": 853.5699999999999,
+      "errors": 0,
+      "wins": 8
+    },
+    "M1-dsr1": {
+      "total": 100,
+      "score_sum": 1810,
+      "lat_sum": 1221.21,
+      "errors": 80,
+      "wins": 2
+    }
+  },
+  "results": [
+    {
+      "id": 1,
+      "cmd": "ouvre le dossier Documents",
+      "cat": "fichiers",
+      "winner": "M1-qwen3",
+      "best_score": 100
+    },
+    {
+      "id": 2,
+      "cmd": "cree un dossier Projets sur le bureau",
+      "cat": "fichiers",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 3,
+      "cmd": "supprime les fichiers temporaires",
+      "cat": "fichiers",
+      "winner": "OL1-qwen",
+      "best_score": 100
+    },
+    {
+      "id": 4,
+      "cmd": "liste les fichiers PDF sur le bureau",
+      "cat": "fichiers",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 5,
+      "cmd": "copie rapport.txt dans Documents",
+      "cat": "fichiers",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 6,
+      "cmd": "renomme ancien.txt en nouveau.txt",
+      "cat": "fichiers",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 7,
+      "cmd": "montre l'espace disque disponible",
+      "cat": "fichiers",
+      "winner": "M1-qwen3",
+      "best_score": 100
+    },
+    {
+      "id": 8,
+      "cmd": "compresse le dossier Logs en zip",
+      "cat": "fichiers",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 9,
+      "cmd": "cherche les fichiers modifies aujourd'hui",
+      "cat": "fichiers",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 10,
+      "cmd": "affiche la taille du dossier turbo",
+      "cat": "fichiers",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 11,
+      "cmd": "cree un fichier texte avec du contenu",
+      "cat": "fichiers",
+      "winner": "M1-qwen3",
+      "best_score": 100
+    },
+    {
+      "id": 12,
+      "cmd": "deplace tous les PNG dans images",
+      "cat": "fichiers",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 13,
+      "cmd": "affiche les 10 plus gros fichiers",
+      "cat": "fichiers",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 14,
+      "cmd": "vide la corbeille",
+      "cat": "fichiers",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 15,
+      "cmd": "ouvre config.json dans notepad",
+      "cat": "fichiers",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 16,
+      "cmd": "liste les processus gourmands en memoire",
+      "cat": "processus",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 17,
+      "cmd": "ferme Chrome",
+      "cat": "processus",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 18,
+      "cmd": "lance le calculateur Windows",
+      "cat": "processus",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 19,
+      "cmd": "ouvre VS Code dans turbo",
+      "cat": "processus",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 20,
+      "cmd": "verifie si Discord tourne",
+      "cat": "processus",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 21,
+      "cmd": "ouvre le gestionnaire de taches",
+      "cat": "processus",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 22,
+      "cmd": "redemarre l'explorateur Windows",
+      "cat": "processus",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 23,
+      "cmd": "affiche l'utilisation CPU",
+      "cat": "processus",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 24,
+      "cmd": "lance PowerShell admin",
+      "cat": "processus",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 25,
+      "cmd": "ferme toutes les fenetres Notepad",
+      "cat": "processus",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 26,
+      "cmd": "liste les applications installees",
+      "cat": "processus",
+      "winner": "M2-coder",
+      "best_score": 60
+    },
+    {
+      "id": 27,
+      "cmd": "ouvre les parametres Windows",
+      "cat": "processus",
+      "winner": "M1-qwen3",
+      "best_score": 100
+    },
+    {
+      "id": 28,
+      "cmd": "lance un terminal Windows",
+      "cat": "processus",
+      "winner": "M2-coder",
+      "best_score": 60
+    },
+    {
+      "id": 29,
+      "cmd": "affiche le uptime du PC",
+      "cat": "processus",
+      "winner": "M3-mistral",
+      "best_score": 100
+    },
+    {
+      "id": 30,
+      "cmd": "kill le processus PID 1234",
+      "cat": "processus",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 31,
+      "cmd": "affiche mon adresse IP",
+      "cat": "reseau",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 32,
+      "cmd": "ping google.com",
+      "cat": "reseau",
+      "winner": "M1-qwen3",
+      "best_score": 100
+    },
+    {
+      "id": 33,
+      "cmd": "affiche les connexions reseau actives",
+      "cat": "reseau",
+      "winner": "OL1-qwen",
+      "best_score": 70
+    },
+    {
+      "id": 34,
+      "cmd": "teste la vitesse de connexion",
+      "cat": "reseau",
+      "winner": "M1-qwen3",
+      "best_score": 100
+    },
+    {
+      "id": 35,
+      "cmd": "affiche le nom du WiFi connecte",
+      "cat": "reseau",
+      "winner": "M2-coder",
+      "best_score": 60
+    },
+    {
+      "id": 36,
+      "cmd": "ouvre les parametres reseau",
+      "cat": "reseau",
+      "winner": "M1-qwen3",
+      "best_score": 100
+    },
+    {
+      "id": 37,
+      "cmd": "affiche la table de routage",
+      "cat": "reseau",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 38,
+      "cmd": "scanne les ports ouverts",
+      "cat": "reseau",
+      "winner": "M1-qwen3",
+      "best_score": 100
+    },
+    {
+      "id": 39,
+      "cmd": "affiche le DNS configure",
+      "cat": "reseau",
+      "winner": "M1-qwen3",
+      "best_score": 100
+    },
+    {
+      "id": 40,
+      "cmd": "flush le cache DNS",
+      "cat": "reseau",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 41,
+      "cmd": "affiche la bande passante",
+      "cat": "reseau",
+      "winner": "M2-coder",
+      "best_score": 60
+    },
+    {
+      "id": 42,
+      "cmd": "resous github.com",
+      "cat": "reseau",
+      "winner": "M1-dsr1",
+      "best_score": 100
+    },
+    {
+      "id": 43,
+      "cmd": "verifie port 1234 sur M1",
+      "cat": "reseau",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 44,
+      "cmd": "affiche les partages reseau",
+      "cat": "reseau",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 45,
+      "cmd": "desactive puis reactive WiFi",
+      "cat": "reseau",
+      "winner": "OL1-qwen",
+      "best_score": 70
+    },
+    {
+      "id": 46,
+      "cmd": "affiche les infos systeme",
+      "cat": "systeme",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 47,
+      "cmd": "affiche la version Windows",
+      "cat": "systeme",
+      "winner": "M2-coder",
+      "best_score": 60
+    },
+    {
+      "id": 48,
+      "cmd": "verifie les mises a jour",
+      "cat": "systeme",
+      "winner": "OL1-qwen",
+      "best_score": 100
+    },
+    {
+      "id": 49,
+      "cmd": "affiche la RAM disponible",
+      "cat": "systeme",
+      "winner": "M2-coder",
+      "best_score": 60
+    },
+    {
+      "id": 50,
+      "cmd": "affiche la temperature GPU",
+      "cat": "systeme",
+      "winner": "M2-coder",
+      "best_score": 60
+    },
+    {
+      "id": 51,
+      "cmd": "affiche les variables d'env",
+      "cat": "systeme",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 52,
+      "cmd": "ajoute un chemin au PATH",
+      "cat": "systeme",
+      "winner": "M1-qwen3",
+      "best_score": 100
+    },
+    {
+      "id": 53,
+      "cmd": "planifie un redemarrage",
+      "cat": "systeme",
+      "winner": "M3-mistral",
+      "best_score": 100
+    },
+    {
+      "id": 54,
+      "cmd": "annule le redemarrage",
+      "cat": "systeme",
+      "winner": "M3-mistral",
+      "best_score": 90
+    },
+    {
+      "id": 55,
+      "cmd": "affiche les events recents",
+      "cat": "systeme",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 56,
+      "cmd": "verifie integrite fichiers",
+      "cat": "systeme",
+      "winner": "M2-coder",
+      "best_score": 60
+    },
+    {
+      "id": 57,
+      "cmd": "affiche les pilotes",
+      "cat": "systeme",
+      "winner": "M2-coder",
+      "best_score": 60
+    },
+    {
+      "id": 58,
+      "cmd": "verifie sante du disque",
+      "cat": "systeme",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 59,
+      "cmd": "cles registre demarrage",
+      "cat": "systeme",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 60,
+      "cmd": "cree un point de restauration",
+      "cat": "systeme",
+      "winner": "M2-coder",
+      "best_score": 60
+    },
+    {
+      "id": 61,
+      "cmd": "liste les services actifs",
+      "cat": "services",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 62,
+      "cmd": "redemarre Windows Update",
+      "cat": "services",
+      "winner": "M3-mistral",
+      "best_score": 100
+    },
+    {
+      "id": 63,
+      "cmd": "arrete le spouleur",
+      "cat": "services",
+      "winner": "M1-dsr1",
+      "best_score": 90
+    },
+    {
+      "id": 64,
+      "cmd": "affiche services desactives",
+      "cat": "services",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 65,
+      "cmd": "statut du pare-feu",
+      "cat": "services",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 66,
+      "cmd": "active bureau a distance",
+      "cat": "services",
+      "winner": "M2-coder",
+      "best_score": 60
+    },
+    {
+      "id": 67,
+      "cmd": "affiche taches planifiees",
+      "cat": "services",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 68,
+      "cmd": "cree tache quotidienne",
+      "cat": "services",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 69,
+      "cmd": "verifie Windows Defender",
+      "cat": "services",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 70,
+      "cmd": "scan antivirus rapide",
+      "cat": "services",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 71,
+      "cmd": "monte le volume a 80%",
+      "cat": "audio",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 72,
+      "cmd": "coupe le son",
+      "cat": "audio",
+      "winner": "M3-mistral",
+      "best_score": 100
+    },
+    {
+      "id": 73,
+      "cmd": "capture d'ecran",
+      "cat": "audio",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 74,
+      "cmd": "ouvre mixeur volume",
+      "cat": "audio",
+      "winner": "M2-coder",
+      "best_score": 60
+    },
+    {
+      "id": 75,
+      "cmd": "peripheriques audio",
+      "cat": "audio",
+      "winner": "M1-qwen3",
+      "best_score": 100
+    },
+    {
+      "id": 76,
+      "cmd": "joue un son notification",
+      "cat": "audio",
+      "winner": "M2-coder",
+      "best_score": 60
+    },
+    {
+      "id": 77,
+      "cmd": "ouvre lecteur media",
+      "cat": "audio",
+      "winner": "M3-mistral",
+      "best_score": 100
+    },
+    {
+      "id": 78,
+      "cmd": "enregistre l'ecran 10s",
+      "cat": "audio",
+      "winner": "M1-qwen3",
+      "best_score": 60
+    },
+    {
+      "id": 79,
+      "cmd": "dis bonjour vocal",
+      "cat": "audio",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 80,
+      "cmd": "resolution d'ecran",
+      "cat": "audio",
+      "winner": "M2-coder",
+      "best_score": 60
+    },
+    {
+      "id": 81,
+      "cmd": "active mode sombre",
+      "cat": "affichage",
+      "winner": "M2-coder",
+      "best_score": 60
+    },
+    {
+      "id": 82,
+      "cmd": "active mode clair",
+      "cat": "affichage",
+      "winner": "M2-coder",
+      "best_score": 60
+    },
+    {
+      "id": 83,
+      "cmd": "verrouille la session",
+      "cat": "affichage",
+      "winner": "M1-qwen3",
+      "best_score": 60
+    },
+    {
+      "id": 84,
+      "cmd": "minimise toutes fenetres",
+      "cat": "affichage",
+      "winner": "M1-qwen3",
+      "best_score": 100
+    },
+    {
+      "id": 85,
+      "cmd": "restaure toutes fenetres",
+      "cat": "affichage",
+      "winner": "M2-coder",
+      "best_score": 60
+    },
+    {
+      "id": 86,
+      "cmd": "change le fond d'ecran",
+      "cat": "affichage",
+      "winner": "M2-coder",
+      "best_score": 60
+    },
+    {
+      "id": 87,
+      "cmd": "active veilleuse",
+      "cat": "affichage",
+      "winner": "M2-coder",
+      "best_score": 60
+    },
+    {
+      "id": 88,
+      "cmd": "moniteurs connectes",
+      "cat": "affichage",
+      "winner": "M2-coder",
+      "best_score": 60
+    },
+    {
+      "id": 89,
+      "cmd": "parametres affichage",
+      "cat": "affichage",
+      "winner": "M1-qwen3",
+      "best_score": 100
+    },
+    {
+      "id": 90,
+      "cmd": "clavier virtuel",
+      "cat": "affichage",
+      "winner": "M1-qwen3",
+      "best_score": 100
+    },
+    {
+      "id": 91,
+      "cmd": "ouvre calendrier",
+      "cat": "productivite",
+      "winner": "M2-coder",
+      "best_score": 90
+    },
+    {
+      "id": 92,
+      "cmd": "rappel dans 30 minutes",
+      "cat": "productivite",
+      "winner": "M3-mistral",
+      "best_score": 100
+    },
+    {
+      "id": 93,
+      "cmd": "affiche date et heure",
+      "cat": "productivite",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 94,
+      "cmd": "ouvre calculatrice",
+      "cat": "productivite",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 95,
+      "cmd": "copie texte presse-papier",
+      "cat": "productivite",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 96,
+      "cmd": "contenu presse-papier",
+      "cat": "productivite",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 97,
+      "cmd": "ouvre un site web",
+      "cat": "productivite",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 98,
+      "cmd": "affiche la meteo",
+      "cat": "productivite",
+      "winner": "M2-coder",
+      "best_score": 100
+    },
+    {
+      "id": 99,
+      "cmd": "eteins PC dans 5 min",
+      "cat": "productivite",
+      "winner": "M3-mistral",
+      "best_score": 100
+    },
+    {
+      "id": 100,
+      "cmd": "annule l'extinction",
+      "cat": "productivite",
+      "winner": "M1-qwen3",
+      "best_score": 100
+    }
+  ]
+}
