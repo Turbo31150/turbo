@@ -26,7 +26,8 @@ from typing import Any
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 
 # ── Ensure turbo root is on sys.path ────────────────────────────────────────
 _turbo_root = str(Path(__file__).resolve().parent.parent)
@@ -71,6 +72,19 @@ app.include_router(sql_router, prefix="/sql")
 @app.get("/health")
 async def health():
     return JSONResponse({"status": "ok", "service": "jarvis-ws", "port": 9742})
+
+
+# ── WhisperFlow static serving ─────────────────────────────────────────────
+_whisperflow_dir = Path(__file__).resolve().parent.parent / "whisperflow"
+
+@app.get("/whisperflow")
+@app.get("/whisperflow/")
+async def whisperflow_index():
+    """Serve WhisperFlow UI at http://127.0.0.1:9742/whisperflow/"""
+    return FileResponse(_whisperflow_dir / "index.html")
+
+if _whisperflow_dir.exists():
+    app.mount("/whisperflow/static", StaticFiles(directory=str(_whisperflow_dir)), name="whisperflow")
 
 
 # ── Channel router ──────────────────────────────────────────────────────────
@@ -172,16 +186,21 @@ async def websocket_endpoint(websocket: WebSocket):
                     await _push_chat_events(websocket, result)
                 elif channel == "voice" and action == "stop_recording" and not error:
                     await _push_voice_events(websocket, result)
+            except WebSocketDisconnect:
+                raise
             except Exception as exc:
-                logger.exception("Handler error: %s/%s", channel, action)
-                await websocket.send_json({
-                    "id": msg_id,
-                    "type": "response",
-                    "channel": channel,
-                    "action": action,
-                    "payload": None,
-                    "error": str(exc),
-                })
+                logger.warning("Handler error: %s/%s: %s", channel, action, exc)
+                try:
+                    await websocket.send_json({
+                        "id": msg_id,
+                        "type": "response",
+                        "channel": channel,
+                        "action": action,
+                        "payload": None,
+                        "error": str(exc),
+                    })
+                except (WebSocketDisconnect, Exception):
+                    raise WebSocketDisconnect(code=1006)
 
     except WebSocketDisconnect:
         logger.info("WebSocket client disconnected")

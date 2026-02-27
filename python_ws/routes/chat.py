@@ -107,54 +107,131 @@ async def _send_message(payload: dict) -> dict:
         return {"error": str(e), "message": error_msg}
 
 
+JARVIS_SYSTEM = (
+    "Tu es JARVIS, assistant IA vocal francais. "
+    "Reponds de facon concise (2-3 phrases max) et naturelle. "
+    "Tu controles un cluster de machines IA (M1, M2, M3, OL1) et tu peux "
+    "executer des commandes systeme, trading, diagnostic. "
+    "Reponds toujours en francais."
+)
+
+
+def _build_chat_history(current_text: str, max_turns: int = 6) -> list[dict]:
+    """Build message history from session for context-aware responses."""
+    history = [{"role": "system", "content": JARVIS_SYSTEM}]
+    # Take last N messages (user + assistant pairs)
+    recent = _session.messages[-(max_turns * 2):]
+    for msg in recent:
+        role = msg["role"]
+        content = msg["content"]
+        if role == "user":
+            history.append({"role": "user", "content": content})
+        elif role == "assistant":
+            # Strip [M1]/[OL1] tags from history to avoid confusing the model
+            clean = content
+            for tag in ("[M1] ", "[OL1] ", "[M2] ", "[M3] ", "[GEMINI] "):
+                if clean.startswith(tag):
+                    clean = clean[len(tag):]
+            history.append({"role": "assistant", "content": clean})
+    # Add current user message
+    history.append({"role": "user", "content": current_text})
+    return history
+
+
+def _build_lmstudio_input(current_text: str, max_turns: int = 6) -> str:
+    """Build conversation input for LM Studio Responses API."""
+    parts = [f"/nothink\n{JARVIS_SYSTEM}"]
+    recent = _session.messages[-(max_turns * 2):]
+    for msg in recent:
+        role = msg["role"]
+        content = msg["content"]
+        if role == "user":
+            parts.append(f"\nUtilisateur: {content}")
+        elif role == "assistant":
+            clean = content
+            for tag in ("[M1] ", "[OL1] ", "[M2] ", "[M3] ", "[GEMINI] "):
+                if clean.startswith(tag):
+                    clean = clean[len(tag):]
+            parts.append(f"\nJARVIS: {clean}")
+    parts.append(f"\nUtilisateur: {current_text}")
+    return "\n".join(parts)
+
+
 async def _query_local_ia(text: str, task_type: str) -> str:
     """Query local IA nodes for a response."""
     import httpx
 
-    # Route to best node based on task type
-    nodes_config = {
-        "simple": ("http://127.0.0.1:11434/api/chat", "ollama", "qwen3:1.7b"),
-        "code": ("http://192.168.1.26:1234/api/v1/chat", "lmstudio", "deepseek-coder-v2-lite-instruct"),
-        "analyse": ("http://192.168.1.26:1234/api/v1/chat", "lmstudio", "deepseek-coder-v2-lite-instruct"),
-        "trading": ("http://127.0.0.1:11434/api/chat", "ollama", "qwen3:1.7b"),
-        "web": ("http://127.0.0.1:11434/api/chat", "ollama", "minimax-m2.5:cloud"),
-    }
+    # Route: M1 priority, fallback OL1, then M2
+    nodes_priority = [
+        {
+            "name": "M1", "url": "http://10.5.0.2:1234/api/v1/chat",
+            "backend": "lmstudio", "model": "qwen3-8b",
+            "auth": "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7",
+        },
+        {
+            "name": "OL1", "url": "http://127.0.0.1:11434/api/chat",
+            "backend": "ollama", "model": "qwen3:1.7b",
+        },
+        {
+            "name": "M2", "url": "http://192.168.1.26:1234/api/v1/chat",
+            "backend": "lmstudio", "model": "deepseek-coder-v2-lite-instruct",
+            "auth": "Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4",
+        },
+    ]
 
-    url, backend, model = nodes_config.get(task_type, nodes_config["simple"])
+    if task_type == "web":
+        nodes_priority.insert(0, {
+            "name": "OL1-cloud", "url": "http://127.0.0.1:11434/api/chat",
+            "backend": "ollama", "model": "minimax-m2.5:cloud",
+        })
 
-    async with httpx.AsyncClient(timeout=60.0) as client:
-        try:
-            if backend == "ollama":
-                resp = await client.post(url, json={
-                    "model": model,
-                    "messages": [{"role": "user", "content": text}],
-                    "stream": False,
-                    "think": False,
-                })
-                data = resp.json()
-                return data.get("message", {}).get("content", "Pas de reponse")
-            else:
-                headers = {"Content-Type": "application/json"}
-                if "192.168.1.26" in url:
-                    headers["Authorization"] = "Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4"
-                resp = await client.post(url, headers=headers, json={
-                    "model": model,
-                    "input": text,
-                    "temperature": 0.3,
-                    "max_output_tokens": 4096,
-                    "stream": False,
-                    "store": False,
-                })
-                data = resp.json()
-                # Extract from LM Studio response
-                output = data.get("output", [])
-                if isinstance(output, list):
-                    for item in output:
-                        if isinstance(item, dict) and item.get("content"):
-                            return item["content"]
-                return str(output) if output else "Pas de reponse"
-        except Exception as e:
-            return f"[Erreur IA] {e}"
+    # Build conversation history with memory
+    chat_messages = _build_chat_history(text)
+    lmstudio_input = _build_lmstudio_input(text)
+
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        for node in nodes_priority:
+            try:
+                if node["backend"] == "ollama":
+                    resp = await client.post(node["url"], json={
+                        "model": node["model"],
+                        "messages": chat_messages,
+                        "stream": False,
+                        "think": False,
+                    })
+                    data = resp.json()
+                    content = data.get("message", {}).get("content", "")
+                    if content and content.strip():
+                        return f"[{node['name']}] {content.strip()}"
+                else:
+                    headers = {"Content-Type": "application/json"}
+                    if node.get("auth"):
+                        headers["Authorization"] = node["auth"]
+                    resp = await client.post(node["url"], headers=headers, json={
+                        "model": node["model"],
+                        "input": lmstudio_input,
+                        "temperature": 0.3,
+                        "max_output_tokens": 512,
+                        "stream": False,
+                        "store": False,
+                    })
+                    data = resp.json()
+                    if data.get("error"):
+                        continue
+                    # LM Studio: output[].content is string or content[].text
+                    for item in reversed(data.get("output", [])):
+                        if isinstance(item, dict) and item.get("type") == "message":
+                            c = item.get("content", "")
+                            if isinstance(c, str) and c.strip():
+                                return f"[{node['name']}] {c.strip()}"
+                            if isinstance(c, list):
+                                for part in c:
+                                    if isinstance(part, dict) and part.get("text", "").strip():
+                                        return f"[{node['name']}] {part['text'].strip()}"
+            except Exception:
+                continue
+
+    return "Aucun agent disponible."
 
 
 def _get_agent_for_task(task_type: str) -> str:

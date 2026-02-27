@@ -1,18 +1,34 @@
 """Voice route — Audio processing, Whisper transcription, TTS."""
 import asyncio
 import base64
-import io
+import logging
 import time
-import wave
 from typing import Any
 
-# Try to import Whisper worker
-try:
-    from src.whisper_worker import WhisperWorker
-    _whisper = WhisperWorker()
-except ImportError:
-    _whisper = None
+logger = logging.getLogger("jarvis.voice")
 
+# Lazy-loaded Whisper worker (avoids blocking server startup)
+_whisper = None
+_whisper_init_attempted = False
+
+
+def _get_whisper():
+    """Lazily initialize WhisperWorker on first use."""
+    global _whisper, _whisper_init_attempted
+    if _whisper_init_attempted:
+        return _whisper
+    _whisper_init_attempted = True
+    try:
+        from src.whisper_worker import WhisperWorker
+        _whisper = WhisperWorker()
+        logger.info("WhisperWorker loaded successfully")
+    except Exception as e:
+        logger.warning("WhisperWorker unavailable: %s", e)
+        _whisper = None
+    return _whisper
+
+
+# Voice correction (async function)
 try:
     from src.voice_correction import full_correction_pipeline
 except ImportError:
@@ -20,10 +36,13 @@ except ImportError:
 
 
 class AudioBuffer:
-    """Accumulates audio chunks for transcription."""
+    """Accumulates audio chunks for transcription.
 
-    def __init__(self, sample_rate: int = 16000):
-        self.sample_rate = sample_rate
+    Browser sends WebM/Opus chunks via base64. We concatenate them
+    and pass the raw WebM to faster-whisper (which uses ffmpeg internally).
+    """
+
+    def __init__(self):
         self.chunks: list[bytes] = []
         self.recording = False
 
@@ -36,20 +55,11 @@ class AudioBuffer:
             self.chunks.append(base64.b64decode(b64_data))
 
     def stop(self) -> bytes:
+        """Return raw audio bytes (WebM/Opus from browser)."""
         self.recording = False
         if not self.chunks:
             return b""
         return b"".join(self.chunks)
-
-    def to_wav(self, pcm_data: bytes) -> bytes:
-        """Convert raw PCM to WAV."""
-        buf = io.BytesIO()
-        with wave.open(buf, "wb") as wf:
-            wf.setnchannels(1)
-            wf.setsampwidth(2)  # 16-bit
-            wf.setframerate(self.sample_rate)
-            wf.writeframes(pcm_data)
-        return buf.getvalue()
 
 
 _buffer = AudioBuffer()
@@ -82,34 +92,48 @@ def _handle_chunk(payload: dict) -> dict:
 
 async def _handle_stop() -> dict:
     """Stop recording and transcribe."""
-    pcm_data = _buffer.stop()
-    if not pcm_data:
+    audio_data = _buffer.stop()
+    if not audio_data:
         return {"error": "No audio data"}
 
-    wav_data = _buffer.to_wav(pcm_data)
-
-    # Transcribe
+    # Transcribe — pass raw bytes (WebM/Opus) to WhisperWorker
+    whisper = _get_whisper()
     text = ""
-    if _whisper:
+    if whisper:
         try:
-            text = await asyncio.to_thread(_whisper.transcribe, wav_data)
+            text = await asyncio.to_thread(whisper.transcribe, audio_data)
         except Exception as e:
+            logger.error("Whisper error: %s", e)
             text = f"[Erreur Whisper] {e}"
     else:
-        text = "[Whisper non disponible — module src.whisper_worker manquant]"
+        text = "[Whisper non disponible]"
 
-    # Correct
+    # Voice correction (async function — returns dict with corrected text + command)
     corrected = text
-    if full_correction_pipeline and text:
+    domino = None
+    if full_correction_pipeline and text and not text.startswith("["):
         try:
-            corrected = await asyncio.to_thread(full_correction_pipeline, text)
-        except Exception:
+            result = await full_correction_pipeline(text)
+            if isinstance(result, dict):
+                corrected = result.get("corrected", text)
+                cmd = result.get("command")
+                if cmd and hasattr(cmd, "name"):
+                    domino = {
+                        "id": cmd.name,
+                        "category": getattr(cmd, "category", ""),
+                        "description": getattr(cmd, "description", ""),
+                    }
+            elif isinstance(result, str):
+                corrected = result
+        except Exception as e:
+            logger.warning("Voice correction error: %s", e)
             corrected = text
 
     entry = {
         "timestamp": time.time(),
         "original": text,
         "corrected": corrected,
+        "domino": domino,
     }
     _transcriptions.append(entry)
 
@@ -117,25 +141,27 @@ async def _handle_stop() -> dict:
 
 
 async def _handle_tts(payload: dict) -> dict:
-    """Text-to-speech via Windows SAPI (PowerShell)."""
+    """Text-to-speech via Edge TTS."""
     text = payload.get("text", "").strip()
     if not text:
         return {"error": "Empty text"}
 
     try:
-        # Use Windows SAPI via PowerShell (asyncio.create_subprocess_exec is safe)
-        escaped = text.replace('"', '`"').replace("'", "''")
-        ps_cmd = (
-            "Add-Type -AssemblyName System.Speech; "
-            "$s = New-Object System.Speech.Synthesis.SpeechSynthesizer; "
-            f"$s.Speak('{escaped}')"
-        )
+        import edge_tts
+        import tempfile
+        voice = payload.get("voice", "fr-FR-HenriNeural")
+        comm = edge_tts.Communicate(text, voice)
+        tmp = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
+        tmp.close()
+        await comm.save(tmp.name)
+
+        # Play via ffplay (non-blocking)
         proc = await asyncio.create_subprocess_exec(
-            "powershell", "-Command", ps_cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
+            "ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", tmp.name,
+            stdout=asyncio.subprocess.DEVNULL,
+            stderr=asyncio.subprocess.DEVNULL,
         )
-        await asyncio.wait_for(proc.wait(), timeout=30)
-        return {"spoken": True, "text": text}
+        # Don't await — let it play in background
+        return {"spoken": True, "text": text, "voice": voice}
     except Exception as e:
         return {"error": f"TTS failed: {e}"}
