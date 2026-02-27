@@ -1495,4 +1495,167 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
         "prepare la demo", "mode demo", "setup presentation",
         "je vais presenter",
     ], "pipeline", "powershell:(New-Object -ComObject Shell.Application).MinimizeAll();;sleep:1;;app_open:wt;;sleep:1;;browser:navigate:https://docs.google.com/presentation;;powershell:\"Demo preparation terminee — Bureau propre + Terminal + Slides\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CLUSTER MANAGEMENT — Gestion du cluster IA (M1/M2/M3/OL1)
+    # Pilotage des noeuds, modeles, health checks, benchmarks
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("cluster_health_live", "pipeline", "Health check live: ping M1 + M2 + M3 + OL1 + GPU temperatures", [
+        "health check cluster", "etat du cluster", "comment va le cluster",
+        "check les machines", "status des noeuds",
+        "verifie le cluster", "cluster status",
+    ], "pipeline", "powershell:$m1 = try{(Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; $m2 = try{(Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; $m3 = try{(Invoke-WebRequest -Uri 'http://192.168.1.113:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux'} -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; $ol1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; \"Cluster: M1=$(if($m1 -eq 200){'OK'}else{'OFF'}) | M2=$(if($m2 -eq 200){'OK'}else{'OFF'}) | M3=$(if($m3 -eq 200){'OK'}else{'OFF'}) | OL1=$(if($ol1 -eq 200){'OK'}else{'OFF'})\";;powershell:nvidia-smi --query-gpu=name,temperature.gpu,memory.used,memory.total --format=csv,noheader,nounits 2>&1 | Out-String"),
+
+    JarvisCommand("cluster_model_status", "pipeline", "Modeles charges sur chaque noeud du cluster", [
+        "quels modeles sont charges", "modeles actifs", "models loaded",
+        "liste les modeles", "qu'est-ce qui tourne sur le cluster",
+    ], "pipeline", "powershell:$r = Invoke-RestMethod -Uri 'http://10.5.0.2:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 5; $loaded = ($r.models | Where-Object {$_.loaded_instances -gt 0}).id -join ', '; \"M1: $loaded\";;powershell:$r = Invoke-RestMethod -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -TimeoutSec 5; $loaded = ($r.models | Where-Object {$_.loaded_instances -gt 0}).id -join ', '; \"M2: $loaded\";;powershell:$r = Invoke-RestMethod -Uri 'http://192.168.1.113:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux'} -TimeoutSec 5; $loaded = ($r.models | Where-Object {$_.loaded_instances -gt 0}).id -join ', '; \"M3: $loaded\";;powershell:$r = Invoke-RestMethod -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 5; \"OL1: \" + ($r.models.name -join ', ')"),
+
+    JarvisCommand("cluster_reload_m1", "pipeline", "Recharger qwen3-8b sur M1 (machine principale)", [
+        "recharge m1", "reload m1", "relance le modele sur m1",
+        "redemarre qwen sur m1", "reset m1",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://10.5.0.2:1234/api/v1/models/load' -Method Post -Body '{\"model\":\"qwen3-8b\"}' -ContentType 'application/json' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 60; 'M1 qwen3-8b rechargement lance';;sleep:5;;powershell:$r = Invoke-RestMethod -Uri 'http://10.5.0.2:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 5; $loaded = ($r.models | Where-Object {$_.loaded_instances -gt 0}).id -join ', '; \"M1 modeles actifs: $loaded\"", confirm=True),
+
+    JarvisCommand("cluster_restart_ollama", "pipeline", "Redemarrer Ollama local (OL1)", [
+        "redemarre ollama", "restart ollama", "relance ollama",
+        "reset ol1", "ol1 restart",
+    ], "pipeline", "powershell:Stop-Process -Name 'ollama' -Force -ErrorAction SilentlyContinue; 'Ollama arrete';;sleep:2;;powershell:Start-Process 'ollama' -ArgumentList 'serve' -WindowStyle Hidden; 'Ollama redemarrage...';;sleep:3;;powershell:$r = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 5 -UseBasicParsing).StatusCode}catch{0}; if($r -eq 200){'OL1 OK — Ollama operationnel'}else{'OL1 ERREUR — Ollama ne repond pas'}", confirm=True),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DIAGNOSTIC INTELLIGENT — Analyse systeme via cluster IA
+    # Collecte donnees systeme + envoi au cluster pour analyse
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("diag_intelligent_pc", "pipeline", "Diagnostic intelligent: collecte CPU/RAM/GPU/disque + analyse IA via M1", [
+        "diagnostic intelligent", "analyse mon pc avec l'ia",
+        "diagnostic ia", "scan intelligent du systeme",
+        "jarvis analyse mon systeme",
+    ], "pipeline", "powershell:$cpu = (Get-CimInstance Win32_Processor).LoadPercentage; $os = Get-CimInstance Win32_OperatingSystem; $ram = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); $total = [math]::Round($os.TotalVisibleMemorySize/1MB,1); $gpu = nvidia-smi --query-gpu=temperature.gpu,utilization.gpu,memory.used,memory.total --format=csv,noheader,nounits 2>&1; $disk = Get-CimInstance Win32_LogicalDisk -Filter \"DriveType=3\" | ForEach-Object {\"$($_.DeviceID) $([math]::Round($_.FreeSpace/1GB))/$([math]::Round($_.Size/1GB))GB\"}; $data = \"CPU:${cpu}% RAM:${ram}/${total}GB GPU:$gpu Disques:$($disk -join ' ')\"; $body = @{model='qwen3-8b';messages=@(@{role='user';content=\"/nothink`nAnalyse ces metriques systeme Windows et dis si tout va bien ou s'il y a un probleme. Sois concis (3 lignes max): $data\"});temperature=0.2;max_tokens=256} | ConvertTo-Json -Depth 3; $r = Invoke-RestMethod -Uri 'http://10.5.0.2:1234/v1/chat/completions' -Method Post -Body $body -ContentType 'application/json' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15; \"[M1/qwen3] $($r.choices[0].message.content)\""),
+
+    JarvisCommand("diag_pourquoi_lent", "pipeline", "Mon PC rame: top processus + analyse IA de la cause", [
+        "mon pc rame", "pourquoi c'est lent", "c'est lent",
+        "le pc est lent", "ca rame", "pourquoi ca lag",
+        "mon ordinateur est lent",
+    ], "pipeline", "powershell:$procs = Get-Process | Sort-Object -Property WorkingSet64 -Descending | Select-Object -First 8 Name, @{N='RAM_MB';E={[math]::Round($_.WorkingSet64/1MB)}}, CPU | Format-Table -AutoSize | Out-String; $cpu = (Get-CimInstance Win32_Processor).LoadPercentage; \"CPU: ${cpu}% — Top processus RAM:`n$procs\";;powershell:$procs = Get-Process | Sort-Object -Property WorkingSet64 -Descending | Select-Object -First 5 Name, @{N='MB';E={[math]::Round($_.WorkingSet64/1MB)}} | ForEach-Object {\"$($_.Name):$($_.MB)MB\"} -join ','; $body = @{model='qwen3-8b';messages=@(@{role='user';content=\"/nothink`nPC Windows lent. Top processus: $procs. CPU: $((Get-CimInstance Win32_Processor).LoadPercentage)%. Identifie la cause probable et donne 1 solution concrete (2 lignes max).\"});temperature=0.2;max_tokens=200} | ConvertTo-Json -Depth 3; $r = Invoke-RestMethod -Uri 'http://10.5.0.2:1234/v1/chat/completions' -Method Post -Body $body -ContentType 'application/json' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15; \"Diagnostic IA: $($r.choices[0].message.content)\""),
+
+    JarvisCommand("diag_gpu_thermal", "pipeline", "Check temperatures GPU + alerte si surchauffe", [
+        "temperature gpu", "les gpu sont chauds", "check gpu temp",
+        "surchauffe gpu", "monitoring thermique",
+        "jarvis les gpu sont ok",
+    ], "pipeline", "powershell:$gpu = nvidia-smi --query-gpu=index,name,temperature.gpu,utilization.gpu,memory.used,memory.total,power.draw --format=csv,noheader 2>&1; $lines = $gpu -split \"`n\" | Where-Object {$_ -match '\\d'}; foreach($l in $lines){$parts = $l -split ','; $temp = [int]$parts[2].Trim(); $status = if($temp -ge 85){'CRITIQUE'}elseif($temp -ge 75){'ATTENTION'}else{'OK'}; \"GPU$($parts[0].Trim()): $($parts[1].Trim()) | ${temp}C [$status] | Load:$($parts[3].Trim()) | VRAM:$($parts[4].Trim())/$($parts[5].Trim())MB | Power:$($parts[6].Trim())\"}"),
+
+    JarvisCommand("diag_processus_suspect", "pipeline", "Lister les processus suspects: gros consommateurs RAM/CPU", [
+        "processus suspects", "qu'est-ce qui consomme", "top processus",
+        "qui bouffe la ram", "processus gourmands",
+        "montre les gros processus",
+    ], "pipeline", "powershell:\"=== TOP RAM ===\"; Get-Process | Sort-Object WorkingSet64 -Descending | Select-Object -First 10 Name, @{N='RAM_MB';E={[math]::Round($_.WorkingSet64/1MB)}}, @{N='CPU_s';E={[math]::Round($_.CPU,1)}} | Format-Table -AutoSize | Out-String;;powershell:\"=== PROCESSUS > 500MB ===\"; Get-Process | Where-Object {$_.WorkingSet64 -gt 500MB} | Sort-Object WorkingSet64 -Descending | ForEach-Object {\"$($_.Name): $([math]::Round($_.WorkingSet64/1MB))MB\"} | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # COGNITIF — Raisonnement multi-etapes via cluster IA
+    # Questions envoyees au cluster pour analyse et synthese
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("cognitif_resume_activite", "pipeline", "Resume de l'activite: git log + uptime + stats + resume IA", [
+        "resume mon activite", "qu'est-ce que j'ai fait",
+        "bilan d'activite", "resume la journee",
+        "jarvis resume ce que j'ai fait",
+    ], "pipeline", "powershell:$git = git -C F:\\BUREAU\\turbo log --since='8 hours ago' --oneline 2>&1 | Out-String; $up = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; $uptime = (New-TimeSpan -Start $up).ToString('d\\.hh\\:mm'); $body = @{model='qwen3-8b';messages=@(@{role='user';content=\"/nothink`nResume cette activite de dev en 3 lignes. Commits recents: $git. Uptime: $uptime\"});temperature=0.3;max_tokens=200} | ConvertTo-Json -Depth 3; $r = Invoke-RestMethod -Uri 'http://10.5.0.2:1234/v1/chat/completions' -Method Post -Body $body -ContentType 'application/json' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15; \"[Resume IA] $($r.choices[0].message.content)\""),
+
+    JarvisCommand("cognitif_consensus_rapide", "pipeline", "Consensus cluster: envoyer une question a M1 + M2 + OL1", [
+        "consensus sur", "demande au cluster", "avis du cluster",
+        "consensus rapide", "vote du cluster",
+        "qu'en pensent les ia",
+    ], "pipeline", "powershell:$q = 'Quelle est la meilleure pratique pour organiser un projet Python avec des modules, tests et config?'; $b1 = @{model='qwen3-8b';messages=@(@{role='user';content=\"/nothink`n$q\"});temperature=0.3;max_tokens=150} | ConvertTo-Json -Depth 3; $r1 = Invoke-RestMethod -Uri 'http://10.5.0.2:1234/v1/chat/completions' -Method Post -Body $b1 -ContentType 'application/json' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15; \"[M1/qwen3] $($r1.choices[0].message.content)\";;powershell:$q = 'Quelle est la meilleure pratique pour organiser un projet Python avec des modules, tests et config?'; $b2 = @{model='deepseek-coder-v2-lite-instruct';messages=@(@{role='user';content=$q});temperature=0.3;max_tokens=150} | ConvertTo-Json -Depth 3; $r2 = Invoke-RestMethod -Uri 'http://192.168.1.26:1234/v1/chat/completions' -Method Post -Body $b2 -ContentType 'application/json' -Headers @{'Authorization'='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -TimeoutSec 15; \"[M2/deepseek] $($r2.choices[0].message.content)\""),
+
+    JarvisCommand("cognitif_analyse_erreurs", "pipeline", "Analyser les erreurs Windows recentes via IA", [
+        "analyse les erreurs", "erreurs windows", "quelles erreurs recentes",
+        "check les logs d'erreurs", "problemes recents",
+        "jarvis y a eu des erreurs",
+    ], "pipeline", "powershell:$events = Get-WinEvent -FilterHashtable @{LogName='Application';Level=2} -MaxEvents 5 -ErrorAction SilentlyContinue | Select-Object TimeCreated, @{N='Msg';E={$_.Message.Substring(0,[Math]::Min(120,$_.Message.Length))}} | Format-Table -AutoSize -Wrap | Out-String; if(-not $events){'Aucune erreur recente dans les logs Application'}else{$body = @{model='qwen3-8b';messages=@(@{role='user';content=\"/nothink`nAnalyse ces erreurs Windows recentes et dis si c'est grave (2 lignes max): $events\"});temperature=0.2;max_tokens=200} | ConvertTo-Json -Depth 3; $r = Invoke-RestMethod -Uri 'http://10.5.0.2:1234/v1/chat/completions' -Method Post -Body $body -ContentType 'application/json' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15; \"Erreurs:`n$events`n[IA] $($r.choices[0].message.content)\"}"),
+
+    JarvisCommand("cognitif_suggestion_tache", "pipeline", "Suggestion de tache basee sur l'heure et le contexte", [
+        "qu'est-ce que je devrais faire", "suggestion de tache",
+        "on fait quoi maintenant", "quoi faire",
+        "jarvis propose moi quelque chose",
+    ], "pipeline", "powershell:$git = (git -C F:\\BUREAU\\turbo log --since='4 hours ago' --oneline 2>&1 | Measure-Object -Line).Lines; $body = @{model='qwen3-8b';messages=@(@{role='system';content='Tu es JARVIS, assistant personnel. Reponds en 2-3 lignes max.'};@{role='user';content=\"/nothink`nIl est $((Get-Date).ToString('HH:mm')), c'est un $(Get-Date -Format 'dddd'). L'utilisateur a fait $git commits ces 4 dernieres heures. Suggere une activite adaptee au moment de la journee.\"});temperature=0.5;max_tokens=150} | ConvertTo-Json -Depth 3; $r = Invoke-RestMethod -Uri 'http://10.5.0.2:1234/v1/chat/completions' -Method Post -Body $body -ContentType 'application/json' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15; \"[JARVIS] $($r.choices[0].message.content)\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SECURITE AVANCEE — Audit et protection systeme
+    # Scans de ports, services, permissions, certificats
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("securite_ports_ouverts", "pipeline", "Scanner les ports ouverts et connexions actives suspectes", [
+        "scan les ports", "ports ouverts", "connexions actives",
+        "check securite ports", "qui est connecte",
+        "scan reseau securite",
+    ], "pipeline", "powershell:\"=== PORTS EN ECOUTE ===\"; Get-NetTCPConnection -State Listen | Select-Object LocalPort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Sort-Object LocalPort | Format-Table -AutoSize | Out-String;;powershell:\"=== CONNEXIONS ETABLIES (hors localhost) ===\"; Get-NetTCPConnection -State Established | Where-Object {$_.RemoteAddress -notmatch '^(127\\.|::1|0\\.)'} | Select-Object RemoteAddress, RemotePort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Format-Table -AutoSize | Out-String"),
+
+    JarvisCommand("securite_check_defender", "pipeline", "Status Windows Defender + derniere mise a jour + menaces", [
+        "status defender", "windows defender", "check antivirus",
+        "securite antivirus", "defender a jour",
+        "l'antivirus est ok",
+    ], "pipeline", "powershell:$d = Get-MpComputerStatus -ErrorAction SilentlyContinue; if($d){\"Defender: $(if($d.RealTimeProtectionEnabled){'ACTIF'}else{'INACTIF'}) | MAJ: $($d.AntivirusSignatureLastUpdated.ToString('dd/MM HH:mm')) | Scan: $($d.FullScanEndTime.ToString('dd/MM HH:mm')) | Menaces detectees: $(($d.QuickScanOverdue -or $d.FullScanOverdue))\"}else{'Defender non disponible'};;powershell:$threats = Get-MpThreatDetection -ErrorAction SilentlyContinue | Select-Object -Last 3 DetectionTime, Resources; if($threats){$threats | Format-Table -AutoSize | Out-String}else{'Aucune menace recente detectee'}"),
+
+    JarvisCommand("securite_audit_services", "pipeline", "Auditer les services actifs et detecter les suspects", [
+        "audit services", "services suspects", "check les services",
+        "quels services tournent", "services actifs suspects",
+    ], "pipeline", "powershell:\"=== SERVICES NON-MICROSOFT ACTIFS ===\"; Get-Service | Where-Object {$_.Status -eq 'Running'} | ForEach-Object {$wmi = Get-CimInstance Win32_Service -Filter \"Name='$($_.Name)'\"; if($wmi.PathName -and $wmi.PathName -notmatch 'Windows|Microsoft|system32'){\"$($_.Name): $($wmi.PathName.Substring(0,[Math]::Min(80,$wmi.PathName.Length)))\"}} | Out-String;;powershell:\"=== PROGRAMMES AU DEMARRAGE ===\"; Get-CimInstance Win32_StartupCommand | Select-Object Name, Command | Format-Table -AutoSize -Wrap | Out-String"),
+
+    JarvisCommand("securite_permissions_sensibles", "pipeline", "Verifier les fichiers sensibles (.env, credentials, cles)", [
+        "check fichiers sensibles", "verification securite fichiers",
+        "scan credentials", "fichiers secrets",
+        "y a des fichiers dangereux",
+    ], "pipeline", "powershell:\"=== FICHIERS SENSIBLES TROUVES ===\"; $patterns = @('*.env', '*.pem', '*.key', '*credentials*', '*secret*', '*password*'); $found = foreach($p in $patterns){Get-ChildItem -Path F:\\BUREAU -Recurse -Filter $p -ErrorAction SilentlyContinue -Depth 3 | Select-Object FullName, Length, LastWriteTime}; if($found){$found | Format-Table -AutoSize | Out-String}else{'Aucun fichier sensible trouve dans F:\\BUREAU'};;powershell:\"=== .ENV DANS PROJETS ===\"; Get-ChildItem -Path F:\\BUREAU -Recurse -Filter '.env' -ErrorAction SilentlyContinue -Depth 4 | ForEach-Object {\"$($_.FullName) ($([math]::Round($_.Length/1KB,1))KB)\"} | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DEBUG RESEAU AVANCE — Diagnostic reseau complet
+    # Ping, DNS, tracert, latence cluster, WiFi
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("debug_reseau_complet", "pipeline", "Debug reseau complet: ping + DNS + passerelle + internet", [
+        "debug reseau complet", "probleme reseau", "internet marche pas",
+        "diagnostic reseau avance", "reseau en panne",
+        "check la connexion complete",
+    ], "pipeline", "powershell:\"=== PASSERELLE ===\"; $gw = (Get-NetRoute -DestinationPrefix '0.0.0.0/0' -ErrorAction SilentlyContinue).NextHop; \"Gateway: $gw\"; Test-Connection $gw -Count 2 -ErrorAction SilentlyContinue | Select-Object ResponseTime | Out-String;;powershell:\"=== DNS ===\"; Resolve-DnsName google.com -ErrorAction SilentlyContinue | Select-Object -First 2 Name, IPAddress | Out-String;;powershell:\"=== INTERNET ===\"; $t = Measure-Command {try{Invoke-WebRequest -Uri 'https://www.google.com' -TimeoutSec 5 -UseBasicParsing | Out-Null}catch{}}; \"Google: $([math]::Round($t.TotalMilliseconds))ms\"; $t2 = Measure-Command {try{Invoke-WebRequest -Uri 'https://api.github.com' -TimeoutSec 5 -UseBasicParsing | Out-Null}catch{}}; \"GitHub: $([math]::Round($t2.TotalMilliseconds))ms\""),
+
+    JarvisCommand("debug_latence_cluster", "pipeline", "Mesurer la latence vers chaque noeud du cluster IA", [
+        "latence cluster", "ping les machines ia", "latence des noeuds",
+        "vitesse du cluster", "temps de reponse cluster",
+        "test latence ia",
+    ], "pipeline", "powershell:$nodes = @(@{Name='M1';Url='http://10.5.0.2:1234/api/v1/models';Auth='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'}, @{Name='M2';Url='http://192.168.1.26:1234/api/v1/models';Auth='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'}, @{Name='M3';Url='http://192.168.1.113:1234/api/v1/models';Auth='Bearer sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux'}, @{Name='OL1';Url='http://127.0.0.1:11434/api/tags';Auth=$null}); foreach($n in $nodes){$t = Measure-Command {try{if($n.Auth){Invoke-WebRequest -Uri $n.Url -Headers @{'Authorization'=$n.Auth} -TimeoutSec 5 -UseBasicParsing | Out-Null}else{Invoke-WebRequest -Uri $n.Url -TimeoutSec 5 -UseBasicParsing | Out-Null}; $ok=$true}catch{$ok=$false}}; $ms = [math]::Round($t.TotalMilliseconds); \"$($n.Name): $(if($ok){\"${ms}ms OK\"}else{'OFFLINE'})\"}"),
+
+    JarvisCommand("debug_wifi_diagnostic", "pipeline", "Diagnostic WiFi: signal + canal + SSID + debit", [
+        "diagnostic wifi", "wifi faible", "probleme wifi",
+        "signal wifi", "check le wifi",
+        "la wifi est lente",
+    ], "pipeline", "powershell:netsh wlan show interfaces | Select-String 'SSID|Signal|Canal|Debit|State|Radio' | Out-String;;powershell:\"=== RESEAUX DISPONIBLES ===\"; netsh wlan show networks mode=bssid | Select-String 'SSID|Signal|Canal' | Select-Object -First 15 | Out-String"),
+
+    JarvisCommand("debug_dns_avance", "pipeline", "Test DNS avance: flush + resolution multiple + comparaison", [
+        "debug dns", "probleme dns", "dns lent",
+        "flush dns avance", "test les dns",
+    ], "pipeline", "powershell:\"Flush DNS...\"; Clear-DnsClientCache; 'OK — Cache DNS vide';;powershell:\"=== TEST RESOLUTION DNS ===\"; $domains = @('google.com','github.com','cloudflare.com','api.anthropic.com'); foreach($d in $domains){$t = Measure-Command {$r = Resolve-DnsName $d -ErrorAction SilentlyContinue}; \"$d -> $($r[0].IPAddress) ($([math]::Round($t.TotalMilliseconds))ms)\"};;powershell:\"=== DNS SERVERS ===\"; Get-DnsClientServerAddress -AddressFamily IPv4 | Where-Object {$_.ServerAddresses} | Select-Object InterfaceAlias, ServerAddresses | Format-Table -AutoSize | Out-String"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # ROUTINES CONVERSATIONNELLES — Declencheurs en langage naturel
+    # Interactions quotidiennes avec JARVIS en mode conversationnel
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("routine_bonjour_jarvis", "pipeline", "Bonjour Jarvis: heure + meteo + cluster + agenda du jour", [
+        "bonjour jarvis", "salut jarvis", "hey jarvis bonjour",
+        "coucou jarvis", "jarvis reveille toi",
+        "jarvis on y va", "bonne journee jarvis",
+    ], "pipeline", "powershell:$h = (Get-Date).ToString('HH:mm'); $jour = Get-Date -Format 'dddd dd MMMM yyyy'; \"Bonjour! Il est $h, nous sommes $jour\";;powershell:$m1 = try{(Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; $ol1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; \"Cluster: M1=$(if($m1 -eq 200){'pret'}else{'offline'}) | OL1=$(if($ol1 -eq 200){'pret'}else{'offline'})\";;powershell:$gpu = nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits 2>&1; $temps = ($gpu -split \"`n\" | Where-Object {$_ -match '\\d'}) -join 'C, '; \"GPU: ${temps}C\";;powershell:$os = Get-CimInstance Win32_OperatingSystem; $ram = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); $total = [math]::Round($os.TotalVisibleMemorySize/1MB,1); \"RAM: $ram/$total GB — Pret pour la journee!\""),
+
+    JarvisCommand("routine_bilan_journee", "pipeline", "Bilan de fin de journee: commits + uptime + stats + resume IA", [
+        "bilan de la journee", "comment s'est passe la journee",
+        "resume de la journee", "c'etait bien aujourd'hui",
+        "jarvis bilan", "fin de journee bilan",
+    ], "pipeline", "powershell:\"=== BILAN DU JOUR ===\"; $commits = (git -C F:\\BUREAU\\turbo log --since='midnight' --oneline 2>&1 | Measure-Object -Line).Lines; \"Commits aujourd'hui: $commits\";;powershell:$up = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; $uptime = (New-TimeSpan -Start $up).ToString('hh\\:mm'); \"Uptime: $uptime\";;powershell:$commits = (git -C F:\\BUREAU\\turbo log --since='midnight' --oneline 2>&1 | Measure-Object -Line).Lines; $body = @{model='qwen3-8b';messages=@(@{role='system';content='Tu es JARVIS. Fais un bilan de journee encourageant en 2 lignes.'};@{role='user';content=\"/nothink`nL'utilisateur a fait $commits commits aujourd'hui. Il est $((Get-Date).ToString('HH:mm')). Fais un bilan positif.\"});temperature=0.5;max_tokens=100} | ConvertTo-Json -Depth 3; $r = Invoke-RestMethod -Uri 'http://10.5.0.2:1234/v1/chat/completions' -Method Post -Body $body -ContentType 'application/json' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15; \"[JARVIS] $($r.choices[0].message.content)\""),
+
+    JarvisCommand("routine_tout_va_bien", "pipeline", "Tout va bien? Check rapide systeme + cluster + GPU en 1 commande", [
+        "tout va bien", "ca va jarvis", "status rapide",
+        "tout est ok", "check rapide", "jarvis ca roule",
+        "est-ce que tout marche",
+    ], "pipeline", "powershell:$cpu = (Get-CimInstance Win32_Processor).LoadPercentage; $os = Get-CimInstance Win32_OperatingSystem; $ram = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); $total = [math]::Round($os.TotalVisibleMemorySize/1MB,1); $gpu_temp = (nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits 2>&1) -split \"`n\" | Where-Object {$_ -match '\\d'} | ForEach-Object {[int]$_}; $max_temp = ($gpu_temp | Measure-Object -Maximum).Maximum; $m1 = try{(Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 3 -UseBasicParsing).StatusCode -eq 200}catch{$false}; $ol1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing).StatusCode -eq 200}catch{$false}; $status = if($cpu -lt 80 -and $ram/$total -lt 0.9 -and $max_temp -lt 80 -and $m1 -and $ol1){'Tout est OK!'}else{'Attention, verifier certains points'}; \"$status | CPU:${cpu}% | RAM:$ram/$total GB | GPU max:${max_temp}C | M1:$(if($m1){'OK'}else{'OFF'}) | OL1:$(if($ol1){'OK'}else{'OFF'})\""),
+
+    JarvisCommand("routine_jarvis_selfcheck", "pipeline", "Auto-diagnostic JARVIS: config + DB + cluster + commandes", [
+        "jarvis ca va", "self check", "auto diagnostic jarvis",
+        "jarvis tu marches bien", "test jarvis",
+        "jarvis verifie toi meme",
+    ], "pipeline", "powershell:$db1 = Test-Path 'F:\\BUREAU\\turbo\\data\\etoile.db'; $db2 = Test-Path 'F:\\BUREAU\\turbo\\data\\jarvis.db'; \"Bases: etoile=$(if($db1){'OK'}else{'MANQUE'}) | jarvis=$(if($db2){'OK'}else{'MANQUE'})\";;powershell:$cmds = (Get-Content F:\\BUREAU\\turbo\\src\\commands.py -Raw | Select-String -Pattern 'JarvisCommand\\(' -AllMatches).Matches.Count; $pipes = (Get-Content F:\\BUREAU\\turbo\\src\\commands_pipelines.py -Raw | Select-String -Pattern 'JarvisCommand\\(' -AllMatches).Matches.Count; \"Commandes: $cmds | Pipelines: $pipes | Total: $($cmds + $pipes)\";;powershell:$m1 = try{(Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 3 -UseBasicParsing).StatusCode -eq 200}catch{$false}; $m2 = try{(Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -TimeoutSec 3 -UseBasicParsing).StatusCode -eq 200}catch{$false}; $ol1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing).StatusCode -eq 200}catch{$false}; $online = @($m1,$m2,$ol1) | Where-Object {$_}; \"Cluster: $($online.Count)/3 noeuds en ligne | JARVIS operationnel\""),
 ]
