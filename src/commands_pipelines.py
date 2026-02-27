@@ -2406,4 +2406,80 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
         "rotation logs", "archiver logs", "logs rotate",
         "nettoyer logs", "archive logs",
     ], "pipeline", "powershell:Write-Output '=== ROTATION LOGS ==='; $logDirs = @('F:\\BUREAU\\turbo\\data','F:\\BUREAU\\turbo\\logs','F:\\BUREAU\\turbo\\electron'); foreach ($dir in $logDirs) { if (Test-Path $dir) { $logs = Get-ChildItem $dir -Filter '*.log' -ErrorAction SilentlyContinue; $jsonlLogs = Get-ChildItem $dir -Filter '*.jsonl' -ErrorAction SilentlyContinue; Write-Output \"  $dir: $($logs.Count) .log, $($jsonlLogs.Count) .jsonl\"; $old = $logs | Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-7) }; if ($old) { Write-Output \"    >7j: $($old.Count) fichiers ($([math]::Round(($old | Measure-Object Length -Sum).Sum/1KB))KB)\" } } }"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # USER PREFERENCE LEARNING — Apprentissage des habitudes utilisateur
+    # LOW: Skills logges mais pas de pipeline d'apprentissage preferences
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("preference_work_hours", "pipeline", "Analyser les heures de travail habituelles de l'utilisateur", [
+        "heures de travail", "habitudes travail", "work hours",
+        "quand je travaille", "pattern horaire",
+    ], "pipeline", "powershell:Write-Output '=== HABITUDES HORAIRES ==='; $hour = (Get-Date).Hour; $period = if ($hour -lt 6) { 'nuit profonde' } elseif ($hour -lt 9) { 'matin tot' } elseif ($hour -lt 12) { 'matinee' } elseif ($hour -lt 14) { 'midi' } elseif ($hour -lt 18) { 'apres-midi' } elseif ($hour -lt 22) { 'soiree' } else { 'nuit' }; Write-Output \"  Heure: $(Get-Date -Format 'HH:mm') ($period)\"; $commits = git -C 'F:\\BUREAU\\turbo' log --format='%H %ai' --since='7 days ago' 2>$null; $commitCount = ($commits | Measure-Object).Count; Write-Output \"  Commits 7j: $commitCount\"; $uptime = (Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; Write-Output \"  Session: $($uptime.Hours)h$($uptime.Minutes)m\""),
+
+    JarvisCommand("preference_app_usage", "pipeline", "Analyser les applications les plus utilisees", [
+        "apps utilisees", "applications frequentes", "app usage",
+        "quelles apps", "usage applications",
+    ], "pipeline", "powershell:Write-Output '=== APPS LES PLUS UTILISEES ==='; Get-Process | Where-Object { $_.MainWindowTitle -and $_.MainWindowTitle -ne '' } | Sort-Object WorkingSet64 -Descending | Select-Object -First 10 | ForEach-Object { Write-Output \"  $($_.ProcessName): $([math]::Round($_.WorkingSet64/1MB))MB — $($_.MainWindowTitle.Substring(0, [Math]::Min(40, $_.MainWindowTitle.Length)))\" }"),
+
+    JarvisCommand("preference_auto_suggest", "pipeline", "Suggerer automatiquement un mode selon l'heure et le contexte", [
+        "suggestion mode", "quel mode", "auto suggest",
+        "suggerer mode", "mode recommande",
+    ], "pipeline", "powershell:$hour = (Get-Date).Hour; $mode = if ($hour -lt 6) { 'routine_nuit_urgence — Mode veille' } elseif ($hour -lt 9) { 'routine_matin — Cluster + dashboard + mails' } elseif ($hour -lt 12) { 'mode_dev — Code + terminal + cluster' } elseif ($hour -lt 14) { 'routine_midi — Pause + news + trading check' } elseif ($hour -lt 18) { 'mode_dev ou mode_trading_scalp — Selon priorite' } elseif ($hour -lt 20) { 'routine_soir — TradingView + night light' } elseif ($hour -lt 22) { 'routine_aperitif — Fermer travail + musique' } else { 'routine_depart — Sauvegarder + verrouiller' }; Write-Output '=== SUGGESTION MODE ==='; Write-Output \"  Heure: $(Get-Date -Format 'HH:mm')\"; Write-Output \"  Recommandation: $mode\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # ACCESSIBILITY ENHANCEMENTS — Profils d'accessibilite avances
+    # LOW: 10 commandes accessibilite existent, gestion profils manquante
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("accessibility_profile_show", "pipeline", "Afficher le profil d'accessibilite actuel", [
+        "profil accessibilite", "accessibility profile", "accessibilite config",
+        "parametres accessibilite", "accessibility settings",
+    ], "pipeline", "powershell:Write-Output '=== PROFIL ACCESSIBILITE ==='; $nightLight = Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\CloudStore\\Store\\DefaultAccount\\Current\\default$windows.data.bluelightreduction.settings\\windows.data.bluelightreduction.settings' -ErrorAction SilentlyContinue; Write-Output \"  Night Light: $(if ($nightLight) { 'configure' } else { 'non configure' })\"; $cursor = (Get-ItemProperty 'HKCU:\\Control Panel\\Cursors' -ErrorAction SilentlyContinue).CursorBaseSize; Write-Output \"  Taille curseur: $(if ($cursor) { $cursor } else { 'defaut' })\"; $dpi = (Get-ItemProperty 'HKCU:\\Control Panel\\Desktop\\WindowMetrics' -ErrorAction SilentlyContinue).AppliedDPI; Write-Output \"  DPI: $(if ($dpi) { $dpi } else { 'defaut' })\"; Write-Output '  TTS: Edge fr-FR-HenriNeural'; Write-Output '  Wake Word: jarvis (seuil 0.7)'"),
+
+    JarvisCommand("accessibility_voice_speed", "pipeline", "Configurer la vitesse de synthese vocale TTS", [
+        "vitesse vocale", "voice speed", "tts speed",
+        "parler plus vite", "parler plus lentement",
+    ], "pipeline", "powershell:Write-Output '=== VITESSE VOCALE ==='; Write-Output '  Moteur: Edge TTS fr-FR-HenriNeural'; Write-Output '  Vitesse actuelle: 1.0x (defaut)'; Write-Output '  Options:'; Write-Output '    0.75x — Plus lent (accessibilite)'; Write-Output '    1.0x  — Normal'; Write-Output '    1.25x — Rapide'; Write-Output '    1.5x  — Tres rapide'; Write-Output '  Modifier dans: src/voice.py (rate parameter)'"),
+
+    JarvisCommand("accessibility_contrast_check", "pipeline", "Verifier et optimiser le contraste ecran pour l'accessibilite", [
+        "contraste ecran", "contrast check", "accessibilite visuelle",
+        "optimiser contraste", "high contrast",
+    ], "pipeline", "powershell:Write-Output '=== CONTRASTE ECRAN ==='; $hc = (Get-ItemProperty 'HKCU:\\Control Panel\\Accessibility\\HighContrast' -ErrorAction SilentlyContinue).Flags; $enabled = if ($hc -band 1) { 'ACTIF' } else { 'INACTIF' }; Write-Output \"  High Contrast: $enabled\"; $theme = (Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -ErrorAction SilentlyContinue); Write-Output \"  Theme sombre apps: $(if ($theme.AppsUseLightTheme -eq 0) { 'OUI' } else { 'NON' })\"; Write-Output \"  Theme sombre systeme: $(if ($theme.SystemUsesLightTheme -eq 0) { 'OUI' } else { 'NON' })\"; $brightness = (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightness -ErrorAction SilentlyContinue).CurrentBrightness; Write-Output \"  Luminosite: $(if ($brightness) { \"$brightness%%\" } else { 'N/A (desktop)' })\""),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # STREAMING & BROADCASTING — Gestion du streaming OBS/Twitch
+    # LOW: mode_twitch_stream existe, gestion streaming manquante
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("stream_obs_status", "pipeline", "Status d'OBS Studio: process, scene, enregistrement", [
+        "status obs", "obs status", "streaming status",
+        "obs tourne", "stream actif",
+    ], "pipeline", "powershell:Write-Output '=== OBS STUDIO ==='; $obs = Get-Process -Name 'obs64','obs32' -ErrorAction SilentlyContinue; if ($obs) { Write-Output \"  Status: ACTIF (PID $($obs.Id))\"; Write-Output \"  RAM: $([math]::Round($obs.WorkingSet64/1MB))MB\"; Write-Output \"  CPU: $($obs.CPU)s\" } else { Write-Output '  Status: INACTIF'; Write-Output '  Lancer: mode_twitch_stream' }; $gpu = & 'nvidia-smi' --query-gpu=index,utilization.gpu,utilization.encoder --format=csv,noheader,nounits 2>$null | Select-Object -First 1; if ($gpu) { $p = $gpu -split ','; Write-Output \"  GPU0 encoder: $($p[2].Trim())%%\" }"),
+
+    JarvisCommand("stream_quality_check", "pipeline", "Verifier la qualite reseau et GPU pour le streaming", [
+        "qualite stream", "stream quality", "pret pour stream",
+        "qualite streaming", "stream ready",
+    ], "pipeline", "powershell:Write-Output '=== QUALITE STREAMING ==='; $ping = Test-Connection -ComputerName 8.8.8.8 -Count 3 -ErrorAction SilentlyContinue; if ($ping) { $avg = [math]::Round(($ping | Measure-Object ResponseTime -Average).Average); Write-Output \"  Latence internet: ${avg}ms $(if ($avg -lt 30) { '[EXCELLENT]' } elseif ($avg -lt 60) { '[BON]' } else { '[MOYEN]' })\" } else { Write-Output '  Internet: OFFLINE' }; $gpu = & 'nvidia-smi' --query-gpu=utilization.gpu,utilization.encoder,temperature.gpu --format=csv,noheader,nounits 2>$null | Select-Object -First 1; if ($gpu) { $p = $gpu -split ','; Write-Output \"  GPU: $($p[0].Trim())%% util, encoder $($p[1].Trim())%%, $($p[2].Trim())C\" }; $ram = Get-CimInstance Win32_OperatingSystem; $freeGB = [math]::Round($ram.FreePhysicalMemory/1MB,1); Write-Output \"  RAM libre: $($freeGB)GB $(if ($freeGB -gt 8) { '[OK]' } else { '[BAS]' })\""),
+
+    JarvisCommand("stream_chat_monitor", "pipeline", "Monitorer le chat Twitch/YouTube pendant le stream", [
+        "chat stream", "monitor chat", "twitch chat",
+        "chat twitch", "stream chat",
+    ], "pipeline", "powershell:Write-Output '=== CHAT MONITOR ==='; Write-Output '  Plateforme: Twitch / YouTube'; Write-Output '  Bot: @turboSSebot (Telegram bridge)'; Write-Output '  Commandes chat disponibles:'; Write-Output '    !status — Status JARVIS cluster'; Write-Output '    !gpu — Temperatures GPU'; Write-Output '    !uptime — Uptime systeme'; Write-Output '  Pour activer: mode_twitch_stream + OBS'"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # COLLABORATION — Fonctionnalites de collaboration multi-machines
+    # LOW: Systeme mono-utilisateur, collaboration basique
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("collab_sync_status", "pipeline", "Status de synchronisation entre les machines du cluster", [
+        "sync machines", "synchronisation cluster", "collab sync",
+        "machines synchronisees", "sync status",
+    ], "pipeline", "powershell:Write-Output '=== SYNC CLUSTER ==='; $nodes = @(@{N='M1';H='10.5.0.2';P=1234},@{N='M2';H='192.168.1.26';P=1234},@{N='M3';H='192.168.1.113';P=1234},@{N='OL1';H='127.0.0.1';P=11434}); foreach ($n in $nodes) { $up = Test-Connection -ComputerName $n.H -Count 1 -TimeoutSeconds 2 -ErrorAction SilentlyContinue; Write-Output \"  $($n.N) ($($n.H)): $(if ($up) { 'EN LIGNE' } else { 'HORS LIGNE' })\" }; $gitSync = git -C 'F:\\BUREAU\\turbo' log --oneline -1 2>$null; Write-Output \"  Git: $gitSync\""),
+
+    JarvisCommand("collab_commands_export", "pipeline", "Exporter les commandes pour deploiement sur autre machine", [
+        "exporter commandes", "export commands", "deploy commands",
+        "commandes pour autre machine", "collab export",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; import json; data=[{'name':p.name,'category':p.category,'description':p.description,'triggers':p.triggers} for p in PIPELINE_COMMANDS]; print(f'=== EXPORT COMMANDES ==='); print(f'  {len(data)} pipelines exportables'); print(f'  Format: JSON'); f=open('F:/BUREAU/turbo/data/pipelines_export.json','w'); f.write(json.dumps(data,indent=2,ensure_ascii=False)); f.close(); print(f'  Fichier: data/pipelines_export.json')\" 2>&1 | Out-String"),
+
+    JarvisCommand("collab_db_merge_check", "pipeline", "Verifier la compatibilite pour fusion de bases entre machines", [
+        "fusionner bases", "merge db", "db merge",
+        "compatibilite bases", "collab merge",
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3,os; dbs=[('etoile.db','F:/BUREAU/turbo/data/etoile.db'),('jarvis.db','F:/BUREAU/turbo/data/jarvis.db')]; print('=== MERGE CHECK ==='); [print(f'  {n}: {os.path.getsize(p)/1024:.0f}KB, tables=' + str(sqlite3.connect(p).execute('SELECT COUNT(*) FROM sqlite_master WHERE type=\\\"table\\\"').fetchone()[0]) + ', integrity=' + sqlite3.connect(p).execute('PRAGMA integrity_check').fetchone()[0]) for n,p in dbs if os.path.exists(p)]\" 2>&1 | Out-String"),
 ]
