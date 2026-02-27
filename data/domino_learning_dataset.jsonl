@@ -65,3 +65,33 @@
 {"input": "mode weekend", "output": "domino:domino_weekend_shutdown", "category": "routine_soir", "steps": ["backup_full", "save_metrics", "close_all_trading", "reduce_all_gpu", "tts_weekend_off"], "context": "Weekend — backup + close trading + eco"}
 {"input": "lance le stream", "output": "domino:domino_stream_start", "category": "streaming", "steps": ["check_network", "start_obs", "open_chat", "tts_stream"], "context": "Stream — reseau d'abord, OBS + chat"}
 {"input": "arrete le stream", "output": "domino:domino_stream_stop", "category": "streaming", "steps": ["stop_obs", "save_vod", "tts_stream_end"], "context": "Fin stream — arreter OBS, log VOD"}
+{"input": "Quel est le statut des serveurs en ce moment ?", "output": "domino:domino_monitor_system_full"}
+{"input": "J'ai besoin d'une analyse complete du systeme.", "output": "domino:domino_monitor_system_full"}
+{"input": "Puis-je avoir un apercu de la charge GPU ?", "output": "domino:domino_gpu_monitor_full"}
+{"input": "Le cluster ne repond plus, qu'est-ce que je fais ?", "output": "domino:domino_debug_cluster"}
+{"input": "J'ai des erreurs de temperature sur les unites graphiques.", "output": "domino:domino_debug_gpu_thermal"}
+{"input": "Comment optimiser la consommation d'energie des GPU ?", "output": "domino:domino_gpu_optimize"}
+{"input": "Je veux executer un scan complet du portefeuille.", "output": "domino:domino_trading_full_scan"}
+{"input": "Je dois fermer tous mes positions, comment faire ?", "output": "domino:domino_trading_close_all"}
+{"input": "Quelqu'un peut-il me dire ce qui se passe en matinee ?", "output": "domino:domino_matin_complet"}
+{"input": "Je veux une analyse complete des donnees de securite.", "output": "domino:domino_security_full"}
+{"input": "Puis-je avoir un backup complet du systeme ?", "output": "domino:domino_backup_complet"}
+{"input": "Comment deployer une mise a jour d'urgence ?", "output": "domino:domino_deploy_hotfix"}
+{"input": "Je veux deployer le nouveau module.", "output": "domino:domino_deploy_standard"}
+{"input": "Puis-je avoir un resume de la journee de trading ?", "output": "domino:domino_trading_full_scan"}
+{"input": "Comment fermer toutes mes positions rapidement ?", "output": "domino:domino_trading_close_all"}
+{"input": "Quelqu'un peut m'aider avec les erreurs de cluster ?", "output": "domino:domino_debug_cluster"}
+{"input": "Je veux un apercu des performances des GPU.", "output": "domino:domino_gpu_monitor_full"}
+{"input": "Qu'est-ce que je dois faire pour optimiser le cluster ?", "output": "domino:domino_gpu_optimize"}
+{"input": "Puis-je avoir une vue d'ensemble du systeme ?", "output": "domino:domino_monitor_system_full"}
+{"input": "Comment deployer la version 2.0 en production ?", "output": "domino:domino_deploy_standard"}
+{"input": "Puis-je avoir un resume des actions fin de journee ?", "output": "domino:domino_bonne_nuit"}
+{"input": "Je veux demarrer le flux streaming.", "output": "domino:domino_stream_start"}
+{"input": "Bonjour JARVIS, demarre le systeme matinal.", "output": "domino:domino_matin_complet"}
+{"input": "Analyse complete du trading en cours s'il vous plait.", "output": "domino:domino_trading_full_scan"}
+{"input": "Je souhaite debugger le cluster.", "output": "domino:domino_debug_cluster"}
+{"input": "Analyse complete de la securite s'il vous plait.", "output": "domino:domino_security_full"}
+{"input": "Backup complet s'il te plait jarvis.", "output": "domino:domino_backup_complet"}
+{"input": "Dis bonsoir jarvis on arrete pour aujourd'hui.", "output": "domino:domino_bonne_nuit"}
+{"input": "Fais le consensus avec tout le monde.", "output": "domino:domino_collab_consensus"}
+{"input": "Hey jarvis on stream la ?", "output": "domino:domino_stream_start"}
