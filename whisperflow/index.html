@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS WhisperFlow</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0e14;
+    --surface: #131920;
+    --surface2: #1a2230;
+    --accent: #ff6b35;
+    --accent2: #ff8c5a;
+    --green: #00e676;
+    --red: #ff5252;
+    --blue: #448aff;
+    --purple: #b388ff;
+    --text: #e0e0e0;
+    --dim: #6b7d93;
+    --border: #1e2d3d;
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    user-select: none;
+    height: 100vh;
+  }
+
+  /* HEADER — draggable title bar */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    -webkit-app-region: drag;
+    cursor: move;
+  }
+  .header-left { display: flex; align-items: center; gap: 8px; }
+  .logo {
+    width: 20px; height: 20px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: bold; color: #fff;
+  }
+  .title { font-size: 12px; font-weight: 600; letter-spacing: 0.5px; }
+  .title span { color: var(--accent); }
+  .header-right { display: flex; gap: 4px; -webkit-app-region: no-drag; }
+  .header-btn {
+    width: 24px; height: 24px;
+    border: none; background: transparent;
+    color: var(--dim); cursor: pointer;
+    border-radius: 4px; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .header-btn:hover { background: var(--surface2); color: var(--text); }
+
+  /* STATUS BAR */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: var(--surface);
+    font-size: 10px;
+    color: var(--dim);
+    border-bottom: 1px solid var(--border);
+  }
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+  }
+  .status-dot.offline { background: var(--red); }
+  .status-dot.connecting { background: #ffab40; animation: pulse 1s infinite; }
+  @keyframes pulse { 50% { opacity: 0.3; } }
+
+  /* MAIN CONTENT */
+  .main {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 72px);
+    padding: 10px;
+    gap: 10px;
+  }
+
+  /* TRANSCRIPTION ZONE */
+  .transcript-zone {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    overflow-y: auto;
+    min-height: 80px;
+  }
+  .transcript-zone::-webkit-scrollbar { width: 4px; }
+  .transcript-zone::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .transcript-text {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .transcript-text.listening {
+    color: var(--accent2);
+    animation: textpulse 1.5s ease-in-out infinite;
+  }
+  @keyframes textpulse { 50% { opacity: 0.6; } }
+  .transcript-text.processing { color: var(--blue); }
+  .transcript-placeholder {
+    color: var(--dim);
+    font-style: italic;
+    font-size: 12px;
+    text-align: center;
+    padding-top: 20px;
+  }
+
+  /* DOMINO RESULT */
+  .domino-result {
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-top: 6px;
+    font-size: 11px;
+    display: none;
+  }
+  .domino-result.show { display: block; }
+  .domino-name { color: var(--accent); font-weight: 600; }
+  .domino-cat { color: var(--dim); margin-left: 6px; }
+  .domino-steps { color: var(--green); margin-top: 2px; font-size: 10px; }
+
+  /* HISTORY */
+  .history {
+    max-height: 100px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .history-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    background: var(--surface);
+    border-radius: 4px;
+    font-size: 10px;
+    cursor: pointer;
+  }
+  .history-item:hover { background: var(--surface2); }
+  .history-time { color: var(--dim); min-width: 40px; }
+  .history-text { color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .history-domino { color: var(--accent); font-weight: 500; }
+
+  /* CONTROLS */
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* MIC BUTTON */
+  .mic-btn {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .mic-btn:hover { background: rgba(255,107,53,0.1); transform: scale(1.05); }
+  .mic-btn.recording {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    animation: mic-pulse 1s ease-in-out infinite;
+    box-shadow: 0 0 20px rgba(255,107,53,0.4);
+  }
+  @keyframes mic-pulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(255,107,53,0.3); }
+    50% { box-shadow: 0 0 25px rgba(255,107,53,0.6); }
+  }
+  .mic-btn.processing {
+    border-color: var(--blue);
+    color: var(--blue);
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+
+  /* VISUALIZER */
+  .visualizer {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    height: 32px;
+    flex: 1;
+  }
+  .viz-bar {
+    width: 3px;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: height 0.08s ease;
+    min-height: 3px;
+  }
+
+  /* TEXT INPUT */
+  .text-input-wrap {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .text-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--text);
+    font-size: 12px;
+    outline: none;
+    font-family: inherit;
+  }
+  .text-input:focus { border-color: var(--accent); }
+  .text-input::placeholder { color: var(--dim); }
+  .send-btn {
+    width: 30px; height: 30px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .send-btn:hover { background: var(--accent2); }
+
+  /* CLUSTER MINI */
+  .cluster-mini {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  .node-dot {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 9px;
+    color: var(--dim);
+    padding: 2px 5px;
+    background: var(--surface);
+    border-radius: 3px;
+  }
+  .node-dot .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+  .node-dot .dot.off { background: var(--red); }
+
+  /* MODE TOGGLE */
+  .mode-toggle {
+    display: flex;
+    gap: 2px;
+    background: var(--surface);
+    border-radius: 4px;
+    padding: 2px;
+  }
+  .mode-btn {
+    padding: 3px 8px;
+    border: none;
+    background: transparent;
+    color: var(--dim);
+    border-radius: 3px;
+    font-size: 10px;
+    cursor: pointer;
+  }
+  .mode-btn.active { background: var(--accent); color: #fff; }
+  .mode-btn:hover:not(.active) { color: var(--text); }
+
+  /* SHORTCUTS HINT */
+  .shortcuts {
+    text-align: center;
+    font-size: 9px;
+    color: var(--dim);
+    padding: 2px;
+  }
+  kbd {
+    background: var(--surface2);
+    padding: 1px 4px;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    font-size: 9px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo">J</div>
+    <div class="title"><span>JARVIS</span> WhisperFlow</div>
+  </div>
+  <div class="header-right">
+    <button class="header-btn" id="pinBtn" title="Toujours visible">&#x1F4CC;</button>
+    <button class="header-btn" id="settingsBtn" title="Parametres">&#x2699;</button>
+    <button class="header-btn" id="minimizeBtn" title="Minimiser">&#x2500;</button>
+  </div>
+</div>
+
+<div class="status-bar">
+  <div class="status-dot" id="wsStatus"></div>
+  <span id="wsStatusText">Connexion...</span>
+  <div class="cluster-mini" id="clusterMini"></div>
+</div>
+
+<div class="main">
+  <!-- Transcription -->
+  <div class="transcript-zone" id="transcriptZone">
+    <div class="transcript-placeholder" id="placeholder">
+      Appuie sur le micro ou maintiens <kbd>Espace</kbd> pour parler
+    </div>
+    <div class="transcript-text" id="transcriptText" style="display:none"></div>
+    <div class="domino-result" id="dominoResult">
+      <span class="domino-name" id="dominoName"></span>
+      <span class="domino-cat" id="dominoCat"></span>
+      <div class="domino-steps" id="dominoSteps"></div>
+    </div>
+  </div>
+
+  <!-- History -->
+  <div class="history" id="history"></div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="mic-btn" id="micBtn" title="Enregistrer (Espace)">&#x1F3A4;</button>
+    <div class="visualizer" id="visualizer"></div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" data-mode="ptt">PTT</button>
+      <button class="mode-btn" data-mode="wake">Wake</button>
+      <button class="mode-btn" data-mode="auto">Auto</button>
+    </div>
+  </div>
+
+  <!-- Text input -->
+  <div class="text-input-wrap">
+    <input class="text-input" id="textInput" placeholder="Tape une commande..." />
+    <button class="send-btn" id="sendBtn">&#x27A4;</button>
+  </div>
+
+  <div class="shortcuts">
+    <kbd>Espace</kbd> PTT &nbsp; <kbd>Esc</kbd> Stop &nbsp; <kbd>Enter</kbd> Envoyer texte
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// JARVIS WhisperFlow — Voice-First Overlay Interface
+// ══════════════════════════════════════════════════════════════════
+
+const WS_URL = 'ws://127.0.0.1:9742/ws';
+const CLUSTER_NODES = {
+  M1:  { url: 'http://10.5.0.2:1234/api/v1/models', label: 'M1' },
+  M2:  { url: 'http://192.168.1.26:1234/api/v1/models', label: 'M2' },
+  OL1: { url: 'http://127.0.0.1:11434/api/tags', label: 'OL1' },
+};
+
+// STATE
+let ws = null;
+let isRecording = false;
+let isProcessing = false;
+let audioContext = null;
+let mediaStream = null;
+let analyser = null;
+let recorder = null;
+let audioChunks = [];
+let history = [];
+let reqId = 0;
+let mode = 'ptt'; // ptt | wake | auto
+
+// DOM
+const $wsStatus = document.getElementById('wsStatus');
+const $wsStatusText = document.getElementById('wsStatusText');
+const $clusterMini = document.getElementById('clusterMini');
+const $transcriptZone = document.getElementById('transcriptZone');
+const $placeholder = document.getElementById('placeholder');
+const $transcriptText = document.getElementById('transcriptText');
+const $dominoResult = document.getElementById('dominoResult');
+const $dominoName = document.getElementById('dominoName');
+const $dominoCat = document.getElementById('dominoCat');
+const $dominoSteps = document.getElementById('dominoSteps');
+const $history = document.getElementById('history');
+const $micBtn = document.getElementById('micBtn');
+const $visualizer = document.getElementById('visualizer');
+const $textInput = document.getElementById('textInput');
+const $sendBtn = document.getElementById('sendBtn');
+
+// ── VISUALIZER BARS ──
+const BAR_COUNT = 24;
+for (let i = 0; i < BAR_COUNT; i++) {
+  const bar = document.createElement('div');
+  bar.className = 'viz-bar';
+  bar.style.height = '3px';
+  $visualizer.appendChild(bar);
+}
+const vizBars = $visualizer.querySelectorAll('.viz-bar');
+
+// ── WEBSOCKET ──
+function connectWS() {
+  $wsStatus.className = 'status-dot connecting';
+  $wsStatusText.textContent = 'Connexion...';
+
+  try {
+    ws = new WebSocket(WS_URL);
+  } catch(e) {
+    $wsStatus.className = 'status-dot offline';
+    $wsStatusText.textContent = 'Backend offline';
+    setTimeout(connectWS, 5000);
+    return;
+  }
+
+  ws.onopen = () => {
+    $wsStatus.className = 'status-dot';
+    $wsStatusText.textContent = 'Connecte';
+  };
+
+  ws.onmessage = (ev) => {
+    try {
+      const msg = JSON.parse(ev.data);
+      handleWSMessage(msg);
+    } catch(e) {}
+  };
+
+  ws.onclose = () => {
+    $wsStatus.className = 'status-dot offline';
+    $wsStatusText.textContent = 'Deconnecte';
+    setTimeout(connectWS, 3000);
+  };
+
+  ws.onerror = () => {
+    $wsStatus.className = 'status-dot offline';
+    $wsStatusText.textContent = 'Erreur connexion';
+  };
+}
+
+function wsSend(channel, action, payload = {}) {
+  if (!ws || ws.readyState !== 1) return null;
+  const id = `req_${++reqId}_${Date.now()}`;
+  ws.send(JSON.stringify({ id, type: 'request', channel, action, payload }));
+  return id;
+}
+
+function handleWSMessage(msg) {
+  if (msg.type === 'response' && msg.channel === 'voice') {
+    if (msg.action === 'stop_recording' && msg.payload) {
+      onTranscriptionResult(msg.payload);
+    }
+  }
+  if (msg.type === 'event' && msg.channel === 'voice') {
+    if (msg.event === 'transcription_partial') {
+      showTranscript(msg.payload.text, 'listening');
+    }
+  }
+}
+
+// ── AUDIO RECORDING ──
+async function startRecording() {
+  if (isRecording || isProcessing) return;
+  isRecording = true;
+  audioChunks = [];
+  $micBtn.classList.add('recording');
+  $placeholder.style.display = 'none';
+  $transcriptText.style.display = 'block';
+  $dominoResult.classList.remove('show');
+  showTranscript('Ecoute en cours...', 'listening');
+
+  try {
+    mediaStream = await navigator.mediaDevices.getUserMedia({
+      audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true, noiseSuppression: true }
+    });
+
+    audioContext = new AudioContext({ sampleRate: 16000 });
+    const source = audioContext.createMediaStreamSource(mediaStream);
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = 256;
+    source.connect(analyser);
+
+    // MediaRecorder for chunks
+    recorder = new MediaRecorder(mediaStream, { mimeType: 'audio/webm;codecs=opus' });
+    recorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunks.push(e.data); };
+    recorder.start(250); // 250ms chunks
+
+    // Notify backend
+    wsSend('voice', 'start_recording');
+
+    // Start visualizer
+    updateVisualizer();
+
+    // Stream chunks to backend
+    streamAudioChunks();
+  } catch(e) {
+    console.error('Mic error:', e);
+    showTranscript('Erreur microphone: ' + e.message, '');
+    stopRecording();
+  }
+}
+
+async function streamAudioChunks() {
+  if (!isRecording) return;
+  // Send pending chunks as base64
+  while (audioChunks.length > 0) {
+    const chunk = audioChunks.shift();
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result.split(',')[1];
+      wsSend('voice', 'audio_chunk', { audio: base64 });
+    };
+    reader.readAsDataURL(chunk);
+  }
+  if (isRecording) requestAnimationFrame(streamAudioChunks);
+}
+
+async function stopRecording() {
+  if (!isRecording) return;
+  isRecording = false;
+  isProcessing = true;
+  $micBtn.classList.remove('recording');
+  $micBtn.classList.add('processing');
+  showTranscript('Analyse en cours...', 'processing');
+
+  if (recorder && recorder.state !== 'inactive') recorder.stop();
+  if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
+
+  // Request transcription
+  wsSend('voice', 'stop_recording');
+
+  // Timeout fallback
+  setTimeout(() => {
+    if (isProcessing) {
+      isProcessing = false;
+      $micBtn.classList.remove('processing');
+      showTranscript('Timeout — reessaie', '');
+    }
+  }, 15000);
+}
+
+function onTranscriptionResult(data) {
+  isProcessing = false;
+  $micBtn.classList.remove('processing');
+
+  const text = data.corrected || data.original || data.text || '';
+  if (!text || text.length < 2) {
+    showTranscript('(rien detecte)', '');
+    return;
+  }
+
+  showTranscript(text, '');
+  addHistory(text, data.domino);
+
+  // Show domino match if found
+  if (data.domino) {
+    $dominoName.textContent = data.domino.id || data.domino;
+    $dominoCat.textContent = data.domino.category ? `[${data.domino.category}]` : '';
+    $dominoSteps.textContent = data.domino.steps ? `${data.domino.steps.length} steps` : '';
+    $dominoResult.classList.add('show');
+  }
+}
+
+// ── LOCAL WHISPER FALLBACK ──
+// If WS backend is down, send audio directly to Whisper via fetch
+async function localTranscribe(audioBlob) {
+  showTranscript('Transcription locale...', 'processing');
+  try {
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'recording.webm');
+    // Try local whisper endpoint
+    const resp = await fetch('http://127.0.0.1:9742/transcribe', {
+      method: 'POST', body: formData
+    });
+    const data = await resp.json();
+    onTranscriptionResult(data);
+  } catch(e) {
+    showTranscript('Backend offline — pas de transcription', '');
+    isProcessing = false;
+    $micBtn.classList.remove('processing');
+  }
+}
+
+// ── TEXT COMMAND ──
+function sendTextCommand(text) {
+  if (!text.trim()) return;
+  showTranscript(text, '');
+  $placeholder.style.display = 'none';
+  $transcriptText.style.display = 'block';
+
+  // Send to chat channel for processing
+  wsSend('chat', 'send_message', { text: text.trim(), files: [] });
+  addHistory(text, null);
+  $textInput.value = '';
+}
+
+// ── DISPLAY ──
+function showTranscript(text, state) {
+  $transcriptText.textContent = text;
+  $transcriptText.style.display = 'block';
+  $placeholder.style.display = 'none';
+  $transcriptText.className = 'transcript-text' + (state ? ' ' + state : '');
+}
+
+function addHistory(text, domino) {
+  const now = new Date();
+  const time = now.toTimeString().slice(0, 5);
+  history.unshift({ text, domino, time });
+  if (history.length > 20) history.pop();
+  renderHistory();
+}
+
+function renderHistory() {
+  $history.innerHTML = history.slice(0, 5).map(h => `
+    <div class="history-item" onclick="showTranscript('${h.text.replace(/'/g,"\\'")}','')">
+      <span class="history-time">${h.time}</span>
+      <span class="history-text">${h.text}</span>
+      ${h.domino ? `<span class="history-domino">${typeof h.domino === 'string' ? h.domino : h.domino.id || ''}</span>` : ''}
+    </div>
+  `).join('');
+}
+
+// ── VISUALIZER ──
+function updateVisualizer() {
+  if (!analyser || !isRecording) {
+    vizBars.forEach(b => b.style.height = '3px');
+    return;
+  }
+  const data = new Uint8Array(analyser.frequencyBinCount);
+  analyser.getByteFrequencyData(data);
+
+  const step = Math.floor(data.length / BAR_COUNT);
+  for (let i = 0; i < BAR_COUNT; i++) {
+    const val = data[i * step] || 0;
+    const h = Math.max(3, (val / 255) * 32);
+    vizBars[i].style.height = h + 'px';
+  }
+  requestAnimationFrame(updateVisualizer);
+}
+
+// ── CLUSTER STATUS ──
+async function checkCluster() {
+  const html = [];
+  for (const [name, node] of Object.entries(CLUSTER_NODES)) {
+    let ok = false;
+    try {
+      const ctrl = new AbortController();
+      setTimeout(() => ctrl.abort(), 2000);
+      const r = await fetch(node.url, { signal: ctrl.signal });
+      ok = r.ok;
+    } catch(e) {}
+    html.push(`<div class="node-dot"><div class="dot ${ok ? '' : 'off'}"></div>${name}</div>`);
+  }
+  $clusterMini.innerHTML = html.join('');
+}
+
+// ── KEYBOARD SHORTCUTS ──
+let spaceDown = false;
+document.addEventListener('keydown', (e) => {
+  // Space = PTT (only when not typing)
+  if (e.code === 'Space' && document.activeElement !== $textInput && !spaceDown) {
+    e.preventDefault();
+    spaceDown = true;
+    startRecording();
+  }
+  // Escape = stop
+  if (e.code === 'Escape') {
+    if (isRecording) stopRecording();
+  }
+  // Enter in text input = send
+  if (e.code === 'Enter' && document.activeElement === $textInput) {
+    e.preventDefault();
+    sendTextCommand($textInput.value);
+  }
+});
+
+document.addEventListener('keyup', (e) => {
+  if (e.code === 'Space' && spaceDown) {
+    spaceDown = false;
+    if (isRecording) stopRecording();
+  }
+});
+
+// ── BUTTON HANDLERS ──
+$micBtn.addEventListener('click', () => {
+  if (isRecording) stopRecording();
+  else if (!isProcessing) startRecording();
+});
+
+$sendBtn.addEventListener('click', () => sendTextCommand($textInput.value));
+
+// Mode toggle
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    mode = btn.dataset.mode;
+  });
+});
+
+// Pin toggle
+let pinned = true;
+document.getElementById('pinBtn').addEventListener('click', () => {
+  pinned = !pinned;
+  document.getElementById('pinBtn').style.color = pinned ? 'var(--accent)' : 'var(--dim)';
+  // Electron: window.electronAPI?.setAlwaysOnTop?.(pinned)
+});
+
+// ── INIT ──
+connectWS();
+checkCluster();
+setInterval(checkCluster, 15000);
+
+// ── ELECTRON BRIDGE (if running in Electron) ──
+if (window.electronAPI) {
+  document.getElementById('minimizeBtn').addEventListener('click', () => window.electronAPI.minimize());
+} else {
+  document.getElementById('minimizeBtn').style.display = 'none';
+}
+</script>
+</body>
+</html>
