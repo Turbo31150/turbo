@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v10.3.6-blueviolet?style=for-the-badge" alt="version"/>
+  <img src="https://img.shields.io/badge/version-v10.3.9-blueviolet?style=for-the-badge" alt="version"/>
   <img src="https://img.shields.io/badge/GPU-10x_NVIDIA-76B900?style=for-the-badge&logo=nvidia" alt="gpu"/>
   <img src="https://img.shields.io/badge/Claude_SDK-Opus_4-orange?style=for-the-badge&logo=anthropic" alt="claude"/>
   <img src="https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="python"/>
@@ -7,11 +7,11 @@
   <img src="https://img.shields.io/badge/License-Private-red?style=for-the-badge" alt="license"/>
 </p>
 
-<h1 align="center">JARVIS Etoile v10.3.6</h1>
+<h1 align="center">JARVIS Etoile v10.3.9</h1>
 <h3 align="center">Orchestrateur IA Distribue Multi-GPU — HEXA_CORE</h3>
 
 <p align="center">
-  <strong>Systeme d'intelligence artificielle distribue sur 3 machines physiques, 10 GPU NVIDIA (~78 GB VRAM), 6 noeuds IA (HEXA_CORE) et 108 skills autonomes. Controle vocal en francais avec 1,706 commandes + 461 pipelines, trading algorithmique MEXC multi-consensus, et interface desktop Electron.</strong>
+  <strong>Systeme d'intelligence artificielle distribue sur 3 machines physiques, 10 GPU NVIDIA (~78 GB VRAM), 6 noeuds IA (HEXA_CORE) et 108 skills autonomes. Controle vocal en francais avec 1,706 commandes + 461 pipelines + 40 domino cascades, trading algorithmique MEXC multi-consensus, et interface desktop Electron.</strong>
 </p>
 
 <p align="center">
@@ -29,10 +29,11 @@
 | **Agents** | 7 Claude SDK + 11 Plugin | deep, fast, check, trading, system, bridge, consensus + 11 plugin agents |
 | **Outils MCP** | 92 SDK + 89 handlers | IA, Windows, Trading, Bridge, Brain, SQL, Consensus |
 | **Commandes vocales** | 1,706 + 461 pipelines | 473 vocal_pipeline, 942 total vocal |
+| **Domino Cascades** | 40 cascades / 121 triggers | 175 steps, 11 categories, 97 examples fine-tuning |
 | **Skills** | 108 dynamiques | 16 vagues + 6 nouvelles categories IA, persistants en etoile.db |
-| **Source Python** | 28 modules / 24,000+ lignes | src/ (42,000+ total projet) |
-| **Databases** | 3 bases SQL + pipeline_tests | 35 tables, 2,513 map entries, 195 tests PASS |
-| **Pipeline Tests** | 171/171 PASS (100%) | 42+ categories testees sur cluster live |
+| **Source Python** | 30 modules / 25,000+ lignes | src/ (43,000+ total projet) |
+| **Databases** | 3 bases SQL + pipeline_tests + domino_logs | 36 tables, 2,674 map entries, 235 tests PASS |
+| **Pipeline Tests** | 174/174 PASS (100%) | 42+ categories + 11 domino categories, cluster live |
 | **Plugin** | 24 slash commands | + 24 skills + 11 agents + 4 hooks |
 | **Desktop** | Electron 33 + React 19 | Portable 72.5 MB |
 | **Trading** | v2.3 Multi-GPU | MEXC Futures 10x, 6 IA consensus |
@@ -40,9 +41,90 @@
 
 ---
 
-## Nouveautes v10.3.6 — Audit Pipeline Complet + Gaps Fermes (171/171 PASS)
+## Nouveautes v10.3.9 — Domino Pipelines + DominoExecutor (174/174 PASS)
 
-> **+171 pipelines** deployees en 7 batches, couvrant **42+ categories** a travers 4 niveaux de priorite + completions. Audit systematique du README vs code reel — zero gap restant, toutes lacunes combinees. **461 pipelines totales**, testees live sur le cluster IA (M1/M2/M3/OL1).
+> **Systeme de cascades domino** : une commande vocale declenche automatiquement une chaine d'actions (GPU check → cluster health → analyse IA → rapport TTS). **40 cascades** across **11 categories**, executees en parallele via `DominoExecutor` distribue sur le cluster M1/M2/M3/OL1. **174/174 PASS en 19.6s**.
+
+### Domino Pipelines (v10.3.7 — v10.3.9)
+
+| Metrique | Valeur |
+|----------|--------|
+| **Cascades** | 40 domino pipelines |
+| **Triggers vocaux** | 121 phrases FR (fuzzy matching) |
+| **Steps executables** | 175 (powershell, curl, python, pipeline, condition) |
+| **Categories** | 11 (routine_matin, trading, debug, deploy, securite, GPU, backup, monitoring, collaboration, streaming, routine_soir) |
+| **DominoExecutor** | Routing auto M1/M2/M3/OL1/LOCAL + fallback chain + SQLite logging |
+| **Dataset apprentissage** | 97 examples JSONL pour fine-tuning |
+| **Score live** | 174/174 PASS (100%) — 40 cascades paralleles en 19.6s |
+
+<details>
+<summary><b>11 categories domino</b> (cliquer pour details)</summary>
+
+| Categorie | Cascades | Exemples de triggers |
+|-----------|----------|---------------------|
+| routine_matin | 5 | "bonjour jarvis", "mode cafe code", "reveil rapide", "matin trading" |
+| trading_cascade | 5 | "scan trading complet", "execute signal", "ferme tout trading", "backtest" |
+| debug_cascade | 5 | "debug cluster", "gpu surchauffe", "debug reseau", "debug api" |
+| deploy_flow | 4 | "deploie le code", "hotfix urgent", "rollback deploy", "deploy safe" |
+| security_sweep | 4 | "scan securite complet", "check api keys", "intrusion check" |
+| gpu_thermal | 3 | "monitore les gpu", "optimise les gpu", "urgence gpu" |
+| backup_chain | 3 | "backup complet", "backup rapide", "restaure le backup" |
+| monitoring_alert | 3 | "monitoring systeme", "verifie les alertes", "benchmark rapide" |
+| collaboration | 3 | "synchronise le cluster", "partage le modele", "consensus cluster" |
+| routine_soir | 3 | "bonne nuit jarvis", "pause dejeuner", "mode weekend" |
+| streaming | 2 | "lance le stream", "arrete le stream" |
+
+</details>
+
+### Architecture DominoExecutor
+
+```
+Commande vocale
+    |
+    v
+find_domino() — fuzzy matching (121 triggers)
+    |
+    v
+DominoExecutor.run(domino)
+    |
+    +-- route_step() → M1/M2/M3/OL1/LOCAL (par type)
+    |       powershell → LOCAL
+    |       curl /api/v1/chat → M1 (POST + auth)
+    |       curl /api/chat → OL1 (POST)
+    |       python → LOCAL (ou M1 si GPU)
+    |
+    +-- execute_step() → PASS/FAIL/SKIP
+    |       on_fail: stop | skip | fallback
+    |       condition: gpu_temp > 80, db_size > 50MB
+    |
+    +-- DominoLogger → etoile.db (domino_logs table)
+    |
+    v
+Rapport TTS vocal + SQLite persistence
+```
+
+### Resultats Domino Live (40 cascades paralleles)
+
+```
+174/174 PASS — 0 FAIL — 1 SKIP (n8n offline) — 19.6s parallelise
+  routine_matin:     5 runs | 21 PASS
+  trading_cascade:   5 runs | 23 PASS
+  debug_cascade:     5 runs | 24 PASS
+  deploy_flow:       4 runs | 19 PASS
+  security_sweep:    4 runs | 15 PASS
+  gpu_thermal:       3 runs | 12 PASS
+  backup_chain:      3 runs | 12 PASS
+  monitoring_alert:  3 runs | 14 PASS
+  collaboration:     3 runs | 14 PASS
+  routine_soir:      3 runs | 13 PASS
+  streaming:         2 runs |  7 PASS
+```
+
+---
+
+## Audit Pipeline Complet (v10.3.2 — v10.3.6, 171/171 PASS)
+
+> **+171 pipelines** deployees en 7 batches, couvrant **42+ categories** a travers 4 niveaux de priorite + completions. Audit systematique du README vs code reel — zero gap restant. **461 pipelines totales**.
 
 ### Couverture par priorite
 
@@ -99,7 +181,7 @@
 Commande vocale / texte
     |
     v
-commands_pipelines.py (425 pipelines)
+commands_pipelines.py (461 pipelines)
     |
     +-- powershell: [commandes systeme directes]
     +-- curl/REST API: [M1 qwen3-8b, M2 deepseek, OL1 ollama]
@@ -110,19 +192,20 @@ commands_pipelines.py (425 pipelines)
 Resultat → TTS vocal ou console
     |
     v
-etoile.db (pipeline_tests: 159, vocal_pipeline: 437)
+etoile.db (pipeline_tests: 235, vocal_pipeline: 473, domino_logs)
 ```
 
 ### Resultats des tests live (cumul)
 
 ```
-135/135 PASS — 0 FAIL — 6 batches — ~213 secondes total
+171/171 PASS — 0 FAIL — 7 batches — ~250 secondes total
   Batch 1: 24 pipelines (cluster, diagnostic, cognitif, securite, debug, routines)
   Batch 2: 36 pipelines (electron, cluster avance, database, n8n, SDK, finetuning, trading, skills)
   Batch 3: 28 pipelines CRITIQUES (canvas, voice, plugin, embedding, finetuning orch, brain)
   Batch 4: 27 pipelines HAUTES (RAG, consensus, security, model, predictive, n8n adv, db optim, dashboard, hotfix)
   Batch 5: 32 pipelines MEDIUM (learning, scenarios, API, profiling, workspace, trading enh, notif, doc, logs)
   Batch 6: 12 pipelines LOW (preferences, accessibility, streaming, collaboration)
+  Batch 7: 36 pipelines COMPLETION (19 categories — gaps audit fermes)
 ```
 
 ---
