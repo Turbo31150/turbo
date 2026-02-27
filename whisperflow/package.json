@@ -1,0 +1,13 @@
+{
+  "name": "jarvis-whisperflow",
+  "version": "1.0.0",
+  "description": "JARVIS WhisperFlow — Voice-First Floating Overlay",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev"
+  },
+  "dependencies": {
+    "electron": "^33.0.0"
+  }
+}
