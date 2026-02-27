@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v10.3.9-blueviolet?style=for-the-badge" alt="version"/>
+  <img src="https://img.shields.io/badge/version-v10.3.10-blueviolet?style=for-the-badge" alt="version"/>
   <img src="https://img.shields.io/badge/GPU-10x_NVIDIA-76B900?style=for-the-badge&logo=nvidia" alt="gpu"/>
   <img src="https://img.shields.io/badge/Claude_SDK-Opus_4-orange?style=for-the-badge&logo=anthropic" alt="claude"/>
   <img src="https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="python"/>
@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/License-Private-red?style=for-the-badge" alt="license"/>
 </p>
 
-<h1 align="center">JARVIS Etoile v10.3.9</h1>
+<h1 align="center">JARVIS Etoile v10.3.10</h1>
 <h3 align="center">Orchestrateur IA Distribue Multi-GPU — HEXA_CORE</h3>
 
 <p align="center">
@@ -33,7 +33,7 @@
 | **Skills** | 108 dynamiques | 16 vagues + 6 nouvelles categories IA, persistants en etoile.db |
 | **Source Python** | 30 modules / 25,000+ lignes | src/ (43,000+ total projet) |
 | **Databases** | 3 bases SQL + pipeline_tests + domino_logs | 36 tables, 2,674 map entries, 235 tests PASS |
-| **Pipeline Tests** | 174/174 PASS (100%) | 42+ categories + 11 domino categories, cluster live |
+| **Pipeline Tests** | 174/174 PASS (100%) | 42+ categories + 11 domino categories, cluster live + TTS live |
 | **Plugin** | 24 slash commands | + 24 skills + 11 agents + 4 hooks |
 | **Desktop** | Electron 33 + React 19 | Portable 72.5 MB |
 | **Trading** | v2.3 Multi-GPU | MEXC Futures 10x, 6 IA consensus |
@@ -41,11 +41,11 @@
 
 ---
 
-## Nouveautes v10.3.9 — Domino Pipelines + DominoExecutor (174/174 PASS)
+## Nouveautes v10.3.10 — TTS Live + Domino Pipelines (174/174 PASS, 63 TTS)
 
-> **Systeme de cascades domino** : une commande vocale declenche automatiquement une chaine d'actions (GPU check → cluster health → analyse IA → rapport TTS). **40 cascades** across **11 categories**, executees en parallele via `DominoExecutor` distribue sur le cluster M1/M2/M3/OL1. **174/174 PASS en 19.6s**.
+> **Synthese vocale TTS live** sur les 40 cascades domino : Edge TTS `fr-FR-HenriNeural` annonce chaque categorie, chaque resultat, et produit un rapport vocal final. **63 messages TTS** joues en temps reel, **174/174 PASS en 336s** avec audio. **40 cascades** across **11 categories**, executees via `DominoExecutor` distribue sur le cluster M1/M2/M3/OL1.
 
-### Domino Pipelines (v10.3.7 — v10.3.9)
+### Domino Pipelines (v10.3.7 — v10.3.10)
 
 | Metrique | Valeur |
 |----------|--------|
@@ -54,8 +54,10 @@
 | **Steps executables** | 175 (powershell, curl, python, pipeline, condition) |
 | **Categories** | 11 (routine_matin, trading, debug, deploy, securite, GPU, backup, monitoring, collaboration, streaming, routine_soir) |
 | **DominoExecutor** | Routing auto M1/M2/M3/OL1/LOCAL + fallback chain + SQLite logging |
+| **TTS Live** | Edge TTS `fr-FR-HenriNeural` — 63 messages vocaux, 336s avec audio |
 | **Dataset apprentissage** | 97 examples JSONL pour fine-tuning |
-| **Score live** | 174/174 PASS (100%) — 40 cascades paralleles en 19.6s |
+| **Score parallele** | 174/174 PASS (100%) — 40 cascades en 19.6s (sans TTS) |
+| **Score TTS live** | 174/174 PASS (100%) — 40 cascades + 63 TTS en 336s |
 
 <details>
 <summary><b>11 categories domino</b> (cliquer pour details)</summary>
@@ -103,21 +105,33 @@ DominoExecutor.run(domino)
 Rapport TTS vocal + SQLite persistence
 ```
 
-### Resultats Domino Live (40 cascades paralleles)
+### Resultats Domino Live TTS (40 cascades + 63 messages vocaux)
 
 ```
-174/174 PASS — 0 FAIL — 1 SKIP (n8n offline) — 19.6s parallelise
-  routine_matin:     5 runs | 21 PASS
-  trading_cascade:   5 runs | 23 PASS
-  debug_cascade:     5 runs | 24 PASS
-  deploy_flow:       4 runs | 19 PASS
-  security_sweep:    4 runs | 15 PASS
-  gpu_thermal:       3 runs | 12 PASS
-  backup_chain:      3 runs | 12 PASS
-  monitoring_alert:  3 runs | 14 PASS
-  collaboration:     3 runs | 14 PASS
-  routine_soir:      3 runs | 13 PASS
-  streaming:         2 runs |  7 PASS
+174/174 PASS — 0 FAIL — 1 SKIP (n8n offline) — 336.2s avec TTS live
+  backup_chain:      3 runs | 12 PASS |  14.4s | TTS: backup termine, restaure, verifie
+  collaboration:     3 runs | 14 PASS |  10.9s | TTS: cluster synchronise, consensus
+  debug_cascade:     5 runs | 24 PASS |  26.1s | TTS: diagnostic cluster/GPU/reseau/DB/API
+  deploy_flow:       4 runs | 19 PASS |  29.3s | TTS: deploiement, hotfix, rollback
+  gpu_thermal:       3 runs | 12 PASS |  18.4s | TTS: monitoring, optimisation, urgence
+  monitoring_alert:  3 runs | 14 PASS |  22.9s | TTS: systeme, alertes, benchmark
+  routine_matin:     5 runs | 21 PASS |  26.3s | TTS: bonjour, briefing, cafe code
+  routine_soir:      3 runs | 13 PASS |  14.5s | TTS: bonne nuit, pause, weekend
+  security_sweep:    4 runs | 15 PASS |  27.8s | TTS: scan securite, cles, reseau
+  streaming:         2 runs |  7 PASS |  12.7s | TTS: stream pret, VOD sauvegardee
+  trading_cascade:   5 runs | 23 PASS |  20.7s | TTS: scan, execute, backtest, drawdown
+```
+
+### Pipeline TTS Live
+
+```
+Commande vocale → find_domino() → DominoExecutor.run()
+    |                                      |
+    v                                      v
+Edge TTS fr-FR-HenriNeural          execute_step() → M1/M2/M3/OL1
+    |                                      |
+    v                                      v
+ffplay (audio MP3)                  PASS/FAIL/SKIP → rapport vocal TTS
 ```
 
 ---
