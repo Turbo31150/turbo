@@ -62,8 +62,8 @@ MODELS = {
         "url": f"{M1_BASE}/v1/chat/completions",
         "model": "deepseek-r1-0528-qwen3-8b", "auth": M1_AUTH,
         "type": "lmstudio", "nothink": False,
-        "role": "raisonnement_test",
-        "temp": 0.3, "max_tokens": 4096,
+        "role": "generateur_scenarios_hard",
+        "temp": 0.4, "max_tokens": 8192,
     },
     # M2
     "M2-deepseek": {
@@ -97,6 +97,7 @@ MODELS = {
 # ═══════════════════════════════════════════════════════════════════
 
 DOMAINS_GENERATE = {
+    # ── Domaines existants ──
     "multimedia": {
         "desc": "Controle multimedia avance (lecteur musique, video, stream, volume, playlists, cast, enregistrement ecran)",
         "pipelines": 20, "dominos": 8, "scenarios": 15,
@@ -128,6 +129,55 @@ DOMAINS_GENERATE = {
     "debug_tools": {
         "desc": "Outils de debug et diagnostic (logs viewer, profiler, memory dump, stack trace, perf counter, event viewer)",
         "pipelines": 15, "dominos": 6, "scenarios": 10,
+    },
+    # ── Nouveaux domaines Windows pilotage complet ──
+    "windows_display": {
+        "desc": "Affichage Windows (resolution, multi-ecran, HDR, luminosite, mode sombre, nuit, rotation ecran, DPI scaling, fond ecran, theme)",
+        "pipelines": 20, "dominos": 6, "scenarios": 15,
+    },
+    "windows_audio": {
+        "desc": "Audio Windows (peripheriques sortie/entree, mixer volume, egaliseur, spatial audio, microphone, bluetooth audio, enregistrement son)",
+        "pipelines": 18, "dominos": 6, "scenarios": 12,
+    },
+    "windows_apps": {
+        "desc": "Applications Windows (installer/desinstaller, store, mise a jour apps, associations fichiers, apps par defaut, startup apps, mode compatibilite)",
+        "pipelines": 20, "dominos": 8, "scenarios": 15,
+    },
+    "windows_power": {
+        "desc": "Alimentation et performance (plan alimentation, mode perf elevee, mode economie, veille, hibernation, arret programme, demarrage rapide, overclock profil)",
+        "pipelines": 18, "dominos": 8, "scenarios": 12,
+    },
+    "windows_security": {
+        "desc": "Securite Windows (Defender, pare-feu, BitLocker, UAC, SmartScreen, exploit protection, quarantaine, scan rapide/complet, exclusions)",
+        "pipelines": 20, "dominos": 8, "scenarios": 15,
+    },
+    "windows_storage": {
+        "desc": "Stockage et disques (nettoyage disque, defrag, espaces de stockage, pools, lecteurs virtuels, chiffrement, quotas, SMART, trim SSD)",
+        "pipelines": 18, "dominos": 6, "scenarios": 12,
+    },
+    "windows_peripherals": {
+        "desc": "Peripheriques (imprimante, scanner, webcam, manette, tablette graphique, USB, Bluetooth, pilotes, gestionnaire peripheriques)",
+        "pipelines": 18, "dominos": 6, "scenarios": 12,
+    },
+    "windows_registry": {
+        "desc": "Registre et configuration avancee (tweaks registre, gpedit, variables environnement, PATH, associations, context menu, shell extensions)",
+        "pipelines": 15, "dominos": 6, "scenarios": 10,
+    },
+    "windows_accessibility": {
+        "desc": "Accessibilite (loupe, narrateur, contraste eleve, sous-titres, clavier visuel, reconnaissance vocale, filtres couleur, taille curseur, sticky keys)",
+        "pipelines": 15, "dominos": 6, "scenarios": 10,
+    },
+    "powershell_advanced": {
+        "desc": "PowerShell avance (scripts, modules, remoting, DSC, jobs, runspaces, WMI/CIM queries, event log, performance counters, scheduled tasks)",
+        "pipelines": 20, "dominos": 8, "scenarios": 15,
+    },
+    "dev_environment": {
+        "desc": "Environnement dev (VS Code, Git, Node, Python venv, Docker, WSL, terminal config, extensions, linters, formatters, debugger)",
+        "pipelines": 20, "dominos": 8, "scenarios": 15,
+    },
+    "windows_navigation": {
+        "desc": "Navigation et fenêtres (snap layouts, bureaux virtuels, switch fenetre, alt-tab, taskbar, systray, raccourcis clavier, explorateur fichiers, recherche)",
+        "pipelines": 18, "dominos": 6, "scenarios": 12,
     },
 }
 
@@ -293,13 +343,42 @@ def insert_scenarios(items: list) -> int:
             ec = item.get("expected_commands", "[]")
             if isinstance(ec, list):
                 ec = json.dumps(ec)
+            diff = item.get("difficulty", "normal")
+            if isinstance(diff, dict):
+                diff = str(diff.get("level", diff.get("name", "normal")))
+            diff = str(diff).lower().strip()
+            if diff not in ("easy", "normal", "hard"):
+                diff = "normal"
             try:
                 conn.execute(
                     "INSERT INTO scenarios (name, description, category, voice_input, expected_commands, expected_result, difficulty) VALUES (?,?,?,?,?,?,?)",
-                    (name, item.get("description", ""), item.get("category", ""), voice, ec,
-                     item.get("expected_result", ""), item.get("difficulty", "normal")))
+                    (name, str(item.get("description", "")), str(item.get("category", "")), voice, ec,
+                     str(item.get("expected_result", "")), diff))
                 inserted += 1
             except sqlite3.IntegrityError:
+                pass
+        conn.commit()
+    return inserted
+
+def insert_weights(items: list) -> int:
+    inserted = 0
+    VALID_AGENTS = {"M1", "M2", "M3", "OL1", "GEMINI", "CLAUDE"}
+    with sqlite3.connect(str(ETOILE_DB)) as conn:
+        for item in items:
+            scenario = str(item.get("scenario", "")).strip()
+            agent = str(item.get("agent", "")).strip().upper()
+            if not scenario or agent not in VALID_AGENTS:
+                continue
+            weight = float(item.get("weight", 1.0))
+            priority = int(item.get("priority", 1))
+            chain_next = str(item.get("chain_next", "")).strip()
+            desc = str(item.get("description", "")).strip()
+            try:
+                conn.execute(
+                    "INSERT INTO scenario_weights (scenario, agent, weight, priority, chain_next, description) VALUES (?,?,?,?,?,?)",
+                    (scenario, agent, weight, priority, chain_next, desc))
+                inserted += 1
+            except (sqlite3.IntegrityError, ValueError):
                 pass
         conn.commit()
     return inserted
@@ -357,57 +436,91 @@ Exemples concrets:
 IMPORTANT: chaque name doit etre UNIQUE et DESCRIPTIF. voice_input en francais naturel.
 Repartition: 40% easy, 40% normal, 20% hard. JSON array seulement."""
 
+def prompt_scenarios_hard(domain: str, desc: str, count: int) -> str:
+    """Prompt pour deepseek-r1: scenarios complexes multi-etapes."""
+    seed = random.randint(100, 999)
+    return f"""Genere {count} scenarios de test vocal COMPLEXES pour "{domain}" ({desc}).
+Ces scenarios sont de difficulte HARD: ils combinent plusieurs actions, ont des conditions, ou necessitent du raisonnement.
+
+Exemples:
+[
+  {{"name": "{domain}_multi_step_{seed}", "description": "Enchainer 3 actions en sequence", "category": "{domain}", "voice_input": "fais un diagnostic complet et envoie le rapport par mail", "expected_commands": ["diagnostic_complet", "envoyer_rapport"], "expected_result": "Diagnostic + envoi mail OK", "difficulty": "hard"}},
+  {{"name": "{domain}_conditional_{seed+1}", "description": "Action conditionnelle complexe", "category": "{domain}", "voice_input": "si le cluster est sain lance un benchmark sinon repare d'abord", "expected_commands": ["check_cluster", "benchmark_ou_repair"], "expected_result": "Condition evaluee + action adaptee", "difficulty": "hard"}}
+]
+
+IMPORTANT: TOUS les scenarios doivent etre difficulty "hard". voice_input en francais naturel, phrases longues et complexes.
+Chaque name UNIQUE et DESCRIPTIF (pas de xxx, yyy). JSON array seulement."""
+
+def prompt_weights(domain: str, desc: str) -> str:
+    """Prompt pour generer les scenario_weights de routage."""
+    return f"""Genere les poids de routage pour le domaine "{domain}" ({desc}).
+Chaque agent a un role: M1=code/rapide, M2=code-review, M3=general, OL1=rapide/vocal, GEMINI=architecture, CLAUDE=raisonnement.
+
+Exemples:
+[
+  {{"scenario": "{domain}", "agent": "M1", "weight": 1.8, "priority": 1, "chain_next": "M2", "description": "M1 traite {domain} en priorite"}},
+  {{"scenario": "{domain}", "agent": "M2", "weight": 1.2, "priority": 2, "chain_next": "", "description": "M2 en review"}},
+  {{"scenario": "{domain}", "agent": "OL1", "weight": 0.8, "priority": 3, "chain_next": "M1", "description": "OL1 pour reponse rapide"}}
+]
+
+Genere 4-6 entries couvrant M1, M2, M3, OL1, GEMINI, CLAUDE.
+weight entre 0.5 et 2.0. priority 1=urgent 5=bas. chain_next = agent suivant dans la chaine.
+JSON array seulement."""
+
 
 async def phase_generate(domain: str, cfg: dict, client: httpx.AsyncClient) -> dict:
-    """Genere pipelines + dominos + scenarios en parallele avec 3 modeles."""
+    """TURBO: 8 requetes paralleles sur M1/M2/M3 simultanement."""
     desc = cfg["desc"]
     n_p, n_d, n_s = cfg["pipelines"], cfg["dominos"], cfg["scenarios"]
+    n_hard = max(3, n_s // 3)
 
-    print(f"  [GEN] {domain}: {n_p}p + {n_d}d + {n_s}s via M1-qwen3/M2/M3...")
+    print(f"  [GEN] {domain}: {n_p}p + {n_d}d + {n_s}s + {n_hard}h + dominos2 via M1x3/M2x2/M3...")
 
+    # 8 requetes paralleles — M1 prend 3 taches, M2 prend 2, M3 prend 1, OL1 prend 1, deepseek-r1 prend 1
     tasks = [
-        call_model("M1-qwen3", prompt_pipelines(domain, desc, n_p), client),
-        call_model("M2-deepseek", prompt_dominos(domain, desc, n_d), client),
-        call_model("M3-mistral", prompt_scenarios(domain, desc, n_s), client),
+        call_model("M1-qwen3", prompt_pipelines(domain, desc, n_p), client),          # M1 req 1
+        call_model("M1-qwen3", prompt_scenarios_hard(domain, desc, n_hard), client),   # M1 req 2
+        call_model("M1-qwen3", prompt_dominos(domain, desc, n_d), client),             # M1 req 3
+        call_model("M2-deepseek", prompt_dominos(domain, desc, n_d), client),          # M2 req 1
+        call_model("M2-deepseek", prompt_scenarios(domain, desc, n_s), client),        # M2 req 2
+        call_model("M3-mistral", prompt_scenarios(domain, desc, n_s), client),         # M3 req 1
+        call_model("M1-deepseek-r1", prompt_pipelines(domain, desc, n_p), client),     # R1 req 1
+        call_model("OL1-qwen", prompt_weights(domain, desc), client),                  # OL1 req 1
     ]
     responses = await asyncio.gather(*tasks, return_exceptions=True)
 
-    results = {"pipelines": 0, "dominos": 0, "scenarios": 0, "generated": []}
+    results = {"pipelines": 0, "dominos": 0, "scenarios": 0, "scenarios_hard": 0, "weights": 0, "generated": []}
 
-    # Pipelines
-    if isinstance(responses[0], str):
-        items = extract_json_array(responses[0])
-        if items:
-            results["pipelines"] = insert_pipelines(items)
-            results["generated"].extend(items[:3])  # Keep samples for testing
-            print(f"    ✓ Pipelines: {len(items)} generes → {results['pipelines']} inseres")
+    # Helper to process a response
+    def _process(idx, label, insert_fn, key):
+        if isinstance(responses[idx], str):
+            items = extract_json_array(responses[idx])
+            if items:
+                count = insert_fn(items)
+                results[key] += count
+                if key in ("pipelines", "scenarios"):
+                    results["generated"].extend(items[:2])
+                print(f"    + {label}: {len(items)} gen -> {count} ins")
+            else:
+                print(f"    x {label}: JSON invalide")
         else:
-            print(f"    ✗ Pipelines: JSON invalide")
-    else:
-        print(f"    ✗ Pipelines: pas de reponse")
+            err = responses[idx]
+            if isinstance(err, Exception):
+                print(f"    x {label}: {type(err).__name__}")
+            else:
+                print(f"    x {label}: pas de reponse")
 
-    # Dominos
-    if isinstance(responses[1], str):
-        items = extract_json_array(responses[1])
-        if items:
-            results["dominos"] = insert_dominos(items)
-            print(f"    ✓ Dominos: {len(items)} generes → {results['dominos']} inseres")
-        else:
-            print(f"    ✗ Dominos: JSON invalide")
-    else:
-        print(f"    ✗ Dominos: pas de reponse")
+    _process(0, "Pipelines[M1]", insert_pipelines, "pipelines")
+    _process(1, "Scenarios-hard[M1]", insert_scenarios, "scenarios_hard")
+    _process(2, "Dominos[M1]", insert_dominos, "dominos")
+    _process(3, "Dominos[M2]", insert_dominos, "dominos")
+    _process(4, "Scenarios[M2]", insert_scenarios, "scenarios")
+    _process(5, "Scenarios[M3]", insert_scenarios, "scenarios")
+    _process(6, "Pipelines[R1]", insert_pipelines, "pipelines")
+    _process(7, "Weights[OL1]", insert_weights, "weights")
 
-    # Scenarios
-    if isinstance(responses[2], str):
-        items = extract_json_array(responses[2])
-        if items:
-            results["scenarios"] = insert_scenarios(items)
-            results["generated"].extend(items[:3])
-            print(f"    ✓ Scenarios: {len(items)} generes → {results['scenarios']} inseres")
-        else:
-            print(f"    ✗ Scenarios: JSON invalide")
-    else:
-        print(f"    ✗ Scenarios: pas de reponse")
+    total = sum(results.get(k, 0) for k in results if k != "generated")
+    print(f"    = {total} inseres total")
 
     return results
 
@@ -481,12 +594,14 @@ JSON seulement."""
             if items:
                 matched = 0
                 for item in items:
+                    if not isinstance(item, dict):
+                        continue
                     expected = None
                     for s in scenario_sample:
                         if s[0] == item.get("name"):
                             try:
                                 expected = json.loads(s[2])
-                            except:
+                            except Exception:
                                 expected = [s[2]]
                             break
                     mc = str(item.get("matched_command", ""))
@@ -495,10 +610,11 @@ JSON seulement."""
                         matched += 1
                     elif conf and float(conf) >= 0.7:
                         matched += 1
-                results["tested"] += len(items)
+                valid_items = [i for i in items if isinstance(i, dict)]
+                results["tested"] += len(valid_items)
                 results["passed"] += matched
-                results["failed"] += len(items) - matched
-                print(f"    {matched}/{len(items)} commandes vocales comprises")
+                results["failed"] += len(valid_items) - matched
+                print(f"    {matched}/{len(valid_items)} commandes vocales comprises")
             else:
                 print(f"    ⚠ Reponse non-parsable")
         else:
@@ -533,8 +649,10 @@ def phase_report(round_num: int, gen_results: dict, test_results: dict, elapsed:
     print(f"  ROUND {round_num} — {elapsed:.1f}s")
     print(f"  {'─'*50}")
 
-    total_gen = sum(gen_results.get(k, 0) for k in ["pipelines", "dominos", "scenarios"])
-    print(f"  Generation: +{total_gen} ({gen_results.get('pipelines',0)}p / {gen_results.get('dominos',0)}d / {gen_results.get('scenarios',0)}s)")
+    total_gen = sum(gen_results.get(k, 0) for k in ["pipelines", "dominos", "scenarios", "scenarios_hard", "weights"])
+    sh = gen_results.get('scenarios_hard', 0)
+    s_total = gen_results.get('scenarios', 0) + sh
+    print(f"  Generation: +{total_gen} ({gen_results.get('pipelines',0)}p / {gen_results.get('dominos',0)}d / {s_total}s[{sh}h] / {gen_results.get('weights',0)}w)")
 
     tested = test_results.get("tested", 0)
     passed = test_results.get("passed", 0)
@@ -562,8 +680,8 @@ async def main():
     args = parser.parse_args()
 
     print("╔══════════════════════════════════════════════════════════╗")
-    print("║  LEARNING CYCLE v1.0 — Apprentissage Actif Cluster      ║")
-    print("║  7 modeles | Generation + Test + Validation             ║")
+    print("║  LEARNING CYCLE v3.0 TURBO — 8 requetes paralleles      ║")
+    print("║  M1x3 + R1x1 + M2x2 + M3x1 + OL1x1 = MAX THROUGHPUT   ║")
     print("╚══════════════════════════════════════════════════════════╝")
     print()
 
@@ -571,9 +689,10 @@ async def main():
     with sqlite3.connect(str(ETOILE_DB)) as conn:
         before_p = conn.execute("SELECT COUNT(*) FROM pipeline_dictionary").fetchone()[0]
         before_d = conn.execute("SELECT COUNT(*) FROM domino_chains").fetchone()[0]
+        before_w = conn.execute("SELECT COUNT(*) FROM scenario_weights").fetchone()[0]
     with sqlite3.connect(str(JARVIS_DB)) as conn:
         before_s = conn.execute("SELECT COUNT(*) FROM scenarios").fetchone()[0]
-    print(f"  Etat initial: {before_p} pipelines | {before_d} dominos | {before_s} scenarios")
+    print(f"  Etat initial: {before_p} pipelines | {before_d} dominos | {before_s} scenarios | {before_w} weights")
     print()
 
     # Select domains
@@ -591,28 +710,35 @@ async def main():
     total_pct = 0
     rounds_done = 0
 
-    async with httpx.AsyncClient() as client:
+    limits = httpx.Limits(max_connections=100, max_keepalive_connections=50)
+    async with httpx.AsyncClient(limits=limits, timeout=httpx.Timeout(180.0, connect=10.0)) as client:
         for round_num in range(1, args.rounds + 1):
             print(f"\n{'='*60}")
             print(f"  ROUND {round_num}/{args.rounds}")
             print(f"{'='*60}")
 
             t0 = time.time()
-            gen_results = {"pipelines": 0, "dominos": 0, "scenarios": 0}
+            gen_results = {"pipelines": 0, "dominos": 0, "scenarios": 0, "scenarios_hard": 0, "weights": 0}
             test_results = {"tested": 0, "passed": 0, "failed": 0, "errors": []}
 
             # Pick domains for this round (rotate through them)
-            start_idx = ((round_num - 1) * 3) % len(domain_list)
+            step = 6 if args.rounds >= 20 else 4
+            start_idx = ((round_num - 1) * step) % len(domain_list)
             round_domains = []
-            for i in range(min(3, len(domain_list))):
+            domains_per_round = 6 if args.rounds >= 20 else 4  # HYPER: 6 domaines paralleles
+            for i in range(min(domains_per_round, len(domain_list))):
                 idx = (start_idx + i) % len(domain_list)
                 round_domains.append(domain_list[idx])
 
-            # PHASE 1: Generate
+            # PHASE 1: Generate — ALL domains in PARALLEL (4 domains × 8 requests = 32 concurrent)
             if not args.test_only:
-                for domain, cfg in round_domains:
-                    result = await phase_generate(domain, cfg, client)
-                    for k in ["pipelines", "dominos", "scenarios"]:
+                domain_tasks = [phase_generate(d, c, client) for d, c in round_domains]
+                domain_results = await asyncio.gather(*domain_tasks, return_exceptions=True)
+                for i, result in enumerate(domain_results):
+                    if isinstance(result, Exception):
+                        print(f"    ✗ {round_domains[i][0]} erreur: {result}")
+                        continue
+                    for k in ["pipelines", "dominos", "scenarios", "scenarios_hard", "weights"]:
                         gen_results[k] += result.get(k, 0)
 
             # PHASE 2: Test
@@ -625,10 +751,16 @@ async def main():
             total_pct += rpct
             rounds_done += 1
 
+    # WAL checkpoint — flush pending writes before final counts
+    for db_path in [ETOILE_DB, JARVIS_DB]:
+        with sqlite3.connect(str(db_path)) as conn:
+            conn.execute("PRAGMA wal_checkpoint(FULL)")
+
     # Final summary
     with sqlite3.connect(str(ETOILE_DB)) as conn:
         after_p = conn.execute("SELECT COUNT(*) FROM pipeline_dictionary").fetchone()[0]
         after_d = conn.execute("SELECT COUNT(*) FROM domino_chains").fetchone()[0]
+        after_w = conn.execute("SELECT COUNT(*) FROM scenario_weights").fetchone()[0]
     with sqlite3.connect(str(JARVIS_DB)) as conn:
         after_s = conn.execute("SELECT COUNT(*) FROM scenarios").fetchone()[0]
 
@@ -638,10 +770,11 @@ async def main():
     print(f"  Pipelines: {before_p} → {after_p} (+{after_p - before_p})")
     print(f"  Dominos:   {before_d} → {after_d} (+{after_d - before_d})")
     print(f"  Scenarios: {before_s} → {after_s} (+{after_s - before_s})")
+    print(f"  Weights:   {before_w} → {after_w} (+{after_w - before_w})")
     print(f"  Total genere: +{total_gen}")
     avg_pct = total_pct // rounds_done if rounds_done else 0
     print(f"  Score moyen tests: {avg_pct}%")
-    print(f"\n  ✓ Learning cycle termine.")
+    print(f"\n  ✓ Learning cycle termine (WAL checkpoint OK).")
 
 
 if __name__ == "__main__":
