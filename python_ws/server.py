@@ -152,6 +152,52 @@ async def api_reload_dict():
     return JSONResponse(result)
 
 
+# ── Domino/Cascade REST API ────────────────────────────────────────────────
+
+@app.get("/api/dominos")
+async def api_list_dominos(category: str = ""):
+    """List all domino pipelines and DB chains."""
+    result = await handle_system_request("list_dominos", {"category": category})
+    return JSONResponse(result)
+
+
+@app.get("/api/dominos/chains")
+async def api_list_chains(q: str = "", limit: int = 50):
+    """Search DB chains."""
+    result = await handle_system_request("list_chains", {"query": q, "limit": limit})
+    return JSONResponse(result)
+
+
+@app.get("/api/dominos/resolve/{trigger}")
+async def api_resolve_chain(trigger: str):
+    """Resolve a trigger into its full chain."""
+    result = await handle_system_request("resolve_chain", {"trigger": trigger})
+    return JSONResponse(result)
+
+
+@app.post("/api/dominos/execute")
+async def api_execute_domino(request: Request):
+    """Execute a domino by ID or voice text."""
+    body = await request.json()
+    result = await handle_system_request("execute_domino", body)
+    return JSONResponse(result)
+
+
+@app.post("/api/dominos/execute-chain")
+async def api_execute_chain(request: Request):
+    """Execute a DB chain by trigger."""
+    body = await request.json()
+    result = await handle_system_request("execute_chain", body)
+    return JSONResponse(result)
+
+
+@app.get("/api/dominos/logs")
+async def api_domino_logs(run_id: str = "", limit: int = 20):
+    """Get domino execution logs."""
+    result = await handle_system_request("domino_logs", {"run_id": run_id, "limit": limit})
+    return JSONResponse(result)
+
+
 # ── WhisperFlow static serving ─────────────────────────────────────────────
 _whisperflow_dir = Path(__file__).resolve().parent.parent / "whisperflow"
 
@@ -268,6 +314,8 @@ async def websocket_endpoint(websocket: WebSocket):
                     await _push_chat_events(websocket, result)
                 elif channel == "voice" and action == "stop_recording" and not error:
                     await _push_voice_events(websocket, result)
+                elif channel == "system" and action in ("execute_domino", "execute_chain") and not error:
+                    await _push_domino_events(websocket, result)
             except WebSocketDisconnect:
                 raise
             except Exception as exc:
@@ -334,6 +382,51 @@ async def _push_voice_events(websocket: WebSocket, result: dict) -> None:
                 "timestamp": entry.get("timestamp"),
             },
         })
+
+
+async def _push_domino_events(websocket: WebSocket, result: dict) -> None:
+    """Push domino cascade execution events."""
+    domino = result.get("domino")
+    if not domino:
+        return
+
+    # Push cascade result
+    await websocket.send_json({
+        "type": "event",
+        "channel": "system",
+        "event": "domino_complete",
+        "payload": {
+            "domino_id": domino.get("domino_id", ""),
+            "category": domino.get("category", ""),
+            "passed": domino.get("passed", 0),
+            "failed": domino.get("failed", 0),
+            "skipped": domino.get("skipped", 0),
+            "total_ms": domino.get("total_ms", 0),
+            "total_steps": domino.get("total_steps", 0),
+            "run_id": domino.get("run_id", ""),
+            "source": result.get("source", "hardcoded"),
+        },
+    })
+
+    # Fetch and push detailed step logs
+    try:
+        run_id = domino.get("run_id", "")
+        if run_id:
+            from python_ws.routes.system import handle_system_request
+            logs = await handle_system_request("domino_logs", {"run_id": run_id})
+            if logs.get("logs"):
+                await websocket.send_json({
+                    "type": "event",
+                    "channel": "system",
+                    "event": "domino_steps",
+                    "payload": {
+                        "run_id": run_id,
+                        "domino_id": domino.get("domino_id", ""),
+                        "steps": logs["logs"],
+                    },
+                })
+    except Exception:
+        pass
 
 
 # ── Background push loops ───────────────────────────────────────────────────

@@ -49,6 +49,21 @@ async def handle_system_request(action: str, payload: dict | None) -> dict[str, 
     if action == "execute_domino":
         return await _execute_domino(payload)
 
+    if action == "list_dominos":
+        return await _list_dominos(payload)
+
+    if action == "list_chains":
+        return await _list_chains(payload)
+
+    if action == "resolve_chain":
+        return await _resolve_chain(payload)
+
+    if action == "execute_chain":
+        return await _execute_chain(payload)
+
+    if action == "domino_logs":
+        return await _domino_logs(payload)
+
     return {"error": f"unknown system action: {action}"}
 
 
@@ -225,4 +240,205 @@ async def _execute_domino(payload: dict) -> dict[str, Any]:
         return {"executed": True, "domino": result}
     except Exception as e:
         logger.error("Domino execution error: %s", e)
+        return {"error": str(e)}
+
+
+async def _list_dominos(payload: dict) -> dict[str, Any]:
+    """List all available domino pipelines (hardcoded + DB chains)."""
+    category_filter = payload.get("category", "")
+
+    # Hardcoded pipelines
+    try:
+        from src.domino_pipelines import DOMINO_PIPELINES
+        pipelines = [
+            {
+                "id": dp.id,
+                "triggers": dp.trigger_vocal[:3],
+                "category": dp.category,
+                "description": dp.description,
+                "steps": len(dp.steps),
+                "priority": dp.priority,
+                "source": "hardcoded",
+            }
+            for dp in DOMINO_PIPELINES
+            if not category_filter or dp.category == category_filter
+        ]
+    except Exception:
+        pipelines = []
+
+    # DB chain triggers
+    try:
+        from src.chain_resolver import list_all_triggers
+        triggers = list_all_triggers()
+        chains = [
+            {
+                "id": f"chain_{t['trigger']}",
+                "triggers": [t["trigger"]],
+                "category": "db_chain",
+                "description": f"{t['trigger']} ({t['chain_count']} chains, conditions: {t['conditions']})",
+                "steps": t["chain_count"],
+                "priority": "normal",
+                "source": "etoile_db",
+                "auto_count": t["auto_count"],
+            }
+            for t in triggers
+            if not category_filter or category_filter == "db_chain"
+        ]
+    except Exception as e:
+        logger.warning("Chain resolver error: %s", e)
+        chains = []
+
+    # Distinct categories
+    cats = sorted(set(p["category"] for p in pipelines + chains))
+
+    return {
+        "pipelines": pipelines,
+        "chains": chains,
+        "categories": cats,
+        "total_pipelines": len(pipelines),
+        "total_chains": len(chains),
+    }
+
+
+async def _list_chains(payload: dict) -> dict[str, Any]:
+    """Search or list DB chains."""
+    query = payload.get("query", "")
+    limit = payload.get("limit", 50)
+
+    try:
+        from src.chain_resolver import search_chains, list_all_triggers
+        if query:
+            results = search_chains(query, limit=limit)
+        else:
+            results = search_chains("", limit=limit)
+        triggers = list_all_triggers()
+        return {"chains": results, "triggers": triggers, "total": len(results)}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+async def _resolve_chain(payload: dict) -> dict[str, Any]:
+    """Resolve a trigger_cmd into its full chain."""
+    trigger = payload.get("trigger", "")
+    if not trigger:
+        return {"error": "Need trigger parameter"}
+
+    try:
+        from src.chain_resolver import resolve_chain
+        chain = resolve_chain(trigger)
+        if not chain:
+            return {"error": f"No chain found for trigger: {trigger}"}
+        return {
+            "trigger": chain.trigger,
+            "steps": [
+                {
+                    "trigger": s.trigger,
+                    "condition": s.condition,
+                    "next_cmd": s.next_cmd,
+                    "delay_ms": s.delay_ms,
+                    "auto": s.auto,
+                    "description": s.description,
+                    "chain_id": s.chain_id,
+                }
+                for s in chain.steps
+            ],
+            "total_delay_ms": chain.total_delay_ms,
+            "is_cyclic": chain.is_cyclic,
+            "step_count": chain.step_count,
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+async def _execute_chain(payload: dict) -> dict[str, Any]:
+    """Execute a DB chain by trigger_cmd — resolve + execute steps sequentially."""
+    trigger = payload.get("trigger", "")
+    if not trigger:
+        return {"error": "Need trigger parameter"}
+
+    try:
+        from src.chain_resolver import resolve_chain
+        chain = resolve_chain(trigger)
+        if not chain:
+            return {"error": f"No chain found for: {trigger}"}
+
+        # Convert resolved chain to DominoPipeline for executor
+        from src.domino_pipelines import DominoPipeline, DominoStep
+        steps = []
+        for s in chain.steps:
+            # Determine action_type from the next_cmd content
+            action_type = "pipeline"
+            action = s.next_cmd
+            if s.next_cmd.startswith("powershell:"):
+                action_type = "powershell"
+            elif s.next_cmd.startswith("curl:"):
+                action_type = "curl"
+            elif s.next_cmd.startswith("python:"):
+                action_type = "python"
+
+            steps.append(DominoStep(
+                name=f"{s.trigger}_to_{s.next_cmd}",
+                action=action,
+                action_type=action_type,
+                condition=s.condition if s.condition != "always" else None,
+                on_fail="skip",
+                timeout_s=30,
+            ))
+
+        domino = DominoPipeline(
+            id=f"chain_{trigger}",
+            trigger_vocal=[trigger],
+            steps=steps,
+            category="db_chain",
+            description=chain.description or f"DB chain: {trigger}",
+            learning_context=f"Resolved from etoile.db domino_chains (trigger={trigger})",
+        )
+
+        executor = _get_executor()
+        if not executor:
+            return {"error": "DominoExecutor not available"}
+
+        result = await asyncio.to_thread(executor.run, domino)
+        return {"executed": True, "domino": result, "source": "db_chain"}
+    except Exception as e:
+        logger.error("Chain execution error: %s", e)
+        return {"error": str(e)}
+
+
+async def _domino_logs(payload: dict) -> dict[str, Any]:
+    """Get recent domino execution logs."""
+    limit = payload.get("limit", 20)
+    run_id = payload.get("run_id", "")
+
+    try:
+        import sqlite3
+        db_path = "F:/BUREAU/turbo/data/etoile.db"
+        conn = sqlite3.connect(db_path)
+
+        if run_id:
+            rows = conn.execute(
+                "SELECT run_id, domino_id, step_name, step_idx, status, duration_ms, node, output_preview, ts "
+                "FROM domino_logs WHERE run_id=? ORDER BY step_idx",
+                (run_id,)
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT run_id, domino_id, step_name, step_idx, status, duration_ms, node, output_preview, ts "
+                "FROM domino_logs ORDER BY id DESC LIMIT ?",
+                (limit,)
+            ).fetchall()
+        conn.close()
+
+        return {
+            "logs": [
+                {
+                    "run_id": r[0], "domino_id": r[1], "step_name": r[2],
+                    "step_idx": r[3], "status": r[4], "duration_ms": r[5],
+                    "node": r[6], "output_preview": r[7], "ts": r[8],
+                }
+                for r in rows
+            ],
+            "total": len(rows),
+        }
+    except Exception as e:
         return {"error": str(e)}
