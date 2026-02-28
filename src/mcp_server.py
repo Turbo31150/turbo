@@ -1055,6 +1055,152 @@ async def handle_brain_learn(args: dict) -> list[TextContent]:
         return _text("Pas assez d'historique pour apprendre. Continue a utiliser JARVIS.")
 
 
+# ── Dictionary CRUD handler ────────────────────────────────────────────────
+
+_DICT_VALID_CATS = {
+    "system", "media", "navigation", "trading", "dev", "ia",
+    "communication", "productivity", "entertainment", "accessibility",
+    "fichiers", "daily", "cluster", "voice", "custom",
+}
+_DICT_VALID_ACTS = {
+    "powershell", "curl", "python", "pipeline", "condition",
+    "system", "media", "browser", "voice", "shortcut", "script",
+}
+_DICT_TABLES = {"pipeline_dictionary", "domino_chains", "voice_corrections"}
+
+
+async def handle_dict_crud(args: dict) -> list[TextContent]:
+    import sqlite3 as _sql
+    from datetime import datetime as _dt
+
+    operation = (args.get("operation") or "").lower()
+    table = (args.get("table") or "pipeline_dictionary").lower()
+    data_raw = args.get("data", "{}")
+    if isinstance(data_raw, str):
+        try:
+            data = json.loads(data_raw)
+        except json.JSONDecodeError:
+            return _error("data must be a valid JSON string")
+    else:
+        data = data_raw
+
+    if table not in _DICT_TABLES:
+        return _error(f"Invalid table: {table}. Valid: {sorted(_DICT_TABLES)}")
+
+    db_path = str(Path(__file__).resolve().parent.parent / "data" / "etoile.db")
+    if not Path(db_path).exists():
+        return _error(f"Database not found: {db_path}")
+
+    def _do():
+        conn = _sql.connect(db_path)
+        conn.row_factory = _sql.Row
+        try:
+            if operation == "stats":
+                counts = {}
+                for t in _DICT_TABLES:
+                    counts[t] = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                return json.dumps(counts, indent=2)
+
+            if operation == "search":
+                q = (data.get("query") or "").lower().strip()
+                limit = int(data.get("limit", 20))
+                if not q:
+                    return "ERROR: data.query is required"
+                if table == "pipeline_dictionary":
+                    rows = conn.execute(
+                        "SELECT * FROM pipeline_dictionary WHERE trigger_phrase LIKE ? OR pipeline_id LIKE ? LIMIT ?",
+                        (f"%{q}%", f"%{q}%", limit)).fetchall()
+                elif table == "domino_chains":
+                    rows = conn.execute(
+                        "SELECT * FROM domino_chains WHERE trigger_cmd LIKE ? OR next_cmd LIKE ? LIMIT ?",
+                        (f"%{q}%", f"%{q}%", limit)).fetchall()
+                else:
+                    rows = conn.execute(
+                        "SELECT * FROM voice_corrections WHERE wrong LIKE ? OR correct LIKE ? LIMIT ?",
+                        (f"%{q}%", f"%{q}%", limit)).fetchall()
+                result = [dict(r) for r in rows]
+                return json.dumps(result, ensure_ascii=False, indent=2, default=str) if result else "No results"
+
+            if operation == "add":
+                if table == "pipeline_dictionary":
+                    trigger = (data.get("trigger_phrase") or data.get("name", "")).strip()
+                    cat = data.get("category", "custom").lower()
+                    act = data.get("action_type", "pipeline").lower()
+                    if cat not in _DICT_VALID_CATS:
+                        return f"ERROR: Invalid category: {cat}"
+                    if act not in _DICT_VALID_ACTS:
+                        return f"ERROR: Invalid action_type: {act}"
+                    existing = conn.execute("SELECT id FROM pipeline_dictionary WHERE trigger_phrase = ?", (trigger,)).fetchone()
+                    if existing:
+                        return f"ERROR: Trigger '{trigger}' exists (id={existing['id']})"
+                    pid = trigger.lower().replace(" ", "_")
+                    conn.execute(
+                        "INSERT INTO pipeline_dictionary (pipeline_id, trigger_phrase, steps, category, action_type, agents_involved, avg_duration_ms, usage_count, created_at) VALUES (?, ?, ?, ?, ?, ?, 0, 0, ?)",
+                        (pid, trigger, data.get("steps", ""), cat, act, data.get("agents_involved", ""), _dt.now().isoformat()))
+                    conn.commit()
+                    nid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+                    return f"OK: Added id={nid}, trigger='{trigger}'"
+                elif table == "domino_chains":
+                    tc = data.get("trigger_cmd", "").strip()
+                    nc = data.get("next_cmd", "").strip()
+                    if not tc or not nc:
+                        return "ERROR: trigger_cmd and next_cmd required"
+                    conn.execute(
+                        "INSERT INTO domino_chains (trigger_cmd, condition, next_cmd, delay_ms, auto, description) VALUES (?, ?, ?, ?, ?, ?)",
+                        (tc, data.get("condition", ""), nc, int(data.get("delay_ms", 0)),
+                         1 if data.get("auto", True) else 0, data.get("description", "")))
+                    conn.commit()
+                    nid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+                    return f"OK: Added chain id={nid}, {tc} -> {nc}"
+                else:
+                    w = data.get("wrong", "").strip()
+                    c = data.get("correct", "").strip()
+                    if not w or not c:
+                        return "ERROR: wrong and correct required"
+                    ex = conn.execute("SELECT id FROM voice_corrections WHERE wrong = ?", (w,)).fetchone()
+                    if ex:
+                        conn.execute("UPDATE voice_corrections SET correct = ?, category = ? WHERE id = ?",
+                                     (c, data.get("category", "general"), ex["id"]))
+                        conn.commit()
+                        return f"OK: Updated id={ex['id']}, '{w}' -> '{c}'"
+                    conn.execute("INSERT INTO voice_corrections (wrong, correct, category, hit_count) VALUES (?, ?, ?, 0)",
+                                 (w, c, data.get("category", "general")))
+                    conn.commit()
+                    nid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+                    return f"OK: Added correction id={nid}, '{w}' -> '{c}'"
+
+            if operation == "edit":
+                rid = data.get("id")
+                fields = data.get("fields", {})
+                if not rid or not fields:
+                    return "ERROR: data.id and data.fields required"
+                sets = [f"{k} = ?" for k in fields]
+                vals = list(fields.values()) + [int(rid)]
+                cur = conn.execute(f"UPDATE {table} SET {', '.join(sets)} WHERE id = ?", vals)
+                conn.commit()
+                return f"OK: Updated {cur.rowcount} row(s) in {table}" if cur.rowcount else f"ERROR: No record id={rid}"
+
+            if operation == "delete":
+                rid = data.get("id")
+                if not rid:
+                    return "ERROR: data.id required"
+                cur = conn.execute(f"DELETE FROM {table} WHERE id = ?", (int(rid),))
+                conn.commit()
+                return f"OK: Deleted {cur.rowcount} row(s)" if cur.rowcount else f"ERROR: No record id={rid}"
+
+            return f"ERROR: Unknown operation: {operation}. Valid: add, edit, delete, search, stats"
+        finally:
+            conn.close()
+
+    try:
+        result = await asyncio.to_thread(_do)
+        if result.startswith("ERROR:"):
+            return _error(result[7:])
+        return _text(result)
+    except Exception as e:
+        return _error(f"dict_crud: {e}")
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # TOOL REGISTRY
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1174,6 +1320,9 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     ("brain_analyze", "Analyser les patterns d'utilisation.", {"auto_create": "boolean", "min_confidence": "number"}, handle_brain_analyze),
     ("brain_suggest", "Demander au cluster IA de suggerer un nouveau skill.", {"context": "string", "node_url": "string"}, handle_brain_suggest),
     ("brain_learn", "Auto-apprendre: detecter patterns et creer skills.", {}, handle_brain_learn),
+    # Dictionary CRUD (1)
+    ("dict_crud", "CRUD operations on dictionary tables (pipeline_dictionary, domino_chains, voice_corrections). Args: operation (add|edit|delete|search|stats), table, data (JSON string with fields).",
+     {"operation": "string", "table": "string", "data": "string"}, handle_dict_crud),
 ]
 
 # Build handler map

@@ -89,6 +89,69 @@ async def api_dictionary_search(q: str = "", limit: int = 50):
     return JSONResponse(result)
 
 
+@app.get("/api/dictionary/stats")
+async def api_dictionary_stats():
+    """Dictionary statistics."""
+    result = await handle_dictionary_request("get_stats", {})
+    return JSONResponse(result)
+
+
+from fastapi import Request
+
+@app.post("/api/dictionary/command")
+async def api_add_command(request: Request):
+    """Add a new command to pipeline_dictionary."""
+    body = await request.json()
+    result = await handle_dictionary_request("add_command", body)
+    return JSONResponse(result, status_code=201 if result.get("ok") else 400)
+
+
+@app.put("/api/dictionary/command/{record_id}")
+async def api_edit_command(record_id: int, request: Request):
+    """Edit an existing command."""
+    body = await request.json()
+    body["id"] = record_id
+    result = await handle_dictionary_request("edit_command", body)
+    return JSONResponse(result, status_code=200 if result.get("ok") else 400)
+
+
+@app.delete("/api/dictionary/command/{record_id}")
+async def api_delete_command(record_id: int):
+    """Delete a command."""
+    result = await handle_dictionary_request("delete_command", {"id": record_id})
+    return JSONResponse(result, status_code=200 if result.get("ok") else 404)
+
+
+@app.post("/api/dictionary/chain")
+async def api_add_chain(request: Request):
+    """Add a new domino chain."""
+    body = await request.json()
+    result = await handle_dictionary_request("add_chain", body)
+    return JSONResponse(result, status_code=201 if result.get("ok") else 400)
+
+
+@app.delete("/api/dictionary/chain/{chain_id}")
+async def api_delete_chain(chain_id: int):
+    """Delete a domino chain."""
+    result = await handle_dictionary_request("delete_chain", {"id": chain_id})
+    return JSONResponse(result, status_code=200 if result.get("ok") else 404)
+
+
+@app.post("/api/dictionary/correction")
+async def api_add_correction(request: Request):
+    """Add or update a voice correction."""
+    body = await request.json()
+    result = await handle_dictionary_request("add_correction", body)
+    return JSONResponse(result, status_code=201 if result.get("ok") else 400)
+
+
+@app.post("/api/dictionary/reload")
+async def api_reload_dict():
+    """Force reload the dictionary cache."""
+    result = await handle_dictionary_request("reload_dict", {})
+    return JSONResponse(result)
+
+
 # ── WhisperFlow static serving ─────────────────────────────────────────────
 _whisperflow_dir = Path(__file__).resolve().parent.parent / "whisperflow"
 

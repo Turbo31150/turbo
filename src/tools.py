@@ -1428,7 +1428,190 @@ async def sql_schema_tool(args: dict[str, Any]) -> dict[str, Any]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# ASSEMBLE MCP SERVER — ALL TOOLS (77 SDK tools)
+# DICTIONARY CRUD — pipeline_dictionary, domino_chains, voice_corrections
+# ═══════════════════════════════════════════════════════════════════════════
+
+_DICT_VALID_CATEGORIES = {
+    "system", "media", "navigation", "trading", "dev", "ia",
+    "communication", "productivity", "entertainment", "accessibility",
+    "fichiers", "daily", "cluster", "voice", "custom",
+}
+_DICT_VALID_ACTION_TYPES = {
+    "powershell", "curl", "python", "pipeline", "condition",
+    "system", "media", "browser", "voice", "shortcut", "script",
+}
+_DICT_TABLES = {"pipeline_dictionary", "domino_chains", "voice_corrections"}
+
+
+@tool("dict_crud",
+      "CRUD operations on dictionary tables (pipeline_dictionary, domino_chains, voice_corrections). "
+      "Args: operation (add|edit|delete|search|stats), table, data (dict with fields).",
+      {"operation": str, "table": str, "data": str})
+async def dict_crud_tool(args: dict[str, Any]) -> dict[str, Any]:
+    operation = args.get("operation", "").lower()
+    table = args.get("table", "pipeline_dictionary").lower()
+    data = args.get("data", {})
+    if isinstance(data, str):
+        try:
+            data = json.loads(data)
+        except json.JSONDecodeError:
+            return _error("data must be a valid JSON object")
+
+    if table not in _DICT_TABLES:
+        return _error(f"Invalid table: {table}. Valid: {sorted(_DICT_TABLES)}")
+
+    db_path = str(PATHS.get("etoile_db", _Path("F:/BUREAU/turbo/data/etoile.db")))
+    if not _Path(db_path).exists():
+        return _error(f"Database not found: {db_path}")
+
+    try:
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+
+        if operation == "stats":
+            counts = {}
+            for t in _DICT_TABLES:
+                counts[t] = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+            if table == "pipeline_dictionary":
+                cats = conn.execute(
+                    "SELECT category, COUNT(*) as cnt FROM pipeline_dictionary GROUP BY category ORDER BY cnt DESC"
+                ).fetchall()
+                counts["categories"] = {r["category"]: r["cnt"] for r in cats}
+            conn.close()
+            return _text(json.dumps(counts, ensure_ascii=False, indent=2))
+
+        if operation == "search":
+            query = (data.get("query") or "").lower().strip()
+            limit = int(data.get("limit", 20))
+            if not query:
+                return _error("data.query is required for search")
+            if table == "pipeline_dictionary":
+                rows = conn.execute(
+                    "SELECT * FROM pipeline_dictionary WHERE trigger_phrase LIKE ? OR pipeline_id LIKE ? OR category LIKE ? LIMIT ?",
+                    (f"%{query}%", f"%{query}%", f"%{query}%", limit)
+                ).fetchall()
+            elif table == "domino_chains":
+                rows = conn.execute(
+                    "SELECT * FROM domino_chains WHERE trigger_cmd LIKE ? OR next_cmd LIKE ? OR description LIKE ? LIMIT ?",
+                    (f"%{query}%", f"%{query}%", f"%{query}%", limit)
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    "SELECT * FROM voice_corrections WHERE wrong LIKE ? OR correct LIKE ? LIMIT ?",
+                    (f"%{query}%", f"%{query}%", limit)
+                ).fetchall()
+            result = [dict(r) for r in rows]
+            conn.close()
+            return _text(json.dumps(result, ensure_ascii=False, indent=2, default=str) if result else "No results")
+
+        if operation == "add":
+            if table == "pipeline_dictionary":
+                name = data.get("name", "").strip()
+                trigger = data.get("trigger_phrase", name).strip()
+                category = data.get("category", "custom").lower()
+                action_type = data.get("action_type", "pipeline").lower()
+                if category not in _DICT_VALID_CATEGORIES:
+                    conn.close()
+                    return _error(f"Invalid category: {category}")
+                if action_type not in _DICT_VALID_ACTION_TYPES:
+                    conn.close()
+                    return _error(f"Invalid action_type: {action_type}")
+                # Check uniqueness
+                existing = conn.execute("SELECT id FROM pipeline_dictionary WHERE trigger_phrase = ?", (trigger,)).fetchone()
+                if existing:
+                    conn.close()
+                    return _error(f"Trigger '{trigger}' already exists (id={existing['id']})")
+                pipeline_id = name.lower().replace(" ", "_") if name else trigger.lower().replace(" ", "_")
+                conn.execute(
+                    "INSERT INTO pipeline_dictionary (pipeline_id, trigger_phrase, steps, category, action_type, agents_involved, avg_duration_ms, usage_count, created_at) "
+                    "VALUES (?, ?, ?, ?, ?, ?, 0, 0, ?)",
+                    (pipeline_id, trigger, data.get("steps", ""), category, action_type, data.get("agents_involved", ""),
+                     __import__("datetime").datetime.now().isoformat())
+                )
+                conn.commit()
+                new_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+                conn.close()
+                return _text(f"OK — Added to pipeline_dictionary: id={new_id}, trigger='{trigger}', category={category}")
+
+            elif table == "domino_chains":
+                trigger_cmd = data.get("trigger_cmd", "").strip()
+                next_cmd = data.get("next_cmd", "").strip()
+                if not trigger_cmd or not next_cmd:
+                    conn.close()
+                    return _error("trigger_cmd and next_cmd are required")
+                conn.execute(
+                    "INSERT INTO domino_chains (trigger_cmd, condition, next_cmd, delay_ms, auto, description) VALUES (?, ?, ?, ?, ?, ?)",
+                    (trigger_cmd, data.get("condition", ""), next_cmd,
+                     int(data.get("delay_ms", 0)), 1 if data.get("auto", True) else 0,
+                     data.get("description", ""))
+                )
+                conn.commit()
+                new_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+                conn.close()
+                return _text(f"OK — Added to domino_chains: id={new_id}, {trigger_cmd} -> {next_cmd}")
+
+            else:  # voice_corrections
+                wrong = data.get("wrong", "").strip()
+                correct = data.get("correct", "").strip()
+                if not wrong or not correct:
+                    conn.close()
+                    return _error("wrong and correct are required")
+                existing = conn.execute("SELECT id FROM voice_corrections WHERE wrong = ?", (wrong,)).fetchone()
+                if existing:
+                    conn.execute("UPDATE voice_corrections SET correct = ?, category = ? WHERE id = ?",
+                                 (correct, data.get("category", "general"), existing["id"]))
+                    conn.commit()
+                    conn.close()
+                    return _text(f"OK — Updated voice_corrections: id={existing['id']}, '{wrong}' -> '{correct}'")
+                conn.execute(
+                    "INSERT INTO voice_corrections (wrong, correct, category, hit_count) VALUES (?, ?, ?, 0)",
+                    (wrong, correct, data.get("category", "general"))
+                )
+                conn.commit()
+                new_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+                conn.close()
+                return _text(f"OK — Added to voice_corrections: id={new_id}, '{wrong}' -> '{correct}'")
+
+        if operation == "edit":
+            record_id = data.get("id")
+            fields = data.get("fields", {})
+            if not record_id:
+                conn.close()
+                return _error("data.id is required for edit")
+            if not fields:
+                conn.close()
+                return _error("data.fields dict is required")
+            set_parts = [f"{k} = ?" for k in fields]
+            values = list(fields.values()) + [int(record_id)]
+            cursor = conn.execute(f"UPDATE {table} SET {', '.join(set_parts)} WHERE id = ?", values)
+            conn.commit()
+            affected = cursor.rowcount
+            conn.close()
+            if affected == 0:
+                return _error(f"No record with id={record_id} in {table}")
+            return _text(f"OK — Updated {table}: id={record_id}, {affected} row(s)")
+
+        if operation == "delete":
+            record_id = data.get("id")
+            if not record_id:
+                conn.close()
+                return _error("data.id is required for delete")
+            cursor = conn.execute(f"DELETE FROM {table} WHERE id = ?", (int(record_id),))
+            conn.commit()
+            affected = cursor.rowcount
+            conn.close()
+            if affected == 0:
+                return _error(f"No record with id={record_id} in {table}")
+            return _text(f"OK — Deleted from {table}: id={record_id}")
+
+        conn.close()
+        return _error(f"Unknown operation: {operation}. Valid: add, edit, delete, search, stats")
+    except Exception as e:
+        return _error(f"dict_crud error: {e}")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ASSEMBLE MCP SERVER — ALL TOOLS (78 SDK tools)
 # ═══════════════════════════════════════════════════════════════════════════
 
 jarvis_server = create_sdk_mcp_server(
@@ -1480,5 +1663,7 @@ jarvis_server = create_sdk_mcp_server(
         notify_tool, speak_tool, scheduled_tasks_tool,
         # Database SQL (3)
         sql_query_tool, sql_list_tables_tool, sql_schema_tool,
+        # Dictionary CRUD (1)
+        dict_crud_tool,
     ],
 )
