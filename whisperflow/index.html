@@ -882,6 +882,122 @@
     opacity: 0.5;
     margin-top: 2px;
   }
+
+  /* CONTEXT MENU on suggestions */
+  .suggest-item .suggest-menu-btn {
+    width: 22px; height: 22px;
+    border: none; background: transparent;
+    color: var(--dim); cursor: pointer;
+    border-radius: 4px; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.15s, background 0.15s;
+    flex-shrink: 0;
+  }
+  .suggest-item:hover .suggest-menu-btn { opacity: 1; }
+  .suggest-item .suggest-menu-btn:hover { background: var(--surface2); color: var(--text); }
+
+  .suggest-ctx-menu {
+    position: fixed;
+    z-index: 200;
+    background: rgba(14, 18, 24, 0.95);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px;
+    min-width: 160px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    animation: fadeSlideIn 0.15s both;
+  }
+  .suggest-ctx-menu .ctx-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px; border-radius: 4px;
+    font-size: 12px; color: var(--text); cursor: pointer;
+    transition: background 0.1s;
+  }
+  .suggest-ctx-menu .ctx-item:hover { background: rgba(255,107,53,0.12); }
+  .suggest-ctx-menu .ctx-item.danger { color: var(--red); }
+  .suggest-ctx-menu .ctx-item .ctx-icon { font-size: 13px; width: 18px; text-align: center; }
+
+  /* ADD COMMAND — button when no results */
+  .suggest-add-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; margin: 4px;
+    border-radius: 6px; border: 1px dashed var(--accent);
+    background: rgba(255,107,53,0.06); cursor: pointer;
+    color: var(--accent); font-size: 12px; font-weight: 500;
+    transition: all 0.15s;
+  }
+  .suggest-add-btn:hover { background: rgba(255,107,53,0.15); border-style: solid; }
+  .suggest-add-btn .add-icon { font-size: 16px; font-weight: 700; }
+
+  /* INLINE EDIT FORM */
+  .dict-edit-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6); z-index: 150;
+    display: flex; align-items: center; justify-content: center;
+    animation: fadeSlideIn 0.2s both;
+  }
+  .dict-edit-panel {
+    background: var(--surface-solid);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    width: 320px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .dict-edit-panel h3 {
+    font-size: 14px; color: var(--accent);
+    margin-bottom: 12px; font-weight: 600;
+  }
+  .dict-edit-panel .field-group {
+    margin-bottom: 10px;
+  }
+  .dict-edit-panel label {
+    display: block; font-size: 10px; color: var(--dim);
+    text-transform: uppercase; letter-spacing: 0.6px;
+    margin-bottom: 3px; font-weight: 500;
+  }
+  .dict-edit-panel input, .dict-edit-panel select {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 7px 10px; color: var(--text);
+    font-size: 12px; font-family: inherit; outline: none;
+  }
+  .dict-edit-panel input:focus, .dict-edit-panel select:focus {
+    border-color: var(--accent);
+  }
+  .dict-edit-panel .btn-row {
+    display: flex; gap: 8px; margin-top: 14px;
+  }
+  .dict-edit-panel .btn-row button {
+    flex: 1; padding: 7px;
+    border: none; border-radius: 6px;
+    font-size: 12px; font-weight: 500;
+    cursor: pointer; font-family: inherit;
+    transition: all 0.15s;
+  }
+  .dict-edit-panel .btn-save {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+  }
+  .dict-edit-panel .btn-save:hover { transform: scale(1.02); }
+  .dict-edit-panel .btn-cancel {
+    background: var(--surface2); color: var(--dim);
+  }
+  .dict-edit-panel .btn-cancel:hover { color: var(--text); }
+
+  /* BADGE COUNTER in footer */
+  .dict-count-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10px; color: var(--dim);
+    background: var(--surface2);
+    padding: 2px 8px; border-radius: 10px;
+    margin-left: 8px;
+  }
+  .dict-count-badge .badge-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--green);
+  }
 </style>
 </head>
 <body>
@@ -946,6 +1062,7 @@
 
   <div class="shortcuts">
     <kbd>Espace</kbd> PTT &nbsp; <kbd>Esc</kbd> Stop &nbsp; <kbd>Enter</kbd> Executer &nbsp; <kbd>Tab</kbd> Remplir &nbsp; <kbd>&#x2191;&#x2193;</kbd> Naviguer
+    <span class="dict-count-badge" id="dictCountBadge"><span class="badge-dot"></span><span id="dictCountText">0</span> cmds</span>
   </div>
 </div>
 
@@ -2027,6 +2144,7 @@ function buildSuggestionIndex() {
     });
   }
   suggestionIndex = idx;
+  updateDictBadge();
 }
 
 function searchSuggestions(query) {
@@ -2105,7 +2223,8 @@ function renderSuggestions(results, query) {
 
   if (!results.length && query) {
     suggestCount = 0;
-    $dd.innerHTML = `<div class="suggest-empty">Aucune commande trouvee<div class="suggest-hint">Enter pour envoyer a JARVIS</div></div>`;
+    $dd.innerHTML = `<div class="suggest-empty">Aucune commande trouvee<div class="suggest-hint">Enter pour envoyer a JARVIS</div></div>` +
+      `<div class="suggest-add-btn" onclick="showAddCommandForm('${esc(query)}')"><span class="add-icon">+</span> Ajouter "${esc(query)}" au dictionnaire</div>`;
     $dd.style.display = '';
     return;
   }
@@ -2122,6 +2241,7 @@ function renderSuggestions(results, query) {
         <div class="suggest-desc">${esc(r.desc)}</div>
       </div>
       ${r.category ? `<div class="suggest-badge">${esc(r.category)}</div>` : ''}
+      ${r.type === 'db' ? `<button class="suggest-menu-btn" onclick="event.stopPropagation();showSuggestCtxMenu(event,${i})" title="Options">&#x22EE;</button>` : ''}
     </div>`
   ).join('');
   $dd.style.display = '';
@@ -2241,6 +2361,213 @@ document.addEventListener('click', (e) => {
     closeSuggestions();
   }
 });
+
+// ── DICTIONARY CRUD FUNCTIONS ──
+
+const _DICT_CATEGORIES = ['system','media','navigation','trading','dev','ia','communication','productivity','entertainment','accessibility','fichiers','daily','cluster','voice','custom'];
+
+function updateDictBadge() {
+  const total = suggestionIndex.length;
+  const $badge = document.getElementById('dictCountText');
+  if ($badge) $badge.textContent = total;
+}
+
+let _ctxMenuData = null; // store reference to avoid inline JSON
+
+function showSuggestCtxMenu(event, idx) {
+  document.querySelectorAll('.suggest-ctx-menu').forEach(m => m.remove());
+  const r = suggestResults[idx];
+  if (!r) return;
+  _ctxMenuData = r.data;
+  const entryId = r.data?.id || 0;
+  const entryName = r.name || '';
+  const menu = document.createElement('div');
+  menu.className = 'suggest-ctx-menu';
+  const editItem = document.createElement('div');
+  editItem.className = 'ctx-item';
+  editItem.innerHTML = '<span class="ctx-icon">&#x270E;</span> Modifier';
+  editItem.onclick = () => editDictEntry(_ctxMenuData);
+  const copyItem = document.createElement('div');
+  copyItem.className = 'ctx-item';
+  copyItem.innerHTML = '<span class="ctx-icon">&#x2398;</span> Copier trigger';
+  copyItem.onclick = () => copyToClipboard(entryName);
+  const delItem = document.createElement('div');
+  delItem.className = 'ctx-item danger';
+  delItem.innerHTML = '<span class="ctx-icon">&#x2716;</span> Supprimer';
+  delItem.onclick = () => deleteDictEntry(entryId, entryName);
+  menu.appendChild(editItem);
+  menu.appendChild(copyItem);
+  menu.appendChild(delItem);
+  menu.style.left = event.clientX + 'px';
+  menu.style.top = event.clientY + 'px';
+  document.body.appendChild(menu);
+  setTimeout(() => {
+    document.addEventListener('click', function _close(e) {
+      if (!e.target.closest('.suggest-ctx-menu')) {
+        menu.remove();
+        document.removeEventListener('click', _close);
+      }
+    });
+  }, 10);
+}
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).catch(() => {});
+  document.querySelectorAll('.suggest-ctx-menu').forEach(m => m.remove());
+}
+
+function showAddCommandForm(prefill) {
+  closeSuggestions();
+  const overlay = document.createElement('div');
+  overlay.className = 'dict-edit-overlay';
+  overlay.innerHTML = `
+    <div class="dict-edit-panel">
+      <h3>+ Ajouter une commande</h3>
+      <div class="field-group">
+        <label>Trigger vocal</label>
+        <input id="dictAddTrigger" value="${esc(prefill || '')}" />
+      </div>
+      <div class="field-group">
+        <label>Categorie</label>
+        <select id="dictAddCategory">
+          ${_DICT_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Action type</label>
+        <select id="dictAddAction">
+          <option value="pipeline">pipeline</option>
+          <option value="powershell">powershell</option>
+          <option value="curl">curl</option>
+          <option value="python">python</option>
+          <option value="system">system</option>
+          <option value="media">media</option>
+          <option value="browser">browser</option>
+          <option value="voice">voice</option>
+          <option value="script">script</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Description</label>
+        <input id="dictAddDesc" placeholder="Description courte..." />
+      </div>
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="this.closest('.dict-edit-overlay').remove()">Annuler</button>
+        <button class="btn-save" onclick="submitAddCommand()">Ajouter</button>
+      </div>
+    </div>
+  `;
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+  document.getElementById('dictAddTrigger').focus();
+}
+
+async function submitAddCommand() {
+  const trigger = document.getElementById('dictAddTrigger').value.trim();
+  const category = document.getElementById('dictAddCategory').value;
+  const actionType = document.getElementById('dictAddAction').value;
+  const desc = document.getElementById('dictAddDesc').value.trim();
+  if (!trigger) return;
+  try {
+    const resp = await fetch('http://127.0.0.1:9742/api/dictionary/command', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ name: trigger, category, triggers: [trigger], action_type: actionType, description: desc })
+    });
+    const data = await resp.json();
+    if (data.ok) {
+      document.querySelectorAll('.dict-edit-overlay').forEach(o => o.remove());
+      // Reload dictionary to show the new command
+      await loadDictionary();
+      buildSuggestionIndex();
+      updateDictBadge();
+      $textInput.value = trigger;
+      const res = searchSuggestions(trigger.toLowerCase());
+      renderSuggestions(res, trigger);
+    } else {
+      alert('Erreur: ' + (data.error || 'inconnue'));
+    }
+  } catch (e) {
+    alert('Erreur reseau: ' + e.message);
+  }
+}
+
+function editDictEntry(entry) {
+  document.querySelectorAll('.suggest-ctx-menu').forEach(m => m.remove());
+  closeSuggestions();
+  const overlay = document.createElement('div');
+  overlay.className = 'dict-edit-overlay';
+  overlay.innerHTML = `
+    <div class="dict-edit-panel">
+      <h3>Modifier la commande</h3>
+      <div class="field-group">
+        <label>Trigger vocal</label>
+        <input id="dictEditTrigger" value="${esc(entry.trigger_phrase || entry.name || '')}" />
+      </div>
+      <div class="field-group">
+        <label>Categorie</label>
+        <select id="dictEditCategory">
+          ${_DICT_CATEGORIES.map(c => `<option value="${c}" ${c === (entry.category || '') ? 'selected' : ''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Steps / Description</label>
+        <input id="dictEditSteps" value="${esc(entry.steps || entry.description || '')}" />
+      </div>
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="this.closest('.dict-edit-overlay').remove()">Annuler</button>
+        <button class="btn-save" onclick="submitEditCommand(${entry.id})">Sauvegarder</button>
+      </div>
+    </div>
+  `;
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+  document.getElementById('dictEditTrigger').focus();
+}
+
+async function submitEditCommand(id) {
+  const trigger = document.getElementById('dictEditTrigger').value.trim();
+  const category = document.getElementById('dictEditCategory').value;
+  const steps = document.getElementById('dictEditSteps').value.trim();
+  if (!trigger) return;
+  try {
+    const resp = await fetch(`http://127.0.0.1:9742/api/dictionary/command/${id}`, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ fields: { trigger_phrase: trigger, category, steps } })
+    });
+    const data = await resp.json();
+    if (data.ok) {
+      document.querySelectorAll('.dict-edit-overlay').forEach(o => o.remove());
+      await loadDictionary();
+      buildSuggestionIndex();
+      updateDictBadge();
+    } else {
+      alert('Erreur: ' + (data.error || 'inconnue'));
+    }
+  } catch (e) {
+    alert('Erreur reseau: ' + e.message);
+  }
+}
+
+async function deleteDictEntry(id, name) {
+  document.querySelectorAll('.suggest-ctx-menu').forEach(m => m.remove());
+  if (!confirm(`Supprimer "${name}" (id=${id}) ?`)) return;
+  try {
+    const resp = await fetch(`http://127.0.0.1:9742/api/dictionary/command/${id}`, { method: 'DELETE' });
+    const data = await resp.json();
+    if (data.ok) {
+      closeSuggestions();
+      await loadDictionary();
+      buildSuggestionIndex();
+      updateDictBadge();
+    } else {
+      alert('Erreur: ' + (data.error || 'inconnue'));
+    }
+  } catch (e) {
+    alert('Erreur reseau: ' + e.message);
+  }
+}
 
 // ── INIT ──
 connectWS();
