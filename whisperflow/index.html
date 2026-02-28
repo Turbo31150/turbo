@@ -186,6 +186,72 @@
   .domino-name { color: var(--accent); font-weight: 600; font-size: 13px; }
   .domino-cat { color: var(--dim); margin-left: 8px; font-size: 11px; }
   .domino-steps { color: var(--green); margin-top: 4px; font-size: 11px; }
+
+  /* CASCADE PROGRESS */
+  .cascade-panel {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-top: 8px;
+    display: none;
+    animation: fadeSlideIn var(--transition) both;
+  }
+  .cascade-panel.show { display: block; }
+  .cascade-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .cascade-title { color: var(--accent); font-weight: 600; font-size: 12px; }
+  .cascade-stats { color: var(--dim); font-size: 10px; }
+  .cascade-bar {
+    height: 4px;
+    background: var(--surface);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .cascade-fill {
+    height: 100%;
+    background: var(--green);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+  .cascade-fill.has-fail { background: linear-gradient(90deg, var(--green), var(--error)); }
+  .cascade-step-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    max-height: 140px;
+    overflow-y: auto;
+  }
+  .cascade-step {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    padding: 2px 0;
+  }
+  .cascade-step .step-badge {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+  }
+  .cascade-step .step-badge.pass { background: var(--green); color: #000; border-color: var(--green); }
+  .cascade-step .step-badge.fail { background: var(--error); color: #fff; border-color: var(--error); }
+  .cascade-step .step-badge.skip { background: var(--dim); color: #fff; }
+  .cascade-step .step-name { color: var(--text); flex: 1; }
+  .cascade-step .step-node { color: var(--dim); font-size: 9px; }
+  .cascade-step .step-ms { color: var(--accent); font-size: 9px; min-width: 36px; text-align: right; }
+
   @keyframes fadeSlideIn {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
@@ -1060,6 +1126,15 @@
       <span class="domino-cat" id="dominoCat"></span>
       <div class="domino-steps" id="dominoSteps"></div>
     </div>
+    <!-- Cascade progress panel -->
+    <div class="cascade-panel" id="cascadePanel">
+      <div class="cascade-header">
+        <span class="cascade-title" id="cascadeTitle">Cascade</span>
+        <span class="cascade-stats" id="cascadeStats"></span>
+      </div>
+      <div class="cascade-bar"><div class="cascade-fill" id="cascadeFill"></div></div>
+      <div class="cascade-step-list" id="cascadeSteps"></div>
+    </div>
     <div class="jarvis-response" id="jarvisResponse">
       <div class="jr-label">JARVIS</div>
       <div class="jr-text" id="jarvisText"></div>
@@ -1328,6 +1403,16 @@ function handleWSMessage(msg) {
     // agent_message event ignored — response already handled above
     if (msg.event === 'agent_complete') {
       $jarvisResponse.classList.remove('thinking');
+    }
+  }
+
+  // Domino cascade events
+  if (msg.type === 'event' && msg.channel === 'system') {
+    if (msg.event === 'domino_complete') {
+      showCascadeResult(msg.payload);
+    }
+    if (msg.event === 'domino_steps') {
+      showCascadeSteps(msg.payload);
     }
   }
 
@@ -2446,6 +2531,45 @@ document.addEventListener('click', (e) => {
     closeSuggestions();
   }
 });
+
+// ── CASCADE DISPLAY FUNCTIONS ──
+
+const $cascadePanel = document.getElementById('cascadePanel');
+const $cascadeTitle = document.getElementById('cascadeTitle');
+const $cascadeStats = document.getElementById('cascadeStats');
+const $cascadeFill = document.getElementById('cascadeFill');
+const $cascadeSteps = document.getElementById('cascadeSteps');
+
+function showCascadeResult(data) {
+  if (!data) return;
+  const { domino_id, passed, failed, skipped, total_ms, total_steps, source } = data;
+  $cascadeTitle.textContent = domino_id || 'Cascade';
+  $cascadeStats.textContent = `${passed}/${total_steps} OK | ${total_ms}ms | ${source || 'hardcoded'}`;
+
+  const pct = total_steps > 0 ? Math.round((passed / total_steps) * 100) : 0;
+  $cascadeFill.style.width = `${pct}%`;
+  $cascadeFill.classList.toggle('has-fail', failed > 0);
+
+  $cascadePanel.classList.add('show');
+
+  // Auto-hide after 15s
+  setTimeout(() => $cascadePanel.classList.remove('show'), 15000);
+}
+
+function showCascadeSteps(data) {
+  if (!data || !data.steps) return;
+  $cascadeSteps.innerHTML = data.steps.map(s => {
+    const badge = s.status === 'PASS' ? 'pass' : s.status === 'FAIL' ? 'fail' : 'skip';
+    const icon = s.status === 'PASS' ? '&#x2714;' : s.status === 'FAIL' ? '&#x2718;' : '&#x2500;';
+    const ms = s.duration_ms != null ? `${Math.round(s.duration_ms)}ms` : '';
+    return `<div class="cascade-step">
+      <span class="step-badge ${badge}">${icon}</span>
+      <span class="step-name">${esc(s.step_name)}</span>
+      <span class="step-node">${s.node || ''}</span>
+      <span class="step-ms">${ms}</span>
+    </div>`;
+  }).join('');
+}
 
 // ── DICTIONARY CRUD FUNCTIONS (v2 — toast, dynamic categories, steps field) ──
 
