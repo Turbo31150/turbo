@@ -198,7 +198,8 @@ async def _route_request(channel: str, action: str, payload: dict | None) -> dic
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    logger.info("WebSocket client connected")
+    _connected_clients.add(websocket)
+    logger.info("WebSocket client connected (%d total)", len(_connected_clients))
 
     # Start background push tasks
     bg_tasks: list[asyncio.Task] = []
@@ -288,6 +289,7 @@ async def websocket_endpoint(websocket: WebSocket):
     except Exception as exc:
         logger.error("WebSocket error: %s", exc)
     finally:
+        _connected_clients.discard(websocket)
         # Cancel all background tasks
         for task in bg_tasks:
             task.cancel()
@@ -346,6 +348,149 @@ async def _trading_push_loop(websocket: WebSocket) -> None:
     async def send_func(msg: dict):
         await websocket.send_json(msg)
     await push_trading_events(send_func)
+
+
+# ── Global Push-to-Talk (CTRL key) ────────────────────────────────────────────
+
+_connected_clients: set[WebSocket] = set()
+
+_ptt_hook_started = False
+_ptt_active = False
+
+
+def _start_global_ptt_hook(loop: asyncio.AbstractEventLoop) -> None:
+    """Start a global keyboard hook for CTRL push-to-talk.
+
+    When Right-CTRL is pressed/released, broadcast ptt_start/ptt_stop events
+    to all connected WebSocket clients so WhisperFlow can start/stop recording
+    even when the browser window is not focused.
+    """
+    global _ptt_hook_started
+    if _ptt_hook_started:
+        return
+    try:
+        import keyboard as kb
+    except ImportError:
+        logger.warning("keyboard library not available — global PTT disabled")
+        return
+
+    _ptt_hook_started = True
+
+    def on_ptt_press(e):
+        global _ptt_active
+        if e.name == "ctrl droit" or e.name == "right ctrl" or e.scan_code == 285:
+            if _ptt_active:
+                return  # debounce
+            _ptt_active = True
+            asyncio.run_coroutine_threadsafe(_broadcast_ptt("ptt_start"), loop)
+
+    def on_ptt_release(e):
+        global _ptt_active
+        if e.name == "ctrl droit" or e.name == "right ctrl" or e.scan_code == 285:
+            if not _ptt_active:
+                return
+            _ptt_active = False
+            asyncio.run_coroutine_threadsafe(_broadcast_ptt("ptt_stop"), loop)
+
+    kb.on_press(on_ptt_press)
+    kb.on_release(on_ptt_release)
+    logger.info("Global PTT hook started (Right-CTRL)")
+
+
+async def _broadcast_ptt(event_name: str) -> None:
+    """Broadcast PTT event to all connected WebSocket clients."""
+    msg = {
+        "type": "event",
+        "channel": "voice",
+        "event": event_name,
+        "payload": {"key": "ctrl_right", "source": "global_hook"},
+    }
+    dead: list[WebSocket] = []
+    for client in _connected_clients:
+        try:
+            await client.send_json(msg)
+        except Exception:
+            dead.append(client)
+    for d in dead:
+        _connected_clients.discard(d)
+
+
+# ── Wake Word Detector (OpenWakeWord "jarvis") ───────────────────────────────
+
+_wake_detector = None
+
+
+def _start_wake_word(loop: asyncio.AbstractEventLoop) -> None:
+    """Start OpenWakeWord background listener.
+
+    When 'jarvis' is detected, broadcast wake_detected event to all clients
+    so WhisperFlow auto-starts recording (hands-free mode).
+    """
+    global _wake_detector
+    try:
+        from src.wake_word import WakeWordDetector
+    except ImportError:
+        logger.warning("OpenWakeWord not available — wake word disabled")
+        return
+
+    def on_wake():
+        logger.info("Wake word 'jarvis' detected!")
+        asyncio.run_coroutine_threadsafe(_broadcast_wake(), loop)
+
+    _wake_detector = WakeWordDetector(callback=on_wake, threshold=0.7)
+    ok = _wake_detector.start()
+    if ok:
+        logger.info("Wake word detector started (threshold=0.7)")
+    else:
+        logger.warning("Wake word detector failed to start")
+        _wake_detector = None
+
+
+async def _broadcast_wake() -> None:
+    """Broadcast wake word detection to all connected clients."""
+    msg = {
+        "type": "event",
+        "channel": "voice",
+        "event": "wake_detected",
+        "payload": {"word": "jarvis", "source": "openwakeword"},
+    }
+    dead: list[WebSocket] = []
+    for client in _connected_clients:
+        try:
+            await client.send_json(msg)
+        except Exception:
+            dead.append(client)
+    for d in dead:
+        _connected_clients.discard(d)
+
+
+# ── REST endpoint for wake word control ──
+@app.post("/api/wake/{action}")
+async def api_wake_control(action: str):
+    """Start/stop/status for wake word detector."""
+    global _wake_detector
+    if action == "status":
+        return JSONResponse({"active": _wake_detector is not None and _wake_detector.is_running})
+    if action == "start":
+        if _wake_detector and _wake_detector.is_running:
+            return JSONResponse({"ok": True, "message": "Already running"})
+        loop = asyncio.get_running_loop()
+        _start_wake_word(loop)
+        running = _wake_detector is not None and _wake_detector.is_running
+        return JSONResponse({"ok": running})
+    if action == "stop":
+        if _wake_detector:
+            _wake_detector.stop()
+            _wake_detector = None
+        return JSONResponse({"ok": True, "message": "Stopped"})
+    return JSONResponse({"error": f"Unknown action: {action}"}, status_code=400)
+
+
+@app.on_event("startup")
+async def _setup_ptt_and_wake():
+    loop = asyncio.get_running_loop()
+    _start_global_ptt_hook(loop)
+    _start_wake_word(loop)
 
 
 # ── Entry point ──────────────────────────────────────────────────────────────

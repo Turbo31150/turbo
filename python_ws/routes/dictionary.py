@@ -18,12 +18,36 @@ _VALID_ACTION_TYPES = {
     "system", "media", "browser", "voice", "shortcut", "script",
 }
 
-# Allowed categories
-_VALID_CATEGORIES = {
+# Allowed categories — loaded dynamically from DB + fallback
+_VALID_CATEGORIES_FALLBACK = {
     "system", "media", "navigation", "trading", "dev", "ia",
     "communication", "productivity", "entertainment", "accessibility",
     "fichiers", "daily", "cluster", "voice", "custom",
 }
+_valid_categories_cache: set | None = None
+
+
+def _get_valid_categories() -> set:
+    """Load categories from DB (cached). Any existing category is valid + custom always allowed."""
+    global _valid_categories_cache
+    if _valid_categories_cache is not None:
+        return _valid_categories_cache
+    try:
+        db = _db_conn()
+        rows = db.execute("SELECT DISTINCT category FROM pipeline_dictionary WHERE category IS NOT NULL").fetchall()
+        db.close()
+        cats = {r[0] for r in rows if r[0]}
+        cats.add("custom")
+        _valid_categories_cache = cats
+        return cats
+    except Exception:
+        return _VALID_CATEGORIES_FALLBACK
+
+
+def _invalidate_categories_cache():
+    """Clear cache after add/edit/delete."""
+    global _valid_categories_cache
+    _valid_categories_cache = None
 
 
 def _db_conn() -> sqlite3.Connection:
@@ -217,8 +241,8 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
 
         if not name:
             return {"error": "name is required"}
-        if category and category not in _VALID_CATEGORIES:
-            return {"error": f"Invalid category: {category}. Valid: {sorted(_VALID_CATEGORIES)}"}
+        if category and category not in _get_valid_categories():
+            return {"error": f"Invalid category: {category}. Valid: {sorted(_get_valid_categories())}"}
         if action_type not in _VALID_ACTION_TYPES:
             return {"error": f"Invalid action_type: {action_type}. Valid: {sorted(_VALID_ACTION_TYPES)}"}
 
@@ -246,6 +270,7 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
             db.commit()
             new_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
             db.close()
+            _invalidate_categories_cache()
             logger.info("Added command '%s' (id=%d)", name, new_id)
             return {"ok": True, "id": new_id, "pipeline_id": pipeline_id}
         except Exception as e:
@@ -294,6 +319,7 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
             db.close()
             if affected == 0:
                 return {"error": "No matching record found"}
+            _invalidate_categories_cache()
             logger.info("Edited command %s (%d rows)", pipeline_id or record_id, affected)
             return {"ok": True, "affected": affected}
         except Exception as e:
@@ -317,6 +343,7 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
             db.close()
             if affected == 0:
                 return {"error": f"No record found for '{record_id}'"}
+            _invalidate_categories_cache()
             logger.info("Deleted command '%s' (%d rows)", record_id, affected)
             return {"ok": True, "deleted": affected}
         except Exception as e:
@@ -405,6 +432,7 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
     if action == "reload_dict":
         try:
             _get_db_data.cache_clear() if hasattr(_get_db_data, 'cache_clear') else None
+            _invalidate_categories_cache()
             data = _get_db_data()
             logger.info("Dictionary reloaded: %d dict, %d chains, %d corrections",
                         len(data["pipeline_dictionary"]), len(data["domino_chains"]),
