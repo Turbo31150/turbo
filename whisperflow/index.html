@@ -778,6 +778,110 @@
     padding: 40px 10px;
     animation: textpulse 1.5s ease-in-out infinite;
   }
+
+  /* ── SUGGESTION DROPDOWN ── */
+  .suggest-wrap { position: relative; }
+  .suggest-dropdown {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 0; right: 0;
+    max-height: 320px;
+    overflow-y: auto;
+    background: rgba(14, 18, 24, 0.92);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04);
+    z-index: 50;
+    padding: 4px;
+  }
+  .suggest-dropdown::-webkit-scrollbar { width: 4px; }
+  .suggest-dropdown::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .suggest-section {
+    padding: 4px 10px 2px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--dim);
+    opacity: 0.7;
+  }
+  .suggest-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+  .suggest-item:hover, .suggest-item.active {
+    background: rgba(255, 107, 53, 0.12);
+  }
+  .suggest-item.active {
+    background: rgba(255, 107, 53, 0.18);
+    box-shadow: inset 2px 0 0 var(--accent);
+  }
+  .suggest-icon {
+    width: 32px; height: 22px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: 0.3px;
+  }
+  .suggest-icon.cmd { background: rgba(68,138,255,0.18); color: var(--blue); }
+  .suggest-icon.pipe { background: rgba(179,136,255,0.18); color: var(--purple); }
+  .suggest-icon.db { background: rgba(0,230,118,0.18); color: var(--green); }
+  .suggest-icon.recent { background: rgba(255,107,53,0.15); color: var(--accent); }
+  .suggest-info { flex: 1; min-width: 0; }
+  .suggest-name {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .suggest-name mark {
+    background: rgba(255,107,53,0.3);
+    color: var(--accent2);
+    border-radius: 2px;
+    padding: 0 1px;
+  }
+  .suggest-desc {
+    font-size: 11px;
+    color: var(--dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .suggest-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--surface2);
+    color: var(--dim);
+    flex-shrink: 0;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .suggest-empty {
+    padding: 14px 10px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--dim);
+  }
+  .suggest-hint {
+    font-size: 10px;
+    color: var(--dim);
+    opacity: 0.5;
+    margin-top: 2px;
+  }
 </style>
 </head>
 <body>
@@ -834,13 +938,14 @@
   </div>
 
   <!-- Text input -->
-  <div class="text-input-wrap">
-    <input class="text-input" id="textInput" placeholder="Tape une commande..." />
+  <div class="text-input-wrap suggest-wrap">
+    <input class="text-input" id="textInput" placeholder="Tape une commande..." autocomplete="off" />
     <button class="send-btn" id="sendBtn">&#x27A4;</button>
+    <div class="suggest-dropdown" id="suggestDropdown" style="display:none"></div>
   </div>
 
   <div class="shortcuts">
-    <kbd>Espace</kbd> PTT &nbsp; <kbd>Esc</kbd> Stop &nbsp; <kbd>Enter</kbd> Envoyer texte
+    <kbd>Espace</kbd> PTT &nbsp; <kbd>Esc</kbd> Stop &nbsp; <kbd>Enter</kbd> Executer &nbsp; <kbd>Tab</kbd> Remplir &nbsp; <kbd>&#x2191;&#x2193;</kbd> Naviguer
   </div>
 </div>
 
@@ -999,6 +1104,8 @@ function connectWS() {
   ws.onopen = () => {
     $wsStatus.className = 'status-dot';
     $wsStatusText.textContent = 'Connecte';
+    // Pre-load dictionary for autocomplete suggestions
+    if (!dictData) loadDictionary();
   };
 
   ws.onmessage = (ev) => {
@@ -1335,6 +1442,7 @@ async function localTranscribe(audioBlob) {
 // ── TEXT COMMAND ──
 function sendTextCommand(text) {
   if (!text.trim()) return;
+  closeSuggestions();
   showTranscript(text, '');
   $placeholder.style.display = 'none';
   $transcriptText.style.display = 'block';
@@ -1442,11 +1550,38 @@ document.addEventListener('keydown', (e) => {
     spaceDown = true;
     startRecording();
   }
-  // Escape = stop
+  // Escape = stop recording OR close suggestions
   if (e.code === 'Escape') {
+    if (suggestVisible()) { closeSuggestions(); e.preventDefault(); return; }
     if (isRecording) stopRecording();
   }
-  // Enter in text input = send
+  // Suggestion keyboard nav (only when input focused)
+  if (document.activeElement === $textInput && suggestVisible()) {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      suggestActive = Math.min(suggestActive + 1, suggestCount - 1);
+      updateSuggestFocus();
+      return;
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      suggestActive = Math.max(suggestActive - 1, -1);
+      updateSuggestFocus();
+      return;
+    }
+    if (e.key === 'Tab' && suggestActive >= 0) {
+      e.preventDefault();
+      fillSuggestion(suggestActive);
+      return;
+    }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (suggestActive >= 0) { execSuggestion(suggestActive); }
+      else { closeSuggestions(); sendTextCommand($textInput.value); }
+      return;
+    }
+  }
+  // Enter in text input = send (fallback when no suggestions)
   if (e.code === 'Enter' && document.activeElement === $textInput) {
     e.preventDefault();
     sendTextCommand($textInput.value);
@@ -1599,19 +1734,27 @@ function updateDictKbFocus(items) {
 }
 
 async function loadDictionary() {
-  $dictBody.innerHTML = '<div class="dict-loading">Chargement du dictionnaire...</div>';
+  if ($dictBody) $dictBody.innerHTML = '<div class="dict-loading">Chargement du dictionnaire...</div>';
   try {
+    // Try same-origin first, fallback to hardcoded backend
+    let resp;
     const baseUrl = _loc.protocol === 'file:' ? 'http://127.0.0.1:9742' : '';
-    const resp = await fetch(`${baseUrl}/api/dictionary`);
+    try {
+      resp = await fetch(`${baseUrl}/api/dictionary`);
+      if (!resp.ok) throw new Error(resp.status);
+    } catch(_) {
+      resp = await fetch('http://127.0.0.1:9742/api/dictionary');
+    }
     const data = await resp.json();
     onDictionaryData(data);
   } catch(e) {
-    $dictBody.innerHTML = `<div class="dict-empty">Erreur: ${e.message}</div>`;
+    if ($dictBody) $dictBody.innerHTML = `<div class="dict-empty">Erreur: ${e.message}</div>`;
   }
 }
 
 function onDictionaryData(payload) {
   dictData = payload;
+  buildSuggestionIndex();
   const s = payload.stats || {};
   $dictStats.innerHTML = [
     `<div class="dict-stat"><b>${s.commands||0}</b> commandes</div>`,
@@ -1846,10 +1989,265 @@ function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+// ── SUGGESTION / AUTOCOMPLETE ENGINE ──
+const $suggestDropdown = document.getElementById('suggestDropdown');
+let suggestionIndex = []; // flat array of {text, type, name, category, desc, data}
+let suggestActive = -1;   // keyboard navigation index
+let suggestCount = 0;      // current number of visible suggestions
+let suggestDebounce = null;
+let suggestResults = [];   // current search results
+
+function buildSuggestionIndex() {
+  if (!dictData) return;
+  const idx = [];
+  // Commands: index each trigger + name
+  for (const c of (dictData.commands || [])) {
+    const base = { type: 'cmd', name: c.name, category: c.category || '', desc: c.description || '', data: c };
+    idx.push({ text: c.name.toLowerCase(), ...base, bonus: c.confirm ? 5 : 0 });
+    for (const t of (c.triggers || [])) {
+      idx.push({ text: t.toLowerCase(), ...base, bonus: c.confirm ? 5 : 0 });
+    }
+  }
+  // Pipelines: index each trigger_vocal + id
+  for (const p of (dictData.pipelines || [])) {
+    const prio = (p.priority === 'high' || p.priority === 'critical') ? 15 : 0;
+    const base = { type: 'pipe', name: p.id, category: p.category || '', desc: p.description || `${p.steps} etapes`, data: p };
+    idx.push({ text: p.id.toLowerCase(), ...base, bonus: prio });
+    for (const t of (p.trigger_vocal || [])) {
+      idx.push({ text: t.toLowerCase(), ...base, bonus: prio });
+    }
+  }
+  // Pipeline dictionary: index trigger_phrase
+  for (const d of (dictData.pipeline_dictionary || [])) {
+    if (!d.trigger_phrase) continue;
+    idx.push({
+      text: d.trigger_phrase.toLowerCase(),
+      type: 'db', name: d.trigger_phrase, category: d.category || d.action_type || '',
+      desc: d.steps || d.pipeline_id || '', data: d, bonus: 0
+    });
+  }
+  suggestionIndex = idx;
+}
+
+function searchSuggestions(query) {
+  if (!query || !suggestionIndex.length) return [];
+  const q = query.toLowerCase().trim();
+  const words = q.split(/\s+/);
+  const seen = new Map(); // name+type → best score
+  const results = [];
+
+  for (const entry of suggestionIndex) {
+    let score = 0;
+    const t = entry.text;
+    if (t === q) score = 100;
+    else if (t.startsWith(q)) score = 60;
+    else if (t.includes(q)) score = 30;
+    else {
+      // Word match: check if any query word appears in entry
+      for (const w of words) {
+        if (w.length >= 2 && t.includes(w)) { score = 20; break; }
+      }
+    }
+    if (score === 0) continue;
+    score += entry.bonus || 0;
+
+    // Deduplicate: keep best score per name+type
+    const key = entry.name + '|' + entry.type;
+    const prev = seen.get(key);
+    if (prev && prev >= score) continue;
+    seen.set(key, score);
+
+    // Remove previous lower-score entry if exists
+    if (prev) {
+      const idx = results.findIndex(r => r.name === entry.name && r.type === entry.type);
+      if (idx >= 0) results.splice(idx, 1);
+    }
+    results.push({ ...entry, score });
+  }
+
+  results.sort((a, b) => b.score - a.score);
+  return results.slice(0, 8);
+}
+
+function highlightMatch(text, query) {
+  if (!query) return esc(text);
+  const escaped = esc(text);
+  const q = esc(query);
+  const idx = escaped.toLowerCase().indexOf(q.toLowerCase());
+  if (idx < 0) return escaped;
+  return escaped.slice(0, idx) + '<mark>' + escaped.slice(idx, idx + q.length) + '</mark>' + escaped.slice(idx + q.length);
+}
+
+function renderSuggestions(results, query) {
+  suggestResults = results;
+  suggestActive = -1;
+  const $dd = $suggestDropdown;
+
+  // Empty input → show recents
+  if (!query && history.length > 0) {
+    const recents = history.slice(0, 5);
+    suggestCount = recents.length;
+    $dd.innerHTML = '<div class="suggest-section">Recents</div>' +
+      recents.map((h, i) =>
+        `<div class="suggest-item" data-suggest-idx="${i}" data-suggest-type="recent" data-suggest-text="${esc(h.text)}">
+          <div class="suggest-icon recent">&#x23F0;</div>
+          <div class="suggest-info">
+            <div class="suggest-name">${esc(h.text)}</div>
+            <div class="suggest-desc">${h.time}${h.domino ? ' — ' + esc(typeof h.domino === 'string' ? h.domino : h.domino.id || '') : ''}</div>
+          </div>
+        </div>`
+      ).join('');
+    suggestResults = recents.map(h => ({ type: 'recent', text: h.text, name: h.text, data: h }));
+    $dd.style.display = '';
+    attachSuggestClicks();
+    return;
+  }
+
+  if (!results.length && query) {
+    suggestCount = 0;
+    $dd.innerHTML = `<div class="suggest-empty">Aucune commande trouvee<div class="suggest-hint">Enter pour envoyer a JARVIS</div></div>`;
+    $dd.style.display = '';
+    return;
+  }
+
+  if (!results.length) { closeSuggestions(); return; }
+
+  const iconMap = { cmd: 'CMD', pipe: 'PIPE', db: 'DB' };
+  suggestCount = results.length;
+  $dd.innerHTML = results.map((r, i) =>
+    `<div class="suggest-item" data-suggest-idx="${i}">
+      <div class="suggest-icon ${r.type}">${iconMap[r.type] || r.type.toUpperCase()}</div>
+      <div class="suggest-info">
+        <div class="suggest-name">${highlightMatch(r.name, query)}</div>
+        <div class="suggest-desc">${esc(r.desc)}</div>
+      </div>
+      ${r.category ? `<div class="suggest-badge">${esc(r.category)}</div>` : ''}
+    </div>`
+  ).join('');
+  $dd.style.display = '';
+  attachSuggestClicks();
+}
+
+function attachSuggestClicks() {
+  $suggestDropdown.querySelectorAll('.suggest-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const idx = parseInt(el.dataset.suggestIdx, 10);
+      execSuggestion(idx);
+    });
+    el.addEventListener('mouseenter', () => {
+      suggestActive = parseInt(el.dataset.suggestIdx, 10);
+      updateSuggestFocus();
+    });
+  });
+}
+
+function updateSuggestFocus() {
+  const items = $suggestDropdown.querySelectorAll('.suggest-item');
+  items.forEach(el => el.classList.remove('active'));
+  if (suggestActive >= 0 && items[suggestActive]) {
+    items[suggestActive].classList.add('active');
+    items[suggestActive].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+}
+
+function suggestVisible() {
+  return $suggestDropdown.style.display !== 'none';
+}
+
+function closeSuggestions() {
+  $suggestDropdown.style.display = 'none';
+  suggestActive = -1;
+  suggestCount = 0;
+  suggestResults = [];
+}
+
+function fillSuggestion(idx) {
+  const r = suggestResults[idx];
+  if (!r) return;
+  $textInput.value = r.name || r.text || '';
+  closeSuggestions();
+  // Re-trigger search with new value
+  const q = $textInput.value.trim().toLowerCase();
+  if (q) {
+    const res = searchSuggestions(q);
+    renderSuggestions(res, q);
+  }
+}
+
+function execSuggestion(idx) {
+  const r = suggestResults[idx];
+  if (!r) return;
+  closeSuggestions();
+  $textInput.value = '';
+
+  if (r.type === 'cmd') {
+    // Execute system command directly
+    showTranscript(r.name, '');
+    addHistory(r.name, null);
+    $jarvisResponse.classList.add('show', 'thinking');
+    $jarvisText.textContent = `Execution: ${r.name}...`;
+    wsSend('system', 'execute_command', { command_name: r.data.name, params: {} });
+    flashTranscript('success');
+  } else if (r.type === 'pipe') {
+    // Execute pipeline/domino
+    showTranscript(r.name, '');
+    addHistory(r.name, r.data.id);
+    $jarvisResponse.classList.add('show', 'thinking');
+    $jarvisText.textContent = `Cascade: ${r.name}...`;
+    wsSend('system', 'execute_domino', { domino_id: r.data.id });
+    flashTranscript('success');
+  } else if (r.type === 'db') {
+    // Send trigger phrase to chat IA
+    showTranscript(r.name, '');
+    addHistory(r.name, null);
+    processCommand(r.data.trigger_phrase || r.name);
+  } else if (r.type === 'recent') {
+    // Re-send text
+    const text = r.text || r.name;
+    showTranscript(text, '');
+    addHistory(text, null);
+    processCommand(text);
+  }
+}
+
+// ── SUGGESTION EVENT HANDLERS ──
+$textInput.addEventListener('input', () => {
+  clearTimeout(suggestDebounce);
+  suggestDebounce = setTimeout(() => {
+    const q = $textInput.value.trim().toLowerCase();
+    if (!q) {
+      // Show recents if we have history
+      renderSuggestions([], '');
+      return;
+    }
+    const res = searchSuggestions(q);
+    renderSuggestions(res, q);
+  }, 80);
+});
+
+$textInput.addEventListener('focus', () => {
+  const q = $textInput.value.trim().toLowerCase();
+  if (!q) {
+    renderSuggestions([], '');
+  } else {
+    const res = searchSuggestions(q);
+    renderSuggestions(res, q);
+  }
+});
+
+// Close suggestions when clicking outside
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.suggest-wrap')) {
+    closeSuggestions();
+  }
+});
+
 // ── INIT ──
 connectWS();
 checkCluster();
 setInterval(checkCluster, 15000);
+// Pre-load dictionary for autocomplete (fallback if WS not yet connected)
+if (!dictData) loadDictionary();
 
 // ── ELECTRON BRIDGE (if running in Electron) ──
 if (window.electronAPI) {
