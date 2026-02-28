@@ -22,6 +22,7 @@ dependencies = [
     "faster-whisper>=1.1.0",
     "onnxruntime>=1.24.2",
     "scipy>=1.15.3",
+    "datasets>=4.6.1",
 ]
 
 [project.scripts]

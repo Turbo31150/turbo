@@ -119,7 +119,7 @@ def check_gpu() -> dict:
     # IMPORTANT: Exclure les petits GPUs (< 10 GB) — causent fragmentation
     # et OOM. Garder aussi de la VRAM libre sur le GPU d'affichage (3080)
     # pour eviter de perdre le bureau Windows.
-    MIN_VRAM_GB = 10.0
+    MIN_VRAM_GB = 9.5  # 3080 = 10 GiB mais torch reporte ~9.98 GiB
     max_memory = {}
     total_used = 0.0
     for i, name, vram in gpus:
