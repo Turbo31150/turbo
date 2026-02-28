@@ -1035,6 +1035,7 @@
   </div>
   <div class="header-right">
     <button class="header-btn" id="dictBtn" title="Dictionnaire commandes" style="font-size:12px;">&#x1F4D6;</button>
+    <button class="header-btn" id="detachBtn" title="Detacher en mini widget">&#x2922;</button>
     <button class="header-btn" id="pinBtn" title="Toujours visible">&#x1F4CC;</button>
     <button class="header-btn" id="settingsBtn" title="Parametres">&#x2699;</button>
     <button class="header-btn" id="minimizeBtn" title="Minimiser">&#x2500;</button>
@@ -2722,8 +2723,12 @@ if (!dictData) loadDictionary();
 // ── ELECTRON BRIDGE (if running in Electron) ──
 if (window.electronAPI) {
   document.getElementById('minimizeBtn').addEventListener('click', () => window.electronAPI.minimize());
+  document.getElementById('detachBtn').addEventListener('click', () => {
+    if (window.electronAPI.detachWidget) window.electronAPI.detachWidget();
+  });
 } else {
   document.getElementById('minimizeBtn').style.display = 'none';
+  document.getElementById('detachBtn').style.display = 'none';
 }
 </script>
 </body>

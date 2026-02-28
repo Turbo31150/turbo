@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>JARVIS MiniWidget</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: rgba(10, 14, 20, 0.92);
+  --accent: #00d4ff;
+  --dim: #4a6a8a;
+  --text: #e0e0e0;
+  --success: #00e676;
+  --error: #ff5252;
+  --border: #1a2a3a;
+}
+body {
+  background: transparent;
+  color: var(--text);
+  font-family: 'Consolas', 'Courier New', monospace;
+  overflow: hidden;
+  user-select: none;
+}
+.widget {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  -webkit-app-region: drag;
+  position: relative;
+  backdrop-filter: blur(12px);
+}
+.widget:hover { border-color: #2a4a6a; }
+
+/* Mic Button */
+.mic {
+  -webkit-app-region: no-drag;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.mic:hover { background: rgba(0, 212, 255, 0.15); }
+.mic.recording {
+  border-color: var(--error);
+  color: var(--error);
+  animation: pulse 1s ease-in-out infinite;
+}
+.mic.processing {
+  border-color: #ff9800;
+  color: #ff9800;
+  animation: spin 1s linear infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(255, 82, 82, 0); }
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Input */
+.input-wrap {
+  flex: 1;
+  -webkit-app-region: no-drag;
+  position: relative;
+}
+.input-wrap input {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12px;
+  padding: 6px 8px;
+  outline: none;
+}
+.input-wrap input:focus { border-color: var(--accent); }
+.input-wrap input::placeholder { color: var(--dim); }
+
+/* Transcript */
+.transcript {
+  font-size: 11px;
+  color: var(--dim);
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.transcript.active { color: var(--success); }
+.transcript.error { color: var(--error); }
+
+/* Status dot */
+.dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--error);
+  flex-shrink: 0;
+}
+.dot.online { background: var(--success); }
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 4px;
+  -webkit-app-region: no-drag;
+  flex-shrink: 0;
+}
+.ctrl-btn {
+  background: none;
+  border: none;
+  color: var(--dim);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+.ctrl-btn:hover { color: var(--text); background: rgba(255,255,255,0.08); }
+.ctrl-btn.close:hover { color: var(--error); }
+
+/* Suggestions dropdown */
+.suggest-box {
+  display: none;
+  position: fixed;
+  top: 100%;
+  left: 0; right: 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0 0 8px 8px;
+  margin-top: -1px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 100;
+}
+.suggest-box.open { display: block; }
+.suggest-item {
+  padding: 6px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.suggest-item:hover, .suggest-item.active { background: rgba(0, 212, 255, 0.1); }
+.suggest-item .name { color: var(--text); }
+.suggest-item .cat { color: var(--dim); font-size: 9px; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg);
+  border: 1px solid var(--success);
+  color: var(--success);
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 10px;
+  transition: top 0.3s;
+  z-index: 200;
+}
+.toast.show { top: 4px; }
+.toast.error { border-color: var(--error); color: var(--error); }
+
+/* Expanded mode */
+.widget.expanded {
+  flex-direction: column;
+  align-items: stretch;
+  padding: 10px;
+}
+.widget.expanded .row { display: flex; align-items: center; gap: 8px; }
+.widget.expanded .transcript { max-width: none; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="widget" id="widget">
+  <!-- Suggest dropdown (above widget) -->
+  <div class="suggest-box" id="suggestBox"></div>
+
+  <!-- Status dot -->
+  <span class="dot" id="statusDot"></span>
+
+  <!-- Mic button -->
+  <button class="mic" id="micBtn" title="Ctrl→ PTT">&#x1F3A4;</button>
+
+  <!-- Input -->
+  <div class="input-wrap">
+    <input type="text" id="textInput" placeholder="Commande..." autocomplete="off" />
+  </div>
+
+  <!-- Transcript -->
+  <span class="transcript" id="transcript"></span>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="ctrl-btn" id="expandBtn" title="Agrandir">&#x2922;</button>
+    <button class="ctrl-btn" id="mainBtn" title="Fenetre principale">&#x2B1C;</button>
+    <button class="ctrl-btn close" id="closeBtn" title="Fermer">&#x2715;</button>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──
+const WS_URL = 'ws://127.0.0.1:9742/ws';
+const API_BASE = 'http://127.0.0.1:9742';
+
+// ── STATE ──
+let ws = null;
+let reqId = 0;
+let isRecording = false;
+let isProcessing = false;
+let ctrlDown = false;
+let pttSource = null;
+let mediaStream = null;
+let recorder = null;
+let audioChunks = [];
+let dictData = null;
+let suggestionIndex = [];
+let suggestResults = [];
+let suggestActive = -1;
+let expanded = false;
+
+// ── DOM ──
+const $mic = document.getElementById('micBtn');
+const $input = document.getElementById('textInput');
+const $transcript = document.getElementById('transcript');
+const $dot = document.getElementById('statusDot');
+const $suggestBox = document.getElementById('suggestBox');
+const $widget = document.getElementById('widget');
+
+// ── WEBSOCKET ──
+function connectWS() {
+  try { ws = new WebSocket(WS_URL); } catch(e) { setTimeout(connectWS, 3000); return; }
+  ws.onopen = () => { $dot.classList.add('online'); loadDictionary(); };
+  ws.onclose = () => { $dot.classList.remove('online'); setTimeout(connectWS, 3000); };
+  ws.onerror = () => {};
+  ws.onmessage = (ev) => {
+    try { handleMsg(JSON.parse(ev.data)); } catch(_) {}
+  };
+}
+
+function wsSend(channel, action, payload = {}) {
+  if (!ws || ws.readyState !== 1) return;
+  ws.send(JSON.stringify({ id: `w_${++reqId}`, type: 'request', channel, action, payload }));
+}
+
+function handleMsg(msg) {
+  // Voice transcription response
+  if (msg.type === 'response' && msg.channel === 'voice' && msg.action === 'stop_recording' && msg.payload) {
+    onTranscription(msg.payload);
+  }
+  // System execution response
+  if (msg.type === 'response' && msg.channel === 'system' && msg.payload) {
+    if (msg.payload.executed) {
+      const desc = msg.payload.description || msg.payload.command_name || '';
+      const output = msg.payload.output || '';
+      showTranscript(`${desc} ${output}`.trim(), 'active');
+    } else if (msg.payload.error || msg.error) {
+      showTranscript(msg.payload.error || msg.error, 'error');
+    }
+  }
+  // Chat response
+  if (msg.type === 'response' && msg.channel === 'chat' && msg.payload && !msg.error) {
+    const text = msg.payload.agent_message || msg.payload.text || JSON.stringify(msg.payload).substring(0, 100);
+    showTranscript(text, 'active');
+  }
+  // Global PTT
+  if (msg.type === 'event' && msg.channel === 'voice') {
+    if (msg.event === 'ptt_start' && !isRecording && !isProcessing) {
+      pttSource = 'global'; startRecording();
+    }
+    if (msg.event === 'ptt_stop' && isRecording && pttSource === 'global') {
+      pttSource = null; stopRecording();
+    }
+    if (msg.event === 'wake_detected' && !isRecording && !isProcessing) {
+      pttSource = 'wake'; showTranscript('Jarvis ecoute...', '');
+      startRecording();
+      setTimeout(() => { if (isRecording && pttSource === 'wake') { pttSource = null; stopRecording(); } }, 5000);
+    }
+  }
+}
+
+// ── TRANSCRIPTION ──
+function onTranscription(data) {
+  isProcessing = false;
+  $mic.classList.remove('processing');
+  const t = data.transcription || {};
+  const text = t.corrected || t.original || '';
+  if (!text) { showTranscript('(silence)', ''); return; }
+
+  showTranscript(text, 'active');
+  $input.value = text;
+
+  // Auto-executed?
+  if (t.execution && t.execution.executed) {
+    showTranscript(`${t.domino?.description || text}`, 'active');
+  }
+}
+
+// ── RECORDING ──
+async function startRecording() {
+  if (isRecording || isProcessing) return;
+  isRecording = true;
+  audioChunks = [];
+  $mic.classList.add('recording');
+
+  try {
+    mediaStream = await navigator.mediaDevices.getUserMedia({
+      audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true, noiseSuppression: true }
+    });
+    recorder = new MediaRecorder(mediaStream, { mimeType: 'audio/webm;codecs=opus' });
+    recorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunks.push(e.data); };
+    recorder.start(250);
+    wsSend('voice', 'start_recording');
+    streamChunks();
+  } catch(e) {
+    showTranscript('Erreur micro', 'error');
+    stopRecording();
+  }
+}
+
+function streamChunks() {
+  if (!isRecording) return;
+  while (audioChunks.length > 0) {
+    const chunk = audioChunks.shift();
+    const reader = new FileReader();
+    reader.onload = () => {
+      const b64 = reader.result.split(',')[1];
+      wsSend('voice', 'audio_chunk', { audio: b64 });
+    };
+    reader.readAsDataURL(chunk);
+  }
+  if (isRecording) requestAnimationFrame(streamChunks);
+}
+
+function stopRecording() {
+  if (!isRecording) return;
+  isRecording = false;
+  isProcessing = true;
+  $mic.classList.remove('recording');
+  $mic.classList.add('processing');
+  showTranscript('Analyse...', '');
+
+  if (recorder && recorder.state !== 'inactive') recorder.stop();
+  if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
+  wsSend('voice', 'stop_recording');
+
+  setTimeout(() => {
+    if (isProcessing) { isProcessing = false; $mic.classList.remove('processing'); showTranscript('Timeout', 'error'); }
+  }, 15000);
+}
+
+// ── DICTIONARY ──
+async function loadDictionary() {
+  try {
+    const r = await fetch(`${API_BASE}/api/dictionary`);
+    dictData = await r.json();
+    buildIndex();
+  } catch(_) {}
+}
+
+function buildIndex() {
+  if (!dictData) return;
+  suggestionIndex = [];
+  const seen = new Set();
+  // Commands
+  for (const c of (dictData.commands || [])) {
+    for (const t of (c.triggers || [])) {
+      if (!seen.has(t)) { seen.add(t); suggestionIndex.push({ name: t, category: c.category, source: 'cmd', data: c }); }
+    }
+  }
+  // Pipeline dictionary
+  for (const d of (dictData.pipeline_dictionary || [])) {
+    const tp = d.trigger_phrase || '';
+    if (tp && !seen.has(tp)) { seen.add(tp); suggestionIndex.push({ name: tp, category: d.category, source: 'db', data: d }); }
+  }
+  // Pipelines
+  for (const p of (dictData.pipelines || [])) {
+    for (const t of (p.trigger_vocal || [])) {
+      if (!seen.has(t)) { seen.add(t); suggestionIndex.push({ name: t, category: p.category, source: 'pipe', data: p }); }
+    }
+  }
+}
+
+function searchSuggestions(q) {
+  if (!q || q.length < 2) return [];
+  const ql = q.toLowerCase();
+  const results = [];
+  for (const s of suggestionIndex) {
+    const nl = s.name.toLowerCase();
+    if (nl.includes(ql)) {
+      const score = nl === ql ? 100 : nl.startsWith(ql) ? 80 : 50;
+      results.push({ ...s, score });
+    }
+  }
+  results.sort((a, b) => b.score - a.score);
+  return results.slice(0, 8);
+}
+
+function renderSuggestions(results) {
+  suggestResults = results;
+  suggestActive = -1;
+  if (!results.length) {
+    $suggestBox.classList.remove('open');
+    resizeForSuggestions(0);
+    return;
+  }
+  $suggestBox.innerHTML = results.map((r, i) =>
+    `<div class="suggest-item" data-idx="${i}" onclick="execSuggestion(${i})">
+       <span class="name">${esc(r.name)}</span>
+       <span class="cat">${r.category || ''}</span>
+     </div>`
+  ).join('');
+  $suggestBox.classList.add('open');
+  resizeForSuggestions(results.length);
+}
+
+function resizeForSuggestions(count) {
+  if (!window.electronAPI || !window.electronAPI.resizeWidget) return;
+  const base = expanded ? 200 : 52;
+  const extra = Math.min(count, 6) * 28;
+  window.electronAPI.resizeWidget({ width: 420, height: base + extra });
+}
+
+function execSuggestion(idx) {
+  const r = suggestResults[idx];
+  if (!r) return;
+  $suggestBox.classList.remove('open');
+  resizeForSuggestions(0);
+  $input.value = r.name;
+
+  if (r.source === 'cmd') {
+    wsSend('system', 'execute_command', { command_name: r.data.name, params: {} });
+    showTranscript(`${r.data.description || r.name}...`, '');
+  } else if (r.source === 'pipe') {
+    wsSend('system', 'execute_domino', { domino_id: r.data.id });
+    showTranscript(`Cascade ${r.data.id}...`, '');
+  } else {
+    wsSend('system', 'execute_command', { command_name: r.data.pipeline_id || r.name, params: {} });
+    showTranscript(`${r.name}...`, '');
+  }
+}
+
+function sendText(text) {
+  if (!text.trim()) return;
+  $suggestBox.classList.remove('open');
+  showTranscript(`${text}...`, '');
+  wsSend('chat', 'send_message', { text: text.trim(), files: [] });
+}
+
+// ── UI HELPERS ──
+function showTranscript(text, cls) {
+  $transcript.textContent = text;
+  $transcript.className = `transcript ${cls || ''}`;
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function showToast(msg, type) {
+  let t = document.querySelector('.toast');
+  if (t) t.remove();
+  t = document.createElement('div');
+  t.className = `toast ${type || ''}`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('show')));
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
+}
+
+// ── KEYBOARD ──
+document.addEventListener('keydown', (e) => {
+  // CTRL Right PTT
+  if (e.code === 'ControlRight' && !ctrlDown) {
+    e.preventDefault(); ctrlDown = true;
+    if (!isRecording && !isProcessing) { pttSource = 'ctrl'; startRecording(); }
+    return;
+  }
+  // Escape
+  if (e.code === 'Escape') {
+    if ($suggestBox.classList.contains('open')) { $suggestBox.classList.remove('open'); return; }
+    if (isRecording) stopRecording();
+  }
+  // Input navigation
+  if (document.activeElement === $input) {
+    if (e.key === 'ArrowDown' && $suggestBox.classList.contains('open')) {
+      e.preventDefault();
+      suggestActive = Math.min(suggestActive + 1, suggestResults.length - 1);
+      updateFocus();
+    }
+    if (e.key === 'ArrowUp' && $suggestBox.classList.contains('open')) {
+      e.preventDefault();
+      suggestActive = Math.max(suggestActive - 1, -1);
+      updateFocus();
+    }
+    if (e.key === 'Tab' && suggestActive >= 0) {
+      e.preventDefault();
+      $input.value = suggestResults[suggestActive].name;
+      $suggestBox.classList.remove('open');
+    }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (suggestActive >= 0) execSuggestion(suggestActive);
+      else sendText($input.value);
+    }
+  }
+});
+
+document.addEventListener('keyup', (e) => {
+  if (e.code === 'ControlRight' && ctrlDown) {
+    ctrlDown = false;
+    if (isRecording && pttSource === 'ctrl') { pttSource = null; stopRecording(); }
+  }
+});
+
+function updateFocus() {
+  document.querySelectorAll('.suggest-item').forEach((el, i) => {
+    el.classList.toggle('active', i === suggestActive);
+  });
+}
+
+// ── INPUT AUTOCOMPLETE ──
+$input.addEventListener('input', () => {
+  const q = $input.value.trim();
+  const results = searchSuggestions(q);
+  renderSuggestions(results);
+});
+
+// ── BUTTONS ──
+$mic.addEventListener('click', () => {
+  if (isRecording) stopRecording();
+  else if (!isProcessing) startRecording();
+});
+
+document.getElementById('expandBtn').addEventListener('click', () => {
+  expanded = !expanded;
+  if (window.electronAPI) {
+    window.electronAPI.resizeWidget(expanded ? { width: 400, height: 200 } : { width: 400, height: 48 });
+  }
+  $widget.classList.toggle('expanded', expanded);
+});
+
+document.getElementById('mainBtn').addEventListener('click', () => {
+  if (window.electronAPI) window.electronAPI.showMain();
+});
+
+document.getElementById('closeBtn').addEventListener('click', () => {
+  if (window.electronAPI) window.electronAPI.closeWidget();
+  else window.close();
+});
+
+// ── INIT ──
+connectWS();
+</script>
+</body>
+</html>
