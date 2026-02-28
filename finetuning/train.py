@@ -22,6 +22,7 @@ from pathlib import Path
 from datetime import datetime
 
 # === CUDA optimizations ===
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"  # Single GPU: RTX 2060 (12 GB)
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -56,6 +57,35 @@ try:
 
     bnb.functional.QuantState.as_dict = _patched_as_dict
     print("[PATCH] QuantState.as_dict patche pour meta tensors (disk offload)")
+
+    # PATCH 3: QuantState.to() crash sur meta tensors (CPU offload)
+    # self.code.to(device) echoue car meta tensors n'ont pas de donnees.
+    # NF4 code = 16 valeurs fixes, on les hardcode pour recreation.
+    _NF4_CODE = torch.tensor(
+        [-1.0, -0.6962, -0.5251, -0.3949, -0.2844, -0.1848, -0.0911, 0.0,
+         0.0796, 0.1609, 0.2461, 0.3379, 0.4407, 0.5626, 0.7230, 1.0],
+        dtype=torch.float32,
+    )
+    _original_qs_to = bnb.functional.QuantState.to
+
+    def _patched_qs_to(self, device):
+        # Recreate meta tensors with real data before moving
+        if hasattr(self, 'code') and self.code is not None and self.code.is_meta:
+            self.code = _NF4_CODE.clone().to(device)
+        if hasattr(self, 'absmax') and self.absmax is not None and self.absmax.is_meta:
+            self.absmax = torch.zeros(self.absmax.shape, dtype=self.absmax.dtype, device=device)
+        if self.nested:
+            if hasattr(self, 'offset') and self.offset is not None and self.offset.is_meta:
+                self.offset = torch.tensor(0.0, device=device)
+            if hasattr(self, 'state2') and self.state2 is not None:
+                if hasattr(self.state2, 'code') and self.state2.code is not None and self.state2.code.is_meta:
+                    self.state2.code = _NF4_CODE.clone().to(device)
+                if hasattr(self.state2, 'absmax') and self.state2.absmax is not None and self.state2.absmax.is_meta:
+                    self.state2.absmax = torch.zeros(self.state2.absmax.shape, dtype=self.state2.absmax.dtype, device=device)
+        return _original_qs_to(self, device)
+
+    bnb.functional.QuantState.to = _patched_qs_to
+    print("[PATCH] QuantState.to patche pour meta tensors (CPU offload)")
 except Exception as e:
     print(f"[WARN] Patch bitsandbytes echoue: {e}")
 
@@ -69,7 +99,9 @@ TRAIN_FILE = DATASET_DIR / "jarvis_final_train.jsonl"
 EVAL_FILE = DATASET_DIR / "jarvis_final_eval.jsonl"
 
 # === MODELE ===
-MODEL_NAME = "Qwen/Qwen3-30B-A3B"
+# Qwen3-30B-A3B trop gros pour 22 GB VRAM (CPU offload = meta tensor crashes)
+# Qwen3-8B: 8.2B params, ~4.5 GB en 4-bit, tient sur un seul GPU
+MODEL_NAME = "Qwen/Qwen3-8B"
 
 # === LORA CONFIG ===
 LORA_R = 16                 # Rank LoRA
@@ -85,7 +117,7 @@ BATCH_SIZE = 1               # Micro batch (limite VRAM)
 GRAD_ACCUM = 8               # Effective batch = 8
 LR = 2e-4                    # Learning rate QLoRA standard
 EPOCHS = 3
-MAX_SEQ_LEN = 2048           # Longueur max sequences
+MAX_SEQ_LEN = 1024           # Bon compromis qualite/VRAM pour 8B sur single GPU
 WARMUP_RATIO = 0.05
 WEIGHT_DECAY = 0.01
 MAX_GRAD_NORM = 0.3
@@ -116,33 +148,13 @@ def check_gpu() -> dict:
         gpus.append((i, name, vram))
         print(f"  GPU {i}: {name} — {vram:.1f} GB")
 
-    # IMPORTANT: Exclure les petits GPUs (< 10 GB) — causent fragmentation
-    # et OOM. Garder aussi de la VRAM libre sur le GPU d'affichage (3080)
-    # pour eviter de perdre le bureau Windows.
-    MIN_VRAM_GB = 9.5  # 3080 = 10 GiB mais torch reporte ~9.98 GiB
-    max_memory = {}
-    total_used = 0.0
-    for i, name, vram in gpus:
-        if vram < MIN_VRAM_GB:
-            print(f"  [SKIP] GPU {i}: {name} — {vram:.1f} GB (< {MIN_VRAM_GB} GB)")
-            continue
-        # GPU d'affichage (3080) = 55% pour laisser Windows respirer
-        # Autres GPUs (2060 12GB) = 85%
-        if "3080" in name:
-            factor = 0.55
-        else:
-            factor = 0.85
-        alloc = max(int(vram * factor), 1)
-        max_memory[i] = f"{alloc}GiB"
-        total_used += vram
-        print(f"  [USE] GPU {i}: {name} — {vram:.1f} GB (alloc: {alloc} GiB)")
-
-    if not max_memory:
-        print("[ERREUR] Aucun GPU avec >= 10 GB VRAM !")
-        sys.exit(1)
-
-    max_memory["cpu"] = "24GiB"
-    print(f"  VRAM utilisee: {total_used:.1f} GB | CPU offload: 24 GiB\n")
+    # CUDA_VISIBLE_DEVICES=0 means torch only sees 1 GPU (index 0 = physical GPU 0)
+    assert n == 1, f"Expected 1 GPU (CUDA_VISIBLE_DEVICES=0) but got {n}"
+    i, name, vram = gpus[0]
+    alloc = int(vram * 0.85)
+    max_memory = {0: f"{alloc}GiB"}
+    print(f"  [USE] GPU 0: {name} — {vram:.1f} GB (alloc: {alloc} GiB)")
+    print(f"  Single-GPU mode\n")
     return max_memory
 
 
@@ -155,7 +167,7 @@ def load_model(max_memory: dict):
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.float16,
+        bnb_4bit_compute_dtype=torch.bfloat16,
         bnb_4bit_use_double_quant=True,
         llm_int8_enable_fp32_cpu_offload=True,
     )
@@ -190,10 +202,8 @@ def load_model(max_memory: dict):
         device_map="auto",
         max_memory=max_memory,
         trust_remote_code=True,
-        torch_dtype=torch.float16,
+        torch_dtype=torch.bfloat16,
         attn_implementation="flash_attention_2" if use_fa2 else "eager",
-        offload_folder=offload_dir,
-        offload_state_dict=True,
     )
 
     model.config.use_cache = False
@@ -279,10 +289,10 @@ def train(model, tokenizer, dataset):
         eval_strategy="steps" if has_eval else "no",
         eval_steps=EVAL_STEPS if has_eval else None,
         save_total_limit=3,
-        fp16=True,
-        bf16=False,
-        max_seq_length=MAX_SEQ_LEN,
-        packing=True,
+        fp16=False,
+        bf16=True,  # Qwen3 utilise BF16 internement
+        max_length=MAX_SEQ_LEN,
+        packing=False,  # Desactive car flash_attn absent + VRAM limitee
         run_name=run_name,
         report_to="none",
         gradient_checkpointing=True,
