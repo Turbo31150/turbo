@@ -20,6 +20,8 @@ dependencies = [
     "openwakeword>=0.6.0",
     "edge-tts>=6.1.0",
     "faster-whisper>=1.1.0",
+    "onnxruntime>=1.24.2",
+    "scipy>=1.15.3",
 ]
 
 [project.scripts]

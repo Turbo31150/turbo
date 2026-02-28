@@ -13,7 +13,7 @@ from collections.abc import Callable
 import numpy as np
 import sounddevice as sd
 
-WAKE_WORD = "jarvis"
+WAKE_WORD = "hey_jarvis_v0.1"
 THRESHOLD = 0.7
 SAMPLE_RATE = 16000
 CHUNK_SIZE = 1280  # 80ms chunks (OpenWakeWord expects 80ms)
@@ -35,7 +35,7 @@ class WakeWordDetector:
             return True
         try:
             from openwakeword.model import Model
-            self._model = Model(wakeword_models=[WAKE_WORD])
+            self._model = Model(wakeword_models=[WAKE_WORD], inference_framework="onnx")
         except Exception as e:
             print(f"  [WAKE] Failed to load model: {e}", flush=True)
             return False

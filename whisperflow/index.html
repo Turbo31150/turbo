@@ -998,6 +998,32 @@
     width: 5px; height: 5px; border-radius: 50%;
     background: var(--green);
   }
+
+  /* TOAST NOTIFICATION */
+  .dict-toast {
+    position: fixed; bottom: 20px; left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--surface-solid);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-size: 12px; color: var(--text);
+    z-index: 300;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .dict-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .dict-toast.success { border-color: var(--green); }
+  .dict-toast.success .toast-icon { color: var(--green); }
+  .dict-toast.error { border-color: var(--red); }
+  .dict-toast.error .toast-icon { color: var(--red); }
+  .toast-icon { font-size: 14px; }
 </style>
 </head>
 <body>
@@ -1061,7 +1087,7 @@
   </div>
 
   <div class="shortcuts">
-    <kbd>Espace</kbd> PTT &nbsp; <kbd>Esc</kbd> Stop &nbsp; <kbd>Enter</kbd> Executer &nbsp; <kbd>Tab</kbd> Remplir &nbsp; <kbd>&#x2191;&#x2193;</kbd> Naviguer
+    <kbd>Ctrl&#x2192;</kbd> PTT &nbsp; <kbd>Espace</kbd> PTT &nbsp; <kbd>Esc</kbd> Stop &nbsp; <kbd>Enter</kbd> Exec &nbsp; <kbd>Tab</kbd> Remplir &nbsp; <kbd>&#x2191;&#x2193;</kbd> Nav
     <span class="dict-count-badge" id="dictCountBadge"><span class="badge-dot"></span><span id="dictCountText">0</span> cmds</span>
   </div>
 </div>
@@ -1142,7 +1168,7 @@
     <div class="settings-info">
       JARVIS WhisperFlow v1.1<br>
       Backend: FastAPI + Whisper CUDA<br>
-      Raccourcis: <kbd>Espace</kbd> PTT | <kbd>Esc</kbd> Stop | <kbd>Ctrl+Shift+W</kbd> Toggle
+      Raccourcis: <kbd>Ctrl&#x2192;</kbd> PTT | <kbd>Espace</kbd> PTT | <kbd>Esc</kbd> Stop | <kbd>Ctrl+Shift+W</kbd> Toggle
     </div>
   </div>
 </div>
@@ -1261,6 +1287,28 @@ function handleWSMessage(msg) {
   if (msg.type === 'event' && msg.channel === 'voice') {
     if (msg.event === 'transcription_partial') {
       showTranscript(msg.payload.text, 'listening');
+    }
+    // Global PTT events from backend keyboard hook (Right-CTRL)
+    if (msg.event === 'ptt_start' && !isRecording && !isProcessing) {
+      pttSource = 'global';
+      startRecording();
+    }
+    if (msg.event === 'ptt_stop' && isRecording && pttSource === 'global') {
+      pttSource = null;
+      stopRecording();
+    }
+    // Wake word "jarvis" detected — auto-record for 5 seconds
+    if (msg.event === 'wake_detected' && !isRecording && !isProcessing) {
+      pttSource = 'wake';
+      showTranscript('Jarvis ecoute...', 'listening');
+      startRecording();
+      // Auto-stop after 5 seconds (user speaks their command)
+      setTimeout(() => {
+        if (isRecording && pttSource === 'wake') {
+          pttSource = null;
+          stopRecording();
+        }
+      }, 5000);
     }
     // transcription_result event ignored — response already handled above
   }
@@ -1660,12 +1708,27 @@ function renderCluster() {
 
 // ── KEYBOARD SHORTCUTS ──
 let spaceDown = false;
+let ctrlRightDown = false;
+let pttSource = null; // 'space' | 'ctrl' | 'global' | null
 document.addEventListener('keydown', (e) => {
+  // Right CTRL = PTT (global, works everywhere)
+  if (e.code === 'ControlRight' && !ctrlRightDown) {
+    e.preventDefault();
+    ctrlRightDown = true;
+    if (!isRecording && !isProcessing) {
+      pttSource = 'ctrl';
+      startRecording();
+    }
+    return;
+  }
   // Space = PTT (only when not typing)
   if (e.code === 'Space' && document.activeElement !== $textInput && !spaceDown) {
     e.preventDefault();
     spaceDown = true;
-    startRecording();
+    if (!isRecording && !isProcessing) {
+      pttSource = 'space';
+      startRecording();
+    }
   }
   // Escape = stop recording OR close suggestions
   if (e.code === 'Escape') {
@@ -1706,9 +1769,19 @@ document.addEventListener('keydown', (e) => {
 });
 
 document.addEventListener('keyup', (e) => {
+  if (e.code === 'ControlRight' && ctrlRightDown) {
+    ctrlRightDown = false;
+    if (isRecording && pttSource === 'ctrl') {
+      pttSource = null;
+      stopRecording();
+    }
+  }
   if (e.code === 'Space' && spaceDown) {
     spaceDown = false;
-    if (isRecording) stopRecording();
+    if (isRecording && pttSource === 'space') {
+      pttSource = null;
+      stopRecording();
+    }
   }
 });
 
@@ -1720,12 +1793,23 @@ $micBtn.addEventListener('click', () => {
 
 $sendBtn.addEventListener('click', () => sendTextCommand($textInput.value));
 
-// Mode toggle
+// Mode toggle (PTT / Wake / Auto)
 document.querySelectorAll('.mode-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
+  btn.addEventListener('click', async () => {
     document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     mode = btn.dataset.mode;
+    // Toggle wake word detector on backend
+    if (mode === 'wake' || mode === 'auto') {
+      try {
+        const r = await fetch('/api/wake/start', { method: 'POST' });
+        const d = await r.json();
+        if (d.ok) showToast('Wake word "jarvis" actif');
+        else showToast('Wake word indisponible', 'error');
+      } catch(_) { showToast('Wake word indisponible', 'error'); }
+    } else {
+      fetch('/api/wake/stop', { method: 'POST' }).catch(() => {});
+    }
   });
 });
 
@@ -2362,9 +2446,21 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// ── DICTIONARY CRUD FUNCTIONS ──
+// ── DICTIONARY CRUD FUNCTIONS (v2 — toast, dynamic categories, steps field) ──
 
-const _DICT_CATEGORIES = ['system','media','navigation','trading','dev','ia','communication','productivity','entertainment','accessibility','fichiers','daily','cluster','voice','custom'];
+let _dictCategories = []; // loaded dynamically from DB
+let _ctxMenuData = null;
+
+function showToast(message, type = 'success') {
+  document.querySelectorAll('.dict-toast').forEach(t => t.remove());
+  const toast = document.createElement('div');
+  toast.className = `dict-toast ${type}`;
+  const icon = type === 'success' ? '&#x2714;' : '&#x26A0;';
+  toast.innerHTML = `<span class="toast-icon">${icon}</span> ${esc(message)}`;
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
+  setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 4000);
+}
 
 function updateDictBadge() {
   const total = suggestionIndex.length;
@@ -2372,7 +2468,24 @@ function updateDictBadge() {
   if ($badge) $badge.textContent = total;
 }
 
-let _ctxMenuData = null; // store reference to avoid inline JSON
+async function loadDictCategories() {
+  try {
+    const resp = await fetch('http://127.0.0.1:9742/api/dictionary/stats');
+    const data = await resp.json();
+    if (data.stats?.categories) {
+      _dictCategories = Object.keys(data.stats.categories).sort();
+    }
+  } catch (_) {}
+  if (!_dictCategories.length) {
+    _dictCategories = ['system','media','navigation','trading','dev','ia','communication','productivity','entertainment','accessibility','fichiers','daily','cluster','voice','custom','multimedia','systeme','pipeline','automation','network'];
+  }
+}
+
+function categoryOptions(selected) {
+  const cats = _dictCategories.length ? _dictCategories : ['custom'];
+  return cats.map(c => `<option value="${c}" ${c === selected ? 'selected' : ''}>${c}</option>`).join('') +
+    '<option value="custom">custom</option>';
+}
 
 function showSuggestCtxMenu(event, idx) {
   document.querySelectorAll('.suggest-ctx-menu').forEach(m => m.remove());
@@ -2383,24 +2496,31 @@ function showSuggestCtxMenu(event, idx) {
   const entryName = r.name || '';
   const menu = document.createElement('div');
   menu.className = 'suggest-ctx-menu';
-  const editItem = document.createElement('div');
-  editItem.className = 'ctx-item';
-  editItem.innerHTML = '<span class="ctx-icon">&#x270E;</span> Modifier';
-  editItem.onclick = () => editDictEntry(_ctxMenuData);
-  const copyItem = document.createElement('div');
-  copyItem.className = 'ctx-item';
-  copyItem.innerHTML = '<span class="ctx-icon">&#x2398;</span> Copier trigger';
-  copyItem.onclick = () => copyToClipboard(entryName);
-  const delItem = document.createElement('div');
-  delItem.className = 'ctx-item danger';
-  delItem.innerHTML = '<span class="ctx-icon">&#x2716;</span> Supprimer';
-  delItem.onclick = () => deleteDictEntry(entryId, entryName);
-  menu.appendChild(editItem);
-  menu.appendChild(copyItem);
-  menu.appendChild(delItem);
-  menu.style.left = event.clientX + 'px';
-  menu.style.top = event.clientY + 'px';
+
+  const items = [
+    { label: 'Modifier', icon: '&#x270E;', cls: '', fn: () => editDictEntry(_ctxMenuData) },
+    { label: 'Copier trigger', icon: '&#x2398;', cls: '', fn: () => copyToClipboard(entryName) },
+    { label: 'Supprimer', icon: '&#x2716;', cls: 'danger', fn: () => deleteDictEntry(entryId, entryName) },
+  ];
+  for (const it of items) {
+    const el = document.createElement('div');
+    el.className = `ctx-item ${it.cls}`;
+    el.innerHTML = `<span class="ctx-icon">${it.icon}</span> ${it.label}`;
+    el.onclick = it.fn;
+    menu.appendChild(el);
+  }
+
+  // Position: clamp to viewport
+  let x = event.clientX, y = event.clientY;
   document.body.appendChild(menu);
+  const rect = menu.getBoundingClientRect();
+  if (x + rect.width > window.innerWidth) x = window.innerWidth - rect.width - 8;
+  if (y + rect.height > window.innerHeight) y = window.innerHeight - rect.height - 8;
+  if (x < 4) x = 4;
+  if (y < 4) y = 4;
+  menu.style.left = x + 'px';
+  menu.style.top = y + 'px';
+
   setTimeout(() => {
     document.addEventListener('click', function _close(e) {
       if (!e.target.closest('.suggest-ctx-menu')) {
@@ -2412,7 +2532,7 @@ function showSuggestCtxMenu(event, idx) {
 }
 
 function copyToClipboard(text) {
-  navigator.clipboard.writeText(text).catch(() => {});
+  navigator.clipboard.writeText(text).then(() => showToast('Trigger copie !')).catch(() => {});
   document.querySelectorAll('.suggest-ctx-menu').forEach(m => m.remove());
 }
 
@@ -2429,9 +2549,7 @@ function showAddCommandForm(prefill) {
       </div>
       <div class="field-group">
         <label>Categorie</label>
-        <select id="dictAddCategory">
-          ${_DICT_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('')}
-        </select>
+        <select id="dictAddCategory">${categoryOptions('custom')}</select>
       </div>
       <div class="field-group">
         <label>Action type</label>
@@ -2448,12 +2566,16 @@ function showAddCommandForm(prefill) {
         </select>
       </div>
       <div class="field-group">
+        <label>Steps / Action</label>
+        <input id="dictAddSteps" placeholder="Ex: Start-Process spotify" />
+      </div>
+      <div class="field-group">
         <label>Description</label>
         <input id="dictAddDesc" placeholder="Description courte..." />
       </div>
       <div class="btn-row">
         <button class="btn-cancel" onclick="this.closest('.dict-edit-overlay').remove()">Annuler</button>
-        <button class="btn-save" onclick="submitAddCommand()">Ajouter</button>
+        <button class="btn-save" id="dictAddSubmitBtn" onclick="submitAddCommand()">Ajouter</button>
       </div>
     </div>
   `;
@@ -2466,18 +2588,21 @@ async function submitAddCommand() {
   const trigger = document.getElementById('dictAddTrigger').value.trim();
   const category = document.getElementById('dictAddCategory').value;
   const actionType = document.getElementById('dictAddAction').value;
+  const steps = document.getElementById('dictAddSteps').value.trim();
   const desc = document.getElementById('dictAddDesc').value.trim();
   if (!trigger) return;
+  const btn = document.getElementById('dictAddSubmitBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
   try {
     const resp = await fetch('http://127.0.0.1:9742/api/dictionary/command', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ name: trigger, category, triggers: [trigger], action_type: actionType, description: desc })
+      body: JSON.stringify({ name: trigger, category, triggers: [trigger], action_type: actionType, description: desc, steps })
     });
     const data = await resp.json();
     if (data.ok) {
       document.querySelectorAll('.dict-edit-overlay').forEach(o => o.remove());
-      // Reload dictionary to show the new command
+      showToast(`"${trigger}" ajoute (id=${data.id})`);
       await loadDictionary();
       buildSuggestionIndex();
       updateDictBadge();
@@ -2485,10 +2610,12 @@ async function submitAddCommand() {
       const res = searchSuggestions(trigger.toLowerCase());
       renderSuggestions(res, trigger);
     } else {
-      alert('Erreur: ' + (data.error || 'inconnue'));
+      showToast(data.error || 'Erreur inconnue', 'error');
+      if (btn) { btn.disabled = false; btn.textContent = 'Ajouter'; }
     }
   } catch (e) {
-    alert('Erreur reseau: ' + e.message);
+    showToast('Erreur reseau: ' + e.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Ajouter'; }
   }
 }
 
@@ -2506,17 +2633,23 @@ function editDictEntry(entry) {
       </div>
       <div class="field-group">
         <label>Categorie</label>
-        <select id="dictEditCategory">
-          ${_DICT_CATEGORIES.map(c => `<option value="${c}" ${c === (entry.category || '') ? 'selected' : ''}>${c}</option>`).join('')}
+        <select id="dictEditCategory">${categoryOptions(entry.category || '')}</select>
+      </div>
+      <div class="field-group">
+        <label>Action type</label>
+        <select id="dictEditActionType">
+          ${['pipeline','powershell','curl','python','system','media','browser','voice','script','condition','shortcut'].map(a =>
+            `<option value="${a}" ${a === (entry.action_type || '') ? 'selected' : ''}>${a}</option>`
+          ).join('')}
         </select>
       </div>
       <div class="field-group">
-        <label>Steps / Description</label>
+        <label>Steps / Action</label>
         <input id="dictEditSteps" value="${esc(entry.steps || entry.description || '')}" />
       </div>
       <div class="btn-row">
         <button class="btn-cancel" onclick="this.closest('.dict-edit-overlay').remove()">Annuler</button>
-        <button class="btn-save" onclick="submitEditCommand(${entry.id})">Sauvegarder</button>
+        <button class="btn-save" id="dictEditSubmitBtn" onclick="submitEditCommand(${entry.id})">Sauvegarder</button>
       </div>
     </div>
   `;
@@ -2528,25 +2661,31 @@ function editDictEntry(entry) {
 async function submitEditCommand(id) {
   const trigger = document.getElementById('dictEditTrigger').value.trim();
   const category = document.getElementById('dictEditCategory').value;
+  const actionType = document.getElementById('dictEditActionType').value;
   const steps = document.getElementById('dictEditSteps').value.trim();
   if (!trigger) return;
+  const btn = document.getElementById('dictEditSubmitBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
   try {
     const resp = await fetch(`http://127.0.0.1:9742/api/dictionary/command/${id}`, {
       method: 'PUT',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ fields: { trigger_phrase: trigger, category, steps } })
+      body: JSON.stringify({ fields: { trigger_phrase: trigger, category, action_type: actionType, steps } })
     });
     const data = await resp.json();
     if (data.ok) {
       document.querySelectorAll('.dict-edit-overlay').forEach(o => o.remove());
+      showToast('Commande modifiee');
       await loadDictionary();
       buildSuggestionIndex();
       updateDictBadge();
     } else {
-      alert('Erreur: ' + (data.error || 'inconnue'));
+      showToast(data.error || 'Erreur', 'error');
+      if (btn) { btn.disabled = false; btn.textContent = 'Sauvegarder'; }
     }
   } catch (e) {
-    alert('Erreur reseau: ' + e.message);
+    showToast('Erreur reseau: ' + e.message, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Sauvegarder'; }
   }
 }
 
@@ -2558,16 +2697,20 @@ async function deleteDictEntry(id, name) {
     const data = await resp.json();
     if (data.ok) {
       closeSuggestions();
+      showToast(`"${name}" supprime`);
       await loadDictionary();
       buildSuggestionIndex();
       updateDictBadge();
     } else {
-      alert('Erreur: ' + (data.error || 'inconnue'));
+      showToast(data.error || 'Erreur', 'error');
     }
   } catch (e) {
-    alert('Erreur reseau: ' + e.message);
+    showToast('Erreur reseau: ' + e.message, 'error');
   }
 }
+
+// Load categories on startup
+loadDictCategories();
 
 // ── INIT ──
 connectWS();
