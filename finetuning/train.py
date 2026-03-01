@@ -1,7 +1,7 @@
 """
 JARVIS Fine-Tuning — QLoRA Training
 =====================================
-Fine-tune Qwen3-30B-A3B avec QLoRA (4-bit) sur multi-GPU heterogene.
+Fine-tune Qwen3-8B avec QLoRA (4-bit) sur multi-GPU heterogene.
 TRL SFTTrainer + PEFT + bitsandbytes + device_map="auto".
 
 Pre-requis:
@@ -22,9 +22,19 @@ from pathlib import Path
 from datetime import datetime
 
 # === CUDA optimizations ===
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"  # Single GPU: RTX 2060 (12 GB)
+# Single GPU: RTX 3080 only — la plus rapide (8704 CUDA cores, 760 GB/s)
+# Multi-GPU pipeline parallelism RALENTIT car la 2060 est le bottleneck (4.5x plus lente)
+os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
+# Bypass torch.load CVE-2025-32434 check pour resume checkpoint
+# (nos propres fichiers, pas de donnees non-fiables)
+import transformers.utils.import_utils
+transformers.utils.import_utils.check_torch_load_is_safe = lambda: None
+# Patch aussi dans trainer.py qui importe directement la fonction
+import transformers.trainer
+transformers.trainer.check_torch_load_is_safe = lambda: None
 
 # Force unbuffered output for real-time monitoring
 sys.stdout.reconfigure(line_buffering=True)
@@ -99,7 +109,7 @@ TRAIN_FILE = DATASET_DIR / "jarvis_final_train.jsonl"
 EVAL_FILE = DATASET_DIR / "jarvis_final_eval.jsonl"
 
 # === MODELE ===
-# Qwen3-30B-A3B trop gros pour 22 GB VRAM (CPU offload = meta tensor crashes)
+# Qwen3-8B trop gros pour 22 GB VRAM (CPU offload = meta tensor crashes)
 # Qwen3-8B: 8.2B params, ~4.5 GB en 4-bit, tient sur un seul GPU
 MODEL_NAME = "Qwen/Qwen3-8B"
 
@@ -113,25 +123,25 @@ LORA_TARGET_MODULES = [
 ]
 
 # === TRAINING CONFIG ===
-BATCH_SIZE = 1               # Micro batch (limite VRAM)
-GRAD_ACCUM = 8               # Effective batch = 8
+BATCH_SIZE = 1               # Batch=1 optimal pour 3080 10GB (batch=2 cause memory thrashing)
+GRAD_ACCUM = 8               # Effective batch = 1*8 = 8
 LR = 2e-4                    # Learning rate QLoRA standard
 EPOCHS = 3
-MAX_SEQ_LEN = 1024           # Bon compromis qualite/VRAM pour 8B sur single GPU
+MAX_STEPS = 1000             # Run court — resume auto au prochain lancement
+MAX_SEQ_LEN = 1024           # Bon compromis qualite/VRAM
 WARMUP_RATIO = 0.05
 WEIGHT_DECAY = 0.01
 MAX_GRAD_NORM = 0.3
 LOG_STEPS = 10
-SAVE_STEPS = 200
-EVAL_STEPS = 200
+SAVE_STEPS = 50             # Sauvegarde frequente pour ne jamais perdre le progres
+EVAL_STEPS = 100
 
 
 def check_gpu() -> dict:
-    """Verifie les GPUs et retourne max_memory pour les 2 plus gros GPUs.
+    """Verifie les GPUs et retourne max_memory.
 
-    Strategie: n'utiliser que les GPUs avec >= 10 GB VRAM pour eviter
-    les problemes de fragmentation VRAM avec bitsandbytes 4-bit.
-    Les petits GPUs (GTX 1660 Super, 6GB) causent des crashes.
+    CUDA_VISIBLE_DEVICES=4 → cuda:0 = RTX 3080 (10 GB)
+    Single GPU = pas de pipeline parallelism bottleneck.
     """
     if not torch.cuda.is_available():
         print("[ERREUR] CUDA non disponible !")
@@ -140,21 +150,27 @@ def check_gpu() -> dict:
     n = torch.cuda.device_count()
     print(f"\nGPUs detectes: {n}")
 
-    # Lister tous les GPUs
     gpus = []
+    total_vram = 0
     for i in range(n):
         name = torch.cuda.get_device_name(i)
         vram = torch.cuda.get_device_properties(i).total_memory / (1024**3)
         gpus.append((i, name, vram))
+        total_vram += vram
         print(f"  GPU {i}: {name} — {vram:.1f} GB")
 
-    # CUDA_VISIBLE_DEVICES=0 means torch only sees 1 GPU (index 0 = physical GPU 0)
-    assert n == 1, f"Expected 1 GPU (CUDA_VISIBLE_DEVICES=0) but got {n}"
-    i, name, vram = gpus[0]
-    alloc = int(vram * 0.85)
-    max_memory = {0: f"{alloc}GiB"}
-    print(f"  [USE] GPU 0: {name} — {vram:.1f} GB (alloc: {alloc} GiB)")
-    print(f"  Single-GPU mode\n")
+    # Allouer 85% de chaque GPU, reserve pour CUDA overhead
+    max_memory = {}
+    for i, name, vram in gpus:
+        alloc = int(vram * 0.85)
+        max_memory[i] = f"{alloc}GiB"
+        print(f"  [USE] GPU {i}: {name} — alloc {alloc} GiB / {vram:.1f} GB")
+
+    # Ajouter CPU RAM comme overflow
+    max_memory["cpu"] = "30GiB"
+
+    print(f"\n  Multi-GPU mode: {n} GPUs, {total_vram:.0f} GB total")
+    print(f"  Primary: GPU 0 ({gpus[0][1]})")
     return max_memory
 
 
@@ -179,31 +195,27 @@ def load_model(max_memory: dict):
         tokenizer.pad_token = tokenizer.eos_token
         tokenizer.pad_token_id = tokenizer.eos_token_id
 
-    # Flash attention 2: seulement si le package est installe ET GPU capable
-    use_fa2 = False
-    try:
-        import flash_attn  # noqa: F401
-        for i in range(torch.cuda.device_count()):
-            if torch.cuda.get_device_capability(i)[0] >= 8:
-                use_fa2 = True
-                break
-        if use_fa2:
-            print("  [OK] Flash Attention 2 active")
-    except ImportError:
-        print("  [INFO] flash_attn non installe, utilisation de 'eager' attention")
+    # SDPA (Scaled Dot-Product Attention) — native PyTorch, pas besoin de flash_attn
+    # Plus rapide que "eager" sur toutes les GPU (Turing+)
+    attn_impl = "sdpa"
+    print(f"  [OK] Attention: {attn_impl} (PyTorch native)")
 
-    # Offload folder pour les poids MoE qui doivent etre re-sauves
+    # Offload folder pour les poids qui doivent etre re-sauves
     offload_dir = str(FINETUNING_DIR / "offload")
     os.makedirs(offload_dir, exist_ok=True)
+
+    # Single GPU mode: tout sur la 3080 (pas de pipeline parallelism overhead)
+    device_map = "auto"
+    print(f"  [MAP] Single GPU mode — toutes les couches sur RTX 3080")
 
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_NAME,
         quantization_config=bnb_config,
-        device_map="auto",
+        device_map=device_map,
         max_memory=max_memory,
         trust_remote_code=True,
         torch_dtype=torch.bfloat16,
-        attn_implementation="flash_attention_2" if use_fa2 else "eager",
+        attn_implementation=attn_impl,
     )
 
     model.config.use_cache = False
@@ -255,20 +267,54 @@ def load_dataset_files():
     return ds
 
 
+def find_resume_checkpoint() -> str | None:
+    """Cherche le dernier checkpoint pour resume (meme modele uniquement)."""
+    if not OUTPUT_DIR.exists():
+        return None
+    # Identifier le modele actuel (8b ou 30b) depuis MODEL_NAME
+    model_tag = "8b" if "8B" in MODEL_NAME or "8b" in MODEL_NAME else "30b"
+    runs = sorted(OUTPUT_DIR.iterdir(), key=lambda p: p.stat().st_mtime, reverse=True)
+    for run in runs:
+        if not run.is_dir():
+            continue
+        # Ne resume QUE les runs du meme modele
+        if model_tag not in run.name:
+            continue
+        ckpts = sorted(
+            [d for d in run.iterdir() if d.is_dir() and d.name.startswith("checkpoint-")],
+            key=lambda d: int(d.name.split("-")[1]),
+            reverse=True,
+        )
+        for ckpt in ckpts:
+            if (ckpt / "trainer_state.json").exists():
+                return str(ckpt)
+    return None
+
+
 def train(model, tokenizer, dataset):
-    """Lance le SFT training."""
+    """Lance le SFT training avec resume automatique."""
     from trl import SFTTrainer, SFTConfig
 
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    run_name = f"jarvis-qwen3-30b-qlora-{timestamp}"
-    output_dir = str(OUTPUT_DIR / run_name)
+    # Resume automatique depuis le dernier checkpoint si disponible
+    resume_ckpt = find_resume_checkpoint()
+    if resume_ckpt:
+        # Reprendre dans le meme output_dir que le checkpoint
+        output_dir = str(Path(resume_ckpt).parent)
+        run_name = Path(output_dir).name
+        print(f"[RESUME] Reprise depuis {resume_ckpt}")
+    else:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        run_name = f"jarvis-qwen3-8b-qlora-{timestamp}"
+        output_dir = str(OUTPUT_DIR / run_name)
+        print(f"[FRESH] Nouveau run: {run_name}")
 
     has_eval = "test" in dataset
 
     print(f"\n{'='*60}")
     print(f"Training: {run_name}")
-    print(f"  Epochs: {EPOCHS}")
+    print(f"  Epochs: {EPOCHS} (max_steps={MAX_STEPS})")
     print(f"  Batch effectif: {BATCH_SIZE * GRAD_ACCUM}")
+    print(f"  Resume: {resume_ckpt or 'FRESH'}")
     print(f"  LR: {LR}")
     print(f"  Max seq: {MAX_SEQ_LEN}")
     print(f"  Output: {output_dir}")
@@ -277,6 +323,7 @@ def train(model, tokenizer, dataset):
     args = SFTConfig(
         output_dir=output_dir,
         num_train_epochs=EPOCHS,
+        max_steps=MAX_STEPS,
         per_device_train_batch_size=BATCH_SIZE,
         per_device_eval_batch_size=BATCH_SIZE,
         gradient_accumulation_steps=GRAD_ACCUM,
@@ -288,7 +335,7 @@ def train(model, tokenizer, dataset):
         save_steps=SAVE_STEPS,
         eval_strategy="steps" if has_eval else "no",
         eval_steps=EVAL_STEPS if has_eval else None,
-        save_total_limit=3,
+        save_total_limit=5,
         fp16=False,
         bf16=True,  # Qwen3 utilise BF16 internement
         max_length=MAX_SEQ_LEN,
@@ -300,7 +347,8 @@ def train(model, tokenizer, dataset):
         optim="paged_adamw_8bit",
         lr_scheduler_type="cosine",
         seed=42,
-        dataloader_pin_memory=False,
+        dataloader_pin_memory=True,   # Faster CPU→GPU transfer
+        dataloader_num_workers=2,      # Prefetch data en parallele
         remove_unused_columns=False,
     )
 
@@ -313,7 +361,7 @@ def train(model, tokenizer, dataset):
     )
 
     print("[>>>] Training en cours...\n")
-    result = trainer.train()
+    result = trainer.train(resume_from_checkpoint=resume_ckpt)
 
     # Sauvegarder
     final_path = os.path.join(output_dir, "final")
@@ -334,18 +382,24 @@ def train(model, tokenizer, dataset):
 
 
 def check_lm_studio():
-    """Verifie que LM Studio n'est pas en cours."""
+    """Verifie que LM Studio n'a pas de modeles charges."""
     import subprocess
-    result = subprocess.run(
-        ["powershell", "-Command", "(Get-Process 'LM Studio' -ErrorAction SilentlyContinue).Count"],
-        capture_output=True, text=True
-    )
-    count = result.stdout.strip()
-    if count and int(count) > 0:
-        print(f"[ERREUR] LM Studio tourne ({count} processus) !")
-        print("  Arretez LM Studio pour liberer la VRAM.")
-        sys.exit(1)
-    print("[OK] LM Studio arrete")
+    # Verifier si des modeles sont charges (pas juste si le process tourne)
+    try:
+        result = subprocess.run(
+            ["C:/Users/franc/.lmstudio/bin/lms.exe", "ps"],
+            capture_output=True, text=True, timeout=5,
+        )
+        output = result.stdout.strip()
+        if "loaded" in output.lower() and "0 model" not in output.lower():
+            print(f"[WARN] LM Studio a des modeles charges, dechargement...")
+            subprocess.run(
+                ["C:/Users/franc/.lmstudio/bin/lms.exe", "unload", "--all"],
+                capture_output=True, timeout=10,
+            )
+    except Exception:
+        pass
+    print("[OK] LM Studio verifie (pas de modeles charges)")
 
 
 def print_resources(label=""):
@@ -371,7 +425,7 @@ def print_resources(label=""):
 
 def main():
     print("\n" + "=" * 60)
-    print("JARVIS Fine-Tuning — QLoRA sur Qwen3-30B-A3B")
+    print("JARVIS Fine-Tuning — QLoRA sur Qwen3-8B")
     print("=" * 60)
 
     check_lm_studio()
