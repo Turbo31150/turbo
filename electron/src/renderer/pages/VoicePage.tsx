@@ -66,6 +66,7 @@ export default function VoicePage() {
   const [conversation, setConversation] = useState<ConvEntry[]>([]);
   const [ttsOn, setTtsOn] = useState(true);
   const [thinking, setThinking] = useState(false);
+  const [transcriptions, setTranscriptions] = useState<{ text: string; ts: number }[]>([]);
   const prevTranscription = useRef('');
   const convEndRef = useRef<HTMLDivElement>(null);
   const ttsOnRef = useRef(ttsOn);
@@ -119,10 +120,11 @@ export default function VoicePage() {
   const sendToIARef = useRef(sendToIA);
   sendToIARef.current = sendToIA;
 
-  // When PTT transcription arrives → send to IA
+  // When PTT transcription arrives → log + send to IA
   useEffect(() => {
     if (transcription && transcription !== prevTranscription.current) {
       prevTranscription.current = transcription;
+      setTranscriptions(prev => [{ text: transcription, ts: Date.now() }, ...prev].slice(0, 20));
       sendToIARef.current(transcription);
     }
   }, [transcription]);
@@ -189,9 +191,21 @@ export default function VoicePage() {
         {/* Status bar */}
         <div style={S.statusBar}>
           <span>WS: {connected ? '\u2705 connecte' : '\u274C deconnecte'}</span>
-          <span>{conversation.length} messages</span>
-          <span>TTS: {ttsOn ? 'Edge' : 'OFF'}</span>
+          <span>{conversation.length} messages | {transcriptions.length} transcriptions</span>
+          <span>Audio: {Math.round(audioLevel * 100)}%</span>
+          <span>TTS: {ttsOn ? 'Edge fr-FR' : 'OFF'}</span>
         </div>
+
+        {/* Last transcription */}
+        {transcriptions.length > 0 && (
+          <div style={{ width: '100%', maxWidth: 650, marginBottom: 8, padding: '6px 12px', borderRadius: 6, backgroundColor: 'rgba(192,132,252,.06)', border: '1px solid rgba(192,132,252,.15)', fontSize: 11, color: '#c084fc', display: 'flex', gap: 8, alignItems: 'center' }}>
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1, opacity: 0.7 }}>WHISPER</span>
+            <span style={{ flex: 1 }}>{transcriptions[0].text}</span>
+            <span style={{ fontSize: 9, color: '#4b5563' }}>
+              {new Date(transcriptions[0].ts).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </span>
+          </div>
+        )}
 
         {/* Conversation log */}
         <div style={S.convWrap}>

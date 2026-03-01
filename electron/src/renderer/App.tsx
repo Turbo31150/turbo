@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, Suspense, lazy } from 'react';
-import { useWebSocket } from './hooks/useWebSocket';
+import { useWebSocket, WsMessage } from './hooks/useWebSocket';
 import Sidebar from './components/layout/Sidebar';
 import TopBar from './components/layout/TopBar';
 
@@ -19,8 +19,9 @@ const LMStudioPage = lazy(() => import('./pages/LMStudioPage'));
 const DictionaryPage = lazy(() => import('./pages/DictionaryPage'));
 const PipelinePage = lazy(() => import('./pages/PipelinePage'));
 const ToolboxPage = lazy(() => import('./pages/ToolboxPage'));
+const LogsPage = lazy(() => import('./pages/LogsPage'));
 
-type Page = 'dashboard' | 'chat' | 'trading' | 'voice' | 'lmstudio' | 'settings' | 'dictionary' | 'pipelines' | 'toolbox';
+type Page = 'dashboard' | 'chat' | 'trading' | 'voice' | 'lmstudio' | 'settings' | 'dictionary' | 'pipelines' | 'toolbox' | 'logs';
 
 const PAGE_COMPONENTS: Record<Page, React.LazyExoticComponent<React.ComponentType>> = {
   dashboard: DashboardPage,
@@ -32,6 +33,7 @@ const PAGE_COMPONENTS: Record<Page, React.LazyExoticComponent<React.ComponentTyp
   dictionary: DictionaryPage,
   pipelines: PipelinePage,
   toolbox: ToolboxPage,
+  logs: LogsPage,
 };
 
 const CSS = `
@@ -44,9 +46,13 @@ const TOAST_COLORS = {
   info: { color: '#10b981', bg: 'rgba(16,185,129,.12)', border: 'rgba(16,185,129,.3)' },
 };
 
+function addToast(setToasts: React.Dispatch<React.SetStateAction<Toast[]>>, idRef: React.MutableRefObject<number>, message: string, type: Toast['type']) {
+  setToasts(prev => [...prev, { id: ++idRef.current, message, type, timestamp: Date.now() }]);
+}
+
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
-  const { connected } = useWebSocket();
+  const { connected, subscribe } = useWebSocket();
   const [toasts, setToasts] = useState<Toast[]>([]);
   const toastIdRef = useRef(0);
   const prevConnected = useRef(connected);
@@ -65,8 +71,8 @@ export default function App() {
   useEffect(() => {
     if (toasts.length === 0) return;
     const timer = setTimeout(() => {
-      setToasts(prev => prev.filter(t => Date.now() - t.timestamp < 4000));
-    }, 4000);
+      setToasts(prev => prev.filter(t => Date.now() - t.timestamp < 5000));
+    }, 5000);
     return () => clearTimeout(timer);
   }, [toasts]);
 
@@ -78,6 +84,55 @@ export default function App() {
       });
       return cleanup;
     }
+  }, []);
+
+  // Subscribe to critical WS events for notifications
+  useEffect(() => {
+    const unsubs: (() => void)[] = [];
+
+    unsubs.push(subscribe('cluster', (msg: WsMessage) => {
+      if (msg.event === 'node_status_update' && msg.payload) {
+        const { name, online } = msg.payload;
+        if (online === false) {
+          addToast(setToasts, toastIdRef, `Node ${name} OFFLINE`, 'error');
+        }
+      }
+    }));
+
+    unsubs.push(subscribe('trading', (msg: WsMessage) => {
+      if (msg.event === 'signal_executed') {
+        const p = msg.payload || {};
+        addToast(setToasts, toastIdRef, `Trade ${p.direction?.toUpperCase() || ''} ${p.pair || ''} execute`, 'info');
+      }
+      if (msg.event === 'position_closed') {
+        const p = msg.payload || {};
+        const pnl = p.pnl ?? 0;
+        addToast(setToasts, toastIdRef, `Position fermee ${p.pair || ''}: ${pnl >= 0 ? '+' : ''}${pnl.toFixed(2)} USDT`, pnl >= 0 ? 'info' : 'warning');
+      }
+    }));
+
+    unsubs.push(subscribe('system', (msg: WsMessage) => {
+      if (msg.event === 'error' || msg.event === 'critical_error') {
+        addToast(setToasts, toastIdRef, msg.payload?.message || 'Erreur systeme', 'error');
+      }
+    }));
+
+    return () => unsubs.forEach(u => u());
+  }, [subscribe]);
+
+  // Keyboard shortcuts: Ctrl+1..0 to navigate pages
+  useEffect(() => {
+    const PAGE_SHORTCUTS: Page[] = ['dashboard', 'chat', 'lmstudio', 'voice', 'dictionary', 'pipelines', 'toolbox', 'trading', 'logs', 'settings'];
+    const handler = (e: KeyboardEvent) => {
+      if (!e.ctrlKey || e.shiftKey || e.altKey) return;
+      const num = parseInt(e.key);
+      if (num >= 1 && num <= PAGE_SHORTCUTS.length) {
+        e.preventDefault();
+        setCurrentPage(PAGE_SHORTCUTS[num - 1]);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
   }, []);
 
   const WIDGET_MAP: Record<string, string> = {
@@ -120,8 +175,13 @@ export default function App() {
                   padding: '8px 16px', borderRadius: 8, fontSize: 12, fontFamily: 'inherit',
                   color: c.color, backgroundColor: c.bg, border: `1px solid ${c.border}`,
                   backdropFilter: 'blur(8px)', animation: 'toastIn .3s ease',
+                  display: 'flex', alignItems: 'center', gap: 8,
                 }}>
-                  {t.message}
+                  <span style={{ flex: 1 }}>{t.message}</span>
+                  <button onClick={() => setToasts(prev => prev.filter(x => x.id !== t.id))} style={{
+                    background: 'none', border: 'none', color: c.color, cursor: 'pointer',
+                    fontSize: 14, padding: 0, fontFamily: 'inherit', opacity: 0.6,
+                  }}>{'\u2715'}</button>
                 </div>
               );
             })}
