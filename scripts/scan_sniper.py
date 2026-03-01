@@ -2268,6 +2268,7 @@ def run_single(top_n=3, min_score=MIN_SCORE, output_json=False,
 
 
 def main():
+    global TOP_VOLUME, GPU_AVAILABLE, GPU_COUNT
     import argparse
     parser = argparse.ArgumentParser(description="JARVIS Scan Sniper v4 — GPU Multi-GPU Pre-Pump Detector")
     parser.add_argument("--top", type=int, default=3, help="Top N signaux")
@@ -2279,6 +2280,7 @@ def main():
     parser.add_argument("--no-ai", action="store_true", help="Desactiver consensus IA")
     parser.add_argument("--db-summary", action="store_true", help="Afficher resume DB et quitter")
     parser.add_argument("--coin", type=str, help="Historique d'un coin specifique (ex: BTC_USDT)")
+    parser.add_argument("--coins", type=int, default=TOP_VOLUME, help="Nombre de coins a scanner (defaut: 100)")
     args = parser.parse_args()
 
     # Mode consultation DB
@@ -2294,8 +2296,10 @@ def main():
         conn.close()
         return
 
+    if args.coins != TOP_VOLUME:
+        TOP_VOLUME = args.coins
+
     if args.no_gpu:
-        global GPU_AVAILABLE, GPU_COUNT
         GPU_AVAILABLE = False
         GPU_COUNT = 0
 

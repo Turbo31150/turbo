@@ -12,6 +12,7 @@ from src.commands import (
 )
 from src.windows import run_powershell, open_application
 from src.config import SCRIPTS
+from src.signal_formatter import parse_sniper_json, format_telegram_signals, format_chat_signals
 
 
 async def execute_command(cmd: JarvisCommand, params: dict[str, str]) -> str:
@@ -90,16 +91,26 @@ async def execute_command(cmd: JarvisCommand, params: dict[str, str]) -> str:
 
     if cmd.action_type == "script":
         import sys
-        script_name = cmd.action
+        import shlex
+        parts = shlex.split(cmd.action)
+        script_name = parts[0]
+        script_args = parts[1:]
         script_path = SCRIPTS.get(script_name)
         if not script_path or not script_path.exists():
             return f"Script introuvable: {script_name}"
         try:
-            result = subprocess.run(
-                [sys.executable, str(script_path)],
+            # Run in thread to avoid blocking the async event loop
+            result = await asyncio.to_thread(
+                subprocess.run,
+                [sys.executable, str(script_path)] + script_args,
                 capture_output=True, text=True, timeout=120,
                 cwd=str(script_path.parent),
             )
+            # Trading scripts: keep full output for JSON parsing + Telegram
+            formatted = _postprocess_trading_script(script_name, result.stdout)
+            if formatted:
+                return formatted
+            # Default: truncate for non-trading scripts
             output = result.stdout[-500:] if len(result.stdout) > 500 else result.stdout
             return f"Script {script_name} termine (exit={result.returncode}). {output}"
         except subprocess.TimeoutExpired:
@@ -164,6 +175,34 @@ async def _execute_pipeline(action: str, params: dict[str, str]) -> str:
             results.append(result)
 
     return " | ".join(results) if results else "Pipeline execute"
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TRADING SCRIPT POST-PROCESSING
+# ═══════════════════════════════════════════════════════════════════════════
+
+_TRADING_SCRIPTS = {"scan_sniper", "mexc_scanner"}
+
+
+def _postprocess_trading_script(script_name: str, stdout: str) -> str | None:
+    """Parse JSON output from trading scripts, format for chat, send Telegram.
+
+    Returns formatted chat string, or None to fall back to default truncation.
+    """
+    if script_name not in _TRADING_SCRIPTS:
+        return None
+    data = parse_sniper_json(stdout)
+    if not data or not data.get("signals"):
+        return None
+    # Send Telegram notification (fire-and-forget, don't block on failure)
+    try:
+        from src.trading import send_telegram
+        tg_msg = format_telegram_signals(data)
+        send_telegram(tg_msg)
+    except Exception:
+        pass
+    # Return structured chat format
+    return format_chat_signals(data)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
