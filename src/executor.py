@@ -197,10 +197,14 @@ def _postprocess_trading_script(script_name: str, stdout: str) -> str | None:
     # Send Telegram notification (fire-and-forget, don't block on failure)
     try:
         from src.trading import send_telegram
+        import logging
         tg_msg = format_telegram_signals(data)
-        send_telegram(tg_msg)
-    except Exception:
-        pass
+        ok = send_telegram(tg_msg)
+        logging.getLogger("jarvis.executor").info(
+            "Telegram sniper: %s (%d signals)", "sent" if ok else "failed", len(data.get("signals", []))
+        )
+    except Exception as e:
+        logging.getLogger("jarvis.executor").warning("Telegram sniper error: %s", e)
     # Return structured chat format
     return format_chat_signals(data)
 
