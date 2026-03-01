@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useVoice } from '../hooks/useVoice';
 import { useWebSocket } from '../hooks/useWebSocket';
 
@@ -144,13 +144,15 @@ export default function VoicePage() {
   const formatTime = (ts: number) =>
     new Date(ts).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-  // Audio level bars
-  const barCount = 7;
-  const bars = Array.from({ length: barCount }, (_, i) => {
-    const center = Math.abs(i - Math.floor(barCount / 2));
-    const base = recording ? audioLevel * (1 - center * 0.15) : 0;
-    return Math.max(4, base * 36 + Math.random() * (recording ? 6 : 0));
-  });
+  // Stable random offsets for audio bars (no Math.random in render)
+  const barOffsets = useRef(Array.from({ length: 7 }, () => Math.random())).current;
+  const bars = useMemo(() => {
+    return barOffsets.map((offset, i) => {
+      const center = Math.abs(i - 3);
+      const base = recording ? audioLevel * (1 - center * 0.15) : 0;
+      return Math.max(4, base * 36 + offset * (recording ? 6 : 0));
+    });
+  }, [recording, audioLevel, barOffsets]);
 
   return (
     <>
