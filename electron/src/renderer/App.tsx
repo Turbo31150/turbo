@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useRef, Suspense, lazy } from 
 import { useWebSocket, WsMessage } from './hooks/useWebSocket';
 import Sidebar from './components/layout/Sidebar';
 import TopBar from './components/layout/TopBar';
+import ErrorBoundary from './components/ErrorBoundary';
+import { ClusterProvider } from './hooks/ClusterContext';
 import type { Page } from './lib/types';
 
 interface Toast {
@@ -148,20 +150,22 @@ export default function App() {
   const CurrentPageComponent = PAGE_COMPONENTS[currentPage];
 
   return (
-    <>
+    <ClusterProvider>
       <style>{CSS}</style>
       <div style={{ display: 'flex', width: '100vw', height: '100vh', backgroundColor: '#0a0e14', overflow: 'hidden', fontFamily: 'Consolas, "Courier New", monospace' }}>
         <Sidebar currentPage={currentPage} onPageChange={setCurrentPage} />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
           <TopBar connected={connected} currentPage={currentPage} onDetach={handleDetach} />
           <main style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
-            <Suspense fallback={
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#6b7280', fontSize: 13, fontFamily: 'inherit' }}>
-                Chargement...
-              </div>
-            }>
-              <CurrentPageComponent />
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#6b7280', fontSize: 13, fontFamily: 'inherit' }}>
+                  Chargement...
+                </div>
+              }>
+                <CurrentPageComponent />
+              </Suspense>
+            </ErrorBoundary>
           </main>
         </div>
 
@@ -187,6 +191,6 @@ export default function App() {
           </div>
         )}
       </div>
-    </>
+    </ClusterProvider>
   );
 }

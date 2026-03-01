@@ -236,9 +236,9 @@ export default function TradingPage() {
 
         {/* Confirm Modal */}
         {confirm && (
-          <div style={S.modal} onClick={() => setConfirm(null)}>
+          <div style={S.modal} onClick={() => setConfirm(null)} role="dialog" aria-modal="true" aria-labelledby="confirm-title">
             <div style={S.modalBox} onClick={e => e.stopPropagation()}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#e0e0e0', marginBottom: 16 }}>Confirmer execution</div>
+              <div id="confirm-title" style={{ fontSize: 16, fontWeight: 700, color: '#e0e0e0', marginBottom: 16 }}>Confirmer execution</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13, color: '#c0c0c0', marginBottom: 20 }}>
                 <div>Paire: <strong style={{ color: '#e0e0e0' }}>{confirm.pair}</strong></div>
                 <div>Direction: <strong style={confirm.direction === 'long' ? S.long : S.short}>{confirm.direction.toUpperCase()}</strong></div>
