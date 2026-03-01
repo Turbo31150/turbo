@@ -425,3 +425,130 @@ Auto-tune: latence > 3000ms → bascule noeud suivant
 - LONG = vert (#10b981), SHORT = rouge (#ef4444)
 - Header: coin + direction + score + R:R
 - Body: Entry/TP/SL, RSI, ADX, MACD, strategies, raisons
+
+---
+
+## SKILLS DE DEVELOPPEMENT JARVIS (mode autonome)
+
+### Skill 1 — Audit & Monitoring Continu
+**Declencheur**: automatique toutes les 30min en cowork
+- Health check cluster via MCP jarvis-turbo: `lm_cluster_status`
+- GPU temperatures: `lm_gpu_stats`
+- Verifier que tous les noeuds repondent (M1/M2/M3/OL1)
+- Si un noeud est down → notifier via `notify` ou Telegram
+- Lire les logs WS: `F:\BUREAU\turbo\python_ws\logs\`
+
+### Skill 2 — Scan Trading Automatique
+**Declencheur**: toutes les 15min en heures de marche (00h-23h UTC)
+- Lancer scan sniper via MCP trading-ai-ultimate
+- Analyser les signaux score >= 80
+- Formatter et envoyer sur Telegram les meilleurs signaux
+- Archiver dans sniper.db
+
+### Skill 3 — Analyse Code & Suggestions
+**Declencheur**: sur demande ou apres chaque commit
+- Lire les fichiers modifies recemment via MCP filesystem
+- Analyser la qualite du code (complexite, duplication, patterns)
+- Proposer des ameliorations (refactoring, optimisation, securite)
+- Comparer avec les conventions du projet (Python 3.13, TypeScript, React 19)
+
+### Skill 4 — Documentation & Cartographie
+**Declencheur**: sur demande
+- Mettre a jour la cartographie dans etoile.db (table `map`)
+- Verifier que toutes les commandes vocales sont documentees
+- Synchroniser les skills entre skills.py et etoile.db
+- Generer des rapports de couverture (commandes, tests, skills)
+
+### Skill 5 — Tests & Validation
+**Declencheur**: apres modifications de code
+- Lancer les tests via MCP: `run_script` avec les scripts de test
+- Verifier les scenarios vocaux (jarvis.db table `scenarios`)
+- Valider les pipelines (table `pipeline_tests`)
+- Reporter les resultats avec score de regression
+
+### Skill 6 — Optimisation Cluster
+**Declencheur**: quand latence > 3s ou score < 80
+- Analyser les metriques de performance (etoile.db `metrics`, `benchmark_results`)
+- Proposer des swaps de modeles (load/unload via `lm_load_model`/`lm_unload_model`)
+- Ajuster les poids de routage dans `scenario_weights`
+- Benchmark comparatif avant/apres
+
+### Skill 7 — Trading Intelligence
+**Declencheur**: continu en cowork
+- Analyser les resultats historiques dans sniper.db
+- Calculer le winrate par strategie, par coin, par timeframe
+- Identifier les patterns gagnants/perdants
+- Proposer des ajustements de parametres (TP/SL/Score min)
+- Backtester les nouvelles strategies via le cluster IA
+
+### Skill 8 — Maintenance Base de Donnees
+**Declencheur**: quotidien
+- VACUUM des 4 databases si > 24h depuis dernier
+- Verifier l'integrite (PRAGMA integrity_check)
+- Nettoyer les logs anciens (> 7 jours dans domino_logs, skills_log)
+- Backup automatique vers data/backups/
+- Reporter les statistiques de croissance
+
+---
+
+## TACHES COWORK PRIORITAIRES — Developpement JARVIS v10.4
+
+### P1 — Consensus Multi-IA sur Scan Sniper (EN COURS)
+- Integrer le dispatch multi-agents (M1+gpt-oss+devstral+M2+GEMINI+OL1) apres chaque scan
+- Chaque agent analyse les signaux et vote LONG/SHORT/SKIP
+- Vote pondere → score consensus → filtrage final
+- Afficher le consensus dans le chat Electron (nouveau renderer)
+- Envoyer le resume consensus sur Telegram
+
+### P2 — Dashboard Trading Temps Reel
+- Connecter le dashboard (port 8080) au WS backend (port 9742)
+- Afficher les signaux en direct avec graphiques
+- Historique des trades avec P&L
+- Metriques de performance par strategie
+
+### P3 — Pipeline Vocal Ameliore
+- Ajouter des commandes contextuelles ("quel est le dernier signal?", "performance du jour?")
+- Ameliorer la correction phonetique (voice_corrections: 2628 entries)
+- Reduire la latence IA (objectif <1s pour 90% des commandes)
+
+### P4 — Auto-Learning & Fine-Tuning
+- Completer le fine-tuning Qwen3-8B avec les 17,152 examples
+- Integrer le modele fine-tune comme agent supplementaire
+- Canvas autolearn: ameliorer le scoring et le routing dynamique
+
+### P5 — Securite & Hardening
+- Score securite actuel: 45/100 — objectif 75/100
+- Masquer toutes les API keys restantes
+- Ajouter rate limiting sur les endpoints WS
+- Audit des permissions fichiers et reseau
+
+### P6 — Tests Automatises
+- Couvrir 80% des commandes vocales avec des tests automatiques
+- Tests de regression pour le pipeline trading
+- Tests d'integration WS backend ↔ Electron frontend
+- CI/CD GitHub Actions
+
+---
+
+## INSTRUCTIONS AUTONOMES COWORK
+
+Quand tu es en mode cowork autonome:
+1. **Lis ce fichier** au debut de chaque session pour charger le contexte
+2. **Health check** le cluster en premier (MCP jarvis-turbo → lm_cluster_status)
+3. **Scan trading** si le marche est ouvert (MCP trading-ai-ultimate)
+4. **Analyse les fichiers modifies** recemment (MCP filesystem → lire git log)
+5. **Propose des ameliorations** basees sur l'analyse du code
+6. **Notifie Franc** sur Telegram pour les alertes trading ou les problemes cluster
+7. **Ne modifie JAMAIS le code** directement — c'est le role de Claude Code
+8. **Documente** tes analyses dans des fichiers F:\BUREAU\turbo\data\cowork_reports\
+
+### Workflow type cowork
+```
+1. Lire CLAUDE_DESKTOP_COWORK.md (contexte)
+2. lm_cluster_status → verifier tous les noeuds
+3. lm_gpu_stats → temperatures OK?
+4. Si marche ouvert → scan trading → analyser → Telegram
+5. Lire derniers fichiers modifies → analyser qualite
+6. Proposer des taches pour Claude Code
+7. Mettre a jour les metriques dans etoile.db
+```
