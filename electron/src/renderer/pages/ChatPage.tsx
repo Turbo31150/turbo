@@ -32,7 +32,7 @@ const S = {
 };
 
 export default function ChatPage() {
-  const { messages, loading, sendMessage, clearConversation } = useChat();
+  const { messages, loading, sendMessage, clearConversation, exportConversation } = useChat();
   const [input, setInput] = useState('');
   const [focused, setFocused] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -143,11 +143,19 @@ export default function ChatPage() {
               Consensus
             </button>
             {messages.length > 0 && (
-              <button style={S.clearBtn} onClick={clearConversation}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = '#1a2a3a'; e.currentTarget.style.color = '#6b7280'; }}>
-                Effacer
-              </button>
+              <>
+                <button style={{ ...S.clearBtn, color: '#3b82f6', borderColor: '#1a2a3a' }}
+                  onClick={exportConversation}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = '#3b82f6'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = '#1a2a3a'; }}>
+                  Export
+                </button>
+                <button style={S.clearBtn} onClick={clearConversation}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = '#1a2a3a'; e.currentTarget.style.color = '#6b7280'; }}>
+                  Effacer
+                </button>
+              </>
             )}
           </div>
 
@@ -172,7 +180,11 @@ export default function ChatPage() {
 
           <div style={{ ...S.hint, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <AgentSelector compact />
-            <span>Ctrl+Enter pour envoyer</span>
+            <span style={{ display: 'flex', gap: 12 }}>
+              {input.length > 0 && <span style={{ color: '#4b5563' }}>~{Math.ceil(input.length / 4)} tokens</span>}
+              {messages.length > 0 && <span style={{ color: '#4b5563' }}>{messages.length} msgs</span>}
+              <span>Ctrl+Enter pour envoyer</span>
+            </span>
           </div>
         </div>
       </div>

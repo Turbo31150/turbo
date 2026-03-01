@@ -1,5 +1,6 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useTrading, TradingSignal } from '../hooks/useTrading';
+import { useWebSocket, WsMessage } from '../hooks/useWebSocket';
 
 const CSS = `
 @keyframes tFadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
@@ -38,12 +39,29 @@ const S = {
   modalBox: { backgroundColor: '#0d1117', border: '1px solid #1a2a3a', borderRadius: 12, padding: 24, width: 380, fontFamily: 'inherit' } as React.CSSProperties,
 };
 
+interface AlertItem { id: number; text: string; ts: number; type: 'signal' | 'exec' | 'close' | 'info' }
+
 export default function TradingPage() {
   const { signals, positions, pnl, loading, executeSignal, closePosition, refreshTrading } = useTrading();
   const [confirm, setConfirm] = useState<TradingSignal | null>(null);
+  const [alerts, setAlerts] = useState<AlertItem[]>([]);
+  const { subscribe } = useWebSocket();
+  const alertIdRef = useRef(0);
 
   const activePositions = useMemo(() => positions.filter(p => p.status === 'open'), [positions]);
   const pendingSignals = useMemo(() => signals.filter(s => s.status === 'pending'), [signals]);
+
+  useEffect(() => {
+    const unsub = subscribe('trading', (msg: WsMessage) => {
+      const text = msg.event || msg.action || JSON.stringify(msg.payload || {}).slice(0, 100);
+      const type = msg.event?.includes('signal') ? 'signal' as const
+        : msg.event?.includes('exec') ? 'exec' as const
+        : msg.event?.includes('close') ? 'close' as const
+        : 'info' as const;
+      setAlerts(prev => [{ id: ++alertIdRef.current, text, ts: Date.now(), type }, ...prev].slice(0, 30));
+    });
+    return unsub;
+  }, [subscribe]);
 
   const handleExec = useCallback(async () => {
     if (!confirm) return;
@@ -166,6 +184,27 @@ export default function TradingPage() {
             </table>
           )}
         </div>
+
+        {/* Alerts Feed */}
+        {alerts.length > 0 && (
+          <div style={S.section}>
+            <div style={S.secTitle}>Alertes Live ({alerts.length})</div>
+            <div style={{ maxHeight: 160, overflowY: 'auto', backgroundColor: '#0a0e14', borderRadius: 8, border: '1px solid #1a2a3a', padding: 8 }}>
+              {alerts.map(a => (
+                <div key={a.id} style={{ display: 'flex', gap: 8, padding: '4px 8px', fontSize: 11, color: '#c0c0c0', borderBottom: '1px solid rgba(26,42,58,.3)' }}>
+                  <span style={{ fontSize: 10, color: '#4b5563', minWidth: 60, fontVariantNumeric: 'tabular-nums' }}>
+                    {new Date(a.ts).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                  </span>
+                  <span style={{
+                    fontSize: 9, fontWeight: 700, minWidth: 50, textTransform: 'uppercase', letterSpacing: 0.5,
+                    color: a.type === 'signal' ? '#c084fc' : a.type === 'exec' ? '#10b981' : a.type === 'close' ? '#ef4444' : '#6b7280',
+                  }}>{a.type}</span>
+                  <span>{a.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Confirm Modal */}
         {confirm && (

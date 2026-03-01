@@ -40,7 +40,7 @@ export function createMainWindow(): BrowserWindow {
   });
 
   if (isDev) {
-    mainWindow.loadURL('http://localhost:5173');
+    mainWindow.loadURL('http://127.0.0.1:5173');
     mainWindow.webContents.openDevTools({ mode: 'detach' });
   } else {
     mainWindow.loadURL('http://127.0.0.1:18800/');
@@ -105,7 +105,7 @@ export function createWidgetWindow(
   });
 
   if (isDev) {
-    widget.loadURL(`http://localhost:5173/src/widget-windows/widget.html?type=${type}`);
+    widget.loadURL(`http://127.0.0.1:5173/src/widget-windows/widget.html?type=${type}`);
   } else {
     widget.loadFile(path.join(__dirname, '..', '..', 'dist', 'src', 'widget-windows', 'widget.html'), {
       query: { type },

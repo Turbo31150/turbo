@@ -493,6 +493,27 @@ Auto-tune: latence > 3000ms → bascule noeud suivant
 
 ## TACHES COWORK PRIORITAIRES — Developpement JARVIS v10.4
 
+### BUGS CORRIGES (2026-03-02, Claude Code)
+- **FIX**: window-manager.ts — `localhost` → `127.0.0.1` (ERR_CONNECTION_REFUSED IPv6)
+- **FIX**: ws-client.ts — `startHeartbeat()`/`stopHeartbeat()` manquantes (ping JSON 25s)
+- **STATUS**: App lancee OK (Vite 5173 + Electron + Python WS 9742)
+
+### P0 — Refonte DashboardPage (NOUVEAU — PRIORITE HAUTE)
+**Probleme**: DashboardPage est un duplicat de ChatPage. Doit devenir un vrai tableau de bord systeme.
+- [ ] Cartes cluster temps reel: M1/M2/M3/OL1/GEMINI/CLAUDE (ping WS `cluster_status`)
+- [ ] GPU temperatures + VRAM (via WS `gpu_stats`)
+- [ ] Metriques systeme: CPU, RAM, disques C:/F: (via WS `system_info`)
+- [ ] Activite recente: derniers messages chat, derniers scans, derniers dominos
+- [ ] Graphiques Recharts: latence cluster, score benchmarks, volume trading
+- [ ] Quick actions: scan sniper, health check, audit, backup
+- **ROLE Claude Desktop**: Surveiller les metriques en continu, reporter les anomalies
+- **ROLE Claude Code**: Implementer les composants React, connecter au WS backend
+
+### P0.5 — SettingsPage Persistance (NOUVEAU)
+- [ ] Bouton "Sauvegarder" qui envoie la config au backend via WS `save_config`
+- [ ] Backend: handler `save_config` → ecriture config.json ou etoile.db
+- [ ] Feedback visuel: toast "Configuration sauvegardee"
+
 ### P1 — Consensus Multi-IA sur Scan Sniper (EN COURS)
 - Integrer le dispatch multi-agents (M1+gpt-oss+devstral+M2+GEMINI+OL1) apres chaque scan
 - Chaque agent analyse les signaux et vote LONG/SHORT/SKIP
@@ -501,8 +522,8 @@ Auto-tune: latence > 3000ms → bascule noeud suivant
 - Envoyer le resume consensus sur Telegram
 
 ### P2 — Dashboard Trading Temps Reel
-- Connecter le dashboard (port 8080) au WS backend (port 9742)
-- Afficher les signaux en direct avec graphiques
+- Connecter la TradingPage au WS backend (port 9742) pour signaux live
+- Afficher les signaux en direct avec graphiques Recharts
 - Historique des trades avec P&L
 - Metriques de performance par strategie
 
@@ -527,6 +548,12 @@ Auto-tune: latence > 3000ms → bascule noeud suivant
 - Tests de regression pour le pipeline trading
 - Tests d'integration WS backend ↔ Electron frontend
 - CI/CD GitHub Actions
+
+### P7 — LMStudioPage Live (NOUVEAU)
+- [ ] Afficher les modeles charges en temps reel (2x qwen3-8b + qwen3-30b TTL)
+- [ ] Boutons load/unload modele via WS → `lm_load_model`/`lm_unload_model`
+- [ ] VRAM par GPU en temps reel
+- [ ] Latence par modele (graphique historique)
 
 ---
 

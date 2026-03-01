@@ -7,6 +7,9 @@ const CSS = `
 .s-toggle.on{background:#10b981}.s-toggle.on::after{transform:translateX(16px)}
 .s-toggle.off{background:#2a3a4a}
 .s-section:hover{border-color:rgba(249,115,22,.2)!important}
+.s-save{transition:all .2s;cursor:pointer}.s-save:hover{background:#f97316!important;color:#0a0e14!important;transform:translateY(-1px);box-shadow:0 4px 12px rgba(249,115,22,.3)}
+.s-save:active{transform:translateY(0)}
+@keyframes s-toast-in{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 `;
 
 interface Config {
@@ -54,22 +57,79 @@ function Toggle({ on, onChange }: { on: boolean; onChange: () => void }) {
   return <button className={`s-toggle ${on ? 'on' : 'off'}`} onClick={onChange} />;
 }
 
+interface SystemAbout {
+  os: string; os_version: string; hostname: string; python: string;
+  cpu_count: number; memory: { total_gb: number }; disks: Record<string, { total_gb: number; free_gb: number }>;
+}
+
 export default function SettingsPage() {
   const [cfg, setCfg] = useState<Config>(DEFAULT_CONFIG);
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+  const [dirty, setDirty] = useState(false);
+  const [about, setAbout] = useState<SystemAbout | null>(null);
   const { connected, request } = useWebSocket();
 
   useEffect(() => {
     if (!connected) return;
-    request('config', 'get_config').then(r => {
-      if (r.payload) setCfg(prev => ({ ...prev, ...r.payload }));
+    request('system', 'get_config').then(r => {
+      if (r.payload?.config) setCfg(prev => ({ ...prev, ...r.payload.config }));
+    }).catch(() => {});
+    request('system', 'system_info').then(r => {
+      if (r.payload) setAbout(r.payload as SystemAbout);
     }).catch(() => {});
   }, [connected, request]);
+
+  const updateCfg = (updater: (prev: Config) => Config) => {
+    setCfg(prev => updater(prev));
+    setDirty(true);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const res = await request('system', 'save_config', { config: cfg });
+      if (res.payload?.saved) {
+        setToast({ msg: 'Configuration sauvegardee', ok: true });
+        setDirty(false);
+      } else {
+        setToast({ msg: res.payload?.error || 'Erreur sauvegarde', ok: false });
+      }
+    } catch {
+      setToast({ msg: 'Erreur connexion', ok: false });
+    }
+    setSaving(false);
+    setTimeout(() => setToast(null), 3000);
+  };
 
   return (
     <>
       <style>{CSS}</style>
       <div style={S.page}>
-        <div style={S.title}>Configuration</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+          <div style={S.title}>Configuration</div>
+          <div style={{ flex: 1 }} />
+          {dirty && <span style={{ fontSize: 10, color: '#f97316', fontFamily: 'Consolas, monospace' }}>Modifications non sauvegardees</span>}
+          <button className="s-save" onClick={handleSave} disabled={saving || !connected} style={{
+            padding: '8px 24px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+            fontFamily: 'Consolas, monospace', letterSpacing: 1,
+            backgroundColor: dirty ? '#f97316' : 'rgba(249,115,22,.15)',
+            color: dirty ? '#0a0e14' : '#f97316',
+            border: '1px solid rgba(249,115,22,.3)',
+            opacity: saving ? 0.6 : 1,
+          }}>
+            {saving ? 'SAVING...' : 'SAVE'}
+          </button>
+        </div>
+        {toast && (
+          <div style={{
+            padding: '8px 16px', borderRadius: 8, fontSize: 12, marginBottom: 12,
+            fontFamily: 'Consolas, monospace', animation: 's-toast-in .3s ease',
+            backgroundColor: toast.ok ? 'rgba(16,185,129,.1)' : 'rgba(239,68,68,.1)',
+            border: `1px solid ${toast.ok ? 'rgba(16,185,129,.3)' : 'rgba(239,68,68,.3)'}`,
+            color: toast.ok ? '#10b981' : '#ef4444',
+          }}>{toast.msg}</div>
+        )}
         <div style={S.grid}>
 
           {/* Cluster */}
@@ -84,7 +144,7 @@ export default function SettingsPage() {
                 </div>
                 <span style={S.nodeWeight}>{n.weight}x</span>
                 <Toggle on={n.enabled} onChange={() => {
-                  setCfg(p => ({
+                  updateCfg(p => ({
                     ...p, cluster: { ...p.cluster, nodes: p.cluster.nodes.map(nn => nn.id === n.id ? { ...nn, enabled: !nn.enabled } : nn) }
                   }));
                 }} />
@@ -113,7 +173,7 @@ export default function SettingsPage() {
             </div>
             <div style={S.row}>
               <span style={S.label}>Mode Dry Run</span>
-              <Toggle on={cfg.trading.dry_run} onChange={() => setCfg(p => ({ ...p, trading: { ...p.trading, dry_run: !p.trading.dry_run } }))} />
+              <Toggle on={cfg.trading.dry_run} onChange={() => updateCfg(p => ({ ...p, trading: { ...p.trading, dry_run: !p.trading.dry_run } }))} />
             </div>
             <div style={{ marginTop: 10 }}>
               <div style={S.muted}>PAIRES</div>
@@ -157,11 +217,66 @@ export default function SettingsPage() {
             </div>
             <div style={S.row}>
               <span style={S.label}>Auto-start</span>
-              <Toggle on={cfg.general.auto_start} onChange={() => setCfg(p => ({ ...p, general: { ...p.general, auto_start: !p.general.auto_start } }))} />
+              <Toggle on={cfg.general.auto_start} onChange={() => updateCfg(p => ({ ...p, general: { ...p.general, auto_start: !p.general.auto_start } }))} />
             </div>
             <div style={S.row}>
               <span style={S.label}>Notifications</span>
-              <Toggle on={cfg.general.notifications} onChange={() => setCfg(p => ({ ...p, general: { ...p.general, notifications: !p.general.notifications } }))} />
+              <Toggle on={cfg.general.notifications} onChange={() => updateCfg(p => ({ ...p, general: { ...p.general, notifications: !p.general.notifications } }))} />
+            </div>
+          </div>
+
+          {/* About */}
+          <div className="s-section" style={S.section}>
+            <div style={S.secTitle}><span style={S.secIcon}>{'\u2139\uFE0F'}</span> About</div>
+            <div style={S.row}>
+              <span style={S.label}>Application</span>
+              <span style={{ ...S.value, color: '#f97316' }}>JARVIS Desktop v1.0</span>
+            </div>
+            <div style={S.row}>
+              <span style={S.label}>Stack</span>
+              <span style={S.value}>Electron 33 + React 19 + Vite 6</span>
+            </div>
+            {about && (
+              <>
+                <div style={S.row}>
+                  <span style={S.label}>OS</span>
+                  <span style={S.value}>{about.os} {about.os_version}</span>
+                </div>
+                <div style={S.row}>
+                  <span style={S.label}>Hostname</span>
+                  <span style={S.value}>{about.hostname}</span>
+                </div>
+                <div style={S.row}>
+                  <span style={S.label}>Python</span>
+                  <span style={S.value}>{about.python}</span>
+                </div>
+                <div style={S.row}>
+                  <span style={S.label}>CPU Cores</span>
+                  <span style={S.value}>{about.cpu_count}</span>
+                </div>
+                <div style={S.row}>
+                  <span style={S.label}>RAM</span>
+                  <span style={S.value}>{about.memory?.total_gb} GB</span>
+                </div>
+                {about.disks && Object.entries(about.disks).map(([d, info]) => (
+                  <div key={d} style={S.row}>
+                    <span style={S.label}>{d}</span>
+                    <span style={S.value}>{(info as any).free_gb?.toFixed(0)} GB free / {(info as any).total_gb?.toFixed(0)} GB</span>
+                  </div>
+                ))}
+              </>
+            )}
+            <div style={S.row}>
+              <span style={S.label}>Backend</span>
+              <span style={{ ...S.value, color: connected ? '#10b981' : '#ef4444' }}>{connected ? 'ws://127.0.0.1:9742 OK' : 'Deconnecte'}</span>
+            </div>
+            <div style={{ marginTop: 10 }}>
+              <div style={S.muted}>RACCOURCIS CLAVIER</div>
+              <div style={{ marginTop: 6, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                {['Ctrl+1 Dashboard', 'Ctrl+2 Chat', 'Ctrl+3 AI Cluster', 'Ctrl+4 Voice', 'Ctrl+5 Dictionary', 'Ctrl+6 Pipelines', 'Ctrl+7 Toolbox', 'Ctrl+8 Trading', 'Ctrl+9 Logs', 'Ctrl+0 Settings'].map(k => (
+                  <span key={k} style={S.tag}>{k}</span>
+                ))}
+              </div>
             </div>
           </div>
         </div>

@@ -27,11 +27,28 @@ interface ChatState {
   loading: boolean;
 }
 
+const STORAGE_KEY = 'jarvis_chat_history';
+const MAX_STORED = 200;
+
+function loadHistory(): ChatMessage[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw).slice(-MAX_STORED);
+  } catch { /* ignore */ }
+  return [];
+}
+
+function saveHistory(messages: ChatMessage[]) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-MAX_STORED)));
+  } catch { /* ignore */ }
+}
+
 export function useChat() {
-  const [state, setState] = useState<ChatState>({
-    messages: [],
+  const [state, setState] = useState<ChatState>(() => ({
+    messages: loadHistory(),
     loading: false,
-  });
+  }));
   const { connected, request, subscribe } = useWebSocket();
   const messageIdCounter = useRef(0);
 
@@ -192,9 +209,32 @@ export function useChat() {
     }
   }, [connected, request]);
 
+  // Persist to localStorage on message change
+  useEffect(() => {
+    if (state.messages.length > 0) saveHistory(state.messages);
+  }, [state.messages]);
+
+  // Export conversation as markdown
+  const exportConversation = useCallback(() => {
+    const lines = state.messages.map(m => {
+      const ts = new Date(m.timestamp).toLocaleString('fr-FR');
+      const tag = m.nodeTag ? ` [${m.nodeTag}]` : '';
+      return `### ${m.role.toUpperCase()}${tag} — ${ts}\n\n${m.content}\n`;
+    });
+    const md = `# JARVIS Chat Export — ${new Date().toLocaleString('fr-FR')}\n\n${lines.join('\n---\n\n')}`;
+    const blob = new Blob([md], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `jarvis_chat_${Date.now()}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [state.messages]);
+
   // Clear conversation
   const clearConversation = useCallback(async () => {
     setState({ messages: [], loading: false });
+    localStorage.removeItem(STORAGE_KEY);
     if (connected) {
       try {
         await request('chat', 'clear_conversation', { conversation_id: 'default' });
@@ -209,5 +249,6 @@ export function useChat() {
     loading: state.loading,
     sendMessage,
     clearConversation,
+    exportConversation,
   };
 }

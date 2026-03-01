@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import os
 import platform
 import shutil
 import subprocess
 import time
+from pathlib import Path
 from typing import Any
 
 from python_ws.bridge import get_config
@@ -43,8 +45,17 @@ async def handle_system_request(action: str, payload: dict | None) -> dict[str, 
     if action == "config":
         return _sanitized_config()
 
+    if action == "save_config":
+        return await _save_config(payload)
+
+    if action == "get_config":
+        return _load_desktop_config()
+
     if action == "execute_command":
         return await _execute_command(payload)
+
+    if action == "ping":
+        return {"pong": True}
 
     if action == "execute_domino":
         return await _execute_domino(payload)
@@ -440,5 +451,37 @@ async def _domino_logs(payload: dict) -> dict[str, Any]:
             ],
             "total": len(rows),
         }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# ── Desktop config persistence ────────────────────────────────────────────
+
+_DESKTOP_CONFIG_PATH = Path("F:/BUREAU/turbo/data/desktop_config.json")
+
+
+async def _save_config(payload: dict) -> dict[str, Any]:
+    """Save desktop UI config to JSON file."""
+    config_data = payload.get("config", payload)
+    try:
+        _DESKTOP_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        _DESKTOP_CONFIG_PATH.write_text(
+            json.dumps(config_data, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        logger.info("Desktop config saved to %s", _DESKTOP_CONFIG_PATH)
+        return {"saved": True, "path": str(_DESKTOP_CONFIG_PATH)}
+    except Exception as e:
+        logger.error("Failed to save config: %s", e)
+        return {"error": str(e)}
+
+
+def _load_desktop_config() -> dict[str, Any]:
+    """Load desktop UI config from JSON file."""
+    try:
+        if _DESKTOP_CONFIG_PATH.exists():
+            data = json.loads(_DESKTOP_CONFIG_PATH.read_text(encoding="utf-8"))
+            return {"config": data}
+        return {"config": None, "message": "No saved config found"}
     except Exception as e:
         return {"error": str(e)}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { useCluster } from '../../hooks/useCluster';
 
-type Page = 'dashboard' | 'chat' | 'trading' | 'voice' | 'lmstudio' | 'settings' | 'dictionary' | 'pipelines' | 'toolbox';
+type Page = 'dashboard' | 'chat' | 'trading' | 'voice' | 'lmstudio' | 'settings' | 'dictionary' | 'pipelines' | 'toolbox' | 'logs';
 
 interface SidebarProps {
   currentPage: Page;
@@ -11,6 +12,7 @@ interface NavItem {
   id: Page;
   label: string;
   icon: React.ReactNode;
+  badge?: () => React.ReactNode;
 }
 
 interface NavGroup {
@@ -66,6 +68,12 @@ const ChartIcon = () => (
     <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
   </svg>
 );
+const LogsIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" />
+  </svg>
+);
 const GearIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <circle cx="12" cy="12" r="3" />
@@ -110,6 +118,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: 'Systeme',
     items: [
       { id: 'trading', label: 'Trading', icon: <ChartIcon /> },
+      { id: 'logs', label: 'Logs', icon: <LogsIcon /> },
       { id: 'settings', label: 'Settings', icon: <GearIcon /> },
     ],
   },
@@ -123,12 +132,39 @@ const CSS = `
 .sb-btn{transition:all .15s ease}
 .sb-btn:hover{background:rgba(249,115,22,.06)!important;color:#e0e0e0!important}
 .sb-toggle:hover{color:#e0e0e0!important}
+@keyframes sb-pulse{0%,100%{opacity:1}50%{opacity:.6}}
 `;
+
+function Badge({ count, color }: { count: number; color: string }) {
+  if (count <= 0) return null;
+  return (
+    <span style={{
+      minWidth: 18, height: 18, borderRadius: 9, fontSize: 9, fontWeight: 700,
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      backgroundColor: `${color}22`, color, border: `1px solid ${color}44`,
+      padding: '0 4px', marginLeft: 'auto', flexShrink: 0,
+    }}>{count}</span>
+  );
+}
+
+function StatusDot({ online }: { online: boolean }) {
+  return (
+    <span style={{
+      width: 6, height: 6, borderRadius: '50%', flexShrink: 0, marginLeft: 'auto',
+      backgroundColor: online ? '#10b981' : '#ef4444',
+      boxShadow: online ? '0 0 6px rgba(16,185,129,.5)' : 'none',
+      animation: online ? 'sb-pulse 2s ease infinite' : 'none',
+    }} />
+  );
+}
 
 export default function Sidebar({ currentPage, onPageChange }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<Page | null>(null);
+  const { nodes } = useCluster();
   const width = collapsed ? 52 : 180;
+  const onlineCount = nodes.filter(n => n.status === 'online').length;
+  const modelsLoaded = nodes.reduce((sum, n) => sum + n.models.filter(m => m.loaded).length, 0);
 
   return (
     <>
@@ -189,6 +225,15 @@ export default function Sidebar({ currentPage, onPageChange }: SidebarProps) {
                   >
                     <span style={{ flexShrink: 0, display: 'flex' }}>{item.icon}</span>
                     {!collapsed && <span>{item.label}</span>}
+                    {!collapsed && item.id === 'lmstudio' && <Badge count={onlineCount} color="#10b981" />}
+                    {!collapsed && item.id === 'dashboard' && modelsLoaded > 0 && <Badge count={modelsLoaded} color="#c084fc" />}
+                    {collapsed && item.id === 'lmstudio' && onlineCount > 0 && (
+                      <span style={{
+                        position: 'absolute', top: 4, right: 6, width: 8, height: 8,
+                        borderRadius: '50%', backgroundColor: '#10b981',
+                        border: '2px solid #0d1117',
+                      }} />
+                    )}
                     {collapsed && isHovered && (
                       <span style={{
                         position: 'absolute', left: 56, top: '50%', transform: 'translateY(-50%)',

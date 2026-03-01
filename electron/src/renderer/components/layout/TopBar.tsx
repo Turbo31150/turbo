@@ -1,11 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useWebSocket } from '../../hooks/useWebSocket';
+import { useCluster } from '../../hooks/useCluster';
 
-type Page = 'dashboard' | 'chat' | 'trading' | 'voice' | 'lmstudio' | 'settings' | 'dictionary' | 'pipelines' | 'toolbox';
+type Page = 'dashboard' | 'chat' | 'trading' | 'voice' | 'lmstudio' | 'settings' | 'dictionary' | 'pipelines' | 'toolbox' | 'logs';
 
 interface TopBarProps {
   connected: boolean;
   currentPage: Page;
   onDetach?: () => void;
+}
+
+interface SystemMetrics {
+  cpu_percent: number;
+  memory: { percent: number; used_gb: number; total_gb: number };
 }
 
 const PAGE_LABELS: Record<Page, string> = {
@@ -18,6 +25,7 @@ const PAGE_LABELS: Record<Page, string> = {
   dictionary: 'DICTIONARY',
   pipelines: 'PIPELINES',
   toolbox: 'TOOLBOX',
+  logs: 'LOGS',
 };
 
 const CSS = `
@@ -68,8 +76,51 @@ const s = {
   } as React.CSSProperties,
 };
 
+function MetricChip({ label, value, unit, color }: { label: string; value: string; unit?: string; color: string }) {
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: 4,
+      padding: '2px 8px', borderRadius: 6, fontSize: 9, fontWeight: 600,
+      backgroundColor: `${color}11`, border: `1px solid ${color}33`,
+      color, fontFamily: 'Consolas, monospace', letterSpacing: 0.5,
+    } as React.CSSProperties}>
+      <span style={{ opacity: 0.7 }}>{label}</span>
+      <span>{value}{unit}</span>
+    </span>
+  );
+}
+
 export default function TopBar({ connected, currentPage, onDetach }: TopBarProps) {
   const [hovered, setHovered] = useState('');
+  const [clock, setClock] = useState('');
+  const [metrics, setMetrics] = useState<SystemMetrics | null>(null);
+  const { request } = useWebSocket();
+  const { nodes } = useCluster();
+  const intervalRef = useRef<number>(0);
+
+  const onlineCount = nodes.filter(n => n.status === 'online').length;
+
+  useEffect(() => {
+    const updateClock = () => {
+      const now = new Date();
+      setClock(now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
+    };
+    updateClock();
+    const t = window.setInterval(updateClock, 30000);
+    return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    if (!connected) return;
+    const fetchMetrics = () => {
+      request('system', 'system_info').then(r => {
+        if (r.payload) setMetrics(r.payload as SystemMetrics);
+      }).catch(() => {});
+    };
+    fetchMetrics();
+    intervalRef.current = window.setInterval(fetchMetrics, 15000);
+    return () => clearInterval(intervalRef.current);
+  }, [connected, request]);
 
   const detachable = ['dashboard', 'trading', 'voice'].includes(currentPage);
   const api = (window as any).electronAPI;
@@ -80,6 +131,24 @@ export default function TopBar({ connected, currentPage, onDetach }: TopBarProps
       <div style={s.bar}>
         <span style={s.brand}>JARVIS TURBO</span>
         <span style={s.page}>{PAGE_LABELS[currentPage]}</span>
+
+        {/* Live metrics */}
+        <div style={{ display: 'flex', gap: 6, marginLeft: 16, WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
+          {metrics && (
+            <>
+              <MetricChip label="CPU" value={`${Math.round(metrics.cpu_percent)}`} unit="%" color={metrics.cpu_percent > 80 ? '#ef4444' : metrics.cpu_percent > 50 ? '#f97316' : '#10b981'} />
+              <MetricChip label="RAM" value={`${Math.round(metrics.memory?.percent || 0)}`} unit="%" color={(metrics.memory?.percent || 0) > 85 ? '#ef4444' : '#3b82f6'} />
+            </>
+          )}
+          <MetricChip label="NODES" value={`${onlineCount}/${nodes.length || '?'}`} unit="" color={onlineCount > 0 ? '#10b981' : '#ef4444'} />
+          {clock && (
+            <span style={{
+              fontSize: 10, color: '#4b5563', fontFamily: 'Consolas, monospace',
+              fontWeight: 600, letterSpacing: 1, padding: '2px 6px',
+            } as React.CSSProperties}>{clock}</span>
+          )}
+        </div>
+
         <div style={s.spacer} />
 
         {detachable && onDetach && (
