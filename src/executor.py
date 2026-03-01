@@ -92,7 +92,10 @@ async def execute_command(cmd: JarvisCommand, params: dict[str, str]) -> str:
     if cmd.action_type == "script":
         import sys
         import shlex
-        parts = shlex.split(cmd.action)
+        action = cmd.action
+        for k, v in (params or {}).items():
+            action = action.replace(f"{{{k}}}", v)
+        parts = shlex.split(action)
         script_name = parts[0]
         script_args = parts[1:]
         script_path = SCRIPTS.get(script_name)
@@ -103,7 +106,7 @@ async def execute_command(cmd: JarvisCommand, params: dict[str, str]) -> str:
             result = await asyncio.to_thread(
                 subprocess.run,
                 [sys.executable, str(script_path)] + script_args,
-                capture_output=True, text=True, timeout=120,
+                capture_output=True, text=True, timeout=600,
                 cwd=str(script_path.parent),
             )
             # Trading scripts: keep full output for JSON parsing + Telegram
