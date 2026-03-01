@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 
-const BACKEND = 'http://127.0.0.1:9742';
+import { BACKEND_URL } from '../lib/config';
 
 interface DictEntry {
   id: number;
@@ -103,13 +103,19 @@ export default function DictionaryPage() {
   const [showForm, setShowForm] = useState(false);
   const [editEntry, setEditEntry] = useState<DictEntry | null>(null);
   const [form, setForm] = useState({ trigger_phrase: '', category: '', action_type: 'powershell', steps: '', agents_involved: '' });
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+
+  const showToast = (msg: string, ok: boolean) => {
+    setToast({ msg, ok });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
       const [dictResp, statsResp] = await Promise.all([
-        fetch(BACKEND + '/api/dictionary', { signal: AbortSignal.timeout(10000) }),
-        fetch(BACKEND + '/api/dictionary/stats', { signal: AbortSignal.timeout(5000) }),
+        fetch(BACKEND_URL + '/api/dictionary', { signal: AbortSignal.timeout(10000) }),
+        fetch(BACKEND_URL + '/api/dictionary/stats', { signal: AbortSignal.timeout(5000) }),
       ]);
       if (dictResp.ok) {
         const data = await dictResp.json();
@@ -158,9 +164,10 @@ export default function DictionaryPage() {
 
   const handleDelete = useCallback(async (id: number) => {
     try {
-      await fetch(BACKEND + `/api/dictionary/command/${id}`, { method: 'DELETE' });
-      fetchAll();
-    } catch { /* */ }
+      const r = await fetch(BACKEND_URL + `/api/dictionary/command/${id}`, { method: 'DELETE' });
+      if (r.ok) { showToast('Commande supprimee', true); fetchAll(); }
+      else showToast(`Erreur suppression (${r.status})`, false);
+    } catch { showToast('Erreur connexion', false); }
   }, [fetchAll]);
 
   const handleEdit = useCallback((entry: DictEntry) => {
@@ -172,21 +179,38 @@ export default function DictionaryPage() {
   const handleSave = useCallback(async () => {
     const body = { ...form };
     try {
-      if (editEntry) {
-        await fetch(BACKEND + `/api/dictionary/command/${editEntry.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const url = editEntry
+        ? BACKEND_URL + `/api/dictionary/command/${editEntry.id}`
+        : BACKEND_URL + '/api/dictionary/command';
+      const r = await fetch(url, {
+        method: editEntry ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (r.ok) {
+        showToast(editEntry ? 'Commande modifiee' : 'Commande creee', true);
+        setShowForm(false);
+        setEditEntry(null);
+        fetchAll();
       } else {
-        await fetch(BACKEND + '/api/dictionary/command', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        showToast(`Erreur sauvegarde (${r.status})`, false);
       }
-      setShowForm(false);
-      setEditEntry(null);
-      fetchAll();
-    } catch { /* */ }
+    } catch { showToast('Erreur connexion', false); }
   }, [form, editEntry, fetchAll]);
 
   return (
     <>
       <style>{CSS}</style>
       <div className="dict-page" style={S.page}>
+        {toast && (
+          <div style={{
+            padding: '8px 16px', borderRadius: 8, fontSize: 12, marginBottom: 12,
+            fontFamily: 'inherit', animation: 'dictFade .3s ease',
+            backgroundColor: toast.ok ? 'rgba(16,185,129,.1)' : 'rgba(239,68,68,.1)',
+            border: `1px solid ${toast.ok ? 'rgba(16,185,129,.3)' : 'rgba(239,68,68,.3)'}`,
+            color: toast.ok ? '#10b981' : '#ef4444',
+          }}>{toast.msg}</div>
+        )}
         <div style={S.header}>
           <div style={S.title}>Dictionnaire Vocal</div>
           <button style={S.addBtn} onClick={() => { setEditEntry(null); setForm({ trigger_phrase: '', category: '', action_type: 'powershell', steps: '', agents_involved: '' }); setShowForm(true); }}>

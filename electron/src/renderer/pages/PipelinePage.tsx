@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { useWebSocket } from '../hooks/useWebSocket';
-
-const BACKEND = 'http://127.0.0.1:9742';
+import { BACKEND_URL } from '../lib/config';
 
 interface Domino {
   id: string;
@@ -77,17 +76,19 @@ const S = {
   logsPanel: { marginTop: 8, fontSize: 10, color: '#6b7280' } as React.CSSProperties,
 };
 
-const DominoCard = memo(function DominoCard({ domino, onExecute, executing }: { domino: Domino; onExecute: (d: Domino) => void; executing: string | null }) {
+const DominoCard = memo(function DominoCard({ domino, onExecute, onDone, executing }: { domino: Domino; onExecute: (d: Domino) => void; onDone: () => void; executing: string | null }) {
   const [result, setResult] = useState<ExecResult | null>(null);
   const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const isRunning = executing === domino.id;
 
   const handleExec = async () => {
     setResult(null);
     setLogs([]);
+    setError(null);
     onExecute(domino);
     try {
-      const r = await fetch(BACKEND + '/api/dominos/execute', {
+      const r = await fetch(BACKEND_URL + '/api/dominos/execute', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(domino.source === 'db' ? { trigger: domino.trigger_cmd || domino.name } : { domino_id: domino.id }),
         signal: AbortSignal.timeout(120000),
@@ -96,16 +97,18 @@ const DominoCard = memo(function DominoCard({ domino, onExecute, executing }: { 
         const data = await r.json();
         const d = data.domino || data;
         setResult({ domino_id: d.domino_id || domino.id, passed: d.passed || 0, failed: d.failed || 0, skipped: d.skipped || 0, total_ms: d.total_ms || 0, run_id: d.run_id || '' });
-        // Fetch logs
         if (d.run_id) {
-          const lr = await fetch(BACKEND + `/api/dominos/logs?run_id=${d.run_id}`, { signal: AbortSignal.timeout(5000) });
-          if (lr.ok) {
-            const ld = await lr.json();
-            setLogs(ld.logs || []);
-          }
+          const lr = await fetch(BACKEND_URL + `/api/dominos/logs?run_id=${d.run_id}`, { signal: AbortSignal.timeout(5000) });
+          if (lr.ok) { setLogs((await lr.json()).logs || []); }
         }
+      } else {
+        setError(`Erreur ${r.status}: ${r.statusText}`);
       }
-    } catch { /* timeout */ }
+    } catch (e: any) {
+      setError(e.name === 'TimeoutError' ? 'Timeout (120s)' : e.message || 'Erreur inconnue');
+    } finally {
+      onDone();
+    }
   };
 
   return (
@@ -123,6 +126,12 @@ const DominoCard = memo(function DominoCard({ domino, onExecute, executing }: { 
       <button style={{ ...S.execBtn, ...(isRunning ? S.execRunning : {}) }} onClick={handleExec} disabled={isRunning}>
         {isRunning ? 'Execution...' : 'Executer'}
       </button>
+
+      {error && (
+        <div style={{ marginTop: 8, padding: '6px 10px', borderRadius: 6, fontSize: 11, color: '#ef4444', backgroundColor: 'rgba(239,68,68,.08)', border: '1px solid rgba(239,68,68,.2)' }}>
+          {error}
+        </div>
+      )}
 
       {result && (
         <div style={S.resultBox}>
@@ -161,7 +170,7 @@ export default function PipelinePage() {
   const fetchDominos = useCallback(async () => {
     setLoading(true);
     try {
-      const r = await fetch(BACKEND + '/api/dominos', { signal: AbortSignal.timeout(10000) });
+      const r = await fetch(BACKEND_URL + '/api/dominos', { signal: AbortSignal.timeout(10000) });
       if (r.ok) {
         const data = await r.json();
         const list: Domino[] = [];
@@ -177,7 +186,7 @@ export default function PipelinePage() {
           });
         }
         // Also fetch DB chains
-        const cr = await fetch(BACKEND + '/api/dominos/chains?limit=200', { signal: AbortSignal.timeout(5000) });
+        const cr = await fetch(BACKEND_URL + '/api/dominos/chains?limit=200', { signal: AbortSignal.timeout(5000) });
         if (cr.ok) {
           const cd = await cr.json();
           for (const c of (cd.chains || [])) {
@@ -272,7 +281,7 @@ export default function PipelinePage() {
             <div style={{ fontSize: 10, color: '#6b7280', marginBottom: 10 }}>{filtered.length} pipelines</div>
             <div style={S.grid}>
               {filtered.map(d => (
-                <DominoCard key={d.id} domino={d} onExecute={(dm) => setExecuting(dm.id)} executing={executing} />
+                <DominoCard key={d.id} domino={d} onExecute={(dm) => setExecuting(dm.id)} onDone={() => setExecuting(null)} executing={executing} />
               ))}
             </div>
           </>

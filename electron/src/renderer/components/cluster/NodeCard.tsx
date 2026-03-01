@@ -102,7 +102,7 @@ export default memo(function NodeCard({ node }: NodeCardProps) {
             <div style={S.gpuBar}>
               <span>VRAM</span>
               <div style={S.gpuBarBg}>
-                <div style={{ ...S.gpuBarFill, width: `${vramPercent}%`, backgroundColor: vramPercent > 90 ? '#ef4444' : vramPercent > 70 ? '#f97316' : '#f97316' }} />
+                <div style={{ ...S.gpuBarFill, width: `${vramPercent}%`, backgroundColor: vramPercent > 90 ? '#ef4444' : vramPercent > 70 ? '#f97316' : '#10b981' }} />
               </div>
               <span>{vramPercent.toFixed(0)}%</span>
             </div>

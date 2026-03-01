@@ -42,14 +42,20 @@ const S = {
 interface AlertItem { id: number; text: string; ts: number; type: 'signal' | 'exec' | 'close' | 'info' }
 
 export default function TradingPage() {
-  const { signals, positions, pnl, loading, executeSignal, closePosition, refreshTrading } = useTrading();
+  const { signals, positions, pnl, loading, error, executeSignal, closePosition, refreshTrading } = useTrading();
   const [confirm, setConfirm] = useState<TradingSignal | null>(null);
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const { subscribe } = useWebSocket();
   const alertIdRef = useRef(0);
 
   const activePositions = useMemo(() => positions.filter(p => p.status === 'open'), [positions]);
+  const closedPositions = useMemo(() => positions.filter(p => p.status === 'closed'), [positions]);
   const pendingSignals = useMemo(() => signals.filter(s => s.status === 'pending'), [signals]);
+  const winRate = useMemo(() => {
+    if (closedPositions.length === 0) return null;
+    const wins = closedPositions.filter(p => p.pnl >= 0).length;
+    return Math.round((wins / closedPositions.length) * 100);
+  }, [closedPositions]);
 
   useEffect(() => {
     const unsub = subscribe('trading', (msg: WsMessage) => {
@@ -82,6 +88,15 @@ export default function TradingPage() {
           </button>
         </div>
 
+        {/* Error banner */}
+        {error && (
+          <div style={{
+            padding: '8px 16px', borderRadius: 8, fontSize: 12, marginBottom: 12,
+            fontFamily: 'inherit', backgroundColor: 'rgba(239,68,68,.08)',
+            border: '1px solid rgba(239,68,68,.25)', color: '#ef4444',
+          }}>{error}</div>
+        )}
+
         {/* Stats */}
         <div style={S.stats}>
           <div style={S.stat}>
@@ -98,7 +113,12 @@ export default function TradingPage() {
           </div>
           <div style={S.stat}>
             <span style={S.statLabel}>Win Rate</span>
-            <span style={{ ...S.statVal, color: '#10b981' }}>---</span>
+            <span style={{ ...S.statVal, color: winRate !== null ? (winRate >= 50 ? '#10b981' : '#ef4444') : '#6b7280' }}>
+              {winRate !== null ? `${winRate}%` : '---'}
+            </span>
+            {closedPositions.length > 0 && (
+              <span style={{ fontSize: 10, color: '#6b7280' }}>{closedPositions.length} trades</span>
+            )}
           </div>
         </div>
 

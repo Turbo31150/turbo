@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { LM_NODES, INTERVALS } from '../lib/config';
 
 export interface LMModel {
   id: string;
@@ -22,11 +23,7 @@ export interface LMNode {
   error?: string;
 }
 
-const NODES_CONFIG = [
-  { id: 'M1', name: 'M1 / qwen3-8b', url: 'http://10.5.0.2:1234', auth: 'Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7' },
-  { id: 'M2', name: 'M2 / deepseek-coder', url: 'http://192.168.1.26:1234', auth: 'Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4' },
-  { id: 'M3', name: 'M3 / mistral-7b', url: 'http://192.168.1.113:1234', auth: 'Bearer sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux' },
-];
+const NODES_CONFIG = LM_NODES;
 
 async function fetchNodeModels(url: string, auth: string): Promise<{ models: LMModel[]; latency: number }> {
   const t0 = performance.now();
@@ -107,7 +104,7 @@ export function useLMStudio() {
 
   useEffect(() => {
     refresh();
-    intervalRef.current = window.setInterval(refresh, 60000);
+    intervalRef.current = window.setInterval(refresh, INTERVALS.lmStudio);
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [refresh]);
 

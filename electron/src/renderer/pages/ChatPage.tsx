@@ -37,6 +37,7 @@ export default function ChatPage() {
   const [focused, setFocused] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
+  const [selectedAgent, setSelectedAgent] = useState('');
   const messageEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -54,19 +55,19 @@ export default function ChatPage() {
   const handleSend = useCallback(() => {
     const trimmed = input.trim();
     if (!trimmed || loading) return;
-    sendMessage(trimmed);
+    sendMessage(trimmed, { files: files.length > 0 ? files : undefined, agent: selectedAgent || undefined });
     setInput('');
     setFiles([]);
-  }, [input, loading, sendMessage]);
+  }, [input, loading, sendMessage, files, selectedAgent]);
 
   const handleConsensus = useCallback(() => {
     const trimmed = input.trim();
     if (!trimmed || loading) return;
     const text = trimmed.toLowerCase().startsWith('/consensus ') ? trimmed : `/consensus ${trimmed}`;
-    sendMessage(text);
+    sendMessage(text, { agent: selectedAgent || undefined });
     setInput('');
     setFiles([]);
-  }, [input, loading, sendMessage]);
+  }, [input, loading, sendMessage, selectedAgent]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); handleSend(); }
@@ -179,7 +180,7 @@ export default function ChatPage() {
           )}
 
           <div style={{ ...S.hint, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <AgentSelector compact />
+            <AgentSelector compact value={selectedAgent} onChange={setSelectedAgent} />
             <span style={{ display: 'flex', gap: 12 }}>
               {input.length > 0 && <span style={{ color: '#4b5563' }}>~{Math.ceil(input.length / 4)} tokens</span>}
               {messages.length > 0 && <span style={{ color: '#4b5563' }}>{messages.length} msgs</span>}
