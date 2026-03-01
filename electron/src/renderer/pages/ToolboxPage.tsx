@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-
-const BACKEND = 'http://127.0.0.1:9742';
+import { useWebSocket } from '../hooks/useWebSocket';
+import { BACKEND_URL } from '../lib/config';
 
 interface Skill {
   name: string;
@@ -54,6 +54,24 @@ const S = {
 
 type Tab = 'skills' | 'benchmarks' | 'mcp';
 
+const FALLBACK_MCP_TOOLS: McpTool[] = [
+  { name: 'gemini_query', description: 'Query Gemini API via proxy', category: 'bridge' },
+  { name: 'bridge_query', description: 'Multi-node bridge query', category: 'bridge' },
+  { name: 'bridge_mesh', description: 'Mesh consensus across agents', category: 'bridge' },
+  { name: 'web_search', description: 'Web search via minimax', category: 'search' },
+  { name: 'code_analysis', description: 'Code analysis and review', category: 'code' },
+  { name: 'file_operations', description: 'File system operations', category: 'files' },
+  { name: 'system_info', description: 'System diagnostics', category: 'system' },
+  { name: 'trading_scan', description: 'Trading signal scanner', category: 'trading' },
+  { name: 'trading_execute', description: 'Execute trading signals', category: 'trading' },
+  { name: 'browser_navigate', description: 'Browser automation', category: 'browser' },
+  { name: 'telegram_send', description: 'Telegram bot messaging', category: 'communication' },
+  { name: 'n8n_trigger', description: 'Trigger n8n workflows', category: 'automation' },
+  { name: 'tts_speak', description: 'Text-to-speech via Edge TTS', category: 'voice' },
+  { name: 'whisper_transcribe', description: 'Speech-to-text via Whisper', category: 'voice' },
+  { name: 'wake_word_control', description: 'Wake word detection control', category: 'voice' },
+];
+
 export default function ToolboxPage() {
   const [tab, setTab] = useState<Tab>('skills');
   const [skills, setSkills] = useState<Skill[]>([]);
@@ -61,12 +79,13 @@ export default function ToolboxPage() {
   const [mcpTools, setMcpTools] = useState<McpTool[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const { connected, request } = useWebSocket();
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       // Fetch skills from etoile.db via SQL endpoint
-      const skillsResp = await fetch(BACKEND + '/sql/query', {
+      const skillsResp = await fetch(BACKEND_URL + '/sql/query', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: "SELECT name, description, category, trigger_phrase as trigger FROM pipeline_dictionary ORDER BY category, name", db: "etoile" }),
         signal: AbortSignal.timeout(5000),
@@ -84,7 +103,7 @@ export default function ToolboxPage() {
 
     try {
       // Fetch benchmarks
-      const benchResp = await fetch(BACKEND + '/sql/query', {
+      const benchResp = await fetch(BACKEND_URL + '/sql/query', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: "SELECT id, run_name, date, total_score, phases FROM benchmark_runs ORDER BY id DESC LIMIT 10", db: "etoile" }),
         signal: AbortSignal.timeout(5000),
@@ -101,32 +120,24 @@ export default function ToolboxPage() {
       }
     } catch { /* */ }
 
-    try {
-      // Fetch MCP tools from system config
-      const configResp = await fetch(BACKEND + '/health', { signal: AbortSignal.timeout(3000) });
-      if (configResp.ok) {
-        // MCP tools are hardcoded in the system — we list them statically
-        setMcpTools([
-          { name: 'gemini_query', description: 'Query Gemini API via proxy', category: 'bridge' },
-          { name: 'bridge_query', description: 'Multi-node bridge query', category: 'bridge' },
-          { name: 'bridge_mesh', description: 'Mesh consensus across agents', category: 'bridge' },
-          { name: 'web_search', description: 'Web search via minimax', category: 'search' },
-          { name: 'code_analysis', description: 'Code analysis and review', category: 'code' },
-          { name: 'file_operations', description: 'File system operations', category: 'files' },
-          { name: 'system_info', description: 'System diagnostics', category: 'system' },
-          { name: 'trading_scan', description: 'Trading signal scanner', category: 'trading' },
-          { name: 'trading_execute', description: 'Execute trading signals', category: 'trading' },
-          { name: 'browser_navigate', description: 'Browser automation', category: 'browser' },
-          { name: 'telegram_send', description: 'Telegram bot messaging', category: 'communication' },
-          { name: 'n8n_trigger', description: 'Trigger n8n workflows', category: 'automation' },
-          { name: 'tts_speak', description: 'Text-to-speech via Edge TTS', category: 'voice' },
-          { name: 'whisper_transcribe', description: 'Speech-to-text via Whisper', category: 'voice' },
-          { name: 'wake_word_control', description: 'Wake word detection control', category: 'voice' },
-        ]);
+    // Fetch MCP tools dynamically, fallback to static list
+    if (connected) {
+      try {
+        const resp = await request('system', 'get_tools');
+        const tools = resp.payload?.tools;
+        if (Array.isArray(tools) && tools.length > 0) {
+          setMcpTools(tools.map((t: any) => ({ name: t.name || '', description: t.description || '', category: t.category || '' })));
+        } else {
+          setMcpTools(FALLBACK_MCP_TOOLS);
+        }
+      } catch {
+        setMcpTools(FALLBACK_MCP_TOOLS);
       }
-    } catch { /* */ }
+    } else {
+      setMcpTools(FALLBACK_MCP_TOOLS);
+    }
     setLoading(false);
-  }, []);
+  }, [connected, request]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 

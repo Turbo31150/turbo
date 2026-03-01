@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 
-const BACKEND = 'http://127.0.0.1:9742';
+import { BACKEND_URL } from '../lib/config';
 
 interface AgentModel {
   id: string;
@@ -48,7 +48,7 @@ export default function AgentSelector({ value, onChange, compact }: AgentSelecto
 
   const fetchModels = useCallback(async () => {
     try {
-      const r = await fetch(BACKEND + '/api/models', { signal: AbortSignal.timeout(5000) });
+      const r = await fetch(BACKEND_URL + '/api/models', { signal: AbortSignal.timeout(5000) });
       if (r.ok) {
         const data = await r.json();
         setModels(data.models || []);

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, memo, useMemo, useCallback } from 'react';
 import { useLMStudio, LMNode, LMModel } from '../hooks/useLMStudio';
+import { OLLAMA_URL, INTERVALS } from '../lib/config';
 
 // ═══════════════════════════════════════════════════════════════
 // Ollama models hook
@@ -21,7 +22,7 @@ function useOllama() {
   const refresh = useCallback(async () => {
     try {
       const t0 = performance.now();
-      const r = await fetch('http://127.0.0.1:11434/api/tags', { signal: AbortSignal.timeout(5000) });
+      const r = await fetch(`${OLLAMA_URL}/api/tags`, { signal: AbortSignal.timeout(5000) });
       setLatency(Math.round(performance.now() - t0));
       if (!r.ok) { setOnline(false); return; }
       const data = await r.json();

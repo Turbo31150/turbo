@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useCluster } from '../../hooks/useCluster';
+import { APP_VERSION } from '../../lib/config';
 
 type Page = 'dashboard' | 'chat' | 'trading' | 'voice' | 'lmstudio' | 'settings' | 'dictionary' | 'pipelines' | 'toolbox' | 'logs';
 
@@ -252,7 +253,7 @@ export default function Sidebar({ currentPage, onPageChange }: SidebarProps) {
         {/* Bottom version */}
         {!collapsed && (
           <div style={{ padding: '8px 14px', fontSize: 9, color: '#4b5563', borderTop: '1px solid #1a2a3a' }}>
-            JARVIS v10.3
+            JARVIS v{APP_VERSION}
           </div>
         )}
       </div>

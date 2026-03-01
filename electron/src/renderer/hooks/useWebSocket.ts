@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { WsClient } from '../lib/ws-client';
+import { WS_URL } from '../lib/config';
 
 export interface WsMessage {
   id?: string;
@@ -23,7 +24,7 @@ function getClient(url: string): WsClient {
   return sharedClient;
 }
 
-export function useWebSocket(url: string = 'ws://127.0.0.1:9742/ws') {
+export function useWebSocket(url: string = WS_URL) {
   const [connected, setConnected] = useState(false);
   const clientRef = useRef<WsClient>(getClient(url));
   const handlersRef = useRef<Map<string, Set<MessageHandler>>>(new Map());

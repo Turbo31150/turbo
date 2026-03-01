@@ -122,6 +122,16 @@ export default function LogsPage() {
         <button style={S.pauseBtn} onClick={() => setPaused(p => !p)}>
           {paused ? 'RESUME' : 'PAUSE'}
         </button>
+        <button style={{ ...S.pauseBtn, borderColor: 'rgba(59,130,246,.3)', backgroundColor: 'rgba(59,130,246,.08)', color: '#3b82f6' }}
+          onClick={() => {
+            const text = filteredLogs.map(l => `${l.ts} [${l.channel}] ${l.type} ${l.preview}`).join('\n');
+            const blob = new Blob([text], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `jarvis_logs_${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+          }}>EXPORT</button>
         <button style={S.clearBtn} onClick={() => setLogs([])}>CLEAR</button>
       </div>
 

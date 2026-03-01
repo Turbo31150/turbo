@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useWebSocket } from '../hooks/useWebSocket';
+import { APP_VERSION, APP_NAME, APP_STACK, BACKEND_URL } from '../lib/config';
 
 const CSS = `
 .s-toggle{position:relative;width:36px;height:20px;border-radius:10px;cursor:pointer;transition:all .2s;border:none}
@@ -157,19 +158,27 @@ export default function SettingsPage() {
             <div style={S.secTitle}><span style={S.secIcon}>{'\uD83D\uDCC8'}</span> Trading</div>
             <div style={S.row}>
               <span style={S.label}>Leverage</span>
-              <span style={{ ...S.value, color: '#f97316' }}>{cfg.trading.leverage}x</span>
+              <input type="number" min={1} max={125} style={{ ...S.value, color: '#f97316', width: 60, backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 4, padding: '2px 6px', fontFamily: 'inherit', textAlign: 'right', outline: 'none' }}
+                value={cfg.trading.leverage}
+                onChange={e => updateCfg(p => ({ ...p, trading: { ...p.trading, leverage: parseInt(e.target.value) || 1 } }))} />
             </div>
             <div style={S.row}>
-              <span style={S.label}>Take Profit</span>
-              <span style={{ ...S.value, color: '#10b981' }}>{cfg.trading.tp_pct}%</span>
+              <span style={S.label}>Take Profit (%)</span>
+              <input type="number" step="0.05" min={0.01} style={{ ...S.value, color: '#10b981', width: 70, backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 4, padding: '2px 6px', fontFamily: 'inherit', textAlign: 'right', outline: 'none' }}
+                value={cfg.trading.tp_pct}
+                onChange={e => updateCfg(p => ({ ...p, trading: { ...p.trading, tp_pct: parseFloat(e.target.value) || 0.1 } }))} />
             </div>
             <div style={S.row}>
-              <span style={S.label}>Stop Loss</span>
-              <span style={{ ...S.value, color: '#ef4444' }}>{cfg.trading.sl_pct}%</span>
+              <span style={S.label}>Stop Loss (%)</span>
+              <input type="number" step="0.05" min={0.01} style={{ ...S.value, color: '#ef4444', width: 70, backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 4, padding: '2px 6px', fontFamily: 'inherit', textAlign: 'right', outline: 'none' }}
+                value={cfg.trading.sl_pct}
+                onChange={e => updateCfg(p => ({ ...p, trading: { ...p.trading, sl_pct: parseFloat(e.target.value) || 0.1 } }))} />
             </div>
             <div style={S.row}>
-              <span style={S.label}>Taille position</span>
-              <span style={S.value}>{cfg.trading.position_size} USDT</span>
+              <span style={S.label}>Taille position (USDT)</span>
+              <input type="number" min={1} style={{ ...S.value, width: 70, backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 4, padding: '2px 6px', fontFamily: 'inherit', textAlign: 'right', outline: 'none', color: '#e0e0e0' }}
+                value={cfg.trading.position_size}
+                onChange={e => updateCfg(p => ({ ...p, trading: { ...p.trading, position_size: parseInt(e.target.value) || 10 } }))} />
             </div>
             <div style={S.row}>
               <span style={S.label}>Mode Dry Run</span>
@@ -188,19 +197,35 @@ export default function SettingsPage() {
             <div style={S.secTitle}><span style={S.secIcon}>{'\uD83C\uDF99'}</span> Voice</div>
             <div style={S.row}>
               <span style={S.label}>Wake Word</span>
-              <span style={{ ...S.value, color: '#c084fc' }}>{cfg.voice.wake_word}</span>
+              <input type="text" style={{ ...S.value, color: '#c084fc', width: 100, backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 4, padding: '2px 6px', fontFamily: 'inherit', outline: 'none' }}
+                value={cfg.voice.wake_word}
+                onChange={e => updateCfg(p => ({ ...p, voice: { ...p.voice, wake_word: e.target.value } }))} />
             </div>
             <div style={S.row}>
               <span style={S.label}>Confidence</span>
-              <span style={S.value}>{(cfg.voice.confidence * 100).toFixed(0)}%</span>
+              <input type="number" step="0.05" min={0.1} max={1} style={{ ...S.value, width: 60, backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 4, padding: '2px 6px', fontFamily: 'inherit', textAlign: 'right', outline: 'none', color: '#e0e0e0' }}
+                value={cfg.voice.confidence}
+                onChange={e => updateCfg(p => ({ ...p, voice: { ...p.voice, confidence: parseFloat(e.target.value) || 0.5 } }))} />
             </div>
             <div style={S.row}>
               <span style={S.label}>TTS Engine</span>
-              <span style={{ ...S.value, textTransform: 'capitalize' } as React.CSSProperties}>{cfg.voice.tts_engine}</span>
+              <select style={{ ...S.value, backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 4, padding: '2px 6px', fontFamily: 'inherit', color: '#e0e0e0', cursor: 'pointer', outline: 'none' }}
+                value={cfg.voice.tts_engine}
+                onChange={e => updateCfg(p => ({ ...p, voice: { ...p.voice, tts_engine: e.target.value } }))}>
+                <option value="edge">Edge TTS</option>
+                <option value="piper">Piper</option>
+                <option value="system">System</option>
+              </select>
             </div>
             <div style={S.row}>
               <span style={S.label}>Langue</span>
-              <span style={S.value}>{cfg.voice.language}</span>
+              <select style={{ ...S.value, backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 4, padding: '2px 6px', fontFamily: 'inherit', color: '#e0e0e0', cursor: 'pointer', outline: 'none' }}
+                value={cfg.voice.language}
+                onChange={e => updateCfg(p => ({ ...p, voice: { ...p.voice, language: e.target.value } }))}>
+                <option value="fr-FR">Francais (fr-FR)</option>
+                <option value="en-US">English (en-US)</option>
+                <option value="en-GB">English (en-GB)</option>
+              </select>
             </div>
           </div>
 
@@ -230,11 +255,11 @@ export default function SettingsPage() {
             <div style={S.secTitle}><span style={S.secIcon}>{'\u2139\uFE0F'}</span> About</div>
             <div style={S.row}>
               <span style={S.label}>Application</span>
-              <span style={{ ...S.value, color: '#f97316' }}>JARVIS Desktop v1.0</span>
+              <span style={{ ...S.value, color: '#f97316' }}>{APP_NAME} v{APP_VERSION}</span>
             </div>
             <div style={S.row}>
               <span style={S.label}>Stack</span>
-              <span style={S.value}>Electron 33 + React 19 + Vite 6</span>
+              <span style={S.value}>{APP_STACK}</span>
             </div>
             {about && (
               <>
@@ -268,7 +293,7 @@ export default function SettingsPage() {
             )}
             <div style={S.row}>
               <span style={S.label}>Backend</span>
-              <span style={{ ...S.value, color: connected ? '#10b981' : '#ef4444' }}>{connected ? 'ws://127.0.0.1:9742 OK' : 'Deconnecte'}</span>
+              <span style={{ ...S.value, color: connected ? '#10b981' : '#ef4444' }}>{connected ? '{BACKEND_URL} OK' : 'Deconnecte'}</span>
             </div>
             <div style={{ marginTop: 10 }}>
               <div style={S.muted}>RACCOURCIS CLAVIER</div>

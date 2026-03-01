@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useCluster, ClusterNode } from '../hooks/useCluster';
 import { useLMStudio } from '../hooks/useLMStudio';
 import { useWebSocket } from '../hooks/useWebSocket';
+import { APP_VERSION } from '../lib/config';
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES
@@ -325,7 +326,7 @@ export default function DashboardPage() {
                 {connected ? 'ONLINE' : 'OFFLINE'}
               </span>
             </div>
-            <div style={{ fontSize: 11, color: '#4b5563', marginTop: 2 }}>v10.3 — Cluster distribue {allNodes.length} noeuds</div>
+            <div style={{ fontSize: 11, color: '#4b5563', marginTop: 2 }}>v{APP_VERSION} — Cluster distribue {allNodes.length} noeuds</div>
           </div>
           <button onClick={refreshAll}
             style={{ padding: '6px 16px', borderRadius: 6, border: '1px solid #2a3a4a', backgroundColor: 'transparent', color: '#6b7280', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', transition: 'all .2s' }}>

@@ -173,8 +173,8 @@ export function useChat() {
     return unsub;
   }, [subscribe]);
 
-  // Send a user message
-  const sendMessage = useCallback(async (text: string) => {
+  // Send a user message (with optional files and agent selection)
+  const sendMessage = useCallback(async (text: string, opts?: { files?: File[]; agent?: string }) => {
     if (!text.trim() || !connected) return;
 
     const userMsg: ChatMessage = {
@@ -190,9 +190,22 @@ export function useChat() {
     }));
 
     try {
+      // Encode files as base64 if present
+      let filePayloads: { name: string; size: number; type: string; data: string }[] | undefined;
+      if (opts?.files && opts.files.length > 0) {
+        filePayloads = await Promise.all(opts.files.map(f => new Promise<{ name: string; size: number; type: string; data: string }>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve({ name: f.name, size: f.size, type: f.type, data: (reader.result as string).split(',')[1] || '' });
+          reader.onerror = reject;
+          reader.readAsDataURL(f);
+        })));
+      }
+
       await request('chat', 'send_message', {
         content: text.trim(),
         conversation_id: 'default',
+        ...(opts?.agent ? { agent: opts.agent } : {}),
+        ...(filePayloads ? { files: filePayloads } : {}),
       });
       // Response will come via subscribe events
     } catch (err: any) {
