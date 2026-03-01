@@ -130,7 +130,7 @@ export function useVoice() {
       levelAnimRef.current = undefined;
     }
 
-    // Stop recorder
+    // Stop recorder (triggers flush of remaining audio)
     if (recorderRef.current) {
       recorderRef.current.stop();
       recorderRef.current = null;
@@ -142,10 +142,20 @@ export function useVoice() {
       audioLevel: 0,
     }));
 
-    // Notify backend
+    // Wait for AudioWorklet flush to complete before stopping backend
+    await new Promise(resolve => setTimeout(resolve, 120));
+
+    // Notify backend and retrieve transcription from response
     if (connected) {
       try {
-        await request('voice', 'stop_recording');
+        const resp = await request('voice', 'stop_recording');
+        const entry = resp?.payload?.transcription;
+        if (entry) {
+          const text = entry.corrected || entry.original || '';
+          if (text && !text.startsWith('[')) {
+            setState(prev => ({ ...prev, transcription: text }));
+          }
+        }
       } catch {
         // Ignore errors on stop
       }

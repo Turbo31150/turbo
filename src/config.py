@@ -40,9 +40,9 @@ SCRIPTS = {
     "unified_orchestrator":  PATHS["carV1"] / "python_scripts/core/unified_orchestrator.py",
     "gpu_pipeline":          PATHS["carV1"] / "python_scripts/core/gpu_pipeline.py",
     # Scanners
-    "mexc_scanner":          PATHS["carV1"] / "python_scripts/scanners/mexc_scanner.py",
-    "breakout_detector":     PATHS["carV1"] / "python_scripts/scanners/breakout_detector.py",
-    "gap_detector":          PATHS["carV1"] / "python_scripts/scanners/gap_detector.py",
+    "mexc_scanner":          PATHS["carV1"] / "python_scripts/scanner_complete_mexc.py",
+    "breakout_detector":     PATHS["carV1"] / "python_scripts/spike_breakout_scanner.py",
+    "gap_detector":          PATHS["carV1"] / "python_scripts/enhanced_scanner_v4.py",
     # Utils
     "live_data_connector":   PATHS["carV1"] / "python_scripts/utils/live_data_connector.py",
     "coinglass_client":      PATHS["carV1"] / "python_scripts/utils/coinglass_client.py",

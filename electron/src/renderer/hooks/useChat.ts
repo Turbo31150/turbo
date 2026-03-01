@@ -16,6 +16,10 @@ export interface ChatMessage {
   agent?: string;
   timestamp: number;
   toolCalls?: ToolCall[];
+  taskType?: string;
+  elapsed?: number;
+  nodeTag?: string;
+  isConsensus?: boolean;
 }
 
 interface ChatState {
@@ -36,13 +40,31 @@ export function useChat() {
     const unsub = subscribe('chat', (msg: WsMessage) => {
       switch (msg.event) {
         case 'agent_message': {
+          const rawContent: string = msg.payload?.content || '';
+          const taskType: string | undefined = msg.payload?.task_type;
+          const elapsed: number | undefined = msg.payload?.elapsed;
+          const isConsensus = taskType === 'consensus';
+
+          // Extract [NODE_TAG] from content beginning (e.g. "[GPT-OSS] response...")
+          let nodeTag: string | undefined;
+          let content = rawContent;
+          const tagMatch = rawContent.match(/^\[([A-Z0-9_-]+)\]\s*/);
+          if (tagMatch) {
+            nodeTag = tagMatch[1];
+            content = rawContent.slice(tagMatch[0].length);
+          }
+
           const agentMsg: ChatMessage = {
             id: msg.payload?.id || `agent_${++messageIdCounter.current}_${Date.now()}`,
             role: 'assistant',
-            content: msg.payload?.content || '',
+            content,
             agent: msg.payload?.agent,
             timestamp: msg.payload?.timestamp || Date.now(),
             toolCalls: msg.payload?.toolCalls,
+            taskType,
+            elapsed,
+            nodeTag,
+            isConsensus,
           };
           setState(prev => ({
             ...prev,

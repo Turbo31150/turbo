@@ -915,6 +915,67 @@ async def ollama_trading_analysis(args: dict[str, Any]) -> dict[str, Any]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# CODE REVIEW — Pipeline OL1-480b (qwen3-coder:480b-cloud)
+# ═══════════════════════════════════════════════════════════════════════════
+
+@tool(
+    "code_review_480b",
+    "Review de code automatique via qwen3-coder:480b-cloud (68tok/s, 480B params). "
+    "Retourne score/100, verdict, bugs, securite, performance, style. "
+    "Args: code (str), context (str optionnel: nom fichier, description).",
+    {"code": str, "context": str},
+)
+async def code_review_480b(args: dict[str, Any]) -> dict[str, Any]:
+    from src.code_review_480b import review_code
+    code = args["code"]
+    context = args.get("context", "")
+    try:
+        result = await review_code(code, context=context)
+        return _text(result.format_report())
+    except Exception as e:
+        return _error(f"Code review echoue: {e}")
+
+
+@tool(
+    "code_review_diff",
+    "Review du git diff courant via qwen3-coder:480b-cloud. "
+    "Analyse les changements staged ou unstaged et detecte bugs/regressions. "
+    "Args: diff_text (str optionnel, sinon git diff auto).",
+    {"diff_text": str},
+)
+async def code_review_diff(args: dict[str, Any]) -> dict[str, Any]:
+    from src.code_review_480b import review_diff
+    diff_text = args.get("diff_text") or None
+    try:
+        result = await review_diff(diff_text)
+        return _text(result.format_report())
+    except Exception as e:
+        return _error(f"Diff review echoue: {e}")
+
+
+@tool(
+    "code_review_dual",
+    "Double review parallele: 480b (code quality) + kimi-k2.5 (reasoning). "
+    "Compare deux perspectives pour une review plus approfondie. "
+    "Args: code (str), context (str optionnel).",
+    {"code": str, "context": str},
+)
+async def code_review_dual(args: dict[str, Any]) -> dict[str, Any]:
+    from src.code_review_480b import dual_review
+    code = args["code"]
+    context = args.get("context", "")
+    try:
+        r480b, rkimi = await dual_review(code, context=context)
+        report = r480b.format_report() + "\n\n" + rkimi.format_report()
+        avg_score = (r480b.score + rkimi.score) // 2
+        total_bugs = len(r480b.bugs) + len(rkimi.bugs)
+        report += f"\n  CONSENSUS: {avg_score}/100 | {total_bugs} bugs detectes"
+        return _text(report)
+    except Exception as e:
+        return _error(f"Dual review echoue: {e}")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # SCRIPTS & PROJETS
 # ═══════════════════════════════════════════════════════════════════════════
 

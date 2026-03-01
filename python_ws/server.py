@@ -75,6 +75,14 @@ async def health():
     return JSONResponse({"status": "ok", "service": "jarvis-ws", "port": 9742})
 
 
+@app.get("/api/models")
+async def api_models():
+    """Return all available models with online/offline status."""
+    from python_ws.routes.chat import get_models_with_status
+    models = await get_models_with_status()
+    return JSONResponse({"models": models})
+
+
 @app.get("/api/dictionary")
 async def api_dictionary():
     """REST endpoint for full dictionary data (too large for WS)."""
