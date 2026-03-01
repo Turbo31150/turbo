@@ -95,11 +95,12 @@ export function useWebSocket(url: string = 'ws://127.0.0.1:9742/ws') {
         payload: payload || {},
       };
 
-      // Set timeout
+      // Set timeout (longer for chat commands that run scripts)
+      const timeoutMs = channel === 'chat' ? 120000 : 30000;
       const timeout = setTimeout(() => {
         pendingRef.current.delete(id);
         reject(new Error('Request timeout'));
-      }, 30000);
+      }, timeoutMs);
 
       pendingRef.current.set(id, (response) => {
         clearTimeout(timeout);

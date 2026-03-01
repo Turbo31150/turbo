@@ -1431,6 +1431,10 @@ COMMANDS: list[JarvisCommand] = [
         "analyse pre pump", "detection pre pump", "scan pre pump",
         "sniper", "analyse sniper", "scan le marche",
     ], "script", "scan_sniper --top 3 --json"),
+    JarvisCommand("scan_sniper_custom", "trading", "Scan sniper custom: N coins", [
+        "scan sniper {coins} coins", "scan {coins} coins",
+        "sniper {coins} coins", "scan sniper --coins {coins}",
+    ], "script", "scan_sniper --top 3 --json --coins {coins}", ["coins"]),
     JarvisCommand("consensus_trading", "trading", "Consensus 5 IA sur un signal trading", [
         "consensus trading {symbol}", "analyse ia {symbol}",
         "consensus sur {symbol}", "demande aux ia {symbol}",
@@ -3001,7 +3005,7 @@ def match_command(voice_text: str, threshold: float = 0.55) -> tuple[JarvisComma
 
                 match = re.match(pattern, corrected, re.IGNORECASE)
                 if match:
-                    score = 0.85  # Parameterized match: lower than exact non-param match (0.90)
+                    score = 0.95  # Parameterized exact match: higher than substring non-param (0.90)
                     params = {param_names[i]: match.group(i + 1).strip() for i in range(len(param_names))}
                     if score > best_score:
                         best_score = score
