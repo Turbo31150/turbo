@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { useLMStudio } from '../hooks/useLMStudio';
+import { useWebSocket } from '../hooks/useWebSocket';
+import AgentSelector from '../components/AgentSelector';
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES
@@ -19,7 +21,7 @@ interface JMsg {
 // CONSTANTS
 // ═══════════════════════════════════════════════════════════════
 
-const PROXY = 'http://127.0.0.1:18800';
+const BACKEND_URL = 'http://127.0.0.1:9742';
 
 const ENGINES = [
   { id: 'auto', icon: '\u2728', name: 'Auto', desc: 'Routage intelligent', agent: 'main' },
@@ -234,40 +236,66 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(false);
   const [engine, setEngine] = useState('auto');
   const [input, setInput] = useState('');
-  const [proxyOk, setProxyOk] = useState(false);
+  const [backendOk, setBackendOk] = useState(false);
   const [autolearn, setAutolearn] = useState<any>(null);
   const [openSec, setOpenSec] = useState({ engines: true, tools: true, cluster: true });
+  const [voiceStatus, setVoiceStatus] = useState<{ wakeWord: boolean; lastTranscript?: string; latency?: number }>({ wakeWord: false });
+  const [selectedModel, setSelectedModel] = useState('');
   const msgEnd = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
   const { nodes: lmNodes } = useLMStudio();
+  const { connected, request, subscribe } = useWebSocket();
 
-  // Proxy health
+  // Backend health via WS 9742
+  useEffect(() => {
+    setBackendOk(connected);
+  }, [connected]);
+
+  // Health check REST fallback (for when WS is connecting)
   useEffect(() => {
     let alive = true;
     const check = async () => {
       try {
-        const r = await fetch(PROXY + '/', { signal: AbortSignal.timeout(3000) });
-        if (alive) setProxyOk(r.ok || r.status === 200);
-      } catch { if (alive) setProxyOk(false); }
+        const r = await fetch(BACKEND_URL + '/health', { signal: AbortSignal.timeout(3000) });
+        if (alive && r.ok) setBackendOk(true);
+      } catch { /* WS state is primary */ }
     };
-    check();
-    const iv = setInterval(check, 20000);
+    if (!connected) check();
+    const iv = setInterval(() => { if (!connected) check(); }, 15000);
     return () => { alive = false; clearInterval(iv); };
-  }, []);
+  }, [connected]);
 
-  // Autolearn poll
+  // Autolearn poll (try Canvas proxy, fallback gracefully)
   useEffect(() => {
     let alive = true;
     const poll = async () => {
       try {
-        const r = await fetch(PROXY + '/autolearn/status', { signal: AbortSignal.timeout(3000) });
+        const r = await fetch('http://127.0.0.1:18800/autolearn/status', { signal: AbortSignal.timeout(3000) });
         if (r.ok && alive) setAutolearn(await r.json());
-      } catch { /* offline */ }
+      } catch { if (alive) setAutolearn(null); }
     };
     poll();
     const iv = setInterval(poll, 30000);
     return () => { alive = false; clearInterval(iv); };
   }, []);
+
+  // Subscribe to voice events for dashboard widget
+  useEffect(() => {
+    const unsub = subscribe('voice', (msg) => {
+      if (msg.event === 'transcription_result') {
+        setVoiceStatus(prev => ({
+          ...prev,
+          lastTranscript: msg.payload?.text,
+          latency: msg.payload?.latency,
+        }));
+      }
+      if (msg.event === 'wake_detected') {
+        setVoiceStatus(prev => ({ ...prev, wakeWord: true }));
+        setTimeout(() => setVoiceStatus(prev => ({ ...prev, wakeWord: false })), 3000);
+      }
+    });
+    return unsub;
+  }, [subscribe]);
 
   useEffect(() => { msgEnd.current?.scrollIntoView({ behavior: 'smooth' }); }, [msgs.length, loading]);
 
@@ -289,33 +317,31 @@ export default function DashboardPage() {
     setLoading(true);
     try {
       const eng = ENGINES.find(e => e.id === engine);
-      const r = await fetch(PROXY + '/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agent: eng?.agent || 'main', text: t }),
-        signal: AbortSignal.timeout(180000),
-      });
-      const raw = await r.json();
-      // Proxy returns { ok, data: { text, model, provider, tools_used, turns, mode, chain } }
-      const d = raw.data || raw;
-      const text = d.text || d.response || d.output || '';
-      // Build clean chain summary if multi-node
-      let chainInfo = '';
-      if (d.chain && Array.isArray(d.chain) && d.chain.length > 1) {
-        chainInfo = d.chain.map((c: any) => `${c.node}/${c.role}`).join(' → ');
+      if (connected) {
+        // Primary: WebSocket via backend 9742
+        const resp = await request('chat', 'send_message', { text: t, agent: eng?.agent || 'main' });
+        const d = resp.payload || {};
+        const agentMsg = d.agent_message || {};
+        const respText = agentMsg.content || d.text || d.response || '';
+        setMsgs(p => [...p, {
+          id: 'b_' + Date.now(), role: 'bot',
+          text: respText || '(pas de reponse)',
+          agent: agentMsg.agent || d.agent || '',
+          model: d.model || agentMsg.task_type || '',
+          latency: agentMsg.elapsed ? Math.round(agentMsg.elapsed * 1000) : undefined,
+          ts: Date.now(),
+        }]);
+      } else {
+        // Fallback: direct REST to backend
+        const r = await fetch(BACKEND_URL + '/health', { signal: AbortSignal.timeout(3000) });
+        if (!r.ok) throw new Error('Backend hors ligne');
+        setMsgs(p => [...p, { id: 'e_' + Date.now(), role: 'sys', text: 'WebSocket deconnecte — reconnexion en cours...', ts: Date.now() }]);
       }
-      setMsgs(p => [...p, {
-        id: 'b_' + Date.now(), role: 'bot',
-        text: text || '(pas de reponse)',
-        agent: d.mode === 'reflexive' ? (chainInfo || 'multi-IA') : (d.agent || d.provider || ''),
-        model: d.model || '',
-        latency: d.latency_ms || d.duration_ms || d.latency, ts: Date.now(),
-      }]);
     } catch (e: any) {
       setMsgs(p => [...p, { id: 'e_' + Date.now(), role: 'sys', text: 'Erreur: ' + e.message, ts: Date.now() }]);
     }
     setLoading(false);
-  }, [engine, loading]);
+  }, [engine, loading, connected, request]);
 
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(input); }
@@ -347,7 +373,7 @@ export default function DashboardPage() {
                     <span style={ST.engName}>{eng.name}</span>
                     <span style={ST.engDesc}>{eng.desc}</span>
                   </div>
-                  <span style={{ ...ST.dot, ...(proxyOk ? ST.dotOn : ST.dotOff) }} />
+                  <span style={{ ...ST.dot, ...(backendOk ? ST.dotOn : ST.dotOff) }} />
                 </button>
               ))}
             </div>
@@ -374,7 +400,7 @@ export default function DashboardPage() {
                 <span style={ST.secBadge}>{CLUSTER_NODES.length}</span>
               </div>
               {openSec.cluster && CLUSTER_NODES.map(cn => {
-                const on = nodeOnline(cn.id) || (cn.id === 'OL1' && proxyOk);
+                const on = nodeOnline(cn.id) || (cn.id === 'OL1' && backendOk);
                 return (
                   <div key={cn.id} style={ST.cNode}>
                     <span style={ST.cName}>
@@ -393,14 +419,24 @@ export default function DashboardPage() {
         <div style={ST.main}>
           <div style={ST.bar}>
             <span style={ST.barText}>
-              JARVIS v2 {proxyOk ? 'en ligne' : 'hors ligne'} — {onlineCount} noeuds · {totalModels} modeles · {TOOLS.length} outils MCP
+              JARVIS v2 {backendOk ? 'en ligne' : 'hors ligne'} — {onlineCount} noeuds · {totalModels} modeles · {TOOLS.length} outils MCP
               {autolearn?.running ? ' · autolearn' : ''}
             </span>
             {autolearn?.running && (
               <span style={ST.learn}><span style={ST.learnDot} /> LEARN</span>
             )}
-            <span style={{ ...ST.hBadge, ...(proxyOk ? ST.hOk : ST.hErr) }}>
-              {proxyOk ? 'OK' : 'OFF'}
+            {voiceStatus.wakeWord && (
+              <span style={{ ...ST.hBadge, backgroundColor: 'rgba(192,132,252,.1)', border: '1px solid rgba(192,132,252,.25)', color: '#c084fc' }}>
+                WAKE
+              </span>
+            )}
+            {voiceStatus.lastTranscript && (
+              <span style={{ fontSize: 10, color: '#6b7280', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }} title={voiceStatus.lastTranscript}>
+                {voiceStatus.lastTranscript.slice(0, 30)}{voiceStatus.lastTranscript.length > 30 ? '...' : ''}
+              </span>
+            )}
+            <span style={{ ...ST.hBadge, ...(backendOk ? ST.hOk : ST.hErr) }}>
+              {backendOk ? 'OK' : 'OFF'}
             </span>
           </div>
 
@@ -409,7 +445,7 @@ export default function DashboardPage() {
               <div style={ST.empty}>
                 <div style={ST.emptyLogo}>JARVIS</div>
                 <div style={ST.emptyHint}>
-                  {proxyOk ? 'Parle a JARVIS pour commencer...' : 'Proxy hors ligne — lance canvas/direct-proxy.js'}
+                  {backendOk ? 'Parle a JARVIS pour commencer...' : 'Backend hors ligne — lance python_ws/server.py (port 9742)'}
                 </div>
               </div>
             ) : (
@@ -451,15 +487,16 @@ export default function DashboardPage() {
                 value={input} onChange={e => setInput(e.target.value)}
                 onKeyDown={handleKey} placeholder="Parle a JARVIS..." rows={1} />
               <button className="j-send"
-                style={{ ...ST.send, ...((!input.trim() || loading || !proxyOk) ? ST.sendOff : {}) }}
-                onClick={() => send(input)} disabled={!input.trim() || loading || !proxyOk}>
+                style={{ ...ST.send, ...((!input.trim() || loading || !backendOk) ? ST.sendOff : {}) }}
+                onClick={() => send(input)} disabled={!input.trim() || loading || !backendOk}>
                 {'\u2191'}
               </button>
             </div>
             <div style={ST.bottom}>
               <span>Enter envoyer · Shift+Enter nouvelle ligne</span>
               <span style={{ flex: 1 }} />
-              <span style={{ color: engine === 'auto' ? '#f97316' : '#6b7280' }}>
+              <AgentSelector value={selectedModel} onChange={setSelectedModel} compact />
+              <span style={{ color: engine === 'auto' ? '#f97316' : '#6b7280', marginLeft: 8 }}>
                 {ENGINES.find(e => e.id === engine)?.name || 'Auto'}
               </span>
             </div>

@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useChat } from '../hooks/useChat';
 import MessageBubble from '../components/chat/MessageBubble';
+import AgentSelector from '../components/AgentSelector';
 
 const CSS = `
 @keyframes cDots{0%,20%{opacity:.2}50%{opacity:1}80%,100%{opacity:.2}}
 @keyframes cFadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cPulse{0%,100%{opacity:.6}50%{opacity:1}}
 `;
 
 const S = {
@@ -25,6 +27,8 @@ const S = {
   fileChip: { display: 'flex', alignItems: 'center', gap: 4, padding: '2px 8px', backgroundColor: '#1a2a3a', borderRadius: 4, fontSize: 10, color: '#e0e0e0' } as React.CSSProperties,
   fileRemove: { background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: 0, fontSize: 12, fontFamily: 'inherit' } as React.CSSProperties,
   hint: { fontSize: 10, color: '#6b7280', marginTop: 4, textAlign: 'right' } as React.CSSProperties,
+  consensusBtn: { padding: '10px 16px', background: 'linear-gradient(135deg, #ec4899, #be185d)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontFamily: 'inherit', fontSize: 11, cursor: 'pointer', letterSpacing: .5, textTransform: 'uppercase', transition: 'opacity .2s', flexShrink: 0, height: 40 } as React.CSSProperties,
+  consensusProgress: { display: 'flex', alignItems: 'center', gap: 6, padding: '4px 12px', fontSize: 11, color: '#ec4899', animation: 'cPulse 1.5s ease-in-out infinite' } as React.CSSProperties,
 };
 
 export default function ChatPage() {
@@ -35,6 +39,8 @@ export default function ChatPage() {
   const [files, setFiles] = useState<File[]>([]);
   const messageEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const isConsensusInput = input.trimStart().toLowerCase().startsWith('/consensus');
 
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -53,9 +59,22 @@ export default function ChatPage() {
     setFiles([]);
   }, [input, loading, sendMessage]);
 
+  const handleConsensus = useCallback(() => {
+    const trimmed = input.trim();
+    if (!trimmed || loading) return;
+    const text = trimmed.toLowerCase().startsWith('/consensus ') ? trimmed : `/consensus ${trimmed}`;
+    sendMessage(text);
+    setInput('');
+    setFiles([]);
+  }, [input, loading, sendMessage]);
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); handleSend(); }
   };
+
+  // Detect if last message was a consensus request (for progress indicator)
+  const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
+  const isConsensusLoading = loading && lastUserMsg?.content.toLowerCase().startsWith('/consensus');
 
   return (
     <>
@@ -72,12 +91,21 @@ export default function ChatPage() {
           )}
 
           {loading && (
-            <div style={S.loadingDots}>
-              <div style={{ ...S.dot, animation: 'cDots 1.2s ease-in-out infinite' }} />
-              <div style={{ ...S.dot, animation: 'cDots 1.2s ease-in-out .2s infinite' }} />
-              <div style={{ ...S.dot, animation: 'cDots 1.2s ease-in-out .4s infinite' }} />
-              <span style={{ marginLeft: 6 }}>Agent en cours de traitement...</span>
-            </div>
+            isConsensusLoading ? (
+              <div style={S.consensusProgress}>
+                <div style={{ ...S.dot, backgroundColor: '#ec4899', animation: 'cDots 1.2s ease-in-out infinite' }} />
+                <div style={{ ...S.dot, backgroundColor: '#ec4899', animation: 'cDots 1.2s ease-in-out .2s infinite' }} />
+                <div style={{ ...S.dot, backgroundColor: '#ec4899', animation: 'cDots 1.2s ease-in-out .4s infinite' }} />
+                <span style={{ marginLeft: 4 }}>Consensus MAO — 7 agents en parallele...</span>
+              </div>
+            ) : (
+              <div style={S.loadingDots}>
+                <div style={{ ...S.dot, animation: 'cDots 1.2s ease-in-out infinite' }} />
+                <div style={{ ...S.dot, animation: 'cDots 1.2s ease-in-out .2s infinite' }} />
+                <div style={{ ...S.dot, animation: 'cDots 1.2s ease-in-out .4s infinite' }} />
+                <span style={{ marginLeft: 6 }}>Agent en cours de traitement...</span>
+              </div>
+            )
           )}
           <div ref={messageEndRef} />
         </div>
@@ -86,7 +114,11 @@ export default function ChatPage() {
           <div style={S.inputRow}>
             <textarea
               ref={textareaRef}
-              style={{ ...S.textarea, ...(focused ? { borderColor: '#f97316' } : {}) }}
+              style={{
+                ...S.textarea,
+                ...(focused ? { borderColor: isConsensusInput ? '#ec4899' : '#f97316' } : {}),
+                ...(isConsensusInput ? { borderColor: '#ec4899', boxShadow: '0 0 0 1px rgba(236,72,153,.2)' } : {}),
+              }}
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -101,6 +133,14 @@ export default function ChatPage() {
               disabled={!input.trim() || loading}
             >
               Envoyer
+            </button>
+            <button
+              style={{ ...S.consensusBtn, ...(!input.trim() || loading ? { opacity: .4, cursor: 'not-allowed' } : {}) }}
+              onClick={handleConsensus}
+              disabled={!input.trim() || loading}
+              title="Envoyer en mode consensus (7 agents MAO)"
+            >
+              Consensus
             </button>
             {messages.length > 0 && (
               <button style={S.clearBtn} onClick={clearConversation}
@@ -130,7 +170,10 @@ export default function ChatPage() {
             </div>
           )}
 
-          <div style={S.hint}>Ctrl+Enter pour envoyer</div>
+          <div style={{ ...S.hint, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <AgentSelector compact />
+            <span>Ctrl+Enter pour envoyer</span>
+          </div>
         </div>
       </div>
     </>

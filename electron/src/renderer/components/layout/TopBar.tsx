@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-type Page = 'dashboard' | 'chat' | 'trading' | 'voice' | 'lmstudio' | 'settings';
+type Page = 'dashboard' | 'chat' | 'trading' | 'voice' | 'lmstudio' | 'settings' | 'dictionary' | 'pipelines' | 'toolbox';
 
 interface TopBarProps {
   connected: boolean;
@@ -13,8 +13,11 @@ const PAGE_LABELS: Record<Page, string> = {
   chat: 'CHAT',
   trading: 'TRADING',
   voice: 'VOICE',
-  lmstudio: 'LM STUDIO',
+  lmstudio: 'AI CLUSTER',
   settings: 'SETTINGS',
+  dictionary: 'DICTIONARY',
+  pipelines: 'PIPELINES',
+  toolbox: 'TOOLBOX',
 };
 
 const CSS = `

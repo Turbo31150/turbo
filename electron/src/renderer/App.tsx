@@ -16,8 +16,11 @@ const TradingPage = lazy(() => import('./pages/TradingPage'));
 const VoicePage = lazy(() => import('./pages/VoicePage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const LMStudioPage = lazy(() => import('./pages/LMStudioPage'));
+const DictionaryPage = lazy(() => import('./pages/DictionaryPage'));
+const PipelinePage = lazy(() => import('./pages/PipelinePage'));
+const ToolboxPage = lazy(() => import('./pages/ToolboxPage'));
 
-type Page = 'dashboard' | 'chat' | 'trading' | 'voice' | 'lmstudio' | 'settings';
+type Page = 'dashboard' | 'chat' | 'trading' | 'voice' | 'lmstudio' | 'settings' | 'dictionary' | 'pipelines' | 'toolbox';
 
 const PAGE_COMPONENTS: Record<Page, React.LazyExoticComponent<React.ComponentType>> = {
   dashboard: DashboardPage,
@@ -26,6 +29,9 @@ const PAGE_COMPONENTS: Record<Page, React.LazyExoticComponent<React.ComponentTyp
   voice: VoicePage,
   lmstudio: LMStudioPage,
   settings: SettingsPage,
+  dictionary: DictionaryPage,
+  pipelines: PipelinePage,
+  toolbox: ToolboxPage,
 };
 
 const CSS = `
