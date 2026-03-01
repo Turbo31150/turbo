@@ -40,8 +40,9 @@ electron/.vite/
 # Python WS
 python_ws/__pycache__/
 
-# Fine-tuning offload
+# Fine-tuning
 finetuning/offload/
+finetuning/output/
 
 # OS
 Thumbs.db
