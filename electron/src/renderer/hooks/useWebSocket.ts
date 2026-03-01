@@ -1,16 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { WsClient } from '../lib/ws-client';
+import { WsClient, WsMessage } from '../lib/ws-client';
 import { WS_URL } from '../lib/config';
 
-export interface WsMessage {
-  id?: string;
-  type: 'request' | 'response' | 'event';
-  channel: string;
-  action?: string;
-  event?: string;
-  payload?: any;
-  error?: string;
-}
+export type { WsMessage };
 
 export type MessageHandler = (msg: WsMessage) => void;
 

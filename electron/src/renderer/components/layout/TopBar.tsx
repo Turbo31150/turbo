@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useWebSocket } from '../../hooks/useWebSocket';
-import { useCluster } from '../../hooks/useCluster';
+import { useClusterContext } from '../../hooks/ClusterContext';
 import type { Page } from '../../lib/types';
 
 interface TopBarProps {
@@ -94,7 +94,7 @@ export default function TopBar({ connected, currentPage, onDetach }: TopBarProps
   const [clock, setClock] = useState('');
   const [metrics, setMetrics] = useState<SystemMetrics | null>(null);
   const { request } = useWebSocket();
-  const { nodes } = useCluster();
+  const { nodes } = useClusterContext();
   const intervalRef = useRef<number>(0);
 
   const onlineCount = nodes.filter(n => n.status === 'online').length;

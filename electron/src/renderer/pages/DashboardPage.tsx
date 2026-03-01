@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef, memo } from 'react';
-import { useCluster, ClusterNode } from '../hooks/useCluster';
+import { useClusterContext } from '../hooks/ClusterContext';
+import { ClusterNode } from '../hooks/useCluster';
 import { useLMStudio } from '../hooks/useLMStudio';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { APP_VERSION } from '../lib/config';
@@ -183,12 +184,19 @@ const NodeCard = memo(function NodeCard({ node, lmNode }: { node?: ClusterNode; 
   );
 });
 
+function timeAgo(ts: number): string {
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 60) return `${s}s`;
+  if (s < 3600) return `${Math.floor(s / 60)}min`;
+  return `${Math.floor(s / 3600)}h`;
+}
+
 // ═══════════════════════════════════════════════════════════════
 // MAIN
 // ═══════════════════════════════════════════════════════════════
 
 export default function DashboardPage() {
-  const { nodes: clusterNodes, loading: clusterLoading, refreshCluster } = useCluster();
+  const { nodes: clusterNodes, loading: clusterLoading, refreshCluster } = useClusterContext();
   const { nodes: lmNodes, refreshing: lmRefreshing, refresh: refreshLM } = useLMStudio();
   const { connected, request, subscribe } = useWebSocket();
 
@@ -295,13 +303,6 @@ export default function DashboardPage() {
     }
     return merged;
   }, [clusterNodes, lmNodes]);
-
-  const timeAgo = (ts: number) => {
-    const s = Math.floor((Date.now() - ts) / 1000);
-    if (s < 60) return `${s}s`;
-    if (s < 3600) return `${Math.floor(s / 60)}min`;
-    return `${Math.floor(s / 3600)}h`;
-  };
 
   const CHAN_COLORS: Record<string, string> = {
     cluster: '#10b981', trading: '#f97316', voice: '#c084fc', system: '#6b7280', chat: '#3b82f6',

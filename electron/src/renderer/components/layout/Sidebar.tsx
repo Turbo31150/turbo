@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useCluster } from '../../hooks/useCluster';
+import { useClusterContext } from '../../hooks/ClusterContext';
 import { APP_VERSION } from '../../lib/config';
 import type { Page } from '../../lib/types';
 
@@ -161,7 +161,7 @@ function StatusDot({ online }: { online: boolean }) {
 export default function Sidebar({ currentPage, onPageChange }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<Page | null>(null);
-  const { nodes } = useCluster();
+  const { nodes } = useClusterContext();
   const width = collapsed ? 52 : 180;
   const onlineCount = nodes.filter(n => n.status === 'online').length;
   const modelsLoaded = nodes.reduce((sum, n) => sum + n.models.filter(m => m.loaded).length, 0);
@@ -193,7 +193,7 @@ export default function Sidebar({ currentPage, onPageChange }: SidebarProps) {
         </div>
 
         {/* Nav groups */}
-        <nav style={{ flex: 1, overflowY: 'auto', padding: '4px 0' }}>
+        <nav aria-label="Navigation principale" style={{ flex: 1, overflowY: 'auto', padding: '4px 0' }}>
           {NAV_GROUPS.map(group => (
             <div key={group.label} style={{ marginBottom: 4 }}>
               {!collapsed && (

@@ -303,9 +303,9 @@ export default function DictionaryPage() {
 
         {/* Add/Edit Modal */}
         {showForm && (
-          <div style={S.modal} onClick={() => setShowForm(false)}>
+          <div style={S.modal} onClick={() => setShowForm(false)} role="dialog" aria-modal="true" aria-labelledby="dict-modal-title">
             <div style={S.modalBox} onClick={e => e.stopPropagation()}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#e0e0e0', marginBottom: 16 }}>
+              <div id="dict-modal-title" style={{ fontSize: 16, fontWeight: 700, color: '#e0e0e0', marginBottom: 16 }}>
                 {editEntry ? 'Modifier commande' : 'Nouvelle commande'}
               </div>
               <div style={S.formGroup}>

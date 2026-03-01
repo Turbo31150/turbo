@@ -22,10 +22,10 @@ interface Config {
 
 const DEFAULT_CONFIG: Config = {
   cluster: { nodes: [
-    { id: 'M1', name: 'M1 / qwen3-30b', url: '10.5.0.2:1234', enabled: true, weight: 1.8 },
-    { id: 'M2', name: 'M2 / deepseek', url: '192.168.1.26:1234', enabled: true, weight: 1.4 },
-    { id: 'M3', name: 'M3 / mistral', url: '192.168.1.113:1234', enabled: true, weight: 1.0 },
-    { id: 'OL1', name: 'OL1 / qwen3:1.7b', url: '127.0.0.1:11434', enabled: true, weight: 1.3 },
+    { id: 'M1', name: 'M1 / qwen3-8b', url: 'http://10.5.0.2:1234', enabled: true, weight: 1.8 },
+    { id: 'M2', name: 'M2 / deepseek', url: 'http://192.168.1.26:1234', enabled: true, weight: 1.4 },
+    { id: 'M3', name: 'M3 / mistral', url: 'http://192.168.1.113:1234', enabled: true, weight: 1.0 },
+    { id: 'OL1', name: 'OL1 / qwen3:1.7b', url: 'http://127.0.0.1:11434', enabled: true, weight: 1.3 },
     { id: 'Gemini', name: 'Gemini API', url: 'gemini-proxy', enabled: true, weight: 1.2 },
   ]},
   trading: { pairs: ['BTCUSDT','ETHUSDT','SOLUSDT','SUIUSDT','PEPEUSDT'], leverage: 10, tp_pct: 0.4, sl_pct: 0.25, position_size: 10, dry_run: true },

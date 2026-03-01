@@ -129,17 +129,17 @@ export default function VoicePage() {
     }
   }, [transcription]);
 
-  const handleTextSend = () => {
+  const handleTextSend = useCallback(() => {
     const text = textInput.trim();
     if (!text || thinking) return;
     setTextInput('');
     sendToIA(text);
-  };
+  }, [textInput, thinking, sendToIA]);
 
-  const toggleRec = () => {
+  const toggleRec = useCallback(() => {
     if (recording) stopRecording();
     else startRecording();
-  };
+  }, [recording, stopRecording, startRecording]);
 
   const formatTime = (ts: number) =>
     new Date(ts).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
