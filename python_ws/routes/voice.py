@@ -2,6 +2,7 @@
 import asyncio
 import base64
 import logging
+import struct
 import time
 from typing import Any
 
@@ -35,31 +36,58 @@ except ImportError:
     full_correction_pipeline = None
 
 
+def _pcm_to_wav(pcm_bytes: bytes, sample_rate: int = 16000,
+                channels: int = 1, bits_per_sample: int = 16) -> bytes:
+    """Wrap raw PCM int16 bytes in a proper WAV header for Whisper/ffmpeg."""
+    data_size = len(pcm_bytes)
+    block_align = channels * bits_per_sample // 8
+    byte_rate = sample_rate * block_align
+    header = struct.pack(
+        '<4sI4s4sIHHIIHH4sI',
+        b'RIFF', 36 + data_size, b'WAVE',
+        b'fmt ', 16, 1, channels, sample_rate, byte_rate, block_align, bits_per_sample,
+        b'data', data_size,
+    )
+    return header + pcm_bytes
+
+
 class AudioBuffer:
     """Accumulates audio chunks for transcription.
 
-    Browser sends WebM/Opus chunks via base64. We concatenate them
-    and pass the raw WebM to faster-whisper (which uses ffmpeg internally).
+    Frontend sends PCM int16 base64 chunks (16kHz mono).
+    We concatenate them, wrap in a WAV header, then pass to Whisper.
     """
 
     def __init__(self):
         self.chunks: list[bytes] = []
         self.recording = False
+        self.format = "pcm_16bit"
+        self.sample_rate = 16000
+        self.channels = 1
 
-    def start(self):
+    def start(self, fmt: str = "pcm_16bit", sample_rate: int = 16000,
+              channels: int = 1):
         self.chunks.clear()
         self.recording = True
+        self.format = fmt
+        self.sample_rate = sample_rate
+        self.channels = channels
 
     def add_chunk(self, b64_data: str):
         if self.recording:
             self.chunks.append(base64.b64decode(b64_data))
 
     def stop(self) -> bytes:
-        """Return raw audio bytes (WebM/Opus from browser)."""
+        """Return audio bytes ready for Whisper (WAV with header)."""
         self.recording = False
         if not self.chunks:
             return b""
-        return b"".join(self.chunks)
+        raw = b"".join(self.chunks)
+        # PCM int16 → wrap in WAV header so Whisper/ffmpeg can decode it
+        if self.format == "pcm_16bit":
+            return _pcm_to_wav(raw, self.sample_rate, self.channels, 16)
+        # WebM/Opus or other container — pass through as-is
+        return raw
 
 
 _buffer = AudioBuffer()
@@ -73,7 +101,11 @@ async def handle_voice_request(action: str, payload: dict) -> dict:
     elif action == "stop_recording":
         return await _handle_stop()
     elif action == "start_recording":
-        _buffer.start()
+        _buffer.start(
+            fmt=payload.get("format", "pcm_16bit"),
+            sample_rate=payload.get("sample_rate", 16000),
+            channels=payload.get("channels", 1),
+        )
         return {"recording": True}
     elif action == "tts_speak":
         return await _handle_tts(payload)
@@ -96,7 +128,7 @@ async def _handle_stop() -> dict:
     if not audio_data:
         return {"error": "No audio data"}
 
-    # Transcribe — pass raw bytes (WebM/Opus) to WhisperWorker
+    # Transcribe — audio_data is now a proper WAV (header added by AudioBuffer)
     whisper = _get_whisper()
     text = ""
     if whisper:
@@ -104,9 +136,14 @@ async def _handle_stop() -> dict:
             text = await asyncio.to_thread(whisper.transcribe, audio_data)
         except Exception as e:
             logger.error("Whisper error: %s", e)
-            text = f"[Erreur Whisper] {e}"
+            text = await _fallback_cloud_stt(audio_data)
+            if not text:
+                text = f"[Erreur Whisper] {e}"
     else:
-        text = "[Whisper non disponible]"
+        # Fallback: try cloud STT if Whisper unavailable
+        text = await _fallback_cloud_stt(audio_data)
+        if not text:
+            text = "[Whisper non disponible]"
 
     # Voice correction (async function — returns dict with corrected text + command)
     corrected = text
@@ -175,8 +212,22 @@ async def _execute_matched_command(cmd, params: dict) -> dict | None:
         return {"executed": False, "error": str(e)}
 
 
+async def _fallback_cloud_stt(audio_data: bytes) -> str:
+    """Fallback: send audio to OL1 cloud for transcription (if available)."""
+    try:
+        import httpx
+        # Try using a cloud model for transcription description
+        # Since Ollama doesn't have native STT, we describe what we'd need
+        # For now, return empty to signal fallback failed
+        logger.warning("Cloud STT fallback: no cloud STT available yet")
+        return ""
+    except Exception as e:
+        logger.error("Cloud STT fallback error: %s", e)
+        return ""
+
+
 async def _handle_tts(payload: dict) -> dict:
-    """Text-to-speech via Edge TTS."""
+    """Text-to-speech via Edge TTS with fallback."""
     text = payload.get("text", "").strip()
     if not text:
         return {"error": "Empty text"}
@@ -197,6 +248,8 @@ async def _handle_tts(payload: dict) -> dict:
             stderr=asyncio.subprocess.DEVNULL,
         )
         # Don't await — let it play in background
-        return {"spoken": True, "text": text, "voice": voice}
+        return {"spoken": True, "text": text, "voice": voice, "engine": "edge_tts"}
     except Exception as e:
-        return {"error": f"TTS failed: {e}"}
+        logger.warning("Edge TTS failed: %s — signaling browser fallback", e)
+        # Signal the frontend to use Web Speech API as fallback
+        return {"spoken": False, "text": text, "fallback": "web_speech_api", "error": str(e)}

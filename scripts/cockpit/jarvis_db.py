@@ -154,6 +154,7 @@ def keyword_match(text):
     conn = get_conn()
     words = text.lower().split()
     scores = {}
+    matched_pairs = []
     for word in words:
         rows = conn.execute(
             "SELECT agent, weight, domain FROM agent_keywords WHERE keyword=?", (word,)
@@ -165,6 +166,12 @@ def keyword_match(text):
             scores[key]["score"] += r["weight"]
             scores[key]["domains"].add(r["domain"])
             scores[key]["hits"] += 1
+            matched_pairs.append((key, word))
+    # Increment hit_count for all matched keywords
+    for agent, kw in matched_pairs:
+        conn.execute("UPDATE agent_keywords SET hit_count = hit_count + 1 WHERE agent=? AND keyword=?", (agent, kw))
+    if matched_pairs:
+        conn.commit()
     conn.close()
     if not scores:
         print("null")

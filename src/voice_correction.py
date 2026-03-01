@@ -416,6 +416,37 @@ def format_suggestions(suggestions: list[tuple[JarvisCommand, float]]) -> str:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# HIT COUNT TRACKING
+# ═══════════════════════════════════════════════════════════════════════════
+
+def _increment_voice_correction_hits(original: str, corrected: str) -> None:
+    """Increment hit_count for words that were corrected by the dictionary."""
+    orig_words = original.lower().split()
+    corr_words = corrected.lower().split()
+    changed = [w for w, c in zip(orig_words, corr_words) if w != c]
+    if not changed:
+        return
+    try:
+        import sqlite3
+        import os
+        base = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
+        for db_name in ("jarvis.db", "etoile.db"):
+            db_path = os.path.join(base, "data", db_name)
+            if not os.path.exists(db_path):
+                continue
+            conn = sqlite3.connect(db_path)
+            for wrong_word in changed:
+                conn.execute(
+                    "UPDATE voice_corrections SET hit_count = hit_count + 1 WHERE wrong = ?",
+                    (wrong_word,),
+                )
+            conn.commit()
+            conn.close()
+    except Exception:
+        pass
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # FULL CORRECTION PIPELINE
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -463,6 +494,10 @@ async def full_correction_pipeline(
     # Step 3: Apply local voice corrections dictionary
     corrected = correct_voice_text(cleaned)
     result["corrected"] = corrected
+
+    # Step 3.1: Track which corrections were applied for hit_count
+    if corrected != cleaned:
+        _increment_voice_correction_hits(cleaned, corrected)
 
     # Step 3.5: EARLY EXIT — If local match is high confidence, skip IA entirely
     from src.commands import match_command

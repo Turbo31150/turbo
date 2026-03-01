@@ -31,6 +31,8 @@ export class WsClient {
   private stateCallbacks = new Set<StateChangeCallback>();
   private messageCallbacks = new Set<MessageCallback>();
   private sendQueue: string[] = [];
+  private heartbeatTimer: number | null = null;
+  private readonly heartbeatInterval = 25000;
 
   constructor(url: string) {
     this.url = url;
@@ -123,6 +125,7 @@ export class WsClient {
       this.reconnectDelay = this.baseReconnectDelay;
       this.setConnected(true);
       this.flushQueue();
+      this.startHeartbeat();
     };
 
     this.ws.onmessage = (event: MessageEvent) => {
@@ -143,6 +146,7 @@ export class WsClient {
     this.ws.onclose = (event: CloseEvent) => {
       console.log('[WsClient] Connection closed:', event.code, event.reason);
       this.ws = null;
+      this.stopHeartbeat();
       this.setConnected(false);
 
       if (!this.intentionallyClosed) {
