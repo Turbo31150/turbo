@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>JARVIS Chat — Test Console</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', monospace; background: #0a0e17; color: #e0e6f0; height: 100vh; display: flex; flex-direction: column; }
+  header { background: #111827; padding: 12px 20px; border-bottom: 1px solid #1e293b; display: flex; align-items: center; gap: 16px; }
+  header h1 { font-size: 18px; color: #60a5fa; }
+  #status { font-size: 13px; padding: 4px 10px; border-radius: 12px; }
+  .connected { background: #064e3b; color: #34d399; }
+  .disconnected { background: #7f1d1d; color: #f87171; }
+  #models-bar { background: #111827; padding: 8px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px; }
+  .model-chip { padding: 3px 8px; border-radius: 10px; background: #1e293b; }
+  .model-chip.online { border: 1px solid #22c55e; color: #86efac; }
+  .model-chip.offline { border: 1px solid #ef4444; color: #fca5a5; opacity: 0.5; }
+  .model-chip .weight { color: #94a3b8; margin-left: 4px; }
+  #messages { flex: 1; overflow-y: auto; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+  .msg { max-width: 85%; padding: 10px 14px; border-radius: 12px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; font-size: 14px; }
+  .msg.user { align-self: flex-end; background: #1e40af; color: #dbeafe; border-bottom-right-radius: 4px; }
+  .msg.assistant { align-self: flex-start; background: #1e293b; color: #e2e8f0; border-bottom-left-radius: 4px; }
+  .msg.system { align-self: center; background: #7f1d1d40; color: #fca5a5; font-size: 12px; border-radius: 8px; }
+  .msg .meta { font-size: 11px; color: #64748b; margin-top: 6px; }
+  .msg .agent-tag { color: #60a5fa; font-weight: bold; }
+  .msg .task-tag { color: #a78bfa; }
+  .msg .time-tag { color: #34d399; }
+  #input-bar { background: #111827; padding: 12px 20px; border-top: 1px solid #1e293b; display: flex; gap: 10px; }
+  #input { flex: 1; background: #1e293b; color: #e2e8f0; border: 1px solid #334155; border-radius: 8px; padding: 10px 14px; font-size: 14px; font-family: inherit; outline: none; }
+  #input:focus { border-color: #3b82f6; }
+  button { background: #2563eb; color: white; border: none; border-radius: 8px; padding: 10px 20px; cursor: pointer; font-size: 14px; font-weight: 600; }
+  button:hover { background: #1d4ed8; }
+  button:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+  #typing { color: #94a3b8; font-size: 12px; padding: 0 20px 4px; min-height: 18px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>JARVIS Chat Test</h1>
+  <span id="status" class="disconnected">Disconnected</span>
+  <span style="color:#94a3b8; font-size:12px; margin-left:auto">ws://127.0.0.1:9742/ws</span>
+</header>
+
+<div id="models-bar">Chargement modeles...</div>
+
+<div id="messages"></div>
+<div id="typing"></div>
+
+<div id="input-bar">
+  <input id="input" placeholder="Message... (/consensus pour mode parallele)" autocomplete="off" />
+  <button id="send" onclick="sendMessage()">Envoyer</button>
+</div>
+
+<script>
+const WS_URL = 'ws://127.0.0.1:9742/ws';
+const API_URL = 'http://127.0.0.1:9742';
+let ws = null;
+let msgCounter = 0;
+let pendingRequests = {};
+
+// --- WebSocket ---
+function connect() {
+  ws = new WebSocket(WS_URL);
+  ws.onopen = () => {
+    document.getElementById('status').textContent = 'Connected';
+    document.getElementById('status').className = 'connected';
+    addSystemMsg('WebSocket connecte a JARVIS');
+  };
+  ws.onclose = () => {
+    document.getElementById('status').textContent = 'Disconnected';
+    document.getElementById('status').className = 'disconnected';
+    addSystemMsg('WebSocket deconnecte — reconnexion dans 3s...');
+    setTimeout(connect, 3000);
+  };
+  ws.onerror = (e) => addSystemMsg('Erreur WebSocket: ' + e.type);
+  ws.onmessage = (e) => {
+    try {
+      const msg = JSON.parse(e.data);
+      handleMessage(msg);
+    } catch (err) {
+      console.error('Parse error:', err);
+    }
+  };
+}
+
+function handleMessage(msg) {
+  if (msg.type === 'response' && msg.channel === 'chat') {
+    const resolve = pendingRequests[msg.id];
+    if (resolve) {
+      delete pendingRequests[msg.id];
+      resolve(msg);
+    }
+    if (msg.error) {
+      addSystemMsg('Erreur: ' + msg.error);
+    } else if (msg.payload && msg.payload.agent_message) {
+      const am = msg.payload.agent_message;
+      const taskType = msg.payload.task_type || '?';
+      const elapsed = am.elapsed || '?';
+      const agent = am.agent || '?';
+      addAssistantMsg(am.content, agent, taskType, elapsed);
+    }
+    document.getElementById('typing').textContent = '';
+    document.getElementById('send').disabled = false;
+  } else if (msg.type === 'event' && msg.channel === 'chat') {
+    if (msg.event === 'agent_complete') {
+      console.log('Agent complete:', msg.payload);
+    }
+  }
+}
+
+// --- Send ---
+function sendMessage() {
+  const input = document.getElementById('input');
+  const text = input.value.trim();
+  if (!text || !ws || ws.readyState !== 1) return;
+
+  const id = 'req_' + (++msgCounter) + '_' + Date.now();
+  const envelope = {
+    id: id,
+    type: 'request',
+    channel: 'chat',
+    action: 'send_message',
+    payload: { content: text }
+  };
+
+  addUserMsg(text);
+  input.value = '';
+  document.getElementById('send').disabled = true;
+  document.getElementById('typing').textContent = 'JARVIS reflechit...';
+
+  ws.send(JSON.stringify(envelope));
+
+  // Timeout safety
+  pendingRequests[id] = () => {};
+  setTimeout(() => {
+    if (pendingRequests[id]) {
+      delete pendingRequests[id];
+      document.getElementById('typing').textContent = '';
+      document.getElementById('send').disabled = false;
+    }
+  }, 180000);
+}
+
+// --- Messages UI ---
+function addUserMsg(text) {
+  const div = document.createElement('div');
+  div.className = 'msg user';
+  div.textContent = text;
+  document.getElementById('messages').appendChild(div);
+  scrollBottom();
+}
+
+function addAssistantMsg(content, agent, taskType, elapsed) {
+  const div = document.createElement('div');
+  div.className = 'msg assistant';
+  div.innerHTML = escapeHtml(content) +
+    '<div class="meta">' +
+    '<span class="agent-tag">' + agent + '</span> | ' +
+    '<span class="task-tag">' + taskType + '</span> | ' +
+    '<span class="time-tag">' + elapsed + 's</span>' +
+    '</div>';
+  document.getElementById('messages').appendChild(div);
+  scrollBottom();
+}
+
+function addSystemMsg(text) {
+  const div = document.createElement('div');
+  div.className = 'msg system';
+  div.textContent = text;
+  document.getElementById('messages').appendChild(div);
+  scrollBottom();
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+function scrollBottom() {
+  const el = document.getElementById('messages');
+  el.scrollTop = el.scrollHeight;
+}
+
+// --- Enter key ---
+document.getElementById('input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+
+// --- Load models ---
+async function loadModels() {
+  try {
+    const res = await fetch(API_URL + '/api/models');
+    const data = await res.json();
+    const bar = document.getElementById('models-bar');
+    bar.innerHTML = data.models.map(m => {
+      const cls = m.online ? 'online' : 'offline';
+      return '<span class="model-chip ' + cls + '">' +
+        m.name + '<span class="weight"> w=' + m.weight + '</span></span>';
+    }).join('');
+  } catch (e) {
+    document.getElementById('models-bar').textContent = 'Erreur chargement modeles';
+  }
+}
+
+// --- Init ---
+connect();
+loadModels();
+</script>
+</body>
+</html>
