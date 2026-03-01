@@ -293,7 +293,7 @@ export default function SettingsPage() {
             )}
             <div style={S.row}>
               <span style={S.label}>Backend</span>
-              <span style={{ ...S.value, color: connected ? '#10b981' : '#ef4444' }}>{connected ? '{BACKEND_URL} OK' : 'Deconnecte'}</span>
+              <span style={{ ...S.value, color: connected ? '#10b981' : '#ef4444' }}>{connected ? `${BACKEND_URL} OK` : 'Deconnecte'}</span>
             </div>
             <div style={{ marginTop: 10 }}>
               <div style={S.muted}>RACCOURCIS CLAVIER</div>

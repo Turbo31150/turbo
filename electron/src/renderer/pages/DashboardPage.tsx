@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, memo } from 'react';
 import { useCluster, ClusterNode } from '../hooks/useCluster';
 import { useLMStudio } from '../hooks/useLMStudio';
 import { useWebSocket } from '../hooks/useWebSocket';
@@ -63,16 +63,16 @@ const QUICK_ACTIONS = [
 // HELPERS
 // ═══════════════════════════════════════════════════════════════
 
-function ProgressBar({ value, max, color, height = 6 }: { value: number; max: number; color: string; height?: number }) {
+const ProgressBar = memo(function ProgressBar({ value, max, color, height = 6 }: { value: number; max: number; color: string; height?: number }) {
   const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0;
   return (
     <div style={{ height, borderRadius: height / 2, backgroundColor: '#1a2a3a', overflow: 'hidden', width: '100%' }}>
       <div style={{ height: '100%', width: `${pct}%`, backgroundColor: color, borderRadius: height / 2, transition: 'width .5s ease' }} />
     </div>
   );
-}
+});
 
-function StatCard({ label, value, suffix, color, sub }: { label: string; value: string | number; suffix?: string; color: string; sub?: string }) {
+const StatCard = memo(function StatCard({ label, value, suffix, color, sub }: { label: string; value: string | number; suffix?: string; color: string; sub?: string }) {
   return (
     <div className="d-card" style={{ backgroundColor: '#0d1117', border: '1px solid #1a2a3a', borderRadius: 10, padding: '16px 20px', flex: '1 1 180px', minWidth: 160 }}>
       <div style={{ fontSize: 10, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1.5, fontWeight: 700, marginBottom: 6 }}>{label}</div>
@@ -82,9 +82,9 @@ function StatCard({ label, value, suffix, color, sub }: { label: string; value: 
       {sub && <div style={{ fontSize: 10, color: '#4b5563', marginTop: 4 }}>{sub}</div>}
     </div>
   );
-}
+});
 
-function NodeCard({ node, lmNode }: { node?: ClusterNode; lmNode?: any }) {
+const NodeCard = memo(function NodeCard({ node, lmNode }: { node?: ClusterNode; lmNode?: any }) {
   const name = node?.name || lmNode?.id || '?';
   const status = node?.status || (lmNode?.status === 'online' ? 'online' : 'offline');
   const sc = STATUS_COLORS[status] || STATUS_COLORS.offline;
@@ -181,7 +181,7 @@ function NodeCard({ node, lmNode }: { node?: ClusterNode; lmNode?: any }) {
       )}
     </div>
   );
-}
+});
 
 // ═══════════════════════════════════════════════════════════════
 // MAIN

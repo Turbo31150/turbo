@@ -14,14 +14,14 @@ export interface WsMessage {
 
 export type MessageHandler = (msg: WsMessage) => void;
 
-// Singleton client instance
-let sharedClient: WsClient | null = null;
-
+// Singleton client instance — survives HMR via window reference
+const GLOBAL_KEY = '__jarvis_ws_client__';
 function getClient(url: string): WsClient {
-  if (!sharedClient) {
-    sharedClient = new WsClient(url);
+  const w = window as any;
+  if (!w[GLOBAL_KEY]) {
+    w[GLOBAL_KEY] = new WsClient(url);
   }
-  return sharedClient;
+  return w[GLOBAL_KEY];
 }
 
 export function useWebSocket(url: string = WS_URL) {

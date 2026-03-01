@@ -169,7 +169,7 @@ export default function ToolboxPage() {
           ]).map(t => (
             <button key={t.id} className="tb-tab"
               style={{ ...S.tab, ...(tab === t.id ? S.tabActive : {}) }}
-              onClick={() => setTab(t.id)}>{t.label}</button>
+              onClick={() => { setTab(t.id); setSearch(''); }}>{t.label}</button>
           ))}
         </div>
 

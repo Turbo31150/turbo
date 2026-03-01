@@ -67,6 +67,7 @@ export class WsClient {
       this.ws = null;
     }
 
+    this.sendQueue = [];
     this.setConnected(false);
   }
 

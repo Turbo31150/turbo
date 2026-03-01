@@ -69,6 +69,14 @@ export default function TradingPage() {
     return unsub;
   }, [subscribe]);
 
+  // Escape to close confirm modal
+  useEffect(() => {
+    if (!confirm) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setConfirm(null); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [confirm]);
+
   const handleExec = useCallback(async () => {
     if (!confirm) return;
     await executeSignal(confirm.id);

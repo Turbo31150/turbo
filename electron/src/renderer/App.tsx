@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef, Suspense, lazy } from 
 import { useWebSocket, WsMessage } from './hooks/useWebSocket';
 import Sidebar from './components/layout/Sidebar';
 import TopBar from './components/layout/TopBar';
+import type { Page } from './lib/types';
 
 interface Toast {
   id: number;
@@ -20,8 +21,6 @@ const DictionaryPage = lazy(() => import('./pages/DictionaryPage'));
 const PipelinePage = lazy(() => import('./pages/PipelinePage'));
 const ToolboxPage = lazy(() => import('./pages/ToolboxPage'));
 const LogsPage = lazy(() => import('./pages/LogsPage'));
-
-type Page = 'dashboard' | 'chat' | 'trading' | 'voice' | 'lmstudio' | 'settings' | 'dictionary' | 'pipelines' | 'toolbox' | 'logs';
 
 const PAGE_COMPONENTS: Record<Page, React.LazyExoticComponent<React.ComponentType>> = {
   dashboard: DashboardPage,
@@ -167,7 +166,7 @@ export default function App() {
         </div>
 
         {toasts.length > 0 && (
-          <div style={{ position: 'fixed', top: 50, right: 16, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div role="status" aria-live="polite" style={{ position: 'fixed', top: 50, right: 16, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8 }}>
             {toasts.map(t => {
               const c = TOAST_COLORS[t.type];
               return (
