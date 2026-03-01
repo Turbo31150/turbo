@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import { useCluster } from '../../hooks/useCluster';
-
-type Page = 'dashboard' | 'chat' | 'trading' | 'voice' | 'lmstudio' | 'settings' | 'dictionary' | 'pipelines' | 'toolbox' | 'logs';
+import type { Page } from '../../lib/types';
 
 interface TopBarProps {
   connected: boolean;

@@ -222,9 +222,14 @@ export function useChat() {
     }
   }, [connected, request]);
 
-  // Persist to localStorage on message change
+  // Persist to localStorage on message change (debounced)
+  const saveTimerRef = useRef<number>(0);
   useEffect(() => {
-    if (state.messages.length > 0) saveHistory(state.messages);
+    if (state.messages.length > 0) {
+      clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = window.setTimeout(() => saveHistory(state.messages), 500);
+    }
+    return () => clearTimeout(saveTimerRef.current);
   }, [state.messages]);
 
   // Export conversation as markdown

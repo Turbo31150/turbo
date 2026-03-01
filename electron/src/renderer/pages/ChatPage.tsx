@@ -93,14 +93,14 @@ export default function ChatPage() {
 
           {loading && (
             isConsensusLoading ? (
-              <div style={S.consensusProgress}>
+              <div role="status" aria-label="Consensus en cours" style={S.consensusProgress}>
                 <div style={{ ...S.dot, backgroundColor: '#ec4899', animation: 'cDots 1.2s ease-in-out infinite' }} />
                 <div style={{ ...S.dot, backgroundColor: '#ec4899', animation: 'cDots 1.2s ease-in-out .2s infinite' }} />
                 <div style={{ ...S.dot, backgroundColor: '#ec4899', animation: 'cDots 1.2s ease-in-out .4s infinite' }} />
                 <span style={{ marginLeft: 4 }}>Consensus MAO — 7 agents en parallele...</span>
               </div>
             ) : (
-              <div style={S.loadingDots}>
+              <div role="status" aria-label="Traitement en cours" style={S.loadingDots}>
                 <div style={{ ...S.dot, animation: 'cDots 1.2s ease-in-out infinite' }} />
                 <div style={{ ...S.dot, animation: 'cDots 1.2s ease-in-out .2s infinite' }} />
                 <div style={{ ...S.dot, animation: 'cDots 1.2s ease-in-out .4s infinite' }} />
@@ -182,7 +182,7 @@ export default function ChatPage() {
           <div style={{ ...S.hint, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <AgentSelector compact value={selectedAgent} onChange={setSelectedAgent} />
             <span style={{ display: 'flex', gap: 12 }}>
-              {input.length > 0 && <span style={{ color: '#4b5563' }}>~{Math.ceil(input.length / 4)} tokens</span>}
+              {input.length > 0 && <span style={{ color: input.length > 3000 ? '#ef4444' : input.length > 2000 ? '#f97316' : '#4b5563' }}>~{Math.ceil(input.length / 4)} tokens</span>}
               {messages.length > 0 && <span style={{ color: '#4b5563' }}>{messages.length} msgs</span>}
               <span>Ctrl+Enter pour envoyer</span>
             </span>

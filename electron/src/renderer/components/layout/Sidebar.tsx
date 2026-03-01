@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useCluster } from '../../hooks/useCluster';
 import { APP_VERSION } from '../../lib/config';
-
-type Page = 'dashboard' | 'chat' | 'trading' | 'voice' | 'lmstudio' | 'settings' | 'dictionary' | 'pipelines' | 'toolbox' | 'logs';
+import type { Page } from '../../lib/types';
 
 interface SidebarProps {
   currentPage: Page;
@@ -210,6 +209,7 @@ export default function Sidebar({ currentPage, onPageChange }: SidebarProps) {
                 const isHovered = hoveredItem === item.id;
                 return (
                   <button key={item.id} className="sb-btn"
+                    aria-label={collapsed ? item.label : undefined}
                     style={{
                       width: '100%', display: 'flex', alignItems: 'center', gap: 10,
                       padding: collapsed ? '10px 0' : '8px 14px',

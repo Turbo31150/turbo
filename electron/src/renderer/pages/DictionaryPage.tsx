@@ -110,6 +110,14 @@ export default function DictionaryPage() {
     setTimeout(() => setToast(null), 3000);
   };
 
+  // Escape to close form modal
+  useEffect(() => {
+    if (!showForm) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowForm(false); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [showForm]);
+
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {

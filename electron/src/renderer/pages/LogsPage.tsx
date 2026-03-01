@@ -135,6 +135,14 @@ export default function LogsPage() {
         <button style={S.clearBtn} onClick={() => setLogs([])}>CLEAR</button>
       </div>
 
+      <div style={{ position: 'relative' }}>
+        {!autoScroll && (
+          <button onClick={() => { setAutoScroll(true); if (logAreaRef.current) logAreaRef.current.scrollTop = logAreaRef.current.scrollHeight; }}
+            style={{ position: 'absolute', bottom: 12, right: 20, zIndex: 10, padding: '4px 12px', borderRadius: 6, fontSize: 10, fontWeight: 600, cursor: 'pointer', border: '1px solid rgba(59,130,246,.3)', backgroundColor: 'rgba(59,130,246,.1)', color: '#3b82f6', fontFamily: 'inherit', backdropFilter: 'blur(4px)' }}>
+            Scroll to bottom
+          </button>
+        )}
+      </div>
       <div ref={logAreaRef} style={S.logArea} onScroll={handleScroll}>
         {filteredLogs.length === 0 && (
           <div style={{ textAlign: 'center', padding: 40, color: '#4b5563', fontSize: 12 }}>
