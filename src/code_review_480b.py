@@ -258,12 +258,12 @@ async def review_diff(diff_text: str | None = None) -> ReviewResult:
     if diff_text is None:
         # Try staged first, then unstaged
         result = subprocess.run(
-            ["git", "diff", "--staged"], capture_output=True, text=True, cwd=_TURBO_DIR_FWD
+            ["git", "diff", "--staged"], capture_output=True, text=True, cwd=_TURBO_DIR_FWD, timeout=30
         )
         diff_text = result.stdout.strip()
         if not diff_text:
             result = subprocess.run(
-                ["git", "diff"], capture_output=True, text=True, cwd=_TURBO_DIR_FWD
+                ["git", "diff"], capture_output=True, text=True, cwd=_TURBO_DIR_FWD, timeout=30
             )
             diff_text = result.stdout.strip()
         if not diff_text:
