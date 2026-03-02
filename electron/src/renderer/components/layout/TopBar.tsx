@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import { useClusterContext } from '../../hooks/ClusterContext';
 import type { Page } from '../../lib/types';
+import { INTERVALS } from '../../lib/config';
 
 interface TopBarProps {
   connected: boolean;
@@ -105,7 +106,7 @@ export default function TopBar({ connected, currentPage, onDetach }: TopBarProps
       setClock(now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
     };
     updateClock();
-    const t = window.setInterval(updateClock, 30000);
+    const t = window.setInterval(updateClock, INTERVALS.clock);
     return () => clearInterval(t);
   }, []);
 
@@ -117,7 +118,7 @@ export default function TopBar({ connected, currentPage, onDetach }: TopBarProps
       }).catch(() => {});
     };
     fetchMetrics();
-    intervalRef.current = window.setInterval(fetchMetrics, 15000);
+    intervalRef.current = window.setInterval(fetchMetrics, INTERVALS.metrics);
     return () => clearInterval(intervalRef.current);
   }, [connected, request]);
 

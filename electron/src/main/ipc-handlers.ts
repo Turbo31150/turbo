@@ -24,7 +24,11 @@ export function setupIpcHandlers(
   });
 
   // Widget management
+  const ALLOWED_WIDGETS = new Set(['MiniCluster', 'MiniTrading', 'MiniVoice']);
   ipcMain.handle('widget:create', (_event, type: string) => {
+    if (!ALLOWED_WIDGETS.has(type)) {
+      return { type, error: `Unknown widget type: ${type}` };
+    }
     const widget = createWidgetWindow(type);
     return { type, id: widget.id };
   });

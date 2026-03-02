@@ -277,7 +277,7 @@ export default memo(function MessageBubble({ message }: MessageBubbleProps) {
 
         {hasToolCalls && (
           <div style={S.toolSection}>
-            <button style={S.toolToggle} onClick={() => setToolsExpanded(!toolsExpanded)}>
+            <button style={S.toolToggle} onClick={() => setToolsExpanded(!toolsExpanded)} aria-expanded={toolsExpanded}>
               <span>{toolsExpanded ? '\u25BC' : '\u25B6'}</span>
               <span>{message.toolCalls!.length} tool call{message.toolCalls!.length > 1 ? 's' : ''}</span>
             </button>
