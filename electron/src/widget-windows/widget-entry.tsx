@@ -28,7 +28,9 @@ function MiniCluster() {
 
   useEffect(() => {
     let ws: WebSocket;
+    let disposed = false;
     const connect = () => {
+      if (disposed) return;
       ws = new WebSocket(WS_URL);
       ws.onopen = () => {
         ws.send(JSON.stringify({
@@ -47,10 +49,9 @@ function MiniCluster() {
           }
         } catch {}
       };
-      ws.onclose = () => setTimeout(connect, 3000);
+      ws.onclose = () => { if (!disposed) setTimeout(connect, 3000); };
     };
     connect();
-    // Refresh every 5s
     const interval = setInterval(() => {
       if (ws?.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({
@@ -62,7 +63,7 @@ function MiniCluster() {
         }));
       }
     }, 5000);
-    return () => { ws?.close(); clearInterval(interval); };
+    return () => { disposed = true; ws?.close(); clearInterval(interval); };
   }, []);
 
   return (
@@ -99,7 +100,9 @@ function MiniTrading() {
 
   useEffect(() => {
     let ws: WebSocket;
+    let disposed = false;
     const connect = () => {
+      if (disposed) return;
       ws = new WebSocket(WS_URL);
       ws.onopen = () => {
         ws.send(JSON.stringify({
@@ -117,10 +120,21 @@ function MiniTrading() {
           if (msg.payload?.total_pnl !== undefined) setPnl(msg.payload.total_pnl);
         } catch {}
       };
-      ws.onclose = () => setTimeout(connect, 3000);
+      ws.onclose = () => { if (!disposed) setTimeout(connect, 3000); };
     };
     connect();
-    return () => ws?.close();
+    const interval = setInterval(() => {
+      if (ws?.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          id: `widget_trading_${Date.now()}`,
+          type: 'request',
+          channel: 'trading',
+          action: 'pending_signals',
+          payload: {},
+        }));
+      }
+    }, 10000);
+    return () => { disposed = true; ws?.close(); clearInterval(interval); };
   }, []);
 
   return (
@@ -153,7 +167,9 @@ function MiniVoice() {
 
   useEffect(() => {
     let ws: WebSocket;
+    let disposed = false;
     const connect = () => {
+      if (disposed) return;
       ws = new WebSocket(WS_URL);
       wsRef.current = ws;
       ws.onmessage = (e) => {
@@ -163,10 +179,10 @@ function MiniVoice() {
           if (msg.event === 'recording_stopped' || msg.event === 'transcription') setStatus('idle');
         } catch {}
       };
-      ws.onclose = () => { wsRef.current = null; setTimeout(connect, 3000); };
+      ws.onclose = () => { wsRef.current = null; if (!disposed) setTimeout(connect, 3000); };
     };
     connect();
-    return () => { ws?.close(); };
+    return () => { disposed = true; ws?.close(); };
   }, []);
 
   const toggleRecording = useCallback(() => {

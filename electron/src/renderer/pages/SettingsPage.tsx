@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { APP_VERSION, APP_NAME, APP_STACK, BACKEND_URL } from '../lib/config';
 
@@ -70,15 +70,18 @@ export default function SettingsPage() {
   const [dirty, setDirty] = useState(false);
   const [about, setAbout] = useState<SystemAbout | null>(null);
   const { connected, request } = useWebSocket();
+  const mountedRef = useRef(true);
 
   useEffect(() => {
+    mountedRef.current = true;
     if (!connected) return;
     request('system', 'get_config').then(r => {
-      if (r.payload?.config) setCfg(prev => ({ ...prev, ...r.payload.config }));
+      if (mountedRef.current && r.payload?.config) setCfg(prev => ({ ...prev, ...r.payload.config }));
     }).catch(() => {});
     request('system', 'system_info').then(r => {
-      if (r.payload) setAbout(r.payload as SystemAbout);
+      if (mountedRef.current && r.payload) setAbout(r.payload as SystemAbout);
     }).catch(() => {});
+    return () => { mountedRef.current = false; };
   }, [connected, request]);
 
   const updateCfg = (updater: (prev: Config) => Config) => {

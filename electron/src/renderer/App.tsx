@@ -71,11 +71,14 @@ export default function App() {
 
   useEffect(() => {
     if (toasts.length === 0) return;
-    const timer = setTimeout(() => {
-      setToasts(prev => prev.filter(t => Date.now() - t.timestamp < 5000));
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, [toasts]);
+    const timer = setInterval(() => {
+      setToasts(prev => {
+        const alive = prev.filter(t => Date.now() - t.timestamp < 5000);
+        return alive.length === prev.length ? prev : alive;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [toasts.length > 0]);
 
   useEffect(() => {
     const api = (window as any).electronAPI;

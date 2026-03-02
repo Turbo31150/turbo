@@ -68,6 +68,7 @@ export function useVoice() {
   // Update audio level at ~15fps instead of 60fps to reduce re-renders
   const lastLevelUpdate = useRef(0);
   const updateLevel = useCallback(() => {
+    if (!recordingRef.current) return;
     const now = performance.now();
     if (recorderRef.current && now - lastLevelUpdate.current > 66) {
       const level = recorderRef.current.getLevel();

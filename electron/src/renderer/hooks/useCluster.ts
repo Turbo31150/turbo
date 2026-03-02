@@ -129,17 +129,16 @@ export function useCluster() {
 
   // Initial fetch and periodic refresh
   useEffect(() => {
+    let id: number | undefined;
     if (connected) {
       fetchClusterStatus();
-      intervalRef.current = window.setInterval(fetchClusterStatus, INTERVALS.cluster);
+      id = window.setInterval(fetchClusterStatus, INTERVALS.cluster);
     } else {
       setState(prev => ({ ...prev, loading: false, error: 'Not connected' }));
     }
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
+      if (id !== undefined) clearInterval(id);
     };
   }, [connected, fetchClusterStatus]);
 
