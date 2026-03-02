@@ -76,22 +76,19 @@ async def classify_task(prompt: str) -> str:
     Reutilise _local_ia_analyze de orchestrator.py mais avec CLASSIFY_PROMPT.
     Fallback: heuristiques par mots-cles.
     """
-    from src.config import config, prepare_lmstudio_input
+    from src.config import config, prepare_lmstudio_input, build_lmstudio_payload
     from src.tools import _get_client
 
     node = config.get_node("M1")
     if node:
         try:
             client = await _get_client()
-            r = await client.post(f"{node.url}/api/v1/chat", json={
-                "model": node.default_model,
-                "input": prepare_lmstudio_input(prompt, node.name, node.default_model),
-                "system_prompt": CLASSIFY_PROMPT,
-                "temperature": 0.1,
-                "max_output_tokens": 32,
-                "stream": False,
-                "store": False,
-            }, timeout=config.fast_timeout)
+            r = await client.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
+                node.default_model,
+                prepare_lmstudio_input(prompt, node.name, node.default_model),
+                temperature=0.1, max_output_tokens=32,
+                system_prompt=CLASSIFY_PROMPT,
+            ), timeout=config.fast_timeout)
             r.raise_for_status()
             from src.tools import extract_lms_output
             content = extract_lms_output(r.json()).strip().lower()

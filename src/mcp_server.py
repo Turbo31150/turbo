@@ -24,7 +24,7 @@ from mcp.types import Tool, TextContent
 # ── Config import (inline to avoid circular deps) ──────────────────────────
 
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parent.parent))
-from src.config import config, SCRIPTS, PATHS, prepare_lmstudio_input
+from src.config import config, SCRIPTS, PATHS, prepare_lmstudio_input, build_lmstudio_payload, build_ollama_payload
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -70,14 +70,10 @@ async def handle_lm_query(args: dict) -> list[TextContent]:
     model = args.get("model", node.default_model)
     try:
         async with httpx.AsyncClient(timeout=120) as c:
-            r = await c.post(f"{node.url}/api/v1/chat", json={
-                "model": model,
-                "input": args["prompt"],
-                "temperature": config.temperature,
-                "max_output_tokens": config.max_tokens,
-                "stream": False,
-                "store": False,
-            }, headers=node.auth_headers)
+            r = await c.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
+                model, prepare_lmstudio_input(args["prompt"], node.name, model),
+                temperature=config.temperature, max_output_tokens=config.max_tokens,
+            ), headers=node.auth_headers)
             r.raise_for_status()
             from src.tools import extract_lms_output
             return _text(f"[{node.name}/{model}] {extract_lms_output(r.json())}")
@@ -193,12 +189,9 @@ async def handle_consensus(args: dict) -> list[TextContent]:
         if ol_node:
             try:
                 async with httpx.AsyncClient(timeout=per_timeout) as c:
-                    r = await asyncio.wait_for(c.post(f"{ol_node.url}/api/chat", json={
-                        "model": ol_node.default_model,
-                        "messages": [{"role": "user", "content": prompt}],
-                        "stream": False, "think": False,
-                        "options": {"temperature": 0.3, "num_predict": 2048},
-                    }), timeout=per_timeout)
+                    r = await asyncio.wait_for(c.post(f"{ol_node.url}/api/chat", json=build_ollama_payload(
+                        ol_node.default_model, [{"role": "user", "content": prompt}],
+                    )), timeout=per_timeout)
                     r.raise_for_status()
                     text = _strip_thinking_tags(r.json()["message"]["content"])
                     return f"[{ol_node.name}/Ollama] {text}"
@@ -214,12 +207,9 @@ async def handle_consensus(args: dict) -> list[TextContent]:
 
         try:
             async with httpx.AsyncClient(timeout=per_timeout) as c:
-                r = await asyncio.wait_for(c.post(f"{node.url}/api/v1/chat", json={
-                    "model": node.default_model,
-                    "input": input_text,
-                    "temperature": 0.2, "max_output_tokens": 1024,
-                    "stream": False, "store": False,
-                }, headers=node.auth_headers), timeout=per_timeout)
+                r = await asyncio.wait_for(c.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
+                    node.default_model, input_text,
+                ), headers=node.auth_headers), timeout=per_timeout)
                 r.raise_for_status()
                 text = extract_lms_output(r.json())
                 return f"[{node.name}] {text}"
@@ -294,12 +284,9 @@ async def handle_bridge_query(args: dict) -> list[TextContent]:
 
                 ol_node = config.get_ollama_node(name)
                 if ol_node:
-                    r = await c.post(f"{ol_node.url}/api/chat", json={
-                        "model": ol_node.default_model,
-                        "messages": [{"role": "user", "content": prompt}],
-                        "stream": False, "think": False,
-                        "options": {"temperature": 0.3, "num_predict": 2048},
-                    })
+                    r = await c.post(f"{ol_node.url}/api/chat", json=build_ollama_payload(
+                        ol_node.default_model, [{"role": "user", "content": prompt}],
+                    ))
                     r.raise_for_status()
                     return _text(f"[{name}/{ol_node.default_model}] {r.json()['message']['content']}")
 
@@ -307,11 +294,9 @@ async def handle_bridge_query(args: dict) -> list[TextContent]:
                 if not node:
                     continue
                 input_text = prepare_lmstudio_input(prompt, node.name, node.default_model)
-                r = await c.post(f"{node.url}/api/v1/chat", json={
-                    "model": node.default_model, "input": input_text,
-                    "temperature": 0.2, "max_output_tokens": 1024,
-                    "stream": False, "store": False,
-                }, headers=node.auth_headers)
+                r = await c.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
+                    node.default_model, input_text,
+                ), headers=node.auth_headers)
                 r.raise_for_status()
                 from src.tools import extract_lms_output
                 return _text(f"[{name}/{node.default_model}] {extract_lms_output(r.json())}")
@@ -346,12 +331,9 @@ async def handle_bridge_mesh(args: dict) -> list[TextContent]:
             async with httpx.AsyncClient(timeout=per_timeout) as c:
                 ol_node = config.get_ollama_node(name)
                 if ol_node:
-                    r = await c.post(f"{ol_node.url}/api/chat", json={
-                        "model": ol_node.default_model,
-                        "messages": [{"role": "user", "content": prompt}],
-                        "stream": False, "think": False,
-                        "options": {"temperature": 0.3, "num_predict": 2048},
-                    })
+                    r = await c.post(f"{ol_node.url}/api/chat", json=build_ollama_payload(
+                        ol_node.default_model, [{"role": "user", "content": prompt}],
+                    ))
                     r.raise_for_status()
                     return f"[{name}/{ol_node.default_model}] {r.json()['message']['content']}"
 
@@ -359,11 +341,9 @@ async def handle_bridge_mesh(args: dict) -> list[TextContent]:
                 if not node:
                     return f"[{name}] ERREUR: noeud inconnu"
                 input_text = prepare_lmstudio_input(prompt, node.name, node.default_model)
-                r = await c.post(f"{node.url}/api/v1/chat", json={
-                    "model": node.default_model, "input": input_text,
-                    "temperature": 0.2, "max_output_tokens": 1024,
-                    "stream": False, "store": False,
-                }, headers=node.auth_headers)
+                r = await c.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
+                    node.default_model, input_text,
+                ), headers=node.auth_headers)
                 r.raise_for_status()
                 from src.tools import extract_lms_output
                 return f"[{name}/{node.default_model}] {extract_lms_output(r.json())}"

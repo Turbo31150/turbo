@@ -22,7 +22,7 @@ from typing import Any
 import httpx
 import logging
 
-from src.config import config
+from src.config import config, build_lmstudio_payload, build_ollama_payload
 
 logger = logging.getLogger("jarvis.cluster_startup")
 
@@ -185,14 +185,10 @@ async def _warmup_model(url: str, model: str, timeout: float = 15.0, headers: di
     try:
         t0 = time.monotonic()
         async with httpx.AsyncClient(timeout=timeout) as c:
-            r = await c.post(f"{url}/api/v1/chat", headers=headers or {}, json={
-                "model": model,
-                "input": WARMUP_PROMPT,
-                "temperature": 0.1,
-                "max_output_tokens": WARMUP_MAX_TOKENS,
-                "stream": False,
-                "store": False,
-            })
+            r = await c.post(f"{url}/api/v1/chat", headers=headers or {}, json=build_lmstudio_payload(
+                model, WARMUP_PROMPT,
+                temperature=0.1, max_output_tokens=WARMUP_MAX_TOKENS,
+            ))
             r.raise_for_status()
             latency = int((time.monotonic() - t0) * 1000)
             data = r.json()
@@ -209,12 +205,10 @@ async def _warmup_ollama(url: str, model: str, timeout: float = 10.0) -> dict[st
     try:
         t0 = time.monotonic()
         async with httpx.AsyncClient(timeout=timeout) as c:
-            r = await c.post(f"{url}/api/chat", json={
-                "model": model,
-                "messages": [{"role": "user", "content": WARMUP_PROMPT}],
-                "stream": False, "think": False,
-                "options": {"temperature": 0.1, "num_predict": WARMUP_MAX_TOKENS},
-            })
+            r = await c.post(f"{url}/api/chat", json=build_ollama_payload(
+                model, [{"role": "user", "content": WARMUP_PROMPT}],
+                temperature=0.1, num_predict=WARMUP_MAX_TOKENS,
+            ))
             r.raise_for_status()
             latency = int((time.monotonic() - t0) * 1000)
             return {"ok": True, "latency_ms": latency}

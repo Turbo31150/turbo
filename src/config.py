@@ -135,19 +135,6 @@ class GeminiNode:
     ])
 
 
-@dataclass
-class ClaudeNode:
-    name: str = "CLAUDE"
-    proxy_path: str = field(default_factory=lambda: str(PATHS["turbo"] / "claude-proxy.js"))
-    role: str = "cloud_reasoning"
-    models: list[str] = field(default_factory=lambda: ["opus", "sonnet", "haiku"])
-    default_model: str = "opus"
-    timeout_ms: int = 120_000
-    weight: float = 1.2
-    use_cases: list[str] = field(default_factory=lambda: [
-        "Raisonnement cloud", "Review code avance", "Consensus critique", "Architecture"
-    ])
-
 
 def prepare_lmstudio_input(text: str, node_name: str, model: str) -> str:
     """Prepend /nothink prefix for Qwen3 models on LM Studio (disables thinking tokens).
@@ -158,6 +145,43 @@ def prepare_lmstudio_input(text: str, node_name: str, model: str) -> str:
     if node_name.upper() == "M1" and "qwen" in model.lower():
         return "/nothink\n" + text
     return text
+
+
+def build_lmstudio_payload(model: str, input_text: str, *,
+                           temperature: float = 0.2,
+                           max_output_tokens: int = 1024,
+                           **extra) -> dict:
+    """Build a standard LM Studio Responses API payload.
+
+    Always sets stream=False and store=False.  Extra kwargs (e.g.
+    integrations, context_length) are merged into the dict.
+    """
+    payload = {
+        "model": model,
+        "input": input_text,
+        "temperature": temperature,
+        "max_output_tokens": max_output_tokens,
+        "stream": False,
+        "store": False,
+    }
+    payload.update(extra)
+    return payload
+
+
+def build_ollama_payload(model: str, messages: list[dict], *,
+                         temperature: float = 0.3,
+                         num_predict: int = 2048) -> dict:
+    """Build a standard Ollama /api/chat payload.
+
+    Always sets stream=False, think=False (mandatory for cloud models).
+    """
+    return {
+        "model": model,
+        "messages": messages,
+        "stream": False,
+        "think": False,
+        "options": {"temperature": temperature, "num_predict": num_predict},
+    }
 
 
 @dataclass
@@ -215,9 +239,6 @@ class JarvisConfig:
 
     # ── Gemini node ────────────────────────────────────────────────────────
     gemini_node: GeminiNode = field(default_factory=GeminiNode)
-
-    # ── Claude node (via claude-proxy.js) ─────────────────────────────────
-    claude_node: ClaudeNode = field(default_factory=ClaudeNode)
 
     # ── Model catalog (all available models) ──────────────────────────────
     # M1 permanent: qwen3-8b (4.7 GB, ctx 8192, dense 8B) + qwen3-30b (dual load disponible)

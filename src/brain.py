@@ -22,7 +22,7 @@ from pathlib import Path
 
 logger = logging.getLogger("jarvis.brain")
 
-from src.config import prepare_lmstudio_input
+from src.config import prepare_lmstudio_input, build_lmstudio_payload
 from src.skills import (
     load_skills, add_skill, Skill, SkillStep,
     get_action_history, log_action,
@@ -261,7 +261,7 @@ def get_brain_status() -> dict:
     }
 
 
-async def cluster_suggest_skill(context: str, node_url: str = "http://10.5.0.2:1234") -> dict | None:
+async def cluster_suggest_skill(context: str, node_url: str = "") -> dict | None:
     """Ask the LM Studio cluster for skill suggestions based on context.
 
     Uses M1 (deep analysis) for best results.
@@ -283,17 +283,18 @@ async def cluster_suggest_skill(context: str, node_url: str = "http://10.5.0.2:1
     )
 
     try:
+        from src.config import config
+        if not node_url:
+            m1 = config.get_node("M1")
+            node_url = m1.url if m1 else "http://10.5.0.2:1234"
+        model = "qwen/qwen3-8b"
         async with httpx.AsyncClient(timeout=30) as client:
             resp = await client.post(
                 f"{node_url}/api/v1/chat",
-                json={
-                    "model": "qwen/qwen3-8b",
-                    "input": prepare_lmstudio_input(prompt, "M1", "qwen3-8b"),
-                    "temperature": 0.2,
-                    "max_output_tokens": 512,
-                    "stream": False,
-                    "store": False,
-                },
+                json=build_lmstudio_payload(
+                    model, prepare_lmstudio_input(prompt, "M1", model),
+                    max_output_tokens=512,
+                ),
             )
             resp.raise_for_status()
             from src.tools import extract_lms_output

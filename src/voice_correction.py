@@ -20,7 +20,7 @@ from src.commands import (
     COMMANDS, JarvisCommand, VOICE_CORRECTIONS,
     APP_PATHS, SITE_ALIASES, correct_voice_text,
 )
-from src.config import prepare_lmstudio_input
+from src.config import prepare_lmstudio_input, build_lmstudio_payload, build_ollama_payload
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -653,11 +653,9 @@ async def _ia_correct(text: str, url: str, model: str) -> str:
             async with httpx.AsyncClient(timeout=5) as c:
                 r = await c.post(
                     f"{ol.url}/api/chat",
-                    json={
-                        "model": model, "messages": messages,
-                        "stream": False, "think": False,
-                        "options": {"temperature": 0.1, "num_predict": 200},
-                    },
+                    json=build_ollama_payload(
+                        model, messages, temperature=0.1, num_predict=200,
+                    ),
                 )
                 r.raise_for_status()
                 return r.json()["message"]["content"].strip()
@@ -670,7 +668,12 @@ async def _ia_correct(text: str, url: str, model: str) -> str:
             async with httpx.AsyncClient(timeout=5) as c:
                 r = await c.post(
                     f"{node.url}/api/v1/chat",
-                    json={"model": node.default_model, "input": prepare_lmstudio_input(text, node.name, node.default_model), "system_prompt": messages[0]["content"] if messages and messages[0]["role"] == "system" else "", "temperature": 0.1, "max_output_tokens": 200, "stream": False, "store": False},
+                    json=build_lmstudio_payload(
+                        node.default_model,
+                        prepare_lmstudio_input(text, node.name, node.default_model),
+                        temperature=0.1, max_output_tokens=200,
+                        system_prompt=messages[0]["content"] if messages and messages[0]["role"] == "system" else "",
+                    ),
                     headers=node.auth_headers,
                 )
                 r.raise_for_status()

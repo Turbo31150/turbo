@@ -27,7 +27,7 @@ from dataclasses import dataclass
 
 import httpx
 
-from src.config import PATHS
+from src.config import PATHS, build_ollama_payload
 
 _TURBO_DIR_FWD = str(PATHS.get("turbo", "F:/BUREAU/turbo"))
 
@@ -190,16 +190,11 @@ async def _query_ollama(prompt: str, system: str, model: str, timeout: float) ->
     async with httpx.AsyncClient() as client:
         resp = await client.post(
             f"{OLLAMA_URL}/api/chat",
-            json={
-                "model": model,
-                "messages": [
-                    {"role": "system", "content": system},
-                    {"role": "user", "content": prompt},
-                ],
-                "stream": False,
-                "think": False,
-                "options": {"num_predict": 2048, "temperature": 0.1},
-            },
+            json=build_ollama_payload(
+                model,
+                [{"role": "system", "content": system}, {"role": "user", "content": prompt}],
+                temperature=0.1,
+            ),
             timeout=timeout,
         )
         resp.raise_for_status()

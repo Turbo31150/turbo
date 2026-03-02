@@ -27,7 +27,7 @@ logger = logging.getLogger("jarvis.tools")
 import httpx
 from claude_agent_sdk import tool, create_sdk_mcp_server
 
-from src.config import config, SCRIPTS, PATHS, prepare_lmstudio_input
+from src.config import config, SCRIPTS, PATHS, prepare_lmstudio_input, build_lmstudio_payload, build_ollama_payload
 
 
 def _strip_thinking_tags(text: str) -> str:
@@ -192,14 +192,9 @@ async def lm_query(args: dict[str, Any]) -> dict[str, Any]:
 
     try:
         t0 = time.monotonic()
-        r = await _retry_request("POST", f"{node.url}/api/v1/chat", json={
-            "model": model,
-            "input": input_text,
-            "temperature": temp,
-            "max_output_tokens": max_tokens,
-            "stream": False,
-            "store": False,
-        }, timeout=timeout, headers=node.auth_headers)
+        r = await _retry_request("POST", f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
+            model, input_text, temperature=temp, max_output_tokens=max_tokens,
+        ), timeout=timeout, headers=node.auth_headers)
         latency = (time.monotonic() - t0) * 1000
         _track_latency(node.name, latency)
         data = r.json()
@@ -239,16 +234,10 @@ async def lm_mcp_query(args: dict[str, Any]) -> dict[str, Any]:
 
     try:
         t0 = time.monotonic()
-        r = await _retry_request("POST", f"{node.url}/api/v1/chat", json={
-            "model": model,
-            "input": prompt,
-            "integrations": integrations,
-            "context_length": ctx_len,
-            "temperature": config.temperature,
-            "max_output_tokens": config.max_tokens,
-            "stream": False,
-            "store": False,
-        }, timeout=config.inference_timeout, headers=node.auth_headers)
+        r = await _retry_request("POST", f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
+            model, prompt, temperature=config.temperature, max_output_tokens=config.max_tokens,
+            integrations=integrations, context_length=ctx_len,
+        ), timeout=config.inference_timeout, headers=node.auth_headers)
         latency = (time.monotonic() - t0) * 1000
         _track_latency(node.name, latency)
         data = r.json()
@@ -379,12 +368,10 @@ async def bridge_mesh(args: dict[str, Any]) -> dict[str, Any]:
 
             ol_node = config.get_ollama_node(name)
             if ol_node:
-                r = await client.post(f"{ol_node.url}/api/chat", json={
-                    "model": ol_node.default_model,
-                    "messages": [{"role": "user", "content": prompt}],
-                    "stream": False, "think": False,
-                    "options": {"temperature": config.temperature, "num_predict": config.max_tokens},
-                }, timeout=per_timeout)
+                r = await client.post(f"{ol_node.url}/api/chat", json=build_ollama_payload(
+                    ol_node.default_model, [{"role": "user", "content": prompt}],
+                    temperature=config.temperature, num_predict=config.max_tokens,
+                ), timeout=per_timeout)
                 r.raise_for_status()
                 latency = int((time.monotonic() - t0) * 1000)
                 return f"[{name}/{ol_node.default_model}] {r.json()['message']['content']} --- {latency}ms"
@@ -393,13 +380,10 @@ async def bridge_mesh(args: dict[str, Any]) -> dict[str, Any]:
             if not node:
                 return f"[{name}] ERREUR: noeud inconnu"
             input_text = prepare_lmstudio_input(prompt, node.name, node.default_model)
-            r = await client.post(f"{node.url}/api/v1/chat", json={
-                "model": node.default_model,
-                "input": input_text,
-                "temperature": config.temperature,
-                "max_output_tokens": config.max_tokens,
-                "stream": False, "store": False,
-            }, timeout=per_timeout, headers=node.auth_headers)
+            r = await client.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
+                node.default_model, input_text,
+                temperature=config.temperature, max_output_tokens=config.max_tokens,
+            ), timeout=per_timeout, headers=node.auth_headers)
             r.raise_for_status()
             latency = int((time.monotonic() - t0) * 1000)
             _track_latency(name, latency)
@@ -543,12 +527,10 @@ async def consensus(args: dict[str, Any]) -> dict[str, Any]:
         ol_node = config.get_ollama_node(name)
         if ol_node:
             try:
-                r = await asyncio.wait_for(client.post(f"{ol_node.url}/api/chat", json={
-                    "model": ol_node.default_model,
-                    "messages": [{"role": "user", "content": prompt}],
-                    "stream": False, "think": False,
-                    "options": {"temperature": config.temperature, "num_predict": config.max_tokens},
-                }, timeout=per_timeout), timeout=per_timeout)
+                r = await asyncio.wait_for(client.post(f"{ol_node.url}/api/chat", json=build_ollama_payload(
+                    ol_node.default_model, [{"role": "user", "content": prompt}],
+                    temperature=config.temperature, num_predict=config.max_tokens,
+                ), timeout=per_timeout), timeout=per_timeout)
                 r.raise_for_status()
                 content = r.json()["message"]["content"]
                 return f"[{name}/{ol_node.default_model}] {_strip_thinking_tags(content)}"
@@ -563,14 +545,10 @@ async def consensus(args: dict[str, Any]) -> dict[str, Any]:
         input_text = prepare_lmstudio_input(prompt, node.name, node.default_model)
 
         try:
-            r = await asyncio.wait_for(client.post(f"{node.url}/api/v1/chat", json={
-                "model": node.default_model,
-                "input": input_text,
-                "temperature": config.temperature,
-                "max_output_tokens": config.max_tokens,
-                "stream": False,
-                "store": False,
-            }, timeout=per_timeout, headers=node.auth_headers), timeout=per_timeout)
+            r = await asyncio.wait_for(client.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
+                node.default_model, input_text,
+                temperature=config.temperature, max_output_tokens=config.max_tokens,
+            ), timeout=per_timeout, headers=node.auth_headers), timeout=per_timeout)
             r.raise_for_status()
             return f"[{name}/{node.default_model}] {extract_lms_output(r.json())}"
         except asyncio.TimeoutError:

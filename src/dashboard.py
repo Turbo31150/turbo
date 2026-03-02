@@ -40,7 +40,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from src.config import config, JARVIS_VERSION, prepare_lmstudio_input
+from src.config import config, JARVIS_VERSION, prepare_lmstudio_input, build_lmstudio_payload
 from src.skills import load_skills
 from src.brain import get_brain_status
 
@@ -515,14 +515,9 @@ class JarvisDashboard(App):
             self._log(f"Envoi a {node.name} ({node.default_model})...")
             async with httpx.AsyncClient(timeout=60) as c:
                 input_text = prepare_lmstudio_input(text, node.name, node.default_model)
-                r = await c.post(f"{node.url}/api/v1/chat", json={
-                    "model": node.default_model,
-                    "input": input_text,
-                    "temperature": 0.2,
-                    "max_output_tokens": 1024,
-                    "stream": False,
-                    "store": False,
-                }, headers=node.auth_headers)
+                r = await c.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
+                    node.default_model, input_text,
+                ), headers=node.auth_headers)
                 r.raise_for_status()
                 from src.tools import extract_lms_output
                 response = extract_lms_output(r.json())
