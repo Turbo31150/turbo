@@ -55,7 +55,7 @@ const S = {
 };
 
 function Toggle({ on, onChange }: { on: boolean; onChange: () => void }) {
-  return <button className={`s-toggle ${on ? 'on' : 'off'}`} onClick={onChange} />;
+  return <button className={`s-toggle ${on ? 'on' : 'off'}`} onClick={onChange} role="switch" aria-checked={on} />;
 }
 
 interface SystemAbout {

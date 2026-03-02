@@ -75,7 +75,7 @@ function MiniCluster() {
         }}>
           <span style={{ color: '#e0e0e0', fontWeight: 'bold' }}>{n.name}</span>
           <span style={{
-            color: n.status === 'online' ? '#00ff88' : '#ff4444',
+            color: n.status === 'online' ? '#10b981' : '#ef4444',
             fontSize: 9, textTransform: 'uppercase',
           }}>
             {n.status}
@@ -141,7 +141,7 @@ function MiniTrading() {
     <div style={{ fontSize: 11 }}>
       <div style={{
         textAlign: 'center', padding: '4px 0', borderBottom: '1px solid #1a2a3a',
-        color: pnl >= 0 ? '#00ff88' : '#ff4444', fontWeight: 'bold',
+        color: pnl >= 0 ? '#10b981' : '#ef4444', fontWeight: 'bold',
       }}>
         PnL: {pnl >= 0 ? '+' : ''}{pnl.toFixed(2)} USDT
       </div>
@@ -151,7 +151,7 @@ function MiniTrading() {
           borderBottom: '1px solid #1a2a3a',
         }}>
           <span>{s.pair.replace('/USDT:USDT', '')}</span>
-          <span style={{ color: s.direction === 'LONG' ? '#00ff88' : '#ff4444' }}>
+          <span style={{ color: s.direction === 'LONG' ? '#10b981' : '#ef4444' }}>
             {s.direction}
           </span>
           <span style={{ color: '#00d4ff' }}>{s.score}</span>
@@ -208,14 +208,14 @@ function MiniVoice() {
         onClick={toggleRecording}
         style={{
           width: 40, height: 40, borderRadius: '50%',
-          background: status === 'recording' ? '#ff4444' : '#1a2a3a',
-          border: `2px solid ${status === 'recording' ? '#ff4444' : '#4a6a8a'}`,
+          background: status === 'recording' ? '#ef4444' : '#1a2a3a',
+          border: `2px solid ${status === 'recording' ? '#ef4444' : '#4a6a8a'}`,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           cursor: 'pointer', transition: 'all 0.3s',
         }}>
         <span style={{ fontSize: 18 }}>&#x1F3A4;</span>
       </div>
-      <span style={{ marginLeft: 8, color: status === 'recording' ? '#ff4444' : '#4a6a8a' }}>
+      <span style={{ marginLeft: 8, color: status === 'recording' ? '#ef4444' : '#4a6a8a' }}>
         {status === 'recording' ? 'REC' : 'PTT'}
       </span>
     </div>
