@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useWebSocket, WsMessage } from './useWebSocket';
 
 export interface TradingSignal {
@@ -207,14 +207,17 @@ export function useTrading() {
     setState(prev => ({ ...prev, loading: false }));
   }, [fetchSignals, fetchPositions]);
 
+  const refreshRef = useRef(refreshTrading);
+  refreshRef.current = refreshTrading;
+
   // Initial fetch
   useEffect(() => {
     if (connected) {
-      refreshTrading();
+      refreshRef.current();
     } else {
       setState(prev => ({ ...prev, loading: false }));
     }
-  }, [connected]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [connected]);
 
   return {
     signals: state.signals,

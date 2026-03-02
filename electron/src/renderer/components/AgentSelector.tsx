@@ -44,9 +44,12 @@ export default function AgentSelector({ value, onChange, compact }: AgentSelecto
   const [models, setModels] = useState<AgentModel[]>([]);
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
+  const [loadingModels, setLoadingModels] = useState(true);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const focusIdx = useRef(-1);
 
   const fetchModels = useCallback(async () => {
+    setLoadingModels(true);
     try {
       const r = await fetch(BACKEND_URL + '/api/models', { signal: AbortSignal.timeout(5000) });
       if (r.ok) {
@@ -54,6 +57,7 @@ export default function AgentSelector({ value, onChange, compact }: AgentSelecto
         setModels(data.models || []);
       }
     } catch { /* offline */ }
+    setLoadingModels(false);
   }, []);
 
   useEffect(() => {
@@ -73,6 +77,47 @@ export default function AgentSelector({ value, onChange, compact }: AgentSelecto
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  // Keyboard navigation
+  const allOptions = useMemo(() => {
+    const opts: string[] = [''];  // '' = auto
+    for (const m of models) opts.push(m.id);
+    return opts;
+  }, [models]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (!open) {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        setOpen(true);
+        focusIdx.current = allOptions.indexOf(value || '');
+      }
+      return;
+    }
+    switch (e.key) {
+      case 'Escape':
+        e.preventDefault();
+        setOpen(false);
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        focusIdx.current = Math.min(focusIdx.current + 1, allOptions.length - 1);
+        setHovered(allOptions[focusIdx.current] || 'auto');
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        focusIdx.current = Math.max(focusIdx.current - 1, 0);
+        setHovered(allOptions[focusIdx.current] || 'auto');
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (focusIdx.current >= 0 && focusIdx.current < allOptions.length) {
+          onChange?.(allOptions[focusIdx.current]);
+        }
+        setOpen(false);
+        break;
+    }
+  }, [open, allOptions, value, onChange]);
+
   const grouped = useMemo(() => {
     const groups: Record<string, AgentModel[]> = { local: [], cloud: [], proxy: [] };
     for (const m of models) {
@@ -85,18 +130,22 @@ export default function AgentSelector({ value, onChange, compact }: AgentSelecto
   const selected = models.find(m => m.id === value);
 
   return (
-    <div ref={wrapperRef} style={S.wrapper}>
-      <button style={{ ...S.trigger, ...(open ? S.triggerOpen : {}), ...(compact ? { padding: '4px 8px', fontSize: 10 } : {}) }}
-        onClick={() => setOpen(!open)}>
+    <div ref={wrapperRef} style={S.wrapper} onKeyDown={handleKeyDown}>
+      <button
+        style={{ ...S.trigger, ...(open ? S.triggerOpen : {}), ...(compact ? { padding: '4px 8px', fontSize: 10 } : {}) }}
+        onClick={() => setOpen(!open)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+      >
         <span style={{ ...S.dot, ...(selected?.online ? S.dotOn : S.dotOff) }} />
-        <span>{selected?.name || 'Auto (best)'}</span>
+        <span>{loadingModels ? 'Chargement...' : selected?.name || 'Auto (best)'}</span>
         <span style={{ ...S.arrow, transform: open ? 'rotate(180deg)' : 'none' }}>&#9660;</span>
       </button>
 
       {open && (
-        <div style={S.dropdown}>
+        <div style={S.dropdown} role="listbox" aria-label="Selection agent IA">
           {/* Auto option */}
-          <div style={{ ...S.option, ...(hovered === 'auto' ? S.optionHover : {}), ...(!value ? S.optionSelected : {}) }}
+          <div role="option" aria-selected={!value} style={{ ...S.option, ...(hovered === 'auto' ? S.optionHover : {}), ...(!value ? S.optionSelected : {}) }}
             onClick={() => { onChange?.(''); setOpen(false); }}
             onMouseEnter={() => setHovered('auto')} onMouseLeave={() => setHovered(null)}>
             <span style={{ ...S.dot, ...S.dotOn }} />
@@ -111,7 +160,7 @@ export default function AgentSelector({ value, onChange, compact }: AgentSelecto
               <div key={group}>
                 <div style={S.groupLabel}>{label}</div>
                 {items.map(m => (
-                  <div key={m.id}
+                  <div key={m.id} role="option" aria-selected={value === m.id}
                     style={{ ...S.option, ...(hovered === m.id ? S.optionHover : {}), ...(value === m.id ? S.optionSelected : {}) }}
                     onClick={() => { onChange?.(m.id); setOpen(false); }}
                     onMouseEnter={() => setHovered(m.id)} onMouseLeave={() => setHovered(null)}>

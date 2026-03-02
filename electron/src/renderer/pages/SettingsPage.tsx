@@ -234,11 +234,22 @@ export default function SettingsPage() {
             <div style={S.secTitle}><span style={S.secIcon}>{'\u2699\uFE0F'}</span> General</div>
             <div style={S.row}>
               <span style={S.label}>Theme</span>
-              <span style={{ ...S.value, textTransform: 'capitalize' } as React.CSSProperties}>{cfg.general.theme}</span>
+              <select style={{ ...S.value, backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 4, padding: '2px 6px', fontFamily: 'inherit', color: '#e0e0e0', cursor: 'pointer', outline: 'none' }}
+                value={cfg.general.theme}
+                onChange={e => updateCfg(p => ({ ...p, general: { ...p.general, theme: e.target.value } }))}>
+                <option value="dark">Dark</option>
+                <option value="light">Light</option>
+                <option value="system">System</option>
+              </select>
             </div>
             <div style={S.row}>
               <span style={S.label}>Langue</span>
-              <span style={S.value}>{cfg.general.language.toUpperCase()}</span>
+              <select style={{ ...S.value, backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 4, padding: '2px 6px', fontFamily: 'inherit', color: '#e0e0e0', cursor: 'pointer', outline: 'none' }}
+                value={cfg.general.language}
+                onChange={e => updateCfg(p => ({ ...p, general: { ...p.general, language: e.target.value } }))}>
+                <option value="fr">Francais</option>
+                <option value="en">English</option>
+              </select>
             </div>
             <div style={S.row}>
               <span style={S.label}>Auto-start</span>

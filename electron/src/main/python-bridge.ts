@@ -16,7 +16,6 @@ function resolveUvPath(): string {
   const candidates = [
     process.env.UV_PATH,
     path.join(process.env.USERPROFILE || '', '.local', 'bin', 'uv.exe'),
-    'C:\\Users\\franc\\.local\\bin\\uv.exe',
   ].filter(Boolean) as string[];
   for (const p of candidates) {
     if (fs.existsSync(p)) return p;
@@ -33,8 +32,8 @@ function resolveWorkingDir(): string {
       return process.resourcesPath;
     }
   }
-  // Dev mode: use turbo project root
-  return 'F:\\BUREAU\\turbo';
+  // Dev mode: electron/ is inside turbo project root
+  return path.resolve(__dirname, '..', '..', '..');
 }
 
 export class PythonBridge {
