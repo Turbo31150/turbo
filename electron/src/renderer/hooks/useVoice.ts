@@ -6,6 +6,7 @@ interface VoiceState {
   recording: boolean;
   transcription: string;
   audioLevel: number;
+  speaking: boolean;
 }
 
 export function useVoice() {
@@ -13,10 +14,12 @@ export function useVoice() {
     recording: false,
     transcription: '',
     audioLevel: 0,
+    speaking: false,
   });
   const { connected, request, subscribe } = useWebSocket();
   const recorderRef = useRef<AudioRecorder | null>(null);
   const levelAnimRef = useRef<number | undefined>(undefined);
+  const recordingRef = useRef(false);
 
   // Subscribe to voice channel events
   useEffect(() => {
@@ -39,12 +42,12 @@ export function useVoice() {
         }
 
         case 'tts_started': {
-          // TTS playback started on backend
+          setState(prev => ({ ...prev, speaking: true }));
           break;
         }
 
         case 'tts_finished': {
-          // TTS playback completed
+          setState(prev => ({ ...prev, speaking: false }));
           break;
         }
 
@@ -76,7 +79,7 @@ export function useVoice() {
 
   // Start recording
   const startRecording = useCallback(async () => {
-    if (state.recording || !connected) return;
+    if (recordingRef.current || !connected) return;
 
     try {
       const recorder = new AudioRecorder();
@@ -102,6 +105,7 @@ export function useVoice() {
         format: 'pcm_16bit',
       });
 
+      recordingRef.current = true;
       setState(prev => ({
         ...prev,
         recording: true,
@@ -113,16 +117,17 @@ export function useVoice() {
       levelAnimRef.current = requestAnimationFrame(updateLevel);
     } catch (err: any) {
       console.error('[Voice] Failed to start recording:', err);
+      recordingRef.current = false;
       setState(prev => ({
         ...prev,
         recording: false,
       }));
     }
-  }, [state.recording, connected, request, updateLevel]);
+  }, [connected, request, updateLevel]);
 
   // Stop recording
   const stopRecording = useCallback(async () => {
-    if (!state.recording) return;
+    if (!recordingRef.current) return;
 
     // Stop level animation
     if (levelAnimRef.current) {
@@ -136,6 +141,7 @@ export function useVoice() {
       recorderRef.current = null;
     }
 
+    recordingRef.current = false;
     setState(prev => ({
       ...prev,
       recording: false,
@@ -160,7 +166,7 @@ export function useVoice() {
         // Ignore errors on stop
       }
     }
-  }, [state.recording, connected, request]);
+  }, [connected, request]);
 
   // Text-to-speech
   const speak = useCallback(async (text: string) => {
@@ -189,6 +195,7 @@ export function useVoice() {
     recording: state.recording,
     transcription: state.transcription,
     audioLevel: state.audioLevel,
+    speaking: state.speaking,
     startRecording,
     stopRecording,
     speak,

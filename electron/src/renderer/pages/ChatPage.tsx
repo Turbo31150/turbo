@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useChat } from '../hooks/useChat';
 import MessageBubble from '../components/chat/MessageBubble';
 import AgentSelector from '../components/AgentSelector';
+import { handleFileDrop } from '../lib/file-upload';
 
 const CSS = `
 @keyframes cDots{0%,20%{opacity:.2}50%{opacity:1}80%,100%{opacity:.2}}
@@ -74,7 +75,12 @@ export default function ChatPage() {
   };
 
   // Detect if last message was a consensus request (for progress indicator)
-  const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
+  const lastUserMsg = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].role === 'user') return messages[i];
+    }
+    return undefined;
+  }, [messages]);
   const isConsensusLoading = loading && lastUserMsg?.content.toLowerCase().startsWith('/consensus');
 
   return (
@@ -164,7 +170,15 @@ export default function ChatPage() {
             style={{ ...S.dropZone, ...(dragging ? S.dropActive : {}) }}
             onDragOver={e => { e.preventDefault(); setDragging(true); }}
             onDragLeave={() => setDragging(false)}
-            onDrop={e => { e.preventDefault(); setDragging(false); setFiles(prev => [...prev, ...Array.from(e.dataTransfer.files)]); }}>
+            onDrop={async e => {
+              e.preventDefault(); setDragging(false);
+              const accepted = await handleFileDrop(e.dataTransfer.files);
+              if (accepted.length > 0) {
+                // Re-create File objects from accepted list for the chat hook
+                const validNames = new Set(accepted.map(f => f.name));
+                setFiles(prev => [...prev, ...Array.from(e.dataTransfer.files).filter(f => validNames.has(f.name))]);
+              }
+            }}>
             {dragging ? 'Deposer les fichiers ici...' : 'Glisser-deposer des fichiers'}
           </div>
 

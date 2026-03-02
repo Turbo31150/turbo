@@ -44,7 +44,7 @@ function useOllama() {
 
   useEffect(() => {
     refresh();
-    const iv = setInterval(refresh, 60000);
+    const iv = setInterval(refresh, INTERVALS.lmStudio);
     return () => clearInterval(iv);
   }, [refresh]);
 

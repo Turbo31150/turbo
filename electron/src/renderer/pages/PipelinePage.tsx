@@ -81,6 +81,7 @@ const DominoCard = memo(function DominoCard({ domino, onExecute, onDone, executi
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
   const isRunning = executing === domino.id;
+  const isBlocked = executing !== null && !isRunning;
 
   const handleExec = async () => {
     setResult(null);
@@ -123,8 +124,8 @@ const DominoCard = memo(function DominoCard({ domino, onExecute, onDone, executi
       {domino.description && <div style={S.cardDesc}>{domino.description}</div>}
       {domino.steps_count && <div style={{ fontSize: 10, color: '#6b7280', marginBottom: 8 }}>{domino.steps_count} etapes</div>}
 
-      <button style={{ ...S.execBtn, ...(isRunning ? S.execRunning : {}) }} onClick={handleExec} disabled={isRunning}>
-        {isRunning ? 'Execution...' : 'Executer'}
+      <button style={{ ...S.execBtn, ...(isRunning ? S.execRunning : {}), ...(isBlocked ? { opacity: 0.4, cursor: 'not-allowed' } : {}) }} onClick={handleExec} disabled={isRunning || isBlocked}>
+        {isRunning ? 'Execution...' : isBlocked ? 'En attente...' : 'Executer'}
       </button>
 
       {error && (

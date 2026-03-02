@@ -60,7 +60,7 @@ function stripAgentTag(text: string): { clean: string; agent: string } {
 }
 
 export default function VoicePage() {
-  const { recording, transcription, audioLevel, startRecording, stopRecording, speak } = useVoice();
+  const { recording, transcription, audioLevel, speaking, startRecording, stopRecording, speak } = useVoice();
   const { connected, request } = useWebSocket();
   const [textInput, setTextInput] = useState('');
   const [conversation, setConversation] = useState<ConvEntry[]>([]);
@@ -195,7 +195,7 @@ export default function VoicePage() {
           <span>WS: {connected ? '\u2705 connecte' : '\u274C deconnecte'}</span>
           <span>{conversation.length} messages | {transcriptions.length} transcriptions</span>
           <span>Audio: {Math.round(audioLevel * 100)}%</span>
-          <span>TTS: {ttsOn ? 'Edge fr-FR' : 'OFF'}</span>
+          <span>TTS: {speaking ? '\uD83D\uDD0A Parle...' : ttsOn ? 'Edge fr-FR' : 'OFF'}</span>
         </div>
 
         {/* Last transcription */}
