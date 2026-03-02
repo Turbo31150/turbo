@@ -3,7 +3,7 @@ import { useClusterContext } from '../hooks/ClusterContext';
 import { ClusterNode } from '../hooks/useCluster';
 import { useLMStudio } from '../hooks/useLMStudio';
 import { useWebSocket } from '../hooks/useWebSocket';
-import { APP_VERSION } from '../lib/config';
+import { APP_VERSION, INTERVALS } from '../lib/config';
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES
@@ -50,6 +50,10 @@ const STATUS_COLORS = {
   online: { bg: 'rgba(16,185,129,.12)', border: 'rgba(16,185,129,.3)', text: '#10b981', dot: '#10b981' },
   offline: { bg: 'rgba(239,68,68,.08)', border: 'rgba(239,68,68,.25)', text: '#ef4444', dot: '#ef4444' },
   degraded: { bg: 'rgba(249,115,22,.08)', border: 'rgba(249,115,22,.25)', text: '#f97316', dot: '#f97316' },
+};
+
+const CHAN_COLORS: Record<string, string> = {
+  cluster: '#10b981', trading: '#f97316', voice: '#c084fc', system: '#6b7280', chat: '#3b82f6',
 };
 
 const QUICK_ACTIONS = [
@@ -216,7 +220,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchSysInfo();
-    const iv = setInterval(fetchSysInfo, 30000);
+    const iv = setInterval(fetchSysInfo, INTERVALS.cluster);
     return () => clearInterval(iv);
   }, [fetchSysInfo]);
 
@@ -303,10 +307,6 @@ export default function DashboardPage() {
     }
     return merged;
   }, [clusterNodes, lmNodes]);
-
-  const CHAN_COLORS: Record<string, string> = {
-    cluster: '#10b981', trading: '#f97316', voice: '#c084fc', system: '#6b7280', chat: '#3b82f6',
-  };
 
   return (
     <>

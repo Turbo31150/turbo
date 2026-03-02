@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ReactDOM from 'react-dom/client';
 
 const WS_URL = 'ws://127.0.0.1:9742/ws';
@@ -148,23 +148,58 @@ function MiniTrading() {
 }
 
 function MiniVoice() {
-  const [status, setStatus] = useState('idle');
+  const [status, setStatus] = useState<'idle' | 'recording'>('idle');
+  const wsRef = useRef<WebSocket | null>(null);
+
+  useEffect(() => {
+    let ws: WebSocket;
+    const connect = () => {
+      ws = new WebSocket(WS_URL);
+      wsRef.current = ws;
+      ws.onmessage = (e) => {
+        try {
+          const msg = JSON.parse(e.data);
+          if (msg.event === 'recording_started') setStatus('recording');
+          if (msg.event === 'recording_stopped' || msg.event === 'transcription') setStatus('idle');
+        } catch {}
+      };
+      ws.onclose = () => { wsRef.current = null; setTimeout(connect, 3000); };
+    };
+    connect();
+    return () => { ws?.close(); };
+  }, []);
+
+  const toggleRecording = useCallback(() => {
+    const ws = wsRef.current;
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    const action = status === 'recording' ? 'stop_recording' : 'start_recording';
+    ws.send(JSON.stringify({
+      id: `widget_voice_${Date.now()}`,
+      type: 'request',
+      channel: 'voice',
+      action,
+      payload: {},
+    }));
+    setStatus(status === 'recording' ? 'idle' : 'recording');
+  }, [status]);
 
   return (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       height: '100%', fontSize: 12,
     }}>
-      <div style={{
-        width: 40, height: 40, borderRadius: '50%',
-        background: status === 'recording' ? '#ff4444' : '#1a2a3a',
-        border: `2px solid ${status === 'recording' ? '#ff4444' : '#4a6a8a'}`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        cursor: 'pointer', transition: 'all 0.3s',
-      }}>
+      <div
+        onClick={toggleRecording}
+        style={{
+          width: 40, height: 40, borderRadius: '50%',
+          background: status === 'recording' ? '#ff4444' : '#1a2a3a',
+          border: `2px solid ${status === 'recording' ? '#ff4444' : '#4a6a8a'}`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: 'pointer', transition: 'all 0.3s',
+        }}>
         <span style={{ fontSize: 18 }}>&#x1F3A4;</span>
       </div>
-      <span style={{ marginLeft: 8, color: '#4a6a8a' }}>
+      <span style={{ marginLeft: 8, color: status === 'recording' ? '#ff4444' : '#4a6a8a' }}>
         {status === 'recording' ? 'REC' : 'PTT'}
       </span>
     </div>
