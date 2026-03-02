@@ -2166,15 +2166,19 @@ COMMANDS: list[JarvisCommand] = [
 ]
 
 # Post-processing: replace hardcoded paths with config-driven values
-for _cmd in COMMANDS:
-    if "F:\\BUREAU\\turbo" in _cmd.action:
-        _cmd.action = _cmd.action.replace("F:\\BUREAU\\turbo", _TURBO_DIR)
-    if "F:/BUREAU/turbo" in _cmd.action:
-        _cmd.action = _cmd.action.replace("F:/BUREAU/turbo", _TURBO_DIR_FWD)
-    if "C:\\Users\\franc" in _cmd.action:
-        _cmd.action = _cmd.action.replace("C:\\Users\\franc", _USER_HOME)
-    if "C:/Users/franc" in _cmd.action:
-        _cmd.action = _cmd.action.replace("C:/Users/franc", _USER_HOME.replace("\\", "/"))
+def _fixup_paths(commands: list) -> None:
+    """Replace hardcoded paths with config-driven values in command actions."""
+    for _cmd in commands:
+        if "F:\\BUREAU\\turbo" in _cmd.action:
+            _cmd.action = _cmd.action.replace("F:\\BUREAU\\turbo", _TURBO_DIR)
+        if "F:/BUREAU/turbo" in _cmd.action:
+            _cmd.action = _cmd.action.replace("F:/BUREAU/turbo", _TURBO_DIR_FWD)
+        if "C:\\Users\\franc" in _cmd.action:
+            _cmd.action = _cmd.action.replace("C:\\Users\\franc", _USER_HOME)
+        if "C:/Users/franc" in _cmd.action:
+            _cmd.action = _cmd.action.replace("C:/Users/franc", _USER_HOME.replace("\\", "/"))
+
+_fixup_paths(COMMANDS)
 
 # ═══════════════════════════════════════════════════════════════════════════
 # EXTENSIONS PAR CATEGORIE (fichiers separes)
@@ -2204,6 +2208,7 @@ def _load_extensions() -> None:
         pass
 
 _load_extensions()
+_fixup_paths(COMMANDS)  # also patch extension commands (pipelines, navigation, etc.)
 
 
 # ═══════════════════════════════════════════════════════════════════════════

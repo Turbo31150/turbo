@@ -484,7 +484,7 @@ async def process_voice_input(text: str) -> tuple[str, float]:
 async def correct_with_ia(text: str, node_url: str = "http://127.0.0.1:11434") -> str:
     """Use Ollama qwen3:1.7b (primary) or M1 fallback to correct voice transcription."""
     import httpx
-    from src.config import config
+    from src.config import config, build_ollama_payload
     prompt = (
         "Tu es un correcteur de texte francais specialise dans la correction "
         "de transcriptions vocales. Corrige les erreurs sans changer le sens. "
@@ -499,11 +499,10 @@ async def correct_with_ia(text: str, node_url: str = "http://127.0.0.1:11434") -
             async with httpx.AsyncClient(timeout=5) as client:
                 resp = await client.post(
                     f"{ol.url}/api/chat",
-                    json={
-                        "model": "qwen3:1.7b", "messages": messages,
-                        "stream": False, "think": False,
-                        "options": {"temperature": 0.1, "num_predict": 256},
-                    },
+                    json=build_ollama_payload(
+                        "qwen3:1.7b", messages,
+                        temperature=0.1, num_predict=256,
+                    ),
                 )
                 resp.raise_for_status()
                 return resp.json()["message"]["content"].strip()

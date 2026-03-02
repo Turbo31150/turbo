@@ -21,7 +21,7 @@ from claude_agent_sdk import (
     ToolUseBlock,
 )
 
-from src.config import config, JARVIS_VERSION, PATHS, prepare_lmstudio_input
+from src.config import config, JARVIS_VERSION, PATHS, prepare_lmstudio_input, build_lmstudio_payload
 
 _TURBO_DIR_FWD = str(PATHS.get("turbo", "F:/BUREAU/turbo"))
 from src.agents import JARVIS_AGENTS
@@ -502,15 +502,11 @@ async def _local_ia_analyze(query: str, timeout: float = 10.0) -> str | None:
             try:
                 client = await _get_client()
                 input_text = prepare_lmstudio_input(query, node.name, node.default_model)
-                r = await client.post(f"{node.url}/api/v1/chat", json={
-                    "model": node.default_model,
-                    "input": input_text,
-                    "system_prompt": system_msg,
-                    "temperature": 0.2,
-                    "max_output_tokens": config.fast_max_tokens,
-                    "stream": False,
-                    "store": False,
-                }, timeout=timeout)
+                r = await client.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
+                    node.default_model, input_text,
+                    max_output_tokens=config.fast_max_tokens,
+                    system_prompt=system_msg,
+                ), timeout=timeout)
                 r.raise_for_status()
                 from src.tools import extract_lms_output
                 content = extract_lms_output(r.json()).strip()
