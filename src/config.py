@@ -124,7 +124,7 @@ class OllamaNode:
 @dataclass
 class GeminiNode:
     name: str = "GEMINI"
-    proxy_path: str = "F:/BUREAU/turbo/gemini-proxy.js"
+    proxy_path: str = field(default_factory=lambda: str(PATHS["turbo"] / "gemini-proxy.js"))
     role: str = "architecture"
     models: list[str] = field(default_factory=lambda: ["gemini-3-pro", "gemini-3-flash", "gemini-2.5-pro", "gemini-2.5-flash"])
     default_model: str = "gemini-3-pro"
@@ -138,7 +138,7 @@ class GeminiNode:
 @dataclass
 class ClaudeNode:
     name: str = "CLAUDE"
-    proxy_path: str = "F:/BUREAU/turbo/claude-proxy.js"
+    proxy_path: str = field(default_factory=lambda: str(PATHS["turbo"] / "claude-proxy.js"))
     role: str = "cloud_reasoning"
     models: list[str] = field(default_factory=lambda: ["opus", "sonnet", "haiku"])
     default_model: str = "opus"
@@ -147,6 +147,17 @@ class ClaudeNode:
     use_cases: list[str] = field(default_factory=lambda: [
         "Raisonnement cloud", "Review code avance", "Consensus critique", "Architecture"
     ])
+
+
+def prepare_lmstudio_input(text: str, node_name: str, model: str) -> str:
+    """Prepend /nothink prefix for Qwen3 models on LM Studio (disables thinking tokens).
+
+    This MUST be used for all LM Studio Responses API calls to Qwen3 models
+    to avoid thinking tokens polluting the output and doubling latency.
+    """
+    if node_name.upper() == "M1" and "qwen" in model.lower():
+        return "/nothink\n" + text
+    return text
 
 
 @dataclass
@@ -166,7 +177,7 @@ class JarvisConfig:
             default_model="qwen/qwen3-8b", weight=1.8,
             use_cases=["PRIORITAIRE — code, math, raisonnement", "Fast inference 65 tok/s",
                        "Dual-model: qwen3-8b (rapide) + qwen3-30b (profond)"],
-            api_key=os.getenv("LM_STUDIO_1_KEY", "LMSTUDIO_KEY_M1_REDACTED"),
+            api_key=os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", "")),
         ),
         LMStudioNode(
             "M2", os.getenv("LM_STUDIO_2_URL", "http://192.168.1.26:1234"),
@@ -174,7 +185,7 @@ class JarvisConfig:
             default_model="deepseek-coder-v2-lite-instruct", weight=1.4,
             use_cases=["Code generation", "Analyse profonde", "Raisonnement",
                        "Quick responses", "Trading signals", "Validation"],
-            api_key=os.getenv("LM_STUDIO_2_KEY", "LMSTUDIO_KEY_M2_REDACTED"),
+            api_key=os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", "")),
         ),
         LMStudioNode(
             "M3", os.getenv("LM_STUDIO_3_URL", "http://192.168.1.113:1234"),
@@ -183,7 +194,7 @@ class JarvisConfig:
             use_cases=["General inference", "Raisonnement", "Code review",
                        "Quick responses", "Fallback fiable"],
             context_length=8192,
-            api_key=os.getenv("LM_STUDIO_3_KEY", "LMSTUDIO_KEY_M3_REDACTED"),
+            api_key=os.getenv("LM_STUDIO_3_API_KEY", os.getenv("LM_STUDIO_3_KEY", "")),
         ),
     ])
 

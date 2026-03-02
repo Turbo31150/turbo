@@ -1,5 +1,5 @@
 """Test live batch 5 — 32 pipelines MEDIUM priority."""
-import urllib.request, json, subprocess, time
+import os, urllib.request, json, subprocess, time
 
 PASS = FAIL = 0
 RESULTS = []
@@ -12,7 +12,7 @@ def ps(cmd, timeout=15):
     return r.stdout.strip()
 def m1(prompt, mt=256, to=20):
     body = json.dumps({"model":"qwen3-8b","input":f"/nothink\n{prompt}","temperature":0.2,"max_output_tokens":mt,"stream":False,"store":False}).encode()
-    req = urllib.request.Request("http://10.5.0.2:1234/api/v1/chat", data=body, headers={"Content-Type":"application/json","Authorization":"Bearer LMSTUDIO_KEY_M1_REDACTED"})
+    req = urllib.request.Request("http://10.5.0.2:1234/api/v1/chat", data=body, headers={"Content-Type":"application/json","Authorization":f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}"})
     data = json.loads(urllib.request.urlopen(req, timeout=to).read())
     for item in reversed(data.get("output", [])):
         if isinstance(item, dict) and item.get("type") == "message":
@@ -64,12 +64,13 @@ except Exception as e: fail("scenario_regression_check", str(e)[:80])
 # API & SERVICE (3)
 print("\n[API & SERVICE MANAGEMENT]")
 try:
-    out = ps("try { (Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/models' -Headers @{Authorization='Bearer LMSTUDIO_KEY_M1_REDACTED'} -TimeoutSec 3 -UseBasicParsing).StatusCode } catch { 'offline' }")
+    _m1k = os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", ""))
+    out = ps(f"try {{ (Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/models' -Headers @{{Authorization='Bearer {_m1k}'}} -TimeoutSec 3 -UseBasicParsing).StatusCode }} catch {{ 'offline' }}")
     ok("api_health_all", f"M1: {out}")
 except Exception as e: fail("api_health_all", str(e)[:80])
 try:
     t1 = time.time()
-    req = urllib.request.Request("http://10.5.0.2:1234/api/v1/models", headers={"Authorization":"Bearer LMSTUDIO_KEY_M1_REDACTED"})
+    req = urllib.request.Request("http://10.5.0.2:1234/api/v1/models", headers={"Authorization":f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}"})
     urllib.request.urlopen(req, timeout=5)
     lat = int((time.time()-t1)*1000)
     ok("api_latency_test", f"M1: {lat}ms")

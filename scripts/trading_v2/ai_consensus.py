@@ -15,6 +15,7 @@ Mode: parallele par machine (v2.3) — sequentiel intra-machine
 """
 
 import json
+import os
 import time
 import logging
 import subprocess
@@ -33,7 +34,7 @@ MODELS = [
         "weight": 1.0,
         "type": "general",
         "endpoint": "http://192.168.1.113:1234/api/v1/chat",
-        "auth": "Bearer LMSTUDIO_KEY_M3_REDACTED",
+        "auth": f"Bearer {os.getenv('LM_STUDIO_3_API_KEY', os.getenv('LM_STUDIO_3_KEY', ''))}",
         "model_id": "mistral-7b-instruct-v0.3",
         "timeout": 60,
         "method": "lmstudio",
@@ -63,7 +64,7 @@ MODELS = [
         "weight": 1.5,
         "type": "reasoning",
         "endpoint": "http://10.5.0.2:1234/api/v1/chat",
-        "auth": "Bearer LMSTUDIO_KEY_M1_REDACTED",
+        "auth": f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}",
         "model_id": "qwen/qwen3-8b",
         "timeout": 30,
         "method": "lmstudio",
@@ -74,7 +75,7 @@ MODELS = [
         "weight": 1.2,
         "type": "code",
         "endpoint": "http://192.168.1.26:1234/api/v1/chat",
-        "auth": "Bearer LMSTUDIO_KEY_M2_REDACTED",
+        "auth": f"Bearer {os.getenv('LM_STUDIO_2_API_KEY', os.getenv('LM_STUDIO_2_KEY', ''))}",
         "model_id": "openai/gpt-oss-20b",
         "timeout": 120,
         "method": "lmstudio",

@@ -37,8 +37,8 @@ KNOWN_PORTS = {
     "10.5.0.2": [1234],
 }
 
-DATA_DIR = Path("F:/BUREAU/turbo/data")
-PROJECT_ROOT = Path("F:/BUREAU/turbo")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

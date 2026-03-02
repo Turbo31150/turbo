@@ -13,6 +13,7 @@ Usage:
 import asyncio
 import argparse
 import json
+import os
 import re
 import sqlite3
 import sys
@@ -39,8 +40,8 @@ JARVIS_DB = BASE_DIR / "data" / "jarvis.db"
 # CLUSTER — Tous les modeles disponibles
 # ═══════════════════════════════════════════════════════════════════
 
-M1_BASE = "http://10.5.0.2:1234"
-M1_AUTH = "Bearer LMSTUDIO_KEY_M1_REDACTED"
+M1_BASE = os.getenv("LM_STUDIO_1_URL", "http://10.5.0.2:1234")
+M1_AUTH = f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}"
 
 MODELS = {
     # M1 — 4 modeles charges
@@ -69,7 +70,7 @@ MODELS = {
     "M2-deepseek": {
         "url": "http://192.168.1.26:1234/v1/chat/completions",
         "model": "deepseek-coder-v2-lite-instruct",
-        "auth": "Bearer LMSTUDIO_KEY_M2_REDACTED",
+        "auth": f"Bearer {os.getenv('LM_STUDIO_2_API_KEY', os.getenv('LM_STUDIO_2_KEY', ''))}",
         "type": "lmstudio", "nothink": False,
         "role": "generateur_dominos",
         "temp": 0.5, "max_tokens": 4096,
@@ -78,7 +79,7 @@ MODELS = {
     "M3-mistral": {
         "url": "http://192.168.1.113:1234/v1/chat/completions",
         "model": "mistral-7b-instruct-v0.3",
-        "auth": "Bearer LMSTUDIO_KEY_M3_REDACTED",
+        "auth": f"Bearer {os.getenv('LM_STUDIO_3_API_KEY', os.getenv('LM_STUDIO_3_KEY', ''))}",
         "type": "lmstudio", "nothink": False,
         "role": "generateur_scenarios",
         "temp": 0.5, "max_tokens": 4096,
@@ -215,7 +216,7 @@ async def call_model(model_key: str, prompt: str, client: httpx.AsyncClient) -> 
             resp = await client.post(cfg["url"], json=body, timeout=120)
             resp.raise_for_status()
             return resp.json().get("message", {}).get("content", "")
-    except Exception as e:
+    except (httpx.HTTPError, OSError, ValueError, KeyError) as e:
         print(f"    ✗ {model_key} erreur: {type(e).__name__}: {str(e)[:80]}")
         return None
 
@@ -601,7 +602,7 @@ JSON seulement."""
                         if s[0] == item.get("name"):
                             try:
                                 expected = json.loads(s[2])
-                            except Exception:
+                            except (json.JSONDecodeError, ValueError):
                                 expected = [s[2]]
                             break
                     mc = str(item.get("matched_command", ""))

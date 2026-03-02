@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useWebSocket, WsMessage } from '../hooks/useWebSocket';
+import { COLORS, FONT } from '../lib/theme';
 
 interface LogEntry {
   id: number;
@@ -14,29 +15,29 @@ interface LogEntry {
 const CHANNELS = ['cluster', 'trading', 'voice', 'chat', 'system', 'files', 'dictionary'] as const;
 
 const CHANNEL_COLORS: Record<string, string> = {
-  cluster: '#10b981',
-  trading: '#f59e0b',
-  voice: '#c084fc',
-  chat: '#3b82f6',
-  system: '#6b7280',
-  files: '#f97316',
-  dictionary: '#ec4899',
+  cluster: COLORS.green,
+  trading: COLORS.amber,
+  voice: COLORS.purple,
+  chat: COLORS.blue,
+  system: COLORS.textDim,
+  files: COLORS.orange,
+  dictionary: COLORS.pink,
 };
 
 const S = {
-  page: { display: 'flex', flexDirection: 'column', height: '100%', fontFamily: 'Consolas, "Courier New", monospace', overflow: 'hidden' } as React.CSSProperties,
-  toolbar: { display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', borderBottom: '1px solid #1a2a3a', flexShrink: 0, backgroundColor: '#0d1117' } as React.CSSProperties,
-  title: { fontSize: 14, fontWeight: 700, color: '#e0e0e0', marginRight: 16 } as React.CSSProperties,
+  page: { display: 'flex', flexDirection: 'column', height: '100%', fontFamily: FONT, overflow: 'hidden' } as React.CSSProperties,
+  toolbar: { display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', borderBottom: `1px solid ${COLORS.border}`, flexShrink: 0, backgroundColor: COLORS.bgCard } as React.CSSProperties,
+  title: { fontSize: 14, fontWeight: 700, color: COLORS.text, marginRight: 16 } as React.CSSProperties,
   filterBtn: { padding: '3px 10px', borderRadius: 6, fontSize: 10, fontWeight: 600, cursor: 'pointer', border: '1px solid transparent', fontFamily: 'inherit', letterSpacing: 0.5, transition: 'all .15s' } as React.CSSProperties,
-  logArea: { flex: 1, overflowY: 'auto', padding: '8px 16px', backgroundColor: '#0a0e14' } as React.CSSProperties,
-  logLine: { display: 'flex', alignItems: 'flex-start', gap: 10, padding: '3px 0', fontSize: 11, lineHeight: 1.5, borderBottom: '1px solid rgba(26,42,58,.3)' } as React.CSSProperties,
-  ts: { color: '#4b5563', fontSize: 10, minWidth: 70, flexShrink: 0, fontVariantNumeric: 'tabular-nums' } as React.CSSProperties,
+  logArea: { flex: 1, overflowY: 'auto', padding: '8px 16px', backgroundColor: COLORS.bg } as React.CSSProperties,
+  logLine: { display: 'flex', alignItems: 'flex-start', gap: 10, padding: '3px 0', fontSize: 11, lineHeight: 1.5, borderBottom: `1px solid ${COLORS.border}30` } as React.CSSProperties,
+  ts: { color: COLORS.textDimmer, fontSize: 10, minWidth: 70, flexShrink: 0, fontVariantNumeric: 'tabular-nums' } as React.CSSProperties,
   channel: { minWidth: 70, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, flexShrink: 0 } as React.CSSProperties,
-  type: { minWidth: 50, fontSize: 10, color: '#6b7280', flexShrink: 0 } as React.CSSProperties,
-  preview: { color: '#c0c0c0', fontSize: 11, flex: 1, wordBreak: 'break-all', overflowWrap: 'break-word' } as React.CSSProperties,
-  stats: { display: 'flex', gap: 16, padding: '6px 16px', borderTop: '1px solid #1a2a3a', backgroundColor: '#0d1117', fontSize: 10, color: '#4b5563', flexShrink: 0 } as React.CSSProperties,
-  clearBtn: { padding: '4px 12px', borderRadius: 6, fontSize: 10, fontWeight: 600, cursor: 'pointer', border: '1px solid rgba(239,68,68,.3)', backgroundColor: 'rgba(239,68,68,.08)', color: '#ef4444', fontFamily: 'inherit', transition: 'all .15s' } as React.CSSProperties,
-  pauseBtn: { padding: '4px 12px', borderRadius: 6, fontSize: 10, fontWeight: 600, cursor: 'pointer', border: '1px solid rgba(249,115,22,.3)', backgroundColor: 'rgba(249,115,22,.08)', color: '#f97316', fontFamily: 'inherit', transition: 'all .15s' } as React.CSSProperties,
+  type: { minWidth: 50, fontSize: 10, color: COLORS.textDim, flexShrink: 0 } as React.CSSProperties,
+  preview: { color: COLORS.textMuted, fontSize: 11, flex: 1, wordBreak: 'break-all', overflowWrap: 'break-word' } as React.CSSProperties,
+  stats: { display: 'flex', gap: 16, padding: '6px 16px', borderTop: `1px solid ${COLORS.border}`, backgroundColor: COLORS.bgCard, fontSize: 10, color: COLORS.textDimmer, flexShrink: 0 } as React.CSSProperties,
+  clearBtn: { padding: '4px 12px', borderRadius: 6, fontSize: 10, fontWeight: 600, cursor: 'pointer', border: `1px solid ${COLORS.redAlpha(0.3)}`, backgroundColor: COLORS.redAlpha(0.08), color: COLORS.red, fontFamily: 'inherit', transition: 'all .15s' } as React.CSSProperties,
+  pauseBtn: { padding: '4px 12px', borderRadius: 6, fontSize: 10, fontWeight: 600, cursor: 'pointer', border: `1px solid ${COLORS.orangeAlpha(0.3)}`, backgroundColor: COLORS.orangeAlpha(0.08), color: COLORS.orange, fontFamily: 'inherit', transition: 'all .15s' } as React.CSSProperties,
 };
 
 const MAX_LOGS = 500;
@@ -106,12 +107,12 @@ export default function LogsPage() {
         <span style={S.title}>Logs Live</span>
         {CHANNELS.map(ch => {
           const active = activeFilters.has(ch);
-          const color = CHANNEL_COLORS[ch] || '#6b7280';
+          const color = CHANNEL_COLORS[ch] || COLORS.textDim;
           return (
             <button key={ch} aria-pressed={active} style={{
               ...S.filterBtn,
               backgroundColor: active ? `${color}22` : 'transparent',
-              color: active ? color : '#4b5563',
+              color: active ? color : COLORS.textDimmer,
               borderColor: active ? `${color}44` : 'transparent',
             }} onClick={() => toggleFilter(ch)}>
               {ch} {channelCounts[ch] ? `(${channelCounts[ch]})` : ''}
@@ -122,7 +123,7 @@ export default function LogsPage() {
         <button style={S.pauseBtn} onClick={() => setPaused(p => !p)}>
           {paused ? 'RESUME' : 'PAUSE'}
         </button>
-        <button style={{ ...S.pauseBtn, borderColor: 'rgba(59,130,246,.3)', backgroundColor: 'rgba(59,130,246,.08)', color: '#3b82f6' }}
+        <button style={{ ...S.pauseBtn, borderColor: COLORS.blueAlpha(0.3), backgroundColor: COLORS.blueAlpha(0.08), color: COLORS.blue }}
           onClick={() => {
             const text = filteredLogs.map(l => `${l.ts} [${l.channel}] ${l.type} ${l.preview}`).join('\n');
             const blob = new Blob([text], { type: 'text/plain' });
@@ -140,20 +141,20 @@ export default function LogsPage() {
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         {!autoScroll && (
           <button onClick={() => { setAutoScroll(true); if (logAreaRef.current) logAreaRef.current.scrollTop = logAreaRef.current.scrollHeight; }}
-            style={{ position: 'absolute', bottom: 12, right: 20, zIndex: 10, padding: '4px 12px', borderRadius: 6, fontSize: 10, fontWeight: 600, cursor: 'pointer', border: '1px solid rgba(59,130,246,.3)', backgroundColor: 'rgba(59,130,246,.1)', color: '#3b82f6', fontFamily: 'inherit', backdropFilter: 'blur(4px)' }}>
+            style={{ position: 'absolute', bottom: 12, right: 20, zIndex: 10, padding: '4px 12px', borderRadius: 6, fontSize: 10, fontWeight: 600, cursor: 'pointer', border: `1px solid ${COLORS.blueAlpha(0.3)}`, backgroundColor: COLORS.blueAlpha(0.1), color: COLORS.blue, fontFamily: 'inherit', backdropFilter: 'blur(4px)' }}>
             Scroll to bottom
           </button>
         )}
         <div ref={logAreaRef} style={{ ...S.logArea, position: 'absolute', inset: 0 }} onScroll={handleScroll}>
         {filteredLogs.length === 0 && (
-          <div style={{ textAlign: 'center', padding: 40, color: '#4b5563', fontSize: 12 }}>
+          <div style={{ textAlign: 'center', padding: 40, color: COLORS.textDimmer, fontSize: 12 }}>
             {connected ? 'En attente de messages WebSocket...' : 'WebSocket deconnecte'}
           </div>
         )}
         {filteredLogs.map(log => (
           <div key={log.id} style={S.logLine}>
             <span style={S.ts}>{log.ts}</span>
-            <span style={{ ...S.channel, color: CHANNEL_COLORS[log.channel] || '#6b7280' }}>{log.channel}</span>
+            <span style={{ ...S.channel, color: CHANNEL_COLORS[log.channel] || COLORS.textDim }}>{log.channel}</span>
             <span style={S.type}>{log.type}</span>
             <span style={S.preview}>{log.preview}</span>
           </div>
@@ -165,10 +166,10 @@ export default function LogsPage() {
         <span>Total: {logs.length} msgs</span>
         <span>Affiches: {filteredLogs.length}</span>
         <span>Buffer: {MAX_LOGS}</span>
-        <span style={{ color: paused ? '#ef4444' : '#10b981' }}>
+        <span style={{ color: paused ? COLORS.red : COLORS.green }}>
           {paused ? 'PAUSE' : 'LIVE'}
         </span>
-        <span style={{ color: autoScroll ? '#10b981' : '#4b5563' }}>
+        <span style={{ color: autoScroll ? COLORS.green : COLORS.textDimmer }}>
           {autoScroll ? 'Auto-scroll ON' : 'Auto-scroll OFF'}
         </span>
         <div style={{ flex: 1 }} />

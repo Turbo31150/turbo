@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useWebSocket, WsMessage } from './useWebSocket';
+import { getErrorMessage } from '../lib/types';
 
 export interface ToolCall {
   id: string;
   name: string;
-  arguments?: any;
+  arguments?: Record<string, unknown>;
   result?: string;
   status: 'pending' | 'running' | 'complete' | 'error';
 }
@@ -34,14 +35,14 @@ function loadHistory(): ChatMessage[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw).slice(-MAX_STORED);
-  } catch { /* ignore */ }
+  } catch (err) { console.warn('[Chat] loadHistory error:', err instanceof Error ? err.message : err); }
   return [];
 }
 
 function saveHistory(messages: ChatMessage[]) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-MAX_STORED)));
-  } catch { /* ignore */ }
+  } catch (err) { console.warn('[Chat] saveHistory error:', err instanceof Error ? err.message : err); }
 }
 
 export function useChat() {
@@ -51,6 +52,9 @@ export function useChat() {
   }));
   const { connected, request, subscribe } = useWebSocket();
   const messageIdCounter = useRef(0);
+  const mountedRef = useRef(true);
+
+  useEffect(() => () => { mountedRef.current = false; }, []);
 
   // Subscribe to chat channel events
   useEffect(() => {
@@ -208,11 +212,12 @@ export function useChat() {
         ...(filePayloads ? { files: filePayloads } : {}),
       });
       // Response will come via subscribe events
-    } catch (err: any) {
+    } catch (err) {
+      if (!mountedRef.current) return;
       const errMsg: ChatMessage = {
         id: `err_${++messageIdCounter.current}_${Date.now()}`,
         role: 'system',
-        content: `Request failed: ${err.message}`,
+        content: `Request failed: ${getErrorMessage(err)}`,
         timestamp: Date.now(),
       };
       setState(prev => ({
@@ -256,8 +261,8 @@ export function useChat() {
     if (connected) {
       try {
         await request('chat', 'clear_conversation', { conversation_id: 'default' });
-      } catch {
-        // Ignore errors on clear
+      } catch (err) {
+        console.warn('[Chat] clearConversation error:', err instanceof Error ? err.message : err);
       }
     }
   }, [connected, request]);

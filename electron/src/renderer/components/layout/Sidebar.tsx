@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useClusterContext } from '../../hooks/ClusterContext';
 import { APP_VERSION } from '../../lib/config';
+import { COLORS, FONT } from '../../lib/theme';
 import type { Page } from '../../lib/types';
 
 interface SidebarProps {
@@ -130,8 +131,8 @@ const NAV_GROUPS: NavGroup[] = [
 
 const CSS = `
 .sb-btn{transition:all .15s ease}
-.sb-btn:hover{background:rgba(249,115,22,.06)!important;color:#e0e0e0!important}
-.sb-toggle:hover{color:#e0e0e0!important}
+.sb-btn:hover{background:${COLORS.orangeAlpha(0.06)}!important;color:${COLORS.text}!important}
+.sb-toggle:hover{color:${COLORS.text}!important}
 @keyframes sb-pulse{0%,100%{opacity:1}50%{opacity:.6}}
 `;
 
@@ -151,8 +152,8 @@ function StatusDot({ online }: { online: boolean }) {
   return (
     <span style={{
       width: 6, height: 6, borderRadius: '50%', flexShrink: 0, marginLeft: 'auto',
-      backgroundColor: online ? '#10b981' : '#ef4444',
-      boxShadow: online ? '0 0 6px rgba(16,185,129,.5)' : 'none',
+      backgroundColor: online ? COLORS.green : COLORS.red,
+      boxShadow: online ? `0 0 6px ${COLORS.greenAlpha(0.5)}` : 'none',
       animation: online ? 'sb-pulse 2s ease infinite' : 'none',
     }} />
   );
@@ -170,22 +171,22 @@ export default function Sidebar({ currentPage, onPageChange }: SidebarProps) {
     <>
       <style>{CSS}</style>
       <div style={{
-        width, height: '100vh', backgroundColor: '#0d1117', display: 'flex', flexDirection: 'column',
-        borderRight: '1px solid #1a2a3a', flexShrink: 0, zIndex: 10, transition: 'width .2s ease',
+        width, height: '100vh', backgroundColor: COLORS.bgCard, display: 'flex', flexDirection: 'column',
+        borderRight: `1px solid ${COLORS.border}`, flexShrink: 0, zIndex: 10, transition: 'width .2s ease',
         overflow: 'hidden',
       }}>
         {/* Logo + collapse toggle */}
-        <div style={{ display: 'flex', alignItems: 'center', padding: collapsed ? '10px 8px' : '10px 12px', gap: 10, borderBottom: '1px solid #1a2a3a' }}>
+        <div style={{ display: 'flex', alignItems: 'center', padding: collapsed ? '10px 8px' : '10px 12px', gap: 10, borderBottom: `1px solid ${COLORS.border}` }}>
           <div style={{
-            width: 32, height: 32, borderRadius: '50%', border: '2px solid #f97316', display: 'flex',
-            alignItems: 'center', justifyContent: 'center', color: '#f97316', fontSize: 14, fontWeight: 'bold',
-            fontFamily: 'Consolas, Courier New, monospace', flexShrink: 0,
+            width: 32, height: 32, borderRadius: '50%', border: `2px solid ${COLORS.orange}`, display: 'flex',
+            alignItems: 'center', justifyContent: 'center', color: COLORS.orange, fontSize: 14, fontWeight: 'bold',
+            fontFamily: FONT, flexShrink: 0,
           }}>J</div>
           {!collapsed && (
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#e0e0e0', fontFamily: 'inherit', letterSpacing: 1 }}>JARVIS</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, fontFamily: 'inherit', letterSpacing: 1 }}>JARVIS</span>
           )}
           <button className="sb-toggle" onClick={() => setCollapsed(!collapsed)} style={{
-            marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280',
+            marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: COLORS.textDim,
             padding: 4, display: 'flex', alignItems: 'center',
           }}>
             <CollapseIcon collapsed={collapsed} />
@@ -198,7 +199,7 @@ export default function Sidebar({ currentPage, onPageChange }: SidebarProps) {
             <div key={group.label} style={{ marginBottom: 4 }}>
               {!collapsed && (
                 <div style={{
-                  fontSize: 9, color: '#4b5563', textTransform: 'uppercase', letterSpacing: 1.5,
+                  fontSize: 9, color: COLORS.textDimmer, textTransform: 'uppercase', letterSpacing: 1.5,
                   padding: '10px 14px 4px', fontWeight: 700,
                 }}>{group.label}</div>
               )}
@@ -215,9 +216,9 @@ export default function Sidebar({ currentPage, onPageChange }: SidebarProps) {
                       padding: collapsed ? '10px 0' : '8px 14px',
                       justifyContent: collapsed ? 'center' : 'flex-start',
                       background: 'none', border: 'none', cursor: 'pointer',
-                      borderLeft: collapsed ? 'none' : `3px solid ${isActive ? '#f97316' : 'transparent'}`,
-                      color: isActive ? '#f97316' : '#6b7280',
-                      fontFamily: 'Consolas, Courier New, monospace', fontSize: 12, fontWeight: isActive ? 600 : 400,
+                      borderLeft: collapsed ? 'none' : `3px solid ${isActive ? COLORS.orange : 'transparent'}`,
+                      color: isActive ? COLORS.orange : COLORS.textDim,
+                      fontFamily: FONT, fontSize: 12, fontWeight: isActive ? 600 : 400,
                       position: 'relative',
                     }}
                     onClick={() => onPageChange(item.id)}
@@ -226,21 +227,21 @@ export default function Sidebar({ currentPage, onPageChange }: SidebarProps) {
                   >
                     <span style={{ flexShrink: 0, display: 'flex' }}>{item.icon}</span>
                     {!collapsed && <span>{item.label}</span>}
-                    {!collapsed && item.id === 'lmstudio' && <Badge count={onlineCount} color="#10b981" />}
-                    {!collapsed && item.id === 'dashboard' && modelsLoaded > 0 && <Badge count={modelsLoaded} color="#c084fc" />}
+                    {!collapsed && item.id === 'lmstudio' && <Badge count={onlineCount} color={COLORS.green} />}
+                    {!collapsed && item.id === 'dashboard' && modelsLoaded > 0 && <Badge count={modelsLoaded} color={COLORS.purple} />}
                     {collapsed && item.id === 'lmstudio' && onlineCount > 0 && (
                       <span style={{
                         position: 'absolute', top: 4, right: 6, width: 8, height: 8,
-                        borderRadius: '50%', backgroundColor: '#10b981',
-                        border: '2px solid #0d1117',
+                        borderRadius: '50%', backgroundColor: COLORS.green,
+                        border: `2px solid ${COLORS.bgCard}`,
                       }} />
                     )}
                     {collapsed && isHovered && (
                       <span style={{
                         position: 'absolute', left: 56, top: '50%', transform: 'translateY(-50%)',
-                        backgroundColor: '#1a2a3a', color: '#e0e0e0', padding: '4px 10px', borderRadius: 4,
+                        backgroundColor: COLORS.border, color: COLORS.text, padding: '4px 10px', borderRadius: 4,
                         fontSize: 12, whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 100,
-                        border: '1px solid #2a3a4a', fontFamily: 'inherit',
+                        border: `1px solid ${COLORS.border}`, fontFamily: 'inherit',
                       }}>{item.label}</span>
                     )}
                   </button>
@@ -252,7 +253,7 @@ export default function Sidebar({ currentPage, onPageChange }: SidebarProps) {
 
         {/* Bottom version */}
         {!collapsed && (
-          <div style={{ padding: '8px 14px', fontSize: 9, color: '#4b5563', borderTop: '1px solid #1a2a3a' }}>
+          <div style={{ padding: '8px 14px', fontSize: 9, color: COLORS.textDimmer, borderTop: `1px solid ${COLORS.border}` }}>
             JARVIS v{APP_VERSION}
           </div>
         )}

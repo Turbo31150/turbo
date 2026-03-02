@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
-
+import React, { useState, useEffect, useCallback, useMemo, memo, useRef } from 'react';
 import { BACKEND_URL } from '../lib/config';
+import { COLORS, FONT } from '../lib/theme';
 
 interface DictEntry {
   id: number;
@@ -27,48 +27,48 @@ interface DictStats {
 const CSS = `
 @keyframes dictFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .dict-row{animation:dictFade .2s ease;transition:background .15s}
-.dict-row:hover{background:rgba(249,115,22,.04)!important}
-.dict-input:focus{border-color:#f97316!important}
+.dict-row:hover{background:${COLORS.orangeAlpha(0.04)}!important}
+.dict-input:focus{border-color:${COLORS.orange}!important}
 .dict-page::-webkit-scrollbar{width:5px}
-.dict-page::-webkit-scrollbar-thumb{background:#2a2a3a;border-radius:3px}
+.dict-page::-webkit-scrollbar-thumb{background:${COLORS.border};border-radius:3px}
 `;
 
 const S = {
-  page: { padding: 20, fontFamily: 'Consolas, "Courier New", monospace', height: '100%', overflowY: 'auto' } as React.CSSProperties,
+  page: { padding: 20, fontFamily: FONT, height: '100%', overflowY: 'auto' } as React.CSSProperties,
   header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 } as React.CSSProperties,
-  title: { fontSize: 18, fontWeight: 700, color: '#e0e0e0' } as React.CSSProperties,
+  title: { fontSize: 18, fontWeight: 700, color: COLORS.text } as React.CSSProperties,
   stats: { display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' } as React.CSSProperties,
-  stat: { backgroundColor: '#0d1117', border: '1px solid #1a2a3a', borderRadius: 8, padding: '12px 18px', display: 'flex', flexDirection: 'column', gap: 4, minWidth: 120 } as React.CSSProperties,
-  statLabel: { fontSize: 10, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1.5 } as React.CSSProperties,
+  stat: { backgroundColor: COLORS.bgCard, border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '12px 18px', display: 'flex', flexDirection: 'column', gap: 4, minWidth: 120 } as React.CSSProperties,
+  statLabel: { fontSize: 10, color: COLORS.textDim, textTransform: 'uppercase', letterSpacing: 1.5 } as React.CSSProperties,
   statVal: { fontSize: 22, fontWeight: 700 } as React.CSSProperties,
   toolbar: { display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center', flexWrap: 'wrap' } as React.CSSProperties,
-  search: { flex: 1, minWidth: 200, padding: '8px 12px', backgroundColor: '#0d1117', border: '1px solid #2a3a4a', borderRadius: 6, color: '#e0e0e0', fontSize: 12, fontFamily: 'inherit', outline: 'none' } as React.CSSProperties,
-  filterBtn: { padding: '6px 12px', borderRadius: 6, border: '1px solid #2a3a4a', backgroundColor: 'transparent', color: '#6b7280', fontSize: 10, cursor: 'pointer', fontFamily: 'inherit', transition: 'all .2s', textTransform: 'uppercase', letterSpacing: .5 } as React.CSSProperties,
-  filterActive: { borderColor: '#f97316', color: '#f97316', backgroundColor: 'rgba(249,115,22,.08)' },
+  search: { flex: 1, minWidth: 200, padding: '8px 12px', backgroundColor: COLORS.bgCard, border: `1px solid ${COLORS.border}`, borderRadius: 6, color: COLORS.text, fontSize: 12, fontFamily: 'inherit', outline: 'none' } as React.CSSProperties,
+  filterBtn: { padding: '6px 12px', borderRadius: 6, border: `1px solid ${COLORS.border}`, backgroundColor: 'transparent', color: COLORS.textDim, fontSize: 10, cursor: 'pointer', fontFamily: 'inherit', transition: 'all .2s', textTransform: 'uppercase', letterSpacing: .5 } as React.CSSProperties,
+  filterActive: { borderColor: COLORS.orange, color: COLORS.orange, backgroundColor: COLORS.orangeAlpha(0.08) },
   table: { width: '100%', borderCollapse: 'collapse' } as React.CSSProperties,
-  th: { textAlign: 'left', padding: '8px 12px', fontSize: 10, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1, borderBottom: '1px solid #1a2a3a', fontWeight: 700 } as React.CSSProperties,
-  td: { padding: '8px 12px', fontSize: 12, color: '#e0e0e0', borderBottom: '1px solid #0d1117' } as React.CSSProperties,
+  th: { textAlign: 'left', padding: '8px 12px', fontSize: 10, color: COLORS.textDim, textTransform: 'uppercase', letterSpacing: 1, borderBottom: `1px solid ${COLORS.border}`, fontWeight: 700 } as React.CSSProperties,
+  td: { padding: '8px 12px', fontSize: 12, color: COLORS.text, borderBottom: `1px solid ${COLORS.bgCard}` } as React.CSSProperties,
   badge: { fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4, letterSpacing: .5 } as React.CSSProperties,
-  catBadge: { backgroundColor: 'rgba(192,132,252,.1)', color: '#c084fc', border: '1px solid rgba(192,132,252,.2)' },
-  typeBadge: { backgroundColor: 'rgba(16,185,129,.1)', color: '#10b981', border: '1px solid rgba(16,185,129,.2)' },
+  catBadge: { backgroundColor: COLORS.purpleAlpha(0.1), color: COLORS.purple, border: `1px solid ${COLORS.purpleAlpha(0.2)}` },
+  typeBadge: { backgroundColor: COLORS.greenAlpha(0.1), color: COLORS.green, border: `1px solid ${COLORS.greenAlpha(0.2)}` },
   srcBadge: (src: string) => ({
-    backgroundColor: src === 'command' ? 'rgba(249,115,22,.1)' : src === 'pipeline' ? 'rgba(192,132,252,.1)' : 'rgba(16,185,129,.1)',
-    color: src === 'command' ? '#f97316' : src === 'pipeline' ? '#c084fc' : '#10b981',
-    border: `1px solid ${src === 'command' ? 'rgba(249,115,22,.2)' : src === 'pipeline' ? 'rgba(192,132,252,.2)' : 'rgba(16,185,129,.2)'}`,
+    backgroundColor: src === 'command' ? COLORS.orangeAlpha(0.1) : src === 'pipeline' ? COLORS.purpleAlpha(0.1) : COLORS.greenAlpha(0.1),
+    color: src === 'command' ? COLORS.orange : src === 'pipeline' ? COLORS.purple : COLORS.green,
+    border: `1px solid ${src === 'command' ? COLORS.orangeAlpha(0.2) : src === 'pipeline' ? COLORS.purpleAlpha(0.2) : COLORS.greenAlpha(0.2)}`,
   }),
-  pagination: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 16, fontSize: 12, color: '#6b7280' } as React.CSSProperties,
-  pageBtn: { padding: '4px 10px', borderRadius: 4, border: '1px solid #2a3a4a', backgroundColor: 'transparent', color: '#6b7280', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' } as React.CSSProperties,
-  emptyState: { textAlign: 'center', padding: 40, color: '#6b7280', fontSize: 13 } as React.CSSProperties,
-  addBtn: { padding: '6px 14px', borderRadius: 6, border: '1px solid #10b981', backgroundColor: 'rgba(16,185,129,.08)', color: '#10b981', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 } as React.CSSProperties,
-  modal: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 } as React.CSSProperties,
-  modalBox: { backgroundColor: '#0d1117', border: '1px solid #1a2a3a', borderRadius: 10, padding: 24, width: 480, maxHeight: '80vh', overflowY: 'auto' } as React.CSSProperties,
+  pagination: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 16, fontSize: 12, color: COLORS.textDim } as React.CSSProperties,
+  pageBtn: { padding: '4px 10px', borderRadius: 4, border: `1px solid ${COLORS.border}`, backgroundColor: 'transparent', color: COLORS.textDim, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' } as React.CSSProperties,
+  emptyState: { textAlign: 'center', padding: 40, color: COLORS.textDim, fontSize: 13 } as React.CSSProperties,
+  addBtn: { padding: '6px 14px', borderRadius: 6, border: `1px solid ${COLORS.green}`, backgroundColor: COLORS.greenAlpha(0.08), color: COLORS.green, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 } as React.CSSProperties,
+  modal: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: COLORS.overlay, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 } as React.CSSProperties,
+  modalBox: { backgroundColor: COLORS.bgCard, border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: 24, width: 480, maxHeight: '80vh', overflowY: 'auto' } as React.CSSProperties,
   formGroup: { marginBottom: 12 } as React.CSSProperties,
-  label: { display: 'block', fontSize: 10, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 } as React.CSSProperties,
-  input: { width: '100%', padding: '8px 10px', backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 6, color: '#e0e0e0', fontSize: 12, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' } as React.CSSProperties,
+  label: { display: 'block', fontSize: 10, color: COLORS.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 } as React.CSSProperties,
+  input: { width: '100%', padding: '8px 10px', backgroundColor: COLORS.bg, border: `1px solid ${COLORS.border}`, borderRadius: 6, color: COLORS.text, fontSize: 12, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' } as React.CSSProperties,
   formBtns: { display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 } as React.CSSProperties,
-  cancelBtn: { padding: '6px 14px', borderRadius: 6, border: '1px solid #2a3a4a', backgroundColor: 'transparent', color: '#6b7280', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' } as React.CSSProperties,
-  saveBtn: { padding: '6px 14px', borderRadius: 6, border: 'none', backgroundColor: '#f97316', color: '#000', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700 } as React.CSSProperties,
-  deleteBtn: { padding: '4px 10px', borderRadius: 4, border: '1px solid rgba(239,68,68,.3)', backgroundColor: 'transparent', color: '#ef4444', fontSize: 10, cursor: 'pointer', fontFamily: 'inherit' } as React.CSSProperties,
+  cancelBtn: { padding: '6px 14px', borderRadius: 6, border: `1px solid ${COLORS.border}`, backgroundColor: 'transparent', color: COLORS.textDim, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' } as React.CSSProperties,
+  saveBtn: { padding: '6px 14px', borderRadius: 6, border: 'none', backgroundColor: COLORS.orange, color: '#000', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700 } as React.CSSProperties,
+  deleteBtn: { padding: '4px 10px', borderRadius: 4, border: `1px solid ${COLORS.redAlpha(0.3)}`, backgroundColor: 'transparent', color: COLORS.red, fontSize: 10, cursor: 'pointer', fontFamily: 'inherit' } as React.CSSProperties,
 };
 
 const PAGE_SIZE = 50;
@@ -80,7 +80,7 @@ const DictRow = memo(function DictRow({ entry, onEdit, onDelete }: { entry: Dict
       <td style={{ ...S.td, maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.trigger_phrase}</td>
       <td style={S.td}><span style={{ ...S.badge, ...S.catBadge }}>{entry.category}</span></td>
       <td style={S.td}><span style={{ ...S.badge, ...S.typeBadge }}>{entry.action_type}</span></td>
-      <td style={{ ...S.td, textAlign: 'right', color: '#6b7280', fontSize: 10 }}>{entry.usage_count || 0}</td>
+      <td style={{ ...S.td, textAlign: 'right', color: COLORS.textDim, fontSize: 10 }}>{entry.usage_count || 0}</td>
       <td style={{ ...S.td, textAlign: 'right' }}>
         {entry.source === 'db' && (
           <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
@@ -105,13 +105,20 @@ export default function DictionaryPage() {
   const [form, setForm] = useState({ trigger_phrase: '', category: '', action_type: 'powershell', steps: '', agents_involved: '' });
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const [savingEntry, setSavingEntry] = useState(false);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mountedRef = useRef(true);
+
+  useEffect(() => () => {
+    mountedRef.current = false;
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+  }, []);
 
   const showToast = (msg: string, ok: boolean) => {
     setToast({ msg, ok });
-    setTimeout(() => setToast(null), 3000);
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => { toastTimerRef.current = null; setToast(null); }, 3000);
   };
 
-  // Escape to close form modal
   useEffect(() => {
     if (!showForm) return;
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowForm(false); };
@@ -129,23 +136,22 @@ export default function DictionaryPage() {
       if (dictResp.ok) {
         const data = await dictResp.json();
         const all: DictEntry[] = [];
-        // Commands from src
         for (const cmd of (data.commands || [])) {
           all.push({ id: cmd.id || all.length, trigger_phrase: cmd.trigger || cmd.name || '', category: cmd.category || '', action_type: cmd.action_type || '', source: 'command', usage_count: cmd.usage_count || 0 });
         }
-        // Pipelines
         for (const p of (data.pipelines || [])) {
           all.push({ id: p.id || all.length + 1000, trigger_phrase: p.trigger || p.name || '', category: p.category || '', action_type: 'pipeline', source: 'pipeline', usage_count: p.usage_count || 0 });
         }
-        // DB entries
         for (const d of (data.db_entries || [])) {
           all.push({ id: d.id, pipeline_id: d.pipeline_id, trigger_phrase: d.trigger_phrase || '', steps: d.steps, category: d.category || '', action_type: d.action_type || '', agents_involved: d.agents_involved, avg_duration_ms: d.avg_duration_ms, usage_count: d.usage_count || 0, source: 'db' });
         }
-        setEntries(all);
+        if (mountedRef.current) setEntries(all);
       }
-      if (statsResp.ok) setStats(await statsResp.json());
-    } catch { /* offline */ }
-    setLoading(false);
+      if (statsResp.ok && mountedRef.current) setStats(await statsResp.json());
+    } catch (err) {
+      console.warn('[Dictionary] fetch error:', err instanceof Error ? err.message : err);
+    }
+    if (mountedRef.current) setLoading(false);
   }, []);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
@@ -177,7 +183,10 @@ export default function DictionaryPage() {
       const r = await fetch(BACKEND_URL + `/api/dictionary/command/${id}`, { method: 'DELETE', signal: AbortSignal.timeout(10000) });
       if (r.ok) { showToast('Commande supprimee', true); fetchAll(); }
       else showToast(`Erreur suppression (${r.status})`, false);
-    } catch { showToast('Erreur connexion', false); }
+    } catch (err) {
+      console.warn('[Dictionary] delete error:', err instanceof Error ? err.message : err);
+      showToast('Erreur connexion', false);
+    }
   }, [fetchAll]);
 
   const handleEdit = useCallback((entry: DictEntry) => {
@@ -208,7 +217,10 @@ export default function DictionaryPage() {
       } else {
         showToast(`Erreur sauvegarde (${r.status})`, false);
       }
-    } catch { showToast('Erreur connexion', false); }
+    } catch (err) {
+      console.warn('[Dictionary] save error:', err instanceof Error ? err.message : err);
+      showToast('Erreur connexion', false);
+    }
     setSavingEntry(false);
   }, [form, editEntry, fetchAll, savingEntry]);
 
@@ -220,9 +232,9 @@ export default function DictionaryPage() {
           <div style={{
             padding: '8px 16px', borderRadius: 8, fontSize: 12, marginBottom: 12,
             fontFamily: 'inherit', animation: 'dictFade .3s ease',
-            backgroundColor: toast.ok ? 'rgba(16,185,129,.1)' : 'rgba(239,68,68,.1)',
-            border: `1px solid ${toast.ok ? 'rgba(16,185,129,.3)' : 'rgba(239,68,68,.3)'}`,
-            color: toast.ok ? '#10b981' : '#ef4444',
+            backgroundColor: toast.ok ? COLORS.greenAlpha(0.1) : COLORS.redAlpha(0.1),
+            border: `1px solid ${toast.ok ? COLORS.greenAlpha(0.3) : COLORS.redAlpha(0.3)}`,
+            color: toast.ok ? COLORS.green : COLORS.red,
           }}>{toast.msg}</div>
         )}
         <div style={S.header}>
@@ -232,33 +244,31 @@ export default function DictionaryPage() {
           </button>
         </div>
 
-        {/* Stats */}
         {stats && (
           <div style={S.stats}>
             <div style={S.stat}>
               <span style={S.statLabel}>Commandes</span>
-              <span style={{ ...S.statVal, color: '#f97316' }}>{stats.commands}</span>
+              <span style={{ ...S.statVal, color: COLORS.orange }}>{stats.commands}</span>
             </div>
             <div style={S.stat}>
               <span style={S.statLabel}>Pipelines</span>
-              <span style={{ ...S.statVal, color: '#c084fc' }}>{stats.pipelines}</span>
+              <span style={{ ...S.statVal, color: COLORS.purple }}>{stats.pipelines}</span>
             </div>
             <div style={S.stat}>
               <span style={S.statLabel}>DB Entries</span>
-              <span style={{ ...S.statVal, color: '#10b981' }}>{stats.db_entries}</span>
+              <span style={{ ...S.statVal, color: COLORS.green }}>{stats.db_entries}</span>
             </div>
             <div style={S.stat}>
               <span style={S.statLabel}>Chains</span>
-              <span style={{ ...S.statVal, color: '#6b7280' }}>{stats.chains}</span>
+              <span style={{ ...S.statVal, color: COLORS.textDim }}>{stats.chains}</span>
             </div>
             <div style={S.stat}>
               <span style={S.statLabel}>Corrections</span>
-              <span style={{ ...S.statVal, color: '#6b7280' }}>{stats.corrections}</span>
+              <span style={{ ...S.statVal, color: COLORS.textDim }}>{stats.corrections}</span>
             </div>
           </div>
         )}
 
-        {/* Toolbar */}
         <div style={S.toolbar}>
           <input className="dict-input" style={S.search} placeholder="Rechercher commandes, categories..."
             value={search} onChange={e => setSearch(e.target.value)} />
@@ -267,17 +277,16 @@ export default function DictionaryPage() {
             <button key={cat} style={{ ...S.filterBtn, ...(catFilter === cat ? S.filterActive : {}) }}
               onClick={() => setCatFilter(catFilter === cat ? '' : cat)}>{cat}</button>
           ))}
-          {categories.length > 8 && <span style={{ fontSize: 10, color: '#6b7280' }}>+{categories.length - 8}</span>}
+          {categories.length > 8 && <span style={{ fontSize: 10, color: COLORS.textDim }}>+{categories.length - 8}</span>}
         </div>
 
-        {/* Table */}
         {loading ? (
           <div style={S.emptyState}>Chargement du dictionnaire...</div>
         ) : filtered.length === 0 ? (
           <div style={S.emptyState}>Aucune commande trouvee{search ? ` pour "${search}"` : ''}</div>
         ) : (
           <>
-            <div style={{ fontSize: 10, color: '#6b7280', marginBottom: 8 }}>{filtered.length} resultats</div>
+            <div style={{ fontSize: 10, color: COLORS.textDim, marginBottom: 8 }}>{filtered.length} resultats</div>
             <table style={S.table}>
               <thead>
                 <tr>
@@ -296,7 +305,6 @@ export default function DictionaryPage() {
               </tbody>
             </table>
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <div style={S.pagination}>
                 <button style={S.pageBtn} onClick={() => setPage(Math.max(0, page - 1))} disabled={page === 0}>&lt;</button>
@@ -307,11 +315,10 @@ export default function DictionaryPage() {
           </>
         )}
 
-        {/* Add/Edit Modal */}
         {showForm && (
           <div style={S.modal} onClick={() => setShowForm(false)} role="dialog" aria-modal="true" aria-labelledby="dict-modal-title">
             <div style={S.modalBox} onClick={e => e.stopPropagation()}>
-              <div id="dict-modal-title" style={{ fontSize: 16, fontWeight: 700, color: '#e0e0e0', marginBottom: 16 }}>
+              <div id="dict-modal-title" style={{ fontSize: 16, fontWeight: 700, color: COLORS.text, marginBottom: 16 }}>
                 {editEntry ? 'Modifier commande' : 'Nouvelle commande'}
               </div>
               <div style={S.formGroup}>

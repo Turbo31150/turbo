@@ -8,8 +8,13 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
+import re
+import sqlite3
 import sys
 from typing import Any
+
+logger = logging.getLogger("jarvis.mcp_server")
 
 import httpx
 from mcp.server.lowlevel import Server
@@ -19,7 +24,7 @@ from mcp.types import Tool, TextContent
 # ── Config import (inline to avoid circular deps) ──────────────────────────
 
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parent.parent))
-from src.config import config, SCRIPTS, PATHS
+from src.config import config, SCRIPTS, PATHS, prepare_lmstudio_input
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -78,7 +83,7 @@ async def handle_lm_query(args: dict) -> list[TextContent]:
             return _text(f"[{node.name}/{model}] {extract_lms_output(r.json())}")
     except httpx.ConnectError:
         return _error(f"Noeud {node.name} hors ligne")
-    except Exception as e:
+    except (httpx.HTTPError, OSError, KeyError, ValueError) as e:
         return _error(str(e))
 
 
@@ -92,7 +97,7 @@ async def handle_lm_models(args: dict) -> list[TextContent]:
             r.raise_for_status()
             models = [m["key"] for m in r.json().get("models", []) if m.get("loaded_instances")]
             return _text(f"Modeles: {', '.join(models) if models else 'aucun'}")
-    except Exception as e:
+    except (httpx.HTTPError, OSError, KeyError, json.JSONDecodeError) as e:
         return _error(str(e))
 
 
@@ -107,7 +112,8 @@ async def handle_lm_cluster_status(args: dict) -> list[TextContent]:
                 cnt = len([m for m in r.json().get("models", []) if m.get("loaded_instances")])
                 results.append(f"  {n.name} ({n.role}): ONLINE — {cnt} modeles, {n.gpus} GPU, {n.vram_gb}GB VRAM")
                 online += 1
-            except Exception:
+            except (httpx.HTTPError, OSError) as exc:
+                logger.debug("cluster_status %s offline: %s", n.name, exc)
                 results.append(f"  {n.name} ({n.role}): OFFLINE")
         for n in config.ollama_nodes:
             try:
@@ -116,7 +122,8 @@ async def handle_lm_cluster_status(args: dict) -> list[TextContent]:
                 cnt = len(r.json().get("models", []))
                 results.append(f"  {n.name} ({n.role}): ONLINE — {cnt} modeles [Ollama]")
                 online += 1
-            except Exception:
+            except (httpx.HTTPError, OSError) as exc:
+                logger.debug("cluster_status %s offline: %s", n.name, exc)
                 results.append(f"  {n.name} ({n.role}): OFFLINE [Ollama]")
         # Gemini check via simple proxy call
         try:
@@ -130,7 +137,8 @@ async def handle_lm_cluster_status(args: dict) -> list[TextContent]:
                 online += 1
             else:
                 results.append(f"  GEMINI ({config.gemini_node.role}): OFFLINE [Proxy]")
-        except Exception:
+        except (asyncio.TimeoutError, FileNotFoundError, OSError) as exc:
+            logger.debug("cluster_status GEMINI offline: %s", exc)
             results.append(f"  GEMINI ({config.gemini_node.role}): OFFLINE [Proxy]")
     header = f"Cluster: {online}/{total_nodes} noeuds en ligne"
     return _text(f"{header}\n" + "\n".join(results))
@@ -178,7 +186,7 @@ async def handle_consensus(args: dict) -> list[TextContent]:
                 return f"[GEMINI/{config.gemini_node.default_model}] {_strip_thinking_tags(output)}"
             except asyncio.TimeoutError:
                 return f"[GEMINI] TIMEOUT ({per_timeout}s)"
-            except Exception as e:
+            except (OSError, ValueError) as e:
                 return f"[GEMINI] ERREUR: {e}"
 
         ol_node = config.get_ollama_node(name)
@@ -196,16 +204,13 @@ async def handle_consensus(args: dict) -> list[TextContent]:
                     return f"[{ol_node.name}/Ollama] {text}"
             except asyncio.TimeoutError:
                 return f"[{ol_node.name}/Ollama] TIMEOUT ({per_timeout}s)"
-            except Exception as e:
+            except (httpx.HTTPError, OSError, KeyError, json.JSONDecodeError) as e:
                 return f"[{ol_node.name}/Ollama] ERREUR: {e}"
 
         node = config.get_node(name)
         if not node:
             return f"[{name}] ERREUR: inconnu"
-        # M1 Qwen3: /nothink prefix
-        input_text = prompt
-        if upper == "M1" and "qwen" in node.default_model.lower():
-            input_text = "/nothink\n" + prompt
+        input_text = prepare_lmstudio_input(prompt, node.name, node.default_model)
 
         try:
             async with httpx.AsyncClient(timeout=per_timeout) as c:
@@ -220,7 +225,7 @@ async def handle_consensus(args: dict) -> list[TextContent]:
                 return f"[{node.name}] {text}"
         except asyncio.TimeoutError:
             return f"[{name}] TIMEOUT ({per_timeout}s)"
-        except Exception as e:
+        except (httpx.HTTPError, OSError, KeyError, ValueError) as e:
             return f"[{node.name}] ERREUR: {e}"
 
     results = await asyncio.gather(*[_query_node(n) for n in nodes], return_exceptions=True)
@@ -261,7 +266,7 @@ async def handle_gemini_query(args: dict) -> list[TextContent]:
         return _text(f"[GEMINI/{config.gemini_node.default_model}] {_strip_thinking_tags(output)}")
     except asyncio.TimeoutError:
         return _error(f"Gemini timeout ({config.gemini_node.timeout_ms / 1000}s)")
-    except Exception as e:
+    except (OSError, ValueError) as e:
         return _error(f"Erreur Gemini: {e}")
 
 
@@ -301,10 +306,7 @@ async def handle_bridge_query(args: dict) -> list[TextContent]:
                 node = config.get_node(name)
                 if not node:
                     continue
-                # M1 Qwen3: /nothink prefix
-                input_text = prompt
-                if upper == "M1" and "qwen" in node.default_model.lower():
-                    input_text = "/nothink\n" + prompt
+                input_text = prepare_lmstudio_input(prompt, node.name, node.default_model)
                 r = await c.post(f"{node.url}/api/v1/chat", json={
                     "model": node.default_model, "input": input_text,
                     "temperature": 0.2, "max_output_tokens": 1024,
@@ -313,7 +315,8 @@ async def handle_bridge_query(args: dict) -> list[TextContent]:
                 r.raise_for_status()
                 from src.tools import extract_lms_output
                 return _text(f"[{name}/{node.default_model}] {extract_lms_output(r.json())}")
-            except Exception:
+            except (httpx.HTTPError, asyncio.TimeoutError, OSError) as exc:
+                logger.debug("bridge_query %s failed: %s", name, exc)
                 continue
     return _error(f"Tous les noeuds ont echoue: {nodes}")
 
@@ -355,10 +358,7 @@ async def handle_bridge_mesh(args: dict) -> list[TextContent]:
                 node = config.get_node(name)
                 if not node:
                     return f"[{name}] ERREUR: noeud inconnu"
-                # M1 Qwen3: /nothink prefix
-                input_text = prompt
-                if upper == "M1" and "qwen" in node.default_model.lower():
-                    input_text = "/nothink\n" + prompt
+                input_text = prepare_lmstudio_input(prompt, node.name, node.default_model)
                 r = await c.post(f"{node.url}/api/v1/chat", json={
                     "model": node.default_model, "input": input_text,
                     "temperature": 0.2, "max_output_tokens": 1024,
@@ -369,7 +369,7 @@ async def handle_bridge_mesh(args: dict) -> list[TextContent]:
                 return f"[{name}/{node.default_model}] {extract_lms_output(r.json())}"
         except asyncio.TimeoutError:
             return f"[{name}] TIMEOUT ({per_timeout}s)"
-        except Exception as e:
+        except (httpx.HTTPError, OSError, KeyError, ValueError) as e:
             return f"[{name}] ERREUR: {e}"
 
     results = await asyncio.gather(*[_query_one(n) for n in names], return_exceptions=True)
@@ -401,7 +401,7 @@ async def handle_ollama_query(args: dict) -> list[TextContent]:
             return _text(f"[OL1/{model}] {r.json()['message']['content']}")
     except httpx.ConnectError:
         return _error("Ollama hors ligne (127.0.0.1:11434)")
-    except Exception as e:
+    except (httpx.HTTPError, OSError, KeyError, json.JSONDecodeError) as e:
         return _error(str(e))
 
 
@@ -415,7 +415,7 @@ async def handle_ollama_models(args: dict) -> list[TextContent]:
             r.raise_for_status()
             models = [m["name"] for m in r.json().get("models", [])]
             return _text(f"Modeles Ollama: {', '.join(models) if models else 'aucun'}")
-    except Exception as e:
+    except (httpx.HTTPError, OSError, KeyError, json.JSONDecodeError) as e:
         return _error(str(e))
 
 
@@ -429,7 +429,7 @@ async def handle_ollama_pull(args: dict) -> list[TextContent]:
             r = await c.post(f"{node.url}/api/pull", json={"name": model_name, "stream": False})
             r.raise_for_status()
             return _text(f"Modele '{model_name}' telecharge.")
-    except Exception as e:
+    except (httpx.HTTPError, OSError) as e:
         return _error(str(e))
 
 
@@ -451,7 +451,7 @@ async def handle_ollama_status(args: dict) -> list[TextContent]:
             )
     except httpx.ConnectError:
         return _error("Ollama OL1: OFFLINE")
-    except Exception as e:
+    except (httpx.HTTPError, OSError, KeyError, json.JSONDecodeError) as e:
         return _error(str(e))
 
 
@@ -468,7 +468,7 @@ async def handle_run_script(args: dict) -> list[TextContent]:
         return r.stdout[:4000] if r.returncode == 0 else f"ERREUR: {r.stderr[:2000]}"
     try:
         return _text(await asyncio.to_thread(_do))
-    except Exception as e:
+    except (OSError, subprocess.SubprocessError, ValueError) as e:
         return _error(str(e))
 
 
@@ -503,7 +503,7 @@ async def handle_trading_pipeline_v2(args: dict) -> list[TextContent]:
         return _text(await asyncio.to_thread(_do))
     except subprocess.TimeoutExpired:
         return _error("Timeout 300s: pipeline GPU v2.2")
-    except Exception as e:
+    except (OSError, subprocess.SubprocessError, ValueError) as e:
         return _error(str(e))
 
 
@@ -848,7 +848,7 @@ async def handle_lm_mcp_query(args: dict) -> list[TextContent]:
             tool_calls = [o for o in data.get("output", []) if isinstance(o, dict) and o.get("type") == "tool_call"]
             tc_info = f" | {len(tool_calls)} tool_call(s)" if tool_calls else ""
             return _text(f"[{node.name}/{model} +MCP:{','.join(server_names)}] {content}{tc_info}")
-    except Exception as e:
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
         return _error(str(e))
 
 
@@ -954,7 +954,7 @@ async def handle_ollama_web_search(args: dict) -> list[TextContent]:
     try:
         result = await _ollama_cloud_query_mcp(args["query"], model, timeout=60, system=system)
         return _text(f"[WEB/{model}] {result}")
-    except Exception as e:
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
         return _error(f"Erreur web search: {e}")
 
 
@@ -972,7 +972,7 @@ async def handle_ollama_subagents(args: dict) -> list[TextContent]:
         try:
             result = await _ollama_cloud_query_mcp(prompt, model, timeout=90, system=system)
             return f"[{model.split(':')[0].upper()} — {aspect}]\n{result}"
-        except Exception as e:
+        except (httpx.HTTPError, OSError, ValueError, json.JSONDecodeError) as e:
             return f"[{model}] Erreur: {e}"
 
     results = await asyncio.gather(*[_run_agent(cloud_models[i % 3], aspects[i]) for i in range(len(aspects))])
@@ -994,7 +994,7 @@ async def handle_ollama_trading_analysis(args: dict) -> list[TextContent]:
         try:
             result = await _ollama_cloud_query_mcp(prompt, model, timeout=90, system=system)
             return f"[{role}] {result}"
-        except Exception as e:
+        except (httpx.HTTPError, OSError, ValueError, json.JSONDecodeError) as e:
             return f"[{role}] Erreur: {e}"
 
     results = await asyncio.gather(*[_run(m, r, p) for m, r, p in agents_config])
@@ -1067,6 +1067,7 @@ _DICT_VALID_ACTS = {
     "system", "media", "browser", "voice", "shortcut", "script",
 }
 _DICT_TABLES = {"pipeline_dictionary", "domino_chains", "voice_corrections"}
+_SAFE_COL_RE = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
 
 
 async def handle_dict_crud(args: dict) -> list[TextContent]:
@@ -1174,6 +1175,9 @@ async def handle_dict_crud(args: dict) -> list[TextContent]:
                 fields = data.get("fields", {})
                 if not rid or not fields:
                     return "ERROR: data.id and data.fields required"
+                bad = [k for k in fields if not _SAFE_COL_RE.match(k)]
+                if bad:
+                    return _error(f"Invalid column name(s): {bad}")
                 sets = [f"{k} = ?" for k in fields]
                 vals = list(fields.values()) + [int(rid)]
                 cur = conn.execute(f"UPDATE {table} SET {', '.join(sets)} WHERE id = ?", vals)
@@ -1197,7 +1201,7 @@ async def handle_dict_crud(args: dict) -> list[TextContent]:
         if result.startswith("ERROR:"):
             return _error(result[7:])
         return _text(result)
-    except Exception as e:
+    except (OSError, ValueError, KeyError, TypeError, sqlite3.Error) as e:
         return _error(f"dict_crud: {e}")
 
 

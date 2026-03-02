@@ -63,7 +63,8 @@ async def execute_command(cmd: JarvisCommand, params: dict[str, str]) -> str:
             url = SITE_ALIASES.get(url.lower(), url)
             if not url.startswith("http"):
                 url = f"https://{url}"
-            result = run_powershell(f"Start-Process chrome '{url}'", timeout=10)
+            safe_url = url.replace("'", "''")
+            result = run_powershell(f"Start-Process chrome '{safe_url}'", timeout=10)
             if result["success"]:
                 return f"Navigation vers {url}."
             else:
@@ -71,8 +72,10 @@ async def execute_command(cmd: JarvisCommand, params: dict[str, str]) -> str:
 
         elif action.startswith("search:"):
             query = action[len("search:"):]
-            url = f"https://www.google.com/search?q={query.replace(' ', '+')}"
-            result = run_powershell(f"Start-Process chrome '{url}'", timeout=10)
+            from urllib.parse import quote_plus
+            url = f"https://www.google.com/search?q={quote_plus(query)}"
+            safe_url = url.replace("'", "''")
+            result = run_powershell(f"Start-Process chrome '{safe_url}'", timeout=10)
             if result["success"]:
                 return f"Recherche Google: {query}."
             else:
@@ -117,8 +120,8 @@ async def execute_command(cmd: JarvisCommand, params: dict[str, str]) -> str:
             output = result.stdout[-500:] if len(result.stdout) > 500 else result.stdout
             return f"Script {script_name} termine (exit={result.returncode}). {output}"
         except subprocess.TimeoutExpired:
-            return f"Script {script_name} timeout (120s)."
-        except Exception as e:
+            return f"Script {script_name} timeout (600s)."
+        except (OSError, ValueError) as e:
             return f"Erreur script: {e}"
 
     if cmd.action_type == "jarvis_tool":
@@ -206,7 +209,7 @@ def _postprocess_trading_script(script_name: str, stdout: str) -> str | None:
         logging.getLogger("jarvis.executor").info(
             "Telegram sniper: %s (%d signals)", "sent" if ok else "failed", len(data.get("signals", []))
         )
-    except Exception as e:
+    except (OSError, ImportError, ValueError, RuntimeError) as e:
         logging.getLogger("jarvis.executor").warning("Telegram sniper error: %s", e)
     # Return structured chat format
     return format_chat_signals(data)
@@ -228,7 +231,7 @@ async def execute_skill_step(step, mcp_call) -> str:
         result = await mcp_call(step.tool, step.args)
         log_action(f"{step.tool}({step.args})", result, True)
         return result
-    except Exception as e:
+    except (OSError, ValueError, KeyError, TypeError, RuntimeError, TimeoutError) as e:
         log_action(f"{step.tool}({step.args})", str(e), False)
         return f"Erreur {step.tool}: {e}"
 
@@ -502,6 +505,6 @@ async def correct_with_ia(text: str, node_url: str = "http://127.0.0.1:11434") -
                 )
                 resp.raise_for_status()
                 return resp.json()["message"]["content"].strip()
-        except Exception:
+        except (httpx.HTTPError, OSError, KeyError, ValueError):
             pass
     return correct_voice_text(text)

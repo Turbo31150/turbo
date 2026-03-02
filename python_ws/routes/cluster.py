@@ -3,13 +3,21 @@
 from __future__ import annotations
 
 import asyncio
-import time
+import logging
 from typing import Any
 
-import httpx
 from starlette.websockets import WebSocket
 
-from python_ws.bridge import get_cluster_status, get_config
+from python_ws.helpers import push_loop
+
+logger = logging.getLogger("jarvis.cluster")
+
+from python_ws.bridge import (
+    get_cluster_status,
+    get_config,
+    _probe_lmstudio,
+    _probe_ollama,
+)
 
 
 async def handle_cluster_request(action: str, payload: dict | None) -> dict[str, Any]:
@@ -42,39 +50,22 @@ async def handle_cluster_request(action: str, payload: dict | None) -> dict[str,
 
 
 async def _ping_node(node_name: str) -> dict[str, Any]:
-    """Ping a specific node by name and return its status."""
+    """Ping a specific node by name, reusing shared probe helpers."""
+    import httpx
+
     cfg = get_config()
     if cfg is None:
         return {"error": "config unavailable"}
 
-    # Find the node
     for node in cfg.lm_nodes:
         if node.name == node_name:
             async with httpx.AsyncClient() as client:
-                try:
-                    t0 = time.perf_counter()
-                    resp = await client.get(
-                        f"{node.url}/api/v1/models",
-                        headers=node.auth_headers,
-                        timeout=5.0,
-                    )
-                    latency = round((time.perf_counter() - t0) * 1000)
-                    resp.raise_for_status()
-                    return {"node": node_name, "online": True, "latency_ms": latency}
-                except Exception as exc:
-                    return {"node": node_name, "online": False, "error": str(exc)}
+                return await _probe_lmstudio(client, node)
 
     for node in cfg.ollama_nodes:
         if node.name == node_name:
             async with httpx.AsyncClient() as client:
-                try:
-                    t0 = time.perf_counter()
-                    resp = await client.get(f"{node.url}/api/tags", timeout=5.0)
-                    latency = round((time.perf_counter() - t0) * 1000)
-                    resp.raise_for_status()
-                    return {"node": node_name, "online": True, "latency_ms": latency}
-                except Exception as exc:
-                    return {"node": node_name, "online": False, "error": str(exc)}
+                return await _probe_ollama(client, node)
 
     if node_name == "GEMINI":
         return {"node": "GEMINI", "online": True, "note": "static — no HTTP probe"}
@@ -84,16 +75,8 @@ async def _ping_node(node_name: str) -> dict[str, Any]:
 
 async def push_cluster_events(websocket: WebSocket) -> None:
     """Background loop: push cluster status every 5 seconds."""
-    while True:
-        try:
-            status = await get_cluster_status()
-            await websocket.send_json({
-                "type": "event",
-                "channel": "cluster",
-                "event": "node_status_changed",
-                "payload": status,
-            })
-        except Exception:
-            # Connection closed or send failed — stop loop
-            break
-        await asyncio.sleep(5)
+    await push_loop(
+        websocket.send_json, get_cluster_status,
+        channel="cluster", event="node_status_changed",
+        interval=5.0, backoff=2.0,
+    )

@@ -28,7 +28,7 @@ def log(msg):
     try:
         with open(LOG_FILE, "a", encoding="utf-8") as f:
             f.write(line + "\n")
-    except:
+    except OSError:
         pass
 
 def health_check(node_id):
@@ -106,7 +106,7 @@ def reload_model(node_id):
         req = urllib.request.Request(cfg["unload_url"], data=body, headers={"Content-Type": "application/json", "Authorization": f"Bearer {cfg['key']}"})
         try:
             urllib.request.urlopen(req, timeout=30)
-        except:
+        except (urllib.error.URLError, OSError):
             pass
         time.sleep(2)
         load_body = {"model": model}

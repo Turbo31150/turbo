@@ -60,6 +60,12 @@ export function setupTray(mainWindow: BrowserWindow): void {
   tray = new Tray(icon);
   tray.setToolTip('JARVIS Desktop');
 
+  const navigateTo = (route: string) => {
+    mainWindow.show();
+    mainWindow.focus();
+    mainWindow.webContents.send('navigate', route);
+  };
+
   const buildContextMenu = (): Menu => {
     const widgets = getWidgetWindows();
 
@@ -76,38 +82,10 @@ export function setupTray(mainWindow: BrowserWindow): void {
         },
       },
       { type: 'separator' },
-      {
-        label: 'Dashboard',
-        click: () => {
-          mainWindow.show();
-          mainWindow.focus();
-          mainWindow.webContents.send('navigate', 'dashboard');
-        },
-      },
-      {
-        label: 'Chat',
-        click: () => {
-          mainWindow.show();
-          mainWindow.focus();
-          mainWindow.webContents.send('navigate', 'chat');
-        },
-      },
-      {
-        label: 'Trading',
-        click: () => {
-          mainWindow.show();
-          mainWindow.focus();
-          mainWindow.webContents.send('navigate', 'trading');
-        },
-      },
-      {
-        label: 'Voice',
-        click: () => {
-          mainWindow.show();
-          mainWindow.focus();
-          mainWindow.webContents.send('navigate', 'voice');
-        },
-      },
+      { label: 'Dashboard', click: () => navigateTo('dashboard') },
+      { label: 'Chat', click: () => navigateTo('chat') },
+      { label: 'Trading', click: () => navigateTo('trading') },
+      { label: 'Voice', click: () => navigateTo('voice') },
       { type: 'separator' },
       {
         label: 'Widgets',

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ReactDOM from 'react-dom/client';
 
+// Must match WS_URL in renderer/lib/config.ts (widget runs in separate context)
 const WS_URL = 'ws://127.0.0.1:9742/ws';
 
 // Get widget type from URL params
@@ -47,7 +48,7 @@ function MiniCluster() {
           if (msg.payload?.nodes) {
             setNodes(msg.payload.nodes);
           }
-        } catch {}
+        } catch (err) { console.warn('[MiniCluster] WS parse error:', err instanceof Error ? err.message : err); }
       };
       ws.onclose = () => { if (!disposed) setTimeout(connect, 3000); };
     };
@@ -118,7 +119,7 @@ function MiniTrading() {
           const msg = JSON.parse(e.data);
           if (msg.payload?.signals) setSignals(msg.payload.signals.slice(0, 3));
           if (msg.payload?.total_pnl !== undefined) setPnl(msg.payload.total_pnl);
-        } catch {}
+        } catch (err) { console.warn('[MiniTrading] WS parse error:', err instanceof Error ? err.message : err); }
       };
       ws.onclose = () => { if (!disposed) setTimeout(connect, 3000); };
     };
@@ -177,7 +178,7 @@ function MiniVoice() {
           const msg = JSON.parse(e.data);
           if (msg.event === 'recording_started') setStatus('recording');
           if (msg.event === 'recording_stopped' || msg.event === 'transcription') setStatus('idle');
-        } catch {}
+        } catch (err) { console.warn('[MiniVoice] WS parse error:', err instanceof Error ? err.message : err); }
       };
       ws.onclose = () => { wsRef.current = null; if (!disposed) setTimeout(connect, 3000); };
     };

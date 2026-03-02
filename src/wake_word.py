@@ -7,8 +7,11 @@ CPU-only, ~50ms latency, no network required.
 
 from __future__ import annotations
 
+import logging
 import threading
 from collections.abc import Callable
+
+logger = logging.getLogger("jarvis.wake_word")
 
 import numpy as np
 import sounddevice as sd
@@ -36,8 +39,8 @@ class WakeWordDetector:
         try:
             from openwakeword.model import Model
             self._model = Model(wakeword_models=[WAKE_WORD], inference_framework="onnx")
-        except Exception as e:
-            print(f"  [WAKE] Failed to load model: {e}", flush=True)
+        except (ImportError, OSError, RuntimeError) as e:
+            logger.warning("Wake word model load failed: %s", e)
             return False
 
         self._running = True
@@ -76,8 +79,8 @@ class WakeWordDetector:
                             self._callback()
                             time.sleep(1.0)
                             break
-        except Exception as e:
-            print(f"  [WAKE] Error in listen loop: {e}", flush=True)
+        except (sd.PortAudioError, OSError, RuntimeError) as e:
+            logger.warning("Wake word listen loop error: %s", e)
             self._running = False
 
     @property

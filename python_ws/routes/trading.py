@@ -1,12 +1,27 @@
 """Trading route — signals, positions, PnL monitoring."""
 import asyncio
+import logging
+import sqlite3
 import time
+from pathlib import Path
 from typing import Any
+
+from python_ws.helpers import push_loop
+
+logger = logging.getLogger("jarvis.trading")
 
 try:
     from src.config import config as jarvis_config
 except ImportError:
     jarvis_config = None
+
+_TURBO_ROOT = Path(__file__).resolve().parent.parent.parent
+_TRADING_DB_FALLBACK = _TURBO_ROOT.parent / "carV1" / "database" / "trading_latest.db"
+if jarvis_config and hasattr(jarvis_config, 'db_trading'):
+    _TRADING_DB = str(jarvis_config.db_trading)
+else:
+    _TRADING_DB = str(_TRADING_DB_FALLBACK)
+    logger.warning("Trading DB config missing, fallback: %s", _TRADING_DB)
 
 
 # In-memory state (populated from real data when available)
@@ -33,44 +48,37 @@ async def _get_signals() -> dict:
     """Fetch pending trading signals."""
     # Try to read from trading database
     try:
-        import sqlite3
-        db_path = "F:/BUREAU/carV1/database/trading_latest.db"
-        conn = sqlite3.connect(db_path)
-        conn.row_factory = sqlite3.Row
-        cur = conn.cursor()
-        cur.execute("""
-            SELECT * FROM signals
-            WHERE status = 'pending'
-            ORDER BY created_at DESC
-            LIMIT 20
-        """)
-        rows = cur.fetchall()
-        conn.close()
-        signals = [dict(r) for r in rows]
+        db_path = _TRADING_DB
+        with sqlite3.connect(db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            cur = conn.execute("""
+                SELECT * FROM signals
+                WHERE status = 'pending'
+                ORDER BY created_at DESC
+                LIMIT 20
+            """)
+            signals = [dict(r) for r in cur.fetchall()]
         return {"signals": signals}
-    except Exception:
-        # Return demo data if DB not available
+    except (sqlite3.Error, OSError) as e:
+        logger.debug("Trading DB unavailable: %s — using demo signals", e)
         return {"signals": _get_demo_signals()}
 
 
 async def _get_positions() -> dict:
     """Fetch open positions."""
     try:
-        import sqlite3
-        db_path = "F:/BUREAU/carV1/database/trading_latest.db"
-        conn = sqlite3.connect(db_path)
-        conn.row_factory = sqlite3.Row
-        cur = conn.cursor()
-        cur.execute("""
-            SELECT * FROM positions
-            WHERE status = 'open'
-            ORDER BY opened_at DESC
-        """)
-        rows = cur.fetchall()
-        conn.close()
-        positions = [dict(r) for r in rows]
+        db_path = _TRADING_DB
+        with sqlite3.connect(db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            cur = conn.execute("""
+                SELECT * FROM positions
+                WHERE status = 'open'
+                ORDER BY opened_at DESC
+            """)
+            positions = [dict(r) for r in cur.fetchall()]
         return {"positions": positions}
-    except Exception:
+    except (sqlite3.Error, OSError) as e:
+        logger.debug("Trading positions unavailable: %s", e)
         return {"positions": []}
 
 
@@ -119,22 +127,21 @@ def _get_demo_signals() -> list:
     ]
 
 
+async def _build_trading_payload() -> dict:
+    """Build the payload for trading push events."""
+    signals = await _get_signals()
+    positions = await _get_positions()
+    return {
+        **_get_pnl_summary(),
+        "signals": signals.get("signals", []),
+        "positions": positions.get("positions", []),
+    }
+
+
 async def push_trading_events(send_func):
     """Push trading updates every 30s."""
-    while True:
-        try:
-            await asyncio.sleep(30)
-            signals = await _get_signals()
-            positions = await _get_positions()
-            await send_func({
-                "type": "event",
-                "channel": "trading",
-                "event": "position_update",
-                "payload": {
-                    **_get_pnl_summary(),
-                    "signals": signals.get("signals", []),
-                    "positions": positions.get("positions", []),
-                },
-            })
-        except Exception:
-            pass
+    await push_loop(
+        send_func, _build_trading_payload,
+        channel="trading", event="position_update",
+        interval=30.0, backoff=5.0,
+    )

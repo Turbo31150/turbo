@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { BACKEND_URL } from '../lib/config';
+import { COLORS, FONT } from '../lib/theme';
 
 interface Skill {
   name: string;
@@ -27,29 +28,29 @@ interface McpTool {
 const CSS = `
 @keyframes tbFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .tb-card{animation:tbFade .2s ease;transition:border-color .3s}
-.tb-card:hover{border-color:rgba(192,132,252,.3)!important}
-.tb-tab:hover{color:#e0e0e0!important}
+.tb-card:hover{border-color:${COLORS.purpleAlpha(0.3)}!important}
+.tb-tab:hover{color:${COLORS.text}!important}
 .tb-page::-webkit-scrollbar{width:5px}
-.tb-page::-webkit-scrollbar-thumb{background:#2a2a3a;border-radius:3px}
+.tb-page::-webkit-scrollbar-thumb{background:${COLORS.border};border-radius:3px}
 `;
 
 const S = {
-  page: { padding: 20, fontFamily: 'Consolas, "Courier New", monospace', height: '100%', overflowY: 'auto' } as React.CSSProperties,
+  page: { padding: 20, fontFamily: FONT, height: '100%', overflowY: 'auto' } as React.CSSProperties,
   header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 } as React.CSSProperties,
-  title: { fontSize: 18, fontWeight: 700, color: '#e0e0e0' } as React.CSSProperties,
-  tabs: { display: 'flex', gap: 2, marginBottom: 16, borderBottom: '1px solid #1a2a3a' } as React.CSSProperties,
-  tab: { padding: '8px 16px', fontSize: 12, fontWeight: 600, color: '#6b7280', cursor: 'pointer', background: 'none', border: 'none', borderBottom: '2px solid transparent', fontFamily: 'inherit', transition: 'all .2s' } as React.CSSProperties,
-  tabActive: { color: '#c084fc', borderBottomColor: '#c084fc' },
-  search: { width: '100%', maxWidth: 400, padding: '8px 12px', backgroundColor: '#0d1117', border: '1px solid #2a3a4a', borderRadius: 6, color: '#e0e0e0', fontSize: 12, fontFamily: 'inherit', outline: 'none', marginBottom: 16 } as React.CSSProperties,
+  title: { fontSize: 18, fontWeight: 700, color: COLORS.text } as React.CSSProperties,
+  tabs: { display: 'flex', gap: 2, marginBottom: 16, borderBottom: `1px solid ${COLORS.border}` } as React.CSSProperties,
+  tab: { padding: '8px 16px', fontSize: 12, fontWeight: 600, color: COLORS.textDim, cursor: 'pointer', background: 'none', border: 'none', borderBottom: '2px solid transparent', fontFamily: 'inherit', transition: 'all .2s' } as React.CSSProperties,
+  tabActive: { color: COLORS.purple, borderBottomColor: COLORS.purple },
+  search: { width: '100%', maxWidth: 400, padding: '8px 12px', backgroundColor: COLORS.bgCard, border: `1px solid ${COLORS.border}`, borderRadius: 6, color: COLORS.text, fontSize: 12, fontFamily: 'inherit', outline: 'none', marginBottom: 16 } as React.CSSProperties,
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 } as React.CSSProperties,
-  card: { backgroundColor: '#0d1117', border: '1px solid #1a2a3a', borderRadius: 10, padding: 14 } as React.CSSProperties,
-  cardName: { fontSize: 13, fontWeight: 700, color: '#e0e0e0', marginBottom: 4 } as React.CSSProperties,
-  cardDesc: { fontSize: 11, color: '#6b7280', lineHeight: 1.4 } as React.CSSProperties,
-  badge: { fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4, letterSpacing: .5, backgroundColor: 'rgba(192,132,252,.1)', color: '#c084fc', border: '1px solid rgba(192,132,252,.2)' } as React.CSSProperties,
-  benchCard: { backgroundColor: '#0d1117', border: '1px solid #1a2a3a', borderRadius: 10, padding: 16 } as React.CSSProperties,
+  card: { backgroundColor: COLORS.bgCard, border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: 14 } as React.CSSProperties,
+  cardName: { fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 4 } as React.CSSProperties,
+  cardDesc: { fontSize: 11, color: COLORS.textDim, lineHeight: 1.4 } as React.CSSProperties,
+  badge: { fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4, letterSpacing: .5, backgroundColor: COLORS.purpleAlpha(0.1), color: COLORS.purple, border: `1px solid ${COLORS.purpleAlpha(0.2)}` } as React.CSSProperties,
+  benchCard: { backgroundColor: COLORS.bgCard, border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: 16 } as React.CSSProperties,
   benchScore: { fontSize: 28, fontWeight: 700, marginBottom: 4 } as React.CSSProperties,
-  emptyState: { textAlign: 'center', padding: 40, color: '#6b7280', fontSize: 13 } as React.CSSProperties,
-  statRow: { display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 11, borderBottom: '1px solid #0a0e14' } as React.CSSProperties,
+  emptyState: { textAlign: 'center', padding: 40, color: COLORS.textDim, fontSize: 13 } as React.CSSProperties,
+  statRow: { display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 11, borderBottom: `1px solid ${COLORS.bg}` } as React.CSSProperties,
 };
 
 type Tab = 'skills' | 'benchmarks' | 'mcp';
@@ -80,17 +81,19 @@ export default function ToolboxPage() {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const { connected, request } = useWebSocket();
+  const mountedRef = useRef(true);
+
+  useEffect(() => () => { mountedRef.current = false; }, []);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      // Fetch skills from etoile.db via SQL endpoint
       const skillsResp = await fetch(BACKEND_URL + '/sql/query', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: "SELECT name, description, category, trigger_phrase as trigger FROM pipeline_dictionary ORDER BY category, name", db: "etoile" }),
         signal: AbortSignal.timeout(5000),
       });
-      if (skillsResp.ok) {
+      if (mountedRef.current && skillsResp.ok) {
         const data = await skillsResp.json();
         setSkills((data.rows || data.results || []).map((r: any) => ({
           name: r.name || r[0] || '',
@@ -99,16 +102,17 @@ export default function ToolboxPage() {
           trigger: r.trigger || r[3] || '',
         })));
       }
-    } catch { /* SQL endpoint may not exist yet */ }
+    } catch (err) { console.warn('[Toolbox] skills fetch error:', err instanceof Error ? err.message : err); }
+
+    if (!mountedRef.current) return;
 
     try {
-      // Fetch benchmarks
       const benchResp = await fetch(BACKEND_URL + '/sql/query', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: "SELECT id, run_name, date, total_score, phases FROM benchmark_runs ORDER BY id DESC LIMIT 10", db: "etoile" }),
         signal: AbortSignal.timeout(5000),
       });
-      if (benchResp.ok) {
+      if (mountedRef.current && benchResp.ok) {
         const data = await benchResp.json();
         setBenchmarks((data.rows || data.results || []).map((r: any) => ({
           id: r.id || r[0] || 0,
@@ -118,25 +122,28 @@ export default function ToolboxPage() {
           phases: r.phases || r[4] || 0,
         })));
       }
-    } catch { /* */ }
+    } catch (err) { console.warn('[Toolbox] benchmarks fetch error:', err instanceof Error ? err.message : err); }
 
-    // Fetch MCP tools dynamically, fallback to static list
+    if (!mountedRef.current) return;
+
     if (connected) {
       try {
         const resp = await request('system', 'get_tools');
+        if (!mountedRef.current) return;
         const tools = resp.payload?.tools;
         if (Array.isArray(tools) && tools.length > 0) {
           setMcpTools(tools.map((t: any) => ({ name: t.name || '', description: t.description || '', category: t.category || '' })));
         } else {
           setMcpTools(FALLBACK_MCP_TOOLS);
         }
-      } catch {
-        setMcpTools(FALLBACK_MCP_TOOLS);
+      } catch (err) {
+        console.warn('[Toolbox] MCP tools fetch error:', err instanceof Error ? err.message : err);
+        if (mountedRef.current) setMcpTools(FALLBACK_MCP_TOOLS);
       }
     } else {
       setMcpTools(FALLBACK_MCP_TOOLS);
     }
-    setLoading(false);
+    if (mountedRef.current) setLoading(false);
   }, [connected, request]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
@@ -152,6 +159,8 @@ export default function ToolboxPage() {
     const q = search.toLowerCase();
     return mcpTools.filter(t => t.name.toLowerCase().includes(q) || t.description.toLowerCase().includes(q));
   }, [mcpTools, search]);
+
+  const scoreColor = (score: number) => score >= 90 ? COLORS.green : score >= 70 ? COLORS.orange : COLORS.red;
 
   return (
     <>
@@ -182,7 +191,6 @@ export default function ToolboxPage() {
           <div style={S.emptyState}>Chargement...</div>
         ) : (
           <>
-            {/* Skills tab */}
             {tab === 'skills' && (
               filteredSkills.length === 0 ? (
                 <div style={S.emptyState}>
@@ -197,14 +205,13 @@ export default function ToolboxPage() {
                         {skill.category && <span style={S.badge}>{skill.category}</span>}
                       </div>
                       <div style={S.cardDesc}>{skill.description || 'Pas de description'}</div>
-                      {skill.trigger && <div style={{ fontSize: 10, color: '#f97316', marginTop: 6 }}>Trigger: "{skill.trigger}"</div>}
+                      {skill.trigger && <div style={{ fontSize: 10, color: COLORS.orange, marginTop: 6 }}>Trigger: "{skill.trigger}"</div>}
                     </div>
                   ))}
                 </div>
               )
             )}
 
-            {/* Benchmarks tab */}
             {tab === 'benchmarks' && (
               benchmarks.length === 0 ? (
                 <div style={S.emptyState}>Aucun benchmark dans etoile.db</div>
@@ -214,14 +221,14 @@ export default function ToolboxPage() {
                     <div key={bench.id} className="tb-card" style={S.benchCard}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                         <span style={S.cardName}>{bench.run_name || `Run #${bench.id}`}</span>
-                        <span style={{ fontSize: 10, color: '#6b7280' }}>{bench.date}</span>
+                        <span style={{ fontSize: 10, color: COLORS.textDim }}>{bench.date}</span>
                       </div>
-                      <div style={{ ...S.benchScore, color: bench.total_score >= 90 ? '#10b981' : bench.total_score >= 70 ? '#f97316' : '#ef4444' }}>
+                      <div style={{ ...S.benchScore, color: scoreColor(bench.total_score) }}>
                         {bench.total_score}/100
                       </div>
                       <div style={S.statRow}>
-                        <span style={{ color: '#6b7280' }}>Phases</span>
-                        <span style={{ color: '#e0e0e0' }}>{bench.phases}</span>
+                        <span style={{ color: COLORS.textDim }}>Phases</span>
+                        <span style={{ color: COLORS.text }}>{bench.phases}</span>
                       </div>
                     </div>
                   ))}
@@ -229,7 +236,6 @@ export default function ToolboxPage() {
               )
             )}
 
-            {/* MCP Tools tab */}
             {tab === 'mcp' && (
               <div style={S.grid}>
                 {filteredTools.map((tool, i) => (

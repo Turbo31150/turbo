@@ -2,7 +2,16 @@
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
+
 from src.commands import JarvisCommand
+from src.config import PATHS
+
+_M2_KEY = os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", ""))
+_TURBO_DIR = str(PATHS.get("turbo", "F:/BUREAU/turbo")).replace("/", "\\")
+_TURBO_DIR_FWD = str(PATHS.get("turbo", "F:/BUREAU/turbo"))
+_USER_HOME = str(Path.home())
 
 DEV_COMMANDS: list[JarvisCommand] = [
     # ══════════════════════════════════════════════════════════════════════
@@ -67,7 +76,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("lm_studio_models", "dev", "Modeles charges dans LM Studio (M1, M2, M3)", [
         "modeles lm studio", "quels modeles lm studio",
         "modeles charges lm studio",
-    ], "powershell", "$m2 = try{(Invoke-RestMethod -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer LMSTUDIO_KEY_M2_REDACTED'} -TimeoutSec 5).data | ForEach-Object { \"M2: $($_.id)\" }}catch{'M2: OFFLINE'}; $m3 = try{(Invoke-RestMethod -Uri 'http://192.168.1.113:1234/api/v1/models' -TimeoutSec 5).data | ForEach-Object { \"M3: $($_.id)\" }}catch{'M3: OFFLINE'}; $m2; $m3"),
+    ], "powershell", f"$m2 = try{{(Invoke-RestMethod -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{{'Authorization'='Bearer {_M2_KEY}'}} -TimeoutSec 5).data | ForEach-Object {{ \"M2: $($_.id)\" }}}}catch{{'M2: OFFLINE'}}; $m3 = try{{(Invoke-RestMethod -Uri 'http://192.168.1.113:1234/api/v1/models' -TimeoutSec 5).data | ForEach-Object {{ \"M3: $($_.id)\" }}}}catch{{'M3: OFFLINE'}}; $m2; $m3"),
 
     # ══════════════════════════════════════════════════════════════════════
     # PYTHON / UV
@@ -1215,13 +1224,13 @@ DEV_COMMANDS: list[JarvisCommand] = [
     # ══════════════════════════════════════════════════════════════════════
     # SCRIPTING — Génération et exécution de scripts
     # ══════════════════════════════════════════════════════════════════════
-    JarvisCommand("run_python_expr", "dev", "Evaluer une expression Python", [
+    JarvisCommand("run_python_expr", "dev", "Evaluer une expression Python (securisee)", [
         "python eval {expr}", "calcule en python {expr}",
         "execute python {expr}",
-    ], "powershell", "& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"print({expr})\" 2>&1 | Out-String", ["expr"]),
-    JarvisCommand("run_powershell_expr", "dev", "Evaluer une expression PowerShell", [
+    ], "powershell", "& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from ast import literal_eval; print(literal_eval(r'''{expr}'''))\" 2>&1 | Out-String", ["expr"], confirm=True),
+    JarvisCommand("run_powershell_expr", "dev", "Evaluer une expression PowerShell (confirme)", [
         "powershell eval {expr}", "execute {expr}",
-    ], "powershell", "Invoke-Expression '{expr}' | Out-String", ["expr"]),
+    ], "powershell", "{expr} | Out-String", ["expr"], confirm=True),
     JarvisCommand("generate_uuid", "dev", "Generer un UUID et le copier", [
         "genere un uuid", "nouvel uuid", "random uuid",
         "cree un identifiant unique",
@@ -1234,3 +1243,12 @@ DEV_COMMANDS: list[JarvisCommand] = [
         "timestamp unix", "epoch time", "genere un timestamp",
     ], "powershell", "$t=[int](Get-Date -UFormat %s); Set-Clipboard $t; \"Timestamp: $t (copie)\""),
 ]
+
+# Post-processing: replace hardcoded paths with config-driven values
+for _cmd in DEV_COMMANDS:
+    if "F:\\BUREAU\\turbo" in _cmd.action:
+        _cmd.action = _cmd.action.replace("F:\\BUREAU\\turbo", _TURBO_DIR)
+    if "F:/BUREAU/turbo" in _cmd.action:
+        _cmd.action = _cmd.action.replace("F:/BUREAU/turbo", _TURBO_DIR_FWD)
+    if "C:\\Users\\franc" in _cmd.action:
+        _cmd.action = _cmd.action.replace("C:\\Users\\franc", _USER_HOME)

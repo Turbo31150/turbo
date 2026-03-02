@@ -8,12 +8,12 @@ export type MessageHandler = (msg: WsMessage) => void;
 
 // Singleton client instance — survives HMR via window reference
 const GLOBAL_KEY = '__jarvis_ws_client__';
+const _global = window as unknown as Record<string, unknown>;
 function getClient(url: string): WsClient {
-  const w = window as any;
-  if (!w[GLOBAL_KEY]) {
-    w[GLOBAL_KEY] = new WsClient(url);
+  if (!_global[GLOBAL_KEY]) {
+    _global[GLOBAL_KEY] = new WsClient(url);
   }
-  return w[GLOBAL_KEY];
+  return _global[GLOBAL_KEY] as WsClient;
 }
 
 export function useWebSocket(url: string = WS_URL) {
@@ -71,7 +71,7 @@ export function useWebSocket(url: string = WS_URL) {
   }, [url]);
 
   // Send request and wait for response
-  const request = useCallback((channel: string, action: string, payload?: any): Promise<WsMessage> => {
+  const request = useCallback((channel: string, action: string, payload?: Record<string, unknown>): Promise<WsMessage> => {
     return new Promise((resolve, reject) => {
       const client = clientRef.current;
       if (!client.isConnected()) {

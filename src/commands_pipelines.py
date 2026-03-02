@@ -2,9 +2,20 @@
 
 from __future__ import annotations
 
-from src.commands import JarvisCommand
+import os
+from pathlib import Path
 
-COMET = r"C:\Users\franc\AppData\Local\Perplexity\Comet\Application\comet.exe"
+from src.commands import JarvisCommand
+from src.config import PATHS
+
+_M1_KEY = os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", ""))
+_M2_KEY = os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", ""))
+_M3_KEY = os.getenv("LM_STUDIO_3_API_KEY", os.getenv("LM_STUDIO_3_KEY", ""))
+_TURBO_DIR = str(PATHS.get("turbo", "F:/BUREAU/turbo")).replace("/", "\\")
+_TURBO_DIR_FWD = str(PATHS.get("turbo", "F:/BUREAU/turbo"))
+_USER_HOME = str(Path.home())
+
+COMET = str(Path.home() / "AppData" / "Local" / "Perplexity" / "Comet" / "Application" / "comet.exe")
 MINIMIZE_ALL = "powershell:(New-Object -ComObject Shell.Application).MinimizeAll()"
 
 PIPELINE_COMMANDS: list[JarvisCommand] = [
@@ -2687,3 +2698,24 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
         "commande ne marche pas", "debug commande",
     ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/jarvis.db'); db_cmds=c.execute('SELECT COUNT(*) FROM commands').fetchone()[0]; pipe_cmds=len(PIPELINE_COMMANDS); print('=== DIAGNOSTIC COMMANDE ==='); print(f'  Commandes jarvis.db: {db_cmds}'); print(f'  Pipelines: {pipe_cmds}'); print(f'  Total vocal: {db_cmds + pipe_cmds}'); dupes=[p.name for p in PIPELINE_COMMANDS]; seen=set(); dups=[x for x in dupes if x in seen or seen.add(x)]; print(f'  Doublons pipelines: {len(dups)}'); print('  Status: OK' if not dups else f'  DOUBLONS: {dups[:5]}'); c.close()\" 2>&1 | Out-String"),
 ]
+
+# Post-processing: inject env-based keys into action strings at module load
+_KEY_MAP = {
+    "LMSTUDIO_KEY_M1_REDACTED": _M1_KEY,
+    "LMSTUDIO_KEY_M2_REDACTED": _M2_KEY,
+    "LMSTUDIO_KEY_M3_REDACTED": _M3_KEY,
+}
+for _cmd in PIPELINE_COMMANDS:
+    if "sk-lm-" in _cmd.action:
+        for _old, _new in _KEY_MAP.items():
+            _cmd.action = _cmd.action.replace(_old, _new)
+
+# Post-processing: replace hardcoded paths with config-driven values
+for _cmd in PIPELINE_COMMANDS:
+    if "F:\\BUREAU\\turbo" in _cmd.action:
+        _cmd.action = _cmd.action.replace("F:\\BUREAU\\turbo", _TURBO_DIR)
+    if "F:/BUREAU/turbo" in _cmd.action:
+        _cmd.action = _cmd.action.replace("F:/BUREAU/turbo", _TURBO_DIR_FWD)
+    if "C:\\Users\\franc" in _cmd.action:
+        _cmd.action = _cmd.action.replace("C:\\Users\\franc", _USER_HOME)
+del _cmd

@@ -33,14 +33,15 @@ def _get_valid_categories() -> set:
     if _valid_categories_cache is not None:
         return _valid_categories_cache
     try:
-        db = _db_conn()
-        rows = db.execute("SELECT DISTINCT category FROM pipeline_dictionary WHERE category IS NOT NULL").fetchall()
-        db.close()
+        with sqlite3.connect(str(_DB_PATH)) as db:
+            db.row_factory = sqlite3.Row
+            rows = db.execute("SELECT DISTINCT category FROM pipeline_dictionary WHERE category IS NOT NULL").fetchall()
         cats = {r[0] for r in rows if r[0]}
         cats.add("custom")
         _valid_categories_cache = cats
         return cats
-    except Exception:
+    except (sqlite3.Error, OSError) as exc:
+        logger.warning("_get_valid_categories DB error, using fallback: %s", exc)
         return _VALID_CATEGORIES_FALLBACK
 
 
@@ -49,12 +50,6 @@ def _invalidate_categories_cache():
     global _valid_categories_cache
     _valid_categories_cache = None
 
-
-def _db_conn() -> sqlite3.Connection:
-    """Open a connection with row_factory set."""
-    db = sqlite3.connect(str(_DB_PATH))
-    db.row_factory = sqlite3.Row
-    return db
 
 
 def _get_all_commands() -> list[dict]:
@@ -72,7 +67,7 @@ def _get_all_commands() -> list[dict]:
             }
             for c in COMMANDS
         ]
-    except Exception as e:
+    except ImportError as e:
         logger.warning("Commands unavailable: %s", e)
         return []
 
@@ -92,7 +87,7 @@ def _get_all_pipelines() -> list[dict]:
             }
             for p in DOMINO_PIPELINES
         ]
-    except Exception as e:
+    except ImportError as e:
         logger.warning("Pipelines unavailable: %s", e)
         return []
 
@@ -107,34 +102,32 @@ def _get_db_data() -> dict[str, Any]:
     if not _DB_PATH.exists():
         return result
     try:
-        db = sqlite3.connect(str(_DB_PATH))
-        db.row_factory = sqlite3.Row
+        with sqlite3.connect(str(_DB_PATH)) as db:
+            db.row_factory = sqlite3.Row
 
-        # pipeline_dictionary — truncate steps to 100 chars
-        rows = db.execute(
-            "SELECT id, pipeline_id, trigger_phrase, "
-            "SUBSTR(steps, 1, 100) AS steps, category, action_type, "
-            "agents_involved, avg_duration_ms FROM pipeline_dictionary"
-        ).fetchall()
-        result["pipeline_dictionary"] = [dict(r) for r in rows]
+            # pipeline_dictionary — truncate steps to 100 chars
+            rows = db.execute(
+                "SELECT id, pipeline_id, trigger_phrase, "
+                "SUBSTR(steps, 1, 100) AS steps, category, action_type, "
+                "agents_involved, avg_duration_ms FROM pipeline_dictionary"
+            ).fetchall()
+            result["pipeline_dictionary"] = [dict(r) for r in rows]
 
-        # domino_chains
-        rows = db.execute(
-            "SELECT id, trigger_cmd, condition, next_cmd, delay_ms, auto, "
-            "SUBSTR(description, 1, 80) AS description "
-            "FROM domino_chains"
-        ).fetchall()
-        result["domino_chains"] = [dict(r) for r in rows]
+            # domino_chains
+            rows = db.execute(
+                "SELECT id, trigger_cmd, condition, next_cmd, delay_ms, auto, "
+                "SUBSTR(description, 1, 80) AS description "
+                "FROM domino_chains"
+            ).fetchall()
+            result["domino_chains"] = [dict(r) for r in rows]
 
-        # voice_corrections — top 500 by hit_count
-        rows = db.execute(
-            "SELECT id, wrong, correct, category, hit_count "
-            "FROM voice_corrections ORDER BY hit_count DESC LIMIT 500"
-        ).fetchall()
-        result["voice_corrections"] = [dict(r) for r in rows]
-
-        db.close()
-    except Exception as e:
+            # voice_corrections — top 500 by hit_count
+            rows = db.execute(
+                "SELECT id, wrong, correct, category, hit_count "
+                "FROM voice_corrections ORDER BY hit_count DESC LIMIT 500"
+            ).fetchall()
+            result["voice_corrections"] = [dict(r) for r in rows]
+    except (sqlite3.Error, OSError) as e:
         logger.warning("etoile.db read error: %s", e)
     return result
 
@@ -182,7 +175,10 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
         query = (payload.get("query") or "").lower().strip()
         if not query:
             return {"error": "Empty query"}
-        limit = payload.get("limit", 50)
+        try:
+            limit = min(int(payload.get("limit", 50)), 500)
+        except (ValueError, TypeError):
+            limit = 50
 
         # Search commands
         commands = _get_all_commands()
@@ -250,30 +246,27 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
         pipeline_id = name.lower().replace(" ", "_")
 
         try:
-            db = _db_conn()
-            # Check trigger uniqueness
-            existing = db.execute(
-                "SELECT id FROM pipeline_dictionary WHERE trigger_phrase = ?",
-                (trigger_phrase,)
-            ).fetchone()
-            if existing:
-                db.close()
-                return {"error": f"Trigger '{trigger_phrase}' already exists (id={existing['id']})"}
+            with sqlite3.connect(str(_DB_PATH)) as db:
+                db.row_factory = sqlite3.Row
+                existing = db.execute(
+                    "SELECT id FROM pipeline_dictionary WHERE trigger_phrase = ?",
+                    (trigger_phrase,)
+                ).fetchone()
+                if existing:
+                    return {"error": f"Trigger '{trigger_phrase}' already exists (id={existing['id']})"}
 
-            db.execute(
-                "INSERT INTO pipeline_dictionary "
-                "(pipeline_id, trigger_phrase, steps, category, action_type, agents_involved, avg_duration_ms, usage_count, created_at) "
-                "VALUES (?, ?, ?, ?, ?, ?, 0, 0, ?)",
-                (pipeline_id, trigger_phrase, steps, category or "custom",
-                 action_type, "", datetime.now().isoformat())
-            )
-            db.commit()
-            new_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
-            db.close()
+                db.execute(
+                    "INSERT INTO pipeline_dictionary "
+                    "(pipeline_id, trigger_phrase, steps, category, action_type, agents_involved, avg_duration_ms, usage_count, created_at) "
+                    "VALUES (?, ?, ?, ?, ?, ?, 0, 0, ?)",
+                    (pipeline_id, trigger_phrase, steps, category or "custom",
+                     action_type, "", datetime.now().isoformat())
+                )
+                new_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
             _invalidate_categories_cache()
             logger.info("Added command '%s' (id=%d)", name, new_id)
             return {"ok": True, "id": new_id, "pipeline_id": pipeline_id}
-        except Exception as e:
+        except (sqlite3.Error, ValueError) as e:
             logger.error("add_command error: %s", e)
             return {"error": str(e)}
 
@@ -294,35 +287,34 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
         if invalid:
             return {"error": f"Invalid fields: {invalid}. Allowed: {sorted(allowed_fields)}"}
 
-        if "category" in fields and fields["category"] not in _VALID_CATEGORIES:
+        if "category" in fields and fields["category"] not in _get_valid_categories():
             return {"error": f"Invalid category: {fields['category']}"}
         if "action_type" in fields and fields["action_type"] not in _VALID_ACTION_TYPES:
             return {"error": f"Invalid action_type: {fields['action_type']}"}
 
         try:
-            db = _db_conn()
-            set_parts = [f"{k} = ?" for k in fields]
-            values = list(fields.values())
-            if record_id:
-                values.append(record_id)
-                where = "id = ?"
-            else:
-                values.append(pipeline_id)
-                where = "pipeline_id = ?"
+            with sqlite3.connect(str(_DB_PATH)) as db:
+                db.row_factory = sqlite3.Row
+                set_parts = [f"{k} = ?" for k in fields]
+                values = list(fields.values())
+                if record_id:
+                    values.append(record_id)
+                    where = "id = ?"
+                else:
+                    values.append(pipeline_id)
+                    where = "pipeline_id = ?"
 
-            cursor = db.execute(
-                f"UPDATE pipeline_dictionary SET {', '.join(set_parts)} WHERE {where}",
-                values
-            )
-            db.commit()
-            affected = cursor.rowcount
-            db.close()
+                cursor = db.execute(
+                    f"UPDATE pipeline_dictionary SET {', '.join(set_parts)} WHERE {where}",
+                    values
+                )
+                affected = cursor.rowcount
             if affected == 0:
                 return {"error": "No matching record found"}
             _invalidate_categories_cache()
             logger.info("Edited command %s (%d rows)", pipeline_id or record_id, affected)
             return {"ok": True, "affected": affected}
-        except Exception as e:
+        except (sqlite3.Error, ValueError) as e:
             logger.error("edit_command error: %s", e)
             return {"error": str(e)}
 
@@ -332,21 +324,18 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
         if not record_id:
             return {"error": "pipeline_id or id is required"}
         try:
-            db = _db_conn()
-            # Try by id first (numeric), fallback to pipeline_id (string)
-            if isinstance(record_id, int) or (isinstance(record_id, str) and record_id.isdigit()):
-                cursor = db.execute("DELETE FROM pipeline_dictionary WHERE id = ?", (int(record_id),))
-            else:
-                cursor = db.execute("DELETE FROM pipeline_dictionary WHERE pipeline_id = ?", (record_id,))
-            db.commit()
-            affected = cursor.rowcount
-            db.close()
+            with sqlite3.connect(str(_DB_PATH)) as db:
+                if isinstance(record_id, int) or (isinstance(record_id, str) and record_id.isdigit()):
+                    cursor = db.execute("DELETE FROM pipeline_dictionary WHERE id = ?", (int(record_id),))
+                else:
+                    cursor = db.execute("DELETE FROM pipeline_dictionary WHERE pipeline_id = ?", (record_id,))
+                affected = cursor.rowcount
             if affected == 0:
                 return {"error": f"No record found for '{record_id}'"}
             _invalidate_categories_cache()
             logger.info("Deleted command '%s' (%d rows)", record_id, affected)
             return {"ok": True, "deleted": affected}
-        except Exception as e:
+        except (sqlite3.Error, ValueError) as e:
             logger.error("delete_command error: %s", e)
             return {"error": str(e)}
 
@@ -357,23 +346,25 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
         if not trigger_cmd or not next_cmd:
             return {"error": "trigger_cmd and next_cmd are required"}
         condition = payload.get("condition", "")
-        delay_ms = int(payload.get("delay_ms", 0))
+        try:
+            delay_ms = int(payload.get("delay_ms", 0))
+        except (ValueError, TypeError):
+            delay_ms = 0
+        delay_ms = max(0, min(delay_ms, 300_000))  # clamp 0..5min
         auto = 1 if payload.get("auto", True) else 0
         description = (payload.get("description") or "").strip()
 
         try:
-            db = _db_conn()
-            db.execute(
-                "INSERT INTO domino_chains (trigger_cmd, condition, next_cmd, delay_ms, auto, description) "
-                "VALUES (?, ?, ?, ?, ?, ?)",
-                (trigger_cmd, condition, next_cmd, delay_ms, auto, description)
-            )
-            db.commit()
-            new_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
-            db.close()
+            with sqlite3.connect(str(_DB_PATH)) as db:
+                db.execute(
+                    "INSERT INTO domino_chains (trigger_cmd, condition, next_cmd, delay_ms, auto, description) "
+                    "VALUES (?, ?, ?, ?, ?, ?)",
+                    (trigger_cmd, condition, next_cmd, delay_ms, auto, description)
+                )
+                new_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
             logger.info("Added chain '%s' -> '%s' (id=%d)", trigger_cmd, next_cmd, new_id)
             return {"ok": True, "id": new_id}
-        except Exception as e:
+        except (sqlite3.Error, ValueError) as e:
             logger.error("add_chain error: %s", e)
             return {"error": str(e)}
 
@@ -383,16 +374,14 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
         if not chain_id:
             return {"error": "id is required"}
         try:
-            db = _db_conn()
-            cursor = db.execute("DELETE FROM domino_chains WHERE id = ?", (int(chain_id),))
-            db.commit()
-            affected = cursor.rowcount
-            db.close()
+            with sqlite3.connect(str(_DB_PATH)) as db:
+                cursor = db.execute("DELETE FROM domino_chains WHERE id = ?", (int(chain_id),))
+                affected = cursor.rowcount
             if affected == 0:
                 return {"error": f"No chain found with id={chain_id}"}
             logger.info("Deleted chain id=%s", chain_id)
             return {"ok": True, "deleted": affected}
-        except Exception as e:
+        except (sqlite3.Error, ValueError) as e:
             logger.error("delete_chain error: %s", e)
             return {"error": str(e)}
 
@@ -404,34 +393,29 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
             return {"error": "wrong and correct are required"}
         category = (payload.get("category") or "general").strip()
         try:
-            db = _db_conn()
-            # Check if correction already exists
-            existing = db.execute(
-                "SELECT id FROM voice_corrections WHERE wrong = ?", (wrong,)
-            ).fetchone()
-            if existing:
-                db.execute("UPDATE voice_corrections SET correct = ?, category = ? WHERE id = ?",
-                           (correct, category, existing["id"]))
-                db.commit()
-                db.close()
-                return {"ok": True, "id": existing["id"], "updated": True}
-            db.execute(
-                "INSERT INTO voice_corrections (wrong, correct, category, hit_count) VALUES (?, ?, ?, 0)",
-                (wrong, correct, category)
-            )
-            db.commit()
-            new_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
-            db.close()
+            with sqlite3.connect(str(_DB_PATH)) as db:
+                db.row_factory = sqlite3.Row
+                existing = db.execute(
+                    "SELECT id FROM voice_corrections WHERE wrong = ?", (wrong,)
+                ).fetchone()
+                if existing:
+                    db.execute("UPDATE voice_corrections SET correct = ?, category = ? WHERE id = ?",
+                               (correct, category, existing["id"]))
+                    return {"ok": True, "id": existing["id"], "updated": True}
+                db.execute(
+                    "INSERT INTO voice_corrections (wrong, correct, category, hit_count) VALUES (?, ?, ?, 0)",
+                    (wrong, correct, category)
+                )
+                new_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
             logger.info("Added correction '%s' -> '%s' (id=%d)", wrong, correct, new_id)
             return {"ok": True, "id": new_id}
-        except Exception as e:
+        except (sqlite3.Error, ValueError) as e:
             logger.error("add_correction error: %s", e)
             return {"error": str(e)}
 
     # ── CRUD: reload_dict ──
     if action == "reload_dict":
         try:
-            _get_db_data.cache_clear() if hasattr(_get_db_data, 'cache_clear') else None
             _invalidate_categories_cache()
             data = _get_db_data()
             logger.info("Dictionary reloaded: %d dict, %d chains, %d corrections",
@@ -442,24 +426,24 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
                 "domino_chains": len(data["domino_chains"]),
                 "voice_corrections": len(data["voice_corrections"]),
             }}
-        except Exception as e:
+        except (sqlite3.Error, OSError) as e:
             return {"error": str(e)}
 
     # ── CRUD: get_stats ──
     if action == "get_stats":
         try:
-            db = _db_conn()
-            stats = {}
-            for table in ["pipeline_dictionary", "domino_chains", "voice_corrections"]:
-                stats[table] = db.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
-            # Category distribution
-            cats = db.execute(
-                "SELECT category, COUNT(*) as cnt FROM pipeline_dictionary GROUP BY category ORDER BY cnt DESC"
-            ).fetchall()
-            stats["categories"] = {r["category"]: r["cnt"] for r in cats}
-            db.close()
+            with sqlite3.connect(str(_DB_PATH)) as db:
+                db.row_factory = sqlite3.Row
+                stats = {}
+                _STATS_TABLES = ("pipeline_dictionary", "domino_chains", "voice_corrections")
+                for table in _STATS_TABLES:
+                    stats[table] = db.execute(f"SELECT COUNT(*) FROM [{table}]").fetchone()[0]
+                cats = db.execute(
+                    "SELECT category, COUNT(*) as cnt FROM pipeline_dictionary GROUP BY category ORDER BY cnt DESC"
+                ).fetchall()
+                stats["categories"] = {r["category"]: r["cnt"] for r in cats}
             return {"stats": stats}
-        except Exception as e:
+        except (sqlite3.Error, OSError) as e:
             return {"error": str(e)}
 
     return {"error": f"Unknown dictionary action: {action}"}

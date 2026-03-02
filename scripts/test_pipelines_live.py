@@ -1,5 +1,5 @@
 """Test live des 24 nouvelles pipelines JARVIS sur le cluster."""
-import subprocess, json, time, sys, io
+import os, subprocess, json, time, sys, io
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
@@ -55,9 +55,9 @@ def ps(cmd, timeout=10):
     except Exception as e:
         return f"ERREUR: {e}"
 
-M1_AUTH = "LMSTUDIO_KEY_M1_REDACTED"
-M2_AUTH = "LMSTUDIO_KEY_M2_REDACTED"
-M3_AUTH = "LMSTUDIO_KEY_M3_REDACTED"
+M1_AUTH = os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", ""))
+M2_AUTH = os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", ""))
+M3_AUTH = os.getenv("LM_STUDIO_3_API_KEY", os.getenv("LM_STUDIO_3_KEY", ""))
 
 results = {}
 start = time.time()
@@ -97,7 +97,7 @@ try:
         models = [m["name"] for m in data.get("models", [])]
         print(f"  OL1: OK | Modeles: {', '.join(models)}")
         results["cluster_OL1"] = "OK"
-except:
+except (urllib.error.URLError, OSError, ValueError):
     print("  OL1: OFFLINE")
     results["cluster_OL1"] = "OFFLINE"
 
@@ -253,7 +253,7 @@ for name, (host, port, auth) in nodes.items():
         ms = int((time.time() - t0) * 1000)
         print(f"  {name}: {ms}ms OK")
         results[f"latence_{name}"] = f"{ms}ms"
-    except:
+    except (urllib.error.URLError, OSError):
         print(f"  {name}: OFFLINE")
         results[f"latence_{name}"] = "OFFLINE"
 
@@ -265,7 +265,7 @@ try:
         resp.read()
     ms = int((time.time() - t0) * 1000)
     print(f"  OL1: {ms}ms OK")
-except:
+except (urllib.error.URLError, OSError):
     print("  OL1: OFFLINE")
 
 # debug_wifi_diagnostic

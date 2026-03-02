@@ -200,7 +200,7 @@ def db_summary():
     for name, query in tables.items():
         try:
             result[name] = conn.execute(query).fetchone()[0]
-        except:
+        except (sqlite3.Error, ValueError):
             result[name] = 0
     # Top agents by keyword count
     result["agents_keywords"] = {}

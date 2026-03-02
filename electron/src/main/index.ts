@@ -1,9 +1,23 @@
 import { app, BrowserWindow, globalShortcut } from 'electron';
-import { createMainWindow } from './window-manager';
+import { createMainWindow, getMainWindow } from './window-manager';
 import { PythonBridge } from './python-bridge';
 import { setupTray } from './tray';
 import { setupIpcHandlers } from './ipc-handlers';
-import path from 'path';
+
+// Single-instance lock — prevent duplicate JARVIS instances
+const gotLock = app.requestSingleInstanceLock();
+if (!gotLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    const win = getMainWindow();
+    if (win) {
+      if (win.isMinimized()) win.restore();
+      win.show();
+      win.focus();
+    }
+  });
+}
 
 const pythonBridge = new PythonBridge();
 
@@ -24,17 +38,17 @@ app.whenReady().then(async () => {
   // Setup IPC handlers
   setupIpcHandlers(mainWindow, pythonBridge);
 
-  // Register global shortcuts
+  // Register global shortcuts — use getMainWindow() to avoid stale ref
   globalShortcut.register('Control+Shift+J', () => {
-    if (mainWindow.isVisible()) {
-      mainWindow.hide();
+    const win = getMainWindow();
+    if (!win) return;
+    if (win.isVisible()) {
+      win.hide();
     } else {
-      mainWindow.show();
-      mainWindow.focus();
+      win.show();
+      win.focus();
     }
   });
-
-  // PTT shortcut (Ctrl key hold) - will be handled per-window
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

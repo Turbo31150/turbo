@@ -122,7 +122,7 @@ class WhisperWorker:
                 self._proc.stdin.write("QUIT\n")
                 self._proc.stdin.flush()
                 self._proc.wait(timeout=5)
-            except Exception:
+            except (OSError, BrokenPipeError):
                 self._proc.kill()
 
     def __del__(self):
@@ -141,7 +141,7 @@ def main():
 
     try:
         model = WhisperModel(model_size, device=device, compute_type=compute)
-    except Exception:
+    except (RuntimeError, OSError, ValueError):
         # Fallback to CPU if CUDA fails
         device = "cpu"
         compute = "int8"
@@ -185,7 +185,7 @@ def main():
                 print("DONE: ", flush=True)
             else:
                 print(f"DONE: {full_text}", flush=True)
-        except Exception as e:
+        except (RuntimeError, OSError, ValueError) as e:
             print("DONE: ", flush=True)
             print(f"WHISPER_ERROR: {e}", file=sys.stderr, flush=True)
 

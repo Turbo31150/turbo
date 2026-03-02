@@ -34,6 +34,9 @@ export function setupIpcHandlers(
   });
 
   ipcMain.handle('widget:close', (_event, type: string) => {
+    if (!ALLOWED_WIDGETS.has(type)) {
+      return { type, error: `Unknown widget type: ${type}` };
+    }
     closeWidget(type);
     return { type, closed: true };
   });
@@ -44,6 +47,17 @@ export function setupIpcHandlers(
       ready: pythonBridge.isReady(),
       port: pythonBridge.getPort(),
     };
+  });
+
+  // Node auth — tokens from env vars, never hardcoded in renderer
+  const NODE_AUTH_MAP: Record<string, string> = {
+    M1: process.env.LM_STUDIO_1_API_KEY || '',
+    M2: process.env.LM_STUDIO_2_API_KEY || '',
+    M3: process.env.LM_STUDIO_3_API_KEY || '',
+  };
+  ipcMain.handle('node:auth', (_event, nodeId: string) => {
+    const key = NODE_AUTH_MAP[nodeId];
+    return key ? `Bearer ${key}` : '';
   });
 
   // App info

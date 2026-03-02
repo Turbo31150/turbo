@@ -13,8 +13,16 @@ Genere par consensus cluster M1+M2+OL1 (2026-02-27).
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 from typing import Optional
+
+from src.config import PATHS
+
+_TURBO_DIR = str(PATHS.get("turbo", "F:/BUREAU/turbo")).replace("/", "\\")
+_TURBO_DIR_FWD = str(PATHS.get("turbo", "F:/BUREAU/turbo"))
+_M1_KEY = os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", ""))
+_M2_KEY = os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", ""))
 
 
 @dataclass
@@ -357,8 +365,8 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_security_keys",
         trigger_vocal=["verifie les cles api", "check api keys", "audit cles"],
         steps=[
-            DominoStep("list_env", "powershell:Get-Content 'F:\\BUREAU\\turbo\\.env' | Select-String 'KEY|TOKEN|SECRET' | Measure-Object", "powershell"),
-            DominoStep("check_git_history", "powershell:git -C 'F:\\BUREAU\\turbo' log --oneline -5 -- '*.env*'", "powershell"),
+            DominoStep("list_env", f"powershell:Get-Content '{_TURBO_DIR}\\.env' | Select-String 'KEY|TOKEN|SECRET' | Measure-Object", "powershell"),
+            DominoStep("check_git_history", f"powershell:git -C '{_TURBO_DIR}' log --oneline -5 -- '*.env*'", "powershell"),
             DominoStep("check_db_keys", "python:check_api_keys_in_db()", "python"),
             DominoStep("tts_keys", "python:edge_tts_speak('Audit cles API termine.')", "python"),
         ],
@@ -1298,8 +1306,8 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_test_cluster_health",
         trigger_vocal=["test de sante cluster", "cluster health check", "verifie la sante du cluster"],
         steps=[
-            DominoStep("ping_m1", "bash:curl -s --max-time 3 http://10.5.0.2:1234/api/v1/models -H 'Authorization: Bearer LMSTUDIO_KEY_M1_REDACTED' > /dev/null 2>&1 && echo 'M1 OK' || echo 'M1 FAIL'", "bash", timeout_s=5),
-            DominoStep("ping_m2", "bash:curl -s --max-time 3 http://192.168.1.26:1234/api/v1/models -H 'Authorization: Bearer LMSTUDIO_KEY_M2_REDACTED' > /dev/null 2>&1 && echo 'M2 OK' || echo 'M2 FAIL'", "bash", timeout_s=5),
+            DominoStep("ping_m1", f"bash:curl -s --max-time 3 http://10.5.0.2:1234/api/v1/models -H 'Authorization: Bearer {_M1_KEY}' > /dev/null 2>&1 && echo 'M1 OK' || echo 'M1 FAIL'", "bash", timeout_s=5),
+            DominoStep("ping_m2", f"bash:curl -s --max-time 3 http://192.168.1.26:1234/api/v1/models -H 'Authorization: Bearer {_M2_KEY}' > /dev/null 2>&1 && echo 'M2 OK' || echo 'M2 FAIL'", "bash", timeout_s=5),
             DominoStep("ping_ol1", "bash:curl -s --max-time 3 http://127.0.0.1:11434/api/tags > /dev/null 2>&1 && echo 'OL1 OK' || echo 'OL1 FAIL'", "bash", timeout_s=5),
             DominoStep("gpu_temps", "powershell:nvidia-smi --query-gpu=name,temperature.gpu --format=csv,noheader", "powershell", timeout_s=10),
             DominoStep("tts_health", "python:edge_tts_speak('Health check cluster termine.')", "python"),
@@ -1401,6 +1409,14 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         priority="normal",
     ),
 ]
+
+# Post-process: replace hardcoded paths with config-driven values
+for _pipeline in DOMINO_PIPELINES:
+    for _step in _pipeline.steps:
+        if "F:\\BUREAU\\turbo" in _step.action:
+            _step.action = _step.action.replace("F:\\BUREAU\\turbo", _TURBO_DIR)
+        if "F:/BUREAU/turbo" in _step.action:
+            _step.action = _step.action.replace("F:/BUREAU/turbo", _TURBO_DIR_FWD)
 
 
 # ══════════════════════════════════════════════════════════════════════════════

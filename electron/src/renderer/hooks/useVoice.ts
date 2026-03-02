@@ -20,6 +20,7 @@ export function useVoice() {
   const recorderRef = useRef<AudioRecorder | null>(null);
   const levelAnimRef = useRef<number | undefined>(undefined);
   const recordingRef = useRef(false);
+  const mountedRef = useRef(true);
 
   // Subscribe to voice channel events
   useEffect(() => {
@@ -97,6 +98,7 @@ export function useVoice() {
       };
 
       await recorder.start();
+      if (!mountedRef.current) { recorder.stop(); return; }
       recorderRef.current = recorder;
 
       // Notify backend that recording started
@@ -105,6 +107,7 @@ export function useVoice() {
         channels: 1,
         format: 'pcm_16bit',
       });
+      if (!mountedRef.current) return;
 
       recordingRef.current = true;
       setState(prev => ({
@@ -116,7 +119,7 @@ export function useVoice() {
 
       // Start level monitoring
       levelAnimRef.current = requestAnimationFrame(updateLevel);
-    } catch (err: any) {
+    } catch (err) {
       console.error('[Voice] Failed to start recording:', err);
       recordingRef.current = false;
       setState(prev => ({
@@ -156,6 +159,7 @@ export function useVoice() {
     if (connected) {
       try {
         const resp = await request('voice', 'stop_recording');
+        if (!mountedRef.current) return;
         const entry = resp?.payload?.transcription;
         if (entry) {
           const text = entry.corrected || entry.original || '';
@@ -163,25 +167,27 @@ export function useVoice() {
             setState(prev => ({ ...prev, transcription: text }));
           }
         }
-      } catch {
-        // Ignore errors on stop
+      } catch (err) {
+        if (!mountedRef.current) return;
+        console.warn('[Voice] stopRecording error:', err instanceof Error ? err.message : err);
       }
     }
   }, [connected, request]);
 
   // Text-to-speech
   const speak = useCallback(async (text: string) => {
-    if (!connected || !text.trim()) return;
+    if (!connected || !text.trim() || !mountedRef.current) return;
     try {
       await request('voice', 'tts_speak', { text: text.trim() });
-    } catch (err: any) {
-      console.error('[Voice] TTS error:', err);
+    } catch (err) {
+      if (mountedRef.current) console.error('[Voice] TTS error:', err);
     }
   }, [connected, request]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      mountedRef.current = false;
       if (levelAnimRef.current) {
         cancelAnimationFrame(levelAnimRef.current);
       }

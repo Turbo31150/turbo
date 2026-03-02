@@ -10,8 +10,9 @@ Flow:
 from __future__ import annotations
 
 import asyncio
+import json
+import logging
 import subprocess
-import sys
 import tempfile
 import threading
 import wave
@@ -20,27 +21,32 @@ from pathlib import Path
 import numpy as np
 import sounddevice as sd
 
+logger = logging.getLogger("jarvis.voice")
+
 try:
     import keyboard as kb
     HAS_KEYBOARD = True
 except ImportError:
     HAS_KEYBOARD = False
 
-# ── Command cache ────────────────────────────────────────────────────────
+# ── Command cache (thread-safe) ─────────────────────────────────────────
 _command_cache: dict[str, dict] = {}
+_cache_lock = threading.Lock()
 _CACHE_MAX = 200
 
 
 def _cache_get(text: str) -> dict | None:
-    return _command_cache.get(text.lower().strip())
+    with _cache_lock:
+        return _command_cache.get(text.lower().strip())
 
 
 def _cache_set(text: str, result: dict):
     key = text.lower().strip()
-    if len(_command_cache) >= _CACHE_MAX:
-        oldest = next(iter(_command_cache))
-        del _command_cache[oldest]
-    _command_cache[key] = result
+    with _cache_lock:
+        if len(_command_cache) >= _CACHE_MAX:
+            oldest = next(iter(_command_cache))
+            del _command_cache[oldest]
+        _command_cache[key] = result
 
 
 # Push-to-talk config
@@ -51,11 +57,16 @@ SAMPLE_RATE = 16000
 CHANNELS = 1
 
 # Whisper worker config
-SYSTEM_PYTHON = Path("C:/Users/franc/AppData/Local/Programs/Python/Python312/python.exe")
+SYSTEM_PYTHON = Path.home() / "AppData" / "Local" / "Programs" / "Python" / "Python312" / "python.exe"
 WHISPER_WORKER_SCRIPT = Path(__file__).parent / "whisper_worker.py"
 
 # OL1 config for voice correction (fast, 192 tok/s, always loaded)
-OLLAMA_URL = "http://127.0.0.1:11434/api/chat"
+try:
+    from src.config import config as _cfg
+    _ol_url = _cfg.ollama_nodes[0].url if _cfg.ollama_nodes else "http://127.0.0.1:11434"
+except ImportError:
+    _ol_url = "http://127.0.0.1:11434"
+OLLAMA_URL = f"{_ol_url}/api/chat"
 OLLAMA_MODEL = "qwen3:1.7b"
 
 
@@ -84,7 +95,7 @@ def _get_input_device() -> int | None:
             with sd.InputStream(device=idx, samplerate=SAMPLE_RATE, channels=1,
                                 dtype='int16', blocksize=1024):
                 return idx
-        except Exception:
+        except (sd.PortAudioError, OSError):
             continue
     return None
 
@@ -152,8 +163,8 @@ class WhisperWorker:
                 print(f"  [WHISPER] {line2}", flush=True)
                 self._ready = True
             return self._ready
-        except Exception as e:
-            print(f"  [WHISPER] Failed to start: {e}", flush=True)
+        except (OSError, subprocess.SubprocessError) as e:
+            logger.debug("Whisper worker start failed: %s", e)
             return False
 
     def transcribe(self, wav_path: str) -> str | None:
@@ -178,8 +189,8 @@ class WhisperWorker:
                     elif line == "":
                         break  # Empty = error or EOF
                 return full_text if full_text else None
-            except Exception as e:
-                print(f"  [WHISPER] Error: {e}", flush=True)
+            except (OSError, BrokenPipeError) as e:
+                logger.debug("Whisper transcribe error: %s", e)
                 self._ready = False
                 return None
 
@@ -190,7 +201,7 @@ class WhisperWorker:
                 self._process.stdin.write("QUIT\n")
                 self._process.stdin.flush()
                 self._process.wait(timeout=5)
-            except Exception:
+            except (OSError, BrokenPipeError):
                 self._process.kill()
         self._ready = False
 
@@ -237,8 +248,8 @@ async def analyze_with_lm(raw_text: str) -> dict:
                     "intent": data.get("intent", raw_text),
                     "confidence": float(data.get("confidence", 0.5)),
                 }
-    except Exception:
-        pass
+    except (httpx.HTTPError, asyncio.TimeoutError, json.JSONDecodeError, OSError) as exc:
+        logger.debug("analyze_with_lm failed: %s", exc)
 
     return {"corrected": raw_text, "intent": raw_text, "confidence": 0.5}
 
@@ -330,8 +341,8 @@ def _record_timed(max_duration: float = 5.0) -> np.ndarray | None:
                     silence_count = 0
                 if silence_count > 23:  # ~1.5s of silence at 16kHz/1024
                     break
-    except Exception:
-        pass
+    except (sd.PortAudioError, OSError) as exc:
+        logger.debug("_record_timed audio error: %s", exc)
     if not frames:
         return None
     return np.concatenate(frames, axis=0)
@@ -515,7 +526,8 @@ async def speak_text(text: str, voice: str = "fr-FR") -> bool:
             )
         )
         return result.returncode == 0
-    except Exception:
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        logger.debug("speak_text failed: %s", exc)
         return False
     finally:
         if ps_path:
@@ -534,7 +546,7 @@ async def _warmup_ollama():
                     "stream": False, "think": False,
                     "options": {"num_predict": 1},
                 })
-        except Exception:
+        except (httpx.HTTPError, OSError):
             pass
         await asyncio.sleep(60)
 

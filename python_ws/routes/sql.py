@@ -27,14 +27,16 @@ from src.config import PATHS, config
 sql_router = APIRouter(tags=["sql"])
 
 # ── Database aliases ──
+_TURBO_ROOT = Path(__file__).resolve().parent.parent.parent
 _DB_ALIASES: dict[str, Path] = {
-    "etoile": PATHS.get("etoile_db", Path("F:/BUREAU/turbo/data/etoile.db")),
-    "jarvis": PATHS.get("jarvis_db", Path("F:/BUREAU/turbo/data/jarvis.db")),
+    "etoile": PATHS.get("etoile_db", _TURBO_ROOT / "data" / "etoile.db"),
+    "jarvis": PATHS.get("jarvis_db", _TURBO_ROOT / "data" / "jarvis.db"),
     "trading": config.db_trading,
     "predictions": config.db_predictions,
 }
 
-_SQL_FORBIDDEN = re.compile(r"\b(DROP|ALTER|TRUNCATE|ATTACH|DETACH|PRAGMA\s+(?!table_info))\b", re.IGNORECASE)
+_SQL_ALLOWED = re.compile(r"^\s*(SELECT|INSERT|UPDATE|DELETE|WITH|EXPLAIN|PRAGMA\s+table_info)\b", re.IGNORECASE)
+_TABLE_NAME = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
 
 
 def _resolve_db(database: str) -> str:
@@ -58,22 +60,21 @@ async def sql_query(req: SqlQueryRequest):
     db_path = _resolve_db(req.database)
     query = req.query.strip()
     params = req.params or []
-    if _SQL_FORBIDDEN.search(query):
-        raise HTTPException(403, "Forbidden SQL operation (DROP/ALTER/TRUNCATE not allowed)")
+    if not _SQL_ALLOWED.match(query):
+        raise HTTPException(403, "Only SELECT, INSERT, UPDATE, DELETE, WITH, EXPLAIN, PRAGMA table_info allowed")
     try:
-        conn = sqlite3.connect(db_path)
-        conn.row_factory = sqlite3.Row
-        cur = conn.execute(query, params)
-        upper = query.upper().lstrip()
-        if upper.startswith("SELECT") or upper.startswith("PRAGMA"):
-            rows = [dict(r) for r in cur.fetchall()]
-            conn.close()
-            return {"rows": rows, "count": len(rows)}
-        else:
-            affected = cur.rowcount
-            conn.commit()
-            conn.close()
-            return {"affected": affected}
+        with sqlite3.connect(db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            cur = conn.execute(query, params)
+            upper = query.upper().lstrip()
+            if upper.startswith("SELECT") or upper.startswith("PRAGMA"):
+                rows = [dict(r) for r in cur.fetchmany(1000)]
+                truncated = cur.fetchone() is not None
+                return {"rows": rows, "count": len(rows), "truncated": truncated}
+            else:
+                affected = cur.rowcount
+                conn.commit()
+                return {"affected": affected}
     except sqlite3.Error as e:
         raise HTTPException(400, f"SQL error: {e}")
 
@@ -81,23 +82,21 @@ async def sql_query(req: SqlQueryRequest):
 @sql_router.get("/tables/{database}")
 async def sql_tables(database: str):
     db_path = _resolve_db(database)
-    conn = sqlite3.connect(db_path)
-    tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()]
-    conn.close()
+    with sqlite3.connect(db_path) as conn:
+        tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()]
     return {"database": database, "tables": tables}
 
 
 @sql_router.get("/schema/{database}/{table}")
 async def sql_schema(database: str, table: str):
+    if not _TABLE_NAME.match(table):
+        raise HTTPException(400, f"Invalid table name: '{table}'")
     db_path = _resolve_db(database)
-    conn = sqlite3.connect(db_path)
-    row = conn.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name=?", (table,)).fetchone()
-    if not row:
-        conn.close()
-        raise HTTPException(404, f"Table '{table}' not found")
-    # Also get column info
-    columns = [{"name": r[1], "type": r[2], "notnull": bool(r[3]), "pk": bool(r[5])}
-               for r in conn.execute(f"PRAGMA table_info({table})").fetchall()]
-    count = conn.execute(f"SELECT COUNT(*) FROM [{table}]").fetchone()[0]
-    conn.close()
+    with sqlite3.connect(db_path) as conn:
+        row = conn.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name=?", (table,)).fetchone()
+        if not row:
+            raise HTTPException(404, f"Table '{table}' not found")
+        columns = [{"name": r[1], "type": r[2], "notnull": bool(r[3]), "pk": bool(r[5])}
+                   for r in conn.execute(f"PRAGMA table_info([{table}])").fetchall()]
+        count = conn.execute(f"SELECT COUNT(*) FROM [{table}]").fetchone()[0]
     return {"database": database, "table": table, "schema": row[0], "columns": columns, "row_count": count}

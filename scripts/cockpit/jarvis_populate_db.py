@@ -296,7 +296,7 @@ def show_stats():
         try:
             count = conn.execute(f"SELECT COUNT(*) FROM [{t}]").fetchone()[0]
             print(f"  {t}: {count} rows")
-        except:
+        except (sqlite3.Error, ValueError):
             print(f"  {t}: NOT FOUND")
 
     # Agent keyword distribution

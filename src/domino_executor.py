@@ -14,85 +14,93 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import sqlite3
 import subprocess
 import time
+import urllib.error
 import urllib.request
+
+logger = logging.getLogger(__name__)
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional
 
+from src.config import config, prepare_lmstudio_input, PATHS
 from src.domino_pipelines import DominoPipeline, DominoStep, find_domino
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# CLUSTER NODES
+# CLUSTER NODES — sourced from config.py (no hardcoded keys)
 # ══════════════════════════════════════════════════════════════════════════════
 
-NODES = {
-    "M1": {"url": "http://10.5.0.2:1234", "model": "qwen3-8b", "weight": 1.8},
-    "M2": {"url": "http://192.168.1.26:1234", "model": "deepseek-coder-v2-lite-instruct", "weight": 1.4},
-    "M3": {"url": "http://192.168.1.113:1234", "model": "mistral-7b-instruct-v0.3", "weight": 1.0},
-    "OL1": {"url": "http://127.0.0.1:11434", "model": "qwen3:1.7b", "weight": 1.3},
-    "LOCAL": {"url": None, "model": None, "weight": 1.0},
-}
+def _build_nodes() -> dict:
+    """Build NODES dict from config (avoids hardcoded IPs)."""
+    nodes = {"LOCAL": {"url": None, "model": None, "weight": 1.0}}
+    for n in config.lm_nodes:
+        nodes[n.name] = {"url": n.url, "model": n.default_model, "weight": n.weight}
+    for n in config.ollama_nodes:
+        nodes[n.name] = {"url": n.url, "model": n.default_model, "weight": n.weight}
+    return nodes
+
+NODES = _build_nodes()
 
 FALLBACK_CHAIN = ["M1", "M2", "M3", "OL1", "LOCAL"]
 
-LM_STUDIO_KEYS = {
-    "M1": "Bearer LMSTUDIO_KEY_M1_REDACTED",
-    "M2": "Bearer LMSTUDIO_KEY_M2_REDACTED",
-    "M3": "Bearer LMSTUDIO_KEY_M3_REDACTED",
-}
+
+def _get_auth_header(node_name: str) -> str:
+    """Get auth header for a node from config (no hardcoded keys)."""
+    node = config.get_node(node_name)
+    if node and hasattr(node, 'auth_headers'):
+        return node.auth_headers.get("Authorization", "")
+    return ""
 
 
 # ══════════════════════════════════════════════════════════════════════════════
 # DOMINO LOGGER — SQLite logging pour chaque cascade
 # ══════════════════════════════════════════════════════════════════════════════
 
+_DEFAULT_DB = str(PATHS.get("etoile_db", "data/etoile.db"))
+
+
 class DominoLogger:
     """Log chaque step de cascade domino dans SQLite."""
 
-    def __init__(self, db_path: str = "F:/BUREAU/turbo/data/etoile.db"):
+    def __init__(self, db_path: str = _DEFAULT_DB):
         self.db_path = db_path
         self._ensure_table()
 
     def _ensure_table(self):
-        conn = sqlite3.connect(self.db_path)
-        conn.execute("""CREATE TABLE IF NOT EXISTS domino_logs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            run_id TEXT NOT NULL,
-            domino_id TEXT NOT NULL,
-            step_name TEXT NOT NULL,
-            step_idx INTEGER NOT NULL,
-            status TEXT NOT NULL,
-            duration_ms REAL,
-            node TEXT,
-            output_preview TEXT,
-            error TEXT,
-            ts TEXT NOT NULL DEFAULT (datetime('now'))
-        )""")
-        conn.commit()
-        conn.close()
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("""CREATE TABLE IF NOT EXISTS domino_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                run_id TEXT NOT NULL,
+                domino_id TEXT NOT NULL,
+                step_name TEXT NOT NULL,
+                step_idx INTEGER NOT NULL,
+                status TEXT NOT NULL,
+                duration_ms REAL,
+                node TEXT,
+                output_preview TEXT,
+                error TEXT,
+                ts TEXT NOT NULL DEFAULT (datetime('now'))
+            )""")
 
     def log_step(self, run_id: str, domino_id: str, step_name: str, step_idx: int,
                  status: str, duration_ms: float, node: str = "local",
                  output: str = "", error: str = ""):
-        conn = sqlite3.connect(self.db_path)
-        conn.execute(
-            "INSERT INTO domino_logs (run_id, domino_id, step_name, step_idx, status, duration_ms, node, output_preview, error) VALUES (?,?,?,?,?,?,?,?,?)",
-            (run_id, domino_id, step_name, step_idx, status, duration_ms, node, output[:200], error[:200])
-        )
-        conn.commit()
-        conn.close()
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                "INSERT INTO domino_logs (run_id, domino_id, step_name, step_idx, status, duration_ms, node, output_preview, error) VALUES (?,?,?,?,?,?,?,?,?)",
+                (run_id, domino_id, step_name, step_idx, status, duration_ms, node, output[:200], error[:200])
+            )
 
     def get_run_summary(self, run_id: str) -> dict:
-        conn = sqlite3.connect(self.db_path)
-        rows = conn.execute(
-            "SELECT step_name, status, duration_ms, node FROM domino_logs WHERE run_id=? ORDER BY step_idx",
-            (run_id,)
-        ).fetchall()
-        conn.close()
+        with sqlite3.connect(self.db_path) as conn:
+            rows = conn.execute(
+                "SELECT step_name, status, duration_ms, node FROM domino_logs WHERE run_id=? ORDER BY step_idx",
+                (run_id,)
+            ).fetchall()
         total_ms = sum(r[2] or 0 for r in rows)
         passed = sum(1 for r in rows if r[1] == "PASS")
         failed = sum(1 for r in rows if r[1] == "FAIL")
@@ -151,11 +159,11 @@ def check_node_online(node_name: str, timeout: int = 3) -> bool:
         else:
             req = urllib.request.Request(
                 f"{url}/api/v1/models",
-                headers={"Authorization": LM_STUDIO_KEYS.get(node_name, "")}
+                headers={"Authorization": _get_auth_header(node_name)}
             )
             urllib.request.urlopen(req, timeout=timeout)
         return True
-    except Exception:
+    except (urllib.error.URLError, OSError):
         return False
 
 
@@ -196,16 +204,20 @@ def execute_curl(action: str, timeout: int = 20) -> str:
                     node_name = n
                     break
             model = NODES[node_name]["model"] if node_name else "qwen3-8b"
+            prompt_text = prepare_lmstudio_input(
+                "Reponds OK si tu fonctionnes.", node_name or "M1", model
+            )
             body = json.dumps({
                 "model": model,
-                "input": "/nothink\nReponds OK si tu fonctionnes.",
+                "input": prompt_text,
                 "temperature": 0.1, "max_output_tokens": 32,
                 "stream": False, "store": False,
             }).encode()
             req = urllib.request.Request(url, data=body,
                                         headers={"Content-Type": "application/json"})
-            if node_name and node_name in LM_STUDIO_KEYS:
-                req.add_header("Authorization", LM_STUDIO_KEYS[node_name])
+            auth = _get_auth_header(node_name) if node_name else ""
+            if auth:
+                req.add_header("Authorization", auth)
         elif "/api/chat" in url:
             # Ollama chat endpoint — POST
             body = json.dumps({
@@ -218,9 +230,11 @@ def execute_curl(action: str, timeout: int = 20) -> str:
         else:
             # GET for models/tags/health endpoints
             req = urllib.request.Request(url)
-            for node_name, key in LM_STUDIO_KEYS.items():
-                if NODES[node_name]["url"] and NODES[node_name]["url"] in url:
-                    req.add_header("Authorization", key)
+            for n, info in NODES.items():
+                if info["url"] and info["url"] in url:
+                    auth = _get_auth_header(n)
+                    if auth:
+                        req.add_header("Authorization", auth)
                     break
         resp = urllib.request.urlopen(req, timeout=timeout)
         data = resp.read().decode()
@@ -237,16 +251,16 @@ def execute_curl(action: str, timeout: int = 20) -> str:
                             for c in content:
                                 if isinstance(c, dict) and c.get("type") == "output_text":
                                     return c["text"][:300]
-            except json.JSONDecodeError:
-                pass
+            except json.JSONDecodeError as exc:
+                logger.debug("LM Studio JSON parse failed: %s", exc)
         elif "/api/chat" in url:
             try:
                 d = json.loads(data)
                 return d.get("message", {}).get("content", data[:300])[:300]
-            except json.JSONDecodeError:
-                pass
+            except json.JSONDecodeError as exc:
+                logger.debug("Ollama JSON parse failed: %s", exc)
         return data[:500]
-    except Exception as e:
+    except (urllib.error.URLError, OSError, json.JSONDecodeError, ValueError) as e:
         return f"ERROR: {e}"
 
 
@@ -279,7 +293,7 @@ def execute_step(step: DominoStep, node: str) -> tuple[str, str]:
             return "PASS", f"[UNKNOWN TYPE] {step.action_type}"
     except subprocess.TimeoutExpired:
         return "FAIL", f"TIMEOUT ({step.timeout_s}s)"
-    except Exception as e:
+    except (OSError, ValueError) as e:
         return "FAIL", str(e)[:200]
 
 
@@ -290,7 +304,7 @@ def execute_step(step: DominoStep, node: str) -> tuple[str, str]:
 class DominoExecutor:
     """Execute une cascade domino step par step avec routing + fallback + logging."""
 
-    def __init__(self, db_path: str = "F:/BUREAU/turbo/data/etoile.db"):
+    def __init__(self, db_path: str = _DEFAULT_DB):
         self.logger = DominoLogger(db_path)
         self.results: list[dict] = []
 
@@ -300,18 +314,15 @@ class DominoExecutor:
         total_start = time.time()
         passed = failed = skipped = 0
 
-        print(f"\n{'='*60}")
-        print(f"DOMINO CASCADE: {domino.id} ({domino.category})")
-        print(f"  {domino.description}")
-        print(f"  {len(domino.steps)} steps | priority={domino.priority}")
-        print(f"{'='*60}")
+        logger.info("DOMINO CASCADE: %s (%s) — %s — %d steps, priority=%d",
+                    domino.id, domino.category, domino.description, len(domino.steps), domino.priority)
 
         for idx, step in enumerate(domino.steps):
             step_start = time.time()
 
             # Check condition
             if step.condition:
-                print(f"  [{idx+1}] {step.name} — CONDITION: {step.condition}")
+                logger.debug("[%d] %s — CONDITION: %s", idx + 1, step.name, step.condition)
 
             # Route to best node
             primary_node = route_step(step)
@@ -320,7 +331,7 @@ class DominoExecutor:
             # Check if node online, fallback if not
             if not check_node_online(node, timeout=2):
                 fallback = get_fallback_node(node)
-                print(f"  [{idx+1}] {step.name} — {node} OFFLINE, fallback -> {fallback}")
+                logger.warning("[%d] %s — %s OFFLINE, fallback -> %s", idx + 1, step.name, node, fallback)
                 node = fallback
 
             # Execute step
@@ -330,19 +341,19 @@ class DominoExecutor:
             # Handle failure
             if status == "FAIL":
                 if step.on_fail == "skip":
-                    print(f"  [{idx+1}] {step.name} — SKIP ({node}) — {output[:60]}")
+                    logger.info("[%d] %s — SKIP (%s) — %s", idx + 1, step.name, node, output[:60])
                     skipped += 1
                     status = "SKIP"
                 elif step.on_fail == "stop":
-                    print(f"  [{idx+1}] {step.name} — FAIL STOP ({node}) — {output[:60]}")
+                    logger.error("[%d] %s — FAIL STOP (%s) — %s", idx + 1, step.name, node, output[:60])
                     failed += 1
                     self.logger.log_step(run_id, domino.id, step.name, idx, "FAIL", duration_ms, node, output)
                     break
                 else:
-                    print(f"  [{idx+1}] {step.name} — FAIL ({node}) — {output[:60]}")
+                    logger.warning("[%d] %s — FAIL (%s) — %s", idx + 1, step.name, node, output[:60])
                     failed += 1
             else:
-                print(f"  [{idx+1}] {step.name} — PASS ({node}) {duration_ms:.0f}ms — {output[:50]}")
+                logger.info("[%d] %s — PASS (%s) %.0fms — %s", idx + 1, step.name, node, duration_ms, output[:50])
                 passed += 1
 
             # Log to SQLite
@@ -362,7 +373,7 @@ class DominoExecutor:
         }
         self.results.append(result)
 
-        print(f"\n  RESULTAT: {passed} PASS / {failed} FAIL / {skipped} SKIP en {total_ms:.0f}ms")
+        logger.info("RESULTAT: %d PASS / %d FAIL / %d SKIP en %.0fms", passed, failed, skipped, total_ms)
         return result
 
     def run_by_voice(self, text: str) -> Optional[dict]:
@@ -370,7 +381,7 @@ class DominoExecutor:
         domino = find_domino(text)
         if domino:
             return self.run(domino)
-        print(f"  Aucun domino trouve pour: \"{text}\"")
+        logger.info("Aucun domino trouve pour: %r", text)
         return None
 
     def run_category(self, category: str) -> list[dict]:

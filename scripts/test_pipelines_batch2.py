@@ -45,7 +45,7 @@ def m1_ask(prompt, max_tokens=512, timeout=30):
         data=body,
         headers={
             "Content-Type": "application/json",
-            "Authorization": "Bearer LMSTUDIO_KEY_M1_REDACTED"
+            "Authorization": f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}"
         }
     )
     resp = urllib.request.urlopen(req, timeout=timeout)
@@ -132,9 +132,9 @@ print("\n[CLUSTER IA AVANCE]")
 try:
     results = {}
     for name, url, auth in [
-        ("M1", "http://10.5.0.2:1234/api/v1/models", "Bearer LMSTUDIO_KEY_M1_REDACTED"),
-        ("M2", "http://192.168.1.26:1234/api/v1/models", "Bearer LMSTUDIO_KEY_M2_REDACTED"),
-        ("M3", "http://192.168.1.113:1234/api/v1/models", "Bearer LMSTUDIO_KEY_M3_REDACTED"),
+        ("M1", "http://10.5.0.2:1234/api/v1/models", f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}"),
+        ("M2", "http://192.168.1.26:1234/api/v1/models", f"Bearer {os.getenv('LM_STUDIO_2_API_KEY', os.getenv('LM_STUDIO_2_KEY', ''))}"),
+        ("M3", "http://192.168.1.113:1234/api/v1/models", f"Bearer {os.getenv('LM_STUDIO_3_API_KEY', os.getenv('LM_STUDIO_3_KEY', ''))}"),
     ]:
         req = urllib.request.Request(url, headers={"Authorization": auth})
         resp = urllib.request.urlopen(req, timeout=5)

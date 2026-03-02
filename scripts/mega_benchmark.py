@@ -9,6 +9,7 @@ Usage: python scripts/mega_benchmark.py
 import asyncio
 import httpx
 import json
+import os
 import time
 import sys
 import io
@@ -27,7 +28,7 @@ NODES = {
     "M1": {
         "url": "http://10.5.0.2:1234/api/v1/chat",
         "model": "qwen3-8b",
-        "auth": "Bearer LMSTUDIO_KEY_M1_REDACTED",
+        "auth": f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}",
         "type": "lmstudio",
         "prefix": "/nothink\n",
         "weight": 1.8,
@@ -36,7 +37,7 @@ NODES = {
     "M2": {
         "url": "http://192.168.1.26:1234/api/v1/chat",
         "model": "deepseek-coder-v2-lite-instruct",
-        "auth": "Bearer LMSTUDIO_KEY_M2_REDACTED",
+        "auth": f"Bearer {os.getenv('LM_STUDIO_2_API_KEY', os.getenv('LM_STUDIO_2_KEY', ''))}",
         "type": "lmstudio",
         "prefix": "",
         "weight": 1.4,
@@ -45,7 +46,7 @@ NODES = {
     "M3": {
         "url": "http://192.168.1.113:1234/api/v1/chat",
         "model": "mistral-7b-instruct-v0.3",
-        "auth": "Bearer LMSTUDIO_KEY_M3_REDACTED",
+        "auth": f"Bearer {os.getenv('LM_STUDIO_3_API_KEY', os.getenv('LM_STUDIO_3_KEY', ''))}",
         "type": "lmstudio",
         "prefix": "",
         "weight": 1.0,

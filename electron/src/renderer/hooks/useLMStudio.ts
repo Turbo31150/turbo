@@ -16,7 +16,6 @@ export interface LMNode {
   id: string;
   name: string;
   url: string;
-  auth: string;
   status: 'online' | 'offline' | 'loading';
   models: LMModel[];
   latency: number;
@@ -25,10 +24,24 @@ export interface LMNode {
 
 const NODES_CONFIG = LM_NODES;
 
+// Auth cache — populated once via IPC from main process
+const _authCache: Record<string, string> = {};
+async function getAuth(nodeId: string): Promise<string> {
+  if (_authCache[nodeId] !== undefined) return _authCache[nodeId];
+  try {
+    _authCache[nodeId] = await window.electronAPI.getNodeAuth(nodeId);
+  } catch (_e: unknown) {
+    _authCache[nodeId] = '';
+  }
+  return _authCache[nodeId];
+}
+
 async function fetchNodeModels(url: string, auth: string): Promise<{ models: LMModel[]; latency: number }> {
   const t0 = performance.now();
+  const headers: Record<string, string> = {};
+  if (auth) headers['Authorization'] = auth;
   const res = await fetch(`${url}/api/v1/models`, {
-    headers: { 'Authorization': auth },
+    headers,
     signal: AbortSignal.timeout(5000),
   });
   const latency = Math.round(performance.now() - t0);
@@ -49,9 +62,11 @@ async function fetchNodeModels(url: string, auth: string): Promise<{ models: LMM
 
 async function sendChat(url: string, auth: string, model: string, prompt: string): Promise<{ text: string; latency: number }> {
   const t0 = performance.now();
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (auth) headers['Authorization'] = auth;
   const res = await fetch(`${url}/api/v1/chat`, {
     method: 'POST',
-    headers: { 'Authorization': auth, 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({
       model, input: '/nothink\n' + prompt,
       temperature: 0.2, max_output_tokens: 256,
@@ -79,19 +94,24 @@ export function useLMStudio() {
   );
   const [refreshing, setRefreshing] = useState(false);
   const intervalRef = useRef<number>(0);
+  const mountedRef = useRef(true);
+
+  useEffect(() => () => { mountedRef.current = false; }, []);
 
   const refresh = useCallback(async () => {
     setRefreshing(true);
     const updated = await Promise.all(
       NODES_CONFIG.map(async (cfg) => {
         try {
-          const { models, latency } = await fetchNodeModels(cfg.url, cfg.auth);
+          const auth = await getAuth(cfg.id);
+          const { models, latency } = await fetchNodeModels(cfg.url, auth);
           return { ...cfg, status: 'online' as const, models, latency, error: undefined };
-        } catch (e: any) {
-          return { ...cfg, status: 'offline' as const, models: [], latency: -1, error: e.message };
+        } catch (e) {
+          return { ...cfg, status: 'offline' as const, models: [], latency: -1, error: e instanceof Error ? e.message : String(e) };
         }
       })
     );
+    if (!mountedRef.current) return;
     setNodes(updated);
     setRefreshing(false);
   }, []);
@@ -99,7 +119,8 @@ export function useLMStudio() {
   const testModel = useCallback(async (nodeId: string, model: string, prompt: string) => {
     const cfg = NODES_CONFIG.find(n => n.id === nodeId);
     if (!cfg) throw new Error('Node not found');
-    return sendChat(cfg.url, cfg.auth, model, prompt);
+    const auth = await getAuth(cfg.id);
+    return sendChat(cfg.url, auth, model, prompt);
   }, []);
 
   useEffect(() => {

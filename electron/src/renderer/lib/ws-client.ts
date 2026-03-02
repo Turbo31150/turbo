@@ -11,7 +11,7 @@ export interface WsMessage {
   channel: string;
   action?: string;
   event?: string;
-  payload?: any;
+  payload?: Record<string, any>;
   error?: string;
 }
 
@@ -33,6 +33,8 @@ export class WsClient {
   private sendQueue: string[] = [];
   private heartbeatTimer: number | null = null;
   private readonly heartbeatInterval = 25000;
+
+  private readonly debug = typeof process !== 'undefined' && process.env?.NODE_ENV !== 'production';
 
   constructor(url: string) {
     this.url = url;
@@ -122,7 +124,7 @@ export class WsClient {
     }
 
     this.ws.onopen = () => {
-      console.log('[WsClient] Connected to', this.url);
+      if (this.debug) console.log('[WsClient] Connected to', this.url);
       this.reconnectDelay = this.baseReconnectDelay;
       this.setConnected(true);
       this.flushQueue();
@@ -145,7 +147,7 @@ export class WsClient {
     };
 
     this.ws.onclose = (event: CloseEvent) => {
-      console.log('[WsClient] Connection closed:', event.code, event.reason);
+      if (this.debug) console.log('[WsClient] Connection closed:', event.code, event.reason);
       this.ws = null;
       this.stopHeartbeat();
       this.setConnected(false);
@@ -176,15 +178,15 @@ export class WsClient {
 
   private flushQueue(): void {
     while (this.sendQueue.length > 0 && this.ws?.readyState === WebSocket.OPEN) {
-      const data = this.sendQueue.shift()!;
-      this.ws.send(data);
+      const data = this.sendQueue.shift();
+      if (data) this.ws.send(data);
     }
   }
 
   private scheduleReconnect(): void {
     this.clearReconnectTimer();
 
-    console.log(`[WsClient] Reconnecting in ${this.reconnectDelay}ms...`);
+    if (this.debug) console.log(`[WsClient] Reconnecting in ${this.reconnectDelay}ms...`);
     this.reconnectTimer = window.setTimeout(() => {
       this.reconnectTimer = null;
       this.createConnection();

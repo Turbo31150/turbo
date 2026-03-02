@@ -206,8 +206,11 @@ export class AudioRecorder {
       const blob = new Blob([WORKLET_PROCESSOR_CODE], { type: 'application/javascript' });
       const workletUrl = URL.createObjectURL(blob);
 
-      await this.audioContext.audioWorklet.addModule(workletUrl);
-      URL.revokeObjectURL(workletUrl);
+      try {
+        await this.audioContext.audioWorklet.addModule(workletUrl);
+      } finally {
+        URL.revokeObjectURL(workletUrl);
+      }
 
       this.workletNode = new AudioWorkletNode(this.audioContext, 'chunk-processor');
 

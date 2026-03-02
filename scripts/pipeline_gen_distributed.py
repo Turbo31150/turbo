@@ -12,6 +12,7 @@ Usage:
 import asyncio
 import argparse
 import json
+import os
 import re
 import sqlite3
 import sys
@@ -42,7 +43,7 @@ NODES = {
         "url": "http://10.5.0.2:1234/v1/chat/completions",
         "health_url": "http://10.5.0.2:1234/api/v1/models",
         "model": "qwen3-8b",
-        "auth": "Bearer LMSTUDIO_KEY_M1_REDACTED",
+        "auth": f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}",
         "type": "lmstudio",
         "temp": 0.4,
         "max_tokens": 8192,
@@ -52,7 +53,7 @@ NODES = {
         "url": "http://192.168.1.26:1234/v1/chat/completions",
         "health_url": "http://192.168.1.26:1234/api/v1/models",
         "model": "deepseek-coder-v2-lite-instruct",
-        "auth": "Bearer LMSTUDIO_KEY_M2_REDACTED",
+        "auth": f"Bearer {os.getenv('LM_STUDIO_2_API_KEY', os.getenv('LM_STUDIO_2_KEY', ''))}",
         "type": "lmstudio",
         "temp": 0.5,
         "max_tokens": 4096,
@@ -62,7 +63,7 @@ NODES = {
         "url": "http://192.168.1.113:1234/v1/chat/completions",
         "health_url": "http://192.168.1.113:1234/api/v1/models",
         "model": "mistral-7b-instruct-v0.3",
-        "auth": "Bearer LMSTUDIO_KEY_M3_REDACTED",
+        "auth": f"Bearer {os.getenv('LM_STUDIO_3_API_KEY', os.getenv('LM_STUDIO_3_KEY', ''))}",
         "type": "lmstudio",
         "temp": 0.5,
         "max_tokens": 4096,

@@ -1,6 +1,7 @@
-import React, { useState, useEffect, memo, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, memo, useMemo, useCallback } from 'react';
 import { useLMStudio, LMNode, LMModel } from '../hooks/useLMStudio';
 import { OLLAMA_URL, INTERVALS } from '../lib/config';
+import { COLORS, FONT, latencyColor } from '../lib/theme';
 
 // ═══════════════════════════════════════════════════════════════
 // Ollama models hook
@@ -35,7 +36,8 @@ function useOllama() {
       }));
       setModels(list);
       setOnline(true);
-    } catch {
+    } catch (err) {
+      console.warn('[LMStudio] Ollama fetch error:', err instanceof Error ? err.message : err);
       setOnline(false);
       setModels([]);
       setLatency(-1);
@@ -58,49 +60,49 @@ function useOllama() {
 const CSS = `
 @keyframes lmFadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .lm-card{animation:lmFadeIn .3s ease;transition:border-color .3s}
-.lm-card:hover{border-color:rgba(249,115,22,.3)!important}
+.lm-card:hover{border-color:${COLORS.orangeAlpha(0.3)}!important}
 .lm-test:hover{opacity:.85}
-.lm-tab:hover{color:#e0e0e0!important}
+.lm-tab:hover{color:${COLORS.text}!important}
 `;
 
 const S = {
-  page: { padding: 20, fontFamily: 'Consolas, "Courier New", monospace', height: '100%', overflowY: 'auto' } as React.CSSProperties,
+  page: { padding: 20, fontFamily: FONT, height: '100%', overflowY: 'auto' } as React.CSSProperties,
   header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 } as React.CSSProperties,
-  title: { fontSize: 18, fontWeight: 700, color: '#e0e0e0' } as React.CSSProperties,
-  btn: { padding: '6px 14px', borderRadius: 6, border: '1px solid #2a3a4a', backgroundColor: 'transparent', color: '#6b7280', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', transition: 'all .2s' } as React.CSSProperties,
-  tabs: { display: 'flex', gap: 2, marginBottom: 16, borderBottom: '1px solid #1a2a3a', paddingBottom: 0 } as React.CSSProperties,
-  tab: { padding: '8px 16px', fontSize: 12, fontWeight: 600, color: '#6b7280', cursor: 'pointer', background: 'none', border: 'none', borderBottom: '2px solid transparent', fontFamily: 'inherit', transition: 'all .2s' } as React.CSSProperties,
-  tabActive: { color: '#f97316', borderBottomColor: '#f97316' },
+  title: { fontSize: 18, fontWeight: 700, color: COLORS.text } as React.CSSProperties,
+  btn: { padding: '6px 14px', borderRadius: 6, border: `1px solid ${COLORS.border}`, backgroundColor: 'transparent', color: COLORS.textDim, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', transition: 'all .2s' } as React.CSSProperties,
+  tabs: { display: 'flex', gap: 2, marginBottom: 16, borderBottom: `1px solid ${COLORS.border}`, paddingBottom: 0 } as React.CSSProperties,
+  tab: { padding: '8px 16px', fontSize: 12, fontWeight: 600, color: COLORS.textDim, cursor: 'pointer', background: 'none', border: 'none', borderBottom: '2px solid transparent', fontFamily: 'inherit', transition: 'all .2s' } as React.CSSProperties,
+  tabActive: { color: COLORS.orange, borderBottomColor: COLORS.orange },
   stats: { display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' } as React.CSSProperties,
-  stat: { backgroundColor: '#0d1117', border: '1px solid #1a2a3a', borderRadius: 8, padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: 4, minWidth: 140 } as React.CSSProperties,
-  statLabel: { fontSize: 10, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1.5 } as React.CSSProperties,
+  stat: { backgroundColor: COLORS.bgCard, border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: 4, minWidth: 140 } as React.CSSProperties,
+  statLabel: { fontSize: 10, color: COLORS.textDim, textTransform: 'uppercase', letterSpacing: 1.5 } as React.CSSProperties,
   statVal: { fontSize: 24, fontWeight: 700 } as React.CSSProperties,
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: 16 } as React.CSSProperties,
-  card: { backgroundColor: '#0d1117', border: '1px solid #1a2a3a', borderRadius: 10, padding: 16 } as React.CSSProperties,
+  card: { backgroundColor: COLORS.bgCard, border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: 16 } as React.CSSProperties,
   cardHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as React.CSSProperties,
-  nodeName: { fontSize: 16, fontWeight: 700, color: '#f97316' } as React.CSSProperties,
+  nodeName: { fontSize: 16, fontWeight: 700, color: COLORS.orange } as React.CSSProperties,
   badge: { fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 6, textTransform: 'uppercase', letterSpacing: 1 } as React.CSSProperties,
-  online: { backgroundColor: 'rgba(16,185,129,.12)', color: '#10b981', border: '1px solid rgba(16,185,129,.25)' },
-  offline: { backgroundColor: 'rgba(239,68,68,.12)', color: '#ef4444', border: '1px solid rgba(239,68,68,.25)' },
-  loading: { backgroundColor: 'rgba(249,115,22,.12)', color: '#f97316', border: '1px solid rgba(249,115,22,.25)' },
-  nodeDesc: { fontSize: 10, color: '#6b7280', marginBottom: 10 } as React.CSSProperties,
-  secLabel: { fontSize: 10, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 } as React.CSSProperties,
-  modelRow: { display: 'flex', alignItems: 'center', gap: 8, padding: '7px 0', borderBottom: '1px solid #0a0e14' } as React.CSSProperties,
+  online: { backgroundColor: COLORS.greenAlpha(0.12), color: COLORS.green, border: `1px solid ${COLORS.greenAlpha(0.25)}` },
+  offline: { backgroundColor: COLORS.redAlpha(0.12), color: COLORS.red, border: `1px solid ${COLORS.redAlpha(0.25)}` },
+  loading: { backgroundColor: COLORS.orangeAlpha(0.12), color: COLORS.orange, border: `1px solid ${COLORS.orangeAlpha(0.25)}` },
+  nodeDesc: { fontSize: 10, color: COLORS.textDim, marginBottom: 10 } as React.CSSProperties,
+  secLabel: { fontSize: 10, color: COLORS.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 } as React.CSSProperties,
+  modelRow: { display: 'flex', alignItems: 'center', gap: 8, padding: '7px 0', borderBottom: `1px solid ${COLORS.bg}` } as React.CSSProperties,
   dot: { width: 8, height: 8, borderRadius: '50%', flexShrink: 0 } as React.CSSProperties,
-  dotOn: { backgroundColor: '#10b981', boxShadow: '0 0 6px rgba(16,185,129,.5)' },
-  dotOff: { backgroundColor: '#4b5563' },
-  modelName: { flex: 1, fontSize: 12, color: '#e0e0e0', fontWeight: 500 } as React.CSSProperties,
-  modelMeta: { fontSize: 10, color: '#6b7280' } as React.CSSProperties,
-  loadedTag: { fontSize: 9, color: '#10b981', fontWeight: 700, letterSpacing: 1 } as React.CSSProperties,
-  cloudTag: { fontSize: 9, color: '#c084fc', fontWeight: 700, letterSpacing: 1 } as React.CSSProperties,
-  localTag: { fontSize: 9, color: '#f97316', fontWeight: 700, letterSpacing: 1 } as React.CSSProperties,
-  latBadge: (ms: number) => ({ fontSize: 10, color: ms < 500 ? '#10b981' : ms < 2000 ? '#f97316' : '#ef4444' }),
-  errText: { fontSize: 11, color: '#ef4444', padding: 8 } as React.CSSProperties,
-  testArea: { marginTop: 12, backgroundColor: '#0a0e14', borderRadius: 8, padding: 12, border: '1px solid #1a2a3a' } as React.CSSProperties,
-  testInput: { width: '100%', padding: '8px 10px', backgroundColor: '#0d1117', border: '1px solid #2a3a4a', borderRadius: 6, color: '#e0e0e0', fontSize: 12, fontFamily: 'inherit', outline: 'none', marginBottom: 8, boxSizing: 'border-box' } as React.CSSProperties,
-  testBtn: { padding: '6px 14px', borderRadius: 6, border: '1px solid #f97316', backgroundColor: 'rgba(249,115,22,.08)', color: '#f97316', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 } as React.CSSProperties,
-  testResult: { marginTop: 8, fontSize: 11, color: '#e0e0e0', whiteSpace: 'pre-wrap', maxHeight: 200, overflowY: 'auto', lineHeight: 1.5 } as React.CSSProperties,
-  testLat: { fontSize: 10, color: '#10b981', marginTop: 4 } as React.CSSProperties,
+  dotOn: { backgroundColor: COLORS.green, boxShadow: `0 0 6px ${COLORS.greenAlpha(0.5)}` },
+  dotOff: { backgroundColor: COLORS.textDimmer },
+  modelName: { flex: 1, fontSize: 12, color: COLORS.text, fontWeight: 500 } as React.CSSProperties,
+  modelMeta: { fontSize: 10, color: COLORS.textDim } as React.CSSProperties,
+  loadedTag: { fontSize: 9, color: COLORS.green, fontWeight: 700, letterSpacing: 1 } as React.CSSProperties,
+  cloudTag: { fontSize: 9, color: COLORS.purple, fontWeight: 700, letterSpacing: 1 } as React.CSSProperties,
+  localTag: { fontSize: 9, color: COLORS.orange, fontWeight: 700, letterSpacing: 1 } as React.CSSProperties,
+  latBadge: (ms: number) => ({ fontSize: 10, color: latencyColor(ms) }),
+  errText: { fontSize: 11, color: COLORS.red, padding: 8 } as React.CSSProperties,
+  testArea: { marginTop: 12, backgroundColor: COLORS.bg, borderRadius: 8, padding: 12, border: `1px solid ${COLORS.border}` } as React.CSSProperties,
+  testInput: { width: '100%', padding: '8px 10px', backgroundColor: COLORS.bgCard, border: `1px solid ${COLORS.border}`, borderRadius: 6, color: COLORS.text, fontSize: 12, fontFamily: 'inherit', outline: 'none', marginBottom: 8, boxSizing: 'border-box' } as React.CSSProperties,
+  testBtn: { padding: '6px 14px', borderRadius: 6, border: `1px solid ${COLORS.orange}`, backgroundColor: COLORS.orangeAlpha(0.08), color: COLORS.orange, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 } as React.CSSProperties,
+  testResult: { marginTop: 8, fontSize: 11, color: COLORS.text, whiteSpace: 'pre-wrap', maxHeight: 200, overflowY: 'auto', lineHeight: 1.5 } as React.CSSProperties,
+  testLat: { fontSize: 10, color: COLORS.green, marginTop: 4 } as React.CSSProperties,
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -138,6 +140,9 @@ const NodePanel = memo(function NodePanel({ node, onTest }: { node: LMNode; onTe
   const [result, setResult] = useState<{ text: string; latency: number } | null>(null);
   const [testing, setTesting] = useState(false);
   const [showTest, setShowTest] = useState(false);
+  const mountedRef = useRef(true);
+
+  useEffect(() => () => { mountedRef.current = false; }, []);
 
   const loadedModels = node.models.filter(m => m.loaded);
   const firstLoaded = loadedModels[0]?.id || '';
@@ -145,9 +150,13 @@ const NodePanel = memo(function NodePanel({ node, onTest }: { node: LMNode; onTe
   const handleTest = async () => {
     if (!firstLoaded || testing) return;
     setTesting(true); setResult(null);
-    try { setResult(await onTest(node.id, firstLoaded, prompt)); }
-    catch (e: any) { setResult({ text: `Erreur: ${e.message}`, latency: -1 }); }
-    setTesting(false);
+    try {
+      const res = await onTest(node.id, firstLoaded, prompt);
+      if (mountedRef.current) setResult(res);
+    } catch (e) {
+      if (mountedRef.current) setResult({ text: `Erreur: ${e instanceof Error ? e.message : e}`, latency: -1 });
+    }
+    if (mountedRef.current) setTesting(false);
   };
 
   const badgeStyle = node.status === 'online' ? S.online : node.status === 'offline' ? S.offline : S.loading;
@@ -170,7 +179,7 @@ const NodePanel = memo(function NodePanel({ node, onTest }: { node: LMNode; onTe
           {node.models.map(m => <ModelItem key={m.id} model={m} />)}
         </>
       ) : node.status === 'online' ? (
-        <div style={{ fontSize: 11, color: '#6b7280', padding: 8 }}>Aucun modele</div>
+        <div style={{ fontSize: 11, color: COLORS.textDim, padding: 8 }}>Aucun modele</div>
       ) : null}
 
       {node.status === 'online' && firstLoaded && (
@@ -227,8 +236,8 @@ export default function LMStudioPage() {
         <div style={S.header}>
           <div style={S.title}>AI Cluster</div>
           <button style={S.btn} onClick={handleRefresh}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = '#f97316'; e.currentTarget.style.color = '#f97316'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = '#2a3a4a'; e.currentTarget.style.color = '#6b7280'; }}>
+            onMouseEnter={e => { e.currentTarget.style.borderColor = COLORS.orange; e.currentTarget.style.color = COLORS.orange; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = COLORS.border; e.currentTarget.style.color = COLORS.textDim; }}>
             {refreshing ? 'Actualisation...' : 'Actualiser'}
           </button>
         </div>
@@ -236,23 +245,23 @@ export default function LMStudioPage() {
         <div style={S.stats}>
           <div style={S.stat}>
             <span style={S.statLabel}>LM Studio</span>
-            <span style={{ ...S.statVal, color: onlineCount === nodes.length ? '#10b981' : '#f97316' }}>{onlineCount}/{nodes.length}</span>
+            <span style={{ ...S.statVal, color: onlineCount === nodes.length ? COLORS.green : COLORS.orange }}>{onlineCount}/{nodes.length}</span>
           </div>
           <div style={S.stat}>
             <span style={S.statLabel}>Ollama</span>
-            <span style={{ ...S.statVal, color: ollama.online ? '#10b981' : '#ef4444' }}>{ollama.online ? 'ON' : 'OFF'}</span>
+            <span style={{ ...S.statVal, color: ollama.online ? COLORS.green : COLORS.red }}>{ollama.online ? 'ON' : 'OFF'}</span>
           </div>
           <div style={S.stat}>
             <span style={S.statLabel}>Modeles total</span>
-            <span style={{ ...S.statVal, color: '#c084fc' }}>{totalLoaded + ollama.models.length}</span>
+            <span style={{ ...S.statVal, color: COLORS.purple }}>{totalLoaded + ollama.models.length}</span>
           </div>
           <div style={S.stat}>
             <span style={S.statLabel}>Cloud</span>
-            <span style={{ ...S.statVal, color: '#c084fc' }}>{ollamaCloud.length}</span>
+            <span style={{ ...S.statVal, color: COLORS.purple }}>{ollamaCloud.length}</span>
           </div>
           <div style={S.stat}>
             <span style={S.statLabel}>Latence moy.</span>
-            <span style={{ ...S.statVal, color: avgLatency < 500 ? '#10b981' : '#f97316' }}>{avgLatency > 0 ? `${Math.round(avgLatency)}ms` : '---'}</span>
+            <span style={{ ...S.statVal, color: latencyColor(avgLatency) }}>{avgLatency > 0 ? `${Math.round(avgLatency)}ms` : '---'}</span>
           </div>
         </div>
 
@@ -287,33 +296,31 @@ export default function LMStudioPage() {
 
             {ollama.online ? (
               <div style={S.grid}>
-                {/* Local models card */}
                 <div className="lm-card" style={S.card}>
                   <div style={S.cardHead}>
                     <span style={S.nodeName}>OL1 Local</span>
                     <span style={{ ...S.badge, ...S.online }}>online</span>
                   </div>
-                  <div style={S.nodeDesc}>127.0.0.1:11434 — Modeles locaux</div>
+                  <div style={S.nodeDesc}>{OLLAMA_URL.replace('http://', '')} — Modeles locaux</div>
                   <div style={S.secLabel}>{ollamaLocal.length} modeles</div>
                   {ollamaLocal.map(m => <OllamaModelItem key={m.name} model={m} />)}
-                  {ollamaLocal.length === 0 && <div style={{ fontSize: 11, color: '#6b7280', padding: 8 }}>Aucun modele local</div>}
+                  {ollamaLocal.length === 0 && <div style={{ fontSize: 11, color: COLORS.textDim, padding: 8 }}>Aucun modele local</div>}
                 </div>
 
-                {/* Cloud models card */}
                 <div className="lm-card" style={S.card}>
                   <div style={S.cardHead}>
-                    <span style={{ ...S.nodeName, color: '#c084fc' }}>OL1 Cloud</span>
+                    <span style={{ ...S.nodeName, color: COLORS.purple }}>OL1 Cloud</span>
                     <span style={{ ...S.badge, ...S.online }}>online</span>
                   </div>
                   <div style={S.nodeDesc}>Ollama Cloud — Modeles distants</div>
                   <div style={S.secLabel}>{ollamaCloud.length} modeles cloud</div>
                   {ollamaCloud.map(m => <OllamaModelItem key={m.name} model={m} />)}
-                  {ollamaCloud.length === 0 && <div style={{ fontSize: 11, color: '#6b7280', padding: 8 }}>Aucun modele cloud</div>}
+                  {ollamaCloud.length === 0 && <div style={{ fontSize: 11, color: COLORS.textDim, padding: 8 }}>Aucun modele cloud</div>}
                 </div>
               </div>
             ) : (
               <div className="lm-card" style={S.card}>
-                <div style={S.errText}>Ollama hors ligne — verifiez que le service tourne sur 127.0.0.1:11434</div>
+                <div style={S.errText}>Ollama hors ligne — verifiez que le service tourne sur {OLLAMA_URL.replace('http://', '')}</div>
               </div>
             )}
           </>

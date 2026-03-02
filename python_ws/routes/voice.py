@@ -23,7 +23,7 @@ def _get_whisper():
         from src.whisper_worker import WhisperWorker
         _whisper = WhisperWorker()
         logger.info("WhisperWorker loaded successfully")
-    except Exception as e:
+    except (ImportError, RuntimeError) as e:
         logger.warning("WhisperWorker unavailable: %s", e)
         _whisper = None
     return _whisper
@@ -51,6 +51,10 @@ def _pcm_to_wav(pcm_bytes: bytes, sample_rate: int = 16000,
     return header + pcm_bytes
 
 
+MAX_AUDIO_BUFFER = 30 * 16000 * 2  # 30s of 16kHz 16-bit mono = ~960KB
+MAX_TRANSCRIPTIONS = 200
+
+
 class AudioBuffer:
     """Accumulates audio chunks for transcription.
 
@@ -60,6 +64,7 @@ class AudioBuffer:
 
     def __init__(self):
         self.chunks: list[bytes] = []
+        self._total_bytes = 0
         self.recording = False
         self.format = "pcm_16bit"
         self.sample_rate = 16000
@@ -68,6 +73,7 @@ class AudioBuffer:
     def start(self, fmt: str = "pcm_16bit", sample_rate: int = 16000,
               channels: int = 1):
         self.chunks.clear()
+        self._total_bytes = 0
         self.recording = True
         self.format = fmt
         self.sample_rate = sample_rate
@@ -75,7 +81,12 @@ class AudioBuffer:
 
     def add_chunk(self, b64_data: str):
         if self.recording:
-            self.chunks.append(base64.b64decode(b64_data))
+            decoded = base64.b64decode(b64_data)
+            if self._total_bytes + len(decoded) > MAX_AUDIO_BUFFER:
+                logger.warning("Audio buffer limit reached (%d bytes), ignoring chunk", MAX_AUDIO_BUFFER)
+                return
+            self.chunks.append(decoded)
+            self._total_bytes += len(decoded)
 
     def stop(self) -> bytes:
         """Return audio bytes ready for Whisper (WAV with header)."""
@@ -101,10 +112,19 @@ async def handle_voice_request(action: str, payload: dict) -> dict:
     elif action == "stop_recording":
         return await _handle_stop()
     elif action == "start_recording":
+        try:
+            sample_rate = int(payload.get("sample_rate", 16000))
+            channels = int(payload.get("channels", 1))
+        except (ValueError, TypeError):
+            return {"error": "Invalid sample_rate or channels (must be integers)"}
+        if not (8000 <= sample_rate <= 48000):
+            return {"error": f"Invalid sample_rate: {sample_rate} (8000-48000)"}
+        if channels not in (1, 2):
+            return {"error": f"Invalid channels: {channels} (1 or 2)"}
         _buffer.start(
             fmt=payload.get("format", "pcm_16bit"),
-            sample_rate=payload.get("sample_rate", 16000),
-            channels=payload.get("channels", 1),
+            sample_rate=sample_rate,
+            channels=channels,
         )
         return {"recording": True}
     elif action == "tts_speak":
@@ -134,7 +154,7 @@ async def _handle_stop() -> dict:
     if whisper:
         try:
             text = await asyncio.to_thread(whisper.transcribe, audio_data)
-        except Exception as e:
+        except (RuntimeError, OSError, ValueError) as e:
             logger.error("Whisper error: %s", e)
             text = await _fallback_cloud_stt(audio_data)
             if not text:
@@ -171,7 +191,7 @@ async def _handle_stop() -> dict:
                         execution = await _execute_matched_command(cmd, params)
             elif isinstance(result, str):
                 corrected = result
-        except Exception as e:
+        except (asyncio.TimeoutError, ValueError, RuntimeError) as e:
             logger.warning("Voice correction error: %s", e)
             corrected = text
 
@@ -183,6 +203,9 @@ async def _handle_stop() -> dict:
         "execution": execution,
     }
     _transcriptions.append(entry)
+    # Keep bounded to prevent memory leak
+    if len(_transcriptions) > MAX_TRANSCRIPTIONS:
+        del _transcriptions[:len(_transcriptions) - MAX_TRANSCRIPTIONS]
 
     return {"transcription": entry}
 
@@ -207,7 +230,7 @@ async def _execute_matched_command(cmd, params: dict) -> dict | None:
             "description": cmd.description,
             "output": output[:300],
         }
-    except Exception as e:
+    except (asyncio.TimeoutError, RuntimeError, OSError) as e:
         logger.error("Voice command execution error: %s", e)
         return {"executed": False, "error": str(e)}
 
@@ -221,7 +244,7 @@ async def _fallback_cloud_stt(audio_data: bytes) -> str:
         # For now, return empty to signal fallback failed
         logger.warning("Cloud STT fallback: no cloud STT available yet")
         return ""
-    except Exception as e:
+    except (ImportError, OSError) as e:
         logger.error("Cloud STT fallback error: %s", e)
         return ""
 
@@ -231,25 +254,39 @@ async def _handle_tts(payload: dict) -> dict:
     text = payload.get("text", "").strip()
     if not text:
         return {"error": "Empty text"}
+    if len(text) > 5000:
+        return {"error": f"Text too long: {len(text)} chars (max 5000)"}
 
     try:
         import edge_tts
         import tempfile
+        _ALLOWED_VOICES = {"fr-FR-HenriNeural", "fr-FR-DeniseNeural", "en-US-GuyNeural", "en-US-JennyNeural"}
         voice = payload.get("voice", "fr-FR-HenriNeural")
+        if voice not in _ALLOWED_VOICES:
+            voice = "fr-FR-HenriNeural"
         comm = edge_tts.Communicate(text, voice)
         tmp = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
         tmp.close()
         await comm.save(tmp.name)
 
-        # Play via ffplay (non-blocking)
+        # Play via ffplay (non-blocking) then cleanup temp file
         proc = await asyncio.create_subprocess_exec(
             "ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", tmp.name,
             stdout=asyncio.subprocess.DEVNULL,
             stderr=asyncio.subprocess.DEVNULL,
         )
-        # Don't await — let it play in background
+
+        async def _cleanup():
+            await proc.wait()
+            try:
+                import pathlib
+                pathlib.Path(tmp.name).unlink(missing_ok=True)
+            except OSError:
+                pass
+
+        asyncio.create_task(_cleanup())
         return {"spoken": True, "text": text, "voice": voice, "engine": "edge_tts"}
-    except Exception as e:
+    except (ImportError, RuntimeError, OSError) as e:
         logger.warning("Edge TTS failed: %s — signaling browser fallback", e)
         # Signal the frontend to use Web Speech API as fallback
         return {"spoken": False, "text": text, "fallback": "web_speech_api", "error": str(e)}

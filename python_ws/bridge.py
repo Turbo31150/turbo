@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import logging
 import sys
 import time
 from pathlib import Path
 from typing import Any
 
 import httpx
+
+logger = logging.getLogger(__name__)
 
 # Ensure src/ is importable
 _turbo_root = str(Path(__file__).resolve().parent.parent)
@@ -41,20 +44,26 @@ def get_config_class():
 
 # ── Cluster status via HTTP probes ───────────────────────────────────────────
 
-async def _probe_lmstudio(client: httpx.AsyncClient, node) -> dict[str, Any]:
-    """Probe a single LM Studio node (M1, M2, M3)."""
+def _base_node_result(node, extra: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Build base result dict for a cluster node probe."""
     result: dict[str, Any] = {
         "name": node.name,
-        "url": node.url,
+        "url": getattr(node, "url", ""),
         "role": node.role,
-        "gpus": node.gpus,
-        "vram_gb": node.vram_gb,
         "default_model": node.default_model,
         "weight": node.weight,
         "online": False,
         "models_loaded": [],
         "latency_ms": -1,
     }
+    if extra:
+        result.update(extra)
+    return result
+
+
+async def _probe_lmstudio(client: httpx.AsyncClient, node) -> dict[str, Any]:
+    """Probe a single LM Studio node (M1, M2, M3)."""
+    result = _base_node_result(node, {"gpus": node.gpus, "vram_gb": node.vram_gb})
     try:
         t0 = time.perf_counter()
         resp = await client.get(
@@ -73,23 +82,15 @@ async def _probe_lmstudio(client: httpx.AsyncClient, node) -> dict[str, Any]:
         result["online"] = True
         result["models_loaded"] = loaded
         result["latency_ms"] = latency
-    except Exception as exc:
+    except (httpx.TimeoutException, httpx.NetworkError, httpx.HTTPStatusError) as exc:
+        logger.debug("LM Studio probe failed for %s: %s", node.name, exc)
         result["error"] = str(exc)
     return result
 
 
 async def _probe_ollama(client: httpx.AsyncClient, node) -> dict[str, Any]:
     """Probe the Ollama node (OL1)."""
-    result: dict[str, Any] = {
-        "name": node.name,
-        "url": node.url,
-        "role": node.role,
-        "default_model": node.default_model,
-        "weight": node.weight,
-        "online": False,
-        "models_loaded": [],
-        "latency_ms": -1,
-    }
+    result = _base_node_result(node)
     try:
         t0 = time.perf_counter()
         resp = await client.get(f"{node.url}/api/tags", timeout=5.0)
@@ -100,7 +101,8 @@ async def _probe_ollama(client: httpx.AsyncClient, node) -> dict[str, Any]:
         result["online"] = True
         result["models_loaded"] = models
         result["latency_ms"] = latency
-    except Exception as exc:
+    except (httpx.TimeoutException, httpx.NetworkError, httpx.HTTPStatusError) as exc:
+        logger.debug("Ollama probe failed for %s: %s", node.name, exc)
         result["error"] = str(exc)
     return result
 

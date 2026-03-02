@@ -15,15 +15,18 @@ from __future__ import annotations
 import asyncio
 import re
 import subprocess
-import sys
 import time
+from pathlib import Path
 from typing import Any
 
 import httpx
+import logging
 
 from src.config import config
 
-LMS_CLI = r"C:\Users\franc\.lmstudio\bin\lms.exe"
+logger = logging.getLogger("jarvis.cluster_startup")
+
+LMS_CLI = str(Path.home() / ".lmstudio" / "bin" / "lms.exe")
 
 # ── M1 Model Policy ──────────────────────────────────────────────────────
 # Primary model loaded at boot (fast, 0.6-1.7s, 65 tok/s)
@@ -60,8 +63,9 @@ def _strip_ansi(text: str) -> str:
 
 
 def _log(msg: str, level: str = "INFO") -> None:
-    """Structured log for startup."""
-    print(f"  [{level}] {msg}", flush=True)
+    """Structured log for startup — routes through the standard logger."""
+    level_map = {"OK": "info", "INFO": "info", "WARN": "warning", "ERREUR": "error"}
+    getattr(logger, level_map.get(level, "info"))("[startup] %s", msg)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -77,7 +81,7 @@ def _lms_server_status() -> bool:
         )
         output = _strip_ansi(r.stdout + r.stderr).lower()
         return "running" in output and "not running" not in output
-    except Exception:
+    except (subprocess.SubprocessError, OSError):
         return False
 
 
@@ -90,7 +94,7 @@ def _lms_server_start() -> bool:
         )
         output = _strip_ansi(r.stdout + r.stderr).lower()
         return "success" in output or "already running" in output
-    except Exception:
+    except (subprocess.SubprocessError, OSError):
         return False
 
 
@@ -120,7 +124,7 @@ def _lms_ps() -> list[dict[str, str]]:
                         model["status"] = p
                 models.append(model)
         return models
-    except Exception:
+    except (subprocess.SubprocessError, OSError):
         return []
 
 
@@ -138,7 +142,7 @@ def _lms_unload(model: str) -> bool:
         )
         output = _strip_ansi(r.stdout + r.stderr)
         return "unloaded" in output.lower() or "not loaded" in output.lower()
-    except Exception:
+    except (subprocess.SubprocessError, OSError):
         return False
 
 
@@ -165,7 +169,7 @@ def _lms_load(
     except subprocess.TimeoutExpired:
         _log(f"Timeout chargement {model} (180s)", "WARN")
         return False
-    except Exception:
+    except OSError:
         return False
 
 
@@ -196,7 +200,7 @@ async def _warmup_model(url: str, model: str, timeout: float = 15.0, headers: di
             completion_tokens = stats.get("total_output_tokens", 1)
             tps = completion_tokens / max((time.monotonic() - t0), 0.01)
             return {"ok": True, "latency_ms": latency, "tokens_per_sec": round(tps, 1)}
-    except Exception as e:
+    except (httpx.HTTPError, OSError, ValueError, KeyError) as e:
         return {"ok": False, "latency_ms": -1, "tokens_per_sec": 0, "error": str(e)}
 
 
@@ -214,7 +218,7 @@ async def _warmup_ollama(url: str, model: str, timeout: float = 10.0) -> dict[st
             r.raise_for_status()
             latency = int((time.monotonic() - t0) * 1000)
             return {"ok": True, "latency_ms": latency}
-    except Exception as e:
+    except (httpx.HTTPError, OSError, ValueError, KeyError) as e:
         return {"ok": False, "latency_ms": -1, "error": str(e)}
 
 
@@ -246,7 +250,7 @@ def _get_gpu_stats() -> list[dict[str, Any]]:
                     "vram_pct": round(int(parts[2]) / max(int(parts[3]), 1) * 100, 1),
                 })
         return gpus
-    except Exception:
+    except (subprocess.SubprocessError, OSError, ValueError):
         return []
 
 
@@ -316,7 +320,7 @@ async def _check_ollama() -> dict[str, Any]:
                 "count": len(models),
                 "has_correction_model": has_correction,
             }
-    except Exception as e:
+    except (httpx.HTTPError, OSError, ValueError, KeyError) as e:
         return {"ok": False, "error": str(e)}
 
 
@@ -341,7 +345,7 @@ async def _check_m2() -> dict[str, Any]:
                 "count": len(models),
                 "has_coder": has_coder,
             }
-    except Exception as e:
+    except (httpx.HTTPError, OSError, ValueError, KeyError) as e:
         return {"ok": False, "error": str(e)}
 
 
@@ -370,9 +374,9 @@ async def ensure_cluster_ready(
     report: dict[str, Any] = {"timestamp": time.strftime("%H:%M:%S")}
 
     if verbose:
-        print("=" * 55)
-        print("  JARVIS Cluster Startup — Optimization Sequence")
-        print("=" * 55)
+        logger.info("=" * 55)
+        logger.info("  JARVIS Cluster Startup — Optimization Sequence")
+        logger.info("=" * 55)
 
     # ── Step 1: Ensure LM Studio server is running ────────────────────
     if not _lms_server_status():
@@ -512,14 +516,14 @@ async def ensure_cluster_ready(
     report["m1_final"] = final
 
     if verbose:
-        print("=" * 55)
+        logger.info("=" * 55)
         # Summary line
         m1_ok = any(m.get("id") == "qwen/qwen3-8b" for m in final)
         m2_ok = m2_status["ok"]
         ol_ok = ollama_status["ok"]
         status = "OPTIMAL" if (m1_ok and m2_ok and ol_ok) else "PARTIEL" if m1_ok else "DEGRADE"
         _log(f"Cluster: {status} | M1={'OK' if m1_ok else 'KO'} M2={'OK' if m2_ok else 'KO'} OL={'OK' if ol_ok else 'KO'}", status)
-        print("=" * 55)
+        logger.info("=" * 55)
 
     report["status"] = "OPTIMAL" if all([
         any(m.get("id") == "qwen/qwen3-8b" for m in final),
@@ -599,7 +603,7 @@ async def quick_health_check() -> dict[str, str]:
             models = [m["key"] for m in r.json().get("models", []) if m.get("loaded_instances")]
             has_main = any("qwen3-8b" in m for m in models)
             status["m1"] = f"OK ({len(models)} modeles)" if has_main else f"WARN (pas de qwen3-8b)"
-    except Exception:
+    except (httpx.HTTPError, OSError, ValueError, KeyError):
         status["m1"] = "OFFLINE"
 
     # M2
@@ -609,7 +613,7 @@ async def quick_health_check() -> dict[str, str]:
             r = await c.get(f"{config.get_node_url('M2')}/api/v1/models", headers=m2.auth_headers if m2 else {})
             r.raise_for_status()
             status["m2"] = "OK"
-    except Exception:
+    except (httpx.HTTPError, OSError, KeyError):
         status["m2"] = "OFFLINE"
 
     # Ollama
@@ -620,29 +624,29 @@ async def quick_health_check() -> dict[str, str]:
                 r = await c.get(f"{ol.url}/api/tags")
                 r.raise_for_status()
                 status["ollama"] = "OK"
-    except Exception:
+    except (httpx.HTTPError, OSError, KeyError):
         status["ollama"] = "OFFLINE"
 
     return status
 
 
 def print_startup_report(report: dict[str, Any]) -> None:
-    """Print a concise startup report (legacy compat)."""
-    print("=" * 55)
-    print("  JARVIS Cluster Status")
-    print("=" * 55)
+    """Log a concise startup report."""
+    logger.info("=" * 55)
+    logger.info("  JARVIS Cluster Status")
+    logger.info("=" * 55)
     for key, val in report.items():
         if key in ("gpus", "m1_initial", "m1_final", "timestamp"):
             continue
         if isinstance(val, dict):
             status = "OK" if val.get("ok") else "!!"
             summary = f"latence={val.get('latency_ms', '?')}ms" if "latency_ms" in val else str(val)
-            print(f"  [{status}] {key}: {summary}")
+            logger.info("  [%s] %s: %s", status, key, summary)
         else:
             label = key.replace("_", " ").title()
             if isinstance(val, str):
                 status = "OK" if any(w in val for w in ("OK", "charge", "ONLINE", "pret", "actif")) else "!!"
             else:
                 status = "OK"
-            print(f"  [{status}] {label}: {val}")
-    print("=" * 55)
+            logger.info("  [%s] %s: %s", status, label, val)
+    logger.info("=" * 55)

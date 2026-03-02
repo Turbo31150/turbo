@@ -3,6 +3,7 @@ import { useWebSocket } from '../../hooks/useWebSocket';
 import { useClusterContext } from '../../hooks/ClusterContext';
 import type { Page } from '../../lib/types';
 import { INTERVALS } from '../../lib/config';
+import { COLORS, FONT } from '../../lib/theme';
 
 interface TopBarProps {
   connected: boolean;
@@ -36,41 +37,41 @@ const CSS = `
 const s = {
   bar: {
     display: 'flex', alignItems: 'center', height: 40,
-    backgroundColor: '#0d1117', borderBottom: '1px solid #1a2a3a',
+    backgroundColor: COLORS.bgCard, borderBottom: `1px solid ${COLORS.border}`,
     paddingLeft: 16, paddingRight: 8, gap: 12, flexShrink: 0,
-    background: 'linear-gradient(90deg, #0d1117, rgba(249,115,22,.02), #0d1117)',
+    background: `linear-gradient(90deg, ${COLORS.bgCard}, ${COLORS.orangeAlpha(.02)}, ${COLORS.bgCard})`,
     backgroundSize: '200% 100%', animation: 'topScan 12s linear infinite',
     WebkitAppRegion: 'drag',
   } as React.CSSProperties,
   brand: {
     fontSize: 13, fontWeight: 700, letterSpacing: 3,
-    background: 'linear-gradient(135deg, #f97316, #c084fc)',
+    background: `linear-gradient(135deg, ${COLORS.orange}, ${COLORS.purple})`,
     WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-    fontFamily: 'Consolas, "Courier New", monospace',
+    fontFamily: FONT,
   } as React.CSSProperties,
   page: {
-    fontSize: 10, letterSpacing: 2, color: '#6b7280', fontWeight: 600,
-    textTransform: 'uppercase', fontFamily: 'Consolas, monospace',
+    fontSize: 10, letterSpacing: 2, color: COLORS.textDim, fontWeight: 600,
+    textTransform: 'uppercase', fontFamily: FONT,
   } as React.CSSProperties,
   spacer: { flex: 1 } as React.CSSProperties,
   badge: {
     display: 'inline-flex', alignItems: 'center', gap: 5,
     padding: '2px 10px', borderRadius: 10, fontSize: 10,
-    fontWeight: 700, letterSpacing: 1, fontFamily: 'Consolas, monospace',
+    fontWeight: 700, letterSpacing: 1, fontFamily: FONT,
   } as React.CSSProperties,
-  badgeOn: { backgroundColor: 'rgba(16,185,129,.1)', border: '1px solid rgba(16,185,129,.25)', color: '#10b981' },
-  badgeOff: { backgroundColor: 'rgba(239,68,68,.1)', border: '1px solid rgba(239,68,68,.25)', color: '#ef4444' },
+  badgeOn: { backgroundColor: COLORS.greenAlpha(.1), border: `1px solid ${COLORS.greenAlpha(.25)}`, color: COLORS.green },
+  badgeOff: { backgroundColor: COLORS.redAlpha(.1), border: `1px solid ${COLORS.redAlpha(.25)}`, color: COLORS.red },
   dot: { width: 6, height: 6, borderRadius: '50%' } as React.CSSProperties,
-  dotOn: { backgroundColor: '#10b981', animation: 'statusPulse 2s ease infinite' },
-  dotOff: { backgroundColor: '#ef4444' },
+  dotOn: { backgroundColor: COLORS.green, animation: 'statusPulse 2s ease infinite' },
+  dotOff: { backgroundColor: COLORS.red },
   btn: {
     background: 'none', border: '1px solid transparent', borderRadius: 4,
-    color: '#6b7280', cursor: 'pointer', fontSize: 13, padding: '4px 8px',
-    fontFamily: 'Consolas, monospace', transition: 'all .15s',
+    color: COLORS.textDim, cursor: 'pointer', fontSize: 13, padding: '4px 8px',
+    fontFamily: FONT, transition: 'all .15s',
     WebkitAppRegion: 'no-drag',
   } as React.CSSProperties,
   winBtn: {
-    background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer',
+    background: 'none', border: 'none', color: COLORS.textDim, cursor: 'pointer',
     fontSize: 14, padding: '4px 10px', transition: 'color .15s',
     WebkitAppRegion: 'no-drag',
   } as React.CSSProperties,
@@ -112,18 +113,19 @@ export default function TopBar({ connected, currentPage, onDetach }: TopBarProps
 
   useEffect(() => {
     if (!connected) return;
+    let mounted = true;
     const fetchMetrics = () => {
       request('system', 'system_info').then(r => {
-        if (r.payload) setMetrics(r.payload as SystemMetrics);
-      }).catch(() => {});
+        if (mounted && r.payload) setMetrics(r.payload as SystemMetrics);
+      }).catch(err => console.warn('[TopBar] metrics error:', err instanceof Error ? err.message : err));
     };
     fetchMetrics();
     intervalRef.current = window.setInterval(fetchMetrics, INTERVALS.metrics);
-    return () => clearInterval(intervalRef.current);
+    return () => { mounted = false; clearInterval(intervalRef.current); };
   }, [connected, request]);
 
   const detachable = ['dashboard', 'trading', 'voice'].includes(currentPage);
-  const api = (window as any).electronAPI;
+  const api = window.electronAPI;
 
   return (
     <>
@@ -136,14 +138,14 @@ export default function TopBar({ connected, currentPage, onDetach }: TopBarProps
         <div style={{ display: 'flex', gap: 6, marginLeft: 16, WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
           {metrics && (
             <>
-              <MetricChip label="CPU" value={`${Math.round(metrics.cpu_percent)}`} unit="%" color={metrics.cpu_percent > 80 ? '#ef4444' : metrics.cpu_percent > 50 ? '#f97316' : '#10b981'} />
-              <MetricChip label="RAM" value={`${Math.round(metrics.memory?.percent || 0)}`} unit="%" color={(metrics.memory?.percent || 0) > 85 ? '#ef4444' : '#3b82f6'} />
+              <MetricChip label="CPU" value={`${Math.round(metrics.cpu_percent)}`} unit="%" color={metrics.cpu_percent > 80 ? COLORS.red : metrics.cpu_percent > 50 ? COLORS.orange : COLORS.green} />
+              <MetricChip label="RAM" value={`${Math.round(metrics.memory?.percent || 0)}`} unit="%" color={(metrics.memory?.percent || 0) > 85 ? COLORS.red : COLORS.blue} />
             </>
           )}
-          <MetricChip label="NODES" value={`${onlineCount}/${nodes.length || '?'}`} unit="" color={onlineCount > 0 ? '#10b981' : '#ef4444'} />
+          <MetricChip label="NODES" value={`${onlineCount}/${nodes.length || '?'}`} unit="" color={onlineCount > 0 ? COLORS.green : COLORS.red} />
           {clock && (
             <span style={{
-              fontSize: 10, color: '#4b5563', fontFamily: 'Consolas, monospace',
+              fontSize: 10, color: COLORS.textDimmer, fontFamily: 'Consolas, monospace',
               fontWeight: 600, letterSpacing: 1, padding: '2px 6px',
             } as React.CSSProperties}>{clock}</span>
           )}
@@ -153,7 +155,7 @@ export default function TopBar({ connected, currentPage, onDetach }: TopBarProps
 
         {detachable && onDetach && (
           <button
-            style={{ ...s.btn, ...(hovered === 'detach' ? { borderColor: '#f97316', color: '#f97316' } : {}) }}
+            style={{ ...s.btn, ...(hovered === 'detach' ? { borderColor: COLORS.orange, color: COLORS.orange } : {}) }}
             onClick={onDetach}
             onMouseEnter={() => setHovered('detach')}
             onMouseLeave={() => setHovered('')}
@@ -169,15 +171,15 @@ export default function TopBar({ connected, currentPage, onDetach }: TopBarProps
         </span>
 
         {/* Window controls */}
-        <button style={{ ...s.winBtn, ...(hovered === 'min' ? { color: '#f97316' } : {}) }}
+        <button style={{ ...s.winBtn, ...(hovered === 'min' ? { color: COLORS.orange } : {}) }}
           onClick={() => api?.minimize?.()} onMouseEnter={() => setHovered('min')} onMouseLeave={() => setHovered('')}>
           &mdash;
         </button>
-        <button style={{ ...s.winBtn, ...(hovered === 'max' ? { color: '#f97316' } : {}) }}
+        <button style={{ ...s.winBtn, ...(hovered === 'max' ? { color: COLORS.orange } : {}) }}
           onClick={() => api?.maximize?.()} onMouseEnter={() => setHovered('max')} onMouseLeave={() => setHovered('')}>
           &#9633;
         </button>
-        <button style={{ ...s.winBtn, ...(hovered === 'close' ? { color: '#ef4444' } : {}) }}
+        <button style={{ ...s.winBtn, ...(hovered === 'close' ? { color: COLORS.red } : {}) }}
           onClick={() => api?.close?.()} onMouseEnter={() => setHovered('close')} onMouseLeave={() => setHovered('')}>
           &#10005;
         </button>

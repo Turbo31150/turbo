@@ -30,7 +30,7 @@ def run_powershell(command: str, timeout: int = 60) -> dict[str, Any]:
         }
     except subprocess.TimeoutExpired:
         return {"success": False, "stdout": "", "stderr": "Timeout", "exit_code": -1}
-    except Exception as e:
+    except OSError as e:
         return {"success": False, "stdout": "", "stderr": str(e), "exit_code": -1}
 
 
@@ -38,6 +38,14 @@ def _ps(cmd: str, timeout: int = 15) -> str:
     """Quick PowerShell command, returns stdout or error string."""
     r = run_powershell(cmd, timeout)
     return r["stdout"] if r["success"] else f"ERREUR: {r['stderr']}"
+
+
+def _sq(s: str) -> str:
+    """Escape a string for safe embedding in PowerShell single-quoted strings.
+
+    In PS, single-quoted strings only need '' to represent a literal '.
+    """
+    return s.replace("'", "''")
 
 
 def _ps_json(cmd: str, timeout: int = 15) -> Any:
@@ -91,7 +99,7 @@ def get_system_info() -> dict[str, str]:
         info["ram_total_gb"] = str(total_gb)
         info["ram_available_gb"] = str(avail_gb)
         info["ram_usage_pct"] = str(mem.dwMemoryLoad)
-    except Exception:
+    except (OSError, ValueError):
         info["ram"] = "unknown"
 
     # Disk free via ctypes (fast)
@@ -109,7 +117,7 @@ def get_system_info() -> dict[str, str]:
                     total_gb = round(total.value / (1024**3), 1)
                     disks.append(f"{letter}: {free_gb}/{total_gb}GB free")
         info["disks"] = "; ".join(disks)
-    except Exception:
+    except (OSError, ValueError):
         info["disks"] = "unknown"
 
     # GPU via quick PowerShell (single command, fast)
@@ -142,25 +150,25 @@ def get_network_info() -> str:
 def open_application(name: str, args: str = "") -> str:
     """Open an application by name or path."""
     if args:
-        return _ps(f"Start-Process '{name}' -ArgumentList '{args}' -ErrorAction SilentlyContinue; 'OK'")
-    return _ps(f"Start-Process '{name}' -ErrorAction SilentlyContinue; 'OK'")
+        return _ps(f"Start-Process '{_sq(name)}' -ArgumentList '{_sq(args)}' -ErrorAction SilentlyContinue; 'OK'")
+    return _ps(f"Start-Process '{_sq(name)}' -ErrorAction SilentlyContinue; 'OK'")
 
 
 def close_application(name: str) -> str:
     """Close an application by process name."""
-    return _ps(f"Stop-Process -Name '{name}' -Force -ErrorAction SilentlyContinue; 'Ferme: {name}'")
+    return _ps(f"Stop-Process -Name '{_sq(name)}' -Force -ErrorAction SilentlyContinue; 'Ferme: {_sq(name)}'")
 
 
 def open_url(url: str, browser: str = "chrome") -> str:
     """Open a URL in the specified browser."""
-    return _ps(f"Start-Process '{browser}' '{url}' -ErrorAction SilentlyContinue; 'OK'")
+    return _ps(f"Start-Process '{_sq(browser)}' '{_sq(url)}' -ErrorAction SilentlyContinue; 'OK'")
 
 
 def list_installed_apps(filter_name: str = "") -> str:
     """List installed applications."""
     cmd = "Get-ItemProperty HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | Select-Object DisplayName, DisplayVersion | Where-Object { $_.DisplayName -ne $null }"
     if filter_name:
-        cmd += f" | Where-Object {{ $_.DisplayName -match '{filter_name}' }}"
+        cmd += f" | Where-Object {{ $_.DisplayName -match '{_sq(filter_name)}' }}"
     cmd += " | Select-Object -First 30 | Format-Table -AutoSize | Out-String"
     return _ps(cmd, timeout=20)
 
@@ -173,7 +181,7 @@ def list_processes(filter_name: str | None = None) -> list[dict[str, Any]]:
     """List running processes, optionally filtered."""
     cmd = "Get-Process"
     if filter_name:
-        cmd += f" -Name '*{filter_name}*' -ErrorAction SilentlyContinue"
+        cmd += f" -Name '*{_sq(filter_name)}*' -ErrorAction SilentlyContinue"
     cmd += " | Select-Object -First 50 Name, Id, CPU, WorkingSet64"
     data = _ps_json(cmd)
     if isinstance(data, dict):
@@ -187,7 +195,7 @@ def kill_process(name_or_pid: str) -> str:
     """Stop a process by name or PID."""
     if name_or_pid.isdigit():
         return _ps(f"Stop-Process -Id {name_or_pid} -Force -ErrorAction SilentlyContinue; 'Processus {name_or_pid} arrete'")
-    return _ps(f"Stop-Process -Name '{name_or_pid}' -Force -ErrorAction SilentlyContinue; '{name_or_pid} arrete'")
+    return _ps(f"Stop-Process -Name '{_sq(name_or_pid)}' -Force -ErrorAction SilentlyContinue; '{_sq(name_or_pid)} arrete'")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -204,30 +212,33 @@ def list_windows() -> str:
 
 def focus_window(title_part: str) -> str:
     """Bring a window to front by partial title match."""
+    safe = _sq(title_part).replace('"', '`"')
     return _ps(
         f"Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; "
         f"public class Win {{ [DllImport(\"user32.dll\")] public static extern bool SetForegroundWindow(IntPtr hWnd); }}'; "
-        f"$p = Get-Process | Where-Object {{ $_.MainWindowTitle -match \"{title_part}\" }} | Select-Object -First 1; "
+        f"$p = Get-Process | Where-Object {{ $_.MainWindowTitle -match \"{safe}\" }} | Select-Object -First 1; "
         f"if ($p) {{ [Win]::SetForegroundWindow($p.MainWindowHandle); 'Focus: ' + $p.MainWindowTitle }} else {{ 'Fenetre non trouvee' }}"
     )
 
 
 def minimize_window(title_part: str) -> str:
     """Minimize a window by partial title match."""
+    safe = _sq(title_part).replace('"', '`"')
     return _ps(
         f"Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; "
         f"public class Win {{ [DllImport(\"user32.dll\")] public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow); }}'; "
-        f"$p = Get-Process | Where-Object {{ $_.MainWindowTitle -match \"{title_part}\" }} | Select-Object -First 1; "
+        f"$p = Get-Process | Where-Object {{ $_.MainWindowTitle -match \"{safe}\" }} | Select-Object -First 1; "
         f"if ($p) {{ [Win]::ShowWindow($p.MainWindowHandle, 6); 'Minimise' }} else {{ 'Non trouve' }}"
     )
 
 
 def maximize_window(title_part: str) -> str:
     """Maximize a window by partial title match."""
+    safe = _sq(title_part).replace('"', '`"')
     return _ps(
         f"Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; "
         f"public class Win {{ [DllImport(\"user32.dll\")] public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow); }}'; "
-        f"$p = Get-Process | Where-Object {{ $_.MainWindowTitle -match \"{title_part}\" }} | Select-Object -First 1; "
+        f"$p = Get-Process | Where-Object {{ $_.MainWindowTitle -match \"{safe}\" }} | Select-Object -First 1; "
         f"if ($p) {{ [Win]::ShowWindow($p.MainWindowHandle, 3); 'Maximise' }} else {{ 'Non trouve' }}"
     )
 
@@ -240,16 +251,15 @@ def send_keys(keys: str) -> str:
     """Send keyboard input to the active window. Uses SendKeys syntax."""
     return _ps(
         f"Add-Type -AssemblyName System.Windows.Forms; "
-        f"[System.Windows.Forms.SendKeys]::SendWait('{keys}'); 'Touches envoyees'"
+        f"[System.Windows.Forms.SendKeys]::SendWait('{_sq(keys)}'); 'Touches envoyees'"
     )
 
 
 def type_text(text: str) -> str:
     """Type text into the active window character by character."""
-    safe = text.replace("'", "''")
     return _ps(
         f"Add-Type -AssemblyName System.Windows.Forms; "
-        f"[System.Windows.Forms.SendKeys]::SendWait('{safe}'); 'Texte tape'"
+        f"[System.Windows.Forms.SendKeys]::SendWait('{_sq(text)}'); 'Texte tape'"
     )
 
 
@@ -303,8 +313,7 @@ def clipboard_get() -> str:
 
 def clipboard_set(text: str) -> str:
     """Set clipboard text content."""
-    safe = text.replace("'", "''")
-    return _ps(f"Set-Clipboard -Value '{safe}'; 'Clipboard mis a jour'")
+    return _ps(f"Set-Clipboard -Value '{_sq(text)}'; 'Clipboard mis a jour'")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -313,13 +322,13 @@ def clipboard_set(text: str) -> str:
 
 def open_folder(path: str) -> str:
     """Open a folder in Explorer."""
-    return _ps(f"Start-Process explorer.exe -ArgumentList '{path}'; 'Dossier ouvert: {path}'")
+    return _ps(f"Start-Process explorer.exe -ArgumentList '{_sq(path)}'; 'Dossier ouvert: {_sq(path)}'")
 
 
 def list_folder(path: str, pattern: str = "*") -> str:
     """List contents of a folder."""
     return _ps(
-        f"Get-ChildItem '{path}' -Filter '{pattern}' | "
+        f"Get-ChildItem '{_sq(path)}' -Filter '{_sq(pattern)}' | "
         f"Select-Object Mode, LastWriteTime, Length, Name | Format-Table -AutoSize | Out-String",
         timeout=10
     )
@@ -327,44 +336,43 @@ def list_folder(path: str, pattern: str = "*") -> str:
 
 def create_folder(path: str) -> str:
     """Create a new folder."""
-    return _ps(f"New-Item -ItemType Directory -Force -Path '{path}' | Select-Object FullName | Out-String")
+    return _ps(f"New-Item -ItemType Directory -Force -Path '{_sq(path)}' | Select-Object FullName | Out-String")
 
 
 def copy_item(source: str, dest: str) -> str:
     """Copy a file or folder."""
-    return _ps(f"Copy-Item '{source}' '{dest}' -Recurse -Force; 'Copie OK: {source} -> {dest}'")
+    return _ps(f"Copy-Item '{_sq(source)}' '{_sq(dest)}' -Recurse -Force; 'Copie OK: {_sq(source)} -> {_sq(dest)}'")
 
 
 def move_item(source: str, dest: str) -> str:
     """Move a file or folder."""
-    return _ps(f"Move-Item '{source}' '{dest}' -Force; 'Deplacement OK: {source} -> {dest}'")
+    return _ps(f"Move-Item '{_sq(source)}' '{_sq(dest)}' -Force; 'Deplacement OK: {_sq(source)} -> {_sq(dest)}'")
 
 
 def delete_item(path: str) -> str:
     """Delete a file or folder (to recycle bin)."""
     return _ps(
         f"Add-Type -AssemblyName Microsoft.VisualBasic; "
-        f"[Microsoft.VisualBasic.FileIO.FileSystem]::DeleteFile('{path}', "
+        f"[Microsoft.VisualBasic.FileIO.FileSystem]::DeleteFile('{_sq(path)}', "
         f"'UIOption.OnlyErrorDialogs', 'RecycleOption.SendToRecycleBin'); "
-        f"'Supprime (corbeille): {path}'"
+        f"'Supprime (corbeille): {_sq(path)}'"
     )
 
 
 def read_file(path: str, lines: int = 50) -> str:
     """Read text file content."""
-    return _ps(f"Get-Content '{path}' -TotalCount {lines} -ErrorAction SilentlyContinue | Out-String")
+    return _ps(f"Get-Content '{_sq(path)}' -TotalCount {int(lines)} -ErrorAction SilentlyContinue | Out-String")
 
 
 def write_file(path: str, content: str) -> str:
     """Write text content to a file."""
-    safe = content.replace("'", "''")
-    return _ps(f"Set-Content '{path}' -Value '{safe}'; 'Ecrit: {path}'")
+    return _ps(f"Set-Content '{_sq(path)}' -Value '{_sq(content)}'; 'Ecrit: {_sq(path)}'")
 
 
 def search_files(path: str, pattern: str) -> str:
     """Search for files recursively."""
     return _ps(
-        f"Get-ChildItem '{path}' -Recurse -Filter '{pattern}' -ErrorAction SilentlyContinue | "
+        f"Get-ChildItem '{_sq(path)}' -Recurse -Filter '{_sq(pattern)}' -ErrorAction SilentlyContinue | "
         f"Select-Object -First 20 FullName | Out-String",
         timeout=30
     )
@@ -397,13 +405,14 @@ def screenshot(filename: str = "") -> str:
     """Take a screenshot and save to Desktop."""
     if not filename:
         filename = "capture_$(Get-Date -Format 'yyyyMMdd_HHmmss').png"
+    safe_fn = _sq(filename)
     return _ps(
         f"Add-Type -AssemblyName System.Windows.Forms; Add-Type -AssemblyName System.Drawing; "
         f"$screen = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds; "
         f"$bmp = New-Object System.Drawing.Bitmap($screen.Width, $screen.Height); "
         f"$g = [System.Drawing.Graphics]::FromImage($bmp); "
         f"$g.CopyFromScreen($screen.Location, [System.Drawing.Point]::Empty, $screen.Size); "
-        f"$path = [Environment]::GetFolderPath('Desktop') + '\\{filename}'; "
+        f"$path = [Environment]::GetFolderPath('Desktop') + '\\{safe_fn}'; "
         f"$bmp.Save($path); $path"
     )
 
@@ -423,7 +432,7 @@ def get_screen_resolution() -> str:
 
 def check_service(name: str) -> dict[str, str]:
     """Check a Windows service status."""
-    data = _ps_json(f"Get-Service -Name '{name}' -ErrorAction SilentlyContinue | Select-Object Name, Status, DisplayName")
+    data = _ps_json(f"Get-Service -Name '{_sq(name)}' -ErrorAction SilentlyContinue | Select-Object Name, Status, DisplayName")
     if isinstance(data, dict):
         return data
     return {"Name": name, "Status": "Unknown"}
@@ -433,19 +442,19 @@ def list_services(filter_name: str = "") -> str:
     """List Windows services."""
     cmd = "Get-Service"
     if filter_name:
-        cmd += f" -Name '*{filter_name}*' -ErrorAction SilentlyContinue"
+        cmd += f" -Name '*{_sq(filter_name)}*' -ErrorAction SilentlyContinue"
     cmd += " | Select-Object -First 30 Status, Name, DisplayName | Format-Table -AutoSize | Out-String"
     return _ps(cmd)
 
 
 def start_service(name: str) -> str:
     """Start a Windows service."""
-    return _ps(f"Start-Service '{name}' -ErrorAction SilentlyContinue; 'Service {name} demarre'")
+    return _ps(f"Start-Service '{_sq(name)}' -ErrorAction SilentlyContinue; 'Service {_sq(name)} demarre'")
 
 
 def stop_service(name: str) -> str:
     """Stop a Windows service."""
-    return _ps(f"Stop-Service '{name}' -Force -ErrorAction SilentlyContinue; 'Service {name} arrete'")
+    return _ps(f"Stop-Service '{_sq(name)}' -Force -ErrorAction SilentlyContinue; 'Service {_sq(name)} arrete'")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -481,8 +490,8 @@ def sleep_pc() -> str:
 
 def notify_windows(title: str, message: str) -> bool:
     """Show a Windows toast notification."""
-    safe_title = title.replace("'", "''")
-    safe_msg = message.replace("'", "''")
+    safe_title = _sq(title)
+    safe_msg = _sq(message)
     r = run_powershell(
         f"[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, "
         f"ContentType = WindowsRuntime] > $null; "
@@ -516,7 +525,7 @@ def get_ip_address() -> str:
 
 def ping_host(host: str) -> str:
     """Ping a host."""
-    return _ps(f"Test-Connection '{host}' -Count 2 -ErrorAction SilentlyContinue | Select-Object Address, ResponseTime | Format-Table | Out-String", timeout=15)
+    return _ps(f"Test-Connection '{_sq(host)}' -Count 2 -ErrorAction SilentlyContinue | Select-Object Address, ResponseTime | Format-Table | Out-String", timeout=15)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -526,15 +535,19 @@ def ping_host(host: str) -> str:
 def registry_get(path: str, name: str = "") -> str:
     """Read a registry value."""
     if name:
-        return _ps(f"Get-ItemPropertyValue '{path}' -Name '{name}' -ErrorAction SilentlyContinue")
-    return _ps(f"Get-ItemProperty '{path}' -ErrorAction SilentlyContinue | Out-String")
+        return _ps(f"Get-ItemPropertyValue '{_sq(path)}' -Name '{_sq(name)}' -ErrorAction SilentlyContinue")
+    return _ps(f"Get-ItemProperty '{_sq(path)}' -ErrorAction SilentlyContinue | Out-String")
 
 
 def registry_set(path: str, name: str, value: str, reg_type: str = "String") -> str:
     """Set a registry value."""
+    # Validate reg_type to prevent injection in unquoted position
+    allowed_types = {"String", "DWord", "QWord", "Binary", "ExpandString", "MultiString"}
+    if reg_type not in allowed_types:
+        return f"ERREUR: type registre invalide: {reg_type}"
     return _ps(
-        f"Set-ItemProperty '{path}' -Name '{name}' -Value '{value}' -Type {reg_type} "
-        f"-ErrorAction SilentlyContinue; 'Registry mis a jour: {path}\\{name}'"
+        f"Set-ItemProperty '{_sq(path)}' -Name '{_sq(name)}' -Value '{_sq(value)}' -Type {reg_type} "
+        f"-ErrorAction SilentlyContinue; 'Registry mis a jour: {_sq(path)}\\{_sq(name)}'"
     )
 
 
@@ -546,7 +559,7 @@ def list_scheduled_tasks(filter_name: str = "") -> str:
     """List scheduled tasks."""
     cmd = "Get-ScheduledTask"
     if filter_name:
-        cmd += f" | Where-Object {{ $_.TaskName -match '{filter_name}' }}"
+        cmd += f" | Where-Object {{ $_.TaskName -match '{_sq(filter_name)}' }}"
     cmd += " | Select-Object -First 20 State, TaskName | Format-Table -AutoSize | Out-String"
     return _ps(cmd, timeout=15)
 

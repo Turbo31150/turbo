@@ -2,7 +2,8 @@
 # TEST M2 — LM Studio Native API /api/v1/chat
 # ═══════════════════════════════════════════════════════════════
 
-$M2_Headers = @{ Authorization = "Bearer LMSTUDIO_KEY_M2_REDACTED" }
+$_M2_KEY = if ($env:LM_STUDIO_2_API_KEY) { $env:LM_STUDIO_2_API_KEY } elseif ($env:LM_STUDIO_2_KEY) { $env:LM_STUDIO_2_KEY } else { "" }
+$M2_Headers = @{ Authorization = "Bearer $_M2_KEY" }
 
 # Check M2 models
 Write-Host "=== M2 MODELS ==="

@@ -11,6 +11,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='repla
 import httpx
 import asyncio
 import json
+import os
 import time
 import subprocess
 from datetime import datetime
@@ -21,22 +22,22 @@ from collections import defaultdict
 LMSTUDIO_MODELS = {
     "M1-qwen3": {
         "url": "http://10.5.0.2:1234/v1/chat/completions",
-        "key": "LMSTUDIO_KEY_M1_REDACTED",
+        "key": os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", "")),
         "model": "qwen3-8b"
     },
     "M1-deepseek-r1": {
         "url": "http://10.5.0.2:1234/v1/chat/completions",
-        "key": "LMSTUDIO_KEY_M1_REDACTED",
+        "key": os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", "")),
         "model": "deepseek-r1-0528-qwen3-8b"
     },
     "M2-coder": {
         "url": "http://192.168.1.26:1234/v1/chat/completions",
-        "key": "LMSTUDIO_KEY_M2_REDACTED",
+        "key": os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", "")),
         "model": "deepseek-coder-v2-lite-instruct"
     },
     "M3-mistral": {
         "url": "http://192.168.1.113:1234/v1/chat/completions",
-        "key": "LMSTUDIO_KEY_M3_REDACTED",
+        "key": os.getenv("LM_STUDIO_3_API_KEY", os.getenv("LM_STUDIO_3_KEY", "")),
         "model": "mistral-7b-instruct-v0.3"
     },
 }

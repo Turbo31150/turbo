@@ -19,12 +19,13 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import os
 import sys
 import uuid
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -56,9 +57,14 @@ CHANNELS = {"cluster", "trading", "voice", "chat", "files", "system", "dictionar
 # ── FastAPI app ──────────────────────────────────────────────────────────────
 app = FastAPI(title="JARVIS Desktop WS", version="1.0.0")
 
+_CORS_ORIGINS = os.getenv(
+    "JARVIS_CORS_ORIGINS",
+    "http://127.0.0.1:5173,http://localhost:5173,http://127.0.0.1:9742",
+).split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -104,12 +110,18 @@ async def api_dictionary_stats():
     return JSONResponse(result)
 
 
-from fastapi import Request
+async def _parse_json(request: Request) -> dict:
+    """Parse JSON body with proper error handling."""
+    try:
+        return await _parse_json(request)
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise HTTPException(status_code=400, detail=f"Invalid JSON: {exc}")
+
 
 @app.post("/api/dictionary/command")
 async def api_add_command(request: Request):
     """Add a new command to pipeline_dictionary."""
-    body = await request.json()
+    body = await _parse_json(request)
     result = await handle_dictionary_request("add_command", body)
     return JSONResponse(result, status_code=201 if result.get("ok") else 400)
 
@@ -117,7 +129,7 @@ async def api_add_command(request: Request):
 @app.put("/api/dictionary/command/{record_id}")
 async def api_edit_command(record_id: int, request: Request):
     """Edit an existing command."""
-    body = await request.json()
+    body = await _parse_json(request)
     body["id"] = record_id
     result = await handle_dictionary_request("edit_command", body)
     return JSONResponse(result, status_code=200 if result.get("ok") else 400)
@@ -133,7 +145,7 @@ async def api_delete_command(record_id: int):
 @app.post("/api/dictionary/chain")
 async def api_add_chain(request: Request):
     """Add a new domino chain."""
-    body = await request.json()
+    body = await _parse_json(request)
     result = await handle_dictionary_request("add_chain", body)
     return JSONResponse(result, status_code=201 if result.get("ok") else 400)
 
@@ -148,7 +160,7 @@ async def api_delete_chain(chain_id: int):
 @app.post("/api/dictionary/correction")
 async def api_add_correction(request: Request):
     """Add or update a voice correction."""
-    body = await request.json()
+    body = await _parse_json(request)
     result = await handle_dictionary_request("add_correction", body)
     return JSONResponse(result, status_code=201 if result.get("ok") else 400)
 
@@ -186,7 +198,7 @@ async def api_resolve_chain(trigger: str):
 @app.post("/api/dominos/execute")
 async def api_execute_domino(request: Request):
     """Execute a domino by ID or voice text."""
-    body = await request.json()
+    body = await _parse_json(request)
     result = await handle_system_request("execute_domino", body)
     return JSONResponse(result)
 
@@ -194,7 +206,7 @@ async def api_execute_domino(request: Request):
 @app.post("/api/dominos/execute-chain")
 async def api_execute_chain(request: Request):
     """Execute a DB chain by trigger."""
-    body = await request.json()
+    body = await _parse_json(request)
     result = await handle_system_request("execute_chain", body)
     return JSONResponse(result)
 
@@ -263,6 +275,14 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             raw = await websocket.receive_text()
+            # Limit message size to prevent DoS (100KB)
+            if len(raw) > 100_000:
+                await websocket.send_json({
+                    "id": None, "type": "response", "channel": None,
+                    "action": None, "payload": None,
+                    "error": "message too large (max 100KB)",
+                })
+                continue
             try:
                 msg = json.loads(raw)
             except json.JSONDecodeError:
@@ -337,12 +357,12 @@ async def websocket_endpoint(websocket: WebSocket):
                         "payload": None,
                         "error": str(exc),
                     })
-                except (WebSocketDisconnect, Exception):
+                except (WebSocketDisconnect, RuntimeError, OSError):
                     raise WebSocketDisconnect(code=1006)
 
     except WebSocketDisconnect:
         logger.info("WebSocket client disconnected")
-    except Exception as exc:
+    except (RuntimeError, OSError, ValueError, json.JSONDecodeError) as exc:
         logger.error("WebSocket error: %s", exc)
     finally:
         _connected_clients.discard(websocket)
@@ -433,8 +453,8 @@ async def _push_domino_events(websocket: WebSocket, result: dict) -> None:
                         "steps": logs["logs"],
                     },
                 })
-    except Exception:
-        pass
+    except (OSError, asyncio.TimeoutError, KeyError, WebSocketDisconnect) as exc:
+        logger.debug("domino_steps push error: %s", exc)
 
 
 # ── Background push loops ───────────────────────────────────────────────────
@@ -498,22 +518,22 @@ def _start_global_ptt_hook(loop: asyncio.AbstractEventLoop) -> None:
     logger.info("Global PTT hook started (Right-CTRL)")
 
 
-async def _broadcast_ptt(event_name: str) -> None:
-    """Broadcast PTT event to all connected WebSocket clients."""
-    msg = {
-        "type": "event",
-        "channel": "voice",
-        "event": event_name,
-        "payload": {"key": "ctrl_right", "source": "global_hook"},
-    }
+async def _broadcast_event(channel: str, event: str, payload: dict[str, Any]) -> None:
+    """Broadcast an event to all connected WebSocket clients with timeout."""
+    msg = {"type": "event", "channel": channel, "event": event, "payload": payload}
     dead: list[WebSocket] = []
     for client in _connected_clients:
         try:
-            await client.send_json(msg)
-        except Exception:
+            await asyncio.wait_for(client.send_json(msg), timeout=2.0)
+        except (ConnectionError, OSError, asyncio.TimeoutError):
             dead.append(client)
     for d in dead:
         _connected_clients.discard(d)
+
+
+async def _broadcast_ptt(event_name: str) -> None:
+    """Broadcast PTT event to all connected WebSocket clients."""
+    await _broadcast_event("voice", event_name, {"key": "ctrl_right", "source": "global_hook"})
 
 
 # ── Wake Word Detector (OpenWakeWord "jarvis") ───────────────────────────────
@@ -549,20 +569,7 @@ def _start_wake_word(loop: asyncio.AbstractEventLoop) -> None:
 
 async def _broadcast_wake() -> None:
     """Broadcast wake word detection to all connected clients."""
-    msg = {
-        "type": "event",
-        "channel": "voice",
-        "event": "wake_detected",
-        "payload": {"word": "jarvis", "source": "openwakeword"},
-    }
-    dead: list[WebSocket] = []
-    for client in _connected_clients:
-        try:
-            await client.send_json(msg)
-        except Exception:
-            dead.append(client)
-    for d in dead:
-        _connected_clients.discard(d)
+    await _broadcast_event("voice", "wake_detected", {"word": "jarvis", "source": "openwakeword"})
 
 
 # ── REST endpoint for wake word control ──
@@ -598,11 +605,13 @@ async def _setup_ptt_and_wake():
 
 def main():
     import uvicorn
-    logger.info("Starting JARVIS WebSocket server on 127.0.0.1:9742")
+    host = os.getenv("JARVIS_WS_HOST", "127.0.0.1")
+    port = int(os.getenv("JARVIS_WS_PORT", "9742"))
+    logger.info("Starting JARVIS WebSocket server on %s:%d", host, port)
     uvicorn.run(
         "python_ws.server:app",
-        host="127.0.0.1",
-        port=9742,
+        host=host,
+        port=port,
         log_level="info",
         reload=False,
     )

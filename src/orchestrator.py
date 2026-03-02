@@ -3,15 +3,17 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import sys
 from typing import Any
 
 import httpx
 
+logger = logging.getLogger("jarvis.orchestrator")
+
 from claude_agent_sdk import (
     ClaudeSDKClient,
     ClaudeAgentOptions,
-    HookMatcher,
     HookContext,
     AssistantMessage,
     ResultMessage,
@@ -19,9 +21,10 @@ from claude_agent_sdk import (
     ToolUseBlock,
 )
 
-from src.config import config, JARVIS_VERSION
+from src.config import config, JARVIS_VERSION, PATHS, prepare_lmstudio_input
+
+_TURBO_DIR_FWD = str(PATHS.get("turbo", "F:/BUREAU/turbo"))
 from src.agents import JARVIS_AGENTS
-from src.output import JARVIS_OUTPUT_SCHEMA
 
 
 SYSTEM_PROMPT = f"""\
@@ -288,7 +291,7 @@ async def run_once(prompt: str, cwd: str | None = None) -> str | None:
     """Single-shot query with Commander pipeline: classify -> decompose -> enrich -> dispatch."""
     from src.commander import classify_task, decompose_task, build_commander_enrichment, format_commander_header
 
-    options = build_options(cwd or "F:/BUREAU/turbo")
+    options = build_options(cwd or _TURBO_DIR_FWD)
 
     # Commander pipeline: classify + decompose + enrich
     classification = await classify_task(prompt)
@@ -498,10 +501,7 @@ async def _local_ia_analyze(query: str, timeout: float = 10.0) -> str | None:
         for attempt in range(2):
             try:
                 client = await _get_client()
-                # M1 Qwen3: /nothink prefix
-                input_text = query
-                if node.name == "M1" and "qwen" in node.default_model.lower():
-                    input_text = "/nothink\n" + query
+                input_text = prepare_lmstudio_input(query, node.name, node.default_model)
                 r = await client.post(f"{node.url}/api/v1/chat", json={
                     "model": node.default_model,
                     "input": input_text,
@@ -515,7 +515,8 @@ async def _local_ia_analyze(query: str, timeout: float = 10.0) -> str | None:
                 from src.tools import extract_lms_output
                 content = extract_lms_output(r.json()).strip()
                 return content
-            except Exception:
+            except (httpx.HTTPError, asyncio.TimeoutError, OSError, KeyError) as exc:
+                logger.debug("_local_ia_analyze M1 attempt %d failed: %s", attempt, exc)
                 if attempt == 0:
                     await asyncio.sleep(0.5)
 
@@ -532,8 +533,8 @@ async def _local_ia_analyze(query: str, timeout: float = 10.0) -> str | None:
             }, timeout=timeout)
             r.raise_for_status()
             return r.json()["message"]["content"].strip()
-        except Exception:
-            pass
+        except (httpx.HTTPError, asyncio.TimeoutError, OSError, KeyError) as exc:
+            logger.debug("_local_ia_analyze OL1 fallback failed: %s", exc)
     return None
 
 
@@ -550,7 +551,7 @@ async def run_voice(cwd: str | None = None) -> None:
     """
     from src.voice import listen_voice, speak_text, HAS_KEYBOARD, PTT_KEY, check_microphone, start_whisper, stop_whisper
     from src.commands import correct_voice_text, match_command, format_commands_help
-    from src.executor import execute_command, execute_skill, process_voice_input, correct_with_ia
+    from src.executor import execute_command
     from src.voice_correction import full_correction_pipeline, VoiceSession, format_suggestions
     from src.skills import find_skill, load_skills, format_skills_list, suggest_next_actions, log_action
 
@@ -844,7 +845,7 @@ async def run_voice(cwd: str | None = None) -> None:
                 fr = "".join(rp).strip()
                 if fr:
                     await speak_text(fr[:500])
-            except Exception as e:
+            except (httpx.HTTPError, OSError, ValueError, KeyError, RuntimeError) as e:
                 print(f"\n  [ERREUR FREEFORM] {e}", flush=True)
                 await speak_text("Desole, une erreur s'est produite. Repete ta demande.")
 

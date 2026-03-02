@@ -6,7 +6,8 @@
 
 $LMS = "C:\Users\franc\.lmstudio\bin\lms.exe"
 $API = "http://10.5.0.2:1234"
-$AUTH_HEADERS = @{ Authorization = "Bearer LMSTUDIO_KEY_M1_REDACTED" }
+$_M1_KEY = if ($env:LM_STUDIO_1_KEY) { $env:LM_STUDIO_1_KEY } else { "LMSTUDIO_KEY_M1_REDACTED" }
+$AUTH_HEADERS = @{ Authorization = "Bearer $_M1_KEY" }
 $RESULTS_FILE = "F:\BUREAU\turbo\finetuning\benchmark_results.json"
 
 # Modeles a tester (exclure les blacklistes et trop gros)

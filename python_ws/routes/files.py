@@ -1,12 +1,11 @@
 """Files route — Upload, list, download, delete files."""
-import asyncio
 import base64
-import os
 import time
 from pathlib import Path
 from typing import Any
 
-UPLOAD_DIR = Path("F:/BUREAU/turbo/data/uploads")
+_TURBO_ROOT = Path(__file__).resolve().parent.parent.parent
+UPLOAD_DIR = _TURBO_ROOT / "data" / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
@@ -33,14 +32,17 @@ def _handle_upload(payload: dict) -> dict:
     if not name or not data_b64:
         return {"error": "Missing name or data"}
 
-    # Sanitize filename
-    safe_name = "".join(c for c in name if c.isalnum() or c in ".-_ ").strip()
+    # Sanitize filename — strip path traversal, leading dots, length limit
+    basename = name.rsplit("/", 1)[-1].rsplit("\\", 1)[-1]
+    safe_name = "".join(c for c in basename if c.isalnum() or c in ".-_ ").strip().lstrip(".")
     if not safe_name:
         safe_name = f"file_{int(time.time())}"
+    if len(safe_name) > 200:
+        safe_name = safe_name[:200]
 
     try:
         data = base64.b64decode(data_b64)
-    except Exception:
+    except (ValueError, base64.binascii.Error):
         return {"error": "Invalid base64 data"}
 
     if len(data) > MAX_FILE_SIZE:
@@ -74,19 +76,31 @@ def _list_uploads() -> dict:
     return {"files": files[:100]}
 
 
+def _safe_resolve(name: str) -> Path | None:
+    """Resolve filename within UPLOAD_DIR, blocking path traversal and symlinks."""
+    candidate = UPLOAD_DIR / name
+    # Block symlinks before resolving to prevent escaping UPLOAD_DIR
+    if candidate.is_symlink():
+        return None
+    filepath = candidate.resolve()
+    if not filepath.is_relative_to(UPLOAD_DIR.resolve()):
+        return None
+    return filepath
+
+
 def _handle_download(payload: dict) -> dict:
     """Download a file (return base64)."""
     name = payload.get("name", "")
     if not name:
         return {"error": "Missing filename"}
 
-    filepath = UPLOAD_DIR / name
-    if not filepath.exists() or not filepath.is_file():
+    filepath = _safe_resolve(name)
+    if not filepath or not filepath.exists() or not filepath.is_file():
         return {"error": "File not found"}
 
     data = filepath.read_bytes()
     return {
-        "name": name,
+        "name": filepath.name,
         "data": base64.b64encode(data).decode(),
         "size": len(data),
     }
@@ -98,9 +112,9 @@ def _handle_delete(payload: dict) -> dict:
     if not name:
         return {"error": "Missing filename"}
 
-    filepath = UPLOAD_DIR / name
-    if not filepath.exists():
+    filepath = _safe_resolve(name)
+    if not filepath or not filepath.exists():
         return {"error": "File not found"}
 
     filepath.unlink()
-    return {"deleted": True, "name": name}
+    return {"deleted": True, "name": filepath.name}

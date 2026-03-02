@@ -9,6 +9,7 @@ const HEALTH_POLL_INTERVAL = 500;
 const HEALTH_TIMEOUT = 30000;
 const MAX_RETRIES = 3;
 const PORT = 9742;
+const DEBUG = !app.isPackaged;
 
 // Resolve paths based on environment
 function resolveUvPath(): string {
@@ -41,6 +42,8 @@ export class PythonBridge {
   private ready = false;
   private retryCount = 0;
   private stopping = false;
+  private killTimer: ReturnType<typeof setTimeout> | null = null;
+  private restartTimer: ReturnType<typeof setTimeout> | null = null;
 
   async start(): Promise<void> {
     this.stopping = false;
@@ -49,7 +52,7 @@ export class PythonBridge {
     // Check if port is already in use (external server running)
     const portInUse = await this.checkPortInUse();
     if (portInUse) {
-      console.log('[PythonBridge] Port 9742 already in use — using existing server.');
+      if (DEBUG) console.log('[PythonBridge] Port 9742 already in use — using existing server.');
       this.ready = true;
       return;
     }
@@ -60,15 +63,22 @@ export class PythonBridge {
   stop(): void {
     this.stopping = true;
     this.ready = false;
+    if (this.restartTimer) { clearTimeout(this.restartTimer); this.restartTimer = null; }
+    if (this.killTimer) { clearTimeout(this.killTimer); this.killTimer = null; }
     if (this.process) {
-      console.log('[PythonBridge] Stopping Python process...');
+      if (DEBUG) console.log('[PythonBridge] Stopping Python process...');
       const proc = this.process;
       this.process = null;
+      proc.stdout?.removeAllListeners('data');
+      proc.stderr?.removeAllListeners('data');
+      proc.removeAllListeners('exit');
+      proc.removeAllListeners('error');
       proc.kill('SIGTERM');
       // Force kill after 5 seconds if still alive
-      setTimeout(() => {
+      this.killTimer = setTimeout(() => {
+        this.killTimer = null;
         if (!proc.killed) {
-          console.log('[PythonBridge] Force killing Python process...');
+          if (DEBUG) console.log('[PythonBridge] Force killing Python process...');
           proc.kill('SIGKILL');
         }
       }, 5000);
@@ -87,10 +97,11 @@ export class PythonBridge {
     return new Promise<void>((resolve, reject) => {
       const uvPath = resolveUvPath();
       const workDir = resolveWorkingDir();
-      console.log('[PythonBridge] Starting Python WS backend...');
-      console.log(`[PythonBridge] UV path: ${uvPath}`);
-      console.log(`[PythonBridge] Working dir: ${workDir}`);
-      console.log(`[PythonBridge] Packaged: ${app.isPackaged}`);
+      if (DEBUG) {
+        console.log('[PythonBridge] Starting Python WS backend...');
+        console.log(`[PythonBridge] UV path: ${uvPath}`);
+        console.log(`[PythonBridge] Working dir: ${workDir}`);
+      }
 
       this.process = spawn(uvPath, ['run', 'python', '-m', 'python_ws.server'], {
         cwd: workDir,
@@ -98,33 +109,38 @@ export class PythonBridge {
         env: { ...process.env },
       });
 
-      // Handle stdout
-      this.process.stdout?.on('data', (data: Buffer) => {
-        const lines = data.toString().trim().split('\n');
-        for (const line of lines) {
-          console.log(`[Python stdout] ${line}`);
-        }
-      });
+      // Handle stdout (only log in dev)
+      if (DEBUG) {
+        this.process.stdout?.on('data', (data: Buffer) => {
+          const lines = data.toString().trim().split('\n');
+          for (const line of lines) {
+            console.log(`[Python stdout] ${line}`);
+          }
+        });
+      }
 
-      // Handle stderr
-      this.process.stderr?.on('data', (data: Buffer) => {
-        const lines = data.toString().trim().split('\n');
-        for (const line of lines) {
-          console.error(`[Python stderr] ${line}`);
-        }
-      });
+      // Handle stderr (only log in dev — uvicorn logs go to stderr)
+      if (DEBUG) {
+        this.process.stderr?.on('data', (data: Buffer) => {
+          const lines = data.toString().trim().split('\n');
+          for (const line of lines) {
+            console.error(`[Python stderr] ${line}`);
+          }
+        });
+      }
 
       // Handle process exit
       this.process.on('exit', (code, signal) => {
-        console.log(`[PythonBridge] Python process exited with code=${code}, signal=${signal}`);
+        if (DEBUG) console.log(`[PythonBridge] Python process exited with code=${code}, signal=${signal}`);
         this.ready = false;
         this.process = null;
 
         // Auto-restart on crash if not intentionally stopping
         if (!this.stopping && this.retryCount < MAX_RETRIES) {
           this.retryCount++;
-          console.log(`[PythonBridge] Auto-restarting (attempt ${this.retryCount}/${MAX_RETRIES})...`);
-          setTimeout(() => {
+          if (DEBUG) console.log(`[PythonBridge] Auto-restarting (attempt ${this.retryCount}/${MAX_RETRIES})...`);
+          this.restartTimer = setTimeout(() => {
+            this.restartTimer = null;
             this.spawnProcess().catch((err) => {
               console.error('[PythonBridge] Restart failed:', err);
             });
@@ -145,7 +161,7 @@ export class PythonBridge {
         .then(() => {
           this.ready = true;
           this.retryCount = 0;
-          console.log('[PythonBridge] Python backend is ready.');
+          if (DEBUG) console.log('[PythonBridge] Python backend is ready.');
           resolve();
         })
         .catch((err) => {
@@ -184,7 +200,7 @@ export class PythonBridge {
           if (res.statusCode === 200) {
             // Consume response data to free up memory
             res.resume();
-            console.log('[PythonBridge] Health check passed.');
+            if (DEBUG) console.log('[PythonBridge] Health check passed.');
             resolve();
           } else {
             res.resume();

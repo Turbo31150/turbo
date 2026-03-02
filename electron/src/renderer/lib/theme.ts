@@ -30,12 +30,55 @@ export const COLORS = {
   purple: '#c084fc',
   yellow: '#f59e0b',
   pink: '#ec4899',
+  cyan: '#38bdf8',
+  amber: '#f59e0b',
 
   // Status
   online: '#10b981',
   offline: '#ef4444',
   degraded: '#f97316',
+
+  pinkDark: '#be185d',
+
+  // Overlays
+  overlay: 'rgba(0,0,0,.6)',
+  bgDarker: '#1a1a2e',
+
+  // Transparent / Alpha helpers
+  greenAlpha: (a: number) => `rgba(16,185,129,${a})`,
+  redAlpha: (a: number) => `rgba(239,68,68,${a})`,
+  orangeAlpha: (a: number) => `rgba(249,115,22,${a})`,
+  purpleAlpha: (a: number) => `rgba(192,132,252,${a})`,
+  blueAlpha: (a: number) => `rgba(59,130,246,${a})`,
+  pinkAlpha: (a: number) => `rgba(236,72,153,${a})`,
 } as const;
+
+// Agent/node color mapping for consistent visual identity
+export const NODE_COLORS: Record<string, string> = {
+  M1: '#38bdf8',       // cyan
+  M2: '#a78bfa',       // purple
+  M3: '#fb923c',       // orange
+  OL1: '#34d399',      // emerald
+  GEMINI: '#fbbf24',   // amber
+  CLAUDE: '#c084fc',   // purple
+  LOCAL: '#6b7280',    // gray
+  // Cloud agents (MAO cluster)
+  'GPT-OSS': '#f43f5e',    // rose
+  'DEVSTRAL-2': '#8b5cf6', // violet
+  'DEVSTRAL': '#8b5cf6',   // violet
+  'GLM-4': '#facc15',      // yellow
+  'GLM': '#facc15',        // yellow
+  'MINIMAX': '#06b6d4',    // teal
+  'MINIMAX-M2': '#06b6d4', // teal
+  'QWEN3': '#38bdf8',      // sky
+};
+
+export const TOAST_COLORS: Record<string, string> = {
+  error: '#ef4444',
+  warning: '#f97316',
+  success: '#10b981',
+  info: '#3b82f6',
+};
 
 export const FONT = 'Consolas, "Courier New", monospace';
 

@@ -2,7 +2,16 @@
 
 from __future__ import annotations
 
+import os
+
 from src.commands import JarvisCommand
+from src.config import PATHS
+
+_TURBO_DIR = str(PATHS.get("turbo", "F:/BUREAU/turbo")).replace("/", "\\")
+
+_M1_KEY = os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", ""))
+_M2_KEY = os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", ""))
+_M3_KEY = os.getenv("LM_STUDIO_3_API_KEY", os.getenv("LM_STUDIO_3_KEY", ""))
 
 MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     # ══════════════════════════════════════════════════════════════════════
@@ -12,7 +21,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
         "health check cluster", "verifie le cluster ia",
         "est ce que le cluster va bien", "ping le cluster",
         "check cluster ia", "cluster ok",
-    ], "powershell", "$m2 = try{(Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer LMSTUDIO_KEY_M2_REDACTED'} -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; $ol1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; $m3 = try{(Invoke-WebRequest -Uri 'http://192.168.1.113:1234/api/v1/models' -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; \"M2: $(if($m2 -eq 200){'OK'}else{'OFFLINE'}) | OL1: $(if($ol1 -eq 200){'OK'}else{'OFFLINE'}) | M3: $(if($m3 -eq 200){'OK'}else{'OFFLINE'})\""),
+    ], "powershell", "$m2 = try{(Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; $ol1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; $m3 = try{(Invoke-WebRequest -Uri 'http://192.168.1.113:1234/api/v1/models' -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; \"M2: $(if($m2 -eq 200){'OK'}else{'OFFLINE'}) | OL1: $(if($ol1 -eq 200){'OK'}else{'OFFLINE'}) | M3: $(if($m3 -eq 200){'OK'}else{'OFFLINE'})\""),
     JarvisCommand("gpu_temperatures", "systeme", "Temperatures GPU via nvidia-smi", [
         "temperatures gpu", "gpu temperature", "chauffe les gpu",
         "les gpu chauffent", "temp gpu",
@@ -2028,3 +2037,21 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
         "nettoie les jobs", "clean jobs", "supprime les jobs finis",
     ], "powershell", "$c = (Get-Job -State Completed,Failed | Measure-Object).Count; Get-Job -State Completed,Failed | Remove-Job; \"$c jobs nettoyes\""),
 ]
+
+# Post-processing: inject env-based keys into action strings at module load
+_KEY_MAP = {
+    "LMSTUDIO_KEY_M1_REDACTED": _M1_KEY,
+    "LMSTUDIO_KEY_M2_REDACTED": _M2_KEY,
+    "LMSTUDIO_KEY_M3_REDACTED": _M3_KEY,
+}
+for _cmd in MAINTENANCE_COMMANDS:
+    if "sk-lm-" in _cmd.action:
+        for _old, _new in _KEY_MAP.items():
+            _cmd.action = _cmd.action.replace(_old, _new)
+del _KEY_MAP
+
+# Post-processing: replace hardcoded paths with config-driven values
+for _cmd in MAINTENANCE_COMMANDS:
+    if "F:\\BUREAU\\turbo" in _cmd.action:
+        _cmd.action = _cmd.action.replace("F:\\BUREAU\\turbo", _TURBO_DIR)
+del _cmd

@@ -2,8 +2,10 @@
 # TEST PERFORMANCE — LM Studio Native API /api/v1/chat
 # ═══════════════════════════════════════════════════════════════
 
-$M1_Headers = @{ Authorization = "Bearer LMSTUDIO_KEY_M1_REDACTED" }
-$M2_Headers = @{ Authorization = "Bearer LMSTUDIO_KEY_M2_REDACTED" }
+$_M1_KEY = if ($env:LM_STUDIO_1_API_KEY) { $env:LM_STUDIO_1_API_KEY } elseif ($env:LM_STUDIO_1_KEY) { $env:LM_STUDIO_1_KEY } else { "" }
+$_M2_KEY = if ($env:LM_STUDIO_2_API_KEY) { $env:LM_STUDIO_2_API_KEY } elseif ($env:LM_STUDIO_2_KEY) { $env:LM_STUDIO_2_KEY } else { "" }
+$M1_Headers = @{ Authorization = "Bearer $_M1_KEY" }
+$M2_Headers = @{ Authorization = "Bearer $_M2_KEY" }
 
 # Test 1 — M1 qwen3-8b simple
 $sw = [System.Diagnostics.Stopwatch]::StartNew()

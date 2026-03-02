@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useWebSocket } from '../hooks/useWebSocket';
-import { APP_VERSION, APP_NAME, APP_STACK, BACKEND_URL } from '../lib/config';
+import { APP_VERSION, APP_NAME, APP_STACK, BACKEND_URL, OLLAMA_URL } from '../lib/config';
+import { COLORS, FONT } from '../lib/theme';
 
 const CSS = `
 .s-toggle{position:relative;width:36px;height:20px;border-radius:10px;cursor:pointer;transition:all .2s;border:none}
 .s-toggle::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;top:2px;left:2px;background:#fff;transition:transform .2s}
-.s-toggle.on{background:#10b981}.s-toggle.on::after{transform:translateX(16px)}
-.s-toggle.off{background:#2a3a4a}
-.s-section:hover{border-color:rgba(249,115,22,.2)!important}
-.s-save{transition:all .2s;cursor:pointer}.s-save:hover{background:#f97316!important;color:#0a0e14!important;transform:translateY(-1px);box-shadow:0 4px 12px rgba(249,115,22,.3)}
+.s-toggle.on{background:${COLORS.green}}.s-toggle.on::after{transform:translateX(16px)}
+.s-toggle.off{background:${COLORS.border}}
+.s-section:hover{border-color:${COLORS.orangeAlpha(0.2)}!important}
+.s-save{transition:all .2s;cursor:pointer}.s-save:hover{background:${COLORS.orange}!important;color:${COLORS.bg}!important;transform:translateY(-1px);box-shadow:0 4px 12px ${COLORS.orangeAlpha(0.3)}}
 .s-save:active{transform:translateY(0)}
 @keyframes s-toast-in{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 `;
@@ -25,7 +26,7 @@ const DEFAULT_CONFIG: Config = {
     { id: 'M1', name: 'M1 / qwen3-8b', url: 'http://10.5.0.2:1234', enabled: true, weight: 1.8 },
     { id: 'M2', name: 'M2 / deepseek', url: 'http://192.168.1.26:1234', enabled: true, weight: 1.4 },
     { id: 'M3', name: 'M3 / mistral', url: 'http://192.168.1.113:1234', enabled: true, weight: 1.0 },
-    { id: 'OL1', name: 'OL1 / qwen3:1.7b', url: 'http://127.0.0.1:11434', enabled: true, weight: 1.3 },
+    { id: 'OL1', name: 'OL1 / qwen3:1.7b', url: OLLAMA_URL, enabled: true, weight: 1.3 },
     { id: 'Gemini', name: 'Gemini API', url: 'gemini-proxy', enabled: true, weight: 1.2 },
   ]},
   trading: { pairs: ['BTCUSDT','ETHUSDT','SOLUSDT','SUIUSDT','PEPEUSDT'], leverage: 10, tp_pct: 0.4, sl_pct: 0.25, position_size: 10, dry_run: true },
@@ -33,25 +34,30 @@ const DEFAULT_CONFIG: Config = {
   general: { theme: 'dark', language: 'fr', auto_start: false, notifications: true },
 };
 
+const inputBase: React.CSSProperties = {
+  backgroundColor: COLORS.bgInput, border: `1px solid ${COLORS.border}`, borderRadius: 4,
+  padding: '2px 6px', fontFamily: 'inherit', outline: 'none',
+};
+
 const S = {
-  page: { padding: 20, fontFamily: 'Consolas, "Courier New", monospace', height: '100%', overflowY: 'auto' } as React.CSSProperties,
-  title: { fontSize: 18, fontWeight: 700, color: '#e0e0e0', marginBottom: 20 } as React.CSSProperties,
+  page: { padding: 20, fontFamily: FONT, height: '100%', overflowY: 'auto' } as React.CSSProperties,
+  title: { fontSize: 18, fontWeight: 700, color: COLORS.text, marginBottom: 20 } as React.CSSProperties,
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 16 } as React.CSSProperties,
-  section: { backgroundColor: '#0d1117', border: '1px solid #1a2a3a', borderRadius: 10, padding: 20, transition: 'border-color .3s' } as React.CSSProperties,
-  secTitle: { fontSize: 12, fontWeight: 700, color: '#f97316', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 } as React.CSSProperties,
+  section: { backgroundColor: COLORS.bgCard, border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: 20, transition: 'border-color .3s' } as React.CSSProperties,
+  secTitle: { fontSize: 12, fontWeight: 700, color: COLORS.orange, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 } as React.CSSProperties,
   secIcon: { fontSize: 16 } as React.CSSProperties,
-  row: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #0a0e14' } as React.CSSProperties,
-  label: { fontSize: 12, color: '#c0c0c0' } as React.CSSProperties,
-  value: { fontSize: 12, color: '#e0e0e0', fontWeight: 600 } as React.CSSProperties,
-  muted: { fontSize: 10, color: '#6b7280' } as React.CSSProperties,
-  nodeRow: { display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid #0a0e14' } as React.CSSProperties,
+  row: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: `1px solid ${COLORS.bg}` } as React.CSSProperties,
+  label: { fontSize: 12, color: COLORS.textMuted } as React.CSSProperties,
+  value: { fontSize: 12, color: COLORS.text, fontWeight: 600 } as React.CSSProperties,
+  muted: { fontSize: 10, color: COLORS.textDim } as React.CSSProperties,
+  nodeRow: { display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: `1px solid ${COLORS.bg}` } as React.CSSProperties,
   dot: { width: 8, height: 8, borderRadius: '50%', flexShrink: 0 } as React.CSSProperties,
-  dotOn: { backgroundColor: '#10b981', boxShadow: '0 0 6px rgba(16,185,129,.5)' },
-  dotOff: { backgroundColor: '#4b5563' },
-  nodeName: { flex: 1, fontSize: 12, color: '#e0e0e0' } as React.CSSProperties,
-  nodeUrl: { fontSize: 10, color: '#6b7280' } as React.CSSProperties,
-  nodeWeight: { fontSize: 11, color: '#f97316', fontWeight: 700, minWidth: 30, textAlign: 'right' } as React.CSSProperties,
-  tag: { display: 'inline-block', padding: '2px 8px', borderRadius: 4, fontSize: 10, backgroundColor: '#1a2a3a', color: '#c0c0c0', marginRight: 4, marginBottom: 4 } as React.CSSProperties,
+  dotOn: { backgroundColor: COLORS.green, boxShadow: `0 0 6px ${COLORS.greenAlpha(0.5)}` },
+  dotOff: { backgroundColor: COLORS.textDimmer },
+  nodeName: { flex: 1, fontSize: 12, color: COLORS.text } as React.CSSProperties,
+  nodeUrl: { fontSize: 10, color: COLORS.textDim } as React.CSSProperties,
+  nodeWeight: { fontSize: 11, color: COLORS.orange, fontWeight: 700, minWidth: 30, textAlign: 'right' } as React.CSSProperties,
+  tag: { display: 'inline-block', padding: '2px 8px', borderRadius: 4, fontSize: 10, backgroundColor: COLORS.border, color: COLORS.textMuted, marginRight: 4, marginBottom: 4 } as React.CSSProperties,
 };
 
 function Toggle({ on, onChange }: { on: boolean; onChange: () => void }) {
@@ -71,16 +77,17 @@ export default function SettingsPage() {
   const [about, setAbout] = useState<SystemAbout | null>(null);
   const { connected, request } = useWebSocket();
   const mountedRef = useRef(true);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     mountedRef.current = true;
     if (!connected) return;
     request('system', 'get_config').then(r => {
-      if (mountedRef.current && r.payload?.config) setCfg(prev => ({ ...prev, ...r.payload.config }));
-    }).catch(() => {});
+      if (mountedRef.current && r.payload?.config) setCfg(prev => ({ ...prev, ...r.payload!.config }));
+    }).catch(err => console.warn('[Settings] config fetch error:', err instanceof Error ? err.message : err));
     request('system', 'system_info').then(r => {
       if (mountedRef.current && r.payload) setAbout(r.payload as SystemAbout);
-    }).catch(() => {});
+    }).catch(err => console.warn('[Settings] system_info error:', err instanceof Error ? err.message : err));
     return () => { mountedRef.current = false; };
   }, [connected, request]);
 
@@ -99,12 +106,16 @@ export default function SettingsPage() {
       } else {
         setToast({ msg: res.payload?.error || 'Erreur sauvegarde', ok: false });
       }
-    } catch {
+    } catch (err) {
+      console.warn('[Settings] save config error:', err instanceof Error ? err.message : err);
       setToast({ msg: 'Erreur connexion', ok: false });
     }
     setSaving(false);
-    setTimeout(() => setToast(null), 3000);
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => { toastTimerRef.current = null; setToast(null); }, 3000);
   };
+
+  useEffect(() => () => { if (toastTimerRef.current) clearTimeout(toastTimerRef.current); }, []);
 
   return (
     <>
@@ -113,13 +124,13 @@ export default function SettingsPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
           <div style={S.title}>Configuration</div>
           <div style={{ flex: 1 }} />
-          {dirty && <span style={{ fontSize: 10, color: '#f97316', fontFamily: 'Consolas, monospace' }}>Modifications non sauvegardees</span>}
+          {dirty && <span style={{ fontSize: 10, color: COLORS.orange, fontFamily: FONT }}>Modifications non sauvegardees</span>}
           <button className="s-save" onClick={handleSave} disabled={saving || !connected} style={{
             padding: '8px 24px', borderRadius: 8, fontSize: 12, fontWeight: 700,
-            fontFamily: 'Consolas, monospace', letterSpacing: 1,
-            backgroundColor: dirty ? '#f97316' : 'rgba(249,115,22,.15)',
-            color: dirty ? '#0a0e14' : '#f97316',
-            border: '1px solid rgba(249,115,22,.3)',
+            fontFamily: FONT, letterSpacing: 1,
+            backgroundColor: dirty ? COLORS.orange : COLORS.orangeAlpha(0.15),
+            color: dirty ? COLORS.bg : COLORS.orange,
+            border: `1px solid ${COLORS.orangeAlpha(0.3)}`,
             opacity: saving ? 0.6 : 1,
           }}>
             {saving ? 'SAVING...' : 'SAVE'}
@@ -128,10 +139,10 @@ export default function SettingsPage() {
         {toast && (
           <div style={{
             padding: '8px 16px', borderRadius: 8, fontSize: 12, marginBottom: 12,
-            fontFamily: 'Consolas, monospace', animation: 's-toast-in .3s ease',
-            backgroundColor: toast.ok ? 'rgba(16,185,129,.1)' : 'rgba(239,68,68,.1)',
-            border: `1px solid ${toast.ok ? 'rgba(16,185,129,.3)' : 'rgba(239,68,68,.3)'}`,
-            color: toast.ok ? '#10b981' : '#ef4444',
+            fontFamily: FONT, animation: 's-toast-in .3s ease',
+            backgroundColor: toast.ok ? COLORS.greenAlpha(0.1) : COLORS.redAlpha(0.1),
+            border: `1px solid ${toast.ok ? COLORS.greenAlpha(0.3) : COLORS.redAlpha(0.3)}`,
+            color: toast.ok ? COLORS.green : COLORS.red,
           }}>{toast.msg}</div>
         )}
         <div style={S.grid}>
@@ -161,25 +172,25 @@ export default function SettingsPage() {
             <div style={S.secTitle}><span style={S.secIcon}>{'\uD83D\uDCC8'}</span> Trading</div>
             <div style={S.row}>
               <span style={S.label}>Leverage</span>
-              <input type="number" min={1} max={125} style={{ ...S.value, color: '#f97316', width: 60, backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 4, padding: '2px 6px', fontFamily: 'inherit', textAlign: 'right', outline: 'none' }}
+              <input type="number" min={1} max={125} style={{ ...S.value, ...inputBase, color: COLORS.orange, width: 60, textAlign: 'right' }}
                 value={cfg.trading.leverage}
                 onChange={e => updateCfg(p => ({ ...p, trading: { ...p.trading, leverage: parseInt(e.target.value) || 1 } }))} />
             </div>
             <div style={S.row}>
               <span style={S.label}>Take Profit (%)</span>
-              <input type="number" step="0.05" min={0.01} style={{ ...S.value, color: '#10b981', width: 70, backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 4, padding: '2px 6px', fontFamily: 'inherit', textAlign: 'right', outline: 'none' }}
+              <input type="number" step="0.05" min={0.01} style={{ ...S.value, ...inputBase, color: COLORS.green, width: 70, textAlign: 'right' }}
                 value={cfg.trading.tp_pct}
                 onChange={e => updateCfg(p => ({ ...p, trading: { ...p.trading, tp_pct: parseFloat(e.target.value) || 0.1 } }))} />
             </div>
             <div style={S.row}>
               <span style={S.label}>Stop Loss (%)</span>
-              <input type="number" step="0.05" min={0.01} style={{ ...S.value, color: '#ef4444', width: 70, backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 4, padding: '2px 6px', fontFamily: 'inherit', textAlign: 'right', outline: 'none' }}
+              <input type="number" step="0.05" min={0.01} style={{ ...S.value, ...inputBase, color: COLORS.red, width: 70, textAlign: 'right' }}
                 value={cfg.trading.sl_pct}
                 onChange={e => updateCfg(p => ({ ...p, trading: { ...p.trading, sl_pct: parseFloat(e.target.value) || 0.1 } }))} />
             </div>
             <div style={S.row}>
               <span style={S.label}>Taille position (USDT)</span>
-              <input type="number" min={1} style={{ ...S.value, width: 70, backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 4, padding: '2px 6px', fontFamily: 'inherit', textAlign: 'right', outline: 'none', color: '#e0e0e0' }}
+              <input type="number" min={1} style={{ ...S.value, ...inputBase, width: 70, textAlign: 'right', color: COLORS.text }}
                 value={cfg.trading.position_size}
                 onChange={e => updateCfg(p => ({ ...p, trading: { ...p.trading, position_size: parseInt(e.target.value) || 10 } }))} />
             </div>
@@ -200,19 +211,19 @@ export default function SettingsPage() {
             <div style={S.secTitle}><span style={S.secIcon}>{'\uD83C\uDF99'}</span> Voice</div>
             <div style={S.row}>
               <span style={S.label}>Wake Word</span>
-              <input type="text" style={{ ...S.value, color: '#c084fc', width: 100, backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 4, padding: '2px 6px', fontFamily: 'inherit', outline: 'none' }}
+              <input type="text" style={{ ...S.value, ...inputBase, color: COLORS.purple, width: 100 }}
                 value={cfg.voice.wake_word}
                 onChange={e => updateCfg(p => ({ ...p, voice: { ...p.voice, wake_word: e.target.value } }))} />
             </div>
             <div style={S.row}>
               <span style={S.label}>Confidence</span>
-              <input type="number" step="0.05" min={0.1} max={1} style={{ ...S.value, width: 60, backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 4, padding: '2px 6px', fontFamily: 'inherit', textAlign: 'right', outline: 'none', color: '#e0e0e0' }}
+              <input type="number" step="0.05" min={0.1} max={1} style={{ ...S.value, ...inputBase, width: 60, textAlign: 'right', color: COLORS.text }}
                 value={cfg.voice.confidence}
                 onChange={e => updateCfg(p => ({ ...p, voice: { ...p.voice, confidence: parseFloat(e.target.value) || 0.5 } }))} />
             </div>
             <div style={S.row}>
               <span style={S.label}>TTS Engine</span>
-              <select style={{ ...S.value, backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 4, padding: '2px 6px', fontFamily: 'inherit', color: '#e0e0e0', cursor: 'pointer', outline: 'none' }}
+              <select style={{ ...S.value, ...inputBase, color: COLORS.text, cursor: 'pointer' }}
                 value={cfg.voice.tts_engine}
                 onChange={e => updateCfg(p => ({ ...p, voice: { ...p.voice, tts_engine: e.target.value } }))}>
                 <option value="edge">Edge TTS</option>
@@ -222,7 +233,7 @@ export default function SettingsPage() {
             </div>
             <div style={S.row}>
               <span style={S.label}>Langue</span>
-              <select style={{ ...S.value, backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 4, padding: '2px 6px', fontFamily: 'inherit', color: '#e0e0e0', cursor: 'pointer', outline: 'none' }}
+              <select style={{ ...S.value, ...inputBase, color: COLORS.text, cursor: 'pointer' }}
                 value={cfg.voice.language}
                 onChange={e => updateCfg(p => ({ ...p, voice: { ...p.voice, language: e.target.value } }))}>
                 <option value="fr-FR">Francais (fr-FR)</option>
@@ -237,7 +248,7 @@ export default function SettingsPage() {
             <div style={S.secTitle}><span style={S.secIcon}>{'\u2699\uFE0F'}</span> General</div>
             <div style={S.row}>
               <span style={S.label}>Theme</span>
-              <select style={{ ...S.value, backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 4, padding: '2px 6px', fontFamily: 'inherit', color: '#e0e0e0', cursor: 'pointer', outline: 'none' }}
+              <select style={{ ...S.value, ...inputBase, color: COLORS.text, cursor: 'pointer' }}
                 value={cfg.general.theme}
                 onChange={e => updateCfg(p => ({ ...p, general: { ...p.general, theme: e.target.value } }))}>
                 <option value="dark">Dark</option>
@@ -247,7 +258,7 @@ export default function SettingsPage() {
             </div>
             <div style={S.row}>
               <span style={S.label}>Langue</span>
-              <select style={{ ...S.value, backgroundColor: '#0a0e14', border: '1px solid #2a3a4a', borderRadius: 4, padding: '2px 6px', fontFamily: 'inherit', color: '#e0e0e0', cursor: 'pointer', outline: 'none' }}
+              <select style={{ ...S.value, ...inputBase, color: COLORS.text, cursor: 'pointer' }}
                 value={cfg.general.language}
                 onChange={e => updateCfg(p => ({ ...p, general: { ...p.general, language: e.target.value } }))}>
                 <option value="fr">Francais</option>
@@ -269,7 +280,7 @@ export default function SettingsPage() {
             <div style={S.secTitle}><span style={S.secIcon}>{'\u2139\uFE0F'}</span> About</div>
             <div style={S.row}>
               <span style={S.label}>Application</span>
-              <span style={{ ...S.value, color: '#f97316' }}>{APP_NAME} v{APP_VERSION}</span>
+              <span style={{ ...S.value, color: COLORS.orange }}>{APP_NAME} v{APP_VERSION}</span>
             </div>
             <div style={S.row}>
               <span style={S.label}>Stack</span>
@@ -300,14 +311,14 @@ export default function SettingsPage() {
                 {about.disks && Object.entries(about.disks).map(([d, info]) => (
                   <div key={d} style={S.row}>
                     <span style={S.label}>{d}</span>
-                    <span style={S.value}>{(info as any).free_gb?.toFixed(0)} GB free / {(info as any).total_gb?.toFixed(0)} GB</span>
+                    <span style={S.value}>{info.free_gb?.toFixed(0)} GB free / {info.total_gb?.toFixed(0)} GB</span>
                   </div>
                 ))}
               </>
             )}
             <div style={S.row}>
               <span style={S.label}>Backend</span>
-              <span style={{ ...S.value, color: connected ? '#10b981' : '#ef4444' }}>{connected ? `${BACKEND_URL} OK` : 'Deconnecte'}</span>
+              <span style={{ ...S.value, color: connected ? COLORS.green : COLORS.red }}>{connected ? `${BACKEND_URL} OK` : 'Deconnecte'}</span>
             </div>
             <div style={{ marginTop: 10 }}>
               <div style={S.muted}>RACCOURCIS CLAVIER</div>

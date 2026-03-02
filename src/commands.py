@@ -9,6 +9,12 @@ from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any
 
+from src.config import PATHS
+
+_TURBO_DIR = str(PATHS.get("turbo", "F:/BUREAU/turbo")).replace("/", "\\")
+_TURBO_DIR_FWD = str(PATHS.get("turbo", "F:/BUREAU/turbo"))
+_USER_HOME = str(Path.home())
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # COMMAND DEFINITIONS
@@ -2158,6 +2164,17 @@ COMMANDS: list[JarvisCommand] = [
         "arena historique", "resultats arena",
     ], "powershell", "C:/Users/franc/jarvis.ps1 arena --history"),
 ]
+
+# Post-processing: replace hardcoded paths with config-driven values
+for _cmd in COMMANDS:
+    if "F:\\BUREAU\\turbo" in _cmd.action:
+        _cmd.action = _cmd.action.replace("F:\\BUREAU\\turbo", _TURBO_DIR)
+    if "F:/BUREAU/turbo" in _cmd.action:
+        _cmd.action = _cmd.action.replace("F:/BUREAU/turbo", _TURBO_DIR_FWD)
+    if "C:\\Users\\franc" in _cmd.action:
+        _cmd.action = _cmd.action.replace("C:\\Users\\franc", _USER_HOME)
+    if "C:/Users/franc" in _cmd.action:
+        _cmd.action = _cmd.action.replace("C:/Users/franc", _USER_HOME.replace("\\", "/"))
 
 # ═══════════════════════════════════════════════════════════════════════════
 # EXTENSIONS PAR CATEGORIE (fichiers separes)

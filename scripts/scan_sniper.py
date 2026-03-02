@@ -9,6 +9,7 @@ Usage: python scripts/scan_sniper.py [--json] [--top N] [--cycles N] [--interval
 """
 import asyncio
 import httpx
+import os
 import sys
 import json
 import math
@@ -880,11 +881,11 @@ def gpu_correlation_matrix(close_tensor, top_n=20):
 # ========== AI CLUSTER CONSENSUS ==========
 
 LM_M2 = {"url": "http://192.168.1.26:1234/api/v1/chat", "model": "deepseek-coder-v2-lite-instruct",
-          "key": "LMSTUDIO_KEY_M2_REDACTED", "name": "M2/deepseek"}
+          "key": os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", "")), "name": "M2/deepseek"}
 LM_M3 = {"url": "http://192.168.1.113:1234/api/v1/chat", "model": "mistral-7b-instruct-v0.3",
-          "key": "LMSTUDIO_KEY_M3_REDACTED", "name": "M3/mistral"}
+          "key": os.getenv("LM_STUDIO_3_API_KEY", os.getenv("LM_STUDIO_3_KEY", "")), "name": "M3/mistral"}
 LM_M1 = {"url": "http://10.5.0.2:1234/api/v1/chat", "model": "qwen/qwq-32b",
-          "key": "LMSTUDIO_KEY_M1_REDACTED", "name": "M1/qwq-32b"}
+          "key": os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", "")), "name": "M1/qwq-32b"}
 LM_OL1 = {"url": "http://127.0.0.1:11434/api/chat", "model": "qwen3:1.7b", "name": "OL1/qwen3"}
 GEMINI_PROXY = "F:/BUREAU/turbo/gemini-proxy.js"
 

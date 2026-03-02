@@ -5,6 +5,7 @@ import TopBar from './components/layout/TopBar';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ClusterProvider } from './hooks/ClusterContext';
 import type { Page } from './lib/types';
+import { COLORS, FONT } from './lib/theme';
 
 interface Toast {
   id: number;
@@ -41,10 +42,10 @@ const CSS = `
 @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
 `;
 
-const TOAST_COLORS = {
-  error: { color: '#ef4444', bg: 'rgba(239,68,68,.12)', border: 'rgba(239,68,68,.3)' },
-  warning: { color: '#f97316', bg: 'rgba(249,115,22,.12)', border: 'rgba(249,115,22,.3)' },
-  info: { color: '#10b981', bg: 'rgba(16,185,129,.12)', border: 'rgba(16,185,129,.3)' },
+const TOAST_STYLES = {
+  error: { color: COLORS.red, bg: COLORS.redAlpha(.12), border: COLORS.redAlpha(.3) },
+  warning: { color: COLORS.orange, bg: COLORS.orangeAlpha(.12), border: COLORS.orangeAlpha(.3) },
+  info: { color: COLORS.green, bg: COLORS.greenAlpha(.12), border: COLORS.greenAlpha(.3) },
 };
 
 function addToast(setToasts: React.Dispatch<React.SetStateAction<Toast[]>>, idRef: React.MutableRefObject<number>, message: string, type: Toast['type']) {
@@ -81,7 +82,7 @@ export default function App() {
   }, [toasts.length > 0]);
 
   useEffect(() => {
-    const api = (window as any).electronAPI;
+    const api = window.electronAPI;
     if (api?.onNavigate) {
       const cleanup = api.onNavigate((page: string) => {
         if (page in PAGE_COMPONENTS) setCurrentPage(page as Page);
@@ -147,7 +148,7 @@ export default function App() {
 
   const handleDetach = useCallback(() => {
     const widgetType = WIDGET_MAP[currentPage];
-    if (widgetType) (window as any).electronAPI?.createWidget?.(widgetType);
+    if (widgetType) window.electronAPI?.createWidget?.(widgetType);
   }, [currentPage]);
 
   const CurrentPageComponent = PAGE_COMPONENTS[currentPage];
@@ -155,14 +156,14 @@ export default function App() {
   return (
     <ClusterProvider>
       <style>{CSS}</style>
-      <div style={{ display: 'flex', width: '100vw', height: '100vh', backgroundColor: '#0a0e14', overflow: 'hidden', fontFamily: 'Consolas, "Courier New", monospace' }}>
+      <div style={{ display: 'flex', width: '100vw', height: '100vh', backgroundColor: COLORS.bg, overflow: 'hidden', fontFamily: FONT }}>
         <Sidebar currentPage={currentPage} onPageChange={setCurrentPage} />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
           <TopBar connected={connected} currentPage={currentPage} onDetach={handleDetach} />
           <main style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
             <ErrorBoundary>
               <Suspense fallback={
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#6b7280', fontSize: 13, fontFamily: 'inherit' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: COLORS.textDim, fontSize: 13, fontFamily: 'inherit' }}>
                   Chargement...
                 </div>
               }>
@@ -175,7 +176,7 @@ export default function App() {
         {toasts.length > 0 && (
           <div role="status" aria-live="polite" style={{ position: 'fixed', top: 50, right: 16, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8 }}>
             {toasts.map(t => {
-              const c = TOAST_COLORS[t.type];
+              const c = TOAST_STYLES[t.type];
               return (
                 <div key={t.id} style={{
                   padding: '8px 16px', borderRadius: 8, fontSize: 12, fontFamily: 'inherit',

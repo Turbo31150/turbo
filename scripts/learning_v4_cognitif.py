@@ -11,6 +11,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='repla
 import httpx
 import asyncio
 import json
+import os
 import time
 from datetime import datetime
 from pathlib import Path
@@ -21,25 +22,25 @@ MODELS = {
     "M1-qwen3": {
         "type": "openai",
         "url": "http://10.5.0.2:1234/v1/chat/completions",
-        "key": "LMSTUDIO_KEY_M1_REDACTED",
+        "key": os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", "")),
         "model": "qwen3-8b", "sem": 3,
     },
     "M1-dsr1": {
         "type": "openai",
         "url": "http://10.5.0.2:1234/v1/chat/completions",
-        "key": "LMSTUDIO_KEY_M1_REDACTED",
+        "key": os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", "")),
         "model": "deepseek-r1-0528-qwen3-8b", "sem": 2,
     },
     "M2-coder": {
         "type": "openai",
         "url": "http://192.168.1.26:1234/v1/chat/completions",
-        "key": "LMSTUDIO_KEY_M2_REDACTED",
+        "key": os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", "")),
         "model": "deepseek-coder-v2-lite-instruct", "sem": 3,
     },
     "M3-mistral": {
         "type": "openai",
         "url": "http://192.168.1.113:1234/v1/chat/completions",
-        "key": "LMSTUDIO_KEY_M3_REDACTED",
+        "key": os.getenv("LM_STUDIO_3_API_KEY", os.getenv("LM_STUDIO_3_KEY", "")),
         "model": "mistral-7b-instruct-v0.3", "sem": 3,
     },
     "OL1-qwen": {
@@ -501,7 +502,7 @@ async def main():
                         stats[mn]["lat_sum"] += r["latency"]
                         if not r["ok"]: stats[mn]["errors"] += 1
                         task._scored = True
-                    except:
+                    except (KeyError, TypeError, ValueError):
                         task._scored = True
 
             if completed[0] % 50 == 0 or completed[0] == total:

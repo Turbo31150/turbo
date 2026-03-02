@@ -4,6 +4,7 @@ Claude ne fait JAMAIS le travail lui-meme. Il ORDONNE, VERIFIE et ORCHESTRE.
 Ce module fournit les structures de donnees et fonctions utilitaires
 pour le mode commandant.
 
+
 Flow:
 1. classify_task()  -> M1 classifie le type (code/analyse/trading/systeme/web/simple)
 2. decompose_task() -> Decompose en TaskUnit[] avec routage automatique
@@ -15,8 +16,12 @@ Flow:
 from __future__ import annotations
 
 import asyncio
-import time
+import logging
 from dataclasses import dataclass, field
+
+import httpx
+
+logger = logging.getLogger("jarvis.commander")
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -71,7 +76,7 @@ async def classify_task(prompt: str) -> str:
     Reutilise _local_ia_analyze de orchestrator.py mais avec CLASSIFY_PROMPT.
     Fallback: heuristiques par mots-cles.
     """
-    from src.config import config
+    from src.config import config, prepare_lmstudio_input
     from src.tools import _get_client
 
     node = config.get_node("M1")
@@ -80,7 +85,7 @@ async def classify_task(prompt: str) -> str:
             client = await _get_client()
             r = await client.post(f"{node.url}/api/v1/chat", json={
                 "model": node.default_model,
-                "input": "/nothink\n" + prompt,
+                "input": prepare_lmstudio_input(prompt, node.name, node.default_model),
                 "system_prompt": CLASSIFY_PROMPT,
                 "temperature": 0.1,
                 "max_output_tokens": 32,
@@ -94,8 +99,8 @@ async def classify_task(prompt: str) -> str:
             word = content.split()[0].rstrip(".,;:!?") if content else ""
             if word in VALID_TYPES:
                 return word
-        except Exception:
-            pass
+        except (httpx.HTTPError, OSError, KeyError, ValueError, asyncio.TimeoutError) as exc:
+            logger.debug("classify_task M1 failed: %s", exc)
 
     # Fallback: heuristiques par mots-cles
     return _classify_heuristic(prompt)

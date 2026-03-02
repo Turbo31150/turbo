@@ -1,5 +1,5 @@
 """Test live batch 7 — 36 pipelines de completion (final audit gaps)."""
-import urllib.request, json, subprocess, time
+import os, urllib.request, json, subprocess, time
 
 PASS = FAIL = 0
 RESULTS = []
@@ -13,7 +13,7 @@ def ps(cmd, timeout=15):
 
 def m1_ask(prompt, max_tokens=256, timeout=20):
     body = json.dumps({"model": "qwen3-8b", "input": f"/nothink\n{prompt}", "temperature": 0.2, "max_output_tokens": max_tokens, "stream": False, "store": False}).encode()
-    req = urllib.request.Request("http://10.5.0.2:1234/api/v1/chat", data=body, headers={"Content-Type": "application/json", "Authorization": "Bearer LMSTUDIO_KEY_M1_REDACTED"})
+    req = urllib.request.Request("http://10.5.0.2:1234/api/v1/chat", data=body, headers={"Content-Type": "application/json", "Authorization": f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}"})
     resp = urllib.request.urlopen(req, timeout=timeout)
     data = json.loads(resp.read())
     for item in reversed(data.get("output", [])):

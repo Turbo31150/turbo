@@ -8,6 +8,7 @@ import logging
 import os
 import platform
 import shutil
+import sqlite3
 import subprocess
 import time
 from pathlib import Path
@@ -16,6 +17,10 @@ from typing import Any
 from python_ws.bridge import get_config
 
 logger = logging.getLogger("jarvis.system")
+
+# Turbo root — resolved relative to this file (python_ws/routes/system.py → turbo/)
+_TURBO_ROOT = Path(__file__).resolve().parent.parent.parent
+_DATA_DIR = _TURBO_ROOT / "data"
 
 # Lazy-loaded executor
 _executor = None
@@ -30,7 +35,7 @@ def _get_executor():
         from src.domino_executor import DominoExecutor
         _executor = DominoExecutor()
         logger.info("DominoExecutor loaded")
-    except Exception as e:
+    except (ImportError, RuntimeError) as e:
         logger.warning("DominoExecutor unavailable: %s", e)
     return _executor
 
@@ -84,19 +89,19 @@ def _system_info() -> dict[str, Any]:
 
     mem = psutil.virtual_memory()
 
-    # Disk space for C:\ and F:\
+    # Disk space — auto-detect mounted partitions
     disks = {}
-    for drive in ["C:\\", "F:\\"]:
+    for part in psutil.disk_partitions(all=False):
         try:
-            usage = shutil.disk_usage(drive)
-            disks[drive] = {
+            usage = shutil.disk_usage(part.mountpoint)
+            disks[part.mountpoint] = {
                 "total_gb": round(usage.total / (1024 ** 3), 1),
                 "used_gb": round(usage.used / (1024 ** 3), 1),
                 "free_gb": round(usage.free / (1024 ** 3), 1),
                 "percent_used": round(usage.used / usage.total * 100, 1),
             }
         except OSError:
-            disks[drive] = {"error": "unavailable"}
+            disks[part.mountpoint] = {"error": "unavailable"}
 
     return {
         "os": platform.system(),
@@ -202,6 +207,7 @@ async def _execute_command(payload: dict) -> dict[str, Any]:
         logger.info("Executed %s (%s) in %ss", cmd_name, cmd.action_type, elapsed)
 
         # Handle special return values
+        result = result or ""
         if result.startswith("__"):
             return {
                 "executed": True,
@@ -220,7 +226,7 @@ async def _execute_command(payload: dict) -> dict[str, Any]:
             "output": result[:500],
             "elapsed": elapsed,
         }
-    except Exception as e:
+    except (asyncio.TimeoutError, RuntimeError, ValueError) as e:
         logger.error("Command execution error: %s", e)
         return {"error": str(e), "command_name": cmd_name}
 
@@ -249,7 +255,7 @@ async def _execute_domino(payload: dict) -> dict[str, Any]:
             return {"error": "Need domino_id or voice_text"}
 
         return {"executed": True, "domino": result}
-    except Exception as e:
+    except (ImportError, RuntimeError, asyncio.TimeoutError) as e:
         logger.error("Domino execution error: %s", e)
         return {"error": str(e)}
 
@@ -274,7 +280,8 @@ async def _list_dominos(payload: dict) -> dict[str, Any]:
             for dp in DOMINO_PIPELINES
             if not category_filter or dp.category == category_filter
         ]
-    except Exception:
+    except (ImportError, AttributeError) as exc:
+        logger.debug("_list_dominos hardcoded pipelines unavailable: %s", exc)
         pipelines = []
 
     # DB chain triggers
@@ -295,7 +302,7 @@ async def _list_dominos(payload: dict) -> dict[str, Any]:
             for t in triggers
             if not category_filter or category_filter == "db_chain"
         ]
-    except Exception as e:
+    except (ImportError, sqlite3.Error) as e:
         logger.warning("Chain resolver error: %s", e)
         chains = []
 
@@ -324,7 +331,7 @@ async def _list_chains(payload: dict) -> dict[str, Any]:
             results = search_chains("", limit=limit)
         triggers = list_all_triggers()
         return {"chains": results, "triggers": triggers, "total": len(results)}
-    except Exception as e:
+    except (ImportError, sqlite3.Error) as e:
         return {"error": str(e)}
 
 
@@ -357,7 +364,7 @@ async def _resolve_chain(payload: dict) -> dict[str, Any]:
             "is_cyclic": chain.is_cyclic,
             "step_count": chain.step_count,
         }
-    except Exception as e:
+    except (ImportError, sqlite3.Error, ValueError) as e:
         return {"error": str(e)}
 
 
@@ -411,7 +418,7 @@ async def _execute_chain(payload: dict) -> dict[str, Any]:
 
         result = await asyncio.to_thread(executor.run, domino)
         return {"executed": True, "domino": result, "source": "db_chain"}
-    except Exception as e:
+    except (ImportError, RuntimeError, sqlite3.Error) as e:
         logger.error("Chain execution error: %s", e)
         return {"error": str(e)}
 
@@ -423,22 +430,20 @@ async def _domino_logs(payload: dict) -> dict[str, Any]:
 
     try:
         import sqlite3
-        db_path = "F:/BUREAU/turbo/data/etoile.db"
-        conn = sqlite3.connect(db_path)
-
-        if run_id:
-            rows = conn.execute(
-                "SELECT run_id, domino_id, step_name, step_idx, status, duration_ms, node, output_preview, ts "
-                "FROM domino_logs WHERE run_id=? ORDER BY step_idx",
-                (run_id,)
-            ).fetchall()
-        else:
-            rows = conn.execute(
-                "SELECT run_id, domino_id, step_name, step_idx, status, duration_ms, node, output_preview, ts "
-                "FROM domino_logs ORDER BY id DESC LIMIT ?",
-                (limit,)
-            ).fetchall()
-        conn.close()
+        db_path = str(_DATA_DIR / "etoile.db")
+        with sqlite3.connect(db_path) as conn:
+            if run_id:
+                rows = conn.execute(
+                    "SELECT run_id, domino_id, step_name, step_idx, status, duration_ms, node, output_preview, ts "
+                    "FROM domino_logs WHERE run_id=? ORDER BY step_idx",
+                    (run_id,)
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    "SELECT run_id, domino_id, step_name, step_idx, status, duration_ms, node, output_preview, ts "
+                    "FROM domino_logs ORDER BY id DESC LIMIT ?",
+                    (limit,)
+                ).fetchall()
 
         return {
             "logs": [
@@ -451,13 +456,13 @@ async def _domino_logs(payload: dict) -> dict[str, Any]:
             ],
             "total": len(rows),
         }
-    except Exception as e:
+    except (sqlite3.Error, OSError) as e:
         return {"error": str(e)}
 
 
 # ── Desktop config persistence ────────────────────────────────────────────
 
-_DESKTOP_CONFIG_PATH = Path("F:/BUREAU/turbo/data/desktop_config.json")
+_DESKTOP_CONFIG_PATH = _DATA_DIR / "desktop_config.json"
 
 
 async def _save_config(payload: dict) -> dict[str, Any]:
@@ -471,7 +476,7 @@ async def _save_config(payload: dict) -> dict[str, Any]:
         )
         logger.info("Desktop config saved to %s", _DESKTOP_CONFIG_PATH)
         return {"saved": True, "path": str(_DESKTOP_CONFIG_PATH)}
-    except Exception as e:
+    except (OSError, ValueError) as e:
         logger.error("Failed to save config: %s", e)
         return {"error": str(e)}
 
@@ -483,5 +488,5 @@ def _load_desktop_config() -> dict[str, Any]:
             data = json.loads(_DESKTOP_CONFIG_PATH.read_text(encoding="utf-8"))
             return {"config": data}
         return {"config": None, "message": "No saved config found"}
-    except Exception as e:
+    except (OSError, json.JSONDecodeError) as e:
         return {"error": str(e)}

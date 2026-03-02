@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useWebSocket, WsMessage } from './useWebSocket';
+import { getErrorMessage } from '../lib/types';
 
 export interface TradingSignal {
   id: string;
@@ -47,6 +48,9 @@ export function useTrading() {
     error: null,
   });
   const { connected, request, subscribe } = useWebSocket();
+  const mountedRef = useRef(true);
+
+  useEffect(() => () => { mountedRef.current = false; }, []);
 
   // Subscribe to trading channel events
   useEffect(() => {
@@ -127,14 +131,16 @@ export function useTrading() {
     if (!connected) return;
     try {
       const response = await request('trading', 'get_signals');
+      if (!mountedRef.current) return;
       setState(prev => ({
         ...prev,
         signals: response.payload?.signals || [],
       }));
-    } catch (err: any) {
+    } catch (err) {
+      if (!mountedRef.current) return;
       setState(prev => ({
         ...prev,
-        error: err.message,
+        error: getErrorMessage(err),
       }));
     }
   }, [connected, request]);
@@ -144,6 +150,7 @@ export function useTrading() {
     if (!connected) return;
     try {
       const response = await request('trading', 'get_positions');
+      if (!mountedRef.current) return;
       const positions = response.payload?.positions || [];
       const totalPnl = positions
         .filter((p: TradingPosition) => p.status === 'open')
@@ -153,10 +160,11 @@ export function useTrading() {
         positions,
         pnl: response.payload?.total_pnl ?? totalPnl,
       }));
-    } catch (err: any) {
+    } catch (err) {
+      if (!mountedRef.current) return;
       setState(prev => ({
         ...prev,
-        error: err.message,
+        error: getErrorMessage(err),
       }));
     }
   }, [connected, request]);
@@ -166,17 +174,18 @@ export function useTrading() {
     if (!connected) return;
     try {
       await request('trading', 'execute_signal', { signal_id: signalId });
-      // Update will come via events
+      if (!mountedRef.current) return;
       setState(prev => ({
         ...prev,
         signals: prev.signals.map(s =>
           s.id === signalId ? { ...s, status: 'executed' as const } : s
         ),
       }));
-    } catch (err: any) {
+    } catch (err) {
+      if (!mountedRef.current) return;
       setState(prev => ({
         ...prev,
-        error: err.message,
+        error: getErrorMessage(err),
       }));
     }
   }, [connected, request]);
@@ -186,16 +195,18 @@ export function useTrading() {
     if (!connected) return;
     try {
       await request('trading', 'close_position', { position_id: positionId });
+      if (!mountedRef.current) return;
       setState(prev => ({
         ...prev,
         positions: prev.positions.map(p =>
           p.id === positionId ? { ...p, status: 'closed' as const } : p
         ),
       }));
-    } catch (err: any) {
+    } catch (err) {
+      if (!mountedRef.current) return;
       setState(prev => ({
         ...prev,
-        error: err.message,
+        error: getErrorMessage(err),
       }));
     }
   }, [connected, request]);
@@ -204,6 +215,7 @@ export function useTrading() {
   const refreshTrading = useCallback(async () => {
     setState(prev => ({ ...prev, loading: true, error: null }));
     await Promise.all([fetchSignals(), fetchPositions()]);
+    if (!mountedRef.current) return;
     setState(prev => ({ ...prev, loading: false }));
   }, [fetchSignals, fetchPositions]);
 

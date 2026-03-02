@@ -32,13 +32,17 @@ param(
 )
 
 # === CONFIG ===
+$_M1_KEY = if ($env:LM_STUDIO_1_API_KEY) { $env:LM_STUDIO_1_API_KEY } elseif ($env:LM_STUDIO_1_KEY) { $env:LM_STUDIO_1_KEY } else { "" }
+$_M2_KEY = if ($env:LM_STUDIO_2_API_KEY) { $env:LM_STUDIO_2_API_KEY } elseif ($env:LM_STUDIO_2_KEY) { $env:LM_STUDIO_2_KEY } else { "" }
+$_M3_KEY = if ($env:LM_STUDIO_3_API_KEY) { $env:LM_STUDIO_3_API_KEY } elseif ($env:LM_STUDIO_3_KEY) { $env:LM_STUDIO_3_KEY } else { "" }
+
 $Nodes = @{
     "M1" = @{
         Url = "http://10.5.0.2:1234/api/v1/chat"
         HealthUrl = "http://10.5.0.2:1234/api/v1/models"
         Type = "lmstudio-responses"
         Model = "qwen/qwen3-8b"
-        Key = "LMSTUDIO_KEY_M1_REDACTED"
+        Key = $_M1_KEY
         Tags = @("code","math","raisonnement","trading","securite","web","systeme","traduction")
         Priority = 3
     }
@@ -47,7 +51,7 @@ $Nodes = @{
         HealthUrl = "http://192.168.1.26:1234/api/v1/models"
         Type = "lmstudio"
         Model = "deepseek-coder-v2-lite-instruct"
-        Key = "LMSTUDIO_KEY_M2_REDACTED"
+        Key = $_M2_KEY
         Tags = @("code","review","debug","securite")
         Priority = 2
     }
@@ -56,7 +60,7 @@ $Nodes = @{
         HealthUrl = "http://192.168.1.113:1234/api/v1/models"
         Type = "lmstudio"
         Model = "mistral-7b-instruct-v0.3"
-        Key = "LMSTUDIO_KEY_M3_REDACTED"
+        Key = $_M3_KEY
         Tags = @("general","validation","systeme","traduction")
         Priority = 1
         NoSystemRole = $true

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """JARVIS Model Arena — tournament system for comparing models on M1."""
 import json, time, sys, os, subprocess
+import urllib.error
 import urllib.request
 from datetime import datetime
 from jarvis_bench_utils import NODES, load_history, save_history, append_run, compute_composite_score
@@ -29,7 +30,7 @@ def unload_m1():
                 req2 = urllib.request.Request(M1["unload_url"], data=body, headers={"Content-Type": "application/json", "Authorization": f"Bearer {M1['key']}"})
                 urllib.request.urlopen(req2, timeout=30)
                 log(f"Unloaded: {iid}")
-    except Exception as e:
+    except (urllib.error.URLError, OSError, json.JSONDecodeError, KeyError) as e:
         log(f"Unload error (may be ok): {e}")
 
 def load_m1(model_id, config):
@@ -45,7 +46,7 @@ def load_m1(model_id, config):
             return True
         log(f"Load response: {result}")
         return False
-    except Exception as e:
+    except (urllib.error.URLError, OSError, json.JSONDecodeError) as e:
         log(f"Load FAILED: {e}")
         return False
 
@@ -55,7 +56,7 @@ def warmup_m1(model_id):
             body = json.dumps({"model": model_id, "input": prompt, "temperature": 0.2, "max_output_tokens": 20, "stream": False, "store": False}).encode()
             req = urllib.request.Request(M1["chat_url"], data=body, headers={"Content-Type": "application/json", "Authorization": f"Bearer {M1['key']}"})
             urllib.request.urlopen(req, timeout=60)
-        except:
+        except (urllib.error.URLError, OSError):
             pass
 
 def run_benchmark(cycles=5, tasks_per_cycle=40):
@@ -65,7 +66,7 @@ def run_benchmark(cycles=5, tasks_per_cycle=40):
             [sys.executable, "C:/Users/franc/jarvis_autotest.py", str(cycles), str(tasks_per_cycle)],
             capture_output=True, text=True, timeout=1800, cwd="C:/Users/franc"
         )
-    except Exception as e:
+    except (subprocess.SubprocessError, OSError) as e:
         log(f"Benchmark subprocess error: {e}")
     try:
         data = json.load(open("C:/Users/franc/jarvis_autotest_results.json", encoding="utf-8"))
@@ -77,7 +78,7 @@ def run_benchmark(cycles=5, tasks_per_cycle=40):
                 lats.extend([nd["avg_latency"]] * nd["total"])
         avg_lat = int(sum(lats) / len(lats)) if lats else 0
         return pass_rate, avg_lat, total, data["errors"]
-    except Exception as e:
+    except (OSError, json.JSONDecodeError, KeyError, ValueError) as e:
         log(f"Failed to parse results: {e}")
         return 0, 0, 0, 0
 
@@ -167,7 +168,7 @@ if __name__ == "__main__":
         for name in CANDIDATE_MODELS:
             try:
                 tournament(name, quick=True)
-            except Exception as e:
+            except (urllib.error.URLError, OSError, ValueError) as e:
                 print(f"Arena {name} error: {e}")
     elif "--all" in args:
         quick = "--quick" in args

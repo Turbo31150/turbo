@@ -14,15 +14,18 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
+import sqlite3
 import time
 from pathlib import Path
 
 import httpx
+
+logger = logging.getLogger("jarvis.dashboard")
 from textual import on, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.containers import Horizontal, Vertical, VerticalScroll
-from textual.reactive import reactive
+from textual.containers import VerticalScroll
 from textual.widgets import (
     Footer,
     Header,
@@ -37,9 +40,9 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from src.config import config, JARVIS_VERSION
-from src.skills import load_skills, format_skills_list
-from src.brain import get_brain_status, format_brain_report
+from src.config import config, JARVIS_VERSION, prepare_lmstudio_input
+from src.skills import load_skills
+from src.brain import get_brain_status
 
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
@@ -64,8 +67,8 @@ async def _fetch_cluster() -> list[dict]:
                 r.raise_for_status()
                 entry["online"] = True
                 entry["models_count"] = len([m for m in r.json().get("models", []) if m.get("loaded_instances")])
-            except Exception:
-                pass
+            except (httpx.HTTPError, OSError) as exc:
+                logger.debug("_fetch_cluster %s: %s", node.name, exc)
             results.append(entry)
     return results
 
@@ -90,7 +93,7 @@ async def _fetch_system() -> dict:
                 capture_output=True, text=True, timeout=15,
             )
             return r.stdout.strip()
-        except Exception as e:
+        except (subprocess.TimeoutExpired, OSError) as e:
             return f"Erreur: {e}"
 
     return await asyncio.to_thread(_get)
@@ -111,7 +114,7 @@ async def _fetch_trading() -> str:
                 lines.append(f"PnL: {status['pnl']}")
             return " | ".join(lines) if lines else json.dumps(status, default=str)[:200]
         return str(status)[:200]
-    except Exception as e:
+    except (ImportError, OSError, TypeError) as e:
         return f"Trading: {e}"
 
 
@@ -287,8 +290,8 @@ class JarvisDashboard(App):
             log_widget = self.query_one("#log-output", RichLog)
             ts = time.strftime("%H:%M:%S")
             log_widget.write(f"[dim]{ts}[/dim] {text}")
-        except Exception:
-            pass
+        except LookupError:
+            pass  # Widget not yet mounted
 
     @work(thread=False)
     async def refresh_all(self) -> None:
@@ -326,8 +329,12 @@ class JarvisDashboard(App):
             content = "\n".join(lines)
             self.query_one("#cluster-content", Static).update(content)
             self._log(f"Cluster: {online}/{len(nodes)} noeuds en ligne")
-        except Exception as e:
-            self.query_one("#cluster-content", Static).update(f"[red]Erreur: {e}[/red]")
+        except (httpx.HTTPError, OSError, LookupError, KeyError, ValueError) as e:
+            logger.debug("_refresh_cluster failed: %s", e)
+            try:
+                self.query_one("#cluster-content", Static).update(f"[red]Erreur: {e}[/red]")
+            except LookupError:
+                pass
 
     async def _refresh_system(self) -> None:
         """Refresh system panel."""
@@ -336,8 +343,12 @@ class JarvisDashboard(App):
             parts = raw.split("|")
             content = "\n".join(f"  {p.strip()}" for p in parts)
             self.query_one("#system-content", Static).update(content)
-        except Exception as e:
-            self.query_one("#system-content", Static).update(f"[red]Erreur: {e}[/red]")
+        except (OSError, LookupError, ValueError) as e:
+            logger.debug("_refresh_system failed: %s", e)
+            try:
+                self.query_one("#system-content", Static).update(f"[red]Erreur: {e}[/red]")
+            except LookupError:
+                pass
 
     async def _refresh_trading(self) -> None:
         """Refresh trading panel."""
@@ -352,8 +363,12 @@ class JarvisDashboard(App):
                 f"\n  {info}",
             ]
             self.query_one("#trading-content", Static).update("\n".join(lines))
-        except Exception as e:
-            self.query_one("#trading-content", Static).update(f"[red]Erreur: {e}[/red]")
+        except (OSError, LookupError, ImportError, AttributeError, TypeError) as e:
+            logger.debug("_refresh_trading failed: %s", e)
+            try:
+                self.query_one("#trading-content", Static).update(f"[red]Erreur: {e}[/red]")
+            except LookupError:
+                pass
 
     async def _refresh_skills(self) -> None:
         """Refresh skills panel."""
@@ -374,8 +389,12 @@ class JarvisDashboard(App):
                 lines.append("")
 
             self.query_one("#skills-content", Static).update("\n".join(lines))
-        except Exception as e:
-            self.query_one("#skills-content", Static).update(f"[red]Erreur: {e}[/red]")
+        except (OSError, LookupError, sqlite3.Error, AttributeError) as e:
+            logger.debug("_refresh_skills failed: %s", e)
+            try:
+                self.query_one("#skills-content", Static).update(f"[red]Erreur: {e}[/red]")
+            except LookupError:
+                pass
 
     async def _refresh_brain(self) -> None:
         """Refresh brain panel."""
@@ -395,8 +414,12 @@ class JarvisDashboard(App):
                     conf = f"{p['confidence']:.0%}"
                     lines.append(f"    {p['name']} ({p['count']}x, {conf})")
             self.query_one("#brain-content", Static).update("\n".join(lines))
-        except Exception as e:
-            self.query_one("#brain-content", Static).update(f"[red]Erreur: {e}[/red]")
+        except (OSError, LookupError, KeyError, sqlite3.Error) as e:
+            logger.debug("_refresh_brain failed: %s", e)
+            try:
+                self.query_one("#brain-content", Static).update(f"[red]Erreur: {e}[/red]")
+            except LookupError:
+                pass
 
     @on(Input.Submitted)
     async def handle_input(self, event: Input.Submitted) -> None:
@@ -461,7 +484,8 @@ class JarvisDashboard(App):
                 self._log("Pas assez d'historique pour apprendre.")
             await self._refresh_brain()
             await self._refresh_skills()
-        except Exception as e:
+        except (ImportError, OSError, KeyError, sqlite3.Error) as e:
+            logger.debug("action_brain failed: %s", e)
             self._log(f"[red]Erreur brain: {e}[/red]")
 
     async def _run_skill(self, name: str) -> None:
@@ -480,7 +504,8 @@ class JarvisDashboard(App):
                 )
             else:
                 self._log(f"[yellow]Skill '{name}' non trouve (score={score:.2f})[/yellow]")
-        except Exception as e:
+        except (ImportError, OSError, AttributeError, sqlite3.Error) as e:
+            logger.debug("action_skill failed: %s", e)
             self._log(f"[red]Erreur skill: {e}[/red]")
 
     async def _run_query(self, text: str) -> None:
@@ -489,10 +514,7 @@ class JarvisDashboard(App):
             node = config.lm_nodes[0]
             self._log(f"Envoi a {node.name} ({node.default_model})...")
             async with httpx.AsyncClient(timeout=60) as c:
-                # M1 Qwen3: /nothink prefix
-                input_text = text
-                if node.name == "M1" and "qwen" in node.default_model.lower():
-                    input_text = "/nothink\n" + text
+                input_text = prepare_lmstudio_input(text, node.name, node.default_model)
                 r = await c.post(f"{node.url}/api/v1/chat", json={
                     "model": node.default_model,
                     "input": input_text,
@@ -505,7 +527,8 @@ class JarvisDashboard(App):
                 from src.tools import extract_lms_output
                 response = extract_lms_output(r.json())
                 self._log(f"[green][{node.name}][/green] {response[:500]}")
-        except Exception as e:
+        except (httpx.HTTPError, OSError, KeyError, ValueError, IndexError) as e:
+            logger.debug("action_query failed: %s", e)
             self._log(f"[red]Erreur query: {e}[/red]")
 
     def action_refresh(self) -> None:

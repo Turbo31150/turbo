@@ -1,4 +1,5 @@
 """Test live des 28 nouvelles pipelines batch 3 (CRITIQUES: Canvas, Voice, Plugin, Embedding, Finetune, Brain)."""
+import os
 import urllib.request
 import json
 import subprocess
@@ -42,7 +43,7 @@ def m1_ask(prompt, max_tokens=256, timeout=20):
         data=body,
         headers={
             "Content-Type": "application/json",
-            "Authorization": "Bearer LMSTUDIO_KEY_M1_REDACTED"
+            "Authorization": f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}"
         }
     )
     resp = urllib.request.urlopen(req, timeout=timeout)

@@ -14,14 +14,18 @@ Flow:
 from __future__ import annotations
 
 import json
+import logging
 import time
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 
+logger = logging.getLogger("jarvis.brain")
+
+from src.config import prepare_lmstudio_input
 from src.skills import (
     load_skills, add_skill, Skill, SkillStep,
-    get_action_history, log_action, SKILLS_FILE,
+    get_action_history, log_action,
 )
 
 BRAIN_FILE = Path(__file__).resolve().parent.parent / "data" / "brain_state.json"
@@ -43,8 +47,8 @@ def _load_brain_state() -> dict:
     if BRAIN_FILE.exists():
         try:
             return json.loads(BRAIN_FILE.read_text(encoding="utf-8"))
-        except Exception:
-            pass
+        except (json.JSONDecodeError, OSError) as exc:
+            logger.debug("brain_state load failed: %s", exc)
     return {
         "patterns_detected": [],
         "skills_created": [],
@@ -284,7 +288,7 @@ async def cluster_suggest_skill(context: str, node_url: str = "http://10.5.0.2:1
                 f"{node_url}/api/v1/chat",
                 json={
                     "model": "qwen/qwen3-8b",
-                    "input": "/nothink\n" + prompt,
+                    "input": prepare_lmstudio_input(prompt, "M1", "qwen3-8b"),
                     "temperature": 0.2,
                     "max_output_tokens": 512,
                     "stream": False,
@@ -305,17 +309,13 @@ async def cluster_suggest_skill(context: str, node_url: str = "http://10.5.0.2:1
             data = json.loads(text)
             return data
     except httpx.ConnectError as e:
-        # Cluster unreachable — log for debugging
-        import logging
-        logging.warning(f"cluster_suggest_skill: Connexion impossible a {node_url} - {e}")
+        logger.warning("cluster_suggest_skill: Connexion impossible a %s - %s", node_url, e)
         return None
     except (json.JSONDecodeError, KeyError, IndexError) as e:
-        import logging
-        logging.warning(f"cluster_suggest_skill: Erreur parsing JSON - {e}")
+        logger.warning("cluster_suggest_skill: Erreur parsing JSON - %s", e)
         return None
-    except Exception as e:
-        import logging
-        logging.warning(f"cluster_suggest_skill: Erreur inattendue - {type(e).__name__}: {e}")
+    except (httpx.HTTPError, OSError, ValueError) as e:
+        logger.warning("cluster_suggest_skill: Erreur inattendue - %s: %s", type(e).__name__, e)
         return None
 
 

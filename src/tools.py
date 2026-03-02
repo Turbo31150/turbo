@@ -13,16 +13,21 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import re
+import sqlite3
 import subprocess
 import sys
 import time
+from pathlib import Path as _Path
 from typing import Any
+
+logger = logging.getLogger("jarvis.tools")
 
 import httpx
 from claude_agent_sdk import tool, create_sdk_mcp_server
 
-from src.config import config, SCRIPTS, PATHS
+from src.config import config, SCRIPTS, PATHS, prepare_lmstudio_input
 
 
 def _strip_thinking_tags(text: str) -> str:
@@ -136,7 +141,7 @@ async def _retry_request(
                 await asyncio.sleep(0.5 * (2 ** attempt))
         except httpx.HTTPStatusError:
             raise
-        except Exception as e:
+        except (httpx.HTTPError, OSError, ValueError) as e:
             last_error = e
             if attempt < max_retries:
                 await asyncio.sleep(0.5 * (2 ** attempt))
@@ -183,10 +188,7 @@ async def lm_query(args: dict[str, Any]) -> dict[str, Any]:
     timeout = config.get_timeout(mode)
     temp = 0.2 if mode == "fast" else config.temperature
 
-    # M1 Qwen3: /nothink prefix to disable thinking tokens (2x speed)
-    input_text = prompt
-    if node.name == "M1" and "qwen" in model.lower():
-        input_text = "/nothink\n" + prompt
+    input_text = prepare_lmstudio_input(prompt, node.name, model)
 
     try:
         t0 = time.monotonic()
@@ -211,7 +213,7 @@ async def lm_query(args: dict[str, Any]) -> dict[str, Any]:
         return _error(f"Noeud {node.name} hors ligne ({node.url})")
     except httpx.ReadTimeout:
         return _error(f"Timeout {node.name} ({timeout}s) — essaie mode=fast pour limiter les tokens")
-    except Exception as e:
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
         return _error(f"Erreur LM Studio: {e}")
 
 
@@ -262,7 +264,7 @@ async def lm_mcp_query(args: dict[str, Any]) -> dict[str, Any]:
         return _error(f"Noeud {node.name} hors ligne ({node.url})")
     except httpx.ReadTimeout:
         return _error(f"Timeout {node.name} (MCP peut etre lent) — essaie context_length plus petit")
-    except Exception as e:
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
         return _error(f"Erreur LM Studio MCP: {e}")
 
 
@@ -311,7 +313,7 @@ async def gemini_query(args: dict[str, Any]) -> dict[str, Any]:
         return _error(f"Gemini timeout ({config.gemini_node.timeout_ms / 1000}s)")
     except FileNotFoundError:
         return _error("node.js non trouve — gemini-proxy.js necessite Node.js")
-    except Exception as e:
+    except (OSError, subprocess.SubprocessError, ValueError) as e:
         return _error(f"Erreur Gemini: {e}")
 
 
@@ -344,7 +346,8 @@ async def bridge_query(args: dict[str, Any]) -> dict[str, Any]:
 
             if not result.get("is_error"):
                 return result
-        except Exception:
+        except (httpx.HTTPError, asyncio.TimeoutError, OSError) as exc:
+            logger.debug("bridge_query %s failed: %s", name, exc)
             continue
 
     return _error(f"Tous les noeuds ont echoue pour task_type={task_type}: {nodes}")
@@ -389,10 +392,7 @@ async def bridge_mesh(args: dict[str, Any]) -> dict[str, Any]:
             node = config.get_node(name)
             if not node:
                 return f"[{name}] ERREUR: noeud inconnu"
-            # M1 Qwen3: /nothink prefix
-            input_text = prompt
-            if upper == "M1" and "qwen" in node.default_model.lower():
-                input_text = "/nothink\n" + prompt
+            input_text = prepare_lmstudio_input(prompt, node.name, node.default_model)
             r = await client.post(f"{node.url}/api/v1/chat", json={
                 "model": node.default_model,
                 "input": input_text,
@@ -407,7 +407,7 @@ async def bridge_mesh(args: dict[str, Any]) -> dict[str, Any]:
 
         except asyncio.TimeoutError:
             return f"[{name}] TIMEOUT ({per_timeout}s)"
-        except Exception as e:
+        except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError, subprocess.SubprocessError) as e:
             return f"[{name}] ERREUR: {e}"
 
     results = await asyncio.gather(*[_query_one(n) for n in names], return_exceptions=True)
@@ -437,7 +437,7 @@ async def lm_models(args: dict[str, Any]) -> dict[str, Any]:
         r = await _retry_request("GET", f"{node.url}/api/v1/models", timeout=config.health_timeout, headers=node.auth_headers)
         models = [m["key"] for m in r.json().get("models", []) if m.get("loaded_instances")]
         return _text(f"Modeles: {', '.join(models) if models else 'aucun'}")
-    except Exception as e:
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
         return _error(str(e))
 
 
@@ -465,7 +465,8 @@ async def lm_cluster_status(args: dict[str, Any]) -> dict[str, Any]:
                 f"{cnt} modeles — {latency}ms (avg {avg}ms)\n"
                 f"       Modeles: {', '.join(models)}"
             )
-        except Exception:
+        except (httpx.HTTPError, OSError) as exc:
+            logger.debug("cluster_status %s offline: %s", n.name, exc)
             results.append(f"  [--] {n.name} ({n.role}) — hors ligne")
 
     for n in config.ollama_nodes:
@@ -482,7 +483,8 @@ async def lm_cluster_status(args: dict[str, Any]) -> dict[str, Any]:
                 f"  [OK] {n.name} ({n.role}) — {cnt} modeles — {latency}ms [Ollama]\n"
                 f"       Modeles: {', '.join(models)}"
             )
-        except Exception:
+        except (httpx.HTTPError, OSError) as exc:
+            logger.debug("cluster_status %s offline: %s", n.name, exc)
             results.append(f"  [--] {n.name} ({n.role}) — hors ligne [Ollama]")
 
     return _text(
@@ -535,7 +537,7 @@ async def consensus(args: dict[str, Any]) -> dict[str, Any]:
                 return f"[GEMINI/{config.gemini_node.default_model}] {_strip_thinking_tags(output)}"
             except asyncio.TimeoutError:
                 return f"[GEMINI] TIMEOUT ({per_timeout}s)"
-            except Exception as e:
+            except (OSError, subprocess.SubprocessError, ValueError) as e:
                 return f"[GEMINI] ERREUR: {e}"
 
         ol_node = config.get_ollama_node(name)
@@ -552,16 +554,13 @@ async def consensus(args: dict[str, Any]) -> dict[str, Any]:
                 return f"[{name}/{ol_node.default_model}] {_strip_thinking_tags(content)}"
             except asyncio.TimeoutError:
                 return f"[{name}/Ollama] TIMEOUT ({per_timeout}s)"
-            except Exception as e:
+            except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
                 return f"[{name}/Ollama] ERREUR: {e}"
 
         node = config.get_node(name)
         if not node:
             return f"[{name}] ERREUR: inconnu"
-        # M1 Qwen3: /nothink prefix
-        input_text = prompt
-        if name.upper() == "M1" and "qwen" in node.default_model.lower():
-            input_text = "/nothink\n" + prompt
+        input_text = prepare_lmstudio_input(prompt, node.name, node.default_model)
 
         try:
             r = await asyncio.wait_for(client.post(f"{node.url}/api/v1/chat", json={
@@ -576,7 +575,7 @@ async def consensus(args: dict[str, Any]) -> dict[str, Any]:
             return f"[{name}/{node.default_model}] {extract_lms_output(r.json())}"
         except asyncio.TimeoutError:
             return f"[{name}] TIMEOUT ({per_timeout}s)"
-        except Exception as e:
+        except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
             return f"[{name}] ERREUR: {e}"
 
     # Run all queries in parallel
@@ -705,7 +704,7 @@ async def ollama_query(args: dict[str, Any]) -> dict[str, Any]:
         return _text(f"[OL1/{model}] {r.json()['message']['content']} --- {latency}ms")
     except httpx.ConnectError:
         return _error("Ollama hors ligne (127.0.0.1:11434)")
-    except Exception as e:
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
         return _error(f"Erreur Ollama: {e}")
 
 
@@ -718,7 +717,7 @@ async def ollama_models(args: dict[str, Any]) -> dict[str, Any]:
         r = await _retry_request("GET", f"{node.url}/api/tags", timeout=config.health_timeout)
         models = [m["name"] for m in r.json().get("models", [])]
         return _text(f"Modeles Ollama: {', '.join(models) if models else 'aucun'}")
-    except Exception as e:
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
         return _error(f"Erreur Ollama: {e}")
 
 
@@ -733,7 +732,7 @@ async def ollama_pull(args: dict[str, Any]) -> dict[str, Any]:
         r = await client.post(f"{node.url}/api/pull", json={"name": model_name, "stream": False}, timeout=600)
         r.raise_for_status()
         return _text(f"Modele '{model_name}' telecharge avec succes.")
-    except Exception as e:
+    except (httpx.HTTPError, OSError) as e:
         return _error(f"Erreur pull Ollama: {e}")
 
 
@@ -754,7 +753,7 @@ async def ollama_status(args: dict[str, Any]) -> dict[str, Any]:
         )
     except httpx.ConnectError:
         return _error("Ollama OL1: OFFLINE (127.0.0.1:11434)")
-    except Exception as e:
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
         return _error(f"Erreur Ollama status: {e}")
 
 
@@ -829,7 +828,7 @@ async def ollama_web_search(args: dict[str, Any]) -> dict[str, Any]:
         if e.response.status_code == 401:
             return _error("Ollama cloud non authentifie. Lance 'ollama signin' pour te connecter.")
         return _error(f"Erreur web search: {e}")
-    except Exception as e:
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
         return _error(f"Erreur web search: {e}")
 
 
@@ -863,7 +862,7 @@ async def ollama_subagents(args: dict[str, Any]) -> dict[str, Any]:
             if e.response.status_code == 401:
                 return f"[{model}] Non authentifie — lance 'ollama signin'"
             return f"[{model}] Erreur: {e}"
-        except Exception as e:
+        except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
             return f"[{model}] Erreur: {e}"
 
     tasks = [
@@ -903,7 +902,7 @@ async def ollama_trading_analysis(args: dict[str, Any]) -> dict[str, Any]:
         try:
             result = await _ollama_cloud_query(prompt, model, timeout=90, system=system)
             return f"[{role}] {result}"
-        except Exception as e:
+        except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
             return f"[{role}] Erreur: {e}"
 
     results = await asyncio.gather(*[_run(m, r, p) for m, r, p in agents_config])
@@ -932,7 +931,7 @@ async def code_review_480b(args: dict[str, Any]) -> dict[str, Any]:
     try:
         result = await review_code(code, context=context)
         return _text(result.format_report())
-    except Exception as e:
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
         return _error(f"Code review echoue: {e}")
 
 
@@ -949,7 +948,7 @@ async def code_review_diff(args: dict[str, Any]) -> dict[str, Any]:
     try:
         result = await review_diff(diff_text)
         return _text(result.format_report())
-    except Exception as e:
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
         return _error(f"Diff review echoue: {e}")
 
 
@@ -971,7 +970,7 @@ async def code_review_dual(args: dict[str, Any]) -> dict[str, Any]:
         total_bugs = len(r480b.bugs) + len(rkimi.bugs)
         report += f"\n  CONSENSUS: {avg_score}/100 | {total_bugs} bugs detectes"
         return _text(report)
-    except Exception as e:
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
         return _error(f"Dual review echoue: {e}")
 
 
@@ -998,7 +997,7 @@ async def run_script(args: dict[str, Any]) -> dict[str, Any]:
         return _text(f"[{name}] exit={r.returncode}\n{out}")
     except subprocess.TimeoutExpired:
         return _error(f"Timeout 120s: {name}")
-    except Exception as e:
+    except (OSError, subprocess.SubprocessError, ValueError) as e:
         return _error(str(e))
 
 
@@ -1041,7 +1040,7 @@ async def trading_pipeline_v2(args: dict[str, Any]) -> dict[str, Any]:
         return _text(f"[Trading AI v2.2] exit={r.returncode}\n{out}")
     except subprocess.TimeoutExpired:
         return _error("Timeout 300s: pipeline GPU")
-    except Exception as e:
+    except (OSError, subprocess.SubprocessError, ValueError) as e:
         return _error(str(e))
 
 
@@ -1409,12 +1408,9 @@ def _error(text: str) -> dict[str, Any]:
 # DATABASE — SQL QUERIES
 # ═══════════════════════════════════════════════════════════════════════════
 
-import sqlite3
-from pathlib import Path as _Path
-
 _DB_ALIASES = {
-    "etoile": PATHS.get("etoile_db", _Path("F:/BUREAU/turbo/data/etoile.db")),
-    "jarvis": PATHS.get("jarvis_db", _Path("F:/BUREAU/turbo/data/jarvis.db")),
+    "etoile": PATHS.get("etoile_db", _Path(__file__).resolve().parent.parent / "data" / "etoile.db"),
+    "jarvis": PATHS.get("jarvis_db", _Path(__file__).resolve().parent.parent / "data" / "jarvis.db"),
     "trading": config.db_trading,
     "predictions": config.db_predictions,
 }
@@ -1456,7 +1452,7 @@ async def sql_query_tool(args: dict[str, Any]) -> dict[str, Any]:
             conn.commit()
             conn.close()
             return _text(f"OK — {affected} row(s) affected")
-    except Exception as e:
+    except (sqlite3.Error, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
         return _error(f"SQL error: {e}")
 
 
@@ -1469,7 +1465,7 @@ async def sql_list_tables_tool(args: dict[str, Any]) -> dict[str, Any]:
         tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()]
         conn.close()
         return _text(f"Tables in {args['database']}: {', '.join(tables)}" if tables else "No tables found")
-    except Exception as e:
+    except (sqlite3.Error, OSError, ValueError) as e:
         return _error(f"Error: {e}")
 
 
@@ -1484,7 +1480,7 @@ async def sql_schema_tool(args: dict[str, Any]) -> dict[str, Any]:
         if row:
             return _text(row[0])
         return _error(f"Table '{args['table']}' not found in {args['database']}")
-    except Exception as e:
+    except (sqlite3.Error, OSError, ValueError) as e:
         return _error(f"Error: {e}")
 
 
@@ -1502,6 +1498,7 @@ _DICT_VALID_ACTION_TYPES = {
     "system", "media", "browser", "voice", "shortcut", "script",
 }
 _DICT_TABLES = {"pipeline_dictionary", "domino_chains", "voice_corrections"}
+_SAFE_COL_RE = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
 
 
 @tool("dict_crud",
@@ -1521,7 +1518,7 @@ async def dict_crud_tool(args: dict[str, Any]) -> dict[str, Any]:
     if table not in _DICT_TABLES:
         return _error(f"Invalid table: {table}. Valid: {sorted(_DICT_TABLES)}")
 
-    db_path = str(PATHS.get("etoile_db", _Path("F:/BUREAU/turbo/data/etoile.db")))
+    db_path = str(PATHS.get("etoile_db", _Path(__file__).resolve().parent.parent / "data" / "etoile.db"))
     if not _Path(db_path).exists():
         return _error(f"Database not found: {db_path}")
 
@@ -1642,6 +1639,10 @@ async def dict_crud_tool(args: dict[str, Any]) -> dict[str, Any]:
             if not fields:
                 conn.close()
                 return _error("data.fields dict is required")
+            bad_cols = [k for k in fields if not _SAFE_COL_RE.match(k)]
+            if bad_cols:
+                conn.close()
+                return _error(f"Invalid column name(s): {bad_cols}")
             set_parts = [f"{k} = ?" for k in fields]
             values = list(fields.values()) + [int(record_id)]
             cursor = conn.execute(f"UPDATE {table} SET {', '.join(set_parts)} WHERE id = ?", values)
@@ -1667,7 +1668,7 @@ async def dict_crud_tool(args: dict[str, Any]) -> dict[str, Any]:
 
         conn.close()
         return _error(f"Unknown operation: {operation}. Valid: add, edit, delete, search, stats")
-    except Exception as e:
+    except (sqlite3.Error, OSError, KeyError, ValueError, json.JSONDecodeError, TypeError) as e:
         return _error(f"dict_crud error: {e}")
 
 

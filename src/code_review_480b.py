@@ -19,15 +19,25 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import subprocess
 import sys
 import time
 from dataclasses import dataclass
-from typing import Any
 
 import httpx
 
-OLLAMA_URL = "http://127.0.0.1:11434"
+from src.config import PATHS
+
+_TURBO_DIR_FWD = str(PATHS.get("turbo", "F:/BUREAU/turbo"))
+
+logger = logging.getLogger("jarvis.code_review")
+
+try:
+    from src.config import config as _cfg
+    OLLAMA_URL = _cfg.ollama_nodes[0].url if _cfg and _cfg.ollama_nodes else "http://127.0.0.1:11434"
+except ImportError:
+    OLLAMA_URL = "http://127.0.0.1:11434"
 
 # Modeles par ordre de priorite
 REVIEW_MODELS = [
@@ -226,7 +236,8 @@ async def review_code(
         try:
             content, latency = await _query_ollama(prompt, REVIEW_SYSTEM, model, timeout)
             return _parse_review(content, model, latency)
-        except Exception as e:
+        except (httpx.HTTPError, asyncio.TimeoutError, OSError, json.JSONDecodeError) as e:
+            logger.debug("review_code %s failed: %s", model, e)
             last_error = e
             continue
 
@@ -247,12 +258,12 @@ async def review_diff(diff_text: str | None = None) -> ReviewResult:
     if diff_text is None:
         # Try staged first, then unstaged
         result = subprocess.run(
-            ["git", "diff", "--staged"], capture_output=True, text=True, cwd="F:/BUREAU/turbo"
+            ["git", "diff", "--staged"], capture_output=True, text=True, cwd=_TURBO_DIR_FWD
         )
         diff_text = result.stdout.strip()
         if not diff_text:
             result = subprocess.run(
-                ["git", "diff"], capture_output=True, text=True, cwd="F:/BUREAU/turbo"
+                ["git", "diff"], capture_output=True, text=True, cwd=_TURBO_DIR_FWD
             )
             diff_text = result.stdout.strip()
         if not diff_text:
@@ -272,7 +283,8 @@ async def review_diff(diff_text: str | None = None) -> ReviewResult:
         try:
             content, latency = await _query_ollama(prompt, DIFF_REVIEW_SYSTEM, model, timeout)
             return _parse_review(content, model, latency)
-        except Exception as e:
+        except (httpx.HTTPError, asyncio.TimeoutError, OSError, json.JSONDecodeError) as e:
+            logger.debug("review_diff %s failed: %s", model, e)
             last_error = e
             continue
 
@@ -301,7 +313,7 @@ async def dual_review(code: str, context: str = "") -> tuple[ReviewResult, Revie
         try:
             content, latency = await _query_ollama(prompt, REVIEW_SYSTEM, model, timeout)
             return _parse_review(content, model, latency)
-        except Exception as e:
+        except (httpx.HTTPError, asyncio.TimeoutError, OSError, json.JSONDecodeError) as e:
             return ReviewResult(
                 model=model, score=0, verdict="ERROR",
                 bugs=[], security=[], performance=[], style=[],

@@ -10,9 +10,10 @@ following next_cmd links until no more chains match.
 from __future__ import annotations
 
 import sqlite3
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from pathlib import Path
 
-DB_PATH = "F:/BUREAU/turbo/data/etoile.db"
+DB_PATH = str(Path(__file__).resolve().parent.parent / "data" / "etoile.db")
 
 
 @dataclass

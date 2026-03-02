@@ -6,15 +6,21 @@ Pipeline: Raw STT → Nettoyage → Corrections locales → Phonetique →
 
 from __future__ import annotations
 
+import logging
 import re
+import threading
 import unicodedata
 from difflib import SequenceMatcher, get_close_matches
+from functools import lru_cache
 from typing import Any
+
+logger = logging.getLogger("jarvis.voice_correction")
 
 from src.commands import (
     COMMANDS, JarvisCommand, VOICE_CORRECTIONS,
     APP_PATHS, SITE_ALIASES, correct_voice_text,
 )
+from src.config import prepare_lmstudio_input
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -256,6 +262,7 @@ def normalize_text(text: str) -> str:
     return text.strip()
 
 
+@lru_cache(maxsize=512)
 def remove_accents(text: str) -> str:
     """Remove accents from text for fuzzy comparison."""
     nfkd = unicodedata.normalize("NFKD", text)
@@ -326,6 +333,7 @@ def extract_action_intent(text: str) -> str:
 # PHONETIC SIMILARITY
 # ═══════════════════════════════════════════════════════════════════════════
 
+@lru_cache(maxsize=1024)
 def phonetic_normalize(word: str) -> str:
     """Reduce a French word to its phonetic skeleton."""
     word = remove_accents(word.lower())
@@ -419,6 +427,9 @@ def format_suggestions(suggestions: list[tuple[JarvisCommand, float]]) -> str:
 # HIT COUNT TRACKING
 # ═══════════════════════════════════════════════════════════════════════════
 
+_db_lock = threading.Lock()
+
+
 def _increment_voice_correction_hits(original: str, corrected: str) -> None:
     """Increment hit_count for words that were corrected by the dictionary."""
     orig_words = original.lower().split()
@@ -430,20 +441,19 @@ def _increment_voice_correction_hits(original: str, corrected: str) -> None:
         import sqlite3
         import os
         base = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
-        for db_name in ("jarvis.db", "etoile.db"):
-            db_path = os.path.join(base, "data", db_name)
-            if not os.path.exists(db_path):
-                continue
-            conn = sqlite3.connect(db_path)
-            for wrong_word in changed:
-                conn.execute(
-                    "UPDATE voice_corrections SET hit_count = hit_count + 1 WHERE wrong = ?",
-                    (wrong_word,),
-                )
-            conn.commit()
-            conn.close()
-    except Exception:
-        pass
+        with _db_lock:
+            for db_name in ("jarvis.db", "etoile.db"):
+                db_path = os.path.join(base, "data", db_name)
+                if not os.path.exists(db_path):
+                    continue
+                with sqlite3.connect(db_path, timeout=10) as conn:
+                    for wrong_word in changed:
+                        conn.execute(
+                            "UPDATE voice_corrections SET hit_count = hit_count + 1 WHERE wrong = ?",
+                            (wrong_word,),
+                        )
+    except sqlite3.Error as exc:
+        logger.debug("voice_correction hit_count update failed: %s", exc)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -453,8 +463,8 @@ def _increment_voice_correction_hits(original: str, corrected: str) -> None:
 async def full_correction_pipeline(
     raw_text: str,
     use_ia: bool = True,
-    ia_url: str = "http://127.0.0.1:11434",
-    ia_model: str = "qwen3:1.7b",
+    ia_url: str = "",
+    ia_model: str = "",
 ) -> dict[str, Any]:
     """Complete voice correction pipeline.
 
@@ -469,6 +479,22 @@ async def full_correction_pipeline(
     - suggestions: alternative commands if low confidence
     - method: how the match was found
     """
+    # Resolve defaults from config at runtime
+    if not ia_url or not ia_model:
+        try:
+            from src.config import config as _cfg
+            ol = _cfg.get_ollama_node("OL1")
+            if ol and not ia_url:
+                ia_url = ol.url
+            if ol and not ia_model:
+                ia_model = ol.default_model
+        except ImportError:
+            pass
+    if not ia_url:
+        ia_url = "http://127.0.0.1:11434"
+    if not ia_model:
+        ia_model = "qwen3:1.7b"
+
     result: dict[str, Any] = {
         "raw": raw_text,
         "cleaned": "",
@@ -531,8 +557,8 @@ async def full_correction_pipeline(
             if ia_corrected and ia_corrected.lower().strip() != corrected.lower().strip():
                 result["corrected"] = ia_corrected
                 corrected = ia_corrected
-        except Exception:
-            pass
+        except (OSError, ValueError, TimeoutError, KeyError, ImportError) as exc:
+            logger.debug("IA correction failed for %r: %s", corrected, exc)
 
     # Step 5: Extract action intent (remove fillers, normalize verbs)
     intent = extract_action_intent(corrected)
@@ -635,8 +661,8 @@ async def _ia_correct(text: str, url: str, model: str) -> str:
                 )
                 r.raise_for_status()
                 return r.json()["message"]["content"].strip()
-        except Exception:
-            pass
+        except (httpx.HTTPError, OSError, ValueError, KeyError) as exc:
+            logger.debug("OL1 correction fallback failed: %s", exc)
     # Fallback: LM Studio M1 (qwen3-8b — fast and accurate)
     node = config.get_node("M1")
     if node:
@@ -644,14 +670,14 @@ async def _ia_correct(text: str, url: str, model: str) -> str:
             async with httpx.AsyncClient(timeout=5) as c:
                 r = await c.post(
                     f"{node.url}/api/v1/chat",
-                    json={"model": node.default_model, "input": ("/nothink\n" if node.name == "M1" and "qwen" in node.default_model.lower() else "") + text, "system_prompt": messages[0]["content"] if messages and messages[0]["role"] == "system" else "", "temperature": 0.1, "max_output_tokens": 200, "stream": False, "store": False},
+                    json={"model": node.default_model, "input": prepare_lmstudio_input(text, node.name, node.default_model), "system_prompt": messages[0]["content"] if messages and messages[0]["role"] == "system" else "", "temperature": 0.1, "max_output_tokens": 200, "stream": False, "store": False},
                     headers=node.auth_headers,
                 )
                 r.raise_for_status()
                 from src.tools import extract_lms_output
                 return extract_lms_output(r.json()).strip()
-        except Exception:
-            pass
+        except (httpx.HTTPError, OSError, ValueError, KeyError) as exc:
+            logger.debug("M1 correction fallback failed: %s", exc)
     return text
 
 
@@ -660,9 +686,10 @@ async def _ia_correct(text: str, url: str, model: str) -> str:
 # ═══════════════════════════════════════════════════════════════════════════
 
 class VoiceSession:
-    """Track voice session state for multi-turn correction."""
+    """Track voice session state for multi-turn correction (thread-safe)."""
 
     def __init__(self):
+        self._lock = threading.Lock()
         self.last_suggestions: list[tuple[JarvisCommand, float]] = []
         self.last_raw: str = ""
         self.correction_count: int = 0
@@ -695,7 +722,8 @@ class VoiceSession:
         return text.strip().lower() in denials
 
     def add_to_history(self, text: str):
-        """Add corrected text to history for context."""
-        self.history.append(text)
-        if len(self.history) > 10:
-            self.history.pop(0)
+        """Add corrected text to history for context (thread-safe)."""
+        with self._lock:
+            self.history.append(text)
+            if len(self.history) > 10:
+                self.history.pop(0)

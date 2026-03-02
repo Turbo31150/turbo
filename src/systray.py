@@ -10,10 +10,12 @@ Provides a persistent icon in Windows system tray with:
 
 from __future__ import annotations
 
+import logging
 import subprocess
-import sys
 import threading
 from pathlib import Path
+
+logger = logging.getLogger("jarvis.systray")
 
 from PIL import Image, ImageDraw, ImageFont
 import pystray
@@ -75,7 +77,7 @@ def _quick_cluster_status() -> None:
                     r.raise_for_status()
                     cnt = len([m for m in r.json().get("models", []) if m.get("loaded_instances")])
                     results.append(f"{node.name}: OK ({cnt} modeles)")
-                except Exception:
+                except (httpx.HTTPError, OSError):
                     results.append(f"{node.name}: OFFLINE")
         return "\n".join(results)
 
@@ -86,8 +88,8 @@ def _quick_cluster_status() -> None:
         # Show via Windows notification
         from src.windows import notify_windows
         notify_windows("JARVIS Cluster", text)
-    except Exception as e:
-        print(f"[SYSTRAY] Erreur cluster: {e}")
+    except (RuntimeError, OSError) as e:
+        logger.debug("Systray cluster check failed: %s", e)
 
 
 def _notify_action(title: str, message: str) -> None:
@@ -95,8 +97,8 @@ def _notify_action(title: str, message: str) -> None:
     try:
         from src.windows import notify_windows
         notify_windows(title, message)
-    except Exception:
-        pass
+    except (ImportError, OSError) as exc:
+        logger.debug("_notify_action failed: %s", exc)
 
 
 def create_systray() -> pystray.Icon:

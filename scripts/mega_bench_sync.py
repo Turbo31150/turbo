@@ -1,5 +1,5 @@
 """MEGA BENCHMARK SYNC — Tests sequentiels par noeud pour flush immediat."""
-import json, time, sys, io, subprocess
+import json, os, time, sys, io, subprocess
 from datetime import datetime
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
@@ -7,13 +7,13 @@ sys.stdout.reconfigure(line_buffering=True)
 
 NODES = {
     "M1": {"url": "http://10.5.0.2:1234/api/v1/chat", "model": "qwen3-8b",
-            "auth": "LMSTUDIO_KEY_M1_REDACTED", "type": "lm",
+            "auth": os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", "")), "type": "lm",
             "prefix": "/nothink\n", "weight": 1.8, "tok": 1024},
     "M2": {"url": "http://192.168.1.26:1234/api/v1/chat", "model": "deepseek-coder-v2-lite-instruct",
-            "auth": "LMSTUDIO_KEY_M2_REDACTED", "type": "lm",
+            "auth": os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", "")), "type": "lm",
             "prefix": "", "weight": 1.4, "tok": 512},
     "M3": {"url": "http://192.168.1.113:1234/api/v1/chat", "model": "mistral-7b-instruct-v0.3",
-            "auth": "LMSTUDIO_KEY_M3_REDACTED", "type": "lm",
+            "auth": os.getenv("LM_STUDIO_3_API_KEY", os.getenv("LM_STUDIO_3_KEY", "")), "type": "lm",
             "prefix": "", "weight": 1.0, "tok": 512},
     "OL1": {"url": "http://127.0.0.1:11434/api/chat", "model": "qwen3:1.7b",
              "type": "ol", "prefix": "/nothink\n", "weight": 1.3, "tok": 512},

@@ -29,24 +29,27 @@ async def speak_streaming(text: str, voice: str = VOICE, rate: str = RATE) -> No
         return
 
     audio_data = b"".join(audio_chunks)
-    tmp = Path(tempfile.mktemp(suffix=".mp3"))
+    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as f:
+        tmp = Path(f.name)
+        f.write(audio_data)
     try:
-        tmp.write_bytes(audio_data)
-        proc = await asyncio.create_subprocess_exec(
-            "ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", str(tmp),
-            stdout=asyncio.subprocess.DEVNULL,
-            stderr=asyncio.subprocess.DEVNULL,
-        )
-        await proc.wait()
-    except FileNotFoundError:
-        # Fallback: PowerShell media player
-        proc = await asyncio.create_subprocess_exec(
-            "powershell", "-Command",
-            f"Add-Type -AssemblyName PresentationCore; $p = New-Object System.Windows.Media.MediaPlayer; $p.Open('{tmp}'); $p.Play(); Start-Sleep -Seconds 10",
-            stdout=asyncio.subprocess.DEVNULL,
-            stderr=asyncio.subprocess.DEVNULL,
-        )
-        await proc.wait()
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                "ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", str(tmp),
+                stdout=asyncio.subprocess.DEVNULL,
+                stderr=asyncio.subprocess.DEVNULL,
+            )
+            await proc.wait()
+        except FileNotFoundError:
+            # Fallback: PowerShell media player — escape path for safety
+            safe_path = str(tmp).replace("'", "''")
+            proc = await asyncio.create_subprocess_exec(
+                "powershell", "-Command",
+                f"Add-Type -AssemblyName PresentationCore; $p = New-Object System.Windows.Media.MediaPlayer; $p.Open('{safe_path}'); $p.Play(); Start-Sleep -Seconds 10",
+                stdout=asyncio.subprocess.DEVNULL,
+                stderr=asyncio.subprocess.DEVNULL,
+            )
+            await proc.wait()
     finally:
         tmp.unlink(missing_ok=True)
 

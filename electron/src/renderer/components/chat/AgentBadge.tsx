@@ -1,4 +1,5 @@
 import React from 'react';
+import { COLORS, FONT } from '../../lib/theme';
 
 interface AgentBadgeProps {
   agent: string;
@@ -6,17 +7,17 @@ interface AgentBadgeProps {
 }
 
 const AGENT_COLORS: Record<string, string> = {
-  'ia-deep': '#c084fc',     // purple
-  'ia-fast': '#f97316',     // orange
-  'ia-check': '#10b981',    // green
-  'ia-trading': '#eab308',  // yellow
-  'ia-system': '#6b7280',   // gray
-  'ia-bridge': '#f97316',   // orange
-  'ia-consensus': '#ec4899', // pink
+  'ia-deep': COLORS.purple,
+  'ia-fast': COLORS.orange,
+  'ia-check': COLORS.green,
+  'ia-trading': COLORS.yellow,
+  'ia-system': COLORS.textDim,
+  'ia-bridge': COLORS.orange,
+  'ia-consensus': COLORS.pink,
 };
 
 function getAgentColor(agent: string): string {
-  return AGENT_COLORS[agent] || '#6b7280';
+  return AGENT_COLORS[agent] || COLORS.textDim;
 }
 
 export default function AgentBadge({ agent, small = false }: AgentBadgeProps) {
@@ -29,7 +30,7 @@ export default function AgentBadge({ agent, small = false }: AgentBadgeProps) {
     borderRadius: 12,
     fontSize: small ? 9 : 11,
     fontWeight: 700,
-    fontFamily: 'Consolas, "Courier New", monospace',
+    fontFamily: FONT,
     color: color,
     backgroundColor: `${color}22`,
     border: `1px solid ${color}44`,

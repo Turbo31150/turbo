@@ -1,10 +1,22 @@
 """Chat route — AI conversation via Claude SDK + Commander pipeline + MAO consensus."""
 import asyncio
+import inspect
 import json
+import logging
 import os
 import time
 import traceback
+from pathlib import Path
 from typing import Any
+
+import httpx
+
+from python_ws.helpers import strip_agent_tag, extract_lmstudio_content
+
+logger = logging.getLogger("jarvis.chat")
+
+# Turbo root — resolved relative to this file (python_ws/routes/chat.py → turbo/)
+_TURBO_ROOT = Path(__file__).resolve().parent.parent.parent
 
 # Try to import src modules
 try:
@@ -20,8 +32,28 @@ except ImportError:
     build_commander_enrichment = None
 
 
+MAX_MESSAGE_LENGTH = 10_000  # 10K chars max per message
+
+# Extract cluster URLs from config (falls back to defaults if config unavailable)
+_OLLAMA_CHAT = "http://127.0.0.1:11434/api/chat"
+_M1_CHAT = "http://127.0.0.1:1234/api/v1/chat"
+_M2_CHAT = "http://192.168.1.26:1234/api/v1/chat"
+_M3_CHAT = "http://192.168.1.113:1234/api/v1/chat"
+if jarvis_config:
+    for _n in jarvis_config.lm_nodes:
+        if _n.name == "M1":
+            _M1_CHAT = f"{_n.url}/api/v1/chat"
+        elif _n.name == "M2":
+            _M2_CHAT = f"{_n.url}/api/v1/chat"
+        elif _n.name == "M3":
+            _M3_CHAT = f"{_n.url}/api/v1/chat"
+    if jarvis_config.ollama_nodes:
+        _OLLAMA_CHAT = f"{jarvis_config.ollama_nodes[0].url}/api/chat"
+MAX_SESSION_MESSAGES = 200   # Keep last 200 messages in memory
+
+
 class ChatSession:
-    """Manages a chat conversation."""
+    """Manages a chat conversation with bounded history."""
 
     def __init__(self):
         self.messages: list[dict] = []
@@ -32,12 +64,15 @@ class ChatSession:
         msg = {
             "id": f"msg_{len(self.messages)}_{int(time.time()*1000)}",
             "role": role,
-            "content": content,
+            "content": content[:MAX_MESSAGE_LENGTH],
             "agent": agent,
             "tool_calls": tool_calls or [],
             "timestamp": time.time(),
         }
         self.messages.append(msg)
+        # Evict oldest messages to prevent unbounded growth
+        if len(self.messages) > MAX_SESSION_MESSAGES:
+            self.messages = self.messages[-MAX_SESSION_MESSAGES:]
         return msg
 
     def clear(self):
@@ -64,6 +99,8 @@ async def _send_message(payload: dict) -> dict:
     text = (payload.get("content") or payload.get("text") or "").strip()
     if not text:
         return {"error": "Empty message"}
+    if len(text) > MAX_MESSAGE_LENGTH:
+        text = text[:MAX_MESSAGE_LENGTH]
 
     # Add user message
     user_msg = _session.add_message("user", text)
@@ -107,14 +144,14 @@ async def _send_message(payload: dict) -> dict:
         task_type = "simple"
         if classify_task:
             try:
-                import inspect
                 if inspect.iscoroutinefunction(classify_task):
                     task_type = await classify_task(text)
                 else:
                     task_type = await asyncio.to_thread(classify_task, text)
                 if not isinstance(task_type, str):
                     task_type = "simple"
-            except Exception:
+            except (ImportError, asyncio.TimeoutError, ValueError, TypeError) as e:
+                logger.warning("classify_task failed: %s", e)
                 task_type = "simple"
 
         # Consensus via classifier (not /consensus prefix)
@@ -135,7 +172,8 @@ async def _send_message(payload: dict) -> dict:
             "agent_message": agent_msg,
             "task_type": task_type,
         }
-    except Exception as e:
+    except (asyncio.TimeoutError, KeyError, ValueError, RuntimeError, OSError) as e:
+        logger.error("_send_message error: %s\n%s", e, traceback.format_exc())
         error_msg = _session.add_message("system", f"Erreur: {str(e)}")
         return {"error": str(e), "message": error_msg}
 
@@ -150,7 +188,8 @@ async def _try_execute_command(text: str) -> dict | None:
 
     try:
         result = await full_correction_pipeline(text)
-    except Exception:
+    except (OSError, ValueError, KeyError) as exc:
+        logger.debug("_try_execute_command correction failed: %s", exc)
         return None
 
     cmd = result.get("command")
@@ -163,7 +202,7 @@ async def _try_execute_command(text: str) -> dict | None:
     # Execute the command
     try:
         output = await execute_command(cmd, params)
-    except Exception as e:
+    except (asyncio.TimeoutError, RuntimeError, ValueError) as e:
         output = f"Erreur execution: {e}"
 
     # Skip special sentinel values — those need IA handling
@@ -199,12 +238,7 @@ def _build_chat_history(current_text: str, max_turns: int = 6) -> list[dict]:
         if role == "user":
             history.append({"role": "user", "content": content})
         elif role == "assistant":
-            # Strip [M1]/[OL1] tags from history to avoid confusing the model
-            clean = content
-            for tag in ("[M1] ", "[OL1] ", "[M2] ", "[M3] ", "[GEMINI] ", "[CLAUDE] ", "[GPT-OSS] ", "[DEVSTRAL-2] ", "[GLM-4] ", "[MINIMAX-M2] ", "[QWEN3] "):
-                if clean.startswith(tag):
-                    clean = clean[len(tag):]
-            history.append({"role": "assistant", "content": clean})
+            history.append({"role": "assistant", "content": strip_agent_tag(content)})
     # Add current user message
     history.append({"role": "user", "content": current_text})
     return history
@@ -220,40 +254,45 @@ def _build_lmstudio_input(current_text: str, max_turns: int = 6) -> str:
         if role == "user":
             parts.append(f"\nUtilisateur: {content}")
         elif role == "assistant":
-            clean = content
-            for tag in ("[M1] ", "[OL1] ", "[M2] ", "[M3] ", "[GEMINI] ", "[CLAUDE] ", "[GPT-OSS] ", "[DEVSTRAL-2] ", "[GLM-4] ", "[MINIMAX-M2] ", "[QWEN3] "):
-                if clean.startswith(tag):
-                    clean = clean[len(tag):]
-            parts.append(f"\nJARVIS: {clean}")
+            parts.append(f"\nJARVIS: {strip_agent_tag(content)}")
     parts.append(f"\nUtilisateur: {current_text}")
     return "\n".join(parts)
+
+
+def _get_model_auth(model_entry: dict) -> str:
+    """Resolve auth for a model entry: 'auth_node' → config lookup, 'auth' → direct value."""
+    if "auth_node" in model_entry and jarvis_config:
+        node = jarvis_config.get_node(model_entry["auth_node"])
+        if node:
+            return node.auth_headers.get("Authorization", "")
+    return model_entry.get("auth", "")
 
 
 ## All available models with metadata for the frontend
 ALL_MODELS = [
     {"id": "gpt-oss:120b-cloud", "name": "gpt-oss 120B", "group": "cloud", "score": 100, "weight": 1.9,
-     "url": "http://127.0.0.1:11434/api/chat", "backend": "ollama", "speed": "51 tok/s"},
+     "url": _OLLAMA_CHAT, "backend": "ollama", "speed": "51 tok/s"},
     {"id": "qwen3-8b", "name": "M1 / qwen3-8b", "group": "local", "score": 98, "weight": 1.8,
-     "url": "http://127.0.0.1:1234/api/v1/chat", "backend": "lmstudio", "speed": "45 tok/s"},
+     "url": _M1_CHAT, "backend": "lmstudio", "speed": "45 tok/s"},
     {"id": "devstral-2:123b-cloud", "name": "devstral-2 123B", "group": "cloud", "score": 94, "weight": 1.5,
-     "url": "http://127.0.0.1:11434/api/chat", "backend": "ollama", "speed": "36 tok/s"},
+     "url": _OLLAMA_CHAT, "backend": "ollama", "speed": "36 tok/s"},
     {"id": "deepseek-coder-v2-lite-instruct", "name": "M2 / deepseek-coder", "group": "local", "score": 85, "weight": 1.4,
-     "url": "http://192.168.1.26:1234/api/v1/chat", "backend": "lmstudio",
-     "auth": "Bearer LMSTUDIO_KEY_M2_REDACTED", "speed": "15 tok/s"},
+     "url": _M2_CHAT, "backend": "lmstudio",
+     "auth_node": "M2", "speed": "15 tok/s"},
     {"id": "qwen3:1.7b", "name": "OL1 / qwen3 1.7B", "group": "local", "score": 88, "weight": 1.3,
-     "url": "http://127.0.0.1:11434/api/chat", "backend": "ollama", "speed": "84 tok/s"},
+     "url": _OLLAMA_CHAT, "backend": "ollama", "speed": "84 tok/s"},
     {"id": "glm-4.7:cloud", "name": "GLM 4.7", "group": "cloud", "score": 88, "weight": 1.2,
-     "url": "http://127.0.0.1:11434/api/chat", "backend": "ollama", "speed": "48 tok/s"},
+     "url": _OLLAMA_CHAT, "backend": "ollama", "speed": "48 tok/s"},
     {"id": "minimax-m2.5:cloud", "name": "Minimax (web)", "group": "cloud", "score": 80, "weight": 1.0,
-     "url": "http://127.0.0.1:11434/api/chat", "backend": "ollama", "speed": "var"},
+     "url": _OLLAMA_CHAT, "backend": "ollama", "speed": "var"},
     {"id": "mistral-7b-instruct-v0.3", "name": "M3 / mistral-7b", "group": "local", "score": 89, "weight": 0.8,
-     "url": "http://192.168.1.113:1234/api/v1/chat", "backend": "lmstudio",
-     "auth": "Bearer LMSTUDIO_KEY_M3_REDACTED", "speed": "10 tok/s"},
+     "url": _M3_CHAT, "backend": "lmstudio",
+     "auth_node": "M3", "speed": "10 tok/s"},
     # Proxy backends (subprocess node)
     {"id": "gemini-3-pro", "name": "GEMINI / gemini-3-pro", "group": "proxy", "score": 74, "weight": 1.2,
-     "backend": "proxy", "proxy_path": "F:/BUREAU/turbo/gemini-proxy.js", "speed": "var"},
+     "backend": "proxy", "proxy_path": str(_TURBO_ROOT / "gemini-proxy.js"), "speed": "var"},
     {"id": "claude-opus", "name": "CLAUDE / opus", "group": "proxy", "score": 85, "weight": 1.2,
-     "backend": "proxy", "proxy_path": "F:/BUREAU/turbo/claude-proxy.js", "speed": "var"},
+     "backend": "proxy", "proxy_path": str(_TURBO_ROOT / "claude-proxy.js"), "speed": "var"},
 ]
 
 # Health cache for models (refreshed every 30s)
@@ -263,6 +302,7 @@ _health_ts: float = 0
 
 async def _query_proxy(proxy_path: str, prompt: str, timeout: float = 120.0) -> str | None:
     """Query GEMINI or CLAUDE via their Node.js proxy subprocess."""
+    proc: asyncio.subprocess.Process | None = None
     try:
         proc = await asyncio.create_subprocess_exec(
             "node", proxy_path, prompt,
@@ -275,18 +315,20 @@ async def _query_proxy(proxy_path: str, prompt: str, timeout: float = 120.0) -> 
             if text:
                 return text
     except asyncio.TimeoutError:
-        try:
-            proc.kill()
-        except Exception:
-            pass
-    except Exception:
-        pass
+        if proc is not None:
+            try:
+                proc.kill()
+                await proc.wait()
+            except OSError:
+                pass
+        logger.debug("_query_proxy timeout after %.0fs: %s", timeout, proxy_path)
+    except OSError as exc:
+        logger.debug("_query_proxy failed: %s", exc)
     return None
 
 
 async def check_models_health() -> dict:
     """Health check all models, return status dict."""
-    import httpx
     global _model_health, _health_ts
     now = time.time()
     if now - _health_ts < 30:
@@ -300,16 +342,19 @@ async def check_models_health() -> dict:
                     # Proxy health: check if proxy JS file exists
                     results[m["id"]] = os.path.isfile(m.get("proxy_path", ""))
                 elif m["backend"] == "ollama":
-                    r = await client.get("http://127.0.0.1:11434/api/tags")
+                    ollama_base = _OLLAMA_CHAT.rsplit("/api/chat", 1)[0]
+                    r = await client.get(f"{ollama_base}/api/tags")
                     results[m["id"]] = r.status_code == 200
                 else:
                     url = m["url"].replace("/api/v1/chat", "/api/v1/models")
                     headers = {}
-                    if m.get("auth"):
-                        headers["Authorization"] = m["auth"]
+                    auth = _get_model_auth(m)
+                    if auth:
+                        headers["Authorization"] = auth
                     r = await client.get(url, headers=headers)
                     results[m["id"]] = r.status_code == 200
-            except Exception:
+            except (httpx.HTTPError, OSError) as exc:
+                logger.debug("health check %s failed: %s", m["id"], exc)
                 results[m["id"]] = False
     _model_health = results
     _health_ts = now
@@ -320,7 +365,7 @@ async def get_models_with_status() -> list[dict]:
     """Return all models with online/offline status."""
     health = await check_models_health()
     return [
-        {**{k: v for k, v in m.items() if k not in ("url", "auth", "backend", "proxy_path")},
+        {**{k: v for k, v in m.items() if k not in ("url", "auth", "auth_node", "backend", "proxy_path")},
          "online": health.get(m["id"], False)}
         for m in ALL_MODELS
     ]
@@ -341,7 +386,6 @@ ROUTING_MATRIX = {
 
 async def _query_local_ia(text: str, task_type: str) -> str:
     """Query IA nodes for a response using full routing matrix."""
-    import httpx
 
     # Build node priority from routing matrix (copy to avoid mutating the original)
     model_ids = list(ROUTING_MATRIX.get(task_type, ROUTING_MATRIX["simple"]))
@@ -363,8 +407,9 @@ async def _query_local_ia(text: str, task_type: str) -> str:
             node["proxy_path"] = m["proxy_path"]
         else:
             node["url"] = m["url"]
-        if m.get("auth"):
-            node["auth"] = m["auth"]
+        auth = _get_model_auth(m)
+        if auth:
+            node["auth"] = auth
         nodes_priority.append(node)
 
     # Build conversation history with memory
@@ -407,17 +452,11 @@ async def _query_local_ia(text: str, task_type: str) -> str:
                     data = resp.json()
                     if data.get("error"):
                         continue
-                    # LM Studio: output[].content is string or content[].text
-                    for item in reversed(data.get("output", [])):
-                        if isinstance(item, dict) and item.get("type") == "message":
-                            c = item.get("content", "")
-                            if isinstance(c, str) and c.strip():
-                                return f"[{node['name']}] {c.strip()}"
-                            if isinstance(c, list):
-                                for part in c:
-                                    if isinstance(part, dict) and part.get("text", "").strip():
-                                        return f"[{node['name']}] {part['text'].strip()}"
-            except Exception:
+                    text = extract_lmstudio_content(data)
+                    if text:
+                        return f"[{node['name']}] {text}"
+            except (httpx.HTTPError, asyncio.TimeoutError, OSError, KeyError) as exc:
+                logger.debug("_query_local_ia %s failed: %s", node.get("name", "?"), exc)
                 continue
 
     return "Aucun agent disponible."
@@ -447,7 +486,6 @@ CONSENSUS_WEIGHTS = {
 
 async def _query_single_node(model_id: str, text: str, chat_messages: list, lmstudio_input: str) -> dict:
     """Query a single node and return {model, content, latency} or {model, error}."""
-    import httpx
     model_map = {m["id"]: m for m in ALL_MODELS}
     m = model_map.get(model_id)
     if not m:
@@ -474,24 +512,19 @@ async def _query_single_node(model_id: str, text: str, chat_messages: list, lmst
                     return {"model": model_id, "name": name, "content": content.strip(), "latency": round(time.time() - start, 2)}
             else:
                 headers = {"Content-Type": "application/json"}
-                if m.get("auth"):
-                    headers["Authorization"] = m["auth"]
+                auth = _get_model_auth(m)
+                if auth:
+                    headers["Authorization"] = auth
                 resp = await client.post(m["url"], headers=headers, json={
                     "model": model_id, "input": lmstudio_input,
                     "temperature": 0.3, "max_output_tokens": 512,
                     "stream": False, "store": False,
                 })
                 data = resp.json()
-                for item in reversed(data.get("output", [])):
-                    if isinstance(item, dict) and item.get("type") == "message":
-                        c = item.get("content", "")
-                        if isinstance(c, str) and c.strip():
-                            return {"model": model_id, "name": name, "content": c.strip(), "latency": round(time.time() - start, 2)}
-                        if isinstance(c, list):
-                            for part in c:
-                                if isinstance(part, dict) and part.get("text", "").strip():
-                                    return {"model": model_id, "name": name, "content": part["text"].strip(), "latency": round(time.time() - start, 2)}
-    except Exception as e:
+                text = extract_lmstudio_content(data)
+                if text:
+                    return {"model": model_id, "name": name, "content": text, "latency": round(time.time() - start, 2)}
+    except (httpx.HTTPError, asyncio.TimeoutError, OSError, KeyError) as e:
         return {"model": model_id, "name": name, "error": str(e)}
     return {"model": model_id, "name": name, "error": "empty response"}
 

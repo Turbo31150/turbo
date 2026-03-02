@@ -12,7 +12,19 @@ Examples:
 from __future__ import annotations
 
 import json
+import logging
+import os
 import time
+
+logger = logging.getLogger("jarvis.skills")
+
+_M1_KEY = os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", ""))
+_M2_KEY = os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", ""))
+
+from src.config import PATHS
+
+_TURBO_DIR = str(PATHS.get("turbo", "F:/BUREAU/turbo")).replace("/", "\\")
+
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any
@@ -65,7 +77,8 @@ def load_skills() -> list[Skill]:
             steps = [SkillStep(**st) for st in s.pop("steps", [])]
             skills.append(Skill(**s, steps=steps))
         return skills
-    except Exception:
+    except (json.JSONDecodeError, OSError, TypeError) as exc:
+        logger.debug("skills load failed, using defaults: %s", exc)
         return _default_skills()
 
 
@@ -148,8 +161,8 @@ def log_action(action: str, result: str, success: bool):
     if HISTORY_FILE.exists():
         try:
             history = json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
-        except Exception:
-            pass
+        except (json.JSONDecodeError, OSError) as exc:
+            logger.debug("action_history load failed: %s", exc)
     history.append({
         "action": action,
         "result": result[:200],
@@ -168,7 +181,8 @@ def get_action_history(limit: int = 20) -> list[dict]:
     try:
         history = json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
         return history[-limit:]
-    except Exception:
+    except (json.JSONDecodeError, OSError) as exc:
+        logger.debug("action_history read failed: %s", exc)
         return []
 
 
@@ -234,7 +248,7 @@ def suggest_next_actions(context: str, last_actions: list[str] | None = None) ->
 
 def _default_skills() -> list[Skill]:
     """Create default skill pipelines."""
-    return [
+    skills = [
         Skill(
             name="rapport_matin",
             description="Rapport complet du matin: cluster, trading, systeme",
@@ -1490,8 +1504,8 @@ def _default_skills() -> list[Skill]:
             ],
             steps=[
                 SkillStep("lm_cluster_status", {}, "Check cluster complet"),
-                SkillStep("powershell_run", {"command": "$r = try { (Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/models' -Headers @{Authorization='Bearer LMSTUDIO_KEY_M1_REDACTED'} -TimeoutSec 3).StatusCode } catch { 0 }; if ($r -eq 200) { 'M1 OK' } else { 'M1 OFFLINE — relance LM Studio' }"}, "Check M1"),
-                SkillStep("powershell_run", {"command": "$r = try { (Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{Authorization='Bearer LMSTUDIO_KEY_M2_REDACTED'} -TimeoutSec 3).StatusCode } catch { 0 }; if ($r -eq 200) { 'M2 OK' } else { 'M2 OFFLINE' }"}, "Check M2"),
+                SkillStep("powershell_run", {"command": f"$r = try {{ (Invoke-WebRequest -Uri 'http://10.5.0.2:1234/api/v1/models' -Headers @{{Authorization='Bearer {_M1_KEY}'}} -TimeoutSec 3).StatusCode }} catch {{ 0 }}; if ($r -eq 200) {{ 'M1 OK' }} else {{ 'M1 OFFLINE — relance LM Studio' }}"}, "Check M1"),
+                SkillStep("powershell_run", {"command": f"$r = try {{ (Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{{Authorization='Bearer {_M2_KEY}'}} -TimeoutSec 3).StatusCode }} catch {{ 0 }}; if ($r -eq 200) {{ 'M2 OK' }} else {{ 'M2 OFFLINE' }}"}, "Check M2"),
                 SkillStep("powershell_run", {"command": "$r = try { (Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3).StatusCode } catch { 0 }; if ($r -eq 200) { 'Ollama OK' } else { Start-Process ollama -ArgumentList 'serve' -WindowStyle Hidden; 'Ollama relance' }"}, "Check/Relance Ollama"),
                 SkillStep("notify", {"title": "JARVIS Medic", "message": "Diagnostic cluster termine. Agents verifies."}, "Notification"),
             ],
@@ -1602,3 +1616,14 @@ def _default_skills() -> list[Skill]:
             category="routine",
         ),
     ]
+    # Post-processing: replace hardcoded paths with config-driven values
+    _user_home = str(Path.home())
+    for skill in skills:
+        for step in skill.steps:
+            cmd = step.args.get("command", "")
+            if "F:\\BUREAU\\turbo" in cmd:
+                cmd = cmd.replace("F:\\BUREAU\\turbo", _TURBO_DIR)
+            if "C:\\Users\\franc" in cmd:
+                cmd = cmd.replace("C:\\Users\\franc", _user_home)
+            step.args["command"] = cmd
+    return skills

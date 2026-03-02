@@ -9,6 +9,7 @@ Teste en parallele sur M1 (qwen3-8b + deepseek-r1), M2 (deepseek-coder), M3 (mis
 import httpx
 import asyncio
 import json
+import os
 import time
 import random
 from datetime import datetime
@@ -16,11 +17,11 @@ from pathlib import Path
 
 # ── CONFIG ──────────────────────────────────────────────────
 M1_URL = "http://10.5.0.2:1234/v1/chat/completions"
-M1_KEY = "LMSTUDIO_KEY_M1_REDACTED"
+M1_KEY = os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", ""))
 M2_URL = "http://192.168.1.26:1234/v1/chat/completions"
-M2_KEY = "LMSTUDIO_KEY_M2_REDACTED"
+M2_KEY = os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", ""))
 M3_URL = "http://192.168.1.113:1234/v1/chat/completions"
-M3_KEY = "LMSTUDIO_KEY_M3_REDACTED"
+M3_KEY = os.getenv("LM_STUDIO_3_API_KEY", os.getenv("LM_STUDIO_3_KEY", ""))
 
 MODELS = {
     "M1-qwen3":     {"url": M1_URL, "key": M1_KEY, "model": "qwen3-8b"},

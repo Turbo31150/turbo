@@ -7,12 +7,18 @@ executes via ccxt on MEXC Futures, records trades, notifies Telegram.
 from __future__ import annotations
 
 import json
+import logging
 import sqlite3
+import urllib.error
 import urllib.request
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
+import ccxt
+
 from src.config import config
+
+logger = logging.getLogger(__name__)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -84,7 +90,7 @@ def get_current_price(symbol: str) -> float | None:
         req = urllib.request.urlopen(url, timeout=10)
         data = json.loads(req.read())
         return float(data["data"]["lastPrice"])
-    except Exception:
+    except (urllib.error.URLError, OSError, json.JSONDecodeError, ValueError, KeyError):
         return None
 
 
@@ -130,7 +136,6 @@ def validate_signal(signal: dict, current_price: float | None = None) -> tuple[b
 
 def _init_ccxt():
     """Initialize ccxt MEXC client for swap trading."""
-    import ccxt
     return ccxt.mexc({
         "apiKey": config.mexc_api_key,
         "secret": config.mexc_secret_key,
@@ -232,8 +237,8 @@ def execute_signal(signal_id: int, dry_run: bool | None = None) -> dict[str, Any
         # Set leverage
         try:
             mexc.set_leverage(config.leverage, ccxt_symbol)
-        except Exception:
-            pass  # May already be set
+        except (ccxt.BaseError, OSError) as exc:
+            logger.debug("set_leverage %s (may already be set): %s", ccxt_symbol, exc)
 
         # Entry order (limit)
         entry_order = mexc.create_order(ccxt_symbol, "limit", side, qty, entry)
@@ -246,7 +251,8 @@ def execute_signal(signal_id: int, dry_run: bool | None = None) -> dict[str, Any
                 {"reduceOnly": True},
             )
             result["tp_set"] = True
-        except Exception as e:
+        except (ccxt.BaseError, OSError) as e:
+            logger.warning("TP order failed for %s: %s", symbol, e)
             result["tp_error"] = str(e)
 
         # SL order (stop_market, reduceOnly)
@@ -256,7 +262,8 @@ def execute_signal(signal_id: int, dry_run: bool | None = None) -> dict[str, Any
                 {"stopPrice": sl, "reduceOnly": True},
             )
             result["sl_set"] = True
-        except Exception as e:
+        except (ccxt.BaseError, OSError) as e:
+            logger.error("SL order FAILED for %s — position has NO stop-loss: %s", symbol, e)
             result["sl_error"] = str(e)
 
         # Mark signal as executed
@@ -286,7 +293,8 @@ def execute_signal(signal_id: int, dry_run: bool | None = None) -> dict[str, Any
         _notify_execution(result)
         result["message"] = "Ordre place avec succes"
 
-    except Exception as e:
+    except (ccxt.BaseError, OSError, sqlite3.Error) as e:
+        logger.error("Trade execution failed for %s: %s", symbol, e)
         result["success"] = False
         result["error"] = str(e)
 
@@ -320,7 +328,8 @@ def get_mexc_positions() -> list[dict]:
             for p in positions
             if p.get("contracts") and float(p["contracts"]) > 0
         ]
-    except Exception as e:
+    except (ccxt.BaseError, OSError) as e:
+        logger.error("Failed to fetch MEXC positions: %s", e)
         return [{"error": str(e)}]
 
 
@@ -374,7 +383,8 @@ def close_position(symbol: str) -> dict[str, Any]:
             "order_id": order.get("id"),
             "pnl": pos.get("unrealizedPnl"),
         }
-    except Exception as e:
+    except (ccxt.BaseError, OSError, sqlite3.Error) as e:
+        logger.error("Failed to close position %s: %s", symbol, e)
         return {"success": False, "error": str(e)}
 
 
@@ -398,7 +408,7 @@ def send_telegram(message: str) -> bool:
         )
         urllib.request.urlopen(req, timeout=10)
         return True
-    except Exception:
+    except (urllib.error.URLError, OSError):
         return False
 
 

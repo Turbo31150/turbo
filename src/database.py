@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import json
+import logging
 import sqlite3
 import time
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 DB_PATH = DATA_DIR / "jarvis.db"
@@ -175,8 +178,8 @@ def import_commands_from_code():
                 1 if cmd.confirm else 0,
             ))
             imported += 1
-        except Exception as e:
-            print(f"  Erreur import {cmd.name}: {e}")
+        except (sqlite3.Error, ValueError) as e:
+            logger.warning("Erreur import %s: %s", cmd.name, e)
     conn.commit()
     conn.close()
     return imported
@@ -206,8 +209,8 @@ def import_skills_from_code():
                 1 if s.confirm else 0,
             ))
             imported += 1
-        except Exception as e:
-            print(f"  Erreur import skill {s.name}: {e}")
+        except (sqlite3.Error, ValueError) as e:
+            logger.warning("Erreur import skill %s: %s", s.name, e)
     conn.commit()
     conn.close()
     return imported
@@ -225,8 +228,8 @@ def import_corrections_from_code():
                 VALUES (?, ?, 'phonetic')
             """, (wrong, correct))
             imported += 1
-        except Exception:
-            pass
+        except sqlite3.Error as exc:
+            logger.debug("voice_corrections import skip: %s", exc)
     conn.commit()
     conn.close()
     return imported
@@ -423,16 +426,16 @@ def get_unified_stats() -> dict:
         stats["scenario_weights"] = conn.execute("SELECT COUNT(*) FROM etoile.scenario_weights").fetchone()[0]
         stats["cluster_agents"] = conn.execute("SELECT COUNT(*) FROM etoile.agents").fetchone()[0]
         stats["map_entries"] = conn.execute("SELECT COUNT(*) FROM etoile.map").fetchone()[0]
-    except sqlite3.OperationalError:
-        pass
+    except sqlite3.OperationalError as exc:
+        logger.debug("etoile.db stats unavailable: %s", exc)
 
     # sniper.db
     try:
         stats["trading_signals"] = conn.execute("SELECT COUNT(*) FROM sniper.signals").fetchone()[0]
         stats["trading_coins"] = conn.execute("SELECT COUNT(*) FROM sniper.coins").fetchone()[0]
         stats["trading_scans"] = conn.execute("SELECT COUNT(*) FROM sniper.scans").fetchone()[0]
-    except sqlite3.OperationalError:
-        pass
+    except sqlite3.OperationalError as exc:
+        logger.debug("sniper.db stats unavailable: %s", exc)
 
     conn.close()
     return stats
@@ -460,8 +463,8 @@ def find_pipeline_for_voice(voice_input: str) -> dict | None:
         if row:
             conn.close()
             return {"source": "etoile.pipeline_dictionary", **dict(row)}
-    except sqlite3.OperationalError:
-        pass
+    except sqlite3.OperationalError as exc:
+        logger.debug("etoile.db search unavailable: %s", exc)
 
     conn.close()
     return None
