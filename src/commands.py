@@ -2214,7 +2214,7 @@ APP_PATHS: dict[str, str] = {
     # Navigateurs
     "chrome": "chrome",
     "google chrome": "chrome",
-    "comet": r"C:\Users\franc\AppData\Local\Perplexity\Comet\Application\comet.exe",
+    "comet": str(Path.home() / "AppData" / "Local" / "Perplexity" / "Comet" / "Application" / "comet.exe"),
     "firefox": "firefox",
     "edge": "msedge",
     "brave": "brave",

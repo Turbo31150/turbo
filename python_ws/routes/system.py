@@ -185,6 +185,8 @@ async def _execute_command(payload: dict) -> dict[str, Any]:
     """
     cmd_name = payload.get("command_name", "")
     params = payload.get("params", {})
+    if not isinstance(params, dict):
+        params = {}
 
     if not cmd_name:
         return {"error": "No command_name provided"}

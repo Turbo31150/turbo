@@ -593,7 +593,7 @@ async def consensus(args: dict[str, Any]) -> dict[str, Any]:
 # LM STUDIO MODEL MANAGEMENT
 # ═══════════════════════════════════════════════════════════════════════════
 
-LMS_CLI = r"C:\Users\franc\.lmstudio\bin\lms.exe"
+LMS_CLI = str(_Path.home() / ".lmstudio" / "bin" / "lms.exe")
 
 
 @tool("lm_load_model", "Charger un modele sur M1. Args: model, context, parallel.", {"model": str, "context": int, "parallel": int})
