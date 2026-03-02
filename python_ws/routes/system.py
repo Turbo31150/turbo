@@ -432,20 +432,22 @@ async def _domino_logs(payload: dict) -> dict[str, Any]:
     try:
         import sqlite3
         db_path = str(_DATA_DIR / "etoile.db")
-        with sqlite3.connect(db_path) as conn:
-            if run_id:
-                rows = conn.execute(
-                    "SELECT run_id, domino_id, step_name, step_idx, status, duration_ms, node, output_preview, ts "
-                    "FROM domino_logs WHERE run_id=? ORDER BY step_idx",
-                    (run_id,)
-                ).fetchall()
-            else:
-                rows = conn.execute(
+
+        def _do_query():
+            with sqlite3.connect(db_path) as conn:
+                if run_id:
+                    return conn.execute(
+                        "SELECT run_id, domino_id, step_name, step_idx, status, duration_ms, node, output_preview, ts "
+                        "FROM domino_logs WHERE run_id=? ORDER BY step_idx",
+                        (run_id,)
+                    ).fetchall()
+                return conn.execute(
                     "SELECT run_id, domino_id, step_name, step_idx, status, duration_ms, node, output_preview, ts "
                     "FROM domino_logs ORDER BY id DESC LIMIT ?",
                     (limit,)
                 ).fetchall()
 
+        rows = await asyncio.to_thread(_do_query)
         return {
             "logs": [
                 {
@@ -471,7 +473,8 @@ async def _save_config(payload: dict) -> dict[str, Any]:
     config_data = payload.get("config", payload)
     try:
         _DESKTOP_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
-        _DESKTOP_CONFIG_PATH.write_text(
+        await asyncio.to_thread(
+            _DESKTOP_CONFIG_PATH.write_text,
             json.dumps(config_data, indent=2, ensure_ascii=False),
             encoding="utf-8",
         )

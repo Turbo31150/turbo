@@ -968,7 +968,11 @@ async def run_script(args: dict[str, Any]) -> dict[str, Any]:
         cmd = [sys.executable, str(path)]
         if args.get("args"):
             cmd.extend(args["args"].split())
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=120, cwd=str(path.parent))
+
+        def _do():
+            return subprocess.run(cmd, capture_output=True, text=True, timeout=120, cwd=str(path.parent))
+
+        r = await asyncio.to_thread(_do)
         out = r.stdout[-3000:] if len(r.stdout) > 3000 else r.stdout
         if r.returncode != 0:
             out += f"\n[STDERR] {r.stderr[-1000:]}"
@@ -1009,9 +1013,14 @@ async def trading_pipeline_v2(args: dict[str, Any]) -> dict[str, Any]:
     if args.get("json_output"):
         cmd.append("--json")
     try:
-        env = {**__import__("os").environ, "PYTHONIOENCODING": "utf-8"}
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=300,
-                           cwd=str(script.parent), env=env)
+        import os as _os
+        env = {**_os.environ, "PYTHONIOENCODING": "utf-8"}
+
+        def _do():
+            return subprocess.run(cmd, capture_output=True, text=True, timeout=300,
+                                  cwd=str(script.parent), env=env)
+
+        r = await asyncio.to_thread(_do)
         out = r.stdout[-4000:] if len(r.stdout) > 4000 else r.stdout
         if r.returncode != 0:
             out += f"\n[STDERR] {r.stderr[-1000:]}"

@@ -45,10 +45,8 @@ async def handle_trading_request(action: str, payload: dict) -> dict:
 
 async def _get_signals() -> dict:
     """Fetch pending trading signals."""
-    # Try to read from trading database
-    try:
-        db_path = _TRADING_DB
-        with sqlite3.connect(db_path) as conn:
+    def _query():
+        with sqlite3.connect(_TRADING_DB) as conn:
             conn.row_factory = sqlite3.Row
             cur = conn.execute("""
                 SELECT * FROM signals
@@ -56,7 +54,10 @@ async def _get_signals() -> dict:
                 ORDER BY created_at DESC
                 LIMIT 20
             """)
-            signals = [dict(r) for r in cur.fetchall()]
+            return [dict(r) for r in cur.fetchall()]
+
+    try:
+        signals = await asyncio.to_thread(_query)
         return {"signals": signals}
     except (sqlite3.Error, OSError) as e:
         logger.debug("Trading DB unavailable: %s — using demo signals", e)
@@ -65,16 +66,18 @@ async def _get_signals() -> dict:
 
 async def _get_positions() -> dict:
     """Fetch open positions."""
-    try:
-        db_path = _TRADING_DB
-        with sqlite3.connect(db_path) as conn:
+    def _query():
+        with sqlite3.connect(_TRADING_DB) as conn:
             conn.row_factory = sqlite3.Row
             cur = conn.execute("""
                 SELECT * FROM positions
                 WHERE status = 'open'
                 ORDER BY opened_at DESC
             """)
-            positions = [dict(r) for r in cur.fetchall()]
+            return [dict(r) for r in cur.fetchall()]
+
+    try:
+        positions = await asyncio.to_thread(_query)
         return {"positions": positions}
     except (sqlite3.Error, OSError) as e:
         logger.debug("Trading positions unavailable: %s", e)

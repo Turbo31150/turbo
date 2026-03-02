@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import sqlite3
 from datetime import datetime
@@ -245,7 +246,7 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
         trigger_phrase = triggers[0] if triggers else name
         pipeline_id = name.lower().replace(" ", "_")
 
-        try:
+        def _do_add():
             with sqlite3.connect(str(_DB_PATH)) as db:
                 db.row_factory = sqlite3.Row
                 existing = db.execute(
@@ -254,7 +255,6 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
                 ).fetchone()
                 if existing:
                     return {"error": f"Trigger '{trigger_phrase}' already exists (id={existing['id']})"}
-
                 db.execute(
                     "INSERT INTO pipeline_dictionary "
                     "(pipeline_id, trigger_phrase, steps, category, action_type, agents_involved, avg_duration_ms, usage_count, created_at) "
@@ -262,10 +262,15 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
                     (pipeline_id, trigger_phrase, steps, category or "custom",
                      action_type, "", datetime.now().isoformat())
                 )
-                new_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
+                return db.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+        try:
+            result = await asyncio.to_thread(_do_add)
+            if isinstance(result, dict):
+                return result
             _invalidate_categories_cache()
-            logger.info("Added command '%s' (id=%d)", name, new_id)
-            return {"ok": True, "id": new_id, "pipeline_id": pipeline_id}
+            logger.info("Added command '%s' (id=%d)", name, result)
+            return {"ok": True, "id": result, "pipeline_id": pipeline_id}
         except (sqlite3.Error, ValueError) as e:
             logger.error("add_command error: %s", e)
             return {"error": str(e)}
@@ -292,9 +297,8 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
         if "action_type" in fields and fields["action_type"] not in _VALID_ACTION_TYPES:
             return {"error": f"Invalid action_type: {fields['action_type']}"}
 
-        try:
+        def _do_edit():
             with sqlite3.connect(str(_DB_PATH)) as db:
-                db.row_factory = sqlite3.Row
                 set_parts = [f"{k} = ?" for k in fields]
                 values = list(fields.values())
                 if record_id:
@@ -303,12 +307,14 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
                 else:
                     values.append(pipeline_id)
                     where = "pipeline_id = ?"
-
                 cursor = db.execute(
                     f"UPDATE pipeline_dictionary SET {', '.join(set_parts)} WHERE {where}",
                     values
                 )
-                affected = cursor.rowcount
+                return cursor.rowcount
+
+        try:
+            affected = await asyncio.to_thread(_do_edit)
             if affected == 0:
                 return {"error": "No matching record found"}
             _invalidate_categories_cache()
@@ -323,13 +329,16 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
         record_id = payload.get("pipeline_id") or payload.get("id")
         if not record_id:
             return {"error": "pipeline_id or id is required"}
-        try:
+        def _do_delete_cmd():
             with sqlite3.connect(str(_DB_PATH)) as db:
                 if isinstance(record_id, int) or (isinstance(record_id, str) and record_id.isdigit()):
                     cursor = db.execute("DELETE FROM pipeline_dictionary WHERE id = ?", (int(record_id),))
                 else:
                     cursor = db.execute("DELETE FROM pipeline_dictionary WHERE pipeline_id = ?", (record_id,))
-                affected = cursor.rowcount
+                return cursor.rowcount
+
+        try:
+            affected = await asyncio.to_thread(_do_delete_cmd)
             if affected == 0:
                 return {"error": f"No record found for '{record_id}'"}
             _invalidate_categories_cache()
@@ -354,14 +363,17 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
         auto = 1 if payload.get("auto", True) else 0
         description = (payload.get("description") or "").strip()
 
-        try:
+        def _do_add_chain():
             with sqlite3.connect(str(_DB_PATH)) as db:
                 db.execute(
                     "INSERT INTO domino_chains (trigger_cmd, condition, next_cmd, delay_ms, auto, description) "
                     "VALUES (?, ?, ?, ?, ?, ?)",
                     (trigger_cmd, condition, next_cmd, delay_ms, auto, description)
                 )
-                new_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
+                return db.execute("SELECT last_insert_rowid()").fetchone()[0]
+
+        try:
+            new_id = await asyncio.to_thread(_do_add_chain)
             logger.info("Added chain '%s' -> '%s' (id=%d)", trigger_cmd, next_cmd, new_id)
             return {"ok": True, "id": new_id}
         except (sqlite3.Error, ValueError) as e:
@@ -373,10 +385,13 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
         chain_id = payload.get("id")
         if not chain_id:
             return {"error": "id is required"}
-        try:
+        def _do_delete_chain():
             with sqlite3.connect(str(_DB_PATH)) as db:
                 cursor = db.execute("DELETE FROM domino_chains WHERE id = ?", (int(chain_id),))
-                affected = cursor.rowcount
+                return cursor.rowcount
+
+        try:
+            affected = await asyncio.to_thread(_do_delete_chain)
             if affected == 0:
                 return {"error": f"No chain found with id={chain_id}"}
             logger.info("Deleted chain id=%s", chain_id)
@@ -392,7 +407,7 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
         if not wrong or not correct:
             return {"error": "wrong and correct are required"}
         category = (payload.get("category") or "general").strip()
-        try:
+        def _do_add_correction():
             with sqlite3.connect(str(_DB_PATH)) as db:
                 db.row_factory = sqlite3.Row
                 existing = db.execute(
@@ -407,8 +422,14 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
                     (wrong, correct, category)
                 )
                 new_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
-            logger.info("Added correction '%s' -> '%s' (id=%d)", wrong, correct, new_id)
-            return {"ok": True, "id": new_id}
+                return new_id
+
+        try:
+            result = await asyncio.to_thread(_do_add_correction)
+            if isinstance(result, dict):
+                return result
+            logger.info("Added correction '%s' -> '%s' (id=%d)", wrong, correct, result)
+            return {"ok": True, "id": result}
         except (sqlite3.Error, ValueError) as e:
             logger.error("add_correction error: %s", e)
             return {"error": str(e)}
@@ -431,17 +452,20 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
 
     # ── CRUD: get_stats ──
     if action == "get_stats":
-        try:
+        def _do_stats():
             with sqlite3.connect(str(_DB_PATH)) as db:
                 db.row_factory = sqlite3.Row
                 stats = {}
-                _STATS_TABLES = ("pipeline_dictionary", "domino_chains", "voice_corrections")
-                for table in _STATS_TABLES:
+                for table in ("pipeline_dictionary", "domino_chains", "voice_corrections"):
                     stats[table] = db.execute(f"SELECT COUNT(*) FROM [{table}]").fetchone()[0]
                 cats = db.execute(
                     "SELECT category, COUNT(*) as cnt FROM pipeline_dictionary GROUP BY category ORDER BY cnt DESC"
                 ).fetchall()
                 stats["categories"] = {r["category"]: r["cnt"] for r in cats}
+                return stats
+
+        try:
+            stats = await asyncio.to_thread(_do_stats)
             return {"stats": stats}
         except (sqlite3.Error, OSError) as e:
             return {"error": str(e)}
