@@ -104,6 +104,7 @@ export default function DictionaryPage() {
   const [editEntry, setEditEntry] = useState<DictEntry | null>(null);
   const [form, setForm] = useState({ trigger_phrase: '', category: '', action_type: 'powershell', steps: '', agents_involved: '' });
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+  const [savingEntry, setSavingEntry] = useState(false);
 
   const showToast = (msg: string, ok: boolean) => {
     setToast({ msg, ok });
@@ -186,6 +187,8 @@ export default function DictionaryPage() {
   }, []);
 
   const handleSave = useCallback(async () => {
+    if (savingEntry) return;
+    setSavingEntry(true);
     const body = { ...form };
     try {
       const url = editEntry
@@ -206,7 +209,8 @@ export default function DictionaryPage() {
         showToast(`Erreur sauvegarde (${r.status})`, false);
       }
     } catch { showToast('Erreur connexion', false); }
-  }, [form, editEntry, fetchAll]);
+    setSavingEntry(false);
+  }, [form, editEntry, fetchAll, savingEntry]);
 
   return (
     <>
@@ -341,7 +345,7 @@ export default function DictionaryPage() {
               </div>
               <div style={S.formBtns}>
                 <button style={S.cancelBtn} onClick={() => setShowForm(false)}>Annuler</button>
-                <button style={S.saveBtn} onClick={handleSave}>{editEntry ? 'Modifier' : 'Creer'}</button>
+                <button style={{ ...S.saveBtn, ...(savingEntry ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }} onClick={handleSave} disabled={savingEntry}>{savingEntry ? 'Sauvegarde...' : editEntry ? 'Modifier' : 'Creer'}</button>
               </div>
             </div>
           </div>
