@@ -24,7 +24,6 @@ import urllib.request
 logger = logging.getLogger("jarvis.domino_executor")
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional
 
 from src.config import config, prepare_lmstudio_input, PATHS
 from src.domino_pipelines import DominoPipeline, DominoStep, find_domino
@@ -310,7 +309,7 @@ class DominoExecutor:
         self.logger = DominoLogger(db_path)
         self.results: list[dict] = []
 
-    def run(self, domino: DominoPipeline, run_id: Optional[str] = None) -> dict:
+    def run(self, domino: DominoPipeline, run_id: str | None = None) -> dict:
         """Execute un domino pipeline complet."""
         run_id = run_id or f"{domino.id}_{int(time.time())}"
         total_start = time.time()
@@ -378,7 +377,7 @@ class DominoExecutor:
         logger.info("RESULTAT: %d PASS / %d FAIL / %d SKIP en %.0fms", passed, failed, skipped, total_ms)
         return result
 
-    def run_by_voice(self, text: str) -> Optional[dict]:
+    def run_by_voice(self, text: str) -> dict | None:
         """Trouve et execute un domino par phrase vocale."""
         domino = find_domino(text)
         if domino:

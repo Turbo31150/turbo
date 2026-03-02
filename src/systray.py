@@ -86,9 +86,7 @@ def _quick_cluster_status() -> None:
         return "\n".join(results)
 
     try:
-        loop = asyncio.new_event_loop()
-        text = loop.run_until_complete(_check())
-        loop.close()
+        text = asyncio.run(_check())
         # Show via Windows notification
         from src.windows import notify_windows
         notify_windows("JARVIS Cluster", text)

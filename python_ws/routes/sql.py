@@ -8,6 +8,7 @@ Endpoints:
 
 from __future__ import annotations
 
+import asyncio
 import re
 import sqlite3
 from pathlib import Path
@@ -57,8 +58,43 @@ class SqlQueryRequest(BaseModel):
     params: list[Any] | None = None
 
 
+def _exec_query(db_path: str, query: str, params: list) -> dict[str, Any]:
+    """Execute SQL query synchronously (run via asyncio.to_thread)."""
+    with sqlite3.connect(db_path) as conn:
+        conn.row_factory = sqlite3.Row
+        cur = conn.execute(query, params)
+        upper = query.upper().lstrip()
+        if upper.startswith("SELECT") or upper.startswith("PRAGMA"):
+            rows = [dict(r) for r in cur.fetchmany(1000)]
+            truncated = cur.fetchone() is not None
+            return {"rows": rows, "count": len(rows), "truncated": truncated}
+        affected = cur.rowcount
+        conn.commit()
+        return {"affected": affected}
+
+
+def _list_tables(db_path: str) -> list[str]:
+    """List tables synchronously (run via asyncio.to_thread)."""
+    with sqlite3.connect(db_path) as conn:
+        return [r[0] for r in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
+        ).fetchall()]
+
+
+def _get_schema(db_path: str, table: str) -> dict[str, Any] | None:
+    """Get table schema synchronously (run via asyncio.to_thread)."""
+    with sqlite3.connect(db_path) as conn:
+        row = conn.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name=?", (table,)).fetchone()
+        if not row:
+            return None
+        columns = [{"name": r[1], "type": r[2], "notnull": bool(r[3]), "pk": bool(r[5])}
+                   for r in conn.execute(f"PRAGMA table_info([{table}])").fetchall()]
+        count = conn.execute(f"SELECT COUNT(*) FROM [{table}]").fetchone()[0]
+        return {"schema": row[0], "columns": columns, "row_count": count}
+
+
 @sql_router.post("/query")
-async def sql_query(req: SqlQueryRequest):
+async def sql_query(req: SqlQueryRequest) -> dict[str, Any]:
     db_path = _resolve_db(req.database)
     query = req.query.strip()
     params = req.params or []
@@ -69,40 +105,24 @@ async def sql_query(req: SqlQueryRequest):
     if _SQL_BLOCKED_TABLES.search(query):
         raise HTTPException(403, "Access to sqlite internal tables is forbidden")
     try:
-        with sqlite3.connect(db_path) as conn:
-            conn.row_factory = sqlite3.Row
-            cur = conn.execute(query, params)
-            upper = query.upper().lstrip()
-            if upper.startswith("SELECT") or upper.startswith("PRAGMA"):
-                rows = [dict(r) for r in cur.fetchmany(1000)]
-                truncated = cur.fetchone() is not None
-                return {"rows": rows, "count": len(rows), "truncated": truncated}
-            else:
-                affected = cur.rowcount
-                conn.commit()
-                return {"affected": affected}
+        return await asyncio.to_thread(_exec_query, db_path, query, params)
     except sqlite3.Error as e:
         raise HTTPException(400, f"SQL error: {e}")
 
 
 @sql_router.get("/tables/{database}")
-async def sql_tables(database: str):
+async def sql_tables(database: str) -> dict[str, Any]:
     db_path = _resolve_db(database)
-    with sqlite3.connect(db_path) as conn:
-        tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()]
+    tables = await asyncio.to_thread(_list_tables, db_path)
     return {"database": database, "tables": tables}
 
 
 @sql_router.get("/schema/{database}/{table}")
-async def sql_schema(database: str, table: str):
+async def sql_schema(database: str, table: str) -> dict[str, Any]:
     if not _TABLE_NAME.match(table):
         raise HTTPException(400, f"Invalid table name: '{table}'")
     db_path = _resolve_db(database)
-    with sqlite3.connect(db_path) as conn:
-        row = conn.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name=?", (table,)).fetchone()
-        if not row:
-            raise HTTPException(404, f"Table '{table}' not found")
-        columns = [{"name": r[1], "type": r[2], "notnull": bool(r[3]), "pk": bool(r[5])}
-                   for r in conn.execute(f"PRAGMA table_info([{table}])").fetchall()]
-        count = conn.execute(f"SELECT COUNT(*) FROM [{table}]").fetchone()[0]
-    return {"database": database, "table": table, "schema": row[0], "columns": columns, "row_count": count}
+    result = await asyncio.to_thread(_get_schema, db_path, table)
+    if result is None:
+        raise HTTPException(404, f"Table '{table}' not found")
+    return {"database": database, "table": table, **result}

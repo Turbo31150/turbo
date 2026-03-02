@@ -20,9 +20,11 @@ _TURBO_ROOT = Path(__file__).resolve().parent.parent.parent
 
 # Try to import src modules
 try:
-    from src.config import config as jarvis_config
+    from src.config import config as jarvis_config, build_lmstudio_payload, build_ollama_payload
 except ImportError:
     jarvis_config = None
+    build_lmstudio_payload = None
+    build_ollama_payload = None
 
 try:
     from src.commander import classify_task, decompose_task, build_commander_enrichment
@@ -425,36 +427,33 @@ async def _query_local_ia(text: str, task_type: str) -> str:
                     if result:
                         return f"[{node['name']}] {result}"
                 elif node["backend"] == "ollama":
-                    # think:false obligatoire pour cloud models
-                    ollama_payload = {
-                        "model": node["model"],
-                        "messages": chat_messages,
-                        "stream": False,
-                        "think": False,
-                    }
-                    resp = await client.post(node["url"], json=ollama_payload)
-                    data = resp.json()
-                    content = data.get("message", {}).get("content", "")
+                    ol_payload = (build_ollama_payload(node["model"], chat_messages)
+                                  if build_ollama_payload else
+                                  {"model": node["model"], "messages": chat_messages,
+                                   "stream": False, "think": False})
+                    resp = await client.post(node["url"], json=ol_payload)
+                    resp.raise_for_status()
+                    content = resp.json().get("message", {}).get("content", "")
                     if content and content.strip():
                         return f"[{node['name']}] {content.strip()}"
                 else:
                     headers = {"Content-Type": "application/json"}
                     if node.get("auth"):
                         headers["Authorization"] = node["auth"]
-                    resp = await client.post(node["url"], headers=headers, json={
-                        "model": node["model"],
-                        "input": lmstudio_input,
-                        "temperature": 0.3,
-                        "max_output_tokens": 512,
-                        "stream": False,
-                        "store": False,
-                    })
+                    lms_payload = (build_lmstudio_payload(node["model"], lmstudio_input,
+                                                          temperature=0.3, max_output_tokens=512)
+                                   if build_lmstudio_payload else
+                                   {"model": node["model"], "input": lmstudio_input,
+                                    "temperature": 0.3, "max_output_tokens": 512,
+                                    "stream": False, "store": False})
+                    resp = await client.post(node["url"], headers=headers, json=lms_payload)
+                    resp.raise_for_status()
                     data = resp.json()
                     if data.get("error"):
                         continue
-                    text = extract_lmstudio_content(data)
-                    if text:
-                        return f"[{node['name']}] {text}"
+                    extracted = extract_lmstudio_content(data)
+                    if extracted:
+                        return f"[{node['name']}] {extracted}"
             except (httpx.HTTPError, asyncio.TimeoutError, OSError, KeyError) as exc:
                 logger.debug("_query_local_ia %s failed: %s", node.get("name", "?"), exc)
                 continue
@@ -502,12 +501,13 @@ async def _query_single_node(model_id: str, text: str, chat_messages: list, lmst
 
         async with httpx.AsyncClient(timeout=60.0) as client:
             if m["backend"] == "ollama":
-                resp = await client.post(m["url"], json={
-                    "model": model_id, "messages": chat_messages,
-                    "stream": False, "think": False,
-                })
-                data = resp.json()
-                content = data.get("message", {}).get("content", "")
+                ol_payload = (build_ollama_payload(model_id, chat_messages)
+                              if build_ollama_payload else
+                              {"model": model_id, "messages": chat_messages,
+                               "stream": False, "think": False})
+                resp = await client.post(m["url"], json=ol_payload)
+                resp.raise_for_status()
+                content = resp.json().get("message", {}).get("content", "")
                 if content and content.strip():
                     return {"model": model_id, "name": name, "content": content.strip(), "latency": round(time.time() - start, 2)}
             else:
@@ -515,15 +515,17 @@ async def _query_single_node(model_id: str, text: str, chat_messages: list, lmst
                 auth = _get_model_auth(m)
                 if auth:
                     headers["Authorization"] = auth
-                resp = await client.post(m["url"], headers=headers, json={
-                    "model": model_id, "input": lmstudio_input,
-                    "temperature": 0.3, "max_output_tokens": 512,
-                    "stream": False, "store": False,
-                })
-                data = resp.json()
-                text = extract_lmstudio_content(data)
-                if text:
-                    return {"model": model_id, "name": name, "content": text, "latency": round(time.time() - start, 2)}
+                lms_payload = (build_lmstudio_payload(model_id, lmstudio_input,
+                                                      temperature=0.3, max_output_tokens=512)
+                               if build_lmstudio_payload else
+                               {"model": model_id, "input": lmstudio_input,
+                                "temperature": 0.3, "max_output_tokens": 512,
+                                "stream": False, "store": False})
+                resp = await client.post(m["url"], headers=headers, json=lms_payload)
+                resp.raise_for_status()
+                extracted = extract_lmstudio_content(resp.json())
+                if extracted:
+                    return {"model": model_id, "name": name, "content": extracted, "latency": round(time.time() - start, 2)}
     except (httpx.HTTPError, asyncio.TimeoutError, OSError, KeyError) as e:
         return {"model": model_id, "name": name, "error": str(e)}
     return {"model": model_id, "name": name, "error": "empty response"}

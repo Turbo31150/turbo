@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
-from typing import Optional
 
 from src.config import PATHS
 
@@ -31,7 +30,7 @@ class DominoStep:
     name: str                   # Identifiant de l'etape
     action: str                 # Action a executer (pipeline ref, powershell, curl, etc.)
     action_type: str            # Type: pipeline, powershell, curl, python, condition
-    condition: Optional[str] = None  # Condition optionnelle (ex: "gpu_temp < 80")
+    condition: str | None = None  # Condition optionnelle (ex: "gpu_temp < 80")
     on_fail: str = "stop"       # Comportement si echec: stop, skip, fallback
     timeout_s: int = 30         # Timeout par etape
 
@@ -1445,7 +1444,7 @@ _build_learning_dataset()
 # DOMINO ENGINE — Executeur de cascades
 # ══════════════════════════════════════════════════════════════════════════════
 
-def find_domino(text: str) -> Optional[DominoPipeline]:
+def find_domino(text: str) -> DominoPipeline | None:
     """Trouve le domino pipeline correspondant a une phrase vocale."""
     text_lower = text.lower().strip()
     best_match = None
