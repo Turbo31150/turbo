@@ -10,7 +10,7 @@ from typing import Any
 
 import httpx
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("jarvis.bridge")
 
 # Ensure src/ is importable
 _turbo_root = str(Path(__file__).resolve().parent.parent)
@@ -35,11 +35,6 @@ _JarvisConfig, _config = _try_import_config()
 def get_config():
     """Return the JarvisConfig singleton (or None if src.config unavailable)."""
     return _config
-
-
-def get_config_class():
-    """Return the JarvisConfig class (or None)."""
-    return _JarvisConfig
 
 
 # ── Cluster status via HTTP probes ───────────────────────────────────────────

@@ -18,7 +18,7 @@ import ccxt
 
 from src.config import config
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("jarvis.trading")
 
 
 # ═══════════════════════════════════════════════════════════════════════════

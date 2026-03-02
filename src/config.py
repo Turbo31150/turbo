@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-JARVIS_VERSION = "10.2"
+JARVIS_VERSION = "10.3"
 
 # ── Project paths (existing codebase) ──────────────────────────────────────
 PATHS = {

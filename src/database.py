@@ -9,7 +9,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("jarvis.database")
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 DB_PATH = DATA_DIR / "jarvis.db"

@@ -35,7 +35,9 @@ _DB_ALIASES: dict[str, Path] = {
     "predictions": config.db_predictions,
 }
 
-_SQL_ALLOWED = re.compile(r"^\s*(SELECT|INSERT|UPDATE|DELETE|WITH|EXPLAIN|PRAGMA\s+table_info)\b", re.IGNORECASE)
+_SQL_ALLOWED = re.compile(r"^\s*(SELECT|INSERT|UPDATE|DELETE|WITH|PRAGMA\s+table_info)\b", re.IGNORECASE)
+_SQL_DANGEROUS = re.compile(r"\b(DROP|CREATE|ALTER|ATTACH|DETACH|REINDEX|VACUUM)\b", re.IGNORECASE)
+_SQL_BLOCKED_TABLES = re.compile(r"\bsqlite_(master|temp_master|sequence)\b", re.IGNORECASE)
 _TABLE_NAME = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
 
 
@@ -61,7 +63,11 @@ async def sql_query(req: SqlQueryRequest):
     query = req.query.strip()
     params = req.params or []
     if not _SQL_ALLOWED.match(query):
-        raise HTTPException(403, "Only SELECT, INSERT, UPDATE, DELETE, WITH, EXPLAIN, PRAGMA table_info allowed")
+        raise HTTPException(403, "Only SELECT, INSERT, UPDATE, DELETE, WITH, PRAGMA table_info allowed")
+    if _SQL_DANGEROUS.search(query):
+        raise HTTPException(403, "DDL statements (DROP, CREATE, ALTER, ATTACH, etc.) are forbidden")
+    if _SQL_BLOCKED_TABLES.search(query):
+        raise HTTPException(403, "Access to sqlite internal tables is forbidden")
     try:
         with sqlite3.connect(db_path) as conn:
             conn.row_factory = sqlite3.Row

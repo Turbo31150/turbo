@@ -4,7 +4,6 @@ import base64
 import logging
 import struct
 import time
-from typing import Any
 
 logger = logging.getLogger("jarvis.voice")
 
@@ -236,17 +235,9 @@ async def _execute_matched_command(cmd, params: dict) -> dict | None:
 
 
 async def _fallback_cloud_stt(audio_data: bytes) -> str:
-    """Fallback: send audio to OL1 cloud for transcription (if available)."""
-    try:
-        import httpx
-        # Try using a cloud model for transcription description
-        # Since Ollama doesn't have native STT, we describe what we'd need
-        # For now, return empty to signal fallback failed
-        logger.warning("Cloud STT fallback: no cloud STT available yet")
-        return ""
-    except (ImportError, OSError) as e:
-        logger.error("Cloud STT fallback error: %s", e)
-        return ""
+    """Fallback: cloud STT transcription (stub — not yet implemented)."""
+    logger.debug("Cloud STT fallback: not yet implemented")
+    return ""
 
 
 async def _handle_tts(payload: dict) -> dict:

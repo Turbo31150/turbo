@@ -113,7 +113,7 @@ async def api_dictionary_stats():
 async def _parse_json(request: Request) -> dict:
     """Parse JSON body with proper error handling."""
     try:
-        return await _parse_json(request)
+        return await request.json()
     except (json.JSONDecodeError, UnicodeDecodeError) as exc:
         raise HTTPException(status_code=400, detail=f"Invalid JSON: {exc}")
 

@@ -2,7 +2,6 @@
 import asyncio
 import logging
 import sqlite3
-import time
 from pathlib import Path
 from typing import Any
 

@@ -21,7 +21,7 @@ import time
 import urllib.error
 import urllib.request
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("jarvis.domino_executor")
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional

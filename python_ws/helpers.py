@@ -6,6 +6,8 @@ import asyncio
 import logging
 from typing import Any, Callable, Awaitable
 
+from starlette.websockets import WebSocketDisconnect
+
 logger = logging.getLogger("jarvis.helpers")
 
 # ── Agent tag stripping ──────────────────────────────────────────────────
@@ -54,7 +56,7 @@ async def push_loop(
                 "event": event,
                 "payload": payload,
             })
-        except (ConnectionError, OSError, asyncio.CancelledError):
+        except (ConnectionError, OSError, asyncio.CancelledError, WebSocketDisconnect):
             break  # Connection closed — stop push loop
         except (asyncio.TimeoutError, RuntimeError, ValueError):
             logger.debug("push_loop[%s/%s] transient error", channel, event, exc_info=True)

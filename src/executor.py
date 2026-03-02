@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import subprocess
 from typing import Any
+
+logger = logging.getLogger("jarvis.executor")
 
 from src.commands import (
     JarvisCommand, APP_PATHS, SITE_ALIASES,
@@ -203,14 +206,13 @@ def _postprocess_trading_script(script_name: str, stdout: str) -> str | None:
     # Send Telegram notification (fire-and-forget, don't block on failure)
     try:
         from src.trading import send_telegram
-        import logging
         tg_msg = format_telegram_signals(data)
         ok = send_telegram(tg_msg)
-        logging.getLogger("jarvis.executor").info(
+        logger.info(
             "Telegram sniper: %s (%d signals)", "sent" if ok else "failed", len(data.get("signals", []))
         )
     except (OSError, ImportError, ValueError, RuntimeError) as e:
-        logging.getLogger("jarvis.executor").warning("Telegram sniper error: %s", e)
+        logger.warning("Telegram sniper error: %s", e)
     # Return structured chat format
     return format_chat_signals(data)
 
