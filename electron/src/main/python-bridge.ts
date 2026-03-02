@@ -62,15 +62,16 @@ export class PythonBridge {
     this.ready = false;
     if (this.process) {
       console.log('[PythonBridge] Stopping Python process...');
-      this.process.kill('SIGTERM');
+      const proc = this.process;
+      this.process = null;
+      proc.kill('SIGTERM');
       // Force kill after 5 seconds if still alive
       setTimeout(() => {
-        if (this.process && !this.process.killed) {
+        if (!proc.killed) {
           console.log('[PythonBridge] Force killing Python process...');
-          this.process.kill('SIGKILL');
+          proc.kill('SIGKILL');
         }
       }, 5000);
-      this.process = null;
     }
   }
 

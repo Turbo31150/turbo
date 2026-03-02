@@ -108,7 +108,7 @@ export default function LogsPage() {
           const active = activeFilters.has(ch);
           const color = CHANNEL_COLORS[ch] || '#6b7280';
           return (
-            <button key={ch} style={{
+            <button key={ch} aria-pressed={active} style={{
               ...S.filterBtn,
               backgroundColor: active ? `${color}22` : 'transparent',
               color: active ? color : '#4b5563',
@@ -129,7 +129,9 @@ export default function LogsPage() {
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = `jarvis_logs_${Date.now()}.txt`;
+            document.body.appendChild(a);
             a.click();
+            document.body.removeChild(a);
             URL.revokeObjectURL(a.href);
           }}>EXPORT</button>
         <button style={S.clearBtn} onClick={() => setLogs([])}>CLEAR</button>

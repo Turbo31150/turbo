@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useWebSocket, WsMessage } from './useWebSocket';
+import { INTERVALS } from '../lib/config';
 
 export interface GpuInfo {
   name: string;
@@ -130,7 +131,7 @@ export function useCluster() {
   useEffect(() => {
     if (connected) {
       fetchClusterStatus();
-      intervalRef.current = window.setInterval(fetchClusterStatus, 30000);
+      intervalRef.current = window.setInterval(fetchClusterStatus, INTERVALS.cluster);
     } else {
       setState(prev => ({ ...prev, loading: false, error: 'Not connected' }));
     }

@@ -171,8 +171,9 @@ export default function DictionaryPage() {
   useEffect(() => { setPage(0); }, [search, catFilter]);
 
   const handleDelete = useCallback(async (id: number) => {
+    if (!window.confirm('Supprimer cette commande ?')) return;
     try {
-      const r = await fetch(BACKEND_URL + `/api/dictionary/command/${id}`, { method: 'DELETE' });
+      const r = await fetch(BACKEND_URL + `/api/dictionary/command/${id}`, { method: 'DELETE', signal: AbortSignal.timeout(10000) });
       if (r.ok) { showToast('Commande supprimee', true); fetchAll(); }
       else showToast(`Erreur suppression (${r.status})`, false);
     } catch { showToast('Erreur connexion', false); }
@@ -194,6 +195,7 @@ export default function DictionaryPage() {
         method: editEntry ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
+        signal: AbortSignal.timeout(10000),
       });
       if (r.ok) {
         showToast(editEntry ? 'Commande modifiee' : 'Commande creee', true);

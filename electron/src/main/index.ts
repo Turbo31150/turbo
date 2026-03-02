@@ -9,7 +9,11 @@ const pythonBridge = new PythonBridge();
 
 app.whenReady().then(async () => {
   // Start Python WS backend
-  await pythonBridge.start();
+  try {
+    await pythonBridge.start();
+  } catch (err) {
+    console.error('[Main] Failed to start Python backend:', err);
+  }
 
   // Create main window
   const mainWindow = createMainWindow();

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 
-import { BACKEND_URL } from '../lib/config';
+import { BACKEND_URL, INTERVALS } from '../lib/config';
 
 interface AgentModel {
   id: string;
@@ -62,7 +62,7 @@ export default function AgentSelector({ value, onChange, compact }: AgentSelecto
 
   useEffect(() => {
     fetchModels();
-    const iv = setInterval(fetchModels, 30000);
+    const iv = setInterval(fetchModels, INTERVALS.models);
     return () => clearInterval(iv);
   }, [fetchModels]);
 
