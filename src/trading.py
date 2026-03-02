@@ -87,8 +87,8 @@ def get_current_price(symbol: str) -> float | None:
     mexc_sym = _symbol_to_mexc_api(symbol)
     try:
         url = f"https://contract.mexc.com/api/v1/contract/ticker?symbol={mexc_sym}"
-        req = urllib.request.urlopen(url, timeout=10)
-        data = json.loads(req.read())
+        with urllib.request.urlopen(url, timeout=10) as resp:
+            data = json.loads(resp.read())
         return float(data["data"]["lastPrice"])
     except (urllib.error.URLError, OSError, json.JSONDecodeError, ValueError, KeyError):
         return None
@@ -406,7 +406,8 @@ def send_telegram(message: str) -> bool:
             data=body,
             headers={"Content-Type": "application/json"},
         )
-        urllib.request.urlopen(req, timeout=10)
+        with urllib.request.urlopen(req, timeout=10):
+            pass
         return True
     except (urllib.error.URLError, OSError):
         return False

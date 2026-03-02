@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef, memo } from 'react';
 import { useClusterContext } from '../hooks/ClusterContext';
 import { ClusterNode } from '../hooks/useCluster';
-import { useLMStudio } from '../hooks/useLMStudio';
+import { useLMStudio, LMNode } from '../hooks/useLMStudio';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { getErrorMessage } from '../lib/types';
 import { APP_VERSION, INTERVALS } from '../lib/config';
@@ -91,18 +91,18 @@ const StatCard = memo(function StatCard({ label, value, suffix, color, sub }: { 
   );
 });
 
-const NodeCard = memo(function NodeCard({ node, lmNode }: { node?: ClusterNode; lmNode?: any }) {
+const NodeCard = memo(function NodeCard({ node, lmNode }: { node?: ClusterNode; lmNode?: LMNode }) {
   const name = node?.name || lmNode?.id || '?';
   const status = node?.status || (lmNode?.status === 'online' ? 'online' : 'offline');
   const sc = STATUS[status] || STATUS.offline;
   const latency = node?.latency ?? lmNode?.latency ?? -1;
-  const modelsLoaded = node?.models?.filter(m => m.loaded).length ?? lmNode?.models?.filter((m: any) => m.loaded).length ?? 0;
+  const modelsLoaded = node?.models?.filter(m => m.loaded).length ?? lmNode?.models?.filter(m => m.loaded).length ?? 0;
   const weight = node?.weight;
   const vramTotal = node?.vram_total || 0;
   const vramUsed = node?.vram_used || 0;
   const gpus = node?.gpus || [];
-  const role = node?.role || lmNode?.role || '';
-  const defaultModel = node?.default_model || lmNode?.default_model || '';
+  const role = node?.role || '';
+  const defaultModel = node?.default_model || '';
   const maxTemp = gpus.reduce((mx, g) => Math.max(mx, g.temperature || 0), 0);
 
   return (
@@ -302,7 +302,7 @@ export default function DashboardPage() {
 
   // Merge cluster + LM nodes for display
   const allNodes = useMemo(() => {
-    const merged: { cluster?: ClusterNode; lm?: any; name: string }[] = [];
+    const merged: { cluster?: ClusterNode; lm?: LMNode; name: string }[] = [];
     const seen = new Set<string>();
 
     for (const cn of clusterNodes) {

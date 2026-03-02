@@ -7,11 +7,15 @@ Uses edge-tts async generator for low-latency output.
 from __future__ import annotations
 
 import asyncio
+import logging
 import tempfile
 from pathlib import Path
 
+logger = logging.getLogger("jarvis.tts")
+
 VOICE = "fr-FR-HenriNeural"
 RATE = "+10%"
+_PLAYBACK_TIMEOUT = 60  # max seconds for audio playback
 
 
 async def speak_streaming(text: str, voice: str = VOICE, rate: str = RATE) -> None:
@@ -39,7 +43,7 @@ async def speak_streaming(text: str, voice: str = VOICE, rate: str = RATE) -> No
                 stdout=asyncio.subprocess.DEVNULL,
                 stderr=asyncio.subprocess.DEVNULL,
             )
-            await proc.wait()
+            await asyncio.wait_for(proc.wait(), timeout=_PLAYBACK_TIMEOUT)
         except FileNotFoundError:
             # Fallback: PowerShell media player — escape path for safety
             safe_path = str(tmp).replace("'", "''")
@@ -49,7 +53,14 @@ async def speak_streaming(text: str, voice: str = VOICE, rate: str = RATE) -> No
                 stdout=asyncio.subprocess.DEVNULL,
                 stderr=asyncio.subprocess.DEVNULL,
             )
-            await proc.wait()
+            await asyncio.wait_for(proc.wait(), timeout=_PLAYBACK_TIMEOUT)
+        except asyncio.TimeoutError:
+            logger.warning("TTS playback timeout after %ds, killing process", _PLAYBACK_TIMEOUT)
+            try:
+                proc.kill()
+                await proc.wait()
+            except OSError:
+                pass
     finally:
         tmp.unlink(missing_ok=True)
 

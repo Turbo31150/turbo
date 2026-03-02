@@ -1379,6 +1379,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
     try:
         return await handler(arguments)
     except Exception as e:
+        logger.error("MCP handler %s failed: %s", name, e, exc_info=True)
         return _error(f"{name}: {e}")
 
 

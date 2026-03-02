@@ -155,13 +155,15 @@ def check_node_online(node_name: str, timeout: int = 3) -> bool:
     try:
         url = node["url"]
         if "11434" in url:
-            urllib.request.urlopen(f"{url}/api/tags", timeout=timeout)
+            with urllib.request.urlopen(f"{url}/api/tags", timeout=timeout):
+                pass
         else:
             req = urllib.request.Request(
                 f"{url}/api/v1/models",
                 headers={"Authorization": _get_auth_header(node_name)}
             )
-            urllib.request.urlopen(req, timeout=timeout)
+            with urllib.request.urlopen(req, timeout=timeout):
+                pass
         return True
     except (urllib.error.URLError, OSError):
         return False
@@ -236,8 +238,8 @@ def execute_curl(action: str, timeout: int = 20) -> str:
                     if auth:
                         req.add_header("Authorization", auth)
                     break
-        resp = urllib.request.urlopen(req, timeout=timeout)
-        data = resp.read().decode()
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            data = resp.read().decode()
         # Parse LM Studio response to extract content
         if "/api/v1/chat" in url:
             try:

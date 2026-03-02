@@ -27,7 +27,7 @@ function useOllama() {
       setLatency(Math.round(performance.now() - t0));
       if (!r.ok) { setOnline(false); return; }
       const data = await r.json();
-      const list = (data.models || []).map((m: any) => ({
+      const list = (data.models || []).map((m: { name?: string; model?: string; size?: number; digest?: string; modified_at?: string }) => ({
         name: m.name || m.model || '',
         size: m.size || 0,
         digest: (m.digest || '').slice(0, 12),

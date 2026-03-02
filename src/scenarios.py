@@ -7,9 +7,12 @@ and records pass/fail results in the SQL database.
 from __future__ import annotations
 
 import json
+import logging
 import random
 import time
 from typing import Any
+
+logger = logging.getLogger("jarvis.scenarios")
 
 from src.database import (
     init_db, add_scenario, get_all_scenarios, record_validation,
@@ -1497,13 +1500,13 @@ def run_50_cycles() -> dict:
     """Run 50 validation cycles and return comprehensive report."""
     # Initialize database
     init_db()
-    print("  [1/4] Base SQL initialisee")
+    logger.info("[1/4] Base SQL initialisee")
 
     # Import data
     n_cmd = import_commands_from_code()
     n_skill = import_skills_from_code()
     n_corr = import_corrections_from_code()
-    print(f"  [2/4] Importe: {n_cmd} commandes, {n_skill} skills, {n_corr} corrections")
+    logger.info("[2/4] Importe: %d commandes, %d skills, %d corrections", n_cmd, n_skill, n_corr)
 
     # Load scenarios into DB
     for tpl in SCENARIO_TEMPLATES:
@@ -1516,7 +1519,7 @@ def run_50_cycles() -> dict:
             expected_result=tpl["expected_result"],
             difficulty=tpl.get("difficulty", "normal"),
         )
-    print(f"  [3/4] {len(SCENARIO_TEMPLATES)} scenarios charges")
+    logger.info("[3/4] %d scenarios charges", len(SCENARIO_TEMPLATES))
 
     # Run 50 cycles
     all_cycles = []
@@ -1524,7 +1527,7 @@ def run_50_cycles() -> dict:
         cycle_result = run_validation_cycle(cycle, SCENARIO_TEMPLATES)
         all_cycles.append(cycle_result)
         if cycle % 10 == 0:
-            print(f"  [Cycle {cycle}/50] Pass rate: {cycle_result['pass_rate']}% ({cycle_result['passed']}/{cycle_result['total']})")
+            logger.info("[Cycle %d/50] Pass rate: %s%% (%d/%d)", cycle, cycle_result['pass_rate'], cycle_result['passed'], cycle_result['total'])
 
     # Compile final report
     total_tests = sum(c["total"] for c in all_cycles)
@@ -1534,7 +1537,7 @@ def run_50_cycles() -> dict:
 
     init_db()  # Ensure tables exist before stats query
     stats = get_stats()
-    print(f"  [4/4] 50 cycles termines — {total_passed}/{total_tests} passes ({round(total_passed/total_tests*100, 1)}%)")
+    logger.info("[4/4] 50 cycles termines — %d/%d passes (%.1f%%)", total_passed, total_tests, total_passed/total_tests*100 if total_tests else 0)
 
     # Find failed scenarios for analysis
     failures = {}

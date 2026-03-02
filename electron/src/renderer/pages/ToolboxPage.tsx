@@ -16,7 +16,7 @@ interface BenchRun {
   date: string;
   total_score: number;
   phases: number;
-  results?: any;
+  results?: Record<string, unknown>;
 }
 
 interface McpTool {
@@ -95,7 +95,7 @@ export default function ToolboxPage() {
       });
       if (mountedRef.current && skillsResp.ok) {
         const data = await skillsResp.json();
-        setSkills((data.rows || data.results || []).map((r: any) => ({
+        setSkills((data.rows || data.results || []).map((r: Record<string, string | number>) => ({
           name: r.name || r[0] || '',
           description: r.description || r[1] || '',
           category: r.category || r[2] || '',
@@ -114,7 +114,7 @@ export default function ToolboxPage() {
       });
       if (mountedRef.current && benchResp.ok) {
         const data = await benchResp.json();
-        setBenchmarks((data.rows || data.results || []).map((r: any) => ({
+        setBenchmarks((data.rows || data.results || []).map((r: Record<string, string | number>) => ({
           id: r.id || r[0] || 0,
           run_name: r.run_name || r[1] || '',
           date: r.date || r[2] || '',
@@ -132,7 +132,7 @@ export default function ToolboxPage() {
         if (!mountedRef.current) return;
         const tools = resp.payload?.tools;
         if (Array.isArray(tools) && tools.length > 0) {
-          setMcpTools(tools.map((t: any) => ({ name: t.name || '', description: t.description || '', category: t.category || '' })));
+          setMcpTools(tools.map((t: { name?: string; description?: string; category?: string }) => ({ name: t.name || '', description: t.description || '', category: t.category || '' })));
         } else {
           setMcpTools(FALLBACK_MCP_TOOLS);
         }

@@ -45,21 +45,25 @@ def _create_icon_image() -> Image.Image:
 
 
 def _launch_bat(bat_name: str) -> None:
-    """Launch a JARVIS .bat launcher in a new console."""
+    """Launch a JARVIS .bat launcher in a new detached console."""
     bat_path = PROJECT_ROOT / bat_name
     if bat_path.exists():
-        subprocess.Popen(
+        # cmd /c start detaches immediately — use CREATE_NO_WINDOW to avoid handle leak
+        proc = subprocess.Popen(
             ["cmd", "/c", "start", "", str(bat_path)],
             cwd=str(PROJECT_ROOT),
         )
+        # cmd /c start returns instantly; reap the zombie handle
+        threading.Thread(target=proc.wait, daemon=True).start()
 
 
 def _launch_dashboard() -> None:
     """Launch the Textual TUI dashboard."""
-    subprocess.Popen(
+    proc = subprocess.Popen(
         ["cmd", "/c", "start", "", str(PROJECT_ROOT / "jarvis_dashboard.bat")],
         cwd=str(PROJECT_ROOT),
     )
+    threading.Thread(target=proc.wait, daemon=True).start()
 
 
 def _quick_cluster_status() -> None:

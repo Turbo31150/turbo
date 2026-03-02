@@ -22,6 +22,26 @@ export interface LMNode {
   error?: string;
 }
 
+/** Raw model shape from LM Studio /api/v1/models response. */
+interface RawLMModel {
+  id?: string;
+  key?: string;
+  model?: string;
+  object?: string;
+  owned_by?: string;
+  loaded_instances?: number;
+  size_on_disk?: number;
+  context_length?: number;
+  max_context_length?: number;
+  gpu_offload?: string;
+}
+
+/** Content part shape from LM Studio response output blocks. */
+interface RawContentPart {
+  type?: string;
+  text?: string;
+}
+
 const NODES_CONFIG = LM_NODES;
 
 // Auth cache — populated once via IPC from main process
@@ -47,7 +67,7 @@ async function fetchNodeModels(url: string, auth: string): Promise<{ models: LMM
   const latency = Math.round(performance.now() - t0);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
-  const models: LMModel[] = (data.models || data.data || []).map((m: any) => ({
+  const models: LMModel[] = (data.models || data.data || []).map((m: RawLMModel) => ({
     id: m.id || m.key || m.model,
     object: m.object || 'model',
     owned_by: m.owned_by || '',
@@ -81,7 +101,7 @@ async function sendChat(url: string, auth: string, model: string, prompt: string
   for (const block of (data.output || []).reverse()) {
     if (block.type === 'message') {
       const c = block.content;
-      text = typeof c === 'string' ? c : (c || []).map((p: any) => typeof p === 'string' ? p : p.text || '').join('');
+      text = typeof c === 'string' ? c : (c || []).map((p: string | RawContentPart) => typeof p === 'string' ? p : p.text || '').join('');
       break;
     }
   }
