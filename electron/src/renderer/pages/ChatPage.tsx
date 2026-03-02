@@ -174,9 +174,9 @@ export default function ChatPage() {
               e.preventDefault(); setDragging(false);
               const accepted = await handleFileDrop(e.dataTransfer.files);
               if (accepted.length > 0) {
-                // Re-create File objects from accepted list for the chat hook
-                const validNames = new Set(accepted.map(f => f.name));
-                setFiles(prev => [...prev, ...Array.from(e.dataTransfer.files).filter(f => validNames.has(f.name))]);
+                const acceptedKeys = new Set(accepted.map(f => `${f.name}:${f.size}`));
+                const newFiles = Array.from(e.dataTransfer.files).filter(f => acceptedKeys.has(`${f.name}:${f.size}`));
+                setFiles(prev => [...prev, ...newFiles]);
               }
             }}>
             {dragging ? 'Deposer les fichiers ici...' : 'Glisser-deposer des fichiers'}
@@ -185,9 +185,9 @@ export default function ChatPage() {
           {files.length > 0 && (
             <div style={S.fileChips}>
               {files.map((file, i) => (
-                <div key={i} style={S.fileChip}>
+                <div key={`${file.name}_${file.size}_${i}`} style={S.fileChip}>
                   <span>{file.name}</span>
-                  <button style={S.fileRemove} onClick={() => setFiles(prev => prev.filter((_, j) => j !== i))}>{'\u2715'}</button>
+                  <button style={S.fileRemove} onClick={() => setFiles(prev => prev.filter((_, j) => j !== i))} aria-label={`Retirer ${file.name}`}>{'\u2715'}</button>
                 </div>
               ))}
             </div>
