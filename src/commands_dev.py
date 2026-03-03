@@ -1199,7 +1199,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("yaml_to_json", "dev", "Convertir YAML en JSON", [
         "yaml en json {fichier}", "convertis le yaml {fichier}",
         "yaml to json {fichier}",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import yaml,json,sys; print(json.dumps(yaml.safe_load(open(sys.argv[1])),indent=2))\" {fichier} 2>&1 | Out-String", ["fichier"]),
+    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import yaml,json,sys,pathlib; print(json.dumps(yaml.safe_load(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8')),indent=2))\" {fichier} 2>&1 | Out-String", ["fichier"]),
     JarvisCommand("diff_files", "dev", "Comparer deux fichiers", [
         "compare {f1} et {f2}", "diff {f1} {f2}", "difference entre {f1} {f2}",
     ], "powershell", "Compare-Object (Get-Content '{f1}') (Get-Content '{f2}') | Format-Table -AutoSize | Out-String", ["f1", "f2"]),

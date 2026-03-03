@@ -162,9 +162,19 @@ class WhisperWorker:
             if "WHISPER_LOADED" in line2:
                 print(f"  [WHISPER] {line2}", flush=True)
                 self._ready = True
+            if not self._ready:
+                # Kill the process if it didn't start properly
+                self._process.kill()
+                self._process = None
             return self._ready
         except (OSError, subprocess.SubprocessError) as e:
             logger.debug("Whisper worker start failed: %s", e)
+            if self._process:
+                try:
+                    self._process.kill()
+                except OSError:
+                    pass
+                self._process = None
             return False
 
     def transcribe(self, wav_path: str) -> str | None:

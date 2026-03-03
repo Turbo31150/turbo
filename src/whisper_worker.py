@@ -91,8 +91,10 @@ class WhisperWorker:
             if isinstance(audio, (bytes, bytearray)):
                 suffix = ".webm" if audio[:4] == b"\x1a\x45\xdf\xa3" else ".wav"
                 tmp = tempfile.NamedTemporaryFile(suffix=suffix, delete=False)
-                tmp.write(audio)
-                tmp.close()
+                try:
+                    tmp.write(audio)
+                finally:
+                    tmp.close()
                 audio_path = tmp.name
             else:
                 audio_path = str(audio)
