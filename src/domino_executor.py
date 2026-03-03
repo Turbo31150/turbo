@@ -883,6 +883,94 @@ def _backup_db(db_name: str = "jarvis.db") -> str:
     return f"Backup OK: {backup_path.name} ({size_kb:.1f} KB)"
 
 
+@register_python_action("get_session_stats")
+def _get_session_stats() -> str:
+    """Get current voice session statistics."""
+    try:
+        from src.voice_correction import _recent_match_cache, IMPLICIT_COMMANDS, PHONETIC_GROUPS, FILLER_WORDS
+        from src.commands import COMMANDS, VOICE_CORRECTIONS
+        return (
+            f"Session stats — Commands: {len(COMMANDS)}, "
+            f"Corrections: {len(VOICE_CORRECTIONS)}, "
+            f"Implicits: {len(IMPLICIT_COMMANDS)}, "
+            f"Phonetics: {len(PHONETIC_GROUPS)}, "
+            f"Fillers: {len(FILLER_WORDS)}, "
+            f"Cache: {len(_recent_match_cache)} entries"
+        )
+    except ImportError as e:
+        return f"ERROR: {e}"
+
+
+@register_python_action("list_dominos")
+def _list_dominos() -> str:
+    """List all domino pipelines with IDs and categories."""
+    try:
+        from src.domino_pipelines import DOMINO_PIPELINES
+        categories = {}
+        for dp in DOMINO_PIPELINES:
+            categories.setdefault(dp.category, []).append(dp.id)
+        lines = [f"Total: {len(DOMINO_PIPELINES)} dominos"]
+        for cat, ids in sorted(categories.items()):
+            lines.append(f"  {cat}: {', '.join(ids)}")
+        return "\n".join(lines)
+    except ImportError as e:
+        return f"ERROR: {e}"
+
+
+@register_python_action("get_uptime")
+def _get_uptime() -> str:
+    """Get system uptime."""
+    import time
+    try:
+        if os.name == "nt":
+            import ctypes
+            lib = ctypes.windll.kernel32
+            tick = lib.GetTickCount64()
+            uptime_s = tick / 1000
+        else:
+            with open("/proc/uptime") as f:
+                uptime_s = float(f.read().split()[0])
+        hours = int(uptime_s // 3600)
+        mins = int((uptime_s % 3600) // 60)
+        return f"Uptime: {hours}h {mins}m"
+    except (OSError, AttributeError):
+        return "Uptime: unavailable"
+
+
+@register_python_action("get_disk_usage")
+def _get_disk_usage() -> str:
+    """Get disk usage for main drives."""
+    import shutil
+    results = []
+    for drive in ["C:\\", "F:\\"]:
+        try:
+            usage = shutil.disk_usage(drive)
+            free_gb = usage.free / (1024**3)
+            total_gb = usage.total / (1024**3)
+            pct = (usage.used / usage.total) * 100
+            results.append(f"{drive} {free_gb:.1f}GB free / {total_gb:.0f}GB ({pct:.0f}% used)")
+        except (OSError, FileNotFoundError):
+            continue
+    return " | ".join(results) if results else "No drives found"
+
+
+@register_python_action("clear_all_caches")
+def _clear_all_caches() -> str:
+    """Clear Python LRU caches and internal caches."""
+    cleared = []
+    try:
+        from src.voice_correction import phonetic_normalize, remove_accents, _recent_match_cache
+        phonetic_normalize.cache_clear()
+        cleared.append("phonetic_normalize")
+        remove_accents.cache_clear()
+        cleared.append("remove_accents")
+        _recent_match_cache.clear()
+        cleared.append("recent_match_cache")
+    except (ImportError, AttributeError):
+        pass
+    return f"Caches cleared: {', '.join(cleared)}" if cleared else "No caches to clear"
+
+
 def execute_python(action: str, timeout: int = 30) -> str:
     """Execute a registered Python action or return description for unknown ones."""
     func_str = action.replace("python:", "", 1) if action.startswith("python:") else action

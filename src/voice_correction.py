@@ -603,6 +603,33 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "check and fix": "diagnostique puis repare",
     "scan and report": "scan puis rapport",
     "backup and clean": "backup puis nettoie",
+    # Vague 34 — Cloud / Infrastructure
+    "aws": "statut aws",
+    "azure": "statut azure",
+    "cloud": "statut cloud",
+    "kubernetes": "statut kubernetes",
+    "k8s": "statut kubernetes",
+    "terraform": "statut terraform",
+    "ansible": "statut ansible",
+    "compose": "docker compose",
+    "container": "liste les conteneurs",
+    "image": "liste les images docker",
+    "registry": "registre docker",
+    "helm": "statut helm",
+    "ingress": "statut ingress",
+    # Vague 35 — Monitoring avance
+    "metriques": "affiche les metriques",
+    "metrics": "affiche les metriques",
+    "graphe": "ouvre grafana",
+    "grafana": "ouvre grafana",
+    "prometheus": "statut prometheus",
+    "alertes systeme": "alertes systeme",
+    "sla": "statut sla",
+    "uptime systeme": "uptime du systeme",
+    "health": "health check",
+    "liveness": "liveness check",
+    "readiness": "readiness check",
+    "heartbeat": "heartbeat check",
 }
 
 
@@ -1385,7 +1412,10 @@ class VoiceSession:
     _REPEAT_PHRASES = {
         "refais", "relance", "encore", "pareil", "la meme chose",
         "meme chose", "repete", "fais le encore", "lance ca",
-        "fais ca", "recommence", "de nouveau",
+        "fais ca", "recommence", "de nouveau", "idem", "same",
+        "a nouveau", "encore une fois", "une autre fois", "re",
+        "refais la meme chose", "recommence ca", "relance ca",
+        "fait pareil", "fait le pareil", "meme commande",
     }
 
     def __init__(self):
@@ -1441,6 +1471,18 @@ class VoiceSession:
             self.history.append(text)
             if len(self.history) > 10:
                 self.history.pop(0)
+
+    def get_session_stats(self) -> dict:
+        """Return session statistics."""
+        with self._lock:
+            return {
+                "correction_count": self.correction_count,
+                "history_length": len(self.history),
+                "last_command": self.last_command.name if self.last_command else None,
+                "last_raw": self.last_raw,
+                "suggestions_pending": len(self.last_suggestions),
+                "cache_size": len(_recent_match_cache),
+            }
 
 
 # ═══════════════════════════════════════════════════════════════════════════
