@@ -220,7 +220,7 @@ def save_correction(wrong: str, correct: str, category: str = "auto_training") -
             )
         conn.commit()
         conn.close()
-    except Exception as e:
+    except (OSError, RuntimeError) as e:
         print(f"  [DB] {e}")
 
 
