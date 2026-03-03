@@ -140,7 +140,7 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
     if action == "get_all":
         commands = _get_all_commands()
         pipelines = _get_all_pipelines()
-        db = _get_db_data()
+        db = await asyncio.to_thread(_get_db_data)
         return {
             "commands": commands,
             "pipelines": pipelines,
@@ -167,10 +167,10 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
         return {"pipelines": _get_all_pipelines()}
 
     if action == "get_chains":
-        return {"domino_chains": _get_db_data()["domino_chains"]}
+        return {"domino_chains": await asyncio.to_thread(_get_db_data)["domino_chains"]}
 
     if action == "get_corrections":
-        return {"voice_corrections": _get_db_data()["voice_corrections"]}
+        return {"voice_corrections": await asyncio.to_thread(_get_db_data)["voice_corrections"]}
 
     if action == "search":
         query = (payload.get("query") or "").lower().strip()
@@ -212,7 +212,7 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
         matched_pipes.sort(key=lambda x: -x["_score"])
 
         # Search pipeline_dictionary
-        db = _get_db_data()
+        db = await asyncio.to_thread(_get_db_data)
         matched_dict = []
         for d in db["pipeline_dictionary"]:
             if query in (d.get("trigger_phrase") or "").lower():
@@ -238,8 +238,9 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
 
         if not name:
             return {"error": "name is required"}
-        if category and category not in _get_valid_categories():
-            return {"error": f"Invalid category: {category}. Valid: {sorted(_get_valid_categories())}"}
+        valid_cats = await asyncio.to_thread(_get_valid_categories)
+        if category and category not in valid_cats:
+            return {"error": f"Invalid category: {category}. Valid: {sorted(valid_cats)}"}
         if action_type not in _VALID_ACTION_TYPES:
             return {"error": f"Invalid action_type: {action_type}. Valid: {sorted(_VALID_ACTION_TYPES)}"}
 
@@ -292,7 +293,7 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
         if invalid:
             return {"error": f"Invalid fields: {invalid}. Allowed: {sorted(allowed_fields)}"}
 
-        if "category" in fields and fields["category"] not in _get_valid_categories():
+        if "category" in fields and fields["category"] not in await asyncio.to_thread(_get_valid_categories):
             return {"error": f"Invalid category: {fields['category']}"}
         if "action_type" in fields and fields["action_type"] not in _VALID_ACTION_TYPES:
             return {"error": f"Invalid action_type: {fields['action_type']}"}
@@ -438,7 +439,7 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
     if action == "reload_dict":
         try:
             _invalidate_categories_cache()
-            data = _get_db_data()
+            data = await asyncio.to_thread(_get_db_data)
             logger.info("Dictionary reloaded: %d dict, %d chains, %d corrections",
                         len(data["pipeline_dictionary"]), len(data["domino_chains"]),
                         len(data["voice_corrections"]))

@@ -1,4 +1,6 @@
 """Trading route — signals, positions, PnL monitoring."""
+from __future__ import annotations
+
 import asyncio
 import logging
 import sqlite3

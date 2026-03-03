@@ -622,13 +622,28 @@ async def full_correction_pipeline(
     return result
 
 
+def _get_vc_http():
+    """Lazy shared httpx client for voice correction (avoids import at module level)."""
+    global _vc_http
+    try:
+        if _vc_http is not None and not _vc_http.is_closed:
+            return _vc_http
+    except NameError:
+        pass
+    import httpx
+    _vc_http = httpx.AsyncClient(timeout=5, limits=httpx.Limits(max_keepalive_connections=5))
+    return _vc_http
+
+
+_vc_http = None
+
+
 async def _ia_correct(text: str, url: str, model: str) -> str:
     """Use Ollama qwen3:1.7b (fast, 1.36 GB) to correct voice transcription.
 
     Primary: Ollama qwen3:1.7b (lightweight, always loaded, <1s)
     Fallback: LM Studio M1/qwen3-8b (fast, accurate)
     """
-    import httpx
     from src.config import config
     prompt = (
         "Tu es le correcteur ORTHOGRAPHIQUE de JARVIS.\n"
@@ -648,37 +663,38 @@ async def _ia_correct(text: str, url: str, model: str) -> str:
     messages = [{"role": "user", "content": prompt}]
     # Primary: Ollama qwen3:1.7b (fast, lightweight, always available)
     ol = config.get_ollama_node("OL1")
+    import httpx
     if ol:
         try:
-            async with httpx.AsyncClient(timeout=5) as c:
-                r = await c.post(
-                    f"{ol.url}/api/chat",
-                    json=build_ollama_payload(
-                        model, messages, temperature=0.1, num_predict=200,
-                    ),
-                )
-                r.raise_for_status()
-                return r.json()["message"]["content"].strip()
+            c = _get_vc_http()
+            r = await c.post(
+                f"{ol.url}/api/chat",
+                json=build_ollama_payload(
+                    model, messages, temperature=0.1, num_predict=200,
+                ),
+            )
+            r.raise_for_status()
+            return r.json()["message"]["content"].strip()
         except (httpx.HTTPError, OSError, ValueError, KeyError) as exc:
             logger.debug("OL1 correction fallback failed: %s", exc)
     # Fallback: LM Studio M1 (qwen3-8b — fast and accurate)
     node = config.get_node("M1")
     if node:
         try:
-            async with httpx.AsyncClient(timeout=5) as c:
-                r = await c.post(
-                    f"{node.url}/api/v1/chat",
-                    json=build_lmstudio_payload(
-                        node.default_model,
-                        prepare_lmstudio_input(text, node.name, node.default_model),
-                        temperature=0.1, max_output_tokens=200,
-                        system_prompt=messages[0]["content"] if messages and messages[0]["role"] == "system" else "",
-                    ),
-                    headers=node.auth_headers,
-                )
-                r.raise_for_status()
-                from src.tools import extract_lms_output
-                return extract_lms_output(r.json()).strip()
+            c = _get_vc_http()
+            r = await c.post(
+                f"{node.url}/api/v1/chat",
+                json=build_lmstudio_payload(
+                    node.default_model,
+                    prepare_lmstudio_input(text, node.name, node.default_model),
+                    temperature=0.1, max_output_tokens=200,
+                    system_prompt=messages[0]["content"] if messages and messages[0]["role"] == "system" else "",
+                ),
+                headers=node.auth_headers,
+            )
+            r.raise_for_status()
+            from src.tools import extract_lms_output
+            return extract_lms_output(r.json()).strip()
         except (httpx.HTTPError, OSError, ValueError, KeyError) as exc:
             logger.debug("M1 correction fallback failed: %s", exc)
     return text

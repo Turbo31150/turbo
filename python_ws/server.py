@@ -84,16 +84,24 @@ async def health():
 @app.get("/api/models")
 async def api_models():
     """Return all available models with online/offline status."""
-    from python_ws.routes.chat import get_models_with_status
-    models = await get_models_with_status()
-    return JSONResponse({"models": models})
+    try:
+        from python_ws.routes.chat import get_models_with_status
+        models = await get_models_with_status()
+        return JSONResponse({"models": models})
+    except Exception as exc:
+        logger.exception("GET /api/models failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
 
 
 @app.get("/api/dictionary")
 async def api_dictionary():
     """REST endpoint for full dictionary data (too large for WS)."""
-    result = await handle_dictionary_request("get_all", {})
-    return JSONResponse(result)
+    try:
+        result = await handle_dictionary_request("get_all", {})
+        return JSONResponse(result)
+    except Exception as exc:
+        logger.exception("GET /api/dictionary failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
 
 
 @app.get("/api/dictionary/search")
@@ -177,8 +185,12 @@ async def api_reload_dict():
 @app.get("/api/dominos")
 async def api_list_dominos(category: str = ""):
     """List all domino pipelines and DB chains."""
-    result = await handle_system_request("list_dominos", {"category": category})
-    return JSONResponse(result)
+    try:
+        result = await handle_system_request("list_dominos", {"category": category})
+        return JSONResponse(result)
+    except Exception as exc:
+        logger.exception("GET /api/dominos failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
 
 
 @app.get("/api/dominos/chains")
@@ -191,8 +203,12 @@ async def api_list_chains(q: str = "", limit: int = 50):
 @app.get("/api/dominos/resolve/{trigger}")
 async def api_resolve_chain(trigger: str):
     """Resolve a trigger into its full chain."""
-    result = await handle_system_request("resolve_chain", {"trigger": trigger})
-    return JSONResponse(result)
+    try:
+        result = await handle_system_request("resolve_chain", {"trigger": trigger})
+        return JSONResponse(result)
+    except Exception as exc:
+        logger.exception("GET /api/dominos/resolve failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
 
 
 @app.post("/api/dominos/execute")
@@ -225,7 +241,10 @@ _whisperflow_dir = Path(__file__).resolve().parent.parent / "whisperflow"
 @app.get("/whisperflow/")
 async def whisperflow_index():
     """Serve WhisperFlow UI at http://127.0.0.1:9742/whisperflow/"""
-    return FileResponse(_whisperflow_dir / "index.html")
+    index = _whisperflow_dir / "index.html"
+    if not index.exists():
+        return JSONResponse({"error": "WhisperFlow UI not found"}, status_code=404)
+    return FileResponse(index)
 
 if _whisperflow_dir.exists():
     app.mount("/whisperflow/static", StaticFiles(directory=str(_whisperflow_dir)), name="whisperflow")

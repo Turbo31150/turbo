@@ -1,4 +1,6 @@
 """Chat route — AI conversation via Claude SDK + Commander pipeline + MAO consensus."""
+from __future__ import annotations
+
 import asyncio
 import inspect
 import json
@@ -14,6 +16,19 @@ import httpx
 from python_ws.helpers import strip_agent_tag, extract_lmstudio_content
 
 logger = logging.getLogger("jarvis.chat")
+
+# Shared httpx client — avoids TCP reconnect overhead per request
+_http: httpx.AsyncClient | None = None
+
+
+def _get_http() -> httpx.AsyncClient:
+    global _http
+    if _http is None or _http.is_closed:
+        _http = httpx.AsyncClient(
+            timeout=60,
+            limits=httpx.Limits(max_keepalive_connections=10, max_connections=20),
+        )
+    return _http
 
 # Turbo root — resolved relative to this file (python_ws/routes/chat.py → turbo/)
 _TURBO_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -300,6 +315,7 @@ ALL_MODELS = [
 # Health cache for models (refreshed every 30s)
 _model_health: dict[str, bool] = {}
 _health_ts: float = 0
+_health_lock: asyncio.Lock = asyncio.Lock()
 
 
 async def _query_proxy(proxy_path: str, prompt: str, timeout: float = 120.0) -> str | None:
@@ -321,8 +337,8 @@ async def _query_proxy(proxy_path: str, prompt: str, timeout: float = 120.0) -> 
             try:
                 proc.kill()
                 await proc.wait()
-            except OSError:
-                pass
+            except OSError as exc:
+                logger.debug("Failed to kill proxy process: %s", exc)
         logger.debug("_query_proxy timeout after %.0fs: %s", timeout, proxy_path)
     except OSError as exc:
         logger.debug("_query_proxy failed: %s", exc)
@@ -330,22 +346,31 @@ async def _query_proxy(proxy_path: str, prompt: str, timeout: float = 120.0) -> 
 
 
 async def check_models_health() -> dict:
-    """Health check all models, return status dict."""
+    """Health check all models, return status dict.
+
+    Uses asyncio.Lock to prevent thundering herd — only one caller runs
+    the actual health check while others wait and get the cached result.
+    """
     global _model_health, _health_ts
-    now = time.time()
-    if now - _health_ts < 30:
+
+    # Fast path: cache still valid
+    if time.time() - _health_ts < 30:
         return _model_health
 
-    results = {}
-    async with httpx.AsyncClient(timeout=5.0) as client:
+    async with _health_lock:
+        # Double-check after acquiring lock (another coroutine may have refreshed)
+        if time.time() - _health_ts < 30:
+            return _model_health
+
+        results = {}
+        client = _get_http()
         for m in ALL_MODELS:
             try:
                 if m["backend"] == "proxy":
-                    # Proxy health: check if proxy JS file exists
                     results[m["id"]] = os.path.isfile(m.get("proxy_path", ""))
                 elif m["backend"] == "ollama":
                     ollama_base = _OLLAMA_CHAT.rsplit("/api/chat", 1)[0]
-                    r = await client.get(f"{ollama_base}/api/tags")
+                    r = await client.get(f"{ollama_base}/api/tags", timeout=5)
                     results[m["id"]] = r.status_code == 200
                 else:
                     url = m["url"].replace("/api/v1/chat", "/api/v1/models")
@@ -353,14 +378,14 @@ async def check_models_health() -> dict:
                     auth = _get_model_auth(m)
                     if auth:
                         headers["Authorization"] = auth
-                    r = await client.get(url, headers=headers)
+                    r = await client.get(url, headers=headers, timeout=5)
                     results[m["id"]] = r.status_code == 200
             except (httpx.HTTPError, OSError) as exc:
                 logger.debug("health check %s failed: %s", m["id"], exc)
                 results[m["id"]] = False
-    _model_health = results
-    _health_ts = now
-    return results
+        _model_health = results
+        _health_ts = time.time()
+        return results
 
 
 async def get_models_with_status() -> list[dict]:
@@ -418,45 +443,45 @@ async def _query_local_ia(text: str, task_type: str) -> str:
     chat_messages = _build_chat_history(text)
     lmstudio_input = _build_lmstudio_input(text)
 
-    async with httpx.AsyncClient(timeout=60.0) as client:
-        for node in nodes_priority:
-            try:
-                if node["backend"] == "proxy":
-                    # GEMINI / CLAUDE via subprocess proxy
-                    result = await _query_proxy(node["proxy_path"], text, timeout=60.0)
-                    if result:
-                        return f"[{node['name']}] {result}"
-                elif node["backend"] == "ollama":
-                    ol_payload = (build_ollama_payload(node["model"], chat_messages)
-                                  if build_ollama_payload else
-                                  {"model": node["model"], "messages": chat_messages,
-                                   "stream": False, "think": False})
-                    resp = await client.post(node["url"], json=ol_payload)
-                    resp.raise_for_status()
-                    content = resp.json().get("message", {}).get("content", "")
-                    if content and content.strip():
-                        return f"[{node['name']}] {content.strip()}"
-                else:
-                    headers = {"Content-Type": "application/json"}
-                    if node.get("auth"):
-                        headers["Authorization"] = node["auth"]
-                    lms_payload = (build_lmstudio_payload(node["model"], lmstudio_input,
-                                                          temperature=0.3, max_output_tokens=512)
-                                   if build_lmstudio_payload else
-                                   {"model": node["model"], "input": lmstudio_input,
-                                    "temperature": 0.3, "max_output_tokens": 512,
-                                    "stream": False, "store": False})
-                    resp = await client.post(node["url"], headers=headers, json=lms_payload)
-                    resp.raise_for_status()
-                    data = resp.json()
-                    if data.get("error"):
-                        continue
-                    extracted = extract_lmstudio_content(data)
-                    if extracted:
-                        return f"[{node['name']}] {extracted}"
-            except (httpx.HTTPError, asyncio.TimeoutError, OSError, KeyError) as exc:
-                logger.debug("_query_local_ia %s failed: %s", node.get("name", "?"), exc)
-                continue
+    client = _get_http()
+    for node in nodes_priority:
+        try:
+            if node["backend"] == "proxy":
+                # GEMINI / CLAUDE via subprocess proxy
+                result = await _query_proxy(node["proxy_path"], text, timeout=60.0)
+                if result:
+                    return f"[{node['name']}] {result}"
+            elif node["backend"] == "ollama":
+                ol_payload = (build_ollama_payload(node["model"], chat_messages)
+                              if build_ollama_payload else
+                              {"model": node["model"], "messages": chat_messages,
+                               "stream": False, "think": False})
+                resp = await client.post(node["url"], json=ol_payload)
+                resp.raise_for_status()
+                content = resp.json().get("message", {}).get("content", "")
+                if content and content.strip():
+                    return f"[{node['name']}] {content.strip()}"
+            else:
+                headers = {"Content-Type": "application/json"}
+                if node.get("auth"):
+                    headers["Authorization"] = node["auth"]
+                lms_payload = (build_lmstudio_payload(node["model"], lmstudio_input,
+                                                      temperature=0.3, max_output_tokens=512)
+                               if build_lmstudio_payload else
+                               {"model": node["model"], "input": lmstudio_input,
+                                "temperature": 0.3, "max_output_tokens": 512,
+                                "stream": False, "store": False})
+                resp = await client.post(node["url"], headers=headers, json=lms_payload)
+                resp.raise_for_status()
+                data = resp.json()
+                if data.get("error"):
+                    continue
+                extracted = extract_lmstudio_content(data)
+                if extracted:
+                    return f"[{node['name']}] {extracted}"
+        except (httpx.HTTPError, asyncio.TimeoutError, OSError, KeyError) as exc:
+            logger.debug("_query_local_ia %s failed: %s", node.get("name", "?"), exc)
+            continue
 
     return "Aucun agent disponible."
 
@@ -499,33 +524,33 @@ async def _query_single_node(model_id: str, text: str, chat_messages: list, lmst
                 return {"model": model_id, "name": name, "content": result, "latency": round(time.time() - start, 2)}
             return {"model": model_id, "name": name, "error": "proxy timeout"}
 
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            if m["backend"] == "ollama":
-                ol_payload = (build_ollama_payload(model_id, chat_messages)
-                              if build_ollama_payload else
-                              {"model": model_id, "messages": chat_messages,
-                               "stream": False, "think": False})
-                resp = await client.post(m["url"], json=ol_payload)
-                resp.raise_for_status()
-                content = resp.json().get("message", {}).get("content", "")
-                if content and content.strip():
-                    return {"model": model_id, "name": name, "content": content.strip(), "latency": round(time.time() - start, 2)}
-            else:
-                headers = {"Content-Type": "application/json"}
-                auth = _get_model_auth(m)
-                if auth:
-                    headers["Authorization"] = auth
-                lms_payload = (build_lmstudio_payload(model_id, lmstudio_input,
-                                                      temperature=0.3, max_output_tokens=512)
-                               if build_lmstudio_payload else
-                               {"model": model_id, "input": lmstudio_input,
-                                "temperature": 0.3, "max_output_tokens": 512,
-                                "stream": False, "store": False})
-                resp = await client.post(m["url"], headers=headers, json=lms_payload)
-                resp.raise_for_status()
-                extracted = extract_lmstudio_content(resp.json())
-                if extracted:
-                    return {"model": model_id, "name": name, "content": extracted, "latency": round(time.time() - start, 2)}
+        client = _get_http()
+        if m["backend"] == "ollama":
+            ol_payload = (build_ollama_payload(model_id, chat_messages)
+                          if build_ollama_payload else
+                          {"model": model_id, "messages": chat_messages,
+                           "stream": False, "think": False})
+            resp = await client.post(m["url"], json=ol_payload)
+            resp.raise_for_status()
+            content = resp.json().get("message", {}).get("content", "")
+            if content and content.strip():
+                return {"model": model_id, "name": name, "content": content.strip(), "latency": round(time.time() - start, 2)}
+        else:
+            headers = {"Content-Type": "application/json"}
+            auth = _get_model_auth(m)
+            if auth:
+                headers["Authorization"] = auth
+            lms_payload = (build_lmstudio_payload(model_id, lmstudio_input,
+                                                  temperature=0.3, max_output_tokens=512)
+                           if build_lmstudio_payload else
+                           {"model": model_id, "input": lmstudio_input,
+                            "temperature": 0.3, "max_output_tokens": 512,
+                            "stream": False, "store": False})
+            resp = await client.post(m["url"], headers=headers, json=lms_payload)
+            resp.raise_for_status()
+            extracted = extract_lmstudio_content(resp.json())
+            if extracted:
+                return {"model": model_id, "name": name, "content": extracted, "latency": round(time.time() - start, 2)}
     except (httpx.HTTPError, asyncio.TimeoutError, OSError, KeyError) as e:
         return {"model": model_id, "name": name, "error": str(e)}
     return {"model": model_id, "name": name, "error": "empty response"}

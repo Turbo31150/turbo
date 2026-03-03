@@ -14,7 +14,7 @@ Genere par consensus cluster M1+M2+OL1 (2026-02-27).
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from src.config import PATHS
 

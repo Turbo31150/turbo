@@ -7,7 +7,6 @@ import re
 from dataclasses import dataclass, field, asdict
 from difflib import SequenceMatcher
 from pathlib import Path
-from typing import Any
 
 from src.config import PATHS
 

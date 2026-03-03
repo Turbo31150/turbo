@@ -12,7 +12,6 @@ et rapport TTS final.
 
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
 import sqlite3
@@ -22,8 +21,6 @@ import urllib.error
 import urllib.request
 
 logger = logging.getLogger("jarvis.domino_executor")
-from dataclasses import dataclass, field
-from datetime import datetime
 
 from src.config import config, prepare_lmstudio_input, PATHS
 from src.domino_pipelines import DominoPipeline, DominoStep, find_domino

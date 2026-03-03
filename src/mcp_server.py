@@ -21,6 +21,20 @@ from mcp.server.lowlevel import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import Tool, TextContent
 
+# Shared httpx client — avoids creating/destroying connections per request.
+# Individual calls override timeout via method kwarg when needed.
+_http: httpx.AsyncClient | None = None
+
+
+def _get_http() -> httpx.AsyncClient:
+    global _http
+    if _http is None or _http.is_closed:
+        _http = httpx.AsyncClient(
+            timeout=120,
+            limits=httpx.Limits(max_keepalive_connections=20, max_connections=40),
+        )
+    return _http
+
 # ── Config import (inline to avoid circular deps) ──────────────────────────
 
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parent.parent))
@@ -69,14 +83,14 @@ async def handle_lm_query(args: dict) -> list[TextContent]:
         return _error(f"Noeud inconnu: {args.get('node')}")
     model = args.get("model", node.default_model)
     try:
-        async with httpx.AsyncClient(timeout=120) as c:
-            r = await c.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
-                model, prepare_lmstudio_input(args["prompt"], node.name, model),
-                temperature=config.temperature, max_output_tokens=config.max_tokens,
-            ), headers=node.auth_headers)
-            r.raise_for_status()
-            from src.tools import extract_lms_output
-            return _text(f"[{node.name}/{model}] {extract_lms_output(r.json())}")
+        c = _get_http()
+        r = await c.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
+            model, prepare_lmstudio_input(args["prompt"], node.name, model),
+            temperature=config.temperature, max_output_tokens=config.max_tokens,
+        ), headers=node.auth_headers)
+        r.raise_for_status()
+        from src.tools import extract_lms_output
+        return _text(f"[{node.name}/{model}] {extract_lms_output(r.json())}")
     except httpx.ConnectError:
         return _error(f"Noeud {node.name} hors ligne")
     except (httpx.HTTPError, OSError, KeyError, ValueError) as e:
@@ -88,11 +102,11 @@ async def handle_lm_models(args: dict) -> list[TextContent]:
     if not node:
         return _error("Noeud inconnu")
     try:
-        async with httpx.AsyncClient(timeout=10) as c:
-            r = await c.get(f"{node.url}/api/v1/models", headers=node.auth_headers)
-            r.raise_for_status()
-            models = [m["key"] for m in r.json().get("models", []) if m.get("loaded_instances")]
-            return _text(f"Modeles: {', '.join(models) if models else 'aucun'}")
+        c = _get_http()
+        r = await c.get(f"{node.url}/api/v1/models", headers=node.auth_headers, timeout=10)
+        r.raise_for_status()
+        models = [m["key"] for m in r.json().get("models", []) if m.get("loaded_instances")]
+        return _text(f"Modeles: {', '.join(models) if models else 'aucun'}")
     except (httpx.HTTPError, OSError, KeyError, json.JSONDecodeError) as e:
         return _error(str(e))
 
@@ -100,42 +114,42 @@ async def handle_lm_models(args: dict) -> list[TextContent]:
 async def handle_lm_cluster_status(args: dict) -> list[TextContent]:
     results, online = [], 0
     total_nodes = len(config.lm_nodes) + len(config.ollama_nodes) + 1  # +1 for Gemini
-    async with httpx.AsyncClient(timeout=5) as c:
-        for n in config.lm_nodes:
-            try:
-                r = await c.get(f"{n.url}/api/v1/models", headers=n.auth_headers)
-                r.raise_for_status()
-                cnt = len([m for m in r.json().get("models", []) if m.get("loaded_instances")])
-                results.append(f"  {n.name} ({n.role}): ONLINE — {cnt} modeles, {n.gpus} GPU, {n.vram_gb}GB VRAM")
-                online += 1
-            except (httpx.HTTPError, OSError) as exc:
-                logger.debug("cluster_status %s offline: %s", n.name, exc)
-                results.append(f"  {n.name} ({n.role}): OFFLINE")
-        for n in config.ollama_nodes:
-            try:
-                r = await c.get(f"{n.url}/api/tags")
-                r.raise_for_status()
-                cnt = len(r.json().get("models", []))
-                results.append(f"  {n.name} ({n.role}): ONLINE — {cnt} modeles [Ollama]")
-                online += 1
-            except (httpx.HTTPError, OSError) as exc:
-                logger.debug("cluster_status %s offline: %s", n.name, exc)
-                results.append(f"  {n.name} ({n.role}): OFFLINE [Ollama]")
-        # Gemini check via simple proxy call
+    c = _get_http()
+    for n in config.lm_nodes:
         try:
-            proc = await asyncio.create_subprocess_exec(
-                "node", config.gemini_node.proxy_path, "ping",
-                stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
-            )
-            _, _ = await asyncio.wait_for(proc.communicate(), timeout=10)
-            if proc.returncode == 0:
-                results.append(f"  GEMINI ({config.gemini_node.role}): ONLINE — {', '.join(config.gemini_node.models)} [Proxy]")
-                online += 1
-            else:
-                results.append(f"  GEMINI ({config.gemini_node.role}): OFFLINE [Proxy]")
-        except (asyncio.TimeoutError, FileNotFoundError, OSError) as exc:
-            logger.debug("cluster_status GEMINI offline: %s", exc)
+            r = await c.get(f"{n.url}/api/v1/models", headers=n.auth_headers, timeout=5)
+            r.raise_for_status()
+            cnt = len([m for m in r.json().get("models", []) if m.get("loaded_instances")])
+            results.append(f"  {n.name} ({n.role}): ONLINE — {cnt} modeles, {n.gpus} GPU, {n.vram_gb}GB VRAM")
+            online += 1
+        except (httpx.HTTPError, OSError) as exc:
+            logger.debug("cluster_status %s offline: %s", n.name, exc)
+            results.append(f"  {n.name} ({n.role}): OFFLINE")
+    for n in config.ollama_nodes:
+        try:
+            r = await c.get(f"{n.url}/api/tags", timeout=5)
+            r.raise_for_status()
+            cnt = len(r.json().get("models", []))
+            results.append(f"  {n.name} ({n.role}): ONLINE — {cnt} modeles [Ollama]")
+            online += 1
+        except (httpx.HTTPError, OSError) as exc:
+            logger.debug("cluster_status %s offline: %s", n.name, exc)
+            results.append(f"  {n.name} ({n.role}): OFFLINE [Ollama]")
+    # Gemini check via simple proxy call
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            "node", config.gemini_node.proxy_path, "ping",
+            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+        )
+        _, _ = await asyncio.wait_for(proc.communicate(), timeout=10)
+        if proc.returncode == 0:
+            results.append(f"  GEMINI ({config.gemini_node.role}): ONLINE — {', '.join(config.gemini_node.models)} [Proxy]")
+            online += 1
+        else:
             results.append(f"  GEMINI ({config.gemini_node.role}): OFFLINE [Proxy]")
+    except (asyncio.TimeoutError, FileNotFoundError, OSError) as exc:
+        logger.debug("cluster_status GEMINI offline: %s", exc)
+        results.append(f"  GEMINI ({config.gemini_node.role}): OFFLINE [Proxy]")
     header = f"Cluster: {online}/{total_nodes} noeuds en ligne"
     return _text(f"{header}\n" + "\n".join(results))
 
@@ -188,13 +202,13 @@ async def handle_consensus(args: dict) -> list[TextContent]:
         ol_node = config.get_ollama_node(name)
         if ol_node:
             try:
-                async with httpx.AsyncClient(timeout=per_timeout) as c:
-                    r = await asyncio.wait_for(c.post(f"{ol_node.url}/api/chat", json=build_ollama_payload(
-                        ol_node.default_model, [{"role": "user", "content": prompt}],
-                    )), timeout=per_timeout)
-                    r.raise_for_status()
-                    text = _strip_thinking_tags(r.json()["message"]["content"])
-                    return f"[{ol_node.name}/Ollama] {text}"
+                c = _get_http()
+                r = await asyncio.wait_for(c.post(f"{ol_node.url}/api/chat", json=build_ollama_payload(
+                    ol_node.default_model, [{"role": "user", "content": prompt}],
+                )), timeout=per_timeout)
+                r.raise_for_status()
+                text = _strip_thinking_tags(r.json()["message"]["content"])
+                return f"[{ol_node.name}/Ollama] {text}"
             except asyncio.TimeoutError:
                 return f"[{ol_node.name}/Ollama] TIMEOUT ({per_timeout}s)"
             except (httpx.HTTPError, OSError, KeyError, json.JSONDecodeError) as e:
@@ -206,13 +220,13 @@ async def handle_consensus(args: dict) -> list[TextContent]:
         input_text = prepare_lmstudio_input(prompt, node.name, node.default_model)
 
         try:
-            async with httpx.AsyncClient(timeout=per_timeout) as c:
-                r = await asyncio.wait_for(c.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
-                    node.default_model, input_text,
-                ), headers=node.auth_headers), timeout=per_timeout)
-                r.raise_for_status()
-                text = extract_lms_output(r.json())
-                return f"[{node.name}] {text}"
+            c = _get_http()
+            r = await asyncio.wait_for(c.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
+                node.default_model, input_text,
+            ), headers=node.auth_headers), timeout=per_timeout)
+            r.raise_for_status()
+            text = extract_lms_output(r.json())
+            return f"[{node.name}] {text}"
         except asyncio.TimeoutError:
             return f"[{name}] TIMEOUT ({per_timeout}s)"
         except (httpx.HTTPError, OSError, KeyError, ValueError) as e:
@@ -272,37 +286,37 @@ async def handle_bridge_query(args: dict) -> list[TextContent]:
     if not nodes:
         nodes = ["M1"]
 
-    async with httpx.AsyncClient(timeout=120) as c:
-        for name in nodes:
-            upper = name.upper()
-            try:
-                if upper == "GEMINI":
-                    result = await handle_gemini_query({"prompt": prompt})
-                    if result and not any("ERREUR" in tc.text for tc in result):
-                        return result
-                    continue
-
-                ol_node = config.get_ollama_node(name)
-                if ol_node:
-                    r = await c.post(f"{ol_node.url}/api/chat", json=build_ollama_payload(
-                        ol_node.default_model, [{"role": "user", "content": prompt}],
-                    ))
-                    r.raise_for_status()
-                    return _text(f"[{name}/{ol_node.default_model}] {r.json()['message']['content']}")
-
-                node = config.get_node(name)
-                if not node:
-                    continue
-                input_text = prepare_lmstudio_input(prompt, node.name, node.default_model)
-                r = await c.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
-                    node.default_model, input_text,
-                ), headers=node.auth_headers)
-                r.raise_for_status()
-                from src.tools import extract_lms_output
-                return _text(f"[{name}/{node.default_model}] {extract_lms_output(r.json())}")
-            except (httpx.HTTPError, asyncio.TimeoutError, OSError) as exc:
-                logger.debug("bridge_query %s failed: %s", name, exc)
+    c = _get_http()
+    for name in nodes:
+        upper = name.upper()
+        try:
+            if upper == "GEMINI":
+                result = await handle_gemini_query({"prompt": prompt})
+                if result and not any("ERREUR" in tc.text for tc in result):
+                    return result
                 continue
+
+            ol_node = config.get_ollama_node(name)
+            if ol_node:
+                r = await c.post(f"{ol_node.url}/api/chat", json=build_ollama_payload(
+                    ol_node.default_model, [{"role": "user", "content": prompt}],
+                ))
+                r.raise_for_status()
+                return _text(f"[{name}/{ol_node.default_model}] {r.json()['message']['content']}")
+
+            node = config.get_node(name)
+            if not node:
+                continue
+            input_text = prepare_lmstudio_input(prompt, node.name, node.default_model)
+            r = await c.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
+                node.default_model, input_text,
+            ), headers=node.auth_headers)
+            r.raise_for_status()
+            from src.tools import extract_lms_output
+            return _text(f"[{name}/{node.default_model}] {extract_lms_output(r.json())}")
+        except (httpx.HTTPError, asyncio.TimeoutError, OSError) as exc:
+            logger.debug("bridge_query %s failed: %s", name, exc)
+            continue
     return _error(f"Tous les noeuds ont echoue: {nodes}")
 
 
@@ -328,25 +342,25 @@ async def handle_bridge_mesh(args: dict) -> list[TextContent]:
                 from src.tools import _strip_thinking_tags
                 return f"[GEMINI/{config.gemini_node.default_model}] {_strip_thinking_tags(output)}"
 
-            async with httpx.AsyncClient(timeout=per_timeout) as c:
-                ol_node = config.get_ollama_node(name)
-                if ol_node:
-                    r = await c.post(f"{ol_node.url}/api/chat", json=build_ollama_payload(
-                        ol_node.default_model, [{"role": "user", "content": prompt}],
-                    ))
-                    r.raise_for_status()
-                    return f"[{name}/{ol_node.default_model}] {r.json()['message']['content']}"
-
-                node = config.get_node(name)
-                if not node:
-                    return f"[{name}] ERREUR: noeud inconnu"
-                input_text = prepare_lmstudio_input(prompt, node.name, node.default_model)
-                r = await c.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
-                    node.default_model, input_text,
-                ), headers=node.auth_headers)
+            c = _get_http()
+            ol_node = config.get_ollama_node(name)
+            if ol_node:
+                r = await asyncio.wait_for(c.post(f"{ol_node.url}/api/chat", json=build_ollama_payload(
+                    ol_node.default_model, [{"role": "user", "content": prompt}],
+                )), timeout=per_timeout)
                 r.raise_for_status()
-                from src.tools import extract_lms_output
-                return f"[{name}/{node.default_model}] {extract_lms_output(r.json())}"
+                return f"[{name}/{ol_node.default_model}] {r.json()['message']['content']}"
+
+            node = config.get_node(name)
+            if not node:
+                return f"[{name}] ERREUR: noeud inconnu"
+            input_text = prepare_lmstudio_input(prompt, node.name, node.default_model)
+            r = await asyncio.wait_for(c.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
+                node.default_model, input_text,
+            ), headers=node.auth_headers), timeout=per_timeout)
+            r.raise_for_status()
+            from src.tools import extract_lms_output
+            return f"[{name}/{node.default_model}] {extract_lms_output(r.json())}"
         except asyncio.TimeoutError:
             return f"[{name}] TIMEOUT ({per_timeout}s)"
         except (httpx.HTTPError, OSError, KeyError, ValueError) as e:
@@ -370,15 +384,15 @@ async def handle_ollama_query(args: dict) -> list[TextContent]:
         return _error("Noeud Ollama OL1 non configure")
     model = args.get("model", node.default_model)
     try:
-        async with httpx.AsyncClient(timeout=120) as c:
-            r = await c.post(f"{node.url}/api/chat", json={
-                "model": model,
-                "messages": [{"role": "user", "content": args["prompt"]}],
-                "stream": False, "think": False,
-                "options": {"temperature": config.temperature, "num_predict": config.max_tokens},
-            })
-            r.raise_for_status()
-            return _text(f"[OL1/{model}] {r.json()['message']['content']}")
+        c = _get_http()
+        r = await c.post(f"{node.url}/api/chat", json={
+            "model": model,
+            "messages": [{"role": "user", "content": args["prompt"]}],
+            "stream": False, "think": False,
+            "options": {"temperature": config.temperature, "num_predict": config.max_tokens},
+        })
+        r.raise_for_status()
+        return _text(f"[OL1/{model}] {r.json()['message']['content']}")
     except httpx.ConnectError:
         return _error("Ollama hors ligne (127.0.0.1:11434)")
     except (httpx.HTTPError, OSError, KeyError, json.JSONDecodeError) as e:
@@ -390,11 +404,11 @@ async def handle_ollama_models(args: dict) -> list[TextContent]:
     if not node:
         return _error("Noeud Ollama OL1 non configure")
     try:
-        async with httpx.AsyncClient(timeout=10) as c:
-            r = await c.get(f"{node.url}/api/tags")
-            r.raise_for_status()
-            models = [m["name"] for m in r.json().get("models", [])]
-            return _text(f"Modeles Ollama: {', '.join(models) if models else 'aucun'}")
+        c = _get_http()
+        r = await c.get(f"{node.url}/api/tags", timeout=10)
+        r.raise_for_status()
+        models = [m["name"] for m in r.json().get("models", [])]
+        return _text(f"Modeles Ollama: {', '.join(models) if models else 'aucun'}")
     except (httpx.HTTPError, OSError, KeyError, json.JSONDecodeError) as e:
         return _error(str(e))
 
@@ -405,10 +419,10 @@ async def handle_ollama_pull(args: dict) -> list[TextContent]:
         return _error("Noeud Ollama OL1 non configure")
     model_name = args["model_name"]
     try:
-        async with httpx.AsyncClient(timeout=600) as c:
-            r = await c.post(f"{node.url}/api/pull", json={"name": model_name, "stream": False})
-            r.raise_for_status()
-            return _text(f"Modele '{model_name}' telecharge.")
+        c = _get_http()
+        r = await c.post(f"{node.url}/api/pull", json={"name": model_name, "stream": False}, timeout=600)
+        r.raise_for_status()
+        return _text(f"Modele '{model_name}' telecharge.")
     except (httpx.HTTPError, OSError) as e:
         return _error(str(e))
 
@@ -418,17 +432,17 @@ async def handle_ollama_status(args: dict) -> list[TextContent]:
     if not node:
         return _error("Noeud Ollama OL1 non configure")
     try:
-        async with httpx.AsyncClient(timeout=5) as c:
-            r = await c.get(f"{node.url}/api/tags")
-            r.raise_for_status()
-            data = r.json()
-            models = [m["name"] for m in data.get("models", [])]
-            return _text(
-                f"Ollama OL1: ONLINE\n"
-                f"  URL: {node.url}\n"
-                f"  Modeles: {len(models)} ({', '.join(models) if models else 'aucun'})\n"
-                f"  Role: {node.role}"
-            )
+        c = _get_http()
+        r = await c.get(f"{node.url}/api/tags", timeout=5)
+        r.raise_for_status()
+        data = r.json()
+        models = [m["name"] for m in data.get("models", [])]
+        return _text(
+            f"Ollama OL1: ONLINE\n"
+            f"  URL: {node.url}\n"
+            f"  Modeles: {len(models)} ({', '.join(models) if models else 'aucun'})\n"
+            f"  Role: {node.role}"
+        )
     except httpx.ConnectError:
         return _error("Ollama OL1: OFFLINE")
     except (httpx.HTTPError, OSError, KeyError, json.JSONDecodeError) as e:
@@ -813,21 +827,21 @@ async def handle_lm_mcp_query(args: dict) -> list[TextContent]:
     if not integrations:
         return _error(f"Aucun serveur MCP valide: {server_names}")
     try:
-        async with httpx.AsyncClient(timeout=120) as c:
-            r = await c.post(f"{node.url}/api/v1/chat", json={
-                "model": model, "input": args["prompt"],
-                "integrations": integrations,
-                "context_length": args.get("context_length", node.context_length),
-                "temperature": config.temperature,
-                "max_output_tokens": config.max_tokens,
-                "stream": False, "store": False,
-            }, headers=node.auth_headers)
-            r.raise_for_status()
-            data = r.json()
-            content = extract_lms_output(data)
-            tool_calls = [o for o in data.get("output", []) if isinstance(o, dict) and o.get("type") == "tool_call"]
-            tc_info = f" | {len(tool_calls)} tool_call(s)" if tool_calls else ""
-            return _text(f"[{node.name}/{model} +MCP:{','.join(server_names)}] {content}{tc_info}")
+        c = _get_http()
+        r = await c.post(f"{node.url}/api/v1/chat", json={
+            "model": model, "input": args["prompt"],
+            "integrations": integrations,
+            "context_length": args.get("context_length", node.context_length),
+            "temperature": config.temperature,
+            "max_output_tokens": config.max_tokens,
+            "stream": False, "store": False,
+        }, headers=node.auth_headers)
+        r.raise_for_status()
+        data = r.json()
+        content = extract_lms_output(data)
+        tool_calls = [o for o in data.get("output", []) if isinstance(o, dict) and o.get("type") == "tool_call"]
+        tc_info = f" | {len(tool_calls)} tool_call(s)" if tool_calls else ""
+        return _text(f"[{node.name}/{model} +MCP:{','.join(server_names)}] {content}{tc_info}")
     except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
         return _error(str(e))
 
@@ -918,14 +932,14 @@ async def _ollama_cloud_query_mcp(prompt: str, model: str, timeout: float = 60.0
     if system:
         messages.append({"role": "system", "content": system})
     messages.append({"role": "user", "content": prompt})
-    async with httpx.AsyncClient(timeout=timeout) as c:
-        r = await c.post(f"{node.url}/api/chat", json={
-            "model": model, "messages": messages,
-            "stream": False, "think": False,
-            "options": {"temperature": 0.3, "num_predict": config.max_tokens},
-        })
-        r.raise_for_status()
-        return r.json()["message"].get("content", "")
+    c = _get_http()
+    r = await c.post(f"{node.url}/api/chat", json={
+        "model": model, "messages": messages,
+        "stream": False, "think": False,
+        "options": {"temperature": 0.3, "num_predict": config.max_tokens},
+    }, timeout=timeout)
+    r.raise_for_status()
+    return r.json()["message"].get("content", "")
 
 
 async def handle_ollama_web_search(args: dict) -> list[TextContent]:

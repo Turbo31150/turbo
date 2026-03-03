@@ -22,6 +22,15 @@ from pathlib import Path
 import httpx
 
 logger = logging.getLogger("jarvis.dashboard")
+
+_http: httpx.AsyncClient | None = None
+
+
+def _get_http() -> httpx.AsyncClient:
+    global _http
+    if _http is None or _http.is_closed:
+        _http = httpx.AsyncClient(timeout=60, limits=httpx.Limits(max_keepalive_connections=5))
+    return _http
 from textual import on, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
@@ -50,26 +59,26 @@ from src.brain import get_brain_status
 async def _fetch_cluster() -> list[dict]:
     """Fetch cluster node status."""
     results = []
-    async with httpx.AsyncClient(timeout=5) as c:
-        for node in config.lm_nodes:
-            entry = {
-                "name": node.name,
-                "role": node.role,
-                "url": node.url,
-                "gpus": node.gpus,
-                "vram": node.vram_gb,
-                "model": node.default_model,
-                "online": False,
-                "models_count": 0,
-            }
-            try:
-                r = await c.get(f"{node.url}/api/v1/models")
-                r.raise_for_status()
-                entry["online"] = True
-                entry["models_count"] = len([m for m in r.json().get("models", []) if m.get("loaded_instances")])
-            except (httpx.HTTPError, OSError) as exc:
-                logger.debug("_fetch_cluster %s: %s", node.name, exc)
-            results.append(entry)
+    c = _get_http()
+    for node in config.lm_nodes:
+        entry = {
+            "name": node.name,
+            "role": node.role,
+            "url": node.url,
+            "gpus": node.gpus,
+            "vram": node.vram_gb,
+            "model": node.default_model,
+            "online": False,
+            "models_count": 0,
+        }
+        try:
+            r = await c.get(f"{node.url}/api/v1/models", timeout=5)
+            r.raise_for_status()
+            entry["online"] = True
+            entry["models_count"] = len([m for m in r.json().get("models", []) if m.get("loaded_instances")])
+        except (httpx.HTTPError, OSError) as exc:
+            logger.debug("_fetch_cluster %s: %s", node.name, exc)
+        results.append(entry)
     return results
 
 
@@ -513,15 +522,15 @@ class JarvisDashboard(App):
         try:
             node = config.lm_nodes[0]
             self._log(f"Envoi a {node.name} ({node.default_model})...")
-            async with httpx.AsyncClient(timeout=60) as c:
-                input_text = prepare_lmstudio_input(text, node.name, node.default_model)
-                r = await c.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
-                    node.default_model, input_text,
-                ), headers=node.auth_headers)
-                r.raise_for_status()
-                from src.tools import extract_lms_output
-                response = extract_lms_output(r.json())
-                self._log(f"[green][{node.name}][/green] {response[:500]}")
+            c = _get_http()
+            input_text = prepare_lmstudio_input(text, node.name, node.default_model)
+            r = await c.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
+                node.default_model, input_text,
+            ), headers=node.auth_headers)
+            r.raise_for_status()
+            from src.tools import extract_lms_output
+            response = extract_lms_output(r.json())
+            self._log(f"[green][{node.name}][/green] {response[:500]}")
         except (httpx.HTTPError, OSError, KeyError, ValueError, IndexError) as e:
             logger.debug("action_query failed: %s", e)
             self._log(f"[red]Erreur query: {e}[/red]")

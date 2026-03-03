@@ -1,4 +1,6 @@
 """Files route — Upload, list, download, delete files."""
+from __future__ import annotations
+
 import base64
 import time
 from pathlib import Path

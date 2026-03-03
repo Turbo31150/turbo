@@ -546,8 +546,8 @@ async def _warmup_ollama():
                     "stream": False, "think": False,
                     "options": {"num_predict": 1},
                 })
-        except (httpx.HTTPError, OSError):
-            pass
+        except (httpx.HTTPError, OSError) as exc:
+            logger.debug("Ollama warmup failed: %s", exc)
         await asyncio.sleep(60)
 
 

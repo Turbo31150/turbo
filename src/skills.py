@@ -27,7 +27,6 @@ _TURBO_DIR = str(PATHS.get("turbo", "F:/BUREAU/turbo")).replace("/", "\\")
 
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
-from typing import Any
 
 
 SKILLS_FILE = Path(__file__).resolve().parent.parent / "data" / "skills.json"
