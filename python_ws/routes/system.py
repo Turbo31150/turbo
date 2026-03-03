@@ -482,11 +482,14 @@ async def _save_config(payload: dict) -> dict[str, Any]:
         return {"error": "Config too large (max 64KB)"}
     try:
         _DESKTOP_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
-        await asyncio.to_thread(
-            _DESKTOP_CONFIG_PATH.write_text,
-            json.dumps(config_data, indent=2, ensure_ascii=False),
-            encoding="utf-8",
-        )
+        tmp_path = _DESKTOP_CONFIG_PATH.with_suffix(".tmp")
+
+        def _atomic_write():
+            tmp_path.write_text(json.dumps(config_data, indent=2, ensure_ascii=False), encoding="utf-8")
+            import os
+            os.replace(str(tmp_path), str(_DESKTOP_CONFIG_PATH))
+
+        await asyncio.to_thread(_atomic_write)
         logger.info("Desktop config saved to %s", _DESKTOP_CONFIG_PATH)
         return {"saved": True, "path": str(_DESKTOP_CONFIG_PATH)}
     except (OSError, ValueError) as e:

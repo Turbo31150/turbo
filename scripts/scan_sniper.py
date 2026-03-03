@@ -227,76 +227,78 @@ def save_signals_to_db(signals: list, cycle: int, scan_time: float,
         conn = init_db()
         close_after = True
 
-    now = datetime.now(timezone.utc).isoformat()
+    try:
+        now = datetime.now(timezone.utc).isoformat()
 
-    # Save scan meta
-    top1 = signals[0] if signals else None
-    conn.execute("""
-        INSERT OR REPLACE INTO scans (cycle, timestamp, coins_scanned, signals_found,
-            scan_time_s, gpu_used, gpu_count, top1_symbol, top1_score, thermal_max)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (cycle, now, coins_scanned, len(signals), round(scan_time, 2),
-          1 if GPU_AVAILABLE else 0, GPU_COUNT,
-          top1.symbol if top1 else None, top1.score if top1 else 0, thermal_max))
-
-    for s in signals:
-        # Save signal
+        # Save scan meta
+        top1 = signals[0] if signals else None
         conn.execute("""
-            INSERT INTO signals (cycle, timestamp, symbol, direction, score, last_price,
-                entry, tp, sl, atr, rsi, mfi, williams_r, adx, cmf, chaikin_osc,
-                obv_trend, macd_signal, bb_squeeze, regime, funding_rate, change_24h,
-                volume_24h, liquidity_bias, strategies, reasons, ob_analysis)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (cycle, now, s.symbol, s.direction, s.score, s.last_price,
-              s.entry, s.tp, s.sl, s.atr, s.rsi, s.mfi, s.williams_r, s.adx,
-              s.cmf, s.chaikin_osc, s.obv_trend, s.macd_signal,
-              1 if s.bb_squeeze else 0, s.regime, s.funding_rate, s.change_24h,
-              s.volume_24h, s.liquidity_bias,
-              json.dumps(s.strategies), json.dumps(s.reasons, ensure_ascii=False),
-              json.dumps(s.ob_analysis)))
+            INSERT OR REPLACE INTO scans (cycle, timestamp, coins_scanned, signals_found,
+                scan_time_s, gpu_used, gpu_count, top1_symbol, top1_score, thermal_max)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (cycle, now, coins_scanned, len(signals), round(scan_time, 2),
+              1 if GPU_AVAILABLE else 0, GPU_COUNT,
+              top1.symbol if top1 else None, top1.score if top1 else 0, thermal_max))
 
-        # Upsert coin master record
-        category = classify_coin(s.symbol, conn)
-        existing = conn.execute("SELECT scan_count, signal_count, avg_score, max_score, "
-                                "long_count, short_count, avg_volume_24h, best_strategies "
-                                "FROM coins WHERE symbol = ?", (s.symbol,)).fetchone()
-        if existing:
-            sc, sig_c, avg_sc, max_sc, lc, shc, avg_v, best_str = existing
-            new_sig_c = sig_c + 1
-            new_avg = (avg_sc * sig_c + s.score) / new_sig_c
-            new_max = max(max_sc, s.score)
-            new_lc = lc + (1 if s.direction == "LONG" else 0)
-            new_shc = shc + (1 if s.direction == "SHORT" else 0)
-            new_avg_v = (avg_v * sig_c + s.volume_24h) / new_sig_c
-            dom = "LONG" if new_lc > new_shc else "SHORT" if new_shc > new_lc else "MIXED"
-            # Merge best strategies
-            try:
-                old_strats = json.loads(best_str) if best_str else []
-            except (json.JSONDecodeError, TypeError):
-                old_strats = []
-            merged = list(set(old_strats + s.strategies))[:20]
+        for s in signals:
+            # Save signal
             conn.execute("""
-                UPDATE coins SET last_seen=?, scan_count=scan_count+1, signal_count=?,
-                    avg_score=?, max_score=?, long_count=?, short_count=?,
-                    dominant_direction=?, avg_volume_24h=?, best_strategies=?, category=?
-                WHERE symbol=?
-            """, (now, new_sig_c, round(new_avg, 1), new_max, new_lc, new_shc,
-                  dom, round(new_avg_v, 0), json.dumps(merged), category, s.symbol))
-        else:
-            conn.execute("""
-                INSERT INTO coins (symbol, name, category, first_seen, last_seen,
-                    scan_count, signal_count, avg_score, max_score, dominant_direction,
-                    long_count, short_count, avg_volume_24h, best_strategies)
-                VALUES (?, ?, ?, ?, ?, 1, 1, ?, ?, ?, ?, ?, ?, ?)
-            """, (s.symbol, s.symbol.replace("_USDT", ""), category, now, now,
-                  s.score, s.score, s.direction,
-                  1 if s.direction == "LONG" else 0,
-                  1 if s.direction == "SHORT" else 0,
-                  round(s.volume_24h, 0), json.dumps(s.strategies)))
+                INSERT INTO signals (cycle, timestamp, symbol, direction, score, last_price,
+                    entry, tp, sl, atr, rsi, mfi, williams_r, adx, cmf, chaikin_osc,
+                    obv_trend, macd_signal, bb_squeeze, regime, funding_rate, change_24h,
+                    volume_24h, liquidity_bias, strategies, reasons, ob_analysis)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (cycle, now, s.symbol, s.direction, s.score, s.last_price,
+                  s.entry, s.tp, s.sl, s.atr, s.rsi, s.mfi, s.williams_r, s.adx,
+                  s.cmf, s.chaikin_osc, s.obv_trend, s.macd_signal,
+                  1 if s.bb_squeeze else 0, s.regime, s.funding_rate, s.change_24h,
+                  s.volume_24h, s.liquidity_bias,
+                  json.dumps(s.strategies), json.dumps(s.reasons, ensure_ascii=False),
+                  json.dumps(s.ob_analysis)))
 
-    conn.commit()
-    if close_after:
-        conn.close()
+            # Upsert coin master record
+            category = classify_coin(s.symbol, conn)
+            existing = conn.execute("SELECT scan_count, signal_count, avg_score, max_score, "
+                                    "long_count, short_count, avg_volume_24h, best_strategies "
+                                    "FROM coins WHERE symbol = ?", (s.symbol,)).fetchone()
+            if existing:
+                sc, sig_c, avg_sc, max_sc, lc, shc, avg_v, best_str = existing
+                new_sig_c = sig_c + 1
+                new_avg = (avg_sc * sig_c + s.score) / new_sig_c
+                new_max = max(max_sc, s.score)
+                new_lc = lc + (1 if s.direction == "LONG" else 0)
+                new_shc = shc + (1 if s.direction == "SHORT" else 0)
+                new_avg_v = (avg_v * sig_c + s.volume_24h) / new_sig_c
+                dom = "LONG" if new_lc > new_shc else "SHORT" if new_shc > new_lc else "MIXED"
+                # Merge best strategies
+                try:
+                    old_strats = json.loads(best_str) if best_str else []
+                except (json.JSONDecodeError, TypeError):
+                    old_strats = []
+                merged = list(set(old_strats + s.strategies))[:20]
+                conn.execute("""
+                    UPDATE coins SET last_seen=?, scan_count=scan_count+1, signal_count=?,
+                        avg_score=?, max_score=?, long_count=?, short_count=?,
+                        dominant_direction=?, avg_volume_24h=?, best_strategies=?, category=?
+                    WHERE symbol=?
+                """, (now, new_sig_c, round(new_avg, 1), new_max, new_lc, new_shc,
+                      dom, round(new_avg_v, 0), json.dumps(merged), category, s.symbol))
+            else:
+                conn.execute("""
+                    INSERT INTO coins (symbol, name, category, first_seen, last_seen,
+                        scan_count, signal_count, avg_score, max_score, dominant_direction,
+                        long_count, short_count, avg_volume_24h, best_strategies)
+                    VALUES (?, ?, ?, ?, ?, 1, 1, ?, ?, ?, ?, ?, ?, ?)
+                """, (s.symbol, s.symbol.replace("_USDT", ""), category, now, now,
+                      s.score, s.score, s.direction,
+                      1 if s.direction == "LONG" else 0,
+                      1 if s.direction == "SHORT" else 0,
+                      round(s.volume_24h, 0), json.dumps(s.strategies)))
+
+        conn.commit()
+    finally:
+        if close_after:
+            conn.close()
 
 
 def get_db_summary(conn=None) -> str:
@@ -306,60 +308,61 @@ def get_db_summary(conn=None) -> str:
         conn = init_db()
         close_after = True
 
-    lines = []
-    # Stats globales
-    total_coins = conn.execute("SELECT COUNT(*) FROM coins").fetchone()[0]
-    total_signals = conn.execute("SELECT COUNT(*) FROM signals").fetchone()[0]
-    total_scans = conn.execute("SELECT COUNT(*) FROM scans").fetchone()[0]
+    try:
+        lines = []
+        # Stats globales
+        total_coins = conn.execute("SELECT COUNT(*) FROM coins").fetchone()[0]
+        total_signals = conn.execute("SELECT COUNT(*) FROM signals").fetchone()[0]
+        total_scans = conn.execute("SELECT COUNT(*) FROM scans").fetchone()[0]
 
-    lines.append(f"\n  DB: {total_coins} coins | {total_signals} signaux | {total_scans} scans")
+        lines.append(f"\n  DB: {total_coins} coins | {total_signals} signaux | {total_scans} scans")
 
-    # Par categorie
-    cats = conn.execute("""
-        SELECT c.category, cat.label, COUNT(*) as cnt, ROUND(AVG(c.avg_score),0) as avg,
-               MAX(c.max_score) as best, SUM(c.signal_count) as sigs
-        FROM coins c LEFT JOIN categories cat ON c.category = cat.id
-        GROUP BY c.category ORDER BY avg DESC
-    """).fetchall()
-    if cats:
-        lines.append(f"  {'Categorie':<16} {'Coins':>5} {'Avg':>5} {'Best':>5} {'Signaux':>8}")
-        lines.append(f"  {'-'*45}")
-        for cat_id, label, cnt, avg, best, sigs in cats:
-            lines.append(f"  {(label or cat_id):<16} {cnt:>5} {avg:>5.0f} {best:>5} {sigs:>8}")
+        # Par categorie
+        cats = conn.execute("""
+            SELECT c.category, cat.label, COUNT(*) as cnt, ROUND(AVG(c.avg_score),0) as avg,
+                   MAX(c.max_score) as best, SUM(c.signal_count) as sigs
+            FROM coins c LEFT JOIN categories cat ON c.category = cat.id
+            GROUP BY c.category ORDER BY avg DESC
+        """).fetchall()
+        if cats:
+            lines.append(f"  {'Categorie':<16} {'Coins':>5} {'Avg':>5} {'Best':>5} {'Signaux':>8}")
+            lines.append(f"  {'-'*45}")
+            for cat_id, label, cnt, avg, best, sigs in cats:
+                lines.append(f"  {(label or cat_id):<16} {cnt:>5} {avg:>5.0f} {best:>5} {sigs:>8}")
 
-    # Top 10 coins par score moyen
-    top = conn.execute("""
-        SELECT symbol, category, avg_score, max_score, signal_count,
-               dominant_direction, best_strategies
-        FROM coins ORDER BY avg_score DESC LIMIT 10
-    """).fetchall()
-    if top:
-        lines.append(f"\n  --- Top 10 Coins ---")
-        lines.append(f"  {'Coin':<12} {'Cat':<10} {'Avg':>5} {'Max':>5} {'Sigs':>5} {'Dir':<6}")
-        lines.append(f"  {'-'*48}")
-        for sym, cat, avg, mx, sigs, dir_, _ in top:
-            coin = sym.replace("_USDT", "")
-            lines.append(f"  {coin:<12} {(cat or '?'):<10} {avg:>5.0f} {mx:>5} {sigs:>5} {dir_:<6}")
+        # Top 10 coins par score moyen
+        top = conn.execute("""
+            SELECT symbol, category, avg_score, max_score, signal_count,
+                   dominant_direction, best_strategies
+            FROM coins ORDER BY avg_score DESC LIMIT 10
+        """).fetchall()
+        if top:
+            lines.append(f"\n  --- Top 10 Coins ---")
+            lines.append(f"  {'Coin':<12} {'Cat':<10} {'Avg':>5} {'Max':>5} {'Sigs':>5} {'Dir':<6}")
+            lines.append(f"  {'-'*48}")
+            for sym, cat, avg, mx, sigs, dir_, _ in top:
+                coin = sym.replace("_USDT", "")
+                lines.append(f"  {coin:<12} {(cat or '?'):<10} {avg:>5.0f} {mx:>5} {sigs:>5} {dir_:<6}")
 
-    # Strategies les plus frequentes
-    all_strats = conn.execute("SELECT strategies FROM signals ORDER BY id DESC LIMIT 500").fetchall()
-    strat_count = {}
-    for (strats_json,) in all_strats:
-        try:
-            for s in json.loads(strats_json):
-                strat_count[s] = strat_count.get(s, 0) + 1
-        except (json.JSONDecodeError, TypeError):
-            pass
-    if strat_count:
-        sorted_strats = sorted(strat_count.items(), key=lambda x: -x[1])[:10]
-        lines.append(f"\n  --- Top Strategies ---")
-        for strat, cnt in sorted_strats:
-            lines.append(f"    {strat:<35} {cnt:>4}x")
+        # Strategies les plus frequentes
+        all_strats = conn.execute("SELECT strategies FROM signals ORDER BY id DESC LIMIT 500").fetchall()
+        strat_count = {}
+        for (strats_json,) in all_strats:
+            try:
+                for s in json.loads(strats_json):
+                    strat_count[s] = strat_count.get(s, 0) + 1
+            except (json.JSONDecodeError, TypeError):
+                pass
+        if strat_count:
+            sorted_strats = sorted(strat_count.items(), key=lambda x: -x[1])[:10]
+            lines.append(f"\n  --- Top Strategies ---")
+            for strat, cnt in sorted_strats:
+                lines.append(f"    {strat:<35} {cnt:>4}x")
 
-    result = "\n".join(lines)
-    if close_after:
-        conn.close()
-    return result
+        return "\n".join(lines)
+    finally:
+        if close_after:
+            conn.close()
 
 
 def get_coin_history(symbol: str, conn=None) -> str:
@@ -369,30 +372,31 @@ def get_coin_history(symbol: str, conn=None) -> str:
         conn = init_db()
         close_after = True
 
-    coin = conn.execute("SELECT * FROM coins WHERE symbol = ?", (symbol,)).fetchone()
-    if not coin:
-        if close_after: conn.close()
-        return f"  Coin {symbol} non trouve dans la DB"
+    try:
+        coin = conn.execute("SELECT * FROM coins WHERE symbol = ?", (symbol,)).fetchone()
+        if not coin:
+            return f"  Coin {symbol} non trouve dans la DB"
 
-    lines = [f"\n  === {symbol} ==="]
-    lines.append(f"  Categorie: {coin[2]} | First: {coin[4][:10]} | Last: {coin[5][:10]}")
-    lines.append(f"  Scans: {coin[6]} | Signaux: {coin[7]} | Avg: {coin[8]:.0f} | Max: {coin[9]}")
-    lines.append(f"  Direction: {coin[10]} (L:{coin[11]} S:{coin[12]}) | Vol: {coin[13]:,.0f}")
+        lines = [f"\n  === {symbol} ==="]
+        lines.append(f"  Categorie: {coin[2]} | First: {coin[4][:10]} | Last: {coin[5][:10]}")
+        lines.append(f"  Scans: {coin[6]} | Signaux: {coin[7]} | Avg: {coin[8]:.0f} | Max: {coin[9]}")
+        lines.append(f"  Direction: {coin[10]} (L:{coin[11]} S:{coin[12]}) | Vol: {coin[13]:,.0f}")
 
-    # Last 5 signals
-    sigs = conn.execute("""
-        SELECT cycle, timestamp, direction, score, last_price, regime, strategies
-        FROM signals WHERE symbol = ? ORDER BY id DESC LIMIT 5
-    """, (symbol,)).fetchall()
-    if sigs:
-        lines.append(f"\n  Derniers signaux:")
-        for cy, ts, dir_, sc, price, regime, strats in sigs:
-            n_strats = len(json.loads(strats)) if strats else 0
-            lines.append(f"    C{cy} {ts[:16]} {dir_:<5} {sc}/100 {price:.6g} {regime} ({n_strats} strats)")
+        # Last 5 signals
+        sigs = conn.execute("""
+            SELECT cycle, timestamp, direction, score, last_price, regime, strategies
+            FROM signals WHERE symbol = ? ORDER BY id DESC LIMIT 5
+        """, (symbol,)).fetchall()
+        if sigs:
+            lines.append(f"\n  Derniers signaux:")
+            for cy, ts, dir_, sc, price, regime, strats in sigs:
+                n_strats = len(json.loads(strats)) if strats else 0
+                lines.append(f"    C{cy} {ts[:16]} {dir_:<5} {sc}/100 {price:.6g} {regime} ({n_strats} strats)")
 
-    result = "\n".join(lines)
-    if close_after: conn.close()
-    return result
+        return "\n".join(lines)
+    finally:
+        if close_after:
+            conn.close()
 
 
 # ========== GPU THERMAL ==========
