@@ -76,6 +76,14 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["ssh", "esse ash", "esh"],
     ["git", "gite", "jit"],  # git/github
     ["npm", "ene pe em", "npeam"],
+    # Vague 11 — Frameworks / Libs phonetiques
+    ["react", "riate", "rias"],
+    ["vue", "viou", "viu"],
+    ["angular", "angulair", "angulaire"],
+    ["django", "jangau", "djang"],
+    ["flask", "flaske", "flasque"],
+    ["next", "nexte", "neste"],
+    ["express", "expresse", "expres"],
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -552,6 +560,49 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "speedtest": "test de bande passante",
     "whois": "whois",
     "dig": "dig dns",
+    # Vague 31 — Windows shortcuts
+    "parametres windows": "ouvre les parametres",
+    "panneau config": "panneau de configuration",
+    "panneau de config": "panneau de configuration",
+    "task manager": "gestionnaire de taches",
+    "taskmgr": "gestionnaire de taches",
+    "gestionnaire": "gestionnaire de taches",
+    "msconfig": "configuration systeme",
+    "event viewer": "observateur d'evenements",
+    "device manager": "gestionnaire de peripheriques",
+    "disk management": "gestion des disques",
+    "windows update": "mets a jour windows",
+    "winupdate": "mets a jour windows",
+    "defender": "securite windows",
+    "powershell": "ouvre powershell",
+    "cmd": "ouvre le terminal",
+    "command prompt": "ouvre le terminal",
+    # Vague 32 — JARVIS raccourcis
+    "jarvis aide": "aide commandes",
+    "jarvis help": "aide commandes",
+    "jarvis stop": "arrete tout",
+    "jarvis pause": "mode pause",
+    "jarvis reset": "redemarre jarvis",
+    "jarvis restart": "redemarre jarvis",
+    "jarvis version": "version jarvis",
+    "jarvis stats": "statistiques jarvis",
+    "jarvis config": "configuration jarvis",
+    "jarvis debug": "mode debug jarvis",
+    "jarvis verbose": "mode verbose",
+    "jarvis quiet": "mode silencieux",
+    "jarvis mute": "coupe la voix jarvis",
+    "jarvis unmute": "reactive la voix jarvis",
+    # Vague 33 — Combos rapides productivite
+    "save and push": "auto commit et push",
+    "commit and push": "auto commit et push",
+    "lint and test": "lint puis tests",
+    "build and deploy": "build puis deploie",
+    "pull and build": "pull puis build",
+    "test and commit": "teste puis commite",
+    "clean and build": "nettoie puis build",
+    "check and fix": "diagnostique puis repare",
+    "scan and report": "scan puis rapport",
+    "backup and clean": "backup puis nettoie",
 }
 
 
@@ -600,6 +651,13 @@ _PARAM_PATTERNS: list[tuple[str, str, str]] = [
     (r"\b(rapide|lent|moyen|profond|complet|simple|detaille)\b", "depth", "{0}"),
     (r"\bdossier\s+(.+?)(?:\s+|$)", "folder", "{0}"),
     (r"\bfichier\s+(.+?)(?:\s+|$)", "file", "{0}"),
+    # Vague 3 — Extended patterns (port, url, branch, service)
+    (r"\bport\s+(\d{2,5})\b", "port", "{0}"),
+    (r"\bbranche?\s+(\S+)\b", "branch", "{0}"),
+    (r"\bservice\s+(\S+)\b", "service", "{0}"),
+    (r"\benv(?:ironnement)?\s+(dev|prod|staging|test|local)\b", "env", "{0}"),
+    (r"\b(\d+)\s*(?:heures?|h)\b", "hours", "{0}"),
+    (r"\b(\d+)\s*(?:jours?|j)\b", "days", "{0}"),
 ]
 
 
