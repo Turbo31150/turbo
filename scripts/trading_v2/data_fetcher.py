@@ -42,7 +42,7 @@ def fetch_all_futures_symbols() -> list[str]:
         ]
         logger.info(f"MEXC Futures: {len(symbols)} paires actives")
         return symbols
-    except Exception as e:
+    except (requests.RequestException, OSError, ValueError, KeyError) as e:
         logger.error(f"Erreur fetch symboles: {e}")
         return []
 
@@ -88,7 +88,7 @@ def fetch_klines(symbol: str, interval: str = KLINE_INTERVAL,
                 return arr[:, :6]
             return None
         return None
-    except Exception as e:
+    except (requests.RequestException, OSError, ValueError) as e:
         logger.warning(f"Klines {symbol}: {e}")
         return None
 
@@ -121,7 +121,7 @@ def fetch_depth(symbol: str, limit: int = 20) -> Optional[dict]:
         imbalance = float((bid_vol - ask_vol) / (bid_vol + ask_vol + 1e-8))
 
         return {"bids": bids, "asks": asks, "imbalance": imbalance}
-    except Exception as e:
+    except (requests.RequestException, OSError, ValueError) as e:
         logger.warning(f"Depth {symbol}: {e}")
         return None
 
@@ -139,7 +139,7 @@ def fetch_ticker(symbol: str) -> Optional[dict]:
                     return d
             return data[0] if data else None
         return data
-    except Exception as e:
+    except (requests.RequestException, OSError, ValueError) as e:
         logger.warning(f"Ticker {symbol}: {e}")
         return None
 
@@ -163,7 +163,7 @@ def fetch_batch_klines(symbols: list[str], interval: str = KLINE_INTERVAL,
                 arr = fut.result()
                 if arr is not None and arr.shape[0] >= 20:
                     results[sym] = arr
-            except Exception as e:
+            except (requests.RequestException, OSError, ValueError) as e:
                 logger.warning(f"Batch kline {sym}: {e}")
 
     logger.info(f"Batch klines: {len(results)}/{len(symbols)} OK")
@@ -185,7 +185,7 @@ def fetch_batch_depth(symbols: list[str], max_workers: int = 8
                 ob = fut.result()
                 if ob is not None:
                     results[sym] = ob
-            except Exception:
+            except (requests.RequestException, OSError, ValueError):
                 pass
 
     logger.info(f"Batch depth: {len(results)}/{len(symbols)} OK")
@@ -234,7 +234,7 @@ def scan_top_volume(n: int = 200) -> list[str]:
         symbols = [d["symbol"] for d in valid[:n]]
         logger.info(f"Top {n} volume: {symbols[:5]}...")
         return symbols
-    except Exception as e:
+    except (requests.RequestException, OSError, ValueError) as e:
         logger.error(f"Scan top volume: {e}")
         return DEFAULT_PAIRS[:n]
 

@@ -34,7 +34,7 @@ async def check_lmstudio(c: httpx.AsyncClient, name: str, url: str) -> dict:
                 r2.raise_for_status()
                 latency = (time.perf_counter() - t0) * 1000
                 result["loaded"].append({"model": model_id, "latency_ms": round(latency)})
-            except Exception:
+            except (httpx.HTTPError, OSError):
                 pass
     except Exception as e:
         result["error"] = str(e)
