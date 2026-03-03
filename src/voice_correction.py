@@ -44,6 +44,14 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["z", "s"],
     ["f", "ph"],
     ["t", "th"],
+    # Vague 2 — Anglicismes mal prononces en francais
+    ["tion", "sion", "shion", "chion"],
+    ["w", "ou", "oi"],
+    ["x", "ks", "cs"],
+    ["y", "i", "ee"],
+    ["ck", "k", "que"],
+    ["er", "eur", "aire"],
+    ["ing", "igne", "ine"],
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
