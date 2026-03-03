@@ -123,6 +123,14 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["redis", "re disse", "redisse"],
     ["mongodb", "mongo de be", "mongodi bi"],
     ["hadoop", "a doupe", "hadoupe"],
+    # Vague 17 — Mobile / DevOps / IA / Crypto phonetiques
+    ["flutter", "flotteur", "fleuteur"],
+    ["kotlin", "co telline", "coteline"],
+    ["ollama", "oh lama", "olama"],
+    ["ethereum", "e terre yom", "eteriome"],
+    ["solidity", "soliditi", "solidite"],
+    ["embedding", "aimbe dine", "imbeding"],
+    ["quantization", "quantizacion", "couantizacion"],
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -925,6 +933,33 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "spark": "lance spark",
     "pipeline data": "lance le data pipeline",
     "streaming": "lance le streaming",
+    # Vague 59 — Mobile / Cross-platform raccourcis
+    "react native": "lance react native",
+    "flutter": "lance flutter",
+    "expo": "lance expo",
+    "build apk": "build l'apk",
+    "build ios": "build pour ios",
+    "emulateur": "lance l'emulateur",
+    "simulator": "lance le simulateur",
+    "hot reload": "hot reload",
+    # Vague 60 — DevOps / SRE raccourcis
+    "incident": "declare un incident",
+    "postmortem": "ecris le postmortem",
+    "runbook": "ouvre le runbook",
+    "canary": "deploie en canary",
+    "blue green": "deploie en blue-green",
+    "circuit breaker": "active le circuit breaker",
+    "chaos": "lance le chaos test",
+    "sla": "montre le sla",
+    # Vague 61 — IA / LLM raccourcis
+    "prompt": "edite le prompt",
+    "rag": "lance le rag",
+    "fine tune": "lance le fine-tuning",
+    "embedding": "genere les embeddings",
+    "inference": "lance l'inference",
+    "quantize": "quantize le modele",
+    "ollama run": "lance ollama",
+    "lm studio": "ouvre lm studio",
 }
 
 

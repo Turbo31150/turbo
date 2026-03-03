@@ -1058,6 +1058,87 @@ def _project_summary() -> str:
         return f"Import error: {e}"
 
 
+@register_python_action("list_ollama_models")
+def _list_ollama_models() -> str:
+    """List Ollama models available."""
+    import subprocess
+    try:
+        r = subprocess.run('curl -s http://127.0.0.1:11434/api/tags', shell=True, capture_output=True, text=True, timeout=5)
+        import json
+        data = json.loads(r.stdout)
+        models = [m["name"] for m in data.get("models", [])]
+        return f"{len(models)} models: {', '.join(models[:8])}" if models else "No models"
+    except Exception:
+        return "Ollama offline"
+
+
+@register_python_action("list_lm_studio_models")
+def _list_lm_studio_models() -> str:
+    """List LM Studio loaded models."""
+    import subprocess
+    try:
+        r = subprocess.run('curl -s http://127.0.0.1:1234/api/v1/models', shell=True, capture_output=True, text=True, timeout=5)
+        import json
+        data = json.loads(r.stdout)
+        models = [m.get("id", "?") for m in data.get("data", data.get("models", [])) if m.get("loaded_instances")]
+        return f"{len(models)} loaded: {', '.join(models[:5])}" if models else "No models loaded"
+    except Exception:
+        return "LM Studio offline"
+
+
+@register_python_action("cluster_node_count")
+def _cluster_node_count() -> str:
+    """Count active cluster nodes."""
+    import subprocess
+    active = 0
+    nodes = []
+    for name, url in [("M1", "http://127.0.0.1:1234/api/v1/models"), ("OL1", "http://127.0.0.1:11434/api/tags"), ("M2", "http://192.168.1.26:1234/api/v1/models"), ("M3", "http://192.168.1.113:1234/api/v1/models")]:
+        try:
+            r = subprocess.run(f"curl -s --max-time 3 {url}", shell=True, capture_output=True, text=True, timeout=5)
+            if r.returncode == 0 and r.stdout.strip():
+                active += 1
+                nodes.append(name)
+        except Exception:
+            pass
+    return f"{active}/4 nodes active: {', '.join(nodes)}" if nodes else "All nodes offline"
+
+
+@register_python_action("voice_corrections_by_category")
+def _voice_corrections_by_category() -> str:
+    """Count voice corrections by category/vague."""
+    try:
+        from src.commands import VOICE_CORRECTIONS
+        total = len(VOICE_CORRECTIONS)
+        multi_word = sum(1 for k in VOICE_CORRECTIONS if " " in k)
+        single_word = total - multi_word
+        return f"{total} corrections ({single_word} single-word, {multi_word} multi-word)"
+    except ImportError:
+        return "Import error"
+
+
+@register_python_action("full_system_summary")
+def _full_system_summary() -> str:
+    """Complete system summary: project + cluster + memory."""
+    parts = []
+    try:
+        parts.append(_project_summary())
+    except Exception:
+        parts.append("Project: N/A")
+    try:
+        parts.append(_cluster_node_count())
+    except Exception:
+        parts.append("Cluster: N/A")
+    try:
+        parts.append(_system_memory_usage())
+    except Exception:
+        parts.append("RAM: N/A")
+    try:
+        parts.append(_get_disk_usage())
+    except Exception:
+        parts.append("Disk: N/A")
+    return " | ".join(parts)
+
+
 @register_python_action("git_status_short")
 def _git_status_short() -> str:
     """Get git status summary."""
