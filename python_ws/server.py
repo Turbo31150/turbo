@@ -404,18 +404,18 @@ async def _push_chat_events(websocket: WebSocket, result: dict) -> None:
     """Push agent_message event after chat response."""
     agent_msg = result.get("agent_message")
     if agent_msg:
-        await websocket.send_json({
+        await asyncio.wait_for(websocket.send_json({
             "type": "event",
             "channel": "chat",
             "event": "agent_message",
             "payload": agent_msg,
-        })
-        await websocket.send_json({
+        }), timeout=5.0)
+        await asyncio.wait_for(websocket.send_json({
             "type": "event",
             "channel": "chat",
             "event": "agent_complete",
             "payload": {"task_type": result.get("task_type")},
-        })
+        }), timeout=5.0)
 
 
 async def _push_voice_events(websocket: WebSocket, result: dict) -> None:
