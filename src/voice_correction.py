@@ -107,6 +107,14 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["ingress", "inne gresse", "ingrais"],
     ["prometheus", "pro me te us", "promethee"],
     ["grafana", "graffana", "grafanna"],
+    # Vague 15 — Cloud / IaaS / Git avance phonetiques
+    ["terraform", "terre a forme", "teraforme"],
+    ["vercel", "ver celle", "vercelle"],
+    ["netlify", "nette li faille", "netlifi"],
+    ["rebase", "ri baise", "rebaze"],
+    ["squash", "scouache", "skouash"],
+    ["copilot", "co pilote", "copilotte"],
+    ["neovim", "neo vim", "neovime"],
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -846,6 +854,35 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "audit log": "affiche l'audit log",
     "encrypt": "chiffre le fichier",
     "decrypt": "dechiffre le fichier",
+    # Vague 53 — Cloud / Deploy raccourcis
+    "deploy": "deploie en production",
+    "serverless": "deploie en serverless",
+    "lambda": "lance la lambda",
+    "s3": "ouvre s3",
+    "ec2": "statut ec2",
+    "terraform": "lance terraform",
+    "infra": "statut infrastructure",
+    "cdn": "purge le cdn",
+    "ssl": "verifie le ssl",
+    # Vague 54 — Git avance raccourcis
+    "cherry pick": "cherry-pick le commit",
+    "rebase": "lance le rebase",
+    "squash": "squash les commits",
+    "stash": "stash les changements",
+    "bisect": "lance git bisect",
+    "reflog": "montre le reflog",
+    "tag": "cree un tag",
+    "release": "cree une release",
+    "hotfix": "branche hotfix",
+    # Vague 55 — IDE / Editeur raccourcis
+    "format": "formate le code",
+    "lint": "lance le linter",
+    "debug": "lance le debugger",
+    "breakpoint": "ajoute un breakpoint",
+    "extensions": "liste les extensions",
+    "snippet": "cree un snippet",
+    "refactor": "refactorise le code",
+    "rename": "renomme la variable",
 }
 
 

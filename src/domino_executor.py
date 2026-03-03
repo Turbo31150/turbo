@@ -1058,6 +1058,66 @@ def _project_summary() -> str:
         return f"Import error: {e}"
 
 
+@register_python_action("git_status_short")
+def _git_status_short() -> str:
+    """Get git status summary."""
+    import subprocess
+    try:
+        r = subprocess.run("git status --short", shell=True, capture_output=True, text=True, timeout=5, cwd="F:/BUREAU/turbo")
+        lines = r.stdout.strip().split("\n") if r.stdout.strip() else []
+        return f"{len(lines)} files modified" if lines else "Working tree clean"
+    except (subprocess.TimeoutExpired, OSError):
+        return "Git N/A"
+
+
+@register_python_action("git_log_today")
+def _git_log_today() -> str:
+    """Get today's git commits."""
+    import subprocess
+    try:
+        r = subprocess.run("git log --oneline --since='1 day ago'", shell=True, capture_output=True, text=True, timeout=5, cwd="F:/BUREAU/turbo")
+        lines = r.stdout.strip().split("\n") if r.stdout.strip() else []
+        return f"{len(lines)} commits today: {'; '.join(lines[:5])}" if lines else "No commits today"
+    except (subprocess.TimeoutExpired, OSError):
+        return "Git N/A"
+
+
+@register_python_action("system_memory_usage")
+def _system_memory_usage() -> str:
+    """Get system memory usage."""
+    try:
+        import psutil
+        mem = psutil.virtual_memory()
+        return f"RAM: {mem.used // (1024**3)}GB / {mem.total // (1024**3)}GB ({mem.percent}%)"
+    except ImportError:
+        import subprocess
+        r = subprocess.run('powershell -Command "(Get-CimInstance Win32_OperatingSystem | Select-Object FreePhysicalMemory,TotalVisibleMemorySize | ForEach-Object { \\"$([math]::Round(($_.TotalVisibleMemorySize - $_.FreePhysicalMemory)/1MB,1))GB / $([math]::Round($_.TotalVisibleMemorySize/1MB,1))GB\\" })"', shell=True, capture_output=True, text=True, timeout=10)
+        return f"RAM: {r.stdout.strip()}" if r.stdout.strip() else "RAM info N/A"
+
+
+@register_python_action("count_domino_categories")
+def _count_domino_categories() -> str:
+    """Count dominos per category."""
+    try:
+        from src.domino_pipelines import get_domino_stats
+        ds = get_domino_stats()
+        cats = sorted(ds["categories"].items(), key=lambda x: x[1], reverse=True)
+        return " | ".join(f"{k}:{v}" for k, v in cats[:10])
+    except ImportError:
+        return "Import error"
+
+
+@register_python_action("recent_commits")
+def _recent_commits() -> str:
+    """Get last 5 commit subjects."""
+    import subprocess
+    try:
+        r = subprocess.run("git log --oneline -5", shell=True, capture_output=True, text=True, timeout=5, cwd="F:/BUREAU/turbo")
+        return r.stdout.strip() if r.stdout.strip() else "No commits"
+    except (subprocess.TimeoutExpired, OSError):
+        return "Git N/A"
+
+
 def execute_python(action: str, timeout: int = 30) -> str:
     """Execute a registered Python action or return description for unknown ones."""
     func_str = action.replace("python:", "", 1) if action.startswith("python:") else action
