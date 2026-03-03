@@ -250,8 +250,10 @@ export function useChat() {
     const a = document.createElement('a');
     a.href = url;
     a.download = `jarvis_chat_${Date.now()}.md`;
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 100);
   }, [state.messages]);
 
   // Clear conversation

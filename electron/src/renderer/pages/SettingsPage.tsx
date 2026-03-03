@@ -80,7 +80,6 @@ export default function SettingsPage() {
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    mountedRef.current = true;
     if (!connected) return;
     request('system', 'get_config').then(r => {
       if (mountedRef.current && r.payload?.config) setCfg(prev => ({ ...prev, ...r.payload!.config }));

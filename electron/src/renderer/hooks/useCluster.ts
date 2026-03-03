@@ -150,20 +150,20 @@ export function useCluster() {
     return unsub;
   }, [subscribe]);
 
+  // Stable ref to avoid interval stacking when fetchClusterStatus recreates
+  const fetchRef = useRef(fetchClusterStatus);
+  fetchRef.current = fetchClusterStatus;
+
   // Initial fetch and periodic refresh
   useEffect(() => {
-    let id: number | undefined;
-    if (connected) {
-      fetchClusterStatus();
-      id = window.setInterval(fetchClusterStatus, INTERVALS.cluster);
-    } else {
+    if (!connected) {
       setState(prev => ({ ...prev, loading: false, error: 'Not connected' }));
+      return;
     }
-
-    return () => {
-      if (id !== undefined) clearInterval(id);
-    };
-  }, [connected, fetchClusterStatus]);
+    fetchRef.current();
+    const id = window.setInterval(() => fetchRef.current(), INTERVALS.cluster);
+    return () => clearInterval(id);
+  }, [connected]);
 
   const refreshCluster = useCallback(() => {
     setState(prev => ({ ...prev, loading: true }));

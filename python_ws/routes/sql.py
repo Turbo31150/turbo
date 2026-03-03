@@ -36,9 +36,10 @@ _DB_ALIASES: dict[str, Path] = {
     "predictions": config.db_predictions,
 }
 
-_SQL_ALLOWED = re.compile(r"^\s*(SELECT|INSERT|UPDATE|DELETE|WITH|PRAGMA\s+table_info)\b", re.IGNORECASE)
-_SQL_DANGEROUS = re.compile(r"\b(DROP|CREATE|ALTER|ATTACH|DETACH|REINDEX|VACUUM)\b", re.IGNORECASE)
+_SQL_ALLOWED = re.compile(r"^\s*(SELECT|PRAGMA\s+table_info)\b", re.IGNORECASE)
+_SQL_DANGEROUS = re.compile(r"\b(DROP|CREATE|ALTER|ATTACH|DETACH|REINDEX|VACUUM|INSERT|UPDATE|DELETE|WITH)\b", re.IGNORECASE)
 _SQL_BLOCKED_TABLES = re.compile(r"\bsqlite_(master|temp_master|sequence)\b", re.IGNORECASE)
+_SQL_QUERY_TIMEOUT = 10  # seconds
 _TABLE_NAME = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
 
 
@@ -48,7 +49,7 @@ def _resolve_db(database: str) -> str:
         raise HTTPException(404, f"Unknown database '{database}'. Available: {', '.join(_DB_ALIASES)}")
     path_str = str(db_path)
     if not Path(path_str).exists():
-        raise HTTPException(404, f"Database not found: {path_str}")
+        raise HTTPException(404, f"Database '{database}' unavailable")
     return path_str
 
 
@@ -59,18 +60,13 @@ class SqlQueryRequest(BaseModel):
 
 
 def _exec_query(db_path: str, query: str, params: list) -> dict[str, Any]:
-    """Execute SQL query synchronously (run via asyncio.to_thread)."""
+    """Execute read-only SQL query synchronously (run via asyncio.to_thread)."""
     with sqlite3.connect(db_path) as conn:
         conn.row_factory = sqlite3.Row
         cur = conn.execute(query, params)
-        upper = query.upper().lstrip()
-        if upper.startswith("SELECT") or upper.startswith("PRAGMA"):
-            rows = [dict(r) for r in cur.fetchmany(1000)]
-            truncated = cur.fetchone() is not None
-            return {"rows": rows, "count": len(rows), "truncated": truncated}
-        affected = cur.rowcount
-        conn.commit()
-        return {"affected": affected}
+        rows = [dict(r) for r in cur.fetchmany(1000)]
+        truncated = cur.fetchone() is not None
+        return {"rows": rows, "count": len(rows), "truncated": truncated}
 
 
 def _list_tables(db_path: str) -> list[str]:
@@ -83,6 +79,8 @@ def _list_tables(db_path: str) -> list[str]:
 
 def _get_schema(db_path: str, table: str) -> dict[str, Any] | None:
     """Get table schema synchronously (run via asyncio.to_thread)."""
+    if not _TABLE_NAME.match(table):
+        return None
     with sqlite3.connect(db_path) as conn:
         row = conn.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name=?", (table,)).fetchone()
         if not row:
@@ -99,13 +97,18 @@ async def sql_query(req: SqlQueryRequest) -> dict[str, Any]:
     query = req.query.strip()
     params = req.params or []
     if not _SQL_ALLOWED.match(query):
-        raise HTTPException(403, "Only SELECT, INSERT, UPDATE, DELETE, WITH, PRAGMA table_info allowed")
+        raise HTTPException(403, "Only SELECT and PRAGMA table_info allowed (read-only)")
     if _SQL_DANGEROUS.search(query):
         raise HTTPException(403, "DDL statements (DROP, CREATE, ALTER, ATTACH, etc.) are forbidden")
     if _SQL_BLOCKED_TABLES.search(query):
         raise HTTPException(403, "Access to sqlite internal tables is forbidden")
     try:
-        return await asyncio.to_thread(_exec_query, db_path, query, params)
+        return await asyncio.wait_for(
+            asyncio.to_thread(_exec_query, db_path, query, params),
+            timeout=_SQL_QUERY_TIMEOUT,
+        )
+    except asyncio.TimeoutError:
+        raise HTTPException(408, "Query timed out (max 10s)")
     except sqlite3.Error as e:
         raise HTTPException(400, f"SQL error: {e}")
 

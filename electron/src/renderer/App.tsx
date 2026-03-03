@@ -70,8 +70,9 @@ export default function App() {
     prevConnected.current = connected;
   }, [connected]);
 
+  const hasToasts = toasts.length > 0;
   useEffect(() => {
-    if (toasts.length === 0) return;
+    if (!hasToasts) return;
     const timer = setInterval(() => {
       setToasts(prev => {
         const alive = prev.filter(t => Date.now() - t.timestamp < 5000);
@@ -79,7 +80,7 @@ export default function App() {
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [toasts.length > 0]);
+  }, [hasToasts]);
 
   useEffect(() => {
     const api = window.electronAPI;
@@ -185,7 +186,7 @@ export default function App() {
                   display: 'flex', alignItems: 'center', gap: 8,
                 }}>
                   <span style={{ flex: 1 }}>{t.message}</span>
-                  <button onClick={() => setToasts(prev => prev.filter(x => x.id !== t.id))} style={{
+                  <button aria-label="Fermer la notification" onClick={() => setToasts(prev => prev.filter(x => x.id !== t.id))} style={{
                     background: 'none', border: 'none', color: c.color, cursor: 'pointer',
                     fontSize: 14, padding: 0, fontFamily: 'inherit', opacity: 0.6,
                   }}>{'\u2715'}</button>
