@@ -971,6 +971,93 @@ def _clear_all_caches() -> str:
     return f"Caches cleared: {', '.join(cleared)}" if cleared else "No caches to clear"
 
 
+@register_python_action("count_lines_of_code")
+def _count_lines_of_code() -> str:
+    """Count lines of code in all Python source files."""
+    import glob
+    total = 0
+    files = 0
+    for f in glob.glob("src/*.py", root_dir="F:/BUREAU/turbo"):
+        try:
+            with open(f"F:/BUREAU/turbo/src/{f.replace('src/', '')}" if "/" in f else f"F:/BUREAU/turbo/{f}") as fh:
+                lines = sum(1 for _ in fh)
+                total += lines
+                files += 1
+        except OSError:
+            continue
+    return f"{files} files, {total} lines total"
+
+
+@register_python_action("list_env_versions")
+def _list_env_versions() -> str:
+    """List versions of key tools."""
+    import subprocess
+    versions = []
+    for cmd, name in [("python --version", "Python"), ("node --version", "Node"), ("git --version", "Git")]:
+        try:
+            r = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=5)
+            versions.append(f"{name}: {r.stdout.strip()}")
+        except (subprocess.TimeoutExpired, OSError):
+            versions.append(f"{name}: N/A")
+    return " | ".join(versions)
+
+
+@register_python_action("db_table_count")
+def _db_table_count() -> str:
+    """Count tables and rows in all SQLite databases."""
+    import sqlite3
+    results = []
+    for db_name in ["etoile.db", "jarvis.db", "sniper.db", "finetuning.db"]:
+        db_path = f"F:/BUREAU/turbo/data/{db_name}"
+        try:
+            conn = sqlite3.connect(db_path)
+            tables = conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+            total_rows = sum(conn.execute(f"SELECT COUNT(*) FROM [{t[0]}]").fetchone()[0] for t in tables)
+            results.append(f"{db_name}: {len(tables)} tables, {total_rows} rows")
+            conn.close()
+        except (sqlite3.Error, OSError):
+            continue
+    return " | ".join(results) if results else "No databases found"
+
+
+@register_python_action("validate_json_files")
+def _validate_json_files() -> str:
+    """Validate all JSON files in data directory."""
+    import json
+    import glob
+    ok = 0
+    errors = []
+    for f in glob.glob("F:/BUREAU/turbo/data/*.json"):
+        try:
+            with open(f) as fh:
+                json.load(fh)
+            ok += 1
+        except (json.JSONDecodeError, OSError) as e:
+            errors.append(f"{f}: {e}")
+    result = f"{ok} JSON files valid"
+    if errors:
+        result += f", {len(errors)} errors: {'; '.join(errors[:3])}"
+    return result
+
+
+@register_python_action("project_summary")
+def _project_summary() -> str:
+    """Generate a quick project summary."""
+    try:
+        from src.commands import COMMANDS, VOICE_CORRECTIONS
+        from src.voice_correction import IMPLICIT_COMMANDS, PHONETIC_GROUPS, FILLER_WORDS
+        from src.domino_pipelines import get_domino_stats
+        ds = get_domino_stats()
+        return (
+            f"JARVIS Turbo: {len(COMMANDS)} cmds | {len(VOICE_CORRECTIONS)} corrections | "
+            f"{ds['total_dominos']} dominos | {ds['total_triggers']} triggers | "
+            f"{len(IMPLICIT_COMMANDS)} implicits | {len(PHONETIC_GROUPS)} phonetics | "
+            f"{len(FILLER_WORDS)} fillers | {len(_PYTHON_REGISTRY)} actions"
+        )
+    except ImportError as e:
+        return f"Import error: {e}"
+
+
 def execute_python(action: str, timeout: int = 30) -> str:
     """Execute a registered Python action or return description for unknown ones."""
     func_str = action.replace("python:", "", 1) if action.startswith("python:") else action

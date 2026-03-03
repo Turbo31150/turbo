@@ -135,6 +135,13 @@ FILLER_WORDS = {
     "you know", "i mean", "right", "okay so",
     "let me", "can you", "just", "maybe",
     "i think", "i guess", "sort of", "kind of",
+    # Vague 6 — Fillers hesitation / reformulation
+    "je veux dire", "c'est-a-dire", "autrement dit",
+    "par contre", "cependant", "neanmoins",
+    "si tu veux", "disons que", "en principe",
+    "sauf erreur", "a mon avis", "il me semble",
+    "concretement", "pratiquement", "effectivement",
+    "accessoirement", "subsidiairement", "nota bene",
 }
 
 # Expansions de commandes implicites
@@ -782,6 +789,26 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "pr": "liste les pull requests",
     "review": "lance la code review",
     "pairing": "mode pair programming",
+    # Vague 48 — API / HTTP raccourcis
+    "get": "envoie une requete get",
+    "post": "envoie une requete post",
+    "put": "envoie une requete put",
+    "delete": "envoie une requete delete",
+    "endpoint": "teste l'endpoint",
+    "webhook": "teste le webhook",
+    "api": "teste l'api",
+    "cors": "configure cors",
+    "swagger": "ouvre swagger",
+    # Vague 49 — Database raccourcis
+    "vacuum": "vacuum base de donnees",
+    "migrate": "lance la migration",
+    "seed": "lance le seeder",
+    "schema": "montre le schema",
+    "backup db": "backup la base",
+    "restore db": "restore la base",
+    "reindex": "reindex la base",
+    "dump": "dump la base",
+    "import db": "importe les donnees",
 }
 
 
@@ -837,6 +864,13 @@ _PARAM_PATTERNS: list[tuple[str, str, str]] = [
     (r"\benv(?:ironnement)?\s+(dev|prod|staging|test|local)\b", "env", "{0}"),
     (r"\b(\d+)\s*(?:heures?|h)\b", "hours", "{0}"),
     (r"\b(\d+)\s*(?:jours?|j)\b", "days", "{0}"),
+    # Vague 4 — Extended patterns (version, count, level, format, protocol)
+    (r"\bversion\s+(\d+(?:\.\d+)*)\b", "version", "{0}"),
+    (r"\b(\d+)\s*(?:fois|x)\b", "count", "{0}"),
+    (r"\bniveau\s+(debug|info|warning|error|critical)\b", "level", "{0}"),
+    (r"\bformat\s+(json|csv|xml|yaml|toml|txt|md|html)\b", "format", "{0}"),
+    (r"\bprotocole?\s+(http|https|tcp|udp|ws|wss|grpc|mqtt)\b", "protocol", "{0}"),
+    (r"\b(\d+)\s*(?:threads?|workers?|processus)\b", "workers", "{0}"),
 ]
 
 
