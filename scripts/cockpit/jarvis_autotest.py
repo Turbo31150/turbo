@@ -426,8 +426,12 @@ def print_summary():
 
 # === MAIN ===
 if __name__ == "__main__":
-    num_cycles = int(sys.argv[1]) if len(sys.argv) > 1 else 10
-    tasks_per_cycle = int(sys.argv[2]) if len(sys.argv) > 2 else 8
+    try:
+        num_cycles = int(sys.argv[1]) if len(sys.argv) > 1 else 10
+        tasks_per_cycle = int(sys.argv[2]) if len(sys.argv) > 2 else 8
+    except ValueError:
+        print("Usage: jarvis_autotest.py [num_cycles] [tasks_per_cycle]")
+        sys.exit(1)
 
     print(f"JARVIS AutoTest — {num_cycles} cycles x {tasks_per_cycle} tasks = {num_cycles * tasks_per_cycle} tests")
     print(f"Noeuds: {', '.join(NODES.keys())}")

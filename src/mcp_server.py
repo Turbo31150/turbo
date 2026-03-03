@@ -55,6 +55,13 @@ def _error(text: str) -> list[TextContent]:
     return [TextContent(type="text", text=f"ERREUR: {text}")]
 
 
+def _safe_int(val, default: int) -> int:
+    try:
+        return int(val)
+    except (TypeError, ValueError):
+        return default
+
+
 def _ps_sync(cmd: str) -> str:
     """Run a PowerShell command synchronously and return output."""
     import subprocess
@@ -179,7 +186,7 @@ async def handle_consensus(args: dict) -> list[TextContent]:
     from src.tools import extract_lms_output, _strip_thinking_tags
     prompt = args["prompt"]
     nodes = args.get("nodes", "M1,M2,OL1").split(",")
-    per_timeout = int(args.get("timeout_per_node", 60))
+    per_timeout = _safe_int(args.get("timeout_per_node"), 60)
     responses = []
 
     async def _query_node(name: str) -> str:
@@ -327,7 +334,7 @@ async def handle_bridge_query(args: dict) -> list[TextContent]:
 async def handle_bridge_mesh(args: dict) -> list[TextContent]:
     prompt = args["prompt"]
     names = [n.strip() for n in args.get("nodes", "M1,M2,OL1,GEMINI").split(",")]
-    per_timeout = int(args.get("timeout_per_node", 60))
+    per_timeout = _safe_int(args.get("timeout_per_node"), 60)
     responses = []
     ok_count = 0
 
@@ -722,7 +729,7 @@ async def handle_scheduled_tasks(args: dict) -> list[TextContent]:
 async def handle_trading_pending_signals(args: dict) -> list[TextContent]:
     from src.trading import get_pending_signals
     min_score = args.get("min_score")
-    limit = int(args.get("limit", 10))
+    limit = _safe_int(args.get("limit"), 10)
     signals = await _run(get_pending_signals, min_score, None, limit)
     return _text(json.dumps(signals, default=str, ensure_ascii=False, indent=2))
 
@@ -816,7 +823,7 @@ async def handle_suggest_actions(args: dict) -> list[TextContent]:
 
 async def handle_action_history(args: dict) -> list[TextContent]:
     from src.skills import get_action_history
-    history = get_action_history(int(args.get("limit", 20)))
+    history = get_action_history(_safe_int(args.get("limit"), 20))
     if not history:
         return _text("Aucun historique d'actions.")
     lines = []
@@ -872,8 +879,8 @@ async def handle_lm_list_mcp_servers(args: dict) -> list[TextContent]:
 async def handle_lm_load_model(args: dict) -> list[TextContent]:
     from src.cluster_startup import load_model_on_demand
     model = args["model"]
-    context = int(args.get("context", 16384))
-    parallel = int(args.get("parallel", 2))
+    context = _safe_int(args.get("context"), 16384)
+    parallel = _safe_int(args.get("parallel"), 2)
     result = await load_model_on_demand(model, context=context, parallel=parallel)
     if result["ok"]:
         bench = result.get("bench", {})

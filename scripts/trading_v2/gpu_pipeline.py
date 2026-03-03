@@ -87,16 +87,19 @@ def check_gpu_thermal() -> dict:
         for line in result.stdout.strip().split("\n"):
             parts = [p.strip() for p in line.split(",")]
             if len(parts) >= 6:
-                temp = int(parts[2])
-                max_temp = max(max_temp, temp)
-                gpus.append({
-                    "index": int(parts[0]),
-                    "name": parts[1],
-                    "temp_c": temp,
-                    "util_pct": int(parts[3]),
-                    "mem_used_mb": int(parts[4]),
-                    "mem_total_mb": int(parts[5]),
-                })
+                try:
+                    temp = int(parts[2])
+                    max_temp = max(max_temp, temp)
+                    gpus.append({
+                        "index": int(parts[0]),
+                        "name": parts[1],
+                        "temp_c": temp,
+                        "util_pct": int(parts[3]),
+                        "mem_used_mb": int(parts[4]),
+                        "mem_total_mb": int(parts[5]),
+                    })
+                except (ValueError, IndexError):
+                    continue
 
         if max_temp >= GPU_TEMP_CRITICAL:
             status = "critical"

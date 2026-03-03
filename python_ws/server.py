@@ -626,7 +626,10 @@ async def _setup_ptt_and_wake():
 def main():
     import uvicorn
     host = os.getenv("JARVIS_WS_HOST", "127.0.0.1")
-    port = int(os.getenv("JARVIS_WS_PORT", "9742"))
+    try:
+        port = int(os.getenv("JARVIS_WS_PORT", "9742"))
+    except ValueError:
+        port = 9742
     logger.info("Starting JARVIS WebSocket server on %s:%d", host, port)
     uvicorn.run(
         "python_ws.server:app",
