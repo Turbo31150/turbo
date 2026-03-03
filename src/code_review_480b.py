@@ -252,13 +252,15 @@ async def review_diff(diff_text: str | None = None) -> ReviewResult:
     """
     if diff_text is None:
         # Try staged first, then unstaged
-        result = subprocess.run(
-            ["git", "diff", "--staged"], capture_output=True, text=True, cwd=_TURBO_DIR_FWD, timeout=30
+        result = await asyncio.to_thread(
+            subprocess.run, ["git", "diff", "--staged"],
+            capture_output=True, text=True, cwd=_TURBO_DIR_FWD, timeout=30,
         )
         diff_text = result.stdout.strip()
         if not diff_text:
-            result = subprocess.run(
-                ["git", "diff"], capture_output=True, text=True, cwd=_TURBO_DIR_FWD, timeout=30
+            result = await asyncio.to_thread(
+                subprocess.run, ["git", "diff"],
+                capture_output=True, text=True, cwd=_TURBO_DIR_FWD, timeout=30,
             )
             diff_text = result.stdout.strip()
         if not diff_text:
@@ -293,8 +295,8 @@ async def review_diff(diff_text: str | None = None) -> ReviewResult:
 
 async def review_file(filepath: str) -> ReviewResult:
     """Review un fichier entier."""
-    with open(filepath, "r", encoding="utf-8") as f:
-        code = f.read()
+    from pathlib import Path as _P
+    code = await asyncio.to_thread(_P(filepath).read_text, encoding="utf-8")
     return await review_code(code, context=f"Fichier: {filepath}")
 
 

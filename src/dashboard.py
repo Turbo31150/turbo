@@ -72,7 +72,7 @@ async def _fetch_cluster() -> list[dict]:
             "models_count": 0,
         }
         try:
-            r = await c.get(f"{node.url}/api/v1/models", timeout=5)
+            r = await c.get(f"{node.url}/api/v1/models", timeout=config.connect_timeout)
             r.raise_for_status()
             entry["online"] = True
             entry["models_count"] = len([m for m in r.json().get("models", []) if m.get("loaded_instances")])
@@ -99,7 +99,7 @@ async def _fetch_system() -> dict:
                  "$disks = Get-CimInstance Win32_LogicalDisk -Filter 'DriveType=3' | "
                  "  ForEach-Object { \"$($_.DeviceID) $([math]::Round($_.FreeSpace/1GB,1))/$([math]::Round($_.Size/1GB,1))GB\" }; "
                  "\"CPU: $($cpu.Name)|RAM: ${ram_used}/${ram_total} GB|Uptime: $($uptime.Days)j $($uptime.Hours)h|Disks: $($disks -join ', ')\""],
-                capture_output=True, text=True, timeout=15,
+                capture_output=True, text=True, timeout=int(config.warmup_timeout),
             )
             return r.stdout.strip()
         except (subprocess.TimeoutExpired, OSError) as e:
