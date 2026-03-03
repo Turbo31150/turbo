@@ -455,11 +455,41 @@ def phonetic_similarity(a: str, b: str) -> float:
 # SUGGESTION ENGINE
 # ═══════════════════════════════════════════════════════════════════════════
 
+_command_usage_cache: dict[str, int] = {}
+_command_usage_loaded = False
+
+
+def _load_command_usage() -> None:
+    """Load command usage counts from DB for popularity boost (lazy, once)."""
+    global _command_usage_loaded
+    if _command_usage_loaded:
+        return
+    _command_usage_loaded = True
+    try:
+        import sqlite3
+        import os
+        db_path = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "data", "jarvis.db"))
+        if not os.path.exists(db_path):
+            return
+        with sqlite3.connect(db_path, timeout=5) as conn:
+            rows = conn.execute(
+                "SELECT command_name, COUNT(*) as cnt FROM command_history "
+                "GROUP BY command_name ORDER BY cnt DESC LIMIT 200"
+            ).fetchall()
+            for name, cnt in rows:
+                _command_usage_cache[name] = cnt
+    except (sqlite3.Error, OSError) as exc:
+        logger.debug("Failed to load command usage: %s", exc)
+
+
 def get_suggestions(text: str, max_results: int = 3) -> list[tuple[JarvisCommand, float]]:
     """Get command suggestions ranked by combined similarity score.
 
-    Uses: text similarity + phonetic similarity + keyword overlap.
+    Uses: text similarity (35%) + phonetic similarity (25%) + keyword overlap (25%) + popularity (15%).
     """
+    _load_command_usage()
+    max_usage = max(_command_usage_cache.values()) if _command_usage_cache else 1
+
     text_normalized = normalize_text(text)
     text_no_accents = remove_accents(text_normalized)
     text_words = set(text_normalized.split())
@@ -474,21 +504,25 @@ def get_suggestions(text: str, max_results: int = 3) -> list[tuple[JarvisCommand
             trigger_no_accents = remove_accents(trigger_clean)
             trigger_words = set(trigger_clean.split())
 
-            # 1. Direct text similarity (40%)
+            # 1. Direct text similarity (35%)
             text_sim = SequenceMatcher(None, text_no_accents, trigger_no_accents).ratio()
 
-            # 2. Phonetic similarity (30%)
+            # 2. Phonetic similarity (25%)
             phon_sim = phonetic_similarity(text_normalized, trigger_clean)
 
-            # 3. Keyword overlap (30%)
+            # 3. Keyword overlap (25%)
             if trigger_words:
                 common = text_words & trigger_words
                 keyword_sim = len(common) / len(trigger_words)
             else:
                 keyword_sim = 0.0
 
+            # 4. Popularity boost (15%) — frequently used commands rank higher
+            usage = _command_usage_cache.get(cmd.name, 0)
+            pop_score = min(1.0, usage / max_usage) if max_usage > 0 else 0.0
+
             # Combined score
-            score = (text_sim * 0.4) + (phon_sim * 0.3) + (keyword_sim * 0.3)
+            score = (text_sim * 0.35) + (phon_sim * 0.25) + (keyword_sim * 0.25) + (pop_score * 0.15)
             best_score = max(best_score, score)
 
         if best_score > 0.30:
