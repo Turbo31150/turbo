@@ -745,6 +745,18 @@ async def full_correction_pipeline(
         result["method"] = "suggestion"
         return result
 
+    # Step 10: Try domino pipeline matching (cascades vocales)
+    try:
+        from src.domino_pipelines import find_domino
+        domino = find_domino(intent)
+        if domino:
+            result["domino"] = domino
+            result["confidence"] = 0.80
+            result["method"] = "domino"
+            return result
+    except ImportError:
+        pass
+
     # No match — will be sent to Claude as freeform
     result["confidence"] = max(score, best_phon_score)
     result["method"] = "freeform"
