@@ -4,6 +4,7 @@ const http = require('http');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const { execFileSync, execSync, spawn } = require('child_process');
 const AutolearnEngine = require('./autolearn');
 
@@ -568,11 +569,21 @@ const TOOLS = {
     const sql = args.sql;
     const db = args.db || ETOILE_DB;
     if (!sql) return { error: 'Pas de requete SQL' };
+    // Block non-SELECT queries
+    if (!/^\s*(SELECT|PRAGMA\s+table_info)/i.test(sql)) return { error: 'Only SELECT queries allowed' };
+    if (/\b(DROP|CREATE|ALTER|INSERT|UPDATE|DELETE|ATTACH|DETACH)\b/i.test(sql)) return { error: 'DDL/DML forbidden' };
     try {
-      const safeSql = sql.replace(/"/g, '\\"');
-      const output = execSync('sqlite3 -json "' + db + '" "' + safeSql + '"', {
-        timeout: 10000, encoding: 'utf8', windowsHide: true
-      });
+      // Write SQL to temp file to avoid shell injection via quote escaping
+      const tmpSql = path.join(os.tmpdir(), 'jarvis_query_' + Date.now() + '.sql');
+      fs.writeFileSync(tmpSql, sql, 'utf8');
+      let output;
+      try {
+        output = execSync('sqlite3 -json "' + db + '" < "' + tmpSql + '"', {
+          timeout: 10000, encoding: 'utf8', windowsHide: true, shell: true
+        });
+      } finally {
+        try { fs.unlinkSync(tmpSql); } catch (_) {}
+      }
       try { return { ok: true, results: JSON.parse(output), db: path.basename(db) }; }
       catch (_) { return { ok: true, output: output.trim(), db: path.basename(db) }; }
     } catch (e) {
@@ -629,8 +640,10 @@ const TOOLS = {
 
       // Scripts: .py in scripts/ or root
       if (entityType === 'script') {
-        let scriptPath = 'F:\\BUREAU\\turbo\\scripts\\' + entityName + (entityName.includes('.') ? '' : '.py');
-        if (!fs.existsSync(scriptPath)) scriptPath = 'F:\\BUREAU\\turbo\\' + entityName + (entityName.includes('.') ? '' : '.py');
+        // Prevent path traversal — strip directory separators and dots at start
+        const cleanScript = entityName.replace(/[\\\/]/g, '').replace(/^\.+/, '');
+        let scriptPath = 'F:\\BUREAU\\turbo\\scripts\\' + cleanScript + (cleanScript.includes('.') ? '' : '.py');
+        if (!fs.existsSync(scriptPath)) scriptPath = 'F:\\BUREAU\\turbo\\' + cleanScript + (cleanScript.includes('.') ? '' : '.py');
         if (!fs.existsSync(scriptPath)) return { ok: false, pipeline: entityName, type: entityType, role, error: 'Script non trouve: ' + entityName };
         const isJs = scriptPath.endsWith('.js');
         const cmd = isJs ? 'node "' + scriptPath + '"' : 'uv run python "' + scriptPath + '"';
@@ -1156,7 +1169,8 @@ function httpRequest(urlStr, body, headers, timeout) {
 
     const req = mod.request(opts, res => {
       let buf = '';
-      res.on('data', c => buf += c);
+      const MAX_RESP = 5 * 1024 * 1024; // 5MB cap
+      res.on('data', c => { if (buf.length < MAX_RESP) buf += c; });
       res.on('end', () => {
         if (res.statusCode >= 400) reject(new Error(`HTTP ${res.statusCode}: ${buf.slice(0, 200)}`));
         else { try { resolve(JSON.parse(buf)); } catch (e) { resolve(buf); } }
@@ -1253,8 +1267,9 @@ function callProxyNode(nodeId, node, messages) {
     });
 
     let stdout = '', stderr = '';
-    proc.stdout.on('data', d => stdout += d);
-    proc.stderr.on('data', d => stderr += d);
+    const MAX_BUF = 2 * 1024 * 1024; // 2MB cap
+    proc.stdout.on('data', d => { if (stdout.length < MAX_BUF) stdout += d; });
+    proc.stderr.on('data', d => { if (stderr.length < MAX_BUF) stderr += d; });
 
     const timer = setTimeout(() => {
       proc.kill('SIGTERM');

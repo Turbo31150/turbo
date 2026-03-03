@@ -10,6 +10,7 @@ Protocol (line-based):
 Uses faster-whisper with CUDA for ~4x speedup over openai-whisper.
 """
 
+import logging
 import sys
 import os
 import subprocess
@@ -17,6 +18,8 @@ import tempfile
 import threading
 import warnings
 from pathlib import Path
+
+logger = logging.getLogger("jarvis.whisper_worker")
 
 # Suppress noisy warnings
 warnings.filterwarnings("ignore")

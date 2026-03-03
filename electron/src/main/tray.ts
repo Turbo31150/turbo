@@ -61,6 +61,7 @@ export function setupTray(mainWindow: BrowserWindow): void {
   tray.setToolTip('JARVIS Desktop');
 
   const navigateTo = (route: string) => {
+    if (mainWindow.isDestroyed()) return;
     mainWindow.show();
     mainWindow.focus();
     mainWindow.webContents.send('navigate', route);
@@ -68,11 +69,13 @@ export function setupTray(mainWindow: BrowserWindow): void {
 
   const buildContextMenu = (): Menu => {
     const widgets = getWidgetWindows();
+    const visible = !mainWindow.isDestroyed() && mainWindow.isVisible();
 
     return Menu.buildFromTemplate([
       {
-        label: mainWindow.isVisible() ? 'Hide JARVIS' : 'Show JARVIS',
+        label: visible ? 'Hide JARVIS' : 'Show JARVIS',
         click: () => {
+          if (mainWindow.isDestroyed()) return;
           if (mainWindow.isVisible()) {
             mainWindow.hide();
           } else {
