@@ -528,8 +528,9 @@ async def _local_ia_analyze(query: str, timeout: float = 10.0) -> str | None:
                 "options": {"temperature": 0.3, "num_predict": config.fast_max_tokens},
             }, timeout=timeout)
             r.raise_for_status()
-            return r.json()["message"]["content"].strip()
-        except (httpx.HTTPError, asyncio.TimeoutError, OSError, KeyError) as exc:
+            data = r.json()
+            return data.get("message", {}).get("content", "").strip()
+        except (httpx.HTTPError, asyncio.TimeoutError, OSError, KeyError, ValueError) as exc:
             logger.debug("_local_ia_analyze OL1 fallback failed: %s", exc)
     return None
 

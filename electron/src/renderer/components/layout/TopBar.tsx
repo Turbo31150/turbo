@@ -172,15 +172,18 @@ export default function TopBar({ connected, currentPage, onDetach }: TopBarProps
 
         {/* Window controls */}
         <button style={{ ...s.winBtn, ...(hovered === 'min' ? { color: COLORS.orange } : {}) }}
-          onClick={() => api?.minimize?.()} onMouseEnter={() => setHovered('min')} onMouseLeave={() => setHovered('')}>
+          onClick={() => api?.minimize?.()} onMouseEnter={() => setHovered('min')} onMouseLeave={() => setHovered('')}
+          aria-label="Minimiser la fenetre">
           &mdash;
         </button>
         <button style={{ ...s.winBtn, ...(hovered === 'max' ? { color: COLORS.orange } : {}) }}
-          onClick={() => api?.maximize?.()} onMouseEnter={() => setHovered('max')} onMouseLeave={() => setHovered('')}>
+          onClick={() => api?.maximize?.()} onMouseEnter={() => setHovered('max')} onMouseLeave={() => setHovered('')}
+          aria-label="Maximiser la fenetre">
           &#9633;
         </button>
         <button style={{ ...s.winBtn, ...(hovered === 'close' ? { color: COLORS.red } : {}) }}
-          onClick={() => api?.close?.()} onMouseEnter={() => setHovered('close')} onMouseLeave={() => setHovered('')}>
+          onClick={() => api?.close?.()} onMouseEnter={() => setHovered('close')} onMouseLeave={() => setHovered('')}
+          aria-label="Fermer la fenetre">
           &#10005;
         </button>
       </div>

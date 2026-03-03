@@ -170,13 +170,13 @@ def auto_create_skill(pattern: PatternMatch) -> Skill:
 
     # Record in brain state
     state = _load_brain_state()
-    state["skills_created"].append({
+    state["skills_created"] = state.get("skills_created", [])[-99:] + [{
         "name": skill.name,
         "pattern": pattern.actions,
         "count": pattern.count,
         "confidence": pattern.confidence,
         "timestamp": time.time(),
-    })
+    }]
     state["total_analyses"] += 1
     _save_brain_state(state)
 
@@ -233,8 +233,10 @@ def analyze_and_learn(auto_create: bool = False, min_confidence: float = 0.6) ->
 def reject_pattern(name: str):
     """Mark a pattern as rejected (won't auto-create)."""
     state = _load_brain_state()
-    if name not in state.get("rejected_patterns", []):
-        state.setdefault("rejected_patterns", []).append(name)
+    rejected = state.get("rejected_patterns", [])
+    if name not in rejected:
+        rejected.append(name)
+        state["rejected_patterns"] = rejected[-200:]
     _save_brain_state(state)
 
 

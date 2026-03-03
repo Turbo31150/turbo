@@ -140,6 +140,7 @@ export default function AgentSelector({ value, onChange, compact }: AgentSelecto
         onClick={() => setOpen(!open)}
         aria-haspopup="listbox"
         aria-expanded={open}
+        aria-busy={loadingModels}
       >
         <span style={{ ...S.dot, ...(selected?.online ? S.dotOn : S.dotOff) }} />
         <span>{loadingModels ? 'Chargement...' : selected?.name || 'Auto (best)'}</span>

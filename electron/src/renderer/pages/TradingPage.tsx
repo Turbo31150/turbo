@@ -105,6 +105,7 @@ export default function TradingPage() {
         <div style={S.header}>
           <span style={S.title}>Trading Terminal</span>
           <button style={S.btn} onClick={refreshTrading}
+            aria-label="Actualiser les donnees trading"
             onMouseEnter={e => { e.currentTarget.style.borderColor = COLORS.orange; e.currentTarget.style.color = COLORS.orange; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = COLORS.border; e.currentTarget.style.color = COLORS.textDim; }}>
             {loading ? 'Actualisation...' : 'Actualiser'}

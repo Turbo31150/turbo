@@ -453,17 +453,17 @@ def pipeline_status() -> dict[str, Any]:
     try:
         # Pending signals (high score, fresh)
         cutoff = (datetime.now(timezone.utc) - timedelta(minutes=config.max_signal_age_minutes)).strftime("%Y-%m-%d %H:%M:%S")
-        pending = conn.execute(
+        pending = (conn.execute(
             "SELECT COUNT(*) FROM signals WHERE executed = 0 AND score >= ? AND created_at >= ?",
             (config.min_signal_score, cutoff),
-        ).fetchone()[0]
+        ).fetchone() or (0,))[0]
 
-        total_signals = conn.execute("SELECT COUNT(*) FROM signals").fetchone()[0]
-        executed_signals = conn.execute("SELECT COUNT(*) FROM signals WHERE executed = 1").fetchone()[0]
+        total_signals = (conn.execute("SELECT COUNT(*) FROM signals").fetchone() or (0,))[0]
+        executed_signals = (conn.execute("SELECT COUNT(*) FROM signals WHERE executed = 1").fetchone() or (0,))[0]
 
         # Trades
-        open_trades = conn.execute("SELECT COUNT(*) FROM trades WHERE status = 'OPEN'").fetchone()[0]
-        closed_trades = conn.execute("SELECT COUNT(*) FROM trades WHERE status = 'CLOSED'").fetchone()[0]
+        open_trades = (conn.execute("SELECT COUNT(*) FROM trades WHERE status = 'OPEN'").fetchone() or (0,))[0]
+        closed_trades = (conn.execute("SELECT COUNT(*) FROM trades WHERE status = 'CLOSED'").fetchone() or (0,))[0]
 
         # PnL
         pnl_row = conn.execute("SELECT COALESCE(SUM(pnl), 0) FROM trades WHERE status = 'CLOSED'").fetchone()

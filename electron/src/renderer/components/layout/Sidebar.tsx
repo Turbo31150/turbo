@@ -210,7 +210,7 @@ export default function Sidebar({ currentPage, onPageChange }: SidebarProps) {
                 const isHovered = hoveredItem === item.id;
                 return (
                   <button key={item.id} className="sb-btn"
-                    aria-label={collapsed ? item.label : undefined}
+                    aria-label={item.label}
                     style={{
                       width: '100%', display: 'flex', alignItems: 'center', gap: 10,
                       padding: collapsed ? '10px 0' : '8px 14px',

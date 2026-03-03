@@ -84,10 +84,15 @@ export default function SettingsPage() {
     let cancelled = false;
     request('system', 'get_config').then(r => {
       if (!cancelled && mountedRef.current && r.payload?.config) setCfg(prev => ({ ...prev, ...r.payload!.config }));
-    }).catch(err => console.warn('[Settings] config fetch error:', err instanceof Error ? err.message : err));
+    }).catch(err => {
+      console.warn('[Settings] config fetch error:', err instanceof Error ? err.message : err);
+      if (!cancelled && mountedRef.current) setToast({ msg: 'Erreur chargement config', ok: false });
+    });
     request('system', 'system_info').then(r => {
       if (!cancelled && mountedRef.current && r.payload) setAbout(r.payload as SystemAbout);
-    }).catch(err => console.warn('[Settings] system_info error:', err instanceof Error ? err.message : err));
+    }).catch(err => {
+      console.warn('[Settings] system_info error:', err instanceof Error ? err.message : err);
+    });
     return () => { cancelled = true; };
   }, [connected, request]);
 
