@@ -154,8 +154,8 @@ def auto_create_skill(pattern: PatternMatch) -> Skill:
                 args_str = action[action.index("(") + 1:-1]
                 if args_str:
                     args = json.loads(args_str) if args_str.startswith("{") else {}
-            except (json.JSONDecodeError, ValueError):
-                pass
+            except (json.JSONDecodeError, ValueError) as exc:
+                logger.debug("Auto-step arg parsing failed for %r: %s", action, exc)
         steps.append(SkillStep(tool=tool, args=args, description=f"Auto: {tool}"))
 
     skill = Skill(

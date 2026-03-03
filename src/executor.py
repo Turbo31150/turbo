@@ -152,8 +152,8 @@ async def _execute_pipeline(action: str, params: dict[str, str]) -> str:
         if step.startswith("sleep:"):
             try:
                 await asyncio.sleep(float(step[6:]))
-            except ValueError:
-                pass
+            except ValueError as exc:
+                logger.debug("Invalid sleep duration in step %r: %s", step, exc)
             continue
 
         sep = step.find(":")
@@ -506,6 +506,6 @@ async def correct_with_ia(text: str, node_url: str = "http://127.0.0.1:11434") -
                 )
                 resp.raise_for_status()
                 return resp.json()["message"]["content"].strip()
-        except (httpx.HTTPError, OSError, KeyError, ValueError):
-            pass
+        except (httpx.HTTPError, OSError, KeyError, ValueError) as exc:
+            logger.debug("IA voice correction failed: %s", exc)
     return correct_voice_text(text)

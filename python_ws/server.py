@@ -88,7 +88,7 @@ async def api_models():
         from python_ws.routes.chat import get_models_with_status
         models = await get_models_with_status()
         return JSONResponse({"models": models})
-    except Exception as exc:
+    except (ImportError, OSError, KeyError, ValueError) as exc:
         logger.exception("GET /api/models failed")
         return JSONResponse({"error": str(exc)}, status_code=500)
 
@@ -99,7 +99,7 @@ async def api_dictionary():
     try:
         result = await handle_dictionary_request("get_all", {})
         return JSONResponse(result)
-    except Exception as exc:
+    except (OSError, KeyError, ValueError) as exc:
         logger.exception("GET /api/dictionary failed")
         return JSONResponse({"error": str(exc)}, status_code=500)
 
@@ -188,7 +188,7 @@ async def api_list_dominos(category: str = ""):
     try:
         result = await handle_system_request("list_dominos", {"category": category})
         return JSONResponse(result)
-    except Exception as exc:
+    except (OSError, KeyError, ValueError) as exc:
         logger.exception("GET /api/dominos failed")
         return JSONResponse({"error": str(exc)}, status_code=500)
 
@@ -206,7 +206,7 @@ async def api_resolve_chain(trigger: str):
     try:
         result = await handle_system_request("resolve_chain", {"trigger": trigger})
         return JSONResponse(result)
-    except Exception as exc:
+    except (OSError, KeyError, ValueError) as exc:
         logger.exception("GET /api/dominos/resolve failed")
         return JSONResponse({"error": str(exc)}, status_code=500)
 

@@ -1373,9 +1373,12 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         return _error(f"Outil inconnu: {name}")
     try:
         return await handler(arguments)
-    except Exception as e:
-        logger.error("MCP handler %s failed: %s", name, e, exc_info=True)
+    except (KeyError, ValueError, TypeError, OSError, RuntimeError) as e:
+        logger.warning("MCP handler %s failed: %s", name, e)
         return _error(f"{name}: {e}")
+    except Exception as e:
+        logger.error("MCP handler %s unexpected error: %s", name, e, exc_info=True)
+        return _error(f"{name}: internal error")
 
 
 async def main():
