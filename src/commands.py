@@ -1162,6 +1162,62 @@ COMMANDS: list[JarvisCommand] = [
         "lowercase",
     ], "powershell", "$t = Get-Clipboard; Set-Clipboard ($t.ToLower()); 'Texte converti en minuscules'"),
 
+    # ── batch 62: Nouvelles commandes saisie ──
+    JarvisCommand("texte_titre", "saisie", "Convertir le presse-papier en Title Case", [
+        "en titre", "texte en titre", "title case",
+        "majuscule chaque mot", "capitalise",
+    ], "powershell", "$t = Get-Clipboard; Set-Clipboard ((Get-Culture).TextInfo.ToTitleCase($t.ToLower())); 'Texte converti en titre'"),
+    JarvisCommand("texte_inverse", "saisie", "Inverser le texte du presse-papier", [
+        "inverse le texte", "texte a l'envers", "reverse text",
+        "retourne le texte",
+    ], "powershell", "$t = Get-Clipboard; Set-Clipboard ([string]::new($t[-1..-($t.Length)])); 'Texte inverse'"),
+    JarvisCommand("compte_mots", "saisie", "Compter les mots du presse-papier", [
+        "compte les mots", "combien de mots", "nombre de mots",
+        "word count", "longueur du texte",
+    ], "powershell", "$t = Get-Clipboard; $w = ($t -split '\\s+' | Where-Object {$_}).Count; $c = $t.Length; \"$w mots, $c caracteres\""),
+    JarvisCommand("texte_sans_accents", "saisie", "Supprimer les accents du presse-papier", [
+        "supprime les accents", "enleve les accents", "sans accents",
+        "retire les accents", "texte sans accents",
+    ], "powershell", "$t = Get-Clipboard; $n = [Text.Encoding]::ASCII.GetString([Text.Encoding]::GetEncoding('Cyrillic').GetBytes($t)); Set-Clipboard $n; 'Accents supprimes'"),
+    JarvisCommand("texte_trim", "saisie", "Nettoyer les espaces du presse-papier", [
+        "nettoie le texte", "enleve les espaces", "trim",
+        "supprime les espaces en trop", "clean texte",
+    ], "powershell", "$t = Get-Clipboard; Set-Clipboard (($t -replace '\\s+', ' ').Trim()); 'Espaces nettoyes'"),
+    JarvisCommand("texte_lignes_count", "saisie", "Compter les lignes du presse-papier", [
+        "compte les lignes", "combien de lignes", "nombre de lignes",
+        "line count",
+    ], "powershell", "$t = Get-Clipboard; $l = ($t -split '\\n').Count; \"$l lignes\""),
+    JarvisCommand("texte_sort", "saisie", "Trier les lignes du presse-papier", [
+        "trie les lignes", "sort le texte", "ordonne les lignes",
+        "tri alphabetique",
+    ], "powershell", "$t = Get-Clipboard; Set-Clipboard (($t -split '\\n' | Sort-Object) -join \"`n\"); 'Lignes triees'"),
+    JarvisCommand("texte_unique", "saisie", "Supprimer les lignes en double du presse-papier", [
+        "supprime les doublons", "lignes uniques", "deduplique",
+        "enleve les doublons", "unique",
+    ], "powershell", "$t = Get-Clipboard; Set-Clipboard (($t -split '\\n' | Select-Object -Unique) -join \"`n\"); 'Doublons supprimes'"),
+
+    # ── batch 62: Nouvelles commandes media ──
+    JarvisCommand("media_shuffle", "media", "Activer le mode aleatoire", [
+        "melange la musique", "mode aleatoire", "shuffle",
+        "lecture aleatoire", "mets en aleatoire",
+    ], "hotkey", "ctrl+s"),
+    JarvisCommand("media_repeat", "media", "Activer la repetition", [
+        "repete la musique", "boucle", "mode repeat",
+        "en boucle", "lecture en boucle", "repeat",
+    ], "hotkey", "ctrl+r"),
+    JarvisCommand("ouvrir_spotify", "media", "Ouvrir Spotify", [
+        "ouvre spotify", "lance spotify", "mets spotify",
+        "ouvre la musique", "lance la musique",
+    ], "app_open", "spotify"),
+    JarvisCommand("ouvrir_vlc", "media", "Ouvrir VLC", [
+        "ouvre vlc", "lance vlc", "ouvre le lecteur video",
+        "lance le lecteur multimedia",
+    ], "app_open", "vlc"),
+    JarvisCommand("media_stop", "media", "Arreter completement la lecture", [
+        "arrete la musique", "stop media", "coupe la musique",
+        "arrete tout", "finis la musique",
+    ], "hotkey", "media_stop"),
+
     # ── Vague 11: Hardware / Memoire / CPU / Batterie / Temperatures ──
     JarvisCommand("ram_usage", "systeme", "Utilisation de la RAM", [
         "utilisation ram", "combien de ram", "memoire utilisee",
