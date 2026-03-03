@@ -84,6 +84,13 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["flask", "flaske", "flasque"],
     ["next", "nexte", "neste"],
     ["express", "expresse", "expres"],
+    # Vague 12 — Cloud services phonetiques
+    ["aws", "awe", "a double v"],
+    ["azure", "azoure", "ajure"],
+    ["gcp", "jecipi", "g c p"],
+    ["docker", "dockeur", "dokeur"],
+    ["kube", "coube", "cube"],
+    ["helm", "elme", "healme"],
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -673,6 +680,43 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "export data": "exporte les donnees",
     "sync data": "synchronise les donnees",
     "migrate data": "migre les donnees",
+    # Vague 39 — JARVIS dominos rapides
+    "matin": "lance briefing matin",
+    "soir": "bilan du soir",
+    "nuit": "mode nuit",
+    "urgence": "sauvegarde urgence",
+    "review": "revue de code",
+    "deploy": "deploie en staging",
+    "warmup": "chauffe le cluster",
+    "weekly": "maintenance hebdo",
+    "startup": "sequence de demarrage",
+    "shutdown": "sequence arret",
+    # Vague 40 — Trading raccourcis
+    "btc": "scan btc",
+    "eth": "scan eth",
+    "sol": "scan sol",
+    "long": "position long",
+    "short": "position short",
+    "scalp": "mode scalping",
+    "swing": "mode swing",
+    "spot": "mode spot",
+    "futures": "mode futures",
+    "leverage": "levier trading",
+    "margin": "marge disponible",
+    "liquidation": "check liquidation",
+    # Vague 41 — Daily routines
+    "cafe": "pause cafe",
+    "dejeuner": "pause dejeuner",
+    "fin": "fin de journee",
+    "focus": "mode focus",
+    "break": "pause cafe",
+    "meeting": "mode reunion",
+    "call": "mode reunion",
+    "code": "mode coding",
+    "coding": "mode coding",
+    "debug": "mode debug",
+    "relax": "mode pause",
+    "chill": "mode pause",
 }
 
 
