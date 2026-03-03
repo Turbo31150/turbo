@@ -255,10 +255,13 @@ export function useChat() {
     const a = document.createElement('a');
     a.href = url;
     a.download = `jarvis_chat_${Date.now()}.md`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 100);
+    try {
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } finally {
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
   }, [state.messages]);
 
   // Clear conversation

@@ -147,8 +147,8 @@ export default function AgentSelector({ value, onChange, compact }: AgentSelecto
       </button>
 
       {open && (
-        <div style={S.dropdown} role="listbox" aria-label="Selection agent IA">
-          <div role="option" aria-selected={!value} style={{ ...S.option, ...(hovered === 'auto' ? S.optionHover : {}), ...(!value ? S.optionSelected : {}) }}
+        <div style={S.dropdown} role="listbox" aria-label="Selection agent IA" aria-activedescendant={hovered ? `agent-opt-${hovered}` : undefined}>
+          <div id="agent-opt-auto" role="option" aria-selected={!value} style={{ ...S.option, ...(hovered === 'auto' ? S.optionHover : {}), ...(!value ? S.optionSelected : {}) }}
             onClick={() => { onChange?.(''); setOpen(false); }}
             onMouseEnter={() => setHovered('auto')} onMouseLeave={() => setHovered(null)}>
             <span style={{ ...S.dot, ...S.dotOn }} />
@@ -162,7 +162,7 @@ export default function AgentSelector({ value, onChange, compact }: AgentSelecto
               <div key={group}>
                 <div style={S.groupLabel}>{label}</div>
                 {items.map(m => (
-                  <div key={m.id} role="option" aria-selected={value === m.id}
+                  <div key={m.id} id={`agent-opt-${m.id}`} role="option" aria-selected={value === m.id}
                     style={{ ...S.option, ...(hovered === m.id ? S.optionHover : {}), ...(value === m.id ? S.optionSelected : {}) }}
                     onClick={() => { onChange?.(m.id); setOpen(false); }}
                     onMouseEnter={() => setHovered(m.id)} onMouseLeave={() => setHovered(null)}>
