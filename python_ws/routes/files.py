@@ -5,7 +5,6 @@ import asyncio
 import base64
 import time
 from pathlib import Path
-from typing import Any
 
 _TURBO_ROOT = Path(__file__).resolve().parent.parent.parent
 UPLOAD_DIR = _TURBO_ROOT / "data" / "uploads"

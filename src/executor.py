@@ -13,7 +13,7 @@ from src.commands import (
     JarvisCommand, APP_PATHS, SITE_ALIASES,
     match_command, correct_voice_text, format_commands_help,
 )
-from src.windows import run_powershell, open_application
+from src.windows import run_powershell
 from src.config import SCRIPTS
 from src.signal_formatter import parse_sniper_json, format_telegram_signals, format_chat_signals
 

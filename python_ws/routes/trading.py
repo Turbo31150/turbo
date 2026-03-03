@@ -5,7 +5,6 @@ import asyncio
 import logging
 import sqlite3
 from pathlib import Path
-from typing import Any
 
 from python_ws.helpers import push_loop
 

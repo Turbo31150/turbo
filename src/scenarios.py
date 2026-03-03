@@ -17,8 +17,8 @@ from src.database import (
     get_stats, get_validation_report, import_commands_from_code,
     import_skills_from_code, import_corrections_from_code,
 )
-from src.commands import match_command, correct_voice_text, COMMANDS
-from src.skills import find_skill, load_skills
+from src.commands import match_command, correct_voice_text
+from src.skills import find_skill
 
 
 # ═══════════════════════════════════════════════════════════════════════════
