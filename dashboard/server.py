@@ -77,7 +77,7 @@ def _check_lm_studio(name: str, agent: dict) -> dict:
                 "model_count": len(models),
                 "latency_ms": latency,
             })
-    except Exception:
+    except (urllib.error.URLError, OSError, ValueError, KeyError):
         pass
     return result
 
@@ -104,7 +104,7 @@ def _check_ollama(name: str, agent: dict) -> dict:
                 "model_count": len(models),
                 "latency_ms": latency,
             })
-    except Exception:
+    except (urllib.error.URLError, OSError, ValueError, KeyError):
         pass
     return result
 

@@ -334,7 +334,7 @@ def generate_domino_examples_from_db() -> list:
                 + f"la commande suivante '{next_cmd}' se lance"
                 + (f" apres un delai de {delay}ms." if delay else " immediatement.")
             ))
-    except Exception:
+    except (sqlite3.Error, OSError):
         pass
 
     # Voice corrections
@@ -349,7 +349,7 @@ def generate_domino_examples_from_db() -> list:
                 f"La correction est '{correct}'"
                 + (f" (categorie : {category})." if category else ".")
             ))
-    except Exception:
+    except (sqlite3.Error, OSError):
         pass
 
     # Pipeline dictionary
@@ -364,7 +364,7 @@ def generate_domino_examples_from_db() -> list:
                 + (f" (categorie : {category})" if category else "")
                 + f" execute les etapes suivantes : {steps}"
             ))
-    except Exception:
+    except (sqlite3.Error, OSError):
         pass
 
     # Scenarios
@@ -378,7 +378,7 @@ def generate_domino_examples_from_db() -> list:
                 f"Commandes attendues : {commands}"
                 + (f" (categorie : {category})" if category else "")
             ))
-    except Exception:
+    except (sqlite3.Error, OSError):
         pass
 
     conn.close()
@@ -406,7 +406,7 @@ def generate_commands_from_db() -> list:
                 f"{trigger_text}{desc}"
                 + (f" Categorie : {category}." if category else "")
             ))
-    except Exception:
+    except (sqlite3.Error, OSError):
         pass
 
     try:
@@ -420,7 +420,7 @@ def generate_commands_from_db() -> list:
                 f"{trigger_text}{desc}"
                 + (f" Categorie : {category}." if category else "")
             ))
-    except Exception:
+    except (sqlite3.Error, OSError):
         pass
 
     conn.close()
@@ -467,7 +467,7 @@ def main():
     print(f"\n[OK] {len(all_examples)} exemples sauves dans {ENRICHMENT_FILE}")
 
     # Fusionner avec le dataset principal
-    existing_count = sum(1 for _ in open(TRAIN_FILE, encoding="utf-8"))
+    existing_count = len(TRAIN_FILE.read_text(encoding="utf-8").splitlines())
     with open(TRAIN_FILE, "a", encoding="utf-8") as f:
         for ex in all_examples:
             f.write(json.dumps(ex, ensure_ascii=False) + "\n")

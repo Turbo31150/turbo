@@ -5,6 +5,7 @@ Commandes, pipelines, corrections, scenarios, dominos, skills.
 import sqlite3
 import json
 import sys
+from pathlib import Path
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -41,7 +42,7 @@ rows = cur.execute(
 for name, desc, triggers_json, cat, action_type in rows:
     try:
         triggers = json.loads(triggers_json)
-    except Exception:
+    except (json.JSONDecodeError, TypeError, ValueError):
         continue
     if not triggers or not desc:
         continue
@@ -70,7 +71,7 @@ skills = cur.execute(
 for name, desc, triggers_json, steps, cat in skills:
     try:
         triggers = json.loads(triggers_json)
-    except Exception:
+    except (json.JSONDecodeError, TypeError, ValueError):
         continue
     if not triggers:
         continue
@@ -85,7 +86,7 @@ for name, desc, triggers_json, steps, cat in skills:
                     f"que fait {name} ?",
                     f'{desc} Etapes : {steps_txt}. Trigger : "{main}".'
                 ))
-        except Exception:
+        except (json.JSONDecodeError, TypeError, ValueError):
             pass
     for t in triggers[1:3]:
         examples.append(mk(t, f"Activation de {name}. {desc}"))
@@ -103,7 +104,7 @@ scenarios = cur.execute(
 for voice, commands_json, cat in scenarios:
     try:
         cmds = json.loads(commands_json) if isinstance(commands_json, str) else commands_json
-    except Exception:
+    except (json.JSONDecodeError, TypeError, ValueError):
         cmds = [commands_json]
     if isinstance(cmds, list):
         flat = [str(c) if not isinstance(c, list) else ", ".join(c) for c in cmds[:3]]
@@ -246,5 +247,5 @@ print(f"\n{'='*50}")
 print(f"TOTAL: {len(examples)} exemples vocaux generes")
 print(f"Fichier: {outfile}")
 
-total = sum(1 for _ in open('F:/BUREAU/turbo/finetuning/dataset/jarvis_final_train.jsonl', encoding='utf-8'))
+total = len(Path('F:/BUREAU/turbo/finetuning/dataset/jarvis_final_train.jsonl').read_text(encoding='utf-8').splitlines())
 print(f"DATASET TOTAL: {total} exemples")

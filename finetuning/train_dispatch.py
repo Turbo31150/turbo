@@ -86,7 +86,7 @@ for _ef in _extra_files:
     try:
         with open(_ef, 'r', encoding='utf-8') as f:
             _merged_lines.extend(f.readlines())
-    except: pass
+    except (OSError, ValueError): pass
 _merged_path = TRAIN_FILE.replace('.jsonl', '_merged.jsonl')
 with open(_merged_path, 'w', encoding='utf-8') as f:
     f.writelines(_merged_lines)
@@ -230,7 +230,7 @@ def main():
     try:
         import subprocess as sp
         sp.run(["C:/Users/franc/.lmstudio/bin/lms.exe", "unload", "--all"], capture_output=True, timeout=5)
-    except: pass
+    except (subprocess.SubprocessError, OSError): pass
 
     from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
     from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training, TaskType
@@ -371,7 +371,7 @@ def main():
             capture_output=True, timeout=10,
         )
         print("[OK] LM Studio models unloaded")
-    except Exception:
+    except (subprocess.SubprocessError, OSError):
         print("[WARN] LM Studio unload skipped")
 
     # Generate worker scripts
@@ -432,7 +432,7 @@ def main():
                                 if "step" in line.lower() or "it]" in line or "loss" in line.lower():
                                     last = line.strip()[:120]
                                     break
-                    except:
+                    except (OSError, ValueError):
                         last = "..."
                     print(f"  [GPU {config['gpu_id']}] running — {last}")
                 else:

@@ -397,7 +397,7 @@ def check_lm_studio():
                 ["C:/Users/franc/.lmstudio/bin/lms.exe", "unload", "--all"],
                 capture_output=True, timeout=10,
             )
-    except Exception:
+    except (subprocess.SubprocessError, OSError):
         pass
     print("[OK] LM Studio verifie (pas de modeles charges)")
 
