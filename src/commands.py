@@ -2162,6 +2162,95 @@ COMMANDS: list[JarvisCommand] = [
         "jarvis arena", "historique arena", "tournoi modeles",
         "arena historique", "resultats arena",
     ], "powershell", "C:/Users/franc/jarvis.ps1 arena --history"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # GESTION VOCALE (8 commandes) — batch 60
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("statut_vocal", "jarvis", "Statut du systeme vocal JARVIS", [
+        "statut vocal", "statut de la voix", "etat vocal",
+        "comment va la voix", "systeme vocal", "voix statut",
+    ], "jarvis_tool", "voice_status"),
+    JarvisCommand("test_tts", "jarvis", "Tester la synthese vocale", [
+        "test tts", "teste la voix", "dis quelque chose",
+        "parle moi", "test synthese vocale", "essaie la voix",
+    ], "jarvis_tool", "tts_test"),
+    JarvisCommand("stats_corrections", "jarvis", "Statistiques des corrections vocales", [
+        "statistiques corrections vocales", "stats corrections",
+        "combien de corrections", "precision vocale",
+        "taux de correction", "performance vocale",
+    ], "jarvis_tool", "voice_correction_stats"),
+    JarvisCommand("statut_whisper", "jarvis", "Statut du moteur STT Whisper", [
+        "statut whisper", "etat whisper", "whisper status",
+        "statut stt", "etat de la reconnaissance vocale",
+    ], "jarvis_tool", "whisper_status"),
+    JarvisCommand("statut_wakeword", "jarvis", "Statut du wakeword JARVIS", [
+        "statut wakeword", "wakeword status", "etat du wakeword",
+        "mot de reveil", "detection jarvis",
+    ], "jarvis_tool", "wakeword_status"),
+    JarvisCommand("volume_tts", "jarvis", "Ajuster le volume TTS", [
+        "volume tts {niveau}", "volume voix {niveau}",
+        "monte la voix", "baisse la voix",
+    ], "jarvis_tool", "tts_volume:{niveau}", ["niveau"]),
+    JarvisCommand("vitesse_tts", "jarvis", "Ajuster la vitesse TTS", [
+        "vitesse tts {vitesse}", "parle plus vite", "parle plus lentement",
+        "vitesse de la voix", "debit vocal",
+    ], "jarvis_tool", "tts_speed:{vitesse}", ["vitesse"]),
+    JarvisCommand("historique_vocal", "jarvis", "Historique des commandes vocales recentes", [
+        "historique vocal", "dernieres commandes vocales",
+        "historique de la voix", "qu'est ce que j'ai dit",
+    ], "jarvis_tool", "voice_history"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DOMINO MANAGEMENT (5 commandes) — batch 60
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("liste_dominos", "jarvis", "Lister tous les domino pipelines", [
+        "liste les dominos", "dominos disponibles", "quels dominos",
+        "montre les dominos", "tous les dominos", "liste dominos",
+    ], "jarvis_tool", "domino_list"),
+    JarvisCommand("lance_domino", "jarvis", "Lancer un domino pipeline specifique", [
+        "lance domino {nom}", "domino {nom}", "execute domino {nom}",
+        "demarre domino {nom}", "lance le domino {nom}",
+    ], "jarvis_tool", "domino_run:{nom}", ["nom"]),
+    JarvisCommand("statut_domino", "jarvis", "Voir le statut d'un domino en cours", [
+        "statut domino", "domino en cours", "quel domino tourne",
+        "domino actif", "progression domino",
+    ], "jarvis_tool", "domino_status"),
+    JarvisCommand("stats_dominos", "jarvis", "Statistiques des domino pipelines", [
+        "statistiques dominos", "stats dominos", "combien de dominos",
+        "performances dominos", "dominos stats",
+    ], "jarvis_tool", "domino_stats"),
+    JarvisCommand("stop_domino", "jarvis", "Arreter un domino en cours", [
+        "stop domino", "arrete le domino", "annule le domino",
+        "stoppe domino", "cancel domino",
+    ], "jarvis_tool", "domino_stop", confirm=True),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # MONITORING IA AVANCE (6 commandes) — batch 60
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("throughput_cluster", "jarvis", "Mesurer le debit du cluster", [
+        "throughput cluster", "debit du cluster", "vitesse du cluster",
+        "tokens par seconde", "tok par seconde", "performance cluster",
+    ], "jarvis_tool", "cluster_throughput"),
+    JarvisCommand("vram_status", "jarvis", "Utilisation VRAM de tous les GPU", [
+        "utilisation vram", "vram status", "etat de la vram",
+        "memoire gpu", "combien de vram", "vram disponible",
+    ], "jarvis_tool", "vram_status"),
+    JarvisCommand("modele_info", "jarvis", "Info detaillee sur un modele charge", [
+        "info modele {modele}", "quel modele {modele}", "details modele {modele}",
+        "info sur {modele}", "caracteristiques {modele}",
+    ], "jarvis_tool", "model_info:{modele}", ["modele"]),
+    JarvisCommand("fallback_chain", "jarvis", "Voir la chaine de fallback actuelle", [
+        "chaine de fallback", "fallback actuel", "quel fallback",
+        "ordre des agents", "routage actuel", "cascade fallback",
+    ], "jarvis_tool", "fallback_chain"),
+    JarvisCommand("latence_cluster", "jarvis", "Mesurer la latence de chaque noeud", [
+        "latence cluster", "ping cluster", "temps de reponse cluster",
+        "latence des noeuds", "ping les agents",
+    ], "jarvis_tool", "cluster_latency"),
+    JarvisCommand("charge_modele", "jarvis", "Charger/decharger un modele", [
+        "charge modele {modele}", "load {modele}", "charge {modele}",
+        "decharge {modele}", "unload {modele}", "swap modele {modele}",
+    ], "jarvis_tool", "model_swap:{modele}", ["modele"], confirm=True),
 ]
 
 # Post-processing: replace hardcoded paths with config-driven values
