@@ -327,7 +327,7 @@ class DominoExecutor:
             node = primary_node
 
             # Check if node online, fallback if not
-            if not check_node_online(node, timeout=2):
+            if not check_node_online(node, timeout=int(config.health_timeout)):
                 fallback = get_fallback_node(node)
                 logger.warning("[%d] %s — %s OFFLINE, fallback -> %s", idx + 1, step.name, node, fallback)
                 node = fallback

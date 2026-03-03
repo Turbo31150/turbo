@@ -49,13 +49,12 @@ class ResolvedChain:
 
 def _get_all_chains(db_path: str = DB_PATH) -> list[dict]:
     """Load all domino_chains from DB."""
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
-    rows = conn.execute(
-        "SELECT id, trigger_cmd, condition, next_cmd, delay_ms, auto, description "
-        "FROM domino_chains ORDER BY trigger_cmd, id"
-    ).fetchall()
-    conn.close()
+    with sqlite3.connect(db_path) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            "SELECT id, trigger_cmd, condition, next_cmd, delay_ms, auto, description "
+            "FROM domino_chains ORDER BY trigger_cmd, id"
+        ).fetchall()
     return [dict(r) for r in rows]
 
 
@@ -112,14 +111,13 @@ def resolve_chain(trigger: str, db_path: str = DB_PATH, max_depth: int = 20) -> 
 
 def list_all_triggers(db_path: str = DB_PATH) -> list[dict]:
     """List all unique triggers with chain info."""
-    conn = sqlite3.connect(db_path)
-    rows = conn.execute(
-        "SELECT trigger_cmd, COUNT(*) as chain_count, "
-        "GROUP_CONCAT(DISTINCT condition) as conditions, "
-        "SUM(CASE WHEN auto=1 THEN 1 ELSE 0 END) as auto_count "
-        "FROM domino_chains GROUP BY trigger_cmd ORDER BY trigger_cmd"
-    ).fetchall()
-    conn.close()
+    with sqlite3.connect(db_path) as conn:
+        rows = conn.execute(
+            "SELECT trigger_cmd, COUNT(*) as chain_count, "
+            "GROUP_CONCAT(DISTINCT condition) as conditions, "
+            "SUM(CASE WHEN auto=1 THEN 1 ELSE 0 END) as auto_count "
+            "FROM domino_chains GROUP BY trigger_cmd ORDER BY trigger_cmd"
+        ).fetchall()
     return [
         {"trigger": r[0], "chain_count": r[1], "conditions": r[2], "auto_count": r[3]}
         for r in rows
@@ -128,16 +126,15 @@ def list_all_triggers(db_path: str = DB_PATH) -> list[dict]:
 
 def search_chains(query: str, db_path: str = DB_PATH, limit: int = 20) -> list[dict]:
     """Search chains by trigger, next_cmd, or description."""
-    conn = sqlite3.connect(db_path)
-    q = f"%{query}%"
-    rows = conn.execute(
-        "SELECT id, trigger_cmd, condition, next_cmd, delay_ms, auto, description "
-        "FROM domino_chains "
-        "WHERE trigger_cmd LIKE ? OR next_cmd LIKE ? OR description LIKE ? "
-        "LIMIT ?",
-        (q, q, q, limit)
-    ).fetchall()
-    conn.close()
+    with sqlite3.connect(db_path) as conn:
+        q = f"%{query}%"
+        rows = conn.execute(
+            "SELECT id, trigger_cmd, condition, next_cmd, delay_ms, auto, description "
+            "FROM domino_chains "
+            "WHERE trigger_cmd LIKE ? OR next_cmd LIKE ? OR description LIKE ? "
+            "LIMIT ?",
+            (q, q, q, limit)
+        ).fetchall()
     return [
         {"id": r[0], "trigger_cmd": r[1], "condition": r[2], "next_cmd": r[3],
          "delay_ms": r[4], "auto": bool(r[5]), "description": r[6]}

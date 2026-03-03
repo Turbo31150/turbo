@@ -303,7 +303,7 @@ async def _check_ollama() -> dict[str, Any]:
     if not ol:
         return {"ok": False, "error": "OL1 non configure"}
     try:
-        async with httpx.AsyncClient(timeout=5) as c:
+        async with httpx.AsyncClient(timeout=config.connect_timeout) as c:
             r = await c.get(f"{ol.url}/api/tags")
             r.raise_for_status()
             models = [m["name"] for m in r.json().get("models", [])]
@@ -328,7 +328,7 @@ async def _check_m2() -> dict[str, Any]:
     if not m2:
         return {"ok": False, "error": "M2 non configure"}
     try:
-        async with httpx.AsyncClient(timeout=5) as c:
+        async with httpx.AsyncClient(timeout=config.connect_timeout) as c:
             r = await c.get(f"{m2.url}/api/v1/models", headers=m2.auth_headers)
             r.raise_for_status()
             models = [m["key"] for m in r.json().get("models", []) if m.get("loaded_instances")]
@@ -591,7 +591,7 @@ async def quick_health_check() -> dict[str, str]:
     # M1
     try:
         m1 = config.get_node("M1")
-        async with httpx.AsyncClient(timeout=3) as c:
+        async with httpx.AsyncClient(timeout=config.health_timeout) as c:
             r = await c.get(f"{config.get_node_url('M1')}/api/v1/models", headers=m1.auth_headers if m1 else {})
             r.raise_for_status()
             models = [m["key"] for m in r.json().get("models", []) if m.get("loaded_instances")]
@@ -603,7 +603,7 @@ async def quick_health_check() -> dict[str, str]:
     # M2
     try:
         m2 = config.get_node("M2")
-        async with httpx.AsyncClient(timeout=3) as c:
+        async with httpx.AsyncClient(timeout=config.health_timeout) as c:
             r = await c.get(f"{config.get_node_url('M2')}/api/v1/models", headers=m2.auth_headers if m2 else {})
             r.raise_for_status()
             status["m2"] = "OK"
@@ -614,7 +614,7 @@ async def quick_health_check() -> dict[str, str]:
     try:
         ol = config.get_ollama_node("OL1")
         if ol:
-            async with httpx.AsyncClient(timeout=3) as c:
+            async with httpx.AsyncClient(timeout=config.health_timeout) as c:
                 r = await c.get(f"{ol.url}/api/tags")
                 r.raise_for_status()
                 status["ollama"] = "OK"

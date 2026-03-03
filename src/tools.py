@@ -1425,20 +1425,18 @@ async def sql_query_tool(args: dict[str, Any]) -> dict[str, Any]:
         params = args.get("params") or []
         if _SQL_FORBIDDEN.search(query):
             return _error("Forbidden SQL operation (DROP/ALTER/TRUNCATE not allowed)")
-        conn = sqlite3.connect(db_path)
-        conn.row_factory = sqlite3.Row
-        cur = conn.execute(query, params)
-        upper = query.upper().lstrip()
-        if upper.startswith("SELECT") or upper.startswith("PRAGMA"):
-            rows = cur.fetchall()
-            result = [dict(r) for r in rows]
-            conn.close()
-            return _text(json.dumps(result, ensure_ascii=False, indent=2, default=str) if result else "No results")
-        else:
-            affected = cur.rowcount
-            conn.commit()
-            conn.close()
-            return _text(f"OK — {affected} row(s) affected")
+        with sqlite3.connect(db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            cur = conn.execute(query, params)
+            upper = query.upper().lstrip()
+            if upper.startswith("SELECT") or upper.startswith("PRAGMA"):
+                rows = cur.fetchall()
+                result = [dict(r) for r in rows]
+                return _text(json.dumps(result, ensure_ascii=False, indent=2, default=str) if result else "No results")
+            else:
+                affected = cur.rowcount
+                conn.commit()
+                return _text(f"OK — {affected} row(s) affected")
     except (sqlite3.Error, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
         return _error(f"SQL error: {e}")
 
@@ -1448,9 +1446,8 @@ async def sql_query_tool(args: dict[str, Any]) -> dict[str, Any]:
 async def sql_list_tables_tool(args: dict[str, Any]) -> dict[str, Any]:
     try:
         db_path = _resolve_db(args["database"])
-        conn = sqlite3.connect(db_path)
-        tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()]
-        conn.close()
+        with sqlite3.connect(db_path) as conn:
+            tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()]
         return _text(f"Tables in {args['database']}: {', '.join(tables)}" if tables else "No tables found")
     except (sqlite3.Error, OSError, ValueError) as e:
         return _error(f"Error: {e}")
@@ -1461,9 +1458,8 @@ async def sql_list_tables_tool(args: dict[str, Any]) -> dict[str, Any]:
 async def sql_schema_tool(args: dict[str, Any]) -> dict[str, Any]:
     try:
         db_path = _resolve_db(args["database"])
-        conn = sqlite3.connect(db_path)
-        row = conn.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name=?", (args["table"],)).fetchone()
-        conn.close()
+        with sqlite3.connect(db_path) as conn:
+            row = conn.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name=?", (args["table"],)).fetchone()
         if row:
             return _text(row[0])
         return _error(f"Table '{args['table']}' not found in {args['database']}")
@@ -1509,6 +1505,7 @@ async def dict_crud_tool(args: dict[str, Any]) -> dict[str, Any]:
     if not _Path(db_path).exists():
         return _error(f"Database not found: {db_path}")
 
+    conn = None
     try:
         conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row
@@ -1523,7 +1520,6 @@ async def dict_crud_tool(args: dict[str, Any]) -> dict[str, Any]:
                     "SELECT category, COUNT(*) as cnt FROM pipeline_dictionary GROUP BY category ORDER BY cnt DESC"
                 ).fetchall()
                 counts["categories"] = {r["category"]: r["cnt"] for r in cats}
-            conn.close()
             return _text(json.dumps(counts, ensure_ascii=False, indent=2))
 
         if operation == "search":
@@ -1547,7 +1543,6 @@ async def dict_crud_tool(args: dict[str, Any]) -> dict[str, Any]:
                     (f"%{query}%", f"%{query}%", limit)
                 ).fetchall()
             result = [dict(r) for r in rows]
-            conn.close()
             return _text(json.dumps(result, ensure_ascii=False, indent=2, default=str) if result else "No results")
 
         if operation == "add":
@@ -1557,15 +1552,12 @@ async def dict_crud_tool(args: dict[str, Any]) -> dict[str, Any]:
                 category = data.get("category", "custom").lower()
                 action_type = data.get("action_type", "pipeline").lower()
                 if category not in _DICT_VALID_CATEGORIES:
-                    conn.close()
                     return _error(f"Invalid category: {category}")
                 if action_type not in _DICT_VALID_ACTION_TYPES:
-                    conn.close()
                     return _error(f"Invalid action_type: {action_type}")
                 # Check uniqueness
                 existing = conn.execute("SELECT id FROM pipeline_dictionary WHERE trigger_phrase = ?", (trigger,)).fetchone()
                 if existing:
-                    conn.close()
                     return _error(f"Trigger '{trigger}' already exists (id={existing['id']})")
                 pipeline_id = name.lower().replace(" ", "_") if name else trigger.lower().replace(" ", "_")
                 conn.execute(
@@ -1576,14 +1568,12 @@ async def dict_crud_tool(args: dict[str, Any]) -> dict[str, Any]:
                 )
                 conn.commit()
                 new_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
-                conn.close()
                 return _text(f"OK — Added to pipeline_dictionary: id={new_id}, trigger='{trigger}', category={category}")
 
             elif table == "domino_chains":
                 trigger_cmd = data.get("trigger_cmd", "").strip()
                 next_cmd = data.get("next_cmd", "").strip()
                 if not trigger_cmd or not next_cmd:
-                    conn.close()
                     return _error("trigger_cmd and next_cmd are required")
                 conn.execute(
                     "INSERT INTO domino_chains (trigger_cmd, condition, next_cmd, delay_ms, auto, description) VALUES (?, ?, ?, ?, ?, ?)",
@@ -1593,21 +1583,18 @@ async def dict_crud_tool(args: dict[str, Any]) -> dict[str, Any]:
                 )
                 conn.commit()
                 new_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
-                conn.close()
                 return _text(f"OK — Added to domino_chains: id={new_id}, {trigger_cmd} -> {next_cmd}")
 
             else:  # voice_corrections
                 wrong = data.get("wrong", "").strip()
                 correct = data.get("correct", "").strip()
                 if not wrong or not correct:
-                    conn.close()
                     return _error("wrong and correct are required")
                 existing = conn.execute("SELECT id FROM voice_corrections WHERE wrong = ?", (wrong,)).fetchone()
                 if existing:
                     conn.execute("UPDATE voice_corrections SET correct = ?, category = ? WHERE id = ?",
                                  (correct, data.get("category", "general"), existing["id"]))
                     conn.commit()
-                    conn.close()
                     return _text(f"OK — Updated voice_corrections: id={existing['id']}, '{wrong}' -> '{correct}'")
                 conn.execute(
                     "INSERT INTO voice_corrections (wrong, correct, category, hit_count) VALUES (?, ?, ?, 0)",
@@ -1615,28 +1602,23 @@ async def dict_crud_tool(args: dict[str, Any]) -> dict[str, Any]:
                 )
                 conn.commit()
                 new_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
-                conn.close()
                 return _text(f"OK — Added to voice_corrections: id={new_id}, '{wrong}' -> '{correct}'")
 
         if operation == "edit":
             record_id = data.get("id")
             fields = data.get("fields", {})
             if not record_id:
-                conn.close()
                 return _error("data.id is required for edit")
             if not fields:
-                conn.close()
                 return _error("data.fields dict is required")
             bad_cols = [k for k in fields if not _SAFE_COL_RE.match(k)]
             if bad_cols:
-                conn.close()
                 return _error(f"Invalid column name(s): {bad_cols}")
             set_parts = [f"{k} = ?" for k in fields]
             values = list(fields.values()) + [int(record_id)]
             cursor = conn.execute(f"UPDATE [{table}] SET {', '.join(set_parts)} WHERE id = ?", values)
             conn.commit()
             affected = cursor.rowcount
-            conn.close()
             if affected == 0:
                 return _error(f"No record with id={record_id} in {table}")
             return _text(f"OK — Updated {table}: id={record_id}, {affected} row(s)")
@@ -1644,20 +1626,20 @@ async def dict_crud_tool(args: dict[str, Any]) -> dict[str, Any]:
         if operation == "delete":
             record_id = data.get("id")
             if not record_id:
-                conn.close()
                 return _error("data.id is required for delete")
             cursor = conn.execute(f"DELETE FROM [{table}] WHERE id = ?", (int(record_id),))
             conn.commit()
             affected = cursor.rowcount
-            conn.close()
             if affected == 0:
                 return _error(f"No record with id={record_id} in {table}")
             return _text(f"OK — Deleted from {table}: id={record_id}")
 
-        conn.close()
         return _error(f"Unknown operation: {operation}. Valid: add, edit, delete, search, stats")
     except (sqlite3.Error, OSError, KeyError, ValueError, json.JSONDecodeError, TypeError) as e:
         return _error(f"dict_crud error: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 
 # ═══════════════════════════════════════════════════════════════════════════
