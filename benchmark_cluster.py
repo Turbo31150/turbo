@@ -149,7 +149,7 @@ async def phase_health() -> PhaseResult:
                 "utilization_pct": round(used_vram / max(total_vram, 1) * 100),
             }
             _print(f"  GPU: {len(gpus)} detectes, {used_vram}MB / {total_vram}MB VRAM")
-    except Exception:
+    except (OSError, ValueError, KeyError, TypeError):
         pass
 
     result.score = online / max(total, 1)
@@ -412,7 +412,7 @@ async def phase_bridge() -> PhaseResult:
                     async with httpx.AsyncClient(timeout=3) as c:
                         r = await c.get(f"{node.url}/api/v1/models", headers=_lm_headers(node))
                         reachable = r.status_code == 200
-        except Exception:
+        except (httpx.HTTPError, OSError, ConnectionError):
             pass
 
         test["first_node_reachable"] = reachable

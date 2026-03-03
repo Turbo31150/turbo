@@ -96,7 +96,7 @@ def check_lms_server() -> bool:
     try:
         response = requests.get(f"{LMS_SERVER_URL}/api/v1/models", timeout=5)
         return response.status_code == 200
-    except Exception:
+    except (requests.RequestException, OSError):
         return False
 
 

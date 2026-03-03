@@ -170,7 +170,7 @@ def convert_to_gguf(merged_path: Path, quant_type: str = "Q4_K_M") -> Path:
             print(f"       Pour quantifier manuellement:")
             print(f"       cd {llama_dir} && cmake -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release")
             print(f"       .\\build\\bin\\llama-quantize {gguf_bf16} {gguf_quant} {quant_type}")
-        except Exception:
+        except (subprocess.SubprocessError, OSError):
             pass
         return gguf_bf16
 

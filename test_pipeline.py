@@ -67,7 +67,7 @@ async def test_pipeline():
                 r.raise_for_status()
                 cnt = len(r.json().get("models", []))
                 print(f"  {name}: ONLINE ({cnt} modeles)")
-            except Exception:
+            except (httpx.HTTPError, OSError):
                 print(f"  {name}: OFFLINE")
         if ol:
             try:
@@ -75,7 +75,7 @@ async def test_pipeline():
                 r.raise_for_status()
                 models = [m["name"] for m in r.json().get("models", [])]
                 print(f"  OL1: ONLINE ({len(models)} modeles: {', '.join(models[:5])})")
-            except Exception:
+            except (httpx.HTTPError, OSError):
                 print(f"  OL1: OFFLINE")
 
     # Run pipeline on each phrase

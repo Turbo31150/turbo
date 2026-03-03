@@ -286,7 +286,7 @@ def _patched_params4bit_new(cls, data=None, requires_grad=True, **kwargs):
         file_size = None
         try:
             file_size = round(Path(full_path).stat().st_size / (1024 * 1024), 2)
-        except Exception:
+        except OSError:
             pass
         conn.execute(
             "INSERT INTO datasets (run_id, dataset_type, file_path, num_examples, file_size_mb, jarvis_pct, generic_pct, created_at) "

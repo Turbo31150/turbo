@@ -17,6 +17,7 @@ from __future__ import annotations
 import asyncio
 import io
 import os
+import sqlite3
 import sys
 import time
 
@@ -96,7 +97,7 @@ def save_correction(wrong: str, correct: str, category: str = "training") -> Non
         )
         conn.commit()
         conn.close()
-    except Exception as e:
+    except (sqlite3.Error, OSError) as e:
         print(f"  [DB ERROR] {e}")
 
 
@@ -201,7 +202,7 @@ async def train_interactive() -> None:
                 if ia_clean["corrected"] and ia_clean["corrected"] != feedback.lower().strip():
                     clean_feedback = ia_clean["corrected"]
                     print(f"  [IA auto-clean] '{feedback}' → '{clean_feedback}'")
-            except Exception:
+            except (OSError, ValueError, KeyError, TypeError):
                 pass
             stats["corrected"] += 1
             save_correction(raw, clean_feedback)
