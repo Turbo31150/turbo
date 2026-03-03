@@ -445,6 +445,29 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "nouveau": "initialise un projet python",
     "auto push": "pousse le code",
     "auto save": "sauvegarde la session",
+    # Vague 24 — Info / Contexte rapide
+    "heure": "quelle heure est-il",
+    "date": "quelle date",
+    "meteo": "dis moi la meteo",
+    "uptime": "depuis quand le pc tourne",
+    "todo": "liste la todo",
+    "taches": "liste la todo",
+    "rappel": "rappelle moi de",
+    "positions": "mes positions",
+    "pnl": "pnl du jour",
+    "alertes": "configure les alertes",
+    "profit": "pnl du jour",
+    "gains": "pnl du jour",
+    "pertes": "pnl du jour",
+    # Vague 25 — Modes rapides
+    "stream": "mode stream",
+    "game": "mode gaming",
+    "gaming": "mode gaming",
+    "meeting": "mode reunion",
+    "reunion": "mode reunion",
+    "visio": "mode reunion",
+    "presentation": "mode presentation",
+    "diapo": "mode presentation",
 }
 
 
@@ -989,6 +1012,7 @@ async def full_correction_pipeline(
         result["confidence"] = early_score
         result["intent"] = early_intent
         result["method"] = "local_fast"
+        _cache_match_result(raw_text, result)
         return result
 
     # Also check implicit commands with high confidence
@@ -1001,6 +1025,7 @@ async def full_correction_pipeline(
             result["confidence"] = max(impl_score, 0.95)
             result["intent"] = impl_intent
             result["method"] = "implicit_fast"
+            _cache_match_result(raw_text, result)
             return result
 
     # Step 4: IA correction EARLY — let LM Studio fix transcription errors FIRST
@@ -1027,6 +1052,7 @@ async def full_correction_pipeline(
         result["params"] = params
         result["confidence"] = score
         result["method"] = "ia_direct" if ia_corrected else "direct"
+        _cache_match_result(raw_text, result)
         return result
 
     # Step 7: Try phonetic matching
@@ -1045,6 +1071,7 @@ async def full_correction_pipeline(
         result["params"] = {}
         result["confidence"] = best_phon_score
         result["method"] = "phonetic"
+        _cache_match_result(raw_text, result)
         return result
 
     # Step 8: If IA corrected but still no match, try matching the IA intent directly
@@ -1057,6 +1084,7 @@ async def full_correction_pipeline(
                 result["params"] = params3
                 result["confidence"] = score3
                 result["method"] = "ia_rematch"
+                _cache_match_result(raw_text, result)
                 return result
 
     # Step 9: Get suggestions
@@ -1068,6 +1096,7 @@ async def full_correction_pipeline(
         result["command"] = top_cmd
         result["confidence"] = top_score
         result["method"] = "suggestion"
+        _cache_match_result(raw_text, result)
         return result
 
     # Step 10: Try domino pipeline matching (cascades vocales)
