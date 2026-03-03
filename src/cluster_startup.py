@@ -232,16 +232,17 @@ def _get_gpu_stats() -> list[dict[str, Any]]:
         for line in r.stdout.strip().splitlines():
             parts = [p.strip() for p in line.split(",")]
             if len(parts) >= 6:
-                temp = int(parts[5]) if parts[5].isdigit() else -1
+                _di = lambda s: int(s) if s.isdigit() else 0  # noqa: E731
+                idx, vused, vtot, util, temp = _di(parts[0]), _di(parts[2]), _di(parts[3]), _di(parts[4]), _di(parts[5])
                 gpus.append({
-                    "index": int(parts[0]),
+                    "index": idx,
                     "name": parts[1],
-                    "vram_used_mb": int(parts[2]),
-                    "vram_total_mb": int(parts[3]),
-                    "gpu_util": int(parts[4]),
-                    "temp_c": temp,
-                    "vram_free_mb": int(parts[3]) - int(parts[2]),
-                    "vram_pct": round(int(parts[2]) / max(int(parts[3]), 1) * 100, 1),
+                    "vram_used_mb": vused,
+                    "vram_total_mb": vtot,
+                    "gpu_util": util,
+                    "temp_c": temp if parts[5].isdigit() else -1,
+                    "vram_free_mb": vtot - vused,
+                    "vram_pct": round(vused / max(vtot, 1) * 100, 1),
                 })
         return gpus
     except (subprocess.SubprocessError, OSError, ValueError):

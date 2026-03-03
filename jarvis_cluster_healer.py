@@ -48,7 +48,7 @@ def health_check(node_id):
         if cfg["type"] == "ollama":
             return len(data.get("models", [])) > 0
         return True
-    except Exception:
+    except (urllib.error.URLError, OSError, json.JSONDecodeError):
         return False
 
 def mini_benchmark(node_id):
@@ -90,7 +90,7 @@ def mini_benchmark(node_id):
             text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL).strip().lower()
             if check in text:
                 passed += 1
-        except Exception:
+        except (urllib.error.URLError, OSError, json.JSONDecodeError, KeyError):
             pass
     return passed / len(tests)
 
@@ -116,7 +116,7 @@ def reload_model(node_id):
         with urllib.request.urlopen(req, timeout=180) as resp:
             result = json.loads(resp.read())
         return result.get("status") == "loaded"
-    except Exception as e:
+    except (urllib.error.URLError, OSError, json.JSONDecodeError) as e:
         log(f"  Reload {node_id} failed: {e}")
         return False
 
@@ -187,7 +187,7 @@ def get_m1_models():
             if m.get("loaded_instances"):
                 models.append(m.get("id", m.get("model", "")))
         return sorted(models)
-    except Exception:
+    except (urllib.error.URLError, OSError, json.JSONDecodeError):
         return []
 
 def should_run_arena():
@@ -242,7 +242,7 @@ def run_arena(reason):
             log(f"[ARENA] Failed (exit {result.returncode}): {result.stderr.strip()[-200:]}")
     except subprocess.TimeoutExpired:
         log("[ARENA] Timeout after 30min")
-    except Exception as e:
+    except (subprocess.SubprocessError, OSError) as e:
         log(f"[ARENA] Error: {e}")
 
 def run_daemon():

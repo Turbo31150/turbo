@@ -240,7 +240,11 @@ if __name__ == "__main__":
     elif cmd == "log_json":
         log_json(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6])
     elif cmd == "adaptive_route":
-        get_adaptive_route(sys.argv[2], int(sys.argv[3]) if len(sys.argv) > 3 else 3)
+        try:
+            top_n = int(sys.argv[3]) if len(sys.argv) > 3 else 3
+        except (ValueError, TypeError):
+            top_n = 3
+        get_adaptive_route(sys.argv[2], top_n)
     elif cmd == "log_consensus":
         log_consensus(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], float(sys.argv[6]),
                       sys.argv[7] if len(sys.argv) > 7 else "")
