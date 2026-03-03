@@ -193,7 +193,7 @@ async def call_model(client: httpx.AsyncClient, name: str, cfg: dict, prompt: st
                 content = choices[0].get("message", {}).get("content", "")
             latency = round(time.time() - t0, 2)
             return {"model": name, "content": content, "latency": latency, "ok": bool(content)}
-        except Exception as e:
+        except (httpx.HTTPError, OSError, KeyError) as e:
             return {"model": name, "content": str(e)[:200], "latency": round(time.time() - t0, 2), "ok": False}
 
 # ── SCORING ─────────────────────────────────────────────────

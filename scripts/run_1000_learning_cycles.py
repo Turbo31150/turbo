@@ -4,7 +4,7 @@ Chaque cycle genere des paires training (input vocal -> output domino)
 en utilisant M1/M2/M3/OL1 en parallele. Les resultats sont valides,
 dedupliques et ajoutes au dataset JSONL.
 """
-import sys, os, json, time, random, urllib.request
+import sys, os, json, time, random, urllib.request, urllib.error
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
@@ -186,7 +186,7 @@ def run_cycle(cycle_id: int) -> list[dict]:
         raw = query_node(node, prompt)
         pairs = parse_training_pairs(raw)
         return pairs
-    except Exception as e:
+    except (urllib.error.URLError, OSError, json.JSONDecodeError) as e:
         return []
 
 
@@ -266,7 +266,7 @@ def main():
                                 total_valid += 1
                             else:
                                 total_dupes += 1
-                    except Exception as e:
+                    except (urllib.error.URLError, OSError, json.JSONDecodeError) as e:
                         node_stats[node]["fail"] += 1
                         total_errors += 1
 

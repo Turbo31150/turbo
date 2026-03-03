@@ -258,7 +258,7 @@ async def call_node(node_name: str, prompt: str, client: httpx.AsyncClient) -> s
     except httpx.ConnectError:
         print(f"  ✗ {node_name} OFFLINE (connexion refusee)")
         return None
-    except Exception as e:
+    except (httpx.HTTPError, OSError) as e:
         print(f"  ✗ {node_name} erreur: {type(e).__name__}: {e}")
         return None
 
@@ -288,7 +288,7 @@ async def health_check(client: httpx.AsyncClient) -> dict[str, bool]:
                 models = resp.json().get("models", [])
                 status[name] = len(models) > 0
                 print(f"  ✓ {name} OK — {len(models)} modele(s) disponibles")
-        except Exception as e:
+        except (httpx.HTTPError, OSError) as e:
             status[name] = False
             print(f"  ✗ {name} OFFLINE — {type(e).__name__}")
     return status

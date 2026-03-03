@@ -86,7 +86,7 @@ async def test_one(client, model, url, api_type, prompt_data):
         missed = [k.replace("has_","") for k,p in prompt_data["checks"].items() if not re.search(p, content, re.I|re.DOTALL)]
         return {"model": model, "ok": True, "time": round(elapsed,1), "quality": round(passed/total*100),
                 "passed": passed, "total": total, "tokens": int(tokens), "tps": tps, "content_len": len(content), "missed": missed}
-    except Exception as e:
+    except (httpx.HTTPError, OSError, KeyError) as e:
         return {"model": model, "ok": False, "time": round(time.perf_counter()-t0,1), "quality": 0, "reason": str(e)[:60]}
 
 async def main():

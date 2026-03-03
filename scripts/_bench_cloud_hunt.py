@@ -78,7 +78,7 @@ async def test_model(client, model):
             "missed": missed, "tokens": int(tokens), "tps": tps,
             "content_len": len(content),
         }
-    except Exception as e:
+    except (httpx.HTTPError, OSError, KeyError) as e:
         elapsed = time.perf_counter() - t0
         return {"model": model, "ok": False, "time": round(elapsed, 1), "reason": str(e)[:60], "quality": 0}
 
