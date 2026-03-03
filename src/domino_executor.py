@@ -349,6 +349,66 @@ def _sqlite3_vacuum(db_name: str) -> str:
     return f"{db_name}: VACUUM OK ({saved} bytes saved)"
 
 
+@register_python_action("sqlite3_vacuum_if_needed")
+def _sqlite3_vacuum_if(db_name: str, max_mb: str = "50") -> str:
+    """VACUUM only if DB exceeds size threshold."""
+    import os
+    db_path = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "data", db_name))
+    if not os.path.exists(db_path):
+        return f"DB not found: {db_name}"
+    size_mb = os.path.getsize(db_path) / (1024 * 1024)
+    threshold = float(max_mb)
+    if size_mb < threshold:
+        return f"{db_name}: {size_mb:.1f} MB < {threshold} MB — skip VACUUM"
+    return _sqlite3_vacuum(db_name)
+
+
+@register_python_action("start_pomodoro")
+def _start_pomodoro(minutes: str = "25") -> str:
+    """Start a pomodoro timer (non-blocking)."""
+    mins = int(minutes)
+    logger.info("[POMODORO] Timer started: %d minutes", mins)
+    return f"Pomodoro: {mins} minutes started"
+
+
+@register_python_action("check_last_backup_date")
+def _check_backup() -> str:
+    """Check the last backup date from data directory."""
+    import os
+    import glob
+    data_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "data"))
+    backups = sorted(glob.glob(os.path.join(data_dir, "backup_*")), reverse=True)
+    if backups:
+        last = os.path.basename(backups[0])
+        mtime = time.strftime("%Y-%m-%d %H:%M", time.localtime(os.path.getmtime(backups[0])))
+        return f"Last backup: {last} ({mtime})"
+    return "No backups found in data/"
+
+
+@register_python_action("check_portfolio_balance")
+def _portfolio_balance() -> str:
+    """Check trading portfolio balance (stub)."""
+    return "[PORTFOLIO] Balance check — requires MEXC API connection"
+
+
+@register_python_action("fetch_current_pnl")
+def _fetch_pnl() -> str:
+    """Fetch current PnL (stub)."""
+    return "[PNL] Current PnL check — requires MEXC API connection"
+
+
+@register_python_action("fetch_today_pnl")
+def _fetch_today_pnl() -> str:
+    """Fetch today's PnL (stub)."""
+    return "[PNL] Today's PnL — requires MEXC API connection"
+
+
+@register_python_action("weighted_consensus_vote")
+def _consensus_vote() -> str:
+    """Run weighted consensus vote across cluster (stub)."""
+    return "[CONSENSUS] Vote requires active cluster nodes — use MAO consensus"
+
+
 def execute_python(action: str, timeout: int = 30) -> str:
     """Execute a registered Python action or return description for unknown ones."""
     func_str = action.replace("python:", "", 1) if action.startswith("python:") else action
