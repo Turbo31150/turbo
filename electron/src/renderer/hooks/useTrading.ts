@@ -134,7 +134,10 @@ export function useTrading() {
       if (!mountedRef.current) return;
       setState(prev => ({
         ...prev,
-        signals: response.payload?.signals || [],
+        signals: (response.payload?.signals || []).map((s: TradingSignal) => ({
+          ...s,
+          direction: (s.direction || '').toLowerCase() as 'long' | 'short',
+        })),
       }));
     } catch (err) {
       if (!mountedRef.current) return;
@@ -177,6 +180,7 @@ export function useTrading() {
       if (!mountedRef.current) return;
       setState(prev => ({
         ...prev,
+        error: null,
         signals: prev.signals.map(s =>
           s.id === signalId ? { ...s, status: 'executed' as const } : s
         ),
@@ -198,6 +202,7 @@ export function useTrading() {
       if (!mountedRef.current) return;
       setState(prev => ({
         ...prev,
+        error: null,
         positions: prev.positions.map(p =>
           p.id === positionId ? { ...p, status: 'closed' as const } : p
         ),

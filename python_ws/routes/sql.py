@@ -37,7 +37,7 @@ _DB_ALIASES: dict[str, Path] = {
 }
 
 _SQL_ALLOWED = re.compile(r"^\s*(SELECT|PRAGMA\s+table_info)\b", re.IGNORECASE)
-_SQL_DANGEROUS = re.compile(r"\b(DROP|CREATE|ALTER|ATTACH|DETACH|REINDEX|VACUUM|INSERT|UPDATE|DELETE|WITH)\b", re.IGNORECASE)
+_SQL_DANGEROUS = re.compile(r"\b(DROP|CREATE|ALTER|ATTACH|DETACH|REINDEX|VACUUM|INSERT|UPDATE|DELETE)\b", re.IGNORECASE)
 _SQL_BLOCKED_TABLES = re.compile(r"\bsqlite_(master|temp_master|sequence)\b", re.IGNORECASE)
 _SQL_QUERY_TIMEOUT = 10  # seconds
 _TABLE_NAME = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
@@ -61,7 +61,7 @@ class SqlQueryRequest(BaseModel):
 
 def _exec_query(db_path: str, query: str, params: list) -> dict[str, Any]:
     """Execute read-only SQL query synchronously (run via asyncio.to_thread)."""
-    with sqlite3.connect(db_path) as conn:
+    with sqlite3.connect(f"file:{db_path}?mode=ro", uri=True) as conn:
         conn.row_factory = sqlite3.Row
         cur = conn.execute(query, params)
         rows = [dict(r) for r in cur.fetchmany(1000)]

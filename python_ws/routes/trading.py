@@ -25,9 +25,6 @@ else:
     logger.warning("Trading DB config missing, fallback: %s", _TRADING_DB)
 
 
-# In-memory state (populated from real data when available)
-_signals: list[dict] = []
-_positions: list[dict] = []
 
 
 async def handle_trading_request(action: str, payload: dict) -> dict:
@@ -41,7 +38,7 @@ async def handle_trading_request(action: str, payload: dict) -> dict:
     elif action == "close_position":
         return await _close_position(payload)
     elif action == "pnl_summary":
-        return _get_pnl_summary()
+        return await _get_pnl_summary()
     return {"error": f"Unknown trading action: {action}"}
 
 
@@ -89,8 +86,25 @@ async def _get_positions() -> dict:
 async def _execute_signal(payload: dict) -> dict:
     """Execute a trading signal (dry-run safe)."""
     signal_id = payload.get("signal_id")
-    if not signal_id:
-        return {"error": "Missing signal_id"}
+    if not signal_id or not isinstance(signal_id, str):
+        return {"error": "Missing or invalid signal_id"}
+
+    # Verify signal exists and is pending
+    def _check():
+        try:
+            with sqlite3.connect(_TRADING_DB) as conn:
+                row = conn.execute(
+                    "SELECT status FROM signals WHERE id = ?", (signal_id,)
+                ).fetchone()
+                return row
+        except (sqlite3.Error, OSError):
+            return None
+
+    row = await asyncio.to_thread(_check)
+    if row is None:
+        logger.debug("Signal %s not found in DB — proceeding anyway", signal_id)
+    elif row[0] != "pending":
+        return {"error": f"Signal {signal_id} is already '{row[0]}'", "signal_id": signal_id}
 
     dry_run = True
     if jarvis_config:
@@ -107,18 +121,38 @@ async def _execute_signal(payload: dict) -> dict:
 async def _close_position(payload: dict) -> dict:
     """Close an open position."""
     position_id = payload.get("position_id")
-    if not position_id:
-        return {"error": "Missing position_id"}
+    if not position_id or not isinstance(position_id, str):
+        return {"error": "Missing or invalid position_id"}
+
+    # Verify position exists and is open
+    def _check():
+        try:
+            with sqlite3.connect(_TRADING_DB) as conn:
+                row = conn.execute(
+                    "SELECT status FROM positions WHERE id = ?", (position_id,)
+                ).fetchone()
+                return row
+        except (sqlite3.Error, OSError):
+            return None
+
+    row = await asyncio.to_thread(_check)
+    if row is not None and row[0] != "open":
+        return {"error": f"Position {position_id} is already '{row[0]}'", "position_id": position_id}
+
     return {"closed": True, "position_id": position_id, "message": "Position fermee"}
 
 
-def _get_pnl_summary() -> dict:
-    """Get PnL summary."""
-    total_pnl = sum(p.get("pnl", 0) for p in _positions)
+async def _get_pnl_summary() -> dict:
+    """Get PnL summary from DB (not empty module vars)."""
+    positions_data = await _get_positions()
+    positions = positions_data.get("positions", [])
+    total_pnl = sum(p.get("pnl", 0) for p in positions)
+    signals_data = await _get_signals()
+    signals = signals_data.get("signals", [])
     return {
         "total_pnl": total_pnl,
-        "open_positions": len(_positions),
-        "pending_signals": len(_signals),
+        "open_positions": len(positions),
+        "pending_signals": len(signals),
     }
 
 

@@ -248,11 +248,11 @@ export default memo(function MessageBubble({ message }: MessageBubbleProps) {
         )}
 
         {message.isConsensus ? (
-          <ConsensusRenderer content={message.content} />
-        ) : message.content.includes('**SCAN SNIPER**') ? (
-          <SniperRenderer content={message.content} />
+          <ConsensusRenderer content={message.content ?? ''} />
+        ) : (message.content ?? '').includes('**SCAN SNIPER**') ? (
+          <SniperRenderer content={message.content ?? ''} />
         ) : (
-          <div style={S.content}>{message.content}</div>
+          <div style={S.content}>{message.content ?? ''}</div>
         )}
 
         {hasToolCalls && (
