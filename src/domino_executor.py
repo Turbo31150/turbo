@@ -283,10 +283,92 @@ def execute_curl(action: str, timeout: int = 20) -> str:
         return f"ERROR: {e}"
 
 
+_PYTHON_REGISTRY: dict[str, callable] = {}
+
+
+def register_python_action(name: str):
+    """Decorator to register a Python action for domino execution."""
+    def decorator(func):
+        _PYTHON_REGISTRY[name] = func
+        return func
+    return decorator
+
+
+@register_python_action("edge_tts_speak")
+def _tts_speak(text: str) -> str:
+    """TTS speak via edge-tts (stub — logs to console)."""
+    logger.info("[TTS] %s", text)
+    return f"TTS: {text}"
+
+
+@register_python_action("sqlite3_integrity_check")
+def _sqlite3_integrity(db_name: str) -> str:
+    """Check SQLite integrity."""
+    import os
+    db_path = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "data", db_name))
+    if not os.path.exists(db_path):
+        return f"DB not found: {db_name}"
+    import sqlite3 as _sql
+    with _sql.connect(db_path, timeout=10) as conn:
+        result = conn.execute("PRAGMA integrity_check").fetchone()
+    return f"{db_name}: {result[0]}"
+
+
+@register_python_action("sqlite3_table_counts")
+def _sqlite3_counts(db_name: str) -> str:
+    """Count rows in all tables of a SQLite database."""
+    import os
+    db_path = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "data", db_name))
+    if not os.path.exists(db_path):
+        return f"DB not found: {db_name}"
+    import sqlite3 as _sql
+    with _sql.connect(db_path, timeout=10) as conn:
+        tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()]
+        counts = {}
+        for t in tables:
+            if not t.isidentifier():
+                continue
+            cnt = conn.execute(f"SELECT COUNT(*) FROM [{t}]").fetchone()[0]  # noqa: S608 — table name validated
+            counts[t] = cnt
+    return "; ".join(f"{t}: {c}" for t, c in sorted(counts.items()))
+
+
+@register_python_action("sqlite3_vacuum")
+def _sqlite3_vacuum(db_name: str) -> str:
+    """VACUUM a SQLite database."""
+    import os
+    db_path = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "data", db_name))
+    if not os.path.exists(db_path):
+        return f"DB not found: {db_name}"
+    import sqlite3 as _sql
+    size_before = os.path.getsize(db_path)
+    with _sql.connect(db_path, timeout=30) as conn:
+        conn.execute("VACUUM")
+    size_after = os.path.getsize(db_path)
+    saved = size_before - size_after
+    return f"{db_name}: VACUUM OK ({saved} bytes saved)"
+
+
 def execute_python(action: str, timeout: int = 30) -> str:
-    """Execute une action Python (stub — retourne description)."""
-    func = action.replace("python:", "", 1) if action.startswith("python:") else action
-    return f"[PYTHON] {func}"
+    """Execute a registered Python action or return description for unknown ones."""
+    func_str = action.replace("python:", "", 1) if action.startswith("python:") else action
+    func_str = func_str.strip()
+
+    # Parse function call: "func_name('arg1', 'arg2')" or "func_name(arg1)"
+    match = re.match(r"(\w+)\(([^)]*)\)", func_str)
+    if match:
+        func_name = match.group(1)
+        args_str = match.group(2).strip()
+        # Parse arguments (simple string extraction)
+        args = [a.strip().strip("'\"") for a in args_str.split(",") if a.strip()] if args_str else []
+
+        if func_name in _PYTHON_REGISTRY:
+            try:
+                return _PYTHON_REGISTRY[func_name](*args)
+            except (TypeError, ValueError, OSError) as e:
+                return f"ERROR: {func_name}: {e}"
+
+    return f"[PYTHON:UNREGISTERED] {func_str}"
 
 
 def execute_bash(command: str, timeout: int = 30) -> str:
