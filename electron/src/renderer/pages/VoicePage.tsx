@@ -162,8 +162,12 @@ export default function VoicePage() {
             {recording && <div style={S.ring} />}
             {recording && <div style={{ ...S.ring, animationDelay: '.5s' }} />}
             <div
+              role="button"
+              tabIndex={0}
+              aria-label={recording ? 'Arreter enregistrement' : 'Demarrer enregistrement'}
               style={{ ...S.orb, ...(recording ? S.orbActive : {}), ...(recording ? { animation: 'orbPulse 1.5s ease infinite' } : {}) }}
               onClick={toggleRec}
+              onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), toggleRec())}
             >
               <span style={S.orbIcon}>{recording ? '\uD83D\uDD34' : '\uD83C\uDF99'}</span>
               <span style={{ ...S.orbLabel, color: recording ? COLORS.orange : COLORS.textDim }}>

@@ -24,13 +24,15 @@ import httpx
 logger = logging.getLogger("jarvis.dashboard")
 
 _http: httpx.AsyncClient | None = None
+_http_lock = asyncio.Lock()
 
 
-def _get_http() -> httpx.AsyncClient:
+async def _get_http() -> httpx.AsyncClient:
     global _http
-    if _http is None or _http.is_closed:
-        _http = httpx.AsyncClient(timeout=60, limits=httpx.Limits(max_keepalive_connections=5))
-    return _http
+    async with _http_lock:
+        if _http is None or _http.is_closed:
+            _http = httpx.AsyncClient(timeout=60, limits=httpx.Limits(max_keepalive_connections=5))
+        return _http
 from textual import on, work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
@@ -59,7 +61,7 @@ from src.brain import get_brain_status
 async def _fetch_cluster() -> list[dict]:
     """Fetch cluster node status."""
     results = []
-    c = _get_http()
+    c = await _get_http()
     for node in config.lm_nodes:
         entry = {
             "name": node.name,
@@ -522,7 +524,7 @@ class JarvisDashboard(App):
         try:
             node = config.lm_nodes[0]
             self._log(f"Envoi a {node.name} ({node.default_model})...")
-            c = _get_http()
+            c = await _get_http()
             input_text = prepare_lmstudio_input(text, node.name, node.default_model)
             r = await c.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
                 node.default_model, input_text,

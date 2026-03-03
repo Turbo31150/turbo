@@ -198,8 +198,8 @@ export default function ToolboxPage() {
                 </div>
               ) : (
                 <div style={S.grid}>
-                  {filteredSkills.map((skill, i) => (
-                    <div key={i} className="tb-card" style={S.card}>
+                  {filteredSkills.map((skill) => (
+                    <div key={skill.name} className="tb-card" style={S.card}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                         <span style={S.cardName}>{skill.name}</span>
                         {skill.category && <span style={S.badge}>{skill.category}</span>}
@@ -238,8 +238,8 @@ export default function ToolboxPage() {
 
             {tab === 'mcp' && (
               <div style={S.grid}>
-                {filteredTools.map((tool, i) => (
-                  <div key={i} className="tb-card" style={S.card}>
+                {filteredTools.map((tool) => (
+                  <div key={tool.name} className="tb-card" style={S.card}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                       <span style={S.cardName}>{tool.name}</span>
                       {tool.category && <span style={S.badge}>{tool.category}</span>}

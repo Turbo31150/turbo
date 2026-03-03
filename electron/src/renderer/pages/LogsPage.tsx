@@ -120,7 +120,7 @@ export default function LogsPage() {
           );
         })}
         <div style={{ flex: 1 }} />
-        <button style={S.pauseBtn} onClick={() => setPaused(p => !p)}>
+        <button style={S.pauseBtn} onClick={() => setPaused(p => !p)} aria-pressed={paused}>
           {paused ? 'RESUME' : 'PAUSE'}
         </button>
         <button style={{ ...S.pauseBtn, borderColor: COLORS.blueAlpha(0.3), backgroundColor: COLORS.blueAlpha(0.08), color: COLORS.blue }}
@@ -130,10 +130,13 @@ export default function LogsPage() {
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = `jarvis_logs_${Date.now()}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(a.href);
+            try {
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            } finally {
+              setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+            }
           }}>EXPORT</button>
         <button style={S.clearBtn} onClick={() => setLogs([])}>CLEAR</button>
       </div>

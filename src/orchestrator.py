@@ -349,7 +349,7 @@ async def run_interactive(cwd: str | None = None) -> None:
     async with ClaudeSDKClient(options=options) as client:
         while True:
             try:
-                user_input = input("\n[COMMANDANT] > ")
+                user_input = await asyncio.get_event_loop().run_in_executor(None, input, "\n[COMMANDANT] > ")
             except (EOFError, KeyboardInterrupt):
                 break
 
@@ -401,7 +401,7 @@ async def run_commander(cwd: str | None = None) -> None:
     async with ClaudeSDKClient(options=options) as client:
         while True:
             try:
-                user_input = input("\n[COMMANDANT] > ")
+                user_input = await asyncio.get_event_loop().run_in_executor(None, input, "\n[COMMANDANT] > ")
             except (EOFError, KeyboardInterrupt):
                 break
 
@@ -688,7 +688,8 @@ async def run_voice(cwd: str | None = None) -> None:
                 skills_text = format_skills_list()
                 print(help_text, flush=True)
                 print("\n" + skills_text, flush=True)
-                await speak_text(f"J'ai {len(load_skills())} skills et {n_cmds} commandes. Regarde l'ecran.")
+                skills_count = len(await asyncio.to_thread(load_skills))
+                await speak_text(f"J'ai {skills_count} skills et {n_cmds} commandes. Regarde l'ecran.")
                 continue
 
             # Check for skill match BEFORE command execution (only if pipeline found a command-like input)
@@ -730,7 +731,7 @@ async def run_voice(cwd: str | None = None) -> None:
                 fr = "".join(rp).strip()
                 if fr:
                     await speak_text(fr[:500])
-                    log_action(f"skill:{skill.name}", fr[:200], True)
+                    await asyncio.to_thread(log_action, f"skill:{skill.name}", fr[:200], True)
 
                 # Suggest next actions
                 suggestions = suggest_next_actions(intent_text)
@@ -874,7 +875,7 @@ async def run_hybrid(cwd: str | None = None) -> None:
     async with ClaudeSDKClient(options=options) as client:
         while True:
             try:
-                raw_text = input("\n[JARVIS] > ")
+                raw_text = await asyncio.get_event_loop().run_in_executor(None, input, "\n[JARVIS] > ")
             except (EOFError, KeyboardInterrupt):
                 break
 
@@ -954,7 +955,7 @@ async def run_hybrid(cwd: str | None = None) -> None:
                             _safe_print(f"\n  [$] {msg.total_cost_usd:.4f} USD", flush=True)
                 fr = "".join(rp).strip()
                 if fr:
-                    log_action(f"skill:{skill.name}", fr[:200], True)
+                    await asyncio.to_thread(log_action, f"skill:{skill.name}", fr[:200], True)
                 suggestions = suggest_next_actions(intent_text)
                 if suggestions:
                     _safe_print(f"\n[SUGGESTIONS] {', '.join(s.split(' — ')[0] for s in suggestions)}")

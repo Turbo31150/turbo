@@ -220,8 +220,9 @@ export default function DictionaryPage() {
     } catch (err) {
       console.warn('[Dictionary] save error:', err instanceof Error ? err.message : err);
       showToast('Erreur connexion', false);
+    } finally {
+      setSavingEntry(false);
     }
-    setSavingEntry(false);
   }, [form, editEntry, fetchAll, savingEntry]);
 
   return (
