@@ -70,7 +70,7 @@ async def fetch_json(client: httpx.AsyncClient, url: str) -> dict | None:
         data = r.json()
         if data.get("success"):
             return data.get("data")
-    except Exception:
+    except (httpx.HTTPError, OSError, ValueError):
         pass
     return None
 
@@ -435,8 +435,9 @@ async def run_pipeline(cycles: int = 1, interval: int = 60, top_n: int = 10,
                     json.dump([asdict(a) for a in analyses], f, indent=2, ensure_ascii=False)
                 if not output_json:
                     print(f"  Sauvegarde: {save_path}")
-            except Exception:
-                pass
+            except OSError as e:
+                if not output_json:
+                    print(f"  Erreur sauvegarde: {e}")
 
         # Pause entre cycles
         if cycle < cycles and interval > 0:

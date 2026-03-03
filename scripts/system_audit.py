@@ -247,7 +247,7 @@ async def check_gpu_local() -> list[dict]:
         pass
     except FileNotFoundError:
         pass  # nvidia-smi not available
-    except Exception:
+    except (subprocess.SubprocessError, OSError, ValueError):
         pass
 
     return gpus
