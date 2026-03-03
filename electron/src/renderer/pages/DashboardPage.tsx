@@ -426,7 +426,7 @@ export default function DashboardPage() {
             <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textDim, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>
               Activite recente
             </div>
-            <div className="d-feed" style={{ backgroundColor: COLORS.bgCard, border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: 12, maxHeight: 280, overflowY: 'auto' }}>
+            <div className="d-feed" role="log" aria-live="polite" aria-label="Activite recente" style={{ backgroundColor: COLORS.bgCard, border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: 12, maxHeight: 280, overflowY: 'auto' }}>
               {activities.length === 0 ? (
                 <div style={{ textAlign: 'center', color: COLORS.textDimmer, fontSize: 11, padding: 20 }}>
                   En attente d'evenements...

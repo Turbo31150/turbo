@@ -1103,6 +1103,7 @@ async def handle_dict_crud(args: dict) -> list[TextContent]:
     def _do():
         conn = _sql.connect(db_path)
         conn.row_factory = _sql.Row
+        conn.execute("PRAGMA journal_mode=WAL")
         try:
             if operation == "stats":
                 counts = {}

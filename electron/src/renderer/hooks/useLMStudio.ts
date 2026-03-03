@@ -118,7 +118,11 @@ export function useLMStudio() {
 
   useEffect(() => () => { mountedRef.current = false; }, []);
 
+  const inFlightRef = useRef(false);
+
   const refresh = useCallback(async () => {
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
     setRefreshing(true);
     const updated = await Promise.all(
       NODES_CONFIG.map(async (cfg) => {
@@ -131,6 +135,7 @@ export function useLMStudio() {
         }
       })
     );
+    inFlightRef.current = false;
     if (!mountedRef.current) return;
     setNodes(updated);
     setRefreshing(false);

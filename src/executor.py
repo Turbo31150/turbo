@@ -44,7 +44,7 @@ async def execute_command(cmd: JarvisCommand, params: dict[str, str]) -> str:
             return f"Impossible d'ouvrir {app_name}: {result['stderr']}"
 
     if cmd.action_type == "ms_settings":
-        uri = cmd.action
+        uri = cmd.action.replace("'", "''")
         result = run_powershell(f"Start-Process '{uri}'", timeout=10)
         if result["success"]:
             return f"Parametres ouverts: {uri}"

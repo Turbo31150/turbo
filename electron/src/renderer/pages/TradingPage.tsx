@@ -232,7 +232,7 @@ export default function TradingPage() {
         {alerts.length > 0 && (
           <div style={S.section}>
             <div style={S.secTitle}>Alertes Live ({alerts.length})</div>
-            <div style={{ maxHeight: 160, overflowY: 'auto', backgroundColor: COLORS.bg, borderRadius: 8, border: `1px solid ${COLORS.border}`, padding: 8 }}>
+            <div role="log" aria-live="assertive" aria-label="Alertes trading" style={{ maxHeight: 160, overflowY: 'auto', backgroundColor: COLORS.bg, borderRadius: 8, border: `1px solid ${COLORS.border}`, padding: 8 }}>
               {alerts.map(a => (
                 <div key={a.id} style={{ display: 'flex', gap: 8, padding: '4px 8px', fontSize: 11, color: COLORS.textMuted, borderBottom: `1px solid ${COLORS.border}30` }}>
                   <span style={{ fontSize: 10, color: COLORS.textDimmer, minWidth: 60, fontVariantNumeric: 'tabular-nums' }}>
