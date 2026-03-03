@@ -2487,7 +2487,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("collab_commands_export", "pipeline", "Exporter les commandes pour deploiement sur autre machine", [
         "exporter commandes", "export commands", "deploy commands",
         "commandes pour autre machine", "collab export",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; import json; data=[{'name':p.name,'category':p.category,'description':p.description,'triggers':p.triggers} for p in PIPELINE_COMMANDS]; print(f'=== EXPORT COMMANDES ==='); print(f'  {len(data)} pipelines exportables'); print(f'  Format: JSON'); f=open('F:/BUREAU/turbo/data/pipelines_export.json','w'); f.write(json.dumps(data,indent=2,ensure_ascii=False)); f.close(); print(f'  Fichier: data/pipelines_export.json')\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; import json; data=[{'name':p.name,'category':p.category,'description':p.description,'triggers':p.triggers} for p in PIPELINE_COMMANDS]; print(f'=== EXPORT COMMANDES ==='); print(f'  {len(data)} pipelines exportables'); print(f'  Format: JSON'); __import__('pathlib').Path('F:/BUREAU/turbo/data/pipelines_export.json').write_text(json.dumps(data,indent=2,ensure_ascii=False),encoding='utf-8'); print(f'  Fichier: data/pipelines_export.json')\" 2>&1 | Out-String"),
 
     JarvisCommand("collab_db_merge_check", "pipeline", "Verifier la compatibilite pour fusion de bases entre machines", [
         "fusionner bases", "merge db", "db merge",

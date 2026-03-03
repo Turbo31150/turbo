@@ -1502,7 +1502,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("calculer_expression", "systeme", "Calculer une expression mathematique", [
         "calcule {expr}", "combien fait {expr}", "resultat de {expr}",
         "{expr} egal combien",
-    ], "powershell", "$r = Invoke-Expression '{expr}' 2>&1; \"Resultat: $r\"", ["expr"]),
+    ], "powershell", "$e = '{expr}' -replace '[^0-9+\\-*/()., ]', ''; if($e) {{ $r = [System.Data.DataTable]::new().Compute($e,''); \"Resultat: $r\" }} else {{ \"Expression invalide\" }}", ["expr"]),
     JarvisCommand("convertir_temperature", "systeme", "Convertir Celsius en Fahrenheit et inversement", [
         "convertis {temp} degres", "celsius en fahrenheit {temp}",
         "fahrenheit en celsius {temp}", "temperature {temp}",
