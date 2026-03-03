@@ -23,7 +23,6 @@ function callClaude(prompt, model = 'sonnet') {
     const proc = spawn('claude', args, {
       env: cleanEnv(),
       timeout: 120000,
-      shell: true
     });
     let out = '', err = '';
     proc.stdout.on('data', d => out += d);

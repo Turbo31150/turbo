@@ -589,14 +589,18 @@ const TOOLS = {
     const name = args.name;
     if (!name) return { error: 'Nom du pipeline requis' };
     try {
-      const safeName = name.replace(/'/g, "''");
+      // Sanitize: only allow alphanumeric, underscores, hyphens, spaces
+      const safeName = name.replace(/[^a-zA-Z0-9_ éèêëàâäùûüôîïç\-]/g, '').slice(0, 100);
+      if (!safeName) return { error: 'Nom de pipeline invalide' };
+      const sqlSafe = safeName.replace(/'/g, "''");
       // Look up in etoile.db map by entity_name (launchers, scripts, skills)
-      const row = execSync('sqlite3 "' + ETOILE_DB + '" "SELECT entity_type, entity_name, role, metadata FROM map WHERE entity_name=\'' + safeName + '\' LIMIT 1;"', {
+      const row = execSync('sqlite3 "' + ETOILE_DB + '" "SELECT entity_type, entity_name, role, metadata FROM map WHERE entity_name=\'' + sqlSafe + '\' LIMIT 1;"', {
         timeout: 5000, encoding: 'utf8', windowsHide: true
       }).trim();
       if (!row) {
-        // Try fuzzy match
-        const fuzzy = execSync('sqlite3 "' + ETOILE_DB + '" "SELECT entity_name, entity_type, role FROM map WHERE entity_name LIKE \'%' + safeName + '%\' LIMIT 5;"', {
+        // Try fuzzy match — escape LIKE wildcards
+        const likeSafe = sqlSafe.replace(/%/g, '\\%').replace(/_/g, '\\_');
+        const fuzzy = execSync('sqlite3 "' + ETOILE_DB + '" "SELECT entity_name, entity_type, role FROM map WHERE entity_name LIKE \'%' + likeSafe + '%\' ESCAPE \'\\\\\' LIMIT 5;"', {
           timeout: 5000, encoding: 'utf8', windowsHide: true
         }).trim();
         if (fuzzy) return { ok: false, error: "'" + name + "' non trouve. Suggestions:\n" + fuzzy, pipeline: name };
@@ -611,7 +615,9 @@ const TOOLS = {
 
       // Launchers: .bat files in launchers/ — launched detached (non-blocking)
       if (entityType === 'launcher') {
-        const batPath = 'F:\\BUREAU\\turbo\\launchers\\' + entityName + '.bat';
+        // Prevent path traversal — strip any directory components
+        const cleanEntity = entityName.replace(/[\\\/\.]/g, '');
+        const batPath = 'F:\\BUREAU\\turbo\\launchers\\' + cleanEntity + '.bat';
         const exists = fs.existsSync(batPath);
         if (!exists) return { ok: false, pipeline: entityName, type: entityType, role, error: 'Launcher bat non trouve: ' + batPath };
         const child = spawn('cmd', ['/c', batPath], {

@@ -324,24 +324,25 @@ def get_stats() -> dict:
     with _db() as conn:
         stats = {}
 
-        stats["commands"] = conn.execute("SELECT COUNT(*) FROM commands").fetchone()[0]
-        stats["skills"] = conn.execute("SELECT COUNT(*) FROM skills").fetchone()[0]
-        stats["corrections"] = conn.execute("SELECT COUNT(*) FROM voice_corrections").fetchone()[0]
-        stats["scenarios"] = conn.execute("SELECT COUNT(*) FROM scenarios").fetchone()[0]
-        stats["scenarios_validated"] = conn.execute("SELECT COUNT(*) FROM scenarios WHERE validated=1").fetchone()[0]
-        stats["history_entries"] = conn.execute("SELECT COUNT(*) FROM action_history").fetchone()[0]
-        stats["validation_cycles"] = conn.execute("SELECT COUNT(*) FROM validation_cycles").fetchone()[0]
+        _c = lambda q: (conn.execute(q).fetchone() or (0,))[0]
+        stats["commands"] = _c("SELECT COUNT(*) FROM commands")
+        stats["skills"] = _c("SELECT COUNT(*) FROM skills")
+        stats["corrections"] = _c("SELECT COUNT(*) FROM voice_corrections")
+        stats["scenarios"] = _c("SELECT COUNT(*) FROM scenarios")
+        stats["scenarios_validated"] = _c("SELECT COUNT(*) FROM scenarios WHERE validated=1")
+        stats["history_entries"] = _c("SELECT COUNT(*) FROM action_history")
+        stats["validation_cycles"] = _c("SELECT COUNT(*) FROM validation_cycles")
 
         cats_cmd = conn.execute("SELECT DISTINCT category FROM commands ORDER BY category").fetchall()
         stats["categories_commands"] = [r[0] for r in cats_cmd]
         cats_skill = conn.execute("SELECT DISTINCT category FROM skills ORDER BY category").fetchall()
         stats["categories_skills"] = [r[0] for r in cats_skill]
 
-        total_val = conn.execute("SELECT COUNT(*) FROM validation_cycles").fetchone()[0]
-        pass_val = conn.execute("SELECT COUNT(*) FROM validation_cycles WHERE result='pass'").fetchone()[0]
+        total_val = _c("SELECT COUNT(*) FROM validation_cycles")
+        pass_val = _c("SELECT COUNT(*) FROM validation_cycles WHERE result='pass'")
         stats["validation_pass_rate"] = round(pass_val / total_val * 100, 1) if total_val > 0 else 0
 
-        last = conn.execute("SELECT MAX(cycle_number) FROM validation_cycles").fetchone()[0]
+        last = _c("SELECT MAX(cycle_number) FROM validation_cycles")
         stats["last_cycle"] = last or 0
 
         return stats

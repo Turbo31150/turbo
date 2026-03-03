@@ -269,7 +269,7 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
                     (pipeline_id, trigger_phrase, steps, category or "custom",
                      action_type, "", datetime.now().isoformat())
                 )
-                return db.execute("SELECT last_insert_rowid()").fetchone()[0]
+                return (db.execute("SELECT last_insert_rowid()").fetchone() or (0,))[0]
 
         try:
             result = await asyncio.to_thread(_do_add)
@@ -377,7 +377,7 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
                     "VALUES (?, ?, ?, ?, ?, ?)",
                     (trigger_cmd, condition, next_cmd, delay_ms, auto, description)
                 )
-                return db.execute("SELECT last_insert_rowid()").fetchone()[0]
+                return (db.execute("SELECT last_insert_rowid()").fetchone() or (0,))[0]
 
         try:
             new_id = await asyncio.to_thread(_do_add_chain)
@@ -428,7 +428,7 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
                     "INSERT INTO voice_corrections (wrong, correct, category, hit_count) VALUES (?, ?, ?, 0)",
                     (wrong, correct, category)
                 )
-                new_id = db.execute("SELECT last_insert_rowid()").fetchone()[0]
+                new_id = (db.execute("SELECT last_insert_rowid()").fetchone() or (0,))[0]
                 return new_id
 
         try:

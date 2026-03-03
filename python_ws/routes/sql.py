@@ -87,7 +87,7 @@ def _get_schema(db_path: str, table: str) -> dict[str, Any] | None:
             return None
         columns = [{"name": r[1], "type": r[2], "notnull": bool(r[3]), "pk": bool(r[5])}
                    for r in conn.execute(f"PRAGMA table_info([{table}])").fetchall()]
-        count = conn.execute(f"SELECT COUNT(*) FROM [{table}]").fetchone()[0]
+        count = (conn.execute(f"SELECT COUNT(*) FROM [{table}]").fetchone() or (0,))[0]
         return {"schema": row[0], "columns": columns, "row_count": count}
 
 
