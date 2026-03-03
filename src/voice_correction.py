@@ -52,6 +52,13 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["ck", "k", "que"],
     ["er", "eur", "aire"],
     ["ing", "igne", "ine"],
+    # Vague 8 — Tech terms et consonnes anglaises
+    ["th", "t", "d"],       # thread/tread, the/de
+    ["sh", "ch", "sch"],    # shell/chell, schema
+    ["dj", "j", "g"],       # Django, JSON
+    ["ks", "x", "cks"],     # index, flex
+    ["ts", "tz", "z"],      # typescript, hertz
+    ["mp", "nb", "mb"],     # embed, number
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -312,6 +319,58 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "profiling": "lance le profiling",
     "benchmark": "lance benchmark cluster",
     "stress": "stress test cluster",
+    # Vague 18 — Cluster / Maintenance rapide
+    "sante": "health check",
+    "check": "health check",
+    "bilan": "bilan session",
+    "rapport": "rapport du jour",
+    "diagnostique": "diagnostic complet",
+    "diagnostiquer": "diagnostic complet",
+    "maintenance": "maintenance bases",
+    "vacuum": "vacuum les bases",
+    "compacte": "vacuum les bases",
+    "nettoyer": "nettoie les logs",
+    "restore": "restaure le backup",
+    "restaure": "restaure le backup",
+    "backuper": "backup les bases",
+    "sauvegarde": "backup les bases",
+    "sync": "synchronise le cluster",
+    "synchronise": "synchronise le cluster",
+    # Vague 19 — Trading quick actions
+    "marche": "scan trading",
+    "scanner le marche": "scan trading",
+    "balance": "balance trading",
+    "pnl": "pnl du jour",
+    "drawdown": "analyse drawdown",
+    "close all": "ferme les positions",
+    "close tout": "ferme les positions",
+    "risk": "analyse risque",
+    "tp sl": "configure tp sl",
+    "take profit": "configure tp sl",
+    "stoploss": "configure tp sl",
+    "signaux trading": "signaux en attente",
+    "best pair": "meilleure paire",
+    "backtest": "lance backtest",
+    # Vague 20 — Domino quick launch
+    "briefing": "lance briefing matin",
+    "briefing matin": "lance briefing matin",
+    "mode nuit": "mode nuit",
+    "bonne nuit": "mode nuit",
+    "mode weekend": "mode weekend",
+    "fin de journee": "mode nuit",
+    "mode pause": "mode pause",
+    "pause": "mode pause",
+    "mode coding": "mode coding",
+    "mode dev": "mode coding",
+    "mode focus": "mode focus",
+    "concentration": "mode focus",
+    "pomodoro": "lance pomodoro",
+    "securite": "scan securite",
+    "hotfix": "deploie hotfix",
+    "rollback": "rollback derniere version",
+    "deploy": "deploie en production",
+    "deployer": "deploie en production",
+    "consensus": "consensus cluster",
 }
 
 
@@ -490,6 +549,20 @@ def phonetic_similarity(a: str, b: str) -> float:
     return SequenceMatcher(None, pa, pb).ratio()
 
 
+def _trigrams(s: str) -> set[str]:
+    """Extract character trigrams from a string for fuzzy matching."""
+    s = f"  {s} "  # pad for edge trigrams
+    return {s[i:i+3] for i in range(len(s) - 2)}
+
+
+def trigram_similarity(a: str, b: str) -> float:
+    """Jaccard similarity of character trigrams — robust to typos and word order."""
+    ta, tb = _trigrams(a.lower()), _trigrams(b.lower())
+    if not ta or not tb:
+        return 0.0
+    return len(ta & tb) / len(ta | tb)
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # SUGGESTION ENGINE
 # ═══════════════════════════════════════════════════════════════════════════
@@ -524,7 +597,8 @@ def _load_command_usage() -> None:
 def get_suggestions(text: str, max_results: int = 3) -> list[tuple[JarvisCommand, float]]:
     """Get command suggestions ranked by combined similarity score.
 
-    Uses: text similarity (35%) + phonetic similarity (25%) + keyword overlap (25%) + popularity (15%).
+    5 factors: text sim (30%) + phonetic (20%) + trigram (15%) + keyword (20%) + popularity (15%).
+    Trigram similarity adds robustness to typos and word reordering.
     """
     _load_command_usage()
     max_usage = max(_command_usage_cache.values()) if _command_usage_cache else 1
@@ -543,25 +617,28 @@ def get_suggestions(text: str, max_results: int = 3) -> list[tuple[JarvisCommand
             trigger_no_accents = remove_accents(trigger_clean)
             trigger_words = set(trigger_clean.split())
 
-            # 1. Direct text similarity (35%)
+            # 1. Direct text similarity (30%)
             text_sim = SequenceMatcher(None, text_no_accents, trigger_no_accents).ratio()
 
-            # 2. Phonetic similarity (25%)
+            # 2. Phonetic similarity (20%)
             phon_sim = phonetic_similarity(text_normalized, trigger_clean)
 
-            # 3. Keyword overlap (25%)
+            # 3. Trigram similarity (15%) — robust to typos and reordering
+            tri_sim = trigram_similarity(text_no_accents, trigger_no_accents)
+
+            # 4. Keyword overlap (20%)
             if trigger_words:
                 common = text_words & trigger_words
                 keyword_sim = len(common) / len(trigger_words)
             else:
                 keyword_sim = 0.0
 
-            # 4. Popularity boost (15%) — frequently used commands rank higher
+            # 5. Popularity boost (15%) — frequently used commands rank higher
             usage = _command_usage_cache.get(cmd.name, 0)
             pop_score = min(1.0, usage / max_usage) if max_usage > 0 else 0.0
 
             # Combined score
-            score = (text_sim * 0.35) + (phon_sim * 0.25) + (keyword_sim * 0.25) + (pop_score * 0.15)
+            score = (text_sim * 0.30) + (phon_sim * 0.20) + (tri_sim * 0.15) + (keyword_sim * 0.20) + (pop_score * 0.15)
             best_score = max(best_score, score)
 
         if best_score > 0.30:
