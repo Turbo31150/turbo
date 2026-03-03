@@ -247,7 +247,7 @@ def main():
     # Check proxy health
     try:
         r = client.get("http://127.0.0.1:18800/health", timeout=15)
-    except:
+    except (httpx.HTTPError, OSError, ConnectionError):
         print("[ERROR] Proxy not responding on port 18800. Start it first.")
         sys.exit(1)
 
@@ -342,7 +342,7 @@ def main():
                             e = json.loads(line)
                             if e["cycle"] > cycle - 10:
                                 recent_entries.append(e)
-                        except:
+                        except (json.JSONDecodeError, KeyError, TypeError):
                             pass
 
                 for e in recent_entries:
@@ -358,7 +358,7 @@ def main():
                     count = len(cat_avgs[cat])
                     status = "GOOD" if avg >= 70 else ("TUNE" if avg >= 50 else "FIX!")
                     print(f"  {cat:<12} {avg:5.0f} {count:6d}  {status}")
-            except:
+            except (OSError, json.JSONDecodeError, KeyError, TypeError):
                 pass
 
             print(f"{'─'*70}\n")
@@ -389,7 +389,7 @@ def main():
                     if cat not in cat_all:
                         cat_all[cat] = []
                     cat_all[cat].append(e["score"])
-                except:
+                except (json.JSONDecodeError, KeyError, TypeError):
                     pass
 
         print(f"\n  {'Category':<12} {'Avg':>5} {'Min':>5} {'Max':>5} {'Tests':>6} {'Grade'}")

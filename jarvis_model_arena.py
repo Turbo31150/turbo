@@ -55,7 +55,7 @@ def warmup_m1(model_id):
             body = json.dumps({"model": model_id, "input": prompt, "temperature": 0.2, "max_output_tokens": 20, "stream": False, "store": False}).encode()
             req = urllib.request.Request(M1["chat_url"], data=body, headers={"Content-Type": "application/json", "Authorization": f"Bearer {M1['key']}"})
             urllib.request.urlopen(req, timeout=60)
-        except:
+        except (urllib.error.URLError, OSError):
             pass
 
 def run_benchmark(cycles=5, tasks_per_cycle=40):
@@ -68,7 +68,8 @@ def run_benchmark(cycles=5, tasks_per_cycle=40):
     except Exception as e:
         log(f"Benchmark subprocess error: {e}")
     try:
-        data = json.load(open("C:/Users/franc/jarvis_autotest_results.json", encoding="utf-8"))
+        with open("C:/Users/franc/jarvis_autotest_results.json", encoding="utf-8") as _fh:
+            data = json.load(_fh)
         total = data["total"]
         pass_rate = data["pass"] * 100.0 / max(total, 1)
         lats = []

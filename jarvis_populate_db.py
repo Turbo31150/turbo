@@ -298,9 +298,9 @@ def show_stats():
     print("\n=== ETOILE.DB — Pipeline Dictionary Stats ===")
     for t in tables:
         try:
-            count = conn.execute(f"SELECT COUNT(*) FROM [{t}]").fetchone()[0]
+            count = (conn.execute(f"SELECT COUNT(*) FROM [{t}]").fetchone() or (0,))[0]
             print(f"  {t}: {count} rows")
-        except:
+        except (sqlite3.Error, OSError):
             print(f"  {t}: NOT FOUND")
 
     # Agent keyword distribution
@@ -309,8 +309,8 @@ def show_stats():
         print(f"    {row[0]}: {row[1]} keywords, {row[2]} domains")
 
     # Scenario count
-    print(f"\n  Scenarios: {conn.execute('SELECT COUNT(DISTINCT scenario) FROM scenario_weights').fetchone()[0]}")
-    print(f"  Domino chains: {conn.execute('SELECT COUNT(*) FROM domino_chains').fetchone()[0]}")
+    print(f"\n  Scenarios: {(conn.execute('SELECT COUNT(DISTINCT scenario) FROM scenario_weights').fetchone() or (0,))[0]}")
+    print(f"  Domino chains: {(conn.execute('SELECT COUNT(*) FROM domino_chains').fetchone() or (0,))[0]}")
 
     # Pipeline categories
     print("\n  Pipeline categories:")
