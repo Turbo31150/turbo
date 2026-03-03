@@ -499,6 +499,19 @@ async def listen_voice_v2(
     result = await full_correction_pipeline(text, use_ia=True)
     print(f"  [MATCH] method={result['method']}, confidence={result['confidence']:.0%}", flush=True)
 
+    # Step 4.5: Execute domino pipeline if matched
+    if result.get("method") == "domino" and result.get("domino"):
+        try:
+            from src.voice_correction import execute_domino_result
+            domino_result = await asyncio.to_thread(execute_domino_result, result)
+            if domino_result and "error" not in domino_result:
+                result["domino_result"] = domino_result
+                print(f"  [DOMINO] {domino_result['domino_id']}: "
+                      f"{domino_result['passed']}/{domino_result['total_steps']} PASS "
+                      f"in {domino_result['total_ms']:.0f}ms", flush=True)
+        except (ImportError, OSError, ValueError) as exc:
+            print(f"  [DOMINO] execution failed: {exc}", flush=True)
+
     # Step 5: Cache result if command found
     if use_cache and result.get("command"):
         _cache_set(text, result)
