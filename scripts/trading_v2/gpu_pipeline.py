@@ -64,7 +64,7 @@ def setup_gpu():
             gpu_names = [torch.cuda.get_device_name(i) for i in range(GPU_COUNT)]
             logger.info(f"GPU: PyTorch {torch.__version__} | {GPU_COUNT} GPU | {', '.join(gpu_names)}")
             return True
-        except Exception as e:
+        except (RuntimeError, OSError) as e:
             logger.warning(f"GPU init failed: {e} - fallback NumPy")
     else:
         logger.info("GPU: PyTorch CUDA non dispo - mode NumPy")
@@ -112,7 +112,7 @@ def check_gpu_thermal() -> dict:
 
     except FileNotFoundError:
         return {"status": "no_nvidia_smi", "gpus": []}
-    except Exception as e:
+    except (subprocess.SubprocessError, OSError, ValueError) as e:
         logger.warning(f"GPU thermal check: {e}")
         return {"status": "error", "gpus": []}
 
@@ -395,7 +395,7 @@ def run_continuous(cycles: int = 0, interval: int = 300, no_gemini: bool = False
         except KeyboardInterrupt:
             print("\nArret demande.")
             break
-        except Exception as e:
+        except (requests.RequestException, OSError, ValueError) as e:
             logger.error(f"Erreur cycle {cycle}: {e}")
 
         if cycles == 0 or cycle < cycles:

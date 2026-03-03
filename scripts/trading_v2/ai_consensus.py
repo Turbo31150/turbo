@@ -139,7 +139,7 @@ def _query_lmstudio(model_cfg: dict, prompt: str) -> Optional[dict]:
             return result
     except requests.exceptions.HTTPError:
         pass  # Fallback ci-dessous
-    except Exception as e:
+    except (requests.RequestException, OSError, json.JSONDecodeError, KeyError) as e:
         logger.debug(f"{model_cfg['name']}: chat completions failed: {e}")
 
     # Essai 2: /api/v1/chat (responses API — anciens LM Studio)
@@ -170,7 +170,7 @@ def _query_lmstudio(model_cfg: dict, prompt: str) -> Optional[dict]:
             if not content and output:
                 content = output[-1].get("content", "") if isinstance(output[-1], dict) else str(output[-1])
         return _parse_json_response(content, model_cfg["id"])
-    except Exception as e:
+    except (requests.RequestException, OSError, json.JSONDecodeError, KeyError) as e:
         logger.warning(f"{model_cfg['name']}: {e}")
         return None
 
@@ -195,7 +195,7 @@ def _query_ollama(model_cfg: dict, prompt: str) -> Optional[dict]:
 
         content = data.get("message", {}).get("content", "")
         return _parse_json_response(content, model_cfg["id"])
-    except Exception as e:
+    except (requests.RequestException, OSError, json.JSONDecodeError, KeyError) as e:
         logger.warning(f"{model_cfg['name']}: {e}")
         return None
 
@@ -217,7 +217,7 @@ def _query_gemini(model_cfg: dict, prompt: str) -> Optional[dict]:
 
         content = result.stdout.strip()
         return _parse_json_response(content, model_cfg["id"])
-    except Exception as e:
+    except (subprocess.SubprocessError, OSError) as e:
         logger.warning(f"GEMINI: {e}")
         return None
 
@@ -440,7 +440,7 @@ def _run_parallel(models: list[dict], prompt: str) -> list[dict]:
             try:
                 group_results = future.result(timeout=180)
                 all_responses.extend(group_results)
-            except Exception as e:
+            except (requests.RequestException, OSError, TimeoutError) as e:
                 logger.error(f"  Groupe {machine} erreur: {e}")
                 # Marquer tous les modeles du groupe comme FAIL
                 for m in groups[machine]:

@@ -261,7 +261,7 @@ async def phase2_ai_analysis(client: httpx.AsyncClient, coins: list[dict]) -> li
                 ai_score += 10
             ai_score = min(100, ai_score)
 
-        except Exception as e:
+        except (httpx.HTTPError, OSError, json.JSONDecodeError, KeyError) as e:
             ai_text = f"Erreur IA: {e}"
             ai_score = coin["score"]  # fallback au score technique
             pump_prob = coin["score"]
