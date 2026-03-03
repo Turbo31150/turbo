@@ -67,6 +67,15 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["dev", "dif", "div"],   # devstral, diff
     ["ll", "l", "el"],       # ollama, llm
     ["ck", "k", "g"],        # docker, kubernetes
+    # Vague 10 — Programming terms phonetics
+    ["py", "pi", "pie"],     # python, pytest
+    ["js", "jss", "jis"],    # javascript, nodejs
+    ["sql", "quel", "kuel"], # sql, mysql
+    ["api", "aille pi aille", "epi"],
+    ["http", "atch", "htp"],
+    ["ssh", "esse ash", "esh"],
+    ["git", "gite", "jit"],  # git/github
+    ["npm", "ene pe em", "npeam"],
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -91,6 +100,13 @@ FILLER_WORDS = {
     "une minute", "comment on dit", "cher jarvis",
     "mon cher jarvis", "petit jarvis", "grand jarvis",
     "super jarvis", "yo jarvis", "salut jarvis",
+    # Vague 4 — Fillers code/dev context
+    "en theorie", "normalement", "techniquement",
+    "a priori", "idealement", "potentiellement",
+    "grosso modo", "si possible", "dans l'idee",
+    "rapidement", "vite fait", "en vitesse",
+    "quand tu peux", "des que possible",
+    "si tu veux bien", "je te demande de",
 }
 
 # Expansions de commandes implicites
@@ -497,6 +513,45 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "update all": "maintenance hebdo",
     "status all": "rapport systeme complet",
     "show all": "rapport systeme complet",
+    # Vague 28 — Git shortcuts
+    "pull": "git pull",
+    "stash": "git stash",
+    "branch": "git branch",
+    "branches": "liste les branches",
+    "merge": "git merge",
+    "rebase": "git rebase",
+    "log git": "git log",
+    "blame": "git blame",
+    "diff": "git diff",
+    "cherry": "git cherry-pick",
+    "tag": "git tag",
+    "remote": "git remote",
+    "fetch": "git fetch",
+    "clone": "git clone",
+    "reset": "git reset",
+    # Vague 29 — DB shortcuts
+    "tables": "liste les tables",
+    "schema": "schema de la base",
+    "count": "combien de lignes en base",
+    "select": "requete sql",
+    "insert": "insertion en base",
+    "migrate": "migration de base",
+    "seed": "seed la base",
+    "dump": "dump de la base",
+    "restore db": "restaure la base",
+    "indices": "liste les indices",
+    "foreign keys": "cles etrangeres",
+    # Vague 30 — Network shortcuts
+    "ping": "ping le reseau",
+    "traceroute": "traceroute",
+    "curl": "requete curl",
+    "wget": "telecharge avec wget",
+    "ifconfig": "configuration reseau",
+    "bandwidth": "test de bande passante",
+    "latency": "test de latence",
+    "speedtest": "test de bande passante",
+    "whois": "whois",
+    "dig": "dig dns",
 }
 
 
@@ -662,6 +717,21 @@ def extract_action_intent(text: str) -> str:
         (r"\brafraichir\b", "rafraichis"),
         (r"\brelancer\b", "relance"),
         (r"\brechercher\b", "recherche"),
+        # Vague 5 — Verbes dev/data/reseau
+        (r"\bcloner\b", "clone"),
+        (r"\bmerger\b", "merge"),
+        (r"\bbrancher\b", "branche"),
+        (r"\bdumper\b", "dump"),
+        (r"\bseeder\b", "seed"),
+        (r"\bindexer\b", "indexe"),
+        (r"\bpinger\b", "ping"),
+        (r"\bfetcher\b", "fetch"),
+        (r"\bpuller\b", "pull"),
+        (r"\bstreamer\b", "stream"),
+        (r"\bdebugger\b", "debug"),
+        (r"\bformater\b", "formate"),
+        (r"\bscaler\b", "scale"),
+        (r"\bcontaineriser\b", "containerise"),
     ]
     for pattern, replacement in replacements:
         text = re.sub(pattern, replacement, text)
