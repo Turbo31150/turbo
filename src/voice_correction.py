@@ -91,6 +91,14 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["docker", "dockeur", "dokeur"],
     ["kube", "coube", "cube"],
     ["helm", "elme", "healme"],
+    # Vague 13 — ML / Data Science phonetiques
+    ["tensor", "tenseur", "tenzor"],
+    ["epoch", "epoque", "epok"],
+    ["batch", "batche", "bache"],
+    ["model", "modele", "modul"],
+    ["train", "traine", "trene"],
+    ["loss", "losse", "los"],
+    ["weight", "ouaite", "weite"],
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -754,6 +762,26 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "swagger": "ouvre swagger",
     "postman": "ouvre postman",
     "api doc": "documentation api",
+    # Vague 46 — CI/CD raccourcis
+    "pipeline": "lance le pipeline",
+    "ci": "statut ci",
+    "cd": "statut cd",
+    "actions": "statut github actions",
+    "deploy prod": "deploie en production",
+    "deploy staging": "deploie en staging",
+    "rollback": "rollback derniere version",
+    "feature flag": "toggle feature flag",
+    "staging": "statut staging",
+    # Vague 47 — Collaboration
+    "standup": "lance le standup",
+    "daily": "lance le daily",
+    "retro": "lance la retro",
+    "sprint": "statut du sprint",
+    "backlog": "montre le backlog",
+    "kanban": "ouvre le kanban",
+    "pr": "liste les pull requests",
+    "review": "lance la code review",
+    "pairing": "mode pair programming",
 }
 
 
