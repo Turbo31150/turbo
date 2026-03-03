@@ -319,6 +319,35 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "profiling": "lance le profiling",
     "benchmark": "lance benchmark cluster",
     "stress": "stress test cluster",
+    # ── COMMAND ALIASES — shortened forms for common commands ──────────────
+    "vol+": "monte le volume",
+    "vol-": "baisse le volume",
+    "vol up": "monte le volume",
+    "vol down": "baisse le volume",
+    "ss": "capture ecran",
+    "sc": "capture ecran",
+    "maj": "mets a jour",
+    "update": "mets a jour",
+    "restart": "redemarre",
+    "reboot": "redemarre",
+    "kill": "ferme l'application",
+    "close": "ferme",
+    "open": "ouvre",
+    "run": "lance",
+    "start": "lance",
+    "exec": "lance",
+    "ls": "liste les fichiers",
+    "dir": "liste les fichiers",
+    "pwd": "chemin actuel",
+    "cls": "efface l'ecran",
+    "clear": "efface l'ecran",
+    "top": "utilisation cpu",
+    "htop": "utilisation cpu",
+    "df": "info disques",
+    "free": "utilisation ram",
+    "ps": "liste les processus",
+    "up": "monte le volume",
+    "down": "baisse le volume",
     # Vague 18 — Cluster / Maintenance rapide
     "sante": "health check",
     "check": "health check",
@@ -393,6 +422,37 @@ def remove_accents(text: str) -> str:
     """Remove accents from text for fuzzy comparison."""
     nfkd = unicodedata.normalize("NFKD", text)
     return "".join(c for c in nfkd if not unicodedata.combining(c))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PARAMETER EXTRACTION — Extract named params from voice input
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Known parameter patterns for voice extraction
+_PARAM_PATTERNS: list[tuple[str, str, str]] = [
+    # pattern, param_name, transform
+    (r"\b(etoile|jarvis|sniper|finetuning)(?:\.db)?\b", "db", "{0}.db"),
+    (r"\b(\d+)\s*(?:minutes?|min)\b", "minutes", "{0}"),
+    (r"\b(\d+)\s*(?:secondes?|sec|s)\b", "seconds", "{0}"),
+    (r"\b(BTC|ETH|SOL|SUI|PEPE|DOGE|XRP|ADA|AVAX|LINK)\b", "coin", "{0}"),
+    (r"\bmodele?\s+(\S+)\b", "modele", "{0}"),
+    (r"\bnoeud\s+(M[123]|OL1|GEMINI|CLAUDE)\b", "node", "{0}"),
+    (r"\b(M[123]|OL1|GEMINI|CLAUDE)\b", "node", "{0}"),
+    (r"\bcategorie?\s+(\w+)\b", "category", "{0}"),
+    (r"\b(\d{1,3})\s*(?:pour\s*cent|pourcent|%)\b", "percentage", "{0}"),
+    (r"\b(haute?|basse?|normal|critique|urgent)\b", "priority", "{0}"),
+]
+
+
+def extract_params(text: str) -> dict[str, str]:
+    """Extract named parameters from voice input text."""
+    params: dict[str, str] = {}
+    text_lower = text.lower()
+    for pattern, name, template in _PARAM_PATTERNS:
+        m = re.search(pattern, text_lower, re.IGNORECASE)
+        if m:
+            params[name] = template.format(m.group(1))
+    return params
 
 
 def remove_fillers(text: str) -> str:
@@ -799,6 +859,11 @@ async def full_correction_pipeline(
     # Step 1: Basic normalization
     cleaned = normalize_text(raw_text)
     result["cleaned"] = cleaned
+
+    # Step 1.5: Extract parameters from voice input (before further processing)
+    voice_params = extract_params(cleaned)
+    if voice_params:
+        result["params"].update(voice_params)
 
     # Step 2: Check implicit commands (single-word AND multi-word)
     single = cleaned.strip()
