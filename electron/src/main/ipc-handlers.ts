@@ -8,10 +8,11 @@ export function setupIpcHandlers(
 ): void {
   // Window controls
   ipcMain.handle('window:minimize', () => {
-    mainWindow.minimize();
+    if (!mainWindow.isDestroyed()) mainWindow.minimize();
   });
 
   ipcMain.handle('window:maximize', () => {
+    if (mainWindow.isDestroyed()) return;
     if (mainWindow.isMaximized()) {
       mainWindow.unmaximize();
     } else {
@@ -20,7 +21,7 @@ export function setupIpcHandlers(
   });
 
   ipcMain.handle('window:close', () => {
-    mainWindow.hide();
+    if (!mainWindow.isDestroyed()) mainWindow.hide();
   });
 
   // Widget management
