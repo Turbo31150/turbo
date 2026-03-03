@@ -106,7 +106,11 @@ export class PythonBridge {
       this.process = spawn(uvPath, ['run', 'python', '-m', 'python_ws.server'], {
         cwd: workDir,
         stdio: ['ignore', 'pipe', 'pipe'],
-        env: { ...process.env },
+        env: Object.fromEntries(
+          Object.entries(process.env).filter(([k]) =>
+            !k.startsWith('CLAUDE') || k === 'CLAUDE_WORKSPACE'
+          )
+        ),
       });
 
       // Handle stdout (only log in dev)
