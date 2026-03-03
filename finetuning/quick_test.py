@@ -68,7 +68,7 @@ try:
 
     print("  OK Modele charge avec succes")
 
-except Exception as e:
+except (RuntimeError, ValueError, OSError) as e:
     print(f"\n  ERREUR Chargement: {e}")
     sys.exit(1)
 
@@ -102,7 +102,7 @@ try:
     print(" OK")
     print(f"  Reponse: {response[:100]}...")
 
-except Exception as e:
+except (RuntimeError, ValueError, OSError) as e:
     print(f"\n  ERREUR Generation: {e}")
     sys.exit(1)
 

@@ -183,7 +183,7 @@ async def call_lmstudio(client, name, cfg, prompt, sem):
             d = r.json()
             content = d.get("choices", [{}])[0].get("message", {}).get("content", "")
             return {"model": name, "content": content, "latency": round(time.time()-t0, 2), "ok": bool(content)}
-        except Exception as e:
+        except (httpx.HTTPError, OSError) as e:
             return {"model": name, "content": str(e)[:150], "latency": round(time.time()-t0, 2), "ok": False}
 
 async def call_ollama(client, prompt, sem):
@@ -197,7 +197,7 @@ async def call_ollama(client, prompt, sem):
             d = r.json()
             content = d.get("message", {}).get("content", "")
             return {"model": "OL1-qwen3", "content": content, "latency": round(time.time()-t0, 2), "ok": bool(content)}
-        except Exception as e:
+        except (httpx.HTTPError, OSError) as e:
             return {"model": "OL1-qwen3", "content": str(e)[:150], "latency": round(time.time()-t0, 2), "ok": False}
 
 async def call_gemini(prompt, sem):
@@ -210,7 +210,7 @@ async def call_gemini(prompt, sem):
             stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=TIMEOUT)
             content = stdout.decode("utf-8", errors="replace").strip()
             return {"model": "GEMINI", "content": content, "latency": round(time.time()-t0, 2), "ok": bool(content)}
-        except Exception as e:
+        except (asyncio.TimeoutError, OSError) as e:
             return {"model": "GEMINI", "content": str(e)[:150], "latency": round(time.time()-t0, 2), "ok": False}
 
 # ── SCORING ─────────────────────────────────────────────────

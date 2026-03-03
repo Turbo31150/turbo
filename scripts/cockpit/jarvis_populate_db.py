@@ -108,7 +108,7 @@ def populate_scenario_weights():
                     (scenario, agent, weight, priority, chain, f"Routing {scenario} → {agent}")
                 )
                 count += 1
-            except Exception as e:
+            except (sqlite3.Error, OSError) as e:
                 print(f"  SKIP {scenario}/{agent}: {e}")
     conn.commit()
     conn.close()
@@ -140,7 +140,7 @@ def populate_domino_chains():
                 (trigger, cond, nxt, delay, auto, desc)
             )
             count += 1
-        except Exception as e:
+        except (sqlite3.Error, OSError) as e:
             print(f"  SKIP {trigger}: {e}")
     conn.commit()
     conn.close()
@@ -212,7 +212,7 @@ def populate_agent_keywords():
                         (agent, kw, domain, weight, scenario)
                     )
                     count += 1
-                except Exception as e:
+                except (sqlite3.Error, OSError):
                     pass
     conn.commit()
     conn.close()
@@ -256,7 +256,7 @@ def populate_pipeline_dictionary():
                 (name, trigger, steps, category, action_type, ",".join(agents) if agents else None)
             )
             count += 1
-        except Exception as e:
+        except (sqlite3.Error, OSError):
             pass
     conn.commit()
     conn.close()

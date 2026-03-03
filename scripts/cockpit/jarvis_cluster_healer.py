@@ -116,7 +116,7 @@ def reload_model(node_id):
         with urllib.request.urlopen(req, timeout=180) as resp:
             result = json.loads(resp.read())
         return result.get("status") == "loaded"
-    except Exception as e:
+    except (urllib.error.URLError, OSError, json.JSONDecodeError) as e:
         log(f"  Reload {node_id} failed: {e}")
         return False
 
@@ -242,7 +242,7 @@ def run_arena(reason):
             log(f"[ARENA] Failed (exit {result.returncode}): {result.stderr.strip()[-200:]}")
     except subprocess.TimeoutExpired:
         log("[ARENA] Timeout after 30min")
-    except Exception as e:
+    except (subprocess.SubprocessError, OSError) as e:
         log(f"[ARENA] Error: {e}")
 
 def run_daemon():

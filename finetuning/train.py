@@ -96,7 +96,7 @@ try:
 
     bnb.functional.QuantState.to = _patched_qs_to
     print("[PATCH] QuantState.to patche pour meta tensors (CPU offload)")
-except Exception as e:
+except (ImportError, AttributeError, RuntimeError) as e:
     print(f"[WARN] Patch bitsandbytes echoue: {e}")
 
 # === CHEMINS ===
