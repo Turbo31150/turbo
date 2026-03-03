@@ -48,7 +48,7 @@ def health_check(node_id):
         if cfg["type"] == "ollama":
             return len(data.get("models", [])) > 0
         return True
-    except Exception:
+    except (urllib.error.URLError, OSError, ValueError, KeyError):
         return False
 
 def mini_benchmark(node_id):
@@ -90,7 +90,7 @@ def mini_benchmark(node_id):
             text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL).strip().lower()
             if check in text:
                 passed += 1
-        except Exception:
+        except (urllib.error.URLError, OSError, ValueError, KeyError):
             pass
     return passed / len(tests)
 
@@ -187,7 +187,7 @@ def get_m1_models():
             if m.get("loaded_instances"):
                 models.append(m.get("id", m.get("model", "")))
         return sorted(models)
-    except Exception:
+    except (urllib.error.URLError, OSError, ValueError, KeyError):
         return []
 
 def should_run_arena():

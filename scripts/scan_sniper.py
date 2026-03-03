@@ -425,7 +425,7 @@ def check_gpu_thermal() -> dict:
                              "mem_total_mb": int(parts[5])})
         status = "critical" if max_temp >= GPU_TEMP_CRITICAL else "warning" if max_temp >= GPU_TEMP_WARNING else "ok"
         return {"status": status, "max_temp": max_temp, "gpus": gpus}
-    except Exception:
+    except (subprocess.SubprocessError, OSError, ValueError):
         return {"status": "unavailable", "gpus": []}
 
 
@@ -725,7 +725,7 @@ async def _fetch_json_raw(client, url):
         data = r.json()
         if data.get("success"):
             return data.get("data")
-    except Exception:
+    except (httpx.HTTPError, OSError, ValueError):
         pass
     return None
 
@@ -982,7 +982,7 @@ async def ai_consensus_signals(signals, mtf_data=None):
                 timeout=3)
             if r.status_code == 200:
                 tasks.insert(0, ai_query_lmstudio(client, LM_M1, prompt_reason, timeout=45))
-        except Exception:
+        except (httpx.HTTPError, asyncio.TimeoutError, OSError):
             pass  # M1 offline, skip
         results = await asyncio.gather(*tasks, return_exceptions=True)
     elapsed = int((time.time() - t0) * 1000)
@@ -1014,7 +1014,7 @@ async def fetch_json(client: httpx.AsyncClient, url: str) -> dict | None:
         data = r.json()
         if data.get("success"):
             return data.get("data")
-    except Exception:
+    except (httpx.HTTPError, OSError, ValueError):
         pass
     return None
 
