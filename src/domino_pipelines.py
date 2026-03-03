@@ -2730,6 +2730,137 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         learning_context="Git — statistiques detaillees du repository",
         priority="normal",
     ),
+    # ═══════════════════════════════════════════════════════════════════════
+    # BATCH 89 — Modes / Backup / Services (10 dominos)
+    # ═══════════════════════════════════════════════════════════════════════
+    DominoPipeline(
+        id="domino_gaming_mode_full",
+        trigger_vocal=["mode gaming complet", "full gaming", "prepare le gaming", "game mode full"],
+        steps=[
+            DominoStep("close_heavy", "powershell:Get-Process | Where-Object {$_.WorkingSet -gt 500MB -and $_.ProcessName -notin @('explorer','dwm','System')} | Select-Object Name,@{N='RAM(MB)';E={[math]::Round($_.WorkingSet/1MB)}} | Format-Table", "powershell", timeout_s=10, on_fail="skip"),
+            DominoStep("gpu_check", "powershell:nvidia-smi --query-gpu=temperature.gpu,utilization.gpu --format=csv,noheader 2>$null || 'N/A'", "powershell", timeout_s=10, on_fail="skip"),
+            DominoStep("tts", "python:edge_tts_speak('Mode gaming active. Processus lourds listes, GPU verifie.')", "python"),
+        ],
+        category="media_control",
+        description="Gaming mode full: list heavy processes + GPU check",
+        learning_context="Gaming — preparer le systeme pour le jeu",
+        priority="normal",
+    ),
+    DominoPipeline(
+        id="domino_study_mode",
+        trigger_vocal=["mode etude", "study mode", "mode revision", "mode apprentissage"],
+        steps=[
+            DominoStep("disable_notif", "powershell:Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PushNotifications' -Name 'ToastEnabled' -Value 0 -ErrorAction SilentlyContinue; 'Notif off'", "powershell", timeout_s=5, on_fail="skip"),
+            DominoStep("tts", "python:edge_tts_speak('Mode etude active. Notifications desactivees. Bonne revision!')", "python"),
+        ],
+        category="power_management",
+        description="Study mode: disable notifications for focus",
+        learning_context="Productivite — mode etude avec concentration maximale",
+        priority="normal",
+    ),
+    DominoPipeline(
+        id="domino_presentation_setup",
+        trigger_vocal=["prepare la presentation", "setup presentation", "mode presentation complet"],
+        steps=[
+            DominoStep("disable_notif", "powershell:Set-ItemProperty -Path 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PushNotifications' -Name 'ToastEnabled' -Value 0 -ErrorAction SilentlyContinue; 'Notif off'", "powershell", timeout_s=5, on_fail="skip"),
+            DominoStep("display_info", "powershell:Get-CimInstance Win32_VideoController | Select-Object Name,CurrentHorizontalResolution,CurrentVerticalResolution", "powershell", timeout_s=10),
+            DominoStep("tts", "python:edge_tts_speak('Mode presentation pret. Notifications desactivees, ecran verifie.')", "python"),
+        ],
+        category="meeting_assistant",
+        description="Presentation setup: disable notif + check display",
+        learning_context="Presentation — preparer le systeme pour une presentation",
+        priority="normal",
+    ),
+    DominoPipeline(
+        id="domino_streaming_setup",
+        trigger_vocal=["prepare le stream", "setup streaming", "mode streaming complet"],
+        steps=[
+            DominoStep("gpu_check", "powershell:nvidia-smi --query-gpu=temperature.gpu,utilization.gpu,memory.used --format=csv,noheader 2>$null || 'N/A'", "powershell", timeout_s=10, on_fail="skip"),
+            DominoStep("network", "bash:ping -c 2 8.8.8.8 2>/dev/null || ping -n 2 8.8.8.8", "bash", timeout_s=10, on_fail="skip"),
+            DominoStep("tts", "python:edge_tts_speak('Mode streaming pret. GPU et reseau verifies.')", "python"),
+        ],
+        category="media_control",
+        description="Streaming setup: GPU + network check",
+        learning_context="Streaming — preparer le systeme pour le streaming",
+        priority="normal",
+    ),
+    DominoPipeline(
+        id="domino_dev_reset",
+        trigger_vocal=["reset dev", "remet l'environnement", "clean dev", "fresh start dev"],
+        steps=[
+            DominoStep("git_clean", "bash:cd F:/BUREAU/turbo && git checkout -- . 2>&1 || echo 'Nothing to clean'", "bash", timeout_s=10, on_fail="skip"),
+            DominoStep("clear_cache", "python:clear_all_caches()", "python"),
+            DominoStep("uv_sync", "bash:cd F:/BUREAU/turbo && uv sync 2>&1 | tail -3", "bash", timeout_s=30, on_fail="skip"),
+            DominoStep("tts", "python:edge_tts_speak('Environnement dev reinitialise. Caches vides, dependances synchronisees.')", "python"),
+        ],
+        category="dev_workflow",
+        description="Dev reset: clean git + clear caches + sync deps",
+        learning_context="Dev — reinitialiser l'environnement de developpement proprement",
+        priority="normal",
+    ),
+    DominoPipeline(
+        id="domino_backup_incremental",
+        trigger_vocal=["backup incremental", "sauvegarde rapide", "quick backup", "backup partiel"],
+        steps=[
+            DominoStep("backup_etoile", "python:backup_etoile_db()", "python"),
+            DominoStep("git_save", "bash:cd F:/BUREAU/turbo && git add -A && git commit -m 'auto: incremental backup $(date +%H%M)' 2>&1 || echo 'Nothing to commit'", "bash", timeout_s=15, on_fail="skip"),
+            DominoStep("tts", "python:edge_tts_speak('Backup incremental termine. Base et code sauvegardes.')", "python"),
+        ],
+        category="backup_chain",
+        description="Incremental backup: DB + git commit",
+        learning_context="Backup — sauvegarde rapide et incrementale",
+        priority="normal",
+    ),
+    DominoPipeline(
+        id="domino_service_restart_all",
+        trigger_vocal=["redemarre tous les services", "restart all services", "relance tout", "restart tout"],
+        steps=[
+            DominoStep("check_m1", "bash:curl -s --max-time 3 http://127.0.0.1:1234/api/v1/models 2>/dev/null | head -c 50 || echo 'M1 OFFLINE'", "bash", timeout_s=5),
+            DominoStep("check_ol1", "bash:curl -s --max-time 3 http://127.0.0.1:11434/api/tags 2>/dev/null | head -c 50 || echo 'OL1 OFFLINE'", "bash", timeout_s=5),
+            DominoStep("tts", "python:edge_tts_speak('Services verifies. M1 et OL1 checkes.')", "python"),
+        ],
+        category="monitoring",
+        description="Service restart: check all services status",
+        learning_context="Services — verifier et relancer les services JARVIS",
+        priority="high",
+    ),
+    DominoPipeline(
+        id="domino_voice_history_export",
+        trigger_vocal=["exporte l'historique vocal", "voice history export", "sauvegarde les commandes vocales"],
+        steps=[
+            DominoStep("count", "python:count_commands()", "python"),
+            DominoStep("corrections", "python:count_voice_corrections()", "python"),
+            DominoStep("list_dominos", "python:list_dominos()", "python"),
+            DominoStep("tts", "python:edge_tts_speak('Historique vocal exporte. Commandes, corrections et dominos detailles.')", "python"),
+        ],
+        category="data_analysis",
+        description="Voice history export: full stats dump",
+        learning_context="Data — exporter les statistiques completes du systeme vocal",
+        priority="normal",
+    ),
+    DominoPipeline(
+        id="domino_morning_stretch",
+        trigger_vocal=["etirement matin", "morning stretch", "pause etirement", "stretch break"],
+        steps=[
+            DominoStep("tts", "python:edge_tts_speak('Pause etirement. Levez-vous, etirez-vous 2 minutes. Je vous attends.')", "python"),
+        ],
+        category="routine_matin",
+        description="Morning stretch: TTS reminder to stretch",
+        learning_context="Sante — rappel d'etirement pour eviter les TMS",
+        priority="normal",
+    ),
+    DominoPipeline(
+        id="domino_pomodoro_session",
+        trigger_vocal=["pomodoro", "lance pomodoro", "session pomodoro", "technique pomodoro"],
+        steps=[
+            DominoStep("start_timer", "python:start_pomodoro_timer('25')", "python"),
+            DominoStep("tts", "python:edge_tts_speak('Session Pomodoro lancee. 25 minutes de concentration. Go!')", "python"),
+        ],
+        category="task_scheduling",
+        description="Pomodoro session: start 25min focus timer",
+        learning_context="Productivite — technique Pomodoro pour la concentration",
+        priority="normal",
+    ),
 ]
 
 # Post-process: replace hardcoded paths with config-driven values
