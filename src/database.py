@@ -52,9 +52,10 @@ def get_unified_connection() -> sqlite3.Connection:
 def _attach_databases(conn: sqlite3.Connection):
     """Attach etoile.db and sniper.db to an existing connection."""
     if ETOILE_DB_PATH.exists():
-        conn.execute(f"ATTACH DATABASE '{ETOILE_DB_PATH}' AS etoile")
+        # Path from config (not user input) — str() to sanitize PurePath
+        conn.execute("ATTACH DATABASE ? AS etoile", (str(ETOILE_DB_PATH),))
     if SNIPER_DB_PATH.exists():
-        conn.execute(f"ATTACH DATABASE '{SNIPER_DB_PATH}' AS sniper")
+        conn.execute("ATTACH DATABASE ? AS sniper", (str(SNIPER_DB_PATH),))
 
 
 def init_db():

@@ -14,7 +14,7 @@ _whisper = None
 _whisper_init_attempted = False
 
 
-def _get_whisper():
+def _get_whisper() -> object | None:
     """Lazily initialize WhisperWorker on first use."""
     global _whisper, _whisper_init_attempted
     if _whisper_init_attempted:

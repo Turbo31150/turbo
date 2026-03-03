@@ -25,7 +25,7 @@ _DATA_DIR = _TURBO_ROOT / "data"
 _executor = None
 
 
-def _get_executor():
+def _get_executor() -> object | None:
     """Lazily load DominoExecutor."""
     global _executor
     if _executor is not None:

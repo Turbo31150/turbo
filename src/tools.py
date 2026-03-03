@@ -1516,7 +1516,8 @@ async def dict_crud_tool(args: dict[str, Any]) -> dict[str, Any]:
         if operation == "stats":
             counts = {}
             for t in _DICT_TABLES:
-                counts[t] = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                assert t.isidentifier(), f"Unsafe table name: {t}"
+                counts[t] = conn.execute(f"SELECT COUNT(*) FROM [{t}]").fetchone()[0]
             if table == "pipeline_dictionary":
                 cats = conn.execute(
                     "SELECT category, COUNT(*) as cnt FROM pipeline_dictionary GROUP BY category ORDER BY cnt DESC"
@@ -1632,7 +1633,7 @@ async def dict_crud_tool(args: dict[str, Any]) -> dict[str, Any]:
                 return _error(f"Invalid column name(s): {bad_cols}")
             set_parts = [f"{k} = ?" for k in fields]
             values = list(fields.values()) + [int(record_id)]
-            cursor = conn.execute(f"UPDATE {table} SET {', '.join(set_parts)} WHERE id = ?", values)
+            cursor = conn.execute(f"UPDATE [{table}] SET {', '.join(set_parts)} WHERE id = ?", values)
             conn.commit()
             affected = cursor.rowcount
             conn.close()
@@ -1645,7 +1646,7 @@ async def dict_crud_tool(args: dict[str, Any]) -> dict[str, Any]:
             if not record_id:
                 conn.close()
                 return _error("data.id is required for delete")
-            cursor = conn.execute(f"DELETE FROM {table} WHERE id = ?", (int(record_id),))
+            cursor = conn.execute(f"DELETE FROM [{table}] WHERE id = ?", (int(record_id),))
             conn.commit()
             affected = cursor.rowcount
             conn.close()

@@ -68,7 +68,7 @@ async def _ps(cmd: str) -> str:
     return await asyncio.to_thread(_ps_sync, cmd)
 
 
-async def _run(func, *args):
+async def _run(func: Any, *args: Any) -> Any:
     """Run a blocking function in a thread pool to avoid blocking the event loop."""
     return await asyncio.to_thread(func, *args)
 
@@ -1093,7 +1093,8 @@ async def handle_dict_crud(args: dict) -> list[TextContent]:
             if operation == "stats":
                 counts = {}
                 for t in _DICT_TABLES:
-                    counts[t] = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                    assert t.isidentifier(), f"Unsafe table name: {t}"
+                    counts[t] = conn.execute(f"SELECT COUNT(*) FROM [{t}]").fetchone()[0]
                 return json.dumps(counts, indent=2)
 
             if operation == "search":
@@ -1174,7 +1175,7 @@ async def handle_dict_crud(args: dict) -> list[TextContent]:
                     return _error(f"Invalid column name(s): {bad}")
                 sets = [f"{k} = ?" for k in fields]
                 vals = list(fields.values()) + [int(rid)]
-                cur = conn.execute(f"UPDATE {table} SET {', '.join(sets)} WHERE id = ?", vals)
+                cur = conn.execute(f"UPDATE [{table}] SET {', '.join(sets)} WHERE id = ?", vals)
                 conn.commit()
                 return f"OK: Updated {cur.rowcount} row(s) in {table}" if cur.rowcount else f"ERROR: No record id={rid}"
 
@@ -1182,7 +1183,7 @@ async def handle_dict_crud(args: dict) -> list[TextContent]:
                 rid = data.get("id")
                 if not rid:
                     return "ERROR: data.id required"
-                cur = conn.execute(f"DELETE FROM {table} WHERE id = ?", (int(rid),))
+                cur = conn.execute(f"DELETE FROM [{table}] WHERE id = ?", (int(rid),))
                 conn.commit()
                 return f"OK: Deleted {cur.rowcount} row(s)" if cur.rowcount else f"ERROR: No record id={rid}"
 
