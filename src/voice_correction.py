@@ -99,6 +99,14 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["train", "traine", "trene"],
     ["loss", "losse", "los"],
     ["weight", "ouaite", "weite"],
+    # Vague 14 — Kubernetes / Containers phonetiques
+    ["kubectl", "cube control", "kube ctl", "cubectl"],
+    ["docker", "dokeur", "doker"],
+    ["kubernetes", "cube air nette", "kubernete"],
+    ["helm", "elme", "helme"],
+    ["ingress", "inne gresse", "ingrais"],
+    ["prometheus", "pro me te us", "promethee"],
+    ["grafana", "graffana", "grafanna"],
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -809,6 +817,35 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "reindex": "reindex la base",
     "dump": "dump la base",
     "import db": "importe les donnees",
+    # Vague 50 — Kubernetes raccourcis
+    "pods": "liste les pods",
+    "deployments": "liste les deployments",
+    "services k8s": "liste les services kubernetes",
+    "logs pod": "affiche les logs du pod",
+    "scale": "scale le deployment",
+    "rollout": "statut du rollout",
+    "helm list": "liste les charts helm",
+    "namespace": "change de namespace",
+    "kubectl": "lance kubectl",
+    # Vague 51 — Monitoring raccourcis
+    "metrics": "affiche les metriques",
+    "dashboard": "ouvre le dashboard",
+    "grafana": "ouvre grafana",
+    "prometheus": "ouvre prometheus",
+    "alerts": "montre les alertes",
+    "logs": "affiche les logs",
+    "traces": "affiche les traces",
+    "health": "healthcheck systeme",
+    # Vague 52 — Auth / Securite raccourcis
+    "login": "connecte toi",
+    "logout": "deconnecte toi",
+    "token": "genere un token",
+    "refresh token": "rafraichis le token",
+    "permissions": "montre les permissions",
+    "roles": "liste les roles",
+    "audit log": "affiche l'audit log",
+    "encrypt": "chiffre le fichier",
+    "decrypt": "dechiffre le fichier",
 }
 
 
