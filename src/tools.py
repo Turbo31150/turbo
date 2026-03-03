@@ -1526,7 +1526,8 @@ async def dict_crud_tool(args: dict[str, Any]) -> dict[str, Any]:
         if operation == "stats":
             counts = {}
             for t in _DICT_TABLES:
-                assert t.isidentifier(), f"Unsafe table name: {t}"
+                if not t.isidentifier():
+                    raise ValueError(f"Unsafe table name: {t}")
                 counts[t] = conn.execute(f"SELECT COUNT(*) FROM [{t}]").fetchone()[0]
             if table == "pipeline_dictionary":
                 cats = conn.execute(

@@ -1117,7 +1117,8 @@ async def handle_dict_crud(args: dict) -> list[TextContent]:
             if operation == "stats":
                 counts = {}
                 for t in _DICT_TABLES:
-                    assert t.isidentifier(), f"Unsafe table name: {t}"
+                    if not t.isidentifier():
+                        raise ValueError(f"Unsafe table name: {t}")
                     counts[t] = conn.execute(f"SELECT COUNT(*) FROM [{t}]").fetchone()[0]
                 return json.dumps(counts, indent=2)
 
