@@ -1685,23 +1685,47 @@ _build_learning_dataset()
 # ══════════════════════════════════════════════════════════════════════════════
 
 def find_domino(text: str) -> DominoPipeline | None:
-    """Trouve le domino pipeline correspondant a une phrase vocale."""
+    """Trouve le domino pipeline correspondant a une phrase vocale.
+
+    Matching order: exact trigger > partial trigger > ID match > keyword in description.
+    """
     text_lower = text.lower().strip()
     best_match = None
     best_score = 0.0
 
     for dp in DOMINO_PIPELINES:
+        # 1. Exact trigger match (highest priority)
         for trigger in dp.trigger_vocal:
-            # Match exact
             if text_lower == trigger.lower():
                 return dp
-            # Match partiel (contient le trigger)
-            if trigger.lower() in text_lower or text_lower in trigger.lower():
+
+        # 2. Partial trigger match (containment)
+        for trigger in dp.trigger_vocal:
+            trig_lower = trigger.lower()
+            if trig_lower in text_lower or text_lower in trig_lower:
                 from difflib import SequenceMatcher
-                score = SequenceMatcher(None, text_lower, trigger.lower()).ratio()
+                score = SequenceMatcher(None, text_lower, trig_lower).ratio()
                 if score > best_score and score > 0.6:
                     best_score = score
                     best_match = dp
+
+        # 3. ID match (e.g. "domino_backup_complet" matches "backup complet")
+        id_clean = dp.id.replace("domino_", "").replace("_", " ")
+        if text_lower == id_clean or id_clean in text_lower:
+            score = 0.75
+            if score > best_score:
+                best_score = score
+                best_match = dp
+
+        # 4. Keyword match in description (lowest priority)
+        text_words = set(text_lower.split())
+        desc_words = set(dp.description.lower().split())
+        common = text_words & desc_words - {"de", "du", "le", "la", "les", "un", "une", "des", "et", "en", "a"}
+        if len(common) >= 2:
+            keyword_score = len(common) / max(len(text_words), 1) * 0.65
+            if keyword_score > best_score and keyword_score > 0.5:
+                best_score = keyword_score
+                best_match = dp
 
     return best_match
 

@@ -998,7 +998,10 @@ async def full_correction_pipeline(
     # Step 10: Try domino pipeline matching (cascades vocales)
     try:
         from src.domino_pipelines import find_domino
+        # Try intent first, then full corrected text as fallback
         domino = find_domino(intent)
+        if not domino and corrected != intent:
+            domino = find_domino(corrected)
         if domino:
             result["domino"] = domino
             result["confidence"] = 0.80
