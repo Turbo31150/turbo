@@ -2586,6 +2586,69 @@ COMMANDS: list[JarvisCommand] = [
         "note rapide {texte}", "prends en note {texte}",
         "rappelle moi {texte}", "memo rapide {texte}",
     ], "jarvis_tool", "quick_note:{texte}", ["texte"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # BATCH 87 — Audio / Securite / Fichiers avances (15 commandes)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("volume_set", "media", "Regler le volume a un niveau precis", [
+        "volume {pourcentage}", "mets le volume a {pourcentage}",
+        "regle le volume a {pourcentage}", "son a {pourcentage}",
+    ], "powershell", "Set-AudioDevice -PlaybackVolume {pourcentage}", ["pourcentage"]),
+    JarvisCommand("bass_boost", "media", "Augmenter les basses", [
+        "augmente les basses", "bass boost", "plus de basses",
+        "basses a fond",
+    ], "jarvis_tool", "audio_bass_boost"),
+    JarvisCommand("equalizer", "media", "Ouvrir l'egaliseur audio", [
+        "ouvre l'egaliseur", "equalizer", "parametres audio",
+        "reglages son", "egaliseur",
+    ], "powershell", "Start-Process ms-settings:sound"),
+    JarvisCommand("scan_antivirus", "securite", "Lancer un scan antivirus rapide", [
+        "lance un scan antivirus", "scan virus", "analyse antivirus",
+        "defender scan", "check virus",
+    ], "powershell", "Start-MpScan -ScanType QuickScan"),
+    JarvisCommand("check_firewall", "securite", "Verifier l'etat du pare-feu", [
+        "verifie le pare-feu", "check firewall", "etat du firewall",
+        "statut pare-feu", "firewall status",
+    ], "powershell", "Get-NetFirewallProfile | Select-Object Name,Enabled"),
+    JarvisCommand("check_ports_listening", "securite", "Ports en ecoute detailles", [
+        "ports en ecoute detailles", "detailed ports", "check ports full",
+        "tous les ports ouverts", "listening ports detail",
+    ], "powershell", "Get-NetTCPConnection -State Listen | Select-Object LocalAddress,LocalPort,OwningProcess | Sort-Object LocalPort"),
+    JarvisCommand("fichiers_recents", "fichiers", "Derniers fichiers modifies", [
+        "derniers fichiers modifies", "fichiers recents", "recent files",
+        "quoi de recent", "derniers changements fichiers",
+    ], "powershell", "Get-ChildItem -Path F:\\BUREAU\\turbo\\src -Recurse -File | Sort-Object LastWriteTime -Descending | Select-Object -First 10 Name,LastWriteTime"),
+    JarvisCommand("taille_dossier", "fichiers", "Taille d'un dossier", [
+        "taille du dossier {dossier}", "combien pese {dossier}",
+        "taille de {dossier}", "poids du dossier {dossier}",
+    ], "powershell", "(Get-ChildItem -Path '{dossier}' -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB", ["dossier"]),
+    JarvisCommand("cherche_fichier", "fichiers", "Chercher un fichier par nom", [
+        "cherche le fichier {nom}", "trouve {nom}", "ou est {nom}",
+        "find {nom}", "localise {nom}",
+    ], "powershell", "Get-ChildItem -Path F:\\BUREAU -Recurse -Filter '*{nom}*' -ErrorAction SilentlyContinue | Select-Object FullName -First 10", ["nom"]),
+    JarvisCommand("dupliquer_fichier", "fichiers", "Dupliquer un fichier", [
+        "duplique {fichier}", "copie {fichier}", "fais une copie de {fichier}",
+    ], "powershell", "Copy-Item '{fichier}' ('{fichier}' -replace '(\\.[^.]+)$','_copy$1')", ["fichier"]),
+    JarvisCommand("webcam_test", "media", "Tester la webcam", [
+        "teste la webcam", "webcam test", "camera test",
+        "verifie la camera", "check webcam",
+    ], "powershell", "Start-Process ms-settings:camera"),
+    JarvisCommand("microphone_test", "media", "Tester le microphone", [
+        "teste le micro", "microphone test", "mic check",
+        "verifie le micro", "check micro",
+    ], "powershell", "Start-Process ms-settings:sound"),
+    JarvisCommand("enregistre_ecran", "media", "Enregistrer l'ecran", [
+        "enregistre l'ecran", "screencast", "capture video",
+        "record screen", "screen record",
+    ], "jarvis_tool", "screen_record"),
+    JarvisCommand("kill_process", "systeme", "Tuer un processus par nom", [
+        "kill {processus}", "tue {processus}", "arrete {processus}",
+        "ferme le processus {processus}", "stop {processus}",
+    ], "powershell", "Stop-Process -Name '{processus}' -Force -ErrorAction SilentlyContinue", ["processus"], confirm=True),
+    JarvisCommand("environnement_variables", "systeme", "Voir les variables d'environnement", [
+        "variables d'environnement", "env vars", "montre les variables",
+        "environnement systeme", "system env",
+    ], "powershell", "Get-ChildItem Env: | Sort-Object Name | Select-Object -First 30 Name,Value"),
 ]
 
 # Post-processing: replace hardcoded paths with config-driven values
@@ -4413,6 +4476,87 @@ VOICE_CORRECTIONS: dict[str, str] = {
     "web hooke": "webhook",
     "en point de terminaison": "endpoint",
     "enne pointe": "endpoint",
+    # Vague 65 — Confusions prenoms/marques tech
+    "googueul": "google",
+    "goguele": "google",
+    "googlé": "google",
+    "appeulle": "apple",
+    "meta": "meta",
+    "méta": "meta",
+    "openai": "openai",
+    "open aille aille": "openai",
+    "mistrale aille aille": "mistral ai",
+    "anthropique": "anthropic",
+    "huguine face": "hugging face",
+    "hugueune fesse": "hugging face",
+    "stabilitee": "stability",
+    "stab aille aille": "stability ai",
+    "tensoreflo": "tensorflow",
+    "tensor flo": "tensorflow",
+    "païe torche": "pytorch",
+    "pie torche": "pytorch",
+    "lama": "llama",
+    "llama": "llama",
+    "yama": "llama",
+    # Vague 66 — Termes securite
+    "pare feu": "pare-feu",
+    "faille veule": "firewall",
+    "firevol": "firewall",
+    "antivirus": "antivirus",
+    "anti viruce": "antivirus",
+    "malware": "malware",
+    "malouaire": "malware",
+    "ransome ouaire": "ransomware",
+    "phishing": "phishing",
+    "fichingue": "phishing",
+    "brute force": "brute force",
+    "bruteforce": "brute force",
+    "injection": "injection",
+    "xss": "xss",
+    "csrf": "csrf",
+    "two fa": "2fa",
+    "2 fa": "2fa",
+    "auth": "authentification",
+    "oauth": "oauth",
+    "jeton": "token",
+    "tokene": "token",
+    # Vague 67 — Termes audio / video
+    "codec": "codec",
+    "codek": "codec",
+    "bitrate": "bitrate",
+    "bite raite": "bitrate",
+    "framerate": "framerate",
+    "freime raite": "framerate",
+    "resolussion": "resolution",
+    "HD": "hd",
+    "4K": "4k",
+    "full hd": "full hd",
+    "1080p": "1080p",
+    "720p": "720p",
+    "screene shote": "screenshot",
+    "scrine chotte": "screenshot",
+    "micro phone": "microphone",
+    "hauts parleur": "haut-parleur",
+    "haut-parleur": "haut-parleur",
+    "casque": "casque",
+    "webcam": "webcam",
+    "ouebe came": "webcam",
+    # Vague 68 — Onomatopees / bruit STT
+    "haha": "",
+    "hehe": "",
+    "hihi": "",
+    "pfff": "",
+    "tsss": "",
+    "ohh": "oh",
+    "ahh": "ah",
+    "mmm": "",
+    "ouais ouais": "oui",
+    "non non non": "non",
+    "oui oui": "oui",
+    "la la la": "",
+    "bla bla": "",
+    "blablabla": "",
+    "gnagna": "",
 }
 
 

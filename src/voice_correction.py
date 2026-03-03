@@ -115,6 +115,11 @@ FILLER_WORDS = {
     "rapidement", "vite fait", "en vitesse",
     "quand tu peux", "des que possible",
     "si tu veux bien", "je te demande de",
+    # Vague 5 — Fillers anglais tech
+    "basically", "actually", "literally", "like",
+    "you know", "i mean", "right", "okay so",
+    "let me", "can you", "just", "maybe",
+    "i think", "i guess", "sort of", "kind of",
 }
 
 # Expansions de commandes implicites
@@ -630,6 +635,44 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "liveness": "liveness check",
     "readiness": "readiness check",
     "heartbeat": "heartbeat check",
+    # Vague 36 — Audio / Video
+    "volume max": "monte le volume au max",
+    "volume min": "baisse le volume au minimum",
+    "mute all": "coupe tout le son",
+    "unmute": "reactive le son",
+    "micro on": "active le micro",
+    "micro off": "coupe le micro",
+    "camera on": "active la camera",
+    "camera off": "coupe la camera",
+    "record": "enregistre l'ecran",
+    "screencast": "enregistre l'ecran",
+    "capture video": "enregistre l'ecran",
+    "bass boost": "augmente les basses",
+    "equalizer": "ouvre l'egaliseur",
+    # Vague 37 — Securite
+    "scan virus": "lance un scan antivirus",
+    "antivirus scan": "lance un scan antivirus",
+    "scan malware": "lance un scan malware",
+    "check firewall": "verifie le pare-feu",
+    "firewall": "verifie le pare-feu",
+    "permissions": "verifie les permissions",
+    "credentials": "verifie les credentials",
+    "secrets": "verifie les secrets",
+    "certs": "verifie les certificats",
+    "certificates": "verifie les certificats",
+    "encrypt": "chiffre",
+    "decrypt": "dechiffre",
+    # Vague 38 — Donnees / Export
+    "csv": "exporte en csv",
+    "json": "exporte en json",
+    "xml": "exporte en xml",
+    "yaml": "exporte en yaml",
+    "pdf": "exporte en pdf",
+    "excel": "exporte en excel",
+    "import data": "importe les donnees",
+    "export data": "exporte les donnees",
+    "sync data": "synchronise les donnees",
+    "migrate data": "migre les donnees",
 }
 
 
