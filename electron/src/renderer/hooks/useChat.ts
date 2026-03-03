@@ -30,6 +30,7 @@ interface ChatState {
 
 const STORAGE_KEY = 'jarvis_chat_history';
 const MAX_STORED = 200;
+const MAX_MESSAGES = 500; // In-memory cap — FIFO eviction beyond this
 
 function loadHistory(): ChatMessage[] {
   try {
@@ -37,6 +38,10 @@ function loadHistory(): ChatMessage[] {
     if (raw) return JSON.parse(raw).slice(-MAX_STORED);
   } catch (err) { console.warn('[Chat] loadHistory error:', err instanceof Error ? err.message : err); }
   return [];
+}
+
+function capMessages(msgs: ChatMessage[]): ChatMessage[] {
+  return msgs.length > MAX_MESSAGES ? msgs.slice(-MAX_MESSAGES) : msgs;
 }
 
 function saveHistory(messages: ChatMessage[]) {
@@ -89,7 +94,7 @@ export function useChat() {
           };
           setState(prev => ({
             ...prev,
-            messages: [...prev.messages, agentMsg],
+            messages: capMessages([...prev.messages, agentMsg]),
             loading: false,
           }));
           break;
@@ -166,7 +171,7 @@ export function useChat() {
           };
           setState(prev => ({
             ...prev,
-            messages: [...prev.messages, errMsg],
+            messages: capMessages([...prev.messages, errMsg]),
             loading: false,
           }));
           break;
@@ -189,7 +194,7 @@ export function useChat() {
     };
 
     setState(prev => ({
-      messages: [...prev.messages, userMsg],
+      messages: capMessages([...prev.messages, userMsg]),
       loading: true,
     }));
 
@@ -221,7 +226,7 @@ export function useChat() {
         timestamp: Date.now(),
       };
       setState(prev => ({
-        messages: [...prev.messages, errMsg],
+        messages: capMessages([...prev.messages, errMsg]),
         loading: false,
       }));
     }

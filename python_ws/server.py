@@ -54,6 +54,9 @@ logger = logging.getLogger("jarvis.ws")
 # ── Valid channels ───────────────────────────────────────────────────────────
 CHANNELS = {"cluster", "trading", "voice", "chat", "files", "system", "dictionary"}
 
+# ── Connected WebSocket clients ──────────────────────────────────────────────
+_connected_clients: set = set()
+
 # ── FastAPI app ──────────────────────────────────────────────────────────────
 app = FastAPI(title="JARVIS Desktop WS", version="1.0.0")
 
@@ -491,8 +494,6 @@ async def _trading_push_loop(websocket: WebSocket) -> None:
 
 
 # ── Global Push-to-Talk (CTRL key) ────────────────────────────────────────────
-
-_connected_clients: set[WebSocket] = set()
 
 _ptt_hook_started = False
 _ptt_active = False

@@ -248,27 +248,43 @@ def _get_gpu_stats() -> list[dict[str, Any]]:
         return []
 
 
+_thermal_cache: dict[str, Any] = {}
+_thermal_cache_ts: float = 0.0
+_THERMAL_TTL: float = 30.0  # seconds — GPU temps change slowly
+
+
 def check_thermal_status() -> dict[str, Any]:
     """Verifie l'etat thermique des GPU pour le routage commandant.
+
+    Uses a 30s TTL cache to avoid blocking subprocess.run on every call.
 
     Returns:
         {"ok": bool, "max_temp": int, "status": "normal"|"warning"|"critical",
          "hot_gpus": [...], "recommendation": str}
     """
+    global _thermal_cache, _thermal_cache_ts
+    now = time.monotonic()
+    if _thermal_cache and (now - _thermal_cache_ts) < _THERMAL_TTL:
+        return _thermal_cache
+
     gpus = _get_gpu_stats()
     if not gpus:
-        return {"ok": True, "max_temp": -1, "status": "unknown", "hot_gpus": [], "recommendation": ""}
+        result: dict[str, Any] = {"ok": True, "max_temp": -1, "status": "unknown", "hot_gpus": [], "recommendation": ""}
+        _thermal_cache, _thermal_cache_ts = result, now
+        return result
 
     temps = [g["temp_c"] for g in gpus if g["temp_c"] >= 0]
     if not temps:
-        return {"ok": True, "max_temp": -1, "status": "unknown", "hot_gpus": [], "recommendation": ""}
+        result = {"ok": True, "max_temp": -1, "status": "unknown", "hot_gpus": [], "recommendation": ""}
+        _thermal_cache, _thermal_cache_ts = result, now
+        return result
 
     max_temp = max(temps)
     hot_gpus = [g for g in gpus if g["temp_c"] >= config.gpu_thermal_warning]
     critical_gpus = [g for g in gpus if g["temp_c"] >= config.gpu_thermal_critical]
 
     if critical_gpus:
-        return {
+        result = {
             "ok": False,
             "max_temp": max_temp,
             "status": "critical",
@@ -276,7 +292,7 @@ def check_thermal_status() -> dict[str, Any]:
             "recommendation": "Deporter taches vers M2/OL1/GEMINI",
         }
     elif hot_gpus:
-        return {
+        result = {
             "ok": True,
             "max_temp": max_temp,
             "status": "warning",
@@ -284,13 +300,16 @@ def check_thermal_status() -> dict[str, Any]:
             "recommendation": "Reduire charge M1, preferer M2 pour code",
         }
     else:
-        return {
+        result = {
             "ok": True,
             "max_temp": max_temp,
             "status": "normal",
             "hot_gpus": [],
             "recommendation": "",
         }
+
+    _thermal_cache, _thermal_cache_ts = result, now
+    return result
 
 
 # ═══════════════════════════════════════════════════════════════════════════

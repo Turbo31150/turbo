@@ -127,9 +127,9 @@ export function useCluster() {
             return node;
           });
 
-          // If node is new, parse and add it
+          // If node is new, parse and add it (cap at 50 to prevent unbounded growth)
           const exists = prev.nodes.some(n => n.name === p.name);
-          if (!exists && p.name) {
+          if (!exists && p.name && updatedNodes.length < 50) {
             const parsed = parseNodes({ [p.name as string]: p })[0];
             if (parsed) updatedNodes.push(parsed);
           }

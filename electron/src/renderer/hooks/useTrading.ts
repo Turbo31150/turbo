@@ -151,7 +151,7 @@ export function useTrading() {
     try {
       const response = await request('trading', 'get_positions');
       if (!mountedRef.current) return;
-      const positions = response.payload?.positions || [];
+      const positions = (response.payload?.positions || []).slice(0, 200);
       const totalPnl = positions
         .filter((p: TradingPosition) => p.status === 'open')
         .reduce((sum: number, p: TradingPosition) => sum + (p.pnl || 0), 0);
