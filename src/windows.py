@@ -212,33 +212,33 @@ def list_windows() -> str:
 
 def focus_window(title_part: str) -> str:
     """Bring a window to front by partial title match."""
-    safe = _sq(title_part).replace('"', '`"')
+    safe = _sq(title_part)
     return _ps(
         f"Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; "
         f"public class Win {{ [DllImport(\"user32.dll\")] public static extern bool SetForegroundWindow(IntPtr hWnd); }}'; "
-        f"$p = Get-Process | Where-Object {{ $_.MainWindowTitle -match \"{safe}\" }} | Select-Object -First 1; "
+        f"$p = Get-Process | Where-Object {{ $_.MainWindowTitle -match '{safe}' }} | Select-Object -First 1; "
         f"if ($p) {{ [Win]::SetForegroundWindow($p.MainWindowHandle); 'Focus: ' + $p.MainWindowTitle }} else {{ 'Fenetre non trouvee' }}"
     )
 
 
 def minimize_window(title_part: str) -> str:
     """Minimize a window by partial title match."""
-    safe = _sq(title_part).replace('"', '`"')
+    safe = _sq(title_part)
     return _ps(
         f"Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; "
         f"public class Win {{ [DllImport(\"user32.dll\")] public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow); }}'; "
-        f"$p = Get-Process | Where-Object {{ $_.MainWindowTitle -match \"{safe}\" }} | Select-Object -First 1; "
+        f"$p = Get-Process | Where-Object {{ $_.MainWindowTitle -match '{safe}' }} | Select-Object -First 1; "
         f"if ($p) {{ [Win]::ShowWindow($p.MainWindowHandle, 6); 'Minimise' }} else {{ 'Non trouve' }}"
     )
 
 
 def maximize_window(title_part: str) -> str:
     """Maximize a window by partial title match."""
-    safe = _sq(title_part).replace('"', '`"')
+    safe = _sq(title_part)
     return _ps(
         f"Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; "
         f"public class Win {{ [DllImport(\"user32.dll\")] public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow); }}'; "
-        f"$p = Get-Process | Where-Object {{ $_.MainWindowTitle -match \"{safe}\" }} | Select-Object -First 1; "
+        f"$p = Get-Process | Where-Object {{ $_.MainWindowTitle -match '{safe}' }} | Select-Object -First 1; "
         f"if ($p) {{ [Win]::ShowWindow($p.MainWindowHandle, 3); 'Maximise' }} else {{ 'Non trouve' }}"
     )
 

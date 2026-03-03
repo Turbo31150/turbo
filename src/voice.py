@@ -503,19 +503,27 @@ async def speak_text(text: str, voice: str = "fr-FR") -> bool:
     if not text or not text.strip():
         return False
 
-    clean = text.replace('"', "'").replace("\n", " ").replace("**", "")
+    import re as _re
+    clean = text.replace("\n", " ").replace("**", "")
     if len(clean) > 500:
         clean = clean[:497] + "..."
+    # Sanitize voice tag (only allow culture codes like fr-FR, en-US)
+    if not _re.match(r'^[a-zA-Z]{2}(-[a-zA-Z]{2,})*$', voice):
+        voice = "fr-FR"
 
     ps_path = None
     try:
         with tempfile.NamedTemporaryFile(mode='w', suffix='.ps1', delete=False, encoding='utf-8') as f:
+            # Use single-quoted here-string @'...'@ to prevent PS injection
             f.write(
                 'Add-Type -AssemblyName System.Speech\n'
                 '$synth = New-Object System.Speech.Synthesis.SpeechSynthesizer\n'
-                f'$synth.SelectVoiceByHints("NotSet", 0, 0, '
-                f'[System.Globalization.CultureInfo]::GetCultureInfo("{voice}"))\n'
-                f'$synth.Speak("{clean}")\n'
+                f"$synth.SelectVoiceByHints('NotSet', 0, 0, "
+                f"[System.Globalization.CultureInfo]::GetCultureInfo('{voice}'))\n"
+                "$text = @'\n"
+                f"{clean}\n"
+                "'@\n"
+                '$synth.Speak($text)\n'
             )
             ps_path = f.name
 

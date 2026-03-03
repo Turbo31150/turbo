@@ -230,6 +230,15 @@ def execute_signal(signal_id: int, dry_run: bool | None = None) -> dict[str, Any
     if not config.mexc_api_key or not config.mexc_secret_key:
         return {**result, "success": False, "error": "API keys MEXC non configurees"}
 
+    # Validate DB connection BEFORE placing exchange orders
+    # to avoid orphaned positions if DB is unavailable
+    conn = None
+    try:
+        conn = _db_conn()
+    except (sqlite3.Error, OSError) as e:
+        logger.error("DB unavailable — aborting trade for %s: %s", symbol, e)
+        return {**result, "success": False, "error": f"DB unavailable: {e}"}
+
     try:
         mexc = _init_ccxt()
         mexc.load_markets()
@@ -267,11 +276,8 @@ def execute_signal(signal_id: int, dry_run: bool | None = None) -> dict[str, Any
             result["sl_error"] = str(e)
 
         # Mark signal as executed
-        conn = _db_conn()
         try:
             conn.execute("UPDATE signals SET executed = 1 WHERE id = ?", (signal_id,))
-
-            # Insert trade record
             conn.execute(
                 """INSERT INTO trades
                    (symbol, direction, entry_price, size, leverage, margin,
@@ -286,17 +292,21 @@ def execute_signal(signal_id: int, dry_run: bool | None = None) -> dict[str, Any
                 ),
             )
             conn.commit()
-        finally:
-            conn.close()
+        except sqlite3.Error as db_err:
+            logger.error("DB record FAILED for %s (position LIVE on exchange!): %s", symbol, db_err)
+            result["db_error"] = str(db_err)
 
-        # Telegram notification
-        _notify_execution(result)
         result["message"] = "Ordre place avec succes"
 
-    except (ccxt.BaseError, OSError, sqlite3.Error) as e:
+    except (ccxt.BaseError, OSError) as e:
         logger.error("Trade execution failed for %s: %s", symbol, e)
         result["success"] = False
         result["error"] = str(e)
+    finally:
+        if conn:
+            conn.close()
+        # Always notify (even on partial failure) so operator is aware
+        _notify_execution(result)
 
     return result
 

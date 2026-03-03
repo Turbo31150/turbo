@@ -99,12 +99,15 @@ class WhisperWorker:
                 self._proc.stdin.write(audio_path + "\n")
                 self._proc.stdin.flush()
 
-                # Collect segments until DONE
+                # Collect segments until DONE (with deadlock protection)
                 full_text = ""
-                while True:
+                for _ in range(600):  # ~60s max (readline blocks ~100ms per empty)
                     line = self._proc.stdout.readline().strip()
                     if line.startswith("DONE:"):
                         full_text = line[5:].strip()
+                        break
+                    if not line and self._proc.poll() is not None:
+                        logger.warning("Whisper subprocess died during transcription")
                         break
                     # SEGMENT lines are partial results
                 return full_text
