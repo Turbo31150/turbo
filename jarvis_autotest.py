@@ -133,7 +133,7 @@ def query_node(node_id, prompt):
         # Strip think tags
         text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL).strip()
         return text, latency, None
-    except Exception as e:
+    except (urllib.error.URLError, OSError, json.JSONDecodeError, KeyError) as e:
         latency = int((time.time() - t0) * 1000)
         return "", latency, str(e)
 
@@ -383,7 +383,7 @@ def save_results():
             )
             if regression:
                 print(f"  [REGRESSION] Score dropped >10%! Current: {score}", flush=True)
-    except Exception as e:
+    except (OSError, KeyError, ValueError) as e:
         print(f"  [WARN] History append failed: {e}", flush=True)
 
 def print_summary():

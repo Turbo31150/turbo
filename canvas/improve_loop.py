@@ -177,7 +177,7 @@ def run_test(test, client):
             "chain": [{"node": s.get("node"), "role": s.get("role"), "ms": s.get("duration_ms", 0)} for s in chain],
             "latency_ms": latency, "scores": scores
         }
-    except Exception as e:
+    except (httpx.HTTPError, OSError, asyncio.TimeoutError) as e:
         latency = int((time.time() - start) * 1000)
         return {"ok": False, "error": str(e)[:200], "latency_ms": latency}
 
@@ -422,7 +422,7 @@ def main():
         with open(SCORES_FILE, "w", encoding="utf-8") as f:
             json.dump(final, f, indent=2, ensure_ascii=False)
         print(f"\n  Scores saved to: {SCORES_FILE}")
-    except Exception as e:
+    except (json.JSONDecodeError, KeyError, OSError) as e:
         print(f"  Error reading log: {e}")
 
     print(f"\n  Log file: {LOG_FILE}")

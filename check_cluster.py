@@ -36,7 +36,7 @@ async def check_lmstudio(c: httpx.AsyncClient, name: str, url: str) -> dict:
                 result["loaded"].append({"model": model_id, "latency_ms": round(latency)})
             except (httpx.HTTPError, OSError):
                 pass
-    except Exception as e:
+    except (httpx.HTTPError, OSError) as e:
         result["error"] = str(e)
     return result
 
@@ -49,7 +49,7 @@ async def check_ollama(c: httpx.AsyncClient, name: str, url: str) -> dict:
         data = r.json()
         result["status"] = "online"
         result["models"] = [m["name"] for m in data.get("models", [])]
-    except Exception as e:
+    except (httpx.HTTPError, OSError) as e:
         result["error"] = str(e)
     return result
 

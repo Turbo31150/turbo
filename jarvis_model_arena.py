@@ -29,7 +29,7 @@ def unload_m1():
                 req2 = urllib.request.Request(M1["unload_url"], data=body, headers={"Content-Type": "application/json", "Authorization": f"Bearer {M1['key']}"})
                 urllib.request.urlopen(req2, timeout=30)
                 log(f"Unloaded: {iid}")
-    except Exception as e:
+    except (urllib.error.URLError, OSError, json.JSONDecodeError) as e:
         log(f"Unload error (may be ok): {e}")
 
 def load_m1(model_id, config):
@@ -45,7 +45,7 @@ def load_m1(model_id, config):
             return True
         log(f"Load response: {result}")
         return False
-    except Exception as e:
+    except (urllib.error.URLError, OSError, json.JSONDecodeError) as e:
         log(f"Load FAILED: {e}")
         return False
 
@@ -65,7 +65,7 @@ def run_benchmark(cycles=5, tasks_per_cycle=40):
             [sys.executable, "C:/Users/franc/jarvis_autotest.py", str(cycles), str(tasks_per_cycle)],
             capture_output=True, text=True, timeout=1800, cwd="C:/Users/franc"
         )
-    except Exception as e:
+    except (subprocess.SubprocessError, OSError) as e:
         log(f"Benchmark subprocess error: {e}")
     try:
         with open("C:/Users/franc/jarvis_autotest_results.json", encoding="utf-8") as _fh:
@@ -78,7 +78,7 @@ def run_benchmark(cycles=5, tasks_per_cycle=40):
                 lats.extend([nd["avg_latency"]] * nd["total"])
         avg_lat = int(sum(lats) / len(lats)) if lats else 0
         return pass_rate, avg_lat, total, data["errors"]
-    except Exception as e:
+    except (json.JSONDecodeError, KeyError, OSError) as e:
         log(f"Failed to parse results: {e}")
         return 0, 0, 0, 0
 
@@ -168,7 +168,7 @@ if __name__ == "__main__":
         for name in CANDIDATE_MODELS:
             try:
                 tournament(name, quick=True)
-            except Exception as e:
+            except (urllib.error.URLError, OSError, subprocess.SubprocessError) as e:
                 print(f"Arena {name} error: {e}")
     elif "--all" in args:
         quick = "--quick" in args
