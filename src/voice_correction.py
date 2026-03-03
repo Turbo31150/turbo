@@ -633,11 +633,18 @@ async def full_correction_pipeline(
     cleaned = normalize_text(raw_text)
     result["cleaned"] = cleaned
 
-    # Step 2: Check implicit single-word commands
+    # Step 2: Check implicit commands (single-word AND multi-word)
     single = cleaned.strip()
     if single in IMPLICIT_COMMANDS:
         cleaned = IMPLICIT_COMMANDS[single]
         result["method"] = "implicit"
+    else:
+        # Check multi-word implicit commands (longest match first)
+        for key in sorted(IMPLICIT_COMMANDS, key=len, reverse=True):
+            if " " in key and single == key:
+                cleaned = IMPLICIT_COMMANDS[key]
+                result["method"] = "implicit"
+                break
 
     # Step 3: Apply local voice corrections dictionary
     corrected = correct_voice_text(cleaned)
@@ -828,10 +835,19 @@ async def _ia_correct(text: str, url: str, model: str) -> str:
 class VoiceSession:
     """Track voice session state for multi-turn correction (thread-safe)."""
 
+    # Anaphoric references that refer to the last command
+    _REPEAT_PHRASES = {
+        "refais", "relance", "encore", "pareil", "la meme chose",
+        "meme chose", "repete", "fais le encore", "lance ca",
+        "fais ca", "recommence", "de nouveau",
+    }
+
     def __init__(self):
         self._lock = threading.Lock()
         self.last_suggestions: list[tuple[JarvisCommand, float]] = []
         self.last_raw: str = ""
+        self.last_command: JarvisCommand | None = None
+        self.last_params: dict = {}
         self.correction_count: int = 0
         self.history: list[str] = []
 
@@ -851,6 +867,12 @@ class VoiceSession:
             return self.last_suggestions[idx][0]
         return None
 
+    def is_repeat_request(self, text: str) -> JarvisCommand | None:
+        """Check if user wants to repeat the last command."""
+        if text.strip().lower() in self._REPEAT_PHRASES and self.last_command:
+            return self.last_command
+        return None
+
     def is_confirmation(self, text: str) -> bool:
         """Check if user is confirming."""
         confirms = {"oui", "yes", "ok", "confirme", "valide", "go", "lance", "d'accord", "daccord", "ouais", "yep", "correct", "exactement", "c'est ca"}
@@ -860,6 +882,12 @@ class VoiceSession:
         """Check if user is denying/canceling."""
         denials = {"non", "no", "annule", "annuler", "pas ca", "non merci", "nan", "nope", "stop", "arrete"}
         return text.strip().lower() in denials
+
+    def record_execution(self, cmd: JarvisCommand, params: dict | None = None):
+        """Record a successfully executed command for context carry."""
+        with self._lock:
+            self.last_command = cmd
+            self.last_params = params or {}
 
     def add_to_history(self, text: str):
         """Add corrected text to history for context (thread-safe)."""
