@@ -84,6 +84,13 @@ FILLER_WORDS = {
     "en gros", "comment dire", "tu vois", "voyons",
     "allez", "tiens", "dis moi", "dis-moi",
     "hey jarvis", "oh jarvis", "eh jarvis",
+    # Vague 3 — Fillers avances
+    "a vrai dire", "franchement", "evidemment",
+    "clairement", "en quelque sorte", "tu sais quoi",
+    "la en fait", "a ce moment la", "une seconde",
+    "une minute", "comment on dit", "cher jarvis",
+    "mon cher jarvis", "petit jarvis", "grand jarvis",
+    "super jarvis", "yo jarvis", "salut jarvis",
 }
 
 # Expansions de commandes implicites
@@ -468,6 +475,28 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "visio": "mode reunion",
     "presentation": "mode presentation",
     "diapo": "mode presentation",
+    # Vague 26 — Hardware / Debug rapide
+    "nvidia": "info gpu",
+    "vram": "utilisation vram",
+    "thermal": "surveille les temperatures",
+    "temp": "temperature gpu",
+    "memoire": "utilisation ram",
+    "processeur": "utilisation cpu",
+    "disque": "espace disque",
+    "network": "diagnostic reseau",
+    "reseau": "diagnostic reseau",
+    "internet": "test de bande passante",
+    # Vague 27 — Commandes combinees / express
+    "check all": "rapport systeme complet",
+    "test all": "test rapide",
+    "scan all": "scan securite complet",
+    "fix all": "heal cluster",
+    "clean all": "nettoie les fichiers temporaires",
+    "backup all": "backup complet",
+    "close all": "ferme les positions",
+    "update all": "maintenance hebdo",
+    "status all": "rapport systeme complet",
+    "show all": "rapport systeme complet",
 }
 
 
@@ -509,6 +538,13 @@ _PARAM_PATTERNS: list[tuple[str, str, str]] = [
     (r"\bcategorie?\s+(\w+)\b", "category", "{0}"),
     (r"\b(\d{1,3})\s*(?:pour\s*cent|pourcent|%)\b", "percentage", "{0}"),
     (r"\b(haute?|basse?|normal|critique|urgent)\b", "priority", "{0}"),
+    # Vague 2 — Extended patterns
+    (r"\b(etoile|jarvis|sniper|finetuning|trading)\.?(?:db)?\b", "db", "{0}.db"),
+    (r"\bpaire?\s+(BTC|ETH|SOL|SUI|PEPE|DOGE|XRP|ADA|AVAX|LINK)(?:USDT)?\b", "pair", "{0}USDT"),
+    (r"\btimeframe?\s+(\d+[mhd]|1h|4h|1d|15m|5m|1m)\b", "timeframe", "{0}"),
+    (r"\b(rapide|lent|moyen|profond|complet|simple|detaille)\b", "depth", "{0}"),
+    (r"\bdossier\s+(.+?)(?:\s+|$)", "folder", "{0}"),
+    (r"\bfichier\s+(.+?)(?:\s+|$)", "file", "{0}"),
 ]
 
 
