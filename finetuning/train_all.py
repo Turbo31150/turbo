@@ -110,7 +110,7 @@ _extras = {cfg['extra_datasets']}
 _lines = open(TRAIN_FILE, 'r', encoding='utf-8').readlines()
 for ef in _extras:
     try: _lines.extend(open(ef, 'r', encoding='utf-8').readlines())
-    except: pass
+    except (OSError, ValueError): pass
 TRAIN_FILE = TRAIN_FILE.replace('.jsonl', '_merged.jsonl')
 open(TRAIN_FILE, 'w', encoding='utf-8').writelines(_lines)
 print(f"[MERGED] {{len(_lines)}} examples")
@@ -224,7 +224,7 @@ def main():
     try:
         import subprocess as sp
         sp.run(["C:/Users/franc/.lmstudio/bin/lms.exe","unload","--all"], capture_output=True, timeout=5)
-    except: pass
+    except (subprocess.SubprocessError, OSError): pass
 
     from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
     from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training, TaskType
