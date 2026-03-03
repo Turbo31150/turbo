@@ -1837,7 +1837,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("finetune_datasets_info", "pipeline", "Informations sur les datasets de fine-tuning disponibles", [
         "datasets finetuning", "donnees d'entrainement", "combien de donnees",
         "liste les datasets", "datasets disponibles",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import os,json,glob; path='F:/BUREAU/turbo/finetuning'; files=glob.glob(os.path.join(path,'**/*.jsonl'),recursive=True); total=0; [print(f'  {os.path.basename(f)}: {sum(1 for _ in open(f,encoding=\\\"utf-8\\\"))} examples ({round(os.path.getsize(f)/1024)}KB)') or total.__add__(1) for f in files[:10]] if files else print('Aucun dataset JSONL trouve')\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import os,glob; path='F:/BUREAU/turbo/finetuning'; files=glob.glob(os.path.join(path,'**/*.jsonl'),recursive=True); cc=lambda f:(fh:=open(f,encoding='utf-8'),n:=sum(1 for _ in fh),fh.close(),n)[-1]; [print(f'  {os.path.basename(f)}: {cc(f)} examples ({round(os.path.getsize(f)/1024)}KB)') for f in files[:10]] if files else print('Aucun dataset JSONL trouve')\" 2>&1 | Out-String"),
 
     JarvisCommand("finetune_gpu_check", "pipeline", "Verifier si les GPU sont pretes pour le fine-tuning", [
         "gpu pret pour training", "check gpu finetuning", "assez de vram",

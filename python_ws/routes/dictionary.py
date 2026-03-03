@@ -46,7 +46,7 @@ def _get_valid_categories() -> set:
         return _VALID_CATEGORIES_FALLBACK
 
 
-def _invalidate_categories_cache():
+def _invalidate_categories_cache() -> None:
     """Clear cache after add/edit/delete."""
     global _valid_categories_cache
     _valid_categories_cache = None
