@@ -9,6 +9,9 @@ import time
 
 logger = logging.getLogger("jarvis.voice")
 
+# Background task references (prevents GC of fire-and-forget tasks)
+_bg_tasks: set[asyncio.Task] = set()
+
 # Lazy-loaded Whisper worker (avoids blocking server startup)
 _whisper = None
 _whisper_init_attempted = False
@@ -81,13 +84,21 @@ class AudioBuffer:
         self.channels = channels
 
     def add_chunk(self, b64_data: str):
-        if self.recording:
-            decoded = base64.b64decode(b64_data)
-            if self._total_bytes + len(decoded) > MAX_AUDIO_BUFFER:
-                logger.warning("Audio buffer limit reached (%d bytes), ignoring chunk", MAX_AUDIO_BUFFER)
-                return
-            self.chunks.append(decoded)
-            self._total_bytes += len(decoded)
+        if not self.recording:
+            return
+        if not isinstance(b64_data, str):
+            logger.warning("audio_chunk: expected str, got %s", type(b64_data).__name__)
+            return
+        try:
+            decoded = base64.b64decode(b64_data, validate=True)
+        except (ValueError, TypeError) as exc:
+            logger.warning("audio_chunk: invalid base64 data — %s", exc)
+            return
+        if self._total_bytes + len(decoded) > MAX_AUDIO_BUFFER:
+            logger.warning("Audio buffer limit reached (%d bytes), ignoring chunk", MAX_AUDIO_BUFFER)
+            return
+        self.chunks.append(decoded)
+        self._total_bytes += len(decoded)
 
     def stop(self) -> bytes:
         """Return audio bytes ready for Whisper (WAV with header)."""
@@ -277,7 +288,9 @@ async def _handle_tts(payload: dict) -> dict:
             except OSError:
                 pass
 
-        asyncio.create_task(_cleanup())
+        task = asyncio.create_task(_cleanup())
+        _bg_tasks.add(task)
+        task.add_done_callback(_bg_tasks.discard)
         return {"spoken": True, "text": text, "voice": voice, "engine": "edge_tts"}
     except (ImportError, RuntimeError, OSError) as e:
         logger.warning("Edge TTS failed: %s — signaling browser fallback", e)

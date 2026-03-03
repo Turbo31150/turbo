@@ -541,7 +541,7 @@ async def _broadcast_event(channel: str, event: str, payload: dict[str, Any]) ->
     """Broadcast an event to all connected WebSocket clients with timeout."""
     msg = {"type": "event", "channel": channel, "event": event, "payload": payload}
     dead: list[WebSocket] = []
-    for client in _connected_clients:
+    for client in list(_connected_clients):
         try:
             await asyncio.wait_for(client.send_json(msg), timeout=2.0)
         except (ConnectionError, OSError, asyncio.TimeoutError):
