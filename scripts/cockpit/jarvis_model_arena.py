@@ -69,7 +69,8 @@ def run_benchmark(cycles=5, tasks_per_cycle=40):
     except (subprocess.SubprocessError, OSError) as e:
         log(f"Benchmark subprocess error: {e}")
     try:
-        data = json.load(open("C:/Users/franc/jarvis_autotest_results.json", encoding="utf-8"))
+        with open("C:/Users/franc/jarvis_autotest_results.json", encoding="utf-8") as _fh:
+            data = json.load(_fh)
         total = data["total"]
         pass_rate = data["pass"] * 100.0 / max(total, 1)
         lats = []

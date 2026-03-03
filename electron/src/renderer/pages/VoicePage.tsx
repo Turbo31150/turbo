@@ -70,8 +70,11 @@ export default function VoicePage() {
   const [transcriptions, setTranscriptions] = useState<{ text: string; ts: number }[]>([]);
   const prevTranscription = useRef('');
   const convEndRef = useRef<HTMLDivElement>(null);
+  const mountedRef = useRef(true);
   const ttsOnRef = useRef(ttsOn);
   ttsOnRef.current = ttsOn;
+
+  useEffect(() => () => { mountedRef.current = false; }, []);
 
   useEffect(() => {
     convEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -80,11 +83,12 @@ export default function VoicePage() {
   const sendToIA = useCallback(async (text: string) => {
     if (!text.trim() || !connected) return;
 
-    setConversation(prev => [...prev, { role: 'user', text, ts: Date.now() }]);
+    setConversation(prev => [...prev, { role: 'user' as const, text, ts: Date.now() }].slice(-200));
     setThinking(true);
 
     try {
       const resp = await request('chat', 'send_message', { content: text });
+      if (!mountedRef.current) return;
       const payload = resp?.payload || {};
       const agentMsg = payload.agent_message || {};
       const rawText = agentMsg.content || payload.text || payload.response || '';
@@ -94,8 +98,8 @@ export default function VoicePage() {
         const agentLabel = agent || agentMsg.agent || payload.task_type || '';
 
         setConversation(prev => [...prev, {
-          role: 'assistant', text: clean, ts: Date.now(), agent: agentLabel,
-        }]);
+          role: 'assistant' as const, text: clean, ts: Date.now(), agent: agentLabel,
+        }].slice(-200));
 
         if (ttsOnRef.current && clean.length < 500) {
           speak(clean);
@@ -106,12 +110,13 @@ export default function VoicePage() {
         }]);
       }
     } catch (err) {
+      if (!mountedRef.current) return;
       console.warn('[Voice] sendToIA error:', err instanceof Error ? err.message : err);
       setConversation(prev => [...prev, {
         role: 'system', text: 'Erreur connexion IA', ts: Date.now(),
       }]);
     } finally {
-      setThinking(false);
+      if (mountedRef.current) setThinking(false);
     }
   }, [connected, request, speak]);
 
