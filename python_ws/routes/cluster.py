@@ -59,12 +59,12 @@ async def _ping_node(node_name: str) -> dict[str, Any]:
 
     for node in cfg.lm_nodes:
         if node.name == node_name:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=httpx.Timeout(5.0)) as client:
                 return await _probe_lmstudio(client, node)
 
     for node in cfg.ollama_nodes:
         if node.name == node_name:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=httpx.Timeout(5.0)) as client:
                 return await _probe_ollama(client, node)
 
     if node_name == "GEMINI":

@@ -61,6 +61,7 @@ async def push_loop(
         except (asyncio.TimeoutError, RuntimeError, ValueError):
             logger.debug("push_loop[%s/%s] transient error", channel, event, exc_info=True)
             await asyncio.sleep(backoff)
+            continue
         await asyncio.sleep(interval)
 
 

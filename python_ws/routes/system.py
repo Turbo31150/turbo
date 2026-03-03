@@ -203,7 +203,7 @@ async def _execute_command(payload: dict) -> dict[str, Any]:
 
     t0 = time.time()
     try:
-        result = await execute_command(cmd, params)
+        result = await asyncio.wait_for(execute_command(cmd, params), timeout=60.0)
         elapsed = round(time.time() - t0, 2)
         logger.info("Executed %s (%s) in %ss", cmd_name, cmd.action_type, elapsed)
 
@@ -247,9 +247,9 @@ async def _execute_domino(payload: dict) -> dict[str, Any]:
             domino = next((d for d in DOMINO_PIPELINES if d.id == domino_id), None)
             if not domino:
                 return {"error": f"Domino '{domino_id}' not found"}
-            result = await asyncio.to_thread(executor.run, domino)
+            result = await asyncio.wait_for(asyncio.to_thread(executor.run, domino), timeout=120.0)
         elif voice_text:
-            result = await asyncio.to_thread(executor.run_by_voice, voice_text)
+            result = await asyncio.wait_for(asyncio.to_thread(executor.run_by_voice, voice_text), timeout=120.0)
             if not result:
                 return {"error": f"No domino matched for: {voice_text}"}
         else:

@@ -545,7 +545,7 @@ async def _broadcast_event(channel: str, event: str, payload: dict[str, Any]) ->
     for client in list(_connected_clients):
         try:
             await asyncio.wait_for(client.send_json(msg), timeout=2.0)
-        except (ConnectionError, OSError, asyncio.TimeoutError):
+        except (ConnectionError, OSError, asyncio.TimeoutError, RuntimeError, WebSocketDisconnect):
             dead.append(client)
     for d in dead:
         _connected_clients.discard(d)

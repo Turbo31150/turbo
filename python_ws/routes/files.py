@@ -1,6 +1,7 @@
 """Files route — Upload, list, download, delete files."""
 from __future__ import annotations
 
+import asyncio
 import base64
 import time
 from pathlib import Path
@@ -8,7 +9,10 @@ from typing import Any
 
 _TURBO_ROOT = Path(__file__).resolve().parent.parent.parent
 UPLOAD_DIR = _TURBO_ROOT / "data" / "uploads"
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+try:
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+except OSError:
+    pass  # Will fail gracefully at runtime if dir unavailable
 
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
 
@@ -16,13 +20,13 @@ MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
 async def handle_files_request(action: str, payload: dict) -> dict:
     """Handle files channel requests."""
     if action == "upload":
-        return _handle_upload(payload)
+        return await asyncio.to_thread(_handle_upload, payload)
     elif action == "list_uploads":
-        return _list_uploads()
+        return await asyncio.to_thread(_list_uploads)
     elif action == "download":
-        return _handle_download(payload)
+        return await asyncio.to_thread(_handle_download, payload)
     elif action == "delete":
-        return _handle_delete(payload)
+        return await asyncio.to_thread(_handle_delete, payload)
     return {"error": f"Unknown files action: {action}"}
 
 

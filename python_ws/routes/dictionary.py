@@ -26,20 +26,23 @@ _VALID_CATEGORIES_FALLBACK = {
     "fichiers", "daily", "cluster", "voice", "custom",
 }
 _valid_categories_cache: set | None = None
+_categories_lock = __import__("threading").Lock()
 
 
 def _get_valid_categories() -> set:
-    """Load categories from DB (cached). Any existing category is valid + custom always allowed."""
+    """Load categories from DB (cached, thread-safe)."""
     global _valid_categories_cache
-    if _valid_categories_cache is not None:
-        return _valid_categories_cache
+    with _categories_lock:
+        if _valid_categories_cache is not None:
+            return _valid_categories_cache
     try:
         with sqlite3.connect(str(_DB_PATH)) as db:
             db.row_factory = sqlite3.Row
             rows = db.execute("SELECT DISTINCT category FROM pipeline_dictionary WHERE category IS NOT NULL").fetchall()
         cats = {r[0] for r in rows if r[0]}
         cats.add("custom")
-        _valid_categories_cache = cats
+        with _categories_lock:
+            _valid_categories_cache = cats
         return cats
     except (sqlite3.Error, OSError) as exc:
         logger.warning("_get_valid_categories DB error, using fallback: %s", exc)
@@ -49,7 +52,8 @@ def _get_valid_categories() -> set:
 def _invalidate_categories_cache() -> None:
     """Clear cache after add/edit/delete."""
     global _valid_categories_cache
-    _valid_categories_cache = None
+    with _categories_lock:
+        _valid_categories_cache = None
 
 
 
@@ -167,10 +171,12 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
         return {"pipelines": _get_all_pipelines()}
 
     if action == "get_chains":
-        return {"domino_chains": await asyncio.to_thread(_get_db_data)["domino_chains"]}
+        db = await asyncio.to_thread(_get_db_data)
+        return {"domino_chains": db["domino_chains"]}
 
     if action == "get_corrections":
-        return {"voice_corrections": await asyncio.to_thread(_get_db_data)["voice_corrections"]}
+        db = await asyncio.to_thread(_get_db_data)
+        return {"voice_corrections": db["voice_corrections"]}
 
     if action == "search":
         query = (payload.get("query") or "").lower().strip()
@@ -300,7 +306,7 @@ async def handle_dictionary_request(action: str, payload: dict | None) -> dict[s
 
         def _do_edit():
             with sqlite3.connect(str(_DB_PATH)) as db:
-                set_parts = [f"{k} = ?" for k in fields]
+                set_parts = [f"[{k}] = ?" for k in fields]
                 values = list(fields.values())
                 if record_id:
                     values.append(record_id)
