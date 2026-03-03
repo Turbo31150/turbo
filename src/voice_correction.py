@@ -717,6 +717,24 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "debug": "mode debug",
     "relax": "mode pause",
     "chill": "mode pause",
+    # Vague 42 — Tests / QA raccourcis
+    "unittest": "lance les tests unitaires",
+    "unit tests": "lance les tests unitaires",
+    "integration": "lance les tests integration",
+    "e2e": "lance les tests e2e",
+    "smoke": "smoke test",
+    "regression": "test de regression",
+    "coverage report": "rapport couverture",
+    "mock": "configure les mocks",
+    # Vague 43 — Architecture raccourcis
+    "microservice": "statut microservices",
+    "api gateway": "statut api gateway",
+    "queue": "statut message queue",
+    "cache status": "statut du cache",
+    "cdn status": "statut cdn",
+    "ssl check": "verifie les certificats",
+    "rate limit": "configure rate limit",
+    "circuit breaker": "statut circuit breaker",
 }
 
 
