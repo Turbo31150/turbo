@@ -322,7 +322,10 @@ async def _list_dominos(payload: dict) -> dict[str, Any]:
 async def _list_chains(payload: dict) -> dict[str, Any]:
     """Search or list DB chains."""
     query = payload.get("query", "")
-    limit = payload.get("limit", 50)
+    try:
+        limit = min(int(payload.get("limit", 50)), 500)
+    except (ValueError, TypeError):
+        limit = 50
 
     try:
         from src.chain_resolver import search_chains, list_all_triggers
@@ -426,7 +429,10 @@ async def _execute_chain(payload: dict) -> dict[str, Any]:
 
 async def _domino_logs(payload: dict) -> dict[str, Any]:
     """Get recent domino execution logs."""
-    limit = payload.get("limit", 20)
+    try:
+        limit = min(int(payload.get("limit", 20)), 500)
+    except (ValueError, TypeError):
+        limit = 20
     run_id = payload.get("run_id", "")
 
     try:
@@ -471,6 +477,9 @@ _DESKTOP_CONFIG_PATH = _DATA_DIR / "desktop_config.json"
 async def _save_config(payload: dict) -> dict[str, Any]:
     """Save desktop UI config to JSON file."""
     config_data = payload.get("config", payload)
+    serialized = json.dumps(config_data, ensure_ascii=False)
+    if len(serialized) > 64_000:
+        return {"error": "Config too large (max 64KB)"}
     try:
         _DESKTOP_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
         await asyncio.to_thread(
