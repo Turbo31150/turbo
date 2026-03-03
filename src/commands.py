@@ -2460,6 +2460,68 @@ COMMANDS: list[JarvisCommand] = [
         "ouvre 7zip", "lance 7zip", "ouvre 7-zip",
         "ouvre les archives",
     ], "app_open", "7zFM"),
+
+    # ── Batch 82: Trading avance + modes + commandes contextuelles (15) ──
+    JarvisCommand("trading_scan_rapide", "trading", "Scan trading rapide des top paires", [
+        "scan rapide", "quick scan", "scan le marche",
+        "regarde le marche", "check le marche",
+    ], "domino", "domino_trading_full_scan"),
+    JarvisCommand("trading_pnl", "trading", "Afficher le PnL du jour", [
+        "pnl du jour", "combien j'ai gagne", "profits du jour",
+        "pertes du jour", "mon pnl", "pnl trading",
+    ], "jarvis_tool", "trading_pnl"),
+    JarvisCommand("trading_positions", "trading", "Lister les positions ouvertes", [
+        "mes positions", "positions ouvertes", "quelles positions",
+        "liste les positions", "positions en cours",
+    ], "jarvis_tool", "trading_positions"),
+    JarvisCommand("trading_alerts", "trading", "Configurer les alertes trading", [
+        "configure les alertes", "alertes trading", "set alertes",
+        "active les alertes", "alertes prix",
+    ], "jarvis_tool", "trading_alerts"),
+    JarvisCommand("mode_streaming", "productivite", "Mode streaming OBS", [
+        "mode stream", "lance le stream", "streaming mode",
+        "prepare le stream", "mode live",
+    ], "powershell", "Start-Process obs64; 'Mode streaming active'"),
+    JarvisCommand("mode_gaming", "productivite", "Mode gaming performances max", [
+        "mode gaming", "mode jeu", "gaming mode",
+        "mode gamer", "performances maximales jeu",
+    ], "powershell", "powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c; 'Mode gaming active'"),
+    JarvisCommand("mode_reunion", "productivite", "Mode reunion — micro + camera check", [
+        "mode reunion", "mode meeting", "prepare la reunion",
+        "mode visio", "mode teams",
+    ], "domino", "domino_meeting_prep"),
+    JarvisCommand("mode_presentation", "productivite", "Mode presentation — plein ecran + focus", [
+        "mode presentation", "lance la presentation", "presentation mode",
+        "mode diaporama",
+    ], "hotkey", "F5"),
+    JarvisCommand("quelle_heure", "info", "Quelle heure est-il", [
+        "quelle heure est-il", "quelle heure il est", "donne moi l'heure",
+        "l'heure", "quelle heure", "il est quelle heure",
+    ], "powershell", "Get-Date -Format 'HH:mm'"),
+    JarvisCommand("quelle_date", "info", "Quelle date sommes-nous", [
+        "quelle date", "on est quel jour", "quel jour on est",
+        "la date", "donne moi la date", "date du jour",
+    ], "powershell", "Get-Date -Format 'dddd dd MMMM yyyy'"),
+    JarvisCommand("uptime_pc", "info", "Depuis combien de temps le PC tourne", [
+        "depuis quand le pc tourne", "uptime", "duree de fonctionnement",
+        "temps allume", "combien de temps le pc tourne",
+    ], "powershell", "$boot = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; $up = (Get-Date) - $boot; \"Allume depuis $($up.Days)j $($up.Hours)h $($up.Minutes)min\""),
+    JarvisCommand("meteo_rapide", "info", "Demander la meteo", [
+        "dis moi la meteo", "quel temps fait-il", "la meteo",
+        "meteo", "temps dehors", "il fait combien",
+    ], "jarvis_tool", "weather_info"),
+    JarvisCommand("rappel_vocal", "productivite", "Creer un rappel vocal", [
+        "rappelle moi de {tache}", "rappel {tache}", "timer rappel {tache}",
+        "mets un rappel pour {tache}", "memo {tache}",
+    ], "jarvis_tool", "set_reminder:{tache}", ["tache"]),
+    JarvisCommand("todo_ajouter", "productivite", "Ajouter un element a la todo list", [
+        "ajoute a la todo {tache}", "todo {tache}", "a faire {tache}",
+        "note {tache}", "ajoute {tache} a la liste",
+    ], "jarvis_tool", "todo_add:{tache}", ["tache"]),
+    JarvisCommand("todo_lister", "productivite", "Lister la todo list", [
+        "liste la todo", "montre la todo", "quoi faire",
+        "ma liste de taches", "todo list", "mes taches",
+    ], "jarvis_tool", "todo_list"),
 ]
 
 # Post-processing: replace hardcoded paths with config-driven values
@@ -3946,6 +4008,47 @@ VOICE_CORRECTIONS: dict[str, str] = {
     "le release": "la release",
     "le tag": "le tag git",
     "la version": "la version",
+    # Vague 50 — Modes et profils Whisper confusions
+    "mode gaiming": "mode gaming",
+    "mode gaminge": "mode gaming",
+    "mode strime": "mode stream",
+    "mode striming": "mode streaming",
+    "mode praisentation": "mode presentation",
+    "mode prezantation": "mode presentation",
+    "mode deev": "mode dev",
+    "mode dev intense": "mode coding",
+    "mode consentration": "mode concentration",
+    "mode fokus": "mode focus",
+    "mode riounion": "mode reunion",
+    "mode visio conférence": "mode reunion",
+    "mode trayding": "mode trading",
+    "mode maintenance": "maintenance hebdo",
+    "mode debug": "debug cluster",
+    "mode urgence": "mode survie",
+    "mode eco": "mode economie",
+    "mode perf": "mode performance",
+    "mode bat": "mode batterie",
+    # Vague 51 — Commandes naturelles / conversationnelles
+    "ca va jarvis": "statut du cluster",
+    "tout va bien jarvis": "health check rapide",
+    "comment tu vas": "statut du cluster",
+    "t'es la jarvis": "statut vocal",
+    "tu m'entends": "statut wakeword",
+    "je t'entends pas": "test tts",
+    "reponds moi": "test tts",
+    "dis bonjour": "test tts",
+    "tu dors": "statut du cluster",
+    "reveille toi": "reveil rapide",
+    "merci jarvis": "bilan session",
+    "bravo jarvis": "bilan session",
+    "bien joue": "bilan session",
+    "beau travail": "bilan session",
+    "a demain": "mode nuit",
+    "a plus tard": "mode pause",
+    "a toute": "mode pause",
+    "je reviens": "mode pause",
+    "je suis la": "reveil rapide",
+    "c'est moi": "reveil rapide",
 }
 
 
