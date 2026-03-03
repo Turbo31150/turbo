@@ -735,6 +735,25 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "ssl check": "verifie les certificats",
     "rate limit": "configure rate limit",
     "circuit breaker": "statut circuit breaker",
+    # Vague 44 — Raccourcis clavier
+    "copier": "copie",
+    "coller": "colle",
+    "couper": "coupe",
+    "annuler": "annule",
+    "retablir": "retablis",
+    "sauvegarder": "sauvegarde",
+    "selectionner": "selectionne tout",
+    "rechercher": "recherche",
+    "remplacer": "remplace",
+    "imprimer": "imprime",
+    # Vague 45 — Documentation raccourcis
+    "readme": "ouvre le readme",
+    "docs": "ouvre la documentation",
+    "wiki": "ouvre le wiki",
+    "changelog": "montre le changelog",
+    "swagger": "ouvre swagger",
+    "postman": "ouvre postman",
+    "api doc": "documentation api",
 }
 
 
