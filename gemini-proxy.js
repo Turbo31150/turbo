@@ -82,7 +82,6 @@ async function callGemini(text, model, useJsonOutput) {
 
     const child = execFile('gemini', geminiArgs, {
       timeout: TIMEOUT_MS,
-      shell: true,
       maxBuffer: 2 * 1024 * 1024,
       env: { ...process.env, NODE_NO_WARNINGS: '1' },
     }, (error, stdout, stderr) => {

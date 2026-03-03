@@ -400,6 +400,14 @@ class JarvisConfig:
     telegram_chat: str = field(default_factory=lambda: os.getenv("TELEGRAM_CHAT", ""))
     dry_run: bool = field(default_factory=lambda: os.getenv("DRY_RUN", "true").lower() == "true")
     size_usdt: float = 10.0
+
+    def __post_init__(self):
+        if not self.dry_run and (not self.mexc_api_key or not self.mexc_secret_key):
+            import logging
+            logging.getLogger("jarvis.config").warning(
+                "dry_run=False but MEXC API keys are empty — trades will fail. "
+                "Set MEXC_API_KEY and MEXC_SECRET_KEY or enable DRY_RUN=true."
+            )
     min_signal_score: float = 70.0
     max_signal_age_minutes: int = 60
 
