@@ -131,6 +131,14 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["solidity", "soliditi", "solidite"],
     ["embedding", "aimbe dine", "imbeding"],
     ["quantization", "quantizacion", "couantizacion"],
+    # Vague 18 — UX / Networking / Text processing phonetiques
+    ["figma", "feegma", "figmah"],
+    ["nginx", "enne gin x", "enginx"],
+    ["traefik", "tre fi que", "trafik"],
+    ["cloudflare", "claoude flaire", "cloudflair"],
+    ["wireguard", "ouaire guard", "wiregard"],
+    ["regex", "redjex", "redjexe"],
+    ["storybook", "stori bouk", "storybuk"],
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -181,6 +189,11 @@ FILLER_WORDS = {
     "sincerement", "a proprement parler", "stricto sensu",
     "grossierement", "en resume", "pour faire simple",
     "en deux mots", "pour resumer", "long story short",
+    # Vague 8 — Reactions / interjections vocales
+    "genial", "super", "parfait", "excellent", "nickel",
+    "impeccable", "top", "cool", "awesome", "great",
+    "nice", "perfect", "wonderful", "amazing",
+    "oh mon dieu", "oh la la", "waouh", "wow",
 }
 
 # Expansions de commandes implicites
@@ -960,6 +973,33 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "quantize": "quantize le modele",
     "ollama run": "lance ollama",
     "lm studio": "ouvre lm studio",
+    # Vague 62 — UX / Design raccourcis
+    "figma": "ouvre figma",
+    "wireframe": "cree un wireframe",
+    "prototype": "lance le prototype",
+    "storybook": "ouvre storybook",
+    "design system": "ouvre le design system",
+    "composant": "cree un composant",
+    "responsive": "verifie le responsive",
+    "a11y": "check accessibilite",
+    # Vague 63 — Networking raccourcis
+    "dns": "check dns",
+    "ping": "ping le serveur",
+    "traceroute": "lance traceroute",
+    "nslookup": "nslookup",
+    "dig": "dig domain",
+    "whois": "whois domain",
+    "vpn": "connecte le vpn",
+    "firewall": "statut firewall",
+    "nginx": "statut nginx",
+    # Vague 64 — Text processing raccourcis
+    "regex": "teste la regex",
+    "grep": "grep dans les fichiers",
+    "sed": "lance sed",
+    "awk": "lance awk",
+    "jq": "parse avec jq",
+    "parser": "lance le parser",
+    "ast": "affiche l'ast",
 }
 
 
