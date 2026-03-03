@@ -117,7 +117,7 @@ def route_step(step: DominoStep) -> str:
     """Route un step vers le noeud optimal selon son type."""
     action_type = step.action_type.lower()
 
-    if action_type == "powershell":
+    if action_type in ("powershell", "bash"):
         return "LOCAL"
     elif action_type == "python":
         # GPU-heavy tasks go to M1, others local
@@ -180,16 +180,27 @@ def get_fallback_node(primary: str) -> str:
 # ══════════════════════════════════════════════════════════════════════════════
 
 _DOMINO_PS_ALLOWLIST = re.compile(
-    r"^(Get-|Set-|Start-Process|Write-|Test-|Select-|Where-Object|Format-|Out-|Invoke-WebRequest|Measure-)"
+    r"^(Get-|Set-|Start-Process|Write-|Test-|Select-|Where-Object|Format-|Out-|"
+    r"Invoke-WebRequest|Measure-|Remove-Item|New-ItemProperty|Get-ChildItem|"
+    r"nvidia-smi|git\s|cd\s|uv\s|npx\s|python|pip\s|node\s|"
+    r"curl\s|\$|powershell)"
+)
+
+_DOMINO_PS_BLOCKLIST = re.compile(
+    r"(Invoke-Expression|iex\s|rm\s+-rf|Format-Volume|Stop-Computer|"
+    r"Restart-Computer|Clear-RecycleBin|del\s+/s|shutdown)"
 )
 
 
 def execute_powershell(command: str, timeout: int = 30) -> str:
-    """Execute une commande PowerShell (validated against allowlist)."""
+    """Execute une commande PowerShell (validated against allowlist + blocklist)."""
     # Strip prefix if present
     cmd = command.replace("powershell:", "", 1) if command.startswith("powershell:") else command
     cmd = cmd.strip()
-    # Block dangerous commands from DB-sourced domino chains
+    # Block dangerous commands
+    if _DOMINO_PS_BLOCKLIST.search(cmd):
+        return f"BLOCKED: Dangerous command: {cmd[:80]}"
+    # Block unknown commands (not in allowlist)
     if not _DOMINO_PS_ALLOWLIST.match(cmd):
         return f"BLOCKED: Command not in allowlist: {cmd[:80]}"
     result = subprocess.run(
@@ -278,11 +289,31 @@ def execute_python(action: str, timeout: int = 30) -> str:
     return f"[PYTHON] {func}"
 
 
+def execute_bash(command: str, timeout: int = 30) -> str:
+    """Execute une commande bash/shell."""
+    cmd = command.replace("bash:", "", 1) if command.startswith("bash:") else command
+    cmd = cmd.strip()
+    if _DOMINO_PS_BLOCKLIST.search(cmd):
+        return f"BLOCKED: Dangerous command: {cmd[:80]}"
+    result = subprocess.run(
+        ["bash", "-c", cmd],
+        capture_output=True, text=True, timeout=timeout
+    )
+    return result.stdout.strip() or result.stderr.strip()
+
+
 def execute_step(step: DominoStep, node: str) -> tuple[str, str]:
     """Execute un step et retourne (status, output)."""
     try:
         if step.action_type == "powershell":
             output = execute_powershell(step.action, step.timeout_s)
+            if output.startswith("BLOCKED:"):
+                return "FAIL", output
+            return "PASS", output
+        elif step.action_type == "bash":
+            output = execute_bash(step.action, step.timeout_s)
+            if output.startswith("BLOCKED:"):
+                return "FAIL", output
             return "PASS", output
         elif step.action_type == "curl":
             output = execute_curl(step.action, step.timeout_s)
@@ -322,7 +353,7 @@ class DominoExecutor:
         total_start = time.time()
         passed = failed = skipped = 0
 
-        logger.info("DOMINO CASCADE: %s (%s) — %s — %d steps, priority=%d",
+        logger.info("DOMINO CASCADE: %s (%s) — %s — %d steps, priority=%s",
                     domino.id, domino.category, domino.description, len(domino.steps), domino.priority)
 
         for idx, step in enumerate(domino.steps):
