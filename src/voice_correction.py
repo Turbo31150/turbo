@@ -139,6 +139,15 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["wireguard", "ouaire guard", "wiregard"],
     ["regex", "redjex", "redjexe"],
     ["storybook", "stori bouk", "storybuk"],
+    # Vague 19 — TypeScript/Python/React/Linux phonetiques
+    ["typescript", "type scripte", "taipscript"],
+    ["pydantic", "pie dantic", "pidantique"],
+    ["fastapi", "fast a pi", "fastapie"],
+    ["uvicorn", "you vi corne", "ouvicorne"],
+    ["zustand", "zu stand", "zoustand"],
+    ["svelte", "sse velte", "zvelte"],
+    ["tailwind", "teil ouinde", "telouind"],
+    ["tmux", "te mux", "timuks"],
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -1000,6 +1009,33 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "jq": "parse avec jq",
     "parser": "lance le parser",
     "ast": "affiche l'ast",
+    # Vague 65 — TypeScript / JS raccourcis
+    "typescript": "lance typescript",
+    "tsc": "compile typescript",
+    "jsx": "cree un composant jsx",
+    "tsx": "cree un composant tsx",
+    "hook": "cree un hook react",
+    "reducer": "cree un reducer",
+    "store": "configure le store",
+    "ssr": "active le server side rendering",
+    # Vague 66 — Python raccourcis
+    "fastapi": "lance fastapi",
+    "uvicorn": "lance uvicorn",
+    "celery": "lance celery",
+    "virtualenv": "cree un virtualenv",
+    "venv": "cree un venv",
+    "poetry": "lance poetry",
+    "pydantic": "cree un modele pydantic",
+    "asyncio": "lance asyncio",
+    # Vague 67 — Linux / Shell raccourcis
+    "crontab": "edite le crontab",
+    "systemctl": "statut systemctl",
+    "journalctl": "affiche journalctl",
+    "chmod": "change les permissions",
+    "tmux": "lance tmux",
+    "screen": "lance screen",
+    "daemon": "lance le daemon",
+    "nohup": "lance en nohup",
 }
 
 
