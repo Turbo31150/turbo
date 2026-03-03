@@ -133,6 +133,7 @@ export default function ChatPage() {
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
               placeholder="Envoyer une commande..."
+              aria-label="Saisir une commande"
               rows={1}
             />
             <button
