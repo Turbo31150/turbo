@@ -814,6 +814,75 @@ def _start_pomodoro_timer(minutes: str = "25") -> str:
     return f"[POMODORO] Timer started for {minutes} minutes"
 
 
+@register_python_action("sqlite3_analyze")
+def _sqlite3_analyze() -> str:
+    """Run ANALYZE on all databases to update query planner statistics."""
+    import sqlite3
+    results = []
+    for db_name in ("etoile.db", "jarvis.db", "sniper.db"):
+        db_path = Path(os.getenv("TURBO_DIR", "F:/BUREAU/turbo")) / "data" / db_name
+        if not db_path.exists():
+            continue
+        try:
+            conn = sqlite3.connect(str(db_path))
+            conn.execute("ANALYZE")
+            conn.close()
+            results.append(f"{db_name}: ANALYZE OK")
+        except sqlite3.Error as e:
+            results.append(f"{db_name}: ERROR {e}")
+    return " | ".join(results) if results else "No databases found"
+
+
+@register_python_action("count_commands")
+def _count_commands() -> str:
+    """Count total registered voice commands."""
+    try:
+        from src.commands import COMMANDS
+        return f"Total commands: {len(COMMANDS)}"
+    except ImportError:
+        return "ERROR: Cannot import commands"
+
+
+@register_python_action("count_voice_corrections")
+def _count_voice_corrections() -> str:
+    """Count total voice corrections in dictionary."""
+    try:
+        from src.commands import VOICE_CORRECTIONS
+        return f"Total corrections: {len(VOICE_CORRECTIONS)}"
+    except ImportError:
+        return "ERROR: Cannot import VOICE_CORRECTIONS"
+
+
+@register_python_action("test_voice_match")
+def _test_voice_match(text: str = "ouvre chrome") -> str:
+    """Test voice matching pipeline on a given text."""
+    try:
+        from src.commands import match_command
+        cmd, params, score = match_command(text)
+        if cmd:
+            return f"MATCH: {cmd.name} (score={score:.2f}, params={params})"
+        return f"NO MATCH for '{text}' (best_score={score:.2f})"
+    except ImportError:
+        return "ERROR: Cannot import match_command"
+
+
+@register_python_action("backup_db")
+def _backup_db(db_name: str = "jarvis.db") -> str:
+    """Backup a specific database file."""
+    import shutil
+    from datetime import datetime
+    db_path = Path(os.getenv("TURBO_DIR", "F:/BUREAU/turbo")) / "data" / db_name
+    if not db_path.exists():
+        return f"DB introuvable: {db_path}"
+    backup_dir = db_path.parent / "backups"
+    backup_dir.mkdir(exist_ok=True)
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_path = backup_dir / f"{db_name.replace('.db', '')}_{ts}.db"
+    shutil.copy2(str(db_path), str(backup_path))
+    size_kb = backup_path.stat().st_size / 1024
+    return f"Backup OK: {backup_path.name} ({size_kb:.1f} KB)"
+
+
 def execute_python(action: str, timeout: int = 30) -> str:
     """Execute a registered Python action or return description for unknown ones."""
     func_str = action.replace("python:", "", 1) if action.startswith("python:") else action
