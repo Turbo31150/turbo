@@ -1481,6 +1481,96 @@ async def sql_schema_tool(args: dict[str, Any]) -> dict[str, Any]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# DOMINO PIPELINE EXECUTION
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+@tool("execute_domino",
+      "Executer un domino pipeline par ID ou texte de trigger vocal. "
+      "Args: domino_id (ID du pipeline ou texte de commande vocale).",
+      {"domino_id": str})
+async def execute_domino_tool(args: dict[str, Any]) -> dict[str, Any]:
+    domino_id = args.get("domino_id", "").strip()
+    if not domino_id:
+        return _error("domino_id requis (ID ou texte de commande)")
+    try:
+        def _run_domino():
+            from src.domino_pipelines import find_domino, DOMINO_PIPELINES
+            from src.domino_executor import DominoExecutor
+            domino = None
+            for d in DOMINO_PIPELINES:
+                if d.id == domino_id:
+                    domino = d
+                    break
+            if not domino:
+                domino = find_domino(domino_id)
+            if not domino:
+                return {"error": f"Domino introuvable: {domino_id}"}
+            return DominoExecutor().run(domino)
+
+        result = await asyncio.to_thread(_run_domino)
+        if "error" in result:
+            return _error(result["error"])
+        return _text(
+            f"Domino {result['domino_id']} — "
+            f"{result['passed']} PASS / {result['failed']} FAIL / {result['skipped']} SKIP "
+            f"({result['total_steps']} steps en {result['total_ms']:.0f}ms)"
+        )
+    except (ImportError, OSError, ValueError, RuntimeError) as e:
+        return _error(f"Domino execution failed: {e}")
+
+
+@tool("list_dominos",
+      "Lister tous les domino pipelines disponibles. Args: category (optionnel).",
+      {"category": str})
+async def list_dominos_tool(args: dict[str, Any]) -> dict[str, Any]:
+    try:
+        from src.domino_pipelines import DOMINO_PIPELINES
+        category = args.get("category", "").strip().lower()
+        dominos = DOMINO_PIPELINES
+        if category:
+            dominos = [d for d in dominos if d.category == category]
+        lines = [f"{len(dominos)} dominos" + (f" (categorie: {category})" if category else "") + ":"]
+        for d in dominos:
+            triggers = ", ".join(d.triggers[:3]) if d.triggers else "—"
+            lines.append(f"  {d.id} [{d.category}] {d.description} | triggers: {triggers} | {len(d.steps)} steps")
+        return _text("\n".join(lines))
+    except ImportError as e:
+        return _error(f"domino_pipelines non disponible: {e}")
+
+
+@tool("domino_stats",
+      "Historique d'execution des dominos (SQLite logs).",
+      {"limit": int})
+async def domino_stats_tool(args: dict[str, Any]) -> dict[str, Any]:
+    try:
+        from src.domino_executor import DominoLogger
+        db_logger = DominoLogger()
+        limit = _safe_int(args.get("limit"), 20)
+        with sqlite3.connect(db_logger.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            runs = conn.execute(
+                "SELECT DISTINCT run_id, domino_id, MIN(ts) as started, COUNT(*) as steps, "
+                "SUM(CASE WHEN status='PASS' THEN 1 ELSE 0 END) as passed, "
+                "SUM(CASE WHEN status='FAIL' THEN 1 ELSE 0 END) as failed, "
+                "SUM(duration_ms) as total_ms "
+                "FROM domino_logs GROUP BY run_id ORDER BY started DESC LIMIT ?",
+                (limit,)
+            ).fetchall()
+        if not runs:
+            return _text("Aucun historique domino.")
+        lines = [f"{len(runs)} dernieres executions:"]
+        for r in runs:
+            lines.append(
+                f"  {r['domino_id']} | {r['passed']}/{r['steps']} PASS | "
+                f"{r['failed']} FAIL | {r['total_ms']:.0f}ms | {r['started']}"
+            )
+        return _text("\n".join(lines))
+    except (sqlite3.Error, ImportError, OSError) as e:
+        return _error(f"domino_stats: {e}")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # DICTIONARY CRUD — pipeline_dictionary, domino_chains, voice_corrections
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -1711,5 +1801,7 @@ jarvis_server = create_sdk_mcp_server(
         sql_query_tool, sql_list_tables_tool, sql_schema_tool,
         # Dictionary CRUD (1)
         dict_crud_tool,
+        # Domino Pipelines (3)
+        execute_domino_tool, list_dominos_tool, domino_stats_tool,
     ],
 )
