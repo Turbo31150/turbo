@@ -349,7 +349,7 @@ async def run_interactive(cwd: str | None = None) -> None:
     async with ClaudeSDKClient(options=options) as client:
         while True:
             try:
-                user_input = await asyncio.get_event_loop().run_in_executor(None, input, "\n[COMMANDANT] > ")
+                user_input = await asyncio.get_running_loop().run_in_executor(None, input, "\n[COMMANDANT] > ")
             except (EOFError, KeyboardInterrupt):
                 break
 
@@ -401,7 +401,7 @@ async def run_commander(cwd: str | None = None) -> None:
     async with ClaudeSDKClient(options=options) as client:
         while True:
             try:
-                user_input = await asyncio.get_event_loop().run_in_executor(None, input, "\n[COMMANDANT] > ")
+                user_input = await asyncio.get_running_loop().run_in_executor(None, input, "\n[COMMANDANT] > ")
             except (EOFError, KeyboardInterrupt):
                 break
 
@@ -876,7 +876,7 @@ async def run_hybrid(cwd: str | None = None) -> None:
     async with ClaudeSDKClient(options=options) as client:
         while True:
             try:
-                raw_text = await asyncio.get_event_loop().run_in_executor(None, input, "\n[JARVIS] > ")
+                raw_text = await asyncio.get_running_loop().run_in_executor(None, input, "\n[JARVIS] > ")
             except (EOFError, KeyboardInterrupt):
                 break
 

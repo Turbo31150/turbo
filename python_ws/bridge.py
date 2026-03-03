@@ -124,7 +124,7 @@ async def get_cluster_status() -> dict[str, Any]:
 
     nodes: dict[str, Any] = {}
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=30) as client:
         # LM Studio nodes
         for node in cfg.lm_nodes:
             nodes[node.name] = await _probe_lmstudio(client, node)

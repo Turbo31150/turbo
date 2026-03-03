@@ -209,7 +209,7 @@ async def main():
     stats = defaultdict(lambda: {"total":0,"score_sum":0,"lat_sum":0,"errors":0,"wins":0})
     results_map = defaultdict(list)
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=120) as client:
         # Create all tasks
         tasks = {}
         for i, sc in enumerate(SCENARIOS):

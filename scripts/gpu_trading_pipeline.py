@@ -406,7 +406,7 @@ async def run_pipeline(cycles: int = 1, interval: int = 60, top_n: int = 10,
         if not output_json:
             print(f"\n  Cycle {cycle}/{cycles} — Scan en cours...")
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=120) as client:
             # Phase 1: Detection rapide
             detected = await phase1_detect(client)
 

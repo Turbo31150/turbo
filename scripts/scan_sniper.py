@@ -967,7 +967,7 @@ async def ai_consensus_signals(signals, mtf_data=None):
     prompt_vision = f"Tendance + meilleur entry? 3 lignes max.\n{market}"
 
     t0 = time.time()
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=60) as client:
         tasks = [
             ai_query_lmstudio(client, LM_M2, prompt_tech, timeout=45),
             ai_query_lmstudio(client, LM_M3, prompt_valid, timeout=30),

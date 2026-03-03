@@ -228,7 +228,7 @@ async def run_cycles():
 
     semaphore = asyncio.Semaphore(CONCURRENCY)
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=120) as client:
         for cycle_num, scenario in enumerate(SCENARIOS, 1):
             prompt = make_prompt(scenario)
 

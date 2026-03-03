@@ -187,7 +187,7 @@ def _parse_review(raw: str, model: str, latency_ms: int) -> ReviewResult:
 async def _query_ollama(prompt: str, system: str, model: str, timeout: float) -> tuple[str, int]:
     """Query Ollama et retourne (content, latency_ms)."""
     t0 = time.monotonic()
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=timeout) as client:
         resp = await client.post(
             f"{OLLAMA_URL}/api/chat",
             json=build_ollama_payload(

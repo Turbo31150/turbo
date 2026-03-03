@@ -89,7 +89,7 @@ async def main():
     print("=" * 75)
 
     results = []
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=180) as client:
         # Run 3 at a time to avoid overloading
         for batch_start in range(0, len(CLOUD_MODELS), 3):
             batch = CLOUD_MODELS[batch_start:batch_start+3]

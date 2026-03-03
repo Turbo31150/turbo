@@ -379,7 +379,7 @@ async def run_benchmark():
     node_latencies: dict[str, list[int]] = {n: [] for n in NODES}
     phase_scores: dict[str, dict[str, float]] = {}
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=180) as client:
         for phase_idx, phase in enumerate(PHASES):
             phase_name = phase["name"]
             print(f"\n{'─' * 80}")

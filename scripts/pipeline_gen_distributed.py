@@ -586,7 +586,7 @@ async def process_domain(
         final_assignments[target] = final_assignments.get(target, [])
         final_assignments[target].append((key, prompt_text, inserter, count))
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=120) as client:
         print("  → Dispatch parallele...")
         t0 = time.time()
 
@@ -655,7 +655,7 @@ async def main():
     online_nodes = None
     if not args.no_check:
         print("─── Health Check Cluster ───")
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=120) as client:
             status = await health_check(client)
         online_nodes = {n for n, ok in status.items() if ok}
         print(f"\n  Noeuds en ligne: {', '.join(sorted(online_nodes)) or 'AUCUN'}")

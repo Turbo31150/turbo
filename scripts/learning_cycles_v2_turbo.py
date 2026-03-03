@@ -238,7 +238,7 @@ async def run():
     all_tasks = []
     task_meta = []  # (scenario_idx, model_name)
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=120) as client:
         # Create ALL tasks at once — full parallel bombardment
         for i, sc in enumerate(SCENARIOS):
             prompt = PROMPT_TEMPLATE.format(cmd=sc["cmd"])

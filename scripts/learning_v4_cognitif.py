@@ -471,7 +471,7 @@ async def main():
     results_map = defaultdict(list)
     completed = [0]
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=120) as client:
         # Create all tasks
         all_tasks = {}
         for i, sc in enumerate(SCENARIOS):

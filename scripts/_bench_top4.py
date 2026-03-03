@@ -95,7 +95,7 @@ async def main():
     print("=" * 75)
 
     all_results = {m: [] for m in MODELS}
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=180) as client:
         for i, pdata in enumerate(PROMPTS):
             short = pdata["prompt"][:50] + "..."
             print(f"\n  P{i+1}: {short} ({len(pdata['checks'])} checks)")
