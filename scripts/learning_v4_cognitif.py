@@ -415,7 +415,7 @@ async def call_api(client, model_name, cfg, user_msg, sem):
                 content = r.json().get("message", {}).get("content", "")
             lat = round(time.time() - t0, 2)
             return {"model": model_name, "content": content, "latency": lat, "ok": bool(content.strip())}
-        except Exception as e:
+        except (httpx.HTTPError, OSError, KeyError) as e:
             return {"model": model_name, "content": str(e)[:100], "latency": round(time.time()-t0,2), "ok": False}
 
 # ── SCORING COGNITIF ────────────────────────────────────────
