@@ -148,6 +148,15 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["svelte", "sse velte", "zvelte"],
     ["tailwind", "teil ouinde", "telouind"],
     ["tmux", "te mux", "timuks"],
+    # Vague 20 — Rust/Go/Agile/Gaming phonetiques
+    ["rust", "ruste", "roste"],
+    ["cargo", "car go", "kargo"],
+    ["goroutine", "go routine", "goroutyne"],
+    ["scrum", "scrome", "scroum"],
+    ["kanban", "canne banne", "kanbane"],
+    ["godot", "go do", "godo"],
+    ["ffmpeg", "effe effe eme peg", "efemepeg"],
+    ["vulkan", "voul canne", "voulkane"],
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -1036,6 +1045,32 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "screen": "lance screen",
     "daemon": "lance le daemon",
     "nohup": "lance en nohup",
+    # Vague 68 — Rust / Go raccourcis
+    "cargo": "lance cargo",
+    "cargo build": "build avec cargo",
+    "cargo test": "lance cargo test",
+    "go run": "lance go run",
+    "go build": "build avec go",
+    "go test": "lance go test",
+    "wasm": "compile en webassembly",
+    "crate": "cherche un crate",
+    # Vague 69 — Agile / Projet raccourcis
+    "sprint": "statut du sprint",
+    "standup": "lance le standup",
+    "retro": "lance la retro",
+    "backlog": "montre le backlog",
+    "epic": "montre l'epic",
+    "velocity": "montre la velocite",
+    "burndown": "montre le burndown",
+    "mvp": "definis le mvp",
+    # Vague 70 — Gaming / Multimedia raccourcis
+    "blender": "ouvre blender",
+    "unity": "ouvre unity",
+    "godot": "ouvre godot",
+    "ffmpeg": "lance ffmpeg",
+    "shader": "edite le shader",
+    "render": "lance le rendu",
+    "stream": "lance le stream",
 }
 
 
