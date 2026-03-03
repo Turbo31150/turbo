@@ -120,8 +120,8 @@ export default function TopBar({ connected, currentPage, onDetach }: TopBarProps
       }).catch(err => console.warn('[TopBar] metrics error:', err instanceof Error ? err.message : err));
     };
     fetchMetrics();
-    intervalRef.current = window.setInterval(fetchMetrics, INTERVALS.metrics);
-    return () => { mounted = false; clearInterval(intervalRef.current); };
+    const iv = window.setInterval(fetchMetrics, INTERVALS.metrics);
+    return () => { mounted = false; clearInterval(iv); };
   }, [connected, request]);
 
   const detachable = ['dashboard', 'trading', 'voice'].includes(currentPage);

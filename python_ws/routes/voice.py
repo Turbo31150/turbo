@@ -271,7 +271,12 @@ async def _handle_tts(payload: dict) -> dict:
         comm = edge_tts.Communicate(text, voice)
         tmp = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
         tmp.close()
-        await comm.save(tmp.name)
+        try:
+            await comm.save(tmp.name)
+        except Exception:
+            import pathlib as _pl
+            _pl.Path(tmp.name).unlink(missing_ok=True)
+            raise
 
         # Play via ffplay (non-blocking) then cleanup temp file
         proc = await asyncio.create_subprocess_exec(

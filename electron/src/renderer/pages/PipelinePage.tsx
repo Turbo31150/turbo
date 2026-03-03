@@ -123,7 +123,7 @@ const DominoCard = memo(function DominoCard({ domino, onExecute, onDone, executi
       else { setError(e instanceof Error ? (e.name === 'TimeoutError' ? 'Timeout (120s)' : e.message) : 'Erreur inconnue'); }
     } finally {
       clearTimeout(timeoutId);
-      onDone();
+      if (mountedRef.current) onDone();
     }
   };
 

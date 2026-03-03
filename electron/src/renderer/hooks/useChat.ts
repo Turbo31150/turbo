@@ -120,7 +120,7 @@ export function useChat() {
                 timestamp: Date.now(),
               });
             }
-            return { ...prev, messages };
+            return { ...prev, messages: capMessages(messages) };
           });
           break;
         }

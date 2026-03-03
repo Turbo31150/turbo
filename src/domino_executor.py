@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import sqlite3
 import subprocess
 import time
@@ -178,10 +179,19 @@ def get_fallback_node(primary: str) -> str:
 # STEP EXECUTOR — Execute chaque type de step
 # ══════════════════════════════════════════════════════════════════════════════
 
+_DOMINO_PS_ALLOWLIST = re.compile(
+    r"^(Get-|Set-|Start-Process|Write-|Test-|Select-|Where-Object|Format-|Out-|Invoke-WebRequest|Measure-)"
+)
+
+
 def execute_powershell(command: str, timeout: int = 30) -> str:
-    """Execute une commande PowerShell."""
+    """Execute une commande PowerShell (validated against allowlist)."""
     # Strip prefix if present
     cmd = command.replace("powershell:", "", 1) if command.startswith("powershell:") else command
+    cmd = cmd.strip()
+    # Block dangerous commands from DB-sourced domino chains
+    if not _DOMINO_PS_ALLOWLIST.match(cmd):
+        return f"BLOCKED: Command not in allowlist: {cmd[:80]}"
     result = subprocess.run(
         ["powershell", "-NoProfile", "-Command", cmd],
         capture_output=True, text=True, timeout=timeout

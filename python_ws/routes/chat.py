@@ -19,15 +19,19 @@ logger = logging.getLogger("jarvis.chat")
 
 # Shared httpx client — avoids TCP reconnect overhead per request
 _http: httpx.AsyncClient | None = None
+_http_lock = asyncio.Lock()
 
 
-def _get_http() -> httpx.AsyncClient:
+async def _get_http() -> httpx.AsyncClient:
     global _http
-    if _http is None or _http.is_closed:
-        _http = httpx.AsyncClient(
-            timeout=60,
-            limits=httpx.Limits(max_keepalive_connections=10, max_connections=20),
-        )
+    if _http is not None and not _http.is_closed:
+        return _http
+    async with _http_lock:
+        if _http is None or _http.is_closed:
+            _http = httpx.AsyncClient(
+                timeout=60,
+                limits=httpx.Limits(max_keepalive_connections=10, max_connections=20),
+            )
     return _http
 
 # Turbo root — resolved relative to this file (python_ws/routes/chat.py → turbo/)
@@ -363,7 +367,7 @@ async def check_models_health() -> dict:
             return _model_health
 
         results = {}
-        client = _get_http()
+        client = await _get_http()
         for m in ALL_MODELS:
             try:
                 if m["backend"] == "proxy":
@@ -443,7 +447,7 @@ async def _query_local_ia(text: str, task_type: str) -> str:
     chat_messages = _build_chat_history(text)
     lmstudio_input = _build_lmstudio_input(text)
 
-    client = _get_http()
+    client = await _get_http()
     for node in nodes_priority:
         try:
             if node["backend"] == "proxy":
@@ -524,7 +528,7 @@ async def _query_single_node(model_id: str, text: str, chat_messages: list, lmst
                 return {"model": model_id, "name": name, "content": result, "latency": round(time.time() - start, 2)}
             return {"model": model_id, "name": name, "error": "proxy timeout"}
 
-        client = _get_http()
+        client = await _get_http()
         if m["backend"] == "ollama":
             ol_payload = (build_ollama_payload(model_id, chat_messages)
                           if build_ollama_payload else

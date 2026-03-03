@@ -88,7 +88,7 @@ async def execute_command(cmd: JarvisCommand, params: dict[str, str]) -> str:
     if cmd.action_type == "powershell":
         action = cmd.action
         for k, v in params.items():
-            action = action.replace(f"{{{k}}}", v)
+            action = action.replace(f"{{{k}}}", v.replace("'", "''"))
         result = run_powershell(action, timeout=30)
         if result["success"]:
             output = result["stdout"][:200] if result["stdout"] else "OK"
