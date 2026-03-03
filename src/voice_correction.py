@@ -546,6 +546,53 @@ def format_suggestions(suggestions: list[tuple[JarvisCommand, float]]) -> str:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# DB-BACKED CORRECTIONS LOADER — Enrich VOICE_CORRECTIONS from database
+# ═══════════════════════════════════════════════════════════════════════════
+
+_db_corrections_loaded = False
+
+
+def load_db_corrections() -> int:
+    """Load voice corrections from etoile.db and jarvis.db into VOICE_CORRECTIONS.
+
+    Returns number of new corrections added (not already in dict).
+    """
+    global _db_corrections_loaded
+    if _db_corrections_loaded:
+        return 0
+    _db_corrections_loaded = True
+    added = 0
+    try:
+        import sqlite3
+        import os
+        base = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
+        for db_name in ("jarvis.db", "etoile.db"):
+            db_path = os.path.join(base, "data", db_name)
+            if not os.path.exists(db_path):
+                continue
+            with sqlite3.connect(db_path, timeout=5) as conn:
+                # Check if table exists
+                tables = [r[0] for r in conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='voice_corrections'"
+                ).fetchall()]
+                if not tables:
+                    continue
+                rows = conn.execute(
+                    "SELECT wrong, corrected FROM voice_corrections WHERE wrong IS NOT NULL AND corrected IS NOT NULL"
+                ).fetchall()
+                for wrong, corrected in rows:
+                    key = wrong.lower().strip()
+                    if key and key not in VOICE_CORRECTIONS:
+                        VOICE_CORRECTIONS[key] = corrected.lower().strip()
+                        added += 1
+        if added:
+            logger.info("Loaded %d DB voice corrections into dict (total: %d)", added, len(VOICE_CORRECTIONS))
+    except (ImportError, OSError) as exc:
+        logger.debug("Failed to load DB corrections: %s", exc)
+    return added
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # HIT COUNT TRACKING
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -600,7 +647,11 @@ async def full_correction_pipeline(
     - confidence: match confidence (0-1)
     - suggestions: alternative commands if low confidence
     - method: how the match was found
+    - domino: matched DominoPipeline (if method is "domino")
     """
+    # Load DB corrections on first call (lazy, once)
+    load_db_corrections()
+
     # Resolve defaults from config at runtime
     if not ia_url or not ia_model:
         try:
