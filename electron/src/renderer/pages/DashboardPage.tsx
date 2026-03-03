@@ -164,7 +164,7 @@ const NodeCard = memo(function NodeCard({ node, lmNode }: { node?: ClusterNode; 
       {gpus.length > 1 && gpus.some(g => g.temperature && g.temperature > 0) && (
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 6 }}>
           {gpus.map((g, i) => (
-            <span key={i} style={{
+            <span key={`gpu_${i}_${g.temperature || 0}`} style={{
               fontSize: 8, padding: '1px 5px', borderRadius: 3,
               backgroundColor: (g.temperature || 0) > 75 ? COLORS.redAlpha(0.1) : COLORS.blueAlpha(0.08),
               color: (g.temperature || 0) > 75 ? COLORS.red : COLORS.textDim,

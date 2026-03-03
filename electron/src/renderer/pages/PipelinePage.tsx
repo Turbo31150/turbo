@@ -160,7 +160,7 @@ const DominoCard = memo(function DominoCard({ domino, onExecute, onDone, executi
           {logs.length > 0 && (
             <div style={S.logsPanel}>
               {logs.map((log, i) => (
-                <div key={i} style={S.resultRow}>
+                <div key={`${log.step_name}_${i}`} style={S.resultRow}>
                   <div style={S.stepDot(log.status)} />
                   <span style={{ color: COLORS.text, fontWeight: 500 }}>{log.step_name}</span>
                   <span>{log.duration_ms}ms</span>
