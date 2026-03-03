@@ -1407,6 +1407,111 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         learning_context="Reseau — mesurer la bande passante et latence",
         priority="normal",
     ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # NOUVELLES CASCADES (batch 59 — 2026-03-03)
+    # ─────────────────────────────────────────────────────────────────────
+
+    DominoPipeline(
+        id="domino_bilan_cluster_complet",
+        trigger_vocal=["bilan cluster complet", "rapport cluster", "etat complet du cluster"],
+        steps=[
+            DominoStep("health_m1", "curl:http://10.5.0.2:1234/api/v1/models", "curl", on_fail="skip", timeout_s=5),
+            DominoStep("health_m2", "curl:http://192.168.1.26:1234/api/v1/models", "curl", on_fail="skip", timeout_s=5),
+            DominoStep("health_m3", "curl:http://192.168.1.113:1234/api/v1/models", "curl", on_fail="skip", timeout_s=5),
+            DominoStep("health_ol1", "curl:http://127.0.0.1:11434/api/tags", "curl", on_fail="skip", timeout_s=5),
+            DominoStep("gpu_all", "powershell:nvidia-smi --query-gpu=name,temperature.gpu,memory.used,memory.total,utilization.gpu --format=csv,noheader", "powershell", timeout_s=10),
+            DominoStep("vram_summary", "powershell:nvidia-smi --query-gpu=memory.used,memory.total --format=csv,noheader", "powershell"),
+            DominoStep("tts_bilan", "python:edge_tts_speak('Bilan cluster complet termine. Tous les noeuds verifies.')", "python"),
+        ],
+        category="cluster_management",
+        description="Bilan complet: health check 4 noeuds + GPU details + VRAM",
+        learning_context="Bilan exhaustif du cluster — afficher noeuds offline en priorite",
+        priority="high",
+    ),
+
+    DominoPipeline(
+        id="domino_mode_coding_intense",
+        trigger_vocal=["mode coding", "mode dev intense", "mode programmation", "session de code"],
+        steps=[
+            DominoStep("open_vscode", "app_open:code", "pipeline"),
+            DominoStep("open_terminal", "app_open:terminal", "pipeline"),
+            DominoStep("disable_notifs", "powershell:New-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Notifications\\Settings' -Name 'NOC_GLOBAL_SETTING_TOASTS_ENABLED' -Value 0 -PropertyType DWORD -Force 2>$null", "powershell", on_fail="skip"),
+            DominoStep("cluster_warmup", "curl:http://10.5.0.2:1234/api/v1/models", "curl", on_fail="skip", timeout_s=5),
+            DominoStep("focus_timer", "python:start_pomodoro(25)", "python"),
+            DominoStep("tts_coding", "python:edge_tts_speak('Mode coding active. Notifications desactivees. Focus 25 minutes.')", "python"),
+        ],
+        category="productivity",
+        description="Mode coding intense: VSCode + terminal + disable notifs + focus timer",
+        learning_context="Dev intense — desactiver distractions, activer timer pomodoro 25min",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_rapport_du_jour",
+        trigger_vocal=["rapport du jour", "bilan de la journee", "resume du jour", "qu'est ce qu'on a fait aujourd'hui"],
+        steps=[
+            DominoStep("git_today", "powershell:git -C 'F:\\BUREAU\\turbo' log --oneline --since='midnight' --format='%h %s'", "powershell"),
+            DominoStep("cluster_stats", "curl:http://10.5.0.2:1234/api/v1/models", "curl", on_fail="skip", timeout_s=5),
+            DominoStep("db_stats", "python:sqlite3_table_counts('etoile.db')", "python", on_fail="skip"),
+            DominoStep("trading_pnl", "python:fetch_today_pnl()", "python", on_fail="skip"),
+            DominoStep("tts_rapport", "python:edge_tts_speak('Rapport du jour genere.')", "python"),
+        ],
+        category="productivity",
+        description="Rapport quotidien: git log today + cluster + DB + trading PnL",
+        learning_context="Bilan de fin de journee — commits, cluster health, trading resume",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_maintenance_hebdo",
+        trigger_vocal=["maintenance hebdo", "maintenance de la semaine", "nettoyage hebdomadaire"],
+        steps=[
+            DominoStep("vacuum_etoile", "python:sqlite3_vacuum('etoile.db')", "python", timeout_s=60),
+            DominoStep("vacuum_jarvis", "python:sqlite3_vacuum('jarvis.db')", "python", timeout_s=30),
+            DominoStep("git_prune", "powershell:git -C 'F:\\BUREAU\\turbo' gc --prune=now", "powershell", timeout_s=60),
+            DominoStep("clean_temp", "powershell:Remove-Item -Path $env:TEMP\\* -Force -Recurse -ErrorAction SilentlyContinue 2>$null; Write-Output 'Temp nettoye'", "powershell", on_fail="skip", timeout_s=30),
+            DominoStep("clean_logs", "powershell:Get-ChildItem 'F:\\BUREAU\\turbo\\data\\*.log' -ErrorAction SilentlyContinue | Where-Object {$_.LastWriteTime -lt (Get-Date).AddDays(-7)} | Remove-Item -Force 2>$null", "powershell", on_fail="skip"),
+            DominoStep("tts_maintenance", "python:edge_tts_speak('Maintenance hebdomadaire terminee. Bases nettoyees, fichiers temporaires supprimes.')", "python"),
+        ],
+        category="maintenance",
+        description="Maintenance hebdo: vacuum DB + git gc + clean temp + clean old logs",
+        learning_context="Maintenance preventive — vacuum, nettoyage, liberation espace",
+        priority="normal",
+        cooldown_s=3600,
+    ),
+
+    DominoPipeline(
+        id="domino_code_review_complet",
+        trigger_vocal=["code review complet", "revue de code", "review le code"],
+        steps=[
+            DominoStep("git_diff", "powershell:git -C 'F:\\BUREAU\\turbo' diff --stat HEAD~3", "powershell"),
+            DominoStep("lint_check", "powershell:cd F:\\BUREAU\\turbo && uv run python -m ruff check src/ --statistics 2>&1 | Select-Object -First 20", "powershell", on_fail="skip", timeout_s=30),
+            DominoStep("type_check", "powershell:cd F:\\BUREAU\\turbo && npx tsc --noEmit 2>&1 | Select-Object -Last 5", "powershell", on_fail="skip", timeout_s=30),
+            DominoStep("test_quick", "powershell:cd F:\\BUREAU\\turbo && uv run python -m pytest tests/ -q --tb=no 2>&1 | Select-Object -Last 3", "powershell", on_fail="skip", timeout_s=60),
+            DominoStep("tts_review", "python:edge_tts_speak('Code review termine. Resultats affiches.')", "python"),
+        ],
+        category="dev_workflow",
+        description="Code review: git diff + lint + type check + tests rapides",
+        learning_context="Review — diff des 3 derniers commits, lint ruff, types TS, tests pytest",
+        priority="normal",
+    ),
+
+    DominoPipeline(
+        id="domino_analyse_trading_ia",
+        trigger_vocal=["analyse trading ia", "ia analyse le marche", "consensus trading"],
+        steps=[
+            DominoStep("fetch_prices", "python:fetch_mexc_prices(['BTC','ETH','SOL','SUI','PEPE'])", "python", timeout_s=15),
+            DominoStep("m1_analysis", "curl:http://10.5.0.2:1234/api/v1/chat", "curl", timeout_s=30),
+            DominoStep("gptoss_analysis", "curl:http://127.0.0.1:11434/api/chat", "curl", timeout_s=60),
+            DominoStep("consensus_vote", "python:weighted_consensus_vote()", "python"),
+            DominoStep("tts_trading", "python:edge_tts_speak('Analyse trading IA terminee. Consensus genere.')", "python"),
+        ],
+        category="trading_cascade",
+        description="Analyse trading IA: prix + M1 analyse + gpt-oss analyse + consensus vote",
+        learning_context="Trading IA — consensus M1+gpt-oss sur top 5 paires, vote pondere",
+        priority="high",
+    ),
 ]
 
 # Post-process: replace hardcoded paths with config-driven values
