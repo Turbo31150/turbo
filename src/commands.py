@@ -3386,20 +3386,38 @@ VOICE_CORRECTIONS: dict[str, str] = {
 }
 
 
+# Pre-computed phrase-level corrections (multi-word keys sorted by length desc for longest match)
+_PHRASE_CORRECTIONS: list[tuple[str, str]] = []
+
+
+def _build_phrase_corrections() -> None:
+    """Build sorted phrase corrections list from VOICE_CORRECTIONS dict."""
+    global _PHRASE_CORRECTIONS
+    _PHRASE_CORRECTIONS = sorted(
+        [(k, v) for k, v in VOICE_CORRECTIONS.items() if " " in k],
+        key=lambda x: len(x[0]),
+        reverse=True,  # Longest phrases first to avoid partial matches
+    )
+
+
 def correct_voice_text(text: str) -> str:
     """Apply known voice corrections to transcribed text."""
+    if not text:
+        return text
     text = text.lower().strip()
 
-    # Apply word-level corrections
+    # Apply word-level corrections (O(n) on word count, O(1) per lookup)
     words = text.split()
     corrected = []
     for word in words:
         corrected.append(VOICE_CORRECTIONS.get(word, word))
     text = " ".join(corrected)
 
-    # Apply phrase-level corrections (multi-word only to avoid substring issues)
-    for wrong, right in VOICE_CORRECTIONS.items():
-        if " " in wrong and wrong in text:
+    # Apply phrase-level corrections (longest match first, pre-sorted)
+    if not _PHRASE_CORRECTIONS:
+        _build_phrase_corrections()
+    for wrong, right in _PHRASE_CORRECTIONS:
+        if wrong in text:
             text = text.replace(wrong, right)
 
     return text
