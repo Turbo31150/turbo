@@ -1851,7 +1851,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("trading_positions_resume", "pipeline", "Resume des positions trading ouvertes sur MEXC", [
         "positions ouvertes", "mes positions", "resume trading",
         "qu'est-ce qui est ouvert", "pnl actuel",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/trading_latest.db'); try: signals=c.execute('SELECT symbol,side,score,timestamp FROM signals ORDER BY timestamp DESC LIMIT 10').fetchall(); [print(f'  {s[0]} {s[1]} score:{s[2]} ({s[3]})') for s in signals] if signals else print('Aucun signal recent')\nexcept: print('Table signals non trouvee')\nfinally: c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/trading_latest.db'); try: signals=c.execute('SELECT symbol,side,score,timestamp FROM signals ORDER BY timestamp DESC LIMIT 10').fetchall(); [print(f'  {s[0]} {s[1]} score:{s[2]} ({s[3]})') for s in signals] if signals else print('Aucun signal recent')\nexcept (sqlite3.OperationalError, sqlite3.DatabaseError): print('Table signals non trouvee')\nfinally: c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("trading_market_overview", "pipeline", "Vue d'ensemble du marche crypto: BTC + ETH + top movers", [
         "vue du marche", "marche crypto", "comment va le marche",
