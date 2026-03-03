@@ -782,6 +782,52 @@ def _build_telegram() -> str:
 def _build_toast() -> str:
     return "[NOTIFICATION] Desktop notification built (stub)"
 
+# ── Batch 80: 3 new real + 2 stubs ──
+
+@register_python_action("export_db_to_csv")
+def _export_csv(db_name: str = "etoile.db") -> str:
+    """Export all tables from a SQLite DB to CSV files."""
+    import csv
+    import sqlite3
+    db_path = Path(os.getenv("TURBO_DIR", "F:/BUREAU/turbo")) / "data" / db_name
+    out_dir = db_path.parent / "exports"
+    out_dir.mkdir(exist_ok=True)
+    if not db_path.exists():
+        return f"DB introuvable: {db_path}"
+    conn = sqlite3.connect(str(db_path))
+    tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()]
+    exported = []
+    for tbl in tables:
+        rows = conn.execute(f"SELECT * FROM [{tbl}]").fetchall()
+        cols = [d[0] for d in conn.execute(f"SELECT * FROM [{tbl}] LIMIT 0").description]
+        csv_path = out_dir / f"{db_name.replace('.db', '')}_{tbl}.csv"
+        with open(csv_path, "w", newline="", encoding="utf-8") as f:
+            w = csv.writer(f)
+            w.writerow(cols)
+            w.writerows(rows)
+        exported.append(f"{tbl}: {len(rows)} rows")
+    conn.close()
+    return f"Exported {len(tables)} tables to {out_dir}: " + ", ".join(exported)
+
+@register_python_action("start_pomodoro_timer")
+def _start_pomodoro_timer(minutes: str = "25") -> str:
+    return f"[POMODORO] Timer started for {minutes} minutes"
+
+@register_python_action("sqlite3_vacuum")
+def _sqlite3_vacuum_action(db_name: str = "etoile.db") -> str:
+    """VACUUM a SQLite DB."""
+    import sqlite3
+    db_path = Path(os.getenv("TURBO_DIR", "F:/BUREAU/turbo")) / "data" / db_name
+    if not db_path.exists():
+        return f"DB introuvable: {db_path}"
+    conn = sqlite3.connect(str(db_path))
+    old_size = db_path.stat().st_size
+    conn.execute("VACUUM")
+    conn.close()
+    new_size = db_path.stat().st_size
+    saved = (old_size - new_size) / 1024
+    return f"VACUUM {db_name}: {old_size/1024:.0f}KB -> {new_size/1024:.0f}KB (saved {saved:.0f}KB)"
+
 
 def execute_python(action: str, timeout: int = 30) -> str:
     """Execute a registered Python action or return description for unknown ones."""

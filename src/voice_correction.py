@@ -400,6 +400,43 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "deploy": "deploie en production",
     "deployer": "deploie en production",
     "consensus": "consensus cluster",
+    # Vague 21 — Automation / Session shortcuts
+    "commit": "auto commit",
+    "push": "git push",
+    "commite": "auto commit",
+    "pousse": "pousse le code",
+    "snapshot": "sauvegarde la session",
+    "session": "statut session",
+    "env": "verifie l'environnement",
+    "rapport": "rapport systeme complet",
+    "report": "rapport systeme complet",
+    "etat": "etat global",
+    "global": "etat global",
+    "complet": "rapport systeme complet",
+    # Vague 22 — Integration / Modeles shortcuts
+    "ollama models": "liste les modeles ollama",
+    "lm models": "liste les modeles lm studio",
+    "lmstudio models": "liste les modeles lm studio",
+    "n8n": "statut n8n",
+    "workflows": "statut n8n",
+    "csv": "exporte la base en csv",
+    "export": "exporte les metriques",
+    "comptage": "combien de lignes en base",
+    "rows": "combien de lignes en base",
+    "lignes": "combien de lignes en base",
+    "logs": "analyse les logs",
+    "erreurs": "analyse les logs",
+    # Vague 23 — Actions rapides vocales
+    "rebalance": "reequilibre le cluster",
+    "equilibre": "reequilibre le cluster",
+    "watch": "surveille les temperatures",
+    "surveille": "surveille les temperatures",
+    "quick test": "test rapide",
+    "syntax": "test rapide",
+    "init": "initialise un projet python",
+    "nouveau": "initialise un projet python",
+    "auto push": "pousse le code",
+    "auto save": "sauvegarde la session",
 }
 
 
@@ -546,6 +583,18 @@ def extract_action_intent(text: str) -> str:
         (r"\bauditer\b", "audite"),
         (r"\bprofiler\b", "profile"),
         (r"\bbackuper\b", "backup"),
+        # Vague 4 — Verbes automation/integration
+        (r"\bcommiter\b", "commite"),
+        (r"\bpusher\b", "push"),
+        (r"\bpouvoir\b", ""),
+        (r"\breequilibrer\b", "reequilibre"),
+        (r"\bsurveiller\b", "surveille"),
+        (r"\binitialiser\b", "initialise"),
+        (r"\bexecuter\b", "execute"),
+        (r"\bimporter\b", "importe"),
+        (r"\brafraichir\b", "rafraichis"),
+        (r"\brelancer\b", "relance"),
+        (r"\brechercher\b", "recherche"),
     ]
     for pattern, replacement in replacements:
         text = re.sub(pattern, replacement, text)
