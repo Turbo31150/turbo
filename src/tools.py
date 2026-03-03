@@ -1397,6 +1397,12 @@ def _text(text: str) -> dict[str, Any]:
 def _error(text: str) -> dict[str, Any]:
     return {"content": [{"type": "text", "text": text}], "is_error": True}
 
+def _safe_int(val, default: int) -> int:
+    try:
+        return int(val)
+    except (TypeError, ValueError):
+        return default
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # DATABASE — SQL QUERIES
@@ -1531,7 +1537,7 @@ async def dict_crud_tool(args: dict[str, Any]) -> dict[str, Any]:
 
         if operation == "search":
             query = (data.get("query") or "").lower().strip()
-            limit = int(data.get("limit", 20))
+            limit = _safe_int(data.get("limit"), 20)
             if not query:
                 return _error("data.query is required for search")
             if table == "pipeline_dictionary":
@@ -1585,7 +1591,7 @@ async def dict_crud_tool(args: dict[str, Any]) -> dict[str, Any]:
                 conn.execute(
                     "INSERT INTO domino_chains (trigger_cmd, condition, next_cmd, delay_ms, auto, description) VALUES (?, ?, ?, ?, ?, ?)",
                     (trigger_cmd, data.get("condition", ""), next_cmd,
-                     int(data.get("delay_ms", 0)), 1 if data.get("auto", True) else 0,
+                     _safe_int(data.get("delay_ms"), 0), 1 if data.get("auto", True) else 0,
                      data.get("description", ""))
                 )
                 conn.commit()

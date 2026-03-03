@@ -736,7 +736,9 @@ async def handle_trading_pending_signals(args: dict) -> list[TextContent]:
 
 async def handle_trading_execute_signal(args: dict) -> list[TextContent]:
     from src.trading import execute_signal
-    signal_id = int(args["signal_id"])
+    signal_id = _safe_int(args.get("signal_id"), 0)
+    if not signal_id:
+        return _error("signal_id must be a valid integer")
     dry_run_str = str(args.get("dry_run", "true")).lower()
     dry_run = dry_run_str in ("true", "1", "yes", "oui")
     result = await _run(execute_signal, signal_id, dry_run)
@@ -1121,7 +1123,7 @@ async def handle_dict_crud(args: dict) -> list[TextContent]:
 
             if operation == "search":
                 q = (data.get("query") or "").lower().strip()
-                limit = int(data.get("limit", 20))
+                limit = _safe_int(data.get("limit"), 20)
                 if not q:
                     return "ERROR: data.query is required"
                 if table == "pipeline_dictionary":
@@ -1165,7 +1167,7 @@ async def handle_dict_crud(args: dict) -> list[TextContent]:
                         return "ERROR: trigger_cmd and next_cmd required"
                     conn.execute(
                         "INSERT INTO domino_chains (trigger_cmd, condition, next_cmd, delay_ms, auto, description) VALUES (?, ?, ?, ?, ?, ?)",
-                        (tc, data.get("condition", ""), nc, int(data.get("delay_ms", 0)),
+                        (tc, data.get("condition", ""), nc, _safe_int(data.get("delay_ms"), 0),
                          1 if data.get("auto", True) else 0, data.get("description", "")))
                     conn.commit()
                     nid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
