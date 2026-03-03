@@ -906,7 +906,7 @@ async def ai_query_lmstudio(client, node, prompt, timeout=15):
         output = data.get("output", [{}])
         if isinstance(output, list) and output:
             return {"agent": node["name"], "response": output[0].get("content", ""), "ok": True}
-    except Exception as e:
+    except (httpx.HTTPError, OSError, KeyError) as e:
         return {"agent": node["name"], "response": str(e), "ok": False}
     return {"agent": node["name"], "response": "", "ok": False}
 
@@ -923,7 +923,7 @@ async def ai_query_ollama(client, prompt, timeout=10):
         if "</think>" in content:
             content = content.split("</think>")[-1].strip()
         return {"agent": LM_OL1["name"], "response": content, "ok": True}
-    except Exception as e:
+    except (httpx.HTTPError, OSError, KeyError) as e:
         return {"agent": LM_OL1["name"], "response": str(e), "ok": False}
 
 
@@ -936,7 +936,7 @@ async def ai_query_gemini(prompt, timeout=30):
         )
         stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=timeout)
         return {"agent": "GEMINI/pro", "response": stdout.decode("utf-8", errors="replace").strip(), "ok": True}
-    except Exception as e:
+    except (asyncio.TimeoutError, OSError) as e:
         return {"agent": "GEMINI/pro", "response": str(e), "ok": False}
 
 

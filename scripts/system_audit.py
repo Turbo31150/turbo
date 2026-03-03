@@ -94,7 +94,7 @@ async def check_lm_node(node) -> dict:
     except httpx.TimeoutException:
         result["status"] = "TIMEOUT"
         result["error"] = f"Timeout after {AUDIT_TIMEOUT}s"
-    except Exception as e:
+    except (httpx.HTTPError, OSError) as e:
         result["status"] = "OFFLINE"
         result["error"] = str(e)
 
@@ -143,7 +143,7 @@ async def check_ollama(node) -> dict:
     except httpx.TimeoutException:
         result["status"] = "TIMEOUT"
         result["error"] = f"Timeout after {AUDIT_TIMEOUT}s"
-    except Exception as e:
+    except (httpx.HTTPError, OSError) as e:
         result["status"] = "OFFLINE"
         result["error"] = str(e)
 
@@ -203,7 +203,7 @@ async def check_gemini(gemini_node) -> dict:
             result["error"] = err_text[:200] if err_text else f"Exit code {proc.returncode}"
     except FileNotFoundError:
         result["error"] = "node not found in PATH"
-    except Exception as e:
+    except (asyncio.TimeoutError, OSError) as e:
         result["error"] = str(e)
 
     return result
@@ -322,7 +322,7 @@ async def check_system_info() -> dict:
                             pass
     except asyncio.TimeoutError:
         result["error"] = "PowerShell timeout"
-    except Exception as e:
+    except OSError as e:
         result["error"] = str(e)
 
     return result

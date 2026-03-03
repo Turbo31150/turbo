@@ -448,7 +448,7 @@ def main():
         c.execute("SELECT COUNT(*) FROM consensus_log")
         print(f"Consensus logs: {c.fetchone()[0]}")
 
-    except Exception as e:
+    except (sqlite3.Error, OSError) as e:
         conn.rollback()
         print(f"\nERREUR — ROLLBACK: {e}")
         raise
