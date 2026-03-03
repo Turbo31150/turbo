@@ -213,7 +213,7 @@ export default function VoicePage() {
             </div>
           ) : (
             conversation.map((entry, i) => (
-              <div key={i} className="v-entry" style={
+              <div key={`${entry.role}_${entry.ts}_${i}`} className="v-entry" style={
                 entry.role === 'user' ? S.msgUser :
                 entry.role === 'assistant' ? S.msgAssistant : S.msgSystem
               }>

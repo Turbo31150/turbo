@@ -255,11 +255,19 @@ def send_keys(keys: str) -> str:
     )
 
 
+_SENDKEYS_SPECIAL = str.maketrans({
+    "+": "{+}", "^": "{^}", "%": "{%}", "~": "{~}",
+    "(": "{(}", ")": "{)}", "[": "{[}", "]": "{]}",
+    "{": "{{}", "}": "{}}",
+})
+
+
 def type_text(text: str) -> str:
     """Type text into the active window character by character."""
+    safe = text.translate(_SENDKEYS_SPECIAL)
     return _ps(
         f"Add-Type -AssemblyName System.Windows.Forms; "
-        f"[System.Windows.Forms.SendKeys]::SendWait('{_sq(text)}'); 'Texte tape'"
+        f"[System.Windows.Forms.SendKeys]::SendWait('{_sq(safe)}'); 'Texte tape'"
     )
 
 

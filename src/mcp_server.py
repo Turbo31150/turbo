@@ -1187,7 +1187,7 @@ async def handle_dict_crud(args: dict) -> list[TextContent]:
                     return "ERROR: data.id and data.fields required"
                 bad = [k for k in fields if not _SAFE_COL_RE.match(k)]
                 if bad:
-                    return _error(f"Invalid column name(s): {bad}")
+                    return f"ERROR: Invalid column name(s): {bad}"
                 sets = [f"{k} = ?" for k in fields]
                 vals = list(fields.values()) + [int(rid)]
                 cur = conn.execute(f"UPDATE [{table}] SET {', '.join(sets)} WHERE id = ?", vals)

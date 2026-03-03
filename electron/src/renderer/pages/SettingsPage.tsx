@@ -81,12 +81,14 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (!connected) return;
+    let cancelled = false;
     request('system', 'get_config').then(r => {
-      if (mountedRef.current && r.payload?.config) setCfg(prev => ({ ...prev, ...r.payload!.config }));
+      if (!cancelled && mountedRef.current && r.payload?.config) setCfg(prev => ({ ...prev, ...r.payload!.config }));
     }).catch(err => console.warn('[Settings] config fetch error:', err instanceof Error ? err.message : err));
     request('system', 'system_info').then(r => {
-      if (mountedRef.current && r.payload) setAbout(r.payload as SystemAbout);
+      if (!cancelled && mountedRef.current && r.payload) setAbout(r.payload as SystemAbout);
     }).catch(err => console.warn('[Settings] system_info error:', err instanceof Error ? err.message : err));
+    return () => { cancelled = true; };
   }, [connected, request]);
 
   useEffect(() => () => { mountedRef.current = false; }, []);
@@ -100,6 +102,7 @@ export default function SettingsPage() {
     setSaving(true);
     try {
       const res = await request('system', 'save_config', { config: cfg });
+      if (!mountedRef.current) return;
       if (res.payload?.saved) {
         setToast({ msg: 'Configuration sauvegardee', ok: true });
         setDirty(false);
@@ -107,9 +110,11 @@ export default function SettingsPage() {
         setToast({ msg: res.payload?.error || 'Erreur sauvegarde', ok: false });
       }
     } catch (err) {
+      if (!mountedRef.current) return;
       console.warn('[Settings] save config error:', err instanceof Error ? err.message : err);
       setToast({ msg: 'Erreur connexion', ok: false });
     }
+    if (!mountedRef.current) return;
     setSaving(false);
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
     toastTimerRef.current = setTimeout(() => { toastTimerRef.current = null; setToast(null); }, 3000);

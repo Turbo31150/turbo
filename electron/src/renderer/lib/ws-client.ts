@@ -82,8 +82,10 @@ export class WsClient {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(data);
     } else {
-      // Queue for later
-      this.sendQueue.push(data);
+      // Queue for later — cap at 100 to prevent unbounded growth during long offline
+      if (this.sendQueue.length < 100) {
+        this.sendQueue.push(data);
+      }
     }
   }
 

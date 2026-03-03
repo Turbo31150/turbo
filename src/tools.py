@@ -487,6 +487,8 @@ async def system_audit(args: dict[str, Any]) -> dict[str, Any]:
     spec = importlib.util.spec_from_file_location(
         "system_audit", str(PATHS["turbo"] / "scripts" / "system_audit.py")
     )
+    if spec is None or spec.loader is None:
+        return _error("system_audit.py script not found")
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
 

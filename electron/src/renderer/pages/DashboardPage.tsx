@@ -273,6 +273,7 @@ export default function DashboardPage() {
       if (!mountedRef.current) return;
       setActionResult(`${action.label}: ${getErrorMessage(e)}`);
     }
+    if (!mountedRef.current) return;
     if (actionTimerRef.current) clearTimeout(actionTimerRef.current);
     actionTimerRef.current = setTimeout(() => { actionTimerRef.current = null; setActionResult(null); }, 4000);
   }, [connected, request]);

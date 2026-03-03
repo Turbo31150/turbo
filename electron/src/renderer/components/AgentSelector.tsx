@@ -48,18 +48,22 @@ export default function AgentSelector({ value, onChange, compact }: AgentSelecto
   const wrapperRef = useRef<HTMLDivElement>(null);
   const focusIdx = useRef(-1);
 
+  const mountedRef = useRef(true);
+  useEffect(() => () => { mountedRef.current = false; }, []);
+
   const fetchModels = useCallback(async () => {
     setLoadingModels(true);
     try {
       const r = await fetch(BACKEND_URL + '/api/models', { signal: AbortSignal.timeout(5000) });
+      if (!mountedRef.current) return;
       if (r.ok) {
         const data = await r.json();
-        setModels(data.models || []);
+        if (mountedRef.current) setModels(data.models || []);
       }
     } catch (err) {
       console.warn('[AgentSelector] fetch models error:', err instanceof Error ? err.message : err);
     }
-    setLoadingModels(false);
+    if (mountedRef.current) setLoadingModels(false);
   }, []);
 
   useEffect(() => {
