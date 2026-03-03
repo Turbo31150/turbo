@@ -153,16 +153,18 @@ async def _retry_request(
 # ═══════════════════════════════════════════════════════════════════════════
 
 _METRICS: dict[str, list[float]] = {}
+_METRICS_LOCK = __import__("threading").Lock()
 
 
 def _track_latency(node: str, latency_ms: float) -> None:
     """Track latency for auto-tune routing."""
-    if node not in _METRICS:
-        _METRICS[node] = []
-    _METRICS[node].append(latency_ms)
-    # Keep last 20 measurements
-    if len(_METRICS[node]) > 20:
-        _METRICS[node] = _METRICS[node][-20:]
+    with _METRICS_LOCK:
+        if node not in _METRICS:
+            _METRICS[node] = []
+        _METRICS[node].append(latency_ms)
+        # Keep last 20 measurements
+        if len(_METRICS[node]) > 20:
+            _METRICS[node] = _METRICS[node][-20:]
     # Update config auto-tune cache
     config.update_latency(node, int(latency_ms))
 
@@ -443,7 +445,8 @@ async def lm_cluster_status(args: dict[str, Any]) -> dict[str, Any]:
             total_models += cnt
             online += 1
             _track_latency(n.name, latency)
-            avg = int(sum(_METRICS.get(n.name, [latency])) / max(len(_METRICS.get(n.name, [1])), 1))
+            with _METRICS_LOCK:
+                avg = int(sum(_METRICS.get(n.name, [latency])) / max(len(_METRICS.get(n.name, [1])), 1))
             results.append(
                 f"  [OK] {n.name} ({n.role}) — {n.gpus} GPU, {n.vram_gb}GB — "
                 f"{cnt} modeles — {latency}ms (avg {avg}ms)\n"
@@ -649,10 +652,12 @@ async def lm_benchmark(args: dict[str, Any]) -> dict[str, Any]:
 
 @tool("lm_perf_metrics", "Metriques de performance du cluster (latences moyennes, requetes).", {})
 async def lm_perf_metrics(args: dict[str, Any]) -> dict[str, Any]:
-    if not _METRICS:
+    with _METRICS_LOCK:
+        snapshot = dict(_METRICS)
+    if not snapshot:
         return _text("Aucune metrique collectee. Lance lm_benchmark d'abord.")
     lines = ["Metriques de performance:"]
-    for node, latencies in _METRICS.items():
+    for node, latencies in snapshot.items():
         avg = int(sum(latencies) / len(latencies))
         mn = int(min(latencies))
         mx = int(max(latencies))

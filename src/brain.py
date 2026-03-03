@@ -298,7 +298,9 @@ async def cluster_suggest_skill(context: str, node_url: str = "") -> dict | None
             )
             resp.raise_for_status()
             from src.tools import extract_lms_output
-            text = extract_lms_output(resp.json()).strip()
+            raw_body = resp.json()
+            logger.debug("cluster_suggest_skill raw response: %.300s", raw_body)
+            text = extract_lms_output(raw_body).strip()
 
             # Extract JSON from response (may have markdown code blocks)
             if "```" in text:
