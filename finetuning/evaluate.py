@@ -632,7 +632,7 @@ def run_tests(
             response, gen_time = generate_response(
                 model, tokenizer, tc["input"], max_new_tokens=max_new_tokens,
             )
-        except Exception as e:
+        except (RuntimeError, ValueError, OSError) as e:
             response = f"[ERREUR] {e}"
             gen_time = 0.0
 

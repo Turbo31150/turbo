@@ -99,7 +99,7 @@ async def phase_health() -> PhaseResult:
                 }
                 online += 1
                 _print(f"  [OK] {n.name} -- {len(models)} modeles, {n.gpus} GPU, {n.vram_gb}GB")
-            except Exception as e:
+            except (httpx.HTTPError, OSError) as e:
                 nodes_status[n.name] = {"status": "OFFLINE", "error": str(e)}
                 _print(f"  [--] {n.name} -- OFFLINE ({e})")
 
@@ -112,7 +112,7 @@ async def phase_health() -> PhaseResult:
                 nodes_status[n.name] = {"status": "ONLINE", "models": models}
                 online += 1
                 _print(f"  [OK] {n.name} -- {len(models)} modeles [Ollama]")
-            except Exception as e:
+            except (httpx.HTTPError, OSError) as e:
                 nodes_status[n.name] = {"status": "OFFLINE", "error": str(e)}
                 _print(f"  [--] {n.name} -- OFFLINE ({e})")
 
@@ -131,7 +131,7 @@ async def phase_health() -> PhaseResult:
         else:
             nodes_status["GEMINI"] = {"status": "OFFLINE"}
             _print(f"  [--] GEMINI -- OFFLINE")
-    except Exception as e:
+    except (asyncio.TimeoutError, OSError) as e:
         nodes_status["GEMINI"] = {"status": "OFFLINE", "error": str(e)}
         _print(f"  [--] GEMINI -- OFFLINE ({e})")
 
@@ -205,7 +205,7 @@ async def phase_inference() -> PhaseResult:
                 else:
                     _print(f"  [OK] {n.name} -- {latency}ms -- {len(content)} chars")
                     ok_count += 1
-            except Exception as e:
+            except (httpx.HTTPError, OSError, asyncio.TimeoutError) as e:
                 test.update({"status": "ERREUR", "error": str(e)})
                 _print(f"  [--] {n.name} -- ERREUR: {e}")
             tests.append(test)
@@ -231,7 +231,7 @@ async def phase_inference() -> PhaseResult:
                 })
                 ok_count += 1
                 _print(f"  [OK] {n.name} -- {latency}ms -- {len(content)} chars")
-            except Exception as e:
+            except (httpx.HTTPError, OSError, asyncio.TimeoutError) as e:
                 test.update({"status": "ERREUR", "error": str(e)})
                 _print(f"  [--] {n.name} -- ERREUR: {e}")
             tests.append(test)
@@ -257,7 +257,7 @@ async def phase_inference() -> PhaseResult:
             })
             ok_count += 1
             _print(f"  [OK] GEMINI -- {latency}ms -- {len(content)} chars")
-    except Exception as e:
+    except (asyncio.TimeoutError, OSError) as e:
         test.update({"status": "ERREUR", "error": str(e)})
         _print(f"  [--] GEMINI -- ERREUR: {e}")
     tests.append(test)
@@ -331,7 +331,7 @@ async def phase_consensus() -> PhaseResult:
                     return f"[{name}] {extract_lms_output(r.json())[:200]}"
                 except asyncio.TimeoutError:
                     return f"[{name}] TIMEOUT"
-                except Exception as e:
+                except (httpx.HTTPError, OSError) as e:
                     return f"[{name}] ERREUR: {e}"
 
             results_raw = await asyncio.gather(*[_query_node(n) for n in names], return_exceptions=True)
@@ -452,7 +452,7 @@ async def phase_bridge() -> PhaseResult:
         mesh_latency = int((time.monotonic() - t1) * 1000)
         mesh_test.update({"status": "OK", "latency_ms": mesh_latency, "responses": len(responses)})
         _print(f"  [OK] bridge_mesh -- {mesh_latency}ms -- {len(responses)} reponses")
-    except Exception as e:
+    except (httpx.HTTPError, OSError, asyncio.TimeoutError) as e:
         mesh_test.update({"status": "ERREUR", "error": str(e)})
         _print(f"  [--] bridge_mesh -- ERREUR: {e}")
     tests.append(mesh_test)
@@ -545,7 +545,7 @@ async def phase_stress() -> PhaseResult:
                     r.raise_for_status()
                     responses.append("OL1:OK")
             return {"idx": idx, "status": "OK", "latency_ms": int((time.monotonic() - t1) * 1000), "responses": len(responses)}
-        except Exception as e:
+        except (httpx.HTTPError, OSError, asyncio.TimeoutError) as e:
             return {"idx": idx, "status": "ERREUR", "latency_ms": int((time.monotonic() - t1) * 1000), "error": str(e)}
 
     tasks = [_single_consensus(i) for i in range(10)]

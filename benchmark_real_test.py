@@ -122,7 +122,7 @@ async def query_lm_node(client, node, prompt, max_tokens):
         content = extract_lms_output(r.json())
         return {"node": node.name, "model": node.default_model, "status": "OK",
                 "latency_ms": latency, "output": content, "output_len": len(content)}
-    except Exception as e:
+    except (httpx.HTTPError, OSError, asyncio.TimeoutError) as e:
         return {"node": node.name, "model": node.default_model, "status": "ERREUR",
                 "latency_ms": int((time.monotonic() - t0) * 1000),
                 "output": "", "output_len": 0, "error": str(e)[:200]}
@@ -142,7 +142,7 @@ async def query_ollama(client, node, prompt, max_tokens):
         content = _strip_thinking_tags(r.json()["message"]["content"])
         return {"node": node.name, "model": node.default_model, "status": "OK",
                 "latency_ms": latency, "output": content, "output_len": len(content)}
-    except Exception as e:
+    except (httpx.HTTPError, OSError, asyncio.TimeoutError) as e:
         return {"node": node.name, "model": node.default_model, "status": "ERREUR",
                 "latency_ms": int((time.monotonic() - t0) * 1000),
                 "output": "", "output_len": 0, "error": str(e)[:200]}
@@ -168,7 +168,7 @@ async def query_gemini(prompt, max_tokens):
     except asyncio.TimeoutError:
         return {"node": "GEMINI", "model": config.gemini_node.default_model,
                 "status": "TIMEOUT", "latency_ms": 180000, "output": "", "output_len": 0}
-    except Exception as e:
+    except OSError as e:
         return {"node": "GEMINI", "model": config.gemini_node.default_model,
                 "status": "ERREUR", "latency_ms": int((time.monotonic() - t0) * 1000),
                 "output": "", "output_len": 0, "error": str(e)[:200]}

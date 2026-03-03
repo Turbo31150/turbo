@@ -293,7 +293,7 @@ class JARVISBenchmark:
             self._print_gpu_memory()
             return True
 
-        except Exception as e:
+        except (RuntimeError, ValueError, OSError) as e:
             print(f"[ERREUR] Chargement des modèles: {e}")
             return False
 
@@ -442,7 +442,7 @@ class JARVISBenchmark:
                         base_response,
                         finetuned_response,
                     )
-                except Exception as e:
+                except (RuntimeError, ValueError) as e:
                     print(f"\n    [WARN] Erreur cosine: {e}")
                     cosine_sim = 0.0
 

@@ -40,7 +40,7 @@ class BenchmarkAnalyzer:
                 self.data = json.load(f)
             print(f"[OK] Données chargées: {len(self.data['results'])} tests")
             return True
-        except Exception as e:
+        except (json.JSONDecodeError, KeyError, OSError) as e:
             print(f"[ERREUR] Chargement JSON: {e}")
             return False
 

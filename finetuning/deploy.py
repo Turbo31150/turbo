@@ -83,7 +83,7 @@ def copy_model_to_lms(gguf_file: Path) -> bool:
 
         return True
 
-    except Exception as e:
+    except (OSError, shutil.Error) as e:
         log_message(f"Erreur lors de la copie: {str(e)}", "ERROR")
         return False
 
@@ -135,7 +135,7 @@ def restart_lms_server() -> bool:
         log_message("Timeout: serveur LM Studio ne répond pas", "ERROR")
         return False
 
-    except Exception as e:
+    except (subprocess.SubprocessError, OSError) as e:
         log_message(f"Erreur lors du redémarrage: {str(e)}", "ERROR")
         return False
 
@@ -163,7 +163,7 @@ def load_model_in_lms(model_filename: str) -> bool:
             log_message(f"Erreur chargement: {result.stderr}", "ERROR")
             return False
 
-    except Exception as e:
+    except (subprocess.SubprocessError, OSError) as e:
         log_message(f"Erreur lors du chargement: {str(e)}", "ERROR")
         return False
 
@@ -224,7 +224,7 @@ def health_check() -> Tuple[bool, dict]:
         log_message("Erreur: timeout du serveur (30s)", "ERROR")
         return False, health_data
 
-    except Exception as e:
+    except (requests.RequestException, OSError) as e:
         health_data["error"] = str(e)
         log_message(f"Erreur: {str(e)}", "ERROR")
         return False, health_data
