@@ -67,29 +67,23 @@ def _launch_dashboard() -> None:
 
 
 def _quick_cluster_status() -> None:
-    """Show cluster status in a notification."""
-    import asyncio
+    """Show cluster status in a notification (sync — runs in daemon thread)."""
     import httpx
     from src.config import config
 
-    async def _check():
-        results = []
-        async with httpx.AsyncClient(timeout=5) as c:
-            for node in config.lm_nodes:
-                try:
-                    r = await c.get(f"{node.url}/api/v1/models")
-                    r.raise_for_status()
-                    cnt = len([m for m in r.json().get("models", []) if m.get("loaded_instances")])
-                    results.append(f"{node.name}: OK ({cnt} modeles)")
-                except (httpx.HTTPError, OSError):
-                    results.append(f"{node.name}: OFFLINE")
-        return "\n".join(results)
+    results = []
+    for node in config.lm_nodes:
+        try:
+            r = httpx.get(f"{node.url}/api/v1/models", timeout=5)
+            r.raise_for_status()
+            cnt = len([m for m in r.json().get("models", []) if m.get("loaded_instances")])
+            results.append(f"{node.name}: OK ({cnt} modeles)")
+        except (httpx.HTTPError, OSError):
+            results.append(f"{node.name}: OFFLINE")
 
     try:
-        text = asyncio.run(_check())
-        # Show via Windows notification
         from src.windows import notify_windows
-        notify_windows("JARVIS Cluster", text)
+        notify_windows("JARVIS Cluster", "\n".join(results))
     except (RuntimeError, OSError) as e:
         logger.debug("Systray cluster check failed: %s", e)
 

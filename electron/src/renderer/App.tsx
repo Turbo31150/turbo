@@ -108,18 +108,18 @@ export default function App() {
     unsubs.push(subscribe('trading', (msg: WsMessage) => {
       if (msg.event === 'signal_executed') {
         const p = msg.payload || {};
-        addToast(setToasts, toastIdRef, `Trade ${p.direction?.toUpperCase() || ''} ${p.pair || ''} execute`, 'info');
+        addToast(setToasts, toastIdRef, `Trade ${String(p.direction || '').toUpperCase()} ${String(p.pair || '')} execute`, 'info');
       }
       if (msg.event === 'position_closed') {
         const p = msg.payload || {};
-        const pnl = p.pnl ?? 0;
-        addToast(setToasts, toastIdRef, `Position fermee ${p.pair || ''}: ${pnl >= 0 ? '+' : ''}${pnl.toFixed(2)} USDT`, pnl >= 0 ? 'info' : 'warning');
+        const pnl = Number(p.pnl) || 0;
+        addToast(setToasts, toastIdRef, `Position fermee ${String(p.pair || '')}: ${pnl >= 0 ? '+' : ''}${pnl.toFixed(2)} USDT`, pnl >= 0 ? 'info' : 'warning');
       }
     }));
 
     unsubs.push(subscribe('system', (msg: WsMessage) => {
       if (msg.event === 'error' || msg.event === 'critical_error') {
-        addToast(setToasts, toastIdRef, msg.payload?.message || 'Erreur systeme', 'error');
+        addToast(setToasts, toastIdRef, String(msg.payload?.message || 'Erreur systeme'), 'error');
       }
     }));
 
@@ -162,7 +162,7 @@ export default function App() {
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
           <TopBar connected={connected} currentPage={currentPage} onDetach={handleDetach} />
           <main style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
-            <ErrorBoundary>
+            <ErrorBoundary key={currentPage}>
               <Suspense fallback={
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: COLORS.textDim, fontSize: 13, fontFamily: 'inherit' }}>
                   Chargement...

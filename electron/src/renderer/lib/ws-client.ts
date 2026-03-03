@@ -11,7 +11,7 @@ export interface WsMessage {
   channel: string;
   action?: string;
   event?: string;
-  payload?: Record<string, unknown>;
+  payload?: Record<string, any>;
   error?: string;
 }
 

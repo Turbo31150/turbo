@@ -87,8 +87,9 @@ export default function SettingsPage() {
     request('system', 'system_info').then(r => {
       if (mountedRef.current && r.payload) setAbout(r.payload as SystemAbout);
     }).catch(err => console.warn('[Settings] system_info error:', err instanceof Error ? err.message : err));
-    return () => { mountedRef.current = false; };
   }, [connected, request]);
+
+  useEffect(() => () => { mountedRef.current = false; }, []);
 
   const updateCfg = (updater: (prev: Config) => Config) => {
     setCfg(prev => updater(prev));

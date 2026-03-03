@@ -127,10 +127,11 @@ export function useCluster() {
             return node;
           });
 
-          // If node is new, add it
+          // If node is new, parse and add it
           const exists = prev.nodes.some(n => n.name === p.name);
           if (!exists && p.name) {
-            updatedNodes.push(p as ClusterNode);
+            const parsed = parseNodes({ [p.name as string]: p })[0];
+            if (parsed) updatedNodes.push(parsed);
           }
 
           return { ...prev, nodes: updatedNodes };

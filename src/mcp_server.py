@@ -24,16 +24,18 @@ from mcp.types import Tool, TextContent
 # Shared httpx client — avoids creating/destroying connections per request.
 # Individual calls override timeout via method kwarg when needed.
 _http: httpx.AsyncClient | None = None
+_http_lock = asyncio.Lock()
 
 
-def _get_http() -> httpx.AsyncClient:
+async def _get_http() -> httpx.AsyncClient:
     global _http
-    if _http is None or _http.is_closed:
-        _http = httpx.AsyncClient(
-            timeout=120,
-            limits=httpx.Limits(max_keepalive_connections=20, max_connections=40),
-        )
-    return _http
+    async with _http_lock:
+        if _http is None or _http.is_closed:
+            _http = httpx.AsyncClient(
+                timeout=120,
+                limits=httpx.Limits(max_keepalive_connections=20, max_connections=40),
+            )
+        return _http
 
 # ── Config import (inline to avoid circular deps) ──────────────────────────
 
@@ -83,7 +85,7 @@ async def handle_lm_query(args: dict) -> list[TextContent]:
         return _error(f"Noeud inconnu: {args.get('node')}")
     model = args.get("model", node.default_model)
     try:
-        c = _get_http()
+        c = await _get_http()
         r = await c.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
             model, prepare_lmstudio_input(args["prompt"], node.name, model),
             temperature=config.temperature, max_output_tokens=config.max_tokens,
@@ -102,7 +104,7 @@ async def handle_lm_models(args: dict) -> list[TextContent]:
     if not node:
         return _error("Noeud inconnu")
     try:
-        c = _get_http()
+        c = await _get_http()
         r = await c.get(f"{node.url}/api/v1/models", headers=node.auth_headers, timeout=10)
         r.raise_for_status()
         models = [m["key"] for m in r.json().get("models", []) if m.get("loaded_instances")]
@@ -114,7 +116,7 @@ async def handle_lm_models(args: dict) -> list[TextContent]:
 async def handle_lm_cluster_status(args: dict) -> list[TextContent]:
     results, online = [], 0
     total_nodes = len(config.lm_nodes) + len(config.ollama_nodes) + 1  # +1 for Gemini
-    c = _get_http()
+    c = await _get_http()
     for n in config.lm_nodes:
         try:
             r = await c.get(f"{n.url}/api/v1/models", headers=n.auth_headers, timeout=5)
@@ -161,6 +163,8 @@ async def handle_system_audit(args: dict) -> list[TextContent]:
         "system_audit",
         str(Path(__file__).parent.parent / "scripts" / "system_audit.py")
     )
+    if spec is None or spec.loader is None:
+        return _text("ERREUR: system_audit.py introuvable")
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
 
@@ -202,7 +206,7 @@ async def handle_consensus(args: dict) -> list[TextContent]:
         ol_node = config.get_ollama_node(name)
         if ol_node:
             try:
-                c = _get_http()
+                c = await _get_http()
                 r = await asyncio.wait_for(c.post(f"{ol_node.url}/api/chat", json=build_ollama_payload(
                     ol_node.default_model, [{"role": "user", "content": prompt}],
                 )), timeout=per_timeout)
@@ -220,7 +224,7 @@ async def handle_consensus(args: dict) -> list[TextContent]:
         input_text = prepare_lmstudio_input(prompt, node.name, node.default_model)
 
         try:
-            c = _get_http()
+            c = await _get_http()
             r = await asyncio.wait_for(c.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
                 node.default_model, input_text,
             ), headers=node.auth_headers), timeout=per_timeout)
@@ -286,7 +290,7 @@ async def handle_bridge_query(args: dict) -> list[TextContent]:
     if not nodes:
         nodes = ["M1"]
 
-    c = _get_http()
+    c = await _get_http()
     for name in nodes:
         upper = name.upper()
         try:
@@ -342,7 +346,7 @@ async def handle_bridge_mesh(args: dict) -> list[TextContent]:
                 from src.tools import _strip_thinking_tags
                 return f"[GEMINI/{config.gemini_node.default_model}] {_strip_thinking_tags(output)}"
 
-            c = _get_http()
+            c = await _get_http()
             ol_node = config.get_ollama_node(name)
             if ol_node:
                 r = await asyncio.wait_for(c.post(f"{ol_node.url}/api/chat", json=build_ollama_payload(
@@ -384,7 +388,7 @@ async def handle_ollama_query(args: dict) -> list[TextContent]:
         return _error("Noeud Ollama OL1 non configure")
     model = args.get("model", node.default_model)
     try:
-        c = _get_http()
+        c = await _get_http()
         r = await c.post(f"{node.url}/api/chat", json={
             "model": model,
             "messages": [{"role": "user", "content": args["prompt"]}],
@@ -404,7 +408,7 @@ async def handle_ollama_models(args: dict) -> list[TextContent]:
     if not node:
         return _error("Noeud Ollama OL1 non configure")
     try:
-        c = _get_http()
+        c = await _get_http()
         r = await c.get(f"{node.url}/api/tags", timeout=10)
         r.raise_for_status()
         models = [m["name"] for m in r.json().get("models", [])]
@@ -419,7 +423,7 @@ async def handle_ollama_pull(args: dict) -> list[TextContent]:
         return _error("Noeud Ollama OL1 non configure")
     model_name = args["model_name"]
     try:
-        c = _get_http()
+        c = await _get_http()
         r = await c.post(f"{node.url}/api/pull", json={"name": model_name, "stream": False}, timeout=600)
         r.raise_for_status()
         return _text(f"Modele '{model_name}' telecharge.")
@@ -432,7 +436,7 @@ async def handle_ollama_status(args: dict) -> list[TextContent]:
     if not node:
         return _error("Noeud Ollama OL1 non configure")
     try:
-        c = _get_http()
+        c = await _get_http()
         r = await c.get(f"{node.url}/api/tags", timeout=5)
         r.raise_for_status()
         data = r.json()
@@ -641,7 +645,9 @@ async def handle_network_info(args: dict) -> list[TextContent]:
     return _text(await _run(get_network_info))
 
 async def handle_powershell_run(args: dict) -> list[TextContent]:
-    return _text(await _ps(args["command"]))
+    cmd = args["command"]
+    logger.info("[MCP] powershell_run invoked: %.200s", cmd)
+    return _text(await _ps(cmd))
 
 async def handle_lock_screen(args: dict) -> list[TextContent]:
     from src.windows import lock_screen
@@ -696,8 +702,16 @@ async def handle_notify(args: dict) -> list[TextContent]:
     return _text(await _run(notify_windows, args["title"], args["message"]))
 
 async def handle_speak(args: dict) -> list[TextContent]:
-    await _ps(f'Add-Type -AssemblyName System.Speech; $s = New-Object System.Speech.Synthesis.SpeechSynthesizer; $s.Speak("{args["text"]}")')
-    return _text(f"Parle: {args['text']}")
+    text = str(args.get("text", ""))[:2000]
+    # Single-quoted PS string: only ' needs escaping (doubled to '')
+    safe = text.replace("'", "''")
+    ps_cmd = (
+        "Add-Type -AssemblyName System.Speech; "
+        "$s = New-Object System.Speech.Synthesis.SpeechSynthesizer; "
+        f"$s.Speak('{safe}')"
+    )
+    await _ps(ps_cmd)
+    return _text(f"Parle: {text[:100]}")
 
 async def handle_scheduled_tasks(args: dict) -> list[TextContent]:
     return _text(await _ps("Get-ScheduledTask | Where-Object {$_.State -ne 'Disabled'} | Select-Object TaskName, State, TaskPath | Format-Table -AutoSize | Out-String"))
@@ -827,7 +841,7 @@ async def handle_lm_mcp_query(args: dict) -> list[TextContent]:
     if not integrations:
         return _error(f"Aucun serveur MCP valide: {server_names}")
     try:
-        c = _get_http()
+        c = await _get_http()
         r = await c.post(f"{node.url}/api/v1/chat", json={
             "model": model, "input": args["prompt"],
             "integrations": integrations,
@@ -932,7 +946,7 @@ async def _ollama_cloud_query_mcp(prompt: str, model: str, timeout: float = 60.0
     if system:
         messages.append({"role": "system", "content": system})
     messages.append({"role": "user", "content": prompt})
-    c = _get_http()
+    c = await _get_http()
     r = await c.post(f"{node.url}/api/chat", json={
         "model": model, "messages": messages,
         "stream": False, "think": False,

@@ -622,20 +622,19 @@ async def full_correction_pipeline(
     return result
 
 
-def _get_vc_http():
+_vc_http = None
+_vc_http_lock = __import__("asyncio").Lock()
+
+
+async def _get_vc_http():
     """Lazy shared httpx client for voice correction (avoids import at module level)."""
     global _vc_http
-    try:
+    async with _vc_http_lock:
         if _vc_http is not None and not _vc_http.is_closed:
             return _vc_http
-    except NameError:
-        pass
-    import httpx
-    _vc_http = httpx.AsyncClient(timeout=5, limits=httpx.Limits(max_keepalive_connections=5))
-    return _vc_http
-
-
-_vc_http = None
+        import httpx
+        _vc_http = httpx.AsyncClient(timeout=5, limits=httpx.Limits(max_keepalive_connections=5))
+        return _vc_http
 
 
 async def _ia_correct(text: str, url: str, model: str) -> str:
@@ -666,7 +665,7 @@ async def _ia_correct(text: str, url: str, model: str) -> str:
     import httpx
     if ol:
         try:
-            c = _get_vc_http()
+            c = await _get_vc_http()
             r = await c.post(
                 f"{ol.url}/api/chat",
                 json=build_ollama_payload(
@@ -681,7 +680,7 @@ async def _ia_correct(text: str, url: str, model: str) -> str:
     node = config.get_node("M1")
     if node:
         try:
-            c = _get_vc_http()
+            c = await _get_vc_http()
             r = await c.post(
                 f"{node.url}/api/v1/chat",
                 json=build_lmstudio_payload(

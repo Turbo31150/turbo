@@ -57,6 +57,9 @@ class Skill:
     confirm: bool = False     # Demander confirmation vocale avant execution
 
 
+_skills_lock = __import__("threading").Lock()
+
+
 def _ensure_data_dir():
     SKILLS_FILE.parent.mkdir(parents=True, exist_ok=True)
 
@@ -84,11 +87,9 @@ def load_skills() -> list[Skill]:
 def save_skills(skills: list[Skill]):
     """Save skills to persistent storage."""
     _ensure_data_dir()
-    data = []
-    for s in skills:
-        d = asdict(s)
-        data.append(d)
-    SKILLS_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    data = [asdict(s) for s in skills]
+    with _skills_lock:
+        SKILLS_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def add_skill(skill: Skill) -> None:
@@ -156,21 +157,22 @@ def record_skill_use(name: str, success: bool):
 def log_action(action: str, result: str, success: bool):
     """Log an action to history for pattern learning."""
     _ensure_data_dir()
-    history = []
-    if HISTORY_FILE.exists():
-        try:
-            history = json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError) as exc:
-            logger.debug("action_history load failed: %s", exc)
-    history.append({
-        "action": action,
-        "result": result[:200],
-        "success": success,
-        "timestamp": time.time(),
-    })
-    # Keep last 500 actions
-    history = history[-500:]
-    HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
+    with _skills_lock:
+        history = []
+        if HISTORY_FILE.exists():
+            try:
+                history = json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError) as exc:
+                logger.debug("action_history load failed: %s", exc)
+        history.append({
+            "action": action,
+            "result": result[:200],
+            "success": success,
+            "timestamp": time.time(),
+        })
+        # Keep last 500 actions
+        history = history[-500:]
+        HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def get_action_history(limit: int = 20) -> list[dict]:

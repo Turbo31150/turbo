@@ -36,7 +36,8 @@ async def execute_command(cmd: JarvisCommand, params: dict[str, str]) -> str:
             for k, v in params.items():
                 app_name = app_name.replace(f"{{{k}}}", v)
         resolved = APP_PATHS.get(app_name.lower(), app_name)
-        result = run_powershell(f"Start-Process '{resolved}'", timeout=10)
+        safe_resolved = resolved.replace("'", "''")
+        result = run_powershell(f"Start-Process '{safe_resolved}'", timeout=10)
         if result["success"]:
             return f"Application {app_name} ouverte."
         else:

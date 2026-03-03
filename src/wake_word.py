@@ -31,6 +31,7 @@ class WakeWordDetector:
         self._running = False
         self._thread: threading.Thread | None = None
         self._model = None
+        self._last_fire: float = 0.0
 
     def start(self, device: int | None = None) -> bool:
         """Start listening for wake word in background."""
@@ -75,9 +76,12 @@ class WakeWordDetector:
                     prediction = self._model.predict(audio_flat)
                     for key, score in prediction.items():
                         if score >= self._threshold:
+                            now = time.monotonic()
+                            if now - self._last_fire < 1.0:
+                                break
+                            self._last_fire = now
                             self._model.reset()
                             self._callback()
-                            time.sleep(1.0)
                             break
         except (sd.PortAudioError, OSError, RuntimeError) as e:
             logger.warning("Wake word listen loop error: %s", e)

@@ -36,6 +36,7 @@ async def speak_streaming(text: str, voice: str = VOICE, rate: str = RATE) -> No
     with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as f:
         tmp = Path(f.name)
         f.write(audio_data)
+    proc = None
     try:
         try:
             proc = await asyncio.create_subprocess_exec(
@@ -56,12 +57,13 @@ async def speak_streaming(text: str, voice: str = VOICE, rate: str = RATE) -> No
             await asyncio.wait_for(proc.wait(), timeout=_PLAYBACK_TIMEOUT)
         except asyncio.TimeoutError:
             logger.warning("TTS playback timeout after %ds, killing process", _PLAYBACK_TIMEOUT)
+    finally:
+        if proc is not None and proc.returncode is None:
             try:
                 proc.kill()
                 await proc.wait()
             except OSError:
                 pass
-    finally:
         tmp.unlink(missing_ok=True)
 
 
