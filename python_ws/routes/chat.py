@@ -570,7 +570,10 @@ async def _query_parallel_consensus(text: str) -> str:
         _query_single_node(mid, text, chat_messages, lmstudio_input)
         for mid in CONSENSUS_MODELS
     ]
-    results = await asyncio.gather(*tasks, return_exceptions=True)
+    results = await asyncio.wait_for(
+        asyncio.gather(*tasks, return_exceptions=True),
+        timeout=60.0,
+    )
 
     # Collect successful responses
     responses = []
