@@ -115,6 +115,14 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["squash", "scouache", "skouash"],
     ["copilot", "co pilote", "copilotte"],
     ["neovim", "neo vim", "neovime"],
+    # Vague 16 — Testing / Data / Architecture phonetiques
+    ["pytest", "pie test", "piteste"],
+    ["cypress", "si presse", "cypresse"],
+    ["selenium", "sele nium", "selenioum"],
+    ["kafka", "cafqua", "kafqua"],
+    ["redis", "re disse", "redisse"],
+    ["mongodb", "mongo de be", "mongodi bi"],
+    ["hadoop", "a doupe", "hadoupe"],
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -158,6 +166,13 @@ FILLER_WORDS = {
     "sauf erreur", "a mon avis", "il me semble",
     "concretement", "pratiquement", "effectivement",
     "accessoirement", "subsidiairement", "nota bene",
+    # Vague 7 — Fillers techniques / dev context
+    "for example", "for instance", "in general",
+    "as a matter of fact", "to be honest", "honestly",
+    "par exemple", "en general", "pour etre honnete",
+    "sincerement", "a proprement parler", "stricto sensu",
+    "grossierement", "en resume", "pour faire simple",
+    "en deux mots", "pour resumer", "long story short",
 }
 
 # Expansions de commandes implicites
@@ -883,6 +898,33 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "snippet": "cree un snippet",
     "refactor": "refactorise le code",
     "rename": "renomme la variable",
+    # Vague 56 — Testing raccourcis
+    "test": "lance les tests",
+    "tests": "lance les tests",
+    "pytest": "lance pytest",
+    "coverage": "lance la couverture",
+    "mock": "cree un mock",
+    "fixture": "cree une fixture",
+    "e2e": "lance les tests e2e",
+    "smoke": "lance le smoke test",
+    "benchmark": "lance le benchmark",
+    # Vague 57 — Architecture raccourcis
+    "singleton": "cree un singleton",
+    "factory": "cree une factory",
+    "middleware": "ajoute un middleware",
+    "injection": "injection de dependances",
+    "microservice": "cree un microservice",
+    "migration db": "lance la migration db",
+    "schema db": "montre le schema db",
+    # Vague 58 — Data / Analytics raccourcis
+    "etl": "lance le pipeline etl",
+    "kafka": "statut kafka",
+    "redis": "statut redis",
+    "mongo": "statut mongodb",
+    "postgres": "statut postgresql",
+    "spark": "lance spark",
+    "pipeline data": "lance le data pipeline",
+    "streaming": "lance le streaming",
 }
 
 
