@@ -630,6 +630,25 @@ def trigram_similarity(a: str, b: str) -> float:
 _command_usage_cache: dict[str, int] = {}
 _command_usage_loaded = False
 
+# Pre-computed trigger data for fast suggestion scoring (built lazily)
+_trigger_cache: list[tuple[JarvisCommand, str, str, set[str]]] = []
+_trigger_cache_built = False
+
+
+def _build_trigger_cache() -> None:
+    """Pre-compute normalized triggers for all commands (called once)."""
+    global _trigger_cache_built
+    if _trigger_cache_built:
+        return
+    _trigger_cache_built = True
+    for cmd in COMMANDS:
+        for trigger in cmd.triggers:
+            clean = normalize_text(trigger.replace("{", "").replace("}", ""))
+            no_acc = remove_accents(clean)
+            words = set(clean.split())
+            _trigger_cache.append((cmd, no_acc, clean, words))
+    logger.info("Trigger cache built: %d entries from %d commands", len(_trigger_cache), len(COMMANDS))
+
 
 def _load_command_usage() -> None:
     """Load command usage counts from DB for popularity boost (lazy, once)."""
@@ -658,53 +677,48 @@ def get_suggestions(text: str, max_results: int = 3) -> list[tuple[JarvisCommand
     """Get command suggestions ranked by combined similarity score.
 
     5 factors: text sim (30%) + phonetic (20%) + trigram (15%) + keyword (20%) + popularity (15%).
-    Trigram similarity adds robustness to typos and word reordering.
+    Uses pre-computed trigger cache for performance (~2000 commands).
     """
     _load_command_usage()
+    _build_trigger_cache()
     max_usage = max(_command_usage_cache.values()) if _command_usage_cache else 1
 
     text_normalized = normalize_text(text)
     text_no_accents = remove_accents(text_normalized)
     text_words = set(text_normalized.split())
 
-    scored: list[tuple[JarvisCommand, float]] = []
+    # Track best score per command (avoid duplicates)
+    cmd_scores: dict[str, tuple[JarvisCommand, float]] = {}
 
-    for cmd in COMMANDS:
-        best_score = 0.0
+    for cmd, trigger_no_acc, trigger_clean, trigger_words in _trigger_cache:
+        # 1. Direct text similarity (30%)
+        text_sim = SequenceMatcher(None, text_no_accents, trigger_no_acc).ratio()
 
-        for trigger in cmd.triggers:
-            trigger_clean = normalize_text(trigger.replace("{", "").replace("}", ""))
-            trigger_no_accents = remove_accents(trigger_clean)
-            trigger_words = set(trigger_clean.split())
+        # 2. Phonetic similarity (20%)
+        phon_sim = phonetic_similarity(text_normalized, trigger_clean)
 
-            # 1. Direct text similarity (30%)
-            text_sim = SequenceMatcher(None, text_no_accents, trigger_no_accents).ratio()
+        # 3. Trigram similarity (15%)
+        tri_sim = trigram_similarity(text_no_accents, trigger_no_acc)
 
-            # 2. Phonetic similarity (20%)
-            phon_sim = phonetic_similarity(text_normalized, trigger_clean)
+        # 4. Keyword overlap (20%)
+        if trigger_words:
+            common = text_words & trigger_words
+            keyword_sim = len(common) / len(trigger_words)
+        else:
+            keyword_sim = 0.0
 
-            # 3. Trigram similarity (15%) — robust to typos and reordering
-            tri_sim = trigram_similarity(text_no_accents, trigger_no_accents)
+        # 5. Popularity boost (15%)
+        usage = _command_usage_cache.get(cmd.name, 0)
+        pop_score = min(1.0, usage / max_usage) if max_usage > 0 else 0.0
 
-            # 4. Keyword overlap (20%)
-            if trigger_words:
-                common = text_words & trigger_words
-                keyword_sim = len(common) / len(trigger_words)
-            else:
-                keyword_sim = 0.0
+        score = (text_sim * 0.30) + (phon_sim * 0.20) + (tri_sim * 0.15) + (keyword_sim * 0.20) + (pop_score * 0.15)
 
-            # 5. Popularity boost (15%) — frequently used commands rank higher
-            usage = _command_usage_cache.get(cmd.name, 0)
-            pop_score = min(1.0, usage / max_usage) if max_usage > 0 else 0.0
+        if score > 0.30:
+            existing = cmd_scores.get(cmd.name)
+            if existing is None or score > existing[1]:
+                cmd_scores[cmd.name] = (cmd, score)
 
-            # Combined score
-            score = (text_sim * 0.30) + (phon_sim * 0.20) + (tri_sim * 0.15) + (keyword_sim * 0.20) + (pop_score * 0.15)
-            best_score = max(best_score, score)
-
-        if best_score > 0.30:
-            scored.append((cmd, best_score))
-
-    scored.sort(key=lambda x: x[1], reverse=True)
+    scored = sorted(cmd_scores.values(), key=lambda x: x[1], reverse=True)
     return scored[:max_results]
 
 
@@ -872,9 +886,13 @@ async def full_correction_pipeline(
         result["method"] = "implicit"
     else:
         # Check multi-word implicit commands (longest match first)
+        # Also match as prefix: "scanner le marche BTC" matches "scanner le marche"
         for key in sorted(IMPLICIT_COMMANDS, key=len, reverse=True):
-            if " " in key and single == key:
+            if " " in key and (single == key or single.startswith(key + " ")):
+                extra = single[len(key):].strip() if single != key else ""
                 cleaned = IMPLICIT_COMMANDS[key]
+                if extra:
+                    cleaned = f"{cleaned} {extra}"  # Carry extra words
                 result["method"] = "implicit"
                 break
 
