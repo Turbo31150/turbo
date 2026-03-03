@@ -7,7 +7,7 @@ tables = conn.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER B
 print("=== memoire_finetuning.db ===")
 print(f"Tables: {len(tables)}")
 for (t,) in tables:
-    count = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+    count = (conn.execute(f"SELECT COUNT(*) FROM [{t}]").fetchone() or (0,))[0]
     print(f"  {t}: {count} rows")
 
 print("\n=== Runs ===")

@@ -356,7 +356,7 @@ def main():
         subprocess.run(["C:/Users/franc/.lmstudio/bin/lms.exe", "unload", "--all"],
                        capture_output=True, timeout=10)
         print("[OK] LM Studio unloaded")
-    except:
+    except (subprocess.SubprocessError, OSError):
         pass
 
     workers_dir = FINETUNING_DIR / "workers"
@@ -403,7 +403,7 @@ def main():
                             if any(k in line for k in ["it]", "loss", "CRASH", "DONE", "step"]):
                                 last = line.strip()[:120]
                                 break
-                    except:
+                    except (OSError, ValueError):
                         last = "..."
                     print(f"  [GPU {cfg['gpu_id']}] {last}")
                 else:

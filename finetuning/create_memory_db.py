@@ -336,7 +336,7 @@ def main():
     ).fetchall()
     print(f"\n[OK] Base de donnees creee avec {len(tables)} tables:")
     for (t,) in tables:
-        count = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+        count = (conn.execute(f"SELECT COUNT(*) FROM [{t}]").fetchone() or (0,))[0]
         print(f"  {t}: {count} enregistrements")
 
     print(f"\n[OK] Run actuel: ID {run_id}")
