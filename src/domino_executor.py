@@ -813,21 +813,6 @@ def _export_csv(db_name: str = "etoile.db") -> str:
 def _start_pomodoro_timer(minutes: str = "25") -> str:
     return f"[POMODORO] Timer started for {minutes} minutes"
 
-@register_python_action("sqlite3_vacuum")
-def _sqlite3_vacuum_action(db_name: str = "etoile.db") -> str:
-    """VACUUM a SQLite DB."""
-    import sqlite3
-    db_path = Path(os.getenv("TURBO_DIR", "F:/BUREAU/turbo")) / "data" / db_name
-    if not db_path.exists():
-        return f"DB introuvable: {db_path}"
-    conn = sqlite3.connect(str(db_path))
-    old_size = db_path.stat().st_size
-    conn.execute("VACUUM")
-    conn.close()
-    new_size = db_path.stat().st_size
-    saved = (old_size - new_size) / 1024
-    return f"VACUUM {db_name}: {old_size/1024:.0f}KB -> {new_size/1024:.0f}KB (saved {saved:.0f}KB)"
-
 
 def execute_python(action: str, timeout: int = 30) -> str:
     """Execute a registered Python action or return description for unknown ones."""

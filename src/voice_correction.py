@@ -59,6 +59,14 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["ks", "x", "cks"],     # index, flex
     ["ts", "tz", "z"],      # typescript, hertz
     ["mp", "nb", "mb"],     # embed, number
+    # Vague 9 — Termes IA / Cluster / Noms de modeles
+    ["kw", "qu", "q"],      # qwen/kwen
+    ["ai", "aille", "eye"],  # gemini-ai, eye
+    ["st", "sst", "str"],   # stream, mistral
+    ["oss", "os", "hausse"], # gpt-oss
+    ["dev", "dif", "div"],   # devstral, diff
+    ["ll", "l", "el"],       # ollama, llm
+    ["ck", "k", "g"],        # docker, kubernetes
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -679,6 +687,10 @@ def trigram_similarity(a: str, b: str) -> float:
 _command_usage_cache: dict[str, int] = {}
 _command_usage_loaded = False
 
+# Recent match cache: maps cleaned text → (command_name, confidence) for instant re-matching
+_recent_match_cache: dict[str, tuple[str, float]] = {}
+_RECENT_CACHE_MAX = 150
+
 # Pre-computed trigger data for fast suggestion scoring (built lazily)
 _trigger_cache: list[tuple[JarvisCommand, str, str, set[str]]] = []
 _trigger_cache_built = False
@@ -919,6 +931,20 @@ async def full_correction_pipeline(
         "method": "none",
     }
 
+    # Step 0.5: Check recent match cache for instant re-matching
+    _cache_key = normalize_text(raw_text)
+    if _cache_key in _recent_match_cache:
+        cached_name, cached_conf = _recent_match_cache[_cache_key]
+        from src.commands import match_command
+        for cmd in COMMANDS:
+            if cmd.name == cached_name:
+                result["command"] = cmd
+                result["confidence"] = cached_conf
+                result["corrected"] = _cache_key
+                result["intent"] = _cache_key
+                result["method"] = "cache_hit"
+                return result
+
     # Step 1: Basic normalization
     cleaned = normalize_text(raw_text)
     result["cleaned"] = cleaned
@@ -1063,6 +1089,19 @@ async def full_correction_pipeline(
     result["confidence"] = max(score, best_phon_score)
     result["method"] = "freeform"
     return result
+
+
+def _cache_match_result(raw_text: str, result: dict) -> None:
+    """Cache a successful match for instant replay on identical input."""
+    cmd = result.get("command")
+    if cmd is None or result.get("confidence", 0) < 0.70:
+        return
+    key = normalize_text(raw_text)
+    if len(_recent_match_cache) >= _RECENT_CACHE_MAX:
+        # Evict oldest entry (FIFO)
+        oldest = next(iter(_recent_match_cache))
+        del _recent_match_cache[oldest]
+    _recent_match_cache[key] = (cmd.name, result["confidence"])
 
 
 _vc_http = None
