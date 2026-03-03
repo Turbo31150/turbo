@@ -410,6 +410,23 @@ def extract_action_intent(text: str) -> str:
         (r"\bnettoyer\b", "nettoie"),
         (r"\bdiagnostiquer\b", "diagnostique"),
         (r"\bcompiler\b", "compile"),
+        # Vague 3 — Verbes cluster/devops/trading
+        (r"\bexporter\b", "exporte"),
+        (r"\bmigrer\b", "migre"),
+        (r"\bbenchmarker\b", "benchmark"),
+        (r"\bswapper\b", "swap"),
+        (r"\bbroadcaster\b", "broadcast"),
+        (r"\bsynchroniser\b", "synchronise"),
+        (r"\bsyncer\b", "sync"),
+        (r"\brollbacker\b", "rollback"),
+        (r"\blogger\b", "log"),
+        (r"\barchiver\b", "archive"),
+        (r"\brebalancer\b", "rebalance"),
+        (r"\bthrottler\b", "throttle"),
+        (r"\bmonitor(?:er)?\b", "monitor"),
+        (r"\bauditer\b", "audite"),
+        (r"\bprofiler\b", "profile"),
+        (r"\bbackuper\b", "backup"),
     ]
     for pattern, replacement in replacements:
         text = re.sub(pattern, replacement, text)
@@ -423,8 +440,23 @@ def extract_action_intent(text: str) -> str:
 
 @lru_cache(maxsize=1024)
 def phonetic_normalize(word: str) -> str:
-    """Reduce a French word to its phonetic skeleton."""
-    word = remove_accents(word.lower())
+    """Reduce a French word to its phonetic skeleton.
+
+    Handles accented characters (é/è/ê/ç/œ) before stripping,
+    preserving French phonetic distinctions.
+    """
+    word = word.lower()
+
+    # Pre-accent phonetic mappings (before remove_accents strips them)
+    accent_map = [
+        ("œu", "eu"), ("œ", "eu"),  # cœur → ceur
+        ("ç", "s"),                   # français → fransais
+        ("ë", "e"), ("ï", "i"),      # naïf → naif
+    ]
+    for old, new in accent_map:
+        word = word.replace(old, new)
+
+    word = remove_accents(word)
 
     # Apply phonetic reductions
     reductions = [
@@ -433,6 +465,13 @@ def phonetic_normalize(word: str) -> str:
         (r"qu", "k"), (r"gu", "g"), (r"gn", "n"),
         (r"tion", "sion"), (r"ce", "se"), (r"ci", "si"),
         (r"ge", "je"), (r"gi", "ji"),
+        # French-specific reductions
+        (r"eur$", "er"), (r"eux$", "eu"),  # chercheur → chercher
+        (r"ment$", "man"),                  # rapidement → rapidman
+        (r"ain", "en"), (r"ein", "en"),    # main → men
+        (r"an", "en"),                      # France → frense
+        (r"oi", "wa"),                      # voix → vwa
+        (r"in", "en"),                      # fin → fen
         # Double consonants → single
         (r"(.)\1+", r"\1"),
         # Silent endings
@@ -958,3 +997,31 @@ class VoiceSession:
             self.history.append(text)
             if len(self.history) > 10:
                 self.history.pop(0)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DOMINO EXECUTION — Wire domino result into live execution
+# ═══════════════════════════════════════════════════════════════════════════
+
+def execute_domino_result(pipeline_result: dict) -> dict | None:
+    """Execute a domino pipeline found by full_correction_pipeline().
+
+    Call this after full_correction_pipeline() when result["method"] == "domino".
+    Returns DominoExecutor.run() result dict or None if no domino found.
+    """
+    domino = pipeline_result.get("domino")
+    if domino is None:
+        return None
+
+    try:
+        from src.domino_executor import DominoExecutor
+        executor = DominoExecutor()
+        result = executor.run(domino)
+        logger.info(
+            "Domino %s executed: %d/%d PASS in %.0fms",
+            result["domino_id"], result["passed"], result["total_steps"], result["total_ms"],
+        )
+        return result
+    except (ImportError, OSError, ValueError, RuntimeError) as e:
+        logger.error("Domino execution failed: %s", e)
+        return {"error": str(e)}

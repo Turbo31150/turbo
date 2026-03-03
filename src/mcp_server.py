@@ -1072,6 +1072,93 @@ async def handle_brain_learn(args: dict) -> list[TextContent]:
         return _text("Pas assez d'historique pour apprendre. Continue a utiliser JARVIS.")
 
 
+# ── Domino Executor handlers ───────────────────────────────────────────────
+
+def _domino_run_sync(domino_id: str) -> dict:
+    """Run a domino pipeline synchronously (for thread pool)."""
+    from src.domino_pipelines import find_domino, DOMINO_PIPELINES
+    from src.domino_executor import DominoExecutor
+
+    # Find by ID or trigger text
+    domino = None
+    for d in DOMINO_PIPELINES:
+        if d.id == domino_id:
+            domino = d
+            break
+    if not domino:
+        domino = find_domino(domino_id)
+    if not domino:
+        return {"error": f"Domino introuvable: {domino_id}"}
+
+    executor = DominoExecutor()
+    return executor.run(domino)
+
+
+async def handle_execute_domino(args: dict) -> list[TextContent]:
+    """Execute un domino pipeline par ID ou texte de trigger."""
+    domino_id = args.get("domino_id", "").strip()
+    if not domino_id:
+        return _error("domino_id requis (ID ou texte de commande)")
+    try:
+        result = await asyncio.to_thread(_domino_run_sync, domino_id)
+        if "error" in result:
+            return _error(result["error"])
+        summary = (
+            f"Domino {result['domino_id']} — "
+            f"{result['passed']} PASS / {result['failed']} FAIL / {result['skipped']} SKIP "
+            f"({result['total_steps']} steps en {result['total_ms']:.0f}ms)"
+        )
+        return _text(summary)
+    except (ImportError, OSError, ValueError, RuntimeError) as e:
+        return _error(f"Domino execution failed: {e}")
+
+
+async def handle_list_dominos(args: dict) -> list[TextContent]:
+    """Liste tous les domino pipelines disponibles."""
+    try:
+        from src.domino_pipelines import DOMINO_PIPELINES
+        category = args.get("category", "").strip().lower()
+        dominos = DOMINO_PIPELINES
+        if category:
+            dominos = [d for d in dominos if d.category == category]
+        lines = [f"{len(dominos)} dominos" + (f" (categorie: {category})" if category else "") + ":"]
+        for d in dominos:
+            triggers = ", ".join(d.triggers[:3]) if d.triggers else "—"
+            lines.append(f"  {d.id} [{d.category}] {d.description} | triggers: {triggers} | {len(d.steps)} steps")
+        return _text("\n".join(lines))
+    except ImportError as e:
+        return _error(f"domino_pipelines non disponible: {e}")
+
+
+async def handle_domino_stats(args: dict) -> list[TextContent]:
+    """Statistiques d'execution des dominos (historique SQLite)."""
+    try:
+        from src.domino_executor import DominoLogger
+        db_logger = DominoLogger()
+        limit = _safe_int(args.get("limit"), 20)
+        with sqlite3.connect(db_logger.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            runs = conn.execute(
+                "SELECT DISTINCT run_id, domino_id, MIN(ts) as started, COUNT(*) as steps, "
+                "SUM(CASE WHEN status='PASS' THEN 1 ELSE 0 END) as passed, "
+                "SUM(CASE WHEN status='FAIL' THEN 1 ELSE 0 END) as failed, "
+                "SUM(duration_ms) as total_ms "
+                "FROM domino_logs GROUP BY run_id ORDER BY started DESC LIMIT ?",
+                (limit,)
+            ).fetchall()
+        if not runs:
+            return _text("Aucun historique domino.")
+        lines = [f"{len(runs)} dernieres executions:"]
+        for r in runs:
+            lines.append(
+                f"  {r['domino_id']} | {r['passed']}/{r['steps']} PASS | "
+                f"{r['failed']} FAIL | {r['total_ms']:.0f}ms | {r['started']}"
+            )
+        return _text("\n".join(lines))
+    except (sqlite3.Error, ImportError, OSError) as e:
+        return _error(f"domino_stats: {e}")
+
+
 # ── Dictionary CRUD handler ────────────────────────────────────────────────
 
 _DICT_VALID_CATS = {
@@ -1347,6 +1434,10 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     # Dictionary CRUD (1)
     ("dict_crud", "CRUD operations on dictionary tables (pipeline_dictionary, domino_chains, voice_corrections). Args: operation (add|edit|delete|search|stats), table, data (JSON string with fields).",
      {"operation": "string", "table": "string", "data": "string"}, handle_dict_crud),
+    # Domino Pipelines (3)
+    ("execute_domino", "Executer un domino pipeline par ID ou texte de trigger vocal.", {"domino_id": "string"}, handle_execute_domino),
+    ("list_dominos", "Lister tous les domino pipelines disponibles.", {"category": "string"}, handle_list_dominos),
+    ("domino_stats", "Historique d'execution des dominos.", {"limit": "number"}, handle_domino_stats),
 ]
 
 # Build handler map
