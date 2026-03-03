@@ -167,7 +167,7 @@ async def test_node(client: httpx.AsyncClient, node: str, phase: str, task: str,
             latency_ms=latency, output=text[:500], score=score,
             keywords_found=found, keywords_missed=missed,
         )
-    except Exception as e:
+    except (httpx.HTTPError, OSError, asyncio.TimeoutError) as e:
         return TestResult(
             node=node, phase=phase, task=task, success=False,
             latency_ms=0, error=str(e)[:200], score=0.0,

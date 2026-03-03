@@ -47,7 +47,7 @@ def query(node, prompt, timeout=25):
             text = d.get("message",{}).get("content","")
             if "</think>" in text: text = text.split("</think>")[-1].strip()
             return text, int((time.perf_counter()-t0)*1000), ""
-    except Exception as e:
+    except (httpx.HTTPError, OSError, json.JSONDecodeError, KeyError) as e:
         return None, int((time.perf_counter()-t0)*1000), str(e)[:100]
 
 # ── TESTS ──

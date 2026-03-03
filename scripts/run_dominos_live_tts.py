@@ -81,7 +81,7 @@ def lm_health(node: str, timeout: int = 3) -> str:
         data = json.loads(resp.read())
         loaded = len([m for m in data.get("data", data.get("models", [])) if m.get("loaded_instances")])
         return f"ONLINE ({loaded} modeles)"
-    except Exception as e:
+    except (urllib.error.URLError, OSError, json.JSONDecodeError) as e:
         return f"OFFLINE ({e})"
 
 def lm_ask(node: str, prompt: str, max_tokens: int = 128, timeout: int = 15) -> str:
@@ -173,7 +173,7 @@ def execute_step_live(step: DominoStep) -> tuple[str, str]:
 
     except subprocess.TimeoutExpired:
         return "FAIL", f"TIMEOUT ({step.timeout_s}s)"
-    except Exception as e:
+    except (subprocess.SubprocessError, OSError, ValueError) as e:
         return "FAIL", str(e)[:200]
 
 
