@@ -1266,6 +1266,83 @@ def _recent_commits() -> str:
         return "Git N/A"
 
 
+@register_python_action("ci_pipeline_count")
+def _ci_pipeline_count() -> str:
+    """Count GitHub Actions workflows."""
+    import subprocess
+    try:
+        r = subprocess.run("ls .github/workflows/*.yml 2>/dev/null | wc -l", shell=True, capture_output=True, text=True, timeout=5, cwd="F:/BUREAU/turbo")
+        count = r.stdout.strip()
+        return f"GitHub workflows: {count}"
+    except (subprocess.TimeoutExpired, OSError):
+        return "Workflows N/A"
+
+
+@register_python_action("npm_packages_count")
+def _npm_packages_count() -> str:
+    """Count installed npm packages."""
+    import subprocess
+    try:
+        r = subprocess.run("npm list --depth=0 2>/dev/null | wc -l", shell=True, capture_output=True, text=True, timeout=10)
+        count = r.stdout.strip()
+        return f"npm packages: {count}"
+    except (subprocess.TimeoutExpired, OSError):
+        return "npm N/A"
+
+
+@register_python_action("proxy_ports_check")
+def _proxy_ports_check() -> str:
+    """Check common proxy ports."""
+    import socket
+    ports = {"HTTP": 80, "HTTPS": 443, "Nginx alt": 8080, "LM Studio": 1234, "Ollama": 11434}
+    results = []
+    for name, port in ports.items():
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(1)
+            result = s.connect_ex(("127.0.0.1", port))
+            results.append(f"{name}({port}): {'OPEN' if result == 0 else 'closed'}")
+            s.close()
+        except OSError:
+            results.append(f"{name}({port}): error")
+    return " | ".join(results)
+
+
+@register_python_action("state_mgmt_check")
+def _state_mgmt_check() -> str:
+    """Check state management libraries in package.json."""
+    import json
+    try:
+        with open("F:/BUREAU/turbo/electron/package.json") as f:
+            pkg = json.load(f)
+        deps = {**pkg.get("dependencies", {}), **pkg.get("devDependencies", {})}
+        libs = ["redux", "zustand", "mobx", "recoil", "jotai", "pinia", "vuex"]
+        found = [l for l in libs if l in deps]
+        return f"State mgmt: {', '.join(found) if found else 'none found'}"
+    except (FileNotFoundError, json.JSONDecodeError):
+        return "package.json N/A"
+
+
+@register_python_action("voice_system_stats")
+def _voice_system_stats() -> str:
+    """Get voice system comprehensive stats."""
+    try:
+        from src.commands import COMMANDS, VOICE_CORRECTIONS
+        from src.voice_correction import PHONETIC_GROUPS, FILLER_WORDS, IMPLICIT_COMMANDS
+        from src.domino_pipelines import DOMINO_PIPELINES
+        cmds = len(COMMANDS)
+        corr = len(VOICE_CORRECTIONS)
+        doms = len(DOMINO_PIPELINES)
+        trigs = sum(len(c.triggers) for c in COMMANDS)
+        phon = len(PHONETIC_GROUPS)
+        fill = len(FILLER_WORDS)
+        impl = len(IMPLICIT_COMMANDS)
+        acts = len(_PYTHON_REGISTRY)
+        return f"Cmds:{cmds} Corr:{corr} Dom:{doms} Trig:{trigs} Phon:{phon} Fill:{fill} Impl:{impl} Act:{acts} Total:{cmds+corr+doms+trigs+phon+fill+impl+acts}"
+    except ImportError:
+        return "Voice stats N/A"
+
+
 @register_python_action("docker_container_count")
 def _docker_container_count() -> str:
     """Count running Docker containers."""

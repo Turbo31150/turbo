@@ -222,6 +222,17 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["cypress", "saille press", "say press", "si presse"],
     ["playwright", "play write", "playe raite", "pleyright"],
     ["selenium", "sel en yum", "seleneum", "seleniom"],
+    # Vague 28 — State mgmt / Gateway / CI-CD phonetiques
+    ["redux", "red eux", "ri deuks", "reduxe"],
+    ["zustand", "zou stande", "zu stend", "zoustande"],
+    ["recoil", "recouille", "recoile", "ricouil"],
+    ["pinia", "pi nia", "pinia", "pinnia"],
+    ["traefik", "tra efique", "traffic", "traefique"],
+    ["envoy", "en voille", "envoye", "envoie"],
+    ["istio", "is ti o", "istillo", "isteo"],
+    ["argocd", "ar go ce des", "ar go cd", "argosede"],
+    ["tekton", "tequeton", "tecton", "tektonn"],
+    ["buildkite", "bilde kite", "buildekite", "bild kite"],
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -1318,6 +1329,27 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "selenium": "lance selenium",
     "e2e": "tests end to end",
     "integration": "tests integration",
+    # Vague 92 — State management raccourcis
+    "redux": "check redux store",
+    "zustand": "check zustand",
+    "mobx": "check mobx",
+    "recoil": "check recoil",
+    "pinia": "check pinia store",
+    "vuex": "check vuex store",
+    # Vague 93 — API gateway raccourcis
+    "gateway": "check api gateway",
+    "kong": "check kong",
+    "nginx": "check nginx",
+    "traefik": "check traefik",
+    "haproxy": "check haproxy",
+    "caddy": "check caddy",
+    # Vague 94 — CI/CD raccourcis
+    "actions": "github actions",
+    "ci": "check ci pipeline",
+    "cd": "check cd pipeline",
+    "jenkins": "check jenkins",
+    "argocd": "check argocd",
+    "drone": "check drone ci",
 }
 
 
