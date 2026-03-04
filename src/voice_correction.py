@@ -233,6 +233,17 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["argocd", "ar go ce des", "ar go cd", "argosede"],
     ["tekton", "tequeton", "tecton", "tektonn"],
     ["buildkite", "bilde kite", "buildekite", "bild kite"],
+    # Vague 29 — Package managers / Docs / Storage phonetiques
+    ["pnpm", "pe enne pe eme", "pnpeme", "peenpeem"],
+    ["composer", "compo zeur", "composeur", "composere"],
+    ["nuget", "nu guette", "niougette", "nougete"],
+    ["conda", "con da", "condaa", "konda"],
+    ["poetry", "po aitri", "poaitry", "poeitri"],
+    ["sphinx", "sfinks", "sphinxe", "sfinke"],
+    ["mkdocs", "eme ka docs", "emekadocs", "mkdokse"],
+    ["docusaurus", "doc u saure us", "docusore", "docosorus"],
+    ["swagger", "souagueur", "svagueur", "swagere"],
+    ["minio", "mi ni o", "mini o", "minillo"],
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -1350,6 +1361,28 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "jenkins": "check jenkins",
     "argocd": "check argocd",
     "drone": "check drone ci",
+    # Vague 95 — Package managers raccourcis
+    "pip": "pip install",
+    "pnpm": "pnpm install",
+    "yarn": "yarn install",
+    "bun": "bun install",
+    "cargo": "cargo build",
+    "brew": "brew install",
+    "conda": "conda install",
+    "poetry": "poetry install",
+    # Vague 96 — Documentation raccourcis
+    "docs": "genere la documentation",
+    "swagger": "ouvre swagger",
+    "readme": "edite le readme",
+    "sphinx": "lance sphinx",
+    "mkdocs": "lance mkdocs",
+    # Vague 97 — Cloud storage raccourcis
+    "s3": "check s3",
+    "bucket": "liste les buckets",
+    "blob": "check azure blob",
+    "minio": "check minio",
+    "upload": "upload fichier",
+    "download": "download fichier",
 }
 
 
@@ -1412,6 +1445,15 @@ _PARAM_PATTERNS: list[tuple[str, str, str]] = [
     (r"\bformat\s+(json|csv|xml|yaml|toml|txt|md|html)\b", "format", "{0}"),
     (r"\bprotocole?\s+(http|https|tcp|udp|ws|wss|grpc|mqtt)\b", "protocol", "{0}"),
     (r"\b(\d+)\s*(?:threads?|workers?|processus)\b", "workers", "{0}"),
+    # Vague 5 — Package/doc/storage/quantity patterns
+    (r"\bpackage\s+(\S+)\b", "package", "{0}"),
+    (r"\binstalle?\s+(\S+)\b", "install_target", "{0}"),
+    (r"\bbucket\s+(\S+)\b", "bucket", "{0}"),
+    (r"\bregion\s+(\S+)\b", "region", "{0}"),
+    (r"\b(\d+)\s*(?:Go|GB|Mo|MB|Ko|KB)\b", "size", "{0}"),
+    (r"\b(local|remote|cloud|hybrid)\b", "location", "{0}"),
+    (r"\btag\s+(\S+)\b", "tag", "{0}"),
+    (r"\blabel\s+(\S+)\b", "label", "{0}"),
 ]
 
 
