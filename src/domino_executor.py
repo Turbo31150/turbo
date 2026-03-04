@@ -1266,6 +1266,81 @@ def _recent_commits() -> str:
         return "Git N/A"
 
 
+@register_python_action("docker_container_count")
+def _docker_container_count() -> str:
+    """Count running Docker containers."""
+    import subprocess
+    try:
+        r = subprocess.run("docker ps -q 2>/dev/null | wc -l", shell=True, capture_output=True, text=True, timeout=5)
+        count = r.stdout.strip()
+        return f"Docker containers running: {count}"
+    except (subprocess.TimeoutExpired, OSError):
+        return "Docker N/A"
+
+
+@register_python_action("terraform_version")
+def _terraform_version() -> str:
+    """Get Terraform version."""
+    import subprocess
+    try:
+        r = subprocess.run("terraform version 2>/dev/null | head -1", shell=True, capture_output=True, text=True, timeout=5)
+        return r.stdout.strip() if r.stdout.strip() else "Terraform N/A"
+    except (subprocess.TimeoutExpired, OSError):
+        return "Terraform N/A"
+
+
+@register_python_action("node_versions")
+def _node_versions() -> str:
+    """Get Node.js and npm versions."""
+    import subprocess
+    parts = []
+    try:
+        r = subprocess.run("node --version", shell=True, capture_output=True, text=True, timeout=5)
+        parts.append(f"Node {r.stdout.strip()}")
+    except (subprocess.TimeoutExpired, OSError):
+        parts.append("Node N/A")
+    try:
+        r = subprocess.run("npm --version", shell=True, capture_output=True, text=True, timeout=5)
+        parts.append(f"npm {r.stdout.strip()}")
+    except (subprocess.TimeoutExpired, OSError):
+        parts.append("npm N/A")
+    return " | ".join(parts)
+
+
+@register_python_action("queue_status")
+def _queue_status() -> str:
+    """Check message queue availability."""
+    import subprocess
+    parts = []
+    try:
+        r = subprocess.run("redis-cli ping 2>/dev/null", shell=True, capture_output=True, text=True, timeout=3)
+        parts.append(f"Redis: {'OK' if 'PONG' in r.stdout else 'N/A'}")
+    except (subprocess.TimeoutExpired, OSError):
+        parts.append("Redis: N/A")
+    try:
+        r = subprocess.run("rabbitmqctl status 2>/dev/null | head -1", shell=True, capture_output=True, text=True, timeout=5)
+        parts.append(f"RabbitMQ: {'OK' if r.returncode == 0 else 'N/A'}")
+    except (subprocess.TimeoutExpired, OSError):
+        parts.append("RabbitMQ: N/A")
+    return " | ".join(parts)
+
+
+@register_python_action("build_tools_summary")
+def _build_tools_summary() -> str:
+    """Summarize available build tools."""
+    import subprocess
+    tools = {"node": "node --version", "npm": "npm --version", "vite": "npx vite --version 2>/dev/null", "esbuild": "npx esbuild --version 2>/dev/null"}
+    parts = []
+    for name, cmd in tools.items():
+        try:
+            r = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=5)
+            ver = r.stdout.strip().split('\n')[0] if r.stdout.strip() else "N/A"
+            parts.append(f"{name}: {ver}")
+        except (subprocess.TimeoutExpired, OSError):
+            parts.append(f"{name}: N/A")
+    return " | ".join(parts)
+
+
 def execute_python(action: str, timeout: int = 30) -> str:
     """Execute a registered Python action or return description for unknown ones."""
     func_str = action.replace("python:", "", 1) if action.startswith("python:") else action

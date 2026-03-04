@@ -200,6 +200,17 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["kibana", "quibana", "kibanna", "kibbana"],
     ["jaeger", "jegueur", "yegueur", "yeger"],
     ["splunk", "splonk", "splounke", "esplunk"],
+    # Vague 26 — Terraform / Queues / Build tools phonetiques
+    ["terraform", "terre a forme", "tera forme", "terra form"],
+    ["pulumi", "poulou mi", "poulumi", "pouloumi"],
+    ["ansible", "anse ible", "anceible", "anssible"],
+    ["rabbitmq", "rab bite eme cul", "ra bite m queue", "rabbit em queue"],
+    ["kafka", "caf ka", "cafca", "kafca"],
+    ["celery", "sale ri", "seleri", "celleri"],
+    ["vite", "vaille te", "vit", "vaite"],
+    ["turbopack", "turbo paque", "turbopak", "turbopacke"],
+    ["esbuild", "esse bilde", "es bild", "ezbuild"],
+    ["storybook", "story bouke", "story buc", "storibouk"],
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -261,6 +272,13 @@ FILLER_WORDS = {
     "c'est ca", "c'est bien ca", "on y va",
     "allez allez", "hop", "c'est parti",
     "alors voyons", "voyons voir", "regardons",
+    # Vague 10 — Fillers techno-slang et hesitations dev
+    "basically", "essentially", "technically",
+    "literally", "actually", "obviously",
+    "en fait", "au final", "du coup",
+    "a la base", "a la limite", "en mode",
+    "style", "genre", "clairement",
+    "franchement", "carrément", "grave",
 }
 
 # Expansions de commandes implicites
@@ -1249,6 +1267,26 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "freeze": "ca freeze",
     "lent": "c'est lent",
     "bloque": "c'est bloque",
+    # Vague 86 — Terraform / IaC raccourcis
+    "terraform": "terraform plan",
+    "tf plan": "terraform plan",
+    "tf apply": "terraform apply",
+    "ansible": "lance ansible",
+    "playbook": "ansible playbook",
+    "pulumi": "pulumi up",
+    # Vague 87 — Message queues raccourcis
+    "rabbitmq": "check rabbitmq",
+    "kafka": "check kafka",
+    "celery": "celery status",
+    "sqs": "check sqs",
+    "nats": "check nats",
+    # Vague 88 — Build tools raccourcis
+    "vite": "vite dev",
+    "turbopack": "turbopack build",
+    "esbuild": "esbuild bundle",
+    "storybook": "lance storybook",
+    "vitest": "lance vitest",
+    "rollup": "rollup build",
 }
 
 
