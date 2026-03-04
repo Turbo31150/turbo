@@ -190,6 +190,16 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["redis", "rai diss", "reddis", "red ice"],
     ["memcached", "mem cache day", "meme cache", "memecashed"],
     ["varnish", "var niche", "varnic", "varnich"],
+    # Vague 25 — Docker / OAuth / Logging phonetiques
+    ["podman", "pod man", "pode manne", "podeman"],
+    ["helm", "hel me", "elle me", "helme"],
+    ["oauth", "au auth", "o off", "au ausse"],
+    ["jwt", "ji double ve ti", "jot", "djwt"],
+    ["kerberos", "quaire beros", "kairberos", "cerberos"],
+    ["elasticsearch", "elastic serch", "elasse tique", "elastik"],
+    ["kibana", "quibana", "kibanna", "kibbana"],
+    ["jaeger", "jegueur", "yegueur", "yeger"],
+    ["splunk", "splonk", "splounke", "esplunk"],
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -1214,6 +1224,31 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "incident": "mode incident",
     "urgent": "c'est urgent",
     "prio": "priorite haute",
+    # Vague 83 — Docker / conteneurs raccourcis
+    "compose": "docker compose up",
+    "dockerfile": "edite le dockerfile",
+    "container": "liste les containers",
+    "registry": "check le registry",
+    "swarm": "docker swarm status",
+    "podman": "check podman",
+    "helm": "helm list",
+    # Vague 84 — Auth / observabilite raccourcis
+    "oauth": "configure oauth",
+    "jwt": "genere jwt token",
+    "ldap": "check ldap",
+    "mfa": "active mfa",
+    "elk": "check elk stack",
+    "kibana": "ouvre kibana",
+    "datadog": "check datadog",
+    "jaeger": "ouvre jaeger",
+    "splunk": "check splunk",
+    # Vague 85 — Frustration raccourcis
+    "bug": "il y a un bug",
+    "crash": "ca crash",
+    "plante": "ca plante",
+    "freeze": "ca freeze",
+    "lent": "c'est lent",
+    "bloque": "c'est bloque",
 }
 
 
