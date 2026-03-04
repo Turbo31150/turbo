@@ -165,6 +165,14 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["minio", "mi ni o", "minnio"],
     ["locust", "lo couste", "locuuste"],
     ["gatling", "gatt ling", "gatteline"],
+    # Vague 22 — ML/Web avance/SQL/JARVIS phonetiques
+    ["xgboost", "x ji bouste", "exgibooste"],
+    ["hydration", "i dra cion", "idration"],
+    ["suspense", "sus pense", "suspenze"],
+    ["sigmoid", "sig moyde", "sigmoide"],
+    ["softmax", "soft max", "softemax"],
+    ["whisper", "ouisper", "wispeur"],
+    ["trigram", "tri gramme", "trigramme"],
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -1111,6 +1119,33 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "perf": "lance perf",
     "profiling": "lance le profiling",
     "optimize": "optimise le code",
+    # Vague 74 — ML raccourcis
+    "train": "lance l'entrainement",
+    "predict": "lance la prediction",
+    "evaluate": "evalue le modele",
+    "classify": "classifie les donnees",
+    "cluster": "lance le clustering",
+    "features": "extrais les features",
+    "dataset": "charge le dataset",
+    "hyperparams": "configure les hyperparametres",
+    # Vague 75 — Web avance raccourcis
+    "ssr": "active le server side rendering",
+    "ssg": "genere le site statique",
+    "hydrate": "hydrate le composant",
+    "prefetch": "prefetch les donnees",
+    "lazy load": "active le lazy loading",
+    "hmr": "active le hot module replacement",
+    "api route": "cree une api route",
+    "edge": "deploie en edge",
+    # Vague 76 — SQL raccourcis
+    "query": "execute la requete",
+    "select": "execute un select",
+    "insert": "insere les donnees",
+    "update": "met a jour les donnees",
+    "delete row": "supprime la ligne",
+    "explain": "explain la requete",
+    "indexes": "montre les indexes",
+    "views": "montre les vues",
 }
 
 
