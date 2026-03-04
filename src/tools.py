@@ -149,24 +149,164 @@ async def _retry_request(
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# PERFORMANCE METRICS
+# TOOL METRICS v2 — Per-tool latency, success/error counts, cache stats
+# ═══════════════════════════════════════════════════════════════════════════
+
+import collections
+import hashlib
+import threading as _threading
+from functools import wraps
+
+
+class ToolMetrics:
+    """Singleton collecting per-tool performance metrics (thread-safe)."""
+
+    _instance = None
+    _lock = _threading.Lock()
+
+    def __new__(cls):
+        with cls._lock:
+            if cls._instance is None:
+                cls._instance = super().__new__(cls)
+                cls._instance._init()
+        return cls._instance
+
+    def _init(self):
+        self._data_lock = _threading.Lock()
+        self.latency_sum: dict[str, float] = collections.defaultdict(float)
+        self.call_count: dict[str, int] = collections.defaultdict(int)
+        self.success_count: dict[str, int] = collections.defaultdict(int)
+        self.error_count: dict[str, int] = collections.defaultdict(int)
+        self.cache_hits: dict[str, int] = collections.defaultdict(int)
+        self.last_latency: dict[str, float] = {}
+
+    def record(self, name: str, latency_ms: float, success: bool = True):
+        with self._data_lock:
+            self.latency_sum[name] += latency_ms
+            self.call_count[name] += 1
+            self.last_latency[name] = latency_ms
+            if success:
+                self.success_count[name] += 1
+            else:
+                self.error_count[name] += 1
+
+    def record_cache_hit(self, name: str):
+        with self._data_lock:
+            self.cache_hits[name] += 1
+
+    def get_report(self) -> dict:
+        with self._data_lock:
+            report = {}
+            for name in self.call_count:
+                total = self.call_count[name]
+                report[name] = {
+                    "calls": total,
+                    "avg_ms": round(self.latency_sum[name] / total, 1) if total else 0,
+                    "last_ms": round(self.last_latency.get(name, 0), 1),
+                    "success": self.success_count[name],
+                    "errors": self.error_count[name],
+                    "cache_hits": self.cache_hits.get(name, 0),
+                    "success_rate": round(self.success_count[name] / total, 3) if total else 1.0,
+                }
+            return report
+
+    def reset(self):
+        with self._data_lock:
+            self._init()
+
+
+_tool_metrics = ToolMetrics()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# LRU CACHE with TTL — Per-category response caching
+# ═══════════════════════════════════════════════════════════════════════════
+
+_CACHE_TTL = {"code": 60, "system": 30, "trading": 10, "query": 45, "default": 20}
+_CACHE_STORES: dict[str, collections.OrderedDict] = {
+    cat: collections.OrderedDict() for cat in _CACHE_TTL
+}
+_CACHE_LOCK = _threading.Lock()
+_CACHE_MAX = 256
+
+
+def _cache_key(args: tuple, kwargs: dict) -> str:
+    raw = repr(args) + repr(sorted(kwargs.items()))
+    return hashlib.md5(raw.encode()).hexdigest()
+
+
+def cache_response(category: str = "default"):
+    """Decorator: cache async tool responses with per-category TTL."""
+    ttl = _CACHE_TTL.get(category, _CACHE_TTL["default"])
+    store = _CACHE_STORES.setdefault(category, collections.OrderedDict())
+
+    def decorator(fn):
+        @wraps(fn)
+        async def wrapper(*args, **kwargs):
+            key = _cache_key(args, kwargs)
+            now = time.time()
+            with _CACHE_LOCK:
+                entry = store.get(key)
+                if entry and entry[1] > now:
+                    store.move_to_end(key)
+                    _tool_metrics.record_cache_hit(fn.__name__)
+                    return entry[0]
+
+            result = await fn(*args, **kwargs)
+
+            with _CACHE_LOCK:
+                if len(store) >= _CACHE_MAX:
+                    store.popitem(last=False)
+                store[key] = (result, now + ttl)
+            return result
+        return wrapper
+    return decorator
+
+
+def clear_cache(category: str | None = None):
+    """Clear response cache. None = all categories."""
+    with _CACHE_LOCK:
+        if category:
+            store = _CACHE_STORES.get(category)
+            if store:
+                store.clear()
+        else:
+            for store in _CACHE_STORES.values():
+                store.clear()
+
+
+def get_cache_stats() -> dict:
+    """Get cache statistics per category."""
+    with _CACHE_LOCK:
+        now = time.time()
+        return {
+            cat: {
+                "entries": len(store),
+                "valid": sum(1 for _, exp in store.values() if exp > now),
+                "ttl_seconds": _CACHE_TTL.get(cat, 20),
+            }
+            for cat, store in _CACHE_STORES.items()
+        }
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# LEGACY COMPAT + NODE TRACKING
 # ═══════════════════════════════════════════════════════════════════════════
 
 _METRICS: dict[str, list[float]] = {}
-_METRICS_LOCK = __import__("threading").Lock()
+_METRICS_LOCK = _threading.Lock()
 
 
 def _track_latency(node: str, latency_ms: float) -> None:
-    """Track latency for auto-tune routing."""
+    """Track latency for auto-tune routing + tool metrics."""
     with _METRICS_LOCK:
         if node not in _METRICS:
             _METRICS[node] = []
         _METRICS[node].append(latency_ms)
-        # Keep last 20 measurements
         if len(_METRICS[node]) > 20:
             _METRICS[node] = _METRICS[node][-20:]
-    # Update config auto-tune cache
     config.update_latency(node, int(latency_ms))
+    _tool_metrics.record(f"node_{node}", latency_ms)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -199,6 +339,7 @@ async def lm_query(args: dict[str, Any]) -> dict[str, Any]:
         ), timeout=timeout, headers=node.auth_headers)
         latency = (time.monotonic() - t0) * 1000
         _track_latency(node.name, latency)
+        _tool_metrics.record("lm_query", latency, success=True)
         data = r.json()
         content = extract_lms_output(data)
         usage = data.get("stats", {})
@@ -207,10 +348,13 @@ async def lm_query(args: dict[str, Any]) -> dict[str, Any]:
             f"--- {int(latency)}ms | {usage.get('total_output_tokens', '?')} tokens"
         )
     except httpx.ConnectError:
+        _tool_metrics.record("lm_query", 0, success=False)
         return _error(f"Noeud {node.name} hors ligne ({node.url})")
     except httpx.ReadTimeout:
+        _tool_metrics.record("lm_query", (time.monotonic() - t0) * 1000, success=False)
         return _error(f"Timeout {node.name} ({timeout}s) — essaie mode=fast pour limiter les tokens")
     except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
+        _tool_metrics.record("lm_query", 0, success=False)
         return _error(f"Erreur LM Studio: {e}")
 
 
@@ -292,19 +436,24 @@ async def gemini_query(args: dict[str, Any]) -> dict[str, Any]:
         )
         latency = int((time.monotonic() - t0) * 1000)
         _track_latency("GEMINI", latency)
+        _tool_metrics.record("gemini_query", latency, success=True)
 
         output = stdout.decode(errors="replace").strip()
         if proc.returncode != 0 and not output:
             err = stderr.decode(errors="replace").strip()
+            _tool_metrics.record("gemini_query", latency, success=False)
             return _error(f"Gemini erreur (exit {proc.returncode}): {err[:500]}")
 
         model = config.gemini_node.default_model
         return _text(f"[GEMINI/{model}] {_strip_thinking_tags(output)}\n--- {latency}ms")
     except asyncio.TimeoutError:
+        _tool_metrics.record("gemini_query", 0, success=False)
         return _error(f"Gemini timeout ({config.gemini_node.timeout_ms / 1000}s)")
     except FileNotFoundError:
+        _tool_metrics.record("gemini_query", 0, success=False)
         return _error("node.js non trouve — gemini-proxy.js necessite Node.js")
     except (OSError, subprocess.SubprocessError, ValueError) as e:
+        _tool_metrics.record("gemini_query", 0, success=False)
         return _error(f"Erreur Gemini: {e}")
 
 
@@ -686,10 +835,14 @@ async def ollama_query(args: dict[str, Any]) -> dict[str, Any]:
             "options": {"temperature": config.temperature, "num_predict": config.max_tokens},
         })
         latency = int((time.monotonic() - t0) * 1000)
+        _track_latency("OL1", latency)
+        _tool_metrics.record("ollama_query", latency, success=True)
         return _text(f"[OL1/{model}] {r.json()['message']['content']} --- {latency}ms")
     except httpx.ConnectError:
+        _tool_metrics.record("ollama_query", 0, success=False)
         return _error("Ollama hors ligne (127.0.0.1:11434)")
     except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
+        _tool_metrics.record("ollama_query", 0, success=False)
         return _error(f"Erreur Ollama: {e}")
 
 
@@ -1805,3 +1958,22 @@ jarvis_server = create_sdk_mcp_server(
         execute_domino_tool, list_dominos_tool, domino_stats_tool,
     ],
 )
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# METRICS & CACHE PUBLIC API
+# ═══════════════════════════════════════════════════════════════════════════
+
+def get_tool_metrics_report() -> dict:
+    """Get full tool metrics report (latency, success, cache)."""
+    return {
+        "tools": _tool_metrics.get_report(),
+        "cache": get_cache_stats(),
+        "node_latencies": {k: round(sum(v) / len(v), 1) for k, v in _METRICS.items() if v},
+    }
+
+
+def reset_tool_metrics():
+    """Reset all tool metrics and cache."""
+    _tool_metrics.reset()
+    clear_cache()

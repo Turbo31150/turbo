@@ -1,9 +1,34 @@
 /* ============================================
-   JARVIS Turbo — Global Base Styles
+   JARVIS Turbo — Global Base Styles v2
    ============================================
+   Supports dark/light themes via CSS custom properties.
    Component styles are inline via lib/theme.ts (COLORS, FONT).
-   This file only provides reset, base layout, and scrollbar.
+   This file provides reset, base layout, scrollbar, and theme vars.
    ============================================ */
+
+/* Theme CSS Custom Properties — Dark (default) */
+:root {
+  --bg: #0a0e14;
+  --bg-card: #0d1117;
+  --bg-input: #0a0e14;
+  --border: #1a2a3a;
+  --text: #e0e0e0;
+  --text-muted: #c0c0c0;
+  --text-dim: #6b7280;
+  --overlay: rgba(0,0,0,.6);
+}
+
+/* Light theme override */
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-input: #f1f5f9;
+  --border: #e2e8f0;
+  --text: #1e293b;
+  --text-muted: #475569;
+  --text-dim: #94a3b8;
+  --overlay: rgba(0,0,0,.3);
+}
 
 /* Reset */
 * {
@@ -17,8 +42,8 @@ html, body, #root {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #0a0e14;
-  color: #e0e0e0;
+  background: var(--bg, #0a0e14);
+  color: var(--text, #e0e0e0);
   font-family: 'Consolas', 'Courier New', monospace;
   font-size: 13px;
   line-height: 1.5;
@@ -32,14 +57,79 @@ html, body, #root {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0e14;
+  background: var(--bg, #0a0e14);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1a2a3a;
+  background: var(--border, #1a2a3a);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #2a3a4a;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Command Palette overlay */
+.command-palette-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 20vh;
+  z-index: 9999;
+}
+
+.command-palette {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: 520px;
+  max-height: 400px;
+  box-shadow: 0 16px 48px rgba(0,0,0,.5);
+  overflow: hidden;
+}
+
+.command-palette input {
+  width: 100%;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 15px;
+  outline: none;
+}
+
+.command-palette-results {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.command-palette-item {
+  padding: 10px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  transition: background .1s;
+}
+
+.command-palette-item:hover,
+.command-palette-item[data-selected="true"] {
+  background: rgba(249,115,22,.08);
+}
+
+.command-palette-item .shortcut {
+  margin-left: auto;
+  color: var(--text-dim);
+  font-size: 11px;
 }

@@ -223,7 +223,7 @@ COMMANDS: list[JarvisCommand] = [
     JarvisCommand("volume_precis", "media", "Mettre le volume a un niveau precis", [
         "mets le volume a {niveau}", "volume a {niveau}",
         "regle le volume a {niveau}", "volume {niveau} pourcent",
-    ], "powershell", "powershell -NoProfile -Command \"$vol = {niveau} / 100; (New-Object -ComObject WScript.Shell).SendKeys([char]173); Start-Sleep -Milliseconds 200\"", ["niveau"]),
+    ], "powershell", "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class Vol{[DllImport(\"winmm.dll\")]public static extern int waveOutSetVolume(IntPtr h,uint v);}'; $l=[math]::Round({niveau}/100*65535); [Vol]::waveOutSetVolume([IntPtr]::Zero, ($l -bor ($l -shl 16)))", ["niveau"]),
 
     # ══════════════════════════════════════════════════════════════════════
     # FENETRES WINDOWS (9 commandes)
@@ -500,11 +500,11 @@ COMMANDS: list[JarvisCommand] = [
     JarvisCommand("micro_mute", "systeme", "Couper le microphone", [
         "coupe le micro", "mute le micro", "micro off",
         "desactive le micro", "silence micro",
-    ], "powershell", "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class A{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; [A]::keybd_event(0xAD,0,0,0); [A]::keybd_event(0xAD,0,2,0)"),
+    ], "powershell", "Get-CimInstance Win32_SoundDevice | ForEach-Object { $d = $_; try { $audio = Get-AudioDevice -RecordingDefault -ErrorAction SilentlyContinue; if ($audio) { Set-AudioDevice -RecordingMute $true } } catch {} }; Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class MicCtl{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e); public static void MuteMic(){keybd_event(0xAD,0,0,0);keybd_event(0xAD,0,2,0);}}'; [MicCtl]::MuteMic()"),
     JarvisCommand("micro_unmute", "systeme", "Reactiver le microphone", [
         "reactive le micro", "unmute micro", "micro on",
         "active le micro", "rallume le micro",
-    ], "powershell", "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class A{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; [A]::keybd_event(0xAD,0,0,0); [A]::keybd_event(0xAD,0,2,0)"),
+    ], "powershell", "$wshell = New-Object -ComObject WScript.Shell; $wshell.SendKeys([char]0xAD); Start-Sleep -Milliseconds 100; $wshell.SendKeys([char]0xAD)"),
     JarvisCommand("param_camera", "systeme", "Parametres camera", [
         "parametres camera", "reglages camera", "config camera",
         "ouvre les parametres camera",
@@ -7968,6 +7968,88 @@ VOICE_CORRECTIONS: dict[str, str] = {
     "un poil": "un peu",
     "une tonne de": "beaucoup de",
     "des tonnes": "beaucoup",
+    # Vague 161 — Microservices / architecture
+    "micro service": "microservice",
+    "micro services": "microservices",
+    "micro ser visse": "microservice",
+    "event driven": "event-driven",
+    "event drivenne": "event-driven",
+    "cqrs pattern": "CQRS",
+    "ce cul air esse": "CQRS",
+    "event sourcing": "event sourcing",
+    "event sour cing": "event sourcing",
+    "saga pattern": "saga pattern",
+    "sag a": "saga",
+    "api first": "API first",
+    "api feurste": "API first",
+    "domain driven": "DDD",
+    "domaine drivenne": "DDD",
+    "bounded context": "bounded context",
+    "baounde de contexte": "bounded context",
+    "circuit breaker": "circuit breaker",
+    "circuite brequeur": "circuit breaker",
+    "service discovery": "service discovery",
+    "service dis co very": "service discovery",
+    "sidecar pattern": "sidecar pattern",
+    "saille de car": "sidecar",
+    # Vague 162 — Monitoring metriques
+    "prometheus": "Prometheus",
+    "pro me the us": "Prometheus",
+    "prome te eusse": "Prometheus",
+    "grafana dashboard": "Grafana dashboard",
+    "gra fa na": "Grafana",
+    "metrics endpoint": "metrics endpoint",
+    "metrique": "metrique",
+    "alertmanager": "Alertmanager",
+    "alerte manager": "Alertmanager",
+    "sla nines": "SLA nines",
+    "sla": "SLA",
+    "slo objectif": "SLO",
+    "sli indicateur": "SLI",
+    "uptime robot": "UptimeRobot",
+    "eup taille me": "uptime",
+    "pagerduty": "PagerDuty",
+    "pager du ti": "PagerDuty",
+    "status page": "status page",
+    "statu page": "status page",
+    # Vague 163 — Animation / CSS avance
+    "css animation": "CSS animation",
+    "anime ation css": "CSS animation",
+    "framer motion": "Framer Motion",
+    "freme eur motion": "Framer Motion",
+    "gsap animation": "GSAP",
+    "ji sap": "GSAP",
+    "tailwind css": "Tailwind CSS",
+    "taille wind": "Tailwind",
+    "sass scss": "SASS/SCSS",
+    "sasse": "SASS",
+    "styled components": "styled-components",
+    "staille de compo": "styled-components",
+    "css modules": "CSS Modules",
+    "css mo dule": "CSS Modules",
+    "postcss": "PostCSS",
+    "post css": "PostCSS",
+    "css in js": "CSS-in-JS",
+    "css enne ji esse": "CSS-in-JS",
+    "emotion css": "Emotion",
+    "emo sion": "Emotion",
+    # Vague 164 — Variantes vocales courantes 2
+    "ok google": "ok jarvis",
+    "hey siri": "ok jarvis",
+    "alexa": "ok jarvis",
+    "ey jarvis": "jarvis",
+    "hey jarvis": "jarvis",
+    "dis jarvis": "jarvis",
+    "ecoute jarvis": "jarvis",
+    "tu m'entends": "tu m'entends",
+    "t'es la": "es-tu la",
+    "tu es la": "es-tu la",
+    "quoi de neuf": "quoi de neuf",
+    "ca va": "ca va",
+    "comment ca va": "comment ca va",
+    "tout est bon": "tout va bien",
+    "comment tu vas": "comment ca va",
+    "on fait quoi": "quoi de neuf",
 }
 
 
@@ -8034,63 +8116,101 @@ def similarity(a: str, b: str) -> float:
     return max(seq_score, bow_score)
 
 
+# ── Trigger Index (built once, O(1) exact + O(k) substring lookups) ───────
+_trigger_exact: dict[str, tuple[JarvisCommand, str]] = {}   # lowered trigger → (cmd, trigger)
+_trigger_param: list[tuple[re.Pattern, list[str], str, JarvisCommand]] = []  # compiled (pattern, param_names, fixed_part, cmd)
+_trigger_index_built = False
+
+
+def _build_trigger_index():
+    """Build hash indexes for fast command matching. Called once on first use."""
+    global _trigger_index_built
+    if _trigger_index_built:
+        return
+    _trigger_exact.clear()
+    _trigger_param.clear()
+    for cmd in COMMANDS:
+        for trigger in cmd.triggers:
+            if "{" in trigger:
+                param_names = re.findall(r"\{(\w+)\}", trigger)
+                pattern = trigger
+                for pname in param_names:
+                    pattern = pattern.replace(f"{{{pname}}}", r"(.+)")
+                compiled = re.compile("^" + pattern + "$", re.IGNORECASE)
+                fixed_part = re.sub(r"\{(\w+)\}", "", trigger).strip().lower()
+                _trigger_param.append((compiled, param_names, fixed_part, cmd))
+            else:
+                key = trigger.lower()
+                # Keep first registration (higher priority commands listed first)
+                if key not in _trigger_exact:
+                    _trigger_exact[key] = (cmd, trigger)
+    _trigger_index_built = True
+
+
 def match_command(voice_text: str, threshold: float = 0.55) -> tuple[JarvisCommand | None, dict[str, str], float]:
     """Match voice input to a pre-registered command.
 
+    Uses hash index for O(1) exact matches, then parameterized regex,
+    then falls back to fuzzy similarity only when needed.
+
     Returns: (command, extracted_params, confidence_score)
     """
+    _build_trigger_index()
+
     # Step 1: Correct common voice errors
     corrected = correct_voice_text(voice_text)
 
+    # Step 2: O(1) exact match via hash
+    exact = _trigger_exact.get(corrected)
+    if exact:
+        return exact[0], {}, 1.0
+
+    # Step 3: O(k) parameterized regex matches (k = param triggers only, ~180)
     best_match: JarvisCommand | None = None
     best_score: float = 0.0
     best_params: dict[str, str] = {}
 
-    for cmd in COMMANDS:
-        for trigger in cmd.triggers:
-            # Check if trigger has parameters (phrases a trou)
-            if "{" in trigger:
-                # Extract parameter pattern
-                param_names = re.findall(r"\{(\w+)\}", trigger)
-                # Build regex from trigger template
-                pattern = trigger
-                for pname in param_names:
-                    pattern = pattern.replace(f"{{{pname}}}", r"(.+)")
-                pattern = "^" + pattern + "$"
-
-                match = re.match(pattern, corrected, re.IGNORECASE)
-                if match:
-                    score = 0.95  # Parameterized exact match: higher than substring non-param (0.90)
-                    params = {param_names[i]: match.group(i + 1).strip() for i in range(len(param_names))}
-                    if score > best_score:
-                        best_score = score
-                        best_match = cmd
-                        best_params = params
-                else:
-                    # Try fuzzy match on the fixed parts
-                    fixed_part = re.sub(r"\{(\w+)\}", "", trigger).strip()
-                    if fixed_part and fixed_part in corrected:
-                        remaining = corrected.replace(fixed_part, "").strip()
-                        if remaining:
-                            score = 0.80
-                            params = {param_names[0]: remaining} if param_names else {}
-                            if score > best_score:
-                                best_score = score
-                                best_match = cmd
-                                best_params = params
-            else:
-                # Exact match
-                if corrected == trigger.lower():
-                    score = 1.0
-                elif trigger.lower() in corrected:
-                    score = 0.90
-                else:
-                    score = similarity(corrected, trigger)
-
+    for compiled, param_names, fixed_part, cmd in _trigger_param:
+        m = compiled.match(corrected)
+        if m:
+            score = 0.95
+            params = {param_names[i]: m.group(i + 1).strip() for i in range(len(param_names))}
+            if score > best_score:
+                best_score = score
+                best_match = cmd
+                best_params = params
+        elif fixed_part and fixed_part in corrected:
+            remaining = corrected.replace(fixed_part, "").strip()
+            if remaining:
+                score = 0.80
+                params = {param_names[0]: remaining} if param_names else {}
                 if score > best_score:
                     best_score = score
                     best_match = cmd
-                    best_params = {}
+                    best_params = params
+
+    if best_score >= 0.90:
+        return best_match, best_params, best_score
+
+    # Step 4: Substring check on non-param triggers (still O(n) but skips fuzzy)
+    for key, (cmd, trigger) in _trigger_exact.items():
+        if key in corrected:
+            score = 0.90
+            if score > best_score:
+                best_score = score
+                best_match = cmd
+                best_params = {}
+
+    if best_score >= 0.85:
+        return best_match, best_params, best_score
+
+    # Step 5: Fuzzy similarity (only reached for uncertain inputs, ~15% of calls)
+    for key, (cmd, trigger) in _trigger_exact.items():
+        score = similarity(corrected, trigger)
+        if score > best_score:
+            best_score = score
+            best_match = cmd
+            best_params = {}
 
     if best_score < threshold:
         return None, {}, best_score
@@ -8134,3 +8254,128 @@ def format_commands_help() -> str:
             trigger_example = cmd.triggers[0]
             lines.append(f"    - {trigger_example} → {cmd.description}")
     return "\n".join(lines)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# COMMAND ANALYTICS v2 — Per-command usage tracking + composition
+# ═══════════════════════════════════════════════════════════════════════════
+
+import sqlite3 as _sqlite3
+import time as _time
+from pathlib import Path as _Path2
+
+_ANALYTICS_DB = _Path2(__file__).resolve().parent.parent / "data" / "jarvis.db"
+
+
+def record_command_execution(command_name: str, duration_ms: float = 0,
+                              success: bool = True, source: str = "voice",
+                              params: dict | None = None):
+    """Record a command execution for analytics."""
+    try:
+        conn = _sqlite3.connect(str(_ANALYTICS_DB))
+        conn.execute(
+            "INSERT INTO command_analytics (command_name, duration_ms, success, source, params, timestamp) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            (command_name, duration_ms, 1 if success else 0, source,
+             json.dumps(params or {}), _time.time()),
+        )
+        conn.commit()
+        conn.close()
+    except _sqlite3.Error:
+        pass  # Best-effort, don't break command execution
+
+
+def get_command_analytics(top_n: int = 20) -> list[dict]:
+    """Get command usage analytics: most used, success rates, avg duration."""
+    try:
+        conn = _sqlite3.connect(str(_ANALYTICS_DB))
+        conn.row_factory = _sqlite3.Row
+        rows = conn.execute("""
+            SELECT command_name,
+                   COUNT(*) as total_uses,
+                   SUM(success) as successes,
+                   ROUND(AVG(duration_ms), 1) as avg_duration_ms,
+                   ROUND(CAST(SUM(success) AS REAL) / COUNT(*), 3) as success_rate,
+                   MAX(timestamp) as last_used
+            FROM command_analytics
+            GROUP BY command_name
+            ORDER BY total_uses DESC
+            LIMIT ?
+        """, (top_n,)).fetchall()
+        conn.close()
+        return [dict(r) for r in rows]
+    except _sqlite3.Error:
+        return []
+
+
+def get_unused_commands(days: int = 30) -> list[str]:
+    """Get commands never executed or not used in N days."""
+    cutoff = _time.time() - (days * 86400)
+    used = set()
+    try:
+        conn = _sqlite3.connect(str(_ANALYTICS_DB))
+        rows = conn.execute(
+            "SELECT DISTINCT command_name FROM command_analytics WHERE timestamp > ?",
+            (cutoff,),
+        ).fetchall()
+        conn.close()
+        used = {r[0] for r in rows}
+    except _sqlite3.Error:
+        pass
+    all_names = {c.name for c in COMMANDS}
+    return sorted(all_names - used)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# COMMAND COMPOSITION — Chain multiple commands as macros
+# ═══════════════════════════════════════════════════════════════════════════
+
+_MACROS: dict[str, list[str]] = {}
+
+
+def register_macro(name: str, command_names: list[str], description: str = ""):
+    """Register a macro: a chain of commands executed in sequence."""
+    for cmd_name in command_names:
+        if not any(c.name == cmd_name for c in COMMANDS):
+            raise ValueError(f"Unknown command in macro: {cmd_name}")
+    _MACROS[name] = command_names
+
+
+def get_macros() -> dict[str, list[str]]:
+    """Get all registered macros."""
+    return dict(_MACROS)
+
+
+def expand_macro(name: str) -> list[JarvisCommand]:
+    """Expand a macro into its constituent commands."""
+    cmd_names = _MACROS.get(name, [])
+    cmd_map = {c.name: c for c in COMMANDS}
+    return [cmd_map[n] for n in cmd_names if n in cmd_map]
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DRY-RUN MODE — Preview command effects without execution
+# ═══════════════════════════════════════════════════════════════════════════
+
+def dry_run_command(voice_text: str) -> dict:
+    """Preview what a voice command would do without executing it."""
+    cmd, params, score = match_command(voice_text)
+    if not cmd:
+        return {"matched": False, "score": score, "input": voice_text}
+
+    action_preview = cmd.action
+    for key, val in params.items():
+        action_preview = action_preview.replace(f"{{{key}}}", val)
+
+    return {
+        "matched": True,
+        "command": cmd.name,
+        "category": cmd.category,
+        "description": cmd.description,
+        "action_type": cmd.action_type,
+        "action_preview": action_preview,
+        "params": params,
+        "confidence": score,
+        "confirm_required": cmd.confirm,
+        "input": voice_text,
+    }

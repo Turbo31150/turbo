@@ -103,6 +103,7 @@ class AudioBuffer:
     def stop(self) -> bytes:
         """Return audio bytes ready for Whisper (WAV with header)."""
         self.recording = False
+        self._stop_ts = time.time()
         if not self.chunks:
             return b""
         raw = b"".join(self.chunks)
@@ -207,6 +208,17 @@ async def _handle_stop() -> dict:
             logger.warning("Voice correction error: %s", e)
             corrected = text
 
+    # v2: record voice pipeline metrics in orchestrator_v2
+    try:
+        from src.orchestrator_v2 import orchestrator_v2
+        orchestrator_v2.record_call(
+            "voice_pipeline", latency_ms=(time.time() - _buffer._stop_ts) * 1000 if hasattr(_buffer, '_stop_ts') else 0,
+            success=bool(text and not text.startswith("[")),
+            tokens=len(corrected.split()) if corrected else 0,
+        )
+    except Exception:
+        pass
+
     entry = {
         "timestamp": time.time(),
         "original": text,
@@ -248,8 +260,80 @@ async def _execute_matched_command(cmd, params: dict) -> dict | None:
 
 
 async def _fallback_cloud_stt(audio_data: bytes) -> str:
-    """Fallback: cloud STT transcription (stub — not yet implemented)."""
-    logger.debug("Cloud STT fallback: not yet implemented")
+    """Fallback: cloud STT via OL1/Whisper REST or Azure Speech.
+
+    Priority: 1) Local Whisper CLI  2) Groq Whisper API  3) Azure Speech
+    """
+    import tempfile
+    import pathlib
+
+    # Save audio to temp WAV for API upload
+    tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+    tmp.write(audio_data)
+    tmp.close()
+    tmp_path = pathlib.Path(tmp.name)
+
+    try:
+        # Strategy 1: Local faster-whisper CLI (if installed system-wide)
+        text = await _cloud_stt_local_cli(tmp_path)
+        if text:
+            return text
+
+        # Strategy 2: Groq Whisper API (free tier, fast)
+        text = await _cloud_stt_groq(tmp_path)
+        if text:
+            return text
+
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+    return ""
+
+
+async def _cloud_stt_local_cli(wav_path) -> str:
+    """Try transcribing via faster-whisper CLI as subprocess."""
+    try:
+        proc = await asyncio.create_subprocess_exec(
+            "faster-whisper", str(wav_path),
+            "--model", "tiny", "--language", "fr",
+            "--output_format", "txt",
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.DEVNULL,
+        )
+        stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=10.0)
+        text = stdout.decode("utf-8", errors="replace").strip()
+        if text and len(text) > 1:
+            logger.info("Cloud STT (local CLI): %s", text[:80])
+            return text
+    except (FileNotFoundError, asyncio.TimeoutError, OSError):
+        pass
+    return ""
+
+
+async def _cloud_stt_groq(wav_path) -> str:
+    """Transcribe via Groq Whisper API (whisper-large-v3-turbo, free tier)."""
+    import os
+    api_key = os.environ.get("GROQ_API_KEY", "")
+    if not api_key:
+        return ""
+
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            with open(wav_path, "rb") as f:
+                resp = await client.post(
+                    "https://api.groq.com/openai/v1/audio/transcriptions",
+                    headers={"Authorization": f"Bearer {api_key}"},
+                    files={"file": ("audio.wav", f, "audio/wav")},
+                    data={"model": "whisper-large-v3-turbo", "language": "fr"},
+                )
+            if resp.status_code == 200:
+                text = resp.json().get("text", "").strip()
+                if text:
+                    logger.info("Cloud STT (Groq): %s", text[:80])
+                    return text
+    except (ImportError, httpx.HTTPError, asyncio.TimeoutError, OSError) as e:
+        logger.debug("Groq STT failed: %s", e)
     return ""
 
 

@@ -3,9 +3,10 @@ import { useWebSocket, WsMessage } from './hooks/useWebSocket';
 import Sidebar from './components/layout/Sidebar';
 import TopBar from './components/layout/TopBar';
 import ErrorBoundary from './components/ErrorBoundary';
+import CommandPalette from './components/CommandPalette';
 import { ClusterProvider } from './hooks/ClusterContext';
 import type { Page } from './lib/types';
-import { COLORS, FONT } from './lib/theme';
+import { COLORS, FONT, applyTheme, getStoredTheme } from './lib/theme';
 
 interface Toast {
   id: number;
@@ -24,6 +25,21 @@ const DictionaryPage = lazy(() => import('./pages/DictionaryPage'));
 const PipelinePage = lazy(() => import('./pages/PipelinePage'));
 const ToolboxPage = lazy(() => import('./pages/ToolboxPage'));
 const LogsPage = lazy(() => import('./pages/LogsPage'));
+const OrchestratorPage = lazy(() => import('./pages/OrchestratorPage'));
+const MemoryPage = lazy(() => import('./pages/MemoryPage'));
+const MetricsPage = lazy(() => import('./pages/MetricsPage'));
+const AlertsPage = lazy(() => import('./pages/AlertsPage'));
+const WorkflowPage = lazy(() => import('./pages/WorkflowPage'));
+const HealthPage = lazy(() => import('./pages/HealthPage'));
+const ResourcePage = lazy(() => import('./pages/ResourcePage'));
+const SchedulerPage = lazy(() => import('./pages/SchedulerPage'));
+const ServicesPage = lazy(() => import('./pages/ServicesPage'));
+const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
+const QueuePage = lazy(() => import('./pages/QueuePage'));
+const GatewayPage = lazy(() => import('./pages/GatewayPage'));
+const InfraPage = lazy(() => import('./pages/InfraPage'));
+const MeshPage = lazy(() => import('./pages/MeshPage'));
+const AutomationPage = lazy(() => import('./pages/AutomationPage'));
 
 const PAGE_COMPONENTS: Record<Page, React.LazyExoticComponent<React.ComponentType>> = {
   dashboard: DashboardPage,
@@ -36,6 +52,21 @@ const PAGE_COMPONENTS: Record<Page, React.LazyExoticComponent<React.ComponentTyp
   pipelines: PipelinePage,
   toolbox: ToolboxPage,
   logs: LogsPage,
+  orchestrator: OrchestratorPage,
+  memory: MemoryPage,
+  metrics: MetricsPage,
+  alerts: AlertsPage,
+  workflows: WorkflowPage,
+  health: HealthPage,
+  resources: ResourcePage,
+  scheduler: SchedulerPage,
+  services: ServicesPage,
+  notifications: NotificationsPage,
+  queue: QueuePage,
+  gateway: GatewayPage,
+  infra: InfraPage,
+  mesh: MeshPage,
+  automation: AutomationPage,
 };
 
 const CSS = `
@@ -56,8 +87,25 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const { connected, subscribe } = useWebSocket();
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [showPalette, setShowPalette] = useState(false);
   const toastIdRef = useRef(0);
   const prevConnected = useRef(connected);
+
+  // Apply stored theme on mount
+  useEffect(() => { applyTheme(getStoredTheme()); }, []);
+
+  // Ctrl+K / Cmd+K to open command palette
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowPalette(v => !v);
+      }
+      if (e.key === 'Escape') setShowPalette(false);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   useEffect(() => {
     if (prevConnected.current && !connected) {
@@ -157,6 +205,7 @@ export default function App() {
   return (
     <ClusterProvider>
       <style>{CSS}</style>
+      {showPalette && <CommandPalette onNavigate={setCurrentPage} onClose={() => setShowPalette(false)} />}
       <div style={{ display: 'flex', width: '100vw', height: '100vh', backgroundColor: COLORS.bg, overflow: 'hidden', fontFamily: FONT }}>
         <Sidebar currentPage={currentPage} onPageChange={setCurrentPage} />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>

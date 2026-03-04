@@ -45,6 +45,15 @@ NODES = _build_nodes()
 FALLBACK_CHAIN = ["M1", "M2", "M3", "OL1", "LOCAL"]
 
 
+def _get_orchestrator_fallback(task_type: str = "system", exclude: set | None = None) -> list[str]:
+    """Get fallback chain from orchestrator_v2 (drift-aware)."""
+    try:
+        from src.orchestrator_v2 import orchestrator_v2
+        return orchestrator_v2.fallback_chain(task_type, exclude=exclude or set())
+    except Exception:
+        return list(FALLBACK_CHAIN)
+
+
 def _get_auth_header(node_name: str) -> str:
     """Get auth header for a node from config (no hardcoded keys)."""
     node = config.get_node(node_name)
@@ -1492,41 +1501,70 @@ def execute_step(step: DominoStep, node: str) -> tuple[str, str]:
 # ══════════════════════════════════════════════════════════════════════════════
 
 class DominoExecutor:
-    """Execute une cascade domino step par step avec routing + fallback + logging."""
+    """Execute une cascade domino v2 avec retry, context passing, circuit breaker."""
 
-    def __init__(self, db_path: str = _DEFAULT_DB):
+    def __init__(self, db_path: str = _DEFAULT_DB, max_retries: int = 2):
         self.logger = DominoLogger(db_path)
         self.results: list[dict] = []
+        self.max_retries = max_retries
+        self._context: dict = {}  # Context passed between steps
 
     def run(self, domino: DominoPipeline, run_id: str | None = None) -> dict:
-        """Execute un domino pipeline complet."""
+        """Execute un domino pipeline complet avec retry et context passing."""
         run_id = run_id or f"{domino.id}_{int(time.time())}"
         total_start = time.time()
         passed = failed = skipped = 0
+        self._context = {"run_id": run_id, "domino_id": domino.id}
 
-        logger.info("DOMINO CASCADE: %s (%s) — %s — %d steps, priority=%s",
+        # Circuit breaker integration
+        try:
+            from src.circuit_breaker import cluster_breakers
+            use_breakers = True
+        except ImportError:
+            use_breakers = False
+
+        logger.info("DOMINO CASCADE v2: %s (%s) — %s — %d steps, priority=%s",
                     domino.id, domino.category, domino.description, len(domino.steps), domino.priority)
 
         for idx, step in enumerate(domino.steps):
             step_start = time.time()
 
-            # Check condition
-            if step.condition:
-                logger.debug("[%d] %s — CONDITION: %s", idx + 1, step.name, step.condition)
+            # Evaluate condition with context
+            if step.condition and not self._eval_condition(step.condition):
+                logger.debug("[%d] %s — CONDITION FALSE: %s", idx + 1, step.name, step.condition)
+                skipped += 1
+                self.logger.log_step(run_id, domino.id, step.name, idx, "SKIP", 0, "N/A", "condition=false")
+                continue
 
-            # Route to best node
+            # Route with circuit breaker awareness
             primary_node = route_step(step)
             node = primary_node
 
-            # Check if node online, fallback if not
-            if not check_node_online(node, timeout=int(config.health_timeout)):
+            if use_breakers and not cluster_breakers.can_execute(node):
+                fallback = get_fallback_node(node)
+                logger.warning("[%d] %s — %s CIRCUIT OPEN, fallback -> %s", idx + 1, step.name, node, fallback)
+                node = fallback
+            elif not check_node_online(node, timeout=int(config.health_timeout)):
                 fallback = get_fallback_node(node)
                 logger.warning("[%d] %s — %s OFFLINE, fallback -> %s", idx + 1, step.name, node, fallback)
                 node = fallback
 
-            # Execute step
-            status, output = execute_step(step, node)
+            # Execute with retry
+            status, output = self._execute_with_retry(step, node, idx)
             duration_ms = (time.time() - step_start) * 1000
+
+            # Record in circuit breaker
+            if use_breakers and node not in ("LOCAL",):
+                if status == "PASS":
+                    cluster_breakers.record_success(node)
+                else:
+                    cluster_breakers.record_failure(node)
+
+            # Store output in context for next steps
+            ctx_key = step.name.replace(" ", "_").lower()
+            self._context[ctx_key] = output
+            self._context[f"step_{idx}_output"] = output
+            self._context[f"step_{idx}_status"] = status
 
             # Handle failure
             if status == "FAIL":
@@ -1546,7 +1584,6 @@ class DominoExecutor:
                 logger.info("[%d] %s — PASS (%s) %.0fms — %s", idx + 1, step.name, node, duration_ms, output[:50])
                 passed += 1
 
-            # Log to SQLite
             self.logger.log_step(run_id, domino.id, step.name, idx, status, duration_ms, node, output)
 
         total_ms = (time.time() - total_start) * 1000
@@ -1560,11 +1597,108 @@ class DominoExecutor:
             "skipped": skipped,
             "total_ms": round(total_ms, 1),
             "total_steps": len(domino.steps),
+            "context_keys": list(self._context.keys()),
         }
         self.results.append(result)
 
         logger.info("RESULTAT: %d PASS / %d FAIL / %d SKIP en %.0fms", passed, failed, skipped, total_ms)
         return result
+
+    def _execute_with_retry(self, step: 'DominoStep', node: str, idx: int) -> tuple[str, str]:
+        """Execute a step with retry logic + exponential backoff + orchestrator_v2 routing."""
+        last_output = ""
+        for attempt in range(self.max_retries + 1):
+            # v2: enforce per-step timeout
+            t0 = time.time()
+            status, output = execute_step(step, node)
+            elapsed_s = time.time() - t0
+            last_output = output
+
+            # v2: record in orchestrator_v2
+            try:
+                from src.orchestrator_v2 import orchestrator_v2
+                orchestrator_v2.record_call(
+                    node, latency_ms=elapsed_s * 1000,
+                    success=(status == "PASS"),
+                )
+            except Exception:
+                pass
+
+            if status == "PASS":
+                return status, output
+
+            if attempt < self.max_retries:
+                # v2: use orchestrator_v2 fallback chain if available
+                fallback = node
+                try:
+                    from src.orchestrator_v2 import orchestrator_v2
+                    task_type = "system" if step.action_type == "powershell" else "code"
+                    chain = orchestrator_v2.fallback_chain(task_type, exclude={node})
+                    if chain:
+                        fallback = chain[0]
+                except Exception:
+                    fallback = get_fallback_node(node)
+
+                if fallback != node:
+                    logger.info("[%d] Retry %d/%d — switching %s → %s",
+                               idx + 1, attempt + 1, self.max_retries, node, fallback)
+                    node = fallback
+                else:
+                    logger.info("[%d] Retry %d/%d on %s",
+                               idx + 1, attempt + 1, self.max_retries, node)
+                # v2: exponential backoff (0.5s, 1s, 2s, ...)
+                backoff_s = 0.5 * (2 ** attempt)
+                time.sleep(min(backoff_s, 8.0))
+        return "FAIL", last_output
+
+    def _eval_condition(self, condition: str) -> bool:
+        """Evaluate a step condition against the current context.
+
+        v2: supports ==, !=, >, <, >=, <=, exists, contains, and/or logic.
+        """
+        try:
+            # Handle AND/OR logic
+            if " and " in condition:
+                return all(self._eval_condition(c.strip()) for c in condition.split(" and "))
+            if " or " in condition:
+                return any(self._eval_condition(c.strip()) for c in condition.split(" or "))
+
+            # Comparison operators (order matters: >= before >, <= before <)
+            for op in (">=", "<=", "!=", "==", ">", "<"):
+                if op in condition:
+                    key, val = condition.split(op, 1)
+                    ctx_val = self._context.get(key.strip(), "")
+                    val = val.strip()
+                    # Try numeric comparison
+                    try:
+                        num_ctx = float(str(ctx_val))
+                        num_val = float(val)
+                        if op == "==": return num_ctx == num_val
+                        if op == "!=": return num_ctx != num_val
+                        if op == ">":  return num_ctx > num_val
+                        if op == "<":  return num_ctx < num_val
+                        if op == ">=": return num_ctx >= num_val
+                        if op == "<=": return num_ctx <= num_val
+                    except (ValueError, TypeError):
+                        pass
+                    # String comparison
+                    if op == "==": return str(ctx_val).strip() == val
+                    if op == "!=": return str(ctx_val).strip() != val
+                    return False
+
+            if "contains" in condition:
+                parts = condition.split("contains", 1)
+                key = parts[0].strip()
+                needle = parts[1].strip().strip("'\"")
+                return needle in str(self._context.get(key, ""))
+
+            if "exists" in condition:
+                key = condition.replace("exists", "").strip()
+                return key in self._context
+
+            return True
+        except (ValueError, KeyError):
+            return True
 
     def run_by_voice(self, text: str) -> dict | None:
         """Trouve et execute un domino par phrase vocale."""

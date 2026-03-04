@@ -31,6 +31,7 @@ def get_connection(attach: bool = False) -> sqlite3.Connection:
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA foreign_keys=ON")
+    conn.execute("PRAGMA busy_timeout=5000")
     if attach:
         _attach_databases(conn)
     return conn
@@ -464,3 +465,294 @@ def get_routing_weights(scenario: str) -> list[dict]:
             return [dict(r) for r in rows]
         except sqlite3.OperationalError:
             return []
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SCHEMA MIGRATIONS v2 — Version-tracked schema evolution
+# ═══════════════════════════════════════════════════════════════════════════
+
+MIGRATIONS_DIR = Path(__file__).resolve().parent.parent / "migrations"
+
+_BUILT_IN_MIGRATIONS: dict[str, list[str]] = {
+    "002_chat_history": [
+        """CREATE TABLE IF NOT EXISTS chat_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            role TEXT NOT NULL,
+            content TEXT NOT NULL,
+            agent TEXT,
+            model TEXT,
+            latency_ms REAL,
+            tokens INTEGER,
+            timestamp REAL DEFAULT 0
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_chat_session ON chat_history(session_id)",
+        "CREATE INDEX IF NOT EXISTS idx_chat_timestamp ON chat_history(timestamp)",
+    ],
+    "003_command_analytics": [
+        """CREATE TABLE IF NOT EXISTS command_analytics (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            command_name TEXT NOT NULL,
+            duration_ms REAL DEFAULT 0,
+            success INTEGER DEFAULT 1,
+            source TEXT DEFAULT 'voice',
+            params TEXT,
+            timestamp REAL DEFAULT 0
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_cmd_analytics_name ON command_analytics(command_name)",
+    ],
+    "004_maintenance_log": [
+        """CREATE TABLE IF NOT EXISTS maintenance_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            operation TEXT NOT NULL,
+            db_name TEXT NOT NULL,
+            duration_ms REAL DEFAULT 0,
+            details TEXT,
+            timestamp REAL DEFAULT 0
+        )""",
+    ],
+}
+
+
+def _ensure_migrations_table(conn: sqlite3.Connection):
+    conn.execute("""CREATE TABLE IF NOT EXISTS schema_migrations (
+        version TEXT PRIMARY KEY,
+        applied_at REAL NOT NULL,
+        description TEXT
+    )""")
+    conn.commit()
+
+
+def get_applied_migrations(conn: sqlite3.Connection | None = None) -> set[str]:
+    """Get set of already-applied migration versions."""
+    close = False
+    if conn is None:
+        conn = get_connection()
+        close = True
+    try:
+        _ensure_migrations_table(conn)
+        rows = conn.execute("SELECT version FROM schema_migrations").fetchall()
+        return {r[0] for r in rows}
+    finally:
+        if close:
+            conn.close()
+
+
+def apply_migrations(db_path: Path | None = None) -> list[str]:
+    """Apply pending migrations (built-in + SQL files from migrations/ dir).
+
+    Returns list of applied migration version strings.
+    """
+    target = str(db_path) if db_path else str(DB_PATH)
+    conn = sqlite3.connect(target)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA foreign_keys=ON")
+    _ensure_migrations_table(conn)
+
+    applied = get_applied_migrations(conn)
+    newly_applied = []
+
+    # Built-in migrations
+    for version in sorted(_BUILT_IN_MIGRATIONS.keys()):
+        if version not in applied:
+            try:
+                for sql in _BUILT_IN_MIGRATIONS[version]:
+                    conn.execute(sql)
+                conn.execute(
+                    "INSERT INTO schema_migrations (version, applied_at, description) VALUES (?, ?, ?)",
+                    (version, time.time(), f"built-in: {version}"),
+                )
+                conn.commit()
+                newly_applied.append(version)
+                logger.info("Migration %s applied", version)
+            except sqlite3.Error as e:
+                logger.error("Migration %s failed: %s", version, e)
+                conn.rollback()
+
+    # SQL file migrations from migrations/ directory
+    if MIGRATIONS_DIR.exists():
+        for sql_file in sorted(MIGRATIONS_DIR.glob("*.sql")):
+            version = sql_file.stem
+            if version not in applied:
+                try:
+                    sql = sql_file.read_text(encoding="utf-8")
+                    conn.executescript(sql)
+                    conn.execute(
+                        "INSERT INTO schema_migrations (version, applied_at, description) VALUES (?, ?, ?)",
+                        (version, time.time(), f"file: {sql_file.name}"),
+                    )
+                    conn.commit()
+                    newly_applied.append(version)
+                    logger.info("Migration %s applied from %s", version, sql_file.name)
+                except sqlite3.Error as e:
+                    logger.error("Migration %s failed: %s", version, e)
+
+    conn.close()
+    return newly_applied
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AUTO-MAINTENANCE — VACUUM, ANALYZE, integrity checks
+# ═══════════════════════════════════════════════════════════════════════════
+
+_MAINTENANCE_INTERVAL = 86400  # 24 hours
+_MAINTENANCE_FILE = DATA_DIR / "last_maintenance.json"
+
+
+def _load_maintenance_state() -> dict:
+    try:
+        return json.loads(_MAINTENANCE_FILE.read_text())
+    except (FileNotFoundError, json.JSONDecodeError, ValueError):
+        return {}
+
+
+def _save_maintenance_state(state: dict):
+    _MAINTENANCE_FILE.write_text(json.dumps(state, indent=2))
+
+
+def auto_maintenance(force: bool = False) -> dict:
+    """Run VACUUM + ANALYZE on all databases if interval elapsed.
+
+    Returns dict with operations performed and durations.
+    """
+    state = _load_maintenance_state()
+    last = state.get("last_run", 0)
+    now = time.time()
+
+    if not force and (now - last) < _MAINTENANCE_INTERVAL:
+        return {"skipped": True, "next_in_hours": round((_MAINTENANCE_INTERVAL - (now - last)) / 3600, 1)}
+
+    results = {}
+    for db_name, db_path in [("jarvis", DB_PATH), ("etoile", ETOILE_DB_PATH), ("sniper", SNIPER_DB_PATH)]:
+        if not db_path.exists():
+            continue
+        t0 = time.time()
+        try:
+            conn = sqlite3.connect(str(db_path))
+            # Integrity check
+            integrity = conn.execute("PRAGMA integrity_check").fetchone()[0]
+            # VACUUM (requires no active transactions)
+            conn.execute("VACUUM")
+            conn.execute("ANALYZE")
+            duration = round((time.time() - t0) * 1000, 1)
+            results[db_name] = {"status": "ok", "integrity": integrity, "duration_ms": duration}
+            conn.close()
+        except sqlite3.Error as e:
+            results[db_name] = {"status": "error", "error": str(e)}
+
+    state["last_run"] = now
+    state["last_results"] = results
+    _save_maintenance_state(state)
+
+    # Log to maintenance_log table
+    try:
+        with _db() as conn:
+            conn.execute("""CREATE TABLE IF NOT EXISTS maintenance_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                operation TEXT NOT NULL, db_name TEXT NOT NULL,
+                duration_ms REAL DEFAULT 0, details TEXT, timestamp REAL DEFAULT 0
+            )""")
+            for db_name, info in results.items():
+                conn.execute(
+                    "INSERT INTO maintenance_log (operation, db_name, duration_ms, details, timestamp) VALUES (?, ?, ?, ?, ?)",
+                    ("auto_maintenance", db_name, info.get("duration_ms", 0), json.dumps(info), now),
+                )
+            conn.commit()
+    except sqlite3.Error:
+        pass
+
+    return {"performed": True, "results": results}
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# BACKUP / RESTORE
+# ═══════════════════════════════════════════════════════════════════════════
+
+BACKUP_DIR = DATA_DIR / "backups"
+
+
+def backup_database(db_path: Path | None = None, label: str = "") -> Path:
+    """Create a timestamped backup of a database using SQLite backup API.
+
+    Returns path to backup file.
+    """
+    source = db_path or DB_PATH
+    BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    name = source.stem
+    suffix = f"_{label}" if label else ""
+    backup_path = BACKUP_DIR / f"{name}_{timestamp}{suffix}.db"
+
+    src_conn = sqlite3.connect(str(source))
+    dst_conn = sqlite3.connect(str(backup_path))
+    src_conn.backup(dst_conn)
+    src_conn.close()
+    dst_conn.close()
+
+    logger.info("Backup created: %s", backup_path)
+    return backup_path
+
+
+def list_backups() -> list[dict]:
+    """List available database backups."""
+    if not BACKUP_DIR.exists():
+        return []
+    backups = []
+    for f in sorted(BACKUP_DIR.glob("*.db"), reverse=True):
+        backups.append({
+            "file": f.name,
+            "path": str(f),
+            "size_kb": round(f.stat().st_size / 1024, 1),
+            "created": f.stat().st_mtime,
+        })
+    return backups
+
+
+def restore_database(backup_path: Path, target_path: Path | None = None) -> bool:
+    """Restore a database from backup."""
+    target = target_path or DB_PATH
+    if not backup_path.exists():
+        logger.error("Backup not found: %s", backup_path)
+        return False
+
+    # Safety: backup current before restore
+    backup_database(target, label="pre_restore")
+
+    src = sqlite3.connect(str(backup_path))
+    dst = sqlite3.connect(str(target))
+    src.backup(dst)
+    src.close()
+    dst.close()
+
+    logger.info("Restored %s from %s", target, backup_path)
+    return True
+
+
+def get_db_health() -> dict:
+    """Get health status of all databases."""
+    health = {}
+    for db_name, db_path in [("jarvis", DB_PATH), ("etoile", ETOILE_DB_PATH), ("sniper", SNIPER_DB_PATH)]:
+        if not db_path.exists():
+            health[db_name] = {"status": "missing"}
+            continue
+        try:
+            conn = sqlite3.connect(str(db_path))
+            integrity = conn.execute("PRAGMA integrity_check").fetchone()[0]
+            tables = conn.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table'").fetchone()[0]
+            size_kb = round(db_path.stat().st_size / 1024, 1)
+            journal = conn.execute("PRAGMA journal_mode").fetchone()[0]
+            conn.close()
+            health[db_name] = {
+                "status": "ok" if integrity == "ok" else "corrupted",
+                "integrity": integrity,
+                "tables": tables,
+                "size_kb": size_kb,
+                "journal_mode": journal,
+            }
+        except sqlite3.Error as e:
+            health[db_name] = {"status": "error", "error": str(e)}
+
+    maintenance = _load_maintenance_state()
+    health["last_maintenance"] = maintenance.get("last_run", 0)
+    health["backups"] = len(list_backups())
+    return health

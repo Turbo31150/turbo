@@ -1,0 +1,101 @@
+{
+  "16c1c519-4e7": {
+    "session_id": "16c1c519-4e7",
+    "owner": "test_user",
+    "created_at": 1772643347.8904457,
+    "last_activity": 1772643347.8904457,
+    "timeout_s": 3600.0,
+    "metadata": {},
+    "status": "active",
+    "activity_count": 0,
+    "tags": []
+  },
+  "3adf804e-0b8": {
+    "session_id": "3adf804e-0b8",
+    "owner": "test_user",
+    "created_at": 1772643374.0551455,
+    "last_activity": 1772643374.0551455,
+    "timeout_s": 3600.0,
+    "metadata": {},
+    "status": "active",
+    "activity_count": 0,
+    "tags": []
+  },
+  "95f527d1-2d8": {
+    "session_id": "95f527d1-2d8",
+    "owner": "test_user",
+    "created_at": 1772643400.4587083,
+    "last_activity": 1772643400.4587083,
+    "timeout_s": 3600.0,
+    "metadata": {},
+    "status": "active",
+    "activity_count": 0,
+    "tags": []
+  },
+  "ae852cea-8b6": {
+    "session_id": "ae852cea-8b6",
+    "owner": "test_user",
+    "created_at": 1772643411.11719,
+    "last_activity": 1772643411.11719,
+    "timeout_s": 3600.0,
+    "metadata": {},
+    "status": "active",
+    "activity_count": 0,
+    "tags": []
+  },
+  "c1e9d04e-d44": {
+    "session_id": "c1e9d04e-d44",
+    "owner": "test_user",
+    "created_at": 1772643688.027326,
+    "last_activity": 1772643688.027326,
+    "timeout_s": 3600.0,
+    "metadata": {},
+    "status": "active",
+    "activity_count": 0,
+    "tags": []
+  },
+  "3e1d45e8-760": {
+    "session_id": "3e1d45e8-760",
+    "owner": "test_user",
+    "created_at": 1772643973.525183,
+    "last_activity": 1772643973.525183,
+    "timeout_s": 3600.0,
+    "metadata": {},
+    "status": "active",
+    "activity_count": 0,
+    "tags": []
+  },
+  "b3e9e0d6-3fc": {
+    "session_id": "b3e9e0d6-3fc",
+    "owner": "test_user",
+    "created_at": 1772647694.687712,
+    "last_activity": 1772647694.687712,
+    "timeout_s": 3600.0,
+    "metadata": {},
+    "status": "active",
+    "activity_count": 0,
+    "tags": []
+  },
+  "daae0687-9f5": {
+    "session_id": "daae0687-9f5",
+    "owner": "test_user",
+    "created_at": 1772648182.4968498,
+    "last_activity": 1772648182.4968498,
+    "timeout_s": 3600.0,
+    "metadata": {},
+    "status": "active",
+    "activity_count": 0,
+    "tags": []
+  },
+  "4ae12bc5-1bf": {
+    "session_id": "4ae12bc5-1bf",
+    "owner": "test_user",
+    "created_at": 1772648499.0547104,
+    "last_activity": 1772648499.0547106,
+    "timeout_s": 3600.0,
+    "metadata": {},
+    "status": "active",
+    "activity_count": 0,
+    "tags": []
+  }
+}

@@ -1,10 +1,10 @@
 @echo off
-title JARVIS v10.1 - Mode Vocal
+title JARVIS v10.3 - Mode Vocal
 color 0A
 echo.
 echo  ==========================================
-echo    JARVIS v10.1 - MODE VOCAL
-echo    69 outils MCP ^| 125 commandes ^| Brain IA
+echo    JARVIS v10.3 - MODE VOCAL
+echo    76 outils MCP ^| 2332 commandes ^| Brain IA
 echo  ==========================================
 echo.
 cd /d F:\BUREAU\turbo

@@ -1,27 +1,39 @@
-"""JARVIS Commander Mode — Claude = Pure Orchestrateur.
+"""JARVIS Commander v2 — Orchestration intelligente avec routage adaptatif.
 
 Claude ne fait JAMAIS le travail lui-meme. Il ORDONNE, VERIFIE et ORCHESTRE.
-Ce module fournit les structures de donnees et fonctions utilitaires
-pour le mode commandant.
 
+v2 adds:
+- Adaptive routing: track success rate per agent per task_type
+- Progressive thermal throttling (curve, not binary)
+- Task dependency graph with topological sort
+- Cost estimation per task (token count × model cost)
+- Re-dispatch budget tracking
 
 Flow:
-1. classify_task()  -> M1 classifie le type (code/analyse/trading/systeme/web/simple)
-2. decompose_task() -> Decompose en TaskUnit[] avec routage automatique
-3. Claude dispatche  -> Via Task (subagents) + lm_query/consensus (IAs directes)
-4. verify_quality() -> ia-check valide (score 0-1)
-5. synthesize()     -> Reponse finale unifiee avec attribution
+1. classify_task()  -> M1 + embedding cache + heuristic fallback
+2. decompose_task() -> TaskUnit[] avec routage adaptatif
+3. topological_sort -> Optimal parallel dispatch order
+4. Claude dispatche  -> Via Task (subagents) + lm_query/consensus
+5. verify_quality() -> ia-check valide (score 0-1)
+6. record_routing()  -> Update agent performance stats
+7. synthesize()     -> Reponse finale unifiee avec attribution
 """
 
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
+import time
+from collections import defaultdict
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import httpx
 
 logger = logging.getLogger("jarvis.commander")
+
+_ROUTING_STATS_FILE = Path(__file__).resolve().parent.parent / "data" / "routing_stats.json"
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -40,6 +52,8 @@ class TaskUnit:
     result: str | None = None
     status: str = "pending"  # pending, running, done, failed
     quality_score: float = 0.0
+    estimated_cost: float = 0.0  # estimated token cost
+    actual_duration_ms: float = 0.0
 
 
 @dataclass
@@ -50,6 +64,185 @@ class CommanderResult:
     quality_score: float
     total_time_ms: int
     agents_used: list[str]
+    total_cost: float = 0.0
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# ADAPTIVE ROUTING — Track agent performance per task type
+# ══════════════════════════════════════════════════════════════════════════
+
+@dataclass
+class AgentStats:
+    """Performance stats for an agent on a specific task type."""
+    successes: int = 0
+    failures: int = 0
+    total_duration_ms: float = 0
+    total_quality: float = 0
+
+    @property
+    def success_rate(self) -> float:
+        total = self.successes + self.failures
+        return self.successes / max(1, total)
+
+    @property
+    def avg_quality(self) -> float:
+        return self.total_quality / max(1, self.successes + self.failures)
+
+    @property
+    def avg_duration_ms(self) -> float:
+        return self.total_duration_ms / max(1, self.successes + self.failures)
+
+    def to_dict(self) -> dict:
+        return {
+            "successes": self.successes, "failures": self.failures,
+            "total_duration_ms": round(self.total_duration_ms, 1),
+            "total_quality": round(self.total_quality, 3),
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict) -> AgentStats:
+        return cls(**{k: d.get(k, 0) for k in ("successes", "failures", "total_duration_ms", "total_quality")})
+
+
+def _load_routing_stats() -> dict[str, dict[str, AgentStats]]:
+    """Load routing stats: {task_type: {agent: AgentStats}}."""
+    if _ROUTING_STATS_FILE.exists():
+        try:
+            data = json.loads(_ROUTING_STATS_FILE.read_text(encoding="utf-8"))
+            return {
+                ttype: {agent: AgentStats.from_dict(stats) for agent, stats in agents.items()}
+                for ttype, agents in data.items()
+            }
+        except (json.JSONDecodeError, OSError):
+            pass
+    return {}
+
+
+def _save_routing_stats(db: dict[str, dict[str, AgentStats]]):
+    _ROUTING_STATS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    data = {ttype: {a: s.to_dict() for a, s in agents.items()} for ttype, agents in db.items()}
+    _ROUTING_STATS_FILE.write_text(json.dumps(data, indent=2), encoding="utf-8")
+
+
+def record_routing(task_type: str, agent: str, success: bool, quality: float = 0.5, duration_ms: float = 0):
+    """Record the outcome of a routing decision for adaptive learning."""
+    db = _load_routing_stats()
+    if task_type not in db:
+        db[task_type] = {}
+    if agent not in db[task_type]:
+        db[task_type][agent] = AgentStats()
+
+    stats = db[task_type][agent]
+    if success:
+        stats.successes += 1
+    else:
+        stats.failures += 1
+    stats.total_duration_ms += duration_ms
+    stats.total_quality += quality
+    _save_routing_stats(db)
+
+
+def get_best_agent_for(task_type: str, candidates: list[str]) -> str:
+    """Get the best agent for a task type based on historical performance."""
+    db = _load_routing_stats()
+    type_stats = db.get(task_type, {})
+
+    if not type_stats:
+        return candidates[0] if candidates else "M1"
+
+    scored = []
+    for agent in candidates:
+        stats = type_stats.get(agent)
+        if stats and (stats.successes + stats.failures) >= 3:
+            # Weighted: 60% success rate + 40% quality
+            score = 0.6 * stats.success_rate + 0.4 * stats.avg_quality
+            scored.append((agent, score))
+
+    if scored:
+        scored.sort(key=lambda x: -x[1])
+        return scored[0][0]
+
+    return candidates[0] if candidates else "M1"
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# PROGRESSIVE THERMAL THROTTLING
+# ══════════════════════════════════════════════════════════════════════════
+
+def get_thermal_throttle_factor(temp_c: float) -> float:
+    """Progressive throttle: 0-65C=1.0, 65-75C=linear, 75-85C=steep, 85C+=0.1.
+
+    Returns a factor [0.1, 1.0] used to reduce load on hot nodes.
+    """
+    if temp_c <= 65:
+        return 1.0
+    if temp_c <= 75:
+        return 1.0 - 0.3 * ((temp_c - 65) / 10)  # 1.0 → 0.7
+    if temp_c <= 85:
+        return 0.7 - 0.6 * ((temp_c - 75) / 10)  # 0.7 → 0.1
+    return 0.1
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# COST ESTIMATION
+# ══════════════════════════════════════════════════════════════════════════
+
+# Approximate cost per 1K tokens (in USD for reference, actual = free for local)
+MODEL_COSTS = {
+    "M1": 0.0, "M2": 0.0, "M3": 0.0, "OL1": 0.0,
+    "gpt-oss": 0.0, "devstral": 0.0,
+    "GEMINI": 0.005, "CLAUDE": 0.015,
+    "ia-deep": 0.015, "ia-fast": 0.003, "ia-check": 0.008,
+}
+
+
+def estimate_task_cost(prompt: str, target: str, max_output_tokens: int = 1024) -> float:
+    """Estimate cost based on prompt length and target model."""
+    input_tokens = len(prompt.split()) * 1.3  # rough estimate
+    total_tokens = input_tokens + max_output_tokens
+    cost_per_k = MODEL_COSTS.get(target, 0.01)
+    return (total_tokens / 1000) * cost_per_k
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# TOPOLOGICAL SORT
+# ══════════════════════════════════════════════════════════════════════════
+
+def topological_sort_tasks(tasks: list[TaskUnit]) -> list[list[TaskUnit]]:
+    """Sort tasks by dependency graph, return execution waves.
+
+    Each wave contains tasks that can be executed in parallel.
+    """
+    task_map = {t.id: t for t in tasks}
+    in_degree = {t.id: 0 for t in tasks}
+    graph: dict[str, list[str]] = defaultdict(list)
+
+    for t in tasks:
+        for dep in t.depends_on:
+            if dep in task_map:
+                graph[dep].append(t.id)
+                in_degree[t.id] += 1
+
+    waves = []
+    remaining = set(in_degree.keys())
+
+    while remaining:
+        # Find all tasks with no pending dependencies
+        wave_ids = [tid for tid in remaining if in_degree[tid] == 0]
+        if not wave_ids:
+            # Cycle detected — force remaining into one wave
+            wave_ids = list(remaining)
+
+        wave = [task_map[tid] for tid in wave_ids]
+        wave.sort(key=lambda t: t.priority)
+        waves.append(wave)
+
+        for tid in wave_ids:
+            remaining.discard(tid)
+            for successor in graph.get(tid, []):
+                in_degree[successor] -= 1
+
+    return waves
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -184,39 +377,58 @@ def _classify_heuristic(prompt: str) -> str:
 # ══════════════════════════════════════════════════════════════════════════
 
 def _apply_thermal_rerouting(target: str, thermal_status: dict) -> str:
-    """Re-route une cible si M1/M2 est en surchauffe thermique.
+    """Re-route with progressive thermal throttling.
 
-    - critical: M1 -> M2 -> M3 (cascade fallback)
-    - warning: M1 reste, mais les taches code vont sur M2
+    Uses get_thermal_throttle_factor() for smooth degradation:
+    - factor > 0.7: no rerouting (normal operation)
+    - factor 0.3-0.7: reroute heavy tasks (code) to backup
+    - factor < 0.3: reroute everything to fallback
     """
-    if thermal_status.get("status") == "critical" and target == "M1":
-        return "M2"  # Deporter vers M2
-    if thermal_status.get("status") == "critical" and target == "M2":
-        return "M3"  # Deporter vers M3
-    if thermal_status.get("status") == "critical" and target == "ia-deep":
-        return "ia-deep"  # Agent reste, mais il utilisera M2 via lm_query
+    max_temp = thermal_status.get("max_temp", 0)
+    factor = get_thermal_throttle_factor(max_temp)
+
+    if factor > 0.7:
+        return target  # Normal
+
+    # Check circuit breaker availability for fallback
+    from src.circuit_breaker import cluster_breakers
+
+    if factor <= 0.3:
+        # Severe: cascade fallback
+        fallback_map = {"M1": "M2", "M2": "M3", "M3": "OL1"}
+        fallback = fallback_map.get(target, target)
+        if cluster_breakers.can_execute(fallback):
+            logger.info("Thermal reroute %s → %s (factor=%.2f, temp=%dC)", target, fallback, factor, max_temp)
+            return fallback
+    elif factor <= 0.7 and target in ("M1", "M2"):
+        # Moderate: reroute heavy tasks, keep simple ones
+        if cluster_breakers.can_execute("M2") and target == "M1":
+            return "M2"
+
     return target
 
 
 def decompose_task(prompt: str, classification: str) -> list[TaskUnit]:
-    """Decompose en sous-taches avec routage automatique.
+    """Decompose en sous-taches avec routage adaptatif v2.
 
-    Utilise la matrice commander_routing de config.py pour determiner
-    les agents et IAs a assigner. Applique le re-routage thermique si GPU surchauffe.
+    Uses adaptive routing (historical performance), progressive thermal
+    throttling, cost estimation, and topological ordering.
     """
     from src.config import config
     from src.cluster_startup import check_thermal_status
 
-    # Check thermique GPU
     thermal = check_thermal_status()
 
     routing = config.commander_routing.get(classification, [])
     if not routing:
-        # Fallback: simple task sur M1
         target = _apply_thermal_rerouting("M1", thermal)
+        # Use adaptive routing if available
+        best = get_best_agent_for(classification, ["M1", "M2", "OL1"])
+        target = _apply_thermal_rerouting(best, thermal)
+        cost = estimate_task_cost(prompt, target)
         return [TaskUnit(
             id="t1", prompt=prompt, task_type=classification,
-            target=target, priority=1,
+            target=target, priority=1, estimated_cost=cost,
         )]
 
     tasks: list[TaskUnit] = []
@@ -226,19 +438,21 @@ def decompose_task(prompt: str, classification: str) -> list[TaskUnit]:
         role = route["role"]
         target = agent or ia or "M1"
 
-        # Re-routage thermique sur les IAs directes (pas les agents SDK)
+        # Adaptive routing: prefer best performer for this task type
         if not agent and ia:
-            target = _apply_thermal_rerouting(ia, thermal)
+            candidates = [ia] + [n for n in ["M1", "M2", "OL1", "M3"] if n != ia]
+            target = get_best_agent_for(classification, candidates)
+            target = _apply_thermal_rerouting(target, thermal)
 
-        # Adapter le prompt selon le role
         task_prompt = _build_task_prompt(prompt, role, classification)
 
-        # En surchauffe critique, ajouter un avertissement au prompt
-        if thermal.get("status") == "critical":
-            task_prompt = (
-                f"[ALERTE THERMIQUE: GPU {thermal['max_temp']}C] "
-                f"{task_prompt}"
-            )
+        # Thermal warning in prompt
+        max_temp = thermal.get("max_temp", 0)
+        factor = get_thermal_throttle_factor(max_temp)
+        if factor < 0.5:
+            task_prompt = f"[ALERTE THERMIQUE: GPU {max_temp}C, throttle={factor:.0%}] {task_prompt}"
+
+        cost = estimate_task_cost(task_prompt, target)
 
         task = TaskUnit(
             id=f"t{i+1}",
@@ -246,9 +460,9 @@ def decompose_task(prompt: str, classification: str) -> list[TaskUnit]:
             task_type=classification,
             target=target,
             priority=1 if role in ("coder", "executor", "scanner", "analyzer") else 2,
+            estimated_cost=cost,
         )
 
-        # Les reviewers/validators dependent des taches principales
         if role in ("reviewer", "validator", "synthesizer"):
             main_ids = [t.id for t in tasks if t.priority == 1]
             task.depends_on = main_ids
@@ -324,20 +538,32 @@ def build_synthesis_prompt(tasks: list[TaskUnit], quality_score: float) -> str:
 
 
 def format_commander_header(classification: str, tasks: list[TaskUnit]) -> str:
-    """Header d'affichage pour le mode commandant."""
+    """Header d'affichage pour le mode commandant v2."""
     from src.cluster_startup import check_thermal_status
 
     targets = [t.target for t in tasks]
     thermal = check_thermal_status()
+
+    # Progressive thermal display
+    max_temp = thermal.get("max_temp", 0)
+    factor = get_thermal_throttle_factor(max_temp)
     thermal_tag = ""
-    if thermal["status"] == "critical":
-        thermal_tag = f" | THERMAL CRITICAL {thermal['max_temp']}C"
-    elif thermal["status"] == "warning":
-        thermal_tag = f" | THERMAL WARN {thermal['max_temp']}C"
+    if factor < 0.3:
+        thermal_tag = f" | THERMAL CRITICAL {max_temp}C ({factor:.0%})"
+    elif factor < 0.7:
+        thermal_tag = f" | THERMAL WARN {max_temp}C ({factor:.0%})"
+
+    # Execution waves
+    waves = topological_sort_tasks(tasks)
+    wave_info = f" | {len(waves)} waves" if len(waves) > 1 else ""
+
+    # Cost estimate
+    total_cost = sum(t.estimated_cost for t in tasks)
+    cost_tag = f" | ~${total_cost:.4f}" if total_cost > 0 else ""
 
     return (
-        f"[COMMANDANT] Type={classification} | "
-        f"{len(tasks)} sous-taches | "
+        f"[COMMANDANT v2] Type={classification} | "
+        f"{len(tasks)} sous-taches{wave_info}{cost_tag} | "
         f"Dispatch: {', '.join(targets)}{thermal_tag}"
     )
 

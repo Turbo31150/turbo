@@ -40,7 +40,7 @@ export function createMainWindow(): BrowserWindow {
   });
 
   if (isDev) {
-    mainWindow.loadURL('http://127.0.0.1:5173');
+    mainWindow.loadURL('http://localhost:5173');
     mainWindow.webContents.openDevTools({ mode: 'detach' });
   } else {
     mainWindow.loadFile(path.join(__dirname, '..', '..', 'dist', 'index.html'));
@@ -52,7 +52,7 @@ export function createMainWindow(): BrowserWindow {
       responseHeaders: {
         ...details.responseHeaders,
         'Content-Security-Policy': [
-          "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' ws://127.0.0.1:* http://127.0.0.1:* http://10.5.0.2:* http://192.168.1.26:* http://192.168.1.113:*; font-src 'self' data:",
+          "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' ws://localhost:* ws://127.0.0.1:* http://localhost:* http://127.0.0.1:* http://10.5.0.2:* http://192.168.1.26:* http://192.168.1.113:*; font-src 'self' data:",
         ],
       },
     });
@@ -117,7 +117,7 @@ export function createWidgetWindow(
   });
 
   if (isDev) {
-    widget.loadURL(`http://127.0.0.1:5173/src/widget-windows/widget.html?type=${type}`);
+    widget.loadURL(`http://localhost:5173/src/widget-windows/widget.html?type=${type}`);
   } else {
     widget.loadFile(path.join(__dirname, '..', '..', 'dist', 'src', 'widget-windows', 'widget.html'), {
       query: { type },

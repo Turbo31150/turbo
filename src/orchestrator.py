@@ -11,6 +11,9 @@ import httpx
 
 logger = logging.getLogger("jarvis.orchestrator")
 
+from src.circuit_breaker import cluster_breakers
+from src.logging_config import log_node_call, new_trace, set_trace_id
+
 from claude_agent_sdk import (
     ClaudeSDKClient,
     ClaudeAgentOptions,
@@ -495,10 +498,13 @@ async def _local_ia_analyze(query: str, timeout: float = 10.0) -> str | None:
         {"role": "user", "content": query},
     ]
 
+    import time as _time
+
     # Try LM Studio M1 first (qwen3-8b, 6 GPU, 46GB VRAM, fast)
     node = config.get_node("M1")
-    if node:
+    if node and cluster_breakers.can_execute("M1"):
         for attempt in range(2):
+            t0 = _time.monotonic()
             try:
                 client = await _get_client()
                 input_text = prepare_lmstudio_input(query, node.name, node.default_model)
@@ -510,15 +516,22 @@ async def _local_ia_analyze(query: str, timeout: float = 10.0) -> str | None:
                 r.raise_for_status()
                 from src.tools import extract_lms_output
                 content = extract_lms_output(r.json()).strip()
+                latency = (_time.monotonic() - t0) * 1000
+                cluster_breakers.record_success("M1")
+                log_node_call(logger, "M1", latency, success=True, model=node.default_model)
                 return content
             except (httpx.HTTPError, asyncio.TimeoutError, OSError, KeyError) as exc:
+                latency = (_time.monotonic() - t0) * 1000
+                cluster_breakers.record_failure("M1")
+                log_node_call(logger, "M1", latency, success=False, model=node.default_model)
                 logger.debug("_local_ia_analyze M1 attempt %d failed: %s", attempt, exc)
                 if attempt == 0:
                     await asyncio.sleep(0.5)
 
     # Fallback: Ollama (native API with think:false for speed)
     ol = config.get_ollama_node("OL1")
-    if ol:
+    if ol and cluster_breakers.can_execute("OL1"):
+        t0 = _time.monotonic()
         try:
             client = await _get_client()
             r = await client.post(f"{ol.url}/api/chat", json={
@@ -529,8 +542,14 @@ async def _local_ia_analyze(query: str, timeout: float = 10.0) -> str | None:
             }, timeout=timeout)
             r.raise_for_status()
             data = r.json()
+            latency = (_time.monotonic() - t0) * 1000
+            cluster_breakers.record_success("OL1")
+            log_node_call(logger, "OL1", latency, success=True, model=ol.default_model)
             return data.get("message", {}).get("content", "").strip()
         except (httpx.HTTPError, asyncio.TimeoutError, OSError, KeyError, ValueError) as exc:
+            latency = (_time.monotonic() - t0) * 1000
+            cluster_breakers.record_failure("OL1")
+            log_node_call(logger, "OL1", latency, success=False, model=ol.default_model)
             logger.debug("_local_ia_analyze OL1 fallback failed: %s", exc)
     return None
 

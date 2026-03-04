@@ -462,7 +462,19 @@ async def process_voice_input(text: str) -> tuple[str, float]:
     """Process raw voice input: correct, match, execute.
 
     Returns: (response_text, confidence_score)
+
+    Pipeline v2: intent classification -> command matching -> analytics recording.
     """
+    import time as _time
+
+    # Step 0: Classify intent (non-blocking, for analytics + routing)
+    intent_result = None
+    try:
+        from src.intent_classifier import intent_classifier
+        intent_result = intent_classifier.classify_single(text)
+    except Exception:
+        pass
+
     # Step 1: Correct voice errors
     corrected = correct_voice_text(text)
 
@@ -470,21 +482,66 @@ async def process_voice_input(text: str) -> tuple[str, float]:
     cmd, params, score = match_command(corrected)
 
     if cmd is None:
-        # No match — return corrected text for JARVIS to handle via IA
+        # Record analytics for unmatched input
+        _record_execution(text, corrected, None, score, intent_result)
         return f"__FREEFORM__{corrected}", score
 
     # Step 3: Check if confirmation needed
     if cmd.confirm:
+        _record_execution(text, corrected, cmd.name, score, intent_result)
         return f"__CONFIRM__{cmd.name}|{cmd.description}", score
 
     # Step 4: Execute the command
+    t0 = _time.perf_counter()
     result = await execute_command(cmd, params)
+    elapsed_ms = (_time.perf_counter() - t0) * 1000
+
+    # Step 5: Record analytics
+    _record_execution(text, corrected, cmd.name, score, intent_result, elapsed_ms)
+
     return result, score
 
 
+def _record_execution(
+    raw_text: str,
+    corrected: str,
+    command_name: str | None,
+    confidence: float,
+    intent_result: Any = None,
+    exec_ms: float = 0.0,
+) -> None:
+    """Record command execution analytics (best-effort, never fails)."""
+    try:
+        from src.commands import record_command_execution
+        record_command_execution(
+            command_name or "__unmatched__",
+            raw_text,
+            confidence,
+        )
+    except Exception:
+        pass
+
+    try:
+        from src.orchestrator_v2 import orchestrator_v2
+        if intent_result and command_name:
+            orchestrator_v2.record_call(
+                "executor",
+                latency_ms=exec_ms,
+                success=True,
+                quality=confidence,
+            )
+    except Exception:
+        pass
+
+
 async def correct_with_ia(text: str, node_url: str = "http://127.0.0.1:11434") -> str:
-    """Use Ollama qwen3:1.7b (primary) or M1 fallback to correct voice transcription."""
+    """Use drift-aware routing to pick the best node for voice correction.
+
+    Pipeline v2: orchestrator_v2 selects best node -> try correction -> record result.
+    Fallback chain: OL1 (qwen3:1.7b) -> M1 (qwen3-8b) -> static correction.
+    """
     import httpx
+    import time as _time
     from src.config import config, build_ollama_payload
     prompt = (
         "Tu es un correcteur de texte francais specialise dans la correction "
@@ -493,20 +550,73 @@ async def correct_with_ia(text: str, node_url: str = "http://127.0.0.1:11434") -
         f"Texte a corriger: {text}"
     )
     messages = [{"role": "user", "content": prompt}]
-    # Primary: Ollama qwen3:1.7b (fast, lightweight)
-    ol = config.get_ollama_node("OL1")
-    if ol:
+
+    # v2: drift-aware node selection
+    best_node = "OL1"
+    try:
+        from src.orchestrator_v2 import orchestrator_v2
+        pick = orchestrator_v2.get_best_node(["OL1", "M1"], task_type="voice")
+        if pick:
+            best_node = pick
+    except Exception:
+        pass
+
+    t0 = _time.perf_counter()
+    # Try best node first
+    if best_node == "OL1":
+        ol = config.get_ollama_node("OL1")
+        if ol:
+            try:
+                async with httpx.AsyncClient(timeout=5) as client:
+                    resp = await client.post(
+                        f"{ol.url}/api/chat",
+                        json=build_ollama_payload(
+                            "qwen3:1.7b", messages,
+                            temperature=0.1, num_predict=256,
+                        ),
+                    )
+                    resp.raise_for_status()
+                    result = resp.json()["message"]["content"].strip()
+                    _record_ia_correction(best_node, _time.perf_counter() - t0, True)
+                    return result
+            except (httpx.HTTPError, OSError, KeyError, ValueError) as exc:
+                logger.debug("OL1 voice correction failed: %s", exc)
+                _record_ia_correction("OL1", _time.perf_counter() - t0, False)
+
+    # Fallback: M1
+    m1 = config.get_lm_node("M1")
+    if m1:
         try:
-            async with httpx.AsyncClient(timeout=5) as client:
+            from python_ws.helpers import extract_lmstudio_content
+            async with httpx.AsyncClient(timeout=8) as client:
                 resp = await client.post(
-                    f"{ol.url}/api/chat",
-                    json=build_ollama_payload(
-                        "qwen3:1.7b", messages,
-                        temperature=0.1, num_predict=256,
-                    ),
+                    f"{m1.url}/api/v1/chat",
+                    headers={"Content-Type": "application/json"},
+                    json={
+                        "model": m1.model,
+                        "input": f"/nothink\n{prompt}",
+                        "temperature": 0.1,
+                        "max_output_tokens": 256,
+                        "stream": False,
+                        "store": False,
+                    },
                 )
                 resp.raise_for_status()
-                return resp.json()["message"]["content"].strip()
+                result = extract_lmstudio_content(resp.json())
+                if result:
+                    _record_ia_correction("M1", _time.perf_counter() - t0, True)
+                    return result
         except (httpx.HTTPError, OSError, KeyError, ValueError) as exc:
-            logger.debug("IA voice correction failed: %s", exc)
+            logger.debug("M1 voice correction failed: %s", exc)
+            _record_ia_correction("M1", _time.perf_counter() - t0, False)
+
     return correct_voice_text(text)
+
+
+def _record_ia_correction(node: str, elapsed_s: float, success: bool) -> None:
+    """Record IA correction result in orchestrator_v2 (best-effort)."""
+    try:
+        from src.orchestrator_v2 import orchestrator_v2
+        orchestrator_v2.record_call(node, latency_ms=elapsed_s * 1000, success=success)
+    except Exception:
+        pass

@@ -114,7 +114,7 @@ def remove_skill(name: str) -> bool:
 
 
 def find_skill(voice_text: str, threshold: float = 0.60) -> tuple[Skill | None, float]:
-    """Match voice input to a learned skill."""
+    """Match voice input to a learned skill with fuzzy + token matching."""
     from difflib import SequenceMatcher
     text = voice_text.lower().strip()
     skills = load_skills()
@@ -122,14 +122,32 @@ def find_skill(voice_text: str, threshold: float = 0.60) -> tuple[Skill | None, 
     best: Skill | None = None
     best_score = 0.0
 
+    text_tokens = set(text.split())
+
     for skill in skills:
         for trigger in skill.triggers:
-            if text == trigger.lower():
+            trigger_lower = trigger.lower()
+
+            # Exact match
+            if text == trigger_lower:
                 return skill, 1.0
-            if trigger.lower() in text:
+
+            # Substring match
+            if trigger_lower in text:
                 score = 0.90
             else:
-                score = SequenceMatcher(None, text, trigger.lower()).ratio()
+                # SequenceMatcher ratio
+                seq_score = SequenceMatcher(None, text, trigger_lower).ratio()
+
+                # Token overlap bonus: how many words match
+                trigger_tokens = set(trigger_lower.split())
+                if trigger_tokens:
+                    overlap = len(text_tokens & trigger_tokens) / len(trigger_tokens)
+                    # Weighted: 60% sequence + 40% token overlap
+                    score = 0.6 * seq_score + 0.4 * overlap
+                else:
+                    score = seq_score
+
             if score > best_score:
                 best_score = score
                 best = skill
@@ -1628,3 +1646,107 @@ def _default_skills() -> list[Skill]:
                 cmd = cmd.replace("C:\\Users\\franc", _user_home)
             step.args["command"] = cmd
     return skills
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SKILLS v2 — Export/Import, Stats, Search
+# ═══════════════════════════════════════════════════════════════════════════
+
+def export_skills_json() -> str:
+    """Export all skills as formatted JSON string."""
+    skills = load_skills()
+    data = [asdict(s) for s in skills]
+    return json.dumps(data, ensure_ascii=False, indent=2)
+
+
+def import_skills_json(json_str: str, merge: bool = True) -> int:
+    """Import skills from JSON string. Returns number imported."""
+    try:
+        data = json.loads(json_str)
+    except json.JSONDecodeError:
+        return 0
+
+    imported = 0
+    existing = {s.name: s for s in load_skills()} if merge else {}
+
+    for s_data in data:
+        steps = [SkillStep(**st) for st in s_data.pop("steps", [])]
+        skill = Skill(**s_data, steps=steps)
+        if merge and skill.name in existing:
+            continue  # skip duplicates
+        existing[skill.name] = skill
+        imported += 1
+
+    save_skills(list(existing.values()))
+    return imported
+
+
+def get_skills_stats() -> dict:
+    """Get aggregate statistics about all skills."""
+    skills = load_skills()
+    categories = {}
+    total_triggers = 0
+    total_steps = 0
+    most_used = None
+    max_usage = 0
+
+    for s in skills:
+        cat = s.category or "uncategorized"
+        categories[cat] = categories.get(cat, 0) + 1
+        total_triggers += len(s.triggers)
+        total_steps += len(s.steps)
+        if s.usage_count > max_usage:
+            max_usage = s.usage_count
+            most_used = s.name
+
+    return {
+        "total_skills": len(skills),
+        "categories": categories,
+        "total_triggers": total_triggers,
+        "total_steps": total_steps,
+        "avg_steps_per_skill": round(total_steps / max(1, len(skills)), 1),
+        "most_used": most_used,
+        "most_used_count": max_usage,
+    }
+
+
+def search_skills(query: str, limit: int = 10) -> list[dict]:
+    """Search skills by name, description, or trigger."""
+    query_lower = query.lower()
+    skills = load_skills()
+    results = []
+
+    for s in skills:
+        score = 0
+        if query_lower in s.name.lower():
+            score = 1.0
+        elif query_lower in s.description.lower():
+            score = 0.8
+        elif any(query_lower in t.lower() for t in s.triggers):
+            score = 0.9
+        elif any(query_lower in step.tool.lower() for step in s.steps):
+            score = 0.6
+
+        if score > 0:
+            results.append({
+                "name": s.name,
+                "description": s.description,
+                "category": s.category,
+                "score": score,
+                "usage_count": s.usage_count,
+                "steps": len(s.steps),
+                "triggers": s.triggers[:3],
+            })
+
+    results.sort(key=lambda r: (-r["score"], -r["usage_count"]))
+    return results[:limit]
+
+
+def get_unused_skills(days: int = 30) -> list[str]:
+    """Get skills not used in the last N days."""
+    cutoff = time.time() - days * 86400
+    skills = load_skills()
+    return [
+        s.name for s in skills
+        if s.last_used < cutoff and s.category != "default"
+    ]

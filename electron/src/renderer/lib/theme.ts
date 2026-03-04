@@ -1,10 +1,72 @@
 /**
  * JARVIS Desktop — Centralized theme tokens.
+ * Supports dark (default) and light themes via CSS custom properties.
  * Used by new components; legacy components keep their inline styles.
  */
 
+export type ThemeMode = 'dark' | 'light';
+
+const DARK_COLORS = {
+  bg: '#0a0e14',
+  bgCard: '#0d1117',
+  bgInput: '#0a0e14',
+  border: '#1a2a3a',
+  borderHover: 'rgba(249,115,22,.25)',
+  text: '#e0e0e0',
+  textMuted: '#c0c0c0',
+  textDim: '#6b7280',
+  textDimmer: '#4b5563',
+  overlay: 'rgba(0,0,0,.6)',
+  bgDarker: '#1a1a2e',
+  scrollTrack: '#0a0e14',
+  scrollThumb: '#1a2a3a',
+};
+
+const LIGHT_COLORS = {
+  bg: '#f8fafc',
+  bgCard: '#ffffff',
+  bgInput: '#f1f5f9',
+  border: '#e2e8f0',
+  borderHover: 'rgba(249,115,22,.15)',
+  text: '#1e293b',
+  textMuted: '#475569',
+  textDim: '#94a3b8',
+  textDimmer: '#cbd5e1',
+  overlay: 'rgba(0,0,0,.3)',
+  bgDarker: '#e2e8f0',
+  scrollTrack: '#f1f5f9',
+  scrollThumb: '#cbd5e1',
+};
+
+export function getThemeColors(mode: ThemeMode) {
+  return mode === 'light' ? LIGHT_COLORS : DARK_COLORS;
+}
+
+export function applyTheme(mode: ThemeMode) {
+  const colors = getThemeColors(mode);
+  const root = document.documentElement;
+  root.style.setProperty('--bg', colors.bg);
+  root.style.setProperty('--bg-card', colors.bgCard);
+  root.style.setProperty('--bg-input', colors.bgInput);
+  root.style.setProperty('--border', colors.border);
+  root.style.setProperty('--text', colors.text);
+  root.style.setProperty('--text-muted', colors.textMuted);
+  root.style.setProperty('--text-dim', colors.textDim);
+  root.style.setProperty('--overlay', colors.overlay);
+  root.setAttribute('data-theme', mode);
+  localStorage.setItem('jarvis-theme', mode);
+}
+
+export function getStoredTheme(): ThemeMode {
+  const stored = localStorage.getItem('jarvis-theme') as ThemeMode | null;
+  if (stored) return stored;
+  // Detect system preference
+  if (window.matchMedia?.('(prefers-color-scheme: light)').matches) return 'light';
+  return 'dark';
+}
+
 export const COLORS = {
-  // Backgrounds
+  // Backgrounds — default dark (live values read from CSS vars in new code)
   bg: '#0a0e14',
   bgCard: '#0d1117',
   bgInput: '#0a0e14',

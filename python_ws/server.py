@@ -43,12 +43,17 @@ from python_ws.routes.voice import handle_voice_request
 from python_ws.routes.files import handle_files_request
 from python_ws.routes.dictionary import handle_dictionary_request
 from python_ws.routes.sql import sql_router
+from python_ws.routes.terminal import router as terminal_router
 
 # ── Logging ──────────────────────────────────────────────────────────────────
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-)
+try:
+    from src.logging_config import setup_logging
+    setup_logging(level="INFO", json_file=True, console=True)
+except ImportError:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    )
 logger = logging.getLogger("jarvis.ws")
 
 # ── Valid channels ───────────────────────────────────────────────────────────
@@ -76,12 +81,1674 @@ app.add_middleware(
 
 # ── REST API routes ─────────────────────────────────────────────────────────
 app.include_router(sql_router, prefix="/sql")
+app.include_router(terminal_router)
 
 # ── HTTP endpoints ──────────────────────────────────────────────────────────
 
 @app.get("/health")
 async def health():
     return JSONResponse({"status": "ok", "service": "jarvis-ws", "port": 9742})
+
+
+# ── Phase 4 REST API v2 ──────────────────────────────────────────────────
+
+@app.get("/api/chat/history")
+async def api_chat_history(session_id: str = "", limit: int = 50):
+    """Return chat history from SQLite."""
+    try:
+        import sqlite3
+        db_path = Path(_turbo_root) / "data" / "jarvis.db"
+        if not db_path.exists():
+            return JSONResponse({"history": []})
+        conn = sqlite3.connect(str(db_path))
+        conn.row_factory = sqlite3.Row
+        if session_id:
+            rows = conn.execute(
+                "SELECT * FROM chat_history WHERE session_id = ? ORDER BY timestamp DESC LIMIT ?",
+                (session_id, min(limit, 200)),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM chat_history ORDER BY timestamp DESC LIMIT ?",
+                (min(limit, 200),),
+            ).fetchall()
+        conn.close()
+        return JSONResponse({"history": [dict(r) for r in rows]})
+    except Exception as exc:
+        logger.exception("GET /api/chat/history failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/tools/metrics")
+async def api_tool_metrics():
+    """Return ToolMetrics report."""
+    try:
+        from src.tools import ToolMetrics
+        return JSONResponse({"metrics": ToolMetrics().get_report()})
+    except Exception as exc:
+        logger.exception("GET /api/tools/metrics failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/cluster/observability")
+async def api_observability():
+    """Return ObservabilityMatrix report."""
+    try:
+        from src.observability import observability_matrix
+        return JSONResponse({"observability": observability_matrix.get_report()})
+    except Exception as exc:
+        logger.exception("GET /api/cluster/observability failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/cluster/drift")
+async def api_drift():
+    """Return DriftDetector report."""
+    try:
+        from src.drift_detector import drift_detector
+        return JSONResponse({"drift": drift_detector.get_report()})
+    except Exception as exc:
+        logger.exception("GET /api/cluster/drift failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/cluster/autotune")
+async def api_autotune():
+    """Return AutoTuneScheduler status."""
+    try:
+        from src.auto_tune import auto_tune
+        return JSONResponse({"auto_tune": auto_tune.get_status()})
+    except Exception as exc:
+        logger.exception("GET /api/cluster/autotune failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/cluster/dashboard")
+async def api_cluster_dashboard():
+    """Combined dashboard: observability + drift + auto_tune."""
+    try:
+        from src.orchestrator_v2 import orchestrator_v2
+        return JSONResponse(orchestrator_v2.get_dashboard())
+    except Exception as exc:
+        logger.exception("GET /api/cluster/dashboard failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Orchestrator V2 REST API — Phase 4 ──────────────────────────────────────
+
+@app.get("/api/orchestrator/status")
+async def api_orch_status():
+    """Full orchestrator_v2 dashboard."""
+    try:
+        from src.orchestrator_v2 import orchestrator_v2
+        return JSONResponse(orchestrator_v2.get_dashboard())
+    except Exception as exc:
+        logger.exception("GET /api/orchestrator/status failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/orchestrator/nodes")
+async def api_orch_nodes():
+    """Per-node stats (calls, latency, success rate, tokens)."""
+    try:
+        from src.orchestrator_v2 import orchestrator_v2
+        return JSONResponse(orchestrator_v2.get_node_stats())
+    except Exception as exc:
+        logger.exception("GET /api/orchestrator/nodes failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/orchestrator/budget")
+async def api_orch_budget():
+    """Token budget report for current session."""
+    try:
+        from src.orchestrator_v2 import orchestrator_v2
+        return JSONResponse(orchestrator_v2.get_budget_report())
+    except Exception as exc:
+        logger.exception("GET /api/orchestrator/budget failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/orchestrator/budget/reset")
+async def api_orch_budget_reset():
+    """Reset session budget counters."""
+    try:
+        from src.orchestrator_v2 import orchestrator_v2
+        orchestrator_v2.reset_budget()
+        return JSONResponse({"ok": True, "message": "Budget reset"})
+    except Exception as exc:
+        logger.exception("POST /api/orchestrator/budget/reset failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/orchestrator/fallback/{task_type}")
+async def api_orch_fallback(task_type: str):
+    """Drift-aware fallback chain for a task type."""
+    try:
+        from src.orchestrator_v2 import orchestrator_v2
+        chain = orchestrator_v2.fallback_chain(task_type)
+        return JSONResponse({"task_type": task_type, "chain": chain})
+    except Exception as exc:
+        logger.exception("GET /api/orchestrator/fallback failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/orchestrator/best/{task_type}")
+async def api_orch_best_node(task_type: str):
+    """Best node for a task type (weighted score + drift filter)."""
+    try:
+        from src.orchestrator_v2 import orchestrator_v2, ROUTING_MATRIX
+        matrix_entry = ROUTING_MATRIX.get(task_type, ROUTING_MATRIX.get("simple", []))
+        candidates = [n for n, _ in matrix_entry]
+        best = orchestrator_v2.get_best_node(candidates, task_type)
+        scores = {n: orchestrator_v2.weighted_score(n, task_type) for n in candidates}
+        return JSONResponse({"task_type": task_type, "best": best, "scores": scores})
+    except Exception as exc:
+        logger.exception("GET /api/orchestrator/best failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/orchestrator/health")
+async def api_orch_health():
+    """Cluster health score 0-100 + active alerts."""
+    try:
+        from src.orchestrator_v2 import orchestrator_v2
+        score = orchestrator_v2.health_check()
+        alerts = orchestrator_v2.get_alerts()
+        return JSONResponse({"health_score": score, "alerts": alerts})
+    except Exception as exc:
+        logger.exception("GET /api/orchestrator/health failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/orchestrator/routing")
+async def api_orch_routing():
+    """Full routing matrix."""
+    try:
+        from src.orchestrator_v2 import ROUTING_MATRIX
+        matrix = {k: [{"node": n, "weight": w} for n, w in v] for k, v in ROUTING_MATRIX.items()}
+        return JSONResponse(matrix)
+    except Exception as exc:
+        logger.exception("GET /api/orchestrator/routing failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Autonomous Loop REST API — Phase 4 ──────────────────────────────────────
+
+@app.get("/api/autonomous/status")
+async def api_autonomous_status():
+    """Autonomous loop status (tasks, events, running state)."""
+    try:
+        from src.autonomous_loop import autonomous_loop
+        return JSONResponse(autonomous_loop.get_status())
+    except Exception as exc:
+        logger.exception("GET /api/autonomous/status failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/autonomous/events")
+async def api_autonomous_events(limit: int = 50):
+    """Recent autonomous loop events (alerts, errors)."""
+    try:
+        from src.autonomous_loop import autonomous_loop
+        return JSONResponse({"events": autonomous_loop.get_events(limit)})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/autonomous/toggle/{task_name}")
+async def api_autonomous_toggle(task_name: str, enabled: bool = True):
+    """Enable/disable an autonomous task."""
+    try:
+        from src.autonomous_loop import autonomous_loop
+        autonomous_loop.enable(task_name, enabled)
+        return JSONResponse({"ok": True, "task": task_name, "enabled": enabled})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/db/health")
+async def api_db_health():
+    """Return database health status."""
+    try:
+        from src.database import get_db_health
+        return JSONResponse({"db_health": get_db_health()})
+    except Exception as exc:
+        logger.exception("GET /api/db/health failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/db/maintenance")
+async def api_db_maintenance():
+    """Force database maintenance (VACUUM + ANALYZE)."""
+    try:
+        from src.database import auto_maintenance
+        auto_maintenance(force=True)
+        return JSONResponse({"ok": True, "message": "Maintenance completed"})
+    except Exception as exc:
+        logger.exception("POST /api/db/maintenance failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/db/backup")
+async def api_db_backup():
+    """Create database backup."""
+    try:
+        from src.database import backup_database
+        path = backup_database()
+        return JSONResponse({"ok": True, "backup_path": str(path)})
+    except Exception as exc:
+        logger.exception("POST /api/db/backup failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/intent/classify")
+async def api_intent_classify(text: str = ""):
+    """Classify text intent."""
+    try:
+        from src.intent_classifier import intent_classifier
+        if not text:
+            return JSONResponse({"error": "missing 'text' parameter"}, status_code=400)
+        results = intent_classifier.classify(text)
+        return JSONResponse({"results": [
+            {"intent": r.intent, "confidence": r.confidence, "entities": r.entities}
+            for r in results
+        ]})
+    except Exception as exc:
+        logger.exception("GET /api/intent/classify failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/trading/rankings")
+async def api_trading_rankings():
+    """Return strategy rankings."""
+    try:
+        from src.trading_engine import strategy_scorer
+        return JSONResponse({"rankings": strategy_scorer.get_strategy_rankings()})
+    except Exception as exc:
+        logger.exception("GET /api/trading/rankings failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Pipeline Composer REST API — Phase 4 Vague 3 ────────────────────────────
+
+@app.post("/api/pipelines/compose")
+async def api_pipeline_compose(request: Request):
+    """Create a new pipeline from step definitions."""
+    try:
+        body = await request.json()
+        name = body.get("name", "")
+        steps = body.get("steps", [])
+        if not name or not steps:
+            return JSONResponse({"error": "name and steps required"}, status_code=400)
+
+        # Validate steps
+        validated = []
+        for i, step in enumerate(steps):
+            validated.append({
+                "node": step.get("node", "M1"),
+                "prompt": step.get("prompt", ""),
+                "condition": step.get("condition", ""),
+                "on_fail": step.get("on_fail", "skip"),
+                "timeout_s": step.get("timeout_s", 30),
+            })
+
+        # Save to database
+        from src.database import get_db_connection
+        import json as _json
+        conn = get_db_connection("etoile")
+        conn.execute(
+            "INSERT OR REPLACE INTO pipeline_dictionary (command, category, action_type, steps_json) VALUES (?, 'composed', 'pipeline', ?)",
+            (name, _json.dumps(validated)),
+        )
+        conn.commit()
+        conn.close()
+
+        return JSONResponse({"ok": True, "name": name, "steps_count": len(validated)})
+    except Exception as exc:
+        logger.exception("POST /api/pipelines/compose failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/pipelines/execute")
+async def api_pipeline_execute_composed(request: Request):
+    """Execute a composed pipeline by name."""
+    try:
+        body = await request.json()
+        name = body.get("name", "")
+        if not name:
+            return JSONResponse({"error": "name required"}, status_code=400)
+
+        # Load from DB
+        from src.database import get_db_connection
+        import json as _json
+        conn = get_db_connection("etoile")
+        row = conn.execute(
+            "SELECT steps_json FROM pipeline_dictionary WHERE command = ? AND category = 'composed'",
+            (name,),
+        ).fetchone()
+        conn.close()
+
+        if not row:
+            return JSONResponse({"error": f"Pipeline '{name}' not found"}, status_code=404)
+
+        steps = _json.loads(row[0])
+
+        # Execute via domino executor
+        from src.domino_executor import DominoExecutor, DominoStep
+        executor = DominoExecutor()
+        domino_steps = []
+        for s in steps:
+            domino_steps.append(DominoStep(
+                action_type="ia_query",
+                action=s["prompt"],
+                node=s["node"],
+                condition=s.get("condition", ""),
+                on_fail=s.get("on_fail", "skip"),
+                timeout_s=s.get("timeout_s", 30),
+            ))
+
+        result = await asyncio.to_thread(executor.run, domino_steps)
+        return JSONResponse({"ok": True, "name": name, "result": result})
+    except Exception as exc:
+        logger.exception("POST /api/pipelines/execute failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Agent Memory REST API — Phase 4 Vague 3 ────────────────────────────────
+
+@app.post("/api/memory/remember")
+async def api_memory_remember(request: Request):
+    """Store a memory."""
+    try:
+        body = await request.json()
+        content = body.get("content", "")
+        if not content:
+            return JSONResponse({"error": "content required"}, status_code=400)
+        from src.agent_memory import agent_memory
+        mem_id = agent_memory.remember(
+            content,
+            category=body.get("category", "general"),
+            importance=body.get("importance", 1.0),
+        )
+        return JSONResponse({"ok": True, "id": mem_id})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/memory/recall")
+async def api_memory_recall(q: str = "", limit: int = 5, category: str = ""):
+    """Search memories by similarity."""
+    try:
+        from src.agent_memory import agent_memory
+        results = agent_memory.recall(q, limit=limit, category=category or None)
+        return JSONResponse({"results": results})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/memory/list")
+async def api_memory_list(category: str = "", limit: int = 50):
+    """List all memories."""
+    try:
+        from src.agent_memory import agent_memory
+        return JSONResponse({"memories": agent_memory.list_all(category or None, limit)})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/memory/stats")
+async def api_memory_stats():
+    """Memory stats."""
+    try:
+        from src.agent_memory import agent_memory
+        return JSONResponse(agent_memory.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.delete("/api/memory/{memory_id}")
+async def api_memory_forget(memory_id: int):
+    """Delete a memory."""
+    try:
+        from src.agent_memory import agent_memory
+        ok = agent_memory.forget(memory_id)
+        return JSONResponse({"ok": ok})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Conversation + LB + Proactive REST API — Phase 4 Vague 4 ────────────────
+
+@app.get("/api/conversations")
+async def api_conversations(limit: int = 20, source: str = ""):
+    """List recent conversations."""
+    try:
+        from src.conversation_store import conversation_store
+        return JSONResponse({"conversations": conversation_store.list_conversations(limit, source or None)})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/conversations/{conv_id}")
+async def api_conversation_detail(conv_id: str):
+    """Get a conversation with all turns."""
+    try:
+        from src.conversation_store import conversation_store
+        conv = conversation_store.get_conversation(conv_id)
+        if not conv:
+            return JSONResponse({"error": "not found"}, status_code=404)
+        return JSONResponse(conv)
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/conversations/stats/summary")
+async def api_conversations_stats():
+    """Conversation stats."""
+    try:
+        from src.conversation_store import conversation_store
+        return JSONResponse(conversation_store.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/lb/status")
+async def api_lb_status():
+    """Load balancer status."""
+    try:
+        from src.load_balancer import load_balancer
+        return JSONResponse(load_balancer.get_status())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/lb/pick/{task_type}")
+async def api_lb_pick(task_type: str):
+    """Pick best node via LB."""
+    try:
+        from src.load_balancer import load_balancer
+        node = load_balancer.pick(task_type)
+        load_balancer.release(node)
+        return JSONResponse({"task_type": task_type, "node": node})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/proactive/suggestions")
+async def api_proactive_suggestions():
+    """Get proactive suggestions."""
+    try:
+        from src.proactive_agent import proactive_agent
+        suggestions = await proactive_agent.analyze()
+        return JSONResponse({"suggestions": suggestions})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ═══════════════════════════════════════════════════════════════
+# Phase 5: Auto-Optimizer + Event Bus + Metrics
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/api/optimizer/optimize")
+async def api_optimizer_optimize():
+    """Run auto-optimization cycle."""
+    try:
+        from src.auto_optimizer import auto_optimizer
+        adjustments = auto_optimizer.force_optimize()
+        return JSONResponse({"adjustments": adjustments})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/optimizer/history")
+async def api_optimizer_history(limit: int = 50):
+    """Get optimization history."""
+    try:
+        from src.auto_optimizer import auto_optimizer
+        return JSONResponse({"history": auto_optimizer.get_history(limit)})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/optimizer/stats")
+async def api_optimizer_stats():
+    """Get optimizer stats."""
+    try:
+        from src.auto_optimizer import auto_optimizer
+        return JSONResponse(auto_optimizer.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/eventbus/stats")
+async def api_eventbus_stats():
+    """Event bus stats."""
+    try:
+        from src.event_bus import event_bus
+        return JSONResponse(event_bus.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/eventbus/events")
+async def api_eventbus_events(limit: int = 50):
+    """Recent events from bus."""
+    try:
+        from src.event_bus import event_bus
+        return JSONResponse({"events": event_bus.get_events(limit)})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/metrics/snapshot")
+async def api_metrics_snapshot():
+    """Real-time metrics snapshot."""
+    try:
+        from src.metrics_aggregator import metrics_aggregator
+        return JSONResponse(metrics_aggregator.snapshot())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/metrics/history")
+async def api_metrics_history(minutes: int = 60):
+    """Metrics history."""
+    try:
+        from src.metrics_aggregator import metrics_aggregator
+        return JSONResponse({"history": metrics_aggregator.get_history(minutes)})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/metrics/summary")
+async def api_metrics_summary():
+    """Metrics aggregator summary."""
+    try:
+        from src.metrics_aggregator import metrics_aggregator
+        return JSONResponse(metrics_aggregator.get_summary())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ═══════════════════════════════════════════════════════════════
+# Phase 6: Workflow Engine + Session Manager + Alert Manager
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/workflows")
+async def api_workflow_list(limit: int = 20):
+    try:
+        from src.workflow_engine import workflow_engine
+        return JSONResponse({"workflows": workflow_engine.list_workflows(limit)})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/workflows/stats")
+async def api_workflow_stats():
+    try:
+        from src.workflow_engine import workflow_engine
+        return JSONResponse(workflow_engine.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/sessions")
+async def api_session_list(limit: int = 20):
+    try:
+        from src.session_manager import session_manager
+        return JSONResponse({"sessions": session_manager.list_sessions(limit)})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/sessions/stats")
+async def api_session_stats():
+    try:
+        from src.session_manager import session_manager
+        return JSONResponse(session_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/alerts/active")
+async def api_alerts_active(level: str = None):
+    try:
+        from src.alert_manager import alert_manager
+        return JSONResponse({"alerts": alert_manager.get_active(level)})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/alerts/stats")
+async def api_alerts_stats():
+    try:
+        from src.alert_manager import alert_manager
+        return JSONResponse(alert_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ═══════════════════════════════════════════════════════════════
+# Phase 7: Config + Audit + Diagnostics
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/config")
+async def api_config_all():
+    try:
+        from src.config_manager import config_manager
+        return JSONResponse(config_manager.get_all())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/config/{section}")
+async def api_config_section(section: str):
+    try:
+        from src.config_manager import config_manager
+        return JSONResponse(config_manager.get_section(section))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/config/history")
+async def api_config_history():
+    try:
+        from src.config_manager import config_manager
+        return JSONResponse({"history": config_manager.get_history()})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/audit/search")
+async def api_audit_search(action_type: str = None, source: str = None, query: str = None, limit: int = 20):
+    try:
+        from src.audit_trail import audit_trail
+        return JSONResponse({"entries": audit_trail.search(action_type=action_type, source=source, query=query, limit=limit)})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/audit/stats")
+async def api_audit_stats(hours: int = 24):
+    try:
+        from src.audit_trail import audit_trail
+        return JSONResponse(audit_trail.get_stats(hours))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/diagnostics/run")
+async def api_diagnostics_run():
+    try:
+        from src.cluster_diagnostics import cluster_diagnostics
+        return JSONResponse(cluster_diagnostics.run_diagnostic())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/diagnostics/quick")
+async def api_diagnostics_quick():
+    try:
+        from src.cluster_diagnostics import cluster_diagnostics
+        return JSONResponse(cluster_diagnostics.get_quick_status())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/alerts/acknowledge")
+async def api_alerts_acknowledge(body: dict = None):
+    try:
+        from src.alert_manager import alert_manager
+        key = (body or {}).get("key", "")
+        ok = alert_manager.acknowledge(key)
+        return JSONResponse({"acknowledged": ok})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/alerts/resolve")
+async def api_alerts_resolve(body: dict = None):
+    try:
+        from src.alert_manager import alert_manager
+        key = (body or {}).get("key", "")
+        ok = alert_manager.resolve(key)
+        return JSONResponse({"resolved": ok})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Rate Limiter — Phase 8 ──────────────────────────────────────────────
+
+@app.get("/api/ratelimit/stats")
+async def api_ratelimit_stats():
+    try:
+        from src.rate_limiter import rate_limiter
+        return JSONResponse(rate_limiter.get_all_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/ratelimit/check")
+async def api_ratelimit_check(body: dict = None):
+    try:
+        from src.rate_limiter import rate_limiter
+        node = (body or {}).get("node", "M1")
+        allowed = rate_limiter.allow(node)
+        return JSONResponse({"node": node, "allowed": allowed})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/ratelimit/configure")
+async def api_ratelimit_configure(body: dict = None):
+    try:
+        from src.rate_limiter import rate_limiter
+        b = body or {}
+        rate_limiter.configure_node(b.get("node", "M1"), float(b.get("rps", 10)), float(b.get("burst", 20)))
+        return JSONResponse({"ok": True})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Task Scheduler — Phase 8 ──────────────────────────────────────────
+
+@app.get("/api/scheduler/jobs")
+async def api_scheduler_jobs():
+    try:
+        from src.task_scheduler import task_scheduler
+        return JSONResponse(task_scheduler.list_jobs())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/scheduler/stats")
+async def api_scheduler_stats():
+    try:
+        from src.task_scheduler import task_scheduler
+        return JSONResponse(task_scheduler.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/scheduler/add")
+async def api_scheduler_add(body: dict = None):
+    try:
+        from src.task_scheduler import task_scheduler
+        b = body or {}
+        job_id = task_scheduler.add_job(
+            name=b.get("name", "unnamed"), action=b.get("action", "noop"),
+            interval_s=float(b.get("interval_s", 60)), params=b.get("params", {}),
+            one_shot=bool(b.get("one_shot", False)),
+        )
+        return JSONResponse({"job_id": job_id})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.delete("/api/scheduler/jobs/{job_id}")
+async def api_scheduler_remove(job_id: str):
+    try:
+        from src.task_scheduler import task_scheduler
+        ok = task_scheduler.remove_job(job_id)
+        return JSONResponse({"removed": ok})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Health Dashboard — Phase 8 ────────────────────────────────────────
+
+@app.get("/api/health/full")
+async def api_health_full():
+    try:
+        from src.health_dashboard import health_dashboard
+        return JSONResponse(health_dashboard.collect())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/health/summary")
+async def api_health_summary():
+    try:
+        from src.health_dashboard import health_dashboard
+        return JSONResponse(health_dashboard.get_summary())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/health/history")
+async def api_health_history():
+    try:
+        from src.health_dashboard import health_dashboard
+        return JSONResponse(health_dashboard.get_history())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Workflow Execute — Phase 8 ────────────────────────────────────────
+
+@app.post("/api/workflows/execute")
+async def api_workflow_execute(body: dict = None):
+    try:
+        from src.workflow_engine import workflow_engine
+        wf_id = (body or {}).get("wf_id", "")
+        run_id = await workflow_engine.execute(wf_id)
+        run = workflow_engine.get_run(run_id)
+        return JSONResponse(run or {"run_id": run_id})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Plugin Manager — Phase 9 ──────────────────────────────────────────
+
+@app.get("/api/plugins")
+async def api_plugins():
+    try:
+        from src.plugin_manager import plugin_manager
+        return JSONResponse(plugin_manager.list_plugins())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/plugins/discover")
+async def api_plugins_discover():
+    try:
+        from src.plugin_manager import plugin_manager
+        return JSONResponse(plugin_manager.discover())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/plugins/stats")
+async def api_plugins_stats():
+    try:
+        from src.plugin_manager import plugin_manager
+        return JSONResponse(plugin_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Command Router — Phase 9 ─────────────────────────────────────────
+
+@app.post("/api/commands/route")
+async def api_cmd_route(body: dict = None):
+    try:
+        from src.command_router import command_router
+        text = (body or {}).get("text", "")
+        result = command_router.route(text)
+        if result:
+            return JSONResponse({"route": result.route.name, "score": round(result.score, 3)})
+        return JSONResponse({"route": None})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/commands/routes")
+async def api_cmd_routes():
+    try:
+        from src.command_router import command_router
+        return JSONResponse(command_router.get_routes())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Resource Monitor — Phase 9 ───────────────────────────────────────
+
+@app.get("/api/resources/sample")
+async def api_resource_sample():
+    try:
+        from src.resource_monitor import resource_monitor
+        return JSONResponse(resource_monitor.sample())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/resources/latest")
+async def api_resource_latest():
+    try:
+        from src.resource_monitor import resource_monitor
+        return JSONResponse(resource_monitor.get_latest())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/resources/stats")
+async def api_resource_stats():
+    try:
+        from src.resource_monitor import resource_monitor
+        return JSONResponse(resource_monitor.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Cache Manager — Phase 11 ──────────────────────────────────────────
+
+@app.get("/api/cache/stats")
+async def api_cache_stats():
+    try:
+        from src.cache_manager import cache_manager
+        return JSONResponse(cache_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Secret Vault — Phase 11 ──────────────────────────────────────────
+
+@app.get("/api/vault/list")
+async def api_vault_list():
+    try:
+        from src.secret_vault import secret_vault
+        return JSONResponse(secret_vault.list_entries())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/vault/stats")
+async def api_vault_stats():
+    try:
+        from src.secret_vault import secret_vault
+        return JSONResponse(secret_vault.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Dependency Graph — Phase 11 ──────────────────────────────────────
+
+@app.get("/api/depgraph")
+async def api_depgraph():
+    try:
+        from src.dependency_graph import dep_graph
+        return JSONResponse(dep_graph.get_graph())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/depgraph/order")
+async def api_depgraph_order():
+    try:
+        from src.dependency_graph import dep_graph
+        return JSONResponse(dep_graph.topological_sort())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/depgraph/stats")
+async def api_depgraph_stats():
+    try:
+        from src.dependency_graph import dep_graph
+        return JSONResponse(dep_graph.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Retry Manager — Phase 10 ──────────────────────────────────────────
+
+@app.get("/api/retry/stats")
+async def api_retry_stats():
+    try:
+        from src.retry_manager import retry_manager
+        return JSONResponse(retry_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Data Pipeline — Phase 10 ─────────────────────────────────────────
+
+@app.get("/api/pipelines/list")
+async def api_pipeline_list():
+    try:
+        from src.data_pipeline import data_pipeline
+        return JSONResponse(data_pipeline.list_pipelines())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/pipelines/stats")
+async def api_pipeline_stats():
+    try:
+        from src.data_pipeline import data_pipeline
+        return JSONResponse(data_pipeline.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Service Registry — Phase 10 ──────────────────────────────────────
+
+@app.get("/api/services")
+async def api_service_list():
+    try:
+        from src.service_registry import service_registry
+        return JSONResponse(service_registry.list_services())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/services/register")
+async def api_service_register(body: dict = None):
+    try:
+        from src.service_registry import service_registry
+        b = body or {}
+        service_registry.register(b.get("name", ""), b.get("url", ""), b.get("service_type", "generic"))
+        return JSONResponse({"ok": True})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/services/heartbeat")
+async def api_service_heartbeat(body: dict = None):
+    try:
+        from src.service_registry import service_registry
+        ok = service_registry.heartbeat((body or {}).get("name", ""))
+        return JSONResponse({"ok": ok})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/services/stats")
+async def api_service_stats():
+    try:
+        from src.service_registry import service_registry
+        return JSONResponse(service_registry.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Notification Hub — Phase 12 ────────────────────────────────────────
+
+@app.post("/api/notifications/send")
+async def api_notif_send(request: Request):
+    try:
+        from src.notification_hub import notification_hub
+        body = await request.json()
+        sent = notification_hub.send(
+            body.get("message", ""), level=body.get("level", "info"),
+            source=body.get("source", "api"),
+        )
+        return JSONResponse({"sent_channels": sent})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/notifications/history")
+async def api_notif_history():
+    try:
+        from src.notification_hub import notification_hub
+        return JSONResponse(notification_hub.get_history())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/notifications/channels")
+async def api_notif_channels():
+    try:
+        from src.notification_hub import notification_hub
+        return JSONResponse(notification_hub.get_channels())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/notifications/stats")
+async def api_notif_stats():
+    try:
+        from src.notification_hub import notification_hub
+        return JSONResponse(notification_hub.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Feature Flags — Phase 12 ──────────────────────────────────────────
+
+@app.get("/api/flags")
+async def api_flag_list():
+    try:
+        from src.feature_flags import feature_flags
+        return JSONResponse(feature_flags.list_flags())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/flags/check")
+async def api_flag_check(name: str = "", context: str = ""):
+    try:
+        from src.feature_flags import feature_flags
+        enabled = feature_flags.is_enabled(name, context or None)
+        return JSONResponse({"flag": name, "enabled": enabled})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/flags/toggle")
+async def api_flag_toggle(request: Request):
+    try:
+        from src.feature_flags import feature_flags
+        body = await request.json()
+        ok = feature_flags.toggle(body.get("name", ""), body.get("enabled"))
+        return JSONResponse({"toggled": ok})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/flags/stats")
+async def api_flag_stats():
+    try:
+        from src.feature_flags import feature_flags
+        return JSONResponse(feature_flags.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Backup Manager — Phase 12 ─────────────────────────────────────────
+
+@app.get("/api/backups")
+async def api_backup_list():
+    try:
+        from src.backup_manager import backup_manager
+        return JSONResponse(backup_manager.list_backups())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/backups/create")
+async def api_backup_create(request: Request):
+    try:
+        from src.backup_manager import backup_manager
+        from pathlib import Path
+        body = await request.json()
+        entry = backup_manager.backup_file(Path(body.get("source", "")), tag=body.get("tag", ""))
+        if entry:
+            return JSONResponse({"backup_id": entry.backup_id, "status": entry.status})
+        return JSONResponse({"error": "Source not found"}, status_code=404)
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/backups/stats")
+async def api_backup_stats():
+    try:
+        from src.backup_manager import backup_manager
+        return JSONResponse(backup_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Session Manager V2 — Phase 13 ──────────────────────────────────────
+
+@app.get("/api/sessions_v2")
+async def api_session_v2_list():
+    try:
+        from src.session_manager_v2 import session_manager_v2
+        return JSONResponse(session_manager_v2.list_sessions())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/sessions_v2/create")
+async def api_session_v2_create(request: Request):
+    try:
+        from src.session_manager_v2 import session_manager_v2
+        body = await request.json()
+        s = session_manager_v2.create(body.get("owner", "api"))
+        return JSONResponse({"session_id": s.session_id, "owner": s.owner})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/sessions_v2/stats")
+async def api_session_v2_stats():
+    try:
+        from src.session_manager_v2 import session_manager_v2
+        return JSONResponse(session_manager_v2.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Queue Manager — Phase 13 ──────────────────────────────────────────
+
+@app.get("/api/queue")
+async def api_queue_list():
+    try:
+        from src.queue_manager import queue_manager
+        return JSONResponse(queue_manager.list_tasks())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/queue/stats")
+async def api_queue_stats():
+    try:
+        from src.queue_manager import queue_manager
+        return JSONResponse(queue_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── API Gateway — Phase 13 ────────────────────────────────────────────
+
+@app.get("/api/gateway/routes")
+async def api_gw_routes():
+    try:
+        from src.api_gateway import api_gateway
+        return JSONResponse(api_gateway.get_routes())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/gateway/clients")
+async def api_gw_clients():
+    try:
+        from src.api_gateway import api_gateway
+        return JSONResponse(api_gateway.get_clients())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/gateway/stats")
+async def api_gw_stats():
+    try:
+        from src.api_gateway import api_gateway
+        return JSONResponse(api_gateway.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Template Engine — Phase 14 ─────────────────────────────────────────
+
+@app.get("/api/templates")
+async def api_template_list():
+    try:
+        from src.template_engine import template_engine
+        return JSONResponse(template_engine.list_templates())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/templates/stats")
+async def api_template_stats():
+    try:
+        from src.template_engine import template_engine
+        return JSONResponse(template_engine.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── State Machine — Phase 14 ──────────────────────────────────────────
+
+@app.get("/api/fsm")
+async def api_fsm_list():
+    try:
+        from src.state_machine import state_machine_mgr
+        return JSONResponse(state_machine_mgr.list_machines())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/fsm/stats")
+async def api_fsm_stats():
+    try:
+        from src.state_machine import state_machine_mgr
+        return JSONResponse(state_machine_mgr.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Log Aggregator — Phase 14 ─────────────────────────────────────────
+
+@app.get("/api/logagg")
+async def api_logagg_query():
+    try:
+        from src.log_aggregator import log_aggregator
+        return JSONResponse(log_aggregator.query(limit=100))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/logagg/sources")
+async def api_logagg_sources():
+    try:
+        from src.log_aggregator import log_aggregator
+        return JSONResponse(log_aggregator.get_sources())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/logagg/stats")
+async def api_logagg_stats():
+    try:
+        from src.log_aggregator import log_aggregator
+        return JSONResponse(log_aggregator.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Permission Manager — Phase 15 ──────────────────────────────────────
+
+@app.get("/api/permissions/roles")
+async def api_perm_roles():
+    try:
+        from src.permission_manager import permission_manager
+        return JSONResponse(permission_manager.list_roles())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/permissions/users")
+async def api_perm_users():
+    try:
+        from src.permission_manager import permission_manager
+        return JSONResponse(permission_manager.list_users())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/permissions/stats")
+async def api_perm_stats():
+    try:
+        from src.permission_manager import permission_manager
+        return JSONResponse(permission_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Environment Manager — Phase 15 ────────────────────────────────────
+
+@app.get("/api/env/profiles")
+async def api_env_profiles():
+    try:
+        from src.env_manager import env_manager
+        return JSONResponse(env_manager.list_profiles())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/env/stats")
+async def api_env_stats():
+    try:
+        from src.env_manager import env_manager
+        return JSONResponse(env_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Telemetry — Phase 15 ──────────────────────────────────────────────
+
+@app.get("/api/telemetry/counters")
+async def api_telemetry_counters():
+    try:
+        from src.telemetry_collector import telemetry
+        return JSONResponse(telemetry.get_counters())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/telemetry/gauges")
+async def api_telemetry_gauges():
+    try:
+        from src.telemetry_collector import telemetry
+        return JSONResponse(telemetry.get_gauges())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/telemetry/stats")
+async def api_telemetry_stats():
+    try:
+        from src.telemetry_collector import telemetry
+        return JSONResponse(telemetry.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Event Store — Phase 16 ───────────────────────────────────────────────
+
+@app.get("/api/evstore/streams")
+async def api_evstore_streams():
+    try:
+        from src.event_store import event_store
+        return JSONResponse({"streams": event_store.streams()})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/evstore/events")
+async def api_evstore_events(stream: str = "", limit: int = 50):
+    try:
+        from src.event_store import event_store
+        if stream:
+            events = event_store.get_stream(stream)[-limit:]
+        else:
+            events = event_store.get_all(limit=limit)
+        return JSONResponse([
+            {"id": e.event_id, "stream": e.stream, "type": e.event_type,
+             "version": e.version, "data": e.data, "timestamp": e.timestamp}
+            for e in events
+        ])
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/evstore/stats")
+async def api_evstore_stats():
+    try:
+        from src.event_store import event_store
+        return JSONResponse(event_store.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Webhook Manager — Phase 16 ──────────────────────────────────────────
+
+@app.get("/api/webhooks/list")
+async def api_webhook_list():
+    try:
+        from src.webhook_manager import webhook_manager
+        return JSONResponse(webhook_manager.list_endpoints())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/webhooks/history")
+async def api_webhook_history(name: str = ""):
+    try:
+        from src.webhook_manager import webhook_manager
+        return JSONResponse(webhook_manager.get_history(webhook_name=name or None))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/webhooks/stats")
+async def api_webhook_stats():
+    try:
+        from src.webhook_manager import webhook_manager
+        return JSONResponse(webhook_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Health Probe — Phase 16 ─────────────────────────────────────────────
+
+@app.get("/api/healthprobe/list")
+async def api_hprobe_list():
+    try:
+        from src.health_probe import health_probe
+        return JSONResponse(health_probe.list_probes())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/healthprobe/run")
+async def api_hprobe_run(name: str = ""):
+    try:
+        from src.health_probe import health_probe
+        if name:
+            r = health_probe.run_check(name)
+            if not r:
+                return JSONResponse({"error": "probe not found"}, status_code=404)
+            return JSONResponse({"name": r.name, "status": r.status.value,
+                                  "latency_ms": r.latency_ms, "message": r.message})
+        results = health_probe.run_all()
+        return JSONResponse([
+            {"name": r.name, "status": r.status.value,
+             "latency_ms": r.latency_ms, "message": r.message}
+            for r in results
+        ])
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/healthprobe/stats")
+async def api_hprobe_stats():
+    try:
+        from src.health_probe import health_probe
+        return JSONResponse(health_probe.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Service Mesh — Phase 17 ──────────────────────────────────────────────
+
+@app.get("/api/mesh/services")
+async def api_mesh_services():
+    try:
+        from src.service_mesh import service_mesh
+        return JSONResponse(service_mesh.list_services())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/mesh/names")
+async def api_mesh_names():
+    try:
+        from src.service_mesh import service_mesh
+        return JSONResponse({"services": service_mesh.list_service_names()})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/mesh/stats")
+async def api_mesh_stats():
+    try:
+        from src.service_mesh import service_mesh
+        return JSONResponse(service_mesh.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Config Vault — Phase 17 ─────────────────────────────────────────────
+
+@app.get("/api/vault/namespaces")
+async def api_vault_namespaces():
+    try:
+        from src.config_vault import config_vault
+        return JSONResponse({"namespaces": config_vault.list_namespaces()})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/vault/keys")
+async def api_vault_keys(namespace: str = "default"):
+    try:
+        from src.config_vault import config_vault
+        return JSONResponse({"namespace": namespace, "keys": config_vault.list_keys(namespace)})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/vault/stats")
+async def api_vault_stats():
+    try:
+        from src.config_vault import config_vault
+        return JSONResponse(config_vault.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Rule Engine — Phase 17 ──────────────────────────────────────────────
+
+@app.get("/api/rules/list")
+async def api_rules_list(group: str = ""):
+    try:
+        from src.rule_engine import rule_engine
+        return JSONResponse(rule_engine.list_rules(group=group or None))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/rules/groups")
+async def api_rules_groups():
+    try:
+        from src.rule_engine import rule_engine
+        return JSONResponse({"groups": rule_engine.list_groups()})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/rules/stats")
+async def api_rules_stats():
+    try:
+        from src.rule_engine import rule_engine
+        return JSONResponse(rule_engine.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Retry Policy — Phase 18 ──────────────────────────────────────────────
+
+@app.get("/api/retry/policies")
+async def api_retry_policies():
+    try:
+        from src.retry_policy import retry_manager
+        return JSONResponse(retry_manager.list_policies())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/retry/stats")
+async def api_retry_stats():
+    try:
+        from src.retry_policy import retry_manager
+        return JSONResponse(retry_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Message Broker — Phase 18 ───────────────────────────────────────────
+
+@app.get("/api/broker/topics")
+async def api_broker_topics():
+    try:
+        from src.message_broker import message_broker
+        return JSONResponse({"topics": message_broker.list_topics()})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/broker/stats")
+async def api_broker_stats():
+    try:
+        from src.message_broker import message_broker
+        return JSONResponse(message_broker.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Command Registry — Phase 18 ─────────────────────────────────────────
+
+@app.get("/api/commands/list")
+async def api_cmdreg_list(category: str = ""):
+    try:
+        from src.command_registry import command_registry
+        return JSONResponse(command_registry.list_commands(category=category or None))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/commands/stats")
+async def api_cmdreg_stats():
+    try:
+        from src.command_registry import command_registry
+        return JSONResponse(command_registry.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
 
 
 @app.get("/api/models")
@@ -293,6 +1960,7 @@ async def websocket_endpoint(websocket: WebSocket):
     bg_tasks: list[asyncio.Task] = []
     bg_tasks.append(asyncio.create_task(_cluster_push_loop(websocket)))
     bg_tasks.append(asyncio.create_task(_trading_push_loop(websocket)))
+    bg_tasks.append(asyncio.create_task(_orchestrator_push_loop(websocket)))
 
     try:
         while True:
@@ -493,6 +2161,26 @@ async def _trading_push_loop(websocket: WebSocket) -> None:
     await push_trading_events(send_func)
 
 
+async def _orchestrator_push_loop(websocket: WebSocket) -> None:
+    """Push orchestrator_v2 alerts + health every 10 seconds."""
+    from python_ws.helpers import push_loop as _push
+
+    async def build_orch_payload() -> dict:
+        try:
+            from src.orchestrator_v2 import orchestrator_v2
+            alerts = orchestrator_v2.get_alerts()
+            health = orchestrator_v2.health_check()
+            return {"health_score": health, "alerts": alerts, "alert_count": len(alerts)}
+        except Exception as exc:
+            return {"health_score": -1, "alerts": [], "error": str(exc)}
+
+    await _push(
+        websocket.send_json, build_orch_payload,
+        channel="cluster", event="orchestrator_update",
+        interval=10.0, backoff=3.0,
+    )
+
+
 # ── Global Push-to-Talk (CTRL key) ────────────────────────────────────────────
 
 _ptt_hook_started = False
@@ -619,6 +2307,85 @@ async def _setup_ptt_and_wake():
     loop = asyncio.get_running_loop()
     _start_global_ptt_hook(loop)
     _start_wake_word(loop)
+    # Phase 4: initialize orchestrator_v2 + initial health check
+    await _startup_orchestrator()
+    # Phase 4: start autonomous loop
+    try:
+        from src.autonomous_loop import autonomous_loop
+        await autonomous_loop.start()
+        logger.info("Autonomous loop started")
+    except Exception as exc:
+        logger.warning("Autonomous loop startup failed (non-fatal): %s", exc)
+
+
+async def _startup_orchestrator():
+    """Phase 4 startup: initialize orchestrator_v2, run initial health check."""
+    try:
+        from src.orchestrator_v2 import orchestrator_v2
+        health = orchestrator_v2.health_check()
+        logger.info("Orchestrator v2 initialized — health: %d/100", health)
+        alerts = orchestrator_v2.get_alerts()
+        if alerts:
+            logger.warning("Startup alerts: %d active", len(alerts))
+            for a in alerts[:3]:
+                logger.warning("  Alert: %s", a.get("message", a))
+    except Exception as exc:
+        logger.warning("Orchestrator v2 startup failed (non-fatal): %s", exc)
+
+    # Record initial node probes into orchestrator
+    try:
+        import httpx
+        probes = [
+            ("M1", "http://127.0.0.1:1234/api/v1/models"),
+            ("OL1", "http://127.0.0.1:11434/api/tags"),
+        ]
+        async with httpx.AsyncClient(timeout=3) as client:
+            for node, url in probes:
+                try:
+                    import time as _t
+                    t0 = _t.perf_counter()
+                    r = await client.get(url)
+                    lat = (_t.perf_counter() - t0) * 1000
+                    ok = r.status_code == 200
+                    orchestrator_v2.record_call(node, latency_ms=lat, success=ok)
+                    logger.info("Startup probe %s: %s (%.0fms)", node, "OK" if ok else "FAIL", lat)
+                except Exception:
+                    orchestrator_v2.record_call(node, latency_ms=0, success=False)
+                    logger.info("Startup probe %s: OFFLINE", node)
+    except Exception:
+        pass
+
+
+@app.on_event("shutdown")
+async def _graceful_shutdown():
+    """Phase 4 production hardening: graceful shutdown."""
+    logger.info("JARVIS WS shutting down — flushing metrics...")
+
+    # Close all WebSocket connections gracefully
+    for client in list(_connected_clients):
+        try:
+            await asyncio.wait_for(client.close(1001, "Server shutting down"), timeout=2.0)
+        except Exception:
+            pass
+    _connected_clients.clear()
+
+    # Stop wake word detector
+    global _wake_detector
+    if _wake_detector:
+        try:
+            _wake_detector.stop()
+        except Exception:
+            pass
+        _wake_detector = None
+
+    # Stop autonomous loop
+    try:
+        from src.autonomous_loop import autonomous_loop
+        autonomous_loop.stop()
+    except Exception:
+        pass
+
+    logger.info("JARVIS WS shutdown complete")
 
 
 # ── Entry point ──────────────────────────────────────────────────────────────

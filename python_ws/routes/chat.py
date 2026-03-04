@@ -1,4 +1,7 @@
-"""Chat route — AI conversation via Claude SDK + Commander pipeline + MAO consensus."""
+"""Chat route — AI conversation via Claude SDK + Commander pipeline + MAO consensus.
+
+v2: Message persistence, request tracing, session recovery.
+"""
 from __future__ import annotations
 
 import asyncio
@@ -6,8 +9,10 @@ import inspect
 import json
 import logging
 import os
+import sqlite3
 import time
 import traceback
+import uuid
 from pathlib import Path
 
 import httpx
@@ -73,14 +78,54 @@ MAX_SESSION_MESSAGES = 200   # Keep last 200 messages in memory
 
 
 class ChatSession:
-    """Manages a chat conversation with bounded history."""
+    """Manages a chat conversation with bounded history + SQLite persistence."""
 
-    def __init__(self):
+    def __init__(self, session_id: str | None = None):
+        self.session_id = session_id or f"session_{uuid.uuid4().hex[:12]}"
         self.messages: list[dict] = []
         self.active = False
+        self._db_path = _TURBO_ROOT / "data" / "jarvis.db"
+        self._restore_from_db()
+
+    def _restore_from_db(self):
+        """Restore last session messages from SQLite on startup."""
+        try:
+            conn = sqlite3.connect(str(self._db_path))
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                "SELECT role, content, agent, model, latency_ms, timestamp FROM chat_history "
+                "ORDER BY timestamp DESC LIMIT ?", (MAX_SESSION_MESSAGES,)
+            ).fetchall()
+            conn.close()
+            if rows:
+                self.messages = [
+                    {"id": f"msg_restored_{i}", "role": r["role"],
+                     "content": r["content"], "agent": r["agent"],
+                     "tool_calls": [], "timestamp": r["timestamp"]}
+                    for i, r in enumerate(reversed(rows))
+                ]
+                logger.info("Restored %d messages from DB", len(self.messages))
+        except (sqlite3.Error, OSError) as e:
+            logger.debug("Chat history restore failed (table may not exist yet): %s", e)
+
+    def _persist(self, msg: dict, model: str | None = None, latency_ms: float = 0, tokens: int = 0):
+        """Persist message to SQLite (non-blocking best-effort)."""
+        try:
+            conn = sqlite3.connect(str(self._db_path))
+            conn.execute(
+                "INSERT INTO chat_history (session_id, role, content, agent, model, latency_ms, tokens, timestamp) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (self.session_id, msg["role"], msg["content"], msg.get("agent"),
+                 model, latency_ms, tokens, msg["timestamp"]),
+            )
+            conn.commit()
+            conn.close()
+        except sqlite3.Error as e:
+            logger.debug("Chat persist failed: %s", e)
 
     def add_message(self, role: str, content: str, agent: str | None = None,
-                    tool_calls: list | None = None) -> dict:
+                    tool_calls: list | None = None, model: str | None = None,
+                    latency_ms: float = 0, tokens: int = 0) -> dict:
         msg = {
             "id": f"msg_{len(self.messages)}_{int(time.time()*1000)}",
             "role": role,
@@ -90,16 +135,30 @@ class ChatSession:
             "timestamp": time.time(),
         }
         self.messages.append(msg)
-        # Evict oldest messages to prevent unbounded growth
         if len(self.messages) > MAX_SESSION_MESSAGES:
             self.messages = self.messages[-MAX_SESSION_MESSAGES:]
+        self._persist(msg, model=model, latency_ms=latency_ms, tokens=tokens)
         return msg
 
     def clear(self):
         self.messages.clear()
 
+    def get_session_stats(self) -> dict:
+        user_msgs = sum(1 for m in self.messages if m["role"] == "user")
+        return {
+            "session_id": self.session_id,
+            "total_messages": len(self.messages),
+            "user_messages": user_msgs,
+            "assistant_messages": len(self.messages) - user_msgs,
+        }
+
 
 _session = ChatSession()
+
+
+def new_request_id() -> str:
+    """Generate a correlation ID for request tracing."""
+    return f"req_{uuid.uuid4().hex[:8]}"
 
 
 async def handle_chat_request(action: str, payload: dict) -> dict:
@@ -111,6 +170,10 @@ async def handle_chat_request(action: str, payload: dict) -> dict:
         return {"cleared": True}
     elif action == "get_history":
         return {"messages": _session.messages}
+    elif action == "get_session_stats":
+        return _session.get_session_stats()
+    elif action == "search_history":
+        return _search_chat_history(payload.get("query", ""), payload.get("limit", 50))
     return {"error": f"Unknown chat action: {action}"}
 
 
@@ -122,8 +185,11 @@ async def _send_message(payload: dict) -> dict:
     if len(text) > MAX_MESSAGE_LENGTH:
         text = text[:MAX_MESSAGE_LENGTH]
 
+    request_id = new_request_id()
+
     # Add user message
     user_msg = _session.add_message("user", text)
+    user_msg["request_id"] = request_id
 
     start = time.time()
 
@@ -560,19 +626,50 @@ async def _query_single_node(model_id: str, text: str, chat_messages: list, lmst
 
 
 async def _query_parallel_consensus(text: str) -> str:
-    """Dispatch to ALL agents in parallel, synthesize with weighted vote."""
+    """Dispatch to agents in parallel, synthesize with weighted vote.
+
+    v2: Uses orchestrator_v2 to dynamically select best nodes and record metrics.
+    Falls back to CONSENSUS_MODELS if orchestrator unavailable.
+    """
+    import time as _time
     chat_messages = _build_chat_history(text)
     lmstudio_input = _build_lmstudio_input(text)
+
+    # v2: dynamically filter models via orchestrator_v2
+    active_models = list(CONSENSUS_MODELS)
+    try:
+        from src.orchestrator_v2 import orchestrator_v2
+        chain = orchestrator_v2.fallback_chain("code")
+        # Map node names to model IDs for filtering
+        node_to_model = {
+            "gpt-oss": "gpt-oss:120b-cloud",
+            "M1": "qwen3-8b",
+            "devstral": "devstral-2:123b-cloud",
+            "M2": "deepseek-coder-v2-lite-instruct",
+            "OL1": "qwen3:1.7b",
+            "M3": "mistral-7b-instruct-v0.3",
+            "GEMINI": "gemini-3-pro",
+            "CLAUDE": "claude-opus",
+        }
+        # Prioritize models from fallback chain (degraded nodes moved to end)
+        prioritized = [node_to_model[n] for n in chain if n in node_to_model]
+        # Add any consensus models not in the chain
+        remaining = [m for m in CONSENSUS_MODELS if m not in prioritized]
+        active_models = prioritized + remaining
+    except Exception:
+        pass
 
     # Launch all consensus models in parallel
     tasks = [
         _query_single_node(mid, text, chat_messages, lmstudio_input)
-        for mid in CONSENSUS_MODELS
+        for mid in active_models
     ]
+    t0 = _time.perf_counter()
     results = await asyncio.wait_for(
         asyncio.gather(*tasks, return_exceptions=True),
         timeout=60.0,
     )
+    total_elapsed = (_time.perf_counter() - t0) * 1000
 
     # Collect successful responses
     responses = []
@@ -582,6 +679,17 @@ async def _query_parallel_consensus(text: str) -> str:
             errors.append(str(r))
         elif isinstance(r, dict) and r.get("content"):
             responses.append(r)
+            # v2: record success in orchestrator
+            try:
+                from src.orchestrator_v2 import orchestrator_v2
+                lat = float(r.get("latency", 0)) * 1000
+                orchestrator_v2.record_call(
+                    r.get("name", "unknown"),
+                    latency_ms=lat, success=True,
+                    tokens=len(r.get("content", "")) // 4,
+                )
+            except Exception:
+                pass
         elif isinstance(r, dict):
             errors.append(f"{r.get('name', '?')}: {r.get('error', '?')}")
 
@@ -590,7 +698,7 @@ async def _query_parallel_consensus(text: str) -> str:
 
     # Build weighted synthesis
     total_weight = sum(CONSENSUS_WEIGHTS.get(r["model"], 1.0) for r in responses)
-    parts = [f"**CONSENSUS MAO** — {len(responses)}/{len(CONSENSUS_MODELS)} agents, poids total {total_weight:.1f}\n"]
+    parts = [f"**CONSENSUS MAO v2** — {len(responses)}/{len(active_models)} agents, poids {total_weight:.1f}, {total_elapsed:.0f}ms\n"]
 
     for r in sorted(responses, key=lambda x: CONSENSUS_WEIGHTS.get(x["model"], 1.0), reverse=True):
         w = CONSENSUS_WEIGHTS.get(r["model"], 1.0)
@@ -614,3 +722,45 @@ def _get_agent_for_task(task_type: str) -> str:
         "architecture": "ia-bridge",
         "consensus": "ia-consensus",
     }.get(task_type, "ia-fast")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# CHAT HISTORY SEARCH — Query persisted messages
+# ═══════════════════════════════════════════════════════════════════════════
+
+def _search_chat_history(query: str, limit: int = 50) -> dict:
+    """Search persisted chat history by content (LIKE match)."""
+    db_path = _TURBO_ROOT / "data" / "jarvis.db"
+    try:
+        conn = sqlite3.connect(str(db_path))
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            "SELECT session_id, role, content, agent, model, latency_ms, timestamp "
+            "FROM chat_history WHERE content LIKE ? ORDER BY timestamp DESC LIMIT ?",
+            (f"%{query}%", min(limit, 200)),
+        ).fetchall()
+        conn.close()
+        return {"results": [dict(r) for r in rows], "count": len(rows), "query": query}
+    except sqlite3.Error as e:
+        return {"error": str(e), "results": [], "count": 0}
+
+
+def get_chat_export(session_id: str | None = None, limit: int = 500) -> list[dict]:
+    """Export chat history as list of dicts (for backup/analysis)."""
+    db_path = _TURBO_ROOT / "data" / "jarvis.db"
+    try:
+        conn = sqlite3.connect(str(db_path))
+        conn.row_factory = sqlite3.Row
+        if session_id:
+            rows = conn.execute(
+                "SELECT * FROM chat_history WHERE session_id = ? ORDER BY timestamp LIMIT ?",
+                (session_id, limit),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM chat_history ORDER BY timestamp DESC LIMIT ?", (limit,)
+            ).fetchall()
+        conn.close()
+        return [dict(r) for r in rows]
+    except sqlite3.Error:
+        return []

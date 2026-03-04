@@ -1,13 +1,20 @@
-"""JARVIS Prompt Engineering — Make local models perform like Claude.
+"""JARVIS Prompt Engineering v2 — Make local models perform like Claude.
 
 Transforms basic queries into optimized prompts with:
 - Deep system prompts per domain (CoT, formatting, expertise)
 - Model-specific wrappers (Qwen3, DeepSeek, Mistral, Ollama)
 - Query enhancement (context injection, structure, few-shot hints)
 - Output format enforcement
+- v2: A/B testing, prompt versioning, cost-aware routing
 """
 
 from __future__ import annotations
+
+import json
+import random
+import time
+from dataclasses import dataclass, field
+from pathlib import Path
 
 # ═══════════════════════════════════════════════════════════════════════════
 # SYSTEM PROMPTS v2 — Expert-level per domain
@@ -463,3 +470,194 @@ def get_optimal_params(category: str, model: str = "") -> dict:
         max_tokens = 1536
 
     return {"temperature": temp, "max_tokens": max_tokens, "top_p": 0.9}
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PROMPT VERSIONING — Track and compare prompt versions
+# ═══════════════════════════════════════════════════════════════════════════
+
+_PROMPT_VERSIONS_FILE = Path(__file__).resolve().parent.parent / "data" / "prompt_versions.json"
+
+
+@dataclass
+class PromptVersion:
+    """A versioned system prompt for A/B testing."""
+    category: str
+    version: int
+    content: str
+    created_at: float = 0
+    uses: int = 0
+    avg_quality: float = 0
+    total_quality: float = 0
+
+    def to_dict(self) -> dict:
+        return {
+            "category": self.category, "version": self.version,
+            "content": self.content, "created_at": self.created_at,
+            "uses": self.uses, "avg_quality": round(self.avg_quality, 3),
+            "total_quality": round(self.total_quality, 3),
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict) -> PromptVersion:
+        pv = cls(
+            category=d["category"], version=d["version"],
+            content=d["content"], created_at=d.get("created_at", 0),
+            uses=d.get("uses", 0), total_quality=d.get("total_quality", 0),
+        )
+        pv.avg_quality = pv.total_quality / max(1, pv.uses)
+        return pv
+
+
+def _load_prompt_versions() -> dict[str, list[PromptVersion]]:
+    """Load all prompt versions."""
+    if _PROMPT_VERSIONS_FILE.exists():
+        try:
+            data = json.loads(_PROMPT_VERSIONS_FILE.read_text(encoding="utf-8"))
+            return {
+                cat: [PromptVersion.from_dict(v) for v in versions]
+                for cat, versions in data.items()
+            }
+        except (json.JSONDecodeError, OSError):
+            pass
+    return {}
+
+
+def _save_prompt_versions(db: dict[str, list[PromptVersion]]):
+    _PROMPT_VERSIONS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    data = {cat: [v.to_dict() for v in versions] for cat, versions in db.items()}
+    _PROMPT_VERSIONS_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def register_prompt_version(category: str, content: str) -> PromptVersion:
+    """Register a new prompt version for A/B testing."""
+    db = _load_prompt_versions()
+    existing = db.get(category, [])
+    version = max((v.version for v in existing), default=0) + 1
+
+    pv = PromptVersion(
+        category=category, version=version,
+        content=content, created_at=time.time(),
+    )
+    existing.append(pv)
+    db[category] = existing
+    _save_prompt_versions(db)
+    return pv
+
+
+def record_prompt_quality(category: str, version: int, quality: float):
+    """Record quality score for a prompt version (0-1)."""
+    db = _load_prompt_versions()
+    versions = db.get(category, [])
+    for v in versions:
+        if v.version == version:
+            v.uses += 1
+            v.total_quality += quality
+            v.avg_quality = v.total_quality / max(1, v.uses)
+            break
+    db[category] = versions
+    _save_prompt_versions(db)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# A/B TESTING — Select best prompt version with exploration
+# ═══════════════════════════════════════════════════════════════════════════
+
+def select_prompt_ab(category: str, explore_rate: float = 0.1) -> tuple[str, int]:
+    """Select a prompt version using epsilon-greedy A/B testing.
+
+    Returns (prompt_content, version_number).
+    Uses default SYSTEM_PROMPTS as v0 baseline.
+    """
+    db = _load_prompt_versions()
+    versions = db.get(category, [])
+
+    if not versions:
+        # No A/B versions registered, use default
+        return SYSTEM_PROMPTS.get(category, SYSTEM_PROMPTS["default"]), 0
+
+    # Epsilon-greedy: explore with probability explore_rate
+    if random.random() < explore_rate:
+        # Explore: pick random version (including default v0)
+        if random.random() < 0.3:
+            return SYSTEM_PROMPTS.get(category, SYSTEM_PROMPTS["default"]), 0
+        chosen = random.choice(versions)
+        return chosen.content, chosen.version
+
+    # Exploit: pick best performing version
+    # Include default (v0) in comparison
+    best_quality = 0.5  # baseline for default
+    best_content = SYSTEM_PROMPTS.get(category, SYSTEM_PROMPTS["default"])
+    best_version = 0
+
+    for v in versions:
+        if v.uses >= 3 and v.avg_quality > best_quality:
+            best_quality = v.avg_quality
+            best_content = v.content
+            best_version = v.version
+
+    return best_content, best_version
+
+
+def get_ab_report() -> dict[str, list[dict]]:
+    """Get A/B testing report for all categories."""
+    db = _load_prompt_versions()
+    report = {}
+    for cat, versions in db.items():
+        report[cat] = sorted(
+            [v.to_dict() for v in versions],
+            key=lambda x: -x["avg_quality"],
+        )
+    return report
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# COST-AWARE ROUTING — Select cheapest effective model for a category
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Model effectiveness per category (0-1, from benchmarks)
+_MODEL_EFFECTIVENESS = {
+    "code":    {"M1": 0.98, "gpt-oss": 1.0, "devstral": 0.96, "M2": 0.85, "OL1": 0.7, "M3": 0.6},
+    "analyse": {"M1": 0.95, "gpt-oss": 0.95, "GEMINI": 0.85, "OL1": 0.8, "M3": 0.7, "M2": 0.8},
+    "trading": {"M1": 0.9, "OL1": 0.85, "M2": 0.7, "M3": 0.6},
+    "systeme": {"M1": 0.9, "OL1": 0.8, "M3": 0.7},
+    "web":     {"OL1": 0.85, "GEMINI": 0.8, "M1": 0.7},
+    "simple":  {"OL1": 0.9, "M1": 0.95, "M3": 0.7},
+    "math":    {"M1": 1.0, "gpt-oss": 0.95, "OL1": 0.6},
+    "raison":  {"M1": 1.0, "gpt-oss": 0.95, "GEMINI": 0.8},
+}
+
+# Model latency estimates (ms)
+_MODEL_LATENCY = {
+    "M1": 800, "M2": 3900, "M3": 5700, "OL1": 500,
+    "gpt-oss": 2000, "devstral": 2500, "GEMINI": 3000, "CLAUDE": 4000,
+}
+
+
+def get_cost_effective_model(
+    category: str,
+    min_effectiveness: float = 0.7,
+    prefer_speed: bool = True,
+) -> str:
+    """Select the most cost-effective model for a category.
+
+    Balances effectiveness vs latency. Free local models preferred.
+    """
+    effectiveness = _MODEL_EFFECTIVENESS.get(category, _MODEL_EFFECTIVENESS.get("simple", {}))
+
+    candidates = [
+        (model, eff) for model, eff in effectiveness.items()
+        if eff >= min_effectiveness
+    ]
+
+    if not candidates:
+        return "M1"  # fallback
+
+    if prefer_speed:
+        # Sort by latency (fastest first), then effectiveness
+        candidates.sort(key=lambda x: (_MODEL_LATENCY.get(x[0], 9999), -x[1]))
+    else:
+        # Sort by effectiveness (best first)
+        candidates.sort(key=lambda x: -x[1])
+
+    return candidates[0][0]

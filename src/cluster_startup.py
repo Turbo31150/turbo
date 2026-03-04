@@ -664,3 +664,146 @@ def print_startup_report(report: dict[str, Any]) -> None:
                 status = "OK"
             logger.info("  [%s] %s: %s", status, label, val)
     logger.info("=" * 55)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# v2 — SERVICE DISCOVERY + TRANSACTION LOG + VERSION CHECK
+# ═══════════════════════════════════════════════════════════════════════════
+
+import json as _json
+
+_STARTUP_LOG_FILE = Path(__file__).resolve().parent.parent / "data" / "startup_log.json"
+
+
+def log_startup_event(event: str, details: dict | None = None):
+    """Append a startup event to the transaction log."""
+    _STARTUP_LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
+    entries = []
+    if _STARTUP_LOG_FILE.exists():
+        try:
+            entries = _json.loads(_STARTUP_LOG_FILE.read_text(encoding="utf-8"))
+        except (_json.JSONDecodeError, OSError):
+            entries = []
+
+    entries.append({
+        "timestamp": time.time(),
+        "event": event,
+        "details": details or {},
+    })
+
+    # Keep last 200 entries
+    entries = entries[-200:]
+    _STARTUP_LOG_FILE.write_text(_json.dumps(entries, indent=2), encoding="utf-8")
+
+
+def get_startup_history(limit: int = 20) -> list[dict]:
+    """Get recent startup events."""
+    if not _STARTUP_LOG_FILE.exists():
+        return []
+    try:
+        entries = _json.loads(_STARTUP_LOG_FILE.read_text(encoding="utf-8"))
+        return entries[-limit:]
+    except (_json.JSONDecodeError, OSError):
+        return []
+
+
+async def discover_services() -> dict[str, dict]:
+    """Auto-discover all cluster services and their capabilities.
+
+    Scans known ports and returns service info.
+    """
+    services = {}
+
+    # Scan LM Studio nodes
+    for node_name in ["M1", "M2", "M3"]:
+        node = config.get_node(node_name)
+        if not node:
+            continue
+        try:
+            async with httpx.AsyncClient(timeout=3) as c:
+                r = await c.get(f"{node.url}/api/v1/models", headers=node.auth_headers)
+                if r.status_code == 200:
+                    data = r.json()
+                    models = data.get("data", data.get("models", []))
+                    loaded = [m for m in models if m.get("loaded_instances", 0) > 0]
+                    services[node_name] = {
+                        "type": "lm_studio",
+                        "url": node.url,
+                        "status": "online",
+                        "loaded_models": len(loaded),
+                        "total_models": len(models),
+                        "models": [m.get("id", m.get("key", "?")) for m in loaded],
+                    }
+                else:
+                    services[node_name] = {"type": "lm_studio", "url": node.url, "status": "error"}
+        except (httpx.HTTPError, OSError):
+            services[node_name] = {"type": "lm_studio", "url": node.url, "status": "offline"}
+
+    # Scan Ollama
+    ol = config.get_ollama_node("OL1")
+    if ol:
+        try:
+            async with httpx.AsyncClient(timeout=3) as c:
+                r = await c.get(f"{ol.url}/api/tags")
+                if r.status_code == 200:
+                    models = r.json().get("models", [])
+                    services["OL1"] = {
+                        "type": "ollama",
+                        "url": ol.url,
+                        "status": "online",
+                        "models": len(models),
+                        "model_names": [m.get("name", "?") for m in models[:10]],
+                    }
+        except (httpx.HTTPError, OSError):
+            services["OL1"] = {"type": "ollama", "url": ol.url, "status": "offline"}
+
+    # Scan JARVIS WS server
+    try:
+        async with httpx.AsyncClient(timeout=2) as c:
+            r = await c.get("http://127.0.0.1:9742/health")
+            if r.status_code == 200:
+                services["jarvis_ws"] = {"type": "fastapi", "url": "http://127.0.0.1:9742", "status": "online"}
+    except (httpx.HTTPError, OSError):
+        services["jarvis_ws"] = {"type": "fastapi", "url": "http://127.0.0.1:9742", "status": "offline"}
+
+    # Scan Dashboard
+    try:
+        async with httpx.AsyncClient(timeout=2) as c:
+            r = await c.get("http://127.0.0.1:8080")
+            if r.status_code == 200:
+                services["dashboard"] = {"type": "static", "url": "http://127.0.0.1:8080", "status": "online"}
+    except (httpx.HTTPError, OSError):
+        services["dashboard"] = {"type": "static", "url": "http://127.0.0.1:8080", "status": "offline"}
+
+    log_startup_event("service_discovery", {"services_found": len(services), "online": sum(1 for s in services.values() if s.get("status") == "online")})
+    return services
+
+
+async def check_versions() -> dict[str, str]:
+    """Check versions of all cluster components."""
+    from src.config import JARVIS_VERSION
+    versions = {"jarvis": JARVIS_VERSION}
+
+    # Ollama version
+    ol = config.get_ollama_node("OL1")
+    if ol:
+        try:
+            async with httpx.AsyncClient(timeout=3) as c:
+                r = await c.get(f"{ol.url}/api/version")
+                if r.status_code == 200:
+                    versions["ollama"] = r.json().get("version", "?")
+        except (httpx.HTTPError, OSError):
+            versions["ollama"] = "offline"
+
+    # LM Studio version (via CLI)
+    try:
+        result = subprocess.run(
+            [LMS_CLI, "version"], capture_output=True, timeout=5,
+            encoding="utf-8", errors="replace",
+        )
+        if result.returncode == 0:
+            versions["lm_studio"] = _strip_ansi(result.stdout.strip())
+    except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
+        versions["lm_studio"] = "?"
+
+    return versions

@@ -41,6 +41,7 @@ async def _get_http() -> httpx.AsyncClient:
 
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parent.parent))
 from src.config import config, SCRIPTS, PATHS, prepare_lmstudio_input, build_lmstudio_payload, build_ollama_payload
+from src.security import sanitize_mcp_args, mcp_limiter, audit_log
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1313,6 +1314,1671 @@ async def handle_dict_crud(args: dict) -> list[TextContent]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# SECURITY & ANALYTICS HANDLERS (v10.4)
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_security_score(args: dict) -> list[TextContent]:
+    from src.security import calculate_security_score
+    result = await asyncio.to_thread(calculate_security_score)
+    return _text(json.dumps(result, indent=2))
+
+
+async def handle_security_audit_log(args: dict) -> list[TextContent]:
+    limit = _safe_int(args.get("limit"), 50)
+    severity = args.get("severity")
+    events = await asyncio.to_thread(audit_log.get_recent, limit, severity)
+    return _text(json.dumps(events, indent=2, default=str))
+
+
+async def handle_security_scan(args: dict) -> list[TextContent]:
+    """Scan for common security issues in the cluster configuration."""
+    issues = []
+
+    # Check for plaintext API keys in config
+    from src.config import config as cfg
+    for node in cfg.lm_nodes:
+        if node.api_key and not node.api_key.startswith("enc:"):
+            issues.append(f"WARNING: {node.name} API key stored in plaintext")
+
+    # Check for open ports without auth
+    if not any(n.api_key for n in cfg.lm_nodes):
+        issues.append("WARNING: No LM Studio nodes use authentication")
+
+    # Check Ollama (no auth by default)
+    issues.append("INFO: Ollama (OL1) does not support authentication (local only)")
+
+    # Check for .env file
+    import pathlib
+    env_path = pathlib.Path("F:/BUREAU/turbo/.env")
+    if env_path.exists():
+        issues.append("OK: .env file exists for secret management")
+    else:
+        issues.append("WARNING: No .env file found — secrets may be hardcoded")
+
+    # Check encryption key
+    from src.security import _FERNET_KEY_FILE
+    if _FERNET_KEY_FILE.exists():
+        issues.append("OK: Fernet encryption key exists")
+    else:
+        issues.append("WARNING: No encryption key — credentials not encrypted")
+
+    from src.security import calculate_security_score
+    score = calculate_security_score()
+
+    return _text(json.dumps({
+        "issues": issues,
+        "score": score,
+        "recommendations": [
+            "Enable TLS between cluster nodes",
+            "Rotate API keys every 24h",
+            "Add CORS restrictions to WebSocket server",
+            "Enable request signing for inter-node communication",
+        ],
+    }, indent=2))
+
+
+async def handle_cluster_analytics(args: dict) -> list[TextContent]:
+    """Cluster performance metrics from tool execution logs."""
+    hours = _safe_int(args.get("hours"), 24)
+    import time
+    cutoff = time.time() - hours * 3600
+
+    # Read from security audit log for now
+    events = await asyncio.to_thread(audit_log.get_recent, 1000)
+    tool_calls = [e for e in events if e["event_type"] == "tool_call" and e["timestamp"] > cutoff]
+    errors = [e for e in events if e["event_type"] == "tool_error" and e["timestamp"] > cutoff]
+
+    # Tool usage breakdown
+    tool_usage: dict[str, int] = {}
+    for e in tool_calls:
+        t = e.get("tool_name", "unknown")
+        tool_usage[t] = tool_usage.get(t, 0) + 1
+
+    return _text(json.dumps({
+        "period_hours": hours,
+        "total_calls": len(tool_calls),
+        "total_errors": len(errors),
+        "error_rate": f"{len(errors) / max(1, len(tool_calls)) * 100:.1f}%",
+        "tool_usage": dict(sorted(tool_usage.items(), key=lambda x: x[1], reverse=True)[:20]),
+    }, indent=2))
+
+
+async def handle_voice_analytics(args: dict) -> list[TextContent]:
+    """Voice pipeline statistics."""
+    from src.voice import _command_cache
+    import threading
+
+    cache_size = len(_command_cache)
+    cache_max = 200
+
+    # Get voice correction stats from etoile.db
+    stats = {}
+    try:
+        def _get_stats():
+            conn = sqlite3.connect("F:/BUREAU/turbo/data/etoile.db")
+            try:
+                corrections = conn.execute("SELECT COUNT(*) FROM voice_corrections").fetchone()[0]
+                dominos = conn.execute("SELECT COUNT(*) FROM domino_chains").fetchone()[0]
+                pipelines = conn.execute("SELECT COUNT(*) FROM pipeline_dictionary").fetchone()[0]
+                top_corrections = conn.execute(
+                    "SELECT wrong, correct, hit_count FROM voice_corrections ORDER BY hit_count DESC LIMIT 10"
+                ).fetchall()
+                return {
+                    "total_corrections": corrections,
+                    "total_dominos": dominos,
+                    "total_pipelines": pipelines,
+                    "top_corrections": [
+                        {"wrong": r[0], "correct": r[1], "hits": r[2]}
+                        for r in top_corrections
+                    ],
+                }
+            finally:
+                conn.close()
+        stats = await asyncio.to_thread(_get_stats)
+    except (sqlite3.Error, OSError):
+        stats = {"error": "Could not read etoile.db"}
+
+    return _text(json.dumps({
+        "cache_size": cache_size,
+        "cache_max": cache_max,
+        "cache_hit_rate": f"{cache_size / max(1, cache_max) * 100:.0f}% capacity",
+        **stats,
+    }, indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# OBSERVABILITY (3) — v10.6
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_observability_report(args: dict) -> list[TextContent]:
+    """Full observability matrix report."""
+    from src.observability import observability_matrix
+    report = observability_matrix.get_report()
+    return _text(json.dumps(report, indent=2, default=str))
+
+
+async def handle_observability_heatmap(args: dict) -> list[TextContent]:
+    """Heatmap data for cluster metrics."""
+    from src.observability import observability_matrix
+    window = args.get("window", "5m")
+    return _text(json.dumps(observability_matrix.get_heatmap(window), indent=2))
+
+
+async def handle_observability_alerts(args: dict) -> list[TextContent]:
+    """Active anomaly alerts."""
+    from src.observability import observability_matrix
+    threshold = float(args.get("threshold", 0.7))
+    return _text(json.dumps(observability_matrix.get_alerts(threshold), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DRIFT DETECTION (3) — v10.6
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_drift_check(args: dict) -> list[TextContent]:
+    """Check model drift status."""
+    from src.drift_detector import drift_detector
+    return _text(json.dumps(drift_detector.get_report(), indent=2, default=str))
+
+
+async def handle_drift_model_health(args: dict) -> list[TextContent]:
+    """Health status for a specific model."""
+    from src.drift_detector import drift_detector
+    model = args.get("model", "")
+    if not model:
+        return _text(json.dumps(drift_detector.get_all_health(), indent=2, default=str))
+    return _text(json.dumps(drift_detector.get_model_health(model), indent=2, default=str))
+
+
+async def handle_drift_reroute(args: dict) -> list[TextContent]:
+    """Suggest rerouting based on drift analysis."""
+    from src.drift_detector import drift_detector
+    task_type = args.get("task_type", "code")
+    candidates = [c.strip() for c in args.get("candidates", "M1,M2,OL1,GEMINI").split(",")]
+    reordered = drift_detector.suggest_rerouting(task_type, candidates)
+    degraded = drift_detector.get_degraded_models()
+    return _text(json.dumps({"task_type": task_type, "order": reordered, "degraded": degraded}))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AUTO-TUNE (3) — v10.6
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_auto_tune_status(args: dict) -> list[TextContent]:
+    """Auto-tune scheduler status."""
+    from src.auto_tune import auto_tune
+    return _text(json.dumps(auto_tune.get_status(), indent=2))
+
+
+async def handle_auto_tune_sample(args: dict) -> list[TextContent]:
+    """Take a resource sample (CPU, GPU, memory)."""
+    from src.auto_tune import auto_tune
+    snap = await asyncio.to_thread(auto_tune.sample)
+    return _text(json.dumps({
+        "cpu": snap.cpu_percent, "memory": snap.memory_percent,
+        "gpu_temp": snap.gpu_temp_c, "gpu_util": snap.gpu_util_percent,
+        "vram_used_mb": snap.gpu_memory_used_mb, "vram_total_mb": snap.gpu_memory_total_mb,
+    }))
+
+
+async def handle_auto_tune_cooldown(args: dict) -> list[TextContent]:
+    """Apply cooldown to a node."""
+    from src.auto_tune import auto_tune
+    node = args.get("node", "")
+    seconds = float(args.get("seconds", 30))
+    if not node:
+        return _error("node parameter required")
+    auto_tune.apply_cooldown(node, seconds)
+    return _text(f"Node {node} in cooldown for {seconds}s")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TRADING V3 (3) — v10.6
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_trading_backtest_list(args: dict) -> list[TextContent]:
+    """List saved backtest results."""
+    from src.trading_engine import backtest_engine
+    results = backtest_engine.list_results()
+    return _text(json.dumps(results[:20], indent=2))
+
+
+async def handle_trading_strategy_rankings(args: dict) -> list[TextContent]:
+    """Get strategy rankings by performance."""
+    from src.trading_engine import strategy_scorer
+    top_n = _safe_int(args.get("top_n"), 10)
+    return _text(json.dumps(strategy_scorer.get_strategy_rankings(top_n), indent=2))
+
+
+async def handle_trading_flow_status(args: dict) -> list[TextContent]:
+    """Active trading flow status."""
+    from src.trading_engine import trading_flow
+    return _text(json.dumps(trading_flow.get_active_flows(), indent=2, default=str))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# INTENT CLASSIFIER (2) — v10.6
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_intent_classify(args: dict) -> list[TextContent]:
+    """Classify voice/text intent."""
+    from src.intent_classifier import intent_classifier
+    text = args.get("text", "")
+    if not text:
+        return _error("text parameter required")
+    results = intent_classifier.classify(text)
+    return _text(json.dumps([
+        {"intent": r.intent, "confidence": r.confidence, "entities": r.entities, "source": r.source}
+        for r in results
+    ], indent=2))
+
+
+async def handle_intent_report(args: dict) -> list[TextContent]:
+    """Intent classifier accuracy report."""
+    from src.intent_classifier import intent_classifier
+    return _text(json.dumps(intent_classifier.get_report(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TOOL METRICS (3) — v10.6
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_tool_metrics_report(args: dict) -> list[TextContent]:
+    """MCP tool performance metrics."""
+    from src.tools import get_tool_metrics_report
+    return _text(json.dumps(get_tool_metrics_report(), indent=2))
+
+
+async def handle_cache_stats(args: dict) -> list[TextContent]:
+    """Response cache statistics."""
+    from src.tools import get_cache_stats
+    return _text(json.dumps(get_cache_stats(), indent=2))
+
+
+async def handle_cache_clear(args: dict) -> list[TextContent]:
+    """Clear response cache."""
+    from src.tools import clear_cache
+    category = args.get("category")
+    clear_cache(category)
+    return _text(f"Cache cleared{' (' + category + ')' if category else ' (all)'}")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DATABASE MAINTENANCE (2) — v10.6
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_db_health(args: dict) -> list[TextContent]:
+    """Database health check."""
+    from src.database import get_db_health
+    return _text(json.dumps(await asyncio.to_thread(get_db_health), indent=2))
+
+
+async def handle_db_maintenance(args: dict) -> list[TextContent]:
+    """Run database maintenance (VACUUM + ANALYZE)."""
+    from src.database import auto_maintenance
+    force = args.get("force", False)
+    result = await asyncio.to_thread(auto_maintenance, force)
+    return _text(json.dumps(result, indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ORCHESTRATOR V2 — Phase 4
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_orch_dashboard(args: dict) -> list[TextContent]:
+    """Full orchestrator_v2 dashboard (observability + drift + tune + routing + budget)."""
+    from src.orchestrator_v2 import orchestrator_v2
+    return _text(json.dumps(orchestrator_v2.get_dashboard(), indent=2, default=str))
+
+
+async def handle_orch_node_stats(args: dict) -> list[TextContent]:
+    """Per-node runtime statistics (calls, success rate, latency, tokens)."""
+    from src.orchestrator_v2 import orchestrator_v2
+    return _text(json.dumps(orchestrator_v2.get_node_stats(), indent=2, default=str))
+
+
+async def handle_orch_budget(args: dict) -> list[TextContent]:
+    """Token budget report for current session."""
+    from src.orchestrator_v2 import orchestrator_v2
+    return _text(json.dumps(orchestrator_v2.get_budget_report(), indent=2))
+
+
+async def handle_orch_reset_budget(args: dict) -> list[TextContent]:
+    """Reset session token budget counters."""
+    from src.orchestrator_v2 import orchestrator_v2
+    orchestrator_v2.reset_budget()
+    return _text("Budget reset OK")
+
+
+async def handle_orch_fallback(args: dict) -> list[TextContent]:
+    """Get drift-aware fallback chain for a task type."""
+    from src.orchestrator_v2 import orchestrator_v2
+    task_type = args.get("task_type", "code")
+    exclude = set(args.get("exclude", "").split(",")) - {""}
+    chain = orchestrator_v2.fallback_chain(task_type, exclude=exclude)
+    return _text(json.dumps({"task_type": task_type, "chain": chain}, indent=2))
+
+
+async def handle_orch_best_node(args: dict) -> list[TextContent]:
+    """Pick the best node for a task type using weighted scoring + drift filtering."""
+    from src.orchestrator_v2 import orchestrator_v2, ROUTING_MATRIX
+    task_type = args.get("task_type", "code")
+    matrix_entry = ROUTING_MATRIX.get(task_type, ROUTING_MATRIX.get("simple", []))
+    candidates = [n for n, _ in matrix_entry]
+    best = orchestrator_v2.get_best_node(candidates, task_type)
+    scores = {n: orchestrator_v2.weighted_score(n, task_type) for n in candidates}
+    return _text(json.dumps({"task_type": task_type, "best": best, "scores": scores}, indent=2))
+
+
+async def handle_orch_record_call(args: dict) -> list[TextContent]:
+    """Manually record a call for a node (for testing/calibration)."""
+    from src.orchestrator_v2 import orchestrator_v2
+    node = args.get("node", "M1")
+    latency_ms = float(args.get("latency_ms", 100))
+    success = args.get("success", True)
+    tokens = _safe_int(args.get("tokens"), 0)
+    quality = float(args.get("quality", 1.0))
+    orchestrator_v2.record_call(node, latency_ms, success, tokens, quality)
+    return _text(f"Recorded call for {node}: {latency_ms}ms, success={success}, tokens={tokens}")
+
+
+async def handle_orch_health(args: dict) -> list[TextContent]:
+    """Cluster health score 0-100 (observability 40% + drift 30% + tune 30%)."""
+    from src.orchestrator_v2 import orchestrator_v2
+    score = orchestrator_v2.health_check()
+    alerts = orchestrator_v2.get_alerts()
+    return _text(json.dumps({"health_score": score, "alerts": alerts}, indent=2, default=str))
+
+
+async def handle_orch_routing_matrix(args: dict) -> list[TextContent]:
+    """Show the full routing matrix (task_type -> node preferences + weights)."""
+    from src.orchestrator_v2 import ROUTING_MATRIX
+    matrix = {k: [{"node": n, "weight": w} for n, w in v] for k, v in ROUTING_MATRIX.items()}
+    return _text(json.dumps(matrix, indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TASK QUEUE — Phase 4 Vague 2
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_task_enqueue(args: dict) -> list[TextContent]:
+    """Add a task to the smart queue."""
+    from src.task_queue import task_queue
+    prompt = args.get("prompt", "")
+    if not prompt:
+        return _error("missing 'prompt'")
+    task_id = task_queue.enqueue(
+        prompt,
+        task_type=args.get("task_type", "code"),
+        priority=_safe_int(args.get("priority"), 5),
+    )
+    return _text(f"Task {task_id} enqueued")
+
+
+async def handle_task_list(args: dict) -> list[TextContent]:
+    """List pending tasks."""
+    from src.task_queue import task_queue
+    return _text(json.dumps(task_queue.list_pending(_safe_int(args.get("limit"), 20)), indent=2, default=str))
+
+
+async def handle_task_status(args: dict) -> list[TextContent]:
+    """Get task queue stats."""
+    from src.task_queue import task_queue
+    return _text(json.dumps(task_queue.get_stats(), indent=2))
+
+
+async def handle_task_cancel(args: dict) -> list[TextContent]:
+    """Cancel a pending task."""
+    from src.task_queue import task_queue
+    task_id = args.get("task_id", "")
+    ok = task_queue.cancel(task_id)
+    return _text(f"Task {task_id} {'cancelled' if ok else 'not found or not pending'}")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# NOTIFICATIONS — Phase 4 Vague 2
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_notif_send(args: dict) -> list[TextContent]:
+    """Send a notification."""
+    from src.notifier import notifier
+    message = args.get("message", "")
+    if not message:
+        return _error("missing 'message'")
+    ok = await notifier.alert(message, level=args.get("level", "info"), source=args.get("source", "mcp"))
+    return _text(f"Notification {'sent' if ok else 'rate-limited'}")
+
+
+async def handle_notif_history(args: dict) -> list[TextContent]:
+    """Get notification history."""
+    from src.notifier import notifier
+    return _text(json.dumps(notifier.get_history(_safe_int(args.get("limit"), 50)), indent=2))
+
+
+async def handle_notif_stats(args: dict) -> list[TextContent]:
+    """Get notification stats."""
+    from src.notifier import notifier
+    return _text(json.dumps(notifier.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AUTONOMOUS LOOP — Phase 4 Vague 2
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_autonomous_status(args: dict) -> list[TextContent]:
+    """Autonomous loop full status."""
+    from src.autonomous_loop import autonomous_loop
+    return _text(json.dumps(autonomous_loop.get_status(), indent=2, default=str))
+
+
+async def handle_autonomous_events(args: dict) -> list[TextContent]:
+    """Recent autonomous loop events."""
+    from src.autonomous_loop import autonomous_loop
+    return _text(json.dumps(autonomous_loop.get_events(_safe_int(args.get("limit"), 50)), indent=2, default=str))
+
+
+async def handle_autonomous_toggle(args: dict) -> list[TextContent]:
+    """Enable/disable an autonomous task."""
+    from src.autonomous_loop import autonomous_loop
+    name = args.get("task_name", "")
+    enabled = args.get("enabled", True)
+    autonomous_loop.enable(name, enabled)
+    return _text(f"Task '{name}' {'enabled' if enabled else 'disabled'}")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AGENT MEMORY — Phase 4 Vague 3
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_memory_remember(args: dict) -> list[TextContent]:
+    """Store a persistent memory."""
+    from src.agent_memory import agent_memory
+    content = args.get("content", "")
+    if not content:
+        return _error("missing 'content'")
+    mem_id = agent_memory.remember(
+        content,
+        category=args.get("category", "general"),
+        importance=float(args.get("importance", 1.0)),
+    )
+    return _text(f"Memory {mem_id} stored")
+
+
+async def handle_memory_recall(args: dict) -> list[TextContent]:
+    """Search memories by similarity."""
+    from src.agent_memory import agent_memory
+    query = args.get("query", "")
+    if not query:
+        return _error("missing 'query'")
+    results = agent_memory.recall(
+        query,
+        limit=_safe_int(args.get("limit"), 5),
+        category=args.get("category") or None,
+    )
+    return _text(json.dumps(results, indent=2))
+
+
+async def handle_memory_list(args: dict) -> list[TextContent]:
+    """List all memories."""
+    from src.agent_memory import agent_memory
+    return _text(json.dumps(
+        agent_memory.list_all(args.get("category") or None, _safe_int(args.get("limit"), 50)),
+        indent=2,
+    ))
+
+
+async def handle_memory_forget(args: dict) -> list[TextContent]:
+    """Delete a memory by ID."""
+    from src.agent_memory import agent_memory
+    mem_id = _safe_int(args.get("memory_id"), 0)
+    ok = agent_memory.forget(mem_id)
+    return _text(f"Memory {mem_id} {'deleted' if ok else 'not found'}")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# CONVERSATION STORE — Phase 4 Vague 4
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_conv_create(args: dict) -> list[TextContent]:
+    """Create a new conversation."""
+    from src.conversation_store import conversation_store
+    conv_id = conversation_store.create(
+        title=args.get("title", ""),
+        source=args.get("source", "mcp"),
+    )
+    return _text(f"Conversation {conv_id} created")
+
+
+async def handle_conv_add_turn(args: dict) -> list[TextContent]:
+    """Add a turn to a conversation."""
+    from src.conversation_store import conversation_store
+    conv_id = args.get("conv_id", "")
+    if not conv_id:
+        return _error("missing 'conv_id'")
+    turn_id = conversation_store.add_turn(
+        conv_id, node=args.get("node", ""),
+        prompt=args.get("prompt", ""), response=args.get("response", ""),
+        latency_ms=float(args.get("latency_ms", 0)),
+        tokens=_safe_int(args.get("tokens"), 0),
+    )
+    return _text(f"Turn {turn_id} added to conversation {conv_id}")
+
+
+async def handle_conv_list(args: dict) -> list[TextContent]:
+    """List recent conversations."""
+    from src.conversation_store import conversation_store
+    return _text(json.dumps(
+        conversation_store.list_conversations(
+            limit=_safe_int(args.get("limit"), 20),
+            source=args.get("source") or None,
+        ),
+        indent=2, default=str,
+    ))
+
+
+async def handle_conv_stats(args: dict) -> list[TextContent]:
+    """Conversation stats."""
+    from src.conversation_store import conversation_store
+    return _text(json.dumps(conversation_store.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# LOAD BALANCER — Phase 4 Vague 4
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_lb_pick(args: dict) -> list[TextContent]:
+    """Pick best node via load balancer."""
+    from src.load_balancer import load_balancer
+    task_type = args.get("task_type", "code")
+    node = load_balancer.pick(task_type)
+    load_balancer.release(node)  # release immediately for MCP query
+    return _text(json.dumps({"task_type": task_type, "selected_node": node}))
+
+
+async def handle_lb_status(args: dict) -> list[TextContent]:
+    """Load balancer status."""
+    from src.load_balancer import load_balancer
+    return _text(json.dumps(load_balancer.get_status(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PROACTIVE AGENT — Phase 4 Vague 4
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_proactive_analyze(args: dict) -> list[TextContent]:
+    """Run proactive analysis."""
+    from src.proactive_agent import proactive_agent
+    suggestions = await proactive_agent.analyze()
+    return _text(json.dumps(suggestions, indent=2))
+
+
+async def handle_proactive_dismiss(args: dict) -> list[TextContent]:
+    """Dismiss a proactive suggestion."""
+    from src.proactive_agent import proactive_agent
+    key = args.get("key", "")
+    proactive_agent.dismiss(key)
+    return _text(f"Suggestion '{key}' dismissed")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AUTO-OPTIMIZER — Phase 5
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_optimizer_optimize(args: dict) -> list[TextContent]:
+    """Run auto-optimization cycle."""
+    from src.auto_optimizer import auto_optimizer
+    adjustments = auto_optimizer.force_optimize()
+    return _text(json.dumps(adjustments, indent=2, default=str))
+
+
+async def handle_optimizer_history(args: dict) -> list[TextContent]:
+    """Get optimization history."""
+    from src.auto_optimizer import auto_optimizer
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(auto_optimizer.get_history(limit), indent=2, default=str))
+
+
+async def handle_optimizer_stats(args: dict) -> list[TextContent]:
+    """Get optimizer stats."""
+    from src.auto_optimizer import auto_optimizer
+    return _text(json.dumps(auto_optimizer.get_stats(), indent=2, default=str))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# EVENT BUS — Phase 5
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_eventbus_emit(args: dict) -> list[TextContent]:
+    """Emit an event on the bus."""
+    from src.event_bus import event_bus
+    event = args.get("event", "")
+    data_str = args.get("data", "{}")
+    try:
+        data = json.loads(data_str)
+    except Exception:
+        data = {"raw": data_str}
+    count = await event_bus.emit(event, data)
+    return _text(f"Event '{event}' emitted to {count} handlers")
+
+
+async def handle_eventbus_stats(args: dict) -> list[TextContent]:
+    """Get event bus stats."""
+    from src.event_bus import event_bus
+    return _text(json.dumps(event_bus.get_stats(), indent=2, default=str))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# METRICS AGGREGATOR — Phase 5
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_metrics_snapshot(args: dict) -> list[TextContent]:
+    """Take a real-time metrics snapshot."""
+    from src.metrics_aggregator import metrics_aggregator
+    return _text(json.dumps(metrics_aggregator.snapshot(), indent=2, default=str))
+
+
+async def handle_metrics_history(args: dict) -> list[TextContent]:
+    """Get metrics history."""
+    from src.metrics_aggregator import metrics_aggregator
+    minutes = int(args.get("minutes", 60))
+    return _text(json.dumps(metrics_aggregator.get_history(minutes), indent=2, default=str))
+
+
+async def handle_metrics_summary(args: dict) -> list[TextContent]:
+    """Get metrics aggregator summary."""
+    from src.metrics_aggregator import metrics_aggregator
+    return _text(json.dumps(metrics_aggregator.get_summary(), indent=2, default=str))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# CONFIG MANAGER — Phase 7
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_config_get(args: dict) -> list[TextContent]:
+    """Get a config value."""
+    from src.config_manager import config_manager
+    key = args.get("key", "")
+    if key:
+        return _text(json.dumps(config_manager.get(key), indent=2, default=str))
+    return _text(json.dumps(config_manager.get_all(), indent=2, default=str))
+
+
+async def handle_config_set(args: dict) -> list[TextContent]:
+    """Set a config value."""
+    from src.config_manager import config_manager
+    key = args.get("key", "")
+    value_str = args.get("value", "")
+    try:
+        value = json.loads(value_str)
+    except Exception:
+        value = value_str
+    config_manager.set(key, value)
+    return _text(f"Config '{key}' set to {value}")
+
+
+async def handle_config_reload(args: dict) -> list[TextContent]:
+    """Hot-reload config."""
+    from src.config_manager import config_manager
+    reloaded = config_manager.reload()
+    return _text(f"Config reloaded: {reloaded}")
+
+
+async def handle_config_stats(args: dict) -> list[TextContent]:
+    """Config stats."""
+    from src.config_manager import config_manager
+    return _text(json.dumps(config_manager.get_stats(), indent=2, default=str))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AUDIT TRAIL — Phase 7
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_audit_log(args: dict) -> list[TextContent]:
+    """Log an audit entry."""
+    from src.audit_trail import audit_trail
+    entry_id = audit_trail.log(
+        action_type=args.get("action_type", "manual"),
+        action=args.get("action", ""),
+        source=args.get("source", "mcp"),
+        details=json.loads(args.get("details", "{}")),
+    )
+    return _text(f"Audit logged: {entry_id}")
+
+
+async def handle_audit_search(args: dict) -> list[TextContent]:
+    """Search audit log."""
+    from src.audit_trail import audit_trail
+    results = audit_trail.search(
+        action_type=args.get("action_type"),
+        source=args.get("source"),
+        query=args.get("query"),
+        limit=int(args.get("limit", 20)),
+    )
+    return _text(json.dumps(results, indent=2, default=str))
+
+
+async def handle_audit_stats(args: dict) -> list[TextContent]:
+    """Audit stats."""
+    from src.audit_trail import audit_trail
+    return _text(json.dumps(audit_trail.get_stats(), indent=2, default=str))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# CLUSTER DIAGNOSTICS — Phase 7
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_diagnostics_run(args: dict) -> list[TextContent]:
+    """Run full cluster diagnostic."""
+    from src.cluster_diagnostics import cluster_diagnostics
+    report = cluster_diagnostics.run_diagnostic()
+    return _text(json.dumps(report, indent=2, default=str))
+
+
+async def handle_diagnostics_quick(args: dict) -> list[TextContent]:
+    """Quick cluster status."""
+    from src.cluster_diagnostics import cluster_diagnostics
+    return _text(json.dumps(cluster_diagnostics.get_quick_status(), indent=2, default=str))
+
+
+async def handle_diagnostics_history(args: dict) -> list[TextContent]:
+    """Diagnostic history."""
+    from src.cluster_diagnostics import cluster_diagnostics
+    return _text(json.dumps(cluster_diagnostics.get_history(), indent=2, default=str))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# WORKFLOW ENGINE — Phase 6
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_workflow_create(args: dict) -> list[TextContent]:
+    """Create a workflow."""
+    from src.workflow_engine import workflow_engine
+    steps = json.loads(args.get("steps", "[]"))
+    wf_id = workflow_engine.create(args.get("name", "unnamed"), steps)
+    return _text(f"Workflow created: {wf_id}")
+
+
+async def handle_workflow_list(args: dict) -> list[TextContent]:
+    """List workflows."""
+    from src.workflow_engine import workflow_engine
+    return _text(json.dumps(workflow_engine.list_workflows(int(args.get("limit", 20))), indent=2, default=str))
+
+
+async def handle_workflow_execute(args: dict) -> list[TextContent]:
+    """Execute a workflow."""
+    from src.workflow_engine import workflow_engine
+    wf_id = args.get("workflow_id", "")
+    run_id = await workflow_engine.execute(wf_id)
+    run = workflow_engine.get_run(run_id)
+    return _text(json.dumps(run, indent=2, default=str))
+
+
+async def handle_workflow_stats(args: dict) -> list[TextContent]:
+    """Workflow engine stats."""
+    from src.workflow_engine import workflow_engine
+    return _text(json.dumps(workflow_engine.get_stats(), indent=2, default=str))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SESSION MANAGER — Phase 6
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_session_create(args: dict) -> list[TextContent]:
+    """Create a session."""
+    from src.session_manager import session_manager
+    sid = session_manager.create(args.get("source", "mcp"))
+    return _text(f"Session created: {sid}")
+
+
+async def handle_session_context(args: dict) -> list[TextContent]:
+    """Get session context."""
+    from src.session_manager import session_manager
+    sid = args.get("session_id", "")
+    ctx = session_manager.get_context(sid)
+    return _text(json.dumps(ctx, indent=2, default=str))
+
+
+async def handle_session_list(args: dict) -> list[TextContent]:
+    """List sessions."""
+    from src.session_manager import session_manager
+    return _text(json.dumps(session_manager.list_sessions(int(args.get("limit", 20))), indent=2, default=str))
+
+
+async def handle_session_stats(args: dict) -> list[TextContent]:
+    """Session stats."""
+    from src.session_manager import session_manager
+    return _text(json.dumps(session_manager.get_stats(), indent=2, default=str))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ALERT MANAGER — Phase 6
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_alert_fire(args: dict) -> list[TextContent]:
+    """Fire an alert."""
+    from src.alert_manager import alert_manager
+    ok = await alert_manager.fire(
+        key=args.get("key", ""), message=args.get("message", ""),
+        level=args.get("level", "info"), source=args.get("source", "mcp"),
+    )
+    return _text(f"Alert fired: {ok}")
+
+
+async def handle_alert_active(args: dict) -> list[TextContent]:
+    """Get active alerts."""
+    from src.alert_manager import alert_manager
+    return _text(json.dumps(alert_manager.get_active(args.get("level")), indent=2, default=str))
+
+
+async def handle_alert_acknowledge(args: dict) -> list[TextContent]:
+    """Acknowledge an alert."""
+    from src.alert_manager import alert_manager
+    ok = alert_manager.acknowledge(args.get("key", ""))
+    return _text(f"Acknowledged: {ok}")
+
+
+async def handle_alert_resolve(args: dict) -> list[TextContent]:
+    """Resolve an alert."""
+    from src.alert_manager import alert_manager
+    ok = alert_manager.resolve(args.get("key", ""))
+    return _text(f"Resolved: {ok}")
+
+
+async def handle_alert_stats(args: dict) -> list[TextContent]:
+    """Alert stats."""
+    from src.alert_manager import alert_manager
+    return _text(json.dumps(alert_manager.get_stats(), indent=2, default=str))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# RATE LIMITER — Phase 8
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_ratelimit_check(args: dict) -> list[TextContent]:
+    """Check if a request to a node is allowed."""
+    from src.rate_limiter import rate_limiter
+    node = args.get("node", "M1")
+    allowed = rate_limiter.allow(node)
+    return _text(json.dumps({"node": node, "allowed": allowed}))
+
+
+async def handle_ratelimit_stats(args: dict) -> list[TextContent]:
+    """Rate limiter stats for all nodes."""
+    from src.rate_limiter import rate_limiter
+    return _text(json.dumps(rate_limiter.get_all_stats(), indent=2))
+
+
+async def handle_ratelimit_configure(args: dict) -> list[TextContent]:
+    """Configure rate limit for a node."""
+    from src.rate_limiter import rate_limiter
+    node = args.get("node", "M1")
+    rps = float(args.get("rps", 10))
+    burst = float(args.get("burst", rps * 2))
+    rate_limiter.configure_node(node, rps, burst)
+    return _text(f"Rate limit configured: {node} → {rps} rps, burst {burst}")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TASK SCHEDULER — Phase 8
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_scheduler_list(args: dict) -> list[TextContent]:
+    """List scheduled jobs."""
+    from src.task_scheduler import task_scheduler
+    return _text(json.dumps(task_scheduler.list_jobs(), indent=2, default=str))
+
+
+async def handle_scheduler_add(args: dict) -> list[TextContent]:
+    """Add a scheduled job."""
+    from src.task_scheduler import task_scheduler
+    job_id = task_scheduler.add_job(
+        name=args.get("name", "unnamed"),
+        action=args.get("action", "noop"),
+        interval_s=float(args.get("interval_s", 60)),
+        params=json.loads(args.get("params", "{}")),
+        one_shot=bool(args.get("one_shot", False)),
+    )
+    return _text(f"Job added: {job_id}")
+
+
+async def handle_scheduler_remove(args: dict) -> list[TextContent]:
+    """Remove a scheduled job."""
+    from src.task_scheduler import task_scheduler
+    ok = task_scheduler.remove_job(args.get("job_id", ""))
+    return _text("Job removed" if ok else "Job not found")
+
+
+async def handle_scheduler_stats(args: dict) -> list[TextContent]:
+    """Scheduler stats."""
+    from src.task_scheduler import task_scheduler
+    return _text(json.dumps(task_scheduler.get_stats(), indent=2, default=str))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# HEALTH DASHBOARD — Phase 8
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_health_full(args: dict) -> list[TextContent]:
+    """Full health dashboard report."""
+    from src.health_dashboard import health_dashboard
+    return _text(json.dumps(health_dashboard.collect(), indent=2, default=str))
+
+
+async def handle_health_summary(args: dict) -> list[TextContent]:
+    """Lightweight health summary."""
+    from src.health_dashboard import health_dashboard
+    return _text(json.dumps(health_dashboard.get_summary(), indent=2, default=str))
+
+
+async def handle_health_history(args: dict) -> list[TextContent]:
+    """Health report history."""
+    from src.health_dashboard import health_dashboard
+    return _text(json.dumps(health_dashboard.get_history(), indent=2, default=str))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PLUGIN MANAGER — Phase 9
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_plugin_list(args: dict) -> list[TextContent]:
+    """List loaded plugins."""
+    from src.plugin_manager import plugin_manager
+    return _text(json.dumps(plugin_manager.list_plugins(), indent=2, default=str))
+
+
+async def handle_plugin_discover(args: dict) -> list[TextContent]:
+    """Discover available plugins."""
+    from src.plugin_manager import plugin_manager
+    discovered = plugin_manager.discover()
+    return _text(json.dumps(discovered))
+
+
+async def handle_plugin_stats(args: dict) -> list[TextContent]:
+    """Plugin manager stats."""
+    from src.plugin_manager import plugin_manager
+    return _text(json.dumps(plugin_manager.get_stats(), indent=2, default=str))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# COMMAND ROUTER — Phase 9
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_cmd_route(args: dict) -> list[TextContent]:
+    """Route a natural language command."""
+    from src.command_router import command_router
+    text = args.get("text", "")
+    result = command_router.route(text)
+    if result:
+        return _text(json.dumps({
+            "route": result.route.name,
+            "score": round(result.score, 3),
+            "matched_by": result.matched_by,
+            "captures": result.captures,
+        }))
+    return _text(json.dumps({"route": None, "message": "No matching route"}))
+
+
+async def handle_cmd_routes(args: dict) -> list[TextContent]:
+    """List all command routes."""
+    from src.command_router import command_router
+    return _text(json.dumps(command_router.get_routes(), indent=2, default=str))
+
+
+async def handle_cmd_stats(args: dict) -> list[TextContent]:
+    """Command router stats."""
+    from src.command_router import command_router
+    return _text(json.dumps(command_router.get_stats(), indent=2, default=str))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# RESOURCE MONITOR — Phase 9
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_resource_sample(args: dict) -> list[TextContent]:
+    """Take a resource snapshot (CPU, RAM, GPU, Disk)."""
+    from src.resource_monitor import resource_monitor
+    snap = resource_monitor.sample()
+    return _text(json.dumps(snap, indent=2, default=str))
+
+
+async def handle_resource_latest(args: dict) -> list[TextContent]:
+    """Get latest resource snapshot."""
+    from src.resource_monitor import resource_monitor
+    return _text(json.dumps(resource_monitor.get_latest(), indent=2, default=str))
+
+
+async def handle_resource_stats(args: dict) -> list[TextContent]:
+    """Resource monitor stats."""
+    from src.resource_monitor import resource_monitor
+    return _text(json.dumps(resource_monitor.get_stats(), indent=2, default=str))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# CACHE MANAGER — Phase 11
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_cache_get(args: dict) -> list[TextContent]:
+    """Get a cached value."""
+    from src.cache_manager import cache_manager
+    key = args.get("key", "")
+    ns = args.get("namespace", "default")
+    val = cache_manager.get(key, ns)
+    return _text(json.dumps({"key": key, "value": val, "hit": val is not None}))
+
+
+async def handle_cache_set(args: dict) -> list[TextContent]:
+    """Set a cache value."""
+    from src.cache_manager import cache_manager
+    key = args.get("key", "")
+    value = args.get("value", "")
+    ns = args.get("namespace", "default")
+    ttl = float(args.get("ttl_s", 300))
+    cache_manager.set(key, value, ns, ttl)
+    return _text(f"Cached: {key} in {ns}")
+
+
+async def handle_cache_mgr_stats(args: dict) -> list[TextContent]:
+    """Cache manager stats (L1/L2 hit rates)."""
+    from src.cache_manager import cache_manager
+    return _text(json.dumps(cache_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SECRET VAULT — Phase 11
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_vault_list(args: dict) -> list[TextContent]:
+    """List secret keys (no values)."""
+    from src.secret_vault import secret_vault
+    return _text(json.dumps(secret_vault.list_entries(), indent=2, default=str))
+
+
+async def handle_vault_stats(args: dict) -> list[TextContent]:
+    """Vault stats."""
+    from src.secret_vault import secret_vault
+    return _text(json.dumps(secret_vault.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DEPENDENCY GRAPH — Phase 11
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_depgraph_show(args: dict) -> list[TextContent]:
+    """Show full dependency graph."""
+    from src.dependency_graph import dep_graph
+    return _text(json.dumps(dep_graph.get_graph(), indent=2))
+
+
+async def handle_depgraph_impact(args: dict) -> list[TextContent]:
+    """Impact analysis for a module."""
+    from src.dependency_graph import dep_graph
+    node = args.get("node", "")
+    affected = dep_graph.impact_analysis(node)
+    return _text(json.dumps({"node": node, "affected": affected, "count": len(affected)}))
+
+
+async def handle_depgraph_order(args: dict) -> list[TextContent]:
+    """Startup order (topological sort)."""
+    from src.dependency_graph import dep_graph
+    try:
+        order = dep_graph.topological_sort()
+        return _text(json.dumps(order))
+    except ValueError as e:
+        return _error(str(e))
+
+
+async def handle_depgraph_stats(args: dict) -> list[TextContent]:
+    """Dependency graph stats."""
+    from src.dependency_graph import dep_graph
+    return _text(json.dumps(dep_graph.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# RETRY MANAGER — Phase 10
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_retry_stats(args: dict) -> list[TextContent]:
+    """Retry manager stats with circuit breaker states."""
+    from src.retry_manager import retry_manager
+    return _text(json.dumps(retry_manager.get_stats(), indent=2, default=str))
+
+
+async def handle_retry_reset(args: dict) -> list[TextContent]:
+    """Reset all circuit breakers."""
+    from src.retry_manager import retry_manager
+    retry_manager.reset_all()
+    return _text("All circuit breakers reset")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DATA PIPELINE — Phase 10
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_pipeline_list(args: dict) -> list[TextContent]:
+    """List data pipelines."""
+    from src.data_pipeline import data_pipeline
+    return _text(json.dumps(data_pipeline.list_pipelines(), indent=2, default=str))
+
+
+async def handle_pipeline_history(args: dict) -> list[TextContent]:
+    """Data pipeline execution history."""
+    from src.data_pipeline import data_pipeline
+    return _text(json.dumps(data_pipeline.get_history(), indent=2, default=str))
+
+
+async def handle_pipeline_stats(args: dict) -> list[TextContent]:
+    """Data pipeline stats."""
+    from src.data_pipeline import data_pipeline
+    return _text(json.dumps(data_pipeline.get_stats(), indent=2, default=str))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SERVICE REGISTRY — Phase 10
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_service_register(args: dict) -> list[TextContent]:
+    """Register a service."""
+    from src.service_registry import service_registry
+    name = args.get("name", "")
+    url = args.get("url", "")
+    stype = args.get("service_type", "generic")
+    service_registry.register(name, url, stype)
+    return _text(f"Service '{name}' registered at {url}")
+
+
+async def handle_service_list(args: dict) -> list[TextContent]:
+    """List registered services."""
+    from src.service_registry import service_registry
+    return _text(json.dumps(service_registry.list_services(), indent=2, default=str))
+
+
+async def handle_service_heartbeat(args: dict) -> list[TextContent]:
+    """Send heartbeat for a service."""
+    from src.service_registry import service_registry
+    name = args.get("name", "")
+    ok = service_registry.heartbeat(name)
+    return _text(f"Heartbeat {'OK' if ok else 'FAIL'} for {name}")
+
+
+async def handle_service_stats(args: dict) -> list[TextContent]:
+    """Service registry stats."""
+    from src.service_registry import service_registry
+    return _text(json.dumps(service_registry.get_stats(), indent=2, default=str))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# NOTIFICATION HUB — Phase 12
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_notif_channels(args: dict) -> list[TextContent]:
+    """List notification channels."""
+    from src.notification_hub import notification_hub
+    return _text(json.dumps(notification_hub.get_channels(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# FEATURE FLAGS — Phase 12
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_flag_list(args: dict) -> list[TextContent]:
+    """List all feature flags."""
+    from src.feature_flags import feature_flags
+    return _text(json.dumps(feature_flags.list_flags(), indent=2))
+
+
+async def handle_flag_check(args: dict) -> list[TextContent]:
+    """Check if a feature flag is enabled."""
+    from src.feature_flags import feature_flags
+    name = args.get("name", "")
+    context = args.get("context")
+    enabled = feature_flags.is_enabled(name, context)
+    return _text(json.dumps({"flag": name, "enabled": enabled}))
+
+
+async def handle_flag_toggle(args: dict) -> list[TextContent]:
+    """Toggle a feature flag."""
+    from src.feature_flags import feature_flags
+    name = args.get("name", "")
+    enabled = args.get("enabled")
+    if enabled is not None:
+        enabled = str(enabled).lower() in ("true", "1", "yes")
+    ok = feature_flags.toggle(name, enabled)
+    return _text(f"Flag '{name}' {'toggled' if ok else 'not found'}")
+
+
+async def handle_flag_stats(args: dict) -> list[TextContent]:
+    """Feature flag stats."""
+    from src.feature_flags import feature_flags
+    return _text(json.dumps(feature_flags.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# BACKUP MANAGER — Phase 12
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_backup_list(args: dict) -> list[TextContent]:
+    """List all backups."""
+    from src.backup_manager import backup_manager
+    source = args.get("source")
+    return _text(json.dumps(backup_manager.list_backups(source), indent=2, default=str))
+
+
+async def handle_backup_create(args: dict) -> list[TextContent]:
+    """Create a backup of a file."""
+    from src.backup_manager import backup_manager
+    from pathlib import Path
+    source = args.get("source", "")
+    tag = args.get("tag", "")
+    entry = backup_manager.backup_file(Path(source), tag=tag)
+    if entry:
+        return _text(json.dumps({"backup_id": entry.backup_id, "status": entry.status, "size": entry.size_bytes}))
+    return _text(json.dumps({"error": "Backup failed — source not found"}))
+
+
+async def handle_backup_stats(args: dict) -> list[TextContent]:
+    """Backup manager stats."""
+    from src.backup_manager import backup_manager
+    return _text(json.dumps(backup_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SESSION MANAGER V2 — Phase 13
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_session_v2_list(args: dict) -> list[TextContent]:
+    """List sessions."""
+    from src.session_manager_v2 import session_manager_v2
+    owner = args.get("owner")
+    status = args.get("status")
+    return _text(json.dumps(session_manager_v2.list_sessions(owner, status), indent=2, default=str))
+
+
+async def handle_session_v2_create(args: dict) -> list[TextContent]:
+    """Create a new session."""
+    from src.session_manager_v2 import session_manager_v2
+    owner = args.get("owner", "anonymous")
+    s = session_manager_v2.create(owner)
+    return _text(json.dumps({"session_id": s.session_id, "owner": s.owner, "status": s.status}))
+
+
+async def handle_session_v2_stats(args: dict) -> list[TextContent]:
+    """Session manager stats."""
+    from src.session_manager_v2 import session_manager_v2
+    return _text(json.dumps(session_manager_v2.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# QUEUE MANAGER — Phase 13
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_queue_list(args: dict) -> list[TextContent]:
+    """List queued tasks."""
+    from src.queue_manager import queue_manager
+    status = args.get("status")
+    return _text(json.dumps(queue_manager.list_tasks(status), indent=2, default=str))
+
+
+async def handle_queue_stats(args: dict) -> list[TextContent]:
+    """Queue manager stats."""
+    from src.queue_manager import queue_manager
+    return _text(json.dumps(queue_manager.get_stats(), indent=2, default=str))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# API GATEWAY — Phase 13
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_apigw_routes(args: dict) -> list[TextContent]:
+    """List API gateway routes."""
+    from src.api_gateway import api_gateway
+    return _text(json.dumps(api_gateway.get_routes(), indent=2))
+
+
+async def handle_apigw_clients(args: dict) -> list[TextContent]:
+    """List API gateway clients."""
+    from src.api_gateway import api_gateway
+    return _text(json.dumps(api_gateway.get_clients(), indent=2))
+
+
+async def handle_apigw_stats(args: dict) -> list[TextContent]:
+    """API gateway stats."""
+    from src.api_gateway import api_gateway
+    return _text(json.dumps(api_gateway.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TEMPLATE ENGINE — Phase 14
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_template_list(args: dict) -> list[TextContent]:
+    """List registered templates."""
+    from src.template_engine import template_engine
+    return _text(json.dumps(template_engine.list_templates(), indent=2))
+
+
+async def handle_template_render(args: dict) -> list[TextContent]:
+    """Render a named template."""
+    from src.template_engine import template_engine
+    name = args.get("name", "")
+    ctx = json.loads(args.get("context", "{}"))
+    result = template_engine.render_named(name, ctx)
+    if result is None:
+        return _text(json.dumps({"error": f"Template '{name}' not found"}))
+    return _text(result)
+
+
+async def handle_template_stats(args: dict) -> list[TextContent]:
+    """Template engine stats."""
+    from src.template_engine import template_engine
+    return _text(json.dumps(template_engine.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# STATE MACHINE — Phase 14
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_fsm_list(args: dict) -> list[TextContent]:
+    """List all state machines."""
+    from src.state_machine import state_machine_mgr
+    return _text(json.dumps(state_machine_mgr.list_machines(), indent=2))
+
+
+async def handle_fsm_stats(args: dict) -> list[TextContent]:
+    """State machine stats."""
+    from src.state_machine import state_machine_mgr
+    return _text(json.dumps(state_machine_mgr.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# LOG AGGREGATOR — Phase 14
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_logagg_query(args: dict) -> list[TextContent]:
+    """Query aggregated logs."""
+    from src.log_aggregator import log_aggregator
+    level = args.get("level")
+    source = args.get("source")
+    search = args.get("search")
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(log_aggregator.query(level=level, source=source, search=search, limit=limit), indent=2, default=str))
+
+
+async def handle_logagg_sources(args: dict) -> list[TextContent]:
+    """List log sources."""
+    from src.log_aggregator import log_aggregator
+    return _text(json.dumps(log_aggregator.get_sources()))
+
+
+async def handle_logagg_stats(args: dict) -> list[TextContent]:
+    """Log aggregator stats."""
+    from src.log_aggregator import log_aggregator
+    return _text(json.dumps(log_aggregator.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PERMISSION MANAGER — Phase 15
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_perm_roles(args: dict) -> list[TextContent]:
+    from src.permission_manager import permission_manager
+    return _text(json.dumps(permission_manager.list_roles(), indent=2))
+
+
+async def handle_perm_users(args: dict) -> list[TextContent]:
+    from src.permission_manager import permission_manager
+    return _text(json.dumps(permission_manager.list_users(), indent=2))
+
+
+async def handle_perm_check(args: dict) -> list[TextContent]:
+    from src.permission_manager import permission_manager
+    user_id = args.get("user_id", "")
+    perm = args.get("permission", "")
+    allowed = permission_manager.check_permission(user_id, perm)
+    return _text(json.dumps({"user_id": user_id, "permission": perm, "allowed": allowed}))
+
+
+async def handle_perm_stats(args: dict) -> list[TextContent]:
+    from src.permission_manager import permission_manager
+    return _text(json.dumps(permission_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ENVIRONMENT MANAGER — Phase 15
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_env_profiles(args: dict) -> list[TextContent]:
+    from src.env_manager import env_manager
+    return _text(json.dumps(env_manager.list_profiles(), indent=2))
+
+
+async def handle_env_get(args: dict) -> list[TextContent]:
+    from src.env_manager import env_manager
+    profile = args.get("profile")
+    return _text(json.dumps(env_manager.get_profile(profile), indent=2))
+
+
+async def handle_env_stats(args: dict) -> list[TextContent]:
+    from src.env_manager import env_manager
+    return _text(json.dumps(env_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TELEMETRY COLLECTOR — Phase 15
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_telemetry_counters(args: dict) -> list[TextContent]:
+    from src.telemetry_collector import telemetry
+    return _text(json.dumps(telemetry.get_counters(), indent=2))
+
+
+async def handle_telemetry_gauges(args: dict) -> list[TextContent]:
+    from src.telemetry_collector import telemetry
+    return _text(json.dumps(telemetry.get_gauges(), indent=2))
+
+
+async def handle_telemetry_stats(args: dict) -> list[TextContent]:
+    from src.telemetry_collector import telemetry
+    return _text(json.dumps(telemetry.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# EVENT STORE — Phase 16
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_evstore_streams(args: dict) -> list[TextContent]:
+    from src.event_store import event_store
+    return _text(json.dumps({"streams": event_store.streams()}, indent=2))
+
+
+async def handle_evstore_events(args: dict) -> list[TextContent]:
+    from src.event_store import event_store
+    stream = args.get("stream")
+    limit = int(args.get("limit", 50))
+    if stream:
+        events = event_store.get_stream(stream)[-limit:]
+    else:
+        events = event_store.get_all(limit=limit)
+    return _text(json.dumps([
+        {"id": e.event_id, "stream": e.stream, "type": e.event_type,
+         "version": e.version, "data": e.data, "timestamp": e.timestamp}
+        for e in events
+    ], indent=2))
+
+
+async def handle_evstore_stats(args: dict) -> list[TextContent]:
+    from src.event_store import event_store
+    return _text(json.dumps(event_store.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# WEBHOOK MANAGER — Phase 16
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_webhook_list(args: dict) -> list[TextContent]:
+    from src.webhook_manager import webhook_manager
+    return _text(json.dumps(webhook_manager.list_endpoints(), indent=2))
+
+
+async def handle_webhook_history(args: dict) -> list[TextContent]:
+    from src.webhook_manager import webhook_manager
+    name = args.get("name")
+    return _text(json.dumps(webhook_manager.get_history(webhook_name=name), indent=2))
+
+
+async def handle_webhook_stats(args: dict) -> list[TextContent]:
+    from src.webhook_manager import webhook_manager
+    return _text(json.dumps(webhook_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# HEALTH PROBE — Phase 16
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_hprobe_list(args: dict) -> list[TextContent]:
+    from src.health_probe import health_probe
+    return _text(json.dumps(health_probe.list_probes(), indent=2))
+
+
+async def handle_hprobe_run(args: dict) -> list[TextContent]:
+    from src.health_probe import health_probe
+    name = args.get("name")
+    if name:
+        r = health_probe.run_check(name)
+        if not r:
+            return _text(json.dumps({"error": "probe not found"}))
+        return _text(json.dumps({"name": r.name, "status": r.status.value,
+                                  "latency_ms": r.latency_ms, "message": r.message}))
+    results = health_probe.run_all()
+    return _text(json.dumps([
+        {"name": r.name, "status": r.status.value, "latency_ms": r.latency_ms, "message": r.message}
+        for r in results
+    ], indent=2))
+
+
+async def handle_hprobe_stats(args: dict) -> list[TextContent]:
+    from src.health_probe import health_probe
+    return _text(json.dumps(health_probe.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SERVICE MESH — Phase 17
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_mesh_services(args: dict) -> list[TextContent]:
+    from src.service_mesh import service_mesh
+    return _text(json.dumps(service_mesh.list_services(), indent=2))
+
+
+async def handle_mesh_names(args: dict) -> list[TextContent]:
+    from src.service_mesh import service_mesh
+    return _text(json.dumps({"services": service_mesh.list_service_names()}, indent=2))
+
+
+async def handle_mesh_stats(args: dict) -> list[TextContent]:
+    from src.service_mesh import service_mesh
+    return _text(json.dumps(service_mesh.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# CONFIG VAULT — Phase 17
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_cfgvault_namespaces(args: dict) -> list[TextContent]:
+    from src.config_vault import config_vault
+    return _text(json.dumps({"namespaces": config_vault.list_namespaces()}, indent=2))
+
+
+async def handle_cfgvault_keys(args: dict) -> list[TextContent]:
+    from src.config_vault import config_vault
+    ns = args.get("namespace", "default")
+    return _text(json.dumps({"namespace": ns, "keys": config_vault.list_keys(ns)}, indent=2))
+
+
+async def handle_cfgvault_stats(args: dict) -> list[TextContent]:
+    from src.config_vault import config_vault
+    return _text(json.dumps(config_vault.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# RULE ENGINE — Phase 17
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_rules_list(args: dict) -> list[TextContent]:
+    from src.rule_engine import rule_engine
+    group = args.get("group")
+    return _text(json.dumps(rule_engine.list_rules(group=group), indent=2))
+
+
+async def handle_rules_groups(args: dict) -> list[TextContent]:
+    from src.rule_engine import rule_engine
+    return _text(json.dumps({"groups": rule_engine.list_groups()}, indent=2))
+
+
+async def handle_rules_stats(args: dict) -> list[TextContent]:
+    from src.rule_engine import rule_engine
+    return _text(json.dumps(rule_engine.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# RETRY POLICY — Phase 18
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_retrypol_list(args: dict) -> list[TextContent]:
+    from src.retry_policy import retry_manager
+    return _text(json.dumps(retry_manager.list_policies(), indent=2))
+
+
+async def handle_retrypol_history(args: dict) -> list[TextContent]:
+    from src.retry_policy import retry_manager
+    return _text(json.dumps(retry_manager.get_history(), indent=2))
+
+
+async def handle_retrypol_stats(args: dict) -> list[TextContent]:
+    from src.retry_policy import retry_manager
+    return _text(json.dumps(retry_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# MESSAGE BROKER — Phase 18
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_broker_topics(args: dict) -> list[TextContent]:
+    from src.message_broker import message_broker
+    return _text(json.dumps({"topics": message_broker.list_topics()}, indent=2))
+
+
+async def handle_broker_messages(args: dict) -> list[TextContent]:
+    from src.message_broker import message_broker
+    topic = args.get("topic")
+    return _text(json.dumps(message_broker.get_messages(topic=topic), indent=2))
+
+
+async def handle_broker_stats(args: dict) -> list[TextContent]:
+    from src.message_broker import message_broker
+    return _text(json.dumps(message_broker.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# COMMAND REGISTRY — Phase 18
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_cmdreg_list(args: dict) -> list[TextContent]:
+    from src.command_registry import command_registry
+    cat = args.get("category")
+    return _text(json.dumps(command_registry.list_commands(category=cat), indent=2))
+
+
+async def handle_cmdreg_categories(args: dict) -> list[TextContent]:
+    from src.command_registry import command_registry
+    return _text(json.dumps({"categories": command_registry.list_categories()}, indent=2))
+
+
+async def handle_cmdreg_stats(args: dict) -> list[TextContent]:
+    from src.command_registry import command_registry
+    return _text(json.dumps(command_registry.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # TOOL REGISTRY
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -1438,6 +3104,249 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     ("execute_domino", "Executer un domino pipeline par ID ou texte de trigger vocal.", {"domino_id": "string"}, handle_execute_domino),
     ("list_dominos", "Lister tous les domino pipelines disponibles.", {"category": "string"}, handle_list_dominos),
     ("domino_stats", "Historique d'execution des dominos.", {"limit": "number"}, handle_domino_stats),
+    # Security (3) — v10.4
+    ("security_score", "Calculer le score de securite actuel du systeme.", {}, handle_security_score),
+    ("security_audit_log", "Consulter les evenements de securite recents.", {"limit": "number", "severity": "string"}, handle_security_audit_log),
+    ("security_scan", "Scanner les configurations pour vulnerabilites.", {}, handle_security_scan),
+    # Analytics (2) — v10.4
+    ("cluster_analytics", "Metriques de performance du cluster (latence, throughput, erreurs).", {"hours": "number"}, handle_cluster_analytics),
+    ("voice_analytics", "Statistiques du pipeline vocal (recognition rate, latence, cache hits).", {}, handle_voice_analytics),
+    # Observability (3) — v10.6
+    ("observability_report", "Rapport complet matrice observabilite (heatmap, correlations, anomalies).", {}, handle_observability_report),
+    ("observability_heatmap", "Donnees heatmap pour dashboard (metriques par noeud).", {"window": "string"}, handle_observability_heatmap),
+    ("observability_alerts", "Alertes anomalies actives.", {"threshold": "number"}, handle_observability_alerts),
+    # Drift Detection (3) — v10.6
+    ("drift_check", "Verifier le drift qualite de tous les modeles.", {}, handle_drift_check),
+    ("drift_model_health", "Sante d'un modele specifique ou de tous.", {"model": "string"}, handle_drift_model_health),
+    ("drift_reroute", "Suggestion de rerouting basee sur le drift.", {"task_type": "string", "candidates": "string"}, handle_drift_reroute),
+    # Auto-Tune (3) — v10.6
+    ("auto_tune_status", "Status du scheduler auto-tune (CPU, GPU, load, threads).", {}, handle_auto_tune_status),
+    ("auto_tune_sample", "Prendre un echantillon de ressources (CPU, GPU, memoire).", {}, handle_auto_tune_sample),
+    ("auto_tune_cooldown", "Mettre un noeud en cooldown.", {"node": "string", "seconds": "number"}, handle_auto_tune_cooldown),
+    # Trading v3 (3) — v10.6
+    ("trading_backtest_list", "Lister les resultats de backtests.", {}, handle_trading_backtest_list),
+    ("trading_strategy_rankings", "Classement des strategies par performance.", {"top_n": "number"}, handle_trading_strategy_rankings),
+    ("trading_flow_status", "Status des flux trading actifs.", {}, handle_trading_flow_status),
+    # Intent Classifier (2) — v10.6
+    ("intent_classify", "Classifier l'intent d'un texte/voix.", {"text": "string"}, handle_intent_classify),
+    ("intent_report", "Rapport de precision du classifieur d'intents.", {}, handle_intent_report),
+    # Tool Metrics (3) — v10.6
+    ("tool_metrics_report", "Metriques performance des outils MCP (latence, succes, cache).", {}, handle_tool_metrics_report),
+    ("cache_stats", "Statistiques du cache de reponses.", {}, handle_cache_stats),
+    ("cache_clear", "Vider le cache de reponses.", {"category": "string"}, handle_cache_clear),
+    # Database Maintenance (2) — v10.6
+    ("db_health", "Sante des bases de donnees (integrite, taille, maintenance).", {}, handle_db_health),
+    ("db_maintenance", "Lancer la maintenance (VACUUM + ANALYZE).", {"force": "boolean"}, handle_db_maintenance),
+    # Orchestrator V2 (9) — Phase 4
+    ("orch_dashboard", "Dashboard complet orchestrator_v2 (observabilite + drift + tune + routing + budget).", {}, handle_orch_dashboard),
+    ("orch_node_stats", "Statistiques par noeud (appels, taux succes, latence, tokens).", {}, handle_orch_node_stats),
+    ("orch_budget", "Rapport budget tokens de la session.", {}, handle_orch_budget),
+    ("orch_reset_budget", "Reset du budget tokens de la session.", {}, handle_orch_reset_budget),
+    ("orch_fallback", "Chaine de fallback drift-aware pour un type de tache.", {"task_type": "string", "exclude": "string"}, handle_orch_fallback),
+    ("orch_best_node", "Meilleur noeud pour un type de tache (scoring + drift).", {"task_type": "string"}, handle_orch_best_node),
+    ("orch_record_call", "Enregistrer un appel manuellement (calibration).", {"node": "string", "latency_ms": "number", "success": "boolean", "tokens": "number", "quality": "number"}, handle_orch_record_call),
+    ("orch_health", "Score sante cluster 0-100 + alertes actives.", {}, handle_orch_health),
+    ("orch_routing_matrix", "Afficher la matrice de routage complete.", {}, handle_orch_routing_matrix),
+    # Task Queue (4) — Phase 4 Vague 2
+    ("task_enqueue", "Ajouter une tache a la queue intelligente.", {"prompt": "string", "task_type": "string", "priority": "number"}, handle_task_enqueue),
+    ("task_list", "Lister les taches en attente.", {"limit": "number"}, handle_task_list),
+    ("task_status", "Statistiques de la queue de taches.", {}, handle_task_status),
+    ("task_cancel", "Annuler une tache en attente.", {"task_id": "string"}, handle_task_cancel),
+    # Notifications (3) — Phase 4 Vague 2
+    ("notif_send", "Envoyer une notification (info/warning/critical).", {"message": "string", "level": "string", "source": "string"}, handle_notif_send),
+    ("notif_history", "Historique des notifications.", {"limit": "number"}, handle_notif_history),
+    ("notif_stats", "Statistiques des notifications.", {}, handle_notif_stats),
+    # Autonomous Loop (3) — Phase 4 Vague 2
+    ("autonomous_status", "Status complet de la boucle autonome.", {}, handle_autonomous_status),
+    ("autonomous_events", "Evenements recents de la boucle autonome.", {"limit": "number"}, handle_autonomous_events),
+    ("autonomous_toggle", "Activer/desactiver une tache autonome.", {"task_name": "string", "enabled": "boolean"}, handle_autonomous_toggle),
+    # Agent Memory (4) — Phase 4 Vague 3
+    ("memory_remember", "Stocker un souvenir persistant.", {"content": "string", "category": "string", "importance": "number"}, handle_memory_remember),
+    ("memory_recall", "Rechercher dans la memoire par similarite.", {"query": "string", "limit": "number", "category": "string"}, handle_memory_recall),
+    ("memory_list", "Lister tous les souvenirs.", {"category": "string", "limit": "number"}, handle_memory_list),
+    ("memory_forget", "Supprimer un souvenir.", {"memory_id": "number"}, handle_memory_forget),
+    # Conversation Store (4) — Phase 4 Vague 4
+    ("conv_create", "Creer une nouvelle conversation.", {"title": "string", "source": "string"}, handle_conv_create),
+    ("conv_add_turn", "Ajouter un echange a une conversation.", {"conv_id": "string", "node": "string", "prompt": "string", "response": "string", "latency_ms": "number", "tokens": "number"}, handle_conv_add_turn),
+    ("conv_list", "Lister les conversations recentes.", {"limit": "number", "source": "string"}, handle_conv_list),
+    ("conv_stats", "Statistiques des conversations.", {}, handle_conv_stats),
+    # Load Balancer (2) — Phase 4 Vague 4
+    ("lb_pick", "Choisir le meilleur noeud via load balancer.", {"task_type": "string"}, handle_lb_pick),
+    ("lb_status", "Status du load balancer (actifs, circuit breakers).", {}, handle_lb_status),
+    # Proactive Agent (2) — Phase 4 Vague 4
+    ("proactive_analyze", "Lancer l'analyse proactive et obtenir des suggestions.", {}, handle_proactive_analyze),
+    ("proactive_dismiss", "Rejeter une suggestion proactive.", {"key": "string"}, handle_proactive_dismiss),
+    # Auto-Optimizer (3) — Phase 5
+    ("optimizer_optimize", "Lancer un cycle d'auto-optimisation.", {}, handle_optimizer_optimize),
+    ("optimizer_history", "Historique des ajustements auto.", {"limit": "number"}, handle_optimizer_history),
+    ("optimizer_stats", "Stats de l'auto-optimiseur.", {}, handle_optimizer_stats),
+    # Event Bus (2) — Phase 5 Vague 5
+    ("eventbus_emit", "Emettre un event sur le bus.", {"event": "string", "data": "string"}, handle_eventbus_emit),
+    ("eventbus_stats", "Stats du bus d'evenements.", {}, handle_eventbus_stats),
+    # Metrics Aggregator (3) — Phase 5 Vague 5
+    ("metrics_snapshot", "Snapshot temps reel de toutes les metriques.", {}, handle_metrics_snapshot),
+    ("metrics_history", "Historique des metriques (derniere heure).", {"minutes": "number"}, handle_metrics_history),
+    ("metrics_summary", "Resume du metrics aggregator.", {}, handle_metrics_summary),
+    # Workflow Engine (4) — Phase 6
+    ("workflow_create", "Creer un workflow multi-etapes.", {"name": "string", "steps": "string"}, handle_workflow_create),
+    ("workflow_list", "Lister les workflows.", {"limit": "number"}, handle_workflow_list),
+    ("workflow_execute", "Executer un workflow.", {"workflow_id": "string"}, handle_workflow_execute),
+    ("workflow_stats", "Stats du moteur de workflows.", {}, handle_workflow_stats),
+    # Session Manager (4) — Phase 6
+    ("session_create", "Creer une session utilisateur.", {"source": "string"}, handle_session_create),
+    ("session_context", "Obtenir le contexte d'une session.", {"session_id": "string"}, handle_session_context),
+    ("session_list", "Lister les sessions.", {"limit": "number"}, handle_session_list),
+    ("session_stats", "Stats des sessions.", {}, handle_session_stats),
+    # Alert Manager (5) — Phase 6
+    ("alert_fire", "Declencher une alerte.", {"key": "string", "message": "string", "level": "string", "source": "string"}, handle_alert_fire),
+    ("alert_active", "Lister les alertes actives.", {"level": "string"}, handle_alert_active),
+    ("alert_acknowledge", "Acquitter une alerte.", {"key": "string"}, handle_alert_acknowledge),
+    ("alert_resolve", "Resoudre une alerte.", {"key": "string"}, handle_alert_resolve),
+    ("alert_stats", "Stats des alertes.", {}, handle_alert_stats),
+    # Config Manager (4) — Phase 7
+    ("config_get", "Lire une valeur de config.", {"key": "string"}, handle_config_get),
+    ("config_set", "Modifier une valeur de config.", {"key": "string", "value": "string"}, handle_config_set),
+    ("config_reload", "Hot-reload de la config depuis le disque.", {}, handle_config_reload),
+    ("config_stats", "Stats du config manager.", {}, handle_config_stats),
+    # Audit Trail (3) — Phase 7
+    ("audit_log", "Logger une action dans l'audit trail.", {"action_type": "string", "action": "string", "source": "string", "details": "string"}, handle_audit_log),
+    ("audit_search", "Rechercher dans l'audit trail.", {"action_type": "string", "source": "string", "query": "string", "limit": "number"}, handle_audit_search),
+    ("audit_stats", "Stats de l'audit trail.", {}, handle_audit_stats),
+    # Cluster Diagnostics (3) — Phase 7
+    ("diagnostics_run", "Diagnostic complet du cluster avec recommandations.", {}, handle_diagnostics_run),
+    ("diagnostics_quick", "Status rapide du cluster.", {}, handle_diagnostics_quick),
+    ("diagnostics_history", "Historique des diagnostics.", {}, handle_diagnostics_history),
+    # Rate Limiter (3) — Phase 8
+    ("ratelimit_check", "Verifier si une requete est autorisee (token bucket).", {"node": "string"}, handle_ratelimit_check),
+    ("ratelimit_stats", "Stats du rate limiter (tous les noeuds).", {}, handle_ratelimit_stats),
+    ("ratelimit_configure", "Configurer le rate limit d'un noeud.", {"node": "string", "rps": "number", "burst": "number"}, handle_ratelimit_configure),
+    # Task Scheduler (4) — Phase 8
+    ("scheduler_list", "Lister les jobs planifies.", {}, handle_scheduler_list),
+    ("scheduler_add", "Ajouter un job planifie.", {"name": "string", "action": "string", "interval_s": "number", "params": "string", "one_shot": "boolean"}, handle_scheduler_add),
+    ("scheduler_remove", "Supprimer un job planifie.", {"job_id": "string"}, handle_scheduler_remove),
+    ("scheduler_stats", "Stats du planificateur.", {}, handle_scheduler_stats),
+    # Health Dashboard (3) — Phase 8
+    ("health_full", "Rapport complet du dashboard sante.", {}, handle_health_full),
+    ("health_summary", "Resume rapide de la sante cluster.", {}, handle_health_summary),
+    ("health_history", "Historique des rapports sante.", {}, handle_health_history),
+    # Plugin Manager (3) — Phase 9
+    ("plugin_list", "Lister les plugins charges.", {}, handle_plugin_list),
+    ("plugin_discover", "Decouvrir les plugins disponibles.", {}, handle_plugin_discover),
+    ("plugin_stats", "Stats du gestionnaire de plugins.", {}, handle_plugin_stats),
+    # Command Router (3) — Phase 9
+    ("cmd_route", "Router une commande naturelle.", {"text": "string"}, handle_cmd_route),
+    ("cmd_routes", "Lister toutes les routes de commandes.", {}, handle_cmd_routes),
+    ("cmd_stats", "Stats du routeur de commandes.", {}, handle_cmd_stats),
+    # Resource Monitor (3) — Phase 9
+    ("resource_sample", "Snapshot ressources systeme (CPU/RAM/GPU/Disque).", {}, handle_resource_sample),
+    ("resource_latest", "Dernier snapshot ressources.", {}, handle_resource_latest),
+    ("resource_stats", "Stats du moniteur de ressources.", {}, handle_resource_stats),
+    # Retry Manager (2) — Phase 10
+    ("retry_stats", "Stats du retry manager et circuit breakers.", {}, handle_retry_stats),
+    ("retry_reset", "Reset tous les circuit breakers.", {}, handle_retry_reset),
+    # Data Pipeline (3) — Phase 10
+    ("pipeline_list", "Lister les data pipelines.", {}, handle_pipeline_list),
+    ("pipeline_history", "Historique des executions de pipelines.", {}, handle_pipeline_history),
+    ("pipeline_stats", "Stats des data pipelines.", {}, handle_pipeline_stats),
+    # Service Registry (4) — Phase 10
+    ("service_register", "Enregistrer un service.", {"name": "string", "url": "string", "service_type": "string"}, handle_service_register),
+    ("service_list", "Lister les services enregistres.", {}, handle_service_list),
+    ("service_heartbeat", "Heartbeat d'un service.", {"name": "string"}, handle_service_heartbeat),
+    ("service_stats", "Stats du registre de services.", {}, handle_service_stats),
+    # Cache Manager (3) — Phase 11
+    ("cache_get", "Lire une valeur en cache.", {"key": "string", "namespace": "string"}, handle_cache_get),
+    ("cache_set", "Stocker une valeur en cache.", {"key": "string", "value": "string", "namespace": "string", "ttl_s": "number"}, handle_cache_set),
+    ("cache_mgr_stats", "Stats du cache manager (L1/L2 hit rates).", {}, handle_cache_mgr_stats),
+    # Secret Vault (2) — Phase 11
+    ("vault_list", "Lister les secrets (sans valeurs).", {}, handle_vault_list),
+    ("vault_stats", "Stats du coffre-fort.", {}, handle_vault_stats),
+    # Dependency Graph (4) — Phase 11
+    ("depgraph_show", "Afficher le graphe de dependances.", {}, handle_depgraph_show),
+    ("depgraph_impact", "Analyse d'impact si un module tombe.", {"node": "string"}, handle_depgraph_impact),
+    ("depgraph_order", "Ordre de demarrage (tri topologique).", {}, handle_depgraph_order),
+    ("depgraph_stats", "Stats du graphe de dependances.", {}, handle_depgraph_stats),
+    # Notification Hub (+1 channel) — Phase 12
+    ("notif_channels", "Lister les canaux de notification.", {}, handle_notif_channels),
+    # Feature Flags (4) — Phase 12
+    ("flag_list", "Lister les feature flags.", {}, handle_flag_list),
+    ("flag_check", "Verifier si un flag est actif.", {"name": "string", "context": "string"}, handle_flag_check),
+    ("flag_toggle", "Activer/desactiver un feature flag.", {"name": "string", "enabled": "boolean"}, handle_flag_toggle),
+    ("flag_stats", "Stats des feature flags.", {}, handle_flag_stats),
+    # Backup Manager (3) — Phase 12
+    ("backup_list", "Lister les sauvegardes.", {"source": "string"}, handle_backup_list),
+    ("backup_create", "Creer une sauvegarde de fichier.", {"source": "string", "tag": "string"}, handle_backup_create),
+    ("backup_stats", "Stats du gestionnaire de sauvegardes.", {}, handle_backup_stats),
+    # Session Manager V2 (3) — Phase 13
+    ("session_v2_list", "Lister les sessions actives.", {"owner": "string", "status": "string"}, handle_session_v2_list),
+    ("session_v2_create", "Creer une nouvelle session.", {"owner": "string"}, handle_session_v2_create),
+    ("session_v2_stats", "Stats du gestionnaire de sessions.", {}, handle_session_v2_stats),
+    # Queue Manager (2) — Phase 13
+    ("queue_list", "Lister les taches en file d'attente.", {"status": "string"}, handle_queue_list),
+    ("queue_stats", "Stats de la file d'attente.", {}, handle_queue_stats),
+    # API Gateway (3) — Phase 13
+    ("apigw_routes", "Lister les routes de l'API gateway.", {}, handle_apigw_routes),
+    ("apigw_clients", "Lister les clients de l'API gateway.", {}, handle_apigw_clients),
+    ("apigw_stats", "Stats de l'API gateway.", {}, handle_apigw_stats),
+    # Template Engine (3) — Phase 14
+    ("template_list", "Lister les templates enregistres.", {}, handle_template_list),
+    ("template_render", "Rendre un template nomme.", {"name": "string", "context": "string"}, handle_template_render),
+    ("template_stats", "Stats du moteur de templates.", {}, handle_template_stats),
+    # State Machine (2) — Phase 14
+    ("fsm_list", "Lister les machines a etats.", {}, handle_fsm_list),
+    ("fsm_stats", "Stats des machines a etats.", {}, handle_fsm_stats),
+    # Log Aggregator (3) — Phase 14
+    ("logagg_query", "Chercher dans les logs agreges.", {"level": "string", "source": "string", "search": "string", "limit": "number"}, handle_logagg_query),
+    ("logagg_sources", "Lister les sources de logs.", {}, handle_logagg_sources),
+    ("logagg_stats", "Stats de l'agregateur de logs.", {}, handle_logagg_stats),
+    # Permission Manager (4) — Phase 15
+    ("perm_roles", "Lister les roles RBAC.", {}, handle_perm_roles),
+    ("perm_users", "Lister les utilisateurs et leurs roles.", {}, handle_perm_users),
+    ("perm_check", "Verifier une permission.", {"user_id": "string", "permission": "string"}, handle_perm_check),
+    ("perm_stats", "Stats du gestionnaire de permissions.", {}, handle_perm_stats),
+    # Environment Manager (3) — Phase 15
+    ("env_profiles", "Lister les profils d'environnement.", {}, handle_env_profiles),
+    ("env_get", "Obtenir les variables d'un profil.", {"profile": "string"}, handle_env_get),
+    ("env_stats", "Stats du gestionnaire d'environnements.", {}, handle_env_stats),
+    # Telemetry Collector (3) — Phase 15
+    ("telemetry_counters", "Lister les compteurs de telemetrie.", {}, handle_telemetry_counters),
+    ("telemetry_gauges", "Lister les jauges de telemetrie.", {}, handle_telemetry_gauges),
+    ("telemetry_stats", "Stats du collecteur de telemetrie.", {}, handle_telemetry_stats),
+    # Event Store (3) — Phase 16
+    ("evstore_streams", "Lister les streams d'evenements.", {}, handle_evstore_streams),
+    ("evstore_events", "Consulter les evenements d'un stream.", {"stream": "string", "limit": "number"}, handle_evstore_events),
+    ("evstore_stats", "Stats de l'event store.", {}, handle_evstore_stats),
+    # Webhook Manager (3) — Phase 16
+    ("webhook_list", "Lister les webhooks enregistres.", {}, handle_webhook_list),
+    ("webhook_history", "Historique des livraisons webhook.", {"name": "string"}, handle_webhook_history),
+    ("webhook_stats", "Stats du webhook manager.", {}, handle_webhook_stats),
+    # Health Probe (3) — Phase 16
+    ("hprobe_list", "Lister les probes de sante.", {}, handle_hprobe_list),
+    ("hprobe_run", "Executer un ou tous les health checks.", {"name": "string"}, handle_hprobe_run),
+    ("hprobe_stats", "Stats des health probes.", {}, handle_hprobe_stats),
+    # Service Mesh (3) — Phase 17
+    ("mesh_services", "Lister les instances de service.", {}, handle_mesh_services),
+    ("mesh_names", "Lister les noms de services uniques.", {}, handle_mesh_names),
+    ("mesh_stats", "Stats du service mesh.", {}, handle_mesh_stats),
+    # Config Vault (3) — Phase 17
+    ("cfgvault_namespaces", "Lister les namespaces du config vault.", {}, handle_cfgvault_namespaces),
+    ("cfgvault_keys", "Lister les cles d'un namespace config vault.", {"namespace": "string"}, handle_cfgvault_keys),
+    ("cfgvault_stats", "Stats du config vault.", {}, handle_cfgvault_stats),
+    # Rule Engine (3) — Phase 17
+    ("rules_list", "Lister les regles du moteur.", {"group": "string"}, handle_rules_list),
+    ("rules_groups", "Lister les groupes de regles.", {}, handle_rules_groups),
+    ("rules_stats", "Stats du moteur de regles.", {}, handle_rules_stats),
+    # Retry Policy (3) — Phase 18
+    ("retrypol_list", "Lister les politiques de retry.", {}, handle_retrypol_list),
+    ("retrypol_history", "Historique des retries.", {}, handle_retrypol_history),
+    ("retrypol_stats", "Stats des politiques de retry.", {}, handle_retrypol_stats),
+    # Message Broker (3) — Phase 18
+    ("broker_topics", "Lister les topics du broker.", {}, handle_broker_topics),
+    ("broker_messages", "Consulter les messages d'un topic.", {"topic": "string"}, handle_broker_messages),
+    ("broker_stats", "Stats du message broker.", {}, handle_broker_stats),
+    # Command Registry (3) — Phase 18
+    ("cmdreg_list", "Lister les commandes enregistrees.", {"category": "string"}, handle_cmdreg_list),
+    ("cmdreg_categories", "Lister les categories de commandes.", {}, handle_cmdreg_categories),
+    ("cmdreg_stats", "Stats du registre de commandes.", {}, handle_cmdreg_stats),
 ]
 
 # Build handler map
@@ -1487,13 +3396,26 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
     handler = HANDLERS.get(name)
     if not handler:
         return _error(f"Outil inconnu: {name}")
+
+    # Security: rate limiting
+    if not mcp_limiter.allow(name):
+        audit_log.log("rate_limit", f"Tool {name} rate limited", severity="warning", tool_name=name)
+        return _error(f"{name}: rate limit exceeded, retry in {mcp_limiter.get_retry_after(name):.1f}s")
+
+    # Security: input sanitization
+    safe_args = sanitize_mcp_args(name, arguments)
+
     try:
-        return await handler(arguments)
+        result = await handler(safe_args)
+        audit_log.log("tool_call", f"{name} OK", tool_name=name)
+        return result
     except (KeyError, ValueError, TypeError, OSError, RuntimeError) as e:
         logger.warning("MCP handler %s failed: %s", name, e)
+        audit_log.log("tool_error", f"{name}: {e}", severity="warning", tool_name=name)
         return _error(f"{name}: {e}")
     except Exception as e:
         logger.error("MCP handler %s unexpected error: %s", name, e, exc_info=True)
+        audit_log.log("tool_error", f"{name}: unexpected {e}", severity="error", tool_name=name)
         return _error(f"{name}: internal error")
 
 
