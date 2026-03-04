@@ -1058,6 +1058,73 @@ def _project_summary() -> str:
         return f"Import error: {e}"
 
 
+@register_python_action("import_benchmark")
+def _import_benchmark() -> str:
+    """Benchmark import speed of all voice modules."""
+    import time
+    start = time.time()
+    from src.commands import COMMANDS, VOICE_CORRECTIONS
+    from src.voice_correction import IMPLICIT_COMMANDS, PHONETIC_GROUPS, FILLER_WORDS
+    from src.domino_pipelines import DOMINO_PIPELINES
+    elapsed = time.time() - start
+    return f"Import: {elapsed:.3f}s | {len(COMMANDS)} cmds | {len(VOICE_CORRECTIONS)} corr | {len(DOMINO_PIPELINES)} dominos"
+
+
+@register_python_action("large_files_check")
+def _large_files_check() -> str:
+    """Find large Python files in the project."""
+    import os
+    large = []
+    src_dir = "F:/BUREAU/turbo/src"
+    try:
+        for f in os.listdir(src_dir):
+            if f.endswith(".py"):
+                size = os.path.getsize(os.path.join(src_dir, f))
+                if size > 50000:
+                    large.append(f"{f}: {size // 1024}KB")
+    except OSError:
+        return "Cannot access src directory"
+    return f"{len(large)} large files: {', '.join(large)}" if large else "No large files (>50KB)"
+
+
+@register_python_action("phonetic_groups_summary")
+def _phonetic_groups_summary() -> str:
+    """Summary of phonetic groups."""
+    try:
+        from src.voice_correction import PHONETIC_GROUPS
+        total_entries = sum(len(g) for g in PHONETIC_GROUPS)
+        return f"{len(PHONETIC_GROUPS)} groups, {total_entries} total entries ({total_entries / len(PHONETIC_GROUPS):.1f} avg per group)"
+    except ImportError:
+        return "Import error"
+
+
+@register_python_action("implicit_commands_top")
+def _implicit_commands_top() -> str:
+    """Show top implicit command categories."""
+    try:
+        from src.voice_correction import IMPLICIT_COMMANDS
+        # Count by first word
+        categories: dict[str, int] = {}
+        for v in IMPLICIT_COMMANDS.values():
+            first_word = v.split()[0] if v else "?"
+            categories[first_word] = categories.get(first_word, 0) + 1
+        top = sorted(categories.items(), key=lambda x: x[1], reverse=True)[:8]
+        return f"{len(IMPLICIT_COMMANDS)} implicits | Top verbs: {', '.join(f'{k}:{v}' for k, v in top)}"
+    except ImportError:
+        return "Import error"
+
+
+@register_python_action("filler_words_count")
+def _filler_words_count() -> str:
+    """Count filler words by category."""
+    try:
+        from src.voice_correction import FILLER_WORDS
+        fr = sum(1 for w in FILLER_WORDS if any(c in w for c in "àéèêîôùç") or w in {"euh", "hum", "bah", "ben", "bon", "alors", "donc", "voila"})
+        return f"{len(FILLER_WORDS)} fillers ({fr} French, {len(FILLER_WORDS) - fr} English/other)"
+    except ImportError:
+        return "Import error"
+
+
 @register_python_action("list_ollama_models")
 def _list_ollama_models() -> str:
     """List Ollama models available."""

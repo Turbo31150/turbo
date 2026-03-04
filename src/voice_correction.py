@@ -157,6 +157,14 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["godot", "go do", "godo"],
     ["ffmpeg", "effe effe eme peg", "efemepeg"],
     ["vulkan", "voul canne", "voulkane"],
+    # Vague 21 — Infra/Email/Storage/Perf phonetiques
+    ["ansible", "an sible", "ansibel"],
+    ["vagrant", "va grante", "vagrante"],
+    ["consul", "con soule", "consoule"],
+    ["zookeeper", "zou ki peur", "zoukipeur"],
+    ["minio", "mi ni o", "minnio"],
+    ["locust", "lo couste", "locuuste"],
+    ["gatling", "gatt ling", "gatteline"],
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -212,6 +220,12 @@ FILLER_WORDS = {
     "impeccable", "top", "cool", "awesome", "great",
     "nice", "perfect", "wonderful", "amazing",
     "oh mon dieu", "oh la la", "waouh", "wow",
+    # Vague 9 — Fillers confirmation / temporisation
+    "d'accord", "oui oui", "bien sur", "evidemment",
+    "absolument", "tout a fait", "exactement", "voila voila",
+    "c'est ca", "c'est bien ca", "on y va",
+    "allez allez", "hop", "c'est parti",
+    "alors voyons", "voyons voir", "regardons",
 }
 
 # Expansions de commandes implicites
@@ -1071,6 +1085,32 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "shader": "edite le shader",
     "render": "lance le rendu",
     "stream": "lance le stream",
+    # Vague 71 — Infra / Config management raccourcis
+    "ansible": "lance ansible",
+    "playbook": "lance le playbook",
+    "vagrant": "lance vagrant",
+    "consul": "statut consul",
+    "nomad": "statut nomad",
+    "packer": "build avec packer",
+    "provision": "provisionne le serveur",
+    "inventory": "montre l'inventaire",
+    # Vague 72 — Email / Messaging raccourcis
+    "email": "envoie un email",
+    "slack": "ouvre slack",
+    "discord": "ouvre discord",
+    "telegram": "ouvre telegram",
+    "notification": "envoie une notification",
+    "message": "envoie un message",
+    "sms": "envoie un sms",
+    # Vague 73 — Performance / Profiling raccourcis
+    "profile": "lance le profiler",
+    "benchmark": "lance le benchmark",
+    "flame graph": "genere le flame graph",
+    "load test": "lance le test de charge",
+    "stress test": "lance le stress test",
+    "perf": "lance perf",
+    "profiling": "lance le profiling",
+    "optimize": "optimise le code",
 }
 
 
