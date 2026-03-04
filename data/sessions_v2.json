@@ -97,5 +97,93 @@
     "status": "active",
     "activity_count": 0,
     "tags": []
+  },
+  "4f3a0a67-0ff": {
+    "session_id": "4f3a0a67-0ff",
+    "owner": "test_user",
+    "created_at": 1772649124.3887296,
+    "last_activity": 1772649124.3887296,
+    "timeout_s": 3600.0,
+    "metadata": {},
+    "status": "active",
+    "activity_count": 0,
+    "tags": []
+  },
+  "027f6c60-69e": {
+    "session_id": "027f6c60-69e",
+    "owner": "test_user",
+    "created_at": 1772649441.8101265,
+    "last_activity": 1772649441.8101265,
+    "timeout_s": 3600.0,
+    "metadata": {},
+    "status": "active",
+    "activity_count": 0,
+    "tags": []
+  },
+  "aacf1ec5-afb": {
+    "session_id": "aacf1ec5-afb",
+    "owner": "test_user",
+    "created_at": 1772649686.4233205,
+    "last_activity": 1772649686.4233205,
+    "timeout_s": 3600.0,
+    "metadata": {},
+    "status": "active",
+    "activity_count": 0,
+    "tags": []
+  },
+  "be0247e8-ee4": {
+    "session_id": "be0247e8-ee4",
+    "owner": "test_user",
+    "created_at": 1772650405.0515172,
+    "last_activity": 1772650405.0515172,
+    "timeout_s": 3600.0,
+    "metadata": {},
+    "status": "active",
+    "activity_count": 0,
+    "tags": []
+  },
+  "bcf9ae72-5ec": {
+    "session_id": "bcf9ae72-5ec",
+    "owner": "test_user",
+    "created_at": 1772651106.1609874,
+    "last_activity": 1772651106.1609874,
+    "timeout_s": 3600.0,
+    "metadata": {},
+    "status": "active",
+    "activity_count": 0,
+    "tags": []
+  },
+  "b634cbcf-9f5": {
+    "session_id": "b634cbcf-9f5",
+    "owner": "test_user",
+    "created_at": 1772651565.8866105,
+    "last_activity": 1772651565.8866105,
+    "timeout_s": 3600.0,
+    "metadata": {},
+    "status": "active",
+    "activity_count": 0,
+    "tags": []
+  },
+  "7d89e56b-ca3": {
+    "session_id": "7d89e56b-ca3",
+    "owner": "test_user",
+    "created_at": 1772652509.3520055,
+    "last_activity": 1772652509.3520055,
+    "timeout_s": 3600.0,
+    "metadata": {},
+    "status": "active",
+    "activity_count": 0,
+    "tags": []
+  },
+  "d0421c27-e89": {
+    "session_id": "d0421c27-e89",
+    "owner": "test_user",
+    "created_at": 1772653721.3243291,
+    "last_activity": 1772653721.3243291,
+    "timeout_s": 3600.0,
+    "metadata": {},
+    "status": "active",
+    "activity_count": 0,
+    "tags": []
   }
 }

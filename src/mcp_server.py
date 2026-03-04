@@ -2979,6 +2979,373 @@ async def handle_cmdreg_stats(args: dict) -> list[TextContent]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# PROCESS MANAGER — Phase 19
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_procmgr_list(args: dict) -> list[TextContent]:
+    from src.process_manager import process_manager
+    group = args.get("group")
+    return _text(json.dumps(process_manager.list_processes(group=group), indent=2))
+
+
+async def handle_procmgr_events(args: dict) -> list[TextContent]:
+    from src.process_manager import process_manager
+    name = args.get("name")
+    return _text(json.dumps(process_manager.get_events(name=name), indent=2))
+
+
+async def handle_procmgr_stats(args: dict) -> list[TextContent]:
+    from src.process_manager import process_manager
+    return _text(json.dumps(process_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DATA VALIDATOR — Phase 19
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_dataval_schemas(args: dict) -> list[TextContent]:
+    from src.data_validator import data_validator
+    return _text(json.dumps(data_validator.list_schemas(), indent=2))
+
+
+async def handle_dataval_history(args: dict) -> list[TextContent]:
+    from src.data_validator import data_validator
+    return _text(json.dumps(data_validator.get_history(), indent=2))
+
+
+async def handle_dataval_stats(args: dict) -> list[TextContent]:
+    from src.data_validator import data_validator
+    return _text(json.dumps(data_validator.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# FILE WATCHER — Phase 19
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_fwatch_list(args: dict) -> list[TextContent]:
+    from src.file_watcher import file_watcher
+    group = args.get("group")
+    return _text(json.dumps(file_watcher.list_watches(group=group), indent=2))
+
+
+async def handle_fwatch_events(args: dict) -> list[TextContent]:
+    from src.file_watcher import file_watcher
+    name = args.get("watch_name")
+    return _text(json.dumps(file_watcher.get_events(watch_name=name), indent=2))
+
+
+async def handle_fwatch_stats(args: dict) -> list[TextContent]:
+    from src.file_watcher import file_watcher
+    return _text(json.dumps(file_watcher.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# CLIPBOARD MANAGER — Phase 20
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_clipmgr_history(args: dict) -> list[TextContent]:
+    from src.clipboard_manager import clipboard_manager
+    cat = args.get("category")
+    return _text(json.dumps(clipboard_manager.get_history(category=cat), indent=2))
+
+
+async def handle_clipmgr_search(args: dict) -> list[TextContent]:
+    from src.clipboard_manager import clipboard_manager
+    q = args.get("query", "")
+    return _text(json.dumps(clipboard_manager.search(q), indent=2))
+
+
+async def handle_clipmgr_stats(args: dict) -> list[TextContent]:
+    from src.clipboard_manager import clipboard_manager
+    return _text(json.dumps(clipboard_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SHORTCUT MANAGER — Phase 20
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_hotkey_list(args: dict) -> list[TextContent]:
+    from src.shortcut_manager import shortcut_manager
+    group = args.get("group")
+    return _text(json.dumps(shortcut_manager.list_shortcuts(group=group), indent=2))
+
+
+async def handle_hotkey_activations(args: dict) -> list[TextContent]:
+    from src.shortcut_manager import shortcut_manager
+    name = args.get("name")
+    return _text(json.dumps(shortcut_manager.get_activations(name=name), indent=2))
+
+
+async def handle_hotkey_stats(args: dict) -> list[TextContent]:
+    from src.shortcut_manager import shortcut_manager
+    return _text(json.dumps(shortcut_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SNAPSHOT MANAGER — Phase 20
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_snapmgr_list(args: dict) -> list[TextContent]:
+    from src.snapshot_manager import snapshot_manager
+    tag = args.get("tag")
+    return _text(json.dumps(snapshot_manager.list_snapshots(tag=tag), indent=2))
+
+
+async def handle_snapmgr_restores(args: dict) -> list[TextContent]:
+    from src.snapshot_manager import snapshot_manager
+    return _text(json.dumps(snapshot_manager.get_restore_history(), indent=2))
+
+
+async def handle_snapmgr_stats(args: dict) -> list[TextContent]:
+    from src.snapshot_manager import snapshot_manager
+    return _text(json.dumps(snapshot_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# NETWORK SCANNER — Phase 21
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_netscan_profiles(args: dict) -> list[TextContent]:
+    from src.network_scanner import network_scanner
+    return _text(json.dumps(network_scanner.list_profiles(), indent=2))
+
+
+async def handle_netscan_history(args: dict) -> list[TextContent]:
+    from src.network_scanner import network_scanner
+    return _text(json.dumps(network_scanner.get_history(), indent=2))
+
+
+async def handle_netscan_stats(args: dict) -> list[TextContent]:
+    from src.network_scanner import network_scanner
+    return _text(json.dumps(network_scanner.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# CRON MANAGER — Phase 21
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_cron_list(args: dict) -> list[TextContent]:
+    from src.cron_manager import cron_manager
+    group = args.get("group")
+    return _text(json.dumps(cron_manager.list_jobs(group=group), indent=2))
+
+
+async def handle_cron_executions(args: dict) -> list[TextContent]:
+    from src.cron_manager import cron_manager
+    name = args.get("name")
+    return _text(json.dumps(cron_manager.get_executions(name=name), indent=2))
+
+
+async def handle_cron_stats(args: dict) -> list[TextContent]:
+    from src.cron_manager import cron_manager
+    return _text(json.dumps(cron_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# APP LAUNCHER — Phase 21
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_applnch_list(args: dict) -> list[TextContent]:
+    from src.app_launcher import app_launcher
+    group = args.get("group")
+    return _text(json.dumps(app_launcher.list_apps(group=group), indent=2))
+
+
+async def handle_applnch_history(args: dict) -> list[TextContent]:
+    from src.app_launcher import app_launcher
+    name = args.get("app_name")
+    return _text(json.dumps(app_launcher.get_history(app_name=name), indent=2))
+
+
+async def handle_applnch_stats(args: dict) -> list[TextContent]:
+    from src.app_launcher import app_launcher
+    return _text(json.dumps(app_launcher.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# EMAIL SENDER — Phase 22
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_emailsend_list(args: dict) -> list[TextContent]:
+    from src.email_sender import email_sender
+    status = args.get("status")
+    return _text(json.dumps(email_sender.list_messages(status=status), indent=2))
+
+
+async def handle_emailsend_templates(args: dict) -> list[TextContent]:
+    from src.email_sender import email_sender
+    return _text(json.dumps(email_sender.list_templates(), indent=2))
+
+
+async def handle_emailsend_stats(args: dict) -> list[TextContent]:
+    from src.email_sender import email_sender
+    return _text(json.dumps(email_sender.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SYSTEM PROFILER — Phase 22
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_sysprof_profiles(args: dict) -> list[TextContent]:
+    from src.system_profiler import system_profiler
+    tag = args.get("tag")
+    return _text(json.dumps(system_profiler.list_profiles(tag=tag), indent=2))
+
+
+async def handle_sysprof_benchmarks(args: dict) -> list[TextContent]:
+    from src.system_profiler import system_profiler
+    return _text(json.dumps(system_profiler.list_benchmarks(), indent=2))
+
+
+async def handle_sysprof_stats(args: dict) -> list[TextContent]:
+    from src.system_profiler import system_profiler
+    return _text(json.dumps(system_profiler.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# CONTEXT MANAGER — Phase 22
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_ctxmgr_list(args: dict) -> list[TextContent]:
+    from src.context_manager import context_manager
+    tag = args.get("tag")
+    return _text(json.dumps(context_manager.list_contexts(tag=tag), indent=2))
+
+
+async def handle_ctxmgr_events(args: dict) -> list[TextContent]:
+    from src.context_manager import context_manager
+    cid = args.get("context_id")
+    return _text(json.dumps(context_manager.get_events(context_id=cid), indent=2))
+
+
+async def handle_ctxmgr_stats(args: dict) -> list[TextContent]:
+    from src.context_manager import context_manager
+    return _text(json.dumps(context_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# WINDOW MANAGER — Phase 23
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_winmgr_list(args: dict) -> list[TextContent]:
+    from src.window_manager import window_manager
+    visible = args.get("visible_only", "true").lower() != "false"
+    return _text(json.dumps(window_manager.list_windows(visible_only=visible), indent=2))
+
+
+async def handle_winmgr_events(args: dict) -> list[TextContent]:
+    from src.window_manager import window_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(window_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_winmgr_stats(args: dict) -> list[TextContent]:
+    from src.window_manager import window_manager
+    return _text(json.dumps(window_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# POWER MANAGER — Phase 23
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_pwrmgr_battery(args: dict) -> list[TextContent]:
+    from src.power_manager import power_manager
+    return _text(json.dumps(power_manager.get_battery_status(), indent=2))
+
+
+async def handle_pwrmgr_events(args: dict) -> list[TextContent]:
+    from src.power_manager import power_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(power_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_pwrmgr_stats(args: dict) -> list[TextContent]:
+    from src.power_manager import power_manager
+    return _text(json.dumps(power_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DOWNLOAD MANAGER — Phase 23
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_dlmgr_list(args: dict) -> list[TextContent]:
+    from src.download_manager import download_manager
+    status = args.get("status")
+    return _text(json.dumps(download_manager.list_downloads(status=status), indent=2))
+
+
+async def handle_dlmgr_history(args: dict) -> list[TextContent]:
+    from src.download_manager import download_manager
+    return _text(json.dumps(download_manager.list_downloads(limit=100), indent=2))
+
+
+async def handle_dlmgr_stats(args: dict) -> list[TextContent]:
+    from src.download_manager import download_manager
+    return _text(json.dumps(download_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# REGISTRY MANAGER — Phase 24
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_regmgr_favorites(args: dict) -> list[TextContent]:
+    from src.registry_manager import registry_manager
+    return _text(json.dumps(registry_manager.list_favorites(), indent=2))
+
+
+async def handle_regmgr_events(args: dict) -> list[TextContent]:
+    from src.registry_manager import registry_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(registry_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_regmgr_stats(args: dict) -> list[TextContent]:
+    from src.registry_manager import registry_manager
+    return _text(json.dumps(registry_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SERVICE CONTROLLER — Phase 24
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_svcctl_list(args: dict) -> list[TextContent]:
+    from src.service_controller import service_controller
+    state = args.get("state", "all")
+    return _text(json.dumps(service_controller.list_services(state=state), indent=2))
+
+
+async def handle_svcctl_events(args: dict) -> list[TextContent]:
+    from src.service_controller import service_controller
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(service_controller.get_events(limit=limit), indent=2))
+
+
+async def handle_svcctl_stats(args: dict) -> list[TextContent]:
+    from src.service_controller import service_controller
+    return _text(json.dumps(service_controller.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DISK MONITOR — Phase 24
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_diskmon_drives(args: dict) -> list[TextContent]:
+    from src.disk_monitor import disk_monitor
+    return _text(json.dumps(disk_monitor.list_drives(), indent=2))
+
+
+async def handle_diskmon_alerts(args: dict) -> list[TextContent]:
+    from src.disk_monitor import disk_monitor
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(disk_monitor.get_alerts(limit=limit), indent=2))
+
+
+async def handle_diskmon_stats(args: dict) -> list[TextContent]:
+    from src.disk_monitor import disk_monitor
+    return _text(json.dumps(disk_monitor.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # TOOL REGISTRY
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -3347,6 +3714,78 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     ("cmdreg_list", "Lister les commandes enregistrees.", {"category": "string"}, handle_cmdreg_list),
     ("cmdreg_categories", "Lister les categories de commandes.", {}, handle_cmdreg_categories),
     ("cmdreg_stats", "Stats du registre de commandes.", {}, handle_cmdreg_stats),
+    # Process Manager (3) — Phase 19
+    ("procmgr_list", "Lister les processus manages.", {"group": "string"}, handle_procmgr_list),
+    ("procmgr_events", "Historique des evenements processus.", {"name": "string"}, handle_procmgr_events),
+    ("procmgr_stats", "Stats du gestionnaire de processus.", {}, handle_procmgr_stats),
+    # Data Validator (3) — Phase 19
+    ("dataval_schemas", "Lister les schemas de validation.", {}, handle_dataval_schemas),
+    ("dataval_history", "Historique des validations.", {}, handle_dataval_history),
+    ("dataval_stats", "Stats du validateur de donnees.", {}, handle_dataval_stats),
+    # File Watcher (3) — Phase 19
+    ("fwatch_list", "Lister les watches fichier actifs.", {"group": "string"}, handle_fwatch_list),
+    ("fwatch_events", "Evenements de changement fichier.", {"watch_name": "string"}, handle_fwatch_events),
+    ("fwatch_stats", "Stats du file watcher.", {}, handle_fwatch_stats),
+    # Clipboard Manager (3) — Phase 20
+    ("clipmgr_history", "Historique du presse-papier.", {"category": "string"}, handle_clipmgr_history),
+    ("clipmgr_search", "Rechercher dans l'historique clipboard.", {"query": "string"}, handle_clipmgr_search),
+    ("clipmgr_stats", "Stats du clipboard manager.", {}, handle_clipmgr_stats),
+    # Shortcut Manager (3) — Phase 20
+    ("hotkey_list", "Lister les raccourcis clavier.", {"group": "string"}, handle_hotkey_list),
+    ("hotkey_activations", "Historique des activations hotkey.", {"name": "string"}, handle_hotkey_activations),
+    ("hotkey_stats", "Stats du shortcut manager.", {}, handle_hotkey_stats),
+    # Snapshot Manager (3) — Phase 20
+    ("snapmgr_list", "Lister les snapshots systeme.", {"tag": "string"}, handle_snapmgr_list),
+    ("snapmgr_restores", "Historique des restaurations.", {}, handle_snapmgr_restores),
+    ("snapmgr_stats", "Stats du snapshot manager.", {}, handle_snapmgr_stats),
+    # Network Scanner (3) — Phase 21
+    ("netscan_profiles", "Lister les profils de scan reseau.", {}, handle_netscan_profiles),
+    ("netscan_history", "Historique des scans reseau.", {}, handle_netscan_history),
+    ("netscan_stats", "Stats du scanner reseau.", {}, handle_netscan_stats),
+    # Cron Manager (3) — Phase 21
+    ("cron_list", "Lister les taches cron.", {"group": "string"}, handle_cron_list),
+    ("cron_executions", "Historique des executions cron.", {"name": "string"}, handle_cron_executions),
+    ("cron_stats", "Stats du cron manager.", {}, handle_cron_stats),
+    # App Launcher (3) — Phase 21
+    ("applnch_list", "Lister les applications enregistrees.", {"group": "string"}, handle_applnch_list),
+    ("applnch_history", "Historique des lancements.", {"app_name": "string"}, handle_applnch_history),
+    ("applnch_stats", "Stats du lanceur d'applications.", {}, handle_applnch_stats),
+    # Email Sender (3) — Phase 22
+    ("emailsend_list", "Lister les emails.", {"status": "string"}, handle_emailsend_list),
+    ("emailsend_templates", "Lister les templates email.", {}, handle_emailsend_templates),
+    ("emailsend_stats", "Stats du systeme email.", {}, handle_emailsend_stats),
+    # System Profiler (3) — Phase 22
+    ("sysprof_profiles", "Lister les profils systeme.", {"tag": "string"}, handle_sysprof_profiles),
+    ("sysprof_benchmarks", "Lister les benchmarks.", {}, handle_sysprof_benchmarks),
+    ("sysprof_stats", "Stats du profiler systeme.", {}, handle_sysprof_stats),
+    # Context Manager (3) — Phase 22
+    ("ctxmgr_list", "Lister les contextes d'execution.", {"tag": "string"}, handle_ctxmgr_list),
+    ("ctxmgr_events", "Evenements des contextes.", {"context_id": "string"}, handle_ctxmgr_events),
+    ("ctxmgr_stats", "Stats du context manager.", {}, handle_ctxmgr_stats),
+    # Window Manager (3) — Phase 23
+    ("winmgr_list", "Lister les fenetres ouvertes.", {"visible_only": "boolean"}, handle_winmgr_list),
+    ("winmgr_events", "Historique des actions fenetres.", {"limit": "number"}, handle_winmgr_events),
+    ("winmgr_stats", "Stats du gestionnaire de fenetres.", {}, handle_winmgr_stats),
+    # Power Manager (3) — Phase 23
+    ("pwrmgr_battery", "Statut batterie et alimentation.", {}, handle_pwrmgr_battery),
+    ("pwrmgr_events", "Historique des actions d'alimentation.", {"limit": "number"}, handle_pwrmgr_events),
+    ("pwrmgr_stats", "Stats du power manager.", {}, handle_pwrmgr_stats),
+    # Download Manager (3) — Phase 23
+    ("dlmgr_list", "Lister les telechargements.", {"status": "string"}, handle_dlmgr_list),
+    ("dlmgr_history", "Historique complet des telechargements.", {}, handle_dlmgr_history),
+    ("dlmgr_stats", "Stats du gestionnaire de telechargements.", {}, handle_dlmgr_stats),
+    # Registry Manager (3) — Phase 24
+    ("regmgr_favorites", "Lister les favoris registre.", {}, handle_regmgr_favorites),
+    ("regmgr_events", "Historique des operations registre.", {"limit": "number"}, handle_regmgr_events),
+    ("regmgr_stats", "Stats du gestionnaire de registre.", {}, handle_regmgr_stats),
+    # Service Controller (3) — Phase 24
+    ("svcctl_list", "Lister les services Windows.", {"state": "string"}, handle_svcctl_list),
+    ("svcctl_events", "Historique des actions services.", {"limit": "number"}, handle_svcctl_events),
+    ("svcctl_stats", "Stats du controleur de services.", {}, handle_svcctl_stats),
+    # Disk Monitor (3) — Phase 24
+    ("diskmon_drives", "Lister les disques et usage.", {}, handle_diskmon_drives),
+    ("diskmon_alerts", "Alertes d'espace disque.", {"limit": "number"}, handle_diskmon_alerts),
+    ("diskmon_stats", "Stats du moniteur de disques.", {}, handle_diskmon_stats),
 ]
 
 # Build handler map

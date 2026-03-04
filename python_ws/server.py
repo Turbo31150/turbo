@@ -1751,6 +1751,528 @@ async def api_cmdreg_stats():
         return JSONResponse({"error": str(exc)}, status_code=500)
 
 
+# ── Process Manager — Phase 19 ───────────────────────────────────────────
+
+@app.get("/api/processes/list")
+async def api_procmgr_list(group: str = ""):
+    try:
+        from src.process_manager import process_manager
+        return JSONResponse(process_manager.list_processes(group=group or None))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/processes/events")
+async def api_procmgr_events(name: str = ""):
+    try:
+        from src.process_manager import process_manager
+        return JSONResponse(process_manager.get_events(name=name or None))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/processes/stats")
+async def api_procmgr_stats():
+    try:
+        from src.process_manager import process_manager
+        return JSONResponse(process_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Data Validator — Phase 19 ────────────────────────────────────────────
+
+@app.get("/api/validator/schemas")
+async def api_dataval_schemas():
+    try:
+        from src.data_validator import data_validator
+        return JSONResponse(data_validator.list_schemas())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/validator/history")
+async def api_dataval_history():
+    try:
+        from src.data_validator import data_validator
+        return JSONResponse(data_validator.get_history())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/validator/stats")
+async def api_dataval_stats():
+    try:
+        from src.data_validator import data_validator
+        return JSONResponse(data_validator.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── File Watcher — Phase 19 ─────────────────────────────────────────────
+
+@app.get("/api/filewatcher/list")
+async def api_fwatch_list(group: str = ""):
+    try:
+        from src.file_watcher import file_watcher
+        return JSONResponse(file_watcher.list_watches(group=group or None))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/filewatcher/events")
+async def api_fwatch_events(watch_name: str = ""):
+    try:
+        from src.file_watcher import file_watcher
+        return JSONResponse(file_watcher.get_events(watch_name=watch_name or None))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/filewatcher/stats")
+async def api_fwatch_stats():
+    try:
+        from src.file_watcher import file_watcher
+        return JSONResponse(file_watcher.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Clipboard Manager — Phase 20 ─────────────────────────────────────────
+
+@app.get("/api/clipboard/history")
+async def api_clipmgr_history(category: str = ""):
+    try:
+        from src.clipboard_manager import clipboard_manager
+        return JSONResponse(clipboard_manager.get_history(category=category or None))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/clipboard/search")
+async def api_clipmgr_search(query: str = ""):
+    try:
+        from src.clipboard_manager import clipboard_manager
+        return JSONResponse(clipboard_manager.search(query))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/clipboard/stats")
+async def api_clipmgr_stats():
+    try:
+        from src.clipboard_manager import clipboard_manager
+        return JSONResponse(clipboard_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Shortcut Manager — Phase 20 ─────────────────────────────────────────
+
+@app.get("/api/hotkeys/list")
+async def api_hotkey_list(group: str = ""):
+    try:
+        from src.shortcut_manager import shortcut_manager
+        return JSONResponse(shortcut_manager.list_shortcuts(group=group or None))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/hotkeys/activations")
+async def api_hotkey_activations(name: str = ""):
+    try:
+        from src.shortcut_manager import shortcut_manager
+        return JSONResponse(shortcut_manager.get_activations(name=name or None))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/hotkeys/stats")
+async def api_hotkey_stats():
+    try:
+        from src.shortcut_manager import shortcut_manager
+        return JSONResponse(shortcut_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Snapshot Manager — Phase 20 ──────────────────────────────────────────
+
+@app.get("/api/snapshots/list")
+async def api_snapmgr_list(tag: str = ""):
+    try:
+        from src.snapshot_manager import snapshot_manager
+        return JSONResponse(snapshot_manager.list_snapshots(tag=tag or None))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/snapshots/restores")
+async def api_snapmgr_restores():
+    try:
+        from src.snapshot_manager import snapshot_manager
+        return JSONResponse(snapshot_manager.get_restore_history())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/snapshots/stats")
+async def api_snapmgr_stats():
+    try:
+        from src.snapshot_manager import snapshot_manager
+        return JSONResponse(snapshot_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Network Scanner — Phase 21 ───────────────────────────────────────────
+
+@app.get("/api/netscan/profiles")
+async def api_netscan_profiles():
+    try:
+        from src.network_scanner import network_scanner
+        return JSONResponse(network_scanner.list_profiles())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/netscan/history")
+async def api_netscan_history():
+    try:
+        from src.network_scanner import network_scanner
+        return JSONResponse(network_scanner.get_history())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/netscan/stats")
+async def api_netscan_stats():
+    try:
+        from src.network_scanner import network_scanner
+        return JSONResponse(network_scanner.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Cron Manager — Phase 21 ─────────────────────────────────────────────
+
+@app.get("/api/cron/list")
+async def api_cron_list(group: str = ""):
+    try:
+        from src.cron_manager import cron_manager
+        return JSONResponse(cron_manager.list_jobs(group=group or None))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/cron/executions")
+async def api_cron_executions(name: str = ""):
+    try:
+        from src.cron_manager import cron_manager
+        return JSONResponse(cron_manager.get_executions(name=name or None))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/cron/stats")
+async def api_cron_stats():
+    try:
+        from src.cron_manager import cron_manager
+        return JSONResponse(cron_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── App Launcher — Phase 21 ─────────────────────────────────────────────
+
+@app.get("/api/apps/list")
+async def api_applnch_list(group: str = ""):
+    try:
+        from src.app_launcher import app_launcher
+        return JSONResponse(app_launcher.list_apps(group=group or None))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/apps/history")
+async def api_applnch_history(app_name: str = ""):
+    try:
+        from src.app_launcher import app_launcher
+        return JSONResponse(app_launcher.get_history(app_name=app_name or None))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/apps/stats")
+async def api_applnch_stats():
+    try:
+        from src.app_launcher import app_launcher
+        return JSONResponse(app_launcher.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Email Sender — Phase 22 ──────────────────────────────────────────────
+
+@app.get("/api/email/list")
+async def api_emailsend_list(status: str = ""):
+    try:
+        from src.email_sender import email_sender
+        return JSONResponse(email_sender.list_messages(status=status or None))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/email/templates")
+async def api_emailsend_templates():
+    try:
+        from src.email_sender import email_sender
+        return JSONResponse(email_sender.list_templates())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/email/stats")
+async def api_emailsend_stats():
+    try:
+        from src.email_sender import email_sender
+        return JSONResponse(email_sender.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── System Profiler — Phase 22 ──────────────────────────────────────────
+
+@app.get("/api/profiler/profiles")
+async def api_sysprof_profiles(tag: str = ""):
+    try:
+        from src.system_profiler import system_profiler
+        return JSONResponse(system_profiler.list_profiles(tag=tag or None))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/profiler/benchmarks")
+async def api_sysprof_benchmarks():
+    try:
+        from src.system_profiler import system_profiler
+        return JSONResponse(system_profiler.list_benchmarks())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/profiler/stats")
+async def api_sysprof_stats():
+    try:
+        from src.system_profiler import system_profiler
+        return JSONResponse(system_profiler.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Context Manager — Phase 22 ──────────────────────────────────────────
+
+@app.get("/api/contexts/list")
+async def api_ctxmgr_list(tag: str = ""):
+    try:
+        from src.context_manager import context_manager
+        return JSONResponse(context_manager.list_contexts(tag=tag or None))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/contexts/events")
+async def api_ctxmgr_events(context_id: str = ""):
+    try:
+        from src.context_manager import context_manager
+        return JSONResponse(context_manager.get_events(context_id=context_id or None))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/contexts/stats")
+async def api_ctxmgr_stats():
+    try:
+        from src.context_manager import context_manager
+        return JSONResponse(context_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Window Manager — Phase 23 ────────────────────────────────────────────
+
+@app.get("/api/windows/list")
+async def api_winmgr_list(visible_only: bool = True):
+    try:
+        from src.window_manager import window_manager
+        return JSONResponse(window_manager.list_windows(visible_only=visible_only))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/windows/events")
+async def api_winmgr_events(limit: int = 50):
+    try:
+        from src.window_manager import window_manager
+        return JSONResponse(window_manager.get_events(limit=limit))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/windows/stats")
+async def api_winmgr_stats():
+    try:
+        from src.window_manager import window_manager
+        return JSONResponse(window_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Power Manager — Phase 23 ─────────────────────────────────────────────
+
+@app.get("/api/power/battery")
+async def api_pwrmgr_battery():
+    try:
+        from src.power_manager import power_manager
+        return JSONResponse(power_manager.get_battery_status())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/power/events")
+async def api_pwrmgr_events(limit: int = 50):
+    try:
+        from src.power_manager import power_manager
+        return JSONResponse(power_manager.get_events(limit=limit))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/power/stats")
+async def api_pwrmgr_stats():
+    try:
+        from src.power_manager import power_manager
+        return JSONResponse(power_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Download Manager — Phase 23 ──────────────────────────────────────────
+
+@app.get("/api/downloads/list")
+async def api_dlmgr_list(status: str = ""):
+    try:
+        from src.download_manager import download_manager
+        return JSONResponse(download_manager.list_downloads(status=status or None))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/downloads/history")
+async def api_dlmgr_history():
+    try:
+        from src.download_manager import download_manager
+        return JSONResponse(download_manager.list_downloads(limit=100))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/downloads/stats")
+async def api_dlmgr_stats():
+    try:
+        from src.download_manager import download_manager
+        return JSONResponse(download_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Registry Manager — Phase 24 ───────────────────────────────────────────
+
+@app.get("/api/registry/favorites")
+async def api_regmgr_favorites():
+    try:
+        from src.registry_manager import registry_manager
+        return JSONResponse(registry_manager.list_favorites())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/registry/events")
+async def api_regmgr_events(limit: int = 50):
+    try:
+        from src.registry_manager import registry_manager
+        return JSONResponse(registry_manager.get_events(limit=limit))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/registry/stats")
+async def api_regmgr_stats():
+    try:
+        from src.registry_manager import registry_manager
+        return JSONResponse(registry_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Service Controller — Phase 24 ────────────────────────────────────────
+
+@app.get("/api/winsvc/list")
+async def api_svcctl_list_p24(state: str = "all"):
+    try:
+        from src.service_controller import service_controller
+        return JSONResponse(service_controller.list_services(state=state))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/winsvc/events")
+async def api_svcctl_events(limit: int = 50):
+    try:
+        from src.service_controller import service_controller
+        return JSONResponse(service_controller.get_events(limit=limit))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/winsvc/stats")
+async def api_svcctl_stats_p24():
+    try:
+        from src.service_controller import service_controller
+        return JSONResponse(service_controller.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Disk Monitor — Phase 24 ──────────────────────────────────────────────
+
+@app.get("/api/disks/drives")
+async def api_diskmon_drives():
+    try:
+        from src.disk_monitor import disk_monitor
+        return JSONResponse(disk_monitor.list_drives())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/disks/alerts")
+async def api_diskmon_alerts(limit: int = 50):
+    try:
+        from src.disk_monitor import disk_monitor
+        return JSONResponse(disk_monitor.get_alerts(limit=limit))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/disks/stats")
+async def api_diskmon_stats():
+    try:
+        from src.disk_monitor import disk_monitor
+        return JSONResponse(disk_monitor.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
 @app.get("/api/models")
 async def api_models():
     """Return all available models with online/offline status."""

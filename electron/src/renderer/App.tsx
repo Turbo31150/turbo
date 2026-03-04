@@ -40,6 +40,9 @@ const GatewayPage = lazy(() => import('./pages/GatewayPage'));
 const InfraPage = lazy(() => import('./pages/InfraPage'));
 const MeshPage = lazy(() => import('./pages/MeshPage'));
 const AutomationPage = lazy(() => import('./pages/AutomationPage'));
+const ProcessesPage = lazy(() => import('./pages/ProcessesPage'));
+const SnapshotsPage = lazy(() => import('./pages/SnapshotsPage'));
+const SystemPage = lazy(() => import('./pages/SystemPage'));
 
 const PAGE_COMPONENTS: Record<Page, React.LazyExoticComponent<React.ComponentType>> = {
   dashboard: DashboardPage,
@@ -67,6 +70,9 @@ const PAGE_COMPONENTS: Record<Page, React.LazyExoticComponent<React.ComponentTyp
   infra: InfraPage,
   mesh: MeshPage,
   automation: AutomationPage,
+  processes: ProcessesPage,
+  snapshots: SnapshotsPage,
+  system: SystemPage,
 };
 
 const CSS = `
