@@ -211,6 +211,17 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["turbopack", "turbo paque", "turbopak", "turbopacke"],
     ["esbuild", "esse bilde", "es bild", "ezbuild"],
     ["storybook", "story bouke", "story buc", "storibouk"],
+    # Vague 27 — ORM / Serverless / Testing phonetiques
+    ["sqlalchemy", "sequel aise", "esse cul alchimie", "sql alchemy"],
+    ["prisma", "priis ma", "prisme a", "prizema"],
+    ["sequelize", "sequel ize", "sequelise", "sikoulize"],
+    ["mongoose", "mongooze", "mongosse", "mongo oze"],
+    ["lambda", "la m'bda", "lam beda", "lambeda"],
+    ["vercel", "ver sel", "verse elle", "verselle"],
+    ["netlify", "nette li faille", "net li fi", "netlifi"],
+    ["cypress", "saille press", "say press", "si presse"],
+    ["playwright", "play write", "playe raite", "pleyright"],
+    ["selenium", "sel en yum", "seleneum", "seleniom"],
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -1287,6 +1298,26 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "storybook": "lance storybook",
     "vitest": "lance vitest",
     "rollup": "rollup build",
+    # Vague 89 — ORM / database raccourcis
+    "orm": "check orm",
+    "prisma": "prisma status",
+    "sequelize": "check sequelize",
+    "mongoose": "check mongoose",
+    "migration": "run migrations",
+    "migrate": "run migrations",
+    # Vague 90 — Serverless raccourcis
+    "lambda": "check lambda",
+    "serverless": "deploy serverless",
+    "vercel": "vercel deploy",
+    "netlify": "netlify deploy",
+    "edge": "edge functions",
+    # Vague 91 — Testing raccourcis
+    "jest": "lance jest",
+    "cypress": "lance cypress",
+    "playwright": "lance playwright",
+    "selenium": "lance selenium",
+    "e2e": "tests end to end",
+    "integration": "tests integration",
 }
 
 
