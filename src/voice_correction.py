@@ -180,6 +180,16 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["traceback", "trace baque", "tracebak"],
     ["changelog", "tcheinge logue", "changelogge"],
     ["semver", "sem veur", "semverre"],
+    # Vague 24 — WebSocket / GraphQL / Cache phonetiques
+    ["websocket", "oueb socket", "web soquette", "soque ette"],
+    ["socket.io", "soquette io", "socket aillot", "soque aillot"],
+    ["graphql", "graphe cul", "graffe quel", "gras cul"],
+    ["apollo", "apo lo", "appollo", "a paul eau"],
+    ["trpc", "tresse pc", "ti aire pece", "ter pece"],
+    ["grpc", "ji air pece", "gi air pi si", "gerpc"],
+    ["redis", "rai diss", "reddis", "red ice"],
+    ["memcached", "mem cache day", "meme cache", "memecashed"],
+    ["varnish", "var niche", "varnic", "varnich"],
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -1178,6 +1188,32 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "license": "montre la licence",
     "contributors": "liste les contributeurs",
     "releases": "liste les releases",
+    # Vague 80 — WebSocket / temps reel raccourcis
+    "ws": "test websocket",
+    "websocket": "test websocket",
+    "socket": "test websocket",
+    "sse": "check streaming",
+    "streaming": "check streaming",
+    "push": "push notification",
+    "realtime": "check temps reel",
+    # Vague 81 — GraphQL / API modernes raccourcis
+    "graphql": "check graphql",
+    "apollo": "check apollo",
+    "resolver": "check resolvers",
+    "mutation": "mutation graphql",
+    "subscription": "subscription graphql",
+    "grpc": "check grpc",
+    "trpc": "check trpc",
+    # Vague 82 — Cache / urgence raccourcis
+    "redis": "check redis",
+    "cache": "stats cache",
+    "memcache": "check memcached",
+    "ttl": "check ttl cache",
+    "cdn": "check cdn",
+    "hotfix": "deploie le hotfix",
+    "incident": "mode incident",
+    "urgent": "c'est urgent",
+    "prio": "priorite haute",
 }
 
 
