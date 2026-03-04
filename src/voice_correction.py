@@ -173,6 +173,13 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["softmax", "soft max", "softemax"],
     ["whisper", "ouisper", "wispeur"],
     ["trigram", "tri gramme", "trigramme"],
+    # Vague 23 — Hardware / Logging / Collab phonetiques
+    ["nvme", "enne ve eme e", "envemme"],
+    ["thunderbolt", "tondeur bolt", "thunderbolte"],
+    ["pcie", "pe ce i express", "pcieexpresse"],
+    ["traceback", "trace baque", "tracebak"],
+    ["changelog", "tcheinge logue", "changelogge"],
+    ["semver", "sem veur", "semverre"],
 ]
 
 # Mots-outils souvent rajoutes/enleves par le STT
@@ -1146,6 +1153,31 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "explain": "explain la requete",
     "indexes": "montre les indexes",
     "views": "montre les vues",
+    # Vague 77 — Hardware raccourcis
+    "cpu": "montre l'utilisation cpu",
+    "gpu": "montre l'utilisation gpu",
+    "temperature": "montre les temperatures",
+    "ventilateur": "statut ventilateurs",
+    "bios": "info bios",
+    "drivers": "liste les drivers",
+    "usb": "liste les peripheriques usb",
+    # Vague 78 — Logging / Debug raccourcis
+    "logs": "affiche les logs",
+    "errors": "affiche les erreurs",
+    "traceback": "affiche le traceback",
+    "exception": "montre l'exception",
+    "stack trace": "affiche la stack trace",
+    "debug mode": "active le mode debug",
+    "verbose": "active le mode verbose",
+    # Vague 79 — Collaboration raccourcis
+    "pr": "liste les pull requests",
+    "fork": "fork le repo",
+    "clone": "clone le repo",
+    "upstream": "check upstream",
+    "changelog": "genere le changelog",
+    "license": "montre la licence",
+    "contributors": "liste les contributeurs",
+    "releases": "liste les releases",
 }
 
 
