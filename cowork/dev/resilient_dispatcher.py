@@ -251,6 +251,13 @@ def resilient_dispatch(task_type, prompt, route_chain=None):
         except Exception:
             route_chain = ["M1", "OL1", "M2", "M3"]
 
+    # Import dynamic timeout
+    try:
+        from dynamic_timeout import compute_timeout
+        use_dynamic = True
+    except ImportError:
+        use_dynamic = False
+
     all_attempts = []
 
     for node in route_chain:
@@ -260,9 +267,16 @@ def resilient_dispatch(task_type, prompt, route_chain=None):
             all_attempts.append({"node": node, "skipped": True, "reason": "circuit_open"})
             continue
 
+        # Compute adaptive timeout
+        if use_dynamic:
+            to_result = compute_timeout(task_type, prompt, node)
+            timeout = to_result["timeout_s"]
+        else:
+            timeout = None
+
         # Retry loop with exponential backoff
         for attempt in range(1, MAX_RETRIES + 2):
-            result = dispatch_to_node(node, prompt)
+            result = dispatch_to_node(node, prompt, timeout)
             log_dispatch(edb, node, task_type, prompt, result, attempt)
 
             if result["success"]:

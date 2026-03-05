@@ -238,7 +238,14 @@ def dispatch(task_type, prompt, force_strategy=None):
     strategy = force_strategy or STRATEGY_MATRIX.get(task_type, "single")
     config = STRATEGY_CONFIG.get(strategy, STRATEGY_CONFIG["single"])
     nodes = STRATEGY_NODES.get(strategy, ["M1", "OL1"])[:config["nodes"]]
-    timeout = config["timeout"]
+
+    # Dynamic timeout based on prompt complexity
+    try:
+        from dynamic_timeout import compute_timeout
+        to_result = compute_timeout(task_type, prompt, nodes[0] if nodes else "M1")
+        timeout = to_result["timeout_s"]
+    except ImportError:
+        timeout = config["timeout"]
 
     if strategy == "single":
         return strategy_single(prompt, nodes, timeout)
