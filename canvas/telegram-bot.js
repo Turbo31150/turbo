@@ -34,6 +34,18 @@ const PROXY_URL = 'http://127.0.0.1:18800';
 const POLL_TIMEOUT = 30; // secondes (long polling Telegram)
 const MAX_MSG_LEN = 4096; // limite Telegram
 const RECONNECT_DELAY = 5000; // ms avant retry si proxy down
+const TTS_SCRIPT = 'C:/Users/franc/.openclaw/workspace/dev/win_tts.py';
+const VOICE_MODE = true; // Toujours répondre en vocal
+const CLUSTER_RACE = true; // Utiliser tout le cluster en parallèle
+
+// ─── Cluster nodes (direct, sans passer par le proxy) ─────────────────────────
+const CLUSTER_NODES = [
+  { id: 'gpt-oss', url: 'http://127.0.0.1:11434/api/chat', model: 'gpt-oss:120b-cloud', isOllama: true, weight: 1.9 },
+  { id: 'M1', url: 'http://127.0.0.1:1234/v1/chat/completions', model: 'qwen3-8b', weight: 1.8 },
+  { id: 'devstral', url: 'http://127.0.0.1:11434/api/chat', model: 'devstral-2:123b-cloud', isOllama: true, weight: 1.5 },
+  { id: 'M2', url: 'http://192.168.1.26:1234/v1/chat/completions', model: 'deepseek-coder-v2-lite-instruct', weight: 1.4 },
+  { id: 'OL1', url: 'http://127.0.0.1:11434/api/chat', model: 'qwen3:1.7b', isOllama: true, weight: 1.3 },
+];
 
 if (!TOKEN) { console.error('[FATAL] TELEGRAM_TOKEN manquant dans .env'); process.exit(1); }
 if (!CHAT_ID) { console.error('[FATAL] TELEGRAM_CHAT manquant dans .env'); process.exit(1); }
@@ -249,13 +261,154 @@ async function handleCommand(chatId, cmd, args) {
   }
 }
 
+// ─── Cluster Race — Query all nodes in parallel, first good response wins ─────
+
+function queryNode(node, prompt) {
+  const sysPrompt = 'Tu es JARVIS, assistant IA. Reponds en francais, concis et utile. Max 300 mots.';
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+    let body, headers;
+    if (node.isOllama) {
+      body = JSON.stringify({
+        model: node.model,
+        messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: prompt }],
+        stream: false, think: false
+      });
+      headers = { 'Content-Type': 'application/json' };
+    } else {
+      // LM Studio (OpenAI-compatible)
+      body = JSON.stringify({
+        model: node.model,
+        messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: '/nothink\n' + prompt }],
+        temperature: 0.2, max_tokens: 1024, stream: false
+      });
+      headers = { 'Content-Type': 'application/json' };
+    }
+    httpRequest(node.url, { method: 'POST', headers, timeout: 60000 }, body)
+      .then(res => {
+        const d = JSON.parse(res.body);
+        let text = '';
+        if (node.isOllama) {
+          text = (d.message && d.message.content) || '';
+        } else {
+          text = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || '';
+        }
+        // Clean thinking tokens
+        text = text.replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/^\/no_?think\s*/i, '').trim();
+        if (!text || text.length < 5) return reject(new Error('empty response'));
+        resolve({ text, node: node.id, model: node.model, latency: Date.now() - start });
+      })
+      .catch(reject);
+  });
+}
+
+async function clusterRace(prompt) {
+  // Launch all nodes in parallel, first good response wins
+  const promises = CLUSTER_NODES.map(node =>
+    queryNode(node, prompt).catch(e => {
+      log(`  [${node.id}] failed: ${e.message}`);
+      return null;
+    })
+  );
+  // Race: return first non-null result
+  return new Promise((resolve) => {
+    let resolved = false;
+    let results = [];
+    let done = 0;
+    promises.forEach((p, i) => {
+      p.then(r => {
+        done++;
+        if (r && !resolved) {
+          resolved = true;
+          log(`  WINNER: [${r.node}] ${r.latency}ms — ${r.text.slice(0, 60)}...`);
+          resolve(r);
+        }
+        if (r) results.push(r);
+        if (done === promises.length && !resolved) {
+          // All failed — try proxy fallback
+          resolve(null);
+        }
+      });
+    });
+    // Safety timeout
+    setTimeout(() => { if (!resolved) { resolved = true; resolve(null); } }, 65000);
+  });
+}
+
+// ─── Voice: download Telegram voice → transcribe via Whisper ──────────────────
+
+async function transcribeVoice(fileId) {
+  // 1. Get file path from Telegram
+  const fileInfo = await telegramAPI('getFile', { file_id: fileId });
+  const filePath = fileInfo.file_path;
+  const fileUrl = `https://api.telegram.org/file/bot${TOKEN}/${filePath}`;
+
+  // 2. Download to temp
+  const tmpOgg = path.join(os.tmpdir(), `tg_voice_${Date.now()}.ogg`);
+  const tmpWav = tmpOgg.replace('.ogg', '.wav');
+
+  await new Promise((resolve, reject) => {
+    const file = require('fs').createWriteStream(tmpOgg);
+    https.get(fileUrl, (res) => { res.pipe(file); file.on('finish', () => { file.close(); resolve(); }); })
+      .on('error', reject);
+  });
+
+  // 3. Convert OGG → WAV via ffmpeg
+  const { execSync } = require('child_process');
+  try {
+    execSync(`ffmpeg -y -i "${tmpOgg}" -ar 16000 -ac 1 "${tmpWav}"`, { timeout: 15000, stdio: 'pipe' });
+  } catch (e) {
+    try { fs.unlinkSync(tmpOgg); } catch (_) {}
+    return '[Erreur conversion audio]';
+  }
+
+  // 4. Transcribe via python_ws Whisper endpoint or local faster-whisper
+  let text = '';
+  try {
+    const result = execSync(
+      `faster-whisper "${tmpWav}" --model tiny --language fr --output_format txt`,
+      { timeout: 15000, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }
+    ).trim();
+    text = result;
+  } catch (e) {
+    // Fallback: try Groq API or just return error
+    text = '[Transcription indisponible]';
+  }
+
+  // Cleanup
+  try { fs.unlinkSync(tmpOgg); } catch (_) {}
+  try { fs.unlinkSync(tmpWav); } catch (_) {}
+
+  return text || '[Audio vide]';
+}
+
+// ─── Voice: send response as Telegram voice message ──────────────────────────
+
+async function sendVoiceReply(chatId, text) {
+  try {
+    const { execSync } = require('child_process');
+    const result = execSync(
+      `python "${TTS_SCRIPT}" --speak "${text.replace(/"/g, '\\"').slice(0, 2000)}" --telegram`,
+      { timeout: 30000, encoding: 'utf-8', cwd: path.dirname(TTS_SCRIPT), stdio: ['pipe', 'pipe', 'pipe'] }
+    );
+    const data = JSON.parse(result.trim());
+    if (data.ok) {
+      log(`  VOICE sent: ${data.duration}s OGG via DeniseNeural`);
+      stats.messages_out++;
+      return true;
+    }
+  } catch (e) {
+    logErr('sendVoiceReply failed:', e.message);
+  }
+  return false;
+}
+
 // ─── Traitement des messages ──────────────────────────────────────────────────
 
 async function processMessage(msg) {
-  if (!msg || !msg.text) return;
+  if (!msg) return;
 
   const chatId = msg.chat.id;
-  const text = msg.text.trim();
   const from = msg.from ? (msg.from.username || msg.from.first_name || 'unknown') : 'unknown';
 
   // Sécurité : ne répondre qu'au chat autorisé
@@ -264,8 +417,29 @@ async function processMessage(msg) {
     return;
   }
 
+  // ── Handle voice messages (NEW) ──
+  let text = '';
+  let isVoice = false;
+  if (msg.voice || msg.audio) {
+    isVoice = true;
+    const fileId = (msg.voice || msg.audio).file_id;
+    log(`[${from}] VOICE ${(msg.voice || msg.audio).duration || '?'}s — transcribing...`);
+    text = await transcribeVoice(fileId);
+    log(`  Transcription: ${text.slice(0, 80)}`);
+    if (text.startsWith('[')) {
+      await sendMessage(chatId, text); // Error message
+      return;
+    }
+  } else if (msg.text) {
+    text = msg.text.trim();
+  } else {
+    return; // Unsupported message type
+  }
+
+  if (!text) return;
+
   stats.messages_in++;
-  messageHistory.push({ from, text, ts: new Date().toISOString() });
+  messageHistory.push({ from, text, ts: new Date().toISOString(), voice: isVoice });
   if (messageHistory.length > 50) messageHistory.shift();
 
   log(`[${from}] ${text.slice(0, 80)}${text.length > 80 ? '...' : ''}`);
@@ -289,31 +463,54 @@ async function processMessage(msg) {
     const args = spaceIdx > 0 ? text.slice(spaceIdx + 1).trim() : '';
     const handled = await handleCommand(chatId, cmd, args);
     if (handled !== null) return;
-    // Commande inconnue → traiter comme texte libre
   }
 
-  // Dispatch vers le proxy
-  try {
-    const res = await proxyChat(text);
-    if (res.ok && res.data) {
-      const d = res.data;
-      let reply = d.text || '(réponse vide)';
-      // Attribution du modèle
-      const attr = d.model ? `\n\n_[${d.model}]_` : '';
-      const toolInfo = d.tools_used && d.tools_used.length > 0
-        ? `\n🔧 ${d.tools_used.map(t => t.tool).join(', ')}`
-        : '';
-      reply = reply + toolInfo + attr;
-      await sendMessage(chatId, reply, 'Markdown');
-    } else {
-      const errMsg = res.error || JSON.stringify(res).slice(0, 200);
-      await sendMessage(chatId, `⚠️ Erreur proxy: ${errMsg}`);
-      stats.errors++;
+  // ── Dispatch: cluster race (all nodes parallel) ou proxy fallback ──
+  let reply = '';
+  let model = '';
+  const start = Date.now();
+
+  if (CLUSTER_RACE) {
+    log(`  CLUSTER RACE: dispatching to ${CLUSTER_NODES.length} nodes...`);
+    const result = await clusterRace(text);
+    if (result) {
+      reply = result.text;
+      model = `${result.node}/${result.model} (${result.latency}ms)`;
     }
-  } catch (e) {
-    logErr('proxyChat failed:', e.message);
-    await sendMessage(chatId, `🔴 Proxy non joignable. Vérifiez que direct-proxy.js tourne sur le port 18800.`);
+  }
+
+  // Fallback to proxy if race failed
+  if (!reply) {
+    try {
+      const res = await proxyChat(text);
+      if (res.ok && res.data) {
+        reply = res.data.text || '(réponse vide)';
+        model = res.data.model || 'proxy';
+      }
+    } catch (e) {
+      logErr('Proxy fallback failed:', e.message);
+    }
+  }
+
+  if (!reply) {
+    await sendMessage(chatId, '🔴 Aucun noeud du cluster ne répond.');
     stats.errors++;
+    return;
+  }
+
+  const totalMs = Date.now() - start;
+  log(`  REPLY (${totalMs}ms) [${model}]: ${reply.slice(0, 80)}...`);
+
+  // ── Send response: voice (preferred) + text fallback ──
+  if (VOICE_MODE) {
+    // Send voice reply via TTS
+    const voiceSent = await sendVoiceReply(chatId, reply);
+    // Also send text with attribution (for reading)
+    const attr = model ? `\n\n_[${model}] ${totalMs}ms_` : '';
+    await sendMessage(chatId, reply + attr, 'Markdown');
+  } else {
+    const attr = model ? `\n\n_[${model}] ${totalMs}ms_` : '';
+    await sendMessage(chatId, reply + attr, 'Markdown');
   }
 }
 
