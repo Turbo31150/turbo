@@ -75,7 +75,7 @@ class SmartDispatcher:
         return await self.dispatch_typed(pattern, prompt)
 
     async def dispatch_typed(self, pattern: str, prompt: str) -> AgentResult:
-        """Dispatch with known pattern type, using learned routing."""
+        """Dispatch with known pattern type, using learned routing + smart retry."""
         self._maybe_refresh_stats()
 
         agent = self.registry.agents.get(pattern)
@@ -86,15 +86,63 @@ class SmartDispatcher:
         best_node = self._get_best_node(pattern, agent)
 
         if best_node and best_node != agent.primary_node:
-            # Override agent's primary node with learned best
             logger.info(f"Smart override: {pattern} {agent.primary_node} -> {best_node}")
             original_primary = agent.primary_node
             agent.primary_node = best_node
             result = await self.registry.dispatch(pattern, prompt)
             agent.primary_node = original_primary  # restore
-            return result
+        else:
+            result = await self.registry.dispatch(pattern, prompt)
 
-        return await self.registry.dispatch(pattern, prompt)
+        # Smart retry: if failed, try fallback nodes
+        if not result.success and self._should_retry(pattern, result):
+            result = await self._retry_on_fallback(pattern, prompt, agent, result)
+
+        return result
+
+    def _should_retry(self, pattern: str, result: AgentResult) -> bool:
+        """Decide if a failed dispatch should be retried."""
+        # Don't retry if we got a meaningful error (not timeout/empty)
+        if result.content and len(result.content) > 50:
+            return False  # Got content but marked as failure — quality issue, not retry-worthy
+        return True
+
+    async def _retry_on_fallback(self, pattern: str, prompt: str,
+                                  agent: PatternAgent, original_result: AgentResult) -> AgentResult:
+        """Retry on the next best node after a failure."""
+        failed_node = original_result.node
+        fallback_chains = {
+            "architecture": ["OL1", "M2", "M1"],
+            "analysis": ["OL1", "M2", "M1"],
+            "security": ["OL1", "M1", "M2"],
+            "data": ["OL1", "M1", "M2"],
+            "code": ["M1", "OL1"],
+            "reasoning": ["M2", "M1"],
+            "trading": ["M1", "M2"],
+            "simple": ["OL1", "M1"],
+        }
+        chain = fallback_chains.get(pattern, ["OL1", "M1", "M2"])
+        # Filter out the failed node
+        chain = [n for n in chain if n != failed_node]
+
+        for fallback in chain[:2]:  # max 2 retries
+            logger.info(f"Smart retry: {pattern} {failed_node} -> {fallback}")
+            original_primary = agent.primary_node
+            agent.primary_node = fallback
+            try:
+                result = await self.registry.dispatch(pattern, prompt)
+                if result.success:
+                    result.metadata = result.metadata or {}
+                    result.metadata["retried_from"] = failed_node
+                    result.metadata["retry_node"] = fallback
+                    agent.primary_node = original_primary
+                    return result
+            except Exception as e:
+                logger.warning(f"Retry to {fallback} failed: {e}")
+            finally:
+                agent.primary_node = original_primary
+
+        return original_result  # All retries failed, return original
 
     async def dispatch_batch(self, prompts: list[str], max_parallel: int = 8) -> list[AgentResult]:
         """Dispatch multiple prompts with auto-classification."""

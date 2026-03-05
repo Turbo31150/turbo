@@ -3,21 +3,21 @@
 
 Hub centralisé de notifications pour les scripts COWORK.
 
-Fonctionnalités :
-* **Mode serveur** (`--server`) : écoute TCP sur le port 9999, accepte des messages JSON
-  contenant :
+Fonctionnalités :
+* **Mode serveur** (`--server`) : écoute TCP sur le port 9999, accepte des messages JSON
+  contenant :
       {"level": "critical|warning|info", "source": "nom_du_script", "message": "texte"}
   Le serveur déduplique les alertes (hash basé sur source+message) et conserve les
   200 dernières pour éviter les répétitions.
-* **Priorisation** : les niveaux sont simplement conservés, mais les alertes
+* **Priorisation** : les niveaux sont simplement conservés, mais les alertes
   critiques sont marquées comme telles dans les envois.
-* **Envoi** : chaque alerte (nouvelle) est transmise :
-  - via Telegram (bot token `TELEGRAM_TOKEN_REDACTED`, chat `2010747443`).
+* **Envoi** : chaque alerte (nouvelle) est transmise :
+  - via Telegram (bot token `TELEGRAM_TOKEN_REDACTED`, chat `2010747443`).
   - via un toast Windows en appelant le script existant ``win_notify.py`` (si présent).
-* **Mode client** (`--send level source "message"`) : ouvre une connexion TCP au
-  hub (localhost :9999) et transmet le JSON.
+* **Mode client** (`--send level source "message"`) : ouvre une connexion TCP au
+  hub (localhost :9999) et transmet le JSON.
 
-Le script utilise uniquement la bibliothèque standard : ``socket``, ``json``,
+Le script utilise uniquement la bibliothèque standard : ``socket``, ``json``,
 ``threading``, ``hashlib``, ``collections`` et ``subprocess``.
 """
 
@@ -65,7 +65,7 @@ def telegram_send(text: str):
         with urllib.request.urlopen(req, timeout=10):
             pass
     except Exception as e:
-        print(f"[notification_hub] Erreur Telegram : {e}", file=sys.stderr)
+        print(f"[notification_hub] Erreur Telegram : {e}", file=sys.stderr)
 
 # ---------------------------------------------------------------------------
 # Toast Windows via win_notify.py (if present)
@@ -137,7 +137,7 @@ def run_server():
                 print("[notification_hub] Arrêt du serveur demandé.")
                 break
             except Exception as e:
-                print(f"[notification_hub] Erreur serveur : {e}")
+                print(f"[notification_hub] Erreur serveur : {e}")
                 continue
 
 # ---------------------------------------------------------------------------
@@ -154,7 +154,7 @@ def send_alert(level: str, source: str, message: str):
             print("[notification_hub] Impossible de joindre le serveur (connexion refusée).", file=sys.stderr)
             sys.exit(1)
         except Exception as e:
-            print(f"[notification_hub] Erreur d'envoi : {e}", file=sys.stderr)
+            print(f"[notification_hub] Erreur d'envoi : {e}", file=sys.stderr)
             sys.exit(1)
 
 # ---------------------------------------------------------------------------
@@ -165,7 +165,7 @@ def main():
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--server", action="store_true", help="Lancer le serveur de réception d'alertes")
     group.add_argument("--send", nargs=3, metavar=("LEVEL", "SOURCE", "MESSAGE"),
-                       help="Envoyer une alerte au hub (client). Exemple : --send warning myscript \"Quelque chose\"")
+                       help="Envoyer une alerte au hub (client). Exemple : --send warning myscript \"Quelque chose\"")
     args = parser.parse_args()
 
     if args.server:

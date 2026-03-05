@@ -3,28 +3,28 @@
 
 Benchmark complet du poste Windows.
 
-Fonctionnalités :
-* **CPU** – calcule les nombres premiers jusqu'à une limite (par défaut 20 000) et
-  mesure le temps d'exécution.  Le score (0‑100) est basé sur un temps de référence
-  (ex. 2 s pour la limite donnée) ; plus rapide = score plus élevé.
-* **RAM** – alloue un gros tableau (par défaut 200 MiB), le remplit, puis le libère,
+Fonctionnalités :
+* **CPU** – calcule les nombres premiers jusqu'à une limite (par défaut 20 000) et
+  mesure le temps d'exécution.  Le score (0-100) est basé sur un temps de référence
+  (ex. 2 s pour la limite donnée) ; plus rapide = score plus élevé.
+* **RAM** – alloue un gros tableau (par défaut 200 MiB), le remplit, puis le libère,
   en mesurant le temps.  Le score repose sur un temps de référence similaire.
 * **Disque** – crée un fichier temporaire de taille configurable (par défaut
-  100 MiB), mesure le débit d'écriture puis de lecture via ``shutil``/
+  100 MiB), mesure le débit d'écriture puis de lecture via ``shutil``/
   ``open``.  Le score est proportionnel au débit (Mo/s) comparé à un seuil de
-  référence (ex. 200 Mo/s).
-* **Réseau** – télécharge un petit fichier (~1 MiB) depuis ``https://speed.hetzner.de/1MB.bin``
+  référence (ex. 200 Mo/s).
+* **Réseau** – télécharge un petit fichier (~1 MiB) depuis ``https://speed.hetzner.de/1MB.bin``
   (ou toute URL fiable) avec ``urllib.request`` et mesure le débit
-  (Mo/s).  Le score est calculé à partir d'un débit de référence (ex. 50 Mo/s).
-* Les scores (0‑100) ainsi que les temps/debits bruts sont stockés dans une
+  (Mo/s).  Le score est calculé à partir d'un débit de référence (ex. 50 Mo/s).
+* Les scores (0-100) ainsi que les temps/debits bruts sont stockés dans une
   base SQLite ``benchmark.db`` (table ``runs``).
-* CLI :
-  - ``--run`` : exécute le benchmark complet et ajoute une ligne dans la DB.
-  - ``--history`` : affiche les précédents résultats (triés par date).
-  - ``--compare`` : montre les meilleures (max) scores par catégorie et le
+* CLI :
+  - ``--run`` : exécute le benchmark complet et ajoute une ligne dans la DB.
+  - ``--history`` : affiche les précédents résultats (triés par date).
+  - ``--compare`` : montre les meilleures (max) scores par catégorie et le
     score moyen global.
 
-Le script utilise uniquement la bibliothèque standard : ``time``, ``sqlite3``,
+Le script utilise uniquement la bibliothèque standard : ``time``, ``sqlite3``,
 ``urllib.request``, ``os`` et ``shutil``.
 """
 
@@ -103,7 +103,7 @@ def fetch_all(conn: sqlite3.Connection):
 # Benchmark primitives
 # ---------------------------------------------------------------------------
 
-def benchmark_cpu() -> Tuple[float, int]:
+def benchmark_cpu() -> tuple[float, int]:
     """Calculate primes up to CPU_PRIME_LIMIT and return execution time + score."""
     start = time.time()
     primes = []
@@ -122,9 +122,9 @@ def benchmark_cpu() -> Tuple[float, int]:
     score = max(0, int(100 * (CPU_REF_TIME / elapsed)))
     return elapsed, score
 
-def benchmark_ram() -> Tuple[float, int]:
+def benchmark_ram() -> tuple[float, int]:
     """Allocate a large list, fill it, then release – measure time and score."""
-    size = RAM_ALLOC_MB * 1024 * 1024 // 8  # number of 64‑bit ints approx
+    size = RAM_ALLOC_MB * 1024 * 1024 // 8  # number of 64-bit ints approx
     start = time.time()
     data = [0] * size
     for i in range(size):
@@ -134,7 +134,7 @@ def benchmark_ram() -> Tuple[float, int]:
     score = max(0, int(100 * (RAM_REF_TIME / elapsed)))
     return elapsed, score
 
-def benchmark_disk() -> Tuple[float, float, float, int]:
+def benchmark_disk() -> tuple[float, float, float, int]:
     """Write and read a temporary file; return write speed, read speed and score."""
     tmp = Path.cwd() / "_disk_test.tmp"
     total_bytes = DISK_FILE_MB * 1024 * 1024
@@ -160,14 +160,14 @@ def benchmark_disk() -> Tuple[float, float, float, int]:
     score = max(0, int(100 * (avg_speed / DISK_REF_SPEED)))
     return write_speed, read_speed, avg_speed, score
 
-def benchmark_network() -> Tuple[float, int]:
+def benchmark_network() -> tuple[float, int]:
     """Download a small file and compute download speed (MiB/s)."""
     start = time.time()
     try:
         with urllib.request.urlopen(NETWORK_TEST_URL, timeout=30) as resp:
             data = resp.read()
     except Exception as e:
-        print(f"[system_benchmark] Erreur téléchargement : {e}")
+        print(f"[system_benchmark] Erreur téléchargement : {e}")
         return 0.0, 0
     elapsed = time.time() - start
     size_mb = len(data) / (1024 * 1024)
@@ -183,16 +183,16 @@ def run_benchmark():
     ts = datetime.utcnow().isoformat() + "Z"
     print("[system_benchmark] Démarrage du benchmark…")
     cpu_t, cpu_s = benchmark_cpu()
-    print(f"CPU : {cpu_t:.2f}s → score {cpu_s}")
+    print(f"CPU : {cpu_t:.2f}s -> score {cpu_s}")
     ram_t, ram_s = benchmark_ram()
-    print(f"RAM : {ram_t:.2f}s → score {ram_s}")
+    print(f"RAM : {ram_t:.2f}s -> score {ram_s}")
     dw, dr, avg, disk_s = benchmark_disk()
-    print(f"DISK : write {dw:.1f} MiB/s, read {dr:.1f} MiB/s → score {disk_s}")
+    print(f"DISK : write {dw:.1f} MiB/s, read {dr:.1f} MiB/s -> score {disk_s}")
     net_speed, net_s = benchmark_network()
-    print(f"NETWORK : {net_speed:.2f} MiB/s → score {net_s}")
+    print(f"NETWORK : {net_speed:.2f} MiB/s -> score {net_s}")
     # Overall simple average of the five scores
     overall = int((cpu_s + ram_s + disk_s + net_s) / 4)
-    print(f"Overall score : {overall}")
+    print(f"Overall score : {overall}")
     data = {
         "ts": ts,
         "cpu_time": cpu_t,
@@ -240,12 +240,12 @@ def compare_best():
     max_disk = max(r[9] for r in rows)  # disk_score index 9
     max_net = max(r[11] for r in rows)  # net_score index 11
     avg_overall = sum(r[12] for r in rows) / len(rows)
-    print("Meilleurs scores par catégorie :")
+    print("Meilleurs scores par catégorie :")
     print(f"  CPU   : {max_cpu}")
     print(f"  RAM   : {max_ram}")
     print(f"  DISK  : {max_disk}")
     print(f"  NET   : {max_net}")
-    print(f"Score moyen global : {avg_overall:.1f}")
+    print(f"Score moyen global : {avg_overall:.1f}")
 
 # ---------------------------------------------------------------------------
 # CLI entry point

@@ -65,7 +65,7 @@ def get_python_processes(verbose=False):
         # Use tasklist on Windows
         result = subprocess.run(
             ["tasklist", "/FO", "CSV", "/FI", "IMAGENAME eq python.exe", "/V"],
-            capture_output=True, text=True, timeout=10
+            capture_output=True, timeout=10, encoding="utf-8", errors="replace"
         )
         if result.returncode == 0:
             lines = result.stdout.strip().split("\n")
@@ -86,7 +86,7 @@ def get_python_processes(verbose=False):
         for exe in ["python3.exe", "pythonw.exe"]:
             result2 = subprocess.run(
                 ["tasklist", "/FO", "CSV", "/FI", f"IMAGENAME eq {exe}", "/V"],
-                capture_output=True, text=True, timeout=10
+                capture_output=True, timeout=10, encoding="utf-8", errors="replace"
             )
             if result2.returncode == 0:
                 lines2 = result2.stdout.strip().split("\n")
@@ -115,7 +115,7 @@ def get_cpu_usage(verbose=False):
         # Use wmic on Windows
         result = subprocess.run(
             ["wmic", "cpu", "get", "loadpercentage", "/value"],
-            capture_output=True, text=True, timeout=10
+            capture_output=True, timeout=10, encoding="utf-8", errors="replace"
         )
         if result.returncode == 0:
             match = re.search(r"LoadPercentage=(\d+)", result.stdout)
@@ -129,7 +129,7 @@ def get_cpu_usage(verbose=False):
         result = subprocess.run(
             ["powershell", "-Command",
              "(Get-CimInstance -ClassName Win32_Processor).LoadPercentage"],
-            capture_output=True, text=True, timeout=15
+            capture_output=True, timeout=15, encoding="utf-8", errors="replace"
         )
         if result.returncode == 0 and result.stdout.strip().isdigit():
             return float(result.stdout.strip())
@@ -145,7 +145,7 @@ def get_memory_usage(verbose=False):
         result = subprocess.run(
             ["wmic", "OS", "get",
              "FreePhysicalMemory,TotalVisibleMemorySize", "/value"],
-            capture_output=True, text=True, timeout=10
+            capture_output=True, timeout=10, encoding="utf-8", errors="replace"
         )
         if result.returncode == 0:
             free_match = re.search(r"FreePhysicalMemory=(\d+)", result.stdout)
@@ -176,7 +176,7 @@ def get_gpu_info(verbose=False):
             ["nvidia-smi",
              "--query-gpu=index,name,memory.used,memory.total,utilization.gpu,temperature.gpu",
              "--format=csv,noheader,nounits"],
-            capture_output=True, text=True, timeout=10
+            capture_output=True, timeout=10, encoding="utf-8", errors="replace"
         )
         if result.returncode == 0:
             gpu_info["available"] = True
