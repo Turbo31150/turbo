@@ -1,4 +1,4 @@
-"""JARVIS Scheduler Cleanup & Bootstrap — Fix duplicate test jobs + create real schedules.
+ï»¿"""JARVIS Scheduler Cleanup & Bootstrap -- Fix duplicate test jobs + create real schedules.
 
 Cleans up the 36+ duplicate 'test' noop jobs and creates meaningful
 scheduled tasks for autonomous operation.
@@ -20,7 +20,7 @@ logger = logging.getLogger("jarvis.scheduler_cleanup")
 
 async def cleanup_and_bootstrap() -> dict[str, Any]:
     """Clean duplicate test jobs and create real scheduled tasks."""
-    from src.database import db
+    from src.database import get_connection
     
     result = {
         "deleted_test_jobs": 0,
@@ -30,7 +30,7 @@ async def cleanup_and_bootstrap() -> dict[str, Any]:
     
     # --- PHASE 1: Delete all duplicate 'test' noop jobs ---
     try:
-        count = db.execute(
+        count = get_connection().execute(
             "DELETE FROM scheduler_jobs WHERE name = 'test' AND action = 'noop'"
         ).rowcount
         db.commit()
@@ -47,21 +47,21 @@ async def cleanup_and_bootstrap() -> dict[str, Any]:
             "interval_s": 86400,  # 24h (triggered by cron at 8:00)
             "action": "skill",
             "params": '{"skill": "rapport_matin"}',
-            "description": "Rapport du matin: cluster + trading + système"
+            "description": "Rapport du matin: cluster + trading + systme"
         },
         {
             "name": "evening_report",
             "interval_s": 86400,
             "action": "skill",
             "params": '{"skill": "rapport_soir"}',
-            "description": "Bilan du soir: trading + activité + maintenance"
+            "description": "Bilan du soir: trading + activit + maintenance"
         },
         {
             "name": "hourly_health",
             "interval_s": 3600,
             "action": "health_check",
             "params": '{"full": true}',
-            "description": "Check santé cluster + GPU + services toutes les heures"
+            "description": "Check sant cluster + GPU + services toutes les heures"
         },
         {
             "name": "trading_scan",
@@ -89,21 +89,21 @@ async def cleanup_and_bootstrap() -> dict[str, Any]:
             "interval_s": 7200,  # 2h
             "action": "drift_check",
             "params": '{}',
-            "description": "Vérification qualité modèles toutes les 2h"
+            "description": "Vrification qualit modles toutes les 2h"
         },
         {
             "name": "security_scan",
             "interval_s": 43200,  # 12h
             "action": "security_scan",
             "params": '{}',
-            "description": "Scan sécurité biquotidien"
+            "description": "Scan scurit biquotidien"
         },
     ]
     
     for job in REAL_JOBS:
         try:
             # Check if job already exists
-            existing = db.execute(
+            existing = get_connection().execute(
                 "SELECT job_id FROM scheduler_jobs WHERE name = ?",
                 (job["name"],)
             ).fetchone()
@@ -117,7 +117,7 @@ async def cleanup_and_bootstrap() -> dict[str, Any]:
                 f"{job['name']}{time.time()}".encode()
             ).hexdigest()[:12]
             
-            db.execute(
+            get_connection().execute(
                 """INSERT INTO scheduler_jobs 
                    (job_id, name, interval_s, action, params, enabled, one_shot, 
                     last_run, run_count, last_result, last_error, created_at)
@@ -133,7 +133,7 @@ async def cleanup_and_bootstrap() -> dict[str, Any]:
             result["errors"].append(f"Failed to create {job['name']}: {e}")
             logger.error(f"Failed to create job {job['name']}: {e}")
     
-    total_remaining = db.execute(
+    total_remaining = get_connection().execute(
         "SELECT COUNT(*) FROM scheduler_jobs"
     ).fetchone()[0]
     result["total_jobs_after"] = total_remaining
@@ -152,16 +152,16 @@ async def fix_startup_duplicate_bug() -> str:
     Call this at startup BEFORE the scheduler initializes to prevent
     the duplicate job creation.
     """
-    from src.database import db
+    from src.database import get_connection
     
     # Count existing test jobs
-    count = db.execute(
+    count = get_connection().execute(
         "SELECT COUNT(*) FROM scheduler_jobs WHERE name = 'test' AND action = 'noop'"
     ).fetchone()[0]
     
     if count > 1:
         # Keep only the newest one (or delete all if we have real jobs)
-        db.execute(
+        get_connection().execute(
             "DELETE FROM scheduler_jobs WHERE name = 'test' AND action = 'noop'"
         )
         db.commit()

@@ -1,4 +1,4 @@
-"""JARVIS Smart Retry - Intelligent retry with fallback chain.
+﻿"""JARVIS Smart Retry - Intelligent retry with fallback chain.
 
 Retries cluster requests with exponential backoff, automatic fallback,
 circuit breaker integration, and event bus notifications.

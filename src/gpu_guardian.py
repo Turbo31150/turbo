@@ -1,4 +1,4 @@
-"""JARVIS GPU Guardian — Proactive GPU monitoring with auto-unload.
+ï»¿"""JARVIS GPU Guardian -- Proactive GPU monitoring with auto-unload.
 
 Monitors GPU temperature, VRAM usage, and power draw in real-time.
 Automatically unloads heaviest models when thresholds are exceeded.
@@ -151,7 +151,7 @@ class GPUGuardian:
                 "temperature": snap.temperature,
                 "vram_percent": snap.vram_percent
             })
-            await self._emergency_unload(snap, reason=f"Temp {snap.temperature}°C >= {self.config.temp_emergency}°C")
+            await self._emergency_unload(snap, reason=f"Temp {snap.temperature}C >= {self.config.temp_emergency}C")
             return
         
         # Critical: unload if within rate limit

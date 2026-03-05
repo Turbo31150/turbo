@@ -1,4 +1,4 @@
-"""JARVIS Health Probe Registry — Auto-register all critical health checks.
+ï»¿"""JARVIS Health Probe Registry -- Auto-register all critical health checks.
 
 Registers probes for every subsystem: LM Studio, Ollama, GPU, DB, event bus,
 autonomous loop, trading, voice, MCP server. Call register_all_probes() at startup.
@@ -71,7 +71,7 @@ def register_all_probes() -> dict[str, bool]:
             used, total, temp = parts[0], parts[1], parts[2]
             pct = (used / total * 100) if total > 0 else 0
             if temp > 90:
-                return f"GPU CRITICAL: {temp}°C, VRAM {pct:.0f}%"
+                return f"GPU CRITICAL: {temp}C, VRAM {pct:.0f}%"
             if pct > 95:
                 return f"VRAM CRITICAL: {pct:.0f}% ({used}/{total}MB)"
             return True
@@ -107,7 +107,7 @@ def register_all_probes() -> dict[str, bool]:
             from src.event_bus import event_bus
             sub_count = len(event_bus._subscriptions) if hasattr(event_bus, '_subscriptions') else 0
             if sub_count == 0:
-                return "Event bus has 0 subscribers — wiring not done"
+                return "Event bus has 0 subscribers -- wiring not done"
             return True
         except Exception as e:
             return f"Event bus check failed: {e}"

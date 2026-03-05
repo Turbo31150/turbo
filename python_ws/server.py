@@ -45,6 +45,7 @@ from python_ws.routes.dictionary import handle_dictionary_request
 from python_ws.routes.telegram import handle_telegram_request
 from python_ws.routes.sql import sql_router
 from python_ws.routes.terminal import router as terminal_router
+from python_ws.routes.collab import collab_router
 
 # ── Logging ──────────────────────────────────────────────────────────────────
 try:
@@ -83,12 +84,46 @@ app.add_middleware(
 # ── REST API routes ─────────────────────────────────────────────────────────
 app.include_router(sql_router, prefix="/sql")
 app.include_router(terminal_router)
+app.include_router(collab_router)
 
 # ── HTTP endpoints ──────────────────────────────────────────────────────────
 
 @app.get("/health")
 async def health():
     return JSONResponse({"status": "ok", "service": "jarvis-ws", "port": 9742})
+
+
+@app.post("/api/tts")
+async def api_tts(request: Request):
+    """HTTP TTS endpoint — returns MP3 audio bytes for Canvas UI speak()."""
+    from fastapi.responses import Response
+    body = await request.json()
+    text = (body.get("text") or "").strip()
+    if not text:
+        return JSONResponse({"error": "Empty text"}, status_code=400)
+    if len(text) > 5000:
+        return JSONResponse({"error": "Text too long"}, status_code=400)
+    _ALLOWED_VOICES = {"fr-FR-HenriNeural", "fr-FR-DeniseNeural", "en-US-GuyNeural", "en-US-JennyNeural"}
+    voice = body.get("voice", "fr-FR-DeniseNeural")
+    if voice not in _ALLOWED_VOICES:
+        voice = "fr-FR-DeniseNeural"
+    try:
+        import edge_tts
+        import io
+        comm = edge_tts.Communicate(text, voice)
+        buf = io.BytesIO()
+        async for chunk in comm.stream():
+            if chunk["type"] == "audio":
+                buf.write(chunk["data"])
+        audio_bytes = buf.getvalue()
+        if not audio_bytes:
+            return JSONResponse({"error": "TTS produced no audio"}, status_code=500)
+        return Response(content=audio_bytes, media_type="audio/mpeg")
+    except ImportError:
+        return JSONResponse({"error": "edge_tts not installed"}, status_code=500)
+    except Exception as exc:
+        logger.exception("TTS failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
 
 
 # ── Phase 4 REST API v2 ──────────────────────────────────────────────────

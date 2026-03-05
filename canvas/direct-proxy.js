@@ -146,11 +146,10 @@ const NODES = {
     isOllama: true
   },
   M1: {
-    url: 'http://10.5.0.2:1234/v1/chat/completions',
-    auth: 'Bearer LMSTUDIO_KEY_M1_REDACTED',
-    model: 'qwen/qwen3-8b',
-    timeout: 30000,
-    name: 'M1/qwen3-8b'
+    url: 'http://127.0.0.1:1234/v1/chat/completions',
+    model: 'gpt-oss-20b',
+    timeout: 60000,
+    name: 'M1/gpt-oss-20b'
   },
   GEMINI: {
     proxy: path.join(__dirname, '..', 'gemini-proxy.js'),
@@ -171,20 +170,20 @@ const NODES = {
 
 // ── Routing: agent category → primary node, fallbacks ───────────────────────
 const ROUTING = {
-  code:    ['M1', 'M2', 'M3', 'OL1'],                  // M1 100% bench, 0.6-2.5s
-  archi:   ['M1', 'M2', 'GEMINI', 'M3'],                // M1 validation
-  trading: ['OL1', 'M1', 'M2', 'M3'],                   // OL1 web, M1 analyse
-  math:    ['M1', 'OL1', 'M2'],                          // NOUVEAU — M1 prioritaire
-  raison:  ['M1', 'M2', 'OL1'],                          // NOUVEAU — JAMAIS M3
-  system:  ['M1', 'OL1', 'M3', 'M2'],                     // M1 rapide systeme
-  auto:    ['M1', 'OL1', 'M3', 'M2'],                    // M1 pipelines
-  ia:      ['M1', 'M2', 'GEMINI', 'CLAUDE', 'M3', 'OL1'], // M1 first
-  creat:   ['M1', 'M2', 'GEMINI', 'M3', 'OL1'],         // M1 creatif
-  sec:     ['M1', 'M2', 'GEMINI', 'M3', 'OL1'],         // M1 audit
-  web:     ['OL1', 'M1', 'GEMINI', 'M2', 'M3'],          // OL1 web + M1 fallback
-  media:   ['M3', 'OL1', 'M1', 'M2'],                    // M3 media + M1
-  meta:    ['OL1', 'M1', 'M3', 'M2'],                    // OL1 rapide meta
-  default: ['M1', 'M2', 'M3', 'OL1', 'GEMINI']           // M1 first
+  code:    ['M2', 'M1', 'M3', 'OL1'],                  // M2 deepseek-coder prioritaire
+  archi:   ['M2', 'M1', 'M3', 'OL1'],                  // M2 + M1 validation
+  trading: ['OL1', 'M2', 'M1', 'M3'],                   // OL1 web, M2 analyse
+  math:    ['M1', 'M2', 'OL1'],                          // M1 prioritaire math
+  raison:  ['M2', 'M1', 'OL1'],                          // M2 raisonnement — JAMAIS M3
+  system:  ['M2', 'M1', 'OL1', 'M3'],                   // M2 rapide systeme
+  auto:    ['M2', 'M1', 'OL1', 'M3'],                   // M2 pipelines
+  ia:      ['M2', 'M1', 'M3', 'OL1'],                   // M2 first (GEMINI disabled)
+  creat:   ['M2', 'M1', 'M3', 'OL1'],                  // M2 creatif
+  sec:     ['M2', 'M1', 'M3', 'OL1'],                  // M2 audit
+  web:     ['OL1', 'M2', 'M1', 'M3'],                   // OL1 web + M2 fallback
+  media:   ['M3', 'OL1', 'M2', 'M1'],                   // M3 media + M2
+  meta:    ['OL1', 'M2', 'M1', 'M3'],                   // OL1 rapide meta
+  default: ['M2', 'M1', 'M3', 'OL1']                    // M2 first (GEMINI disabled - spawn error)
 };
 
 // ── Node weights for consensus voting (benchmark 2026-02-26) ─────────────────
@@ -1219,8 +1218,8 @@ async function callNode(nodeId, messages, category) {
       role: m.role,
       content: (m.content != null ? String(m.content) : '')
     }));
-    // M1 qwen3-8b: prepend /nothink to first user message to disable thinking mode
-    if (nodeId === 'M1') {
+    // M1: prepend /nothink only for qwen models (not gpt-oss-20b)
+    if (nodeId === 'M1' && NODES.M1.model && NODES.M1.model.includes('qwen')) {
       const firstUser = cleanMsgs.find(m => m.role === 'user');
       if (firstUser && !firstUser.content.startsWith('/nothink')) {
         firstUser.content = '/nothink\n' + firstUser.content;
@@ -1366,7 +1365,7 @@ async function healthCheck() {
     { name: 'OL1', url: 'http://127.0.0.1:11434/api/tags' },
     { name: 'M2', url: 'http://192.168.1.26:1234/v1/models', headers: { Authorization: NODES.M2.auth } },
     { name: 'M3', url: 'http://192.168.1.113:1234/v1/models', headers: { Authorization: NODES.M3.auth } },
-    { name: 'M1', url: 'http://10.5.0.2:1234/v1/models', headers: { Authorization: NODES.M1.auth } },
+    { name: 'M1', url: 'http://127.0.0.1:1234/v1/models' },
     { name: 'GEMINI', proxy: true },
     { name: 'CLAUDE', proxy: true }
   ];
@@ -1525,6 +1524,55 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ ok: false, error: e.message }));
     }
+  // ── Collab Bridge (Claude Code <-> Perplexity) ─────────────────────────────
+  } else if (req.url.startsWith('/collab')) {
+    const collabCli = path.join(__dirname, '..', 'src', 'collab_cli.py');
+    const turboRoot = path.join(__dirname, '..');
+
+    const runCollab = (args, stdinData) => {
+      try {
+        const opts = { timeout: 10000, encoding: 'utf8', cwd: turboRoot };
+        if (stdinData) opts.input = stdinData;
+        const out = execSync(`python3 "${collabCli}" ${args}`, opts);
+        return JSON.parse(out.trim());
+      } catch (e) { return { error: e.message }; }
+    };
+
+    const sendJson = (code, data) => {
+      res.writeHead(code, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(data));
+    };
+
+    if (req.method === 'GET') {
+      const url = req.url;
+      if (url === '/collab/next') sendJson(200, runCollab('next'));
+      else if (url === '/collab/stats') sendJson(200, runCollab('stats'));
+      else if (url === '/collab/tasks') sendJson(200, runCollab('list'));
+      else if (url.match(/^\/collab\/tasks\/[^/]+$/)) {
+        const tid = url.split('/').pop();
+        sendJson(200, runCollab(`get ${tid}`));
+      } else sendJson(404, { error: 'unknown route' });
+
+    } else if (req.method === 'POST') {
+      let body = '';
+      req.on('data', c => body += c);
+      req.on('end', () => {
+        const url = req.url;
+        try {
+          if (url === '/collab/tasks') sendJson(200, runCollab('create', body));
+          else if (url.match(/\/claim$/)) {
+            const tid = url.split('/')[3];
+            sendJson(200, runCollab(`claim ${tid}`));
+          } else if (url.match(/\/complete$/)) {
+            const tid = url.split('/')[3];
+            sendJson(200, runCollab(`complete ${tid}`, body));
+          } else if (url.match(/\/cancel$/)) {
+            const tid = url.split('/')[3];
+            sendJson(200, runCollab(`cancel ${tid}`));
+          } else sendJson(404, { error: 'unknown route' });
+        } catch (e) { sendJson(500, { error: e.message }); }
+      });
+    }
   } else if (req.method === 'GET' && (req.url === '/' || req.url === '/index.html')) {
     // Serve canvas HTML
     try {
@@ -1544,7 +1592,7 @@ const server = http.createServer(async (req, res) => {
 const BIND = process.env.JARVIS_BIND || '0.0.0.0';
 server.listen(PORT, BIND, () => {
   console.log(`JARVIS Direct Proxy on http://${BIND}:${PORT}`);
-  console.log('Nodes: M2(deepseek), M3(mistral), OL1(qwen3), M1(qwen3-8b), GEMINI(gemini-3-pro), CLAUDE(sonnet)');
+  console.log('Nodes: M2(deepseek), M3(mistral), OL1(qwen3), M1(gpt-oss-20b), GEMINI(gemini-3-pro), CLAUDE(sonnet)');
   console.log('Zero OpenClaw dependency');
   autolearn.start();
   console.log('Autolearn engine started — 3 pillars active');

@@ -1,4 +1,4 @@
-"""JARVIS Cluster Self-Healer — Automatic node recovery and failover.
+ï»¿"""JARVIS Cluster Self-Healer -- Automatic node recovery and failover.
 
 When a cluster node goes down, the self-healer:
 1. Detects the failure via health probes or event bus
@@ -237,7 +237,7 @@ class ClusterSelfHealer:
         try:
             from src.notification_hub import notification_hub
             notification_hub.dispatch(
-                message=f"?? ESCALATION: Nœud {node} irrécupérable — {reason}",
+                message=f"?? ESCALATION: Nud {node} irrcuprable -- {reason}",
                 level="critical",
                 source="cluster_self_healer"
             )

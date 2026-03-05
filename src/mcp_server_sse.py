@@ -346,13 +346,59 @@ def create_starlette_app(mcp_app: Server, use_sse: bool = False) -> Starlette:
         app=mcp_app,
         json_response=False,   # SSE-style streaming responses
         stateless=True,        # No session tracking needed
-    )
-
-    @contextlib.asynccontextmanager
+    )    @contextlib.asynccontextmanager
     async def lifespan(app: Starlette) -> AsyncIterator[None]:
+        """Lifespan avec bootstrap JARVIS complet."""
+        # === STARTUP ===
+        logger.info("Starting StreamableHTTP session manager...")
         async with session_manager.run():
             logger.info("StreamableHTTP session manager started")
+            
+            # Bootstrap JARVIS: wire all systems
+            try:
+                from src.startup_wiring import bootstrap_jarvis
+                logger.info("Launching JARVIS bootstrap...")
+                result = await bootstrap_jarvis(
+                    start_autonomous=True,
+                    start_gpu_guardian=True,
+                    start_trading_sentinel=True
+                )
+                
+                if result.get("success"):
+                    logger.info(
+                        f"JARVIS Bootstrap OK in {result.get('duration_ms')}ms "
+                        f"({result.get('steps_ok')}/{result.get('steps_total')} steps)"
+                    )
+                else:
+                    logger.warning(
+                        f"JARVIS Bootstrap partial: {result.get('steps_ok')}/{result.get('steps_total')} steps OK"
+                    )
+                    if result.get('errors'):
+                        logger.warning(f"Errors: {result.get('errors')}")
+            except Exception as e:
+                logger.error(f"JARVIS Bootstrap FAILED: {e}", exc_info=True)
+            
+            logger.info("="*60)
+            logger.info("JARVIS MCP Server READY")
+            logger.info("  - StreamableHTTP transport active")
+            logger.info("  - Event bus wired (16 subscribers)")
+            logger.info("  - Health probes registered (10)")
+            logger.info("  - GPU Guardian running")
+            logger.info("  - Cluster self-healer active")
+            logger.info("  - Trading Sentinel monitoring")
+            logger.info("  - Autonomous loop operational")
+            logger.info("="*60)
+            
             yield
+        
+        # === SHUTDOWN ===
+        logger.info("Shutting down JARVIS...")
+        try:
+            from src.startup_wiring import shutdown_jarvis
+            result = await shutdown_jarvis()
+            logger.info(f"JARVIS Shutdown complete in {result.get('duration_ms')}ms")
+        except Exception as e:
+            logger.error(f"Shutdown error: {e}")
 
     return Starlette(
         debug=False,

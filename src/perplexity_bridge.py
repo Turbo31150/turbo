@@ -1,4 +1,4 @@
-"""JARVIS Perplexity Bridge — Proactive intelligence from Perplexity to JARVIS.
+ï»¿"""JARVIS Perplexity Bridge -- Proactive intelligence from Perplexity to JARVIS.
 
 This module enables Perplexity (via MCP connector) to:
 1. Store learnings into JARVIS memory for future use
@@ -261,8 +261,8 @@ class PerplexityBridge:
         
         if frequent_tools:
             return (
-                f"Pattern détecté: outils {', '.join(frequent_tools[:3])} "
-                f"utilisés fréquemment. Créer un skill automatisé?"
+                f"Pattern dtect: outils {', '.join(frequent_tools[:3])} "
+                f"utiliss frquemment. Crer un skill automatis?"
             )
         
         return None
