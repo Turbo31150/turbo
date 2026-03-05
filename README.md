@@ -1,17 +1,18 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v10.3.10-blueviolet?style=for-the-badge" alt="version"/>
+  <img src="https://img.shields.io/badge/version-v10.6.0-blueviolet?style=for-the-badge" alt="version"/>
   <img src="https://img.shields.io/badge/GPU-10x_NVIDIA-76B900?style=for-the-badge&logo=nvidia" alt="gpu"/>
-  <img src="https://img.shields.io/badge/Claude_SDK-Opus_4-orange?style=for-the-badge&logo=anthropic" alt="claude"/>
+  <img src="https://img.shields.io/badge/Claude_SDK-Opus_4.6-orange?style=for-the-badge&logo=anthropic" alt="claude"/>
   <img src="https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="python"/>
   <img src="https://img.shields.io/badge/Electron-33-47848F?style=for-the-badge&logo=electron&logoColor=white" alt="electron"/>
+  <img src="https://img.shields.io/badge/Telegram-Bot-26A5E4?style=for-the-badge&logo=telegram" alt="telegram"/>
   <img src="https://img.shields.io/badge/License-Private-red?style=for-the-badge" alt="license"/>
 </p>
 
-<h1 align="center">JARVIS Etoile v10.3.10</h1>
-<h3 align="center">Orchestrateur IA Distribue Multi-GPU — HEXA_CORE</h3>
+<h1 align="center">JARVIS Etoile v10.6.0</h1>
+<h3 align="center">Orchestrateur IA Distribue Multi-GPU — HEXA_CORE + Telegram Autonome</h3>
 
 <p align="center">
-  <strong>Systeme d'intelligence artificielle distribue sur 3 machines physiques, 10 GPU NVIDIA (~78 GB VRAM), 6 noeuds IA (HEXA_CORE) et 108 skills autonomes. Controle vocal en francais avec 1,706 commandes + 461 pipelines + 40 domino cascades, trading algorithmique MEXC multi-consensus, et interface desktop Electron.</strong>
+  <strong>Systeme d'intelligence artificielle distribue sur 3 machines physiques, 10 GPU NVIDIA (~78 GB VRAM), 12 modeles IA (2 local + 10 cloud) et 89 skills autonomes. Controle vocal en francais avec 2,332 commandes + 461 pipelines + 401 domino cascades + 3,466 corrections vocales. Bot Telegram autonome (@turboSSebot) connecte au cluster complet. Trading algorithmique MEXC multi-consensus. Interface desktop Electron 19 pages. 75 modules source, 528+ tests, 93 scripts COWORK.</strong>
 </p>
 
 <p align="center">
@@ -25,25 +26,90 @@
 | Metrique | Valeur | Detail |
 |----------|--------|--------|
 | **GPU** | 10 NVIDIA / ~78 GB VRAM | RTX 3080 10GB, RTX 2060 12GB, 4x GTX 1660S 6GB, 3x GPU M2 24GB, 1x GPU M3 8GB |
-| **Noeuds IA** | 6 actifs (HEXA_CORE) | M1 (qwen3-8b), M2 (deepseek-coder), M3 (mistral), OL1 (ollama), GEMINI, CLAUDE |
+| **Modeles IA** | 12 (2 local + 10 cloud) | M1 qwen3-8b, OL1 qwen3:14b/1.7b, gpt-oss:120b, devstral-2:123b, deepseek-coder, mistral-7b, GEMINI, CLAUDE + 6 cloud |
 | **Agents** | 7 Claude SDK + 11 Plugin | deep, fast, check, trading, system, bridge, consensus + 11 plugin agents |
-| **Outils MCP** | 92 SDK + 89 handlers | IA, Windows, Trading, Bridge, Brain, SQL, Consensus |
-| **Commandes vocales** | 1,706 + 461 pipelines | 473 vocal_pipeline, 942 total vocal |
-| **Domino Cascades** | 40 cascades / 121 triggers | 175 steps, 11 categories, 97 examples fine-tuning |
-| **Skills** | 108 dynamiques | 16 vagues + 6 nouvelles categories IA, persistants en etoile.db |
-| **Source Python** | 30 modules / 25,000+ lignes | src/ (43,000+ total projet) |
-| **Databases** | 3 bases SQL + pipeline_tests + domino_logs | 36 tables, 2,674 map entries, 235 tests PASS |
-| **Pipeline Tests** | 174/174 PASS (100%) | 42+ categories + 11 domino categories, cluster live + TTS live |
-| **Plugin** | 24 slash commands | + 24 skills + 11 agents + 4 hooks |
-| **Desktop** | Electron 33 + React 19 | Portable 72.5 MB |
+| **Outils MCP** | 186+ tools + 110 handlers | IA, Windows, Trading, Bridge, Brain, SQL, Consensus, Telegram |
+| **Commandes vocales** | 2,332 + 461 pipelines | 1,078 triggers, 678 implicits, 153 fillers, 106 phonetics |
+| **Domino Cascades** | 401 cascades / 1,078 triggers | 11 categories, 84 actions Python, 28 param patterns |
+| **Corrections vocales** | 3,466 regles (120 vagues) | Phonetiques + alias + implicits + fillers + auto-training |
+| **Skills** | 89 dynamiques | 16 vagues + domaines etoile.db, persistants en DB |
+| **Source Python** | 75 modules / 40,000+ lignes | src/ (70,000+ total projet) |
+| **Databases** | 4 bases SQL (41 tables) | etoile.db (19t, 11222r) + jarvis.db (10t, 5878r) + sniper.db (4t, 659r) + finetuning.db (8t, 36r) |
+| **Tests** | 528+ tests (11 suites) | test_phase1 a test_phase11 + test_telegram_bot |
+| **Plugin** | 40 slash commands | + 24 skills + 11 agents + 4 hooks (plugin v3.0) |
+| **Desktop** | Electron 33 + React 19 | 19 pages, Portable 72.5 MB |
 | **Trading** | v2.3 Multi-GPU | MEXC Futures 10x, 6 IA consensus |
-| **Corrections vocales** | 2,627 regles | Phonetiques + alias + auto-training |
+| **Telegram Bot** | @turboSSebot autonome | Long polling + cluster complet via canvas proxy (port 18800) |
+| **COWORK** | 93 scripts + 77 crons | Developpement continu autonome (Windows, JARVIS, IA, Trading) |
+
+---
+
+## Nouveautes v10.6.0 — Telegram Autonome + 80 Modules + Voix DeniseNeural + 401 Dominos (2026-03-05)
+
+> **JARVIS est desormais autonome sur Telegram.** Le bot @turboSSebot lit les messages, dispatch au cluster complet (M1+M2+M3+OL1+gpt-oss+devstral+GEMINI+CLAUDE) via le canvas proxy (port 18800), et repond. 80 nouveaux modules systeme (phases 19-43), voix changee de HenriNeural (homme) a **DeniseNeural** (femme), 401 dominos (vs 40 avant), 3,466 corrections vocales, 528+ tests, 93 scripts COWORK autonomes.
+
+### Changements majeurs v10.4 — v10.6
+
+| Categorie | Avant | Apres | Detail |
+|-----------|-------|-------|--------|
+| **Telegram** | Envoi seulement | **Lecture + Reponse autonome** | telegram-bot.js, long polling, cluster complet |
+| **Voix TTS** | fr-FR-DeniseNeural (homme) | **fr-FR-DeniseNeural (femme)** | Changement global dans tout le codebase |
+| **Dominos** | 40 cascades | **401 cascades** | 1,078 triggers, 84 actions, 28 param patterns |
+| **Corrections** | 2,627 regles | **3,466 regles** | 120 vagues, phonetiques + implicits + fillers |
+| **Modules src/** | 30 modules | **75 modules** | Phases 19-43 : orchestrator_v2, autonomous_loop, cache_manager, etc. |
+| **Tests** | 174 tests | **528+ tests** | 11 suites (test_phase1-11) + test_telegram_bot |
+| **Plugin** | 24 commandes | **40 commandes** | jarvis-turbo v3.0 |
+| **Electron** | 6 pages | **19 pages** | +Orchestrator, Memory, Metrics, Alerts, Workflows, Health, Resources, Scheduler... |
+| **Cloud IA** | 3 modeles | **10 modeles Ollama cloud** | gpt-oss:120b (CHAMPION 100/100), devstral-2:123b, glm-4.7, etc. |
+| **COWORK** | 0 | **93 scripts + 77 crons** | Developpement autonome continu (OpenClaw) |
+| **REST API** | ~50 | **~96 endpoints** | FastAPI + MCP handlers |
+
+### Telegram Bot Autonome (@turboSSebot)
+
+```
+Utilisateur ecrit dans Telegram
+    |
+    v
+telegram-bot.js (getUpdates long polling, 30s timeout)
+    |
+    v
+POST http://127.0.0.1:18800/chat (canvas proxy)
+    |
+    v
+direct-proxy.js → agenticChat()
+  → classify category (code/archi/trading/math/etc.)
+  → getBestNode via autolearn scoring
+  → callNode M1/M2/M3/OL1/gpt-oss/devstral/GEMINI/CLAUDE
+  → tool execution loop (8 turns max)
+    |
+    v
+Reponse JSON → sendMessage Telegram avec attribution [M1/qwen3-8b]
+```
+
+**Commandes Telegram :** `/status`, `/consensus <question>`, `/health`, `/help`, `/model <id>`, texte libre → routing auto.
+
+### Nouveaux Modules Systeme (Phases 19-43)
+
+| Phase | Modules | Description |
+|-------|---------|-------------|
+| 4 | orchestrator_v2, autonomous_loop, task_queue, notifier, agent_memory, pipeline_composer, proactive_agent, conversation_store, load_balancer | Orchestration avancee + memoire |
+| 5 | auto_optimizer, event_bus, metrics_aggregator | Optimisation automatique |
+| 6 | workflow_engine, session_manager, alert_manager | Workflows + alertes |
+| 7 | config_manager, audit_trail, cluster_diagnostics | Configuration + audit |
+| 8 | rate_limiter, task_scheduler, health_dashboard | Limites + planification |
+| 9 | plugin_manager, command_router, resource_monitor | Plugins + NL routing |
+| 10 | retry_manager, data_pipeline, service_registry | Resilience + ETL |
+| 11 | cache_manager, secret_vault, dependency_graph | Cache L1/L2 + secrets |
+
+### gpt-oss:120b — CHAMPION Cloud (100/100, 4 runs stables)
+
+Nouveau champion code cloud via Ollama : **gpt-oss:120b** score parfait 100/100 (Q100% V100% R100%, 51 tok/s). Poids consensus 1.9. Routing prioritaire pour code/review/securite.
 
 ---
 
 ## Nouveautes v10.3.10 — TTS Live + Domino Pipelines (174/174 PASS, 63 TTS)
 
-> **Synthese vocale TTS live** sur les 40 cascades domino : Edge TTS `fr-FR-HenriNeural` annonce chaque categorie, chaque resultat, et produit un rapport vocal final. **63 messages TTS** joues en temps reel, **174/174 PASS en 336s** avec audio. **40 cascades** across **11 categories**, executees via `DominoExecutor` distribue sur le cluster M1/M2/M3/OL1.
+> **Synthese vocale TTS live** sur les 40 cascades domino : Edge TTS `fr-FR-DeniseNeural` annonce chaque categorie, chaque resultat, et produit un rapport vocal final. **63 messages TTS** joues en temps reel, **174/174 PASS en 336s** avec audio. **40 cascades** across **11 categories**, executees via `DominoExecutor` distribue sur le cluster M1/M2/M3/OL1.
 
 ### Domino Pipelines (v10.3.7 — v10.3.10)
 
@@ -54,7 +120,7 @@
 | **Steps executables** | 175 (powershell, curl, python, pipeline, condition) |
 | **Categories** | 11 (routine_matin, trading, debug, deploy, securite, GPU, backup, monitoring, collaboration, streaming, routine_soir) |
 | **DominoExecutor** | Routing auto M1/M2/M3/OL1/LOCAL + fallback chain + SQLite logging |
-| **TTS Live** | Edge TTS `fr-FR-HenriNeural` — 63 messages vocaux, 336s avec audio |
+| **TTS Live** | Edge TTS `fr-FR-DeniseNeural` — 63 messages vocaux, 336s avec audio |
 | **Dataset apprentissage** | 97 examples JSONL pour fine-tuning |
 | **Score parallele** | 174/174 PASS (100%) — 40 cascades en 19.6s (sans TTS) |
 | **Score TTS live** | 174/174 PASS (100%) — 40 cascades + 63 TTS en 336s |
@@ -128,7 +194,7 @@ Rapport TTS vocal + SQLite persistence
 Commande vocale → find_domino() → DominoExecutor.run()
     |                                      |
     v                                      v
-Edge TTS fr-FR-HenriNeural          execute_step() → M1/M2/M3/OL1
+Edge TTS fr-FR-DeniseNeural          execute_step() → M1/M2/M3/OL1
     |                                      |
     v                                      v
 ffplay (audio MP3)                  PASS/FAIL/SKIP → rapport vocal TTS
@@ -270,20 +336,23 @@ Commande vocale → Collecte PowerShell (CPU/RAM/GPU/Disques)
 
 ## Table des Matieres
 
-- [Nouveautes v10.3.5 — Audit Pipeline Complet](#nouveautes-v1035--audit-pipeline-complet-135135-pass)
-- [Nouveautes v10.3.1](#nouveautes-v1031--pipelines-ia-cognitives)
+- [Nouveautes v10.6.0 — Telegram + 80 Modules + DeniseNeural](#nouveautes-v1060--telegram-autonome--80-modules--voix-deniseneural--401-dominos-2026-03-05)
+- [Nouveautes v10.3.10 — TTS Live + Domino](#nouveautes-v10310--tts-live--domino-pipelines-174174-pass-63-tts)
+- [Audit Pipeline Complet](#audit-pipeline-complet-v1032--v1036-171171-pass)
 - [Architecture Globale](#architecture-globale)
-- [Cluster IA — HEXA_CORE](#cluster-ia--hexacore)
+- [Cluster IA — HEXA_CORE + Cloud](#cluster-ia--hexacore)
 - [Pipeline Commander](#pipeline-commander)
 - [7 Agents Claude SDK](#7-agents-claude-sdk)
 - [Consensus Multi-Source](#consensus-multi-source)
-- [84 Skills Autonomes](#84-skills-autonomes)
-- [92 Outils MCP + 89 Handlers](#92-outils-mcp--89-handlers)
+- [89 Skills Autonomes](#89-skills-autonomes)
+- [186+ Outils MCP + 110 Handlers](#186-outils-mcp--110-handlers)
 - [Bases de Donnees](#bases-de-donnees)
 - [Catalogue Vocal & Pipelines](#catalogue-vocal--pipelines)
 - [Architecture Vocale](#architecture-vocale)
 - [Trading MEXC Futures](#trading-mexc-futures)
-- [Desktop Electron](#desktop-electron)
+- [Telegram Bot Autonome](#telegram-bot-autonome-turbossebot-1)
+- [Desktop Electron (19 pages)](#desktop-electron)
+- [COWORK Autonome (93 scripts)](#cowork-autonome-93-scripts)
 - [Arborescence du Projet](#arborescence-du-projet)
 - [Installation](#installation)
 - [Benchmark Cluster](#benchmark-cluster)
@@ -338,14 +407,14 @@ Commande vocale → Collecte PowerShell (CPU/RAM/GPU/Disques)
 ### Flux de Donnees
 
 ```
-Voix/Texte ──> STT (Whisper large-v3-turbo, CUDA) ──> Correction IA (2,627 regles)
+Voix/Texte/Telegram ──> STT (Whisper large-v3-turbo, CUDA) ──> Correction IA (3,466 regles)
     ──> Classification Intent (M1 qwen3-8b, 3-45ms)
     ──> Decomposition en micro-taches
-    ──> Dispatch Multi-GPU (matrice de routage dynamique)
-    ──> Execution Parallele sur cluster
-    ──> Consensus Pondere (6 noeuds, vote pondere)
-    ──> Reponse Vocale (TTS Edge fr-FR-HenriNeural)
-    ──> Persistance (etoile.db + jarvis.db)
+    ──> Dispatch Multi-GPU (matrice de routage dynamique, autolearn scoring)
+    ──> Execution Parallele sur cluster (M1/M2/M3/OL1/gpt-oss/devstral/GEMINI/CLAUDE)
+    ──> Consensus Pondere (12 modeles, vote pondere)
+    ──> Reponse Vocale (TTS Edge fr-FR-DeniseNeural) ou Telegram
+    ──> Persistance (etoile.db + jarvis.db + autolearn)
 ```
 
 ---
@@ -394,12 +463,14 @@ Voix/Texte ──> STT (Whisper large-v3-turbo, CUDA) ──> Correction IA (2,6
 
 | Composant | Specification |
 |-----------|---------------|
-| Backend | Ollama v0.16.1 |
-| Modele Local | **qwen3:1.7b** (0.5s, le plus rapide du cluster) |
-| Modeles Cloud | minimax-m2.5, glm-5, kimi-k2.5 (`think:false` obligatoire) |
-| Role | Vitesse, web search, correction vocale |
-| Score Benchmark | **88%** |
-| Poids Consensus | 1.3 |
+| Backend | Ollama v0.17.4, `OLLAMA_NUM_PARALLEL=3` |
+| Modeles Locaux | **qwen3:14b** (23 tok/s) + **qwen3:1.7b** (84 tok/s, le plus rapide) |
+| Cloud CODE | **gpt-oss:120b** (CHAMPION 100/100, 51 tok/s) + **devstral-2:123b** (94/100, 36 tok/s) |
+| Cloud Utility | glm-4.7, qwen3-coder:480b, minimax-m2.5, glm-5, kimi-k2.5, qwen3.5, cogito-2.1:671b, deepseek-v3.2 |
+| Total | **12 modeles** (2 local + 10 cloud), `think:false` obligatoire pour cloud |
+| Role | Vitesse, web search, code cloud champion |
+| Score Benchmark | **88%** (local) / **100%** (gpt-oss cloud) |
+| Poids Consensus | 1.3 (local) / **1.9** (gpt-oss) / **1.5** (devstral) |
 
 ### GEMINI — Cloud (gemini-proxy.js)
 
@@ -443,25 +514,25 @@ Le coeur de JARVIS suit un pipeline strict ou Claude ne fait **jamais** le trava
 Module: `src/commander.py` — Classification: M1 qwen3-8b + fallback heuristique.
 Cascade thermique: M1 → M2 → M3 si temperature critique.
 
-### Routage Intelligent (benchmark-tuned 2026-02-26, M1 PRIORITAIRE)
+### Routage Intelligent (benchmark-tuned 2026-02-28, gpt-oss CHAMPION 100/100)
 
 | Type de tache | Principal | Secondaire | Verificateur |
 |---------------|-----------|------------|--------------|
-| Code nouveau | **M1** (100%, 0.6s) | M2 (review) | GEMINI (archi) |
-| Bug fix | **M1** | M2 (patch) | — |
-| Architecture | GEMINI | **M1** (validation) | M2 (faisabilite) |
-| Refactoring | **M1** | M2 (validation) | — |
-| Raisonnement | **M1** (100%) | M2 (analyse) | JAMAIS M3 |
+| Code nouveau | **gpt-oss:120b** (100/100, 51 tok/s) | **M1** (98.3, 45 tok/s) | devstral-2 (96.5) |
+| Bug fix | **gpt-oss:120b** | **M1** (patch) | devstral-2 (audit) |
+| Architecture | GEMINI | **M1** (validation) | gpt-oss:120b |
+| Refactoring | **gpt-oss:120b** | **M1** | devstral-2 |
+| Raisonnement | **M1** (100%) | OL1-14b (local) | — JAMAIS M3 |
 | Math/Calcul | **M1** (100%) | OL1 (rapide) | — |
 | Trading | OL1 (web) | **M1** (analyse) | — |
-| Securite/audit | **M1** | GEMINI | M3 (scan) |
-| Question simple | OL1 (0.5s) | M3 (2.5s) | — |
-| Recherche web | OL1-cloud | GEMINI | — |
-| Revue code finale | CLAUDE | GEMINI | **M1** |
-| Consensus critique | M1+M2+OL1+GEMINI+CLAUDE | Vote pondere | — |
+| Securite/audit | **gpt-oss:120b** | GEMINI | M3 (scan) |
+| Question simple | OL1 (0.5s) | glm-4.7 (4.6s) | — |
+| Recherche web | OL1-cloud (minimax) | GEMINI | — |
+| Revue code finale | **gpt-oss:120b** (100/100) | devstral-2 (96.5) | **M1** |
+| Consensus critique | **gpt-oss**+**M1**+devstral+M2+GEMINI+CLAUDE | Vote pondere | — |
 | Embedding | **M1** | — | — |
 
-Fallback automatique: M1 → M2 → M3 → OL1 → GEMINI → CLAUDE.
+Fallback code: gpt-oss:120b → M1 → devstral-2:123b → M2 → OL1 → GEMINI → CLAUDE.
 
 ---
 
@@ -502,12 +573,14 @@ Definis dans `src/agents.py`, chaque agent a un role, un modele Claude et des ou
 Chaque decision importante passe par un pipeline de consensus pondere. Tous les noeuds sont interroges en parallele, puis leurs reponses sont agregees avec un vote pondere :
 
 ```
-  M1     (poids 1.8)  ──┐
-  M2     (poids 1.4)  ──┤
-  OL1    (poids 1.3)  ──┼──> Agregation ──> Score Consensus ──> Decision
+  gpt-oss (poids 1.9) ──┐
+  M1     (poids 1.8)  ──┤
+  devstral(poids 1.5)  ──┤
+  M2     (poids 1.4)  ──┼──> Agregation ──> Score Consensus ──> Decision
+  OL1    (poids 1.3)  ──┤        │
   GEMINI (poids 1.2)  ──┤        │
   CLAUDE (poids 1.2)  ──┤        │
-  M3     (poids 1.0)  ──┘        v
+  M3     (poids 0.8)  ──┘        v
                             >= 0.66  ──> FORT : Decision nette
                            0.4–0.66  ──> MOYEN : Decision + alternatives
                             < 0.4    ──> FAIBLE : Pas de decision, divergences exposees
@@ -548,7 +621,7 @@ Les domino chains sont des reactions automatiques declenchees par un evenement +
 
 ---
 
-## 84 Skills Autonomes
+## 89 Skills Autonomes
 
 Les skills sont des pipelines multi-etapes persistants dans `etoile.db`. Ils survivent aux redemarrages et accumulent des statistiques d'utilisation. Declenchables par commande vocale ou par les agents.
 
@@ -572,7 +645,7 @@ mao-workflow, cluster-management, trading-pipeline, failover-recovery, security-
 
 ---
 
-## 92 Outils MCP + 89 Handlers
+## 186+ Outils MCP + 110 Handlers
 
 Repartis en 2 serveurs MCP principaux + 1 serveur filesystem :
 
@@ -624,9 +697,10 @@ JARVIS-TURBO (92 tools)               TRADING-AI-ULTIMATE (89 handlers)
 
 | Base | Chemin | Tables | Rows | Usage |
 |------|--------|--------|------|-------|
-| **etoile.db** | `data/etoile.db` | 18 | 6,045 | Carte HEXA_CORE, cles API, agents, metrics, pipelines, corrections |
-| **jarvis.db** | `data/jarvis.db` | 11 | 4,193 | 443 commandes, 80 skills, 475 scenarios, 2,627 corrections, benchmarks |
-| **sniper.db** | `data/sniper.db` | 5 | 657 | 67 coins, 521 signaux trading, 11 categories |
+| **etoile.db** | `data/etoile.db` | 19 | 11,222 | Carte HEXA_CORE, cles API, agents, metrics, pipelines, 3,466 corrections |
+| **jarvis.db** | `data/jarvis.db` | 10 | 5,878 | 2,332 commandes, 89 skills, scenarios, benchmarks |
+| **sniper.db** | `data/sniper.db` | 4 | 659 | Coins, signaux trading, categories |
+| **finetuning.db** | `data/finetuning.db` | 8 | 36 | Pipeline QLoRA, examples, evaluations |
 
 ### etoile.db — Carte du Systeme
 
@@ -634,9 +708,9 @@ La table `map` centralise la cartographie complete du systeme :
 
 | Type d'entite | Nombre | Description |
 |---------------|--------|-------------|
-| vocal_command | 1,706 | Commandes vocales avec triggers et actions |
-| vocal_pipeline | 437 | Pipelines multi-etapes (enchainements automatises) |
-| skill | 108 | Skills persistants avec statistiques |
+| vocal_command | 2,332 | Commandes vocales avec triggers et actions |
+| vocal_pipeline | 461 | Pipelines multi-etapes (enchainements automatises) |
+| skill | 89 | Skills persistants avec statistiques |
 | tool | 75 | Outils MCP SDK enregistres |
 | script | 39 | Scripts Python/PowerShell disponibles |
 | routing_rule | 22 | Regles de routage cluster |
@@ -651,17 +725,17 @@ La table `map` centralise la cartographie complete du systeme :
 | voice_command | 5 | Commandes vocales speciales |
 | database | 4 | Bases de donnees |
 
-Autres tables: `pipeline_dictionary` (656 pipelines), `pipeline_tests` (159 tests, 135/135 PASS), `scenario_weights` (58 regles), `domino_chains` (12 chaines), `voice_corrections` (2,627 regles), `benchmark_runs/results`, `consensus_log`, `jarvis_queries`, `cluster_health`, `agent_keywords`, `memories` (44 entries), `api_keys`, `skills_log`, `sessions`, `metrics`.
+Autres tables: `pipeline_dictionary` (656 pipelines), `pipeline_tests` (528+ tests), `scenario_weights` (58 regles), `domino_chains` (401 cascades), `voice_corrections` (3,466 regles), `benchmark_runs/results`, `consensus_log`, `jarvis_queries`, `cluster_health`, `agent_keywords`, `memories`, `api_keys`, `skills_log`, `sessions`, `metrics`.
 
 ### jarvis.db — Commandes & Validation
 
 | Table | Rows | Description |
 |-------|------|-------------|
-| commands | 443 | Commandes vocales avec triggers JSON, action_type, usage stats |
-| skills | 80 | Skills avec steps, taux de succes, compteurs |
+| commands | 2,332 | Commandes vocales avec triggers JSON, action_type, usage stats |
+| skills | 89 | Skills avec steps, taux de succes, compteurs |
 | scenarios | 475 | Scenarios de test (validation vocale) |
 | validation_cycles | 500 | Resultats de cycles de validation |
-| voice_corrections | 2,627 | Corrections phonetiques + alias + auto-training |
+| voice_corrections | 3,466 | Corrections phonetiques + alias + implicits + fillers (120 vagues) |
 | node_metrics | 5 | Metriques par noeud (score, latence, weight) |
 | benchmark_runs | 1 | Dernier benchmark complet |
 | benchmark_results | 50 | Resultats detailles par noeud/level |
@@ -840,16 +914,20 @@ Memes commandes que la section Commandes Vocales systeme, stockees aussi dans pi
 
 </details>
 
-### Corrections Vocales (2,627 regles)
+### Corrections Vocales (3,466 regles — 120 vagues)
 
-Systeme de correction automatique de la reconnaissance vocale, stocke dans `voice_corrections` :
+Systeme de correction automatique de la reconnaissance vocale. 18,075 entrees vocales totales :
 
-| Categorie | Nombre | Exemples |
-|-----------|--------|----------|
-| **phonetic** | 2,559 | "met en plein ecrant" → "plein ecran", "ouvre crome" → "ouvre chrome" |
-| **alias** | 34 | "arrete l'ordinateur" → "eteins le pc", "ouvre steam" → "ouvre steam" |
-| **auto_training** | 33 | Corrections apprises automatiquement par le systeme |
-| **training** | 1 | Corrections manuelles d'entrainement |
+| Categorie | Nombre | Description |
+|-----------|--------|-------------|
+| **Corrections** | 3,466 | Phonetiques + alias + auto-training (120 vagues) |
+| **Triggers** | 1,078 | Declencheurs de commandes vocales |
+| **Implicits** | 678 | Commandes implicites (67 vagues) |
+| **Fillers** | 153 | Mots de remplissage (8 vagues) |
+| **Phonetics** | 106 | Regles phonetiques (19 vagues) |
+| **Actions** | 84 | Actions Python executables |
+| **Param Patterns** | 28 | Patterns parametriques |
+| **Dominos** | 401 | Cascades domino (301 apres batch 100) |
 
 ---
 
@@ -872,12 +950,12 @@ Systeme de correction automatique de la reconnaissance vocale, stocke dans `voic
                   └───────┬───────┘
                           │
                   ┌───────v───────┐
-                  │ Correction IA │  ◄── 2,627 regles phonetiques
+                  │ Correction IA │  ◄── 3,466 regles phonetiques
                   │ + LM Studio   │      + correction contextuelle M1
                   └───────┬───────┘
                           │
                   ┌───────v───────┐
-                  │ Intent Match  │  ◄── 1,706 commandes + 656 pipelines
+                  │ Intent Match  │  ◄── 2,332 commandes + 656 pipelines
                   │ + Fuzzy Match │      Matching semantique + phonetique
                   └───────┬───────┘
                           │
@@ -887,7 +965,7 @@ Systeme de correction automatique de la reconnaissance vocale, stocke dans `voic
                   └───────┬───────┘
                           │
                   ┌───────v───────┐
-                  │ TTS Edge      │  ◄── fr-FR-HenriNeural
+                  │ TTS Edge      │  ◄── fr-FR-DeniseNeural
                   │ Streaming     │      Latence < 2s (cache LRU 200)
                   └───────────────┘
 ```
@@ -958,7 +1036,7 @@ Signal Telegram (@turboSSebot) + Sauvegarde SQL (sniper.db)
 Application desktop construite avec Electron 33 + React 19 + TypeScript + Vite 6 + Tailwind CSS.
 Portable 72.5 MB, installeur NSIS 80 MB. Raccourci: `Ctrl+Shift+J`.
 
-### Pages
+### Pages (19 total)
 
 | Page | Fonction |
 |------|----------|
@@ -968,6 +1046,19 @@ Portable 72.5 MB, installeur NSIS 80 MB. Raccourci: `Ctrl+Shift+J`.
 | **Trading** | Positions ouvertes, signaux actifs, historique PnL |
 | **LM Studio** | Gestion modeles, charge GPU, benchmarks, load/unload |
 | **Settings** | Configuration systeme, preferences, cles API |
+| **Dictionary** | Dictionnaire de commandes vocales |
+| **Pipelines** | Gestion des pipelines multi-etapes |
+| **Toolbox** | Outils MCP disponibles |
+| **Logs** | Logs systeme en temps reel |
+| **Orchestrator** | Vue orchestration multi-agents |
+| **Memory** | Memoire conversationnelle et profil utilisateur |
+| **Metrics** | Metriques agregees et historiques |
+| **Alerts** | Systeme d'alertes et notifications |
+| **Workflows** | Moteur de workflows visuels |
+| **Health** | Dashboard sante unifie (8 sous-systemes) |
+| **Resources** | Moniteur CPU/RAM/GPU/Disk |
+| **Scheduler** | Planificateur de taches (cron-like) |
+| **Canvas** | Canvas Autolearn Engine |
 
 ### Architecture
 
@@ -996,28 +1087,88 @@ Backend WebSocket: `python_ws/` (FastAPI, port 9742) — 6 routes: cluster, trad
 
 ---
 
+## Telegram Bot Autonome (@turboSSebot)
+
+Le bot Telegram lit les messages utilisateur, dispatch au cluster complet via le canvas proxy (port 18800), et renvoie la reponse avec attribution du modele.
+
+| Composant | Detail |
+|-----------|--------|
+| **Bot ID** | 8369376863 |
+| **Chat ID** | 2010747443 |
+| **Fichier** | `canvas/telegram-bot.js` |
+| **Proxy** | `canvas/direct-proxy.js` (port 18800) |
+| **Polling** | `getUpdates` long polling, 30s timeout |
+| **Routing** | Autolearn scoring → getBestNode par categorie |
+| **Modeles** | M1/M2/M3/OL1/gpt-oss/devstral/GEMINI/CLAUDE |
+| **Commandes** | `/status`, `/consensus`, `/health`, `/help`, `/model` |
+| **Launcher** | `launchers/JARVIS_TELEGRAM.bat` |
+
+### Commandes Telegram
+
+| Commande | Action |
+|----------|--------|
+| `/status` | Health check cluster (GET /health) |
+| `/consensus <question>` | Query multiple noeuds + vote pondere |
+| `/health` | Etat detaille de chaque noeud |
+| `/help` | Liste des commandes disponibles |
+| `/model <id>` | Forcer un noeud specifique (M1/M2/OL1/etc.) |
+| Texte libre | Dispatch automatique via routing autolearn |
+
+### 8 Commandes Pipeline Telegram
+
+status, trading, health, services, benchmark, emails, workspace, report — automatisees via Telegram Bot API.
+
+---
+
+## COWORK Autonome (93 scripts)
+
+Systeme de developpement continu autonome via OpenClaw. 93 scripts Python standalone + 77 crons (67 actifs). Chaque script a un argparse CLI (`--once`, `--loop`, `--help`) et une base SQLite locale.
+
+### Domaines couverts
+
+| Domaine | Scripts | Exemples |
+|---------|---------|----------|
+| **JARVIS Core** | 25+ | brain, memory, skill_generator, feature_builder, self_evolve, night_ops |
+| **Windows** | 15+ | service_hardener, registry_guardian, performance_tuner |
+| **IA Autonome** | 20+ | proactive_agent, multi_agent_coordinator, cluster_autotuner |
+| **Trading** | 10+ | trading_intelligence, signal generation, market analysis |
+| **Infrastructure** | 15+ | auto_deployer, continuous_test_runner, mcp_tool_tester |
+| **Voice** | 5+ | voice_pipeline_optimizer, command coverage analysis |
+
+### Crons actifs (frequences)
+
+| Frequence | Scripts | Exemples |
+|-----------|---------|----------|
+| 10 min | 2 | trading_intelligence, perf_tuner |
+| 15-30 min | 5 | proactive_agent, electron_monitor, mcp_tester |
+| 1-2h | 10 | feature_builder, skill_generator, cluster_autotuner |
+| 6h / daily | 5 | continuous_tests, deployer, self_evolve |
+| Nuit (23h) | 1 | night_ops (VACUUM, clean, git gc, morning report) |
+
+---
+
 ## Arborescence du Projet
 
 ```
 turbo/
-├── src/                       # 28 modules Python (22,994 lignes)
+├── src/                       # 75 modules Python (40,000+ lignes)
 │   ├── orchestrator.py        # Cerveau central — dispatch + aggregation
 │   ├── commander.py           # Pipeline Commander (classify/decompose/enrich)
 │   ├── agents.py              # 7 agents Claude SDK (deep/fast/check/trading/system/bridge/consensus)
-│   ├── tools.py               # 92 outils MCP SDK (v3.4.0+)
-│   ├── mcp_server.py          # 89 handlers MCP standalone
+│   ├── tools.py               # 186+ outils MCP SDK (v3.5.0+)
+│   ├── mcp_server.py          # 110 handlers MCP standalone
 │   ├── commands.py            # Commandes vocales principales
 │   ├── commands_dev.py        # Commandes developpement (git, ollama, docker)
 │   ├── commands_maintenance.py# Commandes maintenance
 │   ├── commands_navigation.py # Commandes navigation
-│   ├── commands_pipelines.py  # 278 pipelines multi-etapes
-│   ├── config.py              # Configuration cluster + routage + 14 regles
-│   ├── skills.py              # 84 skills dynamiques
+│   ├── commands_pipelines.py  # 461 pipelines multi-etapes
+│   ├── config.py              # Configuration cluster + routage + 22 regles
+│   ├── skills.py              # 89 skills dynamiques
 │   ├── brain.py               # Auto-apprentissage (patterns)
 │   ├── voice.py               # Pipeline vocale (Whisper + TTS)
-│   ├── voice_correction.py    # Correction vocale (2,627 regles + OL1)
+│   ├── voice_correction.py    # Correction vocale (3,466 regles + OL1)
 │   ├── wake_word.py           # OpenWakeWord "jarvis" (seuil 0.7)
-│   ├── tts_streaming.py       # TTS streaming Edge fr-FR-HenriNeural
+│   ├── tts_streaming.py       # TTS streaming Edge fr-FR-DeniseNeural
 │   ├── whisper_worker.py      # Whisper large-v3-turbo CUDA (process persistent)
 │   ├── cluster_startup.py     # Boot cluster + thermal + GPU stats
 │   ├── trading.py             # Trading MEXC Futures (CCXT)
@@ -1028,17 +1179,32 @@ turbo/
 │   ├── scenarios.py           # Scenarios de validation
 │   ├── output.py              # Schema sortie JSON
 │   ├── dashboard.py           # API dashboard REST
-│   └── systray.py             # System tray icon
-├── electron/                  # App desktop (Electron 33 + React 19 + Vite 6)
+│   ├── systray.py             # System tray icon
+│   ├── orchestrator_v2.py     # Orchestrateur v2 (phase 4)
+│   ├── autonomous_loop.py     # Boucle autonome
+│   ├── task_queue.py          # File de taches
+│   ├── cache_manager.py       # Cache L1 mem + L2 disk (LRU, TTL)
+│   ├── secret_vault.py        # Coffre-fort chiffre (Fernet)
+│   ├── dependency_graph.py    # DAG + topo sort + impact analysis
+│   ├── rate_limiter.py        # Token bucket rate limiting
+│   ├── retry_manager.py       # Exponential backoff + circuit breaker
+│   ├── service_registry.py    # Heartbeat + TTL service discovery
+│   └── ... (+45 modules phases 4-11)
+├── canvas/                    # Canvas Autolearn Engine (port 18800)
+│   ├── direct-proxy.js        # Proxy intelligent avec autolearn scoring
+│   ├── telegram-bot.js        # Bot Telegram autonome (long polling)
+│   ├── autolearn.js           # Moteur autolearn (speed*0.3 + quality*0.5 + reliability*0.2)
+│   └── data/                  # Scores, memoire, historique autolearn
+├── electron/                  # App desktop (Electron 33 + React 19 + Vite 6) — 19 pages
 ├── python_ws/                 # Backend WebSocket (FastAPI port 9742)
 │   └── routes/                # 6 routes (cluster/trading/voice/chat/files/sql)
-├── plugins/jarvis-turbo/      # Plugin Claude Code
+├── plugins/jarvis-turbo/      # Plugin Claude Code v3.0
 │   ├── agents/ (11)           # cluster-ops, trading-analyst, code-architect...
-│   ├── commands/ (24)         # /deploy, /cluster-check, /consensus, /trading-scan...
+│   ├── commands/ (40)         # /deploy, /cluster-check, /consensus, /trading-scan...
 │   ├── skills/ (24)           # mao-workflow, smart-routing, failover-recovery...
 │   └── hooks/                 # SessionStart, PreToolUse, Stop, SubagentStop
 ├── scripts/                   # 13 scripts utilitaires + cockpit/ + trading_v2/
-├── launchers/                 # 17 launchers (.bat + .ps1)
+├── launchers/                 # 15 launchers (.bat + .ps1)
 ├── finetuning/                # Pipeline QLoRA (Qwen3-30B-A3B, 55,549 exemples)
 ├── canvas/                    # Canvas Autolearn Engine (port 18800)
 ├── n8n_workflows/             # 6 workflows n8n
@@ -1094,7 +1260,7 @@ cp .env.example .env
 | `jarvis_systray.bat` | System tray (icone barre des taches) |
 | `jarvis_mcp_stdio.bat` | Serveur MCP (pour Claude Desktop / LM Studio) |
 
-### Slash Commands (plugin jarvis-turbo)
+### Slash Commands (plugin jarvis-turbo v3.0 — 40 commandes)
 
 | Commande | Description |
 |----------|-------------|
@@ -1102,7 +1268,7 @@ cp .env.example .env
 | `/mao-check` | Health + GPU + services complet |
 | `/gpu-status` | Temperatures + VRAM par GPU |
 | `/thermal` | Monitoring thermique detaille |
-| `/consensus [question]` | Vote pondere M2+OL1+M3+GEMINI |
+| `/consensus [question]` | Vote pondere multi-noeuds |
 | `/quick-ask [question]` | Question rapide OL1 (< 1s) |
 | `/web-search [query]` | Recherche web minimax cloud |
 | `/trading-scan [mode]` | Pipeline GPU trading |
@@ -1113,27 +1279,39 @@ cp .env.example .env
 | `/audit [mode]` | Audit systeme complet (10 sections, score A-F) |
 | `/model-swap [args]` | Load/unload modeles LM Studio |
 | `/deploy` | Git commit + push |
+| `/n8n-trigger` | Declenchement workflow n8n |
+| `/backup-db` | Backup databases SQLite |
+| `/test-cluster` | Test complet du cluster |
+| `/improve-loop` | Boucle d'amelioration continue |
+| `/cluster-benchmark` | Benchmark performance cluster |
+
+*...et 20 autres commandes (m2-optimize, routing, etc.)*
 
 ---
 
 ## Benchmark Cluster
 
-Resultats du benchmark reel (2026-02-26) :
+Resultats du benchmark reel (2026-02-28, 4 runs, ~250 checks) :
 
 | Noeud | Modele | Latence | Score | Status | Poids |
 |-------|--------|---------|-------|--------|-------|
-| **M1** | qwen3-8b (65 tok/s) | 0.6–2.5s | **100%** | ONLINE | **1.8** |
-| **M2** | deepseek-coder-v2-lite | 1.3s | **92%** | ONLINE | 1.4 |
-| **OL1** | qwen3:1.7b | 0.5s | **88%** | ONLINE | 1.3 |
-| **M3** | mistral-7b-instruct | 2.5s | **89%** | ONLINE | 1.0 |
-| **GEMINI** | gemini-2.5-pro | variable | **74%** | CLOUD | 1.2 |
+| **gpt-oss** | gpt-oss:120b (51 tok/s) | cloud | **100/100** | CLOUD | **1.9** |
+| **M1** | qwen3-8b (65 tok/s) | 0.6–2.5s | **98.4/100** | ONLINE | **1.8** |
+| **devstral** | devstral-2:123b (36 tok/s) | cloud | **~94/100** | CLOUD | **1.5** |
+| **M2** | deepseek-coder-v2-lite | 1.3s | **85.1** | ONLINE | 1.4 |
+| **OL1** | qwen3:14b + qwen3:1.7b | 0.5s | **88%** | ONLINE | 1.3 |
+| **glm-4.7** | glm-4.7:cloud (48 tok/s) | cloud | **88/100** | CLOUD | 1.2 |
+| **GEMINI** | gemini-3-pro | variable | **74%** | CLOUD | 1.2 |
 | **CLAUDE** | opus/sonnet/haiku | 12-18s | — | CLOUD | 1.2 |
+| **M3** | mistral-7b-instruct | 2.5s | **89%** | ONLINE | 0.8 |
 
 ```
+gpt-oss:120b — CHAMPION CLOUD : Q100% V100% R100%, 51 tok/s, score parfait 100/100
+M1 — CHAMPION LOCAL : Q100% 45 tok/s, ZERO FAIL sur 40 requetes
 Benchmark score global : 97% (7/7 phases)
-Improve loop : 81.8/100 avg (377 OK / 403 tests)
-M1 dual-instance : 2x qwen3-8b charges (65 tok/s chacun)
+Stress test : 28/28 OK (100%) — M1 34tok/s (3x) / M2 15tok/s / M3 10tok/s
 Audit systeme : Grade A, 82/100
+OLLAMA_NUM_PARALLEL=3 (env User persistant)
 ```
 
 ---
@@ -1156,21 +1334,22 @@ Audit systeme : Grade A, 82/100
 | Couche | Technologies |
 |--------|-------------|
 | **Orchestration** | Claude Opus 4.6 (Agent SDK v0.1.35), MCP Protocol, uv v0.10.2 |
-| **IA Locale** | LM Studio (qwen3-8b, deepseek-coder-v2, mistral-7b), Ollama v0.16.1 (qwen3:1.7b) |
-| **IA Cloud** | Gemini 2.5 Pro, Claude Opus 4.6, Perplexity, minimax-m2.5 |
-| **Backend** | Python 3.13, FastAPI, asyncio, httpx |
-| **Desktop** | Electron 33, React 19, TypeScript, Vite 6, Tailwind CSS |
-| **Voice** | Whisper large-v3-turbo (CUDA), Edge TTS fr-FR-HenriNeural, OpenWakeWord |
+| **IA Locale** | LM Studio (qwen3-8b, deepseek-coder-v2, mistral-7b), Ollama v0.17.4 (qwen3:14b + qwen3:1.7b) |
+| **IA Cloud** | gpt-oss:120b (CHAMPION), devstral-2:123b, Gemini 3 Pro, Claude Opus 4.6, minimax-m2.5, glm-4.7, kimi-k2.5 |
+| **Backend** | Python 3.13, FastAPI, asyncio, httpx, ~96 REST endpoints |
+| **Desktop** | Electron 33, React 19, TypeScript, Vite 6, Tailwind CSS — 19 pages |
+| **Voice** | Whisper large-v3-turbo (CUDA), Edge TTS fr-FR-DeniseNeural (femme), OpenWakeWord |
 | **Trading** | CCXT (MEXC Futures), scoring multi-IA, sniper.db |
-| **Database** | SQLite3 (etoile.db 18 tables, jarvis.db 11 tables, sniper.db 5 tables) |
-| **Automation** | n8n v2.4.8, Playwright, Telegram Bot API |
-| **DevOps** | Docker Compose, GitHub, uv (Python packaging) |
+| **Database** | SQLite3 — 4 bases, 41 tables, 17,795 rows (4.92 MB total) |
+| **Telegram** | Bot @turboSSebot autonome, long polling, cluster complet |
+| **Automation** | n8n v2.4.8, Playwright, Telegram Bot API, 93 scripts COWORK |
+| **DevOps** | Docker Compose, GitHub, uv (Python packaging), OpenClaw (77 crons) |
 
 ---
 
 <p align="center">
-  <strong>JARVIS Etoile v10.3</strong> — Built with passion by <a href="https://github.com/Turbo31150">Turbo31150</a>
+  <strong>JARVIS Etoile v10.6</strong> — Built with passion by <a href="https://github.com/Turbo31150">Turbo31150</a>
 </p>
 <p align="center">
-  <em>Repo prive — Derniere mise a jour : 2026-02-26</em>
+  <em>Repo prive — Derniere mise a jour : 2026-03-05</em>
 </p>
