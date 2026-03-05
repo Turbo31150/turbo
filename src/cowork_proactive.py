@@ -94,6 +94,7 @@ class CoworkProactive:
         needs.extend(self._needs_from_health())
         needs.extend(self._needs_from_dispatch())
         needs.extend(self._needs_from_self_improvement())
+        needs.extend(self._needs_from_benchmark_trend())
 
         urgency_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
         needs.sort(key=lambda n: urgency_order.get(n.urgency, 9))
@@ -189,6 +190,37 @@ class CoworkProactive:
                         category="optimization", urgency=action.priority,
                         description=action.description, source="self_improvement",
                         data=action.params,
+                    ))
+        except Exception:
+            pass
+        return needs
+
+    def _needs_from_benchmark_trend(self) -> list[SystemNeed]:
+        """Detect declining benchmark performance trends."""
+        needs = []
+        try:
+            db = sqlite3.connect(DB_PATH)
+            rows = db.execute("""
+                SELECT rate, timestamp FROM benchmark_quick
+                ORDER BY id DESC LIMIT 5
+            """).fetchall()
+            db.close()
+            if len(rows) >= 2:
+                latest = rows[0][0]
+                prev_avg = sum(r[0] for r in rows[1:]) / len(rows[1:])
+                if latest < prev_avg - 0.1:
+                    needs.append(SystemNeed(
+                        category="intelligence", urgency="high",
+                        description=f"Benchmark regression: {latest*100:.0f}% vs avg {prev_avg*100:.0f}%",
+                        source="benchmark",
+                        data={"current": latest, "previous_avg": prev_avg},
+                    ))
+                if latest < 0.6:
+                    needs.append(SystemNeed(
+                        category="optimization", urgency="critical",
+                        description=f"Benchmark below 60%: {latest*100:.0f}% — needs immediate attention",
+                        source="benchmark",
+                        data={"rate": latest},
                     ))
         except Exception:
             pass

@@ -264,22 +264,22 @@ class DispatchEngine:
         ("code", "M3"),                               # M3 not suited for code gen
     }
 
-    # Preferred nodes per pattern (from benchmark: highest success rate)
+    # Preferred nodes per pattern (from benchmark-v2: race strategy for weak patterns)
     ROUTE_PREFERENCE = {
-        "reasoning": ["M1", "OL1", "M2"],
-        "math": ["M1", "M2"],
-        "architecture": ["M1", "gpt-oss", "devstral"],
-        "security": ["M1", "gpt-oss"],
-        "analysis": ["M1", "gpt-oss"],
-        "data": ["M1", "gpt-oss"],
-        "code": ["M1", "gpt-oss", "devstral"],
+        "reasoning": ["M1", "gpt-oss", "M2", "OL1"],
+        "math": ["M1", "M2", "gpt-oss"],
+        "architecture": ["M1", "gpt-oss", "devstral", "OL1"],
+        "security": ["M1", "gpt-oss", "devstral", "OL1"],
+        "analysis": ["M1", "gpt-oss", "devstral", "OL1"],
+        "data": ["M1", "gpt-oss", "devstral", "OL1"],
+        "code": ["M1", "gpt-oss", "devstral", "OL1"],
+        "trading": ["M1", "gpt-oss", "OL1"],
         "classifier": ["M1", "OL1"],
         "simple": ["OL1", "M1"],
         "creative": ["M1", "OL1", "M2"],
         "system": ["M1", "OL1"],
-        "web": ["OL1", "M1"],
+        "web": ["OL1", "M1", "minimax"],
         "devops": ["OL1", "M1"],
-        "trading": ["M1", "M2"],
     }
 
     async def _pick_route(self, pattern: str, prompt: str,

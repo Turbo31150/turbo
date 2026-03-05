@@ -268,8 +268,16 @@ class PatternAgent:
         results = await asyncio.gather(*tasks)
         ok = [r for r in results if r.ok]
         if ok:
-            best = min(ok, key=lambda r: r.latency_ms)
-            best.strategy = f"race:winner={best.node}"
+            # Score = quality * node_weight / (latency_ms / 1000)
+            # Balances quality, node reliability weight, and speed
+            def race_score(r):
+                w = NODES.get(r.node, {}).get("weight", 1.0)
+                q = max(0.1, r.quality_score)
+                lat_s = max(0.5, r.latency_ms / 1000)
+                return q * w / lat_s
+            best = max(ok, key=race_score)
+            runners = ",".join(r.node for r in ok if r.node != best.node)
+            best.strategy = f"race:winner={best.node}" + (f":vs={runners}" if runners else "")
             return best
         return results[0]
 
@@ -319,15 +327,35 @@ class PatternAgent:
             return 0.0
         prompt_words = len(prompt.split())
         content_words = len(content.split())
-        # Basic quality: ratio of output to input
-        ratio = min(1.0, content_words / max(1, prompt_words * 3))
-        # Penalize very short responses
-        if content_words < 5:
-            ratio *= 0.3
-        # Bonus for code blocks
-        if "```" in content or "def " in content or "class " in content:
-            ratio = min(1.0, ratio * 1.2)
-        return round(ratio, 3)
+        score = 0.0
+
+        # Length score: adequate response length
+        if content_words < 3:
+            score += 0.05
+        elif content_words < 10:
+            score += 0.15
+        else:
+            score += min(0.35, 0.15 + content_words / max(1, prompt_words * 5))
+
+        # Structure score: code blocks, lists, headers
+        has_code = "```" in content or "def " in content or "class " in content
+        has_list = any(content.count(c) >= 2 for c in ["1)", "1.", "- ", "* "])
+        has_headers = "###" in content or "##" in content
+        struct_bonus = 0.15 * has_code + 0.1 * has_list + 0.05 * has_headers
+        score += min(0.3, struct_bonus)
+
+        # Relevance: keyword overlap between prompt and content
+        prompt_kw = set(prompt.lower().split())
+        content_kw = set(content.lower().split())
+        overlap = len(prompt_kw & content_kw) / max(1, len(prompt_kw))
+        score += min(0.2, overlap * 0.3)
+
+        # Anti-hallucination penalty
+        bad_phrases = ["en tant qu'ia", "je ne peux pas", "je suis un modele", "i cannot"]
+        if any(bp in content.lower() for bp in bad_phrases):
+            score *= 0.5
+
+        return round(min(1.0, score), 3)
 
 
 # ── AGENT DEFINITIONS ───────────────────────────────────────────────────────
@@ -371,10 +399,10 @@ AGENT_CONFIGS = [
         pattern_id="PAT_CODE_CHAMPION",
         pattern_type="code",
         agent_id="code-champion",
-        system_prompt="Tu es un expert en programmation. Ecris du code propre, documente, avec gestion d'erreurs. Python prefere. Code seulement sauf si explication demandee.",
+        system_prompt="Expert programmation. Reponds UNIQUEMENT avec du code executable. Pas d'explication sauf si demande. Python prefere. Inclus les imports.",
         primary_node="M1",
-        fallback_nodes=["OL1"],
-        strategy="category",  # benchmark: category beats consensus (100% vs 14%)
+        fallback_nodes=["gpt-oss", "devstral", "OL1"],
+        strategy="race",  # benchmark-v2: race M1+cloud (was 47% with category — cloud backup for complex code)
         priority=3,
         keywords=["ecris", "code", "fonction", "classe", "script", "debug", "fix", "refactor", "python", "javascript"],
         max_tokens=2048,
@@ -383,10 +411,10 @@ AGENT_CONFIGS = [
         pattern_id="PAT_ANALYSIS_ENGINE",
         pattern_type="analysis",
         agent_id="analysis-engine",
-        system_prompt="Tu es un analyste expert. Fournis des comparaisons structurees, des tableaux, des metriques, et des recommandations claires.",
+        system_prompt="Analyste expert. Reponds directement avec: 1) Donnees factuelles 2) Tableau comparatif si applicable 3) Verdict clair. Pas d'introduction ni conclusion generique.",
         primary_node="M1",
-        fallback_nodes=["OL1"],
-        strategy="category",  # benchmark: category beats consensus
+        fallback_nodes=["gpt-oss", "devstral", "OL1"],
+        strategy="race",  # benchmark-v2: race M1+cloud for complex analysis (was 22% with category)
         priority=3,
         keywords=["compare", "analyse", "avantages", "inconvenients", "benchmark", "audit", "rapport"],
         max_tokens=2048,
@@ -429,10 +457,10 @@ AGENT_CONFIGS = [
         pattern_id="PAT_DATA_ENGINEER",
         pattern_type="data",
         agent_id="data-engineer",
-        system_prompt="Tu es un data engineer. SQL, ETL, schemas, optimisation requetes, migration de donnees. Code et explications pratiques.",
+        system_prompt="Data engineer. Reponds avec du code SQL/Python executable directement. Schema si necessaire. Pas de theorie, que du pratique.",
         primary_node="M1",
-        fallback_nodes=["OL1"],
-        strategy="single",  # benchmark: single beats consensus (timeout issues)
+        fallback_nodes=["gpt-oss", "devstral", "OL1"],
+        strategy="race",  # benchmark-v2: race M1+cloud (was 30% with single — timeout issues on complex queries)
         priority=3,
         keywords=["sql", "requete", "base", "donnees", "table", "index", "etl", "csv", "json", "sqlite"],
         max_tokens=2048,
@@ -452,10 +480,10 @@ AGENT_CONFIGS = [
         pattern_id="PAT_DEEP_REASONING",
         pattern_type="reasoning",
         agent_id="deep-reasoning",
-        system_prompt="Tu es un expert en raisonnement logique et mathematique. Decompose le probleme etape par etape. Verifie chaque etape.",
-        primary_node="M1",  # benchmark: M1 more reliable than M2
-        fallback_nodes=["OL1"],
-        strategy="single",  # benchmark: single:fallback=OL1 100% rate
+        system_prompt="Expert raisonnement. Decompose en etapes numerotees. Chaque etape: affirmation + justification. Conclusion claire a la fin.",
+        primary_node="M1",
+        fallback_nodes=["gpt-oss", "M2", "OL1"],
+        strategy="race",  # benchmark-v2: race M1+cloud (was 45% with single — cloud models better at deep reasoning)
         priority=4,
         keywords=["pourquoi", "prouve", "demontre", "logique", "dilemme", "strategie", "optimal"],
         max_tokens=2048,
@@ -465,10 +493,10 @@ AGENT_CONFIGS = [
         pattern_id="PAT_TRADING_ANALYST",
         pattern_type="trading",
         agent_id="trading-analyst",
-        system_prompt="Tu es un analyste trading crypto/futures. Analyse technique, risk management, strategies. MEXC 10x futures. Donnees chiffrees.",
+        system_prompt="Analyste trading MEXC 10x futures. Reponds avec: 1) Signal (LONG/SHORT/WAIT) 2) Entree/TP/SL precis 3) Score confiance 0-100. Donnees chiffrees uniquement.",
         primary_node="M1",
-        fallback_nodes=["OL1"],
-        strategy="single",  # benchmark: single:fallback=OL1 100% vs consensus 43%
+        fallback_nodes=["gpt-oss", "OL1"],
+        strategy="race",  # benchmark-v2: race M1+cloud (was 55% — cloud better at complex analysis)
         priority=4,
         keywords=["trading", "btc", "crypto", "rsi", "macd", "futures", "tp", "sl", "mexc"],
     ),
@@ -476,10 +504,10 @@ AGENT_CONFIGS = [
         pattern_id="PAT_SECURITY_AUDITOR",
         pattern_type="security",
         agent_id="security-auditor",
-        system_prompt="Tu es un expert en cybersecurite. Audit de code, OWASP, vulnerabilites, best practices. Identifie les failles et propose des corrections.",
+        system_prompt="Expert cybersecurite. Reponds avec: 1) Vulnerabilites identifiees 2) Severite (CRITICAL/HIGH/MEDIUM/LOW) 3) Correction precise. Code corrige si applicable. Pas de blabla.",
         primary_node="M1",
-        fallback_nodes=["OL1"],
-        strategy="race",  # benchmark: race 80% Q=0.8 vs consensus 19%
+        fallback_nodes=["gpt-oss", "devstral", "OL1"],
+        strategy="race",  # benchmark-v2: race M1+cloud (was 20.3% — needs cloud backup)
         priority=4,
         keywords=["securite", "owasp", "injection", "xss", "csrf", "auth", "chiffrement", "audit"],
         max_tokens=2048,
@@ -488,10 +516,10 @@ AGENT_CONFIGS = [
         pattern_id="PAT_ARCHITECT",
         pattern_type="architecture",
         agent_id="architect",
-        system_prompt="Tu es un architecte logiciel senior. Design patterns, microservices, event sourcing, CQRS, scalabilite. Schemas et diagrammes textuels.",
+        system_prompt="Architecte logiciel. Reponds avec: 1) Diagramme textuel (ASCII/Mermaid) 2) Composants + responsabilites 3) Trade-offs. Pas de cours magistral, va droit au schema.",
         primary_node="M1",
-        fallback_nodes=["OL1"],
-        strategy="single",  # benchmark: single:fallback=OL1 100% vs consensus 30%
+        fallback_nodes=["gpt-oss", "devstral", "OL1"],
+        strategy="race",  # benchmark-v2: race M1+cloud (was 7.8% — worst pattern, needs aggressive retry)
         priority=4,
         keywords=["architecture", "microservices", "design", "pattern", "scalable", "event", "cqrs", "saga"],
         max_tokens=2048,
@@ -666,6 +694,74 @@ class PatternAgentRegistry:
             db.close()
         except Exception as e:
             logger.warning(f"Failed to log dispatch: {e}")
+
+    def auto_optimize_strategies(self) -> dict:
+        """Analyze dispatch history and optimize strategies per pattern.
+
+        For each pattern, compares success rates of different strategies used
+        and switches to the best-performing one.
+        """
+        changes = {}
+        try:
+            db = sqlite3.connect(self.db_path)
+            db.row_factory = sqlite3.Row
+            # Get strategy performance per pattern
+            rows = db.execute("""
+                SELECT classified_type as pattern,
+                       CASE
+                           WHEN strategy LIKE 'race:%' THEN 'race'
+                           WHEN strategy LIKE 'single%' THEN 'single'
+                           WHEN strategy LIKE 'consensus%' THEN 'consensus'
+                           WHEN strategy LIKE 'category%' THEN 'category'
+                           ELSE strategy
+                       END as strat,
+                       COUNT(*) as n,
+                       SUM(CASE WHEN success=1 THEN 1 ELSE 0 END) as ok,
+                       AVG(latency_ms) as avg_lat,
+                       AVG(quality_score) as avg_q
+                FROM agent_dispatch_log
+                WHERE id > (SELECT COALESCE(MAX(id),0) - 500 FROM agent_dispatch_log)
+                GROUP BY classified_type, strat
+                HAVING n >= 3
+                ORDER BY classified_type, ok * 1.0 / n DESC
+            """).fetchall()
+            db.close()
+
+            # Group by pattern and find best strategy
+            by_pattern = {}
+            for r in rows:
+                p = r["pattern"]
+                if p not in by_pattern:
+                    by_pattern[p] = []
+                by_pattern[p].append({
+                    "strategy": r["strat"], "n": r["n"],
+                    "rate": r["ok"] / max(1, r["n"]),
+                    "avg_lat": r["avg_lat"] or 0,
+                    "avg_q": r["avg_q"] or 0,
+                })
+
+            for pattern, strats in by_pattern.items():
+                if len(strats) < 2:
+                    continue
+                best = max(strats, key=lambda s: s["rate"])
+                current_agent = self.agents.get(pattern)
+                if not current_agent:
+                    continue
+                current_strat = current_agent.strategy
+                # Normalize current strategy name
+                norm_current = current_strat.split(":")[0] if ":" in current_strat else current_strat
+                if best["strategy"] != norm_current and best["rate"] > 0.6:
+                    changes[pattern] = {
+                        "from": norm_current,
+                        "to": best["strategy"],
+                        "rate_improvement": f"{best['rate']*100:.0f}%",
+                    }
+                    current_agent.strategy = best["strategy"]
+
+        except Exception as e:
+            changes["error"] = str(e)
+
+        return changes
 
     def list_agents(self) -> list[dict]:
         """List all registered agents."""
