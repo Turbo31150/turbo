@@ -138,6 +138,20 @@ TASKS = {
         "priority": 2,
         "category": "health",
     },
+    "grade_optimize": {
+        "script": "grade_optimizer.py",
+        "args": ["--once"],
+        "interval_min": 60,
+        "priority": 4,
+        "category": "optimization",
+    },
+    "quick_status": {
+        "script": "telegram_quick_status.py",
+        "args": ["--once"],
+        "interval_min": 30,
+        "priority": 3,
+        "category": "reporting",
+    },
 }
 
 
