@@ -5010,6 +5010,41 @@ async def handle_dispatch_engine_report(args: dict) -> list[TextContent]:
     return _text(json.dumps(get_engine().get_pipeline_report(), ensure_ascii=False))
 
 
+async def handle_dispatch_analytics(args: dict) -> list[TextContent]:
+    from src.dispatch_engine import get_engine
+    return _text(json.dumps(get_engine().get_full_analytics(), ensure_ascii=False))
+
+
+async def handle_dispatch_auto_optimize(args: dict) -> list[TextContent]:
+    from src.pattern_agents import PatternAgentRegistry
+    reg = PatternAgentRegistry()
+    changes = reg.auto_optimize_strategies()
+    return _text(json.dumps(changes, ensure_ascii=False))
+
+
+async def handle_dispatch_quick_bench(args: dict) -> list[TextContent]:
+    from src.pattern_agents import PatternAgentRegistry
+    import httpx
+    reg = PatternAgentRegistry()
+    prompts = {
+        "simple": "Bonjour", "code": "Ecris une fonction Python de tri",
+        "analysis": "Compare MySQL vs PostgreSQL", "security": "Audit SQL injection",
+        "architecture": "Design un systeme de cache distribue",
+    }
+    results = []
+    async with httpx.AsyncClient() as client:
+        for pat, prompt in prompts.items():
+            agent = reg.agents.get(pat)
+            if agent:
+                try:
+                    r = await agent.execute(client, prompt)
+                    results.append({"pattern": pat, "ok": r.ok, "node": r.node, "ms": round(r.latency_ms)})
+                except Exception as e:
+                    results.append({"pattern": pat, "ok": False, "error": str(e)[:100]})
+    ok = sum(1 for r in results if r.get("ok"))
+    return _text(json.dumps({"ok": ok, "total": len(results), "rate": f"{ok/max(1,len(results))*100:.0f}%", "results": results}, ensure_ascii=False))
+
+
 # ── Phase 13: Prompt Optimizer ───────────────────────────────────────────────
 
 async def handle_prompt_optimize(args: dict) -> list[TextContent]:
@@ -6036,6 +6071,9 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     ("dispatch_engine", "Pipeline unifie: health→route→dispatch→feedback→memory.", {"pattern": "string", "prompt": "string"}, handle_dispatch_engine_dispatch),
     ("dispatch_engine_stats", "Stats pipeline dispatch.", {}, handle_dispatch_engine_stats),
     ("dispatch_engine_report", "Rapport detaille pipeline.", {}, handle_dispatch_engine_report),
+    ("dispatch_analytics", "Analytics completes: pipeline + benchmark trend + recommandations.", {}, handle_dispatch_analytics),
+    ("dispatch_auto_optimize", "Auto-optimise les strategies de dispatch basee sur donnees historiques.", {}, handle_dispatch_auto_optimize),
+    ("dispatch_quick_bench", "Quick benchmark 5 patterns critiques.", {}, handle_dispatch_quick_bench),
     # Phase 13: Prompt Optimizer (4)
     ("prompt_optimize", "Optimiser un prompt pour un pattern.", {"pattern": "string", "prompt": "string"}, handle_prompt_optimize),
     ("prompt_insights", "Insights prompts par pattern.", {"pattern": "string"}, handle_prompt_insights),
