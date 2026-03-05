@@ -12,7 +12,7 @@
 <h3 align="center">Orchestrateur IA Distribue Multi-GPU — HEXA_CORE + Telegram Autonome + OpenClaw Gateway + Perplexity MCP</h3>
 
 <p align="center">
-  <strong>Systeme d'intelligence artificielle distribue sur 3 machines physiques, 10 GPU NVIDIA (~78 GB VRAM), 12 modeles IA (2 local + 10 cloud) et 108 skills autonomes. Controle vocal en francais avec 1,706 commandes + 476 pipelines + 835 domino cascades + 2,628 corrections vocales. Bot Telegram autonome (@turboSSebot) via OpenClaw Gateway (port 18789, 35 agents). Perplexity connecte via MCP (23 outils). Messages vocaux TTS DeniseNeural + Whisper STT entrant. Trading algorithmique MEXC multi-consensus. Interface desktop Electron 19 pages. Navigateur Comet (Perplexity) par defaut. 212 modules source (80,000+ lignes), 528+ tests, 249 scripts COWORK continu (80 batches), 244+ crons autonomes.</strong>
+  <strong>Systeme d'intelligence artificielle distribue sur 3 machines physiques, 10 GPU NVIDIA (~78 GB VRAM), 12 modeles IA (2 local + 10 cloud) et 108 skills autonomes. Controle vocal en francais avec 1,706 commandes + 476 pipelines + 835 domino cascades + 2,628 corrections vocales. Bot Telegram autonome (@turboSSebot) via OpenClaw Gateway (port 18789, 35 agents). Perplexity connecte via MCP (23 outils). Messages vocaux TTS DeniseNeural + Whisper STT entrant. Trading algorithmique MEXC multi-consensus. Interface desktop Electron 19 pages. Navigateur Comet (Perplexity) par defaut. 215 modules source (85,000+ lignes), 528+ tests, 319 scripts COWORK continu (104 batches), 316+ crons autonomes.</strong>
 </p>
 
 <p align="center">
@@ -33,7 +33,7 @@
 | **Domino Cascades** | 835 cascades / 121 triggers | 11 categories, 84 actions Python, 28 param patterns, 40 pipelines domino |
 | **Corrections vocales** | 2,628 regles (120 vagues) | Phonetiques + alias + implicits + fillers + auto-training |
 | **Skills** | 108 dynamiques | 16 vagues + domaines etoile.db, persistants en DB |
-| **Source Python** | 212 modules / 80,000+ lignes | src/ uniquement (135,000+ total avec COWORK dev/) |
+| **Source Python** | 215 modules / 85,000+ lignes | src/ uniquement (160,000+ total avec COWORK dev/) |
 | **Databases** | 4 bases SQL (40 tables) | etoile.db (22t, 11,282r) + jarvis.db (12t, 5,908r) + sniper.db (6t, 768r) + finetuning.db |
 | **Tests** | 528+ tests (11 suites) | test_phase1 a test_phase11 + test_telegram_bot |
 | **Plugin** | 40 slash commands | + 24 skills + 11 agents + 4 hooks (plugin v3.0) |
@@ -42,26 +42,26 @@
 | **Trading** | v2.3 Multi-GPU | MEXC Futures 10x, 6 IA consensus |
 | **Telegram Bot** | @turboSSebot autonome | OpenClaw Gateway (port 18789) + 35 agents + Whisper STT + DeniseNeural TTS |
 | **OpenClaw** | Gateway + 35 agents | 7 providers (M1, M2, M3, OL1, Gemini, Claude, Qwen), fallback cascade |
-| **COWORK** | 249 scripts + 244 crons | 80 batches (28-108), dev continu 24/7, Perplexity MCP integre |
+| **COWORK** | 319 scripts + 316 crons | 104 batches (28-132), dev continu 24/7, Perplexity MCP integre |
 | **Voix TTS** | DeniseNeural (femme) | Edge TTS Neural + ffmpeg OGG Opus + Telegram sendVoice |
 | **Voix STT** | Whisper large-v3-turbo | Transcription vocaux Telegram entrants, CUDA accelere |
 
 ---
 
-## Nouveautes v11.0.0 — 249 Scripts COWORK + 244 Crons + 80 Batches + Perplexity MCP (2026-03-05)
+## Nouveautes v11.0.0 — 319 Scripts COWORK + 316 Crons + 104 Batches + Perplexity MCP (2026-03-05)
 
-> **249 scripts COWORK** en developpement continu autonome (80 batches, 244 crons). **Perplexity connecte via MCP** avec 23 outils directs sur le cluster. **35 agents OpenClaw** avec 7 providers IA. **212 modules Python** (80,000+ lignes src/). Batches 28-108 couvrant Windows Automation, JARVIS Intelligence, IA Autonome, Trading, Security, Voice, Neural Core, Swarm Intelligence, Meta-Learning, et bien plus. Crons planifies pour dev autonome non-stop 24/7.
+> **319 scripts COWORK** en developpement continu autonome (104 batches, 316 crons). **Perplexity connecte via MCP** avec 23 outils directs sur le cluster. **35 agents OpenClaw** avec 7 providers IA. **215 modules Python** (85,000+ lignes src/). Batches 28-132 couvrant Windows Automation, JARVIS Intelligence, IA Autonome, Trading, Security, Voice, Neural Core, Swarm Intelligence, Meta-Learning, DevOps, et bien plus. Crons planifies pour dev autonome non-stop 24/7.
 
 ### Changements v10.7.0 → v11.0.0
 
 | Categorie | Avant | Apres | Detail |
 |-----------|-------|-------|--------|
-| **COWORK Scripts** | 131 scripts | **249 scripts** | +118 scripts (batches 49-108) |
-| **COWORK Crons** | 76 crons | **244 crons** | Dev continu 24/7, crons recurrents + one-shot |
-| **COWORK Batches** | 18 batches (28-48) | **80 batches (28-108)** | +62 batches Windows/JARVIS/IA Autonome |
+| **COWORK Scripts** | 131 scripts | **319 scripts** | +188 scripts (batches 49-132) |
+| **COWORK Crons** | 76 crons | **316 crons** | Dev continu 24/7, crons recurrents + one-shot |
+| **COWORK Batches** | 18 batches (28-48) | **104 batches (28-132)** | +86 batches Windows/JARVIS/IA Autonome |
 | **Perplexity MCP** | Non connecte | **23 outils MCP** | lm_query, ollama_query, gemini_query, consensus, trading, etc. |
-| **Modules src/** | 177 modules | **212 modules** | 80,000+ lignes (phase 4-11 + expansions) |
-| **COWORK Deploy** | 83 deployed | **167 deployed** | 80 PENDING, deploiement autonome continu |
+| **Modules src/** | 177 modules | **215 modules** | 85,000+ lignes (phase 4-11 + expansions) |
+| **COWORK Deploy** | 83 deployed | **167+ deployed** | deploiement autonome continu 24/7 |
 
 ### Batches COWORK (28-108) — 80 Batches
 
@@ -75,6 +75,9 @@
 | 85-92 | AI Desktop, Neural Core, Swarm Intelligence, Cognitive | 24 scripts |
 | 93-100 | Deep Automation, Smart Routing, Meta-Learning, Ultimate | 24 scripts |
 | 101-108 | Advanced Control, Conversational AI, Generative, Final | 24 scripts |
+| 109-116 | AI Assistant, Predictive, Self-Evolving, System Insight | 24 scripts |
+| 117-124 | AI Vision, Trading Intel, Distributed Learning, Recovery | 24 scripts |
+| 125-132 | Intelligent Desktop, Voice V3, DevOps, Smart Scheduling | 24 scripts |
 
 ### Changements v10.6.0 → v10.6.1 (historique)
 
@@ -190,7 +193,7 @@ JARVIS tourne en permanence sur Telegram (@turboSSebot). Il se donne ses propres
 
 **Distribution :** Code → gpt-oss/M1 | Windows → agent windows | Trading → OL1 web | Architecture → GEMINI | Raisonnement → CLAUDE. Consensus multi-IA (vote pondere) pour les decisions critiques.
 
-### COWORK — Developpement Continu Autonome (266 scripts, 268 crons, 88 batches)
+### COWORK — Developpement Continu Autonome (319 scripts, 316 crons, 104 batches)
 
 | Batch | Theme | Scripts | Status |
 |-------|-------|---------|--------|
@@ -213,7 +216,7 @@ JARVIS tourne en permanence sur Telegram (@turboSSebot). Il se donne ses propres
 | 47 | Cluster Intel Avancee | model_selector, cluster_autoscaler, consensus_voter | Cron programme |
 | 48 | Productivite | workflow_builder, time_tracker, focus_mode | Cron programme |
 
-**268+ crons 24/7 (batches 28-116). 88 batches total, 266 scripts en file.**
+**316+ crons 24/7 (batches 28-132). 104 batches total, 314 scripts en file + 5 scripts directs agents.**
 
 Principaux crons recurrents :
 - **5 min** : dev_proactive_check, dev_electron_monitor
