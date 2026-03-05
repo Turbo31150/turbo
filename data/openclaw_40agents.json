@@ -1,0 +1,1430 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.2.17",
+    "lastTouchedAt": "2026-03-05T01:34:43.442Z"
+  },
+  "env": {
+    "shellEnv": {
+      "enabled": true
+    }
+  },
+  "wizard": {
+    "lastRunAt": "2026-03-05T01:34:43.403Z",
+    "lastRunVersion": "2026.2.17",
+    "lastRunCommand": "doctor",
+    "lastRunMode": "local"
+  },
+  "update": {
+    "channel": "dev",
+    "checkOnStart": true
+  },
+  "auth": {
+    "profiles": {
+      "qwen-portal:default": {
+        "provider": "qwen-portal",
+        "mode": "oauth"
+      },
+      "gemini:default": {
+        "provider": "gemini",
+        "mode": "api_key"
+      }
+    }
+  },
+  "models": {
+    "mode": "merge",
+    "providers": {
+      "lm-m2": {
+        "baseUrl": "http://192.168.1.26:1234/v1",
+        "apiKey": "LMSTUDIO_KEY_M2_REDACTED",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "deepseek-coder-v2-lite-instruct",
+            "name": "DeepSeek Coder V2 Lite (M2 Champion)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 32768,
+            "maxTokens": 8192
+          },
+          {
+            "id": "deepseek/deepseek-r1-0528-qwen3-8b",
+            "name": "DeepSeek R1 Qwen3 8B (M2 Reasoning ctx27k 3GPU)",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 27057,
+            "maxTokens": 4096
+          }
+        ]
+      },
+      "lm-m1": {
+        "baseUrl": "http://127.0.0.1:1234/v1",
+        "apiKey": "LMSTUDIO_KEY_M1_REDACTED",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "qwen3-8b",
+            "name": "Qwen3 8B (M1 CHAMPION LOCAL 98.4/100 46tok/s)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 32768,
+            "maxTokens": 8192
+          },
+          {
+            "id": "qwen/qwen3-30b-a3b-2507",
+            "name": "Qwen3 30B MoE (M1 Deep)",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 32768,
+            "maxTokens": 8192
+          },
+          {
+            "id": "qwen/qwq-32b",
+            "name": "QwQ 32B Reasoning (M1)",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 32768,
+            "maxTokens": 8192
+          },
+          {
+            "id": "gpt-oss-20b",
+            "name": "GPT-OSS 20B LOCAL (M1 CUDA 6GPU 4.3s)",
+            "reasoning": false,
+            "input": ["text"],
+            "cost": {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0},
+            "contextWindow": 25000,
+            "maxTokens": 8192
+          },
+          {
+            "id": "deepseek-r1-0528-qwen3-8b",
+            "name": "DeepSeek R1 Qwen3 8B (M1 Reasoning)",
+            "reasoning": true,
+            "input": ["text"],
+            "cost": {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0},
+            "contextWindow": 32768,
+            "maxTokens": 4096
+          },
+          {
+            "id": "devstral-small-2-24b-instruct-2512",
+            "name": "Devstral Small 24B (M1 Code Local)",
+            "reasoning": false,
+            "input": ["text"],
+            "cost": {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0},
+            "contextWindow": 32768,
+            "maxTokens": 8192
+          }
+        ]
+      },
+      "lm-m3": {
+        "baseUrl": "http://192.168.1.113:1234/v1",
+        "apiKey": "LMSTUDIO_KEY_M3_REDACTED",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "deepseek/deepseek-r1-0528-qwen3-8b",
+            "name": "DeepSeek R1 Qwen3 8B (M3 Reasoning ctx25k 1GPU)",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 25463,
+            "maxTokens": 4096
+          }
+        ]
+      },
+      "ollama": {
+        "baseUrl": "http://127.0.0.1:11434",
+        "apiKey": "ollama-local",
+        "api": "ollama",
+        "models": [
+          {
+            "id": "qwen3:14b",
+            "name": "Qwen3 14B (OL1 Reasoning 23tok/s)",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 32768,
+            "maxTokens": 8192
+          },
+          {
+            "id": "qwen3:1.7b",
+            "name": "Qwen3 1.7B (OL1 Ultra-Fast 0.5s)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 32768,
+            "maxTokens": 8192
+          },
+          {
+            "id": "qwen3-coder:480b-cloud",
+            "name": "Qwen3 Coder 480B Cloud (CODE CHAMPION 68tok/s)",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 8192
+          },
+          {
+            "id": "glm-5:cloud",
+            "name": "GLM-5 Cloud (General 7tok/s)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 128000,
+            "maxTokens": 8192
+          },
+          {
+            "id": "kimi-k2.5:cloud",
+            "name": "Kimi K2.5 Cloud (Reasoning 3.5tok/s)",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 128000,
+            "maxTokens": 8192
+          },
+          {
+            "id": "minimax-m2.5:cloud",
+            "name": "MiniMax M2.5 Cloud (Web Search)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 128000,
+            "maxTokens": 8192
+          },
+          {
+            "id": "gpt-oss:120b-cloud",
+            "name": "GPT-OSS 120B Cloud (CODE CHAMPION 100/100 51tok/s)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 32768,
+            "maxTokens": 8192
+          },
+          {
+            "id": "glm-4.7:cloud",
+            "name": "GLM 4.7 Cloud (Fast 47tok/s Q97%)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 32768,
+            "maxTokens": 8192
+          },
+          {
+            "id": "devstral-2:123b-cloud",
+            "name": "Devstral 2 123B Cloud (Code 96.5/100 41tok/s)",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 32768,
+            "maxTokens": 8192
+          },
+          {
+            "id": "qwen3-coder-next:cloud",
+            "name": "Qwen3 Coder Next Cloud (73.6/100 6.8tok/s)",
+            "reasoning": true,
+            "input": ["text"],
+            "cost": {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0},
+            "contextWindow": 32768,
+            "maxTokens": 8192
+          },
+          {
+            "id": "qwen3-next:80b-cloud",
+            "name": "Qwen3 Next 80B Cloud (General)",
+            "reasoning": true,
+            "input": ["text"],
+            "cost": {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0},
+            "contextWindow": 131072,
+            "maxTokens": 8192
+          },
+          {
+            "id": "cogito-2.1:671b-cloud",
+            "name": "Cogito 2.1 671B Cloud (Deep Reasoning)",
+            "reasoning": true,
+            "input": ["text"],
+            "cost": {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0},
+            "contextWindow": 131072,
+            "maxTokens": 8192
+          },
+          {
+            "id": "gemini-3-flash-preview:cloud",
+            "name": "Gemini 3 Flash Preview Cloud",
+            "reasoning": false,
+            "input": ["text"],
+            "cost": {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0},
+            "contextWindow": 131072,
+            "maxTokens": 8192
+          },
+          {
+            "id": "deepseek-v3.2:cloud",
+            "name": "DeepSeek V3.2 Cloud (General)",
+            "reasoning": false,
+            "input": ["text"],
+            "cost": {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0},
+            "contextWindow": 131072,
+            "maxTokens": 8192
+          },
+          {
+            "id": "qwen3.5:cloud",
+            "name": "Qwen3.5 Cloud (General)",
+            "reasoning": false,
+            "input": ["text"],
+            "cost": {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0},
+            "contextWindow": 131072,
+            "maxTokens": 8192
+          }
+        ]
+      },
+      "gemini": {
+        "baseUrl": "http://127.0.0.1:18791/v1beta/openai",
+        "apiKey": "GEMINI_KEY_REDACTED",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "models/gemini-2.5-pro",
+            "name": "Gemini 2.5 Pro (Architecture & Vision)",
+            "reasoning": true,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 1048576,
+            "maxTokens": 65536
+          },
+          {
+            "id": "models/gemini-2.5-flash",
+            "name": "Gemini 2.5 Flash (Fast Cloud)",
+            "reasoning": false,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 1048576,
+            "maxTokens": 65536
+          }
+        ]
+      },
+      "claude-bridge": {
+        "baseUrl": "http://127.0.0.1:18793/v1",
+        "apiKey": "claude-local",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "claude-sonnet",
+            "name": "Claude Sonnet (Local Bridge)",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 200000,
+            "maxTokens": 8192
+          },
+          {
+            "id": "claude-opus",
+            "name": "Claude Opus (Local Bridge)",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 200000,
+            "maxTokens": 8192
+          },
+          {
+            "id": "claude-haiku",
+            "name": "Claude Haiku (Local Bridge Fast)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 200000,
+            "maxTokens": 8192
+          }
+        ]
+      },
+      "qwen-portal": {
+        "baseUrl": "https://portal.qwen.ai/v1",
+        "apiKey": "qwen-oauth",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "coder-model",
+            "name": "Qwen Coder (Cloud Fallback)",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 128000,
+            "maxTokens": 8192
+          },
+          {
+            "id": "vision-model",
+            "name": "Qwen Vision (Cloud)",
+            "reasoning": false,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 128000,
+            "maxTokens": 8192
+          }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "lm-m1/qwen3-8b",
+        "fallbacks": [
+          "lm-m1/gpt-oss-20b",
+          "ollama/gpt-oss:120b-cloud",
+          "ollama/devstral-2:123b-cloud",
+          "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+          "ollama/deepseek-v3.2:cloud",
+          "gemini/models/gemini-2.5-flash",
+          "claude-bridge/claude-sonnet",
+          "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b",
+          "ollama/qwen3:14b"
+        ]
+      },
+      "imageModel": {
+        "primary": "gemini/models/gemini-2.5-flash",
+        "fallbacks": [
+          "qwen-portal/vision-model"
+        ]
+      },
+      "models": {
+        "lm-m2/deepseek-coder-v2-lite-instruct": {
+          "alias": "m2-code"
+        },
+        "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b": {
+          "alias": "m2-r1"
+        },
+        "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b": {
+          "alias": "m3-r1"
+        },
+        "lm-m1/qwen3-8b": {
+          "alias": "m1-fast"
+        },
+        "lm-m1/qwen/qwen3-30b-a3b-2507": {
+          "alias": "m1-deep"
+        },
+        "lm-m1/qwen/qwq-32b": {
+          "alias": "m1-reason"
+        },
+        "lm-m1/gpt-oss-20b": {
+          "alias": "m1-gptoss"
+        },
+        "ollama/qwen3:14b": {
+          "alias": "ol1-reason"
+        },
+        "ollama/qwen3:1.7b": {
+          "alias": "ol1-fast"
+        },
+        "ollama/minimax-m2.5:cloud": {
+          "alias": "ol1-web"
+        },
+        "gemini/models/gemini-2.5-pro": {
+          "alias": "gemini-pro"
+        },
+        "gemini/models/gemini-2.5-flash": {
+          "alias": "gemini-flash"
+        },
+        "qwen-portal/coder-model": {
+          "alias": "qwen-cloud"
+        },
+        "qwen-portal/vision-model": {
+          "alias": "qwen-vision"
+        },
+        "claude-bridge/claude-sonnet": {
+          "alias": "claude-sonnet"
+        },
+        "claude-bridge/claude-opus": {
+          "alias": "claude-opus"
+        },
+        "claude-bridge/claude-haiku": {
+          "alias": "claude-haiku"
+        },
+        "ollama/qwen3-next:80b-cloud": {
+          "alias": "ol1-qwen3next"
+        },
+        "ollama/cogito-2.1:671b-cloud": {
+          "alias": "ol1-cogito"
+        },
+        "ollama/deepseek-v3.2:cloud": {
+          "alias": "ol1-dsv3"
+        },
+        "ollama/gemini-3-flash-preview:cloud": {
+          "alias": "ol1-gemini3"
+        },
+        "lm-m1/deepseek-r1-0528-qwen3-8b": {
+          "alias": "m1-r1"
+        },
+        "lm-m1/devstral-small-2-24b-instruct-2512": {
+          "alias": "m1-devstral"
+        }
+      },
+      "workspace": "C:\\Users\\franc\\.openclaw\\workspace",
+      "compaction": {
+        "mode": "safeguard",
+        "memoryFlush": {
+          "enabled": true
+        }
+      },
+      "blockStreamingDefault": "on",
+      "blockStreamingBreak": "text_end",
+      "blockStreamingChunk": {
+        "minChars": 200,
+        "maxChars": 1200,
+        "breakPreference": "paragraph"
+      },
+      "blockStreamingCoalesce": {
+        "minChars": 1500,
+        "maxChars": 3000,
+        "idleMs": 400
+      },
+      "humanDelay": {
+        "mode": "off"
+      },
+      "maxConcurrent": 10,
+      "subagents": {
+        "maxConcurrent": 20,
+        "maxSpawnDepth": 3
+      },
+      "sandbox": {
+        "mode": "off"
+      }
+    },
+    "list": [
+      {
+        "id": "main",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace",
+        "model": {
+          "primary": "lm-m1/qwen3-8b",
+          "fallbacks": [
+            "lm-m1/gpt-oss-20b",
+            "ollama/gpt-oss:120b-cloud",
+            "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+            "ollama/devstral-2:123b-cloud",
+            "gemini/models/gemini-2.5-flash",
+            "claude-bridge/claude-sonnet",
+            "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b"
+          ]
+        }
+      },
+      {
+        "id": "fast-chat",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-fast-chat",
+        "model": {
+          "primary": "lm-m1/qwen3-8b",
+          "fallbacks": [
+            "ollama/qwen3:1.7b",
+            "ollama/glm-4.7:cloud",
+            "ollama/gemini-3-flash-preview:cloud",
+            "gemini/models/gemini-2.5-flash",
+            "lm-m1/gpt-oss-20b",
+            "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b"
+          ]
+        }
+      },
+      {
+        "id": "coding",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-coding",
+        "model": {
+          "primary": "lm-m1/qwen3-8b",
+          "fallbacks": [
+            "ollama/gpt-oss:120b-cloud",
+            "ollama/devstral-2:123b-cloud",
+            "lm-m1/devstral-small-2-24b-instruct-2512",
+            "lm-m1/gpt-oss-20b",
+            "ollama/qwen3-coder:480b-cloud",
+            "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+            "claude-bridge/claude-sonnet",
+            "gemini/models/gemini-2.5-flash"
+          ]
+        }
+      },
+      {
+        "id": "deep-work",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-deep-work",
+        "model": {
+          "primary": "lm-m1/qwen/qwq-32b",
+          "fallbacks": [
+            "ollama/cogito-2.1:671b-cloud",
+            "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m1/deepseek-r1-0528-qwen3-8b",
+            "ollama/kimi-k2.5:cloud",
+            "claude-bridge/claude-opus",
+            "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b",
+            "gemini/models/gemini-2.5-pro",
+            "lm-m1/gpt-oss-20b"
+          ]
+        }
+      },
+      {
+        "id": "trading",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-trading",
+        "model": {
+          "primary": "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+          "fallbacks": [
+            "lm-m1/deepseek-r1-0528-qwen3-8b",
+            "ollama/gpt-oss:120b-cloud",
+            "lm-m1/qwen3-8b",
+            "ollama/deepseek-v3.2:cloud",
+            "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b",
+            "claude-bridge/claude-sonnet",
+            "lm-m1/gpt-oss-20b"
+          ]
+        }
+      },
+      {
+        "id": "voice-assistant",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-voice",
+        "model": {
+          "primary": "ollama/qwen3:14b",
+          "fallbacks": [
+            "ollama/gpt-oss:120b-cloud",
+            "ollama/devstral-2:123b-cloud",
+            "lm-m3/mistral-7b-instruct-v0.3",
+            "ollama/qwen3-coder:480b-cloud",
+            "ollama/kimi-k2.5:cloud",
+            "ollama/qwen3:1.7b",
+            "gemini/models/gemini-2.5-flash"
+          ]
+        }
+      },
+      {
+        "id": "m2-code",
+        "name": "M2 Code Champion",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-m2-code",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\m2-code\\agent",
+        "model": {
+          "primary": "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+          "fallbacks": [
+            "ollama/gpt-oss:120b-cloud",
+            "ollama/devstral-2:123b-cloud",
+            "lm-m1/qwen3-8b",
+            "lm-m1/devstral-small-2-24b-instruct-2512",
+            "ollama/qwen3-coder:480b-cloud",
+            "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m1/gpt-oss-20b"
+          ]
+        }
+      },
+      {
+        "id": "m2-review",
+        "name": "M2 Code Review",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-m2-review",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\m2-review\\agent",
+        "model": {
+          "primary": "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+          "fallbacks": [
+            "lm-m1/qwen3-8b",
+            "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m1/gpt-oss-20b"
+          ]
+        }
+      },
+      {
+        "id": "m3-general",
+        "name": "M3 General",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-m3-general",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\m3-general\\agent",
+        "model": {
+          "primary": "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b",
+          "fallbacks": [
+            "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m1/qwen3-8b",
+            "ollama/gpt-oss:120b-cloud",
+            "ollama/deepseek-v3.2:cloud",
+            "gemini/models/gemini-2.5-flash",
+            "lm-m1/gpt-oss-20b"
+          ]
+        }
+      },
+      {
+        "id": "m1-deep",
+        "name": "M1 Deep Analysis",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-m1-deep",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\m1-deep\\agent",
+        "model": {
+          "primary": "lm-m1/qwen/qwen3-30b-a3b-2507",
+          "fallbacks": [
+            "ollama/cogito-2.1:671b-cloud",
+            "ollama/gpt-oss:120b-cloud",
+            "claude-bridge/claude-opus",
+            "gemini/models/gemini-2.5-pro",
+            "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+            "ollama/devstral-2:123b-cloud",
+            "ollama/qwen3-coder:480b-cloud",
+            "ollama/kimi-k2.5:cloud"
+          ]
+        }
+      },
+      {
+        "id": "m1-reason",
+        "name": "M1 Reasoning",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-m1-reason",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\m1-reason\\agent",
+        "model": {
+          "primary": "lm-m1/qwen/qwq-32b",
+          "fallbacks": [
+            "ollama/cogito-2.1:671b-cloud",
+            "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m1/deepseek-r1-0528-qwen3-8b",
+            "ollama/kimi-k2.5:cloud",
+            "claude-bridge/claude-opus",
+            "ollama/qwen3:14b",
+            "gemini/models/gemini-2.5-pro",
+            "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b"
+          ]
+        }
+      },
+      {
+        "id": "ol1-reasoning",
+        "name": "OL1 Reasoning 14B",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-ol1-reasoning",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\ol1-reasoning\\agent",
+        "model": {
+          "primary": "ollama/qwen3:14b",
+          "fallbacks": [
+            "lm-m2/deepseek-coder-v2-lite-instruct",
+            "ollama/gpt-oss:120b-cloud",
+            "ollama/devstral-2:123b-cloud",
+            "ollama/qwen3-coder:480b-cloud",
+            "ollama/kimi-k2.5:cloud",
+            "ollama/qwen3:1.7b",
+            "gemini/models/gemini-2.5-flash"
+          ]
+        }
+      },
+      {
+        "id": "ol1-fast",
+        "name": "OL1 Ultra-Fast",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-ol1-fast",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\ol1-fast\\agent",
+        "model": {
+          "primary": "ollama/qwen3:1.7b",
+          "fallbacks": [
+            "ollama/gpt-oss:120b-cloud",
+            "ollama/devstral-2:123b-cloud",
+            "ollama/qwen3:14b",
+            "ollama/qwen3-coder:480b-cloud",
+            "lm-m3/mistral-7b-instruct-v0.3",
+            "gemini/models/gemini-2.5-flash",
+            "ollama/kimi-k2.5:cloud"
+          ]
+        }
+      },
+      {
+        "id": "ol1-web",
+        "name": "OL1 Web Search",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-ol1-web",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\ol1-web\\agent",
+        "model": {
+          "primary": "ollama/minimax-m2.5:cloud",
+          "fallbacks": [
+            "gemini/models/gemini-2.5-flash",
+            "ollama/gemini-3-flash-preview:cloud",
+            "ollama/deepseek-v3.2:cloud",
+            "ollama/gpt-oss:120b-cloud",
+            "claude-bridge/claude-sonnet",
+            "ollama/qwen3:14b",
+            "lm-m1/qwen3-8b"
+          ]
+        }
+      },
+      {
+        "id": "gemini-flash",
+        "name": "Gemini Flash Cloud",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-gemini-flash",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\gemini-flash\\agent",
+        "model": {
+          "primary": "gemini/models/gemini-2.5-flash",
+          "fallbacks": [
+            "lm-m2/deepseek-coder-v2-lite-instruct",
+            "ollama/gpt-oss:120b-cloud",
+            "ollama/devstral-2:123b-cloud",
+            "ollama/qwen3-coder:480b-cloud",
+            "ollama/qwen3:14b",
+            "lm-m3/mistral-7b-instruct-v0.3",
+            "ollama/kimi-k2.5:cloud"
+          ]
+        }
+      },
+      {
+        "id": "gemini-pro",
+        "name": "Gemini Pro Architecture",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-gemini-pro",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\gemini-pro\\agent",
+        "model": {
+          "primary": "gemini/models/gemini-2.5-pro",
+          "fallbacks": [
+            "gemini/models/gemini-2.5-flash",
+            "ollama/qwen3-coder:480b-cloud",
+            "ollama/qwen3:14b",
+            "lm-m2/deepseek-coder-v2-lite-instruct",
+            "ollama/gpt-oss:120b-cloud",
+            "ollama/devstral-2:123b-cloud",
+            "ollama/kimi-k2.5:cloud"
+          ]
+        }
+      },
+      {
+        "id": "windows",
+        "name": "Windows System Control",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-windows",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\windows\\agent",
+        "model": {
+          "primary": "gemini/models/gemini-2.5-flash",
+          "fallbacks": [
+            "lm-m2/deepseek-coder-v2-lite-instruct",
+            "ollama/gpt-oss:120b-cloud",
+            "ollama/devstral-2:123b-cloud",
+            "ollama/qwen3-coder:480b-cloud",
+            "ollama/qwen3:14b",
+            "lm-m3/mistral-7b-instruct-v0.3",
+            "ollama/kimi-k2.5:cloud"
+          ]
+        }
+      },
+      {
+        "id": "trading-scanner",
+        "name": "Trading Scanner MEXC",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-trading-scanner",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\trading-scanner\\agent",
+        "model": {
+          "primary": "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+          "fallbacks": [
+            "lm-m1/deepseek-r1-0528-qwen3-8b",
+            "lm-m1/qwen3-8b",
+            "ollama/gpt-oss:120b-cloud",
+            "ollama/deepseek-v3.2:cloud",
+            "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m1/gpt-oss-20b"
+          ]
+        }
+      },
+      {
+        "id": "securite-audit",
+        "name": "Securite Audit Cluster",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-securite-audit",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\securite-audit\\agent",
+        "model": {
+          "primary": "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+          "fallbacks": [
+            "ollama/gpt-oss:120b-cloud",
+            "lm-m1/qwen3-8b",
+            "claude-bridge/claude-sonnet",
+            "ollama/devstral-2:123b-cloud",
+            "gemini/models/gemini-2.5-pro",
+            "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m1/gpt-oss-20b"
+          ]
+        }
+      },
+      {
+        "id": "devops-ci",
+        "name": "DevOps CI Automation",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-devops-ci",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\devops-ci\\agent",
+        "model": {
+          "primary": "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+          "fallbacks": [
+            "ollama/gpt-oss:120b-cloud",
+            "ollama/devstral-2:123b-cloud",
+            "lm-m1/qwen3-8b",
+            "gemini/models/gemini-2.5-flash",
+            "lm-m1/gpt-oss-20b",
+            "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b"
+          ]
+        }
+      },
+      {
+        "id": "recherche-synthese",
+        "name": "Recherche & Synthese",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-recherche-synthese",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\recherche-synthese\\agent",
+        "model": {
+          "primary": "ollama/minimax-m2.5:cloud",
+          "fallbacks": [
+            "gemini/models/gemini-2.5-flash",
+            "ollama/deepseek-v3.2:cloud",
+            "ollama/qwen3-next:80b-cloud",
+            "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m1/qwen3-8b",
+            "claude-bridge/claude-sonnet",
+            "lm-m1/gpt-oss-20b"
+          ]
+        }
+      },
+      {
+        "id": "claude-reasoning",
+        "name": "Claude Reasoning Engine",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-claude-reasoning",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\claude-reasoning\\agent",
+        "model": {
+          "primary": "claude-bridge/claude-opus",
+          "fallbacks": [
+            "claude-bridge/claude-sonnet",
+            "ollama/cogito-2.1:671b-cloud",
+            "lm-m1/qwen/qwq-32b",
+            "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+            "gemini/models/gemini-2.5-pro",
+            "ollama/kimi-k2.5:cloud",
+            "lm-m1/gpt-oss-20b"
+          ]
+        }
+      },
+      {
+        "id": "debug-detective",
+        "name": "Debug Detective",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-debug-detective",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\debug-detective\\agent",
+        "model": {
+          "primary": "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+          "fallbacks": [
+            "ollama/gpt-oss:120b-cloud",
+            "lm-m1/qwen3-8b",
+            "ollama/devstral-2:123b-cloud",
+            "lm-m1/devstral-small-2-24b-instruct-2512",
+            "claude-bridge/claude-sonnet",
+            "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m1/gpt-oss-20b"
+          ]
+        }
+      },
+      {
+        "id": "doc-writer",
+        "name": "Documentation Writer",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-doc-writer",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\doc-writer\\agent",
+        "model": {
+          "primary": "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b",
+          "fallbacks": [
+            "lm-m1/qwen3-8b",
+            "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m1/gpt-oss-20b"
+          ]
+        }
+      },
+      {
+        "id": "data-analyst",
+        "name": "Data Analyst",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-data-analyst",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\data-analyst\\agent",
+        "model": {
+          "primary": "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+          "fallbacks": [
+            "lm-m1/qwen3-8b",
+            "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m1/gpt-oss-20b"
+          ]
+        }
+      },
+      {
+        "id": "creative-brainstorm",
+        "name": "Creative Brainstorm",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-creative-brainstorm",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\creative-brainstorm\\agent",
+        "model": {
+          "primary": "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b",
+          "fallbacks": [
+            "lm-m1/qwen3-8b",
+            "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m1/gpt-oss-20b"
+          ]
+        }
+      },
+      {
+        "id": "pipeline-monitor",
+        "name": "Pipeline & Cluster Monitor",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-pipeline-monitor",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\pipeline-monitor\\agent",
+        "model": {
+          "primary": "ollama/qwen3:1.7b",
+          "fallbacks": [
+            "ollama/gpt-oss:120b-cloud",
+            "ollama/devstral-2:123b-cloud",
+            "ollama/qwen3:14b",
+            "ollama/qwen3-coder:480b-cloud",
+            "lm-m3/mistral-7b-instruct-v0.3",
+            "gemini/models/gemini-2.5-flash",
+            "ollama/kimi-k2.5:cloud"
+          ]
+        }
+      },
+      {
+        "id": "translator",
+        "name": "Translator FR/EN",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-translator",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\translator\\agent",
+        "model": {
+          "primary": "lm-m3/mistral-7b-instruct-v0.3",
+          "fallbacks": [
+            "ollama/gpt-oss:120b-cloud",
+            "ollama/devstral-2:123b-cloud",
+            "ollama/qwen3:14b",
+            "ollama/qwen3-coder:480b-cloud",
+            "ollama/kimi-k2.5:cloud",
+            "ollama/qwen3:1.7b",
+            "gemini/models/gemini-2.5-flash"
+          ]
+        }
+      },
+      {
+        "id": "consensus-master",
+        "name": "Consensus Multi-Modeles",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-consensus-master",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\consensus-master\\agent",
+        "model": {
+          "primary": "lm-m1/qwen3-8b",
+          "fallbacks": [
+            "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+            "ollama/gpt-oss:120b-cloud",
+            "ollama/devstral-2:123b-cloud",
+            "gemini/models/gemini-2.5-flash",
+            "claude-bridge/claude-sonnet",
+            "ollama/qwen3:14b",
+            "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b"
+          ]
+        }
+      },
+      {
+        "id": "pipeline-trading",
+        "name": "Pipeline Trading GPU",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-pipeline-trading",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\pipeline-trading\\agent",
+        "model": {
+          "primary": "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b",
+          "fallbacks": [
+            "lm-m1/qwen3-8b",
+            "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m1/gpt-oss-20b"
+          ]
+        }
+      },
+      {
+        "id": "pipeline-modes",
+        "name": "Pipeline Modes & Ambiances",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-pipeline-modes",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\pipeline-modes\\agent",
+        "model": {
+          "primary": "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b",
+          "fallbacks": [
+            "lm-m1/qwen3-8b",
+            "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m1/gpt-oss-20b"
+          ]
+        }
+      },
+      {
+        "id": "pipeline-routines",
+        "name": "Pipeline Routines Quotidiennes",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-pipeline-routines",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\pipeline-routines\\agent",
+        "model": {
+          "primary": "ollama/qwen3:1.7b",
+          "fallbacks": [
+            "ollama/gpt-oss:120b-cloud",
+            "ollama/devstral-2:123b-cloud",
+            "ollama/qwen3:14b",
+            "ollama/qwen3-coder:480b-cloud",
+            "lm-m3/mistral-7b-instruct-v0.3",
+            "gemini/models/gemini-2.5-flash",
+            "ollama/kimi-k2.5:cloud"
+          ]
+        }
+      },
+      {
+        "id": "pipeline-maintenance",
+        "name": "Pipeline Maintenance Systeme",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-pipeline-maintenance",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\pipeline-maintenance\\agent",
+        "model": {
+          "primary": "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+          "fallbacks": [
+            "lm-m1/qwen3-8b",
+            "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m1/gpt-oss-20b"
+          ]
+        }
+      },
+      {
+        "id": "pipeline-comet",
+        "name": "Pipeline Comet Browser",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-pipeline-comet",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\pipeline-comet\\agent",
+        "model": {
+          "primary": "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b",
+          "fallbacks": [
+            "lm-m1/qwen3-8b",
+            "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m1/gpt-oss-20b"
+          ]
+        }
+      },
+      {
+        "id": "task-router",
+        "name": "Task Router — Classificateur Central",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-task-router",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\task-router\\agent",
+        "model": {
+          "primary": "lm-m1/qwen3-8b",
+          "fallbacks": [
+            "lm-m1/gpt-oss-20b",
+            "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b",
+            "ollama/qwen3:1.7b"
+          ]
+        }
+      },
+      {
+        "id": "quick-dispatch",
+        "name": "Quick Dispatch — Ultra-Rapide <1s",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-quick-dispatch",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\quick-dispatch\\agent",
+        "model": {
+          "primary": "ollama/qwen3:1.7b",
+          "fallbacks": [
+            "lm-m1/qwen3-8b",
+            "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m1/gpt-oss-20b"
+          ]
+        }
+      },
+      {
+        "id": "code-champion",
+        "name": "Code Champion — M1 Expert Code",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-code-champion",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\code-champion\\agent",
+        "model": {
+          "primary": "lm-m1/qwen3-8b",
+          "fallbacks": [
+            "lm-m1/gpt-oss-20b",
+            "lm-m1/devstral-small-2-24b-instruct-2512",
+            "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b"
+          ]
+        }
+      },
+      {
+        "id": "deep-reasoning",
+        "name": "Deep Reasoning — M2 DeepSeek R1",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-deep-reasoning",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\deep-reasoning\\agent",
+        "model": {
+          "primary": "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+          "fallbacks": [
+            "lm-m1/deepseek-r1-0528-qwen3-8b",
+            "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m1/qwen3-8b",
+            "lm-m1/gpt-oss-20b"
+          ]
+        }
+      },
+      {
+        "id": "analysis-engine",
+        "name": "Analysis Engine — Rapports Structures",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-analysis-engine",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\analysis-engine\\agent",
+        "model": {
+          "primary": "lm-m1/qwen3-8b",
+          "fallbacks": [
+            "lm-m1/gpt-oss-20b",
+            "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b"
+          ]
+        }
+      },
+      {
+        "id": "system-ops",
+        "name": "System Ops — Operations Systeme",
+        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-system-ops",
+        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\system-ops\\agent",
+        "model": {
+          "primary": "lm-m1/qwen3-8b",
+          "fallbacks": [
+            "lm-m1/gpt-oss-20b",
+            "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b",
+            "lm-m3/deepseek/deepseek-r1-0528-qwen3-8b",
+            "ollama/qwen3:1.7b"
+          ]
+        }
+      }
+    ]
+  },
+  "tools": {
+    "media": {
+      "audio": {
+        "enabled": true,
+        "maxBytes": 20971520,
+        "models": [
+          {
+            "type": "cli",
+            "command": "whisper",
+            "args": [
+              "--model",
+              "turbo",
+              "--language",
+              "fr",
+              "{{MediaPath}}"
+            ],
+            "timeoutSeconds": 45
+          }
+        ]
+      }
+    },
+    "agentToAgent": {
+      "enabled": true,
+      "allow": [
+        "*"
+      ]
+    },
+    "exec": {
+      "host": "sandbox"
+    }
+  },
+  "messages": {
+    "queue": {
+      "mode": "collect",
+      "debounceMs": 500,
+      "cap": 20,
+      "drop": "summarize"
+    },
+    "ackReactionScope": "group-mentions",
+    "tts": {
+      "auto": "inbound",
+      "provider": "edge",
+      "edge": {
+        "enabled": true,
+        "voice": "fr-FR-DeniseNeural",
+        "outputFormat": "audio-24khz-48kbitrate-mono-mp3"
+      },
+      "maxTextLength": 4000,
+      "timeoutMs": 30000
+    }
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto"
+  },
+  "session": {
+    "dmScope": "per-channel-peer",
+    "reset": {
+      "mode": "daily",
+      "atHour": 4,
+      "idleMinutes": 120
+    }
+  },
+  "cron": {
+    "enabled": true,
+    "maxConcurrentRuns": 1
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "dmPolicy": "pairing",
+      "botToken": "TELEGRAM_TOKEN_REDACTED",
+      "groupPolicy": "allowlist",
+      "streamMode": "partial",
+      "actions": {
+        "reactions": true,
+        "sendMessage": true,
+        "deleteMessage": true,
+        "sticker": true
+      }
+    }
+  },
+  "gateway": {
+    "port": 18789,
+    "mode": "local",
+    "bind": "loopback",
+    "auth": {
+      "mode": "token",
+      "token": "ae1cd158a0975c30e7712b274859e202896e7f67203de9d2"
+    },
+    "tailscale": {
+      "mode": "off",
+      "resetOnExit": false
+    },
+    "reload": {
+      "mode": "hybrid"
+    },
+    "nodes": {
+      "denyCommands": [
+        "camera.snap",
+        "camera.clip",
+        "screen.record",
+        "calendar.add",
+        "contacts.add",
+        "reminders.add"
+      ]
+    }
+  },
+  "plugins": {
+    "entries": {
+      "qwen-portal-auth": {
+        "enabled": true
+      },
+      "telegram": {
+        "enabled": true
+      },
+      "memory-core": {
+        "enabled": false
+      },
+      "llm-task": {
+        "enabled": true
+      }
+    }
+  }
+}

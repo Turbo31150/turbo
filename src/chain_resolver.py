@@ -9,9 +9,12 @@ following next_cmd links until no more chains match.
 
 from __future__ import annotations
 
+import logging
 import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
+
+log = logging.getLogger(__name__)
 
 DB_PATH = str(Path(__file__).resolve().parent.parent / "data" / "etoile.db")
 

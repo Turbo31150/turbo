@@ -111,7 +111,18 @@ class AgentMemory:
 
     def recall(self, query: str, limit: int = 5, category: str | None = None,
                min_similarity: float = 0.1) -> list[dict[str, Any]]:
-        """Search memories by similarity. Returns top matches."""
+        """
+        Search memories by similarity. Returns top matches.
+
+        Parameters:
+            query (str): The query to search for.
+            limit (int, optional): Maximum number of results to return. Defaults to 5.
+            category (str | None, optional): Filter memories by category. Defaults to None.
+            min_similarity (float, optional): Minimum similarity score for a match. Defaults to 0.1.
+
+        Returns:
+            list[dict[str, Any]]: List of matching memories with metadata.
+        """
         query_tokens = _tokenize(query)
         if not query_tokens:
             return []

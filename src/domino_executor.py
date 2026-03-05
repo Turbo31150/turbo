@@ -1188,7 +1188,7 @@ def _cluster_node_count() -> str:
     nodes = []
     for name, url in [("M1", "http://127.0.0.1:1234/api/v1/models"), ("OL1", "http://127.0.0.1:11434/api/tags"), ("M2", "http://192.168.1.26:1234/api/v1/models"), ("M3", "http://192.168.1.113:1234/api/v1/models")]:
         try:
-            r = subprocess.run(f"curl -s --max-time 3 {url}", shell=True, capture_output=True, text=True, timeout=5)
+            r = subprocess.run(["curl", "-s", "--max-time", "3", url], capture_output=True, text=True, timeout=5)
             if r.returncode == 0 and r.stdout.strip():
                 active += 1
                 nodes.append(name)
@@ -1250,7 +1250,7 @@ def _git_log_today() -> str:
     """Get today's git commits."""
     import subprocess
     try:
-        r = subprocess.run("git log --oneline --since='1 day ago'", shell=True, capture_output=True, text=True, timeout=5, cwd="F:/BUREAU/turbo")
+        r = subprocess.run(["git", "log", "--oneline", "--since=1 day ago"], capture_output=True, text=True, timeout=5, cwd="F:/BUREAU/turbo")
         lines = r.stdout.strip().split("\n") if r.stdout.strip() else []
         return f"{len(lines)} commits today: {'; '.join(lines[:5])}" if lines else "No commits today"
     except (subprocess.TimeoutExpired, OSError):

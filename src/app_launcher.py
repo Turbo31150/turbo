@@ -134,6 +134,7 @@ class AppLauncher:
                 self._launches.append(LaunchEvent(app_name=os.path.basename(path), pid=proc.pid))
             return {"success": True, "pid": proc.pid}
         except Exception as e:
+            logger.exception("Failed to launch %s", path)
             return {"success": False, "error": str(e)}
 
     # ── Query ───────────────────────────────────────────────────────

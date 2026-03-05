@@ -75,7 +75,7 @@ class BrowserNavigator:
         self._page = await self._context.new_page()
 
         if url:
-            await self._page.goto(url, wait_until="domcontentloaded", timeout=5000)
+            await self._page.goto(url, wait_until="domcontentloaded", timeout=10000)
 
         self._log("launch", url or "about:blank")
         logger.info("Browser launched (headless=%s)", headless)
@@ -101,7 +101,7 @@ class BrowserNavigator:
         page = await self._ensure_browser()
         if not url.startswith(("http://", "https://")):
             url = f"https://{url}"
-        await page.goto(url, wait_until="domcontentloaded", timeout=10000)
+        await page.goto(url, wait_until="domcontentloaded", timeout=5000)
         self._log("navigate", url)
         return {"url": page.url, "title": await page.title()}
 

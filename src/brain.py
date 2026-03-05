@@ -161,6 +161,7 @@ def apply_decay():
 
     Skills unused for a long time lose confidence exponentially.
     """
+    # Implementation of the decay logic goes here
     # TODO: Implement the decay logic here
     db = _load_quality_db()
     now = time.time()
