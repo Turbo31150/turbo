@@ -217,6 +217,59 @@ class SmartDispatcher:
                 results[name] = {"status": "offline", "ms": round(ms), "error": str(e)[:50]}
         return results
 
+    # ── COWORK Integration ────────────────────────────────────────────────
+
+    def get_cowork_scripts(self, pattern: str) -> list[dict]:
+        """Find COWORK scripts relevant to a pattern type."""
+        try:
+            db = sqlite3.connect(self.db_path)
+            db.row_factory = sqlite3.Row
+            # Map dispatch pattern types to COWORK patterns
+            PATTERN_TO_COWORK = {
+                "code": ["PAT_CW_DEVTOOLS", "PAT_CW_IA_GENERATION"],
+                "system": ["PAT_CW_WIN_SYSTEM", "PAT_CW_WIN_MONITORING", "PAT_CW_AUTONOMOUS"],
+                "trading": ["PAT_CW_TRADING"],
+                "analysis": ["PAT_CW_IA_ANALYSIS", "PAT_CW_JARVIS_INTELLIGENCE"],
+                "security": ["PAT_CW_WIN_SECURITY"],
+                "architecture": ["PAT_CW_CLUSTER", "PAT_CW_ROUTING"],
+                "voice": ["PAT_CW_JARVIS_VOICE"],
+                "web": ["PAT_CW_BROWSER"],
+                "email": ["PAT_CW_COMMS"],
+                "monitoring": ["PAT_CW_WIN_MONITORING", "PAT_CW_DATA"],
+                "automation": ["PAT_CW_AUTONOMOUS", "PAT_CW_WIN_AUTOMATION"],
+                "optimization": ["PAT_CW_IA_OPTIMIZATION", "PAT_CW_WIN_MAINTENANCE"],
+                "data": ["PAT_CW_DATA", "PAT_CW_JARVIS_DASHBOARD"],
+                "devops": ["PAT_CW_JARVIS_DEVOPS"],
+                "creative": ["PAT_CW_IA_GENERATION"],
+                "learning": ["PAT_CW_IA_LEARNING", "PAT_CW_JARVIS_EVOLVE"],
+            }
+            cowork_pats = PATTERN_TO_COWORK.get(pattern, [])
+            if not cowork_pats:
+                db.close()
+                return []
+
+            placeholders = ",".join("?" * len(cowork_pats))
+            rows = db.execute(f"""
+                SELECT script_name, pattern_id, script_path
+                FROM cowork_script_mapping
+                WHERE pattern_id IN ({placeholders}) AND status = 'active'
+            """, cowork_pats).fetchall()
+            db.close()
+            return [dict(r) for r in rows]
+        except Exception as e:
+            logger.warning(f"COWORK lookup failed: {e}")
+            return []
+
+    async def dispatch_with_cowork(self, prompt: str) -> AgentResult:
+        """Dispatch to IA node AND identify relevant COWORK scripts."""
+        result = await self.dispatch(prompt)
+        cowork = self.get_cowork_scripts(result.pattern)
+        if cowork:
+            result.metadata = result.metadata or {}
+            result.metadata["cowork_scripts"] = [s["script_name"] for s in cowork[:10]]
+            result.metadata["cowork_count"] = len(cowork)
+        return result
+
     async def close(self):
         await self.registry.close()
 

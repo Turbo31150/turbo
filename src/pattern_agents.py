@@ -99,6 +99,7 @@ class AgentResult:
     pattern: str
     error: str = ""
     quality_score: float = 0.0
+    metadata: Optional[dict] = None
 
 
 @dataclass

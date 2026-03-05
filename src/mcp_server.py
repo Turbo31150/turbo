@@ -4622,6 +4622,575 @@ async def handle_autodev_stats(args: dict) -> list[TextContent]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# PATTERN AGENTS HANDLERS (5)
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_agent_dispatch(args: dict) -> list[TextContent]:
+    """Dispatch a prompt to the best pattern agent."""
+    from src.smart_dispatcher import SmartDispatcher
+    prompt = args.get("prompt", "")
+    pattern = args.get("pattern")
+    if not prompt:
+        return _error("prompt required")
+    d = SmartDispatcher()
+    if pattern:
+        r = await d.dispatch_typed(pattern, prompt)
+    else:
+        r = await d.dispatch(prompt)
+    await d.close()
+    return _text(json.dumps({
+        "ok": r.ok, "content": r.content[:2000], "pattern": r.pattern,
+        "node": r.node, "model": r.model, "latency_ms": round(r.latency_ms),
+        "tokens": r.tokens, "quality": r.quality_score, "strategy": r.strategy,
+    }, ensure_ascii=False))
+
+
+async def handle_agent_classify(args: dict) -> list[TextContent]:
+    """Classify a prompt into a pattern type."""
+    from src.pattern_agents import PatternAgentRegistry
+    prompt = args.get("prompt", "")
+    if not prompt:
+        return _error("prompt required")
+    reg = PatternAgentRegistry()
+    pattern = reg.classify(prompt)
+    agent = reg.agents.get(pattern)
+    return _text(json.dumps({
+        "pattern": pattern,
+        "agent": agent.agent_id if agent else "unknown",
+        "node": agent.primary_node if agent else "M1",
+        "strategy": agent.strategy if agent else "single",
+    }))
+
+
+async def handle_agent_list(args: dict) -> list[TextContent]:
+    """List all registered pattern agents."""
+    from src.pattern_agents import PatternAgentRegistry
+    reg = PatternAgentRegistry()
+    return _text(json.dumps({"agents": reg.list_agents()}, ensure_ascii=False))
+
+
+async def handle_agent_routing(args: dict) -> list[TextContent]:
+    """Get smart routing report."""
+    from src.smart_dispatcher import SmartDispatcher
+    d = SmartDispatcher()
+    report = d.get_routing_report()
+    await d.close()
+    return _text(json.dumps(report, ensure_ascii=False, default=str))
+
+
+async def handle_agent_evolve(args: dict) -> list[TextContent]:
+    """Run agent factory evolution."""
+    from src.agent_factory import AgentFactory
+    f = AgentFactory()
+    evolutions = f.analyze_and_evolve()
+    return _text(json.dumps({
+        "count": len(evolutions),
+        "evolutions": [
+            {"pattern": e.pattern_type, "action": e.action,
+             "old": e.old_value, "new": e.new_value,
+             "reason": e.reason, "confidence": e.confidence}
+            for e in evolutions
+        ]
+    }, ensure_ascii=False))
+
+
+async def handle_pipeline_run(args: dict) -> list[TextContent]:
+    """Run a named pipeline (code-review, smart-qa, trading-analysis, etc)."""
+    from src.pipeline_composer import run_pipeline
+    name = args.get("pipeline", "")
+    prompt = args.get("prompt", "")
+    if not name or not prompt:
+        return _error("pipeline and prompt required")
+    result = await run_pipeline(name, prompt)
+    return _text(json.dumps({
+        "ok": result.ok, "pipeline": result.pipeline_name,
+        "total_ms": round(result.total_ms),
+        "steps": result.steps,
+        "output": result.final_output[:2000],
+    }, ensure_ascii=False, default=str))
+
+
+async def handle_pipeline_list(args: dict) -> list[TextContent]:
+    """List available pipelines."""
+    from src.pipeline_composer import PIPELINES
+    return _text(json.dumps({"pipelines": list(PIPELINES.keys())}))
+
+
+async def handle_agent_dashboard(args: dict) -> list[TextContent]:
+    """Real-time agent monitoring dashboard."""
+    from src.agent_monitor import get_monitor
+    return _text(json.dumps(get_monitor().get_dashboard(), default=str))
+
+
+async def handle_routing_optimizer(args: dict) -> list[TextContent]:
+    """Routing optimization report with recommendations."""
+    from src.routing_optimizer import RoutingOptimizer
+    opt = RoutingOptimizer()
+    return _text(json.dumps(opt.report(), ensure_ascii=False))
+
+
+async def handle_adaptive_router_status(args: dict) -> list[TextContent]:
+    """Adaptive router: circuits, health, affinities, recommendations."""
+    from src.adaptive_router import get_router
+    router = get_router()
+    status = router.get_status()
+    status["recommendations"] = router.get_recommendations()
+    return _text(json.dumps(status, default=str, ensure_ascii=False))
+
+
+async def handle_adaptive_router_pick(args: dict) -> list[TextContent]:
+    """Pick optimal node(s) for a pattern."""
+    from src.adaptive_router import get_router
+    pattern = args.get("pattern", "code")
+    count = int(args.get("count", 1))
+    router = get_router()
+    if count > 1:
+        return _text(json.dumps({"nodes": router.pick_nodes(pattern, count=count)}))
+    return _text(json.dumps({"node": router.pick_node(pattern)}))
+
+
+async def handle_pattern_discovery(args: dict) -> list[TextContent]:
+    """Discover new patterns from dispatch logs + behavior analysis."""
+    from src.pattern_discovery import PatternDiscovery
+    d = PatternDiscovery()
+    return _text(json.dumps(d.full_report(), default=str, ensure_ascii=False))
+
+
+async def handle_pattern_discovery_register(args: dict) -> list[TextContent]:
+    """Discover and register new patterns in the database."""
+    from src.pattern_discovery import PatternDiscovery
+    d = PatternDiscovery()
+    patterns = d.discover()
+    count = d.register_patterns(patterns)
+    return _text(json.dumps({"discovered": len(patterns), "registered": count}))
+
+
+async def handle_orchestrate(args: dict) -> list[TextContent]:
+    """Execute an orchestrated workflow (auto, deep-analysis, code-generate, consensus-3, trading-full, security-audit)."""
+    from src.agent_orchestrator_v3 import Orchestrator
+    prompt = args.get("prompt", "")
+    workflow = args.get("workflow", "auto")
+    budget_s = float(args.get("budget_s", 60))
+    o = Orchestrator()
+    r = await o.execute(prompt, workflow=workflow, budget_s=budget_s)
+    await o.close()
+    return _text(json.dumps({
+        "ok": r.ok, "workflow": r.strategy_used,
+        "content": r.final_content[:3000],
+        "total_ms": round(r.total_latency_ms),
+        "steps": len(r.steps), "summary": r.summary,
+    }, ensure_ascii=False))
+
+
+async def handle_orchestrate_consensus(args: dict) -> list[TextContent]:
+    """Run consensus across N nodes."""
+    from src.agent_orchestrator_v3 import Orchestrator
+    prompt = args.get("prompt", "")
+    min_agree = int(args.get("min_agree", 2))
+    o = Orchestrator()
+    r = await o.execute_consensus(prompt, min_agree=min_agree)
+    await o.close()
+    return _text(json.dumps({
+        "ok": r.ok, "content": r.final_content[:3000],
+        "total_ms": round(r.total_latency_ms),
+        "nodes": r.nodes_used, "agreed": r.metadata.get("agreed", 0),
+    }, ensure_ascii=False))
+
+
+async def handle_orchestrate_race(args: dict) -> list[TextContent]:
+    """Race N nodes for fastest response."""
+    from src.agent_orchestrator_v3 import Orchestrator
+    prompt = args.get("prompt", "")
+    pattern = args.get("pattern", "code")
+    count = int(args.get("count", 3))
+    o = Orchestrator()
+    r = await o.execute_race(prompt, pattern=pattern, count=count)
+    await o.close()
+    return _text(json.dumps({
+        "ok": r.ok, "content": r.final_content[:3000],
+        "total_ms": round(r.total_latency_ms),
+        "winner": r.metadata.get("winner"),
+    }, ensure_ascii=False))
+
+
+async def handle_episodic_recall(args: dict) -> list[TextContent]:
+    """Recall relevant episodes from episodic memory."""
+    from src.agent_episodic_memory import get_episodic_memory
+    query = args.get("query", "")
+    top_k = int(args.get("top_k", 5))
+    mem = get_episodic_memory()
+    episodes = mem.recall(query, top_k=top_k)
+    return _text(json.dumps([
+        {"pattern": e.pattern, "node": e.node, "preview": e.prompt_preview,
+         "ok": e.success, "quality": e.quality, "relevance": round(e.relevance, 2)}
+        for e in episodes
+    ], ensure_ascii=False))
+
+
+async def handle_episodic_learn(args: dict) -> list[TextContent]:
+    """Learn semantic facts from dispatch history."""
+    from src.agent_episodic_memory import get_episodic_memory
+    mem = get_episodic_memory()
+    learned = mem.learn_from_history()
+    return _text(json.dumps({"learned": learned, "total_facts": len(mem._facts)}, ensure_ascii=False))
+
+
+async def handle_episodic_node(args: dict) -> list[TextContent]:
+    """Get episodic memory for a node."""
+    from src.agent_episodic_memory import get_episodic_memory
+    node = args.get("node", "M1")
+    return _text(json.dumps(get_episodic_memory().get_node_memory(node), ensure_ascii=False))
+
+
+async def handle_episodic_pattern(args: dict) -> list[TextContent]:
+    """Get episodic memory for a pattern."""
+    from src.agent_episodic_memory import get_episodic_memory
+    pattern = args.get("pattern", "code")
+    return _text(json.dumps(get_episodic_memory().get_pattern_memory(pattern), ensure_ascii=False))
+
+
+async def handle_self_improve(args: dict) -> list[TextContent]:
+    """Run a self-improvement cycle."""
+    from src.agent_self_improve import SelfImprover
+    imp = SelfImprover()
+    report = await imp.run_cycle()
+    return _text(json.dumps({
+        "cycle": report.cycle_id,
+        "actions": len(report.actions),
+        "high_conf": sum(1 for a in report.actions if a.confidence > 0.7),
+        "recommendations": report.recommendations,
+        "summary": report.summary,
+    }, ensure_ascii=False))
+
+
+async def handle_self_improve_history(args: dict) -> list[TextContent]:
+    """Get improvement cycle history."""
+    from src.agent_self_improve import SelfImprover
+    return _text(json.dumps(SelfImprover().get_history(), default=str, ensure_ascii=False))
+
+
+async def handle_collab_chain(args: dict) -> list[TextContent]:
+    """Run agent collaboration chain."""
+    from src.agent_collaboration import get_bus
+    agents = [a.strip() for a in args.get("agents", "simple").split(",")]
+    prompt = args.get("prompt", "")
+    bus = get_bus()
+    r = await bus.chain(agents, prompt)
+    return _text(json.dumps({
+        "ok": r.ok, "content": r.final_content[:2000],
+        "chain": r.chain, "steps_ok": r.steps_ok, "summary": r.summary,
+    }, ensure_ascii=False))
+
+
+async def handle_collab_debate(args: dict) -> list[TextContent]:
+    """Run multi-agent debate."""
+    from src.agent_collaboration import get_bus
+    agents = [a.strip() for a in args.get("agents", "code,reasoning").split(",")]
+    question = args.get("question", "")
+    bus = get_bus()
+    r = await bus.debate(agents, question, rounds=2)
+    return _text(json.dumps({
+        "ok": r.ok, "content": r.final_content[:2000],
+        "steps_ok": r.steps_ok, "total_ms": round(r.total_latency_ms),
+    }, ensure_ascii=False))
+
+
+async def handle_health_check(args: dict) -> list[TextContent]:
+    """Full health check on all nodes."""
+    from src.agent_health_guardian import HealthGuardian
+    g = HealthGuardian()
+    report = await g.check_all()
+    return _text(json.dumps({
+        "status": report.overall_status,
+        "healthy": report.healthy_nodes, "total": report.total_nodes,
+        "alerts": len(report.alerts), "summary": report.summary,
+        "nodes": [{"node": n.node, "status": n.status, "ms": round(n.latency_ms)} for n in report.node_checks],
+    }, ensure_ascii=False))
+
+
+async def handle_health_heal(args: dict) -> list[TextContent]:
+    """Auto-heal detected issues."""
+    from src.agent_health_guardian import HealthGuardian
+    g = HealthGuardian()
+    healed = await g.auto_heal()
+    return _text(json.dumps({"actions": healed}, ensure_ascii=False))
+
+
+async def handle_benchmark_quick(args: dict) -> list[TextContent]:
+    """Run quick benchmark."""
+    from src.pattern_benchmark_runner import BenchmarkRunner
+    r = BenchmarkRunner()
+    report = await r.run_quick()
+    await r.close()
+    return _text(json.dumps({
+        "success_rate": round(report.success_rate * 100, 1),
+        "total": report.total_tests, "ok": report.success_count,
+        "duration_ms": round(report.duration_ms), "summary": report.summary,
+    }, ensure_ascii=False))
+
+
+async def handle_task_planner(args: dict) -> list[TextContent]:
+    """Plan a complex task."""
+    from src.agent_task_planner import TaskPlanner
+    prompt = args.get("prompt", "")
+    p = TaskPlanner()
+    plan = p.plan(prompt)
+    return _text(json.dumps(p.plan_to_dict(plan), ensure_ascii=False))
+
+
+async def handle_task_planner_execute(args: dict) -> list[TextContent]:
+    """Plan and execute a complex task."""
+    from src.agent_task_planner import TaskPlanner
+    prompt = args.get("prompt", "")
+    p = TaskPlanner()
+    plan = p.plan(prompt)
+    result = await p.execute_plan(plan)
+    await p.close()
+    return _text(json.dumps({
+        "ok": result.ok, "output": result.final_output[:2000],
+        "steps_ok": result.steps_ok, "summary": result.summary,
+    }, ensure_ascii=False))
+
+
+async def handle_feedback_quality(args: dict) -> list[TextContent]:
+    """Quality report from feedback loop."""
+    from src.agent_feedback_loop import get_feedback
+    return _text(json.dumps(get_feedback().get_quality_report(), ensure_ascii=False))
+
+
+async def handle_feedback_trends(args: dict) -> list[TextContent]:
+    """Pattern quality trends."""
+    from src.agent_feedback_loop import get_feedback
+    trends = get_feedback().get_trends()
+    return _text(json.dumps([
+        {"pattern": t.pattern, "direction": t.direction,
+         "recent": t.recent_quality, "change": t.change_pct}
+        for t in trends
+    ], ensure_ascii=False))
+
+
+async def handle_feedback_adjustments(args: dict) -> list[TextContent]:
+    """Suggested routing adjustments."""
+    from src.agent_feedback_loop import get_feedback
+    adj = get_feedback().suggest_adjustments()
+    return _text(json.dumps([
+        {"pattern": a.pattern, "action": a.action,
+         "suggested": a.suggested, "reason": a.reason, "confidence": round(a.confidence, 2)}
+        for a in adj
+    ], ensure_ascii=False))
+
+
+# ── Phase 13: Dispatch Engine ────────────────────────────────────────────────
+
+async def handle_dispatch_engine_dispatch(args: dict) -> list[TextContent]:
+    from src.dispatch_engine import get_engine
+    engine = get_engine()
+    result = await engine.dispatch(
+        pattern=args.get("pattern", "simple"),
+        prompt=args.get("prompt", ""),
+        node_override=args.get("node"),
+    )
+    return _text(json.dumps({
+        "pattern": result.pattern, "node": result.node,
+        "content": result.content[:2000], "quality": result.quality,
+        "latency_ms": round(result.latency_ms, 1),
+        "pipeline_ms": round(result.pipeline_ms, 1),
+        "success": result.success, "enriched": result.enriched,
+        "fallback_used": result.fallback_used,
+    }, ensure_ascii=False))
+
+
+async def handle_dispatch_engine_stats(args: dict) -> list[TextContent]:
+    from src.dispatch_engine import get_engine
+    return _text(json.dumps(get_engine().get_stats(), ensure_ascii=False))
+
+
+async def handle_dispatch_engine_report(args: dict) -> list[TextContent]:
+    from src.dispatch_engine import get_engine
+    return _text(json.dumps(get_engine().get_pipeline_report(), ensure_ascii=False))
+
+
+# ── Phase 13: Prompt Optimizer ───────────────────────────────────────────────
+
+async def handle_prompt_optimize(args: dict) -> list[TextContent]:
+    from src.agent_prompt_optimizer import get_optimizer
+    result = get_optimizer().optimize(args.get("pattern", "simple"), args.get("prompt", ""))
+    return _text(json.dumps(result, ensure_ascii=False))
+
+
+async def handle_prompt_insights(args: dict) -> list[TextContent]:
+    from src.agent_prompt_optimizer import get_optimizer
+    return _text(json.dumps(get_optimizer().get_insights(args.get("pattern") or None), ensure_ascii=False))
+
+
+async def handle_prompt_analyze(args: dict) -> list[TextContent]:
+    from src.agent_prompt_optimizer import get_optimizer
+    return _text(json.dumps(get_optimizer().analyze_prompt(
+        args.get("pattern", "simple"), args.get("prompt", "")
+    ), ensure_ascii=False))
+
+
+async def handle_prompt_templates(args: dict) -> list[TextContent]:
+    from src.agent_prompt_optimizer import get_optimizer
+    return _text(json.dumps(get_optimizer().get_templates(), ensure_ascii=False))
+
+
+# ── Phase 13: Auto Scaler ───────────────────────────────────────────────────
+
+async def handle_auto_scaler_metrics(args: dict) -> list[TextContent]:
+    from src.agent_auto_scaler import get_scaler
+    metrics = get_scaler().get_load_metrics()
+    return _text(json.dumps({n: {"avg_lat": m.avg_latency_ms, "p95": m.p95_latency_ms,
+                                  "err_rate": m.error_rate, "req_5min": m.requests_last_5min}
+                              for n, m in metrics.items()}, ensure_ascii=False))
+
+
+async def handle_auto_scaler_evaluate(args: dict) -> list[TextContent]:
+    from src.agent_auto_scaler import get_scaler
+    actions = get_scaler().evaluate()
+    return _text(json.dumps([{"type": a.action_type, "node": a.target_node,
+                               "desc": a.description, "priority": a.priority}
+                              for a in actions], ensure_ascii=False))
+
+
+async def handle_auto_scaler_capacity(args: dict) -> list[TextContent]:
+    from src.agent_auto_scaler import get_scaler
+    return _text(json.dumps(get_scaler().get_capacity_report(), ensure_ascii=False))
+
+
+# ── Phase 13: Event Stream ──────────────────────────────────────────────────
+
+async def handle_event_stream_events(args: dict) -> list[TextContent]:
+    from src.event_stream import get_stream
+    events = get_stream().get_events(args.get("topic") or None, int(args.get("since_id", 0)), 50)
+    return _text(json.dumps(events, ensure_ascii=False))
+
+
+async def handle_event_stream_emit(args: dict) -> list[TextContent]:
+    from src.event_stream import get_stream
+    eid = get_stream().emit(args.get("topic", "system"), args.get("data", {}), args.get("source", "mcp"))
+    return _text(f"Event #{eid} emitted")
+
+
+async def handle_event_stream_stats(args: dict) -> list[TextContent]:
+    from src.event_stream import get_stream
+    return _text(json.dumps(get_stream().get_stats(), ensure_ascii=False))
+
+
+# ── Phase 13: Agent Ensemble ────────────────────────────────────────────────
+
+async def handle_ensemble_execute(args: dict) -> list[TextContent]:
+    from src.agent_ensemble import get_ensemble
+    result = await get_ensemble().execute(
+        pattern=args.get("pattern", "simple"),
+        prompt=args.get("prompt", ""),
+        nodes=args.get("nodes", "").split(",") if args.get("nodes") else None,
+        strategy=args.get("strategy", "best_of_n"),
+    )
+    return _text(json.dumps({
+        "best_node": result.best_output.node,
+        "best_score": round(result.best_output.total_score, 3),
+        "agreement": round(result.agreement_score, 3),
+        "ensemble_size": result.ensemble_size,
+        "total_latency_ms": round(result.total_latency_ms, 1),
+        "content_preview": result.best_output.content[:500],
+    }, ensure_ascii=False))
+
+
+async def handle_ensemble_stats(args: dict) -> list[TextContent]:
+    from src.agent_ensemble import get_ensemble
+    return _text(json.dumps(get_ensemble().get_ensemble_stats(), ensure_ascii=False))
+
+
+# ── Phase 14: Quality Gate ───────────────────────────────────────────────────
+
+async def handle_quality_gate_evaluate(args: dict) -> list[TextContent]:
+    from src.quality_gate import get_gate
+    result = get_gate().evaluate(
+        args.get("pattern", "simple"), args.get("prompt", ""),
+        args.get("content", ""), latency_ms=float(args.get("latency_ms", 0)),
+    )
+    return _text(json.dumps({
+        "passed": result.passed, "score": result.overall_score,
+        "failed": result.failed_gates, "suggestions": result.suggestions,
+    }, ensure_ascii=False))
+
+
+async def handle_quality_gate_report(args: dict) -> list[TextContent]:
+    from src.quality_gate import get_gate
+    return _text(json.dumps(get_gate().get_gate_report(), ensure_ascii=False))
+
+
+# ── Phase 14: Pattern Lifecycle ──────────────────────────────────────────────
+
+async def handle_lifecycle_health(args: dict) -> list[TextContent]:
+    from src.pattern_lifecycle import get_lifecycle
+    return _text(json.dumps(get_lifecycle().health_report(), ensure_ascii=False, default=str))
+
+
+async def handle_lifecycle_actions(args: dict) -> list[TextContent]:
+    from src.pattern_lifecycle import get_lifecycle
+    return _text(json.dumps(get_lifecycle().suggest_actions(), ensure_ascii=False))
+
+
+async def handle_lifecycle_evolve(args: dict) -> list[TextContent]:
+    from src.pattern_lifecycle import get_lifecycle
+    ok = get_lifecycle().evolve_pattern(
+        args.get("pattern", ""), model=args.get("model"),
+        strategy=args.get("strategy"),
+    )
+    return _text(f"Evolved: {ok}")
+
+
+# ── Phase 14: Cluster Intelligence ──────────────────────────────────────────
+
+async def handle_intelligence_report(args: dict) -> list[TextContent]:
+    from src.cluster_intelligence import get_intelligence
+    return _text(json.dumps(get_intelligence().full_report(), ensure_ascii=False, default=str))
+
+
+async def handle_intelligence_status(args: dict) -> list[TextContent]:
+    from src.cluster_intelligence import get_intelligence
+    return _text(json.dumps(get_intelligence().quick_status(), ensure_ascii=False))
+
+
+async def handle_intelligence_actions(args: dict) -> list[TextContent]:
+    from src.cluster_intelligence import get_intelligence
+    actions = get_intelligence().priority_actions()
+    return _text(json.dumps([a.__dict__ for a in actions[:10]], ensure_ascii=False))
+
+
+# ── Cowork Bridge v2 ────────────────────────────────────────────────────────
+
+async def handle_cowork_v2_list(args: dict) -> list[TextContent]:
+    from src.cowork_bridge import get_bridge
+    scripts = get_bridge().list_scripts(args.get("category") or None)
+    return _text(json.dumps(scripts[:50], ensure_ascii=False))
+
+
+async def handle_cowork_v2_search(args: dict) -> list[TextContent]:
+    from src.cowork_bridge import get_bridge
+    results = get_bridge().search(args.get("query", ""), limit=20)
+    return _text(json.dumps(results, ensure_ascii=False))
+
+
+async def handle_cowork_v2_execute(args: dict) -> list[TextContent]:
+    from src.cowork_bridge import get_bridge
+    result = get_bridge().execute(args.get("script", ""), timeout_s=60)
+    return _text(json.dumps({
+        "script": result.script, "success": result.success,
+        "exit_code": result.exit_code,
+        "stdout": result.stdout[:2000], "stderr": result.stderr[:500],
+        "duration_ms": round(result.duration_ms, 1),
+    }, ensure_ascii=False))
+
+
+async def handle_cowork_v2_stats(args: dict) -> list[TextContent]:
+    from src.cowork_bridge import get_bridge
+    return _text(json.dumps(get_bridge().get_stats(), ensure_ascii=False))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # TOOL REGISTRY
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -5312,7 +5881,122 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     # Auto-Developer (2) — v2.0
     ("autodev_run_cycle", "Lancer un cycle d'auto-developpement.", {"max_gaps": "number"}, handle_autodev_run_cycle),
     ("autodev_stats", "Stats de l'auto-developpeur.", {}, handle_autodev_stats),
+    # Pattern Agents (5) — v11.1
+    ("agent_dispatch", "Dispatch intelligent vers le meilleur agent pattern. Auto-classifie si pattern absent.", {"prompt": "string", "pattern": "string"}, handle_agent_dispatch),
+    ("agent_classify", "Classifie un prompt en pattern type (code/analysis/trading/...).", {"prompt": "string"}, handle_agent_classify),
+    ("agent_list", "Liste les 14 agents pattern avec leur config.", {}, handle_agent_list),
+    ("agent_routing", "Rapport de routing intelligent base sur l'historique dispatch.", {}, handle_agent_routing),
+    ("agent_evolve", "Evolution automatique des agents: decouverte, tuning, optimisation.", {}, handle_agent_evolve),
+    # Pipeline + Monitor (4) — v11.1
+    ("pipeline_run", "Executer un pipeline multi-agents (code-review, smart-qa, trading-analysis, architecture-design, devops-deploy).", {"pipeline": "string", "prompt": "string"}, handle_pipeline_run),
+    ("pipeline_list", "Lister les pipelines pre-construits disponibles.", {}, handle_pipeline_list),
+    ("agent_dashboard", "Dashboard temps reel des 14 agents: metriques, alertes, noeuds.", {}, handle_agent_dashboard),
+    ("routing_optimizer", "Rapport optimisation routing avec recommandations.", {}, handle_routing_optimizer),
+    ("adaptive_router_status", "Routeur adaptatif: circuits, health, affinites, recommandations.", {}, handle_adaptive_router_status),
+    ("adaptive_router_pick", "Choisir le noeud optimal pour un pattern.", {"pattern": "string", "count": "number"}, handle_adaptive_router_pick),
+    ("pattern_discovery", "Decouvrir nouveaux patterns depuis les logs + analyse comportement.", {}, handle_pattern_discovery),
+    ("pattern_discovery_register", "Decouvrir et enregistrer nouveaux patterns en DB.", {}, handle_pattern_discovery_register),
+    ("orchestrate", "Executer un workflow orchestre (auto/deep-analysis/code-generate/consensus-3/trading-full/security-audit).", {"prompt": "string", "workflow": "string", "budget_s": "number"}, handle_orchestrate),
+    ("orchestrate_consensus", "Consensus multi-noeuds avec vote pondere.", {"prompt": "string", "min_agree": "number"}, handle_orchestrate_consensus),
+    ("orchestrate_race", "Course multi-noeuds: le plus rapide gagne.", {"prompt": "string", "pattern": "string", "count": "number"}, handle_orchestrate_race),
+    ("episodic_memory_recall", "Rappeler episodes pertinents depuis la memoire.", {"query": "string", "top_k": "number"}, handle_episodic_recall),
+    ("episodic_memory_learn", "Analyser historique et generer faits semantiques.", {}, handle_episodic_learn),
+    ("episodic_memory_node", "Memoire d'un noeud specifique.", {"node": "string"}, handle_episodic_node),
+    ("episodic_memory_pattern", "Memoire d'un pattern specifique.", {"pattern": "string"}, handle_episodic_pattern),
+    ("self_improve_cycle", "Lancer un cycle d'auto-amelioration.", {}, handle_self_improve),
+    ("self_improve_history", "Historique des cycles d'amelioration.", {}, handle_self_improve_history),
+    ("agent_collab_chain", "Chaine collaborative: agents executent en sequence.", {"agents": "string", "prompt": "string"}, handle_collab_chain),
+    ("agent_collab_debate", "Debat multi-agents.", {"agents": "string", "question": "string"}, handle_collab_debate),
+    ("health_check", "Health check complet tous noeuds.", {}, handle_health_check),
+    ("health_heal", "Auto-healing des problemes detectes.", {}, handle_health_heal),
+    ("benchmark_quick", "Benchmark rapide 10 patterns.", {}, handle_benchmark_quick),
+    ("task_planner", "Planifier et decomposer une tache complexe.", {"prompt": "string"}, handle_task_planner),
+    ("task_planner_execute", "Planifier et executer une tache complexe.", {"prompt": "string"}, handle_task_planner_execute),
+    ("feedback_quality", "Rapport qualite de la boucle de retro.", {}, handle_feedback_quality),
+    ("feedback_trends", "Tendances qualite par pattern.", {}, handle_feedback_trends),
+    ("feedback_adjustments", "Ajustements routage suggerees.", {}, handle_feedback_adjustments),
+    # Phase 13: Dispatch Engine (3)
+    ("dispatch_engine", "Pipeline unifie: health→route→dispatch→feedback→memory.", {"pattern": "string", "prompt": "string"}, handle_dispatch_engine_dispatch),
+    ("dispatch_engine_stats", "Stats pipeline dispatch.", {}, handle_dispatch_engine_stats),
+    ("dispatch_engine_report", "Rapport detaille pipeline.", {}, handle_dispatch_engine_report),
+    # Phase 13: Prompt Optimizer (4)
+    ("prompt_optimize", "Optimiser un prompt pour un pattern.", {"pattern": "string", "prompt": "string"}, handle_prompt_optimize),
+    ("prompt_insights", "Insights prompts par pattern.", {"pattern": "string"}, handle_prompt_insights),
+    ("prompt_analyze", "Analyser qualite d'un prompt.", {"pattern": "string", "prompt": "string"}, handle_prompt_analyze),
+    ("prompt_templates", "Templates prompts optimises.", {}, handle_prompt_templates),
+    # Phase 13: Auto Scaler (3)
+    ("auto_scaler_metrics", "Metriques charge par noeud.", {}, handle_auto_scaler_metrics),
+    ("auto_scaler_evaluate", "Evaluer actions scaling.", {}, handle_auto_scaler_evaluate),
+    ("auto_scaler_capacity", "Rapport capacite cluster.", {}, handle_auto_scaler_capacity),
+    # Phase 13: Event Stream (3)
+    ("event_stream_events", "Evenements recents.", {"topic": "string"}, handle_event_stream_events),
+    ("event_stream_emit", "Emettre un evenement.", {"topic": "string"}, handle_event_stream_emit),
+    ("event_stream_stats", "Stats flux evenements.", {}, handle_event_stream_stats),
+    # Phase 13: Agent Ensemble (2)
+    ("ensemble_execute", "Ensemble multi-agents scoring+selection.", {"pattern": "string", "prompt": "string"}, handle_ensemble_execute),
+    ("ensemble_stats", "Stats ensemble executions.", {}, handle_ensemble_stats),
+    # Phase 14: Quality Gate (2)
+    ("quality_gate_evaluate", "Evaluer qualite d'un output.", {"pattern": "string", "prompt": "string", "content": "string"}, handle_quality_gate_evaluate),
+    ("quality_gate_report", "Rapport quality gate.", {}, handle_quality_gate_report),
+    # Phase 14: Pattern Lifecycle (3)
+    ("lifecycle_health", "Rapport sante patterns.", {}, handle_lifecycle_health),
+    ("lifecycle_actions", "Actions lifecycle suggerees.", {}, handle_lifecycle_actions),
+    ("lifecycle_evolve", "Evoluer un pattern.", {"pattern": "string", "model": "string"}, handle_lifecycle_evolve),
+    # Phase 14: Cluster Intelligence (3)
+    ("intelligence_report", "Rapport intelligence cluster complet.", {}, handle_intelligence_report),
+    ("intelligence_status", "Statut rapide cluster.", {}, handle_intelligence_status),
+    ("intelligence_actions", "Actions prioritaires cluster.", {}, handle_intelligence_actions),
+    # Cowork Bridge v2 (4)
+    ("cowork_v2_list", "Lister scripts cowork (414+ scripts).", {"category": "string"}, handle_cowork_v2_list),
+    ("cowork_v2_search", "Chercher un script cowork.", {"query": "string"}, handle_cowork_v2_search),
+    ("cowork_v2_execute", "Executer un script cowork.", {"script": "string"}, handle_cowork_v2_execute),
+    ("cowork_v2_stats", "Stats cowork bridge.", {}, handle_cowork_v2_stats),
 ]
+
+# ── COWORK MCP Bridge ─────────────────────────────────────────────────
+try:
+    import sys as _sys
+    _sys.path.insert(0, str(Path(__file__).parent.parent))
+    from cowork.cowork_mcp_bridge import CoworkBridge
+    _cowork = CoworkBridge()
+
+    async def _cowork_handler(tool_name):
+        async def handler(args):
+            result = _cowork.handle(tool_name, args)
+            return [TextContent(type="text", text=json.dumps(result, indent=2, ensure_ascii=False))]
+        return handler
+
+    _cowork_tools = [
+        ("cowork_dispatch", "Trouve les scripts COWORK matching une requete.", {"query": "string"}, None),
+        ("cowork_execute", "Execute un script COWORK par nom.", {"script": "string", "args": "array", "timeout": "integer"}, None),
+        ("cowork_list", "Liste les scripts COWORK, filtre optionnel par pattern.", {"pattern": "string"}, None),
+        ("cowork_status", "Statut du systeme COWORK (patterns, scripts, dispatches).", {}, None),
+        ("cowork_test", "Teste un script COWORK (syntax + --help).", {"script": "string"}, None),
+        ("cowork_gaps", "Analyse des lacunes de couverture COWORK.", {}, None),
+        ("cowork_anticipate", "Predictions des besoins depuis les patterns de dispatch.", {}, None),
+    ]
+
+    for _name, _desc, _schema, _ in _cowork_tools:
+        async def _make_handler(tn=_name):
+            async def h(args):
+                r = _cowork.handle(tn, args)
+                return [TextContent(type="text", text=json.dumps(r, indent=2, ensure_ascii=False))]
+            return h
+
+        import asyncio as _aio
+        _h = _aio.get_event_loop().run_until_complete(_make_handler(_name)) if False else None
+
+        def _sync_handler_factory(tn=_name):
+            async def h(args):
+                r = _cowork.handle(tn, args)
+                return [TextContent(type="text", text=json.dumps(r, indent=2, ensure_ascii=False))]
+            return h
+
+        TOOL_DEFINITIONS.append((_name, _desc, _schema, _sync_handler_factory(_name)))
+
+    logger.info("COWORK MCP bridge loaded: 7 tools")
+except Exception as _e:
+    logger.warning("COWORK MCP bridge not loaded: %s", _e)
 
 # Build handler map
 HANDLERS: dict[str, Any] = {}

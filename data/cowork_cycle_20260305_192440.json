@@ -1,0 +1,736 @@
+{
+  "cycle": "full",
+  "tests": {
+    "total": 331,
+    "ok": 331,
+    "fail": 0,
+    "missing": 0,
+    "warnings_total": 32,
+    "avg_lines": 225,
+    "avg_functions": 7,
+    "with_docstring": 329,
+    "with_argparse": 304,
+    "with_main": 331,
+    "non_stdlib": [
+      "Non-stdlib import: statistics",
+      "Non-stdlib import: psutil",
+      "Non-stdlib import: psutil",
+      "Non-stdlib import: requests",
+      "Non-stdlib import: psutil",
+      "Non-stdlib import: functions",
+      "Non-stdlib import: psutil",
+      "Non-stdlib import: gzip",
+      "Non-stdlib import: importlib.util",
+      "Non-stdlib import: openclaw_watchdog",
+      "Non-stdlib import: psutil",
+      "Non-stdlib import: shlex",
+      "Non-stdlib import: statistics",
+      "Non-stdlib import: prompt_router",
+      "Non-stdlib import: statistics",
+      "Non-stdlib import: importlib.util",
+      "Non-stdlib import: unittest",
+      "Non-stdlib import: zipfile",
+      "Non-stdlib import: shlex"
+    ],
+    "elapsed_s": 26.5,
+    "timestamp": "2026-03-05T19:24:38.917036"
+  },
+  "gaps": {
+    "patterns_by_script_count": {
+      "PAT_CW_BROWSER": 2,
+      "PAT_CW_FILE_WATCH": 2,
+      "PAT_CW_ROUTING": 4,
+      "PAT_CW_TRADING": 5,
+      "PAT_CW_DEVTOOLS": 6,
+      "PAT_CW_COMMS": 7,
+      "PAT_CW_WIN_SECURITY": 7,
+      "PAT_CW_WIN_AUTOMATION": 8,
+      "PAT_CW_JARVIS_CORE": 9,
+      "PAT_CW_WIN_MAINTENANCE": 10,
+      "PAT_CW_WIN_NETWORK": 10,
+      "PAT_CW_IA_ORCHESTRATION": 11,
+      "PAT_CW_JARVIS_DEVOPS": 11,
+      "PAT_CW_CLUSTER": 12,
+      "PAT_CW_IA_ANALYSIS": 12,
+      "PAT_CW_IA_GENERATION": 12,
+      "PAT_CW_IA_LEARNING": 12,
+      "PAT_CW_IA_OPTIMIZATION": 12,
+      "PAT_CW_JARVIS_EVOLVE": 12,
+      "PAT_CW_JARVIS_INTELLIGENCE": 12,
+      "PAT_CW_JARVIS_VOICE": 12,
+      "PAT_CW_WIN_MONITORING": 12,
+      "PAT_CW_AUTONOMOUS": 13,
+      "PAT_CW_JARVIS_NLP": 14,
+      "PAT_CW_JARVIS_PIPES": 14,
+      "PAT_CW_DATA": 15,
+      "PAT_CW_JARVIS_DASHBOARD": 15,
+      "PAT_CW_WIN_MEDIA": 15,
+      "PAT_CW_WIN_DESKTOP": 21,
+      "PAT_CW_WIN_SYSTEM": 22
+    },
+    "unused_patterns": [
+      {
+        "pattern_id": "PAT_CW_WIN_MONITORING",
+        "agent_id": "cw-win-monitoring",
+        "description": "COWORK Windows Monitoring — thermal GPU, memoire, CPU, I/O disque, evenements systeme"
+      },
+      {
+        "pattern_id": "PAT_CW_WIN_NETWORK",
+        "agent_id": "cw-win-network",
+        "description": "COWORK Windows Network — firewall, WiFi, DNS, VPN, analyse reseau"
+      },
+      {
+        "pattern_id": "PAT_CW_WIN_SYSTEM",
+        "agent_id": "cw-win-system",
+        "description": "COWORK Windows System — services, processus, registre, startup, drivers, WSL"
+      },
+      {
+        "pattern_id": "PAT_CW_WIN_DESKTOP",
+        "agent_id": "cw-win-desktop",
+        "description": "COWORK Windows Desktop — fenetres, ecrans, clipboard, audio, bureaux virtuels"
+      },
+      {
+        "pattern_id": "PAT_CW_WIN_SECURITY",
+        "agent_id": "cw-win-security",
+        "description": "COWORK Windows Security — backup, Defender, privacy, certificats, protection"
+      },
+      {
+        "pattern_id": "PAT_CW_WIN_AUTOMATION",
+        "agent_id": "cw-win-automation",
+        "description": "COWORK Windows Automation — lanceurs intelligents, taches automatisees"
+      },
+      {
+        "pattern_id": "PAT_CW_WIN_MAINTENANCE",
+        "agent_id": "cw-win-maintenance",
+        "description": "COWORK Windows Maintenance — nettoyage, defrag, pagefile, updates, restauration"
+      },
+      {
+        "pattern_id": "PAT_CW_WIN_MEDIA",
+        "agent_id": "cw-win-media",
+        "description": "COWORK Windows Media — fichiers media, polices, imprimantes, peripheriques"
+      },
+      {
+        "pattern_id": "PAT_CW_JARVIS_CORE",
+        "agent_id": "cw-jarvis-core",
+        "description": "COWORK JARVIS Core — config, state machine, rules, plugins, templates, API"
+      },
+      {
+        "pattern_id": "PAT_CW_JARVIS_VOICE",
+        "agent_id": "cw-jarvis-voice",
+        "description": "COWORK JARVIS Voice — wake word, profils vocaux, dictation, TTS, pipeline audio"
+      },
+      {
+        "pattern_id": "PAT_CW_JARVIS_NLP",
+        "agent_id": "cw-jarvis-nlp",
+        "description": "COWORK JARVIS NLP — intent, sentiment, conversation, dialog, multi-langue"
+      },
+      {
+        "pattern_id": "PAT_CW_JARVIS_DEVOPS",
+        "agent_id": "cw-jarvis-devops",
+        "description": "COWORK JARVIS DevOps — backup, changelog, permissions, secrets, release"
+      },
+      {
+        "pattern_id": "PAT_CW_JARVIS_INTELLIGENCE",
+        "agent_id": "cw-jarvis-intelligence",
+        "description": "COWORK JARVIS Intelligence — patterns, cache, A/B test, prediction, brain, embedding"
+      },
+      {
+        "pattern_id": "PAT_CW_JARVIS_PIPES",
+        "agent_id": "cw-jarvis-pipes",
+        "description": "COWORK JARVIS Pipelines — crons, macros, webhooks, events, notifications"
+      },
+      {
+        "pattern_id": "PAT_CW_JARVIS_EVOLVE",
+        "agent_id": "cw-jarvis-evolve",
+        "description": "COWORK JARVIS Self-Evolution — auto-amelioration, skills generation, evolution"
+      },
+      {
+        "pattern_id": "PAT_CW_JARVIS_DASHBOARD",
+        "agent_id": "cw-jarvis-dashboard",
+        "description": "COWORK JARVIS Dashboard — meta dashboard, health, analytics, ROI, briefing"
+      },
+      {
+        "pattern_id": "PAT_CW_IA_GENERATION",
+        "agent_id": "cw-ia-generation",
+        "description": "COWORK IA Generation — code, docs, tests, stories, images, data synthesis"
+      },
+      {
+        "pattern_id": "PAT_CW_IA_OPTIMIZATION",
+        "agent_id": "cw-ia-optimization",
+        "description": "COWORK IA Optimization — prompts, couts, routing, poids, inference, benchmark"
+      },
+      {
+        "pattern_id": "PAT_CW_IA_LEARNING",
+        "agent_id": "cw-ia-learning",
+        "description": "COWORK IA Learning — auto-critique, distillation, curriculum, transfer learning"
+      },
+      {
+        "pattern_id": "PAT_CW_IA_ORCHESTRATION",
+        "agent_id": "cw-ia-orchestration",
+        "description": "COWORK IA Orchestration — swarm, agents, ensemble voting, debate, goals"
+      },
+      {
+        "pattern_id": "PAT_CW_IA_ANALYSIS",
+        "agent_id": "cw-ia-analysis",
+        "description": "COWORK IA Analysis — anomalies, fact-check, hypotheses, experiments, CoT"
+      },
+      {
+        "pattern_id": "PAT_CW_CLUSTER",
+        "agent_id": "cw-cluster",
+        "description": "COWORK Cluster Management — autotuner, benchmark, failover, load prediction, sync"
+      },
+      {
+        "pattern_id": "PAT_CW_TRADING",
+        "agent_id": "cw-trading",
+        "description": "COWORK Trading Pipeline — signaux, backtest, portfolio, risk management"
+      },
+      {
+        "pattern_id": "PAT_CW_COMMS",
+        "agent_id": "cw-comms",
+        "description": "COWORK Communications — Telegram, email, rapports, notifications"
+      },
+      {
+        "pattern_id": "PAT_CW_DEVTOOLS",
+        "agent_id": "cw-devtools",
+        "description": "COWORK DevTools — code generation, review, tests continus, MCP testing"
+      },
+      {
+        "pattern_id": "PAT_CW_AUTONOMOUS",
+        "agent_id": "cw-autonomous",
+        "description": "COWORK Autonomous Ops — scheduler, monitor, healer, deployer, auto-learning"
+      },
+      {
+        "pattern_id": "PAT_CW_DATA",
+        "agent_id": "cw-data",
+        "description": "COWORK Data Management — DB optimization, exports, knowledge graph, metrics"
+      },
+      {
+        "pattern_id": "PAT_CW_ROUTING",
+        "agent_id": "cw-routing",
+        "description": "COWORK Routing — prompt routing, node balancing, model management, orchestration"
+      },
+      {
+        "pattern_id": "PAT_CW_BROWSER",
+        "agent_id": "cw-browser",
+        "description": "COWORK Browser — automation navigateur, macros, pilotage Chrome/Edge"
+      },
+      {
+        "pattern_id": "PAT_CW_FILE_WATCH",
+        "agent_id": "cw-file-watch",
+        "description": "COWORK File Watch — surveillance fichiers, backups, organisation, rotation logs"
+      }
+    ],
+    "unmapped_scripts": [
+      "ia_context_compressor",
+      "registry_manager",
+      "task_queue"
+    ],
+    "category_distribution": {
+      "agent": 1,
+      "ai": 1,
+      "alert": 1,
+      "anomaly": 1,
+      "api": 1,
+      "audio": 1,
+      "auto": 11,
+      "autonomous": 1,
+      "bluetooth": 1,
+      "browser": 2,
+      "clipboard": 1,
+      "cluster": 7,
+      "code": 2,
+      "config": 1,
+      "context": 1,
+      "continuous": 3,
+      "conversation": 1,
+      "cross": 1,
+      "dashboard": 1,
+      "data": 1,
+      "db": 1,
+      "decision": 1,
+      "deployment": 1,
+      "desktop": 2,
+      "display": 1,
+      "domino": 1,
+      "driver": 1,
+      "electron": 1,
+      "email": 1,
+      "event": 2,
+      "file": 1,
+      "generate": 1,
+      "gpu": 2,
+      "health": 1,
+      "ia": 50,
+      "intent": 1,
+      "interaction": 1,
+      "jarvis": 76,
+      "knowledge": 2,
+      "load": 1,
+      "log": 2,
+      "mcp": 1,
+      "memory": 1,
+      "metrics": 1,
+      "model": 3,
+      "multi": 1,
+      "network": 2,
+      "node": 1,
+      "notification": 1,
+      "openclaw": 1,
+      "performance": 1,
+      "pipeline": 1,
+      "portfolio": 1,
+      "power": 1,
+      "prediction": 1,
+      "proactive": 1,
+      "process": 1,
+      "prompt": 2,
+      "registry": 1,
+      "report": 1,
+      "resource": 1,
+      "response": 1,
+      "risk": 1,
+      "scheduled": 1,
+      "screenshot": 1,
+      "security": 1,
+      "self": 2,
+      "service": 2,
+      "signal": 1,
+      "smart": 2,
+      "startup": 1,
+      "system": 2,
+      "task": 3,
+      "telegram": 4,
+      "test": 1,
+      "trading": 1,
+      "tts": 1,
+      "usage": 1,
+      "usb": 1,
+      "voice": 5,
+      "wifi": 1,
+      "win": 79,
+      "window": 1,
+      "windows": 2,
+      "workspace": 2
+    },
+    "potential_gaps": [
+      {
+        "name": "log_compressor",
+        "description": "Compress and archive old logs automatically"
+      },
+      {
+        "name": "api_rate_limiter",
+        "description": "Rate limiting for cluster API calls"
+      },
+      {
+        "name": "model_health_checker",
+        "description": "Deep health check of loaded models (not just ping)"
+      },
+      {
+        "name": "voice_command_fuzzer",
+        "description": "Fuzz test voice commands for edge cases"
+      },
+      {
+        "name": "config_drift_detector",
+        "description": "Detect config differences between nodes"
+      },
+      {
+        "name": "dependency_vulnerability_scanner",
+        "description": "Check Python stdlib usage for known issues"
+      },
+      {
+        "name": "performance_regression_detector",
+        "description": "Compare benchmarks over time"
+      },
+      {
+        "name": "auto_documentation_updater",
+        "description": "Keep COWORK_TASKS.md in sync with scripts"
+      },
+      {
+        "name": "script_deduplication",
+        "description": "Find and merge duplicate/overlapping scripts"
+      },
+      {
+        "name": "cross_script_integration_tester",
+        "description": "Test that scripts work together"
+      },
+      {
+        "name": "predictive_failure_detector",
+        "description": "Predict script failures from patterns"
+      },
+      {
+        "name": "resource_contention_monitor",
+        "description": "Detect GPU/CPU contention between scripts"
+      }
+    ],
+    "total_capabilities": 18,
+    "timestamp": "2026-03-05T19:24:38.942535"
+  },
+  "predictions": {
+    "predictions": [
+      {
+        "type": "high_demand",
+        "pattern": "simple",
+        "calls": 225,
+        "action": "Add more scripts for 'simple' pattern (most used: 225 calls)"
+      },
+      {
+        "type": "reliability",
+        "pattern": "architecture",
+        "fails": 60,
+        "action": "Fix reliability issues in 'architecture' (60 failures)"
+      },
+      {
+        "type": "reliability",
+        "pattern": "security",
+        "fails": 54,
+        "action": "Fix reliability issues in 'security' (54 failures)"
+      },
+      {
+        "type": "reliability",
+        "pattern": "analysis",
+        "fails": 54,
+        "action": "Fix reliability issues in 'analysis' (54 failures)"
+      },
+      {
+        "type": "performance",
+        "pattern": "web",
+        "avg_latency": 35066,
+        "action": "Optimize 'web' (avg 35.1s)"
+      },
+      {
+        "type": "performance",
+        "pattern": "xl",
+        "avg_latency": 30491,
+        "action": "Optimize 'xl' (avg 30.5s)"
+      },
+      {
+        "type": "performance",
+        "pattern": "trading",
+        "avg_latency": 30367,
+        "action": "Optimize 'trading' (avg 30.4s)"
+      },
+      {
+        "type": "maintenance",
+        "script": "agent_orchestrator",
+        "lines": 924,
+        "action": "Refactor agent_orchestrator (924 lines, 27 functions)"
+      },
+      {
+        "type": "maintenance",
+        "script": "browser_pilot",
+        "lines": 442,
+        "action": "Refactor browser_pilot (442 lines, 24 functions)"
+      },
+      {
+        "type": "maintenance",
+        "script": "code_generator",
+        "lines": 754,
+        "action": "Refactor code_generator (754 lines, 12 functions)"
+      },
+      {
+        "type": "maintenance",
+        "script": "continuous_coder",
+        "lines": 433,
+        "action": "Refactor continuous_coder (433 lines, 13 functions)"
+      },
+      {
+        "type": "maintenance",
+        "script": "conversation_manager",
+        "lines": 431,
+        "action": "Refactor conversation_manager (431 lines, 11 functions)"
+      }
+    ],
+    "hot_patterns": [
+      {
+        "pattern_type": "simple",
+        "cnt": 225,
+        "avg_lat": 8692.09443296555,
+        "success_rate": 1.0
+      },
+      {
+        "pattern_type": "code",
+        "cnt": 176,
+        "avg_lat": 25095.668597401327,
+        "success_rate": 0.75
+      },
+      {
+        "pattern_type": "reasoning",
+        "cnt": 165,
+        "avg_lat": 35245.270285022816,
+        "success_rate": 0.7333333333333333
+      },
+      {
+        "pattern_type": "data",
+        "cnt": 154,
+        "avg_lat": 29734.77715006759,
+        "success_rate": 0.6558441558441559
+      },
+      {
+        "pattern_type": "analysis",
+        "cnt": 153,
+        "avg_lat": 28606.98998919208,
+        "success_rate": 0.6470588235294118
+      },
+      {
+        "pattern_type": "architecture",
+        "cnt": 152,
+        "avg_lat": 30400.250560349552,
+        "success_rate": 0.6052631578947368
+      },
+      {
+        "pattern_type": "security",
+        "cnt": 150,
+        "avg_lat": 29715.668161336624,
+        "success_rate": 0.64
+      },
+      {
+        "pattern_type": "math",
+        "cnt": 150,
+        "avg_lat": 31518.564812411933,
+        "success_rate": 0.86
+      },
+      {
+        "pattern_type": "trading",
+        "cnt": 146,
+        "avg_lat": 30267.39411727161,
+        "success_rate": 0.7191780821917808
+      },
+      {
+        "pattern_type": "creative",
+        "cnt": 144,
+        "avg_lat": 20724.501422460187,
+        "success_rate": 0.9513888888888888
+      }
+    ],
+    "failing_patterns": [
+      {
+        "pattern_type": "architecture",
+        "fails": 60
+      },
+      {
+        "pattern_type": "security",
+        "fails": 54
+      },
+      {
+        "pattern_type": "analysis",
+        "fails": 54
+      },
+      {
+        "pattern_type": "data",
+        "fails": 53
+      },
+      {
+        "pattern_type": "reasoning",
+        "fails": 44
+      }
+    ],
+    "slow_patterns": [
+      {
+        "pattern_type": "web",
+        "avg_lat": 35066.0480071428,
+        "cnt": 28
+      },
+      {
+        "pattern_type": "xl",
+        "avg_lat": 30491.401314735413,
+        "cnt": 4
+      },
+      {
+        "pattern_type": "trading",
+        "avg_lat": 30367.072799326008,
+        "cnt": 105
+      },
+      {
+        "pattern_type": "devops",
+        "avg_lat": 28336.655261853273,
+        "cnt": 115
+      },
+      {
+        "pattern_type": "math",
+        "avg_lat": 28027.828386743484,
+        "cnt": 129
+      },
+      {
+        "pattern_type": "reasoning",
+        "avg_lat": 27903.112611889585,
+        "cnt": 121
+      },
+      {
+        "pattern_type": "data",
+        "avg_lat": 27662.480418345902,
+        "cnt": 101
+      },
+      {
+        "pattern_type": "architecture",
+        "avg_lat": 26573.793192242712,
+        "cnt": 92
+      },
+      {
+        "pattern_type": "large",
+        "avg_lat": 26539.14656639099,
+        "cnt": 5
+      },
+      {
+        "pattern_type": "security",
+        "avg_lat": 26368.90220794293,
+        "cnt": 96
+      },
+      {
+        "pattern_type": "analysis",
+        "avg_lat": 26065.526648953426,
+        "cnt": 99
+      },
+      {
+        "pattern_type": "code",
+        "avg_lat": 25830.54586774721,
+        "cnt": 132
+      },
+      {
+        "pattern_type": "medium",
+        "avg_lat": 25667.744755744934,
+        "cnt": 8
+      },
+      {
+        "pattern_type": "system",
+        "avg_lat": 25115.121337141416,
+        "cnt": 134
+      },
+      {
+        "pattern_type": "micro",
+        "avg_lat": 23289.223766326904,
+        "cnt": 25
+      }
+    ],
+    "complex_scripts": [
+      {
+        "script": "agent_orchestrator",
+        "lines": 924,
+        "functions": 27,
+        "needs": "refactoring"
+      },
+      {
+        "script": "browser_pilot",
+        "lines": 442,
+        "functions": 24,
+        "needs": "review"
+      },
+      {
+        "script": "code_generator",
+        "lines": 754,
+        "functions": 12,
+        "needs": "refactoring"
+      },
+      {
+        "script": "continuous_coder",
+        "lines": 433,
+        "functions": 13,
+        "needs": "review"
+      },
+      {
+        "script": "conversation_manager",
+        "lines": 431,
+        "functions": 11,
+        "needs": "review"
+      },
+      {
+        "script": "decision_engine",
+        "lines": 475,
+        "functions": 12,
+        "needs": "review"
+      },
+      {
+        "script": "gpu_optimizer",
+        "lines": 935,
+        "functions": 14,
+        "needs": "refactoring"
+      },
+      {
+        "script": "ia_knowledge_distiller",
+        "lines": 445,
+        "functions": 14,
+        "needs": "review"
+      },
+      {
+        "script": "ia_self_critic",
+        "lines": 407,
+        "functions": 11,
+        "needs": "review"
+      },
+      {
+        "script": "interaction_predictor",
+        "lines": 414,
+        "functions": 10,
+        "needs": "review"
+      },
+      {
+        "script": "jarvis_orchestrator_v3",
+        "lines": 411,
+        "functions": 12,
+        "needs": "review"
+      },
+      {
+        "script": "jarvis_webhook_server",
+        "lines": 431,
+        "functions": 14,
+        "needs": "review"
+      },
+      {
+        "script": "knowledge_updater",
+        "lines": 471,
+        "functions": 13,
+        "needs": "review"
+      },
+      {
+        "script": "memory_optimizer",
+        "lines": 1068,
+        "functions": 16,
+        "needs": "refactoring"
+      },
+      {
+        "script": "model_benchmark",
+        "lines": 453,
+        "functions": 11,
+        "needs": "review"
+      },
+      {
+        "script": "network_optimizer",
+        "lines": 1032,
+        "functions": 20,
+        "needs": "refactoring"
+      },
+      {
+        "script": "telegram_stats",
+        "lines": 652,
+        "functions": 12,
+        "needs": "refactoring"
+      },
+      {
+        "script": "voice_browser_nav",
+        "lines": 425,
+        "functions": 4,
+        "needs": "review"
+      },
+      {
+        "script": "win_power_plan_manager",
+        "lines": 437,
+        "functions": 11,
+        "needs": "review"
+      },
+      {
+        "script": "win_startup_profiler",
+        "lines": 412,
+        "functions": 10,
+        "needs": "review"
+      }
+    ],
+    "timestamp": "2026-03-05T19:24:39.927058"
+  },
+  "sync": {
+    "new": 0,
+    "updated": 0,
+    "unchanged": 331,
+    "total": 331,
+    "timestamp": "2026-03-05T19:24:40.017556"
+  },
+  "timestamp": "2026-03-05T19:24:40.017556"
+}
