@@ -151,6 +151,250 @@ Nouveau champion code cloud via Ollama : **gpt-oss:120b** score parfait 100/100 
 
 ---
 
+## Utilisation — Comment parler a JARVIS
+
+JARVIS est un assistant IA personnel autonome controlable depuis **Telegram** (@turboSSebot). Il suffit d'ecrire ou de parler, JARVIS execute et repond en vocal.
+
+### Communication
+
+```
+Tu parles ou ecris dans Telegram
+    |
+    +-- Message texte → JARVIS lit et execute immediatement
+    +-- Message vocal → Whisper transcrit ta voix → JARVIS execute
+    |
+    v
+JARVIS repond en TEXTE + MESSAGE VOCAL (voix Denise, femme francaise)
+```
+
+**Pas besoin de commandes speciales.** Tu parles naturellement en francais et JARVIS comprend ce que tu veux. Il ne demande jamais de confirmation — il execute directement et te dit quand c'est fini.
+
+### Ce que tu peux demander
+
+#### Emails
+| Tu dis... | JARVIS fait... |
+|-----------|----------------|
+| "lis mes mails" | Lit les derniers emails des 2 comptes Gmail (perso + mining) |
+| "j'ai des mails ?" | Verifie les boites de reception et resume les nouveaux messages |
+| "envoie un mail a X" | Redige et envoie un email via le compte configure |
+
+#### Marche & Trading
+| Tu dis... | JARVIS fait... |
+|-----------|----------------|
+| "scan le marche" | Analyse les 10 paires crypto (BTC, ETH, SOL, SUI, PEPE, DOGE, XRP, ADA, AVAX, LINK) |
+| "signal trading" | Genere des signaux d'achat/vente avec score de confiance (seuil 70/100) |
+| "comment va le bitcoin" | Donne le prix, tendance et analyse technique |
+| "backtest la strategie" | Retro-analyse les performances des signaux passes |
+| "portfolio" | Affiche le portefeuille, gains/pertes, positions ouvertes |
+
+#### Controle Windows
+| Tu dis... | JARVIS fait... |
+|-----------|----------------|
+| "range le bureau" | Organise les fichiers du bureau dans des dossiers par type |
+| "optimise le PC" | Lance l'optimisation Windows (cache, temp files, services) |
+| "espace disque" | Affiche l'espace libre sur C: et F: |
+| "temperature GPU" | Affiche les temperatures et VRAM des 10 GPU |
+| "processus" | Liste les processus les plus gourmands en CPU/RAM |
+| "screenshot" | Prend une capture d'ecran et l'envoie sur Telegram |
+| "wifi" | Affiche l'etat de la connexion WiFi |
+| "bluetooth" | Status des peripheriques Bluetooth |
+| "volume" | Controle le volume audio du PC |
+| "pilotes" | Verifie les drivers Windows et detecte les problemes |
+| "registre" | Gere le registre Windows (lecture, nettoyage) |
+| "sauvegarde" | Lance un backup complet du systeme |
+| "securite" | Scan de securite complet (ports, services, vulnerabilites) |
+| "reseau" | Monitore le reseau local et la bande passante |
+| "USB" | Detecte les peripheriques USB connectes |
+
+#### Cluster IA
+| Tu dis... | JARVIS fait... |
+|-----------|----------------|
+| "status cluster" | Verifie les 4 noeuds (M1, M2, M3, OL1) et leurs modeles |
+| "health check" | Diagnostic complet du cluster avec scores |
+| "benchmark" | Teste les performances de chaque noeud IA |
+| "charge un modele" | Charge/decharge des modeles sur LM Studio ou Ollama |
+
+#### Taches & Rapports
+| Tu dis... | JARVIS fait... |
+|-----------|----------------|
+| "rapport" | Genere un bilan complet : systeme, cluster, trading, emails |
+| "status" | Resume rapide de l'etat du systeme |
+| "aide" | Liste toutes les commandes disponibles |
+| Toute question complexe | Dispatch au cluster IA pour une reponse intelligente |
+
+### Taches Automatisees (sans rien demander)
+
+JARVIS execute ces taches tout seul, 24h/24, et te previent sur Telegram si quelque chose d'important se passe :
+
+#### Monitoring continu
+| Tache | Frequence | Action |
+|-------|-----------|--------|
+| **Health check cluster** | Toutes les heures | Verifie M1/M2/M3/OL1, alerte si un noeud tombe |
+| **Status systeme** | Toutes les 15 min | CPU, RAM, GPU, disques — alerte si seuils depasses |
+| **Trading scan** | Toutes les 30 min | Scanne les 10 paires crypto, envoie signaux si score > 70 |
+| **Surveillance GPU** | Continue | Alerte si temperature > 80C, decharge le modele si > 85C |
+
+#### Maintenance automatique
+| Tache | Frequence | Action |
+|-------|-----------|--------|
+| **Backup** | Chaque nuit 2h | Sauvegarde les configs, scripts et bases de donnees |
+| **Optimisation DB** | Chaque nuit 4h | VACUUM et reindex des 4 bases SQLite |
+| **Scan securite** | Chaque nuit 3h | Audit ports, services, permissions Windows |
+| **Mise a jour check** | Chaque matin 7h | Verifie les mises a jour disponibles |
+| **Rapport quotidien** | Chaque matin 8h | Resume de la nuit envoye sur Telegram |
+| **Rotation logs** | Quotidien | Nettoie les logs > 7 jours |
+
+#### Developpement continu (COWORK)
+| Tache | Frequence | Action |
+|-------|-----------|--------|
+| **Amelioration scripts** | Toutes les 2h | Analyse et corrige les scripts existants dans dev/ |
+| **Creation scripts** | Toutes les 6h | Cree le prochain script PENDING de la queue COWORK |
+| **Tests automatiques** | Toutes les 4h | Teste tous les scripts avec --help, corrige les fails |
+| **Optimisation cluster** | Toutes les 8h | Analyse les performances et optimise le routing |
+| **Services Windows** | Toutes les 4h | Verifie et developpe les integrations Windows |
+| **IA autonome** | Toutes les 3h | Developpe les fonctionnalites d'IA autonome |
+| **Outils MCP** | Toutes les 6h | Ameliore les outils MCP du cluster |
+| **Features Telegram** | Toutes les 12h | Ameliore le bot Telegram et ses commandes |
+| **Infra de tests** | Quotidien | Ameliore la couverture de tests |
+
+### Les 91 scripts operationnels
+
+<details>
+<summary><b>Liste complete des scripts dev/ (cliquer pour voir)</b></summary>
+
+| Script | Fonction |
+|--------|----------|
+| **telegram_commander.py** | Hub central — emails, status, trading, health, services, benchmark |
+| **win_tts.py** | Synthese vocale DeniseNeural → OGG Opus → Telegram |
+| **email_reader.py** | Lecture Gmail 2 comptes (perso + mining) |
+| **auto_trader.py** | Trading algorithmique MEXC Futures 10x |
+| **signal_backtester.py** | Backtest strategies trading |
+| **portfolio_tracker.py** | Suivi portefeuille crypto |
+| **risk_manager.py** | Gestion du risque trading |
+| **trading_intelligence.py** | Analyse marche multi-IA |
+| **gpu_thermal_guard.py** | Surveillance thermique GPU avec alertes |
+| **process_manager.py** | Gestion processus Windows (top, kill) |
+| **file_organizer.py** | Range les fichiers par type/date |
+| **win_optimizer.py** | Optimisation Windows (cache, services, startup) |
+| **win_backup.py** | Backup systeme automatise |
+| **security_scanner.py** | Audit securite complet |
+| **network_monitor.py** | Monitoring reseau et bande passante |
+| **audio_controller.py** | Controle volume audio |
+| **screenshot_tool.py** | Capture ecran → Telegram |
+| **bluetooth_manager.py** | Gestion peripheriques Bluetooth |
+| **wifi_manager.py** | Status et gestion WiFi |
+| **usb_monitor.py** | Detection peripheriques USB |
+| **driver_checker.py** | Verification pilotes Windows |
+| **registry_manager.py** | Gestion registre Windows |
+| **system_restore.py** | Points de restauration Windows |
+| **scheduled_task_creator.py** | Taches planifiees Windows |
+| **display_manager.py** | Gestion ecrans et resolution |
+| **power_manager.py** | Plans d'alimentation Windows |
+| **startup_manager.py** | Programmes au demarrage |
+| **health_checker.py** | Diagnostic sante systeme |
+| **system_benchmark.py** | Benchmark performances |
+| **db_optimizer.py** | Optimisation bases SQLite |
+| **log_analyzer.py** | Analyse fichiers log |
+| **log_rotator.py** | Rotation et nettoyage logs |
+| **api_monitor.py** | Monitoring APIs du cluster |
+| **resource_forecaster.py** | Prediction utilisation ressources |
+| **alert_manager.py** | Gestionnaire alertes configurables |
+| **dashboard_generator.py** | Dashboard HTML metriques |
+| **metrics_collector.py** | Collecte metriques periodique |
+| **auto_monitor.py** | Monitoring automatique continu |
+| **auto_reporter.py** | Rapports automatiques |
+| **auto_scheduler.py** | Planification taches automatique |
+| **auto_healer.py** | Auto-reparation services |
+| **auto_updater.py** | Mise a jour automatique |
+| **auto_learner.py** | Apprentissage automatique patterns |
+| **auto_documenter.py** | Documentation auto du code |
+| **service_watcher.py** | Surveillance services Windows |
+| **load_balancer.py** | Equilibrage charge cluster |
+| **model_rotator.py** | Rotation modeles IA |
+| **intent_classifier.py** | Classification intentions texte |
+| **code_reviewer.py** | Revue automatique code |
+| **config_validator.py** | Validation configurations |
+| **test_generator.py** | Generation tests automatique |
+| **notification_hub.py** | Hub notifications multi-canal |
+| **event_logger.py** | Journal evenements systeme |
+| **performance_profiler.py** | Profilage performances |
+| **data_exporter.py** | Export donnees CSV/JSON |
+| **knowledge_graph.py** | Graphe de connaissances |
+| **context_engine.py** | Moteur de contexte conversationnel |
+| **prompt_optimizer.py** | Optimisation prompts IA |
+| **usage_analytics.py** | Analytiques utilisation |
+| **workspace_sync.py** | Synchronisation workspace |
+| **deployment_manager.py** | Gestion deploiements |
+| **smart_launcher.py** | Lanceur intelligent applications |
+| **report_mailer.py** | Envoi rapports par email |
+| **tts_cache_manager.py** | Cache synthese vocale |
+| **clipboard_history.py** | Historique presse-papier |
+| **task_queue.py** | File d'attente taches |
+| **task_automator.py** | Automatisation taches complexes |
+| **anomaly_detector.py** | Detection anomalies systeme |
+| **telegram_bot_monitor.py** | Monitoring bot Telegram |
+| **voice_trainer.py** | Entrainement reconnaissance vocale |
+| **ai_conversation.py** | Conversations multi-tours IA |
+| **ia_self_improver.py** | Auto-amelioration IA |
+| **ia_proactive_agent.py** | Agent proactif anticipation |
+| **jarvis_autonomy_engine.py** | Moteur d'autonomie JARVIS |
+| **jarvis_brain.py** | Cerveau central JARVIS |
+| **jarvis_conversation_memory.py** | Memoire conversationnelle |
+| **jarvis_feature_builder.py** | Constructeur de features |
+| **jarvis_night_ops.py** | Operations nocturnes automatiques |
+| **jarvis_self_evolve.py** | Auto-evolution du systeme |
+| **jarvis_skill_generator.py** | Generateur de skills |
+| **multi_agent_coordinator.py** | Coordination multi-agents |
+| **cluster_dashboard_api.py** | API dashboard cluster |
+| **cluster_autotuner.py** | Auto-tuning cluster |
+| **continuous_test_runner.py** | Tests continus automatiques |
+| **mcp_tool_tester.py** | Testeur outils MCP |
+| **voice_pipeline_optimizer.py** | Optimisation pipeline vocale |
+| **win_performance_tuner.py** | Tuning performances Windows |
+| **win_registry_guardian.py** | Gardien registre Windows |
+| **windows_service_hardener.py** | Durcissement services Windows |
+| **windows_integration_agent.py** | Agent integration Windows |
+| **electron_app_monitor.py** | Monitoring app Electron |
+| **auto_deployer.py** | Deploiement automatique |
+| **win_notify.py** | Notifications Windows natives |
+
+</details>
+
+### Exemple d'une journee type avec JARVIS
+
+```
+08:00 — JARVIS t'envoie un vocal : "Bonjour Franck voici ton rapport matinal
+         3 nouveaux mails 2 signaux trading cluster 100 pourcent en ligne"
+
+08:15 — Tu dis : "lis mes mails"
+         JARVIS lit les 2 boites Gmail et resume chaque email en vocal
+
+09:00 — Tu ecris : "scan le marche"
+         JARVIS analyse les 10 paires crypto, donne les signaux forts
+
+12:00 — [AUTOMATIQUE] JARVIS detecte GPU a 82C, decharge le modele lourd,
+         te previent en vocal : "GPU chaud j'ai decharge qwen3 30b"
+
+14:00 — Tu dis : "range le bureau"
+         JARVIS organise les fichiers par type (images, docs, code, videos)
+         et te confirme en vocal : "Bureau range 23 fichiers deplaces"
+
+15:30 — Tu ecris : "optimise le PC c'est lent"
+         JARVIS vide les caches, arrete les services inutiles, nettoie les temp files
+         et repond en vocal : "PC optimise 2.3 Go liberes"
+
+18:00 — [AUTOMATIQUE] Trading scan detecte un signal BTC fort (score 85/100)
+         JARVIS t'envoie : "Signal achat BTC score 85 tendance haussiere"
+
+22:00 — Tu dis : "bonne nuit"
+         JARVIS lance la routine du soir : backup, nettoyage logs, rapport fin de journee
+
+02:00 — [AUTOMATIQUE] Backup nocturne, optimisation DB, scan securite
+04:00 — [AUTOMATIQUE] COWORK : cree de nouveaux scripts, teste et ameliore les existants
+```
+
+---
+
 ## Nouveautes v10.3.10 — TTS Live + Domino Pipelines (174/174 PASS, 63 TTS)
 
 > **Synthese vocale TTS live** sur les 40 cascades domino : Edge TTS `fr-FR-DeniseNeural` annonce chaque categorie, chaque resultat, et produit un rapport vocal final. **63 messages TTS** joues en temps reel, **174/174 PASS en 336s** avec audio. **40 cascades** across **11 categories**, executees via `DominoExecutor` distribue sur le cluster M1/M2/M3/OL1.
