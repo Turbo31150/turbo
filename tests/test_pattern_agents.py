@@ -1619,6 +1619,54 @@ class TestDynamicTimeout:
         assert tokens == 4096  # Plenty of room
 
 
+class TestClassifyWithConfidence:
+    """Tests for PatternAgentRegistry.classify_with_confidence()."""
+
+    def test_returns_dict(self):
+        reg = PatternAgentRegistry()
+        result = reg.classify_with_confidence("Ecris une fonction Python")
+        assert isinstance(result, dict)
+        assert "pattern" in result
+        assert "confidence" in result
+        assert "candidates" in result
+
+    def test_code_high_confidence(self):
+        reg = PatternAgentRegistry()
+        result = reg.classify_with_confidence("Ecris un script Python pour parser JSON")
+        assert result["pattern"] == "code"
+        assert result["confidence"] > 0.3
+
+    def test_simple_from_short_prompt(self):
+        reg = PatternAgentRegistry()
+        result = reg.classify_with_confidence("bonjour")
+        assert result["pattern"] == "simple"
+        assert result["confidence"] >= 0.5
+
+    def test_candidates_sorted(self):
+        reg = PatternAgentRegistry()
+        result = reg.classify_with_confidence("analyse le code Python pour trouver les failles de securite")
+        assert len(result["candidates"]) >= 1
+        if len(result["candidates"]) >= 2:
+            assert result["candidates"][0]["score"] >= result["candidates"][1]["score"]
+
+    def test_heuristic_code_detection(self):
+        reg = PatternAgentRegistry()
+        result = reg.classify_with_confidence("def hello():\n    pass")
+        assert result["pattern"] == "code"
+
+    def test_confidence_bounded(self):
+        reg = PatternAgentRegistry()
+        result = reg.classify_with_confidence("calcule la derivee de x^2 et ecris le code Python")
+        assert 0 <= result["confidence"] <= 1.0
+
+    def test_backward_compat_classify(self):
+        reg = PatternAgentRegistry()
+        # classify() should still return just a string
+        result = reg.classify("trading BTC RSI MACD")
+        assert isinstance(result, str)
+        assert result == "trading"
+
+
 class TestSizeBasedAgents:
     """Tests for size-based pattern agents (nano/micro/small/medium/large/xl)."""
 

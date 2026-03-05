@@ -4646,20 +4646,23 @@ async def handle_agent_dispatch(args: dict) -> list[TextContent]:
 
 
 async def handle_agent_classify(args: dict) -> list[TextContent]:
-    """Classify a prompt into a pattern type."""
+    """Classify a prompt into a pattern type with confidence scoring."""
     from src.pattern_agents import PatternAgentRegistry
     prompt = args.get("prompt", "")
     if not prompt:
         return _error("prompt required")
     reg = PatternAgentRegistry()
-    pattern = reg.classify(prompt)
+    classification = reg.classify_with_confidence(prompt)
+    pattern = classification["pattern"]
     agent = reg.agents.get(pattern)
     return _text(json.dumps({
         "pattern": pattern,
+        "confidence": classification["confidence"],
+        "candidates": classification["candidates"],
         "agent": agent.agent_id if agent else "unknown",
         "node": agent.primary_node if agent else "M1",
         "strategy": agent.strategy if agent else "single",
-    }))
+    }, ensure_ascii=False))
 
 
 async def handle_agent_list(args: dict) -> list[TextContent]:

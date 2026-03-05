@@ -687,21 +687,53 @@ class PatternAgentRegistry:
             await self._client.aclose()
 
     def classify(self, prompt: str) -> str:
-        """Classify a prompt into a pattern type using keyword matching."""
+        """Classify a prompt into a pattern type. Returns best match."""
+        result = self.classify_with_confidence(prompt)
+        return result["pattern"]
+
+    def classify_with_confidence(self, prompt: str) -> dict:
+        """Classify with confidence score and top candidates.
+
+        Returns: {"pattern": str, "confidence": float, "candidates": list}
+        """
         prompt_lower = prompt.lower()
-        scores: dict[str, int] = {}
+        words = set(prompt_lower.split())
+        word_count = len(prompt.split())
+        scores: dict[str, float] = {}
+
         for ptype, agent in self.agents.items():
-            score = sum(1 for kw in agent.keywords if kw in prompt_lower)
-            if score > 0:
-                scores[ptype] = score
+            if not agent.keywords:  # Skip size-based agents (no keywords)
+                continue
+            # Keyword match score (weighted: exact word match > substring)
+            kw_score = 0
+            for kw in agent.keywords:
+                if kw in words:
+                    kw_score += 2.0  # Exact word match
+                elif kw in prompt_lower:
+                    kw_score += 1.0  # Substring match
+            if kw_score > 0:
+                scores[ptype] = kw_score
+
         if scores:
-            return max(scores, key=scores.get)
-        # Default heuristics
+            total_score = sum(scores.values())
+            best = max(scores, key=scores.get)
+            confidence = scores[best] / max(1, total_score)
+            # Top 3 candidates
+            candidates = sorted(scores.items(), key=lambda x: -x[1])[:3]
+            return {
+                "pattern": best,
+                "confidence": round(min(1.0, confidence), 3),
+                "candidates": [{"pattern": c[0], "score": c[1]} for c in candidates],
+            }
+
+        # Heuristic fallbacks with confidence
         if any(w in prompt_lower for w in ["def ", "class ", "import ", "```", "function"]):
-            return "code"
-        if len(prompt.split()) < 5:
-            return "simple"
-        return "analysis"  # default for unknown
+            return {"pattern": "code", "confidence": 0.7, "candidates": [{"pattern": "code", "score": 1}]}
+        if word_count < 5:
+            return {"pattern": "simple", "confidence": 0.8, "candidates": [{"pattern": "simple", "score": 1}]}
+        if word_count > 100:
+            return {"pattern": "analysis", "confidence": 0.4, "candidates": [{"pattern": "analysis", "score": 1}]}
+        return {"pattern": "analysis", "confidence": 0.3, "candidates": [{"pattern": "analysis", "score": 1}]}
 
     async def dispatch(self, pattern_type: str, prompt: str) -> AgentResult:
         """Dispatch to the right agent and log result."""

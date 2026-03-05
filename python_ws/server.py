@@ -4219,17 +4219,20 @@ async def api_agents_dispatch(request: Request):
 
 @app.post("/api/agents/classify")
 async def api_agents_classify(request: Request):
-    """Classify a prompt into a pattern type. Body: {prompt}"""
+    """Classify a prompt with confidence scoring. Body: {prompt}"""
     from src.pattern_agents import PatternAgentRegistry
     body = await request.json()
     prompt = body.get("prompt", "")
     if not prompt:
         raise HTTPException(400, "prompt required")
     reg = PatternAgentRegistry()
-    pattern = reg.classify(prompt)
+    classification = reg.classify_with_confidence(prompt)
+    pattern = classification["pattern"]
     agent = reg.agents.get(pattern)
     return {
         "pattern": pattern,
+        "confidence": classification["confidence"],
+        "candidates": classification["candidates"],
         "agent": agent.agent_id if agent else "unknown",
         "node": agent.primary_node if agent else "M1",
         "strategy": agent.strategy if agent else "single",
