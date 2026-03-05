@@ -717,6 +717,14 @@ class TestDispatchEngine:
         report = engine.get_pipeline_report()
         assert "total_dispatches" in report or "error" in report
 
+    def test_full_analytics(self):
+        from src.dispatch_engine import DispatchEngine
+        engine = DispatchEngine()
+        analytics = engine.get_full_analytics()
+        assert isinstance(analytics, dict)
+        if "error" not in analytics:
+            assert "recommendations" in analytics
+
     @pytest.mark.asyncio
     async def test_dispatch_simple(self):
         from src.dispatch_engine import DispatchEngine, PipelineConfig

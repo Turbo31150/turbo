@@ -631,6 +631,53 @@ class DispatchEngine:
         except Exception as e:
             return {"error": str(e)}
 
+    def get_full_analytics(self) -> dict:
+        """Comprehensive analytics: pipeline + benchmark + trend + recommendations."""
+        report = self.get_pipeline_report()
+        if "error" in report:
+            return report
+
+        # Add benchmark trend
+        try:
+            db = sqlite3.connect(DB_PATH)
+            bench_rows = db.execute("""
+                SELECT ok, total, rate, duration_s, timestamp
+                FROM benchmark_quick ORDER BY id DESC LIMIT 10
+            """).fetchall()
+            db.close()
+
+            benchmarks = [
+                {"ok": r[0], "total": r[1], "rate": round(r[2], 3),
+                 "duration_s": r[3], "timestamp": r[4]}
+                for r in bench_rows
+            ]
+            if benchmarks:
+                report["benchmark_trend"] = benchmarks
+                report["benchmark_latest"] = benchmarks[0]
+                rates = [b["rate"] for b in benchmarks]
+                report["benchmark_avg"] = round(sum(rates) / len(rates), 3)
+        except Exception:
+            pass
+
+        # Add recommendations
+        recommendations = []
+        for bp in report.get("by_pattern", []):
+            if bp["success_rate"] < 0.5:
+                recommendations.append(
+                    f"Pattern '{bp['pattern']}' at {bp['success_rate']*100:.0f}% — consider strategy change or cloud fallback"
+                )
+            if bp["avg_latency_ms"] > 30000:
+                recommendations.append(
+                    f"Pattern '{bp['pattern']}' avg latency {bp['avg_latency_ms']:.0f}ms — consider faster node"
+                )
+        for bn in report.get("by_node", []):
+            if bn["success_rate"] < 0.5 and bn["count"] > 5:
+                recommendations.append(
+                    f"Node '{bn['node']}' at {bn['success_rate']*100:.0f}% — may need health check"
+                )
+        report["recommendations"] = recommendations
+        return report
+
     async def batch_dispatch(self, tasks: list[dict],
                              concurrency: int = 3) -> list[DispatchResult]:
         """Dispatch multiple tasks with concurrency limit."""
