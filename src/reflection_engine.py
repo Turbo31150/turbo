@@ -69,6 +69,7 @@ class ReflectionEngine:
         insights.extend(self._reflect_reliability())
         insights.extend(self._reflect_efficiency())
         insights.extend(self._reflect_growth())
+        insights.extend(self._reflect_benchmark_trend())
 
         # Sort by severity
         sev_order = {"critical": 0, "warning": 1, "info": 2}
@@ -319,6 +320,61 @@ class ReflectionEngine:
                     ))
 
             db.close()
+        except Exception:
+            pass
+        return insights
+
+    def _reflect_benchmark_trend(self) -> list[Insight]:
+        """Insights from quick benchmark trend data."""
+        insights = []
+        try:
+            db = sqlite3.connect(DB_PATH)
+            rows = db.execute("""
+                SELECT rate, duration_s, timestamp FROM benchmark_quick
+                ORDER BY id DESC LIMIT 10
+            """).fetchall()
+            db.close()
+
+            if not rows:
+                return insights
+
+            latest_rate = rows[0][0]
+            rates = [r[0] for r in rows]
+            avg_rate = sum(rates) / len(rates)
+
+            if latest_rate >= 0.8:
+                insights.append(Insight(
+                    category="quality", severity="info",
+                    title="Benchmark target reached",
+                    description=f"Latest benchmark: {latest_rate*100:.0f}% (target: 80%+)",
+                    metric_value=latest_rate,
+                ))
+            elif latest_rate < 0.6:
+                insights.append(Insight(
+                    category="quality", severity="critical",
+                    title="Benchmark critically low",
+                    description=f"Latest benchmark: {latest_rate*100:.0f}% — needs route/prompt optimization",
+                    metric_value=latest_rate,
+                    recommendation="Run self_improvement.suggest_improvements() and apply fixes",
+                ))
+
+            if len(rates) >= 3:
+                trend = rates[0] - rates[-1]
+                if trend > 0.1:
+                    insights.append(Insight(
+                        category="growth", severity="info",
+                        title="Benchmark improving",
+                        description=f"Benchmark up {trend*100:.0f}% over last {len(rates)} runs ({rates[-1]*100:.0f}% -> {rates[0]*100:.0f}%)",
+                        metric_value=trend,
+                    ))
+                elif trend < -0.1:
+                    insights.append(Insight(
+                        category="quality", severity="warning",
+                        title="Benchmark declining",
+                        description=f"Benchmark down {abs(trend)*100:.0f}% over last {len(rates)} runs",
+                        metric_value=trend,
+                        recommendation="Check node health and recent route changes",
+                    ))
         except Exception:
             pass
         return insights

@@ -1388,6 +1388,12 @@ class TestCoworkProactive:
         needs = pro.detect_needs()
         assert isinstance(needs, list)
 
+    def test_benchmark_trend_detection(self):
+        from src.cowork_proactive import CoworkProactive
+        pro = CoworkProactive()
+        needs = pro._needs_from_benchmark_trend()
+        assert isinstance(needs, list)
+
     def test_plan_execution(self):
         from src.cowork_proactive import CoworkProactive
         pro = CoworkProactive()
@@ -1602,6 +1608,23 @@ class TestDynamicTimeout:
         # gpt-oss ctx=128000, so even medium prompts have tons of room
         tokens = agent._adapt_max_tokens("gpt-oss", "Write a function" * 100)
         assert tokens == 4096  # Plenty of room
+
+
+class TestAutoOptimizeStrategies:
+    """Tests for PatternAgentRegistry.auto_optimize_strategies()."""
+
+    def test_auto_optimize_returns_dict(self):
+        from src.pattern_agents import PatternAgentRegistry
+        reg = PatternAgentRegistry()
+        result = reg.auto_optimize_strategies()
+        assert isinstance(result, dict)
+
+    def test_auto_optimize_no_crash(self):
+        from src.pattern_agents import PatternAgentRegistry
+        reg = PatternAgentRegistry()
+        # Should handle gracefully even without sufficient data
+        result = reg.auto_optimize_strategies()
+        assert "error" not in result or isinstance(result.get("error"), str)
 
 
 class TestRouteBlacklist:
