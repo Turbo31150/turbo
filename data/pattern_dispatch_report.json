@@ -1,0 +1,368 @@
+{
+  "timestamp": "2026-03-05T15:32:01.915915",
+  "total": 36,
+  "ok": 33,
+  "rate": "92%",
+  "results": [
+    {
+      "task": "S1",
+      "pattern": "simple",
+      "agent": "quick-dispatch",
+      "strategy": "single",
+      "node": "OL1",
+      "latency_ms": 1467.817783355713,
+      "tokens": 14,
+      "ok": true
+    },
+    {
+      "task": "S2",
+      "pattern": "simple",
+      "agent": "quick-dispatch",
+      "strategy": "single",
+      "node": "OL1",
+      "latency_ms": 3383.298397064209,
+      "tokens": 36,
+      "ok": true
+    },
+    {
+      "task": "S3",
+      "pattern": "simple",
+      "agent": "quick-dispatch",
+      "strategy": "single",
+      "node": "OL1",
+      "latency_ms": 4579.818248748779,
+      "tokens": 41,
+      "ok": true
+    },
+    {
+      "task": "C1",
+      "pattern": "code",
+      "agent": "code-champion",
+      "strategy": "single",
+      "node": "M1",
+      "latency_ms": 4569.580554962158,
+      "tokens": 149,
+      "ok": true
+    },
+    {
+      "task": "C2",
+      "pattern": "code",
+      "agent": "code-champion",
+      "strategy": "single",
+      "node": "M1",
+      "latency_ms": 8146.129608154297,
+      "tokens": 164,
+      "ok": true
+    },
+    {
+      "task": "C3",
+      "pattern": "code",
+      "agent": "code-champion",
+      "strategy": "single",
+      "node": "M1",
+      "latency_ms": 13224.185466766357,
+      "tokens": 330,
+      "ok": true
+    },
+    {
+      "task": "R1",
+      "pattern": "reasoning",
+      "agent": "deep-reasoning",
+      "strategy": "single",
+      "node": "M2",
+      "latency_ms": 60011.98887825012,
+      "tokens": 0,
+      "ok": false
+    },
+    {
+      "task": "R2",
+      "pattern": "reasoning",
+      "agent": "deep-reasoning",
+      "strategy": "single",
+      "node": "M2",
+      "latency_ms": 60015.72012901306,
+      "tokens": 0,
+      "ok": false
+    },
+    {
+      "task": "R3",
+      "pattern": "reasoning",
+      "agent": "deep-reasoning",
+      "strategy": "single",
+      "node": "M2",
+      "latency_ms": 60016.55173301697,
+      "tokens": 0,
+      "ok": false
+    },
+    {
+      "task": "A1",
+      "pattern": "analysis",
+      "agent": "analysis-engine",
+      "strategy": "single",
+      "node": "M1",
+      "latency_ms": 8186.235189437866,
+      "tokens": 190,
+      "ok": true
+    },
+    {
+      "task": "A2",
+      "pattern": "analysis",
+      "agent": "analysis-engine",
+      "strategy": "single",
+      "node": "M1",
+      "latency_ms": 23692.567586898804,
+      "tokens": 569,
+      "ok": true
+    },
+    {
+      "task": "A3",
+      "pattern": "analysis",
+      "agent": "analysis-engine",
+      "strategy": "single",
+      "node": "M1",
+      "latency_ms": 22290.13228416443,
+      "tokens": 571,
+      "ok": true
+    },
+    {
+      "task": "Y1",
+      "pattern": "system",
+      "agent": "system-ops",
+      "strategy": "single",
+      "node": "M1",
+      "latency_ms": 5647.7837562561035,
+      "tokens": 128,
+      "ok": true
+    },
+    {
+      "task": "Y2",
+      "pattern": "system",
+      "agent": "system-ops",
+      "strategy": "single",
+      "node": "M1",
+      "latency_ms": 11779.650926589966,
+      "tokens": 274,
+      "ok": true
+    },
+    {
+      "task": "Y3",
+      "pattern": "system",
+      "agent": "system-ops",
+      "strategy": "single",
+      "node": "M1",
+      "latency_ms": 16971.96364402771,
+      "tokens": 425,
+      "ok": true
+    },
+    {
+      "task": "T1",
+      "pattern": "classifier",
+      "agent": "task-router",
+      "strategy": "single",
+      "node": "M1",
+      "latency_ms": 3871.4253902435303,
+      "tokens": 105,
+      "ok": true
+    },
+    {
+      "task": "T2",
+      "pattern": "classifier",
+      "agent": "task-router",
+      "strategy": "single",
+      "node": "M1",
+      "latency_ms": 12463.186264038086,
+      "tokens": 352,
+      "ok": true
+    },
+    {
+      "task": "T3",
+      "pattern": "classifier",
+      "agent": "task-router",
+      "strategy": "single",
+      "node": "M1",
+      "latency_ms": 10995.18895149231,
+      "tokens": 305,
+      "ok": true
+    },
+    {
+      "task": "S1",
+      "pattern": "simple",
+      "agent": "quick-dispatch",
+      "strategy": "category",
+      "node": "OL1",
+      "latency_ms": 12852.32400894165,
+      "tokens": 14,
+      "ok": true
+    },
+    {
+      "task": "S2",
+      "pattern": "simple",
+      "agent": "quick-dispatch",
+      "strategy": "category",
+      "node": "OL1",
+      "latency_ms": 1185.4643821716309,
+      "tokens": 33,
+      "ok": true
+    },
+    {
+      "task": "S3",
+      "pattern": "simple",
+      "agent": "quick-dispatch",
+      "strategy": "category",
+      "node": "OL1",
+      "latency_ms": 832.8521251678467,
+      "tokens": 14,
+      "ok": true
+    },
+    {
+      "task": "C1",
+      "pattern": "code",
+      "agent": "code-champion",
+      "strategy": "category",
+      "node": "M1",
+      "latency_ms": 6389.101982116699,
+      "tokens": 109,
+      "ok": true
+    },
+    {
+      "task": "C2",
+      "pattern": "code",
+      "agent": "code-champion",
+      "strategy": "category",
+      "node": "M1",
+      "latency_ms": 10580.759525299072,
+      "tokens": 164,
+      "ok": true
+    },
+    {
+      "task": "C3",
+      "pattern": "code",
+      "agent": "code-champion",
+      "strategy": "category",
+      "node": "M1",
+      "latency_ms": 32102.684020996094,
+      "tokens": 423,
+      "ok": true
+    },
+    {
+      "task": "R1",
+      "pattern": "reasoning",
+      "agent": "deep-reasoning",
+      "strategy": "category",
+      "node": "M1",
+      "latency_ms": 5633.69345664978,
+      "tokens": 148,
+      "ok": true
+    },
+    {
+      "task": "R2",
+      "pattern": "reasoning",
+      "agent": "deep-reasoning",
+      "strategy": "category",
+      "node": "M1",
+      "latency_ms": 11242.884397506714,
+      "tokens": 302,
+      "ok": true
+    },
+    {
+      "task": "R3",
+      "pattern": "reasoning",
+      "agent": "deep-reasoning",
+      "strategy": "category",
+      "node": "M1",
+      "latency_ms": 26665.804147720337,
+      "tokens": 582,
+      "ok": true
+    },
+    {
+      "task": "A1",
+      "pattern": "analysis",
+      "agent": "analysis-engine",
+      "strategy": "category",
+      "node": "M1",
+      "latency_ms": 8770.052671432495,
+      "tokens": 200,
+      "ok": true
+    },
+    {
+      "task": "A2",
+      "pattern": "analysis",
+      "agent": "analysis-engine",
+      "strategy": "category",
+      "node": "M1",
+      "latency_ms": 23345.117568969727,
+      "tokens": 569,
+      "ok": true
+    },
+    {
+      "task": "A3",
+      "pattern": "analysis",
+      "agent": "analysis-engine",
+      "strategy": "category",
+      "node": "M1",
+      "latency_ms": 19250.850200653076,
+      "tokens": 524,
+      "ok": true
+    },
+    {
+      "task": "Y1",
+      "pattern": "system",
+      "agent": "system-ops",
+      "strategy": "category",
+      "node": "M1",
+      "latency_ms": 3841.205835342407,
+      "tokens": 99,
+      "ok": true
+    },
+    {
+      "task": "Y2",
+      "pattern": "system",
+      "agent": "system-ops",
+      "strategy": "category",
+      "node": "M1",
+      "latency_ms": 9988.72685432434,
+      "tokens": 253,
+      "ok": true
+    },
+    {
+      "task": "Y3",
+      "pattern": "system",
+      "agent": "system-ops",
+      "strategy": "category",
+      "node": "M1",
+      "latency_ms": 13801.62000656128,
+      "tokens": 299,
+      "ok": true
+    },
+    {
+      "task": "T1",
+      "pattern": "classifier",
+      "agent": "task-router",
+      "strategy": "category",
+      "node": "M1",
+      "latency_ms": 3592.5698280334473,
+      "tokens": 104,
+      "ok": true
+    },
+    {
+      "task": "T2",
+      "pattern": "classifier",
+      "agent": "task-router",
+      "strategy": "category",
+      "node": "M1",
+      "latency_ms": 22534.86156463623,
+      "tokens": 605,
+      "ok": true
+    },
+    {
+      "task": "T3",
+      "pattern": "classifier",
+      "agent": "task-router",
+      "strategy": "category",
+      "node": "M1",
+      "latency_ms": 13560.515642166138,
+      "tokens": 324,
+      "ok": true
+    }
+  ]
+}
