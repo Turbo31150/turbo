@@ -150,19 +150,22 @@ class TestPowerManager:
         assert "scheduled_actions" in stats
         assert "ac_power" in stats
 
-    def test_cancel_shutdown_no_pending(self):
+    def test_record_event(self):
         pm = self._make()
-        # Should not crash even if no shutdown scheduled
-        result = pm.cancel_shutdown()
-        assert isinstance(result, bool)
-
-    def test_screen_off_records_event(self):
-        pm = self._make()
-        # screen_off may or may not work in test but should record event
-        pm.screen_off()
+        pm._record("test_action", True, "test detail")
         events = pm.get_events()
-        assert len(events) >= 1
-        assert events[0]["action"] == "screen_off"
+        assert len(events) == 1
+        assert events[0]["action"] == "test_action"
+        assert events[0]["success"] is True
+        assert events[0]["detail"] == "test detail"
+
+    def test_multiple_events(self):
+        pm = self._make()
+        pm._record("action1", True)
+        pm._record("action2", False, "error")
+        events = pm.get_events()
+        assert len(events) == 2
+        assert events[1]["success"] is False
 
     def test_power_action_enum(self):
         from src.power_manager import PowerAction

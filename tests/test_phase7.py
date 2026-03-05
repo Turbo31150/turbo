@@ -27,7 +27,7 @@ class TestConfigManager:
         cm = self._make_config()
         assert cm.get("cluster.timeout_s") == 120
         assert cm.get("trading.leverage") == 10
-        assert cm.get("voice.tts_voice") == "fr-FR-HenriNeural"
+        assert cm.get("voice.tts_voice") == "fr-FR-DeniseNeural"
 
     def test_get_dotted_path(self):
         cm = self._make_config()

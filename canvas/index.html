@@ -1047,7 +1047,7 @@ var Voice=(function(){
     var x=new XMLHttpRequest();x.open('POST',TTS,true);x.setRequestHeader('Content-Type','application/json');x.responseType='arraybuffer';x.timeout=8000;
     x.onload=function(){if(x.status===200&&x.response.byteLength>1000){var ctx=new(window.AudioContext||window.webkitAudioContext)();ctx.decodeAudioData(x.response,function(buf){var src=ctx.createBufferSource();src.buffer=buf;src.connect(ctx.destination);src.onended=function(){speaking=false;st(wake?'wake':'');ctx.close()};src.start(0)},function(){fb(t)})}else{fb(t)}};
     x.onerror=function(){fb(t)};x.ontimeout=function(){fb(t)};
-    try{x.send(JSON.stringify({text:t,voice:'fr-FR-HenriNeural'}))}catch(e){fb(t)}
+    try{x.send(JSON.stringify({text:t,voice:'fr-FR-DeniseNeural'}))}catch(e){fb(t)}
   }
   function fb(t){if(!syn){speaking=false;st(wake?'wake':'');return;}var u=new SpeechSynthesisUtterance(t);u.lang='fr-FR';u.rate=1.05;var v=syn.getVoices();for(var i=0;i<v.length;i++){if(v[i].lang&&v[i].lang.indexOf('fr')===0){u.voice=v[i];break;}}u.onend=function(){speaking=false;st(wake?'wake':'')};u.onerror=u.onend;syn.speak(u)}
 

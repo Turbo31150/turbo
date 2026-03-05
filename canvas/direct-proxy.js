@@ -204,7 +204,8 @@ const AGENT_CAT = {
   'raisonnement': 'raison', 'logique': 'raison',
   'ol1-web': 'web', 'pipeline-comet': 'web',
   'voice-assistant': 'media', 'gemini-flash': 'media',
-  'main': 'default', 'fast-chat': 'default'
+  'main': 'default', 'fast-chat': 'default',
+  'telegram': 'default', 'telegram-user': 'default', 'consensus': 'ia'
 };
 
 // ── System prompts v2 — Expert-level per domain ─────────────────────────────

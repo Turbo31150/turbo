@@ -349,9 +349,9 @@ async def _handle_tts(payload: dict) -> dict:
         import edge_tts
         import tempfile
         _ALLOWED_VOICES = {"fr-FR-HenriNeural", "fr-FR-DeniseNeural", "en-US-GuyNeural", "en-US-JennyNeural"}
-        voice = payload.get("voice", "fr-FR-HenriNeural")
+        voice = payload.get("voice", "fr-FR-DeniseNeural")
         if voice not in _ALLOWED_VOICES:
-            voice = "fr-FR-HenriNeural"
+            voice = "fr-FR-DeniseNeural"
         comm = edge_tts.Communicate(text, voice)
         tmp = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
         tmp.close()

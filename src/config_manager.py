@@ -56,7 +56,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
     },
     "voice": {
         "wake_word_threshold": 0.7,
-        "tts_voice": "fr-FR-HenriNeural",
+        "tts_voice": "fr-FR-DeniseNeural",
         "whisper_model": "large-v3-turbo",
     },
     "notifications": {

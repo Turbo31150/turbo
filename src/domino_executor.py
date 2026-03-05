@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import re
 import sqlite3
 import subprocess
@@ -536,8 +537,25 @@ def _clear_caches() -> str:
 
 @register_python_action("send_telegram_notification")
 def _send_telegram() -> str:
-    """Send Telegram notification (stub — requires bot token)."""
-    return "[TELEGRAM] Notification stub — configure bot token in etoile.db"
+    """Send Telegram notification via Bot API."""
+    import json
+    import urllib.request
+    token = os.environ.get("TELEGRAM_TOKEN", "")
+    chat_id = os.environ.get("TELEGRAM_CHAT", "")
+    if not token or not chat_id:
+        return "[TELEGRAM] TELEGRAM_TOKEN ou TELEGRAM_CHAT manquant dans .env"
+    try:
+        # Collect system status for the notification
+        msg = f"\ud83e\udd16 JARVIS Domino Notification\n{time.strftime('%Y-%m-%d %H:%M:%S')}"
+        body = json.dumps({"chat_id": chat_id, "text": msg}).encode()
+        req = urllib.request.Request(
+            f"https://api.telegram.org/bot{token}/sendMessage",
+            data=body, headers={"Content-Type": "application/json"},
+        )
+        urllib.request.urlopen(req, timeout=10)
+        return "[TELEGRAM] Notification envoyée"
+    except Exception as e:
+        return f"[TELEGRAM] Erreur: {e}"
 
 
 @register_python_action("throttle_gpu_if_critical")
