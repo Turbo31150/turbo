@@ -4777,6 +4777,17 @@ async def dispatch_engine_batch(req: Request):
     return [{"pattern": r.pattern, "node": r.node, "quality": r.quality,
              "success": r.success, "latency_ms": r.latency_ms} for r in results]
 
+@app.get("/api/dispatch_engine/analytics")
+async def dispatch_engine_analytics():
+    from src.dispatch_engine import get_engine
+    return get_engine().get_full_analytics()
+
+@app.post("/api/dispatch_engine/auto_optimize")
+async def dispatch_engine_auto_optimize():
+    from src.pattern_agents import PatternAgentRegistry
+    reg = PatternAgentRegistry()
+    return reg.auto_optimize_strategies()
+
 # ── Phase 13: Prompt Optimizer ───────────────────────────────────────────────
 
 @app.post("/api/prompt_optimizer/optimize")

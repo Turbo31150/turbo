@@ -15,16 +15,17 @@ from src.agent_factory import AgentFactory
 
 
 class TestPatternAgentRegistry:
-    def test_20_agents_registered(self):
+    def test_26_agents_registered(self):
         reg = PatternAgentRegistry()
-        assert len(reg.agents) == 20
+        assert len(reg.agents) == 26  # 20 domain + 6 size-based
 
     def test_all_pattern_types(self):
         reg = PatternAgentRegistry()
         expected = {"classifier", "simple", "web", "code", "analysis", "system",
                     "creative", "math", "data", "devops", "reasoning", "trading",
                     "security", "architecture",
-                    "voice", "email", "automation", "learning", "monitoring", "optimization"}
+                    "voice", "email", "automation", "learning", "monitoring", "optimization",
+                    "nano", "micro", "small", "medium", "large", "xl"}
         assert set(reg.agents.keys()) == expected
 
     def test_classify_code(self):
@@ -59,7 +60,7 @@ class TestPatternAgentRegistry:
     def test_list_agents(self):
         reg = PatternAgentRegistry()
         agents = reg.list_agents()
-        assert len(agents) == 20
+        assert len(agents) == 26  # 20 domain + 6 size-based
         assert all("pattern_id" in a for a in agents)
         assert all("type" in a for a in agents)
 
@@ -131,8 +132,8 @@ class TestAgentConfigs:
             assert agent.strategy in ("single", "race", "consensus", "category", "chain")
             assert agent.priority >= 1
 
-    def test_20_agents(self):
-        assert len(AGENT_CONFIGS) == 20
+    def test_26_agents(self):
+        assert len(AGENT_CONFIGS) == 26  # 20 domain + 6 size-based
 
     def test_unique_pattern_ids(self):
         ids = [a.pattern_id for a in AGENT_CONFIGS]
@@ -1616,6 +1617,39 @@ class TestDynamicTimeout:
         # gpt-oss ctx=128000, so even medium prompts have tons of room
         tokens = agent._adapt_max_tokens("gpt-oss", "Write a function" * 100)
         assert tokens == 4096  # Plenty of room
+
+
+class TestSizeBasedAgents:
+    """Tests for size-based pattern agents (nano/micro/small/medium/large/xl)."""
+
+    def test_nano_agent_config(self):
+        reg = PatternAgentRegistry()
+        agent = reg.agents["nano"]
+        assert agent.primary_node == "OL1"
+        assert agent.max_tokens == 128
+        assert agent.strategy == "single"
+
+    def test_xl_agent_config(self):
+        reg = PatternAgentRegistry()
+        agent = reg.agents["xl"]
+        assert agent.primary_node == "gpt-oss"
+        assert agent.max_tokens == 4096
+        assert agent.strategy == "race"
+
+    def test_large_has_cloud_fallback(self):
+        reg = PatternAgentRegistry()
+        agent = reg.agents["large"]
+        assert "gpt-oss" in agent.fallback_nodes or agent.primary_node == "gpt-oss"
+
+    def test_medium_race_strategy(self):
+        reg = PatternAgentRegistry()
+        agent = reg.agents["medium"]
+        assert agent.strategy == "race"
+
+    def test_size_agents_priority_order(self):
+        reg = PatternAgentRegistry()
+        priorities = [reg.agents[s].priority for s in ["nano", "micro", "small", "medium", "large", "xl"]]
+        assert priorities == sorted(priorities)  # Should be ascending
 
 
 class TestAutoOptimizeStrategies:
