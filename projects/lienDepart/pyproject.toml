@@ -1,0 +1,15 @@
+[project]
+name = "lien-depart"
+version = "1.0.0"
+description = "Orchestrateur multi-agents pipeline/domino/vectoriel/matriciel"
+requires-python = ">=3.12"
+dependencies = [
+    "claude-agent-sdk>=0.1.35",
+    "httpx>=0.28",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+]

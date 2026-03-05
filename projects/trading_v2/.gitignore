@@ -1,0 +1,19 @@
+# Logs
+logs/*.log
+logs/*.wav
+logs/*.png
+logs/*.jpg
+
+# Temp
+*.pyc
+__pycache__/
+*.tmp
+nul
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store

@@ -1,0 +1,29 @@
+# TRADING V2 PRODUCTION - Python Dependencies
+# Install: pip install -r requirements.txt
+
+# Core
+requests>=2.31
+flask>=3.0
+flask-cors>=4.0
+
+# Voice/STT
+faster-whisper>=1.0
+torch>=2.0
+torchaudio>=2.0
+transformers>=4.35
+accelerate>=0.26
+numpy>=1.24
+sounddevice>=0.4
+
+# TTS
+pyttsx3>=2.90
+pydub>=0.25
+gradio_client>=0.8
+
+# OS Control
+pyautogui>=0.9
+psutil>=5.9
+pyperclip>=1.8
+
+# Trading (MCP server)
+ccxt>=4.0

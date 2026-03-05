@@ -12,25 +12,26 @@ load_dotenv()
 JARVIS_VERSION = "10.6"
 
 # ── Project paths (existing codebase) ──────────────────────────────────────
+_TURBO = Path("F:/BUREAU/turbo")
+
 PATHS = {
-    # ── Active projects ──
-    "turbo":           Path("F:/BUREAU/turbo"),
-    "carV1":           Path("F:/BUREAU/carV1"),  # junction → ARCHIVES_USER/trading_legacy/carV1
-    "lienDepart":      Path("F:/BUREAU/ACTIVE/lienDepart"),
-    # ── Tools & services ──
-    "lm_studio_system": Path("F:/BUREAU/TOOLS/lm_studio_system"),
-    "disk_cleaner":    Path("F:/BUREAU/TOOLS/disk_cleaner"),
-    # ── Trading ──
-    "trading_v2":      Path("F:/BUREAU/TRADING/TRADING_V2_PRODUCTION"),
-    # ── Data & backups ──
-    "lmstudio_backup": Path("F:/BUREAU/DATA/LMSTUDIO_BACKUP"),
-    # ── Archives (legacy) ──
+    # ── Core ──
+    "turbo":           _TURBO,
+    # ── Unified projects (moved into turbo/projects/) ──
+    "carV1":           _TURBO / "projects/carV1_data",
+    "lienDepart":      _TURBO / "projects/lienDepart",
+    "lm_studio_system": _TURBO / "projects/lm_studio_system",
+    "disk_cleaner":    _TURBO / "projects/disk_cleaner",
+    "trading_v2":      _TURBO / "projects/trading_v2",
+    "lmstudio_backup": _TURBO / "projects/lmstudio_backup",
+    "serveur":         _TURBO / "projects/serveur",
+    # ── Archives (legacy, may not exist) ──
     "mcp_lmstudio":    Path("F:/BUREAU/ARCHIVES/MCP_MCPLMSTUDIO1"),
     "prod_intensive":  Path("F:/BUREAU/ARCHIVES/PROD_INTENSIVE_V1"),
     "jarvis_legacy":   Path("F:/BUREAU/ARCHIVES/JARVIS"),
     # ── Databases ──
-    "etoile_db":       Path("F:/BUREAU/turbo/data/etoile.db"),
-    "jarvis_db":       Path("F:/BUREAU/turbo/data/jarvis.db"),
+    "etoile_db":       _TURBO / "data/etoile.db",
+    "jarvis_db":       _TURBO / "data/jarvis.db",
 }
 
 # ── Existing scripts index ─────────────────────────────────────────────────

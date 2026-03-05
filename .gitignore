@@ -55,3 +55,10 @@ package-lock.json
 
 # Temp
 0
+
+# Unified projects — large files excluded
+projects/trading_v2/database/
+projects/carV1_data/database/
+projects/lmstudio_backup/
+projects/*/.git/
+backups_auto/

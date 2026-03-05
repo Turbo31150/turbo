@@ -1,0 +1,10 @@
+# Large database files
+*.db
+# Git repos inside projects
+*/.git/
+# Node modules
+*/node_modules/
+# LM Studio backup (large)
+lmstudio_backup/
+# Trading V2 database (90MB)
+trading_v2/database/

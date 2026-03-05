@@ -1,0 +1,599 @@
+{
+  "timestamp": "2026-02-23T23:05:12.263617",
+  "market": {
+    "bull": 72,
+    "bear": 132,
+    "avg_chg": -0.13917874396135266
+  },
+  "top3": [
+    {
+      "symbol": "VSTOCK_USDT",
+      "direction": "SHORT",
+      "entry": 308.21,
+      "tp": 305.4155810915971,
+      "sl": 319.04358149999996,
+      "tp_pct": 0.9066606886223183,
+      "sl_pct": 3.5150000000000015,
+      "rr": 0.25794045195514026,
+      "signals": [
+        "BB_SQUEEZE_3TF",
+        "RSI_1H_14",
+        "RSI_4H_4",
+        "FUND_-0.020%"
+      ],
+      "total": 115,
+      "breakout": 40,
+      "reversal": 75,
+      "funding": -0.02,
+      "buy_pct": 50
+    },
+    {
+      "symbol": "INJ_USDT",
+      "direction": "LONG",
+      "entry": 3.346,
+      "tp": 3.498013099500017,
+      "sl": 3.2982129659974833,
+      "tp_pct": 4.543129094441634,
+      "sl_pct": 1.4281839211750413,
+      "rr": 3.181053243271192,
+      "signals": [
+        "BB_SQUEEZE_2TF",
+        "RSI_4H_11",
+        "FUND_-0.029%",
+        "OB_BUY_86%",
+        "WALLS_5"
+      ],
+      "total": 105,
+      "breakout": 45,
+      "reversal": 60,
+      "funding": -0.0291,
+      "buy_pct": 85.91837830666103
+    },
+    {
+      "symbol": "AMATSTOCK_USDT",
+      "direction": "LONG",
+      "entry": 371.05,
+      "tp": 375.6185231067037,
+      "sl": 366.9475195088299,
+      "tp_pct": 1.231241909905334,
+      "sl_pct": 1.1056408815982022,
+      "rr": 1.1136002027399492,
+      "signals": [
+        "BB_SQUEEZE_2TF",
+        "VOL_15m_102x",
+        "VOL_1H_755x",
+        "FUND_-0.020%"
+      ],
+      "total": 95,
+      "breakout": 75,
+      "reversal": 20,
+      "funding": -0.02,
+      "buy_pct": 25.052192066805844
+    }
+  ],
+  "top15_breakout": [
+    {
+      "symbol": "AMATSTOCK_USDT",
+      "price": 371.05,
+      "chg24": -0.24,
+      "vol24": 3053395.6526,
+      "funding": -0.02,
+      "oi": 763881.0,
+      "buy_pct": 25.052192066805844,
+      "breakout": 75,
+      "reversal": 20,
+      "total": 95,
+      "signals": [
+        "BB_SQUEEZE_2TF",
+        "VOL_15m_102x",
+        "VOL_1H_755x",
+        "FUND_-0.020%"
+      ]
+    },
+    {
+      "symbol": "SXT_USDT",
+      "price": 0.0237,
+      "chg24": 12.479999999999999,
+      "vol24": 597914.11703,
+      "funding": -0.5032,
+      "oi": 7620492.0,
+      "buy_pct": 46.48701821826959,
+      "breakout": 60,
+      "reversal": 20,
+      "total": 80,
+      "signals": [
+        "VOL_15m_62x",
+        "VOL_1H_26x",
+        "FUND_-0.503%",
+        "EMA_BULL_15m"
+      ]
+    },
+    {
+      "symbol": "XAUT_USDT",
+      "price": 5203.2,
+      "chg24": 0.52,
+      "vol24": 3617764704.8261,
+      "funding": 0.005,
+      "oi": 34910736.0,
+      "buy_pct": 37.00034620045006,
+      "breakout": 55,
+      "reversal": 0,
+      "total": 55,
+      "signals": [
+        "BB_SQUEEZE_3TF",
+        "EMA_BULL_15m",
+        "WALLS_2"
+      ]
+    },
+    {
+      "symbol": "RIVER_USDT",
+      "price": 8.025,
+      "chg24": 0.65,
+      "vol24": 4484537.958,
+      "funding": 0.005,
+      "oi": 2879070.0,
+      "buy_pct": 50,
+      "breakout": 50,
+      "reversal": 0,
+      "total": 50,
+      "signals": [
+        "BB_SQUEEZE_3TF",
+        "EMA_BULL_15m"
+      ]
+    },
+    {
+      "symbol": "CYS_USDT",
+      "price": 0.3848,
+      "chg24": 1.6099999999999999,
+      "vol24": 1243710.651,
+      "funding": 0.005,
+      "oi": 898491.0,
+      "buy_pct": 50,
+      "breakout": 50,
+      "reversal": 0,
+      "total": 50,
+      "signals": [
+        "VOL_15m_18x",
+        "VOL_1H_6x"
+      ]
+    },
+    {
+      "symbol": "SPX500_USDT",
+      "price": 6839.93,
+      "chg24": -0.62,
+      "vol24": 688327.597777,
+      "funding": 0.0,
+      "oi": 2000895.0,
+      "buy_pct": 54.69400416797027,
+      "breakout": 50,
+      "reversal": 0,
+      "total": 50,
+      "signals": [
+        "BB_SQUEEZE_2TF",
+        "VOL_1H_11x"
+      ]
+    },
+    {
+      "symbol": "INJ_USDT",
+      "price": 3.346,
+      "chg24": -1.47,
+      "vol24": 11952782.993,
+      "funding": -0.0291,
+      "oi": 842865.0,
+      "buy_pct": 85.91837830666103,
+      "breakout": 45,
+      "reversal": 60,
+      "total": 105,
+      "signals": [
+        "BB_SQUEEZE_2TF",
+        "RSI_4H_11",
+        "FUND_-0.029%",
+        "OB_BUY_86%",
+        "WALLS_5"
+      ]
+    },
+    {
+      "symbol": "ROAM_USDT",
+      "price": 0.02189,
+      "chg24": 10.0,
+      "vol24": 2169288.756,
+      "funding": -0.0013,
+      "oi": 337635.0,
+      "buy_pct": 78.23164341240692,
+      "breakout": 45,
+      "reversal": 10,
+      "total": 55,
+      "signals": [
+        "VOL_1H_107x",
+        "OB_BUY_78%",
+        "WALLS_5"
+      ]
+    },
+    {
+      "symbol": "VSTOCK_USDT",
+      "price": 308.21,
+      "chg24": -1.6199999999999999,
+      "vol24": 603524.4418,
+      "funding": -0.02,
+      "oi": 77526.0,
+      "buy_pct": 50,
+      "breakout": 40,
+      "reversal": 75,
+      "total": 115,
+      "signals": [
+        "BB_SQUEEZE_3TF",
+        "RSI_1H_14",
+        "RSI_4H_4",
+        "FUND_-0.020%"
+      ]
+    },
+    {
+      "symbol": "CVX_USDT",
+      "price": 1.781,
+      "chg24": 0.5599999999999999,
+      "vol24": 520652.744,
+      "funding": -0.0724,
+      "oi": 276843.0,
+      "buy_pct": 53.042487455354205,
+      "breakout": 40,
+      "reversal": 35,
+      "total": 75,
+      "signals": [
+        "BB_SQUEEZE_2TF",
+        "RSI_4H_21",
+        "FUND_-0.072%",
+        "EMA_BULL_15m",
+        "WALLS_1"
+      ]
+    },
+    {
+      "symbol": "CELO_USDT",
+      "price": 0.0735,
+      "chg24": -1.2,
+      "vol24": 574762.0326,
+      "funding": -0.058699999999999995,
+      "oi": 10492626.0,
+      "buy_pct": 66.20039321269236,
+      "breakout": 40,
+      "reversal": 30,
+      "total": 70,
+      "signals": [
+        "FUND_-0.059%",
+        "EMA_BULL_15m",
+        "OB_BUY_66%",
+        "WALLS_1"
+      ]
+    },
+    {
+      "symbol": "LDO_USDT",
+      "price": 0.3016,
+      "chg24": 1.17,
+      "vol24": 1611298.8625,
+      "funding": 0.0023,
+      "oi": 4473249.0,
+      "buy_pct": 55.270674702633706,
+      "breakout": 40,
+      "reversal": 15,
+      "total": 55,
+      "signals": [
+        "BB_SQUEEZE_2TF",
+        "RSI_4H_26",
+        "EMA_BULL_15m",
+        "WALLS_6"
+      ]
+    },
+    {
+      "symbol": "YFI_USDT",
+      "price": 2712.0,
+      "chg24": -0.84,
+      "vol24": 502029.4312,
+      "funding": 0.01,
+      "oi": 1064589.0,
+      "buy_pct": 50,
+      "breakout": 40,
+      "reversal": 15,
+      "total": 55,
+      "signals": [
+        "BB_SQUEEZE_3TF",
+        "RSI_4H_29"
+      ]
+    },
+    {
+      "symbol": "PIPPIN_USDT",
+      "price": 0.7314,
+      "chg24": 0.3,
+      "vol24": 52695070.7991,
+      "funding": 0.0119,
+      "oi": 2291070.0,
+      "buy_pct": 88.74322670861737,
+      "breakout": 40,
+      "reversal": 10,
+      "total": 50,
+      "signals": [
+        "EMA_BULL_15m",
+        "OB_BUY_89%",
+        "WALLS_1"
+      ]
+    },
+    {
+      "symbol": "CC_USDT",
+      "price": 0.16136,
+      "chg24": 1.1900000000000002,
+      "vol24": 994814.8555,
+      "funding": 0.005,
+      "oi": 3537552.0,
+      "buy_pct": 42.43269230769231,
+      "breakout": 40,
+      "reversal": 0,
+      "total": 40,
+      "signals": [
+        "BB_SQUEEZE_2TF",
+        "EMA_BULL_15m",
+        "WALLS_1"
+      ]
+    }
+  ],
+  "top15_reversal": [
+    {
+      "symbol": "VSTOCK_USDT",
+      "price": 308.21,
+      "chg24": -1.6199999999999999,
+      "vol24": 603524.4418,
+      "funding": -0.02,
+      "oi": 77526.0,
+      "buy_pct": 50,
+      "breakout": 40,
+      "reversal": 75,
+      "total": 115,
+      "signals": [
+        "BB_SQUEEZE_3TF",
+        "RSI_1H_14",
+        "RSI_4H_4",
+        "FUND_-0.020%"
+      ]
+    },
+    {
+      "symbol": "H_USDT",
+      "price": 0.13615,
+      "chg24": -11.129999999999999,
+      "vol24": 2874700.00527,
+      "funding": -0.25579999999999997,
+      "oi": 10791429.0,
+      "buy_pct": 53.717086573111985,
+      "breakout": 5,
+      "reversal": 70,
+      "total": 75,
+      "signals": [
+        "RSI_1H_8",
+        "RSI_4H_17",
+        "FUND_-0.256%",
+        "WALLS_5"
+      ]
+    },
+    {
+      "symbol": "INJ_USDT",
+      "price": 3.346,
+      "chg24": -1.47,
+      "vol24": 11952782.993,
+      "funding": -0.0291,
+      "oi": 842865.0,
+      "buy_pct": 85.91837830666103,
+      "breakout": 45,
+      "reversal": 60,
+      "total": 105,
+      "signals": [
+        "BB_SQUEEZE_2TF",
+        "RSI_4H_11",
+        "FUND_-0.029%",
+        "OB_BUY_86%",
+        "WALLS_5"
+      ]
+    },
+    {
+      "symbol": "SHOPSTOCK_USDT",
+      "price": 117.52,
+      "chg24": 0.4,
+      "vol24": 2671111.4561,
+      "funding": -0.02,
+      "oi": 71949.0,
+      "buy_pct": 50.033258212792994,
+      "breakout": 0,
+      "reversal": 60,
+      "total": 60,
+      "signals": [
+        "RSI_1H_25",
+        "RSI_4H_9",
+        "FUND_-0.020%"
+      ]
+    },
+    {
+      "symbol": "GSSTOCK_USDT",
+      "price": 894.89,
+      "chg24": 0.18,
+      "vol24": 3418536.53693,
+      "funding": -0.02,
+      "oi": 148548.0,
+      "buy_pct": 50.03358338223545,
+      "breakout": 25,
+      "reversal": 50,
+      "total": 75,
+      "signals": [
+        "BB_SQUEEZE_2TF",
+        "RSI_4H_14",
+        "FUND_-0.020%"
+      ]
+    },
+    {
+      "symbol": "UBERSTOCK_USDT",
+      "price": 70.81,
+      "chg24": -0.25,
+      "vol24": 770751.7777,
+      "funding": -0.0014,
+      "oi": 150963.0,
+      "buy_pct": 50.036064963469684,
+      "breakout": 25,
+      "reversal": 50,
+      "total": 75,
+      "signals": [
+        "BB_SQUEEZE_2TF",
+        "RSI_1H_18",
+        "RSI_4H_12"
+      ]
+    },
+    {
+      "symbol": "SNX_USDT",
+      "price": 0.384,
+      "chg24": -3.0300000000000002,
+      "vol24": 8967419.6756,
+      "funding": -0.0386,
+      "oi": 94406310.0,
+      "buy_pct": 58.35506940549111,
+      "breakout": 23,
+      "reversal": 50,
+      "total": 73,
+      "signals": [
+        "RSI_1H_16",
+        "FUND_-0.039%",
+        "WALLS_3"
+      ]
+    },
+    {
+      "symbol": "MNT_USDT",
+      "price": 0.5803,
+      "chg24": -0.9299999999999999,
+      "vol24": 8138568.05,
+      "funding": -0.0236,
+      "oi": 123165.0,
+      "buy_pct": 46.70438415865337,
+      "breakout": 15,
+      "reversal": 45,
+      "total": 60,
+      "signals": [
+        "RSI_4H_16",
+        "FUND_-0.024%",
+        "WALLS_1"
+      ]
+    },
+    {
+      "symbol": "YGG_USDT",
+      "price": 0.0441,
+      "chg24": -2.62,
+      "vol24": 1542709.48195,
+      "funding": -0.0558,
+      "oi": 8305554.0,
+      "buy_pct": 44.040816356165834,
+      "breakout": 10,
+      "reversal": 45,
+      "total": 55,
+      "signals": [
+        "RSI_1H_12",
+        "FUND_-0.056%"
+      ]
+    },
+    {
+      "symbol": "AGLD_USDT",
+      "price": 0.3125,
+      "chg24": -8.81,
+      "vol24": 8439761.14612,
+      "funding": -0.2698,
+      "oi": 20331150.0,
+      "buy_pct": 50,
+      "breakout": 0,
+      "reversal": 45,
+      "total": 45,
+      "signals": [
+        "RSI_1H_19",
+        "FUND_-0.270%"
+      ]
+    },
+    {
+      "symbol": "PENGUIN_USDT",
+      "price": 0.00627,
+      "chg24": 3.46,
+      "vol24": 708012.4066,
+      "funding": -0.013200000000000002,
+      "oi": 8138382.0,
+      "buy_pct": 50,
+      "breakout": 0,
+      "reversal": 45,
+      "total": 45,
+      "signals": [
+        "RSI_4H_14",
+        "FUND_-0.013%"
+      ]
+    },
+    {
+      "symbol": "CVX_USDT",
+      "price": 1.781,
+      "chg24": 0.5599999999999999,
+      "vol24": 520652.744,
+      "funding": -0.0724,
+      "oi": 276843.0,
+      "buy_pct": 53.042487455354205,
+      "breakout": 40,
+      "reversal": 35,
+      "total": 75,
+      "signals": [
+        "BB_SQUEEZE_2TF",
+        "RSI_4H_21",
+        "FUND_-0.072%",
+        "EMA_BULL_15m",
+        "WALLS_1"
+      ]
+    },
+    {
+      "symbol": "FLR_USDT",
+      "price": 0.00908,
+      "chg24": -1.41,
+      "vol24": 515169.014,
+      "funding": -0.0154,
+      "oi": 406323.0,
+      "buy_pct": 48.984855512517676,
+      "breakout": 30,
+      "reversal": 35,
+      "total": 65,
+      "signals": [
+        "BB_SQUEEZE_2TF",
+        "RSI_4H_30",
+        "FUND_-0.015%",
+        "WALLS_1"
+      ]
+    },
+    {
+      "symbol": "SUPER_USDT",
+      "price": 0.1085,
+      "chg24": 1.02,
+      "vol24": 527841.82,
+      "funding": -0.0223,
+      "oi": 334797.0,
+      "buy_pct": 53.20125221926452,
+      "breakout": 20,
+      "reversal": 35,
+      "total": 55,
+      "signals": [
+        "RSI_4H_29",
+        "FUND_-0.022%",
+        "EMA_BULL_15m"
+      ]
+    },
+    {
+      "symbol": "BIANRENSHENG_USDT",
+      "price": 0.05945,
+      "chg24": 0.5,
+      "vol24": 1179264.3056,
+      "funding": -0.0073999999999999995,
+      "oi": 178761.0,
+      "buy_pct": 36.089932022781554,
+      "breakout": 15,
+      "reversal": 35,
+      "total": 50,
+      "signals": [
+        "RSI_4H_17",
+        "EMA_BULL_15m",
+        "WALLS_2"
+      ]
+    }
+  ],
+  "total_scanned": 207,
+  "elapsed_s": 36.322373390197754
+}

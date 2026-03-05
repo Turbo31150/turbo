@@ -35,7 +35,7 @@ DB_PATH = "F:/BUREAU/turbo/etoile.db"
 # Cowork script locations (in order of preference)
 COWORK_PATHS = [
     Path("C:/Users/franc/.openclaw/workspace/dev"),
-    Path("F:/BUREAU/jarvis-cowork/dev"),
+    Path("F:/BUREAU/turbo/cowork/dev"),
 ]
 
 
