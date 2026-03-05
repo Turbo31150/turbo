@@ -1,0 +1,6 @@
+dev/data/
+.openclaw/
+analysis.json
+*.pyc
+__pycache__/
+.mcp.json
