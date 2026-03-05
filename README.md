@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v11.0.0-blueviolet?style=for-the-badge" alt="version"/>
+  <img src="https://img.shields.io/badge/version-v12.1.0-blueviolet?style=for-the-badge" alt="version"/>
   <img src="https://img.shields.io/badge/GPU-10x_NVIDIA-76B900?style=for-the-badge&logo=nvidia" alt="gpu"/>
   <img src="https://img.shields.io/badge/Claude_SDK-Opus_4.6-orange?style=for-the-badge&logo=anthropic" alt="claude"/>
   <img src="https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="python"/>
@@ -8,11 +8,11 @@
   <img src="https://img.shields.io/badge/License-Private-red?style=for-the-badge" alt="license"/>
 </p>
 
-<h1 align="center">JARVIS Etoile v11.0.0</h1>
-<h3 align="center">Orchestrateur IA Distribue Multi-GPU — HEXA_CORE + Telegram Autonome + OpenClaw Gateway + Perplexity MCP</h3>
+<h1 align="center">JARVIS Etoile v12.1.0</h1>
+<h3 align="center">Orchestrateur IA Distribue Multi-GPU — HEXA_CORE + Telegram Autonome + OpenClaw 78 Agents + Self-Improving + 438 COWORK Scripts</h3>
 
 <p align="center">
-  <strong>Systeme d'intelligence artificielle distribue sur 3 machines physiques, 10 GPU NVIDIA (~78 GB VRAM), 12 modeles IA (2 local + 10 cloud) et 108 skills autonomes. Controle vocal en francais avec 1,706 commandes + 476 pipelines + 835 domino cascades + 2,628 corrections vocales. Bot Telegram autonome (@turboSSebot) via OpenClaw Gateway (port 18789, 35 agents). Perplexity connecte via MCP (23 outils). Messages vocaux TTS DeniseNeural + Whisper STT entrant. Trading algorithmique MEXC multi-consensus. Interface desktop Electron 19 pages. Navigateur Comet (Perplexity) par defaut. 215 modules source (85,000+ lignes), 528+ tests, 319 scripts COWORK continu (104 batches), 316+ crons autonomes.</strong>
+  <strong>Systeme d'intelligence artificielle distribue sur 3 machines physiques, 10 GPU NVIDIA (~78 GB VRAM), 14 modeles IA (4 local + 10 cloud) et 108 skills autonomes. Controle vocal en francais avec 1,706 commandes + 656 pipelines + 835 domino cascades + 3,895 corrections vocales. Bot Telegram autonome (@turboSSebot) via OpenClaw Gateway (port 18789, 78 agents patterns). Dispatch engine 9 etapes avec quality gate 6 portes + self-improvement + pattern evolution + reflection engine. Messages vocaux TTS DeniseNeural + Whisper STT CUDA. Trading algorithmique MEXC multi-consensus. Interface desktop Electron 29 pages. 226 modules source (84,582 lignes), 2,144 tests (49 suites), 438 scripts COWORK continu (132 batches), 316+ crons autonomes.</strong>
 </p>
 
 <p align="center">
@@ -26,42 +26,52 @@
 | Metrique | Valeur | Detail |
 |----------|--------|--------|
 | **GPU** | 10 NVIDIA / ~78 GB VRAM | RTX 3080 10GB, RTX 2060 12GB, 4x GTX 1660S 6GB, 3x GPU M2 24GB, 1x GPU M3 8GB |
-| **Modeles IA** | 12 (2 local + 10 cloud) | M1 qwen3-8b, OL1 qwen3:14b/1.7b, gpt-oss:120b, devstral-2:123b, deepseek-coder, mistral-7b, GEMINI, CLAUDE + 6 cloud |
-| **Agents** | 7 Claude SDK + 11 Plugin + 35 OpenClaw | 53 agents total — deep, fast, check, trading, system, bridge, consensus + 11 plugin + 35 OpenClaw Gateway |
-| **Outils MCP** | 117 tools + 531 handlers | tools.py (117 fonctions) + mcp_server.py (531 handlers) = 7,322 lignes |
-| **Commandes vocales** | 1,706 commandes + 476 pipelines | 443 commands jarvis.db + 1,706 map entries + 121 domino triggers |
+| **Modeles IA** | 14 (4 local + 10 cloud) | M1 qwen3-8b + gpt-oss-20b, M2 deepseek-r1, M3 deepseek-r1, OL1 qwen3:14b/1.7b + 10 cloud |
+| **Agents** | 7 SDK + 11 Plugin + 78 Patterns | 96 agents total — 7 Claude SDK + 11 plugin + 78 patterns DB (20 hardcoded + 58 dynamiques) |
+| **Outils MCP** | 181 tools + 597 handlers | tools.py (2,582 lignes) + mcp_server.py (6,217 lignes) = 8,799 lignes |
+| **REST Endpoints** | 513 | server.py (5,221 lignes) — FastAPI WebSocket backend Electron |
+| **Commandes vocales** | 1,706 commandes + 656 pipelines | 443 commands jarvis.db + 1,706 map entries + 121 domino triggers |
 | **Domino Cascades** | 835 cascades / 121 triggers | 11 categories, 84 actions Python, 28 param patterns, 40 pipelines domino |
-| **Corrections vocales** | 2,628 regles (120 vagues) | Phonetiques + alias + implicits + fillers + auto-training |
+| **Corrections vocales** | 3,895 entries (120 vagues) | 2,628 corrections + 106 phonetics + 153 fillers + 678 implicits + 301 dominos |
 | **Skills** | 108 dynamiques | 16 vagues + domaines etoile.db, persistants en DB |
-| **Source Python** | 215 modules / 85,000+ lignes | src/ uniquement (160,000+ total avec COWORK dev/) |
-| **Databases** | 4 bases SQL (40 tables) | etoile.db (22t, 11,282r) + jarvis.db (12t, 5,908r) + sniper.db (6t, 768r) + finetuning.db |
-| **Tests** | 528+ tests (11 suites) | test_phase1 a test_phase11 + test_telegram_bot |
-| **Plugin** | 40 slash commands | + 24 skills + 11 agents + 4 hooks (plugin v3.0) |
-| **Desktop** | Electron 33 + React 19 | 19 pages, Portable 72.5 MB |
+| **Source Python** | 226 modules / 84,582 lignes | src/ uniquement (170,000+ total avec COWORK dev/) |
+| **Databases** | 4 bases SQL (51+ tables) | etoile.db (19t) + jarvis.db (8t) + sniper.db (4t) + finetuning.db (8t) |
+| **Tests** | 2,144 tests (49 suites) | test_phase3 a test_phase43 + test_pattern_agents + test_telegram_bot + 5 autres |
+| **Plugin** | 43 slash commands | + 24 skills + 11 agents + 4 hooks (plugin v3.1) |
+| **Desktop** | Electron 33 + React 19 | 29 pages, Portable 72.5 MB |
 | **Navigateur** | Comet (Perplexity) | Defaut CDP port 9222, fallback Chrome/Edge |
 | **Trading** | v2.3 Multi-GPU | MEXC Futures 10x, 6 IA consensus |
-| **Telegram Bot** | @turboSSebot autonome | OpenClaw Gateway (port 18789) + 35 agents + Whisper STT + DeniseNeural TTS |
-| **OpenClaw** | Gateway + 35 agents | 7 providers (M1, M2, M3, OL1, Gemini, Claude, Qwen), fallback cascade |
-| **COWORK** | 319 scripts + 316 crons | 104 batches (28-132), dev continu 24/7, Perplexity MCP integre |
+| **Telegram Bot** | @turboSSebot autonome | OpenClaw Gateway (port 18789) + 78 agents + Whisper STT + DeniseNeural TTS |
+| **OpenClaw** | Gateway + 78 agents | 7 providers (M1, M2, M3, OL1, Gemini, Claude, Qwen), fallback cascade |
+| **COWORK** | 438 scripts + 316 crons | 132 batches (1-132), dev continu 24/7, Perplexity MCP integre |
 | **Voix TTS** | DeniseNeural (femme) | Edge TTS Neural + ffmpeg OGG Opus + Telegram sendVoice |
 | **Voix STT** | Whisper large-v3-turbo | Transcription vocaux Telegram entrants, CUDA accelere |
+| **Architecture** | [ARCHITECTURE.md](ARCHITECTURE.md) | Schema complet detaillant tous les composants, flux et integrations |
 
 ---
 
-## Nouveautes v11.0.0 — 319 Scripts COWORK + 316 Crons + 104 Batches + Perplexity MCP (2026-03-05)
+## Nouveautes v12.1.0 — Self-Improving AI + 438 COWORK + 98 Pattern Agents + Quality Gate (2026-03-05)
 
-> **319 scripts COWORK** en developpement continu autonome (104 batches, 316 crons). **Perplexity connecte via MCP** avec 23 outils directs sur le cluster. **35 agents OpenClaw** avec 7 providers IA. **215 modules Python** (85,000+ lignes src/). Batches 28-132 couvrant Windows Automation, JARVIS Intelligence, IA Autonome, Trading, Security, Voice, Neural Core, Swarm Intelligence, Meta-Learning, DevOps, et bien plus. Crons planifies pour dev autonome non-stop 24/7.
+> **438 scripts COWORK** en developpement continu autonome (132 batches, 316 crons). **78 agent patterns** en DB avec dispatch dynamique. **Dispatch engine 9 etapes** avec quality gate 6 portes, self-improvement, pattern evolution et reflection engine. **226 modules Python** (84,582 lignes src/). **2,144 tests** (49 suites). Bot Telegram via OpenClaw avec cluster race 5 noeuds. **29 pages Electron**. Schema architecture complet: [ARCHITECTURE.md](ARCHITECTURE.md).
 
-### Changements v10.7.0 → v11.0.0
+### Changements v11.0.0 → v12.1.0
 
 | Categorie | Avant | Apres | Detail |
 |-----------|-------|-------|--------|
-| **COWORK Scripts** | 131 scripts | **319 scripts** | +188 scripts (batches 49-132) |
-| **COWORK Crons** | 76 crons | **316 crons** | Dev continu 24/7, crons recurrents + one-shot |
-| **COWORK Batches** | 18 batches (28-48) | **104 batches (28-132)** | +86 batches Windows/JARVIS/IA Autonome |
-| **Perplexity MCP** | Non connecte | **23 outils MCP** | lm_query, ollama_query, gemini_query, consensus, trading, etc. |
-| **Modules src/** | 177 modules | **215 modules** | 85,000+ lignes (phase 4-11 + expansions) |
-| **COWORK Deploy** | 83 deployed | **167+ deployed** | deploiement autonome continu 24/7 |
+| **COWORK Scripts** | 319 scripts | **438 scripts** | +119 scripts (10 categories, 101 prefixes) |
+| **Modules src/** | 215 modules | **226 modules** | +11 modules (self_improvement, dynamic_agents, cowork_proactive, reflection_engine, pattern_evolution, quality_gate, event_stream, etc.) |
+| **Tests** | 528 tests | **2,144 tests** | +1,616 tests (49 suites: phase3-phase43 + pattern_agents + security + telegram) |
+| **MCP Handlers** | 531 handlers | **597 handlers** | +66 (self_improvement, dynamic_agents, cowork, reflection, evolution) |
+| **SDK Tools** | 117 outils | **181 outils** | +64 (cluster, browser, proactive, feedback) |
+| **REST Endpoints** | ~400 | **513 endpoints** | +113 (self_improvement, dynamic_agents, cowork, reflection, evolution, tts) |
+| **Agent Patterns** | 35 OpenClaw | **78 patterns DB** + 20 hardcoded = **98 total** | dispatch_engine route vers patterns dynamiques |
+| **Electron Pages** | 19 pages | **29 pages** | +10 (Gateway, Infra, Mesh, Processes, Queue, Services, Snapshots, System, Terminal, Automation) |
+| **Dispatch Engine** | Pipeline basique | **9 etapes + quality gate + event stream** | health→classify→memory→prompt_opt→route→dispatch→gate→feedback→event |
+| **Self-Improvement** | Aucun | **5 types d'actions auto** | route_shift, temp_adjust, tokens_adjust, gate_tune, prompt_enhance |
+| **Reflection Engine** | Aucun | **5 axes + Health Score** | quality, performance, reliability, efficiency, growth |
+| **Pattern Evolution** | Aucun | **10 clusters + auto-create** | detecte gaps et cree patterns automatiquement |
+| **M2+M3 Modeles** | deepseek-coder / mistral-7b | **deepseek-r1-0528-qwen3-8b** | Reasoning blocks, 44 tok/s (M2), 33 tok/s (M3) |
+| **M1B** | Aucun | **gpt-oss-20b** (deep local) | 9 tok/s, ctx 25k, 6 GPU reparti |
 
 ### Batches COWORK (28-108) — 80 Batches
 
@@ -139,13 +149,14 @@ Le cluster local fonctionne **24/7 sans internet**. Ce sont les 4 noeuds physiqu
 | Noeud | Machine | GPU | Modele | Vitesse | Score | Specialite |
 |-------|---------|-----|--------|---------|-------|------------|
 | **M1** | PC principal | 6 GPU / 46 GB VRAM | **qwen3-8b** | 65 tok/s | **98.4/100** | CHAMPION — code, math, raisonnement, tout |
-| **M2** | PC secondaire | 3 GPU / 24 GB VRAM | **deepseek-coder-v2-lite** | 15 tok/s | 85/100 | Code review, debug, refactoring |
-| **M3** | PC tertiaire | 1 GPU / 8 GB VRAM | **mistral-7b-instruct** | 10 tok/s | 89/100 | General, validation, taches simples |
-| **OL1** | PC principal (Ollama) | 5 GPU / 40 GB VRAM | **qwen3:14b** + **qwen3:1.7b** | 23 + 84 tok/s | 88/100 | Polyvalent rapide + cloud relay |
+| **M1B** | PC principal | 6 GPU / 46 GB VRAM | **gpt-oss-20b** (deep) | 9 tok/s | — | Deep local — raisonnement profond, ctx 25k |
+| **M2** | PC secondaire | 3 GPU / 24 GB VRAM | **deepseek-r1-0528-qwen3-8b** | 44 tok/s | — | Reasoning — blocks reasoning+message, ctx 27k |
+| **M3** | PC tertiaire | 1 GPU / 8 GB VRAM | **deepseek-r1-0528-qwen3-8b** | 33 tok/s | — | Reasoning fallback — sequentiel, ctx 25k |
+| **OL1** | PC principal (Ollama) | — | **qwen3:14b** + **qwen3:1.7b** | 23 + 84 tok/s | 88/100 | Polyvalent rapide + cloud relay |
 
-**Comment ca marche :** Chaque noeud execute un serveur LM Studio ou Ollama. JARVIS envoie les requetes au meilleur noeud selon la tache (code → M1, rapide → OL1 1.7b, review → M2). Si un noeud tombe, le trafic bascule automatiquement sur le suivant. Tout tourne en local sur le reseau 192.168.1.x, zero dependance exterieure.
+**Comment ca marche :** Chaque noeud execute un serveur LM Studio ou Ollama. JARVIS envoie les requetes au meilleur noeud selon la tache (code → M1, rapide → OL1 1.7b, reasoning → M2). Si un noeud tombe, le trafic bascule automatiquement sur le suivant. Le dispatch engine (9 etapes) gere le routage, la quality gate, et le self-improvement en boucle fermee.
 
-**Fallback local :** M1 → OL1 → M2 → M3.
+**Fallback local :** M1 → M1B → M2 → M3.
 
 ### IA Cloud — Optionnelles (etendent les capacites quand disponibles)
 
@@ -193,7 +204,7 @@ JARVIS tourne en permanence sur Telegram (@turboSSebot). Il se donne ses propres
 
 **Distribution :** Code → gpt-oss/M1 | Windows → agent windows | Trading → OL1 web | Architecture → GEMINI | Raisonnement → CLAUDE. Consensus multi-IA (vote pondere) pour les decisions critiques.
 
-### COWORK — Developpement Continu Autonome (319 scripts, 316 crons, 104 batches)
+### COWORK — Developpement Continu Autonome (438 scripts, 316 crons, 132 batches)
 
 | Batch | Theme | Scripts | Status |
 |-------|-------|---------|--------|
@@ -216,7 +227,7 @@ JARVIS tourne en permanence sur Telegram (@turboSSebot). Il se donne ses propres
 | 47 | Cluster Intel Avancee | model_selector, cluster_autoscaler, consensus_voter | Cron programme |
 | 48 | Productivite | workflow_builder, time_tracker, focus_mode | Cron programme |
 
-**316+ crons 24/7 (batches 28-132). 104 batches total, 314 scripts en file + 5 scripts directs agents.**
+**316+ crons 24/7 (batches 1-132). 132 batches total, 438 scripts (102 win + 103 jarvis + 66 ia + 167 autres). Repo: [jarvis-cowork](https://github.com/Turbo31150/jarvis-cowork)**
 
 Principaux crons recurrents :
 - **5 min** : dev_proactive_check, dev_electron_monitor
@@ -249,7 +260,7 @@ Telegram sendVoice → vocal ecoutable
 
 **Scripts disponibles (71+ existants) :** emails, status, trading, gpu, disk, cluster, bluetooth, wifi, backup, securite, processus, reseau, screenshot, audio, registre, drivers, et 50+ autres dans dev/.
 
-### Nouveaux Modules Systeme (Phases 19-43)
+### Nouveaux Modules Systeme (Phases 4-43)
 
 | Phase | Modules | Description |
 |-------|---------|-------------|
@@ -261,6 +272,10 @@ Telegram sendVoice → vocal ecoutable
 | 9 | plugin_manager, command_router, resource_monitor | Plugins + NL routing |
 | 10 | retry_manager, data_pipeline, service_registry | Resilience + ETL |
 | 11 | cache_manager, secret_vault, dependency_graph | Cache L1/L2 + secrets |
+| 12-14 | agent_ensemble, pattern_discovery, pattern_lifecycle, agent_collaboration, code_review_480b, prompt_engineering, smart_retry, drift_detector, pattern_benchmark_runner | Patterns + collaboration agents |
+| 15 | quality_gate, event_stream, self_improvement, dynamic_agents, cowork_proactive, reflection_engine | **Intelligence autonome** — quality gate 6 portes + self-improvement + reflection |
+| 16 | pattern_evolution, agent_prompt_optimizer | **Evolution** — auto-create patterns + optimisation prompts |
+| 17-43 | 180+ modules systeme (Windows, networking, security, storage, observability, etc.) | Infrastructure complete — voir [ARCHITECTURE.md](ARCHITECTURE.md) |
 
 ### gpt-oss:120b — CHAMPION Cloud (100/100, 4 runs stables)
 
@@ -374,10 +389,12 @@ JARVIS execute ces taches tout seul, 24h/24, et te previent sur Telegram si quel
 | **Features Telegram** | Toutes les 12h | Ameliore le bot Telegram et ses commandes |
 | **Infra de tests** | Quotidien | Ameliore la couverture de tests |
 
-### Les 131 scripts operationnels
+### Les 438 scripts operationnels (jarvis-cowork)
+
+Voir [jarvis-cowork](https://github.com/Turbo31150/jarvis-cowork) pour le repo complet et la doc detaillee.
 
 <details>
-<summary><b>Liste complete des 131 scripts dev/ (cliquer pour voir)</b></summary>
+<summary><b>Principaux scripts dev/ (cliquer pour voir)</b></summary>
 
 | Script | Fonction |
 |--------|----------|
@@ -763,17 +780,17 @@ Commande vocale → Collecte PowerShell (CPU/RAM/GPU/Disques)
 - [Architecture Globale](#architecture-globale)
 - [Cluster IA — HEXA_CORE + Cloud](#cluster-ia--hexacore)
 - [Pipeline Commander](#pipeline-commander)
-- [53 Agents Total (7 SDK + 11 Plugin + 35 OpenClaw)](#53-agents-total-7-sdk--11-plugin--35-openclaw)
+- [96 Agents Total (7 SDK + 11 Plugin + 78 Patterns)](#96-agents-total-7-sdk--11-plugin--78-pattern-agents)
 - [Consensus Multi-Source](#consensus-multi-source)
 - [108 Skills Autonomes](#108-skills-autonomes)
-- [117 Outils MCP + 531 Handlers](#117-outils-mcp--531-handlers-7322-lignes)
+- [181 Outils MCP + 597 Handlers](#181-outils-mcp--597-handlers-8799-lignes)
 - [Bases de Donnees](#bases-de-donnees)
 - [Catalogue Vocal & Pipelines](#catalogue-vocal--pipelines)
 - [Architecture Vocale](#architecture-vocale)
 - [Trading MEXC Futures](#trading-mexc-futures)
 - [Telegram Bot Autonome](#telegram-bot-autonome-turbossebot)
-- [Desktop Electron (19 pages)](#desktop-electron)
-- [COWORK Autonome (131 scripts)](#cowork-autonome-131-scripts-76-crons-30515-lignes)
+- [Desktop Electron (29 pages)](#desktop-electron)
+- [COWORK Autonome (438 scripts)](#cowork--developpement-continu-autonome-438-scripts-316-crons-132-batches)
 - [Arborescence du Projet](#arborescence-du-projet)
 - [Installation](#installation)
 - [Benchmark Cluster](#benchmark-cluster)
@@ -799,9 +816,9 @@ Commande vocale → Collecte PowerShell (CPU/RAM/GPU/Disques)
 
 | Service | IP | Port | Protocole | Description |
 |---------|----|------|-----------|-------------|
-| **OpenClaw Gateway** | 127.0.0.1 | 18789 | HTTP | Gateway Telegram + 35 agents + 76 crons |
+| **OpenClaw Gateway** | 127.0.0.1 | 18789 | HTTP | Gateway Telegram + 78 agents + 316 crons |
 | **Gemini Proxy** | 127.0.0.1 | 18791 | HTTP | Proxy Gemini avec timeout + fallback |
-| **FastAPI Backend** | 127.0.0.1 | 9742 | WebSocket | Backend Electron (6 routes) |
+| **FastAPI Backend** | 127.0.0.1 | 9742 | WebSocket | Backend Electron (513 endpoints, 29 pages) |
 | **Dashboard** | 127.0.0.1 | 8080 | HTTP | Dashboard web standalone |
 | **n8n** | 127.0.0.1 | 5678 | HTTP | 20 workflows automation |
 | **CDP Browser** | 127.0.0.1 | 9222 | WebSocket | Chrome DevTools Protocol (Comet/Chrome/Edge) |
@@ -844,7 +861,7 @@ Branchements supplementaires :
     M1 ──> Dashboard :8080 ──> Browser web
     M1 ──> n8n :5678 ──> 20 workflows
     M1 ──> CDP :9222 ──> Comet/Chrome/Edge (browser_pilot.py)
-    OpenClaw ──> dev/*.py (131 scripts) ──> SQLite (dev/data/*.db)
+    OpenClaw ──> dev/*.py (438 scripts) ──> SQLite (dev/data/*.db)
 ```
 
 ### Fallback Cascade (code)
@@ -1036,7 +1053,7 @@ Fallback code: gpt-oss:120b → M1 → devstral-2:123b → M2 → OL1 → GEMINI
 
 ---
 
-## 53 Agents Total (7 SDK + 11 Plugin + 35 OpenClaw)
+## 96 Agents Total (7 SDK + 11 Plugin + 78 Pattern Agents)
 
 ### 7 Agents Claude SDK
 
@@ -1067,6 +1084,14 @@ Definis dans `src/agents.py`, chaque agent a un role, un modele Claude et des ou
 | benchmark-runner | Jaune | Tests de performance cluster |
 | routing-optimizer | Orange | Optimisation des poids de routage |
 | canvas-operator | — | Proxy Canvas + autolearn |
+
+### 78 Agent Patterns (etoile.db — 20 hardcoded + 58 dynamiques)
+
+Les agent patterns sont le coeur du systeme de dispatch. Chaque pattern definit un type de tache, un modele optimal et une strategie d'execution. Les 20 patterns hardcodes sont dans `pattern_agents.py`, les 58 dynamiques sont charges depuis `agent_patterns` dans etoile.db par `dynamic_agents.py`.
+
+**6 patterns principaux** (benchmarkes) : task-router (prio 1), quick-dispatch (prio 2), code-champion (prio 3), deep-reasoning (prio 4), analysis-engine (prio 3), system-ops (prio 3).
+
+**Categories dynamiques** : win_ (17), jarvis_ (17), ia_ (12), cw-win (6), cw-jarvis (5), discovered-* (auto-crees par pattern_evolution.py).
 
 ### 35 Agents OpenClaw Gateway
 
@@ -1192,12 +1217,12 @@ mao-workflow, cluster-management, trading-pipeline, failover-recovery, security-
 
 ---
 
-## 117 Outils MCP + 531 Handlers (7,322 lignes)
+## 181 Outils MCP + 597 Handlers (8,799 lignes)
 
-Chiffres reels verifies (2026-03-05) : `tools.py` (1,979 lignes, 117 fonctions) + `mcp_server.py` (5,343 lignes, 531 handlers).
+Chiffres reels verifies (2026-03-05) : `tools.py` (2,582 lignes, 181 fonctions) + `mcp_server.py` (6,217 lignes, 597 handlers). Voir [ARCHITECTURE.md](ARCHITECTURE.md) pour le detail complet.
 
 ```
-JARVIS-TURBO tools.py (117 outils)     JARVIS-TURBO mcp_server.py (531 handlers)
+JARVIS-TURBO tools.py (181 outils)     JARVIS-TURBO mcp_server.py (597 handlers)
 ├── Cluster IA (15)                     ├── Cluster Management (60+)
 │   lm_query, consensus,               │   health_check, model_load/unload,
 │   bridge_mesh, bridge_query,          │   node_status, dispatch, routing
@@ -1230,20 +1255,31 @@ JARVIS-TURBO tools.py (117 outils)     JARVIS-TURBO mcp_server.py (531 handlers)
 │   sql_query, sql_insert,             │   trigger_workflow, webhook,
 │   sql_export                          │   cron, pipeline execution
 │                                       │
-├── Browser / Comet (8)                 └── Skills & Brain (40+)
-│   navigate, screenshot, click,            learn, execute, index,
-│   comet_pilot, cdp_connect                search, pattern, memory
-│
-└── Utilities (29)
-    tts_speak, screenshot, clipboard,
-    hotkey, scheduler, notifications
+├── Browser / Comet (8)                 ├── Skills & Brain (40+)
+│   navigate, screenshot, click,        │   learn, execute, index,
+│   comet_pilot, cdp_connect            │   search, pattern, memory
+│                                       │
+├── Self Improvement (4)                ├── Self Improvement (15+)
+│   analyze, suggest, apply, history    │   analyze, suggest, apply, stats
+│                                       │
+├── Dynamic Agents (3)                  ├── Dynamic Agents (15+)
+│   list, dispatch, load                │   list, dispatch, load, patterns
+│                                       │
+├── Cowork Proactive (3)                ├── Cowork Proactive (15+)
+│   detect_needs, plan, execute         │   detect_needs, plan, anticipate
+│                                       │
+└── Utilities (53)                      ├── Reflection (12+)
+    tts_speak, screenshot, clipboard,   │   reflect, timeline, summary
+    hotkey, scheduler, notifications    │
+                                        └── Pattern Evolution (12+)
+                                            analyze_gaps, evolve, create
 ```
 
 ### 3 Serveurs MCP Configures
 
 | Serveur | Commande | Outils | Lignes |
 |---------|----------|--------|--------|
-| **jarvis-turbo** | `jarvis_mcp_stdio.bat` | 117 tools + 531 handlers | 7,322 lignes |
+| **jarvis-turbo** | `jarvis_mcp_stdio.bat` | 181 tools + 597 handlers | 8,799 lignes |
 | **trading-ai-ultimate** | `trading_mcp_ultimate_v3.py` | Scanner MEXC, consensus, execution | — |
 | **filesystem** | `npx @modelcontextprotocol/server-filesystem` | Acces complet C:\, D:\, F:\ | — |
 
@@ -1255,10 +1291,10 @@ JARVIS-TURBO tools.py (117 outils)     JARVIS-TURBO mcp_server.py (531 handlers)
 
 | Base | Chemin | Tables | Rows | Usage |
 |------|--------|--------|------|-------|
-| **etoile.db** | `data/etoile.db` | 22 | 11,282 | Carte HEXA_CORE, cles API, agents, metrics, pipelines, 2,628 corrections, 835 dominos |
-| **jarvis.db** | `data/jarvis.db` | 12 | 5,908 | 443 commandes, 108 skills, scenarios, benchmarks |
-| **sniper.db** | `data/sniper.db` | 6 | 768 | Coins, signaux trading, categories |
-| **finetuning.db** | `data/finetuning.db` | — | — | Pipeline QLoRA, examples, evaluations |
+| **etoile.db** | `data/etoile.db` | 19 | — | Carte systeme, 78 agent_patterns, dispatch logs, quality gate, self-improvement, evolution, reflection, episodic memory, corrections, dominos |
+| **jarvis.db** | `data/jarvis.db` | 8+ | — | 443 commandes, 108 skills, scenarios, benchmarks, corrections vocales |
+| **sniper.db** | `data/sniper.db` | 4 | — | Coins, signaux trading, categories, strategies |
+| **finetuning.db** | `data/finetuning.db` | 8 | — | Pipeline QLoRA 4-bit, 17,152 examples, evaluations |
 
 ### etoile.db — Carte du Systeme
 
