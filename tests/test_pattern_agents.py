@@ -1754,6 +1754,58 @@ class TestAutoTuneGate:
         assert "error" not in result or isinstance(result.get("error"), str)
 
 
+class TestQualityScoring:
+    """Tests for PatternAgent._score_quality improvements."""
+
+    def _make_agent(self, pattern_type="code"):
+        return PatternAgent(
+            pattern_id="TEST", pattern_type=pattern_type, agent_id="test",
+            system_prompt="", primary_node="M1", fallback_nodes=["OL1"],
+            strategy="single", priority=1,
+        )
+
+    def test_empty_content_zero_score(self):
+        agent = self._make_agent()
+        assert agent._score_quality("test", "") == 0.0
+
+    def test_short_content_low_score(self):
+        agent = self._make_agent()
+        score = agent._score_quality("question", "Oui")
+        assert score < 0.3
+
+    def test_code_block_structure_detected(self):
+        agent = self._make_agent("code")
+        # Verify code blocks give non-zero structure bonus
+        score = agent._score_quality("write function", "```python\ndef f(x):\n    return x * 2\n```")
+        assert score > 0.2  # Code block should contribute positively
+
+    def test_structured_list_bonus(self):
+        agent = self._make_agent()
+        flat = agent._score_quality("compare", "Python est mieux que Java pour le scripting.")
+        listed = agent._score_quality("compare", "1) Python est dynamique\n2) Java est statique\n3) Python a plus de libs")
+        assert listed >= flat
+
+    def test_anti_hallucination_penalty(self):
+        agent = self._make_agent()
+        # Same approximate length, one with hallucination marker
+        good = agent._score_quality("test question", "La capitale de la France est Paris, une ville magnifique et historique.")
+        bad = agent._score_quality("test question", "En tant qu'IA, je ne peux pas repondre. Je suis un modele de langage limite.")
+        assert bad < good
+
+    def test_relevance_overlap(self):
+        agent = self._make_agent()
+        relevant = agent._score_quality("capitale France", "La capitale de la France est Paris")
+        irrelevant = agent._score_quality("capitale France", "Le chat mange des croquettes")
+        assert relevant > irrelevant
+
+    def test_score_capped_at_one(self):
+        agent = self._make_agent()
+        score = agent._score_quality(
+            "x", "### Section\n1) Point 1\n2) Point 2\n```python\ncode\n```\n" * 10
+        )
+        assert score <= 1.0
+
+
 class TestBenchmarkAnalysis:
     """Tests for SelfImprover._analyze_benchmark_data()."""
 
