@@ -10,7 +10,7 @@ Endpoints (all return JSON):
 
 The implementation deliberately uses only the Python standard library and optional
 ``psutil`` (fallback to PowerShell if unavailable).  Errors are reported as JSON
-objects with an ``error`` key so the front‑end can handle them gracefully.
+objects with an ``error`` key so the front-end can handle them gracefully.
 """
 
 import json
@@ -102,7 +102,7 @@ def get_metrics():
         except Exception:
             result["cpu_percent"] = None
             result["ram_percent"] = None
-    # GPU temperature via nvidia‑smi (if present)
+    # GPU temperature via nvidia-smi (if present)
     try:
         out = subprocess.check_output(
             ["nvidia-smi", "--query-gpu=temperature.gpu,utilization.gpu", "--format=csv,noheader,nounits"],
@@ -139,7 +139,7 @@ def get_cron_jobs():
             "includeDisabled": True,
             "timeoutMs": 15000,
         })
-        # The tool returns a JSON‑serialisable dict; we just forward it.
+        # The tool returns a JSON-serialisable dict; we just forward it.
         return resp
     except Exception:
         # If the tool is not reachable, return an empty list.
@@ -180,5 +180,13 @@ def run_server(host="0.0.0.0", port=8085):
         print("\n[cluster_dashboard_api] Shutting down.")
         server.server_close()
 
+def main():
+    import argparse
+    parser = argparse.ArgumentParser(description="REST API for the JARVIS Electron dashboard (port 8085).")
+    parser.add_argument("--host", default="0.0.0.0", help="Bind address (default: 0.0.0.0)")
+    parser.add_argument("--port", type=int, default=8085, help="Bind port (default: 8085)")
+    args = parser.parse_args()
+    run_server(host=args.host, port=args.port)
+
 if __name__ == "__main__":
-    run_server()
+    main()

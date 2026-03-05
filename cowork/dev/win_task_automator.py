@@ -2,16 +2,16 @@
 """win_task_automator.py
 Utility to manage Windows scheduled tasks (schtasks) for JARVIS.
 
-Supported sub‑commands:
+Supported sub-commands:
   --create  NAME   /TR "command" [/SC schedule] [/ST start_time] [/ED end_date]
-  --list               List all JARVIS‑managed tasks
-  --delete  NAME       Delete a JARVIS‑managed task
+  --list               List all JARVIS-managed tasks
+  --delete  NAME       Delete a JARVIS-managed task
   --export  PATH       Export all JARVIS tasks to a JSON file
   --import  PATH       Import tasks from a JSON file (creates/updates)
 
-Templates (pre‑filled command strings) are provided for common JARVIS services:
-  * LM Studio auto‑start
-  * Ollama auto‑start
+Templates (pre-filled command strings) are provided for common JARVIS services:
+  * LM Studio auto-start
+  * Ollama auto-start
   * Backup health check
 
 Typical usage:
@@ -119,10 +119,10 @@ def main():
 
     create = subparsers.add_parser("--create", help="Create a JARVIS task")
     create.add_argument("name", help="Task identifier")
-    create.add_argument("/TR", dest="command", help="Command to run")
-    create.add_argument("/SC", dest="schedule", default="DAILY", help="Schedule (HOURLY, DAILY, WEEKLY, …)")
-    create.add_argument("/ST", dest="start", default="09:00", help="Start time (HH:MM)")
-    create.add_argument("/ED", dest="end", default=None, help="End date (YYYY/MM/DD)")
+    create.add_argument("--tr", dest="command", help="Command to run")
+    create.add_argument("--sc", dest="schedule", default="DAILY", help="Schedule (HOURLY, DAILY, WEEKLY, ...)")
+    create.add_argument("--st", dest="start", default="09:00", help="Start time (HH:MM)")
+    create.add_argument("--ed", dest="end", default=None, help="End date (YYYY/MM/DD)")
 
     subparsers.add_parser("--list", help="List JARVIS tasks")
     subparsers.add_parser("--delete", help="Delete a JARVIS task").add_argument("name", help="Task identifier")
