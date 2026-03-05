@@ -129,67 +129,66 @@ Auto-detection : Comet > Chrome > Edge (priorite)
     Edge : Program Files (x86)\Microsoft\Edge\Application\msedge.exe
 ```
 
-### IA Locales — Cluster Operationnel (fonctionnel, toujours actif)
+### IA Locales — Fonctionnelles (le coeur du systeme)
 
-| Noeud | Machine | GPU | Modele | Score | Role |
-|-------|---------|-----|--------|-------|------|
-| **M1** | RTX 3080 10GB + 5x GTX 1660S 6GB (46GB) | 6 GPU | **qwen3-8b** (65 tok/s) | **98.4/100** | CHAMPION LOCAL — code, math, raisonnement |
-| **M2** | 3x GPU 24GB | 3 GPU | **deepseek-coder-v2-lite** | 85/100 | Code review, debug |
-| **M3** | 1x GPU 8GB | 1 GPU | **mistral-7b-instruct** | 89/100 | General, validation |
-| **OL1** | RTX 2060 12GB + GTX 1660S 6GB (40GB) | 5 GPU | **qwen3:14b** + **qwen3:1.7b** | 88/100 | Polyvalent rapide |
+Le cluster local fonctionne **24/7 sans internet**. Ce sont les 4 noeuds physiques qui font tourner JARVIS :
 
-Ces 4 noeuds sont **toujours actifs** sur le reseau local (LM Studio + Ollama). Ils executent les modeles IA en local avec zero dependance cloud.
+| Noeud | Machine | GPU | Modele | Vitesse | Score | Specialite |
+|-------|---------|-----|--------|---------|-------|------------|
+| **M1** | PC principal | 6 GPU / 46 GB VRAM | **qwen3-8b** | 65 tok/s | **98.4/100** | CHAMPION — code, math, raisonnement, tout |
+| **M2** | PC secondaire | 3 GPU / 24 GB VRAM | **deepseek-coder-v2-lite** | 15 tok/s | 85/100 | Code review, debug, refactoring |
+| **M3** | PC tertiaire | 1 GPU / 8 GB VRAM | **mistral-7b-instruct** | 10 tok/s | 89/100 | General, validation, taches simples |
+| **OL1** | PC principal (Ollama) | 5 GPU / 40 GB VRAM | **qwen3:14b** + **qwen3:1.7b** | 23 + 84 tok/s | 88/100 | Polyvalent rapide + cloud relay |
 
-### IA Cloud & Externes (optionnel, etend les capacites)
+**Comment ca marche :** Chaque noeud execute un serveur LM Studio ou Ollama. JARVIS envoie les requetes au meilleur noeud selon la tache (code → M1, rapide → OL1 1.7b, review → M2). Si un noeud tombe, le trafic bascule automatiquement sur le suivant. Tout tourne en local sur le reseau 192.168.1.x, zero dependance exterieure.
 
-| Service | Modele | Score | Acces | Role |
-|---------|--------|-------|-------|------|
-| **gpt-oss:120b** | GPT-OSS 120B cloud | **100/100** | Ollama cloud | CHAMPION CODE — Q100% V100% R100% |
-| **devstral-2:123b** | Devstral 2 123B | 96.5/100 | Ollama cloud | Code cloud #2 |
-| **GEMINI** | Gemini 3 Pro/Flash | 74/100 | gemini-proxy.js | Architecture, vision |
-| **CLAUDE** | Claude Opus/Sonnet/Haiku | variable | claude-proxy.js | Raisonnement profond |
-| **Perplexity** | Via MCP connecteur | — | **23 outils MCP** | Recherche web + pilotage JARVIS |
-| **OpenClaw** | Gateway 35 agents | — | port 18789 | Orchestration Telegram |
+**Fallback local :** M1 → OL1 → M2 → M3.
 
-**Fallback cascade :** M1 → OL1 → M2 → gpt-oss → devstral → Gemini → Claude.
+### IA Cloud — Optionnelles (etendent les capacites quand disponibles)
 
-### Perplexity MCP — Connecteur Personnalise "4"
+Ces services sont **optionnels**. Le systeme fonctionne sans eux, mais ils ajoutent de la puissance quand ils sont actifs :
 
-Perplexity est connecte directement au cluster JARVIS via un **connecteur MCP personnalise** (Model Context Protocol). Il dispose de **23 outils** pour piloter le systeme :
+| Service | Modele | Score | Comment on l'utilise | Role |
+|---------|--------|-------|----------------------|------|
+| **gpt-oss:120b** | GPT-OSS 120B | **100/100** | Via Ollama cloud (`think:false`) | CHAMPION CODE — score parfait, code/review/securite |
+| **devstral-2:123b** | Devstral 2 123B | 96.5/100 | Via Ollama cloud | Code cloud #2, review approfondie |
+| **GEMINI** | Gemini 3 Pro/Flash | 74/100 | Via `gemini-proxy.js` (Node) | Architecture, vision, longs documents |
+| **CLAUDE** | Claude Opus/Sonnet/Haiku | variable | Via `claude-proxy.js` (Node) | Raisonnement profond, orchestration complexe |
+| **Perplexity** | Connecteur MCP "4" | — | 23 outils via OpenClaw Gateway | Recherche web + ecriture directe sur le systeme (Deep Research) |
+| **OpenClaw** | Gateway 35 agents | — | Port 18789, Telegram @turboSSebot | Pilotage Telegram, crons, agents autonomes |
 
-```
-Perplexity (navigateur) → Connecteur MCP "4" → OpenClaw Gateway (port 18789)
-    |
-    +-- lm_query / ollama_query / gemini_query : interroger n'importe quel noeud IA
-    +-- consensus / bridge_mesh : consensus multi-IA et requetes paralleles
-    +-- trading_pipeline_v2 / trading_pending_signals : pipeline trading GPU
-    +-- system_info / gpu_info / network_info : monitoring systeme
-    +-- brain_status / brain_analyze / memory_recall : intelligence JARVIS
-    +-- execute_domino / list_dominos : pipelines vocaux automatises
-    +-- list_skills / powershell_run / screenshot : controle Windows
-```
+**Perplexity ecrit directement sur le systeme.** Un connecteur MCP personnalise (appele "4") donne a Perplexity 23 outils pour interroger le cluster, lancer des commandes, analyser le systeme et **generer du code deploye directement** dans `F:\BUREAU\turbo\src\` via sa Deep Research. Perplexity voit OL1 (cloud) mais pas M1/M2/M3 (IPs locales non exposees).
 
-Perplexity peut ainsi **lire le cluster, executer des commandes, analyser le systeme** et ameliorer JARVIS directement depuis le navigateur. Toute la Deep Research de Perplexity est utilisee pour generer du code deploye sur `F:\BUREAU\turbo\src\`.
+**Gemini** est utilise via un proxy Node.js (`gemini-proxy.js`) pour les taches d'architecture et de vision. Timeout 2min, fallback pro/flash automatique.
 
-### Pilotage Telegram — Auto-Alimentation Continue
+**gpt-oss:120b** est le champion cloud absolu : score parfait 100/100 sur 4 runs de benchmark (Q100% V100% R100%, 51 tok/s). Prioritaire pour code nouveau, revue, et securite.
+
+**Claude** (via `claude-proxy.js`) gere le raisonnement profond et l'orchestration MAO (Multi-Agent Orchestrator). C'est lui le commandant qui distribue les taches aux autres.
+
+**Fallback complet :** M1 → OL1 → M2 → gpt-oss → devstral → Gemini → Claude.
+
+### Pilotage Telegram — Systeme Autonome Auto-Alimente
+
+JARVIS tourne en permanence sur Telegram (@turboSSebot). Il se donne ses propres taches, code en continu, et previent l'utilisateur :
 
 ```
 @turboSSebot (Telegram) ← OpenClaw Gateway (port 18789)
     |
-    +-- 35 agents IA (main, coding, windows, trading, voice, etc.)
-    +-- 244+ crons autonomes (dev continu 24/7)
-    +-- Whisper STT (vocaux entrants) + DeniseNeural TTS (vocaux sortants)
+    ENTREES :
+    +-- Texte libre → routage auto vers le meilleur agent IA
+    +-- Message vocal → Whisper large-v3-turbo CUDA → transcription → execution
+    +-- Crons automatiques → 290+ taches planifiees qui tournent 24/7
     |
-    Boucle auto-alimentation :
-    1. Les crons creent des scripts Python toutes les 2-48 min
-    2. Les agents executent les taches de dev en arriere-plan
-    3. Les scripts deployes sont testes et valides automatiquement
-    4. JARVIS envoie des vocaux sur l'etat d'avancement
-    5. Les alertes (GPU, trading, cluster) sont notifiees en temps reel
-    6. L'utilisateur peut commander en vocal ou texte a tout moment
+    SORTIES :
+    +-- Reponse texte avec resultats
+    +-- Message vocal TTS (voix Denise, femme francaise, OGG Opus)
+    +-- Alertes proactives (GPU chaud, cluster down, signal trading)
+    +-- Rapports d'avancement sur le developpement autonome
 ```
 
-**Distribution des taches :** Chaque requete est routee vers le meilleur agent selon la matrice de routage (code → gpt-oss/M1, Windows → agent windows, trading → OL1 web, etc.). Le consensus multi-IA est utilise pour les decisions critiques (vote pondere M1=1.8, gpt-oss=1.9, devstral=1.5).
+**Auto-alimentation :** Le systeme se donne en permanence des taches de developpement via les crons OpenClaw. Les agents codent des scripts Python, les testent, et les deploient sans intervention humaine. JARVIS envoie des vocaux sur Telegram pour informer de l'etat du systeme, des alertes, et de l'avancement du dev. L'utilisateur peut a tout moment parler ou ecrire pour commander, poser des questions, ou recevoir un briefing.
+
+**Distribution :** Code → gpt-oss/M1 | Windows → agent windows | Trading → OL1 web | Architecture → GEMINI | Raisonnement → CLAUDE. Consensus multi-IA (vote pondere) pour les decisions critiques.
 
 ### COWORK — Developpement Continu Autonome (266 scripts, 268 crons, 88 batches)
 
