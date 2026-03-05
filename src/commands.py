@@ -3825,6 +3825,29 @@ COMMANDS: list[JarvisCommand] = [
         "genere la documentation", "generate docs", "doc gen",
         "genere les docs", "documentation generate",
     ], "bash", "echo '=== DOC GEN ===' && sphinx-build --version 2>/dev/null || mkdocs --version 2>/dev/null || echo 'No doc tool found'"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DESKTOP AUTONOME (4 commandes) — v2.0
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("desktop_clean", "systeme", "Ranger le bureau par type de fichier", [
+        "range mon bureau", "nettoie le bureau", "clean desktop",
+        "range le bureau", "trie le bureau", "organise le bureau",
+        "nettoie mon bureau",
+    ], "python", "desktop_actions.clean_desktop"),
+    JarvisCommand("window_move_other_screen", "systeme", "Deplacer la fenetre sur l'autre ecran", [
+        "deplace sur l'autre ecran", "mets sur le deuxieme ecran",
+        "bouge la fenetre", "change d'ecran", "fenetre autre ecran",
+        "passe sur l'autre ecran", "mets le nav sur l'autre ecran",
+        "deplace la fenetre",
+    ], "python", "desktop_actions.move_window_to_next_monitor"),
+    JarvisCommand("window_split_left", "systeme", "Fenetre a gauche (split)", [
+        "mets a gauche", "fenetre a gauche", "split gauche",
+        "snap gauche", "accroche a gauche",
+    ], "hotkey", "win+left"),
+    JarvisCommand("window_split_right", "systeme", "Fenetre a droite (split)", [
+        "mets a droite", "fenetre a droite", "split droite",
+        "snap droite", "accroche a droite",
+    ], "hotkey", "win+right"),
 ]
 
 # Post-processing: replace hardcoded paths with config-driven values

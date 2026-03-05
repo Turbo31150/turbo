@@ -82,10 +82,30 @@ class AutonomousLoop:
         self.register("weekly_cleanup", self._task_weekly_cleanup, interval_s=86400,
                        cron=CronSchedule(hour=4, minute=0, weekdays=[6]))  # Sunday 4h00
 
+        # ── v2.0 Autonomous tasks ────────────────────────────────────────
+        self.register("brain_auto_learn", self._task_brain_auto_learn, interval_s=1800)  # 30min
+        self.register("improve_cycle", self._task_improve_cycle, interval_s=86400,
+                       cron=CronSchedule(hour=2, minute=0))  # daily 2h00
+        self.register("predict_next_actions", self._task_predict_next, interval_s=300)  # 5min
+        self.register("auto_develop", self._task_auto_develop, interval_s=86400,
+                       cron=CronSchedule(hour=3, minute=30))  # daily 3h30
+
     def register(self, name: str, fn: Callable[[], Awaitable[dict[str, Any]]],
                  interval_s: float = 30.0, cron: CronSchedule | None = None) -> None:
         """Register a new autonomous task. If cron is set, only runs when cron matches."""
         self._tasks[name] = AutonomousTask(name=name, fn=fn, interval_s=interval_s, cron=cron)
+
+    async def dynamic_register(self, name: str, fn: Callable[[], Awaitable[dict[str, Any]]],
+                               interval_s: float = 60.0, cron: CronSchedule | None = None) -> None:
+        """Register a task dynamically at runtime (from brain, telegram, etc.)."""
+        self._tasks[name] = AutonomousTask(name=name, fn=fn, interval_s=interval_s, cron=cron)
+        self._log_event(name, "info", f"Dynamic task registered (interval={interval_s}s)")
+        try:
+            from src.event_bus import event_bus
+            await event_bus.emit("autonomous.task_created", {"name": name, "interval_s": interval_s})
+        except Exception:
+            pass
+        logger.info("Dynamic task registered: %s (interval=%ds)", name, interval_s)
 
     def unregister(self, name: str) -> None:
         """Remove a task."""
@@ -329,21 +349,34 @@ class AutonomousLoop:
 
     @staticmethod
     async def _task_proactive() -> dict[str, Any]:
-        """Run proactive analysis and generate suggestions."""
+        """Run proactive analysis + auto-execute high-confidence suggestions."""
         from src.proactive_agent import proactive_agent
-        suggestions = await proactive_agent.analyze()
-        result: dict[str, Any] = {"suggestions": len(suggestions)}
-        if suggestions:
-            # Notify high-priority suggestions
-            high = [s for s in suggestions if s.get("priority") == "high"]
-            if high:
-                try:
-                    from src.notifier import notifier
-                    for s in high[:2]:
-                        await notifier.warn(s["message"], source="proactive")
-                except Exception:
-                    pass
-                result["alert"] = f"{len(high)} high-priority suggestions"
+        report = await proactive_agent.analyze_and_execute()
+        result: dict[str, Any] = {
+            "suggestions": report["total"],
+            "auto_executed": len(report["executed"]),
+            "skipped": len(report["skipped"]),
+        }
+        if report["executed"]:
+            try:
+                from src.notifier import notifier
+                names = [e["key"] for e in report["executed"]]
+                await notifier.info(
+                    f"Auto-execute: {', '.join(names)}", source="proactive"
+                )
+            except Exception:
+                pass
+        # Still notify high-priority non-executed suggestions
+        suggestions = proactive_agent.get_last()
+        high = [s for s in suggestions if s.get("priority") == "high"]
+        if high:
+            try:
+                from src.notifier import notifier
+                for s in high[:2]:
+                    await notifier.warn(s["message"], source="proactive")
+            except Exception:
+                pass
+            result["alert"] = f"{len(high)} high-priority suggestions"
         return result
 
     @staticmethod
@@ -375,6 +408,86 @@ class AutonomousLoop:
             results["db_maintenance_error"] = str(e)
 
         return results
+
+    # ── v2.0 Autonomous tasks ────────────────────────────────────────────
+
+    @staticmethod
+    async def _task_brain_auto_learn() -> dict[str, Any]:
+        """Auto-learn: detect patterns and create skills (every 30min)."""
+        try:
+            from src.brain import analyze_and_learn
+            report = analyze_and_learn(auto_create=True, min_confidence=0.7)
+            result: dict[str, Any] = {
+                "patterns_found": report["patterns_found"],
+                "skills_created": report["skills_created"],
+            }
+            if report["skills_created"]:
+                try:
+                    from src.event_bus import event_bus
+                    for name in report["skills_created"]:
+                        await event_bus.emit("brain.skill_created", {"name": name})
+                except Exception:
+                    pass
+                result["alert"] = f"Brain created {len(report['skills_created'])} skills"
+            return result
+        except Exception as e:
+            return {"error": str(e)}
+
+    @staticmethod
+    async def _task_improve_cycle() -> dict[str, Any]:
+        """Run improve loop cycles (daily 2h00 AM)."""
+        try:
+            import subprocess
+            r = await asyncio.to_thread(
+                subprocess.run,
+                ["uv", "run", "python", "canvas/improve_loop.py"],
+                capture_output=True, text=True, timeout=600,
+                cwd=str(__import__("pathlib").Path(__file__).resolve().parent.parent),
+            )
+            output = r.stdout[-500:] if r.stdout else ""
+            result: dict[str, Any] = {
+                "returncode": r.returncode,
+                "output_tail": output,
+            }
+            try:
+                from src.event_bus import event_bus
+                await event_bus.emit("improve.cycle_done", {"returncode": r.returncode})
+            except Exception:
+                pass
+            if r.returncode != 0:
+                result["alert"] = f"Improve cycle failed: {r.stderr[-200:]}"
+            return result
+        except Exception as e:
+            return {"error": str(e)}
+
+    @staticmethod
+    async def _task_predict_next() -> dict[str, Any]:
+        """Pre-warm predictions for likely next user actions (every 5min)."""
+        try:
+            from src.prediction_engine import prediction_engine
+            await prediction_engine.pre_warm()
+            predictions = prediction_engine.predict_next(n=3)
+            return {"predictions": len(predictions), "top": predictions[:2]}
+        except ImportError:
+            return {"status": "prediction_engine not yet available"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    @staticmethod
+    async def _task_auto_develop() -> dict[str, Any]:
+        """Auto-develop: analyze gaps + generate commands (daily 3h30)."""
+        try:
+            from src.auto_developer import auto_developer
+            report = await auto_developer.run_cycle(max_gaps=5)
+            result: dict[str, Any] = {
+                "gaps": report["gaps"],
+                "registered": report["registered"],
+            }
+            if report["registered"] > 0:
+                result["alert"] = f"AutoDev: {report['registered']} new commands created"
+            return result
+        except Exception as e:
+            return {"error": str(e)}
 
     # ── Status & API ────────────────────────────────────────────────────
 

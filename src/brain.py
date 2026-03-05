@@ -435,6 +435,19 @@ def auto_create_skill(pattern: PatternMatch) -> Skill:
     _save_brain_state(state)
 
     log_action(f"brain:create_skill:{skill.name}", f"Auto-created from {pattern.count}x pattern", True)
+
+    # Emit event_bus notification
+    try:
+        from src.event_bus import event_bus
+        event_bus.emit_sync("brain.skill_created", {
+            "name": skill.name,
+            "triggers": pattern.suggested_triggers,
+            "confidence": pattern.confidence,
+            "source": "pattern_detection",
+        })
+    except Exception:
+        pass
+
     return skill
 
 

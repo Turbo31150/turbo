@@ -270,6 +270,18 @@ async function processMessage(msg) {
 
   log(`[${from}] ${text.slice(0, 80)}${text.length > 80 ? '...' : ''}`);
 
+  // Record action for prediction engine (fire-and-forget)
+  try {
+    const now = new Date();
+    const body = JSON.stringify({
+      action: 'telegram_query',
+      context: { source: 'telegram', text: text.slice(0, 100), from, hour: now.getHours(), weekday: now.getDay() === 0 ? 6 : now.getDay() - 1 }
+    });
+    httpRequest(`${PROXY_URL.replace(':18800', ':9742')}/api/record_action`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }
+    }, body).catch(() => {});
+  } catch (e) { /* ignore prediction recording errors */ }
+
   // Commande spéciale ?
   if (text.startsWith('/')) {
     const spaceIdx = text.indexOf(' ');

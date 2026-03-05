@@ -583,6 +583,22 @@ async def listen_voice_v2(
     if use_cache and result.get("command"):
         _cache_set(text, result)
 
+    # Step 6: Record action for prediction engine
+    if result.get("command"):
+        try:
+            from src.prediction_engine import prediction_engine
+            from datetime import datetime as _dt
+            _now = _dt.now()
+            prediction_engine.record_action(result["command"], {
+                "source": "voice",
+                "method": result.get("method", ""),
+                "confidence": result.get("confidence", 0),
+                "hour": _now.hour,
+                "weekday": _now.weekday(),
+            })
+        except Exception:
+            pass
+
     return result
 
 

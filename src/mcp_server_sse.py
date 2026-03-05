@@ -242,6 +242,27 @@ FULL_TOOLS = {
     "metrics_snapshot",      # Real-time metrics snapshot
     "metrics_summary",       # Metrics aggregator summary
     "tool_metrics_report",   # MCP tool performance metrics
+
+    # ── Browser Navigator (10) — v2.0 ────────────────────────────────────
+    "browser_open",          # Open Playwright browser
+    "browser_navigate",      # Navigate to URL
+    "browser_click",         # Click element by text
+    "browser_scroll",        # Scroll page
+    "browser_read",          # Read page content
+    "browser_screenshot",    # Page screenshot
+    "browser_back",          # Go back
+    "browser_forward",       # Go forward
+    "browser_close_tab",     # Close tab
+    "browser_move_screen",   # Move to other screen
+
+    # ── Prediction Engine (3) — v2.0 ─────────────────────────────────────
+    "prediction_predict",    # Predict next user actions
+    "prediction_profile",    # User activity profile
+    "prediction_stats",      # Prediction engine stats
+
+    # ── Auto-Developer (2) — v2.0 ────────────────────────────────────────
+    "autodev_run_cycle",     # Run auto-development cycle
+    "autodev_stats",         # Auto-developer stats
 }
 
 

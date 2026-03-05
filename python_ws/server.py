@@ -4097,6 +4097,59 @@ async def api_perfcounters_stats():
     return performance_counter.get_stats()
 
 
+# ── Prediction Engine (v2.0) ─────────────────────────────────────────────────
+
+@app.post("/api/record_action")
+async def api_record_action(request: Request):
+    """Record a user action for the prediction engine."""
+    body = await request.json()
+    action = body.get("action", "")
+    context = body.get("context", {})
+    if not action:
+        return {"error": "action required"}
+    try:
+        from src.prediction_engine import prediction_engine
+        prediction_engine.record_action(action, context)
+        return {"recorded": True, "action": action}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@app.get("/api/predictions")
+async def api_predictions(n: int = 5):
+    """Get predicted next user actions."""
+    from src.prediction_engine import prediction_engine
+    return prediction_engine.predict_next(n=n)
+
+
+@app.get("/api/predictions/profile")
+async def api_predictions_profile():
+    """Get user activity profile."""
+    from src.prediction_engine import prediction_engine
+    return prediction_engine.get_user_profile()
+
+
+@app.get("/api/predictions/stats")
+async def api_predictions_stats():
+    """Prediction engine stats."""
+    from src.prediction_engine import prediction_engine
+    return prediction_engine.get_stats()
+
+
+@app.get("/api/autodev/stats")
+async def api_autodev_stats():
+    """Auto-developer stats."""
+    from src.auto_developer import auto_developer
+    return auto_developer.get_stats()
+
+
+@app.get("/api/browser/status")
+async def api_browser_status():
+    """Browser navigator status."""
+    from src.browser_navigator import browser_nav
+    return browser_nav.get_status()
+
+
 # ── Entry point ──────────────────────────────────────────────────────────────
 
 def main():

@@ -4495,6 +4495,133 @@ async def handle_telegram_history(args: dict) -> list[TextContent]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# BROWSER NAVIGATOR HANDLERS (10)
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_browser_open(args: dict) -> list[TextContent]:
+    """Open browser, optionally navigate to URL."""
+    from src.browser_navigator import browser_nav
+    url = args.get("url")
+    result = await browser_nav.launch(url=url)
+    return _text(json.dumps(result))
+
+
+async def handle_browser_navigate(args: dict) -> list[TextContent]:
+    """Navigate to URL."""
+    from src.browser_navigator import browser_nav
+    url = args.get("url", "")
+    if not url:
+        return _error("URL requise")
+    result = await browser_nav.navigate(url)
+    return _text(json.dumps(result))
+
+
+async def handle_browser_click(args: dict) -> list[TextContent]:
+    """Click element by text."""
+    from src.browser_navigator import browser_nav
+    text = args.get("text", "")
+    if not text:
+        return _error("Texte de l'element requis")
+    result = await browser_nav.click_text(text)
+    return _text(json.dumps(result))
+
+
+async def handle_browser_scroll(args: dict) -> list[TextContent]:
+    """Scroll page."""
+    from src.browser_navigator import browser_nav
+    direction = args.get("direction", "down")
+    amount = _safe_int(args.get("amount"), 500)
+    result = await browser_nav.scroll(direction, amount)
+    return _text(json.dumps(result))
+
+
+async def handle_browser_read(args: dict) -> list[TextContent]:
+    """Read page content as text."""
+    from src.browser_navigator import browser_nav
+    max_chars = _safe_int(args.get("max_chars"), 5000)
+    text = await browser_nav.read_page(max_chars)
+    return _text(text)
+
+
+async def handle_browser_screenshot(args: dict) -> list[TextContent]:
+    """Take a page screenshot."""
+    from src.browser_navigator import browser_nav
+    path = await browser_nav.screenshot_page()
+    return _text(f"Screenshot saved: {path}")
+
+
+async def handle_browser_back(args: dict) -> list[TextContent]:
+    """Go back."""
+    from src.browser_navigator import browser_nav
+    result = await browser_nav.go_back()
+    return _text(json.dumps(result))
+
+
+async def handle_browser_forward(args: dict) -> list[TextContent]:
+    """Go forward."""
+    from src.browser_navigator import browser_nav
+    result = await browser_nav.go_forward()
+    return _text(json.dumps(result))
+
+
+async def handle_browser_close(args: dict) -> list[TextContent]:
+    """Close current tab."""
+    from src.browser_navigator import browser_nav
+    result = await browser_nav.close_tab()
+    return _text(json.dumps(result))
+
+
+async def handle_browser_move(args: dict) -> list[TextContent]:
+    """Move browser to other screen."""
+    from src.browser_navigator import browser_nav
+    result = await browser_nav.move_to_screen()
+    return _text(json.dumps(result))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PREDICTION ENGINE HANDLERS (3)
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_prediction_predict(args: dict) -> list[TextContent]:
+    """Predict next user actions."""
+    from src.prediction_engine import prediction_engine
+    n = _safe_int(args.get("n"), 5)
+    predictions = prediction_engine.predict_next(n=n)
+    return _text(json.dumps(predictions, ensure_ascii=False, indent=2))
+
+
+async def handle_prediction_profile(args: dict) -> list[TextContent]:
+    """Get user activity profile."""
+    from src.prediction_engine import prediction_engine
+    profile = prediction_engine.get_user_profile()
+    return _text(json.dumps(profile, ensure_ascii=False, indent=2))
+
+
+async def handle_prediction_stats(args: dict) -> list[TextContent]:
+    """Prediction engine stats."""
+    from src.prediction_engine import prediction_engine
+    return _text(json.dumps(prediction_engine.get_stats()))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AUTO-DEVELOPER HANDLERS (2)
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_autodev_run_cycle(args: dict) -> list[TextContent]:
+    """Run auto-development cycle."""
+    from src.auto_developer import auto_developer
+    max_gaps = _safe_int(args.get("max_gaps"), 5)
+    report = await auto_developer.run_cycle(max_gaps=max_gaps)
+    return _text(json.dumps(report, ensure_ascii=False, indent=2))
+
+
+async def handle_autodev_stats(args: dict) -> list[TextContent]:
+    """Auto-developer stats."""
+    from src.auto_developer import auto_developer
+    return _text(json.dumps(auto_developer.get_stats()))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # TOOL REGISTRY
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -5167,6 +5294,24 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     ("telegram_send", "Envoyer un message Telegram.", {"message": "string", "chat_id": "string"}, handle_telegram_send),
     ("telegram_status", "Statut du bot Telegram et du proxy.", {}, handle_telegram_status),
     ("telegram_history", "Derniers messages reçus par le bot Telegram.", {"limit": "number"}, handle_telegram_history),
+    # Browser Navigator (10) — v2.0
+    ("browser_open", "Ouvrir le navigateur Playwright.", {"url": "string"}, handle_browser_open),
+    ("browser_navigate", "Naviguer vers une URL.", {"url": "string"}, handle_browser_navigate),
+    ("browser_click", "Cliquer sur un element par texte.", {"text": "string"}, handle_browser_click),
+    ("browser_scroll", "Scroller la page.", {"direction": "string", "amount": "number"}, handle_browser_scroll),
+    ("browser_read", "Lire le contenu texte de la page.", {"max_chars": "number"}, handle_browser_read),
+    ("browser_screenshot", "Capture d'ecran de la page.", {}, handle_browser_screenshot),
+    ("browser_back", "Page precedente.", {}, handle_browser_back),
+    ("browser_forward", "Page suivante.", {}, handle_browser_forward),
+    ("browser_close_tab", "Fermer l'onglet actif.", {}, handle_browser_close),
+    ("browser_move_screen", "Deplacer le navigateur sur l'autre ecran.", {}, handle_browser_move),
+    # Prediction Engine (3) — v2.0
+    ("prediction_predict", "Predire les prochaines actions utilisateur.", {"n": "number"}, handle_prediction_predict),
+    ("prediction_profile", "Profil d'activite de l'utilisateur.", {}, handle_prediction_profile),
+    ("prediction_stats", "Stats du moteur predictif.", {}, handle_prediction_stats),
+    # Auto-Developer (2) — v2.0
+    ("autodev_run_cycle", "Lancer un cycle d'auto-developpement.", {"max_gaps": "number"}, handle_autodev_run_cycle),
+    ("autodev_stats", "Stats de l'auto-developpeur.", {}, handle_autodev_stats),
 ]
 
 # Build handler map
