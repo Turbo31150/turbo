@@ -37,19 +37,21 @@ CB_RECOVERY_TIME_S = 300   # Try again after 5 minutes
 
 # Node capabilities
 NODE_CAPABILITIES = {
-    "M1":  {"speed": "fast", "reasoning": True, "code": True, "max_ctx": 32768},
-    "M2":  {"speed": "slow", "reasoning": True, "code": True, "max_ctx": 27000},
-    "M3":  {"speed": "slow", "reasoning": True, "code": True, "max_ctx": 25000},
-    "OL1": {"speed": "fast", "reasoning": False, "code": False, "max_ctx": 8192},
+    "M1":       {"speed": "fast", "reasoning": True, "code": True, "max_ctx": 32768},
+    "M2":       {"speed": "slow", "reasoning": True, "code": True, "max_ctx": 27000},
+    "M3":       {"speed": "slow", "reasoning": True, "code": True, "max_ctx": 25000},
+    "OL1":      {"speed": "fast", "reasoning": False, "code": False, "max_ctx": 8192},
+    "gpt-oss":  {"speed": "medium", "reasoning": True, "code": True, "max_ctx": 131072},
+    "devstral": {"speed": "medium", "reasoning": True, "code": True, "max_ctx": 131072},
 }
 
 # Default routing (used when no learned data)
 DEFAULT_ROUTES = {
     "simple":       ["OL1", "M1"],
-    "code":         ["M1", "OL1"],
-    "analysis":     ["M1", "OL1"],
-    "math":         ["M1", "OL1"],
-    "reasoning":    ["M1", "M2", "M3"],
+    "code":         ["M1", "OL1", "M2"],
+    "analysis":     ["M1", "OL1", "M2"],
+    "math":         ["M1", "OL1"],           # M2/M3 too slow for math
+    "reasoning":    ["M1", "M2", "M3"],      # M2/M3 ok for deep reasoning
     "trading":      ["M1", "OL1"],
     "system":       ["OL1", "M1"],
     "creative":     ["M1", "OL1"],

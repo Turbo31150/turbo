@@ -42,6 +42,11 @@ NODES = {
             "auth": None, "max_tokens": 2048, "timeout": 60},
     "OL1": {"url": "http://127.0.0.1:11434/api/chat", "model": "qwen3:1.7b",
             "auth": None, "ollama": True},
+    # Cloud nodes (via Ollama proxy, may be rate-limited)
+    # "gpt-oss": {"url": "http://127.0.0.1:11434/api/chat", "model": "gpt-oss:120b-cloud",
+    #             "auth": None, "ollama": True, "timeout": 120},
+    # "devstral": {"url": "http://127.0.0.1:11434/api/chat", "model": "devstral-2:123b-cloud",
+    #              "auth": None, "ollama": True, "timeout": 120},
 }
 
 # Quality test prompts with expected outputs
