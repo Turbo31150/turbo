@@ -147,9 +147,15 @@ const NODES = {
   },
   M1: {
     url: 'http://127.0.0.1:1234/v1/chat/completions',
+    model: 'qwen3-8b',
+    timeout: 30000,
+    name: 'M1/qwen3-8b'
+  },
+  M1B: {
+    url: 'http://127.0.0.1:1234/v1/chat/completions',
     model: 'gpt-oss-20b',
     timeout: 60000,
-    name: 'M1/gpt-oss-20b'
+    name: 'M1B/gpt-oss-20b'
   },
   GEMINI: {
     proxy: path.join(__dirname, '..', 'gemini-proxy.js'),
@@ -170,19 +176,19 @@ const NODES = {
 
 // ── Routing: agent category → primary node, fallbacks ───────────────────────
 const ROUTING = {
-  code:    ['M2', 'M1', 'M3', 'OL1'],                  // M2 deepseek-coder prioritaire
-  archi:   ['M2', 'M1', 'M3', 'OL1'],                  // M2 + M1 validation
-  trading: ['OL1', 'M2', 'M1', 'M3'],                   // OL1 web, M2 analyse
-  math:    ['M1', 'M2', 'OL1'],                          // M1 prioritaire math
-  raison:  ['M2', 'M1', 'OL1'],                          // M2 raisonnement — JAMAIS M3
-  system:  ['M2', 'M1', 'OL1', 'M3'],                   // M2 rapide systeme
-  auto:    ['M2', 'M1', 'OL1', 'M3'],                   // M2 pipelines
-  ia:      ['M2', 'M1', 'M3', 'OL1'],                   // M2 first (GEMINI disabled)
-  creat:   ['M2', 'M1', 'M3', 'OL1'],                  // M2 creatif
-  sec:     ['M2', 'M1', 'M3', 'OL1'],                  // M2 audit
-  web:     ['OL1', 'M2', 'M1', 'M3'],                   // OL1 web + M2 fallback
-  media:   ['M3', 'OL1', 'M2', 'M1'],                   // M3 media + M2
-  meta:    ['OL1', 'M2', 'M1', 'M3'],                   // OL1 rapide meta
+  code:    ['M1', 'M1B', 'M2', 'OL1', 'M3'],            // M1 qwen3-8b rapide, M1B gpt-oss fallback
+  archi:   ['M1B', 'M1', 'M2', 'OL1'],                  // M1B gpt-oss-20b pour archi (plus profond)
+  trading: ['OL1', 'M1', 'M2', 'M1B'],                  // OL1 web, M1 analyse rapide
+  math:    ['M1', 'M1B', 'OL1'],                         // M1 prioritaire math
+  raison:  ['M1B', 'M1', 'M2', 'OL1'],                  // M1B raisonnement profond — JAMAIS M3
+  system:  ['M1', 'M1B', 'OL1', 'M3'],                  // M1 rapide systeme
+  auto:    ['M1', 'M1B', 'M2', 'OL1'],                  // M1 pipelines
+  ia:      ['M1B', 'M1', 'M2', 'OL1'],                  // M1B pour IA (plus gros modele)
+  creat:   ['M1B', 'M1', 'M2', 'OL1'],                  // M1B creatif
+  sec:     ['M1B', 'M1', 'M2', 'OL1'],                  // M1B audit (plus precis)
+  web:     ['OL1', 'M1', 'M1B', 'M2'],                  // OL1 web + M1 fallback
+  media:   ['M3', 'OL1', 'M1', 'M1B'],                  // M3 media + M1
+  meta:    ['OL1', 'M1', 'M1B', 'M2'],                  // OL1 rapide meta
   default: ['M2', 'M1', 'M3', 'OL1']                    // M2 first (GEMINI disabled - spawn error)
 };
 
@@ -1592,7 +1598,7 @@ const server = http.createServer(async (req, res) => {
 const BIND = process.env.JARVIS_BIND || '0.0.0.0';
 server.listen(PORT, BIND, () => {
   console.log(`JARVIS Direct Proxy on http://${BIND}:${PORT}`);
-  console.log('Nodes: M2(deepseek), M3(mistral), OL1(qwen3), M1(gpt-oss-20b), GEMINI(gemini-3-pro), CLAUDE(sonnet)');
+  console.log('Nodes: M1(qwen3-8b), M1B(gpt-oss-20b), M2(deepseek), M3(mistral), OL1(qwen3), GEMINI(gemini-3-pro), CLAUDE(sonnet)');
   console.log('Zero OpenClaw dependency');
   autolearn.start();
   console.log('Autolearn engine started — 3 pillars active');
