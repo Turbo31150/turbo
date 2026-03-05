@@ -186,5 +186,36 @@ class NotificationHub:
         }
 
 
+def _telegram_handler(notif: Notification) -> None:
+    """Send notification to Telegram via Bot API."""
+    import json
+    import os
+    import urllib.request
+
+    token = os.environ.get("TELEGRAM_TOKEN", "")
+    chat_id = os.environ.get("TELEGRAM_CHAT", "")
+    if not token or not chat_id:
+        return
+    level_emoji = {"critical": "\ud83d\udea8", "warning": "\u26a0\ufe0f", "info": "\u2139\ufe0f", "debug": "\ud83d\udd0d"}
+    emoji = level_emoji.get(notif.level, "\u2139\ufe0f")
+    text = f"{emoji} *{notif.level.upper()}* | {notif.source}\n{notif.message}"
+    if notif.title:
+        text = f"{emoji} *{notif.title}*\n{notif.message}"
+    try:
+        body = json.dumps({"chat_id": chat_id, "text": text, "parse_mode": "Markdown"}).encode()
+        req = urllib.request.Request(
+            f"https://api.telegram.org/bot{token}/sendMessage",
+            data=body, headers={"Content-Type": "application/json"},
+        )
+        urllib.request.urlopen(req, timeout=10)
+    except Exception:
+        pass
+
+
 # ── Singleton ────────────────────────────────────────────────────────────────
 notification_hub = NotificationHub()
+# Register Telegram as a notification channel (WARNING+ only, throttled 60s)
+notification_hub.add_channel(
+    "telegram", "custom", min_level="warning",
+    throttle_s=60.0, handler=_telegram_handler,
+)

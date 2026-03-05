@@ -19,8 +19,8 @@ from pathlib import Path
 
 logger = logging.getLogger("jarvis.tts")
 
-VOICE = "fr-FR-HenriNeural"
-VOICE_FAST = "fr-FR-DeniseNeural"  # Alternative voice
+VOICE = "fr-FR-DeniseNeural"
+VOICE_FAST = "fr-FR-DeniseNeural"  # Voix feminine unique
 RATE = "+10%"
 RATE_FAST = "+20%"
 _PLAYBACK_TIMEOUT = 60  # max seconds for audio playback

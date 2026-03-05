@@ -2672,6 +2672,18 @@ COMMANDS: list[JarvisCommand] = [
         "ouvre telegram", "lance telegram", "telegram",
         "ouvre la messagerie",
     ], "app_open", "telegram"),
+    JarvisCommand("telegram_bot_status", "communication", "Statut du bot Telegram", [
+        "statut telegram bot", "telegram bot status", "le bot telegram marche",
+        "est ce que telegram repond", "check telegram bot",
+    ], "tool", "telegram_status"),
+    JarvisCommand("telegram_bot_envoyer", "communication", "Envoyer message Telegram", [
+        "envoie sur telegram", "envoie un message telegram",
+        "notifie sur telegram", "telegram envoie",
+    ], "tool", "telegram_send"),
+    JarvisCommand("telegram_bot_historique", "communication", "Historique messages Telegram", [
+        "historique telegram", "derniers messages telegram",
+        "messages telegram recents", "telegram history",
+    ], "tool", "telegram_history"),
     JarvisCommand("mode_gaming_full", "media", "Mode gaming complet", [
         "mode gaming complet", "full gaming mode", "prepare le gaming",
         "optimise pour le jeu", "game mode full",

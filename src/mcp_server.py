@@ -3346,6 +3346,1155 @@ async def handle_diskmon_stats(args: dict) -> list[TextContent]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# AUDIO CONTROLLER — Phase 25
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_audictl_presets(args: dict) -> list[TextContent]:
+    from src.audio_controller import audio_controller
+    return _text(json.dumps(audio_controller.list_presets(), indent=2))
+
+
+async def handle_audictl_events(args: dict) -> list[TextContent]:
+    from src.audio_controller import audio_controller
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(audio_controller.get_events(limit=limit), indent=2))
+
+
+async def handle_audictl_stats(args: dict) -> list[TextContent]:
+    from src.audio_controller import audio_controller
+    return _text(json.dumps(audio_controller.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# STARTUP MANAGER — Phase 25
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_startup_list(args: dict) -> list[TextContent]:
+    from src.startup_manager import startup_manager
+    scope = args.get("scope", "user")
+    return _text(json.dumps(startup_manager.list_entries(scope=scope), indent=2))
+
+
+async def handle_startup_events(args: dict) -> list[TextContent]:
+    from src.startup_manager import startup_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(startup_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_startup_stats(args: dict) -> list[TextContent]:
+    from src.startup_manager import startup_manager
+    return _text(json.dumps(startup_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SCREEN CAPTURE — Phase 25
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_scrcap_list(args: dict) -> list[TextContent]:
+    from src.screen_capture import screen_capture
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(screen_capture.list_captures(limit=limit), indent=2))
+
+
+async def handle_scrcap_events(args: dict) -> list[TextContent]:
+    from src.screen_capture import screen_capture
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(screen_capture.get_events(limit=limit), indent=2))
+
+
+async def handle_scrcap_stats(args: dict) -> list[TextContent]:
+    from src.screen_capture import screen_capture
+    return _text(json.dumps(screen_capture.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# WIFI MANAGER — Phase 26
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_wifimgr_profiles(args: dict) -> list[TextContent]:
+    from src.wifi_manager import wifi_manager
+    return _text(json.dumps(wifi_manager.list_profiles(), indent=2))
+
+
+async def handle_wifimgr_events(args: dict) -> list[TextContent]:
+    from src.wifi_manager import wifi_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(wifi_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_wifimgr_stats(args: dict) -> list[TextContent]:
+    from src.wifi_manager import wifi_manager
+    return _text(json.dumps(wifi_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DISPLAY MANAGER — Phase 26
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_dispmgr_list(args: dict) -> list[TextContent]:
+    from src.display_manager import display_manager
+    return _text(json.dumps(display_manager.list_displays(), indent=2))
+
+
+async def handle_dispmgr_events(args: dict) -> list[TextContent]:
+    from src.display_manager import display_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(display_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_dispmgr_stats(args: dict) -> list[TextContent]:
+    from src.display_manager import display_manager
+    return _text(json.dumps(display_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# USB MONITOR — Phase 26
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_usbmon_events(args: dict) -> list[TextContent]:
+    from src.usb_monitor import usb_monitor
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(usb_monitor.get_events(limit=limit), indent=2))
+
+
+async def handle_usbmon_changes(args: dict) -> list[TextContent]:
+    from src.usb_monitor import usb_monitor
+    return _text(json.dumps(usb_monitor.detect_changes(), indent=2))
+
+
+async def handle_usbmon_stats(args: dict) -> list[TextContent]:
+    from src.usb_monitor import usb_monitor
+    return _text(json.dumps(usb_monitor.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PRINTER MANAGER — Phase 27
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_prnmgr_list(args: dict) -> list[TextContent]:
+    from src.printer_manager import printer_manager
+    return _text(json.dumps(printer_manager.list_printers(), indent=2))
+
+
+async def handle_prnmgr_events(args: dict) -> list[TextContent]:
+    from src.printer_manager import printer_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(printer_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_prnmgr_stats(args: dict) -> list[TextContent]:
+    from src.printer_manager import printer_manager
+    return _text(json.dumps(printer_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# FIREWALL CONTROLLER — Phase 27
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_fwctl_rules(args: dict) -> list[TextContent]:
+    from src.firewall_controller import firewall_controller
+    direction = args.get("direction", "")
+    rules = firewall_controller.list_rules(direction=direction)
+    return _text(json.dumps(rules[:100], indent=2))
+
+
+async def handle_fwctl_events(args: dict) -> list[TextContent]:
+    from src.firewall_controller import firewall_controller
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(firewall_controller.get_events(limit=limit), indent=2))
+
+
+async def handle_fwctl_stats(args: dict) -> list[TextContent]:
+    from src.firewall_controller import firewall_controller
+    return _text(json.dumps(firewall_controller.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SCHEDULER MANAGER — Phase 27
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_schedmgr_list(args: dict) -> list[TextContent]:
+    from src.scheduler_manager import scheduler_manager
+    folder = args.get("folder", "\\")
+    return _text(json.dumps(scheduler_manager.list_tasks(folder=folder), indent=2))
+
+
+async def handle_schedmgr_events(args: dict) -> list[TextContent]:
+    from src.scheduler_manager import scheduler_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(scheduler_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_schedmgr_stats(args: dict) -> list[TextContent]:
+    from src.scheduler_manager import scheduler_manager
+    return _text(json.dumps(scheduler_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# BLUETOOTH MANAGER — Phase 28
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_btmgr_list(args: dict) -> list[TextContent]:
+    from src.bluetooth_manager import bluetooth_manager
+    return _text(json.dumps(bluetooth_manager.list_devices(), indent=2))
+
+
+async def handle_btmgr_events(args: dict) -> list[TextContent]:
+    from src.bluetooth_manager import bluetooth_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(bluetooth_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_btmgr_stats(args: dict) -> list[TextContent]:
+    from src.bluetooth_manager import bluetooth_manager
+    return _text(json.dumps(bluetooth_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# EVENT LOG READER — Phase 28
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_evtlog_read(args: dict) -> list[TextContent]:
+    from src.eventlog_reader import eventlog_reader
+    log_name = args.get("log_name", "System")
+    max_events = int(args.get("max_events", 50))
+    level = args.get("level", "")
+    return _text(json.dumps(eventlog_reader.read_log(log_name=log_name, max_events=max_events, level=level), indent=2))
+
+
+async def handle_evtlog_events(args: dict) -> list[TextContent]:
+    from src.eventlog_reader import eventlog_reader
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(eventlog_reader.get_events(limit=limit), indent=2))
+
+
+async def handle_evtlog_stats(args: dict) -> list[TextContent]:
+    from src.eventlog_reader import eventlog_reader
+    return _text(json.dumps(eventlog_reader.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# FONT MANAGER — Phase 28
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_fontmgr_list(args: dict) -> list[TextContent]:
+    from src.font_manager import font_manager
+    return _text(json.dumps(font_manager.list_fonts(), indent=2))
+
+
+async def handle_fontmgr_events(args: dict) -> list[TextContent]:
+    from src.font_manager import font_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(font_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_fontmgr_stats(args: dict) -> list[TextContent]:
+    from src.font_manager import font_manager
+    return _text(json.dumps(font_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# NETWORK MONITOR — Phase 29
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_netmon_adapters(args: dict) -> list[TextContent]:
+    from src.network_monitor import network_monitor
+    return _text(json.dumps(network_monitor.list_adapters(), indent=2))
+
+
+async def handle_netmon_events(args: dict) -> list[TextContent]:
+    from src.network_monitor import network_monitor
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(network_monitor.get_events(limit=limit), indent=2))
+
+
+async def handle_netmon_stats(args: dict) -> list[TextContent]:
+    from src.network_monitor import network_monitor
+    return _text(json.dumps(network_monitor.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# HOSTS MANAGER — Phase 29
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_hostsmgr_list(args: dict) -> list[TextContent]:
+    from src.hosts_manager import hosts_manager
+    return _text(json.dumps(hosts_manager.read_entries(), indent=2))
+
+
+async def handle_hostsmgr_events(args: dict) -> list[TextContent]:
+    from src.hosts_manager import hosts_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(hosts_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_hostsmgr_stats(args: dict) -> list[TextContent]:
+    from src.hosts_manager import hosts_manager
+    return _text(json.dumps(hosts_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# THEME CONTROLLER — Phase 29
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_themectl_get(args: dict) -> list[TextContent]:
+    from src.theme_controller import theme_controller
+    return _text(json.dumps(theme_controller.get_theme(), indent=2))
+
+
+async def handle_themectl_events(args: dict) -> list[TextContent]:
+    from src.theme_controller import theme_controller
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(theme_controller.get_events(limit=limit), indent=2))
+
+
+async def handle_themectl_stats(args: dict) -> list[TextContent]:
+    from src.theme_controller import theme_controller
+    return _text(json.dumps(theme_controller.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# CERTIFICATE MANAGER — Phase 30
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_certmgr_list(args: dict) -> list[TextContent]:
+    from src.certificate_manager import certificate_manager
+    store = args.get("store", "Cert:\\LocalMachine\\My")
+    return _text(json.dumps(certificate_manager.list_certs(store=store), indent=2))
+
+
+async def handle_certmgr_events(args: dict) -> list[TextContent]:
+    from src.certificate_manager import certificate_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(certificate_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_certmgr_stats(args: dict) -> list[TextContent]:
+    from src.certificate_manager import certificate_manager
+    return _text(json.dumps(certificate_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# VIRTUAL DESKTOP — Phase 30
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_vdesk_list(args: dict) -> list[TextContent]:
+    from src.virtual_desktop import virtual_desktop
+    return _text(json.dumps(virtual_desktop.list_desktops(), indent=2))
+
+
+async def handle_vdesk_events(args: dict) -> list[TextContent]:
+    from src.virtual_desktop import virtual_desktop
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(virtual_desktop.get_events(limit=limit), indent=2))
+
+
+async def handle_vdesk_stats(args: dict) -> list[TextContent]:
+    from src.virtual_desktop import virtual_desktop
+    return _text(json.dumps(virtual_desktop.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# NOTIFICATION MANAGER — Phase 30
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_notifmgr_history(args: dict) -> list[TextContent]:
+    from src.notification_manager import notification_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(notification_manager.get_history(limit=limit), indent=2))
+
+
+async def handle_notifmgr_events(args: dict) -> list[TextContent]:
+    from src.notification_manager import notification_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(notification_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_notifmgr_stats(args: dict) -> list[TextContent]:
+    from src.notification_manager import notification_manager
+    return _text(json.dumps(notification_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SYSTEM RESTORE — Phase 31
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_sysrest_list(args: dict) -> list[TextContent]:
+    from src.sysrestore_manager import sysrestore_manager
+    return _text(json.dumps(sysrestore_manager.list_points(), indent=2))
+
+
+async def handle_sysrest_events(args: dict) -> list[TextContent]:
+    from src.sysrestore_manager import sysrestore_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(sysrestore_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_sysrest_stats(args: dict) -> list[TextContent]:
+    from src.sysrestore_manager import sysrestore_manager
+    return _text(json.dumps(sysrestore_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PERFORMANCE COUNTER — Phase 31
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_perfctr_counters(args: dict) -> list[TextContent]:
+    from src.perfcounter import perfcounter
+    return _text(json.dumps(perfcounter.list_counters(), indent=2))
+
+
+async def handle_perfctr_events(args: dict) -> list[TextContent]:
+    from src.perfcounter import perfcounter
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(perfcounter.get_events(limit=limit), indent=2))
+
+
+async def handle_perfctr_stats(args: dict) -> list[TextContent]:
+    from src.perfcounter import perfcounter
+    return _text(json.dumps(perfcounter.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# CREDENTIAL VAULT — Phase 31
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_credvlt_list(args: dict) -> list[TextContent]:
+    from src.credential_vault import credential_vault
+    return _text(json.dumps(credential_vault.list_credentials(), indent=2))
+
+
+async def handle_credvlt_events(args: dict) -> list[TextContent]:
+    from src.credential_vault import credential_vault
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(credential_vault.get_events(limit=limit), indent=2))
+
+
+async def handle_credvlt_stats(args: dict) -> list[TextContent]:
+    from src.credential_vault import credential_vault
+    return _text(json.dumps(credential_vault.get_stats(), indent=2))
+
+
+# ── Phase 32 — Locale Manager, GPU Monitor, Share Manager ────────────────
+
+async def handle_localemgr_info(args: dict) -> list[TextContent]:
+    from src.locale_manager import locale_manager
+    info = {
+        "system_locale": locale_manager.get_system_locale(),
+        "languages": locale_manager.get_user_language(),
+        "timezone": locale_manager.get_timezone(),
+        "keyboards": locale_manager.get_keyboard_layouts(),
+        "date_format": locale_manager.get_date_format(),
+    }
+    return _text(json.dumps(info, indent=2))
+
+
+async def handle_localemgr_events(args: dict) -> list[TextContent]:
+    from src.locale_manager import locale_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(locale_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_localemgr_stats(args: dict) -> list[TextContent]:
+    from src.locale_manager import locale_manager
+    return _text(json.dumps(locale_manager.get_stats(), indent=2))
+
+
+async def handle_gpumon_snapshot(args: dict) -> list[TextContent]:
+    from src.gpu_monitor import gpu_monitor
+    return _text(json.dumps(gpu_monitor.snapshot(), indent=2))
+
+
+async def handle_gpumon_events(args: dict) -> list[TextContent]:
+    from src.gpu_monitor import gpu_monitor
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(gpu_monitor.get_events(limit=limit), indent=2))
+
+
+async def handle_gpumon_stats(args: dict) -> list[TextContent]:
+    from src.gpu_monitor import gpu_monitor
+    return _text(json.dumps(gpu_monitor.get_stats(), indent=2))
+
+
+async def handle_sharemgr_list(args: dict) -> list[TextContent]:
+    from src.share_manager import share_manager
+    return _text(json.dumps(share_manager.list_shares(), indent=2))
+
+
+async def handle_sharemgr_events(args: dict) -> list[TextContent]:
+    from src.share_manager import share_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(share_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_sharemgr_stats(args: dict) -> list[TextContent]:
+    from src.share_manager import share_manager
+    return _text(json.dumps(share_manager.get_stats(), indent=2))
+
+
+# ── Phase 33 — Driver Manager, WMI Explorer, Env Variable Manager ────────
+
+async def handle_drvmgr_list(args: dict) -> list[TextContent]:
+    from src.driver_manager import driver_manager
+    return _text(json.dumps(driver_manager.list_drivers(), indent=2))
+
+
+async def handle_drvmgr_events(args: dict) -> list[TextContent]:
+    from src.driver_manager import driver_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(driver_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_drvmgr_stats(args: dict) -> list[TextContent]:
+    from src.driver_manager import driver_manager
+    return _text(json.dumps(driver_manager.get_stats(), indent=2))
+
+
+async def handle_wmiexp_query(args: dict) -> list[TextContent]:
+    from src.wmi_explorer import wmi_explorer
+    class_name = args.get("class_name", "Win32_OperatingSystem")
+    properties = args.get("properties", "")
+    max_results = int(args.get("max_results", 50))
+    return _text(json.dumps(wmi_explorer.query_class(class_name, properties, max_results), indent=2))
+
+
+async def handle_wmiexp_events(args: dict) -> list[TextContent]:
+    from src.wmi_explorer import wmi_explorer
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(wmi_explorer.get_events(limit=limit), indent=2))
+
+
+async def handle_wmiexp_stats(args: dict) -> list[TextContent]:
+    from src.wmi_explorer import wmi_explorer
+    return _text(json.dumps(wmi_explorer.get_stats(), indent=2))
+
+
+async def handle_envmgr_list(args: dict) -> list[TextContent]:
+    from src.env_variable_manager import env_variable_manager
+    return _text(json.dumps(env_variable_manager.list_all(), indent=2))
+
+
+async def handle_envmgr_events(args: dict) -> list[TextContent]:
+    from src.env_variable_manager import env_variable_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(env_variable_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_envmgr_stats(args: dict) -> list[TextContent]:
+    from src.env_variable_manager import env_variable_manager
+    return _text(json.dumps(env_variable_manager.get_stats(), indent=2))
+
+
+# ── Phase 34 — Pagefile Manager, Time Sync Manager, Disk Health ──────────
+
+async def handle_pgfile_usage(args: dict) -> list[TextContent]:
+    from src.pagefile_manager import pagefile_manager
+    return _text(json.dumps(pagefile_manager.get_usage(), indent=2))
+
+
+async def handle_pgfile_events(args: dict) -> list[TextContent]:
+    from src.pagefile_manager import pagefile_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(pagefile_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_pgfile_stats(args: dict) -> list[TextContent]:
+    from src.pagefile_manager import pagefile_manager
+    return _text(json.dumps(pagefile_manager.get_stats(), indent=2))
+
+
+async def handle_timesync_status(args: dict) -> list[TextContent]:
+    from src.time_sync_manager import time_sync_manager
+    return _text(json.dumps(time_sync_manager.get_status(), indent=2))
+
+
+async def handle_timesync_events(args: dict) -> list[TextContent]:
+    from src.time_sync_manager import time_sync_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(time_sync_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_timesync_stats(args: dict) -> list[TextContent]:
+    from src.time_sync_manager import time_sync_manager
+    return _text(json.dumps(time_sync_manager.get_stats(), indent=2))
+
+
+async def handle_diskhlth_list(args: dict) -> list[TextContent]:
+    from src.disk_health import disk_health
+    return _text(json.dumps(disk_health.list_disks(), indent=2))
+
+
+async def handle_diskhlth_events(args: dict) -> list[TextContent]:
+    from src.disk_health import disk_health
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(disk_health.get_events(limit=limit), indent=2))
+
+
+async def handle_diskhlth_stats(args: dict) -> list[TextContent]:
+    from src.disk_health import disk_health
+    return _text(json.dumps(disk_health.get_stats(), indent=2))
+
+
+# ── Phase 35 — User Accounts, Group Policy, Windows Features ─────────────
+
+async def handle_usracct_list(args: dict) -> list[TextContent]:
+    from src.user_account_manager import user_account_manager
+    return _text(json.dumps(user_account_manager.list_users(), indent=2))
+
+
+async def handle_usracct_events(args: dict) -> list[TextContent]:
+    from src.user_account_manager import user_account_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(user_account_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_usracct_stats(args: dict) -> list[TextContent]:
+    from src.user_account_manager import user_account_manager
+    return _text(json.dumps(user_account_manager.get_stats(), indent=2))
+
+
+async def handle_gpo_rsop(args: dict) -> list[TextContent]:
+    from src.group_policy_reader import group_policy_reader
+    return _text(json.dumps(group_policy_reader.get_rsop(), indent=2))
+
+
+async def handle_gpo_events(args: dict) -> list[TextContent]:
+    from src.group_policy_reader import group_policy_reader
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(group_policy_reader.get_events(limit=limit), indent=2))
+
+
+async def handle_gpo_stats(args: dict) -> list[TextContent]:
+    from src.group_policy_reader import group_policy_reader
+    return _text(json.dumps(group_policy_reader.get_stats(), indent=2))
+
+
+async def handle_winfeat_list(args: dict) -> list[TextContent]:
+    from src.windows_feature_manager import windows_feature_manager
+    return _text(json.dumps(windows_feature_manager.list_features(), indent=2))
+
+
+async def handle_winfeat_events(args: dict) -> list[TextContent]:
+    from src.windows_feature_manager import windows_feature_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(windows_feature_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_winfeat_stats(args: dict) -> list[TextContent]:
+    from src.windows_feature_manager import windows_feature_manager
+    return _text(json.dumps(windows_feature_manager.get_stats(), indent=2))
+
+
+# ── Phase 36 — Memory Diagnostics, System Info, Crash Dump Reader ────────
+
+async def handle_memdiag_modules(args: dict) -> list[TextContent]:
+    from src.memory_diagnostics import memory_diagnostics
+    return _text(json.dumps(memory_diagnostics.list_modules(), indent=2))
+
+
+async def handle_memdiag_events(args: dict) -> list[TextContent]:
+    from src.memory_diagnostics import memory_diagnostics
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(memory_diagnostics.get_events(limit=limit), indent=2))
+
+
+async def handle_memdiag_stats(args: dict) -> list[TextContent]:
+    from src.memory_diagnostics import memory_diagnostics
+    return _text(json.dumps(memory_diagnostics.get_stats(), indent=2))
+
+
+async def handle_sysinfo_profile(args: dict) -> list[TextContent]:
+    from src.system_info_collector import system_info_collector
+    return _text(json.dumps(system_info_collector.get_full_profile(), indent=2))
+
+
+async def handle_sysinfo_events(args: dict) -> list[TextContent]:
+    from src.system_info_collector import system_info_collector
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(system_info_collector.get_events(limit=limit), indent=2))
+
+
+async def handle_sysinfo_stats(args: dict) -> list[TextContent]:
+    from src.system_info_collector import system_info_collector
+    return _text(json.dumps(system_info_collector.get_stats(), indent=2))
+
+
+async def handle_crashdmp_list(args: dict) -> list[TextContent]:
+    from src.crash_dump_reader import crash_dump_reader
+    return _text(json.dumps(crash_dump_reader.get_crash_summary(), indent=2))
+
+
+async def handle_crashdmp_events(args: dict) -> list[TextContent]:
+    from src.crash_dump_reader import crash_dump_reader
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(crash_dump_reader.get_events(limit=limit), indent=2))
+
+
+async def handle_crashdmp_stats(args: dict) -> list[TextContent]:
+    from src.crash_dump_reader import crash_dump_reader
+    return _text(json.dumps(crash_dump_reader.get_stats(), indent=2))
+
+
+# ── Phase 37 — Hotfix Manager, Volume Manager, Defender Status ───────────
+
+async def handle_hotfix_list(args: dict) -> list[TextContent]:
+    from src.hotfix_manager import hotfix_manager
+    return _text(json.dumps(hotfix_manager.list_hotfixes(), indent=2))
+
+
+async def handle_hotfix_events(args: dict) -> list[TextContent]:
+    from src.hotfix_manager import hotfix_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(hotfix_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_hotfix_stats(args: dict) -> list[TextContent]:
+    from src.hotfix_manager import hotfix_manager
+    return _text(json.dumps(hotfix_manager.get_stats(), indent=2))
+
+
+async def handle_volmgr_list(args: dict) -> list[TextContent]:
+    from src.volume_manager import volume_manager
+    return _text(json.dumps(volume_manager.list_volumes(), indent=2))
+
+
+async def handle_volmgr_events(args: dict) -> list[TextContent]:
+    from src.volume_manager import volume_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(volume_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_volmgr_stats(args: dict) -> list[TextContent]:
+    from src.volume_manager import volume_manager
+    return _text(json.dumps(volume_manager.get_stats(), indent=2))
+
+
+async def handle_defender_status(args: dict) -> list[TextContent]:
+    from src.defender_status import defender_status
+    return _text(json.dumps(defender_status.get_status(), indent=2))
+
+
+async def handle_defender_events(args: dict) -> list[TextContent]:
+    from src.defender_status import defender_status
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(defender_status.get_events(limit=limit), indent=2))
+
+
+async def handle_defender_stats(args: dict) -> list[TextContent]:
+    from src.defender_status import defender_status
+    return _text(json.dumps(defender_status.get_stats(), indent=2))
+
+
+# ── Phase 38 — IP Config, Recycle Bin, Installed Apps ────────────────────
+
+async def handle_ipcfg_all(args: dict) -> list[TextContent]:
+    from src.ip_config_manager import ip_config_manager
+    return _text(json.dumps(ip_config_manager.get_all(), indent=2))
+
+
+async def handle_ipcfg_events(args: dict) -> list[TextContent]:
+    from src.ip_config_manager import ip_config_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(ip_config_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_ipcfg_stats(args: dict) -> list[TextContent]:
+    from src.ip_config_manager import ip_config_manager
+    return _text(json.dumps(ip_config_manager.get_stats(), indent=2))
+
+
+async def handle_recyclebin_info(args: dict) -> list[TextContent]:
+    from src.recycle_bin_manager import recycle_bin_manager
+    return _text(json.dumps(recycle_bin_manager.get_info(), indent=2))
+
+
+async def handle_recyclebin_events(args: dict) -> list[TextContent]:
+    from src.recycle_bin_manager import recycle_bin_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(recycle_bin_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_recyclebin_stats(args: dict) -> list[TextContent]:
+    from src.recycle_bin_manager import recycle_bin_manager
+    return _text(json.dumps(recycle_bin_manager.get_stats(), indent=2))
+
+
+async def handle_instapp_list(args: dict) -> list[TextContent]:
+    from src.installed_apps_manager import installed_apps_manager
+    return _text(json.dumps(installed_apps_manager.list_win32_apps(), indent=2))
+
+
+async def handle_instapp_events(args: dict) -> list[TextContent]:
+    from src.installed_apps_manager import installed_apps_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(installed_apps_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_instapp_stats(args: dict) -> list[TextContent]:
+    from src.installed_apps_manager import installed_apps_manager
+    return _text(json.dumps(installed_apps_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Phase 39 — Scheduled Tasks, Audio Devices, USB Devices
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+async def handle_schtask_list(args: dict) -> list[TextContent]:
+    from src.scheduled_task_manager import scheduled_task_manager
+    return _text(json.dumps(scheduled_task_manager.list_tasks(), indent=2))
+
+
+async def handle_schtask_events(args: dict) -> list[TextContent]:
+    from src.scheduled_task_manager import scheduled_task_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(scheduled_task_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_schtask_stats(args: dict) -> list[TextContent]:
+    from src.scheduled_task_manager import scheduled_task_manager
+    return _text(json.dumps(scheduled_task_manager.get_stats(), indent=2))
+
+
+async def handle_audiodev_list(args: dict) -> list[TextContent]:
+    from src.audio_device_manager import audio_device_manager
+    return _text(json.dumps(audio_device_manager.list_devices(), indent=2))
+
+
+async def handle_audiodev_events(args: dict) -> list[TextContent]:
+    from src.audio_device_manager import audio_device_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(audio_device_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_audiodev_stats(args: dict) -> list[TextContent]:
+    from src.audio_device_manager import audio_device_manager
+    return _text(json.dumps(audio_device_manager.get_stats(), indent=2))
+
+
+async def handle_usbdev_list(args: dict) -> list[TextContent]:
+    from src.usb_device_manager import usb_device_manager
+    return _text(json.dumps(usb_device_manager.list_devices(), indent=2))
+
+
+async def handle_usbdev_events(args: dict) -> list[TextContent]:
+    from src.usb_device_manager import usb_device_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(usb_device_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_usbdev_stats(args: dict) -> list[TextContent]:
+    from src.usb_device_manager import usb_device_manager
+    return _text(json.dumps(usb_device_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Phase 43 — Network Adapter, Windows Update, Local Security Policy
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+async def handle_netadapt_list(args: dict) -> list[TextContent]:
+    from src.network_adapter_manager import network_adapter_manager
+    return _text(json.dumps(network_adapter_manager.list_adapters(), indent=2))
+
+
+async def handle_netadapt_events(args: dict) -> list[TextContent]:
+    from src.network_adapter_manager import network_adapter_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(network_adapter_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_netadapt_stats(args: dict) -> list[TextContent]:
+    from src.network_adapter_manager import network_adapter_manager
+    return _text(json.dumps(network_adapter_manager.get_stats(), indent=2))
+
+
+async def handle_winupd_history(args: dict) -> list[TextContent]:
+    from src.windows_update_manager import windows_update_manager
+    limit = int(args.get("limit", 30))
+    return _text(json.dumps(windows_update_manager.get_update_history(limit), indent=2))
+
+
+async def handle_winupd_events(args: dict) -> list[TextContent]:
+    from src.windows_update_manager import windows_update_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(windows_update_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_winupd_stats(args: dict) -> list[TextContent]:
+    from src.windows_update_manager import windows_update_manager
+    return _text(json.dumps(windows_update_manager.get_stats(), indent=2))
+
+
+async def handle_secpol_export(args: dict) -> list[TextContent]:
+    from src.local_security_policy import local_security_policy
+    return _text(json.dumps(local_security_policy.export_policy(), indent=2))
+
+
+async def handle_secpol_events(args: dict) -> list[TextContent]:
+    from src.local_security_policy import local_security_policy
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(local_security_policy.get_events(limit=limit), indent=2))
+
+
+async def handle_secpol_stats(args: dict) -> list[TextContent]:
+    from src.local_security_policy import local_security_policy
+    return _text(json.dumps(local_security_policy.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Phase 42 — DNS Client, Storage Pool, Power Plan
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+async def handle_dnscli_servers(args: dict) -> list[TextContent]:
+    from src.dns_client_manager import dns_client_manager
+    return _text(json.dumps(dns_client_manager.get_server_addresses(), indent=2))
+
+
+async def handle_dnscli_events(args: dict) -> list[TextContent]:
+    from src.dns_client_manager import dns_client_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(dns_client_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_dnscli_stats(args: dict) -> list[TextContent]:
+    from src.dns_client_manager import dns_client_manager
+    return _text(json.dumps(dns_client_manager.get_stats(), indent=2))
+
+
+async def handle_storpool_list(args: dict) -> list[TextContent]:
+    from src.storage_pool_manager import storage_pool_manager
+    return _text(json.dumps(storage_pool_manager.list_pools(), indent=2))
+
+
+async def handle_storpool_events(args: dict) -> list[TextContent]:
+    from src.storage_pool_manager import storage_pool_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(storage_pool_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_storpool_stats(args: dict) -> list[TextContent]:
+    from src.storage_pool_manager import storage_pool_manager
+    return _text(json.dumps(storage_pool_manager.get_stats(), indent=2))
+
+
+async def handle_pwrplan_list(args: dict) -> list[TextContent]:
+    from src.power_plan_manager import power_plan_manager
+    return _text(json.dumps(power_plan_manager.list_plans(), indent=2))
+
+
+async def handle_pwrplan_events(args: dict) -> list[TextContent]:
+    from src.power_plan_manager import power_plan_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(power_plan_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_pwrplan_stats(args: dict) -> list[TextContent]:
+    from src.power_plan_manager import power_plan_manager
+    return _text(json.dumps(power_plan_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Phase 41 — Virtual Memory, Event Log Reader, Shadow Copy
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+async def handle_virtmem_status(args: dict) -> list[TextContent]:
+    from src.virtual_memory_manager import virtual_memory_manager
+    return _text(json.dumps(virtual_memory_manager.get_status(), indent=2))
+
+
+async def handle_virtmem_events(args: dict) -> list[TextContent]:
+    from src.virtual_memory_manager import virtual_memory_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(virtual_memory_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_virtmem_stats(args: dict) -> list[TextContent]:
+    from src.virtual_memory_manager import virtual_memory_manager
+    return _text(json.dumps(virtual_memory_manager.get_stats(), indent=2))
+
+
+async def handle_winevt_recent(args: dict) -> list[TextContent]:
+    from src.windows_event_log_reader import windows_event_log_reader
+    log_name = args.get("log_name", "System")
+    max_events = int(args.get("max_events", 20))
+    return _text(json.dumps(windows_event_log_reader.get_recent(log_name, max_events), indent=2))
+
+
+async def handle_winevt_events(args: dict) -> list[TextContent]:
+    from src.windows_event_log_reader import windows_event_log_reader
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(windows_event_log_reader.get_events(limit=limit), indent=2))
+
+
+async def handle_winevt_stats(args: dict) -> list[TextContent]:
+    from src.windows_event_log_reader import windows_event_log_reader
+    return _text(json.dumps(windows_event_log_reader.get_stats(), indent=2))
+
+
+async def handle_shadowcopy_list(args: dict) -> list[TextContent]:
+    from src.shadow_copy_manager import shadow_copy_manager
+    return _text(json.dumps(shadow_copy_manager.list_copies(), indent=2))
+
+
+async def handle_shadowcopy_events(args: dict) -> list[TextContent]:
+    from src.shadow_copy_manager import shadow_copy_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(shadow_copy_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_shadowcopy_stats(args: dict) -> list[TextContent]:
+    from src.shadow_copy_manager import shadow_copy_manager
+    return _text(json.dumps(shadow_copy_manager.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Phase 40 — Screen Resolution, BIOS Settings, Performance Counters
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+async def handle_screenres_list(args: dict) -> list[TextContent]:
+    from src.screen_resolution_manager import screen_resolution_manager
+    return _text(json.dumps(screen_resolution_manager.list_displays(), indent=2))
+
+
+async def handle_screenres_events(args: dict) -> list[TextContent]:
+    from src.screen_resolution_manager import screen_resolution_manager
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(screen_resolution_manager.get_events(limit=limit), indent=2))
+
+
+async def handle_screenres_stats(args: dict) -> list[TextContent]:
+    from src.screen_resolution_manager import screen_resolution_manager
+    return _text(json.dumps(screen_resolution_manager.get_stats(), indent=2))
+
+
+async def handle_biosinfo_get(args: dict) -> list[TextContent]:
+    from src.bios_settings import bios_settings
+    return _text(json.dumps(bios_settings.get_info(), indent=2))
+
+
+async def handle_biosinfo_events(args: dict) -> list[TextContent]:
+    from src.bios_settings import bios_settings
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(bios_settings.get_events(limit=limit), indent=2))
+
+
+async def handle_biosinfo_stats(args: dict) -> list[TextContent]:
+    from src.bios_settings import bios_settings
+    return _text(json.dumps(bios_settings.get_stats(), indent=2))
+
+
+async def handle_perfmon_snapshot(args: dict) -> list[TextContent]:
+    from src.performance_counter import performance_counter
+    return _text(json.dumps(performance_counter.snapshot(), indent=2))
+
+
+async def handle_perfmon_events(args: dict) -> list[TextContent]:
+    from src.performance_counter import performance_counter
+    limit = int(args.get("limit", 50))
+    return _text(json.dumps(performance_counter.get_events(limit=limit), indent=2))
+
+
+async def handle_perfmon_stats(args: dict) -> list[TextContent]:
+    from src.performance_counter import performance_counter
+    return _text(json.dumps(performance_counter.get_stats(), indent=2))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TELEGRAM BOT HANDLERS (3)
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_telegram_send(args: dict) -> list[TextContent]:
+    """Envoyer un message Telegram via le bot."""
+    import urllib.request
+    message = args.get("message", "")
+    if not message:
+        return _error("missing 'message'")
+    chat_id = args.get("chat_id", "")
+    token = os.environ.get("TELEGRAM_TOKEN", "")
+    if not chat_id:
+        chat_id = os.environ.get("TELEGRAM_CHAT", "")
+    if not token:
+        return _error("TELEGRAM_TOKEN non configuré dans .env")
+    if not chat_id:
+        return _error("TELEGRAM_CHAT non configuré dans .env")
+    try:
+        body = json.dumps({"chat_id": chat_id, "text": message}).encode()
+        req = urllib.request.Request(
+            f"https://api.telegram.org/bot{token}/sendMessage",
+            data=body,
+            headers={"Content-Type": "application/json"},
+        )
+        resp = urllib.request.urlopen(req, timeout=10)
+        data = json.loads(resp.read().decode())
+        return _text(f"Message envoyé (id: {data.get('result', {}).get('message_id', '?')})")
+    except Exception as e:
+        return _error(f"Telegram sendMessage: {e}")
+
+
+async def handle_telegram_status(args: dict) -> list[TextContent]:
+    """Statut du bot Telegram (proxy check + bot info)."""
+    import urllib.request
+    lines = []
+    # Check bot identity
+    token = os.environ.get("TELEGRAM_TOKEN", "")
+    if not token:
+        return _error("TELEGRAM_TOKEN non configuré")
+    try:
+        req = urllib.request.Request(f"https://api.telegram.org/bot{token}/getMe")
+        resp = urllib.request.urlopen(req, timeout=5)
+        me = json.loads(resp.read().decode()).get("result", {})
+        lines.append(f"Bot: @{me.get('username', '?')} ({me.get('first_name', '?')})")
+    except Exception as e:
+        lines.append(f"Bot: OFFLINE ({e})")
+    # Check canvas proxy
+    try:
+        req = urllib.request.Request("http://127.0.0.1:18800/health")
+        resp = urllib.request.urlopen(req, timeout=3)
+        health = json.loads(resp.read().decode())
+        nodes = health.get("nodes", [])
+        online = sum(1 for n in nodes if n.get("status") == "online")
+        lines.append(f"Proxy: OK ({online}/{len(nodes)} nœuds online)")
+    except Exception:
+        lines.append("Proxy: OFFLINE (port 18800)")
+    lines.append(f"Chat ID: {os.environ.get('TELEGRAM_CHAT', 'non configuré')}")
+    return _text("\n".join(lines))
+
+
+async def handle_telegram_history(args: dict) -> list[TextContent]:
+    """Derniers messages reçus par le bot Telegram (via proxy)."""
+    import urllib.request
+    limit = _safe_int(args.get("limit"), 20)
+    try:
+        token = os.environ.get("TELEGRAM_TOKEN", "")
+        if not token:
+            return _error("TELEGRAM_TOKEN non configuré")
+        req = urllib.request.Request(
+            f"https://api.telegram.org/bot{token}/getUpdates",
+            data=json.dumps({"limit": min(limit, 100), "timeout": 0}).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        resp = urllib.request.urlopen(req, timeout=10)
+        data = json.loads(resp.read().decode())
+        updates = data.get("result", [])
+        if not updates:
+            return _text("Aucun message récent.")
+        lines = [f"Derniers {len(updates)} messages:"]
+        for u in updates[-limit:]:
+            msg = u.get("message", {})
+            frm = msg.get("from", {})
+            txt = msg.get("text", "(no text)")
+            name = frm.get("username") or frm.get("first_name") or "?"
+            lines.append(f"  [{name}] {txt[:80]}")
+        return _text("\n".join(lines))
+    except Exception as e:
+        return _error(f"Telegram getUpdates: {e}")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # TOOL REGISTRY
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -3786,6 +4935,238 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     ("diskmon_drives", "Lister les disques et usage.", {}, handle_diskmon_drives),
     ("diskmon_alerts", "Alertes d'espace disque.", {"limit": "number"}, handle_diskmon_alerts),
     ("diskmon_stats", "Stats du moniteur de disques.", {}, handle_diskmon_stats),
+    # Audio Controller (3) — Phase 25
+    ("audictl_presets", "Lister les presets audio.", {}, handle_audictl_presets),
+    ("audictl_events", "Historique des actions audio.", {"limit": "number"}, handle_audictl_events),
+    ("audictl_stats", "Stats du controleur audio.", {}, handle_audictl_stats),
+    # Startup Manager (3) — Phase 25
+    ("startup_list", "Lister les programmes au demarrage.", {"scope": "string"}, handle_startup_list),
+    ("startup_events", "Historique des actions startup.", {"limit": "number"}, handle_startup_events),
+    ("startup_stats", "Stats du gestionnaire de demarrage.", {}, handle_startup_stats),
+    # Screen Capture (3) — Phase 25
+    ("scrcap_list", "Lister les captures d'ecran.", {"limit": "number"}, handle_scrcap_list),
+    ("scrcap_events", "Historique des captures.", {"limit": "number"}, handle_scrcap_events),
+    ("scrcap_stats", "Stats du capture d'ecran.", {}, handle_scrcap_stats),
+    # WiFi Manager (3) — Phase 26
+    ("wifimgr_profiles", "Lister les profils WiFi sauvegardes.", {}, handle_wifimgr_profiles),
+    ("wifimgr_events", "Historique des actions WiFi.", {"limit": "number"}, handle_wifimgr_events),
+    ("wifimgr_stats", "Stats du gestionnaire WiFi.", {}, handle_wifimgr_stats),
+    # Display Manager (3) — Phase 26
+    ("dispmgr_list", "Lister les ecrans connectes.", {}, handle_dispmgr_list),
+    ("dispmgr_events", "Historique des actions ecran.", {"limit": "number"}, handle_dispmgr_events),
+    ("dispmgr_stats", "Stats du gestionnaire d'ecrans.", {}, handle_dispmgr_stats),
+    # USB Monitor (3) — Phase 26
+    ("usbmon_events", "Historique USB.", {"limit": "number"}, handle_usbmon_events),
+    ("usbmon_changes", "Detecter les changements USB.", {}, handle_usbmon_changes),
+    ("usbmon_stats", "Stats du moniteur USB.", {}, handle_usbmon_stats),
+    # Printer Manager — Phase 27 (3)
+    ("prnmgr_list", "Lister les imprimantes installees.", {}, handle_prnmgr_list),
+    ("prnmgr_events", "Historique des evenements imprimante.", {"limit": "number"}, handle_prnmgr_events),
+    ("prnmgr_stats", "Stats du gestionnaire d'imprimantes.", {}, handle_prnmgr_stats),
+    # Firewall Controller — Phase 27 (3)
+    ("fwctl_rules", "Lister les regles de pare-feu Windows.", {"direction": "string"}, handle_fwctl_rules),
+    ("fwctl_events", "Historique des evenements pare-feu.", {"limit": "number"}, handle_fwctl_events),
+    ("fwctl_stats", "Stats du controleur de pare-feu.", {}, handle_fwctl_stats),
+    # Scheduler Manager — Phase 27 (3)
+    ("schedmgr_list", "Lister les taches planifiees Windows.", {"folder": "string"}, handle_schedmgr_list),
+    ("schedmgr_events", "Historique des evenements planificateur.", {"limit": "number"}, handle_schedmgr_events),
+    ("schedmgr_stats", "Stats du gestionnaire de taches planifiees.", {}, handle_schedmgr_stats),
+    # Bluetooth Manager — Phase 28 (3)
+    ("btmgr_list", "Lister les appareils Bluetooth.", {}, handle_btmgr_list),
+    ("btmgr_events", "Historique des evenements Bluetooth.", {"limit": "number"}, handle_btmgr_events),
+    ("btmgr_stats", "Stats du gestionnaire Bluetooth.", {}, handle_btmgr_stats),
+    # Event Log Reader — Phase 28 (3)
+    ("evtlog_read", "Lire le journal d'evenements Windows.", {"log_name": "string", "max_events": "number", "level": "string"}, handle_evtlog_read),
+    ("evtlog_events", "Historique des lectures de journaux.", {"limit": "number"}, handle_evtlog_events),
+    ("evtlog_stats", "Stats du lecteur de journaux.", {}, handle_evtlog_stats),
+    # Font Manager — Phase 28 (3)
+    ("fontmgr_list", "Lister les polices installees.", {}, handle_fontmgr_list),
+    ("fontmgr_events", "Historique des evenements polices.", {"limit": "number"}, handle_fontmgr_events),
+    ("fontmgr_stats", "Stats du gestionnaire de polices.", {}, handle_fontmgr_stats),
+    # Network Monitor — Phase 29 (3)
+    ("netmon_adapters", "Lister les adaptateurs reseau.", {}, handle_netmon_adapters),
+    ("netmon_events", "Historique des evenements reseau.", {"limit": "number"}, handle_netmon_events),
+    ("netmon_stats", "Stats du moniteur reseau.", {}, handle_netmon_stats),
+    # Hosts Manager — Phase 29 (3)
+    ("hostsmgr_list", "Lister les entrees du fichier hosts.", {}, handle_hostsmgr_list),
+    ("hostsmgr_events", "Historique des evenements hosts.", {"limit": "number"}, handle_hostsmgr_events),
+    ("hostsmgr_stats", "Stats du gestionnaire hosts.", {}, handle_hostsmgr_stats),
+    # Theme Controller — Phase 29 (3)
+    ("themectl_get", "Obtenir le theme Windows actuel.", {}, handle_themectl_get),
+    ("themectl_events", "Historique des evenements theme.", {"limit": "number"}, handle_themectl_events),
+    ("themectl_stats", "Stats du controleur de theme.", {}, handle_themectl_stats),
+    # Certificate Manager — Phase 30 (3)
+    ("certmgr_list", "Lister les certificats Windows.", {"store": "string"}, handle_certmgr_list),
+    ("certmgr_events", "Historique des evenements certificats.", {"limit": "number"}, handle_certmgr_events),
+    ("certmgr_stats", "Stats du gestionnaire de certificats.", {}, handle_certmgr_stats),
+    # Virtual Desktop — Phase 30 (3)
+    ("vdesk_list", "Lister les bureaux virtuels.", {}, handle_vdesk_list),
+    ("vdesk_events", "Historique des evenements bureaux virtuels.", {"limit": "number"}, handle_vdesk_events),
+    ("vdesk_stats", "Stats des bureaux virtuels.", {}, handle_vdesk_stats),
+    # Notification Manager — Phase 30 (3)
+    ("notifmgr_history", "Historique des notifications envoyees.", {"limit": "number"}, handle_notifmgr_history),
+    ("notifmgr_events", "Historique des evenements notifications.", {"limit": "number"}, handle_notifmgr_events),
+    ("notifmgr_stats", "Stats du gestionnaire de notifications.", {}, handle_notifmgr_stats),
+    # System Restore — Phase 31 (3)
+    ("sysrest_list", "Lister les points de restauration systeme.", {}, handle_sysrest_list),
+    ("sysrest_events", "Historique des evenements restauration.", {"limit": "number"}, handle_sysrest_events),
+    ("sysrest_stats", "Stats du gestionnaire de restauration.", {}, handle_sysrest_stats),
+    # Performance Counter — Phase 31 (3)
+    ("perfctr_counters", "Lister les compteurs de performance disponibles.", {}, handle_perfctr_counters),
+    ("perfctr_events", "Historique des evenements performance.", {"limit": "number"}, handle_perfctr_events),
+    ("perfctr_stats", "Stats du compteur de performance.", {}, handle_perfctr_stats),
+    # Credential Vault — Phase 31 (3)
+    ("credvlt_list", "Lister les credentials stockes (cibles uniquement).", {}, handle_credvlt_list),
+    ("credvlt_events", "Historique des evenements vault.", {"limit": "number"}, handle_credvlt_events),
+    ("credvlt_stats", "Stats du coffre de credentials.", {}, handle_credvlt_stats),
+    # Locale Manager — Phase 32 (3)
+    ("localemgr_info", "Infos locale systeme, langues, timezone, claviers, format date.", {}, handle_localemgr_info),
+    ("localemgr_events", "Historique des evenements locale.", {"limit": "number"}, handle_localemgr_events),
+    ("localemgr_stats", "Stats du gestionnaire de locale.", {}, handle_localemgr_stats),
+    # GPU Monitor — Phase 32 (3)
+    ("gpumon_snapshot", "Snapshot GPU (NVIDIA smi + WMI fallback).", {}, handle_gpumon_snapshot),
+    ("gpumon_events", "Historique des evenements GPU.", {"limit": "number"}, handle_gpumon_events),
+    ("gpumon_stats", "Stats du moniteur GPU.", {}, handle_gpumon_stats),
+    # Share Manager — Phase 32 (3)
+    ("sharemgr_list", "Lister les partages reseau et lecteurs mappes.", {}, handle_sharemgr_list),
+    ("sharemgr_events", "Historique des evenements partages.", {"limit": "number"}, handle_sharemgr_events),
+    ("sharemgr_stats", "Stats du gestionnaire de partages.", {}, handle_sharemgr_stats),
+    # Driver Manager — Phase 33 (3)
+    ("drvmgr_list", "Lister les pilotes installes.", {}, handle_drvmgr_list),
+    ("drvmgr_events", "Historique des evenements pilotes.", {"limit": "number"}, handle_drvmgr_events),
+    ("drvmgr_stats", "Stats du gestionnaire de pilotes.", {}, handle_drvmgr_stats),
+    # WMI Explorer — Phase 33 (3)
+    ("wmiexp_query", "Requete WMI generique.", {"class_name": "string", "properties": "string", "max_results": "number"}, handle_wmiexp_query),
+    ("wmiexp_events", "Historique des evenements WMI.", {"limit": "number"}, handle_wmiexp_events),
+    ("wmiexp_stats", "Stats de l'explorateur WMI.", {}, handle_wmiexp_stats),
+    # Env Variable Manager — Phase 33 (3)
+    ("envmgr_list", "Lister les variables d'environnement (system + user).", {}, handle_envmgr_list),
+    ("envmgr_events", "Historique des evenements env.", {"limit": "number"}, handle_envmgr_events),
+    ("envmgr_stats", "Stats du gestionnaire de variables.", {}, handle_envmgr_stats),
+    # Pagefile Manager — Phase 34 (3)
+    ("pgfile_usage", "Usage du pagefile (memoire virtuelle).", {}, handle_pgfile_usage),
+    ("pgfile_events", "Historique des evenements pagefile.", {"limit": "number"}, handle_pgfile_events),
+    ("pgfile_stats", "Stats du gestionnaire pagefile.", {}, handle_pgfile_stats),
+    # Time Sync Manager — Phase 34 (3)
+    ("timesync_status", "Statut synchronisation temps NTP/W32Time.", {}, handle_timesync_status),
+    ("timesync_events", "Historique des evenements time sync.", {"limit": "number"}, handle_timesync_events),
+    ("timesync_stats", "Stats du gestionnaire de synchronisation.", {}, handle_timesync_stats),
+    # Disk Health — Phase 34 (3)
+    ("diskhlth_list", "Lister les disques physiques avec etat de sante.", {}, handle_diskhlth_list),
+    ("diskhlth_events", "Historique des evenements disk health.", {"limit": "number"}, handle_diskhlth_events),
+    ("diskhlth_stats", "Stats du moniteur de sante disque.", {}, handle_diskhlth_stats),
+    # User Account Manager — Phase 35 (3)
+    ("usracct_list", "Lister les comptes utilisateurs locaux.", {}, handle_usracct_list),
+    ("usracct_events", "Historique des evenements comptes.", {"limit": "number"}, handle_usracct_events),
+    ("usracct_stats", "Stats du gestionnaire de comptes.", {}, handle_usracct_stats),
+    # Group Policy Reader — Phase 35 (3)
+    ("gpo_rsop", "Resultant Set of Policy (GPO appliquees).", {}, handle_gpo_rsop),
+    ("gpo_events", "Historique des evenements GPO.", {"limit": "number"}, handle_gpo_events),
+    ("gpo_stats", "Stats du lecteur GPO.", {}, handle_gpo_stats),
+    # Windows Feature Manager — Phase 35 (3)
+    ("winfeat_list", "Lister les fonctionnalites optionnelles Windows.", {}, handle_winfeat_list),
+    ("winfeat_events", "Historique des evenements features.", {"limit": "number"}, handle_winfeat_events),
+    ("winfeat_stats", "Stats du gestionnaire de fonctionnalites.", {}, handle_winfeat_stats),
+    # Memory Diagnostics — Phase 36 (3)
+    ("memdiag_modules", "Lister les modules RAM (slots, vitesse, fabricant).", {}, handle_memdiag_modules),
+    ("memdiag_events", "Historique des evenements memoire.", {"limit": "number"}, handle_memdiag_events),
+    ("memdiag_stats", "Stats du diagnostic memoire.", {}, handle_memdiag_stats),
+    # System Info Collector — Phase 36 (3)
+    ("sysinfo_profile", "Profil systeme complet (OS, CPU, BIOS, computer).", {}, handle_sysinfo_profile),
+    ("sysinfo_events", "Historique des evenements sysinfo.", {"limit": "number"}, handle_sysinfo_events),
+    ("sysinfo_stats", "Stats du collecteur sysinfo.", {}, handle_sysinfo_stats),
+    # Crash Dump Reader — Phase 36 (3)
+    ("crashdmp_list", "Resume des crash dumps et minidumps.", {}, handle_crashdmp_list),
+    ("crashdmp_events", "Historique des evenements crash reader.", {"limit": "number"}, handle_crashdmp_events),
+    ("crashdmp_stats", "Stats du lecteur de crash dumps.", {}, handle_crashdmp_stats),
+    # Hotfix Manager — Phase 37 (3)
+    ("hotfix_list", "Lister les hotfixes/KB installes.", {}, handle_hotfix_list),
+    ("hotfix_events", "Historique des evenements hotfix.", {"limit": "number"}, handle_hotfix_events),
+    ("hotfix_stats", "Stats du gestionnaire de hotfixes.", {}, handle_hotfix_stats),
+    # Volume Manager — Phase 37 (3)
+    ("volmgr_list", "Lister les volumes et partitions.", {}, handle_volmgr_list),
+    ("volmgr_events", "Historique des evenements volumes.", {"limit": "number"}, handle_volmgr_events),
+    ("volmgr_stats", "Stats du gestionnaire de volumes.", {}, handle_volmgr_stats),
+    # Defender Status — Phase 37 (3)
+    ("defender_status", "Statut Windows Defender (AV, signatures, scans).", {}, handle_defender_status),
+    ("defender_events", "Historique des evenements Defender.", {"limit": "number"}, handle_defender_events),
+    ("defender_stats", "Stats du moniteur Defender.", {}, handle_defender_stats),
+    # IP Config Manager — Phase 38 (3)
+    ("ipcfg_all", "Configuration IP complete (interfaces, DNS, DHCP).", {}, handle_ipcfg_all),
+    ("ipcfg_events", "Historique des evenements ipconfig.", {"limit": "number"}, handle_ipcfg_events),
+    ("ipcfg_stats", "Stats du gestionnaire IP.", {}, handle_ipcfg_stats),
+    # Recycle Bin Manager — Phase 38 (3)
+    ("recyclebin_info", "Info corbeille (nb items, taille).", {}, handle_recyclebin_info),
+    ("recyclebin_events", "Historique des evenements corbeille.", {"limit": "number"}, handle_recyclebin_events),
+    ("recyclebin_stats", "Stats du gestionnaire de corbeille.", {}, handle_recyclebin_stats),
+    # Installed Apps Manager — Phase 38 (3)
+    ("instapp_list", "Lister les applications Win32 installees.", {}, handle_instapp_list),
+    ("instapp_events", "Historique des evenements apps.", {"limit": "number"}, handle_instapp_events),
+    ("instapp_stats", "Stats du gestionnaire d'applications.", {}, handle_instapp_stats),
+    # Scheduled Tasks (3)
+    ("schtask_list", "Lister les tâches planifiées Windows.", {}, handle_schtask_list),
+    ("schtask_events", "Événements du gestionnaire de tâches planifiées.", {"limit": "number"}, handle_schtask_events),
+    ("schtask_stats", "Stats du gestionnaire de tâches planifiées.", {}, handle_schtask_stats),
+    # Audio Devices (3)
+    ("audiodev_list", "Lister les périphériques audio Windows.", {}, handle_audiodev_list),
+    ("audiodev_events", "Événements du gestionnaire audio.", {"limit": "number"}, handle_audiodev_events),
+    ("audiodev_stats", "Stats du gestionnaire audio.", {}, handle_audiodev_stats),
+    # USB Devices (3)
+    ("usbdev_list", "Lister les périphériques USB connectés.", {}, handle_usbdev_list),
+    ("usbdev_events", "Événements du gestionnaire USB.", {"limit": "number"}, handle_usbdev_events),
+    ("usbdev_stats", "Stats du gestionnaire USB.", {}, handle_usbdev_stats),
+    # Screen Resolution (3)
+    ("screenres_list", "Lister les écrans et résolutions.", {}, handle_screenres_list),
+    ("screenres_events", "Événements du gestionnaire d'écrans.", {"limit": "number"}, handle_screenres_events),
+    ("screenres_stats", "Stats du gestionnaire d'écrans.", {}, handle_screenres_stats),
+    # BIOS Info (3)
+    ("biosinfo_get", "Informations BIOS/UEFI du système.", {}, handle_biosinfo_get),
+    ("biosinfo_events", "Événements du lecteur BIOS.", {"limit": "number"}, handle_biosinfo_events),
+    ("biosinfo_stats", "Stats du lecteur BIOS.", {}, handle_biosinfo_stats),
+    # Performance Counters (3)
+    ("perfmon_snapshot", "Snapshot des compteurs de performance Windows.", {}, handle_perfmon_snapshot),
+    ("perfmon_events", "Événements du gestionnaire de performance.", {"limit": "number"}, handle_perfmon_events),
+    ("perfmon_stats", "Stats du gestionnaire de performance.", {}, handle_perfmon_stats),
+    # Virtual Memory (3)
+    ("virtmem_status", "Statut mémoire virtuelle Windows.", {}, handle_virtmem_status),
+    ("virtmem_events", "Événements du gestionnaire mémoire virtuelle.", {"limit": "number"}, handle_virtmem_events),
+    ("virtmem_stats", "Stats du gestionnaire mémoire virtuelle.", {}, handle_virtmem_stats),
+    # Windows Event Log (3)
+    ("winevt_recent", "Événements récents du journal Windows.", {"log_name": "string", "max_events": "number"}, handle_winevt_recent),
+    ("winevt_events", "Historique des lectures du journal.", {"limit": "number"}, handle_winevt_events),
+    ("winevt_stats", "Stats du lecteur de journal Windows.", {}, handle_winevt_stats),
+    # Shadow Copy (3)
+    ("shadowcopy_list", "Lister les copies fantômes (VSS).", {}, handle_shadowcopy_list),
+    ("shadowcopy_events", "Événements du gestionnaire de copies fantômes.", {"limit": "number"}, handle_shadowcopy_events),
+    ("shadowcopy_stats", "Stats du gestionnaire de copies fantômes.", {}, handle_shadowcopy_stats),
+    # DNS Client (3)
+    ("dnscli_servers", "Adresses DNS par interface.", {}, handle_dnscli_servers),
+    ("dnscli_events", "Événements du gestionnaire DNS client.", {"limit": "number"}, handle_dnscli_events),
+    ("dnscli_stats", "Stats du gestionnaire DNS client.", {}, handle_dnscli_stats),
+    # Storage Pool (3)
+    ("storpool_list", "Lister les pools de stockage Windows.", {}, handle_storpool_list),
+    ("storpool_events", "Événements du gestionnaire de pools.", {"limit": "number"}, handle_storpool_events),
+    ("storpool_stats", "Stats du gestionnaire de pools.", {}, handle_storpool_stats),
+    # Power Plan (3)
+    ("pwrplan_list", "Lister les plans d'alimentation.", {}, handle_pwrplan_list),
+    ("pwrplan_events", "Événements du gestionnaire d'alimentation.", {"limit": "number"}, handle_pwrplan_events),
+    ("pwrplan_stats", "Stats du gestionnaire d'alimentation.", {}, handle_pwrplan_stats),
+    # Network Adapter (3)
+    ("netadapt_list", "Lister les adaptateurs réseau Windows.", {}, handle_netadapt_list),
+    ("netadapt_events", "Événements du gestionnaire d'adaptateurs.", {"limit": "number"}, handle_netadapt_events),
+    ("netadapt_stats", "Stats du gestionnaire d'adaptateurs.", {}, handle_netadapt_stats),
+    # Windows Update (3)
+    ("winupd_history", "Historique des mises à jour Windows.", {"limit": "number"}, handle_winupd_history),
+    ("winupd_events", "Événements du gestionnaire de mises à jour.", {"limit": "number"}, handle_winupd_events),
+    ("winupd_stats", "Stats du gestionnaire de mises à jour.", {}, handle_winupd_stats),
+    # Local Security Policy (3)
+    ("secpol_export", "Exporter la politique de sécurité locale.", {}, handle_secpol_export),
+    ("secpol_events", "Événements du lecteur de politique.", {"limit": "number"}, handle_secpol_events),
+    ("secpol_stats", "Stats du lecteur de politique.", {}, handle_secpol_stats),
+    # Telegram Bot (3)
+    ("telegram_send", "Envoyer un message Telegram.", {"message": "string", "chat_id": "string"}, handle_telegram_send),
+    ("telegram_status", "Statut du bot Telegram et du proxy.", {}, handle_telegram_status),
+    ("telegram_history", "Derniers messages reçus par le bot Telegram.", {"limit": "number"}, handle_telegram_history),
 ]
 
 # Build handler map

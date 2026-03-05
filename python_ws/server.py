@@ -42,6 +42,7 @@ from python_ws.routes.trading import handle_trading_request, push_trading_events
 from python_ws.routes.voice import handle_voice_request
 from python_ws.routes.files import handle_files_request
 from python_ws.routes.dictionary import handle_dictionary_request
+from python_ws.routes.telegram import handle_telegram_request
 from python_ws.routes.sql import sql_router
 from python_ws.routes.terminal import router as terminal_router
 
@@ -57,7 +58,7 @@ except ImportError:
 logger = logging.getLogger("jarvis.ws")
 
 # ── Valid channels ───────────────────────────────────────────────────────────
-CHANNELS = {"cluster", "trading", "voice", "chat", "files", "system", "dictionary"}
+CHANNELS = {"cluster", "trading", "voice", "chat", "files", "system", "dictionary", "telegram"}
 
 # ── Connected WebSocket clients ──────────────────────────────────────────────
 _connected_clients: set = set()
@@ -1149,6 +1150,50 @@ async def api_service_stats():
     try:
         from src.service_registry import service_registry
         return JSONResponse(service_registry.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Telegram Bot REST API ──────────────────────────────────────────────
+
+@app.get("/api/telegram/status")
+async def api_telegram_status():
+    """Telegram bot status (bot identity + proxy health)."""
+    try:
+        from python_ws.routes.telegram import handle_telegram_request
+        return JSONResponse(await handle_telegram_request("bot_status", {}))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/telegram/send")
+async def api_telegram_send(request: Request):
+    """Send a message via Telegram bot."""
+    try:
+        from python_ws.routes.telegram import handle_telegram_request
+        body = await request.json()
+        return JSONResponse(await handle_telegram_request("send_message", body))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/telegram/history")
+async def api_telegram_history(limit: int = 20):
+    """Recent Telegram messages."""
+    try:
+        from python_ws.routes.telegram import handle_telegram_request
+        return JSONResponse(await handle_telegram_request("get_history", {"limit": limit}))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/telegram/chat")
+async def api_telegram_chat(request: Request):
+    """Send a query through the cluster via Telegram proxy."""
+    try:
+        from python_ws.routes.telegram import handle_telegram_request
+        body = await request.json()
+        return JSONResponse(await handle_telegram_request("proxy_chat", body))
     except Exception as exc:
         return JSONResponse({"error": str(exc)}, status_code=500)
 
@@ -2273,6 +2318,180 @@ async def api_diskmon_stats():
         return JSONResponse({"error": str(exc)}, status_code=500)
 
 
+# ── Audio Controller — Phase 25 ───────────────────────────────────────────
+
+@app.get("/api/audio/presets")
+async def api_audictl_presets():
+    try:
+        from src.audio_controller import audio_controller
+        return JSONResponse(audio_controller.list_presets())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/audio/events")
+async def api_audictl_events(limit: int = 50):
+    try:
+        from src.audio_controller import audio_controller
+        return JSONResponse(audio_controller.get_events(limit=limit))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/audio/stats")
+async def api_audictl_stats():
+    try:
+        from src.audio_controller import audio_controller
+        return JSONResponse(audio_controller.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Startup Manager — Phase 25 ───────────────────────────────────────────
+
+@app.get("/api/startup/list")
+async def api_startup_list(scope: str = "user"):
+    try:
+        from src.startup_manager import startup_manager
+        return JSONResponse(startup_manager.list_entries(scope=scope))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/startup/events")
+async def api_startup_events(limit: int = 50):
+    try:
+        from src.startup_manager import startup_manager
+        return JSONResponse(startup_manager.get_events(limit=limit))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/startup/stats")
+async def api_startup_stats():
+    try:
+        from src.startup_manager import startup_manager
+        return JSONResponse(startup_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Screen Capture — Phase 25 ────────────────────────────────────────────
+
+@app.get("/api/captures/list")
+async def api_scrcap_list(limit: int = 50):
+    try:
+        from src.screen_capture import screen_capture
+        return JSONResponse(screen_capture.list_captures(limit=limit))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/captures/events")
+async def api_scrcap_events(limit: int = 50):
+    try:
+        from src.screen_capture import screen_capture
+        return JSONResponse(screen_capture.get_events(limit=limit))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/captures/stats")
+async def api_scrcap_stats():
+    try:
+        from src.screen_capture import screen_capture
+        return JSONResponse(screen_capture.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── WiFi Manager — Phase 26 ───────────────────────────────────────────────
+
+@app.get("/api/wifi/profiles")
+async def api_wifimgr_profiles():
+    try:
+        from src.wifi_manager import wifi_manager
+        return JSONResponse(wifi_manager.list_profiles())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/wifi/events")
+async def api_wifimgr_events(limit: int = 50):
+    try:
+        from src.wifi_manager import wifi_manager
+        return JSONResponse(wifi_manager.get_events(limit=limit))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/wifi/stats")
+async def api_wifimgr_stats():
+    try:
+        from src.wifi_manager import wifi_manager
+        return JSONResponse(wifi_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Display Manager — Phase 26 ───────────────────────────────────────────
+
+@app.get("/api/displays/list")
+async def api_dispmgr_list():
+    try:
+        from src.display_manager import display_manager
+        return JSONResponse(display_manager.list_displays())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/displays/events")
+async def api_dispmgr_events(limit: int = 50):
+    try:
+        from src.display_manager import display_manager
+        return JSONResponse(display_manager.get_events(limit=limit))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/displays/stats")
+async def api_dispmgr_stats():
+    try:
+        from src.display_manager import display_manager
+        return JSONResponse(display_manager.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── USB Monitor — Phase 26 ───────────────────────────────────────────────
+
+@app.get("/api/usb/events")
+async def api_usbmon_events(limit: int = 50):
+    try:
+        from src.usb_monitor import usb_monitor
+        return JSONResponse(usb_monitor.get_events(limit=limit))
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/usb/changes")
+async def api_usbmon_changes():
+    try:
+        from src.usb_monitor import usb_monitor
+        return JSONResponse(usb_monitor.detect_changes())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/usb/stats")
+async def api_usbmon_stats():
+    try:
+        from src.usb_monitor import usb_monitor
+        return JSONResponse(usb_monitor.get_stats())
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
 @app.get("/api/models")
 async def api_models():
     """Return all available models with online/offline status."""
@@ -2466,6 +2685,9 @@ async def _route_request(channel: str, action: str, payload: dict | None) -> dic
 
     if channel == "dictionary":
         return await handle_dictionary_request(action, payload)
+
+    if channel == "telegram":
+        return await handle_telegram_request(action, payload or {})
 
     return {"error": f"unknown channel: {channel}"}
 
@@ -2908,6 +3130,971 @@ async def _graceful_shutdown():
         pass
 
     logger.info("JARVIS WS shutdown complete")
+
+
+# ── Printer Manager — Phase 27 ──────────────────────────────────────────────
+
+@app.get("/api/printers/list")
+async def api_printers_list():
+    from src.printer_manager import printer_manager
+    return printer_manager.list_printers()
+
+
+@app.get("/api/printers/events")
+async def api_printers_events():
+    from src.printer_manager import printer_manager
+    return printer_manager.get_events()
+
+
+@app.get("/api/printers/stats")
+async def api_printers_stats():
+    from src.printer_manager import printer_manager
+    return printer_manager.get_stats()
+
+
+# ── Firewall Controller — Phase 27 ──────────────────────────────────────────
+
+@app.get("/api/firewall/rules")
+async def api_firewall_rules(direction: str = ""):
+    from src.firewall_controller import firewall_controller
+    rules = firewall_controller.list_rules(direction=direction)
+    return rules[:100]
+
+
+@app.get("/api/firewall/events")
+async def api_firewall_events():
+    from src.firewall_controller import firewall_controller
+    return firewall_controller.get_events()
+
+
+@app.get("/api/firewall/stats")
+async def api_firewall_stats():
+    from src.firewall_controller import firewall_controller
+    return firewall_controller.get_stats()
+
+
+# ── Scheduler Manager — Phase 27 ────────────────────────────────────────────
+
+@app.get("/api/scheduler/list")
+async def api_scheduler_list(folder: str = "\\"):
+    from src.scheduler_manager import scheduler_manager
+    return scheduler_manager.list_tasks(folder=folder)
+
+
+@app.get("/api/scheduler/events")
+async def api_scheduler_events():
+    from src.scheduler_manager import scheduler_manager
+    return scheduler_manager.get_events()
+
+
+@app.get("/api/scheduler/stats")
+async def api_scheduler_stats():
+    from src.scheduler_manager import scheduler_manager
+    return scheduler_manager.get_stats()
+
+
+# ── Bluetooth Manager — Phase 28 ────────────────────────────────────────────
+
+@app.get("/api/bluetooth/list")
+async def api_bluetooth_list():
+    from src.bluetooth_manager import bluetooth_manager
+    return bluetooth_manager.list_devices()
+
+
+@app.get("/api/bluetooth/events")
+async def api_bluetooth_events():
+    from src.bluetooth_manager import bluetooth_manager
+    return bluetooth_manager.get_events()
+
+
+@app.get("/api/bluetooth/stats")
+async def api_bluetooth_stats():
+    from src.bluetooth_manager import bluetooth_manager
+    return bluetooth_manager.get_stats()
+
+
+# ── Event Log Reader — Phase 28 ─────────────────────────────────────────────
+
+@app.get("/api/eventlog/read")
+async def api_eventlog_read(log_name: str = "System", max_events: int = 50, level: str = ""):
+    from src.eventlog_reader import eventlog_reader
+    return eventlog_reader.read_log(log_name=log_name, max_events=max_events, level=level)
+
+
+@app.get("/api/eventlog/events")
+async def api_eventlog_events():
+    from src.eventlog_reader import eventlog_reader
+    return eventlog_reader.get_events()
+
+
+@app.get("/api/eventlog/stats")
+async def api_eventlog_stats():
+    from src.eventlog_reader import eventlog_reader
+    return eventlog_reader.get_stats()
+
+
+# ── Font Manager — Phase 28 ─────────────────────────────────────────────────
+
+@app.get("/api/fonts/list")
+async def api_fonts_list():
+    from src.font_manager import font_manager
+    return font_manager.list_fonts()
+
+
+@app.get("/api/fonts/events")
+async def api_fonts_events():
+    from src.font_manager import font_manager
+    return font_manager.get_events()
+
+
+@app.get("/api/fonts/stats")
+async def api_fonts_stats():
+    from src.font_manager import font_manager
+    return font_manager.get_stats()
+
+
+# ── Network Monitor — Phase 29 ──────────────────────────────────────────────
+
+@app.get("/api/network/adapters")
+async def api_network_adapters():
+    from src.network_monitor import network_monitor
+    return network_monitor.list_adapters()
+
+
+@app.get("/api/network/events")
+async def api_network_events():
+    from src.network_monitor import network_monitor
+    return network_monitor.get_events()
+
+
+@app.get("/api/network/stats")
+async def api_network_stats():
+    from src.network_monitor import network_monitor
+    return network_monitor.get_stats()
+
+
+# ── Hosts Manager — Phase 29 ────────────────────────────────────────────────
+
+@app.get("/api/hosts/list")
+async def api_hosts_list():
+    from src.hosts_manager import hosts_manager
+    return hosts_manager.read_entries()
+
+
+@app.get("/api/hosts/events")
+async def api_hosts_events():
+    from src.hosts_manager import hosts_manager
+    return hosts_manager.get_events()
+
+
+@app.get("/api/hosts/stats")
+async def api_hosts_stats():
+    from src.hosts_manager import hosts_manager
+    return hosts_manager.get_stats()
+
+
+# ── Theme Controller — Phase 29 ─────────────────────────────────────────────
+
+@app.get("/api/theme/get")
+async def api_theme_get():
+    from src.theme_controller import theme_controller
+    return theme_controller.get_theme()
+
+
+@app.get("/api/theme/events")
+async def api_theme_events():
+    from src.theme_controller import theme_controller
+    return theme_controller.get_events()
+
+
+@app.get("/api/theme/stats")
+async def api_theme_stats():
+    from src.theme_controller import theme_controller
+    return theme_controller.get_stats()
+
+
+# ── Certificate Manager — Phase 30 ──────────────────────────────────────────
+
+@app.get("/api/certs/list")
+async def api_certs_list(store: str = "Cert:\\LocalMachine\\My"):
+    from src.certificate_manager import certificate_manager
+    return certificate_manager.list_certs(store=store)
+
+
+@app.get("/api/certs/events")
+async def api_certs_events():
+    from src.certificate_manager import certificate_manager
+    return certificate_manager.get_events()
+
+
+@app.get("/api/certs/stats")
+async def api_certs_stats():
+    from src.certificate_manager import certificate_manager
+    return certificate_manager.get_stats()
+
+
+# ── Virtual Desktop — Phase 30 ──────────────────────────────────────────────
+
+@app.get("/api/vdesktops/list")
+async def api_vdesktops_list():
+    from src.virtual_desktop import virtual_desktop
+    return virtual_desktop.list_desktops()
+
+
+@app.get("/api/vdesktops/events")
+async def api_vdesktops_events():
+    from src.virtual_desktop import virtual_desktop
+    return virtual_desktop.get_events()
+
+
+@app.get("/api/vdesktops/stats")
+async def api_vdesktops_stats():
+    from src.virtual_desktop import virtual_desktop
+    return virtual_desktop.get_stats()
+
+
+# ── Notification Manager — Phase 30 ─────────────────────────────────────────
+
+@app.get("/api/notifications/history")
+async def api_notifications_history():
+    from src.notification_manager import notification_manager
+    return notification_manager.get_history()
+
+
+@app.get("/api/notifications/events")
+async def api_notifications_events():
+    from src.notification_manager import notification_manager
+    return notification_manager.get_events()
+
+
+@app.get("/api/notifications/stats")
+async def api_notifications_stats():
+    from src.notification_manager import notification_manager
+    return notification_manager.get_stats()
+
+
+# ── System Restore — Phase 31 ───────────────────────────────────────────────
+
+@app.get("/api/restore/list")
+async def api_restore_list():
+    from src.sysrestore_manager import sysrestore_manager
+    return sysrestore_manager.list_points()
+
+
+@app.get("/api/restore/events")
+async def api_restore_events():
+    from src.sysrestore_manager import sysrestore_manager
+    return sysrestore_manager.get_events()
+
+
+@app.get("/api/restore/stats")
+async def api_restore_stats():
+    from src.sysrestore_manager import sysrestore_manager
+    return sysrestore_manager.get_stats()
+
+
+# ── Performance Counter — Phase 31 ──────────────────────────────────────────
+
+@app.get("/api/perfcounter/counters")
+async def api_perfcounter_counters():
+    from src.perfcounter import perfcounter
+    return perfcounter.list_counters()
+
+
+@app.get("/api/perfcounter/events")
+async def api_perfcounter_events():
+    from src.perfcounter import perfcounter
+    return perfcounter.get_events()
+
+
+@app.get("/api/perfcounter/stats")
+async def api_perfcounter_stats():
+    from src.perfcounter import perfcounter
+    return perfcounter.get_stats()
+
+
+# ── Credential Vault — Phase 31 ─────────────────────────────────────────────
+
+@app.get("/api/credentials/list")
+async def api_credentials_list():
+    from src.credential_vault import credential_vault
+    return credential_vault.list_credentials()
+
+
+@app.get("/api/credentials/events")
+async def api_credentials_events():
+    from src.credential_vault import credential_vault
+    return credential_vault.get_events()
+
+
+@app.get("/api/credentials/stats")
+async def api_credentials_stats():
+    from src.credential_vault import credential_vault
+    return credential_vault.get_stats()
+
+
+# ── Locale Manager — Phase 32 ────────────────────────────────────────────────
+
+@app.get("/api/locale/info")
+async def api_locale_info():
+    from src.locale_manager import locale_manager
+    return {
+        "system_locale": locale_manager.get_system_locale(),
+        "languages": locale_manager.get_user_language(),
+        "timezone": locale_manager.get_timezone(),
+        "keyboards": locale_manager.get_keyboard_layouts(),
+        "date_format": locale_manager.get_date_format(),
+    }
+
+
+@app.get("/api/locale/events")
+async def api_locale_events():
+    from src.locale_manager import locale_manager
+    return locale_manager.get_events()
+
+
+@app.get("/api/locale/stats")
+async def api_locale_stats():
+    from src.locale_manager import locale_manager
+    return locale_manager.get_stats()
+
+
+# ── GPU Monitor — Phase 32 ───────────────────────────────────────────────────
+
+@app.get("/api/gpu/snapshot")
+async def api_gpu_snapshot():
+    from src.gpu_monitor import gpu_monitor
+    return gpu_monitor.snapshot()
+
+
+@app.get("/api/gpu/events")
+async def api_gpu_events():
+    from src.gpu_monitor import gpu_monitor
+    return gpu_monitor.get_events()
+
+
+@app.get("/api/gpu/stats")
+async def api_gpu_stats():
+    from src.gpu_monitor import gpu_monitor
+    return gpu_monitor.get_stats()
+
+
+# ── Share Manager — Phase 32 ─────────────────────────────────────────────────
+
+@app.get("/api/shares/list")
+async def api_shares_list():
+    from src.share_manager import share_manager
+    return share_manager.list_shares()
+
+
+@app.get("/api/shares/events")
+async def api_shares_events():
+    from src.share_manager import share_manager
+    return share_manager.get_events()
+
+
+@app.get("/api/shares/stats")
+async def api_shares_stats():
+    from src.share_manager import share_manager
+    return share_manager.get_stats()
+
+
+# ── Driver Manager — Phase 33 ────────────────────────────────────────────────
+
+@app.get("/api/drivers/list")
+async def api_drivers_list():
+    from src.driver_manager import driver_manager
+    return driver_manager.list_drivers()
+
+
+@app.get("/api/drivers/events")
+async def api_drivers_events():
+    from src.driver_manager import driver_manager
+    return driver_manager.get_events()
+
+
+@app.get("/api/drivers/stats")
+async def api_drivers_stats():
+    from src.driver_manager import driver_manager
+    return driver_manager.get_stats()
+
+
+# ── WMI Explorer — Phase 33 ──────────────────────────────────────────────────
+
+@app.get("/api/wmi/classes")
+async def api_wmi_classes():
+    from src.wmi_explorer import wmi_explorer
+    return wmi_explorer.list_common_classes()
+
+
+@app.get("/api/wmi/events")
+async def api_wmi_events():
+    from src.wmi_explorer import wmi_explorer
+    return wmi_explorer.get_events()
+
+
+@app.get("/api/wmi/stats")
+async def api_wmi_stats():
+    from src.wmi_explorer import wmi_explorer
+    return wmi_explorer.get_stats()
+
+
+# ── Env Variable Manager — Phase 33 ──────────────────────────────────────────
+
+@app.get("/api/envvars/list")
+async def api_envvars_list():
+    from src.env_variable_manager import env_variable_manager
+    return env_variable_manager.list_all()
+
+
+@app.get("/api/envvars/events")
+async def api_envvars_events():
+    from src.env_variable_manager import env_variable_manager
+    return env_variable_manager.get_events()
+
+
+@app.get("/api/envvars/stats")
+async def api_envvars_stats():
+    from src.env_variable_manager import env_variable_manager
+    return env_variable_manager.get_stats()
+
+
+# ── Pagefile Manager — Phase 34 ──────────────────────────────────────────────
+
+@app.get("/api/pagefile/usage")
+async def api_pagefile_usage():
+    from src.pagefile_manager import pagefile_manager
+    return pagefile_manager.get_usage()
+
+
+@app.get("/api/pagefile/events")
+async def api_pagefile_events():
+    from src.pagefile_manager import pagefile_manager
+    return pagefile_manager.get_events()
+
+
+@app.get("/api/pagefile/stats")
+async def api_pagefile_stats():
+    from src.pagefile_manager import pagefile_manager
+    return pagefile_manager.get_stats()
+
+
+# ── Time Sync Manager — Phase 34 ─────────────────────────────────────────────
+
+@app.get("/api/timesync/status")
+async def api_timesync_status():
+    from src.time_sync_manager import time_sync_manager
+    return time_sync_manager.get_status()
+
+
+@app.get("/api/timesync/events")
+async def api_timesync_events():
+    from src.time_sync_manager import time_sync_manager
+    return time_sync_manager.get_events()
+
+
+@app.get("/api/timesync/stats")
+async def api_timesync_stats():
+    from src.time_sync_manager import time_sync_manager
+    return time_sync_manager.get_stats()
+
+
+# ── Disk Health — Phase 34 ───────────────────────────────────────────────────
+
+@app.get("/api/diskhealth/list")
+async def api_diskhealth_list():
+    from src.disk_health import disk_health
+    return disk_health.list_disks()
+
+
+@app.get("/api/diskhealth/events")
+async def api_diskhealth_events():
+    from src.disk_health import disk_health
+    return disk_health.get_events()
+
+
+@app.get("/api/diskhealth/stats")
+async def api_diskhealth_stats():
+    from src.disk_health import disk_health
+    return disk_health.get_stats()
+
+
+# ── User Account Manager — Phase 35 ──────────────────────────────────────────
+
+@app.get("/api/users/list")
+async def api_users_list():
+    from src.user_account_manager import user_account_manager
+    return user_account_manager.list_users()
+
+
+@app.get("/api/users/events")
+async def api_users_events():
+    from src.user_account_manager import user_account_manager
+    return user_account_manager.get_events()
+
+
+@app.get("/api/users/stats")
+async def api_users_stats():
+    from src.user_account_manager import user_account_manager
+    return user_account_manager.get_stats()
+
+
+# ── Group Policy Reader — Phase 35 ───────────────────────────────────────────
+
+@app.get("/api/gpo/rsop")
+async def api_gpo_rsop():
+    from src.group_policy_reader import group_policy_reader
+    return group_policy_reader.get_rsop()
+
+
+@app.get("/api/gpo/events")
+async def api_gpo_events():
+    from src.group_policy_reader import group_policy_reader
+    return group_policy_reader.get_events()
+
+
+@app.get("/api/gpo/stats")
+async def api_gpo_stats():
+    from src.group_policy_reader import group_policy_reader
+    return group_policy_reader.get_stats()
+
+
+# ── Windows Feature Manager — Phase 35 ───────────────────────────────────────
+
+@app.get("/api/features/list")
+async def api_features_list():
+    from src.windows_feature_manager import windows_feature_manager
+    return windows_feature_manager.list_features()
+
+
+@app.get("/api/features/events")
+async def api_features_events():
+    from src.windows_feature_manager import windows_feature_manager
+    return windows_feature_manager.get_events()
+
+
+@app.get("/api/features/stats")
+async def api_features_stats():
+    from src.windows_feature_manager import windows_feature_manager
+    return windows_feature_manager.get_stats()
+
+
+# ── Memory Diagnostics — Phase 36 ────────────────────────────────────────────
+
+@app.get("/api/memory/modules")
+async def api_memory_modules():
+    from src.memory_diagnostics import memory_diagnostics
+    return memory_diagnostics.list_modules()
+
+
+@app.get("/api/memory/events")
+async def api_memory_events():
+    from src.memory_diagnostics import memory_diagnostics
+    return memory_diagnostics.get_events()
+
+
+@app.get("/api/memory/stats")
+async def api_memory_stats():
+    from src.memory_diagnostics import memory_diagnostics
+    return memory_diagnostics.get_stats()
+
+
+# ── System Info Collector — Phase 36 ─────────────────────────────────────────
+
+@app.get("/api/sysinfo/profile")
+async def api_sysinfo_profile():
+    from src.system_info_collector import system_info_collector
+    return system_info_collector.get_full_profile()
+
+
+@app.get("/api/sysinfo/events")
+async def api_sysinfo_events():
+    from src.system_info_collector import system_info_collector
+    return system_info_collector.get_events()
+
+
+@app.get("/api/sysinfo/stats")
+async def api_sysinfo_stats():
+    from src.system_info_collector import system_info_collector
+    return system_info_collector.get_stats()
+
+
+# ── Crash Dump Reader — Phase 36 ─────────────────────────────────────────────
+
+@app.get("/api/crashdumps/summary")
+async def api_crashdumps_summary():
+    from src.crash_dump_reader import crash_dump_reader
+    return crash_dump_reader.get_crash_summary()
+
+
+@app.get("/api/crashdumps/events")
+async def api_crashdumps_events():
+    from src.crash_dump_reader import crash_dump_reader
+    return crash_dump_reader.get_events()
+
+
+@app.get("/api/crashdumps/stats")
+async def api_crashdumps_stats():
+    from src.crash_dump_reader import crash_dump_reader
+    return crash_dump_reader.get_stats()
+
+
+# ── Hotfix Manager — Phase 37 ────────────────────────────────────────────────
+
+@app.get("/api/hotfixes/list")
+async def api_hotfixes_list():
+    from src.hotfix_manager import hotfix_manager
+    return hotfix_manager.list_hotfixes()
+
+@app.get("/api/hotfixes/events")
+async def api_hotfixes_events():
+    from src.hotfix_manager import hotfix_manager
+    return hotfix_manager.get_events()
+
+@app.get("/api/hotfixes/stats")
+async def api_hotfixes_stats():
+    from src.hotfix_manager import hotfix_manager
+    return hotfix_manager.get_stats()
+
+
+# ── Volume Manager — Phase 37 ────────────────────────────────────────────────
+
+@app.get("/api/volumes/list")
+async def api_volumes_list():
+    from src.volume_manager import volume_manager
+    return volume_manager.list_volumes()
+
+@app.get("/api/volumes/events")
+async def api_volumes_events():
+    from src.volume_manager import volume_manager
+    return volume_manager.get_events()
+
+@app.get("/api/volumes/stats")
+async def api_volumes_stats():
+    from src.volume_manager import volume_manager
+    return volume_manager.get_stats()
+
+
+# ── Defender Status — Phase 37 ───────────────────────────────────────────────
+
+@app.get("/api/defender/status")
+async def api_defender_status():
+    from src.defender_status import defender_status
+    return defender_status.get_status()
+
+@app.get("/api/defender/events")
+async def api_defender_events():
+    from src.defender_status import defender_status
+    return defender_status.get_events()
+
+@app.get("/api/defender/stats")
+async def api_defender_stats():
+    from src.defender_status import defender_status
+    return defender_status.get_stats()
+
+
+# ── IP Config — Phase 38 ─────────────────────────────────────────────────────
+
+@app.get("/api/ipconfig/all")
+async def api_ipconfig_all():
+    from src.ip_config_manager import ip_config_manager
+    return ip_config_manager.get_all()
+
+@app.get("/api/ipconfig/events")
+async def api_ipconfig_events():
+    from src.ip_config_manager import ip_config_manager
+    return ip_config_manager.get_events()
+
+@app.get("/api/ipconfig/stats")
+async def api_ipconfig_stats():
+    from src.ip_config_manager import ip_config_manager
+    return ip_config_manager.get_stats()
+
+
+# ── Recycle Bin — Phase 38 ───────────────────────────────────────────────────
+
+@app.get("/api/recyclebin/info")
+async def api_recyclebin_info():
+    from src.recycle_bin_manager import recycle_bin_manager
+    return recycle_bin_manager.get_info()
+
+@app.get("/api/recyclebin/events")
+async def api_recyclebin_events():
+    from src.recycle_bin_manager import recycle_bin_manager
+    return recycle_bin_manager.get_events()
+
+@app.get("/api/recyclebin/stats")
+async def api_recyclebin_stats():
+    from src.recycle_bin_manager import recycle_bin_manager
+    return recycle_bin_manager.get_stats()
+
+
+# ── Installed Apps — Phase 38 ────────────────────────────────────────────────
+
+@app.get("/api/apps/list")
+async def api_apps_list():
+    from src.installed_apps_manager import installed_apps_manager
+    return installed_apps_manager.list_win32_apps()
+
+@app.get("/api/apps/events")
+async def api_apps_events():
+    from src.installed_apps_manager import installed_apps_manager
+    return installed_apps_manager.get_events()
+
+@app.get("/api/apps/stats")
+async def api_apps_stats():
+    from src.installed_apps_manager import installed_apps_manager
+    return installed_apps_manager.get_stats()
+
+
+# ── Phase 39 — Scheduled Tasks, Audio Devices, USB Devices ──────────────────
+
+@app.get("/api/schtasks/list")
+async def api_schtasks_list():
+    from src.scheduled_task_manager import scheduled_task_manager
+    return scheduled_task_manager.list_tasks()
+
+@app.get("/api/schtasks/events")
+async def api_schtasks_events():
+    from src.scheduled_task_manager import scheduled_task_manager
+    return scheduled_task_manager.get_events()
+
+@app.get("/api/schtasks/stats")
+async def api_schtasks_stats():
+    from src.scheduled_task_manager import scheduled_task_manager
+    return scheduled_task_manager.get_stats()
+
+
+@app.get("/api/audio/list")
+async def api_audio_list():
+    from src.audio_device_manager import audio_device_manager
+    return audio_device_manager.list_devices()
+
+@app.get("/api/audio/events")
+async def api_audio_events():
+    from src.audio_device_manager import audio_device_manager
+    return audio_device_manager.get_events()
+
+@app.get("/api/audio/stats")
+async def api_audio_stats():
+    from src.audio_device_manager import audio_device_manager
+    return audio_device_manager.get_stats()
+
+
+@app.get("/api/usb/list")
+async def api_usb_list():
+    from src.usb_device_manager import usb_device_manager
+    return usb_device_manager.list_devices()
+
+@app.get("/api/usb/events")
+async def api_usb_events():
+    from src.usb_device_manager import usb_device_manager
+    return usb_device_manager.get_events()
+
+@app.get("/api/usb/stats")
+async def api_usb_stats():
+    from src.usb_device_manager import usb_device_manager
+    return usb_device_manager.get_stats()
+
+
+# ── Phase 43 — Network Adapter, Windows Update, Local Security Policy ───────
+
+@app.get("/api/netadapter/list")
+async def api_netadapter_list():
+    from src.network_adapter_manager import network_adapter_manager
+    return network_adapter_manager.list_adapters()
+
+@app.get("/api/netadapter/events")
+async def api_netadapter_events():
+    from src.network_adapter_manager import network_adapter_manager
+    return network_adapter_manager.get_events()
+
+@app.get("/api/netadapter/stats")
+async def api_netadapter_stats():
+    from src.network_adapter_manager import network_adapter_manager
+    return network_adapter_manager.get_stats()
+
+
+@app.get("/api/winupdate/history")
+async def api_winupdate_history(limit: int = 30):
+    from src.windows_update_manager import windows_update_manager
+    return windows_update_manager.get_update_history(limit)
+
+@app.get("/api/winupdate/events")
+async def api_winupdate_events():
+    from src.windows_update_manager import windows_update_manager
+    return windows_update_manager.get_events()
+
+@app.get("/api/winupdate/stats")
+async def api_winupdate_stats():
+    from src.windows_update_manager import windows_update_manager
+    return windows_update_manager.get_stats()
+
+
+@app.get("/api/secpol/export")
+async def api_secpol_export():
+    from src.local_security_policy import local_security_policy
+    return local_security_policy.export_policy()
+
+@app.get("/api/secpol/events")
+async def api_secpol_events():
+    from src.local_security_policy import local_security_policy
+    return local_security_policy.get_events()
+
+@app.get("/api/secpol/stats")
+async def api_secpol_stats():
+    from src.local_security_policy import local_security_policy
+    return local_security_policy.get_stats()
+
+
+# ── Phase 42 — DNS Client, Storage Pool, Power Plan ─────────────────────────
+
+@app.get("/api/dns/servers")
+async def api_dns_servers():
+    from src.dns_client_manager import dns_client_manager
+    return dns_client_manager.get_server_addresses()
+
+@app.get("/api/dns/events")
+async def api_dns_events():
+    from src.dns_client_manager import dns_client_manager
+    return dns_client_manager.get_events()
+
+@app.get("/api/dns/stats")
+async def api_dns_stats():
+    from src.dns_client_manager import dns_client_manager
+    return dns_client_manager.get_stats()
+
+
+@app.get("/api/storagepool/list")
+async def api_storagepool_list():
+    from src.storage_pool_manager import storage_pool_manager
+    return storage_pool_manager.list_pools()
+
+@app.get("/api/storagepool/events")
+async def api_storagepool_events():
+    from src.storage_pool_manager import storage_pool_manager
+    return storage_pool_manager.get_events()
+
+@app.get("/api/storagepool/stats")
+async def api_storagepool_stats():
+    from src.storage_pool_manager import storage_pool_manager
+    return storage_pool_manager.get_stats()
+
+
+@app.get("/api/powerplan/list")
+async def api_powerplan_list():
+    from src.power_plan_manager import power_plan_manager
+    return power_plan_manager.list_plans()
+
+@app.get("/api/powerplan/events")
+async def api_powerplan_events():
+    from src.power_plan_manager import power_plan_manager
+    return power_plan_manager.get_events()
+
+@app.get("/api/powerplan/stats")
+async def api_powerplan_stats():
+    from src.power_plan_manager import power_plan_manager
+    return power_plan_manager.get_stats()
+
+
+# ── Phase 41 — Virtual Memory, Event Log Reader, Shadow Copy ────────────────
+
+@app.get("/api/virtmem/status")
+async def api_virtmem_status():
+    from src.virtual_memory_manager import virtual_memory_manager
+    return virtual_memory_manager.get_status()
+
+@app.get("/api/virtmem/events")
+async def api_virtmem_events():
+    from src.virtual_memory_manager import virtual_memory_manager
+    return virtual_memory_manager.get_events()
+
+@app.get("/api/virtmem/stats")
+async def api_virtmem_stats():
+    from src.virtual_memory_manager import virtual_memory_manager
+    return virtual_memory_manager.get_stats()
+
+
+@app.get("/api/winevt/recent")
+async def api_winevt_recent(log_name: str = "System", max_events: int = 20):
+    from src.windows_event_log_reader import windows_event_log_reader
+    return windows_event_log_reader.get_recent(log_name, max_events)
+
+@app.get("/api/winevt/events")
+async def api_winevt_events():
+    from src.windows_event_log_reader import windows_event_log_reader
+    return windows_event_log_reader.get_events()
+
+@app.get("/api/winevt/stats")
+async def api_winevt_stats():
+    from src.windows_event_log_reader import windows_event_log_reader
+    return windows_event_log_reader.get_stats()
+
+
+@app.get("/api/shadowcopy/list")
+async def api_shadowcopy_list():
+    from src.shadow_copy_manager import shadow_copy_manager
+    return shadow_copy_manager.list_copies()
+
+@app.get("/api/shadowcopy/events")
+async def api_shadowcopy_events():
+    from src.shadow_copy_manager import shadow_copy_manager
+    return shadow_copy_manager.get_events()
+
+@app.get("/api/shadowcopy/stats")
+async def api_shadowcopy_stats():
+    from src.shadow_copy_manager import shadow_copy_manager
+    return shadow_copy_manager.get_stats()
+
+
+# ── Phase 40 — Screen Resolution, BIOS Settings, Performance Counters ───────
+
+@app.get("/api/screen/list")
+async def api_screen_list():
+    from src.screen_resolution_manager import screen_resolution_manager
+    return screen_resolution_manager.list_displays()
+
+@app.get("/api/screen/events")
+async def api_screen_events():
+    from src.screen_resolution_manager import screen_resolution_manager
+    return screen_resolution_manager.get_events()
+
+@app.get("/api/screen/stats")
+async def api_screen_stats():
+    from src.screen_resolution_manager import screen_resolution_manager
+    return screen_resolution_manager.get_stats()
+
+
+@app.get("/api/bios/info")
+async def api_bios_info():
+    from src.bios_settings import bios_settings
+    return bios_settings.get_info()
+
+@app.get("/api/bios/events")
+async def api_bios_events():
+    from src.bios_settings import bios_settings
+    return bios_settings.get_events()
+
+@app.get("/api/bios/stats")
+async def api_bios_stats():
+    from src.bios_settings import bios_settings
+    return bios_settings.get_stats()
+
+
+@app.get("/api/perfcounters/snapshot")
+async def api_perfcounters_snapshot():
+    from src.performance_counter import performance_counter
+    return performance_counter.snapshot()
+
+@app.get("/api/perfcounters/events")
+async def api_perfcounters_events():
+    from src.performance_counter import performance_counter
+    return performance_counter.get_events()
+
+@app.get("/api/perfcounters/stats")
+async def api_perfcounters_stats():
+    from src.performance_counter import performance_counter
+    return performance_counter.get_stats()
 
 
 # ── Entry point ──────────────────────────────────────────────────────────────

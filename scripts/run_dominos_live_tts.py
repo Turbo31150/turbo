@@ -15,7 +15,7 @@ from src.domino_pipelines import DOMINO_PIPELINES, DominoPipeline, DominoStep
 # TTS ENGINE — Edge TTS avec ffplay
 # ══════════════════════════════════════════════════════════════════════════════
 
-VOICE = "fr-FR-HenriNeural"
+VOICE = "fr-FR-DeniseNeural"
 TTS_QUEUE = asyncio.Queue()
 TTS_LOG = []
 

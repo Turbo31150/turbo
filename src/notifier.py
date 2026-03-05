@@ -118,7 +118,7 @@ class Notifier:
         try:
             import edge_tts
             import tempfile
-            comm = edge_tts.Communicate(f"Alerte. {message}", "fr-FR-HenriNeural")
+            comm = edge_tts.Communicate(f"Alerte. {message}", "fr-FR-DeniseNeural")
             tmp = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
             tmp.close()
             await comm.save(tmp.name)

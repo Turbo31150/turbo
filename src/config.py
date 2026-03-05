@@ -425,7 +425,7 @@ class JarvisConfig:
     voice_warmup_interval: float = 60.0
     voice_max_record_duration: float = 5.0
     voice_silence_threshold: int = 200
-    voice_tts_voice: str = "fr-FR-HenriNeural"
+    voice_tts_voice: str = "fr-FR-DeniseNeural"
     voice_tts_rate: str = "+10%"
 
     def get_node_url(self, name: str) -> str | None:
