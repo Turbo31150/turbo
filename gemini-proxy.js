@@ -80,10 +80,12 @@ async function callGemini(text, model, useJsonOutput) {
     if (model) geminiArgs.push('-m', model);
     geminiArgs.push(text);
 
-    const child = execFile('gemini', geminiArgs, {
+    const geminiCmd = process.platform === 'win32' ? 'gemini.cmd' : 'gemini';
+    const child = execFile(geminiCmd, geminiArgs, {
       timeout: TIMEOUT_MS,
       maxBuffer: 2 * 1024 * 1024,
       env: { ...process.env, NODE_NO_WARNINGS: '1' },
+      shell: process.platform === 'win32',
     }, (error, stdout, stderr) => {
       const cleanErr = cleanStderr(stderr);
       const output = (stdout || '').trim();
