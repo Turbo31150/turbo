@@ -1,0 +1,17 @@
+{
+    "patches":  [
+                    "V3.2-SHORT_BOOST",
+                    "V3.2-CONFIDENCE_80"
+                ],
+    "version":  "V2.0-PRODUCTION",
+    "mcp_server":  "F:\\BUREAU\\TRADING_V2_PRODUCTION\\trading_mcp_ultimate_v3.py",
+    "scripts":  "F:\\BUREAU\\TRADING_V2_PRODUCTION\\scripts",
+    "database":  "F:/BUREAU/TRADING_V2_PRODUCTION/database/trading.db",
+    "scanner":  "F:\\BUREAU\\TRADING_V2_PRODUCTION\\Scanner-Pro-v2.ps1",
+    "created":  "2026-02-08 22:36:44",
+    "lm_studio":  {
+                      "M1":  "http://192.168.1.85:1234",
+                      "M3":  "http://192.168.1.113:1234",
+                      "M2":  "http://192.168.1.26:1234"
+                  }
+}

@@ -46,7 +46,7 @@ def check_databases() -> Dict[str, Any]:
     dbs = {
         "etoile.db": Path("F:/BUREAU/etoile.db"),
         "jarvis.db": Path("F:/BUREAU/turbo/data/jarvis.db"),
-        "trading_latest.db": Path("F:/BUREAU/carV1/database/trading_latest.db"),
+        "trading_latest.db": Path("F:/BUREAU/turbo/projects/carV1_data/database/trading_latest.db"),
     }
     issues = []
     ok = 0

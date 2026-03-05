@@ -1,0 +1,65 @@
+{
+    "cluster_name": "TRADING_AI_CLUSTER",
+    "version": "1.1",
+    "created": "2026-01-19",
+    "updated": "2026-01-19",
+
+    "machines": {
+        "master": {
+            "name": "DESKTOP-4OVCOL7",
+            "ip": "192.168.1.85",
+            "os": "Windows 11 Pro",
+            "role": "master+worker",
+            "port": 5000,
+            "gpu": "5x GPU (40GB VRAM: RTX 2060 + 3x GTX 1660S + RTX 3080)",
+            "lm_studio_url": "http://192.168.1.85:1234",
+            "lm_studio_model": "qwen/qwen3-30b-a3b-2507",
+            "description": "Master + Load Balancer + GPU Worker"
+        },
+        "worker1": {
+            "name": "WIN-TBOT",
+            "ip": "192.168.1.26",
+            "os": "Windows Server 2025",
+            "role": "worker",
+            "port": 5001,
+            "gpu": "3x GPU",
+            "lm_studio_url": "http://192.168.1.26:1234",
+            "lm_studio_model": "nvidia/nemotron-3-nano",
+            "description": "Worker GPU - Fast Inference"
+        },
+        "worker2": {
+            "name": "SERVER-3",
+            "ip": "192.168.1.113",
+            "os": "Windows Server",
+            "role": "worker",
+            "port": 5002,
+            "gpu": "2x GPU",
+            "lm_studio_url": "http://192.168.1.113:1234",
+            "lm_studio_model": "mistral-7b-instruct-v0.3",
+            "description": "Worker GPU - Validation"
+        }
+    },
+
+    "communication": {
+        "protocol": "TCP",
+        "heartbeat_interval": 5,
+        "timeout": 30,
+        "retry_attempts": 3
+    },
+
+    "task_distribution": {
+        "method": "load_balance",
+        "priority_gpu": ["master", "worker1"],
+        "fallback": "worker2",
+        "local_execution": true
+    },
+
+    "lm_studio_cluster": {
+        "enabled": true,
+        "nodes": [
+            {"id": "master", "url": "http://192.168.1.85:1234", "role": "analysis"},
+            {"id": "worker1", "url": "http://192.168.1.26:1234", "role": "detection"},
+            {"id": "worker2", "url": "http://192.168.1.113:1234", "role": "validation"}
+        ]
+    }
+}

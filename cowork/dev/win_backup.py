@@ -5,7 +5,7 @@ from datetime import datetime
 
 TELEGRAM_TOKEN = "TELEGRAM_TOKEN_REDACTED"
 TELEGRAM_CHAT = "2010747443"
-BACKUP_DIR = "F:/BACKUP_JARVIS"
+BACKUP_DIR = "F:/BUREAU/turbo/backups_auto"
 
 TARGETS = {
     "configs": [

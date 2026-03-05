@@ -1,0 +1,56 @@
+{
+  "timestamp": "2026-02-23T22:59:19.319405",
+  "total_scanned": 233,
+  "total_scored": 230,
+  "top3": [
+    {
+      "symbol": "ALCH_USDT",
+      "type": "BREAKOUT",
+      "score": 110,
+      "price": 0.0773,
+      "signals": [
+        "BB_SQUEEZE_15m",
+        "BB_SQUEEZE_1H",
+        "BB_SQUEEZE_4H",
+        "VOL_SPIKE_15m(67.0x)",
+        "VOL_SPIKE_1H(6.7x)",
+        "NEAR_HIGH",
+        "RSI_OS_4H(28)",
+        "BID_WALL_CLOSE(0.3%)"
+      ]
+    },
+    {
+      "symbol": "MSTRSTOCK_USDT",
+      "type": "BREAKOUT",
+      "score": 108,
+      "price": 124.21,
+      "signals": [
+        "BB_SQUEEZE_15m",
+        "BB_SQUEEZE_1H",
+        "BB_SQUEEZE_4H",
+        "VOL_SPIKE_15m(3.1x)",
+        "VOL_SPIKE_1H(4.3x)",
+        "OB_BUY(8.2)",
+        "RSI_OS_4H(18)",
+        "OB_BUY_PRESS(89%)",
+        "BID_WALL_CLOSE(0.2%)"
+      ]
+    },
+    {
+      "symbol": "AMATSTOCK_USDT",
+      "type": "BREAKOUT",
+      "score": 105,
+      "price": 369.19,
+      "signals": [
+        "BB_SQUEEZE_15m",
+        "BB_SQUEEZE_1H",
+        "BB_SQUEEZE_4H",
+        "VOL_SPIKE_15m(337.7x)",
+        "VOL_SPIKE_1H(381.4x)",
+        "NEAR_HIGH",
+        "RSI_OS_4H(6)",
+        "FUNDING_NEG(-0.0200)"
+      ]
+    }
+  ]
+}

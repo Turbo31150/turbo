@@ -1,0 +1,41 @@
+{
+  "nodes": {
+    "M1_STRATEGY": {
+      "ip": "192.168.1.85",
+      "port": 1234,
+      "role": "deep_reasoning",
+      "model_key": "openai/gpt-oss-20b",
+      "fallback_key": "qwen/qwen3-30b-a3b-2507",
+      "timeout": 45,
+      "status": "OFFLINE_2026-02-10",
+      "note": "LM Studio not running - start manually"
+    },
+    "M2_TECHNICAL": {
+      "ip": "192.168.1.26",
+      "port": 1234,
+      "role": "technical_analysis",
+      "model_key": "openai/gpt-oss-20b",
+      "fallback_key": "deepseek-coder-v2-lite-instruct",
+      "timeout": 30,
+      "note": "nemotron=GARBAGE, glm/deepseek=TIMEOUT, gpt-oss=OK(reasoning field)"
+    },
+    "M3_RISK": {
+      "ip": "192.168.1.113",
+      "port": 1234,
+      "role": "risk_validation",
+      "model_key": "mistral-7b-instruct-v0.3",
+      "fallback_key": "phi-3.1-mini-128k-instruct",
+      "timeout": 30,
+      "note": "mistral+phi=OK, gpt-oss=reasoning field, nemotron=OOM"
+    }
+  },
+  "cloud": {
+    "provider": "gemini_cli",
+    "path": "C:\\Users\\franc\\AppData\\Roaming\\npm\\gemini.cmd"
+  },
+  "database": "F:\\BUREAU\\TRADING_V2_PRODUCTION\\database\\trading.db",
+  "telegram": {
+    "token": "TELEGRAM_TOKEN_REDACTED",
+    "chat_id": "2010747443"
+  }
+}
