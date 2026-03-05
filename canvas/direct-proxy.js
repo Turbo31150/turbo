@@ -196,6 +196,9 @@ const ROUTING = {
 // ── Node weights for consensus voting (benchmark 2026-02-26) ─────────────────
 const NODE_WEIGHTS = { M1: 1.8, M1B: 1.7, M2: 1.5, OL1: 1.3, GEMINI: 1.2, CLAUDE: 1.2, M3: 1.0 };
 
+// ── Round-robin counter for load balancing across M1/M2/M3 ──────────────────
+let rrCounter = 0;
+
 // Agent → category mapping (mirrors canvas ROUTES)
 const AGENT_CAT = {
   'coding': 'code', 'debug-detective': 'code', 'm2-review': 'code', 'devops-ci': 'code',
@@ -794,15 +797,15 @@ function classifyComplexity(userText, agentCat) {
 
 // ── Reflexive Chain: OL1 (search) → M1 (analyze) → M2 (review) ──────────
 const REFLEXIVE_CHAIN = [
-  { nodeId: 'OL1', role: 'recherche', maxTurns: 4, systemSuffix:
-    '\n\n--- ROLE: ETAPE 1/3 — RECHERCHE ---' +
+  { nodeId: 'M1', role: 'recherche', maxTurns: 4, systemSuffix:
+    '\n\n--- ROLE: ETAPE 1/3 — RECHERCHE (M1) ---' +
     '\nTa mission: collecter les DONNEES BRUTES necessaires pour repondre a la question.' +
     '\nUtilise les outils (query_db, web_search, read_file) pour trouver les infos.' +
     '\nREGLES: Ne reponds PAS a la question. Ne conclus PAS. Collecte seulement.' +
     '\nSi aucun outil pertinent: reformule la question et identifie les points cles.' +
     '\nFORMAT de sortie: liste de faits/donnees trouves, un par ligne.' },
-  { nodeId: 'M1',  role: 'analyse',   maxTurns: 3, systemSuffix:
-    '\n\n--- ROLE: ETAPE 2/3 — ANALYSE ---' +
+  { nodeId: 'M2',  role: 'analyse',   maxTurns: 3, systemSuffix:
+    '\n\n--- ROLE: ETAPE 2/3 — ANALYSE (M2/deepseek-r1) ---' +
     '\nTa mission: a partir des donnees collectees ci-dessous, RAISONNE et SYNTHETISE.' +
     '\nPROCESSUS:' +
     '\n1. Identifie les informations pertinentes vs bruit' +
@@ -811,8 +814,8 @@ const REFLEXIVE_CHAIN = [
     '\n4. Identifie les lacunes ou incertitudes' +
     '\nUtilise des outils UNIQUEMENT si les donnees sont insuffisantes.' +
     '\nFORMAT: analyse structuree avec conclusions intermediaires.' },
-  { nodeId: 'M2',  role: 'review',    maxTurns: 2, systemSuffix:
-    '\n\n--- ROLE: ETAPE 3/3 — REVIEW & REPONSE FINALE ---' +
+  { nodeId: 'M3',  role: 'review',    maxTurns: 2, systemSuffix:
+    '\n\n--- ROLE: ETAPE 3/3 — REVIEW & REPONSE FINALE (M3/deepseek-r1) ---' +
     '\nTa mission: verifier l\'analyse, corriger les erreurs, et donner la REPONSE FINALE.' +
     '\nPROCESSUS:' +
     '\n1. Verifie chaque affirmation de l\'analyse: est-elle correcte? bien soutenue?' +
@@ -825,8 +828,8 @@ const REFLEXIVE_CHAIN = [
 
 // ── Reasoning Chain: M1 (deep reasoning) → M2 (verification) — no tools ──
 const REASONING_CHAIN = [
-  { nodeId: 'M1', role: 'raisonnement', maxTurns: 1, systemSuffix:
-    '\n\n--- ROLE: ETAPE 1/2 — RAISONNEMENT PROFOND ---' +
+  { nodeId: 'M2', role: 'raisonnement', maxTurns: 1, systemSuffix:
+    '\n\n--- ROLE: ETAPE 1/3 — RAISONNEMENT PROFOND (M2/deepseek-r1) ---' +
     '\nTa mission: raisonner rigoureusement, pas a pas, comme un logicien.' +
     '\nPROCESSUS:' +
     '\n1. Reformule le probleme dans tes propres mots' +
@@ -836,23 +839,26 @@ const REASONING_CHAIN = [
     '\n5. Cherche les pieges: erreur de distribution, premisse cachee, confusion correlation/causalite' +
     '\nN\'utilise PAS d\'outils. Raisonne UNIQUEMENT.' +
     '\nFORMAT: Probleme → Premisses → Etapes de raisonnement → Pieges identifies → Conclusion provisoire' },
-  { nodeId: 'M2', role: 'verification', maxTurns: 1, systemSuffix:
-    '\n\n--- ROLE: ETAPE 2/2 — VERIFICATION & REPONSE FINALE ---' +
-    '\nTa mission: verifier le raisonnement ci-dessous et donner la REPONSE FINALE.' +
+  { nodeId: 'M3', role: 'verification', maxTurns: 1, systemSuffix:
+    '\n\n--- ROLE: ETAPE 2/3 — VERIFICATION (M3/deepseek-r1) ---' +
+    '\nTa mission: verifier le raisonnement ci-dessous.' +
     '\nPROCESSUS:' +
     '\n1. Chaque etape logique est-elle valide? La regle est-elle correctement appliquee?' +
     '\n2. Les premisses implicites sont-elles toutes identifiees?' +
     '\n3. Y a-t-il des erreurs logiques (non sequitur, faux dilemme, homme de paille)?' +
     '\n4. La conclusion decoule-t-elle necessairement des premisses?' +
     '\nSi erreur trouvee: corrige et explique pourquoi.' +
-    '\nSi correct: confirme et reformule clairement la conclusion.' +
+    '\nFORMAT: verification point par point, erreurs trouvees, conclusion corrigee.' },
+  { nodeId: 'M1', role: 'synthese', maxTurns: 1, systemSuffix:
+    '\n\n--- ROLE: ETAPE 3/3 — SYNTHESE & REPONSE FINALE (M1/qwen3-8b) ---' +
+    '\nTa mission: synthetiser le raisonnement + verification et donner la REPONSE FINALE.' +
     '\nATTENTION: Reponds DIRECTEMENT au user. Format final propre, pas de meta-processus.' }
 ];
 
-// MATH_CHAIN: M1 seul (qwen3-8b excellent en math, M2/deepseek-coder mauvais verificateur math)
+// MATH_CHAIN: M1 calcule, M3 verifie (deepseek-r1 bon en raisonnement math)
 const MATH_CHAIN = [
   { nodeId: 'M1', role: 'calcul', maxTurns: 1, systemSuffix:
-    '\n\n--- ROLE: MATHEMATICIEN --- Tu resous ce probleme mathematique.' +
+    '\n\n--- ROLE: ETAPE 1/2 — CALCUL (M1/qwen3-8b) ---' +
     '\nPROCESSUS STRICT:' +
     '\n1. **Identifier** le type: arithmetique, algebre, geometrie, stats, etc.' +
     '\n2. **Poser** les equations/formules necessaires' +
@@ -860,7 +866,13 @@ const MATH_CHAIN = [
     '\n4. **Verifier** par methode differente (substitution, estimation, preuve inverse)' +
     '\n5. **Conclure** avec **Resultat: [valeur]** en gras' +
     '\n\nINTERDIT: sauter des etapes, arrondir sans le dire, oublier les unites.' +
-    '\nFORMAT: Donnees → Etapes numerotees → Verification → **Resultat: X**' }
+    '\nFORMAT: Donnees → Etapes numerotees → Verification → **Resultat: X**' },
+  { nodeId: 'M3', role: 'verification', maxTurns: 1, systemSuffix:
+    '\n\n--- ROLE: ETAPE 2/2 — VERIFICATION MATH (M3/deepseek-r1) ---' +
+    '\nVerifie le calcul ci-dessus. Refais le calcul par une methode DIFFERENTE.' +
+    '\nSi erreur: corrige et montre le bon calcul.' +
+    '\nSi correct: confirme avec **Resultat: [valeur]**.' +
+    '\nReponds DIRECTEMENT au user.' }
 ];
 
 // Select chain based on category
@@ -1043,11 +1055,10 @@ async function agenticChat(agentId, userText) {
   let noProgressCount = 0;
   const callHashes = new Set();  // anti-loop v2: detect repeated identical calls
 
-  // Dynamic routing: try autolearn best node first, then fallback chain
-  const bestNode = autolearn.getBestNode(cat);
-  const orderedChain = bestNode
-    ? [bestNode, ...chain.filter(n => n !== bestNode)]
-    : chain;
+  // Round-robin routing: distribute across M1/M2/M3 instead of always M1 first
+  const offset = rrCounter++ % chain.length;
+  const orderedChain = [...chain.slice(offset), ...chain.slice(0, offset)];
+  console.log(`[cockpit] RR#${rrCounter} chain: ${orderedChain.join('->')} (cat=${cat})`);
 
   for (let turn = 0; turn < MAX_TOOL_TURNS; turn++) {
     let aiResult, errors = [];
@@ -1322,8 +1333,13 @@ async function routeAndCall(agentId, userText) {
   const ctxInjection = autolearn.getContextInjection(cat);
   if (ctxInjection) sysProm = sysProm + '\n' + ctxInjection;
 
+  // Round-robin: rotate starting position to distribute load across M1/M2/M3
+  const offset = rrCounter++ % chain.length;
+  const rotatedChain = [...chain.slice(offset), ...chain.slice(0, offset)];
+  console.log(`[route] RR#${rrCounter} chain: ${rotatedChain.join('->')} (cat=${cat})`);
+
   const errors = [];
-  for (const nodeId of chain) {
+  for (const nodeId of rotatedChain) {
     // Enhance query with CoT/format hints per category + model
     const enhanced = enhanceQuery(userText, cat, nodeId);
     const messages = [
