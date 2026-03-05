@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v10.6.0-blueviolet?style=for-the-badge" alt="version"/>
+  <img src="https://img.shields.io/badge/version-v10.6.1-blueviolet?style=for-the-badge" alt="version"/>
   <img src="https://img.shields.io/badge/GPU-10x_NVIDIA-76B900?style=for-the-badge&logo=nvidia" alt="gpu"/>
   <img src="https://img.shields.io/badge/Claude_SDK-Opus_4.6-orange?style=for-the-badge&logo=anthropic" alt="claude"/>
   <img src="https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="python"/>
@@ -8,11 +8,11 @@
   <img src="https://img.shields.io/badge/License-Private-red?style=for-the-badge" alt="license"/>
 </p>
 
-<h1 align="center">JARVIS Etoile v10.6.0</h1>
-<h3 align="center">Orchestrateur IA Distribue Multi-GPU — HEXA_CORE + Telegram Autonome</h3>
+<h1 align="center">JARVIS Etoile v10.6.1</h1>
+<h3 align="center">Orchestrateur IA Distribue Multi-GPU — HEXA_CORE + Telegram Autonome + OpenClaw Gateway</h3>
 
 <p align="center">
-  <strong>Systeme d'intelligence artificielle distribue sur 3 machines physiques, 10 GPU NVIDIA (~78 GB VRAM), 12 modeles IA (2 local + 10 cloud) et 89 skills autonomes. Controle vocal en francais avec 2,332 commandes + 461 pipelines + 401 domino cascades + 3,466 corrections vocales. Bot Telegram autonome (@turboSSebot) connecte au cluster complet. Trading algorithmique MEXC multi-consensus. Interface desktop Electron 19 pages. 75 modules source, 528+ tests, 93 scripts COWORK.</strong>
+  <strong>Systeme d'intelligence artificielle distribue sur 3 machines physiques, 10 GPU NVIDIA (~78 GB VRAM), 12 modeles IA (2 local + 10 cloud) et 89 skills autonomes. Controle vocal en francais avec 2,332 commandes + 461 pipelines + 401 domino cascades + 3,466 corrections vocales. Bot Telegram autonome (@turboSSebot) via OpenClaw Gateway (port 18789, 34 agents). Messages vocaux TTS DeniseNeural + Whisper STT entrant. Trading algorithmique MEXC multi-consensus. Interface desktop Electron 19 pages. 75 modules source, 528+ tests, 107 scripts COWORK continu.</strong>
 </p>
 
 <p align="center">
@@ -39,54 +39,98 @@
 | **Plugin** | 40 slash commands | + 24 skills + 11 agents + 4 hooks (plugin v3.0) |
 | **Desktop** | Electron 33 + React 19 | 19 pages, Portable 72.5 MB |
 | **Trading** | v2.3 Multi-GPU | MEXC Futures 10x, 6 IA consensus |
-| **Telegram Bot** | @turboSSebot autonome | Long polling + cluster complet via canvas proxy (port 18800) |
-| **COWORK** | 93 scripts + 77 crons | Developpement continu autonome (Windows, JARVIS, IA, Trading) |
+| **Telegram Bot** | @turboSSebot autonome | OpenClaw Gateway (port 18789) + 34 agents + Whisper STT + DeniseNeural TTS |
+| **OpenClaw** | Gateway + 34 agents | 7 providers (M1, M2, M3, OL1, Gemini, Claude, Qwen), fallback cascade |
+| **COWORK** | 107 scripts + 42 crons dev | 12 batches (28-39), dev continu 24/7, 9 crons recurrents |
+| **Voix TTS** | DeniseNeural (femme) | Edge TTS Neural + ffmpeg OGG Opus + Telegram sendVoice |
+| **Voix STT** | Whisper large-v3-turbo | Transcription vocaux Telegram entrants, CUDA accelere |
 
 ---
 
-## Nouveautes v10.6.0 — Telegram Autonome + 80 Modules + Voix DeniseNeural + 401 Dominos (2026-03-05)
+## Nouveautes v10.6.1 — OpenClaw Gateway + COWORK 107 Scripts + Whisper STT (2026-03-05)
 
-> **JARVIS est desormais autonome sur Telegram.** Le bot @turboSSebot lit les messages, dispatch au cluster complet (M1+M2+M3+OL1+gpt-oss+devstral+GEMINI+CLAUDE) via le canvas proxy (port 18800), et repond. 80 nouveaux modules systeme (phases 19-43), voix changee de HenriNeural (homme) a **DeniseNeural** (femme), 401 dominos (vs 40 avant), 3,466 corrections vocales, 528+ tests, 93 scripts COWORK autonomes.
+> **Migration Telegram vers OpenClaw Gateway** (port 18789). Bot @turboSSebot gere par OpenClaw avec 34 agents, 7 providers IA, fallback cascade automatique. **Messages vocaux bidirectionnels** : TTS DeniseNeural (Edge TTS Neural → OGG Opus → Telegram) + STT Whisper (vocaux entrants transcrits). **107 scripts COWORK** en developpement continu autonome (12 batches, 42 crons). Modele primaire M1 qwen3-8b (local, 0 quota, contexte max).
 
-### Changements majeurs v10.4 — v10.6
+### Changements v10.6.0 → v10.6.1 (2 derniers jours)
 
 | Categorie | Avant | Apres | Detail |
 |-----------|-------|-------|--------|
-| **Telegram** | Envoi seulement | **Lecture + Reponse autonome** | telegram-bot.js, long polling, cluster complet |
-| **Voix TTS** | fr-FR-DeniseNeural (homme) | **fr-FR-DeniseNeural (femme)** | Changement global dans tout le codebase |
-| **Dominos** | 40 cascades | **401 cascades** | 1,078 triggers, 84 actions, 28 param patterns |
-| **Corrections** | 2,627 regles | **3,466 regles** | 120 vagues, phonetiques + implicits + fillers |
-| **Modules src/** | 30 modules | **75 modules** | Phases 19-43 : orchestrator_v2, autonomous_loop, cache_manager, etc. |
-| **Tests** | 174 tests | **528+ tests** | 11 suites (test_phase1-11) + test_telegram_bot |
-| **Plugin** | 24 commandes | **40 commandes** | jarvis-turbo v3.0 |
-| **Electron** | 6 pages | **19 pages** | +Orchestrator, Memory, Metrics, Alerts, Workflows, Health, Resources, Scheduler... |
-| **Cloud IA** | 3 modeles | **10 modeles Ollama cloud** | gpt-oss:120b (CHAMPION 100/100), devstral-2:123b, glm-4.7, etc. |
-| **COWORK** | 0 | **93 scripts + 77 crons** | Developpement autonome continu (OpenClaw) |
-| **REST API** | ~50 | **~96 endpoints** | FastAPI + MCP handlers |
+| **Telegram Backend** | canvas proxy (18800) | **OpenClaw Gateway (18789)** | 34 agents, 7 providers, polling natif |
+| **Voix TTS** | HenriNeural (homme) | **DeniseNeural (femme, Neural)** | Edge TTS → MP3 → ffmpeg OGG Opus → Telegram |
+| **Voix STT** | Aucun | **Whisper large-v3-turbo** | Transcription vocaux entrants Telegram, CUDA |
+| **TTS Script** | Aucun | **win_tts.py** | Pipeline complete : clean text + edge-tts + OGG + Telegram |
+| **Modele primaire** | gpt-oss:120b-cloud | **M1 qwen3-8b (local)** | 0 quota cloud, contexte max, 45 tok/s |
+| **COWORK** | 93 scripts + 77 crons | **107 scripts + 42 crons dev** | Batches 28-39, 9 crons recurrents 24/7 |
+| **OpenClaw Config** | Basique | **Full autonome** | exec-approvals off, reasoning false, sandbox off |
+| **Exec Permissions** | Approval required | **Auto-approve all** | security off, allowlist python/curl/node/* |
+| **IDENTITY.md** | Generique | **3 regles absolues** | Execution immediate, reponse complete, vocal obligatoire |
 
-### Telegram Bot Autonome (@turboSSebot)
+### Architecture Telegram via OpenClaw Gateway
 
 ```
-Utilisateur ecrit dans Telegram
+Utilisateur ecrit/parle dans Telegram
     |
     v
-telegram-bot.js (getUpdates long polling, 30s timeout)
+OpenClaw Gateway (port 18789, long polling)
+    |
+    +-- Texte → agent main (M1 qwen3-8b, fallback cascade)
+    +-- Vocal → Whisper transcription → agent main
     |
     v
-POST http://127.0.0.1:18800/chat (canvas proxy)
+Agent embedded → lit IDENTITY.md/SOUL.md → execute scripts dev/
+    |
+    +-- python dev/telegram_commander.py --cmd [status|emails|trading|...]
+    +-- python dev/win_tts.py --speak "RESUME" --telegram
+    +-- curl cluster IA (M1/M2/M3/OL1/gpt-oss/devstral/GEMINI/CLAUDE)
     |
     v
-direct-proxy.js → agenticChat()
-  → classify category (code/archi/trading/math/etc.)
-  → getBestNode via autolearn scoring
-  → callNode M1/M2/M3/OL1/gpt-oss/devstral/GEMINI/CLAUDE
-  → tool execution loop (8 turns max)
-    |
-    v
-Reponse JSON → sendMessage Telegram avec attribution [M1/qwen3-8b]
+Reponse texte + vocal OGG Opus → Telegram
 ```
 
-**Commandes Telegram :** `/status`, `/consensus <question>`, `/health`, `/help`, `/model <id>`, texte libre → routing auto.
+**Providers OpenClaw (7) :** lm-m1 (qwen3-8b), lm-m2 (deepseek-coder), lm-m3 (mistral-7b), ollama (10 cloud), gemini (pro/flash), claude (opus/sonnet/haiku), qwen-portal.
+
+**Fallback cascade :** M1 → OL1 (1.7b/14b) → M2 → gpt-oss → devstral → Gemini → Claude.
+
+### COWORK — Developpement Continu Autonome (107 scripts)
+
+| Batch | Theme | Scripts | Status |
+|-------|-------|---------|--------|
+| 28 | Monitoring | log_analyzer, api_monitor, resource_forecaster | Cron programme |
+| 29 | Alerting | alert_manager, dashboard_generator, metrics_collector | Cron programme |
+| 30 | AI Pipeline | prompt_router, response_evaluator, model_benchmark | Cron programme |
+| 31 | Conversation | conversation_manager, knowledge_updater, pipeline_orchestrator | Cron programme |
+| 32 | Windows Auto | service_watchdog, startup_manager, power_manager | Cron programme |
+| 33 | IA Autonome | auto_dispatcher, self_improver, task_learner | Cron programme |
+| 34 | Cluster Intel | node_balancer, model_manager, cluster_sync | Cron programme |
+| 35 | Telegram+ | telegram_scheduler, telegram_stats, voice_enhancer | Cron programme |
+| 36 | Windows Deep | win_event_watcher, win_firewall_manager, win_task_automator | Cron programme |
+| 37 | IA Avancee | agent_orchestrator, code_generator, decision_engine | Cron programme |
+| 38 | Perf Optimize | gpu_optimizer, memory_optimizer, network_optimizer | Cron programme |
+| 39 | Intelligence | continuous_learner, proactive_agent, workspace_analyzer | Cron programme |
+
+**9 crons recurrents 24/7 :** dev_improve_scripts (2h), dev_ia_autonome (3h), dev_windows_services (4h), dev_test_all_scripts (4h), dev_new_features (6h), dev_mcp_tools (6h), dev_cluster_optimize (8h), dev_telegram_features (12h), dev_testing_infra (daily).
+
+### Pipeline TTS Vocal (win_tts.py)
+
+```
+Texte reponse
+    |
+    v
+clean_text_for_speech() — supprime ponctuation, symboles, emojis
+    |
+    v
+edge-tts --voice "fr-FR-DeniseNeural" → MP3 (24kHz Neural)
+    |
+    v
+ffmpeg → OGG Opus (96kbps, 48kHz, volume boost +1.3, compresseur)
+    |
+    v
+Telegram sendVoice → vocal ecoutable
+```
+
+**Commandes Telegram :** texte libre → routing auto, vocaux → Whisper → execution.
+
+**Scripts disponibles (71+ existants) :** emails, status, trading, gpu, disk, cluster, bluetooth, wifi, backup, securite, processus, reseau, screenshot, audio, registre, drivers, et 50+ autres dans dev/.
 
 ### Nouveaux Modules Systeme (Phases 19-43)
 
