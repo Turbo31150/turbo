@@ -726,6 +726,53 @@ class TestDispatchEngine:
         if "error" not in analytics:
             assert "recommendations" in analytics
 
+    def test_cache_key_deterministic(self):
+        from src.dispatch_engine import DispatchEngine
+        engine = DispatchEngine()
+        k1 = engine._cache_key("code", "test prompt")
+        k2 = engine._cache_key("code", "test prompt")
+        assert k1 == k2
+
+    def test_cache_key_differs_by_pattern(self):
+        from src.dispatch_engine import DispatchEngine
+        engine = DispatchEngine()
+        k1 = engine._cache_key("code", "test")
+        k2 = engine._cache_key("analysis", "test")
+        assert k1 != k2
+
+    def test_cache_put_get(self):
+        from src.dispatch_engine import DispatchEngine, DispatchResult
+        engine = DispatchEngine()
+        result = DispatchResult(
+            pattern="code", node="M1", strategy="single",
+            content="def f(): pass", quality=0.8, latency_ms=100, success=True,
+        )
+        key = engine._cache_key("code", "test")
+        engine._cache_put(key, result)
+        cached = engine._cache_get(key)
+        assert cached is not None
+        assert cached.content == "def f(): pass"
+
+    def test_cache_miss_on_failure(self):
+        from src.dispatch_engine import DispatchEngine, DispatchResult
+        engine = DispatchEngine()
+        result = DispatchResult(
+            pattern="code", node="M1", strategy="single",
+            content="", quality=0, latency_ms=100, success=False,
+        )
+        key = engine._cache_key("code", "fail_test")
+        engine._cache_put(key, result)
+        cached = engine._cache_get(key)
+        assert cached is None  # Failed results not cached
+
+    def test_cache_stats_in_get_stats(self):
+        from src.dispatch_engine import DispatchEngine
+        engine = DispatchEngine()
+        stats = engine.get_stats()
+        assert "cache" in stats
+        assert "hits" in stats["cache"]
+        assert stats["cache"]["enabled"] is True
+
     @pytest.mark.asyncio
     async def test_dispatch_simple(self):
         from src.dispatch_engine import DispatchEngine, PipelineConfig

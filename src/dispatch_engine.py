@@ -19,9 +19,11 @@ Usage:
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import logging
 import sqlite3
 import time
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -65,6 +67,9 @@ class PipelineConfig:
     enable_prompt_optimization: bool = True
     enable_feedback: bool = True
     enable_episodic_store: bool = True
+    enable_cache: bool = True
+    cache_ttl_s: float = 300.0  # 5 minutes cache TTL
+    cache_max_size: int = 200   # Max cached entries
     max_retries: int = 1
     timeout_s: float = 60.0
     quality_threshold: float = 0.3  # Retry if below
@@ -76,6 +81,8 @@ class DispatchEngine:
 
     def __init__(self, config: Optional[PipelineConfig] = None):
         self.config = config or PipelineConfig()
+        self._cache: OrderedDict[str, tuple[DispatchResult, float]] = OrderedDict()
+        self._cache_hits = 0
         self._stats = {
             "total_dispatches": 0,
             "successful": 0,
@@ -106,11 +113,47 @@ class DispatchEngine:
         except Exception as e:
             logger.warning(f"Failed to create dispatch_pipeline_log: {e}")
 
+    def _cache_key(self, pattern: str, prompt: str) -> str:
+        """Generate cache key from pattern + prompt hash."""
+        h = hashlib.md5(f"{pattern}:{prompt}".encode(), usedforsecurity=False).hexdigest()
+        return f"{pattern}:{h}"
+
+    def _cache_get(self, key: str) -> Optional[DispatchResult]:
+        """Get cached result if still valid."""
+        if not self.config.enable_cache:
+            return None
+        entry = self._cache.get(key)
+        if entry:
+            result, timestamp = entry
+            if time.time() - timestamp < self.config.cache_ttl_s:
+                self._cache_hits += 1
+                self._cache.move_to_end(key)
+                return result
+            else:
+                del self._cache[key]
+        return None
+
+    def _cache_put(self, key: str, result: DispatchResult):
+        """Store result in cache."""
+        if not self.config.enable_cache or not result.success:
+            return
+        self._cache[key] = (result, time.time())
+        while len(self._cache) > self.config.cache_max_size:
+            self._cache.popitem(last=False)
+
     async def dispatch(self, pattern: str, prompt: str,
                        node_override: Optional[str] = None,
                        strategy_override: Optional[str] = None) -> DispatchResult:
         """Full pipeline dispatch."""
         t0 = time.time()
+
+        # Check cache first
+        cache_key = self._cache_key(pattern, prompt)
+        cached = self._cache_get(cache_key)
+        if cached and not node_override:
+            cached.pipeline_ms = (time.time() - t0) * 1000
+            return cached
+
         result = DispatchResult(
             pattern=pattern, node="", strategy="single",
             content="", quality=0, latency_ms=0, success=False,
@@ -235,6 +278,9 @@ class DispatchEngine:
 
         # Persist
         self._log_pipeline(result)
+
+        # Cache successful results
+        self._cache_put(cache_key, result)
 
         # Step 8: Event stream emission
         result.event_emitted = self._emit_event(result, prompt)
@@ -552,12 +598,20 @@ class DispatchEngine:
         """Return pipeline stats."""
         return {
             **self._stats,
+            "cache": {
+                "enabled": self.config.enable_cache,
+                "size": len(self._cache),
+                "max_size": self.config.cache_max_size,
+                "hits": self._cache_hits,
+                "ttl_s": self.config.cache_ttl_s,
+            },
             "config": {
                 "health_check": self.config.enable_health_check,
                 "memory_enrichment": self.config.enable_memory_enrichment,
                 "prompt_optimization": self.config.enable_prompt_optimization,
                 "feedback": self.config.enable_feedback,
                 "episodic_store": self.config.enable_episodic_store,
+                "cache": self.config.enable_cache,
                 "max_retries": self.config.max_retries,
                 "timeout_s": self.config.timeout_s,
                 "quality_threshold": self.config.quality_threshold,
