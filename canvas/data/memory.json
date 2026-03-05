@@ -1802,7 +1802,7 @@
     }
   ],
   "profile": {
-    "summary": "Le profil utilisateur JARVIS est orienté vers les technologies de l'IA, le calcul mathématique, et les bases de données. Il dispose d'une bonne compréhension des concepts de base en informatique, notamment en matière de programmation et de logique. Il est curieux et aime explorer des sujets variés, tels que les algorithmes, les langages de programmation, et les systèmes informatiques.",
+    "summary": "JARVIS est un utilisateur francophone qui interroge fréquemment sur l'intelligence artificielle, le machine learning et le deep learning, ainsi que sur les mathématiques et la programmation Python. Il cherche des réponses rapides et concises, notamment pour générer des noms créatifs de chatbots ou écrire des fonctions simples comme vérifier un palindrome. Ses requêtes incluent souvent des salutations et des demandes d'identité, tout en exigeant exclusivement des réponses en français.",
     "topics": {
       "code": 12,
       "trading": 5,
@@ -1817,6 +1817,6 @@
       "raison": 97
     },
     "preferences": {},
-    "updated_at": "2026-03-05T07:44:32.779Z"
+    "updated_at": "2026-03-05T11:29:58.551Z"
   }
 }
