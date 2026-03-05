@@ -104,8 +104,17 @@ def check_dispatch():
     """Check dispatch performance."""
     if not ETOILE_DB.exists():
         return {"score": 0}
-    edb = sqlite3.connect(str(ETOILE_DB))
+    edb = sqlite3.connect(str(ETOILE_DB), timeout=10)
     edb.row_factory = sqlite3.Row
+
+    # Check if table exists
+    has_table = edb.execute(
+        "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='agent_dispatch_log'"
+    ).fetchone()[0]
+    if not has_table:
+        edb.close()
+        return {"recent_dispatches": 0, "success_rate": 0, "avg_latency_ms": 0,
+                "avg_quality": 0, "score": 50.0, "note": "no dispatch data yet"}
 
     row = edb.execute("""
         SELECT COUNT(*) as total,
