@@ -152,6 +152,13 @@ TASKS = {
         "priority": 3,
         "category": "reporting",
     },
+    "latency_monitor": {
+        "script": "latency_monitor.py",
+        "args": ["--once", "--alert"],
+        "interval_min": 5,
+        "priority": 2,
+        "category": "monitoring",
+    },
 }
 
 
