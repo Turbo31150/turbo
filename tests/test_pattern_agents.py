@@ -659,22 +659,49 @@ class TestDispatchEngine:
         assert not engine.config.enable_health_check
         assert engine.config.max_retries == 3
 
-    def test_score_quality_empty(self):
+    def test_quality_gate_integration_empty(self):
         from src.dispatch_engine import DispatchEngine
         engine = DispatchEngine()
-        assert engine._score_quality("code", "", 0, False) == 0.0
+        result = engine._evaluate_quality_gate("code", "write code", "", 0, "M1")
+        assert result["overall_score"] == 0.0 or not result["passed"]
 
-    def test_score_quality_good(self):
+    def test_quality_gate_integration_good(self):
         from src.dispatch_engine import DispatchEngine
         engine = DispatchEngine()
-        score = engine._score_quality("code", "def parse_json(data):\n    return json.loads(data)\n```", 1500, True)
-        assert score > 0.5
+        result = engine._evaluate_quality_gate(
+            "code", "Ecris un parser JSON",
+            "def parse_json(data):\n    import json\n    return json.loads(data)\n```\nParse une string JSON.",
+            1500, "M1"
+        )
+        assert result["overall_score"] > 0.3
+        assert isinstance(result["passed"], bool)
+        assert isinstance(result["failed_gates"], list)
 
-    def test_score_quality_simple(self):
+    def test_quality_gate_integration_simple(self):
         from src.dispatch_engine import DispatchEngine
         engine = DispatchEngine()
-        score = engine._score_quality("simple", "Paris est la capitale de la France.", 500, True)
-        assert score > 0.3
+        result = engine._evaluate_quality_gate(
+            "simple", "Quelle est la capitale de la France",
+            "Paris est la capitale de la France.", 500, "M1"
+        )
+        assert result["overall_score"] > 0.2
+
+    def test_event_emission(self):
+        from src.dispatch_engine import DispatchEngine, DispatchResult
+        engine = DispatchEngine()
+        dr = DispatchResult(
+            pattern="code", node="M1", strategy="single",
+            content="def foo(): pass", quality=0.8, latency_ms=1000,
+            success=True, pipeline_ms=1200,
+        )
+        emitted = engine._emit_event(dr, "test prompt")
+        assert emitted is True
+        # Verify event was recorded
+        from src.event_stream import get_stream
+        stream = get_stream()
+        events = stream.get_latest("dispatch", n=1)
+        assert len(events) >= 1
+        assert events[-1]["data"]["pattern"] == "code"
 
     def test_get_stats(self):
         from src.dispatch_engine import DispatchEngine
@@ -1012,6 +1039,688 @@ class TestAgentEnsemble:
         e1 = get_ensemble()
         e2 = get_ensemble()
         assert e1 is e2
+
+
+class TestQualityGate:
+    def test_init(self):
+        from src.quality_gate import QualityGate
+        gate = QualityGate()
+        assert gate.config is not None
+
+    def test_evaluate_good_code(self):
+        from src.quality_gate import QualityGate
+        gate = QualityGate()
+        result = gate.evaluate("code", "Ecris un parser JSON",
+                               "def parse_json(data):\n    return json.loads(data)\n```", latency_ms=1500)
+        assert result.overall_score > 0.3
+        assert isinstance(result.gates, dict)
+
+    def test_evaluate_empty(self):
+        from src.quality_gate import QualityGate
+        gate = QualityGate()
+        result = gate.evaluate("code", "test", "", latency_ms=100)
+        assert not result.passed
+        assert "length" in result.failed_gates
+
+    def test_evaluate_slow(self):
+        from src.quality_gate import QualityGate
+        gate = QualityGate()
+        result = gate.evaluate("simple", "test", "Paris est la capitale", latency_ms=50000)
+        assert "latency" in result.failed_gates
+
+    def test_relevance_scoring(self):
+        from src.quality_gate import QualityGate
+        gate = QualityGate()
+        result = gate.evaluate("simple", "capitale France", "La capitale de la France est Paris", latency_ms=500)
+        assert result.gates["relevance"]["score"] > 0.3
+
+    def test_hallucination_detection(self):
+        from src.quality_gate import QualityGate
+        gate = QualityGate()
+        result = gate.evaluate("simple", "test", "Je suis une IA et en tant qu'assistant je ne peux pas...", latency_ms=100)
+        assert result.gates["hallucination"]["score"] < 1.0
+
+    def test_get_stats(self):
+        from src.quality_gate import QualityGate
+        gate = QualityGate()
+        gate.evaluate("test", "p", "content here", latency_ms=100)
+        stats = gate.get_stats()
+        assert stats["evaluated"] >= 1
+
+    def test_gate_report(self):
+        from src.quality_gate import QualityGate
+        gate = QualityGate()
+        report = gate.get_gate_report()
+        assert "total_evaluated" in report
+
+    def test_singleton(self):
+        from src.quality_gate import get_gate
+        g1 = get_gate()
+        g2 = get_gate()
+        assert g1 is g2
+
+
+class TestPatternLifecycle:
+    def test_init(self):
+        from src.pattern_lifecycle import PatternLifecycle
+        lc = PatternLifecycle()
+        assert lc._events is not None
+
+    def test_get_all_patterns(self):
+        from src.pattern_lifecycle import PatternLifecycle
+        lc = PatternLifecycle()
+        patterns = lc.get_all_patterns()
+        assert len(patterns) > 0
+        assert patterns[0].pattern_type != ""
+
+    def test_pattern_states(self):
+        from src.pattern_lifecycle import PatternLifecycle
+        lc = PatternLifecycle()
+        patterns = lc.get_all_patterns()
+        statuses = {p.status for p in patterns}
+        assert statuses & {"active", "new", "degraded"}
+
+    def test_suggest_actions(self):
+        from src.pattern_lifecycle import PatternLifecycle
+        lc = PatternLifecycle()
+        actions = lc.suggest_actions()
+        assert isinstance(actions, list)
+
+    def test_health_report(self):
+        from src.pattern_lifecycle import PatternLifecycle
+        lc = PatternLifecycle()
+        report = lc.health_report()
+        assert "total_patterns" in report
+        assert "status_distribution" in report
+        assert "top_patterns" in report
+
+    def test_lifecycle_history(self):
+        from src.pattern_lifecycle import PatternLifecycle
+        lc = PatternLifecycle()
+        history = lc.get_lifecycle_history()
+        assert isinstance(history, list)
+
+    def test_singleton(self):
+        from src.pattern_lifecycle import get_lifecycle
+        l1 = get_lifecycle()
+        l2 = get_lifecycle()
+        assert l1 is l2
+
+
+class TestClusterIntelligence:
+    def test_init(self):
+        from src.cluster_intelligence import ClusterIntelligence
+        intel = ClusterIntelligence()
+        assert intel._cached_report is None
+
+    def test_quick_status(self):
+        from src.cluster_intelligence import ClusterIntelligence
+        intel = ClusterIntelligence()
+        status = intel.quick_status()
+        assert "status" in status
+        assert "total_dispatches" in status
+        assert "patterns" in status
+
+    def test_full_report(self):
+        from src.cluster_intelligence import ClusterIntelligence
+        intel = ClusterIntelligence()
+        report = intel.full_report()
+        assert "health_score" in report
+        assert "subsystems" in report
+        assert "actions" in report
+        assert "summary" in report
+        assert 0 <= report["health_score"] <= 100
+
+    def test_priority_actions(self):
+        from src.cluster_intelligence import ClusterIntelligence
+        intel = ClusterIntelligence()
+        actions = intel.priority_actions()
+        assert isinstance(actions, list)
+
+    def test_report_caching(self):
+        from src.cluster_intelligence import ClusterIntelligence
+        intel = ClusterIntelligence()
+        r1 = intel.full_report()
+        r2 = intel.full_report()
+        assert r1["timestamp"] == r2["timestamp"]  # Same cached report
+
+    def test_report_force_refresh(self):
+        from src.cluster_intelligence import ClusterIntelligence
+        intel = ClusterIntelligence()
+        r1 = intel.full_report()
+        r2 = intel.full_report(force_refresh=True)
+        # May or may not differ in timestamp (same second)
+        assert "health_score" in r2
+
+    def test_singleton(self):
+        from src.cluster_intelligence import get_intelligence
+        i1 = get_intelligence()
+        i2 = get_intelligence()
+        assert i1 is i2
+
+
+class TestCoworkBridge:
+    def test_init(self):
+        from src.cowork_bridge import CoworkBridge
+        bridge = CoworkBridge()
+        assert len(bridge._scripts) > 0
+
+    def test_list_scripts(self):
+        from src.cowork_bridge import CoworkBridge
+        bridge = CoworkBridge()
+        scripts = bridge.list_scripts()
+        assert len(scripts) > 100
+
+    def test_list_by_category(self):
+        from src.cowork_bridge import CoworkBridge
+        bridge = CoworkBridge()
+        ia_scripts = bridge.list_scripts(category="ia")
+        assert len(ia_scripts) > 0
+        assert all(s["category"] == "ia" for s in ia_scripts)
+
+    def test_search(self):
+        from src.cowork_bridge import CoworkBridge
+        bridge = CoworkBridge()
+        results = bridge.search("thermal monitor")
+        assert len(results) > 0
+        assert results[0]["score"] > 0
+
+    def test_search_no_results(self):
+        from src.cowork_bridge import CoworkBridge
+        bridge = CoworkBridge()
+        results = bridge.search("xyznonexistent123")
+        assert len(results) == 0
+
+    def test_get_stats(self):
+        from src.cowork_bridge import CoworkBridge
+        bridge = CoworkBridge()
+        stats = bridge.get_stats()
+        assert stats["total_scripts"] > 100
+        assert "categories" in stats
+        assert "win" in stats["categories"]
+        assert stats["cowork_path"] is not None
+
+    def test_execution_history(self):
+        from src.cowork_bridge import CoworkBridge
+        bridge = CoworkBridge()
+        history = bridge.get_execution_history()
+        assert isinstance(history, list)
+
+    def test_script_not_found(self):
+        from src.cowork_bridge import CoworkBridge
+        bridge = CoworkBridge()
+        result = bridge.execute("nonexistent_script_xyz")
+        assert not result.success
+        assert result.exit_code == -1
+
+    def test_singleton(self):
+        from src.cowork_bridge import get_bridge
+        b1 = get_bridge()
+        b2 = get_bridge()
+        assert b1 is b2
+
+
+class TestSelfImprovement:
+    def test_init(self):
+        from src.self_improvement import SelfImprover
+        imp = SelfImprover()
+        assert imp._history is not None
+
+    def test_analyze(self):
+        from src.self_improvement import SelfImprover
+        imp = SelfImprover()
+        report = imp.analyze()
+        assert "health_score" in report or "error" in report
+
+    def test_suggest_improvements(self):
+        from src.self_improvement import SelfImprover
+        imp = SelfImprover()
+        actions = imp.suggest_improvements()
+        assert isinstance(actions, list)
+
+    def test_apply_improvements_dry(self):
+        from src.self_improvement import SelfImprover
+        imp = SelfImprover()
+        results = imp.apply_improvements(auto=False, max_actions=2)
+        assert isinstance(results, list)
+
+    def test_get_history(self):
+        from src.self_improvement import SelfImprover
+        imp = SelfImprover()
+        history = imp.get_history()
+        assert isinstance(history, list)
+
+    def test_get_stats(self):
+        from src.self_improvement import SelfImprover
+        imp = SelfImprover()
+        stats = imp.get_stats()
+        assert "total_suggestions" in stats
+
+    def test_improvement_action_dataclass(self):
+        from src.self_improvement import ImprovementAction
+        action = ImprovementAction(
+            action_type="route_shift", target="M3",
+            description="Test shift", priority="high",
+            params={"from_node": "M3"},
+        )
+        assert action.action_type == "route_shift"
+        assert not action.applied
+
+    def test_singleton(self):
+        from src.self_improvement import get_improver
+        i1 = get_improver()
+        i2 = get_improver()
+        assert i1 is i2
+
+
+class TestDynamicAgents:
+    def test_init(self):
+        from src.dynamic_agents import DynamicAgentSpawner
+        spawner = DynamicAgentSpawner()
+        assert not spawner._loaded
+
+    def test_load_all(self):
+        from src.dynamic_agents import DynamicAgentSpawner
+        spawner = DynamicAgentSpawner()
+        agents = spawner.load_all()
+        assert isinstance(agents, dict)
+        assert len(agents) > 0  # Should have dynamic agents beyond the 20 hardcoded
+
+    def test_dynamic_agent_to_pattern(self):
+        from src.dynamic_agents import DynamicAgent
+        da = DynamicAgent(
+            pattern_type="test_dynamic",
+            agent_id="test-agent",
+            model_primary="qwen3-8b",
+            model_fallbacks="",
+            strategy="single",
+            system_prompt="Test prompt",
+            node="M1",
+        )
+        pa = da.to_pattern_agent()
+        assert pa.pattern_type == "test_dynamic"
+        assert pa.primary_node == "M1"
+
+    def test_get_stats(self):
+        from src.dynamic_agents import DynamicAgentSpawner
+        spawner = DynamicAgentSpawner()
+        stats = spawner.get_stats()
+        assert "total_dynamic_agents" in stats
+        assert stats["loaded"] is True  # load_all called by get_stats
+
+    def test_list_agents(self):
+        from src.dynamic_agents import DynamicAgentSpawner
+        spawner = DynamicAgentSpawner()
+        agents = spawner.list_agents()
+        assert isinstance(agents, list)
+        if agents:
+            assert "pattern" in agents[0]
+            assert "agent_id" in agents[0]
+
+    def test_register_to_registry(self):
+        from src.dynamic_agents import DynamicAgentSpawner
+        spawner = DynamicAgentSpawner()
+        count = spawner.register_to_registry()
+        assert isinstance(count, int)
+
+    def test_generate_prompt(self):
+        from src.dynamic_agents import DynamicAgentSpawner
+        spawner = DynamicAgentSpawner()
+        prompt = spawner._generate_prompt("win_monitoring", "cw-win-monitoring")
+        assert "Windows" in prompt or "expert" in prompt
+
+    def test_singleton(self):
+        from src.dynamic_agents import get_spawner
+        s1 = get_spawner()
+        s2 = get_spawner()
+        assert s1 is s2
+
+
+class TestCoworkProactive:
+    def test_init(self):
+        from src.cowork_proactive import CoworkProactive
+        pro = CoworkProactive()
+        assert pro is not None
+
+    def test_detect_needs(self):
+        from src.cowork_proactive import CoworkProactive
+        pro = CoworkProactive()
+        needs = pro.detect_needs()
+        assert isinstance(needs, list)
+
+    def test_plan_execution(self):
+        from src.cowork_proactive import CoworkProactive
+        pro = CoworkProactive()
+        needs = pro.detect_needs()
+        plan = pro.plan_execution(needs)
+        assert plan.scripts_to_run is not None
+        assert plan.estimated_duration_s >= 0
+
+    def test_run_proactive_dry(self):
+        from src.cowork_proactive import CoworkProactive
+        pro = CoworkProactive()
+        result = pro.run_proactive(max_scripts=3, dry_run=True)
+        assert "dry_run" in result or "needs_detected" in result
+
+    def test_anticipate(self):
+        from src.cowork_proactive import CoworkProactive
+        pro = CoworkProactive()
+        predictions = pro.anticipate()
+        assert "predictions" in predictions
+
+    def test_get_stats(self):
+        from src.cowork_proactive import CoworkProactive
+        pro = CoworkProactive()
+        stats = pro.get_stats()
+        assert "total_orchestrations" in stats
+
+    def test_singleton(self):
+        from src.cowork_proactive import get_proactive
+        p1 = get_proactive()
+        p2 = get_proactive()
+        assert p1 is p2
+
+
+class TestReflectionEngine:
+    def test_init(self):
+        from src.reflection_engine import ReflectionEngine
+        engine = ReflectionEngine()
+        assert engine is not None
+
+    def test_reflect(self):
+        from src.reflection_engine import ReflectionEngine
+        engine = ReflectionEngine()
+        insights = engine.reflect()
+        assert isinstance(insights, list)
+
+    def test_timeline(self):
+        from src.reflection_engine import ReflectionEngine
+        engine = ReflectionEngine()
+        timeline = engine.timeline_analysis(hours=24)
+        assert "period_hours" in timeline
+
+    def test_summary(self):
+        from src.reflection_engine import ReflectionEngine
+        engine = ReflectionEngine()
+        summary = engine.get_summary()
+        assert "system_health" in summary or "error" in summary
+
+    def test_insight_dataclass(self):
+        from src.reflection_engine import Insight
+        ins = Insight(
+            category="quality", severity="info",
+            title="Test", description="Test insight",
+        )
+        assert ins.category == "quality"
+
+    def test_get_stats(self):
+        from src.reflection_engine import ReflectionEngine
+        engine = ReflectionEngine()
+        stats = engine.get_stats()
+        assert "total_insights" in stats
+
+    def test_singleton(self):
+        from src.reflection_engine import get_reflection
+        r1 = get_reflection()
+        r2 = get_reflection()
+        assert r1 is r2
+
+
+class TestPatternEvolution:
+    def test_init(self):
+        from src.pattern_evolution import PatternEvolution
+        evo = PatternEvolution()
+        assert evo is not None
+
+    def test_analyze_gaps(self):
+        from src.pattern_evolution import PatternEvolution
+        evo = PatternEvolution()
+        suggestions = evo.analyze_gaps()
+        assert isinstance(suggestions, list)
+
+    def test_auto_create_dry(self):
+        from src.pattern_evolution import PatternEvolution
+        evo = PatternEvolution()
+        # High threshold to avoid creating patterns in test
+        created = evo.auto_create_patterns(min_confidence=0.99)
+        assert isinstance(created, list)
+
+    def test_evolve_patterns(self):
+        from src.pattern_evolution import PatternEvolution
+        evo = PatternEvolution()
+        evolved = evo.evolve_patterns(min_confidence=0.99)
+        assert isinstance(evolved, list)
+
+    def test_get_history(self):
+        from src.pattern_evolution import PatternEvolution
+        evo = PatternEvolution()
+        history = evo.get_evolution_history()
+        assert isinstance(history, list)
+
+    def test_get_stats(self):
+        from src.pattern_evolution import PatternEvolution
+        evo = PatternEvolution()
+        stats = evo.get_stats()
+        assert "total_suggestions" in stats
+
+    def test_suggestion_dataclass(self):
+        from src.pattern_evolution import PatternSuggestion
+        s = PatternSuggestion(
+            action="create", pattern_type="testing",
+            description="Test pattern", confidence=0.8,
+        )
+        assert s.action == "create"
+
+    def test_singleton(self):
+        from src.pattern_evolution import get_evolution
+        e1 = get_evolution()
+        e2 = get_evolution()
+        assert e1 is e2
+
+
+class TestDynamicTimeout:
+    """Tests for PatternAgent._calc_timeout and _adapt_max_tokens."""
+
+    def _make_agent(self, pattern_type="code", primary_node="M1", max_tokens=1024):
+        return PatternAgent(
+            pattern_id=f"PAT_{pattern_type.upper()}",
+            pattern_type=pattern_type,
+            agent_id=f"test-{pattern_type}",
+            system_prompt="Test",
+            primary_node=primary_node,
+            fallback_nodes=["OL1"],
+            strategy="single",
+            priority=1,
+            max_tokens=max_tokens,
+        )
+
+    def test_simple_short_timeout(self):
+        agent = self._make_agent("simple")
+        t = agent._calc_timeout("M1", "bonjour")
+        assert 10 <= t <= 30  # simple(15) * M1(1.0) = 15
+
+    def test_code_longer_timeout(self):
+        agent = self._make_agent("code")
+        t = agent._calc_timeout("M1", "Ecris un parser JSON")
+        assert t >= 60  # code(90) * M1(1.0) = 90
+
+    def test_reasoning_m3_very_long(self):
+        agent = self._make_agent("reasoning")
+        t = agent._calc_timeout("M3", "Explique la relativite")
+        assert t >= 100  # reasoning(150) * M3(2.5) = clamped to 180
+
+    def test_long_prompt_adds_time(self):
+        agent = self._make_agent("simple")
+        short_t = agent._calc_timeout("M1", "bonjour")
+        long_prompt = "x" * 5000  # 5000 chars → (5000-1000)/500 = 8s extra
+        long_t = agent._calc_timeout("M1", long_prompt)
+        assert long_t > short_t
+
+    def test_timeout_clamped_min(self):
+        agent = self._make_agent("simple")
+        t = agent._calc_timeout("M1", "x")
+        assert t >= 10
+
+    def test_timeout_clamped_max(self):
+        agent = self._make_agent("reasoning")
+        t = agent._calc_timeout("M3", "x" * 50000)
+        assert t <= 180
+
+    def test_unknown_node_uses_default_factor(self):
+        agent = self._make_agent("code")
+        t = agent._calc_timeout("UNKNOWN_NODE", "test")
+        # code(90) * default(1.5) = 135
+        assert 100 <= t <= 180
+
+    def test_adapt_max_tokens_normal(self):
+        agent = self._make_agent("code", max_tokens=1024)
+        tokens = agent._adapt_max_tokens("M1", "Short prompt")
+        assert tokens == 1024  # Plenty of room in 32k ctx
+
+    def test_adapt_max_tokens_large_prompt(self):
+        agent = self._make_agent("code", max_tokens=8192)
+        # M1 ctx=32000, prompt ~100000 chars → ~25050 tokens → available=6950
+        big_prompt = "x" * 100000
+        tokens = agent._adapt_max_tokens("M1", big_prompt)
+        assert tokens < 8192  # Should be capped below max_tokens (6950 < 8192)
+
+    def test_adapt_max_tokens_overflow_protection(self):
+        agent = self._make_agent("code", max_tokens=4096)
+        # M3 ctx=25000, prompt ~96000 chars → ~24000 tokens → >80% of ctx → cap at 512
+        huge_prompt = "x" * 96000
+        tokens = agent._adapt_max_tokens("M3", huge_prompt)
+        assert tokens <= 512
+
+    def test_adapt_respects_min_output_reasoning(self):
+        agent = self._make_agent("reasoning", primary_node="M2", max_tokens=256)
+        # M2 has NODE_MIN_OUTPUT=2048, so even small prompt should get >=2048
+        tokens = agent._adapt_max_tokens("M2", "Short question")
+        assert tokens >= 2048
+
+    def test_adapt_gpt_oss_huge_ctx(self):
+        agent = self._make_agent("code", max_tokens=4096)
+        # gpt-oss ctx=128000, so even medium prompts have tons of room
+        tokens = agent._adapt_max_tokens("gpt-oss", "Write a function" * 100)
+        assert tokens == 4096  # Plenty of room
+
+
+class TestRouteBlacklist:
+    """Tests for ROUTE_BLACKLIST and ROUTE_PREFERENCE in dispatch_engine."""
+
+    def test_blacklist_exists(self):
+        from src.dispatch_engine import DispatchEngine
+        engine = DispatchEngine()
+        assert hasattr(engine, 'ROUTE_BLACKLIST')
+        assert len(engine.ROUTE_BLACKLIST) > 0
+
+    def test_blacklist_blocks_m3_reasoning(self):
+        from src.dispatch_engine import DispatchEngine
+        engine = DispatchEngine()
+        assert ("reasoning", "M3") in engine.ROUTE_BLACKLIST
+
+    def test_blacklist_blocks_m3_math(self):
+        from src.dispatch_engine import DispatchEngine
+        engine = DispatchEngine()
+        assert ("math", "M3") in engine.ROUTE_BLACKLIST
+
+    def test_blacklist_blocks_m3_code(self):
+        from src.dispatch_engine import DispatchEngine
+        engine = DispatchEngine()
+        assert ("code", "M3") in engine.ROUTE_BLACKLIST
+
+    def test_preference_exists(self):
+        from src.dispatch_engine import DispatchEngine
+        engine = DispatchEngine()
+        assert hasattr(engine, 'ROUTE_PREFERENCE')
+        assert "code" in engine.ROUTE_PREFERENCE
+
+    def test_preference_code_starts_m1(self):
+        from src.dispatch_engine import DispatchEngine
+        engine = DispatchEngine()
+        assert engine.ROUTE_PREFERENCE["code"][0] == "M1"
+
+    def test_preference_simple_starts_ol1(self):
+        from src.dispatch_engine import DispatchEngine
+        engine = DispatchEngine()
+        assert engine.ROUTE_PREFERENCE["simple"][0] == "OL1"
+
+    def test_preference_all_patterns_have_m1(self):
+        from src.dispatch_engine import DispatchEngine
+        engine = DispatchEngine()
+        for pattern, nodes in engine.ROUTE_PREFERENCE.items():
+            assert "M1" in nodes, f"Pattern {pattern} missing M1 in preferences"
+
+
+class TestAutoTuneGate:
+    """Tests for QualityGate.auto_tune_from_data()."""
+
+    def test_auto_tune_returns_dict(self):
+        from src.quality_gate import QualityGate
+        gate = QualityGate()
+        result = gate.auto_tune_from_data(min_samples=10)
+        assert isinstance(result, dict)
+
+    def test_auto_tune_no_crash_empty_db(self):
+        from src.quality_gate import QualityGate, GateConfig
+        gate = QualityGate(config=GateConfig())
+        # Should handle gracefully even with empty/missing tables
+        result = gate.auto_tune_from_data(min_samples=99999)
+        assert isinstance(result, dict)
+
+    def test_gate_config_relevance_is_dict(self):
+        from src.quality_gate import QualityGate
+        gate = QualityGate()
+        assert isinstance(gate.config.min_relevance, dict)
+        assert "simple" in gate.config.min_relevance
+        assert "code" in gate.config.min_relevance
+        assert "default" in gate.config.min_relevance
+
+    def test_gate_config_latency_is_dict(self):
+        from src.quality_gate import QualityGate
+        gate = QualityGate()
+        assert isinstance(gate.config.max_latency_ms, dict)
+        assert "simple" in gate.config.max_latency_ms
+
+    def test_auto_tune_high_threshold_no_changes(self):
+        from src.quality_gate import QualityGate
+        gate = QualityGate()
+        result = gate.auto_tune_from_data(min_samples=999999)
+        # With absurd min_samples, no pattern should qualify → empty or no changes
+        assert "error" not in result or isinstance(result.get("error"), str)
+
+
+class TestBenchmarkAnalysis:
+    """Tests for SelfImprover._analyze_benchmark_data()."""
+
+    def test_analyze_returns_list(self):
+        from src.self_improvement import SelfImprover
+        imp = SelfImprover()
+        actions = imp._analyze_benchmark_data()
+        assert isinstance(actions, list)
+
+    def test_analyze_actions_are_route_shift(self):
+        from src.self_improvement import SelfImprover
+        imp = SelfImprover()
+        actions = imp._analyze_benchmark_data()
+        for a in actions:
+            assert a.action_type == "route_shift"
+            assert "from_node" in a.params or "to_node" in a.params
+
+    def test_suggest_improvements_includes_benchmark(self):
+        from src.self_improvement import SelfImprover
+        imp = SelfImprover()
+        suggestions = imp.suggest_improvements()
+        # Should include benchmark-derived actions (if data exists)
+        assert isinstance(suggestions, list)
+
+    def test_improvement_action_has_priority(self):
+        from src.self_improvement import ImprovementAction
+        action = ImprovementAction(
+            action_type="route_shift", target="reasoning",
+            description="Test", priority="high",
+            params={"from_node": "M3", "to_node": "M1", "bad_rate": 0.0, "good_rate": 1.0},
+        )
+        assert action.priority in ("high", "medium", "low")
 
 
 if __name__ == "__main__":

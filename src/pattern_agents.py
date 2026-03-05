@@ -117,6 +117,64 @@ class PatternAgent:
     max_tokens: int = 1024
     temperature: float = 0.3
 
+    # Dynamic timeout configuration (seconds)
+    # Based on adaptive_timeout_manager analysis: code/M1 p95=59s needs >60s
+    PATTERN_TIMEOUT = {
+        "simple": 15, "classifier": 15,
+        "code": 90, "creative": 75, "system": 60, "web": 60,
+        "devops": 60, "math": 90, "trading": 75,
+        "analysis": 120, "architecture": 120, "security": 120,
+        "data": 120, "reasoning": 150, "large": 150,
+    }
+    NODE_TIMEOUT_FACTOR = {
+        "M1": 1.0, "M1B": 2.0, "OL1": 1.0,
+        "M2": 2.0, "M3": 2.5,
+        "gpt-oss": 2.0, "devstral": 2.0, "minimax": 1.5,
+    }
+
+    def _calc_timeout(self, node_name: str, prompt: str) -> float:
+        """Calculate dynamic timeout based on pattern + node + prompt length.
+
+        Like a door: open it just long enough for the message to pass through.
+        Simple message (walking through) = short timeout.
+        Complex message (carrying boxes) = longer timeout.
+        """
+        base = self.PATTERN_TIMEOUT.get(self.pattern_type, 60)
+        factor = self.NODE_TIMEOUT_FACTOR.get(node_name, 1.5)
+        # Add time for long prompts (1s per 500 chars over 1000)
+        prompt_extra = max(0, (len(prompt) - 1000) / 500)
+        timeout = base * factor + prompt_extra
+        return max(10, min(180, timeout))  # clamp 10s-180s
+
+    # Context window limits per node (in tokens, ~4 chars per token)
+    NODE_CTX_LIMITS = {
+        "M1": 32000, "M1B": 25000, "M2": 27000, "M3": 25000,
+        "OL1": 32000, "gpt-oss": 128000, "devstral": 128000,
+        "minimax": 128000,
+    }
+    # Min output tokens per node (reasoning models need more space)
+    NODE_MIN_OUTPUT = {
+        "M2": 2048, "M3": 2048,  # deepseek-r1 needs reasoning space
+    }
+
+    def _adapt_max_tokens(self, node_name: str, prompt: str) -> int:
+        """Adapt max_output_tokens to avoid context size overflow.
+
+        Estimates prompt tokens and reserves space for output within the
+        node's context window. Prevents 'Context size exceeded' errors.
+        """
+        ctx_limit = self.NODE_CTX_LIMITS.get(node_name, 32000)
+        # Rough token estimate: ~4 chars per token for mixed fr/en
+        prompt_tokens_est = len(prompt) // 4 + 50  # +50 for system prompt overhead
+        available = ctx_limit - prompt_tokens_est
+        # Ensure at least 256 tokens for output, cap at configured max_tokens
+        min_out = self.NODE_MIN_OUTPUT.get(node_name, 256)
+        adapted = max(min_out, min(self.max_tokens, available))
+        # If prompt is already >80% of context, aggressively limit output
+        if prompt_tokens_est > ctx_limit * 0.8:
+            adapted = min(512, available)
+        return adapted
+
     async def execute(self, client: httpx.AsyncClient, prompt: str) -> AgentResult:
         """Execute this agent's strategy."""
         full_prompt = f"{self.system_prompt}\n\nUser: {prompt}" if self.system_prompt else prompt
@@ -139,19 +197,32 @@ class PatternAgent:
         if not node:
             return AgentResult("", node_name, "?", 0, 0, False, self.strategy, self.pattern_type, error=f"Unknown node: {node_name}")
 
+        timeout = self._calc_timeout(node_name, prompt)
         t0 = time.perf_counter()
         try:
             if node["type"] == "lmstudio":
+                # Adapt max_output_tokens to avoid context overflow
+                max_tok = self._adapt_max_tokens(node_name, prompt)
                 body = {
                     "model": node["model"],
                     "input": f"{node.get('prefix', '')}{prompt}",
                     "temperature": self.temperature,
-                    "max_output_tokens": self.max_tokens,
+                    "max_output_tokens": max_tok,
                     "stream": False,
                     "store": False,
                 }
-                r = await client.post(node["url"], json=body, timeout=60)
+                r = await client.post(node["url"], json=body, timeout=timeout)
                 data = r.json()
+                # Check for context size exceeded error
+                if data.get("error"):
+                    err_msg = str(data["error"])
+                    if "context" in err_msg.lower() or "exceeded" in err_msg.lower():
+                        # Context overflow: truncate prompt and retry with fewer tokens
+                        truncated = prompt[:len(prompt)//2]
+                        body["input"] = f"{node.get('prefix', '')}{truncated}"
+                        body["max_output_tokens"] = min(max_tok, 512)
+                        r = await client.post(node["url"], json=body, timeout=timeout)
+                        data = r.json()
                 content = ""
                 for o in data.get("output", []):
                     if o.get("type") == "message":
@@ -167,7 +238,7 @@ class PatternAgent:
                     "stream": False,
                     "think": False,
                 }
-                r = await client.post(node["url"], json=body, timeout=60)
+                r = await client.post(node["url"], json=body, timeout=timeout)
                 data = r.json()
                 content = data.get("message", {}).get("content", "")
 

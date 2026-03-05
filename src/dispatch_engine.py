@@ -5,8 +5,10 @@ Ties together all subsystems into one coherent dispatch flow:
   2. Route selection (adaptive_router) — pick best node
   3. Episodic recall (memory) — enrich prompt with past context
   4. Actual dispatch (pattern_agents) — call the LLM
-  5. Quality scoring + feedback recording
-  6. Episodic storage — store this dispatch for future recall
+  5. Quality gate evaluation (6 gates: length, structure, relevance, confidence, latency, hallucination)
+  6. Feedback recording
+  7. Episodic storage — store this dispatch for future recall
+  8. Event stream emission — real-time SSE events
 
 Usage:
     from src.dispatch_engine import DispatchEngine, get_engine
@@ -46,6 +48,13 @@ class DispatchResult:
     pipeline_ms: float = 0       # Total pipeline time (including overhead)
     prompt_tokens_est: int = 0   # Estimated prompt tokens
     error: str = ""
+    # Quality gate details
+    gate_passed: bool = True
+    gate_score: float = 0.0
+    gate_failed: list = field(default_factory=list)
+    gate_suggestions: list = field(default_factory=list)
+    event_emitted: bool = False
+    prompt_optimized: bool = False
 
 
 @dataclass
@@ -53,6 +62,7 @@ class PipelineConfig:
     """Configuration for the dispatch pipeline."""
     enable_health_check: bool = True
     enable_memory_enrichment: bool = True
+    enable_prompt_optimization: bool = True
     enable_feedback: bool = True
     enable_episodic_store: bool = True
     max_retries: int = 1
@@ -127,6 +137,11 @@ class DispatchEngine:
                 enriched_prompt, was_enriched = await self._enrich_with_memory(pattern, prompt)
                 result.enriched = was_enriched
 
+            # Step 3b: Prompt optimization
+            if self.config.enable_prompt_optimization:
+                enriched_prompt, was_optimized = self._optimize_prompt(pattern, enriched_prompt)
+                result.prompt_optimized = was_optimized
+
             # Step 4: Dispatch
             content, latency_ms, success = await self._do_dispatch(
                 pattern, enriched_prompt, node, strategy
@@ -150,25 +165,42 @@ class DispatchEngine:
                     result.node = fallback_node
                     result.fallback_used = True
 
-            # Step 5: Quality scoring
-            result.quality = self._score_quality(pattern, content, latency_ms, success)
+            # Step 5: Quality Gate evaluation (6 gates)
+            gate_result = self._evaluate_quality_gate(
+                pattern, prompt, content, latency_ms, result.node
+            )
+            result.quality = gate_result.get("overall_score", 0.0)
+            result.gate_passed = gate_result.get("passed", True)
+            result.gate_score = gate_result.get("overall_score", 0.0)
+            result.gate_failed = gate_result.get("failed_gates", [])
+            result.gate_suggestions = gate_result.get("suggestions", [])
 
-            # Step 5b: Quality-based retry
-            if (result.quality < self.config.quality_threshold
+            # Step 5b: Quality-based retry (if gate failed + retry recommended)
+            if (not result.gate_passed
+                    and gate_result.get("retry_recommended", False)
                     and result.success and self.config.max_retries > 0
                     and not result.fallback_used):
-                better_node = await self._pick_fallback(pattern, node, bypassed + [node])
-                if better_node:
+                # Use suggested node from gate, or pick fallback
+                better_node = gate_result.get("suggested_node") or await self._pick_fallback(
+                    pattern, node, bypassed + [node]
+                )
+                if better_node and better_node != node:
                     self._stats["retries"] += 1
                     content2, lat2, ok2 = await self._do_dispatch(
                         pattern, enriched_prompt, better_node, "single"
                     )
-                    q2 = self._score_quality(pattern, content2, lat2, ok2)
-                    if q2 > result.quality:
+                    gate2 = self._evaluate_quality_gate(
+                        pattern, prompt, content2, lat2, better_node
+                    )
+                    if gate2.get("overall_score", 0) > result.quality:
                         result.content = content2
                         result.latency_ms = lat2
                         result.success = ok2
-                        result.quality = q2
+                        result.quality = gate2["overall_score"]
+                        result.gate_passed = gate2["passed"]
+                        result.gate_score = gate2["overall_score"]
+                        result.gate_failed = gate2.get("failed_gates", [])
+                        result.gate_suggestions = gate2.get("suggestions", [])
                         result.node = better_node
                         result.fallback_used = True
 
@@ -204,6 +236,9 @@ class DispatchEngine:
         # Persist
         self._log_pipeline(result)
 
+        # Step 8: Event stream emission
+        result.event_emitted = self._emit_event(result, prompt)
+
         return result
 
     async def _check_health(self) -> list[str]:
@@ -221,13 +256,49 @@ class DispatchEngine:
         except Exception:
             return []
 
+    # Blacklisted pattern-node combos (from benchmark data: 0% success rate)
+    ROUTE_BLACKLIST = {
+        ("reasoning", "M3"), ("math", "M3"),         # M3 always times out
+        ("architecture", "M3"), ("security", "M3"),   # M3 too slow for complex
+        ("analysis", "M3"), ("data", "M3"),
+        ("code", "M3"),                               # M3 not suited for code gen
+    }
+
+    # Preferred nodes per pattern (from benchmark: highest success rate)
+    ROUTE_PREFERENCE = {
+        "reasoning": ["M1", "OL1", "M2"],
+        "math": ["M1", "M2"],
+        "architecture": ["M1", "gpt-oss", "devstral"],
+        "security": ["M1", "gpt-oss"],
+        "analysis": ["M1", "gpt-oss"],
+        "data": ["M1", "gpt-oss"],
+        "code": ["M1", "gpt-oss", "devstral"],
+        "classifier": ["M1", "OL1"],
+        "simple": ["OL1", "M1"],
+        "creative": ["M1", "OL1", "M2"],
+        "system": ["M1", "OL1"],
+        "web": ["OL1", "M1"],
+        "devops": ["OL1", "M1"],
+        "trading": ["M1", "M2"],
+    }
+
     async def _pick_route(self, pattern: str, prompt: str,
                           exclude: list[str]) -> tuple[str, str]:
-        """Pick best node and strategy."""
+        """Pick best node and strategy. Uses benchmark-driven preferences."""
+        # Apply blacklist to exclude list
+        blacklisted = [n for p, n in self.ROUTE_BLACKLIST if p == pattern]
+        all_exclude = list(set(exclude + blacklisted))
+
+        # Try benchmark-preferred nodes first
+        preferred = self.ROUTE_PREFERENCE.get(pattern, [])
+        for node in preferred:
+            if node not in all_exclude:
+                return node, "single"
+
         try:
             from src.adaptive_router import get_router
             router = get_router()
-            node = router.pick_node(pattern, exclude_nodes=exclude)
+            node = router.pick_node(pattern, exclude_nodes=all_exclude)
             if node:
                 return node, "single"
         except Exception:
@@ -240,7 +311,7 @@ class DispatchEngine:
             agent = reg.agents.get(pattern)
             if agent:
                 for n in [agent.primary_node] + list(agent.fallback_chain):
-                    if n not in exclude:
+                    if n not in all_exclude:
                         return n, agent.strategy
         except Exception:
             pass
@@ -258,10 +329,12 @@ class DispatchEngine:
         except Exception:
             pass
 
-        # Manual fallback chain
-        chain = ["M1", "M1B", "OL1", "M2", "M3"]
+        # Manual fallback chain (M3 last — consistently worst in benchmarks)
+        chain = ["M1", "OL1", "M1B", "M2", "gpt-oss", "devstral", "M3"]
+        # Also apply pattern blacklist
+        blacklisted = [n for p, n in self.ROUTE_BLACKLIST if p == pattern]
         for n in chain:
-            if n != current and n not in exclude:
+            if n != current and n not in exclude and n not in blacklisted:
                 return n
         return None
 
@@ -285,19 +358,53 @@ class DispatchEngine:
             pass
         return prompt, False
 
+    def _optimize_prompt(self, pattern: str, prompt: str) -> tuple[str, bool]:
+        """Optimize prompt using pattern-specific system prompts and learned insights."""
+        try:
+            from src.agent_prompt_optimizer import get_optimizer
+            opt = get_optimizer()
+            result = opt.optimize(pattern, prompt)
+            optimized = result.get("user_prompt", prompt)
+            if optimized != prompt:
+                return optimized, True
+        except Exception:
+            pass
+        return prompt, False
+
     async def _do_dispatch(self, pattern: str, prompt: str,
                            node: str, strategy: str) -> tuple[str, float, bool]:
-        """Actually dispatch to a node using direct node call."""
+        """Actually dispatch to a node. Searches hardcoded + dynamic agents."""
         try:
             from src.pattern_agents import PatternAgentRegistry, NODES
-            import httpx
 
             reg = PatternAgentRegistry()
-            agent = reg.agents.get(pattern) or reg.agents.get("simple")
+            agent = reg.agents.get(pattern)
+
+            # If not in hardcoded, check dynamic agents
+            if not agent:
+                try:
+                    from src.dynamic_agents import get_spawner
+                    spawner = get_spawner()
+                    dyn = spawner.agents.get(pattern)
+                    if dyn:
+                        agent = dyn.to_pattern_agent()
+                    else:
+                        # Fallback to loading all dynamic agents
+                        if not spawner._loaded:
+                            spawner.load_all()
+                        dyn = spawner.agents.get(pattern)
+                        if dyn:
+                            agent = dyn.to_pattern_agent()
+                except Exception:
+                    pass
+
+            # Final fallback: use simple agent
+            if not agent:
+                agent = reg.agents.get("simple")
+
             client = await reg._get_client()
 
             t0 = time.time()
-            # Direct call to specific node
             result = await agent._call_node(client, node, prompt)
             latency = (time.time() - t0) * 1000
 
@@ -309,42 +416,81 @@ class DispatchEngine:
             logger.warning(f"Dispatch to {node} failed: {e}")
         return "", 0, False
 
-    def _score_quality(self, pattern: str, content: str,
-                       latency_ms: float, success: bool) -> float:
-        """Score quality 0-1."""
-        if not success or not content:
-            return 0.0
+    def _evaluate_quality_gate(self, pattern: str, prompt: str, content: str,
+                               latency_ms: float, node: str) -> dict:
+        """Evaluate output through the full quality gate system."""
+        try:
+            from src.quality_gate import get_gate
+            gate = get_gate()
+            verdict = gate.evaluate(pattern, prompt, content, latency_ms, node)
+            return {
+                "passed": verdict.passed,
+                "overall_score": verdict.overall_score,
+                "gates": verdict.gates,
+                "failed_gates": verdict.failed_gates,
+                "suggestions": verdict.suggestions,
+                "retry_recommended": verdict.retry_recommended,
+                "suggested_node": verdict.suggested_node,
+            }
+        except Exception as e:
+            logger.warning(f"Quality gate failed, using fallback scoring: {e}")
+            # Fallback: simple heuristic if quality_gate module unavailable
+            if not content:
+                return {"passed": False, "overall_score": 0.0, "failed_gates": ["empty"],
+                        "suggestions": [], "retry_recommended": True, "suggested_node": ""}
+            score = min(1.0, 0.3 + (0.2 if len(content) > 50 else 0) +
+                        (0.2 if latency_ms < 5000 else 0) + (0.2 if len(content) > 200 else 0))
+            return {"passed": score >= 0.4, "overall_score": score, "failed_gates": [],
+                    "suggestions": [], "retry_recommended": False, "suggested_node": ""}
 
-        score = 0.0
-        length = len(content)
+    def _emit_event(self, result: DispatchResult, prompt: str) -> bool:
+        """Emit dispatch event to the event stream for real-time SSE consumers."""
+        try:
+            from src.event_stream import get_stream
+            stream = get_stream()
 
-        # Length scoring (pattern-aware)
-        if pattern in ("simple", "classifier"):
-            score += 0.3 if 10 < length < 500 else 0.1
-        elif pattern in ("code", "architecture", "analysis"):
-            score += 0.3 if length > 100 else 0.1
-        else:
-            score += 0.3 if length > 50 else 0.15
+            # Emit dispatch event
+            stream.emit_dispatch(
+                pattern=result.pattern,
+                node=result.node,
+                quality=result.quality,
+                latency_ms=result.latency_ms,
+                success=result.success,
+                strategy=result.strategy,
+                pipeline_ms=result.pipeline_ms,
+                enriched=result.enriched,
+                fallback_used=result.fallback_used,
+                gate_passed=result.gate_passed,
+                gate_failed=result.gate_failed,
+            )
 
-        # Latency scoring
-        if latency_ms < 2000:
-            score += 0.3
-        elif latency_ms < 5000:
-            score += 0.2
-        elif latency_ms < 15000:
-            score += 0.1
+            # Emit pipeline event with more detail
+            stream.emit("pipeline", {
+                "pattern": result.pattern,
+                "node": result.node,
+                "quality": result.quality,
+                "gate_passed": result.gate_passed,
+                "latency_ms": result.latency_ms,
+                "pipeline_ms": result.pipeline_ms,
+                "enriched": result.enriched,
+                "fallback_used": result.fallback_used,
+                "prompt_preview": prompt[:80],
+                "content_preview": result.content[:120] if result.content else "",
+            }, source="dispatch_engine")
 
-        # Content quality heuristics
-        if not content.startswith("Error") and not content.startswith("error"):
-            score += 0.1
-        if len(content.split("\n")) > 1:
-            score += 0.1  # Multi-line = structured
-        if any(marker in content for marker in ["```", "def ", "class ", "function "]):
-            score += 0.1 if pattern == "code" else 0.05
-        if length > 200:
-            score += 0.1
+            # Emit alert if quality gate failed
+            if not result.gate_passed and result.gate_failed:
+                stream.emit_alert(
+                    level="warning",
+                    message=f"Quality gate failed for {result.pattern}@{result.node}: {', '.join(result.gate_failed)}",
+                    pattern=result.pattern,
+                    node=result.node,
+                )
 
-        return min(1.0, score)
+            return True
+        except Exception as e:
+            logger.debug(f"Event emission failed: {e}")
+            return False
 
     async def _record_feedback(self, result: DispatchResult, prompt: str) -> bool:
         """Record feedback from this dispatch."""
@@ -409,6 +555,7 @@ class DispatchEngine:
             "config": {
                 "health_check": self.config.enable_health_check,
                 "memory_enrichment": self.config.enable_memory_enrichment,
+                "prompt_optimization": self.config.enable_prompt_optimization,
                 "feedback": self.config.enable_feedback,
                 "episodic_store": self.config.enable_episodic_store,
                 "max_retries": self.config.max_retries,

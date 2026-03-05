@@ -47,18 +47,25 @@ class GateResult:
 class GateConfig:
     """Quality gate thresholds."""
     min_content_length: dict = field(default_factory=lambda: {
-        "simple": 5, "code": 50, "analysis": 100, "architecture": 100,
-        "reasoning": 50, "math": 20, "trading": 50, "security": 80,
-        "creative": 30, "system": 10, "data": 30, "devops": 30,
-        "default": 20,
+        "simple": 3, "classifier": 3, "code": 50, "analysis": 80,
+        "architecture": 80, "reasoning": 40, "math": 15, "trading": 40,
+        "security": 60, "creative": 25, "system": 8, "data": 25,
+        "devops": 25, "web": 20, "default": 15,
     })
     max_latency_ms: dict = field(default_factory=lambda: {
-        "simple": 5000, "code": 30000, "analysis": 30000, "reasoning": 60000,
-        "default": 30000,
+        "simple": 10000, "classifier": 10000, "code": 45000,
+        "analysis": 60000, "architecture": 60000, "reasoning": 90000,
+        "math": 45000, "trading": 60000, "security": 60000,
+        "creative": 45000, "data": 60000, "devops": 45000,
+        "web": 45000, "default": 45000,
     })
-    min_relevance: float = 0.15   # Minimum keyword overlap
-    min_overall_score: float = 0.4
-    max_error_keywords: int = 2
+    min_relevance: dict = field(default_factory=lambda: {
+        "simple": 0.05, "classifier": 0.05, "creative": 0.08,
+        "architecture": 0.08, "analysis": 0.08, "security": 0.08,
+        "data": 0.08, "trading": 0.10, "code": 0.12, "default": 0.10,
+    })
+    min_overall_score: float = 0.35
+    max_error_keywords: int = 3
 
 
 class QualityGate:
@@ -114,8 +121,8 @@ class QualityGate:
         gates["length"] = {
             "passed": length_ok,
             "score": min(1.0, len(content) / max(1, min_len * 3)),
-            "reason": f"Length {len(content)} {'>=': length_ok} {min_len} min" if length_ok
-                      else f"Too short: {len(content)} < {min_len}",
+            "reason": (f"Length {len(content)} >= {min_len} min" if length_ok
+                       else f"Too short: {len(content)} < {min_len}"),
         }
         if not length_ok:
             failed.append("length")
@@ -133,9 +140,13 @@ class QualityGate:
             failed.append("structure")
             suggestions.append("Output manque de structure (code blocks, listes, sections)")
 
-        # Gate 3: Relevance
+        # Gate 3: Relevance (adaptive per pattern)
         relevance = self._evaluate_relevance(prompt, content)
-        relevance_ok = relevance >= self.config.min_relevance
+        if isinstance(self.config.min_relevance, dict):
+            min_rel = self.config.min_relevance.get(pattern, self.config.min_relevance.get("default", 0.10))
+        else:
+            min_rel = self.config.min_relevance
+        relevance_ok = relevance >= min_rel
         gates["relevance"] = {
             "passed": relevance_ok,
             "score": relevance,
@@ -298,13 +309,102 @@ class QualityGate:
     def _suggest_better_node(self, pattern: str, current_node: str,
                              failed_gates: list[str]) -> str:
         """Suggest a better node based on failure type."""
+        # Node blacklist for known bad combos
+        BAD_COMBOS = {
+            ("reasoning", "M3"), ("math", "M3"),  # M3 always times out on reasoning
+            ("architecture", "M3"), ("security", "M3"),
+        }
         if "latency" in failed_gates:
             return "M1"  # Fastest local
         if "length" in failed_gates or "structure" in failed_gates:
-            return "M1B"  # Deeper model for better output
+            if current_node in ("OL1", "M3"):
+                return "M1"  # M1 gives better quality than M1B for structure
+            return "gpt-oss"  # Best quality cloud
         if "relevance" in failed_gates:
+            if current_node == "OL1":
+                return "M1"
             return "gpt-oss"  # Best quality cloud
         return ""
+
+    def auto_tune_from_data(self, min_samples: int = 10) -> dict:
+        """Auto-recalibrate gate thresholds from actual dispatch data.
+
+        Reads agent_dispatch_log to find patterns where success rate is high
+        but quality_gate pass rate is low (meaning the gate is too strict).
+        Also detects patterns where gate passes but quality is actually bad.
+        """
+        adjustments = {}
+        try:
+            db = sqlite3.connect(DB_PATH)
+            db.row_factory = sqlite3.Row
+
+            # Patterns where dispatch succeeds but gate often fails
+            rows = db.execute("""
+                SELECT d.classified_type as pattern,
+                       COUNT(*) as total,
+                       SUM(CASE WHEN d.success=1 THEN 1 ELSE 0 END) as dispatch_ok,
+                       AVG(d.quality_score) as avg_q,
+                       AVG(d.latency_ms) as avg_lat
+                FROM agent_dispatch_log d
+                WHERE d.id > (SELECT COALESCE(MAX(id),0) - 1000 FROM agent_dispatch_log)
+                GROUP BY d.classified_type
+                HAVING total >= ?
+                ORDER BY avg_q ASC
+            """, (min_samples,)).fetchall()
+
+            gate_stats = {}
+            gate_rows = db.execute("""
+                SELECT pattern, COUNT(*) as n,
+                       SUM(CASE WHEN passed THEN 1 ELSE 0 END) as passed,
+                       AVG(overall_score) as avg_score
+                FROM quality_gate_log
+                GROUP BY pattern
+            """).fetchall()
+            for r in gate_rows:
+                gate_stats[r["pattern"]] = {
+                    "n": r["n"], "passed": r["passed"],
+                    "rate": r["passed"] / max(1, r["n"]),
+                    "avg_score": r["avg_score"] or 0,
+                }
+
+            db.close()
+
+            for r in rows:
+                pat = r["pattern"]
+                dispatch_rate = r["dispatch_ok"] / max(1, r["total"])
+                avg_lat = r["avg_lat"] or 0
+                gs = gate_stats.get(pat, {})
+                gate_rate = gs.get("rate", 1.0)
+
+                changes = []
+
+                # If dispatch succeeds >80% but gate passes <60%, gate is too strict
+                if dispatch_rate > 0.8 and gate_rate < 0.6 and gs.get("n", 0) >= 5:
+                    # Relax relevance
+                    if isinstance(self.config.min_relevance, dict):
+                        old_rel = self.config.min_relevance.get(pat, self.config.min_relevance.get("default", 0.10))
+                        new_rel = max(0.03, old_rel * 0.7)
+                        self.config.min_relevance[pat] = round(new_rel, 3)
+                        changes.append(f"relevance {old_rel:.3f} → {new_rel:.3f}")
+
+                # If avg latency is significantly above max_latency, raise threshold
+                max_lat = self.config.max_latency_ms.get(pat, self.config.max_latency_ms.get("default", 45000))
+                if avg_lat > max_lat * 0.9 and dispatch_rate > 0.5:
+                    new_lat = int(avg_lat * 1.3)
+                    self.config.max_latency_ms[pat] = new_lat
+                    changes.append(f"max_latency {max_lat} → {new_lat}")
+
+                # If dispatch rate <30%, pattern needs stricter gate + node shift
+                if dispatch_rate < 0.3 and r["total"] >= 20:
+                    changes.append(f"WARNING: {pat} dispatch rate {dispatch_rate*100:.0f}% — needs node shift")
+
+                if changes:
+                    adjustments[pat] = changes
+
+        except Exception as e:
+            adjustments["error"] = str(e)
+
+        return adjustments
 
     def _log(self, pattern: str, result: GateResult, node: str):
         try:
