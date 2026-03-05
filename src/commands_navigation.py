@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+
 from src.commands import JarvisCommand
 
 NAVIGATION_COMMANDS: list[JarvisCommand] = [

@@ -1022,7 +1022,7 @@ def _list_env_versions() -> str:
     versions = []
     for cmd, name in [("python --version", "Python"), ("node --version", "Node"), ("git --version", "Git")]:
         try:
-            r = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=5)
+            r = subprocess.run(cmd.split(), capture_output=True, text=True, timeout=5)
             versions.append(f"{name}: {r.stdout.strip()}")
         except (subprocess.TimeoutExpired, OSError):
             versions.append(f"{name}: N/A")
@@ -1157,7 +1157,7 @@ def _list_ollama_models() -> str:
     """List Ollama models available."""
     import subprocess
     try:
-        r = subprocess.run('curl -s http://127.0.0.1:11434/api/tags', shell=True, capture_output=True, text=True, timeout=5)
+        r = subprocess.run(['curl', '-s', 'http://127.0.0.1:11434/api/tags'], capture_output=True, text=True, timeout=5)
         import json
         data = json.loads(r.stdout)
         models = [m["name"] for m in data.get("models", [])]
@@ -1171,7 +1171,7 @@ def _list_lm_studio_models() -> str:
     """List LM Studio loaded models."""
     import subprocess
     try:
-        r = subprocess.run('curl -s http://127.0.0.1:1234/api/v1/models', shell=True, capture_output=True, text=True, timeout=5)
+        r = subprocess.run(['curl', '-s', 'http://127.0.0.1:1234/api/v1/models'], capture_output=True, text=True, timeout=5)
         import json
         data = json.loads(r.stdout)
         models = [m.get("id", "?") for m in data.get("data", data.get("models", [])) if m.get("loaded_instances")]
@@ -1238,7 +1238,7 @@ def _git_status_short() -> str:
     """Get git status summary."""
     import subprocess
     try:
-        r = subprocess.run("git status --short", shell=True, capture_output=True, text=True, timeout=5, cwd="F:/BUREAU/turbo")
+        r = subprocess.run(['git', 'status', '--short'], capture_output=True, text=True, timeout=5, cwd="F:/BUREAU/turbo")
         lines = r.stdout.strip().split("\n") if r.stdout.strip() else []
         return f"{len(lines)} files modified" if lines else "Working tree clean"
     except (subprocess.TimeoutExpired, OSError):
@@ -1287,7 +1287,7 @@ def _recent_commits() -> str:
     """Get last 5 commit subjects."""
     import subprocess
     try:
-        r = subprocess.run("git log --oneline -5", shell=True, capture_output=True, text=True, timeout=5, cwd="F:/BUREAU/turbo")
+        r = subprocess.run(['git', 'log', '--oneline', '-5'], capture_output=True, text=True, timeout=5, cwd="F:/BUREAU/turbo")
         return r.stdout.strip() if r.stdout.strip() else "No commits"
     except (subprocess.TimeoutExpired, OSError):
         return "Git N/A"
@@ -1298,7 +1298,8 @@ def _ci_pipeline_count() -> str:
     """Count GitHub Actions workflows."""
     import subprocess
     try:
-        r = subprocess.run("ls .github/workflows/*.yml 2>/dev/null | wc -l", shell=True, capture_output=True, text=True, timeout=5, cwd="F:/BUREAU/turbo")
+        cmd = ['ls', '.github/workflows/*.yml', '2>/dev/null', '|', 'wc', '-l']
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=5, cwd="F:/BUREAU/turbo")
         count = r.stdout.strip()
         return f"GitHub workflows: {count}"
     except (subprocess.TimeoutExpired, OSError):
@@ -1310,8 +1311,11 @@ def _npm_packages_count() -> str:
     """Count installed npm packages."""
     import subprocess
     try:
-        r = subprocess.run("npm list --depth=0 2>/dev/null | wc -l", shell=True, capture_output=True, text=True, timeout=10)
-        count = r.stdout.strip()
+        cmd_list = ['npm', 'list', '--depth=0']
+        cmd_count = ['wc', '-l']
+        proc = subprocess.Popen(cmd_list, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        output, _ = proc.communicate()
+        count = output.decode().strip()
         return f"npm packages: {count}"
     except (subprocess.TimeoutExpired, OSError):
         return "npm N/A"

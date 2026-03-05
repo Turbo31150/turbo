@@ -76,6 +76,7 @@ class AutonomousDevAgent:
             try:
                 await self.task
             except asyncio.CancelledError:
+                # Ignoring CancelledError as expected
                 pass
         logger.info("Autonomous Dev Agent STOPPED")
     
@@ -297,9 +298,13 @@ class AutonomousDevAgent:
         
         discovered = []
         
-        # TODO: Implement AI-powered task discovery
-        # - Analyze error logs for patterns
-        # - Check TODO/FIXME comments in code
+        # TODO: Implement AI-powered task discovery by analyzing error logs for patterns and checking TODO/FIXME comments in code
+        
+        # Placeholder for AI-powered task discovery logic
+        # This section should be replaced with actual implementation
+        
+        # Placeholder for AI-powered task discovery logic
+        # This section should be replaced with actual implementation
         # - Monitor performance metrics for bottlenecks
         # - Scan for deprecated dependencies
         # - Check code coverage and suggest tests

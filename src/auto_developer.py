@@ -106,8 +106,8 @@ class AutoDeveloper:
                             pattern=text, count=cnt, examples=[text],
                             description=f"Pattern vocal non gere {cnt}x",
                         ))
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error(f"Erreur inattendue: {str(e)}")
 
         # Deduplicate
         seen = set()
@@ -164,7 +164,7 @@ class AutoDeveloper:
                 description=data.get("description", gap.description),
                 triggers=data.get("triggers", [gap.pattern]),
                 action_type=data.get("action_type", "powershell"),
-                action=data.get("action", "echo 'TODO'"),
+                action=data.get("action", ""),
                 confidence=0.7,
             )
             self._generated.append(cmd)
@@ -318,8 +318,8 @@ class AutoDeveloper:
                             await event_bus.emit("autodev.command_created", {
                                 "name": cmd.name, "triggers": cmd.triggers[:3],
                             })
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            report["errors"].append(f"{str(e)[:100]} (caught in inner block)")
             except Exception as e:
                 report["errors"].append(str(e)[:100])
 

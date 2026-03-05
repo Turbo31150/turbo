@@ -90,7 +90,7 @@ class AutoTuneScheduler:
                     snap.gpu_memory_used_mb += float(parts[2])
                     snap.gpu_memory_total_mb += float(parts[3])
         except (subprocess.SubprocessError, FileNotFoundError, ValueError):
-            pass
+            logger.warning("Caught exception: %s", exc_info=True)
 
         with self._lock:
             self._history.append(snap)

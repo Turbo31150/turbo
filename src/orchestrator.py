@@ -355,7 +355,6 @@ async def run_interactive(cwd: str | None = None) -> None:
                 user_input = await asyncio.get_running_loop().run_in_executor(None, input, "\n[COMMANDANT] > ")
             except (EOFError, KeyboardInterrupt):
                 break
-
             if not user_input.strip():
                 continue
             if user_input.strip().lower() == "exit":

@@ -163,17 +163,23 @@ async function handleCommand(chatId, cmd, args) {
     case '/start':
     case '/help':
       return sendMessage(chatId, [
-        '🤖 *JARVIS Telegram Bot*',
+        '*JARVIS Telegram Bot*',
         '',
         'Commandes:',
-        '`/status` — Health check cluster',
-        '`/health` — État détaillé des nœuds',
-        '`/consensus <question>` — Vote pondéré multi-nœuds',
-        '`/model <id> <question>` — Forcer un nœud (M1/M2/OL1...)',
-        '`/stats` — Statistiques du bot',
-        '`/help` — Cette aide',
+        '`/status` - Health check cluster',
+        '`/health` - Etat detaille des noeuds',
+        '`/gpu` - Temperatures et VRAM GPU',
+        '`/jarvis <cmd>` - Executer commande vocale JARVIS',
+        '`/exec <cmd>` - Alias de /jarvis',
+        '`/consensus <q>` - Vote pondere multi-noeuds',
+        '`/model <id> <q>` - Forcer un noeud (M1/M2/OL1...)',
+        '`/improve [N]` - Lancer N cycles amelioration (def: 10)',
+        '`/voice [texte]` - Test reponse vocale',
+        '`/stats` - Statistiques du bot',
+        '`/help` - Cette aide',
         '',
-        'Texte libre → dispatch automatique via routing intelligent.',
+        'Texte libre: JARVIS essaie de matcher une commande vocale. Sinon, dispatch cluster IA.',
+        'Audio: transcription Whisper puis traitement identique.',
       ].join('\n'), 'Markdown');
 
     case '/status': {
@@ -249,15 +255,138 @@ async function handleCommand(chatId, cmd, args) {
 
     case '/stats':
       return sendMessage(chatId, [
-        '📈 *Bot Stats*',
-        `Démarré: ${stats.started}`,
-        `Messages reçus: ${stats.messages_in}`,
-        `Messages envoyés: ${stats.messages_out}`,
+        '*Bot Stats*',
+        `Demarre: ${stats.started}`,
+        `Messages recus: ${stats.messages_in}`,
+        `Messages envoyes: ${stats.messages_out}`,
         `Erreurs: ${stats.errors}`,
       ].join('\n'), 'Markdown');
 
+    case '/jarvis':
+    case '/exec': {
+      if (!args) return sendMessage(chatId, 'Usage: /jarvis <commande vocale>\nEx: /jarvis ouvre chrome');
+      return handleJarvisCommand(chatId, args);
+    }
+
+    case '/improve': {
+      const cycles = parseInt(args) || 10;
+      return handleImproveLoop(chatId, cycles);
+    }
+
+    case '/gpu': {
+      return handleGpuStatus(chatId);
+    }
+
+    case '/voice': {
+      // Force a voice reply test
+      const testText = args || 'JARVIS est operationnel. Tous les systemes fonctionnent.';
+      const sent = await sendVoiceReply(chatId, testText);
+      if (!sent) await sendMessage(chatId, 'Voice reply failed - check TTS script');
+      return;
+    }
+
     default:
       return null; // pas une commande reconnue
+  }
+}
+
+// ─── JARVIS Command Execution ─────────────────────────────────────────────────
+
+const TURBO_ROOT = path.join(__dirname, '..');
+
+async function handleJarvisCommand(chatId, voiceText) {
+  const { execSync } = require('child_process');
+  try {
+    // Match voice command via Python
+    const matchResult = execSync(
+      `python -c "import sys;sys.path.insert(0,'.');from src.commands import match_command;cmd,p,s=match_command(sys.stdin.read().strip());import json;print(json.dumps({'name':cmd.name if cmd else None,'action':cmd.action if cmd else None,'action_type':cmd.action_type if cmd else None,'params':p,'score':s,'desc':cmd.description if cmd else None}))"`,
+      { timeout: 10000, encoding: 'utf-8', input: voiceText, cwd: TURBO_ROOT, stdio: ['pipe', 'pipe', 'pipe'] }
+    );
+    const match = JSON.parse(matchResult.trim());
+
+    if (!match.name || match.score < 0.5) {
+      // No match — fallback to cluster chat
+      await sendMessage(chatId, `Commande non reconnue (score ${(match.score * 100).toFixed(0)}%). Dispatch au cluster...`);
+      return null; // will fallback to cluster race
+    }
+
+    const msg = `JARVIS: ${match.desc || match.name}\nAction: ${match.action_type} → ${(match.action || '').slice(0, 100)}\nScore: ${(match.score * 100).toFixed(0)}%`;
+    await sendMessage(chatId, msg);
+
+    // Execute the command
+    if (match.action_type === 'browser' && match.action) {
+      execSync(`start "" "${match.action.replace('navigate:', '').replace('search:', 'https://www.google.com/search?q=')}"`, { timeout: 5000, shell: true });
+      await sendVoiceReply(chatId, `${match.desc || match.name} execute`);
+    } else if (match.action_type === 'app_open' && match.action) {
+      execSync(`start "" "${match.action}"`, { timeout: 5000, shell: true });
+      await sendVoiceReply(chatId, `Application ${match.name} lancee`);
+    } else if (match.action_type === 'hotkey' && match.action) {
+      // Use PowerShell to send keys
+      const keys = match.action.replace(/\+/g, ',');
+      execSync(`powershell -Command "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class KBD{[DllImport(\\\"user32.dll\\\")]public static extern void keybd_event(byte b,byte s,uint f,UIntPtr e);}'"`, { timeout: 5000 });
+      await sendVoiceReply(chatId, `Raccourci ${match.action} execute`);
+    } else if (match.action_type === 'powershell' && match.action) {
+      const psResult = execSync(`powershell -NoProfile -Command "${match.action.replace(/"/g, '\\"')}"`, { timeout: 15000, encoding: 'utf-8' });
+      const output = psResult.trim().slice(0, 500) || 'OK';
+      await sendMessage(chatId, `Resultat:\n${output}`);
+      await sendVoiceReply(chatId, `Commande executee: ${match.desc || match.name}`);
+    } else {
+      await sendMessage(chatId, `Type ${match.action_type} - execution manuelle requise`);
+    }
+
+    return true;
+  } catch (e) {
+    logErr('JARVIS command failed:', e.message);
+    await sendMessage(chatId, `Erreur JARVIS: ${e.message.slice(0, 200)}`);
+    return false;
+  }
+}
+
+// ─── GPU Status ───────────────────────────────────────────────────────────────
+
+async function handleGpuStatus(chatId) {
+  const { execSync } = require('child_process');
+  try {
+    const r = execSync(
+      'nvidia-smi --query-gpu=index,name,temperature.gpu,memory.used,memory.total,utilization.gpu --format=csv,noheader',
+      { timeout: 5000, encoding: 'utf-8' }
+    );
+    const lines = ['*GPU Status*', ''];
+    for (const line of r.trim().split('\n')) {
+      const [idx, name, temp, used, total, util] = line.split(',').map(s => s.trim());
+      const icon = parseInt(temp) > 75 ? '🔴' : parseInt(temp) > 60 ? '🟡' : '🟢';
+      lines.push(`${icon} GPU${idx}: ${temp}C | ${used}/${total} MiB | ${util}% | ${name}`);
+    }
+    await sendMessage(chatId, lines.join('\n'), 'Markdown');
+    await sendVoiceReply(chatId, `${lines.length - 2} GPU detectees. Temperature maximale ${Math.max(...r.trim().split('\n').map(l => parseInt(l.split(',')[2])))} degres`);
+  } catch (e) {
+    await sendMessage(chatId, `Erreur GPU: ${e.message.slice(0, 200)}`);
+  }
+}
+
+// ─── Improve Loop (via Telegram) ──────────────────────────────────────────────
+
+async function handleImproveLoop(chatId, cycles) {
+  const { execSync } = require('child_process');
+  await sendMessage(chatId, `Lancement amelioration JARVIS: ${cycles} cycles...\nRapport toutes les 5 cycles.`);
+  await sendVoiceReply(chatId, `Lancement de ${cycles} cycles d amelioration JARVIS. Je vous tiendrai informe de la progression.`);
+
+  try {
+    // Run improve loop in background (non-blocking)
+    const { exec } = require('child_process');
+    const proc = exec(
+      `python "${path.join(TURBO_ROOT, 'scripts', 'improve_loop_100.py')}" --cycles ${cycles} --report-every 5`,
+      { timeout: cycles * 120000, cwd: TURBO_ROOT }
+    );
+    proc.stdout.on('data', (data) => log(`[improve] ${data.trim()}`));
+    proc.stderr.on('data', (data) => logErr(`[improve] ${data.trim()}`));
+    proc.on('close', (code) => {
+      log(`[improve] Process exited with code ${code}`);
+      sendMessage(chatId, `Boucle amelioration terminee (code ${code}). Voir data/improve_loop_report.json`);
+      sendVoiceReply(chatId, `La boucle d amelioration de ${cycles} cycles est terminee.`);
+    });
+  } catch (e) {
+    await sendMessage(chatId, `Erreur improve loop: ${e.message.slice(0, 200)}`);
   }
 }
 
@@ -384,18 +513,23 @@ async function transcribeVoice(fileId) {
 
 // ─── Voice: send response as Telegram voice message ──────────────────────────
 
+const TTS_STDIN_SCRIPT = path.join(__dirname, '..', 'scripts', 'tts_stdin.py');
+
 async function sendVoiceReply(chatId, text) {
   try {
     const { execSync } = require('child_process');
+    const cleanText = text.replace(/[\r\n]+/g, ' ').slice(0, 2000);
     const result = execSync(
-      `python "${TTS_SCRIPT}" --speak "${text.replace(/"/g, '\\"').slice(0, 2000)}" --telegram`,
-      { timeout: 30000, encoding: 'utf-8', cwd: path.dirname(TTS_SCRIPT), stdio: ['pipe', 'pipe', 'pipe'] }
+      `python "${TTS_STDIN_SCRIPT}" --telegram`,
+      { timeout: 30000, encoding: 'utf-8', input: cleanText, stdio: ['pipe', 'pipe', 'pipe'] }
     );
     const data = JSON.parse(result.trim());
     if (data.ok) {
-      log(`  VOICE sent: ${data.duration}s OGG via DeniseNeural`);
+      log(`  VOICE sent: ${data.duration || '?'}s OGG via DeniseNeural`);
       stats.messages_out++;
       return true;
+    } else {
+      logErr('TTS failed:', data.error || 'unknown');
     }
   } catch (e) {
     logErr('sendVoiceReply failed:', e.message);
@@ -464,6 +598,10 @@ async function processMessage(msg) {
     const handled = await handleCommand(chatId, cmd, args);
     if (handled !== null) return;
   }
+
+  // ── Try JARVIS command match first ──
+  const jarvisResult = await handleJarvisCommand(chatId, text);
+  if (jarvisResult === true) return; // Command matched and executed
 
   // ── Dispatch: cluster race (all nodes parallel) ou proxy fallback ──
   let reply = '';

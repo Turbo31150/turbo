@@ -65,6 +65,7 @@ class ThemeController:
             finally:
                 winreg.CloseKey(key)
         except Exception:
+            pass
             return -1
 
     def _get_accent_color(self) -> str:

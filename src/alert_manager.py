@@ -113,8 +113,8 @@ class AlertManager:
                 "key": key, "message": message, "level": alert.level,
                 "source": source, "count": alert.count,
             })
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error(f"Error sending alert: {e}")
 
         # Send notification for warnings and criticals
         if alert.level in ("warning", "critical"):
@@ -124,8 +124,9 @@ class AlertManager:
                     await notifier.alert(message, source=source)
                 else:
                     await notifier.warn(message, source=source)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error(f"Erreur inattendue: {e}")
+                raise
 
         return True
 

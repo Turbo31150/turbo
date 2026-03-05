@@ -156,10 +156,12 @@ def record_feedback(
 
 
 def apply_decay():
-    """Apply temporal decay to all skill confidence scores.
+    """
+    Apply temporal decay to all skill confidence scores.
 
     Skills unused for a long time lose confidence exponentially.
     """
+    # TODO: Implement the decay logic here
     db = _load_quality_db()
     now = time.time()
     decayed = 0
@@ -192,7 +194,9 @@ def get_skill_quality(skill_name: str) -> dict | None:
     """Get quality metrics for a specific skill."""
     db = _load_quality_db()
     q = db.get(skill_name)
-    return q.to_dict() if q else None
+    if q is not None:
+        return q.to_dict()
+    return None
 
 
 # ── Context-Aware Suggestions ────────────────────────────────────────────
@@ -201,6 +205,8 @@ def suggest_contextual_skills(max_suggestions: int = 3) -> list[dict]:
     """Suggest skills based on current context (time, recent actions, GPU load)."""
     hour = time.localtime().tm_hour
     suggestions = []
+    # TODO: Implement logic to suggest contextual skills based on time, recent actions, and GPU load.
+    return suggestions
 
     # Time-based suggestions
     if 6 <= hour <= 9:
@@ -401,6 +407,7 @@ def auto_create_skill(pattern: PatternMatch) -> Skill:
     steps = []
     for action in pattern.actions:
         tool = _extract_tool(action)
+        steps.append(tool)
         # Try to extract args from the action string
         args = {}
         if "(" in action and action.endswith(")"):
@@ -456,6 +463,7 @@ def analyze_and_learn(auto_create: bool = False, min_confidence: float = 0.6) ->
 
     Returns analysis report dict.
     """
+    # TODO: Implement test for this function
     state = _load_brain_state()
     patterns = detect_patterns()
 
@@ -502,6 +510,9 @@ def reject_pattern(name: str):
     state = _load_brain_state()
     rejected = state.get("rejected_patterns", [])
     if name not in rejected:
+        rejected.append(name)
+        state["rejected_patterns"] = rejected
+        _save_brain_state(state)
         rejected.append(name)
         state["rejected_patterns"] = rejected[-200:]
     _save_brain_state(state)

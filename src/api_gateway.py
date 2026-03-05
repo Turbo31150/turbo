@@ -19,6 +19,9 @@ logger = logging.getLogger("jarvis.api_gateway")
 
 @dataclass
 class RouteConfig:
+    """
+    Configuration for a route.
+    """
     path: str
     service: str
     handler: Callable | None = None
@@ -31,6 +34,9 @@ class RouteConfig:
 
 @dataclass
 class ClientState:
+    """
+    State representation for a client.
+    """
     client_id: str
     request_count: int = 0
     window_start: float = field(default_factory=time.time)
@@ -62,6 +68,9 @@ class ApiGateway:
         )
 
     def remove_route(self, path: str) -> bool:
+        """
+        Remove a route from the routes dictionary and return True if it existed.
+        """
         return self._routes.pop(path, None) is not None
 
     def request(self, path: str, client_id: str = "anonymous", data: dict | None = None) -> dict:
@@ -120,6 +129,9 @@ class ApiGateway:
         return result
 
     def get_routes(self) -> list[dict]:
+        """
+        Returns a list of routes with their configuration details.
+        """
         return [
             {"path": r.path, "service": r.service, "enabled": r.enabled,
              "rate_limit": r.rate_limit, "call_count": r.call_count,
@@ -128,6 +140,9 @@ class ApiGateway:
         ]
 
     def get_clients(self) -> list[dict]:
+        """
+        RÃ©cupÃ¨re les informations des clients.
+        """
         return [
             {"client_id": c.client_id, "total_requests": c.total_requests,
              "current_window_count": c.request_count}
@@ -135,9 +150,21 @@ class ApiGateway:
         ]
 
     def get_request_log(self, limit: int = 50) -> list[dict]:
+        """
+        Retrieve the last N request logs.
+
+        Args:
+            limit (int): Number of logs to retrieve. Defaults to 50.
+
+        Returns:
+            list[dict]: List of the last N request logs.
+        """
         return self._request_log[-limit:]
 
     def get_stats(self) -> dict:
+        """
+        Returns statistics about the API gateway, including total number of routes.
+        """
         routes = list(self._routes.values())
         return {
             "total_routes": len(routes),

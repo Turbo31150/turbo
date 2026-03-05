@@ -103,8 +103,8 @@ class AutonomousLoop:
         try:
             from src.event_bus import event_bus
             await event_bus.emit("autonomous.task_created", {"name": name, "interval_s": interval_s})
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error("Error emitting event: %s", str(e))
         logger.info("Dynamic task registered: %s (interval=%ds)", name, interval_s)
 
     def unregister(self, name: str) -> None:
@@ -238,8 +238,10 @@ class AutonomousLoop:
                 result["alert"] = alert
             return result
         except FileNotFoundError:
+            logger.error("nvidia-smi not found")
             return {"error": "nvidia-smi not found"}
         except Exception as e:
+            logger.error(str(e))
             return {"error": str(e)}
 
     @staticmethod
@@ -311,8 +313,9 @@ class AutonomousLoop:
                         capture_output=True, timeout=5,
                     )
                     healed.append(node)
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.error(f"Error healing node {node}: {str(e)}")
+                    raise
 
         # Notify if critical
         result: dict[str, Any] = {
@@ -326,8 +329,8 @@ class AutonomousLoop:
                     msg += f" — tentative restart: {', '.join(healed)}"
                 level = "critical" if len(offline) >= 3 else "warning"
                 await notifier.alert(msg, level=level, source="self_heal")
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error(f"Error during self-heal: {e}")
             result["alert"] = f"{len(offline)} nodes offline"
 
         # Record in orchestrator_v2
@@ -441,7 +444,7 @@ class AutonomousLoop:
             r = await asyncio.to_thread(
                 subprocess.run,
                 ["uv", "run", "python", "canvas/improve_loop.py"],
-                capture_output=True, text=True, timeout=600,
+                capture_output=True, text=True,
                 cwd=str(__import__("pathlib").Path(__file__).resolve().parent.parent),
             )
             output = r.stdout[-500:] if r.stdout else ""

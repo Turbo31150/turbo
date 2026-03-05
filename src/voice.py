@@ -466,10 +466,10 @@ async def listen_voice(timeout: float = 15.0, keyboard_fallback: bool = True, us
     # Transcribe via persistent worker
     try:
         text = await asyncio.to_thread(_whisper_worker.transcribe, wav_path)
+        if not text:
+            return
     finally:
         Path(wav_path).unlink(missing_ok=True)
-
-    if not text:
         print("  [Pas de parole detectee]", flush=True)
         return None
 

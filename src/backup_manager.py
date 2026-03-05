@@ -137,7 +137,8 @@ class BackupManager:
                     shutil.rmtree(str(dest))
                 elif dest.exists():
                     dest.unlink()
-            except Exception:
+            except Exception as e:
+                logger.error(f"Error during file operation: {e}")
                 pass
             self._manifest = [e for e in self._manifest if e.backup_id != backup_id]
             self._save_manifest()

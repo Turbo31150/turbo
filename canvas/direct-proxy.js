@@ -21,8 +21,9 @@ const CODE_CATS = new Set(['code','auto','system']);
 // Model-specific strengths and weaknesses
 const MODEL_PROFILES = {
   M1:  { strengths: 'rapide, polyvalent, bon raisonnement', weaknesses: 'contexte court, peut divaguer', style: 'concis, structure avec markdown, listes a puces, blocs de code' },
-  M2:  { strengths: 'excellent code, debug precis', weaknesses: 'lent sur le creatif', style: 'code complet, commentaires inline, exemples executables' },
-  M3:  { strengths: 'bon generaliste, fiable', weaknesses: 'pas de raisonnement profond', style: 'paragraphes courts, listes simples, langage clair' },
+  M1B: { strengths: 'raisonnement profond, code de qualite, audit', weaknesses: 'plus lent (9s)', style: 'reponses detaillees, code documente, analyse structuree' },
+  M2:  { strengths: 'reasoning deepseek-r1, bon raisonnement, ctx 27k', weaknesses: '8.5s latence', style: 'raisonnement etape par etape, code complet, pensee profonde' },
+  M3:  { strengths: 'reasoning deepseek-r1, ctx 25k, 1 GPU dedie', weaknesses: '18s latence, 1 GPU only', style: 'raisonnement etape par etape, analyse methodique' },
   OL1: { strengths: 'ultra-rapide, bon pour triage', weaknesses: 'superficiel sur questions complexes', style: 'reponses directes, listes, pas de verbiage' }
 };
 
@@ -127,16 +128,16 @@ const NODES = {
   M2: {
     url: 'http://192.168.1.26:1234/v1/chat/completions',
     auth: 'Bearer LMSTUDIO_KEY_M2_REDACTED',
-    model: 'deepseek-coder-v2-lite-instruct',
+    model: 'deepseek/deepseek-r1-0528-qwen3-8b',
     timeout: 60000,
-    name: 'M2/deepseek'
+    name: 'M2/deepseek-r1'
   },
   M3: {
     url: 'http://192.168.1.113:1234/v1/chat/completions',
     auth: 'Bearer LMSTUDIO_KEY_M3_REDACTED',
-    model: 'mistral-7b-instruct-v0.3',
+    model: 'deepseek/deepseek-r1-0528-qwen3-8b',
     timeout: 60000,
-    name: 'M3/mistral'
+    name: 'M3/deepseek-r1'
   },
   OL1: {
     url: 'http://127.0.0.1:11434/api/chat',
@@ -176,24 +177,24 @@ const NODES = {
 
 // ── Routing: agent category → primary node, fallbacks ───────────────────────
 const ROUTING = {
-  code:    ['M1', 'M1B', 'M2', 'OL1', 'M3'],            // M1 qwen3-8b rapide, M1B gpt-oss fallback
-  archi:   ['M1B', 'M1', 'M2', 'OL1'],                  // M1B gpt-oss-20b pour archi (plus profond)
-  trading: ['OL1', 'M1', 'M2', 'M1B'],                  // OL1 web, M1 analyse rapide
-  math:    ['M1', 'M1B', 'OL1'],                         // M1 prioritaire math
-  raison:  ['M1B', 'M1', 'M2', 'OL1'],                  // M1B raisonnement profond — JAMAIS M3
-  system:  ['M1', 'M1B', 'OL1', 'M3'],                  // M1 rapide systeme
-  auto:    ['M1', 'M1B', 'M2', 'OL1'],                  // M1 pipelines
-  ia:      ['M1B', 'M1', 'M2', 'OL1'],                  // M1B pour IA (plus gros modele)
-  creat:   ['M1B', 'M1', 'M2', 'OL1'],                  // M1B creatif
-  sec:     ['M1B', 'M1', 'M2', 'OL1'],                  // M1B audit (plus precis)
-  web:     ['OL1', 'M1', 'M1B', 'M2'],                  // OL1 web + M1 fallback
-  media:   ['M3', 'OL1', 'M1', 'M1B'],                  // M3 media + M1
-  meta:    ['OL1', 'M1', 'M1B', 'M2'],                  // OL1 rapide meta
-  default: ['M2', 'M1', 'M3', 'OL1']                    // M2 first (GEMINI disabled - spawn error)
+  code:    ['M1', 'M1B', 'M2', 'M3'],                    // M1 rapide → M1B deep → M2/M3 reasoning
+  archi:   ['M1B', 'M1', 'M2', 'M3'],                    // M1B gpt-oss deep → M1 → M2/M3 r1
+  trading: ['M1', 'M2', 'M3', 'M1B'],                    // M1 rapide → M2/M3 → M1B
+  math:    ['M1', 'M1B', 'M2', 'M3'],                    // M1 prioritaire math
+  raison:  ['M2', 'M3', 'M1B', 'M1'],                    // M2/M3 deepseek-r1 REASONING → M1B → M1
+  system:  ['M1', 'M1B', 'M2', 'M3'],                    // M1 rapide systeme
+  auto:    ['M1', 'M1B', 'M2', 'M3'],                    // M1 pipelines
+  ia:      ['M1B', 'M2', 'M3', 'M1'],                    // M1B deep → M2/M3 r1 → M1
+  creat:   ['M1B', 'M1', 'M2', 'M3'],                    // M1B creatif → M2/M3
+  sec:     ['M1B', 'M2', 'M3', 'M1'],                    // M1B audit → M2/M3 r1
+  web:     ['M1', 'M2', 'M3', 'M1B'],                    // M1 rapide → M2/M3 → M1B
+  media:   ['M1', 'M2', 'M3', 'M1B'],                    // M1 → M2/M3
+  meta:    ['M1', 'M2', 'M3', 'M1B'],                    // M1 rapide → M2/M3
+  default: ['M1', 'M2', 'M3', 'M1B']                     // M1+M2+M3
 };
 
 // ── Node weights for consensus voting (benchmark 2026-02-26) ─────────────────
-const NODE_WEIGHTS = { M1: 1.8, M2: 1.4, OL1: 1.3, GEMINI: 1.2, CLAUDE: 1.2, M3: 1.0 };
+const NODE_WEIGHTS = { M1: 1.8, M1B: 1.7, M2: 1.5, OL1: 1.3, GEMINI: 1.2, CLAUDE: 1.2, M3: 1.0 };
 
 // Agent → category mapping (mirrors canvas ROUTES)
 const AGENT_CAT = {

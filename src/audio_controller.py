@@ -62,8 +62,8 @@ class AudioController:
             if result.returncode == 0 and result.stdout.strip():
                 vol = int(float(result.stdout.strip()))
                 return {"volume": vol, "source": "AudioDevice"}
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Error parsing volume: {e}")
         # Fallback: use PowerShell WMI
         try:
             result = subprocess.run(
@@ -75,7 +75,8 @@ class AudioController:
             )
             if result.returncode == 0 and result.stdout.strip():
                 return {"volume": int(result.stdout.strip()), "source": "WMI"}
-        except Exception:
+        except Exception as e:
+            print(f"Error reading volume: {e}")
             pass
         return {"volume": -1, "error": "Cannot read volume"}
 
@@ -91,7 +92,7 @@ class AudioController:
             self._record("set_volume", True, f"level={level}")
             return True
         except FileNotFoundError:
-            pass
+            logging.error("File not found: %s", sys.exc_info()[0])
         # PowerShell fallback
         try:
             ps_cmd = f"$obj = New-Object -ComObject WScript.Shell; " + \
@@ -117,6 +118,7 @@ class AudioController:
             self._record("mute", True)
             return True
         except FileNotFoundError:
+            # Handle or log the error appropriately instead of silently passing
             pass
         try:
             subprocess.run(
@@ -140,6 +142,7 @@ class AudioController:
             self._record("unmute", True)
             return True
         except FileNotFoundError:
+            # Handle or log the error instead of silently passing
             pass
         try:
             subprocess.run(

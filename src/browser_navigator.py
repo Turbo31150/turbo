@@ -75,7 +75,7 @@ class BrowserNavigator:
         self._page = await self._context.new_page()
 
         if url:
-            await self._page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            await self._page.goto(url, wait_until="domcontentloaded", timeout=5000)
 
         self._log("launch", url or "about:blank")
         logger.info("Browser launched (headless=%s)", headless)
@@ -101,28 +101,28 @@ class BrowserNavigator:
         page = await self._ensure_browser()
         if not url.startswith(("http://", "https://")):
             url = f"https://{url}"
-        await page.goto(url, wait_until="domcontentloaded", timeout=30000)
+        await page.goto(url, wait_until="domcontentloaded", timeout=10000)
         self._log("navigate", url)
         return {"url": page.url, "title": await page.title()}
 
     async def go_back(self) -> dict[str, Any]:
         """Go back in history."""
         page = await self._ensure_browser()
-        await page.go_back(wait_until="domcontentloaded", timeout=15000)
+        await page.go_back(wait_until="domcontentloaded", timeout=30000)
         self._log("back", page.url)
         return {"url": page.url, "title": await page.title()}
 
     async def go_forward(self) -> dict[str, Any]:
         """Go forward in history."""
         page = await self._ensure_browser()
-        await page.go_forward(wait_until="domcontentloaded", timeout=15000)
+        await page.go_forward(wait_until="domcontentloaded", timeout=5000)
         self._log("forward", page.url)
         return {"url": page.url, "title": await page.title()}
 
     async def reload(self) -> dict[str, Any]:
         """Reload current page."""
         page = await self._ensure_browser()
-        await page.reload(wait_until="domcontentloaded", timeout=15000)
+        await page.reload(wait_until="domcontentloaded", timeout=30000)
         return {"url": page.url, "title": await page.title()}
 
     # ── Interaction ───────────────────────────────────────────────────────
@@ -131,16 +131,16 @@ class BrowserNavigator:
         """Click an element containing text."""
         page = await self._ensure_browser()
         locator = page.get_by_text(text, exact=False).first
-        await locator.click(timeout=10000)
+        await locator.click()
         self._log("click_text", text)
-        await page.wait_for_load_state("domcontentloaded", timeout=10000)
+        await page.wait_for_load_state("domcontentloaded")
         return {"clicked": text, "url": page.url}
 
     async def click_button(self, label: str) -> dict[str, Any]:
         """Click a button by its label/name."""
         page = await self._ensure_browser()
         locator = page.get_by_role("button", name=label).first
-        await locator.click(timeout=10000)
+        await locator.click()
         self._log("click_button", label)
         return {"clicked_button": label, "url": page.url}
 
@@ -148,9 +148,9 @@ class BrowserNavigator:
         """Click a link by its text."""
         page = await self._ensure_browser()
         locator = page.get_by_role("link", name=text).first
-        await locator.click(timeout=10000)
+        await locator.click()
         self._log("click_link", text)
-        await page.wait_for_load_state("domcontentloaded", timeout=10000)
+        await page.wait_for_load_state("domcontentloaded")
         return {"clicked_link": text, "url": page.url}
 
     async def scroll(self, direction: str = "down", amount: int = 500) -> dict[str, Any]:

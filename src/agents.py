@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from claude_agent_sdk import AgentDefinition
 
 # ── IA_DEEP — Analyse approfondie (architecture, strategie, logs) ──────────
