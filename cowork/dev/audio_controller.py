@@ -5,7 +5,7 @@ Contrôle du volume audio sous Windows.
 
 Fonctionnalités :
 * ``--volume N`` : définit le volume système à ``N`` (0‑100).  Si l'utilitaire
-  ``nircmd.exe`` est présent (habituellement dans ``C:\Program Files\nircmd``),
+  ``nircmd.exe`` est présent (habituellement dans ``C:\\Program Files\\nircmd``),
   on utilise ``nircmd setsysvolume`` ; sinon on simule la montée/descente du
   volume via les touches de media (PowerShell ``SendKeys``).
 * ``--mute`` / ``--unmute`` : active ou désactive le mute du son (même logique que
@@ -29,6 +29,12 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+
+# Ensure Unicode output works on Windows consoles (cp1252 cannot encode all chars)
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 # ---------------------------------------------------------------------------
 # Helpers – localisation de nircmd (if installed)

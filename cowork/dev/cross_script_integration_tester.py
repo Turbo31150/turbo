@@ -442,6 +442,8 @@ def main():
                         help="Test a specific integration pattern (scheduler, healer, deployer, learner, trading)")
     parser.add_argument("--all", action="store_true",
                         help="Run ALL tests including global syntax/import checks")
+    parser.add_argument("--verbose", action="store_true",
+                        help="Enable verbose output")
     args = parser.parse_args()
 
     if args.once:

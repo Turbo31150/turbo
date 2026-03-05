@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """wifi_manager.py
 
-Gestionnaire Wi‑Fi pour Windows (via ``netsh wlan``).
+Gestionnaire Wi-Fi pour Windows (via ``netsh wlan``).
 
-Fonctionnalités :
-* ``--status`` : affiche le réseau actuellement connecté (SSID, état, force du signal).
-* ``--scan`` : liste les réseaux sans fil détectés – SSID, type, signal, sécurité.
-* ``--disconnect`` : déconnecte le client Wi‑Fi du réseau actif.
-* ``--connect SSID`` : se connecte au réseau indiqué (le profil doit déjà exister ; sinon le script
+Fonctionnalités :
+* ``--status`` : affiche le réseau actuellement connecté (SSID, état, force du signal).
+* ``--scan`` : liste les réseaux sans fil détectés – SSID, type, signal, sécurité.
+* ``--disconnect`` : déconnecte le client Wi-Fi du réseau actif.
+* ``--connect SSID`` : se connecte au réseau indiqué (le profil doit déjà exister ; sinon le script
 de tente de le créer avec une requête de type ``netsh wlan connect name="SSID"``).
 
-Le script utilise uniquement la bibliothèque standard : ``subprocess`` pour exécuter les commandes
+Le script utilise uniquement la bibliothèque standard : ``subprocess`` pour exécuter les commandes
 ``netsh wlan show interfaces``, ``netsh wlan show networks mode=bssid`` etc.
 """
 
@@ -80,14 +80,14 @@ def parse_networks(output: str) -> List[Dict[str, str]]:
 def show_status():
     out = run_netsh(["wlan", "show", "interfaces"])
     if not out:
-        print("[wifi_manager] Aucun résultat – l'interface Wi‑Fi est peut‑être désactivée.")
+        print("[wifi_manager] Aucun résultat – l'interface Wi-Fi est peut-être désactivée.")
         return
     info = parse_interface_info(out)
     ssid = info.get("SSID", "(non connecté)")
     state = info.get("State", "unknown")
     signal = info.get("Signal", "N/A")
-    print(f"État : {state}")
-    print(f"SSID  : {ssid}")
+    print(f"État : {state}")
+    print(f"SSID  : {ssid}")
     print(f"Signal: {signal}")
 
 def scan_networks():
@@ -112,7 +112,7 @@ def disconnect():
     if out:
         print("[wifi_manager] Déconnexion demandée.")
     else:
-        print("[wifi_manager] Aucun résultat – peut‑être déjà déconnecté.")
+        print("[wifi_manager] Aucun résultat – peut-être déjà déconnecté.")
 
 def connect(ssid: str):
     # Attempt to connect using the profile name equal to SSID
@@ -127,11 +127,11 @@ def connect(ssid: str):
 # Main entry point
 # ---------------------------------------------------------------------------
 def main():
-    parser = argparse.ArgumentParser(description="Gestionnaire Wi‑Fi Windows via netsh.")
+    parser = argparse.ArgumentParser(description="Gestionnaire Wi-Fi Windows via netsh.")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--status", action="store_true", help="Afficher le réseau actuellement connecté")
     group.add_argument("--scan", action="store_true", help="Lister les réseaux disponibles")
-    group.add_argument("--disconnect", action="store_true", help="Déconnecter le client Wi‑Fi actuel")
+    group.add_argument("--disconnect", action="store_true", help="Déconnecter le client Wi-Fi actuel")
     group.add_argument("--connect", metavar="SSID", help="Connecter au réseau indiqué (profil existant)")
     args = parser.parse_args()
 

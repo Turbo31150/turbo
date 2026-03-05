@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """prompt_optimizer.py
 
-Batch 6.2 – Optimisation automatique des prompts via A/B‑testing.
+Batch 6.2 – Optimisation automatique des prompts via A/B-testing.
 
-Fonctionnalités :
+Fonctionnalités :
 * Génère 3 variantes d'un même prompt (original, version concise, version détaillée).
-* Envoie chaque variante au modèle M1 (qwen3‑8b) via l'API LM Studio :
+* Envoie chaque variante au modèle M1 (qwen3-8b) via l'API LM Studio :
     http://127.0.0.1:1234/v1/chat/completions
 * Chronomètre le temps de réponse, mesure la longueur de la réponse (nombre de caractères).
-* Stocke les résultats dans une base SQLite `prompts.db`.
-* CLI :
-  --test "prompt"      → teste les variantes, affiche les métriques et enregistre.
-  --stats              → affiche les meilleures variantes (latence + longueur).
-  --optimize "prompt" → exécute le test puis retourne la variante jugée optimale.
+* Stocke les résultats dans une base SQLite `prompts.db`.
+* CLI :
+  --test "prompt"      -> teste les variantes, affiche les métriques et enregistre.
+  --stats              -> affiche les meilleures variantes (latence + longueur).
+  --optimize "prompt" -> exécute le test puis retourne la variante jugée optimale.
 
 Le script utilise uniquement la bibliothèque standard (`urllib`, `json`, `sqlite3`, `time`, …).
 """
@@ -71,7 +71,7 @@ def fetch_all(conn: sqlite3.Connection):
 # ---------------------------------------------------------------------------
 
 def generate_variations(prompt: str):
-    """Retourne trois variantes : original, version concise, version détaillée.
+    """Retourne trois variantes : original, version concise, version détaillée.
     Cette fonction est simple mais extensible.
     """
     variations = [
@@ -101,7 +101,7 @@ def call_model(variant: str):
         latency = (time.time() - start) * 1000.0
         # Extraction du texte brut – les différentes endpoints renvoient légèrement des structures différentes
         if isinstance(data, dict):
-            # OLLAMA‑style
+            # OLLAMA-style
             if "message" in data:
                 content = data["message"].get("content", "")
             elif "choices" in data:
@@ -112,7 +112,7 @@ def call_model(variant: str):
             content = str(data)
         return latency, content
     except Exception as e:
-        print(f"[prompt_optimizer] Erreur d'appel API : {e}", file=sys.stderr)
+        print(f"[prompt_optimizer] Erreur d'appel API : {e}", file=sys.stderr)
         return None, ""
 
 # ---------------------------------------------------------------------------
@@ -144,9 +144,9 @@ def command_test(prompt: str):
         results.append((var, lat, resp_len))
     conn.close()
     # Affichage des résultats
-    print("[prompt_optimizer] Résultats du test :")
+    print("[prompt_optimizer] Résultats du test :")
     for i, (var, lat, l) in enumerate(results, 1):
-        print(f"  Variante {i}: latency={lat:.1f} ms, length={l} chars")
+        print(f"  Variante {i}: latency={lat:.1f} ms, length={l} chars")
     return results
 
 def command_stats():
@@ -164,9 +164,9 @@ def command_stats():
         sc = score_variant(latency, resp_len)
         if base not in best or sc > best[base]["score"]:
             best[base] = {"variant": variant, "latency": latency, "len": resp_len, "score": sc}
-    print("[prompt_optimizer] Meilleures variantes par prompt :")
+    print("[prompt_optimizer] Meilleures variantes par prompt :")
     for base, info in best.items():
-        print(f"- Prompt: {base}\n  Variante: {info['variant']}\n  latency={info['latency']:.1f} ms, length={info['len']} chars, score={info['score']:.4f}\n")
+        print(f"- Prompt: {base}\n  Variante: {info['variant']}\n  latency={info['latency']:.1f} ms, length={info['len']} chars, score={info['score']:.4f}\n")
 
 def command_optimize(prompt: str):
     results = command_test(prompt)
@@ -175,11 +175,11 @@ def command_optimize(prompt: str):
         return
     # Choisir la variante avec le meilleur score
     best_variant = max(results, key=lambda r: score_variant(r[1], r[2]))
-    print("[prompt_optimizer] Variante optimale :")
+    print("[prompt_optimizer] Variante optimale :")
     print(best_variant[0])
 
 def main():
-    parser = argparse.ArgumentParser(description="Optimisation automatique des prompts via A/B‑testing.")
+    parser = argparse.ArgumentParser(description="Optimisation automatique des prompts via A/B-testing.")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--test", metavar="PROMPT", help="Teste 3 variantes du prompt donné")
     group.add_argument("--stats", action="store_true", help="Affiche les meilleures variantes enregistrées")

@@ -6,7 +6,7 @@ Predicts CPU, RAM, Disk, and GPU usage trends using a simple linear regression.
 CLI flags:
   --predict   Run the prediction pipeline (generates dummy data).
   --trends    Print the calculated trend (slope & intercept) for each resource.
-  --report    Print a concise human‑readable report.
+  --report    Print a concise human-readable report.
 
 The script uses only the Python standard library.
 """
@@ -50,7 +50,7 @@ def _linear_regression(x, y):
 
 
 def predict_trends(data):
-    """Compute linear‑regression trends for each resource.
+    """Compute linear-regression trends for each resource.
     Returns a dict keyed by resource name with slope, intercept and the
     prediction for the next day.
     """
@@ -78,7 +78,7 @@ def format_report(trends):
     lines = ["Resource usage trend predictions (linear regression):"]
     for name, info in trends.items():
         lines.append(
-            f"{name}: slope={info['slope']:.4f}, next day ≈ {info['next_day_prediction']:.2f}"
+            f"{name}: slope={info['slope']:.4f}, next day ~ {info['next_day_prediction']:.2f}"
         )
     return "\n".join(lines)
 
@@ -88,7 +88,7 @@ def main():
         description="Predict CPU/RAM/Disk/GPU usage trends using linear regression.")
     parser.add_argument("--predict", action="store_true", help="Run the prediction pipeline.")
     parser.add_argument("--trends", action="store_true", help="Show raw trend values (slope & intercept).")
-    parser.add_argument("--report", action="store_true", help="Print a short human‑readable report.")
+    parser.add_argument("--report", action="store_true", help="Print a short human-readable report.")
     args = parser.parse_args()
 
     if not args.predict:

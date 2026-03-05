@@ -8,7 +8,7 @@ Fonctionnalités :
 * ``--resolution WxH`` – modifie la résolution (ex. ``1920x1080``) via l'API Win32 (user32.dll).
 * ``--brightness N`` – règle la luminosité (0‑100) à l'aide de WMI (classe ``WmiMonitorBrightnessMethods``).
 * ``--night-mode on|off`` – active ou désactive le mode sombre du système en modifiant
-  la clé de registre ``HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize``.
+  la clé de registre ``HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize``.
 
 Le script utilise uniquement la bibliothèque standard : ``subprocess``, ``argparse``, ``re``,
 ``ctypes`` et ``winreg``.  Les appels PowerShell sont exécutés via ``subprocess``.
@@ -21,6 +21,12 @@ import subprocess
 import sys
 import winreg
 from ctypes import wintypes
+
+# Ensure Unicode output works on Windows consoles (cp1252 cannot encode all chars)
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 # ---------------------------------------------------------------------------
 # Helpers – PowerShell execution
@@ -55,7 +61,7 @@ def get_resolution() -> str:
 
 def get_brightness() -> int:
     # WMI – retourne la valeur de luminosité actuelle (0-100)
-    cmd = "(Get-WmiObject -Namespace root\wmi -Class WmiMonitorBrightness).CurrentBrightness"
+    cmd = r"(Get-WmiObject -Namespace root\wmi -Class WmiMonitorBrightness).CurrentBrightness"
     out = ps(cmd)
     try:
         return int(out)
@@ -152,7 +158,7 @@ def set_brightness(level: int):
     level = max(0, min(100, level))
     # WMI method – call SetBrightness on each monitor
     script = (
-        "$wmi = Get-WmiObject -Namespace root\wmi -Class WmiMonitorBrightnessMethods; "
+        r"$wmi = Get-WmiObject -Namespace root\wmi -Class WmiMonitorBrightnessMethods; "
         f"$wmi.WmiSetBrightness(1, {level})"
     )
     out = ps(script)

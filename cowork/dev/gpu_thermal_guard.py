@@ -26,6 +26,12 @@ import urllib.request
 from datetime import datetime
 from pathlib import Path
 
+# Ensure Unicode output works on Windows consoles (cp1252 cannot encode all chars)
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
