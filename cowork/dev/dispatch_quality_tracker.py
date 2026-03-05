@@ -37,9 +37,9 @@ NODES = {
     "M1":  {"url": "http://127.0.0.1:1234/api/v1/chat", "model": "qwen3-8b",
             "auth": None, "prefix": "/nothink\n"},
     "M2":  {"url": "http://192.168.1.26:1234/api/v1/chat", "model": "deepseek-r1-0528-qwen3-8b",
-            "auth": None, "max_tokens": 2048},
+            "auth": None, "max_tokens": 2048, "timeout": 60},
     "M3":  {"url": "http://192.168.1.113:1234/api/v1/chat", "model": "deepseek-r1-0528-qwen3-8b",
-            "auth": None, "max_tokens": 2048},
+            "auth": None, "max_tokens": 2048, "timeout": 60},
     "OL1": {"url": "http://127.0.0.1:11434/api/chat", "model": "qwen3:1.7b",
             "auth": None, "ollama": True},
 }
@@ -178,8 +178,9 @@ def run_benchmark(db):
     results = {}
     for node_name in NODES:
         node_results = []
+        node_timeout = NODES[node_name].get("timeout", 30)
         for test in QUALITY_TESTS:
-            r = dispatch_to_node(node_name, test["prompt"], timeout=30)
+            r = dispatch_to_node(node_name, test["prompt"], timeout=node_timeout)
             quality = 0.0
             if r["success"]:
                 try:
