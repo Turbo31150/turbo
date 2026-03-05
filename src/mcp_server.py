@@ -5190,6 +5190,123 @@ async def handle_cowork_v2_stats(args: dict) -> list[TextContent]:
     return _text(json.dumps(get_bridge().get_stats(), ensure_ascii=False))
 
 
+# ── Phase 15: Self-Improvement ──────────────────────────────────────────
+
+async def handle_self_improvement_analyze(args: dict) -> list[TextContent]:
+    from src.self_improvement import get_improver
+    return _text(json.dumps(get_improver().analyze(), ensure_ascii=False, indent=2))
+
+async def handle_self_improvement_suggest(args: dict) -> list[TextContent]:
+    from src.self_improvement import get_improver
+    actions = get_improver().suggest_improvements()
+    data = [{"type": a.action_type, "target": a.target, "description": a.description,
+             "priority": a.priority, "params": a.params} for a in actions]
+    return _text(json.dumps(data, ensure_ascii=False, indent=2))
+
+async def handle_self_improvement_apply(args: dict) -> list[TextContent]:
+    from src.self_improvement import get_improver
+    results = get_improver().apply_improvements(
+        auto=args.get("auto", False),
+        max_actions=int(args.get("max_actions", 5)),
+    )
+    return _text(json.dumps(results, ensure_ascii=False, indent=2))
+
+async def handle_self_improvement_stats(args: dict) -> list[TextContent]:
+    from src.self_improvement import get_improver
+    return _text(json.dumps(get_improver().get_stats(), ensure_ascii=False))
+
+
+# ── Phase 15: Dynamic Agents ───────────────────────────────────────────
+
+async def handle_dynamic_agents_list(args: dict) -> list[TextContent]:
+    from src.dynamic_agents import get_spawner
+    return _text(json.dumps(get_spawner().list_agents(), ensure_ascii=False, indent=2))
+
+async def handle_dynamic_agents_stats(args: dict) -> list[TextContent]:
+    from src.dynamic_agents import get_spawner
+    return _text(json.dumps(get_spawner().get_stats(), ensure_ascii=False, indent=2))
+
+async def handle_dynamic_agents_dispatch(args: dict) -> list[TextContent]:
+    from src.dynamic_agents import get_spawner
+    result = await get_spawner().dispatch(
+        args.get("pattern", ""), args.get("prompt", ""),
+    )
+    return _text(json.dumps(result, ensure_ascii=False, indent=2))
+
+async def handle_dynamic_agents_register(args: dict) -> list[TextContent]:
+    from src.dynamic_agents import get_spawner
+    count = get_spawner().register_to_registry()
+    return _text(json.dumps({"registered": count}))
+
+
+# ── Phase 15: Cowork Proactive Engine ───────────────────────────────────
+
+async def handle_cowork_proactive_needs(args: dict) -> list[TextContent]:
+    from src.cowork_proactive import get_proactive
+    needs = get_proactive().detect_needs()
+    data = [{"category": n.category, "urgency": n.urgency,
+             "description": n.description, "source": n.source} for n in needs]
+    return _text(json.dumps(data, ensure_ascii=False, indent=2))
+
+async def handle_cowork_proactive_run(args: dict) -> list[TextContent]:
+    from src.cowork_proactive import get_proactive
+    result = get_proactive().run_proactive(
+        max_scripts=int(args.get("max_scripts", 5)),
+        dry_run=args.get("dry_run", True),
+    )
+    return _text(json.dumps(result, ensure_ascii=False, indent=2))
+
+async def handle_cowork_proactive_anticipate(args: dict) -> list[TextContent]:
+    from src.cowork_proactive import get_proactive
+    return _text(json.dumps(get_proactive().anticipate(), ensure_ascii=False, indent=2))
+
+async def handle_cowork_proactive_stats(args: dict) -> list[TextContent]:
+    from src.cowork_proactive import get_proactive
+    return _text(json.dumps(get_proactive().get_stats(), ensure_ascii=False))
+
+
+# ── Phase 15: Reflection Engine ─────────────────────────────────────────
+
+async def handle_reflection_insights(args: dict) -> list[TextContent]:
+    from src.reflection_engine import get_reflection
+    insights = get_reflection().reflect()
+    data = [{"category": i.category, "severity": i.severity, "title": i.title,
+             "description": i.description, "recommendation": i.recommendation}
+            for i in insights]
+    return _text(json.dumps(data, ensure_ascii=False, indent=2))
+
+async def handle_reflection_summary(args: dict) -> list[TextContent]:
+    from src.reflection_engine import get_reflection
+    return _text(json.dumps(get_reflection().get_summary(), ensure_ascii=False, indent=2))
+
+async def handle_reflection_timeline(args: dict) -> list[TextContent]:
+    from src.reflection_engine import get_reflection
+    hours = int(args.get("hours", 24))
+    return _text(json.dumps(get_reflection().timeline_analysis(hours), ensure_ascii=False, indent=2))
+
+
+# ── Phase 16: Pattern Evolution ─────────────────────────────────────────
+
+async def handle_evolution_gaps(args: dict) -> list[TextContent]:
+    from src.pattern_evolution import get_evolution
+    suggestions = get_evolution().analyze_gaps()
+    data = [{"action": s.action, "pattern": s.pattern_type,
+             "description": s.description, "confidence": s.confidence}
+            for s in suggestions]
+    return _text(json.dumps(data, ensure_ascii=False, indent=2))
+
+async def handle_evolution_create(args: dict) -> list[TextContent]:
+    from src.pattern_evolution import get_evolution
+    result = get_evolution().auto_create_patterns(
+        min_confidence=float(args.get("min_confidence", 0.5)),
+    )
+    return _text(json.dumps(result, ensure_ascii=False, indent=2))
+
+async def handle_evolution_stats(args: dict) -> list[TextContent]:
+    from src.pattern_evolution import get_evolution
+    return _text(json.dumps(get_evolution().get_stats(), ensure_ascii=False))
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # TOOL REGISTRY
 # ═══════════════════════════════════════════════════════════════════════════
@@ -5951,6 +6068,29 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     ("cowork_v2_search", "Chercher un script cowork.", {"query": "string"}, handle_cowork_v2_search),
     ("cowork_v2_execute", "Executer un script cowork.", {"script": "string"}, handle_cowork_v2_execute),
     ("cowork_v2_stats", "Stats cowork bridge.", {}, handle_cowork_v2_stats),
+    # Phase 15: Self-Improvement (4)
+    ("self_improvement_analyze", "Analyse performance systeme et gate failures.", {}, handle_self_improvement_analyze),
+    ("self_improvement_suggest", "Suggestions d'amelioration automatiques.", {}, handle_self_improvement_suggest),
+    ("self_improvement_apply", "Appliquer ameliorations (auto ou manuelles).", {"auto": "boolean", "max_actions": "number"}, handle_self_improvement_apply),
+    ("self_improvement_stats", "Stats du self-improvement loop.", {}, handle_self_improvement_stats),
+    # Phase 15: Dynamic Agents (4)
+    ("dynamic_agents_list", "Lister tous les agents dynamiques (76+ patterns).", {}, handle_dynamic_agents_list),
+    ("dynamic_agents_stats", "Stats agents dynamiques.", {}, handle_dynamic_agents_stats),
+    ("dynamic_agents_dispatch", "Dispatcher vers un agent dynamique.", {"pattern": "string", "prompt": "string"}, handle_dynamic_agents_dispatch),
+    ("dynamic_agents_register", "Enregistrer agents dynamiques dans le registry live.", {}, handle_dynamic_agents_register),
+    # Phase 15: Cowork Proactive (4)
+    ("cowork_proactive_needs", "Detecter les besoins systeme pour execution proactive.", {}, handle_cowork_proactive_needs),
+    ("cowork_proactive_run", "Cycle proactif: detecter -> planifier -> executer.", {"max_scripts": "number", "dry_run": "boolean"}, handle_cowork_proactive_run),
+    ("cowork_proactive_anticipate", "Predictions de besoins futurs.", {}, handle_cowork_proactive_anticipate),
+    ("cowork_proactive_stats", "Stats du moteur proactif.", {}, handle_cowork_proactive_stats),
+    # Phase 15: Reflection Engine (3)
+    ("reflection_insights", "Insights meta-cognitifs: qualite, performance, fiabilite, croissance.", {}, handle_reflection_insights),
+    ("reflection_summary", "Resume systeme avec metriques cles.", {}, handle_reflection_summary),
+    ("reflection_timeline", "Analyse timeline des dispatches sur N heures.", {"hours": "number"}, handle_reflection_timeline),
+    # Phase 16: Pattern Evolution (3)
+    ("evolution_gaps", "Analyser les lacunes et suggerer de nouveaux patterns.", {}, handle_evolution_gaps),
+    ("evolution_create", "Auto-creer des patterns depuis les suggestions.", {"min_confidence": "number"}, handle_evolution_create),
+    ("evolution_stats", "Stats de l'evolution des patterns.", {}, handle_evolution_stats),
 ]
 
 # ── COWORK MCP Bridge ─────────────────────────────────────────────────

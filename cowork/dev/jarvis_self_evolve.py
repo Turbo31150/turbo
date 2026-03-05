@@ -19,9 +19,10 @@ SRC = TURBO / "src"
 def init_db():
     db = sqlite3.connect(str(DB_PATH))
     db.execute("""CREATE TABLE IF NOT EXISTS improvements (
-        id INTEGER PRIMARY KEY, ts REAL, file TEXT, category TEXT,
-        description TEXT, generated_code TEXT, validated INTEGER DEFAULT 0,
-        applied INTEGER DEFAULT 0, cluster_node TEXT)""")
+        id INTEGER PRIMARY KEY, ts REAL, file TEXT, line INTEGER DEFAULT 0,
+        category TEXT, description TEXT, generated_code TEXT,
+        validated INTEGER DEFAULT 0, applied INTEGER DEFAULT 0,
+        cluster_node TEXT)""")
     db.execute("""CREATE TABLE IF NOT EXISTS analysis_runs (
         id INTEGER PRIMARY KEY, ts REAL, files_analyzed INTEGER,
         opportunities_found INTEGER, code_generated INTEGER)""")

@@ -4185,7 +4185,1020 @@ async def api_browser_status():
     return browser_nav.get_status()
 
 
+# ── Pattern Agents API ──────────────────────────────────────────────────────
+
+@app.get("/api/agents/list")
+async def api_agents_list():
+    """List all 14 pattern agents."""
+    from src.pattern_agents import PatternAgentRegistry
+    reg = PatternAgentRegistry()
+    return {"agents": reg.list_agents()}
+
+
+@app.post("/api/agents/dispatch")
+async def api_agents_dispatch(request: Request):
+    """Dispatch a prompt to the right agent. Body: {prompt, pattern?}"""
+    from src.smart_dispatcher import SmartDispatcher
+    body = await request.json()
+    prompt = body.get("prompt", "")
+    pattern = body.get("pattern")
+    if not prompt:
+        raise HTTPException(400, "prompt required")
+    d = SmartDispatcher()
+    if pattern:
+        r = await d.dispatch_typed(pattern, prompt)
+    else:
+        r = await d.dispatch(prompt)
+    await d.close()
+    return {
+        "ok": r.ok, "content": r.content, "pattern": r.pattern,
+        "node": r.node, "model": r.model, "latency_ms": round(r.latency_ms),
+        "tokens": r.tokens, "quality": r.quality_score, "strategy": r.strategy,
+    }
+
+
+@app.post("/api/agents/classify")
+async def api_agents_classify(request: Request):
+    """Classify a prompt into a pattern type. Body: {prompt}"""
+    from src.pattern_agents import PatternAgentRegistry
+    body = await request.json()
+    prompt = body.get("prompt", "")
+    if not prompt:
+        raise HTTPException(400, "prompt required")
+    reg = PatternAgentRegistry()
+    pattern = reg.classify(prompt)
+    agent = reg.agents.get(pattern)
+    return {
+        "pattern": pattern,
+        "agent": agent.agent_id if agent else "unknown",
+        "node": agent.primary_node if agent else "M1",
+        "strategy": agent.strategy if agent else "single",
+    }
+
+
+@app.get("/api/agents/routing")
+async def api_agents_routing():
+    """Get smart routing report based on dispatch history."""
+    from src.smart_dispatcher import SmartDispatcher
+    d = SmartDispatcher()
+    report = d.get_routing_report()
+    await d.close()
+    return report
+
+
+@app.post("/api/agents/evolve")
+async def api_agents_evolve():
+    """Run agent factory evolution: discover new patterns, tune nodes/strategies."""
+    from src.agent_factory import AgentFactory
+    f = AgentFactory()
+    evolutions = f.analyze_and_evolve()
+    return {
+        "evolutions": [
+            {"pattern": e.pattern_type, "action": e.action,
+             "old": e.old_value, "new": e.new_value,
+             "reason": e.reason, "confidence": e.confidence}
+            for e in evolutions
+        ]
+    }
+
+
+@app.get("/api/agents/stats")
+async def api_agents_stats():
+    """Get agent performance stats from dispatch_log."""
+    from src.agent_factory import AgentFactory
+    f = AgentFactory()
+    report = f.generate_report()
+    return report
+
+
+# ── Pipeline API ────────────────────────────────────────────────────────────
+
+@app.get("/api/pipelines/list-patterns")
+async def api_pipelines_list_patterns():
+    """List available pre-built pipelines."""
+    from src.pipeline_composer import PIPELINES
+    return {"pipelines": list(PIPELINES.keys())}
+
+
+@app.post("/api/pipelines/run-pattern")
+async def api_pipelines_run_pattern(request: Request):
+    """Run a named pipeline. Body: {pipeline, prompt}"""
+    from src.pipeline_composer import run_pipeline
+    body = await request.json()
+    name = body.get("pipeline", "")
+    prompt = body.get("prompt", "")
+    if not name or not prompt:
+        raise HTTPException(400, "pipeline and prompt required")
+    result = await run_pipeline(name, prompt)
+    return {
+        "ok": result.ok, "pipeline": result.pipeline_name,
+        "total_ms": round(result.total_ms),
+        "steps": result.steps, "output": result.final_output[:3000],
+    }
+
+
+# ── Agent Monitor API ──────────────────────────────────────────────────────
+
+@app.get("/api/agents/dashboard")
+async def api_agents_dashboard():
+    """Real-time agent monitoring dashboard."""
+    from src.agent_monitor import get_monitor
+    return get_monitor().get_dashboard()
+
+
+@app.get("/api/agents/monitor/{pattern}")
+async def api_agents_monitor_detail(pattern: str):
+    """Detailed metrics for one pattern agent."""
+    from src.agent_monitor import get_monitor
+    return get_monitor().get_agent_detail(pattern)
+
+
+@app.get("/api/agents/routing-optimizer")
+async def api_agents_routing_optimizer():
+    """Routing optimization report with recommendations."""
+    from src.routing_optimizer import RoutingOptimizer
+    opt = RoutingOptimizer()
+    return opt.report()
+
+
+# ── Adaptive Router API ────────────────────────────────────────────────────
+
+@app.get("/api/router/status")
+async def api_router_status():
+    """Adaptive router status: circuits, health, affinities."""
+    from src.adaptive_router import get_router
+    return get_router().get_status()
+
+
+@app.get("/api/router/recommendations")
+async def api_router_recommendations():
+    """Auto-generated routing recommendations."""
+    from src.adaptive_router import get_router
+    return {"recommendations": get_router().get_recommendations()}
+
+
+@app.post("/api/router/pick")
+async def api_router_pick(request: Request):
+    """Pick optimal node for a pattern. Body: {pattern, prompt?, count?}"""
+    from src.adaptive_router import get_router
+    body = await request.json()
+    pattern = body.get("pattern", "code")
+    prompt = body.get("prompt", "")
+    count = body.get("count", 1)
+    router = get_router()
+    if count > 1:
+        return {"nodes": router.pick_nodes(pattern, count=count)}
+    return {"node": router.pick_node(pattern, prompt)}
+
+
+# ── Pattern Discovery API ─────────────────────────────────────────────────
+
+@app.get("/api/discovery/report")
+async def api_discovery_report():
+    """Full pattern discovery + behavior report."""
+    from src.pattern_discovery import PatternDiscovery
+    return PatternDiscovery().full_report()
+
+
+@app.post("/api/discovery/register")
+async def api_discovery_register():
+    """Discover and register new patterns in the database."""
+    from src.pattern_discovery import PatternDiscovery
+    d = PatternDiscovery()
+    patterns = d.discover()
+    count = d.register_patterns(patterns)
+    return {"discovered": len(patterns), "registered": count}
+
+
+# ── Orchestrator v3 API ──────────────────────────────────────────────────
+
+@app.post("/api/orchestrate")
+async def api_orchestrate(request: Request):
+    """Execute an orchestrated workflow. Body: {prompt, workflow?, budget_s?}"""
+    from src.agent_orchestrator_v3 import Orchestrator
+    body = await request.json()
+    prompt = body.get("prompt", "")
+    workflow = body.get("workflow", "auto")
+    budget_s = body.get("budget_s", 60)
+    if not prompt:
+        raise HTTPException(400, "prompt required")
+    o = Orchestrator()
+    r = await o.execute(prompt, workflow=workflow, budget_s=budget_s)
+    await o.close()
+    return {
+        "ok": r.ok, "workflow": r.strategy_used,
+        "content": r.final_content[:3000],
+        "total_ms": round(r.total_latency_ms),
+        "steps": [{"name": s.step_name, "pattern": s.pattern, "node": s.node,
+                    "ok": s.ok, "ms": round(s.latency_ms), "quality": round(s.quality, 3)}
+                   for s in r.steps],
+        "patterns": r.patterns_used,
+        "nodes": r.nodes_used,
+        "summary": r.summary,
+    }
+
+
+@app.post("/api/orchestrate/consensus")
+async def api_orchestrate_consensus(request: Request):
+    """Run consensus across N nodes. Body: {prompt, nodes?, min_agree?}"""
+    from src.agent_orchestrator_v3 import Orchestrator
+    body = await request.json()
+    prompt = body.get("prompt", "")
+    nodes = body.get("nodes")
+    min_agree = body.get("min_agree", 2)
+    if not prompt:
+        raise HTTPException(400, "prompt required")
+    o = Orchestrator()
+    r = await o.execute_consensus(prompt, nodes=nodes, min_agree=min_agree)
+    await o.close()
+    return {
+        "ok": r.ok, "content": r.final_content[:3000],
+        "total_ms": round(r.total_latency_ms),
+        "nodes": r.nodes_used, "agreed": r.metadata.get("agreed", 0),
+    }
+
+
+@app.post("/api/orchestrate/race")
+async def api_orchestrate_race(request: Request):
+    """Race N nodes for fastest response. Body: {prompt, pattern?, count?}"""
+    from src.agent_orchestrator_v3 import Orchestrator
+    body = await request.json()
+    prompt = body.get("prompt", "")
+    pattern = body.get("pattern", "code")
+    count = body.get("count", 3)
+    if not prompt:
+        raise HTTPException(400, "prompt required")
+    o = Orchestrator()
+    r = await o.execute_race(prompt, pattern=pattern, count=count)
+    await o.close()
+    return {
+        "ok": r.ok, "content": r.final_content[:3000],
+        "total_ms": round(r.total_latency_ms),
+        "winner": r.metadata.get("winner"),
+        "raced_nodes": r.metadata.get("raced_nodes", []),
+    }
+
+
+@app.get("/api/orchestrate/workflows")
+async def api_orchestrate_workflows():
+    """List available orchestration workflows."""
+    from src.agent_orchestrator_v3 import Orchestrator
+    return Orchestrator().list_workflows()
+
+
+# ── Episodic Memory API ──────────────────────────────────────────────────
+
+@app.get("/api/memory/session")
+async def api_memory_session():
+    """Current session memory summary."""
+    from src.agent_episodic_memory import get_episodic_memory
+    return get_episodic_memory().get_session_summary()
+
+
+@app.post("/api/memory/recall")
+async def api_memory_recall(request: Request):
+    """Recall relevant episodes. Body: {query, top_k?, pattern?}"""
+    from src.agent_episodic_memory import get_episodic_memory
+    body = await request.json()
+    query = body.get("query", "")
+    top_k = body.get("top_k", 5)
+    pattern = body.get("pattern")
+    if not query:
+        raise HTTPException(400, "query required")
+    mem = get_episodic_memory()
+    episodes = mem.recall(query, top_k=top_k, pattern_filter=pattern)
+    return {"episodes": [
+        {"pattern": e.pattern, "node": e.node, "preview": e.prompt_preview,
+         "success": e.success, "quality": e.quality, "relevance": round(e.relevance, 2)}
+        for e in episodes
+    ]}
+
+
+@app.get("/api/memory/node/{node}")
+async def api_memory_node(node: str):
+    """Memory about a specific node."""
+    from src.agent_episodic_memory import get_episodic_memory
+    return get_episodic_memory().get_node_memory(node)
+
+
+@app.get("/api/memory/pattern/{pattern}")
+async def api_memory_pattern(pattern: str):
+    """Memory about a specific pattern."""
+    from src.agent_episodic_memory import get_episodic_memory
+    return get_episodic_memory().get_pattern_memory(pattern)
+
+
+@app.post("/api/memory/learn")
+async def api_memory_learn():
+    """Analyze history and generate semantic facts."""
+    from src.agent_episodic_memory import get_episodic_memory
+    mem = get_episodic_memory()
+    learned = mem.learn_from_history()
+    return {"learned": learned, "total_facts": len(mem._facts)}
+
+
+# ── Self-Improve API ─────────────────────────────────────────────────────
+
+@app.post("/api/improve/cycle")
+async def api_improve_cycle():
+    """Run a self-improvement cycle."""
+    from src.agent_self_improve import SelfImprover
+    imp = SelfImprover()
+    report = await imp.run_cycle()
+    return {
+        "cycle_id": report.cycle_id,
+        "duration_ms": round(report.duration_ms),
+        "actions": [
+            {"type": a.action_type, "target": a.target,
+             "description": a.description, "confidence": round(a.confidence, 2)}
+            for a in report.actions
+        ],
+        "recommendations": report.recommendations,
+        "success_rate": round(report.metrics_before.get("success_rate", 0) * 100, 1),
+        "summary": report.summary,
+    }
+
+
+@app.get("/api/improve/history")
+async def api_improve_history():
+    """Get self-improvement cycle history."""
+    from src.agent_self_improve import SelfImprover
+    return {"history": SelfImprover().get_history(limit=20)}
+
+
+# ── Agent Collaboration API ──────────────────────────────────────────────
+
+@app.post("/api/collab/ask")
+async def api_collab_ask(request: Request):
+    """Ask a specific agent. Body: {pattern, prompt, context?}"""
+    from src.agent_collaboration import get_bus
+    body = await request.json()
+    pattern = body.get("pattern", "simple")
+    prompt = body.get("prompt", "")
+    context = body.get("context", {})
+    if not prompt:
+        raise HTTPException(400, "prompt required")
+    bus = get_bus()
+    msg = await bus.ask(pattern, prompt, context=context)
+    return {"ok": msg.ok, "response": (msg.response or "")[:3000],
+            "pattern": msg.to_agent, "latency_ms": round(msg.latency_ms)}
+
+
+@app.post("/api/collab/chain")
+async def api_collab_chain(request: Request):
+    """Execute agent chain. Body: {agents: ["code","security"], prompt}"""
+    from src.agent_collaboration import get_bus
+    body = await request.json()
+    agents = body.get("agents", ["simple"])
+    prompt = body.get("prompt", "")
+    if not prompt:
+        raise HTTPException(400, "prompt required")
+    bus = get_bus()
+    r = await bus.chain(agents, prompt)
+    return {"ok": r.ok, "content": r.final_content[:3000],
+            "chain": r.chain, "steps_ok": r.steps_ok,
+            "total_ms": round(r.total_latency_ms), "summary": r.summary}
+
+
+@app.post("/api/collab/debate")
+async def api_collab_debate(request: Request):
+    """Multi-agent debate. Body: {agents, question, rounds?}"""
+    from src.agent_collaboration import get_bus
+    body = await request.json()
+    agents = body.get("agents", ["code", "reasoning"])
+    question = body.get("question", "")
+    rounds = body.get("rounds", 2)
+    if not question:
+        raise HTTPException(400, "question required")
+    bus = get_bus()
+    r = await bus.debate(agents, question, rounds=rounds)
+    return {"ok": r.ok, "content": r.final_content[:3000],
+            "steps_ok": r.steps_ok, "total_ms": round(r.total_latency_ms)}
+
+
+@app.get("/api/collab/stats")
+async def api_collab_stats():
+    """Collaboration statistics."""
+    from src.agent_collaboration import get_bus
+    return get_bus().get_stats()
+
+
+# ── Health Guardian API ──────────────────────────────────────────────────
+
+@app.get("/api/health/check")
+async def api_health_check():
+    """Run full health check on all nodes."""
+    from src.agent_health_guardian import HealthGuardian
+    g = HealthGuardian()
+    report = await g.check_all()
+    return {
+        "status": report.overall_status,
+        "healthy": report.healthy_nodes, "total": report.total_nodes,
+        "alerts": [{"severity": a.severity, "target": a.target,
+                     "type": a.alert_type, "message": a.message}
+                    for a in report.alerts],
+        "nodes": [{"node": n.node, "status": n.status, "latency_ms": round(n.latency_ms),
+                    "models_loaded": n.models_loaded, "error": n.error}
+                   for n in report.node_checks],
+        "duration_ms": round(report.duration_ms),
+        "summary": report.summary,
+    }
+
+
+@app.post("/api/health/heal")
+async def api_health_heal():
+    """Run auto-healing."""
+    from src.agent_health_guardian import HealthGuardian
+    g = HealthGuardian()
+    healed = await g.auto_heal()
+    return {"actions": healed}
+
+
+# ── Benchmark API ────────────────────────────────────────────────────────
+
+@app.post("/api/benchmark/quick")
+async def api_benchmark_quick():
+    """Run quick benchmark (~2min)."""
+    from src.pattern_benchmark_runner import BenchmarkRunner
+    r = BenchmarkRunner()
+    report = await r.run_quick()
+    await r.close()
+    return {
+        "name": report.name, "success_rate": round(report.success_rate * 100, 1),
+        "total": report.total_tests, "ok": report.success_count,
+        "duration_ms": round(report.duration_ms),
+        "per_pattern": report.per_pattern,
+        "recommendations": report.recommendations,
+        "summary": report.summary,
+    }
+
+
+@app.get("/api/benchmark/history")
+async def api_benchmark_history():
+    """Benchmark history."""
+    from src.pattern_benchmark_runner import BenchmarkRunner
+    return {"history": BenchmarkRunner().get_history()}
+
+
+# ── Task Planner API ────────────────────────────────────────────────────
+
+@app.post("/api/planner/plan")
+async def api_planner_plan(request: Request):
+    """Plan a complex task. Body: {prompt}"""
+    from src.agent_task_planner import TaskPlanner
+    body = await request.json()
+    prompt = body.get("prompt", "")
+    if not prompt:
+        raise HTTPException(400, "prompt required")
+    p = TaskPlanner()
+    plan = p.plan(prompt)
+    return p.plan_to_dict(plan)
+
+
+@app.post("/api/planner/execute")
+async def api_planner_execute(request: Request):
+    """Plan and execute a complex task. Body: {prompt}"""
+    from src.agent_task_planner import TaskPlanner
+    body = await request.json()
+    prompt = body.get("prompt", "")
+    if not prompt:
+        raise HTTPException(400, "prompt required")
+    p = TaskPlanner()
+    plan = p.plan(prompt)
+    result = await p.execute_plan(plan)
+    await p.close()
+    return {
+        "ok": result.ok, "complexity": plan.complexity,
+        "steps_ok": result.steps_ok, "steps_total": result.steps_total,
+        "total_ms": round(result.total_ms),
+        "output": result.final_output[:3000],
+        "plan": p.plan_to_dict(plan),
+        "summary": result.summary,
+    }
+
+
+# ── Feedback Loop API ────────────────────────────────────────────────────
+
+@app.get("/api/feedback/quality")
+async def api_feedback_quality():
+    """Quality report from feedback loop."""
+    from src.agent_feedback_loop import get_feedback
+    return get_feedback().get_quality_report()
+
+
+@app.get("/api/feedback/trends")
+async def api_feedback_trends():
+    """Pattern quality trends."""
+    from src.agent_feedback_loop import get_feedback
+    fb = get_feedback()
+    return {"trends": [
+        {"pattern": t.pattern, "direction": t.direction,
+         "recent": t.recent_quality, "older": t.older_quality,
+         "change": t.change_pct, "best_node": t.best_node}
+        for t in fb.get_trends()
+    ]}
+
+
+@app.get("/api/feedback/adjustments")
+async def api_feedback_adjustments():
+    """Suggested routing adjustments."""
+    from src.agent_feedback_loop import get_feedback
+    fb = get_feedback()
+    return {"adjustments": [
+        {"pattern": a.pattern, "action": a.action,
+         "current": a.current, "suggested": a.suggested,
+         "reason": a.reason, "confidence": round(a.confidence, 2)}
+        for a in fb.suggest_adjustments()
+    ]}
+
+
+@app.get("/api/feedback/ab")
+async def api_feedback_ab():
+    """A/B test results per pattern."""
+    from src.agent_feedback_loop import get_feedback
+    return get_feedback().get_ab_results()
+
+
+@app.post("/api/feedback/rate")
+async def api_feedback_rate(request: Request):
+    """Submit user rating. Body: {pattern, node, rating (1-5)}"""
+    from src.agent_feedback_loop import get_feedback
+    body = await request.json()
+    fb = get_feedback()
+    fb.record_feedback(
+        pattern=body.get("pattern", ""),
+        node=body.get("node", "M1"),
+        user_rating=int(body.get("rating", 0)),
+        quality=float(body.get("quality", 0.5)),
+        success=True,
+    )
+    return {"ok": True}
+
+
 # ── Entry point ──────────────────────────────────────────────────────────────
+
+# ── Phase 13: Dispatch Engine ────────────────────────────────────────────────
+
+@app.get("/api/dispatch_engine/stats")
+async def dispatch_engine_stats():
+    from src.dispatch_engine import get_engine
+    return get_engine().get_stats()
+
+@app.get("/api/dispatch_engine/report")
+async def dispatch_engine_report():
+    from src.dispatch_engine import get_engine
+    return get_engine().get_pipeline_report()
+
+@app.post("/api/dispatch_engine/dispatch")
+async def dispatch_engine_dispatch(req: Request):
+    body = await req.json()
+    from src.dispatch_engine import get_engine
+    engine = get_engine()
+    result = await engine.dispatch(
+        pattern=body.get("pattern", "simple"),
+        prompt=body.get("prompt", ""),
+        node_override=body.get("node"),
+        strategy_override=body.get("strategy"),
+    )
+    return {"pattern": result.pattern, "node": result.node, "content": result.content,
+            "quality": result.quality, "latency_ms": result.latency_ms,
+            "success": result.success, "pipeline_ms": result.pipeline_ms,
+            "enriched": result.enriched, "fallback_used": result.fallback_used}
+
+@app.post("/api/dispatch_engine/batch")
+async def dispatch_engine_batch(req: Request):
+    body = await req.json()
+    from src.dispatch_engine import get_engine
+    engine = get_engine()
+    results = await engine.batch_dispatch(
+        tasks=body.get("tasks", []),
+        concurrency=body.get("concurrency", 3),
+    )
+    return [{"pattern": r.pattern, "node": r.node, "quality": r.quality,
+             "success": r.success, "latency_ms": r.latency_ms} for r in results]
+
+# ── Phase 13: Prompt Optimizer ───────────────────────────────────────────────
+
+@app.post("/api/prompt_optimizer/optimize")
+async def prompt_optimizer_optimize(req: Request):
+    body = await req.json()
+    from src.agent_prompt_optimizer import get_optimizer
+    return get_optimizer().optimize(body.get("pattern", "simple"), body.get("prompt", ""))
+
+@app.get("/api/prompt_optimizer/insights")
+async def prompt_optimizer_insights(pattern: str = ""):
+    from src.agent_prompt_optimizer import get_optimizer
+    return get_optimizer().get_insights(pattern or None)
+
+@app.get("/api/prompt_optimizer/templates")
+async def prompt_optimizer_templates():
+    from src.agent_prompt_optimizer import get_optimizer
+    return get_optimizer().get_templates()
+
+@app.post("/api/prompt_optimizer/analyze")
+async def prompt_optimizer_analyze(req: Request):
+    body = await req.json()
+    from src.agent_prompt_optimizer import get_optimizer
+    return get_optimizer().analyze_prompt(body.get("pattern", "simple"), body.get("prompt", ""))
+
+# ── Phase 13: Auto Scaler ───────────────────────────────────────────────────
+
+@app.get("/api/auto_scaler/metrics")
+async def auto_scaler_metrics():
+    from src.agent_auto_scaler import get_scaler
+    metrics = get_scaler().get_load_metrics()
+    return {n: {"avg_latency_ms": m.avg_latency_ms, "p95_latency_ms": m.p95_latency_ms,
+                "error_rate": m.error_rate, "requests_5min": m.requests_last_5min,
+                "requests_1h": m.requests_last_1h} for n, m in metrics.items()}
+
+@app.get("/api/auto_scaler/evaluate")
+async def auto_scaler_evaluate():
+    from src.agent_auto_scaler import get_scaler
+    actions = get_scaler().evaluate()
+    return [{"action_type": a.action_type, "target_node": a.target_node,
+             "description": a.description, "priority": a.priority} for a in actions]
+
+@app.get("/api/auto_scaler/capacity")
+async def auto_scaler_capacity():
+    from src.agent_auto_scaler import get_scaler
+    return get_scaler().get_capacity_report()
+
+@app.get("/api/auto_scaler/history")
+async def auto_scaler_history():
+    from src.agent_auto_scaler import get_scaler
+    return get_scaler().get_scaling_history()
+
+@app.post("/api/auto_scaler/execute")
+async def auto_scaler_execute(req: Request):
+    from src.agent_auto_scaler import get_scaler
+    scaler = get_scaler()
+    actions = scaler.evaluate()
+    results = await scaler.execute_actions(actions)
+    return results
+
+# ── Phase 13: Event Stream ──────────────────────────────────────────────────
+
+@app.get("/api/event_stream/events")
+async def event_stream_events(topic: str = "", since_id: int = 0, limit: int = 100):
+    from src.event_stream import get_stream
+    return get_stream().get_events(topic or None, since_id, limit)
+
+@app.get("/api/event_stream/latest")
+async def event_stream_latest(topic: str = "", n: int = 10):
+    from src.event_stream import get_stream
+    return get_stream().get_latest(topic or None, n)
+
+@app.get("/api/event_stream/stats")
+async def event_stream_stats():
+    from src.event_stream import get_stream
+    return get_stream().get_stats()
+
+@app.get("/api/event_stream/topics")
+async def event_stream_topics():
+    from src.event_stream import get_stream
+    return get_stream().get_topics()
+
+@app.post("/api/event_stream/emit")
+async def event_stream_emit(req: Request):
+    body = await req.json()
+    from src.event_stream import get_stream
+    eid = get_stream().emit(body.get("topic", "system"), body.get("data", {}), body.get("source", "api"))
+    return {"event_id": eid}
+
+from fastapi.responses import StreamingResponse
+
+@app.get("/api/event_stream/sse/{topic}")
+async def event_stream_sse(topic: str):
+    from src.event_stream import get_stream
+    return StreamingResponse(get_stream().sse_generator(topic), media_type="text/event-stream")
+
+# ── Phase 13: Agent Ensemble ────────────────────────────────────────────────
+
+@app.post("/api/ensemble/execute")
+async def ensemble_execute(req: Request):
+    body = await req.json()
+    from src.agent_ensemble import get_ensemble
+    ens = get_ensemble()
+    result = await ens.execute(
+        pattern=body.get("pattern", "simple"),
+        prompt=body.get("prompt", ""),
+        nodes=body.get("nodes"),
+        strategy=body.get("strategy", "best_of_n"),
+    )
+    return {
+        "best_node": result.best_output.node,
+        "best_content": result.best_output.content,
+        "best_score": result.best_output.total_score,
+        "agreement": result.agreement_score,
+        "ensemble_size": result.ensemble_size,
+        "total_latency_ms": result.total_latency_ms,
+        "all_scores": [{
+            "node": o.node, "score": o.total_score,
+            "latency_ms": o.latency_ms, "success": o.success,
+        } for o in result.all_outputs],
+    }
+
+@app.get("/api/ensemble/stats")
+async def ensemble_stats():
+    from src.agent_ensemble import get_ensemble
+    return get_ensemble().get_ensemble_stats()
+
+@app.get("/api/ensemble/best_config")
+async def ensemble_best_config(pattern: str = "code"):
+    from src.agent_ensemble import get_ensemble
+    return get_ensemble().get_best_ensemble_config(pattern)
+
+
+# ── Phase 14: Quality Gate ───────────────────────────────────────────────────
+
+@app.post("/api/quality_gate/evaluate")
+async def quality_gate_evaluate(req: Request):
+    body = await req.json()
+    from src.quality_gate import get_gate
+    result = get_gate().evaluate(
+        body.get("pattern", "simple"), body.get("prompt", ""),
+        body.get("content", ""), latency_ms=body.get("latency_ms", 0),
+        node=body.get("node", ""),
+    )
+    return {"passed": result.passed, "overall_score": result.overall_score,
+            "gates": result.gates, "failed_gates": result.failed_gates,
+            "suggestions": result.suggestions, "retry_recommended": result.retry_recommended}
+
+@app.get("/api/quality_gate/stats")
+async def quality_gate_stats():
+    from src.quality_gate import get_gate
+    return get_gate().get_stats()
+
+@app.get("/api/quality_gate/report")
+async def quality_gate_report():
+    from src.quality_gate import get_gate
+    return get_gate().get_gate_report()
+
+# ── Phase 14: Pattern Lifecycle ──────────────────────────────────────────────
+
+@app.get("/api/lifecycle/patterns")
+async def lifecycle_patterns():
+    from src.pattern_lifecycle import get_lifecycle
+    patterns = get_lifecycle().get_all_patterns()
+    return [{"pattern": p.pattern_type, "agent": p.agent_id, "model": p.model_primary,
+             "strategy": p.strategy, "status": p.status, "calls": p.total_calls,
+             "success_rate": p.success_rate, "quality": p.avg_quality} for p in patterns]
+
+@app.get("/api/lifecycle/health")
+async def lifecycle_health():
+    from src.pattern_lifecycle import get_lifecycle
+    return get_lifecycle().health_report()
+
+@app.get("/api/lifecycle/actions")
+async def lifecycle_actions():
+    from src.pattern_lifecycle import get_lifecycle
+    return get_lifecycle().suggest_actions()
+
+@app.post("/api/lifecycle/create")
+async def lifecycle_create(req: Request):
+    body = await req.json()
+    from src.pattern_lifecycle import get_lifecycle
+    ok = get_lifecycle().create_pattern(
+        body.get("pattern", ""), body.get("agent_id", ""),
+        body.get("model", "qwen3-8b"), body.get("strategy", "single"),
+    )
+    return {"created": ok}
+
+@app.post("/api/lifecycle/evolve")
+async def lifecycle_evolve(req: Request):
+    body = await req.json()
+    from src.pattern_lifecycle import get_lifecycle
+    ok = get_lifecycle().evolve_pattern(
+        body.get("pattern", ""), model=body.get("model"),
+        strategy=body.get("strategy"),
+    )
+    return {"evolved": ok}
+
+@app.post("/api/lifecycle/deprecate")
+async def lifecycle_deprecate(req: Request):
+    body = await req.json()
+    from src.pattern_lifecycle import get_lifecycle
+    ok = get_lifecycle().deprecate_pattern(body.get("pattern", ""))
+    return {"deprecated": ok}
+
+@app.get("/api/lifecycle/history")
+async def lifecycle_history(pattern: str = ""):
+    from src.pattern_lifecycle import get_lifecycle
+    return get_lifecycle().get_lifecycle_history(pattern or None)
+
+# ── Phase 14: Cluster Intelligence ──────────────────────────────────────────
+
+@app.get("/api/intelligence/report")
+async def intelligence_report():
+    from src.cluster_intelligence import get_intelligence
+    return get_intelligence().full_report()
+
+@app.get("/api/intelligence/status")
+async def intelligence_status():
+    from src.cluster_intelligence import get_intelligence
+    return get_intelligence().quick_status()
+
+@app.get("/api/intelligence/actions")
+async def intelligence_actions():
+    from src.cluster_intelligence import get_intelligence
+    actions = get_intelligence().priority_actions()
+    return [a.__dict__ for a in actions]
+
+
+# ── Cowork Bridge ────────────────────────────────────────────────────────────
+
+@app.get("/api/cowork/scripts")
+async def cowork_scripts(category: str = ""):
+    from src.cowork_bridge import get_bridge
+    return get_bridge().list_scripts(category or None)
+
+@app.get("/api/cowork/search")
+async def cowork_search(q: str = "", limit: int = 20):
+    from src.cowork_bridge import get_bridge
+    return get_bridge().search(q, limit)
+
+@app.post("/api/cowork/execute")
+async def cowork_execute(req: Request):
+    body = await req.json()
+    from src.cowork_bridge import get_bridge
+    result = get_bridge().execute(
+        body.get("script", ""),
+        args=body.get("args", ["--once"]),
+        timeout_s=body.get("timeout", 60),
+    )
+    return {"script": result.script, "exit_code": result.exit_code,
+            "stdout": result.stdout[:3000], "stderr": result.stderr[:1000],
+            "duration_ms": result.duration_ms, "success": result.success}
+
+@app.get("/api/cowork/stats")
+async def cowork_stats():
+    from src.cowork_bridge import get_bridge
+    return get_bridge().get_stats()
+
+@app.get("/api/cowork/history")
+async def cowork_history(script: str = "", limit: int = 50):
+    from src.cowork_bridge import get_bridge
+    return get_bridge().get_execution_history(script or None, limit)
+
+
+# ── Phase 15: Self-Improvement Loop ──────────────────────────────────────────
+
+@app.get("/api/self_improvement/analyze")
+async def self_improvement_analyze():
+    from src.self_improvement import get_improver
+    return get_improver().analyze()
+
+@app.get("/api/self_improvement/suggest")
+async def self_improvement_suggest():
+    from src.self_improvement import get_improver
+    actions = get_improver().suggest_improvements()
+    return [{"type": a.action_type, "target": a.target, "description": a.description,
+             "priority": a.priority, "params": a.params} for a in actions]
+
+@app.post("/api/self_improvement/apply")
+async def self_improvement_apply(req: Request):
+    body = await req.json()
+    from src.self_improvement import get_improver
+    return get_improver().apply_improvements(
+        auto=body.get("auto", False),
+        max_actions=body.get("max_actions", 5),
+    )
+
+@app.get("/api/self_improvement/history")
+async def self_improvement_history(limit: int = 50):
+    from src.self_improvement import get_improver
+    return get_improver().get_history(limit)
+
+@app.get("/api/self_improvement/stats")
+async def self_improvement_stats():
+    from src.self_improvement import get_improver
+    return get_improver().get_stats()
+
+
+# ── Phase 15: Dynamic Agents ────────────────────────────────────────────────
+
+@app.get("/api/dynamic_agents/list")
+async def dynamic_agents_list():
+    from src.dynamic_agents import get_spawner
+    return get_spawner().list_agents()
+
+@app.get("/api/dynamic_agents/stats")
+async def dynamic_agents_stats():
+    from src.dynamic_agents import get_spawner
+    return get_spawner().get_stats()
+
+@app.post("/api/dynamic_agents/dispatch")
+async def dynamic_agents_dispatch(req: Request):
+    body = await req.json()
+    from src.dynamic_agents import get_spawner
+    return await get_spawner().dispatch(
+        body.get("pattern", ""),
+        body.get("prompt", ""),
+    )
+
+@app.post("/api/dynamic_agents/dispatch_cowork")
+async def dynamic_agents_dispatch_cowork(req: Request):
+    body = await req.json()
+    from src.dynamic_agents import get_spawner
+    return await get_spawner().dispatch_with_cowork(
+        body.get("pattern", ""),
+        body.get("prompt", ""),
+    )
+
+@app.post("/api/dynamic_agents/register")
+async def dynamic_agents_register():
+    from src.dynamic_agents import get_spawner
+    count = get_spawner().register_to_registry()
+    return {"registered": count}
+
+
+# ── Phase 15: Cowork Proactive Engine ────────────────────────────────────────
+
+@app.get("/api/cowork_proactive/needs")
+async def cowork_proactive_needs():
+    from src.cowork_proactive import get_proactive
+    needs = get_proactive().detect_needs()
+    return [{"category": n.category, "urgency": n.urgency,
+             "description": n.description, "source": n.source} for n in needs]
+
+@app.post("/api/cowork_proactive/run")
+async def cowork_proactive_run(req: Request):
+    body = await req.json()
+    from src.cowork_proactive import get_proactive
+    return get_proactive().run_proactive(
+        max_scripts=body.get("max_scripts", 5),
+        dry_run=body.get("dry_run", True),
+    )
+
+@app.get("/api/cowork_proactive/anticipate")
+async def cowork_proactive_anticipate():
+    from src.cowork_proactive import get_proactive
+    return get_proactive().anticipate()
+
+@app.get("/api/cowork_proactive/stats")
+async def cowork_proactive_stats():
+    from src.cowork_proactive import get_proactive
+    return get_proactive().get_stats()
+
+
+# ── Phase 15: Reflection Engine ──────────────────────────────────────────────
+
+@app.get("/api/reflection/insights")
+async def reflection_insights():
+    from src.reflection_engine import get_reflection
+    insights = get_reflection().reflect()
+    return [{"category": i.category, "severity": i.severity, "title": i.title,
+             "description": i.description, "metric_value": i.metric_value,
+             "recommendation": i.recommendation} for i in insights]
+
+@app.get("/api/reflection/timeline")
+async def reflection_timeline(hours: int = 24):
+    from src.reflection_engine import get_reflection
+    return get_reflection().timeline_analysis(hours)
+
+@app.get("/api/reflection/summary")
+async def reflection_summary():
+    from src.reflection_engine import get_reflection
+    return get_reflection().get_summary()
+
+@app.get("/api/reflection/stats")
+async def reflection_stats():
+    from src.reflection_engine import get_reflection
+    return get_reflection().get_stats()
+
+
+# ── Phase 16: Pattern Evolution ──────────────────────────────────────────────
+
+@app.get("/api/evolution/gaps")
+async def evolution_gaps():
+    from src.pattern_evolution import get_evolution
+    suggestions = get_evolution().analyze_gaps()
+    return [{"action": s.action, "pattern": s.pattern_type, "description": s.description,
+             "confidence": s.confidence, "model": s.model_suggestion} for s in suggestions]
+
+@app.post("/api/evolution/create")
+async def evolution_create(req: Request):
+    body = await req.json()
+    from src.pattern_evolution import get_evolution
+    return get_evolution().auto_create_patterns(
+        min_confidence=body.get("min_confidence", 0.5),
+    )
+
+@app.post("/api/evolution/evolve")
+async def evolution_evolve():
+    from src.pattern_evolution import get_evolution
+    return get_evolution().evolve_patterns()
+
+@app.get("/api/evolution/history")
+async def evolution_history(limit: int = 50):
+    from src.pattern_evolution import get_evolution
+    return get_evolution().get_evolution_history(limit)
+
+@app.get("/api/evolution/stats")
+async def evolution_stats():
+    from src.pattern_evolution import get_evolution
+    return get_evolution().get_stats()
+
 
 def main():
     import uvicorn

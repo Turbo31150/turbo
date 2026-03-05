@@ -1900,7 +1900,573 @@ async def dict_crud_tool(args: dict[str, Any]) -> dict[str, Any]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# ASSEMBLE MCP SERVER — ALL TOOLS (78 SDK tools)
+# PATTERN AGENTS TOOLS (5) — v11.1
+# ═══════════════════════════════════════════════════════════════════════════
+
+@tool("agent_dispatch", "Dispatch intelligent vers le meilleur agent (14 patterns). Auto-classifie si pattern absent.", {"prompt": str, "pattern": str})
+async def agent_dispatch_tool(prompt: str = "", pattern: str = "") -> str:
+    from src.smart_dispatcher import SmartDispatcher
+    if not prompt:
+        return "ERREUR: prompt required"
+    d = SmartDispatcher()
+    r = await d.dispatch_typed(pattern, prompt) if pattern else await d.dispatch(prompt)
+    await d.close()
+    return json.dumps({"ok": r.ok, "content": r.content[:2000], "pattern": r.pattern,
+        "node": r.node, "model": r.model, "latency_ms": round(r.latency_ms),
+        "tokens": r.tokens, "quality": r.quality_score, "strategy": r.strategy}, ensure_ascii=False)
+
+
+@tool("agent_classify", "Classifie un prompt en type de pattern (code/analysis/trading/math/...).", {"prompt": str})
+async def agent_classify_tool(prompt: str = "") -> str:
+    from src.pattern_agents import PatternAgentRegistry
+    if not prompt:
+        return "ERREUR: prompt required"
+    reg = PatternAgentRegistry()
+    pattern = reg.classify(prompt)
+    agent = reg.agents.get(pattern)
+    return json.dumps({"pattern": pattern, "agent": agent.agent_id if agent else "unknown",
+        "node": agent.primary_node if agent else "M1", "strategy": agent.strategy if agent else "single"})
+
+
+@tool("agent_list", "Liste les 14 agents pattern avec config (type, node, strategie, priorite).", {})
+async def agent_list_tool() -> str:
+    from src.pattern_agents import PatternAgentRegistry
+    reg = PatternAgentRegistry()
+    return json.dumps({"agents": reg.list_agents()}, ensure_ascii=False)
+
+
+@tool("agent_routing", "Rapport de routing intelligent base sur l'historique dispatch_log.", {})
+async def agent_routing_tool() -> str:
+    from src.smart_dispatcher import SmartDispatcher
+    d = SmartDispatcher()
+    report = d.get_routing_report()
+    await d.close()
+    return json.dumps(report, ensure_ascii=False, default=str)
+
+
+@tool("agent_evolve", "Evolution automatique des agents: decouverte patterns, tuning nodes/strategies.", {})
+async def agent_evolve_tool() -> str:
+    from src.agent_factory import AgentFactory
+    f = AgentFactory()
+    evolutions = f.analyze_and_evolve()
+    return json.dumps({"count": len(evolutions), "evolutions": [
+        {"pattern": e.pattern_type, "action": e.action, "old": e.old_value,
+         "new": e.new_value, "reason": e.reason} for e in evolutions
+    ]}, ensure_ascii=False)
+
+
+@tool("pipeline_run", "Executer un pipeline multi-agents. Pipelines: code-review, smart-qa, trading-analysis, architecture-design, devops-deploy.", {"pipeline": str, "prompt": str})
+async def pipeline_run_tool(pipeline: str = "", prompt: str = "") -> str:
+    from src.pipeline_composer import run_pipeline
+    if not pipeline or not prompt:
+        return "ERREUR: pipeline et prompt requis"
+    result = await run_pipeline(pipeline, prompt)
+    return json.dumps({"ok": result.ok, "pipeline": result.pipeline_name,
+        "total_ms": round(result.total_ms), "steps": result.steps,
+        "output": result.final_output[:2000]}, ensure_ascii=False, default=str)
+
+
+@tool("pipeline_list", "Lister les pipelines multi-agents disponibles.", {})
+async def pipeline_list_tool() -> str:
+    from src.pipeline_composer import PIPELINES
+    return json.dumps({"pipelines": list(PIPELINES.keys())})
+
+
+@tool("agent_dashboard", "Dashboard temps reel des 14 agents: dispatches, latence, qualite, alertes.", {})
+async def agent_dashboard_tool() -> str:
+    from src.agent_monitor import get_monitor
+    return json.dumps(get_monitor().get_dashboard(), default=str)
+
+
+@tool("routing_optimizer", "Rapport optimisation routing: noeuds, recommandations, profils.", {})
+async def routing_optimizer_tool() -> str:
+    from src.routing_optimizer import RoutingOptimizer
+    return json.dumps(RoutingOptimizer().report(), ensure_ascii=False)
+
+
+@tool("agent_auto_scale", "Auto-scaling: ajuste concurrency et timeouts selon la charge cluster.", {})
+async def agent_auto_scale_tool() -> str:
+    from src.auto_scaler import AutoScaler
+    scaler = AutoScaler()
+    actions = await scaler.scale()
+    return json.dumps({"actions": actions}, ensure_ascii=False)
+
+
+@tool("adaptive_router_status", "Routeur adaptatif: circuits, sante noeuds, affinites pattern-noeud.", {})
+def adaptive_router_status_tool() -> str:
+    from src.adaptive_router import get_router
+    router = get_router()
+    status = router.get_status()
+    status["recommendations"] = router.get_recommendations()
+    return json.dumps(status, default=str, ensure_ascii=False)
+
+
+@tool("adaptive_router_pick", "Choisir noeud optimal pour un pattern.", {"pattern": "string", "count": "number"})
+def adaptive_router_pick_tool(pattern: str = "code", count: int = 1) -> str:
+    from src.adaptive_router import get_router
+    router = get_router()
+    if count > 1:
+        return json.dumps({"nodes": router.pick_nodes(pattern, count=count)})
+    return json.dumps({"node": router.pick_node(pattern)})
+
+
+@tool("pattern_discovery", "Decouvrir nouveaux patterns depuis dispatch_log + analyse comportement.", {})
+def pattern_discovery_tool() -> str:
+    from src.pattern_discovery import PatternDiscovery
+    return json.dumps(PatternDiscovery().full_report(), default=str, ensure_ascii=False)
+
+
+@tool("pattern_discovery_register", "Decouvrir et enregistrer nouveaux patterns en DB.", {})
+def pattern_discovery_register_tool() -> str:
+    from src.pattern_discovery import PatternDiscovery
+    d = PatternDiscovery()
+    patterns = d.discover()
+    count = d.register_patterns(patterns)
+    return json.dumps({"discovered": len(patterns), "registered": count})
+
+
+@tool("orchestrate", "Workflow orchestre multi-agents (auto/deep-analysis/code-generate/consensus-3/trading-full/security-audit).", {"prompt": "string", "workflow": "string"})
+async def orchestrate_tool(prompt: str, workflow: str = "auto") -> str:
+    from src.agent_orchestrator_v3 import Orchestrator
+    o = Orchestrator()
+    r = await o.execute(prompt, workflow=workflow, budget_s=60)
+    await o.close()
+    return json.dumps({
+        "ok": r.ok, "workflow": r.strategy_used,
+        "content": r.final_content[:2000],
+        "total_ms": round(r.total_latency_ms),
+        "summary": r.summary,
+    }, ensure_ascii=False)
+
+
+@tool("orchestrate_race", "Course multi-noeuds: le plus rapide gagne.", {"prompt": "string", "pattern": "string"})
+async def orchestrate_race_tool(prompt: str, pattern: str = "code") -> str:
+    from src.agent_orchestrator_v3 import Orchestrator
+    o = Orchestrator()
+    r = await o.execute_race(prompt, pattern=pattern, count=3)
+    await o.close()
+    return json.dumps({
+        "ok": r.ok, "content": r.final_content[:2000],
+        "winner": r.metadata.get("winner"),
+    }, ensure_ascii=False)
+
+
+@tool("orchestrate_consensus", "Consensus multi-noeuds avec vote pondere.", {"prompt": "string"})
+async def orchestrate_consensus_tool(prompt: str) -> str:
+    from src.agent_orchestrator_v3 import Orchestrator
+    o = Orchestrator()
+    r = await o.execute_consensus(prompt, min_agree=2)
+    await o.close()
+    return json.dumps({
+        "ok": r.ok, "content": r.final_content[:2000],
+        "agreed": r.metadata.get("agreed", 0),
+    }, ensure_ascii=False)
+
+
+@tool("episodic_recall", "Rappeler episodes pertinents depuis la memoire agents.", {"query": "string", "top_k": "number"})
+def episodic_recall_tool(query: str, top_k: int = 5) -> str:
+    from src.agent_episodic_memory import get_episodic_memory
+    episodes = get_episodic_memory().recall(query, top_k=top_k)
+    return json.dumps([
+        {"pattern": e.pattern, "node": e.node, "preview": e.prompt_preview,
+         "ok": e.success, "relevance": round(e.relevance, 2)}
+        for e in episodes
+    ], ensure_ascii=False)
+
+
+@tool("episodic_learn", "Analyser historique dispatches et generer faits semantiques.", {})
+def episodic_learn_tool() -> str:
+    from src.agent_episodic_memory import get_episodic_memory
+    mem = get_episodic_memory()
+    learned = mem.learn_from_history()
+    return json.dumps({"learned": learned, "total_facts": len(mem._facts)})
+
+
+@tool("episodic_node", "Memoire episodique d'un noeud specifique.", {"node": "string"})
+def episodic_node_tool(node: str = "M1") -> str:
+    from src.agent_episodic_memory import get_episodic_memory
+    return json.dumps(get_episodic_memory().get_node_memory(node), ensure_ascii=False)
+
+
+@tool("episodic_pattern", "Memoire episodique d'un pattern specifique.", {"pattern": "string"})
+def episodic_pattern_tool(pattern: str = "code") -> str:
+    from src.agent_episodic_memory import get_episodic_memory
+    return json.dumps(get_episodic_memory().get_pattern_memory(pattern), ensure_ascii=False)
+
+
+@tool("self_improve", "Lancer un cycle d'auto-amelioration (analyse, decouverte, apprentissage, optimisation).", {})
+async def self_improve_tool() -> str:
+    from src.agent_self_improve import SelfImprover
+    report = await SelfImprover().run_cycle()
+    return json.dumps({
+        "cycle": report.cycle_id, "actions": len(report.actions),
+        "recommendations": report.recommendations, "summary": report.summary,
+    }, ensure_ascii=False)
+
+
+@tool("self_improve_history", "Historique des cycles d'auto-amelioration.", {})
+def self_improve_history_tool() -> str:
+    from src.agent_self_improve import SelfImprover
+    return json.dumps(SelfImprover().get_history(), default=str)
+
+
+@tool("collab_chain", "Chaine collaborative: agents executent en sequence.", {"agents": "string", "prompt": "string"})
+async def collab_chain_tool(agents: str = "simple,code", prompt: str = "") -> str:
+    from src.agent_collaboration import get_bus
+    agent_list = [a.strip() for a in agents.split(",")]
+    r = await get_bus().chain(agent_list, prompt)
+    return json.dumps({"ok": r.ok, "content": r.final_content[:2000], "summary": r.summary}, ensure_ascii=False)
+
+
+@tool("collab_debate", "Debat multi-agents sur une question.", {"agents": "string", "question": "string"})
+async def collab_debate_tool(agents: str = "code,reasoning", question: str = "") -> str:
+    from src.agent_collaboration import get_bus
+    agent_list = [a.strip() for a in agents.split(",")]
+    r = await get_bus().debate(agent_list, question, rounds=2)
+    return json.dumps({"ok": r.ok, "content": r.final_content[:2000], "steps_ok": r.steps_ok}, ensure_ascii=False)
+
+
+@tool("health_check", "Health check complet de tous les noeuds du cluster.", {})
+async def health_check_tool() -> str:
+    from src.agent_health_guardian import HealthGuardian
+    g = HealthGuardian()
+    report = await g.check_all()
+    return json.dumps({
+        "status": report.overall_status, "healthy": report.healthy_nodes,
+        "total": report.total_nodes, "alerts": len(report.alerts),
+        "nodes": [{"node": n.node, "status": n.status} for n in report.node_checks],
+    }, ensure_ascii=False)
+
+
+@tool("health_heal", "Auto-healing des problemes detectes.", {})
+async def health_heal_tool() -> str:
+    from src.agent_health_guardian import HealthGuardian
+    g = HealthGuardian()
+    healed = await g.auto_heal()
+    return json.dumps({"actions": healed}, ensure_ascii=False)
+
+
+@tool("benchmark_quick", "Benchmark rapide: 1 test par pattern, ~2min.", {})
+async def benchmark_quick_tool() -> str:
+    from src.pattern_benchmark_runner import BenchmarkRunner
+    r = BenchmarkRunner()
+    report = await r.run_quick()
+    await r.close()
+    return json.dumps({
+        "rate": round(report.success_rate * 100, 1),
+        "total": report.total_tests, "ok": report.success_count,
+        "ms": round(report.duration_ms), "summary": report.summary,
+    }, ensure_ascii=False)
+
+
+@tool("task_planner", "Planifier une tache complexe: decomposition en sous-taches.", {"prompt": "string"})
+def task_planner_tool(prompt: str = "") -> str:
+    from src.agent_task_planner import TaskPlanner
+    p = TaskPlanner()
+    plan = p.plan(prompt)
+    return json.dumps(p.plan_to_dict(plan), ensure_ascii=False)
+
+
+@tool("task_execute", "Planifier et executer une tache complexe.", {"prompt": "string"})
+async def task_execute_tool(prompt: str = "") -> str:
+    from src.agent_task_planner import TaskPlanner
+    p = TaskPlanner()
+    plan = p.plan(prompt)
+    result = await p.execute_plan(plan)
+    await p.close()
+    return json.dumps({
+        "ok": result.ok, "output": result.final_output[:2000],
+        "steps_ok": result.steps_ok, "summary": result.summary,
+    }, ensure_ascii=False)
+
+
+@tool("feedback_quality", "Rapport qualite de la boucle de retro-action.", {})
+def feedback_quality_tool() -> str:
+    from src.agent_feedback_loop import get_feedback
+    return json.dumps(get_feedback().get_quality_report(), ensure_ascii=False)
+
+
+@tool("feedback_trends", "Tendances qualite et ajustements suggerees.", {})
+def feedback_trends_tool() -> str:
+    from src.agent_feedback_loop import get_feedback
+    fb = get_feedback()
+    trends = fb.get_trends()
+    adj = fb.suggest_adjustments()
+    return json.dumps({
+        "trends": [{"pattern": t.pattern, "direction": t.direction, "change": t.change_pct} for t in trends[:10]],
+        "adjustments": [{"pattern": a.pattern, "action": a.action, "suggested": a.suggested} for a in adj[:5]],
+    }, ensure_ascii=False)
+
+
+# ── Phase 13: Dispatch Engine + Prompt Optimizer + Auto Scaler + Event Stream + Ensemble ──
+
+@tool()
+def dispatch_engine_tool(pattern: str, prompt: str) -> str:
+    """Pipeline unifie: health→route→dispatch→feedback→memory."""
+    import asyncio
+    from src.dispatch_engine import get_engine
+    engine = get_engine()
+    result = asyncio.get_event_loop().run_until_complete(engine.dispatch(pattern, prompt))
+    return json.dumps({
+        "node": result.node, "quality": result.quality,
+        "content": result.content[:2000], "success": result.success,
+        "pipeline_ms": round(result.pipeline_ms, 1),
+        "enriched": result.enriched, "fallback_used": result.fallback_used,
+    }, ensure_ascii=False)
+
+
+@tool()
+def dispatch_engine_stats_tool() -> str:
+    """Stats pipeline dispatch unifie."""
+    from src.dispatch_engine import get_engine
+    return json.dumps(get_engine().get_stats(), ensure_ascii=False)
+
+
+@tool()
+def dispatch_engine_report_tool() -> str:
+    """Rapport detaille pipeline dispatch."""
+    from src.dispatch_engine import get_engine
+    return json.dumps(get_engine().get_pipeline_report(), ensure_ascii=False)
+
+
+@tool()
+def prompt_optimize_tool(pattern: str, prompt: str) -> str:
+    """Optimiser un prompt pour un pattern donne."""
+    from src.agent_prompt_optimizer import get_optimizer
+    return json.dumps(get_optimizer().optimize(pattern, prompt), ensure_ascii=False)
+
+
+@tool()
+def prompt_insights_tool(pattern: str = "") -> str:
+    """Insights sur les prompts par pattern."""
+    from src.agent_prompt_optimizer import get_optimizer
+    return json.dumps(get_optimizer().get_insights(pattern or None), ensure_ascii=False)
+
+
+@tool()
+def prompt_analyze_tool(pattern: str, prompt: str) -> str:
+    """Analyser un prompt et suggerer des ameliorations."""
+    from src.agent_prompt_optimizer import get_optimizer
+    return json.dumps(get_optimizer().analyze_prompt(pattern, prompt), ensure_ascii=False)
+
+
+@tool()
+def auto_scaler_metrics_tool() -> str:
+    """Metriques de charge par noeud."""
+    from src.agent_auto_scaler import get_scaler
+    metrics = get_scaler().get_load_metrics()
+    return json.dumps({n: {"avg_lat": m.avg_latency_ms, "err_rate": m.error_rate,
+                           "req_5min": m.requests_last_5min} for n, m in metrics.items()}, ensure_ascii=False)
+
+
+@tool()
+def auto_scaler_capacity_tool() -> str:
+    """Rapport capacite cluster complet."""
+    from src.agent_auto_scaler import get_scaler
+    return json.dumps(get_scaler().get_capacity_report(), ensure_ascii=False)
+
+
+@tool()
+def event_stream_latest_tool(topic: str = "", n: int = 10) -> str:
+    """Derniers evenements du flux temps reel."""
+    from src.event_stream import get_stream
+    return json.dumps(get_stream().get_latest(topic or None, n), ensure_ascii=False)
+
+
+@tool()
+def event_stream_stats_tool() -> str:
+    """Stats du flux d'evenements."""
+    from src.event_stream import get_stream
+    return json.dumps(get_stream().get_stats(), ensure_ascii=False)
+
+
+@tool()
+def ensemble_execute_tool(pattern: str, prompt: str, strategy: str = "best_of_n") -> str:
+    """Execution ensemble multi-agents avec scoring."""
+    import asyncio
+    from src.agent_ensemble import get_ensemble
+    result = asyncio.get_event_loop().run_until_complete(
+        get_ensemble().execute(pattern, prompt, strategy=strategy)
+    )
+    return json.dumps({
+        "best_node": result.best_output.node,
+        "best_score": round(result.best_output.total_score, 3),
+        "agreement": round(result.agreement_score, 3),
+        "content": result.best_output.content[:2000],
+    }, ensure_ascii=False)
+
+
+@tool()
+def ensemble_stats_tool() -> str:
+    """Stats des executions ensemble."""
+    from src.agent_ensemble import get_ensemble
+    return json.dumps(get_ensemble().get_ensemble_stats(), ensure_ascii=False)
+
+
+# ── Phase 14: Quality Gate + Lifecycle + Intelligence ────────────────────────
+
+@tool()
+def quality_gate_tool(pattern: str, prompt: str, content: str) -> str:
+    """Evaluer la qualite d'un output agent (6 gates)."""
+    from src.quality_gate import get_gate
+    result = get_gate().evaluate(pattern, prompt, content)
+    return json.dumps({
+        "passed": result.passed, "score": result.overall_score,
+        "failed": result.failed_gates, "suggestions": result.suggestions,
+    }, ensure_ascii=False)
+
+
+@tool()
+def lifecycle_health_tool() -> str:
+    """Rapport sante de tous les patterns."""
+    from src.pattern_lifecycle import get_lifecycle
+    return json.dumps(get_lifecycle().health_report(), ensure_ascii=False, default=str)
+
+
+@tool()
+def lifecycle_actions_tool() -> str:
+    """Actions lifecycle suggerees (evolve, deprecate, merge)."""
+    from src.pattern_lifecycle import get_lifecycle
+    return json.dumps(get_lifecycle().suggest_actions(), ensure_ascii=False)
+
+
+@tool()
+def intelligence_report_tool() -> str:
+    """Rapport intelligence cluster unifie (health score 0-100)."""
+    from src.cluster_intelligence import get_intelligence
+    return json.dumps(get_intelligence().full_report(), ensure_ascii=False, default=str)
+
+
+@tool()
+def intelligence_status_tool() -> str:
+    """Statut rapide cluster."""
+    from src.cluster_intelligence import get_intelligence
+    return json.dumps(get_intelligence().quick_status(), ensure_ascii=False)
+
+
+@tool()
+def intelligence_actions_tool() -> str:
+    """Actions prioritaires du cluster intelligence."""
+    from src.cluster_intelligence import get_intelligence
+    actions = get_intelligence().priority_actions()
+    return json.dumps([a.__dict__ for a in actions[:10]], ensure_ascii=False)
+
+
+# ── Cowork Bridge ────────────────────────────────────────────────────────────
+
+@tool()
+def cowork_list_tool(category: str = "") -> str:
+    """Lister les scripts cowork (414+) par categorie."""
+    from src.cowork_bridge import get_bridge
+    scripts = get_bridge().list_scripts(category or None)
+    return json.dumps(scripts[:50], ensure_ascii=False)
+
+
+@tool()
+def cowork_search_tool(query: str) -> str:
+    """Chercher un script cowork par nom ou description."""
+    from src.cowork_bridge import get_bridge
+    return json.dumps(get_bridge().search(query, limit=20), ensure_ascii=False)
+
+
+@tool()
+def cowork_execute_tool(script: str) -> str:
+    """Executer un script cowork avec --once."""
+    from src.cowork_bridge import get_bridge
+    result = get_bridge().execute(script, ["--once"], timeout_s=60)
+    return json.dumps({
+        "script": result.script, "success": result.success,
+        "stdout": result.stdout[:2000], "duration_ms": round(result.duration_ms, 1),
+    }, ensure_ascii=False)
+
+
+@tool()
+def cowork_stats_tool() -> str:
+    """Stats du bridge cowork (414+ scripts)."""
+    from src.cowork_bridge import get_bridge
+    return json.dumps(get_bridge().get_stats(), ensure_ascii=False)
+
+
+# ── Phase 15: Self-Improvement Loop ─────────────────────────────────────
+
+@_track_metrics
+def self_improvement_analyze_tool() -> str:
+    """Analyse complete des performances et gate failures pour auto-amelioration."""
+    from src.self_improvement import get_improver
+    return json.dumps(get_improver().analyze(), ensure_ascii=False, indent=2)
+
+@_track_metrics
+def self_improvement_suggest_tool() -> str:
+    """Suggestions d'amelioration automatiques (route_shift, temp_adjust, gate_tune, prompt_enhance)."""
+    from src.self_improvement import get_improver
+    actions = get_improver().suggest_improvements()
+    return json.dumps([{"type": a.action_type, "target": a.target,
+                        "description": a.description, "priority": a.priority}
+                       for a in actions], ensure_ascii=False, indent=2)
+
+@_track_metrics
+def self_improvement_apply_tool(auto: bool = False, max_actions: int = 5) -> str:
+    """Appliquer les ameliorations suggerees. auto=True pour appliquer les critiques/high automatiquement."""
+    from src.self_improvement import get_improver
+    results = get_improver().apply_improvements(auto=auto, max_actions=max_actions)
+    return json.dumps(results, ensure_ascii=False, indent=2)
+
+@_track_metrics
+def self_improvement_stats_tool() -> str:
+    """Stats du self-improvement loop."""
+    from src.self_improvement import get_improver
+    return json.dumps(get_improver().get_stats(), ensure_ascii=False)
+
+
+# ── Phase 15: Dynamic Agents ───────────────────────────────────────────
+
+@_track_metrics
+def dynamic_agents_list_tool() -> str:
+    """Lister les 56+ agents dynamiques charges depuis la DB."""
+    from src.dynamic_agents import get_spawner
+    return json.dumps(get_spawner().list_agents(), ensure_ascii=False, indent=2)
+
+@_track_metrics
+def dynamic_agents_stats_tool() -> str:
+    """Stats des agents dynamiques: strategie, noeuds, cowork scripts."""
+    from src.dynamic_agents import get_spawner
+    return json.dumps(get_spawner().get_stats(), ensure_ascii=False, indent=2)
+
+@_track_metrics
+def dynamic_agents_register_tool() -> str:
+    """Enregistrer tous les agents dynamiques dans le PatternAgentRegistry live."""
+    from src.dynamic_agents import get_spawner
+    count = get_spawner().register_to_registry()
+    return json.dumps({"registered": count, "message": f"{count} agents dynamiques enregistres"})
+
+
+# ── Phase 15: Cowork Proactive ──────────────────────────────────────────
+
+@_track_metrics
+def cowork_proactive_needs_tool() -> str:
+    """Detecter les besoins systeme pour execution proactive de scripts cowork."""
+    from src.cowork_proactive import get_proactive
+    needs = get_proactive().detect_needs()
+    return json.dumps([{"category": n.category, "urgency": n.urgency,
+                        "description": n.description, "source": n.source}
+                       for n in needs], ensure_ascii=False, indent=2)
+
+@_track_metrics
+def cowork_proactive_run_tool(dry_run: bool = True, max_scripts: int = 5) -> str:
+    """Cycle proactif: detecter besoins -> planifier scripts -> executer."""
+    from src.cowork_proactive import get_proactive
+    return json.dumps(get_proactive().run_proactive(max_scripts=max_scripts, dry_run=dry_run),
+                      ensure_ascii=False, indent=2)
+
+@_track_metrics
+def cowork_proactive_anticipate_tool() -> str:
+    """Predictions de besoins futurs bases sur les tendances."""
+    from src.cowork_proactive import get_proactive
+    return json.dumps(get_proactive().anticipate(), ensure_ascii=False, indent=2)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ASSEMBLE MCP SERVER — ALL TOOLS
 # ═══════════════════════════════════════════════════════════════════════════
 
 jarvis_server = create_sdk_mcp_server(
@@ -1956,6 +2522,43 @@ jarvis_server = create_sdk_mcp_server(
         dict_crud_tool,
         # Domino Pipelines (3)
         execute_domino_tool, list_dominos_tool, domino_stats_tool,
+        # Pattern Agents (5) — v11.1
+        agent_dispatch_tool, agent_classify_tool, agent_list_tool,
+        agent_routing_tool, agent_evolve_tool,
+        # Pipelines + Monitor + Optimizer (5) — v11.1
+        pipeline_run_tool, pipeline_list_tool, agent_dashboard_tool,
+        routing_optimizer_tool, agent_auto_scale_tool,
+        # Adaptive Router + Discovery + Orchestrator v3 (7) — v11.2
+        adaptive_router_status_tool, adaptive_router_pick_tool,
+        pattern_discovery_tool, pattern_discovery_register_tool,
+        orchestrate_tool, orchestrate_race_tool, orchestrate_consensus_tool,
+        # Episodic Memory (4) — v11.2
+        episodic_recall_tool, episodic_learn_tool, episodic_node_tool, episodic_pattern_tool,
+        # Self-Improve (2) — v11.2
+        self_improve_tool, self_improve_history_tool,
+        # Collaboration + Health + Benchmark (5) — v11.2
+        collab_chain_tool, collab_debate_tool,
+        health_check_tool, health_heal_tool,
+        benchmark_quick_tool,
+        # Task Planner + Feedback (4) — v11.2
+        task_planner_tool, task_execute_tool,
+        feedback_quality_tool, feedback_trends_tool,
+        # Phase 13: Dispatch Engine + Prompt + Scaler + Events + Ensemble (12)
+        dispatch_engine_tool, dispatch_engine_stats_tool, dispatch_engine_report_tool,
+        prompt_optimize_tool, prompt_insights_tool, prompt_analyze_tool,
+        auto_scaler_metrics_tool, auto_scaler_capacity_tool,
+        event_stream_latest_tool, event_stream_stats_tool,
+        ensemble_execute_tool, ensemble_stats_tool,
+        # Phase 14: Quality Gate + Lifecycle + Intelligence (6)
+        quality_gate_tool, lifecycle_health_tool, lifecycle_actions_tool,
+        intelligence_report_tool, intelligence_status_tool, intelligence_actions_tool,
+        # Cowork Bridge (4)
+        cowork_list_tool, cowork_search_tool, cowork_execute_tool, cowork_stats_tool,
+        # Phase 15: Self-Improvement + Dynamic Agents + Proactive (10)
+        self_improvement_analyze_tool, self_improvement_suggest_tool,
+        self_improvement_apply_tool, self_improvement_stats_tool,
+        dynamic_agents_list_tool, dynamic_agents_stats_tool, dynamic_agents_register_tool,
+        cowork_proactive_needs_tool, cowork_proactive_run_tool, cowork_proactive_anticipate_tool,
     ],
 )
 

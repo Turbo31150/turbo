@@ -1,538 +1,546 @@
 #!/usr/bin/env python3
 """config_drift_detector.py
 
-Detect configuration differences between cluster nodes.
+Detects configuration drift in the COWORK system.
 
-Fonctionnalites :
-* Compare les configurations LM Studio de M1, M2, M3
-* Verifie les versions de modeles Ollama
-* Detecte le drift de parametres (temperature, max_tokens, etc.)
-* Enregistre les snapshots et diffs dans SQLite (cowork_gaps.db)
-* Produit un rapport JSON avec les ecarts detectes
+Tracks:
+  1. Script count   - number of *.py files in SCRIPT_DIR
+  2. Script hashes  - MD5 of each script file (detect modifications)
+  3. DB schema      - table names and column counts in etoile.db
+  4. Pattern count  - rows in agent_patterns and cowork_script_mapping
+  5. Node config    - distinct nodes in agent_dispatch_log
+  6. Scheduler      - count and names in cowork_schedules
 
-CLI :
-    --once      : detecte les drifts et affiche le resume JSON
-    --diff      : affiche les differences detaillees entre noeuds
-    --fix       : suggere les corrections a appliquer (read-only, pas de modification)
+CLI:
+  --once      Scan for drift (snapshot + compare to previous)
+  --snapshot  Save current state without comparing
+  --compare   Compare current state to last snapshot
+  --stats     Show drift history counts
 
-Stdlib-only (urllib, sqlite3, json, argparse).
+Stdlib-only: sqlite3, json, argparse, hashlib, pathlib.
 """
 
 import argparse
+import hashlib
 import json
-import os
 import sqlite3
 import sys
-import time
-import urllib.error
-import urllib.request
 from datetime import datetime
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
-# Configuration
+# Ensure Unicode output on Windows
+# ---------------------------------------------------------------------------
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
+# ---------------------------------------------------------------------------
+# Paths
 # ---------------------------------------------------------------------------
 SCRIPT_DIR = Path(__file__).resolve().parent
 DATA_DIR = SCRIPT_DIR / "data"
-DB_PATH = DATA_DIR / "cowork_gaps.db"
+ETOILE_DB = Path(r"F:/BUREAU/turbo/etoile.db")
+GAPS_DB = DATA_DIR / "cowork_gaps.db"
 
-NODES = {
-    "M1": {
-        "type": "lmstudio",
-        "models_url": "http://127.0.0.1:1234/api/v1/models",
-        "host": "127.0.0.1:1234",
-    },
-    "M2": {
-        "type": "lmstudio",
-        "models_url": "http://192.168.1.26:1234/api/v1/models",
-        "host": "192.168.1.26:1234",
-    },
-    "M3": {
-        "type": "lmstudio",
-        "models_url": "http://192.168.1.113:1234/api/v1/models",
-        "host": "192.168.1.113:1234",
-    },
-    "OL1": {
-        "type": "ollama",
-        "models_url": "http://127.0.0.1:11434/api/tags",
-        "version_url": "http://127.0.0.1:11434/api/version",
-        "host": "127.0.0.1:11434",
-    },
-}
-
-# Expected/reference configuration (baseline)
-BASELINE = {
-    "lmstudio": {
-        "expected_params": {
-            "temperature": 0.2,
-            "max_output_tokens": 1024,
-            "stream": False,
-            "store": False,
-        },
-    },
-    "ollama": {
-        "expected_params": {
-            "stream": False,
-            "think": False,
-        },
-    },
-}
 
 # ---------------------------------------------------------------------------
-# Database
+# Database setup
 # ---------------------------------------------------------------------------
-def init_db(conn: sqlite3.Connection):
-    conn.execute("""
+def _init_db() -> sqlite3.Connection:
+    """Open cowork_gaps.db and ensure our tables exist."""
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(str(GAPS_DB))
+    conn.execute("PRAGMA journal_mode=WAL")
+
+    # Migrate: drop old-schema tables that lack required columns
+    for tbl, required_col in [
+        ("config_snapshots", "snapshot_json"),
+        ("config_drifts", "target"),
+    ]:
+        cols = [
+            row[1]
+            for row in conn.execute(f"PRAGMA table_info([{tbl}])").fetchall()
+        ]
+        if cols and required_col not in cols:
+            conn.execute(f"ALTER TABLE [{tbl}] RENAME TO [{tbl}_old]")
+
+    conn.executescript("""
         CREATE TABLE IF NOT EXISTS config_snapshots (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp TEXT NOT NULL,
-            node TEXT NOT NULL,
-            config_json TEXT NOT NULL
-        )
-    """)
-    conn.execute("""
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp       TEXT    NOT NULL,
+            snapshot_json   TEXT    NOT NULL
+        );
         CREATE TABLE IF NOT EXISTS config_drifts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp TEXT NOT NULL,
-            node TEXT NOT NULL,
-            drift_type TEXT NOT NULL,
-            parameter TEXT NOT NULL,
-            expected_value TEXT,
-            actual_value TEXT,
-            severity TEXT NOT NULL DEFAULT 'warning'
-        )
-    """)
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS config_drift_runs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp TEXT NOT NULL,
-            nodes_checked INTEGER NOT NULL,
-            nodes_online INTEGER NOT NULL,
-            drifts_found INTEGER NOT NULL,
-            duration_ms INTEGER NOT NULL
-        )
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp       TEXT    NOT NULL,
+            drift_type      TEXT    NOT NULL,
+            target          TEXT    NOT NULL,
+            expected        TEXT,
+            actual          TEXT,
+            severity        TEXT    NOT NULL DEFAULT 'warning'
+        );
     """)
     conn.commit()
-
-
-def get_db() -> sqlite3.Connection:
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(str(DB_PATH))
-    conn.row_factory = sqlite3.Row
-    init_db(conn)
     return conn
 
+
 # ---------------------------------------------------------------------------
-# HTTP Helper
+# State collectors
 # ---------------------------------------------------------------------------
-def http_get(url: str, timeout: int = 5) -> tuple:
-    """GET request. Returns (success, data_dict, elapsed_ms)."""
-    start = time.time()
+def _md5_file(path: Path) -> str:
+    """Return hex MD5 digest of a file."""
+    h = hashlib.md5()
     try:
-        req = urllib.request.Request(url)
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            elapsed = int((time.time() - start) * 1000)
-            raw = resp.read().decode("utf-8")
-            return True, json.loads(raw), elapsed
-    except Exception as e:
-        elapsed = int((time.time() - start) * 1000)
-        return False, {"error": str(e)}, elapsed
+        with open(path, "rb") as f:
+            for chunk in iter(lambda: f.read(8192), b""):
+                h.update(chunk)
+    except OSError:
+        return "ERROR"
+    return h.hexdigest()
 
-# ---------------------------------------------------------------------------
-# Config Fetching
-# ---------------------------------------------------------------------------
-def fetch_lmstudio_config(node_name: str, node: dict) -> dict:
-    """Fetch LM Studio node configuration."""
-    ok, data, elapsed = http_get(node["models_url"])
-    if not ok:
-        return {"status": "offline", "error": data.get("error"), "ping_ms": elapsed}
 
-    models = data.get("data", data.get("models", []))
-    loaded = []
-    for m in models:
-        info = {
-            "id": m.get("id", "unknown"),
-            "loaded": bool(m.get("loaded_instances")),
-            "object": m.get("object"),
-        }
-        # Capture runtime params if available
-        if "config" in m:
-            info["config"] = m["config"]
-        if "context_length" in m:
-            info["context_length"] = m["context_length"]
-        if "max_tokens" in m:
-            info["max_tokens"] = m["max_tokens"]
-        loaded.append(info)
+def _collect_scripts() -> dict:
+    """Return {filename: md5_hash} for every *.py in SCRIPT_DIR."""
+    scripts: dict[str, str] = {}
+    for p in sorted(SCRIPT_DIR.glob("*.py")):
+        scripts[p.name] = _md5_file(p)
+    return scripts
 
+
+def _collect_etoile_schema() -> dict:
+    """Return {table_name: column_count} from etoile.db."""
+    schema: dict[str, int] = {}
+    if not ETOILE_DB.exists():
+        return schema
+    try:
+        conn = sqlite3.connect(str(ETOILE_DB))
+        cur = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
+        )
+        tables = [row[0] for row in cur.fetchall()]
+        for tbl in tables:
+            info = conn.execute(f"PRAGMA table_info([{tbl}])").fetchall()
+            schema[tbl] = len(info)
+        conn.close()
+    except sqlite3.Error:
+        pass
+    return schema
+
+
+def _query_etoile_count(table: str) -> int:
+    """Return row count for a table in etoile.db, or -1 if missing."""
+    if not ETOILE_DB.exists():
+        return -1
+    try:
+        conn = sqlite3.connect(str(ETOILE_DB))
+        cur = conn.execute(f"SELECT COUNT(*) FROM [{table}]")
+        count = cur.fetchone()[0]
+        conn.close()
+        return count
+    except sqlite3.Error:
+        return -1
+
+
+def _collect_nodes() -> list:
+    """Return sorted list of distinct nodes from agent_dispatch_log."""
+    if not ETOILE_DB.exists():
+        return []
+    try:
+        conn = sqlite3.connect(str(ETOILE_DB))
+        cur = conn.execute(
+            "SELECT DISTINCT node FROM agent_dispatch_log "
+            "WHERE node IS NOT NULL ORDER BY node"
+        )
+        nodes = [row[0] for row in cur.fetchall()]
+        conn.close()
+        return nodes
+    except sqlite3.Error:
+        return []
+
+
+def _collect_schedules() -> dict:
+    """Return {task_name: enabled} from cowork_schedules in cowork_gaps.db."""
+    schedules: dict[str, int] = {}
+    if not GAPS_DB.exists():
+        return schedules
+    try:
+        conn = sqlite3.connect(str(GAPS_DB))
+        cur = conn.execute(
+            "SELECT name FROM sqlite_master "
+            "WHERE type='table' AND name='cowork_schedules'"
+        )
+        if not cur.fetchone():
+            conn.close()
+            return schedules
+        cur = conn.execute(
+            "SELECT task_name, enabled FROM cowork_schedules ORDER BY task_name"
+        )
+        for row in cur.fetchall():
+            schedules[row[0]] = row[1]
+        conn.close()
+    except sqlite3.Error:
+        pass
+    return schedules
+
+
+def collect_state() -> dict:
+    """Collect full current state snapshot."""
+    scripts = _collect_scripts()
     return {
-        "status": "online",
-        "ping_ms": elapsed,
-        "type": "lmstudio",
-        "models": loaded,
-        "total_models": len(models),
-        "loaded_models": len([m for m in loaded if m.get("loaded")]),
+        "script_count": len(scripts),
+        "script_hashes": scripts,
+        "db_schema": _collect_etoile_schema(),
+        "pattern_count": {
+            "agent_patterns": _query_etoile_count("agent_patterns"),
+            "cowork_script_mapping": _query_etoile_count("cowork_script_mapping"),
+        },
+        "nodes": _collect_nodes(),
+        "schedules": _collect_schedules(),
     }
 
 
-def fetch_ollama_config(node_name: str, node: dict) -> dict:
-    """Fetch Ollama node configuration."""
-    ok, data, elapsed = http_get(node["models_url"])
-    if not ok:
-        return {"status": "offline", "error": data.get("error"), "ping_ms": elapsed}
-
-    models = data.get("models", [])
-    model_list = []
-    for m in models:
-        info = {
-            "name": m.get("name", "unknown"),
-            "size": m.get("size", 0),
-            "modified_at": m.get("modified_at", ""),
-            "digest": m.get("digest", "")[:16],
-            "format": m.get("details", {}).get("format", ""),
-            "family": m.get("details", {}).get("family", ""),
-            "parameter_size": m.get("details", {}).get("parameter_size", ""),
-            "quantization_level": m.get("details", {}).get("quantization_level", ""),
-        }
-        model_list.append(info)
-
-    # Get version
-    version_info = {}
-    if "version_url" in node:
-        ok2, vdata, _ = http_get(node["version_url"])
-        if ok2:
-            version_info = vdata
-
-    return {
-        "status": "online",
-        "ping_ms": elapsed,
-        "type": "ollama",
-        "models": model_list,
-        "total_models": len(models),
-        "version": version_info.get("version", "unknown"),
-    }
+# ---------------------------------------------------------------------------
+# Snapshot management
+# ---------------------------------------------------------------------------
+def save_snapshot(conn: sqlite3.Connection, state: dict) -> int:
+    """Save a state snapshot and return its id."""
+    now = datetime.now().isoformat(timespec="seconds")
+    cur = conn.execute(
+        "INSERT INTO config_snapshots (timestamp, snapshot_json) VALUES (?, ?)",
+        (now, json.dumps(state, ensure_ascii=False)),
+    )
+    conn.commit()
+    return cur.lastrowid
 
 
-def fetch_node_config(node_name: str) -> dict:
-    """Fetch configuration for a given node."""
-    node = NODES[node_name]
-    if node["type"] == "lmstudio":
-        return fetch_lmstudio_config(node_name, node)
-    elif node["type"] == "ollama":
-        return fetch_ollama_config(node_name, node)
-    return {"status": "unknown", "error": "unknown node type"}
+def get_last_snapshot(conn: sqlite3.Connection) -> tuple | None:
+    """Return (id, timestamp, state_dict) of the most recent snapshot, or None."""
+    cur = conn.execute(
+        "SELECT id, timestamp, snapshot_json "
+        "FROM config_snapshots ORDER BY id DESC LIMIT 1"
+    )
+    row = cur.fetchone()
+    if row is None:
+        return None
+    return (row[0], row[1], json.loads(row[2]))
+
 
 # ---------------------------------------------------------------------------
-# Drift Detection
+# Drift detection
 # ---------------------------------------------------------------------------
-def detect_drifts(configs: dict) -> list[dict]:
-    """Compare configurations and detect drifts."""
-    drifts = []
-    timestamp = datetime.now().isoformat()
+def detect_drifts(prev: dict, curr: dict) -> list[dict]:
+    """Compare two state dicts and return a list of drift records."""
+    drifts: list[dict] = []
+    now = datetime.now().isoformat(timespec="seconds")
 
-    # 1. Cross-node comparison for LM Studio nodes
-    lm_nodes = {k: v for k, v in configs.items()
-                if v.get("type") == "lmstudio" and v.get("status") == "online"}
+    # 1. Script count
+    if prev["script_count"] != curr["script_count"]:
+        drifts.append({
+            "timestamp": now,
+            "drift_type": "script_count",
+            "target": "SCRIPT_DIR",
+            "expected": str(prev["script_count"]),
+            "actual": str(curr["script_count"]),
+            "severity": "warning",
+        })
 
-    # Compare loaded model counts
-    loaded_counts = {k: v.get("loaded_models", 0) for k, v in lm_nodes.items()}
-    if loaded_counts:
-        max_loaded = max(loaded_counts.values())
-        for node, count in loaded_counts.items():
-            if count == 0 and max_loaded > 0:
-                drifts.append({
-                    "timestamp": timestamp,
-                    "node": node,
-                    "drift_type": "model_state",
-                    "parameter": "loaded_models",
-                    "expected": f">0 (others have {max_loaded})",
-                    "actual": str(count),
-                    "severity": "critical",
-                })
+    # 2. New / removed / modified scripts
+    prev_scripts = prev.get("script_hashes", {})
+    curr_scripts = curr.get("script_hashes", {})
 
-    # 2. Check context lengths across LM Studio nodes
-    for node_name, config in lm_nodes.items():
-        for model in config.get("models", []):
-            ctx = model.get("context_length")
-            if ctx is not None and ctx < 2048:
-                drifts.append({
-                    "timestamp": timestamp,
-                    "node": node_name,
-                    "drift_type": "parameter",
-                    "parameter": f"{model['id']}.context_length",
-                    "expected": ">=2048",
-                    "actual": str(ctx),
-                    "severity": "warning",
-                })
-
-    # 3. Ollama model version drift
-    ol_nodes = {k: v for k, v in configs.items()
-                if v.get("type") == "ollama" and v.get("status") == "online"}
-    for node_name, config in ol_nodes.items():
-        for model in config.get("models", []):
-            # Check for zero-size models (integrity issue)
-            size = model.get("size", 0)
-            if size == 0:
-                drifts.append({
-                    "timestamp": timestamp,
-                    "node": node_name,
-                    "drift_type": "model_integrity",
-                    "parameter": f"{model['name']}.size",
-                    "expected": ">0",
-                    "actual": "0",
-                    "severity": "warning",
-                })
-
-    # 4. Detect offline nodes
-    for node_name, config in configs.items():
-        if config.get("status") == "offline":
+    for name in sorted(set(curr_scripts) - set(prev_scripts)):
+        drifts.append({
+            "timestamp": now,
+            "drift_type": "script_added",
+            "target": name,
+            "expected": None,
+            "actual": curr_scripts[name],
+            "severity": "info",
+        })
+    for name in sorted(set(prev_scripts) - set(curr_scripts)):
+        drifts.append({
+            "timestamp": now,
+            "drift_type": "script_removed",
+            "target": name,
+            "expected": prev_scripts[name],
+            "actual": None,
+            "severity": "warning",
+        })
+    for name in sorted(set(prev_scripts) & set(curr_scripts)):
+        if prev_scripts[name] != curr_scripts[name]:
             drifts.append({
-                "timestamp": timestamp,
-                "node": node_name,
-                "drift_type": "availability",
-                "parameter": "status",
-                "expected": "online",
-                "actual": "offline",
-                "severity": "critical",
+                "timestamp": now,
+                "drift_type": "script_modified",
+                "target": name,
+                "expected": prev_scripts[name],
+                "actual": curr_scripts[name],
+                "severity": "info",
             })
 
-    # 5. Cross-compare LM Studio model sets
-    if len(lm_nodes) >= 2:
-        all_model_ids = {}
-        for node_name, config in lm_nodes.items():
-            ids = set(m["id"] for m in config.get("models", []))
-            all_model_ids[node_name] = ids
+    # 3. Schema changes
+    prev_schema = prev.get("db_schema", {})
+    curr_schema = curr.get("db_schema", {})
 
-        # Report unique models per node (informational)
-        all_ids = set()
-        for ids in all_model_ids.values():
-            all_ids.update(ids)
+    for tbl in sorted(set(curr_schema) - set(prev_schema)):
+        drifts.append({
+            "timestamp": now,
+            "drift_type": "table_added",
+            "target": tbl,
+            "expected": None,
+            "actual": str(curr_schema[tbl]),
+            "severity": "warning",
+        })
+    for tbl in sorted(set(prev_schema) - set(curr_schema)):
+        drifts.append({
+            "timestamp": now,
+            "drift_type": "table_removed",
+            "target": tbl,
+            "expected": str(prev_schema[tbl]),
+            "actual": None,
+            "severity": "critical",
+        })
+    for tbl in sorted(set(prev_schema) & set(curr_schema)):
+        if prev_schema[tbl] != curr_schema[tbl]:
+            drifts.append({
+                "timestamp": now,
+                "drift_type": "columns_changed",
+                "target": tbl,
+                "expected": str(prev_schema[tbl]),
+                "actual": str(curr_schema[tbl]),
+                "severity": "warning",
+            })
 
-        for node_name, ids in all_model_ids.items():
-            missing = all_ids - ids
-            # Only flag if a model exists on most nodes but not this one
-            for mid in missing:
-                nodes_with = sum(1 for nids in all_model_ids.values() if mid in nids)
-                if nodes_with >= len(lm_nodes) - 1 and len(lm_nodes) > 1:
-                    drifts.append({
-                        "timestamp": timestamp,
-                        "node": node_name,
-                        "drift_type": "model_coverage",
-                        "parameter": f"model.{mid}",
-                        "expected": "present (available on other nodes)",
-                        "actual": "missing",
-                        "severity": "info",
-                    })
+    # 4. Pattern counts
+    for key in ("agent_patterns", "cowork_script_mapping"):
+        pv = prev.get("pattern_count", {}).get(key, -1)
+        cv = curr.get("pattern_count", {}).get(key, -1)
+        if pv != cv:
+            drifts.append({
+                "timestamp": now,
+                "drift_type": "pattern_count",
+                "target": key,
+                "expected": str(pv),
+                "actual": str(cv),
+                "severity": "info",
+            })
+
+    # 5. Node configuration
+    prev_nodes = set(prev.get("nodes", []))
+    curr_nodes = set(curr.get("nodes", []))
+    for node in sorted(curr_nodes - prev_nodes):
+        drifts.append({
+            "timestamp": now,
+            "drift_type": "node_added",
+            "target": node,
+            "expected": None,
+            "actual": node,
+            "severity": "info",
+        })
+    for node in sorted(prev_nodes - curr_nodes):
+        drifts.append({
+            "timestamp": now,
+            "drift_type": "node_removed",
+            "target": node,
+            "expected": node,
+            "actual": None,
+            "severity": "warning",
+        })
+
+    # 6. Scheduler tasks
+    prev_sched = prev.get("schedules", {})
+    curr_sched = curr.get("schedules", {})
+    for task in sorted(set(curr_sched) - set(prev_sched)):
+        drifts.append({
+            "timestamp": now,
+            "drift_type": "schedule_added",
+            "target": task,
+            "expected": None,
+            "actual": str(curr_sched[task]),
+            "severity": "info",
+        })
+    for task in sorted(set(prev_sched) - set(curr_sched)):
+        drifts.append({
+            "timestamp": now,
+            "drift_type": "schedule_removed",
+            "target": task,
+            "expected": str(prev_sched[task]),
+            "actual": None,
+            "severity": "warning",
+        })
 
     return drifts
 
-# ---------------------------------------------------------------------------
-# Actions
-# ---------------------------------------------------------------------------
-def action_once() -> dict:
-    """Detect config drifts across all nodes."""
-    start_ms = int(time.time() * 1000)
-    conn = get_db()
 
-    configs = {}
-    online_count = 0
-    for node_name in NODES:
-        config = fetch_node_config(node_name)
-        configs[node_name] = config
-        if config.get("status") == "online":
-            online_count += 1
-
-        # Save snapshot
-        conn.execute("""
-            INSERT INTO config_snapshots (timestamp, node, config_json)
-            VALUES (?, ?, ?)
-        """, (datetime.now().isoformat(), node_name, json.dumps(config)))
-
-    # Detect drifts
-    drifts = detect_drifts(configs)
-
-    # Persist drifts
+def store_drifts(conn: sqlite3.Connection, drifts: list[dict]) -> None:
+    """Persist drift records to the database."""
     for d in drifts:
-        conn.execute("""
-            INSERT INTO config_drifts
-            (timestamp, node, drift_type, parameter, expected_value, actual_value, severity)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (d["timestamp"], d["node"], d["drift_type"], d["parameter"],
-              d.get("expected", ""), d.get("actual", ""), d["severity"]))
-
-    duration_ms = int(time.time() * 1000) - start_ms
-
-    conn.execute("""
-        INSERT INTO config_drift_runs
-        (timestamp, nodes_checked, nodes_online, drifts_found, duration_ms)
-        VALUES (?, ?, ?, ?, ?)
-    """, (datetime.now().isoformat(), len(NODES), online_count, len(drifts), duration_ms))
-
+        conn.execute(
+            "INSERT INTO config_drifts "
+            "(timestamp, drift_type, target, expected, actual, severity) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            (d["timestamp"], d["drift_type"], d["target"],
+             d["expected"], d["actual"], d["severity"]),
+        )
     conn.commit()
-    conn.close()
 
-    # Categorize drifts by severity
-    by_severity = {"critical": [], "warning": [], "info": []}
-    for d in drifts:
-        sev = d.get("severity", "info")
-        by_severity.setdefault(sev, []).append(d)
-
-    return {
-        "timestamp": datetime.now().isoformat(),
-        "action": "detect",
-        "nodes_checked": len(NODES),
-        "nodes_online": online_count,
-        "drifts_found": len(drifts),
-        "by_severity": {k: len(v) for k, v in by_severity.items()},
-        "drifts": drifts,
-        "configs_summary": {
-            k: {
-                "status": v.get("status"),
-                "type": v.get("type"),
-                "models": v.get("total_models", 0),
-                "loaded": v.get("loaded_models", v.get("total_models", 0)),
-            }
-            for k, v in configs.items()
-        },
-        "duration_ms": duration_ms,
-    }
-
-
-def action_diff() -> dict:
-    """Show detailed differences between nodes."""
-    conn = get_db()
-
-    # Get latest snapshots per node
-    snapshots = {}
-    for node_name in NODES:
-        row = conn.execute("""
-            SELECT config_json FROM config_snapshots
-            WHERE node = ? ORDER BY timestamp DESC LIMIT 1
-        """, (node_name,)).fetchone()
-        if row:
-            snapshots[node_name] = json.loads(row["config_json"])
-
-    # Get latest two snapshots per node to detect temporal drift
-    temporal_drifts = {}
-    for node_name in NODES:
-        rows = conn.execute("""
-            SELECT timestamp, config_json FROM config_snapshots
-            WHERE node = ? ORDER BY timestamp DESC LIMIT 2
-        """, (node_name,)).fetchall()
-        if len(rows) >= 2:
-            current = json.loads(rows[0]["config_json"])
-            previous = json.loads(rows[1]["config_json"])
-            changes = []
-
-            # Compare model lists
-            curr_models = set(
-                m.get("id", m.get("name", "?"))
-                for m in current.get("models", [])
-            )
-            prev_models = set(
-                m.get("id", m.get("name", "?"))
-                for m in previous.get("models", [])
-            )
-            added = curr_models - prev_models
-            removed = prev_models - curr_models
-            if added:
-                changes.append({"type": "models_added", "models": list(added)})
-            if removed:
-                changes.append({"type": "models_removed", "models": list(removed)})
-
-            if changes:
-                temporal_drifts[node_name] = {
-                    "from": rows[1]["timestamp"],
-                    "to": rows[0]["timestamp"],
-                    "changes": changes,
-                }
-
-    conn.close()
-
-    return {
-        "timestamp": datetime.now().isoformat(),
-        "action": "diff",
-        "current_configs": snapshots,
-        "temporal_drifts": temporal_drifts,
-    }
-
-
-def action_fix() -> dict:
-    """Suggest fixes for detected drifts (read-only)."""
-    conn = get_db()
-
-    # Get recent drifts
-    drifts = conn.execute("""
-        SELECT * FROM config_drifts ORDER BY timestamp DESC LIMIT 50
-    """).fetchall()
-
-    conn.close()
-
-    suggestions = []
-    for d in drifts:
-        d = dict(d)
-        fix = {
-            "node": d["node"],
-            "drift_type": d["drift_type"],
-            "parameter": d["parameter"],
-            "severity": d["severity"],
-        }
-
-        if d["drift_type"] == "availability":
-            fix["suggestion"] = f"Check if {d['node']} service is running. " \
-                                f"Restart LM Studio or Ollama on the node."
-            fix["command"] = f"# For {d['node']}: restart the service"
-        elif d["drift_type"] == "model_state":
-            fix["suggestion"] = f"Load a model on {d['node']}. Currently no models loaded."
-            fix["command"] = f"# Load model via LM Studio GUI or lms CLI"
-        elif d["drift_type"] == "parameter":
-            fix["suggestion"] = f"Adjust {d['parameter']} from {d['actual_value']} to {d['expected_value']}"
-        elif d["drift_type"] == "model_coverage":
-            fix["suggestion"] = f"Consider installing {d['parameter']} on {d['node']} for redundancy."
-        elif d["drift_type"] == "model_integrity":
-            fix["suggestion"] = f"Re-download or verify model on {d['node']}"
-        else:
-            fix["suggestion"] = f"Review {d['drift_type']} drift on {d['node']}"
-
-        suggestions.append(fix)
-
-    return {
-        "timestamp": datetime.now().isoformat(),
-        "action": "fix_suggestions",
-        "total_drifts": len(drifts),
-        "suggestions": suggestions,
-        "note": "These are suggestions only. No changes have been applied.",
-    }
 
 # ---------------------------------------------------------------------------
-# CLI
+# CLI actions
 # ---------------------------------------------------------------------------
-def main():
-    parser = argparse.ArgumentParser(
-        description="Detect configuration differences between cluster nodes."
-    )
-    parser.add_argument("--once", action="store_true",
-                        help="Detect drifts and output JSON summary")
-    parser.add_argument("--diff", action="store_true",
-                        help="Show detailed config differences between nodes")
-    parser.add_argument("--fix", action="store_true",
-                        help="Suggest fixes for detected drifts (read-only)")
-    args = parser.parse_args()
-
-    if not any([args.once, args.diff, args.fix]):
-        parser.print_help()
-        sys.exit(1)
-
-    if args.fix:
-        result = action_fix()
-    elif args.diff:
-        result = action_diff()
-    elif args.once:
-        result = action_once()
-    else:
-        parser.print_help()
-        sys.exit(1)
-
+def action_snapshot(conn: sqlite3.Connection) -> None:
+    """Save current state without comparing."""
+    state = collect_state()
+    sid = save_snapshot(conn, state)
+    result = {
+        "action": "snapshot",
+        "snapshot_id": sid,
+        "script_count": state["script_count"],
+        "tables": len(state["db_schema"]),
+        "nodes": state["nodes"],
+        "schedules_count": len(state["schedules"]),
+    }
     print(json.dumps(result, indent=2, ensure_ascii=False))
+
+
+def action_compare(conn: sqlite3.Connection) -> None:
+    """Compare current state to last snapshot (no new snapshot saved)."""
+    prev = get_last_snapshot(conn)
+    if prev is None:
+        print(json.dumps(
+            {"error": "No previous snapshot found. Run --snapshot first."},
+            indent=2,
+        ))
+        return
+
+    curr = collect_state()
+    drifts = detect_drifts(prev[2], curr)
+    if drifts:
+        store_drifts(conn, drifts)
+
+    result = {
+        "action": "compare",
+        "baseline_id": prev[0],
+        "baseline_timestamp": prev[1],
+        "drifts_found": len(drifts),
+        "drifts": drifts,
+    }
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+
+
+def action_once(conn: sqlite3.Connection) -> None:
+    """Take snapshot, compare to previous, output JSON with drifts."""
+    prev = get_last_snapshot(conn)
+    curr = collect_state()
+    sid = save_snapshot(conn, curr)
+
+    summary = {
+        "script_count": curr["script_count"],
+        "tables": len(curr["db_schema"]),
+        "nodes": curr["nodes"],
+        "schedules_count": len(curr["schedules"]),
+        "agent_patterns": curr["pattern_count"]["agent_patterns"],
+        "cowork_script_mapping": curr["pattern_count"]["cowork_script_mapping"],
+    }
+
+    if prev is None:
+        result = {
+            "action": "once",
+            "snapshot_id": sid,
+            "baseline": None,
+            "drifts_found": 0,
+            "drifts": [],
+            "summary": summary,
+        }
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+        return
+
+    drifts = detect_drifts(prev[2], curr)
+    if drifts:
+        store_drifts(conn, drifts)
+
+    result = {
+        "action": "once",
+        "snapshot_id": sid,
+        "baseline_id": prev[0],
+        "baseline_timestamp": prev[1],
+        "drifts_found": len(drifts),
+        "drifts": drifts,
+        "summary": summary,
+    }
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+
+
+def action_stats(conn: sqlite3.Connection) -> None:
+    """Show drift history counts."""
+    cur = conn.execute(
+        "SELECT drift_type, severity, COUNT(*) "
+        "FROM config_drifts GROUP BY drift_type, severity ORDER BY drift_type"
+    )
+    rows = cur.fetchall()
+
+    total = conn.execute("SELECT COUNT(*) FROM config_drifts").fetchone()[0]
+    snapshots = conn.execute("SELECT COUNT(*) FROM config_snapshots").fetchone()[0]
+
+    by_type: dict[str, int] = {}
+    by_severity: dict[str, int] = {}
+    for dtype, sev, cnt in rows:
+        by_type[dtype] = by_type.get(dtype, 0) + cnt
+        by_severity[sev] = by_severity.get(sev, 0) + cnt
+
+    # Recent drifts (last 10)
+    recent_cur = conn.execute(
+        "SELECT timestamp, drift_type, target, severity "
+        "FROM config_drifts ORDER BY id DESC LIMIT 10"
+    )
+    recent = [
+        {"timestamp": r[0], "drift_type": r[1], "target": r[2], "severity": r[3]}
+        for r in recent_cur.fetchall()
+    ]
+
+    result = {
+        "action": "stats",
+        "total_snapshots": snapshots,
+        "total_drifts": total,
+        "by_type": by_type,
+        "by_severity": by_severity,
+        "recent": recent,
+    }
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="COWORK configuration drift detector"
+    )
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--once", action="store_true",
+                       help="Scan for drift (snapshot + compare)")
+    group.add_argument("--snapshot", action="store_true",
+                       help="Save current state without comparing")
+    group.add_argument("--compare", action="store_true",
+                       help="Compare current state to last snapshot")
+    group.add_argument("--stats", action="store_true",
+                       help="Show drift history counts")
+
+    args = parser.parse_args()
+    conn = _init_db()
+
+    try:
+        if args.once:
+            action_once(conn)
+        elif args.snapshot:
+            action_snapshot(conn)
+        elif args.compare:
+            action_compare(conn)
+        elif args.stats:
+            action_stats(conn)
+    finally:
+        conn.close()
 
 
 if __name__ == "__main__":
