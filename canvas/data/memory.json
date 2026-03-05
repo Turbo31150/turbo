@@ -1802,7 +1802,7 @@
     }
   ],
   "profile": {
-    "summary": "Topics frequents: math, ia, code, system, media, archi, raison, default  \nMessages recents: calcul, sécurité, protection, palindrome, recursion, pitch, slogan, nom, fonction, vérification.",
+    "summary": "Topics frequents: math, ia, code, system, media, archi, raison, default. Messages recents: strategy, risk/reward, vulnerabilities, API security, recursion, palindrome check.",
     "topics": {
       "code": 10,
       "trading": 4,
@@ -1817,6 +1817,6 @@
       "raison": 97
     },
     "preferences": {},
-    "updated_at": "2026-02-26T15:28:50.512Z"
+    "updated_at": "2026-03-05T01:24:52.635Z"
   }
 }
