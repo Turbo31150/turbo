@@ -247,8 +247,17 @@ def run_prediction_cycle():
     all_predictions.extend(predict_resource_issues())
     all_predictions.extend(predict_pattern_issues(gaps_db))
 
-    # Store predictions
+    # Dedup: keep only unique (category, target) with highest risk
+    seen = {}
+    for p in all_predictions:
+        key = (p["category"], p["target"])
+        if key not in seen or p["risk_score"] > seen[key]["risk_score"]:
+            seen[key] = p
+    all_predictions = list(seen.values())
+
+    # Store predictions (clear old ones first to avoid accumulation)
     ts = datetime.now().isoformat()
+    gaps_db.execute("DELETE FROM failure_predictions WHERE timestamp < datetime('now', '-2 hours')")
     for p in all_predictions:
         gaps_db.execute("""
             INSERT INTO failure_predictions

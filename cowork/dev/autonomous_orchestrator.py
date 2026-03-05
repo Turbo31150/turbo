@@ -95,6 +95,49 @@ TASKS = {
         "priority": 5,
         "category": "maintenance",
     },
+    "failure_predict": {
+        "script": "failure_predictor.py",
+        "args": ["--once", "--telegram"],
+        "interval_min": 30,
+        "priority": 3,
+        "category": "health",
+    },
+    "metrics_collect": {
+        "script": "metrics_aggregator.py",
+        "args": ["--once"],
+        "interval_min": 15,
+        "priority": 3,
+        "category": "metrics",
+    },
+    "self_test": {
+        "script": "cowork_self_test_runner.py",
+        "args": ["--once"],
+        "interval_min": 360,  # every 6h
+        "priority": 5,
+        "category": "testing",
+        "timeout_s": 300,
+    },
+    "daily_report": {
+        "script": "daily_cowork_report.py",
+        "args": ["--once"],
+        "interval_min": 1440,  # daily
+        "priority": 5,
+        "category": "reporting",
+    },
+    "error_analysis": {
+        "script": "dispatch_error_analyzer.py",
+        "args": ["--once"],
+        "interval_min": 60,
+        "priority": 4,
+        "category": "dispatch",
+    },
+    "auto_heal": {
+        "script": "cluster_auto_healer.py",
+        "args": ["--once"],
+        "interval_min": 30,
+        "priority": 2,
+        "category": "health",
+    },
 }
 
 
