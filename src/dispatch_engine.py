@@ -71,7 +71,7 @@ class PipelineConfig:
     cache_ttl_s: float = 300.0  # 5 minutes cache TTL
     cache_max_size: int = 200   # Max cached entries
     max_retries: int = 1
-    timeout_s: float = 60.0
+    timeout_s: float = 120.0  # Ceiling; actual timeout is dynamic via pattern_agents._calc_timeout
     quality_threshold: float = 0.3  # Retry if below
     auto_fallback: bool = True
 

@@ -129,20 +129,20 @@ const NODES = {
     url: 'http://192.168.1.26:1234/v1/chat/completions',
     auth: 'Bearer LMSTUDIO_KEY_M2_REDACTED',
     model: 'deepseek/deepseek-r1-0528-qwen3-8b',
-    timeout: 60000,
+    timeout: 90000,
     name: 'M2/deepseek-r1'
   },
   M3: {
     url: 'http://192.168.1.113:1234/v1/chat/completions',
     auth: 'Bearer LMSTUDIO_KEY_M3_REDACTED',
     model: 'deepseek/deepseek-r1-0528-qwen3-8b',
-    timeout: 60000,
+    timeout: 90000,
     name: 'M3/deepseek-r1'
   },
   OL1: {
     url: 'http://127.0.0.1:11434/api/chat',
     model: 'qwen3:1.7b',
-    timeout: 30000,
+    timeout: 15000,
     name: 'OL1/qwen3',
     isOllama: true
   },
@@ -155,7 +155,7 @@ const NODES = {
   M1B: {
     url: 'http://127.0.0.1:1234/v1/chat/completions',
     model: 'gpt-oss-20b',
-    timeout: 60000,
+    timeout: 90000,
     name: 'M1B/gpt-oss-20b'
   },
   GEMINI: {
@@ -172,29 +172,43 @@ const NODES = {
     name: 'CLAUDE/sonnet',
     isProxy: true,
     budget: '0.50'
+  },
+  GPT_OSS: {
+    url: 'http://127.0.0.1:11434/api/chat',
+    model: 'gpt-oss:120b-cloud',
+    timeout: 120000,
+    name: 'GPT-OSS/120b',
+    isOllama: true
+  },
+  DEVSTRAL: {
+    url: 'http://127.0.0.1:11434/api/chat',
+    model: 'devstral-2:123b-cloud',
+    timeout: 120000,
+    name: 'DEVSTRAL/123b',
+    isOllama: true
   }
 };
 
 // ── Routing: agent category → primary node, fallbacks ───────────────────────
 const ROUTING = {
-  code:    ['M1', 'M1B', 'M2', 'M3'],                    // M1 rapide → M1B deep → M2/M3 reasoning
-  archi:   ['M1B', 'M1', 'M2', 'M3'],                    // M1B gpt-oss deep → M1 → M2/M3 r1
-  trading: ['M1', 'M2', 'M3', 'M1B'],                    // M1 rapide → M2/M3 → M1B
-  math:    ['M1', 'M1B', 'M2', 'M3'],                    // M1 prioritaire math
-  raison:  ['M2', 'M3', 'M1B', 'M1'],                    // M2/M3 deepseek-r1 REASONING → M1B → M1
-  system:  ['M1', 'M1B', 'M2', 'M3'],                    // M1 rapide systeme
-  auto:    ['M1', 'M1B', 'M2', 'M3'],                    // M1 pipelines
-  ia:      ['M1B', 'M2', 'M3', 'M1'],                    // M1B deep → M2/M3 r1 → M1
-  creat:   ['M1B', 'M1', 'M2', 'M3'],                    // M1B creatif → M2/M3
-  sec:     ['M1B', 'M2', 'M3', 'M1'],                    // M1B audit → M2/M3 r1
-  web:     ['M1', 'M2', 'M3', 'M1B'],                    // M1 rapide → M2/M3 → M1B
-  media:   ['M1', 'M2', 'M3', 'M1B'],                    // M1 → M2/M3
-  meta:    ['M1', 'M2', 'M3', 'M1B'],                    // M1 rapide → M2/M3
-  default: ['M1', 'M2', 'M3', 'M1B']                     // M1+M2+M3
+  code:    ['M1', 'GPT_OSS', 'DEVSTRAL', 'M1B', 'M2', 'M3'],  // M1 rapide → cloud champions → local deep
+  archi:   ['M1B', 'GPT_OSS', 'M1', 'M2', 'M3'],               // M1B deep → cloud → M1 → reasoning
+  trading: ['M1', 'GPT_OSS', 'M2', 'M3', 'M1B'],               // M1 rapide → cloud → reasoning
+  math:    ['M1', 'M1B', 'M2', 'M3'],                           // M1 prioritaire math (pas cloud, latence)
+  raison:  ['M2', 'M3', 'M1B', 'GPT_OSS', 'M1'],               // reasoning local → cloud deep
+  system:  ['M1', 'M1B', 'M2', 'M3'],                           // M1 rapide systeme (local only)
+  auto:    ['M1', 'M1B', 'M2', 'M3'],                           // M1 pipelines
+  ia:      ['M1B', 'GPT_OSS', 'M2', 'M3', 'M1'],               // M1B deep → cloud → reasoning
+  creat:   ['M1B', 'GPT_OSS', 'M1', 'M2', 'M3'],               // creatif: deep → cloud
+  sec:     ['GPT_OSS', 'M1B', 'DEVSTRAL', 'M2', 'M3'],         // securite: cloud champion → audit
+  web:     ['M1', 'M2', 'M3', 'M1B'],                           // web: local rapide
+  media:   ['M1', 'M2', 'M3', 'M1B'],                           // M1 → M2/M3
+  meta:    ['M1', 'M2', 'M3', 'M1B'],                           // M1 rapide → M2/M3
+  default: ['M1', 'OL1', 'GPT_OSS', 'M2', 'M3', 'M1B']        // M1 fast → OL1 → cloud → reasoning
 };
 
 // ── Node weights for consensus voting (benchmark 2026-02-26) ─────────────────
-const NODE_WEIGHTS = { M1: 1.8, M1B: 1.7, M2: 1.5, OL1: 1.3, GEMINI: 1.2, CLAUDE: 1.2, M3: 1.0 };
+const NODE_WEIGHTS = { GPT_OSS: 1.9, M1: 1.8, M1B: 1.7, DEVSTRAL: 1.5, M2: 1.5, OL1: 1.3, GEMINI: 1.2, CLAUDE: 1.2, M3: 1.0 };
 
 // ── Round-robin counter for load balancing across M1/M2/M3 ──────────────────
 let rrCounter = 0;
@@ -1526,6 +1540,18 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ ok: false, error: e.message }));
     }
+  } else if (req.method === 'GET' && req.url === '/signals') {
+    // Live signal tracker data for Telegram and other consumers
+    try {
+      const sigData = execSync('python "F:\\BUREAU\\turbo\\scripts\\signal_tracker_api.py"', { timeout: 10000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo' }).trim();
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: true, data: JSON.parse(sigData) }));
+    } catch (e) {
+      if (!res.headersSent) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: false, error: (e.message || '').slice(0, 500) }));
+      }
+    }
   } else if (req.method === 'GET' && req.url === '/autolearn/status') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(autolearn.getStatus()));
@@ -1613,9 +1639,18 @@ const server = http.createServer(async (req, res) => {
 });
 
 const BIND = process.env.JARVIS_BIND || '0.0.0.0';
+
+// Global error handler — never crash on a single request error
+process.on('uncaughtException', (err) => {
+  console.error('[PROXY] Uncaught exception (non-fatal):', err.message);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('[PROXY] Unhandled rejection (non-fatal):', reason && reason.message || reason);
+});
+
 server.listen(PORT, BIND, () => {
   console.log(`JARVIS Direct Proxy on http://${BIND}:${PORT}`);
-  console.log('Nodes: M1(qwen3-8b), M1B(gpt-oss-20b), M2(deepseek), M3(mistral), OL1(qwen3), GEMINI(gemini-3-pro), CLAUDE(sonnet)');
+  console.log('Nodes: M1(qwen3-8b), M1B(gpt-oss-20b), M2(deepseek-r1), M3(deepseek-r1), OL1(qwen3), GPT_OSS(120b-cloud), DEVSTRAL(123b-cloud), GEMINI, CLAUDE');
   console.log('Zero OpenClaw dependency');
   autolearn.start();
   console.log('Autolearn engine started — 3 pillars active');

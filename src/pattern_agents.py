@@ -175,6 +175,28 @@ class PatternAgent:
             adapted = min(512, available)
         return adapted
 
+    def _truncate_prompt(self, node_name: str, prompt: str) -> str:
+        """Smart truncation: keep prompt within 70% of context window.
+
+        Preserves: the last user question (after last \\n\\n) + first 20% as context.
+        Cuts: middle section that's usually repetitive context/history.
+        """
+        ctx_limit = self.NODE_CTX_LIMITS.get(node_name, 32000)
+        max_chars = int(ctx_limit * 0.7 * 4)  # 70% of ctx, ~4 chars/token
+        if len(prompt) <= max_chars:
+            return prompt
+
+        # Find the last question/instruction (after last double newline)
+        last_sep = prompt.rfind("\n\n")
+        if last_sep > 0 and last_sep < len(prompt) - 10:
+            tail = prompt[last_sep:]
+            head_budget = max_chars - len(tail) - 50  # 50 for truncation marker
+            if head_budget > 200:
+                return prompt[:head_budget] + "\n\n[...tronque...]\n" + tail
+
+        # Simple truncation: keep end (more likely to be the actual question)
+        return prompt[:max_chars // 5] + "\n\n[...tronque...]\n\n" + prompt[-(max_chars * 4 // 5):]
+
     async def execute(self, client: httpx.AsyncClient, prompt: str) -> AgentResult:
         """Execute this agent's strategy."""
         full_prompt = f"{self.system_prompt}\n\nUser: {prompt}" if self.system_prompt else prompt
@@ -197,6 +219,8 @@ class PatternAgent:
         if not node:
             return AgentResult("", node_name, "?", 0, 0, False, self.strategy, self.pattern_type, error=f"Unknown node: {node_name}")
 
+        # Smart truncation BEFORE sending — prevents context overflow at source
+        prompt = self._truncate_prompt(node_name, prompt)
         timeout = self._calc_timeout(node_name, prompt)
         t0 = time.perf_counter()
         try:

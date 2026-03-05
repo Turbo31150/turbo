@@ -1,14 +1,21 @@
 #!/usr/bin/env python3
 """JARVIS Auto Trader — Scanner MEXC Futures avec alertes Telegram."""
-import json, sys, time, urllib.request
+import json, os, sys, time, urllib.request
 from datetime import datetime
+from pathlib import Path
 
 PAIRS = ["BTC_USDT","ETH_USDT","SOL_USDT","SUI_USDT","PEPE_USDT","DOGE_USDT","XRP_USDT","ADA_USDT","AVAX_USDT","LINK_USDT"]
 ALERT_THRESHOLD = 2.0  # % variation
 TELEGRAM_TOKEN = "TELEGRAM_TOKEN_REDACTED"
 TELEGRAM_CHAT = "2010747443"
+TURBO_ROOT = Path(__file__).resolve().parent.parent.parent
+
+def _alerts_enabled():
+    return not (TURBO_ROOT / "data" / ".trading_alerts_off").exists()
 
 def send_telegram(msg):
+    if not _alerts_enabled():
+        return
     data = json.dumps({"chat_id": TELEGRAM_CHAT, "text": msg}).encode()
     req = urllib.request.Request(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
                                  data=data, headers={"Content-Type": "application/json"})

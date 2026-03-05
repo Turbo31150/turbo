@@ -417,6 +417,62 @@ def openclaw_sync():
     return result
 
 
+# ── TIMEOUT AUTO-FIX ──────────────────────────────────────────────────
+
+def auto_fix_timeouts():
+    """Auto-fix timeout values based on actual dispatch latency data."""
+    try:
+        sys.path.insert(0, str(TURBO))
+        from cowork.dev.timeout_auto_fixer import analyze_timeouts, suggest_adjustments, apply_adjustments
+        pattern_stats, node_stats = analyze_timeouts()
+        suggestions = suggest_adjustments(pattern_stats, node_stats)
+        applied = apply_adjustments(suggestions)
+        problems = [ps for ps in pattern_stats if ps["timeouts"] > 0]
+        result = {
+            "problems": len(problems),
+            "suggestions": len(suggestions),
+            "applied": applied,
+        }
+        if applied:
+            print(f"  Applied {len(applied)} timeout adjustments")
+            for a in applied:
+                print(f"    {a}")
+        else:
+            print("  No timeout adjustments needed")
+        return result
+    except Exception as e:
+        print(f"  Error: {e}")
+        return {"error": str(e)}
+
+
+def run_proactive_dispatch():
+    """Run proactive need detection + anticipation from dispatch data."""
+    try:
+        sys.path.insert(0, str(TURBO))
+        from src.cowork_proactive import get_proactive
+        pro = get_proactive()
+        needs = pro.detect_needs()
+        anticipation = pro.anticipate()
+        result = {
+            "needs_detected": len(needs),
+            "needs_by_urgency": {},
+            "anticipation": anticipation,
+        }
+        for n in needs:
+            result["needs_by_urgency"][n.urgency] = result["needs_by_urgency"].get(n.urgency, 0) + 1
+        print(f"  Detected {len(needs)} needs:")
+        for urgency, count in sorted(result["needs_by_urgency"].items()):
+            print(f"    {urgency}: {count}")
+        if anticipation["count"] > 0:
+            print(f"  Predictions: {anticipation['count']}")
+            for p in anticipation["predictions"][:3]:
+                print(f"    {p.get('type', '?')}: {p.get('recommendation', p.get('action', '?'))}")
+        return result
+    except Exception as e:
+        print(f"  Error: {e}")
+        return {"error": str(e)}
+
+
 # ── FULL CYCLE ─────────────────────────────────────────────────────────
 
 def full_cycle():
@@ -438,6 +494,14 @@ def full_cycle():
     print(f"\n{'='*60}\nPHASE 3: ANTICIPATION\n{'='*60}")
     predictions = anticipate_needs()
 
+    # Phase 3b: Timeout auto-fix
+    print(f"\n{'='*60}\nPHASE 3b: TIMEOUT AUTO-FIX\n{'='*60}")
+    timeout_fix = auto_fix_timeouts()
+
+    # Phase 3c: Proactive dispatch health
+    print(f"\n{'='*60}\nPHASE 3c: PROACTIVE DISPATCH\n{'='*60}")
+    proactive_result = run_proactive_dispatch()
+
     # Phase 4: Sync
     print(f"\n{'='*60}\nPHASE 4: OPENCLAW SYNC\n{'='*60}")
     sync = openclaw_sync()
@@ -449,6 +513,8 @@ def full_cycle():
     print(f"# Tests: {test_summary['ok']}/{test_summary['total']} OK")
     print(f"# Gaps: {len(gaps['potential_gaps'])} identified")
     print(f"# Predictions: {len(predictions['predictions'])} actions needed")
+    print(f"# Timeout fixes: {len(timeout_fix.get('applied', []))}")
+    print(f"# Proactive needs: {proactive_result.get('needs_detected', 0)}")
     print(f"# Sync: {sync['new']} new + {sync['updated']} updated")
     print(f"{'#'*60}")
 
@@ -458,6 +524,8 @@ def full_cycle():
         "tests": test_summary,
         "gaps": gaps,
         "predictions": predictions,
+        "timeout_fix": timeout_fix,
+        "proactive": proactive_result,
         "sync": sync,
         "timestamp": datetime.now().isoformat()
     }

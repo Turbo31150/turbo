@@ -31,7 +31,7 @@ async def _get_http() -> httpx.AsyncClient:
     global _http
     async with _http_lock:
         if _http is None or _http.is_closed:
-            _http = httpx.AsyncClient(timeout=60, limits=httpx.Limits(max_keepalive_connections=5))
+            _http = httpx.AsyncClient(timeout=120, limits=httpx.Limits(max_keepalive_connections=5))
         return _http
 from textual import on, work
 from textual.app import App, ComposeResult

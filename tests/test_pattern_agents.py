@@ -1935,5 +1935,65 @@ class TestBenchmarkAnalysis:
         assert action.priority in ("high", "medium", "low")
 
 
+class TestPromptTruncation:
+    """Tests for _truncate_prompt — smart prompt truncation to prevent context overflow."""
+
+    def _agent(self):
+        return PatternAgent(
+            pattern_id="TEST", pattern_type="code", agent_id="test",
+            system_prompt="", primary_node="M1", fallback_nodes=[],
+            strategy="single", priority=1, max_tokens=1024,
+        )
+
+    def test_short_prompt_unchanged(self):
+        a = self._agent()
+        prompt = "Ecris un parser JSON"
+        assert a._truncate_prompt("M1", prompt) == prompt
+
+    def test_long_prompt_truncated(self):
+        a = self._agent()
+        # M1 ctx=32000 tokens, 70% = 22400 tokens, ~89600 chars
+        prompt = "x " * 50000  # 100k chars > 89600
+        result = a._truncate_prompt("M1", prompt)
+        assert len(result) < len(prompt)
+        assert "[...tronque...]" in result
+
+    def test_preserves_tail_question(self):
+        a = self._agent()
+        ctx = "contexte " * 20000  # Lots of context
+        question = "\n\nQuelle est la meilleure approche pour implementer ceci?"
+        prompt = ctx + question
+        result = a._truncate_prompt("M1", prompt)
+        # The question at the end should be preserved
+        assert "implementer" in result
+
+    def test_cloud_node_higher_limit(self):
+        a = self._agent()
+        # gpt-oss has 128k ctx — much more space
+        prompt = "x " * 50000  # 100k chars
+        result_m1 = a._truncate_prompt("M1", prompt)
+        result_cloud = a._truncate_prompt("gpt-oss", prompt)
+        # Cloud should truncate less (or not at all)
+        assert len(result_cloud) >= len(result_m1)
+
+    def test_no_truncation_within_limit(self):
+        a = self._agent()
+        prompt = "test " * 1000  # 5k chars, well within M1's 89k limit
+        assert a._truncate_prompt("M1", prompt) == prompt
+
+    def test_truncation_contains_marker(self):
+        a = self._agent()
+        prompt = "data " * 50000
+        result = a._truncate_prompt("M1", prompt)
+        assert "[...tronque...]" in result
+
+    def test_unknown_node_uses_default_limit(self):
+        a = self._agent()
+        prompt = "x " * 50000
+        result = a._truncate_prompt("UNKNOWN_NODE", prompt)
+        # Should still truncate using default 32k limit
+        assert len(result) < len(prompt)
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short", "-x"])

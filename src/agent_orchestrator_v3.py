@@ -74,7 +74,7 @@ class OrchestratorStep:
     node_override: Optional[str] = None
     strategy_override: Optional[str] = None
     max_tokens: int = 1024
-    timeout_s: float = 60
+    timeout_s: float = 120  # Dynamic timeout handled by pattern_agents._calc_timeout
 
 
 # ── Pre-built orchestration workflows ─────────────────────────────────────
@@ -260,11 +260,12 @@ class Orchestrator:
             agent = self.registry.agents.get(pattern) or list(self.registry.agents.values())[0]
             tasks = [agent._call_node(client, n, prompt) for n in nodes]
 
-            # Use wait with FIRST_COMPLETED for true racing
+            # Dynamic timeout based on pattern complexity
+            race_timeout = agent._calc_timeout(nodes[0], prompt) if nodes else 120
             done, pending = await asyncio.wait(
                 [asyncio.create_task(t) for t in tasks],
                 return_when=asyncio.FIRST_COMPLETED,
-                timeout=60,
+                timeout=race_timeout,
             )
 
         step_results = []

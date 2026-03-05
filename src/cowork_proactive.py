@@ -95,6 +95,7 @@ class CoworkProactive:
         needs.extend(self._needs_from_dispatch())
         needs.extend(self._needs_from_self_improvement())
         needs.extend(self._needs_from_benchmark_trend())
+        needs.extend(self._needs_from_timeout_patterns())
 
         urgency_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
         needs.sort(key=lambda n: urgency_order.get(n.urgency, 9))
@@ -226,6 +227,45 @@ class CoworkProactive:
             pass
         return needs
 
+    def _needs_from_timeout_patterns(self) -> list[SystemNeed]:
+        """Detect nodes/patterns with high timeout or context overflow rates."""
+        needs = []
+        try:
+            db = sqlite3.connect(DB_PATH)
+            db.row_factory = sqlite3.Row
+            # Find node+pattern combos with >30% failure in last 100 dispatches
+            rows = db.execute("""
+                SELECT node, classified_type as pattern,
+                       COUNT(*) as n,
+                       SUM(CASE WHEN success=0 THEN 1 ELSE 0 END) as fails,
+                       AVG(CASE WHEN success=0 THEN latency_ms END) as avg_fail_lat
+                FROM agent_dispatch_log
+                WHERE id > (SELECT COALESCE(MAX(id),0) - 100 FROM agent_dispatch_log)
+                GROUP BY node, classified_type
+                HAVING n >= 3 AND fails > 0
+                ORDER BY fails * 1.0 / n DESC
+            """).fetchall()
+            db.close()
+
+            for r in rows:
+                fail_rate = r["fails"] / max(1, r["n"])
+                avg_lat = r["avg_fail_lat"] or 0
+                if fail_rate > 0.3:
+                    # High failure: likely timeout or context issue
+                    urgency = "critical" if fail_rate > 0.5 else "high"
+                    cause = "timeout" if avg_lat > 50000 else "context/quality"
+                    needs.append(SystemNeed(
+                        category="optimization", urgency=urgency,
+                        description=f"{r['node']}/{r['pattern']} {cause} failures: {fail_rate:.0%} ({r['fails']}/{r['n']})",
+                        source="timeout_pattern",
+                        suggested_scripts=["resilient_dispatcher", "adaptive_timeout_manager"],
+                        data={"node": r["node"], "pattern": r["pattern"],
+                              "fail_rate": fail_rate, "avg_fail_latency": avg_lat},
+                    ))
+        except Exception:
+            pass
+        return needs
+
     def plan_execution(self, needs: list[SystemNeed]) -> ExecutionPlan:
         """Create an execution plan from detected needs."""
         scripts_to_run = []
@@ -316,6 +356,24 @@ class CoworkProactive:
                     "recent_q": round(d["rq"] or 0, 3), "previous_q": round(d["oq"] or 0, 3),
                     "recommendation": f"Pattern '{d['pattern']}' quality declining",
                 })
+
+            # Predict timeout risks from latency trends
+            latency_trends = db.execute("""
+                SELECT node, classified_type as pattern,
+                    AVG(CASE WHEN id > (SELECT MAX(id) - 25 FROM agent_dispatch_log) THEN latency_ms END) as recent_lat,
+                    AVG(CASE WHEN id <= (SELECT MAX(id) - 25 FROM agent_dispatch_log)
+                             AND id > (SELECT MAX(id) - 75 FROM agent_dispatch_log) THEN latency_ms END) as prev_lat
+                FROM agent_dispatch_log WHERE success=1
+                GROUP BY node, classified_type
+                HAVING recent_lat IS NOT NULL AND prev_lat IS NOT NULL AND recent_lat > prev_lat * 1.5
+            """).fetchall()
+            for t in latency_trends:
+                predictions.append({
+                    "type": "latency_increase", "node": t["node"], "pattern": t["pattern"],
+                    "recent_lat_ms": round(t["recent_lat"] or 0), "prev_lat_ms": round(t["prev_lat"] or 0),
+                    "recommendation": f"{t['node']}/{t['pattern']} latency +{((t['recent_lat'] or 0)/(t['prev_lat'] or 1)-1)*100:.0f}% — timeout risk",
+                })
+
             db.close()
         except Exception:
             pass

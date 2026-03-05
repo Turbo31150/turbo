@@ -4791,6 +4791,26 @@ async def dispatch_engine_auto_optimize():
     reg = PatternAgentRegistry()
     return reg.auto_optimize_strategies()
 
+@app.post("/api/dispatch_engine/timeout_fix")
+async def dispatch_engine_timeout_fix(req: Request):
+    body = await req.json() if req.headers.get("content-type", "").startswith("application/json") else {}
+    dry_run = body.get("dry_run", False)
+    from cowork.dev.timeout_auto_fixer import analyze_timeouts, suggest_adjustments, apply_adjustments
+    pattern_stats, node_stats = analyze_timeouts()
+    suggestions = suggest_adjustments(pattern_stats, node_stats)
+    applied = apply_adjustments(suggestions, dry_run=dry_run)
+    return {"problems": sum(1 for ps in pattern_stats if ps["timeouts"] > 0),
+            "suggestions": len(suggestions), "applied": applied, "dry_run": dry_run}
+
+@app.get("/api/dispatch_engine/integration_test")
+async def dispatch_engine_integration_test():
+    import io, contextlib
+    from cowork.dev.dispatch_integration_test import main as run_tests
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        ok = run_tests()
+    return {"output": buf.getvalue(), "all_passed": ok}
+
 # ── Phase 13: Prompt Optimizer ───────────────────────────────────────────────
 
 @app.post("/api/prompt_optimizer/optimize")

@@ -17,5 +17,9 @@ if not text:
     sys.exit(1)
 
 telegram = "--telegram" in sys.argv
-result = speak_and_send(text, telegram=telegram)
+chat_id = None
+for arg in sys.argv:
+    if arg.startswith("--chat-id="):
+        chat_id = arg.split("=", 1)[1]
+result = speak_and_send(text, telegram=telegram, chat_id=chat_id)
 print(json.dumps(result, ensure_ascii=False))

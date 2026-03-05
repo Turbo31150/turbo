@@ -90,6 +90,11 @@ class Signal:
     bb_squeeze: bool = False
     regime: str = "unknown"
     open_interest_chg: float = 0.0
+    # Multi-level TP (ATR-based)
+    tp1: float = 0.0  # 1R — quick scalp (50% position)
+    tp2: float = 0.0  # 2R — swing target (30% position)
+    tp3: float = 0.0  # 3.5R — moon bag (20% position)
+    breakout_score: int = 0  # 0-100 breakout imminence
 
 
 # ========== SQL DATABASE ==========
@@ -133,7 +138,11 @@ def init_db(db_path=DB_PATH):
             last_price REAL,
             entry REAL,
             tp REAL,
+            tp1 REAL,
+            tp2 REAL,
+            tp3 REAL,
             sl REAL,
+            breakout_score INTEGER DEFAULT 0,
             atr REAL,
             rsi REAL,
             mfi REAL,
@@ -186,6 +195,24 @@ def init_db(db_path=DB_PATH):
         CREATE INDEX IF NOT EXISTS idx_coins_category ON coins(category);
         CREATE INDEX IF NOT EXISTS idx_coins_score ON coins(avg_score DESC);
     """)
+
+    # Migration: add new columns if missing
+    try:
+        conn.execute("ALTER TABLE signals ADD COLUMN tp1 REAL")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        conn.execute("ALTER TABLE signals ADD COLUMN tp2 REAL")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        conn.execute("ALTER TABLE signals ADD COLUMN tp3 REAL")
+    except sqlite3.OperationalError:
+        pass
+    try:
+        conn.execute("ALTER TABLE signals ADD COLUMN breakout_score INTEGER DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass
 
     # Insert default categories
     default_cats = [
@@ -244,12 +271,14 @@ def save_signals_to_db(signals: list, cycle: int, scan_time: float,
             # Save signal
             conn.execute("""
                 INSERT INTO signals (cycle, timestamp, symbol, direction, score, last_price,
-                    entry, tp, sl, atr, rsi, mfi, williams_r, adx, cmf, chaikin_osc,
+                    entry, tp, tp1, tp2, tp3, sl, breakout_score,
+                    atr, rsi, mfi, williams_r, adx, cmf, chaikin_osc,
                     obv_trend, macd_signal, bb_squeeze, regime, funding_rate, change_24h,
                     volume_24h, liquidity_bias, strategies, reasons, ob_analysis)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (cycle, now, s.symbol, s.direction, s.score, s.last_price,
-                  s.entry, s.tp, s.sl, s.atr, s.rsi, s.mfi, s.williams_r, s.adx,
+                  s.entry, s.tp, s.tp1, s.tp2, s.tp3, s.sl, s.breakout_score,
+                  s.atr, s.rsi, s.mfi, s.williams_r, s.adx,
                   s.cmf, s.chaikin_osc, s.obv_trend, s.macd_signal,
                   1 if s.bb_squeeze else 0, s.regime, s.funding_rate, s.change_24h,
                   s.volume_24h, s.liquidity_bias,
@@ -884,47 +913,57 @@ def gpu_correlation_matrix(close_tensor, top_n=20):
 
 # ========== AI CLUSTER CONSENSUS ==========
 
-LM_M2 = {"url": "http://192.168.1.26:1234/api/v1/chat", "model": "deepseek-coder-v2-lite-instruct",
-          "key": os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", "")), "name": "M2/deepseek"}
-LM_M3 = {"url": "http://192.168.1.113:1234/api/v1/chat", "model": "mistral-7b-instruct-v0.3",
-          "key": os.getenv("LM_STUDIO_3_API_KEY", os.getenv("LM_STUDIO_3_KEY", "")), "name": "M3/mistral"}
-LM_M1 = {"url": "http://10.5.0.2:1234/api/v1/chat", "model": "qwen/qwq-32b",
-          "key": os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", "")), "name": "M1/qwq-32b"}
+LM_M1 = {"url": "http://127.0.0.1:1234/api/v1/chat", "model": "qwen3-8b",
+          "key": "", "name": "M1/qwen3-8b"}
+LM_M2 = {"url": "http://192.168.1.26:1234/api/v1/chat", "model": "deepseek-r1-0528-qwen3-8b",
+          "key": os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", "")), "name": "M2/deepseek-r1"}
+LM_M3 = {"url": "http://192.168.1.113:1234/api/v1/chat", "model": "deepseek-r1-0528-qwen3-8b",
+          "key": os.getenv("LM_STUDIO_3_API_KEY", os.getenv("LM_STUDIO_3_KEY", "")), "name": "M3/deepseek-r1"}
 LM_OL1 = {"url": "http://127.0.0.1:11434/api/chat", "model": "qwen3:1.7b", "name": "OL1/qwen3"}
+# Cloud champions via Ollama
+OL_GPT_OSS = {"url": "http://127.0.0.1:11434/api/chat", "model": "gpt-oss:120b-cloud", "name": "gpt-oss/120b"}
+OL_DEVSTRAL = {"url": "http://127.0.0.1:11434/api/chat", "model": "devstral-2:123b-cloud", "name": "devstral/123b"}
 GEMINI_PROXY = "F:/BUREAU/turbo/gemini-proxy.js"
 
 
 async def ai_query_lmstudio(client, node, prompt, timeout=15):
-    """Query un noeud LM Studio (M2 ou M3)."""
+    """Query un noeud LM Studio via Responses API."""
     try:
         payload = {"model": node["model"], "input": prompt,
-                   "temperature": 0.3, "max_output_tokens": 128, "stream": False, "store": False}
-        headers = {"Content-Type": "application/json",
-                   "Authorization": f"Bearer {node['key']}"}
+                   "temperature": 0.3, "max_output_tokens": 256, "stream": False, "store": False}
+        headers = {"Content-Type": "application/json"}
+        if node.get("key"):
+            headers["Authorization"] = f"Bearer {node['key']}"
         r = await client.post(node["url"], json=payload, headers=headers, timeout=timeout)
         data = r.json()
         output = data.get("output", [{}])
-        if isinstance(output, list) and output:
-            return {"agent": node["name"], "response": output[0].get("content", ""), "ok": True}
-    except (httpx.HTTPError, OSError, KeyError) as e:
+        if isinstance(output, list):
+            # Take last message block (skip reasoning blocks for deepseek-r1)
+            for block in reversed(output):
+                if block.get("type") == "message" and block.get("content"):
+                    return {"agent": node["name"], "response": block["content"], "ok": True}
+            if output and output[0].get("content"):
+                return {"agent": node["name"], "response": output[0]["content"], "ok": True}
+    except (httpx.HTTPError, OSError, KeyError, ValueError) as e:
         return {"agent": node["name"], "response": str(e), "ok": False}
     return {"agent": node["name"], "response": "", "ok": False}
 
 
-async def ai_query_ollama(client, prompt, timeout=10):
-    """Query OL1 Ollama local (ultra-rapide)."""
+async def ai_query_ollama(client, prompt, timeout=10, node=None):
+    """Query Ollama node (local or cloud)."""
+    n = node or LM_OL1
     try:
-        payload = {"model": LM_OL1["model"],
+        payload = {"model": n["model"],
                    "messages": [{"role": "user", "content": prompt}],
-                   "stream": False}
-        r = await client.post(LM_OL1["url"], json=payload, timeout=timeout)
+                   "stream": False, "think": False}
+        r = await client.post(n["url"], json=payload, timeout=timeout)
         data = r.json()
         content = data.get("message", {}).get("content", "")
         if "</think>" in content:
             content = content.split("</think>")[-1].strip()
-        return {"agent": LM_OL1["name"], "response": content, "ok": True}
+        return {"agent": n["name"], "response": content, "ok": True}
     except (httpx.HTTPError, OSError, KeyError) as e:
-        return {"agent": LM_OL1["name"], "response": str(e), "ok": False}
+        return {"agent": n["name"], "response": str(e), "ok": False}
 
 
 async def ai_query_gemini(prompt, timeout=30):
@@ -941,67 +980,93 @@ async def ai_query_gemini(prompt, timeout=30):
 
 
 async def ai_consensus_signals(signals, mtf_data=None):
-    """Consensus IA 5 agents paralleles: M1 + M2 + M3 + OL1 + GEMINI."""
+    """Consensus IA CLUSTER COMPLET: gpt-oss + devstral + M1 + M2 + M3 + OL1 + GEMINI.
+
+    7 agents en parallele avec vote pondere:
+    - gpt-oss (1.9): Champion cloud — analyse technique profonde
+    - devstral (1.5): Code/data analysis
+    - M1 (1.8): Champion local — raisonnement rapide
+    - M2 (1.4): Reasoning — risk/reward
+    - M3 (1.0): Validation
+    - OL1 (1.3): Ultra-rapide — quick pick
+    - GEMINI (1.2): Vision marche
+    """
     if not signals:
         return {}
 
+    # Agent weights for weighted voting
+    AGENT_WEIGHTS = {
+        "gpt-oss/120b": 1.9, "devstral/123b": 1.5,
+        "M1/qwen3-8b": 1.8, "M2/deepseek-r1": 1.4,
+        "M3/deepseek-r1": 1.0, "OL1/qwen3": 1.3, "GEMINI/pro": 1.2,
+    }
+
     sig_lines = []
-    for i, s in enumerate(signals[:5], 1):
+    for i, s in enumerate(signals[:8], 1):
         coin = s.symbol.replace("_USDT", "")
         mtf_info = ""
         if mtf_data and s.symbol in mtf_data:
             md = mtf_data[s.symbol]
             mtf_info = f" MTF:{md.get('tf_alignment','?')} composite={md.get('composite_score',0)}"
+        rr1 = abs(s.tp1 - s.entry) / abs(s.entry - s.sl) if abs(s.entry - s.sl) > 0 else 0
         sig_lines.append(
             f"#{i} {coin} {s.direction} score={s.score} price={s.last_price} "
-            f"RSI={s.rsi:.0f} CMF={s.cmf:+.2f} ADX={s.adx:.0f} OBV={s.obv_trend} "
-            f"ATR={s.atr:.4g} regime={s.regime} funding={s.funding_rate:.6f} "
-            f"strats={','.join(s.strategies[:5])}{mtf_info}"
+            f"entry={s.entry} TP1={s.tp1} TP2={s.tp2} TP3={s.tp3} SL={s.sl} R:R={rr1:.1f} "
+            f"RSI={s.rsi:.0f} ADX={s.adx:.0f} CMF={s.cmf:+.2f} OBV={s.obv_trend} "
+            f"ATR={s.atr:.4g} breakout={s.breakout_score} regime={s.regime} "
+            f"funding={s.funding_rate:.6f} strats={','.join(s.strategies[:6])}{mtf_info}"
         )
     market = "\n".join(sig_lines)
 
-    prompt_reason = f"Raisonnement: quel coin a le meilleur risk/reward? Analyse chaque. 3 lignes max.\n{market}"
+    sys_prompt = ("Tu es un analyste trading crypto expert. Analyse les signaux et reponds "
+                  "UNIQUEMENT en francais. Sois concis: 3-5 lignes max.")
+
+    prompt_deep = (f"Analyse technique: quel coin a le meilleur setup pour un breakout imminent? "
+                   f"Evalue les TP1/TP2/TP3 et SL. Donne GO/WAIT/SKIP pour chaque.\n{market}")
+    prompt_code = f"Risk/reward de chaque signal. Quel est le meilleur R:R? GO/WAIT/SKIP.\n{market}"
+    prompt_reason = f"Raisonnement: meilleur risk/reward? Breakout plus probable? 3 lignes.\n{market}"
     prompt_tech = f"GO/WAIT/SKIP pour chaque coin. 1 mot par coin.\n{market}"
     prompt_valid = f"OK ou DANGER pour chaque. 1 mot par coin.\n{market}"
-    prompt_fast = f"Meilleur coin? 1 ligne.\n{market}"
-    prompt_vision = f"Tendance + meilleur entry? 3 lignes max.\n{market}"
+    prompt_fast = f"Meilleur coin pour breakout? 1 ligne.\n{market}"
+    prompt_vision = f"Tendance marche + meilleur entry breakout? 3 lignes.\n{market}"
 
     t0 = time.time()
-    async with httpx.AsyncClient(timeout=60) as client:
+    async with httpx.AsyncClient(timeout=120) as client:
         tasks = [
-            ai_query_lmstudio(client, LM_M2, prompt_tech, timeout=45),
-            ai_query_lmstudio(client, LM_M3, prompt_valid, timeout=30),
+            # Cloud champions (gpt-oss + devstral)
+            ai_query_ollama(client, prompt_deep, timeout=90, node=OL_GPT_OSS),
+            ai_query_ollama(client, prompt_code, timeout=90, node=OL_DEVSTRAL),
+            # Local cluster (M1 + M2 + M3)
+            ai_query_lmstudio(client, LM_M1, f"/nothink\n{prompt_reason}", timeout=30),
+            ai_query_lmstudio(client, LM_M2, prompt_tech, timeout=60),
+            ai_query_lmstudio(client, LM_M3, prompt_valid, timeout=60),
+            # OL1 fast
             ai_query_ollama(client, prompt_fast, timeout=15),
+            # GEMINI vision
             ai_query_gemini(prompt_vision, timeout=45),
         ]
-        # M1 uniquement si disponible (souvent timeout/bloque)
-        try:
-            r = await asyncio.wait_for(
-                client.get(f"{LM_M1['url'].replace('/chat','')}/models",
-                           headers={"Authorization": f"Bearer {LM_M1['key']}"}, timeout=3),
-                timeout=3)
-            if r.status_code == 200:
-                tasks.insert(0, ai_query_lmstudio(client, LM_M1, prompt_reason, timeout=45))
-        except (httpx.HTTPError, asyncio.TimeoutError, OSError):
-            pass  # M1 offline, skip
         results = await asyncio.gather(*tasks, return_exceptions=True)
     elapsed = int((time.time() - t0) * 1000)
 
-    consensus = {"agents": [], "elapsed_ms": elapsed, "votes": {}}
+    consensus = {"agents": [], "elapsed_ms": elapsed, "votes": {}, "weighted_votes": {}}
     for r in results:
         if isinstance(r, Exception):
             consensus["agents"].append({"agent": "?", "ok": False, "response": str(r)})
             continue
         if isinstance(r, dict):
             consensus["agents"].append(r)
+            agent_name = r.get("agent", "?")
+            weight = AGENT_WEIGHTS.get(agent_name, 1.0)
             resp = r.get("response", "").upper()
-            for s in signals[:5]:
+            for s in signals[:8]:
                 coin = s.symbol.replace("_USDT", "")
                 if coin in resp:
-                    if any(w in resp for w in ["GO", " OK", "BULLISH", "BUY", "LONG"]):
+                    if any(w in resp for w in ["GO", " OK", "BULLISH", "BUY", "LONG", "BREAKOUT"]):
                         consensus["votes"][s.symbol] = consensus["votes"].get(s.symbol, 0) + 1
+                        consensus["weighted_votes"][s.symbol] = consensus["weighted_votes"].get(s.symbol, 0) + weight
                     elif any(w in resp for w in ["SKIP", "DANGER", "BEARISH", "SELL", "SHORT", "WAIT"]):
                         consensus["votes"][s.symbol] = consensus["votes"].get(s.symbol, 0) - 1
+                        consensus["weighted_votes"][s.symbol] = consensus["weighted_votes"].get(s.symbol, 0) - weight
 
     return consensus
 
@@ -1815,17 +1880,80 @@ def analyze_klines_advanced(kdata: dict) -> dict:
 
     macd_signal = "bullish" if macd_hist > 0 else "bearish" if macd_hist < 0 else "neutral"
 
+    # Momentum acceleration (for breakout detection)
+    mom_5 = ((closes[-1] - closes[-5]) / closes[-5] * 100) if n >= 5 else 0
+    mom_10 = ((closes[-1] - closes[-10]) / closes[-10] * 100) if n >= 10 else 0
+
     return {
         "strategies": strategies, "reasons": reasons,
         "score": min(100, sum(scores)), "trend": trend,
         "rsi": rsi, "atr": atr, "macd_signal": macd_signal,
-        "bb_squeeze": bb_squeeze, "chaikin_osc": chaikin_osc,
+        "bb_squeeze": bb_squeeze, "bb_width": bb_width,
+        "chaikin_osc": chaikin_osc,
         "cmf": cmf, "obv_trend": obv_trend, "mfi": mfi,
         "williams_r": williams_r, "adx": adx, "poc": poc, "poc_conc": poc_conc,
+        "vol_ratio": vol_ratio, "mom_5": mom_5, "mom_10": mom_10,
     }
 
 
 # ========== ANALYSE COMPLETE ==========
+
+def _breakout_score(kline: dict, depth: dict, ticker: dict) -> int:
+    """Score 0-100 de probabilite de breakout imminent.
+
+    Detecte la convergence de 5 facteurs pre-breakout:
+    1. BB squeeze (bandes serrees) — compression de volatilite
+    2. Volume expansion — acheteurs/vendeurs s'accumulent
+    3. Momentum acceleration — mom_5 > mom_10
+    4. ADX rising — force directionnelle en hausse
+    5. Orderbook imbalance — desequilibre carnet
+    """
+    bk = 0
+
+    # 1. BB Squeeze (max 25 pts)
+    if kline.get("bb_squeeze"):
+        bk += 25
+    elif kline.get("bb_width", 0.05) < 0.03:
+        bk += 15  # Near-squeeze
+
+    # 2. Volume expansion (max 25 pts)
+    vol_ratio = kline.get("vol_ratio", 1.0)
+    if vol_ratio > 2.5:
+        bk += 25
+    elif vol_ratio > 1.8:
+        bk += 18
+    elif vol_ratio > 1.3:
+        bk += 10
+
+    # 3. Momentum acceleration (max 20 pts)
+    mom_5 = kline.get("mom_5", 0)
+    mom_10 = kline.get("mom_10", 0)
+    if abs(mom_5) > abs(mom_10) * 1.5 and abs(mom_5) > 0.3:
+        bk += 20
+    elif abs(mom_5) > abs(mom_10) and abs(mom_5) > 0.2:
+        bk += 12
+
+    # 4. ADX trend strength (max 15 pts)
+    adx = kline.get("adx", 0)
+    if adx > 30:
+        bk += 15  # Strong directional move
+    elif adx > 20:
+        bk += 8
+
+    # 5. Orderbook imbalance (max 15 pts)
+    imbalance = abs(depth.get("imbalance", 0))
+    if imbalance > 0.35:
+        bk += 15
+    elif imbalance > 0.2:
+        bk += 8
+
+    # Bonus: funding rate extreme = short squeeze / long squeeze potential
+    funding = ticker.get("fundingRate", 0)
+    if abs(funding) > 0.001:
+        bk += 5
+
+    return min(100, bk)
+
 
 async def analyze_pair(client: httpx.AsyncClient, ticker: dict,
                        gpu_indicators: dict = None, klines_cache: dict = None) -> Signal | None:
@@ -1915,35 +2043,60 @@ async def analyze_pair(client: httpx.AsyncClient, ticker: dict,
     direction = "LONG" if long_c > short_c else "SHORT" if short_c > long_c else (
         "LONG" if ticker.get("riseFallRate", 0) > 0 else "SHORT")
 
-    # Entry / TP / SL dynamiques ATR
+    # Entry / TP / SL dynamiques ATR + multi-level TP1/TP2/TP3
     atr = kline["atr"]
     dec = _price_decimals(last_price)
     if atr > 0:
+        risk = atr * SL_MULT  # 1R = distance SL
         if direction == "LONG":
             entry = round(last_price - atr * 0.3, dec)
-            tp = round(entry + atr * TP_MULT, dec)
-            sl = round(entry - atr * SL_MULT, dec)
+            sl = round(entry - risk, dec)
+            tp1 = round(entry + risk * 1.5, dec)   # 1.5R — scalp (50%)
+            tp2 = round(entry + risk * 2.5, dec)   # 2.5R — swing (30%)
+            tp3 = round(entry + risk * 4.0, dec)   # 4.0R — moon bag (20%)
+            tp = tp1  # Legacy TP = TP1
         else:
             entry = round(last_price + atr * 0.3, dec)
-            tp = round(entry - atr * TP_MULT, dec)
-            sl = round(entry + atr * SL_MULT, dec)
+            sl = round(entry + risk, dec)
+            tp1 = round(entry - risk * 1.5, dec)
+            tp2 = round(entry - risk * 2.5, dec)
+            tp3 = round(entry - risk * 4.0, dec)
+            tp = tp1
     else:
-        pct_e, pct_t, pct_s = 0.001, 0.004, 0.0025
+        pct_e, pct_s = 0.001, 0.0025
         if direction == "LONG":
             entry = round(last_price * (1 - pct_e), dec)
-            tp = round(entry * (1 + pct_t), dec)
             sl = round(entry * (1 - pct_s), dec)
+            tp1 = round(entry * (1 + pct_s * 1.5), dec)
+            tp2 = round(entry * (1 + pct_s * 2.5), dec)
+            tp3 = round(entry * (1 + pct_s * 4.0), dec)
         else:
             entry = round(last_price * (1 + pct_e), dec)
-            tp = round(entry * (1 - pct_t), dec)
             sl = round(entry * (1 + pct_s), dec)
+            tp1 = round(entry * (1 - pct_s * 1.5), dec)
+            tp2 = round(entry * (1 - pct_s * 2.5), dec)
+            tp3 = round(entry * (1 - pct_s * 4.0), dec)
+        tp = tp1
 
-    regime = ("strong_signal" if score >= 70 else "squeeze" if kline["bb_squeeze"]
+    # --- Breakout imminence score ---
+    bk_score = _breakout_score(kline, depth, ticker)
+    if bk_score >= 70:
+        score += 15
+        all_strategies.append("breakout_imminent")
+        all_reasons.append(f"BREAKOUT imminent detecte (score={bk_score}/100)")
+    elif bk_score >= 40:
+        score += 8
+        all_strategies.append("breakout_building")
+        all_reasons.append(f"Breakout en formation (score={bk_score}/100)")
+
+    regime = ("breakout" if bk_score >= 70 else
+              "strong_signal" if score >= 70 else "squeeze" if kline["bb_squeeze"]
               else "trending" if kline["trend"] in ("bullish", "bearish") else "ranging")
 
     return Signal(
         symbol=symbol, direction=direction, score=min(100, score),
         last_price=last_price, entry=entry, tp=tp, sl=sl,
+        tp1=tp1, tp2=tp2, tp3=tp3, breakout_score=bk_score,
         strategies=all_strategies, reasons=all_reasons,
         volume_24h=ticker.get("amount24", 0),
         change_24h=ticker.get("riseFallRate", 0) * 100,
@@ -2141,18 +2294,30 @@ async def scan_sniper(top_n=3, min_score=MIN_SCORE, use_gpu=True, use_ai=True):
 
 def format_signal(s: Signal, rank: int) -> str:
     coin = s.symbol.replace("_USDT", "")
-    rr = abs(s.tp - s.entry) / abs(s.entry - s.sl) if abs(s.entry - s.sl) > 0 else 0
+    risk = abs(s.entry - s.sl)
+    rr1 = abs(s.tp1 - s.entry) / risk if risk > 0 else 0
+    rr2 = abs(s.tp2 - s.entry) / risk if risk > 0 else 0
+    rr3 = abs(s.tp3 - s.entry) / risk if risk > 0 else 0
+
+    bk_label = ""
+    if s.breakout_score >= 70:
+        bk_label = "  >>> BREAKOUT IMMINENT <<<"
+    elif s.breakout_score >= 40:
+        bk_label = "  > Breakout en formation"
 
     lines = [
         "",
-        f"{'='*56}",
+        f"{'='*60}",
         f"  #{rank}  {coin}  |  {s.direction}  |  Score {s.score}/100  |  {s.regime.upper()}",
-        f"{'='*56}",
-        f"  Prix:    {s.last_price} USDT",
-        f"  Entree:  {s.entry} USDT",
-        f"  TP:      {s.tp} USDT  (R:R {rr:.1f})",
-        f"  SL:      {s.sl} USDT",
-        f"  ATR:     {s.atr:.6g}",
+        f"{'='*60}",
+        f"{bk_label}" if bk_label else "",
+        f"  Prix:     {s.last_price} USDT",
+        f"  Entree:   {s.entry} USDT",
+        f"  TP1:      {s.tp1} USDT  (R:R {rr1:.1f}) -- 50% position",
+        f"  TP2:      {s.tp2} USDT  (R:R {rr2:.1f}) -- 30% position",
+        f"  TP3:      {s.tp3} USDT  (R:R {rr3:.1f}) -- 20% moon bag",
+        f"  SL:       {s.sl} USDT",
+        f"  ATR:      {s.atr:.6g}  |  Breakout: {s.breakout_score}/100",
         f"",
         f"  --- Indicateurs ---",
         f"  RSI: {s.rsi:.0f}  |  MFI: {s.mfi:.0f}  |  W%R: {s.williams_r:.0f}  |  ADX: {s.adx:.0f}",

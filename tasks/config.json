@@ -1,0 +1,12 @@
+{
+  "collaboration_mode": "file_based",
+  "claude_code_role": "architect_planner",
+  "perplexity_role": "executor_tester",
+  "task_queue_path": "F:\\BUREAU\\turbo\\tasks\\inbox",
+  "result_queue_path": "F:\\BUREAU\\turbo\\tasks\\outbox",
+  "for_perplexity_path": "F:\\BUREAU\\turbo\\tasks\\for_perplexity",
+  "from_perplexity_path": "F:\\BUREAU\\turbo\\tasks\\from_perplexity",
+  "archive_path": "F:\\BUREAU\\turbo\\tasks\\archive",
+  "priorities": ["bugs", "services_down", "perf_windows", "agents_autonomes", "docs"],
+  "created": "2026-03-05"
+}

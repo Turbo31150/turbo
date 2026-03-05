@@ -179,7 +179,7 @@ class AutoDeveloper:
 
         # Try gpt-oss:120b first (CHAMPION)
         try:
-            async with httpx.AsyncClient(timeout=60) as client:
+            async with httpx.AsyncClient(timeout=120) as client:
                 resp = await client.post(
                     "http://127.0.0.1:11434/api/chat",
                     json={

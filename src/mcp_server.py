@@ -5302,6 +5302,28 @@ async def handle_cowork_proactive_stats(args: dict) -> list[TextContent]:
     from src.cowork_proactive import get_proactive
     return _text(json.dumps(get_proactive().get_stats(), ensure_ascii=False))
 
+async def handle_timeout_auto_fix(args: dict) -> list[TextContent]:
+    """Auto-fix timeout values based on actual dispatch latency data."""
+    from cowork.dev.timeout_auto_fixer import analyze_timeouts, suggest_adjustments, apply_adjustments
+    dry_run = args.get("dry_run", False)
+    pattern_stats, node_stats = analyze_timeouts()
+    suggestions = suggest_adjustments(pattern_stats, node_stats)
+    applied = apply_adjustments(suggestions, dry_run=dry_run)
+    problems = [ps for ps in pattern_stats if ps["timeouts"] > 0]
+    return _text(json.dumps({
+        "problems": len(problems), "suggestions": len(suggestions),
+        "applied": applied, "dry_run": dry_run,
+    }, ensure_ascii=False, indent=2))
+
+async def handle_dispatch_integration_test(args: dict) -> list[TextContent]:
+    """Run dispatch pipeline integration tests."""
+    from cowork.dev.dispatch_integration_test import main as run_tests
+    import io, contextlib
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        ok = run_tests()
+    return _text(buf.getvalue() + f"\n\nResult: {'ALL PASS' if ok else 'SOME FAILED'}")
+
 
 # ── Phase 15: Reflection Engine ─────────────────────────────────────────
 
@@ -6124,6 +6146,8 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     ("cowork_proactive_run", "Cycle proactif: detecter -> planifier -> executer.", {"max_scripts": "number", "dry_run": "boolean"}, handle_cowork_proactive_run),
     ("cowork_proactive_anticipate", "Predictions de besoins futurs.", {}, handle_cowork_proactive_anticipate),
     ("cowork_proactive_stats", "Stats du moteur proactif.", {}, handle_cowork_proactive_stats),
+    ("timeout_auto_fix", "Auto-corriger les timeouts dispatch (analyse latence + ajustement).", {"dry_run": "boolean"}, handle_timeout_auto_fix),
+    ("dispatch_integration_test", "Tests d'integration du pipeline dispatch (6 tests).", {}, handle_dispatch_integration_test),
     # Phase 15: Reflection Engine (3)
     ("reflection_insights", "Insights meta-cognitifs: qualite, performance, fiabilite, croissance.", {}, handle_reflection_insights),
     ("reflection_summary", "Resume systeme avec metriques cles.", {}, handle_reflection_summary),
