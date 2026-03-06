@@ -21,15 +21,15 @@ echo.
 set /p choice="Choix [1-6]: "
 
 if "%choice%"=="1" (
-    python scripts\trading_v2\gpu_pipeline.py --coins 50 --top 5 --quick --json
+    C:\Users\franc\.local\bin\uv.exe run python scripts\trading_v2\gpu_pipeline.py --coins 50 --top 5 --quick --json
 ) else if "%choice%"=="2" (
-    python scripts\trading_v2\gpu_pipeline.py --coins 100 --top 10 --no-gemini --json
+    C:\Users\franc\.local\bin\uv.exe run python scripts\trading_v2\gpu_pipeline.py --coins 100 --top 10 --no-gemini --json
 ) else if "%choice%"=="3" (
-    python scripts\trading_v2\gpu_pipeline.py --coins 200 --top 10 --json
+    C:\Users\franc\.local\bin\uv.exe run python scripts\trading_v2\gpu_pipeline.py --coins 200 --top 10 --json
 ) else if "%choice%"=="4" (
-    python scripts\trading_v2\gpu_pipeline.py --coins 100 --top 10 --no-ai --json
+    C:\Users\franc\.local\bin\uv.exe run python scripts\trading_v2\gpu_pipeline.py --coins 100 --top 10 --no-ai --json
 ) else if "%choice%"=="5" (
-    python scripts\trading_v2\gpu_pipeline.py --coins 200 --top 10 --no-gemini --cycles 0 --interval 300 --json
+    C:\Users\franc\.local\bin\uv.exe run python scripts\trading_v2\gpu_pipeline.py --coins 200 --top 10 --no-gemini --cycles 0 --interval 300 --json
 ) else if "%choice%"=="6" (
     start "" "F:\BUREAU\turbo\scripts\trading_v2\dashboard_pro.html"
 ) else (

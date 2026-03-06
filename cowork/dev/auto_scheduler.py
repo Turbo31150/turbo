@@ -2,6 +2,7 @@
 """JARVIS Auto Scheduler — Planificateur de taches recurrentes (cron-like)."""
 import json, sys, os, subprocess, time
 from datetime import datetime, timedelta
+from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
 
 # TELEGRAM_TOKEN loaded from _paths (.env)
 # TELEGRAM_CHAT loaded from _paths (.env)
@@ -56,7 +57,6 @@ DEFAULT_SCHEDULE = [
 
 def send_telegram(msg):
     import urllib.request
-from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
     data = json.dumps({"chat_id": TELEGRAM_CHAT, "text": msg}).encode()
     req = urllib.request.Request(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
                                  data=data, headers={"Content-Type": "application/json"})

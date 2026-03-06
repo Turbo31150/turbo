@@ -71,7 +71,7 @@ print("=" * 60)
 print("\n--- cluster_health_live ---")
 import urllib.request
 nodes = {
-    "M1": ("10.5.0.2", 1234, M1_AUTH),
+    "M1": ("127.0.0.1", 1234, M1_AUTH),
     "M2": ("192.168.1.26", 1234, M2_AUTH),
     "M3": ("192.168.1.113", 1234, M3_AUTH),
 }
@@ -127,7 +127,7 @@ print("\n--- diag_intelligent_pc ---")
 sys_info = ps("$cpu = (Get-CimInstance Win32_Processor).LoadPercentage; $os = Get-CimInstance Win32_OperatingSystem; $ram = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); $total = [math]::Round($os.TotalVisibleMemorySize/1MB,1); \"CPU:${cpu}% RAM:${ram}/${total}GB\"")
 gpu_info = ps("nvidia-smi --query-gpu=temperature.gpu,memory.used --format=csv,noheader,nounits")
 prompt = f"Analyse ces metriques systeme Windows et dis si tout va bien (3 lignes max): {sys_info} GPU:{gpu_info}"
-r = call_lmstudio("10.5.0.2", 1234, "qwen3-8b", prompt, M1_AUTH)
+r = call_lmstudio("127.0.0.1", 1234, "qwen3-8b", prompt, M1_AUTH)
 print(f"  Systeme: {sys_info}")
 print(f"  [M1/qwen3] {r}")
 results["diag_intelligent_pc"] = "OK" if "ERREUR" not in r else "FAIL"
@@ -137,7 +137,7 @@ print("\n--- diag_pourquoi_lent ---")
 procs = ps("Get-Process | Sort-Object WorkingSet64 -Descending | Select-Object -First 5 | ForEach-Object {\"$($_.Name):$([math]::Round($_.WorkingSet64/1MB))MB\"}")
 cpu_val = ps("(Get-CimInstance Win32_Processor).LoadPercentage")
 prompt2 = f"PC Windows lent. Top processus: {procs}. CPU: {cpu_val}%. Identifie la cause probable et donne 1 solution concrete (2 lignes max)."
-r2 = call_lmstudio("10.5.0.2", 1234, "qwen3-8b", prompt2, M1_AUTH)
+r2 = call_lmstudio("127.0.0.1", 1234, "qwen3-8b", prompt2, M1_AUTH)
 print(f"  Top procs: {procs}")
 print(f"  [M1] {r2}")
 results["diag_pourquoi_lent"] = "OK" if "ERREUR" not in r2 else "FAIL"
@@ -158,7 +158,7 @@ print("\n--- cognitif_resume_activite ---")
 git_log = ps("git -C F:\\BUREAU\\turbo log --since=\"8 hours ago\" --oneline")
 uptime = ps("$up = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; (New-TimeSpan -Start $up).ToString(\"d\\.hh\\:mm\")")
 prompt3 = f"Resume cette activite de dev en 3 lignes. Commits recents: {git_log}. Uptime: {uptime}"
-r3 = call_lmstudio("10.5.0.2", 1234, "qwen3-8b", prompt3, M1_AUTH)
+r3 = call_lmstudio("127.0.0.1", 1234, "qwen3-8b", prompt3, M1_AUTH)
 print(f"  Git (8h): {git_log[:200]}")
 print(f"  [Resume IA] {r3}")
 results["cognitif_resume_activite"] = "OK" if "ERREUR" not in r3 else "FAIL"
@@ -168,7 +168,7 @@ print("\n--- cognitif_suggestion_tache ---")
 git_count = ps("(git -C F:\\BUREAU\\turbo log --since=\"4 hours ago\" --oneline | Measure-Object -Line).Lines")
 heure = ps("(Get-Date).ToString(\"HH:mm\")")
 prompt4 = f"Il est {heure}, l'utilisateur a fait {git_count} commits ces 4 dernieres heures. Suggere une activite adaptee (2 lignes)."
-r4 = call_lmstudio("10.5.0.2", 1234, "qwen3-8b", prompt4, M1_AUTH)
+r4 = call_lmstudio("127.0.0.1", 1234, "qwen3-8b", prompt4, M1_AUTH)
 print(f"  [JARVIS] {r4}")
 results["cognitif_suggestion_tache"] = "OK" if "ERREUR" not in r4 else "FAIL"
 
@@ -177,7 +177,7 @@ print("\n--- cognitif_analyse_erreurs ---")
 events = ps("Get-WinEvent -FilterHashtable @{LogName='Application';Level=2} -MaxEvents 3 -ErrorAction SilentlyContinue | ForEach-Object {$_.TimeCreated.ToString('HH:mm') + ': ' + $_.Message.Substring(0,[Math]::Min(80,$_.Message.Length))}")
 if events and "ERREUR" not in events:
     prompt5 = f"Analyse ces erreurs Windows recentes et dis si c'est grave (2 lignes max): {events}"
-    r5 = call_lmstudio("10.5.0.2", 1234, "qwen3-8b", prompt5, M1_AUTH)
+    r5 = call_lmstudio("127.0.0.1", 1234, "qwen3-8b", prompt5, M1_AUTH)
     print(f"  Events: {events[:150]}")
     print(f"  [IA] {r5}")
     results["cognitif_analyse_erreurs"] = "OK" if "ERREUR" not in r5 else "FAIL"
@@ -188,7 +188,7 @@ else:
 # cognitif_consensus_rapide (M1 + M2)
 print("\n--- cognitif_consensus_rapide (M1 vs M2) ---")
 question = "Quel est le meilleur format pour un pipeline IA: JSON, Parquet ou SQLite?"
-r_m1 = call_lmstudio("10.5.0.2", 1234, "qwen3-8b", question, M1_AUTH, max_tokens=150)
+r_m1 = call_lmstudio("127.0.0.1", 1234, "qwen3-8b", question, M1_AUTH, max_tokens=150)
 print(f"  [M1/qwen3] {r_m1[:200]}")
 r_m2 = call_lmstudio("192.168.1.26", 1234, "deepseek-r1-0528-qwen3-8b", question, M2_AUTH, max_tokens=150)
 print(f"  [M2/deepseek] {r_m2[:200]}")
@@ -304,7 +304,7 @@ print("\n--- routine_bilan_journee ---")
 commits = ps("(git -C F:\\BUREAU\\turbo log --since='midnight' --oneline | Measure-Object -Line).Lines")
 uptime2 = ps("$up = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; (New-TimeSpan -Start $up).ToString('hh\\:mm')")
 prompt6 = f"L'utilisateur a fait {commits} commits aujourd'hui. Il est {heure}. Uptime: {uptime2}. Fais un bilan positif en 2 lignes."
-r6 = call_lmstudio("10.5.0.2", 1234, "qwen3-8b", prompt6, M1_AUTH, max_tokens=100)
+r6 = call_lmstudio("127.0.0.1", 1234, "qwen3-8b", prompt6, M1_AUTH, max_tokens=100)
 print(f"  Commits: {commits} | Uptime: {uptime2}")
 print(f"  [JARVIS] {r6}")
 results["routine_bilan_journee"] = "OK" if "ERREUR" not in r6 else "FAIL"

@@ -2,6 +2,7 @@
 """JARVIS Win Optimizer — Nettoyage et optimisation Windows."""
 import json, sys, os, subprocess, shutil
 from datetime import datetime
+from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
 
 # TELEGRAM_TOKEN loaded from _paths (.env)
 # TELEGRAM_CHAT loaded from _paths (.env)
@@ -126,7 +127,6 @@ if __name__ == "__main__":
         print(summary)
     elif "--loop" in sys.argv:
         import time
-from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
         interval = 3600  # 1h
         print(f"Optimizing every {interval}s... Ctrl+C to stop")
         while True:

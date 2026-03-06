@@ -32,7 +32,7 @@ Toujours repondre en francais. Code en anglais, commentaires en francais si pert
 ## Cluster — Acces rapide
 | Noeud | URL | Modele | Role | Score |
 |-------|-----|--------|------|-------|
-| M1 | 127.0.0.1:1234 / 10.5.0.2:1234 | qwen3-8b | CHAMPION LOCAL (46tok/s) | 98.4/100 |
+| M1 | 127.0.0.1:1234 | qwen3-8b | CHAMPION LOCAL (46tok/s) | 98.4/100 |
 | M1B | 127.0.0.1:1234 | gpt-oss-20b | Deep local (9s, ctx25k) | — |
 | M2 | 192.168.1.26:1234 | deepseek-r1-0528-qwen3-8b | Reasoning (44tok/s) | — |
 | M3 | 192.168.1.113:1234 | deepseek-r1-0528-qwen3-8b | Reasoning fallback | — |

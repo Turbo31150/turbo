@@ -320,7 +320,7 @@ RELATED PROJECTS:
   - JARVIS Voice:           F:\BUREAU\turbo\voice\
   - JARVIS Cluster:         F:\BUREAU\turbo\cluster_startup.py
   - JARVIS Trading:         F:\BUREAU\carV1\database\
-  - LM Studio Config:        10.5.0.2:1234
+  - LM Studio Config:        127.0.0.1:1234
 
 ================================================================================
 DEPLOYMENT READINESS

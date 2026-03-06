@@ -17,7 +17,7 @@
     },
     {
       "parameters": {
-        "url": "http://10.5.0.2:1234/api/v1/chat",
+        "url": "http://127.0.0.1:1234/api/v1/chat",
         "sendHeaders": true,
         "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"}, {"name": "Content-Type", "value": "application/json"}]},
         "sendBody": true,
@@ -68,7 +68,7 @@
     },
     {
       "parameters": {
-        "url": "http://10.5.0.2:1234/api/v1/chat",
+        "url": "http://127.0.0.1:1234/api/v1/chat",
         "sendHeaders": true,
         "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"}, {"name": "Content-Type", "value": "application/json"}]},
         "sendBody": true,
@@ -84,7 +84,7 @@
     },
     {
       "parameters": {
-        "url": "http://10.5.0.2:1234/api/v1/chat",
+        "url": "http://127.0.0.1:1234/api/v1/chat",
         "sendHeaders": true,
         "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"}, {"name": "Content-Type", "value": "application/json"}]},
         "sendBody": true,
@@ -114,7 +114,7 @@
     },
     {
       "parameters": {
-        "url": "http://10.5.0.2:1234/api/v1/chat",
+        "url": "http://127.0.0.1:1234/api/v1/chat",
         "sendHeaders": true,
         "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"}, {"name": "Content-Type", "value": "application/json"}]},
         "sendBody": true,
@@ -130,7 +130,7 @@
     },
     {
       "parameters": {
-        "url": "http://10.5.0.2:1234/api/v1/chat",
+        "url": "http://127.0.0.1:1234/api/v1/chat",
         "sendHeaders": true,
         "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"}, {"name": "Content-Type", "value": "application/json"}]},
         "sendBody": true,

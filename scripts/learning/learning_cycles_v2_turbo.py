@@ -21,12 +21,12 @@ from collections import defaultdict
 # ── CONFIG ──────────────────────────────────────────────────
 LMSTUDIO_MODELS = {
     "M1-qwen3": {
-        "url": "http://10.5.0.2:1234/v1/chat/completions",
+        "url": "http://127.0.0.1:1234/v1/chat/completions",
         "key": os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", "")),
         "model": "qwen3-8b"
     },
     "M1-deepseek-r1": {
-        "url": "http://10.5.0.2:1234/v1/chat/completions",
+        "url": "http://127.0.0.1:1234/v1/chat/completions",
         "key": os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", "")),
         "model": "deepseek-r1-0528-qwen3-8b"
     },
@@ -103,7 +103,7 @@ SCENARIOS = [
     {"id":40,"cat":"reseau","cmd":"flush le cache DNS","expected":"Clear-DnsClientCache","ps":"Clear-DnsClientCache"},
     {"id":41,"cat":"reseau","cmd":"affiche la bande passante utilisee","expected":"Get-NetAdapterStatistics","ps":"Get-NetAdapterStatistics"},
     {"id":42,"cat":"reseau","cmd":"resous le nom de domaine github.com","expected":"Resolve-DnsName","ps":"Resolve-DnsName github.com"},
-    {"id":43,"cat":"reseau","cmd":"verifie si le port 1234 est ouvert sur M1","expected":"Test-NetConnection","ps":"Test-NetConnection 10.5.0.2 -Port 1234"},
+    {"id":43,"cat":"reseau","cmd":"verifie si le port 1234 est ouvert sur M1","expected":"Test-NetConnection","ps":"Test-NetConnection 127.0.0.1 -Port 1234"},
     {"id":44,"cat":"reseau","cmd":"affiche les partages reseau","expected":"Get-SmbShare","ps":"Get-SmbShare"},
     {"id":45,"cat":"reseau","cmd":"desactive puis reactive le WiFi","expected":"Disable-NetAdapter","ps":"Disable-NetAdapter -Name Wi-Fi -Confirm:$false; Enable-NetAdapter -Name Wi-Fi"},
     {"id":46,"cat":"systeme","cmd":"affiche les infos systeme","expected":"Get-ComputerInfo","ps":"Get-ComputerInfo | Select OsName, OsVersion"},

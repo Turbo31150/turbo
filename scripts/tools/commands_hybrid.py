@@ -181,7 +181,7 @@ SITE_ALIASES: dict[str, str] = {
     "coinglass": "https://www.coinglass.com", "coinmarketcap": "https://coinmarketcap.com",
     "binance": "https://www.binance.com", "coingecko": "https://www.coingecko.com",
     "dexscreener": "https://dexscreener.com",
-    "n8n": "http://127.0.0.1:5678", "lm studio": "http://10.5.0.2:1234",
+    "n8n": "http://127.0.0.1:5678", "lm studio": "http://127.0.0.1:1234",
     "dashboard": "http://127.0.0.1:3000",
     "amazon": "https://www.amazon.fr", "leboncoin": "https://www.leboncoin.fr",
     "wikipedia": "https://fr.wikipedia.org", "deepl": "https://www.deepl.com/translator",

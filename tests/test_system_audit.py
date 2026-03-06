@@ -185,7 +185,7 @@ async def test():
         # Scenario A: only 1 node with url online (M2 only) — should trigger LM SPOF
         # Note: analyze_spof counts all nodes with "url" key, including OL1
         fake_nodes_degraded = [
-            {"name": "M1", "url": "http://10.5.0.2:1234", "status": "OFFLINE", "role": "deep_analysis", "latency_ms": 0, "error": "timeout", "models": []},
+            {"name": "M1", "url": "http://127.0.0.1:1234", "status": "OFFLINE", "role": "deep_analysis", "latency_ms": 0, "error": "timeout", "models": []},
             {"name": "M2", "url": "http://192.168.1.26:1234", "status": "ONLINE", "role": "fast_inference", "latency_ms": 50, "error": None, "models": [{"id": "deepseek"}]},
             {"name": "M3", "url": "http://192.168.1.113:1234", "status": "OFFLINE", "role": "general_inference", "latency_ms": 0, "error": "refused", "models": []},
             {"name": "OL1", "url": "http://127.0.0.1:11434", "status": "OFFLINE", "role": "cloud_inference", "latency_ms": 0, "error": "refused", "models": []},

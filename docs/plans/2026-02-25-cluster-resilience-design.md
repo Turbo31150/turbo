@@ -38,7 +38,7 @@ ping noeud (curl /api/v1/models ou /api/tags, timeout 5s)
 
 | Noeud | Health URL | Timeout |
 |-------|-----------|---------|
-| M1 | `http://10.5.0.2:1234/api/v1/models` + auth header | 5s |
+| M1 | `http://127.0.0.1:1234/api/v1/models` + auth header | 5s |
 | M2 | `http://192.168.1.26:1234/api/v1/models` + auth header | 5s |
 | M3 | `http://192.168.1.113:1234/api/v1/models` + auth header | 5s |
 | OL1 | `http://127.0.0.1:11434/api/tags` | 3s |

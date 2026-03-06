@@ -9,6 +9,6 @@ echo ============================================
 echo.
 
 cd /d F:\BUREAU\turbo
-python cowork/dev/jarvis_super_loop.py --cycles 1000 --interval 120 --notify
+C:\Users\franc\.local\bin\uv.exe run python cowork/dev/jarvis_super_loop.py --cycles 1000 --interval 120 --notify
 
 pause

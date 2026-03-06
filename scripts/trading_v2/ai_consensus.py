@@ -63,7 +63,7 @@ MODELS = [
         "name": "M1/qwen3-8b",
         "weight": 1.5,
         "type": "reasoning",
-        "endpoint": "http://10.5.0.2:1234/api/v1/chat",
+        "endpoint": "http://127.0.0.1:1234/api/v1/chat",
         "auth": f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}",
         "model_id": "qwen/qwen3-8b",
         "timeout": 30,

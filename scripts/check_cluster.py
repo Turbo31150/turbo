@@ -56,7 +56,7 @@ async def check_ollama(c: httpx.AsyncClient, name: str, url: str) -> dict:
 
 async def main():
     nodes = [
-        ("M1", "http://10.5.0.2:1234", "lmstudio"),
+        ("M1", "http://127.0.0.1:1234", "lmstudio"),
         ("M2", "http://192.168.1.26:1234", "lmstudio"),
         ("OL1", "http://127.0.0.1:11434", "ollama"),
     ]

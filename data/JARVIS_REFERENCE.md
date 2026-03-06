@@ -530,6 +530,6 @@
 
 
 ## CLUSTER
-- M1 (http://10.5.0.2:1234): deep_analysis, 6 GPU, 46GB, model=qwen/qwen3-30b-a3b-2507
+- M1 (http://127.0.0.1:1234): deep_analysis, 6 GPU, 46GB, model=qwen/qwen3-30b-a3b-2507
 - M2 (http://192.168.1.26:1234): fast_inference, 3 GPU, 24GB, model=openai/gpt-oss-20b
 - OL1 (http://127.0.0.1:11434): cloud_inference, model=minimax-m2.5:cloud

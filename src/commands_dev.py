@@ -1216,7 +1216,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
     ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m http.server 8000 2>&1 | Select -First 3 | Out-String"),
     JarvisCommand("lmstudio_status", "dev", "Status des serveurs LM Studio", [
         "status lm studio", "lm studio en ligne", "serveurs ia status",
-    ], "powershell", "@{M1='http://10.5.0.2:1234';M2='http://192.168.1.26:1234';M3='http://192.168.1.113:1234'}.GetEnumerator() | ForEach-Object { try{Invoke-WebRequest \"$($_.Value)/api/v1/models\" -UseBasicParsing -TimeoutSec 3 >$null; \"$($_.Key): OK\"}catch{\"$($_.Key): OFFLINE\"} } | Out-String"),
+    ], "powershell", "@{M1='http://127.0.0.1:1234';M2='http://192.168.1.26:1234';M3='http://192.168.1.113:1234'}.GetEnumerator() | ForEach-Object { try{Invoke-WebRequest \"$($_.Value)/api/v1/models\" -UseBasicParsing -TimeoutSec 3 >$null; \"$($_.Key): OK\"}catch{\"$($_.Key): OFFLINE\"} } | Out-String"),
     JarvisCommand("ollama_models_local", "dev", "Lister les modeles Ollama disponibles localement", [
         "modeles ollama locaux", "ollama list", "quels modeles ollama",
     ], "powershell", "try{$r=Invoke-RestMethod http://127.0.0.1:11434/api/tags -TimeoutSec 3; $r.models | ForEach-Object { \"$($_.name) — $([math]::Round($_.size/1GB,1))GB\" } | Out-String}catch{'Ollama OFFLINE'}"),

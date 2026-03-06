@@ -1054,7 +1054,7 @@ async def handle_brain_analyze(args: dict) -> list[TextContent]:
 async def handle_brain_suggest(args: dict) -> list[TextContent]:
     from src.brain import cluster_suggest_skill
     context = args.get("context", "general")
-    node_url = args.get("node_url", "http://10.5.0.2:1234")
+    node_url = args.get("node_url", "http://127.0.0.1:1234")
     suggestion = await cluster_suggest_skill(context, node_url)
     if suggestion is None:
         return _text("Pas de suggestion disponible (cluster IA injoignable).")

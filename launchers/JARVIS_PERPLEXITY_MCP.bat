@@ -14,7 +14,7 @@ cd /d F:\BUREAU\turbo
 
 REM Start MCP server in background
 echo [1/2] Starting MCP SSE server on port 8901...
-start /B python -m src.mcp_server_sse --port 8901 --full 2>&1 | findstr /V "^$"
+start /B C:\Users\franc\.local\bin\uv.exe run python -m src.mcp_server_sse --port 8901 --full 2>&1 | findstr /V "^$"
 
 REM Wait for server to be ready
 timeout /t 5 /nobreak >nul

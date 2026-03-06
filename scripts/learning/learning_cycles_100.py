@@ -16,7 +16,7 @@ from datetime import datetime
 from pathlib import Path
 
 # ── CONFIG ──────────────────────────────────────────────────
-M1_URL = "http://10.5.0.2:1234/v1/chat/completions"
+M1_URL = "http://127.0.0.1:1234/v1/chat/completions"
 M1_KEY = os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", ""))
 M2_URL = "http://192.168.1.26:1234/v1/chat/completions"
 M2_KEY = os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", ""))
@@ -82,7 +82,7 @@ SCENARIOS = [
     {"id": 40, "cat": "reseau", "cmd": "flush le cache DNS", "expected": "Clear-DnsClientCache", "powershell": "Clear-DnsClientCache"},
     {"id": 41, "cat": "reseau", "cmd": "affiche la bande passante utilisée", "expected": "Get-NetAdapterStatistics", "powershell": "Get-NetAdapterStatistics | Select Name, ReceivedBytes, SentBytes"},
     {"id": 42, "cat": "reseau", "cmd": "résous le nom de domaine github.com", "expected": "Resolve-DnsName", "powershell": "Resolve-DnsName github.com"},
-    {"id": 43, "cat": "reseau", "cmd": "vérifie si le port 1234 est ouvert sur M1", "expected": "Test-NetConnection", "powershell": "Test-NetConnection 10.5.0.2 -Port 1234"},
+    {"id": 43, "cat": "reseau", "cmd": "vérifie si le port 1234 est ouvert sur M1", "expected": "Test-NetConnection", "powershell": "Test-NetConnection 127.0.0.1 -Port 1234"},
     {"id": 44, "cat": "reseau", "cmd": "affiche les partages réseau", "expected": "Get-SmbShare", "powershell": "Get-SmbShare"},
     {"id": 45, "cat": "reseau", "cmd": "désactive puis réactive le WiFi", "expected": "Disable-NetAdapter", "powershell": "Disable-NetAdapter -Name Wi-Fi -Confirm:$false; Start-Sleep 2; Enable-NetAdapter -Name Wi-Fi"},
 

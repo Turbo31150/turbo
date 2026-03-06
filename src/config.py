@@ -184,7 +184,7 @@ class JarvisConfig:
     # Backend: llama.cpp v2.3.0 CUDA12 + Flash Attention + custom GPU ratio
     lm_nodes: list[LMStudioNode] = field(default_factory=lambda: [
         LMStudioNode(
-            "M1", os.getenv("LM_STUDIO_1_URL", "http://10.5.0.2:1234"),
+            "M1", os.getenv("LM_STUDIO_1_URL", "http://127.0.0.1:1234"),
             "deep_analysis", gpus=6, vram_gb=46,
             default_model="qwen/qwen3-8b", weight=1.8,
             use_cases=["PRIORITAIRE — code, math, raisonnement", "Fast inference 65 tok/s",

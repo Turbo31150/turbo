@@ -35,7 +35,7 @@ MCP_TOOL_EXAMPLES = [
             "parle a M1", "envoie a LM Studio M1", "chat avec M1",
             "demande a M1", "question pour M1",
         ],
-        "response": "J'envoie la requete au serveur LM Studio M1 (10.5.0.2:1234).",
+        "response": "J'envoie la requete au serveur LM Studio M1 (127.0.0.1:1234).",
     },
     {
         "tool": "lmstudio1_models",

@@ -167,7 +167,7 @@ git commit -m "feat(voice): bypass IA for high-confidence local matches (>85%)"
 
 ```python
 # Old:
-LM_STUDIO_URL = "http://10.5.0.2:1234/api/v1/chat"
+LM_STUDIO_URL = "http://127.0.0.1:1234/api/v1/chat"
 LM_CORRECTION_MODEL = "qwen/qwen3-30b-a3b-2507"
 
 # New:

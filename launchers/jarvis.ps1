@@ -38,8 +38,8 @@ $_M3_KEY = if ($env:LM_STUDIO_3_API_KEY) { $env:LM_STUDIO_3_API_KEY } elseif ($e
 
 $Nodes = @{
     "M1" = @{
-        Url = "http://10.5.0.2:1234/api/v1/chat"
-        HealthUrl = "http://10.5.0.2:1234/api/v1/models"
+        Url = "http://127.0.0.1:1234/api/v1/chat"
+        HealthUrl = "http://127.0.0.1:1234/api/v1/models"
         Type = "lmstudio-responses"
         Model = "qwen/qwen3-8b"
         Key = $_M1_KEY

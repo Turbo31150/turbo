@@ -71,7 +71,7 @@ def remote_checksums(host: str) -> Dict[str, str]:
     Retourne un dict {relative_path: md5}.
     """
     remote_cmd = (
-        f"python3 - <<'PY'\n"
+        f"python - <<'PY'\n"
         f"import os, hashlib, json;\n"
         f"root='{REMOTE_ROOT}';\n"
         f"checksums={{}};\n"

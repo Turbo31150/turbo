@@ -23,7 +23,7 @@ interface Config {
 
 const DEFAULT_CONFIG: Config = {
   cluster: { nodes: [
-    { id: 'M1', name: 'M1 / qwen3-8b', url: 'http://10.5.0.2:1234', enabled: true, weight: 1.8 },
+    { id: 'M1', name: 'M1 / qwen3-8b', url: 'http://127.0.0.1:1234', enabled: true, weight: 1.8 },
     { id: 'M2', name: 'M2 / deepseek', url: 'http://192.168.1.26:1234', enabled: true, weight: 1.4 },
     { id: 'M3', name: 'M3 / mistral', url: 'http://192.168.1.113:1234', enabled: true, weight: 1.0 },
     { id: 'OL1', name: 'OL1 / qwen3:1.7b', url: OLLAMA_URL, enabled: true, weight: 1.3 },

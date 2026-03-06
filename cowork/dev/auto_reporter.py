@@ -2,6 +2,7 @@
 """JARVIS Auto Reporter — Rapport quotidien cluster/trading/systeme."""
 import json, sys, os, subprocess, urllib.request
 from datetime import datetime
+from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
 
 # TELEGRAM_TOKEN loaded from _paths (.env)
 # TELEGRAM_CHAT loaded from _paths (.env)
@@ -135,7 +136,6 @@ if __name__ == "__main__":
             send_telegram(text)
     elif "--loop" in sys.argv:
         import time
-from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
         interval = 86400  # 24h
         print(f"Daily report... Ctrl+C to stop")
         while True:

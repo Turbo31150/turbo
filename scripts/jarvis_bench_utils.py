@@ -8,13 +8,13 @@ MAX_RUNS = 500
 
 NODES = {
     "M1": {
-        "health_url": "http://10.5.0.2:1234/api/v1/models",
-        "chat_url": "http://10.5.0.2:1234/api/v1/chat",
+        "health_url": "http://127.0.0.1:1234/api/v1/models",
+        "chat_url": "http://127.0.0.1:1234/api/v1/chat",
         "type": "lmstudio-responses",
         "model": "qwen/qwen3-8b",
         "key": "sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7",
-        "load_url": "http://10.5.0.2:1234/api/v1/models/load",
-        "unload_url": "http://10.5.0.2:1234/api/v1/models/unload",
+        "load_url": "http://127.0.0.1:1234/api/v1/models/load",
+        "unload_url": "http://127.0.0.1:1234/api/v1/models/unload",
         "config": {"context_length": 8192, "eval_batch_size": 512, "flash_attention": True, "offload_kv_cache_to_gpu": True, "num_experts": 8},
         "health_timeout": 5,
     },

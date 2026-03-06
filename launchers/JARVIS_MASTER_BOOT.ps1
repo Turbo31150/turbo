@@ -501,6 +501,22 @@ if ($Verify) {
 Phase-1-Infrastructure
 Phase-2-Models
 Phase-3-Services
+
+# Phase 3.5 - Python services (WS backend, Telegram, WhisperFlow)
+Log "CYAN" "`n=== PHASE 3.5 - Python Services (unified boot) ==="
+$unifiedBoot = "$TURBO\scripts\jarvis_unified_boot.py"
+if (Test-Path $unifiedBoot) {
+    Log "WHITE" "  Lancement services Python via jarvis_unified_boot.py..."
+    try {
+        $proc = Start-Process -FilePath "python" -ArgumentList "`"$unifiedBoot`" --phase 4" -WorkingDirectory $TURBO -PassThru -NoNewWindow
+        Log "GREEN" "  Python services lances (PID: $($proc.Id))"
+    } catch {
+        Log "YELLOW" "  WARN: Impossible de lancer jarvis_unified_boot.py: $_"
+    }
+} else {
+    Log "YELLOW" "  WARN: $unifiedBoot introuvable"
+}
+
 Phase-4-Verification
 Phase-5-TelegramHistory
 

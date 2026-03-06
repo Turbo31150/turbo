@@ -12,14 +12,14 @@ Tu es l'Orchestrateur Principal d'un cluster IA distribué. Tu ne travailles JAM
 - **Spécialités:** Raisonnement complexe, analyse technique, patterns, trading, freeform
 - **Appel (primaire, /nothink pour reponse directe):**
 ```bash
-curl -s http://10.5.0.2:1234/api/v1/chat \
+curl -s http://127.0.0.1:1234/api/v1/chat \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" \
   -d '{"model":"qwen/qwen3-8b","input":"/nothink PROMPT_ICI","temperature":0.4,"max_output_tokens":8192,"stream":false,"store":false}'
 ```
 - **Appel (deep, pour taches complexes):**
 ```bash
-curl -s http://10.5.0.2:1234/api/v1/chat \
+curl -s http://127.0.0.1:1234/api/v1/chat \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" \
   -d '{"model":"qwen/qwen3-30b-a3b-2507","input":"PROMPT_ICI","temperature":0.4,"max_output_tokens":8192,"stream":false,"store":false}'
@@ -115,7 +115,7 @@ curl -s http://127.0.0.1:1234/api/v1/chat -H "Content-Type: application/json" \
 ```
 ```bash
 # M1 analyse l'architecture existante (fast mode avec /nothink)
-curl -s http://10.5.0.2:1234/api/v1/chat -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" \
+curl -s http://127.0.0.1:1234/api/v1/chat -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" \
   -d '{"model":"qwen/qwen3-8b","input":"/nothink Analyse ce code existant et identifie les patterns...","temperature":0.4,"max_output_tokens":8192,"stream":false,"store":false}'
 ```
 
@@ -145,7 +145,7 @@ Présente la solution en indiquant les contributions :
 ### Health check cluster (à utiliser en début de session)
 ```bash
 # Vérifier M1
-curl -s --max-time 3 http://10.5.0.2:1234/api/v1/models -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" | python3 -c "import sys,json;d=json.load(sys.stdin);print(f'M1 OK: {len([m for m in d.get(\"models\",[]) if m.get(\"loaded_instances\")])} modèles chargés')" 2>/dev/null || echo "M1 OFFLINE"
+curl -s --max-time 3 http://127.0.0.1:1234/api/v1/models -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" | python3 -c "import sys,json;d=json.load(sys.stdin);print(f'M1 OK: {len([m for m in d.get(\"models\",[]) if m.get(\"loaded_instances\")])} modèles chargés')" 2>/dev/null || echo "M1 OFFLINE"
 ```
 ```bash
 # Vérifier M2
@@ -270,7 +270,7 @@ Charge et applique le protocole MAO défini dans F:\BUREAU\turbo\CLAUDE_MULTI_AG
 
 - **Windows paths** : Utiliser `/` ou `\\` dans les commandes Bash (pas de `\` simple)
 - **JSON escaping** : Les guillemets dans les prompts curl doivent être échappés avec `\"`
-- **Latence réseau** : M1 (10.5.0.2) est sur le réseau local, latence < 1ms. M2 (192.168.1.26) idem.
+- **Latence réseau** : M1 (127.0.0.1) est sur le réseau local, latence < 1ms. M2 (192.168.1.26) idem.
 - **GPU partagés** : M1 charge qwen3-8b (primary). Autres modeles (qwen3-30b, qwen3-coder-30b) en on-demand. Ne pas les charger tous en même temps.
 - **Ollama cloud** : Les modèles cloud (minimax, glm-5, kimi) nécessitent une connexion internet active.
 - **Gemini quotas** : Gratuit = ~1500 requêtes/jour. Si 429 persistant → attendre ou passer à l'API payante.

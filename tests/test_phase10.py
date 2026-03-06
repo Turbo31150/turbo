@@ -217,9 +217,9 @@ class TestServiceRegistry:
 
     def test_register(self):
         sr = self._make()
-        entry = sr.register("m1", "http://10.5.0.2:1234", "lm_studio")
+        entry = sr.register("m1", "http://127.0.0.1:1234", "lm_studio")
         assert entry.name == "m1"
-        assert entry.url == "http://10.5.0.2:1234"
+        assert entry.url == "http://127.0.0.1:1234"
 
     def test_deregister(self):
         sr = self._make()

@@ -137,7 +137,7 @@ def route_step(step: DominoStep) -> str:
     elif action_type == "curl":
         # Extract target from action URL
         action = step.action.lower()
-        if "10.5.0.2" in action:
+        if "127.0.0.1" in action and ":1234" in action:
             return "M1"
         elif "192.168.1.26" in action:
             return "M2"
@@ -1614,6 +1614,7 @@ class DominoExecutor:
             "run_id": run_id,
             "domino_id": domino.id,
             "category": domino.category,
+            "success": failed == 0,
             "passed": passed,
             "failed": failed,
             "skipped": skipped,

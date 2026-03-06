@@ -73,7 +73,7 @@ async def _test_m1():
     async with httpx.AsyncClient(timeout=20) as client:
         start = time.time()
         resp = await client.post(
-            "http://10.5.0.2:1234/api/v1/chat",
+            "http://127.0.0.1:1234/api/v1/chat",
             headers={"Authorization": "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"},
             json={
                 "model": "qwen/qwen3-30b-a3b-2507",

@@ -20,7 +20,7 @@ from typing import Optional, Tuple
 GGUF_SOURCE_DIR = r"F:\BUREAU\turbo\finetuning\gguf"
 LMS_MODEL_DIR = r"F:\models lmsqtudio\jarvis-qwen3-8b-finetune"
 LMS_CLI = r"C:\Users\franc\.lmstudio\bin\lms.exe"
-LMS_SERVER_URL = "http://10.5.0.2:1234"  # IMPORTANT: IP directe PAS localhost (IPv6 latence)
+LMS_SERVER_URL = "http://127.0.0.1:1234"  # IMPORTANT: IP directe PAS localhost (IPv6 latence)
 MODEL_NAME = "jarvis-qwen3-8b-finetune"
 
 # Logs et rapports
@@ -171,7 +171,7 @@ def load_model_in_lms(model_filename: str) -> bool:
 def health_check() -> Tuple[bool, dict]:
     """
     Lance un test de santé rapide
-    Envoie une requête simple à 10.5.0.2:1234
+    Envoie une requête simple à 127.0.0.1:1234
     Retourne: (succès, détails)
     """
     log_message("Test de santé du serveur...", "INFO")

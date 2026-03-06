@@ -40,11 +40,11 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "[OK] Docker pret" -ForegroundColor Green
 
 # S'assurer que LM Studio et Ollama sont accessibles
-$lmStudio = Test-NetConnection -ComputerName 10.5.0.2 -Port 1234 -InformationLevel Quiet -WarningAction SilentlyContinue
+$lmStudio = Test-NetConnection -ComputerName 127.0.0.1 -Port 1234 -InformationLevel Quiet -WarningAction SilentlyContinue
 $ollama = Test-NetConnection -ComputerName 127.0.0.1 -Port 11434 -InformationLevel Quiet -WarningAction SilentlyContinue
 
-if ($lmStudio) { Write-Host "[OK] LM Studio accessible (10.5.0.2:1234)" -ForegroundColor Green }
-else { Write-Host "[!] LM Studio non accessible (10.5.0.2:1234)" -ForegroundColor Yellow }
+if ($lmStudio) { Write-Host "[OK] LM Studio accessible (127.0.0.1:1234)" -ForegroundColor Green }
+else { Write-Host "[!] LM Studio non accessible (127.0.0.1:1234)" -ForegroundColor Yellow }
 
 if ($ollama) { Write-Host "[OK] Ollama accessible (127.0.0.1:11434)" -ForegroundColor Green }
 else { Write-Host "[!] Ollama non accessible (127.0.0.1:11434)" -ForegroundColor Yellow }

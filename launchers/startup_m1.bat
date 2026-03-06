@@ -22,6 +22,6 @@ echo [4/4] Verifying loaded models...
 echo.
 echo ============================================
 echo  M1 READY - qwen3-8b (8K ctx, 4 parallel)
-echo  Server: http://10.5.0.2:1234
+echo  Server: http://127.0.0.1:1234
 echo ============================================
 pause

@@ -66,7 +66,7 @@ CONVERSATIONS = [
         "**Etape 1** — `system_info` : CPU 15%, RAM 29 GB/64 GB, uptime 2j 8h.\n"
         "**Etape 2** — `gpu_info` : GPU 0 a 38°C, VRAM 18.5/24 GB. GPU 1-4 en veille.\n"
         "**Etape 3** — `lm_cluster_status` :\n"
-        "  - M1 (10.5.0.2:1234) : en ligne, qwen3-30b charge, latence 85ms\n"
+        "  - M1 (127.0.0.1:1234) : en ligne, qwen3-30b charge, latence 85ms\n"
         "  - M2 (192.168.1.26:1234) : en ligne, deepseek-coder-v2-lite, latence 120ms\n"
         "  - OL1 (127.0.0.1:11434) : en ligne, qwen3:1.7b charge, latence 45ms\n\n"
         "Tout est operationnel. Le cluster tourne bien, aucun noeud en erreur."
@@ -340,7 +340,7 @@ CONVERSATIONS = [
         "- `jarvis_legacy` → F:\\BUREAU\\JARVIS\n"
         "- `disk_cleaner` → F:\\BUREAU\\disk_cleaner\n\n"
         "8 chemins de projets indexes, plus 30+ scripts dans SCRIPTS. "
-        "Le cluster est configure avec M1 (10.5.0.2:1234), M2 (192.168.1.26:1234) et OL1 (127.0.0.1:11434)."
+        "Le cluster est configure avec M1 (127.0.0.1:1234), M2 (192.168.1.26:1234) et OL1 (127.0.0.1:11434)."
     ),
     make_entry(
         "Regarde l'espace disque, et si C: a moins de 50 GB libres, lance le disk cleaner",
@@ -565,7 +565,7 @@ CONVERSATIONS = [
     make_entry(
         "Verifie que le serveur LM Studio tourne, et si non relance-le",
         "Je verifie.\n\n"
-        "**Etape 1** — `ping(10.5.0.2:1234)` : test de connexion au serveur M1.\n"
+        "**Etape 1** — `ping(127.0.0.1:1234)` : test de connexion au serveur M1.\n"
         "  Resultat : reponse en 2ms, serveur accessible.\n\n"
         "**Etape 2** — `lm_models(M1)` : verification du modele.\n"
         "  qwen3-30b est charge et repond correctement.\n\n"

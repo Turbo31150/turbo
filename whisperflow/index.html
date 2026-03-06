@@ -1260,11 +1260,13 @@ const WS_URL = (_loc.protocol === 'file:')
   ? 'ws://127.0.0.1:9742/ws'
   : `ws://${_loc.host}/ws`;
 const CLUSTER_NODES = {
-  M1:  { url: 'http://10.5.0.2:1234/api/v1/models', label: 'M1' },
+  M1:  { url: 'http://127.0.0.1:1234/api/v1/models', label: 'M1' },
   M2:  { url: 'http://192.168.1.26:1234/api/v1/models', label: 'M2' },
   OL1: { url: 'http://127.0.0.1:11434/api/tags', label: 'OL1' },
   M3:  { url: 'http://192.168.1.113:1234/api/v1/models', label: 'M3' },
 };
+const OPENCLAW_URL = 'http://127.0.0.1:18800/chat';
+const TELEGRAM_FORWARD_URL = 'http://127.0.0.1:9742/api/telegram/forward';
 
 // STATE
 let ws = null;
@@ -1620,8 +1622,42 @@ function processCommand(text) {
   $jarvisResponse.classList.add('show', 'thinking');
   $jarvisText.textContent = 'Reflexion...';
 
-  // Send to chat channel
-  wsSend('chat', 'send_message', { text: text.trim(), files: [] });
+  // Primary: Send via WebSocket backend
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    wsSend('chat', 'send_message', { text: text.trim(), files: [] });
+  } else {
+    // Fallback: Send directly to OpenClaw (port 18800)
+    processViaOpenClaw(text.trim());
+  }
+
+  // Forward to Telegram (async, fire-and-forget)
+  forwardToTelegram(text.trim());
+}
+
+async function processViaOpenClaw(text) {
+  try {
+    const resp = await fetch(OPENCLAW_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, session_id: 'whisperflow' }),
+    });
+    const data = await resp.json();
+    const reply = data.response || data.message || data.text || JSON.stringify(data);
+    onJarvisResponse({ response: reply });
+  } catch (e) {
+    $jarvisResponse.classList.remove('thinking');
+    $jarvisText.textContent = 'OpenClaw offline — aucun backend disponible';
+  }
+}
+
+async function forwardToTelegram(text) {
+  try {
+    await fetch(TELEGRAM_FORWARD_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: text, source: 'whisperflow' }),
+    });
+  } catch (e) { /* silent — Telegram forward is best-effort */ }
 }
 
 function cleanTextForTTS(text) {

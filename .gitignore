@@ -9,6 +9,8 @@ __pycache__/
 .env
 .env.*
 *.secret
+*.key
+data/.fernet_key
 
 # Claude Code
 .claude/settings.local.json
@@ -66,12 +68,17 @@ projects/carV1_data/database/
 projects/lmstudio_backup/
 projects/*/.git/
 backups_auto/
-# SQLite temp files (WAL, SHM)
+# SQLite temp files (WAL, SHM, journal)
 *.db-shm
 *.db-wal
+*.db-journal
 
 # PID files (runtime)
 *.pid
+*.lock
+
+# Cache
+data/cache/
 
 # Runtime state
 data/autodev_state.json

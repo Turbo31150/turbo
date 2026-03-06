@@ -79,8 +79,8 @@ systeme:       M1(50%) OL1(30%) M2(15%) M3(5%)
 - M1 a 46GB VRAM pour 6 GPU
 - **Dual-model**: qwen3-8b (4.7GB, rapide 65 tok/s) + qwen3-30b (17.3GB, profond 9 tok/s) = 22GB/46GB
 - /nothink OBLIGATOIRE (prefix input), extraction: dernier type=message dans output[]
-- Si QwQ ou autre modele charge -> unload: `curl -s http://10.5.0.2:1234/api/v1/models/unload -d '{"instance_id":"MODEL_ID"}'`
-- Verifier: `curl -s http://10.5.0.2:1234/api/v1/models | python3 -c "..."`
+- Si QwQ ou autre modele charge -> unload: `curl -s http://127.0.0.1:1234/api/v1/models/unload -d '{"instance_id":"MODEL_ID"}'`
+- Verifier: `curl -s http://127.0.0.1:1234/api/v1/models | python3 -c "..."`
 
 ## Evolution
 Relancer `python3 C:/Users/franc/jarvis_autotest.py 10 10` regulierement pour mettre a jour cette matrice.

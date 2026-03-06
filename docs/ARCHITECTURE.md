@@ -282,7 +282,7 @@ Ollama API:     POST /api/chat      { model, messages: [{role,content}], stream:
 
 ```
 +---------------------------------------------------------------+
-|  M1 — PC PRINCIPAL (127.0.0.1 / 10.5.0.2)                    |
+|  M1 — PC PRINCIPAL (127.0.0.1 / 127.0.0.1)                    |
 |                                                                |
 |  GPU 0: RTX 3080 10GB    — LM Studio primary compute          |
 |  GPU 1: RTX 2060 12GB    — LM Studio secondary + Whisper CUDA |

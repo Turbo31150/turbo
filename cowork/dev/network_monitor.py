@@ -2,6 +2,7 @@
 """JARVIS Network Monitor — Surveillance reseau cluster."""
 import json, sys, os, sqlite3, subprocess, time
 from datetime import datetime
+from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
 
 DB_PATH = "C:/Users/franc/.openclaw/workspace/dev/network.db"
 # TELEGRAM_TOKEN loaded from _paths (.env)
@@ -55,7 +56,6 @@ def ping_host(host, count=4):
             if "Lost" in line or "perdus" in line:
                 # (0% loss) or (0% de perte)
                 import re
-from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
                 m = re.search(r'\((\d+)%', line)
                 if m: loss = int(m.group(1))
         return {

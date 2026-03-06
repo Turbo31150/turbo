@@ -30,7 +30,7 @@ CATEGORIES = list(set(dp.category for dp in DOMINO_PIPELINES))
 
 # Cluster nodes
 NODES = {
-    "M1": {"url": "http://10.5.0.2:1234/api/v1/chat", "model": "qwen3-8b",
+    "M1": {"url": "http://127.0.0.1:1234/api/v1/chat", "model": "qwen3-8b",
             "key": f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}", "type": "lmstudio"},
     "M2": {"url": "http://192.168.1.26:1234/api/v1/chat", "model": "deepseek-r1-0528-qwen3-8b",
             "key": f"Bearer {os.getenv('LM_STUDIO_2_API_KEY', os.getenv('LM_STUDIO_2_KEY', ''))}", "type": "lmstudio"},

@@ -577,7 +577,7 @@ async def cluster_suggest_skill(context: str, node_url: str = "") -> dict | None
         from src.config import config
         if not node_url:
             m1 = config.get_node("M1")
-            node_url = m1.url if m1 else "http://10.5.0.2:1234"
+            node_url = m1.url if m1 else "http://127.0.0.1:1234"
         model = "qwen/qwen3-8b"
         async with httpx.AsyncClient(timeout=30) as client:
             resp = await client.post(

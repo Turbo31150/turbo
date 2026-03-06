@@ -13,7 +13,7 @@ version: 1.0.0
 | OL1 | http://127.0.0.1:11434 | 5 GPU (RTX3080+2060+3x1660S) | 40GB | qwen3:1.7b |
 | M2 | http://192.168.1.26:1234 | 3 GPU | 24GB | deepseek-coder-v2-lite |
 | M3 | http://192.168.1.113:1234 | 1 GPU | 8GB | mistral-7b |
-| M1 | http://10.5.0.2:1234 | 6 GPU | 46GB | qwen3-30b (LENT) |
+| M1 | http://127.0.0.1:1234 | 6 GPU | 46GB | qwen3-30b (LENT) |
 
 ## Health check rapide
 

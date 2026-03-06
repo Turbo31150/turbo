@@ -32,7 +32,7 @@ except ImportError:
 
 # Configuration des endpoints du cluster
 ENDPOINTS = {
-    "M1": "http://10.5.0.2:1234/v1/chat/completions",
+    "M1": "http://127.0.0.1:1234/v1/chat/completions",
     "M2": "http://192.168.1.26:1234/v1/chat/completions",
     "M3": "http://192.168.1.113:1234/v1/chat/completions",
     "OL1": "http://127.0.0.1:11434/api/chat",

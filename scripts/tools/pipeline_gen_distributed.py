@@ -40,8 +40,8 @@ JARVIS_DB = BASE_DIR / "data" / "jarvis.db"
 
 NODES = {
     "M1": {
-        "url": "http://10.5.0.2:1234/v1/chat/completions",
-        "health_url": "http://10.5.0.2:1234/api/v1/models",
+        "url": "http://127.0.0.1:1234/v1/chat/completions",
+        "health_url": "http://127.0.0.1:1234/api/v1/models",
         "model": "qwen3-8b",
         "auth": f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}",
         "type": "lmstudio",

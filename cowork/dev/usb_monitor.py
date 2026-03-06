@@ -18,6 +18,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 from typing import List, Dict
+from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
 
 # TELEGRAM_TOKEN loaded from _paths (.env)
 TELEGRAM_CHAT_ID = TELEGRAM_CHAT
@@ -25,7 +26,6 @@ DB_PATH = Path(__file__).parent / "usb.db"
 
 def telegram_send(msg: str):
     import urllib.parse, urllib.request
-from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
     try:
         data = urllib.parse.urlencode({"chat_id": TELEGRAM_CHAT_ID, "text": msg}).encode()
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"

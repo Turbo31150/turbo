@@ -31,7 +31,7 @@ Extraction: `.choices[0].message.content`
 
 ### M1 — CHAMPION LOCAL (qwen3-8b, 6 GPU 46GB) — 98.4%, 0.4s
 ```
-curl.exe -s --max-time 120 http://10.5.0.2:1234/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" -d "{\"model\":\"qwen/qwen3-30b-a3b-2507\",\"messages\":[{\"role\":\"user\",\"content\":\"PROMPT\"}],\"max_tokens\":8192}"
+curl.exe -s --max-time 120 http://127.0.0.1:1234/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" -d "{\"model\":\"qwen/qwen3-30b-a3b-2507\",\"messages\":[{\"role\":\"user\",\"content\":\"PROMPT\"}],\"max_tokens\":8192}"
 ```
 M1 est le noeud principal — rapide et fiable pour toutes les taches.
 

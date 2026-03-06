@@ -9,6 +9,6 @@ echo ============================================
 echo.
 
 cd /d F:\BUREAU\turbo
-python cowork/dev/sniper_scanner.py --realtime --notify --voice --min-move 0.4
+C:\Users\franc\.local\bin\uv.exe run python cowork/dev/sniper_scanner.py --realtime --notify --voice --min-move 0.4
 
 pause
