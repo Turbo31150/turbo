@@ -2,10 +2,11 @@
 """JARVIS Portfolio Tracker — Suivi portefeuille MEXC temps reel."""
 import json, sys, os, sqlite3, time, urllib.request
 from datetime import datetime
+from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
 
 DB_PATH = "C:/Users/franc/.openclaw/workspace/dev/portfolio.db"
-TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
-TELEGRAM_CHAT = "2010747443"
+# TELEGRAM_TOKEN loaded from _paths (.env)
+# TELEGRAM_CHAT loaded from _paths (.env)
 PAIRS = ["BTC_USDT","ETH_USDT","SOL_USDT","SUI_USDT","PEPE_USDT","DOGE_USDT","XRP_USDT","ADA_USDT","AVAX_USDT","LINK_USDT"]
 PNL_ALERT_PCT = 1.0
 

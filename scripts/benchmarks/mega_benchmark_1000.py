@@ -25,13 +25,13 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-PROJECT_ROOT = Path("F:/BUREAU/turbo")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 os.chdir(PROJECT_ROOT)
+sys.path.insert(0, str(PROJECT_ROOT / "cowork" / "dev"))
+from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
 
-# ── Telegram config ──────────────────────────────────────────────────────────
-TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
-TELEGRAM_CHAT = "2010747443"
-TTS_SCRIPT = "C:/Users/franc/.openclaw/workspace/dev/win_tts.py"
+# ── Telegram config (from .env via _paths) ───────────────────────────────────
+TTS_SCRIPT = str(PROJECT_ROOT / "cowork" / "dev" / "win_tts.py")
 
 # ── Nodes ────────────────────────────────────────────────────────────────────
 NODES = {

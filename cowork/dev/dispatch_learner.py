@@ -26,12 +26,12 @@ from datetime import datetime
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-from _paths import ETOILE_DB
+from _paths import ETOILE_DB, TELEGRAM_TOKEN, TELEGRAM_CHAT
 DATA_DIR = SCRIPT_DIR / "data"
 GAPS_DB = DATA_DIR / "cowork_gaps.db"
 
-TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
-TELEGRAM_CHAT_ID = "2010747443"
+# TELEGRAM_TOKEN loaded from _paths (.env)
+TELEGRAM_CHAT_ID = TELEGRAM_CHAT
 
 # Minimum dispatches needed to draw conclusions
 MIN_SAMPLES = 1

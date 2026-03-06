@@ -17,15 +17,15 @@ Usage :
 """
 
 import argparse
-from _paths import TURBO_DIR
+from _paths import TURBO_DIR, TELEGRAM_TOKEN, TELEGRAM_CHAT
 import json
 import subprocess
 import sys
 import time
 import urllib.request
 
-TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
-TELEGRAM_CHAT = "2010747443"
+# TELEGRAM_TOKEN loaded from _paths (.env)
+# TELEGRAM_CHAT loaded from _paths (.env)
 PROXY_URL = "http://127.0.0.1:18800"
 WS_URL = "http://127.0.0.1:9742"
 BOT_SCRIPT = str(TURBO_DIR / "canvas" / "telegram-bot.js")

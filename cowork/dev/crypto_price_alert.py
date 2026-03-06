@@ -27,14 +27,15 @@ import urllib.parse
 import urllib.request
 from datetime import datetime
 from pathlib import Path
+from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 TURBO_ROOT = SCRIPT_DIR.parent.parent
 DATA_DIR = SCRIPT_DIR / "data"
 DB_PATH = DATA_DIR / "cowork_gaps.db"
 
-TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
-TELEGRAM_CHAT_ID = "2010747443"
+# TELEGRAM_TOKEN loaded from _paths (.env)
+TELEGRAM_CHAT_ID = TELEGRAM_CHAT
 
 def _alerts_enabled():
     return not (TURBO_ROOT / "data" / ".trading_alerts_off").exists()

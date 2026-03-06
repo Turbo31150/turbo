@@ -2,10 +2,11 @@
 """JARVIS Risk Manager — Gestion du risque trading: position sizing, drawdown limits."""
 import json, sys, os, sqlite3, urllib.request
 from datetime import datetime
+from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
 
 DB_PATH = "C:/Users/franc/.openclaw/workspace/dev/risk.db"
-TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
-TELEGRAM_CHAT = "2010747443"
+# TELEGRAM_TOKEN loaded from _paths (.env)
+# TELEGRAM_CHAT loaded from _paths (.env)
 
 MAX_DRAWDOWN_PCT = 5.0
 MAX_POSITION_SIZE = 50

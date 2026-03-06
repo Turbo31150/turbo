@@ -4,8 +4,8 @@ import json, sys, os, sqlite3, subprocess, time
 from datetime import datetime
 
 DB_PATH = "C:/Users/franc/.openclaw/workspace/dev/network.db"
-TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
-TELEGRAM_CHAT = "2010747443"
+# TELEGRAM_TOKEN loaded from _paths (.env)
+# TELEGRAM_CHAT loaded from _paths (.env)
 
 TARGETS = {
     "M1": "127.0.0.1",
@@ -55,6 +55,7 @@ def ping_host(host, count=4):
             if "Lost" in line or "perdus" in line:
                 # (0% loss) or (0% de perte)
                 import re
+from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
                 m = re.search(r'\((\d+)%', line)
                 if m: loss = int(m.group(1))
         return {

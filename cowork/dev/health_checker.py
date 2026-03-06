@@ -16,7 +16,7 @@ Il regroupe les vérifications suivantes :
 Chaque critère reçoit un score 0‑100 (plus haut = meilleur).  La moyenne pondérée fourni le
 score global (0‑100) qui est traduit en grade : A (≥90), B (≥80), C (≥70), D (≥60), F (<60).
 Le résultat est affiché et, si l’option ``--once`` ou ``--loop`` est utilisée, envoyé sur Telegram
-( bot token ``8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw`` , chat ``2010747443`` ).
+( bot token ``{TELEGRAM_TOKEN}`` , chat ``2010747443`` ).
 
 CLI :
     --once            : exécuter un check unique et afficher le résumé.
@@ -27,7 +27,7 @@ Le script ne dépend que de la bibliothèque standard, avec ``psutil`` en option
 """
 
 import argparse
-from _paths import TURBO_DIR, ETOILE_DB, JARVIS_DB
+from _paths import TURBO_DIR, ETOILE_DB, JARVIS_DB, TELEGRAM_TOKEN, TELEGRAM_CHAT
 import json
 import os
 import shutil
@@ -46,8 +46,8 @@ if hasattr(sys.stderr, "reconfigure"):
 # ---------------------------------------------------------------------------
 # Configuration Telegram
 # ---------------------------------------------------------------------------
-TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
-TELEGRAM_CHAT_ID = "2010747443"
+# TELEGRAM_TOKEN loaded from _paths (.env)
+TELEGRAM_CHAT_ID = TELEGRAM_CHAT
 
 # ---------------------------------------------------------------------------
 # Helper – exécuter une commande et récupérer la sortie (texte)

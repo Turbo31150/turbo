@@ -32,14 +32,15 @@ import urllib.parse
 import urllib.request
 from datetime import datetime
 from pathlib import Path
+from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 DATA_DIR = SCRIPT_DIR / "data"
 GAPS_DB = DATA_DIR / "cowork_gaps.db"
 
 # Token and chat ID — SINGLE SOURCE OF TRUTH
-TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
-TELEGRAM_CHAT_ID = "2010747443"
+# TELEGRAM_TOKEN loaded from _paths (.env)
+TELEGRAM_CHAT_ID = TELEGRAM_CHAT
 
 # Rate limiting
 MAX_MSGS_PER_MIN = 25          # Telegram limit is 30/min, keep margin

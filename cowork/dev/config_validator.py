@@ -11,7 +11,7 @@ CLI :
 """
 
 import argparse
-from _paths import TURBO_DIR, ETOILE_DB, JARVIS_DB
+from _paths import TURBO_DIR, ETOILE_DB, JARVIS_DB, TELEGRAM_TOKEN, TELEGRAM_CHAT
 import json
 import os
 import sqlite3
@@ -20,8 +20,8 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Any
 
-TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
-TELEGRAM_CHAT_ID = "2010747443"
+# TELEGRAM_TOKEN loaded from _paths (.env)
+TELEGRAM_CHAT_ID = TELEGRAM_CHAT
 
 def telegram_send(msg: str):
     import urllib.parse, urllib.request

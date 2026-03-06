@@ -3,8 +3,8 @@
 import json, sys, os, subprocess, time
 from datetime import datetime, timedelta
 
-TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
-TELEGRAM_CHAT = "2010747443"
+# TELEGRAM_TOKEN loaded from _paths (.env)
+# TELEGRAM_CHAT loaded from _paths (.env)
 SCHEDULE_FILE = "C:/Users/franc/.openclaw/workspace/dev/schedule.json"
 LOG_FILE = "C:/Users/franc/.openclaw/workspace/dev/scheduler_log.json"
 
@@ -56,6 +56,7 @@ DEFAULT_SCHEDULE = [
 
 def send_telegram(msg):
     import urllib.request
+from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
     data = json.dumps({"chat_id": TELEGRAM_CHAT, "text": msg}).encode()
     req = urllib.request.Request(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
                                  data=data, headers={"Content-Type": "application/json"})

@@ -3,8 +3,8 @@
 import json, sys, os, subprocess, shutil
 from datetime import datetime
 
-TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
-TELEGRAM_CHAT = "2010747443"
+# TELEGRAM_TOKEN loaded from _paths (.env)
+# TELEGRAM_CHAT loaded from _paths (.env)
 LOG_FILE = "C:/Users/franc/.openclaw/workspace/dev/optimizer_log.json"
 
 TEMP_DIRS = [
@@ -126,6 +126,7 @@ if __name__ == "__main__":
         print(summary)
     elif "--loop" in sys.argv:
         import time
+from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
         interval = 3600  # 1h
         print(f"Optimizing every {interval}s... Ctrl+C to stop")
         while True:

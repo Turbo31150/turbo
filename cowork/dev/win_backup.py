@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """JARVIS Win Backup — Backup automatique fichiers importants."""
 import json, sys, os, shutil, zipfile
-from _paths import TURBO_DIR, ETOILE_DB, JARVIS_DB, SNIPER_DB
+from _paths import TURBO_DIR, ETOILE_DB, JARVIS_DB, SNIPER_DB, TELEGRAM_TOKEN, TELEGRAM_CHAT
 from datetime import datetime
 
-TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
-TELEGRAM_CHAT = "2010747443"
+# TELEGRAM_TOKEN loaded from _paths (.env)
+# TELEGRAM_CHAT loaded from _paths (.env)
 BACKUP_DIR = str(TURBO_DIR / "backups_auto")
 
 TARGETS = {

@@ -19,11 +19,12 @@ import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional, Tuple
+from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
 
 DB_PATH = Path(__file__).parent / "intents.db"
 
-TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
-TELEGRAM_CHAT_ID = "2010747443"
+# TELEGRAM_TOKEN loaded from _paths (.env)
+TELEGRAM_CHAT_ID = TELEGRAM_CHAT
 
 # Intent categories et keywords
 INTENT_MAP = {

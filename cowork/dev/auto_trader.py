@@ -3,11 +3,12 @@
 import json, os, sys, time, urllib.request
 from datetime import datetime
 from pathlib import Path
+from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
 
 PAIRS = ["BTC_USDT","ETH_USDT","SOL_USDT","SUI_USDT","PEPE_USDT","DOGE_USDT","XRP_USDT","ADA_USDT","AVAX_USDT","LINK_USDT"]
 ALERT_THRESHOLD = 2.0  # % variation
-TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
-TELEGRAM_CHAT = "2010747443"
+# TELEGRAM_TOKEN loaded from _paths (.env)
+# TELEGRAM_CHAT loaded from _paths (.env)
 TURBO_ROOT = Path(__file__).resolve().parent.parent.parent
 
 def _alerts_enabled():

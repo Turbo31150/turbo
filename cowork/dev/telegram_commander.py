@@ -3,8 +3,8 @@
 import json, sys, os, subprocess, urllib.request, time
 from datetime import datetime
 
-TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
-CHAT_ID = "2010747443"
+TOKEN = TELEGRAM_TOKEN
+CHAT_ID = TELEGRAM_CHAT
 DEV_DIR = "C:/Users/franc/.openclaw/workspace/dev"
 
 # ─── FORMATAGE TELEGRAM SOIGNE ─────────────────────────────────────
@@ -254,6 +254,7 @@ def pipeline_full_report():
 
     # Disks
     import shutil
+from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
     for drive, name in [("C:/", "C:"), ("F:/", "F:")]:
         try:
             total, used, free = shutil.disk_usage(drive)

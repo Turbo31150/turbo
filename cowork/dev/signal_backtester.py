@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """JARVIS Signal Backtester — Backtest des signaux trading sur historique MEXC."""
 import json, sys, os, sqlite3, urllib.request
-from _paths import SNIPER_DB
+from _paths import SNIPER_DB, TELEGRAM_TOKEN, TELEGRAM_CHAT
 from datetime import datetime
 
 SNIPER_DB = str(SNIPER_DB)
 RESULTS_DB = "C:/Users/franc/.openclaw/workspace/dev/backtest.db"
-TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
-TELEGRAM_CHAT = "2010747443"
+# TELEGRAM_TOKEN loaded from _paths (.env)
+# TELEGRAM_CHAT loaded from _paths (.env)
 
 # Trading params
 LEVERAGE = 10
