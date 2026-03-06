@@ -2,7 +2,32 @@
 
 > Mise a jour: 2026-03-06 | Voice Pipeline v2
 
-**955 commandes vocales** au total, dont **278 pipelines** multi-etapes, reparties en **14 categories**.
+**2182 commandes vocales** au total, dont **278 pipelines** multi-etapes, reparties en **14 categories**.
+
+### Pipeline vocal
+
+| Etape | Technologie |
+|-------|-------------|
+| Wake Word | OpenWakeWord (jarvis, seuil 0.7) |
+| STT | Whisper large-v3-turbo CUDA |
+| TTS | Edge fr-FR-DeniseNeural |
+| Latence | <2s (known <0.5s via LRU cache 200) |
+| Fallback | OL1 down -> GEMINI -> local-only |
+
+### Statistiques vocales completes
+
+| Type | Nombre |
+|------|--------|
+| Commandes vocales | 2182 |
+| Corrections (120 vagues) | 2736 |
+| Dominos | 301 |
+| Triggers | 1078 |
+| Phonetiques (19 vagues) | 106 |
+| Fillers (8 vagues) | 153 |
+| Implicits (67 vagues) | 678 |
+| **TOTAL vocal entries** | **3895** |
+
+### Repartition des commandes par categorie
 
 | Categorie | Nombre |
 |-----------|--------|
@@ -20,7 +45,7 @@
 | Accessibilite | 10 |
 | Controle Media | 7 |
 | Saisie & Texte | 4 |
-| **TOTAL** | **955** |
+| **TOTAL commandes** | **2182** |
 
 ---
 

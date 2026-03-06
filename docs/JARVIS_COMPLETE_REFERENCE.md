@@ -5,15 +5,16 @@
 ```
 JARVIS Turbo v12.4
 ├── Claude Agent SDK (orchestrateur principal)
-├── 7 SDK Agents (ia-deep, ia-fast, ia-check, ia-trading, ia-system, ia-bridge, ia-consensus)
-├── 609 MCP Handlers (stdio server)
-├── 955 Commandes vocales (fuzzy matching + corrections)
-├── 89 Skills (persistants JSON)
+├── 13 SDK Agents (ia-deep, ia-fast, ia-check, ia-trading, ia-system, ia-bridge, ia-consensus, +6)
+├── 609 MCP Handlers (602 MCP + 7 cowork = 609)
+├── 2182 Commandes vocales (+ 2736 corrections + 1078 triggers + 301 dominos)
+├── 80 Skills + 89 Patterns (persistants JSON)
 ├── 409 Scripts COWORK autonomes
+├── 40 OpenClaw Agents + 56 dynamic agents
 ├── Brain autonome (pattern learning)
-├── Dashboard Electron (React 19 + Vite 6)
+├── Dashboard Electron (React 19 + Vite 6, 29 pages)
 ├── Systray Windows (pystray)
-└── 20 Workflows n8n
+└── 63 Workflows n8n
 ```
 
 ## Cluster IA — 3 Machines / 10 GPU / ~78 GB VRAM
@@ -24,7 +25,7 @@ JARVIS Turbo v12.4
 | M2 | 192.168.1.26:1234 | Reasoning | 3 | 24 GB | deepseek-r1-0528-qwen3-8b |
 | M3 | 192.168.1.113:1234 | Reasoning Fallback | 1 | 8 GB | deepseek-r1-0528-qwen3-8b |
 
-## 7 SDK Agents
+## 13 SDK Agents
 
 | Agent | Modele | Role | Tools |
 |-------|--------|------|-------|
@@ -36,7 +37,7 @@ JARVIS Turbo v12.4
 | ia-bridge | Sonnet | Orchestrateur multi-noeuds | gemini_query, bridge_query, bridge_mesh |
 | ia-consensus | Sonnet | Vote pondere multi-IA | M1=1.5, GEMINI=1.2, M2=1.0, OL1=0.8, M3=0.5 |
 
-## 609 MCP Handlers (extrait des 69 originaux + extensions)
+## 609 MCP Handlers (602 MCP + 7 cowork)
 
 ### LM Studio (4)
 1. `lm_query` — Interroger un noeud LM Studio
@@ -143,7 +144,7 @@ JARVIS Turbo v12.4
 68. `brain_suggest` — Suggestion IA du cluster
 69. `brain_learn` — Auto-apprentissage
 
-## 955 Commandes Vocales
+## 2182 Commandes Vocales (3895 total vocal entries)
 
 ### Navigation Web (13)
 - ouvre chrome / ouvre comet / va sur {site} / cherche {requete}
@@ -223,7 +224,7 @@ JARVIS Turbo v12.4
 - temperature cpu / rapport batterie / uptime
 - processeur / resolution ecran / fullscreen
 
-## 66 Pipelines/Skills
+## 80 Skills / 66 Pipelines
 
 ### Routines (6)
 1. `rapport_matin` — Cluster + trading + systeme
@@ -336,7 +337,7 @@ JARVIS Turbo v12.4
 | `jarvis_hybrid.bat` | Mode hybride (voix + texte) |
 | `jarvis_voice.bat` | Mode vocal pur |
 
-## Workflows n8n (20)
+## Workflows n8n (63)
 
 | Workflow | Frequence | Description |
 |----------|-----------|-------------|
@@ -347,7 +348,7 @@ JARVIS Turbo v12.4
 | `jarvis_brain_learning` | 1h | Auto-apprentissage patterns |
 | `jarvis_git_auto_backup` | 6h | Commit + push auto si changements |
 
-## Fichiers Sources (246 modules src/, ~9000+ LOC)
+## Fichiers Sources (246 modules src/, ~93,294 LOC)
 
 | Fichier | LOC | Role |
 |---------|-----|------|
@@ -391,4 +392,24 @@ jarvis_interactive.bat  # Mode CLI
 
 ## System Prompt JARVIS
 
-Le system prompt complet est dans `src/orchestrator.py`. Il definit JARVIS comme un orchestrateur IA multi-modal francophone avec acces a 609 MCP handlers, 7 SDK agents, et un cluster de 10 GPU.
+Le system prompt complet est dans `src/orchestrator.py`. Il definit JARVIS comme un orchestrateur IA multi-modal francophone avec acces a 609 MCP handlers, 13 SDK agents, 40 OpenClaw agents + 56 dynamic, et un cluster de 10 GPU.
+
+## Statistiques globales (MaJ 2026-03-06)
+
+| Metrique | Valeur |
+|----------|--------|
+| Modules src/ | 246 (93,294 lignes) |
+| Scripts COWORK | 409 |
+| MCP Handlers | 609 (602 + 7 cowork) |
+| REST Endpoints | 517 |
+| Tests (fonctions) | 2241 (77 fichiers) |
+| Tables etoile.db | 42 (13,488 rows) |
+| Workflows n8n | 63 |
+| OpenClaw Agents | 40 + 56 dynamic |
+| Skills | 80 |
+| Patterns | 89 |
+| SDK Agents | 13 |
+| Launchers | 35 |
+| Electron Pages | 29 |
+| Commandes vocales | 2182 (3895 total vocal entries) |
+| Cluster | M1 (qwen3-8b 46tok/s), M2 (qwen3-8b 42tok/s), M3 (mistral-7b 5.8tok/s), OL1 (qwen3:1.7b + cloud), Gemini, Claude |

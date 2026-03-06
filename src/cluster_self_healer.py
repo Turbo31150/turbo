@@ -48,13 +48,13 @@ class NodeConfig:
 NODE_CONFIGS: dict[str, NodeConfig] = {
     "M1": NodeConfig(
         name="M1", node_type="lm_studio",
-        url="http://localhost:1234",
+        url="http://127.0.0.1:1234",
         restart_command='Start-Process "C:\\Program Files\\LM Studio\\LM Studio.exe" -WindowStyle Minimized',
         max_retries=3, retry_delay_s=30.0
     ),
     "ollama": NodeConfig(
         name="ollama", node_type="ollama",
-        url="http://localhost:11434",
+        url="http://127.0.0.1:11434",
         restart_command="ollama serve",
         max_retries=3, retry_delay_s=15.0
     ),

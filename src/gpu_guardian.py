@@ -188,7 +188,7 @@ class GPUGuardian:
             import json
             
             # Get loaded models
-            req = urllib.request.Request("http://localhost:1234/v1/models")
+            req = urllib.request.Request("http://127.0.0.1:1234/v1/models")
             with urllib.request.urlopen(req, timeout=5) as resp:
                 data = json.loads(resp.read())
             
@@ -202,7 +202,7 @@ class GPUGuardian:
             if model_id:
                 unload_data = json.dumps({"model": model_id}).encode()
                 unload_req = urllib.request.Request(
-                    "http://localhost:1234/v1/models/unload",
+                    "http://127.0.0.1:1234/v1/models/unload",
                     data=unload_data,
                     headers={"Content-Type": "application/json"},
                     method="POST"

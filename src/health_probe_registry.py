@@ -27,7 +27,7 @@ def register_all_probes() -> dict[str, bool]:
     def check_lm_studio_m1() -> bool | str:
         try:
             import urllib.request
-            req = urllib.request.Request("http://localhost:1234/v1/models", method="GET")
+            req = urllib.request.Request("http://127.0.0.1:1234/v1/models", method="GET")
             with urllib.request.urlopen(req, timeout=5) as resp:
                 return resp.status == 200
         except Exception as e:
@@ -43,7 +43,7 @@ def register_all_probes() -> dict[str, bool]:
     def check_ollama() -> bool | str:
         try:
             import urllib.request
-            req = urllib.request.Request("http://localhost:11434/api/tags", method="GET")
+            req = urllib.request.Request("http://127.0.0.1:11434/api/tags", method="GET")
             with urllib.request.urlopen(req, timeout=5) as resp:
                 return resp.status == 200
         except Exception as e:
@@ -161,7 +161,7 @@ def register_all_probes() -> dict[str, bool]:
             import socket
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(3)
-            result = sock.connect_ex(('localhost', 8901))
+            result = sock.connect_ex(('127.0.0.1', 8901))
             sock.close()
             if result == 0:
                 return True
