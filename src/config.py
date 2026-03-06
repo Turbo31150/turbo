@@ -229,17 +229,17 @@ class JarvisConfig:
     gemini_node: GeminiNode = field(default_factory=GeminiNode)
 
     # ── Model catalog (all available models) ──────────────────────────────
-    # M1 permanent: qwen3-8b (4.7 GB, ctx 8192, dense 8B) + qwen3-30b (dual load disponible)
-    # M1 on-demand: qwen3-coder-30b (code), devstral (dev), gpt-oss-20b (general)
-    # M2 permanent: deepseek-coder-v2-lite (code rapide)
-    # Ollama: qwen3:1.7b (local) + cloud (minimax, glm-5, kimi)
+    # M1 permanent: qwen3-8b (4.7 GB, ctx 8192, dense 8B)
+    # M3: mistral-7b-instruct-v0.3 (fallback)
+    # OL1: qwen3:1.7b (local rapide) + cloud (minimax, glm-5, kimi)
+    # M2: OFFLINE (2026-03-06)
     models: dict[str, str] = field(default_factory=lambda: {
-        "default":    "qwen/qwen3-8b",                   # M1 — rapide (1-2s)
-        "fast":       "qwen/qwen3-8b",                   # M1 — dense 8B (65 tok/s)
-        "coding":     "deepseek-coder-v2-lite-instruct", # M2 — code rapide
-        "coding_m1":  "qwen/qwen3-coder-30b",           # M1 — code specialise (on-demand)
-        "dev":        "mistralai/devstral-small-2-2512", # M1 — dev tasks (on-demand)
-        "general":    "openai/gpt-oss-20b",              # M1 — general purpose (on-demand)
+        "default":    "qwen/qwen3-8b",                   # M1 — rapide
+        "fast":       "qwen/qwen3-8b",                   # M1 — dense 8B
+        "coding":     "qwen/qwen3-8b",                   # M1 — code (M2 offline)
+        "coding_m1":  "qwen/qwen3-8b",                   # M1 — code
+        "dev":        "qwen/qwen3-8b",                   # M1 — dev tasks
+        "general":    "qwen/qwen3-8b",                   # M1 — general purpose
         "embeddings": "text-embedding-nomic-embed-text-v1.5",
     })
 

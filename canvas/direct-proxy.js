@@ -208,7 +208,7 @@ const ROUTING = {
 };
 
 // ── Node weights for consensus voting (benchmark 2026-02-26) ─────────────────
-const NODE_WEIGHTS = { GPT_OSS: 1.9, M1: 1.8, M1B: 1.7, DEVSTRAL: 1.5, M2: 1.5, OL1: 1.3, GEMINI: 1.2, CLAUDE: 1.2, M3: 1.0 };
+const NODE_WEIGHTS = { M1: 1.8, OL1: 1.3, M3: 1.0, M2: 1.4, GPT_OSS: 1.9, DEVSTRAL: 1.5, GEMINI: 1.2, CLAUDE: 1.2 };
 
 // ── Round-robin counter ──────────────────────────────────────────────────────
 let rrCounter = 0;
@@ -1085,10 +1085,13 @@ async function reflexiveChat(agentId, userText) {
 async function agenticChat(agentId, userText) {
   const cat = AGENT_CAT[agentId] || 'default';
   const chain = ROUTING[cat] || ROUTING.default;
-  // Categories that should NOT use tools (just respond with text/code)
-  const noToolsCats = ['code', 'creat', 'trading', 'math', 'raison'];
+  // Only inject tools for categories that actually need system access
+  const toolsCats = ['system', 'auto', 'web', 'ia', 'sec'];
+  // Also inject if user message implies tool usage (files, DB, exec)
+  const toolKeywordsRe = /\b(fichier|dossier|base de donn|sql|execute|lance|pipeline|query_db|cherche dans|list_dir|exec|etoile|read_file)\b/i;
+  const needsTools = toolsCats.includes(cat) || toolKeywordsRe.test(userText);
   let sysProm = (SYS_PROMPTS[cat] || SYS_PROMPTS.default);
-  if (!noToolsCats.includes(cat)) {
+  if (needsTools) {
     sysProm += '\n' + COCKPIT_TOOLS_PROMPT;
   }
 

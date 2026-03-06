@@ -376,7 +376,7 @@ class DispatchEngine:
             pass
 
         # Manual fallback chain (M3 last — consistently worst in benchmarks)
-        chain = ["M1", "OL1", "M1B", "M2", "gpt-oss", "devstral", "M3"]
+        chain = ["OL1", "M1", "M3"]
         # Also apply pattern blacklist
         blacklisted = [n for p, n in self.ROUTE_BLACKLIST if p == pattern]
         for n in chain:
