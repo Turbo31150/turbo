@@ -160,6 +160,22 @@ TASKS = {
         "priority": 2,
         "category": "monitoring",
     },
+    # --- LinkedIn automation ---
+    "linkedin_publish": {
+        "script": "linkedin_scheduler.py",
+        "args": ["--once", "--method", "all"],
+        "interval_min": 5,
+        "priority": 3,
+        "category": "linkedin",
+    },
+    "linkedin_routine": {
+        "script": "linkedin_auto_routine.py",
+        "args": ["--once"],
+        "interval_min": 360,  # every 6h
+        "priority": 4,
+        "category": "linkedin",
+        "timeout_s": 300,
+    },
     # --- Cascades de dominos (taches periodiques qui declenchent des series) ---
     "domino_matin": {
         "script": "_run_domino_cascade.py",
