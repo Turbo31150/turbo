@@ -22,10 +22,11 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+if sys.stdout and hasattr(sys.stdout, "buffer"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
 TURBO = Path("F:/BUREAU/turbo")
-DB_PATH = TURBO / "data" / "etoile.db"
+DB_PATH = TURBO / "data" / "cluster_pipeline.db"
 PID_FILE = TURBO / "data" / "cluster_pipeline.pid"
 
 TELEGRAM_CHAT = "2010747443"
@@ -65,7 +66,7 @@ NODES = {
         "model": "qwen3:1.7b",
         "timeout": 45,
         "type": "ollama",
-        "role": "light",  # Simple tasks only
+        "role": "excluded",  # 8% success — excluded from routing
     },
 }
 
@@ -84,11 +85,8 @@ def check_node(name):
                 "model": node["model"],
                 "messages": [{"role": "user", "content": "Hi"}],
                 "stream": False, "think": False
-            })
-            r = subprocess.run(
-                ["curl", "-s", "--max-time", "8", node["url"], "-d", body],
-                capture_output=True, timeout=12)
-            d = json.loads(r.stdout.decode("utf-8", "replace"))
+            }).encode()
+            d = _http_post(node["url"], body, 10)
             ok = "message" in d
         else:
             body = json.dumps({
@@ -96,12 +94,8 @@ def check_node(name):
                 "input": node.get("prefix", "") + "Hi",
                 "temperature": 0.1, "max_output_tokens": 5,
                 "stream": False, "store": False
-            })
-            r = subprocess.run(
-                ["curl", "-s", "--max-time", "10", node["url"],
-                 "-H", "Content-Type: application/json", "-d", body],
-                capture_output=True, timeout=15)
-            d = json.loads(r.stdout.decode("utf-8", "replace"))
+            }).encode()
+            d = _http_post(node["url"], body, 15)
             ok = "output" in d
         latency = (time.time() - t0) * 1000
         return ok, latency
@@ -127,7 +121,7 @@ def health_check_all():
             print(f"  {name:10s} [{NODES[name]['role']:8s}] {status}")
 
     online = [n for n, h in node_health.items() if h["alive"]]
-    print(f"  => {len(online)}/{len(NODES)} nodes online: {', '.join(online)}")
+    print(f"  => {len(online)}/{len(NODES)} nodes online: {', '.join(online)}", flush=True)
     return online
 
 
@@ -135,12 +129,24 @@ def get_alive_nodes():
     """Return list of alive node names, with circuit breaker (skip if 3+ fails)."""
     alive = []
     for name, h in node_health.items():
+        if NODES[name]["role"] == "excluded":
+            continue
         if h.get("alive") and h.get("fails", 0) < 3:
             alive.append(name)
-    return alive if alive else ["OL1"]  # fallback
+    return alive if alive else ["M1"]  # fallback — M1 always local
 
 
 # ── Query Functions ──────────────────────────────────────────
+
+def _http_post(url, body_bytes, timeout_s):
+    """HTTP POST using urllib (no subprocess, no curl)."""
+    import urllib.request
+    req = urllib.request.Request(
+        url, data=body_bytes,
+        headers={"Content-Type": "application/json"})
+    resp = urllib.request.urlopen(req, timeout=timeout_s)
+    return json.loads(resp.read().decode("utf-8", "replace"))
+
 
 def query_node(name, prompt):
     """Query a node. Returns (response_text, elapsed_s, error)."""
@@ -153,11 +159,8 @@ def query_node(name, prompt):
                 "model": node["model"],
                 "messages": [{"role": "user", "content": prompt}],
                 "stream": False, "think": False
-            })
-            r = subprocess.run(
-                ["curl", "-s", "--max-time", str(timeout), node["url"], "-d", body],
-                capture_output=True, timeout=timeout + 10)
-            d = json.loads(r.stdout.decode("utf-8", "replace"))
+            }).encode()
+            d = _http_post(node["url"], body, timeout)
             text = d.get("message", {}).get("content", "").strip()
         else:
             body = json.dumps({
@@ -166,12 +169,8 @@ def query_node(name, prompt):
                 "temperature": 0.2,
                 "max_output_tokens": node.get("max_tokens", 1024),
                 "stream": False, "store": False
-            })
-            r = subprocess.run(
-                ["curl", "-s", "--max-time", str(timeout), node["url"],
-                 "-H", "Content-Type: application/json", "-d", body],
-                capture_output=True, timeout=timeout + 10)
-            d = json.loads(r.stdout.decode("utf-8", "replace"))
+            }).encode()
+            d = _http_post(node["url"], body, timeout)
             text = ""
             for item in reversed(d.get("output", [])):
                 if item.get("type") == "message":
@@ -428,15 +427,14 @@ def pick_tasks(n=8):
     """Pick n tasks, smartly routed to alive nodes by capability."""
     alive = get_alive_nodes()
 
-    # Classify nodes by role
+    # Classify nodes by role (excluded nodes are skipped)
     fast = [nd for nd in alive if NODES[nd]["role"] == "fast"]      # M1
     deep = [nd for nd in alive if NODES[nd]["role"] == "deep"]      # M2, M3
-    light = [nd for nd in alive if NODES[nd]["role"] == "light"]    # OL1
 
-    # Build weighted node pool: M1 gets most tasks (fast+reliable)
-    pool = fast * 4 + deep * 2 + light * 1  # M1 x4, M2/M3 x2, OL1 x1
+    # Build weighted node pool: M1 gets most tasks (fast+reliable), no OL1
+    pool = fast * 5 + deep * 2  # M1 x5, M2/M3 x2 each
     if not pool:
-        pool = alive or ["M1"]
+        pool = [n for n in alive if NODES[n]["role"] != "excluded"] or ["M1"]
 
     tasks = []
     cats = list(TASK_CATEGORIES.keys())
@@ -459,7 +457,9 @@ def pick_tasks(n=8):
 # ── Database ─────────────────────────────────────────────────
 
 def init_db():
-    db = sqlite3.connect(str(DB_PATH))
+    db = sqlite3.connect(str(DB_PATH), timeout=30)
+    db.execute("PRAGMA journal_mode=WAL")
+    db.execute("PRAGMA busy_timeout=10000")
     db.execute("""CREATE TABLE IF NOT EXISTS cluster_pipeline_log (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         cycle_id TEXT,
@@ -519,27 +519,23 @@ def run_cycle(db, cycle_num, tasks_per_cycle=8):
     tasks = pick_tasks(tasks_per_cycle)
     results = []
 
-    def execute(i, node, cat, prompt):
-        resp, elapsed, err = query_node(node, prompt)
-        return i, node, cat, prompt, resp, elapsed, err
-
-    # Run tasks in parallel (max 4 concurrent to avoid overwhelming)
-    with ThreadPoolExecutor(max_workers=4) as pool:
-        futs = [pool.submit(execute, i, n, c, p) for i, (n, c, p) in enumerate(tasks)]
-        for f in as_completed(futs):
-            i, node, cat, prompt, resp, elapsed, err = f.result()
-            qs = quality_score(resp) if resp else 0.0
-            tokens = len((resp or "").split())
-            results.append({
-                "node": node, "cat": cat, "ok": resp is not None and err is None,
-                "elapsed": elapsed, "tokens": tokens, "quality": qs
-            })
-
-            # Save to DB
-            db.execute(
-                "INSERT INTO cluster_pipeline_log (cycle_id, timestamp, node, category, prompt, response, elapsed_s, error, tokens_est, quality_score) VALUES (?,?,?,?,?,?,?,?,?,?)",
-                (cycle_id, ts, node, cat, prompt[:300], (resp or "")[:4000],
-                 round(elapsed, 2), err, tokens, round(qs, 3)))
+    # Run tasks sequentially (reliable for background/windowless mode)
+    for i, (node, cat, prompt) in enumerate(tasks):
+        try:
+            resp, elapsed, err = query_node(node, prompt)
+        except Exception as ex:
+            resp, elapsed, err = None, 0, str(ex)[:120]
+        qs = quality_score(resp) if resp else 0.0
+        tokens = len((resp or "").split())
+        results.append({
+            "node": node, "cat": cat, "ok": resp is not None and err is None,
+            "elapsed": elapsed, "tokens": tokens, "quality": qs
+        })
+        # Save to DB
+        db.execute(
+            "INSERT INTO cluster_pipeline_log (cycle_id, timestamp, node, category, prompt, response, elapsed_s, error, tokens_est, quality_score) VALUES (?,?,?,?,?,?,?,?,?,?)",
+            (cycle_id, ts, node, cat, prompt[:300], (resp or "")[:4000],
+             round(elapsed, 2), err, tokens, round(qs, 3)))
 
     # Cycle summary
     ok = sum(1 for r in results if r["ok"])
@@ -557,7 +553,7 @@ def run_cycle(db, cycle_num, tasks_per_cycle=8):
 
     # Print compact summary
     rate = ok * 100 // max(len(tasks), 1)
-    print(f"  [{cycle_id}] {ok}/{len(tasks)} OK ({rate}%) | {duration:.0f}s | {total_tok}tok | Q={avg_q:.2f} | {','.join(nodes_used)}")
+    print(f"  [{cycle_id}] {ok}/{len(tasks)} OK ({rate}%) | {duration:.0f}s | {total_tok}tok | Q={avg_q:.2f} | {','.join(nodes_used)}", flush=True)
 
     return {
         "cycle_id": cycle_id, "timestamp": ts,
@@ -658,6 +654,22 @@ def main():
         idx = sys.argv.index("--pause")
         pause = int(sys.argv[idx + 1])
 
+    # Kill existing pipeline instance if running
+    if PID_FILE.exists():
+        old_pid = PID_FILE.read_text().strip()
+        try:
+            subprocess.run(["taskkill", "/PID", old_pid, "/F"],
+                           capture_output=True, timeout=5)
+        except Exception:
+            pass
+
+    # Redirect stdout/stderr to log file for background mode
+    log_file = TURBO / "data" / "pipeline_output.log"
+    if "--log" in sys.argv or sys.stdout is None:
+        fh = open(str(log_file), "w", encoding="utf-8", buffering=1)
+        sys.stdout = fh
+        sys.stderr = fh
+
     # Write PID
     PID_FILE.write_text(str(os.getpid()))
 
@@ -665,7 +677,7 @@ def main():
     print(f"  JARVIS AUTONOMOUS CLUSTER PIPELINE")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"  Cycles: {max_cycles} | Batch: {tasks_per_cycle} | Pause: {pause}s")
-    print("=" * 60)
+    print("=" * 60, flush=True)
 
     # Phase 1: Health check
     online = health_check_all()
@@ -680,7 +692,7 @@ def main():
     total_ok, total_tasks = 0, 0
     health_interval = 50  # Re-check health every 50 cycles
 
-    print(f"\n[PIPELINE] Starting {max_cycles} cycles...\n")
+    print(f"\n[PIPELINE] Starting {max_cycles} cycles...\n", flush=True)
 
     for cycle in range(1, max_cycles + 1):
         try:
@@ -712,9 +724,25 @@ def main():
         except KeyboardInterrupt:
             print(f"\n\n[STOP] Interrupted at cycle {cycle}")
             break
+        except sqlite3.OperationalError as e:
+            if "locked" in str(e):
+                print(f"\n[DB LOCKED] Cycle {cycle}: retrying in 15s...", flush=True)
+                try:
+                    db.close()
+                except Exception:
+                    pass
+                time.sleep(15)
+                db = init_db()
+            else:
+                print(f"\n[ERROR] Cycle {cycle}: {e}", flush=True)
+                time.sleep(10)
         except Exception as e:
-            print(f"\n[ERROR] Cycle {cycle}: {e}")
-            time.sleep(10)  # Backoff on error
+            import traceback
+            print(f"\n[ERROR] Cycle {cycle}: {e}", flush=True)
+            traceback.print_exc()
+            if hasattr(sys.stdout, 'flush'):
+                sys.stdout.flush()
+            time.sleep(10)
 
     # Phase 3: Final report
     rate = total_ok * 100 // max(total_tasks, 1)
@@ -733,4 +761,12 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        import traceback
+        log = TURBO / "data" / "pipeline_crash.log"
+        with open(str(log), "a", encoding="utf-8") as f:
+            f.write(f"\n{'='*60}\nCRASH {datetime.now()}\n")
+            traceback.print_exc(file=f)
+        raise
