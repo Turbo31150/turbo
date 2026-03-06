@@ -52,7 +52,7 @@ class TestImports:
 class TestJarvisMeta:
     def test_defaults(self):
         meta = JarvisMeta()
-        assert meta.version == "10.1"
+        assert meta.version == "10.6"
         assert meta.current_engine == "CLAUDE"
         assert meta.mode == "DUAL_CORE"
 
@@ -213,7 +213,7 @@ class TestJarvisOutput:
 
     def test_to_dict_default_values(self):
         d = JarvisOutput().to_dict()
-        assert d["jarvis_meta"]["version"] == "10.1"
+        assert d["jarvis_meta"]["version"] == "10.6"
         assert d["jarvis_meta"]["current_engine"] == "CLAUDE"
         assert d["summary"]["goal"] == ""
         assert d["summary"]["consensus_score"] == 0.0

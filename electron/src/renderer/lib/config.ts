@@ -3,7 +3,7 @@
  * Single source of truth for URLs, version, and polling intervals.
  */
 
-export const APP_VERSION = '10.3';
+export const APP_VERSION = '10.6';
 export const APP_NAME = 'JARVIS Desktop';
 export const APP_STACK = 'Electron 33 + React 19 + Vite 6';
 

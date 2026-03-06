@@ -114,10 +114,12 @@ CLUSTER_NODES = [
      "url": "http://192.168.1.113:1234/api/v1/chat", "model": "deepseek-r1-0528-qwen3-8b", "timeout": 30},
     {"id": "OL1-local", "weight": 1.3, "type": "ollama",
      "url": "http://127.0.0.1:11434/api/chat", "model": "qwen3:1.7b", "timeout": 15},
-    {"id": "gpt-oss", "weight": 1.9, "type": "ollama-cloud",
-     "url": "http://127.0.0.1:11434/api/chat", "model": "gpt-oss:120b-cloud", "timeout": 60},
-    {"id": "devstral", "weight": 1.5, "type": "ollama-cloud",
-     "url": "http://127.0.0.1:11434/api/chat", "model": "devstral-2:123b-cloud", "timeout": 60},
+    # DELETED: model removed from Ollama
+    # {"id": "gpt-oss", "weight": 1.9, "type": "ollama-cloud",
+    #  "url": "http://127.0.0.1:11434/api/chat", "model": "gpt-oss:120b-cloud", "timeout": 60},
+    # DELETED: model removed from Ollama
+    # {"id": "devstral", "weight": 1.5, "type": "ollama-cloud",
+    #  "url": "http://127.0.0.1:11434/api/chat", "model": "devstral-2:123b-cloud", "timeout": 60},
     {"id": "GEMINI", "weight": 1.2, "type": "gemini",
      "url": None, "model": "gemini-3-pro", "timeout": 45},
     {"id": "CLAUDE", "weight": 1.2, "type": "claude",

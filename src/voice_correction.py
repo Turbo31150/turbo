@@ -1924,7 +1924,7 @@ def load_db_corrections() -> int:
                 if not tables:
                     continue
                 rows = conn.execute(
-                    "SELECT wrong, corrected FROM voice_corrections WHERE wrong IS NOT NULL AND corrected IS NOT NULL"
+                    "SELECT wrong, correct FROM voice_corrections WHERE wrong IS NOT NULL AND correct IS NOT NULL"
                 ).fetchall()
                 for wrong, corrected in rows:
                     key = wrong.lower().strip()

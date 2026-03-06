@@ -161,15 +161,17 @@ async def run_scenario(scenario_name, prompt):
         tasks = [
             # M1 models
             test_lmstudio(client, "M1", M1_URL, "qwen3-8b", prompt),
-            test_lmstudio(client, "M1", M1_URL, "gpt-oss-20b", prompt),
+            test_lmstudio(client, "M1", M1_URL, "qwen3-8b", prompt),  # was gpt-oss-20b, changed to current M1 model
             # M2
             test_lmstudio(client, "M2", M2_URL, "deepseek/deepseek-r1-0528-qwen3-8b", prompt),
             # Ollama local
             test_ollama(client, "OL1-local", "qwen3:1.7b", prompt),
             test_ollama(client, "OL1-local", "qwen3:14b", prompt),
             # Ollama cloud (test a few key ones)
-            test_ollama(client, "OL1-cloud", "gpt-oss:120b-cloud", prompt),
-            test_ollama(client, "OL1-cloud", "devstral-2:123b-cloud", prompt),
+            # DELETED: model removed from Ollama
+            # test_ollama(client, "OL1-cloud", "gpt-oss:120b-cloud", prompt),
+            # DELETED: model removed from Ollama
+            # test_ollama(client, "OL1-cloud", "devstral-2:123b-cloud", prompt),
             test_ollama(client, "OL1-cloud", "deepseek-v3.2:cloud", prompt),
             test_ollama(client, "OL1-cloud", "glm-4.7:cloud", prompt),
             test_ollama(client, "OL1-cloud", "qwen3-next:80b-cloud", prompt),
@@ -233,7 +235,7 @@ async def main():
     print(f"{'#'*60}")
     print(f"  BENCHMARK OPENCLAW CLUSTER — {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"  Scenarios: {len(SCENARIOS)} | Nodes: M1+M2+M3+OL1+Gemini")
-    print(f"  Models: ~12 par scenario | Total: ~{len(SCENARIOS)*12} requests")
+    print(f"  Models: ~10 par scenario | Total: ~{len(SCENARIOS)*10} requests")
     print(f"{'#'*60}")
 
     t_start = time.perf_counter()

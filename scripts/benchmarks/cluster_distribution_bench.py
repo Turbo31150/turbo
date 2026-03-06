@@ -113,18 +113,20 @@ NODES = {
         "extract": _extract_lmstudio,
         "weight": 1.5,
     },
-    "OL1/gpt-oss-120b": {
-        "url": "http://127.0.0.1:11434/api/chat",
-        "build_body": lambda p, mt: _ollama_body("gpt-oss:120b-cloud", p, mt),
-        "extract": _extract_ollama,
-        "weight": 1.9,
-    },
-    "OL1/devstral-123b": {
-        "url": "http://127.0.0.1:11434/api/chat",
-        "build_body": lambda p, mt: _ollama_body("devstral-2:123b-cloud", p, mt),
-        "extract": _extract_ollama,
-        "weight": 1.5,
-    },
+    # DELETED: model removed from Ollama
+    # "OL1/gpt-oss-120b": {
+    #     "url": "http://127.0.0.1:11434/api/chat",
+    #     "build_body": lambda p, mt: _ollama_body("gpt-oss:120b-cloud", p, mt),
+    #     "extract": _extract_ollama,
+    #     "weight": 1.9,
+    # },
+    # DELETED: model removed from Ollama
+    # "OL1/devstral-123b": {
+    #     "url": "http://127.0.0.1:11434/api/chat",
+    #     "build_body": lambda p, mt: _ollama_body("devstral-2:123b-cloud", p, mt),
+    #     "extract": _extract_ollama,
+    #     "weight": 1.5,
+    # },
     "OL1/qwen3-14b": {
         "url": "http://127.0.0.1:11434/api/chat",
         "build_body": lambda p, mt: _ollama_body("qwen3:14b", p, mt),

@@ -35,7 +35,7 @@
         "sendHeaders": true,
         "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4"}, {"name": "Content-Type", "value": "application/json"}]},
         "specifyBody": "json",
-        "jsonBody": "{\n  \"model\": \"deepseek-coder-v2-lite-instruct\",\n  \"input\": \"Quick crypto signal scan: BTC ETH SOL SUI. Signal buy/sell/neutral per pair. JSON format.\",\n  \"temperature\": 0.3,\n  \"max_output_tokens\": 1024,\n  \"stream\": false,\n  \"store\": false\n}",
+        "jsonBody": "{\n  \"model\": \"deepseek-r1-0528-qwen3-8b\",\n  \"input\": \"Quick crypto signal scan: BTC ETH SOL SUI. Signal buy/sell/neutral per pair. JSON format.\",\n  \"temperature\": 0.3,\n  \"max_output_tokens\": 2048,\n  \"stream\": false,\n  \"store\": false\n}",
         "options": { "timeout": 30000 }
       },
       "id": "m2-fast",
@@ -60,7 +60,7 @@
         "url": "http://192.168.1.113:1234/api/v1/chat",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"model\": \"mistral-7b-instruct-v0.3\",\n  \"input\": \"Valide ce consensus trading: M1 dit {{ $json.m1_analysis.substring(0, 200) }}. M2 dit {{ $json.m2_signal.substring(0, 200) }}. Confirme ou infirme en JSON.\",\n  \"temperature\": 0.2,\n  \"max_output_tokens\": 512,\n  \"stream\": false,\n  \"store\": false\n}",
+        "jsonBody": "={\n  \"model\": \"deepseek-r1-0528-qwen3-8b\",\n  \"input\": \"Valide ce consensus trading: M1 dit {{ $json.m1_analysis.substring(0, 200) }}. M2 dit {{ $json.m2_signal.substring(0, 200) }}. Confirme ou infirme en JSON.\",\n  \"temperature\": 0.2,\n  \"max_output_tokens\": 2048,\n  \"stream\": false,\n  \"store\": false\n}",
         "options": { "timeout": 30000 }
       },
       "id": "m3-validate",

@@ -9,7 +9,7 @@ from typing import Any
 
 @dataclass
 class JarvisMeta:
-    version: str = "10.1"
+    version: str = "10.6"
     current_engine: str = "CLAUDE"
     mode: str = "DUAL_CORE"
 

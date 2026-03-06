@@ -19,18 +19,20 @@ NODES = {
         "prefix": "",
         "max_tokens": 2048,
     },
-    "OL1/gpt-oss-120b": {
-        "url": "http://127.0.0.1:11434/api/chat",
-        "type": "ollama",
-        "model": "gpt-oss:120b-cloud",
-        "think": False,
-    },
-    "OL1/devstral-123b": {
-        "url": "http://127.0.0.1:11434/api/chat",
-        "type": "ollama",
-        "model": "devstral-2:123b-cloud",
-        "think": False,
-    },
+    # DELETED: model removed from Ollama
+    # "OL1/gpt-oss-120b": {
+    #     "url": "http://127.0.0.1:11434/api/chat",
+    #     "type": "ollama",
+    #     "model": "gpt-oss:120b-cloud",
+    #     "think": False,
+    # },
+    # DELETED: model removed from Ollama
+    # "OL1/devstral-123b": {
+    #     "url": "http://127.0.0.1:11434/api/chat",
+    #     "type": "ollama",
+    #     "model": "devstral-2:123b-cloud",
+    #     "think": False,
+    # },
     "OL1/qwen3-1.7b": {
         "url": "http://127.0.0.1:11434/api/chat",
         "type": "ollama",

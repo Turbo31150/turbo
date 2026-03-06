@@ -86,8 +86,10 @@ N = {
     "M3":       lambda p,mt: lms("http://192.168.1.113:1234/api/v1/chat","deepseek/deepseek-r1-0528-qwen3-8b",p,max(mt,2048),False,120),
     "OL1":      lambda p,mt: oll("qwen3:1.7b",p,mt,30),
     "OL1-14b":  lambda p,mt: oll("qwen3:14b",p,mt,90),
-    "GPT-OSS":  lambda p,mt: oll("gpt-oss:120b-cloud",p,mt,120),
-    "DEVSTRAL": lambda p,mt: oll("devstral-2:123b-cloud",p,mt,120),
+    # DELETED: model removed from Ollama
+    # "GPT-OSS":  lambda p,mt: oll("gpt-oss:120b-cloud",p,mt,120),
+    # DELETED: model removed from Ollama
+    # "DEVSTRAL": lambda p,mt: oll("devstral-2:123b-cloud",p,mt,120),
     "GEMINI":   lambda p,mt: gemini_call(p, 60),
 }
 
@@ -150,7 +152,7 @@ def consensus(prompt, mt, nodes, weights=None):
     """Vote pondere: lance tous, garde le meilleur score (toks * weight)."""
     results = broadcast(prompt, mt, nodes)
     if not weights:
-        weights = {"M1":1.8,"M2":1.4,"M3":1.0,"OL1":1.3,"OL1-14b":1.3,"GPT-OSS":1.9,"DEVSTRAL":1.5,"GEMINI":1.2}
+        weights = {"M1":1.8,"M2":1.4,"M3":1.0,"OL1":1.3,"OL1-14b":1.3,"GEMINI":1.2}  # GPT-OSS/DEVSTRAL removed (models deleted from Ollama)
     best = None
     best_score = -1
     for r in results:
@@ -328,11 +330,11 @@ B9_ADAPTIVE = [
     {"prompt":"Ports standard: HTTP, HTTPS, SSH, FTP, MySQL, PostgreSQL, Redis.","mt":128,"circuit":"adaptive","format":"text","size":"routing","cat":"system"},
 ]
 
-# --- BATCH 10: CLOUD TEST (3 taches) — test chemins cloud (429 expected) ---
+# --- BATCH 10: CLOUD TEST — DELETED: gpt-oss and devstral models removed from Ollama ---
 B10_CLOUD = [
-    {"prompt":"Dis OK.","mt":8,"circuit":"solo","node":"GPT-OSS","format":"text","size":"micro","cat":"general"},
-    {"prompt":"Dis OK.","mt":8,"circuit":"solo","node":"DEVSTRAL","format":"text","size":"micro","cat":"general"},
-    {"prompt":"Dis OK.","mt":8,"circuit":"race","nodes":["GPT-OSS","DEVSTRAL","M1"],"format":"text","size":"micro","cat":"general"},
+    # {"prompt":"Dis OK.","mt":8,"circuit":"solo","node":"GPT-OSS","format":"text","size":"micro","cat":"general"},
+    # {"prompt":"Dis OK.","mt":8,"circuit":"solo","node":"DEVSTRAL","format":"text","size":"micro","cat":"general"},
+    # {"prompt":"Dis OK.","mt":8,"circuit":"race","nodes":["GPT-OSS","DEVSTRAL","M1"],"format":"text","size":"micro","cat":"general"},
 ]
 
 # --- BATCH 11: GEMINI PATH (2 taches) — test proxy Gemini ---

@@ -71,7 +71,8 @@ NODES = {
     "M3": lambda p, mt: call_lmstudio("http://192.168.1.113:1234/api/v1/chat",
                                        "deepseek/deepseek-r1-0528-qwen3-8b", p, mt, False),
     "OL1-14b": lambda p, mt: call_ollama("qwen3:14b", p, mt),
-    "OL1-cloud": lambda p, mt: call_ollama("gpt-oss:120b-cloud", p, mt),
+    # DELETED: model removed from Ollama
+    # "OL1-cloud": lambda p, mt: call_ollama("gpt-oss:120b-cloud", p, mt),
 }
 
 def safe_call(node_name, prompt, max_tokens):

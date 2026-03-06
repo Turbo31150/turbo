@@ -256,8 +256,7 @@ def phase5_add_models():
     models = [
         ("qwen3-30b-a3b", "M1", "permanent", "18.56GB", "Analyse profonde, MoE 3B actifs"),
         ("qwen3-coder-30b", "M1", "on-demand", "17.7GB", "Code specialise"),
-        ("devstral-small-2", "M1", "on-demand", "14.5GB", "Dev tasks"),
-        ("gpt-oss-20b", "M1", "on-demand", "11.5GB", "General purpose"),
+        ("devstral-small-2", "M1", "available", "14.5GB", "Dev tasks (not loaded)"),
         ("qwq-32b", "M1", "available", "18.9GB", "Reasoning avance"),
         ("nemotron-3-nano", "M1", "blacklisted", "?", "BLACKLIST: gaspille VRAM"),
         ("glm-4.7-flash", "M1", "blacklisted", "?", "BLACKLIST: gaspille VRAM"),

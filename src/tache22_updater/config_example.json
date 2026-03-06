@@ -80,13 +80,13 @@
       "host": "192.168.1.26",
       "port": 1234,
       "type": "secondary",
-      "models": ["deepseek-coder-v2"]
+      "models": ["deepseek-r1-0528-qwen3-8b"]
     },
     "M3": {
       "host": "192.168.1.113",
       "port": 1234,
       "type": "secondary",
-      "models": ["mistral-7b"]
+      "models": ["deepseek-r1-0528-qwen3-8b"]
     }
   },
   "health_checks": {
