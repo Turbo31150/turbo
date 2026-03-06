@@ -26,17 +26,17 @@ curl -s http://10.5.0.2:1234/api/v1/chat \
 ```
 - **Extraction réponse:** `.output[0].content` dans le JSON retourné (peut contenir plusieurs blocs dans `output[]`, itérer si nécessaire)
 
-### AGENT M2 — Code Rapide (LM Studio, 3 GPU, 24GB VRAM)
-- **Modèle:** deepseek-coder-v2-lite-instruct
-- **Spécialités:** Génération de code, refactoring, quick fixes, code review
+### AGENT M2 — Reasoning (LM Studio, 3 GPU, 24GB VRAM)
+- **Modèle:** deepseek-r1-0528-qwen3-8b
+- **Spécialités:** Raisonnement profond, analyse étape par étape, ctx 27k
 - **Appel:**
 ```bash
 curl -s http://192.168.1.26:1234/api/v1/chat \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4" \
-  -d '{"model":"deepseek-coder-v2-lite-instruct","input":"PROMPT_ICI","temperature":0.3,"max_output_tokens":8192,"stream":false,"store":false}'
+  -d '{"model":"deepseek-r1-0528-qwen3-8b","input":"PROMPT_ICI","temperature":0.3,"max_output_tokens":2048,"stream":false,"store":false}'
 ```
-- **Extraction réponse:** `.output[0].content`
+- **Extraction réponse:** Dernier bloc `type=message` dans `.output[]` (skip reasoning)
 
 ### AGENT OL1 — Tâches Légères + Cloud (Ollama, M1)
 - **Modèle local:** qwen3:1.7b (correction, résumés)
@@ -109,9 +109,9 @@ Utilise des appels Bash simultanés pour maximiser la vitesse.
 
 Exemple de dispatch parallèle pour une feature :
 ```bash
-# M2 génère le code
-curl -s http://192.168.1.26:1234/api/v1/chat -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4" \
-  -d '{"model":"deepseek-coder-v2-lite-instruct","input":"Écris une fonction Python qui...","temperature":0.3,"max_output_tokens":8192,"stream":false,"store":false}'
+# M1 génère le code (CHAMPION LOCAL)
+curl -s http://127.0.0.1:1234/api/v1/chat -H "Content-Type: application/json" \
+  -d '{"model":"qwen3-8b","input":"/nothink\nÉcris une fonction Python qui...","temperature":0.2,"max_output_tokens":1024,"stream":false,"store":false}'
 ```
 ```bash
 # M1 analyse l'architecture existante (fast mode avec /nothink)
@@ -271,6 +271,6 @@ Charge et applique le protocole MAO défini dans F:\BUREAU\turbo\CLAUDE_MULTI_AG
 - **Windows paths** : Utiliser `/` ou `\\` dans les commandes Bash (pas de `\` simple)
 - **JSON escaping** : Les guillemets dans les prompts curl doivent être échappés avec `\"`
 - **Latence réseau** : M1 (10.5.0.2) est sur le réseau local, latence < 1ms. M2 (192.168.1.26) idem.
-- **GPU partagés** : M1 charge qwen3-8b (primary) + qwen3-30b (deep) en dual. Autres modeles (qwq-32b, devstral) en on-demand. Ne pas les charger tous en même temps.
+- **GPU partagés** : M1 charge qwen3-8b (primary). Autres modeles (qwen3-30b, qwen3-coder-30b) en on-demand. Ne pas les charger tous en même temps.
 - **Ollama cloud** : Les modèles cloud (minimax, glm-5, kimi) nécessitent une connexion internet active.
 - **Gemini quotas** : Gratuit = ~1500 requêtes/jour. Si 429 persistant → attendre ou passer à l'API payante.

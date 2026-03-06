@@ -39,7 +39,7 @@ class TestPrepareLMStudioInput:
         assert result == "hello"
 
     def test_no_prefix_for_non_qwen(self):
-        result = prepare_lmstudio_input("hello", "M1", "mistral-7b")
+        result = prepare_lmstudio_input("hello", "M3", "deepseek-r1-0528-qwen3-8b")
         assert result == "hello"
 
 

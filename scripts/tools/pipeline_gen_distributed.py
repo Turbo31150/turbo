@@ -52,7 +52,7 @@ NODES = {
     "M2": {
         "url": "http://192.168.1.26:1234/v1/chat/completions",
         "health_url": "http://192.168.1.26:1234/api/v1/models",
-        "model": "deepseek-coder-v2-lite-instruct",
+        "model": "deepseek-r1-0528-qwen3-8b",
         "auth": f"Bearer {os.getenv('LM_STUDIO_2_API_KEY', os.getenv('LM_STUDIO_2_KEY', ''))}",
         "type": "lmstudio",
         "temp": 0.5,
@@ -62,7 +62,7 @@ NODES = {
     "M3": {
         "url": "http://192.168.1.113:1234/v1/chat/completions",
         "health_url": "http://192.168.1.113:1234/api/v1/models",
-        "model": "mistral-7b-instruct-v0.3",
+        "model": "deepseek-r1-0528-qwen3-8b",
         "auth": f"Bearer {os.getenv('LM_STUDIO_3_API_KEY', os.getenv('LM_STUDIO_3_KEY', ''))}",
         "type": "lmstudio",
         "temp": 0.5,

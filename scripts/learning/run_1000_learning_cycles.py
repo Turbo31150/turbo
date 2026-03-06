@@ -32,9 +32,9 @@ CATEGORIES = list(set(dp.category for dp in DOMINO_PIPELINES))
 NODES = {
     "M1": {"url": "http://10.5.0.2:1234/api/v1/chat", "model": "qwen3-8b",
             "key": f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}", "type": "lmstudio"},
-    "M2": {"url": "http://192.168.1.26:1234/api/v1/chat", "model": "deepseek-coder-v2-lite-instruct",
+    "M2": {"url": "http://192.168.1.26:1234/api/v1/chat", "model": "deepseek-r1-0528-qwen3-8b",
             "key": f"Bearer {os.getenv('LM_STUDIO_2_API_KEY', os.getenv('LM_STUDIO_2_KEY', ''))}", "type": "lmstudio"},
-    "M3": {"url": "http://192.168.1.113:1234/api/v1/chat", "model": "mistral-7b-instruct-v0.3",
+    "M3": {"url": "http://192.168.1.113:1234/api/v1/chat", "model": "deepseek-r1-0528-qwen3-8b",
             "key": f"Bearer {os.getenv('LM_STUDIO_3_API_KEY', os.getenv('LM_STUDIO_3_KEY', ''))}", "type": "lmstudio"},
     "OL1": {"url": "http://127.0.0.1:11434/api/chat", "model": "qwen3:1.7b",
              "key": None, "type": "ollama"},

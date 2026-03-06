@@ -261,7 +261,7 @@ def phase5_add_models():
         ("qwq-32b", "M1", "available", "18.9GB", "Reasoning avance"),
         ("nemotron-3-nano", "M1", "blacklisted", "?", "BLACKLIST: gaspille VRAM"),
         ("glm-4.7-flash", "M1", "blacklisted", "?", "BLACKLIST: gaspille VRAM"),
-        ("deepseek-coder-v2-lite", "M2", "permanent", "?", "Code rapide"),
+        ("deepseek-r1-0528-qwen3-8b", "M2", "permanent", "?", "Reasoning"),
         ("qwen3-1.7b", "OL1", "local", "1.36GB", "Correction vocale"),
         ("minimax-m2.5-cloud", "OL1", "cloud", "cloud", "Recherche web"),
         ("glm-5-cloud", "OL1", "cloud", "cloud", "Raisonnement avance"),
@@ -347,7 +347,7 @@ def phase8_feed_memories():
     memories = [
         ("cluster", "total_gpu", "9 GPU, ~70 GB VRAM across 3 physical nodes + Gemini cloud", "audit", 1.0),
         ("cluster", "m1_config", "M1: 6 GPU (RTX2060+4xGTX1660S+RTX3080), 46GB, qwen3-30b permanent", "audit", 1.0),
-        ("cluster", "m2_config", "M2: 3 GPU, 24GB, deepseek-coder-v2-lite permanent", "audit", 1.0),
+        ("cluster", "m2_config", "M2: 3 GPU, 24GB, deepseek-r1-0528-qwen3-8b permanent", "audit", 1.0),
         ("cluster", "ol1_config", "OL1: Ollama 127.0.0.1:11434, qwen3:1.7b local + cloud models", "audit", 1.0),
         ("cluster", "gemini_config", "GEMINI: gemini-proxy.js, Pro/Flash, timeout 2min, fallback auto", "audit", 1.0),
         ("routing", "commander_mode", "Mode Commandant PERMANENT sur tous les modes (vocal, clavier, hybride, one-shot)", "config", 1.0),

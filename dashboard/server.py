@@ -33,8 +33,8 @@ AGENTS = {
         "url": "http://192.168.1.26:1234",
         "api_key": "sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4",
         "type": "lm_studio",
-        "model": "deepseek-coder-v2-lite-instruct",
-        "role": "Code rapide",
+        "model": "deepseek-r1-0528-qwen3-8b",
+        "role": "Reasoning",
         "gpus": 3, "vram_gb": 24,
     },
     "OL1": {

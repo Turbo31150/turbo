@@ -356,29 +356,16 @@ def _get_model_auth(model_entry: dict) -> str:
 
 ## All available models with metadata for the frontend
 ALL_MODELS = [
-    {"id": "gpt-oss:120b-cloud", "name": "gpt-oss 120B", "group": "cloud", "score": 100, "weight": 1.9,
-     "url": _OLLAMA_CHAT, "backend": "ollama", "speed": "51 tok/s"},
     {"id": "qwen3-8b", "name": "M1 / qwen3-8b", "group": "local", "score": 98, "weight": 1.8,
      "url": _M1_CHAT, "backend": "lmstudio", "speed": "45 tok/s"},
-    {"id": "devstral-2:123b-cloud", "name": "devstral-2 123B", "group": "cloud", "score": 94, "weight": 1.5,
-     "url": _OLLAMA_CHAT, "backend": "ollama", "speed": "36 tok/s"},
-    {"id": "deepseek-coder-v2-lite-instruct", "name": "M2 / deepseek-coder", "group": "local", "score": 85, "weight": 1.4,
+    {"id": "deepseek-r1-0528-qwen3-8b", "name": "M2 / deepseek-r1", "group": "local", "score": 85, "weight": 1.5,
      "url": _M2_CHAT, "backend": "lmstudio",
-     "auth_node": "M2", "speed": "15 tok/s"},
+     "auth_node": "M2", "speed": "44 tok/s"},
     {"id": "qwen3:1.7b", "name": "OL1 / qwen3 1.7B", "group": "local", "score": 88, "weight": 1.3,
      "url": _OLLAMA_CHAT, "backend": "ollama", "speed": "84 tok/s"},
-    {"id": "glm-4.7:cloud", "name": "GLM 4.7", "group": "cloud", "score": 88, "weight": 1.2,
-     "url": _OLLAMA_CHAT, "backend": "ollama", "speed": "48 tok/s"},
-    {"id": "minimax-m2.5:cloud", "name": "Minimax (web)", "group": "cloud", "score": 80, "weight": 1.0,
-     "url": _OLLAMA_CHAT, "backend": "ollama", "speed": "var"},
-    {"id": "mistral-7b-instruct-v0.3", "name": "M3 / mistral-7b", "group": "local", "score": 89, "weight": 0.8,
+    {"id": "deepseek-r1-0528-qwen3-8b-m3", "name": "M3 / deepseek-r1", "group": "local", "score": 80, "weight": 1.2,
      "url": _M3_CHAT, "backend": "lmstudio",
-     "auth_node": "M3", "speed": "10 tok/s"},
-    # Proxy backends (subprocess node)
-    {"id": "gemini-3-pro", "name": "GEMINI / gemini-3-pro", "group": "proxy", "score": 74, "weight": 1.2,
-     "backend": "proxy", "proxy_path": str(_TURBO_ROOT / "gemini-proxy.js"), "speed": "var"},
-    {"id": "claude-opus", "name": "CLAUDE / opus", "group": "proxy", "score": 85, "weight": 1.2,
-     "backend": "proxy", "proxy_path": str(_TURBO_ROOT / "claude-proxy.js"), "speed": "var"},
+     "auth_node": "M3", "speed": "33 tok/s"},
 ]
 
 # Health cache for models (refreshed every 30s)
@@ -469,14 +456,14 @@ async def get_models_with_status() -> list[dict]:
 
 # Task-type to routing priority mapping (bench-final 2026-02-28)
 ROUTING_MATRIX = {
-    "code":         ["gpt-oss:120b-cloud", "qwen3-8b", "devstral-2:123b-cloud", "deepseek-coder-v2-lite-instruct"],
-    "analyse":      ["gpt-oss:120b-cloud", "qwen3-8b", "devstral-2:123b-cloud", "claude-opus"],
-    "architecture": ["gemini-3-pro", "qwen3-8b", "gpt-oss:120b-cloud", "claude-opus"],
-    "trading":      ["minimax-m2.5:cloud", "qwen3-8b", "gpt-oss:120b-cloud"],
-    "web":          ["minimax-m2.5:cloud", "gpt-oss:120b-cloud", "gemini-3-pro"],
+    "code":         ["qwen3-8b", "deepseek-r1-0528-qwen3-8b", "qwen3:1.7b"],
+    "analyse":      ["qwen3-8b", "deepseek-r1-0528-qwen3-8b", "qwen3:1.7b"],
+    "architecture": ["qwen3-8b", "qwen3:1.7b", "deepseek-r1-0528-qwen3-8b"],
+    "trading":      ["qwen3:1.7b", "qwen3-8b", "deepseek-r1-0528-qwen3-8b"],
+    "web":          ["qwen3:1.7b", "qwen3-8b"],
     "systeme":      ["qwen3-8b", "qwen3:1.7b"],
-    "consensus":    ["gpt-oss:120b-cloud", "qwen3-8b", "devstral-2:123b-cloud", "gemini-3-pro", "claude-opus"],
-    "simple":       ["qwen3:1.7b", "qwen3-8b", "gpt-oss:120b-cloud"],
+    "consensus":    ["qwen3-8b", "deepseek-r1-0528-qwen3-8b", "qwen3:1.7b"],
+    "simple":       ["qwen3:1.7b", "qwen3-8b"],
 }
 
 
@@ -557,23 +544,16 @@ async def _query_local_ia(text: str, task_type: str) -> str:
 
 # Consensus models: all agents dispatched in parallel for weighted vote
 CONSENSUS_MODELS = [
-    "gpt-oss:120b-cloud", "qwen3-8b", "devstral-2:123b-cloud",
-    "deepseek-coder-v2-lite-instruct", "glm-4.7:cloud",
-    "gemini-3-pro", "claude-opus",
+    "qwen3-8b", "deepseek-r1-0528-qwen3-8b", "qwen3:1.7b",
+    "deepseek-r1-0528-qwen3-8b-m3",
 ]
 
-# Weights for consensus vote (from MAO bench-final 2026-02-28)
+# Weights for consensus vote (MaJ 2026-03-06)
 CONSENSUS_WEIGHTS = {
-    "gpt-oss:120b-cloud": 1.9,
     "qwen3-8b": 1.8,
-    "devstral-2:123b-cloud": 1.5,
-    "deepseek-coder-v2-lite-instruct": 1.4,
+    "deepseek-r1-0528-qwen3-8b": 1.5,
     "qwen3:1.7b": 1.3,
-    "glm-4.7:cloud": 1.2,
-    "gemini-3-pro": 1.2,
-    "claude-opus": 1.2,
-    "minimax-m2.5:cloud": 1.0,
-    "mistral-7b-instruct-v0.3": 0.8,
+    "deepseek-r1-0528-qwen3-8b-m3": 1.2,
 }
 
 
@@ -642,14 +622,10 @@ async def _query_parallel_consensus(text: str) -> str:
         chain = orchestrator_v2.fallback_chain("code")
         # Map node names to model IDs for filtering
         node_to_model = {
-            "gpt-oss": "gpt-oss:120b-cloud",
             "M1": "qwen3-8b",
-            "devstral": "devstral-2:123b-cloud",
-            "M2": "deepseek-coder-v2-lite-instruct",
+            "M2": "deepseek-r1-0528-qwen3-8b",
             "OL1": "qwen3:1.7b",
-            "M3": "mistral-7b-instruct-v0.3",
-            "GEMINI": "gemini-3-pro",
-            "CLAUDE": "claude-opus",
+            "M3": "deepseek-r1-0528-qwen3-8b-m3",
         }
         # Prioritize models from fallback chain (degraded nodes moved to end)
         prioritized = [node_to_model[n] for n in chain if n in node_to_model]

@@ -69,7 +69,7 @@ MODELS = {
     # M2
     "M2-deepseek": {
         "url": "http://192.168.1.26:1234/v1/chat/completions",
-        "model": "deepseek-coder-v2-lite-instruct",
+        "model": "deepseek-r1-0528-qwen3-8b",
         "auth": f"Bearer {os.getenv('LM_STUDIO_2_API_KEY', os.getenv('LM_STUDIO_2_KEY', ''))}",
         "type": "lmstudio", "nothink": False,
         "role": "generateur_dominos",
@@ -78,7 +78,7 @@ MODELS = {
     # M3
     "M3-mistral": {
         "url": "http://192.168.1.113:1234/v1/chat/completions",
-        "model": "mistral-7b-instruct-v0.3",
+        "model": "deepseek-r1-0528-qwen3-8b",
         "auth": f"Bearer {os.getenv('LM_STUDIO_3_API_KEY', os.getenv('LM_STUDIO_3_KEY', ''))}",
         "type": "lmstudio", "nothink": False,
         "role": "generateur_scenarios",

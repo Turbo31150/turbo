@@ -36,14 +36,14 @@ MODELS = {
         "type": "openai",
         "url": "http://192.168.1.26:1234/v1/chat/completions",
         "key": os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", "")),
-        "model": "deepseek-coder-v2-lite-instruct",
+        "model": "deepseek-r1-0528-qwen3-8b",
         "sem": 3,
     },
     "M3-mistral": {
         "type": "openai",
         "url": "http://192.168.1.113:1234/v1/chat/completions",
         "key": os.getenv("LM_STUDIO_3_API_KEY", os.getenv("LM_STUDIO_3_KEY", "")),
-        "model": "mistral-7b-instruct-v0.3",
+        "model": "deepseek-r1-0528-qwen3-8b",
         "sem": 3,
     },
     "OL1-qwen": {

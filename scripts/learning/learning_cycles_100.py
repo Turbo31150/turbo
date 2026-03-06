@@ -4,7 +4,7 @@ import sys, io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 """
 JARVIS Learning Cycles — 100 scenarios Windows pilotage complet
-Teste en parallele sur M1 (qwen3-8b + deepseek-r1), M2 (deepseek-coder), M3 (mistral-7b)
+Teste en parallele sur M1 (qwen3-8b + deepseek-r1), M2 (deepseek-r1), M3 (deepseek-r1)
 """
 import httpx
 import asyncio
@@ -26,8 +26,8 @@ M3_KEY = os.getenv("LM_STUDIO_3_API_KEY", os.getenv("LM_STUDIO_3_KEY", ""))
 MODELS = {
     "M1-qwen3":     {"url": M1_URL, "key": M1_KEY, "model": "qwen3-8b"},
     "M1-deepseek":  {"url": M1_URL, "key": M1_KEY, "model": "deepseek-r1-0528-qwen3-8b"},
-    "M2-coder":     {"url": M2_URL, "key": M2_KEY, "model": "deepseek-coder-v2-lite-instruct"},
-    "M3-mistral":   {"url": M3_URL, "key": M3_KEY, "model": "mistral-7b-instruct-v0.3"},
+    "M2-coder":     {"url": M2_URL, "key": M2_KEY, "model": "deepseek-r1-0528-qwen3-8b"},
+    "M3-mistral":   {"url": M3_URL, "key": M3_KEY, "model": "deepseek-r1-0528-qwen3-8b"},
 }
 
 CONCURRENCY = 12  # requetes simultanées max (M1 dual model + M2 + M3)
