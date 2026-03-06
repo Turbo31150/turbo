@@ -839,6 +839,11 @@ WATCH_SERVICES = {
                 str(TURBO_DIR / "python_ws" / "server.py")],
         "cwd": str(TURBO_DIR),
     },
+    "gemini_proxy": {
+        "port": 18791, "host": "127.0.0.1",
+        "cmd": ["node", str(TURBO_DIR / "gemini-proxy.js")],
+        "cwd": str(TURBO_DIR),
+    },
 }
 
 
@@ -892,6 +897,26 @@ def watch_loop(interval: int = 60):
                         log("M1: qwen3-8b recharge", "OK")
                     except Exception as e:
                         log(f"M1: echec rechargement ({e})", "FAIL")
+
+        # Check Telegram bot (PID file based — no port to check)
+        telegram_lock = TURBO_DIR / "canvas" / ".telegram-bot.lock"
+        telegram_alive = False
+        if telegram_lock.exists():
+            try:
+                pid = int(telegram_lock.read_text().strip())
+                os.kill(pid, 0)  # Check if process alive (signal 0)
+                telegram_alive = True
+            except (ValueError, OSError):
+                telegram_alive = False
+        if not telegram_alive and check_port("127.0.0.1", 18800):
+            ts = datetime.now().strftime("%H:%M:%S")
+            log(f"[{ts}] telegram_bot DOWN — redemarrage...", "WARN")
+            start_process(
+                ["node", str(TURBO_DIR / "canvas" / "telegram-bot.js")],
+                "Telegram Bot", cwd=str(TURBO_DIR),
+            )
+            time.sleep(3)
+            log("  telegram_bot: relance", "OK")
 
 
 # ============================================================================
