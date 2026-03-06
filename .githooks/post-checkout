@@ -1,0 +1,4 @@
+#!/bin/sh
+# Auto-recreate NTFS hardlinks after git clone/checkout
+# Git hooks don't run PowerShell by default, so we call Python
+python "$(git rev-parse --show-toplevel)/scripts/tools/setup_hardlinks.py" 2>/dev/null || true

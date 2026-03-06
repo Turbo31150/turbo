@@ -1,0 +1,3 @@
+#!/bin/sh
+# Auto-recreate NTFS hardlinks after git pull/merge
+python "$(git rev-parse --show-toplevel)/scripts/tools/setup_hardlinks.py" 2>/dev/null || true
