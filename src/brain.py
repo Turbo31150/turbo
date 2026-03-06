@@ -161,8 +161,6 @@ def apply_decay():
 
     Skills unused for a long time lose confidence exponentially.
     """
-    # Implementation of the decay logic goes here
-    # TODO: Implement the decay logic here
     db = _load_quality_db()
     now = time.time()
     decayed = 0
@@ -206,8 +204,6 @@ def suggest_contextual_skills(max_suggestions: int = 3) -> list[dict]:
     """Suggest skills based on current context (time, recent actions, GPU load)."""
     hour = time.localtime().tm_hour
     suggestions = []
-    # TODO: Implement logic to suggest contextual skills based on time, recent actions, and GPU load.
-    return suggestions
 
     # Time-based suggestions
     if 6 <= hour <= 9:
@@ -464,7 +460,6 @@ def analyze_and_learn(auto_create: bool = False, min_confidence: float = 0.6) ->
 
     Returns analysis report dict.
     """
-    # TODO: Implement test for this function
     state = _load_brain_state()
     patterns = detect_patterns()
 

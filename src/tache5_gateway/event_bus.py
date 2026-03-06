@@ -1,7 +1,7 @@
 """
 event_bus.py - Bus d'événements asynchrone JARVIS
 Pub/sub async, topic persistence SQLite, replay 1000, glob matching, TTL
-Pour F:\BUREAU\turbo\src\
+Pour F:/BUREAU/turbo/src/
 """
 
 import asyncio

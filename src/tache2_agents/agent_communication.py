@@ -1,7 +1,7 @@
 """
 agent_communication.py - Communication inter-agents
 Message bus async pub/sub, request/response delegation, broadcast alertes
-Pour F:\BUREAU\turbo\src\
+Pour F:/BUREAU/turbo/src/
 """
 
 import asyncio

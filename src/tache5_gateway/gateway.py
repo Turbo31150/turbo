@@ -1,7 +1,7 @@
 """
 gateway.py - API Gateway Unifiée JARVIS
 FastAPI port 8900, auth JWT, rate limiting, CORS, endpoints cluster/trading/voice/agents
-Pour F:\BUREAU\turbo\src\
+Pour F:/BUREAU/turbo/src/
 """
 
 import asyncio

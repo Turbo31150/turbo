@@ -2,7 +2,7 @@
 sdk_client.py - SDK Client Python JARVIS Gateway
 Client async httpx, auto-retry exponentiel, auth JWT, WebSocket,
 type hints complets, context manager
-Pour F:\BUREAU\turbo\src\
+Pour F:/BUREAU/turbo/src/
 """
 
 import asyncio
