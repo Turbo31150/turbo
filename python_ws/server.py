@@ -1733,13 +1733,7 @@ async def api_vault_keys(namespace: str = "default"):
         return JSONResponse({"error": str(exc)}, status_code=500)
 
 
-@app.get("/api/vault/stats")
-async def api_vault_stats():
-    try:
-        from src.config_vault import config_vault
-        return JSONResponse(config_vault.get_stats())
-    except Exception as exc:
-        return JSONResponse({"error": str(exc)}, status_code=500)
+# /api/vault/stats already defined (Phase 11, secret_vault)
 
 
 # ── Rule Engine — Phase 17 ──────────────────────────────────────────────
@@ -1782,13 +1776,7 @@ async def api_retry_policies():
         return JSONResponse({"error": str(exc)}, status_code=500)
 
 
-@app.get("/api/retry/stats")
-async def api_retry_stats():
-    try:
-        from src.retry_policy import retry_manager
-        return JSONResponse(retry_manager.get_stats())
-    except Exception as exc:
-        return JSONResponse({"error": str(exc)}, status_code=500)
+# /api/retry/stats already defined (Phase 10, retry_manager)
 
 
 # ── Message Broker — Phase 18 ───────────────────────────────────────────
@@ -3222,10 +3210,7 @@ async def api_scheduler_events():
     return scheduler_manager.get_events()
 
 
-@app.get("/api/scheduler/stats")
-async def api_scheduler_stats():
-    from src.scheduler_manager import scheduler_manager
-    return scheduler_manager.get_stats()
+# /api/scheduler/stats already defined (Phase 8)
 
 
 # ── Bluetooth Manager — Phase 28 ────────────────────────────────────────────
@@ -3390,22 +3375,7 @@ async def api_vdesktops_stats():
 
 # ── Notification Manager — Phase 30 ─────────────────────────────────────────
 
-@app.get("/api/notifications/history")
-async def api_notifications_history():
-    from src.notification_manager import notification_manager
-    return notification_manager.get_history()
-
-
-@app.get("/api/notifications/events")
-async def api_notifications_events():
-    from src.notification_manager import notification_manager
-    return notification_manager.get_events()
-
-
-@app.get("/api/notifications/stats")
-async def api_notifications_stats():
-    from src.notification_manager import notification_manager
-    return notification_manager.get_stats()
+# /api/notifications/history, /events, /stats already defined (Phase 9)
 
 
 # ── System Restore — Phase 31 ───────────────────────────────────────────────
@@ -3728,10 +3698,7 @@ async def api_memory_events():
     return memory_diagnostics.get_events()
 
 
-@app.get("/api/memory/stats")
-async def api_memory_stats():
-    from src.memory_diagnostics import memory_diagnostics
-    return memory_diagnostics.get_stats()
+# /api/memory/stats already defined (Phase 4)
 
 
 # ── System Info Collector — Phase 36 ─────────────────────────────────────────
@@ -3866,20 +3833,7 @@ async def api_recyclebin_stats():
 
 # ── Installed Apps — Phase 38 ────────────────────────────────────────────────
 
-@app.get("/api/apps/list")
-async def api_apps_list():
-    from src.installed_apps_manager import installed_apps_manager
-    return installed_apps_manager.list_win32_apps()
-
-@app.get("/api/apps/events")
-async def api_apps_events():
-    from src.installed_apps_manager import installed_apps_manager
-    return installed_apps_manager.get_events()
-
-@app.get("/api/apps/stats")
-async def api_apps_stats():
-    from src.installed_apps_manager import installed_apps_manager
-    return installed_apps_manager.get_stats()
+# /api/apps/list, /events, /stats already defined (Phase 21, app_launcher)
 
 
 # ── Phase 39 — Scheduled Tasks, Audio Devices, USB Devices ──────────────────
@@ -3905,15 +3859,7 @@ async def api_audio_list():
     from src.audio_device_manager import audio_device_manager
     return audio_device_manager.list_devices()
 
-@app.get("/api/audio/events")
-async def api_audio_events():
-    from src.audio_device_manager import audio_device_manager
-    return audio_device_manager.get_events()
-
-@app.get("/api/audio/stats")
-async def api_audio_stats():
-    from src.audio_device_manager import audio_device_manager
-    return audio_device_manager.get_stats()
+# /api/audio/events, /stats already defined (Phase 21, audio_controller)
 
 
 @app.get("/api/usb/list")
@@ -3921,15 +3867,7 @@ async def api_usb_list():
     from src.usb_device_manager import usb_device_manager
     return usb_device_manager.list_devices()
 
-@app.get("/api/usb/events")
-async def api_usb_events():
-    from src.usb_device_manager import usb_device_manager
-    return usb_device_manager.get_events()
-
-@app.get("/api/usb/stats")
-async def api_usb_stats():
-    from src.usb_device_manager import usb_device_manager
-    return usb_device_manager.get_stats()
+# /api/usb/events, /stats already defined (Phase 24, usb_manager)
 
 
 # ── Phase 43 — Network Adapter, Windows Update, Local Security Policy ───────
