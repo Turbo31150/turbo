@@ -11,15 +11,16 @@ Usage:
 """
 
 import json
+from _paths import TURBO_DIR
 import os
 import sqlite3
 import sys
 import time
 
-sys.path.insert(0, "F:/BUREAU/turbo")
-os.chdir("F:/BUREAU/turbo")
+sys.path.insert(0, str(TURBO_DIR))
+os.chdir(str(TURBO_DIR))
 
-DB_PATH = "F:/BUREAU/turbo/etoile.db"
+DB_PATH = str(ETOILE_DB)
 
 
 def analyze_timeouts():

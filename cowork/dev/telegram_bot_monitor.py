@@ -17,6 +17,7 @@ Usage :
 """
 
 import argparse
+from _paths import TURBO_DIR
 import json
 import subprocess
 import sys
@@ -27,7 +28,7 @@ TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
 TELEGRAM_CHAT = "2010747443"
 PROXY_URL = "http://127.0.0.1:18800"
 WS_URL = "http://127.0.0.1:9742"
-BOT_SCRIPT = "F:/BUREAU/turbo/canvas/telegram-bot.js"
+BOT_SCRIPT = str(TURBO_DIR / "canvas" / "telegram-bot.js")
 
 
 def tg_api(method, params=None, timeout=10):
@@ -103,7 +104,7 @@ def restart_bot():
     try:
         subprocess.Popen(
             ["node", BOT_SCRIPT],
-            cwd="F:/BUREAU/turbo",
+            cwd=str(TURBO_DIR),
             creationflags=subprocess.CREATE_NEW_CONSOLE,
         )
         time.sleep(3)

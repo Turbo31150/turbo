@@ -10,6 +10,7 @@ Usage:
     python dev/jarvis_backup_manager.py --list
 """
 import argparse
+from _paths import TURBO_DIR, ETOILE_DB, JARVIS_DB, SNIPER_DB
 import hashlib
 import json
 import os
@@ -25,10 +26,10 @@ BACKUP_DIR = DEV / "data" / "backups"
 RETENTION_DAYS = 30
 
 CRITICAL_FILES = {
-    "etoile.db": Path("F:/BUREAU/turbo/data/etoile.db"),
-    "jarvis.db": Path("F:/BUREAU/turbo/data/jarvis.db"),
-    "sniper.db": Path("F:/BUREAU/turbo/data/sniper.db"),
-    "finetuning.db": Path("F:/BUREAU/turbo/finetuning/data/finetuning.db"),
+    "etoile.db": Path(str(ETOILE_DB)),
+    "jarvis.db": Path(str(JARVIS_DB)),
+    "sniper.db": Path(str(SNIPER_DB)),
+    "finetuning.db": TURBO_DIR / "finetuning" / "data" / "finetuning.db",
     "CLAUDE.md": Path.home() / ".claude" / "CLAUDE.md",
     "MEMORY.md": Path.home() / ".claude" / "projects" / "C--Users-franc" / "memory" / "MEMORY.md",
 }

@@ -11,6 +11,7 @@ Usage:
     python dev/jarvis_faq_builder.py --stats
 """
 import argparse
+from _paths import TURBO_DIR
 import json
 import os
 import sqlite3

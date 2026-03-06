@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """JARVIS Voice Trainer — Entrainement continu des corrections vocales."""
 import json, sys, os, sqlite3
+from _paths import JARVIS_DB
 from datetime import datetime
 from collections import Counter
 
-JARVIS_DB = "F:/BUREAU/turbo/data/jarvis.db"
+JARVIS_DB = str(JARVIS_DB)
 TRAINER_DB = "C:/Users/franc/.openclaw/workspace/dev/trainer.db"
 
 def init_db():

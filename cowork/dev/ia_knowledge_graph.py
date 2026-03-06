@@ -10,6 +10,7 @@ Usage:
     python dev/ia_knowledge_graph.py --update
 """
 import argparse
+from _paths import TURBO_DIR
 import ast
 import json
 import os
@@ -20,7 +21,7 @@ from datetime import datetime
 from pathlib import Path
 
 DEV = Path(__file__).parent
-TURBO_SRC = Path("F:/BUREAU/turbo/src")
+TURBO_SRC = TURBO_DIR / "src"
 DB_PATH = DEV / "data" / "knowledge_graph.db"
 
 

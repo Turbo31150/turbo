@@ -10,6 +10,7 @@ Usage:
     python dev/jarvis_memory_optimizer.py --prune 90
 """
 import argparse
+from _paths import TURBO_DIR, ETOILE_DB, JARVIS_DB, SNIPER_DB
 import json
 import os
 import sqlite3
@@ -22,10 +23,10 @@ DB_PATH = DEV / "data" / "memory_optimizer.db"
 
 # Databases to optimize
 DATABASES = [
-    {"name": "etoile", "path": "F:/BUREAU/turbo/data/etoile.db"},
-    {"name": "jarvis", "path": "F:/BUREAU/turbo/data/jarvis.db"},
-    {"name": "sniper", "path": "F:/BUREAU/turbo/data/sniper.db"},
-    {"name": "finetuning", "path": "F:/BUREAU/turbo/finetuning/data/finetuning.db"},
+    {"name": "etoile", "path": str(ETOILE_DB)},
+    {"name": "jarvis", "path": str(JARVIS_DB)},
+    {"name": "sniper", "path": str(SNIPER_DB)},
+    {"name": "finetuning", "path": str(TURBO_DIR / "finetuning" / "data" / "finetuning.db")},
 ]
 
 # Tables with timestamp columns that can be pruned

@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """JARVIS DB Optimizer — Optimisation des bases de donnees."""
 import json, sys, os, sqlite3
+from _paths import TURBO_DIR, ETOILE_DB, JARVIS_DB, SNIPER_DB
 from datetime import datetime
 
 DATABASES = {
-    "etoile.db": "F:/BUREAU/turbo/data/etoile.db",
-    "jarvis.db": "F:/BUREAU/turbo/data/jarvis.db",
-    "sniper.db": "F:/BUREAU/turbo/data/sniper.db",
-    "finetuning.db": "F:/BUREAU/turbo/finetuning/finetuning.db",
+    "etoile.db": str(ETOILE_DB),
+    "jarvis.db": str(JARVIS_DB),
+    "sniper.db": str(SNIPER_DB),
+    "finetuning.db": str(TURBO_DIR / "finetuning" / "finetuning.db"),
 }
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT = os.environ.get("TELEGRAM_CHAT_ID", "")

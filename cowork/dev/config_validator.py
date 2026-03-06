@@ -11,6 +11,7 @@ CLI :
 """
 
 import argparse
+from _paths import TURBO_DIR, ETOILE_DB, JARVIS_DB
 import json
 import os
 import sqlite3
@@ -44,9 +45,9 @@ def run_cmd(cmd: list, timeout: int = 10) -> str:
 def check_databases() -> Dict[str, Any]:
     """Vérifie les bases SQLite JARVIS."""
     dbs = {
-        "etoile.db": Path("F:/BUREAU/turbo/data/etoile.db"),
-        "jarvis.db": Path("F:/BUREAU/turbo/data/jarvis.db"),
-        "trading_latest.db": Path("F:/BUREAU/turbo/projects/carV1_data/database/trading_latest.db"),
+        "etoile.db": Path(str(ETOILE_DB)),
+        "jarvis.db": Path(str(JARVIS_DB)),
+        "trading_latest.db": TURBO_DIR / "projects/carV1_data/database/trading_latest.db",
     }
     issues = []
     ok = 0

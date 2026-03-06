@@ -27,6 +27,7 @@ Le script ne dépend que de la bibliothèque standard, avec ``psutil`` en option
 """
 
 import argparse
+from _paths import TURBO_DIR, ETOILE_DB, JARVIS_DB
 import json
 import os
 import shutil
@@ -91,9 +92,9 @@ def check_cluster() -> Dict[str, Any]:
 
 def check_databases() -> Dict[str, Any]:
     db_paths = {
-        "etoile.db": Path("F:/BUREAU/turbo/data/etoile.db"),
-        "jarvis.db": Path("F:/BUREAU/turbo/data/jarvis.db"),
-        "trading_latest.db": Path("F:/BUREAU/turbo/projects/carV1_data/database/trading_latest.db"),
+        "etoile.db": Path(str(ETOILE_DB)),
+        "jarvis.db": Path(str(JARVIS_DB)),
+        "trading_latest.db": TURBO_DIR / "projects/carV1_data/database/trading_latest.db",
     }
     exists = 0
     total = len(db_paths)

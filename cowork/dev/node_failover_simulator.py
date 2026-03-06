@@ -24,7 +24,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from _paths import ETOILE_DB
-GAPS_DB = Path(r"F:/BUREAU/turbo/cowork/dev/data/cowork_gaps.db")
+GAPS_DB = Path(__file__).parent / "data" / "cowork_gaps.db"
 
 # Fallback chain: if a node dies, redistribute to these in order
 FALLBACK_CHAIN = ["M1", "M2", "M3", "OL1"]

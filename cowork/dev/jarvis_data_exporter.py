@@ -10,6 +10,7 @@ Usage:
     python dev/jarvis_data_exporter.py --tables
 """
 import argparse
+from _paths import TURBO_DIR, ETOILE_DB, JARVIS_DB, SNIPER_DB
 import csv
 import io
 import json
@@ -23,10 +24,10 @@ DEV = Path(__file__).parent
 DB_PATH = DEV / "data" / "data_exporter.db"
 EXPORT_DIR = DEV / "data" / "exports"
 DATABASES = {
-    "etoile": "F:/BUREAU/turbo/data/etoile.db",
-    "jarvis": "F:/BUREAU/turbo/data/jarvis.db",
-    "sniper": "F:/BUREAU/turbo/data/sniper.db",
-    "finetuning": "F:/BUREAU/turbo/finetuning/data/finetuning.db",
+    "etoile": str(ETOILE_DB),
+    "jarvis": str(JARVIS_DB),
+    "sniper": str(SNIPER_DB),
+    "finetuning": str(TURBO_DIR / "finetuning" / "data" / "finetuning.db"),
 }
 
 

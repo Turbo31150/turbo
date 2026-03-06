@@ -174,6 +174,31 @@ async function proxyGet(endpoint) {
   return JSON.parse(res.body);
 }
 
+/** Health check direct des noeuds du cluster (sans proxy) */
+async function directClusterHealth() {
+  const results = [];
+  for (const node of CLUSTER_NODES) {
+    const start = Date.now();
+    try {
+      if (node.isOllama) {
+        const r = await httpRequest(`http://127.0.0.1:11434/api/tags`, { timeout: 5000 });
+        const data = JSON.parse(r.body);
+        const models = (data.models || []).map(m => m.name).join(', ');
+        results.push({ nodeId: node.id, status: 'online', model: models || node.model, latency: Date.now() - start });
+      } else {
+        const url = node.url.replace('/v1/chat/completions', '/v1/models');
+        const r = await httpRequest(url, { timeout: 5000 });
+        const data = JSON.parse(r.body);
+        const loaded = (data.data || data.models || []).filter(m => m.loaded_instances).map(m => m.id);
+        results.push({ nodeId: node.id, status: 'online', model: loaded.join(', ') || node.model, latency: Date.now() - start });
+      }
+    } catch (e) {
+      results.push({ nodeId: node.id, status: 'offline', model: node.model, latency: 0, error: e.message });
+    }
+  }
+  return { ok: true, nodes: results };
+}
+
 /** Split un message long en chunks <= MAX_MSG_LEN */
 function splitMessage(text) {
   if (text.length <= MAX_MSG_LEN) return [text];
@@ -280,26 +305,39 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
 
     case '/status': {
       try {
-        const h = await proxyGet('/health');
-        if (!h.ok) throw new Error('proxy unhealthy');
-        const lines = ['✅ *Cluster Status*', ''];
+        let h;
+        try {
+          h = await proxyGet('/health');
+          if (!h.ok) throw new Error('proxy unhealthy');
+        } catch {
+          h = await directClusterHealth();
+        }
+        const onlineCount = (h.nodes || []).filter(n => n.status === 'online').length;
+        const totalCount = (h.nodes || []).length;
+        const lines = [`${onlineCount === totalCount ? '✅' : '⚠️'} *Cluster Status* (${onlineCount}/${totalCount} online)`, ''];
         for (const n of (h.nodes || [])) {
           const icon = n.status === 'online' ? '🟢' : '🔴';
           lines.push(`${icon} *${n.nodeId}* — ${n.model} (${n.latency || '?'}ms)`);
         }
         return sendMessage(chatId, lines.join('\n'), 'Markdown');
       } catch (e) {
-        return sendMessage(chatId, `🔴 Proxy non joignable: ${e.message}`);
+        return sendMessage(chatId, `🔴 Erreur health check: ${e.message}`);
       }
     }
 
     case '/health': {
       try {
-        const h = await proxyGet('/health');
-        const al = await proxyGet('/autolearn/scores');
-        const lines = ['📊 *Health détaillé*', ''];
+        let h, al = null;
+        try {
+          h = await proxyGet('/health');
+          al = await proxyGet('/autolearn/scores');
+        } catch {
+          h = await directClusterHealth();
+        }
+        const lines = ['📊 *Health detaille*', ''];
         for (const n of (h.nodes || [])) {
-          lines.push(`*${n.nodeId}*: ${n.status} | ${n.model} | ${n.latency || '?'}ms`);
+          const icon = n.status === 'online' ? '🟢' : '🔴';
+          lines.push(`${icon} *${n.nodeId}*: ${n.status} | ${n.model} | ${n.latency || '?'}ms`);
         }
         if (al && al.ok !== false) {
           lines.push('', '*Autolearn Scores:*');
@@ -321,13 +359,22 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
       if (!args) return sendMessage(chatId, '⚠️ Usage: `/consensus <question>`', 'Markdown');
       await sendMessage(chatId, '🔄 Consensus en cours...');
       try {
-        const res = await proxyChat(`[CONSENSUS] ${args}`, 'consensus');
-        if (res.ok && res.data) {
-          const d = res.data;
-          const text = `🗳️ *Consensus*\n\n${d.text}\n\n_${d.model} via ${d.provider} (${d.turns} turns)_`;
-          return sendMessage(chatId, text, 'Markdown');
+        // Try proxy first, fallback to direct cluster race
+        let res;
+        try {
+          res = await proxyChat(`[CONSENSUS] ${args}`, 'consensus');
+          if (res.ok && res.data) {
+            const d = res.data;
+            const text = `🗳 *Consensus*\n\n${d.text}\n\n_${d.model} via ${d.provider} (${d.turns} turns)_`;
+            return sendMessage(chatId, text, 'Markdown');
+          }
+        } catch {}
+        // Fallback: direct cluster race
+        const raceResult = await clusterRace(args);
+        if (raceResult) {
+          return sendMessage(chatId, `🗳 *Consensus (direct)*\n\n${raceResult.text}\n\n_${raceResult.model} [${raceResult.nodeId}]_`, 'Markdown');
         }
-        return sendMessage(chatId, `⚠️ ${res.error || 'Erreur consensus'}`);
+        return sendMessage(chatId, '⚠️ Aucun noeud n\'a repondu');
       } catch (e) {
         return sendMessage(chatId, `🔴 Erreur: ${e.message}`);
       }
@@ -339,11 +386,21 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
       const query = parts.slice(1).join(' ');
       if (!modelId || !query) return sendMessage(chatId, '⚠️ Usage: `/model M1 ta question`', 'Markdown');
       try {
-        const res = await proxyChat(query, modelId.toLowerCase());
-        if (res.ok && res.data) {
-          return sendMessage(chatId, `*[${res.data.model}]*\n\n${res.data.text}`, 'Markdown');
+        // Try proxy first
+        try {
+          const res = await proxyChat(query, modelId.toLowerCase());
+          if (res.ok && res.data) {
+            return sendMessage(chatId, `*[${res.data.model}]*\n\n${res.data.text}`, 'Markdown');
+          }
+        } catch {}
+        // Fallback: direct query to matching node
+        const node = CLUSTER_NODES.find(n => n.id.toLowerCase() === modelId.toLowerCase());
+        if (!node) return sendMessage(chatId, `⚠️ Noeud ${modelId} inconnu. Disponibles: ${CLUSTER_NODES.map(n => n.id).join(', ')}`);
+        const result = await queryNodeDirect(node, query);
+        if (result) {
+          return sendMessage(chatId, `*[${node.id}/${node.model}]*\n\n${result}`, 'Markdown');
         }
-        return sendMessage(chatId, `⚠️ ${res.error || 'Erreur'}`);
+        return sendMessage(chatId, `🔴 ${node.id} n'a pas repondu`);
       } catch (e) {
         return sendMessage(chatId, `🔴 Erreur: ${e.message}`);
       }
@@ -1415,6 +1472,12 @@ function queryNode(node, prompt) {
   });
 }
 
+/** Query a single node and return text only (for /model fallback) */
+async function queryNodeDirect(node, prompt) {
+  const result = await queryNode(node, prompt);
+  return result ? result.text : null;
+}
+
 async function clusterRace(prompt) {
   // Launch all nodes in parallel, first good response wins
   const promises = CLUSTER_NODES.map(node =>
@@ -1870,7 +1933,40 @@ async function main() {
       log(`Proxy OK — ${(h.nodes || []).length} nœuds disponibles`);
     }
   } catch (e) {
-    log('⚠️  Proxy non joignable — le bot démarrera quand même et réessaiera');
+    log('⚠️  Proxy non joignable — le bot démarrera quand même (fallback direct cluster)');
+  }
+
+  // Enregistre les commandes dans le menu Telegram
+  try {
+    await telegramAPI('setMyCommands', {
+      commands: [
+        { command: 'status', description: 'Health check cluster IA' },
+        { command: 'health', description: 'Etat detaille des noeuds' },
+        { command: 'consensus', description: 'Vote pondere multi-noeuds' },
+        { command: 'model', description: 'Forcer un noeud (M1/M2/OL1...)' },
+        { command: 'scan', description: 'Sniper scan top N coins' },
+        { command: 'deepscan', description: 'Deep scan 800+ coins (3 passes)' },
+        { command: 'hot', description: 'Top N coins chauds' },
+        { command: 'market', description: 'Resume marche actuel' },
+        { command: 'signals', description: 'Signaux ouverts en temps reel' },
+        { command: 'perf', description: 'Performance des signaux (TP/SL)' },
+        { command: 'scanstats', description: 'Stats scanner' },
+        { command: 'sniper', description: 'Statut du scanner permanent' },
+        { command: 'realtime', description: 'Statut scanner temps reel' },
+        { command: 'backtest', description: 'Resultats micro-backtest' },
+        { command: 'compare', description: 'Comparer deux coins' },
+        { command: 'whales', description: 'Gros mouvements detectes' },
+        { command: 'news', description: 'Actualites crypto du jour' },
+        { command: 'alerton', description: 'Activer alertes trading' },
+        { command: 'alertoff', description: 'Desactiver alertes trading' },
+        { command: 'stats', description: 'Statistiques du bot' },
+        { command: 'menu', description: 'Dashboard avec boutons' },
+        { command: 'help', description: 'Aide complète' },
+      ]
+    });
+    log('Commandes Telegram enregistrees (22 commandes)');
+  } catch (e) {
+    logErr('setMyCommands failed:', e.message);
   }
 
   // Enregistre dans le service registry (python_ws)

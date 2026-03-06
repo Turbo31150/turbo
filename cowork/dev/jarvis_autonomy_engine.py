@@ -23,6 +23,7 @@ Usage :
 """
 
 import argparse
+from _paths import TURBO_DIR
 import json
 import os
 import re
@@ -31,7 +32,7 @@ import sys
 import time
 import urllib.request
 
-TURBO_ROOT = "F:/BUREAU/turbo"
+TURBO_ROOT = str(TURBO_DIR)
 PROXY_URL = "http://127.0.0.1:18800"
 TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
 TELEGRAM_CHAT = "2010747443"

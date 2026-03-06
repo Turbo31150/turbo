@@ -11,6 +11,7 @@ Usage:
     python dev/jarvis_dependency_mapper.py --orphans
 """
 import argparse
+from _paths import TURBO_DIR
 import ast
 import json
 import os
@@ -21,7 +22,7 @@ from datetime import datetime
 from pathlib import Path
 
 DEV = Path(__file__).parent
-TURBO_SRC = Path("F:/BUREAU/turbo/src")
+TURBO_SRC = TURBO_DIR / "src"
 DB_PATH = DEV / "data" / "dependency_mapper.db"
 
 

@@ -1,28 +1,29 @@
 #!/usr/bin/env python3
 """JARVIS Win Backup — Backup automatique fichiers importants."""
 import json, sys, os, shutil, zipfile
+from _paths import TURBO_DIR, ETOILE_DB, JARVIS_DB, SNIPER_DB
 from datetime import datetime
 
 TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
 TELEGRAM_CHAT = "2010747443"
-BACKUP_DIR = "F:/BUREAU/turbo/backups_auto"
+BACKUP_DIR = str(TURBO_DIR / "backups_auto")
 
 TARGETS = {
     "configs": [
         "C:/Users/franc/.claude/CLAUDE.md",
         "C:/Users/franc/.openclaw/openclaw.json",
-        "F:/BUREAU/turbo/pyproject.toml",
-        "F:/BUREAU/turbo/.env",
+        str(TURBO_DIR / "pyproject.toml"),
+        str(TURBO_DIR / ".env"),
     ],
     "databases": [
-        "F:/BUREAU/turbo/etoile.db",
-        "F:/BUREAU/turbo/data/jarvis.db",
-        "F:/BUREAU/turbo/data/sniper.db",
-        "F:/BUREAU/turbo/finetuning/finetuning.db",
+        str(ETOILE_DB),
+        str(JARVIS_DB),
+        str(SNIPER_DB),
+        str(TURBO_DIR / "finetuning" / "finetuning.db"),
     ],
     "scripts": [
         "C:/Users/franc/.openclaw/workspace/dev/",
-        "F:/BUREAU/turbo/scripts/",
+        str(TURBO_DIR / "scripts/"),
     ],
     "workspace": [
         "C:/Users/franc/.openclaw/workspace/TOOLS.md",

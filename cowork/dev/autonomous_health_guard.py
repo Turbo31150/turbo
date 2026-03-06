@@ -10,6 +10,7 @@ Usage:
     python dev/autonomous_health_guard.py --report
 """
 import argparse
+from _paths import ETOILE_DB, JARVIS_DB
 import json
 import os
 import sqlite3
@@ -68,8 +69,8 @@ def check_url(url, timeout=5):
 def check_databases():
     """Check integrity of critical databases."""
     dbs = {
-        "etoile": Path("F:/BUREAU/turbo/data/etoile.db"),
-        "jarvis": Path("F:/BUREAU/turbo/data/jarvis.db"),
+        "etoile": Path(str(ETOILE_DB)),
+        "jarvis": Path(str(JARVIS_DB)),
     }
     results = {}
     for name, path in dbs.items():

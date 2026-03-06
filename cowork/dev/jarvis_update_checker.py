@@ -10,6 +10,7 @@ Usage:
     python dev/jarvis_update_checker.py --security
 """
 import argparse
+from _paths import TURBO_DIR
 import json
 import os
 import sqlite3
@@ -20,7 +21,7 @@ from pathlib import Path
 
 DEV = Path(__file__).parent
 DB_PATH = DEV / "data" / "update_checker.db"
-PROJECT_ROOT = Path("F:/BUREAU/turbo")
+PROJECT_ROOT = Path(str(TURBO_DIR))
 
 
 def init_db():

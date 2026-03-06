@@ -14,6 +14,7 @@ objects with an ``error`` key so the front-end can handle them gracefully.
 """
 
 import json
+from _paths import TURBO_DIR
 import os
 import subprocess
 import sys
@@ -59,7 +60,7 @@ def get_trading():
     ``ts`` (ISO timestamp) and ``signal`` (text).  If the DB or table is
     missing we return an empty list.
     """
-    db_path = Path(r"F:/BUREAU/turbo/projects/carV1_data/database/trading_latest.db")
+    db_path = TURBO_DIR / "projects/carV1_data/database/trading_latest.db"
     if not db_path.is_file():
         return []
     try:

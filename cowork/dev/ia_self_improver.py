@@ -19,6 +19,7 @@ Usage :
 """
 
 import argparse
+from _paths import TURBO_DIR
 import json
 import os
 import sqlite3
@@ -26,7 +27,7 @@ import sys
 import time
 import urllib.request
 
-TURBO_ROOT = "F:/BUREAU/turbo"
+TURBO_ROOT = str(TURBO_DIR)
 PROXY_URL = "http://127.0.0.1:18800"
 DB_PATH = os.path.join(TURBO_ROOT, "data", "etoile.db")
 TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
