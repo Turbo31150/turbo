@@ -166,7 +166,7 @@ ia_bridge = AgentDefinition(
         "- Utiliser gemini_query pour les questions d'architecture et de vision\n"
         "- Synthetiser les reponses multi-sources avec attribution [NODE/model]\n\n"
         "Noeuds disponibles (benchmark 2026-02-20):\n"
-        "- M1 (10.5.0.2) — qwen3-8b, 6 GPU 46GB — CHAMPION LOCAL (98.4/100, 46 tok/s)\n"
+        "- M1 (127.0.0.1) — qwen3-8b, 6 GPU 46GB — CHAMPION LOCAL (98.4/100, 46 tok/s)\n"
         "- OL1 (127.0.0.1:11434) — Ollama qwen3:1.7b — ULTRA-RAPIDE (0.5s)\n"
         "- M2 (192.168.1.26) — deepseek-r1, 3 GPU 24GB — REASONING (25s)\n"
         "- M3 (192.168.1.113) — deepseek-r1, 1 GPU 8GB — REASONING FALLBACK (18s)\n"

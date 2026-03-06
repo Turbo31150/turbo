@@ -26,7 +26,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
 NODES = {
     "M1": {
-        "url": "http://10.5.0.2:1234/api/v1/chat",
+        "url": "http://127.0.0.1:1234/api/v1/chat",
         "model": "qwen3-8b",
         "auth": f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}",
         "type": "lmstudio",

@@ -163,7 +163,7 @@ SITE_ALIASES: dict[str, str] = {
     "dexscreener": "https://dexscreener.com",
     # Local / Self-hosted
     "n8n": "http://127.0.0.1:5678",
-    "lm studio": "http://10.5.0.2:1234",
+    "lm studio": "http://127.0.0.1:1234",
     "dashboard": "http://127.0.0.1:3000",
     # Utilitaires
     "amazon": "https://www.amazon.fr",

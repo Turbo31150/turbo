@@ -52,7 +52,7 @@ export function createMainWindow(): BrowserWindow {
       responseHeaders: {
         ...details.responseHeaders,
         'Content-Security-Policy': [
-          "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' ws://localhost:* ws://127.0.0.1:* http://localhost:* http://127.0.0.1:* http://10.5.0.2:* http://192.168.1.26:* http://192.168.1.113:*; font-src 'self' data:",
+          "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' ws://localhost:* ws://127.0.0.1:* http://localhost:* http://127.0.0.1:* http://127.0.0.1:* http://192.168.1.26:* http://192.168.1.113:*; font-src 'self' data:",
         ],
       },
     });

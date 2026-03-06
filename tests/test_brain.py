@@ -49,7 +49,7 @@ _mock_config_module.build_lmstudio_payload = MagicMock(
     side_effect=lambda model, inp, **kw: {"model": model, "input": inp}
 )
 _mock_config_module.config = MagicMock()
-_mock_config_module.config.get_node.return_value = MagicMock(url="http://10.5.0.2:1234")
+_mock_config_module.config.get_node.return_value = MagicMock(url="http://127.0.0.1:1234")
 _mock_config_module.JarvisConfig = MagicMock
 
 # Mock src.skills

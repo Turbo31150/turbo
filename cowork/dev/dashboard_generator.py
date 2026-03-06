@@ -91,7 +91,7 @@ def metrics_to_html(metrics):
 def serve(port=8888):
     handler = SimpleHTTPRequestHandler
     httpd = HTTPServer(("", port), handler)
-    print(f"Serving HTTP on port {port} (http://localhost:{port}/) ...")
+    print(f"Serving HTTP on port {port} (http://127.0.0.1:{port}/) ...")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

@@ -2,6 +2,7 @@
 """JARVIS Telegram Commander — Commandes pipeline avec reponses soignees."""
 import json, sys, os, subprocess, urllib.request, time
 from datetime import datetime
+from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
 
 TOKEN = TELEGRAM_TOKEN
 CHAT_ID = TELEGRAM_CHAT
@@ -254,7 +255,6 @@ def pipeline_full_report():
 
     # Disks
     import shutil
-from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
     for drive, name in [("C:/", "C:"), ("F:/", "F:")]:
         try:
             total, used, free = shutil.disk_usage(drive)

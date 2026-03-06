@@ -18,7 +18,7 @@ def ps(cmd, timeout=15):
 
 def m1_ask(prompt, max_tokens=256, timeout=20):
     body = json.dumps({"model": "qwen3-8b", "input": f"/nothink\n{prompt}", "temperature": 0.2, "max_output_tokens": max_tokens, "stream": False, "store": False}).encode()
-    req = urllib.request.Request("http://10.5.0.2:1234/api/v1/chat", data=body, headers={"Content-Type": "application/json", "Authorization": f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}"})
+    req = urllib.request.Request("http://127.0.0.1:1234/api/v1/chat", data=body, headers={"Content-Type": "application/json", "Authorization": f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}"})
     resp = urllib.request.urlopen(req, timeout=timeout)
     data = json.loads(resp.read())
     for item in reversed(data.get("output", [])):
@@ -90,7 +90,7 @@ except Exception as e: fail("security_patch_status", str(e)[:80])
 # MODEL MANAGEMENT (4)
 print("\n[MODEL MANAGEMENT]")
 try:
-    req = urllib.request.Request("http://10.5.0.2:1234/api/v1/models", headers={"Authorization": f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}"})
+    req = urllib.request.Request("http://127.0.0.1:1234/api/v1/models", headers={"Authorization": f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}"})
     resp = urllib.request.urlopen(req, timeout=5)
     data = json.loads(resp.read())
     loaded = [m.get("key", "?") for m in data.get("models", []) if m.get("loaded_instances")]

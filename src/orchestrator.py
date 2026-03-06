@@ -37,7 +37,7 @@ Reponds TOUJOURS en francais. Sois concis — tes sorties alimentent un pipeline
 ## Architecture (benchmark-tuned 2026-02-26, M1 PRIORITAIRE)
 - Moteur: CLAUDE (Agent SDK) + LM Studio local + Ollama + Gemini + Claude (HEXA_CORE)
 - Cluster LM Studio: 10 GPU, ~78 GB VRAM total (M1 + M2 + M3)
-  - M1 (10.5.0.2:1234) — 6 GPU 46GB — qwen3-8b — **PRIORITAIRE** (100%, 0.6-2.5s, w=1.8)
+  - M1 (127.0.0.1:1234) — 6 GPU 46GB — qwen3-8b — **PRIORITAIRE** (100%, 0.6-2.5s, w=1.8)
     - Dual-model: qwen3-30b (deep), /nothink obligatoire, extraction: dernier type=message dans output[]
   - M2 (192.168.1.26:1234) — 3 GPU, 24GB — deepseek-r1 — REASONING (25s, w=1.5)
   - M3 (192.168.1.113:1234) — 1 GPU, 8GB — deepseek-r1 — REASONING FALLBACK (18s, w=1.2)
@@ -197,7 +197,7 @@ Pour TOUTE demande:
 7. SYNTHETISE la reponse finale avec attribution [AGENT/modele]
 
 ## Cluster IA (benchmark-tuned 2026-02-20)
-- M1 (10.5.0.2:1234) — 6 GPU 46GB — qwen3-8b — CHAMPION LOCAL (98.4/100, 46 tok/s) ← PRIMARY
+- M1 (127.0.0.1:1234) — 6 GPU 46GB — qwen3-8b — CHAMPION LOCAL (98.4/100, 46 tok/s) ← PRIMARY
 - OL1 (127.0.0.1:11434) — Ollama qwen3:1.7b — ULTRA-RAPIDE (0.5s) ← SHORT/WEB
 - M2 (192.168.1.26:1234) — 3 GPU 24GB — deepseek-r1 — REASONING (25s) ← DEEP
 - M3 (192.168.1.113:1234) — 1 GPU 8GB — deepseek-r1 — REASONING FALLBACK (18s)

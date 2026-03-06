@@ -26,6 +26,7 @@ import time
 import urllib.request
 from datetime import datetime
 from pathlib import Path
+from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 DATA_DIR = SCRIPT_DIR / "data"
@@ -103,7 +104,6 @@ def check_node(node_name):
 
 def send_telegram(text):
     import urllib.parse
-from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
     data = urllib.parse.urlencode({
         "chat_id": TELEGRAM_CHAT_ID, "text": text, "parse_mode": "HTML"
     }).encode()

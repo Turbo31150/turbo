@@ -40,7 +40,7 @@ JARVIS_DB = BASE_DIR / "data" / "jarvis.db"
 # CLUSTER — Tous les modeles disponibles
 # ═══════════════════════════════════════════════════════════════════
 
-M1_BASE = os.getenv("LM_STUDIO_1_URL", "http://10.5.0.2:1234")
+M1_BASE = os.getenv("LM_STUDIO_1_URL", "http://127.0.0.1:1234")
 M1_AUTH = f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}"
 
 MODELS = {

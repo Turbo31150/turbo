@@ -16,7 +16,7 @@ Tu es un specialiste debugging du systeme JARVIS Turbo v10.3.
 
 ## M1 Rapide (PRIORITAIRE pour debug)
 ```bash
-curl -s --max-time 30 http://10.5.0.2:1234/api/v1/chat -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" -d '{"model":"qwen/qwen3-8b","input":"/nothink\nPROMPT","temperature":0.2,"max_output_tokens":1024,"stream":false,"store":false}'
+curl -s --max-time 30 http://127.0.0.1:1234/api/v1/chat -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" -d '{"model":"qwen/qwen3-8b","input":"/nothink\nPROMPT","temperature":0.2,"max_output_tokens":1024,"stream":false,"store":false}'
 ```
 Extraction: dernier element `type=message` dans `.output[]`
 
@@ -38,7 +38,7 @@ Extraction: dernier element `type=message` dans `.output[]`
 | Dashboard | 8080 | dashboard/server.py |
 | n8n | 5678 | n8n MCP |
 | OL1 Ollama | 11434 | local |
-| M1 LM Studio | 1234 (10.5.0.2) | distant |
+| M1 LM Studio | 1234 (127.0.0.1) | distant |
 | M2 LM Studio | 1234 (192.168.1.26) | distant |
 | M3 LM Studio | 1234 (192.168.1.113) | distant |
 

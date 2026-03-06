@@ -20,7 +20,7 @@ Pour les taches profondes (architecture complete, refactoring >200 lignes): M1/q
 
 M1 (code rapide, PRIORITAIRE):
 ```bash
-curl -s --max-time 30 http://10.5.0.2:1234/api/v1/chat -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" -d '{"model":"qwen/qwen3-8b","input":"/nothink\nPROMPT","temperature":0.2,"max_output_tokens":1024,"stream":false,"store":false}'
+curl -s --max-time 30 http://127.0.0.1:1234/api/v1/chat -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" -d '{"model":"qwen/qwen3-8b","input":"/nothink\nPROMPT","temperature":0.2,"max_output_tokens":1024,"stream":false,"store":false}'
 ```
 Extraction M1: dernier element `type=message` dans `.output[]`
 

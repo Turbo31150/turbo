@@ -65,7 +65,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | mode_cinema | "mode cinema" | MinimizeAll > pause 1s > Web: https://www.netflix.com |
 | ouvre_youtube_comet | "ouvre youtube sur comet" | Comet: https://youtube.com |
 | ouvre_github_comet | "ouvre github sur comet" | Comet: https://github.com |
-| ouvre_cluster | "ouvre le cluster" | Web: http://127.0.0.1:8080 > Web: http://10.5.0.2:1234 |
+| ouvre_cluster | "ouvre le cluster" | Web: http://127.0.0.1:8080 > Web: http://127.0.0.1:1234 |
 | ferme_tout | "ferme tout" | MinimizeAll (confirm) |
 | mode_musique | "mode musique" | MinimizeAll > pause 1s > Ouvrir spotify |
 | mode_gaming | "mode gaming" | powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c > pause 1s > Ouvrir steam > pause 2s > Raccourci: win+g |

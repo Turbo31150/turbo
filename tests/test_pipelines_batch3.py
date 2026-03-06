@@ -39,7 +39,7 @@ def m1_ask(prompt, max_tokens=256, timeout=20):
         "store": False
     }).encode()
     req = urllib.request.Request(
-        "http://10.5.0.2:1234/api/v1/chat",
+        "http://127.0.0.1:1234/api/v1/chat",
         data=body,
         headers={
             "Content-Type": "application/json",

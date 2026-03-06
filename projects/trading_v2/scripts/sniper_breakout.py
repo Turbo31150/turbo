@@ -19,7 +19,7 @@ MAX_CYCLES = int(sys.argv[1]) if len(sys.argv) > 1 else 10
 
 # ── AGENTS / NODES ───────────────────────────────────────────────────────
 IA_NODES = [
-    {'name': 'M1-Qwen', 'url': 'http://10.5.0.2:1234', 'model': 'qwen/qwen3-30b-a3b-2507',
+    {'name': 'M1-Qwen', 'url': 'http://127.0.0.1:1234', 'model': 'qwen/qwen3-30b-a3b-2507',
      'key': 'sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7', 'role': 'analyst'},
     {'name': 'M2-DeepSeek', 'url': 'http://192.168.1.26:1234', 'model': 'deepseek-coder-v2-lite-instruct',
      'key': 'sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4', 'role': 'coder'},

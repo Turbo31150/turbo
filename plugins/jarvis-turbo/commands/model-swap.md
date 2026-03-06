@@ -8,7 +8,7 @@ Gere les modeles LM Studio sur le cluster. Arguments : `$ARGUMENTS` = "<noeud> <
 Exemples : `model-swap M2 deepseek-coder`, `model-swap M1 qwen3-coder-30b`
 
 Noeuds disponibles :
-- M1: http://10.5.0.2:1234 (Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7)
+- M1: http://127.0.0.1:1234 (Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7)
 - M2: http://192.168.1.26:1234 (Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4)
 - M3: http://192.168.1.113:1234 (Bearer sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux)
 

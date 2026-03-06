@@ -35,7 +35,7 @@ if not exist "data" mkdir data
 REM Create .env if not exists
 echo [3/4] Configuration...
 if not exist ".env" (
-    echo LM_STUDIO_1_URL=http://localhost:1234 > .env
+    echo LM_STUDIO_1_URL=http://127.0.0.1:1234 > .env
     echo LM_STUDIO_2_URL=http://192.168.1.26:1234 >> .env
     echo LM_STUDIO_3_URL=http://192.168.1.113:1234 >> .env
     echo LM_STUDIO_DEFAULT_MODEL=qwen/qwen3-8b >> .env

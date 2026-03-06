@@ -1615,7 +1615,7 @@ const server = http.createServer(async (req, res) => {
       try {
         const opts = { timeout: 10000, encoding: 'utf8', cwd: turboRoot };
         if (stdinData) opts.input = stdinData;
-        const out = execSync(`python3 "${collabCli}" ${args}`, opts);
+        const out = execSync(`python "${collabCli}" ${args}`, opts);
         return JSON.parse(out.trim());
       } catch (e) { return { error: e.message }; }
     };

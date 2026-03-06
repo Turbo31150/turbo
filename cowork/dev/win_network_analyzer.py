@@ -24,8 +24,7 @@ DEV = Path(__file__).parent
 DB_PATH = DEV / "data" / "network_analyzer.db"
 
 CLUSTER_IPS = {
-    "127.0.0.1": "localhost",
-    "10.5.0.2": "M1_docker",
+    "127.0.0.1": "localhost_M1",
     "192.168.1.26": "M2",
     "192.168.1.113": "M3",
     "0.0.0.0": "all_interfaces",

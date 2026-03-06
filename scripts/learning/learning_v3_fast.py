@@ -20,14 +20,14 @@ from collections import defaultdict
 MODELS = {
     "M1-qwen3": {
         "type": "openai",
-        "url": "http://10.5.0.2:1234/v1/chat/completions",
+        "url": "http://127.0.0.1:1234/v1/chat/completions",
         "key": os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", "")),
         "model": "qwen3-8b",
         "sem": 3,
     },
     "M1-dsr1": {
         "type": "openai",
-        "url": "http://10.5.0.2:1234/v1/chat/completions",
+        "url": "http://127.0.0.1:1234/v1/chat/completions",
         "key": os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", "")),
         "model": "deepseek-r1-0528-qwen3-8b",
         "sem": 2,

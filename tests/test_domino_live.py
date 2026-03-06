@@ -13,7 +13,7 @@ def ps(cmd, timeout=15):
 
 def m1_ask(prompt, max_tokens=256, timeout=20):
     body = json.dumps({"model": "qwen3-8b", "input": f"/nothink\n{prompt}", "temperature": 0.2, "max_output_tokens": max_tokens, "stream": False, "store": False}).encode()
-    req = urllib.request.Request("http://10.5.0.2:1234/api/v1/chat", data=body, headers={"Content-Type": "application/json", "Authorization": f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}"})
+    req = urllib.request.Request("http://127.0.0.1:1234/api/v1/chat", data=body, headers={"Content-Type": "application/json", "Authorization": f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}"})
     resp = urllib.request.urlopen(req, timeout=timeout)
     data = json.loads(resp.read())
     for item in reversed(data.get("output", [])):
@@ -36,7 +36,7 @@ try:
     gpu = ps("nvidia-smi --query-gpu=temperature.gpu,memory.used --format=csv,noheader")
     print(f"    Step 1 GPU: {gpu[:60]}")
     # Step 2: Cluster health
-    resp = urllib.request.urlopen("http://10.5.0.2:1234/api/v1/models", timeout=5)
+    resp = urllib.request.urlopen("http://127.0.0.1:1234/api/v1/models", timeout=5)
     models = json.loads(resp.read())
     m1_models = len(models.get("data", models.get("models", [])))
     print(f"    Step 2 M1: {m1_models} modeles charges")
@@ -65,7 +65,7 @@ except Exception as e: fail("domino_trading_full_scan", str(e)[:80])
 print("\n[DOMINO] debug_cascade: domino_debug_cluster")
 try:
     nodes_ok = 0
-    for name, url in [("M1", "http://10.5.0.2:1234/api/v1/models"), ("M2", "http://192.168.1.26:1234/api/v1/models"), ("OL1", "http://127.0.0.1:11434/api/tags")]:
+    for name, url in [("M1", "http://127.0.0.1:1234/api/v1/models"), ("M2", "http://192.168.1.26:1234/api/v1/models"), ("OL1", "http://127.0.0.1:11434/api/tags")]:
         try:
             urllib.request.urlopen(url, timeout=3)
             print(f"    {name}: ONLINE")

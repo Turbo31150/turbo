@@ -209,7 +209,7 @@ Tu es un agent specialise en raisonnement logique et mathematique pour JARVIS Tu
 
 | Noeud | URL | Auth | Modele |
 |-------|-----|------|--------|
-| M1 | http://10.5.0.2:1234 | Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7 | qwen3-8b (PRIORITAIRE) |
+| M1 | http://127.0.0.1:1234 | Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7 | qwen3-8b (PRIORITAIRE) |
 | M2 | http://192.168.1.26:1234 | Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4 | deepseek-coder-v2-lite |
 
 ## Methode
@@ -317,7 +317,7 @@ Ajouter un 3e hook dans le tableau `SessionStart[0].hooks` :
 ```json
 {
   "type": "command",
-  "command": "python3 -c \"import urllib.request,json\ntry:\n r=urllib.request.urlopen(urllib.request.Request('http://10.5.0.2:1234/api/v1/models',headers={'Authorization':'Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'}),timeout=5)\n d=json.loads(r.read());loaded=[m.get('key','?') for m in d.get('models',[]) if m.get('loaded_instances')]\n has_8b=any('qwen3-8b' in m for m in loaded)\n if not has_8b: print('WARNING: M1 qwen3-8b NOT loaded! Loaded:',','.join(loaded))\nexcept Exception as e: print('M1 check failed:',e)\" 2>/dev/null || true",
+  "command": "python3 -c \"import urllib.request,json\ntry:\n r=urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:1234/api/v1/models',headers={'Authorization':'Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'}),timeout=5)\n d=json.loads(r.read());loaded=[m.get('key','?') for m in d.get('models',[]) if m.get('loaded_instances')]\n has_8b=any('qwen3-8b' in m for m in loaded)\n if not has_8b: print('WARNING: M1 qwen3-8b NOT loaded! Loaded:',','.join(loaded))\nexcept Exception as e: print('M1 check failed:',e)\" 2>/dev/null || true",
   "timeout": 8000
 }
 ```
@@ -426,7 +426,7 @@ git commit -m "docs(readme): 7 schemas workflow + M1 qwen3-8b + routing M1 prio"
 **Step 1: Health check cluster**
 
 ```bash
-curl -s --max-time 3 http://10.5.0.2:1234/api/v1/models -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" | python3 -c "import sys,json;d=json.load(sys.stdin);loaded=[m for m in d.get('models',[]) if m.get('loaded_instances')];print('M1 OK:',len(loaded),'modeles')"
+curl -s --max-time 3 http://127.0.0.1:1234/api/v1/models -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" | python3 -c "import sys,json;d=json.load(sys.stdin);loaded=[m for m in d.get('models',[]) if m.get('loaded_instances')];print('M1 OK:',len(loaded),'modeles')"
 curl -s --max-time 3 http://192.168.1.26:1234/api/v1/models -H "Authorization: Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4" | python3 -c "import sys,json;d=json.load(sys.stdin);loaded=[m for m in d.get('models',[]) if m.get('loaded_instances')];print('M2 OK:',len(loaded),'modeles')"
 curl -s --max-time 3 http://127.0.0.1:11434/api/tags | python3 -c "import sys,json;print('OL1 OK:',len(json.load(sys.stdin).get('models',[])),'modeles')"
 ```

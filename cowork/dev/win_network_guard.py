@@ -22,7 +22,7 @@ from pathlib import Path
 DEV = Path(__file__).parent
 DB_PATH = DEV / "data" / "network_guard.db"
 
-WHITELIST_IPS = {"127.0.0.1", "192.168.1.26", "192.168.1.113", "10.5.0.2", "0.0.0.0", "::1", "::"}
+WHITELIST_IPS = {"127.0.0.1", "192.168.1.26", "192.168.1.113", "0.0.0.0", "::1", "::"}
 KNOWN_PORTS = {
     1234: "LM Studio", 11434: "Ollama", 18789: "OpenClaw",
     9742: "FastAPI WS", 8080: "Dashboard", 18800: "Direct Proxy",

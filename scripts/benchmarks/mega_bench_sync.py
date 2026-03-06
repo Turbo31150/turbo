@@ -6,7 +6,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 sys.stdout.reconfigure(line_buffering=True)
 
 NODES = {
-    "M1": {"url": "http://10.5.0.2:1234/api/v1/chat", "model": "qwen3-8b",
+    "M1": {"url": "http://127.0.0.1:1234/api/v1/chat", "model": "qwen3-8b",
             "auth": os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", "")), "type": "lm",
             "prefix": "/nothink\n", "weight": 1.8, "tok": 1024},
     "M2": {"url": "http://192.168.1.26:1234/api/v1/chat", "model": "deepseek-r1-0528-qwen3-8b",

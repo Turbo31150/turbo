@@ -23,7 +23,7 @@ curl -s --max-time 3 http://192.168.1.113:1234/api/v1/models -H "Authorization: 
 ```
 
 ```bash
-curl -s --max-time 3 http://10.5.0.2:1234/api/v1/models -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" 2>/dev/null | python3 -c "import sys,json;d=json.load(sys.stdin);print('M1 OK:',len([m for m in d.get('models',[]) if m.get('loaded_instances')]),'modeles charges')" || echo "M1 OFFLINE"
+curl -s --max-time 3 http://127.0.0.1:1234/api/v1/models -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" 2>/dev/null | python3 -c "import sys,json;d=json.load(sys.stdin);print('M1 OK:',len([m for m in d.get('models',[]) if m.get('loaded_instances')]),'modeles charges')" || echo "M1 OFFLINE"
 ```
 
 ```bash

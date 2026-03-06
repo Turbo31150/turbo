@@ -35,6 +35,8 @@ if hasattr(sys.stderr, "reconfigure"):
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
+from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
+
 # TELEGRAM_TOKEN loaded from _paths (.env)
 TELEGRAM_CHAT_ID = TELEGRAM_CHAT
 DB_PATH = Path(__file__).with_name("thermal.db")
@@ -151,7 +153,6 @@ def run_loop():
             run_once()
             # 30 seconds interval
             import time
-from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
             time.sleep(30)
     except KeyboardInterrupt:
         print("[gpu_thermal_guard] Surveillance arrêtée par l'utilisateur.")

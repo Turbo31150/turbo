@@ -19,7 +19,7 @@ $body = @{
     store = $false
 } | ConvertTo-Json -Depth 4
 
-$r = Invoke-RestMethod -Uri "http://10.5.0.2:1234/api/v1/chat" -Method POST -ContentType "application/json" -Headers $M1_Headers -Body $body -TimeoutSec 30
+$r = Invoke-RestMethod -Uri "http://127.0.0.1:1234/api/v1/chat" -Method POST -ContentType "application/json" -Headers $M1_Headers -Body $body -TimeoutSec 30
 $sw.Stop()
 
 Write-Host "=== TEST PERFORMANCE M1 - qwen3-8b ==="
@@ -41,7 +41,7 @@ $body2 = @{
     store = $false
 } | ConvertTo-Json -Depth 4
 
-$r2 = Invoke-RestMethod -Uri "http://10.5.0.2:1234/api/v1/chat" -Method POST -ContentType "application/json" -Headers $M1_Headers -Body $body2 -TimeoutSec 30
+$r2 = Invoke-RestMethod -Uri "http://127.0.0.1:1234/api/v1/chat" -Method POST -ContentType "application/json" -Headers $M1_Headers -Body $body2 -TimeoutSec 30
 $sw2.Stop()
 
 Write-Host "=== TEST 2 - Identification commande ==="

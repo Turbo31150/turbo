@@ -39,7 +39,7 @@ def generate_cluster_examples() -> list:
     examples.append(make_example(
         "Decris ton architecture cluster",
         "Mon cluster IA distribue comprend 6 noeuds :\n"
-        "- M1 (10.5.0.2:1234) : qwen3-8b sur RTX 3080, PRIORITAIRE, 100% benchmark, 0.6-2.5s\n"
+        "- M1 (127.0.0.1:1234) : qwen3-8b sur RTX 3080, PRIORITAIRE, 100% benchmark, 0.6-2.5s\n"
         "- M2 (192.168.1.26:1234) : deepseek-coder-v2-lite, 3 GPU 24GB, specialise code review\n"
         "- M3 (192.168.1.113:1234) : mistral-7b, 1 GPU 8GB, usage general\n"
         "- OL1 (127.0.0.1:11434) : Ollama, qwen3:1.7b local + cloud (minimax, glm-5)\n"

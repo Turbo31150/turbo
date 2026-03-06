@@ -21,13 +21,13 @@ from collections import defaultdict
 MODELS = {
     "M1-qwen3": {
         "type": "openai",
-        "url": "http://10.5.0.2:1234/v1/chat/completions",
+        "url": "http://127.0.0.1:1234/v1/chat/completions",
         "key": os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", "")),
         "model": "qwen3-8b", "sem": 3,
     },
     "M1-dsr1": {
         "type": "openai",
-        "url": "http://10.5.0.2:1234/v1/chat/completions",
+        "url": "http://127.0.0.1:1234/v1/chat/completions",
         "key": os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", "")),
         "model": "deepseek-r1-0528-qwen3-8b", "sem": 2,
     },
@@ -167,7 +167,7 @@ SCENARIOS = [
      "keywords":["Get-VpnConnection","rasdial","VPN","netsh","connect"],
      "intent":"diagnostic VPN + tentative reconnexion"},
     {"id":30, "cat":"debug", "cmd":"LM Studio sur M1 repond pas, relance",
-     "keywords":["Test-NetConnection","10.5.0.2","1234","curl","LM Studio"],
+     "keywords":["Test-NetConnection","127.0.0.1","1234","curl","LM Studio"],
      "intent":"check + restart LM Studio distant"},
 
     # ── PILOTAGE SYSTEME AVANCE (31-45) ──
@@ -219,13 +219,13 @@ SCENARIOS = [
 
     # ── CLUSTER IA & JARVIS (46-60) ──
     {"id":46, "cat":"cluster", "cmd":"Verifie que toutes les machines du cluster sont en ligne",
-     "keywords":["Test-NetConnection","10.5.0.2","192.168.1.26","192.168.1.113","ping","cluster"],
+     "keywords":["Test-NetConnection","127.0.0.1","192.168.1.26","192.168.1.113","ping","cluster"],
      "intent":"health check 3 machines"},
     {"id":47, "cat":"cluster", "cmd":"C'est quoi la temperature GPU sur chaque machine?",
      "keywords":["nvidia-smi","temperature","GPU","M1","M2","M3"],
      "intent":"monitoring thermique cluster"},
     {"id":48, "cat":"cluster", "cmd":"Charge le modele qwen3-30b sur M1",
-     "keywords":["curl","load","model","qwen3-30b","LM Studio","10.5.0.2"],
+     "keywords":["curl","load","model","qwen3-30b","LM Studio","127.0.0.1"],
      "intent":"charger modele IA specifique"},
     {"id":49, "cat":"cluster", "cmd":"Compare les performances de M1 et M2 sur une question",
      "keywords":["curl","benchmark","M1","M2","compare","performance","latence"],

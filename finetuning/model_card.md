@@ -190,7 +190,7 @@ lora_target_modules: ["q_proj", "k_proj", "v_proj", "o_proj"]
 
 | Machine | Modèle | VRAM | Port |
 |---------|--------|------|------|
-| M1 (maître) | Qwen3-30B + JARVIS fine-tune | 46GB | 10.5.0.2:1234 |
+| M1 (maître) | Qwen3-30B + JARVIS fine-tune | 46GB | 127.0.0.1:1234 |
 | M2 | deepseek-coder-v2-lite | 24GB | 192.168.1.26:1234 |
 
 Le modèle JARVIS fine-tuné est chargé en permanence sur M1 avec LM Studio et accessible via l'API locale.

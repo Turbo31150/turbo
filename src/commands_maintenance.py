@@ -295,6 +295,17 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
         "dism health", "sante windows", "dism check",
         "verifie l'image windows", "dism scan",
     ], "powershell", "DISM /Online /Cleanup-Image /CheckHealth 2>&1 | Out-String"),
+    JarvisCommand("chkdsk_check", "systeme", "Verifier l'integrite du disque (chkdsk)", [
+        "verifie le disque", "chkdsk", "check disk", "integrite disque",
+        "scan disque", "verification disque",
+    ], "powershell", "chkdsk C: 2>&1 | Select -Last 10 | Out-String"),
+    JarvisCommand("bitlocker_status", "systeme", "Statut BitLocker des volumes", [
+        "statut bitlocker", "bitlocker status", "chiffrement disque",
+        "statut bitlockeur", "encryption status",
+    ], "powershell", "try{Get-BitLockerVolume | Select MountPoint, VolumeStatus, ProtectionStatus, EncryptionMethod | Format-Table | Out-String}catch{'BitLocker non disponible'}"),
+    JarvisCommand("windows_update_pause", "systeme", "Suspendre les mises a jour Windows", [
+        "pause les mises a jour", "suspends les updates", "stop updates",
+    ], "powershell", "Start-Process ms-settings:windowsupdate-options"),
     JarvisCommand("system_restore_points", "systeme", "Lister les points de restauration systeme", [
         "points de restauration", "restore points", "sauvegardes systeme",
         "quels points de restauration",
@@ -431,6 +442,22 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
         "redemarre dans le bios", "restart bios", "acces uefi",
         "bios au redemarrage",
     ], "powershell", "shutdown /r /fw /t 0", confirm=True),
+    JarvisCommand("eteindre_pc", "systeme", "Eteindre le PC immediatement", [
+        "eteins le pc", "eteindre", "shutdown", "arrete le pc",
+        "eteins l'ordinateur", "coupe le pc",
+    ], "powershell", "Stop-Computer -Force", confirm=True),
+    JarvisCommand("redemarrer_pc", "systeme", "Redemarrer le PC immediatement", [
+        "redemarre le pc", "redemarrer", "reboot", "relance le pc",
+        "redemarre l'ordinateur",
+    ], "powershell", "Restart-Computer -Force", confirm=True),
+    JarvisCommand("mettre_en_veille", "systeme", "Mettre le PC en veille immediatement", [
+        "mets en veille", "veille", "dors", "sleep",
+        "mets le pc en veille", "mode veille",
+    ], "powershell", "rundll32.exe powrprof.dll,SetSuspendState 0,1,0"),
+    JarvisCommand("verrouiller_ecran", "systeme", "Verrouiller la session Windows", [
+        "verrouille", "verrouille le pc", "lock screen", "lock",
+        "verrouille l'ecran", "session lock",
+    ], "powershell", "rundll32.exe user32.dll,LockWorkStation"),
     JarvisCommand("taskbar_app_1", "systeme", "Lancer la 1ere app epinglee dans la taskbar", [
         "premiere app taskbar", "app 1 taskbar", "lance l'app 1",
         "taskbar un",
@@ -978,7 +1005,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("ping_cluster_complet", "systeme", "Ping tous les noeuds du cluster IA", [
         "ping tout le cluster", "tous les noeuds repondent",
         "test cluster complet", "ping m1 m2 m3",
-    ], "powershell", "$results = @(); @('192.168.1.26','192.168.1.113','10.5.0.2','127.0.0.1') | ForEach-Object { $t = Test-Connection $_ -Count 1 -TimeoutSeconds 2 -ErrorAction SilentlyContinue; $results += \"$_`: $(if($t){\"$([math]::Round($t.Latency))ms\"}else{'TIMEOUT'})\" }; $results -join ' | '"),
+    ], "powershell", "$results = @(); @('192.168.1.26','192.168.1.113','127.0.0.1','127.0.0.1') | ForEach-Object { $t = Test-Connection $_ -Count 1 -TimeoutSeconds 2 -ErrorAction SilentlyContinue; $results += \"$_`: $(if($t){\"$([math]::Round($t.Latency))ms\"}else{'TIMEOUT'})\" }; $results -join ' | '"),
     JarvisCommand("netstat_ecoute", "systeme", "Ports en ecoute avec processus associes", [
         "netstat listen", "ports en ecoute", "quels ports ecoutent",
         "qui ecoute sur quel port",

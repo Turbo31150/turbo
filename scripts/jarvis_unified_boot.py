@@ -626,6 +626,35 @@ def phase_4_python_services(dry_run: bool = False, skip: list[str] | None = None
                 log("Telegram bot: skip (canvas proxy pas pret)", "WARN", indent=1)
                 report["telegram"] = "no_proxy"
 
+    # -- WhisperFlow (Voice Overlay) --
+    whisperflow_dir = TURBO_DIR / "whisperflow"
+    if "whisperflow" not in skip and whisperflow_dir.exists():
+        if dry_run:
+            log("WhisperFlow: (dry-run, skip)", "WARN", indent=1)
+            report["whisperflow"] = "dry_run"
+        else:
+            # Needs WS backend (port 9742) first
+            if check_port("127.0.0.1", 9742):
+                log("WhisperFlow: demarrage overlay...", "INFO", indent=1)
+                # Try Electron first, fallback to browser
+                try:
+                    start_process(
+                        ["electron", "."],
+                        "WhisperFlow", cwd=str(whisperflow_dir),
+                    )
+                    log("WhisperFlow: lance (Electron)", "OK", indent=1)
+                    report["whisperflow"] = "started_electron"
+                except (OSError, FileNotFoundError):
+                    # Fallback: open in browser via WS backend
+                    log("WhisperFlow: Electron absent, ouverture navigateur...", "INFO", indent=1)
+                    import webbrowser
+                    webbrowser.open("http://127.0.0.1:9742/whisperflow/")
+                    report["whisperflow"] = "started_browser"
+                    log("WhisperFlow: lance (navigateur)", "OK", indent=1)
+            else:
+                log("WhisperFlow: skip (WS backend pas pret sur :9742)", "WARN", indent=1)
+                report["whisperflow"] = "no_ws_backend"
+
     return report
 
 

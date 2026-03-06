@@ -69,7 +69,7 @@ except Exception as e: fail("stream_chat_monitor", str(e)[:80])
 # COLLABORATION (3)
 print("\n[COLLABORATION]")
 try:
-    out = ps("$m1 = Test-Connection -ComputerName '10.5.0.2' -Count 1 -TimeoutSeconds 2 -ErrorAction SilentlyContinue; Write-Output \"M1: $(if ($m1) { 'EN LIGNE' } else { 'HORS LIGNE' })\"")
+    out = ps("$m1 = Test-Connection -ComputerName '127.0.0.1' -Count 1 -TimeoutSeconds 2 -ErrorAction SilentlyContinue; Write-Output \"M1: $(if ($m1) { 'EN LIGNE' } else { 'HORS LIGNE' })\"")
     ok("collab_sync_status", out[:80])
 except Exception as e: fail("collab_sync_status", str(e)[:80])
 

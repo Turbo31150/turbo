@@ -65,7 +65,7 @@ Trois conditions REQUISES simultanement :
 | OL1-cloud | minimax-m2.5 | 1.3 | Web search, contexte |
 | M2/deepseek | 192.168.1.26 | 1.2 | Analyse technique |
 | M3/mistral | 192.168.1.113 | 1.0 | Validation |
-| M1/qwen3-30b | 10.5.0.2 | 1.5 | Raisonnement profond |
+| M1/qwen3-30b | 127.0.0.1 | 1.5 | Raisonnement profond |
 | GEMINI | proxy | 1.1 | Vision macro (bottleneck 60-90s) |
 
 ## Dashboard

@@ -1233,6 +1233,36 @@ async def api_telegram_chat(request: Request):
         return JSONResponse({"error": str(exc)}, status_code=500)
 
 
+@app.post("/api/telegram/forward")
+async def api_telegram_forward(request: Request):
+    """Forward a WhisperFlow voice transcription to Telegram chat."""
+    try:
+        body = await request.json()
+        text = body.get("text", "")
+        source = body.get("source", "unknown")
+        if not text:
+            return JSONResponse({"error": "no text"}, status_code=400)
+
+        # Send via Telegram bot API
+        import os
+        import urllib.request
+        token = os.getenv("TELEGRAM_BOT_TOKEN", "")
+        chat_id = os.getenv("TELEGRAM_CHAT_ID", "2010747443")
+        if token:
+            msg = f"[{source}] {text}"
+            payload = json.dumps({"chat_id": chat_id, "text": msg, "parse_mode": "Markdown"})
+            req = urllib.request.Request(
+                f"https://api.telegram.org/bot{token}/sendMessage",
+                data=payload.encode(),
+                headers={"Content-Type": "application/json"},
+            )
+            urllib.request.urlopen(req, timeout=5)
+        return JSONResponse({"ok": True, "forwarded": bool(token)})
+    except Exception as exc:
+        logger.warning("Telegram forward error: %s", exc)
+        return JSONResponse({"ok": False, "error": str(exc)})
+
+
 # ── Notification Hub — Phase 12 ────────────────────────────────────────
 
 @app.post("/api/notifications/send")

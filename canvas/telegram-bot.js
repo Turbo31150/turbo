@@ -199,6 +199,16 @@ async function directClusterHealth() {
   return { ok: true, nodes: results };
 }
 
+/** Normalise les noeuds du proxy ou du direct health check */
+function normalizeNodes(nodes) {
+  return (nodes || []).map(n => ({
+    nodeId: n.nodeId || n.name || n.id || '?',
+    status: n.status || (n.ok ? 'online' : 'offline'),
+    model: n.model || CLUSTER_NODES.find(c => c.id === (n.nodeId || n.name || n.id))?.model || '',
+    latency: n.latency || 0,
+  }));
+}
+
 /** Split un message long en chunks <= MAX_MSG_LEN */
 function splitMessage(text) {
   if (text.length <= MAX_MSG_LEN) return [text];
@@ -257,56 +267,54 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
     case '/start':
     case '/help': {
       const lines = [
-        '*JARVIS Telegram Bot*',
+        '*JARVIS — Commandes*',
         '',
-        '*Cluster IA:*',
-        '`/status` — Etat du cluster (online/offline)',
-        '`/health` — Details noeuds + autolearn scores',
-        '`/consensus <q>` — Question multi-noeuds (vote)',
-        '`/model <id> <q>` — Interroger un noeud (M1/M2/OL1/M3)',
-        '`/openclaw <q>` — Question via proxy reflexive chain',
+        '*Poser une question:*',
+        '`/ask <question>` — Poser une question au cluster IA',
+        '`/consensus <question>` — Demander a tous les noeuds (vote)',
+        '`/model M1 <question>` — Forcer un noeud precis',
         '',
-        '*Trading & Scanner:*',
-        '`/scan [N]` — Sniper scan top N coins (breakouts)',
-        '`/deepscan [N]` — Deep scan 800+ coins (3 passes)',
-        '`/hot [N]` — Top coins chauds (score historique)',
-        '`/signals` — Signaux ouverts en temps reel',
-        '`/market` — Resume marche (top movers + trend)',
-        '`/perf` — Performance signaux (win rate TP/SL)',
-        '`/compare A B` — Comparer deux coins',
+        '*Trading:*',
+        '`/market` — Prix BTC + tendance + top movers',
+        '`/scan` — Scanner rapide top 50 coins',
+        '`/deepscan` — Scanner profond 800+ coins',
+        '`/hot` — Coins les plus chauds du moment',
+        '`/signals` — Mes signaux ouverts',
+        '`/perf` — Resultats: combien de TP et SL touches',
+        '`/compare BTC SOL` — Comparer deux coins',
         '`/whales` — Gros mouvements detectes',
-        '`/news` — Actus crypto du jour',
-        '`/backtest` — Resultats micro-backtest',
-        '',
-        '*Scanner avance:*',
-        '`/scanstats` — Stats scanner (DB)',
-        '`/sniper` — Statut scanner permanent',
-        '`/realtime` — Scanner temps reel',
-        '`/loop` — Statut Super Loop amelioration',
-        '`/alerton` / `/alertoff` — Alertes trading ON/OFF',
-        '',
-        '*Dominos (pipelines):*',
-        '`/domino` — Liste des cascades disponibles',
-        '`/domino <nom>` — Lancer un domino',
+        '`/news` — Actus crypto',
+        '`/backtest` — Resultats des backtests',
+        '`/alerton` / `/alertoff` — Alertes ON/OFF',
         '',
         '*Systeme:*',
-        '`/stats` — Statistiques du bot',
-        '`/menu` — Dashboard interactif (boutons)',
+        '`/status` — Quels noeuds IA sont en ligne',
+        '`/gpu` — Temperatures GPU',
+        '`/disk` — Espace disque libre',
+        '`/ping` — Test rapide (le bot repond?)',
+        '`/sniper` — Le scanner tourne-t-il?',
+        '`/loop` — Amelioration auto en cours?',
+        '',
+        '*Dominos (automatisations):*',
+        '`/domino` — Voir toutes les automatisations',
+        '`/domino matin` — Lancer un domino par nom',
+        '',
+        '`/menu` — Boutons interactifs',
+        '`/stats` — Chiffres du bot',
       ];
       if (isAdmin) {
         lines.push(
           '',
           '*Admin:*',
-          '`/gpu` — Temperatures + VRAM GPU',
-          '`/jarvis <cmd>` — Commande vocale JARVIS',
-          '`/improve [N]` — Cycles amelioration auto',
-          '`/superloop [N]` — Super Loop (trading+code+repair)',
-          '`/killscanner` — Arreter scanner REALTIME',
-          '`/voice [texte]` — Test reponse vocale',
+          '`/jarvis <cmd>` — Executer commande vocale',
+          '`/improve [N]` — Lancer N cycles amelioration',
+          '`/superloop [N]` — Super Loop complet',
+          '`/killscanner` — Stopper le scanner',
+          '`/voice [texte]` — Tester la voix',
         );
       }
-      lines.push('', 'Texte libre → dispatch cluster IA automatique.');
-      lines.push('Vocal → Whisper STT → reponse vocale.');
+      lines.push('', 'Ecris directement ta question, JARVIS repond.');
+      lines.push('Envoie un vocal, JARVIS transcrit et repond en vocal.');
       return sendMessage(chatId, lines.join('\n'), 'Markdown');
     }
 
@@ -319,16 +327,16 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
         } catch {
           h = await directClusterHealth();
         }
-        const onlineCount = (h.nodes || []).filter(n => n.status === 'online').length;
-        const totalCount = (h.nodes || []).length;
-        const lines = [`${onlineCount === totalCount ? '✅' : '⚠️'} *Cluster Status* (${onlineCount}/${totalCount} online)`, ''];
-        for (const n of (h.nodes || [])) {
+        const nodes = normalizeNodes(h.nodes);
+        const onlineCount = nodes.filter(n => n.status === 'online').length;
+        const lines = [`${onlineCount === nodes.length ? '✅' : '⚠️'} *Cluster* (${onlineCount}/${nodes.length} en ligne)`, ''];
+        for (const n of nodes) {
           const icon = n.status === 'online' ? '🟢' : '🔴';
-          lines.push(`${icon} *${n.nodeId}* — ${n.model} (${n.latency || '?'}ms)`);
+          lines.push(`${icon} *${n.nodeId}* ${n.model ? '— ' + n.model + ' ' : ''}(${n.latency || '?'}ms)`);
         }
         return sendMessage(chatId, lines.join('\n'), 'Markdown');
       } catch (e) {
-        return sendMessage(chatId, `🔴 Erreur health check: ${e.message}`);
+        return sendMessage(chatId, '🔴 Erreur health check: ' + e.message);
       }
     }
 
@@ -341,24 +349,27 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
         } catch {
           h = await directClusterHealth();
         }
-        const lines = ['📊 *Health detaille*', ''];
-        for (const n of (h.nodes || [])) {
+        const nodes = normalizeNodes(h.nodes);
+        const lines = ['📊 *Cluster detaille*', ''];
+        for (const n of nodes) {
           const icon = n.status === 'online' ? '🟢' : '🔴';
-          lines.push(`${icon} *${n.nodeId}*: ${n.status} | ${n.model} | ${n.latency || '?'}ms`);
+          lines.push(`${icon} *${n.nodeId}*: ${n.status} | ${n.model || '-'} | ${n.latency || '?'}ms`);
         }
         if (al && al.ok !== false) {
-          lines.push('', '*Autolearn Scores:*');
-          const scores = al.scores || al;
-          for (const [node, cats] of Object.entries(scores)) {
-            if (typeof cats === 'object') {
-              const avg = Object.values(cats).reduce((a, b) => a + (b || 0), 0) / Math.max(Object.values(cats).length, 1);
-              lines.push(`  ${node}: avg ${avg.toFixed(1)}`);
+          // Autolearn: show routing preferences per category
+          const routing = al.routing || {};
+          const routeEntries = Object.entries(routing).filter(([k]) => k !== 'default');
+          if (routeEntries.length) {
+            lines.push('', '*Autolearn routing:*');
+            for (const [cat, order] of routeEntries.slice(0, 8)) {
+              if (Array.isArray(order)) lines.push(`  ${cat}: ${order.join(' > ')}`);
             }
           }
+          if (al.last_cycle) lines.push(`Dernier cycle: ${new Date(al.last_cycle).toLocaleTimeString('fr-FR')}`);
         }
         return sendMessage(chatId, lines.join('\n'), 'Markdown');
       } catch (e) {
-        return sendMessage(chatId, `🔴 Erreur: ${e.message}`);
+        return sendMessage(chatId, '🔴 Erreur: ' + e.message);
       }
     }
 
@@ -548,6 +559,39 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
       return handleDominos(chatId, dominoName);
     }
 
+    case '/ask': {
+      if (!args) return sendMessage(chatId, 'Usage: /ask <ta question>');
+      // Dispatch direct au cluster via race
+      await sendMessage(chatId, 'Je reflechis...');
+      const result = await clusterRace(args);
+      if (result) {
+        addToMemory(chatId, 'user', args);
+        addToMemory(chatId, 'assistant', result.text.slice(0, 500));
+        const attr = '\n\n_[' + result.node + '/' + result.model + ' ' + result.latency + 'ms]_';
+        if (VOICE_MODE && result.text.length < 1500) await sendVoiceReply(chatId, result.text);
+        return sendMessage(chatId, result.text + attr, 'Markdown');
+      }
+      return sendMessage(chatId, 'Aucun noeud ne repond. Verifiez /status');
+    }
+
+    case '/ping': {
+      const uptime = Math.floor((Date.now() - new Date(stats.started).getTime()) / 1000);
+      const h = Math.floor(uptime / 3600);
+      const m = Math.floor((uptime % 3600) / 60);
+      return sendMessage(chatId, 'Pong! Bot actif depuis ' + h + 'h' + m + 'm | ' + stats.messages_in + ' msgs recus | ' + stats.errors + ' erreurs');
+    }
+
+    case '/disk': {
+      try {
+        const helper = path.join(__dirname, 'bot-helpers.py');
+        const r = execSync(`python "${helper}" disk`, { timeout: 5000, encoding: 'utf-8' });
+        const d = JSON.parse(r.trim());
+        return sendMessage(chatId, `Espace disque:\nC: ${d.C_free} GB libres / ${d.C_total} GB\nF: ${d.F_free} GB libres / ${d.F_total} GB`);
+      } catch (e) {
+        return sendMessage(chatId, 'Erreur disque: ' + e.message.slice(0, 100));
+      }
+    }
+
     default:
       return null; // pas une commande reconnue
   }
@@ -596,22 +640,13 @@ async function handleDeepScan(chatId, finalN) {
 // ─── Scan Stats & Hot Coins ──────────────────────────────────────────────────
 
 async function handleScanStats(chatId) {
+  const helper = path.join(__dirname, 'bot-helpers.py');
   try {
-    const result = execSync(`python -c "
-import sqlite3, json
-db = sqlite3.connect('data/sniper_scan.db')
-scans = db.execute('SELECT COUNT(*) FROM scan_runs').fetchone()[0]
-snaps = db.execute('SELECT COUNT(*) FROM coin_snapshots').fetchone()[0]
-reg = db.execute('SELECT COUNT(*) FROM coin_registry').fetchone()[0]
-sigs = db.execute('SELECT COUNT(*) FROM scan_signals').fetchone()[0]
-last = db.execute('SELECT id,ts,coins_scanned,signals_found,breakouts,duration_s FROM scan_runs ORDER BY id DESC LIMIT 1').fetchone()
-print(json.dumps({'scans':scans,'snapshots':snaps,'registry':reg,'signals':sigs,'last':{'id':last[0],'ts':last[1],'coins':last[2],'sigs':last[3],'breaks':last[4],'dur':last[5]} if last else None}))
-db.close()
-"`, { timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
+    const result = execSync(`python "${helper}" scan-stats`, { timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
     const d = JSON.parse(result.trim());
     const l = d.last;
     const lines = [
-      '📊 *Scanner Stats*',
+      '*Scanner Stats*',
       '',
       `Scans effectues: ${d.scans}`,
       `Snapshots: ${d.snapshots}`,
@@ -623,27 +658,21 @@ db.close()
         `${l.ts}`,
         `${l.coins} coins | ${l.sigs} signaux | ${l.breaks} breakouts | ${l.dur.toFixed(1)}s`);
     }
-    // Check if sniper is running
     try {
       const ps = execSync('tasklist /FI "IMAGENAME eq python.exe" /FO CSV /NH', { encoding: 'utf-8', timeout: 5000 });
       const sniperRunning = ps.includes('sniper_scanner');
-      lines.push('', sniperRunning ? '🟢 Scanner permanent ACTIF' : '🔴 Scanner permanent INACTIF');
+      lines.push('', sniperRunning ? 'Scanner permanent ACTIF' : 'Scanner permanent INACTIF');
     } catch (e) { /* ignore */ }
     return sendMessage(chatId, lines.join('\n'), 'Markdown');
   } catch (e) {
-    return sendMessage(chatId, `🔴 Erreur: ${e.message.slice(0, 200)}`);
+    return sendMessage(chatId, 'Erreur scan stats: ' + e.message.slice(0, 200));
   }
 }
 
 async function handleHotCoins(chatId, limit) {
+  const helper = path.join(__dirname, 'bot-helpers.py');
   try {
-    const result = execSync(`python -c "
-import sqlite3, json
-db = sqlite3.connect('data/sniper_scan.db')
-rows = db.execute('SELECT clean_name, scan_count, avg_score, best_score, best_direction, last_price, last_change FROM coin_registry WHERE best_score > 50 ORDER BY avg_score DESC LIMIT ?', (${limit},)).fetchall()
-print(json.dumps([{'name':r[0],'scans':r[1],'avg':r[2],'best':r[3],'dir':r[4],'price':r[5],'chg':r[6]} for r in rows]))
-db.close()
-"`, { timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
+    const result = execSync(`python "${helper}" hot-coins ${limit}`, { timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
     const coins = JSON.parse(result.trim());
     if (!coins.length) return sendMessage(chatId, 'Pas encore de coins chauds (besoin de plus de scans).');
     const lines = ['🔥 *Top Coins Chauds*', ''];
@@ -673,46 +702,31 @@ async function handleSniperStatus(chatId) {
 }
 
 async function handlePerformance(chatId) {
+  const helper = path.join(__dirname, 'bot-helpers.py');
   try {
-    const result = execSync(`python -c "
-import sqlite3, json
-db = sqlite3.connect('data/sniper_scan.db')
-total = db.execute('SELECT COUNT(*) FROM signal_tracker').fetchone()[0]
-if total == 0:
-    print(json.dumps({'total':0}))
-else:
-    tp1 = db.execute('SELECT COUNT(*) FROM signal_tracker WHERE tp1_hit=1').fetchone()[0]
-    tp2 = db.execute('SELECT COUNT(*) FROM signal_tracker WHERE tp2_hit=1').fetchone()[0]
-    tp3 = db.execute('SELECT COUNT(*) FROM signal_tracker WHERE tp3_hit=1').fetchone()[0]
-    sl = db.execute('SELECT COUNT(*) FROM signal_tracker WHERE sl_hit=1').fetchone()[0]
-    opened = db.execute('SELECT COUNT(*) FROM signal_tracker WHERE status=\\"OPEN\\"').fetchone()[0]
-    avg_pnl = db.execute('SELECT AVG(pnl_pct) FROM signal_tracker WHERE status != \\"OPEN\\"').fetchone()[0] or 0
-    best = db.execute('SELECT symbol, pnl_pct, direction, score FROM signal_tracker ORDER BY pnl_pct DESC LIMIT 3').fetchall()
-    worst = db.execute('SELECT symbol, pnl_pct, direction, score FROM signal_tracker ORDER BY pnl_pct ASC LIMIT 2').fetchall()
-    print(json.dumps({'total':total,'tp1':tp1,'tp2':tp2,'tp3':tp3,'sl':sl,'open':opened,'avg_pnl':avg_pnl,'best':[{'s':r[0].replace('_USDT',''),'pnl':r[1],'d':r[2],'sc':r[3]} for r in best],'worst':[{'s':r[0].replace('_USDT',''),'pnl':r[1],'d':r[2],'sc':r[3]} for r in worst]}))
-db.close()
-"`, { timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
+    const result = execSync(`python "${helper}" perf`, { timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
     const d = JSON.parse(result.trim());
     if (d.total === 0) return sendMessage(chatId, 'Aucun signal tracke pour le moment. Le scanner sniper doit emettre des alertes.');
     const lines = [
       '📈 *Performance Signaux Sniper*',
       '',
-      `Total signaux: ${d.total} (${d.open} ouverts)`,
+      `Total signaux: ${d.total} (${d.open || 0} ouverts)`,
       `TP1: ${d.tp1} (${(d.tp1*100/d.total).toFixed(0)}%)`,
       `TP2: ${d.tp2} (${(d.tp2*100/d.total).toFixed(0)}%)`,
-      `TP3: ${d.tp3} (${(d.tp3*100/d.total).toFixed(0)}%)`,
+      d.tp3 ? `TP3: ${d.tp3} (${(d.tp3*100/d.total).toFixed(0)}%)` : null,
       `SL: ${d.sl} (${(d.sl*100/d.total).toFixed(0)}%)`,
-      `PnL moyen: ${d.avg_pnl > 0 ? '+' : ''}${d.avg_pnl.toFixed(2)}%`,
+      `Expires: ${d.expired || 0}`,
+      `PnL moyen: ${d.avg_pnl > 0 ? '+' : ''}${(d.avg_pnl || 0).toFixed(2)}%`,
     ];
     if (d.best && d.best.length) {
       lines.push('', '*Meilleurs:*');
-      for (const b of d.best) lines.push(`  ${b.s} ${b.d} +${b.pnl.toFixed(2)}% (score ${b.sc.toFixed(0)})`);
+      for (const b of d.best) lines.push(`  ${b.s} ${b.d} +${(b.pnl||0).toFixed(2)}% (score ${(b.sc||0).toFixed(0)})`);
     }
     if (d.worst && d.worst.length) {
       lines.push('', '*Pires:*');
-      for (const w of d.worst) lines.push(`  ${w.s} ${w.d} ${w.pnl.toFixed(2)}% (score ${w.sc.toFixed(0)})`);
+      for (const w of d.worst) lines.push(`  ${w.s} ${w.d} ${(w.pnl||0).toFixed(2)}% (score ${(w.sc||0).toFixed(0)})`);
     }
-    return sendMessage(chatId, lines.join('\n'), 'Markdown');
+    return sendMessage(chatId, lines.filter(l => l !== null).join('\n'), 'Markdown');
   } catch (e) {
     return sendMessage(chatId, `🔴 Erreur: ${e.message.slice(0, 200)}`);
   }
@@ -724,10 +738,11 @@ const TURBO_ROOT = path.join(__dirname, '..');
 
 async function handleJarvisCommand(chatId, voiceText) {
   try {
-    // Match voice command via Python
+    // Match voice command via Python helper
+    const helper = path.join(__dirname, 'bot-helpers.py');
     const matchResult = execSync(
-      `python -c "import sys;sys.path.insert(0,'.');from src.commands import match_command;cmd,p,s=match_command(sys.stdin.read().strip());import json;print(json.dumps({'name':cmd.name if cmd else None,'action':cmd.action if cmd else None,'action_type':cmd.action_type if cmd else None,'params':p,'score':s,'desc':cmd.description if cmd else None}))"`,
-      { timeout: 10000, encoding: 'utf-8', input: voiceText, cwd: TURBO_ROOT, stdio: ['pipe', 'pipe', 'pipe'] }
+      `python "${helper}" match-cmd ${voiceText.replace(/"/g, '').replace(/[&|<>]/g, '').slice(0, 200)}`,
+      { timeout: 10000, encoding: 'utf-8', cwd: TURBO_ROOT }
     );
     const match = JSON.parse(matchResult.trim());
 
@@ -781,7 +796,10 @@ async function handleGpuStatus(chatId) {
     for (const line of r.trim().split('\n')) {
       const [idx, name, temp, used, total, util] = line.split(',').map(s => s.trim());
       const icon = parseInt(temp) > 75 ? '🔴' : parseInt(temp) > 60 ? '🟡' : '🟢';
-      lines.push(`${icon} GPU${idx}: ${temp}C | ${used}/${total} MiB | ${util}% | ${name}`);
+      const usedClean = used.replace(' MiB', '').trim();
+      const totalClean = total.replace(' MiB', '').trim();
+      const utilClean = util.replace(' %', '').trim();
+      lines.push(`${icon} GPU${idx}: ${temp}C | ${usedClean}/${totalClean} MiB | ${utilClean}% | ${name}`);
     }
     await sendMessage(chatId, lines.join('\n'), 'Markdown');
     await sendVoiceReply(chatId, `${lines.length - 2} GPU detectees. Temperature maximale ${Math.max(...r.trim().split('\n').map(l => parseInt(l.split(',')[2])))} degres`);
@@ -823,19 +841,8 @@ async function handleRealtimeStatus(chatId) {
     const rtLine = ps.split('\n').find(l => l.includes('sniper_scanner') && l.includes('--realtime'));
 
     // Get recent signal tracker data
-    const result = execSync(`python -c "
-import sqlite3, json
-db = sqlite3.connect('data/sniper_scan.db')
-total = db.execute('SELECT COUNT(*) FROM signal_tracker').fetchone()[0]
-recent_open = db.execute('SELECT COUNT(*) FROM signal_tracker WHERE status=\\"OPEN\\"').fetchone()[0]
-tp1 = db.execute('SELECT COUNT(*) FROM signal_tracker WHERE tp1_hit=1').fetchone()[0]
-sl = db.execute('SELECT COUNT(*) FROM signal_tracker WHERE sl_hit=1').fetchone()[0]
-expired = db.execute('SELECT COUNT(*) FROM signal_tracker WHERE status=\\"EXPIRED\\"').fetchone()[0]
-# Last 5 signals
-last5 = db.execute('SELECT symbol, direction, score, validations, status, pnl_pct FROM signal_tracker ORDER BY id DESC LIMIT 5').fetchall()
-print(json.dumps({'total':total,'open':recent_open,'tp1':tp1,'sl':sl,'expired':expired,'last5':[{'s':r[0].replace('_USDT',''),'d':r[1],'sc':r[2],'v':r[3],'st':r[4],'pnl':r[5]} for r in last5]}))
-db.close()
-"`, { timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
+    const helper = path.join(__dirname, 'bot-helpers.py');
+    const result = execSync(`python "${helper}" realtime`, { timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
     const d = JSON.parse(result.trim());
 
     const lines = ['*Scanner Realtime*', ''];
@@ -873,33 +880,8 @@ async function handleLoopStatus(chatId) {
 
     let d;
     try {
-      const result = execSync(`python -c "
-import sqlite3, json, os
-db_path = 'data/super_loop.db'
-if not os.path.exists(db_path):
-    print(json.dumps({'exists': False}))
-else:
-    db = sqlite3.connect(db_path)
-    try:
-        cycles = db.execute('SELECT COUNT(*) FROM loop_cycles').fetchone()[0]
-    except: cycles = 0
-    try:
-        issues = db.execute('SELECT COUNT(*) FROM discovered_issues WHERE fix_applied=0').fetchone()[0]
-    except: issues = 0
-    try:
-        suggestions = db.execute('SELECT COUNT(*) FROM code_suggestions WHERE applied=0').fetchone()[0]
-    except: suggestions = 0
-    try:
-        last = db.execute('SELECT cycle, domain, duration_s, ts FROM loop_cycles ORDER BY id DESC LIMIT 1').fetchone()
-    except: last = None
-    try:
-        domains = db.execute('SELECT domain, COUNT(*), AVG(duration_s) FROM loop_cycles GROUP BY domain').fetchall()
-    except: domains = []
-    print(json.dumps({'exists':True,'cycles':cycles,'issues':issues,'suggestions':suggestions,
-        'last':{'cycle':last[0],'domain':last[1],'dur':last[2],'ts':last[3]} if last else None,
-        'domains':[{'d':r[0],'count':r[1],'avg_dur':r[2]} for r in domains]}))
-    db.close()
-"`, { timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
+      const helperLoop = path.join(__dirname, 'bot-helpers.py');
+      const result = execSync(`python "${helperLoop}" loop-status`, { timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
       d = JSON.parse(result.trim());
     } catch (parseErr) {
       d = { exists: false };
@@ -940,25 +922,8 @@ else:
 
 async function handleBacktestResults(chatId) {
   try {
-    const result = execSync(`python -c "
-import sqlite3, json
-db = sqlite3.connect('data/sniper_scan.db')
-# Count signals with backtest patterns
-total = db.execute('SELECT COUNT(*) FROM scan_signals').fetchone()[0]
-bt_ok = db.execute('SELECT COUNT(*) FROM scan_signals WHERE pattern LIKE \\"%%BACKTEST_OK%%\\"').fetchone()[0]
-bt_warn = db.execute('SELECT COUNT(*) FROM scan_signals WHERE pattern LIKE \\"%%BACKTEST_WARN%%\\"').fetchone()[0]
-# Compare TP1 hit rate for backtest-validated vs non-validated
-bt_tp1 = db.execute('SELECT COUNT(*) FROM signal_tracker st JOIN scan_signals ss ON st.symbol=ss.symbol WHERE ss.pattern LIKE \\"%%BACKTEST_OK%%\\" AND st.tp1_hit=1').fetchone()[0]
-bt_total_t = db.execute('SELECT COUNT(*) FROM signal_tracker st JOIN scan_signals ss ON st.symbol=ss.symbol WHERE ss.pattern LIKE \\"%%BACKTEST_OK%%\\"').fetchone()[0]
-nobt_tp1 = db.execute('SELECT COUNT(*) FROM signal_tracker st JOIN scan_signals ss ON st.symbol=ss.symbol WHERE ss.pattern NOT LIKE \\"%%BACKTEST%%\\" AND st.tp1_hit=1').fetchone()[0]
-nobt_total = db.execute('SELECT COUNT(*) FROM signal_tracker st JOIN scan_signals ss ON st.symbol=ss.symbol WHERE ss.pattern NOT LIKE \\"%%BACKTEST%%\\"').fetchone()[0]
-# VWAP stats
-vwap = db.execute('SELECT COUNT(*) FROM scan_signals WHERE pattern LIKE \\"%%VWAP%%\\"').fetchone()[0]
-# Streak stats
-streak = db.execute('SELECT COUNT(*) FROM scan_signals WHERE pattern LIKE \\"%%STREAK%%\\" OR pattern LIKE \\"%%streak%%\\"').fetchone()[0]
-print(json.dumps({'total':total,'bt_ok':bt_ok,'bt_warn':bt_warn,'bt_tp1':bt_tp1,'bt_total_t':bt_total_t,'nobt_tp1':nobt_tp1,'nobt_total':nobt_total,'vwap':vwap,'streak':streak}))
-db.close()
-"`, { timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
+    const helperBT = path.join(__dirname, 'bot-helpers.py');
+    const result = execSync(`python "${helperBT}" backtest`, { timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
     const d = JSON.parse(result.trim());
     const btRate = d.bt_total_t > 0 ? (d.bt_tp1 * 100 / d.bt_total_t).toFixed(1) : 'N/A';
     const nobtRate = d.nobt_total > 0 ? (d.nobt_tp1 * 100 / d.nobt_total).toFixed(1) : 'N/A';
@@ -981,29 +946,8 @@ db.close()
 
 async function handleMarketSummary(chatId) {
   try {
-    const result = execSync(`python -c "
-import sqlite3, json, urllib.request
-# Fetch current tickers
-data = json.loads(urllib.request.urlopen('https://contract.mexc.com/api/v1/contract/ticker', timeout=10).read().decode())
-tickers = [t for t in data.get('data', []) if t.get('symbol', '').endswith('_USDT')]
-# Sort by 24h change
-tickers.sort(key=lambda t: abs(float(t.get('riseFallRate', 0))), reverse=True)
-top_movers = tickers[:10]
-# Market stats
-up = sum(1 for t in tickers if float(t.get('riseFallRate', 0)) > 0)
-down = len(tickers) - up
-avg_change = sum(float(t.get('riseFallRate', 0)) for t in tickers) / len(tickers) * 100 if tickers else 0
-# BTC price
-btc = next((t for t in tickers if t['symbol'] == 'BTC_USDT'), None)
-btc_price = float(btc.get('lastPrice', 0)) if btc else 0
-btc_change = float(btc.get('riseFallRate', 0)) * 100 if btc else 0
-result = {
-    'total': len(tickers), 'up': up, 'down': down, 'avg_change': avg_change,
-    'btc_price': btc_price, 'btc_change': btc_change,
-    'movers': [{'s': t['symbol'].replace('_USDT',''), 'p': float(t.get('lastPrice',0)), 'c': float(t.get('riseFallRate',0))*100} for t in top_movers]
-}
-print(json.dumps(result))
-"`, { timeout: 15000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
+    const helperMkt = path.join(__dirname, 'bot-helpers.py');
+    const result = execSync(`python "${helperMkt}" market`, { timeout: 15000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
     const d = JSON.parse(result.trim());
     const trend = d.up > d.down ? 'HAUSSIER' : 'BAISSIER';
     const lines = [
@@ -1110,55 +1054,32 @@ async function handleOpenSignals(chatId) {
 // ─── Dominos (pipeline execution) ────────────────────────────────────────────
 
 async function handleDominos(chatId, name) {
+  const helper = path.join(__dirname, 'bot-helpers.py');
   try {
     if (!name) {
-      // List available dominos by category
-      const result = execSync(`python -c "
-import sys, json; sys.path.insert(0,'.')
-from src.domino_pipelines import DOMINO_PIPELINES, get_domino_stats
-stats = get_domino_stats()
-cats = {}
-for dp in DOMINO_PIPELINES:
-    cats.setdefault(dp.category, []).append({'id': dp.id, 'desc': dp.description, 'prio': dp.priority, 'steps': len(dp.steps)})
-# Show top 5 per category, max 8 categories
-out = {'stats': stats, 'categories': {}}
-for cat, items in sorted(cats.items()):
-    out['categories'][cat] = items[:5]
-print(json.dumps(out))
-"`, { timeout: 15000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
+      const result = execSync(`python "${helper}" domino-list`, { timeout: 15000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
       const data = JSON.parse(result.trim());
       const s = data.stats;
       const lines = [
-        `*Dominos JARVIS* (${s.total_dominos} cascades, ${s.total_steps} etapes)`,
-        `Critical: ${s.critical_count} | High: ${s.high_count}`,
+        `*Dominos JARVIS* (${s.total_dominos} automatisations, ${s.total_steps} etapes)`,
         '',
-        'Usage: `/domino <nom>` ou `/domino <mot-cle>`',
-        ''
+        'Tape `/domino <nom>` pour lancer',
+        '',
       ];
-      for (const [cat, items] of Object.entries(data.categories)) {
-        lines.push(`*${cat}* (${items.length}+)`);
-        for (const d of items) {
-          const pIcon = d.prio === 'critical' ? '🔴' : d.prio === 'high' ? '🟠' : '⚪';
-          lines.push(`  ${pIcon} \`${d.id}\` (${d.steps} etapes)`);
-        }
-        lines.push('');
+      const catEntries = Object.entries(data.categories);
+      for (const [cat, ids] of catEntries) {
+        lines.push(`*${cat}* (${ids.length}+):`);
+        lines.push('  ' + ids.map(id => '`' + id + '`').join(', '));
       }
+      if (s.categories_count > catEntries.length) lines.push(`\n... et ${s.categories_count - catEntries.length} autres categories`);
+      lines.push('', 'Exemples: /domino matin, /domino trading, /domino cleanup');
       return sendMessage(chatId, lines.join('\n'), 'Markdown');
     }
 
-    // Search and execute a specific domino
     const safeName = name.replace(/'/g, '').replace(/"/g, '').replace(/;/g, '').slice(0, 100);
     await sendMessage(chatId, `Recherche domino: *${safeName}*...`, 'Markdown');
 
-    const findResult = execSync(`python -c "
-import sys, json; sys.path.insert(0,'.')
-from src.domino_pipelines import find_domino
-dp = find_domino('${safeName}')
-if dp:
-    print(json.dumps({'found': True, 'id': dp.id, 'desc': dp.description, 'steps': len(dp.steps), 'category': dp.category, 'priority': dp.priority}))
-else:
-    print(json.dumps({'found': False}))
-"`, { timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
+    const findResult = execSync(`python "${helper}" domino-find "${safeName}"`, { timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
     const found = JSON.parse(findResult.trim());
 
     if (!found.found) {
@@ -1168,16 +1089,7 @@ else:
     await sendMessage(chatId, `Lancement: *${found.id}* (${found.category}, ${found.steps} etapes, ${found.priority})...`, 'Markdown');
 
     const proc = exec(
-      `python -c "
-import sys, json, time; sys.path.insert(0,'.')
-from src.domino_pipelines import find_domino
-from src.domino_executor import DominoExecutor
-dp = find_domino('${safeName}')
-if not dp: print(json.dumps({'success':False,'error':'not found'})); sys.exit(1)
-executor = DominoExecutor()
-result = executor.run(dp)
-print(json.dumps({'success': result.get('success',False), 'passed': result.get('passed',0), 'failed': result.get('failed',0), 'skipped': result.get('skipped',0), 'duration': result.get('duration_s',0), 'steps': [{'name':s.get('step','?'),'status':s.get('status','?')} for s in result.get('steps',result.get('results',[]))[:20]]}))
-"`,
+      `python "${helper}" domino-run "${safeName}"`,
       { timeout: 180000, encoding: 'utf-8', cwd: path.join(__dirname, '..') }
     );
 
@@ -1192,9 +1104,9 @@ print(json.dumps({'success': result.get('success',False), 'passed': result.get('
         await sendMessage(chatId, `${icon} *${found.id}*\nResultat: ${r.passed} OK / ${r.failed} KO / ${r.skipped} skip (${(r.duration || 0).toFixed(1)}s)\n${stepLines}`, 'Markdown');
       } catch {
         if (code === 0) {
-          await sendMessage(chatId, `✅ Domino *${found.id}* termine.\n${output.slice(0, 2000)}`, 'Markdown');
+          await sendMessage(chatId, `Domino *${found.id}* termine.\n${output.slice(0, 2000)}`);
         } else {
-          await sendMessage(chatId, `🔴 Domino *${found.id}* echoue (code ${code}).\n${output.slice(0, 500)}`, 'Markdown');
+          await sendMessage(chatId, `Domino *${found.id}* echoue (code ${code}).\n${output.slice(0, 500)}`);
         }
       }
     });
@@ -1314,21 +1226,13 @@ async function handleSmartIntent(chatId, text, intent) {
         const coin = coinMatch[1].toUpperCase();
         await sendMessage(chatId, `Analyse ${coin}/USDT en cours...`);
         return new Promise((resolve) => {
-          const script = `
-import sys; sys.stdout.reconfigure(encoding='utf-8',errors='replace'); sys.path.insert(0,'cowork/dev')
-from sniper_scanner import fetch_klines, fetch_all_tickers, analyze_coin, format_signal
-tickers = fetch_all_tickers()
-t = next((t for t in tickers if t.get('symbol')=='${coin}_USDT'),{})
-k = fetch_klines('${coin}_USDT', interval='Min15', limit=200)
-if k:
-    sig = analyze_coin('${coin}_USDT', k, t, None)
-    if sig: print(format_signal(sig, 1))
-    else: print('Pas de signal fort pour ${coin}/USDT')
-else: print('${coin}/USDT non trouve sur MEXC Futures')
-`;
-          exec(`python -c "${script.replace(/"/g, '\\"')}"`, { timeout: 30000, cwd }, (err, stdout) => {
-            const result = stdout ? stdout.trim() : `Erreur analyse ${coin}`;
-            // Send text + action keyboard
+          const helperPath = path.join(__dirname, 'bot-helpers.py');
+          exec(`python "${helperPath}" analyze ${coin}`, { timeout: 30000, cwd }, (err, stdout) => {
+            let result = `Erreur analyse ${coin}`;
+            try {
+              const d = JSON.parse((stdout || '').trim());
+              result = d.text || result;
+            } catch { result = (stdout || '').trim() || result; }
             const keyboard = {
               inline_keyboard: [
                 [
@@ -1363,32 +1267,13 @@ else: print('${coin}/USDT non trouve sur MEXC Futures')
         const [a, b] = [coins[0], coins[1]];
         await sendMessage(chatId, `Comparaison ${a} vs ${b} en cours...`);
         return new Promise((resolve) => {
-          const script = `
-import sys; sys.stdout.reconfigure(encoding='utf-8',errors='replace'); sys.path.insert(0,'cowork/dev')
-from sniper_scanner import fetch_klines, fetch_all_tickers, analyze_coin, format_signal
-tickers = fetch_all_tickers()
-results = []
-for coin in ['${a}','${b}']:
-    t = next((t for t in tickers if t.get('symbol')==coin+'_USDT'),{})
-    k = fetch_klines(coin+'_USDT', interval='Min15', limit=200)
-    if k:
-        sig = analyze_coin(coin+'_USDT', k, t, None)
-        if sig: results.append(sig)
-if len(results)==2:
-    best = results[0] if results[0]['score']>=results[1]['score'] else results[1]
-    for i,sig in enumerate(results):
-        print(format_signal(sig, i+1))
-        print()
-    winner = results[0]['symbol'].replace('_USDT','') if results[0]['score']>=results[1]['score'] else results[1]['symbol'].replace('_USDT','')
-    print(f"Verdict: {winner} est plus fort (score {best['score']}/100)")
-elif len(results)==1:
-    print(format_signal(results[0], 1))
-    print("L'autre coin n'a pas de signal assez fort")
-else:
-    print('Aucun signal fort pour ces deux coins')
-`;
-          exec(`python -c "${script.replace(/"/g, '\\"')}"`, { timeout: 45000, cwd }, (err, stdout) => {
-            const result = stdout ? stdout.trim() : `Erreur comparaison ${a} vs ${b}`;
+          const helperPath = path.join(__dirname, 'bot-helpers.py');
+          exec(`python "${helperPath}" compare ${a} ${b}`, { timeout: 45000, cwd }, (err, stdout) => {
+            let result = `Erreur comparaison ${a} vs ${b}`;
+            try {
+              const d = JSON.parse((stdout || '').trim());
+              result = d.text || result;
+            } catch { result = (stdout || '').trim() || result; }
             sendMessage(chatId, result);
             if (VOICE_MODE) sendVoiceReply(chatId, result);
             resolve(true);
@@ -1466,28 +1351,22 @@ Reponds en francais, format tableau concis.`;
     }
 
     case 'whales': {
-      // Whale detection via DB hot coins + cluster enrichment
       await sendMessage(chatId, 'Detection gros mouvements...');
-      return new Promise((resolve) => {
-        const script = `
-import sys,sqlite3; sys.stdout.reconfigure(encoding='utf-8',errors='replace')
-db = sqlite3.connect('data/sniper_scan.db')
-rows = db.execute("SELECT symbol, last_price, avg_score, scan_count, best_score, last_direction FROM coin_registry WHERE avg_score>60 ORDER BY avg_score DESC LIMIT 15").fetchall()
-db.close()
-if rows:
-    print("*Top mouvements detectes:*")
-    for r in rows:
-        sym = r[0].replace('_USDT','')
-        print(f"  {sym}: score {r[2]:.0f} (best {r[4]}) | {r[5]} | {r[3]} scans")
-else:
-    print("Aucun mouvement majeur detecte")
-`;
-        exec(`python -c "${script.replace(/"/g, '\\"')}"`, { timeout: 15000, cwd }, (err, stdout) => {
-          const result = stdout ? stdout.trim() : 'Erreur detection whales';
-          sendMessage(chatId, result, 'Markdown');
-          resolve(true);
-        });
-      });
+      try {
+        const helperPath = path.join(__dirname, 'bot-helpers.py');
+        const r = execSync(`python "${helperPath}" whales`, { timeout: 15000, encoding: 'utf-8', cwd });
+        const rows = JSON.parse(r.trim());
+        if (rows.length) {
+          const lines = ['*Top mouvements detectes:*'];
+          for (const w of rows) {
+            lines.push(`  ${w.sym}: score ${w.avg.toFixed(0)} (best ${w.best}) | ${w.dir} | ${w.scans} scans`);
+          }
+          return sendMessage(chatId, lines.join('\n'), 'Markdown');
+        }
+        return sendMessage(chatId, 'Aucun mouvement majeur detecte');
+      } catch (e) {
+        return sendMessage(chatId, 'Erreur detection whales: ' + e.message.slice(0, 100));
+      }
     }
 
     case 'news': {
@@ -1667,25 +1546,19 @@ async function transcribeVoice(fileId) {
 
 // ─── Voice: send response as Telegram voice message ──────────────────────────
 
-const TTS_STDIN_SCRIPT = path.join(__dirname, '..', 'scripts', 'tts_stdin.py');
-
 async function sendVoiceReply(chatId, text) {
   try {
-    const cleanText = text.replace(/[\r\n]+/g, ' ').slice(0, 2000);
+    const cleanText = text.replace(/[\r\n]+/g, ' ').replace(/"/g, '').slice(0, 500);
+    if (!cleanText.trim()) return false;
     const result = execSync(
-      `python "${TTS_STDIN_SCRIPT}" --telegram --chat-id=${chatId}`,
-      { timeout: 30000, encoding: 'utf-8', input: cleanText, stdio: ['pipe', 'pipe', 'pipe'] }
+      `python "${TTS_SCRIPT}" --speak "${cleanText}" --telegram`,
+      { timeout: 30000, encoding: 'utf-8', cwd: path.join(__dirname, '..') }
     );
-    const data = JSON.parse(result.trim());
-    if (data.ok) {
-      log(`  VOICE sent: ${data.duration || '?'}s OGG via DeniseNeural`);
-      stats.messages_out++;
-      return true;
-    } else {
-      logErr('TTS failed:', data.error || 'unknown');
-    }
+    log(`  VOICE sent via DeniseNeural`);
+    stats.messages_out++;
+    return true;
   } catch (e) {
-    logErr('sendVoiceReply failed:', e.message);
+    logErr('sendVoiceReply failed:', e.message.slice(0, 100));
   }
   return false;
 }
@@ -1845,26 +1718,27 @@ async function sendMenuKeyboard(chatId) {
         { text: '📊 Health', callback_data: 'cmd_health' },
         { text: '🎮 GPU', callback_data: 'cmd_gpu' },
       ],
-      // Row 2: Trading scan
-      [
-        { text: '🎯 Scan', callback_data: 'cmd_scan' },
-        { text: '🔬 Deep Scan', callback_data: 'cmd_deepscan' },
-        { text: '🔥 Coins Chauds', callback_data: 'cmd_hot' },
-      ],
-      // Row 3: Marche
+      // Row 2: Trading
       [
         { text: '📈 Marche', callback_data: 'cmd_market' },
+        { text: '🎯 Scan', callback_data: 'cmd_scan' },
+        { text: '🔥 Coins Chauds', callback_data: 'cmd_hot' },
+      ],
+      // Row 3: Signaux
+      [
         { text: '💹 Signaux', callback_data: 'cmd_signals' },
-        { text: '📉 Performance', callback_data: 'cmd_perf' },
+        { text: '📉 Resultats', callback_data: 'cmd_perf' },
+        { text: '🔬 Deep Scan', callback_data: 'cmd_deepscan' },
       ],
       // Row 4: Outils
       [
-        { text: '📝 Backtest', callback_data: 'cmd_backtest' },
         { text: '🎲 Dominos', callback_data: 'cmd_dominos' },
-        { text: '📊 Stats', callback_data: 'cmd_stats' },
+        { text: '📝 Backtest', callback_data: 'cmd_backtest' },
+        { text: '🔁 Loop', callback_data: 'cmd_loop' },
       ],
-      // Row 5: Toggles
+      // Row 5: Systeme
       [
+        { text: '💾 Disque', callback_data: 'cmd_disk' },
         { text: TRADING_ALERTS ? '🔕 Alertes OFF' : '🔔 Alertes ON', callback_data: TRADING_ALERTS ? 'cmd_alertoff' : 'cmd_alerton' },
         { text: '❓ Aide', callback_data: 'cmd_help' },
       ],
@@ -1902,6 +1776,7 @@ async function handleCallback(query) {
     case 'cmd_deepscan': return handleDeepScan(chatId, 10);
     case 'cmd_signals': return handleOpenSignals(chatId);
     case 'cmd_dominos': return handleDominos(chatId);
+    case 'cmd_disk': return handleCommand(chatId, '/disk', '', isAdmin);
     case 'cmd_alerton': {
       TRADING_ALERTS = true;
       try { fs.unlinkSync(ALERTS_FLAG_FILE); } catch {}
@@ -1976,29 +1851,8 @@ let notifiedSignals = new Set(); // track already notified signal IDs
 async function checkProactiveAlerts() {
   if (!TRADING_ALERTS) return; // Alertes desactivees par /alertoff
   try {
-    const result = execSync(`python -c "
-import sqlite3, json
-db = sqlite3.connect('data/sniper_scan.db')
-# Find recently hit TPs (last 5 min)
-hits = db.execute(
-    'SELECT id, symbol, direction, entry_price, tp1, pnl_pct, score, status, checked_at '
-    'FROM signal_tracker WHERE status IN (\\"TP1_HIT\\",\\"TP2_HIT\\",\\"TP3_HIT\\") '
-    'AND checked_at > datetime(\\"now\\", \\"-5 minutes\\") '
-    'ORDER BY id DESC LIMIT 5'
-).fetchall()
-# Find recently hit SLs
-sl_hits = db.execute(
-    'SELECT id, symbol, direction, entry_price, sl, pnl_pct, score, checked_at '
-    'FROM signal_tracker WHERE status = \\"SL_HIT\\" '
-    'AND checked_at > datetime(\\"now\\", \\"-5 minutes\\") '
-    'ORDER BY id DESC LIMIT 3'
-).fetchall()
-print(json.dumps({
-    'tp_hits': [{'id':r[0],'s':r[1].replace('_USDT',''),'d':r[2],'entry':r[3],'tp1':r[4],'pnl':r[5],'sc':r[6],'st':r[7]} for r in hits],
-    'sl_hits': [{'id':r[0],'s':r[1].replace('_USDT',''),'d':r[2],'entry':r[3],'sl':r[4],'pnl':r[5],'sc':r[6]} for r in sl_hits]
-}))
-db.close()
-"`, { timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
+    const helperAlerts = path.join(__dirname, 'bot-helpers.py');
+    const result = execSync(`python "${helperAlerts}" proactive-alerts`, { timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
     const d = JSON.parse(result.trim());
 
     // Notify TP hits (only new ones)
@@ -2021,7 +1875,8 @@ db.close()
     // Cleanup old notification IDs (keep last 200)
     if (notifiedSignals.size > 200) {
       const arr = [...notifiedSignals];
-      notifiedSignals = new Set(arr.slice(-100));
+      notifiedSignals.clear();
+      arr.slice(-100).forEach(id => notifiedSignals.add(id));
     }
   } catch (e) {
     // Silently ignore (scanner might not be running)
@@ -2061,36 +1916,36 @@ async function main() {
   try {
     await telegramAPI('setMyCommands', {
       commands: [
-        // Cluster IA
-        { command: 'status', description: 'Etat cluster IA (online/offline)' },
-        { command: 'health', description: 'Details noeuds + scores autolearn' },
-        { command: 'consensus', description: 'Question multi-noeuds (vote)' },
-        { command: 'model', description: 'Interroger un noeud specifique' },
-        { command: 'openclaw', description: 'Question via proxy reflexive chain' },
-        // Trading
-        { command: 'scan', description: 'Sniper scan top coins (breakouts)' },
-        { command: 'deepscan', description: 'Deep scan 800+ coins (3 passes)' },
-        { command: 'hot', description: 'Top coins chauds (score historique)' },
-        { command: 'signals', description: 'Signaux ouverts en temps reel' },
-        { command: 'market', description: 'Resume marche (movers + trend)' },
-        { command: 'perf', description: 'Win rate signaux (TP/SL)' },
-        { command: 'compare', description: 'Comparer deux coins (ex: BTC SOL)' },
+        // Les plus utilises en premier
+        { command: 'menu', description: 'Ouvrir le dashboard (boutons)' },
+        { command: 'ask', description: 'Poser une question au cluster IA' },
+        { command: 'market', description: 'Prix BTC + tendance + top movers' },
+        { command: 'scan', description: 'Scanner rapide top 50 coins' },
+        { command: 'hot', description: 'Coins les plus chauds du moment' },
+        { command: 'signals', description: 'Mes signaux ouverts' },
+        { command: 'domino', description: 'Lancer une automatisation (401 dispo)' },
+        // Trading avance
+        { command: 'deepscan', description: 'Scanner profond 800+ coins' },
+        { command: 'perf', description: 'Resultats: combien de TP/SL touches' },
+        { command: 'compare', description: 'Comparer 2 coins (ex: BTC SOL)' },
         { command: 'whales', description: 'Gros mouvements detectes' },
         { command: 'news', description: 'Actus crypto du jour' },
-        { command: 'backtest', description: 'Resultats micro-backtest' },
-        // Scanner
-        { command: 'scanstats', description: 'Stats scanner (DB)' },
-        { command: 'sniper', description: 'Statut scanner permanent' },
+        { command: 'backtest', description: 'Resultats des backtests' },
+        { command: 'alerton', description: 'Activer les alertes trading' },
+        { command: 'alertoff', description: 'Couper les alertes trading' },
+        // Cluster & Systeme
+        { command: 'status', description: 'Quels noeuds IA sont en ligne' },
+        { command: 'consensus', description: 'Question a tous les noeuds (vote)' },
+        { command: 'model', description: 'Forcer un noeud precis (M1/OL1...)' },
+        { command: 'gpu', description: 'Temperatures GPU' },
+        { command: 'disk', description: 'Espace disque libre' },
+        { command: 'ping', description: 'Le bot repond-il? (test rapide)' },
+        { command: 'sniper', description: 'Le scanner tourne-t-il?' },
+        { command: 'loop', description: 'Amelioration auto en cours?' },
+        { command: 'scanstats', description: 'Statistiques du scanner' },
         { command: 'realtime', description: 'Scanner temps reel' },
-        { command: 'loop', description: 'Statut Super Loop amelioration' },
-        { command: 'alerton', description: 'Activer alertes trading' },
-        { command: 'alertoff', description: 'Desactiver alertes trading' },
-        // Dominos & Systeme
-        { command: 'domino', description: 'Dominos (401 pipelines auto)' },
-        { command: 'gpu', description: 'Temperatures + VRAM GPU' },
-        { command: 'stats', description: 'Statistiques du bot' },
-        { command: 'menu', description: 'Dashboard interactif (boutons)' },
-        { command: 'help', description: 'Toutes les commandes' },
+        { command: 'stats', description: 'Chiffres du bot' },
+        { command: 'help', description: 'Liste de toutes les commandes' },
       ]
     });
     log('Commandes Telegram enregistrees (26 commandes)');

@@ -44,7 +44,7 @@ if hasattr(sys.stderr, "reconfigure"):
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-# TELEGRAM_TOKEN loaded from _paths (.env)
+from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
 TELEGRAM_CHAT_ID = TELEGRAM_CHAT
 DB_PATH = Path(__file__).with_name("anomalies.db")
 
@@ -161,7 +161,6 @@ def compute_stats(rows):
     Retourne dict {col: (mean, std)}.
     """
     import statistics
-from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
     cols = ["cpu", "ram", "gpu_temp", "disk_c", "disk_f"]
     stats = {}
     for idx, col in enumerate(cols, start=1):  # skip ts column

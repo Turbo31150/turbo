@@ -47,7 +47,7 @@ curl -s --max-time 3 http://HOST:PORT/endpoint || echo "OFFLINE"
 1. `ping -n 1 192.168.1.113` → machine joignable ?
 2. Fallback: M2 prend tout (surcharge acceptee)
 
-**M1 offline** (10.5.0.2:1234):
+**M1 offline** (127.0.0.1:1234):
 1. Impact minimal — M1 reserve embedding
 2. Aucune action urgente requise
 

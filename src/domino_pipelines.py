@@ -62,7 +62,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         trigger_vocal=["bonjour jarvis", "routine du matin", "demarre la journee", "lance le matin"],
         steps=[
             DominoStep("check_gpu", "powershell:nvidia-smi --query-gpu=temperature.gpu,memory.used --format=csv,noheader", "powershell"),
-            DominoStep("cluster_health", "curl:http://10.5.0.2:1234/api/v1/models", "curl"),
+            DominoStep("cluster_health", "curl:http://127.0.0.1:1234/api/v1/models", "curl"),
             DominoStep("meteo_brief", "curl:http://127.0.0.1:11434/api/chat", "curl"),
             DominoStep("agenda_resume", "powershell:Get-Date -Format 'dddd dd MMMM yyyy HH:mm'", "powershell"),
             DominoStep("tts_briefing", "python:edge_tts_speak('Bonjour! Briefing du matin pret.')", "python"),
@@ -79,7 +79,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
             DominoStep("open_vscode", "app_open:code", "pipeline"),
             DominoStep("git_status", "powershell:git -C 'F:\\BUREAU\\turbo' status --short", "powershell"),
             DominoStep("open_spotify", "app_open:spotify", "pipeline"),
-            DominoStep("cluster_check", "curl:http://10.5.0.2:1234/api/v1/models", "curl"),
+            DominoStep("cluster_check", "curl:http://127.0.0.1:1234/api/v1/models", "curl"),
             DominoStep("tts_ready", "python:edge_tts_speak('Environnement dev pret. Bon code!')", "python"),
         ],
         category="routine_matin",
@@ -102,9 +102,9 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_matin_trading",
         trigger_vocal=["matin trading", "routine trading matin", "bonjour trading"],
         steps=[
-            DominoStep("market_check", "curl:http://10.5.0.2:1234/api/v1/chat", "curl"),
+            DominoStep("market_check", "curl:http://127.0.0.1:1234/api/v1/chat", "curl"),
             DominoStep("portfolio_status", "python:check_portfolio_balance()", "python"),
-            DominoStep("signals_scan", "curl:http://10.5.0.2:1234/api/v1/chat", "curl"),
+            DominoStep("signals_scan", "curl:http://127.0.0.1:1234/api/v1/chat", "curl"),
             DominoStep("alert_config", "python:configure_trading_alerts()", "python"),
             DominoStep("tts_market", "python:edge_tts_speak('Marche analyse. Signaux prets.')", "python"),
         ],
@@ -133,9 +133,9 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_trading_full_scan",
         trigger_vocal=["scan trading complet", "analyse complete marche", "trading full scan"],
         steps=[
-            DominoStep("fetch_prices", "curl:http://10.5.0.2:1234/api/v1/chat", "curl"),
-            DominoStep("correlation_check", "curl:http://10.5.0.2:1234/api/v1/chat", "curl"),
-            DominoStep("signal_generate", "curl:http://10.5.0.2:1234/api/v1/chat", "curl"),
+            DominoStep("fetch_prices", "curl:http://127.0.0.1:1234/api/v1/chat", "curl"),
+            DominoStep("correlation_check", "curl:http://127.0.0.1:1234/api/v1/chat", "curl"),
+            DominoStep("signal_generate", "curl:http://127.0.0.1:1234/api/v1/chat", "curl"),
             DominoStep("risk_assess", "python:assess_trading_risk()", "python"),
             DominoStep("tts_signal", "python:edge_tts_speak('Scan termine. Signaux generes.')", "python"),
         ],
@@ -181,7 +181,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         trigger_vocal=["lance un backtest", "backtest strategie", "simule le trading"],
         steps=[
             DominoStep("load_history", "python:load_price_history('1h', 30)", "python"),
-            DominoStep("run_backtest", "curl:http://10.5.0.2:1234/api/v1/chat", "curl"),
+            DominoStep("run_backtest", "curl:http://127.0.0.1:1234/api/v1/chat", "curl"),
             DominoStep("analyze_results", "python:analyze_backtest_results()", "python"),
             DominoStep("tts_result", "python:edge_tts_speak('Backtest termine.')", "python"),
         ],
@@ -195,7 +195,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         steps=[
             DominoStep("fetch_pnl", "python:fetch_current_pnl()", "python"),
             DominoStep("calc_drawdown", "python:calculate_drawdown()", "python"),
-            DominoStep("eval_risk", "curl:http://10.5.0.2:1234/api/v1/chat", "curl"),
+            DominoStep("eval_risk", "curl:http://127.0.0.1:1234/api/v1/chat", "curl"),
             DominoStep("tts_alert", "python:edge_tts_speak('Drawdown analyse complete.')", "python"),
         ],
         category="trading_cascade",
@@ -211,7 +211,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_debug_cluster",
         trigger_vocal=["debug cluster", "probleme cluster", "cluster en panne"],
         steps=[
-            DominoStep("ping_m1", "curl:http://10.5.0.2:1234/api/v1/models", "curl", on_fail="skip"),
+            DominoStep("ping_m1", "curl:http://127.0.0.1:1234/api/v1/models", "curl", on_fail="skip"),
             DominoStep("ping_m2", "curl:http://192.168.1.26:1234/api/v1/models", "curl", on_fail="skip"),
             DominoStep("ping_m3", "curl:http://192.168.1.113:1234/api/v1/models", "curl", on_fail="skip"),
             DominoStep("ping_ol1", "curl:http://127.0.0.1:11434/api/tags", "curl", on_fail="skip"),
@@ -228,7 +228,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         steps=[
             DominoStep("read_temps", "powershell:nvidia-smi --query-gpu=name,temperature.gpu,power.draw --format=csv,noheader", "powershell"),
             DominoStep("check_fans", "powershell:nvidia-smi --query-gpu=fan.speed --format=csv,noheader", "powershell"),
-            DominoStep("eval_thermal", "curl:http://10.5.0.2:1234/api/v1/chat", "curl"),
+            DominoStep("eval_thermal", "curl:http://127.0.0.1:1234/api/v1/chat", "curl"),
             DominoStep("throttle_if_hot", "python:throttle_gpu_if_critical(85)", "python", condition="gpu_temp > 80"),
             DominoStep("tts_thermal", "python:edge_tts_speak('Diagnostic thermique GPU termine.')", "python"),
         ],
@@ -244,7 +244,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
             DominoStep("ping_gateway", "powershell:Test-Connection 192.168.1.1 -Count 2 -TimeoutSeconds 3", "powershell"),
             DominoStep("ping_internet", "powershell:Test-Connection 8.8.8.8 -Count 2 -TimeoutSeconds 3", "powershell"),
             DominoStep("dns_check", "powershell:Resolve-DnsName google.com -ErrorAction SilentlyContinue", "powershell"),
-            DominoStep("cluster_lan", "powershell:Test-Connection 10.5.0.2 -Count 1 -TimeoutSeconds 3", "powershell", on_fail="skip"),
+            DominoStep("cluster_lan", "powershell:Test-Connection 127.0.0.1 -Count 1 -TimeoutSeconds 3", "powershell", on_fail="skip"),
             DominoStep("tts_network", "python:edge_tts_speak('Diagnostic reseau termine.')", "python"),
         ],
         category="debug_cascade",
@@ -269,7 +269,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_debug_api_cascade",
         trigger_vocal=["debug api", "api en panne", "test tous les endpoints"],
         steps=[
-            DominoStep("health_m1", "curl:http://10.5.0.2:1234/api/v1/models", "curl", on_fail="skip", timeout_s=5),
+            DominoStep("health_m1", "curl:http://127.0.0.1:1234/api/v1/models", "curl", on_fail="skip", timeout_s=5),
             DominoStep("health_m2", "curl:http://192.168.1.26:1234/api/v1/models", "curl", on_fail="skip", timeout_s=5),
             DominoStep("health_ollama", "curl:http://127.0.0.1:11434/api/tags", "curl", on_fail="skip", timeout_s=5),
             DominoStep("health_n8n", "curl:http://127.0.0.1:5678/healthz", "curl", on_fail="skip", timeout_s=5),
@@ -407,7 +407,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         steps=[
             DominoStep("gpu_all_metrics", "powershell:nvidia-smi --query-gpu=name,temperature.gpu,utilization.gpu,memory.used,memory.total,power.draw --format=csv,noheader", "powershell"),
             DominoStep("gpu_processes", "powershell:nvidia-smi --query-compute-apps=pid,name,used_memory --format=csv,noheader", "powershell"),
-            DominoStep("eval_health", "curl:http://10.5.0.2:1234/api/v1/chat", "curl"),
+            DominoStep("eval_health", "curl:http://127.0.0.1:1234/api/v1/chat", "curl"),
             DominoStep("tts_gpu", "python:edge_tts_speak('Monitoring GPU complet.')", "python"),
         ],
         category="gpu_thermal",
@@ -498,7 +498,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
             DominoStep("cpu_ram", "powershell:Get-CimInstance Win32_OperatingSystem | Select-Object FreePhysicalMemory,TotalVisibleMemorySize; (Get-CimInstance Win32_Processor).LoadPercentage", "powershell"),
             DominoStep("disk_space", "powershell:Get-PSDrive -PSProvider FileSystem | Select-Object Name,@{N='FreeGB';E={[math]::Round($_.Free/1GB,1)}},@{N='UsedGB';E={[math]::Round($_.Used/1GB,1)}}", "powershell"),
             DominoStep("gpu_status", "powershell:nvidia-smi --query-gpu=temperature.gpu,memory.used --format=csv,noheader", "powershell"),
-            DominoStep("cluster_status", "curl:http://10.5.0.2:1234/api/v1/models", "curl", on_fail="skip"),
+            DominoStep("cluster_status", "curl:http://127.0.0.1:1234/api/v1/models", "curl", on_fail="skip"),
             DominoStep("tts_monitor", "python:edge_tts_speak('Monitoring systeme complet.')", "python"),
         ],
         category="monitoring_alert",
@@ -540,7 +540,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_collab_sync_cluster",
         trigger_vocal=["synchronise le cluster", "sync toutes les machines", "cluster sync"],
         steps=[
-            DominoStep("check_m1", "curl:http://10.5.0.2:1234/api/v1/models", "curl", on_fail="skip"),
+            DominoStep("check_m1", "curl:http://127.0.0.1:1234/api/v1/models", "curl", on_fail="skip"),
             DominoStep("check_m2", "curl:http://192.168.1.26:1234/api/v1/models", "curl", on_fail="skip"),
             DominoStep("check_m3", "curl:http://192.168.1.113:1234/api/v1/models", "curl", on_fail="skip"),
             DominoStep("sync_report", "python:generate_cluster_sync_report()", "python"),
@@ -555,7 +555,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         trigger_vocal=["partage le modele", "distribue sur le cluster", "model sharing"],
         steps=[
             DominoStep("check_model_local", "python:check_model_loaded_local()", "python"),
-            DominoStep("check_target_vram", "curl:http://10.5.0.2:1234/api/v1/models", "curl"),
+            DominoStep("check_target_vram", "curl:http://127.0.0.1:1234/api/v1/models", "curl"),
             DominoStep("transfer_config", "python:prepare_model_transfer_config()", "python"),
             DominoStep("tts_share", "python:edge_tts_speak('Configuration modele partagee.')", "python"),
         ],
@@ -567,7 +567,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_collab_consensus",
         trigger_vocal=["lance un consensus", "vote multi agents", "consensus cluster"],
         steps=[
-            DominoStep("query_m1", "curl:http://10.5.0.2:1234/api/v1/chat", "curl", on_fail="skip"),
+            DominoStep("query_m1", "curl:http://127.0.0.1:1234/api/v1/chat", "curl", on_fail="skip"),
             DominoStep("query_m2", "curl:http://192.168.1.26:1234/api/v1/chat", "curl", on_fail="skip"),
             DominoStep("query_ol1", "curl:http://127.0.0.1:11434/api/chat", "curl", on_fail="skip"),
             DominoStep("vote_weighted", "python:calculate_weighted_vote()", "python"),
@@ -676,7 +676,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_predict_model_drift",
         trigger_vocal=["derive des modeles", "check model drift", "qualite des modeles"],
         steps=[
-            DominoStep("test_m1", "curl:http://10.5.0.2:1234/api/v1/chat", "curl", timeout_s=20),
+            DominoStep("test_m1", "curl:http://127.0.0.1:1234/api/v1/chat", "curl", timeout_s=20),
             DominoStep("test_m2", "curl:http://192.168.1.26:1234/api/v1/chat", "curl", timeout_s=20),
             DominoStep("test_ol1", "curl:http://127.0.0.1:11434/api/chat", "curl", timeout_s=15),
             DominoStep("compare_quality", "python:compare_model_responses()", "python"),
@@ -695,7 +695,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
             DominoStep("gpu_wear", "powershell:nvidia-smi --query-gpu=name,temperature.gpu,power.draw,memory.used --format=csv,noheader,nounits", "powershell", timeout_s=10),
             DominoStep("uptime_check", "powershell:(Get-CimInstance Win32_OperatingSystem).LastBootUpTime", "powershell", timeout_s=10),
             DominoStep("event_errors", "powershell:Get-EventLog -LogName System -EntryType Error -Newest 10 | Select-Object TimeGenerated, Source, Message | Format-Table -Wrap", "powershell", on_fail="skip", timeout_s=15),
-            DominoStep("cluster_health", "curl:http://10.5.0.2:1234/api/v1/models", "curl", timeout_s=10),
+            DominoStep("cluster_health", "curl:http://127.0.0.1:1234/api/v1/models", "curl", timeout_s=10),
             DominoStep("tts_predict", "python:edge_tts_speak('Analyse predictive terminee. Aucune panne imminente detectee.')", "python"),
         ],
         category="maintenance_predictive",
@@ -712,7 +712,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_consensus_smart",
         trigger_vocal=["consensus intelligent", "avis du cluster", "vote des modeles"],
         steps=[
-            DominoStep("query_m1", "curl:http://10.5.0.2:1234/api/v1/chat", "curl", timeout_s=20),
+            DominoStep("query_m1", "curl:http://127.0.0.1:1234/api/v1/chat", "curl", timeout_s=20),
             DominoStep("query_m2", "curl:http://192.168.1.26:1234/api/v1/chat", "curl", timeout_s=20),
             DominoStep("query_ol1", "curl:http://127.0.0.1:11434/api/chat", "curl", timeout_s=15),
             DominoStep("weighted_vote", "python:calculate_weighted_consensus()", "python"),
@@ -728,7 +728,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_model_hot_swap",
         trigger_vocal=["change de modele", "swap le modele", "echange de modele"],
         steps=[
-            DominoStep("check_latency", "curl:http://10.5.0.2:1234/api/v1/models", "curl", timeout_s=10),
+            DominoStep("check_latency", "curl:http://127.0.0.1:1234/api/v1/models", "curl", timeout_s=10),
             DominoStep("eval_performance", "python:evaluate_model_latency()", "python"),
             DominoStep("swap_model", "python:trigger_model_swap()", "python", on_fail="skip"),
             DominoStep("tts_swap", "python:edge_tts_speak('Modele echange avec succes. Nouveau modele actif.')", "python"),
@@ -743,7 +743,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_auto_benchmark",
         trigger_vocal=["benchmark automatique", "teste tous les noeuds", "benchmark cluster"],
         steps=[
-            DominoStep("bench_m1", "curl:http://10.5.0.2:1234/api/v1/chat", "curl", timeout_s=25),
+            DominoStep("bench_m1", "curl:http://127.0.0.1:1234/api/v1/chat", "curl", timeout_s=25),
             DominoStep("bench_m2", "curl:http://192.168.1.26:1234/api/v1/chat", "curl", timeout_s=25),
             DominoStep("bench_m3", "curl:http://192.168.1.113:1234/api/v1/chat", "curl", timeout_s=25),
             DominoStep("bench_ol1", "curl:http://127.0.0.1:11434/api/chat", "curl", timeout_s=15),
@@ -877,7 +877,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_notif_tts_broadcast",
         trigger_vocal=["annonce vocale", "broadcast vocal", "annonce a tout le monde"],
         steps=[
-            DominoStep("check_cluster", "curl:http://10.5.0.2:1234/api/v1/models", "curl", timeout_s=10),
+            DominoStep("check_cluster", "curl:http://127.0.0.1:1234/api/v1/models", "curl", timeout_s=10),
             DominoStep("check_gpu", "powershell:nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits", "powershell", timeout_s=10),
             DominoStep("tts_broadcast", "python:edge_tts_speak('Annonce systeme: tous les noeuds sont operationnels. Cluster en parfait etat.')", "python"),
         ],
@@ -911,7 +911,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         steps=[
             DominoStep("arp_scan", "powershell:arp -a | Select-String 'dynamic'", "powershell", timeout_s=10),
             DominoStep("ip_config", "powershell:Get-NetIPAddress -AddressFamily IPv4 | Select-Object InterfaceAlias, IPAddress | Format-Table -AutoSize", "powershell", timeout_s=10),
-            DominoStep("cluster_ping", "bash:for ip in 10.5.0.2 192.168.1.26 192.168.1.113; do ping -n 1 -w 500 $ip > /dev/null 2>&1 && echo \"$ip OK\" || echo \"$ip FAIL\"; done", "bash", timeout_s=15),
+            DominoStep("cluster_ping", "bash:for ip in 127.0.0.1 192.168.1.26 192.168.1.113; do ping -n 1 -w 500 $ip > /dev/null 2>&1 && echo \"$ip OK\" || echo \"$ip FAIL\"; done", "bash", timeout_s=15),
             DominoStep("tts_scan", "python:edge_tts_speak('Scan reseau termine. Noeuds du cluster verifies.')", "python"),
         ],
         category="network_diagnostics",
@@ -924,7 +924,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_network_latency",
         trigger_vocal=["test de latence", "ping le cluster", "mesure la latence reseau"],
         steps=[
-            DominoStep("ping_m1", "bash:ping -n 3 10.5.0.2 | tail -1", "bash", timeout_s=10),
+            DominoStep("ping_m1", "bash:ping -n 3 127.0.0.1 | tail -1", "bash", timeout_s=10),
             DominoStep("ping_m2", "bash:ping -n 3 192.168.1.26 | tail -1", "bash", timeout_s=10),
             DominoStep("ping_m3", "bash:ping -n 3 192.168.1.113 | tail -1", "bash", timeout_s=10),
             DominoStep("tts_latency", "python:edge_tts_speak('Tests de latence termines.')", "python"),
@@ -1305,7 +1305,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_test_cluster_health",
         trigger_vocal=["test de sante cluster", "cluster health check", "verifie la sante du cluster"],
         steps=[
-            DominoStep("ping_m1", f"bash:curl -s --max-time 3 http://10.5.0.2:1234/api/v1/models -H 'Authorization: Bearer {_M1_KEY}' > /dev/null 2>&1 && echo 'M1 OK' || echo 'M1 FAIL'", "bash", timeout_s=5),
+            DominoStep("ping_m1", f"bash:curl -s --max-time 3 http://127.0.0.1:1234/api/v1/models -H 'Authorization: Bearer {_M1_KEY}' > /dev/null 2>&1 && echo 'M1 OK' || echo 'M1 FAIL'", "bash", timeout_s=5),
             DominoStep("ping_m2", f"bash:curl -s --max-time 3 http://192.168.1.26:1234/api/v1/models -H 'Authorization: Bearer {_M2_KEY}' > /dev/null 2>&1 && echo 'M2 OK' || echo 'M2 FAIL'", "bash", timeout_s=5),
             DominoStep("ping_ol1", "bash:curl -s --max-time 3 http://127.0.0.1:11434/api/tags > /dev/null 2>&1 && echo 'OL1 OK' || echo 'OL1 FAIL'", "bash", timeout_s=5),
             DominoStep("gpu_temps", "powershell:nvidia-smi --query-gpu=name,temperature.gpu --format=csv,noheader", "powershell", timeout_s=10),
@@ -1399,7 +1399,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         trigger_vocal=["test de bande passante", "speed test", "test de vitesse reseau"],
         steps=[
             DominoStep("download_test", "bash:curl -s --max-time 10 -o /dev/null -w '%{speed_download}' https://speed.cloudflare.com/__down?bytes=10000000 2>/dev/null | python3 -c \"import sys; speed=float(sys.stdin.read()); print(f'{speed/1024/1024:.1f} MB/s download')\"", "bash", timeout_s=15, on_fail="skip"),
-            DominoStep("cluster_latency", "bash:for ip in 10.5.0.2 192.168.1.26 192.168.1.113; do ping -n 1 -w 500 $ip 2>/dev/null | grep -i 'time=' || echo \"$ip timeout\"; done", "bash", timeout_s=10),
+            DominoStep("cluster_latency", "bash:for ip in 127.0.0.1 192.168.1.26 192.168.1.113; do ping -n 1 -w 500 $ip 2>/dev/null | grep -i 'time=' || echo \"$ip timeout\"; done", "bash", timeout_s=10),
             DominoStep("tts_bandwidth", "python:edge_tts_speak('Test de bande passante termine.')", "python"),
         ],
         category="network_diagnostics",
@@ -1416,7 +1416,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_bilan_cluster_complet",
         trigger_vocal=["bilan cluster complet", "rapport cluster", "etat complet du cluster"],
         steps=[
-            DominoStep("health_m1", "curl:http://10.5.0.2:1234/api/v1/models", "curl", on_fail="skip", timeout_s=5),
+            DominoStep("health_m1", "curl:http://127.0.0.1:1234/api/v1/models", "curl", on_fail="skip", timeout_s=5),
             DominoStep("health_m2", "curl:http://192.168.1.26:1234/api/v1/models", "curl", on_fail="skip", timeout_s=5),
             DominoStep("health_m3", "curl:http://192.168.1.113:1234/api/v1/models", "curl", on_fail="skip", timeout_s=5),
             DominoStep("health_ol1", "curl:http://127.0.0.1:11434/api/tags", "curl", on_fail="skip", timeout_s=5),
@@ -1437,7 +1437,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
             DominoStep("open_vscode", "app_open:code", "pipeline"),
             DominoStep("open_terminal", "app_open:terminal", "pipeline"),
             DominoStep("disable_notifs", "powershell:New-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Notifications\\Settings' -Name 'NOC_GLOBAL_SETTING_TOASTS_ENABLED' -Value 0 -PropertyType DWORD -Force 2>$null", "powershell", on_fail="skip"),
-            DominoStep("cluster_warmup", "curl:http://10.5.0.2:1234/api/v1/models", "curl", on_fail="skip", timeout_s=5),
+            DominoStep("cluster_warmup", "curl:http://127.0.0.1:1234/api/v1/models", "curl", on_fail="skip", timeout_s=5),
             DominoStep("focus_timer", "python:start_pomodoro(25)", "python"),
             DominoStep("tts_coding", "python:edge_tts_speak('Mode coding active. Notifications desactivees. Focus 25 minutes.')", "python"),
         ],
@@ -1452,7 +1452,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         trigger_vocal=["rapport du jour", "bilan de la journee", "resume du jour", "qu'est ce qu'on a fait aujourd'hui"],
         steps=[
             DominoStep("git_today", "powershell:git -C 'F:\\BUREAU\\turbo' log --oneline --since='midnight' --format='%h %s'", "powershell"),
-            DominoStep("cluster_stats", "curl:http://10.5.0.2:1234/api/v1/models", "curl", on_fail="skip", timeout_s=5),
+            DominoStep("cluster_stats", "curl:http://127.0.0.1:1234/api/v1/models", "curl", on_fail="skip", timeout_s=5),
             DominoStep("db_stats", "python:sqlite3_table_counts('etoile.db')", "python", on_fail="skip"),
             DominoStep("trading_pnl", "python:fetch_today_pnl()", "python", on_fail="skip"),
             DominoStep("tts_rapport", "python:edge_tts_speak('Rapport du jour genere.')", "python"),
@@ -1502,7 +1502,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         trigger_vocal=["analyse trading ia", "ia analyse le marche", "consensus trading"],
         steps=[
             DominoStep("fetch_prices", "python:fetch_mexc_prices(['BTC','ETH','SOL','SUI','PEPE'])", "python", timeout_s=15),
-            DominoStep("m1_analysis", "curl:http://10.5.0.2:1234/api/v1/chat", "curl", timeout_s=30),
+            DominoStep("m1_analysis", "curl:http://127.0.0.1:1234/api/v1/chat", "curl", timeout_s=30),
             DominoStep("gptoss_analysis", "curl:http://127.0.0.1:11434/api/chat", "curl", timeout_s=60),
             DominoStep("consensus_vote", "python:weighted_consensus_vote()", "python"),
             DominoStep("tts_trading", "python:edge_tts_speak('Analyse trading IA terminee. Consensus genere.')", "python"),
@@ -1517,7 +1517,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_quick_health",
         trigger_vocal=["health check rapide", "tout va bien", "check rapide"],
         steps=[
-            DominoStep("check_m1", "curl:http://10.5.0.2:1234/api/v1/models", "curl", timeout_s=5, on_fail="skip"),
+            DominoStep("check_m1", "curl:http://127.0.0.1:1234/api/v1/models", "curl", timeout_s=5, on_fail="skip"),
             DominoStep("check_ol1", "curl:http://127.0.0.1:11434/api/tags", "curl", timeout_s=5, on_fail="skip"),
             DominoStep("check_gpu", "powershell:nvidia-smi --query-gpu=temperature.gpu,utilization.gpu,memory.used --format=csv,noheader", "powershell", timeout_s=5),
             DominoStep("tts", "python:edge_tts_speak('Health check rapide termine.')", "python"),
@@ -1571,7 +1571,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         trigger_vocal=["standup", "daily standup", "standup du jour", "morning standup"],
         steps=[
             DominoStep("git_yesterday", "bash:cd F:/BUREAU/turbo && git log --since='yesterday' --oneline", "bash", timeout_s=10),
-            DominoStep("cluster_health", "curl:http://10.5.0.2:1234/api/v1/models", "curl", timeout_s=5, on_fail="skip"),
+            DominoStep("cluster_health", "curl:http://127.0.0.1:1234/api/v1/models", "curl", timeout_s=5, on_fail="skip"),
             DominoStep("db_stats", "python:sqlite3_table_counts('etoile.db')", "python", on_fail="skip"),
             DominoStep("tts", "python:edge_tts_speak('Daily standup: commits d hier affiches, cluster verifie.')", "python"),
         ],
@@ -1610,7 +1610,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_model_benchmark",
         trigger_vocal=["benchmark modele", "teste le modele", "vitesse modele"],
         steps=[
-            DominoStep("bench_m1", "curl:http://10.5.0.2:1234/api/v1/chat", "curl", timeout_s=30),
+            DominoStep("bench_m1", "curl:http://127.0.0.1:1234/api/v1/chat", "curl", timeout_s=30),
             DominoStep("bench_ol1", "curl:http://127.0.0.1:11434/api/chat", "curl", timeout_s=30, on_fail="skip"),
             DominoStep("tts", "python:edge_tts_speak('Benchmark modele termine.')", "python"),
         ],
@@ -1636,7 +1636,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_api_latency_test",
         trigger_vocal=["test latence api", "ping les apis", "latence des noeuds"],
         steps=[
-            DominoStep("ping_m1", "curl:http://10.5.0.2:1234/api/v1/models", "curl", timeout_s=5, on_fail="skip"),
+            DominoStep("ping_m1", "curl:http://127.0.0.1:1234/api/v1/models", "curl", timeout_s=5, on_fail="skip"),
             DominoStep("ping_m2", "curl:http://192.168.1.26:1234/api/v1/models", "curl", timeout_s=5, on_fail="skip"),
             DominoStep("ping_m3", "curl:http://192.168.1.113:1234/api/v1/models", "curl", timeout_s=5, on_fail="skip"),
             DominoStep("ping_ol1", "curl:http://127.0.0.1:11434/api/tags", "curl", timeout_s=5, on_fail="skip"),
@@ -1760,7 +1760,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_lmstudio_models",
         trigger_vocal=["liste les modeles lm studio", "quels modeles lm studio", "lm studio models"],
         steps=[
-            DominoStep("list_m1", "curl:http://10.5.0.2:1234/api/v1/models", "curl", timeout_s=10, on_fail="skip"),
+            DominoStep("list_m1", "curl:http://127.0.0.1:1234/api/v1/models", "curl", timeout_s=10, on_fail="skip"),
             DominoStep("list_m2", "curl:http://192.168.1.26:1234/api/v1/models", "curl", timeout_s=10, on_fail="skip"),
             DominoStep("list_m3", "curl:http://192.168.1.113:1234/api/v1/models", "curl", timeout_s=10, on_fail="skip"),
             DominoStep("tts", "python:edge_tts_speak('Modeles LM Studio listes sur les 3 noeuds.')", "python"),
@@ -1825,7 +1825,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_cluster_rebalance",
         trigger_vocal=["reequilibre le cluster", "cluster rebalance", "redistribue les modeles"],
         steps=[
-            DominoStep("check_m1_load", "curl:http://10.5.0.2:1234/api/v1/models", "curl", timeout_s=5, on_fail="skip"),
+            DominoStep("check_m1_load", "curl:http://127.0.0.1:1234/api/v1/models", "curl", timeout_s=5, on_fail="skip"),
             DominoStep("check_m2_load", "curl:http://192.168.1.26:1234/api/v1/models", "curl", timeout_s=5, on_fail="skip"),
             DominoStep("check_gpu_usage", "powershell:nvidia-smi --query-gpu=name,utilization.gpu,memory.used --format=csv,noheader", "powershell", timeout_s=10),
             DominoStep("tts", "python:edge_tts_speak('Etat du cluster analyse pour reequilibrage.')", "python"),
@@ -1842,7 +1842,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
             DominoStep("cpu_ram", "powershell:$os=Get-CimInstance Win32_OperatingSystem; $cpu=(Get-CimInstance Win32_Processor).LoadPercentage; $ram=[math]::Round(($os.TotalVisibleMemorySize-$os.FreePhysicalMemory)/1MB,1); Write-Output \"CPU: ${cpu}% | RAM: ${ram}GB\"", "powershell", timeout_s=10),
             DominoStep("gpu_all", "powershell:nvidia-smi --query-gpu=name,temperature.gpu,memory.used,memory.total,utilization.gpu --format=csv,noheader", "powershell", timeout_s=10),
             DominoStep("disk_all", "powershell:Get-PSDrive -PSProvider FileSystem | Select-Object Name,@{N='FreeGB';E={[math]::Round($_.Free/1GB,1)}},@{N='UsedGB';E={[math]::Round($_.Used/1GB,1)}} | Format-Table", "powershell", timeout_s=10),
-            DominoStep("cluster_health", "curl:http://10.5.0.2:1234/api/v1/models", "curl", timeout_s=5, on_fail="skip"),
+            DominoStep("cluster_health", "curl:http://127.0.0.1:1234/api/v1/models", "curl", timeout_s=5, on_fail="skip"),
             DominoStep("ollama_status", "curl:http://127.0.0.1:11434/api/tags", "curl", timeout_s=5, on_fail="skip"),
             DominoStep("git_status", "bash:cd F:/BUREAU/turbo && git log --oneline -3", "bash", timeout_s=5),
             DominoStep("tts", "python:edge_tts_speak('Rapport systeme complet genere. CPU, RAM, GPU, disques, cluster, git.')", "python"),
@@ -1859,7 +1859,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         steps=[
             DominoStep("date_heure", "powershell:Get-Date -Format 'dddd dd MMMM yyyy HH:mm'", "powershell", timeout_s=5),
             DominoStep("gpu_status", "powershell:nvidia-smi --query-gpu=name,temperature.gpu,memory.used,memory.total --format=csv,noheader", "powershell", timeout_s=10),
-            DominoStep("cluster_m1", "curl:http://10.5.0.2:1234/api/v1/models", "curl", timeout_s=5, on_fail="skip"),
+            DominoStep("cluster_m1", "curl:http://127.0.0.1:1234/api/v1/models", "curl", timeout_s=5, on_fail="skip"),
             DominoStep("cluster_ol1", "curl:http://127.0.0.1:11434/api/tags", "curl", timeout_s=5, on_fail="skip"),
             DominoStep("disk_space", "powershell:Get-PSDrive C,F -ErrorAction SilentlyContinue | Select-Object Name,@{N='FreeGB';E={[math]::Round($_.Free/1GB,1)}} | Format-Table", "powershell", timeout_s=10),
             DominoStep("git_pending", "bash:cd F:/BUREAU/turbo && git status --short | wc -l", "bash", timeout_s=5),
@@ -1943,7 +1943,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         id="domino_check_services",
         trigger_vocal=["verifie les services", "check services", "services en ligne"],
         steps=[
-            DominoStep("check_lmstudio", "curl:http://10.5.0.2:1234/api/v1/models", "curl", timeout_s=5, on_fail="skip"),
+            DominoStep("check_lmstudio", "curl:http://127.0.0.1:1234/api/v1/models", "curl", timeout_s=5, on_fail="skip"),
             DominoStep("check_ollama", "curl:http://127.0.0.1:11434/api/tags", "curl", timeout_s=5, on_fail="skip"),
             DominoStep("check_n8n", "curl:http://127.0.0.1:5678/healthz", "curl", timeout_s=5, on_fail="skip"),
             DominoStep("check_dashboard", "curl:http://127.0.0.1:8080", "curl", timeout_s=5, on_fail="skip"),

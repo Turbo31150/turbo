@@ -272,8 +272,8 @@ def main():
     if args.routing:
         routing = analyze_routing(edb)
         print("\n=== Optimal Routing Table ===")
-        for t, nodes in sorted(routing.items()):
-            print(f"\n  {t}:")
+        for t, nodes in sorted(routing.items(), key=lambda x: (x[0] or "")):
+            print(f"\n  {t or 'unknown'}:")
             for n in nodes:
                 print(f"    {n['node']:6} score={n['composite_score']:.3f} "
                       f"ok={n['success_rate']}% q={n['avg_quality']:.2f} "
@@ -314,9 +314,9 @@ def main():
                  f"Data: {total} dispatches"]
         if routing:
             lines.append("")
-            for t, nodes in sorted(routing.items()):
+            for t, nodes in sorted(routing.items(), key=lambda x: (x[0] or "")):
                 if nodes:
-                    lines.append(f"  {t} -> {nodes[0]['node']} (q={nodes[0]['avg_quality']:.2f})")
+                    lines.append(f"  {t or 'unknown'} -> {nodes[0]['node']} (q={nodes[0]['avg_quality']:.2f})")
         if trends:
             lines.append("")
             for t in trends[:3]:
@@ -332,9 +332,9 @@ def main():
         # 1. Analyze routing
         routing = analyze_routing(edb)
         print(f"\n1. Routing: {len(routing)} task types analyzed")
-        for t, nodes in sorted(routing.items()):
+        for t, nodes in sorted(routing.items(), key=lambda x: (x[0] or "")):
             if nodes:
-                print(f"   {t} -> {nodes[0]['node']} (score={nodes[0]['composite_score']:.3f})")
+                print(f"   {t or 'unknown'} -> {nodes[0]['node']} (score={nodes[0]['composite_score']:.3f})")
 
         # 2. Check trends
         trends = analyze_trends(edb)

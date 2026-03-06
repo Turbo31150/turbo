@@ -3,6 +3,7 @@
 import json, sys, os, re
 from datetime import datetime, timedelta
 from collections import Counter
+from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
 
 # TELEGRAM_TOKEN loaded from _paths (.env)
 # TELEGRAM_CHAT loaded from _paths (.env)
@@ -28,7 +29,6 @@ ERROR_PATTERNS = [
 
 def send_telegram(msg):
     import urllib.request
-from _paths import TELEGRAM_TOKEN, TELEGRAM_CHAT
     data = json.dumps({"chat_id": TELEGRAM_CHAT, "text": msg}).encode()
     req = urllib.request.Request(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
                                  data=data, headers={"Content-Type": "application/json"})

@@ -87,10 +87,10 @@ if ($Status) {
     & $LMS_PATH ps
     Write-Host ""
     # M1
-    if (Test-Api "http://10.5.0.2:${Port}/api/v1/models") {
-        Write-Log "M1 (10.5.0.2:$Port): ONLINE" "OK" "Green"
+    if (Test-Api "http://127.0.0.1:${Port}/api/v1/models") {
+        Write-Log "M1 (127.0.0.1:$Port): ONLINE" "OK" "Green"
     } else {
-        Write-Log "M1 (10.5.0.2:$Port): OFFLINE" "WARN" "Red"
+        Write-Log "M1 (127.0.0.1:$Port): OFFLINE" "WARN" "Red"
     }
     # M2
     if (Test-Api "$M2_URL/api/v1/models") {
@@ -149,7 +149,7 @@ if ($serverStatus -match "not running" -or $serverStatus -match "error") {
     $ready = $false
     for ($i = 0; $i -lt 10; $i++) {
         Start-Sleep -Seconds 2
-        if (Test-Api "http://10.5.0.2:${Port}/api/v1/models") {
+        if (Test-Api "http://127.0.0.1:${Port}/api/v1/models") {
             $ready = $true
             break
         }
@@ -212,7 +212,7 @@ if ($psAfter -match [regex]::Escape($M1_MODEL)) {
 
 # ── Step 5: Warmup inference (pre-fill KV cache) ─────────────────────────
 Write-Log "Warmup inference M1..." "INFO" "Cyan"
-$warmup = Invoke-Warmup -Url "http://10.5.0.2:$Port" -Model $M1_MODEL
+$warmup = Invoke-Warmup -Url "http://127.0.0.1:$Port" -Model $M1_MODEL
 if ($warmup.OK) {
     Write-Log "Warmup OK — $($warmup.LatencyMs)ms — '$($warmup.Content)'" "OK" "Green"
 } else {
@@ -282,7 +282,7 @@ Write-Host "  ══════════════════════
 Write-Host "    CLUSTER BOOT COMPLETE" -ForegroundColor Green
 Write-Host "  ══════════════════════════════════════════════════" -ForegroundColor Green
 Write-Host ""
-Write-Log "M1 API:  http://10.5.0.2:$Port/api/v1/chat" "INFO" "White"
+Write-Log "M1 API:  http://127.0.0.1:$Port/api/v1/chat" "INFO" "White"
 Write-Log "M2 API:  $M2_URL/api/v1/chat" "INFO" "White"
 Write-Log "Ollama:  $OLLAMA_URL/api/chat" "INFO" "White"
 Write-Host ""
