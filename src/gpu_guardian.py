@@ -1,4 +1,4 @@
-﻿"""JARVIS GPU Guardian -- Proactive GPU monitoring with auto-unload.
+"""JARVIS GPU Guardian -- Proactive GPU monitoring with auto-unload.
 
 Monitors GPU temperature, VRAM usage, and power draw in real-time.
 Automatically unloads heaviest models when thresholds are exceeded.

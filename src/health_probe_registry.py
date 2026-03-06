@@ -1,4 +1,4 @@
-﻿"""JARVIS Health Probe Registry -- Auto-register all critical health checks.
+"""JARVIS Health Probe Registry -- Auto-register all critical health checks.
 
 Registers probes for every subsystem: LM Studio, Ollama, GPU, DB, event bus,
 autonomous loop, trading, voice, MCP server. Call register_all_probes() at startup.

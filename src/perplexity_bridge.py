@@ -1,4 +1,4 @@
-﻿"""JARVIS Perplexity Bridge -- Proactive intelligence from Perplexity to JARVIS.
+"""JARVIS Perplexity Bridge -- Proactive intelligence from Perplexity to JARVIS.
 
 This module enables Perplexity (via MCP connector) to:
 1. Store learnings into JARVIS memory for future use

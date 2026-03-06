@@ -1,4 +1,4 @@
-﻿"""JARVIS Startup Wiring v2  Master bootstrap that connects EVERYTHING.
+"""JARVIS Startup Wiring v2  Master bootstrap that connects EVERYTHING.
 
 Call this once at startup to:
 1. Fix scheduler duplicate bug

@@ -1,4 +1,4 @@
-﻿"""JARVIS Cluster Self-Healer -- Automatic node recovery and failover.
+"""JARVIS Cluster Self-Healer -- Automatic node recovery and failover.
 
 When a cluster node goes down, the self-healer:
 1. Detects the failure via health probes or event bus

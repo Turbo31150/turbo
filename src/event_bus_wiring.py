@@ -1,4 +1,4 @@
-﻿"""JARVIS Event Bus Wiring -- Auto-connect all modules via event bus.
+"""JARVIS Event Bus Wiring -- Auto-connect all modules via event bus.
 
 This module wires up all critical event subscribers so that JARVIS modules
 communicate automatically. Import and call wire_all() at startup.

@@ -1,4 +1,4 @@
-﻿"""JARVIS Daily Report - Automated system and trading daily summary.
+"""JARVIS Daily Report - Automated system and trading daily summary.
 
 Generates comprehensive daily reports combining:
 - Cluster health and performance

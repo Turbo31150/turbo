@@ -1,4 +1,4 @@
-﻿"""JARVIS Trading Sentinel -- Proactive position monitoring and risk alerts.
+"""JARVIS Trading Sentinel -- Proactive position monitoring and risk alerts.
 
 Continuously monitors open positions on MEXC Futures:
 - Drawdown alerts (configurable thresholds)
