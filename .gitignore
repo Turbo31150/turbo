@@ -15,7 +15,11 @@ __pycache__/
 
 # Databases (sensitive data)
 *.db
+*.db.bak
+*.db.corrupt
+*.db.recovered
 !data/etoile_schema.sql
+data/backups/
 
 # Logs
 logs/
