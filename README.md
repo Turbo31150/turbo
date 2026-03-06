@@ -33,9 +33,9 @@
 | **Commandes vocales** | 443 commandes + 853 voice commands | 443 commands + 853 voice_commands jarvis.db + 835 domino chains |
 | **Domino Cascades** | 835 cascades / 1,628 logs | 11 categories, 84 actions Python, 28 param patterns, 40 pipelines domino |
 | **Corrections vocales** | 2,628 entries | voice_corrections jarvis.db |
-| **Skills** | 80 (jarvis.db) + 30 skills_log (etoile.db) | Persistants en DB, 10 plugin skills |
+| **Skills** | 80 (jarvis.db) + 29 skills_log (etoile.db) | Persistants en DB, 10 plugin skills |
 | **Source Python** | 253 modules / 96,086 lignes | src/ uniquement (170,000+ total avec COWORK dev/ 435 scripts) |
-| **Databases** | 5 bases SQL (140 tables) | etoile.db (51t) + jarvis.db (13t) + sniper.db (4t) + finetuning.db (8t) + cowork_gaps.db (64t) |
+| **Databases** | 22 bases SQL (~119 tables, ~43k rows) | 5 principales (etoile/jarvis/strategy_evolution/strategy_lab/sniper_scan) + 13 secondaires + 4 utilitaires — 17.7 MB total |
 | **Tests** | 3,665 tests (83 suites) | 100% pass — pytest strict asyncio mode |
 | **Plugin** | 24 slash commands | + 10 skills + 11 agents + 4 hooks (plugin v3.1) |
 | **Desktop** | Electron 33 + React 19 | **29 pages**, Portable 72.5 MB |
@@ -815,7 +815,7 @@ Commande vocale → Collecte PowerShell (CPU/RAM/GPU/Disques)
 - [Pipeline Commander](#pipeline-commander)
 - [114 Agents Total (7 SDK + 11 Plugin + 96 Patterns)](#114-agents-total-7-sdk--11-plugin--96-pattern-agents)
 - [Consensus Multi-Source](#consensus-multi-source)
-- [108 Skills Autonomes](#108-skills-autonomes)
+- [80 Skills Autonomes (+ 10 Plugins)](#80-skills-autonomes--10-plugins)
 - [167 Outils MCP + 602 Handlers](#167-outils-mcp--602-handlers)
 - [Bases de Donnees](#bases-de-donnees)
 - [Catalogue Vocal & Pipelines](#catalogue-vocal--pipelines)
@@ -1226,7 +1226,7 @@ Les domino chains sont des reactions automatiques declenchees par un evenement +
 
 ---
 
-## 108 Skills Autonomes
+## 80 Skills Autonomes (+ 10 Plugins)
 
 Les skills sont des pipelines multi-etapes persistants dans `etoile.db`. Ils survivent aux redemarrages et accumulent des statistiques d'utilisation. Declenchables par commande vocale ou par les agents.
 
@@ -1243,6 +1243,8 @@ Les skills sont des pipelines multi-etapes persistants dans `etoile.db`. Ils sur
 | **Communication** | 3 | Telegram, email, notifications |
 | **Trading** | 3 | Consensus multi-IA, check complet, mode MEXC |
 | **Navigation** | 1 | Split screen, multi-bureau |
+
+> Note : la somme des categories (111) depasse le total reel (80 skills en jarvis.db) car certaines categories se chevauchent.
 
 ### 24 Skills Plugin (jarvis-turbo)
 
@@ -1369,6 +1371,41 @@ Autres tables: `pipeline_dictionary` (656 pipelines), `pipeline_tests` (528+ tes
 | benchmark_runs | 1 | Dernier benchmark complet |
 | benchmark_results | 50 | Resultats detailles par noeud/level |
 | consensus_log | 3 | Logs de consensus multi-source |
+
+### Bases de Donnees (22)
+
+> Audit complet 2026-03-06 — Toutes les DB sont dans `F:\BUREAU\turbo\data\`
+
+#### Bases Principales (5) — 98% des donnees
+| Base | Tables | Rows | Usage |
+|------|--------|------|-------|
+| etoile.db | 54 | 11,437 | Orchestration cluster, dispatch, patterns, benchmarks |
+| jarvis.db | 19 | 11,509 | Voice commands, corrections, scenarios |
+| strategy_evolution.db | 5 | 9,237 | ML trading strategies |
+| strategy_lab.db | 4 | 9,907 | Strategy testing |
+| sniper_scan.db | 5 | 8,542 | Trading scan signals |
+
+#### Bases Secondaires (13)
+| Base | Tables | Rows | Usage |
+|------|--------|------|-------|
+| sniper.db | 4 | 790 | Trading signals |
+| orchestrator_v3.db | 5 | 2,818 | Pipeline orchestration |
+| super_loop.db | 4 | 261 | Autonomous loop |
+| sniper_improve.db | 2 | 165 | Signal improvement |
+| finetuning.db | 8 | 36 | GPU fine-tuning |
+| cluster_analysis.db | - | - | Cluster analytics |
+| master_autonome.db | - | - | Master autonomous |
+| agent_memory.db | - | - | Agent episodic memory |
+| audit_trail.db | - | - | Audit trail |
+| sessions.db | - | - | Session management |
+| workflows.db | - | - | Workflow engine |
+| cluster_pipeline.db | - | - | Cluster pipeline |
+| security_audit.db | - | - | Security scans |
+
+#### Utilitaires (4)
+scheduler.db, task_queue.db, conversations.db (vide), cowork_gaps.db (vide)
+
+**Total : 22 bases, ~119 tables, ~43,000 rows, 17.7 MB**
 
 ---
 
@@ -1857,7 +1894,7 @@ turbo/
 ├── finetuning/                # Pipeline QLoRA (Qwen3-30B-A3B, 55,549 exemples)
 ├── canvas/                    # Canvas Autolearn Engine (port 18800)
 ├── n8n_workflows/             # 6 workflows n8n
-├── data/                      # 4 bases SQL (etoile.db, jarvis.db, sniper.db, finetuning.db)
+├── data/                      # 22 bases SQL (~119 tables, ~43k rows, 17.7 MB)
 ├── docs/                      # 6 fichiers documentation
 ├── dashboard/                 # Dashboard web (stdlib, port 8080)
 └── docker/                    # Docker Compose stack
@@ -1997,6 +2034,19 @@ OLLAMA_NUM_PARALLEL=3 (env User persistant)
 | **Automation** | Playwright, Telegram Bot API, 435 scripts COWORK, 69 taches orchestrateur, 13 mega-runners |
 | **DevOps** | GitHub, uv (Python packaging), 46 launchers .bat/.ps1 |
 | **Agents** | 114 total (7 Claude SDK + 11 Plugin + 96 Patterns DB) |
+
+## Securite
+
+Tokens Telegram securises via `.env` apres nettoyage de 57 fichiers contenant des tokens hardcodes (commit `fac3c5e`). App passwords Gmail (IMAP) stockes dans `email_config.json`. Chaque machine LM Studio dispose de sa propre auth key (`sk-lm-*`). Ollama tourne sans auth (localhost only, non expose). Le `.gitignore` exclut `.env`, `*.db`, `fernet_key` et `credentials`.
+
+Cote applicatif : rate limiter token bucket (`src/rate_limiter.py`), circuit breakers dans `adaptive_router.py`, audit trail persistant (`src/audit_trail.py` + `data/audit_trail.db`), secret vault (`src/secret_vault.py`). Le script `scripts/system_audit.py` produit un score Securite (45/100 au dernier audit — principalement du a l'absence de TLS inter-noeuds et d'auth Ollama).
+
+## Fine-Tuning
+
+Stack : QLoRA 4-bit NF4 + PEFT LoRA sur single GPU RTX 2060 (6 GB VRAM) en precision BF16. Modele cible : Qwen3-8B (le 30B crash en CPU offload). Dataset : 17,152 exemples stockes dans `finetuning.db` (8 tables, 36 rows metadata). Framework TRL 0.29 — utilise `max_length` (pas `max_seq_length`).
+
+Patches necessaires : `Params4bit` + `QuantState.to` meta vers NF4 pour compatibilite PEFT/bitsandbytes. Code et configs dans `F:\BUREAU\turbo\finetuning\`. Statut : **experimental** — pas encore deploye en production.
+
 
 ---
 
