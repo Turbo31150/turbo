@@ -50,7 +50,7 @@
 
 ---
 
-## Nouveautes v12.4 — Self-Improving AI + 431 COWORK + 96 Pattern Agents + Quality Gate + WhisperFlow + 68 Taches Autonomes (2026-03-06)
+## Nouveautes v12.4 — Self-Improving AI + 432 COWORK + 96 Pattern Agents + Quality Gate + WhisperFlow + 68 Taches Autonomes (2026-03-06)
 
 > **432 scripts COWORK** en developpement continu autonome (132 batches). **96 agent patterns** en DB avec dispatch dynamique. **Dispatch engine 9 etapes** avec quality gate 6 portes, self-improvement, pattern evolution et reflection engine. **253 modules Python** (96,086 lignes src/). **3,665 tests** (83 suites). Bot Telegram via canvas bridge avec cluster race 5 noeuds. **29 pages Electron**. **WhisperFlow** voice overlay. **68 taches orchestrateur autonome** + 13 mega-runners (couverture 99.3% des 432 scripts).
 
@@ -806,7 +806,7 @@ Commande vocale → Collecte PowerShell (CPU/RAM/GPU/Disques)
 
 ## Table des Matieres
 
-- [Nouveautes v12.4 — 431 Scripts + 68 Taches Autonomes](#nouveautes-v124--self-improving-ai--431-cowork--96-pattern-agents--quality-gate--whisperflow--70-taches-autonomes-2026-03-06)
+- [Nouveautes v12.4 — 432 Scripts + 68 Taches Autonomes](#nouveautes-v124--self-improving-ai--432-cowork--96-pattern-agents--quality-gate--whisperflow--68-taches-autonomes-2026-03-06)
 - [Nouveautes v10.3.10 — TTS Live + Domino](#nouveautes-v10310--tts-live--domino-pipelines-174174-pass-63-tts)
 - [Audit Pipeline Complet](#audit-pipeline-complet-v1032--v1036-171171-pass)
 - [Connexions & Branchements](#connexions--branchements)
@@ -823,7 +823,7 @@ Commande vocale → Collecte PowerShell (CPU/RAM/GPU/Disques)
 - [Trading MEXC Futures](#trading-mexc-futures)
 - [Telegram Bot Autonome](#telegram-bot-autonome-turbossebot)
 - [Desktop Electron (29 pages)](#desktop-electron)
-- [COWORK Autonome (432 scripts)](#cowork-autonome-431-scripts-70-taches-orchestrateur-13-mega-runners)
+- [COWORK Autonome (432 scripts)](#cowork-autonome-432-scripts-68-taches-orchestrateur-13-mega-runners)
 - [Arborescence du Projet](#arborescence-du-projet)
 - [Installation](#installation)
 - [Benchmark Cluster](#benchmark-cluster)
@@ -1325,7 +1325,7 @@ JARVIS-TURBO tools.py (167 outils)     JARVIS-TURBO mcp_server.py (602 handlers)
 | Base | Chemin | Tables | Rows | Usage |
 |------|--------|--------|------|-------|
 | **etoile.db** | `data/etoile.db` | 53 | — | Carte systeme, 96 agent_patterns, 995 dispatch logs, quality gate, self-improvement, evolution, reflection, episodic memory, corrections, dominos |
-| **jarvis.db** | `data/jarvis.db` | 15 | — | 443 commandes, 80 skills, 2,123 scenarios, benchmarks, 2,628 corrections vocales |
+| **jarvis.db** | `data/jarvis.db` | 13 | — | 443 commandes, 80 skills, 2,123 scenarios, benchmarks, 2,628 corrections vocales |
 | **sniper.db** | `data/sniper.db` | 4 | — | Coins, signaux trading, categories, strategies |
 | **finetuning.db** | `data/finetuning.db` | 8 | — | Pipeline QLoRA 4-bit, 17,152 examples, evaluations |
 
