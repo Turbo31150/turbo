@@ -76,18 +76,20 @@ NODES = {
         "model": "qwen3:14b",
         "weight": 1.4,
     },
-    "OL1/gpt-oss-120b": {
-        "url": "http://127.0.0.1:11434/api/chat",
-        "type": "ollama",
-        "model": "gpt-oss:120b-cloud",
-        "weight": 1.9,
-    },
-    "OL1/devstral-123b": {
-        "url": "http://127.0.0.1:11434/api/chat",
-        "type": "ollama",
-        "model": "devstral-2:123b-cloud",
-        "weight": 1.5,
-    },
+    # DELETED: model removed from Ollama
+    # "OL1/gpt-oss-120b": {
+    #     "url": "http://127.0.0.1:11434/api/chat",
+    #     "type": "ollama",
+    #     "model": "gpt-oss:120b-cloud",
+    #     "weight": 1.9,
+    # },
+    # DELETED: model removed from Ollama
+    # "OL1/devstral-123b": {
+    #     "url": "http://127.0.0.1:11434/api/chat",
+    #     "type": "ollama",
+    #     "model": "devstral-2:123b-cloud",
+    #     "weight": 1.5,
+    # },
 }
 
 # ── 6 PATHS ──────────────────────────────────────────────────────────────
@@ -348,7 +350,7 @@ async def path_p6_commander(client: httpx.AsyncClient, node_id: str, prompt: str
 
     # Step 2: Route to best node for task type
     ROUTING = {
-        "code": "OL1/gpt-oss-120b",
+        "code": "M1/qwen3-8b",  # was OL1/gpt-oss-120b, DELETED: model removed from Ollama
         "analyse": "M1/qwen3-8b",
         "analysis": "M1/qwen3-8b",
         "reasoning": "M2/deepseek-r1",
@@ -508,7 +510,7 @@ async def phase1_cartography(client: httpx.AsyncClient) -> list[BenchResult]:
 
     # P5 CONSENSUS: 3 combos
     tasks = []
-    for node_id in ["M1/qwen3-8b", "OL1/gpt-oss-120b"]:
+    for node_id in ["M1/qwen3-8b", "OL1/qwen3-14b"]:  # was OL1/gpt-oss-120b, DELETED: model removed from Ollama
         for task in nano_tasks[:2]:
             tasks.append(run_single_test(client, "P5_CONSENSUS", node_id, task, sem))
     print(f"  P5_CONSENSUS: {len(tasks)} tests...")
@@ -568,8 +570,8 @@ async def phase3_escalade(client: httpx.AsyncClient) -> list[BenchResult]:
         for task in size_tasks[:5]:  # 5 tasks per size
             # P1 on M1 (fast local)
             bench_tasks.append(run_single_test(client, "P1_DIRECT", "M1/qwen3-8b", task, sem))
-            # P1 on gpt-oss (quality cloud)
-            bench_tasks.append(run_single_test(client, "P1_DIRECT", "OL1/gpt-oss-120b", task, sem))
+            # P1 on OL1-14b (was gpt-oss cloud, DELETED: model removed from Ollama)
+            bench_tasks.append(run_single_test(client, "P1_DIRECT", "OL1/qwen3-14b", task, sem))
             # P5 consensus
             bench_tasks.append(run_single_test(client, "P5_CONSENSUS", "M1/qwen3-8b", task, sem))
             # P6 commander

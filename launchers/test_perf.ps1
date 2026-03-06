@@ -51,12 +51,12 @@ Write-Host ("Reponse: " + $content2.Substring(0, [Math]::Min(300, $content2.Leng
 Write-Host ("Tokens: " + $r2.stats.total_output_tokens + " output, " + $r2.stats.input_tokens + " input")
 Write-Host ""
 
-# Test 3 — M2 deepseek-coder
+# Test 3 — M2 deepseek-r1 (reasoning)
 Write-Host "=== TEST M2 (192.168.1.26:1234) ==="
 try {
     $sw3 = [System.Diagnostics.Stopwatch]::StartNew()
     $body3 = @{
-        model = "deepseek-coder-v2-lite-instruct"
+        model = "deepseek-r1-0528-qwen3-8b"
         input = "Dis bonjour en francais."
         temperature = 0.5
         max_output_tokens = 64

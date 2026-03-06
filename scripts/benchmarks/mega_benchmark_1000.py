@@ -65,18 +65,20 @@ NODES = {
         "model": "qwen3:1.7b",
         "weight": 1.3,
     },
-    "gpt-oss": {
-        "url": "http://127.0.0.1:11434/api/chat",
-        "type": "ollama",
-        "model": "gpt-oss:120b-cloud",
-        "weight": 1.9,
-    },
-    "devstral": {
-        "url": "http://127.0.0.1:11434/api/chat",
-        "type": "ollama",
-        "model": "devstral-2:123b-cloud",
-        "weight": 1.5,
-    },
+    # DELETED: model removed from Ollama
+    # "gpt-oss": {
+    #     "url": "http://127.0.0.1:11434/api/chat",
+    #     "type": "ollama",
+    #     "model": "gpt-oss:120b-cloud",
+    #     "weight": 1.9,
+    # },
+    # DELETED: model removed from Ollama
+    # "devstral": {
+    #     "url": "http://127.0.0.1:11434/api/chat",
+    #     "type": "ollama",
+    #     "model": "devstral-2:123b-cloud",
+    #     "weight": 1.5,
+    # },
 }
 
 PROXY_URL = "http://127.0.0.1:18800"
@@ -319,10 +321,11 @@ async def strat_proxy(client, size, prompt):
     return await call_proxy(client, prompt), "proxy"
 
 
-async def strat_cloud(client, size, prompt):
-    """Cloud model (gpt-oss or devstral) for complex tasks."""
-    node = "gpt-oss" if size in ("large", "xl") else "devstral"
-    return await call_node(client, node, prompt, timeout=120), f"cloud:{node}"
+# DELETED: cloud models (gpt-oss, devstral) removed from Ollama
+# async def strat_cloud(client, size, prompt):
+#     """Cloud model (gpt-oss or devstral) for complex tasks."""
+#     node = "gpt-oss" if size in ("large", "xl") else "devstral"
+#     return await call_node(client, node, prompt, timeout=120), f"cloud:{node}"
 
 
 async def strat_fallback_chain(client, size, prompt):

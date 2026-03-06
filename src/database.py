@@ -388,7 +388,7 @@ def export_full_db() -> dict:
     # get_stats() opens its own connection via _db() — safe to call outside the with block
     stats = get_stats()
     return {
-        "version": "10.1",
+        "version": "10.6",
         "exported_at": time.time(),
         "stats": stats,
         "commands": commands,

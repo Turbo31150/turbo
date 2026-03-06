@@ -103,7 +103,7 @@ try:
 except Exception as e: fail("model_vram_usage", str(e)[:80])
 
 try:
-    resp = m1_ask("Compare qwen3-8b vs deepseek-coder-v2 en 1 ligne", max_tokens=128, timeout=15)
+    resp = m1_ask("Compare qwen3-8b vs deepseek-r1 en 1 ligne", max_tokens=128, timeout=15)
     ok("model_benchmark_compare", resp[:80])
 except Exception as e: fail("model_benchmark_compare", str(e)[:80])
 

@@ -224,7 +224,7 @@ Write-Log "Verification M2 ($M2_URL)..." "INFO" "Cyan"
 if (Test-Api "$M2_URL/api/v1/models") {
     Write-Log "M2: ONLINE" "OK" "Green"
     if ($Benchmark) {
-        $m2w = Invoke-Warmup -Url $M2_URL -Model "deepseek-coder-v2-lite-instruct"
+        $m2w = Invoke-Warmup -Url $M2_URL -Model "deepseek-r1-0528-qwen3-8b"
         if ($m2w.OK) {
             Write-Log "M2 warmup: $($m2w.LatencyMs)ms" "OK" "Green"
         }

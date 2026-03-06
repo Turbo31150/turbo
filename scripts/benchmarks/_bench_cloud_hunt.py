@@ -33,8 +33,10 @@ CLOUD_MODELS = [
     "qwen3.5:cloud",
     "qwen3-next:80b-cloud",
     "deepseek-v3.2:cloud",
-    "devstral-2:123b-cloud",
-    "gpt-oss:120b-cloud",
+    # DELETED: model removed from Ollama
+    # "devstral-2:123b-cloud",
+    # DELETED: model removed from Ollama
+    # "gpt-oss:120b-cloud",
     "cogito-2.1:671b-cloud",
     "gemini-3-flash-preview:cloud",
     "glm-4.7:cloud",

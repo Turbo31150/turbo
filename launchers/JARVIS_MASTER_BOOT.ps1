@@ -306,7 +306,7 @@ Tu es un auditeur systeme JARVIS. Analyse ce rapport et donne un score /100 + 3 
 - M1: qwen3-8b ctx=28813, 25 tok/s, 100% uptime
 - M2: deepseek-r1 ctx=27057, 16 tok/s, en ligne
 - M3: OFFLINE
-- Cloud (gpt-oss/devstral): RATE LIMITED (429) par crons OpenClaw
+- Cloud Ollama: minimax/glm-5/kimi (3 modeles restants)
 - OpenClaw: 2436 rate limits, 147 context overflow, 361 gateway timeout en 1 jour
 - 563 crons total, 165 actifs, 6 haute frequence (<15min)
 - GPU: 6 cartes, max 59C, pas de throttling

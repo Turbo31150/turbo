@@ -52,9 +52,11 @@ PROMPTS = [
 ]
 
 MODELS = {
-    "gpt-oss:120b-cloud": ("http://127.0.0.1:11434/api/chat", "ollama"),
+    # DELETED: model removed from Ollama
+    # "gpt-oss:120b-cloud": ("http://127.0.0.1:11434/api/chat", "ollama"),
     "glm-4.7:cloud": ("http://127.0.0.1:11434/api/chat", "ollama"),
-    "devstral-2:123b-cloud": ("http://127.0.0.1:11434/api/chat", "ollama"),
+    # DELETED: model removed from Ollama
+    # "devstral-2:123b-cloud": ("http://127.0.0.1:11434/api/chat", "ollama"),
     "qwen3-coder-next:cloud": ("http://127.0.0.1:11434/api/chat", "ollama"),
     "M1/qwen3-8b": ("http://127.0.0.1:1234/api/v1/chat", "lmstudio"),
 }

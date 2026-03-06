@@ -344,16 +344,10 @@ Ollama API:     POST /api/chat      { model, messages: [{role,content}], stream:
 
 ```
 OLLAMA CLOUD (via 127.0.0.1:11434, think:false obligatoire):
-    ├── gpt-oss:120b-cloud      — CHAMPION 100/100, 51 tok/s, Q100% V100% R100%
-    ├── devstral-2:123b-cloud   — Code #2, 36 tok/s, 94/100
-    ├── glm-4.7:cloud           — Ultra-rapide 48 tok/s (instable)
-    ├── qwen3-coder:480b-cloud  — Code massif, 26 tok/s
     ├── minimax-m2.5:cloud      — Web search
     ├── glm-5:cloud             — General 7 tok/s
-    ├── kimi-k2.5:cloud         — Reasoning
-    ├── qwen3.5:cloud           — General
-    ├── cogito-2.1:671b-cloud   — Profond
-    └── deepseek-v3.2:cloud     — Code/reason
+    └── kimi-k2.5:cloud         — Reasoning
+    (Note: gpt-oss, devstral, glm-4.7, qwen3-coder etc. supprimés 2026-03)
 
 GEMINI (via gemini-proxy.js):
     ├── gemini-3-pro             — Architecture, vision, longs docs

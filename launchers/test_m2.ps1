@@ -14,7 +14,7 @@ foreach ($m in $models.data) {
 Write-Host ""
 
 # Try each model
-foreach ($modelId in @("deepseek-coder-v2-lite-instruct", "openai/gpt-oss-20b", "zai-org/glm-4.7-flash", "nvidia/nemotron-3-nano")) {
+foreach ($modelId in @("deepseek/deepseek-r1-0528-qwen3-8b")) {
     Write-Host ("=== TEST M2: $modelId ===")
     try {
         $sw = [System.Diagnostics.Stopwatch]::StartNew()

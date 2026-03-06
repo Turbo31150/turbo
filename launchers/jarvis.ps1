@@ -50,20 +50,19 @@ $Nodes = @{
         Url = "http://192.168.1.26:1234/v1/chat/completions"
         HealthUrl = "http://192.168.1.26:1234/api/v1/models"
         Type = "lmstudio"
-        Model = "deepseek-coder-v2-lite-instruct"
+        Model = "deepseek-r1-0528-qwen3-8b"
         Key = $_M2_KEY
-        Tags = @("code","review","debug","securite")
+        Tags = @("reasoning","code","review","debug")
         Priority = 2
     }
     "M3" = @{
         Url = "http://192.168.1.113:1234/v1/chat/completions"
         HealthUrl = "http://192.168.1.113:1234/api/v1/models"
         Type = "lmstudio"
-        Model = "mistral-7b-instruct-v0.3"
+        Model = "deepseek-r1-0528-qwen3-8b"
         Key = $_M3_KEY
-        Tags = @("general","validation","systeme","traduction")
+        Tags = @("reasoning","general","validation")
         Priority = 1
-        NoSystemRole = $true
     }
     "OL1" = @{
         Url = "http://127.0.0.1:11434/api/chat"

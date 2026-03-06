@@ -24,10 +24,12 @@ NODES = {
             "extract": "lmstudio", "prefix": ""},
     "OL1-local": {"url": "http://127.0.0.1:11434/api/chat", "model": "qwen3:1.7b",
                    "extract": "ollama", "prefix": ""},
-    "OL1-gptoss": {"url": "http://127.0.0.1:11434/api/chat", "model": "gpt-oss:120b-cloud",
-                    "extract": "ollama", "prefix": "", "think": False},
-    "OL1-devstral": {"url": "http://127.0.0.1:11434/api/chat", "model": "devstral-2:123b-cloud",
-                      "extract": "ollama", "prefix": "", "think": False},
+    # DELETED: model removed from Ollama
+    # "OL1-gptoss": {"url": "http://127.0.0.1:11434/api/chat", "model": "gpt-oss:120b-cloud",
+    #                 "extract": "ollama", "prefix": "", "think": False},
+    # DELETED: model removed from Ollama
+    # "OL1-devstral": {"url": "http://127.0.0.1:11434/api/chat", "model": "devstral-2:123b-cloud",
+    #                   "extract": "ollama", "prefix": "", "think": False},
 }
 
 # ── TASK TEMPLATES (small → large) ─────────────────
@@ -76,10 +78,16 @@ TASKS_LARGE = [  # 10-30s
 # ── ROUTING STRATEGIES ──────────────────────────────
 STRATEGIES = [
     "direct-M1", "direct-M2", "direct-M3",
-    "direct-OL1-local", "direct-OL1-gptoss", "direct-OL1-devstral",
+    "direct-OL1-local",
+    # DELETED: model removed from Ollama
+    # "direct-OL1-gptoss", "direct-OL1-devstral",
     "race-M1-M2", "race-M1-OL1local", "race-all-local",
-    "consensus-M1-M2-M3", "consensus-M1-cloud",
-    "chain-M1-then-M2", "chain-cloud-then-M1",
+    "consensus-M1-M2-M3",
+    # DELETED: model removed from Ollama
+    # "consensus-M1-cloud",
+    "chain-M1-then-M2",
+    # DELETED: model removed from Ollama
+    # "chain-cloud-then-M1",
     "roundrobin",
 ]
 
@@ -185,12 +193,14 @@ async def execute_strategy(client, strategy, prompt):
         return await strategy_race(client, ["M1", "M2", "OL1-local"], prompt)
     elif strategy == "consensus-M1-M2-M3":
         return await strategy_consensus(client, ["M1", "M2", "M3"], prompt)
-    elif strategy == "consensus-M1-cloud":
-        return await strategy_consensus(client, ["M1", "OL1-gptoss"], prompt)
+    # DELETED: cloud strategies removed (gpt-oss/devstral models removed from Ollama)
+    # elif strategy == "consensus-M1-cloud":
+    #     return await strategy_consensus(client, ["M1", "OL1-gptoss"], prompt)
     elif strategy == "chain-M1-then-M2":
         return await strategy_chain(client, "M1", "M2", prompt)
-    elif strategy == "chain-cloud-then-M1":
-        return await strategy_chain(client, "OL1-gptoss", "M1", prompt)
+    # DELETED: cloud strategies removed (gpt-oss/devstral models removed from Ollama)
+    # elif strategy == "chain-cloud-then-M1":
+    #     return await strategy_chain(client, "OL1-gptoss", "M1", prompt)
     elif strategy == "roundrobin":
         node = RR_NODES[rr_idx % len(RR_NODES)]
         rr_idx += 1
