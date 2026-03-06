@@ -9,6 +9,9 @@ echo  ==========================================
 echo.
 cd /d F:\BUREAU\turbo
 
+:: Verifier/recreer les hardlinks (etoile.db)
+"F:\BUREAU\turbo\.venv\Scripts\python.exe" scripts\tools\setup_hardlinks.py >nul 2>&1
+
 :: Lancer le systray en arriere-plan
 start /B "" "F:\BUREAU\turbo\.venv\Scripts\pythonw.exe" -c "from src.systray import run_systray; run_systray()"
 
