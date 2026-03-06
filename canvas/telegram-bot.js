@@ -1162,11 +1162,13 @@ async function handleJarvisCommand(chatId, voiceText) {
     const helper = path.join(__dirname, 'bot-helpers.py');
     const matchResult = execSync(
       `python "${helper}" match-cmd ${voiceText.replace(/"/g, '').replace(/[&|<>]/g, '').slice(0, 200)}`,
-      { timeout: 10000, encoding: 'utf-8', cwd: TURBO_ROOT }
+      { timeout: 10000, encoding: 'utf-8', cwd: TURBO_ROOT, stdio: ['pipe', 'pipe', 'pipe'] }
     );
-    const match = JSON.parse(matchResult.trim());
+    // Extract JSON line (skip warnings printed to stdout by src.commands)
+    const jsonLine = matchResult.trim().split('\n').reverse().find(l => l.startsWith('{'));
+    const match = JSON.parse(jsonLine || '{}');
 
-    if (!match.name || match.score < 0.5) {
+    if (!match.name || match.score < 0.75) {
       // Fallback: search voice dictionary API (11000+ entries incl. corrections)
       try {
         const dictResp = await fetch(`${WS_API}/api/dictionary/search?q=${encodeURIComponent(voiceText)}&limit=3`);
@@ -2083,17 +2085,28 @@ async function transcribeVoice(fileId) {
     return '[Erreur conversion audio]';
   }
 
-  // 4. Transcribe via python_ws Whisper endpoint or local faster-whisper
+  // 4. Transcribe via venv faster-whisper Python script
   let text = '';
+  const VENV_PYTHON = 'F:/BUREAU/turbo/.venv/Scripts/python.exe';
+  const TRANSCRIBE_SCRIPT = 'F:/BUREAU/turbo/scripts/transcribe.py';
   try {
     const result = execSync(
-      `faster-whisper "${tmpWav}" --model tiny --language fr --output_format txt`,
-      { timeout: 15000, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }
+      `"${VENV_PYTHON}" "${TRANSCRIBE_SCRIPT}" "${tmpWav}" --language fr`,
+      { timeout: 30000, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }
     ).trim();
     text = result;
   } catch (e) {
-    // Fallback: try Groq API or just return error
-    text = '[Transcription indisponible]';
+    // Fallback: try WS backend whisper endpoint
+    try {
+      const wsResult = execSync(
+        `curl -s -X POST http://127.0.0.1:9742/api/voice -H "Content-Type: application/json" -d "{\\"action\\":\\"transcribe_file\\",\\"file\\":\\"${tmpWav.replace(/\\/g, '/')}\\"}"`,
+        { timeout: 15000, encoding: 'utf-8' }
+      );
+      const parsed = JSON.parse(wsResult);
+      text = parsed.text || '[Transcription indisponible]';
+    } catch (e2) {
+      text = '[Transcription indisponible]';
+    }
   }
 
   // Cleanup
