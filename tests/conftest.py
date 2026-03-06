@@ -15,6 +15,36 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 
+# ---------------------------------------------------------------------------
+# Cleanup mock pollution from test modules that inject into sys.modules
+# ---------------------------------------------------------------------------
+# Some test files (test_brain, test_orchestrator) use sys.modules.setdefault()
+# to inject MagicMock modules before importing src code. This pollutes later
+# test modules that import the same src modules and get the mock instead.
+
+# Modules that test files may inject mocks for
+_MOCK_TARGETS = {"src.config", "src.skills", "src.tools", "src.event_bus",
+                 "src.cluster_startup", "claude_agent_sdk"}
+
+
+@pytest.fixture(autouse=True, scope="module")
+def _cleanup_mock_modules():
+    """Remove MagicMock injections from sys.modules after each test module."""
+    # Snapshot real modules before test module runs
+    real_modules = {}
+    for name in _MOCK_TARGETS:
+        if name in sys.modules and not isinstance(sys.modules[name], MagicMock):
+            real_modules[name] = sys.modules[name]
+    yield
+    # After test module: restore real modules or remove mocks
+    for name in _MOCK_TARGETS:
+        if name in sys.modules and isinstance(sys.modules[name], MagicMock):
+            if name in real_modules:
+                sys.modules[name] = real_modules[name]
+            else:
+                del sys.modules[name]
+
+
 @pytest.fixture
 def mock_httpx():
     """Mock httpx.AsyncClient for cluster calls."""

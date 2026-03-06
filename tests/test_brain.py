@@ -85,17 +85,23 @@ class _FakeSkill:
 _mock_skills_module.Skill = _FakeSkill
 _mock_skills_module.SkillStep = _FakeSkillStep
 
-# Inject mocks into sys.modules before importing brain
-sys.modules.setdefault("src.config", _mock_config_module)
-sys.modules.setdefault("src.skills", _mock_skills_module)
+# Inject mocks into sys.modules TEMPORARILY for the brain import, then restore.
+# This prevents pollution of other test modules that import src.config at collection time.
+_mock_entries = {
+    "src.config": _mock_config_module,
+    "src.skills": _mock_skills_module,
+    "httpx": MagicMock(),
+    "src.event_bus": MagicMock(),
+    "src.tools": MagicMock(),
+    "src.cluster_startup": MagicMock(),
+}
+_saved_modules = {}
+for _name in _mock_entries:
+    if _name in sys.modules:
+        _saved_modules[_name] = sys.modules[_name]
+    sys.modules[_name] = _mock_entries[_name]
 
-# Mock optional deps that brain imports lazily
-sys.modules.setdefault("httpx", MagicMock())
-sys.modules.setdefault("src.event_bus", MagicMock())
-sys.modules.setdefault("src.tools", MagicMock())
-sys.modules.setdefault("src.cluster_startup", MagicMock())
-
-# Now import brain
+# Import brain (it caches its own references to the mocked modules)
 from src.brain import (
     SkillQuality,
     PatternMatch,
@@ -123,6 +129,14 @@ from src.brain import (
     cluster_suggest_skill,
     format_brain_report,
 )
+
+# Immediately restore sys.modules so other test modules see real modules
+for _name in _mock_entries:
+    if _name in _saved_modules:
+        sys.modules[_name] = _saved_modules[_name]
+    else:
+        sys.modules.pop(_name, None)
+del _saved_modules, _mock_entries
 
 
 # ===== SkillQuality Dataclass ==============================================

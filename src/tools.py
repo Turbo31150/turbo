@@ -218,6 +218,21 @@ class ToolMetrics:
 _tool_metrics = ToolMetrics()
 
 
+def _track_metrics(fn):
+    """Decorator that records call latency and success/failure in ToolMetrics."""
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        try:
+            result = fn(*args, **kwargs)
+            _tool_metrics.record(fn.__name__, (time.time() - start) * 1000, success=True)
+            return result
+        except Exception:
+            _tool_metrics.record(fn.__name__, (time.time() - start) * 1000, success=False)
+            raise
+    return wrapper
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # LRU CACHE with TTL — Per-category response caching
 # ═══════════════════════════════════════════════════════════════════════════
