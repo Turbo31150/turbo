@@ -281,6 +281,7 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
         '`/compare BTC SOL` - Comparer deux coins',
         '`/whales` - Gros mouvements detectes (DB)',
         '`/news` - Actualites crypto du jour',
+        '`/domino [nom]` - Lancer un domino (pipeline)',
         '`/stats` - Statistiques du bot',
         '`/menu` - Dashboard avec boutons interactifs',
         '`/help` - Cette aide',
@@ -534,6 +535,11 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
     case '/openclaw': {
       if (!args) return sendMessage(chatId, 'Usage: `/openclaw <question>`\nForce le passage par le proxy complet (Query Enhancer + reflexive chain).', 'Markdown');
       return handleOpenClawQuery(chatId, args);
+    }
+
+    case '/domino': {
+      const dominoName = args || '';
+      return handleDominos(chatId, dominoName);
     }
 
     default:
@@ -1092,6 +1098,58 @@ async function handleOpenSignals(chatId) {
     return sendMessage(chatId, lines.join('\n'), 'Markdown');
   } catch (e) {
     return handleRealtimeStatus(chatId);
+  }
+}
+
+// ─── Dominos (pipeline execution) ────────────────────────────────────────────
+
+async function handleDominos(chatId, name) {
+  try {
+    if (!name) {
+      // List available dominos
+      const result = execSync(`python -c "
+import sqlite3, json
+db = sqlite3.connect('data/etoile.db')
+rows = db.execute('SELECT name, description FROM domino_chains WHERE active=1 ORDER BY name LIMIT 30').fetchall()
+print(json.dumps([{'name':r[0],'desc':r[1]} for r in rows]))
+db.close()
+"`, { timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
+      const dominos = JSON.parse(result.trim());
+      if (!dominos.length) return sendMessage(chatId, 'Aucun domino actif.');
+      const lines = ['🎲 *Dominos disponibles*', '', 'Usage: `/domino <nom>`', ''];
+      for (const d of dominos) {
+        lines.push(`• \`${d.name}\` — ${d.desc || 'sans description'}`);
+      }
+      return sendMessage(chatId, lines.join('\n'), 'Markdown');
+    }
+
+    // Execute a specific domino
+    await sendMessage(chatId, `🎲 Lancement domino: *${name}*...`, 'Markdown');
+    const proc = exec(
+      `python -c "
+import sys; sys.path.insert(0,'.')
+from src.domino_pipelines import get_pipeline_by_name, execute_pipeline
+p = get_pipeline_by_name('${name.replace(/'/g, '')}')
+if not p: print('ERROR: domino non trouve'); sys.exit(1)
+result = execute_pipeline(p)
+print('OK' if result.get('success') else 'FAIL')
+for step in result.get('steps',[]): print(f'  {step[\"name\"]}: {step.get(\"status\",\"?\")}')
+"`,
+      { timeout: 120000, encoding: 'utf-8', cwd: path.join(__dirname, '..') }
+    );
+
+    let output = '';
+    proc.stdout.on('data', d => output += d);
+    proc.stderr.on('data', d => output += d);
+    proc.on('close', async (code) => {
+      if (code === 0) {
+        await sendMessage(chatId, `✅ Domino *${name}* termine.\n\`\`\`\n${output.slice(0, 3000)}\n\`\`\``, 'Markdown');
+      } else {
+        await sendMessage(chatId, `🔴 Domino *${name}* echoue (code ${code}).\n${output.slice(0, 500)}`, 'Markdown');
+      }
+    });
+  } catch (e) {
+    return sendMessage(chatId, `🔴 Erreur dominos: ${e.message.slice(0, 300)}`);
   }
 }
 
@@ -1732,24 +1790,28 @@ async function sendMenuKeyboard(chatId) {
   const keyboard = {
     inline_keyboard: [
       [
-        { text: 'Scanner RT', callback_data: 'cmd_realtime' },
-        { text: 'Performance', callback_data: 'cmd_perf' },
-        { text: 'Marche', callback_data: 'cmd_market' },
+        { text: '🟢 Cluster Status', callback_data: 'cmd_status' },
+        { text: '📊 Stats Bot', callback_data: 'cmd_stats' },
       ],
       [
-        { text: 'Hot Coins', callback_data: 'cmd_hot' },
-        { text: 'Super Loop', callback_data: 'cmd_loop' },
-        { text: 'GPU', callback_data: 'cmd_gpu' },
+        { text: '🎯 Scan Rapide', callback_data: 'cmd_scan' },
+        { text: '🔬 Deep Scan', callback_data: 'cmd_deepscan' },
+        { text: '🔥 Top Coins', callback_data: 'cmd_hot' },
       ],
       [
-        { text: 'Scan Now', callback_data: 'cmd_scan' },
-        { text: 'Deep Scan', callback_data: 'cmd_deepscan' },
-        { text: 'Backtest', callback_data: 'cmd_backtest' },
+        { text: '📈 Marche', callback_data: 'cmd_market' },
+        { text: '💹 Signaux', callback_data: 'cmd_signals' },
+        { text: '📉 Performance', callback_data: 'cmd_perf' },
       ],
       [
-        { text: 'Signaux', callback_data: 'cmd_signals' },
-        { text: TRADING_ALERTS ? 'Alertes OFF' : 'Alertes ON', callback_data: TRADING_ALERTS ? 'cmd_alertoff' : 'cmd_alerton' },
-        { text: 'Stats Bot', callback_data: 'cmd_stats' },
+        { text: '⏱ Scanner Live', callback_data: 'cmd_realtime' },
+        { text: '🔁 Super Loop', callback_data: 'cmd_loop' },
+        { text: '📝 Backtest', callback_data: 'cmd_backtest' },
+      ],
+      [
+        { text: '🎮 GPU', callback_data: 'cmd_gpu' },
+        { text: '🎲 Dominos', callback_data: 'cmd_dominos' },
+        { text: TRADING_ALERTS ? '🔕 Alertes OFF' : '🔔 Alertes ON', callback_data: TRADING_ALERTS ? 'cmd_alertoff' : 'cmd_alerton' },
       ],
     ]
   };
@@ -1770,6 +1832,7 @@ async function handleCallback(query) {
   await telegramAPI('answerCallbackQuery', { callback_query_id: query.id }).catch(() => {});
 
   switch (data) {
+    case 'cmd_status': return handleCommand(chatId, '/status', '', isAdmin);
     case 'cmd_realtime': return handleRealtimeStatus(chatId);
     case 'cmd_perf': return handlePerformance(chatId);
     case 'cmd_market': return handleMarketSummary(chatId);
@@ -1781,6 +1844,7 @@ async function handleCallback(query) {
     case 'cmd_menu': return sendMenuKeyboard(chatId);
     case 'cmd_deepscan': return handleDeepScan(chatId, 10);
     case 'cmd_signals': return handleOpenSignals(chatId);
+    case 'cmd_dominos': return handleDominos(chatId);
     case 'cmd_alerton': {
       TRADING_ALERTS = true;
       try { fs.unlinkSync(ALERTS_FLAG_FILE); } catch {}
@@ -1959,6 +2023,7 @@ async function main() {
         { command: 'news', description: 'Actualites crypto du jour' },
         { command: 'alerton', description: 'Activer alertes trading' },
         { command: 'alertoff', description: 'Desactiver alertes trading' },
+        { command: 'domino', description: 'Lancer un domino (pipeline)' },
         { command: 'stats', description: 'Statistiques du bot' },
         { command: 'menu', description: 'Dashboard avec boutons' },
         { command: 'help', description: 'Aide complète' },
