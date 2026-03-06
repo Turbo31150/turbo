@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v12.1.0-blueviolet?style=for-the-badge" alt="version"/>
+  <img src="https://img.shields.io/badge/version-v12.4-blueviolet?style=for-the-badge" alt="version"/>
   <img src="https://img.shields.io/badge/GPU-10x_NVIDIA-76B900?style=for-the-badge&logo=nvidia" alt="gpu"/>
   <img src="https://img.shields.io/badge/Claude_SDK-Opus_4.6-orange?style=for-the-badge&logo=anthropic" alt="claude"/>
   <img src="https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="python"/>
@@ -8,11 +8,11 @@
   <img src="https://img.shields.io/badge/License-Private-red?style=for-the-badge" alt="license"/>
 </p>
 
-<h1 align="center">JARVIS Etoile v12.1.0</h1>
-<h3 align="center">Orchestrateur IA Distribue Multi-GPU — HEXA_CORE + Telegram Autonome + OpenClaw 78 Agents + Self-Improving + 438 COWORK Scripts</h3>
+<h1 align="center">JARVIS Etoile v12.4</h1>
+<h3 align="center">Orchestrateur IA Distribue Multi-GPU — HEXA_CORE + Telegram Autonome + OpenClaw 78 Agents + Self-Improving + 388 COWORK Scripts + Auto-Restart Watchdog</h3>
 
 <p align="center">
-  <strong>Systeme d'intelligence artificielle distribue sur 3 machines physiques, 10 GPU NVIDIA (~78 GB VRAM), 14 modeles IA (4 local + 10 cloud) et 108 skills autonomes. Controle vocal en francais avec 1,706 commandes + 656 pipelines + 835 domino cascades + 3,895 corrections vocales. Bot Telegram autonome (@turboSSebot) via OpenClaw Gateway (port 18789, 78 agents patterns). Dispatch engine 9 etapes avec quality gate 6 portes + self-improvement + pattern evolution + reflection engine. Messages vocaux TTS DeniseNeural + Whisper STT CUDA. Trading algorithmique MEXC multi-consensus. Interface desktop Electron 29 pages. 226 modules source (84,582 lignes), 2,144 tests (49 suites), 438 scripts COWORK continu (132 batches), 316+ crons autonomes.</strong>
+  <strong>Systeme d'intelligence artificielle distribue sur 3 machines physiques, 10 GPU NVIDIA (~78 GB VRAM), 14 modeles IA (4 local + 10 cloud) et 108 skills autonomes. Controle vocal en francais avec 1,706 commandes + 656 pipelines + 835 domino cascades + 3,895 corrections vocales. Bot Telegram autonome (@turboSSebot) via OpenClaw Gateway (port 18789, 78 agents patterns). Dispatch engine 9 etapes avec quality gate 6 portes + self-improvement + pattern evolution + reflection engine. Messages vocaux TTS DeniseNeural + Whisper STT CUDA. Trading algorithmique MEXC multi-consensus. Interface desktop Electron 29 pages. 252 modules source (95,440 lignes), 2,900+ tests (50+ suites, 100% pass), 388 scripts COWORK continu, 48 crons autonomes. Auto-restart watchdog Windows (7 services surveilles).</strong>
 </p>
 
 <p align="center">
@@ -28,33 +28,33 @@
 | **GPU** | 10 NVIDIA / ~78 GB VRAM | RTX 3080 10GB, RTX 2060 12GB, 4x GTX 1660S 6GB, 3x GPU M2 24GB, 1x GPU M3 8GB |
 | **Modeles IA** | 14 (4 local + 10 cloud) | M1 qwen3-8b + gpt-oss-20b, M2 deepseek-r1, M3 deepseek-r1, OL1 qwen3:14b/1.7b + 10 cloud |
 | **Agents** | 7 SDK + 11 Plugin + 78 Patterns | 96 agents total — 7 Claude SDK + 11 plugin + 78 patterns DB (20 hardcoded + 58 dynamiques) |
-| **Outils MCP** | 181 tools + 597 handlers | tools.py (2,582 lignes) + mcp_server.py (6,217 lignes) = 8,799 lignes |
-| **REST Endpoints** | 513 | server.py (5,221 lignes) — FastAPI WebSocket backend Electron |
-| **Commandes vocales** | 1,706 commandes + 656 pipelines | 443 commands jarvis.db + 1,706 map entries + 121 domino triggers |
+| **Outils MCP** | 611 tools + 615 handlers | tools.py (2,597 lignes) + mcp_server.py (6,282 lignes) = 8,879 lignes |
+| **REST Endpoints** | 498+ | server.py — FastAPI WebSocket backend Electron |
+| **Commandes vocales** | 2,339 commandes + 656 pipelines | 443 commands jarvis.db + 2,339 map entries + 121 domino triggers |
 | **Domino Cascades** | 835 cascades / 121 triggers | 11 categories, 84 actions Python, 28 param patterns, 40 pipelines domino |
-| **Corrections vocales** | 3,895 entries (120 vagues) | 2,628 corrections + 106 phonetics + 153 fillers + 678 implicits + 301 dominos |
+| **Corrections vocales** | 3,895 entries (120 vagues) | 2,736 corrections + 106 phonetics + 153 fillers + 678 implicits + 301 dominos |
 | **Skills** | 108 dynamiques | 16 vagues + domaines etoile.db, persistants en DB |
-| **Source Python** | 226 modules / 84,582 lignes | src/ uniquement (170,000+ total avec COWORK dev/) |
-| **Databases** | 4 bases SQL (51+ tables) | etoile.db (19t) + jarvis.db (8t) + sniper.db (4t) + finetuning.db (8t) |
-| **Tests** | 2,144 tests (49 suites) | test_phase3 a test_phase43 + test_pattern_agents + test_telegram_bot + 5 autres |
+| **Source Python** | 252 modules / 95,440 lignes | src/ uniquement (170,000+ total avec COWORK dev/) |
+| **Databases** | 4 bases SQL (84 tables) | etoile.db (53t) + jarvis.db (15t) + sniper.db (6t) + finetuning.db (10t) |
+| **Tests** | 2,900+ tests (50+ suites) | 100% pass, 15 skipped — pytest strict asyncio mode |
 | **Plugin** | 43 slash commands | + 24 skills + 11 agents + 4 hooks (plugin v3.1) |
 | **Desktop** | Electron 33 + React 19 | 29 pages, Portable 72.5 MB |
 | **Navigateur** | Comet (Perplexity) | Defaut CDP port 9222, fallback Chrome/Edge |
 | **Trading** | v2.3 Multi-GPU | MEXC Futures 10x, 6 IA consensus |
 | **Telegram Bot** | @turboSSebot autonome | OpenClaw Gateway (port 18789) + 78 agents + Whisper STT + DeniseNeural TTS |
 | **OpenClaw** | Gateway + 78 agents | 7 providers (M1, M2, M3, OL1, Gemini, Claude, Qwen), fallback cascade |
-| **COWORK** | 438 scripts + 316 crons | 132 batches (1-132), dev continu 24/7, Perplexity MCP integre |
+| **COWORK** | 388 scripts + 48 crons | dev continu 24/7, monitoring resilience, Perplexity MCP integre |
 | **Voix TTS** | DeniseNeural (femme) | Edge TTS Neural + ffmpeg OGG Opus + Telegram sendVoice |
 | **Voix STT** | Whisper large-v3-turbo | Transcription vocaux Telegram entrants, CUDA accelere |
 | **Architecture** | [ARCHITECTURE.md](ARCHITECTURE.md) | Schema complet detaillant tous les composants, flux et integrations |
 
 ---
 
-## Nouveautes v12.1.0 — Self-Improving AI + 438 COWORK + 98 Pattern Agents + Quality Gate (2026-03-05)
+## Nouveautes v12.4 — Self-Improving AI + 438 COWORK + 98 Pattern Agents + Quality Gate (2026-03-05)
 
 > **438 scripts COWORK** en developpement continu autonome (132 batches, 316 crons). **78 agent patterns** en DB avec dispatch dynamique. **Dispatch engine 9 etapes** avec quality gate 6 portes, self-improvement, pattern evolution et reflection engine. **226 modules Python** (84,582 lignes src/). **2,144 tests** (49 suites). Bot Telegram via OpenClaw avec cluster race 5 noeuds. **29 pages Electron**. Schema architecture complet: [ARCHITECTURE.md](ARCHITECTURE.md).
 
-### Changements v11.0.0 → v12.1.0
+### Changements v11.0.0 → v12.4
 
 | Categorie | Avant | Apres | Detail |
 |-----------|-------|-------|--------|
