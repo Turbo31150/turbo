@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """cluster_benchmark_auto.py — Mini-benchmark cluster automatique.
 
-Lance 5 prompts Python sur M1/OL1/gpt-oss, mesure tok/s + quality,
+Lance 5 prompts Python sur M1/OL1/M2, mesure tok/s + quality,
 compare aux scores precedents, alerte si degradation >15%.
 
 Usage:
@@ -44,10 +44,10 @@ NODES = {
         "model": "qwen3:1.7b",
         "format": "ollama",
     },
-    "gpt-oss": {
-        "url": "http://127.0.0.1:11434/api/chat",
-        "model": "gpt-oss:120b-cloud",
-        "format": "ollama",
+    "M2": {
+        "url": "http://192.168.1.26:1234/api/v1/chat",
+        "model": "deepseek-r1-0528-qwen3-8b",
+        "format": "lmstudio",
     },
 }
 

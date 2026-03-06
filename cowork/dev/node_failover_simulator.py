@@ -122,12 +122,8 @@ def model_to_node(model_str):
     # Known model -> node mappings
     if s in ("qwen3-8b", "qwen/qwen3-8b", "gpt-oss-20b"):
         return "M1"
-    if s in ("deepseek-coder-v2-lite-instruct",):
-        return "M2"
     if s.startswith("deepseek-r1"):
-        return "M2"  # primary reasoning node
-    if s in ("mistral-7b-instruct-v0.3",):
-        return "M3"
+        return "M2"  # M2 primary reasoning; M3 also runs deepseek-r1 but use M2 by default
     if s.startswith("qwen3:") or s == "qwen3:1.7b":
         return "OL1"
 

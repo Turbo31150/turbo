@@ -30,12 +30,10 @@ IMPROVE_DB = TURBO_ROOT / "data" / "sniper_improve.db"
 
 # Full cluster
 CLUSTER = [
-    {"id": "gpt-oss", "url": "http://127.0.0.1:11434/api/chat", "model": "gpt-oss:120b-cloud", "type": "ollama", "weight": 1.9},
     {"id": "M1", "url": "http://127.0.0.1:1234/v1/chat/completions", "model": "qwen3-8b", "type": "lmstudio", "weight": 1.8},
-    {"id": "devstral", "url": "http://127.0.0.1:11434/api/chat", "model": "devstral-2:123b-cloud", "type": "ollama", "weight": 1.5},
-    {"id": "M2", "url": "http://192.168.1.26:1234/v1/chat/completions", "model": "deepseek-coder-v2-lite-instruct", "type": "lmstudio", "weight": 1.4},
+    {"id": "M2", "url": "http://192.168.1.26:1234/v1/chat/completions", "model": "deepseek-r1-0528-qwen3-8b", "type": "lmstudio", "weight": 1.5},
     {"id": "OL1", "url": "http://127.0.0.1:11434/api/chat", "model": "qwen3:1.7b", "type": "ollama", "weight": 1.3},
-    {"id": "M3", "url": "http://192.168.1.113:1234/v1/chat/completions", "model": "mistral-7b-instruct-v0.3", "type": "lmstudio", "weight": 1.0},
+    {"id": "M3", "url": "http://192.168.1.113:1234/v1/chat/completions", "model": "deepseek-r1-0528-qwen3-8b", "type": "lmstudio", "weight": 1.2},
 ]
 
 import urllib.request

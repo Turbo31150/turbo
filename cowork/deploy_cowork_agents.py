@@ -21,7 +21,7 @@ COWORK_PATTERNS = {
         "keywords": "thermal,gpu,vram,temperature,memoire,ram,cpu,disque,io,evenement,monitoring,profiler",
         "description": "COWORK Windows Monitoring — thermal GPU, memoire, CPU, I/O disque, evenements systeme",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,M2:deepseek-r1",
+        "model_fallbacks": "M1:qwen3-8b,M2:deepseek-r1",
         "strategy": "single",
         "priority": 2,
         "scripts": [
@@ -36,7 +36,7 @@ COWORK_PATTERNS = {
         "keywords": "reseau,network,firewall,wifi,dns,vpn,connexion,port,tcp,ip,ping,bandwidth",
         "description": "COWORK Windows Network — firewall, WiFi, DNS, VPN, analyse reseau",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,M3:deepseek-r1",
+        "model_fallbacks": "M1:qwen3-8b,M3:deepseek-r1",
         "strategy": "single",
         "priority": 3,
         "scripts": [
@@ -51,7 +51,7 @@ COWORK_PATTERNS = {
         "keywords": "service,processus,registre,startup,boot,tache,planifiee,driver,wsl,systeme",
         "description": "COWORK Windows System — services, processus, registre, startup, drivers, WSL",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,M2:deepseek-r1",
+        "model_fallbacks": "M1:qwen3-8b,M2:deepseek-r1",
         "strategy": "single",
         "priority": 3,
         "scripts": [
@@ -69,7 +69,7 @@ COWORK_PATTERNS = {
         "keywords": "fenetre,ecran,clipboard,audio,son,bureau,virtual,workspace,focus,raccourci,geste,hotkey",
         "description": "COWORK Windows Desktop — fenetres, ecrans, clipboard, audio, bureaux virtuels",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,OL1:qwen3:1.7b",
+        "model_fallbacks": "M1:qwen3-8b,OL1:qwen3:1.7b",
         "strategy": "single",
         "priority": 3,
         "scripts": [
@@ -87,7 +87,7 @@ COWORK_PATTERNS = {
         "keywords": "backup,defender,privacy,certificat,securite,antivirus,guard,protection,chiffrement",
         "description": "COWORK Windows Security — backup, Defender, privacy, certificats, protection",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,M2:deepseek-r1",
+        "model_fallbacks": "M1:qwen3-8b,M2:deepseek-r1",
         "strategy": "single",
         "priority": 4,
         "scripts": [
@@ -101,7 +101,7 @@ COWORK_PATTERNS = {
         "keywords": "launcher,app,tache,automatise,quick,action,schedule,task",
         "description": "COWORK Windows Automation — lanceurs intelligents, taches automatisees",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,OL1:qwen3:1.7b",
+        "model_fallbacks": "M1:qwen3-8b,OL1:qwen3:1.7b",
         "strategy": "single",
         "priority": 3,
         "scripts": [
@@ -148,7 +148,7 @@ COWORK_PATTERNS = {
         "keywords": "config,state,rule,plugin,template,preload,api,gateway,jarvis,core",
         "description": "COWORK JARVIS Core — config, state machine, rules, plugins, templates, API",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,M2:deepseek-r1",
+        "model_fallbacks": "M1:qwen3-8b,M2:deepseek-r1",
         "strategy": "single",
         "priority": 2,
         "scripts": [
@@ -163,7 +163,7 @@ COWORK_PATTERNS = {
         "keywords": "voix,vocal,wake,word,dictation,tts,voice,profile,whisper,audio,parle",
         "description": "COWORK JARVIS Voice — wake word, profils vocaux, dictation, TTS, pipeline audio",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,OL1:qwen3:1.7b",
+        "model_fallbacks": "M1:qwen3-8b,OL1:qwen3:1.7b",
         "strategy": "single",
         "priority": 2,
         "scripts": [
@@ -179,7 +179,7 @@ COWORK_PATTERNS = {
         "keywords": "intent,nlp,sentiment,conversation,dialog,langue,classifieur,analyse,texte",
         "description": "COWORK JARVIS NLP — intent, sentiment, conversation, dialog, multi-langue",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,M2:deepseek-r1",
+        "model_fallbacks": "M1:qwen3-8b,M2:deepseek-r1",
         "strategy": "single",
         "priority": 3,
         "scripts": [
@@ -196,7 +196,7 @@ COWORK_PATTERNS = {
         "keywords": "backup,changelog,permission,secret,audit,migration,release,test,deploy",
         "description": "COWORK JARVIS DevOps — backup, changelog, permissions, secrets, release",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,M2:deepseek-r1",
+        "model_fallbacks": "M1:qwen3-8b,M2:deepseek-r1",
         "strategy": "single",
         "priority": 3,
         "scripts": [
@@ -212,7 +212,7 @@ COWORK_PATTERNS = {
         "keywords": "pattern,cache,response,ab,test,predict,brain,memory,embedding,command",
         "description": "COWORK JARVIS Intelligence — patterns, cache, A/B test, prediction, brain, embedding",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,M2:deepseek-r1",
+        "model_fallbacks": "M1:qwen3-8b,M2:deepseek-r1",
         "strategy": "category",
         "priority": 3,
         "scripts": [
@@ -228,7 +228,7 @@ COWORK_PATTERNS = {
         "keywords": "cron,macro,webhook,event,notification,message,pipeline,route,stream",
         "description": "COWORK JARVIS Pipelines — crons, macros, webhooks, events, notifications",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,OL1:qwen3:1.7b",
+        "model_fallbacks": "M1:qwen3-8b,OL1:qwen3:1.7b",
         "strategy": "category",
         "priority": 3,
         "scripts": [
@@ -245,7 +245,7 @@ COWORK_PATTERNS = {
         "keywords": "evolve,improve,self,skill,generator,feature,autonomy,night",
         "description": "COWORK JARVIS Self-Evolution — auto-amelioration, skills generation, evolution",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,M2:deepseek-r1",
+        "model_fallbacks": "M1:qwen3-8b,M2:deepseek-r1",
         "strategy": "category",
         "priority": 4,
         "scripts": [
@@ -261,7 +261,7 @@ COWORK_PATTERNS = {
         "keywords": "dashboard,health,analytics,performance,roi,briefing,ecosystem,orchestrator,meta",
         "description": "COWORK JARVIS Dashboard — meta dashboard, health, analytics, ROI, briefing",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,OL1:qwen3:1.7b",
+        "model_fallbacks": "M1:qwen3-8b,OL1:qwen3:1.7b",
         "strategy": "single",
         "priority": 2,
         "scripts": [
@@ -280,7 +280,7 @@ COWORK_PATTERNS = {
         "keywords": "genere,code,doc,test,story,image,prompt,data,synthetise,autonome,coder",
         "description": "COWORK IA Generation — code, docs, tests, stories, images, data synthesis",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,M2:deepseek-r1",
+        "model_fallbacks": "M1:qwen3-8b,M2:deepseek-r1",
         "strategy": "category",
         "priority": 3,
         "scripts": [
@@ -295,7 +295,7 @@ COWORK_PATTERNS = {
         "keywords": "prompt,meta,cost,routing,weight,inference,cache,model,benchmark,workload,balance",
         "description": "COWORK IA Optimization — prompts, couts, routing, poids, inference, benchmark",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,M2:deepseek-r1",
+        "model_fallbacks": "M1:qwen3-8b,M2:deepseek-r1",
         "strategy": "single",
         "priority": 3,
         "scripts": [
@@ -311,7 +311,7 @@ COWORK_PATTERNS = {
         "keywords": "apprend,critic,distill,curriculum,transfer,feedback,memory,skill,teacher,student,capability",
         "description": "COWORK IA Learning — auto-critique, distillation, curriculum, transfer learning",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,M2:deepseek-r1",
+        "model_fallbacks": "M1:qwen3-8b,M2:deepseek-r1",
         "strategy": "single",
         "priority": 4,
         "scripts": [
@@ -327,7 +327,7 @@ COWORK_PATTERNS = {
         "keywords": "swarm,agent,spawn,ensemble,vote,debate,peer,review,task,plan,goal,decompose",
         "description": "COWORK IA Orchestration — swarm, agents, ensemble voting, debate, goals",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,M2:deepseek-r1",
+        "model_fallbacks": "M1:qwen3-8b,M2:deepseek-r1",
         "strategy": "category",
         "priority": 3,
         "scripts": [
@@ -342,7 +342,7 @@ COWORK_PATTERNS = {
         "keywords": "anomalie,fact,check,hypothese,experiment,erreur,pattern,detect,chain,thought,proactif",
         "description": "COWORK IA Analysis — anomalies, fact-check, hypotheses, experiments, CoT",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,M2:deepseek-r1",
+        "model_fallbacks": "M1:qwen3-8b,M2:deepseek-r1",
         "strategy": "category",
         "priority": 3,
         "scripts": [
@@ -360,7 +360,7 @@ COWORK_PATTERNS = {
         "keywords": "cluster,autotuner,benchmark,failover,load,predict,model,rotator,sync,noeud",
         "description": "COWORK Cluster Management — autotuner, benchmark, failover, load prediction, sync",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,M2:deepseek-r1",
+        "model_fallbacks": "M1:qwen3-8b,M2:deepseek-r1",
         "strategy": "single",
         "priority": 2,
         "scripts": [
@@ -376,7 +376,7 @@ COWORK_PATTERNS = {
         "keywords": "trading,crypto,signal,backtest,portfolio,risk,mexc,strategie,marche",
         "description": "COWORK Trading Pipeline — signaux, backtest, portfolio, risk management",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M2:deepseek-r1,M1B:gpt-oss-20b",
+        "model_fallbacks": "M2:deepseek-r1,M1:qwen3-8b",
         "strategy": "single",
         "priority": 4,
         "scripts": [
@@ -390,7 +390,7 @@ COWORK_PATTERNS = {
         "keywords": "telegram,email,mail,rapport,message,envoie,notification,bot",
         "description": "COWORK Communications — Telegram, email, rapports, notifications",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,OL1:qwen3:1.7b",
+        "model_fallbacks": "M1:qwen3-8b,OL1:qwen3:1.7b",
         "strategy": "single",
         "priority": 2,
         "scripts": [
@@ -404,7 +404,7 @@ COWORK_PATTERNS = {
         "keywords": "code,review,test,continu,mcp,tool,generate,docstring,coder",
         "description": "COWORK DevTools — code generation, review, tests continus, MCP testing",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,M2:deepseek-r1",
+        "model_fallbacks": "M1:qwen3-8b,M2:deepseek-r1",
         "strategy": "category",
         "priority": 3,
         "scripts": [
@@ -418,7 +418,7 @@ COWORK_PATTERNS = {
         "keywords": "auto,autonome,scheduler,monitor,healer,deploy,dispatch,documenter,skill,update,reporter",
         "description": "COWORK Autonomous Ops — scheduler, monitor, healer, deployer, auto-learning",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,M2:deepseek-r1",
+        "model_fallbacks": "M1:qwen3-8b,M2:deepseek-r1",
         "strategy": "category",
         "priority": 2,
         "scripts": [
@@ -434,7 +434,7 @@ COWORK_PATTERNS = {
         "keywords": "db,database,export,import,knowledge,graph,metrics,analytics,donnees,sqlite,log",
         "description": "COWORK Data Management — DB optimization, exports, knowledge graph, metrics",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,M3:deepseek-r1",
+        "model_fallbacks": "M1:qwen3-8b,M3:deepseek-r1",
         "strategy": "single",
         "priority": 3,
         "scripts": [
@@ -452,7 +452,7 @@ COWORK_PATTERNS = {
         "keywords": "route,prompt,node,balance,model,dispatch,coordinate,orchestrate,intent",
         "description": "COWORK Routing — prompt routing, node balancing, model management, orchestration",
         "model_primary": "qwen3-8b",
-        "model_fallbacks": "M1B:gpt-oss-20b,M2:deepseek-r1",
+        "model_fallbacks": "M1:qwen3-8b,M2:deepseek-r1",
         "strategy": "single",
         "priority": 2,
         "scripts": [

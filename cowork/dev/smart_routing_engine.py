@@ -41,8 +41,6 @@ NODE_CAPABILITIES = {
     "M2":       {"speed": "slow", "reasoning": True, "code": True, "max_ctx": 27000},
     "M3":       {"speed": "slow", "reasoning": True, "code": True, "max_ctx": 25000},
     "OL1":      {"speed": "fast", "reasoning": False, "code": False, "max_ctx": 8192},
-    "gpt-oss":  {"speed": "medium", "reasoning": True, "code": True, "max_ctx": 131072},
-    "devstral": {"speed": "medium", "reasoning": True, "code": True, "max_ctx": 131072},
 }
 
 # Default routing (used when no learned data)

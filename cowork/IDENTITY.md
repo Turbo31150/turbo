@@ -223,7 +223,7 @@ python dev/response_evaluator.py --leaderboard
 
 Pour les questions complexes, utilise le cluster IA :
 - **Rapide** : `curl -s http://127.0.0.1:11434/api/chat -d '{"model":"qwen3:1.7b","messages":[{"role":"user","content":"QUESTION"}],"stream":false}'`
-- **Code** : `curl -s http://127.0.0.1:11434/api/chat -d '{"model":"gpt-oss:120b-cloud","messages":[{"role":"user","content":"QUESTION"}],"stream":false,"think":false}'`
+- **Code** : `curl -s http://127.0.0.1:1234/api/v1/chat -H "Content-Type: application/json" -d '{"model":"qwen3-8b","input":"/nothink\nQUESTION","temperature":0.2,"max_output_tokens":1024,"stream":false,"store":false}'`
 - **M1 Local** : `curl -s http://127.0.0.1:1234/api/v1/chat -H "Content-Type: application/json" -d '{"model":"qwen3-8b","input":"/nothink\nQUESTION","temperature":0.2,"max_output_tokens":1024,"stream":false,"store":false}'`
 - **Web** : `curl -s http://127.0.0.1:11434/api/chat -d '{"model":"minimax-m2.5:cloud","messages":[{"role":"user","content":"QUESTION"}],"stream":false,"think":false}'`
 

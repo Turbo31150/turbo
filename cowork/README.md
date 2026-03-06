@@ -68,7 +68,6 @@ telegram_commander, telegram_scheduler, telegram_stats, telegram_features. Hub T
 | Noeud | Machine | GPU / VRAM | Modele | Score | Poids |
 |-------|---------|------------|--------|-------|-------|
 | **M1** | PC principal | 6 GPU / 46 GB | **qwen3-8b** | **98.4/100** | **1.8** |
-| **M1B** | PC principal | 6 GPU / 46 GB | **gpt-oss-20b** (deep) | — | 1.7 |
 | **M2** | PC secondaire | 3 GPU / 24 GB | **deepseek-r1-0528-qwen3-8b** | — | 1.5 |
 | **M3** | PC tertiaire | 1 GPU / 8 GB | **deepseek-r1-0528-qwen3-8b** | — | 1.2 |
 
@@ -76,12 +75,11 @@ telegram_commander, telegram_scheduler, telegram_stats, telegram_features. Hub T
 
 | Service | Modele | Score | Poids |
 |---------|--------|-------|-------|
-| **gpt-oss:120b** | GPT-OSS 120B | **100/100** | **1.9** |
-| **devstral-2:123b** | Devstral 2 123B | ~94/100 | 1.5 |
+| **(cloud disabled)** | *gpt-oss, devstral removed from active config* | — | — |
 | **GEMINI** | Gemini 3 Pro/Flash | 74/100 | 1.2 |
 | **CLAUDE** | Opus/Sonnet/Haiku | variable | 1.2 |
 
-**Fallback cascade** : M1 → M1B → M2 → M3 → gpt-oss → devstral → Gemini → Claude
+**Fallback cascade** : M1 → M2 → M3 → OL1
 
 ---
 

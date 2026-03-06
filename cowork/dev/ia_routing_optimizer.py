@@ -51,7 +51,7 @@ def do_optimize():
     for cat in CATEGORIES:
         agents = matrix.get(cat, {})
         if not agents:
-            recommendations.append({"category": cat, "best": "gpt-oss:120b", "reason": "default", "confidence": 0.5})
+            recommendations.append({"category": cat, "best": "M1", "reason": "default", "confidence": 0.5})
             continue
         best_agent, best_score = None, -1
         for agent, stats in agents.items():

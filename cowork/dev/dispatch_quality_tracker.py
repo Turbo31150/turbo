@@ -43,9 +43,9 @@ NODES = {
     "OL1": {"url": "http://127.0.0.1:11434/api/chat", "model": "qwen3:1.7b",
             "auth": None, "ollama": True},
     # Cloud nodes (via Ollama proxy, may be rate-limited)
-    # "gpt-oss": {"url": "http://127.0.0.1:11434/api/chat", "model": "gpt-oss:120b-cloud",
+    # Cloud nodes disabled — active config: M1+M2+M3+OL1 only
     #             "auth": None, "ollama": True, "timeout": 120},
-    # "devstral": {"url": "http://127.0.0.1:11434/api/chat", "model": "devstral-2:123b-cloud",
+    # (gpt-oss/devstral removed, were cloud-only)
     #              "auth": None, "ollama": True, "timeout": 120},
 }
 

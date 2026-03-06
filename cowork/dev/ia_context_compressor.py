@@ -116,8 +116,8 @@ def do_compress(text=None):
         # Demo text
         text = """JARVIS est un systeme d'assistant IA autonome deploye sur Windows 11 avec un cluster de 10 GPU
 totalisant 78 GB de VRAM. Le systeme utilise 3 serveurs LM Studio (M1 avec qwen3-8b sur 6 GPU 46GB,
-M2 avec deepseek-coder sur 3 GPU 24GB, M3 avec mistral-7b sur 1 GPU 8GB) plus Ollama avec 12 modeles
-(2 locaux + 10 cloud dont gpt-oss:120b champion 100/100). L'architecture comprend 192+ outils MCP,
+M2 avec deepseek-r1 sur 3 GPU 24GB, M3 avec deepseek-r1 sur 1 GPU 8GB) plus Ollama avec
+qwen3:1.7b local. L'architecture comprend 192+ outils MCP,
 89 skills, 2341 commandes vocales, 79 scripts COWORK, et 551 tests. Le pipeline vocal utilise
 OpenWakeWord avec Whisper large-v3-turbo CUDA et TTS Edge fr-FR-HenriNeural avec latence <2s."""
 

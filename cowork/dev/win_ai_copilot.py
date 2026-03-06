@@ -135,7 +135,7 @@ def generate_suggestions(contexts, window_title, clipboard_text):
             suggestions.append({"action": "code_review", "label": "Lancer une revue de code via MAO consensus", "confidence": 0.85})
             suggestions.append({"action": "run_tests", "label": "Executer les tests du fichier courant", "confidence": 0.7})
         elif ctx == "error_detected":
-            suggestions.append({"action": "debug_error", "label": "Analyser l'erreur via M1+gpt-oss", "confidence": 0.95})
+            suggestions.append({"action": "debug_error", "label": "Analyser l'erreur via M1+M2", "confidence": 0.95})
             suggestions.append({"action": "search_fix", "label": "Rechercher un fix connu", "confidence": 0.8})
         elif ctx == "browsing":
             suggestions.append({"action": "save_page", "label": "Sauvegarder le contenu de la page", "confidence": 0.6})

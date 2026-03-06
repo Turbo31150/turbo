@@ -1,7 +1,7 @@
 """
 JARVIS Super Loop — Continuous Autonomous Improvement Engine.
 
-Full cluster (M1+M2+M3+OL1+gpt-oss+devstral) running 1000 cycles covering:
+Full cluster (M1+M2+M3+OL1) running 1000 cycles covering:
 1. TRADING: Analyse performance signaux, optimise parametres, detecte patterns gagnants
 2. PERFORMANCE: Benchmark cluster nodes, identifie goulots, optimise routing
 3. CODE: Genere corrections, nouvelles features, refactoring suggestions
@@ -36,12 +36,10 @@ COWORK_PATH = TURBO_ROOT / "cowork" / "dev"
 
 # Full cluster — ALL available nodes
 CLUSTER = [
-    {"id": "gpt-oss", "url": "http://127.0.0.1:11434/api/chat", "model": "gpt-oss:120b-cloud", "type": "ollama", "weight": 1.9},
     {"id": "M1", "url": "http://127.0.0.1:1234/v1/chat/completions", "model": "qwen3-8b", "type": "lmstudio", "weight": 1.8},
-    {"id": "devstral", "url": "http://127.0.0.1:11434/api/chat", "model": "devstral-2:123b-cloud", "type": "ollama", "weight": 1.5},
-    {"id": "M2", "url": "http://192.168.1.26:1234/v1/chat/completions", "model": "deepseek-coder-v2-lite-instruct", "type": "lmstudio", "weight": 1.4},
+    {"id": "M2", "url": "http://192.168.1.26:1234/v1/chat/completions", "model": "deepseek-r1-0528-qwen3-8b", "type": "lmstudio", "weight": 1.5},
     {"id": "OL1", "url": "http://127.0.0.1:11434/api/chat", "model": "qwen3:1.7b", "type": "ollama", "weight": 1.3},
-    {"id": "M3", "url": "http://192.168.1.113:1234/v1/chat/completions", "model": "mistral-7b-instruct-v0.3", "type": "lmstudio", "weight": 1.0},
+    {"id": "M3", "url": "http://192.168.1.113:1234/v1/chat/completions", "model": "deepseek-r1-0528-qwen3-8b", "type": "lmstudio", "weight": 1.2},
 ]
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "")
@@ -544,7 +542,7 @@ def cycle_strategic(cycle_num):
 ETAT ACTUEL:
 - {total_signals} signaux emis | {total_scans} scans effectues | {total_coins} coins suivis
 - {total_cycles} cycles d'amelioration | {total_issues} problemes non resolus | {total_suggestions} suggestions code en attente
-- Cluster: 6 noeuds IA (gpt-oss CHAMPION 100/100, M1 98/100, devstral 94/100, M2, OL1, M3)
+- Cluster: 4 noeuds IA (M1 qwen3-8b CHAMPION, M2 deepseek-r1, OL1 qwen3:1.7b, M3 deepseek-r1)
 - Mode REALTIME actif (30s cycles) + SNIPER mode (deep analysis)
 - 16 indicateurs techniques + VWAP + Momentum streak + GPU 100 strategies
 

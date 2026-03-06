@@ -17,8 +17,6 @@ DB_PATH = DATA_DIR / "roi_calculator.db"
 
 # Cost estimates
 CLOUD_COST_PER_1K_TOKENS = {
-    "gpt-oss": 0.003,
-    "devstral": 0.002,
     "glm-4.7": 0.001,
     "minimax": 0.001,
     "qwen3-coder:480b": 0.002,

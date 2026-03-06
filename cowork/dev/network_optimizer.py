@@ -43,7 +43,7 @@ CLUSTER_NODES = {
     "M3": {
         "ip": "192.168.1.113",
         "port": 1234,
-        "description": "LM Studio distant — mistral-7b (1 GPU 8GB)",
+        "description": "LM Studio distant — deepseek-r1 (1 GPU 8GB)",
         "type": "lmstudio"
     },
     "OL1": {
@@ -992,8 +992,8 @@ Exemples:
 Noeuds du cluster:
   M1   127.0.0.1:1234     LM Studio local (qwen3-8b)
   OL1  127.0.0.1:11434    Ollama local (qwen3:1.7b + cloud)
-  M2   192.168.1.26:1234  LM Studio distant (deepseek-coder-v2)
-  M3   192.168.1.113:1234 LM Studio distant (mistral-7b)
+  M2   192.168.1.26:1234  LM Studio distant (deepseek-r1)
+  M3   192.168.1.113:1234 LM Studio distant (deepseek-r1)
         """
     )
 

@@ -30,7 +30,7 @@ from typing import Dict, Tuple
 # Configuration des nœuds
 NODES = {
     "M1": {"host": "127.0.0.1", "port": 1234, "weight": 1.8, "type": "lmstudio", "model": "qwen3-8b"},
-    "M2": {"host": "192.168.1.26", "port": 1234, "weight": 1.4, "type": "lmstudio", "model": "deepseek-coder-v2-lite-instruct"},
+    "M2": {"host": "192.168.1.26", "port": 1234, "weight": 1.5, "type": "lmstudio", "model": "deepseek-r1-0528-qwen3-8b"},
     "OL1": {"host": "127.0.0.1", "port": 11434, "weight": 1.3, "type": "ollama", "model": "qwen3:1.7b"},
 }
 

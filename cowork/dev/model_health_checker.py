@@ -58,7 +58,7 @@ NODES = {
         "type": "lmstudio",
         "models_url": "http://192.168.1.26:1234/api/v1/models",
         "chat_url": "http://192.168.1.26:1234/api/v1/chat",
-        "model_id": "deepseek-coder-v2-lite-instruct",
+        "model_id": "deepseek-r1-0528-qwen3-8b",
         "timeout": 30,
     },
     "M3": {
@@ -68,7 +68,7 @@ NODES = {
         "type": "lmstudio",
         "models_url": "http://192.168.1.113:1234/api/v1/models",
         "chat_url": "http://192.168.1.113:1234/api/v1/chat",
-        "model_id": "mistral-7b-instruct-v0.3",
+        "model_id": "deepseek-r1-0528-qwen3-8b",
         "timeout": 30,
     },
     "OL1": {

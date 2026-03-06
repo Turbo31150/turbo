@@ -39,15 +39,15 @@ class ClusterBenchmark:
             "host": "192.168.1.26",
             "port": 1234,
             "type": "lm_studio",
-            "model": "deepseek-coder-v2-lite-instruct",
+            "model": "deepseek-r1-0528-qwen3-8b",
             "description": "Code specialist — deepseek-coder-v2 (85.1/100)"
         },
         "M3": {
             "host": "192.168.1.113",
             "port": 1234,
             "type": "lm_studio",
-            "model": "mistral-7b-instruct-v0.3",
-            "description": "General — mistral-7b (89/100)"
+            "model": "deepseek-r1-0528-qwen3-8b",
+            "description": "Reasoning fallback — deepseek-r1 (M3)"
         },
         "OL1": {
             "host": "127.0.0.1",

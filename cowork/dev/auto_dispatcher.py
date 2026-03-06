@@ -6,7 +6,7 @@ Features:
 - CLI: --start, --stop, --status, --config <path>
 - SQLite DB at dev/data/dispatcher.db (tables: tasks, runs, nodes)
 - Simple routing based on intent, load, thermal (mocked).
-- Priority order: gpt-oss (M1), devstral (M2), OL1, M3.
+- Priority order: M1 (qwen3-8b), M2 (deepseek-r1), OL1, M3.
 - Config JSON defines node endpoints and thermal limits.
 - Uses only Python stdlib (argparse, json, sqlite3, threading, time, logging, pathlib)
 """
