@@ -811,18 +811,110 @@ conn.close()
       } else if (postSubCmd === 'notif') {
         // /post notif — voir les notifications LinkedIn
         return sendMessage(chatId, '🔔 Notifications LinkedIn: utilise `/post history` pour les posts + check via pipeline Playwright.');
+      } else if (postSubCmd === 'batch') {
+        // /post batch [count] — generer plusieurs posts d'avance
+        const count = parseInt(postArgs) || 5;
+        await sendMessage(chatId, `📝 Generation de ${count} posts d'avance via cluster...`);
+        try {
+          const pipelineScript = path.join(__dirname, '..', 'scripts', 'linkedin_pipeline.py');
+          const proc = exec(
+            `python "${pipelineScript}" batch --count ${count}`,
+            { timeout: 120000, cwd: path.join(__dirname, '..') }
+          );
+          proc.on('close', (code) => {
+            sendMessage(chatId, code === 0 ? `✅ ${count} posts generes. Voir: \`/post list\`` : '⚠️ Erreur batch');
+          });
+        } catch (e) {
+          return sendMessage(chatId, '🔴 ' + e.message.slice(0, 200));
+        }
+        return;
+      } else if (postSubCmd === 'list' || postSubCmd === 'ls') {
+        // /post list — lister les posts planifies
+        try {
+          const pipelineScript = path.join(__dirname, '..', 'scripts', 'linkedin_pipeline.py');
+          const r = execSync(`python "${pipelineScript}" list`, {
+            timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..')
+          });
+          return sendMessage(chatId, `📋 *Posts LinkedIn:*\n\`\`\`\n${r.trim()}\n\`\`\``, 'Markdown');
+        } catch (e) {
+          return sendMessage(chatId, '🔴 ' + e.message.slice(0, 200));
+        }
+      } else if (postSubCmd === 'validate' || postSubCmd === 'val') {
+        // /post validate <id> — valider un post par consensus cluster
+        const postId = parseInt(postArgs);
+        if (!postId) return sendMessage(chatId, 'Usage: `/post validate <id>`', 'Markdown');
+        await sendMessage(chatId, `🔍 Validation cluster du post #${postId}...`);
+        try {
+          const pipelineScript = path.join(__dirname, '..', 'scripts', 'linkedin_pipeline.py');
+          const r = execSync(`python "${pipelineScript}" validate --id ${postId}`, {
+            timeout: 90000, encoding: 'utf-8', cwd: path.join(__dirname, '..')
+          });
+          return sendMessage(chatId, `✅ *Validation:*\n\`\`\`\n${r.trim()}\n\`\`\``, 'Markdown');
+        } catch (e) {
+          return sendMessage(chatId, '🔴 ' + e.message.slice(0, 200));
+        }
+      } else if (postSubCmd === 'schedule' || postSubCmd === 'sched') {
+        // /post schedule <id> [YYYY-MM-DD HH:MM] — planifier un post
+        const parts = postArgs.match(/^(\d+)\s*(.*)$/);
+        if (!parts) return sendMessage(chatId, 'Usage: `/post schedule <id> [date heure]`', 'Markdown');
+        const postId = parts[1];
+        const schedAt = parts[2] || '';
+        try {
+          const pipelineScript = path.join(__dirname, '..', 'scripts', 'linkedin_pipeline.py');
+          const atArg = schedAt ? `--at "${schedAt}"` : '';
+          const r = execSync(`python "${pipelineScript}" schedule --id ${postId} ${atArg}`, {
+            timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..')
+          });
+          return sendMessage(chatId, `📅 ${r.trim()}`);
+        } catch (e) {
+          return sendMessage(chatId, '🔴 ' + e.message.slice(0, 200));
+        }
+      } else if (postSubCmd === 'routine' || postSubCmd === 'status') {
+        // /post routine — statut de la routine du jour
+        try {
+          const pipelineScript = path.join(__dirname, '..', 'scripts', 'linkedin_pipeline.py');
+          const r = execSync(`python "${pipelineScript}" status`, {
+            timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..')
+          });
+          return sendMessage(chatId, `📊 ${r.trim()}`);
+        } catch (e) {
+          return sendMessage(chatId, '🔴 ' + e.message.slice(0, 200));
+        }
+      } else if (postSubCmd === 'check') {
+        // /post check — verifier posts planifies a publier maintenant
+        try {
+          const pipelineScript = path.join(__dirname, '..', 'scripts', 'linkedin_pipeline.py');
+          const r = execSync(`python "${pipelineScript}" check`, {
+            timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..')
+          });
+          return sendMessage(chatId, `⏰ ${r.trim()}`);
+        } catch (e) {
+          return sendMessage(chatId, '🔴 ' + e.message.slice(0, 200));
+        }
       } else {
         return sendMessage(chatId, [
-          '📱 *LinkedIn Publisher*',
+          '📱 *LinkedIn Publisher Pipeline*',
           '',
-          '`/post` ou `/post gen [theme]` — Generer un post (dry-run)',
-          '`/post publish <texte>` — Publier un post',
-          '`/post history` — Derniers posts',
+          '*Generation:*',
+          '`/post` ou `/post gen [theme]` — Generer 1 post',
+          '`/post batch [n]` — Generer n posts d\'avance',
+          '',
+          '*Validation & Planning:*',
+          '`/post list` — Lister tous les posts',
+          '`/post validate <id>` — Valider par consensus cluster',
+          '`/post schedule <id> [date]` — Planifier publication',
+          '`/post check` — Verifier posts a publier',
+          '',
+          '*Publication:*',
+          '`/post publish <texte>` — Publier directement',
+          '`/post history` — Historique',
+          '',
+          '*Interactions:*',
           '`/post comment <url> <texte>` — Commenter',
-          '`/post group` — Groupes LinkedIn',
+          '`/post routine` — Statut routine du jour',
           '`/post notif` — Notifications',
           '',
-          `Pipeline: 11 etapes Playwright | Compte: franck Hlb`,
+          `Pipeline: Cluster M1+OL1+M2 → Validation → Playwright MCP`,
         ].join('\n'), 'Markdown');
       }
     }
