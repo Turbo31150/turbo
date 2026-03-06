@@ -9,11 +9,18 @@ from unittest.mock import patch
 
 import pytest
 
+try:
+    from src.tools import ToolMetrics
+    HAS_TOOLS = True
+except ImportError:
+    HAS_TOOLS = False
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # TOOL METRICS
 # ═══════════════════════════════════════════════════════════════════════════
 
+@pytest.mark.skipif(not HAS_TOOLS, reason="claude_agent_sdk not installed")
 class TestToolMetrics:
     def test_singleton(self):
         from src.tools import ToolMetrics
@@ -46,6 +53,7 @@ class TestToolMetrics:
         assert m.cache_hits["cached_tool"] == 2
 
 
+@pytest.mark.skipif(not HAS_TOOLS, reason="claude_agent_sdk not installed")
 class TestCacheResponse:
     def test_cache_stats(self):
         from src.tools import get_cache_stats, clear_cache
