@@ -46,8 +46,7 @@ M1_BLACKLIST = {"nvidia/nemotron-3-nano", "zai-org/glm-4.7-flash"}
 M1_AVAILABLE = {
     "qwen/qwen3-30b-a3b-2507",      # Deep reasoning dual-model (18.63 GB)
     "qwen/qwen3-coder-30b",         # Code specialise (18.63 GB)
-    "mistralai/devstral-small-2-2512",  # Dev tasks (15.21 GB)
-    "openai/gpt-oss-20b",           # General purpose (12.11 GB)
+    # devstral removed — M1 runs qwen3-8b as primary
 }
 
 # ── Warmup prompts (pre-fill KV cache + verify inference) ─────────────────
@@ -593,9 +592,9 @@ async def switch_to_coder_mode() -> dict[str, Any]:
 
 
 async def switch_to_dev_mode() -> dict[str, Any]:
-    """Switch M1 to dev mode: load devstral for development tasks."""
+    """Switch M1 to dev mode: load qwen3-coder-30b for dev tasks."""
     return await load_model_on_demand(
-        "mistralai/devstral-small-2-2512",
+        "qwen/qwen3-coder-30b",
         gpu="max", context=16384, parallel=2,
     )
 

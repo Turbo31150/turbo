@@ -87,7 +87,7 @@ ENTITY_PATTERNS: dict[str, str] = {
     "url": r"(https?://\S+)",
     "file_path": r"([A-Za-z]:\\[^\s]+|/[^\s]+)",
     "crypto_pair": r"\b(BTC|ETH|SOL|SUI|PEPE|DOGE|XRP|ADA|AVAX|LINK)\b",
-    "node_name": r"\b(M[123]|OL1|GEMINI|CLAUDE|gpt-oss|devstral)\b",
+    "node_name": r"\b(M[123]|OL1|GEMINI|CLAUDE)\b",
     "number": r"\b(\d+(?:\.\d+)?)\b",
 }
 

@@ -756,7 +756,7 @@ async def lm_switch_coder(args: dict[str, Any]) -> dict[str, Any]:
     return _text(f"Mode coder: {result['status']}") if result["ok"] else _error(f"Echec: {result['status']}")
 
 
-@tool("lm_switch_dev", "Basculer M1 en mode dev (charge devstral).", {})
+@tool("lm_switch_dev", "Basculer M1 en mode dev (charge qwen3-coder-30b).", {})
 async def lm_switch_dev(args: dict[str, Any]) -> dict[str, Any]:
     from src.cluster_startup import switch_to_dev_mode
     result = await switch_to_dev_mode()

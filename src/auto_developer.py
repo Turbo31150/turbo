@@ -143,7 +143,7 @@ class AutoDeveloper:
             "Reponds UNIQUEMENT avec le JSON."
         )
 
-        # Try gpt-oss first, then M1
+        # Query M1 cluster
         result = await self._cluster_query(prompt)
         if not result:
             return None
@@ -177,22 +177,29 @@ class AutoDeveloper:
         """Query the IA cluster for code generation."""
         import httpx
 
-        # Try gpt-oss:120b first (CHAMPION)
+        # Try M1 qwen3-8b first (CHAMPION LOCAL)
         try:
-            async with httpx.AsyncClient(timeout=120) as client:
+            async with httpx.AsyncClient(timeout=60) as client:
                 resp = await client.post(
-                    "http://127.0.0.1:11434/api/chat",
+                    "http://127.0.0.1:1234/api/v1/chat",
                     json={
-                        "model": "gpt-oss:120b-cloud",
-                        "messages": [{"role": "user", "content": prompt}],
+                        "model": "qwen3-8b",
+                        "input": f"/nothink\n{prompt}",
+                        "temperature": 0.2,
+                        "max_output_tokens": 2048,
                         "stream": False,
-                        "think": False,
+                        "store": False,
                     },
                 )
                 resp.raise_for_status()
-                return resp.json().get("message", {}).get("content", "")
+                data = resp.json()
+                output = data.get("output", [])
+                for block in reversed(output):
+                    if block.get("type") == "message":
+                        return block.get("content", "")
+                return output[0].get("content", "") if output else ""
         except Exception as e:
-            logger.debug("gpt-oss query failed: %s", e)
+            logger.debug("M1 query failed: %s", e)
 
         # Fallback: M1/qwen3-8b
         try:

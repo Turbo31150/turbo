@@ -190,7 +190,6 @@ def get_thermal_throttle_factor(temp_c: float) -> float:
 # Approximate cost per 1K tokens (in USD for reference, actual = free for local)
 MODEL_COSTS = {
     "M1": 0.0, "M2": 0.0, "M3": 0.0, "OL1": 0.0,
-    "gpt-oss": 0.0, "devstral": 0.0,
     "GEMINI": 0.005, "CLAUDE": 0.015,
     "ia-deep": 0.015, "ia-fast": 0.003, "ia-check": 0.008,
 }
