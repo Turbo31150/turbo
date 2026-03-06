@@ -79,7 +79,7 @@ SERVICES = {
 # LM Studio API returns short key "qwen3-8b", lms CLI uses "qwen/qwen3-8b"
 M1_REQUIRED_MODEL = "qwen/qwen3-8b"
 M1_REQUIRED_MODEL_SHORT = "qwen3-8b"
-M1_MODEL_OPTS = {"gpu": "max", "context": 8192, "parallel": 4}
+M1_MODEL_OPTS = {"gpu": "max", "context": 28813, "parallel": 4}
 
 # n8n binary (Windows .cmd wrapper)
 N8N_CMD = r"C:\nvm4w\nodejs\n8n.cmd"
@@ -583,6 +583,28 @@ def phase_4_python_services(dry_run: bool = False, skip: list[str] | None = None
                 log("Dashboard: echec", "FAIL", indent=1)
                 report["dashboard"] = "failed"
 
+    # -- Python WebSocket Server (Electron backend) --
+    ws_script = TURBO_DIR / "python_ws" / "server.py"
+    if "ws" not in skip and ws_script.exists():
+        if check_port("127.0.0.1", 9742):
+            log("Python WS: deja actif sur :9742", "OK", indent=1)
+            report["jarvis_ws"] = "already_running"
+        elif dry_run:
+            log("Python WS: OFFLINE (dry-run)", "WARN", indent=1)
+            report["jarvis_ws"] = "dry_run"
+        else:
+            log("Python WS: demarrage...", "INFO", indent=1)
+            start_process(
+                [uv, "run", "python", str(ws_script)],
+                "Python WS", cwd=str(TURBO_DIR),
+            )
+            if wait_for_port("127.0.0.1", 9742, max_wait=15):
+                log("Python WS: demarre sur :9742", "OK", indent=1)
+                report["jarvis_ws"] = "started"
+            else:
+                log("Python WS: echec", "FAIL", indent=1)
+                report["jarvis_ws"] = "failed"
+
     # -- Telegram Bot --
     telegram_bot = TURBO_DIR / "canvas" / "telegram-bot.js"
     if "telegram" not in skip and telegram_bot.exists():
@@ -817,7 +839,7 @@ def main():
             phases_to_run.add(int(part))
 
     t0 = time.time()
-    banner("JARVIS UNIFIED BOOT v1.0")
+    banner("JARVIS UNIFIED BOOT v10.6")
     reports: dict[str, Any] = {}
 
     try:
