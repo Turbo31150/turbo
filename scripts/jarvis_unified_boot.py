@@ -876,6 +876,30 @@ WATCH_SERVICES = {
 }
 
 
+def check_process_alive(process_name: str) -> bool:
+    """Check if a process is running by name using tasklist."""
+    try:
+        r = subprocess.run(
+            ["tasklist", "/FI", f"IMAGENAME eq {process_name}", "/FO", "CSV", "/NH"],
+            capture_output=True, text=True, timeout=5,
+        )
+        return process_name.lower() in r.stdout.lower()
+    except (subprocess.TimeoutExpired, OSError):
+        return False
+
+
+# Process-based services (no port to check)
+WATCH_PROCESSES = {
+    "whisperflow": {
+        "process_name": "electron.exe",
+        "cmd": ["electron", "."],
+        "cwd": str(TURBO_DIR / "whisperflow"),
+        "depends_on_port": 9742,
+        "post_start_wait": 5,
+    },
+}
+
+
 def watch_loop(interval: int = 60):
     """Continuously monitor services and restart any that crash."""
     log(f"WATCHDOG actif — check toutes les {interval}s", "PHASE")
@@ -946,6 +970,24 @@ def watch_loop(interval: int = 60):
             )
             time.sleep(3)
             log("  telegram_bot: relance", "OK")
+
+        # Check process-based services (WhisperFlow, etc.)
+        for svc_id, svc in WATCH_PROCESSES.items():
+            dep_port = svc.get("depends_on_port")
+            if dep_port and not check_port("127.0.0.1", dep_port, timeout=3):
+                continue  # Skip restart if dependency is down
+
+            if not check_process_alive(svc["process_name"]):
+                ts = datetime.now().strftime("%H:%M:%S")
+                log(f"[{ts}] {svc_id} ({svc['process_name']}) DOWN — redemarrage...", "WARN")
+                proc = start_process(svc["cmd"], svc_id, cwd=svc.get("cwd"))
+                if proc:
+                    wait = svc.get("post_start_wait", 5)
+                    time.sleep(wait)
+                    if check_process_alive(svc["process_name"]):
+                        log(f"  {svc_id}: relance OK (PID {proc.pid})", "OK")
+                    else:
+                        log(f"  {svc_id}: relance echouee", "FAIL")
 
 
 # ============================================================================

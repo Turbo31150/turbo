@@ -90,7 +90,7 @@ let messageHistory = []; // derniers messages reçus (max 50)
 
 // ─── RBAC — Role-Based Access Control ────────────────────────────────────────
 
-const ADMIN_COMMANDS = new Set(['/jarvis', '/exec', '/improve', '/gpu', '/voice']);
+const ADMIN_COMMANDS = new Set(['/jarvis', '/exec', '/improve', '/gpu', '/voice', '/reload', '/correct', '/broadcast', '/linkedin', '/post']);
 
 function isAdminCommand(cmd) {
   return ADMIN_COMMANDS.has(cmd);
@@ -175,6 +175,16 @@ async function proxyGet(endpoint) {
 }
 
 /** Health check direct des noeuds du cluster (sans proxy) */
+/** Check if WhisperFlow Electron process is running */
+async function checkWhisperFlow() {
+  return new Promise((resolve) => {
+    exec('tasklist /FI "IMAGENAME eq electron.exe" /FO CSV /NH', { timeout: 5000 }, (err, stdout) => {
+      if (err) return resolve(false);
+      resolve(stdout.toLowerCase().includes('electron.exe'));
+    });
+  });
+}
+
 async function directClusterHealth() {
   const results = [];
   for (const node of CLUSTER_NODES) {
@@ -295,6 +305,11 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
         '`/sniper` — Le scanner tourne-t-il?',
         '`/loop` — Amelioration auto en cours?',
         '',
+        '*Dictionnaire & Commandes:*',
+        '`/dict [mot]` — Rechercher dans le dictionnaire vocal',
+        '`/cmd [categorie]` — Lister commandes (systeme/trading/nav)',
+        '`/pipeline [nom]` — Voir/lancer un pipeline',
+        '',
         '*Dominos (automatisations):*',
         '`/domino` — Voir toutes les automatisations',
         '`/domino matin` — Lancer un domino par nom',
@@ -311,8 +326,13 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
           '`/superloop [N]` — Super Loop complet',
           '`/killscanner` — Stopper le scanner',
           '`/voice [texte]` — Tester la voix',
+          '`/reload` — Recharger le dictionnaire vocal',
+          '`/correct a → b` — Ajouter correction phonetique',
+          '`/broadcast <msg>` — Envoyer via API',
+          '`/linkedin prompts|research|stats` — Growth LinkedIn',
         );
       }
+      lines.push('', '`/tghistory [N]` — Derniers N messages');
       lines.push('', 'Ecris directement ta question, JARVIS repond.');
       lines.push('Envoie un vocal, JARVIS transcrit et repond en vocal.');
       return sendMessage(chatId, lines.join('\n'), 'Markdown');
@@ -334,6 +354,17 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
           const icon = n.status === 'online' ? '🟢' : '🔴';
           lines.push(`${icon} *${n.nodeId}* ${n.model ? '— ' + n.model + ' ' : ''}(${n.latency || '?'}ms)`);
         }
+        // WhisperFlow process check
+        try {
+          const wf = await checkWhisperFlow();
+          lines.push(`${wf ? '🟢' : '🔴'} *WhisperFlow* — ${wf ? 'actif' : 'inactif'}`);
+        } catch { /* ignore */ }
+        // Telegram bot status via WS API
+        try {
+          const tgRes = await httpRequest('http://127.0.0.1:9742/api/telegram/status', { timeout: 5000 });
+          const tg = JSON.parse(tgRes.body);
+          if (tg.bot_name) lines.push(`🤖 *Bot* — ${tg.bot_name}`);
+        } catch { /* ignore */ }
         return sendMessage(chatId, lines.join('\n'), 'Markdown');
       } catch (e) {
         return sendMessage(chatId, '🔴 Erreur health check: ' + e.message);
@@ -559,6 +590,26 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
       return handleDominos(chatId, dominoName);
     }
 
+    case '/dict': {
+      // Recherche dans le dictionnaire vocal (pipeline_dictionary + voice_commands + corrections)
+      return handleDictSearch(chatId, args || '');
+    }
+
+    case '/voice': {
+      if (!args) return sendMessage(chatId, 'Usage: `/voice <commande>`\nExecute une commande vocale JARVIS.\nExemple: `/voice ouvre chrome`', 'Markdown');
+      return handleVoiceCommand(chatId, args);
+    }
+
+    case '/cmd': {
+      // Liste les commandes par categorie ou recherche
+      return handleCmdList(chatId, args || '');
+    }
+
+    case '/pipeline': {
+      // Affiche/lance un pipeline d'actions
+      return handlePipelineAction(chatId, args || '');
+    }
+
     case '/ask': {
       if (!args) return sendMessage(chatId, 'Usage: /ask <ta question>');
       // Dispatch direct au cluster via race
@@ -589,6 +640,219 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
         return sendMessage(chatId, `Espace disque:\nC: ${d.C_free} GB libres / ${d.C_total} GB\nF: ${d.F_free} GB libres / ${d.F_total} GB`);
       } catch (e) {
         return sendMessage(chatId, 'Erreur disque: ' + e.message.slice(0, 100));
+      }
+    }
+
+    case '/reload': {
+      if (!isAdmin) return sendMessage(chatId, 'Admin only.');
+      try {
+        const res = await httpRequest(`http://127.0.0.1:9742/api/dictionary/reload`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 10000,
+        }, '{}');
+        const data = JSON.parse(res.body);
+        return sendMessage(chatId, data.ok ? '✅ Dictionnaire rechargé.' : '⚠️ Reload: ' + (data.error || 'erreur'));
+      } catch (e) {
+        return sendMessage(chatId, '🔴 Erreur reload: ' + e.message);
+      }
+    }
+
+    case '/correct': {
+      if (!isAdmin) return sendMessage(chatId, 'Admin only.');
+      // Format: /correct crome → chrome
+      const match = (args || '').match(/^(.+?)\s*→\s*(.+)$/);
+      if (!match) return sendMessage(chatId, 'Usage: `/correct mot_faux → mot_correct`', 'Markdown');
+      const [, wrong, correct] = match;
+      try {
+        const body = JSON.stringify({ wrong: wrong.trim(), correct: correct.trim() });
+        const res = await httpRequest(`http://127.0.0.1:9742/api/dictionary/correction`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 10000,
+        }, body);
+        const data = JSON.parse(res.body);
+        return sendMessage(chatId, data.ok
+          ? `✅ Correction ajoutée: "${wrong.trim()}" → "${correct.trim()}"`
+          : '⚠️ ' + (data.error || 'erreur'));
+      } catch (e) {
+        return sendMessage(chatId, '🔴 Erreur correction: ' + e.message);
+      }
+    }
+
+    case '/linkedin': {
+      if (!isAdmin) return sendMessage(chatId, 'Admin only.');
+      const subCmd = (args || '').split(' ')[0] || 'prompts';
+      const sector = (args || '').split(' ').slice(1).join(' ') || 'tech/IA';
+      const script = path.join(__dirname, '..', 'cowork', 'dev', 'linkedin_growth_engine.py');
+
+      if (subCmd === 'prompts') {
+        await sendMessage(chatId, '📝 Export prompt bank LinkedIn...');
+        try {
+          const r = execSync(`python "${script}" --prompts-only --sector "${sector}" --json`, {
+            timeout: 15000, encoding: 'utf-8', cwd: path.join(__dirname, '..')
+          });
+          const data = JSON.parse(r.trim());
+          const lines = ['*LinkedIn Prompt Bank*', ''];
+          for (const [cat, prompts] of Object.entries(data)) {
+            lines.push(`*${cat}*: ${Object.keys(prompts).join(', ')}`);
+          }
+          lines.push('', 'Fichier exporte dans data/linkedin/');
+          return sendMessage(chatId, lines.join('\n'), 'Markdown');
+        } catch (e) {
+          return sendMessage(chatId, '🔴 ' + e.message.slice(0, 200));
+        }
+      } else if (subCmd === 'research') {
+        await sendMessage(chatId, '🔍 Recherche tendances LinkedIn...');
+        try {
+          const proc = exec(
+            `python "${script}" --research --sector "${sector}"`,
+            { timeout: 120000, cwd: path.join(__dirname, '..') }
+          );
+          proc.on('close', (code) => {
+            sendMessage(chatId, code === 0 ? '✅ Recherche terminée — voir data/linkedin/' : '⚠️ Erreur recherche');
+          });
+        } catch (e) {
+          return sendMessage(chatId, '🔴 ' + e.message.slice(0, 200));
+        }
+        return;
+      } else if (subCmd === 'stats') {
+        try {
+          const r = execSync(`python "${script}" --analytics --json`, {
+            timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..')
+          });
+          const d = JSON.parse(r.trim());
+          return sendMessage(chatId, `📊 *LinkedIn Stats*\nTotal: ${d.total_generated}\nCette semaine: ${d.this_week}`, 'Markdown');
+        } catch (e) {
+          return sendMessage(chatId, '🔴 ' + e.message.slice(0, 200));
+        }
+      } else {
+        return sendMessage(chatId, [
+          '*LinkedIn Growth Engine*',
+          '`/linkedin prompts [sector]` — Exporter la banque de prompts',
+          '`/linkedin research [sector]` — Recherche tendances (web)',
+          '`/linkedin stats` — Analytics',
+        ].join('\n'), 'Markdown');
+      }
+    }
+
+    case '/post': {
+      if (!isAdmin) return sendMessage(chatId, 'Admin only.');
+      const postSubCmd = (args || '').split(' ')[0] || '';
+      const postArgs = (args || '').split(' ').slice(1).join(' ');
+      const publishScript = path.join(__dirname, '..', 'scripts', 'linkedin_auto_publish.py');
+
+      if (postSubCmd === 'generate' || postSubCmd === 'gen' || !postSubCmd) {
+        // /post generate [theme] — generer + publier via cluster
+        const theme = postArgs || 'IA distribuee sur cluster GPU local';
+        await sendMessage(chatId, `📝 Generation post LinkedIn...\nTheme: ${theme}`);
+        try {
+          const r = execSync(
+            `python "${publishScript}" --generate --theme "${theme}" --dry-run`,
+            { timeout: 60000, encoding: 'utf-8', cwd: path.join(__dirname, '..') }
+          );
+          const contentMatch = r.match(/POST LINKEDIN:\n={50}\n([\s\S]*?)\n={50}/);
+          const content = contentMatch ? contentMatch[1].trim() : r.slice(0, 500);
+          return sendMessage(chatId, `📝 *Post genere (dry-run):*\n\n${content}\n\nPour publier: \`/post publish\``, 'Markdown');
+        } catch (e) {
+          return sendMessage(chatId, '🔴 Generation: ' + e.message.slice(0, 200));
+        }
+      } else if (postSubCmd === 'publish' || postSubCmd === 'now') {
+        // /post publish [texte] — publier directement
+        const content = postArgs || '';
+        if (!content) return sendMessage(chatId, 'Usage: `/post publish <texte du post>`', 'Markdown');
+        await sendMessage(chatId, '🚀 Publication LinkedIn en cours...');
+        try {
+          // Save to DB first
+          const dbScript = `python -c "
+import sqlite3, time
+conn = sqlite3.connect('data/jarvis.db')
+conn.execute('INSERT INTO linkedin_posts (content, status, source) VALUES (?, \\'pending\\', \\'telegram\\')', ('${content.replace(/'/g, "\\'")}',))
+conn.commit(); conn.close(); print('saved')
+"`;
+          execSync(dbScript, { timeout: 5000, cwd: path.join(__dirname, '..') });
+          return sendMessage(chatId, '✅ Post sauvegarde en DB (status: pending).\nPublication auto via pipeline Playwright.\nUtilise Claude Code pour lancer: `python scripts/linkedin_auto_publish.py --file post.txt`');
+        } catch (e) {
+          return sendMessage(chatId, '🔴 ' + e.message.slice(0, 200));
+        }
+      } else if (postSubCmd === 'history' || postSubCmd === 'hist') {
+        // /post history — voir les derniers posts
+        try {
+          const r = execSync(
+            `python -c "
+import sqlite3, json
+conn = sqlite3.connect('data/jarvis.db')
+rows = conn.execute('SELECT content, status, post_url, created_at FROM linkedin_posts ORDER BY id DESC LIMIT 5').fetchall()
+for r in rows:
+    print(f'{r[3]} [{r[1]}] {r[0][:60]}...')
+    if r[2]: print(f'  URL: {r[2]}')
+conn.close()
+"`,
+            { timeout: 5000, encoding: 'utf-8', cwd: path.join(__dirname, '..') }
+          );
+          return sendMessage(chatId, `📋 *Derniers posts LinkedIn:*\n\n${r.trim()}`, 'Markdown');
+        } catch (e) {
+          return sendMessage(chatId, '🔴 ' + e.message.slice(0, 200));
+        }
+      } else if (postSubCmd === 'comment') {
+        // /post comment <url> <texte> — commenter un post
+        const parts = postArgs.match(/^(https?:\/\/\S+)\s+(.+)$/);
+        if (!parts) return sendMessage(chatId, 'Usage: `/post comment <url_post> <commentaire>`', 'Markdown');
+        return sendMessage(chatId, `💬 Commentaire programme:\nURL: ${parts[1]}\nTexte: ${parts[2]}\n\n⚠️ Publication automatique de commentaires via Playwright (non implemente — necessite session active).`);
+      } else if (postSubCmd === 'group') {
+        // /post group — lister les groupes LinkedIn
+        return sendMessage(chatId, [
+          '👥 *Groupes LinkedIn actifs:*',
+          '• AI, ML, Data Science, Python (7039829)',
+          '',
+          'Usage: `/post group <id> <texte>` pour poster dans un groupe',
+          '⚠️ Posting dans les groupes necessite navigation Playwright specifique.',
+        ].join('\n'), 'Markdown');
+      } else if (postSubCmd === 'notif') {
+        // /post notif — voir les notifications LinkedIn
+        return sendMessage(chatId, '🔔 Notifications LinkedIn: utilise `/post history` pour les posts + check via pipeline Playwright.');
+      } else {
+        return sendMessage(chatId, [
+          '📱 *LinkedIn Publisher*',
+          '',
+          '`/post` ou `/post gen [theme]` — Generer un post (dry-run)',
+          '`/post publish <texte>` — Publier un post',
+          '`/post history` — Derniers posts',
+          '`/post comment <url> <texte>` — Commenter',
+          '`/post group` — Groupes LinkedIn',
+          '`/post notif` — Notifications',
+          '',
+          `Pipeline: 11 etapes Playwright | Compte: franck Hlb`,
+        ].join('\n'), 'Markdown');
+      }
+    }
+
+    case '/tghistory': {
+      const limit = parseInt(args) || 20;
+      const recent = messageHistory.slice(-limit);
+      if (recent.length === 0) return sendMessage(chatId, 'Aucun message en mémoire.');
+      const lines = ['*Derniers messages*', ''];
+      for (const m of recent) {
+        const ts = new Date(m.date * 1000).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        lines.push(`[${ts}] ${(m.text || '').slice(0, 80)}`);
+      }
+      return sendMessage(chatId, lines.join('\n'), 'Markdown');
+    }
+
+    case '/broadcast': {
+      if (!isAdmin) return sendMessage(chatId, 'Admin only.');
+      if (!args) return sendMessage(chatId, 'Usage: `/broadcast <message>`', 'Markdown');
+      try {
+        const body = JSON.stringify({ chat_id: CHAT_ID, text: args });
+        const res = await httpRequest(`http://127.0.0.1:9742/api/telegram/send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 10000,
+        }, body);
+        const data = JSON.parse(res.body);
+        return sendMessage(chatId, data.ok ? '✅ Message envoyé via API.' : '⚠️ ' + (data.error || 'erreur'));
+      } catch (e) {
+        return sendMessage(chatId, '🔴 Erreur broadcast: ' + e.message);
       }
     }
 
@@ -747,8 +1011,26 @@ async function handleJarvisCommand(chatId, voiceText) {
     const match = JSON.parse(matchResult.trim());
 
     if (!match.name || match.score < 0.5) {
-      // No match — fallback to cluster chat
-      await sendMessage(chatId, `Commande non reconnue (score ${(match.score * 100).toFixed(0)}%). Dispatch au cluster...`);
+      // Fallback: search voice dictionary API (11000+ entries incl. corrections)
+      try {
+        const dictResp = await fetch(`${WS_API}/api/dictionary/search?q=${encodeURIComponent(voiceText)}&limit=3`);
+        const dictData = await dictResp.json();
+        const results = dictData.data || dictData.results || [];
+        const best = results.find(r => r.action || r.correct || r.steps);
+        if (best) {
+          const corrected = best.correct || best.name || best.pipeline_id;
+          const label = best.action_type || (best.correct ? 'correction' : 'pipeline');
+          await sendMessage(chatId, `Dict match: *${corrected}* [${label}]`, 'Markdown');
+          if (best.correct) {
+            // Re-run with corrected text
+            return handleJarvisCommand(chatId, best.correct);
+          }
+          if (best.action) {
+            await sendVoiceReply(chatId, `${corrected} execute`);
+            return true;
+          }
+        }
+      } catch (_) { /* dict API unavailable, continue to cluster */ }
       return null; // will fallback to cluster race
     }
 
@@ -1112,6 +1394,127 @@ async function handleDominos(chatId, name) {
     });
   } catch (e) {
     return sendMessage(chatId, `Erreur dominos: ${e.message.slice(0, 300)}`);
+  }
+}
+
+// ─── Dictionary / Voice / Commands / Pipeline handlers ─────────────────────────
+
+const WS_API = 'http://127.0.0.1:9742';
+
+async function handleDictSearch(chatId, query) {
+  try {
+    if (!query) {
+      // Stats globales
+      const resp = await fetch(`${WS_API}/api/dictionary/stats`);
+      const stats = await resp.json();
+      const s = stats.data || stats;
+      return sendMessage(chatId, [
+        '*Dictionnaire JARVIS*',
+        `Commandes vocales: *${s.voice_commands || '?'}*`,
+        `Corrections: *${s.voice_corrections || '?'}*`,
+        `Pipelines: *${s.pipeline_commands || '?'}*`,
+        `Dominos: *${s.domino_chains || '?'}*`,
+        `Scenarios: *${s.scenarios || '?'}*`,
+        '',
+        'Recherche: `/dict <mot>`',
+        'Ex: `/dict btc`, `/dict chrome`, `/dict trading`',
+      ].join('\n'), 'Markdown');
+    }
+    // Recherche
+    const resp = await fetch(`${WS_API}/api/dictionary/search?q=${encodeURIComponent(query)}&limit=15`);
+    const data = await resp.json();
+    const results = data.data || data.results || [];
+    if (!results.length) return sendMessage(chatId, `Aucun resultat pour "${query}".`);
+    const lines = [`*Recherche: "${query}"* (${results.length} resultats)\n`];
+    for (const r of results.slice(0, 10)) {
+      const name = r.name || r.command || r.pipeline_id || r.wrong || '?';
+      const cat = r.category || '';
+      const triggers = r.triggers ? (typeof r.triggers === 'string' ? r.triggers : JSON.stringify(r.triggers)).slice(0, 100) : '';
+      const correct = r.correct ? ` -> ${r.correct}` : '';
+      lines.push(`• *${name}* [${cat}] ${triggers}${correct}`);
+    }
+    if (results.length > 10) lines.push(`\n... +${results.length - 10} autres`);
+    return sendMessage(chatId, lines.join('\n'), 'Markdown');
+  } catch (e) {
+    return sendMessage(chatId, `Erreur dict: ${e.message.slice(0, 300)}`);
+  }
+}
+
+async function handleVoiceCommand(chatId, text) {
+  // Envoie la commande vocale via WS backend ou OpenClaw
+  try {
+    const resp = await fetch(`${WS_API}/api/telegram/forward`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: text, source: 'telegram-voice-cmd' }),
+    });
+    // Also forward to OpenClaw for execution
+    try {
+      const oc = await fetch(`${PROXY_URL}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, session_id: `tg-${chatId}` }),
+      });
+      const data = await oc.json();
+      const reply = data.response || data.message || data.text || JSON.stringify(data).slice(0, 1000);
+      return sendMessage(chatId, `*Commande:* \`${text}\`\n\n${reply}`, 'Markdown');
+    } catch {
+      return sendMessage(chatId, `Commande "${text}" envoyee au backend. OpenClaw non disponible pour reponse.`);
+    }
+  } catch (e) {
+    return sendMessage(chatId, `Erreur voice cmd: ${e.message.slice(0, 300)}`);
+  }
+}
+
+async function handleCmdList(chatId, query) {
+  try {
+    const resp = await fetch(`${WS_API}/api/dictionary/search?q=${encodeURIComponent(query || 'systeme')}&limit=20`);
+    const data = await resp.json();
+    const results = (data.data || data.results || []).filter(r => r.action_type || r.action);
+    if (!results.length) return sendMessage(chatId, `Aucune commande pour "${query}". Essayez: /cmd navigation, /cmd trading, /cmd systeme`);
+    const lines = [`*Commandes "${query || 'systeme'}"* (${results.length})\n`];
+    for (const r of results.slice(0, 15)) {
+      const name = r.name || r.pipeline_id || '?';
+      const desc = (r.description || '').slice(0, 60);
+      lines.push(`• \`${name}\` — ${desc}`);
+    }
+    return sendMessage(chatId, lines.join('\n'), 'Markdown');
+  } catch (e) {
+    return sendMessage(chatId, `Erreur cmd: ${e.message.slice(0, 300)}`);
+  }
+}
+
+async function handlePipelineAction(chatId, query) {
+  try {
+    if (!query) {
+      return sendMessage(chatId, [
+        '*Pipelines JARVIS*',
+        'Usage: `/pipeline <nom>` pour voir/lancer',
+        'Ex: `/pipeline matin`, `/pipeline trading`, `/pipeline cleanup`',
+        '',
+        'Voir aussi: `/domino` pour les automatisations',
+      ].join('\n'), 'Markdown');
+    }
+    // Search pipeline in dictionary
+    const resp = await fetch(`${WS_API}/api/dictionary/search?q=${encodeURIComponent(query)}&limit=5`);
+    const data = await resp.json();
+    const pipelines = (data.data || data.results || []).filter(r => r.steps || r.action_type === 'pipeline');
+    if (!pipelines.length) {
+      // Fallback to domino
+      return handleDominos(chatId, query);
+    }
+    const p = pipelines[0];
+    const lines = [
+      `*Pipeline: ${p.name || p.pipeline_id}*`,
+      `Categorie: ${p.category || '?'}`,
+      `Steps: \`${(p.steps || '').slice(0, 200)}\``,
+      `Type: ${p.action_type || '?'}`,
+      '',
+      `Lancez avec: \`/voice ${p.name || p.pipeline_id}\``,
+    ];
+    return sendMessage(chatId, lines.join('\n'), 'Markdown');
+  } catch (e) {
+    return sendMessage(chatId, `Erreur pipeline: ${e.message.slice(0, 300)}`);
   }
 }
 
@@ -1733,7 +2136,7 @@ async function sendMenuKeyboard(chatId) {
       // Row 4: Outils
       [
         { text: '🎲 Dominos', callback_data: 'cmd_dominos' },
-        { text: '📝 Backtest', callback_data: 'cmd_backtest' },
+        { text: '📖 Dict', callback_data: 'cmd_dict' },
         { text: '🔁 Loop', callback_data: 'cmd_loop' },
       ],
       // Row 5: Systeme
@@ -1776,6 +2179,7 @@ async function handleCallback(query) {
     case 'cmd_deepscan': return handleDeepScan(chatId, 10);
     case 'cmd_signals': return handleOpenSignals(chatId);
     case 'cmd_dominos': return handleDominos(chatId);
+    case 'cmd_dict': return handleDictSearch(chatId, '');
     case 'cmd_disk': return handleCommand(chatId, '/disk', '', isAdmin);
     case 'cmd_alerton': {
       TRADING_ALERTS = true;
@@ -1923,6 +2327,9 @@ async function main() {
         { command: 'scan', description: 'Scanner rapide top 50 coins' },
         { command: 'hot', description: 'Coins les plus chauds du moment' },
         { command: 'signals', description: 'Mes signaux ouverts' },
+        { command: 'dict', description: 'Rechercher dans le dictionnaire vocal (11000+ entrees)' },
+        { command: 'cmd', description: 'Lister les commandes par categorie' },
+        { command: 'pipeline', description: 'Voir/lancer un pipeline d\'actions' },
         { command: 'domino', description: 'Lancer une automatisation (401 dispo)' },
         // Trading avance
         { command: 'deepscan', description: 'Scanner profond 800+ coins' },
@@ -1945,6 +2352,7 @@ async function main() {
         { command: 'scanstats', description: 'Statistiques du scanner' },
         { command: 'realtime', description: 'Scanner temps reel' },
         { command: 'stats', description: 'Chiffres du bot' },
+        { command: 'post', description: 'LinkedIn: generer, publier, commenter' },
         { command: 'help', description: 'Liste de toutes les commandes' },
       ]
     });
