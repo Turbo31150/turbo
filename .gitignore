@@ -71,6 +71,8 @@ backups_auto/
 
 # Runtime state
 data/autodev_state.json
-data/cluster_pipeline.pid
-data/evolution_loop.pid
-data/orchestrator_v3.pid
+data/brain_state.json
+data/claude_tool_log.jsonl
+canvas/data/autolearn_history.json
+canvas/data/memory.json
+canvas/data/routing_scores.json
