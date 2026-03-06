@@ -21,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 # ---------------------------------------------------------------------------
 
 # Mock claude_agent_sdk entirely — it may not be installed in test env
+# Inject temporarily, import orchestrator, then restore to avoid polluting other tests.
 _mock_sdk = MagicMock()
 _mock_sdk.ClaudeSDKClient = MagicMock
 _mock_sdk.ClaudeAgentOptions = MagicMock
@@ -30,7 +31,24 @@ _mock_sdk.ResultMessage = MagicMock
 _mock_sdk.TextBlock = MagicMock
 _mock_sdk.ToolUseBlock = MagicMock
 _mock_sdk.query = AsyncMock()
-sys.modules.setdefault("claude_agent_sdk", _mock_sdk)
+
+_orch_mock_entries = {"claude_agent_sdk": _mock_sdk}
+_orch_saved = {}
+for _name in _orch_mock_entries:
+    if _name in sys.modules:
+        _orch_saved[_name] = sys.modules[_name]
+    sys.modules[_name] = _orch_mock_entries[_name]
+
+# Force-import orchestrator now while mock is active
+import src.orchestrator  # noqa: F401
+
+# Restore sys.modules immediately
+for _name in _orch_mock_entries:
+    if _name in _orch_saved:
+        sys.modules[_name] = _orch_saved[_name]
+    else:
+        sys.modules.pop(_name, None)
+del _orch_saved, _orch_mock_entries
 
 
 class TestOrchestratorImport:
