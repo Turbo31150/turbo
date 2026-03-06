@@ -25,10 +25,6 @@ PATHS = {
     "trading_v2":      _TURBO / "projects/trading_v2",
     "lmstudio_backup": _TURBO / "projects/lmstudio_backup",
     "serveur":         _TURBO / "projects/serveur",
-    # ── Archives (legacy, may not exist) ──
-    "mcp_lmstudio":    Path("F:/BUREAU/ARCHIVES/MCP_MCPLMSTUDIO1"),
-    "prod_intensive":  Path("F:/BUREAU/ARCHIVES/PROD_INTENSIVE_V1"),
-    "jarvis_legacy":   Path("F:/BUREAU/ARCHIVES/JARVIS"),
     # ── Databases ──
     "etoile_db":       _TURBO / "data/etoile.db",
     "jarvis_db":       _TURBO / "data/jarvis.db",
@@ -55,9 +51,6 @@ SCRIPTS = {
     # Trading MCP (the big one — 70+ tools)
     "trading_mcp_v3":        PATHS["trading_v2"] / "trading_mcp_ultimate_v3.py",
     "lmstudio_mcp_bridge":   PATHS["lmstudio_backup"] / "mcp_configs/lmstudio_mcp_bridge.py",
-    # Pipelines
-    "pipeline_intensif_v2":  PATHS["prod_intensive"] / "scripts/pipeline_intensif_v2.py",
-    "pipeline_intensif":     PATHS["mcp_lmstudio"] / "scripts/pipeline_intensif.py",
     # Trading scripts
     "river_scalp_1min":      PATHS["trading_v2"] / "scripts/river_scalp_1min.py",
     "execute_trident":       PATHS["trading_v2"] / "scripts/execute_trident.py",
@@ -70,15 +63,9 @@ SCRIPTS = {
     "voice_jarvis":          PATHS["trading_v2"] / "voice_system/voice_jarvis.py",
     "commander_v2":          PATHS["trading_v2"] / "voice_system/commander_v2.py",
     # Dashboard & GUI
-    "dashboard":             PATHS["mcp_lmstudio"] / "dashboard/app.py",
     "jarvis_gui":            PATHS["trading_v2"] / "scripts/jarvis_gui.py",
     "jarvis_api":            PATHS["trading_v2"] / "scripts/jarvis_api.py",
     "jarvis_widget":         PATHS["trading_v2"] / "scripts/jarvis_widget.py",
-    # JARVIS Legacy (F:\BUREAU\JARVIS)
-    "jarvis_main":           PATHS["jarvis_legacy"] / "jarvis.py",
-    "jarvis_mcp_legacy":     PATHS["jarvis_legacy"] / "jarvis_mcp_server.py",
-    "fs_agent":              PATHS["jarvis_legacy"] / "fs_agent.py",
-    "master_interaction":    PATHS["jarvis_legacy"] / "master_interaction_node.py",
     # Disk Cleaner
     "disk_cleaner":          PATHS["disk_cleaner"] / "disk_cleaner.py",
     # Trading AI v2.2 GPU Pipeline

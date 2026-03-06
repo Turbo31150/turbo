@@ -62,3 +62,5 @@ projects/carV1_data/database/
 projects/lmstudio_backup/
 projects/*/.git/
 backups_auto/
+data/strategy_evolution.db-shm
+data/strategy_evolution.db-wal

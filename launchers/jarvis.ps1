@@ -32,9 +32,9 @@ param(
 )
 
 # === CONFIG ===
-$_M1_KEY = if ($env:LM_STUDIO_1_KEY) { $env:LM_STUDIO_1_KEY } else { "LMSTUDIO_KEY_M1_REDACTED" }
-$_M2_KEY = if ($env:LM_STUDIO_2_KEY) { $env:LM_STUDIO_2_KEY } else { "LMSTUDIO_KEY_M2_REDACTED" }
-$_M3_KEY = if ($env:LM_STUDIO_3_KEY) { $env:LM_STUDIO_3_KEY } else { "LMSTUDIO_KEY_M3_REDACTED" }
+$_M1_KEY = if ($env:LM_STUDIO_1_API_KEY) { $env:LM_STUDIO_1_API_KEY } elseif ($env:LM_STUDIO_1_KEY) { $env:LM_STUDIO_1_KEY } else { "" }
+$_M2_KEY = if ($env:LM_STUDIO_2_API_KEY) { $env:LM_STUDIO_2_API_KEY } elseif ($env:LM_STUDIO_2_KEY) { $env:LM_STUDIO_2_KEY } else { "" }
+$_M3_KEY = if ($env:LM_STUDIO_3_API_KEY) { $env:LM_STUDIO_3_API_KEY } elseif ($env:LM_STUDIO_3_KEY) { $env:LM_STUDIO_3_KEY } else { "" }
 
 $Nodes = @{
     "M1" = @{
@@ -528,9 +528,9 @@ switch ($Command) {
 
     "bench" {
         Write-Host ('[BENCH] Running {0} cycles x {1} tasks...' -f $Cycles, $Tasks) -ForegroundColor Cyan
-        python3 C:/Users/franc/jarvis_autotest.py $Cycles $Tasks
+        python3 $PSScriptRoot/../scripts/jarvis_autotest.py $Cycles $Tasks
         Write-Host "`n[BENCH] Results:" -ForegroundColor Cyan
-        $data = Get-Content "C:/Users/franc/jarvis_autotest_results.json" -Raw | ConvertFrom-Json
+        $data = Get-Content "$PSScriptRoot/../data/jarvis_autotest_results.json" -Raw | ConvertFrom-Json
         $pct = [math]::Floor($data.pass * 100 / [Math]::Max($data.total, 1))
         Write-Host "  Pass: $($data.pass)/$($data.total) ($pct%)" -ForegroundColor $(if ($pct -ge 95) {"Green"} else {"Yellow"})
         foreach ($nid in $data.by_node.PSObject.Properties) {

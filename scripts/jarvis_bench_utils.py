@@ -3,7 +3,7 @@
 import json, os
 from datetime import datetime
 
-HISTORY_FILE = "C:/Users/franc/jarvis_benchmark_history.json"
+HISTORY_FILE = os.path.join(os.path.dirname(__file__), "..", "data", "jarvis_benchmark_history.json")
 MAX_RUNS = 500
 
 NODES = {
@@ -12,7 +12,7 @@ NODES = {
         "chat_url": "http://10.5.0.2:1234/api/v1/chat",
         "type": "lmstudio-responses",
         "model": "qwen/qwen3-8b",
-        "key": os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", "")),
+        "key": "LMSTUDIO_KEY_M1_REDACTED",
         "load_url": "http://10.5.0.2:1234/api/v1/models/load",
         "unload_url": "http://10.5.0.2:1234/api/v1/models/unload",
         "config": {"context_length": 8192, "eval_batch_size": 512, "flash_attention": True, "offload_kv_cache_to_gpu": True, "num_experts": 8},
@@ -23,7 +23,7 @@ NODES = {
         "chat_url": "http://192.168.1.26:1234/v1/chat/completions",
         "type": "lmstudio",
         "model": "deepseek-coder-v2-lite-instruct",
-        "key": os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", "")),
+        "key": "LMSTUDIO_KEY_M2_REDACTED",
         "load_url": "http://192.168.1.26:1234/api/v1/models/load",
         "unload_url": "http://192.168.1.26:1234/api/v1/models/unload",
         "config": {"context_length": 4096, "eval_batch_size": 512, "flash_attention": True, "offload_kv_cache_to_gpu": True, "num_experts": 6},
@@ -34,7 +34,7 @@ NODES = {
         "chat_url": "http://192.168.1.113:1234/v1/chat/completions",
         "type": "lmstudio",
         "model": "mistral-7b-instruct-v0.3",
-        "key": os.getenv("LM_STUDIO_3_API_KEY", os.getenv("LM_STUDIO_3_KEY", "")),
+        "key": "LMSTUDIO_KEY_M3_REDACTED",
         "load_url": "http://192.168.1.113:1234/api/v1/models/load",
         "unload_url": "http://192.168.1.113:1234/api/v1/models/unload",
         "config": {"context_length": 4096, "eval_batch_size": 512, "flash_attention": True, "offload_kv_cache_to_gpu": True},

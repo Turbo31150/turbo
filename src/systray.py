@@ -46,7 +46,7 @@ def _create_icon_image() -> Image.Image:
 
 def _launch_bat(bat_name: str) -> None:
     """Launch a JARVIS .bat launcher in a new detached console."""
-    bat_path = PROJECT_ROOT / bat_name
+    bat_path = PROJECT_ROOT / "launchers" / bat_name
     if bat_path.exists():
         # cmd /c start detaches immediately — use CREATE_NO_WINDOW to avoid handle leak
         proc = subprocess.Popen(
@@ -60,7 +60,7 @@ def _launch_bat(bat_name: str) -> None:
 def _launch_dashboard() -> None:
     """Launch the Textual TUI dashboard."""
     proc = subprocess.Popen(
-        ["cmd", "/c", "start", "", str(PROJECT_ROOT / "jarvis_dashboard.bat")],
+        ["cmd", "/c", "start", "", str(PROJECT_ROOT / "launchers" / "jarvis_dashboard.bat")],
         cwd=str(PROJECT_ROOT),
     )
     threading.Thread(target=proc.wait, daemon=True).start()

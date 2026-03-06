@@ -514,7 +514,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("turbo_generate_docs", "dev", "Regenerer la documentation des commandes vocales", [
         "regenere la doc", "update la doc vocale", "genere la doc commandes",
         "mets a jour la doc",
-    ], "powershell", "cd F:\\BUREAU\\turbo; python scripts/gen_vocal_docs.py 2>&1 | Out-String"),
+    ], "powershell", "cd F:\\BUREAU\\turbo; python scripts/tools/gen_vocal_docs.py 2>&1 | Out-String"),
     JarvisCommand("turbo_generate_readme", "dev", "Regenerer la section commandes du README", [
         "regenere le readme", "update le readme", "genere le readme commandes",
         "mets a jour le readme",

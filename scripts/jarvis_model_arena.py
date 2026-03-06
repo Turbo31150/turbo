@@ -62,13 +62,13 @@ def run_benchmark(cycles=5, tasks_per_cycle=40):
     log(f"Running benchmark: {cycles} cycles x {tasks_per_cycle} tasks...")
     try:
         subprocess.run(
-            [sys.executable, "C:/Users/franc/jarvis_autotest.py", str(cycles), str(tasks_per_cycle)],
-            capture_output=True, text=True, timeout=1800, cwd="C:/Users/franc"
+            [sys.executable, os.path.join(os.path.dirname(__file__), "jarvis_autotest.py"), str(cycles), str(tasks_per_cycle)],
+            capture_output=True, text=True, timeout=1800, cwd="F:/BUREAU/turbo"
         )
     except (subprocess.SubprocessError, OSError) as e:
         log(f"Benchmark subprocess error: {e}")
     try:
-        with open("C:/Users/franc/jarvis_autotest_results.json", encoding="utf-8") as _fh:
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "jarvis_autotest_results.json"), encoding="utf-8") as _fh:
             data = json.load(_fh)
         total = data["total"]
         pass_rate = data["pass"] * 100.0 / max(total, 1)

@@ -5,7 +5,7 @@ import urllib.request, urllib.error
 from datetime import datetime
 from jarvis_bench_utils import NODES, load_history
 
-LOG_FILE = "C:/Users/franc/jarvis_healer.log"
+LOG_FILE = os.path.join(os.path.dirname(__file__), "..", "logs", "jarvis_healer.log")
 CHECK_INTERVAL = 60
 MINI_BENCH_THRESHOLD = 0.66
 ARENA_COOLDOWN_HOURS = 1
@@ -48,7 +48,7 @@ def health_check(node_id):
         if cfg["type"] == "ollama":
             return len(data.get("models", [])) > 0
         return True
-    except (urllib.error.URLError, OSError, ValueError, KeyError):
+    except (urllib.error.URLError, OSError, json.JSONDecodeError):
         return False
 
 def mini_benchmark(node_id):
@@ -90,7 +90,7 @@ def mini_benchmark(node_id):
             text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL).strip().lower()
             if check in text:
                 passed += 1
-        except (urllib.error.URLError, OSError, ValueError, KeyError):
+        except (urllib.error.URLError, OSError, json.JSONDecodeError, KeyError):
             pass
     return passed / len(tests)
 
@@ -187,7 +187,7 @@ def get_m1_models():
             if m.get("loaded_instances"):
                 models.append(m.get("id", m.get("model", "")))
         return sorted(models)
-    except (urllib.error.URLError, OSError, ValueError, KeyError):
+    except (urllib.error.URLError, OSError, json.JSONDecodeError):
         return []
 
 def should_run_arena():
@@ -233,7 +233,7 @@ def run_arena(reason):
 
     try:
         result = subprocess.run(
-            ["python3", "C:/Users/franc/jarvis_model_arena.py", "--quick", "--auto"],
+            ["python3", os.path.join(os.path.dirname(__file__), "jarvis_model_arena.py"), "--quick", "--auto"],
             capture_output=True, text=True, timeout=1800
         )
         if result.returncode == 0:

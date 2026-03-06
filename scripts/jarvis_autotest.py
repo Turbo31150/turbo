@@ -5,10 +5,10 @@ from jarvis_bench_utils import append_run
 
 # === CONFIG ===
 NODES = {
-    "M1": {"url": "http://10.5.0.2:1234/api/v1/chat", "type": "lmstudio-responses", "model": "qwen/qwen3-8b", "key": os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", "")), "timeout": 30, "priority": 2},
+    "M1": {"url": "http://10.5.0.2:1234/api/v1/chat", "type": "lmstudio-responses", "model": "qwen/qwen3-8b", "key": "LMSTUDIO_KEY_M1_REDACTED", "timeout": 30, "priority": 2},
     "OL1": {"url": "http://127.0.0.1:11434/api/chat", "type": "ollama", "model": "qwen3:1.7b", "timeout": 20, "priority": 2},
-    "M2": {"url": "http://192.168.1.26:1234/v1/chat/completions", "type": "lmstudio", "model": "deepseek-coder-v2-lite-instruct", "key": os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", "")), "timeout": 60, "priority": 2},
-    "M3": {"url": "http://192.168.1.113:1234/v1/chat/completions", "type": "lmstudio", "model": "mistral-7b-instruct-v0.3", "key": os.getenv("LM_STUDIO_3_API_KEY", os.getenv("LM_STUDIO_3_KEY", "")), "timeout": 30, "priority": 1},
+    "M2": {"url": "http://192.168.1.26:1234/v1/chat/completions", "type": "lmstudio", "model": "deepseek-coder-v2-lite-instruct", "key": "LMSTUDIO_KEY_M2_REDACTED", "timeout": 60, "priority": 2},
+    "M3": {"url": "http://192.168.1.113:1234/v1/chat/completions", "type": "lmstudio", "model": "mistral-7b-instruct-v0.3", "key": "LMSTUDIO_KEY_M3_REDACTED", "timeout": 30, "priority": 1},
 }
 
 # Routage intelligent : domaine -> noeuds preferes (ordre de priorite)
@@ -87,7 +87,7 @@ DOMAINS = {
     ],
 }
 
-LOG_FILE = "C:/Users/franc/jarvis_autotest_results.json"
+LOG_FILE = os.path.join(os.path.dirname(__file__), "..", "data", "jarvis_autotest_results.json")
 results = {"cycles": 0, "total": 0, "pass": 0, "fail": 0, "errors": 0, "by_node": {}, "by_domain": {}, "failures": [], "improvements": []}
 
 def query_node(node_id, prompt):
@@ -426,12 +426,8 @@ def print_summary():
 
 # === MAIN ===
 if __name__ == "__main__":
-    try:
-        num_cycles = int(sys.argv[1]) if len(sys.argv) > 1 else 10
-        tasks_per_cycle = int(sys.argv[2]) if len(sys.argv) > 2 else 8
-    except ValueError:
-        print("Usage: jarvis_autotest.py [num_cycles] [tasks_per_cycle]")
-        sys.exit(1)
+    num_cycles = int(sys.argv[1]) if len(sys.argv) > 1 else 10
+    tasks_per_cycle = int(sys.argv[2]) if len(sys.argv) > 2 else 8
 
     print(f"JARVIS AutoTest — {num_cycles} cycles x {tasks_per_cycle} tasks = {num_cycles * tasks_per_cycle} tests")
     print(f"Noeuds: {', '.join(NODES.keys())}")

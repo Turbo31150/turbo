@@ -4,13 +4,13 @@ import json, sys, os, sqlite3
 from datetime import datetime
 
 DATABASES = {
-    "etoile.db": "F:/BUREAU/etoile.db",
+    "etoile.db": "F:/BUREAU/turbo/data/etoile.db",
     "jarvis.db": "F:/BUREAU/turbo/data/jarvis.db",
     "sniper.db": "F:/BUREAU/turbo/data/sniper.db",
     "finetuning.db": "F:/BUREAU/turbo/finetuning/finetuning.db",
 }
-TELEGRAM_TOKEN = "TELEGRAM_TOKEN_REDACTED"
-TELEGRAM_CHAT = "2010747443"
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_CHAT = os.environ.get("TELEGRAM_CHAT_ID", "")
 
 def send_telegram(msg):
     import urllib.request

@@ -104,7 +104,7 @@ ia_trading = AgentDefinition(
         "- Calculer entry/TP/SL dynamiques (ATR, Fibonacci)\n"
         "- Analyser les positions ouvertes et les marges\n"
         "- Utiliser le tool run_script pour lancer: mexc_scanner, breakout_detector, "
-        "  sniper_breakout, hyper_scan_v2, pipeline_intensif_v2\n"
+        "  sniper_breakout, hyper_scan_v2\n"
         "- Paires suivies: BTC, ETH, SOL, SUI, PEPE, DOGE, XRP, ADA, AVAX, LINK\n"
         "- Config: MEXC Futures, levier 10x, TP 0.4%, SL 0.25%\n\n"
         "Tu as acces direct a M2/OL1 via lm_query et consensus pour analyse multi-IA.\n"

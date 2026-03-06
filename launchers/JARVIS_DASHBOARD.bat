@@ -1,9 +1,14 @@
 @echo off
-title JARVIS Dashboard
+title JARVIS v10.1 - Dashboard TUI
+color 0E
+echo.
+echo  ==========================================
+echo    JARVIS v10.1 - DASHBOARD UNIFIE
+echo    Cluster ^| Trading ^| Skills ^| Brain
+echo  ==========================================
+echo.
 cd /d F:\BUREAU\turbo
-echo ========================================
-echo   JARVIS Cluster Dashboard
-echo   http://127.0.0.1:8080
-echo ========================================
-"C:\Users\franc\.local\bin\uv.exe" run python dashboard/server.py
+"F:\BUREAU\turbo\.venv\Scripts\python.exe" -c "from src.dashboard import run_dashboard; run_dashboard()"
+echo.
+echo [JARVIS] Dashboard ferme.
 pause

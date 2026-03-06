@@ -10,7 +10,7 @@ import os
 import json
 from datetime import datetime
 
-DB_PATH = r"F:\BUREAU\etoile.db"
+DB_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "data", "etoile.db")
 TURBO_SRC = r"F:\BUREAU\turbo\src"
 
 

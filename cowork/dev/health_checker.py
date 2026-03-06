@@ -91,7 +91,7 @@ def check_cluster() -> Dict[str, Any]:
 
 def check_databases() -> Dict[str, Any]:
     db_paths = {
-        "etoile.db": Path("F:/BUREAU/etoile.db"),
+        "etoile.db": Path("F:/BUREAU/turbo/data/etoile.db"),
         "jarvis.db": Path("F:/BUREAU/turbo/data/jarvis.db"),
         "trading_latest.db": Path("F:/BUREAU/turbo/projects/carV1_data/database/trading_latest.db"),
     }

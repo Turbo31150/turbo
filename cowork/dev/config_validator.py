@@ -44,7 +44,7 @@ def run_cmd(cmd: list, timeout: int = 10) -> str:
 def check_databases() -> Dict[str, Any]:
     """Vérifie les bases SQLite JARVIS."""
     dbs = {
-        "etoile.db": Path("F:/BUREAU/etoile.db"),
+        "etoile.db": Path("F:/BUREAU/turbo/data/etoile.db"),
         "jarvis.db": Path("F:/BUREAU/turbo/data/jarvis.db"),
         "trading_latest.db": Path("F:/BUREAU/turbo/projects/carV1_data/database/trading_latest.db"),
     }

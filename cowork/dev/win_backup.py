@@ -15,7 +15,7 @@ TARGETS = {
         "F:/BUREAU/turbo/.env",
     ],
     "databases": [
-        "F:/BUREAU/etoile.db",
+        "F:/BUREAU/turbo/etoile.db",
         "F:/BUREAU/turbo/data/jarvis.db",
         "F:/BUREAU/turbo/data/sniper.db",
         "F:/BUREAU/turbo/finetuning/finetuning.db",
