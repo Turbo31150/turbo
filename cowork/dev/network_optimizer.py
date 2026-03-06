@@ -37,7 +37,7 @@ CLUSTER_NODES = {
     "M2": {
         "ip": "192.168.1.26",
         "port": 1234,
-        "description": "LM Studio distant — deepseek-coder-v2 (3 GPU 24GB)",
+        "description": "LM Studio distant — deepseek-r1-0528-qwen3-8b (3 GPU 24GB)",
         "type": "lmstudio"
     },
     "M3": {
