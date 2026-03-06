@@ -28,14 +28,14 @@
 | **GPU** | 10 NVIDIA / ~78 GB VRAM | RTX 3080 10GB, RTX 2060 12GB, 4x GTX 1660S 6GB, 3x GPU M2 24GB, 1x GPU M3 8GB |
 | **Modeles IA** | 14 (4 local + 10 cloud) | M1 qwen3-8b + gpt-oss-20b, M2 deepseek-r1, M3 deepseek-r1, OL1 qwen3:14b/1.7b + 10 cloud |
 | **Agents** | 7 SDK + 11 Plugin + 96 Patterns | 114 agents total — 7 Claude SDK + 11 plugin + 96 patterns DB (20 hardcoded + 76 dynamiques) |
-| **Outils MCP** | 167 tools + 1,205 handlers | tools.py (167 fonctions) + mcp_server.py (1,205 handle_*) = 1,372 total |
+| **Outils MCP** | 167 tools + 602 handlers | tools.py (167 fonctions) + mcp_server.py (602 async def handle_*) = 769 total |
 | **REST Endpoints** | 504 | server.py — FastAPI WebSocket backend Electron |
 | **Commandes vocales** | 443 commandes + 853 voice commands | 443 commands + 853 voice_commands jarvis.db + 835 domino chains |
 | **Domino Cascades** | 835 cascades / 1,628 logs | 11 categories, 84 actions Python, 28 param patterns, 40 pipelines domino |
 | **Corrections vocales** | 2,628 entries | voice_corrections jarvis.db |
 | **Skills** | 80 (jarvis.db) + 30 skills_log (etoile.db) | Persistants en DB, 10 plugin skills |
 | **Source Python** | 253 modules / 96,086 lignes | src/ uniquement (170,000+ total avec COWORK dev/ 432 scripts) |
-| **Databases** | 5 bases SQL (149 tables) | etoile.db (53t) + jarvis.db (15t) + sniper.db (6t) + finetuning.db (10t) + cowork_gaps.db (65t) |
+| **Databases** | 5 bases SQL (140 tables) | etoile.db (51t) + jarvis.db (13t) + sniper.db (4t) + finetuning.db (8t) + cowork_gaps.db (64t) |
 | **Tests** | 3,665 tests (83 suites) | 100% pass — pytest strict asyncio mode |
 | **Plugin** | 24 slash commands | + 10 skills + 11 agents + 4 hooks (plugin v3.1) |
 | **Desktop** | Electron 33 + React 19 | **29 pages**, Portable 72.5 MB |
@@ -61,7 +61,7 @@
 | **COWORK Scripts** | 319 scripts | **432 scripts** | +112 scripts (10 categories, 101 prefixes, 13 mega-runners) |
 | **Modules src/** | 215 modules | **253 modules** | +38 modules (reflection_engine, pattern_evolution, quality_gate, event_stream, etc.) |
 | **Tests** | 528 tests | **3,665 tests** | +3,137 tests (83 fichiers: phase3-phase43 + pattern_agents + security + telegram + windows) |
-| **MCP Handlers** | 531 handlers | **1,205 handlers** | +674 (self_improvement, dynamic_agents, cowork, reflection, evolution, etc.) |
+| **MCP Handlers** | 531 handlers | **602 handlers** | +71 (self_improvement, dynamic_agents, cowork, reflection, evolution, etc.) |
 | **SDK Tools** | 117 outils | **167 @tool()** | +50 (cluster, browser, proactive, feedback) |
 | **REST Endpoints** | ~400 | **504 endpoints** | +104 (self_improvement, dynamic_agents, cowork, reflection, evolution, tts) |
 | **Agent Patterns** | 35 OpenClaw | **96 patterns DB** + 20 hardcoded = **116 total** | dispatch_engine route vers patterns dynamiques |
@@ -358,6 +358,18 @@ JARVIS repond en TEXTE + MESSAGE VOCAL (voix Denise, femme francaise)
 | "partage reseau" | Liste les partages reseau actifs |
 | "peripheriques" | Ouvre le gestionnaire de peripheriques |
 | "apps par defaut" | Gerer les applications par defaut |
+| "imprimante" | Gestion imprimantes et scanners |
+| "plan alimentation" | Gerer les plans d'alimentation Windows |
+| "taches planifiees" | Audit des taches planifiees |
+| "mode jeu" | Activer/desactiver le Game Mode Windows |
+| "bureaux virtuels" | Gestion des bureaux virtuels Windows |
+| "presse-papier" | Historique presse-papier intelligent (IA) |
+| "enregistrement ecran" | Enregistrer l'ecran (video) |
+| "WSL" | Manager Windows Subsystem for Linux |
+| "raccourcis clavier" | Moteur de hotkeys globaux |
+| "gestionnaire polices" | Gestion des polices Windows |
+| "mixer audio" | Controle avance du mixer son |
+| "analyse memoire" | Profiler memoire, detection fuites |
 
 #### Cluster IA
 | Tu dis... | JARVIS fait... |
@@ -804,7 +816,7 @@ Commande vocale → Collecte PowerShell (CPU/RAM/GPU/Disques)
 - [114 Agents Total (7 SDK + 11 Plugin + 96 Patterns)](#114-agents-total-7-sdk--11-plugin--96-pattern-agents)
 - [Consensus Multi-Source](#consensus-multi-source)
 - [108 Skills Autonomes](#108-skills-autonomes)
-- [167 Outils MCP + 1,205 Handlers](#167-outils-mcp--1205-handlers)
+- [167 Outils MCP + 602 Handlers](#167-outils-mcp--602-handlers)
 - [Bases de Donnees](#bases-de-donnees)
 - [Catalogue Vocal & Pipelines](#catalogue-vocal--pipelines)
 - [Architecture Vocale](#architecture-vocale)
@@ -1238,12 +1250,12 @@ mao-workflow, cluster-management, trading-pipeline, failover-recovery, security-
 
 ---
 
-## 167 Outils MCP + 1,205 Handlers
+## 167 Outils MCP + 602 Handlers
 
-Chiffres reels verifies (2026-03-06) : `tools.py` (167 fonctions) + `mcp_server.py` (1,205 handlers).
+Chiffres reels verifies (2026-03-06) : `tools.py` (167 fonctions) + `mcp_server.py` (602 async def handle_*).
 
 ```
-JARVIS-TURBO tools.py (167 outils)     JARVIS-TURBO mcp_server.py (1,205 handlers)
+JARVIS-TURBO tools.py (167 outils)     JARVIS-TURBO mcp_server.py (602 handlers)
 ├── Cluster IA (15)                     ├── Cluster Management (60+)
 │   lm_query, consensus,               │   health_check, model_load/unload,
 │   bridge_mesh, bridge_query,          │   node_status, dispatch, routing
@@ -1300,7 +1312,7 @@ JARVIS-TURBO tools.py (167 outils)     JARVIS-TURBO mcp_server.py (1,205 handler
 
 | Serveur | Commande | Outils | Lignes |
 |---------|----------|--------|--------|
-| **jarvis-turbo** | `jarvis_mcp_stdio.bat` | 167 tools + 1,205 handlers | ~8,800 lignes |
+| **jarvis-turbo** | `jarvis_mcp_stdio.bat` | 167 tools + 602 handlers | ~8,800 lignes |
 | **trading-ai-ultimate** | `trading_mcp_ultimate_v3.py` | Scanner MEXC, consensus, execution | — |
 | **filesystem** | `npx @modelcontextprotocol/server-filesystem` | Acces complet C:\, D:\, F:\ | — |
 
@@ -1793,7 +1805,7 @@ turbo/
 │   ├── commander.py           # Pipeline Commander (classify/decompose/enrich)
 │   ├── agents.py              # 7 agents Claude SDK (deep/fast/check/trading/system/bridge/consensus)
 │   ├── tools.py               # 167 outils MCP SDK
-│   ├── mcp_server.py          # 1,205 handlers MCP
+│   ├── mcp_server.py          # 602 handlers MCP
 │   ├── commands.py            # Commandes vocales principales
 │   ├── commands_dev.py        # Commandes developpement (git, ollama, docker)
 │   ├── commands_maintenance.py# Commandes maintenance
@@ -1978,9 +1990,9 @@ OLLAMA_NUM_PARALLEL=3 (env User persistant)
 | **Desktop** | Electron 33, React 19, TypeScript, Vite 6, Tailwind CSS — **29 pages** |
 | **Navigateur** | Comet (Perplexity) par defaut, Chrome/Edge fallback, CDP port 9222 |
 | **Voice** | Whisper large-v3-turbo (CUDA), Edge TTS fr-FR-DeniseNeural (femme), OpenWakeWord |
-| **Trading** | CCXT (MEXC Futures), scoring multi-IA, sniper.db (6 tables, 768 rows) |
-| **MCP** | 167 outils + 1,205 handlers, 3 serveurs MCP |
-| **Database** | SQLite3 — 5 bases, 149 tables |
+| **Trading** | CCXT (MEXC Futures), scoring multi-IA, sniper.db (4 tables, 790 rows) |
+| **MCP** | 167 outils + 602 handlers, 3 serveurs MCP |
+| **Database** | SQLite3 — 5 bases, 140 tables |
 | **Telegram** | Bot @turboSSebot autonome via canvas bridge (port 18800), cluster race 5 noeuds |
 | **Automation** | Playwright, Telegram Bot API, 432 scripts COWORK, 68 taches orchestrateur, 13 mega-runners |
 | **DevOps** | GitHub, uv (Python packaging), 46 launchers .bat/.ps1 |
