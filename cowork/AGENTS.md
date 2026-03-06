@@ -8,7 +8,7 @@ Pour les taches complexes, distribue aux noeuds via `exec`. IMPORTANT: exec = Po
 
 ### M2 — CHAMPION Code (deepseek-coder, 3 GPU 24GB) — 92%, 1.3s
 ```
-curl.exe -s http://192.168.1.26:1234/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer LMSTUDIO_KEY_M2_REDACTED" -d "{\"model\":\"deepseek-coder-v2-lite-instruct\",\"messages\":[{\"role\":\"user\",\"content\":\"PROMPT\"}],\"max_tokens\":4096}"
+curl.exe -s http://192.168.1.26:1234/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4" -d "{\"model\":\"deepseek-coder-v2-lite-instruct\",\"messages\":[{\"role\":\"user\",\"content\":\"PROMPT\"}],\"max_tokens\":4096}"
 ```
 Extraction reponse: `.choices[0].message.content`
 
@@ -25,13 +25,13 @@ Extraction: `.message.content` — IMPORTANT: `think:false` obligatoire pour clo
 
 ### M3 — SOLIDE General (mistral-7b, 1 GPU 8GB) — 89%, 2.5s
 ```
-curl.exe -s http://192.168.1.113:1234/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer LMSTUDIO_KEY_M3_REDACTED" -d "{\"model\":\"mistral-7b-instruct-v0.3\",\"messages\":[{\"role\":\"user\",\"content\":\"PROMPT\"}],\"max_tokens\":4096}"
+curl.exe -s http://192.168.1.113:1234/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux" -d "{\"model\":\"mistral-7b-instruct-v0.3\",\"messages\":[{\"role\":\"user\",\"content\":\"PROMPT\"}],\"max_tokens\":4096}"
 ```
 Extraction: `.choices[0].message.content`
 
 ### M1 — LENT, reserve embedding (qwen3-30b, 6 GPU 46GB) — 23%, 12s+
 ```
-curl.exe -s --max-time 120 http://10.5.0.2:1234/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer LMSTUDIO_KEY_M1_REDACTED" -d "{\"model\":\"qwen/qwen3-30b-a3b-2507\",\"messages\":[{\"role\":\"user\",\"content\":\"PROMPT\"}],\"max_tokens\":8192}"
+curl.exe -s --max-time 120 http://10.5.0.2:1234/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" -d "{\"model\":\"qwen/qwen3-30b-a3b-2507\",\"messages\":[{\"role\":\"user\",\"content\":\"PROMPT\"}],\"max_tokens\":8192}"
 ```
 ATTENTION: M1 timeout sur 7/10 requetes complexes. Dernier recours sauf embedding.
 

@@ -141,7 +141,7 @@ def format_email_telegram(emails):
 
 def send_telegram(msg):
     import urllib.request
-    token = "TELEGRAM_TOKEN_REDACTED"
+    token = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
     url = f"https://api.telegram.org/bot{token}/sendMessage"
     data = json.dumps({"chat_id": "2010747443", "text": msg[:4000], "parse_mode": "Markdown"}).encode()
     try:

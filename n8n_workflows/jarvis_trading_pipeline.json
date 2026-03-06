@@ -16,7 +16,7 @@
         "url": "http://10.5.0.2:1234/api/v1/chat",
         "sendBody": true,
         "sendHeaders": true,
-        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer LMSTUDIO_KEY_M1_REDACTED"}, {"name": "Content-Type", "value": "application/json"}]},
+        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"}, {"name": "Content-Type", "value": "application/json"}]},
         "specifyBody": "json",
         "jsonBody": "{\n  \"model\": \"qwen/qwen3-30b-a3b-2507\",\n  \"input\": \"Analyse rapide marche crypto. BTC ETH SOL SUI. Tendance 15min, signal buy/sell/neutral pour chaque. Format JSON: {pair, signal, confidence, entry, tp, sl}\",\n  \"temperature\": 0.3,\n  \"max_output_tokens\": 2048,\n  \"stream\": false,\n  \"store\": false\n}",
         "options": { "timeout": 60000 }
@@ -33,7 +33,7 @@
         "url": "http://192.168.1.26:1234/api/v1/chat",
         "sendBody": true,
         "sendHeaders": true,
-        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer LMSTUDIO_KEY_M2_REDACTED"}, {"name": "Content-Type", "value": "application/json"}]},
+        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4"}, {"name": "Content-Type", "value": "application/json"}]},
         "specifyBody": "json",
         "jsonBody": "{\n  \"model\": \"deepseek-coder-v2-lite-instruct\",\n  \"input\": \"Quick crypto signal scan: BTC ETH SOL SUI. Signal buy/sell/neutral per pair. JSON format.\",\n  \"temperature\": 0.3,\n  \"max_output_tokens\": 1024,\n  \"stream\": false,\n  \"store\": false\n}",
         "options": { "timeout": 30000 }

@@ -41,7 +41,7 @@ Lancer TOUJOURS les appels independants en parallele (plusieurs Bash tool calls)
 ```bash
 curl -s --max-time 30 http://10.5.0.2:1234/api/v1/chat \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer LMSTUDIO_KEY_M1_REDACTED" \
+  -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" \
   -d '{"model":"qwen/qwen3-8b","input":"/nothink\nPROMPT","temperature":0.2,"max_output_tokens":1024,"stream":false,"store":false}'
 ```
 Extraction M1: dernier element `type=message` dans `.output[]` (skip reasoning block)
@@ -50,7 +50,7 @@ Extraction M1: dernier element `type=message` dans `.output[]` (skip reasoning b
 ```bash
 curl -s --max-time 60 http://192.168.1.26:1234/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer LMSTUDIO_KEY_M2_REDACTED" \
+  -H "Authorization: Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4" \
   -d '{"model":"deepseek-coder-v2-lite-instruct","messages":[{"role":"user","content":"PROMPT"}],"temperature":0.3,"max_tokens":4096,"stream":false}'
 ```
 
@@ -64,7 +64,7 @@ curl -s --max-time 30 http://127.0.0.1:11434/api/chat \
 ```bash
 curl -s --max-time 60 http://192.168.1.113:1234/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer LMSTUDIO_KEY_M3_REDACTED" \
+  -H "Authorization: Bearer sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux" \
   -d '{"model":"mistral-7b-instruct-v0.3","messages":[{"role":"user","content":"PROMPT"}],"temperature":0.3,"max_tokens":4096,"stream":false}'
 ```
 

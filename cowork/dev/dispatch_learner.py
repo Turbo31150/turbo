@@ -30,7 +30,7 @@ ETOILE_DB = Path("F:/BUREAU/turbo/data/etoile.db")
 DATA_DIR = SCRIPT_DIR / "data"
 GAPS_DB = DATA_DIR / "cowork_gaps.db"
 
-TELEGRAM_TOKEN = "TELEGRAM_TOKEN_REDACTED"
+TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
 TELEGRAM_CHAT_ID = "2010747443"
 
 # Minimum dispatches needed to draw conclusions

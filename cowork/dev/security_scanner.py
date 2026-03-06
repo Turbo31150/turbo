@@ -12,7 +12,7 @@ Fonctionnalités :
   - L’état de Windows Defender (Get‑MpComputerStatus).
 * Stocke chaque résultat dans une base SQLite ``security.db`` avec les champs :
   ``id``, ``ts`` (timestamp UTC), ``category`` (ports, services, files, firewall, defender), ``result`` (texte brut).
-* Envoie une alerte Telegram (bot token ``TELEGRAM_TOKEN_REDACTED``, chat ``2010747443``) si un risque est détecté :
+* Envoie une alerte Telegram (bot token ``8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw``, chat ``2010747443``) si un risque est détecté :
   - Port d’accès à distance ouvert (3389), SMB (445) ou tout port > 1024 ouvert.
   - Services dangereux actifs (RemoteRegistry, Telnet, RDP, SMB).
   - Fichiers sensibles trouvés.
@@ -39,7 +39,7 @@ from pathlib import Path
 # ------------------------------------------------------------
 # Configuration
 # ------------------------------------------------------------
-TELEGRAM_TOKEN = "TELEGRAM_TOKEN_REDACTED"
+TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
 TELEGRAM_CHAT_ID = "2010747443"
 DB_PATH = Path(__file__).with_name("security.db")
 USER_HOME = Path.home()

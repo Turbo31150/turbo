@@ -35,7 +35,7 @@
     "providers": {
       "lm-m2": {
         "baseUrl": "http://192.168.1.26:1234/v1",
-        "apiKey": "LMSTUDIO_KEY_M2_REDACTED",
+        "apiKey": "sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4",
         "api": "openai-completions",
         "models": [
           {
@@ -74,7 +74,7 @@
       },
       "lm-m1": {
         "baseUrl": "http://127.0.0.1:1234/v1",
-        "apiKey": "LMSTUDIO_KEY_M1_REDACTED",
+        "apiKey": "sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7",
         "api": "openai-completions",
         "models": [
           {
@@ -145,7 +145,7 @@
       },
       "lm-m3": {
         "baseUrl": "http://192.168.1.113:1234/v1",
-        "apiKey": "LMSTUDIO_KEY_M3_REDACTED",
+        "apiKey": "sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux",
         "api": "openai-completions",
         "models": [
           {
@@ -335,7 +335,7 @@
       },
       "gemini": {
         "baseUrl": "http://127.0.0.1:18791/v1beta/openai",
-        "apiKey": "GEMINI_KEY_REDACTED",
+        "apiKey": "AIzaSyDVunHtT9qYTTs5yOhMuQEM1WMt6D5y4Vw",
         "api": "openai-completions",
         "models": [
           {
@@ -1237,7 +1237,7 @@
     "telegram": {
       "enabled": true,
       "dmPolicy": "pairing",
-      "botToken": "TELEGRAM_TOKEN_REDACTED",
+      "botToken": "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw",
       "groupPolicy": "allowlist",
       "streamMode": "partial",
       "actions": {

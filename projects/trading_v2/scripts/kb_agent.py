@@ -536,7 +536,7 @@ def start_api_server(kb, port=8899):
         def log_message(self, format, *args):
             pass  # Silencieux
 
-    server = HTTPServer(("0.0.0.0", port), KBHandler)
+    server = HTTPServer(("127.0.0.1", port), KBHandler)
     print(f"KB Agent API running on http://localhost:{port}")
     print(f"  /search?q=mexc&limit=5")
     print(f"  /stats")

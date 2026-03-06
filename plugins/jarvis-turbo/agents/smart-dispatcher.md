@@ -73,7 +73,7 @@ M1 (1.8) → M2 (1.4) → OL1 (1.3) → M3 (1.0) → GEMINI (1.2) → CLAUDE (1.
 
 ```bash
 # Classification M1
-curl -s http://10.5.0.2:1234/api/v1/chat -H "Content-Type: application/json" -H "Authorization: Bearer LMSTUDIO_KEY_M1_REDACTED" -d '{"model":"qwen/qwen3-8b","input":"/nothink\nClassifie cette tache en UN mot: code|math|raisonnement|traduction|systeme|trading|securite|web|simple\nTache: PROMPT","temperature":0.1,"max_output_tokens":10,"stream":false,"store":false}'
+curl -s http://10.5.0.2:1234/api/v1/chat -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" -d '{"model":"qwen/qwen3-8b","input":"/nothink\nClassifie cette tache en UN mot: code|math|raisonnement|traduction|systeme|trading|securite|web|simple\nTache: PROMPT","temperature":0.1,"max_output_tokens":10,"stream":false,"store":false}'
 
 # Scores adaptatifs
 python3 -c "import sqlite3; c=sqlite3.connect('F:/BUREAU/etoile.db').cursor(); c.execute('SELECT domain,node,score FROM adaptive_routing ORDER BY domain,score DESC'); [print(r) for r in c.fetchall()]"

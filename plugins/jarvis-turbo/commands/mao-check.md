@@ -7,13 +7,13 @@ Health check MAO (Multi-Agent Orchestrator) exhaustif. Lance TOUT en parallele :
 
 **Noeuds LM Studio (M1/M2/M3):**
 ```bash
-curl -s --max-time 3 http://192.168.1.26:1234/api/v1/models -H "Authorization: Bearer LMSTUDIO_KEY_M2_REDACTED" 2>/dev/null | python3 -c "import sys,json;d=json.load(sys.stdin);loaded=[m for m in d.get('models',[]) if m.get('loaded_instances')];print('M2 OK:',len(loaded),'charge(s) -',', '.join(m['id'] for m in loaded)[:60])" || echo "M2 OFFLINE"
+curl -s --max-time 3 http://192.168.1.26:1234/api/v1/models -H "Authorization: Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4" 2>/dev/null | python3 -c "import sys,json;d=json.load(sys.stdin);loaded=[m for m in d.get('models',[]) if m.get('loaded_instances')];print('M2 OK:',len(loaded),'charge(s) -',', '.join(m['id'] for m in loaded)[:60])" || echo "M2 OFFLINE"
 ```
 ```bash
-curl -s --max-time 3 http://192.168.1.113:1234/api/v1/models -H "Authorization: Bearer LMSTUDIO_KEY_M3_REDACTED" 2>/dev/null | python3 -c "import sys,json;d=json.load(sys.stdin);loaded=[m for m in d.get('models',[]) if m.get('loaded_instances')];print('M3 OK:',len(loaded),'charge(s) -',', '.join(m['id'] for m in loaded)[:60])" || echo "M3 OFFLINE"
+curl -s --max-time 3 http://192.168.1.113:1234/api/v1/models -H "Authorization: Bearer sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux" 2>/dev/null | python3 -c "import sys,json;d=json.load(sys.stdin);loaded=[m for m in d.get('models',[]) if m.get('loaded_instances')];print('M3 OK:',len(loaded),'charge(s) -',', '.join(m['id'] for m in loaded)[:60])" || echo "M3 OFFLINE"
 ```
 ```bash
-curl -s --max-time 5 http://10.5.0.2:1234/api/v1/models -H "Authorization: Bearer LMSTUDIO_KEY_M1_REDACTED" 2>/dev/null | python3 -c "import sys,json;d=json.load(sys.stdin);loaded=[m for m in d.get('models',[]) if m.get('loaded_instances')];print('M1 OK:',len(loaded),'charge(s) -',', '.join(m['id'] for m in loaded)[:60])" || echo "M1 OFFLINE (timeout habituel)"
+curl -s --max-time 5 http://10.5.0.2:1234/api/v1/models -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" 2>/dev/null | python3 -c "import sys,json;d=json.load(sys.stdin);loaded=[m for m in d.get('models',[]) if m.get('loaded_instances')];print('M1 OK:',len(loaded),'charge(s) -',', '.join(m['id'] for m in loaded)[:60])" || echo "M1 OFFLINE (timeout habituel)"
 ```
 
 **Ollama (OL1):**

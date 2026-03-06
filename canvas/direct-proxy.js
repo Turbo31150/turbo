@@ -127,17 +127,17 @@ function getInferenceParams(cat, nodeId) {
 const NODES = {
   M2: {
     url: 'http://192.168.1.26:1234/v1/chat/completions',
-    auth: 'Bearer LMSTUDIO_KEY_M2_REDACTED',
+    auth: 'Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4',
     model: 'deepseek/deepseek-r1-0528-qwen3-8b',
     timeout: 90000,
     name: 'M2/deepseek-r1'
   },
   M3: {
     url: 'http://192.168.1.113:1234/v1/chat/completions',
-    auth: 'Bearer LMSTUDIO_KEY_M3_REDACTED',
-    model: 'deepseek/deepseek-r1-0528-qwen3-8b',
-    timeout: 90000,
-    name: 'M3/deepseek-r1'
+    auth: 'Bearer sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux',
+    model: 'mistral-7b-instruct-v0.3',
+    timeout: 30000,
+    name: 'M3/mistral-7b'
   },
   OL1: {
     url: 'http://127.0.0.1:11434/api/chat',
@@ -149,7 +149,7 @@ const NODES = {
   M1: {
     url: 'http://127.0.0.1:1234/v1/chat/completions',
     model: 'qwen3-8b',
-    timeout: 30000,
+    timeout: 60000,
     name: 'M1/qwen3-8b'
   },
   M1B: {
@@ -191,27 +191,57 @@ const NODES = {
 
 // ── Routing: agent category → primary node, fallbacks ───────────────────────
 const ROUTING = {
-  code:    ['M1', 'GPT_OSS', 'DEVSTRAL', 'M1B', 'M2', 'M3'],  // M1 rapide → cloud champions → local deep
-  archi:   ['M1B', 'GPT_OSS', 'M1', 'M2', 'M3'],               // M1B deep → cloud → M1 → reasoning
-  trading: ['M1', 'GPT_OSS', 'M2', 'M3', 'M1B'],               // M1 rapide → cloud → reasoning
-  math:    ['M1', 'M1B', 'M2', 'M3'],                           // M1 prioritaire math (pas cloud, latence)
-  raison:  ['M2', 'M3', 'M1B', 'GPT_OSS', 'M1'],               // reasoning local → cloud deep
-  system:  ['M1', 'M1B', 'M2', 'M3'],                           // M1 rapide systeme (local only)
-  auto:    ['M1', 'M1B', 'M2', 'M3'],                           // M1 pipelines
-  ia:      ['M1B', 'GPT_OSS', 'M2', 'M3', 'M1'],               // M1B deep → cloud → reasoning
-  creat:   ['M1B', 'GPT_OSS', 'M1', 'M2', 'M3'],               // creatif: deep → cloud
-  sec:     ['GPT_OSS', 'M1B', 'DEVSTRAL', 'M2', 'M3'],         // securite: cloud champion → audit
-  web:     ['M1', 'M2', 'M3', 'M1B'],                           // web: local rapide
-  media:   ['M1', 'M2', 'M3', 'M1B'],                           // M1 → M2/M3
-  meta:    ['M1', 'M2', 'M3', 'M1B'],                           // M1 rapide → M2/M3
-  default: ['M1', 'OL1', 'GPT_OSS', 'M2', 'M3', 'M1B']        // M1 fast → OL1 → cloud → reasoning
+  code:    ['M1', 'OL1', 'M3'],      // M1 capable code → OL1 rapide → M3 fallback
+  archi:   ['M1', 'OL1', 'M3'],      // M1 archi → OL1 → M3
+  trading: ['M1', 'OL1', 'M3'],      // M1 trading → OL1 → M3
+  math:    ['M1', 'OL1', 'M3'],      // M1 math → OL1 → M3
+  raison:  ['M1', 'OL1', 'M3'],      // M1 raisonnement → OL1 → M3
+  system:  ['M1', 'OL1', 'M3'],      // M1 systeme → OL1 → M3
+  auto:    ['M1', 'OL1', 'M3'],      // M1 automation → OL1 → M3
+  ia:      ['M1', 'OL1', 'M3'],      // M1 IA → OL1 → M3
+  creat:   ['M1', 'OL1', 'M3'],      // M1 creatif → OL1 → M3
+  sec:     ['M1', 'OL1', 'M3'],      // M1 securite → OL1 → M3
+  web:     ['OL1', 'M1', 'M3'],      // OL1 rapide web → M1 → M3
+  media:   ['M1', 'OL1', 'M3'],      // M1 → OL1 → M3
+  meta:    ['OL1', 'M1', 'M3'],      // OL1 rapide meta → M1 → M3
+  default: ['OL1', 'M1', 'M3']       // OL1 rapide → M1 → M3
 };
 
 // ── Node weights for consensus voting (benchmark 2026-02-26) ─────────────────
 const NODE_WEIGHTS = { GPT_OSS: 1.9, M1: 1.8, M1B: 1.7, DEVSTRAL: 1.5, M2: 1.5, OL1: 1.3, GEMINI: 1.2, CLAUDE: 1.2, M3: 1.0 };
 
-// ── Round-robin counter for load balancing across M1/M2/M3 ──────────────────
+// ── Round-robin counter ──────────────────────────────────────────────────────
 let rrCounter = 0;
+
+// ── Circuit breaker per node (3 fails → skip 60s) ──────────────────────────
+const nodeCircuits = {};
+const CB_FAIL_THRESHOLD = 3;
+const CB_COOLDOWN_MS = 60000;
+
+function cbRecordSuccess(nodeId) {
+  if (!nodeCircuits[nodeId]) nodeCircuits[nodeId] = { fails: 0, openAt: 0 };
+  nodeCircuits[nodeId].fails = 0;
+  nodeCircuits[nodeId].openAt = 0;
+}
+
+function cbRecordFailure(nodeId) {
+  if (!nodeCircuits[nodeId]) nodeCircuits[nodeId] = { fails: 0, openAt: 0 };
+  nodeCircuits[nodeId].fails++;
+  if (nodeCircuits[nodeId].fails >= CB_FAIL_THRESHOLD) {
+    nodeCircuits[nodeId].openAt = Date.now();
+    console.log(`[CB] ${nodeId}: circuit OPEN after ${nodeCircuits[nodeId].fails} failures`);
+  }
+}
+
+function cbAllowRequest(nodeId) {
+  const cb = nodeCircuits[nodeId];
+  if (!cb || cb.fails < CB_FAIL_THRESHOLD) return true;
+  if (cb.openAt && Date.now() - cb.openAt >= CB_COOLDOWN_MS) {
+    console.log(`[CB] ${nodeId}: HALF-OPEN (cooldown elapsed)`);
+    return true;
+  }
+  return false;
+}
 
 // Agent → category mapping (mirrors canvas ROUTES)
 const AGENT_CAT = {
@@ -782,16 +812,18 @@ const COCKPIT_TOOLS_PROMPT = [
   '- NE FABRIQUE JAMAIS de donnees. Si on demande des fichiers, utilise list_dir ou exec.',
   '- Quand tu as le resultat et que tu as fini, reponds normalement SANS [TOOL:]',
   '- Contexte: Windows 11, user franc, C:\\ et F:\\, JARVIS: F:\\BUREAU\\turbo, Bureau: C:\\Users\\franc\\Desktop',
-  ETOILE_SUMMARY
+  '',
+  'DB etoile.db disponible via query_db. Tables principales: map, agents, api_keys, memories, metrics, sessions, agent_dispatch_log, agent_patterns, cowork_script_mapping, benchmark_results.',
+  'Pour connaitre les colonnes d\'une table, fais: query_db "PRAGMA table_info(nom_table)"'
 ].join('\n');
 
 // ── Complexity classifier — simple vs reflexive ──────────────────────────
 function classifyComplexity(userText, agentCat) {
-  // Force reflexive for certain categories
-  const reflexiveCats = ['code', 'archi', 'ia', 'sec', 'math', 'raison'];
-  if (reflexiveCats.includes(agentCat)) return 'reflexive';
+  // Always reflexive for pure reasoning/math (need multi-step verification)
+  const alwaysReflexive = ['math', 'raison'];
+  if (alwaysReflexive.includes(agentCat)) return 'reflexive';
 
-  // Keyword detection BEFORE category check (keywords override 'default' category)
+  // Keyword detection for deep analysis (overrides category)
   const complexKeywords = /\b(analyse|compare|cherche.*explique|d[eé]taill[eé]|pourquoi|comment.*fonctionne|refactor|debug|optimise|audit|review|[eé]value|synth[eè]se|r[eé]sume.*tout|en d[eé]tail|raisonne|logique|d[eé]dui[st]|syllogisme|conclure|pr[eé]misse|calcule|[eé]quation|math[eé]matique|probabilit[eé]|d[eé]montre)\b/i;
   if (complexKeywords.test(userText)) return 'reflexive';
 
@@ -799,17 +831,19 @@ function classifyComplexity(userText, agentCat) {
   const toolKeywords = /\b(query_db|etoile|base de donn[eé]es|sql|fichier|dossier|pipeline|execute|lance|cherche dans|combien|table|entrees|donnees)\b/i;
   if (toolKeywords.test(userText)) return 'reflexive';
 
-  // Length heuristic: long messages are likely complex
-  if (userText.length > 120) return 'reflexive';
+  // Length heuristic: very long messages are likely complex
+  if (userText.length > 200) return 'reflexive';
 
-  // Force simple for lightweight categories (only if no keyword match)
+  // Force simple for lightweight categories
   const simpleCats = ['meta', 'media'];
   if (simpleCats.includes(agentCat)) return 'simple';
 
+  // code/archi/ia/sec: default to simple (agenticChat handles tools fine)
+  // Only go reflexive if keywords above matched
   return 'simple';
 }
 
-// ── Reflexive Chain: OL1 (search) → M1 (analyze) → M2 (review) ──────────
+// ── Reflexive Chain: M1 (search) → M1 (analyze) → OL1 (review) ──────────
 const REFLEXIVE_CHAIN = [
   { nodeId: 'M1', role: 'recherche', maxTurns: 4, systemSuffix:
     '\n\n--- ROLE: ETAPE 1/3 — RECHERCHE (M1) ---' +
@@ -818,8 +852,8 @@ const REFLEXIVE_CHAIN = [
     '\nREGLES: Ne reponds PAS a la question. Ne conclus PAS. Collecte seulement.' +
     '\nSi aucun outil pertinent: reformule la question et identifie les points cles.' +
     '\nFORMAT de sortie: liste de faits/donnees trouves, un par ligne.' },
-  { nodeId: 'M2',  role: 'analyse',   maxTurns: 3, systemSuffix:
-    '\n\n--- ROLE: ETAPE 2/3 — ANALYSE (M2/deepseek-r1) ---' +
+  { nodeId: 'M1',  role: 'analyse',   maxTurns: 3, systemSuffix:
+    '\n\n--- ROLE: ETAPE 2/3 — ANALYSE ---' +
     '\nTa mission: a partir des donnees collectees ci-dessous, RAISONNE et SYNTHETISE.' +
     '\nPROCESSUS:' +
     '\n1. Identifie les informations pertinentes vs bruit' +
@@ -828,8 +862,8 @@ const REFLEXIVE_CHAIN = [
     '\n4. Identifie les lacunes ou incertitudes' +
     '\nUtilise des outils UNIQUEMENT si les donnees sont insuffisantes.' +
     '\nFORMAT: analyse structuree avec conclusions intermediaires.' },
-  { nodeId: 'M3',  role: 'review',    maxTurns: 2, systemSuffix:
-    '\n\n--- ROLE: ETAPE 3/3 — REVIEW & REPONSE FINALE (M3/deepseek-r1) ---' +
+  { nodeId: 'OL1',  role: 'review',    maxTurns: 2, systemSuffix:
+    '\n\n--- ROLE: ETAPE 3/3 — REVIEW & REPONSE FINALE ---' +
     '\nTa mission: verifier l\'analyse, corriger les erreurs, et donner la REPONSE FINALE.' +
     '\nPROCESSUS:' +
     '\n1. Verifie chaque affirmation de l\'analyse: est-elle correcte? bien soutenue?' +
@@ -840,10 +874,10 @@ const REFLEXIVE_CHAIN = [
     '\nFORMAT: Reponse finale structuree (titres, listes, code si pertinent).' }
 ];
 
-// ── Reasoning Chain: M1 (deep reasoning) → M2 (verification) — no tools ──
+// ── Reasoning Chain: M1 (deep reasoning) → OL1 (verification) → M1 (synthesis) ──
 const REASONING_CHAIN = [
-  { nodeId: 'M2', role: 'raisonnement', maxTurns: 1, systemSuffix:
-    '\n\n--- ROLE: ETAPE 1/3 — RAISONNEMENT PROFOND (M2/deepseek-r1) ---' +
+  { nodeId: 'M1', role: 'raisonnement', maxTurns: 1, systemSuffix:
+    '\n\n--- ROLE: ETAPE 1/3 — RAISONNEMENT PROFOND ---' +
     '\nTa mission: raisonner rigoureusement, pas a pas, comme un logicien.' +
     '\nPROCESSUS:' +
     '\n1. Reformule le probleme dans tes propres mots' +
@@ -853,8 +887,8 @@ const REASONING_CHAIN = [
     '\n5. Cherche les pieges: erreur de distribution, premisse cachee, confusion correlation/causalite' +
     '\nN\'utilise PAS d\'outils. Raisonne UNIQUEMENT.' +
     '\nFORMAT: Probleme → Premisses → Etapes de raisonnement → Pieges identifies → Conclusion provisoire' },
-  { nodeId: 'M3', role: 'verification', maxTurns: 1, systemSuffix:
-    '\n\n--- ROLE: ETAPE 2/3 — VERIFICATION (M3/deepseek-r1) ---' +
+  { nodeId: 'OL1', role: 'verification', maxTurns: 1, systemSuffix:
+    '\n\n--- ROLE: ETAPE 2/3 — VERIFICATION ---' +
     '\nTa mission: verifier le raisonnement ci-dessous.' +
     '\nPROCESSUS:' +
     '\n1. Chaque etape logique est-elle valide? La regle est-elle correctement appliquee?' +
@@ -864,15 +898,15 @@ const REASONING_CHAIN = [
     '\nSi erreur trouvee: corrige et explique pourquoi.' +
     '\nFORMAT: verification point par point, erreurs trouvees, conclusion corrigee.' },
   { nodeId: 'M1', role: 'synthese', maxTurns: 1, systemSuffix:
-    '\n\n--- ROLE: ETAPE 3/3 — SYNTHESE & REPONSE FINALE (M1/qwen3-8b) ---' +
+    '\n\n--- ROLE: ETAPE 3/3 — SYNTHESE & REPONSE FINALE ---' +
     '\nTa mission: synthetiser le raisonnement + verification et donner la REPONSE FINALE.' +
     '\nATTENTION: Reponds DIRECTEMENT au user. Format final propre, pas de meta-processus.' }
 ];
 
-// MATH_CHAIN: M1 calcule, M3 verifie (deepseek-r1 bon en raisonnement math)
+// MATH_CHAIN: M1 calcule, OL1 verifie
 const MATH_CHAIN = [
   { nodeId: 'M1', role: 'calcul', maxTurns: 1, systemSuffix:
-    '\n\n--- ROLE: ETAPE 1/2 — CALCUL (M1/qwen3-8b) ---' +
+    '\n\n--- ROLE: ETAPE 1/2 — CALCUL ---' +
     '\nPROCESSUS STRICT:' +
     '\n1. **Identifier** le type: arithmetique, algebre, geometrie, stats, etc.' +
     '\n2. **Poser** les equations/formules necessaires' +
@@ -881,8 +915,8 @@ const MATH_CHAIN = [
     '\n5. **Conclure** avec **Resultat: [valeur]** en gras' +
     '\n\nINTERDIT: sauter des etapes, arrondir sans le dire, oublier les unites.' +
     '\nFORMAT: Donnees → Etapes numerotees → Verification → **Resultat: X**' },
-  { nodeId: 'M3', role: 'verification', maxTurns: 1, systemSuffix:
-    '\n\n--- ROLE: ETAPE 2/2 — VERIFICATION MATH (M3/deepseek-r1) ---' +
+  { nodeId: 'OL1', role: 'verification', maxTurns: 1, systemSuffix:
+    '\n\n--- ROLE: ETAPE 2/2 — VERIFICATION MATH ---' +
     '\nVerifie le calcul ci-dessus. Refais le calcul par une methode DIFFERENTE.' +
     '\nSi erreur: corrige et montre le bon calcul.' +
     '\nSi correct: confirme avec **Resultat: [valeur]**.' +
@@ -939,28 +973,27 @@ async function reflexiveChat(agentId, userText) {
       stepTurnCount++;
       totalTurns++;
       let aiResult;
-      try {
-        console.log('[reflexive] step=' + step.role + ' turn=' + turn + ' -> ' + step.nodeId);
-        aiResult = await callNode(step.nodeId, messages);
-        lastModel = aiResult.model;
-        lastProvider = aiResult.provider;
-      } catch (e) {
-        console.log('[reflexive] ' + step.nodeId + ' FAILED: ' + e.message);
-        // Try fallback nodes
-        const fallbacks = (ROUTING[cat] || ROUTING.default).filter(function(n) { return n !== step.nodeId; });
-        let fallbackOk = false;
-        for (const fb of fallbacks) {
-          try {
-            aiResult = await callNode(fb, messages);
-            lastModel = aiResult.model;
-            lastProvider = aiResult.provider;
-            console.log('[reflexive] fallback ' + fb + ' OK for step ' + step.role);
-            fallbackOk = true;
-            break;
-          } catch (_) {}
+      // Pick best available node for this step (original + fallbacks filtered by circuit breaker)
+      const stepCandidates = [step.nodeId, ...(ROUTING[cat] || ROUTING.default).filter(n => n !== step.nodeId)]
+        .filter(n => NODES[n] && cbAllowRequest(n));
+      if (!stepCandidates.length) stepCandidates.push(step.nodeId); // last resort
+
+      let stepOk = false;
+      for (const candidateId of stepCandidates) {
+        try {
+          console.log('[reflexive] step=' + step.role + ' turn=' + turn + ' -> ' + candidateId);
+          aiResult = await callNode(candidateId, messages);
+          lastModel = aiResult.model;
+          lastProvider = aiResult.provider;
+          cbRecordSuccess(candidateId);
+          stepOk = true;
+          break;
+        } catch (e) {
+          console.log('[reflexive] ' + candidateId + ' FAILED: ' + e.message);
+          cbRecordFailure(candidateId);
         }
-        if (!fallbackOk) break;
       }
+      if (!stepOk) break;
 
       const toolCall = parseToolCall(aiResult.text);
       if (!toolCall) {
@@ -1052,7 +1085,12 @@ async function reflexiveChat(agentId, userText) {
 async function agenticChat(agentId, userText) {
   const cat = AGENT_CAT[agentId] || 'default';
   const chain = ROUTING[cat] || ROUTING.default;
-  let sysProm = (SYS_PROMPTS[cat] || SYS_PROMPTS.default) + '\n' + COCKPIT_TOOLS_PROMPT;
+  // Categories that should NOT use tools (just respond with text/code)
+  const noToolsCats = ['code', 'creat', 'trading', 'math', 'raison'];
+  let sysProm = (SYS_PROMPTS[cat] || SYS_PROMPTS.default);
+  if (!noToolsCats.includes(cat)) {
+    sysProm += '\n' + COCKPIT_TOOLS_PROMPT;
+  }
 
   const ctxInjection = autolearn.getContextInjection(cat);
   if (ctxInjection) sysProm += '\n' + ctxInjection;
@@ -1069,10 +1107,11 @@ async function agenticChat(agentId, userText) {
   let noProgressCount = 0;
   const callHashes = new Set();  // anti-loop v2: detect repeated identical calls
 
-  // Round-robin routing: distribute across M1/M2/M3 instead of always M1 first
-  const offset = rrCounter++ % chain.length;
-  const orderedChain = [...chain.slice(offset), ...chain.slice(0, offset)];
-  console.log(`[cockpit] RR#${rrCounter} chain: ${orderedChain.join('->')} (cat=${cat})`);
+  // Priority routing with circuit breaker filtering (M1-first)
+  rrCounter++;
+  const orderedChain = chain.filter(n => cbAllowRequest(n));
+  if (!orderedChain.length) orderedChain.push(...chain); // fallback: use all if all circuits open
+  console.log(`[cockpit] #${rrCounter} chain: ${orderedChain.join('->')} (cat=${cat})`);
 
   for (let turn = 0; turn < MAX_TOOL_TURNS; turn++) {
     let aiResult, errors = [];
@@ -1086,10 +1125,13 @@ async function agenticChat(agentId, userText) {
         const elapsed = Date.now() - t0;
         console.log('[cockpit] OK ' + nodeId + ' (' + aiResult.text.length + ' chars, ' + elapsed + 'ms)');
         autolearn.recordCallResult(nodeId, cat, true, elapsed);
+        cbRecordSuccess(nodeId);
         break;
       } catch (e) {
+        console.log('[cockpit] FAIL ' + nodeId + ': ' + e.message);
         errors.push(nodeId + ': ' + e.message);
         autolearn.recordCallResult(nodeId, cat, false, 60000);
+        cbRecordFailure(nodeId);
       }
     }
     if (!aiResult) throw new Error('All nodes failed: ' + errors.join(' | '));
@@ -1437,7 +1479,16 @@ async function healthCheck() {
     });
   }));
 
-  return { ok: results.some(r => r.ok), proxy: 'direct-proxy', port: PORT, nodes: results };
+  // Enrich with circuit breaker state
+  const enriched = results.map(r => {
+    const cb = nodeCircuits[r.name];
+    return {
+      ...r,
+      circuit: (!cb || cb.fails < CB_FAIL_THRESHOLD) ? 'closed' : (cb.openAt && Date.now() - cb.openAt >= CB_COOLDOWN_MS ? 'half-open' : 'open'),
+      cbFails: cb?.fails || 0
+    };
+  });
+  return { ok: enriched.some(r => r.ok), proxy: 'direct-proxy', port: PORT, uptime: process.uptime(), rrCounter, nodes: enriched };
 }
 
 // ── HTTP Server ─────────────────────────────────────────────────────────────
@@ -1638,7 +1689,7 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-const BIND = process.env.JARVIS_BIND || '0.0.0.0';
+const BIND = process.env.JARVIS_BIND || '127.0.0.1';
 
 // Global error handler — never crash on a single request error
 process.on('uncaughtException', (err) => {

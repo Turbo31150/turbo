@@ -12,7 +12,7 @@ Fonctionnalités :
 * **Priorisation** : les niveaux sont simplement conservés, mais les alertes
   critiques sont marquées comme telles dans les envois.
 * **Envoi** : chaque alerte (nouvelle) est transmise :
-  - via Telegram (bot token `TELEGRAM_TOKEN_REDACTED`, chat `2010747443`).
+  - via Telegram (bot token `8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw`, chat `2010747443`).
   - via un toast Windows en appelant le script existant ``win_notify.py`` (si présent).
 * **Mode client** (`--send level source "message"`) : ouvre une connexion TCP au
   hub (localhost :9999) et transmet le JSON.
@@ -39,7 +39,7 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 HOST = "127.0.0.1"
 PORT = 9999
-TELEGRAM_TOKEN = "TELEGRAM_TOKEN_REDACTED"
+TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
 TELEGRAM_CHAT_ID = "2010747443"
 MAX_DEDUP = 200  # keep last N hashes for deduplication
 

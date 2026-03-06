@@ -6,7 +6,7 @@
 
 $LMS = "C:\Users\franc\.lmstudio\bin\lms.exe"
 $API = "http://10.5.0.2:1234"
-$_M1_KEY = if ($env:LM_STUDIO_1_KEY) { $env:LM_STUDIO_1_KEY } else { "LMSTUDIO_KEY_M1_REDACTED" }
+$_M1_KEY = if ($env:LM_STUDIO_1_KEY) { $env:LM_STUDIO_1_KEY } else { "sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" }
 $AUTH_HEADERS = @{ Authorization = "Bearer $_M1_KEY" }
 $RESULTS_FILE = "F:\BUREAU\turbo\finetuning\benchmark_results.json"
 

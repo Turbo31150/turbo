@@ -3,7 +3,7 @@
 import json, sys, os, subprocess, shutil
 from datetime import datetime
 
-TELEGRAM_TOKEN = "TELEGRAM_TOKEN_REDACTED"
+TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
 TELEGRAM_CHAT = "2010747443"
 LOG_FILE = "C:/Users/franc/.openclaw/workspace/dev/optimizer_log.json"
 

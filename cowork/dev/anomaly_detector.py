@@ -14,7 +14,7 @@ Fonctionnalités :
   - Seuils statiques : CPU>90 %, RAM>85 %, GPU Temp>80 °C, disque libre <10 GB.
   - Déviation standard (z‑score) : |z|>2 pour chaque métrique (calculé sur l’historique stocké).
 * Alertes :
-  - Telegram (bot token `TELEGRAM_TOKEN_REDACTED`, chat 2010747443)
+  - Telegram (bot token `8369376863:AAF-7YGDbun8mXWwqYJFj‑eX6P78DeIu9Aw`, chat 2010747443)
   - Toast Windows via le script existant `win_notify.py` (appelé avec le texte).
 * CLI :
   --once   : collecte unique + détection.
@@ -44,7 +44,7 @@ if hasattr(sys.stderr, "reconfigure"):
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-TELEGRAM_TOKEN = "TELEGRAM_TOKEN_REDACTED"
+TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
 TELEGRAM_CHAT_ID = "2010747443"
 DB_PATH = Path(__file__).with_name("anomalies.db")
 

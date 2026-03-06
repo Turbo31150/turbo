@@ -20,9 +20,9 @@ MAX_CYCLES = int(sys.argv[1]) if len(sys.argv) > 1 else 10
 # ── AGENTS / NODES ───────────────────────────────────────────────────────
 IA_NODES = [
     {'name': 'M1-Qwen', 'url': 'http://10.5.0.2:1234', 'model': 'qwen/qwen3-30b-a3b-2507',
-     'key': 'LMSTUDIO_KEY_M1_REDACTED', 'role': 'analyst'},
+     'key': 'sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7', 'role': 'analyst'},
     {'name': 'M2-DeepSeek', 'url': 'http://192.168.1.26:1234', 'model': 'deepseek-coder-v2-lite-instruct',
-     'key': 'LMSTUDIO_KEY_M2_REDACTED', 'role': 'coder'},
+     'key': 'sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4', 'role': 'coder'},
     {'name': 'M3-Mistral', 'url': 'http://192.168.1.113:1234', 'model': 'mistral-7b-instruct-v0.3',
      'key': '', 'role': 'fast'},
 ]
@@ -39,7 +39,7 @@ MCP_INTEGRATIONS = [{
 }]
 
 NO_SYSTEM = ['mistral-7b-instruct-v0.3', 'phi-3.1-mini-128k-instruct']
-TELEGRAM_TOKEN = 'TELEGRAM_TOKEN_REDACTED'
+TELEGRAM_TOKEN = '8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw'
 TELEGRAM_CHAT = '2010747443'
 
 def log(msg, level='  ', end='\n'):

@@ -7,7 +7,7 @@ M1 = "http://127.0.0.1:1234/api/v1/chat"
 M2 = "http://192.168.1.26:1234/api/v1/chat"
 OL1 = "http://127.0.0.1:11434/api/chat"
 GEMINI = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
-GEMINI_KEY = "GEMINI_KEY_REDACTED"
+GEMINI_KEY = "AIzaSyDVunHtT9qYTTs5yOhMuQEM1WMt6D5y4Vw"
 TIMEOUT = 90
 RESULTS = []
 

@@ -209,11 +209,11 @@ class WorkflowEngine:
             return {"status": "ok", "output": "noop"}
 
         if action == "bash":
-            import subprocess
+            import subprocess, shlex
             cmd = params.get("cmd", "echo ok")
-            # Substitute variables
+            # Substitute variables (sanitize values to prevent injection)
             for k, v in variables.items():
-                cmd = cmd.replace(k, str(v))
+                cmd = cmd.replace(k, shlex.quote(str(v)))
             r = await asyncio.wait_for(
                 asyncio.to_thread(subprocess.run, cmd, shell=True, capture_output=True, text=True, timeout=timeout),
                 timeout=timeout + 5,

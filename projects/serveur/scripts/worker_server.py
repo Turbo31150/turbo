@@ -21,7 +21,7 @@ LOG_DIR = BASE_DIR / "logs"
 TASK_DIR = BASE_DIR / "tasks"
 
 class WorkerServer:
-    def __init__(self, host='0.0.0.0', port=5001):
+    def __init__(self, host='127.0.0.1', port=5001):
         self.host = host
         self.port = port
         self.socket = None

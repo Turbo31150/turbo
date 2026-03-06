@@ -5,7 +5,7 @@ from datetime import datetime
 
 SNIPER_DB = "F:/BUREAU/turbo/data/sniper.db"
 RESULTS_DB = "C:/Users/franc/.openclaw/workspace/dev/backtest.db"
-TELEGRAM_TOKEN = "TELEGRAM_TOKEN_REDACTED"
+TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
 TELEGRAM_CHAT = "2010747443"
 
 # Trading params

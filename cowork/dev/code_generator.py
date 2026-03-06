@@ -320,7 +320,7 @@ TEMPLATES = {
                     print(json.dumps(schema, ensure_ascii=False, indent=2))
                 else:
                     print(f"Serveur __NAME__ demarre sur le port {PORT}...")
-                    HTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
+                    HTTPServer(("127.0.0.1", PORT), Handler).serve_forever()
 
 
             if __name__ == "__main__":

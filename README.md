@@ -148,15 +148,13 @@ Le cluster local fonctionne **24/7 sans internet**. Ce sont les 4 noeuds physiqu
 
 | Noeud | Machine | GPU | Modele | Vitesse | Score | Specialite |
 |-------|---------|-----|--------|---------|-------|------------|
-| **M1** | PC principal | 6 GPU / 46 GB VRAM | **qwen3-8b** | 65 tok/s | **98.4/100** | CHAMPION — code, math, raisonnement, tout |
-| **M1B** | PC principal | 6 GPU / 46 GB VRAM | **gpt-oss-20b** (deep) | 9 tok/s | — | Deep local — raisonnement profond, ctx 25k |
-| **M2** | PC secondaire | 3 GPU / 24 GB VRAM | **deepseek-r1-0528-qwen3-8b** | 44 tok/s | — | Reasoning — blocks reasoning+message, ctx 27k |
-| **M3** | PC tertiaire | 1 GPU / 8 GB VRAM | **deepseek-r1-0528-qwen3-8b** | 33 tok/s | — | Reasoning fallback — sequentiel, ctx 25k |
-| **OL1** | PC principal (Ollama) | — | **qwen3:14b** + **qwen3:1.7b** | 23 + 84 tok/s | 88/100 | Polyvalent rapide + cloud relay |
+| **M1** | PC principal | 6 GPU / 46 GB VRAM | **qwen3-8b** | 46 tok/s | **98.4/100** | CHAMPION — code, math, raisonnement, tout |
+| **M3** | PC tertiaire | 1 GPU / 8 GB VRAM | **mistral-7b-instruct-v0.3** | 5.8 tok/s | — | Fallback general (PAS math/raisonnement) |
+| **OL1** | PC principal (Ollama) | — | **qwen3:1.7b** | 84 tok/s | — | Ultra-rapide, questions simples |
 
-**Comment ca marche :** Chaque noeud execute un serveur LM Studio ou Ollama. JARVIS envoie les requetes au meilleur noeud selon la tache (code → M1, rapide → OL1 1.7b, reasoning → M2). Si un noeud tombe, le trafic bascule automatiquement sur le suivant. Le dispatch engine (9 etapes) gere le routage, la quality gate, et le self-improvement en boucle fermee.
+**Comment ca marche :** Chaque noeud execute un serveur LM Studio ou Ollama. JARVIS envoie les requetes au meilleur noeud selon la tache (code → M1, rapide → OL1, fallback → M3). Circuit breaker par noeud (3 fails → skip 60s). Si un noeud tombe, le trafic bascule automatiquement.
 
-**Fallback local :** M1 → M1B → M2 → M3.
+**Fallback :** OL1 → M1 → M3.
 
 ### IA Cloud — Optionnelles (etendent les capacites quand disponibles)
 
@@ -805,9 +803,9 @@ Commande vocale → Collecte PowerShell (CPU/RAM/GPU/Disques)
 
 | Noeud | IP | Port | Protocole | Auth | Modele |
 |-------|----|------|-----------|------|--------|
-| **M1** | 10.5.0.2 / 127.0.0.1 | 1234 | HTTP REST (LM Studio Responses API) | `LMSTUDIO_KEY_M1_REDACTED` | qwen3-8b (65 tok/s) + qwen3-30b (9 tok/s) |
-| **M2** | 192.168.1.26 | 1234 | HTTP REST (LM Studio Responses API) | `LMSTUDIO_KEY_M2_REDACTED` | deepseek-coder-v2-lite-instruct |
-| **M3** | 192.168.1.113 | 1234 | HTTP REST (LM Studio Responses API) | `LMSTUDIO_KEY_M3_REDACTED` | mistral-7b-instruct-v0.3 |
+| **M1** | 10.5.0.2 / 127.0.0.1 | 1234 | HTTP REST (LM Studio Responses API) | `sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7` | qwen3-8b (65 tok/s) + qwen3-30b (9 tok/s) |
+| **M2** | 192.168.1.26 | 1234 | HTTP REST (LM Studio Responses API) | `sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4` | deepseek-coder-v2-lite-instruct |
+| **M3** | 192.168.1.113 | 1234 | HTTP REST (LM Studio Responses API) | `sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux` | mistral-7b-instruct-v0.3 |
 | **OL1** | 127.0.0.1 | 11434 | HTTP REST (Ollama API) | Aucune | qwen3:14b, qwen3:1.7b + 10 cloud |
 | **GEMINI** | — | — | Node.js proxy | API Key | gemini-3-pro / gemini-3-flash |
 | **CLAUDE** | — | — | Node.js proxy | API Key | opus / sonnet / haiku |

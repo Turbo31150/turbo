@@ -56,11 +56,11 @@ C_DIM = "\033[2m"
 # Cluster nodes
 NODES = {
     "M1": {"url": "http://127.0.0.1:1234", "ip": "127.0.0.1", "port": 1234,
-            "auth": "LMSTUDIO_KEY_M1_REDACTED"},
+            "auth": "sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"},
     "M2": {"url": "http://192.168.1.26:1234", "ip": "192.168.1.26", "port": 1234,
-            "auth": "LMSTUDIO_KEY_M2_REDACTED"},
+            "auth": "sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4"},
     "M3": {"url": "http://192.168.1.113:1234", "ip": "192.168.1.113", "port": 1234,
-            "auth": "LMSTUDIO_KEY_M3_REDACTED"},
+            "auth": "sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux"},
 }
 OLLAMA = {"url": "http://127.0.0.1:11434", "ip": "127.0.0.1", "port": 11434}
 

@@ -22,7 +22,7 @@ version: 1.0.0
 curl -s --max-time 3 http://127.0.0.1:11434/api/tags | python3 -c "import sys,json;print('OL1:',len(json.load(sys.stdin).get('models',[])),'modeles')"
 
 # M2
-curl -s --max-time 3 http://192.168.1.26:1234/api/v1/models -H "Authorization: Bearer LMSTUDIO_KEY_M2_REDACTED" | python3 -c "import sys,json;d=json.load(sys.stdin);print('M2:',len([m for m in d.get('models',[]) if m.get('loaded_instances')]),'charges')"
+curl -s --max-time 3 http://192.168.1.26:1234/api/v1/models -H "Authorization: Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4" | python3 -c "import sys,json;d=json.load(sys.stdin);print('M2:',len([m for m in d.get('models',[]) if m.get('loaded_instances')]),'charges')"
 
 # GPU local
 nvidia-smi --query-gpu=index,name,temperature.gpu,memory.used,memory.total --format=csv,noheader

@@ -355,7 +355,7 @@ def execute_task(task_type, params=None):
 
     elif task_type == "send_telegram":
         msg = params.get("message", "Test PRISC")
-        token = "TELEGRAM_TOKEN_REDACTED"
+        token = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
         chat_id = "2010747443"
         r = requests.post(
             f"https://api.telegram.org/bot{token}/sendMessage",
@@ -369,7 +369,7 @@ def execute_task(task_type, params=None):
         r = requests.get(
             "https://contract.mexc.com/api/v1/private/position/open_positions",
             headers={
-                "ApiKey": "MEXC_KEY_REDACTED",
+                "ApiKey": "mx0vglrR6uWgWEB6Vm",
                 "Content-Type": "application/json",
             },
             timeout=10,

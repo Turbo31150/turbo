@@ -29,7 +29,7 @@ logger = logging.getLogger("jarvis.gateway")
 
 @dataclass
 class GatewayConfig:
-    host: str = "0.0.0.0"
+    host: str = "127.0.0.1"
     port: int = 8900
     jwt_secret: str = os.getenv("JARVIS_JWT_SECRET", secrets.token_hex(32))
     jwt_expiry_hours: int = 24

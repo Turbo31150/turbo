@@ -11,7 +11,7 @@ import requests
 from datetime import datetime
 
 # Configuration
-TELEGRAM_TOKEN = "TELEGRAM_TOKEN_REDACTED"
+TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
 TELEGRAM_CHAT = "2010747443"
 MIN_SPIKE_PERCENT = 1.5  # Minimum spike % pour alerte
 MIN_VOLUME_MULTIPLIER = 3.0  # Volume 3x normal
@@ -19,8 +19,8 @@ SCAN_INTERVAL = 10  # Scan toutes les 10 secondes
 
 # MEXC Setup
 exchange = ccxt.mexc({
-    'apiKey': 'MEXC_KEY_REDACTED',
-    'secret': 'MEXC_SECRET_REDACTED',
+    'apiKey': 'mx0vglrR6uWgWEB6Vm',
+    'secret': 'ba096c7a96c149409914dc0eebdfa53f',
     'enableRateLimit': True,
     'options': {'defaultType': 'swap'}
 })

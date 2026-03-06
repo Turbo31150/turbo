@@ -9,7 +9,7 @@ sys.stdout.reconfigure(encoding='utf-8')
 sys.stdout = open(sys.stdout.fileno(), mode='w', encoding='utf-8', buffering=1)
 
 # === CONFIG ===
-TOKEN = 'TELEGRAM_TOKEN_REDACTED'
+TOKEN = '8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw'
 CHAT = '2010747443'
 DB = 'F:/BUREAU/TRADING_V2_PRODUCTION/database/trading.db'
 

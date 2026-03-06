@@ -12,15 +12,15 @@ curl -s --max-time 3 http://127.0.0.1:11434/api/tags 2>/dev/null | python3 -c "i
 ```
 
 ```bash
-curl -s --max-time 3 http://192.168.1.26:1234/api/v1/models -H "Authorization: Bearer LMSTUDIO_KEY_M2_REDACTED" 2>/dev/null | python3 -c "import sys,json,time;t=time.time();d=json.load(sys.stdin);print(f'M2 OK ({(time.time()-t)*1000:.0f}ms):',len([m for m in d.get('models',[]) if m.get('loaded_instances')]),'charges')" || echo "M2 OFFLINE"
+curl -s --max-time 3 http://192.168.1.26:1234/api/v1/models -H "Authorization: Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4" 2>/dev/null | python3 -c "import sys,json,time;t=time.time();d=json.load(sys.stdin);print(f'M2 OK ({(time.time()-t)*1000:.0f}ms):',len([m for m in d.get('models',[]) if m.get('loaded_instances')]),'charges')" || echo "M2 OFFLINE"
 ```
 
 ```bash
-curl -s --max-time 3 http://192.168.1.113:1234/api/v1/models -H "Authorization: Bearer LMSTUDIO_KEY_M3_REDACTED" 2>/dev/null | python3 -c "import sys,json,time;t=time.time();d=json.load(sys.stdin);print(f'M3 OK ({(time.time()-t)*1000:.0f}ms):',len([m for m in d.get('models',[]) if m.get('loaded_instances')]),'charges')" || echo "M3 OFFLINE"
+curl -s --max-time 3 http://192.168.1.113:1234/api/v1/models -H "Authorization: Bearer sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux" 2>/dev/null | python3 -c "import sys,json,time;t=time.time();d=json.load(sys.stdin);print(f'M3 OK ({(time.time()-t)*1000:.0f}ms):',len([m for m in d.get('models',[]) if m.get('loaded_instances')]),'charges')" || echo "M3 OFFLINE"
 ```
 
 ```bash
-curl -s --max-time 5 http://10.5.0.2:1234/api/v1/models -H "Authorization: Bearer LMSTUDIO_KEY_M1_REDACTED" 2>/dev/null | python3 -c "import sys,json,time;t=time.time();d=json.load(sys.stdin);print(f'M1 OK ({(time.time()-t)*1000:.0f}ms):',len([m for m in d.get('models',[]) if m.get('loaded_instances')]),'charges')" || echo "M1 OFFLINE"
+curl -s --max-time 5 http://10.5.0.2:1234/api/v1/models -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" 2>/dev/null | python3 -c "import sys,json,time;t=time.time();d=json.load(sys.stdin);print(f'M1 OK ({(time.time()-t)*1000:.0f}ms):',len([m for m in d.get('models',[]) if m.get('loaded_instances')]),'charges')" || echo "M1 OFFLINE"
 ```
 
 ## Etape 2 — GPU thermal check

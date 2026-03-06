@@ -1,4 +1,4 @@
-# Installation JARVIS Turbo v10.1
+# Installation JARVIS Turbo v12.4
 
 ## Prerequis
 
@@ -23,10 +23,10 @@ Creer un fichier `.env` a la racine:
 
 ```env
 # LM Studio Cluster
-LM_STUDIO_1_URL=http://localhost:1234
+LM_STUDIO_1_URL=http://127.0.0.1:1234
 LM_STUDIO_2_URL=http://192.168.1.26:1234
 LM_STUDIO_3_URL=http://192.168.1.113:1234
-LM_STUDIO_DEFAULT_MODEL=qwen/qwen3-30b-a3b-2507
+LM_STUDIO_DEFAULT_MODEL=qwen3-8b
 
 # Trading MEXC (optionnel)
 MEXC_API_KEY=your_key
@@ -51,7 +51,7 @@ TELEGRAM_CHAT=your_chat_id
 
 ## Import Workflows n8n
 
-1. Ouvrir n8n sur http://localhost:5678
+1. Ouvrir n8n sur http://127.0.0.1:5678
 2. Aller dans Settings > Import
 3. Importer chaque fichier JSON depuis `n8n_workflows/`
 
@@ -59,9 +59,10 @@ TELEGRAM_CHAT=your_chat_id
 
 ```
 turbo/
-├── src/                  # Code source (17 fichiers)
+├── src/                  # Code source (246 modules)
+├── cowork/               # 409 scripts autonomes
 ├── data/                 # Skills JSON + historique
-├── n8n_workflows/        # 6 workflows n8n
+├── n8n_workflows/        # 20 workflows n8n
 ├── docs/                 # Documentation
 ├── jarvis.bat            # Lanceurs
 ├── pyproject.toml        # Dependances

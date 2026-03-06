@@ -201,7 +201,7 @@ Step 4: ROUTE SELECTION
 
 Step 5: DISPATCH
     └── Appel REST vers le noeud selectionne
-    └── Fallback cascade si echec: M1→M1B→M2→M3→gpt-oss→devstral→Gemini→Claude
+    └── Fallback cascade si echec: OL1→M1→M3 (circuit breaker 3 fails/60s)
     └── dynamic_agents.py: 78 patterns supplementaires depuis DB
 
 Step 6: QUALITY GATE
@@ -265,13 +265,9 @@ DYNAMIC (78 patterns — dynamic_agents.py + etoile.db):
 ```
 NODES = {
     "M1":       { host: "127.0.0.1:1234",       model: "qwen3-8b",              weight: 1.8, api: "lm_studio" },
-    "M1B":      { host: "127.0.0.1:1234",       model: "gpt-oss-20b",           weight: 1.7, api: "lm_studio" },
-    "M2":       { host: "192.168.1.26:1234",     model: "deepseek-r1-qwen3-8b", weight: 1.5, api: "lm_studio" },
-    "M3":       { host: "192.168.1.113:1234",    model: "deepseek-r1-qwen3-8b", weight: 1.2, api: "lm_studio" },
+    "M3":       { host: "192.168.1.113:1234",    model: "mistral-7b-instruct-v0.3", weight: 1.0, api: "lm_studio" },
     "OL1":      { host: "127.0.0.1:11434",       model: "qwen3:1.7b",           weight: 1.3, api: "ollama"    },
-    "gpt-oss":  { host: "127.0.0.1:11434",       model: "gpt-oss:120b-cloud",   weight: 1.9, api: "ollama"    },
-    "devstral": { host: "127.0.0.1:11434",       model: "devstral-2:123b-cloud", weight: 1.5, api: "ollama"    },
-    "minimax":  { host: "127.0.0.1:11434",       model: "minimax-m2.5:cloud",   weight: 1.0, api: "ollama"    },
+    // Offline: M2 (192.168.1.26), gpt-oss:120b-cloud, devstral-2:123b-cloud
 }
 
 LM Studio API:  POST /api/v1/chat  { model, input: "/nothink\nPROMPT", temperature, max_output_tokens }

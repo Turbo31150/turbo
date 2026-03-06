@@ -12,7 +12,7 @@ Redémarrage :
 - OL1 : `ollama serve`
 - LM Studio (local) : `lms.exe`
 
-Alertes Telegram via bot token TELEGRAM_TOKEN_REDACTED, chat_id 2010747443.
+Alertes Telegram via bot token 8369376863:AAF-7YGDbun8mXWwqYJFj‑eX6P78DeIu9Aw, chat_id 2010747443.
 
 Usage :
     auto_healer.py --once      # vérifie et répare une fois
@@ -33,7 +33,7 @@ if hasattr(sys.stdout, "reconfigure"):
 if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
-TELEGRAM_TOKEN = "TELEGRAM_TOKEN_REDACTED"
+TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
 TELEGRAM_CHAT_ID = "2010747443"
 
 NODES = {

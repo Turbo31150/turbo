@@ -1,39 +1,42 @@
-# JARVIS Turbo v10.1 — Reference Complete
+# JARVIS Turbo v12.4 — Reference Complete
 
 ## Architecture
 
 ```
-JARVIS Turbo v10.1
+JARVIS Turbo v12.4
 ├── Claude Agent SDK (orchestrateur principal)
-├── 5 Subagents (ia-deep, ia-fast, ia-check, ia-trading, ia-system)
-├── 69 MCP Tools (stdio server)
-├── 295 Commandes vocales (fuzzy matching + 292 corrections)
-├── 66 Pipelines/Skills (persistants JSON)
+├── 7 SDK Agents (ia-deep, ia-fast, ia-check, ia-trading, ia-system, ia-bridge, ia-consensus)
+├── 609 MCP Handlers (stdio server)
+├── 955 Commandes vocales (fuzzy matching + corrections)
+├── 89 Skills (persistants JSON)
+├── 409 Scripts COWORK autonomes
 ├── Brain autonome (pattern learning)
-├── Dashboard TUI (Textual)
+├── Dashboard Electron (React 19 + Vite 6)
 ├── Systray Windows (pystray)
-└── 6 Workflows n8n
+└── 20 Workflows n8n
 ```
 
-## Cluster IA — 3 Machines / 10 GPU / 83 GB VRAM
+## Cluster IA — 3 Machines / 10 GPU / ~78 GB VRAM
 
 | Noeud | IP | Role | GPU | VRAM | Modele |
 |-------|-----|------|-----|------|--------|
-| M1 | localhost:1234 | Deep Analysis | 5 | 43 GB | qwen/qwen3-30b-a3b-2507 |
-| M2 | 192.168.1.26:1234 | Fast Inference | 3 | 24 GB | openai/gpt-oss-20b |
-| M3 | 192.168.1.113:1234 | Validator | 2 | 16 GB | mistral-7b-instruct-v0.3 |
+| M1 | 127.0.0.1:1234 | Champion Local | 6 | 46 GB | qwen3-8b (+ gpt-oss-20b deep) |
+| M2 | 192.168.1.26:1234 | Reasoning | 3 | 24 GB | deepseek-r1-0528-qwen3-8b |
+| M3 | 192.168.1.113:1234 | Reasoning Fallback | 1 | 8 GB | deepseek-r1-0528-qwen3-8b |
 
-## 5 Subagents
+## 7 SDK Agents
 
 | Agent | Modele | Role | Tools |
 |-------|--------|------|-------|
-| ia-deep | Opus | Architecte, analyse profonde | Read, Glob, Grep, WebSearch, WebFetch |
+| ia-deep | Opus | Architecte, analyse profonde | Read, Glob, Grep, WebSearch, WebFetch + bridges |
 | ia-fast | Haiku | Ingenieur, execution rapide | Read, Write, Edit, Bash, Glob, Grep |
-| ia-check | Sonnet | Validateur, review, tests | Read, Bash, Glob, Grep |
-| ia-trading | Sonnet | Trading MEXC Futures | Read, Bash, Glob, Grep, run_script, lm_query, consensus |
+| ia-check | Sonnet | Validateur, review, tests | Read, Bash, Glob, Grep + bridges |
+| ia-trading | Sonnet | Trading MEXC Futures 10x | Read, Bash, Glob, Grep, run_script, lm_query, consensus |
 | ia-system | Haiku | Operations Windows | Read, Write, Edit, Bash, Glob, Grep |
+| ia-bridge | Sonnet | Orchestrateur multi-noeuds | gemini_query, bridge_query, bridge_mesh |
+| ia-consensus | Sonnet | Vote pondere multi-IA | M1=1.5, GEMINI=1.2, M2=1.0, OL1=0.8, M3=0.5 |
 
-## 69 MCP Tools
+## 609 MCP Handlers (extrait des 69 originaux + extensions)
 
 ### LM Studio (4)
 1. `lm_query` — Interroger un noeud LM Studio
@@ -140,7 +143,7 @@ JARVIS Turbo v10.1
 68. `brain_suggest` — Suggestion IA du cluster
 69. `brain_learn` — Auto-apprentissage
 
-## 295 Commandes Vocales
+## 955 Commandes Vocales
 
 ### Navigation Web (13)
 - ouvre chrome / ouvre comet / va sur {site} / cherche {requete}
@@ -333,7 +336,7 @@ JARVIS Turbo v10.1
 | `jarvis_hybrid.bat` | Mode hybride (voix + texte) |
 | `jarvis_voice.bat` | Mode vocal pur |
 
-## Workflows n8n (6)
+## Workflows n8n (20)
 
 | Workflow | Frequence | Description |
 |----------|-----------|-------------|
@@ -344,16 +347,16 @@ JARVIS Turbo v10.1
 | `jarvis_brain_learning` | 1h | Auto-apprentissage patterns |
 | `jarvis_git_auto_backup` | 6h | Commit + push auto si changements |
 
-## Fichiers Sources (17 fichiers, ~9000 LOC)
+## Fichiers Sources (246 modules src/, ~9000+ LOC)
 
 | Fichier | LOC | Role |
 |---------|-----|------|
 | `src/config.py` | 178 | Configuration cluster, modeles, routing, trading |
-| `src/agents.py` | 129 | 5 subagents Claude SDK |
+| `src/agents.py` | 129 | 7 SDK agents Claude |
 | `src/tools.py` | 528 | MCP tools pour SDK |
-| `src/mcp_server.py` | 648 | Serveur MCP stdio 69 tools |
+| `src/mcp_server.py` | 648 | Serveur MCP stdio 609 handlers |
 | `src/orchestrator.py` | 643 | Client SDK, modes interactif/voice/hybrid |
-| `src/commands.py` | 1840 | 295 commandes vocales + corrections |
+| `src/commands.py` | 1840 | 955 commandes vocales + corrections |
 | `src/skills.py` | 1338 | 66 pipelines + gestion skills |
 | `src/executor.py` | 412 | Execution commandes et pipelines |
 | `src/brain.py` | 323 | Apprentissage autonome |
@@ -388,4 +391,4 @@ jarvis_interactive.bat  # Mode CLI
 
 ## System Prompt JARVIS
 
-Le system prompt complet est dans `src/orchestrator.py`. Il definit JARVIS comme un orchestrateur IA multi-modal francophone avec acces a 69 tools MCP, 5 subagents, et un cluster de 10 GPU.
+Le system prompt complet est dans `src/orchestrator.py`. Il definit JARVIS comme un orchestrateur IA multi-modal francophone avec acces a 609 MCP handlers, 7 SDK agents, et un cluster de 10 GPU.

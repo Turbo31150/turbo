@@ -20,18 +20,18 @@ Pour les taches profondes (architecture complete, refactoring >200 lignes): M1/q
 
 M1 (code rapide, PRIORITAIRE):
 ```bash
-curl -s --max-time 30 http://10.5.0.2:1234/api/v1/chat -H "Content-Type: application/json" -H "Authorization: Bearer LMSTUDIO_KEY_M1_REDACTED" -d '{"model":"qwen/qwen3-8b","input":"/nothink\nPROMPT","temperature":0.2,"max_output_tokens":1024,"stream":false,"store":false}'
+curl -s --max-time 30 http://10.5.0.2:1234/api/v1/chat -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" -d '{"model":"qwen/qwen3-8b","input":"/nothink\nPROMPT","temperature":0.2,"max_output_tokens":1024,"stream":false,"store":false}'
 ```
 Extraction M1: dernier element `type=message` dans `.output[]`
 
 M2 (code review):
 ```bash
-curl -s --max-time 60 http://192.168.1.26:1234/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer LMSTUDIO_KEY_M2_REDACTED" -d '{"model":"deepseek-coder-v2-lite-instruct","messages":[{"role":"user","content":"PROMPT"}],"temperature":0.3,"max_tokens":4096,"stream":false}'
+curl -s --max-time 60 http://192.168.1.26:1234/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4" -d '{"model":"deepseek-coder-v2-lite-instruct","messages":[{"role":"user","content":"PROMPT"}],"temperature":0.3,"max_tokens":4096,"stream":false}'
 ```
 
 M3 (validation):
 ```bash
-curl -s --max-time 60 http://192.168.1.113:1234/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer LMSTUDIO_KEY_M3_REDACTED" -d '{"model":"mistral-7b-instruct-v0.3","messages":[{"role":"user","content":"PROMPT"}],"temperature":0.3,"max_tokens":4096,"stream":false}'
+curl -s --max-time 60 http://192.168.1.113:1234/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux" -d '{"model":"mistral-7b-instruct-v0.3","messages":[{"role":"user","content":"PROMPT"}],"temperature":0.3,"max_tokens":4096,"stream":false}'
 ```
 
 GEMINI (archi):

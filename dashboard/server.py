@@ -23,7 +23,7 @@ DASHBOARD_DIR = Path(__file__).parent
 AGENTS = {
     "M1": {
         "url": "http://10.5.0.2:1234",
-        "api_key": "LMSTUDIO_KEY_M1_REDACTED",
+        "api_key": "sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7",
         "type": "lm_studio",
         "model": "qwen/qwen3-8b",
         "role": "Rapide + analyse",
@@ -31,7 +31,7 @@ AGENTS = {
     },
     "M2": {
         "url": "http://192.168.1.26:1234",
-        "api_key": "LMSTUDIO_KEY_M2_REDACTED",
+        "api_key": "sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4",
         "type": "lm_studio",
         "model": "deepseek-coder-v2-lite-instruct",
         "role": "Code rapide",

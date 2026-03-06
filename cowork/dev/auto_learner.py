@@ -4,7 +4,7 @@ import json, sys, os, re
 from datetime import datetime, timedelta
 from collections import Counter
 
-TELEGRAM_TOKEN = "TELEGRAM_TOKEN_REDACTED"
+TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
 TELEGRAM_CHAT = "2010747443"
 
 LOG_SOURCES = [

@@ -19,7 +19,7 @@
       "parameters": {
         "url": "http://10.5.0.2:1234/api/v1/chat",
         "sendHeaders": true,
-        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer LMSTUDIO_KEY_M1_REDACTED"}, {"name": "Content-Type", "value": "application/json"}]},
+        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"}, {"name": "Content-Type", "value": "application/json"}]},
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\"model\":\"qwen/qwen3-30b-a3b-2507\",\"input\":\"{{ $json.body.prompt }}\",\"system_prompt\":\"Classifie cette demande en UNE categorie: code, analyse, trading, systeme, web, simple. Reponds UNIQUEMENT avec le mot-cle.\",\"temperature\":0.1,\"max_output_tokens\":32,\"stream\":false,\"store\":false}",
@@ -54,7 +54,7 @@
       "parameters": {
         "url": "http://192.168.1.26:1234/api/v1/chat",
         "sendHeaders": true,
-        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer LMSTUDIO_KEY_M2_REDACTED"}, {"name": "Content-Type", "value": "application/json"}]},
+        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4"}, {"name": "Content-Type", "value": "application/json"}]},
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\"model\":\"deepseek-coder-v2-lite-instruct\",\"input\":\"{{ $('Webhook Etoile').first().json.body.prompt }}\",\"temperature\":0.3,\"max_output_tokens\":8192,\"stream\":false,\"store\":false}",
@@ -70,7 +70,7 @@
       "parameters": {
         "url": "http://10.5.0.2:1234/api/v1/chat",
         "sendHeaders": true,
-        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer LMSTUDIO_KEY_M1_REDACTED"}, {"name": "Content-Type", "value": "application/json"}]},
+        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"}, {"name": "Content-Type", "value": "application/json"}]},
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\"model\":\"qwen/qwen3-30b-a3b-2507\",\"input\":\"Analyse en profondeur: {{ $('Webhook Etoile').first().json.body.prompt }}\",\"temperature\":0.4,\"max_output_tokens\":8192,\"stream\":false,\"store\":false}",
@@ -86,7 +86,7 @@
       "parameters": {
         "url": "http://10.5.0.2:1234/api/v1/chat",
         "sendHeaders": true,
-        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer LMSTUDIO_KEY_M1_REDACTED"}, {"name": "Content-Type", "value": "application/json"}]},
+        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"}, {"name": "Content-Type", "value": "application/json"}]},
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\"model\":\"qwen/qwen3-30b-a3b-2507\",\"input\":\"Scan trading: {{ $('Webhook Etoile').first().json.body.prompt }}\",\"temperature\":0.3,\"max_output_tokens\":8192,\"stream\":false,\"store\":false}",
@@ -116,7 +116,7 @@
       "parameters": {
         "url": "http://10.5.0.2:1234/api/v1/chat",
         "sendHeaders": true,
-        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer LMSTUDIO_KEY_M1_REDACTED"}, {"name": "Content-Type", "value": "application/json"}]},
+        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"}, {"name": "Content-Type", "value": "application/json"}]},
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\"model\":\"qwen/qwen3-30b-a3b-2507\",\"input\":\"Systeme: {{ $('Webhook Etoile').first().json.body.prompt }}\",\"temperature\":0.2,\"max_output_tokens\":4096,\"stream\":false,\"store\":false}",
@@ -132,7 +132,7 @@
       "parameters": {
         "url": "http://10.5.0.2:1234/api/v1/chat",
         "sendHeaders": true,
-        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer LMSTUDIO_KEY_M1_REDACTED"}, {"name": "Content-Type", "value": "application/json"}]},
+        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"}, {"name": "Content-Type", "value": "application/json"}]},
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\"model\":\"qwen/qwen3-30b-a3b-2507\",\"input\":\"Verifie ce resultat\",\"system_prompt\":\"Tu es un verificateur qualite. Evalue et donne un score 0.0-1.0. Reponds en JSON: {score, issues, recommendation}\",\"temperature\":0.2,\"max_output_tokens\":2048,\"stream\":false,\"store\":false}",

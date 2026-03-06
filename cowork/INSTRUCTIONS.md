@@ -13,7 +13,7 @@ OU directement en Python :
 import imaplib, email, json
 from email.header import decode_header as dh
 accounts = [
-    {"email": "miningexpert31@gmail.com", "password": "GMAIL_APP_PASSWORD_REDACTED", "label": "mining"},
+    {"email": "miningexpert31@gmail.com", "password": "ipicqcsimiitoxwj", "label": "mining"},
     {"email": "franckdelmas00@gmail.com", "password": "oetexwzoxuukjrgk", "label": "perso"},
 ]
 # IMAP4_SSL('imap.gmail.com'), login, select INBOX, search ALL, fetch last 5-10

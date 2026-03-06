@@ -421,7 +421,7 @@ def create_starlette_app(mcp_app: Server, use_sse: bool = False) -> Starlette:
 def main():
     parser = argparse.ArgumentParser(description="JARVIS MCP Remote Server (Perplexity)")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT)
-    parser.add_argument("--host", default="0.0.0.0")
+    parser.add_argument("--host", default="127.0.0.1")
     tier = parser.add_mutually_exclusive_group()
     tier.add_argument("--light", action="store_true", help="25 curated tools (default)")
     tier.add_argument("--full", action="store_true", help="~100 tools covering all categories")

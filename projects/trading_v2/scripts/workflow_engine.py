@@ -370,7 +370,7 @@ def execute_workflow(trigger, steps, variables=None):
         elif action == "TELEGRAM":
             try:
                 import requests as req
-                token = "TELEGRAM_TOKEN_REDACTED"
+                token = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
                 chat_id = "2010747443"
                 req.post(f"https://api.telegram.org/bot{token}/sendMessage",
                          json={"chat_id": chat_id, "text": params}, timeout=10)

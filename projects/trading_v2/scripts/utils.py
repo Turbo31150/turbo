@@ -8,7 +8,7 @@ import urllib.request
 from datetime import datetime
 
 # === DEFAULTS (overridable par chaque script) ===
-DEFAULT_TELEGRAM_TOKEN = 'TELEGRAM_TOKEN_REDACTED'
+DEFAULT_TELEGRAM_TOKEN = '8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw'
 DEFAULT_TELEGRAM_CHAT = '2010747443'
 
 

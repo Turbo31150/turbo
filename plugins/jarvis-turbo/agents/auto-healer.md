@@ -20,13 +20,13 @@ Tu es un agent specialise auto-reparation du cluster JARVIS Turbo v10.3.
 ### 1. Detection (health check)
 ```bash
 # M1
-curl -s --max-time 3 http://10.5.0.2:1234/api/v1/models -H "Authorization: Bearer LMSTUDIO_KEY_M1_REDACTED" | python3 -c "import sys,json;d=json.load(sys.stdin);loaded=[m for m in d.get('models',[]) if m.get('loaded_instances')];print(f'M1: {len(loaded)} modeles charges')" 2>/dev/null || echo "M1 OFFLINE"
+curl -s --max-time 3 http://10.5.0.2:1234/api/v1/models -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" | python3 -c "import sys,json;d=json.load(sys.stdin);loaded=[m for m in d.get('models',[]) if m.get('loaded_instances')];print(f'M1: {len(loaded)} modeles charges')" 2>/dev/null || echo "M1 OFFLINE"
 
 # M2
-curl -s --max-time 3 http://192.168.1.26:1234/api/v1/models -H "Authorization: Bearer LMSTUDIO_KEY_M2_REDACTED" | python3 -c "import sys,json;d=json.load(sys.stdin);loaded=[m for m in d.get('models',[]) if m.get('loaded_instances')];print(f'M2: {len(loaded)} modeles charges')" 2>/dev/null || echo "M2 OFFLINE"
+curl -s --max-time 3 http://192.168.1.26:1234/api/v1/models -H "Authorization: Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4" | python3 -c "import sys,json;d=json.load(sys.stdin);loaded=[m for m in d.get('models',[]) if m.get('loaded_instances')];print(f'M2: {len(loaded)} modeles charges')" 2>/dev/null || echo "M2 OFFLINE"
 
 # M3
-curl -s --max-time 3 http://192.168.1.113:1234/api/v1/models -H "Authorization: Bearer LMSTUDIO_KEY_M3_REDACTED" | python3 -c "import sys,json;d=json.load(sys.stdin);loaded=[m for m in d.get('models',[]) if m.get('loaded_instances')];print(f'M3: {len(loaded)} modeles charges')" 2>/dev/null || echo "M3 OFFLINE"
+curl -s --max-time 3 http://192.168.1.113:1234/api/v1/models -H "Authorization: Bearer sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux" | python3 -c "import sys,json;d=json.load(sys.stdin);loaded=[m for m in d.get('models',[]) if m.get('loaded_instances')];print(f'M3: {len(loaded)} modeles charges')" 2>/dev/null || echo "M3 OFFLINE"
 
 # OL1
 curl -s --max-time 3 http://127.0.0.1:11434/api/tags | python3 -c "import sys,json;print(f\"OL1: {len(json.load(sys.stdin).get('models',[]))} modeles\")" 2>/dev/null || echo "OL1 OFFLINE"
@@ -41,16 +41,16 @@ curl -s http://HOST:1234/api/v1/models/unload -H "Content-Type: application/json
 sleep 5
 
 # Reload M1 qwen3-8b
-curl -s http://10.5.0.2:1234/api/v1/models/load -H "Content-Type: application/json" -H "Authorization: Bearer LMSTUDIO_KEY_M1_REDACTED" -d '{"model":"qwen/qwen3-8b","context_length":8192,"gpu_layers":-1}'
+curl -s http://10.5.0.2:1234/api/v1/models/load -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" -d '{"model":"qwen/qwen3-8b","context_length":8192,"gpu_layers":-1}'
 
 # Reload M2 deepseek
-curl -s http://192.168.1.26:1234/api/v1/models/load -H "Content-Type: application/json" -H "Authorization: Bearer LMSTUDIO_KEY_M2_REDACTED" -d '{"model":"deepseek-coder-v2-lite-instruct","context_length":4096,"gpu_layers":-1}'
+curl -s http://192.168.1.26:1234/api/v1/models/load -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4" -d '{"model":"deepseek-coder-v2-lite-instruct","context_length":4096,"gpu_layers":-1}'
 ```
 
 ### 3. Mini-benchmark post-heal
 ```bash
 # Test rapide M1
-curl -s http://10.5.0.2:1234/api/v1/chat -H "Content-Type: application/json" -H "Authorization: Bearer LMSTUDIO_KEY_M1_REDACTED" -d '{"model":"qwen/qwen3-8b","input":"/nothink\nReponds juste OK","temperature":0.1,"max_output_tokens":10,"stream":false,"store":false}'
+curl -s http://10.5.0.2:1234/api/v1/chat -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7" -d '{"model":"qwen/qwen3-8b","input":"/nothink\nReponds juste OK","temperature":0.1,"max_output_tokens":10,"stream":false,"store":false}'
 ```
 
 ### 4. Cascade failover pondere

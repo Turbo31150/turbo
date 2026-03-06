@@ -25,7 +25,12 @@ import argparse, subprocess, json, os, sys
 
 JARVIS_TAG = "[JARVIS]"
 
+ALLOWED_COMMANDS = {"schtasks", "whoami"}
+
 def run_cmd(cmd):
+    base = cmd.split()[0].lower() if cmd.strip() else ""
+    if base not in ALLOWED_COMMANDS:
+        return "", f"Blocked: {base} not in allowed commands", 1
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     return result.stdout.strip(), result.stderr.strip(), result.returncode
 

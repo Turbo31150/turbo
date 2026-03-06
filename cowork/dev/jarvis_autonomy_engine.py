@@ -33,7 +33,7 @@ import urllib.request
 
 TURBO_ROOT = "F:/BUREAU/turbo"
 PROXY_URL = "http://127.0.0.1:18800"
-TELEGRAM_TOKEN = "TELEGRAM_TOKEN_REDACTED"
+TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
 TELEGRAM_CHAT = "2010747443"
 TASK_FILE = os.path.join(os.path.dirname(__file__), "AUTONOMY_TASKS.json")
 

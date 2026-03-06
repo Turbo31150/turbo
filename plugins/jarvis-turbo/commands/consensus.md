@@ -10,7 +10,7 @@ Execute ces 3 appels SIMULTANEMENT :
 
 **M2/deepseek (champion code, poids 1.4):**
 ```bash
-curl -s --max-time 60 http://192.168.1.26:1234/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer LMSTUDIO_KEY_M2_REDACTED" -d '{"model":"deepseek-coder-v2-lite-instruct","messages":[{"role":"user","content":"$ARGUMENTS"}],"temperature":0.3,"max_tokens":2048,"stream":false}' 2>/dev/null | python3 -c "import sys,json,re;d=json.load(sys.stdin);t=d.get('choices',[{}])[0].get('message',{}).get('content','');print(re.sub(r'<think>.*?</think>','',t,flags=re.DOTALL).strip()[:500])"
+curl -s --max-time 60 http://192.168.1.26:1234/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4" -d '{"model":"deepseek-coder-v2-lite-instruct","messages":[{"role":"user","content":"$ARGUMENTS"}],"temperature":0.3,"max_tokens":2048,"stream":false}' 2>/dev/null | python3 -c "import sys,json,re;d=json.load(sys.stdin);t=d.get('choices',[{}])[0].get('message',{}).get('content','');print(re.sub(r'<think>.*?</think>','',t,flags=re.DOTALL).strip()[:500])"
 ```
 
 **OL1/qwen3 (rapide, poids 1.3):**
@@ -20,7 +20,7 @@ curl -s --max-time 30 http://127.0.0.1:11434/api/chat -d '{"model":"qwen3:1.7b",
 
 **M3/mistral (solide, poids 1.0):**
 ```bash
-curl -s --max-time 60 http://192.168.1.113:1234/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer LMSTUDIO_KEY_M3_REDACTED" -d '{"model":"mistral-7b-instruct-v0.3","messages":[{"role":"user","content":"$ARGUMENTS"}],"temperature":0.3,"max_tokens":2048,"stream":false}' 2>/dev/null | python3 -c "import sys,json,re;d=json.load(sys.stdin);t=d.get('choices',[{}])[0].get('message',{}).get('content','');print(re.sub(r'<think>.*?</think>','',t,flags=re.DOTALL).strip()[:500])"
+curl -s --max-time 60 http://192.168.1.113:1234/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux" -d '{"model":"mistral-7b-instruct-v0.3","messages":[{"role":"user","content":"$ARGUMENTS"}],"temperature":0.3,"max_tokens":2048,"stream":false}' 2>/dev/null | python3 -c "import sys,json,re;d=json.load(sys.stdin);t=d.get('choices',[{}])[0].get('message',{}).get('content','');print(re.sub(r'<think>.*?</think>','',t,flags=re.DOTALL).strip()[:500])"
 ```
 
 Apres avoir recu les 3 reponses, SYNTHETISE en :

@@ -1,8 +1,8 @@
 # Commandes Vocales JARVIS - Reference Complete
 
-> Mise a jour automatique: 2026-02-22 | Voice Pipeline v2
+> Mise a jour: 2026-03-06 | Voice Pipeline v2
 
-**1719 commandes** au total, dont **278 pipelines** multi-etapes, reparties en **14 categories**.
+**955 commandes vocales** au total, dont **278 pipelines** multi-etapes, reparties en **14 categories**.
 
 | Categorie | Nombre |
 |-----------|--------|
@@ -20,7 +20,7 @@
 | Accessibilite | 10 |
 | Controle Media | 7 |
 | Saisie & Texte | 4 |
-| **TOTAL** | **1719** |
+| **TOTAL** | **955** |
 
 ---
 

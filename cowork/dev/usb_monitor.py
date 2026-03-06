@@ -19,7 +19,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Dict
 
-TELEGRAM_TOKEN = "TELEGRAM_TOKEN_REDACTED"
+TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
 TELEGRAM_CHAT_ID = "2010747443"
 DB_PATH = Path(__file__).parent / "usb.db"
 

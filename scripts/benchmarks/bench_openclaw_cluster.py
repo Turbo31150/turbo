@@ -12,7 +12,7 @@ M2_URL = "http://192.168.1.26:1234/api/v1/chat"
 M3_URL = "http://192.168.1.113:1234/api/v1/chat"
 OL1_URL = "http://127.0.0.1:11434/api/chat"
 GEMINI_PROXY = "http://127.0.0.1:18791/v1beta/openai/chat/completions"
-GEMINI_KEY = "GEMINI_KEY_REDACTED"
+GEMINI_KEY = "AIzaSyDVunHtT9qYTTs5yOhMuQEM1WMt6D5y4Vw"
 
 TIMEOUT = 60
 RESULTS = []

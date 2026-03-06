@@ -4,7 +4,7 @@ import json, sys, os, sqlite3, urllib.request
 from datetime import datetime
 
 DB_PATH = "C:/Users/franc/.openclaw/workspace/dev/risk.db"
-TELEGRAM_TOKEN = "TELEGRAM_TOKEN_REDACTED"
+TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
 TELEGRAM_CHAT = "2010747443"
 
 MAX_DRAWDOWN_PCT = 5.0

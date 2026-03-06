@@ -3,7 +3,7 @@
 import json, sys, os, subprocess, time
 from datetime import datetime, timedelta
 
-TELEGRAM_TOKEN = "TELEGRAM_TOKEN_REDACTED"
+TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
 TELEGRAM_CHAT = "2010747443"
 SCHEDULE_FILE = "C:/Users/franc/.openclaw/workspace/dev/schedule.json"
 LOG_FILE = "C:/Users/franc/.openclaw/workspace/dev/scheduler_log.json"

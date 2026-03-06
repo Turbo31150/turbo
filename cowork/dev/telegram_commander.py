@@ -3,7 +3,7 @@
 import json, sys, os, subprocess, urllib.request, time
 from datetime import datetime
 
-TOKEN = "TELEGRAM_TOKEN_REDACTED"
+TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
 CHAT_ID = "2010747443"
 DEV_DIR = "C:/Users/franc/.openclaw/workspace/dev"
 
@@ -173,7 +173,7 @@ def pipeline_emails():
 
     # Fallback to hardcoded miningexpert31
     if not accounts:
-        accounts = [{"email": "miningexpert31@gmail.com", "password": "GMAIL_APP_PASSWORD_REDACTED", "imap_host": "imap.gmail.com"}]
+        accounts = [{"email": "miningexpert31@gmail.com", "password": "ipicqcsimiitoxwj", "imap_host": "imap.gmail.com"}]
 
     lines = ["📬 *JARVIS — Emails*", f"📅 {datetime.now().strftime('%d/%m %H:%M')}\n"]
 

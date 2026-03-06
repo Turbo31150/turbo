@@ -171,7 +171,7 @@ class APIHandler(BaseHTTPRequestHandler):
 # ---------------------------------------------------------------------------
 # Server entry point
 # ---------------------------------------------------------------------------
-def run_server(host="0.0.0.0", port=8085):
+def run_server(host="127.0.0.1", port=8085):
     server = HTTPServer((host, port), APIHandler)
     print(f"[cluster_dashboard_api] Listening on http://{host}:{port}")
     try:
@@ -183,7 +183,7 @@ def run_server(host="0.0.0.0", port=8085):
 def main():
     import argparse
     parser = argparse.ArgumentParser(description="REST API for the JARVIS Electron dashboard (port 8085).")
-    parser.add_argument("--host", default="0.0.0.0", help="Bind address (default: 0.0.0.0)")
+    parser.add_argument("--host", default="127.0.0.1", help="Bind address (default: 127.0.0.1)")
     parser.add_argument("--port", type=int, default=8085, help="Bind port (default: 8085)")
     args = parser.parse_args()
     run_server(host=args.host, port=args.port)

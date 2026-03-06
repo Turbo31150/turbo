@@ -5,7 +5,7 @@ import urllib.request, json, sys, time, datetime
 sys.stdout.reconfigure(encoding='utf-8')
 sys.stdout = open(sys.stdout.fileno(), mode='w', encoding='utf-8', buffering=1)
 
-TOKEN = 'TELEGRAM_TOKEN_REDACTED'
+TOKEN = '8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw'
 CHAT = '2010747443'
 FOCUS = 'ROSE_USDT'
 CYCLES = 10

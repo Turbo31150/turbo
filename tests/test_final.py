@@ -86,7 +86,7 @@ try:
             start = time.time()
             resp = await client.post(
                 "http://10.5.0.2:1234/api/v1/chat",
-                headers={"Authorization": "Bearer LMSTUDIO_KEY_M1_REDACTED"},
+                headers={"Authorization": "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"},
                 json={
                     "model": "qwen/qwen3-30b-a3b-2507",
                     "input": "Reponds juste OK",

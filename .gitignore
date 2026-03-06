@@ -62,5 +62,15 @@ projects/carV1_data/database/
 projects/lmstudio_backup/
 projects/*/.git/
 backups_auto/
-data/strategy_evolution.db-shm
-data/strategy_evolution.db-wal
+# SQLite temp files (WAL, SHM)
+*.db-shm
+*.db-wal
+
+# PID files (runtime)
+*.pid
+
+# Runtime state
+data/autodev_state.json
+data/cluster_pipeline.pid
+data/evolution_loop.pid
+data/orchestrator_v3.pid

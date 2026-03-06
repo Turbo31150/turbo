@@ -15,7 +15,7 @@ CONFIG = {
     "gemini_key": "AIzaSyBT1vDFHmMA8Fc4880rFM8Ylk-IYzeH2vA",
     "lm_studio_1": "http://192.168.1.85:1234",
     "lm_studio_2": "http://192.168.1.26:1234",
-    "telegram_token": "TELEGRAM_TOKEN_REDACTED",
+    "telegram_token": "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw",
     "telegram_chat": "2010747443",
     "min_score": 70,
     "max_rsi": 75,

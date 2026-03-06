@@ -7,7 +7,7 @@ NODES = {
     "M1": {"url": "http://127.0.0.1:1234/api/v1/models", "type": "lmstudio"},
     "OL1": {"url": "http://127.0.0.1:11434/api/tags", "type": "ollama"},
 }
-TELEGRAM_TOKEN = "TELEGRAM_TOKEN_REDACTED"
+TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
 TELEGRAM_CHAT = "2010747443"
 LOG_FILE = "C:/Users/franc/.openclaw/workspace/dev/monitor_log.json"
 

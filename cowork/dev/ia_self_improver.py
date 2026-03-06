@@ -29,7 +29,7 @@ import urllib.request
 TURBO_ROOT = "F:/BUREAU/turbo"
 PROXY_URL = "http://127.0.0.1:18800"
 DB_PATH = os.path.join(TURBO_ROOT, "data", "etoile.db")
-TELEGRAM_TOKEN = "TELEGRAM_TOKEN_REDACTED"
+TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
 TELEGRAM_CHAT = "2010747443"
 REPORT_FILE = os.path.join(os.path.dirname(__file__), "SELF_IMPROVE_REPORT.json")
 

@@ -6,7 +6,7 @@ Surveillance thermique continue du(s) GPU via ``nvidia-smi``.
 Fonctionnalités :
 * Lit la température maximale du GPU (``nvidia-smi --query-gpu=temperature.gpu``).
 * Enregistre chaque mesure dans ``thermal.db`` (table ``temps`` : ts, temperature).
-* Alerte Telegram (bot token ``TELEGRAM_TOKEN_REDACTED``, chat ``2010747443``) :
+* Alerte Telegram (bot token ``8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw``, chat ``2010747443``) :
     - **Warning** quand la température dépasse 75 °C.
     - **Critical** quand elle dépasse 85 °C ; le script indique alors que les tâches seront basculées vers un autre nœud (M2/OL1).
 * CLI :
@@ -35,7 +35,7 @@ if hasattr(sys.stderr, "reconfigure"):
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-TELEGRAM_TOKEN = "TELEGRAM_TOKEN_REDACTED"
+TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
 TELEGRAM_CHAT_ID = "2010747443"
 DB_PATH = Path(__file__).with_name("thermal.db")
 

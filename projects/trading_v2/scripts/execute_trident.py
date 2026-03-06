@@ -15,10 +15,10 @@ sys.stdout.reconfigure(encoding='utf-8')
 # ===================== CONFIGURATION =====================
 DRY_RUN = True  # True = simulation, False = ORDRES REELS
 
-MEXC_API_KEY = "MEXC_KEY_REDACTED"
-MEXC_SECRET_KEY = "MEXC_SECRET_REDACTED"
+MEXC_API_KEY = "mx0vglrR6uWgWEB6Vm"
+MEXC_SECRET_KEY = "ba096c7a96c149409914dc0eebdfa53f"
 
-TELEGRAM_TOKEN = "TELEGRAM_TOKEN_REDACTED"
+TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
 TELEGRAM_CHAT = "2010747443"
 
 # Taille par trade en USDT (avant levier)

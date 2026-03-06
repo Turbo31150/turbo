@@ -38,7 +38,7 @@ APP_MAP = {
     "paint": "mspaint.exe",
     "edge": "msedge.exe",
     "firefox": "firefox.exe",
-    "zoom": "Zoom\Zoom.exe",
+    "zoom": "Zoom\\Zoom.exe",
     "slack": "slack.exe",
     "teams": "Teams.exe",
     "telegram": "Telegram.exe",

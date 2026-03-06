@@ -134,7 +134,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("latence_cluster", "systeme", "Ping de latence vers les noeuds du cluster", [
         "latence cluster", "ping le cluster ia", "latence des noeuds",
         "temps de reponse cluster", "ping noeuds ia",
-    ], "powershell", "$m2 = try{(Measure-Command{Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer LMSTUDIO_KEY_M2_REDACTED'} -TimeoutSec 5 -UseBasicParsing}).TotalMilliseconds}catch{-1}; $ol1 = try{(Measure-Command{Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 5 -UseBasicParsing}).TotalMilliseconds}catch{-1}; $m3 = try{(Measure-Command{Invoke-WebRequest -Uri 'http://192.168.1.113:1234/api/v1/models' -TimeoutSec 5 -UseBasicParsing}).TotalMilliseconds}catch{-1}; \"M2: $([math]::Round($m2))ms | OL1: $([math]::Round($ol1))ms | M3: $([math]::Round($m3))ms\""),
+    ], "powershell", "$m2 = try{(Measure-Command{Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -TimeoutSec 5 -UseBasicParsing}).TotalMilliseconds}catch{-1}; $ol1 = try{(Measure-Command{Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 5 -UseBasicParsing}).TotalMilliseconds}catch{-1}; $m3 = try{(Measure-Command{Invoke-WebRequest -Uri 'http://192.168.1.113:1234/api/v1/models' -TimeoutSec 5 -UseBasicParsing}).TotalMilliseconds}catch{-1}; \"M2: $([math]::Round($m2))ms | OL1: $([math]::Round($ol1))ms | M3: $([math]::Round($m3))ms\""),
     JarvisCommand("wifi_info", "systeme", "Informations sur la connexion WiFi active", [
         "info wifi", "quel wifi", "connexion wifi",
         "signal wifi", "etat du wifi",
@@ -206,7 +206,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("cluster_latence_detaillee", "systeme", "Latence detaillee de chaque noeud du cluster avec modeles", [
         "latence detaillee cluster", "ping detaille cluster",
         "benchmark rapide cluster", "vitesse des noeuds",
-    ], "powershell", "$m2t = (Measure-Command{try{Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer LMSTUDIO_KEY_M2_REDACTED'} -TimeoutSec 5 -UseBasicParsing}catch{}}).TotalMilliseconds; $m3t = (Measure-Command{try{Invoke-WebRequest -Uri 'http://192.168.1.113:1234/api/v1/models' -TimeoutSec 5 -UseBasicParsing}catch{}}).TotalMilliseconds; $ol1t = (Measure-Command{try{Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 5 -UseBasicParsing}catch{}}).TotalMilliseconds; \"M2: $([math]::Round($m2t))ms | M3: $([math]::Round($m3t))ms | OL1: $([math]::Round($ol1t))ms\""),
+    ], "powershell", "$m2t = (Measure-Command{try{Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -TimeoutSec 5 -UseBasicParsing}catch{}}).TotalMilliseconds; $m3t = (Measure-Command{try{Invoke-WebRequest -Uri 'http://192.168.1.113:1234/api/v1/models' -TimeoutSec 5 -UseBasicParsing}catch{}}).TotalMilliseconds; $ol1t = (Measure-Command{try{Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 5 -UseBasicParsing}catch{}}).TotalMilliseconds; \"M2: $([math]::Round($m2t))ms | M3: $([math]::Round($m3t))ms | OL1: $([math]::Round($ol1t))ms\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # INVENTAIRE SYSTÈME (inspiré PDQ PowerShell one-liners)
@@ -2040,9 +2040,9 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
 
 # Post-processing: inject env-based keys into action strings at module load
 _KEY_MAP = {
-    "LMSTUDIO_KEY_M1_REDACTED": _M1_KEY,
-    "LMSTUDIO_KEY_M2_REDACTED": _M2_KEY,
-    "LMSTUDIO_KEY_M3_REDACTED": _M3_KEY,
+    "sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7": _M1_KEY,
+    "sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4": _M2_KEY,
+    "sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux": _M3_KEY,
 }
 for _cmd in MAINTENANCE_COMMANDS:
     if "sk-lm-" in _cmd.action:
