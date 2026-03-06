@@ -1182,11 +1182,11 @@ def _default_skills() -> list[Skill]:
         # ── VAGUE 9: Pipelines multimedia / nettoyage / automatisation ──
 
         Skill(
-            name="mode_stream",
-            description="Mode stream: OBS + micro check + game bar + performance max",
+            name="mode_stream_pro",
+            description="Mode stream pro: OBS + micro check + game bar + performance max",
             triggers=[
-                "mode stream", "lance le stream", "prepare le stream",
-                "streaming", "je vais streamer",
+                "mode stream pro", "prepare le stream",
+                "streaming pro", "je vais streamer",
             ],
             steps=[
                 SkillStep("app_open", {"name": "obs64"}, "Lancer OBS"),
@@ -1229,10 +1229,10 @@ def _default_skills() -> list[Skill]:
         # ── VAGUE 10: Pipelines session / ecrans / productivite ──
 
         Skill(
-            name="mode_presentation",
-            description="Mode presentation: ecran etendu + volume off + focus assist + luminosite max",
+            name="mode_presentation_pro",
+            description="Mode presentation pro: ecran etendu + volume off + focus assist + luminosite max",
             triggers=[
-                "mode presentation", "je vais presenter", "lance la presentation",
+                "mode presentation pro", "je vais presenter",
                 "prepare la presentation", "powerpoint mode",
             ],
             steps=[
