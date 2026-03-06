@@ -3,6 +3,7 @@
 
 import asyncio
 import json
+import pytest
 
 
 def test_auto_create_handling():
@@ -38,6 +39,7 @@ def test_auto_create_handling():
             print(f"         Expected: {expected}, Got: {result}")
 
 
+@pytest.mark.asyncio
 async def test_cluster_error_handling():
     """Test that cluster_suggest_skill logs errors properly."""
     print("\n=== TEST 2: cluster_suggest_skill error handling ===")

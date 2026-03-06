@@ -5,6 +5,7 @@ et verifie que le pipeline correction -> matching -> execution fonctionne.
 """
 
 import asyncio
+import pytest
 import sys
 sys.path.insert(0, "F:/BUREAU/turbo")
 
@@ -45,6 +46,7 @@ TEST_PHRASES = [
 ]
 
 
+@pytest.mark.asyncio
 async def test_pipeline():
     print("=" * 70)
     print(f"  TEST PIPELINE VOCAL JARVIS — {len(TEST_PHRASES)} phrases")

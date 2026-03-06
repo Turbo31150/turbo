@@ -1,6 +1,8 @@
 import asyncio
+import pytest
 from src.startup_wiring import bootstrap_jarvis
 
+@pytest.mark.asyncio
 async def test():
     result = await bootstrap_jarvis()
     print(f"\nBootstrap Result:")

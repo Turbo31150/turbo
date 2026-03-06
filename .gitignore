@@ -76,3 +76,4 @@ data/claude_tool_log.jsonl
 canvas/data/autolearn_history.json
 canvas/data/memory.json
 canvas/data/routing_scores.json
+canvas/pipeline_status.json

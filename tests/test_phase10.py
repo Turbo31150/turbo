@@ -312,7 +312,7 @@ class TestMCPHandlersPhase10:
         from src.mcp_server import handle_pipeline_list
         result = asyncio.run(handle_pipeline_list({}))
         data = json.loads(result[0].text)
-        assert isinstance(data, list)
+        assert isinstance(data, dict) and "pipelines" in data
 
     def test_pipeline_stats(self):
         from src.mcp_server import handle_pipeline_stats
