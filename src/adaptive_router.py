@@ -134,8 +134,8 @@ class AdaptiveRouter:
     """Real-time adaptive routing with circuit breakers and load balancing."""
 
     NODE_LIMITS = {
-        "M1": 6, "M1B": 3, "M2": 3, "M3": 2,
-        "OL1": 3, "gpt-oss": 2, "devstral": 2, "minimax": 2,
+        "M1": 6, "M2": 3, "M3": 2,
+        "OL1": 3,
     }
 
     def __init__(self, db_path: str = DB_PATH):

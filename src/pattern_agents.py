@@ -36,14 +36,6 @@ NODES = {
         "max_tokens": 1024,
         "weight": 1.8,
     },
-    "M1B": {
-        "url": "http://127.0.0.1:1234/api/v1/chat",
-        "type": "lmstudio",
-        "model": "gpt-oss-20b",
-        "prefix": "/nothink\n",
-        "max_tokens": 2048,
-        "weight": 1.7,
-    },
     "M2": {
         "url": "http://192.168.1.26:1234/api/v1/chat",
         "type": "lmstudio",
@@ -65,24 +57,6 @@ NODES = {
         "type": "ollama",
         "model": "qwen3:1.7b",
         "weight": 1.3,
-    },
-    "gpt-oss": {
-        "url": "http://127.0.0.1:11434/api/chat",
-        "type": "ollama",
-        "model": "gpt-oss:120b-cloud",
-        "weight": 1.9,
-    },
-    "devstral": {
-        "url": "http://127.0.0.1:11434/api/chat",
-        "type": "ollama",
-        "model": "devstral-2:123b-cloud",
-        "weight": 1.5,
-    },
-    "minimax": {
-        "url": "http://127.0.0.1:11434/api/chat",
-        "type": "ollama",
-        "model": "minimax-m2.5:cloud",
-        "weight": 1.0,
     },
 }
 
@@ -127,9 +101,8 @@ class PatternAgent:
         "data": 120, "reasoning": 150, "large": 150,
     }
     NODE_TIMEOUT_FACTOR = {
-        "M1": 1.0, "M1B": 2.0, "OL1": 1.0,
+        "M1": 1.0, "OL1": 1.0,
         "M2": 2.0, "M3": 2.5,
-        "gpt-oss": 2.0, "devstral": 2.0, "minimax": 1.5,
     }
 
     def _calc_timeout(self, node_name: str, prompt: str) -> float:
@@ -148,9 +121,8 @@ class PatternAgent:
 
     # Context window limits per node (in tokens, ~4 chars per token)
     NODE_CTX_LIMITS = {
-        "M1": 32000, "M1B": 25000, "M2": 27000, "M3": 25000,
-        "OL1": 32000, "gpt-oss": 128000, "devstral": 128000,
-        "minimax": 128000,
+        "M1": 32000, "M2": 27000, "M3": 25000,
+        "OL1": 32000,
     }
     # Min output tokens per node (reasoning models need more space)
     NODE_MIN_OUTPUT = {
@@ -413,8 +385,8 @@ AGENT_CONFIGS = [
         pattern_type="web",
         agent_id="web-researcher",
         system_prompt="Tu es un assistant de recherche web. Fournis des informations a jour et verifiees.",
-        primary_node="minimax",
-        fallback_nodes=["M1", "OL1"],
+        primary_node="OL1",
+        fallback_nodes=["M1"],
         strategy="single",
         priority=2,
         keywords=["recherche", "web", "internet", "actualite", "news", "prix", "meteo"],
@@ -425,8 +397,8 @@ AGENT_CONFIGS = [
         agent_id="code-champion",
         system_prompt="Expert programmation. Reponds UNIQUEMENT avec du code executable. Pas d'explication sauf si demande. Python prefere. Inclus les imports.",
         primary_node="M1",
-        fallback_nodes=["gpt-oss", "devstral", "OL1"],
-        strategy="race",  # benchmark-v2: race M1+cloud (was 47% with category — cloud backup for complex code)
+        fallback_nodes=["OL1", "M2"],
+        strategy="single",
         priority=3,
         keywords=["ecris", "code", "fonction", "classe", "script", "debug", "fix", "refactor", "python", "javascript"],
         max_tokens=2048,
@@ -437,8 +409,8 @@ AGENT_CONFIGS = [
         agent_id="analysis-engine",
         system_prompt="Analyste expert. Reponds directement avec: 1) Donnees factuelles 2) Tableau comparatif si applicable 3) Verdict clair. Pas d'introduction ni conclusion generique.",
         primary_node="M1",
-        fallback_nodes=["gpt-oss", "devstral", "OL1"],
-        strategy="race",  # benchmark-v2: race M1+cloud for complex analysis (was 22% with category)
+        fallback_nodes=["OL1", "M2"],
+        strategy="race",
         priority=3,
         keywords=["compare", "analyse", "avantages", "inconvenients", "benchmark", "audit", "rapport"],
         max_tokens=2048,
@@ -483,8 +455,8 @@ AGENT_CONFIGS = [
         agent_id="data-engineer",
         system_prompt="Data engineer. Reponds avec du code SQL/Python executable directement. Schema si necessaire. Pas de theorie, que du pratique.",
         primary_node="M1",
-        fallback_nodes=["gpt-oss", "devstral", "OL1"],
-        strategy="race",  # benchmark-v2: race M1+cloud (was 30% with single — timeout issues on complex queries)
+        fallback_nodes=["OL1", "M2"],
+        strategy="race",
         priority=3,
         keywords=["sql", "requete", "base", "donnees", "table", "index", "etl", "csv", "json", "sqlite"],
         max_tokens=2048,
@@ -506,8 +478,8 @@ AGENT_CONFIGS = [
         agent_id="deep-reasoning",
         system_prompt="Expert raisonnement. Decompose en etapes numerotees. Chaque etape: affirmation + justification. Conclusion claire a la fin.",
         primary_node="M1",
-        fallback_nodes=["gpt-oss", "M2", "OL1"],
-        strategy="race",  # benchmark-v2: race M1+cloud (was 45% with single — cloud models better at deep reasoning)
+        fallback_nodes=["OL1", "M2"],
+        strategy="race",
         priority=4,
         keywords=["pourquoi", "prouve", "demontre", "logique", "dilemme", "strategie", "optimal"],
         max_tokens=2048,
@@ -519,8 +491,8 @@ AGENT_CONFIGS = [
         agent_id="trading-analyst",
         system_prompt="Analyste trading MEXC 10x futures. Reponds avec: 1) Signal (LONG/SHORT/WAIT) 2) Entree/TP/SL precis 3) Score confiance 0-100. Donnees chiffrees uniquement.",
         primary_node="M1",
-        fallback_nodes=["gpt-oss", "OL1"],
-        strategy="race",  # benchmark-v2: race M1+cloud (was 55% — cloud better at complex analysis)
+        fallback_nodes=["OL1", "M2"],
+        strategy="race",
         priority=4,
         keywords=["trading", "btc", "crypto", "rsi", "macd", "futures", "tp", "sl", "mexc"],
     ),
@@ -530,8 +502,8 @@ AGENT_CONFIGS = [
         agent_id="security-auditor",
         system_prompt="Expert cybersecurite. Reponds avec: 1) Vulnerabilites identifiees 2) Severite (CRITICAL/HIGH/MEDIUM/LOW) 3) Correction precise. Code corrige si applicable. Pas de blabla.",
         primary_node="M1",
-        fallback_nodes=["gpt-oss", "devstral", "OL1"],
-        strategy="race",  # benchmark-v2: race M1+cloud (was 20.3% — needs cloud backup)
+        fallback_nodes=["OL1", "M2"],
+        strategy="race",
         priority=4,
         keywords=["securite", "owasp", "injection", "xss", "csrf", "auth", "chiffrement", "audit"],
         max_tokens=2048,
@@ -542,7 +514,7 @@ AGENT_CONFIGS = [
         agent_id="architect",
         system_prompt="Architecte logiciel. Reponds avec: 1) Diagramme textuel (ASCII/Mermaid) 2) Composants + responsabilites 3) Trade-offs. Pas de cours magistral, va droit au schema.",
         primary_node="M1",
-        fallback_nodes=["gpt-oss", "devstral", "OL1"],
+        fallback_nodes=["OL1", "M2"],
         strategy="race",  # benchmark-v2: race M1+cloud (was 7.8% — worst pattern, needs aggressive retry)
         priority=4,
         keywords=["architecture", "microservices", "design", "pattern", "scalable", "event", "cqrs", "saga"],
@@ -659,7 +631,7 @@ AGENT_CONFIGS = [
         agent_id="medium-handler",
         system_prompt="Reponds avec detail et structure. Sections si necessaire.",
         primary_node="M1",
-        fallback_nodes=["gpt-oss", "OL1"],
+        fallback_nodes=["OL1", "M2"],
         strategy="race",
         priority=3,
         keywords=[],
@@ -671,7 +643,7 @@ AGENT_CONFIGS = [
         agent_id="large-handler",
         system_prompt="Reponds de facon exhaustive et structuree. Sections, listes, code si applicable. Analyse approfondie.",
         primary_node="M1",
-        fallback_nodes=["gpt-oss", "devstral"],
+        fallback_nodes=["OL1", "M2"],
         strategy="race",
         priority=4,
         keywords=[],
@@ -682,9 +654,9 @@ AGENT_CONFIGS = [
         pattern_type="xl",
         agent_id="xl-handler",
         system_prompt="Reponds de facon tres detaillee. Architecture complete, code complet, analyse multi-facettes. Prends le temps necessaire.",
-        primary_node="gpt-oss",
-        fallback_nodes=["M1", "devstral"],
-        strategy="race",
+        primary_node="M1",
+        fallback_nodes=["OL1", "M2"],
+        strategy="single",
         priority=5,
         keywords=[],
         max_tokens=4096,

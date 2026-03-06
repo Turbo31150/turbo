@@ -9,7 +9,7 @@ More sophisticated than race (first wins) or consensus (majority wins):
 Usage:
     from src.agent_ensemble import AgentEnsemble, get_ensemble
     ens = get_ensemble()
-    result = await ens.execute("code", "Ecris un parser JSON", nodes=["M1", "M1B", "OL1"])
+    result = await ens.execute("code", "Ecris un parser JSON", nodes=["M1", "OL1"])
     # result contains best_output, all_scores, winning_node
 """
 
@@ -156,7 +156,7 @@ class AgentEnsemble:
         if pattern in ("simple", "classifier"):
             return ["M1", "OL1"]
         elif pattern in ("code", "architecture", "security"):
-            return ["M1", "M1B", "OL1"]
+            return ["M1", "OL1"]
         elif pattern in ("reasoning", "math"):
             return ["M1", "M2"]
         else:

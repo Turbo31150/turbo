@@ -312,19 +312,19 @@ class DispatchEngine:
 
     # Preferred nodes per pattern (from benchmark-v2: race strategy for weak patterns)
     ROUTE_PREFERENCE = {
-        "reasoning": ["M1", "gpt-oss", "M2", "OL1"],
-        "math": ["M1", "M2", "gpt-oss"],
-        "architecture": ["M1", "gpt-oss", "devstral", "OL1"],
-        "security": ["M1", "gpt-oss", "devstral", "OL1"],
-        "analysis": ["M1", "gpt-oss", "devstral", "OL1"],
-        "data": ["M1", "gpt-oss", "devstral", "OL1"],
-        "code": ["M1", "gpt-oss", "devstral", "OL1"],
-        "trading": ["M1", "gpt-oss", "OL1"],
+        "reasoning": ["M1", "M2", "OL1"],
+        "math": ["M1", "M2", "OL1"],
+        "architecture": ["M1", "OL1", "M2"],
+        "security": ["M1", "OL1", "M2"],
+        "analysis": ["M1", "OL1", "M2"],
+        "data": ["M1", "OL1", "M2"],
+        "code": ["M1", "OL1", "M2"],
+        "trading": ["M1", "OL1", "M2"],
         "classifier": ["M1", "OL1"],
         "simple": ["OL1", "M1"],
         "creative": ["M1", "OL1", "M2"],
         "system": ["M1", "OL1"],
-        "web": ["OL1", "M1", "minimax"],
+        "web": ["OL1", "M1"],
         "devops": ["OL1", "M1"],
     }
 

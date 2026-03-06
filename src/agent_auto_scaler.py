@@ -71,8 +71,7 @@ class AutoScaler:
 
     # Node capabilities
     NODE_CAPABILITIES = {
-        "M1": {"gpu_gb": 46, "max_parallel": 5, "models": ["qwen3-8b", "gpt-oss-20b", "qwen3-30b"]},
-        "M1B": {"gpu_gb": 46, "max_parallel": 3, "models": ["gpt-oss-20b"]},
+        "M1": {"gpu_gb": 46, "max_parallel": 5, "models": ["qwen3-8b", "qwen3-30b"]},
         "M2": {"gpu_gb": 24, "max_parallel": 2, "models": ["deepseek-r1-0528-qwen3-8b"]},
         "M3": {"gpu_gb": 8, "max_parallel": 1, "models": ["deepseek-r1-0528-qwen3-8b"]},
         "OL1": {"gpu_gb": 0, "max_parallel": 3, "models": ["qwen3:1.7b", "qwen3:14b"]},
@@ -81,9 +80,8 @@ class AutoScaler:
     # Model tiers (for swap decisions)
     MODEL_TIERS = {
         "fast": ["qwen3:1.7b", "qwen3-8b"],
-        "balanced": ["qwen3:14b", "gpt-oss-20b"],
+        "balanced": ["qwen3:14b", "qwen3-8b"],
         "deep": ["qwen3-30b", "deepseek-r1-0528-qwen3-8b"],
-        "cloud": ["gpt-oss:120b-cloud", "devstral-2:123b-cloud"],
     }
 
     def __init__(self, policy: Optional[ScalePolicy] = None):
@@ -249,7 +247,7 @@ class AutoScaler:
                 description=f"High total load ({total_5min} reqs/5min). Consider enabling cloud models.",
                 priority=3,
                 params={"total_5min": total_5min,
-                        "cloud_models": ["gpt-oss:120b-cloud", "devstral-2:123b-cloud"]},
+                        "cloud_models": []},
             ))
 
         return sorted(actions, key=lambda a: a.priority)

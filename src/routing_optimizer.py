@@ -61,8 +61,8 @@ class RoutingOptimizer:
 
     # Default concurrency per node type
     DEFAULT_CONCURRENCY = {
-        "M1": 4, "M1B": 2, "M2": 2, "M3": 1,
-        "OL1": 3, "gpt-oss": 2, "devstral": 2, "minimax": 2,
+        "M1": 4, "M2": 2, "M3": 1,
+        "OL1": 3,
     }
 
     # Task size -> max_tokens mapping

@@ -405,11 +405,10 @@ class SelfImprover:
                 if existing:
                     # Map node to model name
                     NODE_TO_MODEL = {
-                        "M1": "qwen3-8b", "M1B": "gpt-oss-20b",
+                        "M1": "qwen3-8b",
                         "M2": "deepseek-r1-0528-qwen3-8b",
                         "M3": "deepseek-r1-0528-qwen3-8b",
-                        "OL1": "qwen3:1.7b", "gpt-oss": "gpt-oss:120b-cloud",
-                        "devstral": "devstral-2:123b-cloud",
+                        "OL1": "qwen3:1.7b",
                     }
                     model = NODE_TO_MODEL.get(to_node, "qwen3-8b")
                     db.execute(

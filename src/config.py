@@ -194,7 +194,7 @@ class JarvisConfig:
         LMStudioNode(
             "M2", os.getenv("LM_STUDIO_2_URL", "http://192.168.1.26:1234"),
             "fast_inference", gpus=3, vram_gb=24,
-            default_model="deepseek-coder-v2-lite-instruct", weight=1.4,
+            default_model="deepseek-r1-0528-qwen3-8b", weight=1.5,
             use_cases=["Code generation", "Analyse profonde", "Raisonnement",
                        "Quick responses", "Trading signals", "Validation"],
             api_key=os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", "")),
@@ -202,10 +202,10 @@ class JarvisConfig:
         LMStudioNode(
             "M3", os.getenv("LM_STUDIO_3_URL", "http://192.168.1.113:1234"),
             "general_inference", gpus=1, vram_gb=8,
-            default_model="mistral-7b-instruct-v0.3", weight=1.0,
-            use_cases=["General inference", "Raisonnement", "Code review",
-                       "Quick responses", "Fallback fiable"],
-            context_length=8192,
+            default_model="deepseek-r1-0528-qwen3-8b", weight=1.2,
+            use_cases=["Reasoning", "Code review",
+                       "Fallback fiable"],
+            context_length=25000,
             api_key=os.getenv("LM_STUDIO_3_API_KEY", os.getenv("LM_STUDIO_3_KEY", "")),
         ),
     ])
@@ -230,7 +230,7 @@ class JarvisConfig:
 
     # ── Model catalog (all available models) ──────────────────────────────
     # M1 permanent: qwen3-8b (4.7 GB, ctx 8192, dense 8B)
-    # M3: mistral-7b-instruct-v0.3 (fallback)
+    # M3: deepseek-r1-0528-qwen3-8b (reasoning fallback, 18s)
     # OL1: qwen3:1.7b (local rapide) + cloud (minimax, glm-5, kimi)
     # M2: OFFLINE (2026-03-06)
     models: dict[str, str] = field(default_factory=lambda: {

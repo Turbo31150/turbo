@@ -318,12 +318,12 @@ class QualityGate:
             return "M1"  # Fastest local
         if "length" in failed_gates or "structure" in failed_gates:
             if current_node in ("OL1", "M3"):
-                return "M1"  # M1 gives better quality than M1B for structure
-            return "gpt-oss"  # Best quality cloud
+                return "M1"  # M1 gives best quality for structure
+            return "M1"  # Best quality local
         if "relevance" in failed_gates:
             if current_node == "OL1":
                 return "M1"
-            return "gpt-oss"  # Best quality cloud
+            return "M1"  # Best quality local
         return ""
 
     def auto_tune_from_data(self, min_samples: int = 10) -> dict:
