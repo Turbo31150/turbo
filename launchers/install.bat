@@ -1,6 +1,6 @@
 @echo off
 echo ============================================
-echo    JARVIS Turbo v10.1 — Installation
+echo    JARVIS Turbo v10.6 — Installation
 echo ============================================
 echo.
 

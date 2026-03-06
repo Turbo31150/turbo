@@ -2215,7 +2215,7 @@ def feedback_trends_tool() -> str:
 
 # ── Phase 13: Dispatch Engine + Prompt Optimizer + Auto Scaler + Event Stream + Ensemble ──
 
-@tool()
+@tool("dispatch_engine", "Pipeline unifie: health→route→dispatch→feedback→memory.", {"pattern": str, "prompt": str})
 def dispatch_engine_tool(pattern: str, prompt: str) -> str:
     """Pipeline unifie: health→route→dispatch→feedback→memory."""
     import asyncio
@@ -2230,42 +2230,42 @@ def dispatch_engine_tool(pattern: str, prompt: str) -> str:
     }, ensure_ascii=False)
 
 
-@tool()
+@tool("dispatch_engine_stats", "Stats pipeline dispatch unifie.", {})
 def dispatch_engine_stats_tool() -> str:
     """Stats pipeline dispatch unifie."""
     from src.dispatch_engine import get_engine
     return json.dumps(get_engine().get_stats(), ensure_ascii=False)
 
 
-@tool()
+@tool("dispatch_engine_report", "Rapport detaille pipeline dispatch.", {})
 def dispatch_engine_report_tool() -> str:
     """Rapport detaille pipeline dispatch."""
     from src.dispatch_engine import get_engine
     return json.dumps(get_engine().get_pipeline_report(), ensure_ascii=False)
 
 
-@tool()
+@tool("prompt_optimize", "Optimiser un prompt pour un pattern donne.", {"pattern": str, "prompt": str})
 def prompt_optimize_tool(pattern: str, prompt: str) -> str:
     """Optimiser un prompt pour un pattern donne."""
     from src.agent_prompt_optimizer import get_optimizer
     return json.dumps(get_optimizer().optimize(pattern, prompt), ensure_ascii=False)
 
 
-@tool()
+@tool("prompt_insights", "Insights sur les prompts par pattern.", {"pattern": str})
 def prompt_insights_tool(pattern: str = "") -> str:
     """Insights sur les prompts par pattern."""
     from src.agent_prompt_optimizer import get_optimizer
     return json.dumps(get_optimizer().get_insights(pattern or None), ensure_ascii=False)
 
 
-@tool()
+@tool("prompt_analyze", "Analyser un prompt et suggerer des ameliorations.", {"pattern": str, "prompt": str})
 def prompt_analyze_tool(pattern: str, prompt: str) -> str:
     """Analyser un prompt et suggerer des ameliorations."""
     from src.agent_prompt_optimizer import get_optimizer
     return json.dumps(get_optimizer().analyze_prompt(pattern, prompt), ensure_ascii=False)
 
 
-@tool()
+@tool("auto_scaler_metrics", "Metriques de charge par noeud.", {})
 def auto_scaler_metrics_tool() -> str:
     """Metriques de charge par noeud."""
     from src.agent_auto_scaler import get_scaler
@@ -2274,28 +2274,28 @@ def auto_scaler_metrics_tool() -> str:
                            "req_5min": m.requests_last_5min} for n, m in metrics.items()}, ensure_ascii=False)
 
 
-@tool()
+@tool("auto_scaler_capacity", "Rapport capacite cluster complet.", {})
 def auto_scaler_capacity_tool() -> str:
     """Rapport capacite cluster complet."""
     from src.agent_auto_scaler import get_scaler
     return json.dumps(get_scaler().get_capacity_report(), ensure_ascii=False)
 
 
-@tool()
+@tool("event_stream_latest", "Derniers evenements du flux temps reel.", {"topic": str, "n": int})
 def event_stream_latest_tool(topic: str = "", n: int = 10) -> str:
     """Derniers evenements du flux temps reel."""
     from src.event_stream import get_stream
     return json.dumps(get_stream().get_latest(topic or None, n), ensure_ascii=False)
 
 
-@tool()
+@tool("event_stream_stats", "Stats du flux d'evenements.", {})
 def event_stream_stats_tool() -> str:
     """Stats du flux d'evenements."""
     from src.event_stream import get_stream
     return json.dumps(get_stream().get_stats(), ensure_ascii=False)
 
 
-@tool()
+@tool("ensemble_execute", "Execution ensemble multi-agents avec scoring.", {"pattern": str, "prompt": str, "strategy": str})
 def ensemble_execute_tool(pattern: str, prompt: str, strategy: str = "best_of_n") -> str:
     """Execution ensemble multi-agents avec scoring."""
     import asyncio
@@ -2311,7 +2311,7 @@ def ensemble_execute_tool(pattern: str, prompt: str, strategy: str = "best_of_n"
     }, ensure_ascii=False)
 
 
-@tool()
+@tool("ensemble_stats", "Stats des executions ensemble.", {})
 def ensemble_stats_tool() -> str:
     """Stats des executions ensemble."""
     from src.agent_ensemble import get_ensemble
@@ -2320,7 +2320,7 @@ def ensemble_stats_tool() -> str:
 
 # ── Phase 14: Quality Gate + Lifecycle + Intelligence ────────────────────────
 
-@tool()
+@tool("quality_gate", "Evaluer la qualite d'un output agent (6 gates).", {"pattern": str, "prompt": str, "content": str})
 def quality_gate_tool(pattern: str, prompt: str, content: str) -> str:
     """Evaluer la qualite d'un output agent (6 gates)."""
     from src.quality_gate import get_gate
@@ -2331,35 +2331,35 @@ def quality_gate_tool(pattern: str, prompt: str, content: str) -> str:
     }, ensure_ascii=False)
 
 
-@tool()
+@tool("lifecycle_health", "Rapport sante de tous les patterns.", {})
 def lifecycle_health_tool() -> str:
     """Rapport sante de tous les patterns."""
     from src.pattern_lifecycle import get_lifecycle
     return json.dumps(get_lifecycle().health_report(), ensure_ascii=False, default=str)
 
 
-@tool()
+@tool("lifecycle_actions", "Actions lifecycle suggerees (evolve, deprecate, merge).", {})
 def lifecycle_actions_tool() -> str:
     """Actions lifecycle suggerees (evolve, deprecate, merge)."""
     from src.pattern_lifecycle import get_lifecycle
     return json.dumps(get_lifecycle().suggest_actions(), ensure_ascii=False)
 
 
-@tool()
+@tool("intelligence_report", "Rapport intelligence cluster unifie (health score 0-100).", {})
 def intelligence_report_tool() -> str:
     """Rapport intelligence cluster unifie (health score 0-100)."""
     from src.cluster_intelligence import get_intelligence
     return json.dumps(get_intelligence().full_report(), ensure_ascii=False, default=str)
 
 
-@tool()
+@tool("intelligence_status", "Statut rapide cluster.", {})
 def intelligence_status_tool() -> str:
     """Statut rapide cluster."""
     from src.cluster_intelligence import get_intelligence
     return json.dumps(get_intelligence().quick_status(), ensure_ascii=False)
 
 
-@tool()
+@tool("intelligence_actions", "Actions prioritaires du cluster intelligence.", {})
 def intelligence_actions_tool() -> str:
     """Actions prioritaires du cluster intelligence."""
     from src.cluster_intelligence import get_intelligence
@@ -2369,7 +2369,7 @@ def intelligence_actions_tool() -> str:
 
 # ── Cowork Bridge ────────────────────────────────────────────────────────────
 
-@tool()
+@tool("cowork_list", "Lister les scripts cowork par categorie.", {"category": str})
 def cowork_list_tool(category: str = "") -> str:
     """Lister les scripts cowork (414+) par categorie."""
     from src.cowork_bridge import get_bridge
@@ -2377,14 +2377,14 @@ def cowork_list_tool(category: str = "") -> str:
     return json.dumps(scripts[:50], ensure_ascii=False)
 
 
-@tool()
+@tool("cowork_search", "Chercher un script cowork par nom ou description.", {"query": str})
 def cowork_search_tool(query: str) -> str:
     """Chercher un script cowork par nom ou description."""
     from src.cowork_bridge import get_bridge
     return json.dumps(get_bridge().search(query, limit=20), ensure_ascii=False)
 
 
-@tool()
+@tool("cowork_execute", "Executer un script cowork avec --once.", {"script": str})
 def cowork_execute_tool(script: str) -> str:
     """Executer un script cowork avec --once."""
     from src.cowork_bridge import get_bridge
@@ -2395,7 +2395,7 @@ def cowork_execute_tool(script: str) -> str:
     }, ensure_ascii=False)
 
 
-@tool()
+@tool("cowork_stats", "Stats du bridge cowork.", {})
 def cowork_stats_tool() -> str:
     """Stats du bridge cowork (414+ scripts)."""
     from src.cowork_bridge import get_bridge
@@ -2404,13 +2404,13 @@ def cowork_stats_tool() -> str:
 
 # ── Phase 15: Self-Improvement Loop ─────────────────────────────────────
 
-@_track_metrics
+@tool("self_improvement_analyze", "Analyse complete des performances et gate failures pour auto-amelioration.", {})
 def self_improvement_analyze_tool() -> str:
     """Analyse complete des performances et gate failures pour auto-amelioration."""
     from src.self_improvement import get_improver
     return json.dumps(get_improver().analyze(), ensure_ascii=False, indent=2)
 
-@_track_metrics
+@tool("self_improvement_suggest", "Suggestions d'amelioration automatiques.", {})
 def self_improvement_suggest_tool() -> str:
     """Suggestions d'amelioration automatiques (route_shift, temp_adjust, gate_tune, prompt_enhance)."""
     from src.self_improvement import get_improver
@@ -2419,14 +2419,14 @@ def self_improvement_suggest_tool() -> str:
                         "description": a.description, "priority": a.priority}
                        for a in actions], ensure_ascii=False, indent=2)
 
-@_track_metrics
+@tool("self_improvement_apply", "Appliquer les ameliorations suggerees.", {"auto": bool, "max_actions": int})
 def self_improvement_apply_tool(auto: bool = False, max_actions: int = 5) -> str:
     """Appliquer les ameliorations suggerees. auto=True pour appliquer les critiques/high automatiquement."""
     from src.self_improvement import get_improver
     results = get_improver().apply_improvements(auto=auto, max_actions=max_actions)
     return json.dumps(results, ensure_ascii=False, indent=2)
 
-@_track_metrics
+@tool("self_improvement_stats", "Stats du self-improvement loop.", {})
 def self_improvement_stats_tool() -> str:
     """Stats du self-improvement loop."""
     from src.self_improvement import get_improver
@@ -2435,19 +2435,19 @@ def self_improvement_stats_tool() -> str:
 
 # ── Phase 15: Dynamic Agents ───────────────────────────────────────────
 
-@_track_metrics
+@tool("dynamic_agents_list", "Lister les agents dynamiques charges depuis la DB.", {})
 def dynamic_agents_list_tool() -> str:
     """Lister les 56+ agents dynamiques charges depuis la DB."""
     from src.dynamic_agents import get_spawner
     return json.dumps(get_spawner().list_agents(), ensure_ascii=False, indent=2)
 
-@_track_metrics
+@tool("dynamic_agents_stats", "Stats des agents dynamiques.", {})
 def dynamic_agents_stats_tool() -> str:
     """Stats des agents dynamiques: strategie, noeuds, cowork scripts."""
     from src.dynamic_agents import get_spawner
     return json.dumps(get_spawner().get_stats(), ensure_ascii=False, indent=2)
 
-@_track_metrics
+@tool("dynamic_agents_register", "Enregistrer tous les agents dynamiques dans le PatternAgentRegistry.", {})
 def dynamic_agents_register_tool() -> str:
     """Enregistrer tous les agents dynamiques dans le PatternAgentRegistry live."""
     from src.dynamic_agents import get_spawner
@@ -2457,7 +2457,7 @@ def dynamic_agents_register_tool() -> str:
 
 # ── Phase 15: Cowork Proactive ──────────────────────────────────────────
 
-@_track_metrics
+@tool("cowork_proactive_needs", "Detecter les besoins systeme pour execution proactive.", {})
 def cowork_proactive_needs_tool() -> str:
     """Detecter les besoins systeme pour execution proactive de scripts cowork."""
     from src.cowork_proactive import get_proactive
@@ -2466,14 +2466,14 @@ def cowork_proactive_needs_tool() -> str:
                         "description": n.description, "source": n.source}
                        for n in needs], ensure_ascii=False, indent=2)
 
-@_track_metrics
+@tool("cowork_proactive_run", "Cycle proactif: detecter besoins -> planifier -> executer.", {"dry_run": bool, "max_scripts": int})
 def cowork_proactive_run_tool(dry_run: bool = True, max_scripts: int = 5) -> str:
     """Cycle proactif: detecter besoins -> planifier scripts -> executer."""
     from src.cowork_proactive import get_proactive
     return json.dumps(get_proactive().run_proactive(max_scripts=max_scripts, dry_run=dry_run),
                       ensure_ascii=False, indent=2)
 
-@_track_metrics
+@tool("cowork_proactive_anticipate", "Predictions de besoins futurs bases sur les tendances.", {})
 def cowork_proactive_anticipate_tool() -> str:
     """Predictions de besoins futurs bases sur les tendances."""
     from src.cowork_proactive import get_proactive

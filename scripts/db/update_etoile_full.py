@@ -246,7 +246,7 @@ stats_meta = json.dumps({
         cat_labels.get(cat, cat.title()): len(cats[cat])
         for cat in sorted(cats.keys())
     },
-    "version": "v10.3",
+    "version": "v10.6",
     "date": "2026-02-22",
 }, ensure_ascii=False)
 cur.execute(

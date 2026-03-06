@@ -118,6 +118,7 @@ const NAV_GROUPS: NavGroup[] = [
       { id: 'scheduler', label: 'Scheduler', icon: <GearIcon /> },
       { id: 'queue', label: 'Queue', icon: <PipelineIcon /> },
       { id: 'toolbox', label: 'Toolbox', icon: <ToolboxIcon /> },
+      { id: 'terminal', label: 'Terminal', icon: <LogsIcon /> },
     ],
   },
   {

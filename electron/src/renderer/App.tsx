@@ -43,6 +43,7 @@ const AutomationPage = lazy(() => import('./pages/AutomationPage'));
 const ProcessesPage = lazy(() => import('./pages/ProcessesPage'));
 const SnapshotsPage = lazy(() => import('./pages/SnapshotsPage'));
 const SystemPage = lazy(() => import('./pages/SystemPage'));
+const TerminalPage = lazy(() => import('./pages/TerminalPage'));
 
 const PAGE_COMPONENTS: Record<Page, React.LazyExoticComponent<React.ComponentType>> = {
   dashboard: DashboardPage,
@@ -73,6 +74,7 @@ const PAGE_COMPONENTS: Record<Page, React.LazyExoticComponent<React.ComponentTyp
   processes: ProcessesPage,
   snapshots: SnapshotsPage,
   system: SystemPage,
+  terminal: TerminalPage,
 };
 
 const CSS = `

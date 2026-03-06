@@ -1,9 +1,9 @@
 @echo off
-title JARVIS v10.3 - Mode Vocal
+title JARVIS v10.6 - Mode Vocal
 color 0A
 echo.
 echo  ==========================================
-echo    JARVIS v10.3 - MODE VOCAL
+echo    JARVIS v10.6 - MODE VOCAL
 echo    76 outils MCP ^| 2332 commandes ^| Brain IA
 echo  ==========================================
 echo.

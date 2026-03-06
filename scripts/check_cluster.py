@@ -1,4 +1,4 @@
-"""Check cluster status on M1, M2, and OL1 — Optimized for JARVIS Turbo v10.1."""
+"""Check cluster status on M1, M2, and OL1 — Optimized for JARVIS Turbo v10.6."""
 import asyncio
 import httpx
 import time
@@ -72,7 +72,7 @@ async def main():
         results = await asyncio.gather(*tasks)
 
     print("=" * 60)
-    print("  JARVIS Turbo v10.1 — Cluster Health Check")
+    print("  JARVIS Turbo v10.6 — Cluster Health Check")
     print("=" * 60)
 
     total_models = 0
