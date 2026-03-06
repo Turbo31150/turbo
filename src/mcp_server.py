@@ -5303,6 +5303,23 @@ async def handle_cowork_proactive_stats(args: dict) -> list[TextContent]:
     from src.cowork_proactive import get_proactive
     return _text(json.dumps(get_proactive().get_stats(), ensure_ascii=False))
 
+async def handle_linkedin_generate(args: dict) -> list[TextContent]:
+    """Generate LinkedIn content (post FR + EN + 3 strategic comments)."""
+    import subprocess
+    idea = args.get("idea", "Les systemes IA distribues multi-GPU")
+    topic = args.get("topic", "tech/IA")
+    tone = args.get("tone", "expert")
+    cmd = [sys.executable, str(Path("cowork/dev/linkedin_content_generator.py")),
+           "--idea", idea, "--topic", topic, "--tone", tone, "--json"]
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=300,
+                           cwd=str(Path(__file__).resolve().parent.parent))
+        if r.returncode == 0:
+            return _text(r.stdout)
+        return _error(f"linkedin_generate failed: {r.stderr[:500]}")
+    except subprocess.TimeoutExpired:
+        return _error("linkedin_generate: timeout 300s")
+
 async def handle_timeout_auto_fix(args: dict) -> list[TextContent]:
     """Auto-fix timeout values based on actual dispatch latency data."""
     from cowork.dev.timeout_auto_fixer import analyze_timeouts, suggest_adjustments, apply_adjustments
@@ -6147,6 +6164,7 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     ("cowork_proactive_run", "Cycle proactif: detecter -> planifier -> executer.", {"max_scripts": "number", "dry_run": "boolean"}, handle_cowork_proactive_run),
     ("cowork_proactive_anticipate", "Predictions de besoins futurs.", {}, handle_cowork_proactive_anticipate),
     ("cowork_proactive_stats", "Stats du moteur proactif.", {}, handle_cowork_proactive_stats),
+    ("linkedin_generate", "Generer contenu LinkedIn optimise (post FR + EN + 3 commentaires strategiques).", {"idea": "string", "topic": "string", "tone": "string"}, handle_linkedin_generate),
     ("timeout_auto_fix", "Auto-corriger les timeouts dispatch (analyse latence + ajustement).", {"dry_run": "boolean"}, handle_timeout_auto_fix),
     ("dispatch_integration_test", "Tests d'integration du pipeline dispatch (6 tests).", {}, handle_dispatch_integration_test),
     # Phase 15: Reflection Engine (3)

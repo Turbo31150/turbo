@@ -564,6 +564,14 @@ TASKS = {
         "category": "utilities",
         "timeout_s": 900,
     },
+    "linkedin_content": {
+        "script": "linkedin_content_generator.py",
+        "args": ["--once"],
+        "interval_min": 1440,
+        "priority": 5,
+        "category": "content_marketing",
+        "timeout_s": 300,
+    },
 }
 
 

@@ -12,7 +12,7 @@
 <h3 align="center">Orchestrateur IA Distribue Multi-GPU — HEXA_CORE + Telegram Autonome + 96 Agent Patterns + Self-Improving + 432 COWORK Scripts + 68 Taches Orchestrateur + Auto-Restart Watchdog</h3>
 
 <p align="center">
-  <strong>Systeme d'intelligence artificielle distribue sur 3 machines physiques, 10 GPU NVIDIA (~78 GB VRAM), 14 modeles IA (4 local + 10 cloud) et 80 skills autonomes. Controle vocal en francais avec 443 commandes + 853 voice commands + 835 domino cascades + 2,628 corrections vocales. Bot Telegram autonome (@turboSSebot) via canvas bridge (port 18800, 96 agent patterns). Dispatch engine 9 etapes avec quality gate 6 portes + self-improvement + pattern evolution + reflection engine. Messages vocaux TTS DeniseNeural + Whisper STT CUDA. WhisperFlow voice overlay (Electron + OpenClaw fallback + Telegram bridge). Trading algorithmique MEXC multi-consensus. Interface desktop Electron 29 pages. 253 modules source (96,086 lignes), 3,665 tests (100% pass), 432 scripts COWORK continu, 68 taches orchestrateur autonome. Auto-restart watchdog Windows (7 services surveilles).</strong>
+  <strong>Systeme d'intelligence artificielle distribue sur 3 machines physiques, 10 GPU NVIDIA (~78 GB VRAM), 14 modeles IA (4 local + 10 cloud) et 80 skills autonomes. Controle vocal en francais avec 443 commandes + 853 voice commands + 835 domino cascades + 2,628 corrections vocales. Bot Telegram autonome (@turboSSebot) via canvas bridge (port 18800, 96 agent patterns). Dispatch engine 9 etapes avec quality gate 6 portes + self-improvement + pattern evolution + reflection engine. Messages vocaux TTS DeniseNeural + Whisper STT CUDA. WhisperFlow voice overlay (Electron + OpenClaw fallback + Telegram bridge). Trading algorithmique MEXC multi-consensus. Interface desktop Electron 29 pages. 253 modules source (96,086 lignes), 3,665 tests (100% pass), 435 scripts COWORK continu, 69 taches orchestrateur autonome. Auto-restart watchdog Windows (7 services surveilles).</strong>
 </p>
 
 <p align="center">
@@ -28,13 +28,13 @@
 | **GPU** | 10 NVIDIA / ~78 GB VRAM | RTX 3080 10GB, RTX 2060 12GB, 4x GTX 1660S 6GB, 3x GPU M2 24GB, 1x GPU M3 8GB |
 | **Modeles IA** | 14 (4 local + 10 cloud) | M1 qwen3-8b + gpt-oss-20b, M2 deepseek-r1, M3 deepseek-r1, OL1 qwen3:14b/1.7b + 10 cloud |
 | **Agents** | 7 SDK + 11 Plugin + 96 Patterns | 114 agents total — 7 Claude SDK + 11 plugin + 96 patterns DB (20 hardcoded + 76 dynamiques) |
-| **Outils MCP** | 167 tools + 602 handlers | tools.py (167 fonctions) + mcp_server.py (602 async def handle_*) = 769 total |
+| **Outils MCP** | 167 tools + 603 handlers | tools.py (167 fonctions) + mcp_server.py (603 async def handle_*) = 769 total |
 | **REST Endpoints** | 504 | server.py — FastAPI WebSocket backend Electron |
 | **Commandes vocales** | 443 commandes + 853 voice commands | 443 commands + 853 voice_commands jarvis.db + 835 domino chains |
 | **Domino Cascades** | 835 cascades / 1,628 logs | 11 categories, 84 actions Python, 28 param patterns, 40 pipelines domino |
 | **Corrections vocales** | 2,628 entries | voice_corrections jarvis.db |
 | **Skills** | 80 (jarvis.db) + 30 skills_log (etoile.db) | Persistants en DB, 10 plugin skills |
-| **Source Python** | 253 modules / 96,086 lignes | src/ uniquement (170,000+ total avec COWORK dev/ 432 scripts) |
+| **Source Python** | 253 modules / 96,086 lignes | src/ uniquement (170,000+ total avec COWORK dev/ 435 scripts) |
 | **Databases** | 5 bases SQL (140 tables) | etoile.db (51t) + jarvis.db (13t) + sniper.db (4t) + finetuning.db (8t) + cowork_gaps.db (64t) |
 | **Tests** | 3,665 tests (83 suites) | 100% pass — pytest strict asyncio mode |
 | **Plugin** | 24 slash commands | + 10 skills + 11 agents + 4 hooks (plugin v3.1) |
@@ -43,7 +43,7 @@
 | **Trading** | v2.3 Multi-GPU | MEXC Futures 10x, 6 IA consensus |
 | **Telegram Bot** | @turboSSebot autonome | canvas bridge (port 18800) + cluster race 5 noeuds + Whisper STT + DeniseNeural TTS |
 | **OpenClaw** | 96 agent patterns | 7 providers (M1, M1B, M2, M3, OL1, Gemini, Claude), fallback cascade |
-| **COWORK** | 432 scripts + 68 taches orchestrateur | dev continu 24/7, monitoring resilience, 13 mega-runners (glob dynamique), couverture 99.3% |
+| **COWORK** | 435 scripts + 69 taches orchestrateur | dev continu 24/7, monitoring resilience, 13 mega-runners (glob dynamique), couverture 99.3% |
 | **Voix TTS** | DeniseNeural (femme) | Edge TTS Neural + ffmpeg OGG Opus + Telegram sendVoice |
 | **Voix STT** | Whisper large-v3-turbo | Transcription vocaux Telegram entrants, CUDA accelere |
 | **Launchers** | **46** scripts .bat/.ps1 | Windows batch/PowerShell launchers pour tous les services JARVIS |
@@ -52,16 +52,16 @@
 
 ## Nouveautes v12.4 — Self-Improving AI + 432 COWORK + 96 Pattern Agents + Quality Gate + WhisperFlow + 68 Taches Autonomes (2026-03-06)
 
-> **432 scripts COWORK** en developpement continu autonome (132 batches). **96 agent patterns** en DB avec dispatch dynamique. **Dispatch engine 9 etapes** avec quality gate 6 portes, self-improvement, pattern evolution et reflection engine. **253 modules Python** (96,086 lignes src/). **3,665 tests** (83 suites). Bot Telegram via canvas bridge avec cluster race 5 noeuds. **29 pages Electron**. **WhisperFlow** voice overlay. **68 taches orchestrateur autonome** + 13 mega-runners (couverture 99.3% des 432 scripts).
+> **435 scripts COWORK** en developpement continu autonome (132 batches). **96 agent patterns** en DB avec dispatch dynamique. **Dispatch engine 9 etapes** avec quality gate 6 portes, self-improvement, pattern evolution et reflection engine. **253 modules Python** (96,086 lignes src/). **3,665 tests** (83 suites). Bot Telegram via canvas bridge avec cluster race 5 noeuds. **29 pages Electron**. **WhisperFlow** voice overlay. **69 taches orchestrateur autonome** + 13 mega-runners (couverture 99.3% des 435 scripts).
 
 ### Changements v11.0.0 → v12.4
 
 | Categorie | Avant | Apres | Detail |
 |-----------|-------|-------|--------|
-| **COWORK Scripts** | 319 scripts | **432 scripts** | +112 scripts (10 categories, 101 prefixes, 13 mega-runners) |
+| **COWORK Scripts** | 319 scripts | **435 scripts** | +112 scripts (10 categories, 101 prefixes, 13 mega-runners) |
 | **Modules src/** | 215 modules | **253 modules** | +38 modules (reflection_engine, pattern_evolution, quality_gate, event_stream, etc.) |
 | **Tests** | 528 tests | **3,665 tests** | +3,137 tests (83 fichiers: phase3-phase43 + pattern_agents + security + telegram + windows) |
-| **MCP Handlers** | 531 handlers | **602 handlers** | +71 (self_improvement, dynamic_agents, cowork, reflection, evolution, etc.) |
+| **MCP Handlers** | 531 handlers | **603 handlers** | +71 (self_improvement, dynamic_agents, cowork, reflection, evolution, etc.) |
 | **SDK Tools** | 117 outils | **167 @tool()** | +50 (cluster, browser, proactive, feedback) |
 | **REST Endpoints** | ~400 | **504 endpoints** | +104 (self_improvement, dynamic_agents, cowork, reflection, evolution, tts) |
 | **Agent Patterns** | 35 OpenClaw | **96 patterns DB** + 20 hardcoded = **116 total** | dispatch_engine route vers patterns dynamiques |
@@ -203,7 +203,7 @@ JARVIS tourne en permanence sur Telegram (@turboSSebot). Il se donne ses propres
 
 **Distribution :** Code → gpt-oss/M1 | Windows → agent windows | Trading → OL1 web | Architecture → GEMINI | Raisonnement → CLAUDE. Consensus multi-IA (vote pondere) pour les decisions critiques.
 
-### COWORK — Developpement Continu Autonome (432 scripts, 68 taches orchestrateur, 132 batches)
+### COWORK — Developpement Continu Autonome (435 scripts, 69 taches orchestrateur, 132 batches)
 
 | Batch | Theme | Scripts | Status |
 |-------|-------|---------|--------|
@@ -226,7 +226,7 @@ JARVIS tourne en permanence sur Telegram (@turboSSebot). Il se donne ses propres
 | 47 | Cluster Intel Avancee | model_selector, cluster_autoscaler, consensus_voter | Cron programme |
 | 48 | Productivite | workflow_builder, time_tracker, focus_mode | Cron programme |
 
-**316+ crons 24/7 (batches 1-132). 132 batches total, 432 scripts. Orchestrateur autonome 68 taches + 13 mega-runners (couverture 99.3%). Categories: health/trading/dispatch/monitoring/security/evolution/dominos/maintenance/testing/voice/cluster/communication/automation/utilities. Repo: [jarvis-cowork](https://github.com/Turbo31150/jarvis-cowork)**
+**316+ crons 24/7 (batches 1-132). 132 batches total, 435 scripts. Orchestrateur autonome 68 taches + 13 mega-runners (couverture 99.3%). Categories: health/trading/dispatch/monitoring/security/evolution/dominos/maintenance/testing/voice/cluster/communication/automation/utilities. Repo: [jarvis-cowork](https://github.com/Turbo31150/jarvis-cowork)**
 
 Principaux crons recurrents :
 - **5 min** : dev_proactive_check, dev_electron_monitor
@@ -422,7 +422,7 @@ JARVIS execute ces taches tout seul, 24h/24, et te previent sur Telegram si quel
 | **Features Telegram** | Toutes les 12h | Ameliore le bot Telegram et ses commandes |
 | **Infra de tests** | Quotidien | Ameliore la couverture de tests |
 
-### Les 432 scripts operationnels (jarvis-cowork)
+### Les 435 scripts operationnels (jarvis-cowork)
 
 Voir [jarvis-cowork](https://github.com/Turbo31150/jarvis-cowork) pour le repo complet et la doc detaillee.
 
@@ -823,7 +823,7 @@ Commande vocale → Collecte PowerShell (CPU/RAM/GPU/Disques)
 - [Trading MEXC Futures](#trading-mexc-futures)
 - [Telegram Bot Autonome](#telegram-bot-autonome-turbossebot)
 - [Desktop Electron (29 pages)](#desktop-electron)
-- [COWORK Autonome (432 scripts)](#cowork-autonome-432-scripts-68-taches-orchestrateur-13-mega-runners)
+- [COWORK Autonome (435 scripts)](#cowork-autonome-432-scripts-68-taches-orchestrateur-13-mega-runners)
 - [Arborescence du Projet](#arborescence-du-projet)
 - [Installation](#installation)
 - [Benchmark Cluster](#benchmark-cluster)
@@ -894,7 +894,7 @@ Branchements supplementaires :
     M1 ──> Dashboard :8080 ──> Browser web
     M1 ──> n8n :5678 ──> 20 workflows
     M1 ──> CDP :9222 ──> Comet/Chrome/Edge (browser_pilot.py)
-    OpenClaw ──> dev/*.py (432 scripts) ──> SQLite (dev/data/*.db)
+    OpenClaw ──> dev/*.py (435 scripts) ──> SQLite (dev/data/*.db)
 ```
 
 ### Fallback Cascade (code)
@@ -1252,10 +1252,10 @@ mao-workflow, cluster-management, trading-pipeline, failover-recovery, security-
 
 ## 167 Outils MCP + 602 Handlers
 
-Chiffres reels verifies (2026-03-06) : `tools.py` (167 fonctions) + `mcp_server.py` (602 async def handle_*).
+Chiffres reels verifies (2026-03-06) : `tools.py` (167 fonctions) + `mcp_server.py` (603 async def handle_*).
 
 ```
-JARVIS-TURBO tools.py (167 outils)     JARVIS-TURBO mcp_server.py (602 handlers)
+JARVIS-TURBO tools.py (167 outils)     JARVIS-TURBO mcp_server.py (603 handlers)
 ├── Cluster IA (15)                     ├── Cluster Management (60+)
 │   lm_query, consensus,               │   health_check, model_load/unload,
 │   bridge_mesh, bridge_query,          │   node_status, dispatch, routing
@@ -1312,7 +1312,7 @@ JARVIS-TURBO tools.py (167 outils)     JARVIS-TURBO mcp_server.py (602 handlers)
 
 | Serveur | Commande | Outils | Lignes |
 |---------|----------|--------|--------|
-| **jarvis-turbo** | `jarvis_mcp_stdio.bat` | 167 tools + 602 handlers | ~8,800 lignes |
+| **jarvis-turbo** | `jarvis_mcp_stdio.bat` | 167 tools + 603 handlers | ~8,800 lignes |
 | **trading-ai-ultimate** | `trading_mcp_ultimate_v3.py` | Scanner MEXC, consensus, execution | — |
 | **filesystem** | `npx @modelcontextprotocol/server-filesystem` | Acces complet C:\, D:\, F:\ | — |
 
@@ -1762,9 +1762,9 @@ status, trading, health, services, benchmark, emails, workspace, report — auto
 
 ---
 
-## COWORK Autonome (432 scripts, 68 taches orchestrateur, 13 mega-runners)
+## COWORK Autonome (435 scripts, 69 taches orchestrateur, 13 mega-runners)
 
-Systeme de developpement continu autonome. 432 scripts Python standalone + 68 taches orchestrateur + 13 mega-runners (glob dynamique, couverture 99.3%). Chaque script a un argparse CLI (`--help`/`--once`) et une base SQLite locale dans `dev/data/`.
+Systeme de developpement continu autonome. 435 scripts Python standalone + 69 taches orchestrateur + 13 mega-runners (glob dynamique, couverture 99.3%). Chaque script a un argparse CLI (`--help`/`--once`) et une base SQLite locale dans `dev/data/`.
 
 ### Domaines couverts
 
@@ -1805,7 +1805,7 @@ turbo/
 │   ├── commander.py           # Pipeline Commander (classify/decompose/enrich)
 │   ├── agents.py              # 7 agents Claude SDK (deep/fast/check/trading/system/bridge/consensus)
 │   ├── tools.py               # 167 outils MCP SDK
-│   ├── mcp_server.py          # 602 handlers MCP
+│   ├── mcp_server.py          # 603 handlers MCP
 │   ├── commands.py            # Commandes vocales principales
 │   ├── commands_dev.py        # Commandes developpement (git, ollama, docker)
 │   ├── commands_maintenance.py# Commandes maintenance
@@ -1991,10 +1991,10 @@ OLLAMA_NUM_PARALLEL=3 (env User persistant)
 | **Navigateur** | Comet (Perplexity) par defaut, Chrome/Edge fallback, CDP port 9222 |
 | **Voice** | Whisper large-v3-turbo (CUDA), Edge TTS fr-FR-DeniseNeural (femme), OpenWakeWord |
 | **Trading** | CCXT (MEXC Futures), scoring multi-IA, sniper.db (4 tables, 790 rows) |
-| **MCP** | 167 outils + 602 handlers, 3 serveurs MCP |
+| **MCP** | 167 outils + 603 handlers, 3 serveurs MCP |
 | **Database** | SQLite3 — 5 bases, 140 tables |
 | **Telegram** | Bot @turboSSebot autonome via canvas bridge (port 18800), cluster race 5 noeuds |
-| **Automation** | Playwright, Telegram Bot API, 432 scripts COWORK, 68 taches orchestrateur, 13 mega-runners |
+| **Automation** | Playwright, Telegram Bot API, 435 scripts COWORK, 69 taches orchestrateur, 13 mega-runners |
 | **DevOps** | GitHub, uv (Python packaging), 46 launchers .bat/.ps1 |
 | **Agents** | 114 total (7 Claude SDK + 11 Plugin + 96 Patterns DB) |
 
