@@ -53,7 +53,7 @@ CLUSTER_ENDPOINTS = {
         "type": "lmstudio",
         "url": "http://192.168.1.26:1234/api/v1/chat",
         "health_url": "http://192.168.1.26:1234/api/v1/models",
-        "description": "LM Studio - deepseek-coder-v2 (3 GPU 24GB)"
+        "description": "LM Studio - deepseek-r1-0528-qwen3-8b (3 GPU 24GB)"
     },
     "M3": {
         "host": "192.168.1.113",

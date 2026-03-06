@@ -40,7 +40,7 @@ class ClusterBenchmark:
             "port": 1234,
             "type": "lm_studio",
             "model": "deepseek-r1-0528-qwen3-8b",
-            "description": "Code specialist — deepseek-coder-v2 (85.1/100)"
+            "description": "Code specialist — deepseek-r1-0528-qwen3-8b (reasoning)"
         },
         "M3": {
             "host": "192.168.1.113",
