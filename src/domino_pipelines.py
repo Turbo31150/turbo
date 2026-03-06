@@ -1508,8 +1508,8 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
             DominoStep("tts_trading", "python:edge_tts_speak('Analyse trading IA terminee. Consensus genere.')", "python"),
         ],
         category="trading_cascade",
-        description="Analyse trading IA: prix + M1 analyse + gpt-oss analyse + consensus vote",
-        learning_context="Trading IA — consensus M1+gpt-oss sur top 5 paires, vote pondere",
+        description="Analyse trading IA: prix + M1 analyse + OL1 analyse + consensus vote",
+        learning_context="Trading IA — consensus M1+OL1 sur top 5 paires, vote pondere",
         priority="high",
     ),
     # ── Batch 76: 10 nouveaux dominos ─────────────────────────────────────
@@ -3239,7 +3239,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         steps=[
             DominoStep("m1_bench", "bash:curl -s --max-time 15 http://127.0.0.1:1234/api/v1/chat -H 'Content-Type: application/json' -d '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nDis OK.\",\"temperature\":0.1,\"max_output_tokens\":10,\"stream\":false,\"store\":false}' 2>/dev/null | head -c 50 || echo 'M1 TIMEOUT'", "bash", timeout_s=20),
             DominoStep("ol1_bench", "bash:curl -s --max-time 15 http://127.0.0.1:11434/api/chat -d '{\"model\":\"qwen3:1.7b\",\"messages\":[{\"role\":\"user\",\"content\":\"Dis OK.\"}],\"stream\":false}' 2>/dev/null | head -c 50 || echo 'OL1 TIMEOUT'", "bash", timeout_s=20),
-            DominoStep("m2_bench", "bash:curl -s --max-time 15 http://192.168.1.26:1234/api/v1/chat -H 'Content-Type: application/json' -d '{\"model\":\"deepseek-coder-v2-lite-instruct\",\"input\":\"Dis OK.\",\"temperature\":0.1,\"max_output_tokens\":10,\"stream\":false,\"store\":false}' 2>/dev/null | head -c 50 || echo 'M2 TIMEOUT'", "bash", timeout_s=20, on_fail="skip"),
+            DominoStep("m2_bench", "bash:curl -s --max-time 15 http://192.168.1.26:1234/api/v1/chat -H 'Content-Type: application/json' -d '{\"model\":\"deepseek-r1-0528-qwen3-8b\",\"input\":\"Dis OK.\",\"temperature\":0.1,\"max_output_tokens\":10,\"stream\":false,\"store\":false}' 2>/dev/null | head -c 50 || echo 'M2 TIMEOUT'", "bash", timeout_s=20, on_fail="skip"),
             DominoStep("tts", "python:edge_tts_speak('Benchmark complet du cluster. M1, OL1 et M2 testes.')", "python"),
         ],
         category="testing_pipeline",

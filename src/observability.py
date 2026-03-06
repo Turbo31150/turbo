@@ -22,7 +22,7 @@ logger = logging.getLogger("jarvis.observability")
 _METRICS_DB = Path(__file__).parent.parent / "data" / "metrics.db"
 
 # Nodes tracked
-NODES = ["M1", "M2", "M3", "OL1", "GEMINI", "CLAUDE", "gpt-oss", "devstral"]
+NODES = ["M1", "M2", "M3", "OL1"]
 
 # Metric types
 METRIC_TYPES = ["latency_ms", "success_rate", "throughput", "error_rate", "tokens_per_sec"]

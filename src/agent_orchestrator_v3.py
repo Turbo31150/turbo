@@ -95,7 +95,7 @@ WORKFLOWS = {
         OrchestratorStep("agent1", "code", "{original_prompt}", node_override="M1"),
         OrchestratorStep("agent2", "code", "{original_prompt}", node_override="OL1",
                          parallel_with=["agent1"]),
-        OrchestratorStep("agent3", "code", "{original_prompt}", node_override="gpt-oss",
+        OrchestratorStep("agent3", "code", "{original_prompt}", node_override="M2",
                          parallel_with=["agent1", "agent2"]),
     ],
     "quick-verify": [

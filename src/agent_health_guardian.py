@@ -77,7 +77,6 @@ class HealthGuardian:
     # Node endpoints for health checks
     HEALTH_CHECKS = {
         "M1": {"url": "http://127.0.0.1:1234/api/v1/models", "type": "lmstudio"},
-        "M1B": {"url": "http://127.0.0.1:1234/api/v1/models", "type": "lmstudio"},
         "M2": {"url": "http://192.168.1.26:1234/api/v1/models", "type": "lmstudio"},
         "M3": {"url": "http://192.168.1.113:1234/api/v1/models", "type": "lmstudio"},
         "OL1": {"url": "http://127.0.0.1:11434/api/tags", "type": "ollama"},

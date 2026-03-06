@@ -41,11 +41,7 @@ except ImportError:
 
 # Modeles par ordre de priorite
 REVIEW_MODELS = [
-    ("gpt-oss:120b-cloud", 180.0),       # Primary: 120B CHAMPION 100/100 51tok/s
-    ("devstral-2:123b-cloud", 180.0),    # Fallback #1: 123B code 96.5/100
-    ("qwen3-coder:480b-cloud", 180.0),   # Fallback #2: 480B code
-    ("kimi-k2.5:cloud", 120.0),          # Fallback #3: reasoning profond
-    ("qwen3:14b", 90.0),                 # Fallback local: raisonnement
+    ("qwen3:14b", 90.0),                 # Local: raisonnement (Ollama)
 ]
 
 REVIEW_SYSTEM = """Tu es un expert code reviewer senior. Analyse le code fourni et produis un rapport structure.
@@ -317,11 +313,8 @@ async def dual_review(code: str, context: str = "") -> tuple[ReviewResult, Revie
                 summary=str(e), latency_ms=0, raw="",
             )
 
-    r_primary, r_secondary = await asyncio.gather(
-        _single("gpt-oss:120b-cloud", 180.0),
-        _single("devstral-2:123b-cloud", 180.0),
-    )
-    return r_primary, r_secondary
+    r_primary = await _single("qwen3:14b", 90.0)
+    return r_primary, r_primary
 
 
 # ── CLI ──────────────────────────────────────────────────────────────────────
