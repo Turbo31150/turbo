@@ -12,6 +12,7 @@ Usage:
 
 import asyncio
 import json
+import pytest
 import sys
 import time
 from pathlib import Path
@@ -20,6 +21,7 @@ from pathlib import Path
 sys.path.insert(0, ".")
 
 
+@pytest.mark.asyncio
 async def test():
     print("=== JARVIS System Audit — Test Suite ===\n")
     passed = 0

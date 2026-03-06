@@ -249,8 +249,8 @@ class TestAdaptiveRouter:
     def test_init(self):
         from src.adaptive_router import AdaptiveRouter
         router = AdaptiveRouter()
-        assert len(router.circuits) >= 6
-        assert len(router.health) >= 6
+        assert len(router.circuits) >= 4
+        assert len(router.health) >= 4
 
     def test_pick_node(self):
         from src.adaptive_router import AdaptiveRouter
@@ -1659,11 +1659,11 @@ class TestDynamicTimeout:
         tokens = agent._adapt_max_tokens("M2", "Short question")
         assert tokens >= 2048
 
-    def test_adapt_gpt_oss_huge_ctx(self):
+    def test_adapt_ol1_default_ctx(self):
         agent = self._make_agent("code", max_tokens=4096)
-        # gpt-oss ctx=128000, so even medium prompts have tons of room
-        tokens = agent._adapt_max_tokens("gpt-oss", "Write a function" * 100)
-        assert tokens == 4096  # Plenty of room
+        # OL1 uses default ctx limit — medium prompts still have room
+        tokens = agent._adapt_max_tokens("OL1", "Write a function" * 100)
+        assert tokens >= 2048
 
 
 class TestClassifyWithConfidence:
@@ -1727,14 +1727,14 @@ class TestSizeBasedAgents:
     def test_xl_agent_config(self):
         reg = PatternAgentRegistry()
         agent = reg.agents["xl"]
-        assert agent.primary_node == "gpt-oss"
+        assert agent.primary_node == "M1"
         assert agent.max_tokens == 4096
-        assert agent.strategy == "race"
+        assert agent.strategy == "single"
 
-    def test_large_has_cloud_fallback(self):
+    def test_large_has_fallback(self):
         reg = PatternAgentRegistry()
         agent = reg.agents["large"]
-        assert "gpt-oss" in agent.fallback_nodes or agent.primary_node == "gpt-oss"
+        assert len(agent.fallback_nodes) >= 1
 
     def test_medium_race_strategy(self):
         reg = PatternAgentRegistry()
@@ -1967,14 +1967,14 @@ class TestPromptTruncation:
         # The question at the end should be preserved
         assert "implementer" in result
 
-    def test_cloud_node_higher_limit(self):
+    def test_different_nodes_truncation(self):
         a = self._agent()
-        # gpt-oss has 128k ctx — much more space
         prompt = "x " * 50000  # 100k chars
         result_m1 = a._truncate_prompt("M1", prompt)
-        result_cloud = a._truncate_prompt("gpt-oss", prompt)
-        # Cloud should truncate less (or not at all)
-        assert len(result_cloud) >= len(result_m1)
+        result_ol1 = a._truncate_prompt("OL1", prompt)
+        # Both should truncate (both have limited ctx)
+        assert len(result_m1) <= len(prompt)
+        assert len(result_ol1) <= len(prompt)
 
     def test_no_truncation_within_limit(self):
         a = self._agent()

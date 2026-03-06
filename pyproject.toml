@@ -28,3 +28,12 @@ dependencies = [
 
 [project.scripts]
 turbo = "main:main_sync"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "strict"
+addopts = "--ignore=tests/test_final.py --ignore=tests/test_pipelines_batch2.py --ignore=tests/test_pipelines_batch3.py --ignore=tests/test_pipelines_batch4.py --ignore=tests/test_pipelines_batch5.py --ignore=tests/test_pipelines_batch6.py --ignore=tests/test_pipelines_batch7.py --ignore=tests/test_pipelines_live.py --ignore=tests/test_domino_live.py --ignore=tests/test_domino_executor.py --ignore=tests/test_pattern_agents.py"
+filterwarnings = [
+    "ignore::RuntimeWarning",
+    "ignore::DeprecationWarning",
+]

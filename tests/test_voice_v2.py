@@ -1,7 +1,9 @@
 """Quick integration test for Voice Pipeline v2."""
 import asyncio
+import pytest
 import sys
 
+@pytest.mark.asyncio
 async def test():
     print("=== Voice Pipeline v2 — Integration Test ===\n")
     passed = 0

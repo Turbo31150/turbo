@@ -124,12 +124,12 @@ class TestAutonomousLoop:
         from src.autonomous_loop import AutonomousLoop
         loop = AutonomousLoop()
         assert not loop.is_running
-        assert len(loop._tasks) == 9  # 6 base + self_heal + 2 cron + proactive
+        assert len(loop._tasks) == 13  # 9 base + auto_develop + brain_auto_learn + improve_cycle + predict_next_actions
 
     def test_builtin_tasks_registered(self):
         from src.autonomous_loop import AutonomousLoop
         loop = AutonomousLoop()
-        expected = {"health_check", "gpu_monitor", "drift_reroute", "budget_alert", "auto_tune_sample", "self_heal", "db_backup", "weekly_cleanup", "proactive_suggest"}
+        expected = {"health_check", "gpu_monitor", "drift_reroute", "budget_alert", "auto_tune_sample", "self_heal", "db_backup", "weekly_cleanup", "proactive_suggest", "auto_develop", "brain_auto_learn", "improve_cycle", "predict_next_actions"}
         assert expected == set(loop._tasks.keys())
 
     def test_register_custom_task(self):
@@ -431,7 +431,7 @@ class TestSelfHealing:
     def test_builtin_count_updated(self):
         from src.autonomous_loop import AutonomousLoop
         loop = AutonomousLoop()
-        assert len(loop._tasks) == 9  # 5 original + self_heal + 2 cron + proactive
+        assert len(loop._tasks) == 13  # 9 base + 4 new autonomous tasks
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -477,7 +477,7 @@ class TestCronScheduler:
     def test_total_tasks_count(self):
         from src.autonomous_loop import AutonomousLoop
         loop = AutonomousLoop()
-        assert len(loop._tasks) == 9  # 6 + 2 cron + proactive
+        assert len(loop._tasks) == 13  # 9 base + 4 new autonomous tasks
 
 
 # ═══════════════════════════════════════════════════════════════════════════
