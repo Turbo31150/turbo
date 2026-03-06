@@ -891,6 +891,65 @@ conn.close()
         } catch (e) {
           return sendMessage(chatId, '🔴 ' + e.message.slice(0, 200));
         }
+      } else if (postSubCmd === 'scheduler') {
+        // /post scheduler [start|stop|status] — gerer le LinkedIn Scheduler daemon
+        const schedAction = postArgs.trim().split(' ')[0] || 'status';
+        const schedulerScript = path.join(__dirname, '..', 'scripts', 'linkedin_scheduler.py');
+        const lockFile = path.join(__dirname, '..', 'data', '.linkedin-scheduler.lock');
+        const fs = require('fs');
+
+        if (schedAction === 'status') {
+          let alive = false;
+          try {
+            if (fs.existsSync(lockFile)) {
+              const pid = parseInt(fs.readFileSync(lockFile, 'utf-8').trim());
+              process.kill(pid, 0); // signal 0 = check if alive
+              alive = true;
+            }
+          } catch (e) { alive = false; }
+          return sendMessage(chatId, alive
+            ? '🟢 *LinkedIn Scheduler* actif (PID: ' + fs.readFileSync(lockFile, 'utf-8').trim() + ')'
+            : '🔴 *LinkedIn Scheduler* inactif\nLancer: `/post scheduler start`', 'Markdown');
+        } else if (schedAction === 'start') {
+          // Check if already running
+          let alive = false;
+          try {
+            if (fs.existsSync(lockFile)) {
+              const pid = parseInt(fs.readFileSync(lockFile, 'utf-8').trim());
+              process.kill(pid, 0);
+              alive = true;
+            }
+          } catch (e) { alive = false; }
+          if (alive) return sendMessage(chatId, '🟢 Scheduler deja actif.');
+
+          const { spawn } = require('child_process');
+          const child = spawn('python', [schedulerScript], {
+            cwd: path.join(__dirname, '..'),
+            detached: true,
+            stdio: 'ignore',
+          });
+          child.unref();
+          return sendMessage(chatId, `🚀 *LinkedIn Scheduler* demarre (PID: ${child.pid})\nInterval: 60s | Routine: 8h, 12h, 18h`, 'Markdown');
+        } else if (schedAction === 'stop') {
+          try {
+            if (fs.existsSync(lockFile)) {
+              const pid = parseInt(fs.readFileSync(lockFile, 'utf-8').trim());
+              process.kill(pid, 'SIGTERM');
+              fs.unlinkSync(lockFile);
+              return sendMessage(chatId, `🛑 Scheduler arrete (PID: ${pid})`);
+            }
+            return sendMessage(chatId, '⚠️ Aucun scheduler actif.');
+          } catch (e) {
+            return sendMessage(chatId, '⚠️ ' + e.message.slice(0, 200));
+          }
+        } else {
+          return sendMessage(chatId, [
+            '*LinkedIn Scheduler*',
+            '`/post scheduler` — Statut',
+            '`/post scheduler start` — Demarrer',
+            '`/post scheduler stop` — Arreter',
+          ].join('\n'), 'Markdown');
+        }
       } else {
         return sendMessage(chatId, [
           '📱 *LinkedIn Publisher Pipeline*',
@@ -913,6 +972,11 @@ conn.close()
           '`/post comment <url> <texte>` — Commenter',
           '`/post routine` — Statut routine du jour',
           '`/post notif` — Notifications',
+          '',
+          '*Scheduler:*',
+          '`/post scheduler` — Statut du daemon',
+          '`/post scheduler start` — Demarrer le daemon',
+          '`/post scheduler stop` — Arreter le daemon',
           '',
           `Pipeline: Cluster M1+OL1+M2 → Validation → Playwright MCP`,
         ].join('\n'), 'Markdown');

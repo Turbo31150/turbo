@@ -18,8 +18,10 @@ Declenchable via:
   - WhisperFlow: "JARVIS verifie les posts LinkedIn"
   - Cron Windows: Task Scheduler toutes les heures
 """
+import atexit
 import json
 import os
+import signal
 import sqlite3
 import subprocess
 import sys
@@ -243,8 +245,44 @@ def trigger_routine():
     )
 
 
+LOCK_FILE = TURBO_DIR / "data" / ".linkedin-scheduler.lock"
+
+
+def write_pid():
+    """Write PID lock file for watchdog detection."""
+    LOCK_FILE.write_text(str(os.getpid()))
+
+
+def remove_pid():
+    """Remove PID lock file on exit."""
+    try:
+        LOCK_FILE.unlink(missing_ok=True)
+    except OSError:
+        pass
+
+
+def is_already_running():
+    """Check if another instance is already running via lock file."""
+    if not LOCK_FILE.exists():
+        return False
+    try:
+        pid = int(LOCK_FILE.read_text().strip())
+        if pid == os.getpid():
+            return False
+        os.kill(pid, 0)  # signal 0 = check alive
+        return True  # PID alive = another instance runs
+    except (ValueError, OSError):
+        return False  # PID dead or invalid = safe to start
+
+
 def scheduler_loop():
     """Boucle principale du scheduler."""
+    if is_already_running():
+        log("ABORT: autre instance deja active — exit")
+        sys.exit(0)
+    write_pid()
+    atexit.register(remove_pid)
+    signal.signal(signal.SIGTERM, lambda *_: (remove_pid(), sys.exit(0)))
     log("LinkedIn Scheduler demarre")
     log(f"Interval: {CHECK_INTERVAL}s | Routine hours: {ROUTINE_HOURS}")
 

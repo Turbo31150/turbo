@@ -97,6 +97,27 @@ DATABASES = {
 # Processes launched (for cleanup)
 _launched_procs: list[subprocess.Popen] = []
 
+# Singleton lock for unified boot
+BOOT_LOCK_FILE = TURBO_DIR / "data" / ".unified-boot.lock"
+
+
+def check_boot_singleton():
+    """Prevent multiple unified_boot instances. Exit if another is alive."""
+    if BOOT_LOCK_FILE.exists():
+        try:
+            pid = int(BOOT_LOCK_FILE.read_text().strip())
+            if pid != os.getpid():
+                os.kill(pid, 0)  # Check if alive
+                print(f"{C_RED}[XX] ABORT: unified_boot already running (PID {pid}){C_RESET}")
+                sys.exit(0)
+        except (ValueError, OSError):
+            pass  # PID dead or invalid, safe to proceed
+    BOOT_LOCK_FILE.parent.mkdir(parents=True, exist_ok=True)
+    BOOT_LOCK_FILE.write_text(str(os.getpid()))
+
+    import atexit
+    atexit.register(lambda: BOOT_LOCK_FILE.unlink(missing_ok=True))
+
 
 # ============================================================================
 # HELPERS
@@ -636,15 +657,24 @@ def phase_4_python_services(dry_run: bool = False, skip: list[str] | None = None
             # Needs WS backend (port 9742) first
             if check_port("127.0.0.1", 9742):
                 log("WhisperFlow: demarrage overlay...", "INFO", indent=1)
-                # Try Electron first, fallback to browser
-                try:
-                    start_process(
+                # Try npx electron (local install), then global, then browser fallback
+                wf_node_modules = whisperflow_dir / "node_modules" / ".bin" / "electron.cmd"
+                if wf_node_modules.exists():
+                    proc = start_process(
+                        [str(wf_node_modules), "."],
+                        "WhisperFlow", cwd=str(whisperflow_dir),
+                    )
+                elif subprocess.run(["where", "electron"], capture_output=True).returncode == 0:
+                    proc = start_process(
                         ["electron", "."],
                         "WhisperFlow", cwd=str(whisperflow_dir),
                     )
+                else:
+                    proc = None
+                if proc:
                     log("WhisperFlow: lance (Electron)", "OK", indent=1)
                     report["whisperflow"] = "started_electron"
-                except (OSError, FileNotFoundError):
+                else:
                     # Fallback: open in browser via WS backend
                     log("WhisperFlow: Electron absent, ouverture navigateur...", "INFO", indent=1)
                     import webbrowser
@@ -889,10 +919,11 @@ def check_process_alive(process_name: str) -> bool:
 
 
 # Process-based services (no port to check)
+_wf_electron = str(TURBO_DIR / "whisperflow" / "node_modules" / ".bin" / "electron.cmd")
 WATCH_PROCESSES = {
     "whisperflow": {
         "process_name": "electron.exe",
-        "cmd": ["electron", "."],
+        "cmd": [_wf_electron, "."] if Path(_wf_electron).exists() else ["electron", "."],
         "cwd": str(TURBO_DIR / "whisperflow"),
         "depends_on_port": 9742,
         "post_start_wait": 5,
@@ -971,6 +1002,43 @@ def watch_loop(interval: int = 60):
             time.sleep(3)
             log("  telegram_bot: relance", "OK")
 
+        # Check LinkedIn Scheduler (PID file based — no port)
+        # Also check if ANY linkedin_scheduler python process exists to avoid zombies
+        linkedin_lock = TURBO_DIR / "data" / ".linkedin-scheduler.lock"
+        linkedin_alive = False
+        if linkedin_lock.exists():
+            try:
+                pid = int(linkedin_lock.read_text().strip())
+                os.kill(pid, 0)
+                linkedin_alive = True
+            except (ValueError, OSError):
+                linkedin_alive = False
+        if not linkedin_alive:
+            # Double-check: is there already a process running without lock file?
+            try:
+                r = subprocess.run(
+                    ['wmic', 'process', 'where',
+                     "name='python.exe' and commandline like '%linkedin_scheduler%'",
+                     'get', 'ProcessId'],
+                    capture_output=True, text=True, timeout=5
+                )
+                existing = [l.strip() for l in r.stdout.splitlines() if l.strip().isdigit()]
+                if existing:
+                    linkedin_alive = True  # Orphan process exists, don't spawn another
+                    log("  linkedin_scheduler: orphan process detected, skipping restart", "WARN")
+            except Exception:
+                pass
+        if not linkedin_alive:
+            ts = datetime.now().strftime("%H:%M:%S")
+            log(f"[{ts}] linkedin_scheduler DOWN — redemarrage...", "WARN")
+            proc = start_process(
+                [sys.executable, str(TURBO_DIR / "scripts" / "linkedin_scheduler.py")],
+                "LinkedIn Scheduler", cwd=str(TURBO_DIR),
+            )
+            if proc:
+                time.sleep(3)
+                log("  linkedin_scheduler: relance", "OK")
+
         # Check process-based services (WhisperFlow, etc.)
         for svc_id, svc in WATCH_PROCESSES.items():
             dep_port = svc.get("depends_on_port")
@@ -1010,6 +1078,10 @@ def main():
     # Enable ANSI on Windows
     if sys.platform == "win32":
         os.system("")  # Enables ANSI escape codes
+
+    # Singleton check (skip for --status which is read-only)
+    if not args.status:
+        check_boot_singleton()
 
     if args.status:
         report = status_only()
