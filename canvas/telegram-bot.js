@@ -2093,7 +2093,7 @@ async function main() {
         { command: 'help', description: 'Toutes les commandes' },
       ]
     });
-    log('Commandes Telegram enregistrees (25 commandes)');
+    log('Commandes Telegram enregistrees (26 commandes)');
   } catch (e) {
     logErr('setMyCommands failed:', e.message);
   }
