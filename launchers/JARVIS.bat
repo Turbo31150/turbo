@@ -1,9 +1,9 @@
 @echo off
-title JARVIS v10.1 - Lancement
+title JARVIS v10.6 - Lancement
 color 0E
 echo.
 echo  ==========================================
-echo    JARVIS v10.1 - LANCEMENT COMPLET
+echo    JARVIS v10.6 - LANCEMENT COMPLET
 echo    Dashboard TUI + Systray
 echo  ==========================================
 echo.

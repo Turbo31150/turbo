@@ -39,22 +39,6 @@
         "api": "openai-completions",
         "models": [
           {
-            "id": "deepseek-coder-v2-lite-instruct",
-            "name": "DeepSeek Coder V2 Lite (M2 Champion)",
-            "reasoning": false,
-            "input": [
-              "text"
-            ],
-            "cost": {
-              "input": 0,
-              "output": 0,
-              "cacheRead": 0,
-              "cacheWrite": 0
-            },
-            "contextWindow": 32768,
-            "maxTokens": 8192
-          },
-          {
             "id": "deepseek/deepseek-r1-0528-qwen3-8b",
             "name": "DeepSeek R1 Qwen3 8B (M2 Reasoning ctx27k 3GPU)",
             "reasoning": true,

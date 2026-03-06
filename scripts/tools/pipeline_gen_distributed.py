@@ -642,7 +642,7 @@ async def main():
 
     print("╔══════════════════════════════════════════════════════════╗")
     print("║  PIPELINE FACTORY DISTRIBUE v1.0                        ║")
-    print("║  Generation par le Cluster — JARVIS Turbo v10.3         ║")
+    print("║  Generation par le Cluster — JARVIS Turbo v10.6         ║")
     print("╚══════════════════════════════════════════════════════════╝")
     print()
 

@@ -1,9 +1,9 @@
 @echo off
-title JARVIS v10.1 - Mode Interactif
+title JARVIS v10.6 - Mode Interactif
 color 0B
 echo.
 echo  ==========================================
-echo    JARVIS v10.1 - MODE INTERACTIF (clavier)
+echo    JARVIS v10.6 - MODE INTERACTIF (clavier)
 echo    69 outils MCP ^| 125 commandes ^| Brain IA
 echo  ==========================================
 echo.

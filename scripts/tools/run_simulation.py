@@ -825,7 +825,7 @@ def phase5_save(report, scenarios):
     stats = get_stats()
 
     print(f"\n  {'='*50}")
-    print(f"  RAPPORT FINAL — JARVIS v10.1 Simulation")
+    print(f"  RAPPORT FINAL — JARVIS v10.6 Simulation")
     print(f"  {'='*50}")
     print(f"  Cycles:       {report['cycles']}")
     print(f"  Tests totaux: {report['total_tests']}")
@@ -849,7 +849,7 @@ def phase5_save(report, scenarios):
 
     # Save full report
     report_data = {
-        "version": "10.1",
+        "version": "10.6",
         "timestamp": time.time(),
         "report": report,
         "db_stats": stats,

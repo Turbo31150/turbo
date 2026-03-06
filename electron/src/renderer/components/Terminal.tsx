@@ -85,7 +85,7 @@ const S = {
 export default function Terminal() {
   const [lines, setLines] = useState<TerminalLine[]>([
     { id: 0, type: 'system', text: '╔══════════════════════════════════════╗', ts: Date.now() },
-    { id: 1, type: 'system', text: '║  JARVIS Terminal v10.4               ║', ts: Date.now() },
+    { id: 1, type: 'system', text: '║  JARVIS Terminal v10.6               ║', ts: Date.now() },
     { id: 2, type: 'system', text: '║  Type "help" for commands            ║', ts: Date.now() },
     { id: 3, type: 'system', text: '╚══════════════════════════════════════╝', ts: Date.now() },
   ]);

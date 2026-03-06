@@ -120,7 +120,7 @@ function New-Conversation {
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Magenta
 Write-Host "  CLAUDE DESKTOP MULTI-TASK DISPATCHER" -ForegroundColor Magenta
-Write-Host "  JARVIS Turbo v10.3" -ForegroundColor DarkMagenta
+Write-Host "  JARVIS Turbo v10.6" -ForegroundColor DarkMagenta
 Write-Host "========================================" -ForegroundColor Magenta
 Write-Host ""
 

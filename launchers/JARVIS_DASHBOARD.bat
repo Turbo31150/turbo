@@ -1,9 +1,9 @@
 @echo off
-title JARVIS v10.1 - Dashboard TUI
+title JARVIS v10.6 - Dashboard TUI
 color 0E
 echo.
 echo  ==========================================
-echo    JARVIS v10.1 - DASHBOARD UNIFIE
+echo    JARVIS v10.6 - DASHBOARD UNIFIE
 echo    Cluster ^| Trading ^| Skills ^| Brain
 echo  ==========================================
 echo.

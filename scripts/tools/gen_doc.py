@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
     md = []
 
-    md.append(f"""# JARVIS Etoile v10.3 - Documentation Complete
+    md.append(f"""# JARVIS Etoile v10.6 - Documentation Complete
 
     > **{total} commandes vocales - {len(cmds["commands_pipelines.py"])} pipelines - {len(skills)} skills - {len(tools)} outils MCP**
     >
@@ -222,7 +222,7 @@ if __name__ == "__main__":
         md.append(f"| {cat} | `{key}` | {v} | {conf:.0%} |")
 
     md.append("\n---\n")
-    md.append("> **JARVIS Etoile v10.3** - Built by [Turbo31150](https://github.com/Turbo31150)")
+    md.append("> **JARVIS Etoile v10.6** - Built by [Turbo31150](https://github.com/Turbo31150)")
 
     os.makedirs("docs", exist_ok=True)
     content = "\n".join(md)

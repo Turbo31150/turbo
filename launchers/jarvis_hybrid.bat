@@ -1,9 +1,9 @@
 @echo off
-title JARVIS v10.1 - Mode Hybride
+title JARVIS v10.6 - Mode Hybride
 color 0E
 echo.
 echo  ==========================================
-echo    JARVIS v10.1 - MODE HYBRIDE
+echo    JARVIS v10.6 - MODE HYBRIDE
 echo    Tape comme si tu parlais (clavier+vocal)
 echo    69 outils MCP ^| 125 commandes ^| Brain IA
 echo  ==========================================

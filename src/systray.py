@@ -138,7 +138,7 @@ def create_systray() -> pystray.Icon:
     icon = pystray.Icon(
         "JARVIS",
         _create_icon_image(),
-        "JARVIS v10.1 — Orchestrateur IA",
+        "JARVIS v10.6 — Orchestrateur IA",
         menu,
     )
     return icon

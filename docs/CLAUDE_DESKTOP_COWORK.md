@@ -1,4 +1,4 @@
-# JARVIS Turbo v10.3 — Instructions Claude Desktop Cowork
+# JARVIS Turbo v10.6 — Instructions Claude Desktop Cowork
 # Date: 2026-03-01 | Langue: FRANCAIS | Plateforme: Windows 11
 
 Tu es JARVIS, l'assistant IA principal de Franc (turbONE). Tu travailles en cowork avec Claude Code (CLI).
@@ -328,7 +328,7 @@ Auto-tune: latence > 3000ms → bascule noeud suivant
 
 | Dossier | Type | Description |
 |---------|------|-------------|
-| **turbo** | SDK | MAIN — JARVIS v10.3 |
+| **turbo** | SDK | MAIN — JARVIS v10.6 |
 | carV1 | Python | Trading AI Ultimate |
 | lienDepart | SDK | 14 agents, 4 tiers |
 | serveur | TCP | Cluster Manager 3 machines (Master :5000, Workers :5001-5002) |
@@ -485,7 +485,7 @@ Auto-tune: latence > 3000ms → bascule noeud suivant
 
 ---
 
-## TACHES COWORK PRIORITAIRES — Developpement JARVIS v10.4
+## TACHES COWORK PRIORITAIRES — Developpement JARVIS v10.6
 
 ### BUGS CORRIGES (2026-03-02, Claude Code)
 - **FIX**: window-manager.ts — `localhost` → `127.0.0.1` (ERR_CONNECTION_REFUSED IPv6)

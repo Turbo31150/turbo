@@ -1,6 +1,6 @@
 @echo off
 echo ============================================
-echo  JARVIS Turbo v10.1 - LM Studio M1 Startup
+echo  JARVIS Turbo v10.6 - LM Studio M1 Startup
 echo  5 GPU, 43GB VRAM - Optimized Config
 echo ============================================
 echo.
