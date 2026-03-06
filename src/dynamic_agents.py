@@ -56,11 +56,7 @@ CATEGORY_PROMPTS = {
 MODEL_TO_NODE = {
     "qwen3-8b": "M1",
     "qwen3:1.7b": "OL1",
-    "gpt-oss-20b": "M1B",
     "deepseek-r1-0528-qwen3-8b": "M2",
-    "gpt-oss:120b-cloud": "gpt-oss",
-    "devstral-2:123b-cloud": "devstral",
-    "minimax-m2.5:cloud": "minimax",
 }
 
 

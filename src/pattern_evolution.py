@@ -179,7 +179,7 @@ class PatternEvolution:
                         "avg_latency_ms": round(u["avg_lat"] or 0, 0), "count": u["n"],
                     },
                     confidence=min(1.0, u["n"] / 20),
-                    model_suggestion="gpt-oss-20b" if u["avg_q"] < 0.3 else "qwen3-8b",
+                    model_suggestion="qwen3-8b",
                 ))
 
         except Exception:

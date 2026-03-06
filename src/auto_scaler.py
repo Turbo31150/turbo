@@ -47,8 +47,8 @@ class AutoScaler:
 
     # Node capacity
     NODE_MAX_CONCURRENT = {
-        "M1": 6, "M1B": 3, "M2": 3, "M3": 2,
-        "OL1": 3, "gpt-oss": 2, "devstral": 2,
+        "M1": 6, "M2": 3, "M3": 2,
+        "OL1": 3,
     }
 
     def __init__(self, db_path: str = DB_PATH):

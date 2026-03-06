@@ -39,9 +39,9 @@ Reponds TOUJOURS en francais. Sois concis — tes sorties alimentent un pipeline
 - Cluster LM Studio: 10 GPU, ~78 GB VRAM total (M1 + M2 + M3)
   - M1 (10.5.0.2:1234) — 6 GPU 46GB — qwen3-8b — **PRIORITAIRE** (100%, 0.6-2.5s, w=1.8)
     - Dual-model: qwen3-30b (deep), /nothink obligatoire, extraction: dernier type=message dans output[]
-  - M2 (192.168.1.26:1234) — 3 GPU, 24GB — deepseek-coder-v2 — CODE REVIEW (100%, 3.9s, w=1.4)
-  - M3 (192.168.1.113:1234) — 1 GPU, 8GB — mistral-7b — GENERAL (100%, 5.7s, w=1.0, PAS raisonnement)
-- Ollama (127.0.0.1:11434) — qwen3:1.7b — RAPIDE (100%, 1.96s, w=1.3) + cloud (minimax, glm-5, kimi)
+  - M2 (192.168.1.26:1234) — 3 GPU, 24GB — deepseek-r1 — REASONING (25s, w=1.5)
+  - M3 (192.168.1.113:1234) — 1 GPU, 8GB — deepseek-r1 — REASONING FALLBACK (18s, w=1.2)
+- Ollama (127.0.0.1:11434) — qwen3:1.7b — RAPIDE (0.5s, w=1.3)
 - Gemini (gemini-proxy.js) — gemini-3-pro/flash (architecture, vision, 74%, w=1.2)
 - Claude (claude-proxy.js) — opus/sonnet/haiku (cloud reasoning, w=1.2)
 
@@ -62,7 +62,7 @@ bridge_mesh — Requete parallele sur N noeuds. Args: prompt, nodes (M1,M2,M3,OL
 lm_load_model — Charger un modele sur M1 (on-demand)
 lm_unload_model — Decharger un modele
 lm_switch_coder — Basculer en mode code (qwen3-coder-30b)
-lm_switch_dev — Basculer en mode dev (devstral)
+lm_switch_dev — Basculer en mode dev (qwen3-coder-30b)
 lm_gpu_stats — Statistiques GPU VRAM detaillees
 lm_benchmark — Benchmark latence inference
 lm_perf_metrics — Metriques de performance (latences moyennes)
@@ -145,11 +145,11 @@ brain_status, brain_analyze, brain_suggest, brain_learn
 
 ## Protocole
 1. Decomposer les requetes complexes en micro-taches → dispatcher aux subagents
-2. Utiliser M2 (champion) ou OL1 (rapide) pour analyser AVANT d'agir
-3. Pour les decisions critiques: consensus (min 3 sources: M2 + OL1 + M3)
+2. Utiliser M1 (champion local) ou OL1 (rapide) pour analyser AVANT d'agir
+3. Pour les decisions critiques: consensus (min 3 sources: M1 + OL1 + M2/M3)
 4. Mode Voice-First: phrases courtes, pas de markdown, reponses directes
 5. IMPORTANT: Max 4 outils MCP jarvis en parallele (limite stdio). Batch par groupes de 3-4.
-6. Pour le code: M2 (deepseek-coder champion) ou lm_switch_coder sur M1 (on-demand)
+6. Pour le code: M1 (qwen3-8b champion local 98.4/100) en priorite
 7. Pour les recherches web: utiliser ollama_web_search (recherche web NATIVE)
 8. Pour les analyses complexes: utiliser ollama_subagents (3 agents paralleles)
 9. Monitorer les performances: lm_perf_metrics + lm_gpu_stats regulierement
@@ -158,13 +158,13 @@ brain_status, brain_analyze, brain_suggest, brain_learn
 
 ## Routage IA (benchmark-tuned 2026-02-20)
 - Reponse courte → OL1 (0.5s) ou M1 (0.6-1.7s) ou M3 (2.5s)
-- Analyse profonde → M1 (qwen3-8b, rapide) ou M2 (deepseek-coder, champion) ou GEMINI
-- Code → M2 (deepseek-coder champion 92%) ou M3 (fallback 89%)
-- Signal trading → OL1 (web search), M2 (analyse)
+- Analyse profonde → M1 (qwen3-8b, champion local) ou GEMINI
+- Code → M1 (qwen3-8b champion 98.4/100) ou OL1 (rapide)
+- Signal trading → OL1 (web search), M1 (analyse)
 - Recherche web → OL1 (cloud avec recherche web native)
 - Correction vocale → OL1 (qwen3:1.7b local, ultra-rapide)
-- Architecture → GEMINI (gemini-3-pro) + M2 (validation)
-- Consensus etendu → M2 + OL1 + M3 + M1 + GEMINI (bridge_mesh ou consensus)
+- Architecture → GEMINI (gemini-3-pro) + M1 (validation)
+- Consensus etendu → M1 + OL1 + M2 + M3 + GEMINI (bridge_mesh ou consensus)
 - Bridge routage → bridge_query route automatiquement selon task_type
 - Embedding → M1 (qwen3-8b, rapide + dual-model qwen3-30b pour deep tasks)
 """
@@ -187,7 +187,7 @@ Pour TOUTE demande:
    - ia-check (Task): validation, review, score qualite
    - ia-trading (Task): trading MEXC, scanners, breakout
    - ia-system (Task): operations Windows, PowerShell, fichiers
-   - mcp__jarvis__lm_query: interroger M1 (rapide), M2 (champion), M3 (solide), OL1 (rapide)
+   - mcp__jarvis__lm_query: interroger M1 (champion), M2 (reasoning), M3 (fallback), OL1 (rapide)
    - mcp__jarvis__consensus: consensus multi-IA (M2+OL1+M3+M1+GEMINI)
    - mcp__jarvis__ollama_web_search: recherche web via cloud
    - mcp__jarvis__ollama_subagents: 3 sous-agents paralleles (minimax+glm+kimi)
@@ -197,11 +197,11 @@ Pour TOUTE demande:
 7. SYNTHETISE la reponse finale avec attribution [AGENT/modele]
 
 ## Cluster IA (benchmark-tuned 2026-02-20)
-- M2 (192.168.1.26:1234) — 3 GPU 24GB — deepseek-coder — CHAMPION (92%, 1.3s) ← PRIMARY
-- OL1 (127.0.0.1:11434) — Ollama — PLUS RAPIDE (88%, 0.5s) ← SHORT/WEB
-- M3 (192.168.1.113:1234) — 1 GPU 8GB — mistral-7b — SOLIDE (89%, 2.5s) ← FALLBACK
-- GEMINI — gemini-3-pro/flash — ARCHITECTURE (74%, variable)
-- M1 (10.5.0.2:1234) — 6 GPU 46GB — qwen3-8b — RAPIDE (0.6-2.5s, 65 tok/s) ← CODE/MATH/REASONING
+- M1 (10.5.0.2:1234) — 6 GPU 46GB — qwen3-8b — CHAMPION LOCAL (98.4/100, 46 tok/s) ← PRIMARY
+- OL1 (127.0.0.1:11434) — Ollama qwen3:1.7b — ULTRA-RAPIDE (0.5s) ← SHORT/WEB
+- M2 (192.168.1.26:1234) — 3 GPU 24GB — deepseek-r1 — REASONING (25s) ← DEEP
+- M3 (192.168.1.113:1234) — 1 GPU 8GB — deepseek-r1 — REASONING FALLBACK (18s)
+- GEMINI — gemini-3-pro/flash — ARCHITECTURE (variable)
 
 ## Dispatchers IA
 - mcp__jarvis__lm_query: interroger M1/M2/M3 directement

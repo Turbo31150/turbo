@@ -28,15 +28,15 @@ logger = logging.getLogger("jarvis.orchestrator_v2")
 # ── Routing matrix (task_type -> [(node, weight)]) ─────────────────────
 
 ROUTING_MATRIX: dict[str, list[tuple[str, float]]] = {
-    "code":      [("gpt-oss", 1.9), ("M1", 1.8), ("devstral", 1.5), ("M2", 1.4)],
-    "review":    [("gpt-oss", 1.9), ("devstral", 1.5), ("M1", 1.8), ("M2", 1.4)],
-    "reasoning": [("M1", 1.8), ("gpt-oss", 1.9), ("OL1", 1.3)],
+    "code":      [("M1", 1.8), ("M2", 1.5), ("OL1", 1.3)],
+    "review":    [("M1", 1.8), ("M2", 1.5), ("OL1", 1.3)],
+    "reasoning": [("M1", 1.8), ("M2", 1.5), ("OL1", 1.3)],
     "voice":     [("OL1", 1.3), ("M1", 1.8)],
-    "trading":   [("OL1", 1.3), ("M1", 1.8), ("M2", 1.4)],
-    "system":    [("M1", 1.8), ("OL1", 1.3), ("M3", 1.0)],
-    "simple":    [("OL1", 1.3), ("M1", 1.8), ("M3", 1.0)],
-    "archi":     [("GEMINI", 1.2), ("M1", 1.8), ("gpt-oss", 1.9)],
-    "web":       [("OL1", 1.3), ("GEMINI", 1.2)],
+    "trading":   [("OL1", 1.3), ("M1", 1.8), ("M2", 1.5)],
+    "system":    [("M1", 1.8), ("OL1", 1.3), ("M3", 1.2)],
+    "simple":    [("OL1", 1.3), ("M1", 1.8), ("M3", 1.2)],
+    "archi":     [("M1", 1.8), ("OL1", 1.3), ("M2", 1.5)],
+    "web":       [("OL1", 1.3), ("M1", 1.8)],
 }
 
 

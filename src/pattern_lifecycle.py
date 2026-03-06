@@ -12,7 +12,7 @@ Usage:
     from src.pattern_lifecycle import PatternLifecycle, get_lifecycle
     lc = get_lifecycle()
     lc.create_pattern("nlp", model="qwen3-8b", strategy="single")
-    lc.evolve_pattern("code", model="gpt-oss-20b")
+    lc.evolve_pattern("code", model="qwen3-8b")
     lc.deprecate_pattern("fix_math_M3")
     report = lc.health_report()
 """
@@ -279,7 +279,7 @@ class PatternLifecycle:
                     "action": "evolve",
                     "pattern": p.pattern_type,
                     "reason": f"Low quality ({p.avg_quality:.2f}) with basic model",
-                    "suggestion": "Upgrade to qwen3-8b or gpt-oss-20b",
+                    "suggestion": "Upgrade to qwen3-8b",
                     "priority": 2,
                 })
 
