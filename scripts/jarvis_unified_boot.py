@@ -807,6 +807,77 @@ def status_only():
 
 
 # ============================================================================
+# WATCH MODE — Continuous service watchdog with auto-restart
+# ============================================================================
+WATCH_SERVICES = {
+    "dashboard": {
+        "port": 8080, "host": "127.0.0.1",
+        "cmd": [str(HOME / ".local" / "bin" / "uv.exe"), "run", "python",
+                str(TURBO_DIR / "dashboard" / "server.py")],
+        "cwd": str(TURBO_DIR),
+    },
+    "canvas_proxy": {
+        "port": 18800, "host": "127.0.0.1",
+        "cmd": ["node", str(TURBO_DIR / "canvas" / "direct-proxy.js")],
+        "cwd": str(TURBO_DIR),
+    },
+    "jarvis_ws": {
+        "port": 9742, "host": "127.0.0.1",
+        "cmd": [str(HOME / ".local" / "bin" / "uv.exe"), "run", "python",
+                str(TURBO_DIR / "python_ws" / "server.py")],
+        "cwd": str(TURBO_DIR),
+    },
+}
+
+
+def watch_loop(interval: int = 60):
+    """Continuously monitor services and restart any that crash."""
+    log(f"WATCHDOG actif — check toutes les {interval}s", "PHASE")
+    log("Services surveilles: " + ", ".join(WATCH_SERVICES.keys()), "INFO")
+    log("Ctrl+C pour arreter", "DIM")
+
+    while True:
+        try:
+            time.sleep(interval)
+        except KeyboardInterrupt:
+            log("Watchdog arrete par l'utilisateur", "WARN")
+            break
+
+        for svc_id, svc in WATCH_SERVICES.items():
+            if not check_port(svc["host"], svc["port"], timeout=3):
+                ts = datetime.now().strftime("%H:%M:%S")
+                log(f"[{ts}] {svc_id} (:{svc['port']}) DOWN — redemarrage...", "WARN")
+                proc = start_process(svc["cmd"], svc_id, cwd=svc.get("cwd"))
+                if proc:
+                    time.sleep(5)
+                    if check_port(svc["host"], svc["port"], timeout=3):
+                        log(f"  {svc_id}: relance OK (PID {proc.pid})", "OK")
+                    else:
+                        log(f"  {svc_id}: relance echouee", "FAIL")
+
+        # Also check M1 LM Studio model
+        if check_port("127.0.0.1", 1234):
+            headers = {"Authorization": f"Bearer {NODES['M1']['auth']}"}
+            data = http_get(f"{NODES['M1']['url']}/api/v1/models", headers=headers)
+            if data:
+                models = data.get("data", data.get("models", []))
+                loaded = [m.get("key", "") for m in models if m.get("loaded_instances")]
+                if not any(M1_REQUIRED_MODEL_SHORT in str(m) for m in loaded):
+                    log(f"M1: qwen3-8b pas charge — rechargement...", "WARN")
+                    try:
+                        subprocess.run(
+                            [LMS_CLI, "load", M1_REQUIRED_MODEL,
+                             "--gpu", M1_MODEL_OPTS["gpu"],
+                             "-c", str(M1_MODEL_OPTS["context"]),
+                             "--parallel", str(M1_MODEL_OPTS["parallel"]), "-y"],
+                            capture_output=True, timeout=180,
+                        )
+                        log("M1: qwen3-8b recharge", "OK")
+                    except Exception as e:
+                        log(f"M1: echec rechargement ({e})", "FAIL")
+
+
+# ============================================================================
 # MAIN
 # ============================================================================
 def main():
@@ -817,6 +888,10 @@ def main():
     parser.add_argument("--skip", type=str, nargs="*", default=[],
                         help="Services to skip (n8n, gemini, canvas, dashboard, telegram, watchdog)")
     parser.add_argument("--json", action="store_true", help="Output JSON report")
+    parser.add_argument("--watch", action="store_true",
+                        help="After boot, stay alive and restart crashed services")
+    parser.add_argument("--watch-interval", type=int, default=60,
+                        help="Seconds between watchdog checks (default: 60)")
     args = parser.parse_args()
 
     # Enable ANSI on Windows
@@ -885,6 +960,10 @@ def main():
             db.close()
     except Exception:
         pass
+
+    # Enter watchdog mode if requested
+    if args.watch:
+        watch_loop(args.watch_interval)
 
 
 if __name__ == "__main__":
