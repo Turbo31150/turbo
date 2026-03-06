@@ -810,6 +810,18 @@ def status_only():
 # WATCH MODE — Continuous service watchdog with auto-restart
 # ============================================================================
 WATCH_SERVICES = {
+    "lmstudio_m1": {
+        "port": 1234, "host": "127.0.0.1",
+        "cmd": [LMS_CLI, "server", "start"],
+        "cwd": str(TURBO_DIR),
+        "post_start_wait": 15,
+    },
+    "ollama": {
+        "port": 11434, "host": "127.0.0.1",
+        "cmd": ["ollama", "serve"],
+        "cwd": str(TURBO_DIR),
+        "post_start_wait": 5,
+    },
     "dashboard": {
         "port": 8080, "host": "127.0.0.1",
         "cmd": [str(HOME / ".local" / "bin" / "uv.exe"), "run", "python",
@@ -843,19 +855,23 @@ def watch_loop(interval: int = 60):
             log("Watchdog arrete par l'utilisateur", "WARN")
             break
 
+        restarted_lmstudio = False
         for svc_id, svc in WATCH_SERVICES.items():
             if not check_port(svc["host"], svc["port"], timeout=3):
                 ts = datetime.now().strftime("%H:%M:%S")
                 log(f"[{ts}] {svc_id} (:{svc['port']}) DOWN — redemarrage...", "WARN")
                 proc = start_process(svc["cmd"], svc_id, cwd=svc.get("cwd"))
                 if proc:
-                    time.sleep(5)
-                    if check_port(svc["host"], svc["port"], timeout=3):
+                    wait = svc.get("post_start_wait", 5)
+                    time.sleep(wait)
+                    if check_port(svc["host"], svc["port"], timeout=5):
                         log(f"  {svc_id}: relance OK (PID {proc.pid})", "OK")
+                        if svc_id == "lmstudio_m1":
+                            restarted_lmstudio = True
                     else:
                         log(f"  {svc_id}: relance echouee", "FAIL")
 
-        # Also check M1 LM Studio model
+        # Check M1 LM Studio model (always after restart, or on every cycle)
         if check_port("127.0.0.1", 1234):
             headers = {"Authorization": f"Bearer {NODES['M1']['auth']}"}
             data = http_get(f"{NODES['M1']['url']}/api/v1/models", headers=headers)
@@ -863,7 +879,8 @@ def watch_loop(interval: int = 60):
                 models = data.get("data", data.get("models", []))
                 loaded = [m.get("key", "") for m in models if m.get("loaded_instances")]
                 if not any(M1_REQUIRED_MODEL_SHORT in str(m) for m in loaded):
-                    log(f"M1: qwen3-8b pas charge — rechargement...", "WARN")
+                    reason = "restart serveur" if restarted_lmstudio else "modele decharge"
+                    log(f"M1: qwen3-8b absent ({reason}) — rechargement...", "WARN")
                     try:
                         subprocess.run(
                             [LMS_CLI, "load", M1_REQUIRED_MODEL,
