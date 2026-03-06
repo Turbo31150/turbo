@@ -66,8 +66,8 @@ def tts_speak_sync(text: str):
 
 LM_KEYS = {
     "M1": ("http://10.5.0.2:1234", f"Bearer {os.getenv('LM_STUDIO_1_API_KEY', os.getenv('LM_STUDIO_1_KEY', ''))}", "qwen3-8b"),
-    "M2": ("http://192.168.1.26:1234", f"Bearer {os.getenv('LM_STUDIO_2_API_KEY', os.getenv('LM_STUDIO_2_KEY', ''))}", "deepseek-coder-v2-lite-instruct"),
-    "M3": ("http://192.168.1.113:1234", f"Bearer {os.getenv('LM_STUDIO_3_API_KEY', os.getenv('LM_STUDIO_3_KEY', ''))}", "mistral-7b-instruct-v0.3"),
+    "M2": ("http://192.168.1.26:1234", f"Bearer {os.getenv('LM_STUDIO_2_API_KEY', os.getenv('LM_STUDIO_2_KEY', ''))}", "deepseek-r1-0528-qwen3-8b"),
+    "M3": ("http://192.168.1.113:1234", f"Bearer {os.getenv('LM_STUDIO_3_API_KEY', os.getenv('LM_STUDIO_3_KEY', ''))}", "deepseek-r1-0528-qwen3-8b"),
 }
 
 def lm_health(node: str, timeout: int = 3) -> str:

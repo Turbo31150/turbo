@@ -14,8 +14,8 @@ export const OLLAMA_URL = import.meta.env.VITE_OLLAMA_URL ?? 'http://127.0.0.1:1
 
 export const LM_NODES = [
   { id: 'M1', name: 'M1 / qwen3-8b', url: import.meta.env.VITE_M1_URL ?? 'http://10.5.0.2:1234' },
-  { id: 'M2', name: 'M2 / deepseek-coder', url: import.meta.env.VITE_M2_URL ?? 'http://192.168.1.26:1234' },
-  { id: 'M3', name: 'M3 / mistral-7b', url: import.meta.env.VITE_M3_URL ?? 'http://192.168.1.113:1234' },
+  { id: 'M2', name: 'M2 / deepseek-r1', url: import.meta.env.VITE_M2_URL ?? 'http://192.168.1.26:1234' },
+  { id: 'M3', name: 'M3 / deepseek-r1', url: import.meta.env.VITE_M3_URL ?? 'http://192.168.1.113:1234' },
 ] as const;
 
 export const INTERVALS = {

@@ -21,7 +21,7 @@ JARVIS Turbo v12.4
 
 | Noeud | IP | Role | GPU | VRAM | Modele |
 |-------|-----|------|-----|------|--------|
-| M1 | 127.0.0.1:1234 | Champion Local | 6 | 46 GB | qwen3-8b (+ gpt-oss-20b deep) |
+| M1 | 127.0.0.1:1234 | Champion Local | 6 | 46 GB | qwen3-8b |
 | M2 | 192.168.1.26:1234 | Reasoning | 3 | 24 GB | deepseek-r1-0528-qwen3-8b |
 | M3 | 192.168.1.113:1234 | Reasoning Fallback | 1 | 8 GB | deepseek-r1-0528-qwen3-8b |
 
@@ -412,4 +412,4 @@ Le system prompt complet est dans `src/orchestrator.py`. Il definit JARVIS comme
 | Launchers | 35 |
 | Electron Pages | 29 |
 | Commandes vocales | 2182 (3895 total vocal entries) |
-| Cluster | M1 (qwen3-8b 46tok/s), M2 (qwen3-8b 42tok/s), M3 (mistral-7b 5.8tok/s), OL1 (qwen3:1.7b + cloud), Gemini, Claude |
+| Cluster | M1 (qwen3-8b 46tok/s), M2 (deepseek-r1 25s), M3 (deepseek-r1 18s), OL1 (qwen3:1.7b 84tok/s) |

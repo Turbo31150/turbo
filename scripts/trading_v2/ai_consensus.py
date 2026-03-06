@@ -3,11 +3,11 @@ AI Consensus — Orchestrateur multi-IA (6 modeles)
 Trading AI System v2.3 | Adapte cluster JARVIS
 
 Modeles:
-  M3/mistral-7b  (w=1.0) — Fallback rapide
+  M3/deepseek-r1  (w=1.0) — Fallback rapide
   GEMINI/proxy    (w=1.1) — Validation externe
   OL1/minimax     (w=1.3) — Recherche web temps reel
   M1/qwen3-8b    (w=1.5) — Rapide + raisonnement
-  M2/gpt-oss-20b  (w=1.2) — Code/strategies
+  M2/deepseek-r1  (w=1.2) — Reasoning/strategies
   OL1/qwen3-1.7b (w=0.8) — Ultra-rapide
 
 Protocole: JSON strict {bias, confidence, reason}
@@ -29,13 +29,13 @@ logger = logging.getLogger("ai_consensus")
 # --- Config cluster JARVIS ---
 MODELS = [
     {
-        "id": "m3-mistral",
-        "name": "M3/mistral-7b",
+        "id": "m3-deepseek-r1",
+        "name": "M3/deepseek-r1",
         "weight": 1.0,
         "type": "general",
         "endpoint": "http://192.168.1.113:1234/api/v1/chat",
         "auth": f"Bearer {os.getenv('LM_STUDIO_3_API_KEY', os.getenv('LM_STUDIO_3_KEY', ''))}",
-        "model_id": "mistral-7b-instruct-v0.3",
+        "model_id": "deepseek-r1-0528-qwen3-8b",
         "timeout": 60,
         "method": "lmstudio",
     },
@@ -70,13 +70,13 @@ MODELS = [
         "method": "lmstudio",
     },
     {
-        "id": "m2-gptoss",
-        "name": "M2/gpt-oss-20b",
+        "id": "m2-deepseek-r1",
+        "name": "M2/deepseek-r1",
         "weight": 1.2,
-        "type": "code",
+        "type": "reasoning",
         "endpoint": "http://192.168.1.26:1234/api/v1/chat",
         "auth": f"Bearer {os.getenv('LM_STUDIO_2_API_KEY', os.getenv('LM_STUDIO_2_KEY', ''))}",
-        "model_id": "openai/gpt-oss-20b",
+        "model_id": "deepseek-r1-0528-qwen3-8b",
         "timeout": 120,
         "method": "lmstudio",
     },
@@ -286,11 +286,11 @@ def query_model(model_cfg: dict, prompt: str) -> Optional[dict]:
 
 # Groupes machines — modeles sur meme machine = sequentiels entre eux
 MACHINE_GROUPS = {
-    "M3":     ["m3-mistral"],
+    "M3":     ["m3-deepseek-r1"],
     "GEMINI": ["gemini"],
     "OL1":    ["ol1-minimax", "ol1-local"],   # Meme Ollama = sequentiel
     "M1":     ["m1-qwen8b"],
-    "M2":     ["m2-gptoss"],
+    "M2":     ["m2-deepseek-r1"],
 }
 
 
@@ -576,7 +576,7 @@ def quick_consensus(symbol: str, direction: str, confidence: float,
                     price: float, atr: float, strategies: list[str],
                     regime: str = "unknown") -> dict:
     """Wrapper rapide: n'utilise que M3 + OL1 (les 2 plus rapides)."""
-    fast_models = [m for m in MODELS if m["id"] in ("m3-mistral", "ol1-minimax")]
+    fast_models = [m for m in MODELS if m["id"] in ("m3-deepseek-r1", "ol1-minimax")]
     return run_consensus(symbol, direction, confidence, price, atr,
                          strategies, regime, models=fast_models)
 

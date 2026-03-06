@@ -26,7 +26,7 @@ Creer un fichier `.env` a la racine:
 
 ```env
 # LM Studio Cluster
-LM_STUDIO_1_URL=http://127.0.0.1:1234    # M1: 6 GPU 46GB, qwen3-8b (+ gpt-oss-20b deep)
+LM_STUDIO_1_URL=http://127.0.0.1:1234    # M1: 6 GPU 46GB, qwen3-8b
 LM_STUDIO_2_URL=http://192.168.1.26:1234  # M2: 3 GPU 24GB, deepseek-r1-0528-qwen3-8b
 LM_STUDIO_3_URL=http://192.168.1.113:1234 # M3: 1 GPU 8GB, deepseek-r1-0528-qwen3-8b
 LM_STUDIO_DEFAULT_MODEL=qwen3-8b

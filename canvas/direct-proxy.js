@@ -21,7 +21,6 @@ const CODE_CATS = new Set(['code','auto','system']);
 // Model-specific strengths and weaknesses
 const MODEL_PROFILES = {
   M1:  { strengths: 'rapide, polyvalent, bon raisonnement', weaknesses: 'contexte court, peut divaguer', style: 'concis, structure avec markdown, listes a puces, blocs de code' },
-  M1B: { strengths: 'raisonnement profond, code de qualite, audit', weaknesses: 'plus lent (9s)', style: 'reponses detaillees, code documente, analyse structuree' },
   M2:  { strengths: 'reasoning deepseek-r1, bon raisonnement, ctx 27k', weaknesses: '8.5s latence', style: 'raisonnement etape par etape, code complet, pensee profonde' },
   M3:  { strengths: 'reasoning deepseek-r1, ctx 25k, 1 GPU dedie', weaknesses: '18s latence, 1 GPU only', style: 'raisonnement etape par etape, analyse methodique' },
   OL1: { strengths: 'ultra-rapide, bon pour triage', weaknesses: 'superficiel sur questions complexes', style: 'reponses directes, listes, pas de verbiage' }
@@ -135,9 +134,9 @@ const NODES = {
   M3: {
     url: 'http://192.168.1.113:1234/v1/chat/completions',
     auth: 'Bearer sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux',
-    model: 'mistral-7b-instruct-v0.3',
-    timeout: 30000,
-    name: 'M3/mistral-7b'
+    model: 'deepseek-r1-0528-qwen3-8b',
+    timeout: 90000,
+    name: 'M3/deepseek-r1'
   },
   OL1: {
     url: 'http://127.0.0.1:11434/api/chat',
@@ -151,12 +150,6 @@ const NODES = {
     model: 'qwen3-8b',
     timeout: 60000,
     name: 'M1/qwen3-8b'
-  },
-  M1B: {
-    url: 'http://127.0.0.1:1234/v1/chat/completions',
-    model: 'gpt-oss-20b',
-    timeout: 90000,
-    name: 'M1B/gpt-oss-20b'
   },
   GEMINI: {
     proxy: path.join(__dirname, '..', 'gemini-proxy.js'),
@@ -173,20 +166,6 @@ const NODES = {
     isProxy: true,
     budget: '0.50'
   },
-  GPT_OSS: {
-    url: 'http://127.0.0.1:11434/api/chat',
-    model: 'gpt-oss:120b-cloud',
-    timeout: 120000,
-    name: 'GPT-OSS/120b',
-    isOllama: true
-  },
-  DEVSTRAL: {
-    url: 'http://127.0.0.1:11434/api/chat',
-    model: 'devstral-2:123b-cloud',
-    timeout: 120000,
-    name: 'DEVSTRAL/123b',
-    isOllama: true
-  }
 };
 
 // ── Routing: agent category → primary node, fallbacks ───────────────────────
@@ -1295,7 +1274,7 @@ async function callNode(nodeId, messages, category) {
       role: m.role,
       content: (m.content != null ? String(m.content) : '')
     }));
-    // M1: prepend /nothink only for qwen models (not gpt-oss-20b)
+    // M1: prepend /nothink for qwen models
     if (nodeId === 'M1' && NODES.M1.model && NODES.M1.model.includes('qwen')) {
       const firstUser = cleanMsgs.find(m => m.role === 'user');
       if (firstUser && !firstUser.content.startsWith('/nothink')) {
@@ -1704,7 +1683,7 @@ process.on('unhandledRejection', (reason) => {
 
 server.listen(PORT, BIND, () => {
   console.log(`JARVIS Direct Proxy on http://${BIND}:${PORT}`);
-  console.log('Nodes: M1(qwen3-8b), M1B(gpt-oss-20b), M2(deepseek-r1), M3(deepseek-r1), OL1(qwen3), GPT_OSS(120b-cloud), DEVSTRAL(123b-cloud), GEMINI, CLAUDE');
+  console.log('Nodes: M1(qwen3-8b), M2(deepseek-r1), M3(deepseek-r1), OL1(qwen3:1.7b), GEMINI, CLAUDE');
   console.log('Zero OpenClaw dependency');
   autolearn.start();
   console.log('Autolearn engine started — 3 pillars active');

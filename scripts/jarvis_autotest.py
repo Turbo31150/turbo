@@ -7,8 +7,8 @@ from jarvis_bench_utils import append_run
 NODES = {
     "M1": {"url": "http://10.5.0.2:1234/api/v1/chat", "type": "lmstudio-responses", "model": "qwen/qwen3-8b", "key": "sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7", "timeout": 30, "priority": 2},
     "OL1": {"url": "http://127.0.0.1:11434/api/chat", "type": "ollama", "model": "qwen3:1.7b", "timeout": 20, "priority": 2},
-    "M2": {"url": "http://192.168.1.26:1234/v1/chat/completions", "type": "lmstudio", "model": "deepseek-coder-v2-lite-instruct", "key": "sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4", "timeout": 60, "priority": 2},
-    "M3": {"url": "http://192.168.1.113:1234/v1/chat/completions", "type": "lmstudio", "model": "mistral-7b-instruct-v0.3", "key": "sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux", "timeout": 30, "priority": 1},
+    "M2": {"url": "http://192.168.1.26:1234/v1/chat/completions", "type": "lmstudio", "model": "deepseek-r1-0528-qwen3-8b", "key": "sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4", "timeout": 60, "priority": 2},
+    "M3": {"url": "http://192.168.1.113:1234/v1/chat/completions", "type": "lmstudio", "model": "deepseek-r1-0528-qwen3-8b", "key": "sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux", "timeout": 30, "priority": 1},
 }
 
 # Routage intelligent : domaine -> noeuds preferes (ordre de priorite)

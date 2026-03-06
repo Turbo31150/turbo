@@ -179,7 +179,7 @@ FastAPI WebSocket :9742 (python_ws/server.py, 5,221 lignes, 513 endpoints)
 
 ```
 Step 1: HEALTH CHECK
-    └── Verifie les noeuds disponibles (M1/M1B/M2/M3/OL1/cloud)
+    └── Verifie les noeuds disponibles (M1/M2/M3/OL1)
     └── Thermal check GPU (75C warning / 85C critical)
 
 Step 2: CLASSIFY
@@ -227,24 +227,24 @@ Step 9: EVENT EMISSION
 HARDCODED (20 patterns — pattern_agents.py):
     ├── simple          — Questions simples (OL1 qwen3:1.7b)
     ├── analysis        — Analyses complexes (M1 qwen3-8b)
-    ├── code            — Generation code (M1/gpt-oss)
-    ├── code_review     — Revue code (gpt-oss/devstral)
+    ├── code            — Generation code (M1)
+    ├── code_review     — Revue code (M1/OL1)
     ├── debug           — Debug (M1/M2)
-    ├── architecture    — Architecture (Gemini/M1)
-    ├── trading         — Trading (OL1 web/M1)
+    ├── architecture    — Architecture (M1/OL1)
+    ├── trading         — Trading (OL1/M1)
     ├── system          — Windows system (M1)
-    ├── security        — Securite (gpt-oss/M3)
+    ├── security        — Securite (M1/OL1)
     ├── math            — Math/calcul (M1)
     ├── reasoning       — Raisonnement (M1/M2)
-    ├── web_search      — Recherche web (minimax/Gemini)
+    ├── web_search      — Recherche web (OL1)
     ├── consensus       — Consensus multi-IA
     ├── embedding       — Embedding (M1)
-    ├── documentation   — Documentation (M1/gpt-oss)
-    ├── refactoring     — Refactoring (gpt-oss/M1)
-    ├── testing         — Tests (M1/devstral)
+    ├── documentation   — Documentation (M1)
+    ├── refactoring     — Refactoring (M1/OL1)
+    ├── testing         — Tests (M1/OL1)
     ├── database        — Base de donnees (M1)
     ├── networking      — API/HTTP (M1)
-    └── creative        — Creatif (Gemini/Claude)
+    └── creative        — Creatif (M1/OL1)
 
 DYNAMIC (78 patterns — dynamic_agents.py + etoile.db):
     ├── task-router         — Classificateur central (M1, prio 1)
@@ -260,14 +260,14 @@ DYNAMIC (78 patterns — dynamic_agents.py + etoile.db):
     └── discovered-*        — Auto-crees par pattern_evolution.py
 ```
 
-### 2.3 Nodes Configuration (8 noeuds)
+### 2.3 Nodes Configuration (4 noeuds)
 
 ```
 NODES = {
-    "M1":       { host: "127.0.0.1:1234",       model: "qwen3-8b",              weight: 1.8, api: "lm_studio" },
-    "M3":       { host: "192.168.1.113:1234",    model: "mistral-7b-instruct-v0.3", weight: 1.0, api: "lm_studio" },
-    "OL1":      { host: "127.0.0.1:11434",       model: "qwen3:1.7b",           weight: 1.3, api: "ollama"    },
-    // Offline: M2 (192.168.1.26), gpt-oss:120b-cloud, devstral-2:123b-cloud
+    "M1":       { host: "127.0.0.1:1234",       model: "qwen3-8b",                   weight: 1.8, api: "lm_studio" },
+    "M2":       { host: "192.168.1.26:1234",     model: "deepseek-r1-0528-qwen3-8b",  weight: 1.5, api: "lm_studio" },
+    "M3":       { host: "192.168.1.113:1234",    model: "deepseek-r1-0528-qwen3-8b",  weight: 1.2, api: "lm_studio" },
+    "OL1":      { host: "127.0.0.1:11434",       model: "qwen3:1.7b",                 weight: 1.3, api: "ollama"    },
 }
 
 LM Studio API:  POST /api/v1/chat  { model, input: "/nothink\nPROMPT", temperature, max_output_tokens }
@@ -294,12 +294,10 @@ Ollama API:     POST /api/chat      { model, messages: [{role,content}], stream:
 |                                                                |
 |  SERVICES:                                                     |
 |  ├── LM Studio :1234                                           |
-|  │   ├── qwen3-8b (65 tok/s, Q4_K_M, /nothink obligatoire)   |
-|  │   └── gpt-oss-20b (9 tok/s, deep, ctx 25k)                |
+|  │   └── qwen3-8b (65 tok/s, Q4_K_M, /nothink obligatoire)   |
 |  ├── Ollama :11434 (OLLAMA_NUM_PARALLEL=3)                    |
 |  │   ├── qwen3:14b (23 tok/s, local)                          |
-|  │   ├── qwen3:1.7b (84 tok/s, local)                         |
-|  │   └── 10 modeles cloud (gpt-oss, devstral, glm, etc.)     |
+|  │   └── qwen3:1.7b (84 tok/s, local)                         |
 |  ├── FastAPI WS :9742 (backend Electron)                       |
 |  ├── Dashboard :8080 (web standalone)                          |
 |  ├── OpenClaw Gateway :18789 (Telegram + agents)               |
@@ -484,7 +482,7 @@ MEXC Futures 10x
 Pipeline v2.3 GPU:
     1. Data Collection (OL1 minimax web search + MEXC API)
     2. Technical Analysis (100 strategies)
-    3. IA Consensus (6 modeles: gpt-oss + M1 + devstral + M2 + Gemini + Claude)
+    3. IA Consensus (4 modeles: M1 + M2 + OL1 + M3)
     4. Risk Management (drawdown, correlation, position sizing)
     5. Signal Generation (score 0-100, seuil 70)
     6. Execution (DRY_RUN=false, MEXC API)
@@ -555,7 +553,7 @@ Connecteur MCP "4" via OpenClaw Gateway
     │   └── ... (17 autres)
     |
     +-- Deep Research: peut generer du code deploye directement dans src/
-    +-- Voit: OL1 cloud (gpt-oss, devstral, etc.)
+    +-- Voit: OL1 (qwen3:1.7b)
     +-- Ne voit PAS: M1/M2/M3 (IPs locales non exposees)
 ```
 
@@ -673,11 +671,10 @@ dynamic_agents.py (311 lignes)
     └── cross_*       — Cross-domain
     |
     MODEL_TO_NODE mapping:
-    ├── qwen3-8b     → M1
-    ├── gpt-oss-20b  → M1B
-    ├── deepseek-r1  → M2
-    ├── mistral-7b   → M3
-    └── qwen3:1.7b   → OL1
+    ├── qwen3-8b              → M1
+    ├── deepseek-r1-0528      → M2
+    ├── deepseek-r1-0528      → M3
+    └── qwen3:1.7b            → OL1
     |
     register_to_registry(): inject dans PatternAgentRegistry live
 ```
@@ -896,7 +893,7 @@ PORT MAP:
     ├── Gmail IMAP        — 2 comptes (miningexpert31 + franckdelmas00)
     ├── Gemini API        — Architecture & vision (via gemini-proxy.js)
     ├── Claude API        — Raisonnement profond (via claude-proxy.js)
-    ├── Ollama Cloud      — 10 modeles cloud (gpt-oss, devstral, glm, etc.)
+    ├── Ollama            — 2 modeles locaux (qwen3:14b, qwen3:1.7b)
     ├── Edge TTS          — Synthese vocale DeniseNeural
     └── OpenWakeWord      — Detection mot-cle "jarvis"
 ```
@@ -941,11 +938,10 @@ PORT MAP:
                         |
             +-----------+-----------+
             |           |           |
-         LOCAL       CLOUD       PROXY
-      M1/M1B/M2/M3  gpt-oss    Gemini
-      LM Studio      devstral   Claude
-      :1234          Ollama
-                     :11434
+         LOCAL       LOCAL       PROXY
+      M1/M2/M3    OL1         Gemini
+      LM Studio   Ollama      Claude
+      :1234       :11434
             |           |           |
             +-----------+-----------+
                         |
@@ -995,7 +991,7 @@ PORT MAP:
 | Composant | Quantite | Detail |
 |-----------|----------|--------|
 | **GPU** | 10 NVIDIA / 78 GB VRAM | 6 GPU M1 (46GB) + 3 GPU M2 (24GB) + 1 GPU M3 (8GB) |
-| **Modeles IA** | 14 (4 local + 10 cloud) | M1 qwen3-8b/gpt-oss-20b + M2 deepseek-r1 + M3 deepseek-r1 + OL1 qwen3:14b/1.7b + 10 cloud |
+| **Modeles IA** | 4 local | M1 qwen3-8b + M2 deepseek-r1 + M3 deepseek-r1 + OL1 qwen3:1.7b |
 | **Modules src/** | 226 fichiers | 84,582 lignes Python |
 | **Tests** | 2,144 fonctions | 49 fichiers test |
 | **MCP Handlers** | 597 | mcp_server.py (6,217 lignes) |

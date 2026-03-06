@@ -190,7 +190,7 @@ print("\n--- cognitif_consensus_rapide (M1 vs M2) ---")
 question = "Quel est le meilleur format pour un pipeline IA: JSON, Parquet ou SQLite?"
 r_m1 = call_lmstudio("10.5.0.2", 1234, "qwen3-8b", question, M1_AUTH, max_tokens=150)
 print(f"  [M1/qwen3] {r_m1[:200]}")
-r_m2 = call_lmstudio("192.168.1.26", 1234, "deepseek-coder-v2-lite-instruct", question, M2_AUTH, max_tokens=150)
+r_m2 = call_lmstudio("192.168.1.26", 1234, "deepseek-r1-0528-qwen3-8b", question, M2_AUTH, max_tokens=150)
 print(f"  [M2/deepseek] {r_m2[:200]}")
 results["cognitif_consensus"] = "OK" if "ERREUR" not in r_m1 and "ERREUR" not in r_m2 else "FAIL"
 

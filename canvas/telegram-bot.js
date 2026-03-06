@@ -44,11 +44,10 @@ let TRADING_ALERTS = !fs.existsSync(ALERTS_FLAG_FILE); // Lit le flag persistant
 
 // ─── Cluster nodes (direct, sans passer par le proxy) ─────────────────────────
 const CLUSTER_NODES = [
-  { id: 'gpt-oss', url: 'http://127.0.0.1:11434/api/chat', model: 'gpt-oss:120b-cloud', isOllama: true, weight: 1.9 },
   { id: 'M1', url: 'http://127.0.0.1:1234/v1/chat/completions', model: 'qwen3-8b', weight: 1.8 },
-  { id: 'devstral', url: 'http://127.0.0.1:11434/api/chat', model: 'devstral-2:123b-cloud', isOllama: true, weight: 1.5 },
-  { id: 'M2', url: 'http://192.168.1.26:1234/v1/chat/completions', model: 'deepseek-coder-v2-lite-instruct', weight: 1.4 },
+  { id: 'M2', url: 'http://192.168.1.26:1234/v1/chat/completions', model: 'deepseek-r1-0528-qwen3-8b', weight: 1.5 },
   { id: 'OL1', url: 'http://127.0.0.1:11434/api/chat', model: 'qwen3:1.7b', isOllama: true, weight: 1.3 },
+  { id: 'M3', url: 'http://192.168.1.113:1234/v1/chat/completions', model: 'deepseek-r1-0528-qwen3-8b', weight: 1.2 },
 ];
 
 if (!TOKEN) { console.error('[FATAL] TELEGRAM_TOKEN manquant dans .env'); process.exit(1); }

@@ -15,40 +15,34 @@ Projet principal: F:\BUREAU\turbo | GitHub: Turbo31150/turbo (main)
 
 ---
 
-## CLUSTER IA COMPLET (10 noeuds, benchmarks 2026-02-28)
+## CLUSTER IA (4 noeuds actifs, MaJ 2026-03-06)
 
 | Agent | Host | GPU/RAM | Model | Score | Poids | Specialite |
 |-------|------|---------|-------|-------|-------|------------|
-| **gpt-oss** | OL1 cloud | cloud | gpt-oss:120b-cloud | **100/100** | **1.9** | CHAMPION CLOUD — Q100% V100% R100% 51tok/s |
-| **M1** | 127.0.0.1:1234 / 10.5.0.2:1234 | 6 GPU/46GB | qwen3-8b | **98.4/100** | **1.8** | CHAMPION LOCAL — code+math, 46tok/s |
-| **devstral** | OL1 cloud | cloud | devstral-2:123b-cloud | ~94/100 | 1.5 | Code cloud #2 — Q100% 36tok/s |
-| **M2** | 192.168.1.26:1234 | 3 GPU/24GB | deepseek-coder-v2 | 85.1 | 1.4 | Code review, debug |
-| **OL1** | 127.0.0.1:11434 | 5 GPU/40GB | qwen3:14b + 1.7b | 88% | 1.3 | Rapide local 23tok/s + 84tok/s |
-| **glm-4.7** | OL1 cloud | cloud | glm-4.7:cloud | 88/100 | 1.2 | Rapide 48tok/s INSTABLE |
-| **GEMINI** | gemini-proxy.js | — | gemini-3-pro/flash | 74% | 1.2 | Architecture, vision |
-| **CLAUDE** | claude-proxy.js | — | opus/sonnet/haiku | — | 1.2 | Raisonnement cloud |
-| **OL1-480b** | OL1 cloud | cloud | qwen3-coder:480b-cloud | 84 | 1.1 | Review cloud |
-| **M3** | 192.168.1.113:1234 | 1 GPU/8GB | mistral-7b | 89% | 0.8 | General (PAS raisonnement) |
+| **M1** | 127.0.0.1:1234 | 6 GPU/46GB | qwen3-8b | **98.4/100** | **1.8** | CHAMPION LOCAL — code+math, 46tok/s |
+| **M2** | 192.168.1.26:1234 | 3 GPU/24GB | deepseek-r1-0528-qwen3-8b | — | 1.5 | Reasoning, 25s |
+| **OL1** | 127.0.0.1:11434 | local | qwen3:1.7b | 88% | 1.3 | Ultra-rapide 84tok/s |
+| **M3** | 192.168.1.113:1234 | 1 GPU/8GB | deepseek-r1-0528-qwen3-8b | — | 1.2 | Reasoning fallback, 18s |
 
 ### Matrice de routage
 | Tache | Principal | Secondaire | Verificateur |
 |---|---|---|---|
-| Code nouveau | gpt-oss:120b | M1 | devstral-2 |
-| Bug fix | gpt-oss:120b | M1 | devstral-2 |
-| Architecture | GEMINI | M1 | gpt-oss:120b |
-| Refactoring | gpt-oss:120b | M1 | devstral-2 |
-| Raisonnement | M1 (100%) | OL1-14b | JAMAIS M3 |
-| Math/Calcul | M1 (100%) | OL1 | — |
-| Trading | OL1 (web) | M1 | — |
-| Securite/audit | gpt-oss:120b | GEMINI | M3 |
-| Question simple | OL1 (0.5s) | glm-4.7 | — |
-| Recherche web | OL1-cloud (minimax) | GEMINI | — |
-| Consensus critique | gpt-oss+M1+devstral+M2+GEMINI+CLAUDE | Vote pondere | — |
+| Code nouveau | M1 | OL1 | M2 |
+| Bug fix | M1 | OL1 | M2 |
+| Architecture | M1 | OL1 | M2 |
+| Refactoring | M1 | OL1 | M2 |
+| Raisonnement | M1 | M2 | — |
+| Math/Calcul | M1 | OL1 | — |
+| Trading | OL1 | M1 | — |
+| Securite/audit | M1 | OL1 | M2 |
+| Question simple | OL1 | M1 | — |
+| Recherche web | OL1 | M1 | — |
+| Consensus critique | M1+M2+OL1+M3 | Vote pondere | — |
 
 ### Regles Cluster
 - DELEGATION OBLIGATOIRE: toujours utiliser les agents du cluster
-- Parallélisme: toujours dispatcher en parallele quand possible
-- Fallback: gpt-oss → M1 → devstral → M2 → OL1 → GEMINI → CLAUDE
+- Parallelisme: toujours dispatcher en parallele quand possible
+- Fallback: M1 → M2 → OL1 → M3
 - think:false OBLIGATOIRE pour Ollama cloud
 - /nothink OBLIGATOIRE pour LM Studio M1
 - JAMAIS localhost → TOUJOURS 127.0.0.1
@@ -311,7 +305,7 @@ Auto-tune: latence > 3000ms → bascule noeud suivant
 ### OpenClaw Gateway
 - Port 18789 | 34 agents | 7 providers | Telegram: @turboSSebot
 - Proxy Gemini: port 18791
-- Fallback chain: gpt-oss:120b → devstral-2:123b → qwen3-coder:480b → qwen3:14b
+- Fallback chain: M1/qwen3-8b → M2/deepseek-r1 → OL1/qwen3:1.7b → M3/deepseek-r1
 
 ### Canvas Autolearn Engine
 - Module: canvas/autolearn.js | Port 18800
@@ -515,7 +509,7 @@ Auto-tune: latence > 3000ms → bascule noeud suivant
 - [ ] Feedback visuel: toast "Configuration sauvegardee"
 
 ### P1 — Consensus Multi-IA sur Scan Sniper (EN COURS)
-- Integrer le dispatch multi-agents (M1+gpt-oss+devstral+M2+GEMINI+OL1) apres chaque scan
+- Integrer le dispatch multi-agents (M1+M2+OL1+M3) apres chaque scan
 - Chaque agent analyse les signaux et vote LONG/SHORT/SKIP
 - Vote pondere → score consensus → filtrage final
 - Afficher le consensus dans le chat Electron (nouveau renderer)
