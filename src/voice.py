@@ -566,7 +566,21 @@ async def listen_voice_v2(
     result = await full_correction_pipeline(text, use_ia=True)
     print(f"  [MATCH] method={result['method']}, confidence={result['confidence']:.0%}", flush=True)
 
-    # Step 4.5: Execute domino pipeline if matched
+    # Step 4.5a: Try voice computer control (browser/windows/system/media)
+    if not result.get("command"):
+        try:
+            from cowork.dev.voice_computer_control import execute_voice_command
+            vcc_output = execute_voice_command(text)
+            if vcc_output and vcc_output != text:
+                result["command"] = text
+                result["method"] = "voice_control"
+                result["confidence"] = 0.85
+                result["vcc_output"] = vcc_output
+                print(f"  [VCC] {vcc_output[:80]}", flush=True)
+        except Exception:
+            pass
+
+    # Step 4.5b: Execute domino pipeline if matched
     if result.get("method") == "domino" and result.get("domino"):
         try:
             from src.voice_correction import execute_domino_result
