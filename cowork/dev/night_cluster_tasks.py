@@ -24,7 +24,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-TURBO = Path("F:/BUREAU/turbo")
+from _paths import TURBO_DIR as TURBO
 DATA = TURBO / "data"
 
 NODES = {

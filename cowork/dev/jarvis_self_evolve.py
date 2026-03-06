@@ -13,7 +13,7 @@ import urllib.request
 from pathlib import Path
 
 DB_PATH = Path(__file__).parent / "self_evolve.db"
-TURBO = Path("F:/BUREAU/turbo")
+from _paths import TURBO_DIR as TURBO
 SRC = TURBO / "src"
 
 def init_db():

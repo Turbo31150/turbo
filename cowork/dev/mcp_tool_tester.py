@@ -13,7 +13,7 @@ import time
 from pathlib import Path
 
 DB_PATH = Path(__file__).parent / "mcp_tests.db"
-TURBO = Path("F:/BUREAU/turbo")
+from _paths import TURBO_DIR as TURBO
 MCP_SERVER = TURBO / "src" / "mcp_server.py"
 
 def init_db():

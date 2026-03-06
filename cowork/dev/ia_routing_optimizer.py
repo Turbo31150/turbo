@@ -16,7 +16,7 @@ from pathlib import Path
 
 DEV = Path(__file__).parent
 DB_PATH = DEV / "data" / "routing_optimizer.db"
-ETOILE_DB = Path("F:/BUREAU/turbo/data/etoile.db")
+from _paths import ETOILE_DB
 CATEGORIES = ["code", "math", "trading", "system", "web", "general"]
 
 def init_db():

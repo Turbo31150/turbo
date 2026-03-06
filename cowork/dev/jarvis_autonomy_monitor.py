@@ -23,7 +23,7 @@ from pathlib import Path
 
 DEV = Path(__file__).parent
 DB_PATH = DEV / "data" / "autonomy_monitor.db"
-TURBO = Path("F:/BUREAU/turbo")
+from _paths import TURBO_DIR as TURBO
 WS_URL = "http://127.0.0.1:9742"
 OL1_URL = "http://127.0.0.1:11434"
 M1_URL = "http://127.0.0.1:1234"

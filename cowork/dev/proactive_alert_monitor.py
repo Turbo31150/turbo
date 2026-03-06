@@ -31,7 +31,7 @@ from pathlib import Path
 SCRIPT_DIR = Path(__file__).resolve().parent
 DATA_DIR = SCRIPT_DIR / "data"
 DB_PATH = DATA_DIR / "cowork_gaps.db"
-ETOILE_DB = Path(r"F:/BUREAU/turbo/etoile.db")
+from _paths import ETOILE_DB
 PYTHON = sys.executable
 
 TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"

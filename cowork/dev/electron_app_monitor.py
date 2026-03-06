@@ -14,7 +14,7 @@ import urllib.request
 from pathlib import Path
 
 DB_PATH = Path(__file__).parent / "electron_monitor.db"
-TURBO = Path("F:/BUREAU/turbo")
+from _paths import TURBO_DIR as TURBO
 ELECTRON_DIR = TURBO / "electron"
 WS_PORT = 9742
 LAUNCHER = TURBO / "launchers" / "JARVIS.bat"

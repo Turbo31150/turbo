@@ -21,7 +21,7 @@ from datetime import datetime
 from pathlib import Path
 
 DEV = Path(__file__).parent
-TURBO = Path("F:/BUREAU/turbo")
+from _paths import TURBO_DIR as TURBO
 DB_PATH = DEV / "data" / "self_improve.db"
 WS_URL = "http://127.0.0.1:9742"
 IMPROVE_LOOP = TURBO / "canvas" / "improve_loop.py"

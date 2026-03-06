@@ -24,7 +24,7 @@ from pathlib import Path
 
 # UTF-8 handled via PYTHONUTF8=1 env or --log file
 
-TURBO = Path("F:/BUREAU/turbo")
+from _paths import TURBO_DIR as TURBO
 DB_PATH = TURBO / "data" / "cluster_pipeline.db"
 PID_FILE = TURBO / "data" / "cluster_pipeline.pid"
 

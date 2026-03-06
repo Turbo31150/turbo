@@ -21,7 +21,7 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 GAPS_DB = SCRIPT_DIR / "data" / "cowork_gaps.db"
-ETOILE_DB = Path("F:/BUREAU/turbo/data/etoile.db")
+from _paths import ETOILE_DB
 
 passed = 0
 failed = 0

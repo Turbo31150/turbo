@@ -20,7 +20,7 @@ from datetime import datetime
 from pathlib import Path
 
 DEV = Path(__file__).parent
-ETOILE_DB = Path("F:/BUREAU/turbo/data/etoile.db")
+from _paths import ETOILE_DB
 DB_PATH = DEV / "data" / "skill_tests.db"
 WS_URL = "http://127.0.0.1:9742"
 

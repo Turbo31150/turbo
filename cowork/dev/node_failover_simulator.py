@@ -23,7 +23,7 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
-ETOILE_DB = Path(r"F:/BUREAU/turbo/etoile.db")
+from _paths import ETOILE_DB
 GAPS_DB = Path(r"F:/BUREAU/turbo/cowork/dev/data/cowork_gaps.db")
 
 # Fallback chain: if a node dies, redistribute to these in order

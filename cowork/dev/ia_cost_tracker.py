@@ -16,7 +16,7 @@ from pathlib import Path
 
 DEV = Path(__file__).parent
 DB_PATH = DEV / "data" / "cost_tracker.db"
-ETOILE_DB = Path("F:/BUREAU/turbo/data/etoile.db")
+from _paths import ETOILE_DB
 COST_RATES = {
     "glm-4.7": 0.0001,
     "qwen3-coder:480b": 0.0004, "minimax-m2.5": 0.0001, "kimi-k2.5": 0.0002,

@@ -16,7 +16,7 @@ from pathlib import Path
 
 DEV = Path(__file__).parent
 DB_PATH = DEV / "data" / "weight_calibrator.db"
-ETOILE_DB = Path("F:/BUREAU/turbo/data/etoile.db")
+from _paths import ETOILE_DB
 CURRENT_WEIGHTS = {"M1": 1.8, "M2": 1.5, "OL1": 1.3, "M3": 1.2}
 
 def init_db():

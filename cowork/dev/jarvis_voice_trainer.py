@@ -20,8 +20,8 @@ from pathlib import Path
 
 DEV = Path(__file__).parent
 DB_PATH = DEV / "data" / "voice_trainer.db"
-JARVIS_DB = Path("F:/BUREAU/turbo/data/jarvis.db")
-ETOILE_DB = Path("F:/BUREAU/turbo/data/etoile.db")
+from _paths import JARVIS_DB
+from _paths import ETOILE_DB
 
 
 def init_db():

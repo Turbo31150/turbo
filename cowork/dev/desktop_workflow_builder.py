@@ -21,7 +21,7 @@ from pathlib import Path
 
 DEV = Path(__file__).parent
 DB_PATH = DEV / "data" / "desktop_workflows.db"
-ETOILE_DB = Path("F:/BUREAU/turbo/data/etoile.db")
+from _paths import ETOILE_DB
 
 # Known app categories
 APP_CATEGORIES = {

@@ -17,7 +17,7 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
-ETOILE_DB = Path(r"F:/BUREAU/turbo/etoile.db")
+from _paths import ETOILE_DB
 GAPS_DB = Path(__file__).parent / "data" / "cowork_gaps.db"
 
 

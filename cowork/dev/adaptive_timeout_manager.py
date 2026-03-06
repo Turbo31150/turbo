@@ -11,7 +11,7 @@ from pathlib import Path
 SCRIPT_DIR = Path(__file__).resolve().parent
 DATA_DIR = SCRIPT_DIR / "data"
 DB_PATH = DATA_DIR / "cowork_gaps.db"
-ETOILE_DB = Path(r"F:/BUREAU/turbo/etoile.db")
+from _paths import ETOILE_DB
 MIN_TO, MAX_TO, DEF_TO, MARGIN = 5, 180, 30, 1.5
 NODE_SPEED = {"M1": 1.0, "OL1": 1.2, "M2": 2.5, "M3": 3.0}
 TIER = {"classifier":10,"simple":10,"quick":10,"code":30,"system":30,"devops":30,"web":30,"analysis":60,"architecture":60,"creative":60,"reasoning":90,"math":90,"trading":90,"large":90}

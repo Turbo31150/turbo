@@ -12,7 +12,7 @@ import sqlite3
 import time
 from pathlib import Path
 
-TURBO = Path("F:/BUREAU/turbo")
+from _paths import TURBO_DIR as TURBO
 SRC = TURBO / "src"
 DB_PATH = Path(__file__).parent / "features.db"
 REPORT_DIR = Path(__file__).parent / "reports"

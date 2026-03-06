@@ -22,7 +22,7 @@ from pathlib import Path
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
-TURBO = Path("F:/BUREAU/turbo")
+from _paths import TURBO_DIR as TURBO
 DB_PATH = TURBO / "data" / "etoile.db"
 
 # ── Task Bank ────────────────────────────────────────────────
