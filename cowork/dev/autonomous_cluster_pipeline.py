@@ -22,8 +22,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
 
-if sys.stdout and hasattr(sys.stdout, "buffer"):
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+# UTF-8 handled via PYTHONUTF8=1 env or --log file
 
 TURBO = Path("F:/BUREAU/turbo")
 DB_PATH = TURBO / "data" / "cluster_pipeline.db"
@@ -38,8 +37,8 @@ NODES = {
         "url": "http://127.0.0.1:1234/api/v1/chat",
         "model": "qwen3-8b",
         "prefix": "/nothink\n",
-        "max_tokens": 2048,
-        "timeout": 60,
+        "max_tokens": 1024,
+        "timeout": 180,
         "type": "lmstudio",
         "role": "fast",  # Pattern detection, code gen
     },
@@ -56,8 +55,8 @@ NODES = {
         "url": "http://192.168.1.113:1234/api/v1/chat",
         "model": "deepseek/deepseek-r1-0528-qwen3-8b",
         "prefix": "",
-        "max_tokens": 1024,
-        "timeout": 120,
+        "max_tokens": 2048,
+        "timeout": 180,
         "type": "lmstudio",
         "role": "deep",
     },
@@ -172,11 +171,18 @@ def query_node(name, prompt):
             }).encode()
             d = _http_post(node["url"], body, timeout)
             text = ""
+            # Try message block first, fallback to reasoning (deepseek-r1)
             for item in reversed(d.get("output", [])):
                 if item.get("type") == "message":
                     c = item.get("content", "")
                     text = c.strip() if isinstance(c, str) else str(c)
                     break
+            if not text:
+                for item in d.get("output", []):
+                    if item.get("type") == "reasoning":
+                        c = item.get("content", "")
+                        text = c.strip() if isinstance(c, str) else str(c)
+                        break
 
         elapsed = time.time() - t0
         if text:
