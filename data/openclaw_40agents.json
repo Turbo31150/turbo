@@ -527,7 +527,7 @@
         ]
       },
       "models": {
-        "lm-m2/deepseek-coder-v2-lite-instruct": {
+        "lm-m2/deepseek-r1-0528-qwen3-8b": {
           "alias": "m2-code"
         },
         "lm-m2/deepseek/deepseek-r1-0528-qwen3-8b": {
@@ -718,7 +718,7 @@
           "fallbacks": [
             "ollama/gpt-oss:120b-cloud",
             "ollama/devstral-2:123b-cloud",
-            "lm-m3/mistral-7b-instruct-v0.3",
+            "lm-m3/deepseek-r1-0528-qwen3-8b",
             "ollama/qwen3-coder:480b-cloud",
             "ollama/kimi-k2.5:cloud",
             "ollama/qwen3:1.7b",
@@ -821,7 +821,7 @@
         "model": {
           "primary": "ollama/qwen3:14b",
           "fallbacks": [
-            "lm-m2/deepseek-coder-v2-lite-instruct",
+            "lm-m2/deepseek-r1-0528-qwen3-8b",
             "ollama/gpt-oss:120b-cloud",
             "ollama/devstral-2:123b-cloud",
             "ollama/qwen3-coder:480b-cloud",
@@ -843,7 +843,7 @@
             "ollama/devstral-2:123b-cloud",
             "ollama/qwen3:14b",
             "ollama/qwen3-coder:480b-cloud",
-            "lm-m3/mistral-7b-instruct-v0.3",
+            "lm-m3/deepseek-r1-0528-qwen3-8b",
             "gemini/models/gemini-2.5-flash",
             "ollama/kimi-k2.5:cloud"
           ]
@@ -875,12 +875,12 @@
         "model": {
           "primary": "gemini/models/gemini-2.5-flash",
           "fallbacks": [
-            "lm-m2/deepseek-coder-v2-lite-instruct",
+            "lm-m2/deepseek-r1-0528-qwen3-8b",
             "ollama/gpt-oss:120b-cloud",
             "ollama/devstral-2:123b-cloud",
             "ollama/qwen3-coder:480b-cloud",
             "ollama/qwen3:14b",
-            "lm-m3/mistral-7b-instruct-v0.3",
+            "lm-m3/deepseek-r1-0528-qwen3-8b",
             "ollama/kimi-k2.5:cloud"
           ]
         }
@@ -896,7 +896,7 @@
             "gemini/models/gemini-2.5-flash",
             "ollama/qwen3-coder:480b-cloud",
             "ollama/qwen3:14b",
-            "lm-m2/deepseek-coder-v2-lite-instruct",
+            "lm-m2/deepseek-r1-0528-qwen3-8b",
             "ollama/gpt-oss:120b-cloud",
             "ollama/devstral-2:123b-cloud",
             "ollama/kimi-k2.5:cloud"
@@ -911,12 +911,12 @@
         "model": {
           "primary": "gemini/models/gemini-2.5-flash",
           "fallbacks": [
-            "lm-m2/deepseek-coder-v2-lite-instruct",
+            "lm-m2/deepseek-r1-0528-qwen3-8b",
             "ollama/gpt-oss:120b-cloud",
             "ollama/devstral-2:123b-cloud",
             "ollama/qwen3-coder:480b-cloud",
             "ollama/qwen3:14b",
-            "lm-m3/mistral-7b-instruct-v0.3",
+            "lm-m3/deepseek-r1-0528-qwen3-8b",
             "ollama/kimi-k2.5:cloud"
           ]
         }
@@ -1081,7 +1081,7 @@
             "ollama/devstral-2:123b-cloud",
             "ollama/qwen3:14b",
             "ollama/qwen3-coder:480b-cloud",
-            "lm-m3/mistral-7b-instruct-v0.3",
+            "lm-m3/deepseek-r1-0528-qwen3-8b",
             "gemini/models/gemini-2.5-flash",
             "ollama/kimi-k2.5:cloud"
           ]
@@ -1093,7 +1093,7 @@
         "workspace": "C:\\Users\\franc\\.openclaw\\workspace-translator",
         "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\translator\\agent",
         "model": {
-          "primary": "lm-m3/mistral-7b-instruct-v0.3",
+          "primary": "lm-m3/deepseek-r1-0528-qwen3-8b",
           "fallbacks": [
             "ollama/gpt-oss:120b-cloud",
             "ollama/devstral-2:123b-cloud",
@@ -1163,7 +1163,7 @@
             "ollama/devstral-2:123b-cloud",
             "ollama/qwen3:14b",
             "ollama/qwen3-coder:480b-cloud",
-            "lm-m3/mistral-7b-instruct-v0.3",
+            "lm-m3/deepseek-r1-0528-qwen3-8b",
             "gemini/models/gemini-2.5-flash",
             "ollama/kimi-k2.5:cloud"
           ]

@@ -259,48 +259,54 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
       const lines = [
         '*JARVIS Telegram Bot*',
         '',
-        'Commandes:',
-        '`/status` - Health check cluster',
-        '`/health` - Etat detaille des noeuds',
-        '`/consensus <q>` - Vote pondere multi-noeuds',
-        '`/model <id> <q>` - Forcer un noeud (M1/M2/OL1...)',
-        '`/scan [N]` - Sniper scan top N coins (breakouts, TP1/2/3, SL)',
-        '`/deepscan [N]` - Deep scan 800+ coins entonnoir 3 passes (GPU+cluster)',
-        '`/hot [N]` - Top N coins chauds (historique DB)',
-        '`/scanstats` - Stats scanner (scans, snapshots, registry)',
-        '`/sniper` - Statut du scanner permanent',
-        '`/perf` - Performance des signaux emis (TP/SL)',
-        '`/realtime` - Statut scanner temps reel',
-        '`/loop` - Statut Super Loop amelioration',
-        '`/backtest` - Resultats micro-backtest',
-        '`/market` - Resume marche actuel (movers + trend)',
-        '`/signals` - Signaux ouverts en temps reel',
-        '`/alerton` - Activer les alertes trading (TP/SL)',
-        '`/alertoff` - Desactiver les alertes trading',
-        '`/openclaw <q>` - Question via proxy complet (reflexive chain)',
-        '`/compare BTC SOL` - Comparer deux coins',
-        '`/whales` - Gros mouvements detectes (DB)',
-        '`/news` - Actualites crypto du jour',
-        '`/domino [nom]` - Lancer un domino (pipeline)',
-        '`/stats` - Statistiques du bot',
-        '`/menu` - Dashboard avec boutons interactifs',
-        '`/help` - Cette aide',
+        '*Cluster IA:*',
+        '`/status` — Etat du cluster (online/offline)',
+        '`/health` — Details noeuds + autolearn scores',
+        '`/consensus <q>` — Question multi-noeuds (vote)',
+        '`/model <id> <q>` — Interroger un noeud (M1/M2/OL1/M3)',
+        '`/openclaw <q>` — Question via proxy reflexive chain',
+        '',
+        '*Trading & Scanner:*',
+        '`/scan [N]` — Sniper scan top N coins (breakouts)',
+        '`/deepscan [N]` — Deep scan 800+ coins (3 passes)',
+        '`/hot [N]` — Top coins chauds (score historique)',
+        '`/signals` — Signaux ouverts en temps reel',
+        '`/market` — Resume marche (top movers + trend)',
+        '`/perf` — Performance signaux (win rate TP/SL)',
+        '`/compare A B` — Comparer deux coins',
+        '`/whales` — Gros mouvements detectes',
+        '`/news` — Actus crypto du jour',
+        '`/backtest` — Resultats micro-backtest',
+        '',
+        '*Scanner avance:*',
+        '`/scanstats` — Stats scanner (DB)',
+        '`/sniper` — Statut scanner permanent',
+        '`/realtime` — Scanner temps reel',
+        '`/loop` — Statut Super Loop amelioration',
+        '`/alerton` / `/alertoff` — Alertes trading ON/OFF',
+        '',
+        '*Dominos (pipelines):*',
+        '`/domino` — Liste des cascades disponibles',
+        '`/domino <nom>` — Lancer un domino',
+        '',
+        '*Systeme:*',
+        '`/stats` — Statistiques du bot',
+        '`/menu` — Dashboard interactif (boutons)',
       ];
       if (isAdmin) {
         lines.push(
           '',
           '*Admin:*',
-          '`/gpu` - Temperatures et VRAM GPU',
-          '`/jarvis <cmd>` - Executer commande vocale JARVIS',
-          '`/exec <cmd>` - Alias de /jarvis',
-          '`/improve [N]` - Lancer N cycles amelioration (def: 10)',
-          '`/superloop [N]` - Lancer Super Loop (trading+code+repair)',
-          '`/killscanner` - Arreter le scanner REALTIME',
-          '`/voice [texte]` - Test reponse vocale',
+          '`/gpu` — Temperatures + VRAM GPU',
+          '`/jarvis <cmd>` — Commande vocale JARVIS',
+          '`/improve [N]` — Cycles amelioration auto',
+          '`/superloop [N]` — Super Loop (trading+code+repair)',
+          '`/killscanner` — Arreter scanner REALTIME',
+          '`/voice [texte]` — Test reponse vocale',
         );
       }
-      lines.push('', 'Texte libre: dispatch cluster IA.');
-      lines.push('🎤 Audio: envoyez un vocal → transcription Whisper → reponse vocale automatique.');
+      lines.push('', 'Texte libre → dispatch cluster IA automatique.');
+      lines.push('Vocal → Whisper STT → reponse vocale.');
       return sendMessage(chatId, lines.join('\n'), 'Markdown');
     }
 
@@ -1106,50 +1112,94 @@ async function handleOpenSignals(chatId) {
 async function handleDominos(chatId, name) {
   try {
     if (!name) {
-      // List available dominos
+      // List available dominos by category
       const result = execSync(`python -c "
-import sqlite3, json
-db = sqlite3.connect('data/etoile.db')
-rows = db.execute('SELECT name, description FROM domino_chains WHERE active=1 ORDER BY name LIMIT 30').fetchall()
-print(json.dumps([{'name':r[0],'desc':r[1]} for r in rows]))
-db.close()
-"`, { timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
-      const dominos = JSON.parse(result.trim());
-      if (!dominos.length) return sendMessage(chatId, 'Aucun domino actif.');
-      const lines = ['🎲 *Dominos disponibles*', '', 'Usage: `/domino <nom>`', ''];
-      for (const d of dominos) {
-        lines.push(`• \`${d.name}\` — ${d.desc || 'sans description'}`);
+import sys, json; sys.path.insert(0,'.')
+from src.domino_pipelines import DOMINO_PIPELINES, get_domino_stats
+stats = get_domino_stats()
+cats = {}
+for dp in DOMINO_PIPELINES:
+    cats.setdefault(dp.category, []).append({'id': dp.id, 'desc': dp.description, 'prio': dp.priority, 'steps': len(dp.steps)})
+# Show top 5 per category, max 8 categories
+out = {'stats': stats, 'categories': {}}
+for cat, items in sorted(cats.items()):
+    out['categories'][cat] = items[:5]
+print(json.dumps(out))
+"`, { timeout: 15000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
+      const data = JSON.parse(result.trim());
+      const s = data.stats;
+      const lines = [
+        `*Dominos JARVIS* (${s.total_dominos} cascades, ${s.total_steps} etapes)`,
+        `Critical: ${s.critical_count} | High: ${s.high_count}`,
+        '',
+        'Usage: `/domino <nom>` ou `/domino <mot-cle>`',
+        ''
+      ];
+      for (const [cat, items] of Object.entries(data.categories)) {
+        lines.push(`*${cat}* (${items.length}+)`);
+        for (const d of items) {
+          const pIcon = d.prio === 'critical' ? '🔴' : d.prio === 'high' ? '🟠' : '⚪';
+          lines.push(`  ${pIcon} \`${d.id}\` (${d.steps} etapes)`);
+        }
+        lines.push('');
       }
       return sendMessage(chatId, lines.join('\n'), 'Markdown');
     }
 
-    // Execute a specific domino
-    await sendMessage(chatId, `🎲 Lancement domino: *${name}*...`, 'Markdown');
+    // Search and execute a specific domino
+    const safeName = name.replace(/'/g, '').replace(/"/g, '').replace(/;/g, '').slice(0, 100);
+    await sendMessage(chatId, `Recherche domino: *${safeName}*...`, 'Markdown');
+
+    const findResult = execSync(`python -c "
+import sys, json; sys.path.insert(0,'.')
+from src.domino_pipelines import find_domino
+dp = find_domino('${safeName}')
+if dp:
+    print(json.dumps({'found': True, 'id': dp.id, 'desc': dp.description, 'steps': len(dp.steps), 'category': dp.category, 'priority': dp.priority}))
+else:
+    print(json.dumps({'found': False}))
+"`, { timeout: 10000, encoding: 'utf-8', cwd: path.join(__dirname, '..') });
+    const found = JSON.parse(findResult.trim());
+
+    if (!found.found) {
+      return sendMessage(chatId, `Domino "${safeName}" non trouve. Tapez /domino pour voir la liste.`);
+    }
+
+    await sendMessage(chatId, `Lancement: *${found.id}* (${found.category}, ${found.steps} etapes, ${found.priority})...`, 'Markdown');
+
     const proc = exec(
       `python -c "
-import sys; sys.path.insert(0,'.')
-from src.domino_pipelines import get_pipeline_by_name, execute_pipeline
-p = get_pipeline_by_name('${name.replace(/'/g, '')}')
-if not p: print('ERROR: domino non trouve'); sys.exit(1)
-result = execute_pipeline(p)
-print('OK' if result.get('success') else 'FAIL')
-for step in result.get('steps',[]): print(f'  {step[\"name\"]}: {step.get(\"status\",\"?\")}')
+import sys, json, time; sys.path.insert(0,'.')
+from src.domino_pipelines import find_domino
+from src.domino_executor import DominoExecutor
+dp = find_domino('${safeName}')
+if not dp: print(json.dumps({'success':False,'error':'not found'})); sys.exit(1)
+executor = DominoExecutor()
+result = executor.run(dp)
+print(json.dumps({'success': result.get('success',False), 'passed': result.get('passed',0), 'failed': result.get('failed',0), 'skipped': result.get('skipped',0), 'duration': result.get('duration_s',0), 'steps': [{'name':s.get('step','?'),'status':s.get('status','?')} for s in result.get('steps',result.get('results',[]))[:20]]}))
 "`,
-      { timeout: 120000, encoding: 'utf-8', cwd: path.join(__dirname, '..') }
+      { timeout: 180000, encoding: 'utf-8', cwd: path.join(__dirname, '..') }
     );
 
     let output = '';
     proc.stdout.on('data', d => output += d);
-    proc.stderr.on('data', d => output += d);
+    proc.stderr.on('data', d => logErr(`[domino] ${d.trim()}`));
     proc.on('close', async (code) => {
-      if (code === 0) {
-        await sendMessage(chatId, `✅ Domino *${name}* termine.\n\`\`\`\n${output.slice(0, 3000)}\n\`\`\``, 'Markdown');
-      } else {
-        await sendMessage(chatId, `🔴 Domino *${name}* echoue (code ${code}).\n${output.slice(0, 500)}`, 'Markdown');
+      try {
+        const r = JSON.parse(output.trim());
+        const icon = r.success ? '✅' : '🔴';
+        const stepLines = (r.steps || []).map(s => `  ${s.status === 'PASS' ? '✅' : s.status === 'SKIP' ? '⏭' : '❌'} ${s.name}`).join('\n');
+        await sendMessage(chatId, `${icon} *${found.id}*\nResultat: ${r.passed} OK / ${r.failed} KO / ${r.skipped} skip (${(r.duration || 0).toFixed(1)}s)\n${stepLines}`, 'Markdown');
+      } catch {
+        if (code === 0) {
+          await sendMessage(chatId, `✅ Domino *${found.id}* termine.\n${output.slice(0, 2000)}`, 'Markdown');
+        } else {
+          await sendMessage(chatId, `🔴 Domino *${found.id}* echoue (code ${code}).\n${output.slice(0, 500)}`, 'Markdown');
+        }
       }
     });
   } catch (e) {
-    return sendMessage(chatId, `🔴 Erreur dominos: ${e.message.slice(0, 300)}`);
+    return sendMessage(chatId, `Erreur dominos: ${e.message.slice(0, 300)}`);
   }
 }
 
@@ -1789,35 +1839,40 @@ async function processMessage(msg) {
 async function sendMenuKeyboard(chatId) {
   const keyboard = {
     inline_keyboard: [
+      // Row 1: Cluster
       [
-        { text: '🟢 Cluster Status', callback_data: 'cmd_status' },
-        { text: '📊 Stats Bot', callback_data: 'cmd_stats' },
+        { text: '🟢 Cluster', callback_data: 'cmd_status' },
+        { text: '📊 Health', callback_data: 'cmd_health' },
+        { text: '🎮 GPU', callback_data: 'cmd_gpu' },
       ],
+      // Row 2: Trading scan
       [
-        { text: '🎯 Scan Rapide', callback_data: 'cmd_scan' },
+        { text: '🎯 Scan', callback_data: 'cmd_scan' },
         { text: '🔬 Deep Scan', callback_data: 'cmd_deepscan' },
-        { text: '🔥 Top Coins', callback_data: 'cmd_hot' },
+        { text: '🔥 Coins Chauds', callback_data: 'cmd_hot' },
       ],
+      // Row 3: Marche
       [
         { text: '📈 Marche', callback_data: 'cmd_market' },
         { text: '💹 Signaux', callback_data: 'cmd_signals' },
         { text: '📉 Performance', callback_data: 'cmd_perf' },
       ],
+      // Row 4: Outils
       [
-        { text: '⏱ Scanner Live', callback_data: 'cmd_realtime' },
-        { text: '🔁 Super Loop', callback_data: 'cmd_loop' },
         { text: '📝 Backtest', callback_data: 'cmd_backtest' },
-      ],
-      [
-        { text: '🎮 GPU', callback_data: 'cmd_gpu' },
         { text: '🎲 Dominos', callback_data: 'cmd_dominos' },
+        { text: '📊 Stats', callback_data: 'cmd_stats' },
+      ],
+      // Row 5: Toggles
+      [
         { text: TRADING_ALERTS ? '🔕 Alertes OFF' : '🔔 Alertes ON', callback_data: TRADING_ALERTS ? 'cmd_alertoff' : 'cmd_alerton' },
+        { text: '❓ Aide', callback_data: 'cmd_help' },
       ],
     ]
   };
   await telegramAPI('sendMessage', {
     chat_id: chatId,
-    text: `*JARVIS Dashboard*\nAlertes trading: ${TRADING_ALERTS ? 'ACTIVES' : 'DESACTIVEES'}\nSelectionnez une action:`,
+    text: `*JARVIS Dashboard*\nAlertes: ${TRADING_ALERTS ? '🟢 ON' : '🔴 OFF'}\nChoisissez une action:`,
     parse_mode: 'Markdown',
     reply_markup: JSON.stringify(keyboard),
   });
@@ -1833,12 +1888,14 @@ async function handleCallback(query) {
 
   switch (data) {
     case 'cmd_status': return handleCommand(chatId, '/status', '', isAdmin);
+    case 'cmd_health': return handleCommand(chatId, '/health', '', isAdmin);
+    case 'cmd_help': return handleCommand(chatId, '/help', '', isAdmin);
     case 'cmd_realtime': return handleRealtimeStatus(chatId);
     case 'cmd_perf': return handlePerformance(chatId);
     case 'cmd_market': return handleMarketSummary(chatId);
     case 'cmd_hot': return handleHotCoins(chatId, 10);
     case 'cmd_loop': return handleLoopStatus(chatId);
-    case 'cmd_gpu': if (isAdmin) return handleGpuStatus(chatId); break;
+    case 'cmd_gpu': return handleGpuStatus(chatId);
     case 'cmd_scan': return handleSniperScan(chatId, 50);
     case 'cmd_backtest': return handleBacktestResults(chatId);
     case 'cmd_menu': return sendMenuKeyboard(chatId);
@@ -2004,32 +2061,39 @@ async function main() {
   try {
     await telegramAPI('setMyCommands', {
       commands: [
-        { command: 'status', description: 'Health check cluster IA' },
-        { command: 'health', description: 'Etat detaille des noeuds' },
-        { command: 'consensus', description: 'Vote pondere multi-noeuds' },
-        { command: 'model', description: 'Forcer un noeud (M1/M2/OL1...)' },
-        { command: 'scan', description: 'Sniper scan top N coins' },
+        // Cluster IA
+        { command: 'status', description: 'Etat cluster IA (online/offline)' },
+        { command: 'health', description: 'Details noeuds + scores autolearn' },
+        { command: 'consensus', description: 'Question multi-noeuds (vote)' },
+        { command: 'model', description: 'Interroger un noeud specifique' },
+        { command: 'openclaw', description: 'Question via proxy reflexive chain' },
+        // Trading
+        { command: 'scan', description: 'Sniper scan top coins (breakouts)' },
         { command: 'deepscan', description: 'Deep scan 800+ coins (3 passes)' },
-        { command: 'hot', description: 'Top N coins chauds' },
-        { command: 'market', description: 'Resume marche actuel' },
+        { command: 'hot', description: 'Top coins chauds (score historique)' },
         { command: 'signals', description: 'Signaux ouverts en temps reel' },
-        { command: 'perf', description: 'Performance des signaux (TP/SL)' },
-        { command: 'scanstats', description: 'Stats scanner' },
-        { command: 'sniper', description: 'Statut du scanner permanent' },
-        { command: 'realtime', description: 'Statut scanner temps reel' },
-        { command: 'backtest', description: 'Resultats micro-backtest' },
-        { command: 'compare', description: 'Comparer deux coins' },
+        { command: 'market', description: 'Resume marche (movers + trend)' },
+        { command: 'perf', description: 'Win rate signaux (TP/SL)' },
+        { command: 'compare', description: 'Comparer deux coins (ex: BTC SOL)' },
         { command: 'whales', description: 'Gros mouvements detectes' },
-        { command: 'news', description: 'Actualites crypto du jour' },
+        { command: 'news', description: 'Actus crypto du jour' },
+        { command: 'backtest', description: 'Resultats micro-backtest' },
+        // Scanner
+        { command: 'scanstats', description: 'Stats scanner (DB)' },
+        { command: 'sniper', description: 'Statut scanner permanent' },
+        { command: 'realtime', description: 'Scanner temps reel' },
+        { command: 'loop', description: 'Statut Super Loop amelioration' },
         { command: 'alerton', description: 'Activer alertes trading' },
         { command: 'alertoff', description: 'Desactiver alertes trading' },
-        { command: 'domino', description: 'Lancer un domino (pipeline)' },
+        // Dominos & Systeme
+        { command: 'domino', description: 'Dominos (401 pipelines auto)' },
+        { command: 'gpu', description: 'Temperatures + VRAM GPU' },
         { command: 'stats', description: 'Statistiques du bot' },
-        { command: 'menu', description: 'Dashboard avec boutons' },
-        { command: 'help', description: 'Aide complète' },
+        { command: 'menu', description: 'Dashboard interactif (boutons)' },
+        { command: 'help', description: 'Toutes les commandes' },
       ]
     });
-    log('Commandes Telegram enregistrees (22 commandes)');
+    log('Commandes Telegram enregistrees (25 commandes)');
   } catch (e) {
     logErr('setMyCommands failed:', e.message);
   }

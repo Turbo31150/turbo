@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, FONTS } from '../lib/theme';
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES
@@ -104,7 +104,7 @@ const StatBox = memo(({ label, value, color = COLORS.text }: {
   label: string; value: string | number; color?: string;
 }) => (
   <div style={{ textAlign: 'center', flex: 1, minWidth: 80 }}>
-    <div style={{ fontSize: 22, fontWeight: 700, color, fontFamily: FONT.mono }}>{value}</div>
+    <div style={{ fontSize: 22, fontWeight: 700, color, fontFamily: FONTS.mono }}>{value}</div>
     <div style={{ fontSize: 10, color: COLORS.textDim, marginTop: 2 }}>{label}</div>
   </div>
 ));
@@ -115,11 +115,11 @@ const BarChart = memo(({ data, maxVal }: { data: Array<{ label: string; value: n
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
       {data.map(d => (
         <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 50, fontSize: 10, color: COLORS.textDim, textAlign: 'right', fontFamily: FONT.mono }}>{d.label}</div>
+          <div style={{ width: 50, fontSize: 10, color: COLORS.textDim, textAlign: 'right', fontFamily: FONTS.mono }}>{d.label}</div>
           <div style={{ flex: 1, height: 14, background: COLORS.border, borderRadius: 4, overflow: 'hidden' }}>
             <div className="o-bar" style={{ width: `${(d.value / max) * 100}%`, height: '100%', background: d.color, borderRadius: 4 }} />
           </div>
-          <div style={{ width: 50, fontSize: 10, color: COLORS.text, fontFamily: FONT.mono }}>{d.value.toFixed(0)}</div>
+          <div style={{ width: 50, fontSize: 10, color: COLORS.text, fontFamily: FONTS.mono }}>{d.value.toFixed(0)}</div>
         </div>
       ))}
     </div>
@@ -181,7 +181,7 @@ export default function OrchestratorPage() {
   return (
     <div className="o-page" style={{
       height: '100%', overflow: 'auto', padding: 20,
-      background: COLORS.bg, color: COLORS.text, fontFamily: FONT.sans,
+      background: COLORS.bg, color: COLORS.text, fontFamily: FONTS.sans,
     }}>
       <style>{CSS}</style>
 
@@ -248,7 +248,7 @@ export default function OrchestratorPage() {
 
           {/* Node Stats Table */}
           <Card title="Statistiques Noeuds">
-            <div style={{ fontSize: 11, fontFamily: FONT.mono }}>
+            <div style={{ fontSize: 11, fontFamily: FONTS.mono }}>
               <div style={{ display: 'grid', gridTemplateColumns: '60px 50px 60px 70px 60px', gap: 4, color: COLORS.textDim, marginBottom: 4, fontWeight: 600 }}>
                 <span>Noeud</span><span>Calls</span><span>Succes</span><span>Latence</span><span>Tokens</span>
               </div>
@@ -270,7 +270,7 @@ export default function OrchestratorPage() {
 
           {/* Routing Matrix */}
           <Card title="Matrice de Routage">
-            <div style={{ fontSize: 11, fontFamily: FONT.mono, maxHeight: 200, overflow: 'auto' }}>
+            <div style={{ fontSize: 11, fontFamily: FONTS.mono, maxHeight: 200, overflow: 'auto' }}>
               {Object.entries(routing).map(([taskType, entries]) => (
                 <div key={taskType} style={{ marginBottom: 6 }}>
                   <span style={{ color: COLORS.purple, fontWeight: 600 }}>{taskType}:</span>{' '}
@@ -294,7 +294,7 @@ export default function OrchestratorPage() {
                 <StatBox label="Events" value={autonomous.event_count} color={COLORS.blue} />
                 <StatBox label="Tick" value={`${autonomous.tick_interval_s}s`} color={COLORS.textMuted} />
               </div>
-              <div style={{ fontSize: 11, fontFamily: FONT.mono }}>
+              <div style={{ fontSize: 11, fontFamily: FONTS.mono }}>
                 {Object.entries(autonomous.tasks).map(([name, t]) => (
                   <div key={name} style={{ display: 'flex', gap: 8, padding: '2px 0', borderBottom: `1px solid ${COLORS.border}` }}>
                     <span style={{ width: 100, color: t.enabled ? COLORS.green : COLORS.textDim }}>{name}</span>

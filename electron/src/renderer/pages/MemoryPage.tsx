@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, FONTS } from '../lib/theme';
 
 const API_BASE = 'http://127.0.0.1:9742';
 
@@ -9,7 +9,7 @@ const CSS = `
 .m-page::-webkit-scrollbar-thumb{background:${COLORS.border};border-radius:3px}
 .m-card{animation:mFade .2s ease;transition:border-color .3s}
 .m-card:hover{border-color:${COLORS.orangeAlpha(0.25)}!important}
-.m-input{background:${COLORS.bgInput};border:1px solid ${COLORS.border};color:${COLORS.text};padding:6px 10px;border-radius:4px;font-size:12px;font-family:${FONT.mono};outline:none;width:100%}
+.m-input{background:${COLORS.bgInput};border:1px solid ${COLORS.border};color:${COLORS.text};padding:6px 10px;border-radius:4px;font-size:12px;font-family:${FONTS.mono};outline:none;width:100%}
 .m-input:focus{border-color:${COLORS.orange}}
 .m-btn{background:transparent;border:1px solid ${COLORS.border};color:${COLORS.text};padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px}
 .m-btn:hover{border-color:${COLORS.orange};color:${COLORS.orange}}
@@ -112,7 +112,7 @@ export default function MemoryPage() {
   return (
     <div className="m-page" style={{
       height: '100%', overflow: 'auto', padding: 20,
-      background: COLORS.bg, color: COLORS.text, fontFamily: FONT.sans,
+      background: COLORS.bg, color: COLORS.text, fontFamily: FONTS.sans,
     }}>
       <style>{CSS}</style>
 
@@ -191,7 +191,7 @@ export default function MemoryPage() {
                 {c.source} · {c.turn_count} turns · {c.total_tokens} tokens · {fmtTs(c.updated_at)}
               </div>
             </div>
-            <div style={{ fontSize: 11, color: COLORS.textDim, fontFamily: FONT.mono }}>{c.id}</div>
+            <div style={{ fontSize: 11, color: COLORS.textDim, fontFamily: FONTS.mono }}>{c.id}</div>
           </div>
         </Card>
       ))}

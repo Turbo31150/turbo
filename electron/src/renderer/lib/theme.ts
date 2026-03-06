@@ -113,6 +113,10 @@ export const COLORS = {
   purpleAlpha: (a: number) => `rgba(192,132,252,${a})`,
   blueAlpha: (a: number) => `rgba(59,130,246,${a})`,
   pinkAlpha: (a: number) => `rgba(236,72,153,${a})`,
+
+  // Aliases used by newer pages
+  surface: '#0d1117',
+  muted: '#c0c0c0',
 } as const;
 
 // Agent/node color mapping for consistent visual identity
@@ -143,6 +147,10 @@ export const TOAST_COLORS: Record<string, string> = {
 };
 
 export const FONT = 'Consolas, "Courier New", monospace';
+export const FONTS = {
+  mono: 'Consolas, "Courier New", monospace',
+  sans: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+} as const;
 
 export function statusColor(status: 'online' | 'offline' | 'degraded') {
   return {

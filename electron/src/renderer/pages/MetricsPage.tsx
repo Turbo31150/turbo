@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, FONTS } from '../lib/theme';
 
 const API_BASE = 'http://127.0.0.1:9742';
 
@@ -38,7 +38,7 @@ const Card = memo(({ title, color = COLORS.border, children }: { title: string; 
 const Stat = memo(({ label, value, unit = '', color = COLORS.text }: { label: string; value: string | number; unit?: string; color?: string }) => (
   <div style={{ marginBottom: 4 }}>
     <span style={{ fontSize: 10, color: COLORS.textDim }}>{label}: </span>
-    <span style={{ fontSize: 13, fontWeight: 600, color, fontFamily: FONT.mono }}>{value}</span>
+    <span style={{ fontSize: 13, fontWeight: 600, color, fontFamily: FONTS.mono }}>{value}</span>
     {unit && <span style={{ fontSize: 10, color: COLORS.textDim }}> {unit}</span>}
   </div>
 ));
@@ -50,7 +50,7 @@ const HealthBar = memo(({ score }: { score: number }) => {
       <div style={{ flex: 1, height: 6, background: COLORS.bgInput, borderRadius: 3, overflow: 'hidden' }}>
         <div style={{ width: `${Math.min(score, 100)}%`, height: '100%', background: color, borderRadius: 3, transition: 'width .5s' }} />
       </div>
-      <span style={{ fontSize: 14, fontWeight: 700, color, fontFamily: FONT.mono }}>{score}</span>
+      <span style={{ fontSize: 14, fontWeight: 700, color, fontFamily: FONTS.mono }}>{score}</span>
     </div>
   );
 });
@@ -109,7 +109,7 @@ export default function MetricsPage() {
   return (
     <div className="mt-page" style={{
       height: '100%', overflow: 'auto', padding: 20,
-      background: COLORS.bg, color: COLORS.text, fontFamily: FONT.sans,
+      background: COLORS.bg, color: COLORS.text, fontFamily: FONTS.sans,
     }}>
       <style>{CSS}</style>
 

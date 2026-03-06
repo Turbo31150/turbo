@@ -11,7 +11,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { COLORS, FONT } from '../lib/theme';
-import { API_BASE } from '../lib/config';
+import { BACKEND_URL as API_BASE } from '../lib/config';
 
 interface TerminalLine {
   id: number;

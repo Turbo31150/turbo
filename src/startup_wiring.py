@@ -195,6 +195,14 @@ async def shutdown_jarvis() -> dict[str, Any]:
     
     logger.info("JARVIS Shutdown initiated...")
     
+    # Stop Task Scheduler
+    try:
+        from src.task_scheduler import task_scheduler
+        await task_scheduler.stop()
+        results["task_scheduler"] = "stopped"
+    except Exception as e:
+        results["task_scheduler"] = f"error: {e}"
+
     # Stop Trading Sentinel
     try:
         from src.trading_sentinel import trading_sentinel
@@ -245,12 +253,90 @@ async def _step_scheduler_fix() -> dict[str, Any]:
 
 
 async def _step_scheduler_bootstrap() -> dict[str, Any]:
-    from src.scheduler_cleanup import cleanup_and_bootstrap
-    result = await cleanup_and_bootstrap()
+    from src.task_scheduler import task_scheduler
+
+    # Clean up garbage noop jobs from scheduler.db
+    import sqlite3
+    try:
+        with sqlite3.connect(str(task_scheduler._db_path)) as conn:
+            deleted = conn.execute("DELETE FROM jobs WHERE action = 'noop'").rowcount
+            conn.commit()
+            logger.info(f"Cleaned {deleted} noop jobs from scheduler.db")
+    except Exception:
+        deleted = 0
+
+    # Bootstrap real jobs (idempotent — skips if already exists)
+    REAL_JOBS = [
+        ("morning_briefing", "skill", 86400, {"skill": "rapport_matin"}),
+        ("evening_report", "skill", 86400, {"skill": "rapport_soir"}),
+        ("hourly_health", "health_check", 3600, {"full": True}),
+        ("trading_scan", "trading_scan", 900, {"min_score": 75, "top": 5}),
+        ("pattern_analysis", "brain_analyze", 21600, {"auto_create": True}),
+        ("db_maintenance", "db_vacuum", 86400, {"force": False}),
+        ("drift_check", "drift_check", 7200, {}),
+        ("security_scan", "security_scan", 43200, {}),
+    ]
+    created = []
+    existing_jobs = {j["name"] for j in task_scheduler.list_jobs()}
+    for name, action, interval, params in REAL_JOBS:
+        if name not in existing_jobs:
+            task_scheduler.add_job(name, action, interval, params)
+            created.append(name)
+    result = {"deleted_noop": deleted, "created_jobs": created, "total_after": len(task_scheduler.list_jobs())}
+
+    # Register handlers for each job action type
+    async def _health_check(params: dict) -> str:
+        from src.health_dashboard import health_dashboard
+        report = health_dashboard.get_report()
+        return f"health_score={report.get('overall_score', '?')}"
+
+    async def _trading_scan(params: dict) -> str:
+        from src.event_bus import event_bus
+        await event_bus.emit("trading.scan_requested", params)
+        return "scan_triggered"
+
+    async def _brain_analyze(params: dict) -> str:
+        from src.brain import brain
+        result = await brain.analyze_patterns()
+        return f"patterns={len(result) if isinstance(result, list) else result}"
+
+    async def _db_vacuum(params: dict) -> str:
+        from src.database import get_connection
+        get_connection().execute("PRAGMA optimize")
+        return "optimized"
+
+    async def _drift_check(params: dict) -> str:
+        from src.event_bus import event_bus
+        await event_bus.emit("quality.drift_check", params)
+        return "drift_check_triggered"
+
+    async def _security_scan(params: dict) -> str:
+        from src.event_bus import event_bus
+        await event_bus.emit("security.scan_requested", params)
+        return "security_scan_triggered"
+
+    async def _skill_handler(params: dict) -> str:
+        skill_name = params.get("skill", "unknown")
+        from src.event_bus import event_bus
+        await event_bus.emit(f"skill.execute", {"skill": skill_name})
+        return f"skill={skill_name}"
+
+    task_scheduler.register_handler("health_check", _health_check)
+    task_scheduler.register_handler("trading_scan", _trading_scan)
+    task_scheduler.register_handler("brain_analyze", _brain_analyze)
+    task_scheduler.register_handler("db_vacuum", _db_vacuum)
+    task_scheduler.register_handler("drift_check", _drift_check)
+    task_scheduler.register_handler("security_scan", _security_scan)
+    task_scheduler.register_handler("skill", _skill_handler)
+
+    # Start the scheduler loop so cron jobs actually execute
+    await task_scheduler.start(check_interval=10.0)
     return {
         "deleted": result.get("deleted_test_jobs", 0),
         "created": result.get("created_jobs", []),
-        "total_after": result.get("total_jobs_after", 0)
+        "total_after": result.get("total_jobs_after", 0),
+        "scheduler_running": task_scheduler.running,
+        "handlers_registered": len(task_scheduler._handlers),
     }
 
 

@@ -1315,7 +1315,7 @@ async def handle_dict_crud(args: dict) -> list[TextContent]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# SECURITY & ANALYTICS HANDLERS (v10.4)
+# SECURITY & ANALYTICS HANDLERS (v10.6)
 # ═══════════════════════════════════════════════════════════════════════════
 
 async def handle_security_score(args: dict) -> list[TextContent]:
@@ -5494,11 +5494,11 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     ("execute_domino", "Executer un domino pipeline par ID ou texte de trigger vocal.", {"domino_id": "string"}, handle_execute_domino),
     ("list_dominos", "Lister tous les domino pipelines disponibles.", {"category": "string"}, handle_list_dominos),
     ("domino_stats", "Historique d'execution des dominos.", {"limit": "number"}, handle_domino_stats),
-    # Security (3) — v10.4
+    # Security (3) — v10.6
     ("security_score", "Calculer le score de securite actuel du systeme.", {}, handle_security_score),
     ("security_audit_log", "Consulter les evenements de securite recents.", {"limit": "number", "severity": "string"}, handle_security_audit_log),
     ("security_scan", "Scanner les configurations pour vulnerabilites.", {}, handle_security_scan),
-    # Analytics (2) — v10.4
+    # Analytics (2) — v10.6
     ("cluster_analytics", "Metriques de performance du cluster (latence, throughput, erreurs).", {"hours": "number"}, handle_cluster_analytics),
     ("voice_analytics", "Statistiques du pipeline vocal (recognition rate, latence, cache hits).", {}, handle_voice_analytics),
     # Observability (3) — v10.6

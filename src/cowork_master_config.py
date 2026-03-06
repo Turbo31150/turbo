@@ -86,8 +86,8 @@ AVAILABLE_AGENTS = {
     },
     "coder_m2": {
         "role": AgentRole.CODER,
-        "node": "http://192.168.1.13:1234",
-        "model": "qwen2.5-coder",
+        "node": "http://192.168.1.26:1234",
+        "model": "deepseek-r1-0528-qwen3-8b",
         "context": 32000,
         "specialties": ["python", "async", "windows_api"]
     },
@@ -109,7 +109,7 @@ AVAILABLE_AGENTS = {
     "optimizer_ollama": {
         "role": AgentRole.OPTIMIZER,
         "backend": "ollama",
-        "model": "qwen2.5-coder:32b",
+        "model": "qwen3:1.7b",
         "specialties": ["performance", "memory", "algorithms"]
     },
     

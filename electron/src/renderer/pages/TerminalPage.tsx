@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import Terminal from '../components/Terminal';
 import { COLORS, FONT } from '../lib/theme';
-import { API_BASE } from '../lib/config';
+import { BACKEND_URL as API_BASE } from '../lib/config';
 
 export default function TerminalPage() {
   const [health, setHealth] = useState<number | null>(null);

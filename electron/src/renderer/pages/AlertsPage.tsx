@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, FONTS } from '../lib/theme';
 
 const API_BASE = 'http://127.0.0.1:9742';
 
@@ -101,7 +101,7 @@ export default function AlertsPage() {
   return (
     <div className="al-page" style={{
       height: '100%', overflow: 'auto', padding: 20,
-      background: COLORS.bg, color: COLORS.text, fontFamily: FONT.sans,
+      background: COLORS.bg, color: COLORS.text, fontFamily: FONTS.sans,
     }}>
       <style>{CSS}</style>
 
