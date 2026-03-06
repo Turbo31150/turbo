@@ -2,7 +2,7 @@
 """prompt_router.py — Route les prompts vers le meilleur modele du cluster.
 
 Analyse le contenu du prompt et le dirige vers le noeud IA optimal:
-M1 (code/math), OL1 (rapide), M2 (debug), GEMINI (archi), gpt-oss (champion).
+M1 (code/math), OL1 (rapide), M2 (reasoning), M3 (fallback).
 
 Usage:
     python dev/prompt_router.py --route "ecris une fonction python"
@@ -44,7 +44,7 @@ NODES = {
     },
     "M2": {
         "url": "http://192.168.1.26:1234/api/v1/chat",
-        "model": "deepseek-coder-v2-lite-instruct",
+        "model": "deepseek-r1-0528-qwen3-8b",
         "format": "lm_studio",
         "weight": 1.4,
         "specialties": ["debug", "review"],
@@ -52,19 +52,19 @@ NODES = {
     },
     "M3": {
         "url": "http://192.168.1.113:1234/api/v1/chat",
-        "model": "mistral-7b-instruct-v0.3",
+        "model": "deepseek-r1-0528-qwen3-8b",
         "format": "lm_studio",
         "weight": 0.8,
         "specialties": ["general", "validation"],
         "speed": "slow",
     },
-    "gpt-oss": {
-        "url": "http://127.0.0.1:11434/api/chat",
-        "model": "gpt-oss:120b-cloud",
-        "format": "ollama",
-        "weight": 1.9,
-        "specialties": ["code", "review", "security"],
-        "speed": "medium",
+    "M3": {
+        "url": "http://192.168.1.113:1234/api/v1/chat",
+        "model": "deepseek-r1-0528-qwen3-8b",
+        "format": "lm_studio",
+        "weight": 1.2,
+        "specialties": ["reasoning", "general"],
+        "speed": "slow",
     },
 }
 
@@ -72,13 +72,13 @@ NODES = {
 # Routing rules
 # ---------------------------------------------------------------------------
 ROUTING = {
-    "code":      {"primary": "M1",      "secondary": "gpt-oss", "reason": "Code: M1 champion local"},
-    "debug":     {"primary": "M2",      "secondary": "M1",      "reason": "Debug: M2 deepseek specialise"},
-    "review":    {"primary": "gpt-oss", "secondary": "M1",      "reason": "Review: gpt-oss champion cloud"},
+    "code":      {"primary": "M1",      "secondary": "M2",      "reason": "Code: M1 champion local"},
+    "debug":     {"primary": "M2",      "secondary": "M1",      "reason": "Debug: M2 deepseek-r1 reasoning"},
+    "review":    {"primary": "M1",      "secondary": "M2",      "reason": "Review: M1 champion local"},
     "math":      {"primary": "M1",      "secondary": "OL1-fast","reason": "Math: M1 100% raisonnement"},
     "simple":    {"primary": "OL1-fast","secondary": "M1",      "reason": "Simple: OL1 ultra-rapide"},
-    "archi":     {"primary": "M1",      "secondary": "gpt-oss", "reason": "Architecture: M1 + gpt-oss"},
-    "security":  {"primary": "gpt-oss", "secondary": "M1",      "reason": "Securite: gpt-oss audit"},
+    "archi":     {"primary": "M1",      "secondary": "M2",      "reason": "Architecture: M1 + M2 reasoning"},
+    "security":  {"primary": "M1",      "secondary": "M2",      "reason": "Securite: M1 audit"},
     "general":   {"primary": "M1",      "secondary": "OL1-fast","reason": "General: M1 polyvalent"},
     "trading":   {"primary": "OL1-fast","secondary": "M1",      "reason": "Trading: OL1 rapide"},
 }

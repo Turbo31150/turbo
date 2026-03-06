@@ -166,7 +166,7 @@ if __name__ == "__main__":
 - **CLI**: `--start / --stop / --status / --config`
 - **Fonction**: Dispatch automatique des taches vers le meilleur noeud IA du cluster
 - **Routing**: Analyse intent + load balancing + thermal check
-- **Priority**: gpt-oss:120b (code) → M1 (rapide) → devstral (review) → M2 → OL1 → M3
+- **Priority**: M1 (code) → M2 (reasoning) → OL1 (rapide) → M3
 - **Features**: Queue de taches, retry, fallback cascade, metrics
 - **Storage**: SQLite `dev/data/dispatcher.db`
 
@@ -270,7 +270,7 @@ if __name__ == "__main__":
 ### 28. agent_orchestrator.py
 - **CLI**: `--deploy / --status / --scale / --logs`
 - **Fonction**: Orchestre les agents IA autonomes du cluster
-- **Agents**: Coder (gpt-oss), Reviewer (devstral), Tester (M1), Monitor (OL1)
+- **Agents**: Coder (M1 qwen3-8b), Reviewer (M2 deepseek-r1), Tester (M1), Monitor (OL1)
 - **Pipeline**: Tache → decompose → dispatch agents → collect → merge → deliver
 - **Features**: Scaling auto (1-5 agents), retry, priority queue
 - **Storage**: SQLite `dev/data/orchestrator.db`
@@ -500,14 +500,14 @@ if __name__ == "__main__":
 - **CLI**: `--analyze / --scale / --plan / --status`
 - **Fonction**: Auto-scaling des modeles selon la charge
 - **Features**: Load monitoring, preload modeles avant heures de pointe, unload inactifs
-- **Rules**: Trading hours → load minimax, Dev hours → load gpt-oss, Night → eco mode
+- **Rules**: Trading hours → load minimax, Dev hours → load M1, Night → eco mode
 - **Storage**: SQLite `dev/data/autoscaler.db`
 
 ### 59. consensus_voter.py
 - **CLI**: `--vote QUESTION / --quorum / --history / --weights`
 - **Fonction**: Systeme de vote pondere multi-modeles avec quorum
 - **Features**: Question → dispatch N modeles → vote pondere → consensus → reponse finale
-- **Poids**: gpt-oss=1.9, M1=1.8, devstral=1.5, M2=1.4, OL1=1.3
+- **Poids**: M1=1.8, M2=1.5, OL1=1.3, M3=1.2
 - **Storage**: SQLite `dev/data/consensus.db`
 
 ## BATCH 48 — Productivite & Workflows (3 scripts)
@@ -861,7 +861,7 @@ if __name__ == "__main__":
 ### 74. cluster_benchmark_auto.py
 - **CLI**: `--bench / --compare / --report / --once`
 - **Fonction**: Lance un mini-benchmark cluster automatique (5 prompts), compare aux scores precedents
-- **Features**: 5 prompts Python → M1/M2/OL1/gpt-oss, mesure tok/s + quality, alerte si degradation >15%
+- **Features**: 5 prompts Python → M1/M2/OL1/M1, mesure tok/s + quality, alerte si degradation >15%
 - **Cron**: daily 06:00
 
 ## BATCH 53 — Windows System Intelligence (3 scripts)
@@ -909,7 +909,7 @@ if __name__ == "__main__":
 ### 81. ia_task_planner.py
 - **CLI**: `--plan GOAL / --execute / --status / --history / --once`
 - **Fonction**: Planificateur de taches IA — decompose un objectif en sous-taches, les ordonne et les execute
-- **Features**: envoie objectif au cluster (M1/gpt-oss), recoit plan JSON, decompose en steps, execute sequentiellement via subprocess, retry si echec, rapport final
+- **Features**: envoie objectif au cluster (M1/M1), recoit plan JSON, decompose en steps, execute sequentiellement via subprocess, retry si echec, rapport final
 - **Cron**: recurring 1h (check pending goals)
 
 ### 82. ia_pattern_detector.py
@@ -1021,7 +1021,7 @@ if __name__ == "__main__":
 ### 98. ia_autonomous_coder.py
 - **CLI**: `--generate DESCRIPTION / --improve SCRIPT / --review / --once`
 - **Fonction**: Codeur autonome — genere, ameliore et review des scripts sans intervention humaine
-- **Features**: recoit description en NL, genere script via gpt-oss:120b, valide (ast.parse + --help), si OK → ecrit dans dev/, sinon → retry avec erreur en contexte, max 3 tentatives, log resultats SQLite
+- **Features**: recoit description en NL, genere script via M1, valide (ast.parse + --help), si OK → ecrit dans dev/, sinon → retry avec erreur en contexte, max 3 tentatives, log resultats SQLite
 - **Cron**: recurring 4h (check COWORK_QUEUE pour scripts PENDING)
 
 ## BATCH 61 — Windows Registry & Security (3 scripts)
@@ -1081,7 +1081,7 @@ if __name__ == "__main__":
 ### 107. ia_prompt_optimizer.py
 - **CLI**: `--analyze / --optimize PROMPT / --ab-test / --report / --once`
 - **Fonction**: Optimise les prompts systeme — teste variantes, mesure qualite reponses
-- **Features**: prend prompt existant, genere 3 variantes (plus court, plus precis, plus structure), teste sur M1+gpt-oss, compare qualite (longueur, pertinence heuristique), stocke meilleur, A/B test iteratif
+- **Features**: prend prompt existant, genere 3 variantes (plus court, plus precis, plus structure), teste sur M1+M1, compare qualite (longueur, pertinence heuristique), stocke meilleur, A/B test iteratif
 - **Cron**: weekly mercredi 01:00
 
 ## BATCH 64 — Windows Automation Pro (3 scripts)
@@ -1129,7 +1129,7 @@ if __name__ == "__main__":
 ### 114. ia_ensemble_voter.py
 - **CLI**: `--vote QUESTION / --weights / --calibrate / --history / --once`
 - **Fonction**: Vote ensemble multi-modeles — interroge N modeles, vote pondere, meilleure reponse
-- **Features**: dispatch question vers M1+gpt-oss+devstral+M2 en parallele (subprocess), collecte reponses, scoring (longueur, keywords, coherence), vote pondere (poids MAO), retourne meilleure reponse + confidence
+- **Features**: dispatch question vers M1+M1+M2+M2 en parallele (subprocess), collecte reponses, scoring (longueur, keywords, coherence), vote pondere (poids MAO), retourne meilleure reponse + confidence
 - **Cron**: on-demand
 
 ### 115. ia_model_benchmarker.py
@@ -1181,7 +1181,7 @@ if __name__ == "__main__":
 ### 122. jarvis_self_improver.py
 - **CLI**: `--analyze / --suggest / --apply / --report / --once`
 - **Fonction**: Auto-amelioration JARVIS — analyse les echecs recents et propose des fixes autonomes
-- **Features**: parse logs erreurs recents (dev/data/*.db), identifie patterns echec (timeout, syntax, missing dep), genere fix via gpt-oss:120b, applique si safe (ast.parse OK), rollback si echec, rapport SQLite
+- **Features**: parse logs erreurs recents (dev/data/*.db), identifie patterns echec (timeout, syntax, missing dep), genere fix via M1, applique si safe (ast.parse OK), rollback si echec, rapport SQLite
 - **Cron**: recurring 6h
 
 ## BATCH 69 — Windows System Hardening (3 scripts)
@@ -1301,7 +1301,7 @@ if __name__ == "__main__":
 ### 140. ia_cost_tracker.py
 - **CLI**: `--track / --daily / --monthly / --budget / --once`
 - **Fonction**: Tracker de couts IA — mesure consommation tokens cloud, estime couts, alerte budget
-- **Features**: compte tokens consommés par modele cloud (gpt-oss, devstral, glm, kimi), estime cout USD (rates configures), budget quotidien/mensuel avec alerte, historique SQLite, rapport tendance
+- **Features**: compte tokens consommés par modele cloud (M1, M2, glm, kimi), estime cout USD (rates configures), budget quotidien/mensuel avec alerte, historique SQLite, rapport tendance
 - **Cron**: daily 23:30
 
 ## BATCH 75 — Windows Monitoring Advanced (3 scripts)
@@ -1349,7 +1349,7 @@ if __name__ == "__main__":
 ### 147. win_copilot_bridge.py
 - **CLI**: `--status / --intercept / --enhance / --log / --once`
 - **Fonction**: Bridge Windows Copilot — intercepte requetes Copilot, enrichit via cluster JARVIS
-- **Features**: detecte si Copilot actif (process check), monitore clipboard pour requetes Copilot, enrichit reponse via M1/gpt-oss en parallele, compare qualite, log resultats SQLite
+- **Features**: detecte si Copilot actif (process check), monitore clipboard pour requetes Copilot, enrichit reponse via M1/M1 en parallele, compare qualite, log resultats SQLite
 - **Cron**: on-demand
 
 ### 148. win_notification_ai.py
@@ -1389,7 +1389,7 @@ if __name__ == "__main__":
 ### 153. ia_code_generator.py
 - **CLI**: `--generate SPEC / --language py|js|bash / --test / --save / --once`
 - **Fonction**: Generateur de code IA — cree du code a partir de specifications NL
-- **Features**: recoit spec en NL, genere code via gpt-oss:120b (structured prompt), valide (ast.parse Python, node --check JS), genere tests basiques, sauvegarde si valide, log qualite SQLite
+- **Features**: recoit spec en NL, genere code via M1 (structured prompt), valide (ast.parse Python, node --check JS), genere tests basiques, sauvegarde si valide, log qualite SQLite
 - **Cron**: on-demand
 
 ### 154. ia_doc_writer.py
@@ -1549,7 +1549,7 @@ if __name__ == "__main__":
 ### 177. ia_swarm_coordinator.py
 - **CLI**: `--dispatch TASK / --status / --results / --optimize / --once`
 - **Fonction**: Coordinateur essaim IA — distribue une tache complexe en sous-taches paralleles
-- **Features**: decompose tache en N sous-taches (split par paragraphe ou par aspect), dispatch chacune vers un agent different (M1/M2/OL1/gpt-oss), collecte resultats, fusionne, vote qualite, SQLite
+- **Features**: decompose tache en N sous-taches (split par paragraphe ou par aspect), dispatch chacune vers un agent different (M1/M2/OL1/M1), collecte resultats, fusionne, vote qualite, SQLite
 - **Cron**: on-demand
 
 ### 178. ia_memory_consolidator.py
@@ -1615,13 +1615,13 @@ if __name__ == "__main__":
 ### 187. ia_self_critic.py
 - **CLI**: `--evaluate RESPONSE / --improve / --score / --history / --once`
 - **Fonction**: Auto-critique IA — evalue et ameliore les reponses avant envoi
-- **Features**: prend reponse brute, demande a un autre modele de la critiquer (M1→gpt-oss ou inverse), score qualite (completude, precision, clarte), regenere si score <70, max 3 iterations, SQLite
+- **Features**: prend reponse brute, demande a un autre modele de la critiquer (M1→M1 ou inverse), score qualite (completude, precision, clarte), regenere si score <70, max 3 iterations, SQLite
 - **Cron**: on-demand (hook pre-response)
 
 ### 188. ia_knowledge_distiller.py
 - **CLI**: `--distill TOPIC / --quiz / --verify / --export / --once`
 - **Fonction**: Distillateur de connaissances — extrait et condense les savoirs cles par sujet
-- **Features**: prend un sujet, interroge tous les agents (M1+gpt-oss+OL1), fusionne reponses, extrait faits cles (bullet points), genere quiz verification, stocke base de connaissances SQLite
+- **Features**: prend un sujet, interroge tous les agents (M1+M1+OL1), fusionne reponses, extrait faits cles (bullet points), genere quiz verification, stocke base de connaissances SQLite
 - **Cron**: weekly vendredi 20:00
 
 ## BATCH 91 — Windows Performance Tuning (3 scripts)
@@ -1821,7 +1821,7 @@ if __name__ == "__main__":
 ### 218. jarvis_evolution_engine.py
 - **CLI**: `--evolve / --status / --rollback / --report / --once`
 - **Fonction**: Moteur evolution JARVIS — auto-amelioration continue du systeme complet
-- **Features**: analyse self_test results, identifie scripts failing, genere fix via gpt-oss:120b (prompt: "fix this error: {error}"), applique patch si ast.parse OK, re-test, rollback si pire, log mutations SQLite, evolution score tracking
+- **Features**: analyse self_test results, identifie scripts failing, genere fix via M1 (prompt: "fix this error: {error}"), applique patch si ast.parse OK, re-test, rollback si pire, log mutations SQLite, evolution score tracking
 - **Cron**: recurring 8h
 
 ## BATCH 101 — Windows Advanced Control (3 scripts)
@@ -1861,7 +1861,7 @@ if __name__ == "__main__":
 ### 224. jarvis_multi_language.py
 - **CLI**: `--detect TEXT / --translate / --supported / --stats / --once`
 - **Fonction**: Support multi-langue JARVIS — detecte langue, traduit, repond dans la bonne langue
-- **Features**: detection langue simple (keywords FR/EN/ES/DE), traduction via M1 ou gpt-oss, cache traductions frequentes, stats langues utilisees, prefer FR par defaut, fallback EN, SQLite
+- **Features**: detection langue simple (keywords FR/EN/ES/DE), traduction via M1 ou M1, cache traductions frequentes, stats langues utilisees, prefer FR par defaut, fallback EN, SQLite
 - **Cron**: on-demand
 
 ## BATCH 103 — IA Collaborative (3 scripts)
@@ -1869,19 +1869,19 @@ if __name__ == "__main__":
 ### 225. ia_debate_engine.py
 - **CLI**: `--debate TOPIC / --rounds N / --judge / --transcript / --once`
 - **Fonction**: Moteur de debat IA — fait debattre 2+ modeles sur un sujet pour meilleure reponse
-- **Features**: assigne position pro/contra a 2 modeles (M1 vs gpt-oss), N rounds d'arguments, 3eme modele juge (devstral), score arguments (pertinence, logique, evidence), synthese finale, transcript SQLite
+- **Features**: assigne position pro/contra a 2 modeles (M1 vs M1), N rounds d'arguments, 3eme modele juge (M2), score arguments (pertinence, logique, evidence), synthese finale, transcript SQLite
 - **Cron**: on-demand
 
 ### 226. ia_peer_reviewer.py
 - **CLI**: `--review FILE / --criteria / --improve / --report / --once`
 - **Fonction**: Revieweur pair IA — fait reviewer du code par plusieurs modeles independamment
-- **Features**: envoie code a 3 modeles (M1+gpt-oss+devstral), chacun donne feedback independant, fusionne commentaires uniques, score qualite consensus, suggestions priorisees, applique fixes si --improve, SQLite
+- **Features**: envoie code a 3 modeles (M1+M1+M2), chacun donne feedback independant, fusionne commentaires uniques, score qualite consensus, suggestions priorisees, applique fixes si --improve, SQLite
 - **Cron**: daily 17:00 (review derniers scripts)
 
 ### 227. ia_teacher_student.py
 - **CLI**: `--teach TOPIC / --quiz / --evaluate / --progress / --once`
 - **Fonction**: Systeme prof-eleve IA — un modele enseigne, l'autre apprend et est teste
-- **Features**: M1 (prof) genere lecon sur sujet, OL1 (eleve) repond quiz, gpt-oss (evaluateur) note, boucle apprentissage iterative, difficulte adaptative, progression par sujet tracking, SQLite
+- **Features**: M1 (prof) genere lecon sur sujet, OL1 (eleve) repond quiz, M1 (evaluateur) note, boucle apprentissage iterative, difficulte adaptative, progression par sujet tracking, SQLite
 - **Cron**: weekly samedi 10:00
 
 ## BATCH 104 — Windows Maintenance Pro (3 scripts)
@@ -1929,7 +1929,7 @@ if __name__ == "__main__":
 ### 234. ia_story_generator.py
 - **CLI**: `--generate THEME / --continue / --style / --export / --once`
 - **Fonction**: Generateur histoires IA — cree des narratifs coherents multi-chapitres
-- **Features**: recoit theme + style (SF, fantasy, thriller), genere chapitre via gpt-oss, maintient coherence (personnages, lieux via context), continue sur demande, export MD/PDF-ready, SQLite
+- **Features**: recoit theme + style (SF, fantasy, thriller), genere chapitre via M1, maintient coherence (personnages, lieux via context), continue sur demande, export MD/PDF-ready, SQLite
 - **Cron**: on-demand
 
 ### 235. ia_image_prompt_crafter.py

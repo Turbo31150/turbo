@@ -98,7 +98,7 @@ def generate_recommendations(predictions):
         if pred["load_level"] == "high":
             recs.append({
                 "hour": pred["hour"],
-                "action": "pre-load gpt-oss:120b + qwen3-8b",
+                "action": "pre-load qwen3-8b + deepseek-r1-0528-qwen3-8b",
                 "reason": f"High load expected ({pred['predicted_requests']} requests)",
             })
         elif pred["load_level"] == "low" and pred["hour"] in range(1, 6):

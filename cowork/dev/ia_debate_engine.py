@@ -26,7 +26,7 @@ def init_db():
         rounds INTEGER DEFAULT 3,
         pro_model TEXT DEFAULT 'M1',
         contra_model TEXT DEFAULT 'OL1',
-        judge_model TEXT DEFAULT 'gpt-oss',
+        judge_model TEXT DEFAULT 'M1',
         status TEXT DEFAULT 'pending',
         winner TEXT,
         pro_score REAL,
@@ -100,9 +100,9 @@ def query_ol1(prompt):
         return None, 0
 
 def query_gptoss(prompt):
-    """Query gpt-oss:120b cloud via OL1."""
+    """Query M1 qwen3-8b via LM Studio."""
     payload = json.dumps({
-        "model": "gpt-oss:120b-cloud",
+        "model": "qwen3-8b",
         "messages": [{"role": "user", "content": prompt}],
         "stream": False,
         "think": False
@@ -159,7 +159,7 @@ def do_debate(topic, rounds=3):
         results["rounds"].append(round_data)
         db.commit()
 
-    # Judge (gpt-oss or M1 fallback)
+    # Judge (M1 primary)
     all_args = ""
     for rd in results["rounds"]:
         pro_arg = rd.get("pro", {}).get("argument", "N/A")

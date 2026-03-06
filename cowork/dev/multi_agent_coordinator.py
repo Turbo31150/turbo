@@ -16,11 +16,9 @@ DB_PATH = Path(__file__).parent / "coordinator.db"
 
 CLUSTER = {
     "M1": {"url": "http://127.0.0.1:1234/api/v1/chat", "model": "qwen3-8b", "weight": 1.8, "type": "lmstudio", "specialty": "code,math,reasoning"},
-    "M2": {"url": "http://192.168.1.26:1234/api/v1/chat", "model": "deepseek-coder-v2-lite-instruct", "weight": 1.4, "type": "lmstudio", "specialty": "code,review"},
-    "M3": {"url": "http://192.168.1.113:1234/api/v1/chat", "model": "mistral-7b-instruct-v0.3", "weight": 1.0, "type": "lmstudio", "specialty": "general"},
+    "M2": {"url": "http://192.168.1.26:1234/api/v1/chat", "model": "deepseek-r1-0528-qwen3-8b", "weight": 1.5, "type": "lmstudio", "specialty": "reasoning,review"},
+    "M3": {"url": "http://192.168.1.113:1234/api/v1/chat", "model": "deepseek-r1-0528-qwen3-8b", "weight": 1.2, "type": "lmstudio", "specialty": "reasoning,general"},
     "OL1": {"url": "http://127.0.0.1:11434/api/chat", "model": "qwen3:1.7b", "weight": 1.3, "type": "ollama", "specialty": "fast,simple"},
-    "gpt-oss": {"url": "http://127.0.0.1:11434/api/chat", "model": "gpt-oss:120b-cloud", "weight": 1.9, "type": "ollama", "specialty": "code,review,security"},
-    "devstral": {"url": "http://127.0.0.1:11434/api/chat", "model": "devstral-2:123b-cloud", "weight": 1.5, "type": "ollama", "specialty": "code,refactoring"},
 }
 
 def init_db():

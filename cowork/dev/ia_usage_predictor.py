@@ -83,7 +83,7 @@ def predict_next_hours(hourly, n=6):
 
         # Determine recommended models
         if load > 20:
-            models = ["qwen3-8b", "gpt-oss:120b", "devstral-2:123b"]
+            models = ["qwen3-8b", "deepseek-r1-0528-qwen3-8b", "qwen3:1.7b"]
             level = "high"
         elif load > 5:
             models = ["qwen3-8b", "qwen3:14b"]

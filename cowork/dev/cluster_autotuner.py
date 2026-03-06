@@ -50,7 +50,7 @@ def bench_node(node_name, node_cfg, prompt_cat, prompt_text):
             "stream": False, "think": False,
         }).encode()
     else:
-        model = {"M1": "qwen3-8b", "M2": "deepseek-coder-v2-lite-instruct", "M3": "mistral-7b-instruct-v0.3"}.get(node_name, "qwen3-8b")
+        model = {"M1": "qwen3-8b", "M2": "deepseek-r1-0528-qwen3-8b", "M3": "deepseek-r1-0528-qwen3-8b"}.get(node_name, "qwen3-8b")
         body = json.dumps({
             "model": model,
             "input": f"/nothink\n{prompt_text}" if node_name == "M1" else prompt_text,

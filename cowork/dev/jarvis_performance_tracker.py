@@ -14,7 +14,7 @@ from pathlib import Path
 DEV = Path(__file__).parent
 DB_PATH = DEV / "data" / "performance_tracker.db"
 
-AGENTS = ["M1", "M2", "M3", "OL1", "gpt-oss", "devstral", "GEMINI", "CLAUDE"]
+AGENTS = ["M1", "M2", "M3", "OL1"]
 REGRESSION_THRESHOLD = 0.20  # 20%
 
 

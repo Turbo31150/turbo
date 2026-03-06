@@ -48,7 +48,7 @@ def build_faq():
             ("Comment voir les GPU?", "nvidia-smi ou python dev/win_thermal_monitor.py --once", "hardware"),
             ("Comment lancer JARVIS?", "cd F:/BUREAU/turbo && uv run python main.py", "jarvis"),
             ("Comment tester un script?", "python dev/SCRIPT.py --help && python dev/SCRIPT.py --once", "dev"),
-            ("Quel modele utiliser pour le code?", "gpt-oss:120b (100/100) ou M1 qwen3-8b (98.4)", "ia"),
+            ("Quel modele utiliser pour le code?", "M1 qwen3-8b (champion local) ou M2 deepseek-r1 (reasoning)", "ia"),
             ("Comment voir la sante systeme?", "python dev/jarvis_health_aggregator.py --once", "system"),
             ("Comment backup les DB?", "python dev/jarvis_backup_manager.py --backup", "maintenance"),
             ("Comment voir les commandes vocales?", "Voir docs/COMMANDES_VOCALES.md (2341 commandes)", "voice"),

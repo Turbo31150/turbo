@@ -3,7 +3,7 @@
 Agent Orchestrator — Orchestrateur d'agents IA autonomes sur cluster distribue.
 
 Pipeline: tache -> decomposition -> dispatch agents -> collecte -> fusion -> livraison
-Agents: Coder (gpt-oss:120b), Reviewer (devstral-2:123b), Tester (M1 qwen3-8b), Monitor (OL1 qwen3:1.7b)
+Agents: Coder (M1 qwen3-8b), Reviewer (M2 deepseek-r1), Tester (M1 qwen3-8b), Monitor (OL1 qwen3:1.7b)
 
 Stdlib uniquement. Sortie JSON.
 """
@@ -61,7 +61,7 @@ CLUSTER_ENDPOINTS = {
         "type": "lmstudio",
         "url": "http://192.168.1.113:1234/api/v1/chat",
         "health_url": "http://192.168.1.113:1234/api/v1/models",
-        "description": "LM Studio - mistral-7b (1 GPU 8GB)"
+        "description": "LM Studio - deepseek-r1 (1 GPU 8GB)"
     }
 }
 
@@ -69,21 +69,19 @@ CLUSTER_ENDPOINTS = {
 BUILT_IN_AGENTS = {
     "Coder": {
         "role": "Generateur de code principal",
-        "model": "gpt-oss:120b-cloud",
-        "node": "OL1",
+        "model": "qwen3-8b",
+        "node": "M1",
         "priority": 1,
-        "weight": 1.9,
+        "weight": 1.8,
         "capabilities": ["code_generation", "refactoring", "architecture"],
-        "ollama_model": "gpt-oss:120b-cloud"
     },
     "Reviewer": {
         "role": "Revue de code et audit qualite",
-        "model": "devstral-2:123b-cloud",
-        "node": "OL1",
+        "model": "deepseek-r1-0528-qwen3-8b",
+        "node": "M2",
         "priority": 2,
         "weight": 1.5,
         "capabilities": ["code_review", "security_audit", "best_practices"],
-        "ollama_model": "devstral-2:123b-cloud"
     },
     "Tester": {
         "role": "Generation et validation de tests",
@@ -875,8 +873,8 @@ Exemples:
   python agent_orchestrator.py --agents
 
 Agents integres:
-  Coder    gpt-oss:120b  (OL1 cloud)   — Generation de code
-  Reviewer devstral-2     (OL1 cloud)   — Revue de code
+  Coder    qwen3-8b       (M1 local)    — Generation de code
+  Reviewer deepseek-r1    (M2 local)    — Revue de code
   Tester   qwen3-8b       (M1 local)    — Tests
   Monitor  qwen3:1.7b     (OL1 local)   — Surveillance
         """

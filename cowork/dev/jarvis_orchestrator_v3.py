@@ -19,7 +19,7 @@ DB_PATH = DATA_DIR / "orchestrator_v3.db"
 CLUSTER_NODES = {
     "M1": {"url": "http://127.0.0.1:1234/api/v1/models", "type": "lmstudio", "desc": "6 GPU 46GB qwen3-8b"},
     "M2": {"url": "http://192.168.1.26:1234/api/v1/models", "type": "lmstudio", "desc": "3 GPU 24GB deepseek-coder"},
-    "M3": {"url": "http://192.168.1.113:1234/api/v1/models", "type": "lmstudio", "desc": "1 GPU 8GB mistral-7b"},
+    "M3": {"url": "http://192.168.1.113:1234/api/v1/models", "type": "lmstudio", "desc": "1 GPU 8GB deepseek-r1"},
     "OL1": {"url": "http://127.0.0.1:11434/api/tags", "type": "ollama", "desc": "Ollama local+cloud 12 models"},
 }
 

@@ -90,9 +90,9 @@ INTENT_RULES = {
 # MAO routing: category -> ordered agent list with weights
 MAO_ROUTING = {
     "code": [
-        {"agent": "gpt-oss:120b", "weight": 1.9, "role": "primary"},
-        {"agent": "M1/qwen3-8b", "weight": 1.8, "role": "secondary"},
-        {"agent": "devstral-2:123b", "weight": 1.5, "role": "verifier"},
+        {"agent": "M1/qwen3-8b", "weight": 1.8, "role": "primary"},
+        {"agent": "M2/deepseek-r1", "weight": 1.5, "role": "secondary"},
+        {"agent": "OL1/qwen3:1.7b", "weight": 1.3, "role": "verifier"},
     ],
     "trading": [
         {"agent": "OL1/minimax", "weight": 1.3, "role": "primary"},

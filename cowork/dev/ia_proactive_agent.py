@@ -3,7 +3,7 @@
 
 Monitors system state, identifies opportunities, and executes
 improvements without human intervention. Dispatches to the full
-cluster (M1+M2+OL1+gpt-oss+devstral) for complex tasks.
+cluster (M1+M2+M3+OL1) for complex tasks.
 """
 import argparse
 import json

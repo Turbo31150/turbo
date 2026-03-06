@@ -25,7 +25,7 @@ DB_PATH = DEV / "data" / "service_watchdog.db"
 CRITICAL_SERVICES = {
     "M1_LMStudio": {"host": "127.0.0.1", "port": 1234, "description": "M1 LM Studio (qwen3-8b)"},
     "M2_LMStudio": {"host": "192.168.1.26", "port": 1234, "description": "M2 LM Studio (deepseek-coder)"},
-    "M3_LMStudio": {"host": "192.168.1.113", "port": 1234, "description": "M3 LM Studio (mistral-7b)"},
+    "M3_LMStudio": {"host": "192.168.1.113", "port": 1234, "description": "M3 LM Studio (deepseek-r1)"},
     "Ollama": {"host": "127.0.0.1", "port": 11434, "description": "Ollama (qwen3 + cloud models)"},
     "FastAPI_WS": {"host": "127.0.0.1", "port": 9742, "description": "FastAPI WebSocket backend"},
     "Electron_Dashboard": {"host": "127.0.0.1", "port": 8080, "description": "Electron dashboard"},

@@ -24,7 +24,7 @@ ETOILE_DB = Path("F:/BUREAU/turbo/data/etoile.db")
 
 # Current MAO weights
 CURRENT_WEIGHTS = {
-    "gpt-oss:120b": 1.9, "M1": 1.8, "devstral-2:123b": 1.5,
+    "M1": 1.8, "M2": 1.5,
     "M2": 1.4, "OL1": 1.3, "glm-4.7": 1.2,
     "GEMINI": 1.2, "CLAUDE": 1.2, "M3": 1.0,
 }
