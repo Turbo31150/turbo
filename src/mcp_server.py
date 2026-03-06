@@ -2454,7 +2454,7 @@ async def handle_retry_reset(args: dict) -> list[TextContent]:
 # DATA PIPELINE — Phase 10
 # ═══════════════════════════════════════════════════════════════════════════
 
-async def handle_pipeline_list(args: dict) -> list[TextContent]:
+async def handle_data_pipeline_list(args: dict) -> list[TextContent]:
     """List data pipelines."""
     from src.data_pipeline import data_pipeline
     return _text(json.dumps(data_pipeline.list_pipelines(), indent=2, default=str))
@@ -5634,7 +5634,7 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     ("retry_stats", "Stats du retry manager et circuit breakers.", {}, handle_retry_stats),
     ("retry_reset", "Reset tous les circuit breakers.", {}, handle_retry_reset),
     # Data Pipeline (3) — Phase 10
-    ("pipeline_list", "Lister les data pipelines.", {}, handle_pipeline_list),
+    ("data_pipeline_list", "Lister les data pipelines.", {}, handle_data_pipeline_list),
     ("pipeline_history", "Historique des executions de pipelines.", {}, handle_pipeline_history),
     ("pipeline_stats", "Stats des data pipelines.", {}, handle_pipeline_stats),
     # Service Registry (4) — Phase 10

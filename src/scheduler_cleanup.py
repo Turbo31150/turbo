@@ -1,4 +1,4 @@
-﻿"""JARVIS Scheduler Cleanup & Bootstrap -- Fix duplicate test jobs + create real schedules.
+"""JARVIS Scheduler Cleanup & Bootstrap -- Fix duplicate test jobs + create real schedules.
 
 Cleans up the 36+ duplicate 'test' noop jobs and creates meaningful
 scheduled tasks for autonomous operation.
@@ -33,7 +33,7 @@ async def cleanup_and_bootstrap() -> dict[str, Any]:
         count = get_connection().execute(
             "DELETE FROM scheduler_jobs WHERE name = 'test' AND action = 'noop'"
         ).rowcount
-        db.commit()
+        get_connection().commit()
         result["deleted_test_jobs"] = count or 0
         logger.info(f"Cleaned up {count} duplicate test jobs")
     except Exception as e:
@@ -125,7 +125,7 @@ async def cleanup_and_bootstrap() -> dict[str, Any]:
                 (job_id, job["name"], job["interval_s"], job["action"],
                  job["params"], time.time())
             )
-            db.commit()
+            get_connection().commit()
             result["created_jobs"].append(job["name"])
             logger.info(f"Created scheduled job: {job['name']} (every {job['interval_s']}s)")
             
@@ -133,16 +133,20 @@ async def cleanup_and_bootstrap() -> dict[str, Any]:
             result["errors"].append(f"Failed to create {job['name']}: {e}")
             logger.error(f"Failed to create job {job['name']}: {e}")
     
-    total_remaining = get_connection().execute(
-        "SELECT COUNT(*) FROM scheduler_jobs"
-    ).fetchone()[0]
-    result["total_jobs_after"] = total_remaining
-    
+    try:
+        total_remaining = get_connection().execute(
+            "SELECT COUNT(*) FROM scheduler_jobs"
+        ).fetchone()[0]
+        result["total_jobs_after"] = total_remaining
+    except Exception as e:
+        result["total_jobs_after"] = -1
+        result["errors"].append(f"Count failed: {e}")
+
     logger.info(
         f"Scheduler bootstrap complete: {result['deleted_test_jobs']} deleted, "
-        f"{len(result['created_jobs'])} created, {total_remaining} total"
+        f"{len(result['created_jobs'])} created, {result['total_jobs_after']} total"
     )
-    
+
     return result
 
 
@@ -164,7 +168,7 @@ async def fix_startup_duplicate_bug() -> str:
         get_connection().execute(
             "DELETE FROM scheduler_jobs WHERE name = 'test' AND action = 'noop'"
         )
-        db.commit()
+        get_connection().commit()
         return f"Fixed: deleted {count} duplicate test jobs"
     
     return "OK: no duplicates found"

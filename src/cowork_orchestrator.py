@@ -315,29 +315,28 @@ class CoworkOrchestrator:
             # Route to correct backend
             if "node" in agent_config:
                 # LM Studio node
-                from src.lm_client import lm_query
-                response = await lm_query(
-                    node=agent_config["node"],
-                    model=agent_config["model"],
-                    prompt=prompt,
-                    context_length=agent_config.get("context", 8000)
-                )
-                return response["response"]
+                from src.tools import lm_query
+                result = await lm_query({
+                    "prompt": prompt,
+                    "node": agent_config["node"],
+                    "model": agent_config["model"],
+                })
+                return result.get("response", result.get("error", ""))
 
             elif agent_config.get("backend") == "ollama":
                 # Ollama
-                from src.ollama_handler import ollama_query
-                response = await ollama_query(
-                    model=agent_config["model"],
-                    prompt=prompt
-                )
-                return response
+                from src.tools import ollama_query
+                result = await ollama_query({
+                    "prompt": prompt,
+                    "model": agent_config["model"],
+                })
+                return result.get("response", result.get("error", ""))
 
             elif agent_config.get("backend") == "gemini":
                 # Gemini
-                from src.gemini_handler import gemini_query
-                response = await gemini_query(prompt=prompt)
-                return response
+                from src.tools import gemini_query
+                result = await gemini_query({"prompt": prompt})
+                return result.get("response", result.get("error", ""))
 
             else:
                 raise ValueError(f"Unknown agent backend: {agent_config}")
