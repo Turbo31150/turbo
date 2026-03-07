@@ -71,7 +71,7 @@ class PipelineConfig:
     cache_ttl_s: float = 300.0  # 5 minutes cache TTL
     cache_max_size: int = 200   # Max cached entries
     max_retries: int = 1
-    timeout_s: float = 120.0  # Ceiling; actual timeout is dynamic via pattern_agents._calc_timeout
+    timeout_s: float = 12.0  # Fast timeout — fallback to OL1 if M1 slow
     quality_threshold: float = 0.3  # Retry if below
     auto_fallback: bool = True
 
@@ -289,18 +289,30 @@ class DispatchEngine:
 
     async def _check_health(self) -> list[str]:
         """Return list of unhealthy nodes to bypass."""
+        bypassed = []
         try:
             from src.adaptive_router import get_router
             router = get_router()
             status = router.get_status()
-            bypassed = []
             for node_name, info in status.get("nodes", {}).items():
                 cb = info.get("circuit_breaker", "closed")
                 if cb == "open":
                     bypassed.append(node_name)
-            return bypassed
         except Exception:
-            return []
+            pass
+
+        # Quick M1 ping — if LM Studio is stuck (GPU lost etc), bypass M1
+        if "M1" not in bypassed:
+            try:
+                import httpx
+                async with httpx.AsyncClient(timeout=3) as client:
+                    r = await client.get("http://127.0.0.1:1234/api/v1/models")
+                    if r.status_code != 200:
+                        bypassed.append("M1")
+            except Exception:
+                bypassed.append("M1")
+
+        return bypassed
 
     # Blacklisted pattern-node combos (from benchmark data: 0% success rate)
     ROUTE_BLACKLIST = {
@@ -326,6 +338,8 @@ class DispatchEngine:
         "system": ["M1", "OL1"],
         "web": ["OL1", "M1"],
         "devops": ["OL1", "M1"],
+        "question": ["M1", "OL1"],
+        "general": ["M1", "OL1"],
     }
 
     async def _pick_route(self, pattern: str, prompt: str,
@@ -451,13 +465,18 @@ class DispatchEngine:
             client = await reg._get_client()
 
             t0 = time.time()
-            result = await agent._call_node(client, node, prompt)
+            result = await asyncio.wait_for(
+                agent._call_node(client, node, prompt),
+                timeout=self.config.timeout_s,
+            )
             latency = (time.time() - t0) * 1000
 
             if result:
                 content = result.content if hasattr(result, 'content') else str(result)
                 success = result.ok if hasattr(result, 'ok') else bool(content)
                 return content, latency, success
+        except asyncio.TimeoutError:
+            logger.warning(f"Dispatch to {node} timed out after {self.config.timeout_s}s")
         except Exception as e:
             logger.warning(f"Dispatch to {node} failed: {e}")
         return "", 0, False

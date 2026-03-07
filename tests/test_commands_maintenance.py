@@ -409,18 +409,20 @@ class TestKeyReplacement:
             "LM_STUDIO_2_API_KEY": "TEST_KEY_M2",
             "LM_STUDIO_3_API_KEY": "TEST_KEY_M3",
         }
-        with patch.dict(os.environ, env, clear=False):
-            importlib.reload(_mod)
-            # Commands that reference cluster IPs with Bearer tokens
-            for cmd in _mod.MAINTENANCE_COMMANDS:
-                if "Authorization" in cmd.action and "192.168.1.26" in cmd.action:
-                    # M2 key should have been replaced
-                    assert "sk-lm-keRZkUya" not in cmd.action
-                if "Authorization" in cmd.action and "192.168.1.113" in cmd.action:
-                    # M3 key should have been replaced
-                    assert "sk-lm-Zxbn5FZ1" not in cmd.action
-        # Reload back to normal
-        importlib.reload(_mod)
+        # Pop module from sys.modules to force a fresh import (avoids reload issues)
+        saved = sys.modules.pop("src.commands_maintenance", None)
+        try:
+            with patch.dict(os.environ, env, clear=False):
+                fresh = importlib.import_module("src.commands_maintenance")
+                for cmd in fresh.MAINTENANCE_COMMANDS:
+                    if "Authorization" in cmd.action and "192.168.1.26" in cmd.action:
+                        assert "sk-lm-keRZkUya" not in cmd.action
+                    if "Authorization" in cmd.action and "192.168.1.113" in cmd.action:
+                        assert "sk-lm-Zxbn5FZ1" not in cmd.action
+        finally:
+            sys.modules.pop("src.commands_maintenance", None)
+            if saved is not None:
+                sys.modules["src.commands_maintenance"] = saved
 
     def test_key_map_is_deleted_after_processing(self, mod):
         """_KEY_MAP should be deleted after post-processing (cleanup)."""
@@ -666,33 +668,36 @@ class TestEnvVarFallback:
 
     def test_m1_key_uses_fallback_when_primary_absent(self):
         """_M1_KEY should fall back to LM_STUDIO_1_KEY when API_KEY is absent."""
-        # Remove the primary key entirely, set the fallback
         env_overrides = {
             "LM_STUDIO_1_KEY": "fallback_key_m1",
         }
-        # We need to remove LM_STUDIO_1_API_KEY if it exists
+        saved_mod = sys.modules.pop("src.commands_maintenance", None)
         with patch.dict(os.environ, env_overrides, clear=False):
-            # Remove the primary key so os.getenv returns None for it
-            saved = os.environ.pop("LM_STUDIO_1_API_KEY", None)
+            saved_api_key = os.environ.pop("LM_STUDIO_1_API_KEY", None)
             try:
-                importlib.reload(_mod)
-                assert _mod._M1_KEY == "fallback_key_m1"
+                fresh = importlib.import_module("src.commands_maintenance")
+                assert fresh._M1_KEY == "fallback_key_m1"
             finally:
-                # Restore
-                if saved is not None:
-                    os.environ["LM_STUDIO_1_API_KEY"] = saved
-                importlib.reload(_mod)
+                if saved_api_key is not None:
+                    os.environ["LM_STUDIO_1_API_KEY"] = saved_api_key
+                sys.modules.pop("src.commands_maintenance", None)
+                if saved_mod is not None:
+                    sys.modules["src.commands_maintenance"] = saved_mod
 
     def test_m1_key_prefers_api_key(self):
         """_M1_KEY should prefer LM_STUDIO_1_API_KEY over LM_STUDIO_1_KEY."""
-        with patch.dict(os.environ, {
-            "LM_STUDIO_1_API_KEY": "primary_key",
-            "LM_STUDIO_1_KEY": "fallback_key",
-        }, clear=False):
-            importlib.reload(_mod)
-            assert _mod._M1_KEY == "primary_key"
-        # Reload back to normal
-        importlib.reload(_mod)
+        saved_mod = sys.modules.pop("src.commands_maintenance", None)
+        try:
+            with patch.dict(os.environ, {
+                "LM_STUDIO_1_API_KEY": "primary_key",
+                "LM_STUDIO_1_KEY": "fallback_key",
+            }, clear=False):
+                fresh = importlib.import_module("src.commands_maintenance")
+                assert fresh._M1_KEY == "primary_key"
+        finally:
+            sys.modules.pop("src.commands_maintenance", None)
+            if saved_mod is not None:
+                sys.modules["src.commands_maintenance"] = saved_mod
 
 
 # ===========================================================================

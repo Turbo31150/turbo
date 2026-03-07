@@ -190,12 +190,10 @@ class EpisodicMemory:
                      strategy=strategy, timestamp=time.strftime("%Y-%m-%d %H:%M:%S"))
         self._episodes.insert(0, ep)
 
-        for w in set(preview.lower().split()):
-            if len(w) >= 3:
-                self._keyword_index[w].insert(0, 0)
-
         if len(self._episodes) > self.MAX_EPISODES:
             self._episodes = self._episodes[:self.MAX_EPISODES]
+
+        self._build_index()
 
         self.working.dispatch_count += 1
         if success:

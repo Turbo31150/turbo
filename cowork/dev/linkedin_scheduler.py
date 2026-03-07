@@ -227,8 +227,8 @@ def schedule_posts(db, count, topics=None):
 
         db.execute("""
             INSERT INTO linkedin_schedule
-            (scheduled_at, post_text, topic, agent_used, generation_time_ms)
-            VALUES (?, ?, ?, ?, ?)
+            (scheduled_at, post_text, topic, agent_used, generation_time_ms, status)
+            VALUES (?, ?, ?, ?, ?, 'pending')
         """, (scheduled_at, text, topic, agent, ms))
         db.commit()
 
@@ -503,8 +503,8 @@ def main():
     elif args.schedule:
         dt, text = args.schedule
         db.execute("""
-            INSERT INTO linkedin_schedule (scheduled_at, post_text, topic)
-            VALUES (?, ?, 'manual')
+            INSERT INTO linkedin_schedule (scheduled_at, post_text, topic, status)
+            VALUES (?, ?, 'manual', 'pending')
         """, (dt, text))
         db.commit()
         print(f"Post scheduled for {dt} ({len(text)} chars)")
