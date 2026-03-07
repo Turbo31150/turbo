@@ -102,7 +102,7 @@ class TestPipelineConfig:
         assert c.cache_ttl_s == 300.0
         assert c.cache_max_size == 200
         assert c.max_retries == 1
-        assert c.timeout_s == 120.0
+        assert c.timeout_s == 12.0
         assert c.quality_threshold == 0.3
         assert c.auto_fallback is True
 
