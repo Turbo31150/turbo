@@ -27,13 +27,16 @@ import httpx
 logger = logging.getLogger("jarvis.pattern_agents")
 
 # ── Node configs ────────────────────────────────────────────────────────────
+_SYSTEM_FR = "Tu es JARVIS, assistant de Turbo. Reponds TOUJOURS en francais, concis 2-5 phrases."
+
 NODES = {
     "M1": {
         "url": "http://127.0.0.1:1234/api/v1/chat",
         "type": "lmstudio",
         "model": "qwen3-8b",
         "prefix": "/nothink\n",
-        "max_tokens": 1024,
+        "system": _SYSTEM_FR,
+        "max_tokens": 512,
         "weight": 1.8,
     },
     "M2": {
@@ -41,6 +44,7 @@ NODES = {
         "type": "lmstudio",
         "model": "deepseek-r1-0528-qwen3-8b",
         "prefix": "",
+        "system": _SYSTEM_FR,
         "max_tokens": 2048,
         "weight": 1.5,
     },
@@ -49,6 +53,7 @@ NODES = {
         "type": "lmstudio",
         "model": "deepseek-r1-0528-qwen3-8b",
         "prefix": "",
+        "system": _SYSTEM_FR,
         "max_tokens": 2048,
         "weight": 1.2,
     },
@@ -56,6 +61,7 @@ NODES = {
         "url": "http://127.0.0.1:11434/api/chat",
         "type": "ollama",
         "model": "qwen3:1.7b",
+        "system": _SYSTEM_FR,
         "weight": 1.3,
     },
 }
@@ -94,7 +100,7 @@ class PatternAgent:
     # Dynamic timeout configuration (seconds)
     # Based on adaptive_timeout_manager analysis: code/M1 p95=59s needs >60s
     PATTERN_TIMEOUT = {
-        "simple": 15, "classifier": 15,
+        "simple": 10, "classifier": 10, "question": 12, "general": 15,
         "code": 90, "creative": 75, "system": 60, "web": 60,
         "devops": 60, "math": 90, "trading": 75,
         "analysis": 120, "architecture": 120, "security": 120,
@@ -228,9 +234,12 @@ class PatternAgent:
                         else:
                             content = str(c)
             else:  # ollama
+                messages = [{"role": "user", "content": prompt}]
+                if node.get("system"):
+                    messages.insert(0, {"role": "system", "content": node["system"]})
                 body = {
                     "model": node["model"],
-                    "messages": [{"role": "user", "content": prompt}],
+                    "messages": messages,
                     "stream": False,
                     "think": False,
                 }
