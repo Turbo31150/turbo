@@ -1,5 +1,10 @@
 @echo off
 title JARVIS WhisperFlow
+cd /d F:\BUREAU\turbo
+
+:: === SINGLETON GUARD ===
+python scripts/singleton_guard.py --name whisperflow --kill
+
 echo ========================================
 echo  JARVIS WhisperFlow - Voice Overlay
 echo ========================================

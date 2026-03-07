@@ -34,6 +34,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+# Ensure src/ importable
+_project_root = Path(__file__).resolve().parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
+
+from src.process_singleton import singleton as _singleton
+
 # ============================================================================
 # CONFIG
 # ============================================================================
@@ -209,9 +216,21 @@ def http_get(url: str, timeout: float = 5.0, headers: dict | None = None) -> dic
 
 
 def start_process(cmd: list[str] | str, name: str, cwd: str | None = None,
-                  shell: bool = False, hidden: bool = True) -> subprocess.Popen | None:
-    """Start a background process, track it for cleanup."""
+                  shell: bool = False, hidden: bool = True,
+                  singleton_port: int | None = None) -> subprocess.Popen | None:
+    """Start a background process as singleton — kills existing instance first.
+
+    Args:
+        singleton_port: If given, also kill whatever occupies this TCP port.
+            The service name for the singleton is derived from ``name``
+            (lowercased, spaces replaced by underscores).
+    """
+    svc_name = name.lower().replace(" ", "_").replace("-", "_")
     try:
+        # ── Singleton: kill existing instance before starting ──
+        _singleton.acquire(svc_name, pid=0, port=singleton_port)
+        # pid=0 is a placeholder — we'll overwrite with real PID below
+
         kwargs: dict[str, Any] = {
             "cwd": cwd,
             "stdout": subprocess.DEVNULL,
@@ -227,7 +246,11 @@ def start_process(cmd: list[str] | str, name: str, cwd: str | None = None,
 
         proc = subprocess.Popen(cmd, **kwargs)
         _launched_procs.append(proc)
-        log(f"  Started {name} (PID {proc.pid})", "DIM", indent=1)
+
+        # ── Register real PID in singleton ──
+        _singleton.register(svc_name, proc.pid)
+
+        log(f"  Started {name} (PID {proc.pid}) [singleton]", "DIM", indent=1)
         return proc
     except Exception as e:
         log(f"  Failed to start {name}: {e}", "FAIL", indent=1)
@@ -514,6 +537,9 @@ def phase_3_node_services(dry_run: bool = False, skip: list[str] | None = None) 
             env["EXECUTIONS_DATA_PRUNE"] = "true"
             env["EXECUTIONS_DATA_MAX_AGE"] = "72"
             try:
+                # Singleton: kill existing n8n before starting
+                _singleton.acquire("n8n", pid=0, port=5678)
+
                 # Use .cmd wrapper on Windows for proper PATH resolution
                 n8n_bin = N8N_CMD if os.path.exists(N8N_CMD) else "n8n"
                 proc = subprocess.Popen(
@@ -523,6 +549,7 @@ def phase_3_node_services(dry_run: bool = False, skip: list[str] | None = None) 
                     creationflags=subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS,
                 )
                 _launched_procs.append(proc)
+                _singleton.register("n8n", proc.pid)
                 if wait_for_port("127.0.0.1", 5678, max_wait=30):
                     log("n8n: demarre (PID {})".format(proc.pid), "OK", indent=1)
                     report["n8n"] = "started"
@@ -544,7 +571,8 @@ def phase_3_node_services(dry_run: bool = False, skip: list[str] | None = None) 
             report["gemini_proxy"] = "dry_run"
         else:
             log("Gemini proxy: demarrage...", "INFO", indent=1)
-            # Gemini proxy needs shell=False and proper node path
+            # Singleton: kill existing gemini proxy
+            _singleton.acquire("gemini_proxy", pid=0, port=18791)
             try:
                 proc = subprocess.Popen(
                     ["node", str(gemini_proxy_path)],
@@ -553,7 +581,8 @@ def phase_3_node_services(dry_run: bool = False, skip: list[str] | None = None) 
                     creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
                 )
                 _launched_procs.append(proc)
-                log(f"  Started Gemini Proxy (PID {proc.pid})", "DIM", indent=1)
+                _singleton.register("gemini_proxy", proc.pid)
+                log(f"  Started Gemini Proxy (PID {proc.pid}) [singleton]", "DIM", indent=1)
             except Exception as e:
                 log(f"  Gemini proxy start error: {e}", "FAIL", indent=1)
             if wait_for_port("127.0.0.1", 18791, max_wait=15):
@@ -577,6 +606,7 @@ def phase_3_node_services(dry_run: bool = False, skip: list[str] | None = None) 
             start_process(
                 ["node", str(canvas_proxy_path)],
                 "Canvas Proxy", cwd=str(TURBO_DIR),
+                singleton_port=18800,
             )
             if wait_for_port("127.0.0.1", 18800, max_wait=10):
                 log("Canvas proxy: demarre sur :18800", "OK", indent=1)
@@ -612,6 +642,7 @@ def phase_4_python_services(dry_run: bool = False, skip: list[str] | None = None
             start_process(
                 [uv, "run", "python", str(dashboard_script)],
                 "Dashboard", cwd=str(TURBO_DIR),
+                singleton_port=8080,
             )
             if wait_for_port("127.0.0.1", 8080, max_wait=10):
                 log("Dashboard: demarre sur :8080", "OK", indent=1)
@@ -633,7 +664,8 @@ def phase_4_python_services(dry_run: bool = False, skip: list[str] | None = None
             log("Python WS: demarrage...", "INFO", indent=1)
             start_process(
                 [uv, "run", "python", str(ws_script)],
-                "Python WS", cwd=str(TURBO_DIR),
+                "JARVIS WS", cwd=str(TURBO_DIR),
+                singleton_port=9742,
             )
             if wait_for_port("127.0.0.1", 9742, max_wait=15):
                 log("Python WS: demarre sur :9742", "OK", indent=1)
@@ -660,7 +692,7 @@ def phase_4_python_services(dry_run: bool = False, skip: list[str] | None = None
                 start_process(
                     ["node", str(telegram_bot)],
                     "Telegram Bot", cwd=str(TURBO_DIR),
-                )
+                )  # singleton kills existing via PID
                 time.sleep(3)
                 log("Telegram bot: lance", "OK", indent=1)
                 report["telegram"] = "started"
@@ -713,8 +745,8 @@ def phase_4_python_services(dry_run: bool = False, skip: list[str] | None = None
 # PHASE 5: WATCHDOGS
 # ============================================================================
 def phase_5_watchdogs(dry_run: bool = False, skip: list[str] | None = None) -> dict:
-    """Start OpenClaw watchdog, cluster monitor."""
-    log("PHASE 5 — WATCHDOGS", "PHASE")
+    """Start OpenClaw watchdog, orchestrator, autonomy engine."""
+    log("PHASE 5 — WATCHDOGS & AUTONOMY", "PHASE")
     skip = skip or []
     report: dict[str, Any] = {}
 
@@ -723,7 +755,6 @@ def phase_5_watchdogs(dry_run: bool = False, skip: list[str] | None = None) -> d
     python312 = r"C:\Users\franc\AppData\Local\Programs\Python\Python312\python.exe"
 
     if "watchdog" not in skip and watchdog_script.exists():
-        # Only start if OpenClaw is actually reachable
         if check_port("127.0.0.1", 18789):
             if dry_run:
                 log("OpenClaw watchdog: (dry-run, skip)", "WARN", indent=1)
@@ -740,6 +771,38 @@ def phase_5_watchdogs(dry_run: bool = False, skip: list[str] | None = None) -> d
         else:
             log("OpenClaw watchdog: skip (OpenClaw non detecte sur :18789)", "DIM", indent=1)
             report["watchdog"] = "openclaw_offline"
+
+    # -- Task Orchestrator daemon (singleton: auto-kills existing) --
+    orchestrator_script = TURBO_DIR / "scripts" / "task_orchestrator.py"
+    if "orchestrator" not in skip and orchestrator_script.exists():
+        if dry_run:
+            log("Task Orchestrator: (dry-run, skip)", "WARN", indent=1)
+            report["orchestrator"] = "dry_run"
+        else:
+            log("Task Orchestrator: demarrage daemon...", "INFO", indent=1)
+            start_process(
+                [sys.executable, str(orchestrator_script), "--daemon"],
+                "Task Orchestrator",
+                cwd=str(TURBO_DIR),
+            )
+            log("Task Orchestrator: lance (60 tasks, parallel exec)", "OK", indent=1)
+            report["orchestrator"] = "started"
+
+    # -- Cluster Autonomy Engine daemon (singleton: auto-kills existing) --
+    autonomy_script = TURBO_DIR / "scripts" / "cluster_autonomy.py"
+    if "autonomy" not in skip and autonomy_script.exists():
+        if dry_run:
+            log("Autonomy Engine: (dry-run, skip)", "WARN", indent=1)
+            report["autonomy"] = "dry_run"
+        else:
+            log("Autonomy Engine: demarrage daemon...", "INFO", indent=1)
+            start_process(
+                [sys.executable, str(autonomy_script), "--daemon"],
+                "Autonomy Engine",
+                cwd=str(TURBO_DIR),
+            )
+            log("Autonomy Engine: lance (self-heal + optimize + trends)", "OK", indent=1)
+            report["autonomy"] = "started"
 
     return report
 
@@ -985,12 +1048,18 @@ def watch_loop(interval: int = 60):
             log("Watchdog arrete par l'utilisateur", "WARN")
             break
 
+        # ── Cleanup dead PID files every cycle ──
+        _singleton.cleanup_dead()
+
         restarted_lmstudio = False
         for svc_id, svc in WATCH_SERVICES.items():
             if not check_port(svc["host"], svc["port"], timeout=3):
                 ts = datetime.now().strftime("%H:%M:%S")
                 log(f"[{ts}] {svc_id} (:{svc['port']}) DOWN — redemarrage...", "WARN")
-                proc = start_process(svc["cmd"], svc_id, cwd=svc.get("cwd"))
+                proc = start_process(
+                    svc["cmd"], svc_id, cwd=svc.get("cwd"),
+                    singleton_port=svc["port"],  # kill orphan on port
+                )
                 if proc:
                     wait = svc.get("post_start_wait", 5)
                     time.sleep(wait)
@@ -1063,9 +1132,9 @@ def watch_loop(interval: int = 60):
                 start_process(
                     ["node", str(TURBO_DIR / "canvas" / "telegram-bot.js")],
                     "Telegram Bot", cwd=str(TURBO_DIR),
-                )
+                )  # singleton kills existing
                 time.sleep(3)
-                log("  telegram_bot: relance", "OK")
+                log("  telegram_bot: relance [singleton]", "OK")
 
         # Check LinkedIn Scheduler (PID file based — no port)
         # Also check if ANY linkedin_scheduler python process exists to avoid zombies
@@ -1099,10 +1168,10 @@ def watch_loop(interval: int = 60):
             proc = start_process(
                 [sys.executable, str(TURBO_DIR / "scripts" / "linkedin_scheduler.py")],
                 "LinkedIn Scheduler", cwd=str(TURBO_DIR),
-            )
+            )  # singleton kills existing
             if proc:
                 time.sleep(3)
-                log("  linkedin_scheduler: relance", "OK")
+                log("  linkedin_scheduler: relance [singleton]", "OK")
 
         # ── Lightweight Telegram pipeline scheduler ──────────────
         # Runs scripts directly (no OpenClaw agent overhead)

@@ -1,5 +1,10 @@
 @echo off
 title JARVIS Telegram Bot
+cd /d F:\BUREAU\turbo
+
+:: === SINGLETON GUARD ===
+python scripts/singleton_guard.py --name telegram_bot --kill
+
 echo ============================================
 echo   JARVIS Telegram Bot - Launcher
 echo ============================================
@@ -18,7 +23,6 @@ if %errorlevel% neq 0 (
 
 echo [*] Lancement du Telegram Bot...
 echo.
-cd /d F:\BUREAU\turbo
 node canvas\telegram-bot.js
 
 pause

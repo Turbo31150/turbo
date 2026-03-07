@@ -1,5 +1,10 @@
 @echo off
 title JARVIS Sniper Scanner - REALTIME
+cd /d F:\BUREAU\turbo
+
+:: === SINGLETON GUARD ===
+python scripts/singleton_guard.py --name sniper --kill
+
 echo ============================================
 echo  JARVIS SNIPER SCANNER - REALTIME MODE
 echo  Surveille 750+ coins toutes les 30s
@@ -8,7 +13,6 @@ echo  Alerte Telegram + vocal si signal valide
 echo ============================================
 echo.
 
-cd /d F:\BUREAU\turbo
 C:\Users\franc\.local\bin\uv.exe run python cowork/dev/sniper_scanner.py --realtime --notify --voice --min-move 0.4
 
 pause

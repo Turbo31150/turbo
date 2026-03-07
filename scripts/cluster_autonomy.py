@@ -901,6 +901,13 @@ def main():
     brain = AutonomyBrain()
 
     if args.daemon:
+        # Singleton: kill existing instance before starting
+        try:
+            sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+            from src.process_singleton import singleton
+            singleton.acquire("autonomy", pid=os.getpid())
+        except Exception:
+            pass
         daemon_loop()
 
     elif args.status:
