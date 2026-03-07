@@ -59,7 +59,7 @@ except ImportError:
 logger = logging.getLogger("jarvis.ws")
 
 # ── Valid channels ───────────────────────────────────────────────────────────
-CHANNELS = {"cluster", "trading", "voice", "chat", "files", "system", "dictionary", "telegram"}
+CHANNELS = {"cluster", "trading", "voice", "chat", "files", "system", "dictionary", "telegram", "browser"}
 
 # ── Connected WebSocket clients ──────────────────────────────────────────────
 _connected_clients: set = set()
@@ -2772,6 +2772,87 @@ if _whisperflow_dir.exists():
     app.mount("/whisperflow/static", StaticFiles(directory=str(_whisperflow_dir)), name="whisperflow")
 
 
+# ── Browser WS channel handler ─────────────────────────────────────────────
+
+async def handle_browser_request(action: str, payload: dict) -> dict[str, Any]:
+    """Handle browser channel WebSocket requests from Electron."""
+    from src.browser_navigator import browser_nav
+    from src.commands_browser import execute_browser_command
+
+    # Direct browser_* command dispatch (from voice pipeline)
+    if action.startswith("browser_"):
+        result = await execute_browser_command(action, payload)
+        return result
+
+    # Semantic actions (from Electron UI)
+    _actions = {
+        "launch": lambda: browser_nav.launch(payload.get("url"), payload.get("headless", False)),
+        "launch_persistent": lambda: browser_nav.launch_persistent(payload.get("url")),
+        "navigate": lambda: browser_nav.navigate_and_analyze(payload.get("url", "")),
+        "back": lambda: browser_nav.go_back(),
+        "forward": lambda: browser_nav.go_forward(),
+        "reload": lambda: browser_nav.reload(),
+        "close": lambda: browser_nav.close(),
+        "click": lambda: browser_nav.click_text(payload.get("text", "")),
+        "click_link": lambda: browser_nav.click_link(payload.get("text", "")),
+        "click_button": lambda: browser_nav.click_button(payload.get("label", "")),
+        "click_number": lambda: browser_nav.click_link_number(int(payload.get("number", 1))),
+        "scroll": lambda: browser_nav.scroll(payload.get("direction", "down"), payload.get("amount", 500)),
+        "scroll_top": lambda: browser_nav.scroll_to_top(),
+        "scroll_bottom": lambda: browser_nav.scroll_to_bottom(),
+        "scroll_to": lambda: browser_nav.scroll_to_landmark_highlight(payload.get("text", "")),
+        "find": lambda: browser_nav.find_on_page(payload.get("text", "")),
+        "clear_find": lambda: browser_nav.clear_highlights(),
+        "fill": lambda: browser_nav.fill_field(payload.get("label", ""), payload.get("value", "")),
+        "type": lambda: browser_nav.type_text(payload.get("text", "")),
+        "key": lambda: browser_nav.press_key(payload.get("key", "Enter")),
+        "search": lambda: browser_nav.search(payload.get("query", "")),
+        "read": lambda: browser_nav.read_page(payload.get("max_chars", 5000)),
+        "read_links": lambda: browser_nav.read_links(payload.get("max_links", 20)),
+        "read_selection": lambda: browser_nav.read_selection(),
+        "screenshot": lambda: browser_nav.screenshot_page(),
+        "page_info": lambda: browser_nav.get_page_info(),
+        "structure": lambda: browser_nav.get_page_structure(),
+        "landmarks": lambda: browser_nav.extract_landmarks(),
+        "summarize": lambda: browser_nav.summarize_page(),
+        "bookmark": lambda: browser_nav.bookmark_current(
+            payload.get("tags"), payload.get("notes", "")),
+        "goto": lambda: browser_nav.goto_remembered(payload.get("name", "")),
+        "note": lambda: _browser_add_note(payload.get("note", "")),
+        "tabs": lambda: browser_nav.list_tabs(),
+        "new_tab": lambda: browser_nav.new_tab(payload.get("url")),
+        "close_tab": lambda: browser_nav.close_tab(),
+        "switch_tab": lambda: browser_nav.switch_tab(int(payload.get("index", 0))),
+        "save_session": lambda: browser_nav.save_tab_session(payload.get("name", "")),
+        "restore_session": lambda: browser_nav.restore_tab_session(payload.get("name", "")),
+        "status": lambda: _async_wrap(browser_nav.get_status()),
+    }
+
+    handler = _actions.get(action)
+    if not handler:
+        return {"error": f"unknown browser action: {action}"}
+
+    result = await handler()
+    if isinstance(result, str):
+        return {"text": result}
+    return result if isinstance(result, dict) else {"data": result}
+
+
+async def _async_wrap(value):
+    """Wrap a sync value as awaitable."""
+    return value
+
+
+async def _browser_add_note(note: str) -> dict:
+    from src.browser_navigator import browser_nav
+    from src.browser_memory import browser_memory
+    if not browser_nav._page or browser_nav._page.is_closed():
+        return {"error": "No page open"}
+    url = browser_nav._page.url
+    browser_memory.add_note(url, note)
+    return {"noted": True, "url": url, "note": note}
+
+
 # ── Channel router ──────────────────────────────────────────────────────────
 
 async def _route_request(channel: str, action: str, payload: dict | None) -> dict[str, Any]:
@@ -2799,6 +2880,9 @@ async def _route_request(channel: str, action: str, payload: dict | None) -> dic
 
     if channel == "telegram":
         return await handle_telegram_request(action, payload or {})
+
+    if channel == "browser":
+        return await handle_browser_request(action, payload or {})
 
     return {"error": f"unknown channel: {channel}"}
 
@@ -4236,6 +4320,307 @@ async def api_browser_status():
     """Browser navigator status."""
     from src.browser_navigator import browser_nav
     return browser_nav.get_status()
+
+
+@app.post("/api/browser/launch")
+async def api_browser_launch(request: Request):
+    """Launch browser. Body: {url?, persistent?, headless?}"""
+    from src.browser_navigator import browser_nav
+    body = await request.json() if request.headers.get("content-type", "").startswith("application/json") else {}
+    url = body.get("url")
+    persistent = body.get("persistent", False)
+    headless = body.get("headless", False)
+    if persistent:
+        return await browser_nav.launch_persistent(url, headless)
+    return await browser_nav.launch(url, headless)
+
+
+@app.post("/api/browser/navigate")
+async def api_browser_navigate(request: Request):
+    """Navigate to URL. Body: {url, analyze?}"""
+    from src.browser_navigator import browser_nav
+    body = await request.json()
+    url = body.get("url", "")
+    if not url:
+        raise HTTPException(400, "url required")
+    if body.get("analyze", False):
+        return await browser_nav.navigate_and_analyze(url)
+    return await browser_nav.navigate(url)
+
+
+@app.post("/api/browser/back")
+async def api_browser_back():
+    from src.browser_navigator import browser_nav
+    return await browser_nav.go_back()
+
+
+@app.post("/api/browser/forward")
+async def api_browser_forward():
+    from src.browser_navigator import browser_nav
+    return await browser_nav.go_forward()
+
+
+@app.post("/api/browser/reload")
+async def api_browser_reload():
+    from src.browser_navigator import browser_nav
+    return await browser_nav.reload()
+
+
+@app.post("/api/browser/close")
+async def api_browser_close():
+    from src.browser_navigator import browser_nav
+    return await browser_nav.close()
+
+
+@app.post("/api/browser/click")
+async def api_browser_click(request: Request):
+    """Click element. Body: {text?, link?, button?, number?}"""
+    from src.browser_navigator import browser_nav
+    body = await request.json()
+    if body.get("number"):
+        return await browser_nav.click_link_number(int(body["number"]))
+    if body.get("link"):
+        return await browser_nav.click_link(body["link"])
+    if body.get("button"):
+        return await browser_nav.click_button(body["button"])
+    return await browser_nav.click_text(body.get("text", ""))
+
+
+@app.post("/api/browser/scroll")
+async def api_browser_scroll(request: Request):
+    """Scroll. Body: {direction?, amount?, to_landmark?, to_top?, to_bottom?}"""
+    from src.browser_navigator import browser_nav
+    body = await request.json()
+    if body.get("to_top"):
+        return await browser_nav.scroll_to_top()
+    if body.get("to_bottom"):
+        return await browser_nav.scroll_to_bottom()
+    if body.get("to_landmark"):
+        return await browser_nav.scroll_to_landmark_highlight(body["to_landmark"])
+    return await browser_nav.scroll(body.get("direction", "down"), body.get("amount", 500))
+
+
+@app.post("/api/browser/find")
+async def api_browser_find(request: Request):
+    """Find text on page. Body: {text?, clear?}"""
+    from src.browser_navigator import browser_nav
+    body = await request.json()
+    if body.get("clear"):
+        return await browser_nav.clear_highlights()
+    return await browser_nav.find_on_page(body.get("text", ""))
+
+
+@app.post("/api/browser/fill")
+async def api_browser_fill(request: Request):
+    """Fill form field. Body: {label, value}"""
+    from src.browser_navigator import browser_nav
+    body = await request.json()
+    return await browser_nav.fill_field(body.get("label", ""), body.get("value", ""))
+
+
+@app.post("/api/browser/type")
+async def api_browser_type(request: Request):
+    """Type text into focused element. Body: {text}"""
+    from src.browser_navigator import browser_nav
+    body = await request.json()
+    return await browser_nav.type_text(body.get("text", ""))
+
+
+@app.post("/api/browser/key")
+async def api_browser_key(request: Request):
+    """Press keyboard key. Body: {key}"""
+    from src.browser_navigator import browser_nav
+    body = await request.json()
+    return await browser_nav.press_key(body.get("key", "Enter"))
+
+
+@app.post("/api/browser/search")
+async def api_browser_search(request: Request):
+    """Google search. Body: {query}"""
+    from src.browser_navigator import browser_nav
+    body = await request.json()
+    return await browser_nav.search(body.get("query", ""))
+
+
+@app.get("/api/browser/read")
+async def api_browser_read(max_chars: int = 5000):
+    """Read visible page text."""
+    from src.browser_navigator import browser_nav
+    return {"content": await browser_nav.read_page(max_chars)}
+
+
+@app.get("/api/browser/links")
+async def api_browser_links(max_links: int = 20):
+    """Get visible links from the page."""
+    from src.browser_navigator import browser_nav
+    return {"links": await browser_nav.read_links(max_links)}
+
+
+@app.get("/api/browser/selection")
+async def api_browser_selection():
+    """Read selected text on page."""
+    from src.browser_navigator import browser_nav
+    return {"selection": await browser_nav.read_selection()}
+
+
+@app.get("/api/browser/screenshot")
+async def api_browser_screenshot():
+    """Take screenshot of current page."""
+    from src.browser_navigator import browser_nav
+    path = await browser_nav.screenshot_page()
+    return {"path": path}
+
+
+@app.get("/api/browser/page-info")
+async def api_browser_page_info():
+    """Get current page URL, title, tab count."""
+    from src.browser_navigator import browser_nav
+    return await browser_nav.get_page_info()
+
+
+@app.get("/api/browser/structure")
+async def api_browser_structure():
+    """Page structure: headings, link/button/form counts."""
+    from src.browser_navigator import browser_nav
+    return await browser_nav.get_page_structure()
+
+
+@app.get("/api/browser/landmarks")
+async def api_browser_landmarks():
+    """Extract HTML landmarks (headings, links, buttons, forms)."""
+    from src.browser_navigator import browser_nav
+    landmarks = await browser_nav.extract_landmarks()
+    return {"landmarks": landmarks, "count": len(landmarks)}
+
+
+@app.post("/api/browser/summarize")
+async def api_browser_summarize():
+    """AI-powered page summary via cluster."""
+    from src.browser_navigator import browser_nav
+    return await browser_nav.summarize_page()
+
+
+# ── Browser Tabs API ──────────────────────────────────────────────────────
+
+@app.get("/api/browser/tabs")
+async def api_browser_tabs():
+    """List all open tabs."""
+    from src.browser_navigator import browser_nav
+    return {"tabs": await browser_nav.list_tabs()}
+
+
+@app.post("/api/browser/tab/new")
+async def api_browser_tab_new(request: Request):
+    """Open new tab. Body: {url?}"""
+    from src.browser_navigator import browser_nav
+    body = await request.json() if request.headers.get("content-type", "").startswith("application/json") else {}
+    return await browser_nav.new_tab(body.get("url"))
+
+
+@app.post("/api/browser/tab/close")
+async def api_browser_tab_close():
+    from src.browser_navigator import browser_nav
+    return await browser_nav.close_tab()
+
+
+@app.post("/api/browser/tab/switch")
+async def api_browser_tab_switch(request: Request):
+    """Switch tab. Body: {index}"""
+    from src.browser_navigator import browser_nav
+    body = await request.json()
+    return await browser_nav.switch_tab(int(body.get("index", 0)))
+
+
+# ── Browser Memory API ────────────────────────────────────────────────────
+
+@app.post("/api/browser/bookmark")
+async def api_browser_bookmark(request: Request):
+    """Bookmark current page. Body: {tags?, notes?}"""
+    from src.browser_navigator import browser_nav
+    body = await request.json() if request.headers.get("content-type", "").startswith("application/json") else {}
+    tags = body.get("tags", [])
+    if isinstance(tags, str):
+        tags = [t.strip() for t in tags.split(",") if t.strip()]
+    return await browser_nav.bookmark_current(tags, body.get("notes", ""))
+
+
+@app.get("/api/browser/bookmarks")
+async def api_browser_bookmarks(limit: int = 20):
+    """List bookmarks."""
+    from src.browser_memory import browser_memory
+    return {"bookmarks": browser_memory.get_bookmarks(limit)}
+
+
+@app.get("/api/browser/history")
+async def api_browser_history(limit: int = 20):
+    """Recent browsing history."""
+    from src.browser_memory import browser_memory
+    return {"pages": browser_memory.recent_pages(limit)}
+
+
+@app.get("/api/browser/history/search")
+async def api_browser_history_search(q: str = "", limit: int = 10):
+    """Semantic search in browsing history."""
+    from src.browser_memory import browser_memory
+    return {"results": browser_memory.search_pages(q, limit)}
+
+
+@app.get("/api/browser/most-visited")
+async def api_browser_most_visited(limit: int = 10):
+    """Top visited pages."""
+    from src.browser_memory import browser_memory
+    return {"pages": browser_memory.most_visited(limit)}
+
+
+@app.post("/api/browser/goto")
+async def api_browser_goto(request: Request):
+    """Navigate to a remembered page by name. Body: {name}"""
+    from src.browser_navigator import browser_nav
+    body = await request.json()
+    return await browser_nav.goto_remembered(body.get("name", ""))
+
+
+@app.post("/api/browser/note")
+async def api_browser_note(request: Request):
+    """Add note to current page. Body: {note}"""
+    from src.browser_navigator import browser_nav
+    from src.browser_memory import browser_memory
+    body = await request.json()
+    if not browser_nav._page or browser_nav._page.is_closed():
+        raise HTTPException(400, "No page open")
+    url = browser_nav._page.url
+    browser_memory.add_note(url, body.get("note", ""))
+    return {"noted": True, "url": url}
+
+
+@app.post("/api/browser/session/save")
+async def api_browser_session_save(request: Request):
+    """Save current tabs as session. Body: {name}"""
+    from src.browser_navigator import browser_nav
+    body = await request.json()
+    return await browser_nav.save_tab_session(body.get("name", f"session_{int(time.time())}"))
+
+
+@app.post("/api/browser/session/restore")
+async def api_browser_session_restore(request: Request):
+    """Restore a saved session. Body: {name}"""
+    from src.browser_navigator import browser_nav
+    body = await request.json()
+    return await browser_nav.restore_tab_session(body.get("name", ""))
+
+
+@app.get("/api/browser/sessions")
+async def api_browser_sessions():
+    """List saved tab sessions."""
+    from src.browser_memory import browser_memory
+    return {"sessions": browser_memory.list_sessions()}
+
+
+@app.get("/api/browser/stats")
+async def api_browser_stats():
+    """Browser memory stats."""
+    from src.browser_memory import browser_memory
+    return browser_memory.get_stats()
 
 
 # ── Pattern Agents API ──────────────────────────────────────────────────────
