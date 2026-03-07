@@ -6517,6 +6517,1008 @@ db.close()
             schedule="every:10m",
             tags=["cognitive", "balancing", "saturation", "routing"],
         ),
+
+        # ══════════════════════════════════════════════════════════════════
+        # SELF-EVOLVING INTELLIGENCE — Auto-modification, A/B testing,
+        # inter-node teaching, task retirement, complexity, data pipelines
+        # ══════════════════════════════════════════════════════════════════
+
+        # ── 1. Task Auto-Tuner: ajuste les fréquences selon la valeur réelle ──
+        TaskDef(
+            id="task_auto_tuner",
+            name="Task Frequency Auto-Tuner",
+            task_type="reasoning",
+            action="python",
+            payload={"code": """
+import sqlite3, json
+from datetime import datetime, timedelta
+
+print('=== TASK FREQUENCY AUTO-TUNER ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+
+# Find tasks where output never changes (running too often)
+tasks = db.execute('''
+    SELECT task_id, COUNT(*) as runs,
+           COUNT(DISTINCT SUBSTR(output, 1, 100)) as unique_outputs,
+           AVG(duration_ms) as avg_ms
+    FROM task_runs
+    WHERE status='completed' AND started_at > datetime('now', '-6 hours')
+    GROUP BY task_id HAVING runs >= 5
+    ORDER BY runs DESC
+''').fetchall()
+
+recommendations = []
+for tid, runs, unique, avg_ms in tasks:
+    # If output never varies, task runs too often
+    if unique <= 2 and runs >= 10:
+        recommendations.append(('SLOW_DOWN', tid, f'{runs} runs but only {unique} unique outputs — reduce frequency'))
+    # If task is fast and always succeeds, maybe increase interval
+    if avg_ms and avg_ms < 500 and runs >= 8:
+        recommendations.append(('FAST_IDLE', tid, f'avg {avg_ms:.0f}ms, {runs} runs — consider less frequent'))
+
+# Find tasks that are always informative (output varies)
+for tid, runs, unique, avg_ms in tasks:
+    if unique >= runs * 0.8 and runs >= 5:
+        recommendations.append(('HIGH_VALUE', tid, f'{unique}/{runs} unique outputs — valuable, keep or increase'))
+
+if recommendations:
+    print(f'  {len(recommendations)} tuning recommendations:')
+    for rtype, tid, reason in recommendations[:12]:
+        print(f'    [{rtype:10s}] {tid}: {reason}')
+else:
+    print('  All task frequencies seem optimal')
+
+# Track tuner metric
+db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
+    ('tuner_recommendations', len(recommendations), datetime.now().isoformat()))
+db.commit()
+db.close()
+"""},
+            priority="normal",
+            schedule="every:2h",
+            tags=["self-evolving", "tuning", "frequency", "optimization"],
+        ),
+
+        # ── 2. Task Retirement Engine: désactive les tâches inutiles ──
+        TaskDef(
+            id="task_retirement",
+            name="Task Retirement Engine",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import sqlite3
+from datetime import datetime, timedelta
+
+print('=== TASK RETIREMENT ENGINE ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+
+# Protected tasks that should NEVER be retired
+PROTECTED = {'canary_heartbeat', 'health_cluster', 'auto_recovery', 'orchestrator',
+             'circuit_breaker', 'metrics_collector', 'entropy_monitor', 'task_retirement'}
+
+# Candidates: always-failing for >24h with 0 completions
+always_fail = db.execute('''
+    SELECT t.id, COUNT(r.id) as runs,
+           SUM(CASE WHEN r.status='failed' THEN 1 ELSE 0 END) as fails
+    FROM tasks t
+    LEFT JOIN task_runs r ON t.id = r.task_id AND r.started_at > datetime('now', '-24 hours')
+    WHERE t.enabled = 1
+    GROUP BY t.id
+    HAVING runs >= 10 AND fails = runs
+''').fetchall()
+
+retired = []
+for tid, runs, fails in always_fail:
+    if tid in PROTECTED:
+        print(f'  PROTECTED: {tid} (100% fail but protected)')
+        continue
+    # Don't retire — just report. Auto-disable is too dangerous without human review.
+    print(f'  CANDIDATE: {tid} — {fails}/{runs} failed (100%) in 24h')
+    retired.append(tid)
+
+# Also find tasks that haven't run in 48h (zombie schedules)
+zombies = db.execute('''
+    SELECT t.id, MAX(r.started_at) as last_run
+    FROM tasks t
+    LEFT JOIN task_runs r ON t.id = r.task_id
+    WHERE t.enabled = 1
+    GROUP BY t.id
+    HAVING last_run < datetime('now', '-48 hours') OR last_run IS NULL
+''').fetchall()
+
+if zombies:
+    print(f'\\n  ZOMBIES ({len(zombies)} tasks not run in 48h):')
+    for tid, last_run in zombies[:10]:
+        print(f'    {tid}: last run {last_run or "never"}')
+
+if not retired and not zombies:
+    print('  All tasks are healthy and active')
+
+db.close()
+"""},
+            priority="low",
+            schedule="every:6h",
+            tags=["self-evolving", "retirement", "cleanup"],
+        ),
+
+        # ── 3. Inter-Node Teaching: M1 enseigne à OL1 via prompt distillation ──
+        TaskDef(
+            id="inter_node_teaching",
+            name="Inter-Node Knowledge Transfer (M1→OL1)",
+            task_type="reasoning",
+            action="python",
+            payload={"code": """
+import json, time
+from urllib.request import urlopen, Request
+
+print('=== INTER-NODE TEACHING ===')
+# M1 (8B) generates a high-quality answer, then we test if OL1 (1.7B) can match
+
+topics = [
+    'Explain what a circuit breaker pattern is in software, in 2 sentences.',
+    'What are 3 signs of a memory leak in Python?',
+    'How does a task orchestrator handle failover?',
+]
+
+import random
+topic = random.choice(topics)
+print(f'  Topic: {topic}')
+
+# Ask M1 (teacher)
+try:
+    data = json.dumps({
+        'model': 'qwen3-8b', 'input': f'/nothink\\n{topic}',
+        'temperature': 0.2, 'max_output_tokens': 150, 'stream': False, 'store': False
+    }).encode()
+    req = Request('http://127.0.0.1:1234/api/v1/chat', data=data,
+        headers={'Content-Type': 'application/json'})
+    resp = urlopen(req, timeout=12)
+    body = json.loads(resp.read())
+    m1_answer = ''
+    for b in body.get('output', []):
+        if b.get('type') == 'message':
+            c = b.get('content', '')
+            m1_answer = c.strip() if isinstance(c, str) else ''
+            break
+    print(f'  M1 (teacher): {m1_answer[:200]}')
+except Exception as e:
+    print(f'  M1 unavailable: {e}')
+    m1_answer = ''
+
+# Ask OL1 (student)
+try:
+    data = json.dumps({
+        'model': 'qwen3:1.7b',
+        'messages': [{'role': 'user', 'content': f'/nothink\\n{topic}'}],
+        'stream': False
+    }).encode()
+    req = Request('http://127.0.0.1:11434/api/chat', data=data,
+        headers={'Content-Type': 'application/json'})
+    resp = urlopen(req, timeout=12)
+    body = json.loads(resp.read())
+    ol1_answer = body.get('message', {}).get('content', '').strip()
+    print(f'  OL1 (student): {ol1_answer[:200]}')
+except Exception as e:
+    print(f'  OL1 unavailable: {e}')
+    ol1_answer = ''
+
+# Compare lengths as a rough quality proxy
+if m1_answer and ol1_answer:
+    m1_len = len(m1_answer.split())
+    ol1_len = len(ol1_answer.split())
+    ratio = ol1_len / max(1, m1_len)
+    quality = 'GOOD' if 0.5 < ratio < 2.0 else 'GAP'
+    print(f'  Comparison: M1={m1_len}w OL1={ol1_len}w ratio={ratio:.1f} [{quality}]')
+"""},
+            priority="low",
+            schedule="every:1h",
+            tags=["self-evolving", "teaching", "distillation", "cluster"],
+        ),
+
+        # ── 4. Code Complexity Tracker: cyclomatic + LOC trends ──
+        TaskDef(
+            id="code_complexity_tracker",
+            name="Code Complexity & LOC Tracker",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import ast, sqlite3
+from pathlib import Path
+from datetime import datetime
+
+print('=== CODE COMPLEXITY TRACKER ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+src_dir = Path('F:/BUREAU/turbo/src')
+scripts_dir = Path('F:/BUREAU/turbo/scripts')
+
+total_loc = 0
+total_funcs = 0
+total_classes = 0
+big_files = []
+
+for d in [src_dir, scripts_dir]:
+    for py in d.glob('*.py'):
+        try:
+            code = py.read_text(errors='ignore')
+            lines = len(code.splitlines())
+            total_loc += lines
+            tree = ast.parse(code)
+            funcs = len([n for n in ast.walk(tree) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))])
+            classes = len([n for n in ast.walk(tree) if isinstance(n, ast.ClassDef)])
+            total_funcs += funcs
+            total_classes += classes
+            if lines > 500:
+                big_files.append((py.name, lines, funcs))
+        except Exception:
+            pass
+
+# Record metrics
+now = datetime.now().isoformat()
+db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
+    ('code_total_loc', total_loc, now))
+db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
+    ('code_total_functions', total_funcs, now))
+db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
+    ('code_total_classes', total_classes, now))
+
+print(f'  Total: {total_loc:,} LOC, {total_funcs} functions, {total_classes} classes')
+
+if big_files:
+    big_files.sort(key=lambda x: -x[1])
+    print(f'\\n  Large files (>500 LOC):')
+    for name, loc, funcs in big_files[:8]:
+        print(f'    {name:40s} {loc:6d} LOC  {funcs:3d} funcs')
+
+# LOC trend
+rows = db.execute('''
+    SELECT metric_value FROM task_metrics
+    WHERE metric_name='code_total_loc' ORDER BY id DESC LIMIT 10
+''').fetchall()
+if len(rows) >= 3:
+    recent = rows[0][0]
+    older = rows[-1][0]
+    delta = recent - older
+    print(f'\\n  LOC trend: {older:.0f} -> {recent:.0f} ({delta:+.0f} lines)')
+
+db.commit()
+db.close()
+"""},
+            priority="low",
+            schedule="every:4h",
+            tags=["self-evolving", "complexity", "metrics", "code"],
+        ),
+
+        # ── 5. A/B Task Tester: compare deux versions d'une même tâche ──
+        TaskDef(
+            id="ab_task_tester",
+            name="A/B Task Performance Tester",
+            task_type="reasoning",
+            action="python",
+            payload={"code": """
+import sqlite3, json
+from datetime import datetime, timedelta
+
+print('=== A/B TASK PERFORMANCE ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+
+# Compare M1 vs OL1 for the same type of work
+# Use task_runs data to find which node-typed tasks perform better
+cutoff = (datetime.now() - timedelta(hours=12)).isoformat()
+
+# Group tasks by tag pattern and compare success rates
+tag_stats = {}
+tasks_data = db.execute('SELECT id, tags FROM tasks WHERE enabled=1').fetchall()
+for tid, tags_json in tasks_data:
+    try:
+        tags = json.loads(tags_json) if tags_json else []
+    except Exception:
+        tags = []
+    for tag in tags:
+        if tag not in tag_stats:
+            tag_stats[tag] = {'total': 0, 'success': 0, 'avg_ms': []}
+
+        runs = db.execute('''
+            SELECT status, duration_ms FROM task_runs
+            WHERE task_id=? AND started_at > ?
+        ''', (tid, cutoff)).fetchall()
+        for status, dur in runs:
+            tag_stats[tag]['total'] += 1
+            if status == 'completed':
+                tag_stats[tag]['success'] += 1
+            if dur and dur > 0:
+                tag_stats[tag]['avg_ms'].append(dur)
+
+# Report by category
+print(f'  {"Category":25s} {"Success":>8s} {"Avg ms":>8s} {"Runs":>5s}')
+print(f'  {"-"*25} {"-"*8} {"-"*8} {"-"*5}')
+for tag in sorted(tag_stats.keys()):
+    s = tag_stats[tag]
+    if s['total'] < 3:
+        continue
+    rate = s['success'] / s['total'] * 100
+    avg = sum(s['avg_ms']) / len(s['avg_ms']) if s['avg_ms'] else 0
+    marker = ' !' if rate < 80 else ''
+    print(f'  {tag:25s} {rate:7.0f}% {avg:7.0f}ms {s["total"]:5d}{marker}')
+
+db.close()
+"""},
+            priority="low",
+            schedule="every:3h",
+            tags=["self-evolving", "ab-testing", "comparison"],
+        ),
+
+        # ── 6. Data Pipeline Validator: vérifie les flux entre composants ──
+        TaskDef(
+            id="data_pipeline_validator",
+            name="Data Pipeline Integrity Validator",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import sqlite3, json, os
+from pathlib import Path
+from datetime import datetime, timedelta
+
+print('=== DATA PIPELINE VALIDATION ===')
+checks = []
+
+# 1. Orchestrator DB consistency
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+tasks = db.execute('SELECT COUNT(*) FROM tasks WHERE enabled=1').fetchone()[0]
+schedules = db.execute('SELECT COUNT(*) FROM task_schedule').fetchone()[0]
+# Every enabled task with a schedule should have a schedule entry
+scheduled_tasks = db.execute("SELECT COUNT(*) FROM tasks WHERE enabled=1 AND schedule IS NOT NULL AND schedule != ''").fetchone()[0]
+if schedules < scheduled_tasks:
+    checks.append(f'MISMATCH: {scheduled_tasks} scheduled tasks but only {schedules} schedule entries')
+else:
+    checks.append(f'OK: {schedules} schedule entries for {scheduled_tasks} scheduled tasks')
+
+# 2. Metrics flow (should have recent entries)
+recent_metrics = db.execute(
+    "SELECT COUNT(*) FROM task_metrics WHERE recorded_at > datetime('now', '-30 minutes')").fetchone()[0]
+if recent_metrics < 5:
+    checks.append(f'LOW FLOW: only {recent_metrics} metrics in last 30min')
+else:
+    checks.append(f'OK: {recent_metrics} metrics in last 30min')
+
+# 3. Runs are being recorded
+recent_runs = db.execute(
+    "SELECT COUNT(*) FROM task_runs WHERE started_at > datetime('now', '-30 minutes')").fetchone()[0]
+checks.append(f'OK: {recent_runs} task runs in last 30min' if recent_runs > 0
+    else 'NO RUNS in last 30min!')
+
+# 4. Knowledge base growing
+kb = Path('F:/BUREAU/turbo/data/knowledge_base.jsonl')
+if kb.exists():
+    kb_lines = len(kb.read_text().strip().split('\\n'))
+    checks.append(f'OK: knowledge base has {kb_lines} entries')
+else:
+    checks.append('INFO: knowledge base not yet created')
+
+# 5. System snapshot fresh
+snap = Path('F:/BUREAU/turbo/data/system_snapshot.json')
+if snap.exists():
+    age_min = (datetime.now().timestamp() - snap.stat().st_mtime) / 60
+    if age_min > 60:
+        checks.append(f'STALE: system snapshot is {age_min:.0f}min old')
+    else:
+        checks.append(f'OK: system snapshot is {age_min:.0f}min old')
+
+# 6. Changelog flowing
+cl = Path('F:/BUREAU/turbo/data/changelog_auto.jsonl')
+if cl.exists():
+    cl_lines = len(cl.read_text().strip().split('\\n'))
+    checks.append(f'OK: auto-changelog has {cl_lines} entries')
+
+db.close()
+for c in checks:
+    print(f'  {c}')
+"""},
+            priority="normal",
+            schedule="every:30m",
+            tags=["self-evolving", "pipeline", "validation", "integrity"],
+        ),
+
+        # ── 7. Service Mesh Topology Map: cartographie les connexions entre services ──
+        TaskDef(
+            id="service_mesh_mapper",
+            name="Service Mesh Topology Mapper",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import socket, json, sqlite3
+from datetime import datetime
+
+print('=== SERVICE MESH TOPOLOGY ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+
+# Map all known service endpoints and their connectivity
+services = {
+    'M1_LMStudio':   ('127.0.0.1', 1234),
+    'OL1_Ollama':    ('127.0.0.1', 11434),
+    'M3_LMStudio':   ('192.168.1.113', 1234),
+    'JARVIS_WS':     ('127.0.0.1', 9742),
+    'Canvas_Proxy':  ('127.0.0.1', 18800),
+    'OpenClaw':      ('127.0.0.1', 18789),
+    'Dashboard':     ('127.0.0.1', 3000),
+    'Electron':      ('127.0.0.1', 5173),
+}
+
+topology = {}
+online = 0
+for name, (host, port) in services.items():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(2)
+        result = s.connect_ex((host, port))
+        alive = result == 0
+        s.close()
+        topology[name] = alive
+        status = 'ONLINE' if alive else 'OFFLINE'
+        if alive:
+            online += 1
+        icon = '+' if alive else 'x'
+        print(f'  [{icon}] {name:20s} {host}:{port} {status}')
+    except Exception:
+        topology[name] = False
+        print(f'  [x] {name:20s} {host}:{port} ERROR')
+
+# Connectivity score
+total = len(services)
+score = online / total * 100
+print(f'\\n  Mesh health: {online}/{total} services online ({score:.0f}%)')
+
+# Record
+db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
+    ('mesh_health_pct', score, datetime.now().isoformat()))
+db.commit()
+db.close()
+"""},
+            priority="normal",
+            schedule="every:10m",
+            tags=["self-evolving", "mesh", "topology", "services"],
+        ),
+
+        # ── 8. Daily Insight Generator: résume ce que le système a appris ──
+        TaskDef(
+            id="daily_insight_generator",
+            name="Daily Insight Generator (M1-powered)",
+            task_type="reasoning",
+            action="python",
+            payload={"code": """
+import sqlite3, json
+from datetime import datetime, timedelta
+from pathlib import Path
+from urllib.request import urlopen, Request
+
+print('=== DAILY INSIGHT GENERATOR ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+
+# Gather key stats
+stats = {}
+stats['total_runs'] = db.execute("SELECT COUNT(*) FROM task_runs WHERE started_at > datetime('now', '-24 hours')").fetchone()[0]
+stats['success_rate'] = db.execute("SELECT ROUND(SUM(CASE WHEN status='completed' THEN 1.0 ELSE 0 END)/MAX(COUNT(*),1)*100, 1) FROM task_runs WHERE started_at > datetime('now', '-24 hours')").fetchone()[0] or 0
+stats['top_errors'] = db.execute('''
+    SELECT task_id, COUNT(*) as c FROM task_runs
+    WHERE status='failed' AND started_at > datetime('now', '-24 hours')
+    GROUP BY task_id ORDER BY c DESC LIMIT 3
+''').fetchall()
+stats['entropy'] = db.execute("SELECT metric_value FROM task_metrics WHERE metric_name='system_entropy_score' ORDER BY id DESC LIMIT 1").fetchone()
+stats['active_tasks'] = db.execute("SELECT COUNT(*) FROM tasks WHERE enabled=1").fetchone()[0]
+
+summary = f"24h stats: {stats['total_runs']} runs, {stats['success_rate']}% success, {stats['active_tasks']} active tasks."
+if stats['top_errors']:
+    summary += f" Top failures: {', '.join(f'{t[0]}({t[1]}x)' for t in stats['top_errors'])}."
+if stats['entropy']:
+    summary += f" Entropy score: {stats['entropy'][0]}/100."
+
+# Ask M1 to generate insight
+try:
+    prompt = f'/nothink\\nYou are JARVIS system analyst. Based on these stats, give 3 actionable insights. Stats: {summary}. Be concise, 1 sentence per insight.'
+    data = json.dumps({
+        'model': 'qwen3-8b', 'input': prompt,
+        'temperature': 0.3, 'max_output_tokens': 200, 'stream': False, 'store': False
+    }).encode()
+    req = Request('http://127.0.0.1:1234/api/v1/chat', data=data,
+        headers={'Content-Type': 'application/json'})
+    resp = urlopen(req, timeout=15)
+    body = json.loads(resp.read())
+    for b in body.get('output', []):
+        if b.get('type') == 'message':
+            content = b.get('content', '')
+            if isinstance(content, str):
+                print(f'  Stats: {summary}')
+                print(f'  M1 insights: {content.strip()[:400]}')
+            break
+except Exception as e:
+    print(f'  M1 unavailable ({e}), raw stats:')
+    print(f'  {summary}')
+
+# Save insight
+insight_path = Path('F:/BUREAU/turbo/data/daily_insights.jsonl')
+entry = {'date': datetime.now().isoformat(), 'stats': summary}
+with open(insight_path, 'a') as f:
+    f.write(json.dumps(entry) + '\\n')
+
+db.close()
+"""},
+            priority="low",
+            schedule="every:6h",
+            tags=["self-evolving", "insights", "reporting", "m1"],
+        ),
+
+        # ── 9. Error Pattern Deduplicator: compresse les erreurs répétées ──
+        TaskDef(
+            id="error_deduplicator",
+            name="Error Pattern Deduplicator",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import sqlite3, json
+from collections import Counter
+from datetime import datetime, timedelta
+
+print('=== ERROR DEDUPLICATION ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+cutoff = (datetime.now() - timedelta(hours=6)).isoformat()
+
+errors = db.execute('''
+    SELECT task_id, error FROM task_runs
+    WHERE status='failed' AND error IS NOT NULL AND started_at > ?
+''', (cutoff,)).fetchall()
+
+if not errors:
+    print('  No errors in last 6h')
+else:
+    # Normalize errors (first line, strip paths)
+    normalized = []
+    for tid, err in errors:
+        first_line = err.strip().split('\\n')[-1][:100] if err else 'unknown'
+        # Strip file paths for grouping
+        for prefix in ['F:/BUREAU/turbo/', 'C:/Users/franc/', '/']:
+            first_line = first_line.replace(prefix, '')
+        normalized.append((tid, first_line))
+
+    # Group by error pattern
+    patterns = Counter(e[1] for e in normalized)
+    print(f'  {len(errors)} errors compressed to {len(patterns)} unique patterns:')
+    for pattern, count in patterns.most_common(10):
+        tasks_affected = list(set(tid for tid, e in normalized if e == pattern))
+        print(f'    [{count:3d}x] {pattern[:70]}')
+        if len(tasks_affected) <= 3:
+            print(f'          tasks: {tasks_affected}')
+        else:
+            print(f'          tasks: {tasks_affected[:3]}... (+{len(tasks_affected)-3})')
+
+    compression = (1 - len(patterns) / len(errors)) * 100 if errors else 0
+    print(f'\\n  Compression: {compression:.0f}% ({len(errors)} -> {len(patterns)} patterns)')
+
+db.close()
+"""},
+            priority="low",
+            schedule="every:2h",
+            tags=["self-evolving", "errors", "dedup", "compression"],
+        ),
+
+        # ── 10. Git Activity Intelligence: analyse les patterns de commits ──
+        TaskDef(
+            id="git_activity_intelligence",
+            name="Git Activity Pattern Analyzer",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import subprocess, sqlite3, json
+from datetime import datetime
+from collections import Counter
+
+print('=== GIT ACTIVITY INTELLIGENCE ===')
+
+# Analyze last 30 commits
+r = subprocess.run(['git', 'log', '--oneline', '--format=%H|%s|%ai', '-30'],
+    capture_output=True, text=True, cwd='F:/BUREAU/turbo', timeout=10)
+
+if not r.stdout.strip():
+    print('  No git history')
+else:
+    commits = []
+    for line in r.stdout.strip().split('\\n'):
+        parts = line.split('|', 2)
+        if len(parts) >= 3:
+            commits.append({'hash': parts[0][:7], 'msg': parts[1], 'date': parts[2]})
+
+    # Categorize commits
+    categories = Counter()
+    for c in commits:
+        msg = c['msg'].lower()
+        if msg.startswith('feat'):
+            categories['feature'] += 1
+        elif msg.startswith('fix'):
+            categories['fix'] += 1
+        elif msg.startswith('refactor'):
+            categories['refactor'] += 1
+        elif msg.startswith('test'):
+            categories['test'] += 1
+        elif msg.startswith('doc'):
+            categories['docs'] += 1
+        else:
+            categories['other'] += 1
+
+    print(f'  Last {len(commits)} commits:')
+    for cat, count in categories.most_common():
+        bar = '#' * count
+        print(f'    {cat:12s}: {bar} ({count})')
+
+    # Velocity
+    if len(commits) >= 2:
+        try:
+            first = datetime.fromisoformat(commits[-1]['date'].strip().replace(' ', 'T')[:19])
+            last = datetime.fromisoformat(commits[0]['date'].strip().replace(' ', 'T')[:19])
+            days = max(1, (last - first).days)
+            velocity = len(commits) / days
+            print(f'\\n  Velocity: {velocity:.1f} commits/day over {days} days')
+        except Exception:
+            pass
+
+    # Files most changed
+    r2 = subprocess.run(['git', 'log', '--name-only', '--format=', '-10'],
+        capture_output=True, text=True, cwd='F:/BUREAU/turbo', timeout=10)
+    if r2.stdout:
+        files = Counter(f for f in r2.stdout.strip().split('\\n') if f.strip())
+        print(f'\\n  Hotspots (most changed files):')
+        for fname, count in files.most_common(5):
+            print(f'    {fname}: {count} changes')
+"""},
+            priority="low",
+            schedule="every:6h",
+            tags=["self-evolving", "git", "intelligence", "patterns"],
+        ),
+
+        # ── 11. Cluster Teaching Feedback Loop: évalue la qualité des réponses du cluster ──
+        TaskDef(
+            id="cluster_feedback_loop",
+            name="Cluster Quality Feedback Loop",
+            task_type="reasoning",
+            action="python",
+            payload={"code": """
+import sqlite3, json
+from datetime import datetime, timedelta
+
+print('=== CLUSTER QUALITY FEEDBACK ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+
+# Analyze which task categories have best/worst performance
+cutoff = (datetime.now() - timedelta(hours=12)).isoformat()
+
+categories = {}
+for tid, tags_json in db.execute('SELECT id, tags FROM tasks WHERE enabled=1').fetchall():
+    try:
+        tags = json.loads(tags_json) if tags_json else []
+    except Exception:
+        continue
+
+    runs = db.execute('''
+        SELECT status, duration_ms FROM task_runs
+        WHERE task_id=? AND started_at > ?
+    ''', (tid, cutoff)).fetchall()
+
+    if not runs:
+        continue
+
+    for tag in tags:
+        if tag not in categories:
+            categories[tag] = {'ok': 0, 'fail': 0, 'durations': []}
+        for status, dur in runs:
+            if status == 'completed':
+                categories[tag]['ok'] += 1
+            else:
+                categories[tag]['fail'] += 1
+            if dur and dur > 0:
+                categories[tag]['durations'].append(dur)
+
+# Rank categories by success rate
+ranked = []
+for tag, stats in categories.items():
+    total = stats['ok'] + stats['fail']
+    if total < 3:
+        continue
+    rate = stats['ok'] / total * 100
+    avg_ms = sum(stats['durations']) / len(stats['durations']) if stats['durations'] else 0
+    ranked.append((tag, rate, avg_ms, total))
+
+ranked.sort(key=lambda x: x[1])
+
+if ranked:
+    print(f'  {"Category":25s} {"Rate":>6s} {"Avg ms":>8s} {"Runs":>5s}')
+    # Show worst 5
+    print('  --- WEAKEST ---')
+    for tag, rate, avg, total in ranked[:5]:
+        print(f'  {tag:25s} {rate:5.0f}% {avg:7.0f}ms {total:5d}')
+    # Show best 5
+    print('  --- STRONGEST ---')
+    for tag, rate, avg, total in ranked[-5:]:
+        print(f'  {tag:25s} {rate:5.0f}% {avg:7.0f}ms {total:5d}')
+else:
+    print('  Not enough data for feedback analysis')
+
+db.close()
+"""},
+            priority="normal",
+            schedule="every:3h",
+            tags=["self-evolving", "feedback", "quality", "cluster"],
+        ),
+
+        # ── 12. Dynamic Priority Adjuster: change les priorités selon contexte ──
+        TaskDef(
+            id="dynamic_priority",
+            name="Dynamic Task Priority Adjuster",
+            task_type="reasoning",
+            action="python",
+            payload={"code": """
+import sqlite3, json, shutil
+from datetime import datetime
+
+print('=== DYNAMIC PRIORITY ADJUSTMENT ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+
+adjustments = []
+
+# Rule 1: If disk < 30GB, bump cleanup tasks to critical
+for drive in ['C:', 'F:']:
+    free = shutil.disk_usage(drive + '/').free / 1e9
+    if free < 30:
+        for tid in ['cleanup_logs', 'cleanup_backups', 'orphan_data_cleaner', 'db_vacuum_optimize']:
+            adjustments.append((tid, 'critical', f'{drive} low ({free:.0f}GB)'))
+
+# Rule 2: If >10% failure rate in last hour, bump diagnostic tasks
+runs = db.execute('''
+    SELECT COUNT(*), SUM(CASE WHEN status='failed' THEN 1 ELSE 0 END)
+    FROM task_runs WHERE started_at > datetime('now', '-1 hour')
+''').fetchone()
+total, fails = runs[0] or 0, runs[1] or 0
+if total > 10 and fails / total > 0.1:
+    for tid in ['error_correlator', 'circuit_breaker', 'auto_recovery']:
+        adjustments.append((tid, 'critical', f'high fail rate ({fails}/{total})'))
+
+# Rule 3: If entropy score < 60, bump all health tasks
+entropy = db.execute(
+    "SELECT metric_value FROM task_metrics WHERE metric_name='system_entropy_score' ORDER BY id DESC LIMIT 1"
+).fetchone()
+if entropy and entropy[0] < 60:
+    for tid in ['canary_heartbeat', 'health_cluster', 'auto_recovery']:
+        adjustments.append((tid, 'critical', f'entropy low ({entropy[0]:.0f})'))
+
+if adjustments:
+    print(f'  {len(adjustments)} priority adjustments:')
+    for tid, new_prio, reason in adjustments:
+        db.execute('UPDATE tasks SET priority=? WHERE id=?', (new_prio, tid))
+        print(f'    {tid} -> {new_prio} ({reason})')
+    db.commit()
+else:
+    print('  All priorities optimal — no adjustments needed')
+
+db.close()
+"""},
+            priority="normal",
+            schedule="every:15m",
+            tags=["self-evolving", "priority", "dynamic", "adaptive"],
+        ),
+
+        # ── 13. Orchestrator Self-Benchmark: le système se benchmark lui-même ──
+        TaskDef(
+            id="self_benchmark",
+            name="Orchestrator Self-Benchmark",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import time, sqlite3, json
+from datetime import datetime
+
+print('=== SELF-BENCHMARK ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+results = {}
+
+# 1. DB write speed
+start = time.perf_counter()
+for i in range(100):
+    db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
+        ('_bench_write', i, datetime.now().isoformat()))
+db.commit()
+results['db_write_100'] = (time.perf_counter() - start) * 1000
+# Clean up
+db.execute("DELETE FROM task_metrics WHERE metric_name='_bench_write'")
+db.commit()
+
+# 2. DB read speed
+start = time.perf_counter()
+for _ in range(100):
+    db.execute('SELECT COUNT(*) FROM task_runs').fetchone()
+results['db_read_100'] = (time.perf_counter() - start) * 1000
+
+# 3. Task load speed
+start = time.perf_counter()
+tasks = db.execute('SELECT * FROM tasks WHERE enabled=1').fetchall()
+results['task_load'] = (time.perf_counter() - start) * 1000
+
+# 4. Python exec overhead
+start = time.perf_counter()
+exec('x = sum(range(10000))')
+results['python_exec'] = (time.perf_counter() - start) * 1000
+
+for name, ms in results.items():
+    status = 'FAST' if ms < 100 else 'OK' if ms < 500 else 'SLOW'
+    print(f'  {name:20s}: {ms:8.1f}ms [{status}]')
+    db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
+        (f'bench_{name}', ms, datetime.now().isoformat()))
+
+# Overall score
+total_ms = sum(results.values())
+print(f'\\n  Total benchmark: {total_ms:.0f}ms')
+grade = 'S' if total_ms < 200 else 'A' if total_ms < 500 else 'B' if total_ms < 1000 else 'C'
+print(f'  Grade: {grade}')
+
+db.commit()
+db.close()
+"""},
+            priority="low",
+            schedule="every:1h",
+            tags=["self-evolving", "benchmark", "self-test"],
+        ),
+
+        # ── 14. Cluster Multi-Model Arbitrage: choisit le meilleur modèle par tâche ──
+        TaskDef(
+            id="model_arbitrage",
+            name="Cluster Multi-Model Arbitrage",
+            task_type="reasoning",
+            action="python",
+            payload={"code": """
+import json, time, sqlite3
+from urllib.request import urlopen, Request
+from datetime import datetime
+
+print('=== MODEL ARBITRAGE ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+
+# Test different task types on different models
+test_cases = [
+    ('math', '15 * 17 = ? Just the number.', '255'),
+    ('logic', 'If all roses are flowers and some flowers fade quickly, can we conclude all roses fade quickly? Answer yes or no.', 'no'),
+]
+
+import random
+category, question, expected = random.choice(test_cases)
+print(f'  Test [{category}]: {question}')
+
+models = [
+    ('M1/qwen3-8b', 'http://127.0.0.1:1234/api/v1/chat',
+     {'model':'qwen3-8b','input':f'/nothink\\n{question}','temperature':0,'max_output_tokens':20,'stream':False,'store':False},
+     'lmstudio'),
+    ('OL1/qwen3-1.7b', 'http://127.0.0.1:11434/api/chat',
+     {'model':'qwen3:1.7b','messages':[{'role':'user','content':f'/nothink\\n{question}'}],'stream':False},
+     'ollama'),
+]
+
+results = []
+for name, url, payload, api_type in models:
+    try:
+        start = time.perf_counter()
+        data = json.dumps(payload).encode()
+        req = Request(url, data=data, headers={'Content-Type': 'application/json'})
+        resp = urlopen(req, timeout=12)
+        body = json.loads(resp.read())
+        latency = (time.perf_counter() - start) * 1000
+
+        if api_type == 'lmstudio':
+            answer = ''
+            for b in body.get('output', []):
+                if b.get('type') == 'message':
+                    c = b.get('content', '')
+                    answer = c.strip().lower() if isinstance(c, str) else ''
+                    break
+        else:
+            answer = body.get('message', {}).get('content', '').strip().lower()
+
+        correct = expected.lower() in answer
+        results.append((name, correct, latency, answer[:50]))
+        print(f'  {name:20s}: {"OK" if correct else "WRONG"} ({latency:.0f}ms) -> {answer[:30]}')
+    except Exception as e:
+        print(f'  {name:20s}: ERROR ({type(e).__name__})')
+
+# Record best model for this category
+if results:
+    correct_fast = [(n, l) for n, c, l, _ in results if c]
+    if correct_fast:
+        best = min(correct_fast, key=lambda x: x[1])
+        print(f'\\n  Best for [{category}]: {best[0]} ({best[1]:.0f}ms)')
+        db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
+            (f'arbitrage_{category}_winner', hash(best[0]) % 1000, datetime.now().isoformat()))
+    db.commit()
+
+db.close()
+"""},
+            priority="low",
+            schedule="every:30m",
+            tags=["self-evolving", "arbitrage", "model-selection", "cluster"],
+        ),
+
+        # ── 15. Evolution Report Card: tableau de bord de l'évolution globale ──
+        TaskDef(
+            id="evolution_report_card",
+            name="System Evolution Report Card",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import sqlite3, json
+from datetime import datetime, timedelta
+from pathlib import Path
+
+print('=== EVOLUTION REPORT CARD ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+
+report = {}
+
+# 1. Task ecosystem health
+report['active_tasks'] = db.execute("SELECT COUNT(*) FROM tasks WHERE enabled=1").fetchone()[0]
+report['disabled_tasks'] = db.execute("SELECT COUNT(*) FROM tasks WHERE enabled=0").fetchone()[0]
+report['total_runs'] = db.execute("SELECT COUNT(*) FROM task_runs").fetchone()[0]
+
+# 2. Success trend (last 3 periods)
+for label, hours in [('1h', 1), ('6h', 6), ('24h', 24)]:
+    r = db.execute('''
+        SELECT ROUND(SUM(CASE WHEN status='completed' THEN 1.0 ELSE 0 END) / MAX(COUNT(*),1) * 100, 1)
+        FROM task_runs WHERE started_at > datetime('now', ?)
+    ''', (f'-{hours} hours',)).fetchone()
+    report[f'success_{label}'] = r[0] or 0
+
+# 3. Knowledge base size
+kb = Path('F:/BUREAU/turbo/data/knowledge_base.jsonl')
+report['knowledge_entries'] = len(kb.read_text().strip().split('\\n')) if kb.exists() else 0
+
+# 4. Entropy score
+e = db.execute("SELECT metric_value FROM task_metrics WHERE metric_name='system_entropy_score' ORDER BY id DESC LIMIT 1").fetchone()
+report['entropy_score'] = e[0] if e else -1
+
+# 5. Mesh health
+m = db.execute("SELECT metric_value FROM task_metrics WHERE metric_name='mesh_health_pct' ORDER BY id DESC LIMIT 1").fetchone()
+report['mesh_health'] = m[0] if m else -1
+
+# 6. Code metrics
+loc = db.execute("SELECT metric_value FROM task_metrics WHERE metric_name='code_total_loc' ORDER BY id DESC LIMIT 1").fetchone()
+report['total_loc'] = int(loc[0]) if loc else 0
+
+# Print report card
+print(f'  Tasks: {report[\"active_tasks\"]} active, {report[\"disabled_tasks\"]} disabled')
+print(f'  Runs: {report[\"total_runs\"]} total')
+print(f'  Success: 1h={report[\"success_1h\"]}% 6h={report[\"success_6h\"]}% 24h={report[\"success_24h\"]}%')
+print(f'  Knowledge: {report[\"knowledge_entries\"]} patterns learned')
+print(f'  Entropy: {report[\"entropy_score\"]}/100')
+print(f'  Mesh: {report[\"mesh_health\"]}% online')
+print(f'  Code: {report[\"total_loc\"]:,} LOC')
+
+# Overall grade
+grades = []
+if report['success_1h'] >= 95: grades.append('A')
+elif report['success_1h'] >= 85: grades.append('B')
+else: grades.append('C')
+if report['entropy_score'] >= 80: grades.append('A')
+elif report['entropy_score'] >= 60: grades.append('B')
+else: grades.append('C')
+if report['mesh_health'] >= 80: grades.append('A')
+elif report['mesh_health'] >= 50: grades.append('B')
+else: grades.append('C')
+
+overall = 'A' if all(g == 'A' for g in grades) else 'B' if 'C' not in grades else 'C'
+print(f'\\n  OVERALL GRADE: {overall}')
+
+# Save
+report['timestamp'] = datetime.now().isoformat()
+report['grade'] = overall
+Path('F:/BUREAU/turbo/data/evolution_report.json').write_text(json.dumps(report, indent=2))
+
+db.close()
+"""},
+            priority="normal",
+            schedule="every:1h",
+            tags=["self-evolving", "reporting", "evolution", "grade"],
+        ),
     ]
 
     for task in defaults:
