@@ -3636,6 +3636,17 @@ async def api_wake_control(action: str):
 
 @app.on_event("startup")
 async def _setup_ptt_and_wake():
+    # Phase 0: Singleton — kill any existing JARVIS WS, register this PID
+    # NOTE: Don't use port= here — uvicorn already bound :9742 before startup,
+    # so kill_on_port would self-kill. Only kill by PID file (the OLD process).
+    try:
+        from src.process_singleton import singleton
+        pid = singleton.acquire("jarvis_ws")
+        logger.info("Singleton acquired: jarvis_ws (PID %d, file=%s)",
+                     pid, singleton._pid_file("jarvis_ws"))
+    except Exception as exc:
+        logger.warning("Singleton acquire failed (non-fatal): %s", exc, exc_info=True)
+
     loop = asyncio.get_running_loop()
     _start_global_ptt_hook(loop)
     _start_wake_word(loop)
@@ -3714,6 +3725,13 @@ async def _graceful_shutdown():
     try:
         from src.automation_hub import automation_hub
         await automation_hub.stop()
+    except Exception:
+        pass
+
+    # Release singleton PID file
+    try:
+        from src.process_singleton import singleton
+        singleton.release("jarvis_ws")
     except Exception:
         pass
 
@@ -6120,6 +6138,20 @@ async def evolution_history(limit: int = 50):
 async def evolution_stats():
     from src.pattern_evolution import get_evolution
     return get_evolution().get_stats()
+
+
+# ── Process Singleton API ──────────────────────────────────────────────────
+
+@app.get("/api/singletons/list")
+async def api_singletons_list():
+    from src.process_singleton import singleton
+    return singleton.list_all()
+
+@app.post("/api/singletons/cleanup")
+async def api_singletons_cleanup():
+    from src.process_singleton import singleton
+    cleaned = singleton.cleanup_dead()
+    return {"cleaned": cleaned, "count": len(cleaned)}
 
 
 def main():
