@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "jarvis-lmstudio": {
+      "command": "python",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/../scripts/mcp_lmstudio_bridge.py"],
+      "env": {
+        "PYTHONIOENCODING": "utf-8"
+      }
+    }
+  }
+}
