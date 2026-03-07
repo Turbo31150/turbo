@@ -8480,6 +8480,350 @@ db.close()
             schedule="every:6h",
             tags=["predictive", "genome", "snapshot", "identity"],
         ),
+
+        # ── Wave 6: Telegram Cockpit — Error Watch & Auto-Fix ─────────
+
+        TaskDef(
+            id="tg_cluster_report",
+            name="Telegram Cluster Report",
+            task_type="quick", action="python",
+            payload={"code": """
+import subprocess, sys
+r = subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--report', 'cluster'],
+    capture_output=True, timeout=20, encoding='utf-8', errors='replace')
+print(r.stdout[:500] if r.stdout else r.stderr[:200])
+"""},
+            priority="medium",
+            schedule="every:15m",
+            tags=["telegram", "cockpit", "cluster", "report"],
+        ),
+
+        TaskDef(
+            id="tg_evolution_report",
+            name="Telegram Evolution Report",
+            task_type="quick", action="python",
+            payload={"code": """
+import subprocess, sys
+r = subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--report', 'evolution'],
+    capture_output=True, timeout=20, encoding='utf-8', errors='replace')
+print(r.stdout[:500] if r.stdout else r.stderr[:200])
+"""},
+            priority="medium",
+            schedule="every:30m",
+            tags=["telegram", "cockpit", "evolution", "report"],
+        ),
+
+        TaskDef(
+            id="tg_error_watcher",
+            name="Telegram Error Watcher",
+            task_type="quick", action="python",
+            payload={"code": """
+import subprocess, sys
+r = subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py',
+    '--watch-errors', '--auto-fix'],
+    capture_output=True, timeout=60, encoding='utf-8', errors='replace')
+out = r.stdout or ''
+if 'system clean' not in out:
+    print(out[:800])
+else:
+    print('No errors detected')
+"""},
+            priority="high",
+            schedule="every:5m",
+            tags=["telegram", "cockpit", "errors", "autofix", "critical"],
+        ),
+
+        TaskDef(
+            id="tg_alert_push",
+            name="Telegram Alert Push",
+            task_type="quick", action="python",
+            payload={"code": """
+import subprocess, sys
+r = subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py',
+    '--report', 'alerts', '--quiet'],
+    capture_output=True, timeout=15, encoding='utf-8', errors='replace')
+print(r.stdout[:300] if r.stdout else 'quiet: no alerts')
+"""},
+            priority="high",
+            schedule="every:3m",
+            tags=["telegram", "cockpit", "alerts", "critical"],
+        ),
+
+        TaskDef(
+            id="tg_task_performance",
+            name="Telegram Task Performance",
+            task_type="quick", action="python",
+            payload={"code": """
+import subprocess, sys
+r = subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--report', 'tasks'],
+    capture_output=True, timeout=20, encoding='utf-8', errors='replace')
+print(r.stdout[:500] if r.stdout else r.stderr[:200])
+"""},
+            priority="low",
+            schedule="every:1h",
+            tags=["telegram", "cockpit", "performance"],
+        ),
+
+        TaskDef(
+            id="tg_error_patterns",
+            name="Telegram Error Patterns",
+            task_type="quick", action="python",
+            payload={"code": """
+import subprocess, sys
+r = subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--report', 'patterns'],
+    capture_output=True, timeout=20, encoding='utf-8', errors='replace')
+print(r.stdout[:500] if r.stdout else r.stderr[:200])
+"""},
+            priority="medium",
+            schedule="every:2h",
+            tags=["telegram", "cockpit", "patterns", "errors"],
+        ),
+
+        TaskDef(
+            id="tg_genome_snapshot",
+            name="Telegram Genome Snapshot",
+            task_type="quick", action="python",
+            payload={"code": """
+import subprocess, sys
+r = subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--report', 'genome'],
+    capture_output=True, timeout=15, encoding='utf-8', errors='replace')
+print(r.stdout[:500] if r.stdout else r.stderr[:200])
+"""},
+            priority="low",
+            schedule="every:6h",
+            tags=["telegram", "cockpit", "genome"],
+        ),
+
+        TaskDef(
+            id="tg_voice_briefing",
+            name="Telegram Voice Briefing",
+            task_type="quick", action="python",
+            payload={"code": """
+import subprocess, sys, socket
+# Build brief status text
+online = 0
+for host, port in [('127.0.0.1',1234),('127.0.0.1',11434),('127.0.0.1',9742)]:
+    try:
+        s = socket.socket(); s.settimeout(2)
+        if s.connect_ex((host,port)) == 0: online += 1
+        s.close()
+    except: pass
+
+import sqlite3
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+active = db.execute("SELECT COUNT(*) FROM tasks WHERE enabled=1").fetchone()[0]
+r = db.execute("SELECT COUNT(*), SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END) FROM task_runs WHERE started_at > datetime('now','-1 hour')").fetchone()
+runs, ok = r[0] or 0, r[1] or 0
+rate = int(ok/runs*100) if runs else 0
+fails = db.execute("SELECT COUNT(*) FROM task_runs WHERE status='failed' AND started_at > datetime('now','-1 hour')").fetchone()[0]
+db.close()
+
+brief = f"JARVIS status: {online} services en ligne sur 3. {active} taches actives, {rate} pourcent de succes, {fails} echecs cette heure."
+r = subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--voice', brief],
+    capture_output=True, timeout=20, encoding='utf-8', errors='replace')
+print(r.stdout[:200] if r.stdout else r.stderr[:100])
+"""},
+            priority="low",
+            schedule="every:3h",
+            tags=["telegram", "cockpit", "voice", "briefing"],
+        ),
+
+        TaskDef(
+            id="tg_daily_insight",
+            name="Telegram Daily Insight",
+            task_type="quick", action="python",
+            payload={"code": """
+import subprocess, sys
+r = subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py',
+    '--ask', 'Analyse les 24 dernieres heures du cluster JARVIS. Donne 3 insights cles: ce qui va bien, ce qui echoue, et une suggestion amelioration. Sois concis.'],
+    capture_output=True, timeout=30, encoding='utf-8', errors='replace')
+print(r.stdout[:600] if r.stdout else r.stderr[:200])
+"""},
+            priority="low",
+            schedule="every:12h",
+            tags=["telegram", "cockpit", "insight", "daily"],
+        ),
+
+        TaskDef(
+            id="tg_service_down_alert",
+            name="Telegram Service Down Alert",
+            task_type="quick", action="python",
+            payload={"code": """
+import socket, subprocess, sys
+
+down = []
+for name, host, port in [('M1','127.0.0.1',1234),('OL1','127.0.0.1',11434),('WS','127.0.0.1',9742),('OpenClaw','127.0.0.1',18789)]:
+    try:
+        s = socket.socket(); s.settimeout(2)
+        if s.connect_ex((host,port)) != 0:
+            down.append(f'{name} (port {port})')
+        s.close()
+    except:
+        down.append(f'{name} (port {port})')
+
+if down:
+    msg = f"ALERTE: {len(down)} service(s) DOWN: {', '.join(down)}"
+    subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--send', msg],
+        capture_output=True, timeout=10, encoding='utf-8', errors='replace')
+    print(msg)
+else:
+    print('All services OK')
+"""},
+            priority="critical",
+            schedule="every:2m",
+            tags=["telegram", "cockpit", "alerts", "service", "critical"],
+        ),
+
+        TaskDef(
+            id="tg_circuit_breaker_alert",
+            name="Telegram Circuit Breaker Alert",
+            task_type="quick", action="python",
+            payload={"code": """
+import sqlite3, subprocess, sys
+
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+tripped = db.execute("SELECT task_id, consecutive_fails FROM task_escalation WHERE consecutive_fails >= 5").fetchall()
+db.close()
+
+if tripped:
+    lines = [f"CIRCUIT BREAKER: {len(tripped)} tache(s) en echec critique"]
+    for tid, fails in tripped[:5]:
+        lines.append(f"  - {tid}: {fails} echecs consecutifs")
+    msg = '\\n'.join(lines)
+    subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--send', msg],
+        capture_output=True, timeout=10, encoding='utf-8', errors='replace')
+    print(msg)
+else:
+    print('No circuit breakers tripped')
+"""},
+            priority="high",
+            schedule="every:5m",
+            tags=["telegram", "cockpit", "circuit_breaker", "critical"],
+        ),
+
+        TaskDef(
+            id="tg_disk_alert",
+            name="Telegram Disk Space Alert",
+            task_type="quick", action="python",
+            payload={"code": """
+import shutil, subprocess, sys
+
+alerts = []
+for drive in ['C:/', 'F:/']:
+    try:
+        free = shutil.disk_usage(drive).free / 1e9
+        if free < 15:
+            alerts.append(f'{drive} CRITIQUE: {free:.0f}GB libres')
+        elif free < 30:
+            alerts.append(f'{drive} WARNING: {free:.0f}GB libres')
+    except: pass
+
+if alerts:
+    msg = 'DISQUE: ' + ' | '.join(alerts)
+    subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--send', msg],
+        capture_output=True, timeout=10, encoding='utf-8', errors='replace')
+    print(msg)
+else:
+    print('Disk space OK')
+"""},
+            priority="medium",
+            schedule="every:30m",
+            tags=["telegram", "cockpit", "disk", "alerts"],
+        ),
+
+        TaskDef(
+            id="tg_auto_error_fix",
+            name="Telegram Auto Error Fix",
+            task_type="quick", action="python",
+            payload={"code": """
+import sqlite3, subprocess, sys
+
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+top_fail = db.execute('''
+    SELECT task_id, COUNT(*) as c FROM task_runs
+    WHERE status='failed' AND started_at > datetime('now', '-2 hours')
+    GROUP BY task_id ORDER BY c DESC LIMIT 3
+''').fetchall()
+db.close()
+
+if not top_fail:
+    print('No failures to fix')
+else:
+    for tid, count in top_fail:
+        print(f'Auto-fixing {tid} ({count} failures)...')
+        r = subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--fix', tid],
+            capture_output=True, timeout=45, encoding='utf-8', errors='replace')
+        print(r.stdout[:300] if r.stdout else r.stderr[:100])
+"""},
+            priority="medium",
+            schedule="every:15m",
+            tags=["telegram", "cockpit", "autofix", "errors"],
+        ),
+
+        TaskDef(
+            id="tg_entropy_alert",
+            name="Telegram Entropy Alert",
+            task_type="quick", action="python",
+            payload={"code": """
+import sqlite3, subprocess, sys
+
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+e = db.execute("SELECT metric_value FROM task_metrics WHERE metric_name='system_entropy_score' ORDER BY id DESC LIMIT 1").fetchone()
+db.close()
+
+if e:
+    val = float(e[0])
+    if val < 50:
+        msg = f"ENTROPIE CRITIQUE: {val:.0f}/100 - Le systeme stagne, il faut intervenir"
+        subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--send', msg],
+            capture_output=True, timeout=10, encoding='utf-8', errors='replace')
+        print(msg)
+    elif val < 70:
+        msg = f"Entropie basse: {val:.0f}/100 - Surveillance active"
+        subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--send', msg],
+            capture_output=True, timeout=10, encoding='utf-8', errors='replace')
+        print(msg)
+    else:
+        print(f'Entropy OK: {val:.0f}/100')
+else:
+    print('No entropy data yet')
+"""},
+            priority="high",
+            schedule="every:10m",
+            tags=["telegram", "cockpit", "entropy", "critical"],
+        ),
+
+        TaskDef(
+            id="tg_success_rate_alert",
+            name="Telegram Success Rate Alert",
+            task_type="quick", action="python",
+            payload={"code": """
+import sqlite3, subprocess, sys
+
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+r = db.execute('''
+    SELECT COUNT(*), SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END)
+    FROM task_runs WHERE started_at > datetime('now', '-1 hour')
+''').fetchone()
+db.close()
+
+runs, ok = r[0] or 0, r[1] or 0
+if runs >= 10:
+    rate = ok / runs * 100
+    if rate < 80:
+        msg = f"SUCCESS RATE BAS: {rate:.0f}% ({ok}/{runs} en 1h) - Verification requise"
+        subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--send', msg],
+            capture_output=True, timeout=10, encoding='utf-8', errors='replace')
+        print(msg)
+    else:
+        print(f'Success rate OK: {rate:.0f}%')
+else:
+    print(f'Too few runs to judge: {runs}')
+"""},
+            priority="medium",
+            schedule="every:10m",
+            tags=["telegram", "cockpit", "success_rate", "monitoring"],
+        ),
     ]
 
     for task in defaults:
@@ -8768,7 +9112,7 @@ def show_dashboard():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="JARVIS Task Orchestrator v3")
+    parser = argparse.ArgumentParser(description="JARVIS Task Orchestrator")
     parser.add_argument("--init", action="store_true", help="Initialize DB + default tasks")
     parser.add_argument("--status", action="store_true", help="Show task queue status")
     parser.add_argument("--schedule", action="store_true", help="Show scheduled tasks")

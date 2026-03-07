@@ -110,7 +110,7 @@ let messageHistory = []; // derniers messages reçus (max 50)
 
 // ─── RBAC — Role-Based Access Control ────────────────────────────────────────
 
-const ADMIN_COMMANDS = new Set(['/jarvis', '/exec', '/improve', '/gpu', '/voice', '/reload', '/correct', '/broadcast', '/linkedin', '/post']);
+const ADMIN_COMMANDS = new Set(['/jarvis', '/exec', '/improve', '/gpu', '/voice', '/reload', '/correct', '/broadcast', '/linkedin', '/post', '/retry', '/kill']);
 
 function isAdminCommand(cmd) {
   return ADMIN_COMMANDS.has(cmd);
@@ -319,11 +319,29 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
         '',
         '*Systeme:*',
         '`/status` — Quels noeuds IA sont en ligne',
+        '`/cluster` — Cockpit complet (queue+automation+improve)',
+        '`/queue` — File de taches du cluster',
+        '`/task <prompt>` — Creer une tache pour le cluster',
+        '`/retry` — Relancer toutes les taches echouees',
+        '`/kill <id>` — Annuler une tache pending',
+        '`/nodes` — Statut detaille de chaque noeud',
         '`/gpu` — Temperatures GPU',
         '`/disk` — Espace disque libre',
         '`/ping` — Test rapide (le bot repond?)',
         '`/sniper` — Le scanner tourne-t-il?',
         '`/loop` — Amelioration auto en cours?',
+        '',
+        '*Cockpit JARVIS:*',
+        '`/cockpit` — Rapport complet (cluster+evolution+alerts)',
+        '`/orch` — Orchestrateur (140 taches, entropy, success rate)',
+        '`/errors` — Erreurs recentes + debug commands + AI diagnosis',
+        '`/fix <task>` — Auto-fix: diagnostic + commandes debug',
+        '`/autofix` — Scan + dispatch TOUTES erreurs au cluster',
+        '`/patterns` — Patterns erreurs recurrentes',
+        '`/genome` — System genome (ADN du cluster)',
+        '`/tasktop` — Top/bottom tasks (perf)',
+        '`/watchdog` — Alertes actives',
+        '`/ocerrors` — Erreurs OpenClaw + commandes de fix',
         '',
         '*Dictionnaire & Commandes:*',
         '`/dict [mot]` — Rechercher dans le dictionnaire vocal',
@@ -356,6 +374,191 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
       lines.push('', 'Ecris directement ta question, JARVIS repond.');
       lines.push('Envoie un vocal, JARVIS transcrit et repond en vocal.');
       return sendMessage(chatId, lines.join('\n'), 'Markdown');
+    }
+
+    // ── Queue & Cluster commands ──────────────────────────────────────
+
+    case '/queue': {
+      try {
+        const data = await httpRequest('http://127.0.0.1:9742/api/queue/status', { timeout: 8000 });
+        const q = JSON.parse(data.body);
+        const bs = q.by_status || {};
+        const lines = [
+          `📋 *Task Queue* (${q.total} taches)`,
+          '',
+          `✅ Done: ${bs.done || 0}  |  ⏳ Pending: ${bs.pending || 0}  |  ❌ Failed: ${bs.failed || 0}`,
+          `📊 Success rate: ${q.total > 0 ? Math.round(((bs.done||0)/q.total)*100) : 0}%`,
+          '',
+        ];
+        if (q.pending && q.pending.length > 0) {
+          lines.push('*En attente:*');
+          for (const t of q.pending.slice(0, 5)) {
+            lines.push(`  P${t.priority} [${t.task_type}] ${t.prompt.slice(0, 60)}...`);
+          }
+        }
+        if (q.recent && q.recent.length > 0) {
+          lines.push('', '*Recentes:*');
+          for (const t of q.recent.slice(0, 5)) {
+            const icon = t.status === 'done' ? '✅' : '❌';
+            lines.push(`  ${icon} [${t.node}] ${t.prompt.slice(0, 50)}...`);
+          }
+        }
+        return sendMessage(chatId, lines.join('\n'), 'Markdown');
+      } catch (e) {
+        return sendMessage(chatId, `❌ Queue offline: ${e.message}`);
+      }
+    }
+
+    case '/task': {
+      if (!args || !args.trim()) {
+        return sendMessage(chatId, '⚠️ Usage: `/task <description de la tache>`\nEx: `/task Fix the httpx timeout bug in auto_scaler.py`', 'Markdown');
+      }
+      try {
+        const payload = JSON.stringify({ prompt: args.trim(), task_type: 'code', priority: 3 });
+        const data = await httpRequest('http://127.0.0.1:9742/api/queue/enqueue', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 8000,
+        }, payload);
+        const r = JSON.parse(data.body);
+        if (r.ok) {
+          return sendMessage(chatId, `✅ Tache *${r.task_id}* ajoutee a la queue\n\n_${args.trim().slice(0, 100)}_`, 'Markdown');
+        } else {
+          return sendMessage(chatId, `❌ Erreur: ${r.error}`);
+        }
+      } catch (e) {
+        return sendMessage(chatId, `❌ Queue offline: ${e.message}`);
+      }
+    }
+
+    case '/cluster': {
+      try {
+        const [qData, aData, siData, sgData] = await Promise.allSettled([
+          httpRequest('http://127.0.0.1:9742/api/queue/status', { timeout: 5000 }).then(r => JSON.parse(r.body)),
+          httpRequest('http://127.0.0.1:9742/api/automation/status', { timeout: 5000 }).then(r => JSON.parse(r.body)),
+          httpRequest('http://127.0.0.1:9742/api/self-improve/status', { timeout: 5000 }).then(r => JSON.parse(r.body)),
+          httpRequest('http://127.0.0.1:9742/api/singletons/list', { timeout: 5000 }).then(r => JSON.parse(r.body)),
+        ]);
+
+        const lines = ['🏗️ *JARVIS Cluster Cockpit*', ''];
+
+        // Automation
+        if (aData.status === 'fulfilled') {
+          const a = aData.value;
+          const upMin = Math.round((a.uptime_s || 0) / 60);
+          lines.push(`🤖 *Automation:* ${a.running ? '🟢 ON' : '🔴 OFF'} (${upMin}min uptime)`);
+          if (a.autonomous_loop) lines.push(`   Loop: ${a.autonomous_loop.task_count} tasks, ${a.autonomous_loop.event_count} events`);
+          if (a.task_scheduler) lines.push(`   Scheduler: ${a.task_scheduler.enabled_jobs} jobs`);
+        }
+
+        // Queue
+        if (qData.status === 'fulfilled') {
+          const q = qData.value;
+          const bs = q.by_status || {};
+          const rate = q.total > 0 ? Math.round(((bs.done||0)/q.total)*100) : 0;
+          lines.push(`📋 *Queue:* ${q.total} taches — ✅${bs.done||0} ⏳${bs.pending||0} ❌${bs.failed||0} (${rate}%)`);
+        }
+
+        // Self-Improve
+        if (siData.status === 'fulfilled') {
+          const si = siData.value;
+          lines.push(`🧠 *Self-Improve:* ${si.cycles} cycles, ${si.total_actions} actions`);
+          if (si.last_report && si.last_report.actions) {
+            for (const a of si.last_report.actions.slice(0, 3)) {
+              lines.push(`   ${a.type}: ${a.target} — ${a.desc.slice(0, 50)}`);
+            }
+          }
+        }
+
+        // Singletons
+        if (sgData.status === 'fulfilled') {
+          const sg = sgData.value;
+          const alive = Object.entries(sg).filter(([,v]) => v.alive).map(([k]) => k);
+          lines.push(`🔧 *Services:* ${alive.length} actifs (${alive.join(', ')})`);
+        }
+
+        // Cluster nodes health
+        let h;
+        try {
+          h = await proxyGet('/health');
+        } catch {
+          h = await directClusterHealth();
+        }
+        const nodes = normalizeNodes(h.nodes);
+        lines.push('', '*Noeuds:*');
+        for (const n of nodes) {
+          const icon = n.status === 'online' ? '🟢' : '🔴';
+          lines.push(`  ${icon} ${n.id}: ${n.model || '?'} (${n.latency ? n.latency + 'ms' : 'N/A'})`);
+        }
+
+        return sendMessage(chatId, lines.join('\n'), 'Markdown');
+      } catch (e) {
+        return sendMessage(chatId, `❌ Cluster cockpit erreur: ${e.message}`);
+      }
+    }
+
+    case '/retry': {
+      try {
+        const data = await httpRequest('http://127.0.0.1:9742/api/queue/retry', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 8000,
+        }, '{}');
+        const r = JSON.parse(data.body);
+        if (r.ok) {
+          return sendMessage(chatId, `🔄 *${r.retried}* taches relancees`, 'Markdown');
+        }
+        return sendMessage(chatId, `❌ Erreur: ${r.error}`);
+      } catch (e) {
+        return sendMessage(chatId, `❌ Queue offline: ${e.message}`);
+      }
+    }
+
+    case '/kill': {
+      if (!args || !args.trim()) {
+        return sendMessage(chatId, '⚠️ Usage: `/kill <task_id>`', 'Markdown');
+      }
+      try {
+        const payload = JSON.stringify({ task_id: args.trim() });
+        const data = await httpRequest('http://127.0.0.1:9742/api/queue/cancel', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 8000,
+        }, payload);
+        const r = JSON.parse(data.body);
+        if (r.ok) {
+          return sendMessage(chatId, `🗑️ Tache *${args.trim()}* annulee`, 'Markdown');
+        }
+        return sendMessage(chatId, `❌ Tache non trouvee ou deja terminee`);
+      } catch (e) {
+        return sendMessage(chatId, `❌ Queue offline: ${e.message}`);
+      }
+    }
+
+    case '/nodes': {
+      try {
+        let h;
+        try {
+          h = await proxyGet('/health');
+          if (!h.ok) throw new Error('proxy unhealthy');
+        } catch {
+          h = await directClusterHealth();
+        }
+        const nodes = normalizeNodes(h.nodes);
+        const lines = ['🖥️ *Noeuds du Cluster*', ''];
+        for (const n of nodes) {
+          const icon = n.status === 'online' ? '🟢' : '🔴';
+          lines.push(`${icon} *${n.id}*`);
+          if (n.model) lines.push(`   Modele: ${n.model}`);
+          if (n.latency) lines.push(`   Latence: ${n.latency}ms`);
+          if (n.gpu) lines.push(`   GPU: ${n.gpu}`);
+          if (n.vram) lines.push(`   VRAM: ${n.vram}`);
+          lines.push('');
+        }
+        return sendMessage(chatId, lines.join('\n'), 'Markdown');
+      } catch (e) {
+        return sendMessage(chatId, `❌ Erreur: ${e.message}`);
+      }
     }
 
     case '/status': {
@@ -1032,8 +1235,107 @@ conn.close()
       }
     }
 
+    case '/cockpit': {
+      await sendMessage(chatId, 'Cockpit report en cours...');
+      return handleCockpitCommand(chatId, 'full');
+    }
+
+    case '/orch':
+    case '/orchestrator': {
+      return handleCockpitCommand(chatId, 'evolution');
+    }
+
+    case '/entropy': {
+      return handleCockpitCommand(chatId, 'evolution');
+    }
+
+    case '/errors': {
+      await sendMessage(chatId, 'Scan des erreurs en cours...');
+      return handleCockpitCommand(chatId, 'errors');
+    }
+
+    case '/patterns': {
+      return handleCockpitCommand(chatId, 'patterns');
+    }
+
+    case '/fix': {
+      if (!args) return sendMessage(chatId, 'Usage: `/fix <task_id>`\nAuto-diagnose et corrige une tache en echec.', 'Markdown');
+      await sendMessage(chatId, `Auto-fix en cours pour ${args}...`);
+      return handleCockpitFix(chatId, args);
+    }
+
+    case '/genome': {
+      return handleCockpitCommand(chatId, 'genome');
+    }
+
+    case '/evolve':
+    case '/evolution': {
+      return handleCockpitCommand(chatId, 'evolution');
+    }
+
+    case '/watchdog': {
+      return handleCockpitCommand(chatId, 'alerts');
+    }
+
+    case '/tasktop': {
+      return handleCockpitCommand(chatId, 'tasks');
+    }
+
+    case '/autofix': {
+      if (!isAdmin) return sendMessage(chatId, 'Admin only.');
+      await sendMessage(chatId, 'Auto-fix: scan + dispatch au cluster...');
+      return handleCockpitAutoFix(chatId);
+    }
+
+    case '/ocerrors':
+    case '/openclawerr': {
+      await sendMessage(chatId, 'Scan erreurs OpenClaw en cours...');
+      return handleCockpitCommand(chatId, 'openclaw');
+    }
+
     default:
       return null; // pas une commande reconnue
+  }
+}
+
+// ─── Cockpit Commands (via Python telegram_cockpit.py) ───────────────────────
+
+async function handleCockpitCommand(chatId, reportType) {
+  const cockpit = path.join(__dirname, '..', 'scripts', 'telegram_cockpit.py');
+  try {
+    const result = execSync(
+      `python "${cockpit}" --report ${reportType}`,
+      { timeout: 30000, encoding: 'utf-8', cwd: path.join(__dirname, '..') }
+    );
+    return sendMessage(chatId, result.trim() || 'Rapport vide', 'Markdown');
+  } catch (e) {
+    return sendMessage(chatId, `Erreur cockpit: ${e.message.slice(0, 200)}`);
+  }
+}
+
+async function handleCockpitFix(chatId, taskId) {
+  const cockpit = path.join(__dirname, '..', 'scripts', 'telegram_cockpit.py');
+  try {
+    const result = execSync(
+      `python "${cockpit}" --fix "${taskId}"`,
+      { timeout: 45000, encoding: 'utf-8', cwd: path.join(__dirname, '..') }
+    );
+    return sendMessage(chatId, result.trim() || 'Aucun resultat', 'Markdown');
+  } catch (e) {
+    return sendMessage(chatId, `Erreur fix: ${e.message.slice(0, 200)}`);
+  }
+}
+
+async function handleCockpitAutoFix(chatId) {
+  const cockpit = path.join(__dirname, '..', 'scripts', 'telegram_cockpit.py');
+  try {
+    const result = execSync(
+      `python "${cockpit}" --watch-errors --auto-fix`,
+      { timeout: 60000, encoding: 'utf-8', cwd: path.join(__dirname, '..') }
+    );
+    return sendMessage(chatId, result.trim() || 'Aucune erreur', 'Markdown');
+  } catch (e) {
+    return sendMessage(chatId, `Erreur autofix: ${e.message.slice(0, 200)}`);
   }
 }
 
@@ -2262,6 +2564,36 @@ async function processMessage(msg) {
     if (handled !== null) return;
   }
 
+  // ── Voice intent detection — map spoken phrases to cluster commands ──
+  if (isVoice && isAdmin) {
+    const low = text.toLowerCase();
+    const intents = [
+      { patterns: ['statut du cluster', 'etat du cluster', 'cockpit', 'cluster status'], cmd: '/cluster' },
+      { patterns: ['file de tache', 'file d\'attente', 'queue', 'les taches', 'la queue'], cmd: '/queue' },
+      { patterns: ['relance les taches', 'retry', 'relancer les erreurs', 'relance les echecs'], cmd: '/retry' },
+      { patterns: ['statut des noeuds', 'etat des noeuds', 'les noeuds', 'nodes'], cmd: '/nodes' },
+      { patterns: ['self improve', 'amelioration', 'auto-amelioration', 'lance un cycle'], cmd: '/improve' },
+      { patterns: ['statut', 'status', 'etat general'], cmd: '/status' },
+      { patterns: ['temperature', 'gpu', 'carte graphique'], cmd: '/gpu' },
+    ];
+    for (const { patterns, cmd } of intents) {
+      if (patterns.some(p => low.includes(p))) {
+        log(`  VOICE INTENT: "${text.slice(0, 50)}" → ${cmd}`);
+        await sendMessage(chatId, `🎙️ _"${text.slice(0, 60)}"_ → \`${cmd}\``, 'Markdown');
+        const handled = await handleCommand(chatId, cmd, '', isAdmin);
+        if (handled !== null) return;
+      }
+    }
+    // Voice task creation: "crée une tâche ..." / "ajoute une tâche ..."
+    const taskMatch = low.match(/(?:cre[eé]|ajoute|lance|envoie).*(?:tache|task)\s*(.*)/);
+    if (taskMatch && taskMatch[1]) {
+      log(`  VOICE TASK: "${taskMatch[1].slice(0, 60)}"`);
+      await sendMessage(chatId, `🎙️ Tache detectee: _"${taskMatch[1].slice(0, 80)}"_`, 'Markdown');
+      const handled = await handleCommand(chatId, '/task', taskMatch[1].trim(), isAdmin);
+      if (handled !== null) return;
+    }
+  }
+
   // ── Direct to cluster — no intermediate routing for speed ──
   let reply = '';
   let model = '';
@@ -2330,13 +2662,19 @@ async function processMessage(msg) {
 async function sendMenuKeyboard(chatId) {
   const keyboard = {
     inline_keyboard: [
-      // Row 1: Cluster
+      // Row 1: Cluster Cockpit
       [
-        { text: '🟢 Cluster', callback_data: 'cmd_status' },
-        { text: '📊 Health', callback_data: 'cmd_health' },
+        { text: '🏗️ Cockpit', callback_data: 'cmd_cluster' },
+        { text: '📋 Queue', callback_data: 'cmd_queue' },
+        { text: '🖥️ Noeuds', callback_data: 'cmd_nodes' },
+      ],
+      // Row 2: Cluster Actions
+      [
+        { text: '🟢 Status', callback_data: 'cmd_status' },
+        { text: '🔄 Retry', callback_data: 'cmd_retry' },
         { text: '🎮 GPU', callback_data: 'cmd_gpu' },
       ],
-      // Row 2: Trading
+      // Row 3: Trading
       [
         { text: '📈 Marche', callback_data: 'cmd_market' },
         { text: '🎯 Scan', callback_data: 'cmd_scan' },
@@ -2380,6 +2718,10 @@ async function handleCallback(query) {
 
   switch (data) {
     case 'cmd_status': return handleCommand(chatId, '/status', '', isAdmin);
+    case 'cmd_cluster': return handleCommand(chatId, '/cluster', '', isAdmin);
+    case 'cmd_queue': return handleCommand(chatId, '/queue', '', isAdmin);
+    case 'cmd_nodes': return handleCommand(chatId, '/nodes', '', isAdmin);
+    case 'cmd_retry': return handleCommand(chatId, '/retry', '', isAdmin);
     case 'cmd_health': return handleCommand(chatId, '/health', '', isAdmin);
     case 'cmd_help': return handleCommand(chatId, '/help', '', isAdmin);
     case 'cmd_realtime': return handleRealtimeStatus(chatId);
