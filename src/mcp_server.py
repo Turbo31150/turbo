@@ -64,12 +64,24 @@ def _safe_int(val, default: int) -> int:
         return default
 
 
+def _safe_json_loads(raw: Any, default: Any = None) -> Any:
+    """Parse JSON string safely, returning *default* (or {}) on failure."""
+    if default is None:
+        default = {}
+    if not isinstance(raw, str):
+        return raw  # already parsed (dict/list from MCP layer)
+    try:
+        return json.loads(raw)
+    except (json.JSONDecodeError, ValueError):
+        return default
+
+
 def _ps_sync(cmd: str) -> str:
     """Run a PowerShell command synchronously and return output."""
     import subprocess
     r = subprocess.run(
         ["powershell", "-NoProfile", "-Command", cmd],
-        capture_output=True, text=True, timeout=30,
+        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30,
     )
     return r.stdout.strip() if r.returncode == 0 else f"ERREUR: {r.stderr.strip()}"
 
@@ -158,7 +170,11 @@ async def handle_lm_cluster_status(args: dict) -> list[TextContent]:
             online += 1
         else:
             results.append(f"  GEMINI ({config.gemini_node.role}): OFFLINE [Proxy]")
-    except (asyncio.TimeoutError, FileNotFoundError, OSError) as exc:
+    except asyncio.TimeoutError:
+        proc.kill()
+        logger.debug("cluster_status GEMINI offline: timeout")
+        results.append(f"  GEMINI ({config.gemini_node.role}): OFFLINE [Proxy]")
+    except (FileNotFoundError, OSError) as exc:
         logger.debug("cluster_status GEMINI offline: %s", exc)
         results.append(f"  GEMINI ({config.gemini_node.role}): OFFLINE [Proxy]")
     header = f"Cluster: {online}/{total_nodes} noeuds en ligne"
@@ -208,6 +224,7 @@ async def handle_consensus(args: dict) -> list[TextContent]:
                     return f"[GEMINI] ERREUR (exit {proc.returncode})"
                 return f"[GEMINI/{config.gemini_node.default_model}] {_strip_thinking_tags(output)}"
             except asyncio.TimeoutError:
+                proc.kill()
                 return f"[GEMINI] TIMEOUT ({per_timeout}s)"
             except (OSError, ValueError) as e:
                 return f"[GEMINI] ERREUR: {e}"
@@ -282,6 +299,7 @@ async def handle_gemini_query(args: dict) -> list[TextContent]:
         from src.tools import _strip_thinking_tags
         return _text(f"[GEMINI/{config.gemini_node.default_model}] {_strip_thinking_tags(output)}")
     except asyncio.TimeoutError:
+        proc.kill()
         return _error(f"Gemini timeout ({config.gemini_node.timeout_ms / 1000}s)")
     except (OSError, ValueError) as e:
         return _error(f"Erreur Gemini: {e}")
@@ -342,6 +360,7 @@ async def handle_bridge_mesh(args: dict) -> list[TextContent]:
 
     async def _query_one(name: str) -> str:
         upper = name.upper()
+        proc = None
         try:
             if upper == "GEMINI":
                 proc = await asyncio.create_subprocess_exec(
@@ -375,6 +394,8 @@ async def handle_bridge_mesh(args: dict) -> list[TextContent]:
             from src.tools import extract_lms_output
             return f"[{name}/{node.default_model}] {extract_lms_output(r.json())}"
         except asyncio.TimeoutError:
+            if proc and proc.returncode is None:
+                proc.kill()
             return f"[{name}] TIMEOUT ({per_timeout}s)"
         except (httpx.HTTPError, OSError, KeyError, ValueError) as e:
             return f"[{name}] ERREUR: {e}"
@@ -470,7 +491,7 @@ async def handle_run_script(args: dict) -> list[TextContent]:
     def _do():
         r = subprocess.run(
             [sys.executable, str(SCRIPTS[name])] + args.get("args", "").split(),
-            capture_output=True, text=True, timeout=120, cwd=str(SCRIPTS[name].parent),
+            capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120, cwd=str(SCRIPTS[name].parent),
         )
         return r.stdout[:4000] if r.returncode == 0 else f"ERREUR: {r.stderr[:2000]}"
     try:
@@ -2041,7 +2062,7 @@ async def handle_audit_log(args: dict) -> list[TextContent]:
         action_type=args.get("action_type", "manual"),
         action=args.get("action", ""),
         source=args.get("source", "mcp"),
-        details=json.loads(args.get("details", "{}")),
+        details=_safe_json_loads(args.get("details", "{}")),
     )
     return _text(f"Audit logged: {entry_id}")
 
@@ -2094,7 +2115,7 @@ async def handle_diagnostics_history(args: dict) -> list[TextContent]:
 async def handle_workflow_create(args: dict) -> list[TextContent]:
     """Create a workflow."""
     from src.workflow_engine import workflow_engine
-    steps = json.loads(args.get("steps", "[]"))
+    steps = _safe_json_loads(args.get("steps", "[]"), [])
     wf_id = workflow_engine.create(args.get("name", "unnamed"), steps)
     return _text(f"Workflow created: {wf_id}")
 
@@ -2236,7 +2257,7 @@ async def handle_scheduler_add(args: dict) -> list[TextContent]:
         name=args.get("name", "unnamed"),
         action=args.get("action", "noop"),
         interval_s=float(args.get("interval_s", 60)),
-        params=json.loads(args.get("params", "{}")),
+        params=_safe_json_loads(args.get("params", "{}")),
         one_shot=bool(args.get("one_shot", False)),
     )
     return _text(f"Job added: {job_id}")
@@ -2661,7 +2682,7 @@ async def handle_template_render(args: dict) -> list[TextContent]:
     """Render a named template."""
     from src.template_engine import template_engine
     name = args.get("name", "")
-    ctx = json.loads(args.get("context", "{}"))
+    ctx = _safe_json_loads(args.get("context", "{}"))
     result = template_engine.render_named(name, ctx)
     if result is None:
         return _text(json.dumps({"error": f"Template '{name}' not found"}))
@@ -4580,6 +4601,95 @@ async def handle_browser_move(args: dict) -> list[TextContent]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# BROWSER MEMORY HANDLERS (10)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+async def handle_browser_bookmark(args: dict) -> list[TextContent]:
+    """Bookmark current page."""
+    from src.browser_navigator import browser_nav
+    tags = args.get("tags", "").split(",") if args.get("tags") else None
+    result = await browser_nav.bookmark_current(tags=tags, notes=args.get("notes", ""))
+    return _text(json.dumps(result))
+
+
+async def handle_browser_bookmarks(args: dict) -> list[TextContent]:
+    """List all bookmarks."""
+    from src.browser_memory import browser_memory
+    bookmarks = browser_memory.get_bookmarks(limit=_safe_int(args.get("limit"), 20))
+    return _text(json.dumps(bookmarks, default=str))
+
+
+async def handle_browser_history_search(args: dict) -> list[TextContent]:
+    """Search browsing history."""
+    from src.browser_navigator import browser_nav
+    query = args.get("query", "")
+    if not query:
+        return _error("Query requise")
+    results = await browser_nav.search_history(query, limit=_safe_int(args.get("limit"), 10))
+    return _text(json.dumps(results, default=str))
+
+
+async def handle_browser_recent(args: dict) -> list[TextContent]:
+    """Recent browsing history."""
+    from src.browser_memory import browser_memory
+    pages = browser_memory.recent_pages(limit=_safe_int(args.get("limit"), 10))
+    return _text(json.dumps(pages, default=str))
+
+
+async def handle_browser_landmarks(args: dict) -> list[TextContent]:
+    """Extract page landmarks (headings, buttons, forms, links)."""
+    from src.browser_navigator import browser_nav
+    landmarks = await browser_nav.extract_landmarks()
+    return _text(json.dumps(landmarks[:50], default=str))
+
+
+async def handle_browser_scroll_to(args: dict) -> list[TextContent]:
+    """Scroll to a landmark by text."""
+    from src.browser_navigator import browser_nav
+    text = args.get("text", "")
+    if not text:
+        return _error("Texte du repere requis")
+    result = await browser_nav.scroll_to_landmark(text)
+    return _text(json.dumps(result))
+
+
+async def handle_browser_summarize(args: dict) -> list[TextContent]:
+    """Summarize current page via AI cluster."""
+    from src.browser_navigator import browser_nav
+    result = await browser_nav.summarize_page()
+    return _text(json.dumps(result, default=str))
+
+
+async def handle_browser_goto(args: dict) -> list[TextContent]:
+    """Navigate to a remembered page by name."""
+    from src.browser_navigator import browser_nav
+    name = args.get("name", "")
+    if not name:
+        return _error("Nom de page requis")
+    result = await browser_nav.goto_remembered(name)
+    return _text(json.dumps(result))
+
+
+async def handle_browser_save_session(args: dict) -> list[TextContent]:
+    """Save current tabs as named session."""
+    from src.browser_navigator import browser_nav
+    name = args.get("name", f"session_{int(__import__('time').time())}")
+    result = await browser_nav.save_tab_session(name)
+    return _text(json.dumps(result))
+
+
+async def handle_browser_restore_session(args: dict) -> list[TextContent]:
+    """Restore a saved tab session."""
+    from src.browser_navigator import browser_nav
+    name = args.get("name", "")
+    if not name:
+        return _error("Nom de session requis")
+    result = await browser_nav.restore_tab_session(name)
+    return _text(json.dumps(result))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # PREDICTION ENGINE HANDLERS (3)
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -5036,7 +5146,7 @@ async def handle_dispatch_quick_bench(args: dict) -> list[TextContent]:
         "architecture": "Design un systeme de cache distribue",
     }
     results = []
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=60) as client:
         for pat, prompt in prompts.items():
             agent = reg.agents.get(pat)
             if agent:
@@ -5312,7 +5422,7 @@ async def handle_linkedin_generate(args: dict) -> list[TextContent]:
     cmd = [sys.executable, str(Path("cowork/dev/linkedin_content_generator.py")),
            "--idea", idea, "--topic", topic, "--tone", tone, "--json"]
     try:
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=300,
+        r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=300,
                            cwd=str(Path(__file__).resolve().parent.parent))
         if r.returncode == 0:
             return _text(r.stdout)
@@ -6069,6 +6179,17 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     ("browser_forward", "Page suivante.", {}, handle_browser_forward),
     ("browser_close_tab", "Fermer l'onglet actif.", {}, handle_browser_close),
     ("browser_move_screen", "Deplacer le navigateur sur l'autre ecran.", {}, handle_browser_move),
+    # Browser Memory (10) — v3.0
+    ("browser_bookmark", "Ajouter la page actuelle aux favoris.", {"tags": "string", "notes": "string"}, handle_browser_bookmark),
+    ("browser_bookmarks", "Lister les pages en favoris.", {"limit": "number"}, handle_browser_bookmarks),
+    ("browser_history_search", "Chercher dans l'historique de navigation.", {"query": "string", "limit": "number"}, handle_browser_history_search),
+    ("browser_recent", "Pages recemment visitees.", {"limit": "number"}, handle_browser_recent),
+    ("browser_landmarks", "Extraire les reperes HTML (titres, boutons, liens, formulaires).", {}, handle_browser_landmarks),
+    ("browser_scroll_to", "Scroller vers un repere de la page par son texte.", {"text": "string"}, handle_browser_scroll_to),
+    ("browser_summarize", "Resumer la page actuelle avec l'IA.", {}, handle_browser_summarize),
+    ("browser_goto", "Naviguer vers une page memorisee par nom.", {"name": "string"}, handle_browser_goto),
+    ("browser_save_session", "Sauvegarder les onglets ouverts comme session nommee.", {"name": "string"}, handle_browser_save_session),
+    ("browser_restore_session", "Restaurer une session d'onglets sauvegardee.", {"name": "string"}, handle_browser_restore_session),
     # Prediction Engine (3) — v2.0
     ("prediction_predict", "Predire les prochaines actions utilisateur.", {"n": "number"}, handle_prediction_predict),
     ("prediction_profile", "Profil d'activite de l'utilisateur.", {}, handle_prediction_profile),
@@ -6221,6 +6342,40 @@ try:
     logger.info("COWORK MCP bridge loaded: 7 tools")
 except Exception as _e:
     logger.warning("COWORK MCP bridge not loaded: %s", _e)
+
+# ── IA Tools Bridge (23 tools via WS port 9742) ──────────────────────
+# Bridges ia_tools.py OpenAI-format tools into MCP server as jarvis_* handlers.
+# These call the JARVIS WS HTTP endpoints, unlike the direct-implementation tools above.
+try:
+    from src.ia_tools import TOOLS as _IA_TOOLS
+    from src.ia_tool_executor import execute_tool_call as _ia_exec, _DESTRUCTIVE_TOOLS
+
+    def _ia_handler_factory(tool_name: str):
+        async def handler(args: dict) -> list[TextContent]:
+            allow = tool_name not in _DESTRUCTIVE_TOOLS
+            result = await _ia_exec(tool_name, args, caller="mcp", allow_destructive=allow)
+            return [TextContent(type="text", text=json.dumps(result, indent=2, ensure_ascii=False))]
+        return handler
+
+    _ia_existing = {name for name, *_ in TOOL_DEFINITIONS}
+    _ia_added = 0
+    for _tool in _IA_TOOLS:
+        _fn = _tool["function"]
+        _name = _fn["name"]
+        if _name in _ia_existing:
+            continue
+        _desc = _fn["description"]
+        # Convert rich JSON Schema to simple param dict for _build_input_schema
+        _props = _fn["parameters"].get("properties", {})
+        _schema = {}
+        for _pk, _pv in _props.items():
+            _schema[_pk] = _pv.get("type", "string")
+        TOOL_DEFINITIONS.append((_name, _desc, _schema, _ia_handler_factory(_name)))
+        _ia_added += 1
+
+    logger.info("IA Tools bridge loaded: %d tools (via WS 9742)", _ia_added)
+except Exception as _e:
+    logger.warning("IA Tools bridge not loaded: %s", _e)
 
 # Build handler map
 HANDLERS: dict[str, Any] = {}
