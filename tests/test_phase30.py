@@ -111,7 +111,11 @@ class TestVirtualDesktop:
 
     def test_get_screen_info(self):
         vd = self._make()
-        info = vd.get_screen_info()
+        from unittest.mock import patch
+        metrics = {0: 1920, 1: 1080, 78: 3840, 79: 1080, 80: 2}
+        with patch("src.virtual_desktop.user32") as mock_u32:
+            mock_u32.GetSystemMetrics.side_effect = lambda idx: metrics.get(idx, 0)
+            info = vd.get_screen_info()
         assert "width" in info
         assert "height" in info
         assert info["width"] > 0

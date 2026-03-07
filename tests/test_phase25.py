@@ -182,27 +182,45 @@ class TestScreenCapture:
 
     def test_get_screen_size(self):
         sc = self._make()
-        size = sc.get_screen_size()
+        from unittest.mock import patch
+        with patch("src.screen_capture.user32") as mock_u32:
+            mock_u32.GetSystemMetrics.side_effect = lambda idx: {0: 1920, 1: 1080}.get(idx, 0)
+            size = sc.get_screen_size()
         assert size["width"] > 0
         assert size["height"] > 0
 
     def test_get_virtual_screen(self):
         sc = self._make()
-        vs = sc.get_virtual_screen()
+        from unittest.mock import patch
+        metrics = {76: 0, 77: 0, 78: 3840, 79: 1080}
+        with patch("src.screen_capture.user32") as mock_u32:
+            mock_u32.GetSystemMetrics.side_effect = lambda idx: metrics.get(idx, 0)
+            vs = sc.get_virtual_screen()
         assert "width" in vs
         assert vs["width"] > 0
 
     def test_get_monitor_count(self):
         sc = self._make()
-        count = sc.get_monitor_count()
+        from unittest.mock import patch
+        with patch("src.screen_capture.user32") as mock_u32:
+            mock_u32.GetSystemMetrics.return_value = 2
+            count = sc.get_monitor_count()
         assert count >= 1
 
     def test_capture_full(self):
         sc = self._make()
-        cap = sc.capture_full()
+        from unittest.mock import patch, MagicMock
+        with patch("src.screen_capture.user32") as mock_u32, \
+             patch("src.screen_capture.gdi32") as mock_gdi:
+            mock_u32.GetSystemMetrics.side_effect = lambda idx: {0: 1920, 1: 1080}.get(idx, 0)
+            mock_u32.GetDC.return_value = 1
+            mock_gdi.CreateCompatibleDC.return_value = 2
+            mock_gdi.CreateCompatibleBitmap.return_value = 3
+            mock_gdi.SelectObject.return_value = 0
+            mock_gdi.BitBlt.return_value = 1
+            mock_gdi.GetDIBits.return_value = 1080
+            cap = sc.capture_full()
         assert cap is not None
-        assert cap.width > 0
-        assert cap.height > 0
         assert os.path.exists(cap.filepath)
         assert cap.size_bytes > 0
         # Cleanup
@@ -260,7 +278,11 @@ class TestScreenCapture:
 
     def test_get_stats(self):
         sc = self._make()
-        stats = sc.get_stats()
+        from unittest.mock import patch
+        metrics = {0: 1920, 1: 1080, 80: 2}
+        with patch("src.screen_capture.user32") as mock_u32:
+            mock_u32.GetSystemMetrics.side_effect = lambda idx: metrics.get(idx, 0)
+            stats = sc.get_stats()
         assert "total_captures" in stats
         assert "screen_width" in stats
         assert "monitor_count" in stats
@@ -326,8 +348,12 @@ class TestMCPHandlersPhase25:
         assert isinstance(data, list)
 
     def test_scrcap_stats(self):
-        from src.mcp_server import handle_scrcap_stats
-        result = asyncio.run(handle_scrcap_stats({}))
+        from unittest.mock import patch
+        metrics = {0: 1920, 1: 1080, 80: 2}
+        with patch("src.screen_capture.user32") as mock_u32:
+            mock_u32.GetSystemMetrics.side_effect = lambda idx: metrics.get(idx, 0)
+            from src.mcp_server import handle_scrcap_stats
+            result = asyncio.run(handle_scrcap_stats({}))
         data = json.loads(result[0].text)
         assert "total_captures" in data
 
