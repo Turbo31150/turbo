@@ -37,17 +37,17 @@ const POLL_TIMEOUT = 30; // secondes (long polling Telegram)
 const MAX_MSG_LEN = 4096; // limite Telegram
 const RECONNECT_DELAY = 5000; // ms avant retry si proxy down
 const TTS_SCRIPT = 'F:/BUREAU/turbo/cowork/dev/win_tts.py';
-const VOICE_MODE = true; // Toujours répondre en vocal
+const VENV_PYTHON = 'F:/BUREAU/turbo/.venv/Scripts/python.exe';
+const VOICE_MODE = false; // Texte uniquement — WhisperFlow gère le vocal séparément
 const CLUSTER_RACE = true; // Utiliser tout le cluster en parallèle
 const ALERTS_FLAG_FILE = path.join(__dirname, '..', 'data', '.trading_alerts_off');
 let TRADING_ALERTS = !fs.existsSync(ALERTS_FLAG_FILE); // Lit le flag persistant au demarrage
 
 // ─── Cluster nodes (direct, sans passer par le proxy) ─────────────────────────
 const CLUSTER_NODES = [
-  { id: 'M1', url: 'http://127.0.0.1:1234/v1/chat/completions', model: 'qwen3-8b', weight: 1.8 },
-  { id: 'M2', url: 'http://192.168.1.26:1234/v1/chat/completions', model: 'deepseek-r1-0528-qwen3-8b', weight: 1.5 },
-  { id: 'OL1', url: 'http://127.0.0.1:11434/api/chat', model: 'qwen3:1.7b', isOllama: true, weight: 1.3 },
-  { id: 'M3', url: 'http://192.168.1.113:1234/v1/chat/completions', model: 'deepseek-r1-0528-qwen3-8b', weight: 1.2 },
+  { id: 'M1', url: 'http://127.0.0.1:1234/v1/chat/completions', model: 'qwen3-8b', weight: 1.8, timeout: 8000 },
+  { id: 'OL1', url: 'http://127.0.0.1:11434/api/chat', model: 'qwen3:1.7b', isOllama: true, weight: 1.3, timeout: 5000 },
+  // M2 (192.168.1.26) retiré — OFFLINE | M3 retiré — trop lent (30s+)
 ];
 
 if (!TOKEN) { console.error('[FATAL] TELEGRAM_TOKEN manquant dans .env'); process.exit(1); }
@@ -58,28 +58,48 @@ if (!CHAT_ID) { console.error('[FATAL] TELEGRAM_CHAT manquant dans .env'); proce
 const LOCK_FILE = path.join(__dirname, '.telegram-bot.lock');
 function acquireLock() {
   try {
-    // Check if lock exists and process is still alive
     if (fs.existsSync(LOCK_FILE)) {
-      const oldPid = parseInt(fs.readFileSync(LOCK_FILE, 'utf-8').trim());
-      try {
-        process.kill(oldPid, 0); // test if alive
-        console.error(`[FATAL] Another telegram-bot is running (PID ${oldPid}). Exiting.`);
-        process.exit(1);
-      } catch (e) {
-        // Process is dead, stale lock — remove it
-        fs.unlinkSync(LOCK_FILE);
+      const lockData = fs.readFileSync(LOCK_FILE, 'utf-8').trim();
+      const oldPid = parseInt(lockData);
+      if (!isNaN(oldPid)) {
+        // Check if process is alive AND is actually a node process (not PID reuse)
+        try {
+          process.kill(oldPid, 0);
+          // PID alive — check age of lock (>5min = likely stale after restart)
+          const lockAge = Date.now() - fs.statSync(LOCK_FILE).mtimeMs;
+          if (lockAge > 300000) {
+            console.log(`[WARN] Stale lock (PID ${oldPid}, age ${Math.round(lockAge/1000)}s) — removing`);
+            fs.unlinkSync(LOCK_FILE);
+          } else {
+            console.error(`[FATAL] Another telegram-bot is running (PID ${oldPid}). Exiting.`);
+            process.exit(1);
+          }
+        } catch (e) {
+          // Process dead — stale lock
+          console.log(`[INFO] Stale lock removed (PID ${oldPid} dead)`);
+          fs.unlinkSync(LOCK_FILE);
+        }
+      } else {
+        fs.unlinkSync(LOCK_FILE); // Corrupted lock
       }
     }
-    fs.writeFileSync(LOCK_FILE, String(process.pid));
+    fs.writeFileSync(LOCK_FILE, `${process.pid}\n${new Date().toISOString()}`);
   } catch (e) {
     console.error('[WARN] Could not acquire lock:', e.message);
   }
 }
 function releaseLock() {
-  try { fs.unlinkSync(LOCK_FILE); } catch (e) {}
+  try {
+    // Only remove if WE own the lock
+    const content = fs.readFileSync(LOCK_FILE, 'utf-8').trim();
+    if (content.startsWith(String(process.pid))) {
+      fs.unlinkSync(LOCK_FILE);
+    }
+  } catch (e) {}
 }
 acquireLock();
 process.on('exit', releaseLock);
+process.on('uncaughtException', (err) => { console.error('[CRASH]', err); releaseLock(); process.exit(1); });
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
@@ -1162,13 +1182,15 @@ async function handleJarvisCommand(chatId, voiceText) {
     const helper = path.join(__dirname, 'bot-helpers.py');
     const matchResult = execSync(
       `python "${helper}" match-cmd ${voiceText.replace(/"/g, '').replace(/[&|<>]/g, '').slice(0, 200)}`,
-      { timeout: 10000, encoding: 'utf-8', cwd: TURBO_ROOT, stdio: ['pipe', 'pipe', 'pipe'] }
+      { timeout: 3000, encoding: 'utf-8', cwd: TURBO_ROOT, stdio: ['pipe', 'pipe', 'pipe'] }
     );
     // Extract JSON line (skip warnings printed to stdout by src.commands)
     const jsonLine = matchResult.trim().split('\n').reverse().find(l => l.startsWith('{'));
     const match = JSON.parse(jsonLine || '{}');
 
-    if (!match.name || match.score < 0.75) {
+    // Smart threshold: app_open/browser/hotkey need 0.80+, jarvis_tool/powershell need 0.95+
+    const actionThreshold = (match.action_type === 'app_open' || match.action_type === 'browser' || match.action_type === 'hotkey') ? 0.80 : 0.95;
+    if (!match.name || match.score < actionThreshold) {
       // Fallback: search voice dictionary API (11000+ entries incl. corrections)
       try {
         const dictResp = await fetch(`${WS_API}/api/dictionary/search?q=${encodeURIComponent(voiceText)}&limit=3`);
@@ -1213,14 +1235,15 @@ async function handleJarvisCommand(chatId, voiceText) {
       await sendMessage(chatId, `Resultat:\n${output}`);
       await sendVoiceReply(chatId, `Commande executee: ${match.desc || match.name}`);
     } else {
-      await sendMessage(chatId, `Type ${match.action_type} - execution manuelle requise`);
+      // Unhandled action type — don't block, let cluster respond naturally
+      log(`  JARVIS: unhandled action_type=${match.action_type}, falling through to cluster`);
+      return null;
     }
 
     return true;
   } catch (e) {
-    logErr('JARVIS command failed:', e.message);
-    await sendMessage(chatId, `Erreur JARVIS: ${e.message.slice(0, 200)}`);
-    return false;
+    logErr('JARVIS command failed:', e.message.slice(0, 80));
+    return null; // Silently fall through to cluster for a proper response
   }
 }
 
@@ -1257,7 +1280,7 @@ async function handleImproveLoop(chatId, cycles) {
   try {
     // Run improve loop in background (non-blocking)
     const proc = exec(
-      `python "${path.join(TURBO_ROOT, 'scripts', 'improve_loop_100.py')}" --cycles ${cycles} --report-every 5`,
+      `python "${path.join(TURBO_ROOT, 'scripts', 'benchmarks', 'improve_loop_100.py')}" --cycles ${cycles} --report-every 5`,
       { timeout: cycles * 120000, cwd: TURBO_ROOT }
     );
     proc.stdout.on('data', (data) => log(`[improve] ${data.trim()}`));
@@ -1735,6 +1758,15 @@ const INTENT_PATTERNS = [
   { intent: 'trading', rx: /\b(trading|position|portfolio|pnl|profit|perte|levier|futures|mexc|long|short|strat[eé]gie|risk|risque|taille|size)/i, handler: 'trading' },
   // Systeme: GPU, cluster, monitoring
   { intent: 'system',  rx: /\b(gpu|vram|temp[eé]rature|cpu|ram|disque|cluster|noeud|node|health|service|process|nvidia)/i, handler: 'system' },
+  // JARVIS Tools — direct tool invocations via #tags or keywords
+  { intent: 'jarvis_tool', rx: /\b(#boot|boot\s*status|statut\s*boot|d[eé]marrage)/i, handler: 'jarvis_tool', tool: 'jarvis_boot_status' },
+  { intent: 'jarvis_tool', rx: /\b(#audit|diagnostic\s*(rapide|quick)|diag\s*rapide)/i, handler: 'jarvis_tool', tool: 'jarvis_diagnostics_quick' },
+  { intent: 'jarvis_tool', rx: /\b(#health|sant[eé]\s*cluster|cluster\s*health)/i, handler: 'jarvis_tool', tool: 'jarvis_cluster_health' },
+  { intent: 'jarvis_tool', rx: /\b(#autonome|boucle\s*autonome|taches?\s*autonome)/i, handler: 'jarvis_tool', tool: 'jarvis_autonomous_status' },
+  { intent: 'jarvis_tool', rx: /\b(#alerts?|alerte[s]?\s*active)/i, handler: 'jarvis_tool', tool: 'jarvis_alerts_active' },
+  { intent: 'jarvis_tool', rx: /\b(#gpu[\s-]*status|gpu\s*status|statut\s*gpu)/i, handler: 'jarvis_tool', tool: 'jarvis_gpu_status' },
+  { intent: 'jarvis_tool', rx: /\b(#db[\s-]*health|sant[eé]\s*base|db\s*health)/i, handler: 'jarvis_tool', tool: 'jarvis_db_health' },
+  { intent: 'jarvis_tool', rx: /\b(#orchestr|orchestrat(eur|or)\s*health)/i, handler: 'jarvis_tool', tool: 'jarvis_orchestrator_health' },
   // News / actualites
   { intent: 'news',    rx: /\b(news|actualit[eé]|info|rumeur|annonce|r[eé]gulation|sec\b|etf\b)/i, handler: 'news' },
 ];
@@ -1749,7 +1781,7 @@ function detectIntent(text) {
 // ─── Conversation Memory per chat ───────────────────────────────────────────
 
 const chatMemory = new Map();
-const MEMORY_MAX = 10;
+const MEMORY_MAX = 4;
 
 function addToMemory(chatId, role, content) {
   const key = String(chatId);
@@ -1865,6 +1897,32 @@ Reponds avec des donnees concretes: prix, pourcentages, niveaux, R:R.`;
       return null; // fallback to generic
     }
 
+    case 'jarvis_tool': {
+      // Route to JARVIS WS tool via /api/tools/execute
+      const toolName = intent.tool || 'jarvis_diagnostics_quick';
+      await sendMessage(chatId, `Tool ${toolName}...`);
+      try {
+        const resp = await fetch('http://127.0.0.1:9742/api/tools/execute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tool_name: toolName, arguments: {} }),
+          signal: AbortSignal.timeout(15000),
+        });
+        const data = await resp.json();
+        if (data.ok) {
+          const result = typeof data.result === 'string' ? data.result : JSON.stringify(data.result, null, 2);
+          const truncated = result.length > 3500 ? result.slice(0, 3500) + '...' : result;
+          await sendMessage(chatId, `*${toolName}*\n\`\`\`json\n${truncated}\`\`\``, 'Markdown');
+          if (VOICE_MODE) sendVoiceReply(chatId, `Tool ${toolName.replace('jarvis_', '')} execute avec succes.`);
+        } else {
+          await sendMessage(chatId, `Erreur: ${data.error || 'inconnue'}`);
+        }
+      } catch (e) {
+        await sendMessage(chatId, `Tool ${toolName} timeout: ${e.message}`);
+      }
+      return true;
+    }
+
     case 'system': {
       // GPU + cluster status rapide
       await sendMessage(chatId, 'Diagnostic systeme en cours...');
@@ -1968,21 +2026,17 @@ async function sendWithActions(chatId, text, actions) {
 function buildSystemPrompt() {
   const hour = new Date().getHours();
   const period = hour < 6 ? 'nuit' : hour < 12 ? 'matin' : hour < 18 ? 'apres-midi' : 'soir';
-  return `Tu es JARVIS, assistant IA expert en trading crypto et systemes.
-
-REGLES ABSOLUES:
-1. Reponds TOUJOURS en francais. Zero anglais.
-2. Concis et direct. Max 400 mots. Utilise le Markdown.
-3. Trading: donne Entry, TP1/2/3, SL, ratio R:R avec prix exacts.
-4. Utilise des donnees concretes (prix, pourcentages, niveaux).
-5. Config trading: MEXC Futures 10x, size 10 USDT, TP 0.4-1.5%, SL 0.25%.
-6. Suggere des actions concretes (ex: /scan, /deepscan, /hot).
-
-CONTEXTE: Il est ${hour}h (${period}). Repondre via Telegram (max 4000 chars).`;
+  return `Tu es JARVIS, assistant de Turbo. LANGUE: FRANCAIS OBLIGATOIRE. JAMAIS d'anglais.
+Concis (2-5 phrases). Les messages viennent de transcription vocale (fautes normales, comprends l'intention).
+Trading: MEXC Futures 10x, TP 0.4-1.5%, SL 0.25%.
+Il est ${hour}h (${period}).`;
 }
 
 function queryNode(node, prompt) {
-  const sysPrompt = buildSystemPrompt();
+  const sysPromptFull = '/nothink\n' + buildSystemPrompt();
+  // OL1 (1.7B) needs a minimal system prompt — no /nothink (Ollama ignores it)
+  const sysPromptMini = 'Tu es JARVIS, assistant de Turbo. Francais, concis, 2-5 phrases.';
+  const sysPrompt = node.isOllama ? sysPromptMini : sysPromptFull;
   return new Promise((resolve, reject) => {
     const start = Date.now();
     let body, headers;
@@ -1990,19 +2044,19 @@ function queryNode(node, prompt) {
       body = JSON.stringify({
         model: node.model,
         messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: prompt }],
-        stream: false, think: false
+        stream: false, think: false, options: { num_predict: 200 }
       });
       headers = { 'Content-Type': 'application/json' };
     } else {
-      // LM Studio (OpenAI-compatible)
+      // LM Studio (OpenAI-compatible) — /nothink in system prompt, max_tokens 256 for speed
       body = JSON.stringify({
         model: node.model,
-        messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: '/nothink\n' + prompt }],
-        temperature: 0.2, max_tokens: 1024, stream: false
+        messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: prompt }],
+        temperature: 0.3, max_tokens: 150, stream: false
       });
       headers = { 'Content-Type': 'application/json' };
     }
-    httpRequest(node.url, { method: 'POST', headers, timeout: 60000 }, body)
+    httpRequest(node.url, { method: 'POST', headers, timeout: node.timeout || 15000 }, body)
       .then(res => {
         const d = JSON.parse(res.body);
         let text = '';
@@ -2013,7 +2067,11 @@ function queryNode(node, prompt) {
         }
         // Clean thinking tokens
         text = text.replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/^\/no_?think\s*/i, '').trim();
-        if (!text || text.length < 5) return reject(new Error('empty response'));
+        if (!text || text.length < 2) return reject(new Error('empty response'));
+        // Reject responses that regurgitate the system prompt examples
+        if (text.includes('lis me mail') && text.includes('scan treding') && prompt.indexOf('mail') < 0) {
+          return reject(new Error('prompt regurgitation'));
+        }
         resolve({ text, node: node.id, model: node.model, latency: Date.now() - start });
       })
       .catch(reject);
@@ -2027,35 +2085,32 @@ async function queryNodeDirect(node, prompt) {
 }
 
 async function clusterRace(prompt) {
-  // Launch all nodes in parallel, first good response wins
-  const promises = CLUSTER_NODES.map(node =>
-    queryNode(node, prompt).catch(e => {
-      log(`  [${node.id}] failed: ${e.message}`);
-      return null;
-    })
-  );
-  // Race: return first non-null result
+  // TRUE PARALLEL RACE — all nodes at once, first good response wins
   return new Promise((resolve) => {
     let resolved = false;
-    let results = [];
     let done = 0;
-    promises.forEach((p, i) => {
-      p.then(r => {
-        done++;
-        if (r && !resolved) {
-          resolved = true;
-          log(`  WINNER: [${r.node}] ${r.latency}ms — ${r.text.slice(0, 60)}...`);
-          resolve(r);
-        }
-        if (r) results.push(r);
-        if (done === promises.length && !resolved) {
-          // All failed — try proxy fallback
-          resolve(null);
-        }
-      });
+    const total = CLUSTER_NODES.length;
+
+    CLUSTER_NODES.forEach(node => {
+      queryNode(node, prompt)
+        .then(r => {
+          done++;
+          if (r && !resolved) {
+            resolved = true;
+            log(`  WINNER: [${r.node}] ${r.latency}ms — ${r.text.slice(0, 60)}...`);
+            resolve(r);
+          }
+          if (done === total && !resolved) resolve(null);
+        })
+        .catch(e => {
+          done++;
+          log(`  [${node.id}] failed: ${e.message}`);
+          if (done === total && !resolved) resolve(null);
+        });
     });
-    // Safety timeout
-    setTimeout(() => { if (!resolved) { resolved = true; resolve(null); } }, 65000);
+
+    // Safety timeout 10s
+    setTimeout(() => { if (!resolved) { resolved = true; resolve(null); } }, 10000);
   });
 }
 
@@ -2085,26 +2140,34 @@ async function transcribeVoice(fileId) {
     return '[Erreur conversion audio]';
   }
 
-  // 4. Transcribe via venv faster-whisper Python script
+  // 4. Transcribe — try WS backend first (Whisper already loaded in memory = fast)
   let text = '';
-  const VENV_PYTHON = 'F:/BUREAU/turbo/.venv/Scripts/python.exe';
-  const TRANSCRIBE_SCRIPT = 'F:/BUREAU/turbo/scripts/transcribe.py';
   try {
-    const result = execSync(
-      `"${VENV_PYTHON}" "${TRANSCRIBE_SCRIPT}" "${tmpWav}" --language fr`,
-      { timeout: 30000, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }
-    ).trim();
-    text = result;
+    const wavB64 = fs.readFileSync(tmpWav).toString('base64');
+    const postData = JSON.stringify({ audio: wavB64, format: 'wav', language: 'fr' });
+    const tmpJson = path.join(os.tmpdir(), `tg_whisper_${Date.now()}.json`);
+    fs.writeFileSync(tmpJson, postData);
+    const wsResult = execSync(
+      `curl -s --max-time 15 -X POST http://127.0.0.1:9742/api/voice/transcribe_blob -H "Content-Type: application/json" -d @"${tmpJson}"`,
+      { timeout: 20000, encoding: 'utf-8' }
+    );
+    try { fs.unlinkSync(tmpJson); } catch (_) {}
+    const parsed = JSON.parse(wsResult);
+    text = (parsed.text || '').trim();
+    if (text) log(`  Whisper via WS (fast)`);
   } catch (e) {
-    // Fallback: try WS backend whisper endpoint
+    log(`  WS Whisper failed: ${(e.message || '').slice(0, 80)}`);
+  }
+
+  // Fallback: direct venv script (cold start ~20s)
+  if (!text) {
     try {
-      const wsResult = execSync(
-        `curl -s -X POST http://127.0.0.1:9742/api/voice -H "Content-Type: application/json" -d "{\\"action\\":\\"transcribe_file\\",\\"file\\":\\"${tmpWav.replace(/\\/g, '/')}\\"}"`,
-        { timeout: 15000, encoding: 'utf-8' }
-      );
-      const parsed = JSON.parse(wsResult);
-      text = parsed.text || '[Transcription indisponible]';
-    } catch (e2) {
+      text = execSync(
+        `"${VENV_PYTHON}" "F:/BUREAU/turbo/scripts/transcribe.py" "${tmpWav}" --language fr`,
+        { timeout: 30000, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }
+      ).trim();
+      if (text) log(`  Whisper via script (fallback)`);
+    } catch (_) {
       text = '[Transcription indisponible]';
     }
   }
@@ -2120,14 +2183,25 @@ async function transcribeVoice(fileId) {
 
 async function sendVoiceReply(chatId, text) {
   try {
-    const cleanText = text.replace(/[\r\n]+/g, ' ').replace(/"/g, '').slice(0, 500);
+    const cleanText = text.replace(/[\r\n]+/g, ' ').replace(/"/g, '').replace(/'/g, '').slice(0, 500);
     if (!cleanText.trim()) return false;
-    const result = execSync(
-      `python "${TTS_SCRIPT}" --speak "${cleanText}" --telegram`,
-      { timeout: 30000, encoding: 'utf-8', cwd: path.join(__dirname, '..') }
-    );
-    log(`  VOICE sent via DeniseNeural`);
-    stats.messages_out++;
+
+    // Non-blocking: spawn TTS in background (don't block the event loop)
+    const { spawn } = require('child_process');
+    const child = spawn(VENV_PYTHON, [TTS_SCRIPT, '--speak', cleanText, '--telegram'], {
+      cwd: path.join(__dirname, '..'),
+      stdio: 'ignore',
+      timeout: 25000,
+    });
+    child.on('close', (code) => {
+      if (code === 0) {
+        log(`  VOICE sent via DeniseNeural`);
+        stats.messages_out++;
+      } else {
+        logErr(`  VOICE TTS exited with code ${code}`);
+      }
+    });
+    child.on('error', (e) => logErr('TTS spawn error:', e.message));
     return true;
   } catch (e) {
     logErr('sendVoiceReply failed:', e.message.slice(0, 100));
@@ -2179,18 +2253,6 @@ async function processMessage(msg) {
 
   log(`[${from}] (${isAdmin ? 'ADMIN' : 'USER'}) ${text.slice(0, 80)}${text.length > 80 ? '...' : ''}`);
 
-  // Record action for prediction engine (fire-and-forget)
-  try {
-    const now = new Date();
-    const body = JSON.stringify({
-      action: 'telegram_query',
-      context: { source: 'telegram', text: text.slice(0, 100), from, hour: now.getHours(), weekday: now.getDay() === 0 ? 6 : now.getDay() - 1 }
-    });
-    httpRequest(`${PROXY_URL.replace(':18800', ':9742')}/api/record_action`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }
-    }, body).catch(() => {});
-  } catch (e) { /* ignore prediction recording errors */ }
-
   // Commande spéciale ?
   if (text.startsWith('/')) {
     const spaceIdx = text.indexOf(' ');
@@ -2200,35 +2262,18 @@ async function processMessage(msg) {
     if (handled !== null) return;
   }
 
-  // ── Smart Router: detect intent and route to specialized handler ──
-  const intent = detectIntent(text);
-  if (intent) {
-    log(`  INTENT: ${intent.intent} → ${intent.handler}`);
-    const smartResult = await handleSmartIntent(chatId, text, intent);
-    if (smartResult !== null) {
-      addToMemory(chatId, 'user', text);
-      addToMemory(chatId, 'assistant', `[${intent.handler}] handled`);
-      return;
-    }
-  }
-
-  // ── Try JARVIS command match first — ADMIN ONLY (system execution) ──
-  if (isAdmin) {
-    const jarvisResult = await handleJarvisCommand(chatId, text);
-    if (jarvisResult === true) return; // Command matched and executed
-  }
-
-  // ── Dispatch: cluster race (all nodes parallel) ou proxy fallback ──
+  // ── Direct to cluster — no intermediate routing for speed ──
   let reply = '';
   let model = '';
   const start = Date.now();
 
-  // Build context-enriched prompt with conversation memory
+  // Minimal context — only last exchange to keep input tokens low
   const memMsgs = getMemoryMessages(chatId);
   let enrichedPrompt = text;
   if (memMsgs.length > 0) {
-    const ctx = memMsgs.map(m => `${m.role}: ${m.content}`).join('\n');
-    enrichedPrompt = `Contexte conversation:\n${ctx}\n\nNouveau message: ${text}`;
+    const last2 = memMsgs.slice(-2);
+    const ctx = last2.map(m => `${m.role}: ${m.content}`).join('\n');
+    enrichedPrompt = `${ctx}\nuser: ${text}`;
   }
 
   if (CLUSTER_RACE) {
@@ -2269,14 +2314,15 @@ async function processMessage(msg) {
   // ── Send response: voice + text (all users) ──
   const attr = model ? `\n\n_[${model}] ${totalMs}ms_` : '';
 
-  // Smart voice: skip TTS for code blocks, JSON, or very long text
-  const isCodeOrJson = /```|^\s*[\[{]/.test(reply) || /\{[\s\S]{50,}\}/.test(reply);
-  const isTooLong = reply.length > 1500;
-  if (VOICE_MODE && !isCodeOrJson && !isTooLong) {
-    await sendVoiceReply(chatId, reply);
+  // Send text IMMEDIATELY, voice in parallel (don't block response)
+  const textPromise = sendMessage(chatId, reply + attr, 'Markdown');
+
+  // TTS only when user sent a vocal — text replies stay text-only for speed
+  if (isVoice && reply.length < 1500) {
+    sendVoiceReply(chatId, reply).catch(e => logErr('Voice:', e.message));
   }
 
-  await sendMessage(chatId, reply + attr, 'Markdown');
+  await textPromise;
 }
 
 // ─── Inline Keyboard Menu ────────────────────────────────────────────────────
@@ -2465,6 +2511,14 @@ async function main() {
   log(`Chat ID: ${CHAT_ID}`);
   log(`Proxy: ${PROXY_URL}`);
   log('='.repeat(50));
+
+  // Clear webhook + pending updates to prevent Conflict errors
+  try {
+    await telegramAPI('deleteWebhook', { drop_pending_updates: true });
+    log('Webhook cleared + pending updates dropped');
+  } catch (e) {
+    log('deleteWebhook skipped: ' + e.message);
+  }
 
   // Vérifie la connexion Telegram
   try {
