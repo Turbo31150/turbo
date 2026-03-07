@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "jarvis-lmstudio": {
+      "command": "python",
+      "args": ["F:\\BUREAU\\turbo\\scripts\\mcp_lmstudio_bridge.py"],
+      "env": {
+        "PYTHONIOENCODING": "utf-8"
+      }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:\\",
+        "F:\\"
+      ]
+    },
+    "jarvis-mcp": {
+      "command": "python",
+      "args": ["-m", "src.mcp_server"],
+      "cwd": "F:\\BUREAU\\turbo",
+      "env": {
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONPATH": "F:\\BUREAU\\turbo"
+      }
+    }
+  }
+}
