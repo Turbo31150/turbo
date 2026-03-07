@@ -60,7 +60,10 @@ class TestScreenMetrics:
 
     def test_get_virtual_screen(self):
         sc = ScreenCapture()
-        vs = sc.get_virtual_screen()
+        metrics = {76: 0, 77: 0, 78: 3840, 79: 1080}
+        with patch("src.screen_capture.user32") as mock_u32:
+            mock_u32.GetSystemMetrics.side_effect = lambda idx: metrics.get(idx, 0)
+            vs = sc.get_virtual_screen()
         assert vs["width"] > 0
         assert vs["height"] > 0
         assert "x" in vs
@@ -68,7 +71,9 @@ class TestScreenMetrics:
 
     def test_get_monitor_count(self):
         sc = ScreenCapture()
-        count = sc.get_monitor_count()
+        with patch("src.screen_capture.user32") as mock_u32:
+            mock_u32.GetSystemMetrics.return_value = 2
+            count = sc.get_monitor_count()
         assert count >= 1
 
 
@@ -206,7 +211,10 @@ class TestEventsAndStats:
         sc._captures.append(CaptureInfo(
             capture_id="c1", filepath="/tmp/a.bmp",
             width=100, height=100, size_bytes=5000))
-        stats = sc.get_stats()
+        metrics = {0: 1920, 1: 1080, 80: 2}
+        with patch("src.screen_capture.user32") as mock_u32:
+            mock_u32.GetSystemMetrics.side_effect = lambda idx: metrics.get(idx, 0)
+            stats = sc.get_stats()
         assert stats["total_captures"] == 1
         assert stats["total_bytes"] == 5000
         assert stats["screen_width"] > 0
