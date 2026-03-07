@@ -387,6 +387,17 @@ async def api_tool_metrics():
         return JSONResponse({"error": str(exc)}, status_code=500)
 
 
+@app.get("/api/tools/ia-metrics")
+async def api_ia_tool_metrics():
+    """Return IA tool usage metrics (calls, success rate, latency by caller)."""
+    try:
+        from src.ia_tool_executor import get_tool_metrics
+        return JSONResponse(get_tool_metrics())
+    except Exception as exc:
+        logger.exception("GET /api/tools/ia-metrics failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
 @app.get("/api/cluster/observability")
 async def api_observability():
     """Return ObservabilityMatrix report."""

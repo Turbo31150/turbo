@@ -16,6 +16,8 @@ from __future__ import annotations
 
 import json
 import logging
+import time
+from collections import defaultdict
 from typing import Any
 
 import httpx
@@ -26,6 +28,27 @@ logger = logging.getLogger("jarvis.tool_executor")
 
 JARVIS_BASE = "http://127.0.0.1:9742"
 TIMEOUT = 30.0
+
+# ── In-memory tool usage metrics ─────────────────────────────────────────────
+_metrics: dict[str, dict[str, Any]] = defaultdict(lambda: {
+    "calls": 0, "ok": 0, "errors": 0, "total_ms": 0.0,
+    "by_caller": defaultdict(int), "last_called": 0.0,
+})
+
+
+def get_tool_metrics() -> dict[str, Any]:
+    """Return tool usage metrics summary."""
+    summary = {}
+    for name, m in sorted(_metrics.items(), key=lambda x: -x[1]["calls"]):
+        summary[name] = {
+            "calls": m["calls"],
+            "ok": m["ok"],
+            "errors": m["errors"],
+            "success_rate": round(m["ok"] / m["calls"], 2) if m["calls"] else 0,
+            "avg_ms": round(m["total_ms"] / m["calls"], 1) if m["calls"] else 0,
+            "by_caller": dict(m["by_caller"]),
+        }
+    return {"tools": summary, "total_calls": sum(m["calls"] for m in _metrics.values())}
 
 # ── MCP name mapping (dot-notation → underscore) ────────────────────────────
 _MCP_TO_OPENAI: dict[str, str] = {
@@ -117,44 +140,56 @@ async def execute_tool_call(
 
     logger.info("Tool %s called by %s -> %s %s", tool_name, caller, method, url)
 
+    t0 = time.monotonic()
+    m = _metrics[tool_name]
+    m["calls"] += 1
+    m["by_caller"][caller] += 1
+    m["last_called"] = time.time()
+
     try:
         async with httpx.AsyncClient(timeout=TIMEOUT) as client:
             if method == "GET":
-                # Pass remaining args as query params
                 params = {k: v for k, v in arguments.items()
                           if "{" + k + "}" not in path_template}
                 resp = await client.get(url, params=params or None)
             elif method == "POST":
-                # Pass remaining args as JSON body
                 body = {k: v for k, v in arguments.items()
                         if "{" + k + "}" not in path_template}
                 resp = await client.post(url, json=body or None)
             elif method == "DELETE":
                 resp = await client.delete(url)
             else:
+                m["errors"] += 1
                 return {"ok": False, "error": f"Unsupported method: {method}"}
 
+            elapsed_ms = (time.monotonic() - t0) * 1000
+            m["total_ms"] += elapsed_ms
+
             if resp.status_code >= 400:
-                return {
-                    "ok": False,
-                    "error": f"HTTP {resp.status_code}",
-                    "body": resp.text[:500],
-                }
+                m["errors"] += 1
+                return {"ok": False, "error": f"HTTP {resp.status_code}", "body": resp.text[:500]}
 
             try:
                 data = resp.json()
             except (json.JSONDecodeError, ValueError):
                 data = {"raw": resp.text[:1000]}
 
+            m["ok"] += 1
             return {"ok": True, "result": data}
 
     except httpx.TimeoutException:
+        m["errors"] += 1
+        m["total_ms"] += (time.monotonic() - t0) * 1000
         logger.error("Tool %s timed out (%.0fs)", tool_name, TIMEOUT)
         return {"ok": False, "error": f"Timeout after {TIMEOUT}s"}
     except httpx.ConnectError:
+        m["errors"] += 1
+        m["total_ms"] += (time.monotonic() - t0) * 1000
         logger.error("Tool %s: JARVIS WS unreachable at %s", tool_name, JARVIS_BASE)
         return {"ok": False, "error": "JARVIS WS unreachable (port 9742)"}
     except Exception as e:
+        m["errors"] += 1
+        m["total_ms"] += (time.monotonic() - t0) * 1000
         logger.exception("Tool %s failed", tool_name)
         return {"ok": False, "error": str(e)}
 
