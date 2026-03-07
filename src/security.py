@@ -23,6 +23,20 @@ from functools import wraps
 from pathlib import Path
 from typing import Any, Callable
 
+
+__all__ = [
+    "CredentialVault",
+    "RateLimiter",
+    "SanitizationResult",
+    "SecurityAuditLog",
+    "calculate_security_score",
+    "generate_api_token",
+    "hash_token",
+    "sanitize_input",
+    "sanitize_mcp_args",
+    "secure_endpoint",
+]
+
 logger = logging.getLogger("jarvis.security")
 
 # ── Encryption ───────────────────────────────────────────────────────────

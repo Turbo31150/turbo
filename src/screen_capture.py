@@ -17,6 +17,13 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+
+__all__ = [
+    "CaptureEvent",
+    "CaptureInfo",
+    "ScreenCapture",
+]
+
 logger = logging.getLogger("jarvis.screen_capture")
 
 user32 = ctypes.windll.user32

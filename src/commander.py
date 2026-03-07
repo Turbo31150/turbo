@@ -31,6 +31,23 @@ from pathlib import Path
 
 import httpx
 
+
+__all__ = [
+    "AgentStats",
+    "CommanderResult",
+    "TaskUnit",
+    "build_commander_enrichment",
+    "build_synthesis_prompt",
+    "build_verification_prompt",
+    "decompose_task",
+    "estimate_task_cost",
+    "format_commander_header",
+    "get_best_agent_for",
+    "get_thermal_throttle_factor",
+    "record_routing",
+    "topological_sort_tasks",
+]
+
 logger = logging.getLogger("jarvis.commander")
 
 _ROUTING_STATS_FILE = Path(__file__).resolve().parent.parent / "data" / "routing_stats.json"

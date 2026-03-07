@@ -14,6 +14,13 @@ import winreg
 from dataclasses import dataclass, field
 from typing import Any
 
+
+__all__ = [
+    "StartupEntry",
+    "StartupEvent",
+    "StartupManager",
+]
+
 logger = logging.getLogger("jarvis.startup_manager")
 
 # Registry paths for startup entries

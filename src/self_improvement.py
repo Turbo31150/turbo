@@ -22,6 +22,13 @@ import time
 from dataclasses import dataclass, field
 from typing import Optional
 
+
+__all__ = [
+    "ImprovementAction",
+    "SelfImprover",
+    "get_improver",
+]
+
 logger = logging.getLogger("jarvis.self_improvement")
 
 DB_PATH = "F:/BUREAU/turbo/etoile.db"

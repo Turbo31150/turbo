@@ -15,6 +15,13 @@ from typing import Callable
 
 import numpy as np
 
+
+__all__ = [
+    "VoiceActivityDetector",
+    "filter_speech",
+    "get_vad",
+]
+
 logger = logging.getLogger("jarvis.vad")
 
 # ── VAD Configuration ────────────────────────────────────────────────────

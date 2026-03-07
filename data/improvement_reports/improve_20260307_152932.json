@@ -1,0 +1,3593 @@
+{
+  "duration_ms": 2233,
+  "before_score": 86,
+  "after_score": 86,
+  "score_delta": 0,
+  "fixes_attempted": 214,
+  "fixes_applied": 214,
+  "fixes": [
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\adaptive_router.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 6 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\agent_auto_scaler.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 5 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\agent_auto_scaler.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: evaluate(135L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\agent_collaboration.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\agent_collaboration.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: __init__(157L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\agent_ensemble.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\agent_ensemble.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: _ensure_table(83L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\agent_episodic_memory.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 5 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\agent_factory.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\agent_feedback_loop.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 5 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\agent_health_guardian.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\agent_health_guardian.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: __init__(103L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\agent_monitor.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 6 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\agent_orchestrator_v3.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\agent_orchestrator_v3.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: __init__(230L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\agent_prompt_optimizer.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\agent_self_improve.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\agent_task_planner.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\agent_task_planner.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: plan(91L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\alert_manager.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: __init__(92L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\api_gateway.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\app_launcher.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\audio_controller.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\audio_device_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\auto_auditor.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\auto_developer.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\auto_developer.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: __init__(193L), _register_command(94L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\auto_scaler.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: __init__(113L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\auto_tune.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\autonomous_dev_agent.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: __init__(385L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\autonomous_loop.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\autonomous_loop.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: _log_event(488L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\bios_settings.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\bluetooth_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\brain.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 14 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\brain.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: get_brain_status(99L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\browser_navigator.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: is_open(722L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\cache.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\certificate_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\circuit_breaker.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\clipboard_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\cluster_intelligence.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\cluster_self_healer.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\cluster_self_healer.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: __init__(183L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\cluster_startup.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\cluster_startup.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: check_thermal_status(392L), get_startup_history(111L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\code_improvement_tracker.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\code_review_480b.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: _parse_review(221L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\collab_bridge.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 8 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\command_router.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\commander.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 13 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\commander.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: topological_sort_tasks(90L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\commands.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 13 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\commands.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: _load_extensions(88L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\commands_browser.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: BrowserVoiceCommand(372L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\config.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 7 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\config.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: JarvisConfig(216L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\context_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\cowork_agent_config.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: CoworkTask(355L), _dependencies_met(87L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\cowork_bridge.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\cowork_master_config.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\cowork_master_config.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: DevelopmentTask(377L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\cowork_orchestrator.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: _assign_agents(195L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\cowork_proactive.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\crash_dump_reader.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\credential_vault.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\cron_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\dashboard.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 8 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\dashboard.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: _log(242L), _get(124L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\data_pipeline.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\data_validator.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 5 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\data_validator.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: _validate_fields(103L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\database.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 23 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\database.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: init_db(101L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\defender_status.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\disk_health.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\disk_monitor.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\dispatch_engine.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\dispatch_engine.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: _cache_put(285L), _emit_event(83L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\display_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 6 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\dns_client_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\domino_executor.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 12 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\domino_executor.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: run(96L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\domino_pipelines.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\domino_pipelines.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: DominoPipeline(5730L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\download_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\driver_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\dynamic_agents.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\email_sender.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 5 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\env_variable_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\event_store.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\event_stream.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\eventlog_reader.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\exchanges.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 5 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\exchanges.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: place_order(107L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\executor.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: _win_shift_s_ps(121L), _record_execution(111L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\file_watcher.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\firewall_controller.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\font_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\gpu_guardian.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\gpu_guardian.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: stop(141L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\gpu_monitor.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\group_policy_reader.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\health_dashboard.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: collect(134L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\health_probe.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\hosts_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\hotfix_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\ia_tool_executor.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\ia_tool_executor.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: get_tool_metrics_history(187L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\installed_apps_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\ip_config_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\local_security_policy.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\locale_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\logging_config.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 8 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\mcp_server.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: _get_stats(4895L), _ps_sync(412L), _do(217L), _domino_run_sync(122L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\mcp_server_sse.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\mcp_server_sse.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: create_starlette_app(115L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\memory_diagnostics.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\metrics_aggregator.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: snapshot(112L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\network_adapter_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\network_monitor.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\network_scanner.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\notification_hub.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\notification_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\notifier.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\notifier.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: __init__(108L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\openclaw_bridge.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\orchestrator.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: _load_knowledge(612L), build_options(181L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\orchestrator_v2.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\output.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 9 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\pagefile_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\pattern_agents.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\pattern_agents.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: _score_quality(347L), _truncate_prompt(122L), classify_with_confidence(90L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\pattern_benchmark_runner.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\pattern_benchmark_runner.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: __init__(139L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\pattern_discovery.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\pattern_discovery.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: analyze_behavior(98L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\pattern_evolution.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\pattern_lifecycle.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\perfcounter.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\performance_counter.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\permission_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\perplexity_bridge.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: __init__(226L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\pipeline_composer.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 8 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\power_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\power_plan_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\prediction_engine.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: predict_next(106L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\printer_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\proactive_agent.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: _time_suggestions(113L), get_last(112L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\process_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\quality_gate.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\quality_gate.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: evaluate(117L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\recycle_bin_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\reflection_engine.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\registry_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\retry_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\retry_policy.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\routing_optimizer.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\scenarios.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\scenarios.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: run_50_cycles(101L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\scheduled_task_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\scheduler_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\screen_capture.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\screen_resolution_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\security.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 10 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\self_improvement.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\self_improvement.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: suggest_improvements(131L), analyze(87L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\service_controller.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\service_mesh.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\shadow_copy_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\share_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\shortcut_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\signal_formatter.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\skills.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 17 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\skills.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: _default_skills(1387L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\smart_dispatcher.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: get_cowork_scripts(81L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\smart_retry.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\startup_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\state_machine.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 4 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\storage_pool_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\sysrestore_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\system_info_collector.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\system_profiler.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\task_queue.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\time_sync_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\tools.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 51 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\tools.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: _track_latency(834L), _do(368L), _run_domino(346L), extract_lms_output(123L), cowork_proactive_anticipate_tool(108L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\trading.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 8 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\trading.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: execute_signal(165L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\trading_engine.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 5 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\trading_engine.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: run(87L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\trading_sentinel.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\trading_sentinel.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: stop(154L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\tts_streaming.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: _split_sentences(133L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\usb_device_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\usb_monitor.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\user_account_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\vad.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\virtual_desktop.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\virtual_memory_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\voice.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 5 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\voice.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: on_wake(179L), _record_timed(145L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\voice_correction.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 13 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\voice_correction.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: _increment_voice_correction_hits(248L), extract_action_intent(108L), _cache_match_result(97L)"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\volume_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\webhook_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\wifi_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\window_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\windows.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 51 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\windows_event_log_reader.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\windows_feature_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\windows_update_manager.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\wmi_explorer.py",
+      "type": "add_all_export",
+      "applied": true,
+      "message": "Added __all__ with 3 exports"
+    },
+    {
+      "file": "F:\\BUREAU\\turbo\\src\\workflow_engine.py",
+      "type": "flag_long_functions",
+      "applied": true,
+      "message": "Flagged: delete(158L)"
+    }
+  ],
+  "comparison": {
+    "score_before": 86,
+    "score_after": 86,
+    "score_delta": 0,
+    "findings_before": 174,
+    "findings_after": 177,
+    "findings_delta": 3,
+    "critical_before": 0,
+    "critical_after": 0,
+    "coverage_before": 100.0,
+    "coverage_after": 100.0,
+    "improved": false
+  },
+  "improvement_summary": {
+    "total_files": 175,
+    "changed_files": 156,
+    "unchanged_files": 19,
+    "total_lines_added": 1367,
+    "total_lines_removed": 0,
+    "net_lines": 1367,
+    "records": [
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\adaptive_router.py",
+        "changed": true,
+        "lines_before": 384,
+        "lines_after": 394,
+        "lines_delta": 10,
+        "functions_before": 17,
+        "functions_after": 17,
+        "functions_delta": 0,
+        "lines_added": 10,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5504458
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\agent_auto_scaler.py",
+        "changed": true,
+        "lines_before": 396,
+        "lines_after": 405,
+        "lines_delta": 9,
+        "functions_before": 10,
+        "functions_after": 10,
+        "functions_delta": 0,
+        "lines_added": 9,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5514486
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\agent_collaboration.py",
+        "changed": true,
+        "lines_before": 281,
+        "lines_after": 289,
+        "lines_delta": 8,
+        "functions_before": 7,
+        "functions_after": 7,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5514486
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\agent_ensemble.py",
+        "changed": true,
+        "lines_before": 403,
+        "lines_after": 411,
+        "lines_delta": 8,
+        "functions_before": 11,
+        "functions_after": 11,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5519507
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\agent_episodic_memory.py",
+        "changed": true,
+        "lines_before": 354,
+        "lines_after": 363,
+        "lines_delta": 9,
+        "functions_before": 15,
+        "functions_after": 15,
+        "functions_delta": 0,
+        "lines_added": 9,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5524507
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\agent_factory.py",
+        "changed": true,
+        "lines_before": 302,
+        "lines_after": 309,
+        "lines_delta": 7,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.552949
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\agent_feedback_loop.py",
+        "changed": true,
+        "lines_before": 365,
+        "lines_after": 374,
+        "lines_delta": 9,
+        "functions_before": 10,
+        "functions_after": 10,
+        "functions_delta": 0,
+        "lines_added": 9,
+        "lines_removed": 0,
+        "timestamp": 1772893772.552949
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\agent_health_guardian.py",
+        "changed": true,
+        "lines_before": 309,
+        "lines_after": 317,
+        "lines_delta": 8,
+        "functions_before": 6,
+        "functions_after": 6,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5539474
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\agent_monitor.py",
+        "changed": true,
+        "lines_before": 270,
+        "lines_after": 280,
+        "lines_delta": 10,
+        "functions_before": 13,
+        "functions_after": 13,
+        "functions_delta": 0,
+        "lines_added": 10,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5539474
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\agent_orchestrator_v3.py",
+        "changed": true,
+        "lines_before": 432,
+        "lines_after": 440,
+        "lines_delta": 8,
+        "functions_before": 6,
+        "functions_after": 6,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5544481
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\agent_prompt_optimizer.py",
+        "changed": true,
+        "lines_before": 351,
+        "lines_after": 359,
+        "lines_delta": 8,
+        "functions_before": 9,
+        "functions_after": 9,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5549486
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\agent_self_improve.py",
+        "changed": true,
+        "lines_before": 404,
+        "lines_after": 411,
+        "lines_delta": 7,
+        "functions_before": 11,
+        "functions_after": 11,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5554478
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\agent_task_planner.py",
+        "changed": true,
+        "lines_before": 337,
+        "lines_after": 345,
+        "lines_delta": 8,
+        "functions_before": 9,
+        "functions_after": 9,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5559456
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\alert_manager.py",
+        "changed": false,
+        "lines_before": 203,
+        "lines_after": 203,
+        "lines_delta": 0,
+        "functions_before": 9,
+        "functions_after": 9,
+        "functions_delta": 0,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5559456
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\api_gateway.py",
+        "changed": true,
+        "lines_before": 181,
+        "lines_after": 188,
+        "lines_delta": 7,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5564475
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\app_launcher.py",
+        "changed": true,
+        "lines_before": 220,
+        "lines_after": 227,
+        "lines_delta": 7,
+        "functions_before": 13,
+        "functions_after": 13,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5564475
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\audio_controller.py",
+        "changed": true,
+        "lines_before": 238,
+        "lines_after": 245,
+        "lines_delta": 7,
+        "functions_before": 13,
+        "functions_after": 13,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5569472
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\audio_device_manager.py",
+        "changed": true,
+        "lines_before": 110,
+        "lines_after": 117,
+        "lines_delta": 7,
+        "functions_before": 7,
+        "functions_after": 7,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5569472
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\auto_auditor.py",
+        "changed": true,
+        "lines_before": 406,
+        "lines_after": 414,
+        "lines_delta": 8,
+        "functions_before": 20,
+        "functions_after": 20,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5574489
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\auto_developer.py",
+        "changed": true,
+        "lines_before": 367,
+        "lines_after": 374,
+        "lines_delta": 7,
+        "functions_before": 4,
+        "functions_after": 4,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5574489
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\auto_scaler.py",
+        "changed": false,
+        "lines_before": 221,
+        "lines_after": 221,
+        "lines_delta": 0,
+        "functions_before": 2,
+        "functions_after": 2,
+        "functions_delta": 0,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5574489
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\auto_tune.py",
+        "changed": true,
+        "lines_before": 201,
+        "lines_after": 208,
+        "lines_delta": 7,
+        "functions_before": 11,
+        "functions_after": 11,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.558455
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\autonomous_dev_agent.py",
+        "changed": false,
+        "lines_before": 458,
+        "lines_after": 458,
+        "lines_delta": 0,
+        "functions_before": 3,
+        "functions_after": 3,
+        "functions_delta": 0,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "timestamp": 1772893772.558455
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\autonomous_loop.py",
+        "changed": true,
+        "lines_before": 716,
+        "lines_after": 723,
+        "lines_delta": 7,
+        "functions_before": 12,
+        "functions_after": 12,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.558962
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\bios_settings.py",
+        "changed": true,
+        "lines_before": 120,
+        "lines_after": 127,
+        "lines_delta": 7,
+        "functions_before": 6,
+        "functions_after": 6,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.558962
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\bluetooth_manager.py",
+        "changed": true,
+        "lines_before": 143,
+        "lines_after": 150,
+        "lines_delta": 7,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.558962
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\brain.py",
+        "changed": true,
+        "lines_before": 652,
+        "lines_after": 670,
+        "lines_delta": 18,
+        "functions_before": 25,
+        "functions_after": 25,
+        "functions_delta": 0,
+        "lines_added": 18,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5599678
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\browser_navigator.py",
+        "changed": false,
+        "lines_before": 798,
+        "lines_after": 798,
+        "lines_delta": 0,
+        "functions_before": 5,
+        "functions_after": 5,
+        "functions_delta": 0,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5609744
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\cache.py",
+        "changed": true,
+        "lines_before": 263,
+        "lines_after": 270,
+        "lines_delta": 7,
+        "functions_before": 13,
+        "functions_after": 13,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5614748
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\certificate_manager.py",
+        "changed": true,
+        "lines_before": 162,
+        "lines_after": 169,
+        "lines_delta": 7,
+        "functions_before": 9,
+        "functions_after": 9,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5619726
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\circuit_breaker.py",
+        "changed": true,
+        "lines_before": 301,
+        "lines_after": 309,
+        "lines_delta": 8,
+        "functions_before": 17,
+        "functions_after": 17,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5624728
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\clipboard_manager.py",
+        "changed": true,
+        "lines_before": 194,
+        "lines_after": 201,
+        "lines_delta": 7,
+        "functions_before": 13,
+        "functions_after": 13,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5629728
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\cluster_intelligence.py",
+        "changed": true,
+        "lines_before": 422,
+        "lines_after": 429,
+        "lines_delta": 7,
+        "functions_before": 14,
+        "functions_after": 14,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5639727
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\cluster_self_healer.py",
+        "changed": true,
+        "lines_before": 277,
+        "lines_after": 284,
+        "lines_delta": 7,
+        "functions_before": 2,
+        "functions_after": 2,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5644727
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\cluster_startup.py",
+        "changed": true,
+        "lines_before": 813,
+        "lines_after": 821,
+        "lines_delta": 8,
+        "functions_before": 13,
+        "functions_after": 13,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.565473
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\code_improvement_tracker.py",
+        "changed": true,
+        "lines_before": 264,
+        "lines_after": 272,
+        "lines_delta": 8,
+        "functions_before": 20,
+        "functions_after": 20,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5664732
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\code_review_480b.py",
+        "changed": false,
+        "lines_before": 365,
+        "lines_after": 365,
+        "lines_delta": 0,
+        "functions_before": 4,
+        "functions_after": 4,
+        "functions_delta": 0,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5669727
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\collab_bridge.py",
+        "changed": true,
+        "lines_before": 136,
+        "lines_after": 148,
+        "lines_delta": 12,
+        "functions_before": 10,
+        "functions_after": 10,
+        "functions_delta": 0,
+        "lines_added": 12,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5674727
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\command_router.py",
+        "changed": true,
+        "lines_before": 176,
+        "lines_after": 183,
+        "lines_delta": 7,
+        "functions_before": 10,
+        "functions_after": 10,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5674727
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\commander.py",
+        "changed": true,
+        "lines_before": 618,
+        "lines_after": 635,
+        "lines_delta": 17,
+        "functions_before": 21,
+        "functions_after": 21,
+        "functions_delta": 0,
+        "lines_added": 17,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5689726
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\commands.py",
+        "changed": true,
+        "lines_before": 518,
+        "lines_after": 535,
+        "lines_delta": 17,
+        "functions_before": 18,
+        "functions_after": 18,
+        "functions_delta": 0,
+        "lines_added": 17,
+        "lines_removed": 0,
+        "timestamp": 1772893772.569983
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\commands_browser.py",
+        "changed": false,
+        "lines_before": 393,
+        "lines_after": 393,
+        "lines_delta": 0,
+        "functions_before": 0,
+        "functions_after": 0,
+        "functions_delta": 0,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "timestamp": 1772893772.570496
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\config.py",
+        "changed": true,
+        "lines_before": 533,
+        "lines_after": 544,
+        "lines_delta": 11,
+        "functions_before": 16,
+        "functions_after": 16,
+        "functions_delta": 0,
+        "lines_added": 11,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5709963
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\context_manager.py",
+        "changed": true,
+        "lines_before": 255,
+        "lines_after": 262,
+        "lines_delta": 7,
+        "functions_before": 18,
+        "functions_after": 18,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5714958
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\cowork_agent_config.py",
+        "changed": false,
+        "lines_before": 536,
+        "lines_after": 536,
+        "lines_delta": 0,
+        "functions_before": 5,
+        "functions_after": 5,
+        "functions_delta": 0,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5719948
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\cowork_bridge.py",
+        "changed": true,
+        "lines_before": 382,
+        "lines_after": 390,
+        "lines_delta": 8,
+        "functions_before": 12,
+        "functions_after": 12,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5724943
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\cowork_master_config.py",
+        "changed": true,
+        "lines_before": 435,
+        "lines_after": 443,
+        "lines_delta": 8,
+        "functions_before": 0,
+        "functions_after": 0,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5729945
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\cowork_orchestrator.py",
+        "changed": false,
+        "lines_before": 432,
+        "lines_after": 432,
+        "lines_delta": 0,
+        "functions_before": 7,
+        "functions_after": 7,
+        "functions_delta": 0,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5729945
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\cowork_proactive.py",
+        "changed": true,
+        "lines_before": 440,
+        "lines_after": 448,
+        "lines_delta": 8,
+        "functions_before": 17,
+        "functions_after": 17,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5734935
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\crash_dump_reader.py",
+        "changed": true,
+        "lines_before": 150,
+        "lines_after": 157,
+        "lines_delta": 7,
+        "functions_before": 7,
+        "functions_after": 7,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5739934
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\credential_vault.py",
+        "changed": true,
+        "lines_before": 132,
+        "lines_after": 139,
+        "lines_delta": 7,
+        "functions_before": 9,
+        "functions_after": 9,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5739934
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\cron_manager.py",
+        "changed": true,
+        "lines_before": 243,
+        "lines_after": 251,
+        "lines_delta": 8,
+        "functions_before": 13,
+        "functions_after": 13,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5744941
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\dashboard.py",
+        "changed": true,
+        "lines_before": 564,
+        "lines_after": 576,
+        "lines_delta": 12,
+        "functions_before": 15,
+        "functions_after": 15,
+        "functions_delta": 0,
+        "lines_added": 12,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5749934
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\data_pipeline.py",
+        "changed": true,
+        "lines_before": 169,
+        "lines_after": 177,
+        "lines_delta": 8,
+        "functions_before": 10,
+        "functions_after": 10,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5749934
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\data_validator.py",
+        "changed": true,
+        "lines_before": 264,
+        "lines_after": 273,
+        "lines_delta": 9,
+        "functions_before": 13,
+        "functions_after": 13,
+        "functions_delta": 0,
+        "lines_added": 9,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5754938
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\database.py",
+        "changed": true,
+        "lines_before": 759,
+        "lines_after": 786,
+        "lines_delta": 27,
+        "functions_before": 28,
+        "functions_after": 28,
+        "functions_delta": 0,
+        "lines_added": 27,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5759935
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\defender_status.py",
+        "changed": true,
+        "lines_before": 148,
+        "lines_after": 155,
+        "lines_delta": 7,
+        "functions_before": 7,
+        "functions_after": 7,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5764923
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\disk_health.py",
+        "changed": true,
+        "lines_before": 150,
+        "lines_after": 157,
+        "lines_delta": 7,
+        "functions_before": 7,
+        "functions_after": 7,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5764923
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\disk_monitor.py",
+        "changed": true,
+        "lines_before": 231,
+        "lines_after": 239,
+        "lines_delta": 8,
+        "functions_before": 11,
+        "functions_after": 11,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.576994
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\dispatch_engine.py",
+        "changed": true,
+        "lines_before": 781,
+        "lines_after": 789,
+        "lines_delta": 8,
+        "functions_before": 13,
+        "functions_after": 13,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5774934
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\display_manager.py",
+        "changed": true,
+        "lines_before": 235,
+        "lines_after": 245,
+        "lines_delta": 10,
+        "functions_before": 11,
+        "functions_after": 11,
+        "functions_delta": 0,
+        "lines_added": 10,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5779927
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\dns_client_manager.py",
+        "changed": true,
+        "lines_before": 129,
+        "lines_after": 136,
+        "lines_delta": 7,
+        "functions_before": 7,
+        "functions_after": 7,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5779927
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\domino_executor.py",
+        "changed": true,
+        "lines_before": 1800,
+        "lines_after": 1816,
+        "lines_delta": 16,
+        "functions_before": 126,
+        "functions_after": 126,
+        "functions_delta": 0,
+        "lines_added": 16,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5789914
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\domino_pipelines.py",
+        "changed": true,
+        "lines_before": 5850,
+        "lines_after": 5858,
+        "lines_delta": 8,
+        "functions_before": 3,
+        "functions_after": 3,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5920293
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\download_manager.py",
+        "changed": true,
+        "lines_before": 240,
+        "lines_after": 247,
+        "lines_delta": 7,
+        "functions_before": 14,
+        "functions_after": 14,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5925276
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\driver_manager.py",
+        "changed": true,
+        "lines_before": 135,
+        "lines_after": 142,
+        "lines_delta": 7,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5925276
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\dynamic_agents.py",
+        "changed": true,
+        "lines_before": 308,
+        "lines_after": 315,
+        "lines_delta": 7,
+        "functions_before": 9,
+        "functions_after": 9,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5930278
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\email_sender.py",
+        "changed": true,
+        "lines_before": 286,
+        "lines_after": 295,
+        "lines_delta": 9,
+        "functions_before": 16,
+        "functions_after": 16,
+        "functions_delta": 0,
+        "lines_added": 9,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5935278
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\env_variable_manager.py",
+        "changed": true,
+        "lines_before": 157,
+        "lines_after": 164,
+        "lines_delta": 7,
+        "functions_before": 10,
+        "functions_after": 10,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5935278
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\event_store.py",
+        "changed": true,
+        "lines_before": 145,
+        "lines_after": 152,
+        "lines_delta": 7,
+        "functions_before": 15,
+        "functions_after": 15,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5940278
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\event_stream.py",
+        "changed": true,
+        "lines_before": 239,
+        "lines_after": 246,
+        "lines_delta": 7,
+        "functions_before": 14,
+        "functions_after": 14,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5940278
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\eventlog_reader.py",
+        "changed": true,
+        "lines_before": 162,
+        "lines_after": 169,
+        "lines_delta": 7,
+        "functions_before": 9,
+        "functions_after": 9,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5945275
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\exchanges.py",
+        "changed": true,
+        "lines_before": 317,
+        "lines_after": 326,
+        "lines_delta": 9,
+        "functions_before": 10,
+        "functions_after": 10,
+        "functions_delta": 0,
+        "lines_added": 9,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5945275
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\executor.py",
+        "changed": false,
+        "lines_before": 623,
+        "lines_after": 623,
+        "lines_delta": 0,
+        "functions_before": 10,
+        "functions_after": 10,
+        "functions_delta": 0,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5955276
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\file_watcher.py",
+        "changed": true,
+        "lines_before": 282,
+        "lines_after": 290,
+        "lines_delta": 8,
+        "functions_before": 13,
+        "functions_after": 13,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5955276
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\firewall_controller.py",
+        "changed": true,
+        "lines_before": 187,
+        "lines_after": 194,
+        "lines_delta": 7,
+        "functions_before": 10,
+        "functions_after": 10,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5960274
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\font_manager.py",
+        "changed": true,
+        "lines_before": 167,
+        "lines_after": 174,
+        "lines_delta": 7,
+        "functions_before": 10,
+        "functions_after": 10,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5960274
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\gpu_guardian.py",
+        "changed": true,
+        "lines_before": 287,
+        "lines_after": 294,
+        "lines_delta": 7,
+        "functions_before": 7,
+        "functions_after": 7,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5965276
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\gpu_monitor.py",
+        "changed": true,
+        "lines_before": 180,
+        "lines_after": 187,
+        "lines_delta": 7,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5965276
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\group_policy_reader.py",
+        "changed": true,
+        "lines_before": 157,
+        "lines_after": 164,
+        "lines_delta": 7,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5970275
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\health_dashboard.py",
+        "changed": false,
+        "lines_before": 177,
+        "lines_after": 177,
+        "lines_delta": 0,
+        "functions_before": 4,
+        "functions_after": 4,
+        "functions_delta": 0,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5970275
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\health_probe.py",
+        "changed": true,
+        "lines_before": 171,
+        "lines_after": 179,
+        "lines_delta": 8,
+        "functions_before": 10,
+        "functions_after": 10,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5970275
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\hosts_manager.py",
+        "changed": true,
+        "lines_before": 142,
+        "lines_after": 149,
+        "lines_delta": 7,
+        "functions_before": 9,
+        "functions_after": 9,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5975275
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\hotfix_manager.py",
+        "changed": true,
+        "lines_before": 117,
+        "lines_after": 124,
+        "lines_delta": 7,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5975275
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\ia_tool_executor.py",
+        "changed": true,
+        "lines_before": 357,
+        "lines_after": 364,
+        "lines_delta": 7,
+        "functions_before": 6,
+        "functions_after": 6,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5980275
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\installed_apps_manager.py",
+        "changed": true,
+        "lines_before": 148,
+        "lines_after": 155,
+        "lines_delta": 7,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5980275
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\ip_config_manager.py",
+        "changed": true,
+        "lines_before": 169,
+        "lines_after": 176,
+        "lines_delta": 7,
+        "functions_before": 9,
+        "functions_after": 9,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5985274
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\local_security_policy.py",
+        "changed": true,
+        "lines_before": 126,
+        "lines_after": 133,
+        "lines_delta": 7,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5985274
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\locale_manager.py",
+        "changed": true,
+        "lines_before": 184,
+        "lines_after": 191,
+        "lines_delta": 7,
+        "functions_before": 9,
+        "functions_after": 9,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5990276
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\logging_config.py",
+        "changed": true,
+        "lines_before": 216,
+        "lines_after": 228,
+        "lines_delta": 12,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 12,
+        "lines_removed": 0,
+        "timestamp": 1772893772.5990276
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\mcp_server.py",
+        "changed": false,
+        "lines_before": 6457,
+        "lines_after": 6457,
+        "lines_delta": 0,
+        "functions_before": 11,
+        "functions_after": 11,
+        "functions_delta": 0,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6070535
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\mcp_server_sse.py",
+        "changed": true,
+        "lines_before": 511,
+        "lines_after": 518,
+        "lines_delta": 7,
+        "functions_before": 3,
+        "functions_after": 3,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6075535
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\memory_diagnostics.py",
+        "changed": true,
+        "lines_before": 129,
+        "lines_after": 136,
+        "lines_delta": 7,
+        "functions_before": 6,
+        "functions_after": 6,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6075535
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\metrics_aggregator.py",
+        "changed": false,
+        "lines_before": 176,
+        "lines_after": 176,
+        "lines_delta": 0,
+        "functions_before": 6,
+        "functions_after": 6,
+        "functions_delta": 0,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6080534
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\network_adapter_manager.py",
+        "changed": true,
+        "lines_before": 115,
+        "lines_after": 122,
+        "lines_delta": 7,
+        "functions_before": 7,
+        "functions_after": 7,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6080534
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\network_monitor.py",
+        "changed": true,
+        "lines_before": 220,
+        "lines_after": 227,
+        "lines_delta": 7,
+        "functions_before": 9,
+        "functions_after": 9,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6085534
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\network_scanner.py",
+        "changed": true,
+        "lines_before": 221,
+        "lines_after": 229,
+        "lines_delta": 8,
+        "functions_before": 11,
+        "functions_after": 11,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6085534
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\notification_hub.py",
+        "changed": true,
+        "lines_before": 222,
+        "lines_after": 229,
+        "lines_delta": 7,
+        "functions_before": 11,
+        "functions_after": 11,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6090536
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\notification_manager.py",
+        "changed": true,
+        "lines_before": 182,
+        "lines_after": 189,
+        "lines_delta": 7,
+        "functions_before": 12,
+        "functions_after": 12,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6090536
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\notifier.py",
+        "changed": true,
+        "lines_before": 175,
+        "lines_after": 182,
+        "lines_delta": 7,
+        "functions_before": 3,
+        "functions_after": 3,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6090536
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\openclaw_bridge.py",
+        "changed": true,
+        "lines_before": 366,
+        "lines_after": 373,
+        "lines_delta": 7,
+        "functions_before": 14,
+        "functions_after": 14,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6090536
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\orchestrator.py",
+        "changed": false,
+        "lines_before": 1063,
+        "lines_after": 1063,
+        "lines_delta": 0,
+        "functions_before": 4,
+        "functions_after": 4,
+        "functions_delta": 0,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6105666
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\orchestrator_v2.py",
+        "changed": true,
+        "lines_before": 351,
+        "lines_after": 358,
+        "lines_delta": 7,
+        "functions_before": 18,
+        "functions_after": 18,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6110682
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\output.py",
+        "changed": true,
+        "lines_before": 150,
+        "lines_after": 163,
+        "lines_delta": 13,
+        "functions_before": 2,
+        "functions_after": 2,
+        "functions_delta": 0,
+        "lines_added": 13,
+        "lines_removed": 0,
+        "timestamp": 1772893772.611567
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\pagefile_manager.py",
+        "changed": true,
+        "lines_before": 155,
+        "lines_after": 162,
+        "lines_delta": 7,
+        "functions_before": 7,
+        "functions_after": 7,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.611567
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\pattern_agents.py",
+        "changed": true,
+        "lines_before": 917,
+        "lines_after": 924,
+        "lines_delta": 7,
+        "functions_before": 10,
+        "functions_after": 10,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6125648
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\pattern_benchmark_runner.py",
+        "changed": true,
+        "lines_before": 323,
+        "lines_after": 330,
+        "lines_delta": 7,
+        "functions_before": 6,
+        "functions_after": 6,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6130648
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\pattern_discovery.py",
+        "changed": true,
+        "lines_before": 445,
+        "lines_after": 452,
+        "lines_delta": 7,
+        "functions_before": 9,
+        "functions_after": 9,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6135669
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\pattern_evolution.py",
+        "changed": true,
+        "lines_before": 350,
+        "lines_after": 357,
+        "lines_delta": 7,
+        "functions_before": 13,
+        "functions_after": 13,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6140666
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\pattern_lifecycle.py",
+        "changed": true,
+        "lines_before": 389,
+        "lines_after": 397,
+        "lines_delta": 8,
+        "functions_before": 12,
+        "functions_after": 12,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6145654
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\perfcounter.py",
+        "changed": true,
+        "lines_before": 166,
+        "lines_after": 173,
+        "lines_delta": 7,
+        "functions_before": 9,
+        "functions_after": 9,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6145654
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\performance_counter.py",
+        "changed": true,
+        "lines_before": 138,
+        "lines_after": 145,
+        "lines_delta": 7,
+        "functions_before": 7,
+        "functions_after": 7,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6150668
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\permission_manager.py",
+        "changed": true,
+        "lines_before": 147,
+        "lines_after": 154,
+        "lines_delta": 7,
+        "functions_before": 12,
+        "functions_after": 12,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6150668
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\perplexity_bridge.py",
+        "changed": false,
+        "lines_before": 286,
+        "lines_after": 286,
+        "lines_delta": 0,
+        "functions_before": 2,
+        "functions_after": 2,
+        "functions_delta": 0,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "timestamp": 1772893772.616067
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\pipeline_composer.py",
+        "changed": true,
+        "lines_before": 243,
+        "lines_after": 255,
+        "lines_delta": 12,
+        "functions_before": 7,
+        "functions_after": 7,
+        "functions_delta": 0,
+        "lines_added": 12,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6165679
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\power_manager.py",
+        "changed": true,
+        "lines_before": 214,
+        "lines_after": 222,
+        "lines_delta": 8,
+        "functions_before": 12,
+        "functions_after": 12,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.617065
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\power_plan_manager.py",
+        "changed": true,
+        "lines_before": 127,
+        "lines_after": 134,
+        "lines_delta": 7,
+        "functions_before": 7,
+        "functions_after": 7,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.617065
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\prediction_engine.py",
+        "changed": false,
+        "lines_before": 269,
+        "lines_after": 269,
+        "lines_delta": 0,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6180644
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\printer_manager.py",
+        "changed": true,
+        "lines_before": 198,
+        "lines_after": 205,
+        "lines_delta": 7,
+        "functions_before": 10,
+        "functions_after": 10,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.618565
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\proactive_agent.py",
+        "changed": false,
+        "lines_before": 370,
+        "lines_after": 370,
+        "lines_delta": 0,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6190658
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\process_manager.py",
+        "changed": true,
+        "lines_before": 335,
+        "lines_after": 343,
+        "lines_delta": 8,
+        "functions_before": 18,
+        "functions_after": 18,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6190658
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\quality_gate.py",
+        "changed": true,
+        "lines_before": 474,
+        "lines_after": 482,
+        "lines_delta": 8,
+        "functions_before": 13,
+        "functions_after": 13,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.620577
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\recycle_bin_manager.py",
+        "changed": true,
+        "lines_before": 113,
+        "lines_after": 120,
+        "lines_delta": 7,
+        "functions_before": 7,
+        "functions_after": 7,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.621076
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\reflection_engine.py",
+        "changed": true,
+        "lines_before": 502,
+        "lines_after": 509,
+        "lines_delta": 7,
+        "functions_before": 14,
+        "functions_after": 14,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6220772
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\registry_manager.py",
+        "changed": true,
+        "lines_before": 251,
+        "lines_after": 258,
+        "lines_delta": 7,
+        "functions_before": 14,
+        "functions_after": 14,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6220772
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\retry_manager.py",
+        "changed": true,
+        "lines_before": 192,
+        "lines_after": 199,
+        "lines_delta": 7,
+        "functions_before": 11,
+        "functions_after": 11,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6225789
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\retry_policy.py",
+        "changed": true,
+        "lines_before": 176,
+        "lines_after": 184,
+        "lines_delta": 8,
+        "functions_before": 12,
+        "functions_after": 12,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6230836
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\routing_optimizer.py",
+        "changed": true,
+        "lines_before": 271,
+        "lines_after": 278,
+        "lines_delta": 7,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6230836
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\scenarios.py",
+        "changed": true,
+        "lines_before": 1598,
+        "lines_after": 1605,
+        "lines_delta": 7,
+        "functions_before": 4,
+        "functions_after": 4,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6255755
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\scheduled_task_manager.py",
+        "changed": true,
+        "lines_before": 125,
+        "lines_after": 132,
+        "lines_delta": 7,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6255755
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\scheduler_manager.py",
+        "changed": true,
+        "lines_before": 171,
+        "lines_after": 178,
+        "lines_delta": 7,
+        "functions_before": 10,
+        "functions_after": 10,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6260765
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\screen_capture.py",
+        "changed": true,
+        "lines_before": 249,
+        "lines_after": 256,
+        "lines_delta": 7,
+        "functions_before": 14,
+        "functions_after": 14,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6260765
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\screen_resolution_manager.py",
+        "changed": true,
+        "lines_before": 113,
+        "lines_after": 120,
+        "lines_delta": 7,
+        "functions_before": 7,
+        "functions_after": 7,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.626578
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\security.py",
+        "changed": true,
+        "lines_before": 503,
+        "lines_after": 517,
+        "lines_delta": 14,
+        "functions_before": 22,
+        "functions_after": 22,
+        "functions_delta": 0,
+        "lines_added": 14,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6270778
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\self_improvement.py",
+        "changed": true,
+        "lines_before": 553,
+        "lines_after": 560,
+        "lines_delta": 7,
+        "functions_before": 15,
+        "functions_after": 15,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6275768
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\service_controller.py",
+        "changed": true,
+        "lines_before": 234,
+        "lines_after": 241,
+        "lines_delta": 7,
+        "functions_before": 14,
+        "functions_after": 14,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6275768
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\service_mesh.py",
+        "changed": true,
+        "lines_before": 183,
+        "lines_after": 191,
+        "lines_delta": 8,
+        "functions_before": 15,
+        "functions_after": 15,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.628078
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\shadow_copy_manager.py",
+        "changed": true,
+        "lines_before": 115,
+        "lines_after": 122,
+        "lines_delta": 7,
+        "functions_before": 7,
+        "functions_after": 7,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.628078
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\share_manager.py",
+        "changed": true,
+        "lines_before": 168,
+        "lines_after": 175,
+        "lines_delta": 7,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6285777
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\shortcut_manager.py",
+        "changed": true,
+        "lines_before": 225,
+        "lines_after": 232,
+        "lines_delta": 7,
+        "functions_before": 14,
+        "functions_after": 14,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6285777
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\signal_formatter.py",
+        "changed": true,
+        "lines_before": 156,
+        "lines_after": 163,
+        "lines_delta": 7,
+        "functions_before": 7,
+        "functions_after": 7,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6285777
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\skills.py",
+        "changed": true,
+        "lines_before": 1753,
+        "lines_after": 1774,
+        "lines_delta": 21,
+        "functions_before": 17,
+        "functions_after": 17,
+        "functions_delta": 0,
+        "lines_added": 21,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6305878
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\smart_dispatcher.py",
+        "changed": false,
+        "lines_before": 351,
+        "lines_after": 351,
+        "lines_delta": 0,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6320965
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\smart_retry.py",
+        "changed": true,
+        "lines_before": 188,
+        "lines_after": 195,
+        "lines_delta": 7,
+        "functions_before": 11,
+        "functions_after": 11,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6320965
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\startup_manager.py",
+        "changed": true,
+        "lines_before": 210,
+        "lines_after": 217,
+        "lines_delta": 7,
+        "functions_before": 13,
+        "functions_after": 13,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6330962
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\state_machine.py",
+        "changed": true,
+        "lines_before": 138,
+        "lines_after": 146,
+        "lines_delta": 8,
+        "functions_before": 15,
+        "functions_after": 15,
+        "functions_delta": 0,
+        "lines_added": 8,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6330962
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\storage_pool_manager.py",
+        "changed": true,
+        "lines_before": 131,
+        "lines_after": 138,
+        "lines_delta": 7,
+        "functions_before": 6,
+        "functions_after": 6,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6335979
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\sysrestore_manager.py",
+        "changed": true,
+        "lines_before": 122,
+        "lines_after": 129,
+        "lines_delta": 7,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6341043
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\system_info_collector.py",
+        "changed": true,
+        "lines_before": 207,
+        "lines_after": 214,
+        "lines_delta": 7,
+        "functions_before": 9,
+        "functions_after": 9,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6346111
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\system_profiler.py",
+        "changed": true,
+        "lines_before": 240,
+        "lines_after": 247,
+        "lines_delta": 7,
+        "functions_before": 13,
+        "functions_after": 13,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6351113
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\task_queue.py",
+        "changed": true,
+        "lines_before": 312,
+        "lines_after": 319,
+        "lines_delta": 7,
+        "functions_before": 14,
+        "functions_after": 14,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6356113
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\time_sync_manager.py",
+        "changed": true,
+        "lines_before": 176,
+        "lines_after": 183,
+        "lines_delta": 7,
+        "functions_before": 11,
+        "functions_after": 11,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6356113
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\tools.py",
+        "changed": true,
+        "lines_before": 2616,
+        "lines_after": 2671,
+        "lines_delta": 55,
+        "functions_before": 66,
+        "functions_after": 66,
+        "functions_delta": 0,
+        "lines_added": 55,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6386108
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\trading.py",
+        "changed": true,
+        "lines_before": 506,
+        "lines_after": 518,
+        "lines_delta": 12,
+        "functions_before": 14,
+        "functions_after": 14,
+        "functions_delta": 0,
+        "lines_added": 12,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6391108
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\trading_engine.py",
+        "changed": true,
+        "lines_before": 339,
+        "lines_after": 348,
+        "lines_delta": 9,
+        "functions_before": 12,
+        "functions_after": 12,
+        "functions_delta": 0,
+        "lines_added": 9,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6396108
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\trading_sentinel.py",
+        "changed": true,
+        "lines_before": 252,
+        "lines_after": 259,
+        "lines_delta": 7,
+        "functions_before": 3,
+        "functions_after": 3,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6396108
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\tts_streaming.py",
+        "changed": false,
+        "lines_before": 209,
+        "lines_after": 209,
+        "lines_delta": 0,
+        "functions_before": 6,
+        "functions_after": 6,
+        "functions_delta": 0,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6401105
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\usb_device_manager.py",
+        "changed": true,
+        "lines_before": 113,
+        "lines_after": 120,
+        "lines_delta": 7,
+        "functions_before": 7,
+        "functions_after": 7,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6401105
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\usb_monitor.py",
+        "changed": true,
+        "lines_before": 196,
+        "lines_after": 203,
+        "lines_delta": 7,
+        "functions_before": 10,
+        "functions_after": 10,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6401105
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\user_account_manager.py",
+        "changed": true,
+        "lines_before": 146,
+        "lines_after": 153,
+        "lines_delta": 7,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6406114
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\vad.py",
+        "changed": true,
+        "lines_before": 272,
+        "lines_after": 279,
+        "lines_delta": 7,
+        "functions_before": 11,
+        "functions_after": 11,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6411114
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\virtual_desktop.py",
+        "changed": true,
+        "lines_before": 144,
+        "lines_after": 151,
+        "lines_delta": 7,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6411114
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\virtual_memory_manager.py",
+        "changed": true,
+        "lines_before": 131,
+        "lines_after": 138,
+        "lines_delta": 7,
+        "functions_before": 6,
+        "functions_after": 6,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6416109
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\voice.py",
+        "changed": true,
+        "lines_before": 727,
+        "lines_after": 736,
+        "lines_delta": 9,
+        "functions_before": 17,
+        "functions_after": 17,
+        "functions_delta": 0,
+        "lines_added": 9,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6421094
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\voice_correction.py",
+        "changed": true,
+        "lines_before": 2399,
+        "lines_after": 2416,
+        "lines_delta": 17,
+        "functions_before": 25,
+        "functions_after": 25,
+        "functions_delta": 0,
+        "lines_added": 17,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6441107
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\volume_manager.py",
+        "changed": true,
+        "lines_before": 153,
+        "lines_after": 160,
+        "lines_delta": 7,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6441107
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\webhook_manager.py",
+        "changed": true,
+        "lines_before": 179,
+        "lines_after": 186,
+        "lines_delta": 7,
+        "functions_before": 12,
+        "functions_after": 12,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.644614
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\wifi_manager.py",
+        "changed": true,
+        "lines_before": 230,
+        "lines_after": 237,
+        "lines_delta": 7,
+        "functions_before": 10,
+        "functions_after": 10,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.644614
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\window_manager.py",
+        "changed": true,
+        "lines_before": 228,
+        "lines_after": 235,
+        "lines_delta": 7,
+        "functions_before": 14,
+        "functions_after": 14,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.645114
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\windows.py",
+        "changed": true,
+        "lines_before": 597,
+        "lines_after": 652,
+        "lines_delta": 55,
+        "functions_before": 54,
+        "functions_after": 54,
+        "functions_delta": 0,
+        "lines_added": 55,
+        "lines_removed": 0,
+        "timestamp": 1772893772.645614
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\windows_event_log_reader.py",
+        "changed": true,
+        "lines_before": 123,
+        "lines_after": 130,
+        "lines_delta": 7,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.645614
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\windows_feature_manager.py",
+        "changed": true,
+        "lines_before": 135,
+        "lines_after": 142,
+        "lines_delta": 7,
+        "functions_before": 10,
+        "functions_after": 10,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6461139
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\windows_update_manager.py",
+        "changed": true,
+        "lines_before": 138,
+        "lines_after": 145,
+        "lines_delta": 7,
+        "functions_before": 7,
+        "functions_after": 7,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6461139
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\wmi_explorer.py",
+        "changed": true,
+        "lines_before": 167,
+        "lines_after": 174,
+        "lines_delta": 7,
+        "functions_before": 8,
+        "functions_after": 8,
+        "functions_delta": 0,
+        "lines_added": 7,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6466138
+      },
+      {
+        "file": "F:\\BUREAU\\turbo\\src\\workflow_engine.py",
+        "changed": false,
+        "lines_before": 324,
+        "lines_after": 324,
+        "lines_delta": 0,
+        "functions_before": 10,
+        "functions_after": 10,
+        "functions_delta": 0,
+        "lines_added": 0,
+        "lines_removed": 0,
+        "timestamp": 1772893772.6471162
+      }
+    ]
+  },
+  "dry_run": false
+}

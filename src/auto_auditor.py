@@ -20,6 +20,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+
+__all__ = [
+    "AuditEvent",
+    "AuditFinding",
+    "AuditReport",
+    "AutoAuditor",
+]
+
 logger = logging.getLogger("jarvis.auto_auditor")
 
 _NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
@@ -28,8 +36,8 @@ _NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 SECURITY_PATTERNS = [
     (r'(?:password|passwd|pwd)\s*=\s*["\'][^"\']+["\']', "hardcoded_password"),
     (r'(?:token|api_key|secret)\s*=\s*["\'][^"\']+["\']', "hardcoded_secret"),
-    (r'eval\s*\(', "eval_usage"),
-    (r'exec\s*\(', "exec_usage"),
+    (r'(?<!\w)eval\s*\(', "eval_usage"),
+    (r'(?<!\w)exec\s*\(', "exec_usage"),
     (r'subprocess\.(?:call|run|Popen)\s*\([^)]*shell\s*=\s*True', "shell_injection_risk"),
     (r'os\.system\s*\(', "os_system_usage"),
     (r'__import__\s*\(', "dynamic_import"),

@@ -15,6 +15,13 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+
+__all__ = [
+    "AppEvent",
+    "InstalledApp",
+    "InstalledAppsManager",
+]
+
 logger = logging.getLogger("jarvis.installed_apps_manager")
 
 _NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)

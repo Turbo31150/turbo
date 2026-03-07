@@ -24,6 +24,14 @@ from typing import Any, Optional
 
 from src.pattern_agents import PatternAgentRegistry, AgentResult
 
+
+__all__ = [
+    "AgentBus",
+    "AgentMessage",
+    "CollaborationResult",
+    "get_bus",
+]
+
 logger = logging.getLogger("jarvis.agent_collaboration")
 
 

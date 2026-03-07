@@ -21,6 +21,18 @@ from pathlib import Path
 
 import httpx
 
+
+__all__ = [
+    "BrainPanel",
+    "ClusterPanel",
+    "JarvisDashboard",
+    "LogPanel",
+    "SkillsPanel",
+    "SystemPanel",
+    "TradingPanel",
+    "run_dashboard",
+]
+
 logger = logging.getLogger("jarvis.dashboard")
 
 _http: httpx.AsyncClient | None = None

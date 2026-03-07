@@ -25,6 +25,14 @@ from typing import Optional
 
 from src.pattern_agents import PatternAgentRegistry
 
+
+__all__ = [
+    "PlanResult",
+    "SubTask",
+    "TaskPlan",
+    "TaskPlanner",
+]
+
 logger = logging.getLogger("jarvis.task_planner")
 
 

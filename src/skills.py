@@ -16,6 +16,27 @@ import logging
 import os
 import time
 
+
+__all__ = [
+    "Skill",
+    "SkillStep",
+    "add_skill",
+    "export_skills_json",
+    "find_skill",
+    "format_skills_list",
+    "get_action_history",
+    "get_skills_stats",
+    "get_unused_skills",
+    "import_skills_json",
+    "load_skills",
+    "log_action",
+    "record_skill_use",
+    "remove_skill",
+    "save_skills",
+    "search_skills",
+    "suggest_next_actions",
+]
+
 logger = logging.getLogger("jarvis.skills")
 
 _M1_KEY = os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", ""))

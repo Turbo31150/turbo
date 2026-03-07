@@ -26,6 +26,13 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Callable, Awaitable
 
+
+__all__ = [
+    "QueuedTask",
+    "TaskQueue",
+    "TaskStatus",
+]
+
 logger = logging.getLogger("jarvis.task_queue")
 
 DB_PATH = Path(__file__).resolve().parent.parent / "data" / "task_queue.db"

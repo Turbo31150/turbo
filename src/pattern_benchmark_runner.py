@@ -27,6 +27,13 @@ from typing import Optional
 
 from src.pattern_agents import PatternAgentRegistry, AgentResult, AGENT_CONFIGS
 
+
+__all__ = [
+    "BenchmarkReport",
+    "BenchmarkResult",
+    "BenchmarkRunner",
+]
+
 logger = logging.getLogger("jarvis.benchmark_runner")
 
 DB_PATH = "F:/BUREAU/turbo/etoile.db"

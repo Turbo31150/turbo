@@ -14,6 +14,23 @@ from difflib import SequenceMatcher, get_close_matches
 from functools import lru_cache
 from typing import Any
 
+
+__all__ = [
+    "VoiceSession",
+    "execute_domino_result",
+    "extract_action_intent",
+    "extract_params",
+    "format_suggestions",
+    "get_suggestions",
+    "load_db_corrections",
+    "normalize_text",
+    "phonetic_normalize",
+    "phonetic_similarity",
+    "remove_accents",
+    "remove_fillers",
+    "trigram_similarity",
+]
+
 logger = logging.getLogger("jarvis.voice_correction")
 
 from src.commands import (

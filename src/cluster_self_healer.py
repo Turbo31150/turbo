@@ -20,6 +20,13 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+
+__all__ = [
+    "ClusterSelfHealer",
+    "NodeConfig",
+    "RecoveryAttempt",
+]
+
 logger = logging.getLogger("jarvis.self_healer")
 
 

@@ -14,6 +14,13 @@ import winreg
 from dataclasses import dataclass, field
 from typing import Any
 
+
+__all__ = [
+    "FontEvent",
+    "FontInfo",
+    "FontManager",
+]
+
 logger = logging.getLogger("jarvis.font_manager")
 
 FONTS_KEY = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts"

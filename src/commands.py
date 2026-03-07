@@ -20,6 +20,23 @@ from pathlib import Path
 
 from src.config import PATHS
 
+
+__all__ = [
+    "JarvisCommand",
+    "correct_voice_text",
+    "dry_run_command",
+    "expand_macro",
+    "format_commands_help",
+    "get_command_analytics",
+    "get_commands_by_category",
+    "get_macros",
+    "get_unused_commands",
+    "match_command",
+    "record_command_execution",
+    "register_macro",
+    "similarity",
+]
+
 _TURBO_DIR = str(PATHS.get("turbo", "F:/BUREAU/turbo")).replace("/", "\\")
 _TURBO_DIR_FWD = str(PATHS.get("turbo", "F:/BUREAU/turbo"))
 _USER_HOME = str(Path.home())

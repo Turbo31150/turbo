@@ -15,6 +15,13 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+
+__all__ = [
+    "CertEvent",
+    "CertInfo",
+    "CertificateManager",
+]
+
 logger = logging.getLogger("jarvis.certificate_manager")
 
 _NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)

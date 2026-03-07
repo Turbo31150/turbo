@@ -1,0 +1,29 @@
+{
+  "timestamp": 1772893520.878697,
+  "duration_ms": 734,
+  "total_modules": 226,
+  "total_test_files": 292,
+  "total_lines": 87951,
+  "test_coverage_ratio": 100.0,
+  "critical_count": 0,
+  "major_count": 33,
+  "total_findings": 172,
+  "findings_by_category": {
+    "quality": 13,
+    "security": 25,
+    "complexity": 134
+  },
+  "findings_by_severity": {
+    "info": 20,
+    "minor": 119,
+    "major": 33
+  },
+  "summary": {
+    "score": 86,
+    "tested_ratio_pct": 100.0,
+    "untested_modules": 0,
+    "security_issues": 25,
+    "complexity_warnings": 134,
+    "todo_count": 13
+  }
+}

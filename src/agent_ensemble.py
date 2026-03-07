@@ -23,6 +23,14 @@ import time
 from dataclasses import dataclass, field
 from typing import Optional
 
+
+__all__ = [
+    "AgentEnsemble",
+    "EnsembleOutput",
+    "EnsembleResult",
+    "get_ensemble",
+]
+
 logger = logging.getLogger("jarvis.ensemble")
 
 DB_PATH = "F:/BUREAU/turbo/etoile.db"

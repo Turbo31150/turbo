@@ -12,6 +12,13 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Callable, Coroutine
 
+
+__all__ = [
+    "CommandRouter",
+    "MatchResult",
+    "Route",
+]
+
 logger = logging.getLogger("jarvis.command_router")
 
 ActionFunc = Callable[..., Coroutine[Any, Any, Any] | Any]

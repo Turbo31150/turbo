@@ -10,6 +10,33 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
+
+__all__ = [
+    "add_scenario",
+    "apply_migrations",
+    "auto_maintenance",
+    "backup_database",
+    "export_full_db",
+    "find_pipeline_for_voice",
+    "get_all_scenarios",
+    "get_applied_migrations",
+    "get_connection",
+    "get_db_health",
+    "get_routing_weights",
+    "get_scenario",
+    "get_stats",
+    "get_unified_connection",
+    "get_unified_stats",
+    "get_validation_report",
+    "import_commands_from_code",
+    "import_corrections_from_code",
+    "import_skills_from_code",
+    "init_db",
+    "list_backups",
+    "record_validation",
+    "restore_database",
+]
+
 logger = logging.getLogger("jarvis.database")
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"

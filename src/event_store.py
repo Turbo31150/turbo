@@ -9,6 +9,13 @@ from threading import Lock
 from typing import Any, Callable
 
 
+
+__all__ = [
+    "Event",
+    "EventStore",
+    "Snapshot",
+]
+
 @dataclass
 class Event:
     stream: str

@@ -28,6 +28,15 @@ from pathlib import Path
 import numpy as np
 import sounddevice as sd
 
+
+__all__ = [
+    "WhisperWorker",
+    "check_microphone",
+    "get_cached_input_device",
+    "start_whisper",
+    "stop_whisper",
+]
+
 logger = logging.getLogger("jarvis.voice")
 
 try:

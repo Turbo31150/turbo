@@ -24,6 +24,13 @@ from typing import Optional
 
 import httpx
 
+
+__all__ = [
+    "AgentResult",
+    "PatternAgent",
+    "PatternAgentRegistry",
+]
+
 logger = logging.getLogger("jarvis.pattern_agents")
 
 # ── Node configs ────────────────────────────────────────────────────────────

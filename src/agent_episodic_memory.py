@@ -23,6 +23,15 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Optional
 
+
+__all__ = [
+    "Episode",
+    "EpisodicMemory",
+    "SemanticFact",
+    "WorkingContext",
+    "get_episodic_memory",
+]
+
 logger = logging.getLogger("jarvis.episodic_memory")
 
 DB_PATH = "F:/BUREAU/turbo/etoile.db"

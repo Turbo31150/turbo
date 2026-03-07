@@ -26,6 +26,18 @@ from typing import Optional, Callable
 
 from src.pattern_agents import PatternAgentRegistry, AgentResult
 
+
+__all__ = [
+    "PipelineComposer",
+    "PipelineResult",
+    "PipelineStep",
+    "architecture_design_pipeline",
+    "code_review_pipeline",
+    "devops_deploy_pipeline",
+    "smart_qa_pipeline",
+    "trading_analysis_pipeline",
+]
+
 logger = logging.getLogger("jarvis.pipeline")
 
 

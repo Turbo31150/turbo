@@ -15,6 +15,13 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+
+__all__ = [
+    "AppEntry",
+    "AppLauncher",
+    "LaunchEvent",
+]
+
 logger = logging.getLogger("jarvis.app_launcher")
 
 

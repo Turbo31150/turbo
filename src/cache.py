@@ -15,6 +15,13 @@ from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Any
 
+
+__all__ = [
+    "CacheEntry",
+    "ConnectionPool",
+    "DistributedCache",
+]
+
 logger = logging.getLogger("jarvis.cache")
 
 

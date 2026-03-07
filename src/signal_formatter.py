@@ -5,6 +5,13 @@ from __future__ import annotations
 import json
 import logging
 
+
+__all__ = [
+    "format_chat_signals",
+    "format_telegram_signals",
+    "parse_sniper_json",
+]
+
 log = logging.getLogger("jarvis.signal_formatter")
 
 

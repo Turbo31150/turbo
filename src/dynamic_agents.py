@@ -27,6 +27,13 @@ from typing import Optional
 
 import httpx
 
+
+__all__ = [
+    "DynamicAgent",
+    "DynamicAgentSpawner",
+    "get_spawner",
+]
+
 logger = logging.getLogger("jarvis.dynamic_agents")
 
 DB_PATH = "F:/BUREAU/turbo/etoile.db"
