@@ -31,6 +31,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
 
+
+__all__ = [
+    "OpenClawBridge",
+    "RouteResult",
+    "get_bridge",
+]
+
 logger = logging.getLogger("jarvis.openclaw_bridge")
 
 _ETOILE_DB = Path(__file__).resolve().parent.parent / "data" / "etoile.db"
@@ -97,7 +104,7 @@ INTENT_TO_AGENT: dict[str, str] = {
 
 # ── Keyword patterns for fast classification (no ML needed) ─────────────────
 _FAST_PATTERNS: list[tuple[re.Pattern, str]] = [
-    (re.compile(r"(?:code|programme|fonction|classe|module|script|bug|fix|debug|refactor|test)", re.I), "code_dev"),
+    (re.compile(r"(?:code|programme|fonction|classe|module|script|bug|fix|debug|refactor|test|parser|ecris?\s+(?:un|une|le|la)|implemente|genere)", re.I), "code_dev"),
     (re.compile(r"(?:trade|trading|btc|eth|sol|crypto|mexc|signal|scan)", re.I), "trading"),
     (re.compile(r"(?:cluster|noeud|node|gpu|vram|sante|health|diagnostic|boot)", re.I), "cluster_ops"),
     (re.compile(r"(?:pipeline|domino|routine|workflow|maintenance)", re.I), "pipeline"),

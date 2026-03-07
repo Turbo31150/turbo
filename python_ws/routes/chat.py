@@ -57,6 +57,11 @@ except ImportError:
     decompose_task = None
     build_commander_enrichment = None
 
+try:
+    from src.openclaw_bridge import get_bridge as _get_openclaw_bridge
+except ImportError:
+    _get_openclaw_bridge = None
+
 
 MAX_MESSAGE_LENGTH = 10_000  # 10K chars max per message
 
@@ -290,6 +295,7 @@ async def _send_message(payload: dict) -> dict:
 
         # Step 2: No command matched — classify and route to IA
         task_type = "simple"
+        openclaw_agent = None
         if classify_task:
             try:
                 if inspect.iscoroutinefunction(classify_task):
@@ -301,6 +307,15 @@ async def _send_message(payload: dict) -> dict:
             except (ImportError, asyncio.TimeoutError, ValueError, TypeError) as e:
                 logger.warning("classify_task failed: %s", e)
                 task_type = "simple"
+
+        # OpenClaw bridge: track which agent would handle this
+        if _get_openclaw_bridge:
+            try:
+                _bridge = _get_openclaw_bridge()
+                _route = _bridge.route(text)
+                openclaw_agent = _route.agent
+            except Exception:
+                pass
 
         # Consensus via classifier (not /consensus prefix)
         if task_type == "consensus":
@@ -314,11 +329,14 @@ async def _send_message(payload: dict) -> dict:
         agent_msg = _session.add_message("assistant", response_text, agent=agent_name)
         agent_msg["task_type"] = task_type
         agent_msg["elapsed"] = round(elapsed, 2)
+        if openclaw_agent:
+            agent_msg["openclaw_agent"] = openclaw_agent
 
         return {
             "user_message": user_msg,
             "agent_message": agent_msg,
             "task_type": task_type,
+            "openclaw_agent": openclaw_agent,
         }
     except (asyncio.TimeoutError, KeyError, ValueError, RuntimeError, OSError) as e:
         logger.error("_send_message error: %s\n%s", e, traceback.format_exc())
