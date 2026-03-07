@@ -249,6 +249,12 @@ class AutomationHub:
             result = await autonomous_loop._task_weekly_cleanup()
             return str(result)
 
+        async def _handle_self_improve(params: dict) -> str:
+            """Run self-improvement cycle."""
+            from src.self_improve_engine import self_improve_engine
+            report = await self_improve_engine.run_cycle()
+            return f"cycle={report['cycle']} actions={report['actions_taken']}"
+
         async def _handle_noop(params: dict) -> str:
             """No-op handler for test jobs."""
             return "noop"
@@ -261,6 +267,7 @@ class AutomationHub:
             "backup": _handle_backup,
             "gpu_monitor": _handle_gpu_monitor,
             "self_heal": _handle_self_heal,
+            "self_improve": _handle_self_improve,
             "queue_enqueue": _handle_queue_enqueue,
             "notify": _handle_notify,
             "cleanup": _handle_cleanup,

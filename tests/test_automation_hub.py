@@ -128,8 +128,8 @@ class TestSchedulerHandlers:
 
         expected = {
             "dispatch", "domino", "health_check", "backup",
-            "gpu_monitor", "self_heal", "queue_enqueue", "notify",
-            "cleanup", "noop",
+            "gpu_monitor", "self_heal", "self_improve", "queue_enqueue",
+            "notify", "cleanup", "noop",
         }
         assert set(registered.keys()) == expected
 
