@@ -27,6 +27,7 @@ import sqlite3
 import subprocess
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
 
@@ -296,10 +297,11 @@ def run_script(script_name, timeout_s=60):
 # ---------------------------------------------------------------------------
 
 def run_all(categories_filter=None, timeout_s=60, dry_run=False, verbose=False):
-    """Discover and run all uncovered scripts by priority.
+    """Discover and run all uncovered scripts by priority (parallel within groups).
 
     Returns: (total, succeeded, failed, results_list)
     """
+    MAX_WORKERS = 3
     discovered = discover_scripts()
 
     if categories_filter:
@@ -323,46 +325,66 @@ def run_all(categories_filter=None, timeout_s=60, dry_run=False, verbose=False):
     succeeded = 0
     failed = 0
 
-    for prio, cat, script_name in flat:
-        ts = datetime.now().strftime("%H:%M:%S")
-
-        if dry_run:
+    if dry_run:
+        for prio, cat, script_name in flat:
             if verbose:
                 print(f"  [DRY] [{cat:20}] P{prio} {script_name}")
             results.append({
                 "script": script_name, "category": cat, "priority": prio,
                 "dry_run": True,
             })
-            continue
+        return len(flat), 0, 0, results
 
+    # Group by priority for parallel execution within each group
+    from itertools import groupby
+    priority_groups = []
+    for prio, group in groupby(flat, key=lambda x: x[0]):
+        priority_groups.append((prio, list(group)))
+
+    for prio, group_items in priority_groups:
         if verbose:
-            print(f"  [{ts}] [{cat:20}] Running {script_name}...", end=" ", flush=True)
+            cats = set(cat for _, cat, _ in group_items)
+            print(f"  --- Priority {prio} ({len(group_items)} scripts: {', '.join(cats)}) ---")
 
-        result = run_script(script_name, timeout_s=timeout_s)
-        record_run(conn, script_name, cat, result)
+        with ThreadPoolExecutor(max_workers=min(MAX_WORKERS, len(group_items))) as pool:
+            future_map = {}
+            for _, cat, script_name in group_items:
+                future = pool.submit(run_script, script_name, timeout_s)
+                future_map[future] = (script_name, cat)
 
-        if result["success"]:
-            succeeded += 1
-            status = "OK"
-        else:
-            failed += 1
-            status = "FAIL"
+            for future in as_completed(future_map):
+                script_name, cat = future_map[future]
+                try:
+                    result = future.result()
+                except Exception as e:
+                    result = {"success": False, "duration_ms": 0, "returncode": -1,
+                              "error": str(e)[:300]}
 
-        dur = result.get("duration_ms", 0)
-        if verbose:
-            print(f"{status} ({dur}ms)")
-            if not result["success"] and result.get("error"):
-                err_line = result["error"].strip().split("\n")[-1][:120]
-                print(f"           -> {err_line}")
+                record_run(conn, script_name, cat, result)
 
-        results.append({
-            "script": script_name,
-            "category": cat,
-            "priority": prio,
-            "success": result["success"],
-            "duration_ms": dur,
-            "returncode": result.get("returncode", -1),
-        })
+                if result["success"]:
+                    succeeded += 1
+                    status = "OK"
+                else:
+                    failed += 1
+                    status = "FAIL"
+
+                dur = result.get("duration_ms", 0)
+                if verbose:
+                    ts = datetime.now().strftime("%H:%M:%S")
+                    print(f"  [{ts}] [{cat:20}] {script_name} {status} ({dur}ms)")
+                    if not result["success"] and result.get("error"):
+                        err_line = result["error"].strip().split("\n")[-1][:120]
+                        print(f"           -> {err_line}")
+
+                results.append({
+                    "script": script_name,
+                    "category": cat,
+                    "priority": prio,
+                    "success": result["success"],
+                    "duration_ms": dur,
+                    "returncode": result.get("returncode", -1),
+                })
 
     total = len(flat)
     if conn:

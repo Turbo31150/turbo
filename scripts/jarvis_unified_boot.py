@@ -53,14 +53,23 @@ C_MAGENTA = "\033[95m"
 C_BOLD = "\033[1m"
 C_DIM = "\033[2m"
 
-# Cluster nodes
+# Load .env for credentials
+_env_path = TURBO_DIR / ".env"
+if _env_path.exists():
+    for _line in _env_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        _line = _line.strip()
+        if _line and not _line.startswith("#") and "=" in _line:
+            _k, _, _v = _line.partition("=")
+            os.environ.setdefault(_k.strip(), _v.strip())
+
+# Cluster nodes (credentials from .env)
 NODES = {
-    "M1": {"url": "http://127.0.0.1:1234", "ip": "127.0.0.1", "port": 1234,
-            "auth": "sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"},
-    "M2": {"url": "http://192.168.1.26:1234", "ip": "192.168.1.26", "port": 1234,
-            "auth": "sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4"},
-    "M3": {"url": "http://192.168.1.113:1234", "ip": "192.168.1.113", "port": 1234,
-            "auth": "sk-lm-Zxbn5FZ1:M2PkaqHzwA4TilZ9EFux"},
+    "M1": {"url": os.environ.get("LM_STUDIO_1_URL", "http://127.0.0.1:1234"), "ip": "127.0.0.1", "port": 1234,
+            "auth": os.environ.get("LM_STUDIO_1_API_KEY", "")},
+    "M2": {"url": os.environ.get("LM_STUDIO_2_URL", "http://192.168.1.26:1234"), "ip": "192.168.1.26", "port": 1234,
+            "auth": os.environ.get("LM_STUDIO_2_API_KEY", "")},
+    "M3": {"url": os.environ.get("LM_STUDIO_3_URL", "http://192.168.1.113:1234"), "ip": "192.168.1.113", "port": 1234,
+            "auth": os.environ.get("LM_STUDIO_3_API_KEY", "")},
 }
 OLLAMA = {"url": "http://127.0.0.1:11434", "ip": "127.0.0.1", "port": 11434}
 
@@ -101,22 +110,28 @@ _launched_procs: list[subprocess.Popen] = []
 BOOT_LOCK_FILE = TURBO_DIR / "data" / ".unified-boot.lock"
 
 
+_boot_lock_fh = None  # Keep file handle open for Windows file lock
+
 def check_boot_singleton():
-    """Prevent multiple unified_boot instances. Exit if another is alive."""
-    if BOOT_LOCK_FILE.exists():
+    """Prevent multiple unified_boot instances using Windows file locking.
+    The lock is held for the process lifetime and auto-released on crash/kill.
+    """
+    global _boot_lock_fh
+    import msvcrt
+    BOOT_LOCK_FILE.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        _boot_lock_fh = open(BOOT_LOCK_FILE, "w")
+        msvcrt.locking(_boot_lock_fh.fileno(), msvcrt.LK_NBLCK, 1)
+        _boot_lock_fh.write(str(os.getpid()))
+        _boot_lock_fh.flush()
+    except (OSError, IOError):
+        # Lock held by another instance — read its PID for info
         try:
             pid = int(BOOT_LOCK_FILE.read_text().strip())
-            if pid != os.getpid():
-                os.kill(pid, 0)  # Check if alive
-                print(f"{C_RED}[XX] ABORT: unified_boot already running (PID {pid}){C_RESET}")
-                sys.exit(0)
         except (ValueError, OSError):
-            pass  # PID dead or invalid, safe to proceed
-    BOOT_LOCK_FILE.parent.mkdir(parents=True, exist_ok=True)
-    BOOT_LOCK_FILE.write_text(str(os.getpid()))
-
-    import atexit
-    atexit.register(lambda: BOOT_LOCK_FILE.unlink(missing_ok=True))
+            pid = "?"
+        print(f"{C_RED}[XX] ABORT: unified_boot already running (PID {pid}){C_RESET}")
+        sys.exit(0)
 
 
 # ============================================================================
@@ -445,7 +460,7 @@ def phase_2_models(dry_run: bool = False) -> dict:
             try:
                 import urllib.request
                 warmup_body = json.dumps({
-                    "model": M1_REQUIRED_MODEL,
+                    "model": M1_REQUIRED_MODEL_SHORT,
                     "input": "/nothink\nReponds OK.",
                     "temperature": 0.1,
                     "max_output_tokens": 5,
@@ -627,9 +642,14 @@ def phase_4_python_services(dry_run: bool = False, skip: list[str] | None = None
                 report["jarvis_ws"] = "failed"
 
     # -- Telegram Bot --
+    # Skip legacy bot if OpenClaw Telegram channel is active (same token = conflict)
     telegram_bot = TURBO_DIR / "canvas" / "telegram-bot.js"
     if "telegram" not in skip and telegram_bot.exists():
-        if dry_run:
+        openclaw_tg = check_port("127.0.0.1", 18789)
+        if openclaw_tg:
+            log("Telegram bot: skip (OpenClaw Telegram actif)", "INFO", indent=1)
+            report["telegram"] = "openclaw"
+        elif dry_run:
             log("Telegram bot: (dry-run, skip)", "WARN", indent=1)
             report["telegram"] = "dry_run"
         else:
@@ -898,11 +918,8 @@ WATCH_SERVICES = {
                 str(TURBO_DIR / "python_ws" / "server.py")],
         "cwd": str(TURBO_DIR),
     },
-    "gemini_proxy": {
-        "port": 18791, "host": "127.0.0.1",
-        "cmd": ["node", str(TURBO_DIR / "gemini-proxy.js")],
-        "cwd": str(TURBO_DIR),
-    },
+    # gemini_proxy: CLI tool (exit immediat), pas un daemon — retire du watchdog
+    # Utiliser via: node gemini-proxy.js "prompt"
 }
 
 
@@ -911,7 +928,7 @@ def check_process_alive(process_name: str) -> bool:
     try:
         r = subprocess.run(
             ["tasklist", "/FI", f"IMAGENAME eq {process_name}", "/FO", "CSV", "/NH"],
-            capture_output=True, text=True, timeout=5,
+            capture_output=True, text=True, timeout=5, encoding="utf-8", errors="replace",
         )
         return process_name.lower() in r.stdout.lower()
     except (subprocess.TimeoutExpired, OSError):
@@ -983,24 +1000,48 @@ def watch_loop(interval: int = 60):
                         log(f"M1: echec rechargement ({e})", "FAIL")
 
         # Check Telegram bot (PID file based — no port to check)
-        telegram_lock = TURBO_DIR / "canvas" / ".telegram-bot.lock"
-        telegram_alive = False
-        if telegram_lock.exists():
-            try:
-                pid = int(telegram_lock.read_text().strip())
-                os.kill(pid, 0)  # Check if process alive (signal 0)
-                telegram_alive = True
-            except (ValueError, OSError):
-                telegram_alive = False
-        if not telegram_alive and check_port("127.0.0.1", 18800):
-            ts = datetime.now().strftime("%H:%M:%S")
-            log(f"[{ts}] telegram_bot DOWN — redemarrage...", "WARN")
-            start_process(
-                ["node", str(TURBO_DIR / "canvas" / "telegram-bot.js")],
-                "Telegram Bot", cwd=str(TURBO_DIR),
-            )
-            time.sleep(3)
-            log("  telegram_bot: relance", "OK")
+        # Only skip if OpenClaw Telegram CHANNEL is enabled (not just gateway running)
+        openclaw_tg_channel_enabled = False
+        try:
+            import json as _json
+            _oc_cfg = Path.home() / ".openclaw" / "openclaw.json"
+            if _oc_cfg.exists():
+                _oc = _json.loads(_oc_cfg.read_text(encoding="utf-8"))
+                openclaw_tg_channel_enabled = _oc.get("channels", {}).get("telegram", {}).get("enabled", False)
+        except Exception:
+            pass
+        if openclaw_tg_channel_enabled:
+            # OpenClaw Telegram CHANNEL actif — JAMAIS relancer telegram-bot.js (meme token = conflit getUpdates)
+            telegram_lock = TURBO_DIR / "canvas" / ".telegram-bot.lock"
+            if telegram_lock.exists():
+                try:
+                    pid = int(telegram_lock.read_text().strip())
+                    os.kill(pid, 0)
+                    # Kill orphan telegram-bot to avoid conflict
+                    os.kill(pid, 9)
+                    log("  telegram_bot orphelin tue (OpenClaw Telegram actif)", "WARN")
+                    telegram_lock.unlink(missing_ok=True)
+                except (ValueError, OSError):
+                    telegram_lock.unlink(missing_ok=True)
+        else:
+            telegram_lock = TURBO_DIR / "canvas" / ".telegram-bot.lock"
+            telegram_alive = False
+            if telegram_lock.exists():
+                try:
+                    pid = int(telegram_lock.read_text().strip())
+                    os.kill(pid, 0)  # Check if process alive (signal 0)
+                    telegram_alive = True
+                except (ValueError, OSError):
+                    telegram_alive = False
+            if not telegram_alive and check_port("127.0.0.1", 18800):
+                ts = datetime.now().strftime("%H:%M:%S")
+                log(f"[{ts}] telegram_bot DOWN — redemarrage...", "WARN")
+                start_process(
+                    ["node", str(TURBO_DIR / "canvas" / "telegram-bot.js")],
+                    "Telegram Bot", cwd=str(TURBO_DIR),
+                )
+                time.sleep(3)
+                log("  telegram_bot: relance", "OK")
 
         # Check LinkedIn Scheduler (PID file based — no port)
         # Also check if ANY linkedin_scheduler python process exists to avoid zombies
@@ -1020,7 +1061,7 @@ def watch_loop(interval: int = 60):
                     ['wmic', 'process', 'where',
                      "name='python.exe' and commandline like '%linkedin_scheduler%'",
                      'get', 'ProcessId'],
-                    capture_output=True, text=True, timeout=5
+                    capture_output=True, text=True, timeout=5, encoding="utf-8", errors="replace",
                 )
                 existing = [l.strip() for l in r.stdout.splitlines() if l.strip().isdigit()]
                 if existing:
@@ -1038,6 +1079,59 @@ def watch_loop(interval: int = 60):
             if proc:
                 time.sleep(3)
                 log("  linkedin_scheduler: relance", "OK")
+
+        # ── Lightweight Telegram pipeline scheduler ──────────────
+        # Runs scripts directly (no OpenClaw agent overhead)
+        _tg_cmd = HOME / ".openclaw" / "workspace" / "dev" / "telegram_commander.py"
+        if _tg_cmd.exists():
+            if not hasattr(watch_loop, "_tg_counters"):
+                watch_loop._tg_counters = {"trading": 0, "status": 0, "health": 0}
+            c = watch_loop._tg_counters
+            c["trading"] += 1
+            c["status"] += 1
+            c["health"] += 1
+            tg_schedules = {"trading": 30, "status": 60, "health": 60}  # minutes
+            for cmd, interval_min in tg_schedules.items():
+                cycles_needed = max(1, interval_min * 60 // interval)
+                if c[cmd] >= cycles_needed:
+                    c[cmd] = 0
+                    try:
+                        subprocess.run(
+                            [sys.executable, str(_tg_cmd), "--cmd", cmd],
+                            capture_output=True, timeout=30,
+                            cwd=str(_tg_cmd.parent),
+                        )
+                        log(f"  telegram_{cmd}: envoye", "OK")
+                    except Exception as e:
+                        log(f"  telegram_{cmd}: erreur ({e})", "WARN")
+
+        # ── Zombie Killer — nettoyage processus Python orphelins ──
+        if not hasattr(watch_loop, "_zombie_counter"):
+            watch_loop._zombie_counter = 0
+        watch_loop._zombie_counter += 1
+        zombie_interval_cycles = max(1, 7200 // interval)  # every 2h
+        if watch_loop._zombie_counter >= zombie_interval_cycles:
+            watch_loop._zombie_counter = 0
+            zombie_script = TURBO_DIR / "scripts" / "zombie_killer.py"
+            if zombie_script.exists():
+                try:
+                    r = subprocess.run(
+                        [sys.executable, str(zombie_script), "--kill", "--json"],
+                        capture_output=True, text=True, timeout=30,
+                        encoding="utf-8", errors="replace",
+                    )
+                    if r.returncode == 0 and r.stdout.strip():
+                        try:
+                            zdata = json.loads(r.stdout.strip().split("\n")[-1])
+                            zcount = len(zdata.get("zombies", []))
+                            if zcount > 0:
+                                log(f"  zombie_killer: {zcount} zombies tues", "WARN")
+                            else:
+                                log("  zombie_killer: systeme propre", "OK")
+                        except (json.JSONDecodeError, IndexError):
+                            log("  zombie_killer: execute (parse error)", "WARN")
+                except Exception as e:
+                    log(f"  zombie_killer: erreur ({e})", "WARN")
 
         # Check process-based services (WhisperFlow, etc.)
         for svc_id, svc in WATCH_PROCESSES.items():
