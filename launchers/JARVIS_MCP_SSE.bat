@@ -1,13 +1,16 @@
 @echo off
 title JARVIS MCP Remote Server (port 8901)
+cd /d F:\BUREAU\turbo
+
+:: === SINGLETON GUARD ===
+python scripts/singleton_guard.py --name mcp_sse --kill
+
 echo ======================================
 echo  JARVIS MCP Remote Server
 echo  Port: 8901 - Transport: Streamable HTTP
 echo  URL locale: http://127.0.0.1:8901/mcp/
 echo ======================================
 echo.
-
-cd /d F:\BUREAU\turbo
 
 echo [1/2] Demarrage du serveur MCP Streamable HTTP...
 start /b "MCP-Remote" cmd /c "uv run python -m src.mcp_server_sse --port 8901"

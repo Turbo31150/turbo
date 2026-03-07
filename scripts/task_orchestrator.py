@@ -3755,6 +3755,13 @@ def main():
         save_task(task)
         print(f"  Added: {task.id} ({task.schedule})")
     elif args.daemon:
+        # Singleton: kill existing instance before starting
+        try:
+            sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+            from src.process_singleton import singleton
+            singleton.acquire("orchestrator", pid=os.getpid())
+        except Exception:
+            pass  # singleton not available, proceed anyway
         daemon_loop()
     elif args.parallel:
         completed = run_due_tasks_parallel()

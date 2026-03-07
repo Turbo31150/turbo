@@ -1,10 +1,16 @@
 @echo off
 title JARVIS Full Cluster — All Workers
+cd /d F:\BUREAU\turbo
+
+:: === SINGLETON GUARD: kill ALL existing cluster workers ===
+for %%s in (evolution orchestrator_v3 strategy_worker deep_analysis mcp_sse) do (
+    python scripts/singleton_guard.py --name %%s --kill 2>nul
+)
+
 echo ============================================================
 echo  JARVIS — Full Autonomous Cluster Workers
 echo ============================================================
 echo.
-cd /d F:\BUREAU\turbo
 
 echo [1/5] Strategy Evolution Loop (1000 pop, 25 coins, 5min)...
 start "JARVIS-Evolution" /MIN C:\Users\franc\.local\bin\uv.exe run python cowork/dev/strategy_evolution_loop.py --pop 1000 --coins 25 --interval 5

@@ -1,6 +1,11 @@
 @echo off
 title JARVIS Desktop v1.0
 color 0B
+cd /d F:\BUREAU\turbo
+
+:: === SINGLETON GUARD ===
+python scripts/singleton_guard.py --name desktop --kill
+
 echo.
 echo  ========================================
 echo   JARVIS TURBO - Desktop Unified App

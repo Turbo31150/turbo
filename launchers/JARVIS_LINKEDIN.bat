@@ -26,7 +26,11 @@ if "%1"=="generate" (
     goto :eof
 )
 
-:: Default: daemon mode
+:: Default: daemon mode — singleton guard
+cd /d F:\BUREAU\turbo
+python scripts/singleton_guard.py --name linkedin --kill
+cd /d F:\BUREAU\turbo\cowork\dev
+
 echo JARVIS LinkedIn Scheduler - Daemon Mode
 echo Press Ctrl+C to stop
 python linkedin_scheduler.py --run --method all
