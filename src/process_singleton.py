@@ -52,11 +52,30 @@ class ProcessSingleton:
             return False, None
         try:
             pid = int(pf.read_text().strip())
-            os.kill(pid, 0)  # signal 0 = check alive
-            return True, pid
-        except (ValueError, ProcessLookupError, PermissionError, OSError):
+            if self._is_pid_alive(pid):
+                return True, pid
             pf.unlink(missing_ok=True)
             return False, None
+        except (ValueError, OSError):
+            pf.unlink(missing_ok=True)
+            return False, None
+
+    @staticmethod
+    def _is_pid_alive(pid: int) -> bool:
+        """Check if a PID is alive — Windows-compatible (no signal 0)."""
+        if os.name == "nt":
+            try:
+                output = os.popen(f'tasklist /FI "PID eq {pid}" /FO CSV /NH 2>NUL').read()
+                return f'"{pid}"' in output
+            except Exception:
+                return False
+        try:
+            os.kill(pid, 0)
+            return True
+        except ProcessLookupError:
+            return False
+        except (PermissionError, OSError):
+            return True  # alive but no permissions
 
     # ── Kill existing ─────────────────────────────────────────────────
 
