@@ -692,7 +692,7 @@ class PatternAgentRegistry:
 
     async def _get_client(self) -> httpx.AsyncClient:
         if self._client is None or self._client.is_closed:
-            self._client = httpx.AsyncClient()
+            self._client = httpx.AsyncClient(timeout=30)
         return self._client
 
     async def close(self):

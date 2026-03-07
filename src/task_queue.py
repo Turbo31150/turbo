@@ -247,7 +247,7 @@ class TaskQueue:
 
         if node in ("OL1",):
             # Ollama
-            payload = build_ollama_payload(prompt, model="qwen3:1.7b")
+            payload = build_ollama_payload("qwen3:1.7b", [{"role": "user", "content": prompt}])
             async with httpx.AsyncClient(timeout=120) as client:
                 r = await client.post("http://127.0.0.1:11434/api/chat", json=payload)
                 data = r.json()
@@ -255,12 +255,17 @@ class TaskQueue:
 
         # LM Studio nodes
         node_cfg = config.get_node(node) if config else None
-        url = f"http://127.0.0.1:1234/api/v1/chat"
         if node_cfg:
-            url = f"http://{node_cfg.host}:{node_cfg.port}/api/v1/chat"
+            base_url = node_cfg.url.rstrip("/")
+            url = f"{base_url}/api/v1/chat" if "/api/" not in base_url else base_url
+        else:
+            url = "http://127.0.0.1:1234/api/v1/chat"
 
-        lm_input = prepare_lmstudio_input(prompt)
-        payload = build_lmstudio_payload(lm_input, model="qwen3-8b")
+        model_id = node_cfg.default_model if node_cfg and node_cfg.default_model else "qwen3-8b"
+        # LM Studio uses short model name (e.g. "qwen3-8b"), strip org prefix
+        model_name = model_id.split("/")[-1] if "/" in model_id else model_id
+        lm_input = prepare_lmstudio_input(prompt, node, model_name)
+        payload = build_lmstudio_payload(model_name, lm_input)
         async with httpx.AsyncClient(timeout=120) as client:
             r = await client.post(url, json=payload)
             data = r.json()

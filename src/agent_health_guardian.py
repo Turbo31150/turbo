@@ -99,7 +99,7 @@ class HealthGuardian:
         t0 = time.perf_counter()
         node_checks = []
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=30) as client:
             tasks = [self._check_node(client, name, cfg) for name, cfg in self.HEALTH_CHECKS.items()]
             results = await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -256,7 +256,7 @@ class HealthGuardian:
             if alert.alert_type == "degraded" and alert.target == "M1":
                 # Try to load qwen3-8b on M1
                 try:
-                    async with httpx.AsyncClient() as c:
+                    async with httpx.AsyncClient(timeout=30) as c:
                         r = await c.post(
                             "http://127.0.0.1:1234/api/v1/models/load",
                             json={"model": "qwen3-8b"}, timeout=30,

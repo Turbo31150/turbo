@@ -96,7 +96,7 @@ class AutoScaler:
 
         # Check M1 loaded models
         try:
-            async with httpx.AsyncClient() as c:
+            async with httpx.AsyncClient(timeout=30) as c:
                 r = await c.get("http://127.0.0.1:1234/api/v1/models", timeout=3)
                 models = r.json().get("data", r.json().get("models", []))
                 loaded = [m for m in models if m.get("loaded_instances")]
@@ -133,7 +133,7 @@ class AutoScaler:
 
         # Check OL1 status
         try:
-            async with httpx.AsyncClient() as c:
+            async with httpx.AsyncClient(timeout=30) as c:
                 r = await c.get("http://127.0.0.1:11434/api/tags", timeout=3)
                 models = r.json().get("models", [])
                 actions.append({
@@ -192,7 +192,7 @@ class AutoScaler:
         for a in actions:
             if a["action"] == "load_model" and "qwen3-8b" in a["target"]:
                 try:
-                    async with httpx.AsyncClient() as c:
+                    async with httpx.AsyncClient(timeout=30) as c:
                         r = await c.post(
                             "http://127.0.0.1:1234/api/v1/models/load",
                             json={"model": "qwen3-8b"}, timeout=30,

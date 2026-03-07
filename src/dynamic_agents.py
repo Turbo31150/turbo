@@ -203,7 +203,7 @@ class DynamicAgentSpawner:
                     "available": list(self.agents.keys())[:20]}
 
         pa = agent.to_pattern_agent()
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=30) as client:
             result = await pa.execute(client, prompt)
             return {
                 "content": result.content,

@@ -212,7 +212,7 @@ class Orchestrator:
         if not nodes:
             nodes = self.router.pick_nodes("reasoning", count=3)
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=30) as client:
             tasks = []
             for node in nodes:
                 agent = self.registry.agents.get("reasoning") or list(self.registry.agents.values())[0]
@@ -264,7 +264,7 @@ class Orchestrator:
         t0 = time.perf_counter()
         nodes = self.router.pick_nodes(pattern, count=count)
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=30) as client:
             agent = self.registry.agents.get(pattern) or list(self.registry.agents.values())[0]
             tasks = [agent._call_node(client, n, prompt) for n in nodes]
 
