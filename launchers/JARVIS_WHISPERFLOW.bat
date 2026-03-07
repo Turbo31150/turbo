@@ -10,17 +10,12 @@ echo  JARVIS WhisperFlow - Voice Overlay
 echo ========================================
 echo.
 
-:: Start backend WebSocket server if not already running
-echo [*] Checking backend on port 9742...
-netstat -ano | findstr "127.0.0.1:9742" | findstr "LISTENING" >nul 2>&1
-if %errorlevel% neq 0 (
-    echo [*] Starting WebSocket backend...
-    start /min "JARVIS-WS-Backend" cmd /c "cd /d F:\BUREAU\turbo && C:\Users\franc\.local\bin\uv.exe run python -m python_ws.server"
-    echo [*] Waiting for backend startup...
-    timeout /t 3 /nobreak >nul
-) else (
-    echo [+] Backend already running on port 9742
-)
+:: Start backend WebSocket server — kill existant + restart
+echo [*] WS Backend :9742 — kill existant + restart...
+python scripts/singleton_guard.py --name jarvis_ws --kill --port 9742
+start /min "JARVIS-WS-Backend" cmd /c "cd /d F:\BUREAU\turbo && C:\Users\franc\.local\bin\uv.exe run python -m python_ws.server"
+echo [*] Waiting for backend startup...
+timeout /t 3 /nobreak >nul
 
 :: Verify backend is up
 curl -s --max-time 2 http://127.0.0.1:9742/health >nul 2>&1

@@ -102,6 +102,12 @@ N8N_CMD = r"C:\nvm4w\nodejs\n8n.cmd"
 
 LMS_CLI = str(HOME / ".lmstudio" / "bin" / "lms.exe")
 
+# OpenClaw gateway binary
+OPENCLAW_CMD = str(HOME / "AppData" / "Roaming" / "npm" / "node_modules" / "openclaw" / "dist" / "index.js")
+
+# Gemini proxy DAEMON (OpenClaw version, HTTP server on :18791)
+GEMINI_PROXY_DAEMON = str(OPENCLAW_DIR / "gemini-proxy.js")
+
 # SQLite databases to verify
 DATABASES = {
     "etoile": TURBO_DIR / "data" / "etoile.db",
@@ -120,7 +126,7 @@ BOOT_LOCK_FILE = TURBO_DIR / "data" / ".unified-boot.lock"
 _boot_lock_fh = None  # Keep file handle open for Windows file lock
 
 def check_boot_singleton():
-    """Prevent multiple unified_boot instances using Windows file locking.
+    """Ensure only one unified_boot runs. Kills the old one if a new one starts.
     The lock is held for the process lifetime and auto-released on crash/kill.
     """
     global _boot_lock_fh
@@ -132,13 +138,57 @@ def check_boot_singleton():
         _boot_lock_fh.write(str(os.getpid()))
         _boot_lock_fh.flush()
     except (OSError, IOError):
-        # Lock held by another instance — read its PID for info
+        # Lock held by another instance — KILL it and take over
+        old_pid = None
         try:
-            pid = int(BOOT_LOCK_FILE.read_text().strip())
+            old_pid = int(BOOT_LOCK_FILE.read_text().strip())
         except (ValueError, OSError):
-            pid = "?"
-        print(f"{C_RED}[XX] ABORT: unified_boot already running (PID {pid}){C_RESET}")
-        sys.exit(0)
+            pass
+        if old_pid:
+            print(f"{C_YELLOW}[!!] unified_boot existant (PID {old_pid}) — arret...{C_RESET}")
+            try:
+                subprocess.run(
+                    ["taskkill", "/PID", str(old_pid), "/F", "/T"],
+                    capture_output=True, timeout=10,
+                )
+            except Exception:
+                pass
+        else:
+            # Stale lock without valid PID — just remove it
+            print(f"{C_YELLOW}[!!] Lock orphelin detecte — nettoyage...{C_RESET}")
+        # Close stale handle if any, wait for port/lock release
+        if _boot_lock_fh:
+            try:
+                _boot_lock_fh.close()
+            except Exception:
+                pass
+        time.sleep(2)
+        # Retry lock acquisition
+        try:
+            _boot_lock_fh = open(BOOT_LOCK_FILE, "w")
+            msvcrt.locking(_boot_lock_fh.fileno(), msvcrt.LK_NBLCK, 1)
+            _boot_lock_fh.write(str(os.getpid()))
+            _boot_lock_fh.flush()
+            print(f"{C_GREEN}[OK] Lock acquis (ancien PID {old_pid} tue){C_RESET}")
+        except (OSError, IOError):
+            # Last resort: force delete and retry
+            try:
+                _boot_lock_fh.close()
+            except Exception:
+                pass
+            try:
+                BOOT_LOCK_FILE.unlink(missing_ok=True)
+            except OSError:
+                pass
+            time.sleep(1)
+            try:
+                _boot_lock_fh = open(BOOT_LOCK_FILE, "w")
+                msvcrt.locking(_boot_lock_fh.fileno(), msvcrt.LK_NBLCK, 1)
+                _boot_lock_fh.write(str(os.getpid()))
+                _boot_lock_fh.flush()
+            except (OSError, IOError):
+                print(f"{C_RED}[XX] Lock impossible apres kill — abandon{C_RESET}")
+                sys.exit(1)
 
 
 # ============================================================================
@@ -340,52 +390,57 @@ def phase_1_infrastructure(dry_run: bool = False) -> dict:
     else:
         log("nvidia-smi non disponible", "WARN", indent=1)
 
-    # -- LM Studio (M1) --
-    m1_online = check_port(NODES["M1"]["ip"], NODES["M1"]["port"])
-    if m1_online:
-        log("M1 LM Studio: deja actif sur :1234", "OK", indent=1)
-        report["m1"] = "already_running"
+    # -- LM Studio (M1) — kill existant + restart --
+    if dry_run:
+        log("M1 LM Studio: (dry-run, skip)", "WARN", indent=1)
+        report["m1"] = "dry_run"
     else:
-        if dry_run:
-            log("M1 LM Studio: OFFLINE (dry-run, skip start)", "WARN", indent=1)
-            report["m1"] = "dry_run"
-        else:
-            log("M1 LM Studio: demarrage serveur...", "INFO", indent=1)
+        was_running = check_port(NODES["M1"]["ip"], NODES["M1"]["port"])
+        if was_running:
+            log("M1 LM Studio: existant detecte, arret...", "INFO", indent=1)
             try:
                 subprocess.run(
-                    [LMS_CLI, "server", "start"],
-                    capture_output=True, timeout=30, encoding="utf-8",
+                    [LMS_CLI, "server", "stop"],
+                    capture_output=True, timeout=15, encoding="utf-8",
                 )
-                if wait_for_port("127.0.0.1", 1234, max_wait=20):
-                    log("M1 LM Studio: demarre", "OK", indent=1)
-                    report["m1"] = "started"
-                else:
-                    log("M1 LM Studio: pas de reponse apres 20s", "FAIL", indent=1)
-                    report["m1"] = "start_failed"
-            except (subprocess.SubprocessError, OSError) as e:
-                log(f"M1 LM Studio: erreur CLI ({e})", "FAIL", indent=1)
-                report["m1"] = "error"
-
-    # -- Ollama --
-    ol_online = check_port(OLLAMA["ip"], OLLAMA["port"])
-    if ol_online:
-        data = http_get(f"{OLLAMA['url']}/api/tags")
-        count = len(data.get("models", [])) if data else 0
-        log(f"Ollama: actif ({count} modeles)", "OK", indent=1)
-        report["ollama"] = {"status": "online", "models": count}
-    else:
-        if dry_run:
-            log("Ollama: OFFLINE (dry-run, skip start)", "WARN", indent=1)
-            report["ollama"] = {"status": "dry_run"}
-        else:
-            log("Ollama: demarrage...", "INFO", indent=1)
-            start_process(["ollama", "serve"], "Ollama")
-            if wait_for_port("127.0.0.1", 11434, max_wait=15):
-                log("Ollama: demarre", "OK", indent=1)
-                report["ollama"] = {"status": "started"}
+                time.sleep(2)
+            except (subprocess.SubprocessError, OSError):
+                _singleton.kill_on_port(1234)
+                time.sleep(1)
+        log("M1 LM Studio: demarrage serveur...", "INFO", indent=1)
+        try:
+            subprocess.run(
+                [LMS_CLI, "server", "start"],
+                capture_output=True, timeout=30, encoding="utf-8",
+            )
+            if wait_for_port("127.0.0.1", 1234, max_wait=20):
+                log(f"M1 LM Studio: demarre (restart={'oui' if was_running else 'non'})", "OK", indent=1)
+                report["m1"] = "restarted" if was_running else "started"
             else:
-                log("Ollama: echec demarrage", "FAIL", indent=1)
-                report["ollama"] = {"status": "failed"}
+                log("M1 LM Studio: pas de reponse apres 20s", "FAIL", indent=1)
+                report["m1"] = "start_failed"
+        except (subprocess.SubprocessError, OSError) as e:
+            log(f"M1 LM Studio: erreur CLI ({e})", "FAIL", indent=1)
+            report["m1"] = "error"
+
+    # -- Ollama — kill existant + restart --
+    if dry_run:
+        log("Ollama: (dry-run, skip)", "WARN", indent=1)
+        report["ollama"] = {"status": "dry_run"}
+    else:
+        was_running = check_port(OLLAMA["ip"], OLLAMA["port"])
+        if was_running:
+            log("Ollama: existant detecte, arret via singleton...", "INFO", indent=1)
+        log("Ollama: demarrage...", "INFO", indent=1)
+        start_process(["ollama", "serve"], "Ollama", singleton_port=11434)
+        if wait_for_port("127.0.0.1", 11434, max_wait=15):
+            log(f"Ollama: demarre (restart={'oui' if was_running else 'non'})", "OK", indent=1)
+            data = http_get(f"{OLLAMA['url']}/api/tags")
+            count = len(data.get("models", [])) if data else 0
+            report["ollama"] = {"status": "restarted" if was_running else "started", "models": count}
+        else:
+            log("Ollama: echec demarrage", "FAIL", indent=1)
+            report["ollama"] = {"status": "failed"}
 
     # -- M2 / M3 (check only — remote, can't start) --
     for node_name in ("M2", "M3"):
@@ -515,20 +570,21 @@ def phase_2_models(dry_run: bool = False) -> dict:
 # PHASE 3: NODE SERVICES
 # ============================================================================
 def phase_3_node_services(dry_run: bool = False, skip: list[str] | None = None) -> dict:
-    """Start n8n, Gemini proxy, Canvas proxy."""
+    """Start n8n, Gemini proxy, Canvas proxy. Kills existing before restart (anti-doublon)."""
     log("PHASE 3 — SERVICES NODE (n8n + proxies)", "PHASE")
     skip = skip or []
     report: dict[str, Any] = {}
 
-    # -- n8n --
+    # -- n8n — kill existant + restart --
     if "n8n" not in skip:
-        if check_port("127.0.0.1", 5678):
-            log("n8n: deja actif sur :5678", "OK", indent=1)
-            report["n8n"] = "already_running"
-        elif dry_run:
-            log("n8n: OFFLINE (dry-run)", "WARN", indent=1)
+        if dry_run:
+            log("n8n: (dry-run, skip)", "WARN", indent=1)
             report["n8n"] = "dry_run"
         else:
+            was_running = check_port("127.0.0.1", 5678)
+            if was_running:
+                log("n8n: existant detecte, arret via singleton...", "INFO", indent=1)
+            _singleton.acquire("n8n", pid=0, port=5678)
             log("n8n: demarrage...", "INFO", indent=1)
             env = os.environ.copy()
             env["N8N_SECURE_COOKIE"] = "false"
@@ -537,10 +593,6 @@ def phase_3_node_services(dry_run: bool = False, skip: list[str] | None = None) 
             env["EXECUTIONS_DATA_PRUNE"] = "true"
             env["EXECUTIONS_DATA_MAX_AGE"] = "72"
             try:
-                # Singleton: kill existing n8n before starting
-                _singleton.acquire("n8n", pid=0, port=5678)
-
-                # Use .cmd wrapper on Windows for proper PATH resolution
                 n8n_bin = N8N_CMD if os.path.exists(N8N_CMD) else "n8n"
                 proc = subprocess.Popen(
                     [n8n_bin, "start"],
@@ -551,8 +603,8 @@ def phase_3_node_services(dry_run: bool = False, skip: list[str] | None = None) 
                 _launched_procs.append(proc)
                 _singleton.register("n8n", proc.pid)
                 if wait_for_port("127.0.0.1", 5678, max_wait=30):
-                    log("n8n: demarre (PID {})".format(proc.pid), "OK", indent=1)
-                    report["n8n"] = "started"
+                    log(f"n8n: demarre PID {proc.pid} (restart={'oui' if was_running else 'non'})", "OK", indent=1)
+                    report["n8n"] = "restarted" if was_running else "started"
                 else:
                     log("n8n: pas pret apres 30s", "FAIL", indent=1)
                     report["n8n"] = "timeout"
@@ -560,48 +612,39 @@ def phase_3_node_services(dry_run: bool = False, skip: list[str] | None = None) 
                 log("n8n: commande introuvable ({})".format(N8N_CMD), "FAIL", indent=1)
                 report["n8n"] = "not_found"
 
-    # -- Gemini Proxy --
-    gemini_proxy_path = TURBO_DIR / "gemini-proxy.js"
-    if "gemini" not in skip and gemini_proxy_path.exists():
-        if check_port("127.0.0.1", 18791):
-            log("Gemini proxy: deja actif sur :18791", "OK", indent=1)
-            report["gemini_proxy"] = "already_running"
-        elif dry_run:
-            log("Gemini proxy: OFFLINE (dry-run)", "WARN", indent=1)
+    # -- Gemini Proxy DAEMON — kill existant + restart --
+    gemini_daemon = Path(GEMINI_PROXY_DAEMON)
+    if "gemini" not in skip and gemini_daemon.exists():
+        if dry_run:
+            log("Gemini proxy daemon: (dry-run, skip)", "WARN", indent=1)
             report["gemini_proxy"] = "dry_run"
         else:
-            log("Gemini proxy: demarrage...", "INFO", indent=1)
-            # Singleton: kill existing gemini proxy
-            _singleton.acquire("gemini_proxy", pid=0, port=18791)
-            try:
-                proc = subprocess.Popen(
-                    ["node", str(gemini_proxy_path)],
-                    cwd=str(TURBO_DIR),
-                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                    creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
-                )
-                _launched_procs.append(proc)
-                _singleton.register("gemini_proxy", proc.pid)
-                log(f"  Started Gemini Proxy (PID {proc.pid}) [singleton]", "DIM", indent=1)
-            except Exception as e:
-                log(f"  Gemini proxy start error: {e}", "FAIL", indent=1)
-            if wait_for_port("127.0.0.1", 18791, max_wait=15):
-                log("Gemini proxy: demarre sur :18791", "OK", indent=1)
-                report["gemini_proxy"] = "started"
+            was_running = check_port("127.0.0.1", 18791)
+            if was_running:
+                log("Gemini proxy: existant detecte, arret via singleton...", "INFO", indent=1)
+            log("Gemini proxy daemon: demarrage...", "INFO", indent=1)
+            start_process(
+                ["node", str(gemini_daemon)],
+                "Gemini Proxy", cwd=str(gemini_daemon.parent),
+                singleton_port=18791,
+            )
+            if wait_for_port("127.0.0.1", 18791, max_wait=10):
+                log(f"Gemini proxy: demarre :18791 (restart={'oui' if was_running else 'non'})", "OK", indent=1)
+                report["gemini_proxy"] = "restarted" if was_running else "started"
             else:
-                log("Gemini proxy: port 18791 pas ouvert apres 15s", "WARN", indent=1)
+                log("Gemini proxy: port 18791 pas ouvert apres 10s", "WARN", indent=1)
                 report["gemini_proxy"] = "failed"
 
-    # -- Canvas Direct Proxy --
+    # -- Canvas Direct Proxy — singleton anti-doublon --
     canvas_proxy_path = TURBO_DIR / "canvas" / "direct-proxy.js"
     if "canvas" not in skip and canvas_proxy_path.exists():
-        if check_port("127.0.0.1", 18800):
-            log("Canvas proxy: deja actif sur :18800", "OK", indent=1)
-            report["canvas_proxy"] = "already_running"
-        elif dry_run:
-            log("Canvas proxy: OFFLINE (dry-run)", "WARN", indent=1)
+        if dry_run:
+            log("Canvas proxy: (dry-run, skip)", "WARN", indent=1)
             report["canvas_proxy"] = "dry_run"
         else:
+            was_running = check_port("127.0.0.1", 18800)
+            if was_running:
+                log("Canvas proxy: existant detecte, arret via singleton...", "INFO", indent=1)
             log("Canvas proxy: demarrage...", "INFO", indent=1)
             start_process(
                 ["node", str(canvas_proxy_path)],
@@ -609,11 +652,34 @@ def phase_3_node_services(dry_run: bool = False, skip: list[str] | None = None) 
                 singleton_port=18800,
             )
             if wait_for_port("127.0.0.1", 18800, max_wait=10):
-                log("Canvas proxy: demarre sur :18800", "OK", indent=1)
-                report["canvas_proxy"] = "started"
+                log(f"Canvas proxy: demarre :18800 (restart={'oui' if was_running else 'non'})", "OK", indent=1)
+                report["canvas_proxy"] = "restarted" if was_running else "started"
             else:
                 log("Canvas proxy: echec", "FAIL", indent=1)
                 report["canvas_proxy"] = "failed"
+
+    # -- OpenClaw Gateway — kill existant + restart --
+    openclaw_bin = Path(OPENCLAW_CMD)
+    if "openclaw" not in skip and openclaw_bin.exists():
+        if dry_run:
+            log("OpenClaw Gateway: (dry-run, skip)", "WARN", indent=1)
+            report["openclaw"] = "dry_run"
+        else:
+            was_running = check_port("127.0.0.1", 18789)
+            if was_running:
+                log("OpenClaw: existant detecte, arret via singleton...", "INFO", indent=1)
+            log("OpenClaw Gateway: demarrage...", "INFO", indent=1)
+            start_process(
+                ["node", str(openclaw_bin), "gateway", "--port", "18789"],
+                "OpenClaw Gateway",
+                singleton_port=18789,
+            )
+            if wait_for_port("127.0.0.1", 18789, max_wait=10):
+                log(f"OpenClaw: demarre :18789 (restart={'oui' if was_running else 'non'})", "OK", indent=1)
+                report["openclaw"] = "restarted" if was_running else "started"
+            else:
+                log("OpenClaw: port 18789 pas ouvert apres 10s", "FAIL", indent=1)
+                report["openclaw"] = "failed"
 
     return report
 
@@ -622,22 +688,22 @@ def phase_3_node_services(dry_run: bool = False, skip: list[str] | None = None) 
 # PHASE 4: PYTHON SERVICES
 # ============================================================================
 def phase_4_python_services(dry_run: bool = False, skip: list[str] | None = None) -> dict:
-    """Start Dashboard, Telegram bot."""
-    log("PHASE 4 — SERVICES PYTHON (Dashboard + Telegram)", "PHASE")
+    """Start Dashboard, WS backend, Telegram bot. Kills existing before restart (anti-doublon)."""
+    log("PHASE 4 — SERVICES PYTHON (Dashboard + WS + Telegram)", "PHASE")
     skip = skip or []
     report: dict[str, Any] = {}
     uv = str(HOME / ".local" / "bin" / "uv.exe")
 
-    # -- Dashboard --
+    # -- Dashboard — singleton anti-doublon --
     dashboard_script = TURBO_DIR / "dashboard" / "server.py"
     if "dashboard" not in skip and dashboard_script.exists():
-        if check_port("127.0.0.1", 8080):
-            log("Dashboard: deja actif sur :8080", "OK", indent=1)
-            report["dashboard"] = "already_running"
-        elif dry_run:
-            log("Dashboard: OFFLINE (dry-run)", "WARN", indent=1)
+        if dry_run:
+            log("Dashboard: (dry-run, skip)", "WARN", indent=1)
             report["dashboard"] = "dry_run"
         else:
+            was_running = check_port("127.0.0.1", 8080)
+            if was_running:
+                log("Dashboard: existant detecte, arret via singleton...", "INFO", indent=1)
             log("Dashboard: demarrage...", "INFO", indent=1)
             start_process(
                 [uv, "run", "python", str(dashboard_script)],
@@ -645,31 +711,31 @@ def phase_4_python_services(dry_run: bool = False, skip: list[str] | None = None
                 singleton_port=8080,
             )
             if wait_for_port("127.0.0.1", 8080, max_wait=10):
-                log("Dashboard: demarre sur :8080", "OK", indent=1)
-                report["dashboard"] = "started"
+                log(f"Dashboard: demarre :8080 (restart={'oui' if was_running else 'non'})", "OK", indent=1)
+                report["dashboard"] = "restarted" if was_running else "started"
             else:
                 log("Dashboard: echec", "FAIL", indent=1)
                 report["dashboard"] = "failed"
 
-    # -- Python WebSocket Server (Electron backend) --
+    # -- Python WebSocket Server — singleton anti-doublon --
     ws_script = TURBO_DIR / "python_ws" / "server.py"
     if "ws" not in skip and ws_script.exists():
-        if check_port("127.0.0.1", 9742):
-            log("Python WS: deja actif sur :9742", "OK", indent=1)
-            report["jarvis_ws"] = "already_running"
-        elif dry_run:
-            log("Python WS: OFFLINE (dry-run)", "WARN", indent=1)
+        if dry_run:
+            log("Python WS: (dry-run, skip)", "WARN", indent=1)
             report["jarvis_ws"] = "dry_run"
         else:
+            was_running = check_port("127.0.0.1", 9742)
+            if was_running:
+                log("Python WS: existant detecte, arret via singleton...", "INFO", indent=1)
             log("Python WS: demarrage...", "INFO", indent=1)
             start_process(
                 [uv, "run", "python", str(ws_script)],
                 "JARVIS WS", cwd=str(TURBO_DIR),
                 singleton_port=9742,
             )
-            if wait_for_port("127.0.0.1", 9742, max_wait=15):
-                log("Python WS: demarre sur :9742", "OK", indent=1)
-                report["jarvis_ws"] = "started"
+            if wait_for_port("127.0.0.1", 9742, max_wait=25):
+                log(f"Python WS: demarre :9742 (restart={'oui' if was_running else 'non'})", "OK", indent=1)
+                report["jarvis_ws"] = "restarted" if was_running else "started"
             else:
                 log("Python WS: echec", "FAIL", indent=1)
                 report["jarvis_ws"] = "failed"
@@ -738,6 +804,28 @@ def phase_4_python_services(dry_run: bool = False, skip: list[str] | None = None
                 log("WhisperFlow: skip (WS backend pas pret sur :9742)", "WARN", indent=1)
                 report["whisperflow"] = "no_ws_backend"
 
+    # -- MCP SSE Server — singleton anti-doublon --
+    if "mcp_sse" not in skip:
+        if dry_run:
+            log("MCP SSE: (dry-run, skip)", "WARN", indent=1)
+            report["mcp_sse"] = "dry_run"
+        else:
+            was_running = check_port("127.0.0.1", 8901)
+            if was_running:
+                log("MCP SSE: existant detecte, arret via singleton...", "INFO", indent=1)
+            log("MCP SSE: demarrage :8901...", "INFO", indent=1)
+            start_process(
+                [uv, "run", "python", "-m", "src.mcp_server_sse", "--port", "8901"],
+                "MCP SSE", cwd=str(TURBO_DIR),
+                singleton_port=8901,
+            )
+            if wait_for_port("127.0.0.1", 8901, max_wait=10):
+                log(f"MCP SSE: demarre :8901 (restart={'oui' if was_running else 'non'})", "OK", indent=1)
+                report["mcp_sse"] = "restarted" if was_running else "started"
+            else:
+                log("MCP SSE: port 8901 pas ouvert apres 10s", "FAIL", indent=1)
+                report["mcp_sse"] = "failed"
+
     return report
 
 
@@ -745,7 +833,7 @@ def phase_4_python_services(dry_run: bool = False, skip: list[str] | None = None
 # PHASE 5: WATCHDOGS
 # ============================================================================
 def phase_5_watchdogs(dry_run: bool = False, skip: list[str] | None = None) -> dict:
-    """Start OpenClaw watchdog, orchestrator, autonomy engine."""
+    """Start OpenClaw watchdog, orchestrator, autonomy engine. Kills existing before restart."""
     log("PHASE 5 — WATCHDOGS & AUTONOMY", "PHASE")
     skip = skip or []
     report: dict[str, Any] = {}
@@ -803,6 +891,22 @@ def phase_5_watchdogs(dry_run: bool = False, skip: list[str] | None = None) -> d
             )
             log("Autonomy Engine: lance (self-heal + optimize + trends)", "OK", indent=1)
             report["autonomy"] = "started"
+
+    # -- Auto-Heal Daemon (10000 cycles, Telegram, multi-pipeline) --
+    heal_script = TURBO_DIR / "scripts" / "auto_heal_daemon.py"
+    if "auto_heal" not in skip and heal_script.exists():
+        if dry_run:
+            log("Auto-Heal Daemon: (dry-run, skip)", "WARN", indent=1)
+            report["auto_heal"] = "dry_run"
+        else:
+            log("Auto-Heal Daemon: demarrage (10000 cycles, 30s)...", "INFO", indent=1)
+            start_process(
+                [sys.executable, str(heal_script), "--cycles", "10000", "--interval", "30"],
+                "Auto Heal Daemon",
+                cwd=str(TURBO_DIR),
+            )
+            log("Auto-Heal Daemon: lance (detect + fix + Telegram + boucle)", "OK", indent=1)
+            report["auto_heal"] = "started"
 
     return report
 
@@ -1337,6 +1441,8 @@ def main():
     parser.add_argument("--json", action="store_true", help="Output JSON report")
     parser.add_argument("--watch", action="store_true",
                         help="After boot, stay alive and restart crashed services")
+    parser.add_argument("--fresh", action="store_true",
+                        help="Kill existing services before restarting (anti-doublon)")
     parser.add_argument("--watch-interval", type=int, default=60,
                         help="Seconds between watchdog checks (default: 60)")
     args = parser.parse_args()
@@ -1367,6 +1473,9 @@ def main():
     t0 = time.time()
     banner("JARVIS UNIFIED BOOT v10.6")
     reports: dict[str, Any] = {}
+
+    # Anti-doublon: chaque service est tue+relance via singleton (kill_existing + kill_on_port)
+    log("Mode anti-doublon actif: kill existant avant relance", "INFO")
 
     try:
         if 1 in phases_to_run:

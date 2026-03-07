@@ -742,6 +742,29 @@ async def api_queue_enqueue(request: Request):
         return JSONResponse({"error": str(exc)}, status_code=500)
 
 
+@app.post("/api/queue/cancel")
+async def api_queue_cancel(request: Request):
+    """Cancel a pending task. Body: {task_id}"""
+    try:
+        from src.task_queue import task_queue
+        body = await request.json()
+        ok = task_queue.cancel(body.get("task_id", ""))
+        return JSONResponse({"ok": ok})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/queue/retry")
+async def api_queue_retry():
+    """Reset all failed tasks to pending."""
+    try:
+        from src.task_queue import task_queue
+        count = task_queue.retry_failed()
+        return JSONResponse({"ok": True, "retried": count})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
 @app.get("/api/self-improve/status")
 async def api_self_improve_status():
     """Self-improvement engine status + history."""
