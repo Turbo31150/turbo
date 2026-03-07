@@ -86,12 +86,8 @@ class PerplexityBridge:
         
         # Log to brain for pattern analysis
         try:
-            from src.brain import brain
-            brain.log_action("perplexity_interaction", {
-                "prompt": prompt[:300],
-                "tools": tools_used or [],
-                "ts": time.time()
-            })
+            from src.skills import log_action
+            log_action("perplexity_interaction", f"prompt={prompt[:200]}", True)
         except Exception as e:
             logger.error(f"Failed to log to brain: {e}")
         
@@ -174,7 +170,7 @@ class PerplexityBridge:
     ) -> dict[str, Any]:
         """Create a new JARVIS skill based on Perplexity analysis."""
         try:
-            from src.brain import brain
+            from src.skills import add_skill, Skill, SkillStep, log_action
             skill_data = {
                 "name": name,
                 "description": description,
@@ -184,15 +180,15 @@ class PerplexityBridge:
                 "source": "perplexity_bridge",
                 "created_at": time.time()
             }
-            
-            # Create via brain
-            brain.create_skill(
+
+            # Create via skills module
+            add_skill(Skill(
                 name=name,
                 description=description,
                 triggers=triggers,
-                steps=[json.dumps(s) for s in steps],
-                category=category
-            )
+                steps=[SkillStep(tool=json.dumps(s)) for s in steps],
+                category=category,
+            ))
             self.skills_created += 1
             
             # Emit event

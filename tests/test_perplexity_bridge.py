@@ -72,7 +72,7 @@ class TestLearnFromInteraction:
 
         with patch.dict("sys.modules", {
             "src.agent_memory": MagicMock(agent_memory=mock_memory),
-            "src.brain": MagicMock(brain=mock_brain),
+            "src.skills": MagicMock(log_action=MagicMock()),
             "src.event_bus": MagicMock(event_bus=mock_bus),
         }):
             result = await pb.learn_from_interaction("test prompt", "test response")
@@ -87,7 +87,7 @@ class TestLearnFromInteraction:
         pb = PerplexityBridge()
         with patch.dict("sys.modules", {
             "src.agent_memory": MagicMock(agent_memory=MagicMock()),
-            "src.brain": MagicMock(brain=MagicMock()),
+            "src.skills": MagicMock(log_action=MagicMock()),
             "src.event_bus": MagicMock(event_bus=MagicMock(emit=AsyncMock())),
         }):
             result = await pb.learn_from_interaction(
@@ -103,7 +103,7 @@ class TestLearnFromInteraction:
         mock_memory.store.side_effect = Exception("DB error")
         with patch.dict("sys.modules", {
             "src.agent_memory": MagicMock(agent_memory=mock_memory),
-            "src.brain": MagicMock(brain=MagicMock()),
+            "src.skills": MagicMock(log_action=MagicMock()),
             "src.event_bus": MagicMock(event_bus=MagicMock(emit=AsyncMock())),
         }):
             result = await pb.learn_from_interaction("test", "response")
@@ -116,7 +116,7 @@ class TestLearnFromInteraction:
         pb = PerplexityBridge()
         with patch.dict("sys.modules", {
             "src.agent_memory": MagicMock(agent_memory=MagicMock()),
-            "src.brain": MagicMock(brain=MagicMock()),
+            "src.skills": MagicMock(log_action=MagicMock()),
             "src.event_bus": MagicMock(event_bus=MagicMock(emit=AsyncMock())),
         }):
             await pb.learn_from_interaction("q", "x" * 1000)
@@ -179,7 +179,7 @@ class TestCreateSkillFromAnalysis:
         pb = PerplexityBridge()
         mock_brain = MagicMock()
         with patch.dict("sys.modules", {
-            "src.brain": MagicMock(brain=mock_brain),
+            "src.skills": MagicMock(log_action=MagicMock()),
             "src.event_bus": MagicMock(event_bus=MagicMock(emit=AsyncMock())),
         }):
             result = await pb.create_skill_from_analysis(
@@ -193,10 +193,13 @@ class TestCreateSkillFromAnalysis:
     @pytest.mark.asyncio
     async def test_brain_error(self):
         pb = PerplexityBridge()
-        mock_brain = MagicMock()
-        mock_brain.create_skill.side_effect = Exception("DB error")
+        mock_skills = MagicMock()
+        mock_skills.add_skill.side_effect = Exception("DB error")
+        mock_skills.Skill = MagicMock()
+        mock_skills.SkillStep = MagicMock()
+        mock_skills.log_action = MagicMock()
         with patch.dict("sys.modules", {
-            "src.brain": MagicMock(brain=mock_brain),
+            "src.skills": mock_skills,
             "src.event_bus": MagicMock(event_bus=MagicMock(emit=AsyncMock())),
         }):
             result = await pb.create_skill_from_analysis(

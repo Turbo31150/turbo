@@ -135,12 +135,12 @@ async def _get_recent_alerts(hours: int = 24) -> dict[str, Any]:
 
 async def _get_brain_activity() -> dict[str, Any]:
     try:
-        from src.brain import brain
-        status = brain.status() if hasattr(brain, 'status') else {}
+        from src.brain import get_brain_status
+        status = get_brain_status()
         return {
-            "skills_count": status.get("skills_count", 0),
-            "patterns_detected": status.get("patterns_detected", 0),
-            "actions_logged": status.get("actions_logged", 0)
+            "skills_count": status.get("total_skills", 0),
+            "patterns_detected": len(status.get("patterns_detected", [])),
+            "actions_logged": status.get("total_actions", 0)
         }
     except Exception as e:
         return {"error": str(e)}

@@ -213,15 +213,12 @@ async def wire_all() -> dict[str, int]:
     async def on_voice_command(data: dict[str, Any]) -> None:
         """Voice command processed -- store for pattern learning."""
         try:
-            from src.brain import brain
+            from src.skills import log_action
             text = data.get("text", "")
             intent = data.get("intent", "")
             confidence = data.get("confidence", 0)
             if text:
-                brain.log_action("voice_command", {
-                    "text": text, "intent": intent, 
-                    "confidence": confidence, "ts": time.time()
-                })
+                log_action("voice_command", f"{intent}: {text[:100]}", confidence > 0.5)
         except Exception:
             pass
     

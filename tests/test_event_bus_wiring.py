@@ -478,25 +478,18 @@ class TestVoiceHandler:
     @pytest.mark.asyncio
     async def test_voice_command_logs_to_brain(self, patch_event_bus):
         fake_bus = patch_event_bus
-        mock_brain = MagicMock()
-        mock_brain.log_action = MagicMock()
+        mock_log_action = MagicMock()
         from src.event_bus_wiring import wire_all
-        with patch.dict("sys.modules", {
-            "src.brain": MagicMock(brain=mock_brain)
-        }):
+        with patch("src.skills.log_action", mock_log_action):
             await wire_all()
             await fake_bus.fire_handlers("voice.command_processed", {
                 "text": "ouvre le dashboard", "intent": "open_dashboard",
                 "confidence": 0.95
             })
-            mock_brain.log_action.assert_called_once_with(
+            mock_log_action.assert_called_once_with(
                 "voice_command",
-                {
-                    "text": "ouvre le dashboard",
-                    "intent": "open_dashboard",
-                    "confidence": 0.95,
-                    "ts": mock_brain.log_action.call_args[0][1]["ts"],
-                }
+                "open_dashboard: ouvre le dashboard",
+                True
             )
 
     @pytest.mark.asyncio

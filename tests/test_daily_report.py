@@ -255,27 +255,26 @@ class TestGetBrainActivity:
     async def test_success(self):
         from src.daily_report import _get_brain_activity
 
-        mock_brain = MagicMock()
-        mock_brain.status.return_value = {
-            "skills_count": 89,
-            "patterns_detected": 26,
-            "actions_logged": 500
+        mock_status = {
+            "total_skills": 89,
+            "patterns_detected": [{"p": 1}, {"p": 2}],
+            "total_actions": 500
         }
 
-        with patch.dict("sys.modules", {"src.brain": MagicMock(brain=mock_brain)}):
+        with patch("src.brain.get_brain_status", return_value=mock_status):
             result = await _get_brain_activity()
 
         assert result["skills_count"] == 89
-        assert result["patterns_detected"] == 26
+        assert result["patterns_detected"] == 2
         assert result["actions_logged"] == 500
 
     @pytest.mark.asyncio
     async def test_brain_without_status(self):
         from src.daily_report import _get_brain_activity
 
-        mock_brain = MagicMock(spec=[])  # no 'status' attribute
+        mock_status = {}  # empty status
 
-        with patch.dict("sys.modules", {"src.brain": MagicMock(brain=mock_brain)}):
+        with patch("src.brain.get_brain_status", return_value=mock_status):
             result = await _get_brain_activity()
 
         assert result["skills_count"] == 0
