@@ -9,7 +9,7 @@ Phases:
   2. Modeles         — Load/verify models on M1, check M2/M3
   3. Services Node   — n8n, Gemini proxy, Canvas proxy
   4. Services Python — Dashboard, Telegram bot, MCP SSE
-  5. Watchdogs       — OpenClaw watchdog, cluster monitor
+  5. (Retired)       — Daemons now handled by Automation Hub (port 9742)
   6. Validation      — Health check complet, DB integrity, rapport final
 
 Usage:
@@ -833,82 +833,18 @@ def phase_4_python_services(dry_run: bool = False, skip: list[str] | None = None
 # PHASE 5: WATCHDOGS
 # ============================================================================
 def phase_5_watchdogs(dry_run: bool = False, skip: list[str] | None = None) -> dict:
-    """Start OpenClaw watchdog, orchestrator, autonomy engine. Kills existing before restart."""
-    log("PHASE 5 — WATCHDOGS & AUTONOMY", "PHASE")
-    skip = skip or []
-    report: dict[str, Any] = {}
+    """Phase 5 — retired. All daemons now handled by Automation Hub (python_ws on :9742).
 
-    # -- OpenClaw watchdog --
-    watchdog_script = OPENCLAW_DIR / "workspace" / "dev" / "openclaw_watchdog.py"
-    python312 = r"C:\Users\franc\AppData\Local\Programs\Python\Python312\python.exe"
-
-    if "watchdog" not in skip and watchdog_script.exists():
-        if check_port("127.0.0.1", 18789):
-            if dry_run:
-                log("OpenClaw watchdog: (dry-run, skip)", "WARN", indent=1)
-                report["watchdog"] = "dry_run"
-            else:
-                log("OpenClaw watchdog: demarrage...", "INFO", indent=1)
-                start_process(
-                    [python312, str(watchdog_script), "--loop"],
-                    "OpenClaw Watchdog",
-                    cwd=str(OPENCLAW_DIR / "workspace"),
-                )
-                log("OpenClaw watchdog: lance", "OK", indent=1)
-                report["watchdog"] = "started"
-        else:
-            log("OpenClaw watchdog: skip (OpenClaw non detecte sur :18789)", "DIM", indent=1)
-            report["watchdog"] = "openclaw_offline"
-
-    # -- Task Orchestrator daemon (singleton: auto-kills existing) --
-    orchestrator_script = TURBO_DIR / "scripts" / "task_orchestrator.py"
-    if "orchestrator" not in skip and orchestrator_script.exists():
-        if dry_run:
-            log("Task Orchestrator: (dry-run, skip)", "WARN", indent=1)
-            report["orchestrator"] = "dry_run"
-        else:
-            log("Task Orchestrator: demarrage daemon...", "INFO", indent=1)
-            start_process(
-                [sys.executable, str(orchestrator_script), "--daemon"],
-                "Task Orchestrator",
-                cwd=str(TURBO_DIR),
-            )
-            log("Task Orchestrator: lance (60 tasks, parallel exec)", "OK", indent=1)
-            report["orchestrator"] = "started"
-
-    # -- Cluster Autonomy Engine daemon (singleton: auto-kills existing) --
-    autonomy_script = TURBO_DIR / "scripts" / "cluster_autonomy.py"
-    if "autonomy" not in skip and autonomy_script.exists():
-        if dry_run:
-            log("Autonomy Engine: (dry-run, skip)", "WARN", indent=1)
-            report["autonomy"] = "dry_run"
-        else:
-            log("Autonomy Engine: demarrage daemon...", "INFO", indent=1)
-            start_process(
-                [sys.executable, str(autonomy_script), "--daemon"],
-                "Autonomy Engine",
-                cwd=str(TURBO_DIR),
-            )
-            log("Autonomy Engine: lance (self-heal + optimize + trends)", "OK", indent=1)
-            report["autonomy"] = "started"
-
-    # -- Auto-Heal Daemon (10000 cycles, Telegram, multi-pipeline) --
-    heal_script = TURBO_DIR / "scripts" / "auto_heal_daemon.py"
-    if "auto_heal" not in skip and heal_script.exists():
-        if dry_run:
-            log("Auto-Heal Daemon: (dry-run, skip)", "WARN", indent=1)
-            report["auto_heal"] = "dry_run"
-        else:
-            log("Auto-Heal Daemon: demarrage (10000 cycles, 30s)...", "INFO", indent=1)
-            start_process(
-                [sys.executable, str(heal_script), "--cycles", "10000", "--interval", "30"],
-                "Auto Heal Daemon",
-                cwd=str(TURBO_DIR),
-            )
-            log("Auto-Heal Daemon: lance (detect + fix + Telegram + boucle)", "OK", indent=1)
-            report["auto_heal"] = "started"
-
-    return report
+    Previously launched standalone daemons that are now redundant:
+    - auto_heal_daemon.py   → Automation Hub health_check + self_heal handlers
+    - process_gc.py         → Automation Hub zombie_gc handler
+    - vram_guard.py         → Automation Hub gpu_monitor handler
+    - cluster_autonomy.py   → Automation Hub cluster monitoring
+    - task_orchestrator.py   → Automation Hub task scheduler
+    - openclaw_watchdog.py  → OpenClaw's own Scheduled Task service
+    """
+    log("PHASE 5 — SKIPPED (daemons handled by Automation Hub :9742)", "PHASE")
+    return {"status": "retired_to_automation_hub"}
 
 
 # ============================================================================
@@ -1116,34 +1052,15 @@ WATCH_PROCESSES = {
 }
 
 
-def _start_guards():
-    """Start process GC and VRAM guard as background monitors."""
-    gc_script = TURBO_DIR / "scripts" / "process_gc.py"
-    vram_script = TURBO_DIR / "scripts" / "vram_guard.py"
-
-    if gc_script.exists():
-        start_process(
-            [sys.executable, str(gc_script), "--loop"],
-            "Process GC", cwd=str(TURBO_DIR),
-        )
-        log("Process GC: lance (cycle 5min)", "OK", indent=1)
-
-    if vram_script.exists():
-        start_process(
-            [sys.executable, str(vram_script), "--loop"],
-            "VRAM Guard", cwd=str(TURBO_DIR),
-        )
-        log("VRAM Guard: lance (cycle 30s)", "OK", indent=1)
-
-
 def watch_loop(interval: int = 60):
-    """Continuously monitor services and restart any that crash."""
-    log(f"WATCHDOG actif — check toutes les {interval}s", "PHASE")
+    """Continuously monitor essential services and restart any that crash.
+
+    NOTE: process_gc and vram_guard are no longer launched here — they are
+    handled by Automation Hub (health_check, gpu_monitor, zombie_gc handlers).
+    """
+    log(f"WATCH MODE actif — check services toutes les {interval}s", "PHASE")
     log("Services surveilles: " + ", ".join(WATCH_SERVICES.keys()), "INFO")
     log("Ctrl+C pour arreter", "DIM")
-
-    # Start stability guards alongside watchdog
-    _start_guards()
 
     while True:
         try:
@@ -1302,112 +1219,9 @@ def watch_loop(interval: int = 60):
                     except Exception as e:
                         log(f"  telegram_{cmd}: erreur ({e})", "WARN")
 
-        # ── Zombie Killer — nettoyage processus Python orphelins ──
-        if not hasattr(watch_loop, "_zombie_counter"):
-            watch_loop._zombie_counter = 0
-        watch_loop._zombie_counter += 1
-        zombie_interval_cycles = max(1, 7200 // interval)  # every 2h
-        if watch_loop._zombie_counter >= zombie_interval_cycles:
-            watch_loop._zombie_counter = 0
-            zombie_script = TURBO_DIR / "scripts" / "zombie_killer.py"
-            if zombie_script.exists():
-                try:
-                    r = subprocess.run(
-                        [sys.executable, str(zombie_script), "--kill", "--json"],
-                        capture_output=True, text=True, timeout=30,
-                        encoding="utf-8", errors="replace",
-                    )
-                    if r.returncode == 0 and r.stdout.strip():
-                        try:
-                            zdata = json.loads(r.stdout.strip().split("\n")[-1])
-                            zcount = len(zdata.get("zombies", []))
-                            if zcount > 0:
-                                log(f"  zombie_killer: {zcount} zombies tues", "WARN")
-                            else:
-                                log("  zombie_killer: systeme propre", "OK")
-                        except (json.JSONDecodeError, IndexError):
-                            log("  zombie_killer: execute (parse error)", "WARN")
-                except Exception as e:
-                    log(f"  zombie_killer: erreur ({e})", "WARN")
-
-        # ── Audit cycle 10min — quick check, full audit si haut ──
-        if not hasattr(watch_loop, "_audit_counter"):
-            watch_loop._audit_counter = 0
-        watch_loop._audit_counter += 1
-        audit_cycles = max(1, 600 // interval)  # every 10 minutes
-        if watch_loop._audit_counter >= audit_cycles:
-            watch_loop._audit_counter = 0
-            try:
-                # Quick targeted checks
-                gc_result = subprocess.run(
-                    [sys.executable, str(TURBO_DIR / "scripts" / "process_gc.py"), "--once", "--json"],
-                    capture_output=True, text=True, timeout=20,
-                    encoding="utf-8", errors="replace",
-                )
-                vram_result = subprocess.run(
-                    [sys.executable, str(TURBO_DIR / "scripts" / "vram_guard.py"), "--once", "--json"],
-                    capture_output=True, text=True, timeout=15,
-                    encoding="utf-8", errors="replace",
-                )
-                # Parse results (extract JSON from output that may contain ANSI log lines)
-                def _extract_json(text: str) -> dict:
-                    if not text or not text.strip():
-                        return {}
-                    # Try full output first, then find JSON object
-                    for attempt in [text.strip(), text[text.find("{"):] if "{" in text else ""]:
-                        try:
-                            return json.loads(attempt)
-                        except (json.JSONDecodeError, ValueError):
-                            continue
-                    return {}
-
-                gc_data = _extract_json(gc_result.stdout)
-                vram_data = _extract_json(vram_result.stdout)
-
-                gc_killed = gc_data.get("killed", 0)
-                vram_pct = vram_data.get("max_vram_pct", 0)
-                cowork_active = gc_data.get("cowork_active", 0)
-                is_high = vram_pct >= 85 or gc_killed > 3 or cowork_active > 15
-
-                if gc_killed > 0:
-                    log(f"  audit_10m: GC killed {gc_killed} zombies", "WARN")
-                if vram_pct >= 85:
-                    log(f"  audit_10m: VRAM {vram_pct:.1f}% (haut)", "WARN")
-
-                # Escalade: full audit si indicateurs hauts
-                if is_high:
-                    log("  audit_10m: seuils hauts — lancement audit complet cible", "WARN")
-                    audit_script = TURBO_DIR / "scripts" / "system_audit.py"
-                    if audit_script.exists():
-                        subprocess.run(
-                            [sys.executable, str(audit_script), "--quick", "--save"],
-                            capture_output=True, timeout=120,
-                            encoding="utf-8", errors="replace",
-                        )
-                        log("  audit_10m: audit complet sauvegarde", "OK")
-                    # Force zombie kill if many cowork processes
-                    if cowork_active > 15:
-                        zombie_script = TURBO_DIR / "scripts" / "zombie_killer.py"
-                        if zombie_script.exists():
-                            subprocess.run(
-                                [sys.executable, str(zombie_script), "--kill"],
-                                capture_output=True, timeout=30,
-                                encoding="utf-8", errors="replace",
-                            )
-                            log("  audit_10m: zombie_killer force", "WARN")
-                else:
-                    log(f"  audit_10m: OK (VRAM {vram_pct:.0f}%, cowork {cowork_active}, GC {gc_killed})", "OK")
-
-                # GC conversation checkpoints (once per audit cycle, ~every 10min)
-                cp_script = TURBO_DIR / "scripts" / "conversation_checkpoint.py"
-                if cp_script.exists():
-                    subprocess.run(
-                        [sys.executable, str(cp_script), "--gc", "--days", "7"],
-                        capture_output=True, timeout=10,
-                        encoding="utf-8", errors="replace",
-                    )
-            except Exception as e:
-                log(f"  audit_10m: erreur ({e})", "WARN")
+        # ── Zombie killer, process GC, VRAM guard, audit cycle ──
+        # All removed — handled by Automation Hub (zombie_gc, gpu_monitor,
+        # health_check, self_heal handlers on :9742)
 
         # Check process-based services (WhisperFlow, etc.)
         for svc_id, svc in WATCH_PROCESSES.items():
@@ -1437,7 +1251,7 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="Show what would be done")
     parser.add_argument("--phase", type=str, default="1-6", help="Phases to run (e.g., 1-3, 2,4)")
     parser.add_argument("--skip", type=str, nargs="*", default=[],
-                        help="Services to skip (n8n, gemini, canvas, dashboard, telegram, watchdog)")
+                        help="Services to skip (n8n, gemini, canvas, dashboard, telegram)")
     parser.add_argument("--json", action="store_true", help="Output JSON report")
     parser.add_argument("--watch", action="store_true",
                         help="After boot, stay alive and restart crashed services")

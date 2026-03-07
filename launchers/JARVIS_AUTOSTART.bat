@@ -16,7 +16,6 @@ echo.
 echo [JARVIS] Attente 20s pour stabilisation systeme...
 timeout /t 20 /nobreak >nul
 
-:LOOP
 echo.
 echo [JARVIS] === Lancement %date% %time% ===
 echo.
@@ -25,13 +24,9 @@ echo.
 ::   - Si un ancien tourne, il le TUE puis prend le relais
 ::   - Plus de "ABORT already running" — le nouveau gagne toujours
 ::   - Le lock file est auto-libere si crash (Windows file lock)
-C:\Users\franc\.local\bin\uv.exe run python scripts/jarvis_unified_boot.py --watch --watch-interval 60
+:: Automation Hub (WS:9742) handles monitoring/restart after boot.
+C:\Users\franc\.local\bin\uv.exe run python scripts/jarvis_unified_boot.py
 
-:: Si le script crash, on relance apres 15s
-:: Pas de risque de doublon car le boot tue l'existant au demarrage
 echo.
-echo [JARVIS] Processus termine — restart dans 15s...
-echo [JARVIS] Fermer cette fenetre pour arreter definitivement.
-echo.
-timeout /t 15 /nobreak >nul
-goto LOOP
+echo [JARVIS] Boot complete. Automation Hub handles monitoring from here.
+pause

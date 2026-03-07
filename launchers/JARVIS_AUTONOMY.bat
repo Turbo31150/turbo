@@ -10,9 +10,7 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-:loop
 echo [%date% %time%] Starting JARVIS Autonomy Engine...
 python scripts/cluster_autonomy.py --daemon
-echo [%date% %time%] Autonomy Engine stopped. Restarting in 15s...
-timeout /t 15 /noq
-goto loop
+echo [%date% %time%] Autonomy Engine finished.
+pause
