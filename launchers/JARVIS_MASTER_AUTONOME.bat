@@ -1,35 +1,37 @@
 @echo off
 title JARVIS Master Autonome — Full Stack
+cd /d F:\BUREAU\turbo
+
+:: === SINGLETON GUARD: tue les instances existantes ===
+for %%s in (canvas_proxy telegram_bot autonomous_orchestrator master_autonome) do (
+    python scripts/singleton_guard.py --name %%s --kill 2>nul
+)
+
 echo ============================================================
 echo  JARVIS MASTER AUTONOME — Lancement complet
 echo  Proxy + Bot Telegram + Pipeline Autonome + Master
+echo  Anti-doublon: existants tues, instances fraiches
 echo ============================================================
 echo.
-cd /d F:\BUREAU\turbo
 
-:: 1. Proxy Canvas (18800)
-echo [1/4] Verification du proxy Canvas...
-curl -s --max-time 2 http://127.0.0.1:18800/health >nul 2>&1
-if %errorlevel% neq 0 (
-    echo [*] Demarrage Canvas Direct Proxy :18800...
-    start "JARVIS-Proxy" /min cmd /c "cd /d F:\BUREAU\turbo && node canvas\direct-proxy.js"
-    timeout /t 3 /nobreak >nul
-) else (
-    echo [OK] Proxy deja actif sur :18800
-)
+:: 1. Proxy Canvas (18800) — kill existant + restart
+echo [1/4] Canvas Direct Proxy :18800...
+python scripts/singleton_guard.py --name canvas_proxy --kill --port 18800
+start "JARVIS-Proxy" /min cmd /c "cd /d F:\BUREAU\turbo && node canvas\direct-proxy.js"
+timeout /t 3 /nobreak >nul
 
-:: 2. Bot Telegram
-echo [2/4] Demarrage du Bot Telegram...
+:: 2. Bot Telegram — kill existant + restart
+echo [2/4] Bot Telegram...
 start "JARVIS-Telegram" /min cmd /c "cd /d F:\BUREAU\turbo && node canvas\telegram-bot.js"
 timeout /t 2 /nobreak >nul
 
 :: 3. Orchestrateur Autonome (13 taches cron)
-echo [3/4] Demarrage de l'Orchestrateur Autonome...
+echo [3/4] Orchestrateur Autonome...
 start "JARVIS-Orchestrator" /min cmd /c "cd /d F:\BUREAU\turbo\cowork\dev && python autonomous_orchestrator.py --watch"
 timeout /t 2 /nobreak >nul
 
 :: 4. Master Autonome (vagues en cascade)
-echo [4/4] Demarrage du Master Autonome (vagues)...
+echo [4/4] Master Autonome (vagues)...
 start "JARVIS-Master" /min cmd /c "cd /d F:\BUREAU\turbo && python cowork\dev\jarvis_master_autonome.py"
 timeout /t 2 /nobreak >nul
 

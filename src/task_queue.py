@@ -136,6 +136,17 @@ class TaskQueue:
             )
             return c.rowcount > 0
 
+    def retry_failed(self) -> int:
+        """Reset all failed tasks to pending for reprocessing."""
+        with sqlite3.connect(str(self._db_path)) as conn:
+            c = conn.execute(
+                "UPDATE tasks SET status='pending', retries=0, error='', node='', result='' WHERE status='failed'"
+            )
+            count = c.rowcount
+        if count:
+            logger.info("Retried %d failed tasks", count)
+        return count
+
     def get_task(self, task_id: str) -> QueuedTask | None:
         """Get a task by ID."""
         with sqlite3.connect(str(self._db_path)) as conn:
