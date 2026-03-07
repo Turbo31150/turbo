@@ -253,7 +253,7 @@ Classifie cette demande en UNE categorie:
 - code: ecriture/modification de code, debug, refactoring
 - analyse: investigation, architecture, logs, strategie
 - trading: signaux, positions, marche crypto, scanner
-- systeme: fichiers, apps, Windows, processus, PowerShell
+- systeme: fichiers, apps, Windows, processus, PowerShell, cluster, GPU, boot, diagnostic, statut systeme, noeuds, services, alertes, taches autonomes, JARVIS
 - web: recherche internet, infos actuelles, documentation
 - simple: question directe, reponse courte, calcul, traduction
 
@@ -284,10 +284,12 @@ async def classify_task(prompt: str) -> str:
             r.raise_for_status()
             from src.tools import extract_lms_output
             content = extract_lms_output(r.json()).strip().lower()
-            # Extract first word only
-            word = content.split()[0].rstrip(".,;:!?") if content else ""
-            if word in VALID_TYPES:
-                return word
+            # Find first valid type anywhere in the response
+            # (M1 may wrap answer in markdown or add explanatory text)
+            for token in content.split():
+                cleaned = token.strip("*_.,;:!?`\"'()[]")
+                if cleaned in VALID_TYPES:
+                    return cleaned
         except (httpx.HTTPError, OSError, KeyError, ValueError, asyncio.TimeoutError) as exc:
             logger.debug("classify_task M1 failed: %s", exc)
 
@@ -331,13 +333,18 @@ def _classify_heuristic(prompt: str) -> str:
     if any(kw in p for kw in trading_exact) or any(_has_word(p, w) for w in trading_words):
         return "trading"
 
-    # 2. Systeme — commandes d'action, word-boundary pour mots ambigus
+    # 2. Systeme — commandes d'action + JARVIS cluster/boot/GPU
     system_exact = ("ouvre", "ouvrir", "ferme", "fermer", "fichier", "dossier",
                     "processus", "powershell", "registre", "volume",
                     "ecran", "fenetre", "lance ", "lancer",
                     "installer", "desinstaller", "windows",
                     "reduis", "monte le", "baisse le", "redemarre", "eteins",
-                    "capture", "screenshot", "bureau")
+                    "capture", "screenshot", "bureau",
+                    "cluster", "noeud", "noeuds", "node ", "nodes",
+                    "boot", "demarrage", "autonome", "tache autonome",
+                    "gpu", "vram", "temperature gpu", "alerte", "alertes",
+                    "orchestrateur", "orchestrator", "statut", "status",
+                    "sante ", "health", "jarvis")
     system_words = ("app", "systeme", "service")
     if any(kw in p for kw in system_exact) or any(_has_word(p, w) for w in system_words):
         return "systeme"
