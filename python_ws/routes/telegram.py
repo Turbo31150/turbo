@@ -6,6 +6,7 @@ import asyncio
 import json
 import logging
 import os
+import urllib.error
 import urllib.request
 from typing import Any
 
@@ -23,15 +24,28 @@ def _tg_api(method: str, params: dict | None = None, timeout: int = 10) -> dict:
     url = f"https://api.telegram.org/bot{_TOKEN}/{method}"
     body = json.dumps(params or {}).encode()
     req = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"})
-    resp = urllib.request.urlopen(req, timeout=timeout)
-    return json.loads(resp.read().decode())
+    try:
+        resp = urllib.request.urlopen(req, timeout=timeout)
+        return json.loads(resp.read().decode())
+    except (urllib.error.URLError, urllib.error.HTTPError, OSError) as e:
+        logger.warning(f"Telegram API {method} failed: {e}")
+        return {"error": f"Telegram API {method}: {e}"}
+    except (json.JSONDecodeError, ValueError) as e:
+        logger.warning(f"Telegram API {method} invalid response: {e}")
+        return {"error": f"Invalid response from {method}: {e}"}
 
 
 def _proxy_get(endpoint: str, timeout: int = 5) -> dict:
     """GET on canvas proxy."""
     req = urllib.request.Request(f"{_PROXY}{endpoint}")
-    resp = urllib.request.urlopen(req, timeout=timeout)
-    return json.loads(resp.read().decode())
+    try:
+        resp = urllib.request.urlopen(req, timeout=timeout)
+        return json.loads(resp.read().decode())
+    except (urllib.error.URLError, urllib.error.HTTPError, OSError) as e:
+        logger.warning(f"Proxy GET {endpoint} failed: {e}")
+        return {"error": f"Proxy GET {endpoint}: {e}"}
+    except (json.JSONDecodeError, ValueError) as e:
+        return {"error": f"Invalid proxy response: {e}"}
 
 
 def _proxy_post_sync(endpoint: str, data: dict, timeout: int = 120) -> dict:
@@ -41,8 +55,14 @@ def _proxy_post_sync(endpoint: str, data: dict, timeout: int = 120) -> dict:
         f"{_PROXY}{endpoint}", data=body,
         headers={"Content-Type": "application/json"},
     )
-    resp = urllib.request.urlopen(req, timeout=timeout)
-    return json.loads(resp.read().decode())
+    try:
+        resp = urllib.request.urlopen(req, timeout=timeout)
+        return json.loads(resp.read().decode())
+    except (urllib.error.URLError, urllib.error.HTTPError, OSError) as e:
+        logger.warning(f"Proxy POST {endpoint} failed: {e}")
+        return {"error": f"Proxy POST {endpoint}: {e}"}
+    except (json.JSONDecodeError, ValueError) as e:
+        return {"error": f"Invalid proxy response: {e}"}
 
 
 async def _proxy_post(endpoint: str, data: dict, timeout: int = 30) -> dict:

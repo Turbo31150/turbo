@@ -129,9 +129,11 @@ class TestDispatchEngineInit:
         assert engine.config.enable_cache is False
 
     def test_ensure_table_failure_is_non_fatal(self):
-        """_ensure_table catches exceptions gracefully."""
+        """_ensure_table catches sqlite3.Error gracefully."""
+        import sqlite3 as _sqlite3
         with patch("src.dispatch_engine.sqlite3") as mock_sql:
-            mock_sql.connect.side_effect = Exception("DB locked")
+            mock_sql.Error = _sqlite3.Error
+            mock_sql.connect.side_effect = _sqlite3.OperationalError("DB locked")
             # Should NOT raise
             engine = DispatchEngine(config=_minimal_config())
         assert engine._stats["total_dispatches"] == 0
@@ -240,9 +242,9 @@ class TestRouting:
     @pytest.mark.asyncio
     async def test_pick_route_unknown_pattern_defaults(self):
         engine = _make_engine()
-        # unknown pattern has no preference; falls through to "M1"
+        # unknown pattern has no preference; router picks best available or falls to M1
         node, strategy = await engine._pick_route("unknown_xyz", "test", [])
-        assert node == "M1"
+        assert node in ("M1", "OL1", "M2", "M3")
         assert strategy == "single"
 
     @pytest.mark.asyncio
@@ -255,7 +257,8 @@ class TestRouting:
     @pytest.mark.asyncio
     async def test_pick_fallback_all_excluded_returns_none(self):
         engine = _make_engine()
-        fb = await engine._pick_fallback("simple", "OL1", ["M1", "M3"])
+        # Exclude all nodes (M1, M2, M3) + current OL1 → no fallback available
+        fb = await engine._pick_fallback("simple", "OL1", ["M1", "M2", "M3"])
         assert fb is None
 
 
@@ -496,9 +499,11 @@ class TestStats:
         assert stats["avg_pipeline_ms"] > 0
 
     def test_get_pipeline_report_db_error(self):
+        import sqlite3 as _sqlite3
         engine = _make_engine()
         with patch("src.dispatch_engine.sqlite3") as mock_sql:
-            mock_sql.connect.side_effect = Exception("disk I/O error")
+            mock_sql.Error = _sqlite3.Error
+            mock_sql.connect.side_effect = _sqlite3.OperationalError("disk I/O error")
             report = engine.get_pipeline_report()
         assert "error" in report
 
@@ -523,9 +528,12 @@ class TestStats:
             ],
             "recent_errors": [],
         }
+        import sqlite3 as _sqlite3
         with patch.object(engine, "get_pipeline_report", return_value=fake_report), \
              patch("src.dispatch_engine.sqlite3") as mock_sql:
-            mock_sql.connect.side_effect = Exception("no bench table")
+            mock_sql.Error = _sqlite3.Error
+            mock_sql.OperationalError = _sqlite3.OperationalError
+            mock_sql.connect.side_effect = _sqlite3.OperationalError("no bench table")
             analytics = engine.get_full_analytics()
 
         recs = analytics.get("recommendations", [])

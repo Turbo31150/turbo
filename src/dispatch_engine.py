@@ -119,7 +119,7 @@ class DispatchEngine:
             db.execute("CREATE INDEX IF NOT EXISTS idx_dpl_pattern ON dispatch_pipeline_log(pattern)")
             db.commit()
             db.close()
-        except Exception as e:
+        except sqlite3.Error as e:
             logger.warning(f"Failed to create dispatch_pipeline_log: {e}")
 
     def _cache_key(self, pattern: str, prompt: str) -> str:
@@ -307,8 +307,8 @@ class DispatchEngine:
                 cb = info.get("circuit_breaker", "closed")
                 if cb == "open":
                     bypassed.append(node_name)
-        except Exception:
-            pass
+        except (ImportError, AttributeError) as e:
+            logger.debug(f"Router health check unavailable: {e}")
 
         # Quick M1 ping — if LM Studio is stuck (GPU lost etc), bypass M1
         if "M1" not in bypassed:
@@ -318,7 +318,8 @@ class DispatchEngine:
                     r = await client.get("http://127.0.0.1:1234/api/v1/models")
                     if r.status_code != 200:
                         bypassed.append("M1")
-            except Exception:
+            except (ImportError, OSError, asyncio.TimeoutError) as e:
+                logger.debug(f"M1 health ping failed, bypassing: {e}")
                 bypassed.append("M1")
 
         return bypassed
@@ -370,8 +371,8 @@ class DispatchEngine:
             node = router.pick_node(pattern, exclude_nodes=all_exclude)
             if node:
                 return node, "single"
-        except Exception:
-            pass
+        except (ImportError, AttributeError) as e:
+            logger.debug(f"Adaptive router unavailable: {e}")
 
         # Fallback: use pattern_agents registry
         try:
@@ -382,8 +383,8 @@ class DispatchEngine:
                 for n in [agent.primary_node] + list(agent.fallback_chain):
                     if n not in all_exclude:
                         return n, agent.strategy
-        except Exception:
-            pass
+        except (ImportError, AttributeError) as e:
+            logger.debug(f"PatternAgentRegistry unavailable: {e}")
 
         return "M1", "single"
 
@@ -395,8 +396,8 @@ class DispatchEngine:
             router = get_router()
             node = router.pick_node(pattern, exclude_nodes=exclude + [current])
             return node
-        except Exception:
-            pass
+        except (ImportError, AttributeError) as e:
+            logger.debug(f"Adaptive router unavailable for fallback: {e}")
 
         # Manual fallback chain (M3 last — consistently worst in benchmarks)
         chain = ["OL1", "M1", "M3"]
@@ -423,8 +424,8 @@ class DispatchEngine:
                     context = "\n".join(context_lines)
                     enriched = f"Context from previous interactions:\n{context}\n\n{prompt}"
                     return enriched, True
-        except Exception:
-            pass
+        except (ImportError, AttributeError, KeyError, TypeError) as e:
+            logger.debug(f"Episodic memory enrichment unavailable: {e}")
         return prompt, False
 
     def _optimize_prompt(self, pattern: str, prompt: str) -> tuple[str, bool]:
@@ -436,8 +437,8 @@ class DispatchEngine:
             optimized = result.get("user_prompt", prompt)
             if optimized != prompt:
                 return optimized, True
-        except Exception:
-            pass
+        except (ImportError, AttributeError, KeyError) as e:
+            logger.debug(f"Prompt optimizer unavailable: {e}")
         return prompt, False
 
     async def _do_dispatch(self, pattern: str, prompt: str,
@@ -464,8 +465,8 @@ class DispatchEngine:
                         dyn = spawner.agents.get(pattern)
                         if dyn:
                             agent = dyn.to_pattern_agent()
-                except Exception:
-                    pass
+                except (ImportError, AttributeError) as e:
+                    logger.debug(f"Dynamic agents unavailable: {e}")
 
             # Final fallback: use simple agent
             if not agent:
@@ -581,7 +582,8 @@ class DispatchEngine:
                 prompt_preview=prompt[:100],
             )
             return True
-        except Exception:
+        except (ImportError, AttributeError) as e:
+            logger.debug(f"Feedback recording failed: {e}")
             return False
 
     async def _store_episode(self, result: DispatchResult, prompt: str) -> bool:
@@ -597,7 +599,8 @@ class DispatchEngine:
                 quality=result.quality,
             )
             return True
-        except Exception:
+        except (ImportError, sqlite3.Error) as e:
+            logger.debug(f"Episode storage failed: {e}")
             return False
 
     def _log_pipeline(self, result: DispatchResult):
@@ -619,7 +622,7 @@ class DispatchEngine:
             ))
             db.commit()
             db.close()
-        except Exception as e:
+        except sqlite3.Error as e:
             logger.warning(f"Failed to log pipeline: {e}")
 
     def get_stats(self) -> dict:
@@ -710,7 +713,7 @@ class DispatchEngine:
                     for r in recent_errors
                 ],
             }
-        except Exception as e:
+        except sqlite3.Error as e:
             return {"error": str(e)}
 
     def get_full_analytics(self) -> dict:
@@ -738,8 +741,8 @@ class DispatchEngine:
                 report["benchmark_latest"] = benchmarks[0]
                 rates = [b["rate"] for b in benchmarks]
                 report["benchmark_avg"] = round(sum(rates) / len(rates), 3)
-        except Exception:
-            pass
+        except sqlite3.OperationalError:
+            logger.debug("Benchmark table not available for analytics")
 
         # Add recommendations
         recommendations = []

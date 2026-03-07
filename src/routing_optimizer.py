@@ -246,7 +246,7 @@ class RoutingOptimizer:
             db.close()
             self._last_refresh = now
 
-        except Exception as e:
+        except sqlite3.Error as e:
             logger.warning(f"Routing optimizer refresh failed: {e}")
 
     def report(self) -> dict:

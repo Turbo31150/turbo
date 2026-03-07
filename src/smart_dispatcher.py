@@ -224,7 +224,7 @@ class SmartDispatcher:
             self._cache_age = now
             logger.debug(f"Stats refreshed: {len(self._stats_cache)} patterns, {sum(len(v) for v in self._stats_cache.values())} node entries")
 
-        except Exception as e:
+        except sqlite3.Error as e:
             logger.warning(f"Stats refresh failed: {e}")
 
     def get_routing_report(self) -> dict:
@@ -306,7 +306,7 @@ class SmartDispatcher:
             """, cowork_pats).fetchall()
             db.close()
             return [dict(r) for r in rows]
-        except Exception as e:
+        except sqlite3.Error as e:
             logger.warning(f"COWORK lookup failed: {e}")
             return []
 

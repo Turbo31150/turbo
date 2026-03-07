@@ -267,11 +267,13 @@ class TestMaybeRefreshStats:
         mock_sql.connect.assert_called_once()
 
     def test_db_error_no_crash(self):
+        import sqlite3 as _sqlite3
         with patch("src.smart_dispatcher.PatternAgentRegistry"):
             d = SmartDispatcher(db_path=":memory:")
         d._cache_age = 0
         with patch("src.smart_dispatcher.sqlite3") as mock_sql:
-            mock_sql.connect.side_effect = Exception("DB gone")
+            mock_sql.Error = _sqlite3.Error
+            mock_sql.connect.side_effect = _sqlite3.OperationalError("DB gone")
             d._maybe_refresh_stats()  # should not raise
 
 
@@ -289,8 +291,10 @@ class TestGetCoworkScripts:
         assert scripts == []
 
     def test_known_pattern_db_error(self):
+        import sqlite3 as _sqlite3
         with patch("src.smart_dispatcher.sqlite3") as mock_sql:
-            mock_sql.connect.side_effect = Exception("DB error")
+            mock_sql.Error = _sqlite3.Error
+            mock_sql.connect.side_effect = _sqlite3.OperationalError("DB error")
             scripts = self.d.get_cowork_scripts("code")
         assert scripts == []
 

@@ -811,7 +811,7 @@ class PatternAgentRegistry:
             )
             db.commit()
             db.close()
-        except Exception as e:
+        except sqlite3.Error as e:
             logger.warning(f"Failed to log dispatch: {e}")
 
     def auto_optimize_strategies(self) -> dict:
@@ -877,7 +877,7 @@ class PatternAgentRegistry:
                     }
                     current_agent.strategy = best["strategy"]
 
-        except Exception as e:
+        except sqlite3.Error as e:
             changes["error"] = str(e)
 
         return changes

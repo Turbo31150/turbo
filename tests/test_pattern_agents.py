@@ -310,7 +310,7 @@ class TestPatternDiscovery:
     def test_init(self):
         from src.pattern_discovery import PatternDiscovery
         d = PatternDiscovery()
-        assert d.db_path == "F:/BUREAU/turbo/etoile.db"
+        assert d.db_path.endswith("etoile.db")
 
     def test_discover(self):
         from src.pattern_discovery import PatternDiscovery

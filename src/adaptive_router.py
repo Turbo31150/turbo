@@ -203,15 +203,19 @@ class AdaptiveRouter:
                         score=score, calls=n, successes=ok,
                         avg_quality=avg_q, avg_latency_ms=avg_ms,
                     )
-        except Exception as e:
+        except sqlite3.Error as e:
             logger.warning(f"Failed to load history: {e}")
 
-    def pick_node(self, pattern: str, prompt: str = "", preferred: str = "M1") -> str:
+    def pick_node(self, pattern: str, prompt: str = "", preferred: str = "M1",
+                  exclude_nodes: list[str] | None = None) -> Optional[str]:
         """Pick the optimal node for a pattern, considering circuit state, load, and affinity."""
+        excluded = set(exclude_nodes or [])
         candidates = []
 
         # Gather candidates from affinity + preferred + all healthy nodes
         for name, h in self.health.items():
+            if name in excluded:
+                continue  # Explicitly excluded
             cb = self.circuits.get(name)
             if cb and not cb.allow_request():
                 continue  # Circuit open
@@ -230,9 +234,12 @@ class AdaptiveRouter:
             candidates.append((name, total_score))
 
         if not candidates:
-            # Everything down — fallback to preferred or M1
-            logger.error("No available nodes! Falling back to preferred node.")
-            return preferred
+            # Everything down or excluded
+            if preferred not in excluded:
+                logger.error("No available nodes! Falling back to preferred node.")
+                return preferred
+            logger.error("No available nodes and preferred also excluded.")
+            return None
 
         # Sort by score descending
         candidates.sort(key=lambda x: -x[1])
