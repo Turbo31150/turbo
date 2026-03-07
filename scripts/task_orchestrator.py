@@ -7519,6 +7519,967 @@ db.close()
             schedule="every:1h",
             tags=["self-evolving", "reporting", "evolution", "grade"],
         ),
+
+        # ══════════════════════════════════════════════════════════════════
+        # PREDICTIVE & SELF-REPAIR — Prédiction d'échecs, auto-réparation,
+        # watchdog², backup restore, connectivité externe, log intelligence
+        # ══════════════════════════════════════════════════════════════════
+
+        # ── 1. Predictive Failure Detector: prédit les pannes AVANT qu'elles arrivent ──
+        TaskDef(
+            id="predictive_failure",
+            name="Predictive Failure Detector",
+            task_type="reasoning",
+            action="python",
+            payload={"code": """
+import sqlite3, json
+from datetime import datetime, timedelta
+
+print('=== PREDICTIVE FAILURE DETECTION ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+
+predictions = []
+
+# 1. Tasks with degrading success over 3 time windows
+for (tid,) in db.execute('SELECT DISTINCT task_id FROM task_runs').fetchall():
+    windows = []
+    for hours_ago in [1, 3, 8]:
+        start = (datetime.now() - timedelta(hours=hours_ago)).isoformat()
+        end = (datetime.now() - timedelta(hours=max(0, hours_ago-2))).isoformat()
+        r = db.execute('''
+            SELECT COUNT(*), SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END)
+            FROM task_runs WHERE task_id=? AND started_at BETWEEN ? AND ?
+        ''', (tid, start, end)).fetchone()
+        total, ok = r[0] or 0, r[1] or 0
+        windows.append(ok / max(1, total))
+    # Degrading pattern: each window worse than the next
+    if len(windows) == 3 and windows[0] < windows[1] < windows[2] and windows[0] < 0.8:
+        predictions.append(('DEGRADE', tid, f'{windows[2]:.0%} -> {windows[1]:.0%} -> {windows[0]:.0%}'))
+
+# 2. Latency spikes predicting timeout
+for metric in ['latency_m1', 'latency_ol1']:
+    rows = db.execute('''
+        SELECT metric_value FROM task_metrics
+        WHERE metric_name=? AND metric_value > 0
+        ORDER BY id DESC LIMIT 20
+    ''', (metric,)).fetchall()
+    if len(rows) >= 10:
+        recent_5 = [r[0] for r in rows[:5]]
+        older_5 = [r[0] for r in rows[5:10]]
+        avg_recent = sum(recent_5) / 5
+        avg_older = sum(older_5) / 5
+        if avg_recent > avg_older * 2 and avg_recent > 1000:
+            node = metric.replace('latency_', '').upper()
+            predictions.append(('LATENCY', node, f'{avg_older:.0f}ms -> {avg_recent:.0f}ms (2x+ increase)'))
+
+# 3. Memory growth predicting OOM
+for metric_prefix in ['mem_python.exe', 'mem_node.exe']:
+    rows = db.execute('''
+        SELECT metric_value FROM task_metrics
+        WHERE metric_name=? ORDER BY id DESC LIMIT 12
+    ''', (metric_prefix,)).fetchall()
+    if len(rows) >= 6:
+        recent = sum(r[0] for r in rows[:3]) / 3
+        older = sum(r[0] for r in rows[3:6]) / 3
+        if older > 0 and recent > older * 1.5 and recent > 500:
+            predictions.append(('MEMORY', metric_prefix, f'{older:.0f}MB -> {recent:.0f}MB (+{((recent-older)/older)*100:.0f}%)'))
+
+if predictions:
+    print(f'  {len(predictions)} predictions:')
+    for ptype, target, detail in predictions:
+        print(f'    [{ptype:8s}] {target}: {detail}')
+else:
+    print('  No failures predicted — system trajectory healthy')
+
+db.close()
+"""},
+            priority="high",
+            schedule="every:15m",
+            tags=["predictive", "failure", "forecast"],
+        ),
+
+        # ── 2. Watchdog Watchdog: surveille les surveillants ──
+        TaskDef(
+            id="watchdog_watchdog",
+            name="Meta-Watchdog (Who Watches the Watchers?)",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import sqlite3, os
+from datetime import datetime, timedelta
+from pathlib import Path
+
+print('=== META-WATCHDOG ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+
+# Critical watchers that MUST be running
+critical_watchers = [
+    'canary_heartbeat', 'auto_recovery', 'circuit_breaker',
+    'entropy_monitor', 'health_cluster',
+]
+
+cutoff = (datetime.now() - timedelta(minutes=15)).isoformat()
+issues = []
+
+for watcher in critical_watchers:
+    last_run = db.execute('''
+        SELECT started_at, status FROM task_runs
+        WHERE task_id=? ORDER BY started_at DESC LIMIT 1
+    ''', (watcher,)).fetchone()
+
+    if not last_run:
+        issues.append(f'  NEVER RAN: {watcher}')
+    elif last_run[0] < cutoff:
+        age_min = (datetime.now() - datetime.fromisoformat(last_run[0])).total_seconds() / 60
+        issues.append(f'  STALE: {watcher} last ran {age_min:.0f}min ago')
+    elif last_run[1] == 'failed':
+        issues.append(f'  FAILING: {watcher} last run failed')
+    else:
+        print(f'  OK: {watcher}')
+
+# Check orchestrator daemon is alive
+pid_file = Path('F:/BUREAU/turbo/data/pids/orchestrator.pid')
+if pid_file.exists():
+    try:
+        pid = int(pid_file.read_text().strip())
+        r = os.popen(f'tasklist /FI "PID eq {pid}" /FO CSV /NH 2>NUL').read()
+        if f'"{pid}"' in r:
+            print(f'  OK: orchestrator daemon (PID {pid})')
+        else:
+            issues.append(f'  DEAD: orchestrator daemon (PID {pid} not found)')
+    except Exception:
+        issues.append('  ERROR: cannot read orchestrator PID')
+else:
+    issues.append('  MISSING: orchestrator PID file')
+
+if issues:
+    for i in issues:
+        print(i)
+    print(f'\\n  ALERT: {len(issues)} watcher issues — system may be unmonitored!')
+else:
+    print('  All watchers healthy — supervision intact')
+
+db.close()
+"""},
+            priority="critical",
+            schedule="every:5m",
+            tags=["predictive", "meta-watchdog", "supervision"],
+        ),
+
+        # ── 3. External Connectivity Probe: internet, DNS, APIs externes ──
+        TaskDef(
+            id="external_connectivity",
+            name="External Connectivity Probe",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import time, sqlite3, socket
+from datetime import datetime
+from urllib.request import urlopen, Request
+from urllib.error import URLError
+
+print('=== EXTERNAL CONNECTIVITY ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+
+checks = [
+    ('DNS', 'dns', 'google.com'),
+    ('HTTP', 'http', 'http://httpbin.org/status/200'),
+    ('PyPI', 'http', 'https://pypi.org/simple/'),
+]
+
+for name, check_type, target in checks:
+    try:
+        start = time.perf_counter()
+        if check_type == 'dns':
+            socket.getaddrinfo(target, 80, socket.AF_INET, socket.SOCK_STREAM)
+        elif check_type == 'http':
+            req = Request(target, headers={'User-Agent': 'JARVIS-Probe'})
+            urlopen(req, timeout=5)
+        latency = (time.perf_counter() - start) * 1000
+        print(f'  {name:10s}: OK ({latency:.0f}ms)')
+        db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
+            (f'ext_{name.lower()}', latency, datetime.now().isoformat()))
+    except Exception as e:
+        print(f'  {name:10s}: FAIL ({type(e).__name__})')
+        db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
+            (f'ext_{name.lower()}', -1, datetime.now().isoformat()))
+
+# Inter-node latency (M1 -> M3 over network)
+try:
+    start = time.perf_counter()
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(3)
+    s.connect(('192.168.1.113', 1234))
+    s.close()
+    latency = (time.perf_counter() - start) * 1000
+    print(f'  M1->M3    : {latency:.0f}ms (LAN)')
+except Exception as e:
+    print(f'  M1->M3    : FAIL ({type(e).__name__})')
+
+db.commit()
+db.close()
+"""},
+            priority="normal",
+            schedule="every:15m",
+            tags=["predictive", "connectivity", "external", "network"],
+        ),
+
+        # ── 4. Log Intelligence: analyse TOUS les logs pour des patterns ──
+        TaskDef(
+            id="log_intelligence",
+            name="Cross-Log Intelligence Analyzer",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import os, re
+from pathlib import Path
+from collections import Counter
+from datetime import datetime
+
+print('=== LOG INTELLIGENCE ===')
+log_dir = Path('F:/BUREAU/turbo/data/logs')
+patterns = Counter()
+warnings = []
+total_lines = 0
+
+if not log_dir.exists():
+    print('  No log directory')
+else:
+    for log_file in sorted(log_dir.glob('*.log')):
+        try:
+            size = log_file.stat().st_size
+            if size == 0 or size > 10_000_000:  # Skip empty and >10MB
+                continue
+            # Read last 200 lines
+            lines = log_file.read_text(errors='ignore').splitlines()[-200:]
+            total_lines += len(lines)
+            for line in lines:
+                lower = line.lower()
+                if 'error' in lower or 'exception' in lower:
+                    patterns['errors'] += 1
+                    # Extract error type
+                    m = re.search(r'(\\w+Error|\\w+Exception)', line)
+                    if m:
+                        warnings.append((log_file.name, m.group(1)))
+                elif 'warning' in lower or 'warn' in lower:
+                    patterns['warnings'] += 1
+                elif 'timeout' in lower:
+                    patterns['timeouts'] += 1
+                elif 'killed' in lower or 'terminated' in lower:
+                    patterns['kills'] += 1
+        except Exception:
+            pass
+
+    print(f'  Scanned {len(list(log_dir.glob("*.log")))} log files, {total_lines} lines')
+    for ptype, count in patterns.most_common():
+        print(f'    {ptype:15s}: {count}')
+
+    if warnings:
+        error_types = Counter(w[1] for w in warnings)
+        print(f'\\n  Top error types:')
+        for etype, count in error_types.most_common(5):
+            source = [w[0] for w in warnings if w[1] == etype][0]
+            print(f'    {etype}: {count}x (from {source})')
+"""},
+            priority="low",
+            schedule="every:2h",
+            tags=["predictive", "logs", "intelligence", "analysis"],
+        ),
+
+        # ── 5. Backup Restore Tester: vérifie qu'on peut RESTAURER les backups ──
+        TaskDef(
+            id="backup_restore_test",
+            name="Backup Restore Verification",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import sqlite3, tempfile, shutil, os
+from pathlib import Path
+
+print('=== BACKUP RESTORE TEST ===')
+backup_dir = Path('F:/BUREAU/turbo/data/backups')
+results = []
+
+if not backup_dir.exists():
+    print('  No backup directory')
+else:
+    # Find most recent backup of each DB
+    for pattern in ['jarvis_*.db', 'etoile_*.db', 'task_orchestrator_*.db']:
+        backups = sorted(backup_dir.glob(pattern), key=lambda p: p.stat().st_mtime, reverse=True)
+        if not backups:
+            continue
+        latest = backups[0]
+        try:
+            # Copy to temp and test integrity
+            with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as tmp:
+                tmp_path = tmp.name
+            shutil.copy2(latest, tmp_path)
+            conn = sqlite3.connect(tmp_path)
+            result = conn.execute('PRAGMA integrity_check').fetchone()
+            tables = conn.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table'").fetchone()[0]
+            conn.close()
+            os.unlink(tmp_path)
+
+            ok = result and result[0] == 'ok'
+            age_h = (Path(latest).stat().st_mtime - 0) and \
+                (os.path.getmtime(str(latest)) - 0) and \
+                (os.time() if hasattr(os, 'time') else 0)
+            import time as _t
+            age_h = (_t.time() - latest.stat().st_mtime) / 3600
+            size_mb = latest.stat().st_size / 1e6
+            status = 'RESTORABLE' if ok else 'CORRUPT'
+            results.append((latest.name, status, tables, size_mb, age_h))
+            print(f'  {latest.name}: {status} ({tables} tables, {size_mb:.1f}MB, {age_h:.1f}h old)')
+        except Exception as e:
+            print(f'  {latest.name}: FAILED ({e})')
+
+    if not results:
+        print('  No backups found to test')
+    else:
+        restorable = sum(1 for r in results if r[1] == 'RESTORABLE')
+        print(f'\\n  {restorable}/{len(results)} backups restorable')
+"""},
+            priority="normal",
+            schedule="every:6h",
+            tags=["predictive", "backup", "restore", "verification"],
+        ),
+
+        # ── 6. Task Chain Optimizer: trouve l'ordre d'exécution optimal ──
+        TaskDef(
+            id="task_chain_optimizer",
+            name="Task Execution Chain Optimizer",
+            task_type="reasoning",
+            action="python",
+            payload={"code": """
+import sqlite3, json
+from datetime import datetime, timedelta
+from collections import defaultdict
+
+print('=== TASK CHAIN OPTIMIZATION ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+
+# Find tasks that frequently run together (within 1min windows)
+cutoff = (datetime.now() - timedelta(hours=6)).isoformat()
+runs = db.execute('''
+    SELECT task_id, started_at FROM task_runs
+    WHERE started_at > ? ORDER BY started_at
+''', (cutoff,)).fetchall()
+
+# Group into 1-minute windows
+windows = defaultdict(list)
+for tid, ts in runs:
+    try:
+        dt = datetime.fromisoformat(ts)
+        key = dt.strftime('%Y-%m-%d %H:%M')
+        windows[key].append(tid)
+    except Exception:
+        pass
+
+# Find frequently co-occurring tasks
+from collections import Counter
+co_occur = Counter()
+for window_tasks in windows.values():
+    unique = list(set(window_tasks))
+    for i, t1 in enumerate(unique):
+        for t2 in unique[i+1:]:
+            pair = tuple(sorted([t1, t2]))
+            co_occur[pair] += 1
+
+# Top co-occurring pairs
+print('  Most co-scheduled task pairs:')
+for (t1, t2), count in co_occur.most_common(8):
+    if count >= 5:
+        print(f'    {t1} + {t2}: {count} times together')
+
+# Bottleneck detection: tasks that slow down subsequent tasks
+slow_before = defaultdict(list)
+for i in range(len(runs) - 1):
+    tid1, ts1 = runs[i]
+    tid2, ts2 = runs[i+1]
+    try:
+        dt1 = datetime.fromisoformat(ts1)
+        dt2 = datetime.fromisoformat(ts2)
+        gap = (dt2 - dt1).total_seconds()
+        if gap > 30:  # >30s gap
+            slow_before[tid1].append(gap)
+    except Exception:
+        pass
+
+bottlenecks = [(tid, sum(gaps)/len(gaps), len(gaps))
+               for tid, gaps in slow_before.items() if len(gaps) >= 3]
+bottlenecks.sort(key=lambda x: -x[1])
+if bottlenecks:
+    print(f'\\n  Bottleneck tasks (cause delays after):')
+    for tid, avg_gap, count in bottlenecks[:5]:
+        print(f'    {tid}: avg {avg_gap:.0f}s gap after ({count}x)')
+
+db.close()
+"""},
+            priority="low",
+            schedule="every:3h",
+            tags=["predictive", "optimization", "chain", "scheduling"],
+        ),
+
+        # ── 7. Auto-Fix Engine: corrige automatiquement les erreurs simples ──
+        TaskDef(
+            id="auto_fix_engine",
+            name="Auto-Fix Engine (Simple Error Repair)",
+            task_type="reasoning",
+            action="python",
+            payload={"code": """
+import sqlite3, json, os
+from datetime import datetime, timedelta
+from pathlib import Path
+
+print('=== AUTO-FIX ENGINE ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+fixes_applied = []
+
+# 1. Fix stale PID files
+pid_dir = Path('F:/BUREAU/turbo/data/pids')
+if pid_dir.exists():
+    for pf in pid_dir.glob('*.pid'):
+        try:
+            pid = int(pf.read_text().strip())
+            r = os.popen(f'tasklist /FI "PID eq {pid}" /FO CSV /NH 2>NUL').read()
+            if f'"{pid}"' not in r:
+                pf.unlink()
+                fixes_applied.append(f'Removed stale PID: {pf.name}')
+        except Exception:
+            pass
+
+# 2. Re-enable circuit-breaker-tripped tasks that have been off >2h
+tripped = db.execute('''
+    SELECT task_id, consecutive_fails FROM task_escalation
+    WHERE consecutive_fails >= 5
+''').fetchall()
+for tid, fails in tripped:
+    # Check last failure time
+    last = db.execute(
+        "SELECT started_at FROM task_runs WHERE task_id=? ORDER BY started_at DESC LIMIT 1",
+        (tid,)).fetchone()
+    if last:
+        try:
+            last_dt = datetime.fromisoformat(last[0])
+            hours_ago = (datetime.now() - last_dt).total_seconds() / 3600
+            if hours_ago > 2:
+                # Reset escalation and re-enable
+                db.execute('UPDATE task_escalation SET consecutive_fails=0 WHERE task_id=?', (tid,))
+                db.execute('UPDATE tasks SET enabled=1 WHERE id=?', (tid,))
+                fixes_applied.append(f'Re-enabled {tid} (was off {hours_ago:.0f}h)')
+        except Exception:
+            pass
+
+# 3. Clean orphan metrics (name references deleted tasks)
+active_ids = set(r[0] for r in db.execute('SELECT id FROM tasks').fetchall())
+orphan_metrics = db.execute('''
+    SELECT DISTINCT metric_name FROM task_metrics
+    WHERE metric_name LIKE 'latency_%' OR metric_name LIKE 'saturation_%'
+''').fetchall()
+# (Just report, don't delete — metrics might be useful)
+
+db.commit()
+
+if fixes_applied:
+    print(f'  {len(fixes_applied)} auto-fixes applied:')
+    for f in fixes_applied:
+        print(f'    {f}')
+else:
+    print('  No fixes needed — system is clean')
+
+db.close()
+"""},
+            priority="normal",
+            schedule="every:30m",
+            tags=["predictive", "auto-fix", "repair", "healing"],
+        ),
+
+        # ── 8. Capacity Planner: projette les besoins futurs ──
+        TaskDef(
+            id="capacity_planner",
+            name="Capacity Planning Forecaster",
+            task_type="reasoning",
+            action="python",
+            payload={"code": """
+import sqlite3, shutil
+from datetime import datetime, timedelta
+
+print('=== CAPACITY PLANNING ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+
+# 1. Task growth rate
+task_count = db.execute("SELECT COUNT(*) FROM tasks WHERE enabled=1").fetchone()[0]
+run_count = db.execute("SELECT COUNT(*) FROM task_runs").fetchone()[0]
+runs_1h = db.execute("SELECT COUNT(*) FROM task_runs WHERE started_at > datetime('now', '-1 hour')").fetchone()[0]
+runs_24h = db.execute("SELECT COUNT(*) FROM task_runs WHERE started_at > datetime('now', '-1 day')").fetchone()[0]
+
+print(f'  Tasks: {task_count} active')
+print(f'  Runs: {run_count} total, {runs_1h}/h, {runs_24h}/24h')
+
+# Project DB growth
+db_size = db.execute("SELECT page_count * page_size FROM pragma_page_count(), pragma_page_size()").fetchone()
+if db_size:
+    db_mb = db_size[0] / 1e6
+    # Estimate: each run ~0.5KB, metrics ~0.2KB
+    runs_per_day = runs_1h * 24
+    growth_mb_day = runs_per_day * 0.0007  # ~0.7KB per run+metrics
+    days_to_100mb = (100 - db_mb) / max(0.01, growth_mb_day)
+    print(f'  DB: {db_mb:.1f}MB, growing ~{growth_mb_day:.1f}MB/day')
+    if days_to_100mb < 30:
+        print(f'  WARNING: DB will reach 100MB in {days_to_100mb:.0f} days')
+    else:
+        print(f'  DB headroom: ~{days_to_100mb:.0f} days to 100MB')
+
+# 2. Disk capacity
+for drive in ['C:', 'F:']:
+    u = shutil.disk_usage(drive + '/')
+    free_gb = u.free / 1e9
+    total_gb = u.total / 1e9
+    pct_used = (u.used / u.total) * 100
+    print(f'  {drive} {free_gb:.0f}GB free / {total_gb:.0f}GB ({pct_used:.0f}% used)')
+
+# 3. Execution capacity
+avg_ms = db.execute('''
+    SELECT AVG(duration_ms) FROM task_runs
+    WHERE status='completed' AND duration_ms > 0
+    AND started_at > datetime('now', '-1 hour')
+''').fetchone()[0] or 0
+if avg_ms > 0 and runs_1h > 0:
+    total_exec_s = (avg_ms * runs_1h) / 1000
+    util_pct = (total_exec_s / 3600) * 100
+    print(f'  Exec: avg {avg_ms:.0f}ms/task, {total_exec_s:.0f}s/h total ({util_pct:.0f}% CPU-time)')
+    if util_pct > 80:
+        print(f'  WARNING: Execution near capacity ({util_pct:.0f}%)')
+
+db.close()
+"""},
+            priority="low",
+            schedule="every:2h",
+            tags=["predictive", "capacity", "planning", "forecast"],
+        ),
+
+        # ── 9. Node Latency Matrix: mesure latence entre TOUS les nœuds ──
+        TaskDef(
+            id="node_latency_matrix",
+            name="Inter-Node Latency Matrix",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import time, socket, sqlite3, json
+from datetime import datetime
+
+print('=== NODE LATENCY MATRIX ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+
+nodes = {
+    'M1':  ('127.0.0.1', 1234),
+    'OL1': ('127.0.0.1', 11434),
+    'M3':  ('192.168.1.113', 1234),
+    'WS':  ('127.0.0.1', 9742),
+    'OCW': ('127.0.0.1', 18789),
+}
+
+# Measure TCP connect latency for each pair
+print(f'  {"":6s}', end='')
+for name in nodes:
+    print(f'{name:>8s}', end='')
+print()
+
+for src_name in nodes:
+    print(f'  {src_name:6s}', end='')
+    for dst_name, (host, port) in nodes.items():
+        if src_name == dst_name:
+            print(f'{"---":>8s}', end='')
+            continue
+        try:
+            start = time.perf_counter()
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(3)
+            s.connect((host, port))
+            s.close()
+            ms = (time.perf_counter() - start) * 1000
+            print(f'{ms:7.0f}m', end='')
+            db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
+                (f'latency_{src_name}_{dst_name}', ms, datetime.now().isoformat()))
+        except Exception:
+            print(f'{"FAIL":>8s}', end='')
+    print()
+
+db.commit()
+db.close()
+"""},
+            priority="normal",
+            schedule="every:20m",
+            tags=["predictive", "latency", "matrix", "network"],
+        ),
+
+        # ── 10. Autonomous Code Reviewer: M1 review les fichiers modifiés récemment ──
+        TaskDef(
+            id="autonomous_code_reviewer",
+            name="Autonomous Code Reviewer (M1-powered)",
+            task_type="reasoning",
+            action="python",
+            payload={"code": """
+import subprocess, json
+from urllib.request import urlopen, Request
+from pathlib import Path
+
+print('=== AUTONOMOUS CODE REVIEW ===')
+# Get files changed in last commit
+r = subprocess.run(['git', 'diff', '--name-only', 'HEAD~1'], capture_output=True, text=True,
+    cwd='F:/BUREAU/turbo', timeout=10)
+files = [f for f in r.stdout.strip().split('\\n') if f.endswith('.py') and f.strip()]
+
+if not files:
+    print('  No Python files changed in last commit')
+else:
+    # Pick one file for review (largest change)
+    target = files[0]
+    try:
+        diff = subprocess.run(['git', 'diff', 'HEAD~1', '--', target],
+            capture_output=True, text=True, cwd='F:/BUREAU/turbo', timeout=10).stdout
+        # Truncate diff to fit in prompt
+        diff_short = diff[:1500] if len(diff) > 1500 else diff
+
+        prompt = f'/nothink\\nReview this Python code diff. Find 1-2 potential bugs or improvements. Be very brief (3 lines max).\\n\\n{diff_short}'
+        data = json.dumps({
+            'model': 'qwen3-8b', 'input': prompt,
+            'temperature': 0.2, 'max_output_tokens': 200,
+            'stream': False, 'store': False
+        }).encode()
+        req = Request('http://127.0.0.1:1234/api/v1/chat', data=data,
+            headers={'Content-Type': 'application/json'})
+        resp = urlopen(req, timeout=15)
+        body = json.loads(resp.read())
+        for b in body.get('output', []):
+            if b.get('type') == 'message':
+                content = b.get('content', '')
+                if isinstance(content, str):
+                    print(f'  File: {target}')
+                    print(f'  M1 review: {content.strip()[:300]}')
+                break
+    except Exception as e:
+        print(f'  M1 unavailable for review: {e}')
+        print(f'  Files changed: {files[:5]}')
+"""},
+            priority="low",
+            schedule="every:3h",
+            tags=["predictive", "code-review", "autonomous", "m1"],
+        ),
+
+        # ── 11. Task Value Scorer: note chaque tâche par sa vraie utilité ──
+        TaskDef(
+            id="task_value_scorer",
+            name="Task Value & ROI Scorer",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import sqlite3, json
+from datetime import datetime, timedelta
+
+print('=== TASK VALUE SCORING ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+cutoff = (datetime.now() - timedelta(hours=24)).isoformat()
+
+scores = []
+for tid, name, schedule in db.execute('SELECT id, name, schedule FROM tasks WHERE enabled=1').fetchall():
+    runs = db.execute('''
+        SELECT COUNT(*) as total,
+               SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END) as ok,
+               AVG(duration_ms) as avg_ms,
+               COUNT(DISTINCT SUBSTR(output, 1, 80)) as unique_outputs
+        FROM task_runs WHERE task_id=? AND started_at > ?
+    ''', (tid, cutoff)).fetchone()
+
+    total, ok, avg_ms, unique = runs[0] or 0, runs[1] or 0, runs[2] or 0, runs[3] or 0
+
+    if total == 0:
+        score = 50  # Unknown
+    else:
+        success_score = (ok / total) * 40  # Max 40
+        variety_score = min(30, (unique / max(1, total)) * 30)  # Max 30
+        speed_score = max(0, 30 - (avg_ms or 0) / 1000)  # Max 30
+        score = success_score + variety_score + speed_score
+
+    scores.append((tid, name, score, total, ok))
+
+scores.sort(key=lambda x: x[2])
+
+# Bottom 10 (lowest value)
+print('  LOWEST VALUE (consider retirement):')
+for tid, name, score, total, ok in scores[:8]:
+    print(f'    {score:5.0f}/100  {tid:35s} ({ok}/{total} ok)')
+
+# Top 10 (highest value)
+print('\\n  HIGHEST VALUE:')
+for tid, name, score, total, ok in scores[-5:]:
+    print(f'    {score:5.0f}/100  {tid:35s} ({ok}/{total} ok)')
+
+# Average
+avg_score = sum(s[2] for s in scores) / len(scores) if scores else 0
+print(f'\\n  Average task value: {avg_score:.0f}/100')
+
+db.close()
+"""},
+            priority="low",
+            schedule="every:4h",
+            tags=["predictive", "value", "scoring", "roi"],
+        ),
+
+        # ── 12. Cluster Consensus Solver: résout un problème par vote multi-nœud ──
+        TaskDef(
+            id="cluster_consensus_solver",
+            name="Cluster Consensus Problem Solver",
+            task_type="reasoning",
+            action="python",
+            payload={"code": """
+import json, time, random
+from urllib.request import urlopen, Request
+
+print('=== CLUSTER CONSENSUS SOLVER ===')
+# Pick a system optimization question and ask multiple nodes
+questions = [
+    'Which task schedule frequency is most wasteful: every 2min, every 5min, or every 10min for a health check?',
+    'Should an AI orchestrator auto-disable failing tasks or keep retrying? One sentence.',
+    'What is the best strategy to balance load across 3 GPU nodes with different speeds?',
+]
+
+question = random.choice(questions)
+print(f'  Question: {question}')
+
+answers = {}
+nodes = [
+    ('M1', 'http://127.0.0.1:1234/api/v1/chat',
+     {'model':'qwen3-8b','input':f'/nothink\\n{question} Answer in 1-2 sentences.','temperature':0.3,'max_output_tokens':100,'stream':False,'store':False},
+     'lmstudio'),
+    ('OL1', 'http://127.0.0.1:11434/api/chat',
+     {'model':'qwen3:1.7b','messages':[{'role':'user','content':f'/nothink\\n{question} Answer in 1-2 sentences.'}],'stream':False},
+     'ollama'),
+]
+
+for name, url, payload, api_type in nodes:
+    try:
+        data = json.dumps(payload).encode()
+        req = Request(url, data=data, headers={'Content-Type': 'application/json'})
+        resp = urlopen(req, timeout=15)
+        body = json.loads(resp.read())
+        if api_type == 'lmstudio':
+            for b in body.get('output', []):
+                if b.get('type') == 'message':
+                    c = b.get('content', '')
+                    answers[name] = c.strip()[:200] if isinstance(c, str) else ''
+                    break
+        else:
+            answers[name] = body.get('message', {}).get('content', '').strip()[:200]
+        print(f'  {name}: {answers[name]}')
+    except Exception as e:
+        print(f'  {name}: unavailable ({type(e).__name__})')
+
+if len(answers) >= 2:
+    print(f'\\n  Consensus: {len(answers)} nodes responded')
+"""},
+            priority="low",
+            schedule="every:2h",
+            tags=["predictive", "consensus", "solver", "cluster"],
+        ),
+
+        # ── 13. Schema Drift Monitor: vérifie que les tables DB n'ont pas changé ──
+        TaskDef(
+            id="schema_drift_monitor",
+            name="Database Schema Drift Monitor",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import sqlite3, json, hashlib
+from pathlib import Path
+from datetime import datetime
+
+print('=== SCHEMA DRIFT MONITOR ===')
+schema_cache = Path('F:/BUREAU/turbo/data/schema_fingerprints.json')
+
+# Load previous fingerprints
+prev = {}
+if schema_cache.exists():
+    try:
+        prev = json.loads(schema_cache.read_text())
+    except Exception:
+        pass
+
+current = {}
+drifts = []
+
+for db_path in sorted(Path('F:/BUREAU/turbo/data').glob('*.db')):
+    try:
+        conn = sqlite3.connect(str(db_path))
+        schema = conn.execute("SELECT sql FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
+        conn.close()
+        # Fingerprint = hash of all CREATE TABLE statements
+        schema_str = '\\n'.join(s[0] or '' for s in schema)
+        fingerprint = hashlib.md5(schema_str.encode()).hexdigest()[:12]
+        current[db_path.name] = fingerprint
+        tables = len(schema)
+
+        if db_path.name in prev and prev[db_path.name] != fingerprint:
+            drifts.append(db_path.name)
+            print(f'  DRIFT: {db_path.name} schema changed! ({prev[db_path.name]} -> {fingerprint})')
+        else:
+            print(f'  OK: {db_path.name} ({tables} tables, fp={fingerprint})')
+    except Exception as e:
+        print(f'  ERROR: {db_path.name}: {e}')
+
+# Save current fingerprints
+schema_cache.write_text(json.dumps(current, indent=2))
+
+if drifts:
+    print(f'\\n  {len(drifts)} schema changes detected!')
+elif prev:
+    print(f'\\n  All schemas stable since last check')
+else:
+    print(f'\\n  First run — fingerprints saved for future comparison')
+"""},
+            priority="normal",
+            schedule="every:4h",
+            tags=["predictive", "schema", "drift", "database"],
+        ),
+
+        # ── 14. Execution Heatmap: visualise quand les tâches tournent ──
+        TaskDef(
+            id="execution_heatmap",
+            name="Task Execution Heatmap Generator",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import sqlite3, json
+from datetime import datetime, timedelta
+from collections import defaultdict
+
+print('=== EXECUTION HEATMAP ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+
+# Count task runs per hour for last 24h
+heatmap = defaultdict(int)
+runs = db.execute('''
+    SELECT started_at FROM task_runs
+    WHERE started_at > datetime('now', '-24 hours')
+''').fetchall()
+
+for (ts,) in runs:
+    try:
+        dt = datetime.fromisoformat(ts)
+        hour = dt.hour
+        heatmap[hour] += 1
+    except Exception:
+        pass
+
+if heatmap:
+    max_runs = max(heatmap.values())
+    print('  Hour  Runs  Activity')
+    for h in range(24):
+        count = heatmap.get(h, 0)
+        bar_len = int(count / max(1, max_runs) * 30)
+        bar = '#' * bar_len + '.' * (30 - bar_len)
+        now_marker = ' <-- NOW' if h == datetime.now().hour else ''
+        print(f'  {h:02d}:00 {count:4d}  [{bar}]{now_marker}')
+
+    # Peak/quiet hours
+    peak_hour = max(heatmap, key=heatmap.get) if heatmap else 0
+    quiet_hour = min(heatmap, key=heatmap.get) if heatmap else 0
+    print(f'\\n  Peak: {peak_hour:02d}:00 ({heatmap[peak_hour]} runs)')
+    print(f'  Quiet: {quiet_hour:02d}:00 ({heatmap[quiet_hour]} runs)')
+    print(f'  Total: {sum(heatmap.values())} runs in 24h')
+else:
+    print('  No execution data yet')
+
+db.close()
+"""},
+            priority="low",
+            schedule="every:3h",
+            tags=["predictive", "heatmap", "visualization", "scheduling"],
+        ),
+
+        # ── 15. System Genome: capture l'ADN complet du système ──
+        TaskDef(
+            id="system_genome",
+            name="System Genome Snapshot",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import sqlite3, json, os, platform, sys, shutil, subprocess
+from pathlib import Path
+from datetime import datetime
+
+print('=== SYSTEM GENOME ===')
+genome = {'timestamp': datetime.now().isoformat()}
+
+# 1. Platform
+genome['platform'] = {
+    'os': platform.platform(),
+    'python': sys.version.split()[0],
+    'cpu_count': os.cpu_count(),
+}
+
+# 2. Disk
+for drive in ['C:', 'F:']:
+    u = shutil.disk_usage(drive + '/')
+    genome[f'disk_{drive[0]}'] = {'total_gb': round(u.total/1e9), 'free_gb': round(u.free/1e9)}
+
+# 3. Task ecosystem
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+genome['tasks'] = {
+    'active': db.execute("SELECT COUNT(*) FROM tasks WHERE enabled=1").fetchone()[0],
+    'disabled': db.execute("SELECT COUNT(*) FROM tasks WHERE enabled=0").fetchone()[0],
+    'total_runs': db.execute("SELECT COUNT(*) FROM task_runs").fetchone()[0],
+    'total_metrics': db.execute("SELECT COUNT(*) FROM task_metrics").fetchone()[0],
+}
+
+# 4. Codebase
+genome['codebase'] = {
+    'src_modules': len(list(Path('F:/BUREAU/turbo/src').glob('*.py'))),
+    'scripts': len(list(Path('F:/BUREAU/turbo/scripts').glob('*.py'))),
+    'tests': len(list(Path('F:/BUREAU/turbo/tests').glob('test_*.py'))),
+    'databases': len(list(Path('F:/BUREAU/turbo/data').glob('*.db'))),
+}
+
+# 5. Git
+r = subprocess.run(['git', 'log', '--oneline', '-1'], capture_output=True, text=True,
+    cwd='F:/BUREAU/turbo', timeout=5)
+genome['git_head'] = r.stdout.strip()
+r2 = subprocess.run(['git', 'rev-list', '--count', 'HEAD'], capture_output=True, text=True,
+    cwd='F:/BUREAU/turbo', timeout=5)
+genome['git_commits'] = int(r2.stdout.strip()) if r2.stdout.strip().isdigit() else 0
+
+# 6. Services
+import socket
+services_up = 0
+for name, port in [('M1', 1234), ('OL1', 11434), ('M3_remote', 1234), ('WS', 9742), ('OpenClaw', 18789)]:
+    host = '192.168.1.113' if 'M3' in name else '127.0.0.1'
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(2)
+        if s.connect_ex((host, port)) == 0:
+            services_up += 1
+        s.close()
+    except Exception:
+        pass
+genome['services_online'] = services_up
+
+# Save
+out = Path('F:/BUREAU/turbo/data/system_genome.json')
+out.write_text(json.dumps(genome, indent=2, ensure_ascii=False))
+
+print(f'  Platform: {genome["platform"]["os"]}')
+print(f'  Tasks: {genome["tasks"]["active"]} active, {genome["tasks"]["total_runs"]} runs')
+print(f'  Code: {genome["codebase"]["src_modules"]} modules, {genome["codebase"]["tests"]} tests')
+print(f'  Git: {genome["git_commits"]} commits, HEAD={genome["git_head"]}')
+print(f'  Services: {genome["services_online"]}/5 online')
+print(f'  Genome saved: {out}')
+
+db.close()
+"""},
+            priority="low",
+            schedule="every:6h",
+            tags=["predictive", "genome", "snapshot", "identity"],
+        ),
     ]
 
     for task in defaults:
