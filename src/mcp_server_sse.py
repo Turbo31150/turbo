@@ -85,6 +85,13 @@ PERPLEXITY_TOOLS = {
     "screenshot",            # Take screenshot
     "list_processes",        # Running processes
     "network_info",          # Network status
+
+    # JARVIS IA (autonomous loop + boot)
+    "jarvis_autonomous_status",  # Autonomous loop overview
+    "jarvis_cluster_health",     # Cluster health dashboard
+    "jarvis_boot_status",        # Boot status
+    "jarvis_diagnostics_quick",  # Quick diagnostics
+    "jarvis_run_task",           # Trigger autonomous task
 }
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -263,6 +270,31 @@ FULL_TOOLS = {
     # ── Auto-Developer (2) — v2.0 ────────────────────────────────────────
     "autodev_run_cycle",     # Run auto-development cycle
     "autodev_stats",         # Auto-developer stats
+
+    # ── JARVIS IA Tools (23 via WS 9742) ────────────────────────────
+    "jarvis_autonomous_status",  # Autonomous loop status (18 tasks)
+    "jarvis_autonomous_events",  # Recent autonomous events
+    "jarvis_run_task",           # Run an autonomous task by name
+    "jarvis_toggle_task",        # Enable/disable an autonomous task
+    "jarvis_cluster_health",     # Full cluster health dashboard
+    "jarvis_orchestrator_health", # Orchestrator health
+    "jarvis_best_node",          # Best node for a task type
+    "jarvis_diagnostics_quick",  # Quick diagnostics (<5s)
+    "jarvis_diagnostics_full",   # Full diagnostics (10-30s)
+    "jarvis_remember",           # Store persistent memory via WS
+    "jarvis_recall",             # Recall memory via WS
+    "jarvis_db_health",          # DB health via WS
+    "jarvis_db_maintenance",     # DB maintenance via WS
+    "jarvis_alerts_active",      # Active alerts via WS
+    "jarvis_alert_acknowledge",  # Acknowledge alert via WS
+    "jarvis_cowork_execute",     # Execute cowork script via WS
+    "jarvis_cowork_search",      # Search cowork scripts via WS
+    "jarvis_pipeline_execute",   # Execute pipeline via WS
+    "jarvis_send_message",       # Send message via WS
+    "jarvis_boot_status",        # Boot status (nodes, services, DBs)
+    "jarvis_boot_phase",         # Run a specific boot phase
+    "jarvis_classify_intent",    # Classify user intent
+    "jarvis_gpu_status",         # GPU status via WS
 }
 
 
