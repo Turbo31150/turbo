@@ -169,7 +169,12 @@ export function useVoice() {
         }
       } catch (err) {
         if (!mountedRef.current) return;
-        console.warn('[Voice] stopRecording error:', err instanceof Error ? err.message : err);
+        const msg = err instanceof Error ? err.message : String(err);
+        console.warn('[Voice] stopRecording error:', msg);
+        setState(prev => ({
+          ...prev,
+          transcription: `[Erreur: ${msg}]`,
+        }));
       }
     }
   }, [connected, request]);

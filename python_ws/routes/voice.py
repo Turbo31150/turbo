@@ -184,7 +184,7 @@ async def _handle_stop() -> dict:
     execution = None
     if full_correction_pipeline and text and not text.startswith("["):
         try:
-            result = await full_correction_pipeline(text)
+            result = await asyncio.wait_for(full_correction_pipeline(text), timeout=15.0)
             if isinstance(result, dict):
                 corrected = result.get("corrected", text)
                 cmd = result.get("command")
@@ -201,10 +201,15 @@ async def _handle_stop() -> dict:
                     }
                     # EXECUTE command directly if high confidence
                     if confidence >= 0.75:
-                        execution = await _execute_matched_command(cmd, params)
+                        execution = await asyncio.wait_for(
+                            _execute_matched_command(cmd, params), timeout=8.0
+                        )
             elif isinstance(result, str):
                 corrected = result
-        except (asyncio.TimeoutError, ValueError, RuntimeError) as e:
+        except asyncio.TimeoutError:
+            logger.warning("Voice correction/execution timeout — using raw text")
+            corrected = text
+        except (ValueError, RuntimeError) as e:
             logger.warning("Voice correction error: %s", e)
             corrected = text
 
@@ -362,26 +367,31 @@ async def _handle_tts(payload: dict) -> dict:
             _pl.Path(tmp.name).unlink(missing_ok=True)
             raise
 
-        # Play via ffplay (non-blocking) then cleanup temp file
-        proc = await asyncio.create_subprocess_exec(
-            "ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", tmp.name,
-            stdout=asyncio.subprocess.DEVNULL,
-            stderr=asyncio.subprocess.DEVNULL,
-        )
+        # Read MP3 and return as base64 for client-side playback
+        import pathlib
+        mp3_bytes = pathlib.Path(tmp.name).read_bytes()
+        audio_b64 = base64.b64encode(mp3_bytes).decode("ascii")
+        pathlib.Path(tmp.name).unlink(missing_ok=True)
 
-        async def _cleanup():
-            await proc.wait()
+        # Broadcast tts_finished after a delay (estimated playback time)
+        async def _notify_finished():
+            # Rough estimate: 150 chars/s speech rate → duration in seconds
+            await asyncio.sleep(max(1.0, len(text) / 15))
             try:
-                import pathlib
-                pathlib.Path(tmp.name).unlink(missing_ok=True)
-            except OSError:
+                from python_ws.server import _broadcast_event
+                await _broadcast_event("voice", "tts_finished", {"text": text})
+            except Exception:
                 pass
 
-        task = asyncio.create_task(_cleanup())
+        task = asyncio.create_task(_notify_finished())
         _bg_tasks.add(task)
         task.add_done_callback(_bg_tasks.discard)
-        return {"spoken": True, "text": text, "voice": voice, "engine": "edge_tts"}
+        return {
+            "spoken": True, "text": text, "voice": voice, "engine": "edge_tts",
+            "audio": audio_b64, "format": "mp3",
+        }
     except (ImportError, RuntimeError, OSError) as e:
-        logger.warning("Edge TTS failed: %s — signaling browser fallback", e)
-        # Signal the frontend to use Web Speech API as fallback
-        return {"spoken": False, "text": text, "fallback": "web_speech_api", "error": str(e)}
+        logger.warning("Edge TTS failed: %s — trying Windows SAPI fallback", e)
+
+    # Fallback: signal client to use browser Web Speech API (speechSynthesis)
+    return {"spoken": False, "text": text, "fallback": "web_speech_api"}

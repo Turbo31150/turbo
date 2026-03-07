@@ -148,7 +148,7 @@ const NODES = {
   M1: {
     url: 'http://127.0.0.1:1234/v1/chat/completions',
     model: 'qwen3-8b',
-    timeout: 60000,
+    timeout: 15000,
     name: 'M1/qwen3-8b'
   },
   GEMINI: {
@@ -183,7 +183,8 @@ const ROUTING = {
   web:     ['OL1', 'M1', 'M3'],      // OL1 rapide web → M1 → M3
   media:   ['M1', 'OL1', 'M3'],      // M1 → OL1 → M3
   meta:    ['OL1', 'M1', 'M3'],      // OL1 rapide meta → M1 → M3
-  default: ['OL1', 'M1', 'M3']       // OL1 rapide → M1 → M3
+  default: ['OL1', 'M1', 'M3'],      // OL1 rapide → M1 → M3
+  simple:  ['OL1', 'M1', 'M3']       // OL1 first for quick Q&A
 };
 
 // ── Node weights for consensus voting (benchmark 2026-02-26) ─────────────────
@@ -806,9 +807,11 @@ function classifyComplexity(userText, agentCat) {
   const complexKeywords = /\b(analyse|compare|cherche.*explique|d[eé]taill[eé]|pourquoi|comment.*fonctionne|refactor|debug|optimise|audit|review|[eé]value|synth[eè]se|r[eé]sume.*tout|en d[eé]tail|raisonne|logique|d[eé]dui[st]|syllogisme|conclure|pr[eé]misse|calcule|[eé]quation|math[eé]matique|probabilit[eé]|d[eé]montre)\b/i;
   if (complexKeywords.test(userText)) return 'reflexive';
 
-  // Tool-implying keywords
-  const toolKeywords = /\b(query_db|etoile|base de donn[eé]es|sql|fichier|dossier|pipeline|execute|lance|cherche dans|combien|table|entrees|donnees)\b/i;
-  if (toolKeywords.test(userText)) return 'reflexive';
+  // Tool-implying keywords (only for longer queries — short voice commands stay simple)
+  if (userText.length > 30) {
+    const toolKeywords = /\b(query_db|etoile|base de donn[eé]es|sql|fichier|dossier|pipeline|execute|lance|cherche dans|combien|table|entrees|donnees)\b/i;
+    if (toolKeywords.test(userText)) return 'reflexive';
+  }
 
   // Length heuristic: very long messages are likely complex
   if (userText.length > 200) return 'reflexive';

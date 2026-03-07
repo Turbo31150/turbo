@@ -126,6 +126,64 @@ async def api_tts(request: Request):
         return JSONResponse({"error": str(exc)}, status_code=500)
 
 
+@app.post("/api/voice/transcribe_blob")
+async def api_voice_transcribe_blob(request: Request):
+    """Transcribe audio blob (base64 webm/wav) via Whisper — Canvas fallback."""
+    import base64
+    import tempfile
+    body = await request.json()
+    audio_b64 = body.get("audio", "")
+    fmt = body.get("format", "webm")
+    lang = body.get("language", "fr")
+    if not audio_b64:
+        return JSONResponse({"error": "No audio data"}, status_code=400)
+    try:
+        audio_bytes = base64.b64decode(audio_b64)
+    except (ValueError, TypeError):
+        return JSONResponse({"error": "Invalid base64"}, status_code=400)
+    # Save to temp file
+    suffix = f".{fmt}" if fmt in ("webm", "wav", "ogg", "mp3") else ".webm"
+    tmp = tempfile.NamedTemporaryFile(suffix=suffix, delete=False)
+    tmp.write(audio_bytes)
+    tmp.close()
+    tmp_path = tmp.name
+    wav_path = tmp_path.replace(suffix, ".wav") if suffix != ".wav" else tmp_path
+    try:
+        # Convert to WAV if needed
+        if suffix != ".wav":
+            import subprocess
+            subprocess.run(
+                ["ffmpeg", "-y", "-i", tmp_path, "-ar", "16000", "-ac", "1", wav_path],
+                capture_output=True, timeout=15,
+            )
+        # Transcribe via Whisper
+        from python_ws.routes.voice import _get_whisper
+        import asyncio
+        whisper = _get_whisper()
+        if whisper:
+            text = await asyncio.to_thread(whisper.transcribe, wav_path)
+        else:
+            # Fallback: use scripts/transcribe.py
+            import subprocess
+            result = subprocess.run(
+                ["F:/BUREAU/turbo/.venv/Scripts/python.exe",
+                 "F:/BUREAU/turbo/scripts/transcribe.py", wav_path, "--language", lang],
+                capture_output=True, text=True, timeout=30,
+            )
+            text = result.stdout.strip()
+        if not text:
+            return JSONResponse({"text": "", "error": "Empty transcription"})
+        return JSONResponse({"text": text, "language": lang})
+    except Exception as exc:
+        logger.warning("transcribe_blob failed: %s", exc)
+        return JSONResponse({"text": "", "error": str(exc)[:300]}, status_code=500)
+    finally:
+        import pathlib
+        pathlib.Path(tmp_path).unlink(missing_ok=True)
+        if wav_path != tmp_path:
+            pathlib.Path(wav_path).unlink(missing_ok=True)
+
+
 # ── Phase 4 REST API v2 ──────────────────────────────────────────────────
 
 @app.get("/api/chat/history")
@@ -2829,6 +2887,8 @@ async def websocket_endpoint(websocket: WebSocket):
                     await _push_chat_events(websocket, result)
                 elif channel == "voice" and action == "stop_recording" and not error:
                     await _push_voice_events(websocket, result)
+                elif channel == "voice" and action == "tts_speak" and not error:
+                    await _push_tts_events(websocket, result)
                 elif channel == "system" and action in ("execute_domino", "execute_chain") and not error:
                     await _push_domino_events(websocket, result)
             except WebSocketDisconnect:
@@ -2896,6 +2956,31 @@ async def _push_voice_events(websocket: WebSocket, result: dict) -> None:
                 "original": entry.get("original", ""),
                 "timestamp": entry.get("timestamp"),
             },
+        })
+    elif result.get("error"):
+        await websocket.send_json({
+            "type": "event",
+            "channel": "voice",
+            "event": "voice_error",
+            "payload": {"message": result["error"]},
+        })
+
+
+async def _push_tts_events(websocket: WebSocket, result: dict) -> None:
+    """Push tts_started/tts_finished events after TTS request."""
+    if result.get("spoken"):
+        await websocket.send_json({
+            "type": "event",
+            "channel": "voice",
+            "event": "tts_started",
+            "payload": {"text": result.get("text", ""), "voice": result.get("voice", "")},
+        })
+    elif result.get("error"):
+        await websocket.send_json({
+            "type": "event",
+            "channel": "voice",
+            "event": "voice_error",
+            "payload": {"message": result.get("error", "TTS failed")},
         })
 
 

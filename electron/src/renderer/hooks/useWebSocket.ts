@@ -89,7 +89,7 @@ export function useWebSocket(url: string = WS_URL) {
       };
 
       // Set timeout (longer for chat commands that run scripts)
-      const timeoutMs = channel === 'chat' ? 120000 : 30000;
+      const timeoutMs = channel === 'chat' ? 120000 : channel === 'voice' ? 60000 : 30000;
       const timeout = setTimeout(() => {
         pendingRef.current.delete(id);
         reject(new Error('Request timeout'));
