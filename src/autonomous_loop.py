@@ -90,6 +90,13 @@ class AutonomousLoop:
         self.register("auto_develop", self._task_auto_develop, interval_s=86400,
                        cron=CronSchedule(hour=3, minute=30))  # daily 3h30
 
+        # ── v3.0 System automation — IA-driven system management ─────────
+        self.register("zombie_gc", self._task_zombie_gc, interval_s=600)  # 10min
+        self.register("vram_audit", self._task_vram_audit, interval_s=600)  # 10min
+        self.register("conversation_checkpoint", self._task_conv_checkpoint, interval_s=1800)  # 30min
+        self.register("cluster_dispatch_check", self._task_cluster_dispatch, interval_s=120)  # 2min
+        self.register("system_audit_escalation", self._task_system_audit, interval_s=600)  # 10min
+
     def register(self, name: str, fn: Callable[[], Awaitable[dict[str, Any]]],
                  interval_s: float = 30.0, cron: CronSchedule | None = None) -> None:
         """Register a new autonomous task. If cron is set, only runs when cron matches."""
@@ -347,7 +354,7 @@ class AutonomousLoop:
     async def _task_auto_tune_sample() -> dict[str, Any]:
         """Take a resource sample for auto-tuning."""
         from src.auto_tune import auto_tune
-        sample = auto_tune.sample_resources()
+        sample = auto_tune.sample()
         return {"sample": sample}
 
     @staticmethod
@@ -492,10 +499,195 @@ class AutonomousLoop:
         except Exception as e:
             return {"error": str(e)}
 
+    # ── v3.0 System automation tasks ──────────────────────────────────
+
+    @staticmethod
+    async def _task_zombie_gc() -> dict[str, Any]:
+        """Kill zombie Python processes (every 10min)."""
+        import subprocess
+        turbo = __import__("pathlib").Path("F:/BUREAU/turbo")
+        try:
+            r = await asyncio.to_thread(
+                subprocess.run,
+                [__import__("sys").executable, str(turbo / "scripts" / "process_gc.py"), "--once"],
+                capture_output=True, text=True, timeout=20,
+                encoding="utf-8", errors="replace",
+            )
+            # Parse last line for killed count
+            lines = (r.stdout or "").strip().split("\n")
+            killed = 0
+            for line in lines:
+                if "killed" in line.lower():
+                    import re
+                    m = re.search(r"(\d+)\s+killed", line)
+                    if m:
+                        killed = int(m.group(1))
+            result: dict[str, Any] = {"killed": killed, "returncode": r.returncode}
+            if killed > 3:
+                result["alert"] = f"Zombie GC killed {killed} processes"
+            return result
+        except Exception as e:
+            return {"error": str(e)}
+
+    @staticmethod
+    async def _task_vram_audit() -> dict[str, Any]:
+        """Monitor VRAM and pause cowork if critical (every 10min)."""
+        import subprocess, json as _json
+        turbo = __import__("pathlib").Path("F:/BUREAU/turbo")
+        try:
+            r = await asyncio.to_thread(
+                subprocess.run,
+                [__import__("sys").executable, str(turbo / "scripts" / "vram_guard.py"), "--once", "--json"],
+                capture_output=True, text=True, timeout=15,
+                encoding="utf-8", errors="replace",
+            )
+            # Extract JSON from output (may have ANSI log lines before)
+            text = r.stdout or ""
+            data = {}
+            if "{" in text:
+                try:
+                    data = _json.loads(text[text.find("{"):])
+                except _json.JSONDecodeError:
+                    pass
+            vram_pct = data.get("max_vram_pct", 0)
+            action = data.get("action", "unknown")
+            result: dict[str, Any] = {"max_vram_pct": vram_pct, "action": action,
+                                      "cowork_paused": data.get("cowork_paused", False)}
+            if vram_pct >= 90:
+                result["alert"] = f"VRAM critical: {vram_pct:.1f}% — cowork paused"
+            elif vram_pct >= 85:
+                result["alert"] = f"VRAM high: {vram_pct:.1f}%"
+            return result
+        except Exception as e:
+            return {"error": str(e)}
+
+    @staticmethod
+    async def _task_conv_checkpoint() -> dict[str, Any]:
+        """Summarize and GC old conversation checkpoints (every 30min)."""
+        import subprocess
+        turbo = __import__("pathlib").Path("F:/BUREAU/turbo")
+        script = turbo / "scripts" / "conversation_checkpoint.py"
+        if not script.exists():
+            return {"status": "script_not_found"}
+        try:
+            # GC old sessions (>7 days)
+            r = await asyncio.to_thread(
+                subprocess.run,
+                [__import__("sys").executable, str(script), "--gc", "--days", "7"],
+                capture_output=True, text=True, timeout=15,
+                encoding="utf-8", errors="replace",
+            )
+            return {"gc_done": True, "returncode": r.returncode}
+        except Exception as e:
+            return {"error": str(e)}
+
+    @staticmethod
+    async def _task_cluster_dispatch() -> dict[str, Any]:
+        """Quick cluster health + auto-reroute if nodes offline (every 2min)."""
+        import httpx
+        probes = {
+            "M1": "http://127.0.0.1:1234/api/v1/models",
+            "OL1": "http://127.0.0.1:11434/api/tags",
+            "WS": "http://127.0.0.1:9742/health",
+            "Canvas": "http://127.0.0.1:18800/",
+        }
+        results: dict[str, str] = {}
+        async with httpx.AsyncClient(timeout=3) as client:
+            for name, url in probes.items():
+                try:
+                    r = await client.get(url)
+                    results[name] = "up" if r.status_code == 200 else f"http_{r.status_code}"
+                except Exception:
+                    results[name] = "down"
+        offline = [n for n, s in results.items() if s != "up"]
+        result: dict[str, Any] = {"nodes": results, "offline_count": len(offline)}
+        if offline:
+            result["alert"] = f"Nodes offline: {', '.join(offline)}"
+            # Broadcast via WS if server is up
+            if results.get("WS") == "up":
+                try:
+                    async with httpx.AsyncClient(timeout=3) as client:
+                        await client.post("http://127.0.0.1:9742/api/broadcast", json={
+                            "channel": "system", "event": "node_offline",
+                            "payload": {"offline": offline}
+                        })
+                except Exception:
+                    pass
+        return result
+
+    @staticmethod
+    async def _task_system_audit() -> dict[str, Any]:
+        """Escalation audit: if VRAM/zombies high, run full system_audit (every 10min)."""
+        import subprocess, json as _json
+        turbo = __import__("pathlib").Path("F:/BUREAU/turbo")
+        exe = __import__("sys").executable
+        # Quick checks
+        try:
+            vr = await asyncio.to_thread(
+                subprocess.run,
+                [exe, str(turbo / "scripts" / "vram_guard.py"), "--once", "--json"],
+                capture_output=True, text=True, timeout=15,
+                encoding="utf-8", errors="replace",
+            )
+            vtext = vr.stdout or ""
+            vdata = {}
+            if "{" in vtext:
+                try:
+                    vdata = _json.loads(vtext[vtext.find("{"):])
+                except _json.JSONDecodeError:
+                    pass
+            vram_pct = vdata.get("max_vram_pct", 0)
+        except Exception:
+            vram_pct = 0
+
+        # Check cowork-paused flag
+        paused = (turbo / "data" / ".cowork-paused").exists()
+
+        need_audit = vram_pct >= 85 or paused
+        if not need_audit:
+            return {"action": "skip", "vram_pct": vram_pct, "paused": paused}
+
+        # Run full targeted audit
+        audit_script = turbo / "scripts" / "system_audit.py"
+        if not audit_script.exists():
+            return {"action": "audit_script_missing"}
+
+        try:
+            ar = await asyncio.to_thread(
+                subprocess.run,
+                [exe, str(audit_script), "--quick", "--save"],
+                capture_output=True, text=True, timeout=120,
+                encoding="utf-8", errors="replace",
+            )
+            result: dict[str, Any] = {
+                "action": "full_audit",
+                "vram_pct": vram_pct,
+                "audit_returncode": ar.returncode,
+            }
+            if vram_pct >= 90:
+                result["alert"] = f"Full audit triggered: VRAM {vram_pct:.1f}%"
+            return result
+        except Exception as e:
+            return {"action": "audit_failed", "error": str(e)}
+
     # ── Status & API ────────────────────────────────────────────────────
 
+    @staticmethod
+    def _safe_json(obj: Any) -> Any:
+        """Convert non-serializable objects to dicts/strings for JSON output."""
+        if obj is None or isinstance(obj, (str, int, float, bool)):
+            return obj
+        if isinstance(obj, dict):
+            return {k: AutonomousLoop._safe_json(v) for k, v in obj.items()}
+        if isinstance(obj, (list, tuple)):
+            return [AutonomousLoop._safe_json(v) for v in obj]
+        if hasattr(obj, "__dataclass_fields__"):
+            from dataclasses import asdict
+            return asdict(obj)
+        return str(obj)
+
     def get_status(self) -> dict[str, Any]:
-        """Return full status of the autonomous loop."""
+        """Return full status of the autonomous loop (JSON-safe)."""
         tasks_info = {}
         for name, t in self._tasks.items():
             tasks_info[name] = {
@@ -504,7 +696,7 @@ class AutonomousLoop:
                 "run_count": t.run_count,
                 "fail_count": t.fail_count,
                 "last_run": t.last_run,
-                "last_result": t.last_result,
+                "last_result": self._safe_json(t.last_result),
             }
         return {
             "running": self._running,
