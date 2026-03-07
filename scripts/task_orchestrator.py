@@ -1585,7 +1585,7 @@ else: print("nvidia-smi failed")
             name="Services Watchdog",
             task_type="health",
             action="script",
-            payload={"script": "scripts/unified_boot.py", "args": ["--check"]},
+            payload={"script": "scripts/jarvis_unified_boot.py", "args": ["--status"]},
             priority="high",
             schedule="every:5m",
             tags=["health", "watchdog"],
@@ -2262,9 +2262,9 @@ else:
             task_type="health",
             action="branch",
             payload={
-                "condition": {"type": "process_running", "process": "openclaw.exe"},
+                "condition": {"type": "port_open", "host": "127.0.0.1", "port": 18789},
                 "branches": {
-                    "running": {
+                    "open": {
                         "action": "python",
                         "payload": {"code": """
 import subprocess
@@ -2273,14 +2273,23 @@ r = subprocess.run(["curl","-s","--max-time","3","http://127.0.0.1:18789/health"
 print(f"OpenClaw: {'OK' if r.returncode==0 else 'ERROR'} {r.stdout[:80]}")
 """},
                     },
-                    "stopped": {
+                    "closed": {
                         "action": "python",
                         "payload": {"code": """
-import subprocess
+import subprocess, os
 print("OpenClaw not running - starting...")
-subprocess.Popen(["openclaw","serve"], creationflags=0x00000008, cwd="F:/BUREAU/turbo")
-print("OpenClaw start initiated")
+openclaw_cmd = os.path.expandvars(r'%APPDATA%\\npm\\openclaw.cmd')
+if os.path.exists(openclaw_cmd):
+    subprocess.Popen([openclaw_cmd, 'serve'], creationflags=0x00000008,
+                     cwd='F:/BUREAU/turbo', shell=True)
+    print("OpenClaw start initiated")
+else:
+    print(f"OpenClaw binary not found: {openclaw_cmd}")
 """},
+                    },
+                    "error": {
+                        "action": "python",
+                        "payload": {"code": "print('OpenClaw port check error')"},
                     },
                 },
             },
