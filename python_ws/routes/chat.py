@@ -85,7 +85,30 @@ class ChatSession:
         self.messages: list[dict] = []
         self.active = False
         self._db_path = _TURBO_ROOT / "data" / "jarvis.db"
+        self._ensure_table()
         self._restore_from_db()
+
+    def _ensure_table(self):
+        """Create chat_history table if it doesn't exist."""
+        try:
+            conn = sqlite3.connect(str(self._db_path))
+            conn.execute("""CREATE TABLE IF NOT EXISTS chat_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id TEXT,
+                role TEXT NOT NULL,
+                content TEXT NOT NULL,
+                agent TEXT,
+                model TEXT,
+                latency_ms REAL DEFAULT 0,
+                tokens INTEGER DEFAULT 0,
+                timestamp REAL NOT NULL
+            )""")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_chat_ts ON chat_history(timestamp DESC)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_chat_session ON chat_history(session_id)")
+            conn.commit()
+            conn.close()
+        except sqlite3.Error as e:
+            logger.debug("chat_history table creation failed: %s", e)
 
     def _restore_from_db(self):
         """Restore last session messages from SQLite on startup."""
