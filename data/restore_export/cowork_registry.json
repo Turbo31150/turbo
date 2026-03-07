@@ -1,0 +1,1316 @@
+{
+  "_auto_repair": {
+    "size": 5431
+  },
+  "_paths": {
+    "size": 1200
+  },
+  "_run_domino_cascade": {
+    "size": 2601
+  },
+  "adaptive_load_balancer": {
+    "size": 10652
+  },
+  "adaptive_timeout_manager": {
+    "size": 4293
+  },
+  "agent_orchestrator": {
+    "size": 29523
+  },
+  "ai_conversation": {
+    "size": 4554
+  },
+  "alert_manager": {
+    "size": 9588
+  },
+  "anomaly_detector": {
+    "size": 10379
+  },
+  "api_monitor": {
+    "size": 4818
+  },
+  "api_rate_limiter": {
+    "size": 11840
+  },
+  "audio_controller": {
+    "size": 7626
+  },
+  "auto_deployer": {
+    "size": 7388
+  },
+  "auto_dispatcher": {
+    "size": 8435
+  },
+  "auto_documentation_updater": {
+    "size": 12244
+  },
+  "auto_documenter": {
+    "size": 7430
+  },
+  "auto_healer": {
+    "size": 4674
+  },
+  "auto_learner": {
+    "size": 6102
+  },
+  "auto_monitor": {
+    "size": 2946
+  },
+  "auto_ops_runner": {
+    "size": 6410
+  },
+  "auto_reporter": {
+    "size": 6186
+  },
+  "auto_scheduler": {
+    "size": 6544
+  },
+  "auto_skill_tester": {
+    "size": 9006
+  },
+  "auto_trader": {
+    "size": 3360
+  },
+  "auto_updater": {
+    "size": 4200
+  },
+  "autonomous_cluster_pipeline": {
+    "size": 47939
+  },
+  "autonomous_health_guard": {
+    "size": 9148
+  },
+  "autonomous_orchestrator": {
+    "size": 26611
+  },
+  "autonomous_orchestrator_v3": {
+    "size": 28065
+  },
+  "benchmark_trend_analyzer": {
+    "size": 11099
+  },
+  "bluetooth_manager": {
+    "size": 5504
+  },
+  "browser_automation": {
+    "size": 8958
+  },
+  "browser_pilot": {
+    "size": 18417
+  },
+  "clipboard_history": {
+    "size": 3544
+  },
+  "cluster_auto_healer": {
+    "size": 10726
+  },
+  "cluster_autotuner": {
+    "size": 7167
+  },
+  "cluster_benchmark_auto": {
+    "size": 11477
+  },
+  "cluster_dashboard_api": {
+    "size": 7747
+  },
+  "cluster_deep_analysis_worker": {
+    "size": 15670
+  },
+  "cluster_failover_manager": {
+    "size": 3951
+  },
+  "cluster_health_watchdog": {
+    "size": 8020
+  },
+  "cluster_heartbeat": {
+    "size": 8598
+  },
+  "cluster_load_predictor": {
+    "size": 4966
+  },
+  "cluster_model_rotator": {
+    "size": 4763
+  },
+  "cluster_ops_runner": {
+    "size": 6547
+  },
+  "cluster_strategy_worker": {
+    "size": 10090
+  },
+  "cluster_sync": {
+    "size": 6309
+  },
+  "cluster_warmup": {
+    "size": 8794
+  },
+  "code_generator": {
+    "size": 27326
+  },
+  "code_lint_agents": {
+    "size": 22033
+  },
+  "code_reviewer": {
+    "size": 8157
+  },
+  "config_drift_detector": {
+    "size": 18579
+  },
+  "config_validator": {
+    "size": 8008
+  },
+  "context_engine": {
+    "size": 6142
+  },
+  "continuous_coder": {
+    "size": 17404
+  },
+  "continuous_improver": {
+    "size": 6097
+  },
+  "continuous_learner": {
+    "size": 11028
+  },
+  "continuous_test_runner": {
+    "size": 8327
+  },
+  "conversation_manager": {
+    "size": 13296
+  },
+  "cowork_auto_improver": {
+    "size": 10715
+  },
+  "cowork_dependency_mapper": {
+    "size": 19137
+  },
+  "cowork_full_cycle": {
+    "size": 7542
+  },
+  "cowork_gap_analyzer": {
+    "size": 6605
+  },
+  "cowork_health_summary": {
+    "size": 10160
+  },
+  "cowork_scheduler": {
+    "size": 19774
+  },
+  "cowork_script_validator": {
+    "size": 5949
+  },
+  "cowork_self_test_runner": {
+    "size": 9740
+  },
+  "cross_channel_sync": {
+    "size": 10385
+  },
+  "cross_script_integration_tester": {
+    "size": 21980
+  },
+  "crypto_price_alert": {
+    "size": 11243
+  },
+  "daily_audit_report": {
+    "size": 10763
+  },
+  "daily_cowork_report": {
+    "size": 8956
+  },
+  "dashboard_generator": {
+    "size": 4101
+  },
+  "data_exporter": {
+    "size": 6558
+  },
+  "db_optimizer": {
+    "size": 4742
+  },
+  "decision_engine": {
+    "size": 18163
+  },
+  "dependency_vulnerability_scanner": {
+    "size": 19507
+  },
+  "deployment_manager": {
+    "size": 6309
+  },
+  "desktop_organizer": {
+    "size": 10491
+  },
+  "desktop_workflow_builder": {
+    "size": 11720
+  },
+  "dispatch_ab_tester": {
+    "size": 7655
+  },
+  "dispatch_auto_improve": {
+    "size": 4989
+  },
+  "dispatch_cache": {
+    "size": 10086
+  },
+  "dispatch_cost_estimator": {
+    "size": 13676
+  },
+  "dispatch_error_analyzer": {
+    "size": 9134
+  },
+  "dispatch_integration_test": {
+    "size": 7290
+  },
+  "dispatch_latency_optimizer": {
+    "size": 8802
+  },
+  "dispatch_learner": {
+    "size": 13231
+  },
+  "dispatch_ops_runner": {
+    "size": 6656
+  },
+  "dispatch_pattern_profiler": {
+    "size": 8982
+  },
+  "dispatch_quality_scorer": {
+    "size": 6264
+  },
+  "dispatch_quality_tracker": {
+    "size": 15521
+  },
+  "dispatch_quick_bench": {
+    "size": 4780
+  },
+  "dispatch_realtime_monitor": {
+    "size": 19738
+  },
+  "dispatch_reliability_improver": {
+    "size": 7816
+  },
+  "dispatch_trend_analyzer": {
+    "size": 6590
+  },
+  "display_manager": {
+    "size": 9293
+  },
+  "domino_executor": {
+    "size": 15423
+  },
+  "driver_checker": {
+    "size": 7294
+  },
+  "dynamic_timeout": {
+    "size": 14792
+  },
+  "electron_app_monitor": {
+    "size": 6647
+  },
+  "email_reader": {
+    "size": 8284
+  },
+  "event_bus_monitor": {
+    "size": 8775
+  },
+  "event_logger": {
+    "size": 7286
+  },
+  "failure_predictor": {
+    "size": 14166
+  },
+  "file_organizer": {
+    "size": 9257
+  },
+  "generate_docstrings": {
+    "size": 3347
+  },
+  "gpu_optimizer": {
+    "size": 31883
+  },
+  "gpu_thermal_guard": {
+    "size": 6826
+  },
+  "grade_optimizer": {
+    "size": 10935
+  },
+  "health_checker": {
+    "size": 12263
+  },
+  "ia_agent_spawner": {
+    "size": 10141
+  },
+  "ia_agent_swarm_runner": {
+    "size": 16584
+  },
+  "ia_anomaly_detector": {
+    "size": 6426
+  },
+  "ia_autonomous_coder": {
+    "size": 8327
+  },
+  "ia_capability_tracker": {
+    "size": 5349
+  },
+  "ia_chain_of_thought": {
+    "size": 9031
+  },
+  "ia_chain_of_thought_v2": {
+    "size": 10970
+  },
+  "ia_code_generator": {
+    "size": 5405
+  },
+  "ia_code_generator_v2": {
+    "size": 12187
+  },
+  "ia_context_compressor": {
+    "size": 6279
+  },
+  "ia_cost_tracker": {
+    "size": 3645
+  },
+  "ia_curriculum_planner": {
+    "size": 12739
+  },
+  "ia_data_synthesizer": {
+    "size": 12523
+  },
+  "ia_debate_engine": {
+    "size": 11004
+  },
+  "ia_doc_generator": {
+    "size": 12034
+  },
+  "ia_doc_writer": {
+    "size": 4398
+  },
+  "ia_ensemble_voter": {
+    "size": 6749
+  },
+  "ia_error_analyzer": {
+    "size": 6894
+  },
+  "ia_experiment_runner": {
+    "size": 10578
+  },
+  "ia_fact_checker": {
+    "size": 10954
+  },
+  "ia_feedback_loop": {
+    "size": 5891
+  },
+  "ia_goal_decomposer": {
+    "size": 5660
+  },
+  "ia_goal_tracker": {
+    "size": 9965
+  },
+  "ia_hypothesis_tester": {
+    "size": 10475
+  },
+  "ia_image_prompt_crafter": {
+    "size": 9970
+  },
+  "ia_inference_profiler": {
+    "size": 5056
+  },
+  "ia_knowledge_distiller": {
+    "size": 14406
+  },
+  "ia_knowledge_graph": {
+    "size": 6021
+  },
+  "ia_memory_consolidator": {
+    "size": 4584
+  },
+  "ia_meta_optimizer": {
+    "size": 10455
+  },
+  "ia_model_benchmarker": {
+    "size": 7920
+  },
+  "ia_model_cache_manager": {
+    "size": 4092
+  },
+  "ia_pattern_detector": {
+    "size": 6242
+  },
+  "ia_peer_reviewer": {
+    "size": 10619
+  },
+  "ia_proactive_agent": {
+    "size": 10756
+  },
+  "ia_prompt_optimizer": {
+    "size": 6573
+  },
+  "ia_routing_optimizer": {
+    "size": 3544
+  },
+  "ia_self_critic": {
+    "size": 15274
+  },
+  "ia_self_improver": {
+    "size": 8364
+  },
+  "ia_skill_synthesizer": {
+    "size": 3948
+  },
+  "ia_story_generator": {
+    "size": 11671
+  },
+  "ia_swarm_coordinator": {
+    "size": 4939
+  },
+  "ia_task_planner": {
+    "size": 7550
+  },
+  "ia_task_prioritizer": {
+    "size": 5861
+  },
+  "ia_teacher_student": {
+    "size": 12753
+  },
+  "ia_test_generator": {
+    "size": 13777
+  },
+  "ia_test_writer": {
+    "size": 4877
+  },
+  "ia_transfer_learner": {
+    "size": 10579
+  },
+  "ia_usage_predictor": {
+    "size": 5329
+  },
+  "ia_weight_calibrator": {
+    "size": 3354
+  },
+  "ia_workload_balancer": {
+    "size": 4379
+  },
+  "intent_classifier": {
+    "size": 8933
+  },
+  "interaction_predictor": {
+    "size": 17295
+  },
+  "jarvis_ab_tester": {
+    "size": 12649
+  },
+  "jarvis_api_gateway": {
+    "size": 5454
+  },
+  "jarvis_autonomy_engine": {
+    "size": 10559
+  },
+  "jarvis_autonomy_monitor": {
+    "size": 8046
+  },
+  "jarvis_backup_manager": {
+    "size": 4795
+  },
+  "jarvis_brain": {
+    "size": 8277
+  },
+  "jarvis_changelog_generator": {
+    "size": 6152
+  },
+  "jarvis_code_auditor": {
+    "size": 6309
+  },
+  "jarvis_command_predictor": {
+    "size": 4415
+  },
+  "jarvis_config_center": {
+    "size": 13847
+  },
+  "jarvis_config_validator": {
+    "size": 6051
+  },
+  "jarvis_context_engine": {
+    "size": 6445
+  },
+  "jarvis_conversation_analyzer": {
+    "size": 5330
+  },
+  "jarvis_conversation_memory": {
+    "size": 6678
+  },
+  "jarvis_cron_optimizer": {
+    "size": 4587
+  },
+  "jarvis_daily_briefing": {
+    "size": 6010
+  },
+  "jarvis_dashboard": {
+    "size": 9038
+  },
+  "jarvis_data_exporter": {
+    "size": 4223
+  },
+  "jarvis_db_migrator": {
+    "size": 3382
+  },
+  "jarvis_dependency_mapper": {
+    "size": 6113
+  },
+  "jarvis_dialog_manager": {
+    "size": 9236
+  },
+  "jarvis_dictation_mode": {
+    "size": 10042
+  },
+  "jarvis_ecosystem_map": {
+    "size": 4634
+  },
+  "jarvis_embedding_engine": {
+    "size": 4598
+  },
+  "jarvis_event_stream": {
+    "size": 12087
+  },
+  "jarvis_evolution_engine": {
+    "size": 16649
+  },
+  "jarvis_faq_builder": {
+    "size": 5473
+  },
+  "jarvis_feature_builder": {
+    "size": 6612
+  },
+  "jarvis_health_aggregator": {
+    "size": 11489
+  },
+  "jarvis_intent_classifier": {
+    "size": 6425
+  },
+  "jarvis_intent_predictor": {
+    "size": 11454
+  },
+  "jarvis_intent_router": {
+    "size": 11067
+  },
+  "jarvis_log_analyzer": {
+    "size": 3974
+  },
+  "jarvis_macro_recorder": {
+    "size": 4173
+  },
+  "jarvis_master_autonome": {
+    "size": 29828
+  },
+  "jarvis_mega_runner": {
+    "size": 14235
+  },
+  "jarvis_memory_optimizer": {
+    "size": 6353
+  },
+  "jarvis_message_router": {
+    "size": 5171
+  },
+  "jarvis_meta_dashboard": {
+    "size": 10854
+  },
+  "jarvis_multi_language": {
+    "size": 12916
+  },
+  "jarvis_night_ops": {
+    "size": 8212
+  },
+  "jarvis_nlp_enhancer": {
+    "size": 5481
+  },
+  "jarvis_notification_hub": {
+    "size": 8483
+  },
+  "jarvis_notification_router": {
+    "size": 11231
+  },
+  "jarvis_orchestrator_v3": {
+    "size": 15914
+  },
+  "jarvis_pattern_learner": {
+    "size": 5786
+  },
+  "jarvis_pattern_miner": {
+    "size": 13796
+  },
+  "jarvis_performance_tracker": {
+    "size": 9590
+  },
+  "jarvis_permission_auditor": {
+    "size": 5609
+  },
+  "jarvis_personality_engine": {
+    "size": 10409
+  },
+  "jarvis_pipeline_monitor": {
+    "size": 5783
+  },
+  "jarvis_plugin_tester": {
+    "size": 5732
+  },
+  "jarvis_preloader": {
+    "size": 10146
+  },
+  "jarvis_release_manager": {
+    "size": 10516
+  },
+  "jarvis_response_cache": {
+    "size": 8997
+  },
+  "jarvis_response_profiler": {
+    "size": 5302
+  },
+  "jarvis_roi_calculator": {
+    "size": 10097
+  },
+  "jarvis_rule_engine": {
+    "size": 11035
+  },
+  "jarvis_secret_scanner": {
+    "size": 4905
+  },
+  "jarvis_self_evolve": {
+    "size": 8681
+  },
+  "jarvis_self_improve": {
+    "size": 7315
+  },
+  "jarvis_self_improver": {
+    "size": 7743
+  },
+  "jarvis_self_test_suite": {
+    "size": 11496
+  },
+  "jarvis_sentiment_analyzer": {
+    "size": 4183
+  },
+  "jarvis_services_runner": {
+    "size": 15823
+  },
+  "jarvis_skill_generator": {
+    "size": 8062
+  },
+  "jarvis_skill_recommender": {
+    "size": 6731
+  },
+  "jarvis_state_machine": {
+    "size": 8005
+  },
+  "jarvis_super_loop": {
+    "size": 28871
+  },
+  "jarvis_telegram_enhanced": {
+    "size": 8538
+  },
+  "jarvis_template_engine": {
+    "size": 4280
+  },
+  "jarvis_test_generator": {
+    "size": 5178
+  },
+  "jarvis_tts_cache_manager": {
+    "size": 5809
+  },
+  "jarvis_update_checker": {
+    "size": 3745
+  },
+  "jarvis_usage_analytics": {
+    "size": 9911
+  },
+  "jarvis_voice_profile": {
+    "size": 9573
+  },
+  "jarvis_voice_trainer": {
+    "size": 5322
+  },
+  "jarvis_wake_word_tuner": {
+    "size": 11062
+  },
+  "jarvis_webhook_manager": {
+    "size": 7640
+  },
+  "jarvis_webhook_server": {
+    "size": 14405
+  },
+  "jarvis_wiki_engine": {
+    "size": 9981
+  },
+  "knowledge_graph": {
+    "size": 9085
+  },
+  "knowledge_updater": {
+    "size": 13830
+  },
+  "latency_monitor": {
+    "size": 9985
+  },
+  "linkedin_auto_routine": {
+    "size": 14060
+  },
+  "linkedin_content_generator": {
+    "size": 16724
+  },
+  "linkedin_growth_engine": {
+    "size": 21808
+  },
+  "linkedin_publisher": {
+    "size": 13032
+  },
+  "linkedin_scheduler": {
+    "size": 23233
+  },
+  "load_balancer": {
+    "size": 5474
+  },
+  "log_analyzer": {
+    "size": 3318
+  },
+  "log_compressor": {
+    "size": 3387
+  },
+  "log_rotator": {
+    "size": 7056
+  },
+  "mcp_tool_tester": {
+    "size": 6339
+  },
+  "memory_optimizer": {
+    "size": 37861
+  },
+  "metrics_aggregator": {
+    "size": 12598
+  },
+  "metrics_collector": {
+    "size": 7591
+  },
+  "misc_tools_runner": {
+    "size": 29704
+  },
+  "model_benchmark": {
+    "size": 16751
+  },
+  "model_health_checker": {
+    "size": 13387
+  },
+  "model_manager": {
+    "size": 6758
+  },
+  "model_rotator": {
+    "size": 6450
+  },
+  "multi_agent_coordinator": {
+    "size": 8135
+  },
+  "multi_strategy_dispatcher": {
+    "size": 13272
+  },
+  "network_monitor": {
+    "size": 4434
+  },
+  "network_optimizer": {
+    "size": 34099
+  },
+  "night_cluster_tasks": {
+    "size": 14658
+  },
+  "night_work_loop": {
+    "size": 17424
+  },
+  "node_balancer": {
+    "size": 8178
+  },
+  "node_failover_simulator": {
+    "size": 22128
+  },
+  "node_reliability_scorer": {
+    "size": 7388
+  },
+  "notification_hub": {
+    "size": 7324
+  },
+  "openclaw_watchdog": {
+    "size": 14663
+  },
+  "pattern_load_balancer": {
+    "size": 7470
+  },
+  "performance_profiler": {
+    "size": 6725
+  },
+  "performance_regression_detector": {
+    "size": 16797
+  },
+  "perplexity_mcp_bridge": {
+    "size": 7151
+  },
+  "pipeline_integration_test": {
+    "size": 7783
+  },
+  "pipeline_orchestrator": {
+    "size": 10064
+  },
+  "portfolio_tracker": {
+    "size": 6924
+  },
+  "power_manager": {
+    "size": 5822
+  },
+  "prediction_trainer": {
+    "size": 9062
+  },
+  "predictive_failure_detector": {
+    "size": 17249
+  },
+  "proactive_agent": {
+    "size": 12835
+  },
+  "proactive_alert_monitor": {
+    "size": 9841
+  },
+  "proactive_healer": {
+    "size": 12805
+  },
+  "process_manager": {
+    "size": 3360
+  },
+  "prompt_optimizer": {
+    "size": 7745
+  },
+  "prompt_router": {
+    "size": 11128
+  },
+  "quick_answer_cache": {
+    "size": 6691
+  },
+  "registry_manager": {
+    "size": 6721
+  },
+  "report_mailer": {
+    "size": 5495
+  },
+  "resilient_dispatcher": {
+    "size": 14730
+  },
+  "resource_contention_monitor": {
+    "size": 16449
+  },
+  "resource_forecaster": {
+    "size": 3682
+  },
+  "response_evaluator": {
+    "size": 8419
+  },
+  "response_sanitizer": {
+    "size": 10452
+  },
+  "risk_manager": {
+    "size": 6632
+  },
+  "scheduled_task_creator": {
+    "size": 6671
+  },
+  "screenshot_tool": {
+    "size": 4213
+  },
+  "script_deduplication": {
+    "size": 11488
+  },
+  "security_scanner": {
+    "size": 8999
+  },
+  "self_feeding_engine": {
+    "size": 16630
+  },
+  "self_improver": {
+    "size": 8248
+  },
+  "service_watchdog": {
+    "size": 7836
+  },
+  "service_watcher": {
+    "size": 7978
+  },
+  "signal_backtester": {
+    "size": 6578
+  },
+  "smart_cron_manager": {
+    "size": 7903
+  },
+  "smart_launcher": {
+    "size": 6475
+  },
+  "smart_retry_dispatcher": {
+    "size": 7392
+  },
+  "smart_routing_engine": {
+    "size": 10005
+  },
+  "sniper_deep": {
+    "size": 13113
+  },
+  "sniper_improve_loop": {
+    "size": 16804
+  },
+  "sniper_scanner": {
+    "size": 85019
+  },
+  "startup_manager": {
+    "size": 5882
+  },
+  "strategy_evolution_loop": {
+    "size": 39273
+  },
+  "system_benchmark": {
+    "size": 10634
+  },
+  "system_restore": {
+    "size": 5990
+  },
+  "task_automator": {
+    "size": 8514
+  },
+  "task_learner": {
+    "size": 4545
+  },
+  "task_queue": {
+    "size": 5932
+  },
+  "telegram_bot_monitor": {
+    "size": 4818
+  },
+  "telegram_commander": {
+    "size": 13660
+  },
+  "telegram_cowork_dashboard": {
+    "size": 35757
+  },
+  "telegram_ops_runner": {
+    "size": 6460
+  },
+  "telegram_quick_status": {
+    "size": 8242
+  },
+  "telegram_scheduler": {
+    "size": 8190
+  },
+  "telegram_sender": {
+    "size": 6671
+  },
+  "telegram_stats": {
+    "size": 23469
+  },
+  "test_generator": {
+    "size": 6792
+  },
+  "test_monitoring_stack": {
+    "size": 6021
+  },
+  "timeout_auto_fixer": {
+    "size": 6840
+  },
+  "trading_intelligence": {
+    "size": 8528
+  },
+  "tts_cache_manager": {
+    "size": 4398
+  },
+  "usage_analytics": {
+    "size": 5457
+  },
+  "usb_monitor": {
+    "size": 5476
+  },
+  "utility_mega_runner": {
+    "size": 20937
+  },
+  "voice_auto_learner": {
+    "size": 7331
+  },
+  "voice_browser_nav": {
+    "size": 15980
+  },
+  "voice_command_fuzzer": {
+    "size": 15451
+  },
+  "voice_computer_control": {
+    "size": 61885
+  },
+  "voice_correction_miner": {
+    "size": 7641
+  },
+  "voice_enhancer": {
+    "size": 7429
+  },
+  "voice_gap_filler": {
+    "size": 9398
+  },
+  "voice_ops_runner": {
+    "size": 6461
+  },
+  "voice_pipeline_optimizer": {
+    "size": 6508
+  },
+  "voice_trainer": {
+    "size": 5565
+  },
+  "whisperflow_guardian": {
+    "size": 5270
+  },
+  "wifi_manager": {
+    "size": 5816
+  },
+  "win_accessibility_enhancer": {
+    "size": 4748
+  },
+  "win_ai_copilot": {
+    "size": 12558
+  },
+  "win_app_controller": {
+    "size": 6008
+  },
+  "win_app_usage_tracker": {
+    "size": 9541
+  },
+  "win_audio_controller": {
+    "size": 3284
+  },
+  "win_autonomics_runner": {
+    "size": 18877
+  },
+  "win_backup": {
+    "size": 4567
+  },
+  "win_backup_manager": {
+    "size": 11123
+  },
+  "win_battery_monitor": {
+    "size": 12136
+  },
+  "win_boot_optimizer": {
+    "size": 5722
+  },
+  "win_certificate_checker": {
+    "size": 4222
+  },
+  "win_clipboard_ai": {
+    "size": 5265
+  },
+  "win_clipboard_history": {
+    "size": 7255
+  },
+  "win_context_menu": {
+    "size": 8592
+  },
+  "win_copilot_bridge": {
+    "size": 3901
+  },
+  "win_crash_analyzer": {
+    "size": 12343
+  },
+  "win_defender_monitor": {
+    "size": 4244
+  },
+  "win_defrag_scheduler": {
+    "size": 10710
+  },
+  "win_disk_analyzer": {
+    "size": 7329
+  },
+  "win_display_manager": {
+    "size": 10759
+  },
+  "win_dns_cache_manager": {
+    "size": 3323
+  },
+  "win_driver_checker": {
+    "size": 4825
+  },
+  "win_env_auditor": {
+    "size": 5038
+  },
+  "win_event_monitor": {
+    "size": 5616
+  },
+  "win_event_watcher": {
+    "size": 6222
+  },
+  "win_file_watcher": {
+    "size": 10538
+  },
+  "win_file_watcher_v2": {
+    "size": 10779
+  },
+  "win_firewall_analyzer": {
+    "size": 5174
+  },
+  "win_firewall_manager": {
+    "size": 6026
+  },
+  "win_focus_timer": {
+    "size": 3795
+  },
+  "win_font_manager": {
+    "size": 4743
+  },
+  "win_game_mode_manager": {
+    "size": 11470
+  },
+  "win_gesture_detector": {
+    "size": 11136
+  },
+  "win_hotkey_engine": {
+    "size": 5671
+  },
+  "win_io_analyzer": {
+    "size": 5098
+  },
+  "win_media_organizer": {
+    "size": 12273
+  },
+  "win_memory_profiler": {
+    "size": 5311
+  },
+  "win_network_analyzer": {
+    "size": 6141
+  },
+  "win_network_guard": {
+    "size": 4767
+  },
+  "win_notification_ai": {
+    "size": 3943
+  },
+  "win_notify": {
+    "size": 3796
+  },
+  "win_optimizer": {
+    "size": 4661
+  },
+  "win_pagefile_optimizer": {
+    "size": 12516
+  },
+  "win_performance_tuner": {
+    "size": 8202
+  },
+  "win_peripheral_manager": {
+    "size": 11536
+  },
+  "win_power_optimizer": {
+    "size": 5337
+  },
+  "win_power_plan_manager": {
+    "size": 14188
+  },
+  "win_printer_manager": {
+    "size": 8517
+  },
+  "win_privacy_guard": {
+    "size": 5590
+  },
+  "win_process_analyzer": {
+    "size": 10988
+  },
+  "win_process_guardian": {
+    "size": 6206
+  },
+  "win_quick_actions": {
+    "size": 9980
+  },
+  "win_recycle_bin_manager": {
+    "size": 8579
+  },
+  "win_registry_guard": {
+    "size": 5817
+  },
+  "win_registry_guardian": {
+    "size": 7208
+  },
+  "win_scheduled_task_auditor": {
+    "size": 4339
+  },
+  "win_screen_analyzer": {
+    "size": 3077
+  },
+  "win_screen_recorder": {
+    "size": 8928
+  },
+  "win_service_analyzer": {
+    "size": 4981
+  },
+  "win_service_monitor": {
+    "size": 9281
+  },
+  "win_service_watchdog": {
+    "size": 9209
+  },
+  "win_shortcut_manager": {
+    "size": 4163
+  },
+  "win_smart_launcher": {
+    "size": 4166
+  },
+  "win_smart_launcher_v2": {
+    "size": 9732
+  },
+  "win_sound_mixer": {
+    "size": 9585
+  },
+  "win_startup_optimizer": {
+    "size": 10821
+  },
+  "win_startup_profiler": {
+    "size": 14823
+  },
+  "win_system_restore_manager": {
+    "size": 8983
+  },
+  "win_task_automator": {
+    "size": 5750
+  },
+  "win_task_scheduler_pro": {
+    "size": 10244
+  },
+  "win_temp_cleaner": {
+    "size": 5984
+  },
+  "win_thermal_monitor": {
+    "size": 5598
+  },
+  "win_tts": {
+    "size": 4959
+  },
+  "win_update_tracker": {
+    "size": 5089
+  },
+  "win_virtual_desktop": {
+    "size": 3765
+  },
+  "win_vpn_monitor": {
+    "size": 3596
+  },
+  "win_wifi_analyzer": {
+    "size": 4444
+  },
+  "win_window_manager": {
+    "size": 3497
+  },
+  "win_workspace_profiles": {
+    "size": 4823
+  },
+  "win_wsl_manager": {
+    "size": 3436
+  },
+  "window_manager": {
+    "size": 13618
+  },
+  "windows_integration_agent": {
+    "size": 6898
+  },
+  "windows_service_hardener": {
+    "size": 7263
+  },
+  "workspace_analyzer": {
+    "size": 14162
+  },
+  "workspace_sync": {
+    "size": 2739
+  }
+}

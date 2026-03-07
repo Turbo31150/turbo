@@ -25,6 +25,7 @@ import re
 import sqlite3
 from dataclasses import dataclass, field
 from typing import Optional
+from pathlib import Path
 
 
 __all__ = [
@@ -36,7 +37,7 @@ __all__ = [
 
 logger = logging.getLogger("jarvis.quality_gate")
 
-DB_PATH = "F:/BUREAU/turbo/etoile.db"
+DB_PATH = str(Path(__file__).resolve().parent.parent / "data" / "etoile.db")
 
 
 @dataclass

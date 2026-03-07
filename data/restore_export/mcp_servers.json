@@ -1,0 +1,17 @@
+{
+  "jarvis-lmstudio": {
+    "script": "scripts/mcp_lmstudio_bridge.py",
+    "tools": 11
+  },
+  "filesystem": {
+    "package": "@modelcontextprotocol/server-filesystem",
+    "paths": [
+      "C:",
+      "F:"
+    ]
+  },
+  "jarvis-mcp": {
+    "module": "src.mcp_server",
+    "tools": 87
+  }
+}

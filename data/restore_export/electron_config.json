@@ -1,0 +1,6 @@
+{
+  "version": "1.0",
+  "stack": "Electron33+React19+Vite6",
+  "ws_port": 9742,
+  "pages": 29
+}

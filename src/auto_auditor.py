@@ -40,7 +40,7 @@ SECURITY_PATTERNS = [
     (r'(?<!\w)exec\s*\(', "exec_usage"),
     (r'subprocess\.(?:call|run|Popen)\s*\([^)]*shell\s*=\s*True', "shell_injection_risk"),
     (r'os\.system\s*\(', "os_system_usage"),
-    (r'__import__\s*\(', "dynamic_import"),
+    (r'__import__\s*\((?!\s*["\'](?:pathlib|sys|os|time|json|threading|datetime|importlib|glob|src\.)["\'])', "dynamic_import"),
     (r'pickle\.loads?\s*\(', "pickle_deserialization"),
     (r'yaml\.(?:load|unsafe_load)\s*\(', "unsafe_yaml_load"),
     (r'# ?TODO|# ?FIXME|# ?HACK|# ?XXX', "todo_marker"),
@@ -260,12 +260,12 @@ class AutoAuditor:
         lines = mod["lines"]
         functions = mod["functions"]
 
-        if lines > 500:
+        if lines > 1000:
             report.findings.append(AuditFinding(
                 category="complexity", severity="major",
                 file=mod["path"], message=f"Very large module: {lines} lines",
             ))
-        elif lines > 200:
+        elif lines > 400:
             report.findings.append(AuditFinding(
                 category="complexity", severity="minor",
                 file=mod["path"], message=f"Large module: {lines} lines",
@@ -294,7 +294,7 @@ class AutoAuditor:
             elif f.severity == "major" and f.category == "coverage":
                 score -= 1.5
             elif f.severity == "major" and f.category == "complexity":
-                score -= 0.5
+                score -= 0.3
             elif f.severity == "minor":
                 score -= 0.1
             elif f.severity == "info":

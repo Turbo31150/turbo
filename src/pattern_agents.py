@@ -23,6 +23,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 import httpx
+from pathlib import Path
 
 
 __all__ = [
@@ -684,7 +685,7 @@ AGENT_CONFIGS = [
 class PatternAgentRegistry:
     """Registry of all pattern agents with smart dispatch."""
 
-    def __init__(self, db_path: str = "F:/BUREAU/turbo/etoile.db"):
+    def __init__(self, db_path: str = str(Path(__file__).resolve().parent.parent / "data" / "etoile.db")):
         self.agents: dict[str, PatternAgent] = {a.pattern_type: a for a in AGENT_CONFIGS}
         self.db_path = db_path
         self._client: Optional[httpx.AsyncClient] = None

@@ -108,7 +108,7 @@ class TestSmartDispatcher:
 class TestAgentFactory:
     def test_init(self):
         f = AgentFactory()
-        assert f.db_path == "F:/BUREAU/turbo/etoile.db"
+        assert f.db_path.endswith("etoile.db")
 
     def test_report(self):
         f = AgentFactory()

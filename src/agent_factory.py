@@ -32,7 +32,7 @@ __all__ = [
 
 logger = logging.getLogger("jarvis.agent_factory")
 
-DB_PATH = "F:/BUREAU/turbo/etoile.db"
+DB_PATH = str(Path(__file__).resolve().parent.parent / "data" / "etoile.db")
 PROJECT_ROOT = Path("F:/BUREAU/turbo")
 
 

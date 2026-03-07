@@ -383,14 +383,14 @@ def save_jarvis():
     script_count = len(list(TURBO.glob("scripts/*.py")))
     launcher_count = len(list((TURBO / "launchers").glob("*"))) if (TURBO / "launchers").exists() else 0
 
-    save("version", "JARVIS v12.4")
-    save("snapshot_date", now)
-    save("src_modules", str(src_count))
-    save("test_files", str(len(test_files)))
-    save("test_functions", str(test_funcs))
-    save("cowork_scripts", str(cowork_count))
-    save("scripts_count", str(script_count))
-    save("launchers_count", str(launcher_count))
+    save("version", json.dumps("JARVIS v12.4"))
+    save("snapshot_date", json.dumps(now))
+    save("src_modules", json.dumps(src_count))
+    save("test_files", json.dumps(len(test_files)))
+    save("test_functions", json.dumps(test_funcs))
+    save("cowork_scripts", json.dumps(cowork_count))
+    save("scripts_count", json.dumps(script_count))
+    save("launchers_count", json.dumps(launcher_count))
 
     # Cluster
     save("cluster_nodes", json.dumps({
@@ -401,12 +401,12 @@ def save_jarvis():
     }))
 
     save("services", json.dumps({"WS": 9742, "OpenClaw": 18789, "LMStudio": 1234, "Ollama": 11434, "Proxy": 18800}))
-    save("openclaw_agents_count", "40")
-    save("openclaw_agents_with_identity", "40")
-    save("mcp_workspaces", "41")
-    save("routing_intents", "37")
-    save("ia_tools_count", "23")
-    save("last_config_save", str(ts))
+    save("openclaw_agents_count", json.dumps(40))
+    save("openclaw_agents_with_identity", json.dumps(40))
+    save("mcp_workspaces", json.dumps(41))
+    save("routing_intents", json.dumps(37))
+    save("ia_tools_count", json.dumps(23))
+    save("last_config_save", json.dumps(ts))
 
     save("trading_config", json.dumps({
         "exchange": "MEXC Futures", "leverage": 10, "tp": 0.4, "sl": 0.25,
@@ -427,8 +427,8 @@ def save_jarvis():
 
     # Git info
     r = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, cwd=str(TURBO))
-    save("git_head", r.stdout.strip())
-    save("git_branch", "main")
+    save("git_head", json.dumps(r.stdout.strip()))
+    save("git_branch", json.dumps("main"))
 
     db.commit()
     count = db.execute("SELECT COUNT(*) FROM system_config").fetchone()[0]

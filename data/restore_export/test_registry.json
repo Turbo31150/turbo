@@ -1,0 +1,1178 @@
+{
+  "test_adaptive_router": {
+    "lines": 1048,
+    "test_count": 99
+  },
+  "test_agent_auto_scaler": {
+    "lines": 353,
+    "test_count": 23
+  },
+  "test_agent_collaboration": {
+    "lines": 346,
+    "test_count": 19
+  },
+  "test_agent_ensemble": {
+    "lines": 287,
+    "test_count": 33
+  },
+  "test_agent_episodic_memory": {
+    "lines": 356,
+    "test_count": 40
+  },
+  "test_agent_factory": {
+    "lines": 288,
+    "test_count": 15
+  },
+  "test_agent_feedback_loop": {
+    "lines": 251,
+    "test_count": 26
+  },
+  "test_agent_health_guardian": {
+    "lines": 348,
+    "test_count": 28
+  },
+  "test_agent_memory": {
+    "lines": 224,
+    "test_count": 26
+  },
+  "test_agent_monitor": {
+    "lines": 280,
+    "test_count": 27
+  },
+  "test_agent_orchestrator_v3": {
+    "lines": 302,
+    "test_count": 33
+  },
+  "test_agent_prompt_optimizer": {
+    "lines": 217,
+    "test_count": 26
+  },
+  "test_agent_self_improve": {
+    "lines": 458,
+    "test_count": 32
+  },
+  "test_agent_task_planner": {
+    "lines": 306,
+    "test_count": 32
+  },
+  "test_agents": {
+    "lines": 86,
+    "test_count": 11
+  },
+  "test_alert_manager": {
+    "lines": 234,
+    "test_count": 17
+  },
+  "test_api_gateway": {
+    "lines": 185,
+    "test_count": 17
+  },
+  "test_app_launcher": {
+    "lines": 301,
+    "test_count": 29
+  },
+  "test_audio_controller": {
+    "lines": 158,
+    "test_count": 16
+  },
+  "test_audio_device_manager": {
+    "lines": 107,
+    "test_count": 11
+  },
+  "test_audit_trail": {
+    "lines": 159,
+    "test_count": 14
+  },
+  "test_auto_auditor": {
+    "lines": 262,
+    "test_count": 26
+  },
+  "test_auto_developer": {
+    "lines": 293,
+    "test_count": 26
+  },
+  "test_auto_fixer": {
+    "lines": 175,
+    "test_count": 16
+  },
+  "test_auto_optimizer": {
+    "lines": 225,
+    "test_count": 19
+  },
+  "test_auto_scaler": {
+    "lines": 338,
+    "test_count": 15
+  },
+  "test_auto_tune": {
+    "lines": 212,
+    "test_count": 22
+  },
+  "test_autonomous_dev_agent": {
+    "lines": 378,
+    "test_count": 36
+  },
+  "test_autonomous_loop": {
+    "lines": 308,
+    "test_count": 32
+  },
+  "test_autonomous_loop_full": {
+    "lines": 933,
+    "test_count": 66
+  },
+  "test_autonomous_loop_module": {
+    "lines": 474,
+    "test_count": 29
+  },
+  "test_backup_manager": {
+    "lines": 231,
+    "test_count": 20
+  },
+  "test_bios_settings": {
+    "lines": 127,
+    "test_count": 11
+  },
+  "test_bluetooth_manager": {
+    "lines": 151,
+    "test_count": 12
+  },
+  "test_bootstrap": {
+    "lines": 21,
+    "test_count": 0
+  },
+  "test_brain": {
+    "lines": 971,
+    "test_count": 66
+  },
+  "test_brain_fixes": {
+    "lines": 92,
+    "test_count": 2
+  },
+  "test_browser_memory": {
+    "lines": 412,
+    "test_count": 52
+  },
+  "test_browser_navigator": {
+    "lines": 338,
+    "test_count": 27
+  },
+  "test_cache": {
+    "lines": 96,
+    "test_count": 13
+  },
+  "test_cache_manager": {
+    "lines": 183,
+    "test_count": 18
+  },
+  "test_certificate_manager": {
+    "lines": 158,
+    "test_count": 12
+  },
+  "test_circuit_breaker": {
+    "lines": 452,
+    "test_count": 47
+  },
+  "test_clipboard_manager": {
+    "lines": 286,
+    "test_count": 34
+  },
+  "test_cluster_diagnostics": {
+    "lines": 324,
+    "test_count": 29
+  },
+  "test_cluster_intelligence": {
+    "lines": 440,
+    "test_count": 32
+  },
+  "test_cluster_self_healer": {
+    "lines": 576,
+    "test_count": 38
+  },
+  "test_cluster_startup": {
+    "lines": 1169,
+    "test_count": 85
+  },
+  "test_code_improvement_tracker": {
+    "lines": 230,
+    "test_count": 20
+  },
+  "test_code_review_480b": {
+    "lines": 274,
+    "test_count": 29
+  },
+  "test_collab_bridge": {
+    "lines": 398,
+    "test_count": 32
+  },
+  "test_command_registry": {
+    "lines": 238,
+    "test_count": 23
+  },
+  "test_command_router": {
+    "lines": 211,
+    "test_count": 22
+  },
+  "test_commander": {
+    "lines": 380,
+    "test_count": 42
+  },
+  "test_commands": {
+    "lines": 285,
+    "test_count": 38
+  },
+  "test_commands_browser": {
+    "lines": 290,
+    "test_count": 31
+  },
+  "test_commands_core": {
+    "lines": 904,
+    "test_count": 68
+  },
+  "test_commands_dev": {
+    "lines": 112,
+    "test_count": 15
+  },
+  "test_commands_maintenance": {
+    "lines": 760,
+    "test_count": 82
+  },
+  "test_commands_navigation": {
+    "lines": 601,
+    "test_count": 56
+  },
+  "test_commands_pipelines": {
+    "lines": 162,
+    "test_count": 18
+  },
+  "test_config": {
+    "lines": 136,
+    "test_count": 22
+  },
+  "test_config_manager": {
+    "lines": 164,
+    "test_count": 19
+  },
+  "test_config_vault": {
+    "lines": 253,
+    "test_count": 27
+  },
+  "test_context_manager": {
+    "lines": 320,
+    "test_count": 39
+  },
+  "test_conversation_store": {
+    "lines": 193,
+    "test_count": 16
+  },
+  "test_cowork_agent_config": {
+    "lines": 281,
+    "test_count": 25
+  },
+  "test_cowork_bridge": {
+    "lines": 288,
+    "test_count": 23
+  },
+  "test_cowork_master_config": {
+    "lines": 247,
+    "test_count": 35
+  },
+  "test_cowork_orchestrator": {
+    "lines": 353,
+    "test_count": 29
+  },
+  "test_cowork_perplexity_executor": {
+    "lines": 150,
+    "test_count": 13
+  },
+  "test_cowork_proactive": {
+    "lines": 489,
+    "test_count": 33
+  },
+  "test_crash_dump_reader": {
+    "lines": 165,
+    "test_count": 13
+  },
+  "test_credential_vault": {
+    "lines": 114,
+    "test_count": 12
+  },
+  "test_cron_manager": {
+    "lines": 262,
+    "test_count": 28
+  },
+  "test_daily_report": {
+    "lines": 550,
+    "test_count": 38
+  },
+  "test_dashboard": {
+    "lines": 135,
+    "test_count": 9
+  },
+  "test_data_pipeline": {
+    "lines": 191,
+    "test_count": 18
+  },
+  "test_data_validator": {
+    "lines": 443,
+    "test_count": 47
+  },
+  "test_database": {
+    "lines": 705,
+    "test_count": 45
+  },
+  "test_defender_status": {
+    "lines": 144,
+    "test_count": 11
+  },
+  "test_dependency_graph": {
+    "lines": 259,
+    "test_count": 31
+  },
+  "test_desktop_actions": {
+    "lines": 494,
+    "test_count": 26
+  },
+  "test_disk_health": {
+    "lines": 175,
+    "test_count": 13
+  },
+  "test_disk_monitor": {
+    "lines": 182,
+    "test_count": 17
+  },
+  "test_dispatch_engine": {
+    "lines": 686,
+    "test_count": 52
+  },
+  "test_display_manager": {
+    "lines": 129,
+    "test_count": 12
+  },
+  "test_dns_client_manager": {
+    "lines": 138,
+    "test_count": 13
+  },
+  "test_domino_executor": {
+    "lines": 36,
+    "test_count": 0
+  },
+  "test_domino_live": {
+    "lines": 186,
+    "test_count": 0
+  },
+  "test_domino_pipelines": {
+    "lines": 57,
+    "test_count": 0
+  },
+  "test_download_manager": {
+    "lines": 262,
+    "test_count": 30
+  },
+  "test_drift_detector": {
+    "lines": 234,
+    "test_count": 21
+  },
+  "test_driver_manager": {
+    "lines": 105,
+    "test_count": 11
+  },
+  "test_dynamic_agents": {
+    "lines": 245,
+    "test_count": 18
+  },
+  "test_email_sender": {
+    "lines": 307,
+    "test_count": 31
+  },
+  "test_env_manager": {
+    "lines": 166,
+    "test_count": 23
+  },
+  "test_env_variable_manager": {
+    "lines": 160,
+    "test_count": 12
+  },
+  "test_event_bus": {
+    "lines": 179,
+    "test_count": 15
+  },
+  "test_event_bus_wiring": {
+    "lines": 668,
+    "test_count": 45
+  },
+  "test_event_store": {
+    "lines": 221,
+    "test_count": 22
+  },
+  "test_event_stream": {
+    "lines": 291,
+    "test_count": 28
+  },
+  "test_eventlog_reader": {
+    "lines": 173,
+    "test_count": 14
+  },
+  "test_exchanges": {
+    "lines": 522,
+    "test_count": 40
+  },
+  "test_executor": {
+    "lines": 430,
+    "test_count": 46
+  },
+  "test_executor_module": {
+    "lines": 1056,
+    "test_count": 83
+  },
+  "test_feature_flags": {
+    "lines": 177,
+    "test_count": 20
+  },
+  "test_file_watcher": {
+    "lines": 309,
+    "test_count": 31
+  },
+  "test_final": {
+    "lines": 176,
+    "test_count": 0
+  },
+  "test_firewall_controller": {
+    "lines": 240,
+    "test_count": 19
+  },
+  "test_font_manager": {
+    "lines": 193,
+    "test_count": 20
+  },
+  "test_gpu_guardian": {
+    "lines": 719,
+    "test_count": 53
+  },
+  "test_gpu_monitor": {
+    "lines": 188,
+    "test_count": 15
+  },
+  "test_group_policy_reader": {
+    "lines": 163,
+    "test_count": 13
+  },
+  "test_health_dashboard": {
+    "lines": 133,
+    "test_count": 10
+  },
+  "test_health_probe": {
+    "lines": 228,
+    "test_count": 25
+  },
+  "test_health_probe_registry": {
+    "lines": 710,
+    "test_count": 37
+  },
+  "test_hosts_manager": {
+    "lines": 163,
+    "test_count": 14
+  },
+  "test_hotfix_manager": {
+    "lines": 130,
+    "test_count": 13
+  },
+  "test_ia_tool_executor": {
+    "lines": 263,
+    "test_count": 22
+  },
+  "test_ia_tools": {
+    "lines": 190,
+    "test_count": 26
+  },
+  "test_installed_apps_manager": {
+    "lines": 150,
+    "test_count": 11
+  },
+  "test_intent_classifier": {
+    "lines": 203,
+    "test_count": 21
+  },
+  "test_ip_config_manager": {
+    "lines": 193,
+    "test_count": 17
+  },
+  "test_load_balancer": {
+    "lines": 147,
+    "test_count": 12
+  },
+  "test_local_security_policy": {
+    "lines": 130,
+    "test_count": 11
+  },
+  "test_locale_manager": {
+    "lines": 225,
+    "test_count": 18
+  },
+  "test_log_aggregator": {
+    "lines": 136,
+    "test_count": 14
+  },
+  "test_logging_config": {
+    "lines": 514,
+    "test_count": 43
+  },
+  "test_mcp_server": {
+    "lines": 614,
+    "test_count": 44
+  },
+  "test_mcp_server_sse": {
+    "lines": 140,
+    "test_count": 15
+  },
+  "test_mcp_tools": {
+    "lines": 250,
+    "test_count": 18
+  },
+  "test_memory_diagnostics": {
+    "lines": 148,
+    "test_count": 12
+  },
+  "test_message_broker": {
+    "lines": 118,
+    "test_count": 13
+  },
+  "test_metrics": {
+    "lines": 259,
+    "test_count": 18
+  },
+  "test_metrics_aggregator": {
+    "lines": 131,
+    "test_count": 12
+  },
+  "test_metrics_module": {
+    "lines": 645,
+    "test_count": 34
+  },
+  "test_network_adapter_manager": {
+    "lines": 112,
+    "test_count": 11
+  },
+  "test_network_monitor": {
+    "lines": 339,
+    "test_count": 27
+  },
+  "test_network_scanner": {
+    "lines": 250,
+    "test_count": 23
+  },
+  "test_notification_hub": {
+    "lines": 331,
+    "test_count": 32
+  },
+  "test_notification_manager": {
+    "lines": 217,
+    "test_count": 18
+  },
+  "test_notifier": {
+    "lines": 218,
+    "test_count": 21
+  },
+  "test_observability": {
+    "lines": 254,
+    "test_count": 25
+  },
+  "test_openclaw_bridge": {
+    "lines": 190,
+    "test_count": 30
+  },
+  "test_orchestrator": {
+    "lines": 172,
+    "test_count": 14
+  },
+  "test_orchestrator_v2": {
+    "lines": 365,
+    "test_count": 33
+  },
+  "test_output": {
+    "lines": 381,
+    "test_count": 43
+  },
+  "test_pagefile_manager": {
+    "lines": 185,
+    "test_count": 14
+  },
+  "test_pattern_agents": {
+    "lines": 2000,
+    "test_count": 281
+  },
+  "test_pattern_benchmark_runner": {
+    "lines": 380,
+    "test_count": 26
+  },
+  "test_pattern_discovery": {
+    "lines": 985,
+    "test_count": 55
+  },
+  "test_pattern_evolution": {
+    "lines": 428,
+    "test_count": 28
+  },
+  "test_pattern_lifecycle": {
+    "lines": 392,
+    "test_count": 26
+  },
+  "test_perfcounter": {
+    "lines": 171,
+    "test_count": 14
+  },
+  "test_performance_counter": {
+    "lines": 129,
+    "test_count": 10
+  },
+  "test_permission_manager": {
+    "lines": 181,
+    "test_count": 20
+  },
+  "test_perplexity_bridge": {
+    "lines": 335,
+    "test_count": 22
+  },
+  "test_phase10": {
+    "lines": 361,
+    "test_count": 41
+  },
+  "test_phase11": {
+    "lines": 363,
+    "test_count": 46
+  },
+  "test_phase12": {
+    "lines": 401,
+    "test_count": 50
+  },
+  "test_phase13": {
+    "lines": 406,
+    "test_count": 50
+  },
+  "test_phase14": {
+    "lines": 405,
+    "test_count": 53
+  },
+  "test_phase15": {
+    "lines": 388,
+    "test_count": 53
+  },
+  "test_phase16": {
+    "lines": 474,
+    "test_count": 59
+  },
+  "test_phase17": {
+    "lines": 433,
+    "test_count": 56
+  },
+  "test_phase18": {
+    "lines": 397,
+    "test_count": 51
+  },
+  "test_phase19": {
+    "lines": 455,
+    "test_count": 53
+  },
+  "test_phase20": {
+    "lines": 401,
+    "test_count": 53
+  },
+  "test_phase21": {
+    "lines": 367,
+    "test_count": 50
+  },
+  "test_phase22": {
+    "lines": 379,
+    "test_count": 52
+  },
+  "test_phase23": {
+    "lines": 452,
+    "test_count": 65
+  },
+  "test_phase24": {
+    "lines": 375,
+    "test_count": 53
+  },
+  "test_phase25": {
+    "lines": 350,
+    "test_count": 48
+  },
+  "test_phase26": {
+    "lines": 296,
+    "test_count": 40
+  },
+  "test_phase27": {
+    "lines": 299,
+    "test_count": 34
+  },
+  "test_phase28": {
+    "lines": 287,
+    "test_count": 37
+  },
+  "test_phase29": {
+    "lines": 239,
+    "test_count": 33
+  },
+  "test_phase3": {
+    "lines": 577,
+    "test_count": 64
+  },
+  "test_phase30": {
+    "lines": 267,
+    "test_count": 35
+  },
+  "test_phase31": {
+    "lines": 288,
+    "test_count": 37
+  },
+  "test_phase32": {
+    "lines": 277,
+    "test_count": 38
+  },
+  "test_phase33": {
+    "lines": 282,
+    "test_count": 37
+  },
+  "test_phase34": {
+    "lines": 266,
+    "test_count": 36
+  },
+  "test_phase35": {
+    "lines": 282,
+    "test_count": 37
+  },
+  "test_phase36": {
+    "lines": 242,
+    "test_count": 35
+  },
+  "test_phase37": {
+    "lines": 263,
+    "test_count": 36
+  },
+  "test_phase38": {
+    "lines": 234,
+    "test_count": 31
+  },
+  "test_phase39": {
+    "lines": 234,
+    "test_count": 30
+  },
+  "test_phase4": {
+    "lines": 843,
+    "test_count": 100
+  },
+  "test_phase40": {
+    "lines": 207,
+    "test_count": 30
+  },
+  "test_phase41": {
+    "lines": 226,
+    "test_count": 31
+  },
+  "test_phase42": {
+    "lines": 206,
+    "test_count": 29
+  },
+  "test_phase43": {
+    "lines": 220,
+    "test_count": 29
+  },
+  "test_phase5": {
+    "lines": 329,
+    "test_count": 35
+  },
+  "test_phase6": {
+    "lines": 367,
+    "test_count": 43
+  },
+  "test_phase7": {
+    "lines": 307,
+    "test_count": 40
+  },
+  "test_phase8": {
+    "lines": 313,
+    "test_count": 38
+  },
+  "test_phase9": {
+    "lines": 305,
+    "test_count": 38
+  },
+  "test_pipeline": {
+    "lines": 123,
+    "test_count": 1
+  },
+  "test_pipeline_composer": {
+    "lines": 268,
+    "test_count": 17
+  },
+  "test_pipelines_batch2": {
+    "lines": 362,
+    "test_count": 0
+  },
+  "test_pipelines_batch3": {
+    "lines": 276,
+    "test_count": 0
+  },
+  "test_pipelines_batch4": {
+    "lines": 196,
+    "test_count": 0
+  },
+  "test_pipelines_batch5": {
+    "lines": 190,
+    "test_count": 0
+  },
+  "test_pipelines_batch6": {
+    "lines": 91,
+    "test_count": 0
+  },
+  "test_pipelines_batch7": {
+    "lines": 257,
+    "test_count": 0
+  },
+  "test_pipelines_live": {
+    "lines": 334,
+    "test_count": 0
+  },
+  "test_plugin_manager": {
+    "lines": 179,
+    "test_count": 16
+  },
+  "test_power_manager": {
+    "lines": 266,
+    "test_count": 22
+  },
+  "test_power_plan_manager": {
+    "lines": 118,
+    "test_count": 11
+  },
+  "test_prediction_engine": {
+    "lines": 809,
+    "test_count": 42
+  },
+  "test_printer_manager": {
+    "lines": 231,
+    "test_count": 17
+  },
+  "test_proactive_agent": {
+    "lines": 285,
+    "test_count": 26
+  },
+  "test_process_manager": {
+    "lines": 354,
+    "test_count": 36
+  },
+  "test_quality_gate": {
+    "lines": 1250,
+    "test_count": 124
+  },
+  "test_queue_manager": {
+    "lines": 192,
+    "test_count": 18
+  },
+  "test_quick": {
+    "lines": 38,
+    "test_count": 0
+  },
+  "test_rate_limiter": {
+    "lines": 140,
+    "test_count": 12
+  },
+  "test_recycle_bin_manager": {
+    "lines": 106,
+    "test_count": 12
+  },
+  "test_reflection_engine": {
+    "lines": 929,
+    "test_count": 52
+  },
+  "test_registry_manager": {
+    "lines": 294,
+    "test_count": 26
+  },
+  "test_resource_monitor": {
+    "lines": 195,
+    "test_count": 16
+  },
+  "test_retry_manager": {
+    "lines": 225,
+    "test_count": 19
+  },
+  "test_retry_policy": {
+    "lines": 173,
+    "test_count": 19
+  },
+  "test_routing_optimizer": {
+    "lines": 301,
+    "test_count": 29
+  },
+  "test_rule_engine": {
+    "lines": 209,
+    "test_count": 21
+  },
+  "test_scenarios": {
+    "lines": 247,
+    "test_count": 22
+  },
+  "test_scenarios_module": {
+    "lines": 724,
+    "test_count": 49
+  },
+  "test_scheduled_task_manager": {
+    "lines": 120,
+    "test_count": 12
+  },
+  "test_scheduler_cleanup": {
+    "lines": 456,
+    "test_count": 25
+  },
+  "test_scheduler_manager": {
+    "lines": 212,
+    "test_count": 17
+  },
+  "test_screen_capture": {
+    "lines": 224,
+    "test_count": 20
+  },
+  "test_screen_resolution_manager": {
+    "lines": 131,
+    "test_count": 13
+  },
+  "test_secret_vault": {
+    "lines": 145,
+    "test_count": 14
+  },
+  "test_security": {
+    "lines": 157,
+    "test_count": 27
+  },
+  "test_self_improvement": {
+    "lines": 790,
+    "test_count": 39
+  },
+  "test_service_controller": {
+    "lines": 195,
+    "test_count": 18
+  },
+  "test_service_mesh": {
+    "lines": 262,
+    "test_count": 29
+  },
+  "test_service_registry": {
+    "lines": 170,
+    "test_count": 15
+  },
+  "test_session_manager": {
+    "lines": 172,
+    "test_count": 17
+  },
+  "test_session_manager_v2": {
+    "lines": 181,
+    "test_count": 17
+  },
+  "test_shadow_copy_manager": {
+    "lines": 118,
+    "test_count": 12
+  },
+  "test_share_manager": {
+    "lines": 184,
+    "test_count": 13
+  },
+  "test_shortcut_manager": {
+    "lines": 293,
+    "test_count": 34
+  },
+  "test_signal_formatter": {
+    "lines": 516,
+    "test_count": 57
+  },
+  "test_skills": {
+    "lines": 520,
+    "test_count": 48
+  },
+  "test_skills_module": {
+    "lines": 1036,
+    "test_count": 92
+  },
+  "test_smart_dispatcher": {
+    "lines": 340,
+    "test_count": 27
+  },
+  "test_smart_retry": {
+    "lines": 626,
+    "test_count": 46
+  },
+  "test_snapshot_manager": {
+    "lines": 273,
+    "test_count": 31
+  },
+  "test_startup_manager": {
+    "lines": 255,
+    "test_count": 24
+  },
+  "test_startup_wiring": {
+    "lines": 140,
+    "test_count": 9
+  },
+  "test_state_machine": {
+    "lines": 147,
+    "test_count": 16
+  },
+  "test_storage_pool_manager": {
+    "lines": 95,
+    "test_count": 9
+  },
+  "test_sysrestore_manager": {
+    "lines": 129,
+    "test_count": 14
+  },
+  "test_system_audit": {
+    "lines": 396,
+    "test_count": 0
+  },
+  "test_system_info_collector": {
+    "lines": 298,
+    "test_count": 22
+  },
+  "test_system_profiler": {
+    "lines": 200,
+    "test_count": 19
+  },
+  "test_systray": {
+    "lines": 152,
+    "test_count": 10
+  },
+  "test_task_queue": {
+    "lines": 418,
+    "test_count": 32
+  },
+  "test_task_scheduler": {
+    "lines": 278,
+    "test_count": 26
+  },
+  "test_telegram_bot": {
+    "lines": 229,
+    "test_count": 23
+  },
+  "test_telemetry_collector": {
+    "lines": 147,
+    "test_count": 17
+  },
+  "test_template_engine": {
+    "lines": 194,
+    "test_count": 23
+  },
+  "test_theme_controller": {
+    "lines": 151,
+    "test_count": 12
+  },
+  "test_time_sync_manager": {
+    "lines": 180,
+    "test_count": 14
+  },
+  "test_tools": {
+    "lines": 589,
+    "test_count": 54
+  },
+  "test_trading": {
+    "lines": 425,
+    "test_count": 38
+  },
+  "test_trading_engine": {
+    "lines": 1338,
+    "test_count": 95
+  },
+  "test_trading_sentinel": {
+    "lines": 517,
+    "test_count": 31
+  },
+  "test_tts_streaming": {
+    "lines": 196,
+    "test_count": 20
+  },
+  "test_usb_device_manager": {
+    "lines": 116,
+    "test_count": 12
+  },
+  "test_usb_monitor": {
+    "lines": 256,
+    "test_count": 18
+  },
+  "test_user_account_manager": {
+    "lines": 142,
+    "test_count": 11
+  },
+  "test_vad": {
+    "lines": 112,
+    "test_count": 7
+  },
+  "test_virtual_desktop": {
+    "lines": 151,
+    "test_count": 12
+  },
+  "test_virtual_memory_manager": {
+    "lines": 97,
+    "test_count": 9
+  },
+  "test_voice": {
+    "lines": 401,
+    "test_count": 37
+  },
+  "test_voice_correction": {
+    "lines": 1515,
+    "test_count": 215
+  },
+  "test_voice_v2": {
+    "lines": 101,
+    "test_count": 0
+  },
+  "test_volume_manager": {
+    "lines": 187,
+    "test_count": 13
+  },
+  "test_wake_word": {
+    "lines": 110,
+    "test_count": 10
+  },
+  "test_webhook_manager": {
+    "lines": 212,
+    "test_count": 22
+  },
+  "test_whisper_worker": {
+    "lines": 143,
+    "test_count": 8
+  },
+  "test_wifi_manager": {
+    "lines": 296,
+    "test_count": 24
+  },
+  "test_window_manager": {
+    "lines": 228,
+    "test_count": 22
+  },
+  "test_windows": {
+    "lines": 325,
+    "test_count": 38
+  },
+  "test_windows_event_log_reader": {
+    "lines": 133,
+    "test_count": 13
+  },
+  "test_windows_feature_manager": {
+    "lines": 107,
+    "test_count": 12
+  },
+  "test_windows_module": {
+    "lines": 814,
+    "test_count": 93
+  },
+  "test_windows_update_manager": {
+    "lines": 130,
+    "test_count": 10
+  },
+  "test_wmi_explorer": {
+    "lines": 193,
+    "test_count": 17
+  },
+  "test_workflow_engine": {
+    "lines": 403,
+    "test_count": 38
+  }
+}

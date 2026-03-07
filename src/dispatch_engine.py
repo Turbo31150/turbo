@@ -26,6 +26,7 @@ import time
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Optional
+from pathlib import Path
 
 
 __all__ = [
@@ -37,7 +38,7 @@ __all__ = [
 
 logger = logging.getLogger("jarvis.dispatch_engine")
 
-DB_PATH = "F:/BUREAU/turbo/etoile.db"
+DB_PATH = str(Path(__file__).resolve().parent.parent / "data" / "etoile.db")
 
 
 @dataclass

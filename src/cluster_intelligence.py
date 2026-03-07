@@ -30,6 +30,7 @@ import time
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Optional
+from pathlib import Path
 
 
 __all__ = [
@@ -40,7 +41,7 @@ __all__ = [
 
 logger = logging.getLogger("jarvis.cluster_intelligence")
 
-DB_PATH = "F:/BUREAU/turbo/etoile.db"
+DB_PATH = str(Path(__file__).resolve().parent.parent / "data" / "etoile.db")
 
 
 @dataclass

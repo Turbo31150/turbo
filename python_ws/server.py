@@ -69,7 +69,7 @@ app = FastAPI(title="JARVIS Desktop WS", version="1.0.0")
 
 _CORS_ORIGINS = os.getenv(
     "JARVIS_CORS_ORIGINS",
-    "http://127.0.0.1:5173,http://localhost:5173,http://127.0.0.1:9742",
+    "http://127.0.0.1:5173,http://127.0.0.1:9742",
 ).split(",")
 
 app.add_middleware(

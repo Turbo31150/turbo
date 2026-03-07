@@ -21,6 +21,8 @@ from typing import Optional
 
 import httpx
 
+from pathlib import Path
+
 from src.pattern_agents import (
     PatternAgentRegistry,
     AgentResult,
@@ -30,7 +32,7 @@ from src.pattern_agents import (
 
 logger = logging.getLogger("jarvis.smart_dispatcher")
 
-DB_PATH = "F:/BUREAU/turbo/etoile.db"
+DB_PATH = str(Path(__file__).resolve().parent.parent / "data" / "etoile.db")
 
 
 @dataclass

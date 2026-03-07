@@ -135,14 +135,14 @@ class TestAutoAuditorComplexity:
         auditor = AutoAuditor()
         report = AuditReport()
         auditor._scan_complexity(
-            {"name": "big", "path": "src/big.py", "lines": 600, "functions": 10}, report)
+            {"name": "big", "path": "src/big.py", "lines": 1200, "functions": 10}, report)
         assert any(f.category == "complexity" and f.severity == "major" for f in report.findings)
 
     def test_medium_module(self):
         auditor = AutoAuditor()
         report = AuditReport()
         auditor._scan_complexity(
-            {"name": "med", "path": "src/med.py", "lines": 250, "functions": 10}, report)
+            {"name": "med", "path": "src/med.py", "lines": 500, "functions": 10}, report)
         assert any(f.severity == "minor" for f in report.findings)
 
     def test_small_module(self):

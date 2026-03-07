@@ -26,6 +26,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 import httpx
+from pathlib import Path
 
 
 __all__ = [
@@ -36,7 +37,7 @@ __all__ = [
 
 logger = logging.getLogger("jarvis.dynamic_agents")
 
-DB_PATH = "F:/BUREAU/turbo/etoile.db"
+DB_PATH = str(Path(__file__).resolve().parent.parent / "data" / "etoile.db")
 
 # System prompts by category prefix
 CATEGORY_PROMPTS = {

@@ -1,0 +1,7 @@
+{
+  "auto_auditor": "src/auto_auditor.py",
+  "auto_fixer": "src/auto_fixer.py",
+  "code_improvement_tracker": "src/code_improvement_tracker.py",
+  "auto_improve_cli": "scripts/auto_improve.py",
+  "continuous_improve_cli": "scripts/continuous_improve.py"
+}
