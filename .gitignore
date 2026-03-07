@@ -88,3 +88,9 @@ canvas/data/autolearn_history.json
 canvas/data/memory.json
 canvas/data/routing_scores.json
 canvas/pipeline_status.json
+data/.cowork-paused
+data/audit_reports/
+data/browser_profile/
+*.db.bak_corrupt
+*.db.corrupt_*
+data/improvement_*
