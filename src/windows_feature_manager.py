@@ -53,9 +53,8 @@ class WindowsFeatureManager:
                  "Get-WindowsOptionalFeature -Online | "
                  "Select-Object FeatureName, State | "
                  "ConvertTo-Json -Depth 1 -Compress"],
-                capture_output=True, text=True, timeout=30,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)

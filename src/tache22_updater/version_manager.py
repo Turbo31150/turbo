@@ -258,7 +258,7 @@ class ChangelogGenerator:
         try:
             cmd = f'git log {from_tag}..{to_tag} --oneline'
             result = subprocess.run(
-                cmd, cwd=repo_path, capture_output=True, text=True
+                cmd, cwd=repo_path, capture_output=True, text=True, encoding="utf-8", errors="replace"
             )
             
             if result.returncode != 0:
@@ -566,10 +566,10 @@ class VersionManager:
             return False
         
         try:
-            with open(config_file, 'r') as f:
+            with open(config_file, 'r', encoding='utf-8') as f:
                 json.load(f)
             return True
-        except:
+        except (json.JSONDecodeError, OSError):
             return False
 
 

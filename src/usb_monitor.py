@@ -59,9 +59,8 @@ class USBMonitor:
                  "Get-CimInstance -Query \"SELECT * FROM Win32_PnPEntity WHERE DeviceID='$($dep.DeviceID -replace '\\\\','\\\\\\\\')' \" } | "
                  "Select-Object Name, DeviceID, Status, Manufacturer | "
                  "ConvertTo-Json -Depth 1"],
-                capture_output=True, text=True, timeout=15,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 import json
@@ -89,9 +88,8 @@ class USBMonitor:
         try:
             result = subprocess.run(
                 ["pnputil", "/enum-devices", "/class", "USB"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             devices = []
             current: dict[str, str] = {}

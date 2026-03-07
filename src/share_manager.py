@@ -54,9 +54,8 @@ class ShareManager:
                 ["powershell", "-Command",
                  "Get-SmbShare | Select-Object Name, Path, Description, "
                  "ShareType | ConvertTo-Json -Depth 1"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)
@@ -81,9 +80,8 @@ class ShareManager:
         try:
             result = subprocess.run(
                 ["net", "share"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             shares = []
             for line in result.stdout.split("\n")[4:]:  # Skip headers
@@ -107,9 +105,8 @@ class ShareManager:
         try:
             result = subprocess.run(
                 ["net", "use"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             drives = []
             for line in result.stdout.split("\n"):

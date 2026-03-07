@@ -62,7 +62,7 @@ def register_all_probes() -> dict[str, bool]:
             result = subprocess.run(
                 ["nvidia-smi", "--query-gpu=memory.used,memory.total,temperature.gpu",
                  "--format=csv,noheader,nounits"],
-                capture_output=True, text=True, timeout=10
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10
             )
             if result.returncode != 0:
                 return f"nvidia-smi failed: {result.stderr[:100]}"
@@ -181,7 +181,7 @@ def register_all_probes() -> dict[str, bool]:
             import subprocess
             result = subprocess.run(
                 ["tasklist", "/FI", "IMAGENAME eq cloudflared.exe"],
-                capture_output=True, text=True, timeout=5
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5
             )
             if "cloudflared.exe" in result.stdout:
                 return True

@@ -87,7 +87,7 @@ class ClipboardManager:
         try:
             result = subprocess.run(
                 ["powershell", "-Command", "Get-Clipboard"],
-                capture_output=True, text=True, timeout=5,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5,
                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             )
             return result.stdout.strip() if result.returncode == 0 else None

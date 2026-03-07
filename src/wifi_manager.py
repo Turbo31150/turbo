@@ -55,9 +55,8 @@ class WiFiManager:
         try:
             result = subprocess.run(
                 ["netsh", "wlan", "show", "networks", "mode=bssid"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             networks = []
             current: dict[str, Any] = {}
@@ -103,9 +102,8 @@ class WiFiManager:
         try:
             result = subprocess.run(
                 ["netsh", "wlan", "show", "interfaces"],
-                capture_output=True, text=True, timeout=5,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             info: dict[str, Any] = {"connected": False}
             for line in result.stdout.split("\n"):
@@ -141,9 +139,8 @@ class WiFiManager:
         try:
             result = subprocess.run(
                 ["netsh", "wlan", "connect", f"name={ssid}"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             success = result.returncode == 0
             self._record("connect", ssid, success, result.stdout.strip())
@@ -157,9 +154,8 @@ class WiFiManager:
         try:
             result = subprocess.run(
                 ["netsh", "wlan", "disconnect"],
-                capture_output=True, text=True, timeout=5,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             success = result.returncode == 0
             self._record("disconnect", "", success, result.stdout.strip())
@@ -175,9 +171,8 @@ class WiFiManager:
         try:
             result = subprocess.run(
                 ["netsh", "wlan", "show", "profiles"],
-                capture_output=True, text=True, timeout=5,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             profiles = []
             for line in result.stdout.split("\n"):
@@ -194,9 +189,8 @@ class WiFiManager:
         try:
             result = subprocess.run(
                 ["netsh", "wlan", "delete", "profile", f"name={name}"],
-                capture_output=True, text=True, timeout=5,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             success = result.returncode == 0
             self._record("delete_profile", name, success)

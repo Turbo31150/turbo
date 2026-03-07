@@ -48,9 +48,8 @@ class PowerPlanManager:
         try:
             result = subprocess.run(
                 ["powercfg", "/list"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 plans = []
@@ -88,9 +87,8 @@ class PowerPlanManager:
                  "Get-CimInstance Win32_Battery -ErrorAction SilentlyContinue | "
                  "Select-Object Name, EstimatedChargeRemaining, BatteryStatus, "
                  "EstimatedRunTime | ConvertTo-Json -Compress"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 import json

@@ -52,9 +52,8 @@ class ShadowCopyManager:
                  "Get-CimInstance Win32_ShadowCopy -ErrorAction SilentlyContinue | "
                  "Select-Object ID, VolumeName, InstallDate, State, DeviceObject | "
                  "ConvertTo-Json -Depth 1 -Compress"],
-                capture_output=True, text=True, timeout=15,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)

@@ -52,9 +52,8 @@ class ScheduledTaskManager:
         try:
             result = subprocess.run(
                 ["schtasks", "/Query", "/FO", "CSV", "/NH"],
-                capture_output=True, text=True, timeout=20,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=20,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 tasks = []
@@ -90,9 +89,8 @@ class ScheduledTaskManager:
         try:
             result = subprocess.run(
                 ["schtasks", "/Query", "/TN", task_name, "/FO", "LIST", "/V"],
-                capture_output=True, text=True, timeout=15,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 detail: dict[str, str] = {}

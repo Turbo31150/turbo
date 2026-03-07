@@ -59,9 +59,8 @@ class FirewallController:
             try:
                 result = subprocess.run(
                     ["netsh", "advfirewall", "show", f"{profile}profile"],
-                    capture_output=True, text=True, timeout=10,
+                    capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                     creationflags=_NO_WINDOW,
-                    encoding="utf-8", errors="replace",
                 )
                 state = "unknown"
                 for line in result.stdout.split("\n"):
@@ -87,9 +86,8 @@ class FirewallController:
             cmd.extend(["dir=out"])
         try:
             result = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=30,
+                cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             rules = self._parse_rules(result.stdout)
             self._record("list_rules", "", True, f"{len(rules)} rules")
@@ -137,9 +135,8 @@ class FirewallController:
         try:
             result = subprocess.run(
                 ["netsh", "advfirewall", "firewall", "show", "rule", f"name={name}"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             rules = self._parse_rules(result.stdout)
             return rules[0] if rules else None

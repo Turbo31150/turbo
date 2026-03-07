@@ -52,9 +52,8 @@ class LocalSecurityPolicy:
 
             result = subprocess.run(
                 ["secedit", "/export", "/cfg", tmp_path],
-                capture_output=True, text=True, timeout=15,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and os.path.exists(tmp_path):
                 policy: dict[str, dict[str, str]] = {}

@@ -120,7 +120,7 @@ class SystemProfiler:
             result = subprocess.run(
                 ["nvidia-smi", "--query-gpu=name,memory.total,temperature.gpu",
                  "--format=csv,noheader,nounits"],
-                capture_output=True, text=True, timeout=5,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5,
                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             )
             if result.returncode == 0:

@@ -2140,7 +2140,8 @@ async def full_correction_pipeline(
 
     if best_phon_cmd and best_phon_score >= 0.70:
         result["command"] = best_phon_cmd
-        result["params"] = {}
+        # Preserve params extracted in Step 1.5 (voice_params)
+        result["params"] = result.get("params", {})
         result["confidence"] = best_phon_score
         result["method"] = "phonetic"
         _cache_match_result(raw_text, result)
@@ -2206,12 +2207,15 @@ def _cache_match_result(raw_text: str, result: dict) -> None:
 
 
 _vc_http = None
-_vc_http_lock = __import__("asyncio").Lock()
+_vc_http_lock = None  # Lazily created in running event loop to avoid DeprecationWarning
 
 
 async def _get_vc_http():
     """Lazy shared httpx client for voice correction (avoids import at module level)."""
-    global _vc_http
+    global _vc_http, _vc_http_lock
+    import asyncio as _aio
+    if _vc_http_lock is None:
+        _vc_http_lock = _aio.Lock()
     async with _vc_http_lock:
         if _vc_http is not None and not _vc_http.is_closed:
             return _vc_http

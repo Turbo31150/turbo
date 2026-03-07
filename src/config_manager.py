@@ -103,7 +103,7 @@ class ConfigManager:
         try:
             self._path.parent.mkdir(parents=True, exist_ok=True)
             self._path.write_text(json.dumps(self._config, indent=2, ensure_ascii=False), encoding="utf-8")
-            self._last_modified = time.time()
+            self._last_modified = os.path.getmtime(str(self._path))
         except Exception as e:
             logger.error("Config save failed: %s", e)
 
