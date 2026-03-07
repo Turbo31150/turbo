@@ -202,7 +202,7 @@ class TestDefaultTasks:
     def test_create_defaults(self):
         to.create_default_tasks()
         tasks = to.load_tasks()
-        assert len(tasks) >= 140
+        assert len(tasks) >= 155
         ids = [t.id for t in tasks]
         assert "health_cluster" in ids
         assert "backup_databases" in ids
@@ -390,12 +390,27 @@ class TestSelfCheck:
         assert result["status"] in ("healthy", "degraded")
         assert "db_size_mb" in result
 
+class TestTelegramCockpitTasks:
+    def test_telegram_cockpit_tasks_exist(self):
+        to.create_default_tasks()
+        tasks = to.load_tasks()
+        ids = [t.id for t in tasks]
+        tg_tasks = [
+            "tg_cluster_report", "tg_evolution_report", "tg_error_watcher",
+            "tg_alert_push", "tg_task_performance", "tg_error_patterns",
+            "tg_genome_snapshot", "tg_voice_briefing", "tg_daily_insight",
+            "tg_service_down_alert", "tg_circuit_breaker_alert", "tg_disk_alert",
+            "tg_auto_error_fix", "tg_entropy_alert", "tg_success_rate_alert",
+        ]
+        for tid in tg_tasks:
+            assert tid in ids, f"Missing telegram cockpit task: {tid}"
+
 class TestDashboardExport:
     def test_export_has_fields(self):
         to.create_default_tasks()
         data = to.export_dashboard_data()
         assert "task_count" in data
-        assert data["task_count"] >= 140
+        assert data["task_count"] >= 155
         assert "tasks" in data
         assert "recent_runs" in data
         assert "metrics" in data
