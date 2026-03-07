@@ -14,6 +14,13 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+
+__all__ = [
+    "HostEntry",
+    "HostsEvent",
+    "HostsManager",
+]
+
 logger = logging.getLogger("jarvis.hosts_manager")
 
 HOSTS_PATH = os.path.join(os.environ.get("SYSTEMROOT", r"C:\Windows"),

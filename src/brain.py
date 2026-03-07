@@ -25,6 +25,24 @@ from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 
+
+__all__ = [
+    "PatternMatch",
+    "SkillQuality",
+    "analyze_and_learn",
+    "apply_decay",
+    "auto_create_skill",
+    "compose_skills",
+    "detect_patterns",
+    "format_brain_report",
+    "get_brain_status",
+    "get_skill_quality",
+    "get_skill_rankings",
+    "record_feedback",
+    "reject_pattern",
+    "suggest_contextual_skills",
+]
+
 logger = logging.getLogger("jarvis.brain")
 
 from src.config import prepare_lmstudio_input, build_lmstudio_payload

@@ -17,6 +17,13 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Callable
 
+
+__all__ = [
+    "Download",
+    "DownloadManager",
+    "DownloadStatus",
+]
+
 logger = logging.getLogger("jarvis.download_manager")
 
 

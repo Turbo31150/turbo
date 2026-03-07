@@ -14,6 +14,13 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+
+__all__ = [
+    "PowerEvent",
+    "PowerPlan",
+    "PowerPlanManager",
+]
+
 logger = logging.getLogger("jarvis.power_plan_manager")
 
 _NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)

@@ -20,6 +20,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+
+__all__ = [
+    "CodeImprovementTracker",
+    "FileSnapshot",
+    "ImprovementRecord",
+    "TrackerEvent",
+]
+
 logger = logging.getLogger("jarvis.code_improvement_tracker")
 
 

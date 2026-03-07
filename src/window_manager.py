@@ -15,6 +15,13 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+
+__all__ = [
+    "WindowEvent",
+    "WindowInfo",
+    "WindowManager",
+]
+
 logger = logging.getLogger("jarvis.window_manager")
 
 user32 = ctypes.windll.user32

@@ -14,6 +14,13 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+
+__all__ = [
+    "CounterSnapshot",
+    "PerfEvent",
+    "PerformanceCounterManager",
+]
+
 logger = logging.getLogger("jarvis.performance_counter")
 
 _NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)

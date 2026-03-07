@@ -18,6 +18,14 @@ from dataclasses import dataclass
 
 from src.config import PATHS
 
+
+__all__ = [
+    "DominoPipeline",
+    "DominoStep",
+    "find_domino",
+    "get_domino_stats",
+]
+
 _TURBO_DIR = str(PATHS.get("turbo", "F:/BUREAU/turbo")).replace("/", "\\")
 _TURBO_DIR_FWD = str(PATHS.get("turbo", "F:/BUREAU/turbo"))
 _M1_KEY = os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", ""))

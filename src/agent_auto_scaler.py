@@ -23,6 +23,15 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Optional
 
+
+__all__ = [
+    "AutoScaler",
+    "LoadMetrics",
+    "ScaleAction",
+    "ScalePolicy",
+    "get_scaler",
+]
+
 logger = logging.getLogger("jarvis.auto_scaler")
 
 DB_PATH = "F:/BUREAU/turbo/etoile.db"

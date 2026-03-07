@@ -15,6 +15,13 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+
+__all__ = [
+    "BluetoothDevice",
+    "BluetoothEvent",
+    "BluetoothManager",
+]
+
 logger = logging.getLogger("jarvis.bluetooth_manager")
 
 _NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)

@@ -27,6 +27,14 @@ from src.adaptive_router import AdaptiveRouter, get_router
 from src.agent_monitor import get_monitor
 from src.pattern_agents import PatternAgentRegistry, AgentResult, NODES
 
+
+__all__ = [
+    "Orchestrator",
+    "OrchestratorResult",
+    "OrchestratorStep",
+    "StepResult",
+]
+
 logger = logging.getLogger("jarvis.orchestrator_v3")
 
 

@@ -14,6 +14,14 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any, Callable, Coroutine
 
+
+__all__ = [
+    "DataPipelineManager",
+    "Pipeline",
+    "PipelineRun",
+    "PipelineStage",
+]
+
 logger = logging.getLogger("jarvis.data_pipeline")
 
 StageFunc = Callable[[dict], Coroutine[Any, Any, dict] | dict]

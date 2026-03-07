@@ -13,6 +13,13 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
+
+__all__ = [
+    "ActivationEvent",
+    "Shortcut",
+    "ShortcutManager",
+]
+
 logger = logging.getLogger("jarvis.shortcut_manager")
 
 

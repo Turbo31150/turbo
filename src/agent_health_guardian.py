@@ -27,6 +27,14 @@ import httpx
 
 from src.pattern_agents import NODES
 
+
+__all__ = [
+    "HealthAlert",
+    "HealthGuardian",
+    "HealthReport",
+    "NodeHealthCheck",
+]
+
 logger = logging.getLogger("jarvis.health_guardian")
 
 

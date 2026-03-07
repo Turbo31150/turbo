@@ -14,6 +14,13 @@ import winreg
 from dataclasses import dataclass, field
 from typing import Any
 
+
+__all__ = [
+    "RegistryEvent",
+    "RegistryFavorite",
+    "RegistryManager",
+]
+
 logger = logging.getLogger("jarvis.registry_manager")
 
 # Hive name mapping

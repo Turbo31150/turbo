@@ -24,6 +24,14 @@ import logging
 
 from src.config import config, build_lmstudio_payload, build_ollama_payload
 
+
+__all__ = [
+    "check_thermal_status",
+    "get_startup_history",
+    "log_startup_event",
+    "print_startup_report",
+]
+
 logger = logging.getLogger("jarvis.cluster_startup")
 
 LMS_CLI = str(Path.home() / ".lmstudio" / "bin" / "lms.exe")

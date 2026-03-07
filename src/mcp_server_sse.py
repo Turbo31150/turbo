@@ -34,6 +34,13 @@ from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
 from starlette.routing import Mount, Route
 
+
+__all__ = [
+    "build_light_app",
+    "create_starlette_app",
+    "main",
+]
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from src.mcp_server import TOOL_DEFINITIONS, HANDLERS, _build_input_schema, _text, _error  # noqa: E402
 

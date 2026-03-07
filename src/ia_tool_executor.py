@@ -27,6 +27,13 @@ import httpx
 
 from src.ia_tools import TOOLS_BY_NAME, get_tool_meta, _MCP_ANNOTATIONS
 
+
+__all__ = [
+    "get_mcp_tools_manifest",
+    "get_tool_metrics",
+    "get_tool_metrics_history",
+]
+
 logger = logging.getLogger("jarvis.tool_executor")
 
 JARVIS_BASE = "http://127.0.0.1:9742"

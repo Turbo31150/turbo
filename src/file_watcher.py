@@ -16,6 +16,14 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Callable
 
+
+__all__ = [
+    "ChangeType",
+    "FileEvent",
+    "FileWatcher",
+    "WatchConfig",
+]
+
 logger = logging.getLogger("jarvis.file_watcher")
 
 

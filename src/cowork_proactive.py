@@ -26,6 +26,14 @@ import time
 from dataclasses import dataclass, field
 from typing import Optional
 
+
+__all__ = [
+    "CoworkProactive",
+    "ExecutionPlan",
+    "SystemNeed",
+    "get_proactive",
+]
+
 logger = logging.getLogger("jarvis.cowork_proactive")
 
 DB_PATH = "F:/BUREAU/turbo/etoile.db"

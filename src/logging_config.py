@@ -21,6 +21,18 @@ from pathlib import Path
 from typing import Any
 
 # ── Log directory ────────────────────────────────────────────────────────
+
+__all__ = [
+    "CompactFormatter",
+    "JSONFormatter",
+    "get_trace_id",
+    "log_node_call",
+    "log_tool_call",
+    "new_trace",
+    "set_trace_id",
+    "setup_logging",
+]
+
 LOG_DIR = Path(__file__).parent.parent / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 

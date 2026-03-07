@@ -17,6 +17,13 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+
+__all__ = [
+    "DesktopEvent",
+    "DesktopInfo",
+    "VirtualDesktopManager",
+]
+
 logger = logging.getLogger("jarvis.virtual_desktop")
 
 user32 = ctypes.windll.user32

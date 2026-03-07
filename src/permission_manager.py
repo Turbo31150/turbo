@@ -12,6 +12,13 @@ import time
 from dataclasses import dataclass, field, asdict
 from typing import Any
 
+
+__all__ = [
+    "PermissionManager",
+    "Role",
+    "User",
+]
+
 logger = logging.getLogger("jarvis.permission_manager")
 
 

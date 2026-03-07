@@ -16,6 +16,13 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+
+__all__ = [
+    "CrashDump",
+    "CrashDumpReader",
+    "CrashEvent",
+]
+
 logger = logging.getLogger("jarvis.crash_dump_reader")
 
 _NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)

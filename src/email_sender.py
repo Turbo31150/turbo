@@ -20,6 +20,15 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Callable
 
+
+__all__ = [
+    "EmailMessage",
+    "EmailSender",
+    "EmailStatus",
+    "EmailTemplate",
+    "SmtpConfig",
+]
+
 logger = logging.getLogger("jarvis.email_sender")
 
 

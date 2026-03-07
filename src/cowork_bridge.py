@@ -28,6 +28,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
+
+__all__ = [
+    "CoworkBridge",
+    "CoworkScript",
+    "ExecutionResult",
+    "get_bridge",
+]
+
 logger = logging.getLogger("jarvis.cowork_bridge")
 
 DB_PATH = "F:/BUREAU/turbo/etoile.db"

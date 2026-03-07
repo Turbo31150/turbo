@@ -18,6 +18,18 @@ import time
 from pathlib import Path
 from typing import Any
 
+
+__all__ = [
+    "cancel_task",
+    "claim_task",
+    "complete_task",
+    "create_task",
+    "get_pending_tasks",
+    "get_task",
+    "list_tasks",
+    "stats",
+]
+
 _DB = Path(__file__).resolve().parent.parent / "data" / "jarvis.db"
 
 

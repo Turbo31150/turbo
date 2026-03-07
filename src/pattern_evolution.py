@@ -24,6 +24,13 @@ import time
 from dataclasses import dataclass, field
 from typing import Optional
 
+
+__all__ = [
+    "PatternEvolution",
+    "PatternSuggestion",
+    "get_evolution",
+]
+
 logger = logging.getLogger("jarvis.pattern_evolution")
 
 DB_PATH = "F:/BUREAU/turbo/etoile.db"

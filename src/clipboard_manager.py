@@ -15,6 +15,13 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
+
+__all__ = [
+    "ClipCategory",
+    "ClipEntry",
+    "ClipboardManager",
+]
+
 logger = logging.getLogger("jarvis.clipboard_manager")
 
 

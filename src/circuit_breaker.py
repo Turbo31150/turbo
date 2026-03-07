@@ -17,6 +17,14 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Callable
 
+
+__all__ = [
+    "CircuitBreaker",
+    "CircuitState",
+    "CircuitStats",
+    "ClusterCircuitBreakers",
+]
+
 logger = logging.getLogger("jarvis.circuit_breaker")
 
 

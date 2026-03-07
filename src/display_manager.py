@@ -15,6 +15,16 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+
+__all__ = [
+    "DEVMODEW",
+    "DISPLAY_DEVICEW",
+    "DisplayEvent",
+    "DisplayInfo",
+    "DisplayManager",
+    "POINTL",
+]
+
 logger = logging.getLogger("jarvis.display_manager")
 
 user32 = ctypes.windll.user32

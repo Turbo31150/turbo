@@ -16,6 +16,13 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+
+__all__ = [
+    "EnvEvent",
+    "EnvVariable",
+    "EnvVariableManager",
+]
+
 logger = logging.getLogger("jarvis.env_variable_manager")
 
 _NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)

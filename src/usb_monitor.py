@@ -14,6 +14,13 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+
+__all__ = [
+    "USBDevice",
+    "USBEvent",
+    "USBMonitor",
+]
+
 logger = logging.getLogger("jarvis.usb_monitor")
 
 _NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)

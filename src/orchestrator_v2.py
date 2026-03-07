@@ -22,6 +22,13 @@ from src.observability import observability_matrix
 from src.drift_detector import drift_detector
 from src.auto_tune import auto_tune
 
+
+__all__ = [
+    "NodeStats",
+    "OrchestratorV2",
+    "SessionBudget",
+]
+
 logger = logging.getLogger("jarvis.orchestrator_v2")
 
 

@@ -16,6 +16,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
 
+
+__all__ = [
+    "Channel",
+    "Notification",
+    "NotificationHub",
+]
+
 logger = logging.getLogger("jarvis.notification_hub")
 
 LEVELS = {"debug": 0, "info": 1, "warning": 2, "critical": 3}

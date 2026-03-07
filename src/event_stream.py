@@ -27,6 +27,13 @@ from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from typing import AsyncGenerator, Optional
 
+
+__all__ = [
+    "Event",
+    "EventStream",
+    "get_stream",
+]
+
 logger = logging.getLogger("jarvis.event_stream")
 
 
