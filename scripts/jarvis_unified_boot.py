@@ -948,11 +948,34 @@ WATCH_PROCESSES = {
 }
 
 
+def _start_guards():
+    """Start process GC and VRAM guard as background monitors."""
+    gc_script = TURBO_DIR / "scripts" / "process_gc.py"
+    vram_script = TURBO_DIR / "scripts" / "vram_guard.py"
+
+    if gc_script.exists():
+        start_process(
+            [sys.executable, str(gc_script), "--loop"],
+            "Process GC", cwd=str(TURBO_DIR),
+        )
+        log("Process GC: lance (cycle 5min)", "OK", indent=1)
+
+    if vram_script.exists():
+        start_process(
+            [sys.executable, str(vram_script), "--loop"],
+            "VRAM Guard", cwd=str(TURBO_DIR),
+        )
+        log("VRAM Guard: lance (cycle 30s)", "OK", indent=1)
+
+
 def watch_loop(interval: int = 60):
     """Continuously monitor services and restart any that crash."""
     log(f"WATCHDOG actif — check toutes les {interval}s", "PHASE")
     log("Services surveilles: " + ", ".join(WATCH_SERVICES.keys()), "INFO")
     log("Ctrl+C pour arreter", "DIM")
+
+    # Start stability guards alongside watchdog
+    _start_guards()
 
     while True:
         try:
@@ -1132,6 +1155,85 @@ def watch_loop(interval: int = 60):
                             log("  zombie_killer: execute (parse error)", "WARN")
                 except Exception as e:
                     log(f"  zombie_killer: erreur ({e})", "WARN")
+
+        # ── Audit cycle 10min — quick check, full audit si haut ──
+        if not hasattr(watch_loop, "_audit_counter"):
+            watch_loop._audit_counter = 0
+        watch_loop._audit_counter += 1
+        audit_cycles = max(1, 600 // interval)  # every 10 minutes
+        if watch_loop._audit_counter >= audit_cycles:
+            watch_loop._audit_counter = 0
+            try:
+                # Quick targeted checks
+                gc_result = subprocess.run(
+                    [sys.executable, str(TURBO_DIR / "scripts" / "process_gc.py"), "--once", "--json"],
+                    capture_output=True, text=True, timeout=20,
+                    encoding="utf-8", errors="replace",
+                )
+                vram_result = subprocess.run(
+                    [sys.executable, str(TURBO_DIR / "scripts" / "vram_guard.py"), "--once", "--json"],
+                    capture_output=True, text=True, timeout=15,
+                    encoding="utf-8", errors="replace",
+                )
+                # Parse results (extract JSON from output that may contain ANSI log lines)
+                def _extract_json(text: str) -> dict:
+                    if not text or not text.strip():
+                        return {}
+                    # Try full output first, then find JSON object
+                    for attempt in [text.strip(), text[text.find("{"):] if "{" in text else ""]:
+                        try:
+                            return json.loads(attempt)
+                        except (json.JSONDecodeError, ValueError):
+                            continue
+                    return {}
+
+                gc_data = _extract_json(gc_result.stdout)
+                vram_data = _extract_json(vram_result.stdout)
+
+                gc_killed = gc_data.get("killed", 0)
+                vram_pct = vram_data.get("max_vram_pct", 0)
+                cowork_active = gc_data.get("cowork_active", 0)
+                is_high = vram_pct >= 85 or gc_killed > 3 or cowork_active > 15
+
+                if gc_killed > 0:
+                    log(f"  audit_10m: GC killed {gc_killed} zombies", "WARN")
+                if vram_pct >= 85:
+                    log(f"  audit_10m: VRAM {vram_pct:.1f}% (haut)", "WARN")
+
+                # Escalade: full audit si indicateurs hauts
+                if is_high:
+                    log("  audit_10m: seuils hauts — lancement audit complet cible", "WARN")
+                    audit_script = TURBO_DIR / "scripts" / "system_audit.py"
+                    if audit_script.exists():
+                        subprocess.run(
+                            [sys.executable, str(audit_script), "--quick", "--save"],
+                            capture_output=True, timeout=120,
+                            encoding="utf-8", errors="replace",
+                        )
+                        log("  audit_10m: audit complet sauvegarde", "OK")
+                    # Force zombie kill if many cowork processes
+                    if cowork_active > 15:
+                        zombie_script = TURBO_DIR / "scripts" / "zombie_killer.py"
+                        if zombie_script.exists():
+                            subprocess.run(
+                                [sys.executable, str(zombie_script), "--kill"],
+                                capture_output=True, timeout=30,
+                                encoding="utf-8", errors="replace",
+                            )
+                            log("  audit_10m: zombie_killer force", "WARN")
+                else:
+                    log(f"  audit_10m: OK (VRAM {vram_pct:.0f}%, cowork {cowork_active}, GC {gc_killed})", "OK")
+
+                # GC conversation checkpoints (once per audit cycle, ~every 10min)
+                cp_script = TURBO_DIR / "scripts" / "conversation_checkpoint.py"
+                if cp_script.exists():
+                    subprocess.run(
+                        [sys.executable, str(cp_script), "--gc", "--days", "7"],
+                        capture_output=True, timeout=10,
+                        encoding="utf-8", errors="replace",
+                    )
+            except Exception as e:
+                log(f"  audit_10m: erreur ({e})", "WARN")
 
         # Check process-based services (WhisperFlow, etc.)
         for svc_id, svc in WATCH_PROCESSES.items():

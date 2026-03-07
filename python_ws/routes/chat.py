@@ -13,6 +13,7 @@ import sqlite3
 import time
 import traceback
 import uuid
+from datetime import datetime
 from pathlib import Path
 
 import httpx
@@ -132,7 +133,7 @@ class ChatSession:
             logger.debug("Chat history restore failed (table may not exist yet): %s", e)
 
     def _persist(self, msg: dict, model: str | None = None, latency_ms: float = 0, tokens: int = 0):
-        """Persist message to SQLite (non-blocking best-effort)."""
+        """Persist message to SQLite + conversation checkpoint (non-blocking best-effort)."""
         try:
             conn = sqlite3.connect(str(self._db_path))
             conn.execute(
@@ -145,6 +146,37 @@ class ChatSession:
             conn.close()
         except sqlite3.Error as e:
             logger.debug("Chat persist failed: %s", e)
+        # Also checkpoint for cross-restart continuity
+        try:
+            _cp_db_path = _TURBO_ROOT / "data" / "conversation_checkpoints.db"
+            cp = sqlite3.connect(str(_cp_db_path), timeout=5)
+            cp.execute("PRAGMA journal_mode=WAL")
+            cp.execute("""CREATE TABLE IF NOT EXISTS checkpoints (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id TEXT NOT NULL, turn_index INTEGER NOT NULL,
+                timestamp TEXT NOT NULL, role TEXT NOT NULL, content TEXT NOT NULL,
+                token_estimate INTEGER DEFAULT 0, source TEXT DEFAULT 'ws', metadata TEXT)""")
+            cp.execute("""CREATE TABLE IF NOT EXISTS sessions (
+                session_id TEXT PRIMARY KEY, created_at TEXT NOT NULL,
+                last_active TEXT NOT NULL, turn_count INTEGER DEFAULT 0,
+                total_tokens INTEGER DEFAULT 0, source TEXT DEFAULT 'ws', metadata TEXT)""")
+            now = datetime.now().isoformat()
+            row = cp.execute("SELECT MAX(turn_index) FROM checkpoints WHERE session_id=?",
+                             (self.session_id,)).fetchone()
+            turn_idx = (row[0] or 0) + 1
+            token_est = len(msg["content"]) // 4
+            cp.execute("INSERT INTO checkpoints (session_id, turn_index, timestamp, role, content, token_estimate, source) "
+                       "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                       (self.session_id, turn_idx, now, msg["role"], msg["content"][:10000], token_est, "ws"))
+            cp.execute("""INSERT INTO sessions (session_id, created_at, last_active, turn_count, total_tokens, source)
+                VALUES (?, ?, ?, 1, ?, 'ws') ON CONFLICT(session_id) DO UPDATE SET
+                last_active=excluded.last_active, turn_count=turn_count+1,
+                total_tokens=total_tokens+excluded.total_tokens""",
+                       (self.session_id, now, now, token_est))
+            cp.commit()
+            cp.close()
+        except Exception:
+            pass  # Best-effort, never block chat
 
     def add_message(self, role: str, content: str, agent: str | None = None,
                     tool_calls: list | None = None, model: str | None = None,
