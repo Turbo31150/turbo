@@ -961,8 +961,10 @@ Voix/Texte/Telegram ──> STT (Whisper large-v3-turbo, CUDA) ──> Correctio
     ──> Classification Intent (M1 qwen3-8b, 3-45ms)
     ──> Decomposition en micro-taches
     ──> Dispatch Multi-GPU (matrice de routage dynamique, autolearn scoring)
-    ──> Execution Parallele sur cluster (M1/M2/M3/OL1/gpt-oss/devstral/GEMINI/CLAUDE)
-    ──> Consensus Pondere (12 modeles, vote pondere)
+    ──> Execution Parallele sur cluster (M1/M2/M3/OL1/GEMINI/CLAUDE)
+    ──> Quality Gate (6 portes: longueur, structure, pertinence, confiance, latence, hallucination)
+    ──> Feedback Loop (orchestrator_v2 + adaptive_router + event_stream)
+    ──> Consensus Pondere (vote pondere par poids noeud)
     ──> Reponse Vocale (TTS Edge fr-FR-DeniseNeural) ou Telegram
     ──> Persistance (etoile.db + jarvis.db + autolearn)
 ```
@@ -1083,6 +1085,102 @@ Cascade thermique: M1 → M2 → M3 si temperature critique.
 | Embedding | **M1** | — | — |
 
 Fallback code: gpt-oss:120b → M1 → devstral-2:123b → M2 → OL1 → GEMINI → CLAUDE.
+
+---
+
+## Automation Hub — Orchestration Autonome
+
+Module central (`src/automation_hub.py`) demarre automatiquement au boot FastAPI. Connecte les 3 sous-systemes en un point d'entree unique.
+
+### Architecture
+
+```
+                    +------------------------+
+  FastAPI Boot ---->|    AutomationHub       |
+                    |  .start() / .stop()    |
+                    +---+--------+-------+---+
+                        |        |       |
+              +---------+   +----+   +---+---------+
+              v             v         v             v
+     autonomous_loop  task_scheduler  task_queue  event_stream
+     (18 real tasks)  (10 handlers)  (processor)  (SSE dashboard)
+              |             |         |
+              +------+------+         |
+                     v                v
+             dispatch_engine <--- queue.process_next()
+                     |
+         +-----------+-----------+
+         v           v           v
+  orchestrator_v2  adaptive_router  pattern_agents
+  (drift+tune)    (affinity+CB)     (14 specialises)
+```
+
+### Sous-systemes
+
+| Composant | Module | Role | Intervalle |
+|-----------|--------|------|------------|
+| **Autonomous Loop** | `src/autonomous_loop.py` | 18 tasks background (health, GPU, self-heal, backup, zombie GC, VRAM, brain learn...) | 30s-86400s |
+| **Task Scheduler** | `src/task_scheduler.py` | Jobs persistants SQLite, 10 handlers enregistres | 5s tick |
+| **Task Queue** | `src/task_queue.py` | File prioritaire, auto-routing, retry backoff | continu |
+| **Dispatch Engine** | `src/dispatch_engine.py` | Pipeline 8 etapes: health > route > memory > dispatch > quality gate > feedback > store > event | par requete |
+
+### 10 Scheduler Handlers
+
+| Handler | Action | Description |
+|---------|--------|-------------|
+| `dispatch` | Envoie un prompt au cluster | Route via dispatch_engine |
+| `domino` | Execute un pipeline domino | Via DominoExecutor |
+| `health_check` | Health cluster | orchestrator_v2.health_check() |
+| `backup` | Backup databases | daily 3h00 |
+| `gpu_monitor` | Temperature + VRAM | nvidia-smi |
+| `self_heal` | Restart noeuds offline | OL1 auto-restart |
+| `queue_enqueue` | Ajoute tache a la file | task_queue.enqueue() |
+| `notify` | Notification Telegram/WS | src/notifier |
+| `cleanup` | Nettoyage hebdomadaire | old tasks + DB maintenance |
+| `noop` | Test/placeholder | Retourne "noop" |
+
+### 5 Jobs par defaut (seedes au premier boot)
+
+| Job | Intervalle | Handler |
+|-----|-----------|---------|
+| Cluster health check | 2 min | `health_check` |
+| GPU temperature monitor | 5 min | `gpu_monitor` |
+| Self-heal offline nodes | 10 min | `self_heal` |
+| Database backup | 24h | `backup` |
+| Weekly cleanup | 7 jours | `cleanup` |
+
+### Feedback Loops (boucle fermee)
+
+Chaque dispatch alimente automatiquement 3 systemes d'apprentissage :
+
+```
+dispatch_engine.dispatch()
+    |
+    +---> orchestrator_v2.record_call()  --> drift_detector (detecte degradation)
+    |                                    --> auto_tune (ajuste capacite)
+    |
+    +---> adaptive_router.record()       --> circuit_breaker (coupe noeud defaillant)
+    |                                    --> affinity (MAJ score pattern-noeud)
+    |
+    +---> event_stream.emit()            --> dashboard SSE (temps reel)
+
+smart_dispatcher.dispatch()
+    |
+    +---> memes 3 feedback loops (orchestrator + router + events)
+```
+
+### API Endpoints
+
+| Endpoint | Methode | Description |
+|----------|---------|-------------|
+| `/api/automation/status` | GET | Status complet hub (loop + scheduler + queue) |
+| `/api/scheduler/jobs` | GET | Liste tous les jobs planifies |
+| `/api/queue/status` | GET | Queue stats + pending + recent |
+| `/api/queue/enqueue` | POST | Ajouter tache `{prompt, task_type, priority}` |
+| `/api/autonomous/status` | GET | Status autonomous loop (18 tasks) |
+| `/api/autonomous/events` | GET | Evenements recents (alertes, erreurs) |
+| `/api/autonomous/toggle/{name}` | POST | Activer/desactiver une task |
+| `/api/autonomous/run/{name}` | POST | Declencher une task immediatement |
 
 ---
 
