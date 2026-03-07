@@ -5688,7 +5688,8 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
     # ─────────────────────────────────────────────────────────────────────
     DominoPipeline(
         id="domino_tool_system_health",
-        trigger_vocal=["sante systeme", "health check complet", "check sante jarvis", "system health"],
+        trigger_vocal=["sante systeme", "health check complet", "check sante jarvis", "system health",
+                       "check systeme complet", "statut systeme complet", "rapport sante"],
         steps=[
             DominoStep("cluster", "tool:jarvis_cluster_health", "tool", timeout_s=15),
             DominoStep("boot", "tool:jarvis_boot_status", "tool", timeout_s=15),
@@ -5704,7 +5705,8 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
     ),
     DominoPipeline(
         id="domino_tool_autonomous_check",
-        trigger_vocal=["statut autonome", "check autonome", "taches autonomes", "boucle autonome"],
+        trigger_vocal=["statut autonome", "check autonome", "taches autonomes", "boucle autonome",
+                       "etat boucle autonome", "combien de taches"],
         steps=[
             DominoStep("status", "tool:jarvis_autonomous_status", "tool", timeout_s=10),
             DominoStep("events", "tool:jarvis_autonomous_events", "tool", timeout_s=10),
@@ -5716,7 +5718,8 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
     ),
     DominoPipeline(
         id="domino_tool_morning_jarvis",
-        trigger_vocal=["bonjour jarvis tools", "matin jarvis complet", "demarrage jarvis"],
+        trigger_vocal=["bonjour jarvis tools", "matin jarvis complet", "demarrage jarvis",
+                       "bonjour jarvis", "routine matin", "rapport du matin"],
         steps=[
             DominoStep("boot", "tool:jarvis_boot_status", "tool", timeout_s=15),
             DominoStep("cluster", "tool:jarvis_cluster_health", "tool", timeout_s=15),
@@ -5732,7 +5735,8 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
     ),
     DominoPipeline(
         id="domino_tool_run_maintenance",
-        trigger_vocal=["lance maintenance", "maintenance tools", "run maintenance"],
+        trigger_vocal=["lance maintenance", "maintenance tools", "run maintenance",
+                       "lance la maintenance", "nettoyage systeme", "nettoie le systeme"],
         steps=[
             DominoStep("zombie_gc", "tool:jarvis_run_task:task_name=zombie_gc", "tool", timeout_s=30),
             DominoStep("vram_audit", "tool:jarvis_run_task:task_name=vram_audit", "tool", timeout_s=30),

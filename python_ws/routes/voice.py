@@ -3,11 +3,112 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import json
 import logging
+import re
 import struct
 import time
 
 logger = logging.getLogger("jarvis.voice")
+
+# ── Voice → JARVIS Tool triggers (fallback when no domino match) ─────────
+# Same patterns as telegram-bot.js intents, adapted for French voice input.
+_VOICE_TOOL_TRIGGERS: list[tuple[re.Pattern, str]] = [
+    # Order matters: more specific patterns first to avoid false positives.
+    (re.compile(r"\b(#?boot|statut\s*(du\s*)?boot|d[eé]marrage|boot\s*status)\b", re.I), "jarvis_boot_status"),
+    (re.compile(r"\b(#?db[\s-]*health|sant[eé]\s*(des?\s*)?base|db\s*health|bases?\s*de\s*donn[eé]es)\b", re.I), "jarvis_db_health"),
+    (re.compile(r"\b(#?orchestr|orchestrat(eur|or)\s*(health|sant[eé]))\b", re.I), "jarvis_orchestrator_health"),
+    (re.compile(r"\b(#?health|sant[eé]\s*(du\s*)?cluster|cluster\s*health|[eé]tat\s*(du\s*)?cluster)\b", re.I), "jarvis_cluster_health"),
+    (re.compile(r"\b(#?gpu|statut\s*(du\s*)?gpu|gpu\s*status|temp[eé]rature\s*gpu|vram)\b", re.I), "jarvis_gpu_status"),
+    (re.compile(r"\b(#?audit|diagnostic\s*(rapide|quick|complet)?|diag\s*rapide)\b", re.I), "jarvis_diagnostics_quick"),
+    (re.compile(r"(#?autonome|boucle\s*autonome|t[aâ]che\w*\s*autonome\w*|taches?\s*autonome|autonomous)", re.I), "jarvis_autonomous_status"),
+    (re.compile(r"\b(#?alertes?|alerte[s]?\s*active|alertes?\s*en\s*cours)\b", re.I), "jarvis_alerts_active"),
+]
+
+
+def _match_voice_tool(text: str) -> str | None:
+    """Match transcribed text against JARVIS tool triggers. Returns tool_name or None."""
+    for pattern, tool_name in _VOICE_TOOL_TRIGGERS:
+        if pattern.search(text):
+            return tool_name
+    return None
+
+
+async def _execute_voice_tool(tool_name: str) -> dict | None:
+    """Call a JARVIS tool and return result formatted for voice/TTS."""
+    try:
+        from src.ia_tool_executor import execute_tool_call
+        result = await execute_tool_call(tool_name, {}, caller="voice")
+        if not result.get("ok"):
+            return {"tool": tool_name, "ok": False, "error": result.get("error", "unknown")}
+        data = result.get("result", {})
+        summary = _format_tool_for_tts(tool_name, data)
+        return {"tool": tool_name, "ok": True, "summary": summary, "raw": data}
+    except Exception as e:
+        logger.error("Voice tool %s failed: %s", tool_name, e)
+        return {"tool": tool_name, "ok": False, "error": str(e)}
+
+
+def _format_tool_for_tts(tool_name: str, data: dict) -> str:
+    """Format tool result as short spoken French text for TTS."""
+    if not isinstance(data, dict):
+        return str(data)[:200]
+
+    if tool_name == "jarvis_boot_status":
+        nodes = data.get("nodes", {})
+        svcs = data.get("services", {})
+        node_parts = [f"{n} {s.get('status', '?')}" for n, s in nodes.items()]
+        svc_ok = sum(1 for s in svcs.values() if s == "OK")
+        return f"Boot: {', '.join(node_parts)}. {svc_ok} services sur {len(svcs)} actifs."
+
+    if tool_name == "jarvis_cluster_health":
+        score = data.get("health_score", "?")
+        stats = data.get("node_stats", {})
+        parts = []
+        for n, s in stats.items():
+            if s.get("total_calls", 0) > 0:
+                parts.append(f"{n} {s.get('avg_latency_ms', 0):.0f} ms")
+        return f"Cluster score {score}. {', '.join(parts) if parts else 'Aucun appel recent'}."
+
+    if tool_name == "jarvis_gpu_status":
+        orch = data.get("orchestrator", {})
+        score = orch.get("health_score", "?")
+        auto = data.get("autonomous_loop", {})
+        tasks = auto.get("task_count", 0)
+        runs = auto.get("total_runs", 0)
+        return f"GPU health score {score}. Boucle autonome: {tasks} taches, {runs} executions."
+
+    if tool_name == "jarvis_diagnostics_quick":
+        return json.dumps(data, ensure_ascii=False, default=str)[:300]
+
+    if tool_name == "jarvis_autonomous_status":
+        tasks = data.get("tasks", data.get("task_count", "?"))
+        if isinstance(tasks, list):
+            enabled = sum(1 for t in tasks if t.get("enabled"))
+            return f"Boucle autonome: {enabled} taches actives sur {len(tasks)}."
+        return f"Boucle autonome: {tasks} taches."
+
+    if tool_name == "jarvis_alerts_active":
+        alerts = data.get("alerts", data.get("active", []))
+        if isinstance(alerts, list):
+            if not alerts:
+                return "Aucune alerte active."
+            return f"{len(alerts)} alertes actives: {', '.join(a.get('message', a.get('type', '?'))[:40] for a in alerts[:3])}."
+        return f"Alertes: {str(data)[:200]}"
+
+    if tool_name == "jarvis_db_health":
+        dbs = {k: v for k, v in data.items() if isinstance(v, dict) and "ok" in v}
+        if dbs:
+            parts = [f"{k} {'OK' if v['ok'] else 'ERREUR'}" for k, v in dbs.items()]
+            return f"Bases de donnees: {', '.join(parts)}."
+        return f"DB health: {str(data)[:200]}"
+
+    if tool_name == "jarvis_orchestrator_health":
+        score = data.get("health_score", "?")
+        return f"Orchestrateur score {score}."
+
+    # Generic fallback
+    return json.dumps(data, ensure_ascii=False, default=str)[:300]
 
 # Background task references (prevents GC of fire-and-forget tasks)
 _bg_tasks: set[asyncio.Task] = set()
@@ -213,6 +314,28 @@ async def _handle_stop() -> dict:
             logger.warning("Voice correction error: %s", e)
             corrected = text
 
+    # ── Fallback: JARVIS tool matching (when no domino executed) ─────────
+    tool_result = None
+    if execution is None:
+        matched_tool = _match_voice_tool(corrected or text)
+        if matched_tool:
+            logger.info("Voice tool fallback: '%s' -> %s", (corrected or text)[:60], matched_tool)
+            try:
+                tool_result = await asyncio.wait_for(
+                    _execute_voice_tool(matched_tool), timeout=10.0
+                )
+                if tool_result and tool_result.get("ok"):
+                    execution = {
+                        "executed": True,
+                        "command_name": matched_tool,
+                        "description": f"JARVIS tool (voice fallback)",
+                        "output": tool_result.get("summary", ""),
+                    }
+            except asyncio.TimeoutError:
+                logger.warning("Voice tool %s timeout", matched_tool)
+            except Exception as e:
+                logger.warning("Voice tool %s error: %s", matched_tool, e)
+
     # v2: record voice pipeline metrics in orchestrator_v2
     try:
         from src.orchestrator_v2 import orchestrator_v2
@@ -230,6 +353,7 @@ async def _handle_stop() -> dict:
         "corrected": corrected,
         "domino": domino,
         "execution": execution,
+        "tool_result": tool_result,
     }
     _transcriptions.append(entry)
     # Keep bounded to prevent memory leak
