@@ -202,7 +202,7 @@ class TestDefaultTasks:
     def test_create_defaults(self):
         to.create_default_tasks()
         tasks = to.load_tasks()
-        assert len(tasks) >= 95
+        assert len(tasks) >= 110
         ids = [t.id for t in tasks]
         assert "health_cluster" in ids
         assert "backup_databases" in ids
@@ -245,6 +245,16 @@ class TestDefaultTasks:
                      "disk_fill_predictor", "model_quality_monitor", "process_tree_monitor",
                      "dependency_freshness", "cluster_work_generator"]:
             assert tid in ids, f"Missing autonomic task: {tid}"
+
+    def test_cognitive_tasks_exist(self):
+        to.create_default_tasks()
+        ids = [t.id for t in to.load_tasks()]
+        for tid in ["error_correlator", "auto_test_generator", "prompt_optimizer",
+                     "entropy_monitor", "memory_leak_detector", "task_dependency_optimizer",
+                     "cluster_cross_validator", "import_syntax_healer", "performance_profiler",
+                     "alert_aggregator", "evolution_fitness", "node_warmup",
+                     "auto_rollback_sentinel", "knowledge_base_builder", "saturation_balancer"]:
+            assert tid in ids, f"Missing cognitive task: {tid}"
 
 
 class TestEscalation:
@@ -365,7 +375,7 @@ class TestDashboardExport:
         to.create_default_tasks()
         data = to.export_dashboard_data()
         assert "task_count" in data
-        assert data["task_count"] >= 95
+        assert data["task_count"] >= 110
         assert "tasks" in data
         assert "recent_runs" in data
         assert "metrics" in data
