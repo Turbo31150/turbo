@@ -40,6 +40,38 @@ TURBO = Path("F:/BUREAU/turbo")
 DB_PATH = str(TURBO / "data" / "task_orchestrator.db")
 LOG_PATH = str(TURBO / "data" / "task_orchestrator.log")
 
+# Telegram notification (loaded from .env)
+def _load_telegram_config():
+    env_file = TURBO / ".env"
+    token = chat_id = None
+    if env_file.exists():
+        for line in env_file.read_text(errors="replace").splitlines():
+            if line.startswith("TELEGRAM_BOT_TOKEN="):
+                token = line.split("=", 1)[1].strip().strip('"')
+            elif line.startswith("TELEGRAM_CHAT_ID="):
+                chat_id = line.split("=", 1)[1].strip().strip('"')
+    return token, chat_id
+
+TELEGRAM_TOKEN, TELEGRAM_CHAT = _load_telegram_config()
+
+
+def notify_telegram(message: str, silent: bool = False):
+    """Send notification to Telegram."""
+    if not TELEGRAM_TOKEN or not TELEGRAM_CHAT:
+        return False
+    try:
+        subprocess.run([
+            "curl", "-s", "--max-time", "10",
+            f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
+            "-d", f"chat_id={TELEGRAM_CHAT}",
+            "-d", f"text={message[:4000]}",
+            "-d", "parse_mode=HTML",
+            "-d", f"disable_notification={'true' if silent else 'false'}",
+        ], capture_output=True, timeout=15)
+        return True
+    except Exception:
+        return False
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -592,6 +624,61 @@ def execute_branch(task: TaskDef) -> TaskResult:
             branch_key = "business_hours"
         else:
             branch_key = "off_hours"
+    elif check_type == "gpu_temp":
+        threshold = condition.get("threshold", 85)
+        try:
+            r = subprocess.run(
+                ["nvidia-smi", "--query-gpu=temperature.gpu", "--format=csv,noheader,nounits"],
+                capture_output=True, text=True, timeout=10,
+            )
+            temps = [int(t.strip()) for t in r.stdout.strip().splitlines() if t.strip()]
+            max_temp = max(temps) if temps else 0
+            branch_key = "hot" if max_temp > threshold else "cool"
+        except Exception:
+            branch_key = "error"
+    elif check_type == "audit_score":
+        threshold = condition.get("threshold", 90)
+        try:
+            r = subprocess.run(
+                [sys.executable, "-c",
+                 "import sys;sys.path.insert(0,'F:/BUREAU/turbo');"
+                 "from src.auto_auditor import AutoAuditor;"
+                 "r=AutoAuditor().run_full_audit();"
+                 f"print('pass' if r.summary['score']>={threshold} else 'fail')"],
+                capture_output=True, text=True, timeout=30, cwd=str(TURBO),
+            )
+            branch_key = r.stdout.strip()
+        except Exception:
+            branch_key = "error"
+    elif check_type == "disk_space":
+        threshold_gb = condition.get("threshold_gb", 10)
+        drive = condition.get("drive", "C:")
+        try:
+            import shutil
+            usage = shutil.disk_usage(drive + "/")
+            free_gb = usage.free / (1024**3)
+            branch_key = "ok" if free_gb > threshold_gb else "low"
+        except Exception:
+            branch_key = "error"
+    elif check_type == "process_running":
+        proc_name = condition.get("process", "")
+        try:
+            r = subprocess.run(
+                ["tasklist", "/FI", f"IMAGENAME eq {proc_name}"],
+                capture_output=True, text=True, timeout=10,
+            )
+            branch_key = "running" if proc_name.lower() in r.stdout.lower() else "stopped"
+        except Exception:
+            branch_key = "error"
+    elif check_type == "db_integrity":
+        db_path = condition.get("db", "data/jarvis.db")
+        try:
+            c = sqlite3.connect(str(TURBO / db_path))
+            integ = c.execute("PRAGMA integrity_check").fetchone()[0]
+            c.close()
+            branch_key = "ok" if integ == "ok" else "corrupt"
+        except Exception:
+            branch_key = "error"
     else:
         branch_key = "default"
 
@@ -1041,6 +1128,683 @@ else:
             priority="low",
             schedule="weekly:sun:05:00",
             tags=["cleanup", "backup"],
+        ),
+
+        # ══════════════════════════════════════════════════════════════════
+        # ADVANCED AUTOMATION — Auto-healing, Telegram, LinkedIn, VRAM, etc.
+        # ══════════════════════════════════════════════════════════════════
+
+        # ── Auto-Healing: restart services on failure ──
+        TaskDef(
+            id="auto_heal_services",
+            name="Auto-Heal Services",
+            task_type="health",
+            action="pipeline",
+            payload={"steps": [
+                {"action": "python", "type": "health", "payload": {"code": """
+import subprocess, json
+down = []
+checks = [
+    ("LM Studio", "127.0.0.1:1234/v1/models"),
+    ("Ollama", "127.0.0.1:11434/api/tags"),
+    ("Canvas Proxy", "127.0.0.1:18800/health"),
+]
+for name, url in checks:
+    try:
+        r = subprocess.run(["curl","-s","--max-time","3",f"http://{url}"],
+            capture_output=True, text=True, timeout=5)
+        if r.returncode != 0 or len(r.stdout) < 5:
+            down.append(name)
+            print(f"[DOWN] {name}")
+        else:
+            print(f"[OK] {name}")
+    except:
+        down.append(name)
+        print(f"[DOWN] {name}")
+if down:
+    print(f"NEED_HEAL: {','.join(down)}")
+    exit(1)
+else:
+    print("ALL_OK")
+"""}, "required": False},
+                {"action": "python", "type": "health", "payload": {"code": """
+import subprocess
+# Restart Ollama if down
+try:
+    r = subprocess.run(["curl","-s","--max-time","2","http://127.0.0.1:11434/api/tags"],
+        capture_output=True, text=True, timeout=5)
+    if r.returncode != 0 or len(r.stdout) < 5:
+        subprocess.Popen(["ollama","serve"], creationflags=0x00000008)
+        print("Restarted Ollama")
+    else:
+        print("Ollama OK")
+except Exception as e:
+    print(f"Ollama restart failed: {e}")
+"""}, "required": False},
+            ]},
+            priority="high",
+            schedule="every:10m",
+            tags=["health", "auto-heal"],
+        ),
+
+        # ── GPU VRAM Guard ──
+        TaskDef(
+            id="vram_guard",
+            name="VRAM Guard",
+            task_type="health",
+            action="branch",
+            payload={
+                "condition": {"type": "gpu_temp", "threshold": 82},
+                "branches": {
+                    "hot": {
+                        "action": "python",
+                        "payload": {"code": """
+import subprocess
+r = subprocess.run(["nvidia-smi","--query-gpu=index,temperature.gpu,memory.used",
+    "--format=csv,noheader,nounits"], capture_output=True, text=True, timeout=10)
+print(f"GPU ALERT - High temperature detected!")
+for line in r.stdout.strip().splitlines():
+    parts = [x.strip() for x in line.split(',')]
+    print(f"  GPU{parts[0]}: {parts[1]}C, {parts[2]}MB VRAM")
+print("Consider reducing load or checking cooling")
+"""},
+                    },
+                    "cool": {
+                        "action": "python",
+                        "payload": {"code": "print('GPU temps normal')"},
+                    },
+                    "error": {
+                        "action": "python",
+                        "payload": {"code": "print('nvidia-smi unavailable')"},
+                    },
+                },
+            },
+            priority="normal",
+            schedule="every:15m",
+            tags=["health", "gpu", "vram"],
+        ),
+
+        # ── Disk Space Monitor ──
+        TaskDef(
+            id="disk_monitor",
+            name="Disk Space Monitor",
+            task_type="health",
+            action="branch",
+            payload={
+                "condition": {"type": "disk_space", "threshold_gb": 20, "drive": "C:"},
+                "branches": {
+                    "ok": {"action": "python", "payload": {"code": """
+import shutil
+for drive in ['C:/', 'F:/']:
+    u = shutil.disk_usage(drive)
+    print(f"{drive} {u.free/1024**3:.1f}GB free / {u.total/1024**3:.0f}GB total ({u.used*100/u.total:.0f}%)")
+"""}},
+                    "low": {"action": "python", "payload": {"code": """
+import shutil
+for drive in ['C:/', 'F:/']:
+    u = shutil.disk_usage(drive)
+    print(f"LOW SPACE {drive} {u.free/1024**3:.1f}GB free!")
+print("Consider cleaning HuggingFace cache (78GB on C:) or old backups")
+"""}},
+                },
+            },
+            priority="normal",
+            schedule="every:1h",
+            tags=["health", "disk"],
+        ),
+
+        # ── DB Integrity Guard ──
+        TaskDef(
+            id="db_integrity_guard",
+            name="Database Integrity Guard",
+            task_type="backup",
+            action="pipeline",
+            payload={"steps": [
+                {"action": "python", "type": "backup", "payload": {"code": """
+import sqlite3
+from pathlib import Path
+TURBO = Path('F:/BUREAU/turbo')
+dbs = list(TURBO.glob('data/*.db')) + list(TURBO.glob('*.db'))
+ok = corrupt = 0
+for db in dbs:
+    try:
+        c = sqlite3.connect(str(db))
+        r = c.execute('PRAGMA integrity_check').fetchone()[0]
+        c.close()
+        if r == 'ok':
+            ok += 1
+        else:
+            corrupt += 1
+            print(f'[CORRUPT] {db.name}')
+    except Exception as e:
+        corrupt += 1
+        print(f'[ERROR] {db.name}: {e}')
+print(f'{ok} OK, {corrupt} corrupt out of {len(dbs)} databases')
+if corrupt > 0:
+    exit(1)
+"""}, "required": False},
+                {"action": "python", "type": "backup", "payload": {"code": """
+# Cross-DB config redundancy check
+import sqlite3, json
+from pathlib import Path
+TURBO = Path('F:/BUREAU/turbo')
+for name, path, table in [
+    ('jarvis', 'data/jarvis.db', 'system_config'),
+    ('etoile', 'etoile.db', 'system_restore'),
+    ('sniper', 'data/sniper.db', 'trading_config'),
+]:
+    c = sqlite3.connect(str(TURBO / path))
+    try:
+        cnt = c.execute(f'SELECT count(*) FROM {table}').fetchone()[0]
+        print(f'{name}: {cnt} entries in {table}')
+    except:
+        print(f'{name}: table {table} missing')
+    c.close()
+"""}, "required": False},
+            ]},
+            priority="high",
+            schedule="every:30m",
+            tags=["backup", "integrity"],
+        ),
+
+        # ── Telegram Status Report ──
+        TaskDef(
+            id="telegram_status",
+            name="Telegram Daily Status",
+            task_type="schedule",
+            action="python",
+            payload={"code": """
+import sys, os, subprocess, sqlite3, json
+sys.path.insert(0, 'F:/BUREAU/turbo')
+from pathlib import Path
+TURBO = Path('F:/BUREAU/turbo')
+# Build status message
+lines = ['<b>JARVIS Daily Report</b>']
+# Cluster
+for name, url in [('M1','127.0.0.1:1234/v1/models'),('OL1','127.0.0.1:11434/api/tags')]:
+    try:
+        r = subprocess.run(['curl','-s','--max-time','3',f'http://{url}'],
+            capture_output=True, text=True, timeout=5)
+        lines.append(f"  {name}: {'OK' if r.returncode==0 else 'DOWN'}")
+    except: lines.append(f"  {name}: DOWN")
+# Audit
+try:
+    from src.auto_auditor import AutoAuditor
+    report = AutoAuditor().run_full_audit()
+    lines.append(f"Audit: {report.summary['score']}/100")
+except: lines.append("Audit: error")
+# Git
+r = subprocess.run(['git','log','--oneline','-1'], capture_output=True, text=True, cwd=str(TURBO))
+lines.append(f"Git: {r.stdout.strip()[:50]}")
+# DBs
+for db in ['data/jarvis.db','etoile.db','data/sniper.db']:
+    s = (TURBO/db).stat().st_size//1024
+    lines.append(f"  {db}: {s}KB")
+# Orchestrator stats
+try:
+    c = sqlite3.connect(str(TURBO/'data/task_orchestrator.db'))
+    total = c.execute('SELECT count(*) FROM task_runs').fetchone()[0]
+    ok = c.execute("SELECT count(*) FROM task_runs WHERE status='completed'").fetchone()[0]
+    fail = c.execute("SELECT count(*) FROM task_runs WHERE status='failed'").fetchone()[0]
+    c.close()
+    lines.append(f"Tasks: {ok}/{total} OK, {fail} failed")
+except: pass
+msg = chr(10).join(lines)
+print(msg)
+# Send via Telegram
+env = TURBO / '.env'
+token = chat_id = None
+if env.exists():
+    for line in env.read_text(errors='replace').splitlines():
+        if line.startswith('TELEGRAM_BOT_TOKEN='): token=line.split('=',1)[1].strip().strip('"')
+        elif line.startswith('TELEGRAM_CHAT_ID='): chat_id=line.split('=',1)[1].strip().strip('"')
+if token and chat_id:
+    subprocess.run(['curl','-s','--max-time','10',
+        f'https://api.telegram.org/bot{token}/sendMessage',
+        '-d',f'chat_id={chat_id}','-d',f'text={msg}','-d','parse_mode=HTML'],
+        capture_output=True, timeout=15)
+    print('Sent to Telegram')
+"""},
+            priority="low",
+            schedule="daily:08:00",
+            tags=["telegram", "report"],
+        ),
+
+        # ── Telegram Alert on Failure (runs after each task cycle) ──
+        TaskDef(
+            id="telegram_failure_alert",
+            name="Alert Failures to Telegram",
+            task_type="schedule",
+            action="python",
+            payload={"code": """
+import sqlite3, subprocess, json
+from pathlib import Path
+from datetime import datetime, timedelta
+TURBO = Path('F:/BUREAU/turbo')
+c = sqlite3.connect(str(TURBO/'data/task_orchestrator.db'))
+cutoff = (datetime.now() - timedelta(minutes=30)).isoformat()
+fails = c.execute("SELECT task_id, error, started_at FROM task_runs WHERE status='failed' AND started_at > ?", (cutoff,)).fetchall()
+c.close()
+if not fails:
+    print('No recent failures')
+else:
+    msg = f'JARVIS ALERT: {len(fails)} task(s) failed\\n'
+    for tid, err, ts in fails[:5]:
+        msg += f'  {tid}: {(err or "?")[:60]}\\n'
+    print(msg)
+    env = TURBO / '.env'
+    token = chat_id = None
+    if env.exists():
+        for line in env.read_text(errors='replace').splitlines():
+            if line.startswith('TELEGRAM_BOT_TOKEN='): token=line.split('=',1)[1].strip().strip('"')
+            elif line.startswith('TELEGRAM_CHAT_ID='): chat_id=line.split('=',1)[1].strip().strip('"')
+    if token and chat_id:
+        subprocess.run(['curl','-s','--max-time','10',
+            f'https://api.telegram.org/bot{token}/sendMessage',
+            '-d',f'chat_id={chat_id}','-d',f'text={msg}'],
+            capture_output=True, timeout=15)
+"""},
+            priority="high",
+            schedule="every:30m",
+            tags=["telegram", "alert"],
+        ),
+
+        # ── LinkedIn Automation ──
+        TaskDef(
+            id="linkedin_publish",
+            name="LinkedIn Auto-Publish",
+            task_type="schedule",
+            action="branch",
+            payload={
+                "condition": {"type": "time"},
+                "branches": {
+                    "business_hours": {
+                        "action": "script",
+                        "type": "schedule",
+                        "payload": {"script": "scripts/linkedin_scheduler.py", "args": ["--publish-next"]},
+                        "timeout": 120,
+                    },
+                    "off_hours": {
+                        "action": "python",
+                        "payload": {"code": "print('LinkedIn: off hours')"},
+                    },
+                },
+            },
+            priority="normal",
+            schedule="every:2h",
+            tags=["linkedin", "social"],
+        ),
+
+        TaskDef(
+            id="linkedin_routine",
+            name="LinkedIn Daily Routine",
+            task_type="schedule",
+            action="script",
+            payload={"script": "scripts/linkedin_auto_routine.py"},
+            priority="low",
+            schedule="daily:07:30",
+            timeout_s=300,
+            tags=["linkedin", "social"],
+        ),
+
+        # ── Proxy & OpenClaw Monitoring ──
+        TaskDef(
+            id="proxy_monitor",
+            name="Canvas Proxy Monitor",
+            task_type="health",
+            action="branch",
+            payload={
+                "condition": {"type": "health", "node": "M1"},
+                "branches": {
+                    "healthy": {
+                        "action": "python",
+                        "payload": {"code": """
+import subprocess
+r = subprocess.run(["curl","-s","--max-time","3","http://127.0.0.1:18800/health"],
+    capture_output=True, text=True, timeout=5)
+if r.returncode == 0 and r.stdout:
+    print(f"Proxy OK: {r.stdout[:100]}")
+else:
+    print("Proxy DOWN - restarting...")
+    subprocess.Popen(["node","F:/BUREAU/turbo/direct-proxy.js"], creationflags=0x00000008)
+    print("Proxy restart initiated")
+"""},
+                    },
+                    "unhealthy": {
+                        "action": "python",
+                        "payload": {"code": "print('M1 down, skipping proxy check')"},
+                    },
+                },
+            },
+            priority="normal",
+            schedule="every:10m",
+            tags=["health", "proxy"],
+        ),
+
+        TaskDef(
+            id="openclaw_monitor",
+            name="OpenClaw Gateway Monitor",
+            task_type="health",
+            action="branch",
+            payload={
+                "condition": {"type": "process_running", "process": "openclaw.exe"},
+                "branches": {
+                    "running": {
+                        "action": "python",
+                        "payload": {"code": """
+import subprocess
+r = subprocess.run(["curl","-s","--max-time","3","http://127.0.0.1:18789/health"],
+    capture_output=True, text=True, timeout=5)
+print(f"OpenClaw: {'OK' if r.returncode==0 else 'ERROR'} {r.stdout[:80]}")
+"""},
+                    },
+                    "stopped": {
+                        "action": "python",
+                        "payload": {"code": """
+import subprocess
+print("OpenClaw not running - starting...")
+subprocess.Popen(["openclaw","serve"], creationflags=0x00000008, cwd="F:/BUREAU/turbo")
+print("OpenClaw start initiated")
+"""},
+                    },
+                },
+            },
+            priority="normal",
+            schedule="every:10m",
+            tags=["health", "openclaw"],
+        ),
+
+        # ── Model Management ──
+        TaskDef(
+            id="model_health",
+            name="Model Load Verification",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import subprocess, json
+# M1: check loaded models
+r = subprocess.run(["curl","-s","--max-time","5","http://127.0.0.1:1234/v1/models"],
+    capture_output=True, text=True, timeout=10)
+if r.returncode == 0:
+    try:
+        data = json.loads(r.stdout)
+        models = data.get('data', data.get('models', []))
+        loaded = [m for m in models if m.get('loaded_instances')]
+        print(f"M1: {len(models)} available, {len(loaded)} loaded")
+        for m in loaded:
+            print(f"  {m['id']}: loaded")
+    except: print(f"M1: parse error")
+else:
+    print("M1: OFFLINE")
+# OL1: check models
+r = subprocess.run(["curl","-s","--max-time","3","http://127.0.0.1:11434/api/tags"],
+    capture_output=True, text=True, timeout=5)
+if r.returncode == 0:
+    try:
+        data = json.loads(r.stdout)
+        models = data.get('models', [])
+        print(f"OL1: {len(models)} models available")
+        for m in models[:5]:
+            print(f"  {m.get('name','?')}")
+    except: print("OL1: parse error")
+else:
+    print("OL1: OFFLINE")
+"""},
+            priority="low",
+            schedule="every:30m",
+            tags=["cluster", "models"],
+        ),
+
+        # ── Audit Score Auto-Improve Pipeline ──
+        TaskDef(
+            id="auto_improve_pipeline",
+            name="Auto-Improve Pipeline",
+            task_type="audit",
+            action="branch",
+            payload={
+                "condition": {"type": "audit_score", "threshold": 95},
+                "branches": {
+                    "pass": {
+                        "action": "python",
+                        "payload": {"code": "print('Audit score >= 95, no action needed')"},
+                    },
+                    "fail": {
+                        "action": "pipeline",
+                        "type": "audit",
+                        "payload": {"steps": [
+                            {"action": "python", "type": "audit", "payload": {"code": """
+import sys; sys.path.insert(0, 'F:/BUREAU/turbo')
+from src.auto_fixer import AutoFixer
+r = AutoFixer().run_fix_cycle(dry_run=False)
+applied = [f for f in r.get('fixes',[]) if f.get('applied')]
+print(f"Applied {len(applied)} fixes")
+"""}},
+                            {"action": "python", "type": "audit", "payload": {"code": """
+import sys; sys.path.insert(0, 'F:/BUREAU/turbo')
+from src.auto_auditor import AutoAuditor
+r = AutoAuditor().run_full_audit()
+print(f"New score: {r.summary['score']}/100")
+"""}},
+                        ]},
+                    },
+                    "error": {
+                        "action": "python",
+                        "payload": {"code": "print('Audit check failed')"},
+                    },
+                },
+            },
+            priority="normal",
+            schedule="daily:02:00",
+            tags=["audit", "auto-improve"],
+        ),
+
+        # ── MD5 Registry Sync ──
+        TaskDef(
+            id="md5_registry_sync",
+            name="MD5 Registry Sync",
+            task_type="sync",
+            action="python",
+            payload={"code": """
+import hashlib, json, sqlite3
+from pathlib import Path
+ROOT = Path('F:/BUREAU/turbo')
+conn = sqlite3.connect(str(ROOT / 'data/jarvis.db'))
+row = conn.execute("SELECT value FROM system_config WHERE key='src_module_registry'").fetchone()
+registry = json.loads(row[0]) if row else {}
+updated = 0
+for f in sorted((ROOT / 'src').glob('*.py')):
+    if f.name.startswith('__'): continue
+    name = f.stem
+    content = f.read_text(encoding='utf-8', errors='replace')
+    new_md5 = hashlib.md5(content.encode()).hexdigest()[:12]
+    if name in registry and isinstance(registry[name], dict):
+        if registry[name].get('md5','') != new_md5:
+            registry[name]['md5'] = new_md5
+            registry[name]['lines'] = content.count(chr(10)) + 1
+            updated += 1
+    else:
+        registry[name] = {'md5': new_md5, 'lines': content.count(chr(10))+1,
+            'functions': content.count('def '), 'has_all': '__all__' in content}
+        updated += 1
+if updated:
+    conn.execute('UPDATE system_config SET value=?, ts=datetime("now") WHERE key=?',
+        (json.dumps(registry), 'src_module_registry'))
+    conn.commit()
+print(f'MD5 registry: {updated} updated out of {len(registry)}')
+conn.close()
+"""},
+            priority="normal",
+            schedule="every:2h",
+            tags=["sync", "md5"],
+        ),
+
+        # ── Full Nightly Pipeline ──
+        TaskDef(
+            id="nightly_pipeline",
+            name="Nightly Full Pipeline",
+            task_type="pipeline",
+            action="pipeline",
+            payload={"steps": [
+                {"action": "python", "type": "health", "payload": {"code": """
+import subprocess, json
+nodes = [("M1","127.0.0.1:1234/v1/models"),("OL1","127.0.0.1:11434/api/tags")]
+status = []
+for name, url in nodes:
+    try:
+        r = subprocess.run(["curl","-s","--max-time","3",f"http://{url}"],
+            capture_output=True, text=True, timeout=5)
+        status.append(f"{name}:{'OK' if r.returncode==0 else 'DOWN'}")
+    except: status.append(f"{name}:DOWN")
+print(f"Cluster: {', '.join(status)}")
+"""}, "required": True},
+                {"action": "script", "type": "backup", "payload": {
+                    "script": "scripts/save_full_config.py"}, "required": True},
+                {"action": "python", "type": "audit", "payload": {"code": """
+import sys; sys.path.insert(0, 'F:/BUREAU/turbo')
+from src.auto_fixer import AutoFixer
+from src.auto_auditor import AutoAuditor
+AutoFixer().run_fix_cycle(dry_run=False)
+r = AutoAuditor().run_full_audit()
+print(f"Score: {r.summary['score']}/100, {len(r.findings)} findings")
+"""}, "required": False},
+                {"action": "python", "type": "test", "payload": {"code": """
+import subprocess
+r = subprocess.run(['python','-m','pytest','tests/','-x','-q','--tb=no','-k','not integration'],
+    capture_output=True, text=True, cwd='F:/BUREAU/turbo', timeout=300)
+lines = r.stdout.strip().splitlines()
+print(lines[-1] if lines else 'No test output')
+"""}, "timeout": 300, "required": False},
+                {"action": "python", "type": "sync", "payload": {"code": """
+import hashlib, json, sqlite3
+from pathlib import Path
+ROOT = Path('F:/BUREAU/turbo')
+conn = sqlite3.connect(str(ROOT/'data/jarvis.db'))
+row = conn.execute("SELECT value FROM system_config WHERE key='src_module_registry'").fetchone()
+reg = json.loads(row[0]) if row else {}
+updated = 0
+for f in sorted((ROOT/'src').glob('*.py')):
+    if f.name.startswith('__'): continue
+    c = f.read_text(encoding='utf-8', errors='replace')
+    md5 = hashlib.md5(c.encode()).hexdigest()[:12]
+    if f.stem in reg and isinstance(reg[f.stem],dict) and reg[f.stem].get('md5','')!=md5:
+        reg[f.stem]['md5']=md5; reg[f.stem]['lines']=c.count(chr(10))+1; updated+=1
+if updated:
+    conn.execute('UPDATE system_config SET value=?,ts=datetime("now") WHERE key=?',
+        (json.dumps(reg),'src_module_registry'))
+    conn.commit()
+conn.close()
+print(f'MD5 sync: {updated} updated')
+"""}, "required": False},
+                {"action": "python", "type": "backup", "payload": {"code": """
+import shutil, hashlib, sqlite3
+from pathlib import Path
+from datetime import datetime
+TURBO = Path('F:/BUREAU/turbo')
+ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+backups = TURBO / 'backups'
+backups.mkdir(exist_ok=True)
+for db in ['data/jarvis.db','etoile.db','data/sniper.db']:
+    s = TURBO / db
+    d = backups / f'{s.stem}_{ts}.db'
+    shutil.copy2(str(s), str(d))
+    c = sqlite3.connect(str(d))
+    ok = c.execute('PRAGMA integrity_check').fetchone()[0] == 'ok'
+    c.close()
+    print(f"{'OK' if ok else 'FAIL'}: {d.name}")
+"""}, "required": True},
+            ]},
+            branch_on={"failed": "stop"},
+            priority="normal",
+            schedule="daily:01:00",
+            timeout_s=900,
+            tags=["pipeline", "nightly"],
+        ),
+
+        # ── M1 Architecture Review (weekly delegation) ──
+        TaskDef(
+            id="weekly_archi_review",
+            name="Weekly Architecture Review (M1)",
+            task_type="architecture",
+            action="cluster_query",
+            payload={
+                "prompt": "Analyse l'architecture d'un systeme Python avec 228 modules, 295 tests, cluster 4 noeuds LM Studio+Ollama. Identifie: 1) Les 3 risques majeurs d'architecture 2) Les opportunites de simplification 3) Les single points of failure. Reponds en francais, format structure.",
+                "route": "architecture",
+                "timeout": 25,
+            },
+            priority="low",
+            schedule="weekly:mon:10:00",
+            tags=["review", "architecture", "delegation"],
+        ),
+
+        # ── Consensus Security Review ──
+        TaskDef(
+            id="security_consensus",
+            name="Security Consensus Review",
+            task_type="consensus",
+            action="cluster_query",
+            payload={
+                "prompt": "Revue securite Python: quels sont les 3 patterns les plus dangereux a chercher dans un projet avec subprocess, eval, __import__, pickle, et requests? Donne les regex de detection pour chaque.",
+                "route": "consensus",
+                "nodes": ["M1", "OL1"],
+                "timeout": 20,
+            },
+            priority="low",
+            schedule="weekly:wed:11:00",
+            tags=["security", "consensus", "delegation"],
+        ),
+
+        # ── Process GC (garbage collection) ──
+        TaskDef(
+            id="process_gc",
+            name="Process Garbage Collection",
+            task_type="schedule",
+            action="python",
+            payload={"code": """
+import os
+# Find active Python processes
+output = os.popen('tasklist /FI "IMAGENAME eq python.exe" /FO CSV 2>NUL').read()
+lines = [l for l in output.strip().splitlines()[1:] if l.strip()]
+print(f"Active Python processes: {len(lines)}")
+for line in lines[:10]:
+    parts = line.replace('"','').split(',')
+    if len(parts) >= 2:
+        print(f"  PID {parts[1]}: {parts[0]}")
+"""},
+            priority="low",
+            schedule="every:1h",
+            tags=["cleanup", "process"],
+        ),
+
+        # ── Watchdog: Electron Desktop ──
+        TaskDef(
+            id="electron_monitor",
+            name="Electron Desktop Monitor",
+            task_type="health",
+            action="branch",
+            payload={
+                "condition": {"type": "process_running", "process": "electron.exe"},
+                "branches": {
+                    "running": {
+                        "action": "python",
+                        "payload": {"code": """
+import subprocess
+r = subprocess.run(["curl","-s","--max-time","2","http://127.0.0.1:9742/health"],
+    capture_output=True, text=True, timeout=5)
+if r.returncode == 0:
+    print(f"Electron WS: OK ({r.stdout[:50]})")
+else:
+    print("Electron WS: DOWN (electron running but WS not responding)")
+"""},
+                    },
+                    "stopped": {
+                        "action": "python",
+                        "payload": {"code": "print('Electron not running (normal if no desktop session)')"},
+                    },
+                },
+            },
+            priority="low",
+            schedule="every:15m",
+            tags=["health", "electron"],
         ),
     ]
 
