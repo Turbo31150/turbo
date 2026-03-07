@@ -220,6 +220,7 @@ def start_process(cmd: list[str] | str, name: str, cwd: str | None = None,
         if sys.platform == "win32":
             kwargs["creationflags"] = (
                 subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS
+                | subprocess.CREATE_NO_WINDOW
             )
         if shell:
             kwargs["shell"] = True
