@@ -267,7 +267,14 @@ async def _send_message(payload: dict) -> dict:
             }
 
         # Step 1: Try to match a voice command and execute it
-        cmd_result = await _try_execute_command(text)
+        # Skip command matching for natural questions (interrogative sentences)
+        _is_question = any(text.lower().startswith(w) for w in (
+            "quel", "quels", "quelle", "quelles", "comment", "pourquoi",
+            "est-ce", "y a-t-il", "peux-tu", "pourrais-tu", "donne-moi",
+            "dis-moi", "explique", "decris", "combien", "ou ", "quand",
+            "qui ", "que ", "?",
+        ))
+        cmd_result = None if _is_question else await _try_execute_command(text)
         if cmd_result:
             elapsed = time.time() - start
             agent_msg = _session.add_message("assistant", cmd_result["response"], agent="ia-system")
@@ -565,14 +572,19 @@ async def _query_local_ia(text: str, task_type: str) -> str:
     chat_messages = _build_chat_history(text)
     lmstudio_input = _build_lmstudio_input(text)
 
-    # Load tools for system-related queries (only for capable models)
+    # Load tools for system-related queries
+    # M1 (qwen3-8b): full system scope (18 tools) — capable model
+    # OL1 (qwen3:1.7b): minimal scope (4 tools) — smaller model
     ia_tools = None
+    ia_tools_minimal = None
     if task_type in _TOOL_TASK_TYPES:
         try:
             from src.ia_tools import get_tools_for_scope
-            ia_tools = get_tools_for_scope("minimal")
+            ia_tools = get_tools_for_scope("system")       # 18 tools for M1
+            ia_tools_minimal = get_tools_for_scope("minimal")  # 4 tools for OL1
         except ImportError:
             ia_tools = None
+            ia_tools_minimal = None
 
     client = await _get_http()
     for node in nodes_priority:
@@ -587,11 +599,23 @@ async def _query_local_ia(text: str, task_type: str) -> str:
                               if build_ollama_payload else
                               {"model": node["model"], "messages": chat_messages,
                                "stream": False, "think": False})
+                # Inject minimal tools for Ollama (smaller model = fewer tools)
+                if ia_tools_minimal:
+                    ol_payload["tools"] = ia_tools_minimal
                 resp = await client.post(node["url"], json=ol_payload)
                 resp.raise_for_status()
-                content = resp.json().get("message", {}).get("content", "")
-                if content and content.strip():
-                    return f"[{node['name']}] {content.strip()}"
+                ol_data = resp.json()
+                ol_msg = ol_data.get("message", {})
+                # Check for tool_calls
+                if ol_msg.get("tool_calls"):
+                    tool_result = await _handle_ollama_tool_calls(
+                        ol_msg["tool_calls"], node, chat_messages, ol_payload, client,
+                    )
+                    if tool_result:
+                        return f"[{node['name']}] {tool_result}"
+                content = (ol_msg.get("content") or "").strip()
+                if content:
+                    return f"[{node['name']}] {content}"
             else:
                 headers = {"Content-Type": "application/json"}
                 if node.get("auth"):
@@ -709,6 +733,76 @@ async def _handle_tool_calls_cc(
         logger.debug("Tool follow-up failed for %s: %s", caller, exc)
 
     # Fallback: summarize tool results directly
+    summary = "; ".join(r["content"][:200] for r in results)
+    return f"[tools] {summary[:500]}"
+
+
+async def _handle_ollama_tool_calls(
+    tool_calls: list[dict],
+    node: dict,
+    chat_messages: list[dict],
+    original_payload: dict,
+    client: httpx.AsyncClient,
+) -> str | None:
+    """Process tool_calls from Ollama response and loop back for final answer.
+
+    Ollama tool_calls format: [{"id": "...", "function": {"name": "...", "arguments": {...}}}]
+    """
+    # Normalize Ollama tool_calls to OpenAI format for process_model_tool_calls
+    normalized = []
+    for tc in tool_calls:
+        fn = tc.get("function", {})
+        args = fn.get("arguments", {})
+        # Ollama returns arguments as dict, process_model_tool_calls expects str or dict
+        normalized.append({
+            "id": tc.get("id", ""),
+            "function": {
+                "name": fn.get("name", ""),
+                "arguments": args if isinstance(args, str) else json.dumps(args, ensure_ascii=False),
+            },
+        })
+
+    logger.info("Ollama tool calls from %s: %s", node.get("name", "?"),
+                [tc["function"]["name"] for tc in normalized])
+
+    try:
+        from src.ia_tool_executor import process_model_tool_calls
+    except ImportError:
+        return None
+
+    caller = node.get("name", "unknown")
+    results = await process_model_tool_calls(normalized, caller=caller)
+
+    # Build follow-up with tool results for Ollama
+    follow_up_messages = list(chat_messages)
+    follow_up_messages.append({
+        "role": "assistant",
+        "content": "",
+        "tool_calls": tool_calls,  # Ollama native format
+    })
+    for r in results:
+        follow_up_messages.append({
+            "role": "tool",
+            "content": r["content"][:2000],
+        })
+
+    # Re-query WITHOUT tools
+    follow_up_payload = {
+        "model": original_payload.get("model", node.get("model", "qwen3:1.7b")),
+        "messages": follow_up_messages,
+        "stream": False,
+        "think": False,
+    }
+
+    try:
+        resp = await client.post(node["url"], json=follow_up_payload)
+        resp.raise_for_status()
+        content = (resp.json().get("message", {}).get("content") or "").strip()
+        if content:
+            return content
+    except (httpx.HTTPError, asyncio.TimeoutError, OSError) as exc:
+        logger.debug("Ollama tool follow-up failed for %s: %s", caller, exc)
+
     summary = "; ".join(r["content"][:200] for r in results)
     return f"[tools] {summary[:500]}"
 
