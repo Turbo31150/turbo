@@ -339,7 +339,13 @@ def detect_node_issues() -> list[Issue]:
     issues = []
     for name, cfg in NODES.items():
         if not check_port(cfg["ip"], cfg["port"]):
-            sev = "critical" if name == "M1" else "warning"
+            # Remote nodes (M2, M3): info only (not actionable locally)
+            if name in ("M2", "M3"):
+                sev = "info"
+            elif name == "M1":
+                sev = "critical"
+            else:
+                sev = "warning"
             fix = ""
             if name == "M1":
                 fix = "lms server start"
