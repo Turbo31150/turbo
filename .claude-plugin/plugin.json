@@ -1,0 +1,8 @@
+{
+  "name": "jarvis-automation",
+  "version": "1.0.0",
+  "description": "JARVIS automated audit, code review, and improvement tracking agents",
+  "author": {
+    "name": "Turbo"
+  }
+}
