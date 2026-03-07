@@ -3357,6 +3357,79 @@ print(f'Cluster: {online}/{len(nodes)} online')
             schedule="every:5m",
             tags=["health", "cluster", "parallel"],
         ),
+
+        # ── Autonomy Engine Tasks ──
+        TaskDef(
+            id="autonomy_cycle",
+            name="Autonomy Brain Cycle",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import subprocess, sys
+r = subprocess.run([sys.executable, 'scripts/cluster_autonomy.py', '--status'],
+    capture_output=True, text=True, timeout=120, cwd='F:/BUREAU/turbo')
+print(r.stdout[-2000:] if len(r.stdout) > 2000 else r.stdout)
+if r.returncode != 0:
+    print('STDERR:', r.stderr[-500:])
+"""},
+            priority="high",
+            schedule="every:10m",
+            tags=["autonomy", "brain", "self-improve"],
+        ),
+
+        TaskDef(
+            id="autonomy_heal",
+            name="Autonomy Self-Healer",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import subprocess, sys
+r = subprocess.run([sys.executable, 'scripts/cluster_autonomy.py', '--heal'],
+    capture_output=True, text=True, timeout=60, cwd='F:/BUREAU/turbo')
+print(r.stdout[-2000:] if len(r.stdout) > 2000 else r.stdout)
+if r.returncode != 0:
+    print('STDERR:', r.stderr[-500:])
+"""},
+            priority="high",
+            schedule="every:5m",
+            tags=["autonomy", "heal", "self-repair"],
+        ),
+
+        TaskDef(
+            id="autonomy_trends",
+            name="Autonomy Trend Analyzer",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import subprocess, sys
+r = subprocess.run([sys.executable, 'scripts/cluster_autonomy.py', '--trends'],
+    capture_output=True, text=True, timeout=60, cwd='F:/BUREAU/turbo')
+print(r.stdout[-2000:] if len(r.stdout) > 2000 else r.stdout)
+if r.returncode != 0:
+    print('STDERR:', r.stderr[-500:])
+"""},
+            priority="normal",
+            schedule="every:1h",
+            tags=["autonomy", "trends", "analytics"],
+        ),
+
+        TaskDef(
+            id="autonomy_optimize",
+            name="Autonomy Routing Optimizer",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import subprocess, sys
+r = subprocess.run([sys.executable, 'scripts/cluster_autonomy.py', '--optimize'],
+    capture_output=True, text=True, timeout=60, cwd='F:/BUREAU/turbo')
+print(r.stdout[-2000:] if len(r.stdout) > 2000 else r.stdout)
+if r.returncode != 0:
+    print('STDERR:', r.stderr[-500:])
+"""},
+            priority="normal",
+            schedule="every:30m",
+            tags=["autonomy", "routing", "optimize"],
+        ),
     ]
 
     for task in defaults:

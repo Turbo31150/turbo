@@ -202,7 +202,7 @@ class TestDefaultTasks:
     def test_create_defaults(self):
         to.create_default_tasks()
         tasks = to.load_tasks()
-        assert len(tasks) >= 34
+        assert len(tasks) >= 38
         ids = [t.id for t in tasks]
         assert "health_cluster" in ids
         assert "backup_databases" in ids
@@ -217,6 +217,12 @@ class TestDefaultTasks:
                      "ws_server_health", "cluster_failover", "error_rate_monitor",
                      "dashboard_export", "parallel_cluster_ping", "memory_guard"]:
             assert tid in ids, f"Missing task: {tid}"
+
+    def test_autonomy_tasks_exist(self):
+        to.create_default_tasks()
+        ids = [t.id for t in to.load_tasks()]
+        for tid in ["autonomy_cycle", "autonomy_heal", "autonomy_trends", "autonomy_optimize"]:
+            assert tid in ids, f"Missing autonomy task: {tid}"
 
 
 class TestEscalation:
@@ -337,7 +343,7 @@ class TestDashboardExport:
         to.create_default_tasks()
         data = to.export_dashboard_data()
         assert "task_count" in data
-        assert data["task_count"] >= 34
+        assert data["task_count"] >= 38
         assert "tasks" in data
         assert "recent_runs" in data
         assert "metrics" in data
