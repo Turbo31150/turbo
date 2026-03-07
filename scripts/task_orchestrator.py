@@ -4380,6 +4380,1137 @@ db.close()
             schedule="every:2h",
             tags=["evolution", "prediction", "resources"],
         ),
+
+        # ══════════════════════════════════════════════════════════════════
+        # AUTONOMIC NERVOUS SYSTEM — Sécurité, Résilience, Data Quality,
+        # Auto-Recovery, Maintenance Prédictive, CI/CD Interne
+        # ══════════════════════════════════════════════════════════════════
+
+        # ── 1. Security Scanner: ports ouverts, credentials exposées, permissions ──
+        TaskDef(
+            id="security_scanner",
+            name="Security Vulnerability Scanner",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import subprocess, os, json
+from pathlib import Path
+
+print('=== SECURITY SCAN ===')
+issues = []
+
+# 1. Scan for hardcoded secrets in recent git changes
+r = subprocess.run(['git', 'diff', '--name-only', 'HEAD~5'], capture_output=True, text=True,
+    cwd='F:/BUREAU/turbo', timeout=10)
+for f in r.stdout.strip().split('\\n'):
+    if not f or not Path(f'F:/BUREAU/turbo/{f}').exists():
+        continue
+    try:
+        content = Path(f'F:/BUREAU/turbo/{f}').read_text(errors='ignore')
+        for pattern in ['sk-', 'Bearer ', 'password=', 'token=', 'SECRET']:
+            if pattern in content and not f.endswith(('.md', '.example', '.bat')):
+                issues.append(f'  CRED: {pattern} found in {f}')
+    except Exception:
+        pass
+
+# 2. Check .env exists and not tracked
+env_tracked = subprocess.run(['git', 'ls-files', '.env'], capture_output=True, text=True,
+    cwd='F:/BUREAU/turbo', timeout=5).stdout.strip()
+if env_tracked:
+    issues.append('  CRITICAL: .env is tracked in git!')
+
+# 3. Open ports scan (common JARVIS ports)
+import socket
+for port in [1234, 9742, 11434, 18789, 18800, 3000, 5000]:
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(0.5)
+        result = s.connect_ex(('0.0.0.0', port))
+        if result == 0:
+            # Check if bound to 0.0.0.0 (exposed to network)
+            r2 = subprocess.run(['netstat', '-ano', '-p', 'TCP'], capture_output=True,
+                text=True, timeout=5, encoding='utf-8', errors='replace')
+            for line in r2.stdout.splitlines():
+                if f'0.0.0.0:{port}' in line and 'LISTENING' in line:
+                    issues.append(f'  EXPOSED: port {port} bound to 0.0.0.0 (network-accessible)')
+        s.close()
+    except Exception:
+        pass
+
+# 4. PID files with stale processes
+pid_dir = Path('F:/BUREAU/turbo/data/pids')
+if pid_dir.exists():
+    for pf in pid_dir.glob('*.pid'):
+        try:
+            pid = int(pf.read_text().strip())
+            r = os.popen(f'tasklist /FI "PID eq {pid}" /FO CSV /NH 2>NUL').read()
+            if f'"{pid}"' not in r:
+                issues.append(f'  STALE PID: {pf.name} (PID {pid} dead)')
+        except Exception:
+            pass
+
+if issues:
+    for i in issues:
+        print(i)
+    print(f'\\n  {len(issues)} security issues found')
+else:
+    print('  No security issues detected')
+"""},
+            priority="high",
+            schedule="every:1h",
+            tags=["autonomic", "security", "scan"],
+        ),
+
+        # ── 2. Database Vacuum & Optimization ──
+        TaskDef(
+            id="db_vacuum_optimize",
+            name="Database Vacuum & WAL Checkpoint",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import sqlite3, os
+from pathlib import Path
+
+print('=== DB VACUUM & OPTIMIZE ===')
+dbs = list(Path('F:/BUREAU/turbo/data').glob('*.db'))
+for db_path in dbs:
+    try:
+        size_before = db_path.stat().st_size / 1e6
+        conn = sqlite3.connect(str(db_path))
+        # WAL checkpoint
+        conn.execute('PRAGMA wal_checkpoint(TRUNCATE)')
+        # Analyze for query optimizer
+        conn.execute('ANALYZE')
+        # Integrity quick check
+        result = conn.execute('PRAGMA quick_check').fetchone()
+        ok = result[0] == 'ok' if result else False
+        conn.close()
+        size_after = db_path.stat().st_size / 1e6
+        saved = size_before - size_after
+        status = 'OK' if ok else 'CORRUPT'
+        print(f'  {db_path.name}: {size_after:.1f}MB [{status}]' +
+              (f' (saved {saved:.1f}MB)' if saved > 0.1 else ''))
+    except Exception as e:
+        print(f'  {db_path.name}: ERROR {e}')
+"""},
+            priority="low",
+            schedule="daily:04:15",
+            tags=["autonomic", "database", "maintenance"],
+        ),
+
+        # ── 3. GPU Thermal Trend Predictor ──
+        TaskDef(
+            id="gpu_thermal_predictor",
+            name="GPU Thermal Trend Predictor",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import subprocess, sqlite3, json
+from datetime import datetime
+from pathlib import Path
+
+print('=== GPU THERMAL PREDICTION ===')
+r = subprocess.run(['nvidia-smi', '--query-gpu=index,temperature.gpu,utilization.gpu,power.draw,memory.used,memory.total',
+    '--format=csv,noheader,nounits'], capture_output=True, text=True, timeout=10)
+if r.returncode != 0:
+    print('  nvidia-smi unavailable')
+else:
+    db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+    for line in r.stdout.strip().split('\\n'):
+        parts = [p.strip() for p in line.split(',')]
+        if len(parts) >= 6:
+            idx, temp, util, power, mem_used, mem_total = parts[:6]
+            # Record metric
+            db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
+                (f'gpu{idx}_temp', float(temp), datetime.now().isoformat()))
+            db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
+                (f'gpu{idx}_util', float(util), datetime.now().isoformat()))
+            db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
+                (f'gpu{idx}_power', float(power), datetime.now().isoformat()))
+            vram_pct = float(mem_used) / float(mem_total) * 100
+            print(f'  GPU{idx}: {temp}C  util={util}%  power={power}W  VRAM={vram_pct:.0f}%')
+            if float(temp) > 80:
+                print(f'  WARNING: GPU{idx} HOT ({temp}C) — throttling imminent!')
+            if vram_pct > 90:
+                print(f'  WARNING: GPU{idx} VRAM {vram_pct:.0f}% — OOM risk!')
+
+    # Trend analysis from last 2h of data
+    rows = db.execute('''
+        SELECT metric_value FROM task_metrics
+        WHERE metric_name LIKE 'gpu%_temp' AND recorded_at > datetime('now', '-2 hours')
+        ORDER BY recorded_at
+    ''').fetchall()
+    if len(rows) > 5:
+        temps = [r[0] for r in rows]
+        first_half = sum(temps[:len(temps)//2]) / (len(temps)//2)
+        second_half = sum(temps[len(temps)//2:]) / (len(temps) - len(temps)//2)
+        delta = second_half - first_half
+        if delta > 3:
+            print(f'  TREND: GPU temp rising +{delta:.1f}C/h — potential thermal issue')
+        elif delta < -3:
+            print(f'  TREND: GPU temp dropping {delta:.1f}C/h — cooling OK')
+        else:
+            print(f'  TREND: GPU temp stable (delta={delta:+.1f}C)')
+    db.commit()
+    db.close()
+"""},
+            priority="normal",
+            schedule="every:10m",
+            tags=["autonomic", "gpu", "thermal", "prediction"],
+        ),
+
+        # ── 4. Auto-Recovery Engine: détecte + relance les services tombés ──
+        TaskDef(
+            id="auto_recovery",
+            name="Auto-Recovery Engine",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import subprocess, sys, os, time
+from pathlib import Path
+
+print('=== AUTO-RECOVERY ENGINE ===')
+recovered = []
+
+# Services to monitor: (name, check_type, check_target, restart_cmd)
+services = [
+    ('LM Studio M1', 'port', 1234, None),  # Manual restart
+    ('Ollama OL1', 'port', 11434, ['ollama', 'serve']),
+    ('JARVIS WS', 'port', 9742, [sys.executable, 'scripts/start_ws.py']),
+    ('OpenClaw', 'port', 18789, None),
+]
+
+import socket
+for name, check_type, target, restart_cmd in services:
+    alive = False
+    if check_type == 'port':
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(2)
+            alive = s.connect_ex(('127.0.0.1', target)) == 0
+            s.close()
+        except Exception:
+            pass
+
+    if alive:
+        print(f'  {name}: OK (port {target})')
+    else:
+        print(f'  {name}: DOWN!')
+        if restart_cmd:
+            try:
+                flags = 0x00000008 | 0x00000200  # DETACHED + NEW_PROCESS_GROUP
+                subprocess.Popen(restart_cmd, cwd='F:/BUREAU/turbo',
+                    creationflags=flags, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                recovered.append(name)
+                print(f'  {name}: RESTARTED')
+            except Exception as e:
+                print(f'  {name}: restart failed: {e}')
+        else:
+            print(f'  {name}: needs manual restart')
+
+if recovered:
+    print(f'\\n  Auto-recovered: {recovered}')
+else:
+    print('  All services stable')
+"""},
+            priority="critical",
+            schedule="every:3m",
+            tags=["autonomic", "recovery", "watchdog"],
+        ),
+
+        # ── 5. Dead Code & Import Detector ──
+        TaskDef(
+            id="dead_code_detector",
+            name="Dead Code & Unused Import Detector",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import subprocess, json
+from pathlib import Path
+
+print('=== DEAD CODE SCAN ===')
+src_dir = Path('F:/BUREAU/turbo/src')
+findings = []
+
+# Check for unused imports with a quick heuristic
+for py_file in sorted(src_dir.glob('*.py'))[:30]:
+    try:
+        lines = py_file.read_text(errors='ignore').splitlines()
+        imports = []
+        for line in lines:
+            stripped = line.strip()
+            if stripped.startswith('import ') and ' as ' not in stripped:
+                mod = stripped.split()[1].split('.')[0]
+                imports.append(mod)
+            elif stripped.startswith('from ') and ' import ' in stripped:
+                parts = stripped.split(' import ')[1].split(',')
+                for p in parts:
+                    name = p.strip().split(' as ')[0].strip()
+                    if name and name != '*':
+                        imports.append(name)
+
+        content = '\\n'.join(lines)
+        unused = [imp for imp in imports if content.count(imp) == 1 and imp not in
+                  ('__future__', 'annotations', 'typing', 'os', 'sys', 'json', 'logging')]
+        if unused:
+            findings.append((py_file.name, unused[:5]))
+    except Exception:
+        pass
+
+for fname, unused in findings[:10]:
+    print(f'  {fname}: possibly unused: {unused}')
+
+# Empty files
+for py_file in src_dir.glob('*.py'):
+    if py_file.stat().st_size < 50 and py_file.name != '__init__.py':
+        print(f'  EMPTY: {py_file.name} ({py_file.stat().st_size}B)')
+
+print(f'  Scanned {len(list(src_dir.glob("*.py")))} files, {len(findings)} with potential dead imports')
+"""},
+            priority="low",
+            schedule="daily:05:45",
+            tags=["autonomic", "code-quality", "cleanup"],
+        ),
+
+        # ── 6. Config Drift Detector: vérifie cohérence entre configs ──
+        TaskDef(
+            id="config_drift_detector",
+            name="Config Drift Detector",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import json, os
+from pathlib import Path
+
+print('=== CONFIG DRIFT DETECTION ===')
+base = Path('F:/BUREAU/turbo')
+drifts = []
+
+# 1. Check .env.example vs .env consistency
+env_example = base / '.env.example'
+env_file = base / '.env'
+if env_example.exists() and env_file.exists():
+    example_keys = set()
+    for line in env_example.read_text().splitlines():
+        if '=' in line and not line.strip().startswith('#'):
+            example_keys.add(line.split('=')[0].strip())
+    actual_keys = set()
+    for line in env_file.read_text().splitlines():
+        if '=' in line and not line.strip().startswith('#'):
+            actual_keys.add(line.split('=')[0].strip())
+    missing = example_keys - actual_keys
+    extra = actual_keys - example_keys
+    if missing:
+        drifts.append(f'  .env missing keys from .env.example: {missing}')
+    if extra:
+        print(f'  .env has extra keys (not in example): {len(extra)}')
+
+# 2. Check pyproject.toml exists and has key sections
+pyproject = base / 'pyproject.toml'
+if pyproject.exists():
+    content = pyproject.read_text()
+    for section in ['[tool.pytest', '[project]']:
+        if section not in content:
+            drifts.append(f'  pyproject.toml missing section: {section}')
+
+# 3. Check package.json consistency (electron)
+for pkg in base.glob('**/package.json'):
+    if 'node_modules' in str(pkg):
+        continue
+    try:
+        d = json.loads(pkg.read_text())
+        if 'version' not in d:
+            drifts.append(f'  {pkg.relative_to(base)}: missing version')
+    except Exception:
+        drifts.append(f'  {pkg.relative_to(base)}: invalid JSON')
+
+# 4. Check PID dir has no orphans
+pid_dir = base / 'data' / 'pids'
+if pid_dir.exists():
+    for pf in pid_dir.glob('*.pid'):
+        try:
+            pid = int(pf.read_text().strip())
+            r = os.popen(f'tasklist /FI "PID eq {pid}" /FO CSV /NH 2>NUL').read()
+            if f'"{pid}"' not in r:
+                drifts.append(f'  Orphan PID: {pf.name} (PID {pid} dead)')
+        except Exception:
+            pass
+
+if drifts:
+    for d in drifts:
+        print(d)
+else:
+    print('  No configuration drift detected')
+"""},
+            priority="normal",
+            schedule="every:2h",
+            tags=["autonomic", "config", "drift", "validation"],
+        ),
+
+        # ── 7. API Latency Tracker: mesure les temps de réponse de chaque nœud ──
+        TaskDef(
+            id="api_latency_tracker",
+            name="API Latency Tracker",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import time, sqlite3, json
+from datetime import datetime
+from urllib.request import urlopen, Request
+from urllib.error import URLError
+
+print('=== API LATENCY TRACKING ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+
+endpoints = [
+    ('M1', 'http://127.0.0.1:1234/api/v1/models'),
+    ('OL1', 'http://127.0.0.1:11434/api/tags'),
+    ('WS', 'http://127.0.0.1:9742/health'),
+    ('Proxy', 'http://127.0.0.1:18800/health'),
+    ('OpenClaw', 'http://127.0.0.1:18789/health'),
+]
+
+for name, url in endpoints:
+    try:
+        start = time.perf_counter()
+        req = Request(url, headers={'User-Agent': 'JARVIS-Latency-Probe'})
+        resp = urlopen(req, timeout=5)
+        latency_ms = (time.perf_counter() - start) * 1000
+        status = resp.status
+        db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
+            (f'latency_{name.lower()}', latency_ms, datetime.now().isoformat()))
+        emoji = 'SLOW' if latency_ms > 2000 else 'OK'
+        print(f'  {name:10s}: {latency_ms:7.0f}ms  HTTP {status}  [{emoji}]')
+    except Exception as e:
+        db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
+            (f'latency_{name.lower()}', -1, datetime.now().isoformat()))
+        print(f'  {name:10s}: DOWN  ({type(e).__name__})')
+
+# Trend: compare last 10 readings
+for name, _ in endpoints:
+    rows = db.execute('''
+        SELECT metric_value FROM task_metrics
+        WHERE metric_name=? AND metric_value > 0
+        ORDER BY id DESC LIMIT 10
+    ''', (f'latency_{name.lower()}',)).fetchall()
+    if len(rows) >= 5:
+        recent = sum(r[0] for r in rows[:5]) / 5
+        older = sum(r[0] for r in rows[5:]) / max(1, len(rows) - 5)
+        if older > 0:
+            change = ((recent - older) / older) * 100
+            if abs(change) > 30:
+                print(f'  TREND {name}: latency {"+" if change > 0 else ""}{change:.0f}%')
+
+db.commit()
+db.close()
+"""},
+            priority="normal",
+            schedule="every:5m",
+            tags=["autonomic", "latency", "monitoring", "api"],
+        ),
+
+        # ── 8. Self-Documentation: génère un état du système lisible ──
+        TaskDef(
+            id="self_documenter",
+            name="System State Auto-Documenter",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import sqlite3, json, os, subprocess, shutil
+from datetime import datetime
+from pathlib import Path
+
+print('=== SELF-DOCUMENTATION ===')
+doc = {'timestamp': datetime.now().isoformat(), 'system': {}}
+
+# 1. Task stats
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+doc['system']['total_tasks'] = db.execute('SELECT COUNT(*) FROM tasks WHERE enabled=1').fetchone()[0]
+doc['system']['total_runs'] = db.execute('SELECT COUNT(*) FROM task_runs').fetchone()[0]
+doc['system']['failed_24h'] = db.execute(
+    "SELECT COUNT(*) FROM task_runs WHERE status='failed' AND started_at > datetime('now', '-1 day')"
+).fetchone()[0]
+doc['system']['completed_24h'] = db.execute(
+    "SELECT COUNT(*) FROM task_runs WHERE status='completed' AND started_at > datetime('now', '-1 day')"
+).fetchone()[0]
+
+# 2. Disk
+for drive in ['C:', 'F:']:
+    u = shutil.disk_usage(drive + '/')
+    doc['system'][f'disk_{drive[0]}_free_gb'] = round(u.free / 1e9, 1)
+
+# 3. Services
+import socket
+services = {'M1': 1234, 'OL1': 11434, 'WS': 9742, 'OpenClaw': 18789, 'Proxy': 18800}
+doc['system']['services'] = {}
+for name, port in services.items():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(1)
+        doc['system']['services'][name] = s.connect_ex(('127.0.0.1', port)) == 0
+        s.close()
+    except Exception:
+        doc['system']['services'][name] = False
+
+# 4. Git status
+r = subprocess.run(['git', 'log', '--oneline', '-1'], capture_output=True, text=True,
+    cwd='F:/BUREAU/turbo', timeout=5)
+doc['system']['git_head'] = r.stdout.strip()
+
+# 5. Python module count
+doc['system']['src_modules'] = len(list(Path('F:/BUREAU/turbo/src').glob('*.py')))
+doc['system']['test_files'] = len(list(Path('F:/BUREAU/turbo/tests').glob('test_*.py')))
+
+# Write snapshot
+out = Path('F:/BUREAU/turbo/data/system_snapshot.json')
+out.write_text(json.dumps(doc, indent=2, ensure_ascii=False))
+db.close()
+
+print(f'  Tasks: {doc[\"system\"][\"total_tasks\"]} active, {doc[\"system\"][\"completed_24h\"]} completed/24h, {doc[\"system\"][\"failed_24h\"]} failed/24h')
+print(f'  Disk: C={doc[\"system\"][\"disk_C_free_gb\"]}GB F={doc[\"system\"][\"disk_F_free_gb\"]}GB')
+online = [k for k,v in doc['system']['services'].items() if v]
+print(f'  Services online: {online}')
+print(f'  Snapshot saved: {out}')
+"""},
+            priority="low",
+            schedule="every:30m",
+            tags=["autonomic", "documentation", "snapshot"],
+        ),
+
+        # ── 9. Failover Drill: teste que le failover M1→OL1→M3 fonctionne ──
+        TaskDef(
+            id="failover_drill",
+            name="Failover Path Drill",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import time, json
+from urllib.request import urlopen, Request
+from urllib.error import URLError
+
+print('=== FAILOVER DRILL ===')
+# Test each node can answer a simple prompt
+nodes = [
+    ('M1', 'http://127.0.0.1:1234/api/v1/chat',
+     {'model':'qwen3-8b','input':'/nothink\\nReply OK','temperature':0.1,'max_output_tokens':10,'stream':False,'store':False}),
+    ('OL1', 'http://127.0.0.1:11434/api/chat',
+     {'model':'qwen3:1.7b','messages':[{'role':'user','content':'/nothink\\nReply OK'}],'stream':False}),
+    ('M3', 'http://192.168.1.113:1234/api/v1/chat',
+     {'model':'deepseek-r1-0528-qwen3-8b','input':'Reply OK','temperature':0.1,'max_output_tokens':10,'stream':False,'store':False}),
+]
+
+chain_ok = True
+results = []
+for name, url, payload in nodes:
+    try:
+        start = time.perf_counter()
+        data = json.dumps(payload).encode()
+        req = Request(url, data=data, headers={'Content-Type': 'application/json'})
+        resp = urlopen(req, timeout=15)
+        latency = (time.perf_counter() - start) * 1000
+        body = json.loads(resp.read())
+        results.append((name, True, latency))
+        print(f'  {name}: OK ({latency:.0f}ms)')
+    except Exception as e:
+        results.append((name, False, 0))
+        print(f'  {name}: FAIL ({type(e).__name__})')
+
+# Chain validation
+available = [r[0] for r in results if r[1]]
+if len(available) >= 2:
+    print(f'  Failover chain: {" -> ".join(available)} — HEALTHY')
+elif len(available) == 1:
+    print(f'  WARNING: Only {available[0]} available — single point of failure!')
+else:
+    print(f'  CRITICAL: No nodes available — cluster DOWN!')
+"""},
+            priority="normal",
+            schedule="every:15m",
+            tags=["autonomic", "failover", "resilience", "drill"],
+        ),
+
+        # ── 10. Orphan Data Cleaner: nettoie les runs/metrics orphelines ──
+        TaskDef(
+            id="orphan_data_cleaner",
+            name="Orphan Data & Temp File Cleaner",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import sqlite3, os, time
+from pathlib import Path
+from datetime import datetime, timedelta
+
+print('=== ORPHAN DATA CLEANUP ===')
+cleaned = 0
+
+# 1. Clean old task_runs (>7 days, keep last 100 per task)
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+old_runs = db.execute('''
+    DELETE FROM task_runs WHERE id NOT IN (
+        SELECT id FROM (
+            SELECT id, ROW_NUMBER() OVER (PARTITION BY task_id ORDER BY started_at DESC) as rn
+            FROM task_runs
+        ) WHERE rn <= 100
+    ) AND started_at < datetime('now', '-7 days')
+''')
+cleaned += old_runs.rowcount
+if old_runs.rowcount > 0:
+    print(f'  Purged {old_runs.rowcount} old task_runs (>7 days, kept last 100/task)')
+
+# 2. Clean old metrics (>3 days)
+old_metrics = db.execute(
+    "DELETE FROM task_metrics WHERE recorded_at < datetime('now', '-3 days')")
+cleaned += old_metrics.rowcount
+if old_metrics.rowcount > 0:
+    print(f'  Purged {old_metrics.rowcount} old metrics (>3 days)')
+
+db.commit()
+
+# 3. Temp files older than 24h
+temp_dirs = [Path('F:/BUREAU/turbo/data/tmp'), Path(os.environ.get('TEMP', '/tmp'))]
+for td in temp_dirs:
+    if not td.exists():
+        continue
+    cutoff = time.time() - 86400
+    for f in td.glob('jarvis_*'):
+        try:
+            if f.stat().st_mtime < cutoff:
+                f.unlink()
+                cleaned += 1
+        except Exception:
+            pass
+
+# 4. Empty log files
+log_dir = Path('F:/BUREAU/turbo/data/logs')
+if log_dir.exists():
+    for f in log_dir.glob('*.log'):
+        try:
+            if f.stat().st_size == 0 and (time.time() - f.stat().st_mtime) > 86400:
+                f.unlink()
+                cleaned += 1
+        except Exception:
+            pass
+
+db.close()
+print(f'  Total cleaned: {cleaned} items')
+"""},
+            priority="low",
+            schedule="daily:04:45",
+            tags=["autonomic", "cleanup", "data-quality"],
+        ),
+
+        # ── 11. Canary Task: tâche simple qui DOIT toujours réussir ──
+        TaskDef(
+            id="canary_heartbeat",
+            name="Canary Heartbeat (must always pass)",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import time, sqlite3, os
+from datetime import datetime
+
+start = time.perf_counter()
+
+# Basic sanity: can we write/read DB?
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
+    ('canary_heartbeat', 1.0, datetime.now().isoformat()))
+db.commit()
+val = db.execute("SELECT metric_value FROM task_metrics WHERE metric_name='canary_heartbeat' ORDER BY id DESC LIMIT 1").fetchone()
+assert val and val[0] == 1.0, 'DB read/write failed!'
+db.close()
+
+# Can we access filesystem?
+assert os.path.exists('F:/BUREAU/turbo/scripts/task_orchestrator.py'), 'Filesystem access failed!'
+
+elapsed = (time.perf_counter() - start) * 1000
+print(f'Canary OK: DB read/write + FS check in {elapsed:.0f}ms')
+"""},
+            priority="critical",
+            schedule="every:2m",
+            tags=["autonomic", "canary", "heartbeat"],
+        ),
+
+        # ── 12. Cluster Utilization Monitor: % d'occupation de chaque nœud ──
+        TaskDef(
+            id="cluster_utilization",
+            name="Cluster Utilization Monitor",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import sqlite3, json
+from datetime import datetime, timedelta
+
+print('=== CLUSTER UTILIZATION ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+
+# Count task runs per node (by analyzing which tasks route where)
+node_tasks = {'M1': 0, 'OL1': 0, 'M3': 0, 'GEMINI': 0}
+cutoff = (datetime.now() - timedelta(hours=1)).isoformat()
+runs = db.execute("SELECT task_id, status FROM task_runs WHERE started_at > ?", (cutoff,)).fetchall()
+
+# Heuristic: map task types to likely nodes
+task_types = dict(db.execute("SELECT id, task_type FROM tasks").fetchall())
+for task_id, status in runs:
+    tt = task_types.get(task_id, 'quick')
+    if tt in ('code', 'bugfix', 'review'):
+        node_tasks['M1'] += 1
+    elif tt in ('reasoning',):
+        node_tasks['M1'] += 1
+    elif tt in ('quick', 'health'):
+        node_tasks['OL1'] += 1
+    else:
+        node_tasks['M1'] += 1
+
+total = sum(node_tasks.values()) or 1
+for node, count in node_tasks.items():
+    pct = count / total * 100
+    bar = '#' * int(pct / 5) + '.' * (20 - int(pct / 5))
+    print(f'  {node:8s}: [{bar}] {pct:5.1f}% ({count} tasks/h)')
+    db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
+        (f'util_{node.lower()}', pct, datetime.now().isoformat()))
+
+# Idle node detection
+idle = [n for n, c in node_tasks.items() if c == 0]
+if idle:
+    print(f'  IDLE NODES: {idle} — consider redistributing workload')
+
+print(f'  Total: {sum(node_tasks.values())} task runs in last hour')
+db.commit()
+db.close()
+"""},
+            priority="normal",
+            schedule="every:15m",
+            tags=["autonomic", "utilization", "cluster", "balance"],
+        ),
+
+        # ── 13. Auto-Changelog: génère un diff lisible des changements récents ──
+        TaskDef(
+            id="auto_changelog",
+            name="Auto-Changelog Generator",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import subprocess, json
+from datetime import datetime
+from pathlib import Path
+
+print('=== AUTO-CHANGELOG ===')
+# Get commits from last 24h
+r = subprocess.run(['git', 'log', '--oneline', '--since=24 hours ago', '--no-merges'],
+    capture_output=True, text=True, cwd='F:/BUREAU/turbo', timeout=10)
+commits = r.stdout.strip().split('\\n') if r.stdout.strip() else []
+print(f'  Commits (24h): {len(commits)}')
+for c in commits[:10]:
+    print(f'    {c}')
+
+# File change stats
+r2 = subprocess.run(['git', 'diff', '--stat', 'HEAD~5'], capture_output=True, text=True,
+    cwd='F:/BUREAU/turbo', timeout=10)
+if r2.stdout:
+    lines = r2.stdout.strip().split('\\n')
+    if lines:
+        print(f'  {lines[-1].strip()}')
+
+# Save changelog entry
+changelog = Path('F:/BUREAU/turbo/data/changelog_auto.jsonl')
+entry = {
+    'date': datetime.now().isoformat(),
+    'commits_24h': len(commits),
+    'recent': commits[:5]
+}
+with open(changelog, 'a') as f:
+    f.write(json.dumps(entry) + '\\n')
+print(f'  Changelog appended: {changelog}')
+"""},
+            priority="low",
+            schedule="every:6h",
+            tags=["autonomic", "documentation", "changelog"],
+        ),
+
+        # ── 14. Circuit Breaker Monitor: détecte les tâches en boucle d'échec ──
+        TaskDef(
+            id="circuit_breaker",
+            name="Circuit Breaker (Fail Loop Detector)",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import sqlite3
+from datetime import datetime, timedelta
+
+print('=== CIRCUIT BREAKER ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+cutoff = (datetime.now() - timedelta(hours=1)).isoformat()
+
+# Find tasks with >5 consecutive failures in last hour
+tripped = []
+tasks = db.execute('SELECT DISTINCT task_id FROM task_runs WHERE started_at > ?', (cutoff,)).fetchall()
+for (task_id,) in tasks:
+    recent = db.execute('''
+        SELECT status FROM task_runs WHERE task_id=? ORDER BY started_at DESC LIMIT 10
+    ''', (task_id,)).fetchall()
+    consecutive_fails = 0
+    for (status,) in recent:
+        if status == 'failed':
+            consecutive_fails += 1
+        else:
+            break
+    if consecutive_fails >= 5:
+        tripped.append((task_id, consecutive_fails))
+        print(f'  TRIPPED: {task_id} — {consecutive_fails} consecutive failures')
+        # Auto-disable the task to prevent resource waste
+        db.execute('UPDATE tasks SET enabled=0 WHERE id=?', (task_id,))
+        print(f'  AUTO-DISABLED: {task_id} (re-enable manually after fix)')
+
+if not tripped:
+    print('  All circuit breakers OK — no fail loops detected')
+else:
+    print(f'  {len(tripped)} tasks tripped and disabled')
+
+db.commit()
+db.close()
+"""},
+            priority="critical",
+            schedule="every:10m",
+            tags=["autonomic", "circuit-breaker", "protection"],
+        ),
+
+        # ── 15. Test Runner Continuous: exécute la suite de tests en background ──
+        TaskDef(
+            id="continuous_test_runner",
+            name="Continuous Test Runner",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import subprocess, sys, sqlite3, json
+from datetime import datetime
+
+print('=== CONTINUOUS TEST RUNNER ===')
+r = subprocess.run([sys.executable, '-m', 'pytest', 'tests/', '-q', '--tb=line', '-x',
+    '--timeout=30'], capture_output=True, text=True, timeout=120, cwd='F:/BUREAU/turbo')
+
+# Parse results
+output = r.stdout + r.stderr
+lines = output.strip().split('\\n')
+summary = lines[-1] if lines else 'no output'
+print(f'  Result: {summary}')
+print(f'  Return code: {r.returncode}')
+
+# Record metric
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+passed = 0
+failed = 0
+for line in lines:
+    if 'passed' in line:
+        try:
+            passed = int(line.split()[0])
+        except Exception:
+            pass
+    if 'failed' in line:
+        try:
+            failed = int([p for p in line.split() if p.isdigit()][0])
+        except Exception:
+            pass
+
+db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
+    ('tests_passed', passed, datetime.now().isoformat()))
+db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
+    ('tests_failed', failed, datetime.now().isoformat()))
+db.commit()
+db.close()
+
+if r.returncode != 0:
+    # Show first failure
+    for line in lines:
+        if 'FAILED' in line or 'ERROR' in line:
+            print(f'  FAILURE: {line.strip()}')
+            break
+"""},
+            priority="normal",
+            schedule="every:2h",
+            tags=["autonomic", "testing", "ci", "continuous"],
+        ),
+
+        # ── 16. Disk Fill Rate Predictor ──
+        TaskDef(
+            id="disk_fill_predictor",
+            name="Disk Fill Rate Predictor",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import sqlite3, shutil
+from datetime import datetime
+
+print('=== DISK FILL RATE PREDICTION ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+
+for drive in ['C:', 'F:']:
+    usage = shutil.disk_usage(drive + '/')
+    free_gb = usage.free / 1e9
+    db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
+        (f'disk_{drive[0]}_free_gb', free_gb, datetime.now().isoformat()))
+
+    # Get historical data for prediction
+    rows = db.execute('''
+        SELECT metric_value, recorded_at FROM task_metrics
+        WHERE metric_name=? ORDER BY id DESC LIMIT 48
+    ''', (f'disk_{drive[0]}_free_gb',)).fetchall()
+
+    if len(rows) >= 10:
+        recent = rows[0][0]
+        oldest = rows[-1][0]
+        delta_gb = oldest - recent  # positive = shrinking
+        hours = len(rows) * 0.5  # rough estimate (30min intervals)
+        if delta_gb > 0 and hours > 0:
+            rate_gb_day = (delta_gb / hours) * 24
+            days_left = recent / rate_gb_day if rate_gb_day > 0 else 999
+            print(f'  {drive} {free_gb:.1f}GB free — filling at {rate_gb_day:.2f}GB/day — {days_left:.0f} days until full')
+            if days_left < 7:
+                print(f'  ALERT: {drive} will be full in {days_left:.0f} days!')
+        else:
+            print(f'  {drive} {free_gb:.1f}GB free — stable or growing')
+    else:
+        print(f'  {drive} {free_gb:.1f}GB free — not enough data for prediction')
+
+db.commit()
+db.close()
+"""},
+            priority="normal",
+            schedule="every:30m",
+            tags=["autonomic", "disk", "prediction", "capacity"],
+        ),
+
+        # ── 17. Model Response Quality Monitor ──
+        TaskDef(
+            id="model_quality_monitor",
+            name="Model Response Quality Monitor",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import json, time
+from urllib.request import urlopen, Request
+from urllib.error import URLError
+
+print('=== MODEL QUALITY MONITOR ===')
+# Test each model with a known-answer question
+test_prompt = 'What is 7 * 8? Reply with just the number.'
+expected = '56'
+
+nodes = [
+    ('M1', 'http://127.0.0.1:1234/api/v1/chat',
+     {'model':'qwen3-8b','input':f'/nothink\\n{test_prompt}','temperature':0,'max_output_tokens':20,'stream':False,'store':False},
+     'lmstudio'),
+    ('OL1', 'http://127.0.0.1:11434/api/chat',
+     {'model':'qwen3:1.7b','messages':[{'role':'user','content':f'/nothink\\n{test_prompt}'}],'stream':False},
+     'ollama'),
+]
+
+for name, url, payload, api_type in nodes:
+    try:
+        start = time.perf_counter()
+        data = json.dumps(payload).encode()
+        req = Request(url, data=data, headers={'Content-Type': 'application/json'})
+        resp = urlopen(req, timeout=15)
+        body = json.loads(resp.read())
+        latency = (time.perf_counter() - start) * 1000
+
+        # Extract response
+        if api_type == 'lmstudio':
+            content = ''
+            for b in body.get('output', []):
+                if b.get('type') == 'message':
+                    c = b.get('content', '')
+                    content = c if isinstance(c, str) else c[0].get('text', '') if isinstance(c, list) else ''
+        else:
+            content = body.get('message', {}).get('content', '')
+
+        correct = expected in content
+        status = 'CORRECT' if correct else 'WRONG'
+        print(f'  {name}: {status} (got: {content.strip()[:50]}) {latency:.0f}ms')
+    except Exception as e:
+        print(f'  {name}: ERROR ({type(e).__name__})')
+"""},
+            priority="normal",
+            schedule="every:30m",
+            tags=["autonomic", "quality", "model", "validation"],
+        ),
+
+        # ── 18. Process Tree Monitor: détecte les zombies et leaks ──
+        TaskDef(
+            id="process_tree_monitor",
+            name="Process Tree & Zombie Detector",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import subprocess, os
+
+print('=== PROCESS TREE MONITOR ===')
+# Find all python/node processes related to JARVIS
+r = subprocess.run(['tasklist', '/V', '/FO', 'CSV'], capture_output=True, text=True,
+    timeout=10, encoding='utf-8', errors='replace')
+
+jarvis_procs = []
+total_mem = 0
+for line in r.stdout.splitlines()[1:]:
+    parts = line.split('","')
+    if len(parts) < 5:
+        continue
+    name = parts[0].strip('"')
+    try:
+        pid = int(parts[1].strip('"'))
+    except Exception:
+        continue
+    mem_str = parts[4].strip('"').replace(',', '').replace(' K', '').replace('\\xa0', '')
+    try:
+        mem_kb = int(mem_str)
+    except Exception:
+        mem_kb = 0
+
+    # Filter JARVIS-related
+    if name.lower() in ('python.exe', 'python3.exe', 'node.exe', 'ollama.exe', 'ollama_llama_server.exe'):
+        jarvis_procs.append((name, pid, mem_kb))
+        total_mem += mem_kb
+
+# Group by name
+from collections import Counter
+counts = Counter(p[0] for p in jarvis_procs)
+for name, count in counts.most_common():
+    mem = sum(p[2] for p in jarvis_procs if p[0] == name) / 1024
+    print(f'  {name:30s}: {count:3d} instances, {mem:8.1f}MB')
+
+print(f'  Total: {len(jarvis_procs)} processes, {total_mem/1024:.0f}MB')
+
+# Zombie detection: python processes with very high count
+if counts.get('python.exe', 0) > 20:
+    print(f'  WARNING: {counts[\"python.exe\"]} python.exe — possible zombie leak!')
+if counts.get('node.exe', 0) > 10:
+    print(f'  WARNING: {counts[\"node.exe\"]} node.exe — possible zombie leak!')
+"""},
+            priority="normal",
+            schedule="every:10m",
+            tags=["autonomic", "processes", "zombie", "memory"],
+        ),
+
+        # ── 19. Dependency Freshness Check ──
+        TaskDef(
+            id="dependency_freshness",
+            name="Dependency Freshness & Vuln Check",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import subprocess, sys, json
+from pathlib import Path
+
+print('=== DEPENDENCY FRESHNESS ===')
+# 1. Check pip outdated
+r = subprocess.run([sys.executable, '-m', 'pip', 'list', '--outdated', '--format=json'],
+    capture_output=True, text=True, timeout=30)
+try:
+    outdated = json.loads(r.stdout)
+    if outdated:
+        print(f'  {len(outdated)} packages outdated:')
+        for pkg in outdated[:10]:
+            print(f'    {pkg[\"name\"]}: {pkg[\"version\"]} -> {pkg[\"latest_version\"]}')
+    else:
+        print('  All pip packages up to date')
+except Exception:
+    print('  Could not check pip packages')
+
+# 2. Check npm outdated (if applicable)
+pkg_json = Path('F:/BUREAU/turbo/electron/package.json')
+if pkg_json.exists():
+    r2 = subprocess.run(['npm', 'outdated', '--json'], capture_output=True, text=True,
+        timeout=30, cwd=str(pkg_json.parent))
+    try:
+        npm_out = json.loads(r2.stdout) if r2.stdout else {}
+        if npm_out:
+            print(f'  {len(npm_out)} npm packages outdated')
+            for name, info in list(npm_out.items())[:5]:
+                print(f'    {name}: {info.get(\"current\",\"?\")} -> {info.get(\"latest\",\"?\")}')
+        else:
+            print('  npm packages up to date')
+    except Exception:
+        print('  Could not check npm packages')
+"""},
+            priority="low",
+            schedule="daily:06:00",
+            tags=["autonomic", "dependencies", "security", "freshness"],
+        ),
+
+        # ── 20. Cluster Work Generator: invente du travail utile pour nœuds idle ──
+        TaskDef(
+            id="cluster_work_generator",
+            name="Cluster Idle Work Generator",
+            task_type="audit",
+            action="python",
+            payload={"code": """
+import json, time, sqlite3, random
+from urllib.request import urlopen, Request
+from urllib.error import URLError
+from datetime import datetime
+
+print('=== CLUSTER WORK GENERATOR ===')
+db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+
+# Check which nodes are idle (no tasks in last 5 min)
+idle_nodes = []
+import socket
+for name, port in [('M1', 1234), ('OL1', 11434), ('M3', 1113)]:
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(2)
+        host = '192.168.1.113' if name == 'M3' else '127.0.0.1'
+        p = 1234 if name == 'M3' else port
+        if s.connect_ex((host, p)) == 0:
+            idle_nodes.append(name)
+        s.close()
+    except Exception:
+        pass
+
+if not idle_nodes:
+    print('  No nodes available for extra work')
+else:
+    print(f'  Available nodes: {idle_nodes}')
+
+    # Useful work ideas for idle nodes
+    work_items = [
+        'Summarize the last 10 error messages from task_runs',
+        'List the 5 slowest tasks and suggest optimizations',
+        'Generate a health report for the last 24 hours',
+        'Analyze task scheduling efficiency',
+        'Review recent code changes for potential issues',
+    ]
+
+    # Pick random useful work and dispatch to M1 if available
+    if 'M1' in idle_nodes:
+        work = random.choice(work_items)
+        try:
+            payload = json.dumps({
+                'model': 'qwen3-8b',
+                'input': f'/nothink\\n{work}. Be brief, 3 sentences max.',
+                'temperature': 0.3, 'max_output_tokens': 200,
+                'stream': False, 'store': False
+            }).encode()
+            req = Request('http://127.0.0.1:1234/api/v1/chat', data=payload,
+                headers={'Content-Type': 'application/json'})
+            resp = urlopen(req, timeout=15)
+            body = json.loads(resp.read())
+            for b in body.get('output', []):
+                if b.get('type') == 'message':
+                    content = b.get('content', '')
+                    if isinstance(content, str):
+                        print(f'  M1 work: {work}')
+                        print(f'  M1 says: {content.strip()[:200]}')
+                    break
+        except Exception as e:
+            print(f'  M1 dispatch failed: {e}')
+
+db.close()
+"""},
+            priority="low",
+            schedule="every:20m",
+            tags=["autonomic", "utilization", "idle", "work-generation"],
+        ),
     ]
 
     for task in defaults:
