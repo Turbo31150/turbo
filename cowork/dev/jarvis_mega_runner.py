@@ -30,6 +30,7 @@ import sqlite3
 import subprocess
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
 
@@ -265,12 +266,13 @@ def main():
         print(f"\nTotal: {len(scripts)} scripts")
         return
 
-    # --once: run all
+    # --once: run all (parallel by priority group, max 3 concurrent)
+    MAX_WORKERS = 3
     run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
     conn = get_db()
 
     print(f"[{run_id}] JARVIS Mega Runner — {len(scripts)} scripts to execute")
-    print(f"         Timeout per script: {SCRIPT_TIMEOUT}s")
+    print(f"         Timeout per script: {SCRIPT_TIMEOUT}s | Workers: {MAX_WORKERS}")
     print()
 
     ok_count = 0
@@ -279,40 +281,60 @@ def main():
     total_ms = 0
     results_summary = []
 
-    for i, script in enumerate(scripts, 1):
-        ts = datetime.now().strftime("%H:%M:%S")
+    # Group scripts by priority for parallel execution within each group
+    from itertools import groupby
+    priority_groups = []
+    for prio, group in groupby(scripts, key=lambda s: s["priority"]):
+        priority_groups.append((prio, list(group)))
+
+    script_idx = 0
+    for prio, group_scripts in priority_groups:
         if args.verbose:
-            print(f"  [{ts}] ({i}/{len(scripts)}) {script['name']} "
-                  f"[{script['category']}] ...", end=" ", flush=True)
+            print(f"  --- Priority {prio} ({len(group_scripts)} scripts) ---")
 
-        result = run_script(script, verbose=args.verbose)
-        log_result(conn, run_id, script, result)
+        with ThreadPoolExecutor(max_workers=min(MAX_WORKERS, len(group_scripts))) as pool:
+            future_map = {}
+            for script in group_scripts:
+                script_idx += 1
+                future = pool.submit(run_script, script, args.verbose)
+                future_map[future] = (script, script_idx)
 
-        dur = result.get("duration_ms", 0)
-        total_ms += dur
+            for future in as_completed(future_map):
+                script, idx = future_map[future]
+                try:
+                    result = future.result()
+                except Exception as e:
+                    result = {"success": False, "duration_ms": 0, "return_code": -1,
+                              "error": str(e)[:300]}
 
-        if result["success"]:
-            ok_count += 1
-            status = "OK"
-        else:
-            fail_count += 1
-            status = "FAIL"
+                log_result(conn, run_id, script, result)
+                dur = result.get("duration_ms", 0)
+                total_ms += dur
 
-        results_summary.append({
-            "script": script["name"],
-            "category": script["category"],
-            "status": status,
-            "duration_ms": dur,
-            "error": result.get("error", ""),
-        })
+                if result["success"]:
+                    ok_count += 1
+                    status = "OK"
+                else:
+                    fail_count += 1
+                    status = "FAIL"
 
-        if args.verbose:
-            err_info = ""
-            if not result["success"] and result.get("error"):
-                err_info = f" — {result['error'][:80]}"
-            elif not result["success"] and result.get("stderr_tail"):
-                err_info = f" — {result['stderr_tail'][:80]}"
-            print(f"{status} ({dur}ms){err_info}")
+                results_summary.append({
+                    "script": script["name"],
+                    "category": script["category"],
+                    "status": status,
+                    "duration_ms": dur,
+                    "error": result.get("error", ""),
+                })
+
+                if args.verbose:
+                    ts = datetime.now().strftime("%H:%M:%S")
+                    err_info = ""
+                    if not result["success"] and result.get("error"):
+                        err_info = f" — {result['error'][:80]}"
+                    elif not result["success"] and result.get("stderr_tail"):
+                        err_info = f" — {result['stderr_tail'][:80]}"
+                    print(f"  [{ts}] ({idx}/{len(scripts)}) {script['name']} "
+                          f"[{script['category']}] {status} ({dur}ms){err_info}")
 
     conn.close()
 
