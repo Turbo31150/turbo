@@ -22,7 +22,7 @@ from typing import Any
 
 import httpx
 
-from src.ia_tools import TOOLS_BY_NAME, get_tool_meta
+from src.ia_tools import TOOLS_BY_NAME, get_tool_meta, _MCP_ANNOTATIONS
 
 logger = logging.getLogger("jarvis.tool_executor")
 
@@ -213,19 +213,24 @@ async def execute_mcp_call(
 def get_mcp_tools_manifest() -> list[dict[str, Any]]:
     """Return tools in MCP listTools format.
 
-    Each tool has: name (dot-notation), title, description, inputSchema.
+    Each tool has: name (dot-notation), title, description, inputSchema, annotations.
+    Annotations follow the MCP spec: readOnlyHint, destructiveHint, openWorldHint.
     """
     manifest = []
     for tool in TOOLS_BY_NAME.values():
         fn = tool["function"]
         openai_name = fn["name"]
         mcp_name = _OPENAI_TO_MCP.get(openai_name, openai_name)
-        manifest.append({
+        entry = {
             "name": mcp_name,
             "title": fn["description"][:80],
             "description": fn["description"],
             "inputSchema": fn["parameters"],
-        })
+        }
+        annotations = _MCP_ANNOTATIONS.get(openai_name)
+        if annotations:
+            entry["annotations"] = annotations
+        manifest.append(entry)
     return manifest
 
 

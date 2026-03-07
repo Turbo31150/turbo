@@ -547,6 +547,37 @@ TOOLS: list[dict[str, Any]] = [
 # ── Index by name ────────────────────────────────────────────────────────────
 TOOLS_BY_NAME: dict[str, dict] = {t["function"]["name"]: t for t in TOOLS}
 
+# ── MCP Annotations (readOnlyHint / destructiveHint per MCP spec) ────────────
+# Applied to get_mcp_tools_manifest() output for proper MCP client behavior.
+_MCP_ANNOTATIONS: dict[str, dict] = {
+    # Read-only tools (safe to call anytime, no side effects)
+    "jarvis_autonomous_status": {"readOnlyHint": True},
+    "jarvis_autonomous_events": {"readOnlyHint": True},
+    "jarvis_cluster_health": {"readOnlyHint": True},
+    "jarvis_orchestrator_health": {"readOnlyHint": True},
+    "jarvis_best_node": {"readOnlyHint": True},
+    "jarvis_diagnostics_quick": {"readOnlyHint": True},
+    "jarvis_db_health": {"readOnlyHint": True},
+    "jarvis_alerts_active": {"readOnlyHint": True},
+    "jarvis_recall": {"readOnlyHint": True},
+    "jarvis_cowork_search": {"readOnlyHint": True},
+    "jarvis_classify_intent": {"readOnlyHint": True},
+    "jarvis_boot_status": {"readOnlyHint": True},
+    "jarvis_gpu_status": {"readOnlyHint": True},
+    # Destructive tools (require explicit confirmation)
+    "jarvis_cowork_execute": {"destructiveHint": True},
+    "jarvis_db_maintenance": {"destructiveHint": True},
+    "jarvis_pipeline_execute": {"destructiveHint": True},
+    # Mutating but non-destructive (state-changing, idempotent)
+    "jarvis_run_task": {"readOnlyHint": False},
+    "jarvis_toggle_task": {"readOnlyHint": False},
+    "jarvis_remember": {"readOnlyHint": False},
+    "jarvis_alert_acknowledge": {"readOnlyHint": False},
+    "jarvis_send_message": {"readOnlyHint": False},
+    "jarvis_diagnostics_full": {"readOnlyHint": False},
+    "jarvis_boot_phase": {"readOnlyHint": False, "destructiveHint": False},
+}
+
 # ── Scopes ───────────────────────────────────────────────────────────────────
 _SCOPES: dict[str, list[str]] = {}
 for _t in TOOLS:
