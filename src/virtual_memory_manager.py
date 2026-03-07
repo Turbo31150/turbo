@@ -56,9 +56,8 @@ class VirtualMemoryManager:
                  "TotalVirtualMemorySize, FreeVirtualMemory, "
                  "SizeStoredInPagingFiles, FreeSpaceInPagingFiles | "
                  "ConvertTo-Json -Compress"],
-                capture_output=True, text=True, timeout=15,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 d = json.loads(result.stdout)
@@ -90,9 +89,8 @@ class VirtualMemoryManager:
                  "@{N='WorkingSetMB';E={[math]::Round($_.WorkingSet64/1MB,1)}}, "
                  "@{N='VirtualMB';E={[math]::Round($_.VirtualMemorySize64/1MB,1)}} | "
                  "ConvertTo-Json -Depth 1 -Compress"],
-                capture_output=True, text=True, timeout=15,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)

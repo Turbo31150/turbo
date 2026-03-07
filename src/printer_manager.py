@@ -57,9 +57,8 @@ class PrinterManager:
                 ["powershell", "-Command",
                  "Get-Printer | Select-Object Name, PortName, DriverName, "
                  "PrinterStatus, Type | ConvertTo-Json -Depth 1"],
-                capture_output=True, text=True, timeout=15,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)
@@ -88,9 +87,8 @@ class PrinterManager:
         try:
             result = subprocess.run(
                 ["wmic", "printer", "get", "Name,PortName,DriverName,Default", "/format:csv"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             printers = []
             for line in result.stdout.strip().split("\n"):
@@ -140,9 +138,8 @@ class PrinterManager:
         try:
             result = subprocess.run(
                 ["powershell", "-Command", cmd],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)

@@ -55,9 +55,8 @@ class DiskHealthMonitor:
                  "Get-PhysicalDisk | Select-Object FriendlyName, MediaType, "
                  "HealthStatus, OperationalStatus, Size, BusType | "
                  "ConvertTo-Json -Depth 1"],
-                capture_output=True, text=True, timeout=15,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)
@@ -89,9 +88,8 @@ class DiskHealthMonitor:
                  "Select-Object DeviceId, Temperature, Wear, "
                  "ReadErrorsTotal, WriteErrorsTotal, PowerOnHours | "
                  "ConvertTo-Json -Depth 1"],
-                capture_output=True, text=True, timeout=15,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)

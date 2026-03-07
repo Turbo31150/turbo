@@ -339,9 +339,9 @@ def match_command(voice_text: str, threshold: float = 0.55) -> tuple[JarvisComma
     if best_score >= 0.90:
         return best_match, best_params, best_score
 
-    # Substring check
+    # Substring check — require trigger to be significant portion of input
     for key, (cmd, trigger) in _trigger_exact.items():
-        if key in corrected:
+        if key in corrected and len(key) >= max(4, len(corrected) * 0.4):
             score = 0.90
             if score > best_score:
                 best_score = score

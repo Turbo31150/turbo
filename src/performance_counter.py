@@ -64,9 +64,8 @@ class PerformanceCounterManager:
                  "$out = @{}; foreach($s in $c.CounterSamples) { "
                  "$out[$s.Path] = [math]::Round($s.CookedValue, 2) }; "
                  "ConvertTo-Json $out -Compress"],
-                capture_output=True, text=True, timeout=15,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 raw = json.loads(result.stdout)

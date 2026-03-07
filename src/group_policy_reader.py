@@ -52,9 +52,8 @@ class GroupPolicyReader:
         try:
             result = subprocess.run(
                 ["gpresult", "/R"],
-                capture_output=True, text=True, timeout=30,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 self._last_result = result.stdout

@@ -56,9 +56,8 @@ class NetworkMonitor:
                 ["powershell", "-Command",
                  "Get-NetAdapter | Select-Object Name, Status, MacAddress, "
                  "LinkSpeed, InterfaceDescription | ConvertTo-Json -Depth 1"],
-                capture_output=True, text=True, timeout=15,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)
@@ -87,9 +86,8 @@ class NetworkMonitor:
                  "Get-NetIPAddress -AddressFamily IPv4 | "
                  "Select-Object InterfaceAlias, IPAddress, PrefixLength | "
                  "ConvertTo-Json -Depth 1"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)
@@ -116,9 +114,8 @@ class NetworkMonitor:
                  "Where-Object {$_.ServerAddresses.Count -gt 0} | "
                  "Select-Object InterfaceAlias, ServerAddresses | "
                  "ConvertTo-Json -Depth 2"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)
@@ -176,9 +173,8 @@ class NetworkMonitor:
                  f"Select-Object -First {limit} LocalAddress, LocalPort, "
                  f"RemoteAddress, RemotePort, OwningProcess | "
                  f"ConvertTo-Json -Depth 1"],
-                capture_output=True, text=True, timeout=15,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)

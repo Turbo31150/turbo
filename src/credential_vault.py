@@ -51,9 +51,8 @@ class CredentialVault:
         try:
             result = subprocess.run(
                 ["cmdkey", "/list"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0:
                 creds = self._parse_cmdkey(result.stdout)

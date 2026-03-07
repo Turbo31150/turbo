@@ -65,9 +65,8 @@ class CertificateManager:
                  f"Get-ChildItem '{store}' | "
                  "Select-Object Subject, Issuer, Thumbprint, NotAfter, NotBefore | "
                  "ConvertTo-Json -Depth 1"],
-                capture_output=True, text=True, timeout=15,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)
@@ -107,9 +106,8 @@ class CertificateManager:
                  f"Where-Object {{ $_.NotAfter -lt (Get-Date).AddDays({days}) }} | "
                  "Select-Object Subject, Thumbprint, NotAfter | "
                  "ConvertTo-Json -Depth 1"],
-                capture_output=True, text=True, timeout=15,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)

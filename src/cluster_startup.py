@@ -111,7 +111,7 @@ def _lms_ps() -> list[dict[str, str]]:
             if not line:
                 continue
             parts = line.split()
-            if len(parts) >= 2 and "/" in parts[0]:
+            if len(parts) >= 2 and parts[0] not in ("IDENTIFIER", "---"):
                 model = {"id": parts[0]}
                 # Parse remaining fields if available
                 for p in parts[1:]:
@@ -182,10 +182,12 @@ async def _warmup_model(url: str, model: str, timeout: float = 15.0, headers: di
     Returns: {"ok": bool, "latency_ms": int, "tokens_per_sec": float}
     """
     try:
+        # LM Studio API uses short model name (e.g. "qwen3-8b"), not repo name ("qwen/qwen3-8b")
+        api_model = model.split("/")[-1] if "/" in model else model
         t0 = time.monotonic()
         async with httpx.AsyncClient(timeout=timeout) as c:
             r = await c.post(f"{url}/api/v1/chat", headers=headers or {}, json=build_lmstudio_payload(
-                model, WARMUP_PROMPT,
+                api_model, WARMUP_PROMPT,
                 temperature=0.1, max_output_tokens=WARMUP_MAX_TOKENS,
             ))
             r.raise_for_status()
@@ -429,7 +431,9 @@ async def ensure_cluster_ready(
     loaded_bases = {m.split(":")[0] if ":" in m and m.split(":")[-1].isdigit() else m for m in loaded_after}
 
     for model, opts in M1_REQUIRED.items():
-        if model in loaded_bases:
+        # Compare short name (lms ps returns "qwen3-8b", not "qwen/qwen3-8b")
+        short_name = model.split("/")[-1] if "/" in model else model
+        if short_name in loaded_bases or model in loaded_bases:
             report[f"load_{model}"] = "deja charge"
             if verbose:
                 _log(f"{model}: deja charge", "OK")
@@ -531,7 +535,7 @@ async def ensure_cluster_ready(
     if verbose:
         logger.info("=" * 55)
         # Summary line
-        m1_ok = any(m.get("id") == "qwen/qwen3-8b" for m in final)
+        m1_ok = any("qwen3-8b" in m.get("id", "") for m in final)
         m2_ok = m2_status["ok"]
         ol_ok = ollama_status["ok"]
         status = "OPTIMAL" if (m1_ok and m2_ok and ol_ok) else "PARTIEL" if m1_ok else "DEGRADE"
@@ -539,7 +543,7 @@ async def ensure_cluster_ready(
         logger.info("=" * 55)
 
     report["status"] = "OPTIMAL" if all([
-        any(m.get("id") == "qwen/qwen3-8b" for m in final),
+        any("qwen3-8b" in m.get("id", "") for m in final),
         m2_status["ok"],
         ollama_status["ok"],
     ]) else "PARTIEL"

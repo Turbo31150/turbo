@@ -50,7 +50,7 @@ class JARVISUpdateOrchestrator:
         """Charge la configuration"""
         if self.config_path.exists():
             try:
-                with open(self.config_path, 'r') as f:
+                with open(self.config_path, 'r', encoding='utf-8') as f:
                     return json.load(f)
             except Exception as e:
                 logger.error(f"Erreur chargement config: {e}")
@@ -277,7 +277,7 @@ class JARVISUpdateOrchestrator:
             'generated_at': datetime.now().isoformat()
         }
         
-        with open(output_path, 'w') as f:
+        with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(report, f, indent=2)
         
         logger.info(f"Rapport exporté: {output_path}")

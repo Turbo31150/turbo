@@ -226,7 +226,32 @@ class WorkflowEngine:
             prompt = params.get("prompt", "")
             for k, v in variables.items():
                 prompt = prompt.replace(k, str(v))
-            return {"status": "ok", "output": f"[placeholder] Would query {node}: {prompt[:100]}"}
+            import urllib.request
+            NODES = {
+                "M1": ("http://127.0.0.1:1234/v1/chat/completions", "qwen3-8b", False),
+                "M2": ("http://192.168.1.26:1234/v1/chat/completions", "deepseek-r1-0528-qwen3-8b", False),
+                "M3": ("http://192.168.1.113:1234/v1/chat/completions", "deepseek-r1-0528-qwen3-8b", False),
+                "OL1": ("http://127.0.0.1:11434/api/chat", "qwen3:1.7b", True),
+            }
+            url, model, is_ollama = NODES.get(node.upper(), NODES["M1"])
+            if is_ollama:
+                body = json.dumps({"model": model, "messages": [{"role": "user", "content": prompt}], "stream": False, "think": False})
+            else:
+                body = json.dumps({"model": model, "messages": [{"role": "user", "content": f"/nothink\n{prompt}"}], "temperature": 0.3, "max_tokens": 2048, "stream": False})
+            req = urllib.request.Request(url, data=body.encode(), headers={"Content-Type": "application/json"})
+            try:
+                resp = await asyncio.to_thread(urllib.request.urlopen, req, timeout=timeout)
+                data = json.loads(resp.read().decode())
+                if is_ollama:
+                    text = data.get("message", {}).get("content", "")
+                else:
+                    choices = data.get("choices", [])
+                    text = choices[0]["message"]["content"] if choices else ""
+                import re as _re
+                text = _re.sub(r'<think>[\s\S]*?</think>', '', text).strip()
+                return {"status": "ok", "output": text[:2000], "node": node, "model": model}
+            except Exception as e:
+                return {"status": "error", "output": f"cluster_query {node} failed: {e}", "node": node}
 
         return {"status": "ok", "output": f"Unknown action: {action}"}
 

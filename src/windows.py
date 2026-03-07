@@ -20,7 +20,7 @@ def run_powershell(command: str, timeout: int = 60) -> dict[str, Any]:
     try:
         result = subprocess.run(
             ["powershell", "-NoProfile", "-NonInteractive", "-Command", command],
-            capture_output=True, text=True, timeout=timeout,
+            capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=timeout,
         )
         return {
             "success": result.returncode == 0,

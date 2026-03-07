@@ -71,9 +71,8 @@ class EventLogReader:
         try:
             result = subprocess.run(
                 ["powershell", "-Command", cmd],
-                capture_output=True, text=True, timeout=20,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=20,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)
@@ -103,9 +102,8 @@ class EventLogReader:
                  "Get-WinEvent -ListLog * -ErrorAction SilentlyContinue | "
                  "Where-Object {$_.RecordCount -gt 0} | "
                  "Select-Object -ExpandProperty LogName | Sort-Object"],
-                capture_output=True, text=True, timeout=15,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0:
                 logs = [l.strip() for l in result.stdout.split("\n") if l.strip()]

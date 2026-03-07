@@ -107,7 +107,7 @@ class NetworkScanner:
         try:
             result = subprocess.run(
                 ["ping", "-n", "1", "-w", str(timeout_ms), ip],
-                capture_output=True, text=True, timeout=timeout_ms / 1000 + 2,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=timeout_ms / 1000 + 2,
                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             )
             alive = result.returncode == 0

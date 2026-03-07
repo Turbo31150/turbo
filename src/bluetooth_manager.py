@@ -57,9 +57,8 @@ class BluetoothManager:
                  "Get-PnpDevice -Class Bluetooth | "
                  "Select-Object FriendlyName, InstanceId, Status, Class, Manufacturer | "
                  "ConvertTo-Json -Depth 1"],
-                capture_output=True, text=True, timeout=15,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)
@@ -93,9 +92,8 @@ class BluetoothManager:
                  "Get-PnpDevice -Class Bluetooth | Where-Object {"
                  "$_.FriendlyName -like '*Bluetooth*'} | Select-Object Status | "
                  "ConvertTo-Json"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)

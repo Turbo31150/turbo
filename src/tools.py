@@ -824,6 +824,8 @@ async def lm_perf_metrics(args: dict[str, Any]) -> dict[str, Any]:
         return _text("Aucune metrique collectee. Lance lm_benchmark d'abord.")
     lines = ["Metriques de performance:"]
     for node, latencies in snapshot.items():
+        if not latencies:
+            continue
         avg = int(sum(latencies) / len(latencies))
         mn = int(min(latencies))
         mx = int(max(latencies))
@@ -1145,7 +1147,7 @@ async def run_script(args: dict[str, Any]) -> dict[str, Any]:
             cmd.extend(args["args"].split())
 
         def _do():
-            return subprocess.run(cmd, capture_output=True, text=True, timeout=120, cwd=str(path.parent))
+            return subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120, cwd=str(path.parent))
 
         r = await asyncio.to_thread(_do)
         out = r.stdout[-3000:] if len(r.stdout) > 3000 else r.stdout
@@ -1192,7 +1194,7 @@ async def trading_pipeline_v2(args: dict[str, Any]) -> dict[str, Any]:
         env = {**_os.environ, "PYTHONIOENCODING": "utf-8"}
 
         def _do():
-            return subprocess.run(cmd, capture_output=True, text=True, timeout=300,
+            return subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=300,
                                   cwd=str(script.parent), env=env)
 
         r = await asyncio.to_thread(_do)
@@ -2221,7 +2223,16 @@ def dispatch_engine_tool(pattern: str, prompt: str) -> str:
     import asyncio
     from src.dispatch_engine import get_engine
     engine = get_engine()
-    result = asyncio.get_event_loop().run_until_complete(engine.dispatch(pattern, prompt))
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = None
+    if loop and loop.is_running():
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor() as pool:
+            result = pool.submit(asyncio.run, engine.dispatch(pattern, prompt)).result(timeout=120)
+    else:
+        result = asyncio.run(engine.dispatch(pattern, prompt))
     return json.dumps({
         "node": result.node, "quality": result.quality,
         "content": result.content[:2000], "success": result.success,
@@ -2300,9 +2311,16 @@ def ensemble_execute_tool(pattern: str, prompt: str, strategy: str = "best_of_n"
     """Execution ensemble multi-agents avec scoring."""
     import asyncio
     from src.agent_ensemble import get_ensemble
-    result = asyncio.get_event_loop().run_until_complete(
-        get_ensemble().execute(pattern, prompt, strategy=strategy)
-    )
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = None
+    if loop and loop.is_running():
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor() as pool:
+            result = pool.submit(asyncio.run, get_ensemble().execute(pattern, prompt, strategy=strategy)).result(timeout=120)
+    else:
+        result = asyncio.run(get_ensemble().execute(pattern, prompt, strategy=strategy))
     return json.dumps({
         "best_node": result.best_output.node,
         "best_score": round(result.best_output.total_score, 3),

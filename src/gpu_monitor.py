@@ -58,9 +58,8 @@ class GPUMonitor:
                 ["nvidia-smi", "--query-gpu=name,temperature.gpu,utilization.gpu,"
                  "memory.total,memory.used,memory.free,driver_version",
                  "--format=csv,noheader,nounits"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 gpus = []
@@ -95,9 +94,8 @@ class GPUMonitor:
                  "Get-CimInstance Win32_VideoController | "
                  "Select-Object Name, DriverVersion, AdapterRAM, "
                  "VideoProcessor, Status | ConvertTo-Json -Depth 1"],
-                capture_output=True, text=True, timeout=15,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)

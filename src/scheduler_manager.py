@@ -57,9 +57,8 @@ class SchedulerManager:
         try:
             result = subprocess.run(
                 ["schtasks", "/Query", "/FO", "CSV", "/V", "/TN", folder],
-                capture_output=True, text=True, timeout=30,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 tasks = self._parse_csv(result.stdout)
@@ -96,9 +95,8 @@ class SchedulerManager:
         try:
             result = subprocess.run(
                 ["schtasks", "/Query", "/FO", "CSV", "/V", "/TN", name],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0:
                 tasks = self._parse_csv(result.stdout)
@@ -130,9 +128,8 @@ class SchedulerManager:
         try:
             result = subprocess.run(
                 ["schtasks", "/Query", "/FO", "CSV"],
-                capture_output=True, text=True, timeout=15,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             folders = set()
             reader = csv.DictReader(io.StringIO(result.stdout))

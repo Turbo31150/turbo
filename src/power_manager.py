@@ -166,6 +166,7 @@ class PowerManager:
             result = subprocess.run(
                 ["powercfg", "/getactivescheme"],
                 capture_output=True, text=True, timeout=5,
+                encoding="utf-8", errors="replace",
                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             )
             if result.returncode == 0:

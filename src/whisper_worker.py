@@ -28,8 +28,8 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 # Force UTF-8 on Windows
 if sys.platform == "win32" and hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
-    sys.stdin.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure()
+    sys.stdin.reconfigure()
 
 
 class WhisperWorker:

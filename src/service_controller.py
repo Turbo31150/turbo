@@ -54,8 +54,8 @@ class ServiceController:
         try:
             cmd = ["sc", "query", "type=", "service", "state=", state]
             result = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=10,
-                creationflags=_NO_WINDOW, encoding="utf-8", errors="replace",
+                cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
+                creationflags=_NO_WINDOW,
             )
             services = []
             current: dict[str, str] = {}
@@ -86,7 +86,7 @@ class ServiceController:
         try:
             result = subprocess.run(
                 ["sc", "qc", name], capture_output=True, text=True,
-                timeout=5, creationflags=_NO_WINDOW, encoding="utf-8", errors="replace",
+                timeout=5, creationflags=_NO_WINDOW,
             )
             info: dict[str, Any] = {"name": name, "exists": result.returncode == 0}
             if result.returncode == 0:
@@ -101,7 +101,7 @@ class ServiceController:
             # Also get current status
             status_result = subprocess.run(
                 ["sc", "query", name], capture_output=True, text=True,
-                timeout=5, creationflags=_NO_WINDOW, encoding="utf-8", errors="replace",
+                timeout=5, creationflags=_NO_WINDOW,
             )
             if status_result.returncode == 0:
                 for line in status_result.stdout.split("\n"):
@@ -121,7 +121,7 @@ class ServiceController:
         try:
             result = subprocess.run(
                 ["sc", "start", name], capture_output=True, text=True,
-                timeout=10, creationflags=_NO_WINDOW, encoding="utf-8", errors="replace",
+                timeout=10, creationflags=_NO_WINDOW,
             )
             success = result.returncode == 0
             self._record(name, "start", success, result.stdout.strip() if success else result.stderr.strip())
@@ -135,7 +135,7 @@ class ServiceController:
         try:
             result = subprocess.run(
                 ["sc", "stop", name], capture_output=True, text=True,
-                timeout=10, creationflags=_NO_WINDOW, encoding="utf-8", errors="replace",
+                timeout=10, creationflags=_NO_WINDOW,
             )
             success = result.returncode == 0
             self._record(name, "stop", success, result.stdout.strip() if success else result.stderr.strip())

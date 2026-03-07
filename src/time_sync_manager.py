@@ -51,9 +51,8 @@ class TimeSyncManager:
         try:
             result = subprocess.run(
                 ["w32tm", "/query", "/status"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 info = self._parse_w32tm(result.stdout)
@@ -68,9 +67,8 @@ class TimeSyncManager:
         try:
             result = subprocess.run(
                 ["w32tm", "/query", "/source"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 return {"source": result.stdout.strip()}
@@ -83,9 +81,8 @@ class TimeSyncManager:
         try:
             result = subprocess.run(
                 ["w32tm", "/query", "/peers"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 return self._parse_peers(result.stdout)
@@ -98,9 +95,8 @@ class TimeSyncManager:
         try:
             result = subprocess.run(
                 ["w32tm", "/query", "/configuration"],
-                capture_output=True, text=True, timeout=15,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 return self._parse_config(result.stdout)

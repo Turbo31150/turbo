@@ -55,9 +55,8 @@ class BIOSSettingsReader:
                  "SMBIOSBIOSVersion, SMBIOSMajorVersion, SMBIOSMinorVersion, "
                  "ReleaseDate, PrimaryBIOS | "
                  "ConvertTo-Json -Depth 1 -Compress"],
-                capture_output=True, text=True, timeout=15,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)
@@ -89,9 +88,8 @@ class BIOSSettingsReader:
                 ["powershell", "-Command",
                  "try { $sb = Confirm-SecureBootUEFI; ConvertTo-Json @{secure_boot=$sb; uefi=$true} } "
                  "catch { ConvertTo-Json @{secure_boot=$false; uefi=$false; error=$_.Exception.Message} }"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)

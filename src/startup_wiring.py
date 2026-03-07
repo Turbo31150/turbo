@@ -412,7 +412,7 @@ async def _step_post_startup_validation() -> dict[str, Any]:
         try:
             r = subprocess.run(
                 ["curl", "-s", "--max-time", "3", url],
-                capture_output=True, text=True, timeout=5,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5,
             )
             checks[name] = "healthy" if r.returncode == 0 and r.stdout.strip() else "degraded"
         except Exception:

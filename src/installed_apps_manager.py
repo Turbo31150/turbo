@@ -58,9 +58,8 @@ class InstalledAppsManager:
                  "Select-Object DisplayName, DisplayVersion, Publisher, InstallDate | "
                  "Sort-Object DisplayName | "
                  "ConvertTo-Json -Depth 1 -Compress"],
-                capture_output=True, text=True, timeout=20,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=20,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)
@@ -88,9 +87,8 @@ class InstalledAppsManager:
                 ["powershell", "-Command",
                  "Get-AppxPackage | Select-Object Name, Version, Publisher | "
                  "ConvertTo-Json -Depth 1 -Compress"],
-                capture_output=True, text=True, timeout=20,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=20,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)

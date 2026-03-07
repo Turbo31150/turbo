@@ -165,9 +165,8 @@ class AudioController:
             result = subprocess.run(
                 ["powershell", "-Command",
                  "Get-CimInstance Win32_SoundDevice | Select-Object Name, DeviceID, Status | ConvertTo-Json"],
-                capture_output=True, text=True, timeout=10,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
             )
             if result.returncode == 0 and result.stdout.strip():
                 import json
