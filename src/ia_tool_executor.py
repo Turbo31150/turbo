@@ -16,8 +16,11 @@ from __future__ import annotations
 
 import json
 import logging
+import sqlite3
+import threading
 import time
 from collections import defaultdict
+from pathlib import Path
 from typing import Any
 
 import httpx
@@ -37,7 +40,7 @@ _metrics: dict[str, dict[str, Any]] = defaultdict(lambda: {
 
 
 def get_tool_metrics() -> dict[str, Any]:
-    """Return tool usage metrics summary."""
+    """Return tool usage metrics summary (in-memory + SQLite history)."""
     summary = {}
     for name, m in sorted(_metrics.items(), key=lambda x: -x[1]["calls"]):
         summary[name] = {
@@ -49,6 +52,82 @@ def get_tool_metrics() -> dict[str, Any]:
             "by_caller": dict(m["by_caller"]),
         }
     return {"tools": summary, "total_calls": sum(m["calls"] for m in _metrics.values())}
+
+
+# ── SQLite persistence (non-blocking, fire-and-forget) ───────────────────────
+_ETOILE_DB = Path(__file__).resolve().parent.parent / "data" / "etoile.db"
+_db_lock = threading.Lock()
+_db_initialized = False
+
+
+def _ensure_db():
+    """Create tool_metrics table if not exists. Thread-safe, runs once."""
+    global _db_initialized
+    if _db_initialized:
+        return
+    with _db_lock:
+        if _db_initialized:
+            return
+        try:
+            with sqlite3.connect(str(_ETOILE_DB), timeout=5) as conn:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS tool_metrics (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ts REAL NOT NULL,
+                        tool_name TEXT NOT NULL,
+                        caller TEXT NOT NULL DEFAULT 'unknown',
+                        success INTEGER NOT NULL DEFAULT 1,
+                        latency_ms REAL NOT NULL DEFAULT 0,
+                        error TEXT,
+                        http_status INTEGER
+                    )
+                """)
+                conn.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_tool_metrics_ts ON tool_metrics(ts)
+                """)
+                conn.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_tool_metrics_tool ON tool_metrics(tool_name)
+                """)
+                conn.commit()
+            _db_initialized = True
+        except (sqlite3.Error, OSError) as e:
+            logger.warning("tool_metrics DB init failed: %s", e)
+
+
+def _persist_metric(tool_name: str, caller: str, success: bool,
+                    latency_ms: float, error: str | None = None,
+                    http_status: int | None = None):
+    """Write one metric row to SQLite. Runs in background thread."""
+    def _write():
+        try:
+            _ensure_db()
+            with sqlite3.connect(str(_ETOILE_DB), timeout=5) as conn:
+                conn.execute(
+                    "INSERT INTO tool_metrics (ts, tool_name, caller, success, latency_ms, error, http_status) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    (time.time(), tool_name, caller, int(success), latency_ms, error, http_status),
+                )
+                conn.commit()
+        except (sqlite3.Error, OSError) as e:
+            logger.debug("tool_metrics write failed: %s", e)
+    threading.Thread(target=_write, daemon=True).start()
+
+
+def get_tool_metrics_history(hours: int = 24, limit: int = 500) -> list[dict]:
+    """Read recent tool metrics from SQLite."""
+    try:
+        _ensure_db()
+        since = time.time() - hours * 3600
+        with sqlite3.connect(str(_ETOILE_DB), timeout=5) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                "SELECT * FROM tool_metrics WHERE ts >= ? ORDER BY ts DESC LIMIT ?",
+                (since, limit),
+            ).fetchall()
+        return [dict(r) for r in rows]
+    except (sqlite3.Error, OSError) as e:
+        logger.warning("tool_metrics read failed: %s", e)
+        return []
 
 # ── MCP name mapping (dot-notation → underscore) ────────────────────────────
 _MCP_TO_OPENAI: dict[str, str] = {
@@ -167,6 +246,10 @@ async def execute_tool_call(
 
             if resp.status_code >= 400:
                 m["errors"] += 1
+                elapsed_ms = (time.monotonic() - t0) * 1000
+                m["total_ms"] += elapsed_ms
+                _persist_metric(tool_name, caller, False, elapsed_ms,
+                                error=f"HTTP {resp.status_code}", http_status=resp.status_code)
                 return {"ok": False, "error": f"HTTP {resp.status_code}", "body": resp.text[:500]}
 
             try:
@@ -175,22 +258,29 @@ async def execute_tool_call(
                 data = {"raw": resp.text[:1000]}
 
             m["ok"] += 1
+            _persist_metric(tool_name, caller, True, elapsed_ms, http_status=resp.status_code)
             return {"ok": True, "result": data}
 
     except httpx.TimeoutException:
+        elapsed_err = (time.monotonic() - t0) * 1000
         m["errors"] += 1
-        m["total_ms"] += (time.monotonic() - t0) * 1000
+        m["total_ms"] += elapsed_err
         logger.error("Tool %s timed out (%.0fs)", tool_name, TIMEOUT)
+        _persist_metric(tool_name, caller, False, elapsed_err, error="timeout")
         return {"ok": False, "error": f"Timeout after {TIMEOUT}s"}
     except httpx.ConnectError:
+        elapsed_err = (time.monotonic() - t0) * 1000
         m["errors"] += 1
-        m["total_ms"] += (time.monotonic() - t0) * 1000
+        m["total_ms"] += elapsed_err
         logger.error("Tool %s: JARVIS WS unreachable at %s", tool_name, JARVIS_BASE)
+        _persist_metric(tool_name, caller, False, elapsed_err, error="connect_error")
         return {"ok": False, "error": "JARVIS WS unreachable (port 9742)"}
     except Exception as e:
+        elapsed_err = (time.monotonic() - t0) * 1000
         m["errors"] += 1
-        m["total_ms"] += (time.monotonic() - t0) * 1000
+        m["total_ms"] += elapsed_err
         logger.exception("Tool %s failed", tool_name)
+        _persist_metric(tool_name, caller, False, elapsed_err, error=str(e)[:200])
         return {"ok": False, "error": str(e)}
 
 

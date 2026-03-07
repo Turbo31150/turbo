@@ -398,6 +398,18 @@ async def api_ia_tool_metrics():
         return JSONResponse({"error": str(exc)}, status_code=500)
 
 
+@app.get("/api/tools/ia-metrics/history")
+async def api_ia_tool_metrics_history(hours: int = 24, limit: int = 500):
+    """Return persisted IA tool metrics from SQLite (last N hours)."""
+    try:
+        from src.ia_tool_executor import get_tool_metrics_history
+        rows = get_tool_metrics_history(hours=hours, limit=limit)
+        return JSONResponse({"rows": rows, "count": len(rows)})
+    except Exception as exc:
+        logger.exception("GET /api/tools/ia-metrics/history failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
 @app.get("/api/cluster/observability")
 async def api_observability():
     """Return ObservabilityMatrix report."""
