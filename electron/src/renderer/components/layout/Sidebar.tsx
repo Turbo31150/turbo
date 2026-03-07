@@ -107,6 +107,7 @@ const NAV_GROUPS: NavGroup[] = [
       { id: 'orchestrator', label: 'Orchestrator', icon: <ServerIcon /> },
       { id: 'memory', label: 'Memory', icon: <BookIcon /> },
       { id: 'voice', label: 'Voice', icon: <MicIcon /> },
+      { id: 'browser', label: 'Browser', icon: <BookIcon /> },
     ],
   },
   {

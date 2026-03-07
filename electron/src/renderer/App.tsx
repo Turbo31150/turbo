@@ -44,6 +44,7 @@ const ProcessesPage = lazy(() => import('./pages/ProcessesPage'));
 const SnapshotsPage = lazy(() => import('./pages/SnapshotsPage'));
 const SystemPage = lazy(() => import('./pages/SystemPage'));
 const TerminalPage = lazy(() => import('./pages/TerminalPage'));
+const BrowserPage = lazy(() => import('./pages/BrowserPage'));
 
 const PAGE_COMPONENTS: Record<Page, React.LazyExoticComponent<React.ComponentType>> = {
   dashboard: DashboardPage,
@@ -75,6 +76,7 @@ const PAGE_COMPONENTS: Record<Page, React.LazyExoticComponent<React.ComponentTyp
   snapshots: SnapshotsPage,
   system: SystemPage,
   terminal: TerminalPage,
+  browser: BrowserPage,
 };
 
 const CSS = `
