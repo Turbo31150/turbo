@@ -213,6 +213,169 @@ async def api_chat_history(session_id: str = "", limit: int = 50):
         return JSONResponse({"error": str(exc)}, status_code=500)
 
 
+@app.get("/api/tools/schema")
+async def api_tools_schema(scope: str = "all", format: str = "openai"):
+    """Return IA tools schemas for function calling (OpenAI or MCP format).
+
+    Query params:
+        scope: all, system, autonomous, cluster, minimal, memory, cowork
+        format: openai (default) or mcp
+    """
+    try:
+        from src.ia_tools import get_tools_for_scope
+        if format == "mcp":
+            from src.ia_tool_executor import get_mcp_tools_manifest
+            return JSONResponse({"tools": get_mcp_tools_manifest()})
+        tools = get_tools_for_scope(scope)
+        return JSONResponse({"tools": tools, "count": len(tools), "scope": scope})
+    except Exception as exc:
+        logger.exception("GET /api/tools/schema failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/tools/execute")
+async def api_tools_execute(request: Request):
+    """Execute an IA tool call (bridge for models calling JARVIS actions).
+
+    Body: {"tool_name": "jarvis_run_task", "arguments": {"task_name": "zombie_gc"},
+           "caller": "M1", "allow_destructive": false}
+    """
+    try:
+        body = await request.json()
+        tool_name = body.get("tool_name", "")
+        arguments = body.get("arguments", {})
+        caller = body.get("caller", "api")
+        allow_destructive = body.get("allow_destructive", False)
+        if not tool_name:
+            return JSONResponse({"error": "tool_name required"}, status_code=400)
+        from src.ia_tool_executor import execute_tool_call
+        result = await execute_tool_call(
+            tool_name, arguments, caller=caller, allow_destructive=allow_destructive,
+        )
+        return JSONResponse(result)
+    except Exception as exc:
+        logger.exception("POST /api/tools/execute failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/chat/send")
+async def api_chat_send(request: Request):
+    """HTTP endpoint to send a chat message (used by IA tools).
+
+    Body: {"content": "message text"}
+    Returns: {"user_message": {...}, "agent_message": {...}}
+    """
+    try:
+        body = await request.json()
+        content = (body.get("content") or "").strip()
+        if not content:
+            return JSONResponse({"error": "content required"}, status_code=400)
+        result = await handle_chat_request("send_message", {"content": content})
+        return JSONResponse(result)
+    except Exception as exc:
+        logger.exception("POST /api/chat/send failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/boot/status")
+async def api_boot_status():
+    """Boot status — cluster, services, DBs (non-blocking, read-only)."""
+    try:
+        import asyncio
+        result = await asyncio.to_thread(_boot_status_sync)
+        return JSONResponse(result)
+    except Exception as exc:
+        logger.exception("GET /api/boot/status failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/boot/phase")
+async def api_boot_phase(request: Request):
+    """Run a specific boot phase (1-6). Heavy operation."""
+    try:
+        body = await request.json()
+        phase = body.get("phase", "6")
+        import asyncio
+        result = await asyncio.to_thread(_boot_phase_sync, phase)
+        return JSONResponse(result)
+    except Exception as exc:
+        logger.exception("POST /api/boot/phase failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+def _boot_status_sync() -> dict:
+    """Synchronous boot status check (runs in thread)."""
+    import sys, subprocess, re, json as _json
+    _turbo = Path(__file__).resolve().parent.parent
+    boot_script = _turbo / "scripts" / "jarvis_unified_boot.py"
+    if not boot_script.exists():
+        return {"error": "jarvis_unified_boot.py not found"}
+    try:
+        r = subprocess.run(
+            [sys.executable, str(boot_script), "--status", "--json"],
+            capture_output=True, text=True, timeout=30,
+            encoding="utf-8", errors="replace",
+            cwd=str(_turbo),
+        )
+        # Strip ANSI codes, then find the JSON block
+        raw = re.sub(r"\x1b\[[0-9;]*[a-zA-Z]", "", r.stdout)
+        # Find first { and match to last }
+        start = raw.find("{")
+        if start >= 0:
+            # Find the matching closing brace
+            depth = 0
+            end = start
+            for i in range(start, len(raw)):
+                if raw[i] == "{":
+                    depth += 1
+                elif raw[i] == "}":
+                    depth -= 1
+                    if depth == 0:
+                        end = i + 1
+                        break
+            return _json.loads(raw[start:end])
+        return {"raw": raw[:2000], "returncode": r.returncode}
+    except subprocess.TimeoutExpired:
+        return {"error": "boot status timeout (30s)"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def _boot_phase_sync(phase: str) -> dict:
+    """Synchronous boot phase execution (runs in thread)."""
+    import sys, subprocess, re, json as _json
+    _turbo = Path(__file__).resolve().parent.parent
+    boot_script = _turbo / "scripts" / "jarvis_unified_boot.py"
+    if not boot_script.exists():
+        return {"error": "jarvis_unified_boot.py not found"}
+    try:
+        r = subprocess.run(
+            [sys.executable, str(boot_script), "--phase", str(phase), "--json"],
+            capture_output=True, text=True, timeout=180,
+            encoding="utf-8", errors="replace",
+            cwd=str(_turbo),
+        )
+        raw = re.sub(r"\x1b\[[0-9;]*[a-zA-Z]", "", r.stdout)
+        start = raw.find("{")
+        if start >= 0:
+            depth = 0
+            end = start
+            for i in range(start, len(raw)):
+                if raw[i] == "{":
+                    depth += 1
+                elif raw[i] == "}":
+                    depth -= 1
+                    if depth == 0:
+                        end = i + 1
+                        break
+            return _json.loads(raw[start:end])
+        return {"raw": raw[:2000], "returncode": r.returncode}
+    except subprocess.TimeoutExpired:
+        return {"error": f"boot phase {phase} timeout (180s)"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
 @app.get("/api/tools/metrics")
 async def api_tool_metrics():
     """Return ToolMetrics report."""
