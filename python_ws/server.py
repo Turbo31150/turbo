@@ -304,41 +304,123 @@ async def api_boot_phase(request: Request):
 
 
 def _boot_status_sync() -> dict:
-    """Synchronous boot status check (runs in thread)."""
-    import sys, subprocess, re, json as _json
+    """Fast inline boot status check (no subprocess, parallel port checks)."""
+    import socket
+    import sqlite3
+    import concurrent.futures
+    import json as _json
     _turbo = Path(__file__).resolve().parent.parent
-    boot_script = _turbo / "scripts" / "jarvis_unified_boot.py"
-    if not boot_script.exists():
-        return {"error": "jarvis_unified_boot.py not found"}
-    try:
-        r = subprocess.run(
-            [sys.executable, str(boot_script), "--status", "--json"],
-            capture_output=True, text=True, timeout=30,
-            encoding="utf-8", errors="replace",
-            cwd=str(_turbo),
-        )
-        # Strip ANSI codes, then find the JSON block
-        raw = re.sub(r"\x1b\[[0-9;]*[a-zA-Z]", "", r.stdout)
-        # Find first { and match to last }
-        start = raw.find("{")
-        if start >= 0:
-            # Find the matching closing brace
-            depth = 0
-            end = start
-            for i in range(start, len(raw)):
-                if raw[i] == "{":
-                    depth += 1
-                elif raw[i] == "}":
-                    depth -= 1
-                    if depth == 0:
-                        end = i + 1
-                        break
-            return _json.loads(raw[start:end])
-        return {"raw": raw[:2000], "returncode": r.returncode}
-    except subprocess.TimeoutExpired:
-        return {"error": "boot status timeout (30s)"}
-    except Exception as e:
-        return {"error": str(e)}
+
+    report: dict = {"nodes": {}, "services": {}, "databases": {}}
+
+    # ── Cluster nodes (parallel, 1s timeout) ─────────────────────────────
+    NODES = {
+        "M1": ("127.0.0.1", 1234, "http://127.0.0.1:1234"),
+        "M2": ("192.168.1.26", 1234, "http://192.168.1.26:1234"),
+        "M3": ("192.168.1.113", 1234, "http://192.168.1.113:1234"),
+    }
+
+    def _check_node(name, host, port, base_url):
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(1.0)
+            ok = sock.connect_ex((host, port)) == 0
+            sock.close()
+        except (socket.error, OSError):
+            ok = False
+        if not ok:
+            return name, {"status": "OFFLINE", "loaded": 0}
+        loaded = 0
+        try:
+            import urllib.request
+            req = urllib.request.Request(f"{base_url}/api/v1/models")
+            with urllib.request.urlopen(req, timeout=2) as resp:
+                data = _json.loads(resp.read().decode())
+            models = data.get("data", data.get("models", []))
+            loaded = sum(1 for m in models if m.get("loaded_instances"))
+        except Exception:
+            pass
+        return name, {"status": "OK", "loaded": loaded}
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+        futs = {pool.submit(_check_node, n, h, p, u): n for n, (h, p, u) in NODES.items()}
+        # Ollama check in parallel too
+        def _check_ollama():
+            try:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.settimeout(1.0)
+                ok = sock.connect_ex(("127.0.0.1", 11434)) == 0
+                sock.close()
+            except (socket.error, OSError):
+                ok = False
+            if not ok:
+                return "OL1", {"status": "OFFLINE"}
+            try:
+                import urllib.request
+                with urllib.request.urlopen("http://127.0.0.1:11434/api/tags", timeout=2) as resp:
+                    data = _json.loads(resp.read().decode())
+                return "OL1", {"status": "OK", "models": len(data.get("models", []))}
+            except Exception:
+                return "OL1", {"status": "OK", "models": 0}
+        futs[pool.submit(_check_ollama)] = "OL1"
+        for fut in concurrent.futures.as_completed(futs, timeout=5):
+            try:
+                name, info = fut.result()
+                report["nodes"][name] = info
+            except Exception:
+                report["nodes"][futs[fut]] = {"status": "ERROR"}
+
+    # ── Services (parallel, 1s timeout) ──────────────────────────────────
+    SERVICES = {
+        "n8n": 5678, "dashboard": 8080, "gemini_proxy": 18791,
+        "canvas_proxy": 18800, "openclaw": 18789, "jarvis_ws": 9742, "mcp_sse": 8901,
+    }
+
+    def _check_svc(name, port):
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(1.0)
+            ok = sock.connect_ex(("127.0.0.1", port)) == 0
+            sock.close()
+            return name, "OK" if ok else "OFFLINE"
+        except (socket.error, OSError):
+            return name, "OFFLINE"
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
+        futs = [pool.submit(_check_svc, n, p) for n, p in SERVICES.items()]
+        for fut in concurrent.futures.as_completed(futs, timeout=3):
+            try:
+                name, status = fut.result()
+                report["services"][name] = status
+            except Exception:
+                pass
+
+    # ── Databases (quick integrity check) ────────────────────────────────
+    DBS = {
+        "etoile": _turbo / "data" / "etoile.db",
+        "jarvis": _turbo / "data" / "jarvis.db",
+        "sniper": _turbo / "data" / "sniper.db",
+    }
+    for db_name, db_path in DBS.items():
+        try:
+            if not db_path.exists():
+                report["databases"][db_name] = {"ok": False, "error": "not found"}
+                continue
+            conn = sqlite3.connect(str(db_path), timeout=2)
+            tables = conn.execute("SELECT count(*) FROM sqlite_master WHERE type='table'").fetchone()[0]
+            rows = 0
+            for (tbl,) in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall():
+                try:
+                    rows += conn.execute(f"SELECT count(*) FROM [{tbl}]").fetchone()[0]
+                except sqlite3.Error:
+                    pass
+            size_mb = round(db_path.stat().st_size / (1024 * 1024), 1)
+            conn.close()
+            report["databases"][db_name] = {"ok": True, "tables": tables, "rows": rows, "size_mb": size_mb}
+        except (sqlite3.Error, OSError) as e:
+            report["databases"][db_name] = {"ok": False, "error": str(e)}
+
+    return report
 
 
 def _boot_phase_sync(phase: str) -> dict:
