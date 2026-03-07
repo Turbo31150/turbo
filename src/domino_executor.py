@@ -146,6 +146,8 @@ def route_step(step: DominoStep) -> str:
         elif "127.0.0.1:11434" in action:
             return "OL1"
         return "M1"  # Default curl to M1
+    elif action_type == "tool":
+        return "LOCAL"  # Tools go via WS HTTP (port 9742)
     elif action_type == "pipeline":
         return "LOCAL"
     elif action_type == "condition":
@@ -215,7 +217,7 @@ def execute_powershell(command: str, timeout: int = 30) -> str:
         return f"BLOCKED: Command not in allowlist: {cmd[:80]}"
     result = subprocess.run(
         ["powershell", "-NoProfile", "-Command", cmd],
-        capture_output=True, text=True, timeout=timeout
+        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=timeout
     )
     return result.stdout.strip() or result.stderr.strip()
 
@@ -482,7 +484,7 @@ def _kill_heaviest_gpu() -> str:
     try:
         r = subprocess.run(
             ["nvidia-smi", "--query-compute-apps=pid,used_memory", "--format=csv,noheader,nounits"],
-            capture_output=True, text=True, timeout=10,
+            capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
         )
         if r.returncode != 0 or not r.stdout.strip():
             return "No GPU processes found"
@@ -504,7 +506,7 @@ def _kill_idle_gpu() -> str:
     try:
         r = subprocess.run(
             ["nvidia-smi", "--query-compute-apps=pid,used_memory", "--format=csv,noheader,nounits"],
-            capture_output=True, text=True, timeout=10,
+            capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
         )
         if not r.stdout.strip():
             return "No GPU processes"
@@ -564,7 +566,7 @@ def _throttle_gpu(threshold: str = "85") -> str:
     try:
         r = subprocess.run(
             ["nvidia-smi", "--query-gpu=temperature.gpu,power.draw", "--format=csv,noheader,nounits"],
-            capture_output=True, text=True, timeout=10,
+            capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
         )
         if not r.stdout.strip():
             return "No GPU data"
@@ -1022,7 +1024,7 @@ def _list_env_versions() -> str:
     versions = []
     for cmd, name in [("python --version", "Python"), ("node --version", "Node"), ("git --version", "Git")]:
         try:
-            r = subprocess.run(cmd.split(), capture_output=True, text=True, timeout=5)
+            r = subprocess.run(cmd.split(), capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5)
             versions.append(f"{name}: {r.stdout.strip()}")
         except (subprocess.TimeoutExpired, OSError):
             versions.append(f"{name}: N/A")
@@ -1120,7 +1122,8 @@ def _phonetic_groups_summary() -> str:
     try:
         from src.voice_correction import PHONETIC_GROUPS
         total_entries = sum(len(g) for g in PHONETIC_GROUPS)
-        return f"{len(PHONETIC_GROUPS)} groups, {total_entries} total entries ({total_entries / len(PHONETIC_GROUPS):.1f} avg per group)"
+        avg = total_entries / len(PHONETIC_GROUPS) if PHONETIC_GROUPS else 0
+        return f"{len(PHONETIC_GROUPS)} groups, {total_entries} total entries ({avg:.1f} avg per group)"
     except ImportError:
         return "Import error"
 
@@ -1157,7 +1160,7 @@ def _list_ollama_models() -> str:
     """List Ollama models available."""
     import subprocess
     try:
-        r = subprocess.run(['curl', '-s', 'http://127.0.0.1:11434/api/tags'], capture_output=True, text=True, timeout=5)
+        r = subprocess.run(['curl', '-s', 'http://127.0.0.1:11434/api/tags'], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5)
         import json
         data = json.loads(r.stdout)
         models = [m["name"] for m in data.get("models", [])]
@@ -1171,7 +1174,7 @@ def _list_lm_studio_models() -> str:
     """List LM Studio loaded models."""
     import subprocess
     try:
-        r = subprocess.run(['curl', '-s', 'http://127.0.0.1:1234/api/v1/models'], capture_output=True, text=True, timeout=5)
+        r = subprocess.run(['curl', '-s', 'http://127.0.0.1:1234/api/v1/models'], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5)
         import json
         data = json.loads(r.stdout)
         models = [m.get("id", "?") for m in data.get("data", data.get("models", [])) if m.get("loaded_instances")]
@@ -1188,7 +1191,7 @@ def _cluster_node_count() -> str:
     nodes = []
     for name, url in [("M1", "http://127.0.0.1:1234/api/v1/models"), ("OL1", "http://127.0.0.1:11434/api/tags"), ("M2", "http://192.168.1.26:1234/api/v1/models"), ("M3", "http://192.168.1.113:1234/api/v1/models")]:
         try:
-            r = subprocess.run(["curl", "-s", "--max-time", "3", url], capture_output=True, text=True, timeout=5)
+            r = subprocess.run(["curl", "-s", "--max-time", "3", url], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5)
             if r.returncode == 0 and r.stdout.strip():
                 active += 1
                 nodes.append(name)
@@ -1238,7 +1241,7 @@ def _git_status_short() -> str:
     """Get git status summary."""
     import subprocess
     try:
-        r = subprocess.run(['git', 'status', '--short'], capture_output=True, text=True, timeout=5, cwd="F:/BUREAU/turbo")
+        r = subprocess.run(['git', 'status', '--short'], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5, cwd="F:/BUREAU/turbo")
         lines = r.stdout.strip().split("\n") if r.stdout.strip() else []
         return f"{len(lines)} files modified" if lines else "Working tree clean"
     except (subprocess.TimeoutExpired, OSError):
@@ -1250,7 +1253,7 @@ def _git_log_today() -> str:
     """Get today's git commits."""
     import subprocess
     try:
-        r = subprocess.run(["git", "log", "--oneline", "--since=1 day ago"], capture_output=True, text=True, timeout=5, cwd="F:/BUREAU/turbo")
+        r = subprocess.run(["git", "log", "--oneline", "--since=1 day ago"], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5, cwd="F:/BUREAU/turbo")
         lines = r.stdout.strip().split("\n") if r.stdout.strip() else []
         return f"{len(lines)} commits today: {'; '.join(lines[:5])}" if lines else "No commits today"
     except (subprocess.TimeoutExpired, OSError):
@@ -1266,7 +1269,7 @@ def _system_memory_usage() -> str:
         return f"RAM: {mem.used // (1024**3)}GB / {mem.total // (1024**3)}GB ({mem.percent}%)"
     except ImportError:
         import subprocess
-        r = subprocess.run('powershell -Command "(Get-CimInstance Win32_OperatingSystem | Select-Object FreePhysicalMemory,TotalVisibleMemorySize | ForEach-Object { \\"$([math]::Round(($_.TotalVisibleMemorySize - $_.FreePhysicalMemory)/1MB,1))GB / $([math]::Round($_.TotalVisibleMemorySize/1MB,1))GB\\" })"', shell=True, capture_output=True, text=True, timeout=10)
+        r = subprocess.run('powershell -Command "(Get-CimInstance Win32_OperatingSystem | Select-Object FreePhysicalMemory,TotalVisibleMemorySize | ForEach-Object { \\"$([math]::Round(($_.TotalVisibleMemorySize - $_.FreePhysicalMemory)/1MB,1))GB / $([math]::Round($_.TotalVisibleMemorySize/1MB,1))GB\\" })"', shell=True, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10)
         return f"RAM: {r.stdout.strip()}" if r.stdout.strip() else "RAM info N/A"
 
 
@@ -1287,7 +1290,7 @@ def _recent_commits() -> str:
     """Get last 5 commit subjects."""
     import subprocess
     try:
-        r = subprocess.run(['git', 'log', '--oneline', '-5'], capture_output=True, text=True, timeout=5, cwd="F:/BUREAU/turbo")
+        r = subprocess.run(['git', 'log', '--oneline', '-5'], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5, cwd="F:/BUREAU/turbo")
         return r.stdout.strip() if r.stdout.strip() else "No commits"
     except (subprocess.TimeoutExpired, OSError):
         return "Git N/A"
@@ -1299,7 +1302,7 @@ def _ci_pipeline_count() -> str:
     import subprocess
     try:
         cmd = ['ls', '.github/workflows/*.yml', '2>/dev/null', '|', 'wc', '-l']
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=5, cwd="F:/BUREAU/turbo")
+        r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5, cwd="F:/BUREAU/turbo")
         count = r.stdout.strip()
         return f"GitHub workflows: {count}"
     except (subprocess.TimeoutExpired, OSError):
@@ -1379,7 +1382,7 @@ def _docker_container_count() -> str:
     """Count running Docker containers."""
     import subprocess
     try:
-        r = subprocess.run("docker ps -q 2>/dev/null | wc -l", shell=True, capture_output=True, text=True, timeout=5)
+        r = subprocess.run("docker ps -q 2>/dev/null | wc -l", shell=True, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5)
         count = r.stdout.strip()
         return f"Docker containers running: {count}"
     except (subprocess.TimeoutExpired, OSError):
@@ -1391,7 +1394,7 @@ def _terraform_version() -> str:
     """Get Terraform version."""
     import subprocess
     try:
-        r = subprocess.run("terraform version 2>/dev/null | head -1", shell=True, capture_output=True, text=True, timeout=5)
+        r = subprocess.run("terraform version 2>/dev/null | head -1", shell=True, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5)
         return r.stdout.strip() if r.stdout.strip() else "Terraform N/A"
     except (subprocess.TimeoutExpired, OSError):
         return "Terraform N/A"
@@ -1403,7 +1406,7 @@ def _node_versions() -> str:
     import subprocess
     parts = []
     try:
-        r = subprocess.run("node --version", shell=True, capture_output=True, text=True, timeout=5)
+        r = subprocess.run("node --version", shell=True, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5)
         parts.append(f"Node {r.stdout.strip()}")
     except (subprocess.TimeoutExpired, OSError):
         parts.append("Node N/A")
@@ -1421,7 +1424,7 @@ def _queue_status() -> str:
     import subprocess
     parts = []
     try:
-        r = subprocess.run("redis-cli ping 2>/dev/null", shell=True, capture_output=True, text=True, timeout=3)
+        r = subprocess.run("redis-cli ping 2>/dev/null", shell=True, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=3)
         parts.append(f"Redis: {'OK' if 'PONG' in r.stdout else 'N/A'}")
     except (subprocess.TimeoutExpired, OSError):
         parts.append("Redis: N/A")
@@ -1441,7 +1444,7 @@ def _build_tools_summary() -> str:
     parts = []
     for name, cmd in tools.items():
         try:
-            r = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=5)
+            r = subprocess.run(cmd, shell=True, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5)
             ver = r.stdout.strip().split('\n')[0] if r.stdout.strip() else "N/A"
             parts.append(f"{name}: {ver}")
         except (subprocess.TimeoutExpired, OSError):
@@ -1479,9 +1482,44 @@ def execute_bash(command: str, timeout: int = 30) -> str:
         return f"BLOCKED: Dangerous command: {cmd[:80]}"
     result = subprocess.run(
         ["bash", "-c", cmd],
-        capture_output=True, text=True, timeout=timeout
+        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=timeout
     )
     return result.stdout.strip() or result.stderr.strip()
+
+
+def execute_tool_step(action: str, timeout: int = 30) -> str:
+    """Execute a JARVIS IA tool step via WS port 9742.
+
+    Format: "tool:tool_name" or "tool:tool_name:arg1=val1,arg2=val2"
+    Examples:
+        "tool:jarvis_cluster_health"
+        "tool:jarvis_run_task:task_name=zombie_gc"
+        "tool:jarvis_boot_status"
+    """
+    parts = action.replace("tool:", "", 1).split(":", 1) if action.startswith("tool:") else action.split(":", 1)
+    tool_name = parts[0].strip()
+    args = {}
+    if len(parts) > 1 and parts[1].strip():
+        for kv in parts[1].split(","):
+            if "=" in kv:
+                k, v = kv.split("=", 1)
+                args[k.strip()] = v.strip()
+
+    try:
+        data = json.dumps({"tool_name": tool_name, "arguments": args}).encode()
+        req = urllib.request.Request(
+            "http://127.0.0.1:9742/api/tools/execute",
+            data=data,
+            headers={"Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            result = json.loads(resp.read().decode())
+        if result.get("ok"):
+            out = result.get("result", {})
+            return json.dumps(out, ensure_ascii=False, default=str)[:500]
+        return f"ERROR: {result.get('error', 'unknown')}"
+    except (urllib.error.URLError, OSError, json.JSONDecodeError, ValueError) as e:
+        return f"ERROR: {e}"
 
 
 def execute_step(step: DominoStep, node: str) -> tuple[str, str]:
@@ -1504,6 +1542,11 @@ def execute_step(step: DominoStep, node: str) -> tuple[str, str]:
             return "PASS", output
         elif step.action_type == "python":
             output = execute_python(step.action, step.timeout_s)
+            return "PASS", output
+        elif step.action_type == "tool":
+            output = execute_tool_step(step.action, step.timeout_s)
+            if output.startswith("ERROR:"):
+                return "FAIL", output
             return "PASS", output
         elif step.action_type == "pipeline":
             output = f"[PIPELINE] {step.action}"

@@ -5682,6 +5682,69 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         learning_context="QA — derniere verification avant deploiement",
         priority="high",
     ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # JARVIS TOOLS PIPELINES — uses action_type="tool" via WS 9742
+    # ─────────────────────────────────────────────────────────────────────
+    DominoPipeline(
+        id="domino_tool_system_health",
+        trigger_vocal=["sante systeme", "health check complet", "check sante jarvis", "system health"],
+        steps=[
+            DominoStep("cluster", "tool:jarvis_cluster_health", "tool", timeout_s=15),
+            DominoStep("boot", "tool:jarvis_boot_status", "tool", timeout_s=15),
+            DominoStep("gpu", "tool:jarvis_gpu_status", "tool", timeout_s=10),
+            DominoStep("db", "tool:jarvis_db_health", "tool", timeout_s=10),
+            DominoStep("alerts", "tool:jarvis_alerts_active", "tool", timeout_s=10),
+            DominoStep("tts", "python:edge_tts_speak('Health check complet. Cluster, boot, GPU, bases et alertes verifies.')", "python"),
+        ],
+        category="system_tools",
+        description="Health check complet via JARVIS tools: cluster + boot + GPU + DB + alertes",
+        learning_context="Diagnostic systeme complet via tools IA — prefere au diagnostic manual",
+        priority="high",
+    ),
+    DominoPipeline(
+        id="domino_tool_autonomous_check",
+        trigger_vocal=["statut autonome", "check autonome", "taches autonomes", "boucle autonome"],
+        steps=[
+            DominoStep("status", "tool:jarvis_autonomous_status", "tool", timeout_s=10),
+            DominoStep("events", "tool:jarvis_autonomous_events", "tool", timeout_s=10),
+            DominoStep("tts", "python:edge_tts_speak('Boucle autonome verifiee. 18 taches inspectees.')", "python"),
+        ],
+        category="system_tools",
+        description="Statut complet de la boucle autonome: taches + evenements recents",
+        learning_context="Verification rapide de la boucle autonome JARVIS",
+    ),
+    DominoPipeline(
+        id="domino_tool_morning_jarvis",
+        trigger_vocal=["bonjour jarvis tools", "matin jarvis complet", "demarrage jarvis"],
+        steps=[
+            DominoStep("boot", "tool:jarvis_boot_status", "tool", timeout_s=15),
+            DominoStep("cluster", "tool:jarvis_cluster_health", "tool", timeout_s=15),
+            DominoStep("autonomous", "tool:jarvis_autonomous_status", "tool", timeout_s=10),
+            DominoStep("diag", "tool:jarvis_diagnostics_quick", "tool", timeout_s=10),
+            DominoStep("gpu", "tool:jarvis_gpu_status", "tool", timeout_s=10),
+            DominoStep("tts", "python:edge_tts_speak('Bonjour! Boot OK, cluster verifie, boucle autonome active, diagnostics prets.')", "python"),
+        ],
+        category="system_tools",
+        description="Routine matin JARVIS via tools: boot + cluster + autonome + diag + GPU",
+        learning_context="Demarrage matinal complet utilisant les tools JARVIS pour donnees reelles",
+        priority="high",
+    ),
+    DominoPipeline(
+        id="domino_tool_run_maintenance",
+        trigger_vocal=["lance maintenance", "maintenance tools", "run maintenance"],
+        steps=[
+            DominoStep("zombie_gc", "tool:jarvis_run_task:task_name=zombie_gc", "tool", timeout_s=30),
+            DominoStep("vram_audit", "tool:jarvis_run_task:task_name=vram_audit", "tool", timeout_s=30),
+            DominoStep("db_maint", "tool:jarvis_db_maintenance", "tool", timeout_s=60),
+            DominoStep("diag", "tool:jarvis_diagnostics_quick", "tool", timeout_s=10),
+            DominoStep("tts", "python:edge_tts_speak('Maintenance terminee. Zombies nettoyes, VRAM audite, bases optimisees.')", "python"),
+        ],
+        category="system_tools",
+        description="Pipeline maintenance via tools: zombie GC + VRAM audit + DB maintenance + diagnostic",
+        learning_context="Maintenance systeme complete — destructive: DB maintenance",
+        priority="normal",
+    ),
 ]
 
 # Post-process: replace hardcoded paths with config-driven values
