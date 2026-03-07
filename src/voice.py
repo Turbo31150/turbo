@@ -278,7 +278,6 @@ async def analyze_with_lm(raw_text: str) -> dict:
                 "options": {"temperature": 0.1, "num_predict": 150},
             })
             if resp.status_code == 200:
-                import json
                 content = resp.json().get("message", {}).get("content", "").strip()
                 if content.startswith("```"):
                     content = content.split("\n", 1)[1].rsplit("```", 1)[0].strip()
@@ -466,10 +465,10 @@ async def listen_voice(timeout: float = 15.0, keyboard_fallback: bool = True, us
     # Transcribe via persistent worker
     try:
         text = await asyncio.to_thread(_whisper_worker.transcribe, wav_path)
-        if not text:
-            return
     finally:
         Path(wav_path).unlink(missing_ok=True)
+
+    if not text:
         print("  [Pas de parole detectee]", flush=True)
         return None
 
@@ -652,7 +651,7 @@ async def speak_text(text: str, voice: str = "fr-FR") -> bool:
         result = await asyncio.to_thread(
             lambda: subprocess.run(
                 ["powershell", "-ExecutionPolicy", "Bypass", "-File", ps_path],
-                capture_output=True, text=True, timeout=30,
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30,
             )
         )
         return result.returncode == 0
