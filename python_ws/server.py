@@ -691,6 +691,57 @@ async def api_autonomous_run(task_name: str):
         return JSONResponse({"error": str(exc)}, status_code=500)
 
 
+@app.get("/api/automation/status")
+async def api_automation_status():
+    """Full automation hub status (loop + scheduler + queue + processor)."""
+    try:
+        from src.automation_hub import automation_hub
+        return JSONResponse(automation_hub.get_status())
+    except Exception as exc:
+        logger.exception("GET /api/automation/status failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/scheduler/jobs")
+async def api_scheduler_jobs():
+    """List all scheduled jobs."""
+    try:
+        from src.task_scheduler import task_scheduler
+        return JSONResponse({"jobs": task_scheduler.list_jobs(), **task_scheduler.get_stats()})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/queue/status")
+async def api_queue_status():
+    """Task queue status + pending tasks."""
+    try:
+        from src.task_queue import task_queue
+        return JSONResponse({
+            **task_queue.get_stats(),
+            "pending": task_queue.list_pending(10),
+            "recent": task_queue.list_recent(10),
+        })
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/queue/enqueue")
+async def api_queue_enqueue(request: Request):
+    """Enqueue a new task. Body: {prompt, task_type?, priority?}"""
+    try:
+        from src.task_queue import task_queue
+        body = await request.json()
+        task_id = task_queue.enqueue(
+            prompt=body.get("prompt", ""),
+            task_type=body.get("task_type", "code"),
+            priority=body.get("priority", 5),
+        )
+        return JSONResponse({"ok": True, "task_id": task_id})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
 @app.get("/api/db/health")
 async def api_db_health():
     """Return database health status."""
@@ -3565,13 +3616,13 @@ async def _setup_ptt_and_wake():
     _start_wake_word(loop)
     # Phase 4: initialize orchestrator_v2 + initial health check
     await _startup_orchestrator()
-    # Phase 4: start autonomous loop
+    # Phase 5: start automation hub (autonomous_loop + task_scheduler + queue processor)
     try:
-        from src.autonomous_loop import autonomous_loop
-        await autonomous_loop.start()
-        logger.info("Autonomous loop started")
+        from src.automation_hub import automation_hub
+        report = await automation_hub.start()
+        logger.info("Automation Hub started: %s", report)
     except Exception as exc:
-        logger.warning("Autonomous loop startup failed (non-fatal): %s", exc)
+        logger.warning("Automation Hub startup failed (non-fatal): %s", exc)
 
 
 async def _startup_orchestrator():
@@ -3634,10 +3685,10 @@ async def _graceful_shutdown():
             pass
         _wake_detector = None
 
-    # Stop autonomous loop
+    # Stop automation hub (stops autonomous_loop + task_scheduler + queue processor)
     try:
-        from src.autonomous_loop import autonomous_loop
-        autonomous_loop.stop()
+        from src.automation_hub import automation_hub
+        await automation_hub.stop()
     except Exception:
         pass
 
