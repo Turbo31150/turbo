@@ -1027,6 +1027,40 @@ var Voice=(function(){
     else if(s==='wake'){vorb.classList.add('wake');vstat.textContent='Wake...';}
     else{vstat.textContent='Pret';}}
 
+  // Whisper fallback: record via MediaRecorder, send to WS backend for transcription
+  var whisperMediaRec=null,whisperChunks=[];
+  function whisperStart(){
+    if(whisperMediaRec)return;
+    navigator.mediaDevices.getUserMedia({audio:{sampleRate:16000,channelCount:1}}).then(function(stream){
+      whisperChunks=[];
+      whisperMediaRec=new MediaRecorder(stream,{mimeType:'audio/webm;codecs=opus'});
+      whisperMediaRec.ondataavailable=function(e){if(e.data.size>0)whisperChunks.push(e.data)};
+      whisperMediaRec.onstop=function(){
+        var blob=new Blob(whisperChunks,{type:'audio/webm'});
+        var reader=new FileReader();
+        reader.onload=function(){
+          var b64=reader.result.split(',')[1];
+          // Send to WS backend for Whisper transcription
+          var x=new XMLHttpRequest();x.open('POST','http://127.0.0.1:9742/api/voice/transcribe_blob',true);
+          x.setRequestHeader('Content-Type','application/json');x.timeout=30000;
+          x.onload=function(){
+            try{var d=JSON.parse(x.responseText);if(d.text&&d.text.length>1)proc(d.text)}
+            catch(e){console.warn('Whisper parse error',e)}
+          };
+          x.onerror=function(){console.warn('Whisper fallback failed')};
+          x.send(JSON.stringify({audio:b64,format:'webm',language:'fr'}));
+        };
+        reader.readAsDataURL(blob);
+        stream.getTracks().forEach(function(t){t.stop()});
+        whisperMediaRec=null;
+      };
+      whisperMediaRec.start();
+    }).catch(function(e){console.error('Mic access denied:',e);listening=false;st('')});
+  }
+  function whisperStop(){if(whisperMediaRec&&whisperMediaRec.state==='recording')whisperMediaRec.stop()}
+
+  var useWhisper=!SR; // fallback to Whisper if SpeechRecognition unavailable
+
   function init(){
     if(!SR)return null;
     var r=new SR();r.lang='fr-FR';r.continuous=true;r.interimResults=true;
@@ -1043,21 +1077,33 @@ var Voice=(function(){
 
   function proc(t){listening=false;document.getElementById('cinput').value=t;st('');handleSend();}
 
+  var _curCtx=null,_curSrc=null;
+  function stop(){if(_curSrc){try{_curSrc.stop()}catch(e){}}if(_curCtx){try{_curCtx.close()}catch(e){}}if(syn){try{syn.cancel()}catch(e){}}speaking=false;_curCtx=null;_curSrc=null;st(wake?'wake':'');}
   function speak(t){if(!ttsEnabled||speaking)return;speaking=true;st('speaking');
     var x=new XMLHttpRequest();x.open('POST',TTS,true);x.setRequestHeader('Content-Type','application/json');x.responseType='arraybuffer';x.timeout=8000;
-    x.onload=function(){if(x.status===200&&x.response.byteLength>1000){var ctx=new(window.AudioContext||window.webkitAudioContext)();ctx.decodeAudioData(x.response,function(buf){var src=ctx.createBufferSource();src.buffer=buf;src.connect(ctx.destination);src.onended=function(){speaking=false;st(wake?'wake':'');ctx.close()};src.start(0)},function(){fb(t)})}else{fb(t)}};
+    x.onload=function(){if(x.status===200&&x.response.byteLength>1000){var ctx=new(window.AudioContext||window.webkitAudioContext)();_curCtx=ctx;ctx.decodeAudioData(x.response,function(buf){var src=ctx.createBufferSource();_curSrc=src;src.buffer=buf;src.connect(ctx.destination);src.onended=function(){speaking=false;_curCtx=null;_curSrc=null;st(wake?'wake':'');ctx.close()};src.start(0)},function(){fb(t)})}else{fb(t)}};
     x.onerror=function(){fb(t)};x.ontimeout=function(){fb(t)};
     try{x.send(JSON.stringify({text:t,voice:'fr-FR-DeniseNeural'}))}catch(e){fb(t)}
   }
   function fb(t){if(!syn){speaking=false;st(wake?'wake':'');return;}var u=new SpeechSynthesisUtterance(t);u.lang='fr-FR';u.rate=1.05;var v=syn.getVoices();for(var i=0;i<v.length;i++){if(v[i].lang&&v[i].lang.indexOf('fr')===0){u.voice=v[i];break;}}u.onend=function(){speaking=false;st(wake?'wake':'')};u.onerror=u.onend;syn.speak(u)}
 
-  function ptt(){if(!rec)rec=init();if(!rec)return;if(listening){rec.stop();listening=false;st(wake?'wake':'')}else{listening=true;st('listening');try{rec.start()}catch(e){listening=false;st('')}}}
+  function ptt(){
+    if(useWhisper){
+      // Whisper fallback mode (no SpeechRecognition)
+      if(listening){whisperStop();listening=false;st('')}
+      else{listening=true;st('listening');whisperStart()}
+      return;
+    }
+    if(!rec)rec=init();if(!rec){useWhisper=true;ptt();return;}
+    if(listening){rec.stop();listening=false;st(wake?'wake':'')}
+    else{listening=true;st('listening');try{rec.start()}catch(e){listening=false;st('')}}
+  }
   function tw(){if(!rec)rec=init();if(!rec)return;wake=!wake;wtog.textContent='Wake: '+(wake?'ON':'OFF');wtog.classList.toggle('on',wake);if(wake){st('wake');try{rec.start()}catch(e){}}else{try{rec.stop()}catch(e){}listening=false;st('')}}
 
-  return{speak:speak,ptt:ptt,tw:tw};
+  return{speak:speak,stop:stop,ptt:ptt,tw:tw};
 })();
 
-document.getElementById('vorb').addEventListener('click',Voice.ptt);
+document.getElementById('vorb').addEventListener('click',function(){if(this.classList.contains('speaking')){Voice.stop()}else{Voice.ptt()}});
 document.getElementById('wtog').addEventListener('click',Voice.tw);
 
 // TTS toggle
@@ -1101,7 +1147,7 @@ function langPrefix(){
 
 // Auto-speak on bot messages
 var _add=addMsg;
-addMsg=function(r,t,m,a){_add(r,t,m,a);if(r==='bot'&&t&&t.length<500){var c=t.replace(/<[^>]+>/g,'').replace(/\n/g,' ').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').trim();if(c)Voice.speak(c)}};
+addMsg=function(r,t,m,a){_add(r,t,m,a);if(r==='bot'&&t&&t.length<500&&document.hasFocus()){var c=t.replace(/<[^>]+>/g,'').replace(/\n/g,' ').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').trim();if(c)Voice.speak(c)}};
 
 // ═══ CLUSTER HEALTH CHECK (via proxy — handles auth) ═══
 function checkCluster(){

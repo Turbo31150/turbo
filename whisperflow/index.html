@@ -1280,6 +1280,7 @@ let audioChunks = [];
 let history = [];
 let reqId = 0;
 let mode = 'ptt'; // ptt | wake | auto
+let currentTtsAudio = null; // Audio element for TTS playback (pause/stop)
 
 // DOM
 const $wsStatus = document.getElementById('wsStatus');
@@ -1360,6 +1361,9 @@ function handleWSMessage(msg) {
   if (msg.type === 'response' && msg.channel === 'voice') {
     if (msg.action === 'stop_recording' && msg.payload) {
       onTranscriptionResult(msg.payload);
+    }
+    if (msg.action === 'tts_speak' && msg.payload) {
+      playTtsResponse(msg.payload);
     }
   }
   if (msg.type === 'event' && msg.channel === 'voice') {
@@ -1675,6 +1679,36 @@ function cleanTextForTTS(text) {
   clean = clean.replace(/,\s*,+/g, ',');
   clean = clean.replace(/\s{2,}/g, ' ');
   return clean.trim();
+}
+
+function playTtsResponse(payload) {
+  // Stop any previous TTS audio
+  stopTtsAudio();
+
+  if (payload.audio && payload.format) {
+    // Server returned base64 audio — play in browser
+    const mime = payload.format === 'mp3' ? 'audio/mpeg' : 'audio/' + payload.format;
+    const audio = new Audio('data:' + mime + ';base64,' + payload.audio);
+    currentTtsAudio = audio;
+    audio.onended = () => { currentTtsAudio = null; };
+    audio.onerror = () => { currentTtsAudio = null; };
+    audio.play().catch(e => console.warn('[TTS] Audio play failed:', e));
+  } else if (payload.fallback === 'web_speech_api' && payload.text) {
+    // Fallback: browser speechSynthesis
+    const utter = new SpeechSynthesisUtterance(payload.text);
+    utter.lang = 'fr-FR';
+    utter.rate = 1.0;
+    speechSynthesis.speak(utter);
+  }
+}
+
+function stopTtsAudio() {
+  if (currentTtsAudio) {
+    currentTtsAudio.pause();
+    currentTtsAudio.currentTime = 0;
+    currentTtsAudio = null;
+  }
+  speechSynthesis.cancel();
 }
 
 function onJarvisResponse(data) {
