@@ -13,8 +13,6 @@ echo  Telegram: ON
 echo ========================================
 echo.
 
-:LOOP
 python scripts/auto_heal_daemon.py --cycles 10000 --interval 30
-echo [%date% %time%] Daemon crashed, restarting in 15s...
-timeout /t 15 /nobreak >nul
-goto LOOP
+echo [%date% %time%] Auto-Heal Daemon finished.
+pause

@@ -6,9 +6,7 @@ cd /d F:\BUREAU\turbo
 :: === SINGLETON GUARD: tue l'instance existante ===
 python scripts/singleton_guard.py --name pipeline_cluster --kill
 
-:LOOP
 echo [%DATE% %TIME%] Starting pipeline...
 "F:\BUREAU\turbo\.venv\Scripts\python.exe" -u cowork\dev\autonomous_cluster_pipeline.py --cycles 100 --batch 5 --pause 3
-echo [%DATE% %TIME%] Pipeline exited, restarting in 5s...
-timeout /t 5 /nobreak >nul
-goto LOOP
+echo [%DATE% %TIME%] Pipeline finished.
+pause

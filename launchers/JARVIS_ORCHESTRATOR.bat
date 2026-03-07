@@ -10,9 +10,7 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-:loop
 echo [%date% %time%] Starting JARVIS Task Orchestrator...
 python scripts/task_orchestrator.py --daemon
-echo [%date% %time%] Orchestrator stopped. Restarting in 10s...
-timeout /t 10 /noq
-goto loop
+echo [%date% %time%] Orchestrator finished.
+pause
