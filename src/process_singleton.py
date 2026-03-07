@@ -84,6 +84,11 @@ class ProcessSingleton:
         alive, pid = self.is_running(service)
         if not alive or pid is None:
             return False
+        # Never kill our own process or parent (uvicorn spawn pattern:
+        # boot registers parent PID, child startup calls acquire → would self-kill)
+        if pid == os.getpid() or pid == os.getppid():
+            logger.info("Skipping kill of %s (PID %d) — it's us or our parent", service, pid)
+            return False
         return self._kill_pid(pid, service)
 
     def _kill_pid(self, pid: int, label: str = "") -> bool:
