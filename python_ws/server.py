@@ -5082,6 +5082,90 @@ async def api_router_pick(request: Request):
     return {"node": router.pick_node(pattern, prompt)}
 
 
+# ── OpenClaw Bridge API ──────────────────────────────────────────────────
+
+@app.post("/api/openclaw/route")
+async def api_openclaw_route(request: Request):
+    """Route a message to the best OpenClaw agent. Body: {text, deep?}"""
+    from src.openclaw_bridge import get_bridge
+    body = await request.json()
+    text = body.get("text", "")
+    if not text:
+        raise HTTPException(400, "text required")
+    deep = body.get("deep", False)
+    result = get_bridge().route(text, use_deep=deep)
+    return {
+        "agent": result.agent, "intent": result.intent,
+        "confidence": result.confidence, "fallback_used": result.fallback_used,
+        "latency_ms": round(result.latency_ms, 2), "source": result.source,
+    }
+
+
+@app.post("/api/openclaw/route-batch")
+async def api_openclaw_route_batch(request: Request):
+    """Route multiple messages. Body: {messages: [str]}"""
+    from src.openclaw_bridge import get_bridge
+    body = await request.json()
+    messages = body.get("messages", [])
+    if not messages:
+        raise HTTPException(400, "messages required")
+    results = get_bridge().route_batch(messages)
+    return {
+        "results": [
+            {"agent": r.agent, "intent": r.intent, "confidence": r.confidence}
+            for r in results
+        ]
+    }
+
+
+@app.get("/api/openclaw/routing-table")
+async def api_openclaw_routing_table():
+    """Full intent-to-agent mapping table."""
+    from src.openclaw_bridge import get_bridge
+    return {"table": get_bridge().get_routing_table()}
+
+
+@app.get("/api/openclaw/stats")
+async def api_openclaw_stats():
+    """OpenClaw routing statistics."""
+    from src.openclaw_bridge import get_bridge
+    return get_bridge().get_stats()
+
+
+@app.get("/api/openclaw/analytics")
+async def api_openclaw_analytics():
+    """OpenClaw routing analytics from SQLite history."""
+    from src.openclaw_bridge import get_bridge
+    return get_bridge().get_routing_analytics()
+
+
+@app.get("/api/openclaw/history")
+async def api_openclaw_history(hours: int = 24, limit: int = 200):
+    """Recent routing decisions."""
+    from src.openclaw_bridge import get_bridge
+    rows = get_bridge().get_routing_history(hours=hours, limit=limit)
+    return {"rows": rows, "count": len(rows)}
+
+
+@app.get("/api/openclaw/agents")
+async def api_openclaw_agents():
+    """List all 40 OpenClaw agents with IDENTITY status."""
+    import os
+    agents_dir = Path(os.path.expanduser("~/.openclaw/agents"))
+    agents = []
+    if agents_dir.exists():
+        for d in sorted(agents_dir.iterdir()):
+            if d.is_dir():
+                identity = d / "agent" / "IDENTITY.md"
+                models = d / "agent" / "models.json"
+                agents.append({
+                    "name": d.name,
+                    "has_identity": identity.exists(),
+                    "has_models": models.exists(),
+                })
+    return {"agents": agents, "total": len(agents)}
+
+
 # ── Pattern Discovery API ─────────────────────────────────────────────────
 
 @app.get("/api/discovery/report")
