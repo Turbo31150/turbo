@@ -97,6 +97,9 @@ class AutonomousLoop:
         self.register("auto_develop", self._task_auto_develop, interval_s=86400,
                        cron=CronSchedule(hour=3, minute=30))  # daily 3h30
 
+        # ── v3.1 Self-improvement — autonomous cluster optimization ───────
+        self.register("self_improve", self._task_self_improve, interval_s=600)  # 10min
+
         # ── v3.0 System automation — IA-driven system management ─────────
         self.register("zombie_gc", self._task_zombie_gc, interval_s=600)  # 10min
         self.register("vram_audit", self._task_vram_audit, interval_s=600)  # 10min
@@ -502,6 +505,28 @@ class AutonomousLoop:
             }
             if report["registered"] > 0:
                 result["alert"] = f"AutoDev: {report['registered']} new commands created"
+            return result
+        except Exception as e:
+            return {"error": str(e)}
+
+    # ── v3.1 Self-improvement task ──────────────────────────────────
+
+    @staticmethod
+    async def _task_self_improve() -> dict[str, Any]:
+        """Run self-improvement cycle: analyze metrics, adjust weights, optimize strategies."""
+        try:
+            from src.self_improve_engine import self_improve_engine
+            report = await self_improve_engine.run_cycle()
+            result: dict[str, Any] = {
+                "cycle": report["cycle"],
+                "actions": report["actions_taken"],
+                "nodes": report.get("nodes_analyzed", 0),
+            }
+            if report["actions_taken"] > 0:
+                result["alert"] = (
+                    f"Self-improve: {report['actions_taken']} actions "
+                    f"({', '.join(a['type'] for a in report.get('actions', [])[:3])})"
+                )
             return result
         except Exception as e:
             return {"error": str(e)}

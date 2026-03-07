@@ -742,6 +742,31 @@ async def api_queue_enqueue(request: Request):
         return JSONResponse({"error": str(exc)}, status_code=500)
 
 
+@app.get("/api/self-improve/status")
+async def api_self_improve_status():
+    """Self-improvement engine status + history."""
+    try:
+        from src.self_improve_engine import self_improve_engine
+        return JSONResponse({
+            **self_improve_engine.get_status(),
+            "history": self_improve_engine.get_history(10),
+        })
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/self-improve/run")
+async def api_self_improve_run():
+    """Trigger a self-improvement cycle now."""
+    try:
+        from src.self_improve_engine import self_improve_engine
+        report = await self_improve_engine.run_cycle()
+        return JSONResponse(report)
+    except Exception as exc:
+        logger.exception("POST /api/self-improve/run failed")
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
 @app.get("/api/db/health")
 async def api_db_health():
     """Return database health status."""
