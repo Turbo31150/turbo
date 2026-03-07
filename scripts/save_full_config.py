@@ -30,6 +30,39 @@ ts = time.time()
 now = datetime.now().isoformat()
 
 
+def _migrate_agent_patterns(db):
+    """Ensure agent_patterns table has all columns expected by src/ modules."""
+    try:
+        existing = {c[1] for c in db.execute("PRAGMA table_info(agent_patterns)").fetchall()}
+        if not existing:
+            return  # table doesn't exist yet
+        required = {
+            "pattern_type": "TEXT", "pattern_id": "TEXT", "model_primary": "TEXT",
+            "strategy": 'TEXT DEFAULT "single"', "agent_id": "TEXT",
+            "priority": "INTEGER DEFAULT 50", "keywords": "TEXT",
+            "model_fallbacks": "TEXT", "system_prompt": "TEXT",
+            "max_tokens": "INTEGER DEFAULT 512", "temperature": "REAL DEFAULT 0.3",
+            "timeout_s": "REAL DEFAULT 30", "created_at": "TEXT", "updated_at": "TEXT",
+            "success_rate": "REAL DEFAULT 0", "total_dispatches": "INTEGER DEFAULT 0",
+            "total_calls": "INTEGER DEFAULT 0", "status": 'TEXT DEFAULT "active"',
+            "avg_latency_ms": "REAL DEFAULT 0",
+        }
+        added = 0
+        for col, dtype in required.items():
+            if col not in existing:
+                db.execute(f"ALTER TABLE agent_patterns ADD COLUMN {col} {dtype}")
+                added += 1
+        if added:
+            db.execute("""UPDATE agent_patterns SET
+                pattern_type = pattern_name, pattern_id = 'pat-' || id,
+                model_primary = agent_primary,
+                agent_id = 'pat-' || LOWER(REPLACE(pattern_name, '-', '_'))
+                WHERE pattern_type IS NULL""")
+            print(f"  agent_patterns: migrated ({added} columns added)")
+    except Exception:
+        pass  # table may not exist in fresh install
+
+
 def save_etoile():
     """Save full system state to etoile.db system_restore table."""
     db = sqlite3.connect(str(ETOILE))
@@ -342,6 +375,9 @@ def save_etoile():
     save("meta", "turbo_dir", str(TURBO))
     save("meta", "user", "Turbo")
     save("meta", "assistant", "JARVIS")
+
+    # Ensure agent_patterns has all required columns (schema migration)
+    _migrate_agent_patterns(db)
 
     db.commit()
     total = db.execute("SELECT COUNT(*) FROM system_restore").fetchone()[0]
