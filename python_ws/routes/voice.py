@@ -82,8 +82,15 @@ def _format_tool_for_tts(tool_name: str, data: dict) -> str:
         return json.dumps(data, ensure_ascii=False, default=str)[:300]
 
     if tool_name == "jarvis_autonomous_status":
-        tasks = data.get("tasks", data.get("task_count", "?"))
-        if isinstance(tasks, list):
+        running = data.get("running", False)
+        tasks = data.get("tasks", {})
+        if isinstance(tasks, dict):
+            enabled = sum(1 for t in tasks.values() if isinstance(t, dict) and t.get("enabled"))
+            failed = sum(1 for t in tasks.values() if isinstance(t, dict) and t.get("fail_count", 0) > 0)
+            status = "active" if running else "arretee"
+            fail_msg = f", {failed} en erreur" if failed else ""
+            return f"Boucle autonome {status}: {enabled} taches actives sur {len(tasks)}{fail_msg}."
+        elif isinstance(tasks, list):
             enabled = sum(1 for t in tasks if t.get("enabled"))
             return f"Boucle autonome: {enabled} taches actives sur {len(tasks)}."
         return f"Boucle autonome: {tasks} taches."
