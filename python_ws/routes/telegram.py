@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import os
@@ -33,8 +34,8 @@ def _proxy_get(endpoint: str, timeout: int = 5) -> dict:
     return json.loads(resp.read().decode())
 
 
-def _proxy_post(endpoint: str, data: dict, timeout: int = 120) -> dict:
-    """POST on canvas proxy."""
+def _proxy_post_sync(endpoint: str, data: dict, timeout: int = 120) -> dict:
+    """POST on canvas proxy (synchronous)."""
     body = json.dumps(data).encode()
     req = urllib.request.Request(
         f"{_PROXY}{endpoint}", data=body,
@@ -42,6 +43,22 @@ def _proxy_post(endpoint: str, data: dict, timeout: int = 120) -> dict:
     )
     resp = urllib.request.urlopen(req, timeout=timeout)
     return json.loads(resp.read().decode())
+
+
+async def _proxy_post(endpoint: str, data: dict, timeout: int = 30) -> dict:
+    """POST on canvas proxy (async — does not block event loop)."""
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            resp = await client.post(
+                f"{_PROXY}{endpoint}",
+                json=data,
+            )
+            return resp.json()
+    except ImportError:
+        # Fallback: run sync in thread to avoid blocking
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, _proxy_post_sync, endpoint, data, timeout)
 
 
 async def handle_telegram_request(action: str, payload: dict | None) -> dict[str, Any]:
@@ -102,7 +119,7 @@ async def handle_telegram_request(action: str, payload: dict | None) -> dict[str
         if not text:
             return {"error": "missing 'text'"}
         try:
-            result = _proxy_post("/chat", {"agent": agent, "text": text})
+            result = await _proxy_post("/chat", {"agent": agent, "text": text})
             return result
         except Exception as e:
             return {"error": f"proxy /chat: {e}"}
