@@ -616,8 +616,19 @@ def get_db():
     return conn
 
 
+def _is_cowork_paused() -> bool:
+    """Check if VRAM guard has paused cowork execution."""
+    pause_flag = TURBO_DIR / "data" / ".cowork-paused"
+    return pause_flag.exists()
+
+
 def run_task(task_name, task_def, dry_run=False):
     """Execute a task and return result."""
+    # VRAM guard: skip non-critical tasks when VRAM is overloaded
+    if _is_cowork_paused() and task_def.get("category") not in ("health",):
+        return {"success": False, "error": "cowork_paused_vram",
+                "duration_ms": 0, "skipped": True}
+
     script = SCRIPT_DIR / task_def["script"]
     if not script.exists():
         return {"success": False, "error": f"Script not found: {script}"}

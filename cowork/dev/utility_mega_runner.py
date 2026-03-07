@@ -497,6 +497,12 @@ def main():
         sys.exit(0)
 
     if args.once:
+        # Check VRAM guard pause flag
+        _pause_flag = SCRIPT_DIR.parent.parent / "data" / ".cowork-paused"
+        if _pause_flag.exists():
+            print("[PAUSED] VRAM guard has paused cowork execution. Skipping.")
+            sys.exit(0)
+
         ts_start = datetime.now().strftime("%H:%M:%S")
         print(f"[{ts_start}] Utility Mega Runner -- executing uncovered scripts...")
 

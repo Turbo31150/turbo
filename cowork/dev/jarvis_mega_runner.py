@@ -266,6 +266,12 @@ def main():
         print(f"\nTotal: {len(scripts)} scripts")
         return
 
+    # Check VRAM guard pause flag
+    pause_flag = SCRIPT_DIR.parent.parent / "data" / ".cowork-paused"
+    if pause_flag.exists():
+        print("[PAUSED] VRAM guard has paused cowork execution. Skipping.")
+        return
+
     # --once: run all (parallel by priority group, max 3 concurrent)
     MAX_WORKERS = 3
     run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
