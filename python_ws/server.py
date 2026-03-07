@@ -401,6 +401,28 @@ async def api_autonomous_toggle(task_name: str, enabled: bool = True):
         return JSONResponse({"error": str(exc)}, status_code=500)
 
 
+@app.post("/api/autonomous/run/{task_name}")
+async def api_autonomous_run(task_name: str):
+    """Trigger an autonomous task immediately (IA-driven system interaction)."""
+    try:
+        from src.autonomous_loop import autonomous_loop
+        if task_name not in autonomous_loop._tasks:
+            return JSONResponse({"error": f"Task '{task_name}' not found",
+                                 "available": list(autonomous_loop._tasks.keys())}, status_code=404)
+        task = autonomous_loop._tasks[task_name]
+        import asyncio
+        result = await asyncio.wait_for(task.fn(), timeout=60.0)
+        task.last_run = __import__("time").time()
+        task.run_count += 1
+        task.last_result = result
+        return JSONResponse({"ok": True, "task": task_name, "result": autonomous_loop._safe_json(result)})
+    except asyncio.TimeoutError:
+        return JSONResponse({"error": f"Task '{task_name}' timed out (60s)"}, status_code=504)
+    except Exception as exc:
+        logger.exception("POST /api/autonomous/run/%s failed", task_name)
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
 @app.get("/api/db/health")
 async def api_db_health():
     """Return database health status."""
