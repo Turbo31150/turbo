@@ -288,6 +288,12 @@ class DispatchEngine:
         # Persist
         self._log_pipeline(result)
 
+        # Step 8b: Feed orchestrator_v2 for drift detection + auto-tune
+        self._feed_orchestrator(result)
+
+        # Step 8c: Feed adaptive_router affinity with quality gate result
+        self._feed_router_affinity(result)
+
         # Cache successful results
         self._cache_put(cache_key, result)
 
@@ -602,6 +608,35 @@ class DispatchEngine:
         except (ImportError, sqlite3.Error) as e:
             logger.debug(f"Episode storage failed: {e}")
             return False
+
+    def _feed_orchestrator(self, result: DispatchResult) -> None:
+        """Feed dispatch result into orchestrator_v2 for drift detection + auto-tune."""
+        try:
+            from src.orchestrator_v2 import orchestrator_v2
+            orchestrator_v2.record_call(
+                node=result.node,
+                latency_ms=result.latency_ms,
+                success=result.success,
+                tokens=result.prompt_tokens_est,
+                quality=result.quality,
+            )
+        except (ImportError, AttributeError, TypeError) as e:
+            logger.debug("orchestrator_v2 feedback skipped: %s", e)
+
+    def _feed_router_affinity(self, result: DispatchResult) -> None:
+        """Feed quality gate result into adaptive_router for real-time affinity learning."""
+        try:
+            from src.adaptive_router import get_router
+            router = get_router()
+            router.record(
+                node=result.node,
+                pattern=result.pattern,
+                latency_ms=result.latency_ms,
+                success=result.success,
+                quality=result.quality,
+            )
+        except (ImportError, AttributeError, TypeError) as e:
+            logger.debug("adaptive_router feedback skipped: %s", e)
 
     def _log_pipeline(self, result: DispatchResult):
         """Persist pipeline log."""

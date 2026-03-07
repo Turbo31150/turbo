@@ -100,6 +100,9 @@ class SmartDispatcher:
         if not result.success and self._should_retry(pattern, result):
             result = await self._retry_on_fallback(pattern, prompt, agent, result)
 
+        # Feed back to orchestrator_v2 + adaptive_router + event_stream
+        self._feed_back(pattern, result)
+
         return result
 
     def _should_retry(self, pattern: str, result: AgentResult) -> bool:
@@ -246,6 +249,47 @@ class SmartDispatcher:
                 }
             }
         return report
+
+    @staticmethod
+    def _feed_back(pattern: str, result) -> None:
+        """Feed dispatch result to orchestrator_v2 + adaptive_router + event_stream."""
+        node = getattr(result, "node", "") or ""
+        latency = getattr(result, "latency_ms", 0) or 0
+        quality = getattr(result, "quality_score", 0) or 0
+        success = getattr(result, "success", False)
+
+        # orchestrator_v2 — drift detection + auto-tune
+        try:
+            from src.orchestrator_v2 import orchestrator_v2
+            orchestrator_v2.record_call(
+                node=node, latency_ms=latency, success=success, quality=quality,
+            )
+        except (ImportError, AttributeError, TypeError):
+            pass
+
+        # adaptive_router — real-time affinity update
+        try:
+            from src.adaptive_router import get_router
+            get_router().record(
+                node=node, pattern=pattern,
+                latency_ms=latency, success=success, quality=quality,
+            )
+        except (ImportError, AttributeError, TypeError):
+            pass
+
+        # event_stream — dashboard visibility
+        try:
+            from src.event_stream import get_stream
+            get_stream().emit("dispatch", {
+                "source": "smart_dispatcher",
+                "pattern": pattern,
+                "node": node,
+                "quality": quality,
+                "latency_ms": latency,
+                "success": success,
+            }, source="smart_dispatcher")
+        except (ImportError, AttributeError, TypeError):
+            pass
 
     async def health_check(self) -> dict:
         """Quick health check of all nodes."""

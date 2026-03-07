@@ -691,3 +691,60 @@ class TestGetEngine:
             assert get_engine() is sentinel
         finally:
             mod._engine = old
+
+
+# ---------------------------------------------------------------------------
+# Feedback loops — dispatch_engine feeds orchestrator_v2 + adaptive_router
+# ---------------------------------------------------------------------------
+
+class TestFeedbackLoops:
+    def _make_result(self, **kw):
+        defaults = dict(
+            pattern="code", node="M1", strategy="single", content="ok",
+            quality=0.8, latency_ms=500, success=True,
+            prompt_tokens_est=100,
+        )
+        defaults.update(kw)
+        return DispatchResult(**defaults)
+
+    def test_feed_orchestrator_calls_record(self):
+        engine = DispatchEngine(config=_minimal_config())
+        result = self._make_result()
+        mock_orch = MagicMock()
+        with patch.dict(sys.modules, {
+            "src.orchestrator_v2": MagicMock(orchestrator_v2=mock_orch),
+        }):
+            engine._feed_orchestrator(result)
+        mock_orch.record_call.assert_called_once_with(
+            node="M1", latency_ms=500, success=True,
+            tokens=100, quality=0.8,
+        )
+
+    def test_feed_orchestrator_graceful_on_import_error(self):
+        engine = DispatchEngine(config=_minimal_config())
+        result = self._make_result()
+        with patch.dict(sys.modules, {
+            "src.orchestrator_v2": None,
+        }):
+            # Should not raise
+            engine._feed_orchestrator(result)
+
+    def test_feed_router_calls_record(self):
+        engine = DispatchEngine(config=_minimal_config())
+        result = self._make_result()
+        mock_router = MagicMock()
+        mock_get = MagicMock(return_value=mock_router)
+        with patch.dict(sys.modules, {
+            "src.adaptive_router": MagicMock(get_router=mock_get),
+        }):
+            engine._feed_router_affinity(result)
+        mock_router.record.assert_called_once_with(
+            node="M1", pattern="code",
+            latency_ms=500, success=True, quality=0.8,
+        )
+
+    def test_feed_router_graceful_on_import_error(self):
+        engine = DispatchEngine(config=_minimal_config())
+        result = self._make_result()
+        with patch.dict(sys.modules, {"src.adaptive_router": None}):
+            engine._feed_router_affinity(result)

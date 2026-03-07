@@ -341,3 +341,42 @@ class TestGetRoutingReport:
         assert "code" in report
         assert report["code"]["default_node"] == "M1"
         assert "M1" in report["code"]["nodes"]
+
+
+# ===========================================================================
+# SmartDispatcher — _feed_back (feedback loops)
+# ===========================================================================
+
+class TestFeedBack:
+    def test_feed_back_calls_orchestrator(self):
+        mock_orch = MagicMock()
+        result = MagicMock()
+        result.node = "M1"
+        result.latency_ms = 500
+        result.quality_score = 0.85
+        result.success = True
+
+        with patch.dict(sys.modules, {
+            "src.orchestrator_v2": MagicMock(orchestrator_v2=mock_orch),
+            "src.adaptive_router": MagicMock(get_router=MagicMock(return_value=MagicMock())),
+            "src.event_stream": MagicMock(get_stream=MagicMock(return_value=MagicMock())),
+        }):
+            from src.smart_dispatcher import SmartDispatcher
+            SmartDispatcher._feed_back("code", result)
+
+        mock_orch.record_call.assert_called_once()
+
+    def test_feed_back_graceful_on_missing_modules(self):
+        result = MagicMock()
+        result.node = "OL1"
+        result.latency_ms = 200
+        result.quality_score = 0.7
+        result.success = True
+
+        with patch.dict(sys.modules, {
+            "src.orchestrator_v2": None,
+            "src.adaptive_router": None,
+            "src.event_stream": None,
+        }):
+            from src.smart_dispatcher import SmartDispatcher
+            SmartDispatcher._feed_back("simple", result)  # should not raise
