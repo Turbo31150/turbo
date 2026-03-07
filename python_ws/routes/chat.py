@@ -364,8 +364,15 @@ JARVIS_SYSTEM = (
     "Reponds de facon concise (2-3 phrases max) et naturelle. "
     "Tu controles un cluster de machines IA (M1, M2, M3, OL1) et tu peux "
     "executer des commandes systeme, trading, diagnostic. "
+    "Si tu as des tools disponibles, utilise-les pour obtenir des donnees reelles "
+    "avant de repondre (ex: statut cluster, diagnostics, alertes). "
     "Reponds toujours en francais."
 )
+
+# Task types that benefit from IA tools (system interaction)
+# "simple" included because even simple queries may need system data;
+# tools are only injected for LM Studio backends (not Ollama)
+_TOOL_TASK_TYPES = {"systeme", "architecture", "analyse", "consensus", "code", "simple"}
 
 
 def _build_chat_history(current_text: str, max_turns: int = 6) -> list[dict]:
@@ -523,7 +530,11 @@ ROUTING_MATRIX = {
 
 
 async def _query_local_ia(text: str, task_type: str) -> str:
-    """Query IA nodes for a response using full routing matrix."""
+    """Query IA nodes for a response using full routing matrix.
+
+    v4: Injects IA tools for system-related queries so models can call
+    JARVIS endpoints (diagnostics, cluster health, etc.) before responding.
+    """
 
     # Build node priority from routing matrix (copy to avoid mutating the original)
     model_ids = list(ROUTING_MATRIX.get(task_type, ROUTING_MATRIX["simple"]))
@@ -554,6 +565,15 @@ async def _query_local_ia(text: str, task_type: str) -> str:
     chat_messages = _build_chat_history(text)
     lmstudio_input = _build_lmstudio_input(text)
 
+    # Load tools for system-related queries (only for capable models)
+    ia_tools = None
+    if task_type in _TOOL_TASK_TYPES:
+        try:
+            from src.ia_tools import get_tools_for_scope
+            ia_tools = get_tools_for_scope("minimal")
+        except ImportError:
+            ia_tools = None
+
     client = await _get_http()
     for node in nodes_priority:
         try:
@@ -576,25 +596,121 @@ async def _query_local_ia(text: str, task_type: str) -> str:
                 headers = {"Content-Type": "application/json"}
                 if node.get("auth"):
                     headers["Authorization"] = node["auth"]
-                lms_payload = (build_lmstudio_payload(node["model"], lmstudio_input,
-                                                      temperature=0.3, max_output_tokens=512)
-                               if build_lmstudio_payload else
-                               {"model": node["model"], "input": lmstudio_input,
-                                "temperature": 0.3, "max_output_tokens": 512,
-                                "stream": False, "store": False})
-                resp = await client.post(node["url"], headers=headers, json=lms_payload)
-                resp.raise_for_status()
-                data = resp.json()
-                if data.get("error"):
-                    continue
-                extracted = extract_lmstudio_content(data)
-                if extracted:
-                    return f"[{node['name']}] {extracted}"
+                # Use Chat Completions API when tools are available (Responses API doesn't support tools)
+                if ia_tools and node["backend"] == "lmstudio":
+                    cc_url = node["url"].replace("/api/v1/chat", "/v1/chat/completions")
+                    cc_payload = {
+                        "model": node["model"],
+                        "messages": chat_messages,
+                        "temperature": 0.3,
+                        "max_tokens": 512,
+                        "stream": False,
+                        "tools": ia_tools,
+                    }
+                    resp = await client.post(cc_url, headers=headers, json=cc_payload)
+                    resp.raise_for_status()
+                    data = resp.json()
+                    choice = (data.get("choices") or [{}])[0]
+                    msg = choice.get("message", {})
+                    # Check for tool_calls
+                    if msg.get("tool_calls"):
+                        tool_result = await _handle_tool_calls_cc(
+                            msg["tool_calls"], node, headers, cc_url, chat_messages, client,
+                        )
+                        if tool_result:
+                            return f"[{node['name']}] {tool_result}"
+                    # Normal text response
+                    content = (msg.get("content") or "").strip()
+                    if content:
+                        return f"[{node['name']}] {content}"
+                else:
+                    lms_payload = (build_lmstudio_payload(node["model"], lmstudio_input,
+                                                          temperature=0.3, max_output_tokens=512)
+                                   if build_lmstudio_payload else
+                                   {"model": node["model"], "input": lmstudio_input,
+                                    "temperature": 0.3, "max_output_tokens": 512,
+                                    "stream": False, "store": False})
+                    resp = await client.post(node["url"], headers=headers, json=lms_payload)
+                    resp.raise_for_status()
+                    data = resp.json()
+                    if data.get("error"):
+                        continue
+                    extracted = extract_lmstudio_content(data)
+                    if extracted:
+                        return f"[{node['name']}] {extracted}"
         except (httpx.HTTPError, asyncio.TimeoutError, OSError, KeyError) as exc:
             logger.debug("_query_local_ia %s failed: %s", node.get("name", "?"), exc)
             continue
 
     return "Aucun agent disponible."
+
+
+async def _handle_tool_calls_cc(
+    tool_calls: list[dict],
+    node: dict,
+    headers: dict,
+    cc_url: str,
+    chat_messages: list[dict],
+    client: httpx.AsyncClient,
+) -> str | None:
+    """Process tool_calls from Chat Completions response and loop back for final answer.
+
+    Uses the standard OpenAI tool_calls flow:
+    1. Execute each tool call via ia_tool_executor
+    2. Append assistant message (with tool_calls) + tool results to conversation
+    3. Re-query model WITHOUT tools to get final text response
+    """
+    logger.info("Tool calls from %s: %s", node.get("name", "?"),
+                [tc.get("function", {}).get("name", "?") for tc in tool_calls])
+
+    try:
+        from src.ia_tool_executor import process_model_tool_calls
+    except ImportError:
+        logger.warning("ia_tool_executor not available, skipping tool calls")
+        return None
+
+    caller = node.get("name", "unknown")
+    results = await process_model_tool_calls(tool_calls, caller=caller)
+
+    # Build follow-up conversation with tool results (standard OpenAI format)
+    follow_up_messages = list(chat_messages)
+    # Add assistant message with tool_calls
+    follow_up_messages.append({
+        "role": "assistant",
+        "content": None,
+        "tool_calls": tool_calls,
+    })
+    # Add tool results
+    for r in results:
+        follow_up_messages.append({
+            "role": "tool",
+            "tool_call_id": r["tool_call_id"],
+            "content": r["content"][:2000],
+        })
+
+    # Re-query WITHOUT tools to get final text response (prevents infinite loop)
+    follow_up_payload = {
+        "model": node.get("model", "qwen3-8b"),
+        "messages": follow_up_messages,
+        "temperature": 0.3,
+        "max_tokens": 512,
+        "stream": False,
+    }
+
+    try:
+        resp = await client.post(cc_url, headers=headers, json=follow_up_payload)
+        resp.raise_for_status()
+        data = resp.json()
+        choice = (data.get("choices") or [{}])[0]
+        content = (choice.get("message", {}).get("content") or "").strip()
+        if content:
+            return content
+    except (httpx.HTTPError, asyncio.TimeoutError, OSError) as exc:
+        logger.debug("Tool follow-up failed for %s: %s", caller, exc)
+
+    # Fallback: summarize tool results directly
+    summary = "; ".join(r["content"][:200] for r in results)
+    return f"[tools] {summary[:500]}"
 
 
 # Consensus models: all agents dispatched in parallel for weighted vote
