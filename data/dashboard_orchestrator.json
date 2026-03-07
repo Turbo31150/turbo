@@ -1,0 +1,1009 @@
+{
+  "generated": "2026-03-07T17:33:02.328101",
+  "tasks": [
+    {
+      "id": "health_cluster",
+      "name": "Cluster Health Check",
+      "type": "health",
+      "prio": "high",
+      "sched": {
+        "last": "2026-03-07 15:15:34",
+        "next": "2026-03-07T16:20:34.476869",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 3156.0000000026776
+      }
+    },
+    {
+      "id": "health_gpu",
+      "name": "GPU Temperature Monitor",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 15:15:35",
+        "next": "2026-03-07T16:25:35.471582",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 172.00000000593718
+      }
+    },
+    {
+      "id": "health_services",
+      "name": "Services Watchdog",
+      "type": "health",
+      "prio": "high",
+      "sched": {
+        "last": null,
+        "next": "2026-03-07T16:20:20.014008",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "audit_code",
+      "name": "Code Audit",
+      "type": "audit",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 15:15:40",
+        "next": "2026-03-07T17:15:40.210725",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 811.9999999980791
+      }
+    },
+    {
+      "id": "audit_fix",
+      "name": "Auto-Fix Code Issues",
+      "type": "audit",
+      "prio": "normal",
+      "sched": {
+        "last": null,
+        "next": "2026-03-07T22:15:20.026041",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "test_suite",
+      "name": "Run Test Suite",
+      "type": "test",
+      "prio": "normal",
+      "sched": {
+        "last": null,
+        "next": "2026-03-07T18:15:20.032577",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "backup_databases",
+      "name": "Backup 3 Databases",
+      "type": "backup",
+      "prio": "high",
+      "sched": {
+        "last": "2026-03-07 15:15:46",
+        "next": "2026-03-07T18:15:46.985940",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 139.99999999941792
+      }
+    },
+    {
+      "id": "save_config",
+      "name": "Save Full Config to DBs",
+      "type": "sync",
+      "prio": "normal",
+      "sched": {
+        "last": null,
+        "next": "2026-03-07T22:15:20.044623",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "git_sync",
+      "name": "Git Status Check",
+      "type": "sync",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 15:15:41",
+        "next": "2026-03-07T16:45:41.062954",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 110.00000000058208
+      }
+    },
+    {
+      "id": "trading_scan",
+      "name": "Trading Signal Scan",
+      "type": "trading",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 15:15:42",
+        "next": "2026-03-07T16:30:42.896593",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 1063.0000000019209
+      }
+    },
+    {
+      "id": "cluster_consensus_test",
+      "name": "Cluster Consensus Test",
+      "type": "consensus",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 15:15:50",
+        "next": "2026-03-07T16:45:50.666390",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 2500.0
+      }
+    },
+    {
+      "id": "mega_verify",
+      "name": "Mega Verification (100 loops)",
+      "type": "audit",
+      "prio": "normal",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T03:00:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "daily_pipeline",
+      "name": "Daily Full Pipeline",
+      "type": "pipeline",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 15:16:06",
+        "next": "2026-03-08T06:00:00",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 9702.999999994063
+      }
+    },
+    {
+      "id": "m1_code_review",
+      "name": "M1 Daily Code Review",
+      "type": "review",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T09:00:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "cleanup_logs",
+      "name": "Cleanup Old Logs",
+      "type": "schedule",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T04:00:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "cleanup_backups",
+      "name": "Cleanup Old Backups",
+      "type": "schedule",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T05:00:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "auto_heal_services",
+      "name": "Auto-Heal Services",
+      "type": "health",
+      "prio": "high",
+      "sched": {
+        "last": "2026-03-07 15:44:01",
+        "next": "2026-03-07T16:54:01.082059",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 3186.999999998079
+      }
+    },
+    {
+      "id": "vram_guard",
+      "name": "VRAM Guard",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 15:44:02",
+        "next": "2026-03-07T16:59:02.117267",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 171.00000000209548
+      }
+    },
+    {
+      "id": "disk_monitor",
+      "name": "Disk Space Monitor",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 15:44:02",
+        "next": "2026-03-07T17:44:02.906473",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 46.999999998661224
+      }
+    },
+    {
+      "id": "db_integrity_guard",
+      "name": "Database Integrity Guard",
+      "type": "backup",
+      "prio": "high",
+      "sched": {
+        "last": "2026-03-07 15:44:04",
+        "next": "2026-03-07T17:14:04.485280",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 875.0
+      }
+    },
+    {
+      "id": "telegram_status",
+      "name": "Telegram Daily Status",
+      "type": "schedule",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 15:45:17",
+        "next": "2026-03-08T08:00:00",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 906.9999999992433
+      }
+    },
+    {
+      "id": "telegram_failure_alert",
+      "name": "Alert Failures to Telegram",
+      "type": "schedule",
+      "prio": "high",
+      "sched": {
+        "last": "2026-03-07 15:45:18",
+        "next": "2026-03-07T17:15:18.007043",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 61.99999999807915
+      }
+    },
+    {
+      "id": "linkedin_publish",
+      "name": "LinkedIn Auto-Publish",
+      "type": "schedule",
+      "prio": "normal",
+      "sched": {
+        "last": null,
+        "next": "2026-03-07T18:43:35.201636",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "linkedin_routine",
+      "name": "LinkedIn Daily Routine",
+      "type": "schedule",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T07:30:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "proxy_monitor",
+      "name": "Canvas Proxy Monitor",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 15:44:11",
+        "next": "2026-03-07T16:54:11.486532",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 3109.0000000040163
+      }
+    },
+    {
+      "id": "openclaw_monitor",
+      "name": "OpenClaw Gateway Monitor",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": null,
+        "next": "2026-03-07T16:53:35.219192",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "model_health",
+      "name": "Model Load Verification",
+      "type": "health",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 15:44:12",
+        "next": "2026-03-07T17:14:12.404987",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 93.0000000007567
+      }
+    },
+    {
+      "id": "auto_improve_pipeline",
+      "name": "Auto-Improve Pipeline",
+      "type": "audit",
+      "prio": "normal",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T02:00:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "md5_registry_sync",
+      "name": "MD5 Registry Sync",
+      "type": "sync",
+      "prio": "normal",
+      "sched": {
+        "last": null,
+        "next": "2026-03-07T18:43:35.236218",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "nightly_pipeline",
+      "name": "Nightly Full Pipeline",
+      "type": "pipeline",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 15:45:27",
+        "next": "2026-03-08T01:00:00",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 8391.00000000326
+      }
+    },
+    {
+      "id": "weekly_archi_review",
+      "name": "Weekly Architecture Review (M1)",
+      "type": "architecture",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-09T10:00:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "security_consensus",
+      "name": "Security Consensus Review",
+      "type": "consensus",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-11T11:00:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "process_gc",
+      "name": "Process Garbage Collection",
+      "type": "schedule",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 15:45:11",
+        "next": "2026-03-07T17:45:11.589270",
+        "runs": 3,
+        "fails": 2,
+        "avg_ms": 208.33333333333334
+      }
+    },
+    {
+      "id": "electron_monitor",
+      "name": "Electron Desktop Monitor",
+      "type": "health",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 15:44:17",
+        "next": "2026-03-07T16:59:17.718728",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 203.00000000133878
+      }
+    },
+    {
+      "id": "metrics_collector",
+      "name": "System Metrics Collector",
+      "type": "health",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 16:32:32",
+        "next": "2026-03-07T17:37:32.608557",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 437.0000000053551
+      }
+    },
+    {
+      "id": "orch_self_health",
+      "name": "Orchestrator Self-Health",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 16:32:33",
+        "next": "2026-03-07T18:02:33.433889",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 63.00000000192085
+      }
+    },
+    {
+      "id": "metrics_cleanup",
+      "name": "Metrics Data Cleanup",
+      "type": "schedule",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T04:30:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "ws_server_health",
+      "name": "WebSocket Server Health",
+      "type": "health",
+      "prio": "high",
+      "sched": {
+        "last": "2026-03-07 16:32:50",
+        "next": "2026-03-07T17:37:50.326447",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 78.00000000133878
+      }
+    },
+    {
+      "id": "gemini_proxy_health",
+      "name": "Gemini Proxy Health",
+      "type": "health",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-07T18:02:28.067203",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "cluster_failover",
+      "name": "Cluster Failover Monitor",
+      "type": "health",
+      "prio": "high",
+      "sched": {
+        "last": "2026-03-07 16:32:44",
+        "next": "2026-03-07T17:42:44.297129",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 6250.0
+      }
+    },
+    {
+      "id": "error_rate_monitor",
+      "name": "Error Rate Monitor",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 16:32:50",
+        "next": "2026-03-07T18:02:50.079037",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 78.00000000133878
+      }
+    },
+    {
+      "id": "dashboard_export",
+      "name": "Dashboard Data Export",
+      "type": "schedule",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-07T17:42:28.085722",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "telegram_bot_watchdog",
+      "name": "Telegram Bot Watchdog",
+      "type": "health",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-07T17:47:28.091732",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "hf_cache_monitor",
+      "name": "HuggingFace Cache Monitor",
+      "type": "health",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T05:00:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "git_uncommitted_alert",
+      "name": "Git Uncommitted Changes Alert",
+      "type": "sync",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-07T19:32:28.103748",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "python_env_health",
+      "name": "Python Environment Health",
+      "type": "health",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T06:30:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "port_conflict_check",
+      "name": "Port Conflict Detector",
+      "type": "health",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 16:32:50",
+        "next": "2026-03-07T18:02:50.577244",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 61.99999999807915
+      }
+    },
+    {
+      "id": "weekly_full_pipeline",
+      "name": "Weekly Full Pipeline",
+      "type": "pipeline",
+      "prio": "normal",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T03:00:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "consensus_code_quality",
+      "name": "Consensus Code Quality Review",
+      "type": "consensus",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-13T14:00:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "escalation_check",
+      "name": "Escalation Status Check",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": null,
+        "next": "2026-03-07T18:32:28.133330",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "event_triggers_report",
+      "name": "Event Triggers Report",
+      "type": "schedule",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T09:00:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "memory_guard",
+      "name": "Memory Pressure Guard",
+      "type": "health",
+      "prio": "high",
+      "sched": {
+        "last": "2026-03-07 16:32:51",
+        "next": "2026-03-07T17:47:51.370874",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 609.0000000040163
+      }
+    },
+    {
+      "id": "cowork_monitor",
+      "name": "Cowork Scripts Monitor",
+      "type": "health",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T10:00:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "win_tasks_sync",
+      "name": "Windows Tasks Sync Check",
+      "type": "sync",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T07:00:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "backup_verify",
+      "name": "Backup Integrity Verification",
+      "type": "backup",
+      "prio": "normal",
+      "sched": {
+        "last": null,
+        "next": "2026-03-07T21:32:28.162507",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "parallel_cluster_ping",
+      "name": "Parallel Cluster Ping",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 16:32:37",
+        "next": "2026-03-07T17:37:37.285040",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 3109.0000000040163
+      }
+    }
+  ],
+  "recent": [
+    {
+      "id": "memory_guard",
+      "status": "completed",
+      "ms": 609.0000000040163,
+      "node": "",
+      "at": "2026-03-07 16:32:51"
+    },
+    {
+      "id": "port_conflict_check",
+      "status": "completed",
+      "ms": 61.99999999807915,
+      "node": "",
+      "at": "2026-03-07 16:32:50"
+    },
+    {
+      "id": "ws_server_health",
+      "status": "completed",
+      "ms": 78.00000000133878,
+      "node": "",
+      "at": "2026-03-07 16:32:50"
+    },
+    {
+      "id": "error_rate_monitor",
+      "status": "completed",
+      "ms": 78.00000000133878,
+      "node": "",
+      "at": "2026-03-07 16:32:50"
+    },
+    {
+      "id": "cluster_failover",
+      "status": "completed",
+      "ms": 6250.0,
+      "node": "",
+      "at": "2026-03-07 16:32:44"
+    },
+    {
+      "id": "parallel_cluster_ping",
+      "status": "completed",
+      "ms": 3109.0000000040163,
+      "node": "",
+      "at": "2026-03-07 16:32:37"
+    },
+    {
+      "id": "orch_self_health",
+      "status": "completed",
+      "ms": 63.00000000192085,
+      "node": "",
+      "at": "2026-03-07 16:32:33"
+    },
+    {
+      "id": "metrics_collector",
+      "status": "completed",
+      "ms": 437.0000000053551,
+      "node": "",
+      "at": "2026-03-07 16:32:32"
+    },
+    {
+      "id": "nightly_pipeline",
+      "status": "completed",
+      "ms": 8391.00000000326,
+      "node": "",
+      "at": "2026-03-07 15:45:27"
+    },
+    {
+      "id": "telegram_failure_alert",
+      "status": "completed",
+      "ms": 61.99999999807915,
+      "node": "",
+      "at": "2026-03-07 15:45:18"
+    },
+    {
+      "id": "telegram_status",
+      "status": "completed",
+      "ms": 906.9999999992433,
+      "node": "",
+      "at": "2026-03-07 15:45:17"
+    },
+    {
+      "id": "process_gc",
+      "status": "completed",
+      "ms": 218.99999999732245,
+      "node": "",
+      "at": "2026-03-07 15:45:11"
+    },
+    {
+      "id": "process_gc",
+      "status": "failed",
+      "ms": 203.00000000133878,
+      "node": "",
+      "at": "2026-03-07 15:44:58"
+    },
+    {
+      "id": "electron_monitor",
+      "status": "completed",
+      "ms": 203.00000000133878,
+      "node": "",
+      "at": "2026-03-07 15:44:17"
+    },
+    {
+      "id": "process_gc",
+      "status": "failed",
+      "ms": 203.00000000133878,
+      "node": "",
+      "at": "2026-03-07 15:44:16"
+    },
+    {
+      "id": "model_health",
+      "status": "completed",
+      "ms": 93.0000000007567,
+      "node": "",
+      "at": "2026-03-07 15:44:12"
+    },
+    {
+      "id": "proxy_monitor",
+      "status": "completed",
+      "ms": 3109.0000000040163,
+      "node": "",
+      "at": "2026-03-07 15:44:11"
+    },
+    {
+      "id": "db_integrity_guard",
+      "status": "completed",
+      "ms": 875.0,
+      "node": "",
+      "at": "2026-03-07 15:44:04"
+    },
+    {
+      "id": "disk_monitor",
+      "status": "completed",
+      "ms": 46.999999998661224,
+      "node": "",
+      "at": "2026-03-07 15:44:02"
+    },
+    {
+      "id": "vram_guard",
+      "status": "completed",
+      "ms": 171.00000000209548,
+      "node": "",
+      "at": "2026-03-07 15:44:02"
+    },
+    {
+      "id": "auto_heal_services",
+      "status": "completed",
+      "ms": 3186.999999998079,
+      "node": "",
+      "at": "2026-03-07 15:44:01"
+    },
+    {
+      "id": "daily_pipeline",
+      "status": "completed",
+      "ms": 9702.999999994063,
+      "node": "",
+      "at": "2026-03-07 15:16:06"
+    },
+    {
+      "id": "cluster_consensus_test",
+      "status": "completed",
+      "ms": 2500.0,
+      "node": "M1,OL1",
+      "at": "2026-03-07 15:15:50"
+    },
+    {
+      "id": "backup_databases",
+      "status": "completed",
+      "ms": 139.99999999941792,
+      "node": "",
+      "at": "2026-03-07 15:15:46"
+    },
+    {
+      "id": "trading_scan",
+      "status": "completed",
+      "ms": 1063.0000000019209,
+      "node": "",
+      "at": "2026-03-07 15:15:42"
+    },
+    {
+      "id": "git_sync",
+      "status": "completed",
+      "ms": 110.00000000058208,
+      "node": "",
+      "at": "2026-03-07 15:15:41"
+    },
+    {
+      "id": "audit_code",
+      "status": "completed",
+      "ms": 811.9999999980791,
+      "node": "",
+      "at": "2026-03-07 15:15:40"
+    },
+    {
+      "id": "health_gpu",
+      "status": "completed",
+      "ms": 172.00000000593718,
+      "node": "",
+      "at": "2026-03-07 15:15:35"
+    },
+    {
+      "id": "health_cluster",
+      "status": "completed",
+      "ms": 3156.0000000026776,
+      "node": "",
+      "at": "2026-03-07 15:15:34"
+    }
+  ],
+  "metrics": {
+    "gpu0_temp": {
+      "v": 49.0,
+      "at": "2026-03-07 16:32:32"
+    },
+    "gpu0_vram_mb": {
+      "v": 11427.0,
+      "at": "2026-03-07 16:32:32"
+    },
+    "gpu0_util": {
+      "v": 4.0,
+      "at": "2026-03-07 16:32:32"
+    },
+    "gpu1_temp": {
+      "v": 53.0,
+      "at": "2026-03-07 16:32:32"
+    },
+    "gpu1_vram_mb": {
+      "v": 2482.0,
+      "at": "2026-03-07 16:32:32"
+    },
+    "gpu1_util": {
+      "v": 0.0,
+      "at": "2026-03-07 16:32:32"
+    },
+    "gpu2_temp": {
+      "v": 40.0,
+      "at": "2026-03-07 16:32:32"
+    },
+    "gpu2_vram_mb": {
+      "v": 0.0,
+      "at": "2026-03-07 16:32:32"
+    },
+    "gpu2_util": {
+      "v": 0.0,
+      "at": "2026-03-07 16:32:32"
+    },
+    "gpu3_temp": {
+      "v": 58.0,
+      "at": "2026-03-07 16:32:32"
+    },
+    "gpu3_vram_mb": {
+      "v": 6434.0,
+      "at": "2026-03-07 16:32:32"
+    },
+    "gpu3_util": {
+      "v": 1.0,
+      "at": "2026-03-07 16:32:32"
+    },
+    "disk_c_free_gb": {
+      "v": 58.693641662597656,
+      "at": "2026-03-07 16:32:32"
+    },
+    "disk_f_free_gb": {
+      "v": 76.72299575805664,
+      "at": "2026-03-07 16:32:32"
+    },
+    "cluster_m1_online": {
+      "v": 1.0,
+      "at": "2026-03-07 16:32:32"
+    },
+    "cluster_ol1_online": {
+      "v": 1.0,
+      "at": "2026-03-07 16:32:32"
+    },
+    "python_processes": {
+      "v": 13.0,
+      "at": "2026-03-07 16:32:32"
+    }
+  },
+  "task_count": 56
+}

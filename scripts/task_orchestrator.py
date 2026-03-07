@@ -26,11 +26,13 @@ import hashlib
 import json
 import logging
 import os
+import socket
 import sqlite3
 import subprocess
 import sys
 import time
 import traceback
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -201,6 +203,55 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_runs_task ON task_runs(task_id);
         CREATE INDEX IF NOT EXISTS idx_runs_status ON task_runs(status);
         CREATE INDEX IF NOT EXISTS idx_schedule_next ON task_schedule(next_run);
+
+        -- Event-driven triggers
+        CREATE TABLE IF NOT EXISTS task_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            event_type TEXT NOT NULL,  -- file_changed, threshold, webhook, cron
+            source TEXT NOT NULL,      -- file path, metric name, URL
+            task_id TEXT NOT NULL,     -- task to trigger
+            config TEXT DEFAULT '{}',  -- threshold values, patterns, etc.
+            enabled INTEGER DEFAULT 1,
+            last_triggered TEXT,
+            trigger_count INTEGER DEFAULT 0,
+            cooldown_s INTEGER DEFAULT 300,  -- min seconds between triggers
+            FOREIGN KEY (task_id) REFERENCES tasks(id)
+        );
+
+        -- Escalation policies
+        CREATE TABLE IF NOT EXISTS task_escalation (
+            task_id TEXT PRIMARY KEY,
+            consecutive_fails INTEGER DEFAULT 0,
+            level_1_threshold INTEGER DEFAULT 3,   -- warn after 3 fails
+            level_2_threshold INTEGER DEFAULT 5,   -- alert after 5 fails
+            level_3_threshold INTEGER DEFAULT 10,  -- critical after 10 fails
+            level_1_action TEXT DEFAULT 'log',     -- log, telegram, email
+            level_2_action TEXT DEFAULT 'telegram',
+            level_3_action TEXT DEFAULT 'telegram_critical',
+            last_escalation TEXT,
+            FOREIGN KEY (task_id) REFERENCES tasks(id)
+        );
+
+        -- System metrics (time-series)
+        CREATE TABLE IF NOT EXISTS task_metrics (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            metric_name TEXT NOT NULL,
+            metric_value REAL NOT NULL,
+            tags TEXT DEFAULT '{}',
+            recorded_at TEXT DEFAULT (datetime('now'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_metrics_name ON task_metrics(metric_name);
+        CREATE INDEX IF NOT EXISTS idx_metrics_time ON task_metrics(recorded_at);
+
+        -- Task chain state (data passing between pipeline steps)
+        CREATE TABLE IF NOT EXISTS task_chain_state (
+            chain_id TEXT NOT NULL,
+            step_index INTEGER NOT NULL,
+            output_key TEXT NOT NULL,
+            output_value TEXT NOT NULL,
+            created_at TEXT DEFAULT (datetime('now')),
+            PRIMARY KEY (chain_id, step_index, output_key)
+        );
     """)
     conn.commit()
     conn.close()
@@ -679,6 +730,8 @@ def execute_branch(task: TaskDef) -> TaskResult:
             branch_key = "ok" if integ == "ok" else "corrupt"
         except Exception:
             branch_key = "error"
+    elif check_type in _EXTENDED_CONDITIONS:
+        branch_key = check_branch_condition(condition)
     else:
         branch_key = "default"
 
@@ -749,6 +802,728 @@ def check_dependencies(task: TaskDef) -> bool:
             return False
     conn.close()
     return True
+
+
+# ── Escalation Engine ──────────────────────────────────────────────────────
+
+def init_escalation(task_id: str, l1=3, l2=5, l3=10):
+    """Initialize escalation policy for a task."""
+    conn = get_db()
+    conn.execute("""
+        INSERT OR IGNORE INTO task_escalation (task_id, level_1_threshold, level_2_threshold, level_3_threshold)
+        VALUES (?, ?, ?, ?)
+    """, (task_id, l1, l2, l3))
+    conn.commit()
+    conn.close()
+
+
+def process_escalation(task_id: str, status: str):
+    """Update escalation state after task run. Trigger alerts if thresholds crossed."""
+    conn = get_db()
+    conn.execute("""
+        INSERT OR IGNORE INTO task_escalation (task_id) VALUES (?)
+    """, (task_id,))
+
+    if status == "completed":
+        conn.execute("UPDATE task_escalation SET consecutive_fails=0 WHERE task_id=?", (task_id,))
+        conn.commit()
+        conn.close()
+        return
+
+    # Increment fail counter
+    conn.execute("UPDATE task_escalation SET consecutive_fails=consecutive_fails+1 WHERE task_id=?", (task_id,))
+    row = conn.execute("SELECT consecutive_fails, level_1_threshold, level_2_threshold, level_3_threshold FROM task_escalation WHERE task_id=?", (task_id,)).fetchone()
+    conn.commit()
+    conn.close()
+
+    if not row:
+        return
+    fails, l1, l2, l3 = row
+
+    if fails >= l3:
+        msg = f"CRITICAL: {task_id} failed {fails}x consecutively!"
+        logger.error(msg)
+        notify_telegram(f"🔴 {msg}")
+    elif fails >= l2:
+        msg = f"ALERT: {task_id} failed {fails}x consecutively"
+        logger.warning(msg)
+        notify_telegram(f"🟠 {msg}", silent=True)
+    elif fails >= l1:
+        logger.warning("WARN: %s failed %dx consecutively", task_id, fails)
+
+
+# ── Parallel Executor ──────────────────────────────────────────────────────
+
+def execute_parallel(tasks: list[TaskDef], max_workers: int = 4) -> list[TaskResult]:
+    """Execute multiple independent tasks in parallel using ThreadPoolExecutor."""
+    results = []
+    with ThreadPoolExecutor(max_workers=max_workers) as pool:
+        futures = {pool.submit(execute_task, t): t for t in tasks}
+        for future in as_completed(futures):
+            task = futures[future]
+            try:
+                result = future.result(timeout=600)
+                results.append(result)
+            except Exception as e:
+                results.append(TaskResult(task.id, "failed", error=f"Parallel exec error: {e}"))
+    return results
+
+
+def run_due_tasks_parallel():
+    """Run due tasks with parallelism for independent tasks."""
+    tasks = get_due_tasks()
+    if not tasks:
+        return 0
+
+    # Sort by priority
+    tasks.sort(key=lambda t: TASK_PRIORITY.get(t.priority, 2))
+
+    # Split into groups: tasks with deps run sequentially, others in parallel
+    sequential = [t for t in tasks if t.depends_on]
+    parallel = [t for t in tasks if not t.depends_on]
+
+    completed = 0
+
+    # Run parallel batch first
+    if parallel:
+        logger.info("Running %d tasks in parallel", len(parallel))
+        results = execute_parallel(parallel)
+        for r in results:
+            record_run(r)
+            process_escalation(r.task_id, r.status)
+            if r.status == "completed":
+                completed += 1
+            logger.info("[%s] %s (%dms)", r.status, r.task_id, r.duration_ms)
+
+    # Then sequential with dependency checks
+    for task in sequential:
+        if check_dependencies(task):
+            result = execute_task(task)
+            record_run(result)
+            process_escalation(result.task_id, result.status)
+            if result.status == "completed":
+                completed += 1
+            logger.info("[%s] %s (%dms)", result.status, task.id, result.duration_ms)
+
+    return completed
+
+
+# ── Resource-Aware Scheduling ──────────────────────────────────────────────
+
+def check_resource_availability(task: TaskDef) -> tuple[bool, str]:
+    """Check if system resources are available for this task."""
+    tags = task.tags or []
+
+    # GPU tasks: check temperature
+    if "gpu" in tags or task.task_type == "trading":
+        try:
+            r = subprocess.run(
+                ["nvidia-smi", "--query-gpu=temperature.gpu,utilization.gpu",
+                 "--format=csv,noheader,nounits"],
+                capture_output=True, text=True, timeout=5,
+            )
+            if r.returncode == 0:
+                for line in r.stdout.strip().splitlines():
+                    parts = [x.strip() for x in line.split(",")]
+                    if int(parts[0]) > 90:
+                        return False, f"GPU too hot: {parts[0]}C"
+                    if int(parts[1]) > 95:
+                        return False, f"GPU too busy: {parts[1]}%"
+        except Exception:
+            pass
+
+    # Heavy tasks: check RAM
+    if "heavy" in tags or task.task_type in ("pipeline", "audit"):
+        try:
+            import psutil
+            mem = psutil.virtual_memory()
+            if mem.percent > 92:
+                return False, f"RAM too high: {mem.percent}%"
+        except ImportError:
+            pass
+
+    # Disk tasks: check free space
+    if "backup" in tags:
+        try:
+            import shutil
+            usage = shutil.disk_usage("F:/")
+            if usage.free < 2 * 1024**3:
+                return False, f"Disk F: too full: {usage.free / 1024**3:.1f}GB free"
+        except Exception:
+            pass
+
+    return True, "OK"
+
+
+# ── Event Engine ───────────────────────────────────────────────────────────
+
+def register_event(event_type: str, source: str, task_id: str, config: dict = None, cooldown_s: int = 300):
+    """Register an event trigger for a task."""
+    conn = get_db()
+    conn.execute("""
+        INSERT OR REPLACE INTO task_events (event_type, source, task_id, config, cooldown_s)
+        VALUES (?, ?, ?, ?, ?)
+    """, (event_type, source, task_id, json.dumps(config or {}), cooldown_s))
+    conn.commit()
+    conn.close()
+
+
+def check_file_events():
+    """Check for file-change events. Returns list of task_ids to trigger."""
+    conn = get_db()
+    events = conn.execute("""
+        SELECT id, source, task_id, config, last_triggered, cooldown_s
+        FROM task_events WHERE event_type='file_changed' AND enabled=1
+    """).fetchall()
+
+    triggered = []
+    now = datetime.now()
+    for eid, source, task_id, config_json, last_triggered, cooldown_s in events:
+        cfg = json.loads(config_json or "{}")
+        path = Path(source)
+        if not path.exists():
+            continue
+
+        # Check cooldown
+        if last_triggered:
+            lt = datetime.fromisoformat(last_triggered)
+            if (now - lt).total_seconds() < cooldown_s:
+                continue
+
+        # Check if file changed since last trigger
+        mtime = datetime.fromtimestamp(path.stat().st_mtime)
+        last_mtime = cfg.get("last_mtime", "")
+        if last_mtime and mtime.isoformat() <= last_mtime:
+            continue
+
+        # File changed! Trigger the task
+        triggered.append(task_id)
+        cfg["last_mtime"] = mtime.isoformat()
+        conn.execute("""
+            UPDATE task_events SET last_triggered=?, trigger_count=trigger_count+1, config=?
+            WHERE id=?
+        """, (now.isoformat(), json.dumps(cfg), eid))
+
+    conn.commit()
+    conn.close()
+    return triggered
+
+
+def check_threshold_events():
+    """Check metric threshold events. Returns list of task_ids to trigger."""
+    conn = get_db()
+    events = conn.execute("""
+        SELECT id, source, task_id, config, last_triggered, cooldown_s
+        FROM task_events WHERE event_type='threshold' AND enabled=1
+    """).fetchall()
+
+    triggered = []
+    now = datetime.now()
+    for eid, metric_name, task_id, config_json, last_triggered, cooldown_s in events:
+        cfg = json.loads(config_json or "{}")
+        threshold = cfg.get("threshold", 0)
+        direction = cfg.get("direction", "above")  # above or below
+
+        # Check cooldown
+        if last_triggered:
+            lt = datetime.fromisoformat(last_triggered)
+            if (now - lt).total_seconds() < cooldown_s:
+                continue
+
+        # Get latest metric value
+        row = conn.execute("""
+            SELECT metric_value FROM task_metrics
+            WHERE metric_name=? ORDER BY id DESC LIMIT 1
+        """, (metric_name,)).fetchone()
+        if not row:
+            continue
+
+        value = row[0]
+        if (direction == "above" and value > threshold) or \
+           (direction == "below" and value < threshold):
+            triggered.append(task_id)
+            conn.execute("""
+                UPDATE task_events SET last_triggered=?, trigger_count=trigger_count+1
+                WHERE id=?
+            """, (now.isoformat(), eid))
+
+    conn.commit()
+    conn.close()
+    return triggered
+
+
+def process_events():
+    """Process all event triggers. Returns count of tasks triggered."""
+    triggered_ids = set()
+    triggered_ids.update(check_file_events())
+    triggered_ids.update(check_threshold_events())
+
+    if not triggered_ids:
+        return 0
+
+    logger.info("Events triggered %d tasks: %s", len(triggered_ids), ", ".join(triggered_ids))
+    for task_id in triggered_ids:
+        run_single_task(task_id)
+
+    return len(triggered_ids)
+
+
+# ── Metrics Collector ──────────────────────────────────────────────────────
+
+def record_metric(name: str, value: float, tags: dict = None):
+    """Record a system metric data point."""
+    conn = get_db()
+    conn.execute("""
+        INSERT INTO task_metrics (metric_name, metric_value, tags)
+        VALUES (?, ?, ?)
+    """, (name, value, json.dumps(tags or {})))
+    conn.commit()
+    conn.close()
+
+
+def collect_system_metrics():
+    """Collect system-wide metrics and store them."""
+    # GPU metrics
+    try:
+        r = subprocess.run(
+            ["nvidia-smi", "--query-gpu=temperature.gpu,memory.used,memory.total,utilization.gpu",
+             "--format=csv,noheader,nounits"],
+            capture_output=True, text=True, timeout=10,
+        )
+        if r.returncode == 0:
+            for i, line in enumerate(r.stdout.strip().splitlines()):
+                parts = [x.strip() for x in line.split(",")]
+                if len(parts) >= 4:
+                    record_metric(f"gpu{i}_temp", float(parts[0]))
+                    record_metric(f"gpu{i}_vram_used", float(parts[1]))
+                    record_metric(f"gpu{i}_vram_total", float(parts[2]))
+                    record_metric(f"gpu{i}_util", float(parts[3]))
+    except Exception:
+        pass
+
+    # Disk metrics
+    try:
+        import shutil
+        for drive in ["C:/", "F:/"]:
+            usage = shutil.disk_usage(drive)
+            label = drive[0].lower()
+            record_metric(f"disk_{label}_free_gb", usage.free / 1024**3)
+            record_metric(f"disk_{label}_used_pct", usage.used * 100 / usage.total)
+    except Exception:
+        pass
+
+    # Orchestrator metrics
+    try:
+        conn = get_db()
+        total = conn.execute("SELECT count(*) FROM task_runs").fetchone()[0]
+        ok = conn.execute("SELECT count(*) FROM task_runs WHERE status='completed'").fetchone()[0]
+        fail = conn.execute("SELECT count(*) FROM task_runs WHERE status='failed'").fetchone()[0]
+        conn.close()
+        record_metric("orch_total_runs", float(total))
+        record_metric("orch_success_rate", ok * 100.0 / max(total, 1))
+        record_metric("orch_fail_count", float(fail))
+    except Exception:
+        pass
+
+    # Cluster health (count of online nodes)
+    online = 0
+    for name in ["M1", "OL1", "M2", "M3"]:
+        if check_node_health(name):
+            online += 1
+    record_metric("cluster_nodes_online", float(online))
+
+
+def get_metrics_summary(metric_name: str, hours: int = 24) -> dict:
+    """Get summary stats for a metric over the last N hours."""
+    conn = get_db()
+    cutoff = (datetime.now() - timedelta(hours=hours)).isoformat()
+    rows = conn.execute("""
+        SELECT metric_value FROM task_metrics
+        WHERE metric_name=? AND recorded_at > ?
+        ORDER BY recorded_at
+    """, (metric_name, cutoff)).fetchall()
+    conn.close()
+
+    if not rows:
+        return {"count": 0}
+    values = [r[0] for r in rows]
+    return {
+        "count": len(values),
+        "min": min(values),
+        "max": max(values),
+        "avg": sum(values) / len(values),
+        "latest": values[-1],
+    }
+
+
+# ── Task Chain with Data Passing ───────────────────────────────────────────
+
+def execute_pipeline_with_data(task: TaskDef) -> TaskResult:
+    """Enhanced pipeline: output of each step is available to the next via {{step_N_output}}."""
+    steps = task.payload.get("steps", [])
+    results = []
+    chain_data = {}
+    t0 = time.monotonic()
+    chain_id = f"{task.id}_{int(time.time())}"
+
+    for i, step in enumerate(steps):
+        # Template substitution: replace {{step_N_output}} placeholders
+        step_payload = json.dumps(step.get("payload", {}))
+        for k, v in chain_data.items():
+            step_payload = step_payload.replace(f"{{{{{k}}}}}", str(v).replace('"', '\\"')[:500])
+        try:
+            resolved_payload = json.loads(step_payload)
+        except json.JSONDecodeError:
+            resolved_payload = step.get("payload", {})
+
+        step_task = TaskDef(
+            id=f"{task.id}_step{i}",
+            name=f"{task.name} step {i}",
+            task_type=step.get("type", "quick"),
+            action=step.get("action", "script"),
+            payload=resolved_payload,
+            timeout_s=step.get("timeout", 120),
+            retry_max=0,
+        )
+
+        # Resource check before heavy steps
+        ok, reason = check_resource_availability(step_task)
+        if not ok:
+            logger.warning("Resource check failed for step %d: %s", i, reason)
+            results.append({"step": i, "status": "skipped", "output": f"Resource: {reason}"})
+            if step.get("required", True):
+                dur = (time.monotonic() - t0) * 1000
+                return TaskResult(task.id, "failed", output=json.dumps(results, indent=2),
+                                  error=f"Step {i} skipped: {reason}", duration_ms=dur)
+            continue
+
+        result = execute_task(step_task)
+        results.append({"step": i, "status": result.status, "output": result.output[:500]})
+
+        # Store output for next steps
+        chain_data[f"step_{i}_output"] = result.output.strip()[:1000]
+        chain_data[f"step_{i}_status"] = result.status
+
+        # Save chain state to DB for inspection
+        conn = get_db()
+        conn.execute("""
+            INSERT OR REPLACE INTO task_chain_state (chain_id, step_index, output_key, output_value)
+            VALUES (?, ?, 'output', ?)
+        """, (chain_id, i, result.output[:2000]))
+        conn.commit()
+        conn.close()
+
+        # Branch/stop logic
+        if task.branch_on and result.status in task.branch_on:
+            branch = task.branch_on[result.status]
+            if branch == "stop":
+                dur = (time.monotonic() - t0) * 1000
+                final_status = "failed" if result.status == "failed" else "completed"
+                return TaskResult(task.id, final_status, output=json.dumps(results, indent=2),
+                                  error=f"Stopped at step {i}", duration_ms=dur)
+            elif branch == "skip_rest":
+                break
+            elif isinstance(branch, str) and branch.startswith("goto:"):
+                target = int(branch[5:])
+                steps = steps[target:]
+                continue
+
+        if result.status == "failed" and step.get("required", True):
+            dur = (time.monotonic() - t0) * 1000
+            return TaskResult(task.id, "failed", output=json.dumps(results, indent=2),
+                              error=f"Step {i} failed: {result.error[:200]}", duration_ms=dur)
+
+    dur = (time.monotonic() - t0) * 1000
+    return TaskResult(task.id, "completed", output=json.dumps(results, indent=2), duration_ms=dur)
+
+
+# ── Additional Branch Conditions ───────────────────────────────────────────
+
+def check_branch_condition(condition: dict) -> str:
+    """Extended branch condition checker. Returns branch key string."""
+    check_type = condition.get("type", "script")
+
+    if check_type == "http_status":
+        url = condition.get("url", "")
+        expected = condition.get("expected", 200)
+        try:
+            r = subprocess.run(
+                ["curl", "-s", "-o", "/dev/null", "-w", "%{http_code}", "--max-time", "5", url],
+                capture_output=True, text=True, timeout=10,
+            )
+            code = int(r.stdout.strip())
+            return "ok" if code == expected else "error"
+        except Exception:
+            return "error"
+
+    elif check_type == "port_open":
+        host = condition.get("host", "127.0.0.1")
+        port = condition.get("port", 80)
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(3)
+            result = s.connect_ex((host, port))
+            s.close()
+            return "open" if result == 0 else "closed"
+        except Exception:
+            return "error"
+
+    elif check_type == "memory_usage":
+        threshold_pct = condition.get("threshold_pct", 85)
+        try:
+            import psutil
+            mem = psutil.virtual_memory()
+            return "high" if mem.percent > threshold_pct else "ok"
+        except ImportError:
+            # Fallback without psutil
+            try:
+                r = subprocess.run(
+                    ["wmic", "OS", "get", "FreePhysicalMemory", "/value"],
+                    capture_output=True, text=True, timeout=5,
+                )
+                for line in r.stdout.splitlines():
+                    if "FreePhysicalMemory" in line:
+                        free_kb = int(line.split("=")[1].strip())
+                        # If less than 2GB free, consider high
+                        return "high" if free_kb < 2 * 1024 * 1024 else "ok"
+            except Exception:
+                pass
+            return "ok"
+
+    elif check_type == "service_status":
+        service = condition.get("service", "")
+        try:
+            r = subprocess.run(
+                ["sc", "query", service],
+                capture_output=True, text=True, timeout=10,
+            )
+            if "RUNNING" in r.stdout:
+                return "running"
+            elif "STOPPED" in r.stdout:
+                return "stopped"
+            return "unknown"
+        except Exception:
+            return "error"
+
+    elif check_type == "env_var":
+        var_name = condition.get("var", "")
+        expected = condition.get("expected", "")
+        value = os.environ.get(var_name, "")
+        if expected:
+            return "match" if value == expected else "mismatch"
+        return "set" if value else "unset"
+
+    elif check_type == "recent_task_status":
+        target_task = condition.get("task_id", "")
+        try:
+            conn = get_db()
+            row = conn.execute("""
+                SELECT status FROM task_runs WHERE task_id=?
+                ORDER BY id DESC LIMIT 1
+            """, (target_task,)).fetchone()
+            conn.close()
+            return row[0] if row else "never_run"
+        except Exception:
+            return "error"
+
+    elif check_type == "cluster_quorum":
+        min_nodes = condition.get("min_nodes", 2)
+        online = sum(1 for n in ["M1", "OL1", "M2", "M3"] if check_node_health(n))
+        return "quorum" if online >= min_nodes else "no_quorum"
+
+    elif check_type == "error_rate":
+        task_id = condition.get("task_id", "")
+        window_min = condition.get("window_min", 60)
+        threshold_pct = condition.get("threshold_pct", 50)
+        try:
+            conn = get_db()
+            cutoff = (datetime.now() - timedelta(minutes=window_min)).isoformat()
+            total = conn.execute("SELECT count(*) FROM task_runs WHERE task_id=? AND started_at>?", (task_id, cutoff)).fetchone()[0]
+            fails = conn.execute("SELECT count(*) FROM task_runs WHERE task_id=? AND status='failed' AND started_at>?", (task_id, cutoff)).fetchone()[0]
+            conn.close()
+            if total == 0:
+                return "no_data"
+            rate = fails * 100 / total
+            return "high" if rate > threshold_pct else "ok"
+        except Exception:
+            return "error"
+
+    return "unknown"
+
+
+# ── Enhanced execute_branch with new conditions ────────────────────────────
+
+# Extend the existing execute_branch by injecting extended checks
+_EXTENDED_CONDITIONS = {
+    "http_status", "port_open", "memory_usage", "service_status",
+    "env_var", "recent_task_status", "cluster_quorum", "error_rate",
+}
+
+
+# ── Dashboard Data Export ──────────────────────────────────────────────────
+
+def export_dashboard_data() -> dict:
+    """Export orchestrator state for Electron dashboard consumption."""
+    conn = get_db()
+
+    # Task summary
+    tasks = conn.execute("SELECT id, name, task_type, priority, enabled FROM tasks").fetchall()
+    schedules = {r[0]: {"last_run": r[1], "next_run": r[2], "run_count": r[3], "fail_count": r[4], "avg_ms": r[5]}
+                 for r in conn.execute("SELECT task_id, last_run, next_run, run_count, fail_count, avg_duration_ms FROM task_schedule").fetchall()}
+
+    # Recent runs
+    recent = conn.execute("""
+        SELECT task_id, status, duration_ms, node, started_at
+        FROM task_runs ORDER BY id DESC LIMIT 50
+    """).fetchall()
+
+    # Escalation states
+    escalations = conn.execute("""
+        SELECT task_id, consecutive_fails, level_1_threshold, level_2_threshold
+        FROM task_escalation WHERE consecutive_fails > 0
+    """).fetchall()
+
+    # Metric snapshots (latest of each)
+    metrics = {}
+    for row in conn.execute("""
+        SELECT metric_name, metric_value, recorded_at FROM task_metrics
+        WHERE id IN (SELECT MAX(id) FROM task_metrics GROUP BY metric_name)
+    """).fetchall():
+        metrics[row[0]] = {"value": row[1], "at": row[2]}
+
+    conn.close()
+
+    return {
+        "generated_at": datetime.now().isoformat(),
+        "task_count": len(tasks),
+        "tasks": [{"id": t[0], "name": t[1], "type": t[2], "priority": t[3],
+                    "schedule": schedules.get(t[0], {})} for t in tasks],
+        "recent_runs": [{"task_id": r[0], "status": r[1], "ms": r[2], "node": r[3], "at": r[4]} for r in recent],
+        "escalations": [{"task_id": e[0], "consecutive_fails": e[1]} for e in escalations],
+        "metrics": metrics,
+    }
+
+
+# ── Task Templates (dynamic task spawning) ─────────────────────────────────
+
+TASK_TEMPLATES = {
+    "cluster_query_template": lambda prompt, route="quick", timeout=15: TaskDef(
+        id=f"dynamic_query_{int(time.time())}",
+        name=f"Dynamic Query: {prompt[:30]}",
+        task_type=route,
+        action="cluster_query",
+        payload={"prompt": prompt, "route": route, "timeout": timeout},
+        retry_max=1,
+    ),
+    "health_check_template": lambda node_name: TaskDef(
+        id=f"dynamic_health_{node_name}_{int(time.time())}",
+        name=f"Dynamic Health: {node_name}",
+        task_type="health",
+        action="branch",
+        payload={
+            "condition": {"type": "port_open", "host": NODES.get(node_name, {}).get("host", "127.0.0.1"),
+                          "port": NODES.get(node_name, {}).get("port", 1234)},
+            "branches": {
+                "open": {"action": "python", "payload": {"code": f"print('{node_name} is UP')"}},
+                "closed": {"action": "python", "payload": {"code": f"print('{node_name} is DOWN')"}},
+            },
+        },
+    ),
+    "backup_template": lambda db_path: TaskDef(
+        id=f"dynamic_backup_{int(time.time())}",
+        name=f"Dynamic Backup: {db_path}",
+        task_type="backup",
+        action="python",
+        payload={"code": f"""
+import shutil, sqlite3
+from pathlib import Path
+from datetime import datetime
+src = Path('F:/BUREAU/turbo') / '{db_path}'
+dst = Path('F:/BUREAU/turbo/backups') / f'{{src.stem}}_{{datetime.now():%Y%m%d_%H%M%S}}.db'
+dst.parent.mkdir(exist_ok=True)
+shutil.copy2(str(src), str(dst))
+c = sqlite3.connect(str(dst))
+print(f"OK: {{dst.name}} ({{c.execute('PRAGMA integrity_check').fetchone()[0]}})")
+c.close()
+"""},
+    ),
+}
+
+
+def spawn_dynamic_task(template_name: str, *args, **kwargs) -> TaskResult:
+    """Create and immediately execute a task from a template."""
+    template = TASK_TEMPLATES.get(template_name)
+    if not template:
+        return TaskResult("dynamic", "failed", error=f"Unknown template: {template_name}")
+    task = template(*args, **kwargs)
+    result = execute_task(task)
+    record_run(result)
+    return result
+
+
+# ── Self-Monitoring ────────────────────────────────────────────────────────
+
+def orchestrator_self_check() -> dict:
+    """Check orchestrator's own health."""
+    issues = []
+    conn = get_db()
+
+    # DB size
+    db_size = Path(DB_PATH).stat().st_size / 1024**2
+    if db_size > 100:
+        issues.append(f"DB too large: {db_size:.1f}MB")
+
+    # Stuck tasks (next_run far in the past)
+    cutoff = (datetime.now() - timedelta(hours=2)).isoformat()
+    stuck = conn.execute("""
+        SELECT t.id FROM tasks t JOIN task_schedule s ON t.id=s.task_id
+        WHERE t.enabled=1 AND s.next_run < ? AND s.next_run != ''
+    """, (cutoff,)).fetchall()
+    if len(stuck) > 10:
+        issues.append(f"{len(stuck)} tasks overdue by >2h")
+
+    # High failure rate (last hour)
+    hour_ago = (datetime.now() - timedelta(hours=1)).isoformat()
+    total = conn.execute("SELECT count(*) FROM task_runs WHERE started_at>?", (hour_ago,)).fetchone()[0]
+    fails = conn.execute("SELECT count(*) FROM task_runs WHERE status='failed' AND started_at>?", (hour_ago,)).fetchone()[0]
+    if total > 0 and fails / total > 0.5:
+        issues.append(f"High failure rate: {fails}/{total} in last hour")
+
+    # Metrics table bloat
+    metrics_count = conn.execute("SELECT count(*) FROM task_metrics").fetchone()[0]
+    if metrics_count > 100000:
+        issues.append(f"Metrics table bloat: {metrics_count} rows")
+
+    conn.close()
+
+    return {
+        "status": "healthy" if not issues else "degraded",
+        "db_size_mb": round(db_size, 1),
+        "issues": issues,
+    }
+
+
+def cleanup_old_data(days: int = 30):
+    """Clean up old metrics and run history."""
+    conn = get_db()
+    cutoff = (datetime.now() - timedelta(days=days)).isoformat()
+    # Keep last N runs per task
+    conn.execute("""
+        DELETE FROM task_runs WHERE id NOT IN (
+            SELECT id FROM (
+                SELECT id, ROW_NUMBER() OVER (PARTITION BY task_id ORDER BY id DESC) as rn
+                FROM task_runs
+            ) WHERE rn <= 100
+        )
+    """)
+    # Trim metrics
+    conn.execute("DELETE FROM task_metrics WHERE recorded_at < ?", (cutoff,))
+    # Trim chain state
+    conn.execute("DELETE FROM task_chain_state WHERE created_at < ?", (cutoff,))
+    conn.commit()
+    deleted = conn.total_changes
+    conn.close()
+    return deleted
 
 
 # ── Default Tasks ───────────────────────────────────────────────────────────
@@ -1806,6 +2581,782 @@ else:
             schedule="every:15m",
             tags=["health", "electron"],
         ),
+
+        # ══════════════════════════════════════════════════════════════════
+        # PHASE 3 — Event-driven, Escalation, Metrics, Self-monitoring
+        # ══════════════════════════════════════════════════════════════════
+
+        # ── System Metrics Collector ──
+        TaskDef(
+            id="metrics_collector",
+            name="System Metrics Collector",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import sys, os, subprocess, json, sqlite3
+sys.path.insert(0, 'F:/BUREAU/turbo')
+from pathlib import Path
+TURBO = Path('F:/BUREAU/turbo')
+DB = str(TURBO / 'data/task_orchestrator.db')
+conn = sqlite3.connect(DB)
+def rec(name, val):
+    conn.execute('INSERT INTO task_metrics (metric_name,metric_value) VALUES (?,?)',(name,val))
+# GPU
+try:
+    r = subprocess.run(['nvidia-smi','--query-gpu=temperature.gpu,memory.used,utilization.gpu',
+        '--format=csv,noheader,nounits'], capture_output=True, text=True, timeout=5)
+    for i, line in enumerate(r.stdout.strip().splitlines()):
+        p = [x.strip() for x in line.split(',')]
+        rec(f'gpu{i}_temp', float(p[0]))
+        rec(f'gpu{i}_vram_mb', float(p[1]))
+        rec(f'gpu{i}_util', float(p[2]))
+except: pass
+# Disk
+import shutil
+for d in ['C:/','F:/']:
+    u = shutil.disk_usage(d)
+    rec(f'disk_{d[0].lower()}_free_gb', u.free/1024**3)
+# Cluster nodes
+for name, url in [('m1','127.0.0.1:1234/v1/models'),('ol1','127.0.0.1:11434/api/tags')]:
+    try:
+        r = subprocess.run(['curl','-s','--max-time','2',f'http://{url}'],
+            capture_output=True, text=True, timeout=4)
+        rec(f'cluster_{name}_online', 1.0 if r.returncode==0 and len(r.stdout)>10 else 0.0)
+    except: rec(f'cluster_{name}_online', 0.0)
+# Python processes
+output = os.popen('tasklist /FI "IMAGENAME eq python.exe" /FO CSV 2>NUL').read()
+rec('python_processes', float(len([l for l in output.strip().splitlines()[1:] if l.strip()])))
+conn.commit()
+conn.close()
+print('Metrics collected')
+"""},
+            priority="low",
+            schedule="every:5m",
+            tags=["metrics", "monitoring"],
+        ),
+
+        # ── Orchestrator Self-Health ──
+        TaskDef(
+            id="orch_self_health",
+            name="Orchestrator Self-Health",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import sqlite3, json
+from pathlib import Path
+from datetime import datetime, timedelta
+DB = str(Path('F:/BUREAU/turbo/data/task_orchestrator.db'))
+conn = sqlite3.connect(DB)
+issues = []
+# DB size
+db_mb = Path(DB).stat().st_size / 1024**2
+if db_mb > 50: issues.append(f'DB large: {db_mb:.1f}MB')
+# Overdue tasks
+cutoff = (datetime.now() - timedelta(hours=2)).isoformat()
+stuck = conn.execute("SELECT count(*) FROM tasks t JOIN task_schedule s ON t.id=s.task_id WHERE t.enabled=1 AND s.next_run<? AND s.next_run!=''", (cutoff,)).fetchone()[0]
+if stuck > 10: issues.append(f'{stuck} tasks overdue >2h')
+# Failure rate (last hour)
+h = (datetime.now() - timedelta(hours=1)).isoformat()
+total = conn.execute("SELECT count(*) FROM task_runs WHERE started_at>?", (h,)).fetchone()[0]
+fails = conn.execute("SELECT count(*) FROM task_runs WHERE status='failed' AND started_at>?", (h,)).fetchone()[0]
+if total > 5 and fails/total > 0.4: issues.append(f'High fail rate: {fails}/{total}')
+# Metrics bloat
+mc = conn.execute("SELECT count(*) FROM task_metrics").fetchone()[0]
+if mc > 50000: issues.append(f'Metrics: {mc} rows (trim needed)')
+conn.close()
+if issues:
+    print(f'DEGRADED: {"; ".join(issues)}')
+    exit(1)
+else:
+    print(f'HEALTHY: DB={db_mb:.1f}MB, runs_1h={total}, metrics={mc}')
+"""},
+            priority="normal",
+            schedule="every:30m",
+            tags=["health", "self-monitoring"],
+        ),
+
+        # ── Metrics Cleanup (daily trim) ──
+        TaskDef(
+            id="metrics_cleanup",
+            name="Metrics Data Cleanup",
+            task_type="schedule",
+            action="python",
+            payload={"code": """
+import sqlite3
+from pathlib import Path
+from datetime import datetime, timedelta
+DB = str(Path('F:/BUREAU/turbo/data/task_orchestrator.db'))
+conn = sqlite3.connect(DB)
+cutoff = (datetime.now() - timedelta(days=7)).isoformat()
+conn.execute('DELETE FROM task_metrics WHERE recorded_at < ?', (cutoff,))
+conn.execute('DELETE FROM task_chain_state WHERE created_at < ?', (cutoff,))
+# Keep last 200 runs per task
+conn.execute('''DELETE FROM task_runs WHERE id NOT IN (
+    SELECT id FROM (SELECT id, ROW_NUMBER() OVER (PARTITION BY task_id ORDER BY id DESC) as rn FROM task_runs) WHERE rn <= 200)''')
+changes = conn.total_changes
+conn.commit()
+conn.close()
+print(f'Cleaned {changes} old records')
+"""},
+            priority="low",
+            schedule="daily:04:30",
+            tags=["cleanup", "metrics"],
+        ),
+
+        # ── WS Server Health (port check) ──
+        TaskDef(
+            id="ws_server_health",
+            name="WebSocket Server Health",
+            task_type="health",
+            action="branch",
+            payload={
+                "condition": {"type": "port_open", "host": "127.0.0.1", "port": 9742},
+                "branches": {
+                    "open": {"action": "python", "payload": {"code": """
+import subprocess
+r = subprocess.run(['curl','-s','--max-time','2','http://127.0.0.1:9742/health'],
+    capture_output=True, text=True, timeout=5)
+print(f"WS Server: {'OK' if r.returncode==0 else 'ERROR'} {r.stdout[:80]}")
+"""}},
+                    "closed": {"action": "python", "payload": {"code": """
+import subprocess
+print('WS Server DOWN - attempting restart...')
+subprocess.Popen(['python','python_ws/server.py'], cwd='F:/BUREAU/turbo', creationflags=0x00000008)
+print('WS restart initiated')
+"""}},
+                },
+            },
+            priority="high",
+            schedule="every:5m",
+            tags=["health", "ws", "auto-heal"],
+        ),
+
+        # ── Gemini Proxy Health ──
+        TaskDef(
+            id="gemini_proxy_health",
+            name="Gemini Proxy Health",
+            task_type="health",
+            action="branch",
+            payload={
+                "condition": {"type": "process_running", "process": "node.exe"},
+                "branches": {
+                    "running": {"action": "python", "payload": {"code": """
+import subprocess
+# Test gemini proxy
+r = subprocess.run(['node','F:/BUREAU/turbo/gemini-proxy.js','--ping'],
+    capture_output=True, text=True, timeout=10)
+if r.returncode == 0:
+    print(f'Gemini proxy: OK')
+else:
+    print(f'Gemini proxy: ERROR {r.stderr[:60]}')
+"""}},
+                    "stopped": {"action": "python", "payload": {"code": "print('Node not running')"}},
+                },
+            },
+            priority="low",
+            schedule="every:30m",
+            tags=["health", "gemini"],
+        ),
+
+        # ── M2/M3 Cluster Failover Monitor ──
+        TaskDef(
+            id="cluster_failover",
+            name="Cluster Failover Monitor",
+            task_type="health",
+            action="branch",
+            payload={
+                "condition": {"type": "cluster_quorum", "min_nodes": 2},
+                "branches": {
+                    "quorum": {"action": "python", "payload": {"code": """
+import subprocess, json
+online = []
+for name, url in [('M1','127.0.0.1:1234/v1/models'),('OL1','127.0.0.1:11434/api/tags'),
+                   ('M2','192.168.1.26:1234/v1/models'),('M3','192.168.1.113:1234/v1/models')]:
+    try:
+        r = subprocess.run(['curl','-s','--max-time','3',f'http://{url}'],
+            capture_output=True, text=True, timeout=5)
+        if r.returncode == 0 and len(r.stdout) > 10:
+            online.append(name)
+    except: pass
+print(f'Quorum OK: {len(online)}/4 nodes online ({", ".join(online)})')
+"""}},
+                    "no_quorum": {"action": "python", "payload": {"code": """
+import subprocess
+print('WARNING: Cluster quorum lost (<2 nodes online)')
+print('Attempting recovery...')
+# Try restarting Ollama
+try:
+    r = subprocess.run(['curl','-s','--max-time','2','http://127.0.0.1:11434/api/tags'],
+        capture_output=True, text=True, timeout=4)
+    if r.returncode != 0:
+        subprocess.Popen(['ollama','serve'], creationflags=0x00000008)
+        print('Ollama restart attempted')
+except: print('Ollama restart failed')
+"""}},
+                },
+            },
+            priority="high",
+            schedule="every:10m",
+            tags=["health", "cluster", "failover"],
+        ),
+
+        # ── Error Rate Monitor ──
+        TaskDef(
+            id="error_rate_monitor",
+            name="Error Rate Monitor",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import sqlite3, json
+from pathlib import Path
+from datetime import datetime, timedelta
+DB = str(Path('F:/BUREAU/turbo/data/task_orchestrator.db'))
+conn = sqlite3.connect(DB)
+cutoff = (datetime.now() - timedelta(hours=1)).isoformat()
+# Per-task error rates
+rows = conn.execute('''
+    SELECT task_id,
+        SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END) as ok,
+        SUM(CASE WHEN status='failed' THEN 1 ELSE 0 END) as fail
+    FROM task_runs WHERE started_at > ?
+    GROUP BY task_id HAVING fail > 0
+    ORDER BY fail DESC
+''', (cutoff,)).fetchall()
+conn.close()
+if not rows:
+    print('No failures in last hour')
+else:
+    print(f'{len(rows)} tasks with failures:')
+    for tid, ok, fail in rows:
+        rate = fail * 100 / (ok + fail) if (ok + fail) > 0 else 0
+        alert = ' [CRITICAL]' if rate > 75 else ' [WARNING]' if rate > 50 else ''
+        print(f'  {tid}: {fail} fails / {ok+fail} runs ({rate:.0f}%){alert}')
+"""},
+            priority="normal",
+            schedule="every:30m",
+            tags=["monitoring", "error-rate"],
+        ),
+
+        # ── Dashboard Data Export ──
+        TaskDef(
+            id="dashboard_export",
+            name="Dashboard Data Export",
+            task_type="schedule",
+            action="python",
+            payload={"code": """
+import sqlite3, json
+from pathlib import Path
+from datetime import datetime, timedelta
+TURBO = Path('F:/BUREAU/turbo')
+DB = str(TURBO / 'data/task_orchestrator.db')
+conn = sqlite3.connect(DB)
+# Tasks
+tasks = conn.execute('SELECT id,name,task_type,priority,enabled FROM tasks').fetchall()
+# Schedules
+scheds = {r[0]:{'last':r[1],'next':r[2],'runs':r[3],'fails':r[4],'avg_ms':r[5]}
+    for r in conn.execute('SELECT task_id,last_run,next_run,run_count,fail_count,avg_duration_ms FROM task_schedule').fetchall()}
+# Recent runs
+recent = [{'id':r[0],'status':r[1],'ms':r[2],'node':r[3],'at':r[4]}
+    for r in conn.execute('SELECT task_id,status,duration_ms,node,started_at FROM task_runs ORDER BY id DESC LIMIT 30').fetchall()]
+# Metrics (latest)
+metrics = {}
+for r in conn.execute('SELECT metric_name,metric_value,recorded_at FROM task_metrics WHERE id IN (SELECT MAX(id) FROM task_metrics GROUP BY metric_name)').fetchall():
+    metrics[r[0]] = {'v':r[1],'at':r[2]}
+conn.close()
+data = {
+    'generated': datetime.now().isoformat(),
+    'tasks': [{'id':t[0],'name':t[1],'type':t[2],'prio':t[3],'sched':scheds.get(t[0],{})} for t in tasks],
+    'recent': recent, 'metrics': metrics, 'task_count': len(tasks)
+}
+out = TURBO / 'data' / 'dashboard_orchestrator.json'
+out.write_text(json.dumps(data, indent=2, default=str), encoding='utf-8')
+print(f'Dashboard export: {len(tasks)} tasks, {len(recent)} runs, {len(metrics)} metrics -> {out.name}')
+"""},
+            priority="low",
+            schedule="every:10m",
+            tags=["dashboard", "export"],
+        ),
+
+        # ── Watchdog: Telegram Bot Process ──
+        TaskDef(
+            id="telegram_bot_watchdog",
+            name="Telegram Bot Watchdog",
+            task_type="health",
+            action="branch",
+            payload={
+                "condition": {"type": "process_running", "process": "node.exe"},
+                "branches": {
+                    "running": {"action": "python", "payload": {"code": """
+from pathlib import Path
+lock = Path('F:/BUREAU/turbo/.telegram-bot.lock')
+if lock.exists():
+    pid = lock.read_text().strip()
+    print(f'Telegram bot lock: PID {pid}')
+    import os
+    output = os.popen(f'tasklist /FI "PID eq {pid}" /FO CSV 2>NUL').read()
+    if pid in output:
+        print('Telegram bot: RUNNING')
+    else:
+        print('Telegram bot: STALE LOCK (process dead)')
+        lock.unlink()
+else:
+    print('Telegram bot: NO LOCK (probably not running)')
+"""}},
+                    "stopped": {"action": "python", "payload": {"code": "print('Node.exe not running')"}},
+                },
+            },
+            priority="low",
+            schedule="every:15m",
+            tags=["health", "telegram", "watchdog"],
+        ),
+
+        # ── HuggingFace Cache Monitor ──
+        TaskDef(
+            id="hf_cache_monitor",
+            name="HuggingFace Cache Monitor",
+            task_type="health",
+            action="python",
+            payload={"code": """
+from pathlib import Path
+hf_cache = Path.home() / '.cache' / 'huggingface'
+if hf_cache.exists():
+    total = sum(f.stat().st_size for f in hf_cache.rglob('*') if f.is_file())
+    gb = total / 1024**3
+    print(f'HuggingFace cache: {gb:.1f}GB')
+    if gb > 50:
+        print(f'WARNING: Cache exceeds 50GB, consider cleanup')
+    else:
+        print('Cache size OK')
+else:
+    print('No HuggingFace cache found')
+"""},
+            priority="low",
+            schedule="daily:05:00",
+            tags=["monitoring", "disk", "huggingface"],
+        ),
+
+        # ── Git Uncommitted Alert ──
+        TaskDef(
+            id="git_uncommitted_alert",
+            name="Git Uncommitted Changes Alert",
+            task_type="sync",
+            action="branch",
+            payload={
+                "condition": {"type": "script", "code": """
+import subprocess
+r = subprocess.run(['git','status','--porcelain','-u'],
+    capture_output=True, text=True, cwd='F:/BUREAU/turbo')
+changes = len([l for l in r.stdout.splitlines() if l.strip()])
+exit(0 if changes > 30 else 1)
+"""},
+                "branches": {
+                    "success": {"action": "python", "payload": {"code": """
+import subprocess
+r = subprocess.run(['git','status','--porcelain','-u'],
+    capture_output=True, text=True, cwd='F:/BUREAU/turbo')
+changes = len([l for l in r.stdout.splitlines() if l.strip()])
+print(f'WARNING: {changes} uncommitted changes! Consider committing.')
+r2 = subprocess.run(['git','diff','--stat','--cached'],
+    capture_output=True, text=True, cwd='F:/BUREAU/turbo')
+if r2.stdout.strip():
+    print(f'Staged: {r2.stdout.strip().splitlines()[-1]}')
+"""}},
+                    "failure": {"action": "python", "payload": {"code": """
+import subprocess
+r = subprocess.run(['git','status','--porcelain','-u'],
+    capture_output=True, text=True, cwd='F:/BUREAU/turbo')
+changes = len([l for l in r.stdout.splitlines() if l.strip()])
+print(f'Git OK: {changes} changes (under threshold)')
+"""}},
+                },
+            },
+            priority="low",
+            schedule="every:2h",
+            tags=["sync", "git", "alert"],
+        ),
+
+        # ── Python Environment Health ──
+        TaskDef(
+            id="python_env_health",
+            name="Python Environment Health",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import sys, importlib
+print(f'Python: {sys.version.split()[0]}')
+print(f'Path: {sys.executable}')
+# Check critical imports
+critical = ['pytest','requests','fastapi','websockets','sqlite3']
+ok = missing = 0
+for mod in critical:
+    try:
+        importlib.import_module(mod)
+        ok += 1
+    except ImportError:
+        missing += 1
+        print(f'  MISSING: {mod}')
+print(f'Modules: {ok}/{len(critical)} OK')
+# Check venv
+venv = 'F:/BUREAU/turbo/.venv'
+from pathlib import Path
+if Path(venv).exists():
+    print(f'venv: OK ({venv})')
+else:
+    print('venv: NOT FOUND')
+"""},
+            priority="low",
+            schedule="daily:06:30",
+            tags=["health", "python"],
+        ),
+
+        # ── Port Conflict Detector ──
+        TaskDef(
+            id="port_conflict_check",
+            name="Port Conflict Detector",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import socket
+ports = {
+    1234: 'LM Studio (M1)',
+    9742: 'JARVIS WS Server',
+    11434: 'Ollama',
+    18789: 'OpenClaw Gateway',
+    18800: 'Canvas Proxy',
+}
+conflicts = []
+for port, name in ports.items():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(1)
+        result = s.connect_ex(('127.0.0.1', port))
+        s.close()
+        status = 'OPEN' if result == 0 else 'CLOSED'
+        print(f'  :{port} {name}: {status}')
+    except Exception as e:
+        print(f'  :{port} {name}: ERROR {e}')
+"""},
+            priority="low",
+            schedule="every:30m",
+            tags=["health", "network"],
+        ),
+
+        # ── Full Weekly Pipeline (comprehensive) ──
+        TaskDef(
+            id="weekly_full_pipeline",
+            name="Weekly Full Pipeline",
+            task_type="pipeline",
+            action="pipeline",
+            payload={"steps": [
+                {"action": "python", "type": "health", "payload": {"code": """
+import subprocess, json
+nodes_ok = 0
+for name, url in [('M1','127.0.0.1:1234/v1/models'),('OL1','127.0.0.1:11434/api/tags')]:
+    try:
+        r = subprocess.run(['curl','-s','--max-time','3',f'http://{url}'],
+            capture_output=True, text=True, timeout=5)
+        if r.returncode == 0: nodes_ok += 1
+    except: pass
+print(f'Cluster: {nodes_ok}/2 nodes online')
+"""}, "required": True},
+                {"action": "python", "type": "audit", "payload": {"code": """
+import sys; sys.path.insert(0, 'F:/BUREAU/turbo')
+from src.auto_fixer import AutoFixer
+from src.auto_auditor import AutoAuditor
+AutoFixer().run_fix_cycle(dry_run=False)
+r = AutoAuditor().run_full_audit()
+print(f'Audit: {r.summary["score"]}/100, {len(r.findings)} findings')
+"""}, "required": False},
+                {"action": "python", "type": "test", "payload": {"code": """
+import subprocess
+r = subprocess.run(['python','-m','pytest','tests/','-x','-q','--tb=no','-k','not integration'],
+    capture_output=True, text=True, cwd='F:/BUREAU/turbo', timeout=300)
+lines = r.stdout.strip().splitlines()
+print(lines[-1] if lines else 'No output')
+"""}, "timeout": 300, "required": False},
+                {"action": "python", "type": "backup", "payload": {"code": """
+import shutil, hashlib, sqlite3
+from pathlib import Path
+from datetime import datetime
+TURBO = Path('F:/BUREAU/turbo')
+ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+backups = TURBO / 'backups'
+backups.mkdir(exist_ok=True)
+for db in ['data/jarvis.db','etoile.db','data/sniper.db']:
+    src = TURBO / db; dst = backups / f'{src.stem}_{ts}.db'
+    shutil.copy2(str(src), str(dst))
+    c = sqlite3.connect(str(dst))
+    ok = c.execute('PRAGMA integrity_check').fetchone()[0] == 'ok'
+    c.close()
+    print(f"{'OK' if ok else 'FAIL'}: {dst.name}")
+"""}, "required": True},
+                {"action": "python", "type": "sync", "payload": {"code": """
+import subprocess
+r = subprocess.run(['git','log','--oneline','-5'],
+    capture_output=True, text=True, cwd='F:/BUREAU/turbo')
+print('Last 5 commits:')
+print(r.stdout.strip())
+r2 = subprocess.run(['git','status','--porcelain','-u'],
+    capture_output=True, text=True, cwd='F:/BUREAU/turbo')
+changes = len([l for l in r2.stdout.splitlines() if l.strip()])
+print(f'Uncommitted: {changes} files')
+"""}, "required": False},
+                {"action": "python", "type": "health", "payload": {"code": """
+import sqlite3, json
+from pathlib import Path
+TURBO = Path('F:/BUREAU/turbo')
+# Orchestrator stats
+c = sqlite3.connect(str(TURBO/'data/task_orchestrator.db'))
+total = c.execute('SELECT count(*) FROM task_runs').fetchone()[0]
+ok = c.execute("SELECT count(*) FROM task_runs WHERE status='completed'").fetchone()[0]
+fail = c.execute("SELECT count(*) FROM task_runs WHERE status='failed'").fetchone()[0]
+tasks = c.execute('SELECT count(*) FROM tasks WHERE enabled=1').fetchone()[0]
+c.close()
+rate = ok*100/max(total,1)
+print(f'Orchestrator: {tasks} tasks, {total} runs, {rate:.1f}% success, {fail} fails')
+"""}, "required": False},
+            ]},
+            branch_on={"failed": "stop"},
+            priority="normal",
+            schedule="weekly:sun:03:00",
+            timeout_s=900,
+            tags=["pipeline", "weekly", "comprehensive"],
+        ),
+
+        # ── Consensus Code Quality ──
+        TaskDef(
+            id="consensus_code_quality",
+            name="Consensus Code Quality Review",
+            task_type="consensus",
+            action="cluster_query",
+            payload={
+                "prompt": "Analyse ces metriques de code Python: 228 modules, 3665 fonctions de test, score audit 100/100. Quels sont les 3 domaines a ameliorer en priorite? Propose des actions concretes. Reponds en francais.",
+                "route": "consensus",
+                "nodes": ["M1", "OL1"],
+                "timeout": 20,
+            },
+            priority="low",
+            schedule="weekly:fri:14:00",
+            tags=["review", "consensus", "quality"],
+        ),
+
+        # ── Escalation Test ──
+        TaskDef(
+            id="escalation_check",
+            name="Escalation Status Check",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import sqlite3
+from pathlib import Path
+DB = str(Path('F:/BUREAU/turbo/data/task_orchestrator.db'))
+conn = sqlite3.connect(DB)
+try:
+    rows = conn.execute('SELECT task_id, consecutive_fails FROM task_escalation WHERE consecutive_fails > 0').fetchall()
+except: rows = []
+conn.close()
+if rows:
+    print(f'{len(rows)} tasks with consecutive failures:')
+    for tid, fails in rows:
+        level = 'CRITICAL' if fails >= 10 else 'ALERT' if fails >= 5 else 'WARN' if fails >= 3 else 'INFO'
+        print(f'  [{level}] {tid}: {fails} consecutive fails')
+else:
+    print('No escalated tasks')
+"""},
+            priority="normal",
+            schedule="every:1h",
+            tags=["monitoring", "escalation"],
+        ),
+
+        # ── Event Triggers Summary ──
+        TaskDef(
+            id="event_triggers_report",
+            name="Event Triggers Report",
+            task_type="schedule",
+            action="python",
+            payload={"code": """
+import sqlite3
+from pathlib import Path
+DB = str(Path('F:/BUREAU/turbo/data/task_orchestrator.db'))
+conn = sqlite3.connect(DB)
+try:
+    rows = conn.execute('SELECT event_type, source, task_id, trigger_count, last_triggered FROM task_events WHERE enabled=1').fetchall()
+except: rows = []
+conn.close()
+if rows:
+    print(f'{len(rows)} active event triggers:')
+    for etype, src, tid, cnt, last in rows:
+        print(f'  [{etype}] {src[:40]} -> {tid} (triggered {cnt}x, last: {last or "never"})')
+else:
+    print('No event triggers configured')
+"""},
+            priority="low",
+            schedule="daily:09:00",
+            tags=["monitoring", "events"],
+        ),
+
+        # ── Memory Pressure Guard ──
+        TaskDef(
+            id="memory_guard",
+            name="Memory Pressure Guard",
+            task_type="health",
+            action="branch",
+            payload={
+                "condition": {"type": "memory_usage", "threshold_pct": 90},
+                "branches": {
+                    "high": {"action": "python", "payload": {"code": """
+import os
+print('MEMORY PRESSURE - High RAM usage detected')
+# List top memory consumers
+output = os.popen('tasklist /FO CSV /NH 2>NUL').read()
+procs = []
+for line in output.strip().splitlines():
+    parts = line.replace('"','').split(',')
+    if len(parts) >= 5:
+        try:
+            mem_kb = int(parts[4].replace(' K','').replace(',','').strip())
+            procs.append((parts[0], int(parts[1]), mem_kb))
+        except: pass
+procs.sort(key=lambda x: x[2], reverse=True)
+print('Top memory consumers:')
+for name, pid, mem in procs[:10]:
+    print(f'  {name}: PID {pid}, {mem/1024:.0f}MB')
+"""}},
+                    "ok": {"action": "python", "payload": {"code": "print('Memory usage OK')"}},
+                },
+            },
+            priority="high",
+            schedule="every:15m",
+            tags=["health", "memory"],
+        ),
+
+        # ── Cowork Scripts Monitor ──
+        TaskDef(
+            id="cowork_monitor",
+            name="Cowork Scripts Monitor",
+            task_type="health",
+            action="python",
+            payload={"code": """
+from pathlib import Path
+cowork = Path('F:/BUREAU/turbo/cowork/dev')
+if cowork.exists():
+    scripts = list(cowork.glob('*.py'))
+    total_lines = sum(1 for s in scripts for _ in s.read_text(errors='replace').splitlines())
+    print(f'Cowork scripts: {len(scripts)} files, {total_lines:,} lines')
+    # Check for recent modifications
+    from datetime import datetime, timedelta
+    recent = [s for s in scripts if datetime.fromtimestamp(s.stat().st_mtime) > datetime.now() - timedelta(days=1)]
+    if recent:
+        print(f'Recently modified: {len(recent)} scripts')
+        for s in recent[:5]:
+            print(f'  {s.name}')
+else:
+    print('Cowork dir not found')
+"""},
+            priority="low",
+            schedule="daily:10:00",
+            tags=["monitoring", "cowork"],
+        ),
+
+        # ── Windows Scheduled Tasks Sync ──
+        TaskDef(
+            id="win_tasks_sync",
+            name="Windows Tasks Sync Check",
+            task_type="sync",
+            action="python",
+            payload={"code": """
+import os
+output = os.popen('schtasks /Query /FO CSV /NH 2>NUL').read()
+jarvis_tasks = [l for l in output.splitlines() if 'JARVIS' in l]
+print(f'Windows JARVIS scheduled tasks: {len(jarvis_tasks)}')
+for t in jarvis_tasks:
+    parts = t.replace('"','').split(',')
+    if len(parts) >= 3:
+        print(f'  {parts[0]}: {parts[2]}')
+"""},
+            priority="low",
+            schedule="daily:07:00",
+            tags=["sync", "windows"],
+        ),
+
+        # ── Backup Verification Pipeline ──
+        TaskDef(
+            id="backup_verify",
+            name="Backup Integrity Verification",
+            task_type="backup",
+            action="python",
+            payload={"code": """
+import sqlite3, hashlib
+from pathlib import Path
+TURBO = Path('F:/BUREAU/turbo')
+backups = TURBO / 'backups'
+if not backups.exists():
+    print('No backups directory')
+    exit(0)
+verified = failed = 0
+for stem in ['jarvis','etoile','sniper']:
+    files = sorted(backups.glob(f'{stem}_*.db'), key=lambda f: f.stat().st_mtime, reverse=True)
+    if files:
+        latest = files[0]
+        try:
+            c = sqlite3.connect(str(latest))
+            r = c.execute('PRAGMA integrity_check').fetchone()[0]
+            c.close()
+            if r == 'ok':
+                verified += 1
+                print(f'  OK: {latest.name} ({latest.stat().st_size//1024}KB)')
+            else:
+                failed += 1
+                print(f'  CORRUPT: {latest.name}')
+        except Exception as e:
+            failed += 1
+            print(f'  ERROR: {latest.name}: {e}')
+    else:
+        print(f'  MISSING: no {stem} backups')
+        failed += 1
+print(f'Backup verification: {verified} OK, {failed} issues')
+if failed: exit(1)
+"""},
+            priority="normal",
+            schedule="every:4h",
+            tags=["backup", "verification"],
+        ),
+
+        # ── Parallel Cluster Ping ──
+        TaskDef(
+            id="parallel_cluster_ping",
+            name="Parallel Cluster Ping",
+            task_type="health",
+            action="python",
+            payload={"code": """
+import subprocess, time, json
+from concurrent.futures import ThreadPoolExecutor
+def ping_node(name, url):
+    t0 = time.monotonic()
+    try:
+        r = subprocess.run(['curl','-s','--max-time','3',f'http://{url}'],
+            capture_output=True, text=True, timeout=5)
+        ms = (time.monotonic()-t0)*1000
+        if r.returncode == 0 and len(r.stdout) > 10:
+            return name, 'OK', ms
+        return name, 'DOWN', ms
+    except:
+        return name, 'TIMEOUT', (time.monotonic()-t0)*1000
+nodes = [
+    ('M1','127.0.0.1:1234/v1/models'),('OL1','127.0.0.1:11434/api/tags'),
+    ('M2','192.168.1.26:1234/v1/models'),('M3','192.168.1.113:1234/v1/models'),
+]
+with ThreadPoolExecutor(max_workers=4) as pool:
+    results = list(pool.map(lambda n: ping_node(n[0],n[1]), nodes))
+for name, status, ms in results:
+    print(f'  {name}: {status} ({ms:.0f}ms)')
+online = sum(1 for _,s,_ in results if s == 'OK')
+print(f'Cluster: {online}/{len(nodes)} online')
+"""},
+            priority="normal",
+            schedule="every:5m",
+            tags=["health", "cluster", "parallel"],
+        ),
     ]
 
     for task in defaults:
@@ -1930,35 +3481,189 @@ def run_single_task(task_id: str):
 
 
 def daemon_loop():
-    """Run as a daemon, checking for due tasks every 60s."""
-    print("  JARVIS Task Orchestrator — Daemon mode")
+    """Run as a daemon with parallel execution, events, metrics, and escalation."""
+    print("  JARVIS Task Orchestrator — Daemon mode (v3 — parallel + events + metrics)")
     print("  Checking for due tasks every 60 seconds...")
+    cycle = 0
     while True:
         try:
+            cycle += 1
+
+            # 1. Collect metrics every 5 cycles (5 min)
+            if cycle % 5 == 0:
+                try:
+                    collect_system_metrics()
+                except Exception as e:
+                    logger.debug("Metrics collection error: %s", e)
+
+            # 2. Process event triggers
+            try:
+                events_triggered = process_events()
+                if events_triggered:
+                    logger.info("Events triggered %d tasks", events_triggered)
+            except Exception as e:
+                logger.debug("Event processing error: %s", e)
+
+            # 3. Run due tasks (with parallel execution)
             tasks = get_due_tasks()
             if tasks:
-                logger.info("Found %d due tasks", len(tasks))
-                for task in sorted(tasks, key=lambda t: TASK_PRIORITY.get(t.priority, 2)):
-                    if check_dependencies(task):
-                        result = execute_task(task)
-                        record_run(result)
-                        logger.info("[%s] %s (%dms)", result.status, task.name, result.duration_ms)
+                logger.info("Found %d due tasks (cycle %d)", len(tasks), cycle)
+
+                # Split by priority: critical/high run sequentially, normal/low in parallel
+                critical = [t for t in tasks if t.priority in ("critical", "high") and check_dependencies(t)]
+                parallel = [t for t in tasks if t.priority in ("normal", "low") and check_dependencies(t) and not t.depends_on]
+                sequential_deps = [t for t in tasks if t.depends_on and t.priority not in ("critical", "high") and check_dependencies(t)]
+
+                # Run critical tasks first (sequentially)
+                for task in critical:
+                    ok, reason = check_resource_availability(task)
+                    if not ok:
+                        logger.warning("Resource unavailable for %s: %s", task.id, reason)
+                        continue
+                    result = execute_task(task)
+                    record_run(result)
+                    process_escalation(result.task_id, result.status)
+                    logger.info("[%s] %s (%dms)", result.status, task.name, result.duration_ms)
+
+                # Run parallel batch
+                if parallel:
+                    # Resource-check filter
+                    runnable = []
+                    for t in parallel:
+                        ok, reason = check_resource_availability(t)
+                        if ok:
+                            runnable.append(t)
+                        else:
+                            logger.warning("Resource unavailable for %s: %s", t.id, reason)
+
+                    if runnable:
+                        results = execute_parallel(runnable, max_workers=min(4, len(runnable)))
+                        for r in results:
+                            record_run(r)
+                            process_escalation(r.task_id, r.status)
+                            logger.info("[%s] %s (%dms)", r.status, r.task_id, r.duration_ms)
+
+                # Run sequential deps
+                for task in sequential_deps:
+                    result = execute_task(task)
+                    record_run(result)
+                    process_escalation(result.task_id, result.status)
+                    logger.info("[%s] %s (%dms)", result.status, task.name, result.duration_ms)
+
+            # 4. Self-check every 30 cycles (30 min)
+            if cycle % 30 == 0:
+                health = orchestrator_self_check()
+                if health["status"] != "healthy":
+                    logger.warning("Orchestrator degraded: %s", health["issues"])
+
         except Exception as e:
-            logger.error("Daemon error: %s", e)
+            logger.error("Daemon error (cycle %d): %s", cycle, e)
+
         time.sleep(60)
 
 
 # ── Main ────────────────────────────────────────────────────────────────────
 
+def show_metrics(metric_name: str = None, hours: int = 24):
+    """Show metrics summary."""
+    conn = get_db()
+    if metric_name:
+        summary = get_metrics_summary(metric_name, hours)
+        print(f"\n  Metric: {metric_name} (last {hours}h)")
+        if summary["count"] == 0:
+            print("  No data")
+        else:
+            print(f"  Count: {summary['count']}")
+            print(f"  Min: {summary['min']:.2f}  Max: {summary['max']:.2f}  Avg: {summary['avg']:.2f}")
+            print(f"  Latest: {summary['latest']:.2f}")
+    else:
+        # Show all latest metrics
+        rows = conn.execute("""
+            SELECT metric_name, metric_value, recorded_at FROM task_metrics
+            WHERE id IN (SELECT MAX(id) FROM task_metrics GROUP BY metric_name)
+            ORDER BY metric_name
+        """).fetchall()
+        print(f"\n{'='*60}")
+        print(f"  SYSTEM METRICS — {len(rows)} tracked")
+        print(f"{'='*60}")
+        for name, value, at in rows:
+            print(f"  {name:30} {value:10.2f}  ({at})")
+        print(f"{'='*60}")
+    conn.close()
+
+
+def show_events():
+    """Show event triggers."""
+    conn = get_db()
+    try:
+        rows = conn.execute("""
+            SELECT event_type, source, task_id, enabled, trigger_count, last_triggered, cooldown_s
+            FROM task_events ORDER BY event_type
+        """).fetchall()
+    except Exception:
+        rows = []
+    conn.close()
+
+    print(f"\n{'='*70}")
+    print(f"  EVENT TRIGGERS — {len(rows)} registered")
+    print(f"{'='*70}")
+    for etype, source, task_id, enabled, count, last, cooldown in rows:
+        status = "ON" if enabled else "OFF"
+        print(f"  [{status}] {etype:15} {source[:30]:30} -> {task_id:25} (x{count}, cd={cooldown}s)")
+    print(f"{'='*70}")
+
+
+def show_escalations():
+    """Show escalation states."""
+    conn = get_db()
+    try:
+        rows = conn.execute("""
+            SELECT task_id, consecutive_fails, level_1_threshold, level_2_threshold, level_3_threshold
+            FROM task_escalation ORDER BY consecutive_fails DESC
+        """).fetchall()
+    except Exception:
+        rows = []
+    conn.close()
+
+    print(f"\n{'='*60}")
+    print(f"  ESCALATION STATUS — {len(rows)} tasks tracked")
+    print(f"{'='*60}")
+    for tid, fails, l1, l2, l3 in rows:
+        if fails > 0:
+            level = "CRITICAL" if fails >= l3 else "ALERT" if fails >= l2 else "WARN" if fails >= l1 else "OK"
+            print(f"  [{level:8}] {tid:25} fails={fails} (L1@{l1} L2@{l2} L3@{l3})")
+    ok_count = sum(1 for _, f, *_ in rows if f == 0)
+    if ok_count:
+        print(f"  ... {ok_count} tasks with 0 consecutive fails")
+    print(f"{'='*60}")
+
+
+def show_dashboard():
+    """Export and display dashboard data."""
+    data = export_dashboard_data()
+    print(json.dumps(data, indent=2, default=str))
+
+
 def main():
-    parser = argparse.ArgumentParser(description="JARVIS Task Orchestrator")
+    parser = argparse.ArgumentParser(description="JARVIS Task Orchestrator v3")
     parser.add_argument("--init", action="store_true", help="Initialize DB + default tasks")
     parser.add_argument("--status", action="store_true", help="Show task queue status")
     parser.add_argument("--schedule", action="store_true", help="Show scheduled tasks")
     parser.add_argument("--run", metavar="TASK_ID", help="Run specific task")
     parser.add_argument("--add", metavar="JSON", help="Add task from JSON")
-    parser.add_argument("--daemon", action="store_true", help="Run as daemon")
+    parser.add_argument("--daemon", action="store_true", help="Run as daemon (v3: parallel + events)")
     parser.add_argument("--run-all", action="store_true", help="Run all due tasks now")
+    parser.add_argument("--parallel", action="store_true", help="Run due tasks with parallel execution")
+    parser.add_argument("--metrics", nargs="?", const="__all__", metavar="NAME", help="Show metrics (optionally filter by name)")
+    parser.add_argument("--events", action="store_true", help="Show event triggers")
+    parser.add_argument("--escalations", action="store_true", help="Show escalation states")
+    parser.add_argument("--dashboard", action="store_true", help="Export dashboard JSON")
+    parser.add_argument("--self-check", action="store_true", help="Orchestrator self-health check")
+    parser.add_argument("--cleanup", type=int, nargs="?", const=30, metavar="DAYS", help="Clean old data (default: 30 days)")
+    parser.add_argument("--enable", metavar="TASK_ID", help="Enable a task")
+    parser.add_argument("--disable", metavar="TASK_ID", help="Disable a task")
+    parser.add_argument("--run-tag", metavar="TAG", help="Run all tasks matching a tag")
+    parser.add_argument("--collect-metrics", action="store_true", help="Collect system metrics now")
     args = parser.parse_args()
 
     init_db()
@@ -1978,6 +3683,56 @@ def main():
         print(f"  Added: {task.id} ({task.schedule})")
     elif args.daemon:
         daemon_loop()
+    elif args.parallel:
+        completed = run_due_tasks_parallel()
+        print(f"  Completed: {completed} tasks (parallel mode)")
+    elif args.metrics:
+        if args.metrics == "__all__":
+            show_metrics()
+        else:
+            show_metrics(args.metrics)
+    elif args.events:
+        show_events()
+    elif args.escalations:
+        show_escalations()
+    elif args.dashboard:
+        show_dashboard()
+    elif args.self_check:
+        health = orchestrator_self_check()
+        print(f"  Status: {health['status']}")
+        print(f"  DB size: {health['db_size_mb']}MB")
+        if health["issues"]:
+            for issue in health["issues"]:
+                print(f"  Issue: {issue}")
+        else:
+            print("  No issues")
+    elif args.cleanup is not None:
+        deleted = cleanup_old_data(args.cleanup)
+        print(f"  Cleaned {deleted} old records (>{args.cleanup} days)")
+    elif args.enable:
+        conn = get_db()
+        conn.execute("UPDATE tasks SET enabled=1 WHERE id=?", (args.enable,))
+        conn.commit()
+        conn.close()
+        print(f"  Enabled: {args.enable}")
+    elif args.disable:
+        conn = get_db()
+        conn.execute("UPDATE tasks SET enabled=0 WHERE id=?", (args.disable,))
+        conn.commit()
+        conn.close()
+        print(f"  Disabled: {args.disable}")
+    elif args.run_tag:
+        tasks = load_tasks()
+        matching = [t for t in tasks if args.run_tag in t.tags]
+        print(f"  Running {len(matching)} tasks with tag '{args.run_tag}'")
+        for task in matching:
+            result = execute_task(task)
+            record_run(result)
+            process_escalation(result.task_id, result.status)
+            print(f"  [{result.status}] {task.name} ({result.duration_ms:.0f}ms)")
+    elif args.collect_metrics:
+        collect_system_metrics()
+        print("  Metrics collected")
     elif args.run_all:
         run_due_tasks()
     else:

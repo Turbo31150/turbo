@@ -202,10 +202,142 @@ class TestDefaultTasks:
     def test_create_defaults(self):
         to.create_default_tasks()
         tasks = to.load_tasks()
-        assert len(tasks) >= 10
+        assert len(tasks) >= 34
         ids = [t.id for t in tasks]
         assert "health_cluster" in ids
         assert "backup_databases" in ids
         assert "audit_code" in ids
         assert "daily_pipeline" in ids
         assert "trading_scan" in ids
+
+    def test_phase3_tasks_exist(self):
+        to.create_default_tasks()
+        ids = [t.id for t in to.load_tasks()]
+        for tid in ["metrics_collector", "orch_self_health", "metrics_cleanup",
+                     "ws_server_health", "cluster_failover", "error_rate_monitor",
+                     "dashboard_export", "parallel_cluster_ping", "memory_guard"]:
+            assert tid in ids, f"Missing task: {tid}"
+
+
+class TestEscalation:
+    def test_escalation_increments(self):
+        to.save_task(to.TaskDef(id="esc1", name="Esc", task_type="quick",
+                                 action="python", payload={"code": "print('x')"}))
+        for _ in range(4):
+            to.process_escalation("esc1", "failed")
+        conn = to.get_db()
+        row = conn.execute("SELECT consecutive_fails FROM task_escalation WHERE task_id='esc1'").fetchone()
+        conn.close()
+        assert row[0] == 4
+
+    def test_escalation_resets_on_success(self):
+        to.save_task(to.TaskDef(id="esc2", name="Esc2", task_type="quick",
+                                 action="python", payload={"code": "print('x')"}))
+        to.process_escalation("esc2", "failed")
+        to.process_escalation("esc2", "failed")
+        to.process_escalation("esc2", "completed")
+        conn = to.get_db()
+        row = conn.execute("SELECT consecutive_fails FROM task_escalation WHERE task_id='esc2'").fetchone()
+        conn.close()
+        assert row[0] == 0
+
+
+class TestParallelExecutor:
+    def test_parallel_execution(self):
+        tasks = [
+            to.TaskDef(id=f"par{i}", name=f"Par{i}", task_type="quick",
+                       action="python", payload={"code": f"print('task{i}')"})
+            for i in range(3)
+        ]
+        results = to.execute_parallel(tasks, max_workers=3)
+        assert len(results) == 3
+        assert all(r.status == "completed" for r in results)
+
+
+class TestMetrics:
+    def test_record_and_retrieve(self):
+        to.record_metric("test_metric", 42.5)
+        to.record_metric("test_metric", 43.0)
+        # Direct query since get_metrics_summary uses datetime('now') which is UTC in sqlite
+        conn = to.get_db()
+        rows = conn.execute("SELECT metric_value FROM task_metrics WHERE metric_name='test_metric' ORDER BY id").fetchall()
+        conn.close()
+        assert len(rows) == 2
+        assert rows[0][0] == 42.5
+        assert rows[1][0] == 43.0
+
+
+class TestExtendedBranch:
+    def test_branch_port_open(self):
+        task = to.TaskDef(
+            id="port1", name="Port", task_type="quick", action="branch",
+            payload={
+                "condition": {"type": "port_open", "host": "127.0.0.1", "port": 99999},
+                "branches": {
+                    "open": {"action": "python", "payload": {"code": "print('open')"}},
+                    "closed": {"action": "python", "payload": {"code": "print('closed')"}},
+                    "error": {"action": "python", "payload": {"code": "print('error')"}},
+                },
+            })
+        result = to.execute_branch(task)
+        assert result.status == "completed"
+        # Port 99999 is invalid, returns either "closed" or "error"
+        assert any(x in result.output for x in ("closed", "error"))
+
+    def test_branch_env_var(self):
+        os.environ["TEST_ORCH_VAR"] = "hello"
+        task = to.TaskDef(
+            id="env1", name="Env", task_type="quick", action="branch",
+            payload={
+                "condition": {"type": "env_var", "var": "TEST_ORCH_VAR"},
+                "branches": {
+                    "set": {"action": "python", "payload": {"code": "print('is set')"}},
+                    "unset": {"action": "python", "payload": {"code": "print('not set')"}},
+                },
+            })
+        result = to.execute_branch(task)
+        assert result.status == "completed"
+        assert "is set" in result.output
+        del os.environ["TEST_ORCH_VAR"]
+
+    def test_branch_recent_task_status(self):
+        to.save_task(to.TaskDef(id="ref1", name="Ref", task_type="quick",
+                                 action="python", payload={"code": "print('ok')"}))
+        to.record_run(to.TaskResult("ref1", "completed", output="done"))
+        task = to.TaskDef(
+            id="rts1", name="RecentStatus", task_type="quick", action="branch",
+            payload={
+                "condition": {"type": "recent_task_status", "task_id": "ref1"},
+                "branches": {
+                    "completed": {"action": "python", "payload": {"code": "print('was ok')"}},
+                    "failed": {"action": "python", "payload": {"code": "print('was bad')"}},
+                    "never_run": {"action": "python", "payload": {"code": "print('never')"}},
+                },
+            })
+        result = to.execute_branch(task)
+        assert result.status == "completed"
+        assert "was ok" in result.output
+
+
+class TestResourceCheck:
+    def test_always_passes_for_simple_task(self):
+        task = to.TaskDef(id="res1", name="Simple", task_type="quick",
+                          action="python", payload={"code": "print('ok')"})
+        ok, reason = to.check_resource_availability(task)
+        assert ok
+
+class TestSelfCheck:
+    def test_self_check_returns_healthy(self):
+        result = to.orchestrator_self_check()
+        assert result["status"] in ("healthy", "degraded")
+        assert "db_size_mb" in result
+
+class TestDashboardExport:
+    def test_export_has_fields(self):
+        to.create_default_tasks()
+        data = to.export_dashboard_data()
+        assert "task_count" in data
+        assert data["task_count"] >= 34
+        assert "tasks" in data
+        assert "recent_runs" in data
+        assert "metrics" in data
