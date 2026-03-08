@@ -132,12 +132,39 @@ async def execute_command(cmd: JarvisCommand, params: dict[str, str]) -> str:
         action = cmd.action
         for k, v in params.items():
             action = action.replace(f"{{{k}}}", v)
-        return f"__TOOL__{action}"
+        return await _execute_jarvis_tool(action)
 
     if cmd.action_type == "pipeline":
         return await _execute_pipeline(cmd.action, params or {})
 
+    if cmd.action_type == "domino":
+        return await _execute_domino(cmd.action)
+
     return f"Type d'action inconnu: {cmd.action_type}"
+
+
+async def _execute_domino(action: str) -> str:
+    """Execute a domino pipeline by name."""
+    try:
+        from src.domino_pipelines import DOMINO_PIPELINES
+        from src.domino_executor import DominoExecutor
+        # Find domino by name
+        domino = None
+        for d in DOMINO_PIPELINES:
+            if d.name == action:
+                domino = d
+                break
+        if not domino:
+            return f"Domino '{action}' introuvable parmi {len(DOMINO_PIPELINES)} cascades."
+        executor = DominoExecutor()
+        result = await asyncio.to_thread(executor.run, domino)
+        passed = result.get("passed", 0)
+        failed = result.get("failed", 0)
+        elapsed = result.get("elapsed_s", 0)
+        status = "OK" if failed == 0 else "ERREUR"
+        return f"Domino {action}: {status} ({passed} pass, {failed} fail, {elapsed:.1f}s)"
+    except (ImportError, Exception) as e:
+        return f"Erreur domino {action}: {e}"
 
 
 async def _execute_pipeline(action: str, params: dict[str, str]) -> str:
@@ -263,6 +290,154 @@ async def execute_skill(skill, mcp_call) -> str:
     record_skill_use(skill.name, all_success)
     status = "termine" if all_success else "termine avec erreurs"
     return f"Skill '{skill.name}' {status}.\n" + "\n".join(results)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# JARVIS TOOL EXECUTION (38 tools: IA tools + WS API + PowerShell direct)
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Map pipeline jarvis_tool actions → IA tool names (when they differ)
+_TOOL_REMAP = {
+    "gpu_info": "jarvis_gpu_status",
+    "system_info": "jarvis_diagnostics_quick",
+    "lm_cluster_status": "jarvis_cluster_health",
+    "lm_models": "jarvis_cluster_health",
+    "brain_status": "jarvis_diagnostics_quick",
+    "ollama_status": "jarvis_cluster_health",
+    "ollama_models": "jarvis_cluster_health",
+}
+
+# WS API routes for tools that map to direct endpoints
+_WS_TOOL_ROUTES = {
+    "trading_status": "/api/trading/rankings",
+    "list_scripts": "/api/cowork/list",
+    "list_project_paths": "/api/projects/list",
+}
+
+# PowerShell direct execution for system tools
+_PS_TOOLS = {
+    "list_processes": "Get-Process | Sort CPU -Desc | Select -First 15 Name, CPU, PM | Format-Table -Auto | Out-String",
+    "list_services": "Get-Service | Where Status -eq Running | Select -First 20 Name, DisplayName | Format-Table -Auto | Out-String",
+    "get_ip": "(Get-NetIPAddress -AddressFamily IPv4 | Where {$_.IPAddress -ne '127.0.0.1'}).IPAddress",
+    "network_info": "Get-NetAdapter | Where Status -eq Up | Select Name, LinkSpeed, MacAddress | Format-Table -Auto | Out-String",
+    "wifi_networks": "netsh wlan show networks mode=bssid | Select-String 'SSID|Signal' | Out-String",
+    "screen_resolution": "[System.Windows.Forms.Screen]::PrimaryScreen.Bounds | Out-String",
+    "clipboard_get": "Get-Clipboard",
+    "list_windows": "Get-Process | Where {$_.MainWindowTitle} | Select MainWindowTitle | Format-Table -Auto | Out-String",
+}
+
+
+async def _execute_jarvis_tool(action: str) -> str:
+    """Execute a jarvis_tool action using the best available method.
+
+    Priority: 1) IA tool executor, 2) WS API, 3) PowerShell, 4) sentinel fallback.
+    """
+    import json as _json
+
+    # Parse action:param format
+    parts = action.split(":", 1)
+    base_action = parts[0]
+    action_param = parts[1] if len(parts) > 1 else ""
+
+    # 1. Try IA tool executor (23 tools via HTTP to WS)
+    tool_name = _TOOL_REMAP.get(base_action, f"jarvis_{base_action}")
+    try:
+        from src.ia_tool_executor import execute_tool_call, TOOLS_BY_NAME
+        if tool_name in TOOLS_BY_NAME:
+            args = {}
+            if action_param:
+                # Pass param as first argument name from tool schema
+                meta = TOOLS_BY_NAME[tool_name]
+                param_names = [p["name"] for p in meta.get("function", {}).get("parameters", {}).get("properties", {}).keys()] if meta else []
+                if param_names:
+                    args[param_names[0]] = action_param
+            result = await execute_tool_call(tool_name, args, caller="executor")
+            if result.get("ok"):
+                data = result.get("result", "")
+                if isinstance(data, dict):
+                    return _json.dumps(data, ensure_ascii=False, indent=1)[:1000]
+                return str(data)[:1000]
+    except (ImportError, Exception) as e:
+        logger.debug("IA tool exec failed for %s: %s", tool_name, e)
+
+    # 2. Try WS API direct route
+    ws_route = _WS_TOOL_ROUTES.get(base_action)
+    if ws_route:
+        try:
+            import httpx
+            async with httpx.AsyncClient(timeout=10) as client:
+                url = f"http://127.0.0.1:9742{ws_route}"
+                if action_param:
+                    url += f"?q={action_param}"
+                resp = await client.get(url)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    return _json.dumps(data, ensure_ascii=False, indent=1)[:1000]
+        except (httpx.HTTPError, OSError, ValueError) as e:
+            logger.debug("WS API call failed for %s: %s", ws_route, e)
+
+    # 3. Try PowerShell direct
+    ps_cmd = _PS_TOOLS.get(base_action)
+    if ps_cmd:
+        result = run_powershell(ps_cmd, timeout=15)
+        if result["success"]:
+            return result["stdout"][:1000] if result["stdout"] else "OK"
+        return f"Erreur: {result['stderr'][:200]}"
+
+    # 4. Parameterized PS tools
+    if base_action == "ping":
+        result = run_powershell(f"Test-Connection -ComputerName {action_param} -Count 2 -ErrorAction Stop | Out-String", timeout=15)
+        return result["stdout"][:500] if result["success"] else f"Ping echoue: {result['stderr'][:200]}"
+    if base_action == "kill_process":
+        result = run_powershell(f"Stop-Process -Name '{action_param}' -Force -ErrorAction Stop", timeout=10)
+        return f"Processus {action_param} arrete." if result["success"] else f"Erreur: {result['stderr'][:200]}"
+    if base_action == "close_app":
+        result = run_powershell(f"Stop-Process -Name '{action_param}' -Force -ErrorAction SilentlyContinue", timeout=10)
+        return f"{action_param} ferme." if result["success"] else f"Erreur: {result['stderr'][:200]}"
+    if base_action == "focus_window":
+        result = run_powershell(
+            f"$w = Get-Process | Where {{$_.MainWindowTitle -like '*{action_param}*'}} | Select -First 1; "
+            f"if($w) {{ [void][System.Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic'); "
+            f"[Microsoft.VisualBasic.Interaction]::AppActivate($w.Id) }}", timeout=10)
+        return f"Focus sur {action_param}." if result["success"] else f"Fenetre non trouvee."
+    if base_action == "search_files":
+        result = run_powershell(
+            f"Get-ChildItem -Path F:\\BUREAU -Recurse -Filter '*{action_param}*' -ErrorAction SilentlyContinue | "
+            "Select -First 10 FullName | Out-String", timeout=15)
+        return result["stdout"][:800] if result["success"] and result["stdout"] else f"Aucun fichier '{action_param}' trouve."
+    if base_action == "create_folder":
+        result = run_powershell(f"New-Item -ItemType Directory -Path '{action_param}' -Force | Out-String", timeout=10)
+        return f"Dossier {action_param} cree." if result["success"] else f"Erreur: {result['stderr'][:200]}"
+    if base_action == "list_folder":
+        result = run_powershell(f"Get-ChildItem -Path '{action_param}' | Select Name, Length, LastWriteTime | Format-Table -Auto | Out-String", timeout=10)
+        return result["stdout"][:800] if result["success"] and result["stdout"] else f"Dossier vide ou introuvable."
+    if base_action == "type_text":
+        result = run_powershell(
+            f"Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait('{action_param}')", timeout=5)
+        return f"Texte saisi." if result["success"] else f"Erreur saisie: {result['stderr'][:200]}"
+    if base_action == "notify":
+        parts_n = action_param.split(":", 1)
+        title = parts_n[0] if len(parts_n) > 1 else "JARVIS"
+        msg = parts_n[1] if len(parts_n) > 1 else action_param
+        result = run_powershell(
+            f"[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms'); "
+            f"$n = New-Object System.Windows.Forms.NotifyIcon; $n.Icon = [System.Drawing.SystemIcons]::Information; "
+            f"$n.Visible = $true; $n.ShowBalloonTip(3000, '{title}', '{msg}', 'Info')", timeout=10)
+        return f"Notification envoyee: {msg[:100]}"
+
+    # 5. LM query tools → dispatch to cluster
+    if base_action in ("lm_query", "ollama_query", "consensus"):
+        try:
+            from src.dispatch_engine import DispatchEngine
+            engine = DispatchEngine()
+            pattern = "consensus" if base_action == "consensus" else "simple"
+            result = await engine.dispatch(pattern, action_param)
+            return result.content[:1000] if result.content else "Pas de reponse."
+        except (ImportError, Exception) as e:
+            logger.debug("Dispatch failed for %s: %s", base_action, e)
+
+    # Fallback sentinel for orchestrator compatibility
+    return f"__TOOL__{action}"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
