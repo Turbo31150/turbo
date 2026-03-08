@@ -46,12 +46,12 @@ _ETOILE_DB = Path(__file__).resolve().parent.parent / "data" / "etoile.db"
 # Maps classified intents to the best OpenClaw agent for that task.
 
 INTENT_TO_AGENT: dict[str, str] = {
-    # Code & Development
-    "code_dev": "code-champion",
-    "code": "code-champion",
-    "debug": "debug-detective",
-    "refactor": "deep-work",
-    "test": "code-champion",
+    # Code & Development — all code/bug/dev → @coding agent
+    "code_dev": "coding",
+    "code": "coding",
+    "debug": "coding",
+    "refactor": "coding",
+    "test": "coding",
     "devops": "devops-ci",
     "deploy": "devops-ci",
 
@@ -61,21 +61,21 @@ INTENT_TO_AGENT: dict[str, str] = {
     "cluster_ops": "system-ops",
     "windows": "windows",
 
-    # Trading
+    # Trading — trading/crypto/MEXC → @trading agent
     "trading": "trading",
     "trading_scan": "trading-scanner",
-    "crypto": "trading-scanner",
+    "crypto": "trading",
 
-    # Analysis & Reasoning
-    "analysis": "analysis-engine",
-    "reasoning": "deep-reasoning",
-    "math": "deep-reasoning",
-    "architecture": "gemini-pro",
+    # Analysis & Reasoning — deep reasoning/architecture → @deep-work agent
+    "analysis": "data-analyst",
+    "reasoning": "deep-work",
+    "math": "deep-work",
+    "architecture": "deep-work",
     "data": "data-analyst",
 
-    # Communication & Content
+    # Communication & Content — quick questions → @fast-chat agent (OL1)
     "query": "fast-chat",
-    "simple": "quick-dispatch",
+    "simple": "fast-chat",
     "question": "fast-chat",
     "creative": "creative-brainstorm",
     "translation": "translator",
@@ -88,39 +88,58 @@ INTENT_TO_AGENT: dict[str, str] = {
     "app_launch": "windows",
     "file_ops": "windows",
 
-    # Security & Audit
+    # Security & Audit — security/audit → @securite-audit agent
     "security": "securite-audit",
     "audit": "securite-audit",
 
-    # Research
+    # Research — web search → @ol1-web agent
     "web": "ol1-web",
-    "search": "recherche-synthese",
+    "search": "ol1-web",
     "research": "recherche-synthese",
 
-    # Consensus (multi-agent)
+    # Consensus → @consensus-master agent
     "consensus": "consensus-master",
     "critical": "consensus-master",
 }
 
 # ── Keyword patterns for fast classification (no ML needed) ─────────────────
 _FAST_PATTERNS: list[tuple[re.Pattern, str]] = [
+    # Code & Development (highest priority for code-related messages)
     (re.compile(r"(?:code|programme|fonction|classe|script|bug|fix|debug|refactor|parser|ecris?\s+(?:un|une|le|la)|implemente|genere)", re.I), "code_dev"),
     (re.compile(r"(?:explique\s+(?:le\s+)?(?:role|code|fonction|module)|fichiers?\s+modifi|combien\s+de\s+(?:tests?|modules?)|nombre\s+de\s+(?:modules?|fichiers?|lignes?))", re.I), "code_dev"),
-    (re.compile(r"(?:trade|trading|btc|eth|sol|doge|pepe|xrp|ada|avax|link|crypto|mexc|signal(?:aux)?|scan|positions?\s+ouverte|signaux?\s+forts?|score\s+trading|momentum)", re.I), "trading"),
+    # Security/Audit — BEFORE cluster_ops so "audit securite du cluster" matches security
+    (re.compile(r"(?:securite|audit|vulnerabilite|owasp|credentials|faille|pentest|permissions)", re.I), "security"),
+    # Trading scanner — specific patterns BEFORE generic trading
+    (re.compile(r"(?:scan\s+march|signaux?\s+forts?|top\s+crypto|rankings?\s+(?:trading|crypto)|trading\s+scan)", re.I), "trading_scan"),
+    # Trading — generic crypto/trading keywords
+    (re.compile(r"(?:trade|trading|btc|eth|sol|doge|pepe|xrp|ada|avax|link|crypto|mexc|signal(?:aux)?|positions?\s+ouverte|score\s+trading|momentum|futures|leverage)", re.I), "trading"),
+    # Cluster/System ops
     (re.compile(r"(?:cluster|noeud|node|gpu|vram|sante|health|diagnostic|boot|modeles?\s+charg|temperature|cpu|ram|charge\s+(?:cpu|ram|systeme)|memoire\s+(?:ram|disponible)|combien\s+de\s+modeles)", re.I), "cluster_ops"),
+    # Architecture/Deep reasoning
+    (re.compile(r"(?:architecture|design pattern|systeme distribue|microservice|schema|raisonnement\s+profond)", re.I), "architecture"),
+    # Pipeline
     (re.compile(r"(?:pipeline|domino|routine|workflow|maintenance)", re.I), "pipeline"),
-    (re.compile(r"(?:securite|audit|vulnerabilite|owasp|credentials|token)", re.I), "security"),
-    (re.compile(r"(?:architecture|design pattern|systeme distribue|microservice|schema)", re.I), "architecture"),
+    # Windows system
     (re.compile(r"(?:windows|powershell|registre|(?<!\w)service(?!s?\s+distribu)|processus|disque|defender)", re.I), "windows"),
+    # Reasoning/Math
     (re.compile(r"(?:raisonnement|logique|mathematique|calcul|equation|preuve)", re.I), "reasoning"),
+    # Data analysis
     (re.compile(r"(?:analyse|compare|rapport|statistique|tendance|donnees|sql|resume\s+(?:les|la|le|ce))", re.I), "analysis"),
+    # Web search
     (re.compile(r"(?:cherche|recherche|web|internet|actualite|trouve|mises?\s+a\s+jour|meteo|temps\s+(?:qu.il\s+fait|fait.il)|news)", re.I), "web"),
+    # Translation
     (re.compile(r"(?:traduis|traduction|translate|anglais|english)", re.I), "translation"),
+    # DevOps
     (re.compile(r"(?:git|commit|push|deploy|ci|cd|docker|build)", re.I), "devops"),
+    # Consensus
     (re.compile(r"(?:consensus|vote|arbitrage|decision critique)", re.I), "consensus"),
+    # Creative
     (re.compile(r"(?:idee|brainstorm|creatif|invente|propose|imagine|blague|raconte)", re.I), "creative"),
+    # Documentation
     (re.compile(r"(?:documente|readme|changelog|api doc|guide)", re.I), "doc"),
+    # Voice
     (re.compile(r"(?:voix|vocal|whisper|tts|microphone|ecoute)", re.I), "voice_control"),
+    # Simple greetings (lowest priority)
     (re.compile(r"(?:bonjour|salut|coucou|hey|bonsoir|comment\s+(?:ca\s+va|vas?\s+tu)|quelle\s+heure)", re.I), "simple"),
 ]
 
@@ -154,11 +173,13 @@ class OpenClawBridge:
 
         matches: list[tuple[str, float]] = []
         for pattern, intent in _FAST_PATTERNS:
-            m = pattern.search(text_lower)
-            if m:
-                # Score based on match coverage
-                coverage = len(m.group()) / max(1, len(text_lower))
-                score = 0.7 + min(0.25, coverage)
+            all_matches = pattern.findall(text_lower)
+            if all_matches:
+                # Score based on total match coverage + bonus for multiple hits
+                total_chars = sum(len(m) if isinstance(m, str) else len(m[0]) for m in all_matches)
+                coverage = total_chars / max(1, len(text_lower))
+                multi_bonus = min(0.1, 0.05 * (len(all_matches) - 1))
+                score = 0.7 + min(0.25, coverage) + multi_bonus
                 matches.append((intent, score))
 
         if not matches:
@@ -281,6 +302,94 @@ class OpenClawBridge:
                 "content": f"Execution failed: {e}",
                 "latency_ms": (time.monotonic() - t0) * 1000,
             }
+
+    async def execute_via_openclaw(
+        self,
+        text: str,
+        channel: str = "last",
+        deliver: bool = False,
+        timeout_s: int = 120,
+    ) -> dict[str, Any]:
+        """Route and delegate to a specialized OpenClaw agent via the gateway CLI.
+
+        This uses `openclaw agent --agent <id> --message "..."` to delegate
+        to the correct specialized agent, matching the BOOT.md routing matrix.
+
+        Args:
+            text: The message to route and delegate
+            channel: Delivery channel (default "last" = same as incoming)
+            deliver: If True, deliver the agent's reply to the channel
+            timeout_s: Timeout in seconds for the agent command
+
+        Returns:
+            Dict with agent, intent, content, and metadata
+        """
+        import asyncio
+        import shlex
+
+        t0 = time.monotonic()
+        route = self.route(text)
+
+        # Agents that should be handled locally (not delegated)
+        _local_intents = {"cluster_ops", "windows", "system_control", "system"}
+        if route.intent in _local_intents:
+            return await self.execute(text)
+
+        # Build openclaw agent command
+        cmd_parts = [
+            "openclaw", "agent",
+            "--agent", route.agent,
+            "--message", text,
+        ]
+        if deliver:
+            cmd_parts.extend(["--deliver", "--channel", channel])
+        cmd_parts.append("--json")
+
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                *cmd_parts,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, stderr = await asyncio.wait_for(
+                proc.communicate(), timeout=timeout_s
+            )
+
+            latency_ms = (time.monotonic() - t0) * 1000
+
+            if proc.returncode == 0 and stdout:
+                import json as _json
+                try:
+                    result_data = _json.loads(stdout.decode("utf-8", errors="replace"))
+                    content = result_data.get("output", result_data.get("content", stdout.decode()))
+                except (_json.JSONDecodeError, ValueError):
+                    content = stdout.decode("utf-8", errors="replace").strip()
+
+                return {
+                    "source": "openclaw_agent",
+                    "agent": route.agent,
+                    "intent": route.intent,
+                    "confidence": route.confidence,
+                    "content": content,
+                    "delivered": deliver,
+                    "channel": channel,
+                    "latency_ms": latency_ms,
+                }
+            else:
+                # Fallback to local execution
+                logger.warning(
+                    "OpenClaw agent %s failed (rc=%s): %s",
+                    route.agent, proc.returncode,
+                    stderr.decode("utf-8", errors="replace")[:200] if stderr else "no stderr",
+                )
+                return await self.execute(text)
+
+        except asyncio.TimeoutError:
+            logger.warning("OpenClaw agent %s timed out after %ds", route.agent, timeout_s)
+            return await self.execute(text)
+        except (OSError, FileNotFoundError) as e:
+            logger.warning("OpenClaw CLI not available: %s", e)
+            return await self.execute(text)
 
     def route_batch(self, messages: list[str]) -> list[RouteResult]:
         """Route multiple messages in batch."""

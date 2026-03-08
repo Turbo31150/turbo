@@ -90,9 +90,9 @@ class TestOpenClawBridge:
 
     # ── route ────────────────────────────────────────────────────────────
 
-    def test_route_code_to_code_champion(self):
+    def test_route_code_to_coding(self):
         result = self.bridge.route("ecris un script Python pour parser CSV")
-        assert result.agent == "code-champion"
+        assert result.agent == "coding"
         assert result.intent == "code_dev"
         assert result.confidence > 0.5
         assert result.latency_ms >= 0
@@ -116,9 +116,9 @@ class TestOpenClawBridge:
             assert result.agent == "main"
             assert result.fallback_used is True
 
-    def test_route_short_to_quick_dispatch(self):
+    def test_route_short_to_fast_chat(self):
         result = self.bridge.route("oui")
-        assert result.agent == "quick-dispatch"
+        assert result.agent == "fast-chat"
         assert result.intent == "simple"
 
     # ── route_batch ──────────────────────────────────────────────────────
@@ -131,23 +131,25 @@ class TestOpenClawBridge:
         ]
         results = self.bridge.route_batch(messages)
         assert len(results) == 3
-        assert results[0].agent == "code-champion"
+        assert results[0].agent == "coding"
         assert results[1].agent == "system-ops"
-        assert results[2].agent == "quick-dispatch"
+        assert results[2].agent == "fast-chat"
 
     # ── mapping coverage ─────────────────────────────────────────────────
 
     def test_all_intents_have_agents(self):
         """Every intent in the mapping should point to a valid agent name."""
+        # Single-word agent names that are valid
+        _valid_single = {"main", "windows", "trading", "translator", "coding"}
         for intent, agent in INTENT_TO_AGENT.items():
             assert isinstance(agent, str)
             assert len(agent) > 0
-            assert "-" in agent or agent in ("main", "windows", "trading", "translator")
+            assert "-" in agent or agent in _valid_single
 
     def test_routing_table(self):
         table = self.bridge.get_routing_table()
         assert len(table) > 20
-        assert table["code_dev"] == "code-champion"
+        assert table["code_dev"] == "coding"
         assert table["trading"] == "trading"
 
     # ── stats ────────────────────────────────────────────────────────────
@@ -157,7 +159,7 @@ class TestOpenClawBridge:
         self.bridge.route("code Python fix")
         stats = self.bridge.get_stats()
         assert stats["total_routes"] >= 2
-        assert "code-champion" in stats["by_agent"]
+        assert "coding" in stats["by_agent"]
 
     # ── singleton ────────────────────────────────────────────────────────
 
