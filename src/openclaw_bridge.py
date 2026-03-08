@@ -104,22 +104,24 @@ INTENT_TO_AGENT: dict[str, str] = {
 
 # ── Keyword patterns for fast classification (no ML needed) ─────────────────
 _FAST_PATTERNS: list[tuple[re.Pattern, str]] = [
-    (re.compile(r"(?:code|programme|fonction|classe|module|script|bug|fix|debug|refactor|test|parser|ecris?\s+(?:un|une|le|la)|implemente|genere)", re.I), "code_dev"),
-    (re.compile(r"(?:trade|trading|btc|eth|sol|crypto|mexc|signal|scan)", re.I), "trading"),
-    (re.compile(r"(?:cluster|noeud|node|gpu|vram|sante|health|diagnostic|boot)", re.I), "cluster_ops"),
+    (re.compile(r"(?:code|programme|fonction|classe|script|bug|fix|debug|refactor|parser|ecris?\s+(?:un|une|le|la)|implemente|genere)", re.I), "code_dev"),
+    (re.compile(r"(?:explique\s+(?:le\s+)?(?:role|code|fonction|module)|fichiers?\s+modifi|combien\s+de\s+(?:tests?|modules?)|nombre\s+de\s+(?:modules?|fichiers?|lignes?))", re.I), "code_dev"),
+    (re.compile(r"(?:trade|trading|btc|eth|sol|doge|pepe|xrp|ada|avax|link|crypto|mexc|signal(?:aux)?|scan|positions?\s+ouverte|signaux?\s+forts?|score\s+trading|momentum)", re.I), "trading"),
+    (re.compile(r"(?:cluster|noeud|node|gpu|vram|sante|health|diagnostic|boot|modeles?\s+charg|temperature|cpu|ram|charge\s+(?:cpu|ram|systeme)|memoire\s+(?:ram|disponible)|combien\s+de\s+modeles)", re.I), "cluster_ops"),
     (re.compile(r"(?:pipeline|domino|routine|workflow|maintenance)", re.I), "pipeline"),
     (re.compile(r"(?:securite|audit|vulnerabilite|owasp|credentials|token)", re.I), "security"),
     (re.compile(r"(?:architecture|design pattern|systeme distribue|microservice|schema)", re.I), "architecture"),
     (re.compile(r"(?:windows|powershell|registre|(?<!\w)service(?!s?\s+distribu)|processus|disque|defender)", re.I), "windows"),
     (re.compile(r"(?:raisonnement|logique|mathematique|calcul|equation|preuve)", re.I), "reasoning"),
-    (re.compile(r"(?:analyse|compare|rapport|statistique|tendance|donnees|sql)", re.I), "analysis"),
-    (re.compile(r"(?:cherche|recherche|web|internet|actualite|trouve)", re.I), "web"),
+    (re.compile(r"(?:analyse|compare|rapport|statistique|tendance|donnees|sql|resume\s+(?:les|la|le|ce))", re.I), "analysis"),
+    (re.compile(r"(?:cherche|recherche|web|internet|actualite|trouve|mises?\s+a\s+jour|meteo|temps\s+(?:qu.il\s+fait|fait.il)|news)", re.I), "web"),
     (re.compile(r"(?:traduis|traduction|translate|anglais|english)", re.I), "translation"),
     (re.compile(r"(?:git|commit|push|deploy|ci|cd|docker|build)", re.I), "devops"),
     (re.compile(r"(?:consensus|vote|arbitrage|decision critique)", re.I), "consensus"),
-    (re.compile(r"(?:idee|brainstorm|creatif|invente|propose|imagine)", re.I), "creative"),
+    (re.compile(r"(?:idee|brainstorm|creatif|invente|propose|imagine|blague|raconte)", re.I), "creative"),
     (re.compile(r"(?:documente|readme|changelog|api doc|guide)", re.I), "doc"),
     (re.compile(r"(?:voix|vocal|whisper|tts|microphone|ecoute)", re.I), "voice_control"),
+    (re.compile(r"(?:bonjour|salut|coucou|hey|bonsoir|comment\s+(?:ca\s+va|vas?\s+tu)|quelle\s+heure)", re.I), "simple"),
 ]
 
 

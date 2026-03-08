@@ -80,7 +80,8 @@ class PipelineConfig:
     cache_ttl_s: float = 300.0  # 5 minutes cache TTL
     cache_max_size: int = 200   # Max cached entries
     max_retries: int = 1
-    timeout_s: float = 12.0  # Fast timeout — fallback to OL1 if M1 slow
+    timeout_s: float = 12.0  # Default timeout — simple/reasoning patterns
+    timeout_code_s: float = 60.0  # Extended timeout for code patterns (M1: 1024tok @ 28tok/s = ~36s)
     quality_threshold: float = 0.3  # Retry if below
     auto_fallback: bool = True
 
@@ -481,9 +482,15 @@ class DispatchEngine:
             client = await reg._get_client()
 
             t0 = time.time()
+            # Use extended timeout for code/debug patterns (M1 needs more time)
+            effective_timeout = (
+                self.config.timeout_code_s
+                if pattern in ("code", "code_dev", "debug", "refactor")
+                else self.config.timeout_s
+            )
             result = await asyncio.wait_for(
                 agent._call_node(client, node, prompt),
-                timeout=self.config.timeout_s,
+                timeout=effective_timeout,
             )
             latency = (time.time() - t0) * 1000
 
@@ -599,10 +606,12 @@ class DispatchEngine:
             mem = get_episodic_memory()
             mem.store_episode(
                 pattern=result.pattern,
-                prompt=prompt[:200],
-                content=result.content[:500],
                 node=result.node,
+                prompt=prompt[:200],
+                success=result.success,
                 quality=result.quality,
+                latency_ms=result.latency_ms,
+                strategy=result.strategy,
             )
             return True
         except (ImportError, sqlite3.Error) as e:

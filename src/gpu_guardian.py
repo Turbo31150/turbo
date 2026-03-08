@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import platform
 import subprocess
 import time
 from dataclasses import dataclass, field
@@ -42,11 +43,11 @@ class GPUSnapshot:
     
     @property
     def is_critical(self) -> bool:
-        return self.temperature > 85 or self.vram_percent > 95
-    
+        return self.temperature > 85 or self.vram_percent > 99
+
     @property
     def is_warning(self) -> bool:
-        return self.temperature > 75 or self.vram_percent > 85
+        return self.temperature > 75 or self.vram_percent > 95
 
 
 @dataclass
@@ -55,9 +56,9 @@ class GuardianConfig:
     temp_warning: int = 75
     temp_critical: int = 85
     temp_emergency: int = 90
-    vram_warning_pct: float = 85.0
-    vram_critical_pct: float = 95.0
-    check_interval_s: float = 30.0
+    vram_warning_pct: float = 95.0
+    vram_critical_pct: float = 99.0
+    check_interval_s: float = 120.0
     cooldown_after_unload_s: float = 120.0
     max_unloads_per_hour: int = 3
 
@@ -118,12 +119,17 @@ class GPUGuardian:
     async def _take_snapshot(self) -> GPUSnapshot | None:
         """Query nvidia-smi for current GPU state."""
         try:
+            kwargs: dict = dict(
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            if platform.system() == "Windows":
+                kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
             proc = await asyncio.create_subprocess_exec(
                 "nvidia-smi",
                 "--query-gpu=temperature.gpu,memory.used,memory.total,power.draw,utilization.gpu",
                 "--format=csv,noheader,nounits",
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                **kwargs,
             )
             stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=10)
             line = stdout.decode().strip().split("\n")[0]

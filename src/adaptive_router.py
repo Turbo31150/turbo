@@ -340,6 +340,27 @@ class AdaptiveRouter:
             "open_circuits": [n for n, cb in self.circuits.items() if cb.state == CircuitState.OPEN],
         }
 
+    def reset_node(self, node: str, ema_latency_ms: float = 3000.0) -> dict:
+        """Reset a node's EMA latency to recalibrate routing after stale data."""
+        h = self.health.get(node)
+        if not h:
+            return {"error": f"node {node} not found"}
+        old_ema = h.ema_latency_ms
+        old_weight = h.effective_weight
+        h.ema_latency_ms = ema_latency_ms
+        h.failure_count = 0
+        # Reset circuit breaker if open
+        cb = self.circuits.get(node)
+        if cb and cb.state != CircuitState.CLOSED:
+            cb.state = CircuitState.CLOSED
+            cb.failure_count = 0
+        return {
+            "node": node,
+            "ema_latency_ms": {"before": old_ema, "after": h.ema_latency_ms},
+            "effective_weight": {"before": old_weight, "after": h.effective_weight},
+            "circuit": "reset_to_closed",
+        }
+
     def get_recommendations(self) -> list[dict]:
         """Auto-generated routing recommendations."""
         recs = []

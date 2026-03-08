@@ -5199,6 +5199,18 @@ async def api_router_pick(request: Request):
     return {"node": router.pick_node(pattern, prompt)}
 
 
+@app.post("/api/router/reset")
+async def api_router_reset(request: Request):
+    """Reset a node's EMA latency. Body: {node, ema_latency_ms?}"""
+    from src.adaptive_router import get_router
+    body = await request.json()
+    node = body.get("node", "")
+    ema = body.get("ema_latency_ms", 3000.0)
+    if not node:
+        return {"error": "node required"}
+    return get_router().reset_node(node, ema)
+
+
 # ── OpenClaw Bridge API ──────────────────────────────────────────────────
 
 @app.post("/api/openclaw/route")

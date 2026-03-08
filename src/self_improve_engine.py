@@ -22,6 +22,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+
+__all__ = [
+    "ImprovementAction",
+    "NodeMetrics",
+    "SelfImproveEngine",
+]
+
 logger = logging.getLogger("jarvis.self_improve")
 
 DB_PATH = str(Path(__file__).resolve().parent.parent / "data" / "etoile.db")

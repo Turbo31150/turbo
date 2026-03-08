@@ -296,6 +296,7 @@ async def _send_message(payload: dict) -> dict:
         # Step 2: No command matched — classify and route to IA
         task_type = "simple"
         openclaw_agent = None
+        openclaw_confidence = 0.0
         if classify_task:
             try:
                 if inspect.iscoroutinefunction(classify_task):
@@ -308,17 +309,45 @@ async def _send_message(payload: dict) -> dict:
                 logger.warning("classify_task failed: %s", e)
                 task_type = "simple"
 
-        # OpenClaw bridge: track which agent would handle this
+        # OpenClaw bridge: route AND dispatch to specialized agent
         if _get_openclaw_bridge:
             try:
                 _bridge = _get_openclaw_bridge()
                 _route = _bridge.route(text)
                 openclaw_agent = _route.agent
+                openclaw_confidence = _route.confidence
+                # Use OpenClaw intent for better routing matrix selection
+                _intent_to_routing = {
+                    "code_dev": "code", "code": "code", "debug": "code",
+                    "refactor": "code", "test": "code",
+                    "trading": "trading", "trading_scan": "trading", "crypto": "trading",
+                    "cluster_ops": "systeme", "system_control": "systeme", "system": "systeme",
+                    "windows": "systeme",
+                    "analysis": "analyse", "data": "analyse",
+                    "reasoning": "reasoning", "math": "reasoning",
+                    "architecture": "architecture",
+                    "web": "web", "search": "web", "research": "web",
+                    "consensus": "consensus", "critical": "consensus",
+                    "simple": "simple", "question": "simple",
+                }
+                if _route.confidence >= 0.7:
+                    routed_type = _intent_to_routing.get(_route.intent, task_type)
+                    if routed_type != task_type:
+                        logger.info("OpenClaw re-route: %s -> %s (agent=%s, conf=%.2f)",
+                                    task_type, routed_type, _route.agent, _route.confidence)
+                        task_type = routed_type
             except Exception:
                 pass
 
+        # Try OpenClaw gateway dispatch for high-confidence agent routing
+        openclaw_response = None
+        if openclaw_agent and openclaw_agent != "main" and openclaw_confidence >= 0.8:
+            openclaw_response = await _try_openclaw_dispatch(text, openclaw_agent)
+
         # Consensus via classifier (not /consensus prefix)
-        if task_type == "consensus":
+        if openclaw_response:
+            response_text = openclaw_response
+        elif task_type == "consensus":
             response_text = await _query_parallel_consensus(text)
         else:
             response_text = await _query_local_ia(text, task_type)
@@ -342,6 +371,29 @@ async def _send_message(payload: dict) -> dict:
         logger.error("_send_message error: %s\n%s", e, traceback.format_exc())
         error_msg = _session.add_message("system", f"Erreur: {str(e)}")
         return {"error": str(e), "message": error_msg}
+
+
+async def _try_openclaw_dispatch(text: str, agent: str) -> str | None:
+    """Try dispatching to OpenClaw gateway for agent-specific handling.
+
+    Returns the agent's response text, or None if dispatch fails (fallback to local IA).
+    """
+    try:
+        client = await _get_http()
+        payload = {"message": text, "agent": agent}
+        resp = await asyncio.wait_for(
+            client.post(f"http://127.0.0.1:18789/api/chat", json=payload),
+            timeout=30.0,
+        )
+        if resp.status_code == 200:
+            data = resp.json()
+            content = data.get("response") or data.get("message") or data.get("content", "")
+            if isinstance(content, str) and content.strip():
+                logger.info("OpenClaw dispatch OK: agent=%s, len=%d", agent, len(content))
+                return f"[{agent}] {content.strip()}"
+    except (asyncio.TimeoutError, httpx.HTTPError, OSError, ValueError, KeyError) as e:
+        logger.debug("OpenClaw dispatch failed (agent=%s): %s", agent, e)
+    return None
 
 
 async def _try_execute_command(text: str) -> dict | None:
@@ -445,6 +497,9 @@ def _get_model_auth(model_entry: dict) -> str:
 ALL_MODELS = [
     {"id": "qwen3-8b", "name": "M1 / qwen3-8b", "group": "local", "score": 98, "weight": 1.8,
      "url": _M1_CHAT, "backend": "lmstudio", "speed": "45 tok/s"},
+    {"id": "gpt-oss-20b", "name": "M1 / gpt-oss-20b", "group": "local", "score": 92, "weight": 1.6,
+     "url": _M1_CHAT, "backend": "lmstudio", "speed": "15 tok/s",
+     "heavy": True, "ctx": 131072},
     {"id": "deepseek-r1-0528-qwen3-8b", "name": "M2 / deepseek-r1", "group": "local", "score": 85, "weight": 1.5,
      "url": _M2_CHAT, "backend": "lmstudio",
      "auth_node": "M2", "speed": "44 tok/s"},
@@ -541,24 +596,48 @@ async def get_models_with_status() -> list[dict]:
     ]
 
 
-# Task-type to routing priority mapping (bench-final 2026-02-28)
+# Task-type to routing priority mapping (v2 2026-03-08 — gpt-oss-20b for heavy)
+# Heavy tasks (architecture, long code, deep analysis) → gpt-oss-20b (20B, 131K ctx)
+# Fast tasks (simple, trading, web) → OL1/qwen3-8b
+# Reasoning tasks → M3/deepseek-r1
 ROUTING_MATRIX = {
-    "code":         ["qwen3-8b", "deepseek-r1-0528-qwen3-8b", "qwen3:1.7b"],
-    "analyse":      ["qwen3-8b", "deepseek-r1-0528-qwen3-8b", "qwen3:1.7b"],
-    "architecture": ["qwen3-8b", "qwen3:1.7b", "deepseek-r1-0528-qwen3-8b"],
-    "trading":      ["qwen3:1.7b", "qwen3-8b", "deepseek-r1-0528-qwen3-8b"],
+    "code":         ["qwen3-8b", "deepseek-r1-0528-qwen3-8b-m3", "qwen3:1.7b"],
+    "analyse":      ["qwen3-8b", "gpt-oss-20b", "qwen3:1.7b"],
+    "architecture": ["gpt-oss-20b", "qwen3-8b", "deepseek-r1-0528-qwen3-8b-m3"],
+    "trading":      ["qwen3:1.7b", "qwen3-8b"],
     "web":          ["qwen3:1.7b", "qwen3-8b"],
     "systeme":      ["qwen3-8b", "qwen3:1.7b"],
-    "consensus":    ["qwen3-8b", "deepseek-r1-0528-qwen3-8b", "qwen3:1.7b"],
+    "consensus":    ["qwen3-8b", "deepseek-r1-0528-qwen3-8b-m3", "gpt-oss-20b", "qwen3:1.7b"],
+    "reasoning":    ["deepseek-r1-0528-qwen3-8b-m3", "gpt-oss-20b", "qwen3-8b"],
+    "heavy":        ["gpt-oss-20b", "qwen3-8b", "deepseek-r1-0528-qwen3-8b-m3"],
     "simple":       ["qwen3:1.7b", "qwen3-8b"],
 }
+
+
+_HEAVY_TASK_TYPES = {"architecture", "heavy", "consensus"}
+
+
+async def _maybe_swap_model(task_type: str, model_id: str) -> bool:
+    """Auto-swap to heavy model for demanding tasks. Returns True if swap occurred."""
+    if task_type not in _HEAVY_TASK_TYPES:
+        return False
+    if model_id != "gpt-oss-20b":
+        return False
+    try:
+        from src.model_swap import ensure_model
+        ok = await ensure_model("gpt-oss-20b")
+        if ok:
+            logger.info("Auto-swapped to gpt-oss-20b for %s task", task_type)
+        return ok
+    except (ImportError, Exception) as e:
+        logger.debug("Model swap unavailable: %s", e)
+        return False
 
 
 async def _query_local_ia(text: str, task_type: str) -> str:
     """Query IA nodes for a response using full routing matrix.
 
-    v4: Injects IA tools for system-related queries so models can call
-    JARVIS endpoints (diagnostics, cluster health, etc.) before responding.
+    v5: Model swap for heavy tasks + IA tools injection.
     """
 
     # Build node priority from routing matrix (copy to avoid mutating the original)
@@ -603,6 +682,13 @@ async def _query_local_ia(text: str, task_type: str) -> str:
         except ImportError:
             ia_tools = None
             ia_tools_minimal = None
+
+    # Auto-swap to heavy model if needed (architecture/consensus tasks)
+    first_model = model_ids[0] if model_ids else ""
+    swapped = await _maybe_swap_model(task_type, first_model)
+    # If swap failed and first choice was gpt-oss-20b, skip it
+    if not swapped and first_model == "gpt-oss-20b":
+        nodes_priority = [n for n in nodes_priority if n["model"] != "gpt-oss-20b"]
 
     client = await _get_http()
     for node in nodes_priority:

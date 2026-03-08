@@ -114,13 +114,14 @@ class TestKillExisting:
 
     @patch("subprocess.run")
     def test_kill_existing_alive_on_windows(self, mock_run, tmp_singleton, tmp_path):
-        # Register current PID (alive)
-        tmp_singleton.register("alive_svc", os.getpid())
+        # Use a fake PID (not self or parent) to avoid self-kill guard
+        fake_pid = os.getpid() + 9999
+        tmp_singleton.register("alive_svc", fake_pid)
         mock_run.return_value = MagicMock(
             returncode=0, stdout="SUCCESS: The process has been terminated."
         )
         with patch("os.name", "nt"):
-            with patch.object(tmp_singleton, "is_running", return_value=(True, os.getpid())):
+            with patch.object(tmp_singleton, "is_running", return_value=(True, fake_pid)):
                 result = tmp_singleton.kill_existing("alive_svc")
         assert result is True
         mock_run.assert_called_once()

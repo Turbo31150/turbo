@@ -259,6 +259,43 @@ class AutomationHub:
             """No-op handler for test jobs."""
             return "noop"
 
+        async def _handle_trading_scan(params: dict) -> str:
+            """Trigger trading scan via event bus."""
+            from src.event_bus import event_bus
+            await event_bus.emit("trading.scan_requested", params)
+            return "scan_triggered"
+
+        async def _handle_brain_analyze(params: dict) -> str:
+            """Run brain pattern analysis."""
+            from src.brain import analyze_and_learn
+            result = analyze_and_learn()
+            return f"patterns={len(result) if isinstance(result, list) else result}"
+
+        async def _handle_db_vacuum(params: dict) -> str:
+            """Optimize database."""
+            from src.database import get_connection
+            get_connection().execute("PRAGMA optimize")
+            return "optimized"
+
+        async def _handle_drift_check(params: dict) -> str:
+            """Trigger drift check via event bus."""
+            from src.event_bus import event_bus
+            await event_bus.emit("quality.drift_check", params)
+            return "drift_check_triggered"
+
+        async def _handle_security_scan(params: dict) -> str:
+            """Trigger security scan via event bus."""
+            from src.event_bus import event_bus
+            await event_bus.emit("security.scan_requested", params)
+            return "security_scan_triggered"
+
+        async def _handle_skill(params: dict) -> str:
+            """Execute a scheduled skill."""
+            skill_name = params.get("skill", "unknown")
+            from src.event_bus import event_bus
+            await event_bus.emit("skill.execute", {"skill": skill_name})
+            return f"skill={skill_name}"
+
         # Register all handlers
         handlers = {
             "dispatch": _handle_dispatch,
@@ -272,6 +309,12 @@ class AutomationHub:
             "notify": _handle_notify,
             "cleanup": _handle_cleanup,
             "noop": _handle_noop,
+            "trading_scan": _handle_trading_scan,
+            "brain_analyze": _handle_brain_analyze,
+            "db_vacuum": _handle_db_vacuum,
+            "drift_check": _handle_drift_check,
+            "security_scan": _handle_security_scan,
+            "skill": _handle_skill,
         }
         for action, handler in handlers.items():
             scheduler.register_handler(action, handler)

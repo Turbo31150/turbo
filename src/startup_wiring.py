@@ -287,7 +287,7 @@ async def _step_scheduler_bootstrap() -> dict[str, Any]:
     # Register handlers for each job action type
     async def _health_check(params: dict) -> str:
         from src.health_dashboard import health_dashboard
-        report = health_dashboard.get_report()
+        report = health_dashboard.get_summary()
         return f"health_score={report.get('overall_score', '?')}"
 
     async def _trading_scan(params: dict) -> str:
@@ -296,8 +296,8 @@ async def _step_scheduler_bootstrap() -> dict[str, Any]:
         return "scan_triggered"
 
     async def _brain_analyze(params: dict) -> str:
-        from src.brain import brain
-        result = await brain.analyze_patterns()
+        from src.brain import analyze_and_learn
+        result = analyze_and_learn()
         return f"patterns={len(result) if isinstance(result, list) else result}"
 
     async def _db_vacuum(params: dict) -> str:
@@ -404,7 +404,11 @@ async def _step_collab_bridge() -> dict[str, Any]:
 
 async def _step_post_startup_validation() -> dict[str, Any]:
     import subprocess
+    import platform
     checks = {}
+    extra = {}
+    if platform.system() == "Windows":
+        extra["creationflags"] = subprocess.CREATE_NO_WINDOW
     for name, url in [
         ("M1", "http://127.0.0.1:1234/api/v1/models"),
         ("OL1", "http://127.0.0.1:11434/api/tags"),
@@ -413,6 +417,7 @@ async def _step_post_startup_validation() -> dict[str, Any]:
             r = subprocess.run(
                 ["curl", "-s", "--max-time", "3", url],
                 capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5,
+                **extra,
             )
             checks[name] = "healthy" if r.returncode == 0 and r.stdout.strip() else "degraded"
         except Exception:

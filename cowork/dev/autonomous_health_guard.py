@@ -29,12 +29,12 @@ TELEGRAM_PROXY = "http://127.0.0.1:18800"
 
 # Health components and their weights
 COMPONENTS = {
-    "ws_server": {"weight": 0.20, "url": f"{WS_URL}/api/status"},
+    "ws_server": {"weight": 0.20, "url": f"{WS_URL}/api/automation/status"},
     "ol1": {"weight": 0.15, "url": f"{OL1_URL}/api/tags"},
     "m1": {"weight": 0.15, "url": f"{M1_URL}/api/v1/models"},
     "autonomous_loop": {"weight": 0.20, "url": f"{WS_URL}/api/autonomous/status"},
     "prediction_engine": {"weight": 0.10, "url": f"{WS_URL}/api/predictions/stats"},
-    "event_bus": {"weight": 0.10, "url": f"{WS_URL}/api/event_bus/stats"},
+    "event_bus": {"weight": 0.10, "url": f"{WS_URL}/api/eventbus/stats"},
     "databases": {"weight": 0.10, "check": "db"},
 }
 
