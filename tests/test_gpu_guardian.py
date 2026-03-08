@@ -78,8 +78,8 @@ class TestGPUSnapshot:
         snap = GPUSnapshot(temperature=76, vram_percent=50.0)
         assert snap.is_warning is True
 
-    def test_is_warning_vram_above_85(self):
-        snap = GPUSnapshot(temperature=60, vram_percent=86.0)
+    def test_is_warning_vram_above_95(self):
+        snap = GPUSnapshot(temperature=60, vram_percent=96.0)
         assert snap.is_warning is True
 
     def test_is_warning_false_below_thresholds(self):
@@ -94,8 +94,8 @@ class TestGPUSnapshot:
         snap = GPUSnapshot(temperature=86, vram_percent=50.0)
         assert snap.is_critical is True
 
-    def test_is_critical_vram_above_95(self):
-        snap = GPUSnapshot(temperature=60, vram_percent=96.0)
+    def test_is_critical_vram_above_99(self):
+        snap = GPUSnapshot(temperature=60, vram_percent=99.5)
         assert snap.is_critical is True
 
     def test_is_critical_false_below_thresholds(self):
@@ -103,7 +103,7 @@ class TestGPUSnapshot:
         assert snap.is_critical is False
 
     def test_is_critical_boundary_85_exactly(self):
-        snap = GPUSnapshot(temperature=85, vram_percent=95.0)
+        snap = GPUSnapshot(temperature=85, vram_percent=99.0)
         assert snap.is_critical is False  # > not >=
 
 
@@ -119,9 +119,9 @@ class TestGuardianConfig:
         assert cfg.temp_warning == 75
         assert cfg.temp_critical == 85
         assert cfg.temp_emergency == 90
-        assert cfg.vram_warning_pct == 85.0
-        assert cfg.vram_critical_pct == 95.0
-        assert cfg.check_interval_s == 30.0
+        assert cfg.vram_warning_pct == 95.0
+        assert cfg.vram_critical_pct == 99.0
+        assert cfg.check_interval_s == 120.0
         assert cfg.cooldown_after_unload_s == 120.0
         assert cfg.max_unloads_per_hour == 3
 
@@ -254,18 +254,18 @@ class TestEvaluate:
 
     @pytest.mark.asyncio
     async def test_critical_vram_triggers_overload_event(self):
-        """VRAM > 95% triggers gpu.overload event."""
+        """VRAM > 99% triggers gpu.overload event."""
         g = GPUGuardian()
         g._emergency_unload = AsyncMock()
         g._emit_event = AsyncMock()
-        snap = GPUSnapshot(temperature=60, vram_percent=96.0)
+        snap = GPUSnapshot(temperature=60, vram_percent=99.5)
 
         await g._evaluate(snap)
 
         assert g.stats["criticals"] == 1
         g._emit_event.assert_any_call("gpu.overload", {
             "temperature": 60,
-            "vram_percent": 96.0,
+            "vram_percent": 99.5,
             "power_draw_w": 0.0
         })
 
