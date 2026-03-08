@@ -472,6 +472,10 @@ def _build_chat_history(current_text: str, max_turns: int = 6) -> list[dict]:
 def _build_lmstudio_input(current_text: str, max_turns: int = 6) -> str:
     """Build conversation input for LM Studio Responses API."""
     parts = [f"/nothink\n{JARVIS_SYSTEM}"]
+    # Inject real JARVIS context (cowork/pipeline search) when relevant
+    context = _get_jarvis_context(current_text)
+    if context:
+        parts.append(f"\n[CONTEXTE JARVIS]\n{context}")
     recent = _session.messages[-(max_turns * 2):]
     for msg in recent:
         role = msg["role"]
@@ -482,6 +486,41 @@ def _build_lmstudio_input(current_text: str, max_turns: int = 6) -> str:
             parts.append(f"\nJARVIS: {strip_agent_tag(content)}")
     parts.append(f"\nUtilisateur: {current_text}")
     return "\n".join(parts)
+
+
+def _get_jarvis_context(text: str) -> str:
+    """Inject real JARVIS data (cowork, pipelines) to prevent hallucination."""
+    try:
+        from src.production_bridge import get_production_bridge
+        bridge = get_production_bridge()
+    except (ImportError, Exception):
+        return ""
+    parts = []
+    lower = text.lower()
+    # Search cowork scripts if mentioned
+    for kw in ("cowork", "script", "outil", "tool"):
+        if kw in lower:
+            # Extract search term from text
+            words = [w for w in lower.split() if len(w) > 3 and w not in
+                     ("cowork", "script", "outil", "quels", "sont", "les", "disponibles", "pour")]
+            for w in words[:2]:
+                results = bridge.search_pipeline(w, limit=5)
+                if results:
+                    parts.append(f"Pipelines '{w}': " + ", ".join(
+                        r["trigger_phrase"] for r in results))
+            break
+    # Search pipelines if user asks about actions/commands
+    for kw in ("pipeline", "commande", "action", "trigger"):
+        if kw in lower:
+            words = [w for w in lower.split() if len(w) > 3 and w not in
+                     ("pipeline", "commande", "action", "trigger", "quels", "sont", "les")]
+            for w in words[:2]:
+                results = bridge.search_pipeline(w, limit=5)
+                if results:
+                    parts.append(f"Pipelines '{w}': " + ", ".join(
+                        r["trigger_phrase"] for r in results))
+            break
+    return "\n".join(parts) if parts else ""
 
 
 def _get_model_auth(model_entry: dict) -> str:
