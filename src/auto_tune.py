@@ -69,6 +69,8 @@ class AutoTuneScheduler:
         self._threadpool_size = 4  # default
         self._min_threads = 2
         self._max_threads = 12
+        self._gpu_cache: str = ""
+        self._gpu_cache_ts: float = 0.0
 
     def sample(self) -> ResourceSnapshot:
         """Take a resource snapshot (CPU, memory, GPU)."""
@@ -82,22 +84,27 @@ class AutoTuneScheduler:
         except ImportError:
             pass
 
-        # GPU via nvidia-smi
-        try:
-            out = subprocess.check_output(
-                ["nvidia-smi", "--query-gpu=temperature.gpu,utilization.gpu,memory.used,memory.total",
-                 "--format=csv,noheader,nounits"],
-                timeout=5, text=True,
-            ).strip()
-            for line in out.split("\n"):
+        # GPU via nvidia-smi (cached 60s to avoid hammering)
+        now = time.time()
+        if now - self._gpu_cache_ts > 60:
+            try:
+                out = subprocess.check_output(
+                    ["nvidia-smi", "--query-gpu=temperature.gpu,utilization.gpu,memory.used,memory.total",
+                     "--format=csv,noheader,nounits"],
+                    timeout=5, text=True,
+                ).strip()
+                self._gpu_cache = out
+                self._gpu_cache_ts = now
+            except (subprocess.SubprocessError, FileNotFoundError, ValueError):
+                pass
+        if self._gpu_cache:
+            for line in self._gpu_cache.split("\n"):
                 parts = [p.strip() for p in line.split(",")]
                 if len(parts) >= 4:
                     snap.gpu_temp_c = max(snap.gpu_temp_c, float(parts[0]))
                     snap.gpu_util_percent = max(snap.gpu_util_percent, float(parts[1]))
                     snap.gpu_memory_used_mb += float(parts[2])
                     snap.gpu_memory_total_mb += float(parts[3])
-        except (subprocess.SubprocessError, FileNotFoundError, ValueError):
-            logger.warning("Caught exception: %s", exc_info=True)
 
         with self._lock:
             self._history.append(snap)

@@ -80,7 +80,7 @@ class AutonomousLoop:
         self.register("gpu_monitor", self._task_gpu_monitor, interval_s=60.0)
         self.register("drift_reroute", self._task_drift_reroute, interval_s=120.0)
         self.register("budget_alert", self._task_budget_alert, interval_s=300.0)
-        self.register("auto_tune_sample", self._task_auto_tune_sample, interval_s=60.0)
+        self.register("auto_tune_sample", self._task_auto_tune_sample, interval_s=300.0)
         self.register("self_heal", self._task_self_heal, interval_s=90.0)
         self.register("proactive_suggest", self._task_proactive, interval_s=600.0)
         # Cron-scheduled tasks
