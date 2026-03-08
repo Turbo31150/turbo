@@ -5230,6 +5230,18 @@ async def api_openclaw_route(request: Request):
     }
 
 
+@app.post("/api/openclaw/execute")
+async def api_openclaw_execute(request: Request):
+    """Full pipeline: classify → match → execute. Body: {text}"""
+    from src.openclaw_bridge import get_bridge
+    body = await request.json()
+    text = body.get("text", "")
+    if not text:
+        raise HTTPException(400, "text required")
+    result = await get_bridge().execute(text)
+    return result
+
+
 @app.post("/api/openclaw/route-batch")
 async def api_openclaw_route_batch(request: Request):
     """Route multiple messages. Body: {messages: [str]}"""
@@ -5274,6 +5286,28 @@ async def api_openclaw_history(hours: int = 24, limit: int = 200):
     from src.openclaw_bridge import get_bridge
     rows = get_bridge().get_routing_history(hours=hours, limit=limit)
     return {"rows": rows, "count": len(rows)}
+
+
+@app.get("/api/production/capabilities")
+async def api_production_capabilities():
+    """Full JARVIS production capability inventory."""
+    from src.production_bridge import get_production_bridge
+    bridge = get_production_bridge()
+    return {
+        "capabilities": bridge.get_capabilities(),
+        "system": bridge.get_system_status(),
+    }
+
+
+@app.post("/api/production/classify")
+async def api_production_classify(request: Request):
+    """Classify a message through all subsystems. Body: {text}"""
+    from src.production_bridge import get_production_bridge
+    body = await request.json()
+    text = body.get("text", "")
+    if not text:
+        raise HTTPException(400, "text required")
+    return get_production_bridge().classify(text)
 
 
 @app.get("/api/openclaw/agents")
