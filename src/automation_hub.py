@@ -296,6 +296,37 @@ class AutomationHub:
             await event_bus.emit("skill.execute", {"skill": skill_name})
             return f"skill={skill_name}"
 
+        async def _handle_cowork_batch(params: dict) -> str:
+            """Run a batch of cowork improvement scripts."""
+            import subprocess
+            import sys
+            from pathlib import Path
+            scripts = params.get("scripts", [
+                "auto_monitor", "auto_healer", "auto_learner",
+                "autonomous_health_guard", "adaptive_load_balancer",
+            ])
+            cowork_dir = Path(__file__).parent.parent / "cowork" / "dev"
+            results = []
+            for name in scripts:
+                script = cowork_dir / f"{name}.py"
+                if not script.exists():
+                    results.append(f"{name}: NOT_FOUND")
+                    continue
+                try:
+                    r = await asyncio.to_thread(
+                        subprocess.run,
+                        [sys.executable, str(script), "--once"],
+                        capture_output=True, text=True, timeout=30,
+                        cwd=str(cowork_dir),
+                    )
+                    status = "OK" if r.returncode == 0 else f"FAIL({r.returncode})"
+                    results.append(f"{name}: {status}")
+                except subprocess.TimeoutExpired:
+                    results.append(f"{name}: TIMEOUT")
+                except Exception as e:
+                    results.append(f"{name}: ERROR({e})")
+            return " | ".join(results)
+
         # Register all handlers
         handlers = {
             "dispatch": _handle_dispatch,
@@ -315,6 +346,7 @@ class AutomationHub:
             "drift_check": _handle_drift_check,
             "security_scan": _handle_security_scan,
             "skill": _handle_skill,
+            "cowork_batch": _handle_cowork_batch,
         }
         for action, handler in handlers.items():
             scheduler.register_handler(action, handler)

@@ -148,8 +148,8 @@ class OpenClawBridge:
         """Fast regex-based classification. Returns (intent, confidence)."""
         text_lower = text.lower().strip()
 
-        # Very short messages → quick-dispatch
-        if len(text_lower) < 10:
+        # Very short greetings only → quick-dispatch
+        if len(text_lower) < 6:
             return "simple", 0.9
 
         matches: list[tuple[str, float]] = []
@@ -223,6 +223,64 @@ class OpenClawBridge:
         self._record(result)
 
         return result
+
+    async def execute(self, text: str) -> dict[str, Any]:
+        """Full pipeline: classify → match command → execute → return result.
+
+        This is the single entry point that connects everything:
+        OpenClaw classification + command matching + real system execution.
+        """
+        t0 = time.monotonic()
+        route = self.route(text)
+
+        # Skip command execution for greetings/questions → go straight to model
+        _skip_commands = route.intent in ("simple", "question", "creative")
+
+        # Try command execution (2658 pipelines + 853 voice commands)
+        if not _skip_commands:
+            try:
+                from src.commands import match_command
+                from src.executor import execute_command
+                cmd, params, conf = match_command(text)
+                if cmd and conf >= 0.7:
+                    result = await execute_command(cmd, params or {})
+                    if not result.startswith("__"):  # Skip sentinels
+                        return {
+                            "source": "command",
+                            "agent": route.agent,
+                            "intent": route.intent,
+                            "content": result,
+                            "command": cmd.name,
+                            "action_type": cmd.action_type,
+                            "latency_ms": (time.monotonic() - t0) * 1000,
+                        }
+            except (ImportError, Exception) as e:
+                logger.debug("Command execution failed: %s", e)
+
+        # Fallback: dispatch to cluster model
+        try:
+            from src.dispatch_engine import DispatchEngine
+            engine = DispatchEngine()
+            pattern = route.intent if route.intent in (
+                "code_dev", "code", "trading", "analysis", "reasoning",
+            ) else "simple"
+            dr = await engine.dispatch(pattern, text)
+            return {
+                "source": "model",
+                "agent": route.agent,
+                "intent": route.intent,
+                "content": dr.content,
+                "model": dr.node,
+                "latency_ms": (time.monotonic() - t0) * 1000,
+            }
+        except (ImportError, Exception) as e:
+            return {
+                "source": "error",
+                "agent": route.agent,
+                "intent": route.intent,
+                "content": f"Execution failed: {e}",
+                "latency_ms": (time.monotonic() - t0) * 1000,
+            }
 
     def route_batch(self, messages: list[str]) -> list[RouteResult]:
         """Route multiple messages in batch."""
