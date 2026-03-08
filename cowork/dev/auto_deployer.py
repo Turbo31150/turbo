@@ -124,9 +124,9 @@ def deploy_pipeline(db, full_tests=False):
 
     # Quick syntax tests
     quick = run_quick_tests()
-    print(f"  Syntax: {quick['passed']}✓ {quick['failed']}✗")
+    print(f"  Syntax: {quick['passed']} OK {quick['failed']} FAIL")
     for err in quick["errors"]:
-        print(f"    ✗ {err}")
+        print(f"    FAIL: {err}")
 
     if quick["failed"] > 0:
         db.execute(
