@@ -6100,6 +6100,66 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         learning_context="Un seul appel qui fait TOUT: scan 8 scanners, diagnostic, VRAM, decision engine, predictions, allocation, notation A+",
         priority="critical",
     ),
+    DominoPipeline(
+        id="domino_health_score",
+        trigger_vocal=["score de sante", "health score", "note systeme", "grade systeme", "quelle note"],
+        steps=[
+            DominoStep("score", "curl:http://127.0.0.1:9742/api/metrics/health-score", "curl", timeout_s=5),
+            DominoStep("tts", "python:edge_tts_speak('Score de sante recupere.')", "python"),
+        ],
+        category="monitoring",
+        description="Recupere le health score global du systeme (A+ a F)",
+        learning_context="Score pondere: cluster 40pts, WS 20pts, scheduler 10pts, DB 15pts, cowork 15pts",
+        priority="medium",
+    ),
+    DominoPipeline(
+        id="domino_metrics_dashboard",
+        trigger_vocal=["dashboard", "tableau de bord", "metriques", "metrics dashboard", "vue ensemble"],
+        steps=[
+            DominoStep("dashboard", "curl:http://127.0.0.1:9742/api/metrics/dashboard", "curl", timeout_s=10),
+            DominoStep("tts", "python:edge_tts_speak('Tableau de bord recupere.')", "python"),
+        ],
+        category="monitoring",
+        description="Dashboard complet: cluster, dispatch, GPU, DB, scheduler",
+        learning_context="Vue d'ensemble unifiee de tous les sous-systemes",
+        priority="medium",
+    ),
+    DominoPipeline(
+        id="domino_endpoint_benchmark",
+        trigger_vocal=["benchmark", "benchmark endpoints", "performance api", "vitesse api", "teste les endpoints"],
+        steps=[
+            DominoStep("bench", f"python:uv run python {_TURBO_DIR_FWD}/scripts/benchmark_endpoints.py --json", "python", timeout_s=120),
+            DominoStep("tts", "python:edge_tts_speak('Benchmark des endpoints termine.')", "python"),
+        ],
+        category="production",
+        description="Benchmark de tous les endpoints API avec temps de reponse et grade",
+        learning_context="Teste 12 endpoints, 3 runs chacun, median, grade global",
+        priority="medium",
+    ),
+    DominoPipeline(
+        id="domino_watchdog_once",
+        trigger_vocal=["watchdog", "lance le watchdog", "surveillance", "watchdog une fois"],
+        steps=[
+            DominoStep("watchdog", f"python:uv run python {_TURBO_DIR_FWD}/scripts/watchdog_autonomous.py --once", "python", timeout_s=120),
+            DominoStep("tts", "python:edge_tts_speak('Watchdog autonome execute.')", "python"),
+        ],
+        category="production",
+        description="Execute un cycle watchdog: cycle autonome + self-improve si grade < B",
+        learning_context="Watchdog avec persistance SQLite et alerte Telegram si grade < C",
+        priority="high",
+    ),
+    DominoPipeline(
+        id="domino_telegram_command",
+        trigger_vocal=["commande telegram", "telegram command", "envoie commande"],
+        steps=[
+            DominoStep("cmd", 'curl:-X POST http://127.0.0.1:9742/api/telegram/command -H "Content-Type: application/json" -d \'{"command":"status"}\'', "curl", timeout_s=15),
+            DominoStep("tts", "python:edge_tts_speak('Commande Telegram executee.')", "python"),
+        ],
+        category="communication",
+        description="Execute une commande via le routeur Telegram",
+        learning_context="Routeur de commandes Telegram: status, cycle, gpu, cluster, improve, dashboard, decisions, logs, boot, aide",
+        priority="medium",
+    ),
 ]
 
 # Post-process: replace hardcoded paths with config-driven values

@@ -97,6 +97,18 @@ INTENT_PATTERNS: dict[str, list[str]] = {
         r"\b(self.?diagnostic|auto.?diagnostic|diagnostique.?toi)\b",
         r"\b(cache)\b.*\b(dispatch|stats?|performance)\b",
     ],
+    "autonomous": [
+        r"\b(cycle.?autonome|autonomous.?cycle|lance.?le.?cycle)\b",
+        r"\b(watchdog|surveille.?tout|boucle.?autonome)\b",
+        r"\b(auto.?ameliore|self.?improve|ameliore.?toi)\b",
+        r"\b(benchmark|performance.?api|teste.?endpoints?)\b",
+        r"\b(grade|note.?globale|score.?sante)\b",
+        r"\b(predictions?|previsions?.?pannes?|log.?predictions?)\b",
+    ],
+    "telegram": [
+        r"\b(telegram|commande.?telegram|envoie.?commande)\b",
+        r"\b(message|notif|notification)\b.*\b(telegram|bot|turbo)\b",
+    ],
 }
 
 # Entity extraction patterns

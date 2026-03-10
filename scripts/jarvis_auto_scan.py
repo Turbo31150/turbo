@@ -161,8 +161,15 @@ def scan_cluster() -> list[dict]:
                 if m.get("loaded_instances")
             )
             if loaded == 0:
-                issues.append({"category": "cluster", "severity": "critical",
-                              "description": "M1: 0 modeles charges (qwen3-8b manquant)"})
+                # Fallback: try a quick ping to verify model is really missing
+                ping_resp = _http_post("http://127.0.0.1:1234/v1/chat/completions", {
+                    "model": "qwen3-8b",
+                    "messages": [{"role": "user", "content": "/nothink\nping"}],
+                    "max_tokens": 1, "stream": False,
+                })
+                if not ping_resp or "error" in str(ping_resp).lower():
+                    issues.append({"category": "cluster", "severity": "critical",
+                                  "description": "M1: 0 modeles charges (qwen3-8b manquant)"})
     return issues
 
 
