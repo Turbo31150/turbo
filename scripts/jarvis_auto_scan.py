@@ -492,6 +492,19 @@ def run_scan(dry_run: bool = False) -> dict:
     all_issues.extend(scan_logs())
     all_issues.extend(scan_dispatch_quality())
 
+    # Feed decision engine with signals
+    if not dry_run:
+        try:
+            for issue in all_issues:
+                _http_post("http://127.0.0.1:9742/api/decisions/signal", {
+                    "source": "auto_scan",
+                    "severity": issue["severity"],
+                    "category": issue["category"],
+                    "description": issue["description"],
+                })
+        except Exception:
+            pass  # WS might not be running
+
     # Auto-fix fixable issues
     fixed = 0
     for issue in all_issues:

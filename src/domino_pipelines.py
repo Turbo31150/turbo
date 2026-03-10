@@ -6039,6 +6039,54 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         learning_context="Intelligence predictive — anticiper les problemes avant qu'ils arrivent",
         priority="high",
     ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # DECISION ENGINE & RESOURCE ALLOCATOR (Session 31 — 2026-03-10)
+    # ─────────────────────────────────────────────────────────────────────
+    DominoPipeline(
+        id="domino_decision_stats",
+        trigger_vocal=["decisions prises", "decision engine stats", "historique des decisions",
+                       "qu'est ce que tu as decide", "decisions autonomes"],
+        steps=[
+            DominoStep("stats", "curl:http://127.0.0.1:9742/api/decisions/stats", "curl", timeout_s=5),
+            DominoStep("recent", "curl:http://127.0.0.1:9742/api/decisions/recent", "curl", timeout_s=5),
+            DominoStep("tts_report", "python:edge_tts_speak('Statistiques du moteur de decisions chargees.')", "python"),
+        ],
+        category="production",
+        description="Affiche les decisions autonomes prises par JARVIS",
+        learning_context="Moteur de decision autonome — regles + actions automatiques",
+        priority="normal",
+    ),
+    DominoPipeline(
+        id="domino_resource_allocation",
+        trigger_vocal=["allocation des ressources", "repartition cluster", "charge des noeuds",
+                       "qui fait quoi", "resource allocation"],
+        steps=[
+            DominoStep("resources", "curl:http://127.0.0.1:9742/api/resources/cluster", "curl", timeout_s=10),
+            DominoStep("load", "curl:http://127.0.0.1:9742/api/resources/load", "curl", timeout_s=5),
+            DominoStep("tts_report", "python:edge_tts_speak('Allocation des ressources cluster chargee.')", "python"),
+        ],
+        category="cluster",
+        description="Affiche la repartition des ressources et charges entre les noeuds",
+        learning_context="Allocation intelligente des taches sur le cluster",
+        priority="normal",
+    ),
+    DominoPipeline(
+        id="domino_full_autonomy_check",
+        trigger_vocal=["check autonomie", "verification autonomie complete", "es tu autonome",
+                       "statut autonomie", "autonomy check"],
+        steps=[
+            DominoStep("automation", "curl:http://127.0.0.1:9742/api/automation/status", "curl", timeout_s=5),
+            DominoStep("decisions", "curl:http://127.0.0.1:9742/api/decisions/stats", "curl", timeout_s=5),
+            DominoStep("resources", "curl:http://127.0.0.1:9742/api/resources/load", "curl", timeout_s=5),
+            DominoStep("diagnostic", "curl:http://127.0.0.1:9742/api/diagnostic/run", "curl", timeout_s=15),
+            DominoStep("tts_done", "python:edge_tts_speak('Verification d autonomie complete. Automation, decisions, ressources et diagnostic verifies.')", "python"),
+        ],
+        category="production",
+        description="Check complet de l'autonomie: automation + decisions + resources + diagnostic",
+        learning_context="Verification que tous les systemes autonomes fonctionnent",
+        priority="high",
+    ),
 ]
 
 # Post-process: replace hardcoded paths with config-driven values

@@ -2805,6 +2805,26 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("clear_dispatch_cache", "pipeline", "Vider le cache dispatch", [
         "vide le cache", "clear cache", "purge cache dispatch",
     ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/dispatch/cache/clear' -Method Post | ConvertTo-Json"),
+
+    # ── Decision Engine & Resource Allocator (Session 31) ──────────────
+    JarvisCommand("decision_stats", "pipeline", "Stats du moteur de decisions autonome", [
+        "decisions prises", "decision stats", "historique decisions",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/decisions/stats' | ConvertTo-Json -Depth 3"),
+    JarvisCommand("decision_recent", "pipeline", "Decisions recentes", [
+        "decisions recentes", "dernieres decisions", "recent decisions",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/decisions/recent' | ConvertTo-Json -Depth 5"),
+    JarvisCommand("resource_cluster", "pipeline", "Etat des ressources cluster", [
+        "ressources cluster", "allocation cluster", "resource cluster",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/resources/cluster' | ConvertTo-Json -Depth 5"),
+    JarvisCommand("resource_load", "pipeline", "Charge des noeuds", [
+        "charge des noeuds", "load report", "repartition charge",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/resources/load' | ConvertTo-Json -Depth 3"),
+    JarvisCommand("allocate_task", "pipeline", "Recommandation de noeud pour une tache", [
+        "quel noeud utiliser", "allocate task", "recommande un noeud",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/resources/allocate?task_type=code' | ConvertTo-Json"),
+    JarvisCommand("autonomy_check", "pipeline", "Check complet autonomie JARVIS", [
+        "check autonomie", "verification autonomie", "es tu autonome",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/automation/status' | ConvertTo-Json -Depth 5"),
 ]
 
 # Post-processing: inject env-based keys into action strings at module load

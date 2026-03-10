@@ -73,6 +73,17 @@ class AutomationHub:
         except Exception as e:
             logger.warning("job seeding failed: %s", e)
 
+        # 5. Initialize decision engine
+        try:
+            from src.decision_engine import decision_engine
+            report["decision_engine"] = (
+                f"ok ({decision_engine.get_stats()['rules_count']} rules, "
+                f"{decision_engine.get_stats()['handlers_count']} handlers)"
+            )
+        except Exception as e:
+            logger.warning("decision_engine init failed: %s", e)
+            report["decision_engine"] = f"error: {e}"
+
         logger.info("Automation Hub started: %s", report)
         return report
 
@@ -449,6 +460,12 @@ class AutomationHub:
             "running" if self._queue_task and not self._queue_task.done()
             else "stopped"
         )
+
+        try:
+            from src.decision_engine import decision_engine
+            status["decision_engine"] = decision_engine.get_stats()
+        except Exception as e:
+            status["decision_engine"] = {"error": str(e)}
 
         return status
 

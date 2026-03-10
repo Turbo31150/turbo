@@ -6904,6 +6904,65 @@ async def api_vram_report():
     return vram_optimizer.get_report()
 
 
+# ═══════════════════════════════════════════════════════════════
+# Decision Engine API
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/decisions/stats")
+async def api_decisions_stats():
+    from src.decision_engine import decision_engine
+    return decision_engine.get_stats()
+
+@app.get("/api/decisions/recent")
+async def api_decisions_recent():
+    from src.decision_engine import decision_engine
+    return {"decisions": decision_engine.get_recent_decisions()}
+
+@app.post("/api/decisions/signal")
+async def api_decisions_signal(request: Request):
+    from src.decision_engine import decision_engine, Signal
+    body = await request.json()
+    signal = Signal(
+        source=body.get("source", "api"),
+        severity=body.get("severity", "info"),
+        category=body.get("category", "system"),
+        description=body.get("description", ""),
+        data=body.get("data", {}),
+    )
+    results = await decision_engine.process_signal(signal)
+    return {"results": results}
+
+
+# ═══════════════════════════════════════════════════════════════
+# Resource Allocator API
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/resources/cluster")
+async def api_resources_cluster():
+    """Get cluster resource state with capacity, load, and health per node."""
+    from src.resource_allocator import resource_allocator
+    return resource_allocator.get_cluster_resources()
+
+@app.get("/api/resources/allocate")
+async def api_resources_allocate(task_type: str = "code", priority: int = 5):
+    """Allocate the best node for a given task type and priority."""
+    from src.resource_allocator import resource_allocator
+    node = resource_allocator.allocate(task_type, priority)
+    return {"recommended_node": node, "task_type": task_type, "priority": priority}
+
+@app.get("/api/resources/load")
+async def api_resources_load():
+    """Get current load distribution across all cluster nodes."""
+    from src.resource_allocator import resource_allocator
+    return resource_allocator.get_load_report()
+
+@app.get("/api/resources/rebalance")
+async def api_resources_rebalance():
+    """Check load balance and get rebalancing suggestions."""
+    from src.resource_allocator import resource_allocator
+    return {"actions": resource_allocator.rebalance()}
+
+
 def main():
     import uvicorn
     host = os.getenv("JARVIS_WS_HOST", "127.0.0.1")
