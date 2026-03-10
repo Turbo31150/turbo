@@ -158,6 +158,19 @@ class DecisionEngine:
                     self._decision_count += 1
                     results.append(result)
                     self._save_decision(signal, decision, result)
+                    # Fire alert via alert_manager
+                    try:
+                        from src.alert_manager import alert_manager
+                        import asyncio
+                        level = "critical" if decision.priority <= 2 else "warning" if decision.priority <= 5 else "info"
+                        asyncio.ensure_future(alert_manager.fire(
+                            key=f"decision_{decision.action}_{decision.target}",
+                            message=f"[Decision] {decision.action} → {decision.target}: {decision.reason[:100]}",
+                            level=level, source="decision_engine",
+                            metadata={"rule": rule_name, "executed": result.get("executed", False)}
+                        ))
+                    except Exception:
+                        pass
             except Exception as e:
                 logger.warning("Rule %s failed: %s", rule_name, e)
 
@@ -305,11 +318,42 @@ class DecisionEngine:
         async def handle_throttle_gpu(decision: Decision) -> str:
             return "throttle_requested (manual action needed)"
 
+        async def handle_dispatch_task(decision: Decision) -> str:
+            """Route a task to the best node via dispatch engine."""
+            try:
+                from src.dispatch_engine import get_engine
+                engine = get_engine()
+                prompt = decision.params.get("prompt", decision.reason)
+                pattern = decision.params.get("pattern", "query")
+                result = await engine.dispatch(pattern, prompt)
+                node = result.get("node", "?")
+                quality = result.get("quality", 0)
+                return f"dispatched to {node} (quality={quality:.2f})"
+            except Exception as e:
+                return f"dispatch_error: {e}"
+
+        async def handle_reset_breaker(decision: Decision) -> str:
+            """Reset circuit breaker for a node."""
+            try:
+                import urllib.request
+                node = decision.target
+                data = json.dumps({"node": node, "ema_latency_ms": 3000}).encode()
+                req = urllib.request.Request(
+                    "http://127.0.0.1:9742/api/router/reset",
+                    data=data, headers={"Content-Type": "application/json"}
+                )
+                resp = urllib.request.urlopen(req, timeout=5)
+                return f"breaker reset for {node}"
+            except Exception as e:
+                return f"reset_error: {e}"
+
         self.register_handler("notify", handle_notify)
         self.register_handler("heal_node", handle_heal_node)
         self.register_handler("load_model", handle_load_model)
         self.register_handler("analyze_logs", handle_analyze_logs)
         self.register_handler("throttle_gpu", handle_throttle_gpu)
+        self.register_handler("dispatch_task", handle_dispatch_task)
+        self.register_handler("reset_breaker", handle_reset_breaker)
 
     def get_stats(self) -> dict:
         """Get engine statistics."""

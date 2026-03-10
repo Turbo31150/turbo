@@ -2833,6 +2833,24 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("autonomous_status", "pipeline", "Statut autonomie rapide", [
         "statut autonome", "es tu actif", "autonomous status",
     ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/autonomous/status' | ConvertTo-Json -Depth 3"),
+    JarvisCommand("health_score", "monitoring", "Score de sante global A+ a F", [
+        "health score", "score sante", "note systeme", "grade",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/metrics/health-score' | ConvertTo-Json"),
+    JarvisCommand("metrics_dashboard", "monitoring", "Tableau de bord complet: cluster, GPU, DB, dispatch", [
+        "dashboard", "tableau de bord", "metriques", "metrics",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/metrics/dashboard' | ConvertTo-Json -Depth 4"),
+    JarvisCommand("endpoint_benchmark", "production", "Benchmark performance de tous les endpoints API", [
+        "benchmark", "benchmark api", "performance endpoints", "teste vitesse",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/metrics/health-score' | ConvertTo-Json"),
+    JarvisCommand("watchdog_run", "production", "Lance un cycle watchdog autonome", [
+        "watchdog", "lance watchdog", "surveillance",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/autonomous/cycle' -Method Post -Body '{\"fix\":true}' -ContentType 'application/json' | ConvertTo-Json -Depth 3"),
+    JarvisCommand("telegram_command", "communication", "Execute une commande via routeur Telegram", [
+        "commande telegram", "telegram commande",
+    ], "pipeline", "powershell:Invoke-RestMethod -Method POST -Uri 'http://127.0.0.1:9742/api/telegram/command' -ContentType 'application/json' -Body '{\"command\":\"status\"}' | ConvertTo-Json"),
+    JarvisCommand("log_predictions", "monitoring", "Predictions de pannes basees sur analyse des logs", [
+        "predictions", "predict", "previsions pannes", "log predictions",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/logs/predictions' | ConvertTo-Json -Depth 3"),
 ]
 
 # Post-processing: inject env-based keys into action strings at module load
