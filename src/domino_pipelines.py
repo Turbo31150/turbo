@@ -6087,6 +6087,19 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         learning_context="Verification que tous les systemes autonomes fonctionnent",
         priority="high",
     ),
+    DominoPipeline(
+        id="domino_autonomous_cycle",
+        trigger_vocal=["cycle autonome", "lance le cycle", "autonomous cycle",
+                       "scan et repare", "auto scan fix", "lance autonomie"],
+        steps=[
+            DominoStep("cycle", 'curl:-X POST http://127.0.0.1:9742/api/autonomous/cycle -H "Content-Type: application/json" -d \'{"notify":true,"fix":true}\'', "curl", timeout_s=60),
+            DominoStep("tts_done", "python:edge_tts_speak('Cycle autonome termine. Scan, diagnostic, decisions et corrections appliques.')", "python"),
+        ],
+        category="production",
+        description="Cycle autonome complet: scan + diagnostic + decisions + fix + predict + report + Telegram notify",
+        learning_context="Un seul appel qui fait TOUT: scan 8 scanners, diagnostic, VRAM, decision engine, predictions, allocation, notation A+",
+        priority="critical",
+    ),
 ]
 
 # Post-process: replace hardcoded paths with config-driven values
