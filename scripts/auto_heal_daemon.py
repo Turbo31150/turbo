@@ -453,6 +453,49 @@ def detect_db_issues() -> list[Issue]:
     return issues
 
 
+def detect_predicted_failures() -> list[Issue]:
+    """Detect predicted failures from log_analyzer pattern analysis.
+
+    Imports log_analyzer, calls predict_failures(), and converts high-severity
+    predictions into auto-heal Issues for proactive remediation.
+    """
+    issues = []
+    try:
+        from src.log_analyzer import log_analyzer
+        predictions = log_analyzer.predict_failures()
+
+        for pred in predictions:
+            confidence = pred.get("confidence", 0)
+            # Only act on high-confidence predictions (>= 0.7)
+            if confidence < 0.7:
+                continue
+
+            severity = "critical" if confidence >= 0.85 else "warning"
+            pattern = pred.get("pattern", "unknown")
+            predicted_issue = pred.get("predicted_issue", "")
+            action = pred.get("recommended_action", "")
+
+            # Truncate pattern for component name (readable identifier)
+            component = f"predict:{pattern[:60]}"
+
+            issues.append(Issue(
+                category="predicted",
+                severity=severity,
+                component=component,
+                message=f"[PREDICTIVE] {predicted_issue} — pattern: {pattern[:120]}",
+                suggestion=f"[LogAnalyzer] {action}" if action else "",
+            ))
+
+        if issues:
+            log(f"  LogAnalyzer: {len(predictions)} predictions, {len(issues)} high-severity issues", "INFO")
+    except ImportError:
+        log("  LogAnalyzer: module not available, skipping predictive detection", "WARN")
+    except Exception as e:
+        log(f"  LogAnalyzer: prediction error: {e}", "WARN")
+
+    return issues
+
+
 def detect_process_doublons() -> list[Issue]:
     """Detect duplicate processes."""
     issues = []
@@ -753,6 +796,7 @@ def run_cycle(cycle: int, dry_run: bool = False, notify: bool = True) -> CycleRe
     all_issues.extend(detect_thermal_issues())
     all_issues.extend(detect_db_issues())
     all_issues.extend(detect_process_doublons())
+    all_issues.extend(detect_predicted_failures())
 
     report.issues_found = len(all_issues)
 

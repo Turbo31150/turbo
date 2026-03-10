@@ -100,6 +100,10 @@ class AutonomousLoop:
         # ── v3.1 Self-improvement — autonomous cluster optimization ───────
         self.register("self_improve", self._task_self_improve, interval_s=600)  # 10min
 
+        # ── v3.2 Self-improve feedback — weight change → scheduling re-eval ──
+        self.register("self_improve_feedback", self._task_self_improve_feedback,
+                       interval_s=660)  # 11min (offset from self_improve)
+
         # ── v3.0 System automation — IA-driven system management ─────────
         self.register("zombie_gc", self._task_zombie_gc, interval_s=600)  # 10min
         self.register("vram_audit", self._task_vram_audit, interval_s=600)  # 10min
@@ -530,6 +534,98 @@ class AutonomousLoop:
             return result
         except Exception as e:
             return {"error": str(e)}
+
+    # ── v3.2 Self-improve feedback ──────────────────────────────────
+
+    async def _task_self_improve_feedback(self) -> dict[str, Any]:
+        """Run self-improve cycle and feed weight changes back into scheduling.
+
+        If any node weight changed by >0.1, emit an event and re-evaluate
+        task scheduling priorities (e.g. increase health_check frequency
+        for volatile nodes).
+        """
+        try:
+            from src.self_improve_engine import self_improve_engine
+            from src.adaptive_router import get_router
+        except ImportError as e:
+            return {"error": f"import failed: {e}"}
+
+        # Snapshot weights before
+        router = get_router()
+        weights_before: dict[str, float] = {}
+        for node, health in router.health.items():
+            weights_before[node] = health.base_weight
+
+        # Run improvement cycle
+        try:
+            report = await self_improve_engine.run_cycle()
+        except Exception as e:
+            return {"error": f"run_cycle failed: {e}"}
+
+        # Snapshot weights after and detect significant changes
+        weight_deltas: dict[str, dict[str, float]] = {}
+        for node, health in router.health.items():
+            old_w = weights_before.get(node, health.base_weight)
+            new_w = health.base_weight
+            delta = abs(new_w - old_w)
+            if delta > 0.1:
+                weight_deltas[node] = {
+                    "before": round(old_w, 2),
+                    "after": round(new_w, 2),
+                    "delta": round(new_w - old_w, 2),
+                }
+
+        result: dict[str, Any] = {
+            "cycle": report.get("cycle", 0),
+            "actions_taken": report.get("actions_taken", 0),
+            "weight_changes": weight_deltas,
+            "scheduling_adjusted": False,
+        }
+
+        if weight_deltas:
+            logger.info(
+                "Self-improve feedback: %d node(s) with significant weight change: %s",
+                len(weight_deltas),
+                ", ".join(f"{n} {d['before']}->{d['after']}" for n, d in weight_deltas.items()),
+            )
+
+            # Re-evaluate scheduling: boost health_check and drift_reroute frequency
+            # for faster reaction to changed cluster topology
+            if "health_check" in self._tasks:
+                old_interval = self._tasks["health_check"].interval_s
+                self._tasks["health_check"].interval_s = max(10.0, old_interval * 0.5)
+                logger.info(
+                    "Scheduling adjusted: health_check interval %.0fs -> %.0fs",
+                    old_interval, self._tasks["health_check"].interval_s,
+                )
+            if "drift_reroute" in self._tasks:
+                old_interval = self._tasks["drift_reroute"].interval_s
+                self._tasks["drift_reroute"].interval_s = max(30.0, old_interval * 0.5)
+                logger.info(
+                    "Scheduling adjusted: drift_reroute interval %.0fs -> %.0fs",
+                    old_interval, self._tasks["drift_reroute"].interval_s,
+                )
+            result["scheduling_adjusted"] = True
+
+            # Emit event so other components (dashboard, notifier) can react
+            try:
+                from src.event_bus import event_bus
+                await event_bus.emit("self_improve.weights_changed", {
+                    "cycle": report.get("cycle", 0),
+                    "deltas": weight_deltas,
+                })
+            except Exception as e:
+                logger.warning("Failed to emit weights_changed event: %s", e)
+        else:
+            # No significant changes — restore default intervals if they were reduced
+            if "health_check" in self._tasks and self._tasks["health_check"].interval_s < 30.0:
+                self._tasks["health_check"].interval_s = 30.0
+                logger.info("Scheduling restored: health_check interval -> 30s")
+            if "drift_reroute" in self._tasks and self._tasks["drift_reroute"].interval_s < 120.0:
+                self._tasks["drift_reroute"].interval_s = 120.0
+                logger.info("Scheduling restored: drift_reroute interval -> 120s")
+
+        return result
 
     # ── v3.0 System automation tasks ──────────────────────────────────
 
