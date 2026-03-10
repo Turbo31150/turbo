@@ -183,21 +183,22 @@ class DecisionEngine:
         """Register built-in decision rules."""
 
         def rule_critical_node_offline(signal: Signal) -> Decision | None:
-            if signal.severity == "critical" and "OFFLINE" in signal.description:
+            if signal.severity in ("critical", "warning") and "OFFLINE" in signal.description:
                 node = signal.description.split("(")[0].strip()
+                priority = 1 if signal.severity == "critical" else 3
                 return Decision(
                     action="heal_node", target=node,
                     reason=f"Node {node} offline — attempting self-heal",
-                    priority=1
+                    priority=priority
                 )
             return None
 
         def rule_vram_critical(signal: Signal) -> Decision | None:
-            if signal.category == "gpu" and signal.severity == "critical" and "VRAM" in signal.description:
+            if signal.category == "gpu" and "VRAM" in signal.description and signal.severity in ("critical", "warning"):
                 return Decision(
                     action="notify", target="gpu",
-                    reason="VRAM critical — notify operator",
-                    priority=2,
+                    reason=f"VRAM {'critical' if signal.severity == 'critical' else 'high'} — notify operator",
+                    priority=2 if signal.severity == "critical" else 4,
                     params={"message": signal.description}
                 )
             return None
