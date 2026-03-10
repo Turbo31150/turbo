@@ -22,6 +22,7 @@ import logging
 import os
 import sys
 import uuid
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -6974,6 +6975,246 @@ async def api_resources_rebalance():
     """Check load balance and get rebalancing suggestions."""
     from src.resource_allocator import resource_allocator
     return {"actions": resource_allocator.rebalance()}
+
+
+# ═══════════════════════════════════════════════════════════════
+# AUTONOMOUS CYCLE — One-call full system cycle
+# ═══════════════════════════════════════════════════════════════
+
+@app.post("/api/autonomous/cycle")
+async def api_autonomous_cycle(request: Request):
+    """Run a complete autonomous cycle: scan → diagnose → decide → fix → report.
+
+    This is the ONE endpoint that does EVERYTHING for Telegram/voice commands.
+    Body (optional): {"notify": true, "fix": true, "report_to": "telegram"}
+    """
+    body = {}
+    try:
+        body = await request.json()
+    except Exception:
+        pass
+
+    do_fix = body.get("fix", True)
+    do_notify = body.get("notify", True)
+    report: dict = {"timestamp": datetime.now().isoformat(), "steps": []}
+
+    # Step 1: Auto-scan (cluster, GPU, disk, CPU, RAM, network, logs, services, DBs)
+    try:
+        import subprocess as _sp
+        r = _sp.run(
+            ["uv", "run", "python", "scripts/jarvis_auto_scan.py",
+             "--once" if do_fix else "--dry-run"],
+            capture_output=True, text=True, timeout=120,
+            cwd=str(Path(__file__).resolve().parent.parent),
+        )
+        if r.returncode == 0:
+            scan_data = json.loads(r.stdout)
+            report["scan"] = {
+                "health_score": scan_data.get("health_score", "?"),
+                "issues_count": len(scan_data.get("issues", [])),
+                "issues": [
+                    f"[{i['severity']}] {i['description'][:80]}"
+                    for i in scan_data.get("issues", [])[:10]
+                ],
+            }
+            report["steps"].append("scan_ok")
+        else:
+            report["scan"] = {"error": r.stderr[:200]}
+            report["steps"].append("scan_fail")
+    except Exception as e:
+        report["scan"] = {"error": str(e)}
+        report["steps"].append("scan_error")
+
+    # Step 2: Self-diagnostic
+    try:
+        from src.self_diagnostic import self_diagnostic
+        diag = await self_diagnostic.diagnose()
+        report["diagnostic"] = {
+            "health_score": diag.get("health_score", "?"),
+            "issues_count": len(diag.get("issues", [])),
+            "recommendations": diag.get("recommendations", [])[:5],
+        }
+        report["steps"].append("diagnostic_ok")
+    except Exception as e:
+        report["diagnostic"] = {"error": str(e)}
+        report["steps"].append("diagnostic_error")
+
+    # Step 3: VRAM check
+    try:
+        from src.vram_optimizer import vram_optimizer
+        vram = await vram_optimizer.check_and_optimize()
+        report["vram"] = {
+            "status": vram.get("status", "?"),
+            "gpu": vram.get("gpu", {}),
+            "alerts": vram.get("alerts", []),
+        }
+        report["steps"].append("vram_ok")
+    except Exception as e:
+        report["vram"] = {"error": str(e)}
+
+    # Step 4: Decision engine — feed all scan issues as signals
+    decisions_taken = []
+    try:
+        from src.decision_engine import decision_engine, Signal
+        scan_issues = report.get("scan", {}).get("issues", [])
+        for issue_str in scan_issues[:10]:
+            severity = "critical" if "[critical]" in issue_str else "warning"
+            sig = Signal(
+                source="autonomous_cycle",
+                severity=severity,
+                category="system",
+                description=issue_str,
+            )
+            results = await decision_engine.process_signal(sig)
+            for r in results:
+                decisions_taken.append(f"{r['decision']} -> {r.get('exec_result', '?')[:50]}")
+        report["decisions"] = {
+            "count": len(decisions_taken),
+            "actions": decisions_taken[:10],
+        }
+        report["steps"].append("decisions_ok")
+    except Exception as e:
+        report["decisions"] = {"error": str(e)}
+
+    # Step 5: Log predictions
+    try:
+        from src.log_analyzer import log_analyzer
+        predictions = log_analyzer.predict_failures()
+        trend = log_analyzer.get_trend()
+        report["predictions"] = {
+            "count": len(predictions),
+            "trend": trend.get("trend", "?"),
+            "top": [p.get("predicted_issue", "?")[:60] for p in predictions[:3]],
+        }
+        report["steps"].append("predictions_ok")
+    except Exception as e:
+        report["predictions"] = {"error": str(e)}
+
+    # Step 6: Automation status
+    try:
+        from src.automation_hub import automation_hub
+        auto_status = automation_hub.get_status()
+        report["automation"] = {
+            "running": auto_status.get("running", False),
+            "uptime_s": auto_status.get("uptime_s", 0),
+            "queue_processor": auto_status.get("queue_processor", "?"),
+        }
+        report["steps"].append("automation_ok")
+    except Exception as e:
+        report["automation"] = {"error": str(e)}
+
+    # Step 7: Resource allocation
+    try:
+        from src.resource_allocator import resource_allocator
+        resources = resource_allocator.get_cluster_resources()
+        online = [n for n, r in resources.items() if r.get("online")]
+        offline = [n for n, r in resources.items() if not r.get("online")]
+        report["cluster"] = {"online": online, "offline": offline}
+        report["steps"].append("cluster_ok")
+    except Exception as e:
+        report["cluster"] = {"error": str(e)}
+
+    # Calculate overall grade
+    scan_health = report.get("scan", {}).get("health_score", 0)
+    diag_health = report.get("diagnostic", {}).get("health_score", 0)
+    if isinstance(scan_health, (int, float)) and isinstance(diag_health, (int, float)):
+        overall = (scan_health + diag_health) / 2
+    else:
+        overall = 0
+    if overall >= 95:
+        grade = "A+"
+    elif overall >= 85:
+        grade = "A"
+    elif overall >= 70:
+        grade = "B"
+    elif overall >= 50:
+        grade = "C"
+    else:
+        grade = "F"
+    report["grade"] = grade
+    report["overall_health"] = round(overall, 1)
+    report["steps_completed"] = len([s for s in report["steps"] if s.endswith("_ok")])
+    report["steps_total"] = 7
+
+    # Build human-readable summary for Telegram
+    summary_lines = [
+        f"JARVIS Cycle Autonome — Grade {grade} ({overall:.0f}/100)",
+        f"Cluster: {len(report.get('cluster', {}).get('online', []))} online, "
+        f"{len(report.get('cluster', {}).get('offline', []))} offline",
+    ]
+    scan_data = report.get("scan", {})
+    if "issues_count" in scan_data:
+        summary_lines.append(f"Scan: {scan_data['issues_count']} issues (health {scan_data.get('health_score', '?')})")
+    vram_data = report.get("vram", {})
+    gpu = vram_data.get("gpu", {})
+    if gpu:
+        summary_lines.append(f"GPU: {gpu.get('temp_c', '?')}C | VRAM {gpu.get('vram_pct', '?')}%")
+    if decisions_taken:
+        summary_lines.append(f"Decisions: {len(decisions_taken)} actions auto-executees")
+    pred = report.get("predictions", {})
+    if pred.get("count", 0) > 0:
+        summary_lines.append(f"Predictions: {pred['count']} alertes | Trend: {pred.get('trend', '?')}")
+    diag_recs = report.get("diagnostic", {}).get("recommendations", [])
+    if diag_recs:
+        summary_lines.append("Recommandations:")
+        for rec in diag_recs[:3]:
+            summary_lines.append(f"  - {rec[:80]}")
+
+    report["summary"] = "\n".join(summary_lines)
+
+    # Notify via Telegram if requested
+    if do_notify:
+        try:
+            import urllib.request
+            notify_data = json.dumps({
+                "title": f"JARVIS Cycle [{grade}]",
+                "message": report["summary"][:400]
+            }).encode()
+            req = urllib.request.Request(
+                "http://127.0.0.1:9742/api/notifications/push",
+                data=notify_data, headers={"Content-Type": "application/json"}
+            )
+            urllib.request.urlopen(req, timeout=5)
+        except Exception:
+            pass
+        try:
+            import urllib.request
+            tg_data = json.dumps({
+                "message": report["summary"][:2000]
+            }).encode()
+            req = urllib.request.Request(
+                "http://127.0.0.1:9742/api/telegram/send",
+                data=tg_data, headers={"Content-Type": "application/json"}
+            )
+            urllib.request.urlopen(req, timeout=5)
+        except Exception:
+            pass
+
+    return report
+
+
+@app.get("/api/autonomous/status")
+async def api_autonomous_status():
+    """Quick status: cluster + grade + last scan."""
+    result = {}
+    try:
+        from src.resource_allocator import resource_allocator
+        resources = resource_allocator.get_cluster_resources()
+        result["online"] = [n for n, r in resources.items() if r.get("online")]
+        result["offline"] = [n for n, r in resources.items() if not r.get("online")]
+    except Exception:
+        pass
+    try:
+        from src.decision_engine import decision_engine
+        result["decisions"] = decision_engine.get_stats()
+    except Exception:
+        pass
+    try:
+        from src.automation_hub import automation_hub
+        result["automation"] = {"running": automation_hub._running}
+    except Exception:
+        pass
+    return result
 
 
 def main():

@@ -2825,6 +2825,14 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("autonomy_check", "pipeline", "Check complet autonomie JARVIS", [
         "check autonomie", "verification autonomie", "es tu autonome",
     ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/automation/status' | ConvertTo-Json -Depth 5"),
+    JarvisCommand("autonomous_cycle", "pipeline", "Cycle autonome complet: scan+diagnostic+decisions+fix+report", [
+        "cycle autonome", "lance le cycle", "auto cycle",
+        "lance toi", "fais tout", "autonomous cycle",
+        "scan et repare", "ameliore toi",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/autonomous/cycle' -Method Post -Body '{}' -ContentType 'application/json' | ConvertTo-Json -Depth 5"),
+    JarvisCommand("autonomous_status", "pipeline", "Statut autonomie rapide", [
+        "statut autonome", "es tu actif", "autonomous status",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/autonomous/status' | ConvertTo-Json -Depth 3"),
 ]
 
 # Post-processing: inject env-based keys into action strings at module load
