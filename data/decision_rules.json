@@ -1,0 +1,29 @@
+[
+  {
+    "name": "service_ws_down",
+    "pattern": "WS.*DOWN|:9742.*DOWN",
+    "severity": "warning",
+    "action": "notify",
+    "target": "WS",
+    "reason": "WebSocket service down — operator should check",
+    "priority": 2
+  },
+  {
+    "name": "db_integrity_fail",
+    "pattern": "integrity FAILED",
+    "severity": "critical",
+    "action": "notify",
+    "target": "database",
+    "reason": "Database integrity check failed — manual intervention needed",
+    "priority": 1
+  },
+  {
+    "name": "dispatch_quality_low",
+    "pattern": "Dispatch quality low",
+    "severity": "warning",
+    "action": "analyze_logs",
+    "target": "dispatch",
+    "reason": "Dispatch quality degraded — analyzing logs for root cause",
+    "priority": 4
+  }
+]

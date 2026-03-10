@@ -6932,6 +6932,19 @@ async def api_decisions_signal(request: Request):
     results = await decision_engine.process_signal(signal)
     return {"results": results}
 
+@app.post("/api/decisions/rules/add")
+async def api_decisions_add_rule(request: Request):
+    """Add a dynamic decision rule. Body: {name, pattern, severity, action, target, reason, priority}"""
+    from src.decision_engine import decision_engine
+    body = await request.json()
+    return decision_engine.add_dynamic_rule(body)
+
+@app.post("/api/decisions/rules/reload")
+async def api_decisions_reload_rules():
+    """Hot-reload dynamic rules from decision_rules.json."""
+    from src.decision_engine import decision_engine
+    return decision_engine.reload_dynamic_rules()
+
 
 # ═══════════════════════════════════════════════════════════════
 # Resource Allocator API

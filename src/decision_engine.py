@@ -49,8 +49,10 @@ class DecisionEngine:
         self._signal_count = 0
         self._decision_count = 0
         self._db_path = ROOT / "data" / "decisions.db"
+        self._dynamic_rules_path = ROOT / "data" / "decision_rules.json"
         self._init_db()
         self._register_default_rules()
+        self._load_dynamic_rules()
         self._register_default_handlers()
 
     def _init_db(self):
@@ -63,6 +65,59 @@ class DecisionEngine:
         )""")
         conn.commit()
         conn.close()
+
+    def _load_dynamic_rules(self):
+        """Load rules from JSON file. Format: [{pattern, severity, action, target, reason}]"""
+        if not self._dynamic_rules_path.exists():
+            return
+        try:
+            rules_data = json.loads(self._dynamic_rules_path.read_text())
+            for rd in rules_data:
+                pattern = rd.get("pattern", "")
+                severity = rd.get("severity", "")
+                action = rd.get("action", "notify")
+                target = rd.get("target", "system")
+                reason = rd.get("reason", "dynamic rule")
+                priority = rd.get("priority", 5)
+
+                import re
+                compiled = re.compile(pattern, re.IGNORECASE) if pattern else None
+
+                def _make_rule(comp, sev, act, tgt, rsn, pri):
+                    def rule_fn(signal: Signal) -> Decision | None:
+                        if sev and signal.severity != sev:
+                            return None
+                        if comp and not comp.search(signal.description):
+                            return None
+                        return Decision(action=act, target=tgt, reason=rsn, priority=pri)
+                    return rule_fn
+
+                self._rules.append(
+                    (f"dynamic_{rd.get('name', pattern[:20])}", _make_rule(compiled, severity, action, target, reason, priority))
+                )
+            logger.info("Loaded %d dynamic rules from %s", len(rules_data), self._dynamic_rules_path)
+        except Exception as e:
+            logger.warning("Failed to load dynamic rules: %s", e)
+
+    def reload_dynamic_rules(self):
+        """Hot-reload dynamic rules from JSON file."""
+        # Remove old dynamic rules
+        self._rules = [(n, fn) for n, fn in self._rules if not n.startswith("dynamic_")]
+        self._load_dynamic_rules()
+        return {"rules_count": len(self._rules)}
+
+    def add_dynamic_rule(self, rule: dict) -> dict:
+        """Add a new dynamic rule and persist to JSON."""
+        rules = []
+        if self._dynamic_rules_path.exists():
+            try:
+                rules = json.loads(self._dynamic_rules_path.read_text())
+            except Exception:
+                pass
+        rules.append(rule)
+        self._dynamic_rules_path.write_text(json.dumps(rules, indent=2))
+        self.reload_dynamic_rules()
+        return {"added": rule.get("name", "unnamed"), "total_rules": len(self._rules)}
 
     def register_rule(self, name: str, rule_fn: Callable[[Signal], Decision | None]):
         """Register a decision rule. rule_fn receives a Signal and returns a Decision or None."""
