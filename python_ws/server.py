@@ -7217,6 +7217,174 @@ async def api_autonomous_status():
     return result
 
 
+# ── Telegram command router ─────────────────────────────────────────────────
+@app.post("/api/telegram/command")
+async def api_telegram_command(request: Request):
+    """Route Telegram commands to the appropriate internal endpoint."""
+    import urllib.request
+    import subprocess
+
+    body = await request.json()
+    raw = (body.get("command") or "").strip().lower()
+    if not raw:
+        return JSONResponse({"error": "missing 'command' field"}, status_code=400)
+
+    base = "http://127.0.0.1:9742"
+    matched = None
+    result = None
+    summary = ""
+
+    try:
+        # ── status / health ──────────────────────────────────────────
+        if raw in ("status", "statut", "health"):
+            matched = "health"
+            resp = await api_health_score()
+            result = json.loads(resp.body.decode()) if hasattr(resp, 'body') else resp
+            score = result.get("score", result.get("health_score", "?"))
+            grade = result.get("grade", "?")
+            summary = f"Health score: {score}/100 (grade {grade})"
+
+        # ── cycle / scan / diagnostic ────────────────────────────────
+        elif raw in ("cycle", "scan", "diagnostic"):
+            matched = "cycle"
+            result = await api_autonomous_cycle(request)
+            grade = result.get("grade", "?")
+            summary = result.get("summary", f"Cycle termine — grade {grade}")
+
+        # ── gpu / vram ───────────────────────────────────────────────
+        elif raw in ("gpu", "vram"):
+            matched = "gpu"
+            proc = subprocess.run(
+                ["nvidia-smi", "--query-gpu=name,temperature.gpu,utilization.gpu,memory.used,memory.total",
+                 "--format=csv,noheader,nounits"],
+                capture_output=True, text=True, timeout=10
+            )
+            if proc.returncode == 0:
+                lines = [l.strip() for l in proc.stdout.strip().split("\n") if l.strip()]
+                gpus = []
+                for line in lines:
+                    parts = [p.strip() for p in line.split(",")]
+                    if len(parts) >= 5:
+                        gpus.append({
+                            "name": parts[0], "temp_c": int(parts[1]),
+                            "util_pct": int(parts[2]),
+                            "vram_used_mb": int(parts[3]), "vram_total_mb": int(parts[4])
+                        })
+                result = {"gpus": gpus}
+                lines_txt = [f"{g['name']}: {g['temp_c']}C, {g['util_pct']}% util, {g['vram_used_mb']}/{g['vram_total_mb']}MB" for g in gpus]
+                summary = "GPU status:\n" + "\n".join(lines_txt)
+            else:
+                result = {"error": proc.stderr.strip()}
+                summary = "nvidia-smi failed: " + proc.stderr.strip()[:200]
+
+        # ── cluster / noeuds ─────────────────────────────────────────
+        elif raw in ("cluster", "noeuds"):
+            matched = "cluster"
+            try:
+                from src.resource_allocator import resource_allocator
+                result = resource_allocator.get_cluster_resources()
+                online = [k for k, v in result.items() if isinstance(v, dict) and v.get("online")]
+                offline = [k for k, v in result.items() if isinstance(v, dict) and not v.get("online")]
+            except Exception:
+                online, offline, result = [], [], {"error": "resource_allocator unavailable"}
+            summary = f"Cluster: {len(online)} online ({', '.join(online)})"
+            if offline:
+                summary += f", {len(offline)} offline ({', '.join(offline)})"
+
+        # ── improve / ameliore ───────────────────────────────────────
+        elif raw in ("improve", "ameliore"):
+            matched = "improve"
+            try:
+                from src.self_improve_engine import self_improve_engine
+                result = await self_improve_engine.run_cycle()
+                summary = f"Self-improve: {result.get('status', 'done')}"
+            except Exception as e:
+                result = {"error": str(e)}
+                summary = f"Self-improve error: {e}"
+
+        # ── dashboard / metrics ──────────────────────────────────────
+        elif raw in ("dashboard", "metrics"):
+            matched = "dashboard"
+            resp = await api_metrics_dashboard()
+            result = json.loads(resp.body.decode()) if hasattr(resp, 'body') else {}
+            summary = f"Dashboard: cluster {result.get('cluster_online', '?')} online, {len(result.get('gpu', []))} GPU, {result.get('databases', {}).get('count', '?')} DB"
+
+        # ── decisions / actions ──────────────────────────────────────
+        elif raw in ("decisions", "actions"):
+            matched = "decisions"
+            try:
+                from src.decision_engine import decision_engine
+                result = decision_engine.get_recent_decisions()
+                count = len(result)
+            except Exception:
+                result = []
+                count = 0
+            summary = f"Decisions recentes: {count}"
+
+        # ── logs / erreurs ───────────────────────────────────────────
+        elif raw in ("logs", "erreurs"):
+            matched = "logs"
+            try:
+                from src.log_analyzer import log_analyzer
+                result = log_analyzer.analyze_recent()
+                summary = f"Analyse logs: {result.get('errors', '?')} erreurs, trend={result.get('trend', '?')}"
+            except Exception as e:
+                result = {"error": str(e)}
+                summary = f"Log analysis error: {e}"
+
+        # ── boot / demarre ───────────────────────────────────────────
+        elif raw in ("boot", "demarre"):
+            matched = "boot"
+            try:
+                from src.resource_allocator import resource_allocator
+                resources = resource_allocator.get_cluster_resources()
+                online = [n for n, r in resources.items() if r.get("online")]
+                result = {"online": online, "total": len(resources)}
+            except Exception:
+                online = []
+                result = {"status": "server running"}
+            summary = f"Boot OK — {len(online)} noeuds online ({', '.join(online)})" if online else "Boot OK — server running"
+
+        # ── aide / help ──────────────────────────────────────────────
+        elif raw in ("aide", "help"):
+            matched = "help"
+            result = {
+                "commands": [
+                    {"cmd": "status / statut / health", "desc": "Health score du systeme"},
+                    {"cmd": "cycle / scan / diagnostic", "desc": "Cycle autonome complet"},
+                    {"cmd": "gpu / vram", "desc": "Statut GPU (nvidia-smi)"},
+                    {"cmd": "cluster / noeuds", "desc": "Ressources cluster"},
+                    {"cmd": "improve / ameliore", "desc": "Lancer self-improve"},
+                    {"cmd": "dashboard / metrics", "desc": "Tableau de bord metriques"},
+                    {"cmd": "decisions / actions", "desc": "Decisions recentes"},
+                    {"cmd": "logs / erreurs", "desc": "Analyse des logs"},
+                    {"cmd": "boot / demarre", "desc": "Statut du boot"},
+                    {"cmd": "aide / help", "desc": "Liste des commandes"},
+                ]
+            }
+            lines = [f"  {c['cmd']} — {c['desc']}" for c in result["commands"]]
+            summary = "Commandes disponibles:\n" + "\n".join(lines)
+
+        # ── no match → return help ───────────────────────────────────
+        else:
+            matched = "unknown"
+            result = {"available_commands": [
+                "status", "cycle", "gpu", "cluster", "improve",
+                "dashboard", "decisions", "logs", "boot", "aide"
+            ]}
+            summary = f"Commande '{raw}' inconnue. Tapez 'aide' pour la liste."
+
+    except Exception as exc:
+        logger.warning("telegram/command error for '%s': %s", raw, exc)
+        return JSONResponse({
+            "command": matched or raw,
+            "result": {"error": str(exc)},
+            "summary": f"Erreur: {str(exc)[:300]}"
+        }, status_code=500)
+
+    return {"command": matched, "result": result, "summary": summary}
+
+
 def main():
     import uvicorn
     host = os.getenv("JARVIS_WS_HOST", "127.0.0.1")
