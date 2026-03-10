@@ -385,7 +385,7 @@ class TestAdaptiveRouterInit:
         assert router.health["OL1"].base_weight == 1.3
 
     def test_init_max_concurrent(self, router):
-        assert router.health["M1"].max_concurrent == 6
+        assert router.health["M1"].max_concurrent == 11
         assert router.health["M2"].max_concurrent == 3
         assert router.health["M3"].max_concurrent == 2
         assert router.health["OL1"].max_concurrent == 3

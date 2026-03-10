@@ -149,7 +149,7 @@ class SmartDispatcher:
 
         return original_result  # All retries failed, return original
 
-    async def dispatch_batch(self, prompts: list[str], max_parallel: int = 8) -> list[AgentResult]:
+    async def dispatch_batch(self, prompts: list[str], max_parallel: int = 11) -> list[AgentResult]:
         """Dispatch multiple prompts with auto-classification."""
         sem = asyncio.Semaphore(max_parallel)
         async def _run(p):

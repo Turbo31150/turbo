@@ -2697,6 +2697,114 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
         "diagnostiquer commande", "heal command", "reparer commande vocale",
         "commande ne marche pas", "debug commande",
     ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/jarvis.db'); db_cmds=c.execute('SELECT COUNT(*) FROM commands').fetchone()[0]; pipe_cmds=len(PIPELINE_COMMANDS); print('=== DIAGNOSTIC COMMANDE ==='); print(f'  Commandes jarvis.db: {db_cmds}'); print(f'  Pipelines: {pipe_cmds}'); print(f'  Total vocal: {db_cmds + pipe_cmds}'); dupes=[p.name for p in PIPELINE_COMMANDS]; seen=set(); dups=[x for x in dupes if x in seen or seen.add(x)]; print(f'  Doublons pipelines: {len(dups)}'); print('  Status: OK' if not dups else f'  DOUBLONS: {dups[:5]}'); c.close()\" 2>&1 | Out-String"),
+    # ══════════════════════════════════════════════════════════════════════
+    # PRODUCTION — Validation et model management (Session 29)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("production_validate", "pipeline", "Valider les 7 couches de production JARVIS", [
+        "valide la production", "production check", "validation systeme",
+        "check production", "grade production", "score jarvis",
+    ], "pipeline", f"powershell:Set-Location '{_TURBO_DIR}'; python scripts/production_validator.py"),
+    JarvisCommand("production_validate_telegram", "pipeline", "Validation production avec envoi Telegram", [
+        "valide et envoie", "validation telegram", "rapport production",
+        "envoie le rapport", "production report",
+    ], "pipeline", f"powershell:Set-Location '{_TURBO_DIR}'; python scripts/production_validator.py --telegram"),
+    JarvisCommand("model_load_gptoss", "pipeline", "Charger gpt-oss-20b pour grosse demande", [
+        "charge gpt oss", "load gpt oss", "grosse demande",
+        "modele gpt oss", "gpt oss 20b",
+    ], "pipeline", f"powershell:Set-Location '{_TURBO_DIR}'; python scripts/smart_model_loader.py load gpt-oss-20b"),
+    JarvisCommand("model_load_qwq", "pipeline", "Charger qwq-32b pour reasoning", [
+        "charge qwq", "load qwq", "reasoning profond",
+        "modele qwq", "qwq 32b",
+    ], "pipeline", f"powershell:Set-Location '{_TURBO_DIR}'; python scripts/smart_model_loader.py load qwq-32b"),
+    JarvisCommand("model_load_deepseek", "pipeline", "Charger deepseek-r1 pour consensus", [
+        "charge deepseek", "load deepseek r1", "consensus model",
+        "modele deepseek", "deepseek r1",
+    ], "pipeline", f"powershell:Set-Location '{_TURBO_DIR}'; python scripts/smart_model_loader.py load deepseek-r1-0528-qwen3-8b"),
+    JarvisCommand("model_status", "pipeline", "Statut des modeles charges sur M1", [
+        "modeles charges", "model status", "quels modeles",
+        "statut modeles", "models loaded",
+    ], "pipeline", f"powershell:Set-Location '{_TURBO_DIR}'; python scripts/smart_model_loader.py status"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # AUTO-IMPROVE & MONITORING (Session 30)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("auto_improve_once", "pipeline", "Lancer un cycle auto-improve", [
+        "auto improve", "ameliore le systeme", "auto amelioration",
+        "lance amelioration", "optimise production",
+    ], "pipeline", f"powershell:Set-Location '{_TURBO_DIR}'; uv run python scripts/production_auto_improve.py --once"),
+    JarvisCommand("auto_improve_dry", "pipeline", "Auto-improve en mode dry-run (analyse sans fix)", [
+        "auto improve dry run", "analyse sans corriger", "dry run production",
+        "simule amelioration",
+    ], "pipeline", f"powershell:Set-Location '{_TURBO_DIR}'; uv run python scripts/production_auto_improve.py --once --dry-run"),
+    JarvisCommand("cluster_monitor", "pipeline", "Monitoring complet du cluster", [
+        "monitore le cluster", "check tous les noeuds", "surveillance cluster",
+        "status complet cluster",
+    ], "pipeline", f"powershell:Set-Location '{_TURBO_DIR}'; uv run python cowork/dev/jarvis_monitor.py --once"),
+    JarvisCommand("dispatch_benchmark", "pipeline", "Benchmark du dispatch engine", [
+        "benchmark dispatch", "test performance dispatch", "vitesse dispatch",
+        "bench cluster",
+    ], "pipeline", f"powershell:Set-Location '{_TURBO_DIR}'; uv run python cowork/dev/dispatch_benchmark.py --once"),
+    JarvisCommand("ia_dispatch_m1", "pipeline", "Dispatch rapide vers M1", [
+        "demande a m1", "dispatch m1", "envoie a m1",
+    ], "pipeline", f"powershell:Set-Location '{_TURBO_DIR}'; uv run python cowork/dev/ia_dispatch.py --node m1 'status check'"),
+    JarvisCommand("ia_dispatch_ol1", "pipeline", "Dispatch rapide vers OL1", [
+        "demande a ol1", "dispatch ol1", "envoie a ollama",
+    ], "pipeline", f"powershell:Set-Location '{_TURBO_DIR}'; uv run python cowork/dev/ia_dispatch.py --node ol1 'status check'"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # WINDOWS BRIDGE & SQL (Session 30)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("sql_stats", "pipeline", "Stats des 3 bases SQLite", [
+        "sql stats", "stats bases", "status databases", "combien de tables",
+        "etat des bases", "bases de donnees",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/sql/stats'"),
+    JarvisCommand("sql_query_etoile", "pipeline", "Requete SQL sur etoile.db", [
+        "sql etoile", "query etoile", "cherche dans etoile",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/sql/databases' | ConvertTo-Json"),
+    JarvisCommand("sql_query_jarvis", "pipeline", "Requete SQL sur jarvis.db", [
+        "sql jarvis", "query jarvis", "cherche dans jarvis",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/sql/databases' | ConvertTo-Json"),
+    JarvisCommand("windows_notify", "pipeline", "Envoyer une notification Windows", [
+        "notification windows", "toast windows", "notifie moi",
+        "envoie une notif",
+    ], "pipeline", f"powershell:Set-Location '{_TURBO_DIR}'; uv run python scripts/jarvis_windows_notify.py --message 'JARVIS operationnel'"),
+    JarvisCommand("windows_commander", "pipeline", "Ouvrir le commander Windows", [
+        "ouvre le commander", "commander windows", "dialogue jarvis",
+        "fenetre de commande",
+    ], "pipeline", f"powershell:Set-Location '{_TURBO_DIR}'; uv run python scripts/jarvis_windows_listener.py --once"),
+    JarvisCommand("auto_scan", "pipeline", "Scan autonome complet du systeme", [
+        "scan le systeme", "auto scan", "scan complet",
+        "diagnostic complet", "scan jarvis",
+    ], "pipeline", f"powershell:Set-Location '{_TURBO_DIR}'; uv run python scripts/jarvis_auto_scan.py --once"),
+    JarvisCommand("metrics_dashboard", "pipeline", "Dashboard metriques en temps reel", [
+        "dashboard", "metriques", "metrics",
+        "tableau de bord", "stats systeme",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/metrics/dashboard' | ConvertTo-Json -Depth 5"),
+    JarvisCommand("health_score", "pipeline", "Score de sante du systeme", [
+        "health score", "score sante", "note du systeme",
+        "comment va jarvis",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/metrics/health-score' | ConvertTo-Json"),
+
+    # ── Self-Diagnostic & Cache (Session 31 — 2026-03-10) ──────────────
+    JarvisCommand("self_diagnostic", "pipeline", "Auto-diagnostic complet du systeme", [
+        "diagnostic", "auto diagnostic", "self diagnostic",
+        "diagnostique toi", "analyse ta sante",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/diagnostic/run' | ConvertTo-Json -Depth 5"),
+    JarvisCommand("dispatch_cache_stats", "pipeline", "Stats du cache dispatch", [
+        "cache dispatch", "stats cache", "performance cache",
+        "etat du cache",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/dispatch/cache' | ConvertTo-Json"),
+    JarvisCommand("full_health_check", "pipeline", "Verification sante complete: scan + diagnostic + cache", [
+        "check complet", "full health", "sante complete",
+        "verification complete", "rapport sante global",
+    ], "pipeline", f"powershell:Set-Location '{_TURBO_DIR}'; uv run python scripts/jarvis_auto_scan.py --once; Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/diagnostic/run' | ConvertTo-Json -Depth 5"),
+    JarvisCommand("system_resources", "pipeline", "Affiche CPU, RAM, GPU, disques", [
+        "ressources systeme", "cpu et ram", "charge systeme",
+        "utilisation memoire", "system resources",
+    ], "pipeline", "powershell:nvidia-smi --query-gpu=name,temperature.gpu,memory.used,memory.total,utilization.gpu --format=csv,noheader; Get-CimInstance Win32_Processor | Select-Object LoadPercentage; $os = Get-CimInstance Win32_OperatingSystem; '{0:N0} MB free / {1:N0} MB total' -f ($os.FreePhysicalMemory/1024), ($os.TotalVisibleMemorySize/1024)"),
+    JarvisCommand("clear_dispatch_cache", "pipeline", "Vider le cache dispatch", [
+        "vide le cache", "clear cache", "purge cache dispatch",
+    ], "pipeline", "powershell:Invoke-RestMethod -Uri 'http://127.0.0.1:9742/api/dispatch/cache/clear' -Method Post | ConvertTo-Json"),
 ]
 
 # Post-processing: inject env-based keys into action strings at module load

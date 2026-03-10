@@ -524,6 +524,56 @@ TOOLS: list[dict[str, Any]] = [
         "_meta": {"method": "POST", "path": "/api/boot/phase", "scope": "system"},
     },
 
+    # ── PRODUCTION (validation + model loading) ──────────────────────────
+    {
+        "type": "function",
+        "function": {
+            "name": "jarvis_production_validate",
+            "description": (
+                "Valider les 7 couches de production JARVIS: commandes pre-encodees, "
+                "keywords, intent classifier, dispatch engine, OpenClaw agents, "
+                "cowork scripts, heavy reasoning. Retourne un grade A-F et score."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "quick": {
+                        "type": "boolean",
+                        "description": "Si true, validation rapide (layers 3-4 + services seulement).",
+                        "default": False,
+                    },
+                },
+                "required": [],
+                "additionalProperties": False,
+            },
+        },
+        "_meta": {"method": "GET", "path": "/api/health/full", "scope": "diagnostics"},
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "jarvis_model_load",
+            "description": (
+                "Charger un modele sur M1 pour une tache specifique. "
+                "Modeles: gpt-oss-20b (code/archi), qwq-32b (reasoning), "
+                "deepseek-r1-0528-qwen3-8b (consensus), qwen3-30b-a3b-instruct-2507 (code), "
+                "devstral-small-2-24b-instruct-2512 (dev). qwen3-8b toujours charge."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "model": {
+                        "type": "string",
+                        "description": "ID exact du modele a charger (ex: 'gpt-oss-20b').",
+                    },
+                },
+                "required": ["model"],
+                "additionalProperties": False,
+            },
+        },
+        "_meta": {"method": "POST", "path": "/api/models", "scope": "cluster"},
+    },
+
     # ── GPU (monitoring direct) ──────────────────────────────────────────
     {
         "type": "function",
@@ -564,6 +614,9 @@ _MCP_ANNOTATIONS: dict[str, dict] = {
     "jarvis_classify_intent": {"readOnlyHint": True},
     "jarvis_boot_status": {"readOnlyHint": True},
     "jarvis_gpu_status": {"readOnlyHint": True},
+    "jarvis_production_validate": {"readOnlyHint": True},
+    # Mutating cluster tools
+    "jarvis_model_load": {"readOnlyHint": False},
     # Destructive tools (require explicit confirmation)
     "jarvis_cowork_execute": {"destructiveHint": True},
     "jarvis_db_maintenance": {"destructiveHint": True},

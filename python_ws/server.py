@@ -27,7 +27,7 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 # ── Ensure turbo root is on sys.path ────────────────────────────────────────
@@ -1124,14 +1124,121 @@ async def api_eventbus_events(limit: int = 50):
         return JSONResponse({"error": str(exc)}, status_code=500)
 
 
+def _collect_metrics() -> dict:
+    """Collect current system metrics (GPU, CPU, RAM, cluster nodes, dispatch stats)."""
+    import time
+    import socket
+    import subprocess
+
+    metrics: dict[str, Any] = {"timestamp": time.time()}
+
+    # GPU via nvidia-smi
+    try:
+        r = subprocess.run(
+            ["nvidia-smi", "--query-gpu=temperature.gpu,memory.used,memory.total,utilization.gpu",
+             "--format=csv,noheader,nounits"],
+            capture_output=True, text=True, timeout=3,
+        )
+        if r.returncode == 0:
+            gpus = []
+            for gpu_line in r.stdout.strip().splitlines():
+                parts = [p.strip() for p in gpu_line.split(",")]
+                if len(parts) >= 4:
+                    gpus.append({
+                        "temp_c": int(parts[0]),
+                        "vram_used_mb": int(parts[1]),
+                        "vram_total_mb": int(parts[2]),
+                        "utilization_pct": int(parts[3]),
+                    })
+            if len(gpus) == 1:
+                metrics["gpu"] = gpus[0]
+            elif gpus:
+                metrics["gpu"] = gpus
+    except Exception:
+        pass
+
+    # CPU via wmic
+    try:
+        r = subprocess.run(
+            ["wmic", "cpu", "get", "loadpercentage", "/value"],
+            capture_output=True, text=True, timeout=3,
+        )
+        for line in r.stdout.strip().split("\n"):
+            if "LoadPercentage=" in line:
+                metrics["cpu_pct"] = int(line.split("=")[1].strip())
+    except Exception:
+        pass
+
+    # RAM via wmic
+    try:
+        r = subprocess.run(
+            ["wmic", "OS", "get", "FreePhysicalMemory,TotalVisibleMemorySize", "/value"],
+            capture_output=True, text=True, timeout=3,
+        )
+        free_kb = total_kb = 0
+        for line in r.stdout.strip().split("\n"):
+            if "FreePhysicalMemory=" in line:
+                free_kb = int(line.split("=")[1].strip())
+            elif "TotalVisibleMemorySize=" in line:
+                total_kb = int(line.split("=")[1].strip())
+        if total_kb > 0:
+            metrics["ram"] = {
+                "used_mb": (total_kb - free_kb) // 1024,
+                "total_mb": total_kb // 1024,
+                "usage_pct": round((total_kb - free_kb) / total_kb * 100, 1),
+            }
+    except Exception:
+        pass
+
+    # Cluster node status (fast socket check)
+    nodes = {
+        "M1": ("127.0.0.1", 1234),
+        "OL1": ("127.0.0.1", 11434),
+        "M2": ("192.168.1.26", 1234),
+        "M3": ("192.168.1.113", 1234),
+    }
+    node_status = {}
+    for name, (host, port) in nodes.items():
+        try:
+            with socket.create_connection((host, port), timeout=1):
+                node_status[name] = "online"
+        except Exception:
+            node_status[name] = "offline"
+    metrics["nodes"] = node_status
+
+    # Dispatch stats from DB
+    try:
+        import sqlite3
+        db_path = Path(__file__).resolve().parent.parent / "data" / "etoile.db"
+        if db_path.exists():
+            conn = sqlite3.connect(str(db_path))
+            row = conn.execute(
+                "SELECT COUNT(*), AVG(quality) FROM dispatch_pipeline_log WHERE ts > datetime('now', '-1 hour')"
+            ).fetchone()
+            if row:
+                metrics["dispatch_1h"] = {"count": row[0] or 0, "avg_quality": round(row[1] or 0, 3)}
+            conn.close()
+    except Exception:
+        pass
+
+    return metrics
+
+
+@app.get("/api/metrics/stream")
+async def api_metrics_stream():
+    """SSE endpoint streaming system metrics every 5 seconds."""
+    async def event_generator():
+        while True:
+            metrics = _collect_metrics()
+            yield f"data: {json.dumps(metrics, default=str)}\n\n"
+            await asyncio.sleep(5)
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+
 @app.get("/api/metrics/snapshot")
 async def api_metrics_snapshot():
-    """Real-time metrics snapshot."""
-    try:
-        from src.metrics_aggregator import metrics_aggregator
-        return JSONResponse(metrics_aggregator.snapshot())
-    except Exception as exc:
-        return JSONResponse({"error": str(exc)}, status_code=500)
+    """Single system metrics snapshot (non-streaming)."""
+    return JSONResponse(_collect_metrics())
 
 
 @app.get("/api/metrics/history")
@@ -5722,6 +5829,19 @@ async def dispatch_engine_stats():
     from src.dispatch_engine import get_engine
     return get_engine().get_stats()
 
+@app.get("/api/dispatch_engine/cache")
+async def dispatch_engine_cache():
+    from src.dispatch_engine import get_engine
+    return get_engine().cache_stats()
+
+@app.post("/api/dispatch_engine/cache/warm")
+async def dispatch_engine_cache_warm(req: Request):
+    body = await req.json()
+    from src.dispatch_engine import get_engine
+    engine = get_engine()
+    patterns = body.get("patterns", [])
+    return await engine.cache_warm(patterns)
+
 @app.get("/api/dispatch_engine/report")
 async def dispatch_engine_report():
     from src.dispatch_engine import get_engine
@@ -6221,6 +6341,567 @@ async def api_singletons_cleanup():
     from src.process_singleton import singleton
     cleaned = singleton.cleanup_dead()
     return {"cleaned": cleaned, "count": len(cleaned)}
+
+
+@app.post("/api/models/load")
+async def api_model_load(request: Request):
+    """Load a model on M1 LM Studio for heavy tasks."""
+    try:
+        body = await request.json()
+        model_id = body.get("model", "")
+        if not model_id:
+            return JSONResponse({"error": "missing 'model' parameter"}, status_code=400)
+        import httpx
+        async with httpx.AsyncClient(timeout=120) as client:
+            resp = await client.post(
+                "http://127.0.0.1:1234/v1/chat/completions",
+                json={"model": model_id, "messages": [{"role": "user", "content": "init"}], "max_tokens": 1},
+            )
+            data = resp.json()
+            if data.get("choices"):
+                return JSONResponse({"ok": True, "model": model_id, "status": "loaded"})
+            return JSONResponse({"ok": False, "model": model_id, "error": str(data)[:200]})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/api/models/unload")
+async def api_model_unload(request: Request):
+    """Unload a model from M1 LM Studio to free VRAM."""
+    try:
+        body = await request.json()
+        model_id = body.get("model", "")
+        if not model_id:
+            return JSONResponse({"error": "missing 'model' parameter"}, status_code=400)
+        import httpx
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.post(
+                "http://127.0.0.1:1234/v1/models/unload",
+                json={"model": model_id},
+            )
+            return JSONResponse({"ok": True, "model": model_id, "status": "unloaded"})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/production/validate")
+async def api_production_validate(quick: bool = False):
+    """Run production validation across all 7 layers."""
+    try:
+        import subprocess
+        cmd = [sys.executable, str(Path(__file__).resolve().parent.parent / "scripts" / "production_validator.py"), "--json"]
+        if quick:
+            cmd.append("--quick")
+        proc = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            cwd=str(Path(__file__).resolve().parent.parent),
+        )
+        stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=30)
+        result = json.loads(stdout.decode())
+        return JSONResponse(result)
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── SQL Unified API — 3 DBs branchees ──────────────────────────────────
+
+_SQL_DBS = {
+    "etoile": str(Path(__file__).resolve().parent.parent / "data" / "etoile.db"),
+    "jarvis": str(Path(__file__).resolve().parent.parent / "data" / "jarvis.db"),
+    "scheduler": str(Path(__file__).resolve().parent.parent / "data" / "scheduler.db"),
+}
+
+
+@app.get("/api/sql/databases")
+async def api_sql_databases():
+    """List all 3 databases with their tables and row counts."""
+    import sqlite3 as _sq
+    result = {}
+    for db_name, db_path in _SQL_DBS.items():
+        try:
+            conn = _sq.connect(db_path)
+            tables = []
+            for (tname,) in conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
+            ).fetchall():
+                try:
+                    rows = conn.execute(f"SELECT COUNT(*) FROM [{tname}]").fetchone()[0]
+                except Exception:
+                    rows = -1
+                tables.append({"name": tname, "rows": rows})
+            result[db_name] = {
+                "path": db_path,
+                "tables": len(tables),
+                "total_rows": sum(t["rows"] for t in tables if t["rows"] >= 0),
+                "table_list": tables,
+            }
+            conn.close()
+        except Exception as exc:
+            result[db_name] = {"error": str(exc)}
+    return JSONResponse(result)
+
+
+@app.post("/api/sql/query")
+async def api_sql_query(request: Request):
+    """Execute a read-only SQL query on any of the 3 databases.
+
+    Body: {"db": "etoile|jarvis|scheduler", "sql": "SELECT ...", "limit": 100}
+    Only SELECT queries allowed (read-only safety).
+    """
+    import sqlite3 as _sq
+    body = await request.json()
+    db_name = body.get("db", "etoile")
+    sql = body.get("sql", "").strip()
+    limit = min(body.get("limit", 100), 1000)
+
+    if db_name not in _SQL_DBS:
+        return JSONResponse({"error": f"Unknown db: {db_name}. Available: {list(_SQL_DBS.keys())}"}, status_code=400)
+
+    # Read-only guard
+    sql_upper = sql.upper().lstrip()
+    if not sql_upper.startswith("SELECT") and not sql_upper.startswith("PRAGMA"):
+        return JSONResponse({"error": "Only SELECT and PRAGMA queries allowed (read-only)"}, status_code=403)
+    for forbidden in ("DROP", "DELETE", "INSERT", "UPDATE", "ALTER", "CREATE", "ATTACH"):
+        if forbidden in sql_upper:
+            return JSONResponse({"error": f"Forbidden keyword: {forbidden}"}, status_code=403)
+
+    try:
+        conn = _sq.connect(_SQL_DBS[db_name])
+        conn.row_factory = _sq.Row
+        cursor = conn.execute(sql)
+        columns = [d[0] for d in cursor.description] if cursor.description else []
+        rows = [dict(r) for r in cursor.fetchmany(limit)]
+        conn.close()
+        return JSONResponse({"db": db_name, "columns": columns, "rows": rows, "count": len(rows)})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/sql/stats")
+async def api_sql_stats():
+    """Quick stats across all 3 databases."""
+    import sqlite3 as _sq
+    stats = {}
+    total_tables = 0
+    total_rows = 0
+    for db_name, db_path in _SQL_DBS.items():
+        try:
+            size_kb = round(os.path.getsize(db_path) / 1024, 1)
+            conn = _sq.connect(db_path)
+            tables = conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'"
+            ).fetchall()
+            rows = 0
+            for (t,) in tables:
+                try:
+                    rows += conn.execute(f"SELECT COUNT(*) FROM [{t}]").fetchone()[0]
+                except Exception:
+                    pass
+            conn.close()
+            stats[db_name] = {"tables": len(tables), "rows": rows, "size_kb": size_kb}
+            total_tables += len(tables)
+            total_rows += rows
+        except Exception as exc:
+            stats[db_name] = {"error": str(exc)}
+    stats["_total"] = {"databases": len(_SQL_DBS), "tables": total_tables, "rows": total_rows}
+    return JSONResponse(stats)
+
+
+# ── Windows Notification Queue ─────────────────────────────────────────
+
+_notification_queue: list[dict] = []
+_notification_counter = 0
+
+
+@app.get("/api/notifications/pending")
+async def api_notifications_pending():
+    """Return pending Windows notifications (polled by jarvis_windows_notify.py)."""
+    pending = [n for n in _notification_queue if not n.get("acked")]
+    return JSONResponse({"notifications": pending, "count": len(pending)})
+
+
+@app.post("/api/notifications/push")
+async def api_notifications_push(request: Request):
+    """Push a notification to the Windows notification queue."""
+    global _notification_counter
+    body = await request.json()
+    _notification_counter += 1
+    notif = {
+        "id": f"notif_{_notification_counter}",
+        "title": body.get("title", "JARVIS"),
+        "message": body.get("message", ""),
+        "level": body.get("level", "info"),
+        "acked": False,
+    }
+    _notification_queue.append(notif)
+    # Keep queue bounded
+    if len(_notification_queue) > 100:
+        _notification_queue[:] = _notification_queue[-50:]
+    return JSONResponse({"ok": True, "id": notif["id"]})
+
+
+@app.post("/api/notifications/ack")
+async def api_notifications_ack(request: Request):
+    """Acknowledge a notification (mark as shown)."""
+    body = await request.json()
+    nid = body.get("id", "")
+    for n in _notification_queue:
+        if n["id"] == nid:
+            n["acked"] = True
+            return JSONResponse({"ok": True})
+    return JSONResponse({"ok": False, "error": "not found"})
+
+
+# ── Windows Command Bridge ─────────────────────────────────────────────
+
+@app.post("/api/windows/command")
+async def api_windows_command(request: Request):
+    """Full 7-layer JARVIS execution: L0 pre-encoded → L1 domino → L2 intent → L3 dispatch.
+
+    Windows sends a command, JARVIS executes through ALL layers and responds.
+    """
+    body = await request.json()
+    text = body.get("text", body.get("command", body.get("message", ""))).strip()
+    if not text:
+        return JSONResponse({"error": "No command text"}, status_code=400)
+
+    layer_hit = "none"
+    response = ""
+    intent_name = ""
+    confidence = 0.0
+
+    try:
+        # ── L0: Pre-encoded commands (2784 commands, instant) ──
+        try:
+            from src.commands_pipelines import PIPELINE_COMMANDS
+            text_lower = text.lower().strip()
+            for cmd in PIPELINE_COMMANDS:
+                for trigger in cmd.triggers:
+                    if text_lower == trigger.lower() or trigger.lower() in text_lower:
+                        layer_hit = "L0_preencoded"
+                        # Execute the pipeline action
+                        action = cmd.action
+                        if action.startswith("powershell:"):
+                            ps_cmd = action[len("powershell:"):]
+                            proc = await asyncio.create_subprocess_exec(
+                                "powershell", "-NoProfile", "-Command", ps_cmd,
+                                stdout=asyncio.subprocess.PIPE,
+                                stderr=asyncio.subprocess.PIPE,
+                            )
+                            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=30)
+                            response = stdout.decode(errors="replace").strip()[:1000]
+                            if not response:
+                                response = f"Commande '{cmd.name}' executee (rc={proc.returncode})"
+                        else:
+                            response = f"Commande trouvee: {cmd.name} ({cmd.description})"
+                        intent_name = cmd.category
+                        confidence = 1.0
+                        break
+                if layer_hit != "none":
+                    break
+        except Exception:
+            pass
+
+        # ── L1: Domino pipelines (415 cascades vocales) ──
+        if layer_hit == "none":
+            try:
+                from src.domino_pipelines import find_domino
+                domino = find_domino(text)
+                if domino:
+                    layer_hit = "L1_domino"
+                    intent_name = domino.category
+                    confidence = 0.95
+                    # Execute first step of domino
+                    step = domino.steps[0] if domino.steps else None
+                    if step and step.action.startswith("curl:"):
+                        url = step.action[len("curl:"):]
+                        try:
+                            import urllib.request
+                            with urllib.request.urlopen(url, timeout=10) as r:
+                                response = r.read().decode(errors="replace")[:1000]
+                        except Exception as e:
+                            response = f"Domino {domino.id}: curl failed ({e})"
+                    elif step and step.action.startswith("powershell:"):
+                        ps_cmd = step.action[len("powershell:"):]
+                        proc = await asyncio.create_subprocess_exec(
+                            "powershell", "-NoProfile", "-Command", ps_cmd,
+                            stdout=asyncio.subprocess.PIPE,
+                            stderr=asyncio.subprocess.PIPE,
+                        )
+                        stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=30)
+                        response = stdout.decode(errors="replace").strip()[:1000]
+                    else:
+                        response = f"Domino '{domino.id}' declenche ({len(domino.steps)} etapes)"
+            except Exception:
+                pass
+
+        # ── L2: Intent classification → L3: Dispatch engine ──
+        if layer_hit == "none":
+            from src.intent_classifier import intent_classifier
+            intent = intent_classifier.classify_single(text)
+            intent_name = intent.intent
+            confidence = intent.confidence
+
+            try:
+                from src.dispatch_engine import get_engine
+                engine = get_engine()
+                result = await engine.dispatch(intent.intent, text)
+                if result.success:
+                    layer_hit = "L3_dispatch"
+                    response = result.content
+                else:
+                    layer_hit = "L2_intent"
+                    response = f"[{intent.intent}] Dispatch attempted but no content"
+            except Exception:
+                layer_hit = "L2_intent"
+                response = f"Intent: {intent.intent} (confidence: {intent.confidence})"
+
+        # ── Push response as Windows notification ──
+        global _notification_counter
+        _notification_counter += 1
+        _notification_queue.append({
+            "id": f"notif_{_notification_counter}",
+            "title": f"JARVIS [{layer_hit}]",
+            "message": response[:500],
+            "level": "info",
+            "acked": False,
+        })
+
+        return JSONResponse({
+            "ok": True,
+            "layer": layer_hit,
+            "intent": intent_name,
+            "confidence": confidence,
+            "response": response[:2000],
+        })
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ── Metrics Dashboard & Health Score ─────────────────────────────────
+
+
+@app.get("/api/metrics/dashboard")
+async def api_metrics_dashboard():
+    """One-call dashboard: cluster, dispatch, automation, DBs, GPU."""
+    import sqlite3 as _sq
+    import socket
+    import time as _time
+
+    dashboard = {"timestamp": _time.time()}
+
+    # Cluster health
+    nodes = {}
+    for name, host, port in [("M1", "127.0.0.1", 1234), ("OL1", "127.0.0.1", 11434),
+                              ("M3", "192.168.1.113", 1234), ("M2", "192.168.1.26", 1234)]:
+        try:
+            with socket.create_connection((host, port), timeout=2):
+                nodes[name] = "online"
+        except Exception:
+            nodes[name] = "offline"
+    dashboard["cluster"] = nodes
+    dashboard["cluster_online"] = sum(1 for v in nodes.values() if v == "online")
+
+    # Dispatch stats from etoile.db
+    try:
+        db = str(Path(__file__).resolve().parent.parent / "data" / "etoile.db")
+        conn = _sq.connect(db)
+        total = conn.execute("SELECT COUNT(*) FROM dispatch_pipeline_log").fetchone()[0]
+        recent = conn.execute(
+            "SELECT COUNT(*) FROM dispatch_pipeline_log WHERE id > (SELECT MAX(id)-100 FROM dispatch_pipeline_log)"
+        ).fetchone()[0]
+        avg_quality = conn.execute(
+            "SELECT AVG(quality) FROM dispatch_pipeline_log WHERE quality > 0"
+        ).fetchone()[0] or 0
+        dashboard["dispatch"] = {"total": total, "recent_100": recent, "avg_quality": round(avg_quality, 3)}
+
+        # Self-improve stats
+        si_count = conn.execute("SELECT COUNT(*) FROM self_improve_log").fetchone()[0]
+        dashboard["self_improve"] = {"total_actions": si_count}
+
+        conn.close()
+    except Exception as e:
+        dashboard["dispatch"] = {"error": str(e)}
+
+    # Scheduler
+    try:
+        sdb = str(Path(__file__).resolve().parent.parent / "data" / "scheduler.db")
+        conn = _sq.connect(sdb)
+        jobs = conn.execute("SELECT COUNT(*) FROM jobs WHERE enabled=1").fetchone()[0]
+        dashboard["scheduler"] = {"active_jobs": jobs}
+        conn.close()
+    except Exception:
+        dashboard["scheduler"] = {"active_jobs": 0}
+
+    # DB sizes
+    data_dir = Path(__file__).resolve().parent.parent / "data"
+    db_sizes = {}
+    total_size = 0
+    for f in data_dir.glob("*.db"):
+        if "backup" not in f.name:
+            size = f.stat().st_size
+            db_sizes[f.stem] = round(size / 1024, 1)
+            total_size += size
+    dashboard["databases"] = {"count": len(db_sizes), "total_kb": round(total_size / 1024, 1)}
+
+    # GPU (quick nvidia-smi)
+    try:
+        import subprocess
+        r = subprocess.run(
+            ["nvidia-smi", "--query-gpu=name,temperature.gpu,memory.used,memory.total,utilization.gpu",
+             "--format=csv,noheader,nounits"],
+            capture_output=True, text=True, timeout=5
+        )
+        gpus = []
+        for line in r.stdout.strip().split("\n"):
+            parts = [p.strip() for p in line.split(",")]
+            if len(parts) >= 5:
+                gpus.append({
+                    "name": parts[0], "temp_c": int(parts[1]),
+                    "vram_used_mb": int(parts[2]), "vram_total_mb": int(parts[3]),
+                    "util_pct": int(parts[4])
+                })
+        dashboard["gpu"] = gpus
+    except Exception:
+        dashboard["gpu"] = []
+
+    return JSONResponse(dashboard)
+
+
+@app.get("/api/metrics/health-score")
+async def api_health_score():
+    """Single number health score for quick monitoring."""
+    import socket
+    score = 0
+    details = []
+
+    # Cluster nodes (40 points)
+    for name, host, port, weight in [("M1", "127.0.0.1", 1234, 20), ("OL1", "127.0.0.1", 11434, 10),
+                                      ("M3", "192.168.1.113", 1234, 5), ("M2", "192.168.1.26", 1234, 5)]:
+        try:
+            with socket.create_connection((host, port), timeout=2):
+                score += weight
+                details.append(f"{name}:OK")
+        except Exception:
+            details.append(f"{name}:DOWN")
+
+    # WS API (20 points) - we're running, so always OK
+    score += 20
+    details.append("WS:OK")
+
+    # Scheduler (10 points)
+    try:
+        import sqlite3
+        conn = sqlite3.connect(str(Path(__file__).resolve().parent.parent / "data" / "scheduler.db"))
+        jobs = conn.execute("SELECT COUNT(*) FROM jobs WHERE enabled=1").fetchone()[0]
+        if jobs >= 5:
+            score += 10
+        elif jobs >= 1:
+            score += 5
+        details.append(f"SCHED:{jobs}jobs")
+        conn.close()
+    except Exception:
+        details.append("SCHED:ERR")
+
+    # Databases (15 points)
+    data_dir = Path(__file__).resolve().parent.parent / "data"
+    db_count = len(list(data_dir.glob("*.db")))
+    if db_count >= 20:
+        score += 15
+    elif db_count >= 10:
+        score += 10
+    details.append(f"DB:{db_count}")
+
+    # Cowork scripts (15 points)
+    cowork_dir = Path(__file__).resolve().parent.parent / "cowork" / "dev"
+    script_count = len(list(cowork_dir.glob("*.py"))) if cowork_dir.exists() else 0
+    if script_count >= 400:
+        score += 15
+    elif script_count >= 200:
+        score += 10
+    details.append(f"COWORK:{script_count}")
+
+    grade = "A+" if score >= 95 else "A" if score >= 85 else "B" if score >= 70 else "C" if score >= 50 else "F"
+
+    return JSONResponse({"score": score, "grade": grade, "details": details})
+
+
+# ═══════════════════════════════════════════════════════════════
+# Self-Diagnostic Engine
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/diagnostic/run")
+async def api_diagnostic_run():
+    """Run self-diagnostic and return health report."""
+    try:
+        from src.self_diagnostic import self_diagnostic
+        return await self_diagnostic.diagnose()
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ═══════════════════════════════════════════════════════════════
+# Predictive Log Analyzer
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/logs/analysis")
+async def api_logs_analysis():
+    """Analyze recent log entries and return summary with trend."""
+    try:
+        from src.log_analyzer import log_analyzer
+        return log_analyzer.analyze_recent()
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/logs/predictions")
+async def api_logs_predictions():
+    """Predict likely upcoming failures based on log patterns."""
+    try:
+        from src.log_analyzer import log_analyzer
+        return {"predictions": log_analyzer.predict_failures(), "trend": log_analyzer.get_trend()}
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/api/logs/patterns")
+async def api_logs_patterns():
+    """Detect recurring error patterns from logs."""
+    try:
+        from src.log_analyzer import log_analyzer
+        return {"patterns": log_analyzer.detect_patterns()}
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+# ═══════════════════════════════════════════════════════════════
+# Rollback Manager API
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/rollback/history")
+async def api_rollback_history():
+    """Get rollback history and stats."""
+    from src.rollback_manager import rollback_manager
+    return {"history": rollback_manager.get_history(), "stats": rollback_manager.get_stats()}
+
+
+# ═══════════════════════════════════════════════════════════════
+# VRAM Optimizer API
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/vram/status")
+async def api_vram_status():
+    """Get VRAM optimization status with alerts and actions."""
+    from src.vram_optimizer import vram_optimizer
+    return await vram_optimizer.check_and_optimize()
+
+@app.get("/api/vram/report")
+async def api_vram_report():
+    """Full VRAM report with loaded models and trends."""
+    from src.vram_optimizer import vram_optimizer
+    return vram_optimizer.get_report()
 
 
 def main():

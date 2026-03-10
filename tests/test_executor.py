@@ -215,7 +215,8 @@ class TestExecuteCommand:
         from src.executor import execute_command
         cmd = JarvisCommand("tool", "jarvis", "Tool", ["tool"], "jarvis_tool", "system_info")
         result = await execute_command(cmd, {})
-        assert result == "__TOOL__system_info"
+        # system_info now returns real data (JSON with health_score etc.) or __TOOL__ stub
+        assert "health_score" in result or "__TOOL__" in result
 
     @pytest.mark.asyncio
     async def test_unknown_action_type(self):

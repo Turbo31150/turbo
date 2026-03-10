@@ -112,8 +112,10 @@ GEMINI_PROXY_DAEMON = str(OPENCLAW_DIR / "gemini-proxy.js")
 DATABASES = {
     "etoile": TURBO_DIR / "data" / "etoile.db",
     "jarvis": TURBO_DIR / "data" / "jarvis.db",
+    "scheduler": TURBO_DIR / "data" / "scheduler.db",
     "sniper": TURBO_DIR / "data" / "sniper.db",
-    "finetuning": TURBO_DIR / "data" / "finetuning.db",
+    "task_queue": TURBO_DIR / "data" / "task_queue.db",
+    "auto_heal": TURBO_DIR / "data" / "auto_heal.db",
 }
 
 # Processes launched (for cleanup)

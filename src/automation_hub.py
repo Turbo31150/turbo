@@ -255,6 +255,50 @@ class AutomationHub:
             report = await self_improve_engine.run_cycle()
             return f"cycle={report['cycle']} actions={report['actions_taken']}"
 
+        async def _handle_auto_improve(params: dict) -> str:
+            """Run production auto-improve cycle (validate + fix)."""
+            import subprocess as _sp
+            try:
+                r = _sp.run(
+                    ["uv", "run", "python", "scripts/production_auto_improve.py", "--once"],
+                    capture_output=True, text=True, timeout=120,
+                    cwd=str(Path(__file__).resolve().parent.parent),
+                )
+                if r.returncode == 0:
+                    import json as _j
+                    try:
+                        data = _j.loads(r.stdout)
+                        return f"grade={data.get('grade','?')} score={data.get('score','?')} fixes={len(data.get('fixes',[]))}"
+                    except _j.JSONDecodeError:
+                        return f"completed (rc=0)"
+                return f"failed rc={r.returncode}: {r.stderr[:200]}"
+            except _sp.TimeoutExpired:
+                return "timeout (120s)"
+            except Exception as e:
+                return f"error: {e}"
+
+        async def _handle_auto_scan(params: dict) -> str:
+            """Run autonomous system scan (cluster + DB + GPU + services)."""
+            import subprocess as _sp
+            try:
+                r = _sp.run(
+                    ["uv", "run", "python", "scripts/jarvis_auto_scan.py", "--once"],
+                    capture_output=True, text=True, timeout=120,
+                    cwd=str(Path(__file__).resolve().parent.parent),
+                )
+                if r.returncode == 0:
+                    import json as _j
+                    try:
+                        data = _j.loads(r.stdout)
+                        return f"health={data.get('health_score','?')} issues={len(data.get('issues',[]))}"
+                    except _j.JSONDecodeError:
+                        return "completed (rc=0)"
+                return f"failed rc={r.returncode}: {r.stderr[:200]}"
+            except _sp.TimeoutExpired:
+                return "timeout (120s)"
+            except Exception as e:
+                return f"error: {e}"
+
         async def _handle_noop(params: dict) -> str:
             """No-op handler for test jobs."""
             return "noop"
@@ -327,6 +371,18 @@ class AutomationHub:
                     results.append(f"{name}: ERROR({e})")
             return " | ".join(results)
 
+        async def _handle_self_diagnostic(params: dict) -> str:
+            """Run self-diagnostic analysis."""
+            from src.self_diagnostic import self_diagnostic
+            result = await self_diagnostic.diagnose()
+            return f"health={result.get('health_score','?')} issues={len(result.get('issues',[]))} recs={len(result.get('recommendations',[]))}"
+
+        async def _handle_cache_clear(params: dict) -> str:
+            """Clear dispatch cache."""
+            from src.dispatch_engine import _dispatch_cache
+            _dispatch_cache.clear()
+            return "cache cleared"
+
         # Register all handlers
         handlers = {
             "dispatch": _handle_dispatch,
@@ -340,6 +396,8 @@ class AutomationHub:
             "notify": _handle_notify,
             "cleanup": _handle_cleanup,
             "noop": _handle_noop,
+            "auto_improve": _handle_auto_improve,
+            "auto_scan": _handle_auto_scan,
             "trading_scan": _handle_trading_scan,
             "brain_analyze": _handle_brain_analyze,
             "db_vacuum": _handle_db_vacuum,
@@ -347,6 +405,8 @@ class AutomationHub:
             "security_scan": _handle_security_scan,
             "skill": _handle_skill,
             "cowork_batch": _handle_cowork_batch,
+            "self_diagnostic": _handle_self_diagnostic,
+            "cache_clear": _handle_cache_clear,
         }
         for action, handler in handlers.items():
             scheduler.register_handler(action, handler)

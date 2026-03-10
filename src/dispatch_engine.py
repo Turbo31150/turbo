@@ -93,6 +93,7 @@ class DispatchEngine:
         self.config = config or PipelineConfig()
         self._cache: OrderedDict[str, tuple[DispatchResult, float]] = OrderedDict()
         self._cache_hits = 0
+        self._cache_misses = 0
         self._stats = {
             "total_dispatches": 0,
             "successful": 0,
@@ -141,6 +142,7 @@ class DispatchEngine:
                 return result
             else:
                 del self._cache[key]
+        self._cache_misses += 1
         return None
 
     def _cache_put(self, key: str, result: DispatchResult):
@@ -150,6 +152,120 @@ class DispatchEngine:
         self._cache[key] = (result, time.time())
         while len(self._cache) > self.config.cache_max_size:
             self._cache.popitem(last=False)
+
+    def cache_stats(self) -> dict:
+        """Return detailed cache statistics: hits, misses, size, hit_rate, TTL, entries."""
+        total_requests = self._cache_hits + self._cache_misses
+        hit_rate = (self._cache_hits / total_requests) if total_requests > 0 else 0.0
+
+        # Compute per-pattern breakdown from current cache entries
+        now = time.time()
+        pattern_counts: dict[str, int] = {}
+        expired_count = 0
+        for key, (result, ts) in list(self._cache.items()):
+            if now - ts >= self.config.cache_ttl_s:
+                expired_count += 1
+            else:
+                pat = key.split(":", 1)[0] if ":" in key else "unknown"
+                pattern_counts[pat] = pattern_counts.get(pat, 0) + 1
+
+        return {
+            "enabled": self.config.enable_cache,
+            "hits": self._cache_hits,
+            "misses": self._cache_misses,
+            "total_requests": total_requests,
+            "hit_rate": round(hit_rate, 4),
+            "size": len(self._cache),
+            "max_size": self.config.cache_max_size,
+            "ttl_s": self.config.cache_ttl_s,
+            "expired_pending": expired_count,
+            "by_pattern": pattern_counts,
+        }
+
+    async def cache_warm(self, patterns: list[dict]) -> dict:
+        """Pre-load cache with results for common pattern/prompt pairs.
+
+        Args:
+            patterns: List of dicts with 'pattern' and 'prompt' keys.
+                      e.g. [{"pattern": "simple", "prompt": "ping"}, ...]
+
+        Returns:
+            Summary of warming results: loaded, failed, skipped (already cached).
+        """
+        loaded = 0
+        failed = 0
+        skipped = 0
+
+        for entry in patterns:
+            pattern = entry.get("pattern", "simple")
+            prompt = entry.get("prompt", "")
+            if not prompt:
+                failed += 1
+                continue
+
+            cache_key = self._cache_key(pattern, prompt)
+            # Skip if already cached and valid
+            existing = self._cache.get(cache_key)
+            if existing:
+                _, ts = existing
+                if time.time() - ts < self.config.cache_ttl_s:
+                    skipped += 1
+                    continue
+
+            try:
+                result = await self.dispatch(pattern, prompt)
+                if result.success:
+                    loaded += 1
+                else:
+                    failed += 1
+            except Exception as e:
+                logger.warning("Cache warm failed for pattern=%s: %s", pattern, e)
+                failed += 1
+
+        return {
+            "total": len(patterns),
+            "loaded": loaded,
+            "failed": failed,
+            "skipped": skipped,
+            "cache_size": len(self._cache),
+        }
+
+    # Heavy patterns that benefit from larger models on M1
+    _HEAVY_PATTERNS: dict[str, str] = {
+        "architecture": "gpt-oss-20b",
+        "reasoning": "qwq-32b",
+        "consensus": "deepseek-r1-0528-qwen3-8b",
+        "complex": "gpt-oss-20b",
+    }
+
+    async def _auto_load_model_if_needed(self, pattern: str, prompt: str) -> str | None:
+        """Auto-load a heavy model on M1 if the pattern requires it."""
+        model_id = self._HEAVY_PATTERNS.get(pattern)
+        if not model_id:
+            # Check prompt length — very long prompts benefit from larger models
+            if len(prompt) > 2000:
+                model_id = "gpt-oss-20b"
+            else:
+                return None
+        try:
+            import httpx
+            async with httpx.AsyncClient(timeout=5) as client:
+                resp = await client.get("http://127.0.0.1:1234/api/v1/models")
+                data = resp.json()
+                for m in data.get("data", data.get("models", [])):
+                    for inst in m.get("loaded_instances", []):
+                        if inst.get("id") == model_id:
+                            return model_id  # Already loaded
+            logger.info("Auto-loading %s for pattern '%s'", model_id, pattern)
+            async with httpx.AsyncClient(timeout=120) as client:
+                await client.post(
+                    "http://127.0.0.1:1234/v1/chat/completions",
+                    json={"model": model_id, "messages": [{"role": "user", "content": "init"}], "max_tokens": 1},
+                )
+            return model_id
+        except Exception as e:
+            logger.warning("Auto-load %s failed: %s", model_id, e)
+            return None
 
     async def dispatch(self, pattern: str, prompt: str,
                        node_override: Optional[str] = None,
@@ -175,6 +291,9 @@ class DispatchEngine:
             if self.config.enable_health_check:
                 bypassed = await self._check_health()
                 result.health_bypassed = bypassed
+
+            # Step 1b: Auto-load heavy model if needed
+            auto_model = await self._auto_load_model_if_needed(pattern, prompt)
 
             # Step 2: Route selection
             node = node_override
@@ -673,13 +792,7 @@ class DispatchEngine:
         """Return pipeline stats."""
         return {
             **self._stats,
-            "cache": {
-                "enabled": self.config.enable_cache,
-                "size": len(self._cache),
-                "max_size": self.config.cache_max_size,
-                "hits": self._cache_hits,
-                "ttl_s": self.config.cache_ttl_s,
-            },
+            "cache": self.cache_stats(),
             "config": {
                 "health_check": self.config.enable_health_check,
                 "memory_enrichment": self.config.enable_memory_enrichment,

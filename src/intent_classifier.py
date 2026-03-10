@@ -45,7 +45,9 @@ INTENT_PATTERNS: dict[str, list[str]] = {
     ],
     "file_ops": [
         r"\b(ouvre|cree|supprime|copie|deplace|renomme)\b.*\b(fichier|dossier|repertoire|document)\b",
-        r"\b(sauvegarde|backup|restaure)\b",
+        r"\b(sauvegarde|restaure)\b",
+        r"\bbackup\b.*\b(fichier|dossier|donnees|disque|base|projet)\b",
+        r"\bbackup\b",
     ],
     "system_control": [
         r"\b(eteins|redemarre|verrouille|mets en veille)\b",
@@ -59,13 +61,15 @@ INTENT_PATTERNS: dict[str, list[str]] = {
     ],
     "cluster_ops": [
         r"\b(cluster|noeud|node|agent|m1|m2|m3|ol1|gemini)\b.*\b(check|status|health|ping)\b",
-        r"\b(diagnostic|audit|heal|repare)\b.*\b(cluster|systeme|noeuds)\b",
+        r"\b(diagnostic|audit|heal|repare)\b.*\b(cluster|noeuds?|noeud)\b",
         r"\b(charge|load|unload|swap)\b.*\b(modele|model)\b",
+        r"\b(nvidia-smi|nvtop|gpu|vram|cuda|temperature|thermal)\b",
     ],
     "code_dev": [
-        r"\b(code|programme|fonction|classe|module|api|endpoint)\b",
-        r"\b(git|commit|push|pull|merge|branch|deploy)\b",
+        r"\b(code|programme|fonction|classe|module|api|endpoint|parser|script)\b",
+        r"\b(git|commit|push|pull|merge|branch|deploy|deploie)\b",
         r"\b(test|debug|fix|bug|erreur|error|refactor)\b",
+        r"\b(ecris|implemente|genere|cree|developpe)\b.*\b(un|une|le|la|des)\b",
     ],
     "voice_control": [
         r"\b(jarvis|ecoute|arrete|tais-toi|stop|pause|continue|repete)\b",
@@ -77,7 +81,21 @@ INTENT_PATTERNS: dict[str, list[str]] = {
     ],
     "pipeline": [
         r"\b(pipeline|domino|sequence|enchaine|execute)\b.*\b(etapes?|steps?|actions?)\b",
-        r"\b(lance|demarre|execute)\b.*\b(pipeline|domino|routine|workflow)\b",
+        r"\b(lance|demarre|execute)\b.*\b(pipeline|domino|routine|workflow|backup)\b",
+        r"\b(pipeline|domino)\b",
+    ],
+    "automation": [
+        r"\b(automatise|schedule|planifie|programme|cron)\b",
+        r"\b(auto[_-]?improve|auto[_-]?heal|auto[_-]?fix|auto[_-]?deploy|auto[_-]?scan)\b",
+        r"\b(production.?valid|validator|validation|bootstrap|daemon)\b",
+    ],
+    "monitoring": [
+        r"\b(dashboard|metriques?|metrics?|tableau.?de.?bord|stats?)\b.*\b(systeme|cluster|jarvis)\b",
+        r"\b(scan|diagnostic|health.?score|health.?check)\b.*\b(complet|systeme|jarvis|cluster)\b",
+        r"\b(monitor|surveillance|observe|surveille)\b",
+        r"\b(cpu|ram|memoire|ressources?)\b.*\b(systeme|utilisation|charge|usage)\b",
+        r"\b(self.?diagnostic|auto.?diagnostic|diagnostique.?toi)\b",
+        r"\b(cache)\b.*\b(dispatch|stats?|performance)\b",
     ],
 }
 
@@ -88,6 +106,8 @@ ENTITY_PATTERNS: dict[str, str] = {
     "file_path": r"([A-Za-z]:\\[^\s]+|/[^\s]+)",
     "crypto_pair": r"\b(BTC|ETH|SOL|SUI|PEPE|DOGE|XRP|ADA|AVAX|LINK)\b",
     "node_name": r"\b(M[123]|OL1|GEMINI|CLAUDE)\b",
+    "model_name": r"\b(qwen3-8b|qwen3-30b|gpt-oss-20b|qwq-32b|deepseek-r1|devstral)\b",
+    "pipeline_name": r"\b(domino_\w+|pipeline_\w+)\b",
     "number": r"\b(\d+(?:\.\d+)?)\b",
 }
 
@@ -120,13 +140,14 @@ class IntentClassifier:
         text_lower = text.lower().strip()
         scores: dict[str, float] = {}
 
-        # Rule-based matching
+        # Rule-based matching — multi-match bonus for specificity
         for intent, patterns in self._compiled.items():
-            max_score = 0.0
+            match_count = 0
             for pattern in patterns:
                 if pattern.search(text_lower):
-                    max_score = max(max_score, 0.85)
-            if max_score > 0:
+                    match_count += 1
+            if match_count > 0:
+                max_score = 0.85 + 0.03 * (match_count - 1)  # bonus per extra match
                 scores[intent] = max_score
 
         # Context boost: if last intent matches, slight confidence increase

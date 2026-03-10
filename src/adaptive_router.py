@@ -145,7 +145,7 @@ class AdaptiveRouter:
     """Real-time adaptive routing with circuit breakers and load balancing."""
 
     NODE_LIMITS = {
-        "M1": 6, "M2": 3, "M3": 2,
+        "M1": 11, "M2": 3, "M3": 2,
         "OL1": 3,
     }
 

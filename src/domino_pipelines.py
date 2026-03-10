@@ -5757,6 +5757,288 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
         learning_context="Maintenance systeme complete — destructive: DB maintenance",
         priority="normal",
     ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # PRODUCTION AUTONOME (Session 29 — 2026-03-10)
+    # ─────────────────────────────────────────────────────────────────────
+    DominoPipeline(
+        id="domino_production_check",
+        trigger_vocal=["check production", "valide la production", "production status",
+                       "grade jarvis", "score production", "audit production"],
+        steps=[
+            DominoStep("validate", f"bash:cd {_TURBO_DIR_FWD} && python scripts/production_validator.py --json", "bash", timeout_s=30),
+            DominoStep("tts_result", "python:edge_tts_speak('Validation production terminee.')", "python"),
+        ],
+        category="production",
+        description="Validation des 7 couches de production avec score A-F",
+        learning_context="Verification globale du systeme — score attendu > 90",
+        priority="normal",
+    ),
+    DominoPipeline(
+        id="domino_production_report",
+        trigger_vocal=["rapport production", "envoie le rapport", "production report telegram",
+                       "rapport complet production"],
+        steps=[
+            DominoStep("validate", f"bash:cd {_TURBO_DIR_FWD} && python scripts/production_validator.py --telegram", "bash", timeout_s=30),
+            DominoStep("tts_sent", "python:edge_tts_speak('Rapport de production envoye sur Telegram.')", "python"),
+        ],
+        category="production",
+        description="Validation production + envoi Telegram automatique",
+        learning_context="Rapport de production complet envoye sur Telegram",
+        priority="normal",
+    ),
+    DominoPipeline(
+        id="domino_heavy_model_load",
+        trigger_vocal=["prepare grosse demande", "charge le gros modele", "mode heavy",
+                       "prepare gpt oss", "grosse tache"],
+        steps=[
+            DominoStep("load_model", f"bash:cd {_TURBO_DIR_FWD} && python scripts/smart_model_loader.py load gpt-oss-20b", "bash", timeout_s=120),
+            DominoStep("tts_ready", "python:edge_tts_speak('Modele gpt oss 20b charge. Pret pour grosse demande.')", "python"),
+        ],
+        category="production",
+        description="Charger gpt-oss-20b sur M1 pour taches complexes",
+        learning_context="Chargement modele lourd — 14 GB VRAM necessaires",
+        priority="high",
+    ),
+    DominoPipeline(
+        id="domino_production_bootstrap",
+        trigger_vocal=["bootstrap production", "amorce production", "lance tout le systeme",
+                       "demarrage production complet"],
+        steps=[
+            DominoStep("check_gpu", "powershell:nvidia-smi --query-gpu=temperature.gpu,memory.used --format=csv,noheader", "powershell"),
+            DominoStep("cluster_health", "curl:http://127.0.0.1:9742/api/health/full", "curl", timeout_s=10),
+            DominoStep("automation_status", "curl:http://127.0.0.1:9742/api/automation/status", "curl", timeout_s=5),
+            DominoStep("production_validate", f"bash:cd {_TURBO_DIR_FWD} && python scripts/production_validator.py --telegram", "bash", timeout_s=30),
+            DominoStep("tts_done", "python:edge_tts_speak('Production amorcee. Tous les systemes operationnels.')", "python"),
+        ],
+        category="production",
+        description="Bootstrap complet: GPU + cluster + automation + validation + Telegram",
+        learning_context="Amorcage de production — lance toute la chaine de verification",
+        priority="critical",
+    ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # AUTO-SCAN (Session 30 — 2026-03-10)
+    # ─────────────────────────────────────────────────────────────────────
+    DominoPipeline(
+        id="domino_auto_scan",
+        trigger_vocal=["scan le systeme", "auto scan", "scan complet",
+                       "diagnostic complet", "scan jarvis"],
+        steps=[
+            DominoStep("scan", f"bash:cd {_TURBO_DIR_FWD} && uv run python scripts/jarvis_auto_scan.py --once", "bash", timeout_s=120),
+            DominoStep("tts", "python:edge_tts_speak('Scan systeme termine.')", "python"),
+        ],
+        category="system",
+        description="Scan autonome complet: cluster, DB, GPU, services, dispatch",
+        learning_context="Scan toutes les couches avec analyse M1 et auto-fix",
+        priority="high",
+    ),
+    DominoPipeline(
+        id="domino_metrics_dashboard",
+        trigger_vocal=["dashboard", "metriques systeme", "metrics", "tableau de bord",
+                       "donne moi les stats"],
+        steps=[
+            DominoStep("metrics", "curl:http://127.0.0.1:9742/api/metrics/dashboard", "curl", timeout_s=5),
+            DominoStep("tts", "python:edge_tts_speak('Dashboard de metriques charge.')", "python"),
+        ],
+        category="monitoring",
+        description="Dashboard en temps reel: cluster, dispatch, GPU, DBs",
+        learning_context="Vue d'ensemble des metriques systeme en un appel",
+        priority="normal",
+    ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # WINDOWS BRIDGE (Session 30 — 2026-03-10)
+    # ─────────────────────────────────────────────────────────────────────
+    DominoPipeline(
+        id="domino_windows_notify",
+        trigger_vocal=["notification windows", "envoie une notif", "toast windows",
+                       "alerte windows", "notifie moi"],
+        steps=[
+            DominoStep("push", "curl:http://127.0.0.1:9742/api/notifications/push", "curl", timeout_s=5),
+            DominoStep("tts", "python:edge_tts_speak('Notification Windows envoyee.')", "python"),
+        ],
+        category="system",
+        description="Envoyer une notification toast Windows via le bridge",
+        learning_context="Bridge Windows pour notifications JARVIS",
+        priority="normal",
+    ),
+    DominoPipeline(
+        id="domino_sql_status",
+        trigger_vocal=["status des bases", "etat des databases", "sql stats",
+                       "combien de tables", "bases de donnees"],
+        steps=[
+            DominoStep("stats", "curl:http://127.0.0.1:9742/api/sql/stats", "curl", timeout_s=5),
+            DominoStep("tts", "python:edge_tts_speak('Statistiques des bases de donnees chargees.')", "python"),
+        ],
+        category="system",
+        description="Afficher les stats des 3 bases SQLite (etoile, jarvis, scheduler)",
+        learning_context="Monitoring des bases de donnees SQLite",
+        priority="normal",
+    ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # AUTO-IMPROVE & MONITORING (Session 30 — 2026-03-10)
+    # ─────────────────────────────────────────────────────────────────────
+    DominoPipeline(
+        id="domino_auto_improve",
+        trigger_vocal=["ameliore le systeme", "auto improve", "auto amelioration",
+                       "lance l'amelioration", "optimise la production"],
+        steps=[
+            DominoStep("improve", f"bash:cd {_TURBO_DIR_FWD} && uv run python scripts/production_auto_improve.py --once", "bash", timeout_s=120),
+            DominoStep("tts_done", "python:edge_tts_speak('Cycle d amelioration termine.')", "python"),
+        ],
+        category="production",
+        description="Lance un cycle auto-improve: validation + correction automatique",
+        learning_context="Auto-fix production — corrige WS, modeles, noeuds automatiquement",
+        priority="normal",
+    ),
+    DominoPipeline(
+        id="domino_cluster_monitor",
+        trigger_vocal=["monitore le cluster", "status cluster complet", "check tous les noeuds",
+                       "surveillance cluster"],
+        steps=[
+            DominoStep("m1_check", "curl:http://127.0.0.1:1234/api/v1/models", "curl", timeout_s=5),
+            DominoStep("ol1_check", "curl:http://127.0.0.1:11434/api/tags", "curl", timeout_s=5),
+            DominoStep("ws_check", "curl:http://127.0.0.1:9742/health", "curl", timeout_s=5),
+            DominoStep("gpu_temp", "powershell:nvidia-smi --query-gpu=name,temperature.gpu,memory.used,memory.total --format=csv,noheader", "powershell"),
+            DominoStep("tts_report", "python:edge_tts_speak('Monitoring cluster termine.')", "python"),
+        ],
+        category="cluster",
+        description="Monitoring complet: M1 + OL1 + WS + GPU temperature",
+        learning_context="Surveillance de sante de tous les noeuds et GPU",
+        priority="normal",
+    ),
+    DominoPipeline(
+        id="domino_mode_performance",
+        trigger_vocal=["mode performance", "max performance", "boost performance",
+                       "mode turbo"],
+        steps=[
+            DominoStep("close_apps", "powershell:Get-Process chrome,msedge,discord -ErrorAction SilentlyContinue | Stop-Process -Force", "powershell"),
+            DominoStep("gpu_boost", "powershell:nvidia-smi -pm 1", "powershell"),
+            DominoStep("load_fast", f"bash:cd {_TURBO_DIR_FWD} && uv run python scripts/smart_model_loader.py status", "bash", timeout_s=10),
+            DominoStep("tts_ready", "python:edge_tts_speak('Mode performance active. Applications fermees. GPU en mode persistant.')", "python"),
+        ],
+        category="system",
+        description="Active le mode performance: ferme apps gourmandes + GPU boost",
+        learning_context="Libere ressources pour maximiser performance JARVIS",
+        priority="high",
+    ),
+    DominoPipeline(
+        id="domino_daily_digest",
+        trigger_vocal=["resume de la journee", "digest journalier", "daily digest",
+                       "qu'est ce qui s'est passe aujourd'hui"],
+        steps=[
+            DominoStep("automation", "curl:http://127.0.0.1:9742/api/automation/status", "curl", timeout_s=5),
+            DominoStep("scheduler", "curl:http://127.0.0.1:9742/api/scheduler/jobs", "curl", timeout_s=5),
+            DominoStep("production", f"bash:cd {_TURBO_DIR_FWD} && uv run python scripts/production_validator.py --json", "bash", timeout_s=30),
+            DominoStep("tts_digest", "python:edge_tts_speak('Resume de la journee prepare.')", "python"),
+        ],
+        category="production",
+        description="Resume quotidien: automation + scheduler + production grade",
+        learning_context="Synthese quotidienne de l'etat du systeme",
+        priority="normal",
+    ),
+
+    # ─────────────────────────────────────────────────────────────────────
+    # SELF-DIAGNOSTIC & CACHE (Session 31 — 2026-03-10)
+    # ─────────────────────────────────────────────────────────────────────
+    DominoPipeline(
+        id="domino_self_diagnostic",
+        trigger_vocal=["diagnostic systeme", "auto diagnostic", "self diagnostic",
+                       "analyse toi", "diagnostique toi", "check ta sante"],
+        steps=[
+            DominoStep("diagnostic", "curl:http://127.0.0.1:9742/api/diagnostic/run", "curl", timeout_s=15),
+            DominoStep("tts_report", "python:edge_tts_speak('Diagnostic systeme termine.')", "python"),
+        ],
+        category="system",
+        description="Lance un auto-diagnostic complet: response times, error rates, circuit breakers, queue",
+        learning_context="JARVIS analyse sa propre sante et performance",
+        priority="high",
+    ),
+    DominoPipeline(
+        id="domino_dispatch_cache",
+        trigger_vocal=["stats du cache", "cache dispatch", "etat du cache",
+                       "performance cache"],
+        steps=[
+            DominoStep("cache_stats", "curl:http://127.0.0.1:9742/api/dispatch/cache", "curl", timeout_s=5),
+            DominoStep("tts_report", "python:edge_tts_speak('Stats du cache dispatch chargees.')", "python"),
+        ],
+        category="system",
+        description="Affiche les statistiques du cache de dispatch (hits, taille, TTL)",
+        learning_context="Monitoring performance du cache de requetes dispatch",
+        priority="normal",
+    ),
+    DominoPipeline(
+        id="domino_full_health",
+        trigger_vocal=["sante complete", "full health check", "check complet",
+                       "verification complete du systeme", "rapport sante global"],
+        steps=[
+            DominoStep("scan", f"bash:cd {_TURBO_DIR_FWD} && uv run python scripts/jarvis_auto_scan.py --once", "bash", timeout_s=60),
+            DominoStep("diagnostic", "curl:http://127.0.0.1:9742/api/diagnostic/run", "curl", timeout_s=15),
+            DominoStep("cache", "curl:http://127.0.0.1:9742/api/dispatch/cache", "curl", timeout_s=5),
+            DominoStep("automation", "curl:http://127.0.0.1:9742/api/automation/status", "curl", timeout_s=5),
+            DominoStep("tts_done", "python:edge_tts_speak('Rapport de sante complet termine. Scan, diagnostic, cache et automation verifies.')", "python"),
+        ],
+        category="production",
+        description="Health check complet: auto_scan + self_diagnostic + cache + automation status",
+        learning_context="Verification exhaustive de tous les sous-systemes JARVIS",
+        priority="high",
+    ),
+    DominoPipeline(
+        id="domino_system_resources",
+        trigger_vocal=["ressources systeme", "cpu et ram", "utilisation memoire",
+                       "charge systeme", "system resources"],
+        steps=[
+            DominoStep("gpu", "powershell:nvidia-smi --query-gpu=name,temperature.gpu,memory.used,memory.total,utilization.gpu --format=csv,noheader", "powershell"),
+            DominoStep("cpu_ram", "powershell:Get-CimInstance Win32_Processor | Select-Object LoadPercentage | Format-Table -HideTableHeaders; (Get-CimInstance Win32_OperatingSystem | ForEach-Object { '{0:N0} MB free / {1:N0} MB total' -f ($_.FreePhysicalMemory/1024), ($_.TotalVisibleMemorySize/1024) })", "powershell"),
+            DominoStep("disk", "powershell:Get-PSDrive C,F -ErrorAction SilentlyContinue | ForEach-Object { '{0}: {1:N1} GB free / {2:N1} GB total' -f $_.Name, ($_.Free/1GB), (($_.Used+$_.Free)/1GB) }", "powershell"),
+            DominoStep("tts_done", "python:edge_tts_speak('Ressources systeme chargees.')", "python"),
+        ],
+        category="system",
+        description="Affiche les ressources systeme: CPU, RAM, GPU, disques",
+        learning_context="Monitoring ressources materielles en temps reel",
+        priority="normal",
+    ),
+    DominoPipeline(
+        id="domino_vram_check",
+        trigger_vocal=["etat de la vram", "vram status", "memoire gpu",
+                       "gpu memoire", "vram libre", "optimise la vram"],
+        steps=[
+            DominoStep("vram", "curl:http://127.0.0.1:9742/api/vram/status", "curl", timeout_s=10),
+            DominoStep("tts_report", "python:edge_tts_speak('Rapport VRAM charge.')", "python"),
+        ],
+        category="system",
+        description="Verifie l'utilisation VRAM de tous les GPU et suggere des optimisations",
+        learning_context="Monitoring VRAM GPU pour eviter les saturations",
+        priority="high",
+    ),
+    DominoPipeline(
+        id="domino_rollback_history",
+        trigger_vocal=["historique rollback", "rollback history", "dernieres corrections",
+                       "historique des fix"],
+        steps=[
+            DominoStep("history", "curl:http://127.0.0.1:9742/api/rollback/history", "curl", timeout_s=5),
+            DominoStep("tts_report", "python:edge_tts_speak('Historique des rollbacks charge.')", "python"),
+        ],
+        category="system",
+        description="Affiche l'historique des auto-fix avec snapshots et rollbacks",
+        learning_context="Suivi des corrections automatiques et rollbacks",
+        priority="normal",
+    ),
+    DominoPipeline(
+        id="domino_log_predictions",
+        trigger_vocal=["predictions erreurs", "previsions pannes", "log predictions",
+                       "anticipe les erreurs", "problemes a venir"],
+        steps=[
+            DominoStep("predictions", "curl:http://127.0.0.1:9742/api/logs/predictions", "curl", timeout_s=10),
+            DominoStep("tts_report", "python:edge_tts_speak('Predictions d erreurs chargees.')", "python"),
+        ],
+        category="production",
+        description="Predictions de pannes basees sur l'analyse des patterns de logs",
+        learning_context="Intelligence predictive — anticiper les problemes avant qu'ils arrivent",
+        priority="high",
+    ),
 ]
 
 # Post-process: replace hardcoded paths with config-driven values
