@@ -611,6 +611,4694 @@
           "total": 3
         }
       }
+    },
+    {
+      "timestamp": "2026-03-07T18:16:24",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.26,
+      "pass_rate": 12.5,
+      "avg_latency_ms": 5377,
+      "total_tests": 8,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 6,
+          "avg_latency": 14
+        },
+        "M3": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 30014
+        },
+        "OL1": {
+          "pass": 1,
+          "total": 1,
+          "avg_latency": 12920
+        }
+      },
+      "by_domain": {
+        "math": {
+          "pass": 0,
+          "total": 1
+        },
+        "web": {
+          "pass": 0,
+          "total": 2
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 1
+        },
+        "code": {
+          "pass": 0,
+          "total": 2
+        },
+        "trading": {
+          "pass": 1,
+          "total": 2
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:16:58",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.93,
+      "pass_rate": 25.0,
+      "avg_latency_ms": 6062,
+      "total_tests": 8,
+      "by_node": {
+        "M2": {
+          "pass": 0,
+          "total": 3,
+          "avg_latency": 14030
+        },
+        "M3": {
+          "pass": 1,
+          "total": 1,
+          "avg_latency": 5457
+        },
+        "M1": {
+          "pass": 0,
+          "total": 3,
+          "avg_latency": 2
+        },
+        "OL1": {
+          "pass": 1,
+          "total": 1,
+          "avg_latency": 948
+        }
+      },
+      "by_domain": {
+        "trading": {
+          "pass": 0,
+          "total": 1
+        },
+        "code": {
+          "pass": 0,
+          "total": 1
+        },
+        "securite": {
+          "pass": 1,
+          "total": 1
+        },
+        "systeme": {
+          "pass": 0,
+          "total": 2
+        },
+        "math": {
+          "pass": 1,
+          "total": 3
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:17:01",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.27,
+      "pass_rate": 25.0,
+      "avg_latency_ms": 4947,
+      "total_tests": 16,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 9,
+          "avg_latency": 10
+        },
+        "M3": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 30014
+        },
+        "OL1": {
+          "pass": 4,
+          "total": 4,
+          "avg_latency": 5251
+        },
+        "M2": {
+          "pass": 0,
+          "total": 2,
+          "avg_latency": 14023
+        }
+      },
+      "by_domain": {
+        "math": {
+          "pass": 0,
+          "total": 2
+        },
+        "web": {
+          "pass": 0,
+          "total": 3
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 3
+        },
+        "code": {
+          "pass": 1,
+          "total": 3
+        },
+        "trading": {
+          "pass": 1,
+          "total": 3
+        },
+        "systeme": {
+          "pass": 2,
+          "total": 2
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:17:04",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 4.02,
+      "pass_rate": 29.166666666666668,
+      "avg_latency_ms": 3403,
+      "total_tests": 24,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 14,
+          "avg_latency": 7
+        },
+        "M3": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 30014
+        },
+        "OL1": {
+          "pass": 7,
+          "total": 7,
+          "avg_latency": 3360
+        },
+        "M2": {
+          "pass": 0,
+          "total": 2,
+          "avg_latency": 14023
+        }
+      },
+      "by_domain": {
+        "math": {
+          "pass": 0,
+          "total": 2
+        },
+        "web": {
+          "pass": 0,
+          "total": 3
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 3
+        },
+        "code": {
+          "pass": 1,
+          "total": 5
+        },
+        "trading": {
+          "pass": 1,
+          "total": 3
+        },
+        "systeme": {
+          "pass": 3,
+          "total": 4
+        },
+        "traduction": {
+          "pass": 2,
+          "total": 4
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:17:39",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.89,
+      "pass_rate": 28.125,
+      "avg_latency_ms": 3596,
+      "total_tests": 32,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 18,
+          "avg_latency": 6
+        },
+        "M3": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 30014
+        },
+        "OL1": {
+          "pass": 9,
+          "total": 9,
+          "avg_latency": 3208
+        },
+        "M2": {
+          "pass": 0,
+          "total": 4,
+          "avg_latency": 14024
+        }
+      },
+      "by_domain": {
+        "math": {
+          "pass": 0,
+          "total": 2
+        },
+        "web": {
+          "pass": 0,
+          "total": 3
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 4
+        },
+        "code": {
+          "pass": 1,
+          "total": 6
+        },
+        "trading": {
+          "pass": 1,
+          "total": 6
+        },
+        "systeme": {
+          "pass": 4,
+          "total": 5
+        },
+        "traduction": {
+          "pass": 3,
+          "total": 5
+        },
+        "securite": {
+          "pass": 0,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:18:23",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.56,
+      "pass_rate": 25.0,
+      "avg_latency_ms": 3964,
+      "total_tests": 40,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 22,
+          "avg_latency": 6
+        },
+        "M3": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 30014
+        },
+        "OL1": {
+          "pass": 10,
+          "total": 10,
+          "avg_latency": 3025
+        },
+        "M2": {
+          "pass": 0,
+          "total": 7,
+          "avg_latency": 14027
+        }
+      },
+      "by_domain": {
+        "math": {
+          "pass": 0,
+          "total": 2
+        },
+        "web": {
+          "pass": 0,
+          "total": 3
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 6
+        },
+        "code": {
+          "pass": 1,
+          "total": 7
+        },
+        "trading": {
+          "pass": 2,
+          "total": 8
+        },
+        "systeme": {
+          "pass": 4,
+          "total": 6
+        },
+        "traduction": {
+          "pass": 3,
+          "total": 5
+        },
+        "securite": {
+          "pass": 0,
+          "total": 3
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:18:25",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.76,
+      "pass_rate": 25.0,
+      "avg_latency_ms": 3316,
+      "total_tests": 48,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 28,
+          "avg_latency": 6
+        },
+        "M3": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 30014
+        },
+        "OL1": {
+          "pass": 12,
+          "total": 12,
+          "avg_latency": 2568
+        },
+        "M2": {
+          "pass": 0,
+          "total": 7,
+          "avg_latency": 14027
+        }
+      },
+      "by_domain": {
+        "math": {
+          "pass": 0,
+          "total": 3
+        },
+        "web": {
+          "pass": 0,
+          "total": 3
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 7
+        },
+        "code": {
+          "pass": 1,
+          "total": 8
+        },
+        "trading": {
+          "pass": 2,
+          "total": 8
+        },
+        "systeme": {
+          "pass": 4,
+          "total": 8
+        },
+        "traduction": {
+          "pass": 5,
+          "total": 8
+        },
+        "securite": {
+          "pass": 0,
+          "total": 3
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:18:25",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.35,
+      "pass_rate": 18.75,
+      "avg_latency_ms": 6557,
+      "total_tests": 16,
+      "by_node": {
+        "M2": {
+          "pass": 0,
+          "total": 7,
+          "avg_latency": 14029
+        },
+        "M3": {
+          "pass": 1,
+          "total": 1,
+          "avg_latency": 5457
+        },
+        "M1": {
+          "pass": 0,
+          "total": 6,
+          "avg_latency": 6
+        },
+        "OL1": {
+          "pass": 2,
+          "total": 2,
+          "avg_latency": 613
+        }
+      },
+      "by_domain": {
+        "trading": {
+          "pass": 0,
+          "total": 2
+        },
+        "code": {
+          "pass": 0,
+          "total": 2
+        },
+        "securite": {
+          "pass": 1,
+          "total": 2
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 3
+        },
+        "math": {
+          "pass": 1,
+          "total": 4
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 1
+        },
+        "traduction": {
+          "pass": 0,
+          "total": 2
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:18:47",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.89,
+      "pass_rate": 20.833333333333332,
+      "avg_latency_ms": 5233,
+      "total_tests": 24,
+      "by_node": {
+        "M2": {
+          "pass": 0,
+          "total": 8,
+          "avg_latency": 14029
+        },
+        "M3": {
+          "pass": 1,
+          "total": 1,
+          "avg_latency": 5457
+        },
+        "M1": {
+          "pass": 0,
+          "total": 11,
+          "avg_latency": 5
+        },
+        "OL1": {
+          "pass": 4,
+          "total": 4,
+          "avg_latency": 1962
+        }
+      },
+      "by_domain": {
+        "trading": {
+          "pass": 1,
+          "total": 4
+        },
+        "code": {
+          "pass": 0,
+          "total": 3
+        },
+        "securite": {
+          "pass": 1,
+          "total": 3
+        },
+        "systeme": {
+          "pass": 2,
+          "total": 5
+        },
+        "math": {
+          "pass": 1,
+          "total": 4
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 1
+        },
+        "traduction": {
+          "pass": 0,
+          "total": 3
+        },
+        "web": {
+          "pass": 0,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:19:04",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.2,
+      "pass_rate": 21.875,
+      "avg_latency_ms": 4440,
+      "total_tests": 32,
+      "by_node": {
+        "M2": {
+          "pass": 0,
+          "total": 9,
+          "avg_latency": 14027
+        },
+        "M3": {
+          "pass": 1,
+          "total": 1,
+          "avg_latency": 5457
+        },
+        "M1": {
+          "pass": 0,
+          "total": 15,
+          "avg_latency": 6
+        },
+        "OL1": {
+          "pass": 6,
+          "total": 7,
+          "avg_latency": 1470
+        }
+      },
+      "by_domain": {
+        "trading": {
+          "pass": 1,
+          "total": 4
+        },
+        "code": {
+          "pass": 0,
+          "total": 5
+        },
+        "securite": {
+          "pass": 1,
+          "total": 4
+        },
+        "systeme": {
+          "pass": 3,
+          "total": 6
+        },
+        "math": {
+          "pass": 1,
+          "total": 4
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 3
+        },
+        "traduction": {
+          "pass": 1,
+          "total": 5
+        },
+        "web": {
+          "pass": 0,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:19:24",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.34,
+      "pass_rate": 21.428571428571427,
+      "avg_latency_ms": 3879,
+      "total_tests": 56,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 33,
+          "avg_latency": 6
+        },
+        "M3": {
+          "pass": 0,
+          "total": 2,
+          "avg_latency": 30013
+        },
+        "OL1": {
+          "pass": 12,
+          "total": 12,
+          "avg_latency": 2568
+        },
+        "M2": {
+          "pass": 0,
+          "total": 9,
+          "avg_latency": 14026
+        }
+      },
+      "by_domain": {
+        "math": {
+          "pass": 0,
+          "total": 4
+        },
+        "web": {
+          "pass": 0,
+          "total": 4
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 8
+        },
+        "code": {
+          "pass": 1,
+          "total": 9
+        },
+        "trading": {
+          "pass": 2,
+          "total": 8
+        },
+        "systeme": {
+          "pass": 4,
+          "total": 9
+        },
+        "traduction": {
+          "pass": 5,
+          "total": 9
+        },
+        "securite": {
+          "pass": 0,
+          "total": 5
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:19:46",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.73,
+      "pass_rate": 30.0,
+      "avg_latency_ms": 4566,
+      "total_tests": 40,
+      "by_node": {
+        "M2": {
+          "pass": 0,
+          "total": 10,
+          "avg_latency": 14025
+        },
+        "M3": {
+          "pass": 2,
+          "total": 2,
+          "avg_latency": 12159
+        },
+        "M1": {
+          "pass": 0,
+          "total": 17,
+          "avg_latency": 6
+        },
+        "OL1": {
+          "pass": 10,
+          "total": 11,
+          "avg_latency": 1635
+        }
+      },
+      "by_domain": {
+        "trading": {
+          "pass": 2,
+          "total": 5
+        },
+        "code": {
+          "pass": 1,
+          "total": 7
+        },
+        "securite": {
+          "pass": 1,
+          "total": 5
+        },
+        "systeme": {
+          "pass": 5,
+          "total": 8
+        },
+        "math": {
+          "pass": 1,
+          "total": 5
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 3
+        },
+        "traduction": {
+          "pass": 1,
+          "total": 5
+        },
+        "web": {
+          "pass": 1,
+          "total": 2
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:20:14",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.39,
+      "pass_rate": 23.4375,
+      "avg_latency_ms": 4157,
+      "total_tests": 64,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 35,
+          "avg_latency": 6
+        },
+        "M3": {
+          "pass": 0,
+          "total": 2,
+          "avg_latency": 30013
+        },
+        "OL1": {
+          "pass": 15,
+          "total": 15,
+          "avg_latency": 2502
+        },
+        "M2": {
+          "pass": 0,
+          "total": 12,
+          "avg_latency": 14028
+        }
+      },
+      "by_domain": {
+        "math": {
+          "pass": 0,
+          "total": 6
+        },
+        "web": {
+          "pass": 0,
+          "total": 4
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 8
+        },
+        "code": {
+          "pass": 2,
+          "total": 10
+        },
+        "trading": {
+          "pass": 3,
+          "total": 9
+        },
+        "systeme": {
+          "pass": 5,
+          "total": 10
+        },
+        "traduction": {
+          "pass": 5,
+          "total": 10
+        },
+        "securite": {
+          "pass": 0,
+          "total": 7
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:20:49",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.66,
+      "pass_rate": 31.25,
+      "avg_latency_ms": 5106,
+      "total_tests": 48,
+      "by_node": {
+        "M2": {
+          "pass": 0,
+          "total": 11,
+          "avg_latency": 14024
+        },
+        "M3": {
+          "pass": 3,
+          "total": 4,
+          "avg_latency": 17227
+        },
+        "M1": {
+          "pass": 0,
+          "total": 20,
+          "avg_latency": 5
+        },
+        "OL1": {
+          "pass": 12,
+          "total": 13,
+          "avg_latency": 1680
+        }
+      },
+      "by_domain": {
+        "trading": {
+          "pass": 3,
+          "total": 7
+        },
+        "code": {
+          "pass": 2,
+          "total": 9
+        },
+        "securite": {
+          "pass": 1,
+          "total": 5
+        },
+        "systeme": {
+          "pass": 6,
+          "total": 9
+        },
+        "math": {
+          "pass": 1,
+          "total": 5
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 4
+        },
+        "traduction": {
+          "pass": 1,
+          "total": 6
+        },
+        "web": {
+          "pass": 1,
+          "total": 3
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:21:04",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.34,
+      "pass_rate": 23.61111111111111,
+      "avg_latency_ms": 4376,
+      "total_tests": 72,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 38,
+          "avg_latency": 5
+        },
+        "M3": {
+          "pass": 0,
+          "total": 2,
+          "avg_latency": 30013
+        },
+        "OL1": {
+          "pass": 17,
+          "total": 17,
+          "avg_latency": 2614
+        },
+        "M2": {
+          "pass": 0,
+          "total": 15,
+          "avg_latency": 14029
+        }
+      },
+      "by_domain": {
+        "math": {
+          "pass": 1,
+          "total": 8
+        },
+        "web": {
+          "pass": 0,
+          "total": 5
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 8
+        },
+        "code": {
+          "pass": 2,
+          "total": 11
+        },
+        "trading": {
+          "pass": 3,
+          "total": 10
+        },
+        "systeme": {
+          "pass": 5,
+          "total": 11
+        },
+        "traduction": {
+          "pass": 6,
+          "total": 12
+        },
+        "securite": {
+          "pass": 0,
+          "total": 7
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:21:15",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.56,
+      "pass_rate": 28.571428571428573,
+      "avg_latency_ms": 4809,
+      "total_tests": 56,
+      "by_node": {
+        "M2": {
+          "pass": 0,
+          "total": 12,
+          "avg_latency": 14023
+        },
+        "M3": {
+          "pass": 3,
+          "total": 4,
+          "avg_latency": 17227
+        },
+        "M1": {
+          "pass": 0,
+          "total": 26,
+          "avg_latency": 4
+        },
+        "OL1": {
+          "pass": 13,
+          "total": 14,
+          "avg_latency": 2290
+        }
+      },
+      "by_domain": {
+        "trading": {
+          "pass": 3,
+          "total": 8
+        },
+        "code": {
+          "pass": 3,
+          "total": 11
+        },
+        "securite": {
+          "pass": 1,
+          "total": 6
+        },
+        "systeme": {
+          "pass": 6,
+          "total": 10
+        },
+        "math": {
+          "pass": 1,
+          "total": 6
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 4
+        },
+        "traduction": {
+          "pass": 1,
+          "total": 8
+        },
+        "web": {
+          "pass": 1,
+          "total": 3
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:22:12",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.22,
+      "pass_rate": 25.0,
+      "avg_latency_ms": 5085,
+      "total_tests": 64,
+      "by_node": {
+        "M2": {
+          "pass": 0,
+          "total": 16,
+          "avg_latency": 14024
+        },
+        "M3": {
+          "pass": 3,
+          "total": 4,
+          "avg_latency": 17227
+        },
+        "M1": {
+          "pass": 0,
+          "total": 30,
+          "avg_latency": 4
+        },
+        "OL1": {
+          "pass": 13,
+          "total": 14,
+          "avg_latency": 2290
+        }
+      },
+      "by_domain": {
+        "trading": {
+          "pass": 3,
+          "total": 11
+        },
+        "code": {
+          "pass": 3,
+          "total": 12
+        },
+        "securite": {
+          "pass": 1,
+          "total": 7
+        },
+        "systeme": {
+          "pass": 6,
+          "total": 10
+        },
+        "math": {
+          "pass": 1,
+          "total": 6
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 5
+        },
+        "traduction": {
+          "pass": 1,
+          "total": 8
+        },
+        "web": {
+          "pass": 1,
+          "total": 5
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:23:15",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.0,
+      "pass_rate": 22.22222222222222,
+      "avg_latency_ms": 5188,
+      "total_tests": 72,
+      "by_node": {
+        "M2": {
+          "pass": 0,
+          "total": 18,
+          "avg_latency": 14024
+        },
+        "M3": {
+          "pass": 3,
+          "total": 4,
+          "avg_latency": 17227
+        },
+        "M1": {
+          "pass": 0,
+          "total": 35,
+          "avg_latency": 4
+        },
+        "OL1": {
+          "pass": 13,
+          "total": 15,
+          "avg_latency": 3472
+        }
+      },
+      "by_domain": {
+        "trading": {
+          "pass": 3,
+          "total": 11
+        },
+        "code": {
+          "pass": 3,
+          "total": 15
+        },
+        "securite": {
+          "pass": 1,
+          "total": 8
+        },
+        "systeme": {
+          "pass": 6,
+          "total": 10
+        },
+        "math": {
+          "pass": 1,
+          "total": 8
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 6
+        },
+        "traduction": {
+          "pass": 1,
+          "total": 8
+        },
+        "web": {
+          "pass": 1,
+          "total": 6
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:23:42",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 1.75,
+      "pass_rate": 25.0,
+      "avg_latency_ms": 10198,
+      "total_tests": 8,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 2,
+          "avg_latency": 23
+        },
+        "M2": {
+          "pass": 0,
+          "total": 4,
+          "avg_latency": 14026
+        },
+        "M3": {
+          "pass": 1,
+          "total": 1,
+          "avg_latency": 14103
+        },
+        "OL1": {
+          "pass": 1,
+          "total": 1,
+          "avg_latency": 11332
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 1
+        },
+        "traduction": {
+          "pass": 0,
+          "total": 1
+        },
+        "web": {
+          "pass": 2,
+          "total": 3
+        },
+        "trading": {
+          "pass": 0,
+          "total": 1
+        },
+        "code": {
+          "pass": 0,
+          "total": 2
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:24:27",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.91,
+      "pass_rate": 22.5,
+      "avg_latency_ms": 5554,
+      "total_tests": 80,
+      "by_node": {
+        "M2": {
+          "pass": 0,
+          "total": 20,
+          "avg_latency": 14024
+        },
+        "M3": {
+          "pass": 3,
+          "total": 5,
+          "avg_latency": 19785
+        },
+        "M1": {
+          "pass": 0,
+          "total": 38,
+          "avg_latency": 5
+        },
+        "OL1": {
+          "pass": 15,
+          "total": 17,
+          "avg_latency": 3811
+        }
+      },
+      "by_domain": {
+        "trading": {
+          "pass": 3,
+          "total": 11
+        },
+        "code": {
+          "pass": 3,
+          "total": 15
+        },
+        "securite": {
+          "pass": 1,
+          "total": 9
+        },
+        "systeme": {
+          "pass": 6,
+          "total": 11
+        },
+        "math": {
+          "pass": 1,
+          "total": 8
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 8
+        },
+        "traduction": {
+          "pass": 2,
+          "total": 10
+        },
+        "web": {
+          "pass": 2,
+          "total": 8
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:24:27",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.91,
+      "pass_rate": 22.5,
+      "avg_latency_ms": 5554,
+      "total_tests": 80,
+      "by_node": {
+        "M2": {
+          "pass": 0,
+          "total": 20,
+          "avg_latency": 14024
+        },
+        "M3": {
+          "pass": 3,
+          "total": 5,
+          "avg_latency": 19785
+        },
+        "M1": {
+          "pass": 0,
+          "total": 38,
+          "avg_latency": 5
+        },
+        "OL1": {
+          "pass": 15,
+          "total": 17,
+          "avg_latency": 3811
+        }
+      },
+      "by_domain": {
+        "trading": {
+          "pass": 3,
+          "total": 11
+        },
+        "code": {
+          "pass": 3,
+          "total": 15
+        },
+        "securite": {
+          "pass": 1,
+          "total": 9
+        },
+        "systeme": {
+          "pass": 6,
+          "total": 11
+        },
+        "math": {
+          "pass": 1,
+          "total": 8
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 8
+        },
+        "traduction": {
+          "pass": 2,
+          "total": 10
+        },
+        "web": {
+          "pass": 2,
+          "total": 8
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:24:52",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.49,
+      "pass_rate": 25.0,
+      "avg_latency_ms": 7524,
+      "total_tests": 16,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 6,
+          "avg_latency": 13
+        },
+        "M2": {
+          "pass": 0,
+          "total": 6,
+          "avg_latency": 14021
+        },
+        "M3": {
+          "pass": 1,
+          "total": 1,
+          "avg_latency": 14103
+        },
+        "OL1": {
+          "pass": 3,
+          "total": 3,
+          "avg_latency": 7360
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 1
+        },
+        "traduction": {
+          "pass": 0,
+          "total": 2
+        },
+        "web": {
+          "pass": 3,
+          "total": 5
+        },
+        "trading": {
+          "pass": 0,
+          "total": 3
+        },
+        "code": {
+          "pass": 0,
+          "total": 3
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 1
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:25:23",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.58,
+      "pass_rate": 20.833333333333332,
+      "avg_latency_ms": 6266,
+      "total_tests": 24,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 11,
+          "avg_latency": 11
+        },
+        "M2": {
+          "pass": 0,
+          "total": 8,
+          "avg_latency": 14022
+        },
+        "M3": {
+          "pass": 1,
+          "total": 1,
+          "avg_latency": 14103
+        },
+        "OL1": {
+          "pass": 4,
+          "total": 4,
+          "avg_latency": 5996
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 3
+        },
+        "traduction": {
+          "pass": 0,
+          "total": 2
+        },
+        "web": {
+          "pass": 4,
+          "total": 7
+        },
+        "trading": {
+          "pass": 0,
+          "total": 4
+        },
+        "code": {
+          "pass": 0,
+          "total": 4
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 2
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 1
+        },
+        "math": {
+          "pass": 0,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:26:12",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.36,
+      "pass_rate": 15.625,
+      "avg_latency_ms": 5763,
+      "total_tests": 32,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 17,
+          "avg_latency": 8
+        },
+        "M2": {
+          "pass": 0,
+          "total": 9,
+          "avg_latency": 14022
+        },
+        "M3": {
+          "pass": 1,
+          "total": 1,
+          "avg_latency": 14103
+        },
+        "OL1": {
+          "pass": 4,
+          "total": 5,
+          "avg_latency": 8797
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 3
+        },
+        "traduction": {
+          "pass": 0,
+          "total": 3
+        },
+        "web": {
+          "pass": 4,
+          "total": 9
+        },
+        "trading": {
+          "pass": 0,
+          "total": 4
+        },
+        "code": {
+          "pass": 0,
+          "total": 5
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 3
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 2
+        },
+        "math": {
+          "pass": 0,
+          "total": 3
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:27:23",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.14,
+      "pass_rate": 15.0,
+      "avg_latency_ms": 6379,
+      "total_tests": 40,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 20,
+          "avg_latency": 7
+        },
+        "M2": {
+          "pass": 0,
+          "total": 13,
+          "avg_latency": 14023
+        },
+        "M3": {
+          "pass": 1,
+          "total": 1,
+          "avg_latency": 14103
+        },
+        "OL1": {
+          "pass": 5,
+          "total": 6,
+          "avg_latency": 9772
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 5
+        },
+        "traduction": {
+          "pass": 0,
+          "total": 4
+        },
+        "web": {
+          "pass": 5,
+          "total": 10
+        },
+        "trading": {
+          "pass": 0,
+          "total": 5
+        },
+        "code": {
+          "pass": 0,
+          "total": 6
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 4
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 3
+        },
+        "math": {
+          "pass": 0,
+          "total": 3
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:27:47",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.72,
+      "pass_rate": 20.833333333333332,
+      "avg_latency_ms": 5788,
+      "total_tests": 48,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 24,
+          "avg_latency": 7
+        },
+        "M2": {
+          "pass": 0,
+          "total": 13,
+          "avg_latency": 14023
+        },
+        "M3": {
+          "pass": 2,
+          "total": 2,
+          "avg_latency": 16938
+        },
+        "OL1": {
+          "pass": 8,
+          "total": 9,
+          "avg_latency": 6832
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 6
+        },
+        "traduction": {
+          "pass": 2,
+          "total": 6
+        },
+        "web": {
+          "pass": 5,
+          "total": 10
+        },
+        "trading": {
+          "pass": 0,
+          "total": 6
+        },
+        "code": {
+          "pass": 0,
+          "total": 7
+        },
+        "raisonnement": {
+          "pass": 1,
+          "total": 5
+        },
+        "systeme": {
+          "pass": 2,
+          "total": 4
+        },
+        "math": {
+          "pass": 0,
+          "total": 4
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:28:38",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.99,
+      "pass_rate": 25.0,
+      "avg_latency_ms": 5856,
+      "total_tests": 56,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 25,
+          "avg_latency": 7
+        },
+        "M2": {
+          "pass": 0,
+          "total": 16,
+          "avg_latency": 14024
+        },
+        "M3": {
+          "pass": 2,
+          "total": 2,
+          "avg_latency": 16938
+        },
+        "OL1": {
+          "pass": 12,
+          "total": 13,
+          "avg_latency": 5348
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 6
+        },
+        "traduction": {
+          "pass": 4,
+          "total": 9
+        },
+        "web": {
+          "pass": 5,
+          "total": 10
+        },
+        "trading": {
+          "pass": 0,
+          "total": 6
+        },
+        "code": {
+          "pass": 0,
+          "total": 8
+        },
+        "raisonnement": {
+          "pass": 2,
+          "total": 7
+        },
+        "systeme": {
+          "pass": 3,
+          "total": 6
+        },
+        "math": {
+          "pass": 0,
+          "total": 4
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:28:40",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.1,
+      "pass_rate": 23.4375,
+      "avg_latency_ms": 5140,
+      "total_tests": 64,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 32,
+          "avg_latency": 6
+        },
+        "M2": {
+          "pass": 0,
+          "total": 16,
+          "avg_latency": 14024
+        },
+        "M3": {
+          "pass": 2,
+          "total": 2,
+          "avg_latency": 16938
+        },
+        "OL1": {
+          "pass": 13,
+          "total": 14,
+          "avg_latency": 5038
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 6
+        },
+        "traduction": {
+          "pass": 4,
+          "total": 10
+        },
+        "web": {
+          "pass": 5,
+          "total": 11
+        },
+        "trading": {
+          "pass": 0,
+          "total": 8
+        },
+        "code": {
+          "pass": 0,
+          "total": 9
+        },
+        "raisonnement": {
+          "pass": 2,
+          "total": 8
+        },
+        "systeme": {
+          "pass": 3,
+          "total": 6
+        },
+        "math": {
+          "pass": 1,
+          "total": 6
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:30:14",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.76,
+      "pass_rate": 20.833333333333332,
+      "avg_latency_ms": 5654,
+      "total_tests": 72,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 36,
+          "avg_latency": 6
+        },
+        "M2": {
+          "pass": 0,
+          "total": 18,
+          "avg_latency": 14026
+        },
+        "M3": {
+          "pass": 2,
+          "total": 3,
+          "avg_latency": 21301
+        },
+        "OL1": {
+          "pass": 13,
+          "total": 15,
+          "avg_latency": 6036
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 6
+        },
+        "traduction": {
+          "pass": 4,
+          "total": 10
+        },
+        "web": {
+          "pass": 5,
+          "total": 11
+        },
+        "trading": {
+          "pass": 0,
+          "total": 10
+        },
+        "code": {
+          "pass": 0,
+          "total": 10
+        },
+        "raisonnement": {
+          "pass": 2,
+          "total": 11
+        },
+        "systeme": {
+          "pass": 3,
+          "total": 6
+        },
+        "math": {
+          "pass": 1,
+          "total": 8
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:31:15",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.65,
+      "pass_rate": 20.0,
+      "avg_latency_ms": 5846,
+      "total_tests": 80,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 40,
+          "avg_latency": 6
+        },
+        "M2": {
+          "pass": 0,
+          "total": 20,
+          "avg_latency": 14026
+        },
+        "M3": {
+          "pass": 2,
+          "total": 4,
+          "avg_latency": 23476
+        },
+        "OL1": {
+          "pass": 14,
+          "total": 16,
+          "avg_latency": 5818
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 7
+        },
+        "traduction": {
+          "pass": 5,
+          "total": 12
+        },
+        "web": {
+          "pass": 5,
+          "total": 12
+        },
+        "trading": {
+          "pass": 0,
+          "total": 12
+        },
+        "code": {
+          "pass": 0,
+          "total": 11
+        },
+        "raisonnement": {
+          "pass": 2,
+          "total": 11
+        },
+        "systeme": {
+          "pass": 3,
+          "total": 7
+        },
+        "math": {
+          "pass": 1,
+          "total": 8
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T18:31:15",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.65,
+      "pass_rate": 20.0,
+      "avg_latency_ms": 5846,
+      "total_tests": 80,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 40,
+          "avg_latency": 6
+        },
+        "M2": {
+          "pass": 0,
+          "total": 20,
+          "avg_latency": 14026
+        },
+        "M3": {
+          "pass": 2,
+          "total": 4,
+          "avg_latency": 23476
+        },
+        "OL1": {
+          "pass": 14,
+          "total": 16,
+          "avg_latency": 5818
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 7
+        },
+        "traduction": {
+          "pass": 5,
+          "total": 12
+        },
+        "web": {
+          "pass": 5,
+          "total": 12
+        },
+        "trading": {
+          "pass": 0,
+          "total": 12
+        },
+        "code": {
+          "pass": 0,
+          "total": 11
+        },
+        "raisonnement": {
+          "pass": 2,
+          "total": 11
+        },
+        "systeme": {
+          "pass": 3,
+          "total": 7
+        },
+        "math": {
+          "pass": 1,
+          "total": 8
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T20:35:43",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 0.78,
+      "pass_rate": 0.0,
+      "avg_latency_ms": 7398,
+      "total_tests": 8,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 4,
+          "avg_latency": 14
+        },
+        "OL1": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 1027
+        },
+        "M2": {
+          "pass": 0,
+          "total": 2,
+          "avg_latency": 14043
+        },
+        "M3": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 30017
+        }
+      },
+      "by_domain": {
+        "code": {
+          "pass": 0,
+          "total": 2
+        },
+        "web": {
+          "pass": 0,
+          "total": 2
+        },
+        "traduction": {
+          "pass": 0,
+          "total": 1
+        },
+        "trading": {
+          "pass": 0,
+          "total": 1
+        },
+        "securite": {
+          "pass": 0,
+          "total": 1
+        },
+        "math": {
+          "pass": 0,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T20:36:01",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.01,
+      "pass_rate": 6.25,
+      "avg_latency_ms": 4762,
+      "total_tests": 16,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 10,
+          "avg_latency": 11
+        },
+        "OL1": {
+          "pass": 1,
+          "total": 2,
+          "avg_latency": 1974
+        },
+        "M2": {
+          "pass": 0,
+          "total": 3,
+          "avg_latency": 14040
+        },
+        "M3": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 30017
+        }
+      },
+      "by_domain": {
+        "code": {
+          "pass": 0,
+          "total": 3
+        },
+        "web": {
+          "pass": 0,
+          "total": 2
+        },
+        "traduction": {
+          "pass": 1,
+          "total": 3
+        },
+        "trading": {
+          "pass": 0,
+          "total": 3
+        },
+        "securite": {
+          "pass": 0,
+          "total": 1
+        },
+        "math": {
+          "pass": 0,
+          "total": 2
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 1
+        },
+        "systeme": {
+          "pass": 0,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T20:36:46",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 1.79,
+      "pass_rate": 4.166666666666667,
+      "avg_latency_ms": 5013,
+      "total_tests": 24,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 13,
+          "avg_latency": 9
+        },
+        "OL1": {
+          "pass": 1,
+          "total": 4,
+          "avg_latency": 1495
+        },
+        "M2": {
+          "pass": 0,
+          "total": 6,
+          "avg_latency": 14034
+        },
+        "M3": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 30017
+        }
+      },
+      "by_domain": {
+        "code": {
+          "pass": 0,
+          "total": 3
+        },
+        "web": {
+          "pass": 0,
+          "total": 4
+        },
+        "traduction": {
+          "pass": 1,
+          "total": 3
+        },
+        "trading": {
+          "pass": 0,
+          "total": 3
+        },
+        "securite": {
+          "pass": 0,
+          "total": 3
+        },
+        "math": {
+          "pass": 0,
+          "total": 2
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 4
+        },
+        "systeme": {
+          "pass": 0,
+          "total": 2
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T20:37:04",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 1.93,
+      "pass_rate": 3.125,
+      "avg_latency_ms": 4293,
+      "total_tests": 32,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 17,
+          "avg_latency": 8
+        },
+        "OL1": {
+          "pass": 1,
+          "total": 7,
+          "avg_latency": 1289
+        },
+        "M2": {
+          "pass": 0,
+          "total": 7,
+          "avg_latency": 14033
+        },
+        "M3": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 30017
+        }
+      },
+      "by_domain": {
+        "code": {
+          "pass": 0,
+          "total": 4
+        },
+        "web": {
+          "pass": 0,
+          "total": 4
+        },
+        "traduction": {
+          "pass": 1,
+          "total": 4
+        },
+        "trading": {
+          "pass": 0,
+          "total": 3
+        },
+        "securite": {
+          "pass": 0,
+          "total": 4
+        },
+        "math": {
+          "pass": 0,
+          "total": 4
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 6
+        },
+        "systeme": {
+          "pass": 0,
+          "total": 3
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T20:37:47",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 1.83,
+      "pass_rate": 2.5,
+      "avg_latency_ms": 4487,
+      "total_tests": 40,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 22,
+          "avg_latency": 7
+        },
+        "OL1": {
+          "pass": 1,
+          "total": 7,
+          "avg_latency": 1289
+        },
+        "M2": {
+          "pass": 0,
+          "total": 10,
+          "avg_latency": 14031
+        },
+        "M3": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 30017
+        }
+      },
+      "by_domain": {
+        "code": {
+          "pass": 0,
+          "total": 5
+        },
+        "web": {
+          "pass": 0,
+          "total": 6
+        },
+        "traduction": {
+          "pass": 1,
+          "total": 4
+        },
+        "trading": {
+          "pass": 0,
+          "total": 4
+        },
+        "securite": {
+          "pass": 0,
+          "total": 4
+        },
+        "math": {
+          "pass": 0,
+          "total": 5
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 7
+        },
+        "systeme": {
+          "pass": 0,
+          "total": 5
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T20:37:52",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.29,
+      "pass_rate": 6.25,
+      "avg_latency_ms": 3822,
+      "total_tests": 48,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 28,
+          "avg_latency": 8
+        },
+        "OL1": {
+          "pass": 3,
+          "total": 9,
+          "avg_latency": 1436
+        },
+        "M2": {
+          "pass": 0,
+          "total": 10,
+          "avg_latency": 14031
+        },
+        "M3": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 30017
+        }
+      },
+      "by_domain": {
+        "code": {
+          "pass": 1,
+          "total": 7
+        },
+        "web": {
+          "pass": 0,
+          "total": 6
+        },
+        "traduction": {
+          "pass": 1,
+          "total": 4
+        },
+        "trading": {
+          "pass": 0,
+          "total": 6
+        },
+        "securite": {
+          "pass": 0,
+          "total": 5
+        },
+        "math": {
+          "pass": 1,
+          "total": 7
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 7
+        },
+        "systeme": {
+          "pass": 0,
+          "total": 6
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T20:38:39",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.52,
+      "pass_rate": 10.714285714285714,
+      "avg_latency_ms": 4098,
+      "total_tests": 56,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 32,
+          "avg_latency": 7
+        },
+        "OL1": {
+          "pass": 4,
+          "total": 10,
+          "avg_latency": 1456
+        },
+        "M2": {
+          "pass": 0,
+          "total": 11,
+          "avg_latency": 14033
+        },
+        "M3": {
+          "pass": 2,
+          "total": 3,
+          "avg_latency": 20131
+        }
+      },
+      "by_domain": {
+        "code": {
+          "pass": 2,
+          "total": 8
+        },
+        "web": {
+          "pass": 0,
+          "total": 7
+        },
+        "traduction": {
+          "pass": 1,
+          "total": 4
+        },
+        "trading": {
+          "pass": 0,
+          "total": 7
+        },
+        "securite": {
+          "pass": 1,
+          "total": 6
+        },
+        "math": {
+          "pass": 1,
+          "total": 9
+        },
+        "raisonnement": {
+          "pass": 1,
+          "total": 9
+        },
+        "systeme": {
+          "pass": 0,
+          "total": 6
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T20:39:19",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.83,
+      "pass_rate": 15.625,
+      "avg_latency_ms": 4197,
+      "total_tests": 64,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 35,
+          "avg_latency": 7
+        },
+        "OL1": {
+          "pass": 6,
+          "total": 12,
+          "avg_latency": 1394
+        },
+        "M2": {
+          "pass": 0,
+          "total": 12,
+          "avg_latency": 14032
+        },
+        "M3": {
+          "pass": 4,
+          "total": 5,
+          "avg_latency": 16653
+        }
+      },
+      "by_domain": {
+        "code": {
+          "pass": 2,
+          "total": 9
+        },
+        "web": {
+          "pass": 0,
+          "total": 8
+        },
+        "traduction": {
+          "pass": 1,
+          "total": 5
+        },
+        "trading": {
+          "pass": 1,
+          "total": 8
+        },
+        "securite": {
+          "pass": 3,
+          "total": 8
+        },
+        "math": {
+          "pass": 2,
+          "total": 10
+        },
+        "raisonnement": {
+          "pass": 1,
+          "total": 10
+        },
+        "systeme": {
+          "pass": 0,
+          "total": 6
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T20:39:29",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.2,
+      "pass_rate": 19.444444444444443,
+      "avg_latency_ms": 3858,
+      "total_tests": 72,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 39,
+          "avg_latency": 7
+        },
+        "OL1": {
+          "pass": 10,
+          "total": 16,
+          "avg_latency": 1616
+        },
+        "M2": {
+          "pass": 0,
+          "total": 12,
+          "avg_latency": 14032
+        },
+        "M3": {
+          "pass": 4,
+          "total": 5,
+          "avg_latency": 16653
+        }
+      },
+      "by_domain": {
+        "code": {
+          "pass": 2,
+          "total": 9
+        },
+        "web": {
+          "pass": 0,
+          "total": 8
+        },
+        "traduction": {
+          "pass": 1,
+          "total": 6
+        },
+        "trading": {
+          "pass": 2,
+          "total": 9
+        },
+        "securite": {
+          "pass": 3,
+          "total": 8
+        },
+        "math": {
+          "pass": 3,
+          "total": 11
+        },
+        "raisonnement": {
+          "pass": 1,
+          "total": 10
+        },
+        "systeme": {
+          "pass": 2,
+          "total": 11
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T20:39:32",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.26,
+      "pass_rate": 18.75,
+      "avg_latency_ms": 3496,
+      "total_tests": 80,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 46,
+          "avg_latency": 6
+        },
+        "OL1": {
+          "pass": 11,
+          "total": 17,
+          "avg_latency": 1636
+        },
+        "M2": {
+          "pass": 0,
+          "total": 12,
+          "avg_latency": 14032
+        },
+        "M3": {
+          "pass": 4,
+          "total": 5,
+          "avg_latency": 16653
+        }
+      },
+      "by_domain": {
+        "code": {
+          "pass": 2,
+          "total": 9
+        },
+        "web": {
+          "pass": 0,
+          "total": 8
+        },
+        "traduction": {
+          "pass": 1,
+          "total": 7
+        },
+        "trading": {
+          "pass": 3,
+          "total": 12
+        },
+        "securite": {
+          "pass": 3,
+          "total": 10
+        },
+        "math": {
+          "pass": 3,
+          "total": 11
+        },
+        "raisonnement": {
+          "pass": 1,
+          "total": 12
+        },
+        "systeme": {
+          "pass": 2,
+          "total": 11
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T20:39:32",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.26,
+      "pass_rate": 18.75,
+      "avg_latency_ms": 3496,
+      "total_tests": 80,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 46,
+          "avg_latency": 6
+        },
+        "OL1": {
+          "pass": 11,
+          "total": 17,
+          "avg_latency": 1636
+        },
+        "M2": {
+          "pass": 0,
+          "total": 12,
+          "avg_latency": 14032
+        },
+        "M3": {
+          "pass": 4,
+          "total": 5,
+          "avg_latency": 16653
+        }
+      },
+      "by_domain": {
+        "code": {
+          "pass": 2,
+          "total": 9
+        },
+        "web": {
+          "pass": 0,
+          "total": 8
+        },
+        "traduction": {
+          "pass": 1,
+          "total": 7
+        },
+        "trading": {
+          "pass": 3,
+          "total": 12
+        },
+        "securite": {
+          "pass": 3,
+          "total": 10
+        },
+        "math": {
+          "pass": 3,
+          "total": 11
+        },
+        "raisonnement": {
+          "pass": 1,
+          "total": 12
+        },
+        "systeme": {
+          "pass": 2,
+          "total": 11
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T22:41:14",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 1.07,
+      "pass_rate": 0.0,
+      "avg_latency_ms": 6433,
+      "total_tests": 8,
+      "by_node": {
+        "M2": {
+          "pass": 0,
+          "total": 3,
+          "avg_latency": 14011
+        },
+        "OL1": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 9422
+        },
+        "M1": {
+          "pass": 0,
+          "total": 4,
+          "avg_latency": 4
+        }
+      },
+      "by_domain": {
+        "code": {
+          "pass": 0,
+          "total": 1
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 3
+        },
+        "systeme": {
+          "pass": 0,
+          "total": 1
+        },
+        "web": {
+          "pass": 0,
+          "total": 1
+        },
+        "trading": {
+          "pass": 0,
+          "total": 1
+        },
+        "securite": {
+          "pass": 0,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T22:41:32",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.97,
+      "pass_rate": 12.5,
+      "avg_latency_ms": 3005,
+      "total_tests": 8,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 6,
+          "avg_latency": 102
+        },
+        "M2": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 14004
+        },
+        "OL1": {
+          "pass": 1,
+          "total": 1,
+          "avg_latency": 9424
+        }
+      },
+      "by_domain": {
+        "code": {
+          "pass": 1,
+          "total": 3
+        },
+        "math": {
+          "pass": 0,
+          "total": 2
+        },
+        "web": {
+          "pass": 0,
+          "total": 2
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T22:41:59",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 1.21,
+      "pass_rate": 0.0,
+      "avg_latency_ms": 5968,
+      "total_tests": 16,
+      "by_node": {
+        "M2": {
+          "pass": 0,
+          "total": 4,
+          "avg_latency": 14010
+        },
+        "OL1": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 9422
+        },
+        "M1": {
+          "pass": 0,
+          "total": 10,
+          "avg_latency": 2
+        },
+        "M3": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 30010
+        }
+      },
+      "by_domain": {
+        "code": {
+          "pass": 0,
+          "total": 1
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 5
+        },
+        "systeme": {
+          "pass": 0,
+          "total": 1
+        },
+        "web": {
+          "pass": 0,
+          "total": 1
+        },
+        "trading": {
+          "pass": 0,
+          "total": 2
+        },
+        "securite": {
+          "pass": 0,
+          "total": 5
+        },
+        "math": {
+          "pass": 0,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T22:42:42",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.13,
+      "pass_rate": 12.5,
+      "avg_latency_ms": 5804,
+      "total_tests": 16,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 9,
+          "avg_latency": 70
+        },
+        "M2": {
+          "pass": 0,
+          "total": 5,
+          "avg_latency": 14004
+        },
+        "OL1": {
+          "pass": 2,
+          "total": 2,
+          "avg_latency": 11114
+        }
+      },
+      "by_domain": {
+        "code": {
+          "pass": 1,
+          "total": 3
+        },
+        "math": {
+          "pass": 0,
+          "total": 2
+        },
+        "web": {
+          "pass": 0,
+          "total": 2
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 2
+        },
+        "traduction": {
+          "pass": 1,
+          "total": 2
+        },
+        "systeme": {
+          "pass": 0,
+          "total": 2
+        },
+        "trading": {
+          "pass": 0,
+          "total": 2
+        },
+        "securite": {
+          "pass": 0,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T22:43:18",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.57,
+      "pass_rate": 16.666666666666668,
+      "avg_latency_ms": 5313,
+      "total_tests": 24,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 14,
+          "avg_latency": 53
+        },
+        "M2": {
+          "pass": 0,
+          "total": 6,
+          "avg_latency": 14003
+        },
+        "OL1": {
+          "pass": 4,
+          "total": 4,
+          "avg_latency": 10689
+        }
+      },
+      "by_domain": {
+        "code": {
+          "pass": 1,
+          "total": 5
+        },
+        "math": {
+          "pass": 0,
+          "total": 2
+        },
+        "web": {
+          "pass": 0,
+          "total": 3
+        },
+        "raisonnement": {
+          "pass": 1,
+          "total": 4
+        },
+        "traduction": {
+          "pass": 1,
+          "total": 3
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 3
+        },
+        "trading": {
+          "pass": 0,
+          "total": 3
+        },
+        "securite": {
+          "pass": 0,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T22:44:01",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.29,
+      "pass_rate": 12.5,
+      "avg_latency_ms": 5298,
+      "total_tests": 32,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 19,
+          "avg_latency": 40
+        },
+        "M2": {
+          "pass": 0,
+          "total": 9,
+          "avg_latency": 14003
+        },
+        "OL1": {
+          "pass": 4,
+          "total": 4,
+          "avg_latency": 10689
+        }
+      },
+      "by_domain": {
+        "code": {
+          "pass": 1,
+          "total": 5
+        },
+        "math": {
+          "pass": 0,
+          "total": 2
+        },
+        "web": {
+          "pass": 0,
+          "total": 6
+        },
+        "raisonnement": {
+          "pass": 1,
+          "total": 5
+        },
+        "traduction": {
+          "pass": 1,
+          "total": 4
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 3
+        },
+        "trading": {
+          "pass": 0,
+          "total": 5
+        },
+        "securite": {
+          "pass": 0,
+          "total": 2
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T22:44:44",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.11,
+      "pass_rate": 10.0,
+      "avg_latency_ms": 5298,
+      "total_tests": 40,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 24,
+          "avg_latency": 48
+        },
+        "M2": {
+          "pass": 0,
+          "total": 12,
+          "avg_latency": 14003
+        },
+        "OL1": {
+          "pass": 4,
+          "total": 4,
+          "avg_latency": 10689
+        }
+      },
+      "by_domain": {
+        "code": {
+          "pass": 1,
+          "total": 6
+        },
+        "math": {
+          "pass": 0,
+          "total": 3
+        },
+        "web": {
+          "pass": 0,
+          "total": 8
+        },
+        "raisonnement": {
+          "pass": 1,
+          "total": 5
+        },
+        "traduction": {
+          "pass": 1,
+          "total": 5
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 4
+        },
+        "trading": {
+          "pass": 0,
+          "total": 6
+        },
+        "securite": {
+          "pass": 0,
+          "total": 3
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T22:46:03",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.36,
+      "pass_rate": 16.666666666666668,
+      "avg_latency_ms": 6025,
+      "total_tests": 48,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 27,
+          "avg_latency": 43
+        },
+        "M2": {
+          "pass": 0,
+          "total": 13,
+          "avg_latency": 14003
+        },
+        "OL1": {
+          "pass": 7,
+          "total": 7,
+          "avg_latency": 11305
+        },
+        "M3": {
+          "pass": 1,
+          "total": 1,
+          "avg_latency": 26896
+        }
+      },
+      "by_domain": {
+        "code": {
+          "pass": 2,
+          "total": 8
+        },
+        "math": {
+          "pass": 1,
+          "total": 4
+        },
+        "web": {
+          "pass": 1,
+          "total": 9
+        },
+        "raisonnement": {
+          "pass": 1,
+          "total": 6
+        },
+        "traduction": {
+          "pass": 2,
+          "total": 6
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 5
+        },
+        "trading": {
+          "pass": 0,
+          "total": 7
+        },
+        "securite": {
+          "pass": 0,
+          "total": 3
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T22:47:16",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.19,
+      "pass_rate": 16.071428571428573,
+      "avg_latency_ms": 6450,
+      "total_tests": 56,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 31,
+          "avg_latency": 39
+        },
+        "M2": {
+          "pass": 0,
+          "total": 15,
+          "avg_latency": 14003
+        },
+        "OL1": {
+          "pass": 8,
+          "total": 8,
+          "avg_latency": 11634
+        },
+        "M3": {
+          "pass": 1,
+          "total": 2,
+          "avg_latency": 28453
+        }
+      },
+      "by_domain": {
+        "code": {
+          "pass": 2,
+          "total": 9
+        },
+        "math": {
+          "pass": 1,
+          "total": 4
+        },
+        "web": {
+          "pass": 1,
+          "total": 10
+        },
+        "raisonnement": {
+          "pass": 1,
+          "total": 6
+        },
+        "traduction": {
+          "pass": 2,
+          "total": 6
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 7
+        },
+        "trading": {
+          "pass": 1,
+          "total": 10
+        },
+        "securite": {
+          "pass": 0,
+          "total": 4
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T22:47:20",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.5,
+      "pass_rate": 17.1875,
+      "avg_latency_ms": 5693,
+      "total_tests": 64,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 37,
+          "avg_latency": 34
+        },
+        "M2": {
+          "pass": 0,
+          "total": 15,
+          "avg_latency": 14003
+        },
+        "OL1": {
+          "pass": 10,
+          "total": 10,
+          "avg_latency": 9617
+        },
+        "M3": {
+          "pass": 1,
+          "total": 2,
+          "avg_latency": 28453
+        }
+      },
+      "by_domain": {
+        "code": {
+          "pass": 2,
+          "total": 9
+        },
+        "math": {
+          "pass": 1,
+          "total": 4
+        },
+        "web": {
+          "pass": 1,
+          "total": 11
+        },
+        "raisonnement": {
+          "pass": 2,
+          "total": 8
+        },
+        "traduction": {
+          "pass": 3,
+          "total": 7
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 9
+        },
+        "trading": {
+          "pass": 1,
+          "total": 11
+        },
+        "securite": {
+          "pass": 0,
+          "total": 5
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T22:54:26",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 1.94,
+      "pass_rate": 0.0,
+      "avg_latency_ms": 3540,
+      "total_tests": 8,
+      "by_node": {
+        "M2": {
+          "pass": 0,
+          "total": 2,
+          "avg_latency": 14040
+        },
+        "M1": {
+          "pass": 0,
+          "total": 6,
+          "avg_latency": 40
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 3
+        },
+        "math": {
+          "pass": 0,
+          "total": 1
+        },
+        "web": {
+          "pass": 0,
+          "total": 1
+        },
+        "systeme": {
+          "pass": 0,
+          "total": 2
+        },
+        "traduction": {
+          "pass": 0,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T22:55:24",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.29,
+      "pass_rate": 12.5,
+      "avg_latency_ms": 5286,
+      "total_tests": 16,
+      "by_node": {
+        "M2": {
+          "pass": 0,
+          "total": 4,
+          "avg_latency": 14031
+        },
+        "M1": {
+          "pass": 0,
+          "total": 10,
+          "avg_latency": 102
+        },
+        "OL1": {
+          "pass": 2,
+          "total": 2,
+          "avg_latency": 13718
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 5
+        },
+        "math": {
+          "pass": 1,
+          "total": 3
+        },
+        "web": {
+          "pass": 0,
+          "total": 1
+        },
+        "systeme": {
+          "pass": 0,
+          "total": 2
+        },
+        "traduction": {
+          "pass": 0,
+          "total": 3
+        },
+        "trading": {
+          "pass": 1,
+          "total": 1
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T22:56:09",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 1.97,
+      "pass_rate": 8.333333333333334,
+      "avg_latency_ms": 5381,
+      "total_tests": 24,
+      "by_node": {
+        "M2": {
+          "pass": 0,
+          "total": 5,
+          "avg_latency": 14029
+        },
+        "M1": {
+          "pass": 0,
+          "total": 16,
+          "avg_latency": 98
+        },
+        "OL1": {
+          "pass": 2,
+          "total": 2,
+          "avg_latency": 13718
+        },
+        "M3": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 30013
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 5
+        },
+        "math": {
+          "pass": 1,
+          "total": 3
+        },
+        "web": {
+          "pass": 0,
+          "total": 3
+        },
+        "systeme": {
+          "pass": 0,
+          "total": 3
+        },
+        "traduction": {
+          "pass": 0,
+          "total": 3
+        },
+        "trading": {
+          "pass": 1,
+          "total": 3
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 3
+        },
+        "code": {
+          "pass": 0,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T22:56:39",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 1.96,
+      "pass_rate": 6.25,
+      "avg_latency_ms": 4939,
+      "total_tests": 32,
+      "by_node": {
+        "M2": {
+          "pass": 0,
+          "total": 7,
+          "avg_latency": 14032
+        },
+        "M1": {
+          "pass": 0,
+          "total": 22,
+          "avg_latency": 108
+        },
+        "OL1": {
+          "pass": 2,
+          "total": 2,
+          "avg_latency": 13718
+        },
+        "M3": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 30013
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 7
+        },
+        "math": {
+          "pass": 1,
+          "total": 5
+        },
+        "web": {
+          "pass": 0,
+          "total": 3
+        },
+        "systeme": {
+          "pass": 0,
+          "total": 4
+        },
+        "traduction": {
+          "pass": 0,
+          "total": 3
+        },
+        "trading": {
+          "pass": 1,
+          "total": 3
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 5
+        },
+        "code": {
+          "pass": 0,
+          "total": 2
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T22:57:10",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.3,
+      "pass_rate": 10.0,
+      "avg_latency_ms": 4682,
+      "total_tests": 40,
+      "by_node": {
+        "M2": {
+          "pass": 0,
+          "total": 9,
+          "avg_latency": 14031
+        },
+        "M1": {
+          "pass": 0,
+          "total": 26,
+          "avg_latency": 104
+        },
+        "OL1": {
+          "pass": 4,
+          "total": 4,
+          "avg_latency": 7074
+        },
+        "M3": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 30013
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 8
+        },
+        "math": {
+          "pass": 2,
+          "total": 6
+        },
+        "web": {
+          "pass": 0,
+          "total": 5
+        },
+        "systeme": {
+          "pass": 0,
+          "total": 4
+        },
+        "traduction": {
+          "pass": 1,
+          "total": 5
+        },
+        "trading": {
+          "pass": 1,
+          "total": 4
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 5
+        },
+        "code": {
+          "pass": 0,
+          "total": 3
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T22:57:38",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.68,
+      "pass_rate": 14.583333333333334,
+      "avg_latency_ms": 4477,
+      "total_tests": 48,
+      "by_node": {
+        "M2": {
+          "pass": 0,
+          "total": 9,
+          "avg_latency": 14031
+        },
+        "M1": {
+          "pass": 0,
+          "total": 31,
+          "avg_latency": 111
+        },
+        "OL1": {
+          "pass": 6,
+          "total": 6,
+          "avg_latency": 5830
+        },
+        "M3": {
+          "pass": 1,
+          "total": 2,
+          "avg_latency": 25107
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 9
+        },
+        "math": {
+          "pass": 2,
+          "total": 6
+        },
+        "web": {
+          "pass": 1,
+          "total": 6
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 6
+        },
+        "traduction": {
+          "pass": 2,
+          "total": 6
+        },
+        "trading": {
+          "pass": 1,
+          "total": 5
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 6
+        },
+        "code": {
+          "pass": 0,
+          "total": 4
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T22:58:23",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.74,
+      "pass_rate": 16.071428571428573,
+      "avg_latency_ms": 4616,
+      "total_tests": 56,
+      "by_node": {
+        "M2": {
+          "pass": 0,
+          "total": 12,
+          "avg_latency": 14031
+        },
+        "M1": {
+          "pass": 0,
+          "total": 34,
+          "avg_latency": 123
+        },
+        "OL1": {
+          "pass": 8,
+          "total": 8,
+          "avg_latency": 4472
+        },
+        "M3": {
+          "pass": 1,
+          "total": 2,
+          "avg_latency": 25107
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 11
+        },
+        "math": {
+          "pass": 2,
+          "total": 7
+        },
+        "web": {
+          "pass": 1,
+          "total": 6
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 7
+        },
+        "traduction": {
+          "pass": 3,
+          "total": 7
+        },
+        "trading": {
+          "pass": 2,
+          "total": 7
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 6
+        },
+        "code": {
+          "pass": 0,
+          "total": 5
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T22:59:10",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.77,
+      "pass_rate": 17.1875,
+      "avg_latency_ms": 4762,
+      "total_tests": 64,
+      "by_node": {
+        "M2": {
+          "pass": 0,
+          "total": 15,
+          "avg_latency": 14032
+        },
+        "M1": {
+          "pass": 0,
+          "total": 37,
+          "avg_latency": 118
+        },
+        "OL1": {
+          "pass": 10,
+          "total": 10,
+          "avg_latency": 3975
+        },
+        "M3": {
+          "pass": 1,
+          "total": 2,
+          "avg_latency": 25107
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 12
+        },
+        "math": {
+          "pass": 2,
+          "total": 7
+        },
+        "web": {
+          "pass": 1,
+          "total": 8
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 7
+        },
+        "traduction": {
+          "pass": 3,
+          "total": 9
+        },
+        "trading": {
+          "pass": 4,
+          "total": 9
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 7
+        },
+        "code": {
+          "pass": 0,
+          "total": 5
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T22:59:55",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 4.54,
+      "pass_rate": 25.0,
+      "avg_latency_ms": 714,
+      "total_tests": 8,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 6,
+          "avg_latency": 69
+        },
+        "OL1": {
+          "pass": 2,
+          "total": 2,
+          "avg_latency": 2650
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 2
+        },
+        "traduction": {
+          "pass": 0,
+          "total": 2
+        },
+        "raisonnement": {
+          "pass": 1,
+          "total": 3
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T23:00:54",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.12,
+      "pass_rate": 18.75,
+      "avg_latency_ms": 3983,
+      "total_tests": 16,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 9,
+          "avg_latency": 47
+        },
+        "OL1": {
+          "pass": 3,
+          "total": 3,
+          "avg_latency": 2399
+        },
+        "M2": {
+          "pass": 0,
+          "total": 4,
+          "avg_latency": 14027
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 2
+        },
+        "traduction": {
+          "pass": 0,
+          "total": 3
+        },
+        "raisonnement": {
+          "pass": 1,
+          "total": 3
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 1
+        },
+        "trading": {
+          "pass": 1,
+          "total": 2
+        },
+        "code": {
+          "pass": 0,
+          "total": 3
+        },
+        "web": {
+          "pass": 0,
+          "total": 2
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T23:01:36",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.45,
+      "pass_rate": 25.0,
+      "avg_latency_ms": 4339,
+      "total_tests": 24,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 12,
+          "avg_latency": 39
+        },
+        "OL1": {
+          "pass": 6,
+          "total": 6,
+          "avg_latency": 3247
+        },
+        "M2": {
+          "pass": 0,
+          "total": 6,
+          "avg_latency": 14031
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 4
+        },
+        "traduction": {
+          "pass": 0,
+          "total": 4
+        },
+        "raisonnement": {
+          "pass": 1,
+          "total": 3
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 2
+        },
+        "trading": {
+          "pass": 3,
+          "total": 4
+        },
+        "code": {
+          "pass": 0,
+          "total": 3
+        },
+        "web": {
+          "pass": 1,
+          "total": 3
+        },
+        "math": {
+          "pass": 0,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T23:02:05",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.07,
+      "pass_rate": 18.75,
+      "avg_latency_ms": 4130,
+      "total_tests": 32,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 18,
+          "avg_latency": 26
+        },
+        "OL1": {
+          "pass": 6,
+          "total": 6,
+          "avg_latency": 3247
+        },
+        "M2": {
+          "pass": 0,
+          "total": 8,
+          "avg_latency": 14028
+        }
+      },
+      "by_domain": {
+        "securite": {
+          "pass": 0,
+          "total": 5
+        },
+        "traduction": {
+          "pass": 0,
+          "total": 5
+        },
+        "raisonnement": {
+          "pass": 1,
+          "total": 5
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 4
+        },
+        "trading": {
+          "pass": 3,
+          "total": 4
+        },
+        "code": {
+          "pass": 0,
+          "total": 5
+        },
+        "web": {
+          "pass": 1,
+          "total": 3
+        },
+        "math": {
+          "pass": 0,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T23:03:51",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 1.09,
+      "pass_rate": 12.5,
+      "avg_latency_ms": 9279,
+      "total_tests": 8,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 3,
+          "avg_latency": 10
+        },
+        "M2": {
+          "pass": 0,
+          "total": 3,
+          "avg_latency": 14025
+        },
+        "M3": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 30018
+        },
+        "OL1": {
+          "pass": 1,
+          "total": 1,
+          "avg_latency": 2115
+        }
+      },
+      "by_domain": {
+        "traduction": {
+          "pass": 0,
+          "total": 1
+        },
+        "math": {
+          "pass": 0,
+          "total": 3
+        },
+        "trading": {
+          "pass": 0,
+          "total": 1
+        },
+        "web": {
+          "pass": 0,
+          "total": 1
+        },
+        "securite": {
+          "pass": 0,
+          "total": 1
+        },
+        "code": {
+          "pass": 1,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T23:04:39",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.04,
+      "pass_rate": 18.75,
+      "avg_latency_ms": 7560,
+      "total_tests": 16,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 6,
+          "avg_latency": 9
+        },
+        "M2": {
+          "pass": 0,
+          "total": 6,
+          "avg_latency": 14025
+        },
+        "M3": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 30018
+        },
+        "OL1": {
+          "pass": 3,
+          "total": 3,
+          "avg_latency": 2251
+        }
+      },
+      "by_domain": {
+        "traduction": {
+          "pass": 0,
+          "total": 1
+        },
+        "math": {
+          "pass": 1,
+          "total": 4
+        },
+        "trading": {
+          "pass": 0,
+          "total": 3
+        },
+        "web": {
+          "pass": 1,
+          "total": 4
+        },
+        "securite": {
+          "pass": 0,
+          "total": 1
+        },
+        "code": {
+          "pass": 1,
+          "total": 1
+        },
+        "systeme": {
+          "pass": 0,
+          "total": 1
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T23:04:56",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.04,
+      "pass_rate": 25.0,
+      "avg_latency_ms": 5691,
+      "total_tests": 24,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 10,
+          "avg_latency": 6
+        },
+        "M2": {
+          "pass": 0,
+          "total": 7,
+          "avg_latency": 14024
+        },
+        "M3": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 30018
+        },
+        "OL1": {
+          "pass": 6,
+          "total": 6,
+          "avg_latency": 1393
+        }
+      },
+      "by_domain": {
+        "traduction": {
+          "pass": 1,
+          "total": 3
+        },
+        "math": {
+          "pass": 1,
+          "total": 4
+        },
+        "trading": {
+          "pass": 2,
+          "total": 7
+        },
+        "web": {
+          "pass": 1,
+          "total": 4
+        },
+        "securite": {
+          "pass": 0,
+          "total": 1
+        },
+        "code": {
+          "pass": 1,
+          "total": 3
+        },
+        "systeme": {
+          "pass": 0,
+          "total": 1
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T23:05:18",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.48,
+      "pass_rate": 28.125,
+      "avg_latency_ms": 4948,
+      "total_tests": 32,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 14,
+          "avg_latency": 42
+        },
+        "M2": {
+          "pass": 0,
+          "total": 8,
+          "avg_latency": 14024
+        },
+        "M3": {
+          "pass": 0,
+          "total": 1,
+          "avg_latency": 30018
+        },
+        "OL1": {
+          "pass": 9,
+          "total": 9,
+          "avg_latency": 1729
+        }
+      },
+      "by_domain": {
+        "traduction": {
+          "pass": 2,
+          "total": 4
+        },
+        "math": {
+          "pass": 1,
+          "total": 5
+        },
+        "trading": {
+          "pass": 3,
+          "total": 8
+        },
+        "web": {
+          "pass": 1,
+          "total": 6
+        },
+        "securite": {
+          "pass": 0,
+          "total": 3
+        },
+        "code": {
+          "pass": 1,
+          "total": 3
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 2
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T23:06:29",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 3.04,
+      "pass_rate": 25.0,
+      "avg_latency_ms": 5693,
+      "total_tests": 40,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 18,
+          "avg_latency": 62
+        },
+        "M2": {
+          "pass": 0,
+          "total": 10,
+          "avg_latency": 14026
+        },
+        "M3": {
+          "pass": 0,
+          "total": 2,
+          "avg_latency": 30023
+        },
+        "OL1": {
+          "pass": 10,
+          "total": 10,
+          "avg_latency": 2630
+        }
+      },
+      "by_domain": {
+        "traduction": {
+          "pass": 2,
+          "total": 5
+        },
+        "math": {
+          "pass": 2,
+          "total": 6
+        },
+        "trading": {
+          "pass": 3,
+          "total": 10
+        },
+        "web": {
+          "pass": 1,
+          "total": 6
+        },
+        "securite": {
+          "pass": 0,
+          "total": 5
+        },
+        "code": {
+          "pass": 1,
+          "total": 4
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 3
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T23:07:41",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.74,
+      "pass_rate": 22.916666666666668,
+      "avg_latency_ms": 6228,
+      "total_tests": 48,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 20,
+          "avg_latency": 57
+        },
+        "M2": {
+          "pass": 0,
+          "total": 15,
+          "avg_latency": 14026
+        },
+        "M3": {
+          "pass": 0,
+          "total": 2,
+          "avg_latency": 30023
+        },
+        "OL1": {
+          "pass": 11,
+          "total": 11,
+          "avg_latency": 2490
+        }
+      },
+      "by_domain": {
+        "traduction": {
+          "pass": 2,
+          "total": 5
+        },
+        "math": {
+          "pass": 2,
+          "total": 8
+        },
+        "trading": {
+          "pass": 3,
+          "total": 11
+        },
+        "web": {
+          "pass": 2,
+          "total": 7
+        },
+        "securite": {
+          "pass": 0,
+          "total": 5
+        },
+        "code": {
+          "pass": 1,
+          "total": 7
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 4
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 1
+        }
+      }
+    },
+    {
+      "timestamp": "2026-03-07T23:07:59",
+      "type": "autotest",
+      "model_m1": "qwen/qwen3-8b",
+      "config_m1": {
+        "context_length": 8192,
+        "temperature": 0.2
+      },
+      "score_composite": 2.81,
+      "pass_rate": 21.428571428571427,
+      "avg_latency_ms": 5636,
+      "total_tests": 56,
+      "by_node": {
+        "M1": {
+          "pass": 0,
+          "total": 26,
+          "avg_latency": 67
+        },
+        "M2": {
+          "pass": 0,
+          "total": 16,
+          "avg_latency": 14026
+        },
+        "M3": {
+          "pass": 0,
+          "total": 2,
+          "avg_latency": 30023
+        },
+        "OL1": {
+          "pass": 12,
+          "total": 12,
+          "avg_latency": 2451
+        }
+      },
+      "by_domain": {
+        "traduction": {
+          "pass": 2,
+          "total": 6
+        },
+        "math": {
+          "pass": 2,
+          "total": 8
+        },
+        "trading": {
+          "pass": 3,
+          "total": 12
+        },
+        "web": {
+          "pass": 2,
+          "total": 8
+        },
+        "securite": {
+          "pass": 0,
+          "total": 6
+        },
+        "code": {
+          "pass": 2,
+          "total": 10
+        },
+        "systeme": {
+          "pass": 1,
+          "total": 5
+        },
+        "raisonnement": {
+          "pass": 0,
+          "total": 1
+        }
+      }
     }
   ],
   "champion": {

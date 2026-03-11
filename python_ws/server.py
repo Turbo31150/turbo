@@ -21,6 +21,7 @@ import json
 import logging
 import os
 import sys
+import time
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -5418,6 +5419,66 @@ async def api_production_classify(request: Request):
     return get_production_bridge().classify(text)
 
 
+@app.get("/api/openclaw/health")
+async def api_openclaw_health():
+    """OpenClaw provider health check — latency, models, status per provider."""
+    import subprocess
+    import sys
+    health_script = Path("F:/BUREAU/turbo/scripts/openclaw_provider_health.py")
+    if not health_script.exists():
+        return JSONResponse({"error": "health script not found"}, status_code=500)
+    try:
+        r = subprocess.run(
+            [sys.executable, str(health_script), "--json"],
+            capture_output=True, text=True, timeout=15,
+        )
+        if r.returncode == 0:
+            import json as _j
+            providers = _j.loads(r.stdout)
+            healthy = sum(1 for p in providers if p.get("status") == "healthy")
+            return {
+                "providers": providers,
+                "summary": f"{healthy}/{len(providers)} healthy",
+                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
+            }
+        return JSONResponse({"error": f"rc={r.returncode}", "stderr": r.stderr[:200]}, status_code=500)
+    except subprocess.TimeoutExpired:
+        return JSONResponse({"error": "timeout"}, status_code=504)
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.get("/api/openclaw/smoke")
+async def api_openclaw_smoke(timeout: int = 30):
+    """OpenClaw E2E smoke test — real inference on all providers."""
+    import subprocess
+    import sys
+    smoke_script = Path("F:/BUREAU/turbo/scripts/openclaw_smoke_test.py")
+    if not smoke_script.exists():
+        return JSONResponse({"error": "smoke script not found"}, status_code=500)
+    try:
+        r = subprocess.run(
+            [sys.executable, str(smoke_script), "--json", "--timeout", str(timeout)],
+            capture_output=True, text=True, timeout=timeout * 7,
+        )
+        if r.returncode == 0:
+            import json as _j
+            raw = r.stdout
+            idx = raw.index("[")
+            results = _j.loads(raw[idx:])
+            passed = sum(1 for p in results if p.get("pong"))
+            return {
+                "results": results,
+                "summary": f"{passed}/{len(results)} pass",
+                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
+            }
+        return JSONResponse({"error": f"rc={r.returncode}"}, status_code=500)
+    except subprocess.TimeoutExpired:
+        return JSONResponse({"error": "timeout"}, status_code=504)
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
 @app.get("/api/openclaw/agents")
 async def api_openclaw_agents():
     """List all 40 OpenClaw agents with IDENTITY status."""
@@ -7383,6 +7444,83 @@ async def api_telegram_command(request: Request):
         }, status_code=500)
 
     return {"command": matched, "result": result, "summary": summary}
+
+
+# ── M3 Bridge API — Pilotage JARVIS-CLUSTER sur M3 (192.168.1.113:8765) ────
+
+@app.get("/api/m3/health")
+async def api_m3_health():
+    """Health check de tous les nodes du cluster (M1/M2/M3/OL1 + M3 API)."""
+    from src.m3_bridge import get_bridge
+    bridge = get_bridge()
+    return await bridge.health_all()
+
+
+@app.get("/api/m3/status")
+async def api_m3_status():
+    """Status complet de M3 via JARVIS-CLUSTER API :8765."""
+    from src.m3_bridge import get_bridge
+    try:
+        return await get_bridge().m3.get_status()
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"M3 API offline: {e}")
+
+
+@app.post("/api/m3/task")
+async def api_m3_task(request: Request):
+    """Envoyer une tache au workflow 4-stage de M3."""
+    body = await request.json()
+    desc = body.get("description", body.get("text", ""))
+    priority = body.get("priority", 1)
+    if not desc:
+        raise HTTPException(status_code=400, detail="description required")
+    from src.m3_bridge import get_bridge
+    return await get_bridge().dispatch_to_m3(desc, priority)
+
+
+@app.get("/api/m3/tasks")
+async def api_m3_tasks():
+    """Lister les taches sur M3."""
+    from src.m3_bridge import get_bridge
+    try:
+        return await get_bridge().m3.list_tasks()
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"M3 API offline: {e}")
+
+
+@app.post("/api/m3/consensus")
+async def api_m3_consensus(request: Request):
+    """Consensus Multi-IA via M3 (deepseek-r1 + cloud models)."""
+    body = await request.json()
+    query = body.get("query", body.get("text", ""))
+    if not query:
+        raise HTTPException(status_code=400, detail="query required")
+    from src.m3_bridge import get_bridge
+    return await get_bridge().consensus(query)
+
+
+@app.post("/api/m3/mcp/{tool_name}")
+async def api_m3_mcp(tool_name: str, request: Request):
+    """Appeler un outil MCP trading sur M3 (scan_mexc, get_positions, etc.)."""
+    body = await request.json() if await request.body() else {}
+    from src.m3_bridge import get_bridge
+    try:
+        return await get_bridge().m3.call_mcp_tool(tool_name, body)
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"M3 MCP {tool_name} failed: {e}")
+
+
+@app.post("/api/m3/query")
+async def api_m3_query(request: Request):
+    """Query un node LM Studio directement (bypass M3 API)."""
+    body = await request.json()
+    node_id = body.get("node", "M3")
+    prompt = body.get("prompt", body.get("text", ""))
+    max_tokens = body.get("max_tokens", 512)
+    if not prompt:
+        raise HTTPException(status_code=400, detail="prompt required")
+    from src.m3_bridge import get_bridge
+    return await get_bridge().query_node(node_id, prompt, max_tokens)
 
 
 def main():

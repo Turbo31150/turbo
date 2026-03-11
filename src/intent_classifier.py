@@ -75,6 +75,15 @@ INTENT_PATTERNS: dict[str, list[str]] = {
         r"\b(jarvis|ecoute|arrete|tais-toi|stop|pause|continue|repete)\b",
         r"\b(mode|silence|vocal|voix|muet)\b",
     ],
+    "reasoning": [
+        r"\bcombien\b.*\b(jours?|temps|faut|metres?|heures?|minutes?)\b",
+        r"\b(raisonne|raisonnement|logique|enigme|puzzle|devinette)\b",
+        r"\b(si|supposons|imagine)\b.*\b(alors|combien|quel|quelle)\b",
+        r"\b(calcule|resous|trouve)\b.*\b(equation|probleme|solution)\b",
+        r"\b(monte|grimpe|descend|avance|recule)\b.*\b(combien|jours?|temps|metres?)\b",
+        r"\b(probabilite|proba|chance|stats?|statistique)\b",
+        r"\b(prouve|demontre|verifie)\b.*\b(que|si|pourquoi)\b",
+    ],
     "query": [
         r"\b(qu.est.ce|c.est quoi|explique|comment|pourquoi|combien|qui est)\b",
         r"\b(recherche|cherche|trouve|web|internet)\b",

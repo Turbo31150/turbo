@@ -269,22 +269,30 @@ CLASSIFY_PROMPT = """\
 Classifie cette demande en UNE categorie:
 - code: ecriture/modification de code, debug, refactoring
 - analyse: investigation, architecture, logs, strategie
-- trading: signaux, positions, marche crypto, scanner
+- trading: signaux, positions, marche crypto, scanner, bitcoin, prix crypto, tendance
 - systeme: fichiers, apps, Windows, processus, PowerShell, cluster, GPU, boot, diagnostic, statut systeme, noeuds, services, alertes, taches autonomes, JARVIS
 - web: recherche internet, infos actuelles, documentation
-- simple: question directe, reponse courte, calcul, traduction
+- reasoning: raisonnement logique, enigme, puzzle, devinette, probleme mathematique, calcul arithmetique, multiplication, division, probabilite, preuve, demonstration, combien de jours/temps/metres, combien font X
+- simple: question directe, reponse courte, traduction
 
 Reponds UNIQUEMENT avec le mot-cle (un seul mot)."""
 
-VALID_TYPES = {"code", "analyse", "trading", "systeme", "web", "simple"}
+VALID_TYPES = {"code", "analyse", "trading", "systeme", "web", "reasoning", "simple"}
 
 
 async def classify_task(prompt: str) -> str:
-    """Classifie via M1 qwen3-8b (fast, 0.6-1.7s).
+    """Classifie via heuristique fast-path + M1 qwen3-8b (0.6-1.7s).
 
-    Reutilise _local_ia_analyze de orchestrator.py mais avec CLASSIFY_PROMPT.
-    Fallback: heuristiques par mots-cles.
+    1. Heuristique d'abord pour mots-cles forts (trading, reasoning, code)
+    2. M1 pour cas ambigus
+    3. Fallback heuristique si M1 echoue
     """
+    # Fast path: strong keyword matches bypass M1 (saves 0.6-1.7s)
+    heuristic = _classify_heuristic(prompt)
+    if heuristic != "simple":
+        return heuristic
+
+    # Ambiguous (heuristic says "simple") — let M1 decide
     from src.config import config, prepare_lmstudio_input, build_lmstudio_payload
     from src.tools import _get_client
 
@@ -301,8 +309,6 @@ async def classify_task(prompt: str) -> str:
             r.raise_for_status()
             from src.tools import extract_lms_output
             content = extract_lms_output(r.json()).strip().lower()
-            # Find first valid type anywhere in the response
-            # (M1 may wrap answer in markdown or add explanatory text)
             for token in content.split():
                 cleaned = token.strip("*_.,;:!?`\"'()[]")
                 if cleaned in VALID_TYPES:
@@ -310,8 +316,7 @@ async def classify_task(prompt: str) -> str:
         except (httpx.HTTPError, OSError, KeyError, ValueError, asyncio.TimeoutError) as exc:
             logger.debug("classify_task M1 failed: %s", exc)
 
-    # Fallback: heuristiques par mots-cles
-    return _classify_heuristic(prompt)
+    return "simple"
 
 
 def _has_word(text: str, word: str) -> bool:
@@ -345,7 +350,8 @@ def _classify_heuristic(prompt: str) -> str:
     # 1. Trading — mots specifiques, word-boundary pour mots courts
     trading_exact = ("trading", "trade", "signal", "mexc", "breakout", "sniper",
                      "scalping", "scalp", "futures", "usdt", "binance",
-                     "take profit", "stop loss")
+                     "take profit", "stop loss", "bitcoin", "ethereum",
+                     "tendance", "prix actuel")
     trading_words = ("btc", "eth", "sol", "crypto", "paire", "levier", "short")
     if any(kw in p for kw in trading_exact) or any(_has_word(p, w) for w in trading_words):
         return "trading"
@@ -391,6 +397,24 @@ def _classify_heuristic(prompt: str) -> str:
               "documentation", "url", "lien", "wikipedia")
     if any(kw in p for kw in web_kw):
         return "web"
+
+    # 6. Reasoning — raisonnement logique, enigmes, puzzles, maths, calculs
+    reasoning_kw = ("raisonnement", "raisonne", "logique", "enigme", "puzzle",
+                    "devinette", "probabilite", "proba", "preuve", "demontre",
+                    "combien de jours", "combien de temps", "combien de metres",
+                    "si on suppose", "supposons", "imagine que",
+                    "calcule", "calcul", "equation", "racine carree", "factorielle")
+    reasoning_patterns = (
+        "combien" in p and any(w in p for w in ("jour", "temps", "metre", "heure", "minute", "faut",
+                                                 "font", "fait", "egale", "vaut", "reste", "coute")),
+        "monte" in p and "descend" in p,
+        "grimpe" in p and ("glisse" in p or "tombe" in p),
+        "escargot" in p,
+        any(w in p for w in ("multiplie", "divise", "additionne", "soustrai")),
+        any(w in p for w in ("fois", "plus", "moins", "sur")) and any(c.isdigit() for c in p) and len(p) < 100,
+    )
+    if any(kw in p for kw in reasoning_kw) or any(reasoning_patterns):
+        return "reasoning"
 
     return "simple"
 

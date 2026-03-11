@@ -311,15 +311,24 @@ class AutonomousLoop:
         offline = []
         healed = []
 
-        async with httpx.AsyncClient(timeout=3) as client:
+        async with httpx.AsyncClient(timeout=12) as client:
             for node, url in probes.items():
-                try:
-                    r = await client.get(url)
-                    if r.status_code == 200:
-                        online.append(node)
-                    else:
-                        offline.append(node)
-                except Exception:
+                ok = False
+                for attempt in range(2):
+                    try:
+                        r = await client.get(url, timeout=5.0)
+                        if r.status_code == 200:
+                            ok = True
+                            break
+                    except (httpx.TimeoutException, httpx.ConnectError):
+                        if attempt == 0:
+                            await asyncio.sleep(0.5)
+                            continue
+                    except Exception:
+                        break
+                if ok:
+                    online.append(node)
+                else:
                     offline.append(node)
 
         # Attempt self-heal for local nodes
@@ -338,17 +347,25 @@ class AutonomousLoop:
                     logger.error(f"Error healing node {node}: {str(e)}")
                     raise
 
-        # Notify if critical
+        # Notify if critical — skip nodes with circuit already OPEN
         result: dict[str, Any] = {
             "online": online, "offline": offline, "healed": healed,
         }
-        if offline:
+        new_offline = offline[:]
+        try:
+            from src.adaptive_router import adaptive_router, CircuitState
+            new_offline = [n for n in offline
+                          if n not in adaptive_router.circuits
+                          or adaptive_router.circuits[n].state == CircuitState.CLOSED]
+        except Exception:
+            pass
+        if new_offline:
             try:
                 from src.notifier import notifier
-                msg = f"Noeuds offline: {', '.join(offline)}"
+                msg = f"Noeuds offline: {', '.join(new_offline)}"
                 if healed:
                     msg += f" — tentative restart: {', '.join(healed)}"
-                level = "critical" if len(offline) >= 3 else "warning"
+                level = "critical" if len(new_offline) >= 3 else "warning"
                 await notifier.alert(msg, level=level, source="self_heal")
             except Exception as e:
                 logger.error(f"Error during self-heal: {e}")
@@ -720,13 +737,21 @@ class AutonomousLoop:
             "Canvas": "http://127.0.0.1:18800/",
         }
         results: dict[str, str] = {}
-        async with httpx.AsyncClient(timeout=3) as client:
+        async with httpx.AsyncClient(timeout=10) as client:
             for name, url in probes.items():
-                try:
-                    r = await client.get(url)
-                    results[name] = "up" if r.status_code == 200 else f"http_{r.status_code}"
-                except Exception:
-                    results[name] = "down"
+                for attempt in range(2):
+                    try:
+                        r = await client.get(url, timeout=5.0)
+                        results[name] = "up" if r.status_code == 200 else f"http_{r.status_code}"
+                        break
+                    except (httpx.TimeoutException, httpx.ConnectError):
+                        if attempt == 0:
+                            await asyncio.sleep(0.3)
+                            continue
+                        results[name] = "down"
+                    except Exception:
+                        results[name] = "down"
+                        break
         offline = [n for n, s in results.items() if s != "up"]
         result: dict[str, Any] = {"nodes": results, "offline_count": len(offline)}
         if offline:
@@ -734,7 +759,7 @@ class AutonomousLoop:
             # Broadcast via WS if server is up
             if results.get("WS") == "up":
                 try:
-                    async with httpx.AsyncClient(timeout=3) as client:
+                    async with httpx.AsyncClient(timeout=8) as client:
                         await client.post("http://127.0.0.1:9742/api/broadcast", json={
                             "channel": "system", "event": "node_offline",
                             "payload": {"offline": offline}

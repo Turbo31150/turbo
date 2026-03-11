@@ -137,7 +137,25 @@ class WhisperWorker:
         self.close()
 
 
+def _acquire_singleton():
+    """Kill any existing whisper_worker to avoid GPU memory waste."""
+    from pathlib import Path
+    import subprocess
+    pid_file = Path("F:/BUREAU/turbo/data/pids/whisper_worker.pid")
+    pid_file.parent.mkdir(parents=True, exist_ok=True)
+    if pid_file.exists():
+        try:
+            old_pid = int(pid_file.read_text().strip())
+            if old_pid != os.getpid():
+                subprocess.run(f"taskkill /F /PID {old_pid}", shell=True,
+                               capture_output=True, timeout=5)
+        except Exception:
+            pass
+    pid_file.write_text(str(os.getpid()))
+
+
 def main():
+    _acquire_singleton()
     from faster_whisper import WhisperModel
 
     model_size = os.environ.get("WHISPER_MODEL", "large-v3-turbo")
