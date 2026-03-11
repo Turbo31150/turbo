@@ -72,6 +72,14 @@ NODES = {
         "system": _SYSTEM_FR,
         "weight": 1.3,
     },
+    "GEMINI": {
+        "url": "https://generativelanguage.googleapis.com/v1beta",
+        "type": "gemini",
+        "model": "gemini-2.5-flash",
+        "system": _SYSTEM_FR,
+        "max_tokens": 2048,
+        "weight": 1.5,
+    },
 }
 
 
@@ -241,6 +249,19 @@ class PatternAgent:
                             content = c[0].get("text", "") if c else ""
                         else:
                             content = str(c)
+            elif node["type"] == "gemini":
+                from src.gemini_provider import get_gemini
+                gp = get_gemini()
+                result = await gp.chat(
+                    prompt,
+                    model="fast",
+                    system=node.get("system"),
+                    max_tokens=node.get("max_tokens", 2048),
+                    temperature=self.temperature,
+                )
+                content = result.get("text", "")
+                if result.get("error"):
+                    content = ""
             else:  # ollama
                 messages = [{"role": "user", "content": prompt}]
                 if node.get("system"):

@@ -78,6 +78,7 @@ const CLUSTER_NODES = [
   { id: 'M1', url: 'http://127.0.0.1:1234/v1/chat/completions', model: 'qwen3-8b', weight: 1.9, timeout: 15000, maxTokens: 512 },
   { id: 'OL1', url: 'http://127.0.0.1:11434/api/chat', model: 'qwen3:1.7b', isOllama: true, weight: 1.4, timeout: 8000, maxTokens: 200 },
   { id: 'HF', url: 'https://router.huggingface.co/v1/chat/completions', model: 'Qwen/Qwen3.5-27B', weight: 1.6, timeout: 20000, maxTokens: 512, isCloud: true },
+  { id: 'GEMINI', url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', model: 'gemini-2.5-flash', isGemini: true, isCloud: true, weight: 1.5, timeout: 25000, maxTokens: 512 },
 ];
 // Reasoning-only nodes (called explicitly, never in race)
 const REASONING_NODES = [
@@ -103,15 +104,15 @@ function classifyQuery(text) {
   return 'simple';
 }
 
-// Routing matrix v5 — aligned with WS API ROUTING_MATRIX (M2 degraded, M3 excluded)
+// Routing matrix v6 — GEMINI intégré (archi, web, vision, code, analyse)
 const SMART_ROUTING = {
   simple:    ['OL1', 'M1'],
-  code:      ['M1', 'HF', 'OL1'],
-  reasoning: ['M1', 'HF', 'OL1'],   // M2 degraded (no model), M3 too slow (>120s)
+  code:      ['M1', 'GEMINI', 'HF', 'OL1'],
+  reasoning: ['M1', 'GEMINI', 'HF', 'OL1'],
   trading:   ['M1', 'OL1'],
   system:    ['M1', 'OL1'],
-  web:       ['OL1', 'HF', 'M1'],
-  analyse:   ['M1', 'HF', 'OL1'],
+  web:       ['GEMINI', 'OL1', 'HF', 'M1'],
+  analyse:   ['M1', 'GEMINI', 'HF', 'OL1'],
 };
 
 // Arithmetic fast-path: solve pure math in JS (8B models fail at large multiplication)
@@ -411,7 +412,13 @@ async function directClusterHealth() {
   for (const node of CLUSTER_NODES) {
     const start = Date.now();
     try {
-      if (node.isOllama) {
+      if (node.isGemini) {
+        const geminiKey = process.env.GEMINI_API_KEY || '';
+        const r = await httpRequest(`https://generativelanguage.googleapis.com/v1beta/models?key=${geminiKey}`, { timeout: 5000 });
+        const data = JSON.parse(r.body);
+        const count = (data.models || []).length;
+        results.push({ nodeId: node.id, status: 'online', model: `${node.model} (${count} models)`, latency: Date.now() - start });
+      } else if (node.isOllama) {
         const r = await httpRequest(`http://127.0.0.1:11434/api/tags`, { timeout: 5000 });
         const data = JSON.parse(r.body);
         const models = (data.models || []).map(m => m.name).join(', ');
@@ -2713,6 +2720,28 @@ function queryNode(node, prompt) {
   return new Promise((resolve, reject) => {
     const start = Date.now();
     let body, headers, reqModule;
+    if (node.isGemini) {
+      const geminiKey = process.env.GEMINI_API_KEY || '';
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${node.model}:generateContent?key=${geminiKey}`;
+      body = JSON.stringify({
+        contents: [{ parts: [{ text: sysPrompt + '\n\n' + prompt }] }],
+        generationConfig: { maxOutputTokens: maxTok, temperature: 0.3 }
+      });
+      headers = { 'Content-Type': 'application/json' };
+      httpRequest(geminiUrl, { method: 'POST', headers, timeout: node.timeout || 25000 }, body)
+        .then(res => {
+          const d = JSON.parse(res.body);
+          let text = '';
+          if (d.candidates && d.candidates[0] && d.candidates[0].content) {
+            text = d.candidates[0].content.parts.map(p => p.text || '').join('');
+          }
+          text = stripThink(text);
+          if (!text || text.length < 2) return reject(new Error('empty response'));
+          resolve({ text, node: node.id, model: node.model, latency: Date.now() - start });
+        })
+        .catch(reject);
+      return;
+    }
     if (node.isOllama) {
       body = JSON.stringify({
         model: node.model,
@@ -3185,9 +3214,6 @@ async function processMessage(msg) {
     return handleWeights(chatId);
   }
 
-  // ── Tool-requiring queries → route to proxy (has tools) instead of cluster race ──
-  const needsTools = /\b(fichier|dossier|base de donn|sql|execute|lance|pipeline|query_db|cherche dans|etoile|read_file|ecris|cree|modifie|supprime|disk|espace|ram|memoire|port|service|netstat)\b/i.test(low);
-
   // ── ARITHMETIC FAST-PATH — solve pure math in JS (0ms, exact) ──
   const arithResult = tryArithmetic(text);
   if (arithResult) {
@@ -3198,7 +3224,81 @@ async function processMessage(msg) {
     return;
   }
 
+  // ── OPENCLAW AGENTIC MODE — like Claude Code / Gemini CLI ──────────────────
+  // Simple questions (short, no verbs, greetings) → fast cluster chat
+  // Everything else → OpenClaw agent with full tools (read/write/edit/exec/web/browser)
+  // The AGENT decides which tools to use, not regex patterns.
+  const isSimpleChat = (
+    low.length < 40 &&
+    !(/\b(cree|crée|ecris|écris|fais|fait|ajoute|modifie|supprime|lance|installe|deploy|commit|push|debug|corrige|fixe|analyse|scan|cherche|trouve|lis|ouvre|configure|genere|génère|build|compile|refactor|optimise|teste|execute|run)\b/i.test(low))
+  );
+
+  if (isAdmin(chatId) && !isSimpleChat) {
+    // Route to OpenClaw agent — it has 25 tools and decides autonomously
+    const queryType = classifyQuery(text);
+    const AGENT_FOR_TYPE = {
+      code: 'coding', reasoning: 'deep-work', trading: 'trading',
+      system: 'system-ops', web: 'recherche-synthese', analyse: 'coding',
+      simple: 'main',
+    };
+    const agentId = AGENT_FOR_TYPE[queryType] || 'main';
+    log(`  AGENTIC MODE → OpenClaw agent="${agentId}" (type=${queryType})...`);
+    await telegramAPI('sendChatAction', { chat_id: chatId, action: 'typing' });
+    const typingRefresh = setInterval(() => {
+      telegramAPI('sendChatAction', { chat_id: chatId, action: 'typing' }).catch(() => {});
+    }, 4000);
+
+    try {
+      const ocStart = Date.now();
+      const sessionId = `tg-${chatId}-${Math.floor(Date.now() / 60000)}`; // 1 session per minute for context
+      const { execFile } = require('child_process');
+      const ocResult = await new Promise((resolve, reject) => {
+        const args = ['agent', '--agent', agentId, '--message', text, '--json', '--timeout', '120', '--session-id', sessionId];
+        const proc = execFile('openclaw', args, {
+          cwd: 'C:\\Users\\franc\\.openclaw',
+          timeout: 130000,
+          maxBuffer: 1024 * 1024,
+          encoding: 'utf-8',
+          env: { ...process.env, OPENCLAW_GATEWAY_PORT: '18789', OPENCLAW_GATEWAY_TOKEN: 'ae1cd158a0975c30e7712b274859e202896e7f67203de9d2' },
+        }, (err, stdout, stderr) => {
+          if (err && !stdout) reject(err);
+          else resolve(stdout || stderr);
+        });
+      });
+      clearInterval(typingRefresh);
+      const ocMs = Date.now() - ocStart;
+
+      let ocReply = '';
+      let ocModel = agentId;
+      try {
+        const parsed = JSON.parse(ocResult);
+        const payloads = parsed.result?.payloads || [];
+        const meta = parsed.result?.meta?.agentMeta || {};
+        ocReply = payloads.map(p => p.text).filter(Boolean).join('\n\n') || '';
+        ocModel = `${meta.provider || 'oc'}/${meta.model || agentId}`;
+      } catch {
+        ocReply = stripThink(ocResult).slice(0, 4000);
+      }
+
+      if (ocReply) {
+        const attr = `\n\n_[${ocModel}] agent=${agentId} ${(ocMs / 1000).toFixed(1)}s_`;
+        addToMemory(chatId, 'user', text);
+        addToMemory(chatId, 'assistant', ocReply.slice(0, 4000));
+        const skipVoice = /```|^\s*[\[{]/.test(ocReply) || ocReply.length > 1500;
+        if (VOICE_MODE && !skipVoice) await sendVoiceReply(chatId, ocReply);
+        return sendFullResponse(chatId, escapeTelegramMarkdown(ocReply) + attr, 'Markdown');
+      }
+      clearInterval(typingRefresh);
+      log(`  OpenClaw returned empty, falling back to cluster...`);
+    } catch (e) {
+      clearInterval(typingRefresh);
+      log(`  OpenClaw agent failed (${e.message?.slice(0, 100)}), falling back to cluster...`);
+    }
+  }
+
   // ── SMART DISPATCH — classify then route to the right node ──
+  // (fallback for simple chat, non-admin, or OpenClaw failure)
+  const needsTools = /\b(fichier|dossier|base de donn|sql|execute|lance|pipeline|query_db|cherche dans|etoile|read_file|ecris|cree|modifie|supprime|disk|espace|ram|memoire|port|service|netstat)\b/i.test(low);
   let reply = '';
   let model = '';
   const start = Date.now();

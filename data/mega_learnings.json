@@ -1,0 +1,202 @@
+{
+  "routing": {
+    "architecture": {
+      "node": "OL1/qwen3:1.7b",
+      "score": 0.752,
+      "avg_ms": 9597,
+      "avg_len": 538,
+      "alternatives": [
+        [
+          "M2/deepseek-r1",
+          0.746
+        ],
+        [
+          "M1/qwen3-8b",
+          0.486
+        ],
+        [
+          "COLLAB/cowork",
+          0.345
+        ]
+      ]
+    },
+    "code": {
+      "node": "OL1/qwen3:1.7b",
+      "score": 0.756,
+      "avg_ms": 9685,
+      "avg_len": 479,
+      "alternatives": [
+        [
+          "M2/deepseek-r1",
+          0.752
+        ],
+        [
+          "M1/qwen3-8b",
+          0.463
+        ],
+        [
+          "COLLAB/cowork",
+          0.422
+        ]
+      ]
+    },
+    "creative": {
+      "node": "M2/deepseek-r1",
+      "score": 0.787,
+      "avg_ms": 10658,
+      "avg_len": 529,
+      "alternatives": [
+        [
+          "OL1/qwen3:1.7b",
+          0.757
+        ],
+        [
+          "COLLAB/cowork",
+          0.439
+        ]
+      ]
+    },
+    "database": {
+      "node": "OL1/qwen3:1.7b",
+      "score": 0.756,
+      "avg_ms": 10214,
+      "avg_len": 508,
+      "alternatives": [
+        [
+          "M2/deepseek-r1",
+          0.729
+        ],
+        [
+          "M1/qwen3-8b",
+          0.436
+        ],
+        [
+          "COLLAB/cowork",
+          0.3
+        ]
+      ]
+    },
+    "debug": {
+      "node": "OL1/qwen3:1.7b",
+      "score": 0.753,
+      "avg_ms": 10130,
+      "avg_len": 474,
+      "alternatives": [
+        [
+          "M2/deepseek-r1",
+          0.747
+        ],
+        [
+          "M1/qwen3-8b",
+          0.448
+        ],
+        [
+          "COLLAB/cowork",
+          0.411
+        ]
+      ]
+    },
+    "knowledge": {
+      "node": "OL1/qwen3:1.7b",
+      "score": 0.76,
+      "avg_ms": 8508,
+      "avg_len": 369,
+      "alternatives": [
+        [
+          "M2/deepseek-r1",
+          0.749
+        ],
+        [
+          "COLLAB/cowork",
+          0.429
+        ],
+        [
+          "M1/qwen3-8b",
+          0.401
+        ]
+      ]
+    },
+    "math": {
+      "node": "OL1/qwen3:1.7b",
+      "score": 0.797,
+      "avg_ms": 9342,
+      "avg_len": 364,
+      "alternatives": [
+        [
+          "M2/deepseek-r1",
+          0.75
+        ],
+        [
+          "COLLAB/cowork",
+          0.426
+        ],
+        [
+          "M1/qwen3-8b",
+          0.396
+        ]
+      ]
+    },
+    "reasoning": {
+      "node": "OL1/qwen3:1.7b",
+      "score": 0.769,
+      "avg_ms": 10106,
+      "avg_len": 405,
+      "alternatives": [
+        [
+          "M2/deepseek-r1",
+          0.752
+        ],
+        [
+          "M1/qwen3-8b",
+          0.547
+        ],
+        [
+          "OC/deep-reasoning",
+          0.3
+        ]
+      ]
+    },
+    "system": {
+      "node": "M2/deepseek-r1",
+      "score": 0.742,
+      "avg_ms": 12897,
+      "avg_len": 518,
+      "alternatives": [
+        [
+          "OL1/qwen3:1.7b",
+          0.736
+        ],
+        [
+          "COLLAB/cowork",
+          0.538
+        ],
+        [
+          "M1/qwen3-8b",
+          0.433
+        ]
+      ]
+    },
+    "trading": {
+      "node": "OL1/qwen3:1.7b",
+      "score": 0.774,
+      "avg_ms": 10038,
+      "avg_len": 488,
+      "alternatives": [
+        [
+          "M2/deepseek-r1",
+          0.754
+        ],
+        [
+          "COLLAB/cowork",
+          0.45
+        ],
+        [
+          "M1/qwen3-8b",
+          0.403
+        ]
+      ]
+    }
+  },
+  "total_results": 983,
+  "timestamp": 1773242156.2764077
+}

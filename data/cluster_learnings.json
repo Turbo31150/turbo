@@ -1,0 +1,199 @@
+{
+  "timestamp": 1773216700.9930367,
+  "total_cycles": 759,
+  "best_per_category": {
+    "architecture": {
+      "best_node": "M2/deepseek-r1",
+      "score": 0.879,
+      "success_rate": 1.0,
+      "avg_ms": 8046,
+      "samples": 69
+    },
+    "code": {
+      "best_node": "M2/deepseek-r1",
+      "score": 0.877,
+      "success_rate": 1.0,
+      "avg_ms": 8207,
+      "samples": 138
+    },
+    "creative": {
+      "best_node": "M1/qwen3-8b",
+      "score": 0.907,
+      "success_rate": 0.929,
+      "avg_ms": 2874,
+      "samples": 14
+    },
+    "database": {
+      "best_node": "M2/deepseek-r1",
+      "score": 0.875,
+      "success_rate": 1.0,
+      "avg_ms": 8343,
+      "samples": 54
+    },
+    "debug": {
+      "best_node": "M2/deepseek-r1",
+      "score": 0.889,
+      "success_rate": 1.0,
+      "avg_ms": 7401,
+      "samples": 27
+    },
+    "general": {
+      "best_node": "M2/deepseek-r1",
+      "score": 0.873,
+      "success_rate": 1.0,
+      "avg_ms": 8459,
+      "samples": 39
+    },
+    "knowledge": {
+      "best_node": "M2/deepseek-r1",
+      "score": 0.883,
+      "success_rate": 1.0,
+      "avg_ms": 7776,
+      "samples": 82
+    },
+    "math": {
+      "best_node": "M2/deepseek-r1",
+      "score": 0.875,
+      "success_rate": 1.0,
+      "avg_ms": 8308,
+      "samples": 95
+    },
+    "reasoning": {
+      "best_node": "M3/deepseek-r1",
+      "score": 0.87,
+      "success_rate": 1.0,
+      "avg_ms": 8641,
+      "samples": 14
+    },
+    "system": {
+      "best_node": "M2/deepseek-r1",
+      "score": 0.885,
+      "success_rate": 1.0,
+      "avg_ms": 7642,
+      "samples": 65
+    },
+    "trading": {
+      "best_node": "M2/deepseek-r1",
+      "score": 0.883,
+      "success_rate": 1.0,
+      "avg_ms": 7802,
+      "samples": 68
+    }
+  },
+  "quality_scores": {
+    "OL1/glm5-cloud": {
+      "avg_len": 2815,
+      "rich_pct": 66,
+      "total_ok": 6
+    },
+    "M2/deepseek-r1": {
+      "avg_len": 807,
+      "rich_pct": 100,
+      "total_ok": 678
+    },
+    "M3/deepseek-r1": {
+      "avg_len": 807,
+      "rich_pct": 100,
+      "total_ok": 683
+    },
+    "OL1/qwen3:1.7b": {
+      "avg_len": 686,
+      "rich_pct": 67,
+      "total_ok": 61
+    },
+    "M1/qwen3-8b": {
+      "avg_len": 258,
+      "rich_pct": 73,
+      "total_ok": 171
+    },
+    "M1/lfm2.5-1.2b": {
+      "avg_len": 111,
+      "rich_pct": 47,
+      "total_ok": 179
+    }
+  },
+  "latency_trends": {
+    "M1/lfm2.5-1.2b": {
+      "early_ms": 5502,
+      "late_ms": 6163,
+      "change_pct": 12
+    },
+    "M1/qwen3-8b": {
+      "early_ms": 7158,
+      "late_ms": 8511,
+      "change_pct": 18
+    },
+    "M2/deepseek-r1": {
+      "early_ms": 7956,
+      "late_ms": 7963,
+      "change_pct": 0
+    },
+    "M3/deepseek-r1": {
+      "early_ms": 9542,
+      "late_ms": 9008,
+      "change_pct": -6
+    },
+    "OL1/qwen3:1.7b": {
+      "early_ms": 10050,
+      "late_ms": 7445,
+      "change_pct": -26
+    }
+  },
+  "routing_recommendations": {
+    "architecture": {
+      "primary": "M2/deepseek-r1",
+      "confidence": 0.879,
+      "avg_ms": 8046
+    },
+    "code": {
+      "primary": "M2/deepseek-r1",
+      "confidence": 0.877,
+      "avg_ms": 8207
+    },
+    "creative": {
+      "primary": "M1/qwen3-8b",
+      "confidence": 0.907,
+      "avg_ms": 2874
+    },
+    "database": {
+      "primary": "M2/deepseek-r1",
+      "confidence": 0.875,
+      "avg_ms": 8343
+    },
+    "debug": {
+      "primary": "M2/deepseek-r1",
+      "confidence": 0.889,
+      "avg_ms": 7401
+    },
+    "general": {
+      "primary": "M2/deepseek-r1",
+      "confidence": 0.873,
+      "avg_ms": 8459
+    },
+    "knowledge": {
+      "primary": "M2/deepseek-r1",
+      "confidence": 0.883,
+      "avg_ms": 7776
+    },
+    "math": {
+      "primary": "M2/deepseek-r1",
+      "confidence": 0.875,
+      "avg_ms": 8308
+    },
+    "reasoning": {
+      "primary": "M3/deepseek-r1",
+      "confidence": 0.87,
+      "avg_ms": 8641
+    },
+    "system": {
+      "primary": "M2/deepseek-r1",
+      "confidence": 0.885,
+      "avg_ms": 7642
+    },
+    "trading": {
+      "primary": "M2/deepseek-r1",
+      "confidence": 0.883,
+      "avg_ms": 7802
+    }
+  }
+}

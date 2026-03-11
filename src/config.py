@@ -124,13 +124,16 @@ class OllamaNode:
 class GeminiNode:
     name: str = "GEMINI"
     proxy_path: str = field(default_factory=lambda: str(PATHS["turbo"] / "gemini-proxy.js"))
-    role: str = "architecture"
-    models: list[str] = field(default_factory=lambda: ["gemini-3-pro", "gemini-3-flash", "gemini-2.5-pro", "gemini-2.5-flash"])
-    default_model: str = "gemini-3-pro"
+    role: str = "polyvalent"
+    models: list[str] = field(default_factory=lambda: [
+        "gemini-2.5-flash", "gemini-2.5-pro", "gemini-3-flash-preview", "gemini-3.1-pro-preview",
+    ])
+    default_model: str = "gemini-2.5-flash"
     timeout_ms: int = 120_000
-    weight: float = 1.2
+    weight: float = 1.5
     use_cases: list[str] = field(default_factory=lambda: [
-        "Architecture", "Vision", "Review code", "Consensus critique"
+        "Architecture", "Vision", "Review code", "Consensus critique",
+        "Recherche web grounded", "Code execution", "Embedding", "Traduction",
     ])
 
 
@@ -262,42 +265,48 @@ class JarvisConfig:
         "general":    "kimi-k2.5:cloud",      # Cloud — polyvalent
     })
 
-    # ── Routing rules (benchmark-tuned 2026-02-26, M1 PRIORITAIRE) ────
-    # M1 100% (qwen3-8b, 0.6-2.5s, 65 tok/s) — PRIORITAIRE code/math/raisonnement
-    # M2 100% (deepseek, 3.9s) — code review | OL1 100% (1.96s) — rapide | M3 100% (5.7s) — general
+    # ── Routing rules (2026-03-11, M1 PRIORITAIRE + GEMINI API direct) ──
+    # M1 100% (qwen3-8b, 0.6-2.5s, 65 tok/s) — PRIORITAIRE code/math
+    # GEMINI API (2.5-flash ~1s, 2.5-pro ~3s) — search/vision/code/archi
+    # M2 (deepseek-r1, 25s) — reasoning | OL1 (1.96s) — rapide | M3 (5.7s) — fallback
     routing: dict[str, list[str]] = field(default_factory=lambda: {
-        "short_answer":    ["OL1", "M1", "M3"],
-        "deep_analysis":   ["M1", "M2", "GEMINI"],
-        "trading_signal":  ["OL1", "M1", "M2"],
-        "code_generation": ["M1", "M2", "M3"],
-        "validation":      ["M2", "OL1", "M1"],
-        "critical":        ["M1", "M2", "OL1", "GEMINI"],
-        "web_research":    ["OL1", "M1"],
-        "reasoning":       ["M1", "M2", "OL1"],
+        "short_answer":    ["OL1", "M1", "GEMINI"],
+        "deep_analysis":   ["M1", "GEMINI", "M2"],
+        "trading_signal":  ["OL1", "M1", "GEMINI"],
+        "code_generation": ["M1", "GEMINI", "M2"],
+        "validation":      ["M2", "GEMINI", "M1"],
+        "critical":        ["M1", "GEMINI", "M2", "OL1"],
+        "web_research":    ["GEMINI", "OL1", "M1"],
+        "reasoning":       ["M1", "GEMINI", "M2", "OL1"],
         "voice_correction": ["OL1"],
-        "auto_learn":      ["OL1", "M2"],
-        "embedding":       ["M1"],
+        "auto_learn":      ["OL1", "GEMINI", "M1"],
+        "embedding":       ["GEMINI", "M1", "OL1"],
+        "vision":          ["GEMINI"],
+        "code_execution":  ["GEMINI"],
+        "grounded_search": ["GEMINI", "OL1"],
         "consensus":       ["M1", "M2", "OL1", "M3", "GEMINI", "CLAUDE"],
         "architecture":    ["GEMINI", "CLAUDE", "M1", "M2"],
         "bridge":          ["M1", "M2", "OL1", "M3", "GEMINI", "CLAUDE"],
     })
 
-    # ── Domain weights (benchmark v3 2026-02-26) ─────────────────────
+    # ── Domain weights (2026-03-11, +GEMINI API direct) ─────────────
     # Probabilistic routing: domain → {node: weight %}
     domain_weights: dict[str, dict[str, float]] = field(default_factory=lambda: {
-        "code":         {"M1": 0.50, "M2": 0.30, "M3": 0.15, "OL1": 0.05},
-        "math":         {"M1": 0.50, "OL1": 0.30, "M2": 0.15, "M3": 0.05},
-        "raisonnement": {"M1": 0.60, "M2": 0.25, "OL1": 0.15},
-        "traduction":   {"OL1": 0.40, "M1": 0.30, "M3": 0.20, "M2": 0.10},
-        "systeme":      {"M1": 0.40, "OL1": 0.35, "M3": 0.15, "M2": 0.10},
-        "trading":      {"OL1": 0.35, "M1": 0.30, "M2": 0.20, "M3": 0.15},
-        "securite":     {"M1": 0.45, "M2": 0.30, "M3": 0.15, "OL1": 0.10},
-        "web":          {"OL1": 0.40, "M1": 0.30, "M3": 0.20, "M2": 0.10},
+        "code":         {"M1": 0.40, "GEMINI": 0.30, "M2": 0.20, "OL1": 0.10},
+        "math":         {"M1": 0.40, "GEMINI": 0.25, "OL1": 0.20, "M2": 0.15},
+        "raisonnement": {"M1": 0.40, "GEMINI": 0.30, "M2": 0.20, "OL1": 0.10},
+        "traduction":   {"GEMINI": 0.35, "OL1": 0.30, "M1": 0.25, "M3": 0.10},
+        "systeme":      {"M1": 0.35, "OL1": 0.30, "GEMINI": 0.25, "M3": 0.10},
+        "trading":      {"OL1": 0.30, "GEMINI": 0.25, "M1": 0.25, "M2": 0.20},
+        "securite":     {"M1": 0.35, "GEMINI": 0.30, "M2": 0.20, "OL1": 0.15},
+        "web":          {"GEMINI": 0.45, "OL1": 0.30, "M1": 0.15, "M3": 0.10},
+        "vision":       {"GEMINI": 0.90, "M1": 0.10},
+        "creation":     {"GEMINI": 0.40, "M1": 0.30, "M2": 0.20, "OL1": 0.10},
     })
 
     # ── Node weights for consensus voting ─────────────────────────────
     node_weights: dict[str, float] = field(default_factory=lambda: {
-        "M1": 1.8, "M2": 1.4, "OL1": 1.3, "GEMINI": 1.2, "CLAUDE": 1.2, "M3": 1.0,
+        "M1": 1.8, "GEMINI": 1.5, "M2": 1.4, "OL1": 1.3, "CLAUDE": 1.2, "M3": 1.0,
     })
 
     # ── Commander Mode routing (benchmark-tuned 2026-02-26, M1 PRIORITAIRE) ──

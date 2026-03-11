@@ -97,6 +97,15 @@ INTENT_TO_AGENT: dict[str, str] = {
     "search": "ol1-web",
     "research": "recherche-synthese",
 
+    # Gemini multimodal — vision/image/video/tts/pdf → @gemini-flash or @gemini-pro
+    "vision": "gemini-flash",
+    "image_gen": "gemini-flash",
+    "video_gen": "gemini-pro",
+    "tts_gen": "gemini-flash",
+    "pdf_analysis": "gemini-flash",
+    "audio_analysis": "gemini-flash",
+    "grounded_search": "gemini-flash",
+
     # Consensus → @consensus-master agent
     "consensus": "consensus-master",
     "critical": "consensus-master",
@@ -104,7 +113,14 @@ INTENT_TO_AGENT: dict[str, str] = {
 
 # ── Keyword patterns for fast classification (no ML needed) ─────────────────
 _FAST_PATTERNS: list[tuple[re.Pattern, str]] = [
-    # Code & Development (highest priority for code-related messages)
+    # Gemini multimodal — HIGHEST PRIORITY (before code_dev/analysis which have overlapping words)
+    (re.compile(r"(?:genere?\s+(?:une?\s+)?image|cree?\s+(?:une?\s+)?image|dessine|illustration|imagen|photo\s+de)", re.I), "image_gen"),
+    (re.compile(r"(?:genere?\s+(?:une?\s+)?video|cree?\s+(?:une?\s+)?video|veo|clip\s+video|anime\s+(?:cette|une))", re.I), "video_gen"),
+    (re.compile(r"(?:tts|text.to.speech|lis\s+(?:a\s+)?voix|synthese\s+vocale|parle\s+(?:ce|le)|prononce)", re.I), "tts_gen"),
+    (re.compile(r"(?:analyse\s+(?:ce\s+)?pdf|lis\s+(?:ce\s+)?pdf|resume\s+(?:ce\s+)?pdf|document\s+pdf)", re.I), "pdf_analysis"),
+    (re.compile(r"(?:analyse\s+(?:cette?\s+)?(?:image|photo|capture|screenshot)|regarde\s+(?:cette?\s+)?(?:image|photo)|decris\s+(?:cette?\s+)?(?:image|photo)|vision)", re.I), "vision"),
+    (re.compile(r"(?:analyse\s+(?:cet?\s+)?audio|ecoute\s+(?:cet?\s+)?audio|transcris)", re.I), "audio_analysis"),
+    # Code & Development (high priority for code-related messages)
     (re.compile(r"(?:code|programme|fonction|classe|script|bug|fix|debug|refactor|parser|ecris?\s+(?:un|une|le|la)|implemente|genere)", re.I), "code_dev"),
     (re.compile(r"(?:explique\s+(?:le\s+)?(?:role|code|fonction|module)|fichiers?\s+modifi|combien\s+de\s+(?:tests?|modules?)|nombre\s+de\s+(?:modules?|fichiers?|lignes?))", re.I), "code_dev"),
     # Security/Audit — BEFORE cluster_ops so "audit securite du cluster" matches security
@@ -138,7 +154,7 @@ _FAST_PATTERNS: list[tuple[re.Pattern, str]] = [
     # Documentation
     (re.compile(r"(?:documente|readme|changelog|api doc|guide)", re.I), "doc"),
     # Voice
-    (re.compile(r"(?:voix|vocal|whisper|tts|microphone|ecoute)", re.I), "voice_control"),
+    (re.compile(r"(?:voix|vocal|whisper|microphone|ecoute)", re.I), "voice_control"),
     # Simple greetings (lowest priority)
     (re.compile(r"(?:bonjour|salut|coucou|hey|bonsoir|comment\s+(?:ca\s+va|vas?\s+tu)|quelle\s+heure)", re.I), "simple"),
 ]
