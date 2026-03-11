@@ -85,6 +85,7 @@ SERVICES = {
     "n8n":           {"port": 5678, "name": "n8n Workflow Automation"},
     "dashboard":     {"port": 8080, "name": "JARVIS Dashboard"},
     "gemini_proxy":  {"port": 18791, "name": "Gemini Proxy"},
+    "gemini_openai": {"port": 18793, "name": "Gemini OpenAI Proxy"},
     "canvas_proxy":  {"port": 18800, "name": "Canvas Direct Proxy"},
     "openclaw":      {"port": 18789, "name": "OpenClaw Gateway"},
     "jarvis_ws":     {"port": 9742, "name": "JARVIS WebSocket"},
@@ -107,6 +108,9 @@ OPENCLAW_CMD = str(HOME / "AppData" / "Roaming" / "npm" / "node_modules" / "open
 
 # Gemini proxy DAEMON (OpenClaw version, HTTP server on :18791)
 GEMINI_PROXY_DAEMON = str(OPENCLAW_DIR / "gemini-proxy.js")
+
+# Gemini OpenAI-compatible proxy (wraps gemini CLI, HTTP server on :18793)
+GEMINI_OPENAI_PROXY = str(TURBO_DIR / "gemini-openai-proxy.js")
 
 # SQLite databases to verify
 DATABASES = {
@@ -637,6 +641,29 @@ def phase_3_node_services(dry_run: bool = False, skip: list[str] | None = None) 
                 log("Gemini proxy: port 18791 pas ouvert apres 10s", "WARN", indent=1)
                 report["gemini_proxy"] = "failed"
 
+    # -- Gemini OpenAI Proxy — wraps gemini CLI as OpenAI-compatible HTTP --
+    gemini_openai = Path(GEMINI_OPENAI_PROXY)
+    if "gemini" not in skip and gemini_openai.exists():
+        if dry_run:
+            log("Gemini OpenAI proxy: (dry-run, skip)", "WARN", indent=1)
+            report["gemini_openai"] = "dry_run"
+        else:
+            was_running = check_port("127.0.0.1", 18793)
+            if was_running:
+                log("Gemini OpenAI proxy: existant detecte, arret via singleton...", "INFO", indent=1)
+            log("Gemini OpenAI proxy: demarrage...", "INFO", indent=1)
+            start_process(
+                ["node", str(gemini_openai)],
+                "Gemini OpenAI Proxy", cwd=str(TURBO_DIR),
+                singleton_port=18793,
+            )
+            if wait_for_port("127.0.0.1", 18793, max_wait=10):
+                log(f"Gemini OpenAI proxy: demarre :18793 (restart={'oui' if was_running else 'non'})", "OK", indent=1)
+                report["gemini_openai"] = "restarted" if was_running else "started"
+            else:
+                log("Gemini OpenAI proxy: port 18793 pas ouvert apres 10s", "WARN", indent=1)
+                report["gemini_openai"] = "failed"
+
     # -- Canvas Direct Proxy — singleton anti-doublon --
     canvas_proxy_path = TURBO_DIR / "canvas" / "direct-proxy.js"
     if "canvas" not in skip and canvas_proxy_path.exists():
@@ -660,9 +687,17 @@ def phase_3_node_services(dry_run: bool = False, skip: list[str] | None = None) 
                 log("Canvas proxy: echec", "FAIL", indent=1)
                 report["canvas_proxy"] = "failed"
 
-    # -- OpenClaw Gateway — kill existant + restart --
+    # -- OpenClaw Gateway — SKIP si telegram-bot.js actif (conflit 409) --
     openclaw_bin = Path(OPENCLAW_CMD)
-    if "openclaw" not in skip and openclaw_bin.exists():
+    try:
+        _tg_check = subprocess.run(["tasklist", "/FI", "IMAGENAME eq node.exe", "/FO", "CSV"], capture_output=True, text=True, timeout=5)
+        tg_bot_running = "telegram-bot" in subprocess.run(["wmic", "process", "where", "name='node.exe'", "get", "commandline"], capture_output=True, text=True, timeout=5).stdout
+    except Exception:
+        tg_bot_running = False
+    if tg_bot_running:
+        log("OpenClaw: SKIP — telegram-bot.js actif (evite conflit 409 Telegram)", "WARN", indent=1)
+        report["openclaw"] = "skipped_tg_conflict"
+    elif "openclaw" not in skip and openclaw_bin.exists():
         if dry_run:
             log("OpenClaw Gateway: (dry-run, skip)", "WARN", indent=1)
             report["openclaw"] = "dry_run"
@@ -1026,6 +1061,17 @@ WATCH_SERVICES = {
     },
     # gemini_proxy: CLI tool (exit immediat), pas un daemon — retire du watchdog
     # Utiliser via: node gemini-proxy.js "prompt"
+    "gemini_openai": {
+        "port": 18793, "host": "127.0.0.1",
+        "cmd": ["node", str(TURBO_DIR / "gemini-openai-proxy.js")],
+        "cwd": str(TURBO_DIR),
+    },
+    "openclaw": {
+        "port": 18789, "host": "127.0.0.1",
+        "cmd": ["node", str(OPENCLAW_CMD), "gateway", "--port", "18789"],
+        "cwd": str(OPENCLAW_DIR),
+        "post_start_wait": 10,
+    },
 }
 
 

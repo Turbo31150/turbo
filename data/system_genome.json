@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-03-07T19:42:44.306361",
+  "platform": {
+    "os": "Windows-11-10.0.26300-SP0",
+    "python": "3.12.10",
+    "cpu_count": 16
+  },
+  "disk_C": {
+    "total_gb": 511,
+    "free_gb": 64
+  },
+  "disk_F": {
+    "total_gb": 479,
+    "free_gb": 82
+  },
+  "tasks": {
+    "active": 140,
+    "disabled": 0,
+    "total_runs": 607,
+    "total_metrics": 1357
+  },
+  "codebase": {
+    "src_modules": 232,
+    "scripts": 51,
+    "tests": 298,
+    "databases": 33
+  },
+  "git_head": "cdb8424 feat: add 15 predictive & self-repair tasks — 125→140 total",
+  "git_commits": 564,
+  "services_online": 5
+}

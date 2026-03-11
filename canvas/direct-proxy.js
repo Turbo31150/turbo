@@ -9,6 +9,12 @@ const { execFileSync, execSync, spawn } = require('child_process');
 const AutolearnEngine = require('./autolearn');
 
 const PORT = 18800;
+
+// ── Strip <think> tags (closed + unclosed/truncated by max_tokens) ────────────
+function stripThink(text) {
+  if (!text) return '';
+  return text.replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/<think>[\s\S]*$/gi, '').replace(/^\/no_?think\s*/i, '').trim();
+}
 const CANVAS_HTML = path.join(__dirname, 'index.html');
 
 // ── Query Enhancer v3 — Make local models perform like Claude ────────────────
@@ -69,8 +75,9 @@ function postProcessResponse(text, cat) {
   if (!text) return text;
   let out = text;
 
-  // Remove thinking tokens that leak through
+  // Remove thinking tokens that leak through (closed + unclosed/truncated)
   out = out.replace(/<think>[\s\S]*?<\/think>/gi, '');
+  out = out.replace(/<think>[\s\S]*$/gi, '');
   out = out.replace(/^\/no_?think\s*/i, '');
 
   // Remove self-referential model artifacts
@@ -166,29 +173,37 @@ const NODES = {
     isProxy: true,
     budget: '0.50'
   },
+  HF: {
+    url: 'https://router.huggingface.co/v1/chat/completions',
+    model: 'Qwen/Qwen3.5-27B',
+    timeout: 25000,
+    name: 'HF/Qwen3.5-27B',
+    isCloud: true,
+    auth: `Bearer ${process.env.HF_TOKEN || ''}`
+  },
 };
 
 // ── Routing: agent category → primary node, fallbacks ───────────────────────
 const ROUTING = {
-  code:    ['M1', 'OL1', 'M3'],      // M1 capable code → OL1 rapide → M3 fallback
-  archi:   ['M1', 'OL1', 'M3'],      // M1 archi → OL1 → M3
-  trading: ['M1', 'OL1', 'M3'],      // M1 trading → OL1 → M3
-  math:    ['M1', 'OL1', 'M3'],      // M1 math → OL1 → M3
-  raison:  ['M1', 'OL1', 'M3'],      // M1 raisonnement → OL1 → M3
-  system:  ['M1', 'OL1', 'M3'],      // M1 systeme → OL1 → M3
-  auto:    ['M1', 'OL1', 'M3'],      // M1 automation → OL1 → M3
-  ia:      ['M1', 'OL1', 'M3'],      // M1 IA → OL1 → M3
-  creat:   ['M1', 'OL1', 'M3'],      // M1 creatif → OL1 → M3
-  sec:     ['M1', 'OL1', 'M3'],      // M1 securite → OL1 → M3
-  web:     ['OL1', 'M1', 'M3'],      // OL1 rapide web → M1 → M3
-  media:   ['M1', 'OL1', 'M3'],      // M1 → OL1 → M3
-  meta:    ['OL1', 'M1', 'M3'],      // OL1 rapide meta → M1 → M3
-  default: ['OL1', 'M1', 'M3'],      // OL1 rapide → M1 → M3
-  simple:  ['OL1', 'M1', 'M3']       // OL1 first for quick Q&A
+  code:    ['M1', 'HF', 'OL1'],      // M1 code champion + HF 27B fallback
+  archi:   ['M1', 'HF', 'OL1'],      // M1 archi + HF deep
+  trading: ['M1', 'OL1'],            // M1 trading (pas de web reel)
+  math:    ['M1', 'OL1'],            // M1 math (Python fast-path dans WS API)
+  raison:  ['M1', 'HF', 'OL1'],     // M1 reasoning + HF 27B deep
+  system:  ['M1', 'OL1'],            // M1 systeme → OL1
+  auto:    ['M1', 'OL1'],            // M1 automation
+  ia:      ['M1', 'HF', 'OL1'],     // M1 IA + HF deep
+  creat:   ['OL1', 'M1'],            // OL1 rapide pour creatif
+  sec:     ['M1', 'HF', 'OL1'],     // M1 securite + HF analyse
+  web:     ['OL1', 'M1'],            // OL1 web (minimax cloud)
+  media:   ['M1', 'OL1'],            // M1 → OL1
+  meta:    ['OL1', 'M1'],            // OL1 rapide meta
+  default: ['OL1', 'M1'],            // OL1 rapide → M1
+  simple:  ['OL1', 'M1']             // OL1 first (84 tok/s)
 };
 
 // ── Node weights for consensus voting (benchmark 2026-02-26) ─────────────────
-const NODE_WEIGHTS = { M1: 1.8, OL1: 1.3, M3: 1.0, M2: 1.4, GPT_OSS: 1.9, DEVSTRAL: 1.5, GEMINI: 1.2, CLAUDE: 1.2 };
+const NODE_WEIGHTS = { M1: 1.9, OL1: 1.4, HF: 1.6, M3: 1.1, M2: 1.5, GEMINI: 1.2, CLAUDE: 1.2 };
 
 // ── Round-robin counter ──────────────────────────────────────────────────────
 let rrCounter = 0;
@@ -238,12 +253,12 @@ const AGENT_CAT = {
   'ol1-web': 'web', 'pipeline-comet': 'web',
   'voice-assistant': 'media', 'gemini-flash': 'media',
   'main': 'default', 'fast-chat': 'default',
-  'telegram': 'default', 'telegram-user': 'default', 'consensus': 'ia'
+  'telegram': 'system', 'telegram-user': 'system', 'consensus': 'ia'
 };
 
 // ── System prompts v2 — Expert-level per domain ─────────────────────────────
 const SYS_PROMPTS = {
-  code: 'Tu es JARVIS, ingenieur logiciel senior (15 ans, expert Python/JS/TS/Bash/PowerShell).\n\n' +
+  code: 'Tu es JARVIS, ingenieur logiciel senior (15 ans, expert Python/JS/TS/Bash).\n\n' +
     'PROCESSUS OBLIGATOIRE:\n' +
     '1. **Comprendre** — Reformule le besoin en 1 phrase. Identifie: inputs, outputs, contraintes, edge cases.\n' +
     '2. **Planifier** — Si >20 lignes: decompose en fonctions/modules. Nomme-les AVANT de coder.\n' +
@@ -280,15 +295,43 @@ const SYS_PROMPTS = {
     'REGLES: Chiffres PRECIS (pas "autour de"). R/R minimum 1.5:1. SL OBLIGATOIRE.\n' +
     'INTERDIT: Speculation sans donnees. Signal sans confluences. Ignorer le risk management.',
 
-  system: 'Tu es JARVIS, administrateur systeme Windows expert (PowerShell, GPU, reseaux, services).\n\n' +
-    'PROCESSUS:\n' +
-    '1. **Diagnostic** — Etat actuel: commande(s) de verification.\n' +
-    '2. **Cause** — Hypothese la plus probable + alternatives.\n' +
-    '3. **Solution** — Commande(s) PowerShell COMPLETES, chemins absolus, pas de placeholder.\n' +
-    '4. **Verification** — Commande de check post-fix. Resultat attendu.\n\n' +
-    'REGLES: PowerShell > CMD. Chemins absolus. TOUJOURS tester avant de supprimer.\n' +
-    'ENV: Windows 11 Pro, 10 GPU, cluster 3 machines (M1/M2/M3), Ollama, LM Studio.\n' +
-    'INTERDIT: Placeholder ("votre-chemin"). Commandes destructives sans confirmation.',
+  system: 'Tu es JARVIS, assistant IA autonome et administrateur systeme Windows.\n' +
+    'Ton createur s\'appelle Turbo. Tu reponds TOUJOURS en francais.\n\n' +
+    '## SHELL = cmd.exe (CRITIQUE — LIRE EN PREMIER)\n' +
+    'Ton outil exec utilise cmd.exe. PAS PowerShell, PAS bash.\n' +
+    'INTERDIT en direct: Get-Process, Get-WmiObject, Get-CimInstance, Select-Object, Sort-Object, Where-Object, $env:, @{}, toute syntaxe PowerShell.\n' +
+    'AUTORISE en direct: nvidia-smi, curl, python, netstat, tasklist, wmic, dir, type, findstr, taskkill.\n' +
+    'Si tu VEUX du PowerShell: powershell -Command "ta commande ici"\n' +
+    'Exemples corrects:\n' +
+    '  nvidia-smi                              (PAS: Get-CimInstance Win32_VideoController)\n' +
+    '  tasklist /fi "imagename eq python.exe"   (PAS: Get-Process python)\n' +
+    '  wmic cpu get loadpercentage              (PAS: Get-WmiObject Win32_Processor)\n' +
+    '  netstat -ano | findstr ":9742"           (PAS: Get-NetTCPConnection)\n\n' +
+    '## CLUSTER\n' +
+    '- M1 (127.0.0.1:1234) — qwen3-8b, PRIMARY, 6 GPU\n' +
+    '- OL1 (127.0.0.1:11434) — qwen3:1.7b + cloud\n' +
+    '- M2 (192.168.1.26:1234) — deepseek-r1 (souvent OFFLINE)\n' +
+    '- M3 (192.168.1.113:1234) — deepseek-r1 fallback\n\n' +
+    '## COMMANDES RAPIDES (exec direct, cmd.exe)\n' +
+    '- GPU: nvidia-smi --query-gpu=name,temperature.gpu,memory.used,memory.total,utilization.gpu --format=csv,noheader\n' +
+    '- M1: curl -s --max-time 3 http://127.0.0.1:1234/api/v1/models\n' +
+    '- OL1: curl -s --max-time 3 http://127.0.0.1:11434/api/tags\n' +
+    '- Services: netstat -ano | findstr ":9742 :18800 :18789 :8080 :11434 :1234"\n' +
+    '- Disk: wmic logicaldisk get size,freespace,caption\n' +
+    '- RAM top: tasklist /fi "memusage gt 100000" /fo csv\n' +
+    '- Processes: tasklist /fo csv /nh\n\n' +
+    '## REGLE ABSOLUE : AGIS D\'ABORD\n' +
+    '1. Turbo demande un diagnostic → lance exec(nvidia-smi) + exec(curl health) → synthese\n' +
+    '2. Ne dis JAMAIS "je ne peux pas" — tu as exec, read_file, query_db, write_file\n' +
+    '3. Auto-repair: si un service est down, tente de le relancer\n' +
+    '4. Concis mais complet. Chiffres precis.\n\n' +
+    '## CHEMINS\n' +
+    '- Projet: F:\\BUREAU\\turbo\\\n' +
+    '- Data/DB: F:\\BUREAU\\turbo\\data\\ (etoile.db, jarvis.db, sniper.db)\n' +
+    '- Scripts: F:\\BUREAU\\turbo\\scripts\\\n' +
+    '- Boot: F:\\BUREAU\\turbo\\jarvis_unified_boot.py\n\n' +
+    'ENV: Windows 11 Pro, 6 GPU (RTX2060 12GB + 4x GTX1660S 6GB + RTX3080 10GB), cluster 3 machines.\n' +
+    'INTERDIT: Placeholder. Commandes destructives sans confirmation. Syntaxe PowerShell sans prefixe "powershell -Command".',
 
   auto: 'Tu es JARVIS, expert automatisation et orchestration (CI/CD, pipelines, cron, n8n).\n\n' +
     'PROCESSUS:\n' +
@@ -297,7 +340,8 @@ const SYS_PROMPTS = {
     '3. **Code** — Script complet, autonome, idempotent. Logs structures a chaque etape.\n' +
     '4. **Deploy** — Comment lancer, planifier, monitorer.\n\n' +
     'QUALITE: Retry avec backoff. Fallback explicite. Timeouts. Logs JSON quand possible.\n' +
-    'LANGUE: Francais. Scripts en Python/Bash/PowerShell.',
+    'LANGUE: Francais. Scripts en Python/Bash.\n' +
+    'SHELL exec = cmd.exe. INTERDIT: Get-Process, Get-WmiObject, Get-CimInstance, Select-Object, Sort-Object. AUTORISE: nvidia-smi, curl, python, netstat, tasklist, wmic, dir, type. Pour PowerShell: powershell -Command "..."',
 
   ia: 'Tu es JARVIS, expert intelligence artificielle et systemes multi-agents.\n\n' +
     'PROCESSUS:\n' +
@@ -390,16 +434,75 @@ const SYS_PROMPTS = {
     '**Conclusion:** [reponse] (confiance: X)\n\n' +
     'INTERDIT: Conclure sans raisonner. Ignorer les premisses implicites. Reponse hative.',
 
-  default: 'Tu es JARVIS, assistant IA haute performance.\n\n' +
-    'PROCESSUS:\n' +
-    '1. **Comprendre** — Reformule brievement la demande.\n' +
-    '2. **Repondre** — Structure: titres, listes, blocs de code si pertinent.\n' +
-    '3. **Verifier** — Relis ta reponse avant de conclure.\n\n' +
-    'REGLES:\n' +
-    '- Francais toujours. Concis mais complet.\n' +
+  default: 'Tu es JARVIS, assistant IA autonome et cerveau central du cluster JARVIS Turbo v12.4.\n' +
+    'Ton createur s\'appelle Turbo. Tu reponds TOUJOURS en francais.\n\n' +
+    '## CLUSTER\n' +
+    '- M1 (127.0.0.1:1234) — qwen3-8b, 6 GPU 46GB, PRIMARY\n' +
+    '- OL1 (127.0.0.1:11434) — qwen3:1.7b + minimax/glm-5/kimi cloud\n' +
+    '- M2 (192.168.1.26:1234) — deepseek-r1, reasoning (souvent OFFLINE)\n' +
+    '- M3 (192.168.1.113:1234) — deepseek-r1, fallback reasoning\n\n' +
+    '## SERVICES (ports)\n' +
+    '- WS FastAPI :9742 — API principale Python\n' +
+    '- Proxy :18800 — Toi (chat + tools)\n' +
+    '- Dashboard :8080 — Interface web\n' +
+    '- Ollama :11434 — Modeles locaux + cloud\n' +
+    '- OpenClaw :18789 — Gateway multi-agents\n' +
+    '- Gemini Proxy :18791 — Bridge Google\n\n' +
+    '## TES OUTILS (utilise-les ACTIVEMENT)\n' +
+    'Tu as 10 tools systeme. Utilise-les pour AGIR, pas juste parler:\n' +
+    '- **exec**: Execute une commande cmd.exe (nvidia-smi, curl, python, netstat, tasklist, wmic...)\n' +
+    '- **read_file**: Lire un fichier (code, config, logs)\n' +
+    '- **write_file**: Ecrire/creer un fichier\n' +
+    '- **edit_file**: Modifier un fichier existant (old→new)\n' +
+    '- **list_dir**: Lister un dossier\n' +
+    '- **query_db**: SQL SELECT sur etoile.db, jarvis.db, sniper.db (chemin: F:/BUREAU/turbo/data/)\n' +
+    '- **mkdir, delete**: Creer/supprimer dossiers/fichiers\n' +
+    '- **pipeline**: Lancer un launcher/script JARVIS\n\n' +
+    '## AUTONOMIE — REGLES ABSOLUES\n' +
+    '1. **AGIS d\'abord, explique ensuite.** Si Turbo demande un diagnostic: lance les commandes, lis les resultats, PUIS reponds.\n' +
+    '2. **Enchaine les tools.** Un diagnostic = exec(nvidia-smi) + exec(curl health) + query_db(metrics) → synthese.\n' +
+    '3. **Ne dis JAMAIS "je ne peux pas".** Tu as exec + read/write + SQL. Tu PEUX presque tout faire.\n' +
+    '4. **Auto-repair.** Si un service est down, tente de le relancer avec exec AVANT de signaler le probleme.\n\n' +
+    '## COMMANDES BOOT (quand Turbo dit "demarre" ou "boot")\n' +
+    '1. exec: curl -s http://127.0.0.1:1234/api/v1/models → verifier M1\n' +
+    '2. exec: curl -s http://127.0.0.1:11434/api/tags → verifier OL1\n' +
+    '3. exec: nvidia-smi --query-gpu=name,temperature.gpu,memory.used --format=csv,noheader → GPU\n' +
+    '4. exec: curl -s http://127.0.0.1:9742/api/health || echo OFFLINE → WS\n' +
+    '5. query_db: SELECT COUNT(*) as total_rows FROM map → etoile.db\n' +
+    '6. Rapport structure: Cluster OK/KO, GPU temps, services UP/DOWN, DB stats\n\n' +
+    '## CHEMINS IMPORTANTS\n' +
+    '- Projet: F:/BUREAU/turbo/\n' +
+    '- Sources: F:/BUREAU/turbo/src/\n' +
+    '- Scripts: F:/BUREAU/turbo/scripts/\n' +
+    '- Data/DB: F:/BUREAU/turbo/data/ (etoile.db, jarvis.db, sniper.db, scheduler.db)\n' +
+    '- Canvas: F:/BUREAU/turbo/canvas/\n' +
+    '- Launchers: F:/BUREAU/turbo/launchers/\n' +
+    '- Cowork: F:/BUREAU/turbo/cowork/dev/\n' +
+    '- Boot: F:/BUREAU/turbo/jarvis_unified_boot.py\n\n' +
+    '## SHELL = cmd.exe (CRITIQUE)\n' +
+    'exec utilise cmd.exe. PAS PowerShell, PAS bash.\n' +
+    'INTERDIT en direct: Get-Process, Get-WmiObject, Get-CimInstance, Select-Object, Sort-Object, Where-Object, $env:.\n' +
+    'AUTORISE en direct: nvidia-smi, curl, python, netstat, tasklist, wmic, dir, type, findstr, taskkill.\n' +
+    'Pour du PowerShell: powershell -Command "..."\n\n' +
+    '## HEALTH CHECK RAPIDE (exec, cmd.exe)\n' +
+    '```\ncurl -s --max-time 3 http://127.0.0.1:1234/api/v1/models | python -c "import sys,json;d=json.load(sys.stdin);print(\'M1:\',len([m for m in d.get(\'data\',d.get(\'models\',[]))  if m.get(\'loaded_instances\')]))" 2>/dev/null || echo M1_OFFLINE\n```\n' +
+    '```\ncurl -s --max-time 3 http://127.0.0.1:11434/api/tags | python -c "import sys,json;print(\'OL1:\',len(json.load(sys.stdin).get(\'models\',[])))" 2>/dev/null || echo OL1_OFFLINE\n```\n\n' +
+    '## DATABASES — TABLES CLES\n' +
+    '- etoile.db: map(2677), pipeline_dictionary(2658), voice_corrections(2628), domino_chains(835), self_improve_log(1388)\n' +
+    '- jarvis.db: commands(2250), voice_corrections(5561), scenarios(2123), voice_commands(854)\n' +
+    '- sniper.db: signals(641), coins(81), scans(57)\n\n' +
+    '## SELF-IMPROVE\n' +
+    'Quand Turbo dit "ameliore-toi" ou "auto-improve":\n' +
+    '1. query_db: SELECT * FROM self_improve_log ORDER BY rowid DESC LIMIT 5 → derniers cycles\n' +
+    '2. exec: python F:/BUREAU/turbo/src/self_improve_engine.py → lancer un cycle\n' +
+    '3. Analyser les resultats et reporter\n\n' +
+    '## STYLE\n' +
+    '- Concis mais complet. Pas de blabla.\n' +
+    '- Structure avec **titres**, listes, blocs de code.\n' +
     '- Raisonne etape par etape pour les questions complexes.\n' +
-    '- Si ambigue: demande une clarification plutot que deviner.\n' +
-    '- Exemples concrets > explications abstraites.'
+    '- Si ambigue: demande clarification.\n' +
+    '- Exemples concrets > explications abstraites.\n' +
+    '- Tu es un AGENT, pas un chatbot. AGIS.'
 };
 
 // ── Autolearn Engine ────────────────────────────────────────────────────────
@@ -716,7 +819,7 @@ async function executeTool(toolName, args) {
       ];
       const body = { model: 'minimax-m2.5:cloud', messages, stream: false, think: false };
       const res = await httpRequest('http://127.0.0.1:11434/api/chat', body, {}, 30000);
-      const text = (res.message?.content || '').replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+      const text = stripThink(res.message?.content || '');
       return { ok: true, query, results: text };
     } catch (e) {
       return { ok: false, error: e.message, query: args.query };
@@ -767,6 +870,28 @@ function parseToolCall(text) {
 // ── Agent system prompt with tools ──────────────────────────────────────────
 const COCKPIT_TOOLS_PROMPT = [
   '',
+  '=== SHELL = cmd.exe (LIRE EN PREMIER — CRITIQUE) ===',
+  'Le shell est cmd.exe. PAS PowerShell, PAS bash.',
+  'INTERDIT en direct: Get-Process, Get-WmiObject, Get-CimInstance, Select-Object, Sort-Object, Where-Object, Format-Table, Measure-Object, $env:, @{}, |%, |?.',
+  'AUTORISE en direct: nvidia-smi, curl, python, netstat, tasklist, wmic, dir, type, findstr, taskkill, ping, ipconfig.',
+  'Si tu VEUX du PowerShell: powershell -Command "ta commande"',
+  'Exemples CORRECTS vs FAUX:',
+  '  CORRECT: nvidia-smi                    FAUX: Get-CimInstance Win32_VideoController',
+  '  CORRECT: tasklist /fi "imagename eq python.exe"  FAUX: Get-Process python',
+  '  CORRECT: wmic cpu get loadpercentage   FAUX: Get-WmiObject Win32_Processor',
+  '  CORRECT: netstat -ano | findstr ":9742"  FAUX: Get-NetTCPConnection',
+  '  CORRECT: tasklist /fo csv              FAUX: Get-Process | Sort-Object CPU',
+  '',
+  'COMMANDES DIAGNOSTIQUES COURANTES (copie-colle tel quel, cmd.exe):',
+  '- GPU:       nvidia-smi --query-gpu=name,temperature.gpu,memory.used,memory.total,utilization.gpu --format=csv,noheader',
+  '- M1 health: curl -s --max-time 3 http://127.0.0.1:1234/api/v1/models',
+  '- OL1 health: curl -s --max-time 3 http://127.0.0.1:11434/api/tags',
+  '- Services:  netstat -ano | findstr ":9742 :18800 :18789 :8080"',
+  '- Processes: tasklist /fo csv /nh',
+  '- Disk:      wmic logicaldisk get size,freespace,caption',
+  '- RAM:       tasklist /fi "memusage gt 100000" /fo csv',
+  '- Boot diag: python F:/BUREAU/turbo/scripts/jarvis_boot_telegram.py',
+  '',
   '=== OUTILS SYSTEME (OBLIGATOIRE) ===',
   'Tu as acces au systeme Windows. Pour TOUTE action (lire fichier, lister dossier, executer commande, etc.),',
   'tu DOIS utiliser un outil. NE REPONDS JAMAIS de memoire. Utilise TOUJOURS un outil.',
@@ -803,13 +928,18 @@ function classifyComplexity(userText, agentCat) {
   const alwaysReflexive = ['math', 'raison'];
   if (alwaysReflexive.includes(agentCat)) return 'reflexive';
 
+  // Auto-detect reasoning patterns even when agent category is 'default'
+  const low = userText.toLowerCase();
+  const reasoningPat = /\b(escargot|grimpe.*glisse|monte.*descend|combien de jours|combien de temps|si on suppose|supposons|imagine que|paradoxe|enigme|puzzle|devinette|probabilite|logique)\b/i;
+  if (reasoningPat.test(low)) return 'reflexive';
+
   // Keyword detection for deep analysis (overrides category)
   const complexKeywords = /\b(analyse|compare|cherche.*explique|d[eé]taill[eé]|pourquoi|comment.*fonctionne|refactor|debug|optimise|audit|review|[eé]value|synth[eè]se|r[eé]sume.*tout|en d[eé]tail|raisonne|logique|d[eé]dui[st]|syllogisme|conclure|pr[eé]misse|calcule|[eé]quation|math[eé]matique|probabilit[eé]|d[eé]montre)\b/i;
   if (complexKeywords.test(userText)) return 'reflexive';
 
   // Tool-implying keywords (only for longer queries — short voice commands stay simple)
   if (userText.length > 30) {
-    const toolKeywords = /\b(query_db|etoile|base de donn[eé]es|sql|fichier|dossier|pipeline|execute|lance|cherche dans|combien|table|entrees|donnees)\b/i;
+    const toolKeywords = /\b(query_db|etoile|base de donn[eé]es|sql|fichier|dossier|pipeline|execute|lance|cherche dans|combien|table|entrees|donnees|demarre|boot|diagnostic|health|gpu|nvidia|cluster|status|sant[eé]|am[eé]liore|auto.?improve|temperature|vram)\b/i;
     if (toolKeywords.test(userText)) return 'reflexive';
   }
 
@@ -844,7 +974,7 @@ const REFLEXIVE_CHAIN = [
     '\n4. Identifie les lacunes ou incertitudes' +
     '\nUtilise des outils UNIQUEMENT si les donnees sont insuffisantes.' +
     '\nFORMAT: analyse structuree avec conclusions intermediaires.' },
-  { nodeId: 'OL1',  role: 'review',    maxTurns: 2, systemSuffix:
+  { nodeId: 'M1',  role: 'review',    maxTurns: 2, systemSuffix:
     '\n\n--- ROLE: ETAPE 3/3 — REVIEW & REPONSE FINALE ---' +
     '\nTa mission: verifier l\'analyse, corriger les erreurs, et donner la REPONSE FINALE.' +
     '\nPROCESSUS:' +
@@ -1033,7 +1163,7 @@ async function reflexiveChat(agentId, userText) {
     }
 
     // Clean stepText + post-process
-    stepText = stepText.replace(/\[TOOL:\w+[^\]]*\]/g, '').replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/^\/no_think\s*/i, '').trim();
+    stepText = stripThink(stepText.replace(/\[TOOL:\w+[^\]]*\]/g, ''));
     stepText = postProcessResponse(stepText, cat);
 
     const stepDuration = Date.now() - stepStart;
@@ -1064,13 +1194,54 @@ async function reflexiveChat(agentId, userText) {
 }
 
 // ── Agentic loop ────────────────────────────────────────────────────────────
+// Arithmetic fast-path (8B models fail at large multiplication)
+function tryArithmetic(text) {
+  const low = text.toLowerCase().trim();
+  const patterns = [
+    { re: /combien\s+(?:font|fait)\s+(\d[\d\s]*)\s*(?:multipli[eé]s?|fois|\*|x)\s*(?:par\s+)?(\d[\d\s]*)/, op: '*' },
+    { re: /(\d[\d\s]*)\s*(?:multipli[eé]s?|fois|\*|x)\s*(?:par\s+)?(\d[\d\s]*)/, op: '*' },
+    { re: /combien\s+(?:font|fait)\s+(\d[\d\s]*)\s*(?:plus|\+)\s*(\d[\d\s]*)/, op: '+' },
+    { re: /combien\s+(?:font|fait)\s+(\d[\d\s]*)\s*(?:moins|-)\s*(\d[\d\s]*)/, op: '-' },
+    { re: /combien\s+(?:font|fait)\s+(\d[\d\s]*)\s*(?:divis[eé]s?|\/)\s*(?:par\s+)?(\d[\d\s]*)/, op: '/' },
+    // Bare expressions: "2+3", "123 * 456", "50/2"
+    { re: /^(\d[\d\s]*)\s*\*\s*(\d[\d\s]*)$/, op: '*' },
+    { re: /^(\d[\d\s]*)\s*\+\s*(\d[\d\s]*)$/, op: '+' },
+    { re: /^(\d[\d\s]*)\s*-\s*(\d[\d\s]*)$/, op: '-' },
+    { re: /^(\d[\d\s]*)\s*\/\s*(\d[\d\s]*)$/, op: '/' },
+  ];
+  for (const { re, op } of patterns) {
+    const m = low.match(re);
+    if (m) {
+      try {
+        const a = parseInt(m[1].replace(/\s/g, ''), 10);
+        const b = parseInt(m[2].replace(/\s/g, ''), 10);
+        if (isNaN(a) || isNaN(b) || (b === 0 && op === '/')) return null;
+        let r;
+        if (op === '*') r = a * b;
+        else if (op === '+') r = a + b;
+        else if (op === '-') r = a - b;
+        else r = Math.round((a / b) * 100) / 100;
+        const fmt = (n) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        return `${fmt(a)} ${op} ${fmt(b)} = **${fmt(r)}**`;
+      } catch { return null; }
+    }
+  }
+  return null;
+}
+
 async function agenticChat(agentId, userText) {
+  // Fast-path: pure arithmetic (instant, exact — 8B models can't multiply large numbers)
+  const arith = tryArithmetic(userText);
+  if (arith) {
+    return { text: arith, model: 'js-math', provider: 'fast-path', tools_used: [], turns: 0 };
+  }
+
   const cat = AGENT_CAT[agentId] || 'default';
   const chain = ROUTING[cat] || ROUTING.default;
   // Only inject tools for categories that actually need system access
-  const toolsCats = ['system', 'auto', 'web', 'ia', 'sec'];
+  const toolsCats = ['system', 'auto', 'web', 'ia', 'sec', 'default'];
   // Also inject if user message implies tool usage (files, DB, exec)
-  const toolKeywordsRe = /\b(fichier|dossier|base de donn|sql|execute|lance|pipeline|query_db|cherche dans|list_dir|exec|etoile|read_file)\b/i;
+  const toolKeywordsRe = /\b(fichier|dossier|base de donn|sql|execute|lance|pipeline|query_db|cherche dans|list_dir|exec|etoile|read_file|demarre|boot|diagnostic|health|gpu|nvidia|cluster|status|sant[eé]|am[eé]liore|auto.?improve|temperature|vram)\b/i;
   const needsTools = toolsCats.includes(cat) || toolKeywordsRe.test(userText);
   let sysProm = (SYS_PROMPTS[cat] || SYS_PROMPTS.default);
   if (needsTools) {
@@ -1269,7 +1440,7 @@ async function callNode(nodeId, messages, category) {
     };
     const res = await httpRequest(node.url, body, headers, node.timeout);
     const text = res.message?.content || '';
-    return { text: text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim(), model: node.model, provider: 'ollama' };
+    return { text: stripThink(text), model: node.model, provider: 'ollama' };
   } else {
     // OpenAI-compatible (LM Studio)
     // Sanitize messages: ensure every message has a string content field
@@ -1294,7 +1465,7 @@ async function callNode(nodeId, messages, category) {
     const res = await httpRequest(node.url, body, headers, node.timeout);
     const text = res.choices?.[0]?.message?.content
       || res.choices?.[0]?.message?.reasoning_content || '';
-    return { text: text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim(), model: node.model, provider: 'lm-studio' };
+    return { text: stripThink(text), model: node.model, provider: 'lm-studio' };
   }
 }
 
@@ -1345,7 +1516,7 @@ function callProxyNode(nodeId, node, messages) {
       try {
         const json = JSON.parse(stdout);
         const text = json.text || json.response || json.content || JSON.stringify(json);
-        resolve({ text: text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim(), model: node.model, provider: nodeId.toLowerCase() });
+        resolve({ text: stripThink(text), model: node.model, provider: nodeId.toLowerCase() });
       } catch (_) {
         // Plain text output
         const text = stdout.trim();
@@ -1353,7 +1524,7 @@ function callProxyNode(nodeId, node, messages) {
           reject(new Error(nodeId + ' returned empty response'));
           return;
         }
-        resolve({ text: text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim(), model: node.model, provider: nodeId.toLowerCase() });
+        resolve({ text: stripThink(text), model: node.model, provider: nodeId.toLowerCase() });
       }
     });
 
@@ -1425,55 +1596,68 @@ async function routeAndCall(agentId, userText) {
 
 // ── Health check: ping all nodes ────────────────────────────────────────────
 async function healthCheck() {
-  const checks = [
-    { name: 'OL1', url: 'http://127.0.0.1:11434/api/tags' },
-    { name: 'M2', url: 'http://192.168.1.26:1234/v1/models', headers: { Authorization: NODES.M2.auth } },
-    { name: 'M3', url: 'http://192.168.1.113:1234/v1/models', headers: { Authorization: NODES.M3.auth } },
-    { name: 'M1', url: 'http://127.0.0.1:1234/v1/models' },
-    { name: 'GEMINI', proxy: true },
-    { name: 'CLAUDE', proxy: true }
-  ];
+  const HEALTH_TIMEOUT_MS = 5000;
 
-  const results = await Promise.all(checks.map(n => {
-    if (n.proxy) {
-      // CLI proxy health check via --ping
+  const doCheck = async () => {
+    const checks = [
+      { name: 'OL1', url: 'http://127.0.0.1:11434/api/tags' },
+      { name: 'M2', url: 'http://192.168.1.26:1234/v1/models', headers: { Authorization: NODES.M2.auth } },
+      { name: 'M3', url: 'http://192.168.1.113:1234/v1/models', headers: { Authorization: NODES.M3.auth } },
+      { name: 'M1', url: 'http://127.0.0.1:1234/v1/models' },
+      { name: 'GEMINI', proxy: true },
+      { name: 'CLAUDE', proxy: true }
+    ];
+
+    const results = await Promise.all(checks.map(n => {
+      if (n.proxy) {
+        // CLI proxy health check via --ping
+        return new Promise(resolve => {
+          const start = Date.now();
+          const proxyPath = NODES[n.name]?.proxy;
+          if (!proxyPath) { resolve({ name: n.name, ok: false, latency: 0 }); return; }
+          const proc = spawn('node', [proxyPath, '--ping'], { timeout: 3000, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true });
+          let out = '';
+          proc.stdout.on('data', d => out += d);
+          proc.on('close', code => resolve({ name: n.name, ok: code === 0 || out.includes('OK'), latency: Date.now() - start }));
+          proc.on('error', () => resolve({ name: n.name, ok: false, latency: 0 }));
+          setTimeout(() => { try { proc.kill(); } catch (_) {} }, 3000);
+        });
+      }
       return new Promise(resolve => {
         const start = Date.now();
-        const proxyPath = NODES[n.name]?.proxy;
-        if (!proxyPath) { resolve({ name: n.name, ok: false, latency: 0 }); return; }
-        const proc = spawn('node', [proxyPath, '--ping'], { timeout: 8000, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true });
-        let out = '';
-        proc.stdout.on('data', d => out += d);
-        proc.on('close', code => resolve({ name: n.name, ok: code === 0 || out.includes('OK'), latency: Date.now() - start }));
-        proc.on('error', () => resolve({ name: n.name, ok: false, latency: 0 }));
-        setTimeout(() => { try { proc.kill(); } catch (_) {} }, 8000);
+        const url = new URL(n.url);
+        const opts = { hostname: url.hostname, port: url.port, path: url.pathname, method: 'GET', timeout: 3000, headers: n.headers || {} };
+        const r = http.request(opts, res => {
+          let d = '';
+          res.on('data', c => d += c);
+          res.on('end', () => resolve({ name: n.name, ok: res.statusCode === 200, latency: Date.now() - start }));
+        });
+        r.on('error', () => resolve({ name: n.name, ok: false, latency: 0 }));
+        r.on('timeout', () => { r.destroy(); resolve({ name: n.name, ok: false, latency: 0 }); });
+        r.end();
       });
-    }
-    return new Promise(resolve => {
-      const start = Date.now();
-      const url = new URL(n.url);
-      const opts = { hostname: url.hostname, port: url.port, path: url.pathname, method: 'GET', timeout: 4000, headers: n.headers || {} };
-      const r = http.request(opts, res => {
-        let d = '';
-        res.on('data', c => d += c);
-        res.on('end', () => resolve({ name: n.name, ok: res.statusCode === 200, latency: Date.now() - start }));
-      });
-      r.on('error', () => resolve({ name: n.name, ok: false, latency: 0 }));
-      r.on('timeout', () => { r.destroy(); resolve({ name: n.name, ok: false, latency: 0 }); });
-      r.end();
-    });
-  }));
+    }));
 
-  // Enrich with circuit breaker state
-  const enriched = results.map(r => {
-    const cb = nodeCircuits[r.name];
-    return {
-      ...r,
-      circuit: (!cb || cb.fails < CB_FAIL_THRESHOLD) ? 'closed' : (cb.openAt && Date.now() - cb.openAt >= CB_COOLDOWN_MS ? 'half-open' : 'open'),
-      cbFails: cb?.fails || 0
-    };
-  });
-  return { ok: enriched.some(r => r.ok), proxy: 'direct-proxy', port: PORT, uptime: process.uptime(), rrCounter, nodes: enriched };
+    // Enrich with circuit breaker state
+    const enriched = results.map(r => {
+      const cb = nodeCircuits[r.name];
+      return {
+        ...r,
+        circuit: (!cb || cb.fails < CB_FAIL_THRESHOLD) ? 'closed' : (cb.openAt && Date.now() - cb.openAt >= CB_COOLDOWN_MS ? 'half-open' : 'open'),
+        cbFails: cb?.fails || 0
+      };
+    });
+    return { ok: enriched.some(r => r.ok), proxy: 'direct-proxy', port: PORT, uptime: process.uptime(), rrCounter, nodes: enriched };
+  };
+
+  // Global timeout wrapper — return partial failure if checks take too long
+  return Promise.race([
+    doCheck(),
+    new Promise(resolve => setTimeout(() => resolve({
+      ok: false, proxy: 'direct-proxy', port: PORT, uptime: process.uptime(), rrCounter,
+      nodes: [], error: 'healthCheck timeout after ' + HEALTH_TIMEOUT_MS + 'ms'
+    }), HEALTH_TIMEOUT_MS))
+  ]);
 }
 
 // ── HTTP Server ─────────────────────────────────────────────────────────────
@@ -1490,8 +1674,15 @@ const server = http.createServer(async (req, res) => {
       try {
         const parsed = JSON.parse(body);
         const agentId = parsed.agent || 'main';
-        // Support both {text:"..."} and {messages:[{role:"user",content:"..."}]}
-        const text = parsed.text || (parsed.messages && parsed.messages.filter(m => m.role === 'user').map(m => m.content).join('\n')) || '';
+        // Support {text:"..."}, {message:"..."} and {messages:[{role:"user",content:"..."}]}
+        const text = parsed.text || parsed.message || (parsed.messages && parsed.messages.filter(m => m.role === 'user').map(m => m.content).join('\n')) || '';
+        // Arithmetic fast-path — intercept BEFORE classify (avoids reflexive 3-step chain)
+        const arith = tryArithmetic(text);
+        if (arith) {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ ok: true, data: { text: arith, model: 'js-math', provider: 'fast-path', tools_used: [], turns: 0 } }));
+          return;
+        }
         const complexity = classifyComplexity(text, AGENT_CAT[agentId] || 'default');
         console.log('[cockpit] complexity=' + complexity + ' agent=' + agentId);
         const result = complexity === 'reflexive'
@@ -1558,6 +1749,18 @@ const server = http.createServer(async (req, res) => {
         res.end(JSON.stringify({ ok: false, error: e.message }));
       }
     });
+  } else if (req.method === 'GET' && req.url === '/boot') {
+    // Direct boot diagnostic — no AI needed, runs Python script
+    try {
+      const bootOut = execSync('python "F:\\BUREAU\\turbo\\scripts\\jarvis_boot_telegram.py"', {
+        timeout: 30000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+      }).trim();
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: true, report: bootOut }));
+    } catch (e) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: false, error: (e.message || '').slice(0, 1000) }));
+    }
   } else if (req.method === 'GET' && req.url === '/health') {
     try {
       const h = await healthCheck();

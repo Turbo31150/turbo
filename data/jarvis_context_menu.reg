@@ -1,0 +1,15 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\Software\Classes\*\shell\JarvisAnalyze]
+@="Send to JARVIS"
+"Icon"="C:\\Users\\franc\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
+
+[HKEY_CURRENT_USER\Software\Classes\*\shell\JarvisAnalyze\command]
+@="\"C:\\Users\\franc\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" \"F:\\BUREAU\\turbo\\scripts\\jarvis_file_handler.py\" \"%1\""
+
+[HKEY_CURRENT_USER\Software\Classes\Directory\shell\JarvisOpen]
+@="Open in JARVIS"
+"Icon"="C:\\Users\\franc\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
+
+[HKEY_CURRENT_USER\Software\Classes\Directory\shell\JarvisOpen\command]
+@="\"C:\\Users\\franc\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" \"F:\\BUREAU\\turbo\\scripts\\jarvis_file_handler.py\" \"%1\""

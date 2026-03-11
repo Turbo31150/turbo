@@ -129,6 +129,9 @@ class AutomationHub:
             ("Cluster health check", "health_check", 120, {}),
             ("GPU temperature monitor", "gpu_monitor", 300, {}),
             ("Self-heal offline nodes", "self_heal", 600, {}),
+            ("OpenClaw provider health", "openclaw_health", 300, {}),
+            ("OpenClaw smoke test E2E", "openclaw_smoke_test", 600, {"timeout": 30}),
+            ("OpenClaw session GC", "openclaw_session_gc", 3600, {"max_sessions": 2, "max_days": 3}),
             ("Database backup (daily)", "backup", 86400, {}),
             ("Weekly cleanup", "cleanup", 604800, {}),
         ]
@@ -394,6 +397,81 @@ class AutomationHub:
             _dispatch_cache.clear()
             return "cache cleared"
 
+        async def _handle_openclaw_session_gc(params: dict) -> str:
+            """Run OpenClaw session garbage collection."""
+            import subprocess
+            import sys
+            gc_script = Path(__file__).parent.parent / "scripts" / "openclaw_session_gc.py"
+            if not gc_script.exists():
+                return "gc_script_not_found"
+            try:
+                r = await asyncio.to_thread(
+                    subprocess.run,
+                    [sys.executable, str(gc_script),
+                     "--max-sessions", str(params.get("max_sessions", 2)),
+                     "--max-days", str(params.get("max_days", 3))],
+                    capture_output=True, text=True, timeout=30,
+                )
+                if r.returncode == 0:
+                    return r.stdout.strip().split("\n")[-1] if r.stdout.strip() else "gc_ok"
+                return f"gc_failed rc={r.returncode}"
+            except subprocess.TimeoutExpired:
+                return "gc_timeout"
+
+        async def _handle_openclaw_health(params: dict) -> str:
+            """Run OpenClaw provider health check."""
+            import subprocess
+            import sys
+            health_script = Path(__file__).parent.parent / "scripts" / "openclaw_provider_health.py"
+            if not health_script.exists():
+                return "health_script_not_found"
+            try:
+                r = await asyncio.to_thread(
+                    subprocess.run,
+                    [sys.executable, str(health_script), "--json"],
+                    capture_output=True, text=True, timeout=15,
+                )
+                if r.returncode == 0:
+                    import json as _j
+                    try:
+                        data = _j.loads(r.stdout)
+                        healthy = sum(1 for p in data if p.get("status") == "healthy")
+                        return f"providers={healthy}/{len(data)}"
+                    except _j.JSONDecodeError:
+                        return "health_ok"
+                return f"health_failed rc={r.returncode}"
+            except subprocess.TimeoutExpired:
+                return "health_timeout"
+
+        async def _handle_openclaw_smoke_test(params: dict) -> str:
+            """Run OpenClaw E2E smoke test (real inference on all providers)."""
+            import subprocess
+            import sys
+            smoke_script = Path(__file__).parent.parent / "scripts" / "openclaw_smoke_test.py"
+            if not smoke_script.exists():
+                return "smoke_script_not_found"
+            try:
+                timeout = params.get("timeout", 60)
+                r = await asyncio.to_thread(
+                    subprocess.run,
+                    [sys.executable, str(smoke_script), "--json", "--timeout", str(timeout)],
+                    capture_output=True, text=True, timeout=timeout * 7,
+                )
+                if r.returncode == 0:
+                    import json as _j
+                    try:
+                        # Output starts with header, JSON starts at first [
+                        raw = r.stdout
+                        idx = raw.index("[")
+                        data = _j.loads(raw[idx:])
+                        passed = sum(1 for p in data if p.get("pong"))
+                        return f"smoke={passed}/{len(data)}"
+                    except (ValueError, _j.JSONDecodeError):
+                        return "smoke_ok"
+                return f"smoke_failed rc={r.returncode}"
+            except subprocess.TimeoutExpired:
+                return "smoke_timeout"
+
         # Register all handlers
         handlers = {
             "dispatch": _handle_dispatch,
@@ -418,6 +496,9 @@ class AutomationHub:
             "cowork_batch": _handle_cowork_batch,
             "self_diagnostic": _handle_self_diagnostic,
             "cache_clear": _handle_cache_clear,
+            "openclaw_session_gc": _handle_openclaw_session_gc,
+            "openclaw_health": _handle_openclaw_health,
+            "openclaw_smoke_test": _handle_openclaw_smoke_test,
         }
         for action, handler in handlers.items():
             scheduler.register_handler(action, handler)

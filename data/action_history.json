@@ -4,5 +4,41 @@
     "result": "Je lance les deux étapes en parallèle pour maximiser la vitesse.Parfait, les deux outils sont chargés. Je lance les deux appels en parallèle.---\n\n## 🎯 CONSENSUS TRADING — Résumé\n\n### 📊 Étape 1 — Tradi",
     "success": true,
     "timestamp": 1771357285.4107008
+  },
+  {
+    "action": "test_fix",
+    "result": "verification",
+    "success": true,
+    "timestamp": 1772925370.7391343
+  },
+  {
+    "action": "voice_command",
+    "result": "open_dashboard: ouvre le dashboard",
+    "success": true,
+    "timestamp": 1772925399.177345
+  },
+  {
+    "action": "perplexity_interaction",
+    "result": "prompt=test prompt",
+    "success": true,
+    "timestamp": 1772925399.1985877
+  },
+  {
+    "action": "perplexity_interaction",
+    "result": "prompt=search",
+    "success": true,
+    "timestamp": 1772925399.2016919
+  },
+  {
+    "action": "perplexity_interaction",
+    "result": "prompt=test",
+    "success": true,
+    "timestamp": 1772925399.2051938
+  },
+  {
+    "action": "perplexity_interaction",
+    "result": "prompt=q",
+    "success": true,
+    "timestamp": 1772925399.2088115
   }
 ]

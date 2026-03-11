@@ -119,7 +119,8 @@ class TaskScheduler:
             rows = conn.execute("SELECT * FROM jobs WHERE enabled=1").fetchall()
             due = []
             for r in rows:
-                if now - r["last_run"] >= r["interval_s"]:
+                last_run = r["last_run"] if isinstance(r["last_run"], (int, float)) else 0.0
+                if now - last_run >= r["interval_s"]:
                     due.append(ScheduledJob(
                         job_id=r["job_id"], name=r["name"],
                         interval_s=r["interval_s"], action=r["action"],

@@ -18,7 +18,7 @@ from pathlib import Path
 
 import httpx
 
-from python_ws.helpers import strip_agent_tag, extract_lmstudio_content
+from python_ws.helpers import strip_agent_tag, extract_lmstudio_content, strip_think_tags
 
 logger = logging.getLogger("jarvis.chat")
 
@@ -271,15 +271,39 @@ async def _send_message(payload: dict) -> dict:
                 "task_type": task_type,
             }
 
+        # Step 0.5: Arithmetic fast-path — instant exact result, skip everything
+        arith = _try_arithmetic(text)
+        if arith:
+            agent_name = _get_agent_for_task("simple")
+            elapsed = time.time() - start
+            agent_msg = _session.add_message("assistant", arith, agent=agent_name)
+            agent_msg["task_type"] = "simple"
+            agent_msg["elapsed"] = round(elapsed, 2)
+            return {"user_message": user_msg, "agent_message": agent_msg, "task_type": "simple"}
+
         # Step 1: Try to match a voice command and execute it
-        # Skip command matching for natural questions (interrogative sentences)
-        _is_question = any(text.lower().startswith(w) for w in (
+        # Skip command matching for AI-destined requests
+        _lower = text.lower()
+        # Check start of text for imperative/interrogative patterns
+        _skip_start = any(_lower.startswith(w) for w in (
             "quel", "quels", "quelle", "quelles", "comment", "pourquoi",
             "est-ce", "y a-t-il", "peux-tu", "pourrais-tu", "donne-moi",
             "dis-moi", "explique", "decris", "combien", "ou ", "quand",
             "qui ", "que ", "?",
+            "ecris", "code", "programme", "cree", "genere", "implemente",
+            "developpe", "refactor", "optimise", "corrige", "debug",
+            "analyse", "resume", "traduis", "compare", "liste",
+            "fais", "montre", "calcule", "convertis",
+            "statut", "status", "invente", "imagine", "si un",
         ))
-        cmd_result = None if _is_question else await _try_execute_command(text)
+        # Check anywhere in text for question/AI keywords (long texts are rarely commands)
+        _skip_contains = len(_lower) > 30 and any(w in _lower for w in (
+            "combien", "pourquoi", "comment", "explique", " fonction ",
+            " algorithme", " programme", " raisonnement", "?",
+            "statut", "cluster", "temperature", "noeuds",
+        ))
+        _skip_cmd = _skip_start or _skip_contains
+        cmd_result = None if _skip_cmd else await _try_execute_command(text)
         if cmd_result:
             elapsed = time.time() - start
             agent_msg = _session.add_message("assistant", cmd_result["response"], agent="ia-system")
@@ -332,7 +356,11 @@ async def _send_message(payload: dict) -> dict:
                 }
                 if _route.confidence >= 0.7:
                     routed_type = _intent_to_routing.get(_route.intent, task_type)
-                    if routed_type != task_type:
+                    # Don't downgrade specific types to generic ones
+                    _specific_types = {"trading", "reasoning", "code", "systeme"}
+                    _generic_types = {"analyse", "simple"}
+                    _is_downgrade = task_type in _specific_types and routed_type in _generic_types
+                    if routed_type != task_type and not _is_downgrade:
                         logger.info("OpenClaw re-route: %s -> %s (agent=%s, conf=%.2f)",
                                     task_type, routed_type, _route.agent, _route.confidence)
                         task_type = routed_type
@@ -469,9 +497,10 @@ def _build_chat_history(current_text: str, max_turns: int = 6) -> list[dict]:
     return history
 
 
-def _build_lmstudio_input(current_text: str, max_turns: int = 6) -> str:
+def _build_lmstudio_input(current_text: str, max_turns: int = 6, nothink: bool = True) -> str:
     """Build conversation input for LM Studio Responses API."""
-    parts = [f"/nothink\n{JARVIS_SYSTEM}"]
+    prefix = f"/nothink\n{JARVIS_SYSTEM}" if nothink else JARVIS_SYSTEM
+    parts = [prefix]
     # Inject real JARVIS context (cowork/pipeline search) when relevant
     context = _get_jarvis_context(current_text)
     if context:
@@ -536,9 +565,6 @@ def _get_model_auth(model_entry: dict) -> str:
 ALL_MODELS = [
     {"id": "qwen3-8b", "name": "M1 / qwen3-8b", "group": "local", "score": 98, "weight": 1.8,
      "url": _M1_CHAT, "backend": "lmstudio", "speed": "45 tok/s"},
-    {"id": "gpt-oss-20b", "name": "M1 / gpt-oss-20b", "group": "local", "score": 92, "weight": 1.6,
-     "url": _M1_CHAT, "backend": "lmstudio", "speed": "15 tok/s",
-     "heavy": True, "ctx": 131072},
     {"id": "deepseek-r1-0528-qwen3-8b", "name": "M2 / deepseek-r1", "group": "local", "score": 85, "weight": 1.5,
      "url": _M2_CHAT, "backend": "lmstudio",
      "auth_node": "M2", "speed": "44 tok/s"},
@@ -547,6 +573,8 @@ ALL_MODELS = [
     {"id": "deepseek-r1-0528-qwen3-8b-m3", "name": "M3 / deepseek-r1", "group": "local", "score": 80, "weight": 1.2,
      "url": _M3_CHAT, "backend": "lmstudio",
      "auth_node": "M3", "speed": "33 tok/s"},
+    {"id": "minimax-m2.5:cloud", "name": "OL1 / minimax-web", "group": "cloud", "score": 75, "weight": 1.0,
+     "url": _OLLAMA_CHAT, "backend": "ollama", "speed": "variable"},
 ]
 
 # Health cache for models (refreshed every 30s)
@@ -635,20 +663,20 @@ async def get_models_with_status() -> list[dict]:
     ]
 
 
-# Task-type to routing priority mapping (v2 2026-03-08 — gpt-oss-20b for heavy)
-# Heavy tasks (architecture, long code, deep analysis) → gpt-oss-20b (20B, 131K ctx)
-# Fast tasks (simple, trading, web) → OL1/qwen3-8b
-# Reasoning tasks → M3/deepseek-r1
+# Task-type to routing priority mapping (v3 2026-03-10 — gpt-oss-20b removed)
+# M1/qwen3-8b: general purpose champion (65 tok/s)
+# M3/deepseek-r1: reasoning/consensus fallback (33 tok/s)
+# OL1/qwen3:1.7b: fast tasks, trading, web (84 tok/s)
 ROUTING_MATRIX = {
-    "code":         ["qwen3-8b", "deepseek-r1-0528-qwen3-8b-m3", "qwen3:1.7b"],
-    "analyse":      ["qwen3-8b", "gpt-oss-20b", "qwen3:1.7b"],
-    "architecture": ["gpt-oss-20b", "qwen3-8b", "deepseek-r1-0528-qwen3-8b-m3"],
-    "trading":      ["qwen3:1.7b", "qwen3-8b"],
-    "web":          ["qwen3:1.7b", "qwen3-8b"],
+    "code":         ["qwen3-8b", "deepseek-r1-0528-qwen3-8b", "qwen3:1.7b"],
+    "analyse":      ["qwen3-8b", "deepseek-r1-0528-qwen3-8b", "qwen3:1.7b"],
+    "architecture": ["qwen3-8b", "deepseek-r1-0528-qwen3-8b", "qwen3:1.7b"],
+    "trading":      ["qwen3-8b", "qwen3:1.7b"],
+    "web":          ["minimax-m2.5:cloud", "qwen3:1.7b", "qwen3-8b"],
     "systeme":      ["qwen3-8b", "qwen3:1.7b"],
-    "consensus":    ["qwen3-8b", "deepseek-r1-0528-qwen3-8b-m3", "gpt-oss-20b", "qwen3:1.7b"],
-    "reasoning":    ["deepseek-r1-0528-qwen3-8b-m3", "gpt-oss-20b", "qwen3-8b"],
-    "heavy":        ["gpt-oss-20b", "qwen3-8b", "deepseek-r1-0528-qwen3-8b-m3"],
+    "consensus":    ["qwen3-8b", "deepseek-r1-0528-qwen3-8b", "deepseek-r1-0528-qwen3-8b-m3", "qwen3:1.7b"],
+    "reasoning":    ["deepseek-r1-0528-qwen3-8b", "qwen3-8b"],  # M3 exclu: 1 GPU 8GB trop lent pour deepseek-r1
+    "heavy":        ["qwen3-8b", "deepseek-r1-0528-qwen3-8b", "qwen3:1.7b"],
     "simple":       ["qwen3:1.7b", "qwen3-8b"],
 }
 
@@ -656,28 +684,59 @@ ROUTING_MATRIX = {
 _HEAVY_TASK_TYPES = {"architecture", "heavy", "consensus"}
 
 
-async def _maybe_swap_model(task_type: str, model_id: str) -> bool:
-    """Auto-swap to heavy model for demanding tasks. Returns True if swap occurred."""
-    if task_type not in _HEAVY_TASK_TYPES:
-        return False
-    if model_id != "gpt-oss-20b":
-        return False
-    try:
-        from src.model_swap import ensure_model
-        ok = await ensure_model("gpt-oss-20b")
-        if ok:
-            logger.info("Auto-swapped to gpt-oss-20b for %s task", task_type)
-        return ok
-    except (ImportError, Exception) as e:
-        logger.debug("Model swap unavailable: %s", e)
-        return False
+def _try_arithmetic(text: str) -> str | None:
+    """Fast-path: solve pure arithmetic before sending to LLM (8B models can't multiply)."""
+    import re
+    lower = text.lower().strip()
+    # Pattern: "combien font/fait X op Y" or "X multiplié/fois/plus/moins/divisé par Y"
+    patterns = [
+        r"combien\s+(?:font|fait)\s+(\d[\d\s]*)\s*(?:multipli[eé]s?|fois|\*|x)\s*(?:par\s+)?(\d[\d\s]*)",
+        r"(\d[\d\s]*)\s*(?:multipli[eé]s?|fois|\*|x)\s*(?:par\s+)?(\d[\d\s]*)",
+        r"combien\s+(?:font|fait)\s+(\d[\d\s]*)\s*(?:plus|\+)\s*(\d[\d\s]*)",
+        r"combien\s+(?:font|fait)\s+(\d[\d\s]*)\s*(?:moins|-)\s*(\d[\d\s]*)",
+        r"combien\s+(?:font|fait)\s+(\d[\d\s]*)\s*(?:divis[eé]s?|/)\s*(?:par\s+)?(\d[\d\s]*)",
+        # Bare expressions: "2+3", "123 * 456", "50/2"
+        r"^(\d[\d\s]*)\s*\*\s*(\d[\d\s]*)$",
+        r"^(\d[\d\s]*)\s*\+\s*(\d[\d\s]*)$",
+        r"^(\d[\d\s]*)\s*-\s*(\d[\d\s]*)$",
+        r"^(\d[\d\s]*)\s*/\s*(\d[\d\s]*)$",
+    ]
+    ops = ["*", "*", "+", "-", "/", "*", "+", "-", "/"]
+    for pat, op in zip(patterns, ops):
+        m = re.search(pat, lower)
+        if m:
+            try:
+                a = int(m.group(1).replace(" ", ""))
+                b = int(m.group(2).replace(" ", ""))
+                if op == "*":
+                    r = a * b
+                elif op == "+":
+                    r = a + b
+                elif op == "-":
+                    r = a - b
+                elif op == "/" and b != 0:
+                    r = a / b
+                    if r == int(r):
+                        r = int(r)
+                else:
+                    return None
+                return f"{a:,} {op} {b:,} = **{r:,}**".replace(",", " ")
+            except (ValueError, OverflowError):
+                return None
+    return None
 
 
 async def _query_local_ia(text: str, task_type: str) -> str:
     """Query IA nodes for a response using full routing matrix.
 
     v5: Model swap for heavy tasks + IA tools injection.
+    v6: Arithmetic fast-path for pure calculations.
     """
+
+    # Fast-path: pure arithmetic (8B models fail at large multiplications)
+    arith = _try_arithmetic(text)
+    if arith:
+        return arith
 
     # Build node priority from routing matrix (copy to avoid mutating the original)
     model_ids = list(ROUTING_MATRIX.get(task_type, ROUTING_MATRIX["simple"]))
@@ -689,9 +748,34 @@ async def _query_local_ia(text: str, task_type: str) -> str:
 
     model_map = {m["id"]: m for m in ALL_MODELS}
     nodes_priority = []
+
+    # Quick health pre-check for remote reasoning nodes (avoid 30s+ wasted timeouts)
+    _remote_ok: dict[str, bool] = {}
+    if task_type == "reasoning":
+        client_check = await _get_http()
+        for mid in model_ids:
+            m = model_map.get(mid)
+            if not m or m["backend"] != "lmstudio" or "deepseek-r1" not in mid:
+                continue
+            url = m["url"].replace("/api/v1/chat", "/api/v1/models")
+            try:
+                r = await client_check.get(url, timeout=httpx.Timeout(3.0))
+                data = r.json()
+                models = data.get("data", data.get("models", []))
+                loaded = any(mm.get("loaded_instances") for mm in models if isinstance(mm, dict))
+                _remote_ok[mid] = loaded
+                if not loaded:
+                    logger.info("Skipping %s — no model loaded", mid)
+            except Exception:
+                _remote_ok[mid] = False
+                logger.info("Skipping %s — unreachable", mid)
+
     for mid in model_ids:
         m = model_map.get(mid)
         if not m:
+            continue
+        # Skip remote reasoning nodes that are down/unloaded
+        if mid in _remote_ok and not _remote_ok[mid]:
             continue
         node = {"name": mid.split(":")[0].upper() if ":" in mid else m["name"].split("/")[0].strip(),
                 "backend": m["backend"], "model": mid}
@@ -705,8 +789,12 @@ async def _query_local_ia(text: str, task_type: str) -> str:
         nodes_priority.append(node)
 
     # Build conversation history with memory
-    chat_messages = _build_chat_history(text)
-    lmstudio_input = _build_lmstudio_input(text)
+    # Reasoning tasks are self-contained — no history pollution
+    _ctx_turns = 0 if task_type == "reasoning" else 6
+    chat_messages = _build_chat_history(text, max_turns=_ctx_turns)
+    lmstudio_input = _build_lmstudio_input(text, max_turns=_ctx_turns)
+    # deepseek-r1 models need reasoning enabled (no /nothink), zero history for reasoning
+    lmstudio_input_think = _build_lmstudio_input(text, max_turns=0, nothink=False)
 
     # Load tools for system-related queries
     # M1 (qwen3-8b): full system scope (18 tools) — capable model
@@ -721,13 +809,6 @@ async def _query_local_ia(text: str, task_type: str) -> str:
         except ImportError:
             ia_tools = None
             ia_tools_minimal = None
-
-    # Auto-swap to heavy model if needed (architecture/consensus tasks)
-    first_model = model_ids[0] if model_ids else ""
-    swapped = await _maybe_swap_model(task_type, first_model)
-    # If swap failed and first choice was gpt-oss-20b, skip it
-    if not swapped and first_model == "gpt-oss-20b":
-        nodes_priority = [n for n in nodes_priority if n["model"] != "gpt-oss-20b"]
 
     client = await _get_http()
     for node in nodes_priority:
@@ -755,8 +836,8 @@ async def _query_local_ia(text: str, task_type: str) -> str:
                         ol_msg["tool_calls"], node, chat_messages, ol_payload, client,
                     )
                     if tool_result:
-                        return f"[{node['name']}] {tool_result}"
-                content = (ol_msg.get("content") or "").strip()
+                        return f"[{node['name']}] {strip_think_tags(tool_result)}"
+                content = strip_think_tags((ol_msg.get("content") or ""))
                 if content:
                     return f"[{node['name']}] {content}"
             else:
@@ -785,19 +866,35 @@ async def _query_local_ia(text: str, task_type: str) -> str:
                             msg["tool_calls"], node, headers, cc_url, chat_messages, client,
                         )
                         if tool_result:
-                            return f"[{node['name']}] {tool_result}"
-                    # Normal text response
-                    content = (msg.get("content") or "").strip()
+                            return f"[{node['name']}] {strip_think_tags(tool_result)}"
+                    # Normal text response (strip <think> tags from deepseek-r1)
+                    content = strip_think_tags((msg.get("content") or ""))
                     if content:
                         return f"[{node['name']}] {content}"
                 else:
-                    lms_payload = (build_lmstudio_payload(node["model"], lmstudio_input,
-                                                          temperature=0.3, max_output_tokens=512)
+                    # deepseek-r1 needs reasoning (no /nothink) + more tokens for chain-of-thought
+                    _is_reasoning_model = "deepseek-r1" in node["model"]
+                    _input = lmstudio_input_think if _is_reasoning_model else lmstudio_input
+                    _max_tokens = 4096 if _is_reasoning_model else 512
+                    # Auto-load model on remote nodes (M2/M3 auto-unload after TTL)
+                    # Strip node suffix (-m3) for actual LM Studio model ID
+                    _real_model = node["model"].replace("-m3", "")
+                    if _is_reasoning_model and "127.0.0.1" not in node.get("url", ""):
+                        _load_url = node["url"].replace("/api/v1/chat", "/api/v1/models/load")
+                        try:
+                            await client.post(_load_url, headers=headers,
+                                              json={"model": _real_model},
+                                              timeout=httpx.Timeout(30.0))
+                        except Exception:
+                            pass  # Best effort — model may already be loaded
+                    lms_payload = (build_lmstudio_payload(_real_model, _input,
+                                                          temperature=0.3, max_output_tokens=_max_tokens)
                                    if build_lmstudio_payload else
-                                   {"model": node["model"], "input": lmstudio_input,
-                                    "temperature": 0.3, "max_output_tokens": 512,
+                                   {"model": _real_model, "input": _input,
+                                    "temperature": 0.3, "max_output_tokens": _max_tokens,
                                     "stream": False, "store": False})
-                    resp = await client.post(node["url"], headers=headers, json=lms_payload)
+                    _timeout = httpx.Timeout(120.0) if _is_reasoning_model else httpx.Timeout(60.0)
+                    resp = await client.post(node["url"], headers=headers, json=lms_payload, timeout=_timeout)
                     resp.raise_for_status()
                     data = resp.json()
                     if data.get("error"):
@@ -997,11 +1094,14 @@ async def _query_single_node(model_id: str, text: str, chat_messages: list, lmst
             auth = _get_model_auth(m)
             if auth:
                 headers["Authorization"] = auth
-            lms_payload = (build_lmstudio_payload(model_id, lmstudio_input,
-                                                  temperature=0.3, max_output_tokens=512)
+            _is_reasoning = "deepseek-r1" in model_id
+            _input = _build_lmstudio_input(text, nothink=not _is_reasoning) if _is_reasoning else lmstudio_input
+            _max_tok = 4096 if _is_reasoning else 512
+            lms_payload = (build_lmstudio_payload(model_id, _input,
+                                                  temperature=0.3, max_output_tokens=_max_tok)
                            if build_lmstudio_payload else
-                           {"model": model_id, "input": lmstudio_input,
-                            "temperature": 0.3, "max_output_tokens": 512,
+                           {"model": model_id, "input": _input,
+                            "temperature": 0.3, "max_output_tokens": _max_tok,
                             "stream": False, "store": False})
             resp = await client.post(m["url"], headers=headers, json=lms_payload)
             resp.raise_for_status()

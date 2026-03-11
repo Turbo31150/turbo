@@ -1,91 +1,104 @@
 {
-  "cycles": 1,
-  "total": 30,
-  "pass": 30,
+  "cycles": 7,
+  "total": 56,
+  "pass": 12,
   "fail": 0,
-  "errors": 0,
+  "errors": 44,
   "by_node": {
     "M1": {
-      "total": 15,
-      "pass": 15,
+      "total": 26,
+      "pass": 0,
       "fail": 0,
-      "error": 0,
-      "avg_latency": 2582
+      "error": 26,
+      "avg_latency": 67
     },
     "M2": {
-      "total": 10,
-      "pass": 10,
+      "total": 16,
+      "pass": 0,
       "fail": 0,
-      "error": 0,
-      "avg_latency": 2007
-    },
-    "OL1": {
-      "total": 4,
-      "pass": 4,
-      "fail": 0,
-      "error": 0,
-      "avg_latency": 1652
+      "error": 16,
+      "avg_latency": 14026
     },
     "M3": {
-      "total": 1,
-      "pass": 1,
+      "total": 2,
+      "pass": 0,
+      "fail": 0,
+      "error": 2,
+      "avg_latency": 30023
+    },
+    "OL1": {
+      "total": 12,
+      "pass": 12,
       "fail": 0,
       "error": 0,
-      "avg_latency": 10425
+      "avg_latency": 2451
     }
   },
   "by_domain": {
-    "systeme": {
-      "total": 3,
-      "pass": 3,
+    "traduction": {
+      "total": 6,
+      "pass": 2,
       "fail": 0,
-      "error": 0
-    },
-    "web": {
-      "total": 4,
-      "pass": 4,
-      "fail": 0,
-      "error": 0
+      "error": 4
     },
     "math": {
-      "total": 4,
-      "pass": 4,
+      "total": 8,
+      "pass": 2,
       "fail": 0,
-      "error": 0
+      "error": 6
     },
     "trading": {
-      "total": 3,
+      "total": 12,
       "pass": 3,
       "fail": 0,
-      "error": 0
+      "error": 9
+    },
+    "web": {
+      "total": 8,
+      "pass": 2,
+      "fail": 0,
+      "error": 6
     },
     "securite": {
-      "total": 4,
-      "pass": 4,
+      "total": 6,
+      "pass": 0,
       "fail": 0,
-      "error": 0
-    },
-    "raisonnement": {
-      "total": 5,
-      "pass": 5,
-      "fail": 0,
-      "error": 0
+      "error": 6
     },
     "code": {
-      "total": 4,
-      "pass": 4,
+      "total": 10,
+      "pass": 2,
       "fail": 0,
-      "error": 0
+      "error": 8
     },
-    "traduction": {
-      "total": 3,
-      "pass": 3,
+    "systeme": {
+      "total": 5,
+      "pass": 1,
       "fail": 0,
-      "error": 0
+      "error": 4
+    },
+    "raisonnement": {
+      "total": 1,
+      "pass": 0,
+      "fail": 0,
+      "error": 1
     }
   },
   "failures": [],
   "improvements": [],
-  "corrections": [],
-  "offline_nodes": []
+  "corrections": [
+    {
+      "node": "M3",
+      "domain": "securite",
+      "action": "timeout -> M3 offline, retry on M2"
+    },
+    {
+      "node": "M3",
+      "domain": "code",
+      "action": "timeout -> M3 offline, retry on M1"
+    }
+  ],
+  "offline_nodes": [
+    "M3"
+  ]
 }

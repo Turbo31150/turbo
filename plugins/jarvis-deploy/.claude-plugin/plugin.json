@@ -1,0 +1,11 @@
+{
+  "name": "jarvis-deploy",
+  "version": "1.0.0",
+  "description": "JARVIS deployment pipeline: git commit, push, and Telegram notification",
+  "author": {
+    "name": "Turbo",
+    "url": "https://github.com/Turbo31150"
+  },
+  "repository": "https://github.com/Turbo31150/turbo",
+  "keywords": ["deploy", "git", "telegram", "jarvis"]
+}

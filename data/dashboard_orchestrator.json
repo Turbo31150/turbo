@@ -1,17 +1,17 @@
 {
-  "generated": "2026-03-07T17:33:02.328101",
+  "generated": "2026-03-08T00:18:07.876508",
   "tasks": [
     {
       "id": "health_cluster",
       "name": "Cluster Health Check",
       "type": "health",
-      "prio": "high",
+      "prio": "critical",
       "sched": {
-        "last": "2026-03-07 15:15:34",
-        "next": "2026-03-07T16:20:34.476869",
-        "runs": 1,
+        "last": "2026-03-07 23:16:30",
+        "next": "2026-03-08T00:21:30.558893",
+        "runs": 84,
         "fails": 0,
-        "avg_ms": 3156.0000000026776
+        "avg_ms": 3282.6424702379454
       }
     },
     {
@@ -20,11 +20,11 @@
       "type": "health",
       "prio": "normal",
       "sched": {
-        "last": "2026-03-07 15:15:35",
-        "next": "2026-03-07T16:25:35.471582",
-        "runs": 1,
+        "last": "2026-03-07 23:08:21",
+        "next": "2026-03-08T00:18:21.774176",
+        "runs": 44,
         "fails": 0,
-        "avg_ms": 172.00000000593718
+        "avg_ms": 316.84766818171994
       }
     },
     {
@@ -33,11 +33,11 @@
       "type": "health",
       "prio": "high",
       "sched": {
-        "last": null,
-        "next": "2026-03-07T16:20:20.014008",
-        "runs": 0,
-        "fails": 0,
-        "avg_ms": 0.0
+        "last": "2026-03-07 23:17:33",
+        "next": "2026-03-08T00:22:33.711601",
+        "runs": 83,
+        "fails": 2,
+        "avg_ms": 3915.3560975904575
       }
     },
     {
@@ -46,11 +46,11 @@
       "type": "audit",
       "prio": "normal",
       "sched": {
-        "last": "2026-03-07 15:15:40",
-        "next": "2026-03-07T17:15:40.210725",
-        "runs": 1,
+        "last": "2026-03-07 22:22:57",
+        "next": "2026-03-08T00:22:57.232749",
+        "runs": 9,
         "fails": 0,
-        "avg_ms": 811.9999999980791
+        "avg_ms": 1067.8078444442463
       }
     },
     {
@@ -59,11 +59,11 @@
       "type": "audit",
       "prio": "normal",
       "sched": {
-        "last": null,
-        "next": "2026-03-07T22:15:20.026041",
-        "runs": 0,
+        "last": "2026-03-07 21:17:00",
+        "next": "2026-03-08T04:17:00.053509",
+        "runs": 2,
         "fails": 0,
-        "avg_ms": 0.0
+        "avg_ms": 2976.49999999976
       }
     },
     {
@@ -72,11 +72,11 @@
       "type": "test",
       "prio": "normal",
       "sched": {
-        "last": null,
-        "next": "2026-03-07T18:15:20.032577",
-        "runs": 0,
-        "fails": 0,
-        "avg_ms": 0.0
+        "last": "2026-03-07 22:08:04",
+        "next": "2026-03-08T01:08:04.170638",
+        "runs": 4,
+        "fails": 1,
+        "avg_ms": 415621.25
       }
     },
     {
@@ -85,11 +85,11 @@
       "type": "backup",
       "prio": "high",
       "sched": {
-        "last": "2026-03-07 15:15:46",
-        "next": "2026-03-07T18:15:46.985940",
-        "runs": 1,
+        "last": "2026-03-07 21:17:58",
+        "next": "2026-03-08T00:17:58.476378",
+        "runs": 4,
         "fails": 0,
-        "avg_ms": 139.99999999941792
+        "avg_ms": 151.99999999845204
       }
     },
     {
@@ -98,11 +98,11 @@
       "type": "sync",
       "prio": "normal",
       "sched": {
-        "last": null,
-        "next": "2026-03-07T22:15:20.044623",
-        "runs": 0,
+        "last": "2026-03-07 21:16:55",
+        "next": "2026-03-08T04:16:55.570962",
+        "runs": 1,
         "fails": 0,
-        "avg_ms": 0.0
+        "avg_ms": 3530.999999999949
       }
     },
     {
@@ -111,11 +111,11 @@
       "type": "sync",
       "prio": "low",
       "sched": {
-        "last": "2026-03-07 15:15:41",
-        "next": "2026-03-07T16:45:41.062954",
-        "runs": 1,
+        "last": "2026-03-07 23:15:27",
+        "next": "2026-03-08T00:45:27.300360",
+        "runs": 17,
         "fails": 0,
-        "avg_ms": 110.00000000058208
+        "avg_ms": 450.4929647060528
       }
     },
     {
@@ -124,11 +124,11 @@
       "type": "trading",
       "prio": "normal",
       "sched": {
-        "last": "2026-03-07 15:15:42",
-        "next": "2026-03-07T16:30:42.896593",
-        "runs": 1,
+        "last": "2026-03-07 22:56:14",
+        "next": "2026-03-08T00:11:14.956499",
+        "runs": 29,
         "fails": 0,
-        "avg_ms": 1063.0000000019209
+        "avg_ms": 573.2723000001259
       }
     },
     {
@@ -137,11 +137,11 @@
       "type": "consensus",
       "prio": "low",
       "sched": {
-        "last": "2026-03-07 15:15:50",
-        "next": "2026-03-07T16:45:50.666390",
-        "runs": 1,
+        "last": "2026-03-07 23:15:27",
+        "next": "2026-03-08T00:45:27.324542",
+        "runs": 17,
         "fails": 0,
-        "avg_ms": 2500.0
+        "avg_ms": 8437.669905881374
       }
     },
     {
@@ -215,11 +215,11 @@
       "type": "health",
       "prio": "high",
       "sched": {
-        "last": "2026-03-07 15:44:01",
-        "next": "2026-03-07T16:54:01.082059",
-        "runs": 1,
+        "last": "2026-03-07 23:17:36",
+        "next": "2026-03-08T00:27:36.962600",
+        "runs": 42,
         "fails": 0,
-        "avg_ms": 3186.999999998079
+        "avg_ms": 3434.617047618642
       }
     },
     {
@@ -228,11 +228,11 @@
       "type": "health",
       "prio": "normal",
       "sched": {
-        "last": "2026-03-07 15:44:02",
-        "next": "2026-03-07T16:59:02.117267",
-        "runs": 1,
+        "last": "2026-03-07 22:56:14",
+        "next": "2026-03-08T00:11:14.990493",
+        "runs": 30,
         "fails": 0,
-        "avg_ms": 171.00000000209548
+        "avg_ms": 263.33305999995673
       }
     },
     {
@@ -241,11 +241,11 @@
       "type": "health",
       "prio": "normal",
       "sched": {
-        "last": "2026-03-07 15:44:02",
-        "next": "2026-03-07T17:44:02.906473",
-        "runs": 1,
+        "last": "2026-03-07 22:19:49",
+        "next": "2026-03-08T00:19:49.617125",
+        "runs": 10,
         "fails": 0,
-        "avg_ms": 46.999999998661224
+        "avg_ms": 62.899430000175016
       }
     },
     {
@@ -254,11 +254,11 @@
       "type": "backup",
       "prio": "high",
       "sched": {
-        "last": "2026-03-07 15:44:04",
-        "next": "2026-03-07T17:14:04.485280",
-        "runs": 1,
+        "last": "2026-03-07 22:53:34",
+        "next": "2026-03-08T00:23:34.805025",
+        "runs": 15,
         "fails": 0,
-        "avg_ms": 875.0
+        "avg_ms": 683.3292133326269
       }
     },
     {
@@ -280,11 +280,11 @@
       "type": "schedule",
       "prio": "high",
       "sched": {
-        "last": "2026-03-07 15:45:18",
-        "next": "2026-03-07T17:15:18.007043",
-        "runs": 1,
+        "last": "2026-03-07 22:53:34",
+        "next": "2026-03-08T00:23:34.872537",
+        "runs": 15,
         "fails": 0,
-        "avg_ms": 61.99999999807915
+        "avg_ms": 98.10901999959849
       }
     },
     {
@@ -293,11 +293,11 @@
       "type": "schedule",
       "prio": "normal",
       "sched": {
-        "last": null,
-        "next": "2026-03-07T18:43:35.201636",
-        "runs": 0,
-        "fails": 0,
-        "avg_ms": 0.0
+        "last": "2026-03-07 22:08:03",
+        "next": "2026-03-08T01:08:03.817582",
+        "runs": 4,
+        "fails": 2,
+        "avg_ms": 2206.7500000010227
       }
     },
     {
@@ -319,11 +319,11 @@
       "type": "health",
       "prio": "normal",
       "sched": {
-        "last": "2026-03-07 15:44:11",
-        "next": "2026-03-07T16:54:11.486532",
-        "runs": 1,
+        "last": "2026-03-07 23:03:27",
+        "next": "2026-03-08T00:13:27.692893",
+        "runs": 44,
         "fails": 0,
-        "avg_ms": 3109.0000000040163
+        "avg_ms": 3240.3494681818092
       }
     },
     {
@@ -332,11 +332,11 @@
       "type": "health",
       "prio": "normal",
       "sched": {
-        "last": null,
-        "next": "2026-03-07T16:53:35.219192",
-        "runs": 0,
-        "fails": 0,
-        "avg_ms": 0.0
+        "last": "2026-03-07 23:03:27",
+        "next": "2026-03-08T00:13:27.664241",
+        "runs": 43,
+        "fails": 2,
+        "avg_ms": 350.77419302371555
       }
     },
     {
@@ -345,11 +345,11 @@
       "type": "health",
       "prio": "low",
       "sched": {
-        "last": "2026-03-07 15:44:12",
-        "next": "2026-03-07T17:14:12.404987",
-        "runs": 1,
+        "last": "2026-03-07 23:15:27",
+        "next": "2026-03-08T00:45:27.308215",
+        "runs": 17,
         "fails": 0,
-        "avg_ms": 93.0000000007567
+        "avg_ms": 547.7085235296834
       }
     },
     {
@@ -371,11 +371,11 @@
       "type": "sync",
       "prio": "normal",
       "sched": {
-        "last": null,
-        "next": "2026-03-07T18:43:35.236218",
-        "runs": 0,
+        "last": "2026-03-07 22:08:03",
+        "next": "2026-03-08T01:08:03.826082",
+        "runs": 4,
         "fails": 0,
-        "avg_ms": 0.0
+        "avg_ms": 327.9999999990082
       }
     },
     {
@@ -423,11 +423,11 @@
       "type": "schedule",
       "prio": "low",
       "sched": {
-        "last": "2026-03-07 15:45:11",
-        "next": "2026-03-07T17:45:11.589270",
-        "runs": 3,
+        "last": "2026-03-07 22:19:49",
+        "next": "2026-03-08T00:19:49.571775",
+        "runs": 11,
         "fails": 2,
-        "avg_ms": 208.33333333333334
+        "avg_ms": 250.54092727293664
       }
     },
     {
@@ -436,11 +436,11 @@
       "type": "health",
       "prio": "low",
       "sched": {
-        "last": "2026-03-07 15:44:17",
-        "next": "2026-03-07T16:59:17.718728",
-        "runs": 1,
+        "last": "2026-03-07 22:56:14",
+        "next": "2026-03-08T00:11:14.948995",
+        "runs": 30,
         "fails": 0,
-        "avg_ms": 203.00000000133878
+        "avg_ms": 939.5760633334193
       }
     },
     {
@@ -449,11 +449,11 @@
       "type": "health",
       "prio": "low",
       "sched": {
-        "last": "2026-03-07 16:32:32",
-        "next": "2026-03-07T17:37:32.608557",
-        "runs": 1,
+        "last": "2026-03-07 23:08:21",
+        "next": "2026-03-08T00:13:21.794884",
+        "runs": 78,
         "fails": 0,
-        "avg_ms": 437.0000000053551
+        "avg_ms": 2130.965987179113
       }
     },
     {
@@ -462,11 +462,11 @@
       "type": "health",
       "prio": "normal",
       "sched": {
-        "last": "2026-03-07 16:32:33",
-        "next": "2026-03-07T18:02:33.433889",
-        "runs": 1,
+        "last": "2026-03-07 22:51:13",
+        "next": "2026-03-08T00:21:13.051842",
+        "runs": 19,
         "fails": 0,
-        "avg_ms": 63.00000000192085
+        "avg_ms": 78.81213157862165
       }
     },
     {
@@ -488,11 +488,11 @@
       "type": "health",
       "prio": "high",
       "sched": {
-        "last": "2026-03-07 16:32:50",
-        "next": "2026-03-07T17:37:50.326447",
-        "runs": 1,
+        "last": "2026-03-07 23:17:50",
+        "next": "2026-03-08T00:22:50.560430",
+        "runs": 82,
         "fails": 0,
-        "avg_ms": 78.00000000133878
+        "avg_ms": 317.5034987803557
       }
     },
     {
@@ -501,11 +501,11 @@
       "type": "health",
       "prio": "low",
       "sched": {
-        "last": null,
-        "next": "2026-03-07T18:02:28.067203",
-        "runs": 0,
-        "fails": 0,
-        "avg_ms": 0.0
+        "last": "2026-03-07 21:25:43",
+        "next": "2026-03-08T02:25:43.610306",
+        "runs": 17,
+        "fails": 17,
+        "avg_ms": 33858.943211765705
       }
     },
     {
@@ -514,11 +514,11 @@
       "type": "health",
       "prio": "high",
       "sched": {
-        "last": "2026-03-07 16:32:44",
-        "next": "2026-03-07T17:42:44.297129",
-        "runs": 1,
+        "last": "2026-03-07 23:17:59",
+        "next": "2026-03-08T00:27:59.310727",
+        "runs": 46,
         "fails": 0,
-        "avg_ms": 6250.0
+        "avg_ms": 6445.4816347828155
       }
     },
     {
@@ -527,11 +527,11 @@
       "type": "health",
       "prio": "normal",
       "sched": {
-        "last": "2026-03-07 16:32:50",
-        "next": "2026-03-07T18:02:50.079037",
-        "runs": 1,
+        "last": "2026-03-07 22:51:13",
+        "next": "2026-03-08T00:21:13.045167",
+        "runs": 19,
         "fails": 0,
-        "avg_ms": 78.00000000133878
+        "avg_ms": 77.57105263123633
       }
     },
     {
@@ -540,11 +540,11 @@
       "type": "schedule",
       "prio": "low",
       "sched": {
-        "last": null,
-        "next": "2026-03-07T17:42:28.085722",
-        "runs": 0,
+        "last": "2026-03-07 23:03:27",
+        "next": "2026-03-08T00:13:27.657481",
+        "runs": 43,
         "fails": 0,
-        "avg_ms": 0.0
+        "avg_ms": 203.55368139510486
       }
     },
     {
@@ -553,11 +553,11 @@
       "type": "health",
       "prio": "low",
       "sched": {
-        "last": null,
-        "next": "2026-03-07T17:47:28.091732",
-        "runs": 0,
+        "last": "2026-03-07 22:56:14",
+        "next": "2026-03-08T00:11:14.941730",
+        "runs": 29,
         "fails": 0,
-        "avg_ms": 0.0
+        "avg_ms": 1694.166517241127
       }
     },
     {
@@ -566,11 +566,11 @@
       "type": "health",
       "prio": "low",
       "sched": {
-        "last": null,
+        "last": "2026-03-07 16:33:07",
         "next": "2026-03-08T05:00:00",
-        "runs": 0,
+        "runs": 1,
         "fails": 0,
-        "avg_ms": 0.0
+        "avg_ms": 125.0
       }
     },
     {
@@ -579,11 +579,11 @@
       "type": "sync",
       "prio": "low",
       "sched": {
-        "last": null,
-        "next": "2026-03-07T19:32:28.103748",
-        "runs": 0,
+        "last": "2026-03-07 22:40:14",
+        "next": "2026-03-08T01:40:14.135147",
+        "runs": 4,
         "fails": 0,
-        "avg_ms": 0.0
+        "avg_ms": 212.05717500066612
       }
     },
     {
@@ -592,11 +592,11 @@
       "type": "health",
       "prio": "low",
       "sched": {
-        "last": null,
+        "last": "2026-03-07 17:04:05",
         "next": "2026-03-08T06:30:00",
-        "runs": 0,
+        "runs": 1,
         "fails": 0,
-        "avg_ms": 0.0
+        "avg_ms": 702.9999999940628
       }
     },
     {
@@ -605,11 +605,11 @@
       "type": "health",
       "prio": "low",
       "sched": {
-        "last": "2026-03-07 16:32:50",
-        "next": "2026-03-07T18:02:50.577244",
-        "runs": 1,
+        "last": "2026-03-07 22:51:13",
+        "next": "2026-03-08T00:21:13.038056",
+        "runs": 19,
         "fails": 0,
-        "avg_ms": 61.99999999807915
+        "avg_ms": 73.17434736811971
       }
     },
     {
@@ -644,11 +644,11 @@
       "type": "health",
       "prio": "normal",
       "sched": {
-        "last": null,
-        "next": "2026-03-07T18:32:28.133330",
-        "runs": 0,
+        "last": "2026-03-07 23:15:27",
+        "next": "2026-03-08T01:15:27.316429",
+        "runs": 8,
         "fails": 0,
-        "avg_ms": 0.0
+        "avg_ms": 108.0524750004912
       }
     },
     {
@@ -657,11 +657,11 @@
       "type": "schedule",
       "prio": "low",
       "sched": {
-        "last": null,
+        "last": "2026-03-07 16:33:07",
         "next": "2026-03-08T09:00:00",
-        "runs": 0,
+        "runs": 1,
         "fails": 0,
-        "avg_ms": 0.0
+        "avg_ms": 46.000000002095476
       }
     },
     {
@@ -670,11 +670,11 @@
       "type": "health",
       "prio": "high",
       "sched": {
-        "last": "2026-03-07 16:32:51",
-        "next": "2026-03-07T17:47:51.370874",
-        "runs": 1,
+        "last": "2026-03-07 23:07:02",
+        "next": "2026-03-08T00:22:02.587454",
+        "runs": 27,
         "fails": 0,
-        "avg_ms": 609.0000000040163
+        "avg_ms": 260.1318148149297
       }
     },
     {
@@ -683,11 +683,11 @@
       "type": "health",
       "prio": "low",
       "sched": {
-        "last": null,
+        "last": "2026-03-07 16:33:07",
         "next": "2026-03-08T10:00:00",
-        "runs": 0,
+        "runs": 1,
         "fails": 0,
-        "avg_ms": 0.0
+        "avg_ms": 250.0
       }
     },
     {
@@ -709,11 +709,11 @@
       "type": "backup",
       "prio": "normal",
       "sched": {
-        "last": null,
-        "next": "2026-03-07T21:32:28.162507",
-        "runs": 0,
+        "last": "2026-03-07 20:39:18",
+        "next": "2026-03-08T01:39:18.440253",
+        "runs": 2,
         "fails": 0,
-        "avg_ms": 0.0
+        "avg_ms": 307.97409999968295
       }
     },
     {
@@ -722,288 +722,1950 @@
       "type": "health",
       "prio": "normal",
       "sched": {
-        "last": "2026-03-07 16:32:37",
-        "next": "2026-03-07T17:37:37.285040",
+        "last": "2026-03-07 23:08:21",
+        "next": "2026-03-08T00:13:21.781221",
+        "runs": 78,
+        "fails": 0,
+        "avg_ms": 3204.222605128103
+      }
+    },
+    {
+      "id": "autonomy_cycle",
+      "name": "Autonomy Brain Cycle",
+      "type": "health",
+      "prio": "high",
+      "sched": {
+        "last": "2026-03-07 23:17:40",
+        "next": "2026-03-08T00:27:40.405214",
+        "runs": 39,
+        "fails": 0,
+        "avg_ms": 3455.7042897440074
+      }
+    },
+    {
+      "id": "autonomy_heal",
+      "name": "Autonomy Self-Healer",
+      "type": "health",
+      "prio": "high",
+      "sched": {
+        "last": "2026-03-07 23:17:50",
+        "next": "2026-03-08T00:22:50.313326",
+        "runs": 80,
+        "fails": 0,
+        "avg_ms": 9839.0840162504
+      }
+    },
+    {
+      "id": "autonomy_trends",
+      "name": "Autonomy Trend Analyzer",
+      "type": "audit",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 22:22:57",
+        "next": "2026-03-08T00:22:57.212384",
+        "runs": 7,
+        "fails": 0,
+        "avg_ms": 200.6905428584267
+      }
+    },
+    {
+      "id": "autonomy_optimize",
+      "name": "Autonomy Routing Optimizer",
+      "type": "audit",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 22:39:09",
+        "next": "2026-03-08T00:09:09.908301",
+        "runs": 15,
+        "fails": 0,
+        "avg_ms": 9457.446039999824
+      }
+    },
+    {
+      "id": "error_anticipator",
+      "name": "Error Pattern Anticipator",
+      "type": "audit",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 22:39:09",
+        "next": "2026-03-08T00:09:09.845095",
+        "runs": 12,
+        "fails": 0,
+        "avg_ms": 260.1236999993735
+      }
+    },
+    {
+      "id": "auto_debugger",
+      "name": "Auto-Debugger",
+      "type": "audit",
+      "prio": "high",
+      "sched": {
+        "last": "2026-03-07 22:53:34",
+        "next": "2026-03-08T00:08:34.070464",
+        "runs": 23,
+        "fails": 0,
+        "avg_ms": 75.70022173850138
+      }
+    },
+    {
+      "id": "cluster_load_balance",
+      "name": "Cluster Load Balancer",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 23:03:27",
+        "next": "2026-03-08T00:13:27.671075",
+        "runs": 41,
+        "fails": 0,
+        "avg_ms": 246.68971951200547
+      }
+    },
+    {
+      "id": "code_evolution_scan",
+      "name": "Code Evolution Scanner",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 21:12:53",
+        "next": "2026-03-08T00:12:53.026166",
+        "runs": 4,
+        "fails": 0,
+        "avg_ms": 629.7868250001102
+      }
+    },
+    {
+      "id": "test_evolution",
+      "name": "Test Suite Evolution Tracker",
+      "type": "test",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 23:15:27",
+        "next": "2026-03-08T01:15:27.387412",
+        "runs": 7,
+        "fails": 7,
+        "avg_ms": 115363.04598571344
+      }
+    },
+    {
+      "id": "cluster_benchmark",
+      "name": "Cluster Performance Benchmark",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 22:39:09",
+        "next": "2026-03-08T00:09:09.859049",
+        "runs": 12,
+        "fails": 0,
+        "avg_ms": 3716.4822999988683
+      }
+    },
+    {
+      "id": "failure_learner",
+      "name": "Failure Pattern Learner",
+      "type": "audit",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 21:12:53",
+        "next": "2026-03-08T00:12:53.007167",
+        "runs": 4,
+        "fails": 0,
+        "avg_ms": 109.38792500155614
+      }
+    },
+    {
+      "id": "node_exerciser",
+      "name": "Proactive Node Exerciser",
+      "type": "quick",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 22:50:08",
+        "next": "2026-03-08T00:10:08.577136",
+        "runs": 20,
+        "fails": 0,
+        "avg_ms": 9553.457160000024
+      }
+    },
+    {
+      "id": "dependency_health",
+      "name": "Dependency Health Check",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T05:30:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "log_anomaly_detector",
+      "name": "Log Anomaly Detector",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 22:08:03",
+        "next": "2026-03-08T00:08:03.551300",
+        "runs": 7,
+        "fails": 0,
+        "avg_ms": 166.674342857667
+      }
+    },
+    {
+      "id": "perf_regression",
+      "name": "Performance Regression Detector",
+      "type": "audit",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 22:08:03",
+        "next": "2026-03-08T00:08:03.706550",
+        "runs": 6,
+        "fails": 0,
+        "avg_ms": 308.7966666674333
+      }
+    },
+    {
+      "id": "cluster_knowledge_sync",
+      "name": "Cluster Knowledge Sync",
+      "type": "sync",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 23:15:27",
+        "next": "2026-03-08T00:45:27.283401",
+        "runs": 12,
+        "fails": 0,
+        "avg_ms": 143.31794166598874
+      }
+    },
+    {
+      "id": "smart_scheduler",
+      "name": "Smart Task Priority Optimizer",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 21:12:52",
+        "next": "2026-03-08T00:12:52.977165",
+        "runs": 3,
+        "fails": 0,
+        "avg_ms": 86.32976666831382
+      }
+    },
+    {
+      "id": "cluster_code_review",
+      "name": "Cluster Code Review (M1+OL1)",
+      "type": "review",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 20:12:07",
+        "next": "2026-03-08T00:12:07.260910",
+        "runs": 2,
+        "fails": 0,
+        "avg_ms": 14399.018950000027
+      }
+    },
+    {
+      "id": "resource_predictor",
+      "name": "Resource Saturation Predictor",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 21:15:49",
+        "next": "2026-03-08T00:15:49.618992",
+        "runs": 4,
+        "fails": 0,
+        "avg_ms": 357.0407999998224
+      }
+    },
+    {
+      "id": "security_scanner",
+      "name": "Security Vulnerability Scanner",
+      "type": "audit",
+      "prio": "high",
+      "sched": {
+        "last": "2026-03-07 22:27:55",
+        "next": "2026-03-08T00:27:55.511276",
+        "runs": 5,
+        "fails": 0,
+        "avg_ms": 2068.1418200005965
+      }
+    },
+    {
+      "id": "db_vacuum_optimize",
+      "name": "Database Vacuum & WAL Checkpoint",
+      "type": "health",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T04:15:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "gpu_thermal_predictor",
+      "name": "GPU Thermal Trend Predictor",
+      "type": "health",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 22:30:32",
+        "next": "2026-03-08T00:30:32.981809",
+        "runs": 29,
+        "fails": 18,
+        "avg_ms": 551.955279310313
+      }
+    },
+    {
+      "id": "auto_recovery",
+      "name": "Auto-Recovery Engine",
+      "type": "health",
+      "prio": "critical",
+      "sched": {
+        "last": "2026-03-07 23:16:30",
+        "next": "2026-03-08T00:19:30.833036",
+        "runs": 88,
+        "fails": 0,
+        "avg_ms": 221.5890090909257
+      }
+    },
+    {
+      "id": "dead_code_detector",
+      "name": "Dead Code & Unused Import Detector",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T05:45:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "config_drift_detector",
+      "name": "Config Drift Detector",
+      "type": "audit",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 21:34:27",
+        "next": "2026-03-08T00:34:27.184920",
+        "runs": 3,
+        "fails": 0,
+        "avg_ms": 3609.6666666667074
+      }
+    },
+    {
+      "id": "api_latency_tracker",
+      "name": "API Latency Tracker",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 23:08:21",
+        "next": "2026-03-08T00:13:21.788006",
+        "runs": 68,
+        "fails": 0,
+        "avg_ms": 5752.536514705677
+      }
+    },
+    {
+      "id": "self_documenter",
+      "name": "System State Auto-Documenter",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 22:39:09",
+        "next": "2026-03-08T00:09:09.808599",
+        "runs": 11,
+        "fails": 0,
+        "avg_ms": 292.4744545457233
+      }
+    },
+    {
+      "id": "failover_drill",
+      "name": "Failover Path Drill",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 22:56:15",
+        "next": "2026-03-08T00:11:15.026538",
+        "runs": 26,
+        "fails": 0,
+        "avg_ms": 6574.752873077751
+      }
+    },
+    {
+      "id": "orphan_data_cleaner",
+      "name": "Orphan Data & Temp File Cleaner",
+      "type": "health",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T04:45:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "canary_heartbeat",
+      "name": "Canary Heartbeat (must always pass)",
+      "type": "health",
+      "prio": "critical",
+      "sched": {
+        "last": "2026-03-07 23:16:30",
+        "next": "2026-03-08T00:18:30.615752",
+        "runs": 123,
+        "fails": 0,
+        "avg_ms": 64.73165934960109
+      }
+    },
+    {
+      "id": "cluster_utilization",
+      "name": "Cluster Utilization Monitor",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 22:56:14",
+        "next": "2026-03-08T00:11:14.983805",
+        "runs": 26,
+        "fails": 0,
+        "avg_ms": 312.44085000023983
+      }
+    },
+    {
+      "id": "auto_changelog",
+      "name": "Auto-Changelog Generator",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T00:22:23.314567",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "circuit_breaker",
+      "name": "Circuit Breaker (Fail Loop Detector)",
+      "type": "health",
+      "prio": "critical",
+      "sched": {
+        "last": "2026-03-07 23:16:30",
+        "next": "2026-03-08T00:26:30.763482",
+        "runs": 29,
+        "fails": 0,
+        "avg_ms": 120.97170689716661
+      }
+    },
+    {
+      "id": "continuous_test_runner",
+      "name": "Continuous Test Runner",
+      "type": "audit",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 21:34:27",
+        "next": "2026-03-08T00:34:27.177920",
+        "runs": 3,
+        "fails": 0,
+        "avg_ms": 5447.666666666653
+      }
+    },
+    {
+      "id": "disk_fill_predictor",
+      "name": "Disk Fill Rate Predictor",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 23:15:27",
+        "next": "2026-03-08T00:45:27.340169",
+        "runs": 12,
+        "fails": 0,
+        "avg_ms": 650.5648666663859
+      }
+    },
+    {
+      "id": "model_quality_monitor",
+      "name": "Model Response Quality Monitor",
+      "type": "audit",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 22:39:09",
+        "next": "2026-03-08T00:09:09.873215",
+        "runs": 11,
+        "fails": 0,
+        "avg_ms": 6436.589172726469
+      }
+    },
+    {
+      "id": "process_tree_monitor",
+      "name": "Process Tree & Zombie Detector",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 23:03:27",
+        "next": "2026-03-08T00:13:27.699781",
+        "runs": 40,
+        "fails": 1,
+        "avg_ms": 2969.9753075005415
+      }
+    },
+    {
+      "id": "dependency_freshness",
+      "name": "Dependency Freshness & Vuln Check",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T06:00:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "cluster_work_generator",
+      "name": "Cluster Idle Work Generator",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 22:51:13",
+        "next": "2026-03-08T00:11:13.059025",
+        "runs": 19,
+        "fails": 0,
+        "avg_ms": 4639.4469894737595
+      }
+    },
+    {
+      "id": "error_correlator",
+      "name": "Error Root Cause Correlator",
+      "type": "reasoning",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 23:15:27",
+        "next": "2026-03-08T00:45:27.332366",
+        "runs": 9,
+        "fails": 0,
+        "avg_ms": 267.6406111109423
+      }
+    },
+    {
+      "id": "auto_test_generator",
+      "name": "Auto-Test Stub Generator",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T05:15:00",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "prompt_optimizer",
+      "name": "Task Prompt Optimizer (M1-powered)",
+      "type": "reasoning",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 22:24:12",
+        "next": "2026-03-08T01:24:12.266598",
+        "runs": 3,
+        "fails": 0,
+        "avg_ms": 7638.154700000049
+      }
+    },
+    {
+      "id": "entropy_monitor",
+      "name": "System Entropy & Health Score",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 22:56:15",
+        "next": "2026-03-08T00:11:15.019454",
+        "runs": 20,
+        "fails": 0,
+        "avg_ms": 4388.582314999783
+      }
+    },
+    {
+      "id": "memory_leak_detector",
+      "name": "Memory Leak Trend Detector",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 23:03:27",
+        "next": "2026-03-08T00:13:27.678572",
+        "runs": 31,
+        "fails": 0,
+        "avg_ms": 2333.789551612947
+      }
+    },
+    {
+      "id": "task_dependency_optimizer",
+      "name": "Task Redundancy & Conflict Detector",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 22:22:57",
+        "next": "2026-03-08T03:22:57.220142",
         "runs": 1,
         "fails": 0,
-        "avg_ms": 3109.0000000040163
+        "avg_ms": 758.7886000000026
+      }
+    },
+    {
+      "id": "cluster_cross_validator",
+      "name": "Cluster Cross-Validation (Answer Consistency)",
+      "type": "reasoning",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 23:15:27",
+        "next": "2026-03-08T00:45:27.363192",
+        "runs": 9,
+        "fails": 0,
+        "avg_ms": 5953.500355555661
+      }
+    },
+    {
+      "id": "import_syntax_healer",
+      "name": "Import & Syntax Error Healer",
+      "type": "audit",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 22:24:12",
+        "next": "2026-03-08T01:24:12.273887",
+        "runs": 3,
+        "fails": 0,
+        "avg_ms": 8653.812599999923
+      }
+    },
+    {
+      "id": "performance_profiler",
+      "name": "Task Performance Profiler",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 22:08:03",
+        "next": "2026-03-08T00:08:03.560298",
+        "runs": 4,
+        "fails": 0,
+        "avg_ms": 258.87254999987874
+      }
+    },
+    {
+      "id": "alert_aggregator",
+      "name": "Smart Alert Aggregator",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 22:56:14",
+        "next": "2026-03-08T00:11:14.963507",
+        "runs": 20,
+        "fails": 0,
+        "avg_ms": 141.82353000009584
+      }
+    },
+    {
+      "id": "evolution_fitness",
+      "name": "Evolution Fitness Tracker",
+      "type": "audit",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 22:39:09",
+        "next": "2026-03-08T00:09:09.837874",
+        "runs": 8,
+        "fails": 0,
+        "avg_ms": 504.23458749989436
+      }
+    },
+    {
+      "id": "node_warmup",
+      "name": "Node Model Warmup Scheduler",
+      "type": "health",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 22:50:08",
+        "next": "2026-03-08T00:10:08.553606",
+        "runs": 16,
+        "fails": 0,
+        "avg_ms": 1973.6802062500374
+      }
+    },
+    {
+      "id": "auto_rollback_sentinel",
+      "name": "Auto-Rollback Sentinel",
+      "type": "audit",
+      "prio": "high",
+      "sched": {
+        "last": "2026-03-07 22:53:34",
+        "next": "2026-03-08T00:23:34.012471",
+        "runs": 10,
+        "fails": 0,
+        "avg_ms": 2203.665899999919
+      }
+    },
+    {
+      "id": "knowledge_base_builder",
+      "name": "Knowledge Base Builder",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 21:21:41",
+        "next": "2026-03-08T01:21:41.612762",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 92.9999999998472
+      }
+    },
+    {
+      "id": "saturation_balancer",
+      "name": "Cluster Saturation Load Balancer",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 23:03:27",
+        "next": "2026-03-08T00:13:27.706892",
+        "runs": 31,
+        "fails": 0,
+        "avg_ms": 8042.423161290229
+      }
+    },
+    {
+      "id": "task_auto_tuner",
+      "name": "Task Frequency Auto-Tuner",
+      "type": "reasoning",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 22:26:53",
+        "next": "2026-03-08T01:26:53.257637",
+        "runs": 2,
+        "fails": 0,
+        "avg_ms": 63.55359999992061
+      }
+    },
+    {
+      "id": "task_retirement",
+      "name": "Task Retirement Engine",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T01:26:14.102732",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "inter_node_teaching",
+      "name": "Inter-Node Knowledge Transfer (M1\u2192OL1)",
+      "type": "reasoning",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 23:15:27",
+        "next": "2026-03-08T01:15:27.379591",
+        "runs": 5,
+        "fails": 0,
+        "avg_ms": 16121.422080000024
+      }
+    },
+    {
+      "id": "code_complexity_tracker",
+      "name": "Code Complexity & LOC Tracker",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 22:26:53",
+        "next": "2026-03-08T03:26:53.264830",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 2396.1885999999595
+      }
+    },
+    {
+      "id": "ab_task_tester",
+      "name": "A/B Task Performance Tester",
+      "type": "reasoning",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 21:26:50",
+        "next": "2026-03-08T01:26:50.912162",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 125.0
+      }
+    },
+    {
+      "id": "data_pipeline_validator",
+      "name": "Data Pipeline Integrity Validator",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 23:15:27",
+        "next": "2026-03-08T00:45:27.347642",
+        "runs": 11,
+        "fails": 0,
+        "avg_ms": 138.51720909128125
+      }
+    },
+    {
+      "id": "service_mesh_mapper",
+      "name": "Service Mesh Topology Mapper",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 23:03:27",
+        "next": "2026-03-08T00:13:27.685565",
+        "runs": 29,
+        "fails": 0,
+        "avg_ms": 2988.570575861929
+      }
+    },
+    {
+      "id": "daily_insight_generator",
+      "name": "Daily Insight Generator (M1-powered)",
+      "type": "reasoning",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T01:26:14.149327",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "error_deduplicator",
+      "name": "Error Pattern Deduplicator",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 22:26:53",
+        "next": "2026-03-08T01:26:53.249854",
+        "runs": 2,
+        "fails": 0,
+        "avg_ms": 51.08424999997396
+      }
+    },
+    {
+      "id": "git_activity_intelligence",
+      "name": "Git Activity Pattern Analyzer",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T01:26:14.163851",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "cluster_feedback_loop",
+      "name": "Cluster Quality Feedback Loop",
+      "type": "reasoning",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 21:26:50",
+        "next": "2026-03-08T01:26:50.897150",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 92.9999999998472
+      }
+    },
+    {
+      "id": "dynamic_priority",
+      "name": "Dynamic Task Priority Adjuster",
+      "type": "reasoning",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 22:56:14",
+        "next": "2026-03-08T00:11:14.970595",
+        "runs": 20,
+        "fails": 0,
+        "avg_ms": 104.47489000003998
+      }
+    },
+    {
+      "id": "self_benchmark",
+      "name": "Orchestrator Self-Benchmark",
+      "type": "health",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 23:15:27",
+        "next": "2026-03-08T01:15:27.292445",
+        "runs": 5,
+        "fails": 0,
+        "avg_ms": 446.37410000002546
+      }
+    },
+    {
+      "id": "model_arbitrage",
+      "name": "Cluster Multi-Model Arbitrage",
+      "type": "reasoning",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 23:15:27",
+        "next": "2026-03-08T00:45:27.355280",
+        "runs": 11,
+        "fails": 0,
+        "avg_ms": 14672.236481818056
+      }
+    },
+    {
+      "id": "evolution_report_card",
+      "name": "System Evolution Report Card",
+      "type": "audit",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 22:08:03",
+        "next": "2026-03-08T00:08:03.780076",
+        "runs": 4,
+        "fails": 0,
+        "avg_ms": 186.0467499998606
+      }
+    },
+    {
+      "id": "predictive_failure",
+      "name": "Predictive Failure Detector",
+      "type": "reasoning",
+      "prio": "high",
+      "sched": {
+        "last": "2026-03-07 23:07:01",
+        "next": "2026-03-08T00:22:01.995896",
+        "runs": 17,
+        "fails": 0,
+        "avg_ms": 119.91377647125788
+      }
+    },
+    {
+      "id": "watchdog_watchdog",
+      "name": "Meta-Watchdog (Who Watches the Watchers?)",
+      "type": "health",
+      "prio": "critical",
+      "sched": {
+        "last": "2026-03-07 23:16:31",
+        "next": "2026-03-08T00:21:31.011642",
+        "runs": 43,
+        "fails": 0,
+        "avg_ms": 259.5349325581141
+      }
+    },
+    {
+      "id": "external_connectivity",
+      "name": "External Connectivity Probe",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 22:56:15",
+        "next": "2026-03-08T00:11:15.012506",
+        "runs": 17,
+        "fails": 0,
+        "avg_ms": 1494.5025588235694
+      }
+    },
+    {
+      "id": "log_intelligence",
+      "name": "Cross-Log Intelligence Analyzer",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 22:45:20",
+        "next": "2026-03-08T01:45:20.207096",
+        "runs": 2,
+        "fails": 0,
+        "avg_ms": 65.94784999981584
+      }
+    },
+    {
+      "id": "backup_restore_test",
+      "name": "Backup Restore Verification",
+      "type": "audit",
+      "prio": "normal",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T01:42:23.707219",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "task_chain_optimizer",
+      "name": "Task Execution Chain Optimizer",
+      "type": "reasoning",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 22:08:03",
+        "next": "2026-03-08T02:08:03.596800",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 4515.999999999622
+      }
+    },
+    {
+      "id": "auto_fix_engine",
+      "name": "Auto-Fix Engine (Simple Error Repair)",
+      "type": "reasoning",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 23:15:27",
+        "next": "2026-03-08T00:45:27.371536",
+        "runs": 9,
+        "fails": 0,
+        "avg_ms": 2925.605733333365
+      }
+    },
+    {
+      "id": "capacity_planner",
+      "name": "Capacity Planning Forecaster",
+      "type": "reasoning",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 22:44:19",
+        "next": "2026-03-08T01:44:19.999015",
+        "runs": 2,
+        "fails": 0,
+        "avg_ms": 88.40104999978848
+      }
+    },
+    {
+      "id": "node_latency_matrix",
+      "name": "Inter-Node Latency Matrix",
+      "type": "health",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 22:50:08",
+        "next": "2026-03-08T00:10:08.538229",
+        "runs": 14,
+        "fails": 0,
+        "avg_ms": 1007.015378571907
+      }
+    },
+    {
+      "id": "autonomous_code_reviewer",
+      "name": "Autonomous Code Reviewer (M1-powered)",
+      "type": "reasoning",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 22:08:03",
+        "next": "2026-03-08T02:08:03.635797",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 9516.00000000144
+      }
+    },
+    {
+      "id": "task_value_scorer",
+      "name": "Task Value & ROI Scorer",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 22:42:58",
+        "next": "2026-03-08T03:42:58.124314",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 59.27909999991243
+      }
+    },
+    {
+      "id": "cluster_consensus_solver",
+      "name": "Cluster Consensus Problem Solver",
+      "type": "reasoning",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 22:44:20",
+        "next": "2026-03-08T01:44:20.022571",
+        "runs": 2,
+        "fails": 0,
+        "avg_ms": 6838.7102000001505
+      }
+    },
+    {
+      "id": "schema_drift_monitor",
+      "name": "Database Schema Drift Monitor",
+      "type": "audit",
+      "prio": "normal",
+      "sched": {
+        "last": "2026-03-07 22:42:58",
+        "next": "2026-03-08T03:42:58.136390",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 85.01109999997425
+      }
+    },
+    {
+      "id": "execution_heatmap",
+      "name": "Task Execution Heatmap Generator",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 22:08:03",
+        "next": "2026-03-08T02:08:03.623301",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 3922.00000000048
+      }
+    },
+    {
+      "id": "system_genome",
+      "name": "System Genome Snapshot",
+      "type": "audit",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T01:42:23.781873",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "tg_cluster_report",
+      "name": "Telegram Cluster Report",
+      "type": "quick",
+      "prio": "medium",
+      "sched": {
+        "last": null,
+        "next": "2026-03-07T20:14:33.678981",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "tg_evolution_report",
+      "name": "Telegram Evolution Report",
+      "type": "quick",
+      "prio": "medium",
+      "sched": {
+        "last": null,
+        "next": "2026-03-07T20:29:33.685493",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "tg_error_watcher",
+      "name": "Telegram Error Watcher",
+      "type": "quick",
+      "prio": "high",
+      "sched": {
+        "last": "2026-03-07 23:17:29",
+        "next": "2026-03-08T00:22:29.521060",
+        "runs": 49,
+        "fails": 1,
+        "avg_ms": 24392.76943061206
+      }
+    },
+    {
+      "id": "tg_alert_push",
+      "name": "Telegram Alert Push",
+      "type": "quick",
+      "prio": "high",
+      "sched": {
+        "last": "2026-03-07 23:17:29",
+        "next": "2026-03-08T00:20:29.855511",
+        "runs": 65,
+        "fails": 0,
+        "avg_ms": 608.4461215383953
+      }
+    },
+    {
+      "id": "tg_task_performance",
+      "name": "Telegram Task Performance",
+      "type": "quick",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 22:19:49",
+        "next": "2026-03-08T00:19:49.600391",
+        "runs": 3,
+        "fails": 0,
+        "avg_ms": 609.682966666791
+      }
+    },
+    {
+      "id": "tg_error_patterns",
+      "name": "Telegram Error Patterns",
+      "type": "quick",
+      "prio": "medium",
+      "sched": {
+        "last": null,
+        "next": "2026-03-07T21:59:33.713039",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "tg_genome_snapshot",
+      "name": "Telegram Genome Snapshot",
+      "type": "quick",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T01:59:33.719556",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "tg_voice_briefing",
+      "name": "Telegram Voice Briefing",
+      "type": "quick",
+      "prio": "low",
+      "sched": {
+        "last": "2026-03-07 22:19:49",
+        "next": "2026-03-08T02:19:49.654104",
+        "runs": 1,
+        "fails": 0,
+        "avg_ms": 2091.875899999991
+      }
+    },
+    {
+      "id": "tg_daily_insight",
+      "name": "Telegram Daily Insight",
+      "type": "quick",
+      "prio": "low",
+      "sched": {
+        "last": null,
+        "next": "2026-03-08T07:59:33.732576",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "tg_service_down_alert",
+      "name": "Telegram Service Down Alert",
+      "type": "quick",
+      "prio": "critical",
+      "sched": {
+        "last": "2026-03-07 23:16:30",
+        "next": "2026-03-08T00:18:30.677255",
+        "runs": 87,
+        "fails": 0,
+        "avg_ms": 338.1447310344916
+      }
+    },
+    {
+      "id": "tg_circuit_breaker_alert",
+      "name": "Telegram Circuit Breaker Alert",
+      "type": "quick",
+      "prio": "high",
+      "sched": {
+        "last": "2026-03-07 23:17:29",
+        "next": "2026-03-08T00:22:29.605083",
+        "runs": 49,
+        "fails": 0,
+        "avg_ms": 577.1857714285358
+      }
+    },
+    {
+      "id": "tg_disk_alert",
+      "name": "Telegram Disk Space Alert",
+      "type": "quick",
+      "prio": "medium",
+      "sched": {
+        "last": null,
+        "next": "2026-03-07T20:29:33.752522",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "tg_auto_error_fix",
+      "name": "Telegram Auto Error Fix",
+      "type": "quick",
+      "prio": "medium",
+      "sched": {
+        "last": null,
+        "next": "2026-03-07T20:14:33.759552",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
+      }
+    },
+    {
+      "id": "tg_entropy_alert",
+      "name": "Telegram Entropy Alert",
+      "type": "quick",
+      "prio": "high",
+      "sched": {
+        "last": "2026-03-07 23:17:29",
+        "next": "2026-03-08T00:27:29.942735",
+        "runs": 21,
+        "fails": 0,
+        "avg_ms": 428.83328571411175
+      }
+    },
+    {
+      "id": "tg_success_rate_alert",
+      "name": "Telegram Success Rate Alert",
+      "type": "quick",
+      "prio": "medium",
+      "sched": {
+        "last": null,
+        "next": "2026-03-07T20:09:33.777093",
+        "runs": 0,
+        "fails": 0,
+        "avg_ms": 0.0
       }
     }
   ],
   "recent": [
     {
-      "id": "memory_guard",
+      "id": "cluster_failover",
       "status": "completed",
-      "ms": 609.0000000040163,
+      "ms": 8742.753300000004,
       "node": "",
-      "at": "2026-03-07 16:32:51"
-    },
-    {
-      "id": "port_conflict_check",
-      "status": "completed",
-      "ms": 61.99999999807915,
-      "node": "",
-      "at": "2026-03-07 16:32:50"
+      "at": "2026-03-07 23:17:59"
     },
     {
       "id": "ws_server_health",
       "status": "completed",
-      "ms": 78.00000000133878,
+      "ms": 238.4606000000531,
       "node": "",
-      "at": "2026-03-07 16:32:50"
+      "at": "2026-03-07 23:17:50"
     },
     {
-      "id": "error_rate_monitor",
+      "id": "autonomy_heal",
       "status": "completed",
-      "ms": 78.00000000133878,
+      "ms": 9899.95620000036,
       "node": "",
-      "at": "2026-03-07 16:32:50"
+      "at": "2026-03-07 23:17:50"
     },
     {
-      "id": "cluster_failover",
+      "id": "autonomy_cycle",
       "status": "completed",
-      "ms": 6250.0,
+      "ms": 3434.8715999999513,
       "node": "",
-      "at": "2026-03-07 16:32:44"
-    },
-    {
-      "id": "parallel_cluster_ping",
-      "status": "completed",
-      "ms": 3109.0000000040163,
-      "node": "",
-      "at": "2026-03-07 16:32:37"
-    },
-    {
-      "id": "orch_self_health",
-      "status": "completed",
-      "ms": 63.00000000192085,
-      "node": "",
-      "at": "2026-03-07 16:32:33"
-    },
-    {
-      "id": "metrics_collector",
-      "status": "completed",
-      "ms": 437.0000000053551,
-      "node": "",
-      "at": "2026-03-07 16:32:32"
-    },
-    {
-      "id": "nightly_pipeline",
-      "status": "completed",
-      "ms": 8391.00000000326,
-      "node": "",
-      "at": "2026-03-07 15:45:27"
-    },
-    {
-      "id": "telegram_failure_alert",
-      "status": "completed",
-      "ms": 61.99999999807915,
-      "node": "",
-      "at": "2026-03-07 15:45:18"
-    },
-    {
-      "id": "telegram_status",
-      "status": "completed",
-      "ms": 906.9999999992433,
-      "node": "",
-      "at": "2026-03-07 15:45:17"
-    },
-    {
-      "id": "process_gc",
-      "status": "completed",
-      "ms": 218.99999999732245,
-      "node": "",
-      "at": "2026-03-07 15:45:11"
-    },
-    {
-      "id": "process_gc",
-      "status": "failed",
-      "ms": 203.00000000133878,
-      "node": "",
-      "at": "2026-03-07 15:44:58"
-    },
-    {
-      "id": "electron_monitor",
-      "status": "completed",
-      "ms": 203.00000000133878,
-      "node": "",
-      "at": "2026-03-07 15:44:17"
-    },
-    {
-      "id": "process_gc",
-      "status": "failed",
-      "ms": 203.00000000133878,
-      "node": "",
-      "at": "2026-03-07 15:44:16"
-    },
-    {
-      "id": "model_health",
-      "status": "completed",
-      "ms": 93.0000000007567,
-      "node": "",
-      "at": "2026-03-07 15:44:12"
-    },
-    {
-      "id": "proxy_monitor",
-      "status": "completed",
-      "ms": 3109.0000000040163,
-      "node": "",
-      "at": "2026-03-07 15:44:11"
-    },
-    {
-      "id": "db_integrity_guard",
-      "status": "completed",
-      "ms": 875.0,
-      "node": "",
-      "at": "2026-03-07 15:44:04"
-    },
-    {
-      "id": "disk_monitor",
-      "status": "completed",
-      "ms": 46.999999998661224,
-      "node": "",
-      "at": "2026-03-07 15:44:02"
-    },
-    {
-      "id": "vram_guard",
-      "status": "completed",
-      "ms": 171.00000000209548,
-      "node": "",
-      "at": "2026-03-07 15:44:02"
+      "at": "2026-03-07 23:17:40"
     },
     {
       "id": "auto_heal_services",
       "status": "completed",
-      "ms": 3186.999999998079,
+      "ms": 3241.6502000000946,
       "node": "",
-      "at": "2026-03-07 15:44:01"
+      "at": "2026-03-07 23:17:36"
     },
     {
-      "id": "daily_pipeline",
+      "id": "health_services",
       "status": "completed",
-      "ms": 9702.999999994063,
+      "ms": 3761.0038999996505,
       "node": "",
-      "at": "2026-03-07 15:16:06"
+      "at": "2026-03-07 23:17:33"
     },
     {
-      "id": "cluster_consensus_test",
+      "id": "tg_entropy_alert",
       "status": "completed",
-      "ms": 2500.0,
-      "node": "M1,OL1",
-      "at": "2026-03-07 15:15:50"
+      "ms": 78.50159999998141,
+      "node": "",
+      "at": "2026-03-07 23:17:29"
     },
     {
-      "id": "backup_databases",
+      "id": "tg_alert_push",
       "status": "completed",
-      "ms": 139.99999999941792,
+      "ms": 241.68569999983447,
       "node": "",
-      "at": "2026-03-07 15:15:46"
+      "at": "2026-03-07 23:17:29"
     },
     {
-      "id": "trading_scan",
+      "id": "tg_circuit_breaker_alert",
       "status": "completed",
-      "ms": 1063.0000000019209,
+      "ms": 76.09620000039286,
       "node": "",
-      "at": "2026-03-07 15:15:42"
+      "at": "2026-03-07 23:17:29"
     },
     {
-      "id": "git_sync",
+      "id": "tg_error_watcher",
       "status": "completed",
-      "ms": 110.00000000058208,
+      "ms": 58501.17960000034,
       "node": "",
-      "at": "2026-03-07 15:15:41"
+      "at": "2026-03-07 23:17:29"
     },
     {
-      "id": "audit_code",
+      "id": "watchdog_watchdog",
       "status": "completed",
-      "ms": 811.9999999980791,
+      "ms": 171.26839999991716,
       "node": "",
-      "at": "2026-03-07 15:15:40"
+      "at": "2026-03-07 23:16:31"
     },
     {
-      "id": "health_gpu",
+      "id": "auto_recovery",
       "status": "completed",
-      "ms": 172.00000000593718,
+      "ms": 62.79240000003483,
       "node": "",
-      "at": "2026-03-07 15:15:35"
+      "at": "2026-03-07 23:16:30"
+    },
+    {
+      "id": "circuit_breaker",
+      "status": "completed",
+      "ms": 77.80390000016268,
+      "node": "",
+      "at": "2026-03-07 23:16:30"
+    },
+    {
+      "id": "tg_service_down_alert",
+      "status": "completed",
+      "ms": 53.52619999985109,
+      "node": "",
+      "at": "2026-03-07 23:16:30"
+    },
+    {
+      "id": "canary_heartbeat",
+      "status": "completed",
+      "ms": 49.14989999997488,
+      "node": "",
+      "at": "2026-03-07 23:16:30"
     },
     {
       "id": "health_cluster",
       "status": "completed",
-      "ms": 3156.0000000026776,
+      "ms": 3149.057999999968,
       "node": "",
-      "at": "2026-03-07 15:15:34"
+      "at": "2026-03-07 23:16:30"
+    },
+    {
+      "id": "test_evolution",
+      "status": "failed",
+      "ms": 120653.09999999999,
+      "node": "",
+      "at": "2026-03-07 23:15:27"
+    },
+    {
+      "id": "inter_node_teaching",
+      "status": "completed",
+      "ms": 24190.310800000134,
+      "node": "",
+      "at": "2026-03-07 23:15:27"
+    },
+    {
+      "id": "auto_fix_engine",
+      "status": "completed",
+      "ms": 8736.942399999862,
+      "node": "",
+      "at": "2026-03-07 23:15:27"
+    },
+    {
+      "id": "cluster_cross_validator",
+      "status": "completed",
+      "ms": 11265.163700000357,
+      "node": "",
+      "at": "2026-03-07 23:15:27"
+    },
+    {
+      "id": "model_arbitrage",
+      "status": "completed",
+      "ms": 14856.563000000278,
+      "node": "",
+      "at": "2026-03-07 23:15:27"
+    },
+    {
+      "id": "data_pipeline_validator",
+      "status": "completed",
+      "ms": 344.53009999970163,
+      "node": "",
+      "at": "2026-03-07 23:15:27"
+    },
+    {
+      "id": "disk_fill_predictor",
+      "status": "completed",
+      "ms": 354.2560999999296,
+      "node": "",
+      "at": "2026-03-07 23:15:27"
+    },
+    {
+      "id": "error_correlator",
+      "status": "completed",
+      "ms": 295.0096999998095,
+      "node": "",
+      "at": "2026-03-07 23:15:27"
+    },
+    {
+      "id": "cluster_consensus_test",
+      "status": "completed",
+      "ms": 9995.034999999916,
+      "node": "M1,OL1",
+      "at": "2026-03-07 23:15:27"
+    },
+    {
+      "id": "escalation_check",
+      "status": "completed",
+      "ms": 115.2406000001065,
+      "node": "",
+      "at": "2026-03-07 23:15:27"
+    },
+    {
+      "id": "model_health",
+      "status": "completed",
+      "ms": 582.6332999999977,
+      "node": "",
+      "at": "2026-03-07 23:15:27"
+    },
+    {
+      "id": "git_sync",
+      "status": "completed",
+      "ms": 143.45640000010462,
+      "node": "",
+      "at": "2026-03-07 23:15:27"
+    },
+    {
+      "id": "self_benchmark",
+      "status": "completed",
+      "ms": 92.51129999984187,
+      "node": "",
+      "at": "2026-03-07 23:15:27"
+    },
+    {
+      "id": "cluster_knowledge_sync",
+      "status": "completed",
+      "ms": 86.75839999978052,
+      "node": "",
+      "at": "2026-03-07 23:15:27"
     }
   ],
   "metrics": {
+    "failures_24h": {
+      "v": 48.0,
+      "at": "2026-03-07T22:12:28.486020"
+    },
+    "disk_free_C:": {
+      "v": 62.953058304,
+      "at": "2026-03-07T22:14:58.859180"
+    },
+    "disk_free_F:": {
+      "v": 82.3555072,
+      "at": "2026-03-07T22:14:59.747682"
+    },
+    "db_size_task_orchestrator": {
+      "v": 1.51552,
+      "at": "2026-03-07T22:14:59.747817"
+    },
+    "db_size_etoile": {
+      "v": 4.820992,
+      "at": "2026-03-07T22:14:59.747925"
+    },
+    "db_size_jarvis": {
+      "v": 3.1744,
+      "at": "2026-03-07T22:14:59.747963"
+    },
+    "tests_passed": {
+      "v": 0.0,
+      "at": "2026-03-07T22:34:18.799628"
+    },
+    "tests_failed": {
+      "v": 0.0,
+      "at": "2026-03-07T22:34:18.801131"
+    },
+    "rollback_alert": {
+      "v": 1.0,
+      "at": "2026-03-07T23:21:53.153246"
+    },
+    "tuner_recommendations": {
+      "v": 72.0,
+      "at": "2026-03-07T23:26:50.906630"
+    },
+    "code_total_loc": {
+      "v": 123386.0,
+      "at": "2026-03-07T23:26:53.229124"
+    },
+    "code_total_functions": {
+      "v": 4243.0,
+      "at": "2026-03-07T23:26:53.229124"
+    },
+    "code_total_classes": {
+      "v": 570.0,
+      "at": "2026-03-07T23:26:53.229124"
+    },
+    "gpu0_power": {
+      "v": 33.04,
+      "at": "2026-03-07T23:30:26.506765"
+    },
+    "gpu1_power": {
+      "v": 7.94,
+      "at": "2026-03-07T23:30:26.506854"
+    },
+    "gpu2_power": {
+      "v": 39.74,
+      "at": "2026-03-07T23:30:26.507009"
+    },
+    "gpu3_power": {
+      "v": 4.12,
+      "at": "2026-03-07T23:30:26.507307"
+    },
+    "gpu4_power": {
+      "v": 12.07,
+      "at": "2026-03-07T23:30:26.507393"
+    },
+    "gpu5_power": {
+      "v": 104.18,
+      "at": "2026-03-07T23:30:26.507492"
+    },
+    "arbitrage_math_winner": {
+      "v": 885.0,
+      "at": "2026-03-07T23:39:07.215764"
+    },
+    "latency_M1_OL1": {
+      "v": 1.1186000001544016,
+      "at": "2026-03-07T23:49:58.477694"
+    },
+    "latency_M1_M3": {
+      "v": 10.999600000104692,
+      "at": "2026-03-07T23:49:58.489820"
+    },
+    "latency_M1_WS": {
+      "v": 0.40360000002692686,
+      "at": "2026-03-07T23:49:58.490258"
+    },
+    "latency_M1_OCW": {
+      "v": 10.023399999681715,
+      "at": "2026-03-07T23:49:58.500344"
+    },
+    "latency_OL1_M1": {
+      "v": 0.41300000020783045,
+      "at": "2026-03-07T23:49:58.500798"
+    },
+    "latency_OL1_M3": {
+      "v": 11.032100000193168,
+      "at": "2026-03-07T23:49:58.511874"
+    },
+    "latency_OL1_WS": {
+      "v": 0.4890000000159489,
+      "at": "2026-03-07T23:49:58.512402"
+    },
+    "latency_OL1_OCW": {
+      "v": 0.3154999999424035,
+      "at": "2026-03-07T23:49:58.512783"
+    },
+    "latency_M3_M1": {
+      "v": 10.540700000092329,
+      "at": "2026-03-07T23:49:58.523365"
+    },
+    "latency_M3_OL1": {
+      "v": 0.38989999984551105,
+      "at": "2026-03-07T23:49:58.523800"
+    },
+    "latency_M3_WS": {
+      "v": 0.34270000014657853,
+      "at": "2026-03-07T23:49:58.524178"
+    },
+    "latency_M3_OCW": {
+      "v": 0.34290000030523515,
+      "at": "2026-03-07T23:49:58.524551"
+    },
+    "latency_WS_M1": {
+      "v": 0.37389999988590716,
+      "at": "2026-03-07T23:49:58.524962"
+    },
+    "latency_WS_OL1": {
+      "v": 0.34430000005158945,
+      "at": "2026-03-07T23:49:58.525334"
+    },
+    "latency_WS_M3": {
+      "v": 0.5228999998507788,
+      "at": "2026-03-07T23:49:58.525885"
+    },
+    "latency_WS_OCW": {
+      "v": 0.32289999990098295,
+      "at": "2026-03-07T23:49:58.526245"
+    },
+    "latency_OCW_M1": {
+      "v": 0.34180000011474476,
+      "at": "2026-03-07T23:49:58.526629"
+    },
+    "latency_OCW_OL1": {
+      "v": 0.3418999999666994,
+      "at": "2026-03-07T23:49:58.527000"
+    },
+    "latency_OCW_M3": {
+      "v": 0.5482999999912863,
+      "at": "2026-03-07T23:49:58.527578"
+    },
+    "latency_OCW_WS": {
+      "v": 0.4260999999132764,
+      "at": "2026-03-07T23:49:58.528035"
+    },
+    "util_m1": {
+      "v": 0.0,
+      "at": "2026-03-07T23:56:08.862498"
+    },
+    "util_ol1": {
+      "v": 0.0,
+      "at": "2026-03-07T23:56:08.863184"
+    },
+    "util_m3": {
+      "v": 0.0,
+      "at": "2026-03-07T23:56:08.863204"
+    },
+    "util_gemini": {
+      "v": 0.0,
+      "at": "2026-03-07T23:56:08.863217"
+    },
+    "ext_dns": {
+      "v": 25.7129999999961,
+      "at": "2026-03-07T23:56:09.004770"
+    },
+    "ext_http": {
+      "v": 377.8329999995549,
+      "at": "2026-03-07T23:56:14.359971"
+    },
+    "ext_pypi": {
+      "v": 199.75660000000062,
+      "at": "2026-03-07T23:56:14.559789"
+    },
+    "system_entropy_score": {
+      "v": 100.0,
+      "at": "2026-03-07T23:56:11.300131"
+    },
+    "mesh_health_pct": {
+      "v": 75.0,
+      "at": "2026-03-08T00:03:21.596828"
+    },
+    "saturation_m1": {
+      "v": 498.18720000030225,
+      "at": "2026-03-08T00:03:27.634897"
+    },
+    "saturation_ol1": {
+      "v": 6849.213899999995,
+      "at": "2026-03-08T00:03:27.636092"
+    },
+    "gpu0_vram_used": {
+      "v": 12034.0,
+      "at": "2026-03-07 23:06:31"
+    },
+    "gpu0_vram_total": {
+      "v": 12288.0,
+      "at": "2026-03-07 23:06:31"
+    },
+    "gpu1_vram_used": {
+      "v": 182.0,
+      "at": "2026-03-07 23:06:31"
+    },
+    "gpu1_vram_total": {
+      "v": 6144.0,
+      "at": "2026-03-07 23:06:31"
+    },
+    "gpu2_vram_used": {
+      "v": 305.0,
+      "at": "2026-03-07 23:06:31"
+    },
+    "gpu2_vram_total": {
+      "v": 6144.0,
+      "at": "2026-03-07 23:06:31"
+    },
+    "gpu3_vram_used": {
+      "v": 182.0,
+      "at": "2026-03-07 23:06:31"
+    },
+    "gpu3_vram_total": {
+      "v": 6144.0,
+      "at": "2026-03-07 23:06:31"
+    },
+    "gpu4_vram_used": {
+      "v": 5857.0,
+      "at": "2026-03-07 23:06:31"
+    },
+    "gpu4_vram_total": {
+      "v": 6144.0,
+      "at": "2026-03-07 23:06:31"
+    },
+    "gpu5_vram_used": {
+      "v": 7358.0,
+      "at": "2026-03-07 23:06:31"
+    },
+    "gpu5_vram_total": {
+      "v": 10240.0,
+      "at": "2026-03-07 23:06:31"
+    },
+    "disk_c_used_pct": {
+      "v": 87.65191648057775,
+      "at": "2026-03-07 23:06:31"
+    },
+    "disk_f_used_pct": {
+      "v": 82.82014080145831,
+      "at": "2026-03-07 23:06:31"
+    },
+    "orch_total_runs": {
+      "v": 2424.0,
+      "at": "2026-03-07 23:06:31"
+    },
+    "orch_success_rate": {
+      "v": 97.85478547854785,
+      "at": "2026-03-07 23:06:31"
+    },
+    "orch_fail_count": {
+      "v": 52.0,
+      "at": "2026-03-07 23:06:31"
+    },
+    "cluster_nodes_online": {
+      "v": 3.0,
+      "at": "2026-03-07 23:06:34"
+    },
+    "latency_m1": {
+      "v": 28.2483000000866,
+      "at": "2026-03-08T00:08:16.175021"
+    },
+    "latency_ol1": {
+      "v": 15.004200000021228,
+      "at": "2026-03-08T00:08:16.191213"
+    },
+    "latency_ws": {
+      "v": 1.8482999998923333,
+      "at": "2026-03-08T00:08:16.193151"
+    },
+    "latency_proxy": {
+      "v": -1.0,
+      "at": "2026-03-08T00:08:21.193915"
+    },
+    "latency_openclaw": {
+      "v": 3.1650999999328633,
+      "at": "2026-03-08T00:08:21.197167"
+    },
     "gpu0_temp": {
-      "v": 49.0,
-      "at": "2026-03-07 16:32:32"
+      "v": 48.0,
+      "at": "2026-03-07 23:08:21"
     },
     "gpu0_vram_mb": {
-      "v": 11427.0,
-      "at": "2026-03-07 16:32:32"
+      "v": 12034.0,
+      "at": "2026-03-07 23:08:21"
     },
     "gpu0_util": {
-      "v": 4.0,
-      "at": "2026-03-07 16:32:32"
+      "v": 0.0,
+      "at": "2026-03-07 23:08:21"
     },
     "gpu1_temp": {
-      "v": 53.0,
-      "at": "2026-03-07 16:32:32"
+      "v": 33.0,
+      "at": "2026-03-07 23:08:21"
     },
     "gpu1_vram_mb": {
-      "v": 2482.0,
-      "at": "2026-03-07 16:32:32"
+      "v": 182.0,
+      "at": "2026-03-07 23:08:21"
     },
     "gpu1_util": {
       "v": 0.0,
-      "at": "2026-03-07 16:32:32"
+      "at": "2026-03-07 23:08:21"
     },
     "gpu2_temp": {
-      "v": 40.0,
-      "at": "2026-03-07 16:32:32"
+      "v": 54.0,
+      "at": "2026-03-07 23:08:21"
     },
     "gpu2_vram_mb": {
-      "v": 0.0,
-      "at": "2026-03-07 16:32:32"
+      "v": 300.0,
+      "at": "2026-03-07 23:08:21"
     },
     "gpu2_util": {
       "v": 0.0,
-      "at": "2026-03-07 16:32:32"
+      "at": "2026-03-07 23:08:21"
     },
     "gpu3_temp": {
-      "v": 58.0,
-      "at": "2026-03-07 16:32:32"
+      "v": 38.0,
+      "at": "2026-03-07 23:08:21"
     },
     "gpu3_vram_mb": {
-      "v": 6434.0,
-      "at": "2026-03-07 16:32:32"
+      "v": 182.0,
+      "at": "2026-03-07 23:08:21"
     },
     "gpu3_util": {
-      "v": 1.0,
-      "at": "2026-03-07 16:32:32"
+      "v": 0.0,
+      "at": "2026-03-07 23:08:21"
+    },
+    "gpu4_temp": {
+      "v": 48.0,
+      "at": "2026-03-07 23:08:21"
+    },
+    "gpu4_vram_mb": {
+      "v": 5857.0,
+      "at": "2026-03-07 23:08:21"
+    },
+    "gpu4_util": {
+      "v": 0.0,
+      "at": "2026-03-07 23:08:21"
+    },
+    "gpu5_temp": {
+      "v": 57.0,
+      "at": "2026-03-07 23:08:21"
+    },
+    "gpu5_vram_mb": {
+      "v": 7354.0,
+      "at": "2026-03-07 23:08:21"
+    },
+    "gpu5_util": {
+      "v": 0.0,
+      "at": "2026-03-07 23:08:21"
     },
     "disk_c_free_gb": {
-      "v": 58.693641662597656,
-      "at": "2026-03-07 16:32:32"
+      "v": 58.76875305175781,
+      "at": "2026-03-07 23:08:21"
     },
     "disk_f_free_gb": {
-      "v": 76.72299575805664,
-      "at": "2026-03-07 16:32:32"
+      "v": 76.68634796142578,
+      "at": "2026-03-07 23:08:21"
     },
     "cluster_m1_online": {
       "v": 1.0,
-      "at": "2026-03-07 16:32:32"
+      "at": "2026-03-07 23:08:21"
     },
     "cluster_ol1_online": {
       "v": 1.0,
-      "at": "2026-03-07 16:32:32"
+      "at": "2026-03-07 23:08:21"
     },
     "python_processes": {
-      "v": 13.0,
-      "at": "2026-03-07 16:32:32"
+      "v": 32.0,
+      "at": "2026-03-07 23:08:21"
+    },
+    "bench_db_write_100": {
+      "v": 8.577999999943131,
+      "at": "2026-03-08T00:09:22.710155"
+    },
+    "bench_db_read_100": {
+      "v": 3.8330999996105675,
+      "at": "2026-03-08T00:09:22.710717"
+    },
+    "bench_task_load": {
+      "v": 1.2821999998777756,
+      "at": "2026-03-08T00:09:22.710738"
+    },
+    "bench_python_exec": {
+      "v": 0.2789999998640269,
+      "at": "2026-03-08T00:09:22.710764"
+    },
+    "disk_C_free_gb": {
+      "v": 63.08462592,
+      "at": "2026-03-08T00:09:33.306288"
+    },
+    "disk_F_free_gb": {
+      "v": 82.34131456,
+      "at": "2026-03-08T00:09:33.307292"
+    },
+    "arbitrage_logic_winner": {
+      "v": 652.0,
+      "at": "2026-03-08T00:09:37.603849"
+    },
+    "canary_heartbeat": {
+      "v": 1.0,
+      "at": "2026-03-08T00:16:30.603286"
+    },
+    "bench_ol1_ms": {
+      "v": 5486.613900000066,
+      "at": "2026-03-08T00:18:06.434023"
+    },
+    "bench_ol1_toks": {
+      "v": 0.18226177715913053,
+      "at": "2026-03-08T00:18:06.434023"
+    },
+    "bench_m3_ms": {
+      "v": 312.81300000000556,
+      "at": "2026-03-08T00:18:06.434023"
+    },
+    "bench_m3_toks": {
+      "v": 0.0,
+      "at": "2026-03-08T00:18:06.434023"
     }
   },
-  "task_count": 56
+  "task_count": 155
 }

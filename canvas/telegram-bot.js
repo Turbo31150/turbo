@@ -12,6 +12,35 @@ const path = require('path');
 const { exec, execSync } = require('child_process');
 const os = require('os');
 
+// ─── HTTP Keep-Alive Agents — reuse TCP connections (~50ms saved per request) ─
+const httpAgent = new http.Agent({ keepAlive: true, maxSockets: 10, keepAliveMsecs: 30000 });
+const httpsAgent = new https.Agent({ keepAlive: true, maxSockets: 5, keepAliveMsecs: 30000 });
+
+// ── Strip <think> tags (closed + unclosed/truncated by max_tokens) ────────────
+function stripThink(text) {
+  if (!text) return '';
+  return text.replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/<think>[\s\S]*$/gi, '').replace(/^\/no_?think\s*/i, '').trim();
+}
+
+// ─── Response Cache — avoid re-dispatching identical queries (TTL 120s) ───────
+const responseCache = new Map(); // key → { text, model, ts }
+const CACHE_TTL = 120000; // 2 minutes
+function getCached(text) {
+  const key = text.trim().toLowerCase().slice(0, 200);
+  const entry = responseCache.get(key);
+  if (entry && Date.now() - entry.ts < CACHE_TTL) return entry;
+  return null;
+}
+function setCache(text, result) {
+  const key = text.trim().toLowerCase().slice(0, 200);
+  responseCache.set(key, { ...result, ts: Date.now() });
+  // Evict old entries (keep max 50)
+  if (responseCache.size > 50) {
+    const oldest = [...responseCache.entries()].sort((a, b) => a[1].ts - b[1].ts)[0];
+    if (oldest) responseCache.delete(oldest[0]);
+  }
+}
+
 // ─── Config ───────────────────────────────────────────────────────────────────
 
 // Charge .env manuellement (pas de dépendance dotenv)
@@ -44,11 +73,180 @@ const ALERTS_FLAG_FILE = path.join(__dirname, '..', 'data', '.trading_alerts_off
 let TRADING_ALERTS = !fs.existsSync(ALERTS_FLAG_FILE); // Lit le flag persistant au demarrage
 
 // ─── Cluster nodes (direct, sans passer par le proxy) ─────────────────────────
+// RACE nodes — only fast, reliable nodes (M2 degraded, M3 too slow for race)
 const CLUSTER_NODES = [
-  { id: 'M1', url: 'http://127.0.0.1:1234/v1/chat/completions', model: 'qwen3-8b', weight: 1.8, timeout: 8000 },
-  { id: 'OL1', url: 'http://127.0.0.1:11434/api/chat', model: 'qwen3:1.7b', isOllama: true, weight: 1.3, timeout: 5000 },
-  // M2 (192.168.1.26) retiré — OFFLINE | M3 retiré — trop lent (30s+)
+  { id: 'M1', url: 'http://127.0.0.1:1234/v1/chat/completions', model: 'qwen3-8b', weight: 1.9, timeout: 15000, maxTokens: 512 },
+  { id: 'OL1', url: 'http://127.0.0.1:11434/api/chat', model: 'qwen3:1.7b', isOllama: true, weight: 1.4, timeout: 8000, maxTokens: 200 },
+  { id: 'HF', url: 'https://router.huggingface.co/v1/chat/completions', model: 'Qwen/Qwen3.5-27B', weight: 1.6, timeout: 20000, maxTokens: 512, isCloud: true },
 ];
+// Reasoning-only nodes (called explicitly, never in race)
+const REASONING_NODES = [
+  { id: 'M2', url: 'http://192.168.1.26:1234/v1/chat/completions', model: 'deepseek-r1-0528-qwen3-8b', weight: 1.5, timeout: 60000, maxTokens: 1024, isReasoning: true },
+  { id: 'M3', url: 'http://192.168.1.113:1234/v1/chat/completions', model: 'deepseek-r1-0528-qwen3-8b', weight: 1.1, timeout: 90000, maxTokens: 1024, isReasoning: true },
+];
+const HF_TOKEN = process.env.HF_TOKEN || '';
+
+// ─── Smart Classification — route to the right node ──────────────────────────
+const CLASSIFY_PATTERNS = {
+  reasoning: /\b(pourquoi|explique|raisonne|logique|preuve|demontre|paradoxe|enigme|puzzle|combien.*si|escargot|grimpe|probabilit|comment.*possible)\b/i,
+  code: /\b(code|fonction|script|debug|bug|erreur|python|javascript|typescript|rust|class|import|npm|pip|git|commit|api|endpoint|refactor|compile|regex|json|html|css)\b/i,
+  trading: /\b(bitcoin|btc|eth|sol|sui|crypto|trading|tendance|cours|marche|futures|signal|scan|long|short|achat|vente|usdt|mexc|binance|funding|whale)\b/i,
+  system: /\b(gpu|vram|nvidia|temperature|service|port|process|daemon|restart|boot|disque|ram|cpu|memoire|cluster|noeud|node|modele)\b/i,
+  web: /\b(cherche|recherche|google|internet|actualite|news|meteo|prix|site|url|web)\b/i,
+};
+
+function classifyQuery(text) {
+  const low = text.toLowerCase();
+  for (const [type, pattern] of Object.entries(CLASSIFY_PATTERNS)) {
+    if (pattern.test(low)) return type;
+  }
+  return 'simple';
+}
+
+// Routing matrix v5 — aligned with WS API ROUTING_MATRIX (M2 degraded, M3 excluded)
+const SMART_ROUTING = {
+  simple:    ['OL1', 'M1'],
+  code:      ['M1', 'HF', 'OL1'],
+  reasoning: ['M1', 'HF', 'OL1'],   // M2 degraded (no model), M3 too slow (>120s)
+  trading:   ['M1', 'OL1'],
+  system:    ['M1', 'OL1'],
+  web:       ['OL1', 'HF', 'M1'],
+  analyse:   ['M1', 'HF', 'OL1'],
+};
+
+// Arithmetic fast-path: solve pure math in JS (8B models fail at large multiplication)
+function tryArithmetic(text) {
+  const low = text.toLowerCase().trim();
+  const patterns = [
+    { re: /combien\s+(?:font|fait)\s+(\d[\d\s]*)\s*(?:multipli[eé]s?|fois|\*|x)\s*(?:par\s+)?(\d[\d\s]*)/, op: '*' },
+    { re: /(\d[\d\s]*)\s*(?:multipli[eé]s?|fois|\*|x)\s*(?:par\s+)?(\d[\d\s]*)/, op: '*' },
+    { re: /combien\s+(?:font|fait)\s+(\d[\d\s]*)\s*(?:plus|\+)\s*(\d[\d\s]*)/, op: '+' },
+    { re: /combien\s+(?:font|fait)\s+(\d[\d\s]*)\s*(?:moins|-)\s*(\d[\d\s]*)/, op: '-' },
+    { re: /combien\s+(?:font|fait)\s+(\d[\d\s]*)\s*(?:divis[eé]s?|\/)\s*(?:par\s+)?(\d[\d\s]*)/, op: '/' },
+    // Bare expressions: "2+3", "123 * 456", "50/2"
+    { re: /^(\d[\d\s]*)\s*\*\s*(\d[\d\s]*)$/, op: '*' },
+    { re: /^(\d[\d\s]*)\s*\+\s*(\d[\d\s]*)$/, op: '+' },
+    { re: /^(\d[\d\s]*)\s*-\s*(\d[\d\s]*)$/, op: '-' },
+    { re: /^(\d[\d\s]*)\s*\/\s*(\d[\d\s]*)$/, op: '/' },
+  ];
+  for (const { re, op } of patterns) {
+    const m = low.match(re);
+    if (m) {
+      try {
+        const a = parseInt(m[1].replace(/\s/g, ''), 10);
+        const b = parseInt(m[2].replace(/\s/g, ''), 10);
+        if (isNaN(a) || isNaN(b) || b === 0 && op === '/') return null;
+        let r;
+        if (op === '*') r = a * b;
+        else if (op === '+') r = a + b;
+        else if (op === '-') r = a - b;
+        else r = Math.round((a / b) * 100) / 100;
+        const fmt = (n) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        return `${fmt(a)} ${op} ${fmt(b)} = **${fmt(r)}**`;
+      } catch { return null; }
+    }
+  }
+  return null;
+}
+
+// Smart dispatch: classify → PARALLEL race top-2, then fallback to rest
+async function smartDispatch(prompt, queryType) {
+  const chain = SMART_ROUTING[queryType] || SMART_ROUTING.simple;
+  log(`  SMART_DISPATCH: type=${queryType} chain=[${chain.join(' > ')}]`);
+
+  // Phase 1: Race the top 2 nodes in parallel (fastest wins)
+  const raceNodes = chain.slice(0, 2).map(id => CLUSTER_NODES.find(n => n.id === id)).filter(Boolean);
+  if (raceNodes.length > 0) {
+    const raceResult = await new Promise((resolve) => {
+      let resolved = false;
+      let done = 0;
+      raceNodes.forEach(node => {
+        queryNode(node, prompt)
+          .then(r => {
+            done++;
+            if (r && r.text && !resolved) {
+              resolved = true;
+              log(`  RACE WINNER: [${r.node}] ${r.latency}ms (top-${raceNodes.length} race)`);
+              resolve(r);
+            }
+            if (done === raceNodes.length && !resolved) resolve(null);
+          })
+          .catch(e => {
+            done++;
+            log(`  [${node.id}] race failed: ${(e.message || '').slice(0, 80)}`);
+            if (done === raceNodes.length && !resolved) resolve(null);
+          });
+      });
+      // Safety timeout: use the max timeout of raced nodes
+      const maxT = Math.max(...raceNodes.map(n => n.timeout || 15000));
+      setTimeout(() => { if (!resolved) { resolved = true; resolve(null); } }, maxT);
+    });
+    if (raceResult) return raceResult;
+  }
+
+  // Phase 2: Sequential fallback on remaining nodes
+  for (const nodeId of chain.slice(2)) {
+    const node = CLUSTER_NODES.find(n => n.id === nodeId);
+    if (!node) continue;
+    try {
+      const result = await queryNode(node, prompt);
+      if (result && result.text) {
+        log(`  FALLBACK WIN: [${result.node}] ${result.latency}ms (pos ${chain.indexOf(nodeId) + 1}/${chain.length})`);
+        return result;
+      }
+    } catch (e) {
+      log(`  [${nodeId}] fallback failed: ${(e.message || '').slice(0, 80)}`);
+    }
+  }
+  return null;
+}
+
+// Escape Markdown chars that break Telegram parsing (outside code blocks)
+function escapeTelegramMarkdown(text) {
+  // Split by code blocks to preserve them
+  const parts = text.split(/(```[\s\S]*?```|`[^`]+`)/g);
+  return parts.map((part, i) => {
+    if (i % 2 === 1) return part; // code block — keep as-is
+    // Escape unmatched underscores, brackets, etc. that break Markdown
+    return part
+      .replace(/([[\]])/g, '\\$1')  // escape [ ]
+      .replace(/(?<!\w)_(?!\w)/g, '\\_');  // escape lone underscores
+  }).join('');
+}
+
+// Full response chunking for Telegram (4096 char limit)
+async function sendFullResponse(chatId, text, parseMode) {
+  if (text.length <= MAX_MSG_LEN) {
+    return sendMessage(chatId, text, parseMode);
+  }
+  // Split on paragraph > line > sentence > hard cut (code-block aware)
+  const chunks = [];
+  let remaining = text;
+  while (remaining.length > 0) {
+    if (remaining.length <= MAX_MSG_LEN) {
+      chunks.push(remaining);
+      break;
+    }
+    let cut = remaining.lastIndexOf('\n\n', MAX_MSG_LEN);
+    if (cut < MAX_MSG_LEN * 0.3) cut = remaining.lastIndexOf('\n', MAX_MSG_LEN);
+    if (cut < MAX_MSG_LEN * 0.3) cut = remaining.lastIndexOf('. ', MAX_MSG_LEN);
+    if (cut < MAX_MSG_LEN * 0.3) cut = MAX_MSG_LEN;
+    let chunk = remaining.slice(0, cut + 1);
+    // Protect code blocks: close unclosed ``` and reopen in next chunk
+    const bt = (chunk.match(/```/g) || []).length;
+    if (bt % 2 !== 0) {
+      chunk += '\n```';
+      remaining = '```\n' + remaining.slice(cut + 1);
+    } else {
+      remaining = remaining.slice(cut + 1);
+    }
+    chunks.push(chunk);
+  }
+  for (let i = 0; i < chunks.length; i++) {
+    const prefix = chunks.length > 1 ? `_(${i + 1}/${chunks.length})_ ` : '';
+    await sendMessage(chatId, prefix + chunks[i], parseMode);
+  }
+}
 
 if (!TOKEN) { console.error('[FATAL] TELEGRAM_TOKEN manquant dans .env'); process.exit(1); }
 if (!CHAT_ID) { console.error('[FATAL] TELEGRAM_CHAT manquant dans .env'); process.exit(1); }
@@ -110,7 +308,7 @@ let messageHistory = []; // derniers messages reçus (max 50)
 
 // ─── RBAC — Role-Based Access Control ────────────────────────────────────────
 
-const ADMIN_COMMANDS = new Set(['/jarvis', '/exec', '/improve', '/gpu', '/voice', '/reload', '/correct', '/broadcast', '/linkedin', '/post', '/retry', '/kill']);
+const ADMIN_COMMANDS = new Set(['/jarvis', '/exec', '/improve', '/gpu', '/voice', '/reload', '/correct', '/broadcast', '/linkedin', '/post', '/retry', '/kill', '/boot', '/diagnostic', '/demarre', '/fullstatus', '/autofix']);
 
 function isAdminCommand(cmd) {
   return ADMIN_COMMANDS.has(cmd);
@@ -138,10 +336,13 @@ function ts() { return new Date().toISOString().slice(11, 19); }
 function log(...args) { console.log(`[${ts()}]`, ...args); }
 function logErr(...args) { console.error(`[${ts()}] ERROR`, ...args); }
 
-/** HTTP request helper (retourne Promise<string>) */
+/** HTTP request helper with keep-alive (retourne Promise<{status, body}>) */
 function httpRequest(url, options = {}, body = null) {
   return new Promise((resolve, reject) => {
-    const mod = url.startsWith('https') ? https : http;
+    const isHttps = url.startsWith('https');
+    const mod = isHttps ? https : http;
+    // Inject keep-alive agent for connection reuse
+    if (!options.agent) options.agent = isHttps ? httpsAgent : httpAgent;
     const req = mod.request(url, options, (res) => {
       let data = '';
       res.on('data', chunk => data += chunk);
@@ -239,7 +440,7 @@ function normalizeNodes(nodes) {
   }));
 }
 
-/** Split un message long en chunks <= MAX_MSG_LEN */
+/** Split un message long en chunks <= MAX_MSG_LEN (code-block aware) */
 function splitMessage(text) {
   if (text.length <= MAX_MSG_LEN) return [text];
   const chunks = [];
@@ -249,11 +450,22 @@ function splitMessage(text) {
       chunks.push(remaining);
       break;
     }
-    // Coupe au dernier \n avant la limite
-    let cut = remaining.lastIndexOf('\n', MAX_MSG_LEN);
-    if (cut < MAX_MSG_LEN * 0.3) cut = MAX_MSG_LEN; // pas de \n raisonnable, coupe brut
-    chunks.push(remaining.slice(0, cut));
-    remaining = remaining.slice(cut).trimStart();
+    let cut = remaining.lastIndexOf('\n\n', MAX_MSG_LEN);
+    if (cut < MAX_MSG_LEN * 0.3) cut = remaining.lastIndexOf('\n', MAX_MSG_LEN);
+    if (cut < MAX_MSG_LEN * 0.3) cut = remaining.lastIndexOf('. ', MAX_MSG_LEN);
+    if (cut < MAX_MSG_LEN * 0.3) cut = MAX_MSG_LEN;
+    let chunk = remaining.slice(0, cut);
+    const bt = (chunk.match(/```/g) || []).length;
+    if (bt % 2 !== 0) {
+      chunk += '\n```';
+      remaining = '```\n' + remaining.slice(cut).trimStart();
+    } else {
+      remaining = remaining.slice(cut).trimStart();
+    }
+    chunks.push(chunk);
+  }
+  if (chunks.length > 1) {
+    return chunks.map((c, i) => `_(${i + 1}/${chunks.length})_\n${c}`);
   }
   return chunks;
 }
@@ -360,8 +572,16 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
           '',
           '*Admin:*',
           '`/jarvis <cmd>` — Executer commande vocale',
-          '`/improve [N]` — Lancer N cycles amelioration',
+          '`/improve [N]` — Lancer N cycles amelioration + self-improve',
           '`/superloop [N]` — Super Loop complet',
+          '`/boot` — Diagnostic complet JARVIS',
+          '`/fullstatus` — Status complet (cluster+GPU+services+DB)',
+          '`/autofix` — Diagnostic + detection + fix automatique',
+          '`/sql [db:]<query>` — SQL (etoile/jarvis/scheduler)',
+          '`/models` — Modeles charges sur le cluster',
+          '`/weights` — Poids + matrice de routage',
+          '`/supervisor` — Moniteur services (grade A+/A/B/C/D)',
+          '`/logs [N] [filter]` — Derniers logs (error/warn/service)',
           '`/killscanner` — Stopper le scanner',
           '`/voice [texte]` — Tester la voix',
           '`/reload` — Recharger le dictionnaire vocal',
@@ -695,11 +915,37 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
 
     case '/improve': {
       const cycles = parseInt(args) || 10;
+      // Also trigger a self-improve engine cycle via WS API
+      try {
+        httpRequest('http://127.0.0.1:9742/api/self-improve/run', { method: 'POST', timeout: 10000 })
+          .then(() => log('[improve] Self-improve cycle triggered via WS API'))
+          .catch(e => log('[improve] Self-improve API unavailable:', e.message));
+      } catch { /* non-blocking */ }
       return handleImproveLoop(chatId, cycles);
     }
 
     case '/gpu': {
       return handleGpuStatus(chatId);
+    }
+
+    case '/boot':
+    case '/diagnostic':
+    case '/demarre': {
+      await sendMessage(chatId, '🔄 Diagnostic JARVIS en cours...');
+      try {
+        const bootOut = execSync('python "F:\\BUREAU\\turbo\\scripts\\jarvis_boot_telegram.py"', {
+          timeout: 30000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+        }).trim();
+        return sendMessage(chatId, '```\n' + bootOut + '\n```', 'Markdown');
+      } catch (e) {
+        return sendMessage(chatId, '❌ Boot diagnostic failed: ' + (e.message || '').slice(0, 500));
+      }
+    }
+
+    case '/fullstatus': {
+      if (!isAdmin) return sendMessage(chatId, 'Admin only.');
+      await sendMessage(chatId, '📊 Collecte full status en cours...');
+      return handleFullStatus(chatId);
     }
 
     case '/voice': {
@@ -1283,14 +1529,46 @@ conn.close()
 
     case '/autofix': {
       if (!isAdmin) return sendMessage(chatId, 'Admin only.');
-      await sendMessage(chatId, 'Auto-fix: scan + dispatch au cluster...');
-      return handleCockpitAutoFix(chatId);
+      await sendMessage(chatId, '🔧 AutoFix: diagnostic + analyse + fix...');
+      return handleAutoFixEnhanced(chatId);
     }
 
     case '/ocerrors':
     case '/openclawerr': {
       await sendMessage(chatId, 'Scan erreurs OpenClaw en cours...');
       return handleCockpitCommand(chatId, 'openclaw');
+    }
+
+    case '/sql': {
+      return handleSqlQuery(chatId, args ? args.trim() : '');
+    }
+
+    case '/models': {
+      return handleModels(chatId);
+    }
+
+    case '/weights':
+    case '/routing': {
+      return handleWeights(chatId);
+    }
+
+    case '/supervisor':
+    case '/super': {
+      return handleSupervisor(chatId);
+    }
+
+    case '/logs': {
+      const logArgs = args ? args.trim() : '20';
+      try {
+        const out = execSync(`python "F:\\BUREAU\\turbo\\scripts\\jarvis_logs_telegram.py" ${logArgs}`, {
+          timeout: 10000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+        }).trim();
+        let msg = '```\n' + out + '\n```';
+        if (msg.length > 4000) msg = msg.slice(0, 3950) + '\n```\n... (tronque)';
+        return sendMessage(chatId, msg, 'Markdown');
+      } catch (e) {
+        return sendMessage(chatId, '❌ Logs failed: ' + (e.message || '').slice(0, 200));
+      }
     }
 
     default:
@@ -1336,6 +1614,97 @@ async function handleCockpitAutoFix(chatId) {
     return sendMessage(chatId, result.trim() || 'Aucune erreur', 'Markdown');
   } catch (e) {
     return sendMessage(chatId, `Erreur autofix: ${e.message.slice(0, 200)}`);
+  }
+}
+
+// ─── Enhanced AutoFix (boot diagnostic + parse + fix) ─────────────────────────
+
+async function handleAutoFixEnhanced(chatId) {
+  try {
+    const out = execSync('python "F:\\BUREAU\\turbo\\scripts\\jarvis_autofix_telegram.py"', {
+      timeout: 120000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+    }).trim();
+    let msg = '```\n' + out + '\n```';
+    if (msg.length > 4000) msg = msg.slice(0, 3950) + '\n```\n... (tronque)';
+    return sendMessage(chatId, msg, 'Markdown');
+  } catch (e) {
+    return sendMessage(chatId, '❌ AutoFix failed: ' + (e.message || '').slice(0, 200));
+  }
+}
+
+// ─── Full Status (cluster + gpu + services + db) ──────────────────────────────
+
+async function handleFullStatus(chatId) {
+  try {
+    const out = execSync('python "F:\\BUREAU\\turbo\\scripts\\jarvis_fullstatus_telegram.py"', {
+      timeout: 30000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+    }).trim();
+    let msg = '```\n' + out + '\n```';
+    if (msg.length > 4000) msg = msg.slice(0, 3950) + '\n```\n... (tronque)';
+    return sendMessage(chatId, msg, 'Markdown');
+  } catch (e) {
+    return sendMessage(chatId, '❌ Full status failed: ' + (e.message || '').slice(0, 200));
+  }
+}
+
+// ─── SQL Query (via Python script → WS API) ─────────────────────────────────
+
+async function handleSqlQuery(chatId, query) {
+  try {
+    const arg = query ? `"${query.replace(/"/g, '\\"')}"` : 'stats';
+    const out = execSync(`python "F:\\BUREAU\\turbo\\scripts\\jarvis_sql_telegram.py" ${arg}`, {
+      timeout: 15000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+    }).trim();
+    let msg = '```\n' + out + '\n```';
+    if (msg.length > 4000) msg = msg.slice(0, 3950) + '\n```\n... (tronque)';
+    return sendMessage(chatId, msg, 'Markdown');
+  } catch (e) {
+    return sendMessage(chatId, '❌ SQL failed: ' + (e.message || '').slice(0, 200));
+  }
+}
+
+// ─── Models (loaded models across cluster) ───────────────────────────────────
+
+async function handleModels(chatId) {
+  try {
+    const out = execSync('python "F:\\BUREAU\\turbo\\scripts\\jarvis_models_telegram.py"', {
+      timeout: 15000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+    }).trim();
+    let msg = '```\n' + out + '\n```';
+    if (msg.length > 4000) msg = msg.slice(0, 3950) + '\n```\n... (tronque)';
+    return sendMessage(chatId, msg, 'Markdown');
+  } catch (e) {
+    return sendMessage(chatId, '❌ Models failed: ' + (e.message || '').slice(0, 200));
+  }
+}
+
+// ─── Weights & Routing ───────────────────────────────────────────────────────
+
+async function handleWeights(chatId) {
+  try {
+    const out = execSync('python "F:\\BUREAU\\turbo\\scripts\\jarvis_weights_telegram.py"', {
+      timeout: 15000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+    }).trim();
+    let msg = '```\n' + out + '\n```';
+    if (msg.length > 4000) msg = msg.slice(0, 3950) + '\n```\n... (tronque)';
+    return sendMessage(chatId, msg, 'Markdown');
+  } catch (e) {
+    return sendMessage(chatId, '❌ Weights failed: ' + (e.message || '').slice(0, 200));
+  }
+}
+
+// ─── Supervisor (service health monitor) ─────────────────────────────────────
+
+async function handleSupervisor(chatId) {
+  try {
+    const out = execSync('python "F:\\BUREAU\\turbo\\scripts\\jarvis_supervisor.py"', {
+      timeout: 30000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+    }).trim();
+    let msg = '```\n' + out + '\n```';
+    if (msg.length > 4000) msg = msg.slice(0, 3950) + '\n```\n... (tronque)';
+    return sendMessage(chatId, msg, 'Markdown');
+  } catch (e) {
+    return sendMessage(chatId, '❌ Supervisor failed: ' + (e.message || '').slice(0, 200));
   }
 }
 
@@ -2083,13 +2452,13 @@ function detectIntent(text) {
 // ─── Conversation Memory per chat ───────────────────────────────────────────
 
 const chatMemory = new Map();
-const MEMORY_MAX = 4;
+const MEMORY_MAX = 8;  // 4 exchanges for better follow-up context
 
 function addToMemory(chatId, role, content) {
   const key = String(chatId);
   if (!chatMemory.has(key)) chatMemory.set(key, []);
   const mem = chatMemory.get(key);
-  mem.push({ role, content: content.slice(0, 500), ts: Date.now() });
+  mem.push({ role, content: content.slice(0, 2000), ts: Date.now() });
   if (mem.length > MEMORY_MAX) mem.shift();
 }
 
@@ -2335,29 +2704,35 @@ Il est ${hour}h (${period}).`;
 }
 
 function queryNode(node, prompt) {
-  const sysPromptFull = '/nothink\n' + buildSystemPrompt();
-  // OL1 (1.7B) needs a minimal system prompt — no /nothink (Ollama ignores it)
+  // Reasoning models (deepseek-r1) need thinking — no /nothink
+  const sysBase = buildSystemPrompt();
+  const sysPromptFull = node.isReasoning ? sysBase : '/nothink\n' + sysBase;
   const sysPromptMini = 'Tu es JARVIS, assistant de Turbo. Francais, concis, 2-5 phrases.';
   const sysPrompt = node.isOllama ? sysPromptMini : sysPromptFull;
+  const maxTok = node.maxTokens || 256;
   return new Promise((resolve, reject) => {
     const start = Date.now();
-    let body, headers;
+    let body, headers, reqModule;
     if (node.isOllama) {
       body = JSON.stringify({
         model: node.model,
         messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: prompt }],
-        stream: false, think: false, options: { num_predict: 200 }
+        stream: false, think: false, options: { num_predict: maxTok }
       });
       headers = { 'Content-Type': 'application/json' };
     } else {
-      // LM Studio (OpenAI-compatible) — /nothink in system prompt, max_tokens 256 for speed
       body = JSON.stringify({
         model: node.model,
         messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: prompt }],
-        temperature: 0.3, max_tokens: 150, stream: false
+        temperature: 0.3, max_tokens: maxTok, stream: false
       });
       headers = { 'Content-Type': 'application/json' };
+      // HuggingFace cloud needs auth header
+      if (node.isCloud && HF_TOKEN) {
+        headers['Authorization'] = `Bearer ${HF_TOKEN}`;
+      }
     }
+    // Use unified httpRequest (handles keep-alive + https automatically)
     httpRequest(node.url, { method: 'POST', headers, timeout: node.timeout || 15000 }, body)
       .then(res => {
         const d = JSON.parse(res.body);
@@ -2368,7 +2743,7 @@ function queryNode(node, prompt) {
           text = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || '';
         }
         // Clean thinking tokens
-        text = text.replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/^\/no_?think\s*/i, '').trim();
+        text = stripThink(text);
         if (!text || text.length < 2) return reject(new Error('empty response'));
         // Reject responses that regurgitate the system prompt examples
         if (text.includes('lis me mail') && text.includes('scan treding') && prompt.indexOf('mail') < 0) {
@@ -2384,6 +2759,153 @@ function queryNode(node, prompt) {
 async function queryNodeDirect(node, prompt) {
   const result = await queryNode(node, prompt);
   return result ? result.text : null;
+}
+
+/**
+ * Streaming dispatch — Claude Code style progressive response
+ * Sends "..." placeholder, then updates with real text via editMessageText
+ * For nodes that support stream:true (LM Studio, Ollama)
+ */
+async function streamingDispatch(chatId, prompt, queryType) {
+  const chain = SMART_ROUTING[queryType] || SMART_ROUTING.simple;
+  const node = CLUSTER_NODES.find(n => n.id === chain[0]);
+  if (!node || node.isCloud) return null; // Cloud doesn't support reliable streaming
+
+  // Send placeholder message immediately
+  const placeholder = await telegramAPI('sendMessage', {
+    chat_id: chatId,
+    text: `⏳ _${queryType}..._`,
+    parse_mode: 'Markdown',
+  });
+  const msgId = placeholder.message_id;
+
+  const sysBase = buildSystemPrompt();
+  const sysPrompt = node.isOllama
+    ? 'Tu es JARVIS, assistant de Turbo. Francais, concis, 2-5 phrases.'
+    : (node.isReasoning ? sysBase : '/nothink\n' + sysBase);
+  const maxTok = node.maxTokens || 256;
+
+  const bodyObj = node.isOllama
+    ? { model: node.model, messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: prompt }], stream: true, think: false, options: { num_predict: maxTok } }
+    : { model: node.model, messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: prompt }], temperature: 0.3, max_tokens: maxTok, stream: true };
+
+  const bodyStr = JSON.stringify(bodyObj);
+  const headers = { 'Content-Type': 'application/json' };
+  if (node.isCloud && HF_TOKEN) headers['Authorization'] = `Bearer ${HF_TOKEN}`;
+
+  return new Promise((resolve) => {
+    const start = Date.now();
+    let fullText = '';
+    let lastUpdate = 0;
+    const UPDATE_INTERVAL = 800; // ms between editMessageText calls (Telegram rate limit)
+    let updateCount = 0;
+
+    const isHttps = node.url.startsWith('https');
+    const mod = isHttps ? https : http;
+    const agent = isHttps ? httpsAgent : httpAgent;
+
+    const req = mod.request(node.url, { method: 'POST', headers, timeout: node.timeout || 15000, agent }, (res) => {
+      let buffer = '';
+      res.on('data', (chunk) => {
+        buffer += chunk.toString();
+        // Parse SSE lines
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+        for (const line of lines) {
+          if (!line.startsWith('data: ') || line === 'data: [DONE]') continue;
+          try {
+            const d = JSON.parse(line.slice(6));
+            let token = '';
+            if (node.isOllama) {
+              token = (d.message && d.message.content) || '';
+            } else {
+              token = (d.choices && d.choices[0] && d.choices[0].delta && d.choices[0].delta.content) || '';
+            }
+            if (token) fullText += token;
+          } catch {}
+        }
+        // Progressive update via editMessageText
+        const now = Date.now();
+        if (fullText.length > 5 && now - lastUpdate > UPDATE_INTERVAL) {
+          lastUpdate = now;
+          updateCount++;
+          const preview = stripThink(fullText).slice(0, MAX_MSG_LEN - 100);
+          if (preview.length > 3) {
+            telegramAPI('editMessageText', {
+              chat_id: chatId, message_id: msgId,
+              text: preview + '\n\n_⏳ ..._',
+              parse_mode: 'Markdown',
+            }).catch(() => {
+              // Markdown parse error — retry without parse mode
+              telegramAPI('editMessageText', {
+                chat_id: chatId, message_id: msgId,
+                text: preview + '\n\n... streaming ...',
+              }).catch(() => {});
+            });
+          }
+        }
+      });
+      res.on('end', () => {
+        const cleaned = stripThink(fullText).trim();
+        if (cleaned.length > 2) {
+          log(`  STREAM: [${node.id}] ${Date.now() - start}ms, ${updateCount} updates, ${cleaned.length}c`);
+          resolve({ text: cleaned, node: node.id, model: node.model, latency: Date.now() - start, msgId, streamed: true });
+        } else {
+          // Delete placeholder on failure
+          telegramAPI('deleteMessage', { chat_id: chatId, message_id: msgId }).catch(() => {});
+          resolve(null);
+        }
+      });
+    });
+    req.on('error', () => {
+      telegramAPI('deleteMessage', { chat_id: chatId, message_id: msgId }).catch(() => {});
+      resolve(null);
+    });
+    req.on('timeout', () => { req.destroy(); });
+    req.write(bodyStr);
+    req.end();
+  });
+}
+
+/**
+ * Query JARVIS WS API (port 9742) — intelligent routing with classify → ROUTING_MATRIX.
+ * Returns {content, task_type, elapsed} or null.
+ */
+async function queryWsApi(text) {
+  return new Promise((resolve) => {
+    const postData = JSON.stringify({ content: text });
+    const options = {
+      hostname: '127.0.0.1', port: 9742, path: '/api/chat/send',
+      method: 'POST', agent: httpAgent,
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(postData) },
+      timeout: 125000,
+    };
+    const req = http.request(options, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try {
+          const d = JSON.parse(data);
+          const am = d.agent_message || {};
+          const content = (am.content || '').trim();
+          if (content) {
+            resolve({
+              content,
+              task_type: d.task_type || 'unknown',
+              elapsed: am.elapsed || '?',
+              model: am.model || d.model || '?',
+            });
+          } else {
+            resolve(null);
+          }
+        } catch { resolve(null); }
+      });
+    });
+    req.on('error', () => resolve(null));
+    req.on('timeout', () => { req.destroy(); resolve(null); });
+    req.write(postData);
+    req.end();
+  });
 }
 
 async function clusterRace(prompt) {
@@ -2594,64 +3116,246 @@ async function processMessage(msg) {
     }
   }
 
-  // ── Direct to cluster — no intermediate routing for speed ──
+  // ── Smart intent detection for text messages ──
+  const low = text.toLowerCase();
+  // Cluster keywords → /cluster command directly (no AI, no proxy)
+  if (/\b(cluster|cockpit|statut.*noeud|etat.*noeud|noeuds|nodes status)\b/i.test(low) && low.length < 120 && !/\b(code|ecris|cree|fonction)\b/i.test(low)) {
+    const handled = await handleCommand(chatId, '/cluster', '', isAdmin);
+    if (handled !== null) return;
+  }
+  // Boot/diagnostic keywords → run boot script directly (no AI needed)
+  if (/\b(demarre|boot|diagnostic complet|lance jarvis|status complet|etat du systeme)\b/i.test(low)) {
+    try {
+      await sendMessage(chatId, '🔄 Diagnostic JARVIS en cours...');
+      const bootOut = execSync('python "F:\\BUREAU\\turbo\\scripts\\jarvis_boot_telegram.py"', {
+        timeout: 30000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+      }).trim();
+      await sendMessage(chatId, '```\n' + bootOut + '\n```', 'Markdown');
+      addToMemory(chatId, 'user', text);
+      addToMemory(chatId, 'assistant', bootOut.slice(0, 300));
+      return;
+    } catch (e) {
+      await sendMessage(chatId, '❌ Boot failed: ' + (e.message || '').slice(0, 300));
+      return;
+    }
+  }
+  // GPU keywords → nvidia-smi directly
+  if (/\b(gpu|nvidia|temperature|vram|carte graphique)\b/i.test(low) && low.length < 80) {
+    return handleGpuStatus(chatId);
+  }
+  // Self-improve keywords → run improve script
+  if (/\b(ameliore|auto.?improve|self.?improve|optimise.?toi)\b/i.test(low)) {
+    try {
+      await sendMessage(chatId, '🧠 Self-improve en cours...');
+      const improveOut = execSync('python "F:\\BUREAU\\turbo\\scripts\\jarvis_auto_improve_telegram.py"', {
+        timeout: 30000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+      }).trim();
+      await sendMessage(chatId, '```\n' + improveOut + '\n```', 'Markdown');
+      return;
+    } catch (e) {
+      await sendMessage(chatId, '❌ Self-improve failed: ' + (e.message || '').slice(0, 300));
+      return;
+    }
+  }
+  // Full status keywords → full dashboard
+  if (/\b(full.?status|dashboard complet|tout les services|etat complet|rapport complet|bilan complet)\b/i.test(low)) {
+    await sendMessage(chatId, '📊 Full status en cours...');
+    return handleFullStatus(chatId);
+  }
+  // Autofix keywords → auto repair
+  if (/\b(auto.?fix|repare|auto.?repair|corrige.?tout|fix.?all|gueris)\b/i.test(low)) {
+    await sendMessage(chatId, '🔧 AutoFix en cours...');
+    return handleAutoFixEnhanced(chatId);
+  }
+  // Disk keywords → direct disk check
+  if (/\b(disque|disk|espace disque|stockage|free space)\b/i.test(low) && low.length < 80) {
+    try {
+      const diskOut = execSync('powershell -Command "Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Used -gt 0 } | ForEach-Object { $n=$_.Name; $f=[math]::Round($_.Free/1GB); $t=[math]::Round(($_.Used+$_.Free)/1GB); Write-Output (\\"$n`: $f/$t GB free\\") }"', {
+        timeout: 8000, encoding: 'utf8', windowsHide: true
+      }).trim();
+      return sendMessage(chatId, '💾 *Disques:*\n```\n' + diskOut + '\n```', 'Markdown');
+    } catch { /* fall through to cluster */ }
+  }
+  // Models keywords → show loaded models
+  if (/\b(modele|models|modeles charges|quel modele|quels modeles|model swap)\b/i.test(low) && low.length < 80) {
+    return handleModels(chatId);
+  }
+  // Weights/routing keywords → show weights
+  if (/\b(poids|weights|routing|matrice|routage|dispatch)\b/i.test(low) && low.length < 80) {
+    return handleWeights(chatId);
+  }
+
+  // ── Tool-requiring queries → route to proxy (has tools) instead of cluster race ──
+  const needsTools = /\b(fichier|dossier|base de donn|sql|execute|lance|pipeline|query_db|cherche dans|etoile|read_file|ecris|cree|modifie|supprime|disk|espace|ram|memoire|port|service|netstat)\b/i.test(low);
+
+  // ── ARITHMETIC FAST-PATH — solve pure math in JS (0ms, exact) ──
+  const arithResult = tryArithmetic(text);
+  if (arithResult) {
+    const attr = `\n\n_[JS/math] 0ms_`;
+    await sendFullResponse(chatId, arithResult + attr, 'Markdown');
+    addToMemory(chatId, 'user', text);
+    addToMemory(chatId, 'assistant', arithResult);
+    return;
+  }
+
+  // ── SMART DISPATCH — classify then route to the right node ──
   let reply = '';
   let model = '';
   const start = Date.now();
+  const queryType = classifyQuery(text);
 
-  // Minimal context — only last exchange to keep input tokens low
+  // Check cache first (instant response for repeated questions)
+  const cached = getCached(text);
+  if (cached && !needsTools) {
+    reply = cached.text;
+    model = `${cached.model} (cache)`;
+    log(`  CACHE HIT: [${model}] — instant`);
+  }
+
+  // Send typing indicator immediately + auto-refresh every 4s
+  if (!reply) {
+    telegramAPI('sendChatAction', { chat_id: chatId, action: 'typing' }).catch(() => {});
+  }
+  const typingInterval = setInterval(() => {
+    if (!reply) telegramAPI('sendChatAction', { chat_id: chatId, action: 'typing' }).catch(() => {});
+  }, 4000);
+
+  // Minimal context — last 2 exchanges for follow-ups
   const memMsgs = getMemoryMessages(chatId);
   let enrichedPrompt = text;
   if (memMsgs.length > 0) {
-    const last2 = memMsgs.slice(-2);
+    const last2 = memMsgs.slice(-4);
     const ctx = last2.map(m => `${m.role}: ${m.content}`).join('\n');
     enrichedPrompt = `${ctx}\nuser: ${text}`;
   }
 
-  if (CLUSTER_RACE) {
-    log(`  CLUSTER RACE: dispatching to ${CLUSTER_NODES.length} nodes...`);
-    const result = await clusterRace(enrichedPrompt);
-    if (result) {
-      reply = result.text;
-      model = `${result.node}/${result.model} (${result.latency}ms)`;
+  // TIER 1: Tool-requiring → proxy (has exec/read/write tools)
+  if (needsTools) {
+    log(`  TOOL DISPATCH: routing to proxy (needs tools)...`);
+    try {
+      const res = await proxyChat(text);
+      if (res.ok && res.data) {
+        reply = res.data.text || '';
+        model = `proxy/${res.data.model || 'M1'}`;
+      }
+    } catch (e) {
+      logErr('Proxy dispatch failed:', e.message);
     }
   }
 
-  // Fallback to proxy if race failed
+  // TIER 2: WS API — JARVIS Python backend (port 9742) — intelligent ROUTING_MATRIX + arithmetic + health pre-check
+  if (!reply) {
+    log(`  WS API DISPATCH: JARVIS routing (type auto-detect)...`);
+    const wsResult = await queryWsApi(text);
+    if (wsResult && wsResult.content) {
+      reply = wsResult.content;
+      model = `${wsResult.task_type}/${wsResult.elapsed}s`;
+      log(`  WS API WIN: [${model}] — ${reply.slice(0, 60)}`);
+    }
+  }
+
+  // TIER 3: Streaming dispatch — Claude Code style progressive response
+  let streamedMsgId = null;
+  if (!reply && !needsTools) {
+    log(`  STREAMING DISPATCH: type=${queryType}...`);
+    const streamResult = await streamingDispatch(chatId, enrichedPrompt, queryType);
+    if (streamResult && streamResult.text) {
+      reply = streamResult.text;
+      model = `${streamResult.node}/${streamResult.model}`;
+      if (streamResult.streamed && streamResult.msgId) {
+        streamedMsgId = streamResult.msgId; // Will edit final response instead of sending new msg
+      }
+    }
+  }
+
+  // TIER 4: Smart dispatch fallback — parallel race top-2 nodes (non-streaming)
+  if (!reply) {
+    log(`  SMART DISPATCH FALLBACK: type=${queryType}...`);
+    const result = await smartDispatch(enrichedPrompt, queryType);
+    if (result) {
+      reply = result.text;
+      model = `${result.node}/${result.model}`;
+    }
+  }
+
+  // TIER 5: Cluster race fallback — all nodes in parallel
+  if (!reply) {
+    log(`  CLUSTER RACE FALLBACK: dispatching to ${CLUSTER_NODES.length} nodes...`);
+    const result = await clusterRace(enrichedPrompt);
+    if (result) {
+      reply = result.text;
+      model = `${result.node}/${result.model} (race)`;
+    }
+  }
+
+  // TIER 6: Proxy fallback
   if (!reply) {
     try {
       const res = await proxyChat(text);
       if (res.ok && res.data) {
-        reply = res.data.text || '(réponse vide)';
+        reply = res.data.text || '(reponse vide)';
         model = res.data.model || 'proxy';
       }
     } catch (e) {
-      logErr('Proxy fallback failed:', e.message);
+      logErr('All dispatch tiers failed:', e.message);
     }
   }
 
+  // Stop typing indicator
+  clearInterval(typingInterval);
+
   if (!reply) {
-    await sendMessage(chatId, '🔴 Aucun noeud du cluster ne répond.');
+    await sendMessage(chatId, '🔴 Aucun noeud du cluster ne repond. Verifiez /status');
     stats.errors++;
     return;
   }
 
   const totalMs = Date.now() - start;
-  log(`  REPLY (${totalMs}ms) [${model}]: ${reply.slice(0, 80)}...`);
+  log(`  REPLY (${totalMs}ms) [${model}] type=${queryType}: ${reply.slice(0, 120)}...`);
 
-  // Save to conversation memory
+  // Cache successful responses (skip tool/proxy responses)
+  if (!needsTools && !model.includes('cache')) {
+    setCache(text, { text: reply, model });
+  }
+
+  // Save FULL response to conversation memory (was 1500, now 4000)
   addToMemory(chatId, 'user', text);
-  addToMemory(chatId, 'assistant', reply.slice(0, 500));
+  addToMemory(chatId, 'assistant', reply.slice(0, 4000));
 
-  // ── Send response: voice + text (all users) ──
-  const attr = model ? `\n\n_[${model}] ${totalMs}ms_` : '';
+  // ── Full response relay — no truncation, split into chunks if needed ──
+  // Strip agent tags from content (WS API adds [M1], [QWEN3], etc.)
+  let cleanReply = reply.replace(/^\[(M[123]|OL1|QWEN3|GEMINI|CLAUDE|GPT-OSS|DEVSTRAL-2|GLM-4|MINIMAX-M2|JARVIS|HF)\]\s*/i, '');
+  cleanReply = cleanReply.replace(/^JARVIS:\s*/i, '');
+  // Escape Markdown special chars outside code blocks to prevent Telegram parse errors
+  cleanReply = escapeTelegramMarkdown(cleanReply);
+  const attr = `\n\n_[${model}] ${queryType} ${totalMs}ms_`;
 
-  // Send text IMMEDIATELY, voice in parallel (don't block response)
-  const textPromise = sendMessage(chatId, reply + attr, 'Markdown');
+  // Send FULL response — if streamed, edit the existing message; otherwise send new
+  const finalText = cleanReply + attr;
+  let textPromise;
+  if (streamedMsgId && finalText.length <= MAX_MSG_LEN) {
+    // Edit the streaming placeholder with final clean response
+    textPromise = telegramAPI('editMessageText', {
+      chat_id: chatId, message_id: streamedMsgId,
+      text: finalText, parse_mode: 'Markdown',
+    }).catch(() => {
+      // Markdown failed — retry plain text
+      return telegramAPI('editMessageText', {
+        chat_id: chatId, message_id: streamedMsgId,
+        text: finalText,
+      }).catch(() => {});
+    });
+  } else {
+    // Delete streaming placeholder if it exists (response too long for edit)
+    if (streamedMsgId) {
+      telegramAPI('deleteMessage', { chat_id: chatId, message_id: streamedMsgId }).catch(() => {});
+    }
+    textPromise = sendFullResponse(chatId, finalText, 'Markdown');
+  }
 
   // TTS only when user sent a vocal — text replies stay text-only for speed
-  if (isVoice && reply.length < 1500) {
-    sendVoiceReply(chatId, reply).catch(e => logErr('Voice:', e.message));
+  if (isVoice && cleanReply.length < 2000) {
+    sendVoiceReply(chatId, cleanReply).catch(e => logErr('Voice:', e.message));
   }
 
   await textPromise;
