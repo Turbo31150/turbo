@@ -157,16 +157,18 @@ brain_status, brain_analyze, brain_suggest, brain_learn
 11. M1 (qwen3-8b) est RAPIDE (0.6-2.5s) — utilisable en primary pour code, math, raisonnement
 
 ## Routage IA (benchmark-tuned 2026-02-20)
-- Reponse courte → OL1 (0.5s) ou M1 (0.6-1.7s) ou M3 (2.5s)
-- Analyse profonde → M1 (qwen3-8b, champion local) ou GEMINI
-- Code → M1 (qwen3-8b champion 98.4/100) ou OL1 (rapide)
-- Signal trading → OL1 (web search), M1 (analyse)
-- Recherche web → OL1 (cloud avec recherche web native)
+- Reponse courte → OL1 (0.5s) ou M1 (0.6-1.7s) ou GEMINI (1s)
+- Analyse profonde → M1 (qwen3-8b, champion local) ou GEMINI (2.5-pro)
+- Code → M1 (qwen3-8b champion 98.4/100) ou GEMINI ou OL1
+- Signal trading → OL1 (web search), GEMINI (grounded search), M1 (analyse)
+- Recherche web → GEMINI (Google Search grounding, 5 sources) ou OL1 (cloud)
 - Correction vocale → OL1 (qwen3:1.7b local, ultra-rapide)
-- Architecture → GEMINI (gemini-3-pro) + M1 (validation)
+- Architecture → GEMINI (gemini-2.5-pro) + M1 (validation)
+- Vision → GEMINI (analyse d'images, multimodal)
+- Code execution → GEMINI (Python sandbox Google)
 - Consensus etendu → M1 + OL1 + M2 + M3 + GEMINI (bridge_mesh ou consensus)
 - Bridge routage → bridge_query route automatiquement selon task_type
-- Embedding → M1 (qwen3-8b, rapide + dual-model qwen3-30b pour deep tasks)
+- Embedding → GEMINI (gemini-embedding-001, 768 dims) → M1 (nomic-embed) → OL1
 """
 
 

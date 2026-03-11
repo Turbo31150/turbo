@@ -311,9 +311,8 @@ SERVICES = [
      "C:\\Users\\franc\\.openclaw",
      "OPENCLAW", {"OPENCLAW_GATEWAY_PORT": "18789", "OPENCLAW_GATEWAY_TOKEN": "ae1cd158a0975c30e7712b274859e202896e7f67203de9d2"}, [18789], 2),
 
-    # telegram: desactive ici, supervise par WATCH_SERVICES dans jarvis_unified_boot.py
-    # ("telegram", f'{NODE} telegram-bot.js', str(BASE / "canvas"),
-    #  "TELEGRAM", None, None, 2),
+    ("telegram", f'{NODE} telegram-bot.js', str(BASE / "canvas"),
+     "TELEGRAM", None, None, 2),
 
     ("gemini", f'{NODE} C:\\Users\\franc\\.openclaw\\gemini-proxy.js',
      str(HOME / ".openclaw"),
@@ -327,7 +326,7 @@ SERVICES = [
 ]
 
 # Auto-restart critical services
-CRITICAL_SERVICES = {"proxy", "ws", "openclaw", "n8n"}
+CRITICAL_SERVICES = {"proxy", "ws", "openclaw", "n8n", "telegram"}
 
 
 if __name__ == "__main__":

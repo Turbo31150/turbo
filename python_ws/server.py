@@ -48,6 +48,7 @@ from python_ws.routes.telegram import handle_telegram_request
 from python_ws.routes.sql import sql_router
 from python_ws.routes.terminal import router as terminal_router
 from python_ws.routes.collab import collab_router
+from python_ws.routes.devops_pipeline import devops_pipeline_router
 
 # ── Logging ──────────────────────────────────────────────────────────────────
 try:
@@ -87,6 +88,7 @@ app.add_middleware(
 app.include_router(sql_router, prefix="/sql")
 app.include_router(terminal_router)
 app.include_router(collab_router)
+app.include_router(devops_pipeline_router, prefix="/api")
 
 # ── HTTP endpoints ──────────────────────────────────────────────────────────
 
@@ -5318,6 +5320,290 @@ async def api_router_reset(request: Request):
     if not node:
         return {"error": "node required"}
     return get_router().reset_node(node, ema)
+
+
+# ── Embedding API ────────────────────────────────────────────────────────
+
+@app.post("/api/embed")
+async def api_embed(request: Request):
+    """Embed un texte. Body: {text, dims?, task_type?}"""
+    from src.embedding_service import get_embedding_service
+    body = await request.json()
+    text = body.get("text", "")
+    if not text:
+        return {"error": "text required"}
+    dims = body.get("dims", 768)
+    task_type = body.get("task_type", "SEMANTIC_SIMILARITY")
+    svc = get_embedding_service()
+    vec = await svc.embed(text, dims=dims, task_type=task_type)
+    if vec is None:
+        return {"error": "all providers failed", "status": svc.status()}
+    return {"embedding": vec, "dims": len(vec), "provider": "auto"}
+
+
+@app.post("/api/embed/batch")
+async def api_embed_batch(request: Request):
+    """Embed plusieurs textes. Body: {texts: [...], dims?}"""
+    from src.embedding_service import get_embedding_service
+    body = await request.json()
+    texts = body.get("texts", [])
+    if not texts:
+        return {"error": "texts required (list of strings)"}
+    dims = body.get("dims", 768)
+    svc = get_embedding_service()
+    vecs = await svc.embed_batch(texts, dims=dims)
+    return {
+        "embeddings": vecs,
+        "count": len(vecs),
+        "dims": dims,
+    }
+
+
+@app.post("/api/embed/similarity")
+async def api_embed_similarity(request: Request):
+    """Cosine similarity entre 2 textes. Body: {text1, text2, dims?}"""
+    from src.embedding_service import get_embedding_service
+    body = await request.json()
+    t1, t2 = body.get("text1", ""), body.get("text2", "")
+    if not t1 or not t2:
+        return {"error": "text1 and text2 required"}
+    dims = body.get("dims", 768)
+    svc = get_embedding_service()
+    v1, v2 = await asyncio.gather(
+        svc.embed(t1, dims=dims),
+        svc.embed(t2, dims=dims),
+    )
+    if v1 is None or v2 is None:
+        return {"error": "embedding failed", "v1_ok": v1 is not None, "v2_ok": v2 is not None}
+    sim = svc.cosine_similarity(v1, v2)
+    return {"similarity": round(sim, 6), "dims": len(v1)}
+
+
+@app.get("/api/embed/status")
+async def api_embed_status():
+    """Status des providers embedding."""
+    from src.embedding_service import get_embedding_service
+    return get_embedding_service().status()
+
+
+@app.get("/api/embed/health")
+async def api_embed_health():
+    """Health check de tous les providers embedding."""
+    from src.embedding_service import get_embedding_service
+    return await get_embedding_service().health_check()
+
+
+# ── Gemini API ───────────────────────────────────────────────────────────
+
+@app.post("/api/gemini/chat")
+async def api_gemini_chat(request: Request):
+    """Chat Gemini. Body: {prompt, model?, system?, temperature?, max_tokens?, thinking?}"""
+    from src.gemini_provider import get_gemini
+    body = await request.json()
+    prompt = body.get("prompt", "")
+    if not prompt:
+        return {"error": "prompt required"}
+    result = await get_gemini().chat(
+        prompt,
+        model=body.get("model"),
+        system=body.get("system"),
+        temperature=body.get("temperature", 0.7),
+        max_tokens=body.get("max_tokens", 2048),
+        thinking=body.get("thinking"),
+    )
+    result.pop("_raw", None)
+    return result
+
+
+@app.post("/api/gemini/search")
+async def api_gemini_search(request: Request):
+    """Recherche grounded Google Search. Body: {prompt, model?}"""
+    from src.gemini_provider import get_gemini
+    body = await request.json()
+    prompt = body.get("prompt", "")
+    if not prompt:
+        return {"error": "prompt required"}
+    result = await get_gemini().search(prompt, model=body.get("model"))
+    result.pop("_raw", None)
+    return result
+
+
+@app.post("/api/gemini/vision")
+async def api_gemini_vision(request: Request):
+    """Analyse image. Body: {prompt, image_path?, image_base64?}"""
+    from src.gemini_provider import get_gemini
+    body = await request.json()
+    result = await get_gemini().vision(
+        body.get("prompt", "Décris cette image"),
+        image_path=body.get("image_path"),
+        image_base64=body.get("image_base64"),
+    )
+    result.pop("_raw", None)
+    return result
+
+
+@app.post("/api/gemini/code")
+async def api_gemini_code(request: Request):
+    """Code execution via Gemini. Body: {prompt}"""
+    from src.gemini_provider import get_gemini
+    body = await request.json()
+    prompt = body.get("prompt", "")
+    if not prompt:
+        return {"error": "prompt required"}
+    result = await get_gemini().code(prompt)
+    result.pop("_raw", None)
+    return result
+
+
+@app.get("/api/gemini/status")
+async def api_gemini_status():
+    """Status provider Gemini."""
+    from src.gemini_provider import get_gemini
+    return get_gemini().status()
+
+
+@app.get("/api/gemini/health")
+async def api_gemini_health():
+    """Health check Gemini API."""
+    from src.gemini_provider import get_gemini
+    return await get_gemini().health()
+
+
+@app.get("/api/gemini/models")
+async def api_gemini_models():
+    """Liste modèles Gemini disponibles."""
+    from src.gemini_provider import get_gemini
+    return await get_gemini().list_models()
+
+
+@app.post("/api/gemini/image")
+async def api_gemini_image(request: Request):
+    """Générer image via Imagen 4. Body: {prompt, output_path?, model?, aspect_ratio?}"""
+    from src.gemini_provider import get_gemini
+    body = await request.json()
+    prompt = body.get("prompt", "")
+    if not prompt:
+        return {"error": "prompt required"}
+    output = body.get("output_path")
+    gp = get_gemini()
+    if output:
+        result = await gp.save_image(prompt, output, model=body.get("model", "imagen4"),
+                                      aspect_ratio=body.get("aspect_ratio", "1:1"))
+    else:
+        result = await gp.generate_image(prompt, model=body.get("model", "imagen4"),
+                                          aspect_ratio=body.get("aspect_ratio", "1:1"))
+    return result
+
+
+@app.post("/api/gemini/video")
+async def api_gemini_video(request: Request):
+    """Lancer génération vidéo Veo. Body: {prompt, model?, duration_seconds?, aspect_ratio?}"""
+    from src.gemini_provider import get_gemini
+    body = await request.json()
+    prompt = body.get("prompt", "")
+    if not prompt:
+        return {"error": "prompt required"}
+    result = await get_gemini().generate_video(
+        prompt, model=body.get("model", "veo31fast"),
+        duration_seconds=body.get("duration_seconds", 5),
+        aspect_ratio=body.get("aspect_ratio", "16:9"),
+    )
+    return result
+
+
+@app.post("/api/gemini/video/status")
+async def api_gemini_video_status(request: Request):
+    """Vérifier statut génération vidéo. Body: {operation}"""
+    from src.gemini_provider import get_gemini
+    body = await request.json()
+    op = body.get("operation", "")
+    if not op:
+        return {"error": "operation required"}
+    return await get_gemini().check_video_status(op)
+
+
+@app.post("/api/gemini/tts")
+async def api_gemini_tts(request: Request):
+    """TTS via Gemini. Body: {text, output_path?, voice?}"""
+    from src.gemini_provider import get_gemini
+    body = await request.json()
+    text = body.get("text", "")
+    if not text:
+        return {"error": "text required"}
+    output = body.get("output_path")
+    gp = get_gemini()
+    if output:
+        result = await gp.save_tts(text, output, voice=body.get("voice", "Kore"))
+    else:
+        result = await gp.tts(text, voice=body.get("voice", "Kore"))
+    if "audio_base64" in result:
+        result["audio_base64"] = result["audio_base64"][:100] + "...(truncated)"
+    return result
+
+
+@app.post("/api/gemini/pdf")
+async def api_gemini_pdf(request: Request):
+    """Analyser un PDF. Body: {prompt, pdf_path}"""
+    from src.gemini_provider import get_gemini
+    body = await request.json()
+    result = await get_gemini().analyze_pdf(
+        body.get("prompt", "Résume ce document"),
+        body.get("pdf_path", ""),
+    )
+    result.pop("_raw", None)
+    return result
+
+
+@app.post("/api/gemini/audio")
+async def api_gemini_audio(request: Request):
+    """Analyser un fichier audio. Body: {prompt, audio_path}"""
+    from src.gemini_provider import get_gemini
+    body = await request.json()
+    result = await get_gemini().analyze_audio(
+        body.get("prompt", "Transcris cet audio"),
+        body.get("audio_path", ""),
+    )
+    result.pop("_raw", None)
+    return result
+
+
+@app.get("/api/gemini/catalog")
+async def api_gemini_catalog():
+    """Catalogue complet des 45 modèles Gemini depuis etoile.db."""
+    import sqlite3
+    try:
+        db = sqlite3.connect("data/etoile.db")
+        db.row_factory = sqlite3.Row
+        rows = db.execute("SELECT * FROM gemini_models ORDER BY category, model_id").fetchall()
+        db.close()
+        return {"models": [dict(r) for r in rows], "count": len(rows)}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@app.get("/api/gemini/usage")
+async def api_gemini_usage():
+    """Statistiques d'usage Gemini depuis etoile.db."""
+    import sqlite3
+    try:
+        db = sqlite3.connect("data/etoile.db")
+        total = db.execute("SELECT COUNT(*) FROM gemini_usage").fetchone()[0]
+        by_method = db.execute(
+            "SELECT method, COUNT(*) as c, AVG(latency_ms) as avg_ms, SUM(tokens_out) as tokens "
+            "FROM gemini_usage GROUP BY method ORDER BY c DESC"
+        ).fetchall()
+        by_model = db.execute(
+            "SELECT model, COUNT(*) as c, AVG(latency_ms) as avg_ms "
+            "FROM gemini_usage GROUP BY model ORDER BY c DESC LIMIT 10"
+        ).fetchall()
+        db.close()
+        return {
+            "total_calls": total,
+            "by_method": [{"method": r[0], "calls": r[1], "avg_ms": round(r[2], 1), "tokens": r[3]} for r in by_method],
+            "by_model": [{"model": r[0], "calls": r[1], "avg_ms": round(r[2], 1)} for r in by_model],
+        }
+    except Exception as e:
+        return {"error": str(e)}
 
 
 # ── OpenClaw Bridge API ──────────────────────────────────────────────────

@@ -159,11 +159,12 @@ const NODES = {
     name: 'M1/qwen3-8b'
   },
   GEMINI: {
-    proxy: path.join(__dirname, '..', 'gemini-proxy.js'),
-    model: 'gemini-3-pro',
-    timeout: 120000,
-    name: 'GEMINI/gemini-3-pro',
-    isProxy: true
+    url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
+    apiKey: process.env.GEMINI_API_KEY || '',
+    model: 'gemini-2.5-flash',
+    timeout: 30000,
+    name: 'GEMINI/gemini-2.5-flash',
+    isGemini: true
   },
   CLAUDE: {
     proxy: path.join(__dirname, '..', 'claude-proxy.js'),
@@ -185,25 +186,25 @@ const NODES = {
 
 // ── Routing: agent category → primary node, fallbacks ───────────────────────
 const ROUTING = {
-  code:    ['M1', 'HF', 'OL1'],      // M1 code champion + HF 27B fallback
-  archi:   ['M1', 'HF', 'OL1'],      // M1 archi + HF deep
-  trading: ['M1', 'OL1'],            // M1 trading (pas de web reel)
-  math:    ['M1', 'OL1'],            // M1 math (Python fast-path dans WS API)
-  raison:  ['M1', 'HF', 'OL1'],     // M1 reasoning + HF 27B deep
-  system:  ['M1', 'OL1'],            // M1 systeme → OL1
-  auto:    ['M1', 'OL1'],            // M1 automation
-  ia:      ['M1', 'HF', 'OL1'],     // M1 IA + HF deep
-  creat:   ['OL1', 'M1'],            // OL1 rapide pour creatif
-  sec:     ['M1', 'HF', 'OL1'],     // M1 securite + HF analyse
-  web:     ['OL1', 'M1'],            // OL1 web (minimax cloud)
-  media:   ['M1', 'OL1'],            // M1 → OL1
-  meta:    ['OL1', 'M1'],            // OL1 rapide meta
-  default: ['OL1', 'M1'],            // OL1 rapide → M1
-  simple:  ['OL1', 'M1']             // OL1 first (84 tok/s)
+  code:    ['M1', 'GEMINI', 'HF', 'OL1'],   // M1 code + GEMINI fallback
+  archi:   ['GEMINI', 'M1', 'HF', 'OL1'],   // GEMINI archi (API direct ~1s)
+  trading: ['M1', 'GEMINI', 'OL1'],          // M1 trading + GEMINI grounding
+  math:    ['M1', 'GEMINI', 'OL1'],          // M1 math + GEMINI code exec
+  raison:  ['M1', 'GEMINI', 'HF', 'OL1'],   // M1 reasoning + GEMINI
+  system:  ['M1', 'GEMINI', 'OL1'],          // M1 systeme + GEMINI
+  auto:    ['M1', 'GEMINI', 'OL1'],          // M1 automation
+  ia:      ['M1', 'GEMINI', 'HF', 'OL1'],   // M1 IA + GEMINI
+  creat:   ['GEMINI', 'M1', 'OL1'],          // GEMINI creation (puissant)
+  sec:     ['M1', 'GEMINI', 'HF', 'OL1'],   // M1 securite + GEMINI
+  web:     ['GEMINI', 'OL1', 'M1'],          // GEMINI grounding search
+  media:   ['GEMINI', 'M1', 'OL1'],          // GEMINI vision + M1
+  meta:    ['OL1', 'GEMINI', 'M1'],          // OL1 rapide + GEMINI
+  default: ['OL1', 'GEMINI', 'M1'],          // OL1 rapide → GEMINI → M1
+  simple:  ['OL1', 'GEMINI', 'M1']           // OL1 first → GEMINI
 };
 
 // ── Node weights for consensus voting (benchmark 2026-02-26) ─────────────────
-const NODE_WEIGHTS = { M1: 1.9, OL1: 1.4, HF: 1.6, M3: 1.1, M2: 1.5, GEMINI: 1.2, CLAUDE: 1.2 };
+const NODE_WEIGHTS = { M1: 1.9, GEMINI: 1.5, HF: 1.6, OL1: 1.4, M2: 1.5, M3: 1.1, CLAUDE: 1.2 };
 
 // ── Round-robin counter ──────────────────────────────────────────────────────
 let rrCounter = 0;
@@ -1422,8 +1423,24 @@ async function callNode(nodeId, messages, category) {
   const params = category ? getInferenceParams(category, nodeId) : { temperature: 0.2, max_tokens: 1536 };
 
   if (node.isProxy) {
-    // CLI proxy (gemini-proxy.js, claude-proxy.js)
+    // CLI proxy (claude-proxy.js)
     return callProxyNode(nodeId, node, messages);
+  }
+
+  if (node.isGemini) {
+    // Gemini API direct (REST, pas CLI)
+    const prompt = messages.map(m => m.content).join('\n\n');
+    const body = {
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: params.temperature,
+        maxOutputTokens: params.max_tokens,
+      }
+    };
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${node.model}:generateContent?key=${node.apiKey}`;
+    const res = await httpRequest(url, body, { 'Content-Type': 'application/json' }, node.timeout);
+    const text = res?.candidates?.[0]?.content?.parts?.map(p => p.text).join('') || '';
+    return { text: stripThink(text), model: node.model, provider: 'gemini' };
   }
 
   const headers = {};

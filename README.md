@@ -1,15 +1,16 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v12.4-blueviolet?style=for-the-badge" alt="version"/>
+  <img src="https://img.shields.io/badge/version-v12.6-blueviolet?style=for-the-badge" alt="version"/>
   <img src="https://img.shields.io/badge/GPU-10x_NVIDIA-76B900?style=for-the-badge&logo=nvidia" alt="gpu"/>
   <img src="https://img.shields.io/badge/Claude_SDK-Opus_4.6-orange?style=for-the-badge&logo=anthropic" alt="claude"/>
+  <img src="https://img.shields.io/badge/Gemini_API-45_models-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="gemini"/>
   <img src="https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="python"/>
   <img src="https://img.shields.io/badge/Electron-33-47848F?style=for-the-badge&logo=electron&logoColor=white" alt="electron"/>
   <img src="https://img.shields.io/badge/Telegram-Bot-26A5E4?style=for-the-badge&logo=telegram" alt="telegram"/>
   <img src="https://img.shields.io/badge/License-Private-red?style=for-the-badge" alt="license"/>
 </p>
 
-<h1 align="center">JARVIS Etoile v12.4</h1>
-<h3 align="center">Orchestrateur IA Distribue Multi-GPU — HEXA_CORE + Telegram Autonome + 96 Agent Patterns + Self-Improving + 432 COWORK Scripts + 68 Taches Orchestrateur + Auto-Restart Watchdog</h3>
+<h1 align="center">JARVIS Etoile v12.6</h1>
+<h3 align="center">Orchestrateur IA Distribue Multi-GPU — HEXA_CORE + Gemini API (45 modeles) + Telegram Autonome + 96 Agent Patterns + Self-Improving + 435 COWORK Scripts + 69 Taches Orchestrateur + Auto-Restart Watchdog</h3>
 
 <p align="center">
   <strong>Systeme d'intelligence artificielle distribue sur 3 machines physiques, 10 GPU NVIDIA (~78 GB VRAM), 14 modeles IA (4 local + 10 cloud) et 80 skills autonomes. Controle vocal en francais avec 443 commandes + 853 voice commands + 835 domino cascades + 2,628 corrections vocales. Bot Telegram autonome (@turboSSebot) via canvas bridge (port 18800, 96 agent patterns). Dispatch engine 9 etapes avec quality gate 6 portes + self-improvement + pattern evolution + reflection engine. Messages vocaux TTS DeniseNeural + Whisper STT CUDA. WhisperFlow voice overlay (Electron + OpenClaw fallback + Telegram bridge). Trading algorithmique MEXC multi-consensus. Interface desktop Electron 29 pages. 253 modules source (96,086 lignes), 3,665 tests (100% pass), 435 scripts COWORK continu, 69 taches orchestrateur autonome. Auto-restart watchdog Windows (7 services surveilles).</strong>
@@ -26,7 +27,7 @@
 | Metrique | Valeur | Detail |
 |----------|--------|--------|
 | **GPU** | 10 NVIDIA / ~78 GB VRAM | RTX 3080 10GB, RTX 2060 12GB, 4x GTX 1660S 6GB, 3x GPU M2 24GB, 1x GPU M3 8GB |
-| **Modeles IA** | 14 (4 local + 10 cloud) | M1 qwen3-8b + gpt-oss-20b, M2 deepseek-r1, M3 deepseek-r1, OL1 qwen3:14b/1.7b + 10 cloud |
+| **Modeles IA** | **59** (4 local + 10 cloud + 45 Gemini) | M1 qwen3-8b, M2/M3 deepseek-r1, OL1 5 modeles, **Gemini 45 modeles** (texte/image/video/TTS/embedding/research) |
 | **Agents** | 7 SDK + 11 Plugin + 96 Patterns | 114 agents total — 7 Claude SDK + 11 plugin + 96 patterns DB (20 hardcoded + 76 dynamiques) |
 | **Outils MCP** | 167 tools + 603 handlers | tools.py (167 fonctions) + mcp_server.py (603 async def handle_*) = 769 total |
 | **REST Endpoints** | 504 | server.py — FastAPI WebSocket backend Electron |
@@ -41,8 +42,8 @@
 | **Desktop** | Electron 33 + React 19 | **29 pages**, Portable 72.5 MB |
 | **Navigateur** | Comet (Perplexity) | Defaut CDP port 9222, fallback Chrome/Edge |
 | **Trading** | v2.3 Multi-GPU | MEXC Futures 10x, 6 IA consensus |
-| **Telegram Bot** | @turboSSebot autonome | canvas bridge (port 18800) + cluster race 5 noeuds + Whisper STT + DeniseNeural TTS |
-| **OpenClaw** | 96 agent patterns | 7 providers (M1, M1B, M2, M3, OL1, Gemini, Claude), fallback cascade |
+| **Telegram Bot** | @turboSSebot autonome | canvas bridge (port 18800) + cluster race 6 noeuds (M1/OL1/HF/GEMINI/M2/M3) + routing v6 + Whisper STT + DeniseNeural TTS |
+| **OpenClaw** | 96 agent patterns | 7 providers (M1, M1B, M2, M3, OL1, **Gemini 9 modeles API direct**, Claude, HF), fallback cascade |
 | **COWORK** | 435 scripts + 69 taches orchestrateur | dev continu 24/7, monitoring resilience, 13 mega-runners (glob dynamique), couverture 99.3% |
 | **Voix TTS** | DeniseNeural (femme) | Edge TTS Neural + ffmpeg OGG Opus + Telegram sendVoice |
 | **Voix STT** | Whisper large-v3-turbo | Transcription vocaux Telegram entrants, CUDA accelere |
@@ -163,22 +164,114 @@ Ces services sont **optionnels**. Le systeme fonctionne sans eux, mais ils ajout
 
 | Service | Modele | Score | Comment on l'utilise | Role |
 |---------|--------|-------|----------------------|------|
+| **GEMINI** | **45 modeles** (2.5 Flash/Pro, 3.1 Pro, Imagen 4, Veo 3.1, TTS, Embedding) | **Poids 1.5** | **API REST direct** (`src/gemini_provider.py`) | **POLYVALENT** — chat, vision, image gen, video gen, TTS, search, code exec, PDF, audio, embeddings |
 | **gpt-oss:120b** | GPT-OSS 120B | **100/100** | Via Ollama cloud (`think:false`) | CHAMPION CODE — score parfait, code/review/securite |
 | **devstral-2:123b** | Devstral 2 123B | 96.5/100 | Via Ollama cloud | Code cloud #2, review approfondie |
-| **GEMINI** | Gemini 3 Pro/Flash | 74/100 | Via `gemini-proxy.js` (Node) | Architecture, vision, longs documents |
 | **CLAUDE** | Claude Opus/Sonnet/Haiku | variable | Via `claude-proxy.js` (Node) | Raisonnement profond, orchestration complexe |
 | **Perplexity** | Connecteur MCP "4" | — | 23 outils via MCP SSE | Recherche web + ecriture directe sur le systeme (Deep Research) |
 | **Canvas Bridge** | direct-proxy | — | Port 18800, Telegram @turboSSebot | Pilotage Telegram, cluster race, circuit breakers |
 
-**Perplexity ecrit directement sur le systeme.** Un connecteur MCP personnalise (appele "4") donne a Perplexity 23 outils pour interroger le cluster, lancer des commandes, analyser le systeme et **generer du code deploye directement** dans `F:\BUREAU\turbo\src\` via sa Deep Research. Perplexity voit OL1 (cloud) mais pas M1/M2/M3 (IPs locales non exposees).
+### Gemini API — Provider Complet (45 modeles, API REST direct)
 
-**Gemini** est utilise via un proxy Node.js (`gemini-proxy.js`) pour les taches d'architecture et de vision. Timeout 2min, fallback pro/flash automatique.
+JARVIS integre directement l'API Gemini via `src/gemini_provider.py` (sans proxy CLI). Circuit breaker, logging SQL, fallback modele automatique.
+
+```
+                     +---> Texte/Chat (gemini-2.5-flash ~1s)
+                     |       gemini-2.5-pro, 3-flash, 3.1-pro
+                     |
+                     +---> Vision/Image Analysis (multimodal)
+                     |       Photos, screenshots, PDF, documents
+                     |
+                     +---> Image Generation (Imagen 4)
+                     |       imagen4, imagen4ultra, imagen4fast
+                     |       Nano Banana Pro, Nano Banana 2
+  GEMINI_API_KEY     |
+  (REST direct) -----+---> Video Generation (Veo 3.1)
+                     |       veo31, veo31fast, veo3, veo2
+                     |       Async (predictLongRunning + poll)
+                     |
+                     +---> TTS (Text-to-Speech)
+                     |       gemini-2.5-flash/pro-preview-tts
+                     |       Voix: Kore, Puck, Charon, Fenrir, Aoede
+                     |
+                     +---> Google Search Grounding (5 sources)
+                     |
+                     +---> Code Execution (Python sandbox)
+                     |
+                     +---> Embeddings (768-3072 dims)
+                     |       gemini-embedding-001, embedding-2-preview
+                     |
+                     +---> Deep Research (autonome multi-etapes)
+                     |
+                     +---> Audio Analysis (MP3, WAV, OGG)
+                     |
+                     +---> Gemma open-source (1B, 4B, 12B, 27B)
+```
+
+**Catalogue complet des modeles Gemini :**
+
+| Categorie | Modeles | API Method | Latence |
+|-----------|---------|------------|---------|
+| **Texte** | gemini-2.5-flash, 2.5-pro, 3-flash, 3.1-pro, 2.5-flash-lite | `generateContent` | ~1-3s |
+| **Image Gen** | imagen-4.0-generate, imagen-4.0-ultra, imagen-4.0-fast | `predict` | ~5-15s |
+| **Image+Texte** | nano-banana-pro, nano-banana-2, nano-banana | `generateContent` | ~2-5s |
+| **Video Gen** | veo-3.1, veo-3.1-fast, veo-3.0, veo-2.0 | `predictLongRunning` | async |
+| **TTS** | gemini-2.5-flash-preview-tts, gemini-2.5-pro-preview-tts | `generateContent` | ~2-5s |
+| **Audio Natif** | gemini-2.5-flash-native-audio-latest | `bidiGenerateContent` | streaming |
+| **Embedding** | gemini-embedding-001, gemini-embedding-2-preview | `embedContent` | ~700ms |
+| **Special** | deep-research-pro, computer-use, robotics, aqa | varies | varies |
+| **Gemma** | gemma-3-1b, 4b, 12b, 27b | `generateContent` | varies |
+
+**15 tools MCP + 20 endpoints API REST** integres dans le cluster :
+
+| Tool MCP | Endpoint API | Description |
+|----------|-------------|-------------|
+| `gemini_query` | `POST /api/gemini/chat` | Chat texte (fast/pro/flash3/pro3/lite) |
+| `gemini_search` | `POST /api/gemini/search` | Recherche Google grounded (5 sources) |
+| `gemini_vision` | `POST /api/gemini/vision` | Analyse image (PNG/JPG/WebP/GIF) |
+| `gemini_code` | `POST /api/gemini/code` | Execution code Python (sandbox Google) |
+| `gemini_image` | `POST /api/gemini/image` | Generation image (Imagen 4) |
+| `gemini_video` | `POST /api/gemini/video` | Generation video (Veo 3.1) |
+| `gemini_tts` | `POST /api/gemini/tts` | Synthese vocale (5 voix) |
+| `gemini_pdf` | `POST /api/gemini/pdf` | Analyse PDF multimodal |
+| `gemini_audio` | `POST /api/gemini/audio` | Analyse audio (MP3/WAV/OGG) |
+| `gemini_deep_research` | — | Recherche autonome multi-etapes |
+| `gemini_status` | `GET /api/gemini/status` | Status provider + circuit |
+| `gemini_health` | `GET /api/gemini/health` | Health check live |
+| `gemini_models` | `GET /api/gemini/models` | Liste modeles API |
+| — | `GET /api/gemini/catalog` | Catalogue 45 modeles (SQL) |
+| — | `GET /api/gemini/usage` | Stats usage (SQL) |
+| `embed` | `POST /api/embed` | Embedding texte (fallback: Gemini→M1→OL1) |
+| `embed_batch` | `POST /api/embed/batch` | Embedding batch (jusqu'a 100) |
+| `embed_similarity` | `POST /api/embed/similarity` | Cosine similarity entre 2 textes |
+
+**Routing Matrix v6 — GEMINI dans 14/17 routes :**
+
+```
+web_research     : GEMINI → OL1 → M1         (Google Search grounding)
+vision           : GEMINI                     (exclusif)
+code_execution   : GEMINI                     (exclusif)
+grounded_search  : GEMINI → OL1              (exclusif)
+architecture     : GEMINI → CLAUDE → M1      (1er)
+code_generation  : M1 → GEMINI → M2          (2e)
+deep_analysis    : M1 → GEMINI → M2          (2e)
+reasoning        : M1 → GEMINI → M2 → OL1   (2e)
+consensus        : M1+M2+OL1+M3+GEMINI+CLAUDE (vote pondere)
+```
+
+**SQL :** `etoile.db` — tables `gemini_usage` (historique), `gemini_models` (catalogue 32 modeles), `embedding_usage` (metriques embedding).
+
+**Perplexity ecrit directement sur le systeme.** Un connecteur MCP personnalise (appele "4") donne a Perplexity 23 outils pour interroger le cluster, lancer des commandes, analyser le systeme et **generer du code deploye directement** dans `F:\BUREAU\turbo\src\` via sa Deep Research. Perplexity voit OL1 (cloud) mais pas M1/M2/M3 (IPs locales non exposees).
 
 **gpt-oss:120b** est le champion cloud absolu : score parfait 100/100 sur 4 runs de benchmark (Q100% V100% R100%, 51 tok/s). Prioritaire pour code nouveau, revue, et securite.
 
 **Claude** (via `claude-proxy.js`) gere le raisonnement profond et l'orchestration MAO (Multi-Agent Orchestrator). C'est lui le commandant qui distribue les taches aux autres.
 
-**Fallback complet :** M1 → OL1 → M2 → gpt-oss → devstral → Gemini → Claude.
+**Fallback complet :** M1 → OL1 → GEMINI → M2 → gpt-oss → devstral → Claude.
+
+**Telegram routing v6 :** GEMINI integre dans `CLUSTER_NODES` + `SMART_ROUTING` du bot. Race parallele sur les 2 premiers noeuds de la chaine, fallback sequentiel. Routes : `web: GEMINI→OL1→HF→M1`, `code: M1→GEMINI→HF→OL1`, `reasoning: M1→GEMINI→HF→OL1`, `analyse: M1→GEMINI→HF→OL1`.
+
+**OpenClaw provider v2 :** 9 modeles Gemini API direct (text 5 + imagen + veo + tts + embedding). Intent routing : `vision/image_gen/video_gen/tts_gen/pdf_analysis/audio_analysis` → agents `gemini-flash`/`gemini-pro`.
 
 ### Pilotage Telegram — Systeme Autonome Auto-Alimente
 

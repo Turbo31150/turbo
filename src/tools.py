@@ -576,16 +576,13 @@ async def bridge_mesh(args: dict[str, Any]) -> dict[str, Any]:
             t0 = time.monotonic()
 
             if upper == "GEMINI":
-                cmd = ["node", config.gemini_node.proxy_path, prompt]
-                proc = await asyncio.create_subprocess_exec(
-                    *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
-                )
-                stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=per_timeout)
-                output = stdout.decode(errors="replace").strip()
+                from src.gemini_provider import get_gemini
+                gp = get_gemini()
+                result = await asyncio.wait_for(gp.chat(prompt, model="fast", max_tokens=config.max_tokens), timeout=per_timeout)
                 latency = int((time.monotonic() - t0) * 1000)
-                if proc.returncode != 0 and not output:
-                    return f"[GEMINI] ERREUR (exit {proc.returncode})"
-                return f"[GEMINI/{config.gemini_node.default_model}] {_strip_thinking_tags(output)} --- {latency}ms"
+                if result.get("error"):
+                    return f"[GEMINI] ERREUR: {result['error']}"
+                return f"[GEMINI/{result.get('model', 'gemini')}] {result['text']} --- {latency}ms"
 
             ol_node = config.get_ollama_node(name)
             if ol_node:
@@ -965,6 +962,195 @@ async def ollama_status(args: dict[str, Any]) -> dict[str, Any]:
         return _error("Ollama OL1: OFFLINE (127.0.0.1:11434)")
     except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
         return _error(f"Erreur Ollama status: {e}")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# GEMINI API — Chat, Vision, Search, Code
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+@tool("gemini_query", "Interroger Gemini API (chat texte). Args: prompt, model (fast/pro/flash3/pro3/lite), system, temperature, max_tokens, thinking (minimal/low/medium/high).",
+      {"prompt": str, "model": str, "system": str, "temperature": float, "max_tokens": int, "thinking": str})
+async def gemini_query(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    gp = get_gemini()
+    result = await gp.chat(
+        args["prompt"],
+        model=args.get("model"),
+        system=args.get("system"),
+        temperature=args.get("temperature", 0.7),
+        max_tokens=args.get("max_tokens", 2048),
+        thinking=args.get("thinking"),
+    )
+    if result.get("error"):
+        _tool_metrics.record("gemini_query", 0, success=False)
+        return _error(f"Gemini: {result['error']}")
+    _tool_metrics.record("gemini_query", result.get("latency_ms", 0), success=True)
+    return _text(
+        f"[GEMINI/{result['model']}] {result['text']}\n"
+        f"--- {result['latency_ms']:.0f}ms | {result.get('tokens_out', '?')} tokens"
+    )
+
+
+@tool("gemini_search", "Recherche web grounded via Google Search + Gemini. Args: prompt, model.",
+      {"prompt": str, "model": str})
+async def gemini_search(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    gp = get_gemini()
+    result = await gp.search(args["prompt"], model=args.get("model"))
+    if result.get("error"):
+        _tool_metrics.record("gemini_search", 0, success=False)
+        return _error(f"Gemini Search: {result['error']}")
+    _tool_metrics.record("gemini_search", result.get("latency_ms", 0), success=True)
+    sources = result.get("sources", [])
+    sources_txt = ""
+    if sources:
+        sources_txt = "\nSources:\n" + "\n".join(f"  - {s['title']}: {s['uri']}" for s in sources[:5])
+    return _text(
+        f"[GEMINI-SEARCH/{result['model']}] {result['text']}{sources_txt}\n"
+        f"--- {result['latency_ms']:.0f}ms | {result.get('tokens_out', '?')} tokens"
+    )
+
+
+@tool("gemini_vision", "Analyser une image via Gemini. Args: prompt, image_path.",
+      {"prompt": str, "image_path": str})
+async def gemini_vision(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    gp = get_gemini()
+    result = await gp.vision(
+        args["prompt"],
+        image_path=args.get("image_path"),
+    )
+    if result.get("error"):
+        _tool_metrics.record("gemini_vision", 0, success=False)
+        return _error(f"Gemini Vision: {result['error']}")
+    _tool_metrics.record("gemini_vision", result.get("latency_ms", 0), success=True)
+    return _text(
+        f"[GEMINI-VISION/{result['model']}] {result['text']}\n"
+        f"--- {result['latency_ms']:.0f}ms | {result.get('tokens_out', '?')} tokens"
+    )
+
+
+@tool("gemini_code", "Exécuter du code Python via Gemini Code Execution. Args: prompt.",
+      {"prompt": str})
+async def gemini_code(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    gp = get_gemini()
+    result = await gp.code(args["prompt"])
+    if result.get("error"):
+        _tool_metrics.record("gemini_code", 0, success=False)
+        return _error(f"Gemini Code: {result['error']}")
+    _tool_metrics.record("gemini_code", result.get("latency_ms", 0), success=True)
+    code_blocks = result.get("code", [])
+    code_txt = ""
+    if code_blocks:
+        code_txt = "\n```python\n" + "\n".join(code_blocks) + "\n```"
+    return _text(
+        f"[GEMINI-CODE/{result['model']}] {result['text']}{code_txt}\n"
+        f"--- {result['latency_ms']:.0f}ms | {result.get('tokens_out', '?')} tokens"
+    )
+
+
+@tool("gemini_status", "Status du provider Gemini API: circuit, latency, tokens.", {})
+async def gemini_status(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    status = get_gemini().status()
+    return _text(json.dumps(status, indent=2, ensure_ascii=False))
+
+
+@tool("gemini_health", "Health check Gemini API.", {})
+async def gemini_health(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    result = await get_gemini().health()
+    if result.get("ok"):
+        return _text(f"Gemini ONLINE — {result['model']} — {result['latency_ms']:.0f}ms")
+    return _error(f"Gemini OFFLINE: {result.get('response', 'unknown')}")
+
+
+@tool("gemini_models", "Lister les modèles Gemini disponibles.", {})
+async def gemini_models(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    result = await get_gemini().list_models()
+    if result.get("error"):
+        return _error(f"Gemini: {result['error']}")
+    models = result.get("models", [])
+    lines = [f"Modeles Gemini ({len(models)}):"]
+    for m in models[:30]:
+        lines.append(f"  {m['id']}: in={m['inputTokenLimit']} out={m['outputTokenLimit']}")
+    return _text("\n".join(lines))
+
+
+@tool("gemini_image", "Generer une image via Imagen 4. Args: prompt, output_path, model (imagen4/imagen4ultra/imagen4fast).",
+      {"prompt": str, "output_path": str, "model": str})
+async def gemini_image(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    gp = get_gemini()
+    output = args.get("output_path", "")
+    if output:
+        result = await gp.save_image(args["prompt"], output, model=args.get("model", "imagen4"))
+        if result.get("error"):
+            return _error(f"Imagen: {result['error']}")
+        return _text(f"[GEMINI-IMAGE/{result['model']}] Image sauvegardee: {result['saved_to']} ({result.get('size_bytes',0)} bytes) --- {result['latency_ms']:.0f}ms")
+    result = await gp.generate_image(args["prompt"], model=args.get("model", "imagen4"))
+    if result.get("error"):
+        return _error(f"Imagen: {result['error']}")
+    return _text(f"[GEMINI-IMAGE/{result['model']}] {result['count']} image(s) generee(s) --- {result['latency_ms']:.0f}ms")
+
+
+@tool("gemini_video", "Lancer generation video via Veo 3.1. Args: prompt, model (veo31/veo31fast/veo3).",
+      {"prompt": str, "model": str})
+async def gemini_video(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    result = await get_gemini().generate_video(args["prompt"], model=args.get("model", "veo31fast"))
+    if result.get("error"):
+        return _error(f"Veo: {result['error']}")
+    return _text(f"[GEMINI-VIDEO/{result['model']}] Generation lancee. Operation: {result['operation']} --- {result['latency_ms']:.0f}ms\nPoll: {result.get('poll_url','')}")
+
+
+@tool("gemini_tts", "Synthese vocale via Gemini TTS. Args: prompt, output_path, voice (Kore/Puck/Charon/Fenrir/Aoede).",
+      {"prompt": str, "output_path": str, "voice": str})
+async def gemini_tts(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    output = args.get("output_path", "")
+    if output:
+        result = await get_gemini().save_tts(args["prompt"], output, voice=args.get("voice", "Kore"))
+        if result.get("error"):
+            return _error(f"TTS: {result['error']}")
+        return _text(f"[GEMINI-TTS/{result['model']}] Audio sauvegarde: {result['saved_to']} ({result.get('size_bytes',0)} bytes) --- {result['latency_ms']:.0f}ms")
+    result = await get_gemini().tts(args["prompt"], voice=args.get("voice", "Kore"))
+    if result.get("error"):
+        return _error(f"TTS: {result['error']}")
+    return _text(f"[GEMINI-TTS/{result['model']}] Audio genere ({result.get('mimeType','')}) --- {result['latency_ms']:.0f}ms")
+
+
+@tool("gemini_pdf", "Analyser un PDF via Gemini. Args: prompt, pdf_path.",
+      {"prompt": str, "pdf_path": str})
+async def gemini_pdf(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    result = await get_gemini().analyze_pdf(args["prompt"], args["pdf_path"])
+    if result.get("error"):
+        return _error(f"PDF: {result['error']}")
+    return _text(f"[GEMINI-PDF/{result['model']}] {result['text'][:2000]}\n--- {result['latency_ms']:.0f}ms")
+
+
+@tool("gemini_audio", "Analyser un fichier audio via Gemini. Args: prompt, audio_path.",
+      {"prompt": str, "audio_path": str})
+async def gemini_audio(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    result = await get_gemini().analyze_audio(args["prompt"], args["audio_path"])
+    if result.get("error"):
+        return _error(f"Audio: {result['error']}")
+    return _text(f"[GEMINI-AUDIO/{result['model']}] {result['text'][:2000]}\n--- {result['latency_ms']:.0f}ms")
+
+
+@tool("gemini_deep_research", "Recherche autonome multi-etapes via Deep Research Pro. Args: prompt.",
+      {"prompt": str})
+async def gemini_deep_research(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    result = await get_gemini().deep_research(args["prompt"])
+    if result.get("error"):
+        return _error(f"Deep Research: {result['error']}")
+    return _text(f"[GEMINI-RESEARCH/{result['model']}] {result['text'][:3000]}\n--- {result['latency_ms']:.0f}ms | {result.get('tokens_out',0)} tokens")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
