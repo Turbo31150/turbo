@@ -1,0 +1,28 @@
+import subprocess
+import os
+import sys
+import time
+from pathlib import Path
+
+NAME = "JARVIS Universal Bridge"
+BRIDGE_SCRIPT = str(Path.home() / "jarvis-m1-ops/voice_pipeline/jarvis_voice_bridge.py")
+IM_HERE_SOUND = str(Path.home() / "jarvis-m1-ops/voice_assets/im_here.wav")
+
+def setup(core_instance):
+    print(f"--- PLUGIN JARVIS ACTIF ---")
+
+def handle(text):
+    # Enregistre TOUT ce qui est entendu dans un fichier visible par l'utilisateur
+    with open("/home/turbo/jarvis_heard.txt", "a") as f:
+        f.write(f"[{time.ctime()}] ENTENDU: {text}\n")
+    
+    if text.strip():
+        subprocess.Popen([sys.executable, BRIDGE_SCRIPT, text])
+        return True
+    return False
+
+def on_wake(core=None):
+    # Joue "Je suis là" immédiatement
+    subprocess.Popen(["aplay", IM_HERE_SOUND], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    with open("/home/turbo/jarvis_heard.txt", "a") as f:
+        f.write(f"[{time.ctime()}] WAKE WORD DÉTECTÉ\n")

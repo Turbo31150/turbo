@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.3.11",
+    "lastTouchedAt": "2026-03-12T17:05:41.940Z"
+  },
+  "wizard": {
+    "lastRunAt": "2026-03-12T17:05:20.233Z",
+    "lastRunVersion": "2026.3.11",
+    "lastRunCommand": "doctor",
+    "lastRunMode": "local"
+  },
+  "agents": {
+    "defaults": {
+      "sandbox": {
+        "mode": "off"
+      }
+    }
+  },
+  "tools": {
+    "elevated": {
+      "enabled": true
+    },
+    "fs": {
+      "workspaceOnly": false
+    }
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "dmPolicy": "pairing",
+      "botToken": "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw",
+      "groupAllowFrom": [
+        "2010747443"
+      ],
+      "groupPolicy": "open",
+      "streaming": "partial"
+    }
+  },
+  "gateway": {
+    "port": 18790,
+    "mode": "local",
+    "auth": {
+      "mode": "none"
+    }
+  }
+}

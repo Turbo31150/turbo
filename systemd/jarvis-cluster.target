@@ -1,0 +1,7 @@
+[Unit]
+Description=JARVIS Multi-Agent Cluster Target
+Requires=jarvis-ws.service jarvis-mcp.service jarvis-lmstudio-debugger.service openclaw-gateway.service
+After=network.target
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,81 @@
+# If you come from bash you might have to change your $PATH.
+# export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+
+# Path to your Oh My Zsh installation.
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="robbyrussell"
+plugins=(git)
+source $ZSH/oh-my-zsh.sh
+
+# --- JARVIS-OS DEVOPS CONFIG ---
+export TURBO_DIR="/home/turbo/jarvis"
+alias jarvis-health="uv run python $TURBO_DIR/src/jarvis-cluster-health.py"
+alias gpu-watch="watch -n 1 nvidia-smi"
+alias cluster-logs="journalctl --user -f -u jarvis-ws"
+alias jarvis-ui="cd $TURBO_DIR/electron && npm start"
+alias jarvis-dash="/home/turbo/jarvis/jarvis-dashboard.sh"
+
+# --- JARVIS WAVES ---
+alias wave1="cd $TURBO_DIR && ./jarvis-wave.sh 1"
+alias wave2="cd $TURBO_DIR && ./jarvis-wave.sh 2"
+alias wave3="cd $TURBO_DIR && ./jarvis-wave.sh 3"
+alias wave4="cd $TURBO_DIR && ./jarvis-wave.sh 4"
+alias wave5="cd $TURBO_DIR && ./jarvis-wave.sh 5"
+alias wave6="cd $TURBO_DIR && ./jarvis-wave.sh 6"
+
+# --- HISTORIQUE OPTIMISE ---
+HISTSIZE=10000
+SAVEHIST=10000
+
+# --- JARVIS VRAM PROMPT (OPTIMIZED) ---
+function vram_usage() {
+  local status_file="/tmp/vram_status"
+  if [[ -f "$status_file" ]]; then
+    local data=$(cat "$status_file")
+    local used=${data%:*}
+    local total=${data#*:}
+    if [[ -z "$used" || -z "$total" ]]; then echo -n "[VRAM:...]"; return; fi
+    local pct=$((used * 100 / total))
+    if [ $pct -gt 85 ]; then echo -n "%F{red}[VRAM:${used}MB ($pct%)]%f"; elif [ $pct -gt 60 ]; then echo -n "%F{yellow}[VRAM:${used}MB ($pct%)]%f"; else echo -n "%F{green}[VRAM:${used}MB ($pct%)]%f"; fi
+  else
+    echo -n "%F{blue}[VRAM:INIT]%f"
+  fi
+}
+PROMPT='$(vram_usage) %F{cyan}[JARVIS@M1]%f %F{green}%~%f $ '
+
+# --- GEMINI UNSTOPPABLE ALIASES ---
+alias gemini="gemini --yolo"
+alias gloop='gemini --yolo --sandbox --checkpointing --memory --allow-edits --retry 5 --timeout 3600 -p'
+alias gauto='gemini --yolo --sandbox --checkpointing --memory --allow-edits --retry 5 --timeout 3600'
+alias gimortal='gemini --yolo --sandbox --checkpointing -p'
+alias jauto='cd ~/jarvis-m1-ops && gauto'
+alias jimmortal='cd ~/jarvis-m1-ops && gimortal'
+
+# --- JARVIS SHORTCUTS ---
+alias jarvis-linux="gloop 'MODE AUTONOME: Migrer JARVIS Windows→Linux...'"
+alias gpu-max="gloop 'OPTIM GPU 6 cartes + ZRAM + monitoring...'"
+alias gpu-immortal="jimmortal 'Optimiser 6 GPUs + ZRAM + monitoring live'"
+alias voice-immortal="jimmortal 'Wake word Porcupine → Whisper → MCP JARVIS'"
+alias systemd-immortal="jimmortal 'Migrer launcher.bat → systemd timers'"
+
+# --- OPENCLAW ---
+alias ostart='openclaw onboard --install-daemon'
+alias ostatus='openclaw daemon status && openclaw gateway status'
+alias ochat='openclaw tui'
+alias odash='openclaw dashboard'
+alias oconfig='openclaw config edit'
+
+# OPENCLAW VOICE WEB UI
+alias ovoice-ui='cd ~/jarvis-m1-ops/openclaw-skills/voice-wake-porcupine && python skill.py'
+alias odashboard-voice='openclaw dashboard & sleep 3 && chromium http://localhost:18789'
+
+# EASY SPEAK JARVIS
+alias jarvis-voice='systemctl --user restart easyspeak-jarvis'
+alias espeak-config='nano ~/.easyspeak/config.yaml'
+alias espeak-test='easyspeak --test-mic'
+alias espeak-plugins='ls ~/.easyspeak/plugins/'
+
+# EASY SPEAK + LM STUDIO JARVIS
+alias lm-test="curl http://192.168.1.26:1234/v1/models"
+alias espeak-lm="pkill easyspeak && easyspeak"
+alias jarvis-llm="espeak-lm & sleep 3 && chromium http://localhost:18790"

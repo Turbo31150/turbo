@@ -1,0 +1,102 @@
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import json
+import os
+import shutil
+import subprocess
+from dotenv import load_dotenv
+
+load_dotenv()
+
+app = Flask(__name__)
+CORS(app)
+
+MCP_API_KEY = os.getenv('MCP_API_KEY', '1202')
+
+@app.route('/mcp', methods=['GET', 'POST'])
+def mcp_handler():
+    if request.method == 'GET':
+        return jsonify({"status": "ok", "message": "MCP Flask Server - ROOT ACCESS ENABLED"}), 200
+    
+    if request.headers.get('Authorization') != f'Bearer {MCP_API_KEY}':
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    data = request.json
+    method = data.get('method')
+    params = data.get('params', {})
+    req_id = data.get('id')
+    if method == 'tools/list':
+        tools = [
+            {"name": "root_read", "description": "Lire n'importe quel fichier (ROOT)", "inputSchema": {"type": "object", "properties": {"path": {"type": "string"}}}},
+            {"name": "root_write", "description": "Ecrire n'importe quel fichier (ROOT)", "inputSchema": {"type": "object", "properties": {"path": {"type": "string"}, "content": {"type": "string"}}}},
+            {"name": "root_ls", "description": "Lister dossier racine", "inputSchema": {"type": "object", "properties": {"path": {"type": "string"}}}},
+            {"name": "range_bureau", "description": "Organise le bureau (trie par type, supprime doublons)", "inputSchema": {"type": "object", "properties": {}}}
+        ]
+        return jsonify({"jsonrpc": "2.0", "id": req_id, "result": tools})
+
+    elif method == 'tools/call':
+        name = params.get('name')
+        args = params.get('arguments', {})
+
+        try:
+            if name == "range_bureau":
+                desktop = os.path.expanduser("~/Bureau")
+                if not os.path.exists(desktop): desktop = os.path.expanduser("~/Desktop")
+
+                categories = {
+                    "Images": [".jpg", ".jpeg", ".png", ".gif", ".svg"],
+                    "Documents": [".pdf", ".docx", ".doc", ".txt", ".odt", ".xlsx"],
+                    "Videos": [".mp4", ".mkv", ".mov", ".avi"],
+                    "Archives": [".zip", ".tar", ".gz", ".rar", ".7z"],
+                    "Scripts": [".py", ".sh", ".js", ".json"]
+                }
+
+                import hashlib
+                def get_hash(file_path):
+                    with open(file_path, "rb") as f: return hashlib.md5(f.read()).hexdigest()
+
+                files = [f for f in os.listdir(desktop) if os.path.isfile(os.path.join(desktop, f))]
+                hashes = {}
+                moved = 0
+                deleted = 0
+
+                for f in files:
+                    file_path = os.path.join(desktop, f)
+                    f_hash = get_hash(file_path)
+
+                    if f_hash in hashes:
+                        os.remove(file_path)
+                        deleted += 1
+                        continue
+                    hashes[f_hash] = file_path
+
+                    ext = os.path.splitext(f)[1].lower()
+                    target_cat = "Autres"
+                    for cat, exts in categories.items():
+                        if ext in exts:
+                            target_cat = cat
+                            break
+
+                    target_dir = os.path.join(desktop, target_cat)
+                    os.makedirs(target_dir, exist_ok=True)
+                    shutil.move(file_path, os.path.join(target_dir, f))
+                    moved += 1
+
+                return jsonify({"jsonrpc": "2.0", "id": req_id, "result": f"Bureau rangé : {moved} fichiers classés, {deleted} doublons supprimés."})
+
+            path = args.get('path', '/')
+            if name == "root_read":
+    ...
+                with open(path, 'r') as f: return jsonify({"jsonrpc": "2.0", "id": req_id, "result": f.read()})
+            elif name == "root_write":
+                with open(path, 'w') as f: f.write(args.get('content', ''))
+                return jsonify({"jsonrpc": "2.0", "id": req_id, "result": "Success"})
+            elif name == "root_ls":
+                return jsonify({"jsonrpc": "2.0", "id": req_id, "result": os.listdir(path)})
+        except Exception as e:
+            return jsonify({"jsonrpc": "2.0", "id": req_id, "error": {"message": str(e)}})
+
+    return jsonify({"jsonrpc": "2.0", "id": req_id, "result": []})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080, debug=True)

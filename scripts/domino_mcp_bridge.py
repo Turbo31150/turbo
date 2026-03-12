@@ -103,17 +103,17 @@ async def list_tools():
 
 
 KEYWORD_ACTIONS = {
-    "gpu": 'powershell.exe -NoProfile -Command "nvidia-smi --query-gpu=index,name,temperature.gpu,utilization.gpu,memory.used,memory.total --format=csv,noheader"',
-    "disk": 'powershell.exe -NoProfile -Command "Get-PSDrive -PSProvider FileSystem | Select-Object Name,@{N=\'Used(GB)\';E={[math]::Round($_.Used/1GB,1)}},@{N=\'Free(GB)\';E={[math]::Round($_.Free/1GB,1)}} | Format-Table -AutoSize"',
-    "ram": 'powershell.exe -NoProfile -Command "Get-Process | Sort-Object WorkingSet64 -Descending | Select-Object -First 10 Name,@{N=\'RAM(MB)\';E={[math]::Round($_.WorkingSet64/1MB)}} | Format-Table -AutoSize"',
-    "health": f'curl -s --max-time 3 http://127.0.0.1:9742/api/tools/execute -H "Content-Type: application/json" -d "{{/"tool_name/":/"jarvis_cluster_health/",/"arguments/":{{}}}}"',
-    "boot": f'curl -s --max-time 3 http://127.0.0.1:9742/api/tools/execute -H "Content-Type: application/json" -d "{{/"tool_name/":/"jarvis_boot_status/",/"arguments/":{{}}}}"',
-    "alert": f'curl -s --max-time 3 http://127.0.0.1:9742/api/tools/execute -H "Content-Type: application/json" -d "{{/"tool_name/":/"jarvis_alerts_active/",/"arguments/":{{}}}}"',
-    "temp": 'powershell.exe -NoProfile -Command "nvidia-smi --query-gpu=index,temperature.gpu,fan.speed,power.draw --format=csv,noheader"',
-    "processes": 'powershell.exe -NoProfile -Command "Get-Process | Sort-Object CPU -Descending | Select-Object -First 15 Name,CPU,@{N=\'RAM(MB)\';E={[math]::Round($_.WorkingSet64/1MB)}} | Format-Table -AutoSize"',
-    "network": 'powershell.exe -NoProfile -Command "Get-NetTCPConnection -State Listen | Select-Object LocalPort,OwningProcess | Sort-Object LocalPort | Format-Table -AutoSize"',
-    "services": 'powershell.exe -NoProfile -Command "netstat -ano | findstr LISTENING | findstr -E /\":(1234|11434|18789|18800|9742|8080|8901)/\" "',
-    "uptime": 'powershell.exe -NoProfile -Command "(Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime | Select-Object Days,Hours,Minutes"',
+    "gpu": "nvidia-smi --query-gpu=index,name,temperature.gpu,utilization.gpu,memory.used,memory.total --format=csv,noheader",
+    "disk": "df -h | grep '^/dev/'",
+    "ram": "free -m",
+    "health": f'curl -s --max-time 3 http://127.0.0.1:9742/api/tools/execute -H "Content-Type: application/json" -d "{{\\"tool_name\\":\\"jarvis_cluster_health\\",\\"arguments\\":{{}}}}"',
+    "boot": f'curl -s --max-time 3 http://127.0.0.1:9742/api/tools/execute -H "Content-Type: application/json" -d "{{\\"tool_name\\":\\"jarvis_boot_status\\",\\"arguments\\":{{}}}}"',
+    "alert": f'curl -s --max-time 3 http://127.0.0.1:9742/api/tools/execute -H "Content-Type: application/json" -d "{{\\"tool_name\\":\\"jarvis_alerts_active\\",\\"arguments\\":{{}}}}"',
+    "temp": "nvidia-smi --query-gpu=index,temperature.gpu,fan.speed,power.draw --format=csv,noheader",
+    "processes": "ps aux --sort=-%cpu | head -n 15",
+    "network": "ss -tuln",
+    "services": "ss -tuln | grep -E ':(1234|11434|18789|18800|9742|8080|8901)'",
+    "uptime": "uptime -p",
 }
 
 
@@ -129,8 +129,13 @@ async def _run_cmd(cmd: str, timeout: int = 30) -> str:
         stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=timeout)
         out = stdout.decode("utf-8", errors="replace").strip()
         err = stderr.decode("utf-8", errors="replace").strip()
-        if proc.returncode != 0 and err:
-            return f"{out}\n[stderr] {err}" if out else f"[stderr] {err}"
+        
+        if proc.returncode != 0:
+            error_msg = f"[ERROR] Command failed with exit code {proc.returncode}"
+            if err:
+                error_msg += f"\n[stderr] {err}"
+            return f"{out}\n{error_msg}" if out else error_msg
+            
         return out or "(no output)"
     except asyncio.TimeoutError:
         return f"[TIMEOUT after {timeout}s]"
@@ -151,25 +156,37 @@ async def _execute_pipeline(pipeline, dry_run=False):
             results.append(f"[{i}] {step.name} ({step.action_type}): {step.action[:100]}")
         else:
             results.append(f"[{i}] Executing: {step.name} ({step.action_type})")
-            if step.action_type in ("powershell", "bash"):
-                out = await _run_cmd(step.action, timeout=step.timeout_s)
-            elif step.action_type == "curl":
-                out = await _run_cmd(step.action, timeout=step.timeout_s)
+            
+            # Clean action: strip prefixes if present
+            clean_action = step.action
+            for prefix in ["bash:", "powershell:", "curl:", "python:", "tool:"]:
+                if clean_action.startswith(prefix):
+                    clean_action = clean_action[len(prefix):]
+
+            if step.action_type in ("powershell", "bash", "curl", "tool"):
+                out = await _run_cmd(clean_action, timeout=step.timeout_s)
             elif step.action_type == "python":
-                out = await _run_cmd(f"{PYTHON} -c \"{step.action}\"", timeout=step.timeout_s)
-            elif step.action_type == "tool":
-                out = await _run_cmd(step.action, timeout=step.timeout_s)
+                # Ensure we use the correct python interpreter and clean the action
+                python_cmd = f"{PYTHON} -c \"{clean_action}\""
+                out = await _run_cmd(python_cmd, timeout=step.timeout_s)
             elif step.action_type == "condition":
-                out = f"[condition] {step.condition or step.action}"
+                out = f"[condition] {step.condition or clean_action}"
             elif step.action_type == "pipeline":
-                out = f"[sub-pipeline] {step.action}"
+                out = f"[sub-pipeline] {clean_action}"
             else:
                 out = f"[unsupported type: {step.action_type}]"
+            
+            # Robust error handling: check for common failure markers
+            is_error = "[ERROR]" in out or "[stderr]" in out or out.startswith("[TIMEOUT")
             results.append(f"  → {out[:500]}")
 
-            if step.on_fail == "stop" and "[ERROR]" in out:
-                results.append(f"  ⛔ Step failed, pipeline stopped (on_fail=stop)")
-                break
+            if is_error:
+                results.append(f"  ⚠️ Step returned an error or warning.")
+                if step.on_fail == "stop":
+                    results.append(f"  ⛔ Step failed, pipeline stopped (on_fail=stop)")
+                    break
+                else:
+                    results.append(f"  ⏩ on_fail={step.on_fail}, continuing...")
 
     return "\n".join(results)
 
