@@ -3369,19 +3369,18 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
  id="domino_usb_check",
  trigger_vocal=["check usb", "peripheriques usb", "usb connectes", "liste usb"],
  steps=[
- DominoStep("usb", "bash:powershell -Command \"Get-PnpDevice -Class USB" 2>/dev/null || echo 'USB info N/A'", "bash", timeout_s=10),
+ DominoStep("usb", "bash:powershell -Command \"Get-PnpDevice -Class USB\" 2>/dev/null || echo 'USB info N/A'", "bash", timeout_s=10),
  DominoStep("tts", "python:edge_tts_speak('Peripheriques USB connectes listes.')", "python"),
  ],
  category="hardware",
  description="Check connected USB devices",
  learning_context="Hardware — peripheriques USB connectes",
- priority="normal",
- ),
+ priority="normal", ),
  DominoPipeline(
  id="domino_driver_check",
  trigger_vocal=["check drivers", "verification drivers", "pilotes installes", "drivers status"],
  steps=[
- DominoStep("drivers", "bash:powershell -Command \"Get-WmiObject Win32_PnPSignedDriver" 2>/dev/null || echo 'N/A'", "bash", timeout_s=10),
+ DominoStep("drivers", "bash:powershell -Command \"Get-WmiObject Win32_PnPSignedDriver\" 2>/dev/null || echo 'N/A'", "bash", timeout_s=10),
  DominoStep("tts", "python:edge_tts_speak('Verification des drivers terminee.')", "python"),
  ],
  category="hardware",
@@ -3409,7 +3408,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
  id="domino_bios_info",
  trigger_vocal=["info bios", "bios check", "uefi info", "firmware check"],
  steps=[
- DominoStep("bios", "bash:powershell -Command \"cat /sys/class/dmi/id/bios_version" 2>/dev/null || echo 'BIOS info N/A'", "bash", timeout_s=10),
+ DominoStep("bios", "bash:powershell -Command \"cat /sys/class/dmi/id/bios_version\" 2>/dev/null || echo 'BIOS info N/A'", "bash", timeout_s=10),
  DominoStep("tts", "python:edge_tts_speak('Information BIOS affichee.')", "python"),
  ],
  category="hardware",
@@ -4127,7 +4126,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
  DominoStep("alert", "python:edge_tts_speak('ALERTE! Mode incident active. Diagnostic en cours.')", "python"),
  DominoStep("cluster", "bash:curl -s --max-time 3 http://127.0.0.1:1234/api/v1/models 2>/dev/null && echo 'M1 OK' || echo 'M1 DOWN'", "bash", timeout_s=5),
  DominoStep("gpu", "bash:nvidia-smi --query-gpu=temperature.gpu,utilization.gpu --format=csv,noheader 2>/dev/null || echo 'GPU N/A'", "bash", timeout_s=5),
- DominoStep("disk", "bash:df -h / 2>/dev/null | tail -1 || powershell -Command \"df -h" 2>/dev/null", "bash", timeout_s=5),
+ DominoStep("disk", "bash:df -h / 2>/dev/null | tail -1 || powershell -Command \"df -h\" 2>/dev/null", "bash", timeout_s=5),
  DominoStep("tts", "python:edge_tts_speak('Diagnostic incident termine. Resultats affiches.')", "python"),
  ],
  category="incident",
@@ -4360,7 +4359,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
  trigger_vocal=["stockage complet", "full storage check", "verification stockage", "disk full check"],
  steps=[
  DominoStep("disk", "python:get_disk_usage()", "python"),
- DominoStep("partitions", "bash:powershell -Command \"Get-Volume" 2>/dev/null || echo 'PowerShell N/A'", "bash", timeout_s=10),
+ DominoStep("partitions", "bash:powershell -Command \"Get-Volume\" 2>/dev/null || echo 'PowerShell N/A'", "bash", timeout_s=10),
  DominoStep("tts", "python:edge_tts_speak('Verification stockage complete. Disques et partitions affiches.')", "python"),
  ],
  category="system_diagnostics",
@@ -4766,7 +4765,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
  id="domino_firewall_check",
  trigger_vocal=["check firewall", "statut pare feu", "firewall rules", "pare feu actif"],
  steps=[
- DominoStep("fw", "bash:powershell -Command \"sudo ufw status" 2>/dev/null || echo 'Firewall check N/A'", "bash", timeout_s=10),
+ DominoStep("fw", "bash:powershell -Command \"sudo ufw status\" 2>/dev/null || echo 'Firewall check N/A'", "bash", timeout_s=10),
  DominoStep("tts", "python:edge_tts_speak('Statut du pare-feu affiche.')", "python"),
  ],
  category="security",
@@ -4875,7 +4874,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
  DominoStep("ol1", "bash:curl -s --max-time 3 http://127.0.0.1:11434/api/tags 2>/dev/null | head -c 30 && echo ' OL1 OK' || echo 'OL1 DOWN'", "bash", timeout_s=5),
  DominoStep("ram", "python:system_memory_usage()", "python"),
  DominoStep("disk", "python:get_disk_usage()", "python"),
- DominoStep("errors", "bash:powershell -Command \"Get-EventLog -LogName System -EntryType Error -Newest 3 2>/$null" 2>/dev/null || echo 'N/A'", "bash", timeout_s=15),
+ DominoStep("errors", "bash:powershell -Command \"Get-EventLog -LogName System -EntryType Error -Newest 3 2>/$null\" 2>/dev/null || echo 'N/A'", "bash", timeout_s=15),
  DominoStep("tts", "python:edge_tts_speak('Reponse incident. Cluster, memoire, disques et erreurs systeme verifies.')", "python"),
  ],
  category="incident_response",
@@ -5063,7 +5062,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
  id="domino_services_check",
  trigger_vocal=["services actifs", "check services", "services en cours", "quels services"],
  steps=[
- DominoStep("services", "bash:powershell -Command \"Get-Service" 2>/dev/null || echo 'PowerShell N/A'", "bash", timeout_s=10),
+ DominoStep("services", "bash:powershell -Command \"Get-Service\" 2>/dev/null || echo 'PowerShell N/A'", "bash", timeout_s=10),
  DominoStep("tts", "python:edge_tts_speak('Services systeme actifs listes.')", "python"),
  ],
  category="system_diagnostics",
@@ -5316,7 +5315,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
  id="domino_alert_review",
  trigger_vocal=["review alertes", "alertes recentes", "check alertes", "erreurs recentes"],
  steps=[
- DominoStep("win_errors", "bash:powershell -Command \"Get-EventLog -LogName System -EntryType Error -Newest 3 2>/dev/null" 2>/dev/null || echo 'EventLog N/A'", "bash", timeout_s=15),
+ DominoStep("win_errors", "bash:powershell -Command \"Get-EventLog -LogName System -EntryType Error -Newest 3 2>/dev/null\" 2>/dev/null || echo 'EventLog N/A'", "bash", timeout_s=15),
  DominoStep("git_issues", "bash:cd /home/turbo/jarvis-m1-ops && git log --oneline --grep='fix' -5 2>/dev/null", "bash", timeout_s=5),
  DominoStep("tts", "python:edge_tts_speak('Review des alertes terminee. Erreurs systeme et fixes recents affiches.')", "python"),
  ],
@@ -5628,7 +5627,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
  id="domino_event_viewer",
  trigger_vocal=["event logs", "evenements systeme", "erreurs windows", "journal evenements"],
  steps=[
- DominoStep("errors", "bash:powershell -Command \"Get-EventLog -LogName System -EntryType Error -Newest 5" 2>/dev/null || echo 'EventLog non accessible'", "bash", timeout_s=15),
+ DominoStep("errors", "bash:powershell -Command \"Get-EventLog -LogName System -EntryType Error -Newest 5\" 2>/dev/null || echo 'EventLog non accessible'", "bash", timeout_s=15),
  DominoStep("tts", "python:edge_tts_speak('Dernieres erreurs systeme Windows affichees.')", "python"),
  ],
  category="windows_system",
@@ -5640,7 +5639,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
  id="domino_startup_apps",
  trigger_vocal=["apps demarrage", "startup apps", "programmes demarrage", "autostart"],
  steps=[
- DominoStep("startup", "bash:powershell -Command \"Get-CimInstance Win32_StartupCommand" 2>/dev/null || echo 'Impossible de lister'", "bash", timeout_s=10),
+ DominoStep("startup", "bash:powershell -Command \"Get-CimInstance Win32_StartupCommand\" 2>/dev/null || echo 'Impossible de lister'", "bash", timeout_s=10),
  DominoStep("tts", "python:edge_tts_speak('Applications au demarrage listees.')", "python"),
  ],
  category="windows_system",
@@ -6160,16 +6159,115 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
  learning_context="Routeur de commandes Telegram: status, cycle, gpu, cluster, improve, dashboard, decisions, logs, boot, aide",
  priority="medium",
  ),
-]
-
+ DominoPipeline(
+ id="range_bureau_auto",
+ trigger_vocal=["range le bureau", "nettoie le bureau", "ordonne le bureau"],
+ steps=[
+ DominoStep("tidy", "tool:range_bureau", "python")
+ ],
+ category="system_maintenance",
+ description="Rangement complet et dédoublonnage du bureau",
+ learning_context="Maintenance système — rangement du bureau",
+ ),
+ DominoPipeline(
+ id="ferme_fenetre",
+ trigger_vocal=["ferme la fenetre", "ferme cette fenetre", "quitte la fenetre"],
+ steps=[
+ DominoStep("close", "bash:xdotool getwindowfocus windowclose", "bash")
+ ],
+ category="desktop_control",
+ description="Ferme la fenêtre active",
+ learning_context="Contrôle desktop — fermeture de fenêtre active",
+ ),
+ DominoPipeline(
+ id="capture_ecran",
+ trigger_vocal=["prends une capture d'ecran", "fais un screenshot", "capture l'ecran"],
+ steps=[
+ DominoStep("screenshot", "bash:gnome-screenshot -f ~/Bureau/Capture_$(date +%Y%m%d_%H%M%S).png", "bash")
+ ],
+ category="desktop_control",
+ description="Prend une capture d'écran et l'enregistre sur le bureau",
+ learning_context="Contrôle desktop — capture d'écran",
+ ),
+ DominoPipeline(
+ id="mode_nuit",
+ trigger_vocal=["active le mode nuit", "mode nuit", "filtre bleu"],
+ steps=[
+ DominoStep("night_mode", "bash:gsettings set org.gnome.settings-daemon.plugins.color night-light-enabled true", "bash")
+ ],
+ category="system_settings",
+ description="Active le mode nuit (filtre bleu)",
+ learning_context="Paramètres système — mode nuit",
+ ),
+ DominoPipeline(
+ id="mode_jour",
+ trigger_vocal=["active le mode jour", "mode jour", "desactive le mode nuit"],
+ steps=[
+ DominoStep("day_mode", "bash:gsettings set org.gnome.settings-daemon.plugins.color night-light-enabled false", "bash")
+ ],
+ category="system_settings",
+ description="Désactive le mode nuit",
+ learning_context="Paramètres système — mode jour",
+ ),
+ DominoPipeline(
+ id="nettoyage_systeme",
+ trigger_vocal=["nettoyage systeme", "nettoie le systeme", "purge les temporaires"],
+ steps=[
+ DominoStep("clean_tmp", "bash:rm -rf /tmp/*", "bash"),
+ DominoStep("apt_clean", "bash:sudo apt clean", "bash")
+ ],
+ category="system_maintenance",
+ description="Nettoyage des fichiers temporaires et du cache apt",
+ learning_context="Maintenance système — nettoyage /tmp et apt",
+ ),
+ DominoPipeline(
+  id="monte_volume",
+  trigger_vocal=["monte le son", "augmente le volume"],
+  steps=[DominoStep("vol_up", "bash:amixer set Master 10%+", "bash")],
+  category="system_control",
+  description="Augmente le volume de 10%",
+  learning_context="Contrôle du volume — augmenter"
+ ),
+ DominoPipeline(
+  id="baisse_volume",
+  trigger_vocal=["baisse le son", "diminue le volume"],
+  steps=[DominoStep("vol_down", "bash:amixer set Master 10%-", "bash")],
+  category="system_control",
+  description="Baisse le volume de 10%",
+  learning_context="Contrôle du volume — diminuer"
+ ),
+ DominoPipeline(
+  id="coupe_son",
+  trigger_vocal=["coupe le son", "muet", "active le son"],
+  steps=[DominoStep("vol_mute", "bash:amixer set Master toggle", "bash")],
+  category="system_control",
+  description="Coupe ou réactive le son",
+  learning_context="Contrôle du volume — muet"
+ ),
+ DominoPipeline(
+  id="liste_apps",
+  trigger_vocal=["liste les applications", "quelles sont les applications"],
+  steps=[DominoStep("ls_apps", "bash:ls /usr/share/applications | grep .desktop", "bash")],
+  category="system_info",
+  description="Liste les applications installées",
+  learning_context="Info système — applications"
+ ),
+ DominoPipeline(
+  id="status_batterie",
+  trigger_vocal=["etat de la batterie", "niveau de batterie"],
+  steps=[DominoStep("bat", "bash:upower -i $(upower -e | grep 'BAT') | grep -E 'state|percentage'", "bash")],
+  category="system_info",
+  description="Affiche l'état de la batterie",
+  learning_context="Info système — batterie"
+ ),
+ ]
 # Post-process: replace hardcoded paths with config-driven values
 for _pipeline in DOMINO_PIPELINES:
  for _step in _pipeline.steps:
- if "/home/turbo/jarvis-m1-ops" in _step.action:
- _step.action = _step.action.replace("/home/turbo/jarvis-m1-ops", _TURBO_DIR)
- if "/home/turbo/jarvis-m1-ops" in _step.action:
- _step.action = _step.action.replace("/home/turbo/jarvis-m1-ops", _TURBO_DIR_FWD)
-
+  if "/home/turbo/jarvis-m1-ops" in _step.action:
+   _step.action = _step.action.replace("/home/turbo/jarvis-m1-ops", _TURBO_DIR)
+  if "/home/turbo/jarvis-m1-ops" in _step.action:
+   _step.action = _step.action.replace("/home/turbo/jarvis-m1-ops", _TURBO_DIR_FWD)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # LEARNING DATASET — Scenarios d'apprentissage vocal pour fine-tuning
@@ -6180,15 +6278,15 @@ DOMINO_LEARNING_DATASET: list[dict] = []
 def _build_learning_dataset():
  """Genere le dataset d'apprentissage a partir des dominos definis."""
  for dp in DOMINO_PIPELINES:
- for trigger in dp.trigger_vocal:
- DOMINO_LEARNING_DATASET.append({
- "input": trigger,
- "output": f"domino:{dp.id}",
- "category": dp.category,
- "steps": [s.name for s in dp.steps],
- "context": dp.learning_context,
- "priority": dp.priority,
- })
+  for trigger in dp.trigger_vocal:
+   DOMINO_LEARNING_DATASET.append({
+    "input": trigger,
+    "output": f"domino:{dp.id}",
+    "category": dp.category,
+    "steps": [s.name for s in dp.steps],
+    "context": dp.learning_context,
+    "priority": dp.priority,
+   })
 
 _build_learning_dataset()
 
@@ -6207,38 +6305,38 @@ def find_domino(text: str) -> DominoPipeline | None:
  best_score = 0.0
 
  for dp in DOMINO_PIPELINES:
- # 1. Exact trigger match (highest priority)
- for trigger in dp.trigger_vocal:
- if text_lower == trigger.lower():
- return dp
+  # 1. Exact trigger match (highest priority)
+  for trigger in dp.trigger_vocal:
+   if text_lower == trigger.lower():
+    return dp
 
- # 2. Partial trigger match (containment)
- for trigger in dp.trigger_vocal:
- trig_lower = trigger.lower()
- if trig_lower in text_lower or text_lower in trig_lower:
- from difflib import SequenceMatcher
- score = SequenceMatcher(None, text_lower, trig_lower).ratio()
- if score > best_score and score > 0.6:
- best_score = score
- best_match = dp
+  # 2. Partial trigger match (containment)
+  for trigger in dp.trigger_vocal:
+   trig_lower = trigger.lower()
+   if trig_lower in text_lower or text_lower in trig_lower:
+    from difflib import SequenceMatcher
+    score = SequenceMatcher(None, text_lower, trig_lower).ratio()
+    if score > best_score and score > 0.6:
+     best_score = score
+     best_match = dp
 
- # 3. ID match (e.g. "domino_backup_complet" matches "backup complet")
- id_clean = dp.id.replace("domino_", "").replace("_", " ")
- if text_lower == id_clean or id_clean in text_lower:
- score = 0.75
- if score > best_score:
- best_score = score
- best_match = dp
+  # 3. ID match (e.g. "domino_backup_complet" matches "backup complet")
+  id_clean = dp.id.replace("domino_", "").replace("_", " ")
+  if text_lower == id_clean or id_clean in text_lower:
+   score = 0.75
+   if score > best_score:
+    best_score = score
+    best_match = dp
 
- # 4. Keyword match in description (lowest priority)
- text_words = set(text_lower.split())
- desc_words = set(dp.description.lower().split())
- common = text_words & desc_words - {"de", "du", "le", "la", "les", "un", "une", "des", "et", "en", "a"}
- if len(common) >= 2:
- keyword_score = len(common) / max(len(text_words), 1) * 0.65
- if keyword_score > best_score and keyword_score > 0.5:
- best_score = keyword_score
- best_match = dp
+  # 4. Keyword match in description (lowest priority)
+  text_words = set(text_lower.split())
+  desc_words = set(dp.description.lower().split())
+  common = text_words & desc_words - {"de", "du", "le", "la", "les", "un", "une", "des", "et", "en", "a"}
+  if len(common) >= 2:
+   keyword_score = len(common) / max(len(text_words), 1) * 0.65
+   if keyword_score > best_score and keyword_score > 0.5:
+    best_score = keyword_score
+    best_match = dp
 
  return best_match
 
@@ -6247,14 +6345,14 @@ def get_domino_stats() -> dict:
  """Retourne les statistiques des domino pipelines."""
  categories = {}
  for dp in DOMINO_PIPELINES:
- categories[dp.category] = categories.get(dp.category, 0) + 1
+  categories[dp.category] = categories.get(dp.category, 0) + 1
 
  return {
- "total_dominos": len(DOMINO_PIPELINES),
- "total_triggers": sum(len(dp.trigger_vocal) for dp in DOMINO_PIPELINES),
- "total_steps": sum(len(dp.steps) for dp in DOMINO_PIPELINES),
- "categories": categories,
- "learning_examples": len(DOMINO_LEARNING_DATASET),
- "critical_count": sum(1 for dp in DOMINO_PIPELINES if dp.priority == "critical"),
- "high_count": sum(1 for dp in DOMINO_PIPELINES if dp.priority == "high"),
+  "total_dominos": len(DOMINO_PIPELINES),
+  "total_triggers": sum(len(dp.trigger_vocal) for dp in DOMINO_PIPELINES),
+  "total_steps": sum(len(dp.steps) for dp in DOMINO_PIPELINES),
+  "categories": categories,
+  "learning_examples": len(DOMINO_LEARNING_DATASET),
+  "critical_count": sum(1 for dp in DOMINO_PIPELINES if dp.priority == "critical"),
+  "high_count": sum(1 for dp in DOMINO_PIPELINES if dp.priority == "high"),
  }
