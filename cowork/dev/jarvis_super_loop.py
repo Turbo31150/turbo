@@ -465,7 +465,7 @@ def cycle_repair(cycle_num):
     # 3. Check disk space
     try:
         import shutil
-        for drive in ["C:\\", "F:\\"]:
+        for drive in ["/\", "F:/"]:
             usage = shutil.disk_usage(drive)
             free_gb = usage.free / (1024**3)
             if free_gb < 10:

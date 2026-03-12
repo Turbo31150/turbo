@@ -123,7 +123,7 @@ class AutoAuditor:
     """Automated codebase audit engine."""
 
     def __init__(self, project_root: Path | None = None):
-        self._root = project_root or Path("F:/BUREAU/turbo")
+        self._root = project_root or Path("/home/turbo/jarvis-m1-ops")
         self._events: list[AuditEvent] = []
         self._reports: list[AuditReport] = []
         self._lock = threading.Lock()

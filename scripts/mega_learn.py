@@ -14,7 +14,7 @@ sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 WS = 'http://127.0.0.1:9742'
 IMPROVE = f'{WS}/api/self-improve/run'
 DISPATCH = f'{WS}/api/dispatch_engine/dispatch'
-DB_PATH = 'F:/BUREAU/turbo/data/etoile.db'
+DB_PATH = '/home/turbo/jarvis-m1-ops/data/etoile.db'
 
 TG_TOKEN = '8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw'
 TG_CHAT = '2010747443'
@@ -137,7 +137,7 @@ def call_cowork(p, to=15):
 
 OC_ENV = {**os.environ, "OPENCLAW_GATEWAY_PORT": "18789",
     "OPENCLAW_GATEWAY_TOKEN": "ae1cd158a0975c30e7712b274859e202896e7f67203de9d2"}
-OC_CWD = "C:\\Users\\franc\\.openclaw"
+OC_CWD = "/\Users/franc/.openclaw"
 OC_AGENTS = ["coding","fast-chat","deep-work","trading","m1-deep","ol1-fast",
     "recherche-synthese","debug-detective","creative-brainstorm","data-analyst"]
 _oc_sem = threading.Semaphore(2)
@@ -196,7 +196,7 @@ def call_openclaw(p, to=30):
 def call_gemini(p, to=120):
     with _gem_sem:
         out, err = _safe_subprocess(
-            ["node", "F:/BUREAU/turbo/gemini-proxy.js", "--json", p], timeout=to)
+            ["node", "/home/turbo/jarvis-m1-ops/gemini-proxy.js", "--json", p], timeout=to)
         if out.strip():
             try:
                 d = json.loads(out)
@@ -209,7 +209,7 @@ def call_gemini(p, to=120):
 def call_claude_proxy(p, to=40):
     with _claude_sem:
         out, err = _safe_subprocess(
-            ["node", "F:/BUREAU/turbo/claude-proxy.js", "--json", p], timeout=to)
+            ["node", "/home/turbo/jarvis-m1-ops/claude-proxy.js", "--json", p], timeout=to)
         if out.strip():
             try:
                 d = json.loads(out)

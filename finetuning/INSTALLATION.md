@@ -5,7 +5,7 @@ Guide complet pour mettre en place et utiliser le benchmark comparatif Qwen3-30B
 ## Structure créée
 
 ```
-F:\BUREAU\turbo\finetuning\
+/home/turbo/jarvis-m1-ops\finetuning\
 ├── benchmark.py                 # Script principal (1,300+ lignes)
 ├── analyze_results.py           # Analyseur de résultats
 ├── check_setup.py              # Vérification configuration
@@ -26,7 +26,7 @@ F:\BUREAU\turbo\finetuning\
 ## Étape 1 : Vérifier les dépendances
 
 ```bash
-cd F:\BUREAU\turbo
+cd /home/turbo/jarvis-m1-ops
 
 # Voir la configuration
 uv run python finetuning/check_setup.py
@@ -62,14 +62,14 @@ uv run python finetuning/quick_test.py
 
 ### Option A : Via PowerShell (recommandé)
 ```bash
-cd F:\BUREAU\turbo
+cd /home/turbo/jarvis-m1-ops
 uv run python finetuning/benchmark.py
 ```
 
 ### Option B : Via launcher Windows
 Double-cliquez sur:
 ```
-F:\BUREAU\turbo\finetuning\run_benchmark.bat
+/home/turbo/jarvis-m1-ops\finetuning\run_benchmark.bat
 ```
 
 ### Résultat attendu
@@ -115,7 +115,7 @@ uv run python finetuning/analyze_results.py
 Le script détecte automatiquement le dernier adaptateur LoRA créé:
 
 ```
-F:\BUREAU\turbo\finetuning\output\
+/home/turbo/jarvis-m1-ops\finetuning\output\
 ├── checkpoint-100/
 │   └── final/
 │       ├── adapter_config.json     ← Détecté automatiquement
@@ -130,7 +130,7 @@ F:\BUREAU\turbo\finetuning\output\
 Pour forcer un adaptateur spécifique, éditer:
 ```python
 # Dans benchmark.py, ligne ~80
-self.lora_adapter_path = Path("F:/BUREAU/turbo/finetuning/output/checkpoint-XXX/final")
+self.lora_adapter_path = Path("/home/turbo/jarvis-m1-ops/finetuning/output/checkpoint-XXX/final")
 ```
 
 ## Interprétation des résultats
@@ -193,12 +193,12 @@ uv pip install --force-reinstall transformers peft bitsandbytes scikit-learn
 
 Le script affichera:
 ```
-[AVERTISSEMENT] Aucun adaptateur LoRA trouvé dans F:\BUREAU\turbo\finetuning\output
+[AVERTISSEMENT] Aucun adaptateur LoRA trouvé dans /home/turbo/jarvis-m1-ops\finetuning\output
 [OK] Benchmark comparera le modèle de base uniquement
 ```
 
 **Solution:**
-1. Placer les adaptateurs dans: `F:\BUREAU\turbo\finetuning\output/final/`
+1. Placer les adaptateurs dans: `/home/turbo/jarvis-m1-ops\finetuning\output/final/`
 2. Vérifier `adapter_config.json` existe
 
 ### Problème: Benchmark très lent
@@ -322,7 +322,7 @@ Graphiques:
    - Si amélioration < 5%: Revoir stratégie
 
 2. **Intégrer au cluster**
-   - Copier adaptateur LoRA à `F:\BUREAU\turbo\cluster\models\qwen-lora\`
+   - Copier adaptateur LoRA à `/home/turbo/jarvis-m1-ops\cluster\models\qwen-lora\`
    - Mettre à jour `cluster_startup.py`
    - Relancer cluster
 

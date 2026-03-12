@@ -17,14 +17,14 @@ import requests
 from typing import Optional, Tuple
 
 # Configuration chemins
-GGUF_SOURCE_DIR = r"F:\BUREAU\turbo\finetuning\gguf"
+GGUF_SOURCE_DIR = r"/home/turbo/jarvis-m1-ops\finetuning\gguf"
 LMS_MODEL_DIR = r"F:\models lmsqtudio\jarvis-qwen3-8b-finetune"
-LMS_CLI = r"C:\Users\franc\.lmstudio\bin\lms.exe"
+LMS_CLI = r"/home/turbo\.lmstudio\bin\lms.exe"
 LMS_SERVER_URL = "http://127.0.0.1:1234"  # IMPORTANT: IP directe PAS localhost (IPv6 latence)
 MODEL_NAME = "jarvis-qwen3-8b-finetune"
 
 # Logs et rapports
-LOG_DIR = Path(r"F:\BUREAU\turbo\finetuning\logs")
+LOG_DIR = Path(r"/home/turbo/jarvis-m1-ops\finetuning\logs")
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 REPORT_FILE = LOG_DIR / f"deploy_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
 

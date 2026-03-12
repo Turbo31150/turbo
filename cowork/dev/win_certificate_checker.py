@@ -33,7 +33,7 @@ def init_db():
     return db
 
 
-def scan_cert_store(store="Cert:\\LocalMachine\\Root"):
+def scan_cert_store(store="Cert:/LocalMachine/Root"):
     certs = []
     try:
         out = subprocess.run(
@@ -73,8 +73,8 @@ def scan_cert_store(store="Cert:\\LocalMachine\\Root"):
 def do_scan():
     db = init_db()
     stores = {
-        "Root": "Cert:\\LocalMachine\\Root",
-        "My": "Cert:\\CurrentUser\\My",
+        "Root": "Cert:/LocalMachine/Root",
+        "My": "Cert:/CurrentUser/My",
     }
 
     all_certs = {}

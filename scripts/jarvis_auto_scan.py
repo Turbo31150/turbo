@@ -245,7 +245,7 @@ def scan_gpu() -> list[dict]:
 
 def scan_disk() -> list[dict]:
     issues: list[dict] = []
-    for drive in ("C:\\", "F:\\"):
+    for drive in ("/\", "F:/"):
         try:
             total, used, free = shutil.disk_usage(drive)
             free_gb = free / (1024 ** 3)

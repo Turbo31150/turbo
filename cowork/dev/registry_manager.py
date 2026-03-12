@@ -104,7 +104,7 @@ def main():
     sub = parser.add_subparsers(dest="command", required=True)
 
     p_read = sub.add_parser("read", help="Lire une valeur")
-    p_read.add_argument("key", help="Clé registre (ex: HKLM\\SOFTWARE\\...)")
+    p_read.add_argument("key", help="Clé registre (ex: HKLM/SOFTWARE/...)")
     p_read.add_argument("value_name", help="Nom de la valeur")
 
     p_write = sub.add_parser("write", help="Écrire une valeur")

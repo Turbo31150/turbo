@@ -7,7 +7,7 @@ import subprocess
 import time
 import sys
 
-TESTS_DIR = "F:/BUREAU/turbo/tests"
+TESTS_DIR = "/home/turbo/jarvis-m1-ops/tests"
 
 
 def run_pytest(tests_dir: str, extra_args: list = None) -> dict:
@@ -17,7 +17,7 @@ def run_pytest(tests_dir: str, extra_args: list = None) -> dict:
     try:
         result = subprocess.run(
             cmd, capture_output=True, text=True, timeout=300,
-            cwd="F:/BUREAU/turbo"
+            cwd="/home/turbo/jarvis-m1-ops"
         )
         return {
             "returncode": result.returncode,

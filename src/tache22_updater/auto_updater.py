@@ -20,7 +20,7 @@ import httpx
 import aiofiles
 
 # Configuration
-BASE_PATH = Path("F:\\BUREAU\\turbo")
+BASE_PATH = Path("F:/BUREAU/turbo")
 SRC_PATH = BASE_PATH / "src"
 BACKUP_PATH = BASE_PATH / "backups"
 DB_PATH = BASE_PATH / "jarvis.db"

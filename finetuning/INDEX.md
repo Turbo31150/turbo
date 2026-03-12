@@ -99,7 +99,7 @@ Configuration complète du benchmark
 Launcher Windows - Double-clic pour lancer
 
 ```batch
-cd F:\BUREAU\turbo
+cd /home/turbo/jarvis-m1-ops
 uv run python finetuning\benchmark.py
 ```
 
@@ -137,7 +137,7 @@ Index et guide de navigation
 
 ### 1️⃣ Vérification initiale (5 min)
 ```bash
-cd F:\BUREAU\turbo
+cd /home/turbo/jarvis-m1-ops
 uv run python finetuning/check_setup.py
 ```
 **Résultat attendu**: ✓ CONFIGURATION OK
@@ -258,7 +258,7 @@ Calcul: % de termes JARVIS trouvés dans réponse
 {
   "metadata": {
     "base_model": "Qwen/Qwen3-30B-A3B",
-    "lora_adapter": "F:/BUREAU/turbo/finetuning/output/.../final",
+    "lora_adapter": "/home/turbo/jarvis-m1-ops/finetuning/output/.../final",
     "device": "cuda",
     "timestamp": "2026-02-18T10:30:45.123456"
   },
@@ -308,7 +308,7 @@ Calcul: % de termes JARVIS trouvés dans réponse
 
 ### Répertoires clés
 ```
-F:\BUREAU\turbo\finetuning\
+/home/turbo/jarvis-m1-ops\finetuning\
 ├── Scripts: .py files
 ├── Config: .json files
 ├── Docs: .md files
@@ -323,7 +323,7 @@ F:\BUREAU\turbo\finetuning\
 - **Cache**: `~/.cache/huggingface/hub/`
 
 ### Adaptateurs LoRA
-- **Chemin**: `F:/BUREAU/turbo/finetuning/output/*/final/`
+- **Chemin**: `/home/turbo/jarvis-m1-ops/finetuning/output/*/final/`
 - **Détection**: Automatique (dernier dossier)
 - **Requis**: `adapter_config.json` + `adapter_model.bin`
 
@@ -333,7 +333,7 @@ F:\BUREAU\turbo\finetuning\
 
 ```bash
 # Aller au répertoire
-cd F:\BUREAU\turbo
+cd /home/turbo/jarvis-m1-ops
 
 # Vérifier configuration
 uv run python finetuning/check_setup.py

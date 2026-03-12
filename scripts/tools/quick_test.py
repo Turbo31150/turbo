@@ -1,7 +1,7 @@
 """Quick 1-cycle validation test."""
 import sys
 import os
-sys.path.insert(0, os.path.join("F:\\BUREAU\\turbo", "src"))
+sys.path.insert(0, os.path.join("F:/BUREAU/turbo", "src"))
 
 from scenarios import (
     SCENARIO_TEMPLATES, _simulate_match, init_db,

@@ -15,7 +15,7 @@ if __name__ == "__main__":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
-    os.chdir("F:/BUREAU/turbo")
+    os.chdir("/home/turbo/jarvis-m1-ops")
     sys.path.insert(0, ".")
 
 
@@ -128,7 +128,7 @@ def _test_cluster_compile():
     compile_ok = 0
     for f in files:
         try:
-            py_compile.compile(f"F:/BUREAU/turbo/{f}", doraise=True)
+            py_compile.compile(f"/home/turbo/jarvis-m1-ops/{f}", doraise=True)
             compile_ok += 1
         except py_compile.PyCompileError as e:
             print(f"  [!!] Compile error: {f}: {e}")

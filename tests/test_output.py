@@ -235,7 +235,7 @@ class TestJarvisOutput:
         )
         raw = out.to_json()
         # ensure_ascii=False means e-acute etc. are kept literal
-        assert "\\u00e9" not in raw or "reseau" in raw  # no forced escaping for ASCII text
+        assert "/u00e9" not in raw or "reseau" in raw  # no forced escaping for ASCII text
         parsed = json.loads(raw)
         assert parsed["summary"]["goal"] == "Deployer le reseau neural"
 

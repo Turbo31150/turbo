@@ -100,7 +100,7 @@ def get_master_volume():
         cmd = 'powershell -NoProfile -Command "try { $audio = New-Object -ComObject WScript.Shell; Write-Output \'volume_check_ok\' } catch { Write-Output \'no_com\' }"'
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=10, shell=True)
         # Alternative: nircmd approach or registry
-        cmd2 = 'powershell -NoProfile -Command "(Get-ItemProperty -Path \'HKCU:\\SOFTWARE\\Microsoft\\Multimedia\\Audio\' -ErrorAction SilentlyContinue) | ConvertTo-Json"'
+        cmd2 = 'powershell -NoProfile -Command "(Get-ItemProperty -Path \'HKCU:/SOFTWARE/Microsoft/Multimedia/Audio\' -ErrorAction SilentlyContinue) | ConvertTo-Json"'
         r2 = subprocess.run(cmd2, capture_output=True, text=True, timeout=10, shell=True)
         return {"status": "checked", "note": "Use Windows Volume Mixer for per-app control"}
     except Exception:

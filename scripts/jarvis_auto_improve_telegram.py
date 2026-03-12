@@ -8,7 +8,7 @@ import json, sqlite3
 from datetime import datetime
 from pathlib import Path
 
-DATA_DIR = Path("F:/BUREAU/turbo/data")
+DATA_DIR = Path("/home/turbo/jarvis-m1-ops/data")
 ETOILE_DB = DATA_DIR / "etoile.db"
 HEAL_DB = DATA_DIR / "auto_heal.db"
 

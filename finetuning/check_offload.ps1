@@ -1,4 +1,4 @@
-$offloadDir = "F:\BUREAU\turbo\finetuning\offload"
+$offloadDir = "/home/turbo/jarvis-m1-ops\finetuning\offload"
 if (Test-Path $offloadDir) {
     $files = Get-ChildItem $offloadDir
     $totalMB = [math]::Round(($files | Measure-Object Length -Sum).Sum / 1MB, 1)

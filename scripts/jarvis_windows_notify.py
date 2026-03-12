@@ -103,7 +103,7 @@ def poll_notifications():
             http_post("/api/notifications/ack", {"id": nid})
     return len(notifications)
 
-PID_FILE = Path("F:/BUREAU/turbo/data/pids/windows_notify.pid")
+PID_FILE = Path("/home/turbo/jarvis-m1-ops/data/pids/windows_notify.pid")
 
 def _acquire_singleton():
     """Ensure only one notification daemon runs. Kill existing if found."""

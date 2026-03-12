@@ -7,7 +7,7 @@ et verifie que le pipeline correction -> matching -> execution fonctionne.
 import asyncio
 import pytest
 import sys
-sys.path.insert(0, "F:/BUREAU/turbo")
+sys.path.insert(0, "/home/turbo/jarvis-m1-ops")
 
 from src.voice_correction import full_correction_pipeline
 from src.config import config

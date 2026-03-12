@@ -2,7 +2,7 @@
 import sys
 
 filepath = sys.argv[1] if len(sys.argv) > 1 else (
-    r"C:\Users\franc\AppData\Local\Temp\claude\C--Users-franc\tasks\b61f00b.output"
+    r"/home/turbo\AppData\Local\Temp\claude\C--Users-franc\tasks\b61f00b.output"
 )
 
 try:

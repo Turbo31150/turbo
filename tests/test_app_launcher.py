@@ -29,7 +29,7 @@ from src.app_launcher import (
 
 class TestAppEntry:
     def test_defaults(self):
-        a = AppEntry(name="notepad", path="C:\\Windows\\notepad.exe")
+        a = AppEntry(name="notepad", path="/\Windows/notepad.exe")
         assert a.args == []
         assert a.cwd is None
         assert a.group == "default"
@@ -56,14 +56,14 @@ class TestLaunchEvent:
 class TestRegistration:
     def test_register(self):
         al = AppLauncher()
-        app = al.register("notepad", "C:\\Windows\\notepad.exe", group="editors")
+        app = al.register("notepad", "/\Windows/notepad.exe", group="editors")
         assert app.name == "notepad"
         assert app.group == "editors"
         assert al.get("notepad") is app
 
     def test_register_with_args(self):
         al = AppLauncher()
-        app = al.register("code", "C:\\code.exe", args=["--new-window"])
+        app = al.register("code", "/\code.exe", args=["--new-window"])
         assert app.args == ["--new-window"]
 
     def test_unregister(self):
@@ -156,7 +156,7 @@ class TestLaunchPath:
         mock_proc = MagicMock()
         mock_proc.pid = 555
         with patch("subprocess.Popen", return_value=mock_proc):
-            result = al.launch_path("C:\\tools\\app.exe", args=["--flag"])
+            result = al.launch_path("/\tools/app.exe", args=["--flag"])
         assert result["success"] is True
         assert result["pid"] == 555
 

@@ -22,11 +22,11 @@ from src.usb_device_manager import (
 )
 
 DEVICES_JSON = json.dumps([
-    {"Name": "USB Mass Storage Device", "DeviceID": "USB\\VID_0781",
+    {"Name": "USB Mass Storage Device", "DeviceID": "USB/VID_0781",
      "Manufacturer": "SanDisk", "Status": "OK", "PNPClass": "USB"},
-    {"Name": "USB Composite Device", "DeviceID": "USB\\VID_046D",
+    {"Name": "USB Composite Device", "DeviceID": "USB/VID_046D",
      "Manufacturer": "Logitech", "Status": "OK", "PNPClass": "USB"},
-    {"Name": "USB Input Device", "DeviceID": "USB\\VID_046D",
+    {"Name": "USB Input Device", "DeviceID": "USB/VID_046D",
      "Manufacturer": "Logitech", "Status": "OK", "PNPClass": "HIDClass"},
 ])
 
@@ -56,7 +56,7 @@ class TestListDevices:
 
     def test_single_dict(self):
         um = USBDeviceManager()
-        data = json.dumps({"Name": "USB Hub", "DeviceID": "USB\\X",
+        data = json.dumps({"Name": "USB Hub", "DeviceID": "USB/X",
                            "Manufacturer": "", "Status": "OK", "PNPClass": "USB"})
         mock_result = MagicMock()
         mock_result.returncode = 0

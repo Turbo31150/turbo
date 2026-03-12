@@ -1405,7 +1405,7 @@
     1,
     "win_thermal_monitor",
     "PAT_CW_WIN_MONITORING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_thermal_monitor.py",
+    "F:/BUREAU/turbo/cowork/dev/win_thermal_monitor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1414,7 +1414,7 @@
     2,
     "win_memory_profiler",
     "PAT_CW_WIN_MONITORING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_memory_profiler.py",
+    "F:/BUREAU/turbo/cowork/dev/win_memory_profiler.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1423,7 +1423,7 @@
     3,
     "win_event_monitor",
     "PAT_CW_WIN_MONITORING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_event_monitor.py",
+    "F:/BUREAU/turbo/cowork/dev/win_event_monitor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1432,7 +1432,7 @@
     4,
     "win_event_watcher",
     "PAT_CW_WIN_MONITORING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_event_watcher.py",
+    "F:/BUREAU/turbo/cowork/dev/win_event_watcher.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1441,7 +1441,7 @@
     5,
     "win_io_analyzer",
     "PAT_CW_WIN_MONITORING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_io_analyzer.py",
+    "F:/BUREAU/turbo/cowork/dev/win_io_analyzer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1450,7 +1450,7 @@
     6,
     "win_performance_tuner",
     "PAT_CW_WIN_MONITORING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_performance_tuner.py",
+    "F:/BUREAU/turbo/cowork/dev/win_performance_tuner.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1459,7 +1459,7 @@
     7,
     "win_battery_monitor",
     "PAT_CW_WIN_MONITORING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_battery_monitor.py",
+    "F:/BUREAU/turbo/cowork/dev/win_battery_monitor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1468,7 +1468,7 @@
     8,
     "win_disk_analyzer",
     "PAT_CW_WIN_MONITORING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_disk_analyzer.py",
+    "F:/BUREAU/turbo/cowork/dev/win_disk_analyzer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1477,7 +1477,7 @@
     9,
     "gpu_thermal_guard",
     "PAT_CW_WIN_MONITORING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\gpu_thermal_guard.py",
+    "F:/BUREAU/turbo/cowork/dev/gpu_thermal_guard.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1486,7 +1486,7 @@
     10,
     "gpu_optimizer",
     "PAT_CW_WIN_MONITORING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\gpu_optimizer.py",
+    "F:/BUREAU/turbo/cowork/dev/gpu_optimizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1495,7 +1495,7 @@
     11,
     "win_app_usage_tracker",
     "PAT_CW_WIN_MONITORING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_app_usage_tracker.py",
+    "F:/BUREAU/turbo/cowork/dev/win_app_usage_tracker.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1504,7 +1504,7 @@
     12,
     "win_crash_analyzer",
     "PAT_CW_WIN_MONITORING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_crash_analyzer.py",
+    "F:/BUREAU/turbo/cowork/dev/win_crash_analyzer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1513,7 +1513,7 @@
     13,
     "win_network_analyzer",
     "PAT_CW_WIN_NETWORK",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_network_analyzer.py",
+    "F:/BUREAU/turbo/cowork/dev/win_network_analyzer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1522,7 +1522,7 @@
     14,
     "win_network_guard",
     "PAT_CW_WIN_NETWORK",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_network_guard.py",
+    "F:/BUREAU/turbo/cowork/dev/win_network_guard.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1531,7 +1531,7 @@
     15,
     "win_firewall_analyzer",
     "PAT_CW_WIN_NETWORK",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_firewall_analyzer.py",
+    "F:/BUREAU/turbo/cowork/dev/win_firewall_analyzer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1540,7 +1540,7 @@
     16,
     "win_firewall_manager",
     "PAT_CW_WIN_NETWORK",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_firewall_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/win_firewall_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1549,7 +1549,7 @@
     17,
     "win_wifi_analyzer",
     "PAT_CW_WIN_NETWORK",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_wifi_analyzer.py",
+    "F:/BUREAU/turbo/cowork/dev/win_wifi_analyzer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1558,7 +1558,7 @@
     18,
     "win_vpn_monitor",
     "PAT_CW_WIN_NETWORK",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_vpn_monitor.py",
+    "F:/BUREAU/turbo/cowork/dev/win_vpn_monitor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1567,7 +1567,7 @@
     19,
     "win_dns_cache_manager",
     "PAT_CW_WIN_NETWORK",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_dns_cache_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/win_dns_cache_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1576,7 +1576,7 @@
     20,
     "network_monitor",
     "PAT_CW_WIN_NETWORK",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\network_monitor.py",
+    "F:/BUREAU/turbo/cowork/dev/network_monitor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1585,7 +1585,7 @@
     21,
     "network_optimizer",
     "PAT_CW_WIN_NETWORK",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\network_optimizer.py",
+    "F:/BUREAU/turbo/cowork/dev/network_optimizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1594,7 +1594,7 @@
     22,
     "wifi_manager",
     "PAT_CW_WIN_NETWORK",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\wifi_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/wifi_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1603,7 +1603,7 @@
     23,
     "win_service_analyzer",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_service_analyzer.py",
+    "F:/BUREAU/turbo/cowork/dev/win_service_analyzer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1612,7 +1612,7 @@
     24,
     "win_service_monitor",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_service_monitor.py",
+    "F:/BUREAU/turbo/cowork/dev/win_service_monitor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1621,7 +1621,7 @@
     25,
     "win_service_watchdog",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_service_watchdog.py",
+    "F:/BUREAU/turbo/cowork/dev/win_service_watchdog.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1630,7 +1630,7 @@
     26,
     "win_process_analyzer",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_process_analyzer.py",
+    "F:/BUREAU/turbo/cowork/dev/win_process_analyzer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1639,7 +1639,7 @@
     27,
     "win_process_guardian",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_process_guardian.py",
+    "F:/BUREAU/turbo/cowork/dev/win_process_guardian.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1648,7 +1648,7 @@
     28,
     "win_registry_guard",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_registry_guard.py",
+    "F:/BUREAU/turbo/cowork/dev/win_registry_guard.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1657,7 +1657,7 @@
     29,
     "win_registry_guardian",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_registry_guardian.py",
+    "F:/BUREAU/turbo/cowork/dev/win_registry_guardian.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1666,7 +1666,7 @@
     30,
     "win_scheduled_task_auditor",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_scheduled_task_auditor.py",
+    "F:/BUREAU/turbo/cowork/dev/win_scheduled_task_auditor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1675,7 +1675,7 @@
     31,
     "win_startup_optimizer",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_startup_optimizer.py",
+    "F:/BUREAU/turbo/cowork/dev/win_startup_optimizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1684,7 +1684,7 @@
     32,
     "win_startup_profiler",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_startup_profiler.py",
+    "F:/BUREAU/turbo/cowork/dev/win_startup_profiler.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1693,7 +1693,7 @@
     33,
     "win_boot_optimizer",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_boot_optimizer.py",
+    "F:/BUREAU/turbo/cowork/dev/win_boot_optimizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1702,7 +1702,7 @@
     34,
     "win_driver_checker",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_driver_checker.py",
+    "F:/BUREAU/turbo/cowork/dev/win_driver_checker.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1711,7 +1711,7 @@
     35,
     "win_wsl_manager",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_wsl_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/win_wsl_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1720,7 +1720,7 @@
     36,
     "win_env_auditor",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_env_auditor.py",
+    "F:/BUREAU/turbo/cowork/dev/win_env_auditor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1729,7 +1729,7 @@
     37,
     "driver_checker",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\driver_checker.py",
+    "F:/BUREAU/turbo/cowork/dev/driver_checker.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1738,7 +1738,7 @@
     38,
     "process_manager",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\process_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/process_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1747,7 +1747,7 @@
     39,
     "service_watchdog",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\service_watchdog.py",
+    "F:/BUREAU/turbo/cowork/dev/service_watchdog.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1756,7 +1756,7 @@
     40,
     "service_watcher",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\service_watcher.py",
+    "F:/BUREAU/turbo/cowork/dev/service_watcher.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1765,7 +1765,7 @@
     41,
     "windows_service_hardener",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\windows_service_hardener.py",
+    "F:/BUREAU/turbo/cowork/dev/windows_service_hardener.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1774,7 +1774,7 @@
     42,
     "windows_integration_agent",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\windows_integration_agent.py",
+    "F:/BUREAU/turbo/cowork/dev/windows_integration_agent.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1783,7 +1783,7 @@
     43,
     "startup_manager",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\startup_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/startup_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1792,7 +1792,7 @@
     44,
     "scheduled_task_creator",
     "PAT_CW_WIN_SYSTEM",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\scheduled_task_creator.py",
+    "F:/BUREAU/turbo/cowork/dev/scheduled_task_creator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1801,7 +1801,7 @@
     45,
     "win_window_manager",
     "PAT_CW_WIN_DESKTOP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_window_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/win_window_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1810,7 +1810,7 @@
     46,
     "win_display_manager",
     "PAT_CW_WIN_DESKTOP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_display_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/win_display_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1819,7 +1819,7 @@
     47,
     "win_screen_analyzer",
     "PAT_CW_WIN_DESKTOP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_screen_analyzer.py",
+    "F:/BUREAU/turbo/cowork/dev/win_screen_analyzer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1828,7 +1828,7 @@
     48,
     "win_screen_recorder",
     "PAT_CW_WIN_DESKTOP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_screen_recorder.py",
+    "F:/BUREAU/turbo/cowork/dev/win_screen_recorder.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1837,7 +1837,7 @@
     49,
     "win_clipboard_history",
     "PAT_CW_WIN_DESKTOP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_clipboard_history.py",
+    "F:/BUREAU/turbo/cowork/dev/win_clipboard_history.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1846,7 +1846,7 @@
     50,
     "win_clipboard_ai",
     "PAT_CW_WIN_DESKTOP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_clipboard_ai.py",
+    "F:/BUREAU/turbo/cowork/dev/win_clipboard_ai.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1855,7 +1855,7 @@
     51,
     "win_audio_controller",
     "PAT_CW_WIN_DESKTOP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_audio_controller.py",
+    "F:/BUREAU/turbo/cowork/dev/win_audio_controller.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1864,7 +1864,7 @@
     52,
     "win_sound_mixer",
     "PAT_CW_WIN_DESKTOP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_sound_mixer.py",
+    "F:/BUREAU/turbo/cowork/dev/win_sound_mixer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1873,7 +1873,7 @@
     53,
     "win_virtual_desktop",
     "PAT_CW_WIN_DESKTOP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_virtual_desktop.py",
+    "F:/BUREAU/turbo/cowork/dev/win_virtual_desktop.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1882,7 +1882,7 @@
     54,
     "win_workspace_profiles",
     "PAT_CW_WIN_DESKTOP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_workspace_profiles.py",
+    "F:/BUREAU/turbo/cowork/dev/win_workspace_profiles.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1891,7 +1891,7 @@
     55,
     "win_focus_timer",
     "PAT_CW_WIN_DESKTOP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_focus_timer.py",
+    "F:/BUREAU/turbo/cowork/dev/win_focus_timer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1900,7 +1900,7 @@
     56,
     "win_hotkey_engine",
     "PAT_CW_WIN_DESKTOP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_hotkey_engine.py",
+    "F:/BUREAU/turbo/cowork/dev/win_hotkey_engine.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1909,7 +1909,7 @@
     57,
     "win_gesture_detector",
     "PAT_CW_WIN_DESKTOP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_gesture_detector.py",
+    "F:/BUREAU/turbo/cowork/dev/win_gesture_detector.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1918,7 +1918,7 @@
     58,
     "win_shortcut_manager",
     "PAT_CW_WIN_DESKTOP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_shortcut_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/win_shortcut_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1927,7 +1927,7 @@
     59,
     "win_context_menu",
     "PAT_CW_WIN_DESKTOP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_context_menu.py",
+    "F:/BUREAU/turbo/cowork/dev/win_context_menu.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1936,7 +1936,7 @@
     60,
     "window_manager",
     "PAT_CW_WIN_DESKTOP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\window_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/window_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1945,7 +1945,7 @@
     61,
     "display_manager",
     "PAT_CW_WIN_DESKTOP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\display_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/display_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1954,7 +1954,7 @@
     62,
     "audio_controller",
     "PAT_CW_WIN_DESKTOP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\audio_controller.py",
+    "F:/BUREAU/turbo/cowork/dev/audio_controller.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1963,7 +1963,7 @@
     63,
     "clipboard_history",
     "PAT_CW_WIN_DESKTOP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\clipboard_history.py",
+    "F:/BUREAU/turbo/cowork/dev/clipboard_history.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1972,7 +1972,7 @@
     64,
     "desktop_organizer",
     "PAT_CW_WIN_DESKTOP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\desktop_organizer.py",
+    "F:/BUREAU/turbo/cowork/dev/desktop_organizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1981,7 +1981,7 @@
     65,
     "desktop_workflow_builder",
     "PAT_CW_WIN_DESKTOP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\desktop_workflow_builder.py",
+    "F:/BUREAU/turbo/cowork/dev/desktop_workflow_builder.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1990,7 +1990,7 @@
     66,
     "win_backup",
     "PAT_CW_WIN_SECURITY",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_backup.py",
+    "F:/BUREAU/turbo/cowork/dev/win_backup.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -1999,7 +1999,7 @@
     67,
     "win_backup_manager",
     "PAT_CW_WIN_SECURITY",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_backup_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/win_backup_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2008,7 +2008,7 @@
     68,
     "win_defender_monitor",
     "PAT_CW_WIN_SECURITY",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_defender_monitor.py",
+    "F:/BUREAU/turbo/cowork/dev/win_defender_monitor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2017,7 +2017,7 @@
     69,
     "win_privacy_guard",
     "PAT_CW_WIN_SECURITY",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_privacy_guard.py",
+    "F:/BUREAU/turbo/cowork/dev/win_privacy_guard.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2026,7 +2026,7 @@
     70,
     "win_certificate_checker",
     "PAT_CW_WIN_SECURITY",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_certificate_checker.py",
+    "F:/BUREAU/turbo/cowork/dev/win_certificate_checker.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2035,7 +2035,7 @@
     71,
     "security_scanner",
     "PAT_CW_WIN_SECURITY",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\security_scanner.py",
+    "F:/BUREAU/turbo/cowork/dev/security_scanner.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2044,7 +2044,7 @@
     72,
     "win_system_restore_manager",
     "PAT_CW_WIN_SECURITY",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_system_restore_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/win_system_restore_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2053,7 +2053,7 @@
     73,
     "win_app_controller",
     "PAT_CW_WIN_AUTOMATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_app_controller.py",
+    "F:/BUREAU/turbo/cowork/dev/win_app_controller.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2062,7 +2062,7 @@
     74,
     "win_smart_launcher",
     "PAT_CW_WIN_AUTOMATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_smart_launcher.py",
+    "F:/BUREAU/turbo/cowork/dev/win_smart_launcher.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2071,7 +2071,7 @@
     75,
     "win_smart_launcher_v2",
     "PAT_CW_WIN_AUTOMATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_smart_launcher_v2.py",
+    "F:/BUREAU/turbo/cowork/dev/win_smart_launcher_v2.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2080,7 +2080,7 @@
     76,
     "win_quick_actions",
     "PAT_CW_WIN_AUTOMATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_quick_actions.py",
+    "F:/BUREAU/turbo/cowork/dev/win_quick_actions.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2089,7 +2089,7 @@
     77,
     "win_task_automator",
     "PAT_CW_WIN_AUTOMATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_task_automator.py",
+    "F:/BUREAU/turbo/cowork/dev/win_task_automator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2098,7 +2098,7 @@
     78,
     "win_task_scheduler_pro",
     "PAT_CW_WIN_AUTOMATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_task_scheduler_pro.py",
+    "F:/BUREAU/turbo/cowork/dev/win_task_scheduler_pro.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2107,7 +2107,7 @@
     79,
     "smart_launcher",
     "PAT_CW_WIN_AUTOMATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\smart_launcher.py",
+    "F:/BUREAU/turbo/cowork/dev/smart_launcher.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2116,7 +2116,7 @@
     80,
     "task_automator",
     "PAT_CW_WIN_AUTOMATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\task_automator.py",
+    "F:/BUREAU/turbo/cowork/dev/task_automator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2125,7 +2125,7 @@
     81,
     "win_optimizer",
     "PAT_CW_WIN_MAINTENANCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_optimizer.py",
+    "F:/BUREAU/turbo/cowork/dev/win_optimizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2134,7 +2134,7 @@
     82,
     "win_temp_cleaner",
     "PAT_CW_WIN_MAINTENANCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_temp_cleaner.py",
+    "F:/BUREAU/turbo/cowork/dev/win_temp_cleaner.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2143,7 +2143,7 @@
     83,
     "win_defrag_scheduler",
     "PAT_CW_WIN_MAINTENANCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_defrag_scheduler.py",
+    "F:/BUREAU/turbo/cowork/dev/win_defrag_scheduler.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2152,7 +2152,7 @@
     84,
     "win_pagefile_optimizer",
     "PAT_CW_WIN_MAINTENANCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_pagefile_optimizer.py",
+    "F:/BUREAU/turbo/cowork/dev/win_pagefile_optimizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2161,7 +2161,7 @@
     85,
     "win_power_optimizer",
     "PAT_CW_WIN_MAINTENANCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_power_optimizer.py",
+    "F:/BUREAU/turbo/cowork/dev/win_power_optimizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2170,7 +2170,7 @@
     86,
     "win_power_plan_manager",
     "PAT_CW_WIN_MAINTENANCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_power_plan_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/win_power_plan_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2179,7 +2179,7 @@
     87,
     "win_update_tracker",
     "PAT_CW_WIN_MAINTENANCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_update_tracker.py",
+    "F:/BUREAU/turbo/cowork/dev/win_update_tracker.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2188,7 +2188,7 @@
     88,
     "win_recycle_bin_manager",
     "PAT_CW_WIN_MAINTENANCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_recycle_bin_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/win_recycle_bin_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2197,7 +2197,7 @@
     89,
     "power_manager",
     "PAT_CW_WIN_MAINTENANCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\power_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/power_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2206,7 +2206,7 @@
     90,
     "system_restore",
     "PAT_CW_WIN_MAINTENANCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\system_restore.py",
+    "F:/BUREAU/turbo/cowork/dev/system_restore.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2215,7 +2215,7 @@
     91,
     "win_media_organizer",
     "PAT_CW_WIN_MEDIA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_media_organizer.py",
+    "F:/BUREAU/turbo/cowork/dev/win_media_organizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2224,7 +2224,7 @@
     92,
     "win_font_manager",
     "PAT_CW_WIN_MEDIA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_font_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/win_font_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2233,7 +2233,7 @@
     93,
     "win_printer_manager",
     "PAT_CW_WIN_MEDIA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_printer_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/win_printer_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2242,7 +2242,7 @@
     94,
     "win_notification_ai",
     "PAT_CW_WIN_MEDIA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_notification_ai.py",
+    "F:/BUREAU/turbo/cowork/dev/win_notification_ai.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2251,7 +2251,7 @@
     95,
     "win_game_mode_manager",
     "PAT_CW_WIN_MEDIA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_game_mode_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/win_game_mode_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2260,7 +2260,7 @@
     96,
     "win_peripheral_manager",
     "PAT_CW_WIN_MEDIA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_peripheral_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/win_peripheral_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2269,7 +2269,7 @@
     97,
     "win_tts",
     "PAT_CW_WIN_MEDIA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_tts.py",
+    "F:/BUREAU/turbo/cowork/dev/win_tts.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2278,7 +2278,7 @@
     98,
     "win_ai_copilot",
     "PAT_CW_WIN_MEDIA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_ai_copilot.py",
+    "F:/BUREAU/turbo/cowork/dev/win_ai_copilot.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2287,7 +2287,7 @@
     99,
     "win_copilot_bridge",
     "PAT_CW_WIN_MEDIA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_copilot_bridge.py",
+    "F:/BUREAU/turbo/cowork/dev/win_copilot_bridge.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2296,7 +2296,7 @@
     100,
     "win_accessibility_enhancer",
     "PAT_CW_WIN_MEDIA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_accessibility_enhancer.py",
+    "F:/BUREAU/turbo/cowork/dev/win_accessibility_enhancer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2305,7 +2305,7 @@
     101,
     "win_notify",
     "PAT_CW_WIN_MEDIA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_notify.py",
+    "F:/BUREAU/turbo/cowork/dev/win_notify.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2314,7 +2314,7 @@
     102,
     "bluetooth_manager",
     "PAT_CW_WIN_MEDIA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\bluetooth_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/bluetooth_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2323,7 +2323,7 @@
     103,
     "usb_monitor",
     "PAT_CW_WIN_MEDIA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\usb_monitor.py",
+    "F:/BUREAU/turbo/cowork/dev/usb_monitor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2332,7 +2332,7 @@
     104,
     "file_organizer",
     "PAT_CW_WIN_MEDIA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\file_organizer.py",
+    "F:/BUREAU/turbo/cowork/dev/file_organizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2341,7 +2341,7 @@
     105,
     "screenshot_tool",
     "PAT_CW_WIN_MEDIA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\screenshot_tool.py",
+    "F:/BUREAU/turbo/cowork/dev/screenshot_tool.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2350,7 +2350,7 @@
     106,
     "jarvis_state_machine",
     "PAT_CW_JARVIS_CORE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_state_machine.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_state_machine.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2359,7 +2359,7 @@
     107,
     "jarvis_config_center",
     "PAT_CW_JARVIS_CORE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_config_center.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_config_center.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2368,7 +2368,7 @@
     108,
     "jarvis_config_validator",
     "PAT_CW_JARVIS_CORE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_config_validator.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_config_validator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2377,7 +2377,7 @@
     109,
     "jarvis_rule_engine",
     "PAT_CW_JARVIS_CORE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_rule_engine.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_rule_engine.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2386,7 +2386,7 @@
     110,
     "jarvis_plugin_tester",
     "PAT_CW_JARVIS_CORE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_plugin_tester.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_plugin_tester.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2395,7 +2395,7 @@
     111,
     "jarvis_template_engine",
     "PAT_CW_JARVIS_CORE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_template_engine.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_template_engine.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2404,7 +2404,7 @@
     112,
     "jarvis_preloader",
     "PAT_CW_JARVIS_CORE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_preloader.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_preloader.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2413,7 +2413,7 @@
     113,
     "jarvis_api_gateway",
     "PAT_CW_JARVIS_CORE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_api_gateway.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_api_gateway.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2422,7 +2422,7 @@
     114,
     "config_validator",
     "PAT_CW_JARVIS_CORE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\config_validator.py",
+    "F:/BUREAU/turbo/cowork/dev/config_validator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2431,7 +2431,7 @@
     115,
     "jarvis_wake_word_tuner",
     "PAT_CW_JARVIS_VOICE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_wake_word_tuner.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_wake_word_tuner.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2440,7 +2440,7 @@
     116,
     "jarvis_voice_profile",
     "PAT_CW_JARVIS_VOICE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_voice_profile.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_voice_profile.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2449,7 +2449,7 @@
     117,
     "jarvis_voice_trainer",
     "PAT_CW_JARVIS_VOICE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_voice_trainer.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_voice_trainer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2458,7 +2458,7 @@
     118,
     "jarvis_dictation_mode",
     "PAT_CW_JARVIS_VOICE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_dictation_mode.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_dictation_mode.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2467,7 +2467,7 @@
     119,
     "jarvis_tts_cache_manager",
     "PAT_CW_JARVIS_VOICE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_tts_cache_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_tts_cache_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2476,7 +2476,7 @@
     120,
     "tts_cache_manager",
     "PAT_CW_JARVIS_VOICE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\tts_cache_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/tts_cache_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2485,7 +2485,7 @@
     121,
     "voice_enhancer",
     "PAT_CW_JARVIS_VOICE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\voice_enhancer.py",
+    "F:/BUREAU/turbo/cowork/dev/voice_enhancer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2494,7 +2494,7 @@
     122,
     "voice_gap_filler",
     "PAT_CW_JARVIS_VOICE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\voice_gap_filler.py",
+    "F:/BUREAU/turbo/cowork/dev/voice_gap_filler.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2503,7 +2503,7 @@
     123,
     "voice_pipeline_optimizer",
     "PAT_CW_JARVIS_VOICE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\voice_pipeline_optimizer.py",
+    "F:/BUREAU/turbo/cowork/dev/voice_pipeline_optimizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2512,7 +2512,7 @@
     124,
     "voice_browser_nav",
     "PAT_CW_JARVIS_VOICE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\voice_browser_nav.py",
+    "F:/BUREAU/turbo/cowork/dev/voice_browser_nav.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2521,7 +2521,7 @@
     125,
     "voice_trainer",
     "PAT_CW_JARVIS_VOICE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\voice_trainer.py",
+    "F:/BUREAU/turbo/cowork/dev/voice_trainer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2530,7 +2530,7 @@
     126,
     "domino_executor",
     "PAT_CW_JARVIS_VOICE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\domino_executor.py",
+    "F:/BUREAU/turbo/cowork/dev/domino_executor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2539,7 +2539,7 @@
     127,
     "jarvis_nlp_enhancer",
     "PAT_CW_JARVIS_NLP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_nlp_enhancer.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_nlp_enhancer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2548,7 +2548,7 @@
     128,
     "jarvis_intent_classifier",
     "PAT_CW_JARVIS_NLP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_intent_classifier.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_intent_classifier.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2557,7 +2557,7 @@
     129,
     "jarvis_intent_predictor",
     "PAT_CW_JARVIS_NLP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_intent_predictor.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_intent_predictor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2566,7 +2566,7 @@
     130,
     "jarvis_intent_router",
     "PAT_CW_JARVIS_NLP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_intent_router.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_intent_router.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2575,7 +2575,7 @@
     131,
     "jarvis_sentiment_analyzer",
     "PAT_CW_JARVIS_NLP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_sentiment_analyzer.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_sentiment_analyzer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2584,7 +2584,7 @@
     132,
     "jarvis_conversation_analyzer",
     "PAT_CW_JARVIS_NLP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_conversation_analyzer.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_conversation_analyzer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2593,7 +2593,7 @@
     133,
     "jarvis_conversation_memory",
     "PAT_CW_JARVIS_NLP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_conversation_memory.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_conversation_memory.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2602,7 +2602,7 @@
     134,
     "jarvis_dialog_manager",
     "PAT_CW_JARVIS_NLP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_dialog_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_dialog_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2611,7 +2611,7 @@
     135,
     "jarvis_multi_language",
     "PAT_CW_JARVIS_NLP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_multi_language.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_multi_language.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2620,7 +2620,7 @@
     136,
     "jarvis_personality_engine",
     "PAT_CW_JARVIS_NLP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_personality_engine.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_personality_engine.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2629,7 +2629,7 @@
     137,
     "intent_classifier",
     "PAT_CW_JARVIS_NLP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\intent_classifier.py",
+    "F:/BUREAU/turbo/cowork/dev/intent_classifier.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2638,7 +2638,7 @@
     138,
     "conversation_manager",
     "PAT_CW_JARVIS_NLP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\conversation_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/conversation_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2647,7 +2647,7 @@
     139,
     "ai_conversation",
     "PAT_CW_JARVIS_NLP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ai_conversation.py",
+    "F:/BUREAU/turbo/cowork/dev/ai_conversation.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2656,7 +2656,7 @@
     140,
     "interaction_predictor",
     "PAT_CW_JARVIS_NLP",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\interaction_predictor.py",
+    "F:/BUREAU/turbo/cowork/dev/interaction_predictor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2665,7 +2665,7 @@
     141,
     "jarvis_backup_manager",
     "PAT_CW_JARVIS_DEVOPS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_backup_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_backup_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2674,7 +2674,7 @@
     142,
     "jarvis_changelog_generator",
     "PAT_CW_JARVIS_DEVOPS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_changelog_generator.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_changelog_generator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2683,7 +2683,7 @@
     143,
     "jarvis_permission_auditor",
     "PAT_CW_JARVIS_DEVOPS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_permission_auditor.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_permission_auditor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2692,7 +2692,7 @@
     144,
     "jarvis_secret_scanner",
     "PAT_CW_JARVIS_DEVOPS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_secret_scanner.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_secret_scanner.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2701,7 +2701,7 @@
     145,
     "jarvis_code_auditor",
     "PAT_CW_JARVIS_DEVOPS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_code_auditor.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_code_auditor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2710,7 +2710,7 @@
     146,
     "jarvis_db_migrator",
     "PAT_CW_JARVIS_DEVOPS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_db_migrator.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_db_migrator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2719,7 +2719,7 @@
     147,
     "jarvis_release_manager",
     "PAT_CW_JARVIS_DEVOPS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_release_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_release_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2728,7 +2728,7 @@
     148,
     "jarvis_self_test_suite",
     "PAT_CW_JARVIS_DEVOPS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_self_test_suite.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_self_test_suite.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2737,7 +2737,7 @@
     149,
     "jarvis_dependency_mapper",
     "PAT_CW_JARVIS_DEVOPS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_dependency_mapper.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_dependency_mapper.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2746,7 +2746,7 @@
     150,
     "jarvis_update_checker",
     "PAT_CW_JARVIS_DEVOPS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_update_checker.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_update_checker.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2755,7 +2755,7 @@
     151,
     "deployment_manager",
     "PAT_CW_JARVIS_DEVOPS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\deployment_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/deployment_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2764,7 +2764,7 @@
     152,
     "jarvis_pattern_learner",
     "PAT_CW_JARVIS_INTELLIGENCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_pattern_learner.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_pattern_learner.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2773,7 +2773,7 @@
     153,
     "jarvis_pattern_miner",
     "PAT_CW_JARVIS_INTELLIGENCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_pattern_miner.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_pattern_miner.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2782,7 +2782,7 @@
     154,
     "jarvis_response_cache",
     "PAT_CW_JARVIS_INTELLIGENCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_response_cache.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_response_cache.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2791,7 +2791,7 @@
     155,
     "jarvis_response_profiler",
     "PAT_CW_JARVIS_INTELLIGENCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_response_profiler.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_response_profiler.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2800,7 +2800,7 @@
     156,
     "jarvis_ab_tester",
     "PAT_CW_JARVIS_INTELLIGENCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_ab_tester.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_ab_tester.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2809,7 +2809,7 @@
     157,
     "jarvis_command_predictor",
     "PAT_CW_JARVIS_INTELLIGENCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_command_predictor.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_command_predictor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2818,7 +2818,7 @@
     158,
     "jarvis_brain",
     "PAT_CW_JARVIS_INTELLIGENCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_brain.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_brain.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2827,7 +2827,7 @@
     159,
     "jarvis_memory_optimizer",
     "PAT_CW_JARVIS_INTELLIGENCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_memory_optimizer.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_memory_optimizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2836,7 +2836,7 @@
     160,
     "jarvis_embedding_engine",
     "PAT_CW_JARVIS_INTELLIGENCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_embedding_engine.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_embedding_engine.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2845,7 +2845,7 @@
     161,
     "jarvis_context_engine",
     "PAT_CW_JARVIS_INTELLIGENCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_context_engine.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_context_engine.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2854,7 +2854,7 @@
     162,
     "context_engine",
     "PAT_CW_JARVIS_INTELLIGENCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\context_engine.py",
+    "F:/BUREAU/turbo/cowork/dev/context_engine.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2863,7 +2863,7 @@
     163,
     "prediction_trainer",
     "PAT_CW_JARVIS_INTELLIGENCE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\prediction_trainer.py",
+    "F:/BUREAU/turbo/cowork/dev/prediction_trainer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2872,7 +2872,7 @@
     164,
     "jarvis_cron_optimizer",
     "PAT_CW_JARVIS_PIPES",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_cron_optimizer.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_cron_optimizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2881,7 +2881,7 @@
     165,
     "jarvis_macro_recorder",
     "PAT_CW_JARVIS_PIPES",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_macro_recorder.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_macro_recorder.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2890,7 +2890,7 @@
     166,
     "jarvis_webhook_manager",
     "PAT_CW_JARVIS_PIPES",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_webhook_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_webhook_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2899,7 +2899,7 @@
     167,
     "jarvis_webhook_server",
     "PAT_CW_JARVIS_PIPES",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_webhook_server.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_webhook_server.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2908,7 +2908,7 @@
     168,
     "jarvis_event_stream",
     "PAT_CW_JARVIS_PIPES",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_event_stream.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_event_stream.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2917,7 +2917,7 @@
     169,
     "jarvis_notification_hub",
     "PAT_CW_JARVIS_PIPES",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_notification_hub.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_notification_hub.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2926,7 +2926,7 @@
     170,
     "jarvis_notification_router",
     "PAT_CW_JARVIS_PIPES",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_notification_router.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_notification_router.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2935,7 +2935,7 @@
     171,
     "jarvis_message_router",
     "PAT_CW_JARVIS_PIPES",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_message_router.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_message_router.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2944,7 +2944,7 @@
     172,
     "jarvis_pipeline_monitor",
     "PAT_CW_JARVIS_PIPES",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_pipeline_monitor.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_pipeline_monitor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2953,7 +2953,7 @@
     173,
     "event_bus_monitor",
     "PAT_CW_JARVIS_PIPES",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\event_bus_monitor.py",
+    "F:/BUREAU/turbo/cowork/dev/event_bus_monitor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2962,7 +2962,7 @@
     174,
     "event_logger",
     "PAT_CW_JARVIS_PIPES",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\event_logger.py",
+    "F:/BUREAU/turbo/cowork/dev/event_logger.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2971,7 +2971,7 @@
     175,
     "notification_hub",
     "PAT_CW_JARVIS_PIPES",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\notification_hub.py",
+    "F:/BUREAU/turbo/cowork/dev/notification_hub.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2980,7 +2980,7 @@
     176,
     "pipeline_orchestrator",
     "PAT_CW_JARVIS_PIPES",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\pipeline_orchestrator.py",
+    "F:/BUREAU/turbo/cowork/dev/pipeline_orchestrator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2989,7 +2989,7 @@
     177,
     "smart_cron_manager",
     "PAT_CW_JARVIS_PIPES",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\smart_cron_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/smart_cron_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -2998,7 +2998,7 @@
     178,
     "jarvis_self_evolve",
     "PAT_CW_JARVIS_EVOLVE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_self_evolve.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_self_evolve.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3007,7 +3007,7 @@
     179,
     "jarvis_self_improve",
     "PAT_CW_JARVIS_EVOLVE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_self_improve.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_self_improve.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3016,7 +3016,7 @@
     180,
     "jarvis_self_improver",
     "PAT_CW_JARVIS_EVOLVE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_self_improver.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_self_improver.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3025,7 +3025,7 @@
     181,
     "jarvis_evolution_engine",
     "PAT_CW_JARVIS_EVOLVE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_evolution_engine.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_evolution_engine.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3034,7 +3034,7 @@
     182,
     "jarvis_skill_generator",
     "PAT_CW_JARVIS_EVOLVE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_skill_generator.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_skill_generator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3043,7 +3043,7 @@
     183,
     "jarvis_skill_recommender",
     "PAT_CW_JARVIS_EVOLVE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_skill_recommender.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_skill_recommender.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3052,7 +3052,7 @@
     184,
     "jarvis_feature_builder",
     "PAT_CW_JARVIS_EVOLVE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_feature_builder.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_feature_builder.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3061,7 +3061,7 @@
     185,
     "jarvis_autonomy_engine",
     "PAT_CW_JARVIS_EVOLVE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_autonomy_engine.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_autonomy_engine.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3070,7 +3070,7 @@
     186,
     "jarvis_autonomy_monitor",
     "PAT_CW_JARVIS_EVOLVE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_autonomy_monitor.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_autonomy_monitor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3079,7 +3079,7 @@
     187,
     "jarvis_night_ops",
     "PAT_CW_JARVIS_EVOLVE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_night_ops.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_night_ops.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3088,7 +3088,7 @@
     188,
     "self_feeding_engine",
     "PAT_CW_JARVIS_EVOLVE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\self_feeding_engine.py",
+    "F:/BUREAU/turbo/cowork/dev/self_feeding_engine.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3097,7 +3097,7 @@
     189,
     "self_improver",
     "PAT_CW_JARVIS_EVOLVE",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\self_improver.py",
+    "F:/BUREAU/turbo/cowork/dev/self_improver.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3106,7 +3106,7 @@
     190,
     "jarvis_meta_dashboard",
     "PAT_CW_JARVIS_DASHBOARD",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_meta_dashboard.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_meta_dashboard.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3115,7 +3115,7 @@
     191,
     "jarvis_health_aggregator",
     "PAT_CW_JARVIS_DASHBOARD",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_health_aggregator.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_health_aggregator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3124,7 +3124,7 @@
     192,
     "jarvis_usage_analytics",
     "PAT_CW_JARVIS_DASHBOARD",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_usage_analytics.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_usage_analytics.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3133,7 +3133,7 @@
     193,
     "jarvis_performance_tracker",
     "PAT_CW_JARVIS_DASHBOARD",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_performance_tracker.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_performance_tracker.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3142,7 +3142,7 @@
     194,
     "jarvis_roi_calculator",
     "PAT_CW_JARVIS_DASHBOARD",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_roi_calculator.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_roi_calculator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3151,7 +3151,7 @@
     195,
     "jarvis_daily_briefing",
     "PAT_CW_JARVIS_DASHBOARD",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_daily_briefing.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_daily_briefing.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3160,7 +3160,7 @@
     196,
     "jarvis_ecosystem_map",
     "PAT_CW_JARVIS_DASHBOARD",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_ecosystem_map.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_ecosystem_map.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3169,7 +3169,7 @@
     197,
     "jarvis_orchestrator_v3",
     "PAT_CW_JARVIS_DASHBOARD",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_orchestrator_v3.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_orchestrator_v3.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3178,7 +3178,7 @@
     198,
     "jarvis_log_analyzer",
     "PAT_CW_JARVIS_DASHBOARD",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_log_analyzer.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_log_analyzer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3187,7 +3187,7 @@
     199,
     "jarvis_data_exporter",
     "PAT_CW_JARVIS_DASHBOARD",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_data_exporter.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_data_exporter.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3196,7 +3196,7 @@
     200,
     "jarvis_telegram_enhanced",
     "PAT_CW_JARVIS_DASHBOARD",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_telegram_enhanced.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_telegram_enhanced.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3205,7 +3205,7 @@
     201,
     "jarvis_faq_builder",
     "PAT_CW_JARVIS_DASHBOARD",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_faq_builder.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_faq_builder.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3214,7 +3214,7 @@
     202,
     "jarvis_wiki_engine",
     "PAT_CW_JARVIS_DASHBOARD",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_wiki_engine.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_wiki_engine.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3223,7 +3223,7 @@
     203,
     "dashboard_generator",
     "PAT_CW_JARVIS_DASHBOARD",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\dashboard_generator.py",
+    "F:/BUREAU/turbo/cowork/dev/dashboard_generator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3232,7 +3232,7 @@
     204,
     "usage_analytics",
     "PAT_CW_JARVIS_DASHBOARD",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\usage_analytics.py",
+    "F:/BUREAU/turbo/cowork/dev/usage_analytics.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3241,7 +3241,7 @@
     205,
     "ia_code_generator",
     "PAT_CW_IA_GENERATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_code_generator.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_code_generator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3250,7 +3250,7 @@
     206,
     "ia_code_generator_v2",
     "PAT_CW_IA_GENERATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_code_generator_v2.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_code_generator_v2.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3259,7 +3259,7 @@
     207,
     "ia_doc_writer",
     "PAT_CW_IA_GENERATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_doc_writer.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_doc_writer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3268,7 +3268,7 @@
     208,
     "ia_doc_generator",
     "PAT_CW_IA_GENERATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_doc_generator.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_doc_generator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3277,7 +3277,7 @@
     209,
     "ia_test_writer",
     "PAT_CW_IA_GENERATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_test_writer.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_test_writer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3286,7 +3286,7 @@
     210,
     "ia_test_generator",
     "PAT_CW_IA_GENERATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_test_generator.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_test_generator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3295,7 +3295,7 @@
     211,
     "ia_story_generator",
     "PAT_CW_IA_GENERATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_story_generator.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_story_generator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3304,7 +3304,7 @@
     212,
     "ia_image_prompt_crafter",
     "PAT_CW_IA_GENERATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_image_prompt_crafter.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_image_prompt_crafter.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3313,7 +3313,7 @@
     213,
     "ia_data_synthesizer",
     "PAT_CW_IA_GENERATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_data_synthesizer.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_data_synthesizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3322,7 +3322,7 @@
     214,
     "ia_autonomous_coder",
     "PAT_CW_IA_GENERATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_autonomous_coder.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_autonomous_coder.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3331,7 +3331,7 @@
     215,
     "code_generator",
     "PAT_CW_IA_GENERATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\code_generator.py",
+    "F:/BUREAU/turbo/cowork/dev/code_generator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3340,7 +3340,7 @@
     216,
     "generate_docstrings",
     "PAT_CW_IA_GENERATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\generate_docstrings.py",
+    "F:/BUREAU/turbo/cowork/dev/generate_docstrings.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3349,7 +3349,7 @@
     217,
     "ia_prompt_optimizer",
     "PAT_CW_IA_OPTIMIZATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_prompt_optimizer.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_prompt_optimizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3358,7 +3358,7 @@
     218,
     "ia_meta_optimizer",
     "PAT_CW_IA_OPTIMIZATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_meta_optimizer.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_meta_optimizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3367,7 +3367,7 @@
     219,
     "ia_cost_tracker",
     "PAT_CW_IA_OPTIMIZATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_cost_tracker.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_cost_tracker.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3376,7 +3376,7 @@
     220,
     "ia_routing_optimizer",
     "PAT_CW_IA_OPTIMIZATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_routing_optimizer.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_routing_optimizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3385,7 +3385,7 @@
     221,
     "ia_weight_calibrator",
     "PAT_CW_IA_OPTIMIZATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_weight_calibrator.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_weight_calibrator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3394,7 +3394,7 @@
     222,
     "ia_inference_profiler",
     "PAT_CW_IA_OPTIMIZATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_inference_profiler.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_inference_profiler.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3403,7 +3403,7 @@
     223,
     "ia_model_cache_manager",
     "PAT_CW_IA_OPTIMIZATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_model_cache_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_model_cache_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3412,7 +3412,7 @@
     224,
     "ia_model_benchmarker",
     "PAT_CW_IA_OPTIMIZATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_model_benchmarker.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_model_benchmarker.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3421,7 +3421,7 @@
     225,
     "ia_workload_balancer",
     "PAT_CW_IA_OPTIMIZATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_workload_balancer.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_workload_balancer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3430,7 +3430,7 @@
     226,
     "ia_usage_predictor",
     "PAT_CW_IA_OPTIMIZATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_usage_predictor.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_usage_predictor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3439,7 +3439,7 @@
     227,
     "prompt_optimizer",
     "PAT_CW_IA_OPTIMIZATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\prompt_optimizer.py",
+    "F:/BUREAU/turbo/cowork/dev/prompt_optimizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3448,7 +3448,7 @@
     228,
     "response_evaluator",
     "PAT_CW_IA_OPTIMIZATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\response_evaluator.py",
+    "F:/BUREAU/turbo/cowork/dev/response_evaluator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3457,7 +3457,7 @@
     229,
     "ia_self_critic",
     "PAT_CW_IA_LEARNING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_self_critic.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_self_critic.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3466,7 +3466,7 @@
     230,
     "ia_self_improver",
     "PAT_CW_IA_LEARNING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_self_improver.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_self_improver.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3475,7 +3475,7 @@
     231,
     "ia_knowledge_distiller",
     "PAT_CW_IA_LEARNING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_knowledge_distiller.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_knowledge_distiller.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3484,7 +3484,7 @@
     232,
     "ia_curriculum_planner",
     "PAT_CW_IA_LEARNING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_curriculum_planner.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_curriculum_planner.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3493,7 +3493,7 @@
     233,
     "ia_transfer_learner",
     "PAT_CW_IA_LEARNING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_transfer_learner.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_transfer_learner.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3502,7 +3502,7 @@
     234,
     "ia_feedback_loop",
     "PAT_CW_IA_LEARNING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_feedback_loop.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_feedback_loop.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3511,7 +3511,7 @@
     235,
     "ia_memory_consolidator",
     "PAT_CW_IA_LEARNING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_memory_consolidator.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_memory_consolidator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3520,7 +3520,7 @@
     236,
     "ia_skill_synthesizer",
     "PAT_CW_IA_LEARNING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_skill_synthesizer.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_skill_synthesizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3529,7 +3529,7 @@
     237,
     "ia_teacher_student",
     "PAT_CW_IA_LEARNING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_teacher_student.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_teacher_student.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3538,7 +3538,7 @@
     238,
     "ia_capability_tracker",
     "PAT_CW_IA_LEARNING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_capability_tracker.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_capability_tracker.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3547,7 +3547,7 @@
     239,
     "continuous_learner",
     "PAT_CW_IA_LEARNING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\continuous_learner.py",
+    "F:/BUREAU/turbo/cowork/dev/continuous_learner.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3556,7 +3556,7 @@
     240,
     "task_learner",
     "PAT_CW_IA_LEARNING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\task_learner.py",
+    "F:/BUREAU/turbo/cowork/dev/task_learner.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3565,7 +3565,7 @@
     241,
     "ia_swarm_coordinator",
     "PAT_CW_IA_ORCHESTRATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_swarm_coordinator.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_swarm_coordinator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3574,7 +3574,7 @@
     242,
     "ia_agent_spawner",
     "PAT_CW_IA_ORCHESTRATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_agent_spawner.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_agent_spawner.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3583,7 +3583,7 @@
     243,
     "ia_ensemble_voter",
     "PAT_CW_IA_ORCHESTRATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_ensemble_voter.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_ensemble_voter.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3592,7 +3592,7 @@
     244,
     "ia_debate_engine",
     "PAT_CW_IA_ORCHESTRATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_debate_engine.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_debate_engine.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3601,7 +3601,7 @@
     245,
     "ia_peer_reviewer",
     "PAT_CW_IA_ORCHESTRATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_peer_reviewer.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_peer_reviewer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3610,7 +3610,7 @@
     246,
     "ia_task_planner",
     "PAT_CW_IA_ORCHESTRATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_task_planner.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_task_planner.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3619,7 +3619,7 @@
     247,
     "ia_task_prioritizer",
     "PAT_CW_IA_ORCHESTRATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_task_prioritizer.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_task_prioritizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3628,7 +3628,7 @@
     248,
     "ia_goal_decomposer",
     "PAT_CW_IA_ORCHESTRATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_goal_decomposer.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_goal_decomposer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3637,7 +3637,7 @@
     249,
     "ia_goal_tracker",
     "PAT_CW_IA_ORCHESTRATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_goal_tracker.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_goal_tracker.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3646,7 +3646,7 @@
     250,
     "multi_agent_coordinator",
     "PAT_CW_IA_ORCHESTRATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\multi_agent_coordinator.py",
+    "F:/BUREAU/turbo/cowork/dev/multi_agent_coordinator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3655,7 +3655,7 @@
     251,
     "agent_orchestrator",
     "PAT_CW_IA_ORCHESTRATION",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\agent_orchestrator.py",
+    "F:/BUREAU/turbo/cowork/dev/agent_orchestrator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3664,7 +3664,7 @@
     252,
     "ia_anomaly_detector",
     "PAT_CW_IA_ANALYSIS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_anomaly_detector.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_anomaly_detector.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3673,7 +3673,7 @@
     253,
     "ia_fact_checker",
     "PAT_CW_IA_ANALYSIS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_fact_checker.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_fact_checker.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3682,7 +3682,7 @@
     254,
     "ia_hypothesis_tester",
     "PAT_CW_IA_ANALYSIS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_hypothesis_tester.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_hypothesis_tester.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3691,7 +3691,7 @@
     255,
     "ia_experiment_runner",
     "PAT_CW_IA_ANALYSIS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_experiment_runner.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_experiment_runner.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3700,7 +3700,7 @@
     256,
     "ia_error_analyzer",
     "PAT_CW_IA_ANALYSIS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_error_analyzer.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_error_analyzer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3709,7 +3709,7 @@
     257,
     "ia_pattern_detector",
     "PAT_CW_IA_ANALYSIS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_pattern_detector.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_pattern_detector.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3718,7 +3718,7 @@
     258,
     "ia_chain_of_thought",
     "PAT_CW_IA_ANALYSIS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_chain_of_thought.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_chain_of_thought.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3727,7 +3727,7 @@
     259,
     "ia_chain_of_thought_v2",
     "PAT_CW_IA_ANALYSIS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_chain_of_thought_v2.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_chain_of_thought_v2.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3736,7 +3736,7 @@
     260,
     "ia_proactive_agent",
     "PAT_CW_IA_ANALYSIS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_proactive_agent.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_proactive_agent.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3745,7 +3745,7 @@
     261,
     "ia_knowledge_graph",
     "PAT_CW_IA_ANALYSIS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\ia_knowledge_graph.py",
+    "F:/BUREAU/turbo/cowork/dev/ia_knowledge_graph.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3754,7 +3754,7 @@
     262,
     "anomaly_detector",
     "PAT_CW_IA_ANALYSIS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\anomaly_detector.py",
+    "F:/BUREAU/turbo/cowork/dev/anomaly_detector.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3763,7 +3763,7 @@
     263,
     "decision_engine",
     "PAT_CW_IA_ANALYSIS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\decision_engine.py",
+    "F:/BUREAU/turbo/cowork/dev/decision_engine.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3772,7 +3772,7 @@
     264,
     "cluster_autotuner",
     "PAT_CW_CLUSTER",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\cluster_autotuner.py",
+    "F:/BUREAU/turbo/cowork/dev/cluster_autotuner.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3781,7 +3781,7 @@
     265,
     "cluster_benchmark_auto",
     "PAT_CW_CLUSTER",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\cluster_benchmark_auto.py",
+    "F:/BUREAU/turbo/cowork/dev/cluster_benchmark_auto.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3790,7 +3790,7 @@
     266,
     "cluster_dashboard_api",
     "PAT_CW_CLUSTER",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\cluster_dashboard_api.py",
+    "F:/BUREAU/turbo/cowork/dev/cluster_dashboard_api.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3799,7 +3799,7 @@
     267,
     "cluster_failover_manager",
     "PAT_CW_CLUSTER",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\cluster_failover_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/cluster_failover_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3808,7 +3808,7 @@
     268,
     "cluster_load_predictor",
     "PAT_CW_CLUSTER",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\cluster_load_predictor.py",
+    "F:/BUREAU/turbo/cowork/dev/cluster_load_predictor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3817,7 +3817,7 @@
     269,
     "cluster_model_rotator",
     "PAT_CW_CLUSTER",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\cluster_model_rotator.py",
+    "F:/BUREAU/turbo/cowork/dev/cluster_model_rotator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3826,7 +3826,7 @@
     270,
     "cluster_sync",
     "PAT_CW_CLUSTER",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\cluster_sync.py",
+    "F:/BUREAU/turbo/cowork/dev/cluster_sync.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3835,7 +3835,7 @@
     271,
     "node_balancer",
     "PAT_CW_CLUSTER",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\node_balancer.py",
+    "F:/BUREAU/turbo/cowork/dev/node_balancer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3844,7 +3844,7 @@
     272,
     "load_balancer",
     "PAT_CW_CLUSTER",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\load_balancer.py",
+    "F:/BUREAU/turbo/cowork/dev/load_balancer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3853,7 +3853,7 @@
     273,
     "model_manager",
     "PAT_CW_CLUSTER",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\model_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/model_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3862,7 +3862,7 @@
     274,
     "model_benchmark",
     "PAT_CW_CLUSTER",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\model_benchmark.py",
+    "F:/BUREAU/turbo/cowork/dev/model_benchmark.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3871,7 +3871,7 @@
     275,
     "model_rotator",
     "PAT_CW_CLUSTER",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\model_rotator.py",
+    "F:/BUREAU/turbo/cowork/dev/model_rotator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3880,7 +3880,7 @@
     276,
     "auto_trader",
     "PAT_CW_TRADING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\auto_trader.py",
+    "F:/BUREAU/turbo/cowork/dev/auto_trader.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3889,7 +3889,7 @@
     277,
     "trading_intelligence",
     "PAT_CW_TRADING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\trading_intelligence.py",
+    "F:/BUREAU/turbo/cowork/dev/trading_intelligence.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3898,7 +3898,7 @@
     278,
     "signal_backtester",
     "PAT_CW_TRADING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\signal_backtester.py",
+    "F:/BUREAU/turbo/cowork/dev/signal_backtester.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3907,7 +3907,7 @@
     279,
     "portfolio_tracker",
     "PAT_CW_TRADING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\portfolio_tracker.py",
+    "F:/BUREAU/turbo/cowork/dev/portfolio_tracker.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3916,7 +3916,7 @@
     280,
     "risk_manager",
     "PAT_CW_TRADING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\risk_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/risk_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3925,7 +3925,7 @@
     281,
     "telegram_commander",
     "PAT_CW_COMMS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\telegram_commander.py",
+    "F:/BUREAU/turbo/cowork/dev/telegram_commander.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3934,7 +3934,7 @@
     282,
     "telegram_bot_monitor",
     "PAT_CW_COMMS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\telegram_bot_monitor.py",
+    "F:/BUREAU/turbo/cowork/dev/telegram_bot_monitor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3943,7 +3943,7 @@
     283,
     "telegram_scheduler",
     "PAT_CW_COMMS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\telegram_scheduler.py",
+    "F:/BUREAU/turbo/cowork/dev/telegram_scheduler.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3952,7 +3952,7 @@
     284,
     "telegram_stats",
     "PAT_CW_COMMS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\telegram_stats.py",
+    "F:/BUREAU/turbo/cowork/dev/telegram_stats.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3961,7 +3961,7 @@
     285,
     "email_reader",
     "PAT_CW_COMMS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\email_reader.py",
+    "F:/BUREAU/turbo/cowork/dev/email_reader.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3970,7 +3970,7 @@
     286,
     "report_mailer",
     "PAT_CW_COMMS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\report_mailer.py",
+    "F:/BUREAU/turbo/cowork/dev/report_mailer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3979,7 +3979,7 @@
     287,
     "cross_channel_sync",
     "PAT_CW_COMMS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\cross_channel_sync.py",
+    "F:/BUREAU/turbo/cowork/dev/cross_channel_sync.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3988,7 +3988,7 @@
     288,
     "code_reviewer",
     "PAT_CW_DEVTOOLS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\code_reviewer.py",
+    "F:/BUREAU/turbo/cowork/dev/code_reviewer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -3997,7 +3997,7 @@
     289,
     "continuous_coder",
     "PAT_CW_DEVTOOLS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\continuous_coder.py",
+    "F:/BUREAU/turbo/cowork/dev/continuous_coder.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4006,7 +4006,7 @@
     290,
     "continuous_test_runner",
     "PAT_CW_DEVTOOLS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\continuous_test_runner.py",
+    "F:/BUREAU/turbo/cowork/dev/continuous_test_runner.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4015,7 +4015,7 @@
     291,
     "test_generator",
     "PAT_CW_DEVTOOLS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\test_generator.py",
+    "F:/BUREAU/turbo/cowork/dev/test_generator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4024,7 +4024,7 @@
     292,
     "mcp_tool_tester",
     "PAT_CW_DEVTOOLS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\mcp_tool_tester.py",
+    "F:/BUREAU/turbo/cowork/dev/mcp_tool_tester.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4033,7 +4033,7 @@
     293,
     "jarvis_test_generator",
     "PAT_CW_DEVTOOLS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\jarvis_test_generator.py",
+    "F:/BUREAU/turbo/cowork/dev/jarvis_test_generator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4042,7 +4042,7 @@
     294,
     "auto_scheduler",
     "PAT_CW_AUTONOMOUS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\auto_scheduler.py",
+    "F:/BUREAU/turbo/cowork/dev/auto_scheduler.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4051,7 +4051,7 @@
     295,
     "auto_monitor",
     "PAT_CW_AUTONOMOUS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\auto_monitor.py",
+    "F:/BUREAU/turbo/cowork/dev/auto_monitor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4060,7 +4060,7 @@
     296,
     "auto_healer",
     "PAT_CW_AUTONOMOUS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\auto_healer.py",
+    "F:/BUREAU/turbo/cowork/dev/auto_healer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4069,7 +4069,7 @@
     297,
     "auto_deployer",
     "PAT_CW_AUTONOMOUS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\auto_deployer.py",
+    "F:/BUREAU/turbo/cowork/dev/auto_deployer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4078,7 +4078,7 @@
     298,
     "auto_dispatcher",
     "PAT_CW_AUTONOMOUS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\auto_dispatcher.py",
+    "F:/BUREAU/turbo/cowork/dev/auto_dispatcher.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4087,7 +4087,7 @@
     299,
     "auto_documenter",
     "PAT_CW_AUTONOMOUS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\auto_documenter.py",
+    "F:/BUREAU/turbo/cowork/dev/auto_documenter.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4096,7 +4096,7 @@
     300,
     "auto_skill_tester",
     "PAT_CW_AUTONOMOUS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\auto_skill_tester.py",
+    "F:/BUREAU/turbo/cowork/dev/auto_skill_tester.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4105,7 +4105,7 @@
     301,
     "auto_updater",
     "PAT_CW_AUTONOMOUS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\auto_updater.py",
+    "F:/BUREAU/turbo/cowork/dev/auto_updater.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4114,7 +4114,7 @@
     302,
     "auto_reporter",
     "PAT_CW_AUTONOMOUS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\auto_reporter.py",
+    "F:/BUREAU/turbo/cowork/dev/auto_reporter.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4123,7 +4123,7 @@
     303,
     "auto_learner",
     "PAT_CW_AUTONOMOUS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\auto_learner.py",
+    "F:/BUREAU/turbo/cowork/dev/auto_learner.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4132,7 +4132,7 @@
     304,
     "autonomous_health_guard",
     "PAT_CW_AUTONOMOUS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\autonomous_health_guard.py",
+    "F:/BUREAU/turbo/cowork/dev/autonomous_health_guard.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4141,7 +4141,7 @@
     305,
     "proactive_agent",
     "PAT_CW_AUTONOMOUS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\proactive_agent.py",
+    "F:/BUREAU/turbo/cowork/dev/proactive_agent.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4150,7 +4150,7 @@
     306,
     "openclaw_watchdog",
     "PAT_CW_AUTONOMOUS",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\openclaw_watchdog.py",
+    "F:/BUREAU/turbo/cowork/dev/openclaw_watchdog.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4159,7 +4159,7 @@
     307,
     "db_optimizer",
     "PAT_CW_DATA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\db_optimizer.py",
+    "F:/BUREAU/turbo/cowork/dev/db_optimizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4168,7 +4168,7 @@
     308,
     "data_exporter",
     "PAT_CW_DATA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\data_exporter.py",
+    "F:/BUREAU/turbo/cowork/dev/data_exporter.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4177,7 +4177,7 @@
     309,
     "knowledge_graph",
     "PAT_CW_DATA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\knowledge_graph.py",
+    "F:/BUREAU/turbo/cowork/dev/knowledge_graph.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4186,7 +4186,7 @@
     310,
     "knowledge_updater",
     "PAT_CW_DATA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\knowledge_updater.py",
+    "F:/BUREAU/turbo/cowork/dev/knowledge_updater.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4195,7 +4195,7 @@
     311,
     "metrics_collector",
     "PAT_CW_DATA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\metrics_collector.py",
+    "F:/BUREAU/turbo/cowork/dev/metrics_collector.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4204,7 +4204,7 @@
     312,
     "log_analyzer",
     "PAT_CW_DATA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\log_analyzer.py",
+    "F:/BUREAU/turbo/cowork/dev/log_analyzer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4213,7 +4213,7 @@
     313,
     "log_rotator",
     "PAT_CW_DATA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\log_rotator.py",
+    "F:/BUREAU/turbo/cowork/dev/log_rotator.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4222,7 +4222,7 @@
     314,
     "alert_manager",
     "PAT_CW_DATA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\alert_manager.py",
+    "F:/BUREAU/turbo/cowork/dev/alert_manager.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4231,7 +4231,7 @@
     315,
     "api_monitor",
     "PAT_CW_DATA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\api_monitor.py",
+    "F:/BUREAU/turbo/cowork/dev/api_monitor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4240,7 +4240,7 @@
     316,
     "health_checker",
     "PAT_CW_DATA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\health_checker.py",
+    "F:/BUREAU/turbo/cowork/dev/health_checker.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4249,7 +4249,7 @@
     317,
     "memory_optimizer",
     "PAT_CW_DATA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\memory_optimizer.py",
+    "F:/BUREAU/turbo/cowork/dev/memory_optimizer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4258,7 +4258,7 @@
     318,
     "performance_profiler",
     "PAT_CW_DATA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\performance_profiler.py",
+    "F:/BUREAU/turbo/cowork/dev/performance_profiler.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4267,7 +4267,7 @@
     319,
     "system_benchmark",
     "PAT_CW_DATA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\system_benchmark.py",
+    "F:/BUREAU/turbo/cowork/dev/system_benchmark.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4276,7 +4276,7 @@
     320,
     "resource_forecaster",
     "PAT_CW_DATA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\resource_forecaster.py",
+    "F:/BUREAU/turbo/cowork/dev/resource_forecaster.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4285,7 +4285,7 @@
     321,
     "electron_app_monitor",
     "PAT_CW_DATA",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\electron_app_monitor.py",
+    "F:/BUREAU/turbo/cowork/dev/electron_app_monitor.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4294,7 +4294,7 @@
     322,
     "prompt_router",
     "PAT_CW_ROUTING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\prompt_router.py",
+    "F:/BUREAU/turbo/cowork/dev/prompt_router.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4303,7 +4303,7 @@
     323,
     "auto_dispatcher",
     "PAT_CW_ROUTING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\auto_dispatcher.py",
+    "F:/BUREAU/turbo/cowork/dev/auto_dispatcher.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4312,7 +4312,7 @@
     324,
     "workspace_analyzer",
     "PAT_CW_ROUTING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\workspace_analyzer.py",
+    "F:/BUREAU/turbo/cowork/dev/workspace_analyzer.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4321,7 +4321,7 @@
     325,
     "workspace_sync",
     "PAT_CW_ROUTING",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\workspace_sync.py",
+    "F:/BUREAU/turbo/cowork/dev/workspace_sync.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4330,7 +4330,7 @@
     326,
     "browser_automation",
     "PAT_CW_BROWSER",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\browser_automation.py",
+    "F:/BUREAU/turbo/cowork/dev/browser_automation.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4339,7 +4339,7 @@
     327,
     "browser_pilot",
     "PAT_CW_BROWSER",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\browser_pilot.py",
+    "F:/BUREAU/turbo/cowork/dev/browser_pilot.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4348,7 +4348,7 @@
     328,
     "win_file_watcher",
     "PAT_CW_FILE_WATCH",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_file_watcher.py",
+    "F:/BUREAU/turbo/cowork/dev/win_file_watcher.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4357,7 +4357,7 @@
     329,
     "win_file_watcher_v2",
     "PAT_CW_FILE_WATCH",
-    "F:\\BUREAU\\turbo\\cowork\\dev\\win_file_watcher_v2.py",
+    "F:/BUREAU/turbo/cowork/dev/win_file_watcher_v2.py",
     null,
     "active",
     "2026-03-05 18:19:27"
@@ -4366,7 +4366,7 @@
     330,
     "ia_context_compressor",
     "PAT_CW_IA_OPTIMIZATION",
-    "F:/BUREAU/turbo/cowork/dev/ia_context_compressor.py",
+    "/home/turbo/jarvis-m1-ops/cowork/dev/ia_context_compressor.py",
     null,
     "active",
     "2026-03-05 18:24:48"
@@ -4375,7 +4375,7 @@
     331,
     "registry_manager",
     "PAT_CW_WIN_SYSTEM",
-    "F:/BUREAU/turbo/cowork/dev/registry_manager.py",
+    "/home/turbo/jarvis-m1-ops/cowork/dev/registry_manager.py",
     null,
     "active",
     "2026-03-05 18:24:48"
@@ -4384,7 +4384,7 @@
     332,
     "task_queue",
     "PAT_CW_AUTONOMOUS",
-    "F:/BUREAU/turbo/cowork/dev/task_queue.py",
+    "/home/turbo/jarvis-m1-ops/cowork/dev/task_queue.py",
     null,
     "active",
     "2026-03-05 18:24:48"
@@ -4393,7 +4393,7 @@
     333,
     "log_compressor",
     "PAT_CW_DATA",
-    "F:/BUREAU/turbo/cowork/dev/log_compressor.py",
+    "/home/turbo/jarvis-m1-ops/cowork/dev/log_compressor.py",
     null,
     "active",
     "2026-03-05 18:30:41"
@@ -4402,7 +4402,7 @@
     334,
     "api_rate_limiter",
     "PAT_CW_CLUSTER",
-    "F:/BUREAU/turbo/cowork/dev/api_rate_limiter.py",
+    "/home/turbo/jarvis-m1-ops/cowork/dev/api_rate_limiter.py",
     null,
     "active",
     "2026-03-05 18:30:41"
@@ -4411,7 +4411,7 @@
     335,
     "model_health_checker",
     "PAT_CW_CLUSTER",
-    "F:/BUREAU/turbo/cowork/dev/model_health_checker.py",
+    "/home/turbo/jarvis-m1-ops/cowork/dev/model_health_checker.py",
     null,
     "active",
     "2026-03-05 18:30:41"
@@ -4420,7 +4420,7 @@
     336,
     "voice_command_fuzzer",
     "PAT_CW_JARVIS_VOICE",
-    "F:/BUREAU/turbo/cowork/dev/voice_command_fuzzer.py",
+    "/home/turbo/jarvis-m1-ops/cowork/dev/voice_command_fuzzer.py",
     null,
     "active",
     "2026-03-05 18:30:41"
@@ -4429,7 +4429,7 @@
     337,
     "config_drift_detector",
     "PAT_CW_CLUSTER",
-    "F:/BUREAU/turbo/cowork/dev/config_drift_detector.py",
+    "/home/turbo/jarvis-m1-ops/cowork/dev/config_drift_detector.py",
     null,
     "active",
     "2026-03-05 18:30:41"
@@ -4438,7 +4438,7 @@
     338,
     "performance_regression_detector",
     "PAT_CW_IA_ANALYSIS",
-    "F:/BUREAU/turbo/cowork/dev/performance_regression_detector.py",
+    "/home/turbo/jarvis-m1-ops/cowork/dev/performance_regression_detector.py",
     null,
     "active",
     "2026-03-05 18:30:41"
@@ -4447,7 +4447,7 @@
     339,
     "auto_documentation_updater",
     "PAT_CW_JARVIS_DEVOPS",
-    "F:/BUREAU/turbo/cowork/dev/auto_documentation_updater.py",
+    "/home/turbo/jarvis-m1-ops/cowork/dev/auto_documentation_updater.py",
     null,
     "active",
     "2026-03-05 18:30:41"
@@ -4456,7 +4456,7 @@
     340,
     "script_deduplication",
     "PAT_CW_DEVTOOLS",
-    "F:/BUREAU/turbo/cowork/dev/script_deduplication.py",
+    "/home/turbo/jarvis-m1-ops/cowork/dev/script_deduplication.py",
     null,
     "active",
     "2026-03-05 18:30:41"
@@ -4465,7 +4465,7 @@
     341,
     "cross_script_integration_tester",
     "PAT_CW_DEVTOOLS",
-    "F:/BUREAU/turbo/cowork/dev/cross_script_integration_tester.py",
+    "/home/turbo/jarvis-m1-ops/cowork/dev/cross_script_integration_tester.py",
     null,
     "active",
     "2026-03-05 18:30:41"
@@ -4474,7 +4474,7 @@
     342,
     "predictive_failure_detector",
     "PAT_CW_IA_ANALYSIS",
-    "F:/BUREAU/turbo/cowork/dev/predictive_failure_detector.py",
+    "/home/turbo/jarvis-m1-ops/cowork/dev/predictive_failure_detector.py",
     null,
     "active",
     "2026-03-05 18:30:41"
@@ -4483,7 +4483,7 @@
     343,
     "resource_contention_monitor",
     "PAT_CW_WIN_MONITORING",
-    "F:/BUREAU/turbo/cowork/dev/resource_contention_monitor.py",
+    "/home/turbo/jarvis-m1-ops/cowork/dev/resource_contention_monitor.py",
     null,
     "active",
     "2026-03-05 18:30:41"
@@ -4492,7 +4492,7 @@
     344,
     "dependency_vulnerability_scanner",
     "PAT_CW_WIN_SECURITY",
-    "F:/BUREAU/turbo/cowork/dev/dependency_vulnerability_scanner.py",
+    "/home/turbo/jarvis-m1-ops/cowork/dev/dependency_vulnerability_scanner.py",
     null,
     "active",
     "2026-03-05 18:30:41"

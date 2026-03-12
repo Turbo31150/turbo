@@ -2,7 +2,7 @@
 REM Launcher JARVIS Benchmark Comparatif
 REM Lance le benchmark modèle base vs fine-tuné
 
-cd /d "F:\BUREAU\turbo"
+cd /d "/home/turbo/jarvis-m1-ops"
 echo.
 echo ============================================
 echo   JARVIS Benchmark Comparatif
@@ -20,12 +20,12 @@ echo.
 REM Lancer le benchmark
 echo [DÉMARRAGE] Benchmark en cours...
 echo.
-powershell -Command "& 'C:\Users\franc\.local\bin\uv.exe' run python finetuning\benchmark.py"
+powershell -Command "& '/home/turbo\.local\bin\uv.exe' run python finetuning\benchmark.py"
 
 REM Pause pour voir les résultats
 echo.
 echo ============================================
 echo   Benchmark terminé !
-echo   Résultats: F:\BUREAU\turbo\finetuning\benchmark_results.json
+echo   Résultats: /home/turbo/jarvis-m1-ops\finetuning\benchmark_results.json
 echo ============================================
 pause

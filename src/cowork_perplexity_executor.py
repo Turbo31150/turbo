@@ -63,7 +63,7 @@ async def execute_task_with_perplexity(task) -> dict[str, Any]:
             }
         
         # 5. Écrire le fichier
-        full_path = Path(f"F:/BUREAU/turbo/{file_path}")
+        full_path = Path(f"/home/turbo/jarvis-m1-ops/{file_path}")
         full_path.parent.mkdir(parents=True, exist_ok=True)
         full_path.write_text(code, encoding="utf-8")
         

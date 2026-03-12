@@ -63,7 +63,7 @@ class USBMonitor:
                 ["powershell", "-Command",
                  "Get-CimInstance Win32_USBControllerDevice | "
                  "ForEach-Object { $dep = $_.Dependent; "
-                 "Get-CimInstance -Query \"SELECT * FROM Win32_PnPEntity WHERE DeviceID='$($dep.DeviceID -replace '\\\\','\\\\\\\\')' \" } | "
+                 "Get-CimInstance -Query \"SELECT * FROM Win32_PnPEntity WHERE DeviceID='$($dep.DeviceID -replace '//','////')' \" } | "
                  "Select-Object Name, DeviceID, Status, Manufacturer | "
                  "ConvertTo-Json -Depth 1"],
                 capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,

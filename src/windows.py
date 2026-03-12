@@ -166,7 +166,7 @@ def get_system_info() -> dict[str, str]:
                 free = ctypes.c_ulonglong(0)
                 total = ctypes.c_ulonglong(0)
                 if ctypes.windll.kernel32.GetDiskFreeSpaceExW(
-                    f"{letter}:\\", None, ctypes.byref(total), ctypes.byref(free)
+                    f"{letter}:/", None, ctypes.byref(total), ctypes.byref(free)
                 ):
                     free_gb = round(free.value / (1024**3), 1)
                     total_gb = round(total.value / (1024**3), 1)
@@ -221,7 +221,7 @@ def open_url(url: str, browser: str = "chrome") -> str:
 
 def list_installed_apps(filter_name: str = "") -> str:
     """List installed applications."""
-    cmd = "Get-ItemProperty HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | Select-Object DisplayName, DisplayVersion | Where-Object { $_.DisplayName -ne $null }"
+    cmd = "Get-ItemProperty HKLM:/Software/Microsoft/Windows/CurrentVersion/Uninstall/* | Select-Object DisplayName, DisplayVersion | Where-Object { $_.DisplayName -ne $null }"
     if filter_name:
         cmd += f" | Where-Object {{ $_.DisplayName -match '{_sq(filter_name)}' }}"
     cmd += " | Select-Object -First 30 | Format-Table -AutoSize | Out-String"
@@ -475,7 +475,7 @@ def screenshot(filename: str = "") -> str:
         f"$bmp = New-Object System.Drawing.Bitmap($screen.Width, $screen.Height); "
         f"$g = [System.Drawing.Graphics]::FromImage($bmp); "
         f"$g.CopyFromScreen($screen.Location, [System.Drawing.Point]::Empty, $screen.Size); "
-        f"$path = [Environment]::GetFolderPath('Desktop') + '\\{safe_fn}'; "
+        f"$path = [Environment]::GetFolderPath('Desktop') + '/{safe_fn}'; "
         f"$bmp.Save($path); $path"
     )
 
@@ -610,7 +610,7 @@ def registry_set(path: str, name: str, value: str, reg_type: str = "String") -> 
         return f"ERREUR: type registre invalide: {reg_type}"
     return _ps(
         f"Set-ItemProperty '{_sq(path)}' -Name '{_sq(name)}' -Value '{_sq(value)}' -Type {reg_type} "
-        f"-ErrorAction SilentlyContinue; 'Registry mis a jour: {_sq(path)}\\{_sq(name)}'"
+        f"-ErrorAction SilentlyContinue; 'Registry mis a jour: {_sq(path)}/{_sq(name)}'"
     )
 
 

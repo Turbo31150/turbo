@@ -2,7 +2,7 @@
   "model": {
     "base_model_id": "Qwen/Qwen3-30B-A3B",
     "lora_adapter_auto_detect": true,
-    "lora_adapter_path": "F:/BUREAU/turbo/finetuning/output/final",
+    "lora_adapter_path": "/home/turbo/jarvis-m1-ops/finetuning/output/final",
     "quantization": {
       "load_in_4bit": true,
       "bnb_4bit_use_double_quant": true,
@@ -33,7 +33,7 @@
     "compute_jarvis_relevance": true
   },
   "output": {
-    "output_dir": "F:/BUREAU/turbo/finetuning",
+    "output_dir": "/home/turbo/jarvis-m1-ops/finetuning",
     "json_report_filename": "benchmark_results.json",
     "text_report_filename": "benchmark_report.txt",
     "charts_filename": "benchmark_charts.png",

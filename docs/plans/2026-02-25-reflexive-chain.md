@@ -13,8 +13,8 @@
 ### Task 1: Anti-loop v2 — Detection par repetition dans agenticChat existant
 
 **Files:**
-- Modify: `F:/BUREAU/turbo/canvas/direct-proxy.js:101` (MAX_TOOL_TURNS)
-- Modify: `F:/BUREAU/turbo/canvas/direct-proxy.js:468-571` (agenticChat)
+- Modify: `/home/turbo/jarvis-m1-ops/canvas/direct-proxy.js:101` (MAX_TOOL_TURNS)
+- Modify: `/home/turbo/jarvis-m1-ops/canvas/direct-proxy.js:468-571` (agenticChat)
 
 **Step 1: Reduire MAX_TOOL_TURNS de 15 a 8**
 
@@ -55,7 +55,7 @@ callHashes.add(callHash);
 
 **Step 3: Tester l'anti-loop v2**
 
-Run: `cd F:/BUREAU/turbo && node -e "const dp = require('./canvas/direct-proxy.js'); console.log('loaded OK');"` (ou verifier que le fichier parse sans erreur)
+Run: `cd /home/turbo/jarvis-m1-ops && node -e "const dp = require('./canvas/direct-proxy.js'); console.log('loaded OK');"` (ou verifier que le fichier parse sans erreur)
 
 Puis redemarrer le proxy et tester :
 ```bash
@@ -66,7 +66,7 @@ Expected: Max 2-3 tours au lieu de 15 (list_dir repete = stop immediat)
 **Step 4: Commit**
 
 ```bash
-cd F:/BUREAU/turbo && git add canvas/direct-proxy.js && git commit -m "feat(cockpit): anti-loop v2 — repetition detection + MAX_TOOL_TURNS 15→8"
+cd /home/turbo/jarvis-m1-ops && git add canvas/direct-proxy.js && git commit -m "feat(cockpit): anti-loop v2 — repetition detection + MAX_TOOL_TURNS 15→8"
 ```
 
 ---
@@ -74,7 +74,7 @@ cd F:/BUREAU/turbo && git add canvas/direct-proxy.js && git commit -m "feat(cock
 ### Task 2: Classifieur de complexite
 
 **Files:**
-- Modify: `F:/BUREAU/turbo/canvas/direct-proxy.js` (nouvelle fonction avant agenticChat, ~ligne 466)
+- Modify: `/home/turbo/jarvis-m1-ops/canvas/direct-proxy.js` (nouvelle fonction avant agenticChat, ~ligne 466)
 
 **Step 1: Creer la fonction classifyComplexity**
 
@@ -109,14 +109,14 @@ function classifyComplexity(userText, agentCat) {
 **Step 2: Verifier le parse**
 
 ```bash
-cd F:/BUREAU/turbo && node -e "require('./canvas/direct-proxy.js')" 2>&1 | head -5
+cd /home/turbo/jarvis-m1-ops && node -e "require('./canvas/direct-proxy.js')" 2>&1 | head -5
 ```
 Expected: Pas d'erreur de syntaxe
 
 **Step 3: Commit**
 
 ```bash
-cd F:/BUREAU/turbo && git add canvas/direct-proxy.js && git commit -m "feat(cockpit): complexity classifier — simple vs reflexive routing"
+cd /home/turbo/jarvis-m1-ops && git add canvas/direct-proxy.js && git commit -m "feat(cockpit): complexity classifier — simple vs reflexive routing"
 ```
 
 ---
@@ -124,7 +124,7 @@ cd F:/BUREAU/turbo && git add canvas/direct-proxy.js && git commit -m "feat(cock
 ### Task 3: reflexiveChat() — Chaine OL1→M1→M2
 
 **Files:**
-- Modify: `F:/BUREAU/turbo/canvas/direct-proxy.js` (nouvelle fonction apres classifyComplexity)
+- Modify: `/home/turbo/jarvis-m1-ops/canvas/direct-proxy.js` (nouvelle fonction apres classifyComplexity)
 
 **Step 1: Creer la fonction reflexiveChat**
 
@@ -144,13 +144,13 @@ Important : la fonction doit gerer le Safety Gate (needs_confirm) et les fallbac
 **Step 2: Verifier le parse**
 
 ```bash
-cd F:/BUREAU/turbo && node -e "require('./canvas/direct-proxy.js')" 2>&1 | head -5
+cd /home/turbo/jarvis-m1-ops && node -e "require('./canvas/direct-proxy.js')" 2>&1 | head -5
 ```
 
 **Step 3: Commit**
 
 ```bash
-cd F:/BUREAU/turbo && git add canvas/direct-proxy.js && git commit -m "feat(cockpit): reflexiveChat — OL1→M1→M2 chain with per-step anti-loop"
+cd /home/turbo/jarvis-m1-ops && git add canvas/direct-proxy.js && git commit -m "feat(cockpit): reflexiveChat — OL1→M1→M2 chain with per-step anti-loop"
 ```
 
 ---
@@ -158,7 +158,7 @@ cd F:/BUREAU/turbo && git add canvas/direct-proxy.js && git commit -m "feat(cock
 ### Task 4: Integrer le classifieur dans la route /chat
 
 **Files:**
-- Modify: `F:/BUREAU/turbo/canvas/direct-proxy.js:727-751` (handler POST /chat)
+- Modify: `/home/turbo/jarvis-m1-ops/canvas/direct-proxy.js:727-751` (handler POST /chat)
 
 **Step 1: Remplacer l'appel direct a agenticChat par le classifieur**
 
@@ -207,7 +207,7 @@ Expected: `Mode: reflexive Tours: 3-6 Chain: 3`
 **Step 4: Commit**
 
 ```bash
-cd F:/BUREAU/turbo && git add canvas/direct-proxy.js && git commit -m "feat(cockpit): route /chat uses classifier — simple or reflexive chain"
+cd /home/turbo/jarvis-m1-ops && git add canvas/direct-proxy.js && git commit -m "feat(cockpit): route /chat uses classifier — simple or reflexive chain"
 ```
 
 ---
@@ -215,7 +215,7 @@ cd F:/BUREAU/turbo && git add canvas/direct-proxy.js && git commit -m "feat(cock
 ### Task 5: UI — Badges de chaine collapsibles
 
 **Files:**
-- Modify: `F:/BUREAU/turbo/canvas/index.html` (CSS + addCockpitMsg)
+- Modify: `/home/turbo/jarvis-m1-ops/canvas/index.html` (CSS + addCockpitMsg)
 
 **Step 1: Ajouter le CSS pour les badges de chaine**
 
@@ -303,7 +303,7 @@ Ouvrir http://127.0.0.1:18800/ et envoyer :
 **Step 7: Commit**
 
 ```bash
-cd F:/BUREAU/turbo && git add canvas/index.html && git commit -m "feat(cockpit): chain badges UI — collapsible reflexive chain display"
+cd /home/turbo/jarvis-m1-ops && git add canvas/index.html && git commit -m "feat(cockpit): chain badges UI — collapsible reflexive chain display"
 ```
 
 ---
@@ -313,13 +313,13 @@ cd F:/BUREAU/turbo && git add canvas/index.html && git commit -m "feat(cockpit):
 **Step 1: Mettre a jour la copie portable**
 
 ```bash
-cp F:/BUREAU/turbo/canvas/index.html "C:/Users/franc/Desktop/JARVIS_Cockpit_Portable.html"
+cp /home/turbo/jarvis-m1-ops/canvas/index.html "C:/Users/franc/Desktop/JARVIS_Cockpit_Portable.html"
 ```
 
 **Step 2: Redemarrer le proxy**
 
 ```bash
-taskkill //F //IM node.exe //FI "WINDOWTITLE eq *direct-proxy*" 2>/dev/null; cd F:/BUREAU/turbo && node canvas/direct-proxy.js &
+taskkill //F //IM node.exe //FI "WINDOWTITLE eq *direct-proxy*" 2>/dev/null; cd /home/turbo/jarvis-m1-ops && node canvas/direct-proxy.js &
 ```
 Expected: Logs `[etoile] Schemas loaded: N tables`
 
@@ -347,7 +347,7 @@ Expected: Max 3-4 tours (list_dir repete 2x = stop)
 **Step 6: Commit final + push**
 
 ```bash
-cd F:/BUREAU/turbo && git add -A && git status
+cd /home/turbo/jarvis-m1-ops && git add -A && git status
 # Si des fichiers non commites restent :
 git commit -m "feat(cockpit): reflexive chain v1 — complete implementation"
 git push

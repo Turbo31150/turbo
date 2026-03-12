@@ -14,7 +14,7 @@ from dataclasses import dataclass, asdict
 import hashlib
 
 # Configuration
-BASE_PATH = Path("F:\\BUREAU\\turbo")
+BASE_PATH = Path("F:/BUREAU/turbo")
 SRC_PATH = BASE_PATH / "src"
 DB_PATH = BASE_PATH / "jarvis.db"
 CONFIG_PATH = BASE_PATH / "config"

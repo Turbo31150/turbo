@@ -1,6 +1,6 @@
 @echo off
 title JARVIS Full Cluster — All Workers
-cd /d F:\BUREAU\turbo
+cd /d /home/turbo/jarvis-m1-ops
 
 :: === SINGLETON GUARD: kill ALL existing cluster workers ===
 for %%s in (evolution orchestrator_v3 strategy_worker deep_analysis mcp_sse) do (
@@ -13,25 +13,25 @@ echo ============================================================
 echo.
 
 echo [1/5] Strategy Evolution Loop (1000 pop, 25 coins, 5min)...
-start "JARVIS-Evolution" /MIN C:\Users\franc\.local\bin\uv.exe run python cowork/dev/strategy_evolution_loop.py --pop 1000 --coins 25 --interval 5
+start "JARVIS-Evolution" /MIN /home/turbo\.local\bin\uv.exe run python cowork/dev/strategy_evolution_loop.py --pop 1000 --coins 25 --interval 5
 timeout /t 2 /nobreak >nul
 
 echo [2/5] Autonomous Orchestrator v3 (30s cycles, dry-run)...
-start "JARVIS-Orchestrator" /MIN C:\Users\franc\.local\bin\uv.exe run python cowork/dev/autonomous_orchestrator_v3.py --interval 30 --dry
+start "JARVIS-Orchestrator" /MIN /home/turbo\.local\bin\uv.exe run python cowork/dev/autonomous_orchestrator_v3.py --interval 30 --dry
 timeout /t 2 /nobreak >nul
 
 echo [3/5] Cluster Strategy Worker (5min cycles)...
-start "JARVIS-StrategyWorker" /MIN C:\Users\franc\.local\bin\uv.exe run python cowork/dev/cluster_strategy_worker.py --interval 5
+start "JARVIS-StrategyWorker" /MIN /home/turbo\.local\bin\uv.exe run python cowork/dev/cluster_strategy_worker.py --interval 5
 timeout /t 2 /nobreak >nul
 
 echo [4/5] Cluster Deep Analysis Worker (5min cycles)...
-start "JARVIS-DeepAnalysis" /MIN C:\Users\franc\.local\bin\uv.exe run python cowork/dev/cluster_deep_analysis_worker.py --interval 5
+start "JARVIS-DeepAnalysis" /MIN /home/turbo\.local\bin\uv.exe run python cowork/dev/cluster_deep_analysis_worker.py --interval 5
 timeout /t 2 /nobreak >nul
 
 echo [5/5] MCP Server + Cloudflare Tunnel (Perplexity)...
-start "JARVIS-MCP" /MIN C:\Users\franc\.local\bin\uv.exe run python -m src.mcp_server_sse --port 8901 --full
+start "JARVIS-MCP" /MIN /home/turbo\.local\bin\uv.exe run python -m src.mcp_server_sse --port 8901 --full
 timeout /t 5 /nobreak >nul
-start "JARVIS-Tunnel" /MIN "C:\Program Files (x86)\cloudflared\cloudflared.exe" tunnel --url http://127.0.0.1:8901
+start "JARVIS-Tunnel" /MIN "/Program Files (x86)\cloudflared\cloudflared.exe" tunnel --url http://127.0.0.1:8901
 
 echo.
 echo ============================================================

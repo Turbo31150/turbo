@@ -5,7 +5,7 @@ from datetime import datetime
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from src.domino_pipelines import DOMINO_PIPELINES, DOMINO_LEARNING_DATASET, get_domino_stats
 
-conn = sqlite3.connect("F:/BUREAU/turbo/data/etoile.db")
+conn = sqlite3.connect("/home/turbo/jarvis-m1-ops/data/etoile.db")
 cur = conn.cursor()
 test_date = datetime.now().isoformat()
 stats = get_domino_stats()

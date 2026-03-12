@@ -1255,7 +1255,7 @@ if __name__ == "__main__":
 ### 133. win_font_manager.py
 - **CLI**: `--list / --duplicates / --unused / --install PATH / --once`
 - **Fonction**: Gestionnaire polices Windows — detecte doublons, polices inutilisees, installe/desinstalle
-- **Features**: scanne C:\Windows\Fonts via os.listdir, detecte doublons (meme nom base), taille totale, polices systeme vs utilisateur, rapport SQLite
+- **Features**: scanne /Windows\Fonts via os.listdir, detecte doublons (meme nom base), taille totale, polices systeme vs utilisateur, rapport SQLite
 - **Cron**: monthly 1er 03:00
 
 ### 134. win_env_auditor.py
@@ -1901,7 +1901,7 @@ if __name__ == "__main__":
 ### 230. win_recycle_bin_manager.py
 - **CLI**: `--stats / --clean / --recover / --schedule / --once`
 - **Fonction**: Gestionnaire corbeille intelligent — stats, nettoyage auto, recovery
-- **Features**: powershell (Get-ChildItem 'C:\$Recycle.Bin' -Force), taille totale, fichiers >30j auto-delete, top 10 plus gros, option recover recent (restaure dernier supprime), schedule nettoyage hebdo, SQLite
+- **Features**: powershell (Get-ChildItem '/$Recycle.Bin' -Force), taille totale, fichiers >30j auto-delete, top 10 plus gros, option recover recent (restaure dernier supprime), schedule nettoyage hebdo, SQLite
 - **Cron**: weekly dimanche 04:00
 
 ## BATCH 105 — JARVIS Voice 2.0 (3 scripts)

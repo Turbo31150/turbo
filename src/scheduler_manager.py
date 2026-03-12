@@ -32,7 +32,7 @@ _NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 class ScheduledTask:
     """A scheduled task."""
     name: str
-    folder: str = "\\"
+    folder: str = "/"
     status: str = ""
     next_run: str = ""
     last_run: str = ""
@@ -59,7 +59,7 @@ class SchedulerManager:
 
     # ── Task Listing ───────────────────────────────────────────────────
 
-    def list_tasks(self, folder: str = "\\") -> list[dict[str, Any]]:
+    def list_tasks(self, folder: str = "/") -> list[dict[str, Any]]:
         """List scheduled tasks in a folder."""
         try:
             result = subprocess.run(
@@ -142,8 +142,8 @@ class SchedulerManager:
             reader = csv.DictReader(io.StringIO(result.stdout))
             for row in reader:
                 name = row.get("TaskName", row.get("Nom de la t\u00e2che", ""))
-                if name and "\\" in name:
-                    parts = name.rsplit("\\", 1)
+                if name and "/" in name:
+                    parts = name.rsplit("/", 1)
                     if parts[0]:
                         folders.add(parts[0])
             return sorted(folders)

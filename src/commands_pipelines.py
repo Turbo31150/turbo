@@ -11,8 +11,8 @@ from src.config import PATHS
 _M1_KEY = os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", ""))
 _M2_KEY = os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", ""))
 _M3_KEY = os.getenv("LM_STUDIO_3_API_KEY", os.getenv("LM_STUDIO_3_KEY", ""))
-_TURBO_DIR = str(PATHS.get("turbo", "F:/BUREAU/turbo")).replace("/", "\\")
-_TURBO_DIR_FWD = str(PATHS.get("turbo", "F:/BUREAU/turbo"))
+_TURBO_DIR = str(PATHS.get("turbo", "/home/turbo/jarvis-m1-ops")).replace("/", "/")
+_TURBO_DIR_FWD = str(PATHS.get("turbo", "/home/turbo/jarvis-m1-ops"))
 _USER_HOME = str(Path.home())
 
 COMET = str(Path.home() / "AppData" / "Local" / "Perplexity" / "Comet" / "Application" / "comet.exe")
@@ -85,7 +85,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
         "nettoyage express", "nettoyage rapide", "clean express",
         "lance un nettoyage", "nettoie tout rapidement",
         "nettoyage du pc",
-    ], "pipeline", "powershell:Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe';;powershell:Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye';;powershell:ipconfig /flushdns; 'DNS purge'", confirm=True),
+    ], "pipeline", "powershell:Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe';;powershell:Remove-Item $env:TEMP/* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye';;powershell:ipconfig /flushdns; 'DNS purge'", confirm=True),
     JarvisCommand("diagnostic_complet", "pipeline", "Diagnostic complet: systeme + GPU + RAM + disques", [
         "diagnostic complet", "diagnostic du pc", "check complet",
         "fais un diagnostic", "lance un diagnostic complet",
@@ -192,7 +192,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("backup_express", "pipeline", "Backup express: git add + commit du projet turbo", [
         "backup express", "sauvegarde rapide", "backup rapide",
         "sauvegarde le projet", "backup turbo",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git add -A; git commit -m 'Backup express auto-JARVIS' 2>&1 | Out-String", confirm=True),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; git add -A; git commit -m 'Backup express auto-JARVIS' 2>&1 | Out-String", confirm=True),
     JarvisCommand("reboot_cluster", "pipeline", "Reboot cluster: redemarre Ollama + ping LM Studio", [
         "reboot le cluster", "redemarre le cluster", "restart cluster ia",
         "relance le cluster", "reset cluster",
@@ -204,7 +204,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("fin_journee", "pipeline", "Fin de journee: backup + nuit + fermer apps dev", [
         "fin de journee", "termine la journee", "je finis pour aujourd'hui",
         "bonne nuit jarvis", "on arrete pour aujourd'hui",
-    ], "pipeline", f"powershell:cd F:\\BUREAU\\turbo; git add -A; git commit -m 'Fin de journee auto-JARVIS' --allow-empty 2>&1 | Out-String;;sleep:1;;powershell:Start-Process ms-settings:nightlight;;sleep:1;;{MINIMIZE_ALL}"),
+    ], "pipeline", f"powershell:cd F:/BUREAU/turbo; git add -A; git commit -m 'Fin de journee auto-JARVIS' --allow-empty 2>&1 | Out-String;;sleep:1;;powershell:Start-Process ms-settings:nightlight;;sleep:1;;{MINIMIZE_ALL}"),
 
     # ══════════════════════════════════════════════════════════════════════
     # COMET — Nouveaux sites via Comet
@@ -255,7 +255,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
         "routine depart", "je pars", "je m'en vais",
         "a plus tard", "je quitte la maison",
         "mode absence",
-    ], "pipeline", f"powershell:cd F:\\BUREAU\\turbo; git add -A; git commit -m 'Auto-save depart JARVIS' --allow-empty 2>&1 | Out-String;;sleep:1;;{MINIMIZE_ALL};;sleep:1;;powershell:powercfg /setactive a1841308-3541-4fab-bc81-f71556f20b4a;;sleep:1;;powershell:rundll32.exe user32.dll,LockWorkStation", confirm=True),
+    ], "pipeline", f"powershell:cd F:/BUREAU/turbo; git add -A; git commit -m 'Auto-save depart JARVIS' --allow-empty 2>&1 | Out-String;;sleep:1;;{MINIMIZE_ALL};;sleep:1;;powershell:powercfg /setactive a1841308-3541-4fab-bc81-f71556f20b4a;;sleep:1;;powershell:rundll32.exe user32.dll,LockWorkStation", confirm=True),
     JarvisCommand("routine_retour", "pipeline", "Routine retour: performance + cluster + mails + dashboard", [
         "routine retour", "je suis rentre", "je suis la",
         "je reviens", "mode retour",
@@ -272,7 +272,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("dev_morning_setup", "pipeline", "Dev morning: git pull + Docker + VSCode + browser tabs travail", [
         "dev morning", "setup dev du matin", "prepare le dev",
         "ouvre mon environnement dev", "lance le setup dev",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git pull --rebase 2>&1 | Out-String;;sleep:1;;app_open:code;;sleep:2;;app_open:wt;;sleep:1;;browser:navigate:https://github.com;;sleep:1;;browser:navigate:http://127.0.0.1:8080"),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; git pull --rebase 2>&1 | Out-String;;sleep:1;;app_open:code;;sleep:2;;app_open:wt;;sleep:1;;browser:navigate:https://github.com;;sleep:1;;browser:navigate:http://127.0.0.1:8080"),
     JarvisCommand("dev_deep_work", "pipeline", "Deep work: fermer distractions + VSCode + focus + terminal", [
         "deep work", "travail profond", "mode deep focus",
         "concentration dev", "code sans distraction",
@@ -280,19 +280,19 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("dev_standup_prep", "pipeline", "Standup prep: git log hier + board + dashboard", [
         "standup prep", "prepare le standup", "qu'est ce que j'ai fait hier",
         "recap hier", "preparation standup",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git log --since='yesterday' --oneline 2>&1 | Out-String;;sleep:1;;browser:navigate:https://github.com;;sleep:1;;browser:navigate:http://127.0.0.1:8080"),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; git log --since='yesterday' --oneline 2>&1 | Out-String;;sleep:1;;browser:navigate:https://github.com;;sleep:1;;browser:navigate:http://127.0.0.1:8080"),
     JarvisCommand("dev_deploy_check", "pipeline", "Pre-deploy check: tests + git status + Docker status", [
         "check avant deploy", "pre deploy", "verification deploy",
         "pret a deployer", "deploy check",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pytest -x --tb=short 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:\\BUREAU\\turbo; git status -sb;;powershell:docker ps --format 'table {{.Names}}\\t{{.Status}}' 2>&1 | Out-String"),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run pytest -x --tb=short 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:/BUREAU/turbo; git status -sb;;powershell:docker ps --format 'table {{.Names}}/t{{.Status}}' 2>&1 | Out-String"),
     JarvisCommand("dev_friday_report", "pipeline", "Rapport vendredi: stats git semaine + dashboard + todos", [
         "rapport vendredi", "friday report", "recap de la semaine",
         "bilan semaine", "rapport hebdo",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; 'Commits cette semaine:'; git log --since='last monday' --oneline 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; $py = (Get-ChildItem src/*.py -Recurse | Get-Content | Measure-Object -Line).Lines; \"Lignes de code: $py\";;browser:navigate:http://127.0.0.1:8080"),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; 'Commits cette semaine:'; git log --since='last monday' --oneline 2>&1 | Out-String;;powershell:cd F:/BUREAU/turbo; $py = (Get-ChildItem src/*.py -Recurse | Get-Content | Measure-Object -Line).Lines; \"Lignes de code: $py\";;browser:navigate:http://127.0.0.1:8080"),
     JarvisCommand("dev_code_review_setup", "pipeline", "Code review setup: GitHub PRs + VSCode + diff terminal", [
         "setup code review", "prepare la review", "code review setup",
         "lance la revue de code",
-    ], "pipeline", "browser:navigate:https://github.com/pulls;;sleep:1;;app_open:code;;sleep:1;;powershell:cd F:\\BUREAU\\turbo; git diff --stat 2>&1 | Out-String"),
+    ], "pipeline", "browser:navigate:https://github.com/pulls;;sleep:1;;app_open:code;;sleep:1;;powershell:cd F:/BUREAU/turbo; git diff --stat 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # INSPIRÉ POWERSHELL AUTOMATION — Audit, rapport, maintenance
@@ -301,19 +301,19 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("audit_securite_complet", "pipeline", "Audit securite: Defender + ports + connexions + firewall + autorun", [
         "audit securite complet", "scan securite total", "audit de securite",
         "check securite complet", "securite totale",
-    ], "pipeline", "powershell:Get-MpComputerStatus | Select AntivirusEnabled, RealTimeProtectionEnabled | Out-String;;powershell:Get-NetTCPConnection -State Listen | Group-Object LocalPort | Select @{N='Port';E={$_.Name}}, Count | Sort Port | Select -First 10 | Out-String;;powershell:Get-NetTCPConnection -State Established | Where RemoteAddress -notmatch '^(127|10|192\\.168|0\\.)' | Select RemoteAddress, RemotePort -Unique | Select -First 10 | Out-String;;powershell:Get-NetFirewallProfile | Select Name, Enabled | Out-String;;powershell:Get-CimInstance Win32_StartupCommand | Select Name, Command | Select -First 10 | Out-String"),
+    ], "pipeline", "powershell:Get-MpComputerStatus | Select AntivirusEnabled, RealTimeProtectionEnabled | Out-String;;powershell:Get-NetTCPConnection -State Listen | Group-Object LocalPort | Select @{N='Port';E={$_.Name}}, Count | Sort Port | Select -First 10 | Out-String;;powershell:Get-NetTCPConnection -State Established | Where RemoteAddress -notmatch '^(127|10|192/.168|0/.)' | Select RemoteAddress, RemotePort -Unique | Select -First 10 | Out-String;;powershell:Get-NetFirewallProfile | Select Name, Enabled | Out-String;;powershell:Get-CimInstance Win32_StartupCommand | Select Name, Command | Select -First 10 | Out-String"),
     JarvisCommand("rapport_systeme_complet", "pipeline", "Rapport systeme: CPU + RAM + GPU + disques + uptime + reseau", [
         "rapport systeme complet", "rapport systeme", "etat complet du pc",
         "bilan systeme", "diagnostic total",
-    ], "pipeline", "powershell:$cpu = (Get-CimInstance Win32_Processor).Name; $usage = (Get-Counter '\\Processor(_Total)\\% Processor Time' -SampleInterval 1 -MaxSamples 1).CounterSamples.CookedValue; \"CPU: $cpu ($([math]::Round($usage))%)\";;powershell:$os = Get-CimInstance Win32_OperatingSystem; $used = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); $total = [math]::Round($os.TotalVisibleMemorySize/1MB,1); \"RAM: $used/$total GB\";;powershell:nvidia-smi --query-gpu=name,temperature.gpu,memory.used,memory.total --format=csv,noheader,nounits 2>&1 | Out-String;;powershell:Get-PSDrive -PSProvider FileSystem | Where Used -gt 0 | Select Name, @{N='Libre(GB)';E={[math]::Round($_.Free/1GB,1)}} | Out-String;;powershell:$boot = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; $up = (Get-Date) - $boot; \"Uptime: $($up.Days)j $($up.Hours)h $($up.Minutes)min\""),
+    ], "pipeline", "powershell:$cpu = (Get-CimInstance Win32_Processor).Name; $usage = (Get-Counter '/Processor(_Total)/% Processor Time' -SampleInterval 1 -MaxSamples 1).CounterSamples.CookedValue; \"CPU: $cpu ($([math]::Round($usage))%)\";;powershell:$os = Get-CimInstance Win32_OperatingSystem; $used = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); $total = [math]::Round($os.TotalVisibleMemorySize/1MB,1); \"RAM: $used/$total GB\";;powershell:nvidia-smi --query-gpu=name,temperature.gpu,memory.used,memory.total --format=csv,noheader,nounits 2>&1 | Out-String;;powershell:Get-PSDrive -PSProvider FileSystem | Where Used -gt 0 | Select Name, @{N='Libre(GB)';E={[math]::Round($_.Free/1GB,1)}} | Out-String;;powershell:$boot = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; $up = (Get-Date) - $boot; \"Uptime: $($up.Days)j $($up.Hours)h $($up.Minutes)min\""),
     JarvisCommand("maintenance_totale", "pipeline", "Maintenance totale: corbeille + temp + prefetch + DNS + thumbnails + check updates", [
         "maintenance totale", "grand nettoyage", "maintenance complete",
         "nettoie tout le pc", "gros menage",
-    ], "pipeline", "powershell:Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe';;powershell:Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye';;powershell:Remove-Item C:\\Windows\\Prefetch\\* -Force -ErrorAction SilentlyContinue; 'Prefetch nettoye';;powershell:ipconfig /flushdns; 'DNS purge';;powershell:Remove-Item \"$env:LOCALAPPDATA\\Microsoft\\Windows\\Explorer\\thumbcache_*\" -Force -ErrorAction SilentlyContinue; 'Thumbnails nettoyes';;powershell:wevtutil el | ForEach-Object { wevtutil cl $_ 2>$null }; 'Logs nettoyes'", confirm=True),
+    ], "pipeline", "powershell:Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe';;powershell:Remove-Item $env:TEMP/* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye';;powershell:Remove-Item /\Windows/Prefetch/* -Force -ErrorAction SilentlyContinue; 'Prefetch nettoye';;powershell:ipconfig /flushdns; 'DNS purge';;powershell:Remove-Item \"$env:LOCALAPPDATA/Microsoft/Windows/Explorer/thumbcache_*\" -Force -ErrorAction SilentlyContinue; 'Thumbnails nettoyes';;powershell:wevtutil el | ForEach-Object { wevtutil cl $_ 2>$null }; 'Logs nettoyes'", confirm=True),
     JarvisCommand("sauvegarde_tous_projets", "pipeline", "Backup tous projets: git commit turbo + carV1 + serveur", [
         "sauvegarde tous les projets", "backup tous les projets",
         "backup global", "sauvegarde globale",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git add -A; git commit -m 'Backup global auto-JARVIS' --allow-empty 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\carV1; if(Test-Path .git){git add -A; git commit -m 'Backup auto-JARVIS' --allow-empty 2>&1 | Out-String}else{'carV1: pas de repo git'};;powershell:cd F:\\BUREAU\\serveur; if(Test-Path .git){git add -A; git commit -m 'Backup auto-JARVIS' --allow-empty 2>&1 | Out-String}else{'serveur: pas de repo git'}", confirm=True),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; git add -A; git commit -m 'Backup global auto-JARVIS' --allow-empty 2>&1 | Out-String;;powershell:cd F:/BUREAU/carV1; if(Test-Path .git){git add -A; git commit -m 'Backup auto-JARVIS' --allow-empty 2>&1 | Out-String}else{'carV1: pas de repo git'};;powershell:cd F:/BUREAU/serveur; if(Test-Path .git){git add -A; git commit -m 'Backup auto-JARVIS' --allow-empty 2>&1 | Out-String}else{'serveur: pas de repo git'}", confirm=True),
 
     # ══════════════════════════════════════════════════════════════════════
     # INSPIRÉ PRODUCTIVITÉ — Pomodoro, focus, pauses
@@ -412,7 +412,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("nettoyage_downloads", "pipeline", "Nettoyer les vieux telechargements (>30 jours)", [
         "nettoie les telechargements", "clean downloads",
         "vide les vieux downloads", "nettoie le dossier telechargements",
-    ], "pipeline", "powershell:$count = (Get-ChildItem $env:USERPROFILE\\Downloads -File | Where { $_.LastWriteTime -lt (Get-Date).AddDays(-30) }).Count; Get-ChildItem $env:USERPROFILE\\Downloads -File | Where { $_.LastWriteTime -lt (Get-Date).AddDays(-30) } | Remove-Item -Force -ErrorAction SilentlyContinue; \"$count fichiers de plus de 30 jours supprimes\"", confirm=True),
+    ], "pipeline", "powershell:$count = (Get-ChildItem $env:USERPROFILE/Downloads -File | Where { $_.LastWriteTime -lt (Get-Date).AddDays(-30) }).Count; Get-ChildItem $env:USERPROFILE/Downloads -File | Where { $_.LastWriteTime -lt (Get-Date).AddDays(-30) } | Remove-Item -Force -ErrorAction SilentlyContinue; \"$count fichiers de plus de 30 jours supprimes\"", confirm=True),
     JarvisCommand("rapport_reseau_complet", "pipeline", "Rapport reseau: IP + DNS + latence + ports + WiFi", [
         "rapport reseau complet", "rapport reseau", "bilan reseau",
         "diagnostic reseau complet", "etat complet du reseau",
@@ -420,11 +420,11 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("verif_toutes_mises_a_jour", "pipeline", "Verifier MAJ: Windows Update + pip + npm + ollama", [
         "verifie toutes les mises a jour", "check toutes les updates",
         "mises a jour globales", "tout est a jour",
-    ], "pipeline", "powershell:try{$s=New-Object -ComObject Microsoft.Update.Session;$r=$s.CreateUpdateSearcher().Search('IsInstalled=0');\"Windows: $($r.Updates.Count) MAJ en attente\"}catch{'Windows: erreur verification'};;powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' pip list --outdated 2>&1 | Select -First 5 | Out-String;;powershell:npm outdated -g 2>&1 | Select -First 5 | Out-String"),
+    ], "pipeline", "powershell:try{$s=New-Object -ComObject Microsoft.Update.Session;$r=$s.CreateUpdateSearcher().Search('IsInstalled=0');\"Windows: $($r.Updates.Count) MAJ en attente\"}catch{'Windows: erreur verification'};;powershell:& '/\Users/franc/.local/bin/uv.exe' pip list --outdated 2>&1 | Select -First 5 | Out-String;;powershell:npm outdated -g 2>&1 | Select -First 5 | Out-String"),
     JarvisCommand("snapshot_systeme", "pipeline", "Snapshot systeme: sauvegarder toutes les stats dans un fichier", [
         "snapshot systeme", "capture l'etat du systeme",
         "sauvegarde les stats", "photo du systeme",
-    ], "pipeline", "powershell:$d = Get-Date -Format 'yyyy-MM-dd_HHmm'; $f = \"F:\\BUREAU\\turbo\\data\\snapshot_$d.txt\"; $os = Get-CimInstance Win32_OperatingSystem; $cpu = (Get-Counter '\\Processor(_Total)\\% Processor Time' -SampleInterval 1 -MaxSamples 1).CounterSamples.CookedValue; $ram = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); $gpu = nvidia-smi --query-gpu=name,temperature.gpu,memory.used --format=csv,noheader 2>&1; \"Date: $d`nCPU: $([math]::Round($cpu))%`nRAM: $ram GB`nGPU: $gpu\" | Out-File $f -Encoding utf8; \"Snapshot sauvegarde: $f\""),
+    ], "pipeline", "powershell:$d = Get-Date -Format 'yyyy-MM-dd_HHmm'; $f = \"F:/BUREAU/turbo/data/snapshot_$d.txt\"; $os = Get-CimInstance Win32_OperatingSystem; $cpu = (Get-Counter '/Processor(_Total)/% Processor Time' -SampleInterval 1 -MaxSamples 1).CounterSamples.CookedValue; $ram = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); $gpu = nvidia-smi --query-gpu=name,temperature.gpu,memory.used --format=csv,noheader 2>&1; \"Date: $d`nCPU: $([math]::Round($cpu))%`nRAM: $ram GB`nGPU: $gpu\" | Out-File $f -Encoding utf8; \"Snapshot sauvegarde: $f\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # DEVELOPER WORKFLOWS AVANCÉS — Git, tests, features
@@ -433,19 +433,19 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("dev_hotfix", "pipeline", "Hotfix: nouvelle branche + VSCode + tests", [
         "hotfix", "lance un hotfix", "dev hotfix",
         "correction urgente", "bug fix rapide",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; $branch = 'hotfix/' + (Get-Date -Format 'yyyyMMdd-HHmm'); git checkout -b $branch 2>&1 | Out-String;;sleep:1;;app_open:code;;sleep:1;;app_open:wt"),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; $branch = 'hotfix/' + (Get-Date -Format 'yyyyMMdd-HHmm'); git checkout -b $branch 2>&1 | Out-String;;sleep:1;;app_open:code;;sleep:1;;app_open:wt"),
     JarvisCommand("dev_new_feature", "pipeline", "Nouvelle feature: branche + VSCode + terminal + tests", [
         "nouvelle feature", "dev new feature", "lance une feature",
         "commence une nouvelle fonctionnalite",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; $branch = 'feature/' + (Get-Date -Format 'yyyyMMdd-HHmm'); git checkout -b $branch 2>&1 | Out-String;;sleep:1;;app_open:code;;sleep:1;;app_open:wt;;powershell:cd F:\\BUREAU\\turbo; git status -sb"),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; $branch = 'feature/' + (Get-Date -Format 'yyyyMMdd-HHmm'); git checkout -b $branch 2>&1 | Out-String;;sleep:1;;app_open:code;;sleep:1;;app_open:wt;;powershell:cd F:/BUREAU/turbo; git status -sb"),
     JarvisCommand("dev_merge_prep", "pipeline", "Preparation merge: lint + tests + git status + diff", [
         "prepare le merge", "pre merge", "merge prep",
         "pret a merger", "verification avant merge",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff check src/ 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pytest -x --tb=short 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:\\BUREAU\\turbo; git diff --stat 2>&1 | Out-String"),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run ruff check src/ 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run pytest -x --tb=short 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:/BUREAU/turbo; git diff --stat 2>&1 | Out-String"),
     JarvisCommand("dev_database_check", "pipeline", "Check databases: taille + tables de jarvis.db et etoile.db", [
         "check les databases", "verifie les bases de donnees",
         "etat des databases", "database check",
-    ], "pipeline", "powershell:$j = (Get-Item 'F:\\BUREAU\\turbo\\data\\jarvis.db' -ErrorAction SilentlyContinue).Length/1MB; \"jarvis.db: $([math]::Round($j,1)) MB\";;powershell:$e = (Get-Item 'F:\\BUREAU\\turbo\\data\\etoile.db' -ErrorAction SilentlyContinue).Length/1MB; \"etoile.db: $([math]::Round($e,1)) MB\";;powershell:$t = (Get-Item 'F:\\BUREAU\\carV1\\database\\trading_latest.db' -ErrorAction SilentlyContinue).Length/1MB; \"trading.db: $([math]::Round($t,1)) MB\""),
+    ], "pipeline", "powershell:$j = (Get-Item 'F:/BUREAU/turbo/data/jarvis.db' -ErrorAction SilentlyContinue).Length/1MB; \"jarvis.db: $([math]::Round($j,1)) MB\";;powershell:$e = (Get-Item 'F:/BUREAU/turbo/data/etoile.db' -ErrorAction SilentlyContinue).Length/1MB; \"etoile.db: $([math]::Round($e,1)) MB\";;powershell:$t = (Get-Item 'F:/BUREAU/carV1/database/trading_latest.db' -ErrorAction SilentlyContinue).Length/1MB; \"trading.db: $([math]::Round($t,1)) MB\""),
     JarvisCommand("dev_live_coding", "pipeline", "Live coding: OBS + VSCode + terminal + navigateur localhost", [
         "live coding", "mode live code", "lance le live coding",
         "session live code", "code en direct",
@@ -453,7 +453,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("dev_cleanup", "pipeline", "Dev cleanup: git clean + cache Python + node_modules check", [
         "dev cleanup", "nettoie le projet", "clean le code",
         "nettoyage dev", "purge dev",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; $pycache = (Get-ChildItem -Recurse -Directory -Filter '__pycache__').Count; Get-ChildItem -Recurse -Directory -Filter '__pycache__' | Remove-Item -Recurse -Force; \"$pycache dossiers __pycache__ supprimes\";;powershell:cd F:\\BUREAU\\turbo; $ruff = & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff check src/ --statistics 2>&1 | Select -Last 3 | Out-String; $ruff"),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; $pycache = (Get-ChildItem -Recurse -Directory -Filter '__pycache__').Count; Get-ChildItem -Recurse -Directory -Filter '__pycache__' | Remove-Item -Recurse -Force; \"$pycache dossiers __pycache__ supprimes\";;powershell:cd F:/BUREAU/turbo; $ruff = & '/\Users/franc/.local/bin/uv.exe' run ruff check src/ --statistics 2>&1 | Select -Last 3 | Out-String; $ruff"),
 
     # ══════════════════════════════════════════════════════════════════════
     # MULTI-ÉCRANS & PRODUCTIVITÉ AVANCÉE
@@ -503,11 +503,11 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("mode_devops", "pipeline", "Mode DevOps: Docker + dashboard + terminal + GitHub Actions", [
         "mode devops", "mode ops", "lance le mode devops",
         "setup devops", "mode infrastructure",
-    ], "pipeline", "app_open:wt;;sleep:1;;browser:navigate:http://127.0.0.1:8080;;sleep:1;;browser:navigate:https://github.com;;powershell:docker ps --format 'table {{.Names}}\\t{{.Status}}' 2>&1 | Out-String"),
+    ], "pipeline", "app_open:wt;;sleep:1;;browser:navigate:http://127.0.0.1:8080;;sleep:1;;browser:navigate:https://github.com;;powershell:docker ps --format 'table {{.Names}}/t{{.Status}}' 2>&1 | Out-String"),
     JarvisCommand("mode_securite_audit", "pipeline", "Mode audit securite: Defender + ports + connexions + terminal", [
         "mode securite", "mode audit securite", "lance un audit de securite",
         "session securite", "mode pentest",
-    ], "pipeline", "app_open:wt;;sleep:1;;powershell:Get-MpComputerStatus | Select AntivirusEnabled, RealTimeProtectionEnabled | Out-String;;powershell:Get-NetTCPConnection -State Listen | Group-Object LocalPort | Select @{N='Port';E={$_.Name}}, Count | Sort Port | Select -First 15 | Out-String;;powershell:Get-NetTCPConnection -State Established | Where RemoteAddress -notmatch '^(127|10|192\\.168|0\\.)' | Select RemoteAddress, RemotePort -Unique | Select -First 10 | Out-String"),
+    ], "pipeline", "app_open:wt;;sleep:1;;powershell:Get-MpComputerStatus | Select AntivirusEnabled, RealTimeProtectionEnabled | Out-String;;powershell:Get-NetTCPConnection -State Listen | Group-Object LocalPort | Select @{N='Port';E={$_.Name}}, Count | Sort Port | Select -First 15 | Out-String;;powershell:Get-NetTCPConnection -State Established | Where RemoteAddress -notmatch '^(127|10|192/.168|0/.)' | Select RemoteAddress, RemotePort -Unique | Select -First 10 | Out-String"),
     JarvisCommand("mode_trading_scalp", "pipeline", "Mode scalping: TradingView multi-timeframe + MEXC + terminal", [
         "mode scalping", "mode scalp", "trading scalp",
         "session scalping", "mode day trading",
@@ -523,7 +523,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("routine_nuit_urgence", "pipeline", "Mode urgence nuit: tout fermer + sauvegarder + veille immediate", [
         "urgence nuit", "extinction d'urgence", "dors maintenant",
         "veille immediatement", "shutdown rapide",
-    ], "pipeline", f"powershell:cd F:\\BUREAU\\turbo; git add -A; git commit -m 'Emergency save JARVIS' --allow-empty 2>&1 | Out-String;;sleep:1;;{MINIMIZE_ALL};;powershell:rundll32.exe user32.dll,LockWorkStation;;sleep:2;;powershell:rundll32.exe powrprof.dll,SetSuspendState 0,1,0", confirm=True),
+    ], "pipeline", f"powershell:cd F:/BUREAU/turbo; git add -A; git commit -m 'Emergency save JARVIS' --allow-empty 2>&1 | Out-String;;sleep:1;;{MINIMIZE_ALL};;powershell:rundll32.exe user32.dll,LockWorkStation;;sleep:2;;powershell:rundll32.exe powrprof.dll,SetSuspendState 0,1,0", confirm=True),
     JarvisCommand("setup_meeting_rapide", "pipeline", "Meeting rapide: micro check + fermer musique + Teams/Discord", [
         "meeting rapide", "setup meeting", "prepare un call rapide",
         "je dois appeler", "visio rapide",
@@ -563,7 +563,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("mode_backup_total", "pipeline", "Backup total: tous les projets + snapshot systeme + rapport", [
         "backup total", "sauvegarde totale", "backup complet",
         "sauvegarde tout absolument", "full backup",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git add -A; git commit -m 'Full backup auto-JARVIS' --allow-empty 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\carV1; if(Test-Path .git){git add -A; git commit -m 'Backup auto-JARVIS' --allow-empty 2>&1 | Out-String};;powershell:cd F:\\BUREAU\\serveur; if(Test-Path .git){git add -A; git commit -m 'Backup auto-JARVIS' --allow-empty 2>&1 | Out-String};;powershell:$d = Get-Date -Format 'yyyy-MM-dd_HHmm'; $os = Get-CimInstance Win32_OperatingSystem; $ram = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); \"Backup complet OK — RAM: $ram GB — $d\"", confirm=True),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; git add -A; git commit -m 'Full backup auto-JARVIS' --allow-empty 2>&1 | Out-String;;powershell:cd F:/BUREAU/carV1; if(Test-Path .git){git add -A; git commit -m 'Backup auto-JARVIS' --allow-empty 2>&1 | Out-String};;powershell:cd F:/BUREAU/serveur; if(Test-Path .git){git add -A; git commit -m 'Backup auto-JARVIS' --allow-empty 2>&1 | Out-String};;powershell:$d = Get-Date -Format 'yyyy-MM-dd_HHmm'; $os = Get-CimInstance Win32_OperatingSystem; $ram = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); \"Backup complet OK — RAM: $ram GB — $d\"", confirm=True),
     JarvisCommand("ouvre_dashboards_trading", "pipeline", "Tous les dashboards trading: TV + MEXC + CoinGecko + CoinMarketCap + DexScreener", [
         "tous les dashboards trading", "ouvre tout le trading",
         "full trading view", "tous les sites trading",
@@ -629,7 +629,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("mode_daily_report", "pipeline", "Daily report: git log + stats code + dashboard + Google Sheets", [
         "rapport quotidien", "daily report", "genere le rapport",
         "rapport du jour", "stats du jour",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; 'Commits du jour:'; git log --since='today' --oneline 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; $py = (Get-ChildItem src/*.py -Recurse | Get-Content | Measure-Object -Line).Lines; \"Code: $py lignes Python\";;browser:navigate:http://127.0.0.1:8080;;sleep:1;;browser:navigate:https://sheets.google.com"),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; 'Commits du jour:'; git log --since='today' --oneline 2>&1 | Out-String;;powershell:cd F:/BUREAU/turbo; $py = (Get-ChildItem src/*.py -Recurse | Get-Content | Measure-Object -Line).Lines; \"Code: $py lignes Python\";;browser:navigate:http://127.0.0.1:8080;;sleep:1;;browser:navigate:https://sheets.google.com"),
     JarvisCommand("mode_api_test", "pipeline", "Mode API testing: terminal + navigateur API docs + outils test", [
         "mode api test", "teste les api", "mode postman",
         "session api testing", "debug api",
@@ -654,15 +654,15 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("mode_refactoring", "pipeline", "Mode refactoring: VSCode + ruff + tests + git diff", [
         "mode refactoring", "session refactoring", "lance le refactoring",
         "mode refacto", "nettoie le code",
-    ], "pipeline", "app_open:code;;sleep:1;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff check src/ --statistics 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:\\BUREAU\\turbo; git diff --stat 2>&1 | Out-String"),
+    ], "pipeline", "app_open:code;;sleep:1;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run ruff check src/ --statistics 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:/BUREAU/turbo; git diff --stat 2>&1 | Out-String"),
     JarvisCommand("mode_testing_complet", "pipeline", "Mode tests complet: pytest + coverage + lint + terminal", [
         "mode testing complet", "lance tous les tests", "session testing",
         "mode tests", "teste tout le projet",
-    ], "pipeline", "app_open:wt;;sleep:1;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pytest -v --tb=short 2>&1 | Select -Last 20 | Out-String;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff check src/ 2>&1 | Select -Last 5 | Out-String"),
+    ], "pipeline", "app_open:wt;;sleep:1;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run pytest -v --tb=short 2>&1 | Select -Last 20 | Out-String;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run ruff check src/ 2>&1 | Select -Last 5 | Out-String"),
     JarvisCommand("mode_deploy_checklist", "pipeline", "Checklist deploy: tests + lint + status git + build check", [
         "checklist deploy", "mode deploy", "pret pour le deploiement",
         "verification deploiement", "deploy checklist",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pytest -x --tb=short 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff check src/ 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:\\BUREAU\\turbo; git status -sb;;powershell:cd F:\\BUREAU\\turbo; git log --oneline -3"),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run pytest -x --tb=short 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run ruff check src/ 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:/BUREAU/turbo; git status -sb;;powershell:cd F:/BUREAU/turbo; git log --oneline -3"),
     JarvisCommand("mode_documentation_code", "pipeline", "Mode doc code: VSCode + readthedocs + terminal + Notion", [
         "mode documentation code", "documente le code", "session docs code",
         "mode javadoc", "ecris la doc",
@@ -723,7 +723,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("mode_retrospective", "pipeline", "Retrospective: bilan semaine + git stats + Notion + Calendar", [
         "mode retro", "retrospective", "bilan de la semaine",
         "session retro", "mode retrospective",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; 'Commits semaine:'; git log --since='last monday' --oneline 2>&1 | Out-String;;browser:navigate:https://www.notion.so;;sleep:1;;browser:navigate:https://calendar.google.com;;sleep:1;;browser:navigate:http://127.0.0.1:8080"),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; 'Commits semaine:'; git log --since='last monday' --oneline 2>&1 | Out-String;;browser:navigate:https://www.notion.so;;sleep:1;;browser:navigate:https://calendar.google.com;;sleep:1;;browser:navigate:http://127.0.0.1:8080"),
     JarvisCommand("mode_demo", "pipeline", "Mode demo: dupliquer ecran + navigateur + dashboard + presentation", [
         "mode demo", "prepare la demo", "session demo",
         "lance la demo", "mode demonstration",
@@ -731,7 +731,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("mode_scrum_master", "pipeline", "Mode Scrum: board + standup + Calendar + timer", [
         "mode scrum", "mode scrum master", "session scrum",
         "lance le daily", "mode agile",
-    ], "pipeline", "browser:navigate:https://github.com/projects;;sleep:1;;browser:navigate:https://calendar.google.com;;sleep:1;;powershell:cd F:\\BUREAU\\turbo; git log --since='yesterday' --oneline 2>&1 | Out-String;;powershell:$end = (Get-Date).AddMinutes(15).ToString('HH:mm'); \"Standup demarre — max $end\""),
+    ], "pipeline", "browser:navigate:https://github.com/projects;;sleep:1;;browser:navigate:https://calendar.google.com;;sleep:1;;powershell:cd F:/BUREAU/turbo; git log --since='yesterday' --oneline 2>&1 | Out-String;;powershell:$end = (Get-Date).AddMinutes(15).ToString('HH:mm'); \"Standup demarre — max $end\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 1 — RÉVEIL & DÉMARRAGE JOURNÉE
@@ -754,15 +754,15 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_start_coding", "pipeline", "Demarrer une session de code: git pull + VSCode + terminal + snap", [
         "je commence a coder", "start coding session", "session de code",
         "lance le dev", "je vais coder",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git pull --rebase 2>&1 | Out-String;;app_open:code;;sleep:2;;hotkey:win+left;;sleep:1;;app_open:wt;;sleep:1;;hotkey:win+right;;powershell:cd F:\\BUREAU\\turbo; git status -sb"),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; git pull --rebase 2>&1 | Out-String;;app_open:code;;sleep:2;;hotkey:win+left;;sleep:1;;app_open:wt;;sleep:1;;hotkey:win+right;;powershell:cd F:/BUREAU/turbo; git status -sb"),
     JarvisCommand("sim_code_and_test", "pipeline", "Code + test: lancer les tests + lint + afficher résultats", [
         "teste mon code", "code and test", "verifie tout mon code",
         "lint et test", "validation du code",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff check src/ 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pytest -x --tb=short 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:\\BUREAU\\turbo; git diff --stat 2>&1 | Out-String"),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run ruff check src/ 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run pytest -x --tb=short 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:/BUREAU/turbo; git diff --stat 2>&1 | Out-String"),
     JarvisCommand("sim_commit_and_push", "pipeline", "Commiter et pusher le code", [
         "commit et push", "sauvegarde et pousse", "envoie le code",
         "git push tout", "publie le code",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git add -A; git status -sb;;powershell:cd F:\\BUREAU\\turbo; git commit -m 'Update auto-JARVIS' 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; git push 2>&1 | Out-String", confirm=True),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; git add -A; git status -sb;;powershell:cd F:/BUREAU/turbo; git commit -m 'Update auto-JARVIS' 2>&1 | Out-String;;powershell:cd F:/BUREAU/turbo; git push 2>&1 | Out-String", confirm=True),
     JarvisCommand("sim_debug_session", "pipeline", "Session debug: devtools + terminal + logs + monitoring", [
         "session debug complete", "je debug", "mode debug complet",
         "lance le debugging", "debug total",
@@ -800,7 +800,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_pause_longue", "pipeline", "Pause longue: save + musique + nuit + verrouiller", [
         "longue pause", "grande pause", "je fais une grande pause",
         "pause dejeuner complete", "pause d'une heure",
-    ], "pipeline", f"powershell:cd F:\\BUREAU\\turbo; git add -A; git commit -m 'Auto-save pause JARVIS' --allow-empty 2>&1 | Out-String;;{MINIMIZE_ALL};;sleep:1;;powershell:Start-Process ms-settings:nightlight;;sleep:1;;app_open:spotify;;sleep:1;;powershell:rundll32.exe user32.dll,LockWorkStation"),
+    ], "pipeline", f"powershell:cd F:/BUREAU/turbo; git add -A; git commit -m 'Auto-save pause JARVIS' --allow-empty 2>&1 | Out-String;;{MINIMIZE_ALL};;sleep:1;;powershell:Start-Process ms-settings:nightlight;;sleep:1;;app_open:spotify;;sleep:1;;powershell:rundll32.exe user32.dll,LockWorkStation"),
     JarvisCommand("sim_retour_pause", "pipeline", "Retour de pause: performance + rouvrir le dev + check cluster", [
         "je suis de retour", "retour de pause", "fin de la pause",
         "reprends le travail", "je reviens de pause",
@@ -850,7 +850,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_tout_fermer_propre", "pipeline", "Fermeture propre: sauvegarder + fermer apps + minimiser + night light", [
         "ferme tout proprement", "clean shutdown apps", "termine proprement",
         "arrete tout et range", "finis proprement",
-    ], "pipeline", f"powershell:cd F:\\BUREAU\\turbo; git add -A; git commit -m 'Clean close JARVIS' --allow-empty 2>&1 | Out-String;;powershell:Stop-Process -Name 'code','wt','obs64','discord','telegram' -Force -ErrorAction SilentlyContinue; 'Apps dev fermees';;sleep:1;;{MINIMIZE_ALL};;powershell:Start-Process ms-settings:nightlight;;\"Tout ferme proprement\""),
+    ], "pipeline", f"powershell:cd F:/BUREAU/turbo; git add -A; git commit -m 'Clean close JARVIS' --allow-empty 2>&1 | Out-String;;powershell:Stop-Process -Name 'code','wt','obs64','discord','telegram' -Force -ErrorAction SilentlyContinue; 'Apps dev fermees';;sleep:1;;{MINIMIZE_ALL};;powershell:Start-Process ms-settings:nightlight;;\"Tout ferme proprement\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 8 — FIN DE JOURNÉE COMPLÈTE
@@ -860,11 +860,11 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
         "fin de journee complete", "termine la journee proprement",
         "bonne nuit complete", "arrete tout pour la nuit",
         "shutdown de fin de journee",
-    ], "pipeline", f"powershell:cd F:\\BUREAU\\turbo; git add -A; git commit -m 'Fin de journee auto-JARVIS' --allow-empty 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; $c = (git log --since='today' --oneline | Measure-Object).Count; \"$c commits aujourd'hui\";;powershell:Stop-Process -Name 'code','wt','obs64','discord','telegram','slack','chrome','msedge' -Force -ErrorAction SilentlyContinue; 'Toutes les apps fermees';;sleep:1;;{MINIMIZE_ALL};;powershell:Start-Process ms-settings:nightlight;;sleep:1;;powershell:powercfg /setactive a1841308-3541-4fab-bc81-f71556f20b4a; 'Mode economie active';;powershell:rundll32.exe user32.dll,LockWorkStation", confirm=True),
+    ], "pipeline", f"powershell:cd F:/BUREAU/turbo; git add -A; git commit -m 'Fin de journee auto-JARVIS' --allow-empty 2>&1 | Out-String;;powershell:cd F:/BUREAU/turbo; $c = (git log --since='today' --oneline | Measure-Object).Count; \"$c commits aujourd'hui\";;powershell:Stop-Process -Name 'code','wt','obs64','discord','telegram','slack','chrome','msedge' -Force -ErrorAction SilentlyContinue; 'Toutes les apps fermees';;sleep:1;;{MINIMIZE_ALL};;powershell:Start-Process ms-settings:nightlight;;sleep:1;;powershell:powercfg /setactive a1841308-3541-4fab-bc81-f71556f20b4a; 'Mode economie active';;powershell:rundll32.exe user32.dll,LockWorkStation", confirm=True),
     JarvisCommand("sim_weekend_mode", "pipeline", "Mode weekend: fermer tout le dev + musique + news + Netflix", [
         "mode weekend complet", "c'est le weekend enfin",
         "plus de travail weekend", "transition weekend",
-    ], "pipeline", f"powershell:cd F:\\BUREAU\\turbo; git add -A; git commit -m 'Weekend save JARVIS' --allow-empty 2>&1 | Out-String;;powershell:Stop-Process -Name 'code','wt','lmstudio' -Force -ErrorAction SilentlyContinue; 'Dev ferme';;sleep:1;;{MINIMIZE_ALL};;sleep:1;;powershell:Start-Process ms-settings:nightlight;;sleep:1;;app_open:spotify;;sleep:1;;browser:navigate:https://www.netflix.com;;powershell:\"Bon weekend!\""),
+    ], "pipeline", f"powershell:cd F:/BUREAU/turbo; git add -A; git commit -m 'Weekend save JARVIS' --allow-empty 2>&1 | Out-String;;powershell:Stop-Process -Name 'code','wt','lmstudio' -Force -ErrorAction SilentlyContinue; 'Dev ferme';;sleep:1;;{MINIMIZE_ALL};;sleep:1;;powershell:Start-Process ms-settings:nightlight;;sleep:1;;app_open:spotify;;sleep:1;;browser:navigate:https://www.netflix.com;;powershell:\"Bon weekend!\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 9 — URGENCES & DÉPANNAGE
@@ -881,11 +881,11 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_urgence_espace", "pipeline", "Urgence espace disque: taille disques + temp + downloads + cache", [
         "urgence espace disque", "plus de place", "disque plein",
         "libere de l'espace", "urgence stockage",
-    ], "pipeline", "powershell:Get-PSDrive -PSProvider FileSystem | Where Used -gt 0 | Select Name, @{N='Libre(GB)';E={[math]::Round($_.Free/1GB,1)}} | Out-String;;powershell:$t = (Get-ChildItem $env:TEMP -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1MB; \"TEMP: $([math]::Round($t)) MB\";;powershell:$d = (Get-ChildItem $env:USERPROFILE\\Downloads -File -ErrorAction SilentlyContinue | Where { $_.LastWriteTime -lt (Get-Date).AddDays(-30) } | Measure-Object Length -Sum).Sum/1MB; \"Vieux downloads: $([math]::Round($d)) MB\";;powershell:$c = (Get-ChildItem \"$env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Default\\Cache\" -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1MB; \"Cache Chrome: $([math]::Round($c)) MB\""),
+    ], "pipeline", "powershell:Get-PSDrive -PSProvider FileSystem | Where Used -gt 0 | Select Name, @{N='Libre(GB)';E={[math]::Round($_.Free/1GB,1)}} | Out-String;;powershell:$t = (Get-ChildItem $env:TEMP -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1MB; \"TEMP: $([math]::Round($t)) MB\";;powershell:$d = (Get-ChildItem $env:USERPROFILE/Downloads -File -ErrorAction SilentlyContinue | Where { $_.LastWriteTime -lt (Get-Date).AddDays(-30) } | Measure-Object Length -Sum).Sum/1MB; \"Vieux downloads: $([math]::Round($d)) MB\";;powershell:$c = (Get-ChildItem \"$env:LOCALAPPDATA/Google/Chrome/User Data/Default/Cache\" -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1MB; \"Cache Chrome: $([math]::Round($c)) MB\""),
     JarvisCommand("sim_urgence_performance", "pipeline", "Urgence performance: CPU + RAM + processus zombies + services en echec", [
         "urgence performance", "le pc rame", "tout est lent",
         "pourquoi c'est lent", "debug performance",
-    ], "pipeline", "powershell:$cpu = (Get-Counter '\\Processor(_Total)\\% Processor Time' -SampleInterval 1 -MaxSamples 1).CounterSamples.CookedValue; \"CPU: $([math]::Round($cpu))%\";;powershell:$os = Get-CimInstance Win32_OperatingSystem; $used = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); $total = [math]::Round($os.TotalVisibleMemorySize/1MB,1); \"RAM: $used/$total GB ($([math]::Round($used/$total*100))%)\";;powershell:Get-Process | Where { $_.Responding -eq $false } | Select Name, Id | Out-String;;powershell:Get-Process | Sort CPU -Descending | Select -First 5 Name, @{N='CPU(s)';E={[math]::Round($_.CPU,1)}}, @{N='RAM(MB)';E={[math]::Round($_.WS/1MB)}} | Format-Table -AutoSize | Out-String"),
+    ], "pipeline", "powershell:$cpu = (Get-Counter '/Processor(_Total)/% Processor Time' -SampleInterval 1 -MaxSamples 1).CounterSamples.CookedValue; \"CPU: $([math]::Round($cpu))%\";;powershell:$os = Get-CimInstance Win32_OperatingSystem; $used = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); $total = [math]::Round($os.TotalVisibleMemorySize/1MB,1); \"RAM: $used/$total GB ($([math]::Round($used/$total*100))%)\";;powershell:Get-Process | Where { $_.Responding -eq $false } | Select Name, Id | Out-String;;powershell:Get-Process | Sort CPU -Descending | Select -First 5 Name, @{N='CPU(s)';E={[math]::Round($_.CPU,1)}}, @{N='RAM(MB)';E={[math]::Round($_.WS/1MB)}} | Format-Table -AutoSize | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 10 — MULTITÂCHE & PRODUCTIVITÉ AVANCÉE
@@ -928,11 +928,11 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_maintenance_hebdo", "pipeline", "Maintenance hebdo: temp + cache + corbeille + DNS + logs + updates", [
         "maintenance hebdomadaire", "grand nettoyage de la semaine",
         "nettoyage hebdo", "maintenance weekly",
-    ], "pipeline", "powershell:Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye';;powershell:Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe';;powershell:Remove-Item \"$env:LOCALAPPDATA\\Microsoft\\Windows\\Explorer\\thumbcache_*\" -Force -ErrorAction SilentlyContinue; 'Thumbnails nettoyes';;powershell:ipconfig /flushdns; 'DNS purge';;powershell:Remove-Item \"$env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Default\\Cache\\*\" -Recurse -Force -ErrorAction SilentlyContinue; 'Cache Chrome nettoye';;powershell:cd F:\\BUREAU\\turbo; $pycache = (Get-ChildItem -Recurse -Directory -Filter '__pycache__' -ErrorAction SilentlyContinue).Count; Get-ChildItem -Recurse -Directory -Filter '__pycache__' -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force; \"$pycache __pycache__ supprimes\";;powershell:\"Maintenance hebdo terminee!\"", confirm=True),
+    ], "pipeline", "powershell:Remove-Item $env:TEMP/* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye';;powershell:Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe';;powershell:Remove-Item \"$env:LOCALAPPDATA/Microsoft/Windows/Explorer/thumbcache_*\" -Force -ErrorAction SilentlyContinue; 'Thumbnails nettoyes';;powershell:ipconfig /flushdns; 'DNS purge';;powershell:Remove-Item \"$env:LOCALAPPDATA/Google/Chrome/User Data/Default/Cache/*\" -Recurse -Force -ErrorAction SilentlyContinue; 'Cache Chrome nettoye';;powershell:cd F:/BUREAU/turbo; $pycache = (Get-ChildItem -Recurse -Directory -Filter '__pycache__' -ErrorAction SilentlyContinue).Count; Get-ChildItem -Recurse -Directory -Filter '__pycache__' -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force; \"$pycache __pycache__ supprimes\";;powershell:\"Maintenance hebdo terminee!\"", confirm=True),
     JarvisCommand("sim_backup_hebdo", "pipeline", "Backup hebdo: tous les projets + snapshot + stats", [
         "backup hebdomadaire", "sauvegarde de la semaine",
         "backup weekly", "sauvegarde hebdo",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git add -A; git commit -m 'Weekly backup JARVIS' --allow-empty 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; $c = (git log --since='1 week ago' --oneline | Measure-Object).Count; $py = (Get-ChildItem src/*.py -Recurse | Get-Content | Measure-Object -Line).Lines; \"Semaine: $c commits | Code: $py lignes\";;powershell:$d = Get-Date -Format 'yyyy-MM-dd_HHmm'; $os = Get-CimInstance Win32_OperatingSystem; $ram = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); \"Snapshot $d — RAM: $ram GB\"", confirm=True),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; git add -A; git commit -m 'Weekly backup JARVIS' --allow-empty 2>&1 | Out-String;;powershell:cd F:/BUREAU/turbo; $c = (git log --since='1 week ago' --oneline | Measure-Object).Count; $py = (Get-ChildItem src/*.py -Recurse | Get-Content | Measure-Object -Line).Lines; \"Semaine: $c commits | Code: $py lignes\";;powershell:$d = Get-Date -Format 'yyyy-MM-dd_HHmm'; $os = Get-CimInstance Win32_OperatingSystem; $ram = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); \"Snapshot $d — RAM: $ram GB\"", confirm=True),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 13 — DIAGNOSTIC RÉSEAU COMPLET
@@ -958,11 +958,11 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_audit_securite", "pipeline", "Audit securite: ports + connexions + autorun + defender + RDP + admin", [
         "audit securite complet", "check securite", "scan securite total",
         "est ce que je suis securise", "verification securite",
-    ], "pipeline", "powershell:Get-NetTCPConnection -State Listen | Group-Object LocalPort | Select @{N='Port';E={$_.Name}}, @{N='Process';E={(Get-Process -Id ($_.Group[0].OwningProcess) -ErrorAction SilentlyContinue).Name}}, Count | Sort Port | Select -First 10 | Out-String;;powershell:Get-NetTCPConnection -State Established | Where RemoteAddress -notmatch '^(127|10|192\\.168|0\\.)' | Select RemoteAddress, RemotePort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Sort RemoteAddress -Unique | Select -First 10 | Out-String;;powershell:$rdp = (Get-ItemProperty 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server').fDenyTSConnections; \"RDP: $(if($rdp -eq 0){'ACTIVE - ATTENTION'}else{'Desactive (OK)'})\";;powershell:$mp = Get-MpComputerStatus; \"Defender: $(if($mp.RealTimeProtectionEnabled){'OK'}else{'DESACTIVE!'}) | Signatures: $($mp.AntivirusSignatureLastUpdated.ToString('dd/MM'))\";;powershell:Get-LocalGroupMember -Group Administrators -ErrorAction SilentlyContinue | Select Name | Out-String;;powershell:\"Audit securite termine\""),
+    ], "pipeline", "powershell:Get-NetTCPConnection -State Listen | Group-Object LocalPort | Select @{N='Port';E={$_.Name}}, @{N='Process';E={(Get-Process -Id ($_.Group[0].OwningProcess) -ErrorAction SilentlyContinue).Name}}, Count | Sort Port | Select -First 10 | Out-String;;powershell:Get-NetTCPConnection -State Established | Where RemoteAddress -notmatch '^(127|10|192/.168|0/.)' | Select RemoteAddress, RemotePort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Sort RemoteAddress -Unique | Select -First 10 | Out-String;;powershell:$rdp = (Get-ItemProperty 'HKLM:/System/CurrentControlSet/Control/Terminal Server').fDenyTSConnections; \"RDP: $(if($rdp -eq 0){'ACTIVE - ATTENTION'}else{'Desactive (OK)'})\";;powershell:$mp = Get-MpComputerStatus; \"Defender: $(if($mp.RealTimeProtectionEnabled){'OK'}else{'DESACTIVE!'}) | Signatures: $($mp.AntivirusSignatureLastUpdated.ToString('dd/MM'))\";;powershell:Get-LocalGroupMember -Group Administrators -ErrorAction SilentlyContinue | Select Name | Out-String;;powershell:\"Audit securite termine\""),
     JarvisCommand("sim_hardening_check", "pipeline", "Check durcissement: firewall + UAC + BitLocker + updates", [
         "check hardening", "durcissement systeme", "securite avancee",
         "est ce que le systeme est blinde",
-    ], "pipeline", "powershell:Get-NetFirewallProfile | Select Name, Enabled | Out-String;;powershell:$uac = (Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System').EnableLUA; \"UAC: $(if($uac){'Active'}else{'DESACTIVE!'})\";;powershell:try{$bl = Get-BitLockerVolume -ErrorAction Stop; $bl | Select MountPoint, ProtectionStatus | Out-String}catch{'BitLocker: Non disponible ou non configure'};;powershell:try{$s = New-Object -ComObject Microsoft.Update.Session; $u = $s.CreateUpdateSearcher(); $r = $u.Search('IsInstalled=0'); \"Updates en attente: $($r.Updates.Count)\"}catch{'Verification updates impossible'};;powershell:\"Check hardening termine\""),
+    ], "pipeline", "powershell:Get-NetFirewallProfile | Select Name, Enabled | Out-String;;powershell:$uac = (Get-ItemProperty 'HKLM:/SOFTWARE/Microsoft/Windows/CurrentVersion/Policies/System').EnableLUA; \"UAC: $(if($uac){'Active'}else{'DESACTIVE!'})\";;powershell:try{$bl = Get-BitLockerVolume -ErrorAction Stop; $bl | Select MountPoint, ProtectionStatus | Out-String}catch{'BitLocker: Non disponible ou non configure'};;powershell:try{$s = New-Object -ComObject Microsoft.Update.Session; $u = $s.CreateUpdateSearcher(); $r = $u.Search('IsInstalled=0'); \"Updates en attente: $($r.Updates.Count)\"}catch{'Verification updates impossible'};;powershell:\"Check hardening termine\""),
     JarvisCommand("sim_audit_mots_de_passe", "pipeline", "Audit mots de passe: politique + comptes + expiration", [
         "audit mots de passe", "politique password", "securite comptes",
         "check passwords",
@@ -975,15 +975,15 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_new_project_python", "pipeline", "Nouveau projet Python: dossier + venv + git + VSCode", [
         "nouveau projet python", "init projet python", "cree un projet python",
         "setup python project",
-    ], "pipeline", "powershell:$name = 'new_project_' + (Get-Date -Format 'yyyyMMdd'); $path = \"F:\\BUREAU\\$name\"; New-Item $path -ItemType Directory -Force | Out-Null; cd $path; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' init 2>&1 | Out-String; \"Projet cree: $path\";;powershell:cd \"F:\\BUREAU\\$((Get-ChildItem F:\\BUREAU -Directory | Sort LastWriteTime -Descending | Select -First 1).Name)\"; git init 2>&1 | Out-String;;app_open:code;;sleep:2;;powershell:\"Projet Python initialise et ouvert dans VSCode\""),
+    ], "pipeline", "powershell:$name = 'new_project_' + (Get-Date -Format 'yyyyMMdd'); $path = \"F:/BUREAU/$name\"; New-Item $path -ItemType Directory -Force | Out-Null; cd $path; & '/\Users/franc/.local/bin/uv.exe' init 2>&1 | Out-String; \"Projet cree: $path\";;powershell:cd \"F:/BUREAU/$((Get-ChildItem F:/BUREAU -Directory | Sort LastWriteTime -Descending | Select -First 1).Name)\"; git init 2>&1 | Out-String;;app_open:code;;sleep:2;;powershell:\"Projet Python initialise et ouvert dans VSCode\""),
     JarvisCommand("sim_new_project_node", "pipeline", "Nouveau projet Node.js: dossier + npm init + git + VSCode", [
         "nouveau projet node", "init projet javascript", "cree un projet node",
         "setup node project",
-    ], "pipeline", "powershell:$name = 'node_project_' + (Get-Date -Format 'yyyyMMdd'); $path = \"F:\\BUREAU\\$name\"; New-Item $path -ItemType Directory -Force | Out-Null; cd $path; npm init -y 2>&1 | Out-String; \"Projet cree: $path\";;powershell:cd \"F:\\BUREAU\\$((Get-ChildItem F:\\BUREAU -Directory | Sort LastWriteTime -Descending | Select -First 1).Name)\"; git init 2>&1 | Out-String;;app_open:code;;sleep:2;;powershell:\"Projet Node.js initialise et ouvert dans VSCode\""),
+    ], "pipeline", "powershell:$name = 'node_project_' + (Get-Date -Format 'yyyyMMdd'); $path = \"F:/BUREAU/$name\"; New-Item $path -ItemType Directory -Force | Out-Null; cd $path; npm init -y 2>&1 | Out-String; \"Projet cree: $path\";;powershell:cd \"F:/BUREAU/$((Get-ChildItem F:/BUREAU -Directory | Sort LastWriteTime -Descending | Select -First 1).Name)\"; git init 2>&1 | Out-String;;app_open:code;;sleep:2;;powershell:\"Projet Node.js initialise et ouvert dans VSCode\""),
     JarvisCommand("sim_clone_and_setup", "pipeline", "Cloner un repo et l'ouvrir: git clone + VSCode + install deps", [
         "clone et setup {repo}", "git clone et ouvre {repo}",
         "clone le projet {repo}", "setup repo {repo}",
-    ], "pipeline", "powershell:cd F:\\BUREAU; git clone '{repo}' 2>&1 | Out-String;;sleep:2;;app_open:code;;sleep:2;;powershell:\"Repo clone et ouvert dans VSCode\"", ["repo"]),
+    ], "pipeline", "powershell:cd F:/BUREAU; git clone '{repo}' 2>&1 | Out-String;;sleep:2;;app_open:code;;sleep:2;;powershell:\"Repo clone et ouvert dans VSCode\"", ["repo"]),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 16 — GESTION FICHIERS MASSIVE
@@ -992,15 +992,15 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_grand_nettoyage_disque", "pipeline", "Grand nettoyage: temp + cache + corbeille + thumbnails + crash dumps + pycache", [
         "grand nettoyage du disque", "mega clean", "libere de l'espace",
         "nettoyage massif", "purge totale",
-    ], "pipeline", "powershell:$s1 = (Get-ChildItem $env:TEMP -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1MB; Remove-Item \"$env:TEMP\\*\" -Recurse -Force -ErrorAction SilentlyContinue; \"TEMP: $([math]::Round($s1)) MB liberes\";;powershell:Remove-Item \"$env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Default\\Cache\\*\" -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item \"$env:LOCALAPPDATA\\Microsoft\\Edge\\User Data\\Default\\Cache\\*\" -Recurse -Force -ErrorAction SilentlyContinue; 'Caches navigateur nettoyes';;powershell:Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe';;powershell:Remove-Item \"$env:LOCALAPPDATA\\Microsoft\\Windows\\Explorer\\thumbcache_*\" -Force -ErrorAction SilentlyContinue; 'Thumbnails nettoyes';;powershell:Remove-Item \"$env:LOCALAPPDATA\\CrashDumps\\*\" -Force -ErrorAction SilentlyContinue; 'Crash dumps supprimes';;powershell:Get-ChildItem F:\\BUREAU -Recurse -Directory -Filter '__pycache__' -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force; 'Pycache nettoyes';;powershell:$f = (Get-PSDrive F).Free/1GB; $c = (Get-PSDrive C).Free/1GB; \"Espace libre — C: $([math]::Round($c,1)) GB | F: $([math]::Round($f,1)) GB\"", confirm=True),
+    ], "pipeline", "powershell:$s1 = (Get-ChildItem $env:TEMP -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1MB; Remove-Item \"$env:TEMP/*\" -Recurse -Force -ErrorAction SilentlyContinue; \"TEMP: $([math]::Round($s1)) MB liberes\";;powershell:Remove-Item \"$env:LOCALAPPDATA/Google/Chrome/User Data/Default/Cache/*\" -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item \"$env:LOCALAPPDATA/Microsoft/Edge/User Data/Default/Cache/*\" -Recurse -Force -ErrorAction SilentlyContinue; 'Caches navigateur nettoyes';;powershell:Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe';;powershell:Remove-Item \"$env:LOCALAPPDATA/Microsoft/Windows/Explorer/thumbcache_*\" -Force -ErrorAction SilentlyContinue; 'Thumbnails nettoyes';;powershell:Remove-Item \"$env:LOCALAPPDATA/CrashDumps/*\" -Force -ErrorAction SilentlyContinue; 'Crash dumps supprimes';;powershell:Get-ChildItem F:/BUREAU -Recurse -Directory -Filter '__pycache__' -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force; 'Pycache nettoyes';;powershell:$f = (Get-PSDrive F).Free/1GB; $c = (Get-PSDrive C).Free/1GB; \"Espace libre — C: $([math]::Round($c,1)) GB | F: $([math]::Round($f,1)) GB\"", confirm=True),
     JarvisCommand("sim_archive_vieux_projets", "pipeline", "Archiver les projets non modifies depuis 30 jours", [
         "archive les vieux projets", "zip les anciens projets",
         "range les projets inactifs", "archivage projets",
-    ], "pipeline", "powershell:$old = Get-ChildItem F:\\BUREAU -Directory | Where { $_.Name -ne 'turbo' -and $_.LastWriteTime -lt (Get-Date).AddDays(-30) }; if($old){ $old | ForEach-Object { \"Inactif: $($_.Name) (modifie: $($_.LastWriteTime.ToString('dd/MM')))\"}; \"$($old.Count) projets inactifs detectes\" }else{ 'Tous les projets sont recents' }"),
+    ], "pipeline", "powershell:$old = Get-ChildItem F:/BUREAU -Directory | Where { $_.Name -ne 'turbo' -and $_.LastWriteTime -lt (Get-Date).AddDays(-30) }; if($old){ $old | ForEach-Object { \"Inactif: $($_.Name) (modifie: $($_.LastWriteTime.ToString('dd/MM')))\"}; \"$($old.Count) projets inactifs detectes\" }else{ 'Tous les projets sont recents' }"),
     JarvisCommand("sim_scan_fichiers_orphelins", "pipeline", "Scanner fichiers orphelins: gros fichiers + doublons + anciens", [
         "scan fichiers orphelins", "nettoyage intelligent", "analyse les fichiers",
         "quoi supprimer",
-    ], "pipeline", "powershell:\"=== Fichiers > 100MB ===\"; Get-ChildItem F:\\BUREAU -Recurse -File -ErrorAction SilentlyContinue | Where Length -gt 100MB | Sort Length -Desc | Select -First 5 @{N='MB';E={[math]::Round($_.Length/1MB)}}, FullName | Out-String;;powershell:\"=== Doublons par nom ===\"; Get-ChildItem F:\\BUREAU -Recurse -File -ErrorAction SilentlyContinue | Group Name | Where Count -gt 2 | Sort Count -Desc | Select -First 10 Name, Count | Out-String;;powershell:\"=== Fichiers > 1 an ===\"; Get-ChildItem F:\\BUREAU -Recurse -File -ErrorAction SilentlyContinue | Where { $_.LastWriteTime -lt (Get-Date).AddYears(-1) } | Measure-Object | Select @{N='Fichiers anciens (>1 an)';E={$_.Count}} | Out-String;;powershell:\"Scan fichiers termine\""),
+    ], "pipeline", "powershell:\"=== Fichiers > 100MB ===\"; Get-ChildItem F:/BUREAU -Recurse -File -ErrorAction SilentlyContinue | Where Length -gt 100MB | Sort Length -Desc | Select -First 5 @{N='MB';E={[math]::Round($_.Length/1MB)}}, FullName | Out-String;;powershell:\"=== Doublons par nom ===\"; Get-ChildItem F:/BUREAU -Recurse -File -ErrorAction SilentlyContinue | Group Name | Where Count -gt 2 | Sort Count -Desc | Select -First 10 Name, Count | Out-String;;powershell:\"=== Fichiers > 1 an ===\"; Get-ChildItem F:/BUREAU -Recurse -File -ErrorAction SilentlyContinue | Where { $_.LastWriteTime -lt (Get-Date).AddYears(-1) } | Measure-Object | Select @{N='Fichiers anciens (>1 an)';E={$_.Count}} | Out-String;;powershell:\"Scan fichiers termine\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 17 — POWERTOYS WORKFLOWS
@@ -1026,15 +1026,15 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_db_health_check", "pipeline", "Health check bases: jarvis.db + etoile.db + taille + integrite", [
         "health check des bases", "check les db", "bases de donnees ok",
         "diagnostic bases de donnees",
-    ], "pipeline", "powershell:$j = (Get-Item F:\\BUREAU\\turbo\\data\\jarvis.db -ErrorAction SilentlyContinue).Length/1KB; $e = (Get-Item F:\\BUREAU\\turbo\\data\\etoile.db -ErrorAction SilentlyContinue).Length/1KB; \"jarvis.db: $([math]::Round($j)) KB | etoile.db: $([math]::Round($e)) KB\";;powershell:sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db 'PRAGMA integrity_check;' 2>&1 | Out-String;;powershell:sqlite3 F:\\BUREAU\\turbo\\data\\etoile.db 'PRAGMA integrity_check;' 2>&1 | Out-String;;powershell:sqlite3 F:\\BUREAU\\turbo\\data\\etoile.db 'SELECT category, COUNT(*) as c FROM map GROUP BY category ORDER BY c DESC;' 2>&1 | Out-String;;powershell:\"Health check DB termine\""),
+    ], "pipeline", "powershell:$j = (Get-Item F:/BUREAU/turbo/data/jarvis.db -ErrorAction SilentlyContinue).Length/1KB; $e = (Get-Item F:/BUREAU/turbo/data/etoile.db -ErrorAction SilentlyContinue).Length/1KB; \"jarvis.db: $([math]::Round($j)) KB | etoile.db: $([math]::Round($e)) KB\";;powershell:sqlite3 F:/BUREAU/turbo/data/jarvis.db 'PRAGMA integrity_check;' 2>&1 | Out-String;;powershell:sqlite3 F:/BUREAU/turbo/data/etoile.db 'PRAGMA integrity_check;' 2>&1 | Out-String;;powershell:sqlite3 F:/BUREAU/turbo/data/etoile.db 'SELECT category, COUNT(*) as c FROM map GROUP BY category ORDER BY c DESC;' 2>&1 | Out-String;;powershell:\"Health check DB termine\""),
     JarvisCommand("sim_db_backup", "pipeline", "Backup toutes les bases de donnees", [
         "backup les bases", "sauvegarde les db", "copie les bases de donnees",
         "backup database",
-    ], "pipeline", "powershell:$d = Get-Date -Format 'yyyy-MM-dd_HHmm'; Copy-Item F:\\BUREAU\\turbo\\data\\jarvis.db \"F:\\BUREAU\\turbo\\data\\jarvis_backup_$d.db\" -Force; Copy-Item F:\\BUREAU\\turbo\\data\\etoile.db \"F:\\BUREAU\\turbo\\backups\\etoile_backup_$d.db\" -Force; \"Backup DB: jarvis_backup_$d.db + etoile_backup_$d.db\""),
+    ], "pipeline", "powershell:$d = Get-Date -Format 'yyyy-MM-dd_HHmm'; Copy-Item F:/BUREAU/turbo/data/jarvis.db \"F:/BUREAU/turbo/data/jarvis_backup_$d.db\" -Force; Copy-Item F:/BUREAU/turbo/data/etoile.db \"F:/BUREAU/turbo/backups/etoile_backup_$d.db\" -Force; \"Backup DB: jarvis_backup_$d.db + etoile_backup_$d.db\""),
     JarvisCommand("sim_db_stats", "pipeline", "Statistiques des bases: tables, lignes, taille par table", [
         "stats des bases", "metriques db", "combien dans les bases",
         "taille des tables",
-    ], "pipeline", "powershell:sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db '.tables' 2>&1 | Out-String;;powershell:sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db 'SELECT \"skills\" as tbl, COUNT(*) as rows FROM skills UNION ALL SELECT \"actions\", COUNT(*) FROM actions UNION ALL SELECT \"historique\", COUNT(*) FROM historique;' 2>&1 | Out-String;;powershell:sqlite3 F:\\BUREAU\\turbo\\data\\etoile.db 'SELECT \"map\" as tbl, COUNT(*) as rows FROM map UNION ALL SELECT \"agents\", COUNT(*) FROM agents UNION ALL SELECT \"memories\", COUNT(*) FROM memories;' 2>&1 | Out-String;;powershell:\"Stats DB terminees\""),
+    ], "pipeline", "powershell:sqlite3 F:/BUREAU/turbo/data/jarvis.db '.tables' 2>&1 | Out-String;;powershell:sqlite3 F:/BUREAU/turbo/data/jarvis.db 'SELECT \"skills\" as tbl, COUNT(*) as rows FROM skills UNION ALL SELECT \"actions\", COUNT(*) FROM actions UNION ALL SELECT \"historique\", COUNT(*) FROM historique;' 2>&1 | Out-String;;powershell:sqlite3 F:/BUREAU/turbo/data/etoile.db 'SELECT \"map\" as tbl, COUNT(*) as rows FROM map UNION ALL SELECT \"agents\", COUNT(*) FROM agents UNION ALL SELECT \"memories\", COUNT(*) FROM memories;' 2>&1 | Out-String;;powershell:\"Stats DB terminees\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 19 — DOCKER WORKFLOWS
@@ -1043,7 +1043,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_docker_full_status", "pipeline", "Status Docker complet: containers + images + volumes + espace", [
         "status docker complet", "etat complet docker", "docker overview",
         "resume docker",
-    ], "pipeline", "powershell:docker ps --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}' 2>&1 | Out-String;;powershell:docker images --format 'table {{.Repository}}\\t{{.Tag}}\\t{{.Size}}' 2>&1 | Out-String;;powershell:docker system df 2>&1 | Out-String;;powershell:\"Status Docker complet\""),
+    ], "pipeline", "powershell:docker ps --format 'table {{.Names}}/t{{.Status}}/t{{.Ports}}' 2>&1 | Out-String;;powershell:docker images --format 'table {{.Repository}}/t{{.Tag}}/t{{.Size}}' 2>&1 | Out-String;;powershell:docker system df 2>&1 | Out-String;;powershell:\"Status Docker complet\""),
     JarvisCommand("sim_docker_cleanup", "pipeline", "Nettoyage Docker: prune containers + images + volumes + build cache", [
         "nettoie docker a fond", "docker cleanup total", "purge docker complete",
         "libere espace docker",
@@ -1051,7 +1051,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_docker_restart_all", "pipeline", "Redemarrer tous les conteneurs Docker", [
         "redemarre docker", "restart all containers", "relance les conteneurs",
         "docker restart tout",
-    ], "pipeline", "powershell:docker restart $(docker ps -q) 2>&1 | Out-String;;sleep:3;;powershell:docker ps --format 'table {{.Names}}\\t{{.Status}}' 2>&1 | Out-String;;powershell:\"Tous les conteneurs redemarres\""),
+    ], "pipeline", "powershell:docker restart $(docker ps -q) 2>&1 | Out-String;;sleep:3;;powershell:docker ps --format 'table {{.Names}}/t{{.Status}}' 2>&1 | Out-String;;powershell:\"Tous les conteneurs redemarres\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 20 — SESSION CODE REVIEW
@@ -1060,7 +1060,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_code_review_prep", "pipeline", "Preparer une code review: git diff + VSCode + browser GitHub", [
         "prepare la code review", "session review", "revue de code",
         "je vais review du code",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git log --oneline -5 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; git diff --stat HEAD~3 2>&1 | Out-String;;app_open:code;;sleep:2;;browser:navigate:https://github.com/Turbo31150/turbo/pulls;;powershell:\"Code review prete — diff affiche\""),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; git log --oneline -5 2>&1 | Out-String;;powershell:cd F:/BUREAU/turbo; git diff --stat HEAD~3 2>&1 | Out-String;;app_open:code;;sleep:2;;browser:navigate:https://github.com/Turbo31150/turbo/pulls;;powershell:\"Code review prete — diff affiche\""),
     JarvisCommand("sim_code_review_split", "pipeline", "Layout code review: VSCode gauche + GitHub droite", [
         "layout review", "split code review", "cote a cote review",
         "ecran review",
@@ -1111,7 +1111,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_standup_meeting", "pipeline", "Preparer le standup: git log hier + today + blocker check", [
         "prepare le standup", "daily standup", "scrum preparation",
         "qu'est ce que j'ai fait hier",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; \"=== HIER ===\"; git log --since='yesterday' --until='today' --oneline 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; \"=== AUJOURD'HUI ===\"; git log --since='today' --oneline 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; \"=== EN COURS ===\"; git status -sb 2>&1 | Out-String;;powershell:\"Standup preparation terminee\""),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; \"=== HIER ===\"; git log --since='yesterday' --until='today' --oneline 2>&1 | Out-String;;powershell:cd F:/BUREAU/turbo; \"=== AUJOURD'HUI ===\"; git log --since='today' --oneline 2>&1 | Out-String;;powershell:cd F:/BUREAU/turbo; \"=== EN COURS ===\"; git status -sb 2>&1 | Out-String;;powershell:\"Standup preparation terminee\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 24 — CRYPTO & TRADING AVANCÉ
@@ -1124,7 +1124,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_trading_session", "pipeline", "Session trading: MEXC + TradingView + Terminal signaux", [
         "session trading complete", "lance le trading", "je vais trader",
         "ouvre tout le trading",
-    ], "pipeline", "browser:navigate:https://futures.mexc.com;;sleep:3;;browser:navigate:https://www.tradingview.com;;sleep:2;;app_open:wt;;sleep:1;;powershell:cd F:\\BUREAU\\turbo; \"Session trading active — MEXC + TradingView + Terminal\""),
+    ], "pipeline", "browser:navigate:https://futures.mexc.com;;sleep:3;;browser:navigate:https://www.tradingview.com;;sleep:2;;app_open:wt;;sleep:1;;powershell:cd F:/BUREAU/turbo; \"Session trading active — MEXC + TradingView + Terminal\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 25 — SYSTEM RECOVERY
@@ -1146,15 +1146,15 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_fullstack_build", "pipeline", "Build complet: lint + tests + build + rapport", [
         "build complet du projet", "full build", "lance tout le build",
         "compile et teste tout",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff check src/ --output-format=concise 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m pytest tests/ -x --tb=short 2>&1 | Select -Last 15 | Out-String;;powershell:\"Build complet termine\""),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run ruff check src/ --output-format=concise 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python -m pytest tests/ -x --tb=short 2>&1 | Select -Last 15 | Out-String;;powershell:\"Build complet termine\""),
     JarvisCommand("sim_deploy_check", "pipeline", "Pre-deploy: git status + tests + deps check + commit", [
         "check avant deploiement", "pre deploy check", "pret pour deployer",
         "verifie avant push",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git status -sb 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m pytest tests/ -x --tb=line 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' pip check 2>&1 | Out-String;;powershell:\"Pre-deploy check termine — pret pour push\""),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; git status -sb 2>&1 | Out-String;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python -m pytest tests/ -x --tb=line 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' pip check 2>&1 | Out-String;;powershell:\"Pre-deploy check termine — pret pour push\""),
     JarvisCommand("sim_git_release", "pipeline", "Release: tag + changelog + push tags", [
         "fais une release", "prepare la release", "git release",
         "nouvelle version",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; $v = git describe --tags --abbrev=0 2>$null; if($v){\"Derniere version: $v\"}else{\"Aucun tag existant\"};;powershell:cd F:\\BUREAU\\turbo; git log --oneline -10 2>&1 | Out-String;;powershell:\"Pret pour tagging — utilisez 'git tag vX.Y.Z' puis 'git push --tags'\""),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; $v = git describe --tags --abbrev=0 2>$null; if($v){\"Derniere version: $v\"}else{\"Aucun tag existant\"};;powershell:cd F:/BUREAU/turbo; git log --oneline -10 2>&1 | Out-String;;powershell:\"Pret pour tagging — utilisez 'git tag vX.Y.Z' puis 'git push --tags'\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 27 — API TESTING SESSION
@@ -1206,7 +1206,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_cleanup_aggressive", "pipeline", "Nettoyage agressif: temp + cache + logs + recycle bin", [
         "nettoyage agressif", "nettoie tout a fond", "libere maximum",
         "clean agressif",
-    ], "pipeline", "powershell:Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; \"Temp nettoye\";;powershell:Remove-Item \"$env:LOCALAPPDATA\\Microsoft\\Windows\\Explorer\\thumbcache_*\" -Force -ErrorAction SilentlyContinue; \"Thumbnail cache nettoye\";;powershell:Clear-RecycleBin -Force -ErrorAction SilentlyContinue; \"Corbeille videe\";;powershell:\"Nettoyage agressif termine\"", confirm=True),
+    ], "pipeline", "powershell:Remove-Item $env:TEMP/* -Recurse -Force -ErrorAction SilentlyContinue; \"Temp nettoye\";;powershell:Remove-Item \"$env:LOCALAPPDATA/Microsoft/Windows/Explorer/thumbcache_*\" -Force -ErrorAction SilentlyContinue; \"Thumbnail cache nettoye\";;powershell:Clear-RecycleBin -Force -ErrorAction SilentlyContinue; \"Corbeille videe\";;powershell:\"Nettoyage agressif termine\"", confirm=True),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 31 — LEARNING SESSION
@@ -1232,11 +1232,11 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_backup_turbo", "pipeline", "Backup turbo: git bundle + zip data + rapport", [
         "backup le projet", "sauvegarde turbo", "backup complet",
         "fais un backup",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git bundle create F:\\BUREAU\\turbo_backup_$(Get-Date -Format yyyyMMdd).bundle --all 2>&1 | Out-String;;powershell:Compress-Archive -Path F:\\BUREAU\\turbo\\data -DestinationPath F:\\BUREAU\\turbo_data_backup_$(Get-Date -Format yyyyMMdd).zip -Force; \"Data backup cree\";;powershell:\"Backup turbo termine — bundle git + zip data\""),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; git bundle create F:/BUREAU/turbo_backup_$(Get-Date -Format yyyyMMdd).bundle --all 2>&1 | Out-String;;powershell:Compress-Archive -Path F:/BUREAU/turbo/data -DestinationPath F:/BUREAU/turbo_data_backup_$(Get-Date -Format yyyyMMdd).zip -Force; \"Data backup cree\";;powershell:\"Backup turbo termine — bundle git + zip data\""),
     JarvisCommand("sim_backup_verify", "pipeline", "Verifier les backups: taille + date + integrite", [
         "verifie les backups", "check les sauvegardes", "status backup",
         "les backups sont ok",
-    ], "pipeline", "powershell:Get-ChildItem F:\\BUREAU\\turbo_backup_*.bundle -ErrorAction SilentlyContinue | Select Name, @{N='Size(MB)';E={[math]::Round($_.Length/1MB,1)}}, LastWriteTime | Format-Table | Out-String;;powershell:Get-ChildItem F:\\BUREAU\\turbo_data_backup_*.zip -ErrorAction SilentlyContinue | Select Name, @{N='Size(MB)';E={[math]::Round($_.Length/1MB,1)}}, LastWriteTime | Format-Table | Out-String;;powershell:\"Verification backups terminee\""),
+    ], "pipeline", "powershell:Get-ChildItem F:/BUREAU/turbo_backup_*.bundle -ErrorAction SilentlyContinue | Select Name, @{N='Size(MB)';E={[math]::Round($_.Length/1MB,1)}}, LastWriteTime | Format-Table | Out-String;;powershell:Get-ChildItem F:/BUREAU/turbo_data_backup_*.zip -ErrorAction SilentlyContinue | Select Name, @{N='Size(MB)';E={[math]::Round($_.Length/1MB,1)}}, LastWriteTime | Format-Table | Out-String;;powershell:\"Verification backups terminee\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 33 — MORNING PRODUCTIVITY
@@ -1245,11 +1245,11 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_morning_routine", "pipeline", "Routine matin: meteo + news + mails + cluster + standup", [
         "routine du matin", "bonjour jarvis", "demarre la journee",
         "morning routine",
-    ], "pipeline", "browser:navigate:https://www.meteofrance.com;;sleep:1;;browser:navigate:https://news.google.com;;sleep:1;;browser:navigate:https://mail.google.com;;sleep:2;;powershell:try{$r=Invoke-WebRequest http://127.0.0.1:11434/api/tags -UseBasicParsing -TimeoutSec 3; \"OL1: OK\"}catch{\"OL1: OFF\"};;powershell:cd F:\\BUREAU\\turbo; git log --since='yesterday' --oneline 2>&1 | Out-String;;powershell:\"Routine matinale complete — bonne journee!\""),
+    ], "pipeline", "browser:navigate:https://www.meteofrance.com;;sleep:1;;browser:navigate:https://news.google.com;;sleep:1;;browser:navigate:https://mail.google.com;;sleep:2;;powershell:try{$r=Invoke-WebRequest http://127.0.0.1:11434/api/tags -UseBasicParsing -TimeoutSec 3; \"OL1: OK\"}catch{\"OL1: OFF\"};;powershell:cd F:/BUREAU/turbo; git log --since='yesterday' --oneline 2>&1 | Out-String;;powershell:\"Routine matinale complete — bonne journee!\""),
     JarvisCommand("sim_evening_shutdown", "pipeline", "Routine soir: git status + save + clear temp + veille", [
         "routine du soir", "bonsoir jarvis", "fin de journee",
         "evening routine",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git status -sb 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; git stash 2>&1 | Out-String;;powershell:Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; \"Temp nettoye\";;powershell:\"Fin de journee — travail sauvegarde, systeme propre\""),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; git status -sb 2>&1 | Out-String;;powershell:cd F:/BUREAU/turbo; git stash 2>&1 | Out-String;;powershell:Remove-Item $env:TEMP/* -Recurse -Force -ErrorAction SilentlyContinue; \"Temp nettoye\";;powershell:\"Fin de journee — travail sauvegarde, systeme propre\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 34 — FREELANCE WORKSPACE
@@ -1262,7 +1262,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_client_meeting", "pipeline", "Prep meeting client: Teams + notes + projet + timer", [
         "prepare le meeting client", "meeting client", "reunion client",
         "appel client",
-    ], "pipeline", "app_open:ms-teams;;sleep:3;;app_open:notepad;;sleep:1;;powershell:cd F:\\BUREAU\\turbo; git log --oneline -5 2>&1 | Out-String;;powershell:\"Meeting client prepare — Teams + Notes + Status projet\""),
+    ], "pipeline", "app_open:ms-teams;;sleep:3;;app_open:notepad;;sleep:1;;powershell:cd F:/BUREAU/turbo; git log --oneline -5 2>&1 | Out-String;;powershell:\"Meeting client prepare — Teams + Notes + Status projet\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 35 — DATABASE MANAGEMENT
@@ -1271,7 +1271,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
 JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + etoile + trading", [
         "backup toutes les bases", "sauvegarde les bases", "db backup all",
         "backup databases",
-    ], "pipeline", "powershell:$d=Get-Date -Format yyyyMMdd; Copy-Item F:\\BUREAU\\turbo\\data\\jarvis.db F:\\BUREAU\\turbo\\data\\jarvis_backup_$d.db; \"jarvis.db backup OK\";;powershell:$d=Get-Date -Format yyyyMMdd; Copy-Item F:\\BUREAU\\turbo\\data\\etoile.db F:\\BUREAU\\turbo\\backups\\etoile_backup_$d.db; \"etoile.db backup OK\";;powershell:\"Backup de toutes les bases termine\""),
+    ], "pipeline", "powershell:$d=Get-Date -Format yyyyMMdd; Copy-Item F:/BUREAU/turbo/data/jarvis.db F:/BUREAU/turbo/data/jarvis_backup_$d.db; \"jarvis.db backup OK\";;powershell:$d=Get-Date -Format yyyyMMdd; Copy-Item F:/BUREAU/turbo/data/etoile.db F:/BUREAU/turbo/backups/etoile_backup_$d.db; \"etoile.db backup OK\";;powershell:\"Backup de toutes les bases termine\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 36 — SECURITY AUDIT
@@ -1280,7 +1280,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("sim_security_full_audit", "pipeline", "Audit secu: ports + firewall + users + certs + deps", [
         "audit securite complet", "full security audit",
         "scan securite total", "verifie la securite du systeme",
-    ], "pipeline", "powershell:Get-NetTCPConnection -State Listen | Select -First 10 LocalPort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ea 0).Name}} | Format-Table | Out-String;;powershell:Get-NetFirewallProfile | Select Name, Enabled | Format-Table | Out-String;;powershell:Get-LocalUser | Where Enabled | Select Name, LastLogon | Format-Table | Out-String;;powershell:Get-ChildItem Cert:\\LocalMachine\\My -ErrorAction SilentlyContinue | Select Subject, NotAfter | Format-Table | Out-String;;powershell:\"Audit securite termine — 4 scans effectues\""),
+    ], "pipeline", "powershell:Get-NetTCPConnection -State Listen | Select -First 10 LocalPort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ea 0).Name}} | Format-Table | Out-String;;powershell:Get-NetFirewallProfile | Select Name, Enabled | Format-Table | Out-String;;powershell:Get-LocalUser | Where Enabled | Select Name, LastLogon | Format-Table | Out-String;;powershell:Get-ChildItem Cert:/LocalMachine/My -ErrorAction SilentlyContinue | Select Subject, NotAfter | Format-Table | Out-String;;powershell:\"Audit securite termine — 4 scans effectues\""),
     JarvisCommand("sim_security_network", "pipeline", "Audit reseau: connexions + DNS + ARP + routes", [
         "audit reseau", "scan reseau complet", "network security audit",
         "verifie le reseau",
@@ -1306,11 +1306,11 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("sim_doc_session", "pipeline", "Session docs: VSCode + docs + preview markdown", [
         "session documentation", "ecris la doc", "mode documentation",
         "redige la doc",
-    ], "pipeline", "powershell:code F:\\BUREAU\\turbo\\docs 2>$null;;sleep:2;;browser:navigate:https://devdocs.io;;sleep:1;;browser:navigate:https://markdownlivepreview.com;;powershell:\"Session documentation ouverte — VSCode + DevDocs + Markdown Preview\""),
+    ], "pipeline", "powershell:code F:/BUREAU/turbo/docs 2>$null;;sleep:2;;browser:navigate:https://devdocs.io;;sleep:1;;browser:navigate:https://markdownlivepreview.com;;powershell:\"Session documentation ouverte — VSCode + DevDocs + Markdown Preview\""),
     JarvisCommand("sim_doc_generate", "pipeline", "Generer toute la doc: vocale + README + changelog", [
         "genere toute la doc", "regenere la documentation",
         "update la doc", "rafraichis la doc",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python scripts/tools/gen_vocal_docs.py 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python scripts/gen_readme_commands.py 2>&1 | Out-String;;powershell:\"Documentation regeneree — vocale + README\""),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python scripts/tools/gen_vocal_docs.py 2>&1 | Out-String;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python scripts/gen_readme_commands.py 2>&1 | Out-String;;powershell:\"Documentation regeneree — vocale + README\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 39 — AI/ML WORKSPACE
@@ -1323,7 +1323,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("sim_model_eval", "pipeline", "Evaluation modele: benchmark cluster + comparaison", [
         "evalue les modeles", "benchmark modeles", "compare les modeles",
         "evaluation ia",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python scripts/benchmark_cluster.py 2>&1 | Select -Last 20 | Out-String;;powershell:\"Evaluation modeles terminee — voir data/benchmark_report.json\""),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python scripts/benchmark_cluster.py 2>&1 | Select -Last 20 | Out-String;;powershell:\"Evaluation modeles terminee — voir data/benchmark_report.json\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 40 — HOME OFFICE SETUP
@@ -1371,7 +1371,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("sim_deploy_vercel", "pipeline", "Deploy Vercel: build + push + deploy + verify", [
         "deploie sur vercel", "deploy vercel", "push vercel",
         "met en prod sur vercel",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; git status -sb 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; git push origin main 2>&1 | Out-String;;browser:navigate:https://vercel.com/dashboard;;powershell:\"Deploy initie — verifier le dashboard Vercel\""),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; git status -sb 2>&1 | Out-String;;powershell:cd F:/BUREAU/turbo; git push origin main 2>&1 | Out-String;;browser:navigate:https://vercel.com/dashboard;;powershell:\"Deploy initie — verifier le dashboard Vercel\""),
     JarvisCommand("sim_deploy_docker", "pipeline", "Deploy Docker: build image + tag + push registry", [
         "deploie en docker", "docker deploy", "push docker image",
         "build et deploy docker",
@@ -1384,7 +1384,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("sim_datascience_setup", "pipeline", "Data Science: Jupyter + HuggingFace + GPU monitor", [
         "mode data science", "setup data science", "workspace datascience",
         "lance jupyter et compagnie",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run jupyter lab --no-browser 2>&1 | Select -First 3 | Out-String;;browser:navigate:https://huggingface.co/datasets;;sleep:1;;powershell:nvidia-smi --query-gpu=name,memory.used,memory.total,utilization.gpu --format=csv,noheader 2>&1 | Out-String;;powershell:\"Data Science workspace pret — Jupyter + HuggingFace + GPU\""),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run jupyter lab --no-browser 2>&1 | Select -First 3 | Out-String;;browser:navigate:https://huggingface.co/datasets;;sleep:1;;powershell:nvidia-smi --query-gpu=name,memory.used,memory.total,utilization.gpu --format=csv,noheader 2>&1 | Out-String;;powershell:\"Data Science workspace pret — Jupyter + HuggingFace + GPU\""),
     JarvisCommand("sim_kaggle_session", "pipeline", "Session Kaggle: competitions + notebooks + datasets", [
         "session kaggle", "mode kaggle", "ouvre kaggle",
         "competitions kaggle",
@@ -1433,7 +1433,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("sim_monitoring_full", "pipeline", "Monitoring: GPU + cluster + ports + logs + disk", [
         "monitoring complet", "check tout le monitoring", "surveillance totale",
         "dashboard monitoring",
-    ], "pipeline", "powershell:nvidia-smi --query-gpu=name,temperature.gpu,memory.used,utilization.gpu --format=csv,noheader 2>&1 | Out-String;;powershell:@('http://127.0.0.1:11434/api/tags','http://192.168.1.26:1234/api/v1/models','http://192.168.1.113:1234/api/v1/models') | ForEach-Object { try{Invoke-WebRequest $_ -UseBasicParsing -TimeoutSec 2 >$null; \"$_`: OK\"}catch{\"$_`: OFFLINE\"} } | Out-String;;powershell:Get-NetTCPConnection -State Listen | Group LocalPort | Sort Count -Desc | Select -First 10 Count, Name | Format-Table | Out-String;;powershell:Get-Content F:\\BUREAU\\turbo\\data\\jarvis.log -Tail 5 -ErrorAction SilentlyContinue | Out-String;;powershell:Get-PSDrive -PSProvider FileSystem | Select Name, @{N='Free(GB)';E={[math]::Round($_.Free/1GB,1)}}, @{N='Used(GB)';E={[math]::Round($_.Used/1GB,1)}} | Format-Table | Out-String;;powershell:\"Monitoring complet termine — 5 checks\""),
+    ], "pipeline", "powershell:nvidia-smi --query-gpu=name,temperature.gpu,memory.used,utilization.gpu --format=csv,noheader 2>&1 | Out-String;;powershell:@('http://127.0.0.1:11434/api/tags','http://192.168.1.26:1234/api/v1/models','http://192.168.1.113:1234/api/v1/models') | ForEach-Object { try{Invoke-WebRequest $_ -UseBasicParsing -TimeoutSec 2 >$null; \"$_`: OK\"}catch{\"$_`: OFFLINE\"} } | Out-String;;powershell:Get-NetTCPConnection -State Listen | Group LocalPort | Sort Count -Desc | Select -First 10 Count, Name | Format-Table | Out-String;;powershell:Get-Content F:/BUREAU/turbo/data/jarvis.log -Tail 5 -ErrorAction SilentlyContinue | Out-String;;powershell:Get-PSDrive -PSProvider FileSystem | Select Name, @{N='Free(GB)';E={[math]::Round($_.Free/1GB,1)}}, @{N='Used(GB)';E={[math]::Round($_.Used/1GB,1)}} | Format-Table | Out-String;;powershell:\"Monitoring complet termine — 5 checks\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 50 — JARVIS SELF-CHECK
@@ -1442,7 +1442,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("sim_jarvis_selfcheck", "pipeline", "Auto-diagnostic JARVIS: config + deps + DB + commands + cluster", [
         "auto diagnostic jarvis", "jarvis self check", "verifie toi meme",
         "diagnostic jarvis complet",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.config import *; print('Config: OK')\" 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.commands import COMMANDS; print(f'{len(COMMANDS)} commandes chargees')\" 2>&1 | Out-String;;powershell:$dbs=@('F:\\BUREAU\\turbo\\data\\jarvis.db','F:\\BUREAU\\turbo\\data\\etoile.db'); $dbs | ForEach-Object { if(Test-Path $_){$f=Get-Item $_; \"$($f.Name): $([math]::Round($f.Length/1KB))KB OK\"}else{\"$_ MANQUANT\"} } | Out-String;;powershell:try{Invoke-WebRequest http://127.0.0.1:11434/api/tags -UseBasicParsing -TimeoutSec 3 >$null; 'OL1: OK'}catch{'OL1: OFFLINE'};;powershell:\"Auto-diagnostic JARVIS termine\""),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python -c \"from src.config import *; print('Config: OK')\" 2>&1 | Out-String;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python -c \"from src.commands import COMMANDS; print(f'{len(COMMANDS)} commandes chargees')\" 2>&1 | Out-String;;powershell:$dbs=@('F:/BUREAU/turbo/data/jarvis.db','F:/BUREAU/turbo/data/etoile.db'); $dbs | ForEach-Object { if(Test-Path $_){$f=Get-Item $_; \"$($f.Name): $([math]::Round($f.Length/1KB))KB OK\"}else{\"$_ MANQUANT\"} } | Out-String;;powershell:try{Invoke-WebRequest http://127.0.0.1:11434/api/tags -UseBasicParsing -TimeoutSec 3 >$null; 'OL1: OK'}catch{'OL1: OFFLINE'};;powershell:\"Auto-diagnostic JARVIS termine\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 51 — WIFI & NETWORK DIAGNOSTIC
@@ -1460,7 +1460,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("sim_opensource_session", "pipeline", "Open source: GitHub + issues + fork + terminal", [
         "mode open source", "session contribution", "contribute au code",
         "open source session",
-    ], "pipeline", "browser:navigate:https://github.com/trending;;sleep:1;;browser:navigate:https://github.com/issues;;sleep:1;;app_open:wt;;sleep:1;;powershell:cd F:\\BUREAU\\turbo; git status -sb 2>&1 | Out-String;;powershell:\"Session open source prete — GitHub Trending + Issues + Terminal\""),
+    ], "pipeline", "browser:navigate:https://github.com/trending;;sleep:1;;browser:navigate:https://github.com/issues;;sleep:1;;app_open:wt;;sleep:1;;powershell:cd F:/BUREAU/turbo; git status -sb 2>&1 | Out-String;;powershell:\"Session open source prete — GitHub Trending + Issues + Terminal\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 53 — STREAMING SETUP
@@ -1496,7 +1496,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("sim_weekly_review", "pipeline", "Review hebdo: commits semaine + issues + LOC + DB + cluster perf", [
         "review hebdomadaire", "bilan de la semaine", "weekly review",
         "qu'est ce qu'on a fait cette semaine",
-    ], "pipeline", "powershell:cd F:\\BUREAU\\turbo; \"=== COMMITS CETTE SEMAINE ===\"; git log --since='7 days ago' --oneline 2>&1 | Out-String;;powershell:cd F:\\BUREAU\\turbo; $f=git diff --stat HEAD~10 2>&1 | Select -Last 1; \"Changements: $f\";;powershell:cd F:\\BUREAU\\turbo; $loc=(Get-ChildItem src/*.py -Recurse | ForEach-Object { (Get-Content $_.FullName | Measure-Object -Line).Lines } | Measure-Object -Sum).Sum; \"Lignes de code: $loc\";;powershell:cd F:\\BUREAU\\turbo; gh issue list --limit 5 2>&1 | Out-String;;powershell:\"Review hebdomadaire terminee\""),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; \"=== COMMITS CETTE SEMAINE ===\"; git log --since='7 days ago' --oneline 2>&1 | Out-String;;powershell:cd F:/BUREAU/turbo; $f=git diff --stat HEAD~10 2>&1 | Select -Last 1; \"Changements: $f\";;powershell:cd F:/BUREAU/turbo; $loc=(Get-ChildItem src/*.py -Recurse | ForEach-Object { (Get-Content $_.FullName | Measure-Object -Line).Lines } | Measure-Object -Sum).Sum; \"Lignes de code: $loc\";;powershell:cd F:/BUREAU/turbo; gh issue list --limit 5 2>&1 | Out-String;;powershell:\"Review hebdomadaire terminee\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 57 — PRESENTATION PREP
@@ -1552,7 +1552,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
         "temperature gpu", "les gpu sont chauds", "check gpu temp",
         "surchauffe gpu", "monitoring thermique",
         "jarvis les gpu sont ok",
-    ], "pipeline", "powershell:$gpu = nvidia-smi --query-gpu=index,name,temperature.gpu,utilization.gpu,memory.used,memory.total,power.draw --format=csv,noheader 2>&1; $lines = $gpu -split \"`n\" | Where-Object {$_ -match '\\d'}; foreach($l in $lines){$parts = $l -split ','; $temp = [int]$parts[2].Trim(); $status = if($temp -ge 85){'CRITIQUE'}elseif($temp -ge 75){'ATTENTION'}else{'OK'}; \"GPU$($parts[0].Trim()): $($parts[1].Trim()) | ${temp}C [$status] | Load:$($parts[3].Trim()) | VRAM:$($parts[4].Trim())/$($parts[5].Trim())MB | Power:$($parts[6].Trim())\"}"),
+    ], "pipeline", "powershell:$gpu = nvidia-smi --query-gpu=index,name,temperature.gpu,utilization.gpu,memory.used,memory.total,power.draw --format=csv,noheader 2>&1; $lines = $gpu -split \"`n\" | Where-Object {$_ -match '/d'}; foreach($l in $lines){$parts = $l -split ','; $temp = [int]$parts[2].Trim(); $status = if($temp -ge 85){'CRITIQUE'}elseif($temp -ge 75){'ATTENTION'}else{'OK'}; \"GPU$($parts[0].Trim()): $($parts[1].Trim()) | ${temp}C [$status] | Load:$($parts[3].Trim()) | VRAM:$($parts[4].Trim())/$($parts[5].Trim())MB | Power:$($parts[6].Trim())\"}"),
 
     JarvisCommand("diag_processus_suspect", "pipeline", "Lister les processus suspects: gros consommateurs RAM/CPU", [
         "processus suspects", "qu'est-ce qui consomme", "top processus",
@@ -1568,7 +1568,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
         "resume mon activite", "qu'est-ce que j'ai fait",
         "bilan d'activite", "resume la journee",
         "jarvis resume ce que j'ai fait",
-    ], "pipeline", "powershell:$git = git -C F:\\BUREAU\\turbo log --since='8 hours ago' --oneline 2>&1 | Out-String; $up = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; $uptime = (New-TimeSpan -Start $up).ToString('d\\.hh\\:mm'); $body = @{model='qwen3-8b';messages=@(@{role='user';content=\"/nothink`nResume cette activite de dev en 3 lignes. Commits recents: $git. Uptime: $uptime\"});temperature=0.3;max_tokens=200} | ConvertTo-Json -Depth 3; $r = Invoke-RestMethod -Uri 'http://127.0.0.1:1234/v1/chat/completions' -Method Post -Body $body -ContentType 'application/json' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15; \"[Resume IA] $($r.choices[0].message.content)\""),
+    ], "pipeline", "powershell:$git = git -C F:/BUREAU/turbo log --since='8 hours ago' --oneline 2>&1 | Out-String; $up = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; $uptime = (New-TimeSpan -Start $up).ToString('d/.hh/:mm'); $body = @{model='qwen3-8b';messages=@(@{role='user';content=\"/nothink`nResume cette activite de dev en 3 lignes. Commits recents: $git. Uptime: $uptime\"});temperature=0.3;max_tokens=200} | ConvertTo-Json -Depth 3; $r = Invoke-RestMethod -Uri 'http://127.0.0.1:1234/v1/chat/completions' -Method Post -Body $body -ContentType 'application/json' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15; \"[Resume IA] $($r.choices[0].message.content)\""),
 
     JarvisCommand("cognitif_consensus_rapide", "pipeline", "Consensus cluster: envoyer une question a M1 + M2 + OL1", [
         "consensus sur", "demande au cluster", "avis du cluster",
@@ -1586,7 +1586,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
         "qu'est-ce que je devrais faire", "suggestion de tache",
         "on fait quoi maintenant", "quoi faire",
         "jarvis propose moi quelque chose",
-    ], "pipeline", "powershell:$git = (git -C F:\\BUREAU\\turbo log --since='4 hours ago' --oneline 2>&1 | Measure-Object -Line).Lines; $body = @{model='qwen3-8b';messages=@(@{role='system';content='Tu es JARVIS, assistant personnel. Reponds en 2-3 lignes max.'};@{role='user';content=\"/nothink`nIl est $((Get-Date).ToString('HH:mm')), c'est un $(Get-Date -Format 'dddd'). L'utilisateur a fait $git commits ces 4 dernieres heures. Suggere une activite adaptee au moment de la journee.\"});temperature=0.5;max_tokens=150} | ConvertTo-Json -Depth 3; $r = Invoke-RestMethod -Uri 'http://127.0.0.1:1234/v1/chat/completions' -Method Post -Body $body -ContentType 'application/json' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15; \"[JARVIS] $($r.choices[0].message.content)\""),
+    ], "pipeline", "powershell:$git = (git -C F:/BUREAU/turbo log --since='4 hours ago' --oneline 2>&1 | Measure-Object -Line).Lines; $body = @{model='qwen3-8b';messages=@(@{role='system';content='Tu es JARVIS, assistant personnel. Reponds en 2-3 lignes max.'};@{role='user';content=\"/nothink`nIl est $((Get-Date).ToString('HH:mm')), c'est un $(Get-Date -Format 'dddd'). L'utilisateur a fait $git commits ces 4 dernieres heures. Suggere une activite adaptee au moment de la journee.\"});temperature=0.5;max_tokens=150} | ConvertTo-Json -Depth 3; $r = Invoke-RestMethod -Uri 'http://127.0.0.1:1234/v1/chat/completions' -Method Post -Body $body -ContentType 'application/json' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15; \"[JARVIS] $($r.choices[0].message.content)\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SECURITE AVANCEE — Audit et protection systeme
@@ -1596,7 +1596,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
         "scan les ports", "ports ouverts", "connexions actives",
         "check securite ports", "qui est connecte",
         "scan reseau securite",
-    ], "pipeline", "powershell:\"=== PORTS EN ECOUTE ===\"; Get-NetTCPConnection -State Listen | Select-Object LocalPort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Sort-Object LocalPort | Format-Table -AutoSize | Out-String;;powershell:\"=== CONNEXIONS ETABLIES (hors localhost) ===\"; Get-NetTCPConnection -State Established | Where-Object {$_.RemoteAddress -notmatch '^(127\\.|::1|0\\.)'} | Select-Object RemoteAddress, RemotePort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Format-Table -AutoSize | Out-String"),
+    ], "pipeline", "powershell:\"=== PORTS EN ECOUTE ===\"; Get-NetTCPConnection -State Listen | Select-Object LocalPort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Sort-Object LocalPort | Format-Table -AutoSize | Out-String;;powershell:\"=== CONNEXIONS ETABLIES (hors localhost) ===\"; Get-NetTCPConnection -State Established | Where-Object {$_.RemoteAddress -notmatch '^(127/.|::1|0/.)'} | Select-Object RemoteAddress, RemotePort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Format-Table -AutoSize | Out-String"),
 
     JarvisCommand("securite_check_defender", "pipeline", "Status Windows Defender + derniere mise a jour + menaces", [
         "status defender", "windows defender", "check antivirus",
@@ -1613,7 +1613,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
         "check fichiers sensibles", "verification securite fichiers",
         "scan credentials", "fichiers secrets",
         "y a des fichiers dangereux",
-    ], "pipeline", "powershell:\"=== FICHIERS SENSIBLES TROUVES ===\"; $patterns = @('*.env', '*.pem', '*.key', '*credentials*', '*secret*', '*password*'); $found = foreach($p in $patterns){Get-ChildItem -Path F:\\BUREAU -Recurse -Filter $p -ErrorAction SilentlyContinue -Depth 3 | Select-Object FullName, Length, LastWriteTime}; if($found){$found | Format-Table -AutoSize | Out-String}else{'Aucun fichier sensible trouve dans F:\\BUREAU'};;powershell:\"=== .ENV DANS PROJETS ===\"; Get-ChildItem -Path F:\\BUREAU -Recurse -Filter '.env' -ErrorAction SilentlyContinue -Depth 4 | ForEach-Object {\"$($_.FullName) ($([math]::Round($_.Length/1KB,1))KB)\"} | Out-String"),
+    ], "pipeline", "powershell:\"=== FICHIERS SENSIBLES TROUVES ===\"; $patterns = @('*.env', '*.pem', '*.key', '*credentials*', '*secret*', '*password*'); $found = foreach($p in $patterns){Get-ChildItem -Path F:/BUREAU -Recurse -Filter $p -ErrorAction SilentlyContinue -Depth 3 | Select-Object FullName, Length, LastWriteTime}; if($found){$found | Format-Table -AutoSize | Out-String}else{'Aucun fichier sensible trouve dans F:/BUREAU'};;powershell:\"=== .ENV DANS PROJETS ===\"; Get-ChildItem -Path F:/BUREAU -Recurse -Filter '.env' -ErrorAction SilentlyContinue -Depth 4 | ForEach-Object {\"$($_.FullName) ($([math]::Round($_.Length/1KB,1))KB)\"} | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # DEBUG RESEAU AVANCE — Diagnostic reseau complet
@@ -1650,25 +1650,25 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
         "bonjour jarvis", "salut jarvis", "hey jarvis bonjour",
         "coucou jarvis", "jarvis reveille toi",
         "jarvis on y va", "bonne journee jarvis",
-    ], "pipeline", "powershell:$h = (Get-Date).ToString('HH:mm'); $jour = Get-Date -Format 'dddd dd MMMM yyyy'; \"Bonjour! Il est $h, nous sommes $jour\";;powershell:$m1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; $ol1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; \"Cluster: M1=$(if($m1 -eq 200){'pret'}else{'offline'}) | OL1=$(if($ol1 -eq 200){'pret'}else{'offline'})\";;powershell:$gpu = nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits 2>&1; $temps = ($gpu -split \"`n\" | Where-Object {$_ -match '\\d'}) -join 'C, '; \"GPU: ${temps}C\";;powershell:$os = Get-CimInstance Win32_OperatingSystem; $ram = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); $total = [math]::Round($os.TotalVisibleMemorySize/1MB,1); \"RAM: $ram/$total GB — Pret pour la journee!\""),
+    ], "pipeline", "powershell:$h = (Get-Date).ToString('HH:mm'); $jour = Get-Date -Format 'dddd dd MMMM yyyy'; \"Bonjour! Il est $h, nous sommes $jour\";;powershell:$m1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; $ol1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; \"Cluster: M1=$(if($m1 -eq 200){'pret'}else{'offline'}) | OL1=$(if($ol1 -eq 200){'pret'}else{'offline'})\";;powershell:$gpu = nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits 2>&1; $temps = ($gpu -split \"`n\" | Where-Object {$_ -match '/d'}) -join 'C, '; \"GPU: ${temps}C\";;powershell:$os = Get-CimInstance Win32_OperatingSystem; $ram = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); $total = [math]::Round($os.TotalVisibleMemorySize/1MB,1); \"RAM: $ram/$total GB — Pret pour la journee!\""),
 
     JarvisCommand("routine_bilan_journee", "pipeline", "Bilan de fin de journee: commits + uptime + stats + resume IA", [
         "bilan de la journee", "comment s'est passe la journee",
         "resume de la journee", "c'etait bien aujourd'hui",
         "jarvis bilan", "fin de journee bilan",
-    ], "pipeline", "powershell:\"=== BILAN DU JOUR ===\"; $commits = (git -C F:\\BUREAU\\turbo log --since='midnight' --oneline 2>&1 | Measure-Object -Line).Lines; \"Commits aujourd'hui: $commits\";;powershell:$up = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; $uptime = (New-TimeSpan -Start $up).ToString('hh\\:mm'); \"Uptime: $uptime\";;powershell:$commits = (git -C F:\\BUREAU\\turbo log --since='midnight' --oneline 2>&1 | Measure-Object -Line).Lines; $body = @{model='qwen3-8b';messages=@(@{role='system';content='Tu es JARVIS. Fais un bilan de journee encourageant en 2 lignes.'};@{role='user';content=\"/nothink`nL'utilisateur a fait $commits commits aujourd'hui. Il est $((Get-Date).ToString('HH:mm')). Fais un bilan positif.\"});temperature=0.5;max_tokens=100} | ConvertTo-Json -Depth 3; $r = Invoke-RestMethod -Uri 'http://127.0.0.1:1234/v1/chat/completions' -Method Post -Body $body -ContentType 'application/json' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15; \"[JARVIS] $($r.choices[0].message.content)\""),
+    ], "pipeline", "powershell:\"=== BILAN DU JOUR ===\"; $commits = (git -C F:/BUREAU/turbo log --since='midnight' --oneline 2>&1 | Measure-Object -Line).Lines; \"Commits aujourd'hui: $commits\";;powershell:$up = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; $uptime = (New-TimeSpan -Start $up).ToString('hh/:mm'); \"Uptime: $uptime\";;powershell:$commits = (git -C F:/BUREAU/turbo log --since='midnight' --oneline 2>&1 | Measure-Object -Line).Lines; $body = @{model='qwen3-8b';messages=@(@{role='system';content='Tu es JARVIS. Fais un bilan de journee encourageant en 2 lignes.'};@{role='user';content=\"/nothink`nL'utilisateur a fait $commits commits aujourd'hui. Il est $((Get-Date).ToString('HH:mm')). Fais un bilan positif.\"});temperature=0.5;max_tokens=100} | ConvertTo-Json -Depth 3; $r = Invoke-RestMethod -Uri 'http://127.0.0.1:1234/v1/chat/completions' -Method Post -Body $body -ContentType 'application/json' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15; \"[JARVIS] $($r.choices[0].message.content)\""),
 
     JarvisCommand("routine_tout_va_bien", "pipeline", "Tout va bien? Check rapide systeme + cluster + GPU en 1 commande", [
         "tout va bien", "ca va jarvis", "status rapide",
         "tout est ok", "check rapide", "jarvis ca roule",
         "est-ce que tout marche",
-    ], "pipeline", "powershell:$cpu = (Get-CimInstance Win32_Processor).LoadPercentage; $os = Get-CimInstance Win32_OperatingSystem; $ram = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); $total = [math]::Round($os.TotalVisibleMemorySize/1MB,1); $gpu_temp = (nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits 2>&1) -split \"`n\" | Where-Object {$_ -match '\\d'} | ForEach-Object {[int]$_}; $max_temp = ($gpu_temp | Measure-Object -Maximum).Maximum; $m1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 3 -UseBasicParsing).StatusCode -eq 200}catch{$false}; $ol1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing).StatusCode -eq 200}catch{$false}; $status = if($cpu -lt 80 -and $ram/$total -lt 0.9 -and $max_temp -lt 80 -and $m1 -and $ol1){'Tout est OK!'}else{'Attention, verifier certains points'}; \"$status | CPU:${cpu}% | RAM:$ram/$total GB | GPU max:${max_temp}C | M1:$(if($m1){'OK'}else{'OFF'}) | OL1:$(if($ol1){'OK'}else{'OFF'})\""),
+    ], "pipeline", "powershell:$cpu = (Get-CimInstance Win32_Processor).LoadPercentage; $os = Get-CimInstance Win32_OperatingSystem; $ram = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); $total = [math]::Round($os.TotalVisibleMemorySize/1MB,1); $gpu_temp = (nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits 2>&1) -split \"`n\" | Where-Object {$_ -match '/d'} | ForEach-Object {[int]$_}; $max_temp = ($gpu_temp | Measure-Object -Maximum).Maximum; $m1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 3 -UseBasicParsing).StatusCode -eq 200}catch{$false}; $ol1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing).StatusCode -eq 200}catch{$false}; $status = if($cpu -lt 80 -and $ram/$total -lt 0.9 -and $max_temp -lt 80 -and $m1 -and $ol1){'Tout est OK!'}else{'Attention, verifier certains points'}; \"$status | CPU:${cpu}% | RAM:$ram/$total GB | GPU max:${max_temp}C | M1:$(if($m1){'OK'}else{'OFF'}) | OL1:$(if($ol1){'OK'}else{'OFF'})\""),
 
     JarvisCommand("routine_jarvis_selfcheck", "pipeline", "Auto-diagnostic JARVIS: config + DB + cluster + commandes", [
         "jarvis ca va", "self check", "auto diagnostic jarvis",
         "jarvis tu marches bien", "test jarvis",
         "jarvis verifie toi meme",
-    ], "pipeline", "powershell:$db1 = Test-Path 'F:\\BUREAU\\turbo\\data\\etoile.db'; $db2 = Test-Path 'F:\\BUREAU\\turbo\\data\\jarvis.db'; \"Bases: etoile=$(if($db1){'OK'}else{'MANQUE'}) | jarvis=$(if($db2){'OK'}else{'MANQUE'})\";;powershell:$cmds = (Get-Content F:\\BUREAU\\turbo\\src\\commands.py -Raw | Select-String -Pattern 'JarvisCommand\\(' -AllMatches).Matches.Count; $pipes = (Get-Content F:\\BUREAU\\turbo\\src\\commands_pipelines.py -Raw | Select-String -Pattern 'JarvisCommand\\(' -AllMatches).Matches.Count; \"Commandes: $cmds | Pipelines: $pipes | Total: $($cmds + $pipes)\";;powershell:$m1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 3 -UseBasicParsing).StatusCode -eq 200}catch{$false}; $m2 = try{(Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -TimeoutSec 3 -UseBasicParsing).StatusCode -eq 200}catch{$false}; $ol1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing).StatusCode -eq 200}catch{$false}; $online = @($m1,$m2,$ol1) | Where-Object {$_}; \"Cluster: $($online.Count)/3 noeuds en ligne | JARVIS operationnel\""),
+    ], "pipeline", "powershell:$db1 = Test-Path 'F:/BUREAU/turbo/data/etoile.db'; $db2 = Test-Path 'F:/BUREAU/turbo/data/jarvis.db'; \"Bases: etoile=$(if($db1){'OK'}else{'MANQUE'}) | jarvis=$(if($db2){'OK'}else{'MANQUE'})\";;powershell:$cmds = (Get-Content F:/BUREAU/turbo/src/commands.py -Raw | Select-String -Pattern 'JarvisCommand/(' -AllMatches).Matches.Count; $pipes = (Get-Content F:/BUREAU/turbo/src/commands_pipelines.py -Raw | Select-String -Pattern 'JarvisCommand/(' -AllMatches).Matches.Count; \"Commandes: $cmds | Pipelines: $pipes | Total: $($cmds + $pipes)\";;powershell:$m1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 3 -UseBasicParsing).StatusCode -eq 200}catch{$false}; $m2 = try{(Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{'Authorization'='Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4'} -TimeoutSec 3 -UseBasicParsing).StatusCode -eq 200}catch{$false}; $ol1 = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing).StatusCode -eq 200}catch{$false}; $online = @($m1,$m2,$ol1) | Where-Object {$_}; \"Cluster: $($online.Count)/3 noeuds en ligne | JARVIS operationnel\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # ELECTRON DASHBOARD — Pilotage de l'application desktop JARVIS
@@ -1678,13 +1678,13 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
         "ouvre le dashboard", "lance le dashboard", "dashboard jarvis",
         "ouvre l'interface jarvis", "lance l'app desktop",
         "ouvre jarvis desktop", "affiche le dashboard",
-    ], "pipeline", "powershell:Start-Process 'F:\\BUREAU\\turbo\\launchers\\JARVIS_DASHBOARD.bat' -WindowStyle Minimized; 'Dashboard JARVIS en cours de demarrage...';;sleep:3;;browser:navigate:http://127.0.0.1:8080;;powershell:\"Dashboard JARVIS accessible sur http://127.0.0.1:8080\""),
+    ], "pipeline", "powershell:Start-Process 'F:/BUREAU/turbo/launchers/JARVIS_DASHBOARD.bat' -WindowStyle Minimized; 'Dashboard JARVIS en cours de demarrage...';;sleep:3;;browser:navigate:http://127.0.0.1:8080;;powershell:\"Dashboard JARVIS accessible sur http://127.0.0.1:8080\""),
 
     JarvisCommand("dashboard_electron_full", "pipeline", "Lancer JARVIS Desktop complet (Electron + React + Python WS)", [
         "lance electron complet", "jarvis desktop complet",
         "ouvre l'application complete", "lance tout le desktop",
         "electron full", "desktop app complete",
-    ], "pipeline", "powershell:Start-Process 'F:\\BUREAU\\turbo\\launchers\\JARVIS_DESKTOP.bat' -WindowStyle Minimized; 'Electron demarrage: Vite 5173 + Python WS 9742';;sleep:5;;powershell:$vite = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:5173' -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; $ws = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:9742' -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; \"Electron: Vite=$(if($vite){'OK'}else{'...demarrage'}) | WS=$(if($ws){'OK'}else{'...demarrage'})\""),
+    ], "pipeline", "powershell:Start-Process 'F:/BUREAU/turbo/launchers/JARVIS_DESKTOP.bat' -WindowStyle Minimized; 'Electron demarrage: Vite 5173 + Python WS 9742';;sleep:5;;powershell:$vite = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:5173' -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; $ws = try{(Invoke-WebRequest -Uri 'http://127.0.0.1:9742' -TimeoutSec 3 -UseBasicParsing).StatusCode}catch{0}; \"Electron: Vite=$(if($vite){'OK'}else{'...demarrage'}) | WS=$(if($ws){'OK'}else{'...demarrage'})\""),
 
     JarvisCommand("dashboard_page_trading", "pipeline", "Dashboard: ouvrir la page Trading", [
         "page trading", "dashboard trading", "ouvre le trading sur le dashboard",
@@ -1709,7 +1709,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("dashboard_restart", "pipeline", "Redemarrer le dashboard JARVIS (kill + relaunch)", [
         "redemarre le dashboard", "restart dashboard", "relance le dashboard",
         "dashboard plante", "reboot dashboard",
-    ], "pipeline", "powershell:Get-Process -Name 'python*' -ErrorAction SilentlyContinue | Where-Object {$_.CommandLine -match 'dashboard'} | Stop-Process -Force -ErrorAction SilentlyContinue; 'Dashboard arrete';;sleep:2;;powershell:Start-Process 'F:\\BUREAU\\turbo\\launchers\\JARVIS_DASHBOARD.bat' -WindowStyle Minimized; 'Redemarrage dashboard...';;sleep:3;;browser:navigate:http://127.0.0.1:8080;;powershell:\"Dashboard redemarre\"", confirm=True),
+    ], "pipeline", "powershell:Get-Process -Name 'python*' -ErrorAction SilentlyContinue | Where-Object {$_.CommandLine -match 'dashboard'} | Stop-Process -Force -ErrorAction SilentlyContinue; 'Dashboard arrete';;sleep:2;;powershell:Start-Process 'F:/BUREAU/turbo/launchers/JARVIS_DASHBOARD.bat' -WindowStyle Minimized; 'Redemarrage dashboard...';;sleep:3;;browser:navigate:http://127.0.0.1:8080;;powershell:\"Dashboard redemarre\"", confirm=True),
 
     # ══════════════════════════════════════════════════════════════════════
     # CLUSTER IA AVANCE — Gestion avancee du cluster distribue
@@ -1723,7 +1723,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("cluster_thermal_cascade", "pipeline", "Test thermal cascade: check GPU temperatures + fallback auto", [
         "test thermal", "cascade thermique", "check thermique cluster",
         "test fallback gpu", "simulation surchauffe",
-    ], "pipeline", "powershell:$gpu = nvidia-smi --query-gpu=index,temperature.gpu,name --format=csv,noheader,nounits 2>&1; $lines = $gpu -split \"`n\" | Where-Object {$_ -match '\\d'}; $alert = $false; foreach($l in $lines){$parts = $l -split ','; $temp = [int]$parts[1].Trim(); if($temp -ge 85){\"GPU$($parts[0].Trim()) $($parts[2].Trim()): ${temp}C CRITIQUE — cascade activee\"; $alert=$true}elseif($temp -ge 75){\"GPU$($parts[0].Trim()) $($parts[2].Trim()): ${temp}C ATTENTION\"}else{\"GPU$($parts[0].Trim()) $($parts[2].Trim()): ${temp}C OK\"}}; if(-not $alert){\"Thermal cascade: aucun declenchement necessaire\"}"),
+    ], "pipeline", "powershell:$gpu = nvidia-smi --query-gpu=index,temperature.gpu,name --format=csv,noheader,nounits 2>&1; $lines = $gpu -split \"`n\" | Where-Object {$_ -match '/d'}; $alert = $false; foreach($l in $lines){$parts = $l -split ','; $temp = [int]$parts[1].Trim(); if($temp -ge 85){\"GPU$($parts[0].Trim()) $($parts[2].Trim()): ${temp}C CRITIQUE — cascade activee\"; $alert=$true}elseif($temp -ge 75){\"GPU$($parts[0].Trim()) $($parts[2].Trim()): ${temp}C ATTENTION\"}else{\"GPU$($parts[0].Trim()) $($parts[2].Trim()): ${temp}C OK\"}}; if(-not $alert){\"Thermal cascade: aucun declenchement necessaire\"}"),
 
     JarvisCommand("cluster_vram_map", "pipeline", "Carte VRAM detaillee de toutes les GPU du cluster", [
         "carte vram", "vram map", "memoire gpu detaillee",
@@ -1738,7 +1738,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("cluster_load_balance", "pipeline", "Afficher la repartition de charge GPU par noeud", [
         "charge du cluster", "load balance", "repartition charge",
         "equilibrage cluster", "qui est surcharge",
-    ], "pipeline", "powershell:\"=== CHARGE GPU ===\"; nvidia-smi --query-gpu=index,name,utilization.gpu,utilization.memory,temperature.gpu --format=csv,noheader 2>&1 | ForEach-Object {$p = $_ -split ','; \"  GPU$($p[0].Trim()): $($p[1].Trim()) | GPU:$($p[2].Trim()) | MEM:$($p[3].Trim()) | Temp:$($p[4].Trim())C\"};;powershell:\"=== PROCESSUS GPU ===\"; nvidia-smi --query-compute-apps=pid,name,used_memory --format=csv,noheader 2>&1 | ForEach-Object {if($_ -match '\\d'){\"  $_\"}}"),
+    ], "pipeline", "powershell:\"=== CHARGE GPU ===\"; nvidia-smi --query-gpu=index,name,utilization.gpu,utilization.memory,temperature.gpu --format=csv,noheader 2>&1 | ForEach-Object {$p = $_ -split ','; \"  GPU$($p[0].Trim()): $($p[1].Trim()) | GPU:$($p[2].Trim()) | MEM:$($p[3].Trim()) | Temp:$($p[4].Trim())C\"};;powershell:\"=== PROCESSUS GPU ===\"; nvidia-smi --query-compute-apps=pid,name,used_memory --format=csv,noheader 2>&1 | ForEach-Object {if($_ -match '/d'){\"  $_\"}}"),
 
     # ══════════════════════════════════════════════════════════════════════
     # DATABASE MANAGEMENT — Backup, restore, integrite, stats
@@ -1748,28 +1748,28 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
         "backup toutes les bases", "sauvegarde complete des bases",
         "backup les databases", "copie toutes les db",
         "sauvegarde sql complete",
-    ], "pipeline", "powershell:$d = Get-Date -Format 'yyyy-MM-dd_HHmm'; $dest = 'F:\\BUREAU\\turbo\\data\\backups'; New-Item -ItemType Directory -Force -Path $dest | Out-Null; Copy-Item 'F:\\BUREAU\\turbo\\data\\etoile.db' \"$dest\\etoile_$d.db\" -Force; Copy-Item 'F:\\BUREAU\\turbo\\data\\jarvis.db' \"$dest\\jarvis_$d.db\" -Force; Copy-Item 'F:\\BUREAU\\turbo\\data\\trading_latest.db' \"$dest\\trading_$d.db\" -Force -ErrorAction SilentlyContinue; $files = Get-ChildItem $dest -Filter '*_*' | Measure-Object; \"Backup OK: 3 bases dans $dest ($($files.Count) fichiers au total)\""),
+    ], "pipeline", "powershell:$d = Get-Date -Format 'yyyy-MM-dd_HHmm'; $dest = 'F:/BUREAU/turbo/data/backups'; New-Item -ItemType Directory -Force -Path $dest | Out-Null; Copy-Item 'F:/BUREAU/turbo/data/etoile.db' \"$dest/etoile_$d.db\" -Force; Copy-Item 'F:/BUREAU/turbo/data/jarvis.db' \"$dest/jarvis_$d.db\" -Force; Copy-Item 'F:/BUREAU/turbo/data/trading_latest.db' \"$dest/trading_$d.db\" -Force -ErrorAction SilentlyContinue; $files = Get-ChildItem $dest -Filter '*_*' | Measure-Object; \"Backup OK: 3 bases dans $dest ($($files.Count) fichiers au total)\""),
 
     JarvisCommand("db_integrity_check", "pipeline", "Verifier l'integrite de toutes les bases SQLite", [
         "verifie les bases", "integrite des bases", "check les databases",
         "bases de donnees ok", "sqlite integrity check",
         "verification integrite sql",
-    ], "pipeline", "powershell:$dbs = @('F:\\BUREAU\\turbo\\data\\etoile.db','F:\\BUREAU\\turbo\\data\\jarvis.db','F:\\BUREAU\\turbo\\data\\trading_latest.db'); foreach($db in $dbs){$name = [System.IO.Path]::GetFileName($db); if(Test-Path $db){$size = [math]::Round((Get-Item $db).Length/1KB); $result = & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('$($db.Replace('\\','\\\\'))'); r=c.execute('PRAGMA integrity_check').fetchone()[0]; print(r); c.close()\" 2>&1; \"$name ($size KB): $result\"}else{\"$name: ABSENT\"}}"),
+    ], "pipeline", "powershell:$dbs = @('F:/BUREAU/turbo/data/etoile.db','F:/BUREAU/turbo/data/jarvis.db','F:/BUREAU/turbo/data/trading_latest.db'); foreach($db in $dbs){$name = [System.IO.Path]::GetFileName($db); if(Test-Path $db){$size = [math]::Round((Get-Item $db).Length/1KB); $result = & '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('$($db.Replace('/','//'))'); r=c.execute('PRAGMA integrity_check').fetchone()[0]; print(r); c.close()\" 2>&1; \"$name ($size KB): $result\"}else{\"$name: ABSENT\"}}"),
 
     JarvisCommand("db_vacuum_optimize", "pipeline", "Optimiser les bases SQLite (VACUUM + ANALYZE)", [
         "optimise les bases", "vacuum les databases", "compress les bases",
         "nettoie les bases sql", "optimize sqlite",
-    ], "pipeline", "powershell:$dbs = @('F:\\BUREAU\\turbo\\data\\etoile.db','F:\\BUREAU\\turbo\\data\\jarvis.db'); foreach($db in $dbs){$name = [System.IO.Path]::GetFileName($db); $before = (Get-Item $db).Length; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('$($db.Replace('\\','\\\\'))'); c.execute('VACUUM'); c.execute('ANALYZE'); c.close(); print('OK')\" 2>&1; $after = (Get-Item $db).Length; $saved = [math]::Round(($before-$after)/1KB); \"$name: $(if($saved -gt 0){\"$saved KB economises\"}else{'deja optimise'})\"}", confirm=True),
+    ], "pipeline", "powershell:$dbs = @('F:/BUREAU/turbo/data/etoile.db','F:/BUREAU/turbo/data/jarvis.db'); foreach($db in $dbs){$name = [System.IO.Path]::GetFileName($db); $before = (Get-Item $db).Length; & '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('$($db.Replace('/','//'))'); c.execute('VACUUM'); c.execute('ANALYZE'); c.close(); print('OK')\" 2>&1; $after = (Get-Item $db).Length; $saved = [math]::Round(($before-$after)/1KB); \"$name: $(if($saved -gt 0){\"$saved KB economises\"}else{'deja optimise'})\"}", confirm=True),
 
     JarvisCommand("db_stats_detaillees", "pipeline", "Statistiques detaillees des bases: tables, lignes, taille", [
         "stats des bases", "statistiques databases", "combien dans les bases",
         "taille des tables", "infos sur les bases",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3,os; dbs=[('etoile.db','F:/BUREAU/turbo/data/etoile.db'),('jarvis.db','F:/BUREAU/turbo/data/jarvis.db')]; [print(f'{n}: {round(os.path.getsize(p)/1024)}KB') or [print(f'  {t[0]}: {sqlite3.connect(p).execute(f\\\"SELECT COUNT(*) FROM {t[0]}\\\").fetchone()[0]} rows') for t in sqlite3.connect(p).execute(\\\"SELECT name FROM sqlite_master WHERE type='table'\\\").fetchall()] for n,p in dbs]\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,os; dbs=[('etoile.db','/home/turbo/jarvis-m1-ops/data/etoile.db'),('jarvis.db','/home/turbo/jarvis-m1-ops/data/jarvis.db')]; [print(f'{n}: {round(os.path.getsize(p)/1024)}KB') or [print(f'  {t[0]}: {sqlite3.connect(p).execute(f/\"SELECT COUNT(*) FROM {t[0]}/\").fetchone()[0]} rows') for t in sqlite3.connect(p).execute(/\"SELECT name FROM sqlite_master WHERE type='table'/\").fetchall()] for n,p in dbs]\" 2>&1 | Out-String"),
 
     JarvisCommand("db_growth_monitor", "pipeline", "Monitorer la croissance des bases de donnees", [
         "croissance des bases", "evolution des bases", "taille des databases",
         "les bases grossissent", "monitor db size",
-    ], "pipeline", "powershell:$dbs = @('F:\\BUREAU\\turbo\\data\\etoile.db','F:\\BUREAU\\turbo\\data\\jarvis.db','F:\\BUREAU\\turbo\\data\\trading_latest.db'); foreach($db in $dbs){if(Test-Path $db){$f = Get-Item $db; $size = [math]::Round($f.Length/1KB); $modified = $f.LastWriteTime.ToString('dd/MM HH:mm'); $name = $f.Name; \"$name: $size KB (modifie: $modified)\"}else{\"$(Split-Path $db -Leaf): ABSENT\"}}"),
+    ], "pipeline", "powershell:$dbs = @('F:/BUREAU/turbo/data/etoile.db','F:/BUREAU/turbo/data/jarvis.db','F:/BUREAU/turbo/data/trading_latest.db'); foreach($db in $dbs){if(Test-Path $db){$f = Get-Item $db; $size = [math]::Round($f.Length/1KB); $modified = $f.LastWriteTime.ToString('dd/MM HH:mm'); $name = $f.Name; \"$name: $size KB (modifie: $modified)\"}else{\"$(Split-Path $db -Leaf): ABSENT\"}}"),
 
     # ══════════════════════════════════════════════════════════════════════
     # N8N WORKFLOW MANAGEMENT — Declenchement et monitoring des workflows
@@ -1803,22 +1803,22 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
         "liste les agents", "quels agents", "agents actifs",
         "status des agents", "agents sdk status",
         "mes agents ia",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); agents=c.execute('SELECT * FROM agents ORDER BY id').fetchall(); c.close(); [print(f'  {a[1]}: {a[3]} ({a[4]}) — {a[5]}') for a in agents]\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); agents=c.execute('SELECT * FROM agents ORDER BY id').fetchall(); c.close(); [print(f'  {a[1]}: {a[3]} ({a[4]}) — {a[5]}') for a in agents]\" 2>&1 | Out-String"),
 
     JarvisCommand("agent_metrics", "pipeline", "Metriques de performance des agents du cluster", [
         "metriques agents", "performance agents", "stats agents",
         "agents metrics", "comment marchent les agents",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); agents=c.execute('SELECT name, url, model_type, model_name, status, avg_latency FROM agents').fetchall(); c.close(); [print(f'  {a[0]:15} | {a[4]:7} | {a[3]:20} | {a[5] if a[5] else \\\"N/A\\\"}ms') for a in agents]\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); agents=c.execute('SELECT name, url, model_type, model_name, status, avg_latency FROM agents').fetchall(); c.close(); [print(f'  {a[0]:15} | {a[4]:7} | {a[3]:20} | {a[5] if a[5] else /\"N/A/\"}ms') for a in agents]\" 2>&1 | Out-String"),
 
     JarvisCommand("agent_run_deep", "pipeline", "Lancer l'agent ia-deep (Opus, architecte) pour une analyse", [
         "lance ia deep", "agent deep", "analyse profonde",
         "ia architecte", "agent opus",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from agents import Agent, Runner; import asyncio; a=Agent(name='ia-deep',model='claude-opus-4-6',instructions='Architecte systeme.'); print(asyncio.run(Runner.run(a,'Analyse rapide du cluster JARVIS: 3 machines, 10 GPU, 6 noeuds IA. Quel est le point faible?')).final_output)\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"from agents import Agent, Runner; import asyncio; a=Agent(name='ia-deep',model='claude-opus-4-6',instructions='Architecte systeme.'); print(asyncio.run(Runner.run(a,'Analyse rapide du cluster JARVIS: 3 machines, 10 GPU, 6 noeuds IA. Quel est le point faible?')).final_output)\" 2>&1 | Out-String"),
 
     JarvisCommand("agent_run_fast", "pipeline", "Lancer l'agent ia-fast (Haiku, code) pour une tache rapide", [
         "lance ia fast", "agent fast", "agent rapide",
         "ia rapide", "agent haiku code",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from agents import Agent, Runner; import asyncio; a=Agent(name='ia-fast',model='claude-haiku-4-5-20251001',instructions='Ingenieur code rapide.'); print(asyncio.run(Runner.run(a,'Liste 5 optimisations Python pour un serveur FastAPI avec SQLite.')).final_output)\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"from agents import Agent, Runner; import asyncio; a=Agent(name='ia-fast',model='claude-haiku-4-5-20251001',instructions='Ingenieur code rapide.'); print(asyncio.run(Runner.run(a,'Liste 5 optimisations Python pour un serveur FastAPI avec SQLite.')).final_output)\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # FINE-TUNING — Controle des operations de fine-tuning
@@ -1827,22 +1827,22 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("finetune_status", "pipeline", "Status du fine-tuning: datasets, modeles, GPU disponible", [
         "status fine tuning", "fine tuning en cours", "etat du fine tuning",
         "finetuning status", "ou en est le training",
-    ], "pipeline", "powershell:\"=== FINE-TUNING STATUS ===\"; if(Test-Path 'F:\\BUREAU\\turbo\\finetuning'){$files = Get-ChildItem 'F:\\BUREAU\\turbo\\finetuning' -Recurse | Measure-Object; $datasets = Get-ChildItem 'F:\\BUREAU\\turbo\\finetuning' -Filter '*.jsonl' -Recurse -ErrorAction SilentlyContinue; \"Dossier: F:\\BUREAU\\turbo\\finetuning ($($files.Count) fichiers)\"; if($datasets){\"Datasets: $($datasets.Count) fichiers JSONL\"; $datasets | ForEach-Object {\"  $($_.Name): $([math]::Round($_.Length/1KB))KB\"}}}else{'Dossier finetuning non trouve'};;powershell:\"=== GPU DISPONIBLE ===\"; nvidia-smi --query-gpu=index,name,memory.free --format=csv,noheader 2>&1 | ForEach-Object {$p = $_ -split ','; \"  GPU$($p[0].Trim()): $($p[1].Trim()) — $($p[2].Trim()) libre\"}"),
+    ], "pipeline", "powershell:\"=== FINE-TUNING STATUS ===\"; if(Test-Path 'F:/BUREAU/turbo/finetuning'){$files = Get-ChildItem 'F:/BUREAU/turbo/finetuning' -Recurse | Measure-Object; $datasets = Get-ChildItem 'F:/BUREAU/turbo/finetuning' -Filter '*.jsonl' -Recurse -ErrorAction SilentlyContinue; \"Dossier: F:/BUREAU/turbo/finetuning ($($files.Count) fichiers)\"; if($datasets){\"Datasets: $($datasets.Count) fichiers JSONL\"; $datasets | ForEach-Object {\"  $($_.Name): $([math]::Round($_.Length/1KB))KB\"}}}else{'Dossier finetuning non trouve'};;powershell:\"=== GPU DISPONIBLE ===\"; nvidia-smi --query-gpu=index,name,memory.free --format=csv,noheader 2>&1 | ForEach-Object {$p = $_ -split ','; \"  GPU$($p[0].Trim()): $($p[1].Trim()) — $($p[2].Trim()) libre\"}"),
 
     JarvisCommand("finetune_launch", "pipeline", "Lancer le script de fine-tuning (QLoRA 4-bit)", [
         "lance le fine tuning", "demarre le training", "fine tune maintenant",
         "lancer qlora", "start finetuning",
-    ], "pipeline", "powershell:if(Test-Path 'F:\\BUREAU\\turbo\\launchers\\JARVIS_FINETUNE.bat'){Start-Process 'F:\\BUREAU\\turbo\\launchers\\JARVIS_FINETUNE.bat' -WindowStyle Normal; 'Fine-tuning lance — voir la fenetre de training'}else{'Launcher JARVIS_FINETUNE.bat non trouve'}", confirm=True),
+    ], "pipeline", "powershell:if(Test-Path 'F:/BUREAU/turbo/launchers/JARVIS_FINETUNE.bat'){Start-Process 'F:/BUREAU/turbo/launchers/JARVIS_FINETUNE.bat' -WindowStyle Normal; 'Fine-tuning lance — voir la fenetre de training'}else{'Launcher JARVIS_FINETUNE.bat non trouve'}", confirm=True),
 
     JarvisCommand("finetune_datasets_info", "pipeline", "Informations sur les datasets de fine-tuning disponibles", [
         "datasets finetuning", "donnees d'entrainement", "combien de donnees",
         "liste les datasets", "datasets disponibles",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import os,glob; path='F:/BUREAU/turbo/finetuning'; files=glob.glob(os.path.join(path,'**/*.jsonl'),recursive=True); cc=lambda f:len(__import__('pathlib').Path(f).read_text(encoding='utf-8').splitlines()); [print(f'  {os.path.basename(f)}: {cc(f)} examples ({round(os.path.getsize(f)/1024)}KB)') for f in files[:10]] if files else print('Aucun dataset JSONL trouve')\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import os,glob; path='/home/turbo/jarvis-m1-ops/finetuning'; files=glob.glob(os.path.join(path,'**/*.jsonl'),recursive=True); cc=lambda f:len(__import__('pathlib').Path(f).read_text(encoding='utf-8').splitlines()); [print(f'  {os.path.basename(f)}: {cc(f)} examples ({round(os.path.getsize(f)/1024)}KB)') for f in files[:10]] if files else print('Aucun dataset JSONL trouve')\" 2>&1 | Out-String"),
 
     JarvisCommand("finetune_gpu_check", "pipeline", "Verifier si les GPU sont pretes pour le fine-tuning", [
         "gpu pret pour training", "check gpu finetuning", "assez de vram",
         "peut on fine tuner", "gpu training ready",
-    ], "pipeline", "powershell:\"=== CHECK GPU FINE-TUNING ===\"; $gpus = nvidia-smi --query-gpu=index,name,memory.free,memory.total --format=csv,noheader,nounits 2>&1; $gpus -split \"`n\" | Where-Object {$_ -match '\\d'} | ForEach-Object {$p = $_ -split ','; $free = [int]$p[2].Trim(); $total = [int]$p[3].Trim(); $pct = [math]::Round($free/$total*100); $ok = if($free -ge 4096){'PRET (QLoRA possible)'}elseif($free -ge 2048){'LIMITE'}else{'INSUFFISANT'}; \"  GPU$($p[0].Trim()) $($p[1].Trim()): $free/$total MB libre ($pct%) — $ok\"}"),
+    ], "pipeline", "powershell:\"=== CHECK GPU FINE-TUNING ===\"; $gpus = nvidia-smi --query-gpu=index,name,memory.free,memory.total --format=csv,noheader,nounits 2>&1; $gpus -split \"`n\" | Where-Object {$_ -match '/d'} | ForEach-Object {$p = $_ -split ','; $free = [int]$p[2].Trim(); $total = [int]$p[3].Trim(); $pct = [math]::Round($free/$total*100); $ok = if($free -ge 4096){'PRET (QLoRA possible)'}elseif($free -ge 2048){'LIMITE'}else{'INSUFFISANT'}; \"  GPU$($p[0].Trim()) $($p[1].Trim()): $free/$total MB libre ($pct%) — $ok\"}"),
 
     # ══════════════════════════════════════════════════════════════════════
     # TRADING AVANCE — Operations trading avancees
@@ -1851,7 +1851,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("trading_positions_resume", "pipeline", "Resume des positions trading ouvertes sur MEXC", [
         "positions ouvertes", "mes positions", "resume trading",
         "qu'est-ce qui est ouvert", "pnl actuel",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/trading_latest.db'); try: signals=c.execute('SELECT symbol,side,score,timestamp FROM signals ORDER BY timestamp DESC LIMIT 10').fetchall(); [print(f'  {s[0]} {s[1]} score:{s[2]} ({s[3]})') for s in signals] if signals else print('Aucun signal recent')\nexcept (sqlite3.OperationalError, sqlite3.DatabaseError): print('Table signals non trouvee')\nfinally: c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/trading_latest.db'); try: signals=c.execute('SELECT symbol,side,score,timestamp FROM signals ORDER BY timestamp DESC LIMIT 10').fetchall(); [print(f'  {s[0]} {s[1]} score:{s[2]} ({s[3]})') for s in signals] if signals else print('Aucun signal recent')\nexcept (sqlite3.OperationalError, sqlite3.DatabaseError): print('Table signals non trouvee')\nfinally: c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("trading_market_overview", "pipeline", "Vue d'ensemble du marche crypto: BTC + ETH + top movers", [
         "vue du marche", "marche crypto", "comment va le marche",
@@ -1861,12 +1861,12 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("trading_scanner_complet", "pipeline", "Scanner trading complet: 10 paires + scoring multi-timeframe", [
         "scan trading complet", "scanne le marche", "analyse toutes les paires",
         "scanner crypto", "trading scan full",
-    ], "pipeline", "powershell:Start-Process 'F:\\BUREAU\\turbo\\launchers\\SCAN_HYPER.bat' -WindowStyle Minimized -ErrorAction SilentlyContinue; 'Scanner lance en arriere-plan';;browser:navigate:https://www.tradingview.com/chart/?symbol=BINANCE:BTCUSDT;;sleep:1;;browser:navigate:https://www.mexc.com/futures;;powershell:\"Scanner trading lance + TradingView + MEXC ouverts\""),
+    ], "pipeline", "powershell:Start-Process 'F:/BUREAU/turbo/launchers/SCAN_HYPER.bat' -WindowStyle Minimized -ErrorAction SilentlyContinue; 'Scanner lance en arriere-plan';;browser:navigate:https://www.tradingview.com/chart/?symbol=BINANCE:BTCUSDT;;sleep:1;;browser:navigate:https://www.mexc.com/futures;;powershell:\"Scanner trading lance + TradingView + MEXC ouverts\""),
 
     JarvisCommand("trading_signals_history", "pipeline", "Historique des derniers signaux trading", [
         "historique signaux", "derniers signaux", "signaux recents",
         "history trading", "quels signaux",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/trading_latest.db'); try: r=c.execute('SELECT symbol,side,score,timestamp FROM signals ORDER BY timestamp DESC LIMIT 15').fetchall(); [print(f'  {s[3][:16]} | {s[0]:10} | {s[1]:5} | score:{s[2]}') for s in r] if r else print('Aucun signal')\nexcept Exception as e: print(f'Erreur: {e}')\nfinally: c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/trading_latest.db'); try: r=c.execute('SELECT symbol,side,score,timestamp FROM signals ORDER BY timestamp DESC LIMIT 15').fetchall(); [print(f'  {s[3][:16]} | {s[0]:10} | {s[1]:5} | score:{s[2]}') for s in r] if r else print('Aucun signal')\nexcept Exception as e: print(f'Erreur: {e}')\nfinally: c.close()\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # SKILL MANAGEMENT — Gestion des 108 skills etoile.db
@@ -1875,17 +1875,17 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("skill_list_all", "pipeline", "Lister tous les skills par categorie", [
         "liste les skills", "quels skills", "skills disponibles",
         "montre les skills", "combien de skills",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); cats=c.execute('SELECT parent, COUNT(*) FROM map WHERE entity_type=\\\"skill\\\" GROUP BY parent ORDER BY COUNT(*) DESC').fetchall(); total=sum(x[1] for x in cats); print(f'=== {total} SKILLS ==='); [print(f'  {cat}: {cnt}') for cat,cnt in cats]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); cats=c.execute('SELECT parent, COUNT(*) FROM map WHERE entity_type=/\"skill/\" GROUP BY parent ORDER BY COUNT(*) DESC').fetchall(); total=sum(x[1] for x in cats); print(f'=== {total} SKILLS ==='); [print(f'  {cat}: {cnt}') for cat,cnt in cats]; c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("skill_stats_performance", "pipeline", "Statistiques de performance des skills et pipelines", [
         "stats skills", "performance skills", "skills qui marchent",
         "metriques skills", "skills performance",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); tests=c.execute('SELECT category,COUNT(*),SUM(CASE WHEN status=\\\"PASS\\\" THEN 1 ELSE 0 END) FROM pipeline_tests GROUP BY category').fetchall(); print('=== RESULTATS TESTS ==='); [print(f'  {cat}: {ok}/{total} PASS') for cat,total,ok in tests]; mem=c.execute('SELECT key,value FROM memories WHERE category=\\\"stats\\\"').fetchall(); print('\\n=== STATS ==='); [print(f'  {k}: {v}') for k,v in mem]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tests=c.execute('SELECT category,COUNT(*),SUM(CASE WHEN status=/\"PASS/\" THEN 1 ELSE 0 END) FROM pipeline_tests GROUP BY category').fetchall(); print('=== RESULTATS TESTS ==='); [print(f'  {cat}: {ok}/{total} PASS') for cat,total,ok in tests]; mem=c.execute('SELECT key,value FROM memories WHERE category=/\"stats/\"').fetchall(); print('/n=== STATS ==='); [print(f'  {k}: {v}') for k,v in mem]; c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("skill_search", "pipeline", "Rechercher un skill par mot-cle dans etoile.db", [
         "cherche un skill", "trouve un skill", "skill pour",
         "quel skill fait", "recherche skill",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3,sys; q='%'; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); r=c.execute('SELECT entity_name,parent,role FROM map WHERE entity_type=\\\"skill\\\" AND (entity_name LIKE ? OR role LIKE ?) ORDER BY parent LIMIT 20',(q,q)).fetchall(); print(f'{len(r)} skills trouves:'); [print(f'  [{p}] {n}: {d}') for n,p,d in r]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,sys; q='%'; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('SELECT entity_name,parent,role FROM map WHERE entity_type=/\"skill/\" AND (entity_name LIKE ? OR role LIKE ?) ORDER BY parent LIMIT 20',(q,q)).fetchall(); print(f'{len(r)} skills trouves:'); [print(f'  [{p}] {n}: {d}') for n,p,d in r]; c.close()\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # CANVAS AUTOLEARN ENGINE — Gestion du moteur d'apprentissage (port 18800)
@@ -1933,17 +1933,17 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("voice_cache_stats", "pipeline", "Statistiques du cache vocal LRU (200 entrees)", [
         "cache vocal", "voice cache", "cache lru vocal",
         "cache whisper", "statistiques cache vocal",
-    ], "pipeline", "powershell:if (Test-Path 'F:\\BUREAU\\turbo\\src\\voice.py') { $lines = Get-Content 'F:\\BUREAU\\turbo\\src\\voice.py' | Select-String 'cache|LRU|lru_cache'; Write-Output \"=== CACHE VOCAL ===\"; Write-Output \"  Fichier: src/voice.py\"; Write-Output \"  Taille cache LRU: 200 entrees\"; Write-Output \"  Lignes cache: $($lines.Count) references\"; $lines | Select-Object -First 5 | ForEach-Object { Write-Output \"  $($_.Line.Trim())\" } } else { Write-Output 'voice.py non trouve' }"),
+    ], "pipeline", "powershell:if (Test-Path 'F:/BUREAU/turbo/src/voice.py') { $lines = Get-Content 'F:/BUREAU/turbo/src/voice.py' | Select-String 'cache|LRU|lru_cache'; Write-Output \"=== CACHE VOCAL ===\"; Write-Output \"  Fichier: src/voice.py\"; Write-Output \"  Taille cache LRU: 200 entrees\"; Write-Output \"  Lignes cache: $($lines.Count) references\"; $lines | Select-Object -First 5 | ForEach-Object { Write-Output \"  $($_.Line.Trim())\" } } else { Write-Output 'voice.py non trouve' }"),
 
     JarvisCommand("voice_fallback_chain", "pipeline", "Tester la chaine de fallback vocale: OL1 → GEMINI → local", [
         "fallback vocal", "voice fallback", "chaine fallback vocal",
         "test fallback voix", "vocal fallback test",
-    ], "pipeline", "powershell:Write-Output '=== TEST FALLBACK VOCAL ==='; $ol1 = try { (Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing).StatusCode } catch { 'OFFLINE' }; Write-Output \"  OL1 (primaire): $ol1\"; $gemini = if (Test-Path 'F:\\BUREAU\\turbo\\gemini-proxy.js') { 'DISPONIBLE' } else { 'ABSENT' }; Write-Output \"  GEMINI (secondaire): $gemini\"; Write-Output \"  Local (tertiaire): TOUJOURS OK\"; Write-Output \"  Chaine: OL1 → GEMINI → local-only\""),
+    ], "pipeline", "powershell:Write-Output '=== TEST FALLBACK VOCAL ==='; $ol1 = try { (Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3 -UseBasicParsing).StatusCode } catch { 'OFFLINE' }; Write-Output \"  OL1 (primaire): $ol1\"; $gemini = if (Test-Path 'F:/BUREAU/turbo/gemini-proxy.js') { 'DISPONIBLE' } else { 'ABSENT' }; Write-Output \"  GEMINI (secondaire): $gemini\"; Write-Output \"  Local (tertiaire): TOUJOURS OK\"; Write-Output \"  Chaine: OL1 → GEMINI → local-only\""),
 
     JarvisCommand("voice_config_show", "pipeline", "Afficher la configuration complete du systeme vocal", [
         "config vocale", "voice config", "configuration voix",
         "parametres vocaux", "vocal settings",
-    ], "pipeline", "powershell:Write-Output '=== CONFIG VOCALE ==='; Write-Output '  Wake Word: OpenWakeWord (jarvis, seuil 0.7)'; Write-Output '  STT: Whisper large-v3-turbo CUDA'; Write-Output '  TTS: Edge fr-FR-DeniseNeural'; Write-Output '  Cache: LRU 200 entrees'; Write-Output '  Latence target: <2s (connu <0.5s)'; Write-Output '  IA bypass: 80%'; if (Test-Path 'F:\\BUREAU\\turbo\\src\\voice.py') { $size = (Get-Item 'F:\\BUREAU\\turbo\\src\\voice.py').Length / 1KB; Write-Output \"  voice.py: $([math]::Round($size))KB\" }; if (Test-Path 'F:\\BUREAU\\turbo\\src\\voice_correction.py') { $size2 = (Get-Item 'F:\\BUREAU\\turbo\\src\\voice_correction.py').Length / 1KB; Write-Output \"  voice_correction.py: $([math]::Round($size2))KB\" }"),
+    ], "pipeline", "powershell:Write-Output '=== CONFIG VOCALE ==='; Write-Output '  Wake Word: OpenWakeWord (jarvis, seuil 0.7)'; Write-Output '  STT: Whisper large-v3-turbo CUDA'; Write-Output '  TTS: Edge fr-FR-DeniseNeural'; Write-Output '  Cache: LRU 200 entrees'; Write-Output '  Latence target: <2s (connu <0.5s)'; Write-Output '  IA bypass: 80%'; if (Test-Path 'F:/BUREAU/turbo/src/voice.py') { $size = (Get-Item 'F:/BUREAU/turbo/src/voice.py').Length / 1KB; Write-Output \"  voice.py: $([math]::Round($size))KB\" }; if (Test-Path 'F:/BUREAU/turbo/src/voice_correction.py') { $size2 = (Get-Item 'F:/BUREAU/turbo/src/voice_correction.py').Length / 1KB; Write-Output \"  voice_correction.py: $([math]::Round($size2))KB\" }"),
 
     # ══════════════════════════════════════════════════════════════════════
     # PLUGIN MANAGEMENT — Gestion lifecycle des 24 plugins actifs
@@ -1952,27 +1952,27 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("plugin_list_enabled", "pipeline", "Lister tous les plugins Claude Code actifs avec versions", [
         "liste plugins", "plugins actifs", "quels plugins",
         "plugins installes", "combien de plugins",
-    ], "pipeline", "powershell:$settingsPath = 'C:\\Users\\franc\\.claude\\settings.json'; if (Test-Path $settingsPath) { $s = Get-Content $settingsPath | ConvertFrom-Json; $plugins = $s.plugins; Write-Output '=== PLUGINS ACTIFS ==='; $count = 0; foreach ($p in $plugins) { Write-Output \"  $p\"; $count++ }; Write-Output \"`n  Total: $count plugins\" } else { Write-Output 'settings.json non trouve' }"),
+    ], "pipeline", "powershell:$settingsPath = '/\Users/franc/.claude/settings.json'; if (Test-Path $settingsPath) { $s = Get-Content $settingsPath | ConvertFrom-Json; $plugins = $s.plugins; Write-Output '=== PLUGINS ACTIFS ==='; $count = 0; foreach ($p in $plugins) { Write-Output \"  $p\"; $count++ }; Write-Output \"`n  Total: $count plugins\" } else { Write-Output 'settings.json non trouve' }"),
 
     JarvisCommand("plugin_jarvis_status", "pipeline", "Status detaille du plugin jarvis-turbo local", [
         "status jarvis plugin", "jarvis turbo plugin", "plugin jarvis",
         "jarvis plugin status", "plugin local status",
-    ], "pipeline", "powershell:$pluginPath = 'C:\\Users\\franc\\.claude\\plugins\\local\\jarvis-turbo'; if (Test-Path \"$pluginPath\\plugin.json\") { $p = Get-Content \"$pluginPath\\plugin.json\" | ConvertFrom-Json; Write-Output '=== PLUGIN JARVIS-TURBO ==='; Write-Output \"  Version: $($p.version)\"; Write-Output \"  Commandes: $($p.commands.Count)\"; Write-Output \"  Agents: $($p.agents.Count)\"; Write-Output \"  Skills: $($p.skills.Count)\"; Write-Output \"  Hooks: $($p.hooks.Count)\" } else { Write-Output 'plugin.json non trouve' }"),
+    ], "pipeline", "powershell:$pluginPath = '/\Users/franc/.claude/plugins/local/jarvis-turbo'; if (Test-Path \"$pluginPath/plugin.json\") { $p = Get-Content \"$pluginPath/plugin.json\" | ConvertFrom-Json; Write-Output '=== PLUGIN JARVIS-TURBO ==='; Write-Output \"  Version: $($p.version)\"; Write-Output \"  Commandes: $($p.commands.Count)\"; Write-Output \"  Agents: $($p.agents.Count)\"; Write-Output \"  Skills: $($p.skills.Count)\"; Write-Output \"  Hooks: $($p.hooks.Count)\" } else { Write-Output 'plugin.json non trouve' }"),
 
     JarvisCommand("plugin_health_check", "pipeline", "Health check de tous les plugins actifs", [
         "health check plugins", "plugins ok", "verifier plugins",
         "plugins fonctionnent", "check plugins",
-    ], "pipeline", "powershell:Write-Output '=== HEALTH CHECK PLUGINS ==='; $localPath = 'C:\\Users\\franc\\.claude\\plugins\\local'; $cachePath = 'C:\\Users\\franc\\.claude\\plugins\\cache'; $localCount = if (Test-Path $localPath) { (Get-ChildItem $localPath -Directory | Measure-Object).Count } else { 0 }; $cacheCount = if (Test-Path $cachePath) { (Get-ChildItem $cachePath -Directory | Measure-Object).Count } else { 0 }; Write-Output \"  Plugins locaux: $localCount\"; Write-Output \"  Plugins cache: $cacheCount\"; if (Test-Path $localPath) { Get-ChildItem $localPath -Directory | ForEach-Object { $hasJson = Test-Path \"$($_.FullName)\\plugin.json\"; Write-Output \"  [$( if ($hasJson) { 'OK' } else { 'MISSING' } )] $($_.Name)\" } }"),
+    ], "pipeline", "powershell:Write-Output '=== HEALTH CHECK PLUGINS ==='; $localPath = '/\Users/franc/.claude/plugins/local'; $cachePath = '/\Users/franc/.claude/plugins/cache'; $localCount = if (Test-Path $localPath) { (Get-ChildItem $localPath -Directory | Measure-Object).Count } else { 0 }; $cacheCount = if (Test-Path $cachePath) { (Get-ChildItem $cachePath -Directory | Measure-Object).Count } else { 0 }; Write-Output \"  Plugins locaux: $localCount\"; Write-Output \"  Plugins cache: $cacheCount\"; if (Test-Path $localPath) { Get-ChildItem $localPath -Directory | ForEach-Object { $hasJson = Test-Path \"$($_.FullName)/plugin.json\"; Write-Output \"  [$( if ($hasJson) { 'OK' } else { 'MISSING' } )] $($_.Name)\" } }"),
 
     JarvisCommand("plugin_reload_config", "pipeline", "Recharger la configuration des plugins sans redemarrer Claude", [
         "recharger plugins", "reload plugins", "refresh plugins",
         "actualiser plugins", "plugins reload",
-    ], "pipeline", "powershell:Write-Output '=== RELOAD PLUGINS ==='; Write-Output '  Action: Redemarrer Claude Code pour charger les nouveaux plugins'; Write-Output '  Commande: claude --resume ou /clear'; $settingsPath = 'C:\\Users\\franc\\.claude\\settings.json'; if (Test-Path $settingsPath) { $mod = (Get-Item $settingsPath).LastWriteTime; Write-Output \"  settings.json modifie: $mod\" }; Write-Output '  Note: Les plugins sont charges au demarrage de la session'"),
+    ], "pipeline", "powershell:Write-Output '=== RELOAD PLUGINS ==='; Write-Output '  Action: Redemarrer Claude Code pour charger les nouveaux plugins'; Write-Output '  Commande: claude --resume ou /clear'; $settingsPath = '/\Users/franc/.claude/settings.json'; if (Test-Path $settingsPath) { $mod = (Get-Item $settingsPath).LastWriteTime; Write-Output \"  settings.json modifie: $mod\" }; Write-Output '  Note: Les plugins sont charges au demarrage de la session'"),
 
     JarvisCommand("plugin_config_show", "pipeline", "Afficher la configuration complete des plugins", [
         "config plugins", "configuration plugins", "plugins config",
         "parametres plugins", "plugins settings",
-    ], "pipeline", "powershell:$localPath = 'C:\\Users\\franc\\.claude\\plugins\\local'; if (Test-Path $localPath) { Get-ChildItem $localPath -Directory | ForEach-Object { $jsonPath = \"$($_.FullName)\\plugin.json\"; if (Test-Path $jsonPath) { $p = Get-Content $jsonPath | ConvertFrom-Json; Write-Output \"=== $($_.Name) v$($p.version) ===\"; Write-Output \"  Commandes: $($p.commands.Count)\"; Write-Output \"  Agents: $($p.agents.Count)\"; Write-Output \"  Skills: $($p.skills.Count)\"; Write-Output \"  Hooks: $($p.hooks.Count)\" } } } else { Write-Output 'Aucun plugin local' }"),
+    ], "pipeline", "powershell:$localPath = '/\Users/franc/.claude/plugins/local'; if (Test-Path $localPath) { Get-ChildItem $localPath -Directory | ForEach-Object { $jsonPath = \"$($_.FullName)/plugin.json\"; if (Test-Path $jsonPath) { $p = Get-Content $jsonPath | ConvertFrom-Json; Write-Output \"=== $($_.Name) v$($p.version) ===\"; Write-Output \"  Commandes: $($p.commands.Count)\"; Write-Output \"  Agents: $($p.agents.Count)\"; Write-Output \"  Skills: $($p.skills.Count)\"; Write-Output \"  Hooks: $($p.hooks.Count)\" } } } else { Write-Output 'Aucun plugin local' }"),
 
     # ══════════════════════════════════════════════════════════════════════
     # EMBEDDING & VECTOR SEARCH — Gestion embeddings M1
@@ -1981,22 +1981,22 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("embedding_model_status", "pipeline", "Status du modele d'embedding sur M1", [
         "status embedding", "embedding modele", "modele embedding",
         "embedding M1", "vecteurs status",
-    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nListe les modeles d embedding disponibles en 2 lignes\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output \"=== EMBEDDING M1 ===\"; Write-Output \"  Modele: qwen3-8b (M1)\"; Write-Output \"  IA: $msg\" } catch { Write-Output 'M1 embedding: offline' }"),
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nListe les modeles d embedding disponibles en 2 lignes\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output \"=== EMBEDDING M1 ===\"; Write-Output \"  Modele: qwen3-8b (M1)\"; Write-Output \"  IA: $msg\" } catch { Write-Output 'M1 embedding: offline' }"),
 
     JarvisCommand("embedding_search_test", "pipeline", "Tester une recherche semantique via embedding M1", [
         "test embedding", "recherche semantique", "semantic search",
         "test vecteurs", "embedding recherche",
-    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nGenere un embedding conceptuel pour le mot JARVIS en 3 dimensions: intention, capacite, fiabilite. Score chaque dimension de 0 a 1.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output \"=== EMBEDDING TEST ===\"; Write-Output $msg } catch { Write-Output 'Embedding test: M1 offline' }"),
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nGenere un embedding conceptuel pour le mot JARVIS en 3 dimensions: intention, capacite, fiabilite. Score chaque dimension de 0 a 1.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output \"=== EMBEDDING TEST ===\"; Write-Output $msg } catch { Write-Output 'Embedding test: M1 offline' }"),
 
     JarvisCommand("embedding_cache_status", "pipeline", "Status du cache d'embeddings", [
         "cache embedding", "embedding cache", "cache vecteurs",
         "vecteurs en cache", "embedding stockes",
-    ], "pipeline", "powershell:Write-Output '=== CACHE EMBEDDINGS ==='; Write-Output '  Backend: M1 qwen3-8b (127.0.0.1:1234)'; Write-Output '  Type: generation a la volee via LM Studio'; $dbSize = if (Test-Path 'F:\\BUREAU\\turbo\\data\\etoile.db') { [math]::Round((Get-Item 'F:\\BUREAU\\turbo\\data\\etoile.db').Length / 1KB) } else { 0 }; Write-Output \"  DB stockage: etoile.db ($($dbSize)KB)\"; Write-Output '  Note: embeddings persistants via etoile.db memories table'"),
+    ], "pipeline", "powershell:Write-Output '=== CACHE EMBEDDINGS ==='; Write-Output '  Backend: M1 qwen3-8b (127.0.0.1:1234)'; Write-Output '  Type: generation a la volee via LM Studio'; $dbSize = if (Test-Path 'F:/BUREAU/turbo/data/etoile.db') { [math]::Round((Get-Item 'F:/BUREAU/turbo/data/etoile.db').Length / 1KB) } else { 0 }; Write-Output \"  DB stockage: etoile.db ($($dbSize)KB)\"; Write-Output '  Note: embeddings persistants via etoile.db memories table'"),
 
     JarvisCommand("embedding_generate_batch", "pipeline", "Generer des embeddings en batch pour documents via M1", [
         "generer embeddings", "batch embedding", "embedding batch",
         "embeddings documents", "vectoriser documents",
-    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nAnalyse les 5 fichiers principaux du projet JARVIS turbo et genere un resume vectoriel en 1 ligne par fichier: agents.py, tools.py, mcp_server.py, commands_pipelines.py, commander.py\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 30 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output \"=== BATCH EMBEDDING ===\"; Write-Output $msg } catch { Write-Output 'Batch embedding: M1 offline' }"),
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nAnalyse les 5 fichiers principaux du projet JARVIS turbo et genere un resume vectoriel en 1 ligne par fichier: agents.py, tools.py, mcp_server.py, commands_pipelines.py, commander.py\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 30 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output \"=== BATCH EMBEDDING ===\"; Write-Output $msg } catch { Write-Output 'Batch embedding: M1 offline' }"),
 
     # ══════════════════════════════════════════════════════════════════════
     # FINE-TUNING ORCHESTRATION — Gestion avancee du training
@@ -2010,17 +2010,17 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("finetune_validate_quality", "pipeline", "Valider la qualite post-training du modele fine-tune", [
         "qualite finetuning", "valider finetuning", "test qualite modele",
         "finetuning ok", "validation training",
-    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nEvalue la qualite d un modele fine-tune QLoRA 4-bit Qwen3-30B sur 55549 exemples JARVIS. Quels metriques verifier? Liste 5 tests de qualite essentiels.\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output \"=== QUALITE FINE-TUNING ===\"; Write-Output $msg } catch { Write-Output 'Validation: M1 offline' }"),
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nEvalue la qualite d un modele fine-tune QLoRA 4-bit Qwen3-30B sur 55549 exemples JARVIS. Quels metriques verifier? Liste 5 tests de qualite essentiels.\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output \"=== QUALITE FINE-TUNING ===\"; Write-Output $msg } catch { Write-Output 'Validation: M1 offline' }"),
 
     JarvisCommand("finetune_dataset_stats", "pipeline", "Statistiques detaillees du dataset de fine-tuning", [
         "stats dataset finetuning", "dataset finetuning", "donnees finetuning",
         "combien exemples finetuning", "dataset training stats",
-    ], "pipeline", "powershell:Write-Output '=== DATASET FINE-TUNING ==='; Write-Output '  Format: QLoRA 4-bit + PEFT LoRA'; Write-Output '  Modele cible: Qwen3-30B-A3B'; Write-Output '  Exemples: 55,549'; if (Test-Path 'F:\\BUREAU\\turbo\\finetuning') { $files = Get-ChildItem 'F:\\BUREAU\\turbo\\finetuning' -Recurse -File; $totalSize = [math]::Round(($files | Measure-Object Length -Sum).Sum / 1MB, 1); Write-Output \"  Fichiers: $($files.Count) ($($totalSize)MB total)\"; $jsonl = $files | Where-Object { $_.Extension -eq '.jsonl' }; if ($jsonl) { Write-Output \"  JSONL: $($jsonl.Count) fichiers\"; $jsonl | ForEach-Object { Write-Output \"    $($_.Name): $([math]::Round($_.Length/1KB))KB\" } } }"),
+    ], "pipeline", "powershell:Write-Output '=== DATASET FINE-TUNING ==='; Write-Output '  Format: QLoRA 4-bit + PEFT LoRA'; Write-Output '  Modele cible: Qwen3-30B-A3B'; Write-Output '  Exemples: 55,549'; if (Test-Path 'F:/BUREAU/turbo/finetuning') { $files = Get-ChildItem 'F:/BUREAU/turbo/finetuning' -Recurse -File; $totalSize = [math]::Round(($files | Measure-Object Length -Sum).Sum / 1MB, 1); Write-Output \"  Fichiers: $($files.Count) ($($totalSize)MB total)\"; $jsonl = $files | Where-Object { $_.Extension -eq '.jsonl' }; if ($jsonl) { Write-Output \"  JSONL: $($jsonl.Count) fichiers\"; $jsonl | ForEach-Object { Write-Output \"    $($_.Name): $([math]::Round($_.Length/1KB))KB\" } } }"),
 
     JarvisCommand("finetune_export_lora", "pipeline", "Exporter les poids LoRA du dernier fine-tuning", [
         "export lora", "exporter lora", "poids lora",
         "lora weights", "sauvegarder lora",
-    ], "pipeline", "powershell:Write-Output '=== EXPORT LoRA ==='; if (Test-Path 'F:\\BUREAU\\turbo\\finetuning') { $adapters = Get-ChildItem 'F:\\BUREAU\\turbo\\finetuning' -Recurse -Filter 'adapter_*' -ErrorAction SilentlyContinue; $checkpoints = Get-ChildItem 'F:\\BUREAU\\turbo\\finetuning' -Recurse -Directory -Filter 'checkpoint-*' -ErrorAction SilentlyContinue; Write-Output \"  Adapters trouves: $($adapters.Count)\"; Write-Output \"  Checkpoints: $($checkpoints.Count)\"; if ($checkpoints) { $checkpoints | ForEach-Object { Write-Output \"    $($_.Name): $([math]::Round((Get-ChildItem $_.FullName -Recurse | Measure-Object Length -Sum).Sum/1MB))MB\" } } else { Write-Output '  Aucun checkpoint trouve' } } else { Write-Output 'Repertoire finetuning non trouve' }"),
+    ], "pipeline", "powershell:Write-Output '=== EXPORT LoRA ==='; if (Test-Path 'F:/BUREAU/turbo/finetuning') { $adapters = Get-ChildItem 'F:/BUREAU/turbo/finetuning' -Recurse -Filter 'adapter_*' -ErrorAction SilentlyContinue; $checkpoints = Get-ChildItem 'F:/BUREAU/turbo/finetuning' -Recurse -Directory -Filter 'checkpoint-*' -ErrorAction SilentlyContinue; Write-Output \"  Adapters trouves: $($adapters.Count)\"; Write-Output \"  Checkpoints: $($checkpoints.Count)\"; if ($checkpoints) { $checkpoints | ForEach-Object { Write-Output \"    $($_.Name): $([math]::Round((Get-ChildItem $_.FullName -Recurse | Measure-Object Length -Sum).Sum/1MB))MB\" } } else { Write-Output '  Aucun checkpoint trouve' } } else { Write-Output 'Repertoire finetuning non trouve' }"),
 
     # ══════════════════════════════════════════════════════════════════════
     # BRAIN LEARNING & MEMORY — Systeme d'apprentissage et memoire
@@ -2029,27 +2029,27 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("brain_memory_status", "pipeline", "Status de la memoire JARVIS: patterns, categories, taille", [
         "memoire jarvis", "brain status", "status memoire",
         "patterns appris", "jarvis memoire",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); cats=c.execute('SELECT category,COUNT(*) FROM memories GROUP BY category ORDER BY COUNT(*) DESC').fetchall(); total=sum(x[1] for x in cats); print(f'=== MEMOIRE JARVIS ({total} entries) ==='); [print(f'  {cat}: {cnt}') for cat,cnt in cats]; recent=c.execute('SELECT key,value FROM memories ORDER BY ROWID DESC LIMIT 5').fetchall(); print('\\nDernieres:'); [print(f'  {k}: {v[:60]}') for k,v in recent]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); cats=c.execute('SELECT category,COUNT(*) FROM memories GROUP BY category ORDER BY COUNT(*) DESC').fetchall(); total=sum(x[1] for x in cats); print(f'=== MEMOIRE JARVIS ({total} entries) ==='); [print(f'  {cat}: {cnt}') for cat,cnt in cats]; recent=c.execute('SELECT key,value FROM memories ORDER BY ROWID DESC LIMIT 5').fetchall(); print('/nDernieres:'); [print(f'  {k}: {v[:60]}') for k,v in recent]; c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("brain_pattern_learn", "pipeline", "Apprendre un nouveau pattern depuis les interactions recentes", [
         "apprendre pattern", "learn pattern", "nouveau pattern",
         "jarvis apprends", "brain learn",
-    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nAnalyse les 3 derniers commits git du projet F:/BUREAU/turbo et identifie les patterns de developpement recurrents. Format: PATTERN: description | FREQUENCE: haute/moyenne/basse | ACTION: suggestion\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output \"=== PATTERN LEARNING ===\"; Write-Output $msg } catch { Write-Output 'Pattern learning: M1 offline' }"),
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nAnalyse les 3 derniers commits git du projet /home/turbo/jarvis-m1-ops et identifie les patterns de developpement recurrents. Format: PATTERN: description | FREQUENCE: haute/moyenne/basse | ACTION: suggestion\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output \"=== PATTERN LEARNING ===\"; Write-Output $msg } catch { Write-Output 'Pattern learning: M1 offline' }"),
 
     JarvisCommand("brain_memory_consolidate", "pipeline", "Consolider la memoire: fusionner doublons et optimiser", [
         "consolider memoire", "optimize memoire", "memoire optimiser",
         "fusionner memoire", "brain consolidate",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); dupes=c.execute('SELECT key,COUNT(*) FROM memories GROUP BY key HAVING COUNT(*)>1').fetchall(); print('=== CONSOLIDATION MEMOIRE ==='); print(f'  Doublons: {len(dupes)}'); [print(f'  {k}: {cnt}x') for k,cnt in dupes[:10]]; total=c.execute('SELECT COUNT(*) FROM memories').fetchone()[0]; cats=c.execute('SELECT COUNT(DISTINCT category) FROM memories').fetchone()[0]; print(f'  Total: {total} entries, {cats} categories'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); dupes=c.execute('SELECT key,COUNT(*) FROM memories GROUP BY key HAVING COUNT(*)>1').fetchall(); print('=== CONSOLIDATION MEMOIRE ==='); print(f'  Doublons: {len(dupes)}'); [print(f'  {k}: {cnt}x') for k,cnt in dupes[:10]]; total=c.execute('SELECT COUNT(*) FROM memories').fetchone()[0]; cats=c.execute('SELECT COUNT(DISTINCT category) FROM memories').fetchone()[0]; print(f'  Total: {total} entries, {cats} categories'); c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("brain_memory_export", "pipeline", "Exporter la memoire JARVIS vers un fichier JSON", [
         "export memoire", "sauvegarder memoire", "backup memoire",
         "memoire json", "brain export",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3,json,datetime; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); rows=c.execute('SELECT category,key,value,confidence FROM memories').fetchall(); data=[{'category':r[0],'key':r[1],'value':r[2],'confidence':r[3]} for r in rows]; out=f'F:/BUREAU/turbo/data/memories_export_{datetime.datetime.now().strftime(chr(37)+chr(89)+chr(37)+chr(109)+chr(37)+chr(100))}.json'; __import__('pathlib').Path(out).write_text(json.dumps(data,indent=2,ensure_ascii=False)); print(f'=== EXPORT MEMOIRE ==='); print(f'  {len(data)} entries exportees'); print(f'  Fichier: {out}'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,json,datetime; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); rows=c.execute('SELECT category,key,value,confidence FROM memories').fetchall(); data=[{'category':r[0],'key':r[1],'value':r[2],'confidence':r[3]} for r in rows]; out=f'/home/turbo/jarvis-m1-ops/data/memories_export_{datetime.datetime.now().strftime(chr(37)+chr(89)+chr(37)+chr(109)+chr(37)+chr(100))}.json'; __import__('pathlib').Path(out).write_text(json.dumps(data,indent=2,ensure_ascii=False)); print(f'=== EXPORT MEMOIRE ==='); print(f'  {len(data)} entries exportees'); print(f'  Fichier: {out}'); c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("brain_pattern_search", "pipeline", "Rechercher des patterns appris par mot-cle", [
         "cherche pattern", "search pattern", "pattern pour",
         "quel pattern", "brain search",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); r=c.execute('SELECT category,key,value FROM memories ORDER BY ROWID DESC LIMIT 15').fetchall(); print('=== PATTERNS RECENTS ==='); [print(f'  [{cat}] {k}: {v[:60]}') for cat,k,v in r]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('SELECT category,key,value FROM memories ORDER BY ROWID DESC LIMIT 15').fetchall(); print('=== PATTERNS RECENTS ==='); [print(f'  [{cat}] {k}: {v[:60]}') for cat,k,v in r]; c.close()\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # RAG SYSTEM — Retrieval-Augmented Generation
@@ -2058,17 +2058,17 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("rag_status", "pipeline", "Status du systeme RAG: index, documents, modele", [
         "status rag", "rag status", "retrieval status",
         "systeme rag", "rag info",
-    ], "pipeline", "powershell:Write-Output '=== RAG SYSTEM ==='; if (Test-Path 'F:\\BUREAU\\rag-v1') { $files = (Get-ChildItem 'F:\\BUREAU\\rag-v1' -Recurse -File | Measure-Object).Count; $size = [math]::Round((Get-ChildItem 'F:\\BUREAU\\rag-v1' -Recurse -File | Measure-Object Length -Sum).Sum / 1MB, 1); Write-Output \"  Projet: F:\\BUREAU\\rag-v1\"; Write-Output \"  Fichiers: $files ($($size)MB)\"; Write-Output \"  Type: TS plugin RAG adaptatif\" } else { Write-Output '  RAG: non deploye' }"),
+    ], "pipeline", "powershell:Write-Output '=== RAG SYSTEM ==='; if (Test-Path 'F:/BUREAU/rag-v1') { $files = (Get-ChildItem 'F:/BUREAU/rag-v1' -Recurse -File | Measure-Object).Count; $size = [math]::Round((Get-ChildItem 'F:/BUREAU/rag-v1' -Recurse -File | Measure-Object Length -Sum).Sum / 1MB, 1); Write-Output \"  Projet: F:/BUREAU/rag-v1\"; Write-Output \"  Fichiers: $files ($($size)MB)\"; Write-Output \"  Type: TS plugin RAG adaptatif\" } else { Write-Output '  RAG: non deploye' }"),
 
     JarvisCommand("rag_index_status", "pipeline", "Verifier l'etat de l'index RAG et documents indexes", [
         "index rag", "rag index", "documents indexes",
         "rag documents", "index status",
-    ], "pipeline", "powershell:Write-Output '=== INDEX RAG ==='; if (Test-Path 'F:\\BUREAU\\rag-v1') { $ts = Get-ChildItem 'F:\\BUREAU\\rag-v1' -Filter '*.ts' -Recurse | Measure-Object; $json = Get-ChildItem 'F:\\BUREAU\\rag-v1' -Filter '*.json' -Recurse | Measure-Object; Write-Output \"  TS: $($ts.Count) fichiers\"; Write-Output \"  JSON: $($json.Count) fichiers\"; $pkg = 'F:\\BUREAU\\rag-v1\\package.json'; if (Test-Path $pkg) { Write-Output \"  Package: $(Get-Content $pkg | ConvertFrom-Json | Select-Object -ExpandProperty name -ErrorAction SilentlyContinue)\" } } else { Write-Output '  Index: non disponible' }"),
+    ], "pipeline", "powershell:Write-Output '=== INDEX RAG ==='; if (Test-Path 'F:/BUREAU/rag-v1') { $ts = Get-ChildItem 'F:/BUREAU/rag-v1' -Filter '*.ts' -Recurse | Measure-Object; $json = Get-ChildItem 'F:/BUREAU/rag-v1' -Filter '*.json' -Recurse | Measure-Object; Write-Output \"  TS: $($ts.Count) fichiers\"; Write-Output \"  JSON: $($json.Count) fichiers\"; $pkg = 'F:/BUREAU/rag-v1/package.json'; if (Test-Path $pkg) { Write-Output \"  Package: $(Get-Content $pkg | ConvertFrom-Json | Select-Object -ExpandProperty name -ErrorAction SilentlyContinue)\" } } else { Write-Output '  Index: non disponible' }"),
 
     JarvisCommand("rag_search_test", "pipeline", "Tester une recherche RAG via M1 qwen3-8b", [
         "test rag", "recherche rag", "rag query",
         "rag cherche", "tester retrieval",
-    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nSimule une recherche RAG: pour la question \\\"comment fonctionne le cluster JARVIS?\\\", genere les 3 documents les plus pertinents a recuperer avec leur score de pertinence.\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'RAG search: M1 offline' }"),
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nSimule une recherche RAG: pour la question /\"comment fonctionne le cluster JARVIS?/\", genere les 3 documents les plus pertinents a recuperer avec leur score de pertinence.\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'RAG search: M1 offline' }"),
 
     # ══════════════════════════════════════════════════════════════════════
     # CONSENSUS & VOTE SYSTEM — Gestion du systeme de vote pondere
@@ -2082,12 +2082,12 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("consensus_test_scenario", "pipeline", "Tester le consensus sur un scenario rapide M1+OL1", [
         "test consensus", "consensus test", "tester vote",
         "scenario consensus", "consensus rapide",
-    ], "pipeline", "powershell:$body1 = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nQuestion consensus: quel format de donnees est optimal pour JARVIS? Reponds en 1 mot: JSON, Parquet, ou SQLite.\",\"temperature\":0.2,\"max_output_tokens\":32,\"stream\":false,\"store\":false}'; try { $r1 = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body1 -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15 -UseBasicParsing; $d1 = $r1.Content | ConvertFrom-Json; $m1 = ($d1.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; $body2 = '{\"model\":\"qwen3:1.7b\",\"messages\":[{\"role\":\"user\",\"content\":\"Question: quel format optimal pour JARVIS? 1 mot: JSON, Parquet, ou SQLite.\"}],\"stream\":false}'; $r2 = Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/chat' -Method POST -Body $body2 -ContentType 'application/json' -TimeoutSec 15 -UseBasicParsing; $d2 = $r2.Content | ConvertFrom-Json; $ol1 = $d2.message.content; Write-Output '=== TEST CONSENSUS ==='; Write-Output \"  M1 (poids 1.8): $($m1.Substring(0, [Math]::Min(50, $m1.Length)))\"; Write-Output \"  OL1 (poids 1.3): $($ol1.Substring(0, [Math]::Min(50, $ol1.Length)))\" } catch { Write-Output 'Consensus test: agents offline' }"),
+    ], "pipeline", "powershell:$body1 = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nQuestion consensus: quel format de donnees est optimal pour JARVIS? Reponds en 1 mot: JSON, Parquet, ou SQLite.\",\"temperature\":0.2,\"max_output_tokens\":32,\"stream\":false,\"store\":false}'; try { $r1 = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body1 -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15 -UseBasicParsing; $d1 = $r1.Content | ConvertFrom-Json; $m1 = ($d1.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; $body2 = '{\"model\":\"qwen3:1.7b\",\"messages\":[{\"role\":\"user\",\"content\":\"Question: quel format optimal pour JARVIS? 1 mot: JSON, Parquet, ou SQLite.\"}],\"stream\":false}'; $r2 = Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/chat' -Method POST -Body $body2 -ContentType 'application/json' -TimeoutSec 15 -UseBasicParsing; $d2 = $r2.Content | ConvertFrom-Json; $ol1 = $d2.message.content; Write-Output '=== TEST CONSENSUS ==='; Write-Output \"  M1 (poids 1.8): $($m1.Substring(0, [Math]::Min(50, $m1.Length)))\"; Write-Output \"  OL1 (poids 1.3): $($ol1.Substring(0, [Math]::Min(50, $ol1.Length)))\" } catch { Write-Output 'Consensus test: agents offline' }"),
 
     JarvisCommand("consensus_routing_rules", "pipeline", "Afficher les 22 regles de routage du consensus", [
         "regles routage", "routing rules", "regles consensus",
         "routage cluster", "matrice routage",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); r=c.execute('SELECT entity_name,role FROM map WHERE entity_type=\\\"routing_rule\\\" ORDER BY entity_name').fetchall(); print(f'=== {len(r)} REGLES ROUTAGE ==='); [print(f'  {n}: {d[:60]}') for n,d in r]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('SELECT entity_name,role FROM map WHERE entity_type=/\"routing_rule/\" ORDER BY entity_name').fetchall(); print(f'=== {len(r)} REGLES ROUTAGE ==='); [print(f'  {n}: {d[:60]}') for n,d in r]; c.close()\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # SECURITY HARDENING — Securite avancee et hardening
@@ -2096,7 +2096,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("security_vuln_scan", "pipeline", "Scan de vulnerabilites: deps Python + npm + systeme", [
         "scan vulnerabilites", "vuln scan", "securite scan",
         "failles securite", "vulnerability check",
-    ], "pipeline", "powershell:Write-Output '=== SCAN VULNERABILITES ==='; $pipAudit = & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pip list --outdated 2>$null | Select-Object -First 10; Write-Output '  Packages Python outdated:'; $pipAudit | ForEach-Object { Write-Output \"    $_\" }; if (Test-Path 'F:\\BUREAU\\turbo\\electron\\package.json') { $npmAudit = npm audit --prefix 'F:\\BUREAU\\turbo\\electron' 2>$null | Select-Object -First 5; Write-Output '  NPM audit:'; $npmAudit | ForEach-Object { Write-Output \"    $_\" } }"),
+    ], "pipeline", "powershell:Write-Output '=== SCAN VULNERABILITES ==='; $pipAudit = & '/\Users/franc/.local/bin/uv.exe' run pip list --outdated 2>$null | Select-Object -First 10; Write-Output '  Packages Python outdated:'; $pipAudit | ForEach-Object { Write-Output \"    $_\" }; if (Test-Path 'F:/BUREAU/turbo/electron/package.json') { $npmAudit = npm audit --prefix 'F:/BUREAU/turbo/electron' 2>$null | Select-Object -First 5; Write-Output '  NPM audit:'; $npmAudit | ForEach-Object { Write-Output \"    $_\" } }"),
 
     JarvisCommand("security_firewall_check", "pipeline", "Verifier les regles firewall Windows actives", [
         "firewall status", "regles firewall", "firewall check",
@@ -2106,7 +2106,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("security_cert_check", "pipeline", "Verifier les certificats SSL et leur expiration", [
         "certificats ssl", "cert check", "ssl check",
         "certificats expiration", "verifier certs",
-    ], "pipeline", "powershell:Write-Output '=== CERTIFICATS SSL ==='; $certs = Get-ChildItem Cert:\\LocalMachine\\My -ErrorAction SilentlyContinue; Write-Output \"  Certificats machine: $($certs.Count)\"; $expiring = $certs | Where-Object { $_.NotAfter -lt (Get-Date).AddDays(30) }; Write-Output \"  Expirent <30j: $($expiring.Count)\"; $certs | Select-Object -First 5 | ForEach-Object { Write-Output \"  $($_.Subject.Substring(0, [Math]::Min(50, $_.Subject.Length))): expire $($_.NotAfter.ToString('yyyy-MM-dd'))\" }"),
+    ], "pipeline", "powershell:Write-Output '=== CERTIFICATS SSL ==='; $certs = Get-ChildItem Cert:/LocalMachine/My -ErrorAction SilentlyContinue; Write-Output \"  Certificats machine: $($certs.Count)\"; $expiring = $certs | Where-Object { $_.NotAfter -lt (Get-Date).AddDays(30) }; Write-Output \"  Expirent <30j: $($expiring.Count)\"; $certs | Select-Object -First 5 | ForEach-Object { Write-Output \"  $($_.Subject.Substring(0, [Math]::Min(50, $_.Subject.Length))): expire $($_.NotAfter.ToString('yyyy-MM-dd'))\" }"),
 
     JarvisCommand("security_patch_status", "pipeline", "Verifier les mises a jour Windows et patches securite", [
         "mises a jour windows", "windows update", "patches securite",
@@ -2130,12 +2130,12 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("model_benchmark_compare", "pipeline", "Benchmark comparatif des modeles du cluster", [
         "benchmark modeles", "comparer modeles", "model benchmark",
         "quel modele meilleur", "performance modeles",
-    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nCompare en tableau les modeles du cluster JARVIS: qwen3-8b (M1, 65tok/s), deepseek-r1 (M2), deepseek-r1 (M3), qwen3:1.7b (OL1). Criteres: vitesse, qualite code, raisonnement, polyvalence. Score /10 chaque.\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'Benchmark: M1 offline' }"),
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nCompare en tableau les modeles du cluster JARVIS: qwen3-8b (M1, 65tok/s), deepseek-r1 (M2), deepseek-r1 (M3), qwen3:1.7b (OL1). Criteres: vitesse, qualite code, raisonnement, polyvalence. Score /10 chaque.\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'Benchmark: M1 offline' }"),
 
     JarvisCommand("model_cache_warmup", "pipeline", "Pre-remplir le cache des modeles pour latence optimale", [
         "warmup modeles", "prechauffer modeles", "cache warmup",
         "model warmup", "preparer modeles",
-    ], "pipeline", "powershell:Write-Output '=== MODEL CACHE WARMUP ==='; $body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nWarmup: OK\",\"temperature\":0.1,\"max_output_tokens\":8,\"stream\":false,\"store\":false}'; try { $t = Measure-Command { Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15 -UseBasicParsing }; Write-Output \"  M1 warmup: $([math]::Round($t.TotalMilliseconds))ms\" } catch { Write-Output '  M1: offline' }; $body2 = '{\"model\":\"qwen3:1.7b\",\"messages\":[{\"role\":\"user\",\"content\":\"warmup OK\"}],\"stream\":false}'; try { $t2 = Measure-Command { Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/chat' -Method POST -Body $body2 -ContentType 'application/json' -TimeoutSec 15 -UseBasicParsing }; Write-Output \"  OL1 warmup: $([math]::Round($t2.TotalMilliseconds))ms\" } catch { Write-Output '  OL1: offline' }; Write-Output '  Cache pre-rempli OK'"),
+    ], "pipeline", "powershell:Write-Output '=== MODEL CACHE WARMUP ==='; $body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nWarmup: OK\",\"temperature\":0.1,\"max_output_tokens\":8,\"stream\":false,\"store\":false}'; try { $t = Measure-Command { Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 15 -UseBasicParsing }; Write-Output \"  M1 warmup: $([math]::Round($t.TotalMilliseconds))ms\" } catch { Write-Output '  M1: offline' }; $body2 = '{\"model\":\"qwen3:1.7b\",\"messages\":[{\"role\":\"user\",\"content\":\"warmup OK\"}],\"stream\":false}'; try { $t2 = Measure-Command { Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/chat' -Method POST -Body $body2 -ContentType 'application/json' -TimeoutSec 15 -UseBasicParsing }; Write-Output \"  OL1 warmup: $([math]::Round($t2.TotalMilliseconds))ms\" } catch { Write-Output '  OL1: offline' }; Write-Output '  Cache pre-rempli OK'"),
 
     # ══════════════════════════════════════════════════════════════════════
     # CLUSTER PREDICTIVE ANALYTICS — Analyse predictive cluster
@@ -2144,7 +2144,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("cluster_health_predict", "pipeline", "Prediction de pannes cluster basee sur les tendances", [
         "prediction panne", "predict failure", "cluster prediction",
         "panne cluster", "prevision cluster",
-    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nAnalyse predictive du cluster JARVIS: M1(100%,0.6s), M2(90%,1.3s), M3(89%,2.5s), OL1(88%,0.5s). GPU: 10 GPU 30-54C. RAM: 36/48GB. Identifie les risques de panne dans les 24h et recommande des actions preventives.\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'Prediction: M1 offline' }"),
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nAnalyse predictive du cluster JARVIS: M1(100%,0.6s), M2(90%,1.3s), M3(89%,2.5s), OL1(88%,0.5s). GPU: 10 GPU 30-54C. RAM: 36/48GB. Identifie les risques de panne dans les 24h et recommande des actions preventives.\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'Prediction: M1 offline' }"),
 
     JarvisCommand("cluster_load_forecast", "pipeline", "Prevision de charge GPU du cluster pour les prochaines heures", [
         "prevision charge", "load forecast", "charge gpu prevision",
@@ -2163,7 +2163,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("n8n_workflow_export", "pipeline", "Exporter tous les workflows n8n en backup JSON", [
         "export workflows n8n", "backup n8n", "sauvegarder n8n",
         "n8n export", "n8n backup",
-    ], "pipeline", "powershell:Write-Output '=== EXPORT N8N ==='; if (Test-Path 'F:\\BUREAU\\n8n_workflows_backup') { $wf = Get-ChildItem 'F:\\BUREAU\\n8n_workflows_backup' -Filter '*.json'; Write-Output \"  Workflows sauvegardes: $($wf.Count)\"; $total = [math]::Round(($wf | Measure-Object Length -Sum).Sum / 1KB); Write-Output \"  Taille totale: ${total}KB\"; $wf | Sort-Object LastWriteTime -Descending | Select-Object -First 5 | ForEach-Object { Write-Output \"  $($_.Name): $([math]::Round($_.Length/1KB))KB ($($_.LastWriteTime.ToString('yyyy-MM-dd')))\" } } else { Write-Output '  Repertoire backup non trouve' }"),
+    ], "pipeline", "powershell:Write-Output '=== EXPORT N8N ==='; if (Test-Path 'F:/BUREAU/n8n_workflows_backup') { $wf = Get-ChildItem 'F:/BUREAU/n8n_workflows_backup' -Filter '*.json'; Write-Output \"  Workflows sauvegardes: $($wf.Count)\"; $total = [math]::Round(($wf | Measure-Object Length -Sum).Sum / 1KB); Write-Output \"  Taille totale: ${total}KB\"; $wf | Sort-Object LastWriteTime -Descending | Select-Object -First 5 | ForEach-Object { Write-Output \"  $($_.Name): $([math]::Round($_.Length/1KB))KB ($($_.LastWriteTime.ToString('yyyy-MM-dd')))\" } } else { Write-Output '  Repertoire backup non trouve' }"),
 
     JarvisCommand("n8n_trigger_manual", "pipeline", "Declencher manuellement un workflow n8n", [
         "trigger n8n", "lancer workflow n8n", "n8n trigger",
@@ -2173,7 +2173,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("n8n_execution_history", "pipeline", "Historique des dernieres executions n8n", [
         "historique n8n", "n8n history", "executions n8n",
         "n8n logs", "n8n dernieres executions",
-    ], "pipeline", "powershell:try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:5678/healthz' -TimeoutSec 3 -UseBasicParsing; Write-Output '=== HISTORIQUE N8N ==='; Write-Output \"  Port 5678: actif\"; Write-Output '  Dashboard: http://127.0.0.1:5678' } catch { Write-Output '=== HISTORIQUE N8N ==='; Write-Output '  n8n offline - pas d historique disponible'; if (Test-Path 'F:\\BUREAU\\n8n_workflows_backup') { Write-Output \"  Backups disponibles: $((Get-ChildItem 'F:\\BUREAU\\n8n_workflows_backup' -Filter '*.json' | Measure-Object).Count) workflows\" } }"),
+    ], "pipeline", "powershell:try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:5678/healthz' -TimeoutSec 3 -UseBasicParsing; Write-Output '=== HISTORIQUE N8N ==='; Write-Output \"  Port 5678: actif\"; Write-Output '  Dashboard: http://127.0.0.1:5678' } catch { Write-Output '=== HISTORIQUE N8N ==='; Write-Output '  n8n offline - pas d historique disponible'; if (Test-Path 'F:/BUREAU/n8n_workflows_backup') { Write-Output \"  Backups disponibles: $((Get-ChildItem 'F:/BUREAU/n8n_workflows_backup' -Filter '*.json' | Measure-Object).Count) workflows\" } }"),
 
     # ══════════════════════════════════════════════════════════════════════
     # DATABASE OPTIMIZATION — Optimisation avancee des bases
@@ -2182,17 +2182,17 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("db_reindex_all", "pipeline", "Reconstruire tous les index des bases SQLite", [
         "reindex bases", "reconstruire index", "db reindex",
         "index rebuild", "optimiser index",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3,os; dbs=['F:/BUREAU/turbo/data/etoile.db','F:/BUREAU/turbo/data/jarvis.db']; print('=== REINDEX DATABASES ==='); [print(f'  {os.path.basename(db)}: ' + (lambda c: (c.execute('REINDEX'), 'REINDEX OK')[1])(sqlite3.connect(db).cursor())) for db in dbs if os.path.exists(db)]\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,os; dbs=['/home/turbo/jarvis-m1-ops/data/etoile.db','/home/turbo/jarvis-m1-ops/data/jarvis.db']; print('=== REINDEX DATABASES ==='); [print(f'  {os.path.basename(db)}: ' + (lambda c: (c.execute('REINDEX'), 'REINDEX OK')[1])(sqlite3.connect(db).cursor())) for db in dbs if os.path.exists(db)]\" 2>&1 | Out-String"),
 
     JarvisCommand("db_schema_info", "pipeline", "Afficher le schema detaille de toutes les tables", [
         "schema bases", "db schema", "structure tables",
         "tables schema", "schema etoile",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); tables=c.execute('SELECT name FROM sqlite_master WHERE type=\\\"table\\\"').fetchall(); print('=== SCHEMA ETOILE.DB ==='); [print(f'  {t[0]}: ' + ', '.join(col[1] for col in c.execute(f'PRAGMA table_info({t[0]})').fetchall())) for t in tables]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tables=c.execute('SELECT name FROM sqlite_master WHERE type=/\"table/\"').fetchall(); print('=== SCHEMA ETOILE.DB ==='); [print(f'  {t[0]}: ' + ', '.join(col[1] for col in c.execute(f'PRAGMA table_info({t[0]})').fetchall())) for t in tables]; c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("db_export_snapshot", "pipeline", "Exporter un snapshot versionne de etoile.db", [
         "export snapshot db", "snapshot base", "db snapshot",
         "sauvegarder snapshot", "export etoile",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3,shutil,datetime,os; src='F:/BUREAU/turbo/data/etoile.db'; ts=datetime.datetime.now().strftime('%Y%m%d_%H%M'); dst=f'F:/BUREAU/turbo/data/etoile_snapshot_{ts}.db'; shutil.copy2(src,dst); size=os.path.getsize(dst)/1024; print(f'=== SNAPSHOT ==='); print(f'  Source: etoile.db ({os.path.getsize(src)/1024:.0f}KB)'); print(f'  Snapshot: {os.path.basename(dst)} ({size:.0f}KB)'); print(f'  Date: {ts}')\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,shutil,datetime,os; src='/home/turbo/jarvis-m1-ops/data/etoile.db'; ts=datetime.datetime.now().strftime('%Y%m%d_%H%M'); dst=f'/home/turbo/jarvis-m1-ops/data/etoile_snapshot_{ts}.db'; shutil.copy2(src,dst); size=os.path.getsize(dst)/1024; print(f'=== SNAPSHOT ==='); print(f'  Source: etoile.db ({os.path.getsize(src)/1024:.0f}KB)'); print(f'  Snapshot: {os.path.basename(dst)} ({size:.0f}KB)'); print(f'  Date: {ts}')\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # DASHBOARD WIDGETS — Gestion des widgets dashboard
@@ -2201,12 +2201,12 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("dashboard_widget_list", "pipeline", "Lister tous les widgets du dashboard disponibles", [
         "widgets dashboard", "liste widgets", "quels widgets",
         "widgets disponibles", "dashboard widgets",
-    ], "pipeline", "powershell:Write-Output '=== WIDGETS DASHBOARD ==='; if (Test-Path 'F:\\BUREAU\\turbo\\dashboard\\index.html') { $html = Get-Content 'F:\\BUREAU\\turbo\\dashboard\\index.html' -Raw; $widgets = [regex]::Matches($html, 'class=\"widget[^\"]*\"') | ForEach-Object { $_.Value }; Write-Output \"  Widgets detectes: $($widgets.Count)\"; $widgets | Select-Object -First 10 | ForEach-Object { Write-Output \"  $_\" }; $size = [math]::Round((Get-Item 'F:\\BUREAU\\turbo\\dashboard\\index.html').Length / 1KB); Write-Output \"  Dashboard: ${size}KB\" } else { Write-Output '  dashboard/index.html non trouve' }"),
+    ], "pipeline", "powershell:Write-Output '=== WIDGETS DASHBOARD ==='; if (Test-Path 'F:/BUREAU/turbo/dashboard/index.html') { $html = Get-Content 'F:/BUREAU/turbo/dashboard/index.html' -Raw; $widgets = [regex]::Matches($html, 'class=\"widget[^\"]*\"') | ForEach-Object { $_.Value }; Write-Output \"  Widgets detectes: $($widgets.Count)\"; $widgets | Select-Object -First 10 | ForEach-Object { Write-Output \"  $_\" }; $size = [math]::Round((Get-Item 'F:/BUREAU/turbo/dashboard/index.html').Length / 1KB); Write-Output \"  Dashboard: ${size}KB\" } else { Write-Output '  dashboard/index.html non trouve' }"),
 
     JarvisCommand("dashboard_config_show", "pipeline", "Afficher la configuration du dashboard JARVIS", [
         "config dashboard", "dashboard config", "parametres dashboard",
         "configuration dashboard", "dashboard settings",
-    ], "pipeline", "powershell:Write-Output '=== CONFIG DASHBOARD ==='; Write-Output '  Type: HTML + Python server'; Write-Output '  Port: 8080'; Write-Output '  Launcher: JARVIS_DASHBOARD.bat'; if (Test-Path 'F:\\BUREAU\\turbo\\dashboard\\server.py') { $size = [math]::Round((Get-Item 'F:\\BUREAU\\turbo\\dashboard\\server.py').Length / 1KB); Write-Output \"  server.py: ${size}KB\" }; if (Test-Path 'F:\\BUREAU\\turbo\\dashboard\\index.html') { $size2 = [math]::Round((Get-Item 'F:\\BUREAU\\turbo\\dashboard\\index.html').Length / 1KB); Write-Output \"  index.html: ${size2}KB\" }; $proc = Get-Process -Name 'python*' -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -match 'dashboard|8080' }; Write-Output \"  Actif: $(if ($proc) { 'OUI PID=' + $proc.Id } else { 'NON' })\""),
+    ], "pipeline", "powershell:Write-Output '=== CONFIG DASHBOARD ==='; Write-Output '  Type: HTML + Python server'; Write-Output '  Port: 8080'; Write-Output '  Launcher: JARVIS_DASHBOARD.bat'; if (Test-Path 'F:/BUREAU/turbo/dashboard/server.py') { $size = [math]::Round((Get-Item 'F:/BUREAU/turbo/dashboard/server.py').Length / 1KB); Write-Output \"  server.py: ${size}KB\" }; if (Test-Path 'F:/BUREAU/turbo/dashboard/index.html') { $size2 = [math]::Round((Get-Item 'F:/BUREAU/turbo/dashboard/index.html').Length / 1KB); Write-Output \"  index.html: ${size2}KB\" }; $proc = Get-Process -Name 'python*' -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -match 'dashboard|8080' }; Write-Output \"  Actif: $(if ($proc) { 'OUI PID=' + $proc.Id } else { 'NON' })\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # HOTFIX & EMERGENCY — Systeme de deploiement d'urgence
@@ -2215,12 +2215,12 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("hotfix_deploy_express", "pipeline", "Deploiement hotfix express: commit + push + verification", [
         "hotfix express", "deployer hotfix", "deploy urgence",
         "hotfix rapide", "emergency deploy",
-    ], "pipeline", "powershell:Write-Output '=== HOTFIX EXPRESS ==='; $status = git -C 'F:\\BUREAU\\turbo' status --porcelain 2>$null; $changes = ($status | Measure-Object).Count; Write-Output \"  Fichiers modifies: $changes\"; if ($changes -gt 0) { Write-Output '  Action requise: git add + commit + push'; $status | Select-Object -First 5 | ForEach-Object { Write-Output \"    $_\" } } else { Write-Output '  Aucun changement a deployer' }; $lastCommit = git -C 'F:\\BUREAU\\turbo' log --oneline -1 2>$null; Write-Output \"  Dernier commit: $lastCommit\""),
+    ], "pipeline", "powershell:Write-Output '=== HOTFIX EXPRESS ==='; $status = git -C 'F:/BUREAU/turbo' status --porcelain 2>$null; $changes = ($status | Measure-Object).Count; Write-Output \"  Fichiers modifies: $changes\"; if ($changes -gt 0) { Write-Output '  Action requise: git add + commit + push'; $status | Select-Object -First 5 | ForEach-Object { Write-Output \"    $_\" } } else { Write-Output '  Aucun changement a deployer' }; $lastCommit = git -C 'F:/BUREAU/turbo' log --oneline -1 2>$null; Write-Output \"  Dernier commit: $lastCommit\""),
 
     JarvisCommand("hotfix_verify_integrity", "pipeline", "Verifier l'integrite du projet apres un hotfix", [
         "verifier hotfix", "integrite hotfix", "hotfix ok",
         "verify hotfix", "hotfix integrity",
-    ], "pipeline", "powershell:Write-Output '=== VERIFICATION HOTFIX ==='; $importCheck = & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c 'from src.commands_pipelines import PIPELINE_COMMANDS; print(f\"Pipelines: {len(PIPELINE_COMMANDS)} OK\")' 2>&1; Write-Output \"  $importCheck\"; $dbCheck = & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); c.execute('PRAGMA integrity_check'); r=c.execute('SELECT COUNT(*) FROM map').fetchone()[0]; print(f'DB: {r} entries OK')\" 2>&1; Write-Output \"  $dbCheck\"; $gitStatus = git -C 'F:\\BUREAU\\turbo' status --porcelain 2>$null | Measure-Object; Write-Output \"  Git: $($gitStatus.Count) fichiers non commites\""),
+    ], "pipeline", "powershell:Write-Output '=== VERIFICATION HOTFIX ==='; $importCheck = & '/\Users/franc/.local/bin/uv.exe' run python -c 'from src.commands_pipelines import PIPELINE_COMMANDS; print(f\"Pipelines: {len(PIPELINE_COMMANDS)} OK\")' 2>&1; Write-Output \"  $importCheck\"; $dbCheck = & '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); c.execute('PRAGMA integrity_check'); r=c.execute('SELECT COUNT(*) FROM map').fetchone()[0]; print(f'DB: {r} entries OK')\" 2>&1; Write-Output \"  $dbCheck\"; $gitStatus = git -C 'F:/BUREAU/turbo' status --porcelain 2>$null | Measure-Object; Write-Output \"  Git: $($gitStatus.Count) fichiers non commites\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # LEARNING CYCLES — Orchestration des cycles d'apprentissage
@@ -2229,22 +2229,22 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("learning_cycle_status", "pipeline", "Status des cycles d'apprentissage: dernier run, metriques, progression", [
         "status apprentissage", "learning cycle", "cycle apprentissage",
         "ou en est l'apprentissage", "learning status",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); tests=c.execute('SELECT COUNT(*),SUM(CASE WHEN status=\\\"PASS\\\" THEN 1 ELSE 0 END) FROM pipeline_tests').fetchone(); cats=c.execute('SELECT COUNT(DISTINCT category) FROM pipeline_tests').fetchone()[0]; mem=c.execute('SELECT value FROM memories WHERE key=\\\"pipeline_test_total\\\"').fetchone(); print('=== LEARNING CYCLES ==='); print(f'  Tests: {tests[1]}/{tests[0]} PASS'); print(f'  Categories: {cats}'); print(f'  Score: {mem[0] if mem else \\\"N/A\\\"}'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tests=c.execute('SELECT COUNT(*),SUM(CASE WHEN status=/\"PASS/\" THEN 1 ELSE 0 END) FROM pipeline_tests').fetchone(); cats=c.execute('SELECT COUNT(DISTINCT category) FROM pipeline_tests').fetchone()[0]; mem=c.execute('SELECT value FROM memories WHERE key=/\"pipeline_test_total/\"').fetchone(); print('=== LEARNING CYCLES ==='); print(f'  Tests: {tests[1]}/{tests[0]} PASS'); print(f'  Categories: {cats}'); print(f'  Score: {mem[0] if mem else /\"N/A/\"}'); c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("learning_cycle_benchmark", "pipeline", "Lancer un benchmark rapide du cluster pour mesurer la progression", [
         "benchmark apprentissage", "learning benchmark", "benchmark progression",
         "mesurer progression", "benchmark cycle",
-    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nBenchmark rapide JARVIS: evalue les 5 dimensions suivantes sur 10: code_quality, response_speed, cluster_reliability, memory_persistence, vocal_accuracy. Score global /50.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $t = Measure-Command { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing }; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output \"=== BENCHMARK ($([math]::Round($t.TotalMilliseconds))ms) ===\"; Write-Output $msg } catch { Write-Output 'Benchmark: M1 offline' }"),
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nBenchmark rapide JARVIS: evalue les 5 dimensions suivantes sur 10: code_quality, response_speed, cluster_reliability, memory_persistence, vocal_accuracy. Score global /50.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $t = Measure-Command { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing }; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output \"=== BENCHMARK ($([math]::Round($t.TotalMilliseconds))ms) ===\"; Write-Output $msg } catch { Write-Output 'Benchmark: M1 offline' }"),
 
     JarvisCommand("learning_cycle_metrics", "pipeline", "Analyser les metriques des cycles d'apprentissage passes", [
         "metriques apprentissage", "learning metrics", "stats cycles",
         "analyse cycles", "metrics learning",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); cats=c.execute('SELECT category,COUNT(*),SUM(CASE WHEN status=\\\"PASS\\\" THEN 1 ELSE 0 END) FROM pipeline_tests GROUP BY category ORDER BY COUNT(*) DESC').fetchall(); print('=== METRIQUES APPRENTISSAGE ==='); [print(f'  {cat}: {ok}/{tot} PASS ({100*ok//tot}%%)') for cat,tot,ok in cats]; total=sum(t for _,t,_ in cats); passed=sum(o for _,_,o in cats); print(f'\\n  GLOBAL: {passed}/{total} ({100*passed//total}%%)'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); cats=c.execute('SELECT category,COUNT(*),SUM(CASE WHEN status=/\"PASS/\" THEN 1 ELSE 0 END) FROM pipeline_tests GROUP BY category ORDER BY COUNT(*) DESC').fetchall(); print('=== METRIQUES APPRENTISSAGE ==='); [print(f'  {cat}: {ok}/{tot} PASS ({100*ok//tot}%%)') for cat,tot,ok in cats]; total=sum(t for _,t,_ in cats); passed=sum(o for _,_,o in cats); print(f'/n  GLOBAL: {passed}/{total} ({100*passed//total}%%)'); c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("learning_cycle_feedback", "pipeline", "Boucle de feedback: analyser les echecs et proposer des ameliorations", [
         "feedback apprentissage", "learning feedback", "ameliorer apprentissage",
         "echecs apprentissage", "feedback loop",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); fails=c.execute('SELECT pipeline_name,category,details FROM pipeline_tests WHERE status!=\\\"PASS\\\"').fetchall(); print('=== FEEDBACK LOOP ==='); print(f'  Echecs: {len(fails)}'); [print(f'  [{cat}] {name}: {det[:50]}') for name,cat,det in fails[:10]]; print('  Recommandation: ' + ('Aucun echec - systeme stable' if not fails else f'Investiguer {len(fails)} echecs')); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); fails=c.execute('SELECT pipeline_name,category,details FROM pipeline_tests WHERE status!=/\"PASS/\"').fetchall(); print('=== FEEDBACK LOOP ==='); print(f'  Echecs: {len(fails)}'); [print(f'  [{cat}] {name}: {det[:50]}') for name,cat,det in fails[:10]]; print('  Recommandation: ' + ('Aucun echec - systeme stable' if not fails else f'Investiguer {len(fails)} echecs')); c.close()\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # SCENARIO & TESTING — Framework de test des 475 scenarios
@@ -2253,22 +2253,22 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("scenario_count_all", "pipeline", "Compter tous les scenarios de test dans les bases", [
         "combien scenarios", "scenarios test", "nombre scenarios",
         "total scenarios", "count scenarios",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3,os; dbs=[('etoile.db','F:/BUREAU/turbo/data/etoile.db'),('jarvis.db','F:/BUREAU/turbo/data/jarvis.db')]; print('=== SCENARIOS TEST ==='); [print(f'  {name}: ' + str(sqlite3.connect(p).execute('SELECT COUNT(*) FROM sqlite_master WHERE type=\\\"table\\\"').fetchone()[0]) + ' tables') for name,p in dbs if os.path.exists(p)]; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); tests=c.execute('SELECT COUNT(*) FROM pipeline_tests').fetchone()[0]; maps=c.execute('SELECT COUNT(*) FROM map').fetchone()[0]; print(f'  pipeline_tests: {tests}'); print(f'  map entries: {maps}'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,os; dbs=[('etoile.db','/home/turbo/jarvis-m1-ops/data/etoile.db'),('jarvis.db','/home/turbo/jarvis-m1-ops/data/jarvis.db')]; print('=== SCENARIOS TEST ==='); [print(f'  {name}: ' + str(sqlite3.connect(p).execute('SELECT COUNT(*) FROM sqlite_master WHERE type=/\"table/\"').fetchone()[0]) + ' tables') for name,p in dbs if os.path.exists(p)]; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tests=c.execute('SELECT COUNT(*) FROM pipeline_tests').fetchone()[0]; maps=c.execute('SELECT COUNT(*) FROM map').fetchone()[0]; print(f'  pipeline_tests: {tests}'); print(f'  map entries: {maps}'); c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("scenario_run_category", "pipeline", "Executer les tests d'une categorie specifique", [
         "tester categorie", "run tests categorie", "scenario categorie",
         "tests par categorie", "run category tests",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); cats=c.execute('SELECT category,COUNT(*),SUM(CASE WHEN status=\\\"PASS\\\" THEN 1 ELSE 0 END) FROM pipeline_tests GROUP BY category').fetchall(); print('=== TESTS PAR CATEGORIE ==='); [print(f'  {cat}: {ok}/{tot} PASS') for cat,tot,ok in cats]; print(f'\\nPour tester: python scripts/test_pipelines_batch[N].py'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); cats=c.execute('SELECT category,COUNT(*),SUM(CASE WHEN status=/\"PASS/\" THEN 1 ELSE 0 END) FROM pipeline_tests GROUP BY category').fetchall(); print('=== TESTS PAR CATEGORIE ==='); [print(f'  {cat}: {ok}/{tot} PASS') for cat,tot,ok in cats]; print(f'/nPour tester: python scripts/test_pipelines_batch[N].py'); c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("scenario_report_generate", "pipeline", "Generer un rapport detaille des resultats de tests", [
         "rapport tests", "test report", "generer rapport",
         "rapport scenarios", "generate report",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3,json; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); tests=c.execute('SELECT test_date,pipeline_name,category,status,latency_ms,details,cluster_node FROM pipeline_tests ORDER BY test_date DESC').fetchall(); report={'total':len(tests),'pass':sum(1 for t in tests if t[3]=='PASS'),'fail':sum(1 for t in tests if t[3]!='PASS'),'categories':len(set(t[2] for t in tests)),'latest_date':tests[0][0] if tests else None}; print('=== RAPPORT TESTS ==='); print(json.dumps(report,indent=2)); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,json; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tests=c.execute('SELECT test_date,pipeline_name,category,status,latency_ms,details,cluster_node FROM pipeline_tests ORDER BY test_date DESC').fetchall(); report={'total':len(tests),'pass':sum(1 for t in tests if t[3]=='PASS'),'fail':sum(1 for t in tests if t[3]!='PASS'),'categories':len(set(t[2] for t in tests)),'latest_date':tests[0][0] if tests else None}; print('=== RAPPORT TESTS ==='); print(json.dumps(report,indent=2)); c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("scenario_regression_check", "pipeline", "Detecter les regressions de performance entre les batches", [
         "regression test", "check regression", "regression performance",
         "detection regression", "performance regression",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); dates=c.execute('SELECT DISTINCT substr(test_date,1,10) as d, COUNT(*), SUM(CASE WHEN status=\\\"PASS\\\" THEN 1 ELSE 0 END) FROM pipeline_tests GROUP BY d ORDER BY d').fetchall(); print('=== DETECTION REGRESSION ==='); [print(f'  {d}: {ok}/{tot} PASS ({100*ok//tot}%%)') for d,tot,ok in dates]; lats=c.execute('SELECT pipeline_name,latency_ms FROM pipeline_tests WHERE latency_ms IS NOT NULL ORDER BY latency_ms DESC LIMIT 5').fetchall(); print('\\nPlus lentes:'); [print(f'  {n}: {l}ms') for n,l in lats]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); dates=c.execute('SELECT DISTINCT substr(test_date,1,10) as d, COUNT(*), SUM(CASE WHEN status=/\"PASS/\" THEN 1 ELSE 0 END) FROM pipeline_tests GROUP BY d ORDER BY d').fetchall(); print('=== DETECTION REGRESSION ==='); [print(f'  {d}: {ok}/{tot} PASS ({100*ok//tot}%%)') for d,tot,ok in dates]; lats=c.execute('SELECT pipeline_name,latency_ms FROM pipeline_tests WHERE latency_ms IS NOT NULL ORDER BY latency_ms DESC LIMIT 5').fetchall(); print('/nPlus lentes:'); [print(f'  {n}: {l}ms') for n,l in lats]; c.close()\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # API & SERVICE MANAGEMENT — Gestion unifiee des endpoints
@@ -2287,7 +2287,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("api_keys_status", "pipeline", "Verifier le status des cles API dans etoile.db", [
         "cles api", "api keys", "status cles",
         "verifier api keys", "api credentials",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); keys=c.execute('SELECT entity_name,role FROM map WHERE entity_type=\\\"tool\\\" AND role LIKE \\\"%%key%%\\\" OR role LIKE \\\"%%api%%\\\"').fetchall(); print('=== API KEYS STATUS ==='); print(f'  Cles referencees: {len(keys)}'); [print(f'  {n}: {r[:50]}') for n,r in keys[:10]]; envs=[f for f in __import__('glob').glob('F:/BUREAU/turbo/**/.env',recursive=True)]; print(f'  Fichiers .env: {len(envs)}'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); keys=c.execute('SELECT entity_name,role FROM map WHERE entity_type=/\"tool/\" AND role LIKE /\"%%key%%/\" OR role LIKE /\"%%api%%/\"').fetchall(); print('=== API KEYS STATUS ==='); print(f'  Cles referencees: {len(keys)}'); [print(f'  {n}: {r[:50]}') for n,r in keys[:10]]; envs=[f for f in __import__('glob').glob('/home/turbo/jarvis-m1-ops/**/.env',recursive=True)]; print(f'  Fichiers .env: {len(envs)}'); c.close()\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # PERFORMANCE PROFILING — Profilage et optimisation continue
@@ -2306,12 +2306,12 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("profile_slow_queries", "pipeline", "Profiler les requetes lentes dans les bases SQLite", [
         "requetes lentes", "slow queries", "profiler base",
         "db lent", "queries performance",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3,time; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); queries=[('SELECT COUNT(*) FROM map','count map'),('SELECT * FROM map WHERE entity_type=\\\"skill\\\"','skills'),('SELECT * FROM memories','memories'),('SELECT * FROM pipeline_tests','tests')]; print('=== SLOW QUERIES ==='); [print(f'  {name}: {round((time.time()-(t:=time.time()) or 1) and (c.execute(q).fetchall() and 0 or 0) or (time.time()-t)*1000,1)}ms') if False else None for q,name in queries]; [print(f'  {name}: ' + str(round(((lambda s: (c.execute(q).fetchall(), time.time()-s))(time.time()))[1]*1000,1)) + 'ms') for q,name in queries]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,time; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); queries=[('SELECT COUNT(*) FROM map','count map'),('SELECT * FROM map WHERE entity_type=/\"skill/\"','skills'),('SELECT * FROM memories','memories'),('SELECT * FROM pipeline_tests','tests')]; print('=== SLOW QUERIES ==='); [print(f'  {name}: {round((time.time()-(t:=time.time()) or 1) and (c.execute(q).fetchall() and 0 or 0) or (time.time()-t)*1000,1)}ms') if False else None for q,name in queries]; [print(f'  {name}: ' + str(round(((lambda s: (c.execute(q).fetchall(), time.time()-s))(time.time()))[1]*1000,1)) + 'ms') for q,name in queries]; c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("profile_optimize_auto", "pipeline", "Auto-optimisation basee sur les resultats de profilage", [
         "auto optimiser", "optimize auto", "optimisation auto",
         "auto optimize", "profiler et optimiser",
-    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nAnalyse le profil systeme: 10 GPU (30-54C), RAM 36/48GB, 381 pipelines, 115 tests PASS. Propose 3 optimisations concretes classees par impact.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output '=== AUTO-OPTIMISATION ==='; Write-Output $msg } catch { Write-Output 'Optimisation: M1 offline' }"),
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nAnalyse le profil systeme: 10 GPU (30-54C), RAM 36/48GB, 381 pipelines, 115 tests PASS. Propose 3 optimisations concretes classees par impact.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output '=== AUTO-OPTIMISATION ==='; Write-Output $msg } catch { Write-Output 'Optimisation: M1 offline' }"),
 
     # ══════════════════════════════════════════════════════════════════════
     # WORKSPACE & SESSION — Gestion des contextes de travail
@@ -2320,7 +2320,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("workspace_snapshot", "pipeline", "Prendre un snapshot de l'etat actuel du workspace", [
         "snapshot workspace", "sauvegarder workspace", "etat workspace",
         "workspace save", "capturer etat",
-    ], "pipeline", "powershell:Write-Output '=== WORKSPACE SNAPSHOT ==='; $procs = (Get-Process | Where-Object { $_.MainWindowTitle } | Measure-Object).Count; Write-Output \"  Fenetres ouvertes: $procs\"; $gitBranch = git -C 'F:\\BUREAU\\turbo' branch --show-current 2>$null; Write-Output \"  Branche git: $gitBranch\"; $changes = (git -C 'F:\\BUREAU\\turbo' status --porcelain 2>$null | Measure-Object).Count; Write-Output \"  Fichiers modifies: $changes\"; $ram = Get-CimInstance Win32_OperatingSystem; $usedGB = [math]::Round(($ram.TotalVisibleMemorySize - $ram.FreePhysicalMemory)/1MB,1); Write-Output \"  RAM utilisee: $($usedGB)GB\"; Write-Output \"  Heure: $(Get-Date -Format 'HH:mm:ss')\""),
+    ], "pipeline", "powershell:Write-Output '=== WORKSPACE SNAPSHOT ==='; $procs = (Get-Process | Where-Object { $_.MainWindowTitle } | Measure-Object).Count; Write-Output \"  Fenetres ouvertes: $procs\"; $gitBranch = git -C 'F:/BUREAU/turbo' branch --show-current 2>$null; Write-Output \"  Branche git: $gitBranch\"; $changes = (git -C 'F:/BUREAU/turbo' status --porcelain 2>$null | Measure-Object).Count; Write-Output \"  Fichiers modifies: $changes\"; $ram = Get-CimInstance Win32_OperatingSystem; $usedGB = [math]::Round(($ram.TotalVisibleMemorySize - $ram.FreePhysicalMemory)/1MB,1); Write-Output \"  RAM utilisee: $($usedGB)GB\"; Write-Output \"  Heure: $(Get-Date -Format 'HH:mm:ss')\""),
 
     JarvisCommand("workspace_switch_context", "pipeline", "Changer de contexte de travail: dev, trading, gaming, multimedia", [
         "changer contexte", "switch workspace", "mode travail",
@@ -2339,22 +2339,22 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("trading_backtest_strategy", "pipeline", "Backtester une strategie trading via IA M1", [
         "backtest trading", "backtester strategie", "test strategie",
         "backtest strategy", "trading backtest",
-    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nBacktest simplifie: strategie MEXC Futures 10x BTC, TP 0.4%%, SL 0.25%%, size 10 USDT. Simule 100 trades avec un winrate de 60%%. Calcule PnL net, max drawdown, Sharpe ratio.\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'Backtest: M1 offline' }"),
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nBacktest simplifie: strategie MEXC Futures 10x BTC, TP 0.4%%, SL 0.25%%, size 10 USDT. Simule 100 trades avec un winrate de 60%%. Calcule PnL net, max drawdown, Sharpe ratio.\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'Backtest: M1 offline' }"),
 
     JarvisCommand("trading_correlation_pairs", "pipeline", "Analyser la correlation entre les paires crypto tradees", [
         "correlation crypto", "paires correlees", "correlation trading",
         "crypto correlation", "trading pairs correlation",
-    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nAnalyse la correlation entre BTC, ETH, SOL, SUI, PEPE, DOGE, XRP, ADA, AVAX, LINK. Classe les paires les plus correlees (>0.8) et les moins correlees (<0.3). Recommande les meilleures combinaisons pour diversifier.\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'Correlation: M1 offline' }"),
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nAnalyse la correlation entre BTC, ETH, SOL, SUI, PEPE, DOGE, XRP, ADA, AVAX, LINK. Classe les paires les plus correlees (>0.8) et les moins correlees (<0.3). Recommande les meilleures combinaisons pour diversifier.\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'Correlation: M1 offline' }"),
 
     JarvisCommand("trading_drawdown_analysis", "pipeline", "Analyser le drawdown maximum et les risques de la strategie", [
         "drawdown trading", "analyse drawdown", "risque trading",
         "max drawdown", "trading risk analysis",
-    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nAnalyse drawdown: MEXC Futures 10x, capital 100 USDT, 10 paires crypto. Calcule le drawdown max theorique, le risk-of-ruin, et recommande la taille de position optimale selon Kelly criterion.\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'Drawdown: M1 offline' }"),
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nAnalyse drawdown: MEXC Futures 10x, capital 100 USDT, 10 paires crypto. Calcule le drawdown max theorique, le risk-of-ruin, et recommande la taille de position optimale selon Kelly criterion.\",\"temperature\":0.2,\"max_output_tokens\":512,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'Drawdown: M1 offline' }"),
 
     JarvisCommand("trading_signal_confidence", "pipeline", "Rapport de confiance des derniers signaux trading", [
         "confiance signaux", "signal confidence", "fiabilite signaux",
         "confiance trading", "confidence report",
-    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nGenere un rapport de confiance pour les signaux trading JARVIS. Score chaque facteur /10: volume, momentum, tendance, support/resistance, sentiment. Synthese globale.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'Signal confidence: M1 offline' }"),
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nGenere un rapport de confiance pour les signaux trading JARVIS. Score chaque facteur /10: volume, momentum, tendance, support/resistance, sentiment. Synthese globale.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'Signal confidence: M1 offline' }"),
 
     # ══════════════════════════════════════════════════════════════════════
     # NOTIFICATION & ALERTING — Systeme de notification centralise
@@ -2363,7 +2363,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("notification_channels_test", "pipeline", "Tester tous les canaux de notification disponibles", [
         "test notifications", "tester alertes", "notification test",
         "canaux notification", "test channels",
-    ], "pipeline", "powershell:Write-Output '=== CANAUX NOTIFICATION ==='; Write-Output '  [Telegram] @turboSSebot'; $tg = & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); r=c.execute('SELECT value FROM memories WHERE key=\\\"telegram_bot_token\\\"').fetchone(); print('OK' if r else 'non configure'); c.close()\" 2>$null; Write-Output \"    Status: $tg\"; Write-Output '  [Console] Toujours actif'; Write-Output '  [TTS] Edge fr-FR-DeniseNeural'; Write-Output '  [Dashboard] port 8080'"),
+    ], "pipeline", "powershell:Write-Output '=== CANAUX NOTIFICATION ==='; Write-Output '  [Telegram] @turboSSebot'; $tg = & '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('SELECT value FROM memories WHERE key=/\"telegram_bot_token/\"').fetchone(); print('OK' if r else 'non configure'); c.close()\" 2>$null; Write-Output \"    Status: $tg\"; Write-Output '  [Console] Toujours actif'; Write-Output '  [TTS] Edge fr-FR-DeniseNeural'; Write-Output '  [Dashboard] port 8080'"),
 
     JarvisCommand("notification_config_show", "pipeline", "Afficher la configuration des notifications et alertes", [
         "config notifications", "notification config", "alertes config",
@@ -2373,7 +2373,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("notification_alert_history", "pipeline", "Historique des dernieres alertes systeme", [
         "historique alertes", "alert history", "dernieres alertes",
         "alertes recentes", "notification history",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); tests=c.execute('SELECT test_date,pipeline_name,status,details FROM pipeline_tests WHERE status!=\\\"PASS\\\" ORDER BY test_date DESC LIMIT 10').fetchall(); print('=== HISTORIQUE ALERTES ==='); print(f'  Alertes totales: {len(tests)}'); [print(f'  {d[:16]} [{s}] {n}: {det[:40]}') for d,n,s,det in tests]; print('  (Aucune alerte = systeme stable)' if not tests else ''); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tests=c.execute('SELECT test_date,pipeline_name,status,details FROM pipeline_tests WHERE status!=/\"PASS/\" ORDER BY test_date DESC LIMIT 10').fetchall(); print('=== HISTORIQUE ALERTES ==='); print(f'  Alertes totales: {len(tests)}'); [print(f'  {d[:16]} [{s}] {n}: {det[:40]}') for d,n,s,det in tests]; print('  (Aucune alerte = systeme stable)' if not tests else ''); c.close()\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # DOCUMENTATION AUTO — Auto-generation et sync de documentation
@@ -2382,17 +2382,17 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("doc_auto_generate", "pipeline", "Auto-generer la documentation des commandes et pipelines", [
         "generer doc", "auto doc", "documentation auto",
         "generer documentation", "doc generate",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; cats={}; [cats.__setitem__(p.name.split('_')[0], cats.get(p.name.split('_')[0],0)+1) for p in PIPELINE_COMMANDS]; print('=== AUTO-DOC PIPELINES ==='); print(f'  Total: {len(PIPELINE_COMMANDS)} pipelines'); print(f'  Prefixes: {len(cats)}'); [print(f'    {k}: {v}') for k,v in sorted(cats.items(),key=lambda x:-x[1])[:15]]\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; cats={}; [cats.__setitem__(p.name.split('_')[0], cats.get(p.name.split('_')[0],0)+1) for p in PIPELINE_COMMANDS]; print('=== AUTO-DOC PIPELINES ==='); print(f'  Total: {len(PIPELINE_COMMANDS)} pipelines'); print(f'  Prefixes: {len(cats)}'); [print(f'    {k}: {v}') for k,v in sorted(cats.items(),key=lambda x:-x[1])[:15]]\" 2>&1 | Out-String"),
 
     JarvisCommand("doc_sync_check", "pipeline", "Verifier la synchronisation entre code et documentation", [
         "sync doc", "doc sync", "verifier documentation",
         "doc a jour", "documentation sync",
-    ], "pipeline", "powershell:Write-Output '=== SYNC DOC ==='; $readme = (Get-Item 'F:\\BUREAU\\turbo\\README.md' -ErrorAction SilentlyContinue).LastWriteTime; $pipes = (Get-Item 'F:\\BUREAU\\turbo\\src\\commands_pipelines.py' -ErrorAction SilentlyContinue).LastWriteTime; Write-Output \"  README.md: $($readme.ToString('yyyy-MM-dd HH:mm'))\"; Write-Output \"  commands_pipelines.py: $($pipes.ToString('yyyy-MM-dd HH:mm'))\"; if ($pipes -gt $readme) { Write-Output '  [DESYNC] Pipelines plus recentes que README' } else { Write-Output '  [SYNC] Documentation a jour' }; $vocDoc = Test-Path 'F:\\BUREAU\\turbo\\docs\\COMMANDES_VOCALES.md'; Write-Output \"  COMMANDES_VOCALES.md: $(if ($vocDoc) { 'present' } else { 'absent' })\""),
+    ], "pipeline", "powershell:Write-Output '=== SYNC DOC ==='; $readme = (Get-Item 'F:/BUREAU/turbo/README.md' -ErrorAction SilentlyContinue).LastWriteTime; $pipes = (Get-Item 'F:/BUREAU/turbo/src/commands_pipelines.py' -ErrorAction SilentlyContinue).LastWriteTime; Write-Output \"  README.md: $($readme.ToString('yyyy-MM-dd HH:mm'))\"; Write-Output \"  commands_pipelines.py: $($pipes.ToString('yyyy-MM-dd HH:mm'))\"; if ($pipes -gt $readme) { Write-Output '  [DESYNC] Pipelines plus recentes que README' } else { Write-Output '  [SYNC] Documentation a jour' }; $vocDoc = Test-Path 'F:/BUREAU/turbo/docs/COMMANDES_VOCALES.md'; Write-Output \"  COMMANDES_VOCALES.md: $(if ($vocDoc) { 'present' } else { 'absent' })\""),
 
     JarvisCommand("doc_usage_examples", "pipeline", "Generer des exemples d'utilisation depuis les logs de tests", [
         "exemples doc", "usage examples", "exemples utilisation",
         "doc exemples", "examples generate",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); tests=c.execute('SELECT pipeline_name,details FROM pipeline_tests WHERE status=\\\"PASS\\\" ORDER BY RANDOM() LIMIT 10').fetchall(); print('=== EXEMPLES UTILISATION ==='); [print(f'  {n}: {d[:60]}') for n,d in tests]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tests=c.execute('SELECT pipeline_name,details FROM pipeline_tests WHERE status=/\"PASS/\" ORDER BY RANDOM() LIMIT 10').fetchall(); print('=== EXEMPLES UTILISATION ==='); [print(f'  {n}: {d[:60]}') for n,d in tests]; c.close()\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # LOGGING & OBSERVABILITY — Observabilite centralisee
@@ -2406,17 +2406,17 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("logs_daily_report", "pipeline", "Rapport journalier d'activite et de logs", [
         "rapport logs", "daily report", "rapport journalier",
         "logs du jour", "today logs",
-    ], "pipeline", "powershell:Write-Output '=== RAPPORT JOURNALIER ==='; $today = (Get-Date).ToString('yyyy-MM-dd'); $commits = git -C 'F:\\BUREAU\\turbo' log --oneline --since='today' 2>$null; $commitCount = ($commits | Measure-Object).Count; Write-Output \"  Date: $today\"; Write-Output \"  Commits aujourd'hui: $commitCount\"; if ($commitCount -gt 0) { $commits | Select-Object -First 5 | ForEach-Object { Write-Output \"    $_\" } }; $errors = (Get-WinEvent -LogName Application -MaxEvents 100 -ErrorAction SilentlyContinue | Where-Object { $_.TimeCreated.Date -eq (Get-Date).Date -and $_.Level -le 2 } | Measure-Object).Count; Write-Output \"  Erreurs systeme: $errors\"; $uptime = (Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; Write-Output \"  Uptime: $($uptime.Days)j $($uptime.Hours)h\""),
+    ], "pipeline", "powershell:Write-Output '=== RAPPORT JOURNALIER ==='; $today = (Get-Date).ToString('yyyy-MM-dd'); $commits = git -C 'F:/BUREAU/turbo' log --oneline --since='today' 2>$null; $commitCount = ($commits | Measure-Object).Count; Write-Output \"  Date: $today\"; Write-Output \"  Commits aujourd'hui: $commitCount\"; if ($commitCount -gt 0) { $commits | Select-Object -First 5 | ForEach-Object { Write-Output \"    $_\" } }; $errors = (Get-WinEvent -LogName Application -MaxEvents 100 -ErrorAction SilentlyContinue | Where-Object { $_.TimeCreated.Date -eq (Get-Date).Date -and $_.Level -le 2 } | Measure-Object).Count; Write-Output \"  Erreurs systeme: $errors\"; $uptime = (Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; Write-Output \"  Uptime: $($uptime.Days)j $($uptime.Hours)h\""),
 
     JarvisCommand("logs_anomaly_detect", "pipeline", "Detecter les anomalies dans les logs via IA M1", [
         "anomalies logs", "detect anomaly", "logs anormaux",
         "anomalie detecter", "anomaly detection",
-    ], "pipeline", "powershell:$errors = Get-WinEvent -LogName Application -MaxEvents 50 -ErrorAction SilentlyContinue | Where-Object { $_.Level -le 2 } | Select-Object -First 5 | ForEach-Object { \"$($_.ProviderName): $($_.Message.Substring(0, [Math]::Min(80, $_.Message.Length)))\" }; $errStr = ($errors -join ' | ').Replace('\"','').Substring(0, [Math]::Min(500, ($errors -join ' | ').Length)); $body = \"{`\"model`\":`\"qwen3-8b`\",`\"input`\":`\"/nothink\\nAnalyse ces erreurs Windows et classe-les par gravite: $errStr`\",`\"temperature`\":0.2,`\"max_output_tokens`\":256,`\"stream`\":false,`\"store`\":false}\"; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output '=== ANOMALIES DETECTEES ==='; Write-Output $msg } catch { Write-Output 'Anomaly detection: M1 offline' }"),
+    ], "pipeline", "powershell:$errors = Get-WinEvent -LogName Application -MaxEvents 50 -ErrorAction SilentlyContinue | Where-Object { $_.Level -le 2 } | Select-Object -First 5 | ForEach-Object { \"$($_.ProviderName): $($_.Message.Substring(0, [Math]::Min(80, $_.Message.Length)))\" }; $errStr = ($errors -join ' | ').Replace('\"','').Substring(0, [Math]::Min(500, ($errors -join ' | ').Length)); $body = \"{`\"model`\":`\"qwen3-8b`\",`\"input`\":`\"/nothink/nAnalyse ces erreurs Windows et classe-les par gravite: $errStr`\",`\"temperature`\":0.2,`\"max_output_tokens`\":256,`\"stream`\":false,`\"store`\":false}\"; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output '=== ANOMALIES DETECTEES ==='; Write-Output $msg } catch { Write-Output 'Anomaly detection: M1 offline' }"),
 
     JarvisCommand("logs_rotate_archive", "pipeline", "Rotation et archivage des fichiers de log", [
         "rotation logs", "archiver logs", "logs rotate",
         "nettoyer logs", "archive logs",
-    ], "pipeline", "powershell:Write-Output '=== ROTATION LOGS ==='; $logDirs = @('F:\\BUREAU\\turbo\\data','F:\\BUREAU\\turbo\\logs','F:\\BUREAU\\turbo\\electron'); foreach ($dir in $logDirs) { if (Test-Path $dir) { $logs = Get-ChildItem $dir -Filter '*.log' -ErrorAction SilentlyContinue; $jsonlLogs = Get-ChildItem $dir -Filter '*.jsonl' -ErrorAction SilentlyContinue; Write-Output \"  $dir: $($logs.Count) .log, $($jsonlLogs.Count) .jsonl\"; $old = $logs | Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-7) }; if ($old) { Write-Output \"    >7j: $($old.Count) fichiers ($([math]::Round(($old | Measure-Object Length -Sum).Sum/1KB))KB)\" } } }"),
+    ], "pipeline", "powershell:Write-Output '=== ROTATION LOGS ==='; $logDirs = @('F:/BUREAU/turbo/data','F:/BUREAU/turbo/logs','F:/BUREAU/turbo/electron'); foreach ($dir in $logDirs) { if (Test-Path $dir) { $logs = Get-ChildItem $dir -Filter '*.log' -ErrorAction SilentlyContinue; $jsonlLogs = Get-ChildItem $dir -Filter '*.jsonl' -ErrorAction SilentlyContinue; Write-Output \"  $dir: $($logs.Count) .log, $($jsonlLogs.Count) .jsonl\"; $old = $logs | Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-7) }; if ($old) { Write-Output \"    >7j: $($old.Count) fichiers ($([math]::Round(($old | Measure-Object Length -Sum).Sum/1KB))KB)\" } } }"),
 
     # ══════════════════════════════════════════════════════════════════════
     # USER PREFERENCE LEARNING — Apprentissage des habitudes utilisateur
@@ -2425,7 +2425,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("preference_work_hours", "pipeline", "Analyser les heures de travail habituelles de l'utilisateur", [
         "heures de travail", "habitudes travail", "work hours",
         "quand je travaille", "pattern horaire",
-    ], "pipeline", "powershell:Write-Output '=== HABITUDES HORAIRES ==='; $hour = (Get-Date).Hour; $period = if ($hour -lt 6) { 'nuit profonde' } elseif ($hour -lt 9) { 'matin tot' } elseif ($hour -lt 12) { 'matinee' } elseif ($hour -lt 14) { 'midi' } elseif ($hour -lt 18) { 'apres-midi' } elseif ($hour -lt 22) { 'soiree' } else { 'nuit' }; Write-Output \"  Heure: $(Get-Date -Format 'HH:mm') ($period)\"; $commits = git -C 'F:\\BUREAU\\turbo' log --format='%H %ai' --since='7 days ago' 2>$null; $commitCount = ($commits | Measure-Object).Count; Write-Output \"  Commits 7j: $commitCount\"; $uptime = (Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; Write-Output \"  Session: $($uptime.Hours)h$($uptime.Minutes)m\""),
+    ], "pipeline", "powershell:Write-Output '=== HABITUDES HORAIRES ==='; $hour = (Get-Date).Hour; $period = if ($hour -lt 6) { 'nuit profonde' } elseif ($hour -lt 9) { 'matin tot' } elseif ($hour -lt 12) { 'matinee' } elseif ($hour -lt 14) { 'midi' } elseif ($hour -lt 18) { 'apres-midi' } elseif ($hour -lt 22) { 'soiree' } else { 'nuit' }; Write-Output \"  Heure: $(Get-Date -Format 'HH:mm') ($period)\"; $commits = git -C 'F:/BUREAU/turbo' log --format='%H %ai' --since='7 days ago' 2>$null; $commitCount = ($commits | Measure-Object).Count; Write-Output \"  Commits 7j: $commitCount\"; $uptime = (Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; Write-Output \"  Session: $($uptime.Hours)h$($uptime.Minutes)m\""),
 
     JarvisCommand("preference_app_usage", "pipeline", "Analyser les applications les plus utilisees", [
         "apps utilisees", "applications frequentes", "app usage",
@@ -2444,7 +2444,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("accessibility_profile_show", "pipeline", "Afficher le profil d'accessibilite actuel", [
         "profil accessibilite", "accessibility profile", "accessibilite config",
         "parametres accessibilite", "accessibility settings",
-    ], "pipeline", "powershell:Write-Output '=== PROFIL ACCESSIBILITE ==='; $nightLight = Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\CloudStore\\Store\\DefaultAccount\\Current\\default$windows.data.bluelightreduction.settings\\windows.data.bluelightreduction.settings' -ErrorAction SilentlyContinue; Write-Output \"  Night Light: $(if ($nightLight) { 'configure' } else { 'non configure' })\"; $cursor = (Get-ItemProperty 'HKCU:\\Control Panel\\Cursors' -ErrorAction SilentlyContinue).CursorBaseSize; Write-Output \"  Taille curseur: $(if ($cursor) { $cursor } else { 'defaut' })\"; $dpi = (Get-ItemProperty 'HKCU:\\Control Panel\\Desktop\\WindowMetrics' -ErrorAction SilentlyContinue).AppliedDPI; Write-Output \"  DPI: $(if ($dpi) { $dpi } else { 'defaut' })\"; Write-Output '  TTS: Edge fr-FR-DeniseNeural'; Write-Output '  Wake Word: jarvis (seuil 0.7)'"),
+    ], "pipeline", "powershell:Write-Output '=== PROFIL ACCESSIBILITE ==='; $nightLight = Get-ItemProperty 'HKCU:/Software/Microsoft/Windows/CurrentVersion/CloudStore/Store/DefaultAccount/Current/default$windows.data.bluelightreduction.settings/windows.data.bluelightreduction.settings' -ErrorAction SilentlyContinue; Write-Output \"  Night Light: $(if ($nightLight) { 'configure' } else { 'non configure' })\"; $cursor = (Get-ItemProperty 'HKCU:/Control Panel/Cursors' -ErrorAction SilentlyContinue).CursorBaseSize; Write-Output \"  Taille curseur: $(if ($cursor) { $cursor } else { 'defaut' })\"; $dpi = (Get-ItemProperty 'HKCU:/Control Panel/Desktop/WindowMetrics' -ErrorAction SilentlyContinue).AppliedDPI; Write-Output \"  DPI: $(if ($dpi) { $dpi } else { 'defaut' })\"; Write-Output '  TTS: Edge fr-FR-DeniseNeural'; Write-Output '  Wake Word: jarvis (seuil 0.7)'"),
 
     JarvisCommand("accessibility_voice_speed", "pipeline", "Configurer la vitesse de synthese vocale TTS", [
         "vitesse vocale", "voice speed", "tts speed",
@@ -2454,7 +2454,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("accessibility_contrast_check", "pipeline", "Verifier et optimiser le contraste ecran pour l'accessibilite", [
         "contraste ecran", "contrast check", "accessibilite visuelle",
         "optimiser contraste", "high contrast",
-    ], "pipeline", "powershell:Write-Output '=== CONTRASTE ECRAN ==='; $hc = (Get-ItemProperty 'HKCU:\\Control Panel\\Accessibility\\HighContrast' -ErrorAction SilentlyContinue).Flags; $enabled = if ($hc -band 1) { 'ACTIF' } else { 'INACTIF' }; Write-Output \"  High Contrast: $enabled\"; $theme = (Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -ErrorAction SilentlyContinue); Write-Output \"  Theme sombre apps: $(if ($theme.AppsUseLightTheme -eq 0) { 'OUI' } else { 'NON' })\"; Write-Output \"  Theme sombre systeme: $(if ($theme.SystemUsesLightTheme -eq 0) { 'OUI' } else { 'NON' })\"; $brightness = (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightness -ErrorAction SilentlyContinue).CurrentBrightness; Write-Output \"  Luminosite: $(if ($brightness) { \"$brightness%%\" } else { 'N/A (desktop)' })\""),
+    ], "pipeline", "powershell:Write-Output '=== CONTRASTE ECRAN ==='; $hc = (Get-ItemProperty 'HKCU:/Control Panel/Accessibility/HighContrast' -ErrorAction SilentlyContinue).Flags; $enabled = if ($hc -band 1) { 'ACTIF' } else { 'INACTIF' }; Write-Output \"  High Contrast: $enabled\"; $theme = (Get-ItemProperty 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Themes/Personalize' -ErrorAction SilentlyContinue); Write-Output \"  Theme sombre apps: $(if ($theme.AppsUseLightTheme -eq 0) { 'OUI' } else { 'NON' })\"; Write-Output \"  Theme sombre systeme: $(if ($theme.SystemUsesLightTheme -eq 0) { 'OUI' } else { 'NON' })\"; $brightness = (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightness -ErrorAction SilentlyContinue).CurrentBrightness; Write-Output \"  Luminosite: $(if ($brightness) { \"$brightness%%\" } else { 'N/A (desktop)' })\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # STREAMING & BROADCASTING — Gestion du streaming OBS/Twitch
@@ -2482,17 +2482,17 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("collab_sync_status", "pipeline", "Status de synchronisation entre les machines du cluster", [
         "sync machines", "synchronisation cluster", "collab sync",
         "machines synchronisees", "sync status",
-    ], "pipeline", "powershell:Write-Output '=== SYNC CLUSTER ==='; $nodes = @(@{N='M1';H='127.0.0.1';P=1234},@{N='M2';H='192.168.1.26';P=1234},@{N='M3';H='192.168.1.113';P=1234},@{N='OL1';H='127.0.0.1';P=11434}); foreach ($n in $nodes) { $up = Test-Connection -ComputerName $n.H -Count 1 -TimeoutSeconds 2 -ErrorAction SilentlyContinue; Write-Output \"  $($n.N) ($($n.H)): $(if ($up) { 'EN LIGNE' } else { 'HORS LIGNE' })\" }; $gitSync = git -C 'F:\\BUREAU\\turbo' log --oneline -1 2>$null; Write-Output \"  Git: $gitSync\""),
+    ], "pipeline", "powershell:Write-Output '=== SYNC CLUSTER ==='; $nodes = @(@{N='M1';H='127.0.0.1';P=1234},@{N='M2';H='192.168.1.26';P=1234},@{N='M3';H='192.168.1.113';P=1234},@{N='OL1';H='127.0.0.1';P=11434}); foreach ($n in $nodes) { $up = Test-Connection -ComputerName $n.H -Count 1 -TimeoutSeconds 2 -ErrorAction SilentlyContinue; Write-Output \"  $($n.N) ($($n.H)): $(if ($up) { 'EN LIGNE' } else { 'HORS LIGNE' })\" }; $gitSync = git -C 'F:/BUREAU/turbo' log --oneline -1 2>$null; Write-Output \"  Git: $gitSync\""),
 
     JarvisCommand("collab_commands_export", "pipeline", "Exporter les commandes pour deploiement sur autre machine", [
         "exporter commandes", "export commands", "deploy commands",
         "commandes pour autre machine", "collab export",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; import json; data=[{'name':p.name,'category':p.category,'description':p.description,'triggers':p.triggers} for p in PIPELINE_COMMANDS]; print(f'=== EXPORT COMMANDES ==='); print(f'  {len(data)} pipelines exportables'); print(f'  Format: JSON'); __import__('pathlib').Path('F:/BUREAU/turbo/data/pipelines_export.json').write_text(json.dumps(data,indent=2,ensure_ascii=False),encoding='utf-8'); print(f'  Fichier: data/pipelines_export.json')\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; import json; data=[{'name':p.name,'category':p.category,'description':p.description,'triggers':p.triggers} for p in PIPELINE_COMMANDS]; print(f'=== EXPORT COMMANDES ==='); print(f'  {len(data)} pipelines exportables'); print(f'  Format: JSON'); __import__('pathlib').Path('/home/turbo/jarvis-m1-ops/data/pipelines_export.json').write_text(json.dumps(data,indent=2,ensure_ascii=False),encoding='utf-8'); print(f'  Fichier: data/pipelines_export.json')\" 2>&1 | Out-String"),
 
     JarvisCommand("collab_db_merge_check", "pipeline", "Verifier la compatibilite pour fusion de bases entre machines", [
         "fusionner bases", "merge db", "db merge",
         "compatibilite bases", "collab merge",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3,os; dbs=[('etoile.db','F:/BUREAU/turbo/data/etoile.db'),('jarvis.db','F:/BUREAU/turbo/data/jarvis.db')]; print('=== MERGE CHECK ==='); [print(f'  {n}: {os.path.getsize(p)/1024:.0f}KB, tables=' + str(sqlite3.connect(p).execute('SELECT COUNT(*) FROM sqlite_master WHERE type=\\\"table\\\"').fetchone()[0]) + ', integrity=' + sqlite3.connect(p).execute('PRAGMA integrity_check').fetchone()[0]) for n,p in dbs if os.path.exists(p)]\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,os; dbs=[('etoile.db','/home/turbo/jarvis-m1-ops/data/etoile.db'),('jarvis.db','/home/turbo/jarvis-m1-ops/data/jarvis.db')]; print('=== MERGE CHECK ==='); [print(f'  {n}: {os.path.getsize(p)/1024:.0f}KB, tables=' + str(sqlite3.connect(p).execute('SELECT COUNT(*) FROM sqlite_master WHERE type=/\"table/\"').fetchone()[0]) + ', integrity=' + sqlite3.connect(p).execute('PRAGMA integrity_check').fetchone()[0]) for n,p in dbs if os.path.exists(p)]\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # BATCH 7 — COMPLETIONS AUDIT: 36 pipelines restantes toutes priorites
@@ -2508,18 +2508,18 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("finetune_rollback_version", "pipeline", "Rollback vers une version precedente du modele fine-tune", [
         "rollback finetuning", "version precedente modele", "rollback model",
         "annuler finetuning version", "restore model",
-    ], "pipeline", "powershell:Write-Output '=== ROLLBACK MODELE ==='; if (Test-Path 'F:\\BUREAU\\turbo\\finetuning') { $checkpoints = Get-ChildItem 'F:\\BUREAU\\turbo\\finetuning' -Recurse -Directory -Filter 'checkpoint-*' -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending; Write-Output \"  Checkpoints disponibles: $($checkpoints.Count)\"; $checkpoints | Select-Object -First 5 | ForEach-Object { Write-Output \"    $($_.Name): $($_.LastWriteTime.ToString('yyyy-MM-dd HH:mm'))\" }; Write-Output '  Pour rollback: copier checkpoint dans le dossier modele actif' } else { Write-Output '  Aucun checkpoint disponible' }"),
+    ], "pipeline", "powershell:Write-Output '=== ROLLBACK MODELE ==='; if (Test-Path 'F:/BUREAU/turbo/finetuning') { $checkpoints = Get-ChildItem 'F:/BUREAU/turbo/finetuning' -Recurse -Directory -Filter 'checkpoint-*' -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending; Write-Output \"  Checkpoints disponibles: $($checkpoints.Count)\"; $checkpoints | Select-Object -First 5 | ForEach-Object { Write-Output \"    $($_.Name): $($_.LastWriteTime.ToString('yyyy-MM-dd HH:mm'))\" }; Write-Output '  Pour rollback: copier checkpoint dans le dossier modele actif' } else { Write-Output '  Aucun checkpoint disponible' }"),
 
     # --- PLUGIN COMPLETIONS (2) ---
     JarvisCommand("plugin_install_new", "pipeline", "Installer un nouveau plugin Claude Code depuis le registre", [
         "installer plugin", "nouveau plugin", "install plugin",
         "ajouter plugin", "plugin install",
-    ], "pipeline", "powershell:Write-Output '=== INSTALLER PLUGIN ==='; Write-Output '  Methode 1: claude plugins add <nom>'; Write-Output '  Methode 2: git clone dans ~/.claude/plugins/local/'; Write-Output '  Methode 3: npm package dans ~/.claude/plugins/cache/'; $local = if (Test-Path 'C:\\Users\\franc\\.claude\\plugins\\local') { (Get-ChildItem 'C:\\Users\\franc\\.claude\\plugins\\local' -Directory | Measure-Object).Count } else { 0 }; $cache = if (Test-Path 'C:\\Users\\franc\\.claude\\plugins\\cache') { (Get-ChildItem 'C:\\Users\\franc\\.claude\\plugins\\cache' -Directory | Measure-Object).Count } else { 0 }; Write-Output \"  Actuels: $local local + $cache cache\"; Write-Output '  Redemarrer Claude Code apres installation'"),
+    ], "pipeline", "powershell:Write-Output '=== INSTALLER PLUGIN ==='; Write-Output '  Methode 1: claude plugins add <nom>'; Write-Output '  Methode 2: git clone dans ~/.claude/plugins/local/'; Write-Output '  Methode 3: npm package dans ~/.claude/plugins/cache/'; $local = if (Test-Path '/\Users/franc/.claude/plugins/local') { (Get-ChildItem '/\Users/franc/.claude/plugins/local' -Directory | Measure-Object).Count } else { 0 }; $cache = if (Test-Path '/\Users/franc/.claude/plugins/cache') { (Get-ChildItem '/\Users/franc/.claude/plugins/cache' -Directory | Measure-Object).Count } else { 0 }; Write-Output \"  Actuels: $local local + $cache cache\"; Write-Output '  Redemarrer Claude Code apres installation'"),
 
     JarvisCommand("plugin_disable_temporary", "pipeline", "Desactiver temporairement un plugin sans le desinstaller", [
         "desactiver plugin", "disable plugin", "plugin off",
         "couper plugin", "plugin desactiver",
-    ], "pipeline", "powershell:Write-Output '=== DESACTIVER PLUGIN ==='; Write-Output '  Methode: Editer ~/.claude/settings.json'; Write-Output '  Retirer le plugin de la liste \"plugins\"'; Write-Output '  Le plugin reste installe mais inactif'; $settingsPath = 'C:\\Users\\franc\\.claude\\settings.json'; if (Test-Path $settingsPath) { $mod = (Get-Item $settingsPath).LastWriteTime; Write-Output \"  settings.json: $mod\" }; Write-Output '  Redemarrer Claude Code pour appliquer'"),
+    ], "pipeline", "powershell:Write-Output '=== DESACTIVER PLUGIN ==='; Write-Output '  Methode: Editer ~/.claude/settings.json'; Write-Output '  Retirer le plugin de la liste \"plugins\"'; Write-Output '  Le plugin reste installe mais inactif'; $settingsPath = '/\Users/franc/.claude/settings.json'; if (Test-Path $settingsPath) { $mod = (Get-Item $settingsPath).LastWriteTime; Write-Output \"  settings.json: $mod\" }; Write-Output '  Redemarrer Claude Code pour appliquer'"),
 
     # --- VOICE COMPLETIONS (2) ---
     JarvisCommand("voice_speaker_profile_switch", "pipeline", "Changer de profil vocal: voix, vitesse, langue", [
@@ -2530,89 +2530,89 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("voice_recognition_retrain", "pipeline", "Re-entrainer la reconnaissance vocale avec corrections", [
         "entrainer voix", "retrain voice", "ameliorer reconnaissance",
         "corriger reconnaissance", "voice retrain",
-    ], "pipeline", "powershell:Write-Output '=== RETRAIN VOCAL ==='; if (Test-Path 'F:\\BUREAU\\turbo\\src\\voice_correction.py') { $corrections = (Get-Content 'F:\\BUREAU\\turbo\\src\\voice_correction.py' | Select-String 'def|class|correction' | Measure-Object).Count; $size = [math]::Round((Get-Item 'F:\\BUREAU\\turbo\\src\\voice_correction.py').Length / 1KB); Write-Output \"  voice_correction.py: ${size}KB, $corrections definitions\" } else { Write-Output '  voice_correction.py absent' }; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/jarvis.db'); r=c.execute('SELECT COUNT(*) FROM voice_corrections').fetchone()[0]; print(f'  Corrections en base: {r}'); c.close()\" 2>&1"),
+    ], "pipeline", "powershell:Write-Output '=== RETRAIN VOCAL ==='; if (Test-Path 'F:/BUREAU/turbo/src/voice_correction.py') { $corrections = (Get-Content 'F:/BUREAU/turbo/src/voice_correction.py' | Select-String 'def|class|correction' | Measure-Object).Count; $size = [math]::Round((Get-Item 'F:/BUREAU/turbo/src/voice_correction.py').Length / 1KB); Write-Output \"  voice_correction.py: ${size}KB, $corrections definitions\" } else { Write-Output '  voice_correction.py absent' }; & '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/jarvis.db'); r=c.execute('SELECT COUNT(*) FROM voice_corrections').fetchone()[0]; print(f'  Corrections en base: {r}'); c.close()\" 2>&1"),
 
     # --- EMBEDDING COMPLETIONS (2) ---
     JarvisCommand("embedding_index_rebuild", "pipeline", "Reconstruire l'index d'embeddings complet", [
         "reconstruire index embedding", "rebuild embedding", "index rebuild",
         "refaire embeddings", "embedding rebuild",
-    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nReconstruis un index semantique pour les 5 modules principaux de JARVIS: commands_pipelines.py (425 pipelines), tools.py (75 outils), mcp_server.py (89 handlers), voice.py (vocal), commander.py (routage). 1 ligne par module.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output '=== REBUILD INDEX ==='; Write-Output $msg } catch { Write-Output 'Index rebuild: M1 offline' }"),
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nReconstruis un index semantique pour les 5 modules principaux de JARVIS: commands_pipelines.py (425 pipelines), tools.py (75 outils), mcp_server.py (89 handlers), voice.py (vocal), commander.py (routage). 1 ligne par module.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output '=== REBUILD INDEX ==='; Write-Output $msg } catch { Write-Output 'Index rebuild: M1 offline' }"),
 
     JarvisCommand("embedding_cache_prewarm", "pipeline", "Pre-remplir le cache d'embeddings avec les requetes frequentes", [
         "prechauffer embeddings", "prewarm cache", "cache prewarm",
         "embeddings prewarm", "warmup embeddings",
-    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nGenere des embeddings conceptuels pour les 5 requetes les plus frequentes de JARVIS: status cluster, diagnostic systeme, trading signal, routine matin, securite audit. Score pertinence /10.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output '=== PREWARM CACHE ==='; Write-Output $msg } catch { Write-Output 'Prewarm: M1 offline' }"),
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nGenere des embeddings conceptuels pour les 5 requetes les plus frequentes de JARVIS: status cluster, diagnostic systeme, trading signal, routine matin, securite audit. Score pertinence /10.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output '=== PREWARM CACHE ==='; Write-Output $msg } catch { Write-Output 'Prewarm: M1 offline' }"),
 
     # --- BRAIN COMPLETION (1) ---
     JarvisCommand("brain_memory_import", "pipeline", "Importer la memoire JARVIS depuis un fichier JSON de backup", [
         "importer memoire", "import memoire", "restaurer memoire",
         "brain import", "memoire restore",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import glob,os; exports=sorted(glob.glob('F:/BUREAU/turbo/data/memories_export_*.json'), key=os.path.getmtime, reverse=True); print('=== IMPORT MEMOIRE ==='); print(f'  Backups disponibles: {len(exports)}'); [print(f'  {os.path.basename(f)}: {os.path.getsize(f)/1024:.0f}KB') for f in exports[:5]]; print('  Pour importer: uv run python -c \\\"import json,sqlite3; ...\\\"') if exports else print('  Aucun backup disponible')\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import glob,os; exports=sorted(glob.glob('/home/turbo/jarvis-m1-ops/data/memories_export_*.json'), key=os.path.getmtime, reverse=True); print('=== IMPORT MEMOIRE ==='); print(f'  Backups disponibles: {len(exports)}'); [print(f'  {os.path.basename(f)}: {os.path.getsize(f)/1024:.0f}KB') for f in exports[:5]]; print('  Pour importer: uv run python -c /\"import json,sqlite3; .../\"') if exports else print('  Aucun backup disponible')\" 2>&1 | Out-String"),
 
     # --- DASHBOARD WIDGET COMPLETIONS (4) ---
     JarvisCommand("dashboard_widget_add", "pipeline", "Ajouter un widget au dashboard dynamiquement", [
         "ajouter widget", "nouveau widget", "add widget",
         "widget ajouter", "dashboard add widget",
-    ], "pipeline", "powershell:Write-Output '=== AJOUTER WIDGET ==='; Write-Output '  Widgets disponibles:'; Write-Output '    [cluster] Status cluster IA'; Write-Output '    [gpu] Temperatures GPU temps reel'; Write-Output '    [trading] Signaux trading live'; Write-Output '    [voice] Pipeline vocale status'; Write-Output '    [logs] Derniers logs systeme'; Write-Output '  Dashboard: F:\\BUREAU\\turbo\\dashboard\\index.html'; if (Test-Path 'F:\\BUREAU\\turbo\\dashboard\\index.html') { $size = [math]::Round((Get-Item 'F:\\BUREAU\\turbo\\dashboard\\index.html').Length / 1KB); Write-Output \"  Taille: ${size}KB\" }"),
+    ], "pipeline", "powershell:Write-Output '=== AJOUTER WIDGET ==='; Write-Output '  Widgets disponibles:'; Write-Output '    [cluster] Status cluster IA'; Write-Output '    [gpu] Temperatures GPU temps reel'; Write-Output '    [trading] Signaux trading live'; Write-Output '    [voice] Pipeline vocale status'; Write-Output '    [logs] Derniers logs systeme'; Write-Output '  Dashboard: F:/BUREAU/turbo/dashboard/index.html'; if (Test-Path 'F:/BUREAU/turbo/dashboard/index.html') { $size = [math]::Round((Get-Item 'F:/BUREAU/turbo/dashboard/index.html').Length / 1KB); Write-Output \"  Taille: ${size}KB\" }"),
 
     JarvisCommand("dashboard_widget_remove", "pipeline", "Retirer un widget du dashboard", [
         "retirer widget", "supprimer widget", "remove widget",
         "enlever widget", "dashboard remove widget",
-    ], "pipeline", "powershell:Write-Output '=== RETIRER WIDGET ==='; Write-Output '  Editer: F:\\BUREAU\\turbo\\dashboard\\index.html'; Write-Output '  Commenter ou supprimer le bloc <div class=\"widget-...\">';Write-Output '  Redemarrer le dashboard pour appliquer'"),
+    ], "pipeline", "powershell:Write-Output '=== RETIRER WIDGET ==='; Write-Output '  Editer: F:/BUREAU/turbo/dashboard/index.html'; Write-Output '  Commenter ou supprimer le bloc <div class=\"widget-...\">';Write-Output '  Redemarrer le dashboard pour appliquer'"),
 
     JarvisCommand("dashboard_widget_reorder", "pipeline", "Reordonner les widgets du dashboard", [
         "reordonner widgets", "order widgets", "widgets order",
         "deplacer widget", "widget reorder",
-    ], "pipeline", "powershell:Write-Output '=== REORDONNER WIDGETS ==='; Write-Output '  Methode: Modifier l ordre des <div> dans index.html'; Write-Output '  Ou utiliser CSS grid-order pour chaque widget'; if (Test-Path 'F:\\BUREAU\\turbo\\dashboard\\index.html') { $widgets = (Get-Content 'F:\\BUREAU\\turbo\\dashboard\\index.html' -Raw | Select-String 'class=\"widget' -AllMatches).Matches.Count; Write-Output \"  Widgets actuels: $widgets\" }"),
+    ], "pipeline", "powershell:Write-Output '=== REORDONNER WIDGETS ==='; Write-Output '  Methode: Modifier l ordre des <div> dans index.html'; Write-Output '  Ou utiliser CSS grid-order pour chaque widget'; if (Test-Path 'F:/BUREAU/turbo/dashboard/index.html') { $widgets = (Get-Content 'F:/BUREAU/turbo/dashboard/index.html' -Raw | Select-String 'class=\"widget' -AllMatches).Matches.Count; Write-Output \"  Widgets actuels: $widgets\" }"),
 
     JarvisCommand("dashboard_widget_config_save", "pipeline", "Sauvegarder la configuration actuelle des widgets", [
         "sauvegarder widgets", "save widget config", "config widgets save",
         "widgets sauvegarder", "dashboard save config",
-    ], "pipeline", "powershell:Write-Output '=== SAVE WIDGET CONFIG ==='; if (Test-Path 'F:\\BUREAU\\turbo\\dashboard') { $files = Get-ChildItem 'F:\\BUREAU\\turbo\\dashboard' -File; Write-Output \"  Fichiers dashboard: $($files.Count)\"; $files | ForEach-Object { Write-Output \"    $($_.Name): $([math]::Round($_.Length/1KB))KB\" }; Write-Output '  Config sauvegardee dans le HTML statique' } else { Write-Output '  Dashboard non trouve' }"),
+    ], "pipeline", "powershell:Write-Output '=== SAVE WIDGET CONFIG ==='; if (Test-Path 'F:/BUREAU/turbo/dashboard') { $files = Get-ChildItem 'F:/BUREAU/turbo/dashboard' -File; Write-Output \"  Fichiers dashboard: $($files.Count)\"; $files | ForEach-Object { Write-Output \"    $($_.Name): $([math]::Round($_.Length/1KB))KB\" }; Write-Output '  Config sauvegardee dans le HTML statique' } else { Write-Output '  Dashboard non trouve' }"),
 
     # --- RAG COMPLETIONS (2) ---
     JarvisCommand("rag_document_index", "pipeline", "Indexer de nouveaux documents dans le systeme RAG", [
         "indexer document rag", "rag index", "index document",
         "ajouter document rag", "rag indexer",
-    ], "pipeline", "powershell:Write-Output '=== INDEX RAG ==='; if (Test-Path 'F:\\BUREAU\\rag-v1') { $ts = (Get-ChildItem 'F:\\BUREAU\\rag-v1' -Filter '*.ts' -Recurse | Measure-Object).Count; $json = (Get-ChildItem 'F:\\BUREAU\\rag-v1' -Filter '*.json' -Recurse | Measure-Object).Count; $md = (Get-ChildItem 'F:\\BUREAU\\rag-v1' -Filter '*.md' -Recurse | Measure-Object).Count; Write-Output \"  TS: $ts | JSON: $json | MD: $md\"; Write-Output '  Type: TS plugin RAG adaptatif' } else { Write-Output '  RAG non deploye (F:\\BUREAU\\rag-v1 absent)' }"),
+    ], "pipeline", "powershell:Write-Output '=== INDEX RAG ==='; if (Test-Path 'F:/BUREAU/rag-v1') { $ts = (Get-ChildItem 'F:/BUREAU/rag-v1' -Filter '*.ts' -Recurse | Measure-Object).Count; $json = (Get-ChildItem 'F:/BUREAU/rag-v1' -Filter '*.json' -Recurse | Measure-Object).Count; $md = (Get-ChildItem 'F:/BUREAU/rag-v1' -Filter '*.md' -Recurse | Measure-Object).Count; Write-Output \"  TS: $ts | JSON: $json | MD: $md\"; Write-Output '  Type: TS plugin RAG adaptatif' } else { Write-Output '  RAG non deploye (F:/BUREAU/rag-v1 absent)' }"),
 
     JarvisCommand("rag_context_prepare", "pipeline", "Preparer le contexte RAG pour une requete LLM", [
         "preparer contexte rag", "rag context", "contexte rag",
         "prepare rag", "rag prepare context",
-    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nPrepare un contexte RAG pour la question: comment optimiser le cluster JARVIS? Genere les chunks pertinents: 1) architecture cluster 2) benchmark scores 3) thermal management. Format: chunk_id, contenu resume, score pertinence.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'RAG context: M1 offline' }"),
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nPrepare un contexte RAG pour la question: comment optimiser le cluster JARVIS? Genere les chunks pertinents: 1) architecture cluster 2) benchmark scores 3) thermal management. Format: chunk_id, contenu resume, score pertinence.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'RAG context: M1 offline' }"),
 
     # --- DB OPTIMIZATION COMPLETIONS (3) ---
     JarvisCommand("db_defragment_intensive", "pipeline", "Defragmentation intensive de toutes les bases SQLite", [
         "defragmenter bases", "db defrag", "defrag database",
         "optimiser bases intensif", "db defragment",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3,os; dbs=[('etoile.db','F:/BUREAU/turbo/data/etoile.db'),('jarvis.db','F:/BUREAU/turbo/data/jarvis.db')]; print('=== DEFRAG INTENSIVE ==='); [(lambda p,n: (lambda c,s1: (c.execute('VACUUM'), c.execute('ANALYZE'), c.close(), print(f'  {n}: {s1/1024:.0f}KB -> {os.path.getsize(p)/1024:.0f}KB VACUUM+ANALYZE OK')))(sqlite3.connect(p).cursor(), os.path.getsize(p)))(p,n) for n,p in dbs if os.path.exists(p)]\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,os; dbs=[('etoile.db','/home/turbo/jarvis-m1-ops/data/etoile.db'),('jarvis.db','/home/turbo/jarvis-m1-ops/data/jarvis.db')]; print('=== DEFRAG INTENSIVE ==='); [(lambda p,n: (lambda c,s1: (c.execute('VACUUM'), c.execute('ANALYZE'), c.close(), print(f'  {n}: {s1/1024:.0f}KB -> {os.path.getsize(p)/1024:.0f}KB VACUUM+ANALYZE OK')))(sqlite3.connect(p).cursor(), os.path.getsize(p)))(p,n) for n,p in dbs if os.path.exists(p)]\" 2>&1 | Out-String"),
 
     JarvisCommand("db_consistency_check_deep", "pipeline", "Verification profonde de la consistance des donnees", [
         "consistance base", "deep check db", "verification profonde",
         "db consistency", "check consistance",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); print('=== DEEP CONSISTENCY ==='); integ=c.execute('PRAGMA integrity_check').fetchone()[0]; print(f'  Integrity: {integ}'); fk=c.execute('PRAGMA foreign_key_check').fetchall(); print(f'  FK violations: {len(fk)}'); tables=c.execute('SELECT name FROM sqlite_master WHERE type=\\\"table\\\"').fetchall(); print(f'  Tables: {len(tables)}'); [print(f'    {t[0]}: {c.execute(f\\\"SELECT COUNT(*) FROM {t[0]}\\\").fetchone()[0]} rows') for t in tables]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); print('=== DEEP CONSISTENCY ==='); integ=c.execute('PRAGMA integrity_check').fetchone()[0]; print(f'  Integrity: {integ}'); fk=c.execute('PRAGMA foreign_key_check').fetchall(); print(f'  FK violations: {len(fk)}'); tables=c.execute('SELECT name FROM sqlite_master WHERE type=/\"table/\"').fetchall(); print(f'  Tables: {len(tables)}'); [print(f'    {t[0]}: {c.execute(f/\"SELECT COUNT(*) FROM {t[0]}/\").fetchone()[0]} rows') for t in tables]; c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("db_split_archive", "pipeline", "Archiver les anciennes donnees dans une base separee", [
         "archiver donnees", "db archive", "split database",
         "archive vieilles donnees", "db split",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3,os; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); tests=c.execute('SELECT COUNT(*) FROM pipeline_tests').fetchone()[0]; old_tests=c.execute('SELECT COUNT(*) FROM pipeline_tests WHERE test_date < date(\\\"now\\\",\\\"-30 days\\\")').fetchone()[0]; print('=== ARCHIVE DATA ==='); print(f'  Tests totaux: {tests}'); print(f'  Tests >30j: {old_tests} (archivables)'); size=os.path.getsize('F:/BUREAU/turbo/data/etoile.db')/1024; print(f'  Taille DB: {size:.0f}KB'); print(f'  Recommandation: {\\\"archiver\\\" if old_tests > 100 else \\\"pas necessaire\\\"}'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,os; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tests=c.execute('SELECT COUNT(*) FROM pipeline_tests').fetchone()[0]; old_tests=c.execute('SELECT COUNT(*) FROM pipeline_tests WHERE test_date < date(/\"now/\",/\"-30 days/\")').fetchone()[0]; print('=== ARCHIVE DATA ==='); print(f'  Tests totaux: {tests}'); print(f'  Tests >30j: {old_tests} (archivables)'); size=os.path.getsize('/home/turbo/jarvis-m1-ops/data/etoile.db')/1024; print(f'  Taille DB: {size:.0f}KB'); print(f'  Recommandation: {/\"archiver/\" if old_tests > 100 else /\"pas necessaire/\"}'); c.close()\" 2>&1 | Out-String"),
 
     # --- CONSENSUS COMPLETIONS (2) ---
     JarvisCommand("consensus_benchmark_scenarios", "pipeline", "Benchmarker les 58 scenarios de poids du consensus", [
         "benchmark consensus", "scenarios consensus", "tester consensus",
         "benchmark vote", "consensus scenarios",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); rules=c.execute('SELECT entity_name,role FROM map WHERE entity_type=\\\"routing_rule\\\"').fetchall(); print('=== BENCHMARK CONSENSUS ==='); print(f'  Regles de routage: {len(rules)}'); [print(f'    {n}: {r[:50]}') for n,r in rules]; weights={'M1':1.8,'M2':1.4,'OL1':1.3,'GEMINI':1.2,'CLAUDE':1.2,'M3':1.0}; print(f'  Poids: {weights}'); print(f'  Quorum: >= 0.65'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); rules=c.execute('SELECT entity_name,role FROM map WHERE entity_type=/\"routing_rule/\"').fetchall(); print('=== BENCHMARK CONSENSUS ==='); print(f'  Regles de routage: {len(rules)}'); [print(f'    {n}: {r[:50]}') for n,r in rules]; weights={'M1':1.8,'M2':1.4,'OL1':1.3,'GEMINI':1.2,'CLAUDE':1.2,'M3':1.0}; print(f'  Poids: {weights}'); print(f'  Quorum: >= 0.65'); c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("consensus_weight_auto_tune", "pipeline", "Auto-tuner les poids du consensus selon les performances", [
         "auto tune consensus", "ajuster poids", "tune weights",
         "consensus auto tune", "poids automatiques",
-    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nAnalyse les performances du cluster JARVIS: M1(100%,0.6s), M2(90%,1.3s), M3(89%,2.5s), OL1(88%,0.5s). Poids actuels: M1=1.8, M2=1.4, OL1=1.3, M3=1.0. Propose des poids optimises bases sur performance*vitesse et justifie.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output '=== AUTO-TUNE POIDS ==='; Write-Output $msg } catch { Write-Output 'Auto-tune: M1 offline' }"),
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nAnalyse les performances du cluster JARVIS: M1(100%,0.6s), M2(90%,1.3s), M3(89%,2.5s), OL1(88%,0.5s). Poids actuels: M1=1.8, M2=1.4, OL1=1.3, M3=1.0. Propose des poids optimises bases sur performance*vitesse et justifie.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output '=== AUTO-TUNE POIDS ==='; Write-Output $msg } catch { Write-Output 'Auto-tune: M1 offline' }"),
 
     # --- SECURITY COMPLETION (1) ---
     JarvisCommand("security_permission_audit_recursive", "pipeline", "Audit recursif des permissions sur les fichiers sensibles", [
         "audit permissions", "permissions recursif", "fichiers permissions",
         "audit fichiers sensibles", "permission audit",
-    ], "pipeline", "powershell:Write-Output '=== AUDIT PERMISSIONS ==='; $sensitive = @('.env','.pem','.key','credentials','secret'); $found = @(); foreach ($pattern in $sensitive) { $files = Get-ChildItem 'F:\\BUREAU\\turbo' -Recurse -Filter \"*$pattern*\" -ErrorAction SilentlyContinue; $found += $files }; Write-Output \"  Fichiers sensibles: $($found.Count)\"; $found | Select-Object -First 10 | ForEach-Object { $acl = Get-Acl $_.FullName -ErrorAction SilentlyContinue; Write-Output \"  $($_.Name): $($acl.Access.Count) ACL entries\" }"),
+    ], "pipeline", "powershell:Write-Output '=== AUDIT PERMISSIONS ==='; $sensitive = @('.env','.pem','.key','credentials','secret'); $found = @(); foreach ($pattern in $sensitive) { $files = Get-ChildItem 'F:/BUREAU/turbo' -Recurse -Filter \"*$pattern*\" -ErrorAction SilentlyContinue; $found += $files }; Write-Output \"  Fichiers sensibles: $($found.Count)\"; $found | Select-Object -First 10 | ForEach-Object { $acl = Get-Acl $_.FullName -ErrorAction SilentlyContinue; Write-Output \"  $($_.Name): $($acl.Access.Count) ACL entries\" }"),
 
     # --- MODEL COMPLETIONS (2) ---
     JarvisCommand("model_load_balanced", "pipeline", "Repartir la charge des modeles equilibrement sur les GPU", [
@@ -2629,24 +2629,24 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("hotfix_rollback_auto", "pipeline", "Rollback automatique du dernier commit en cas d'echec", [
         "rollback auto", "annuler commit", "undo commit",
         "rollback hotfix", "git rollback",
-    ], "pipeline", "powershell:Write-Output '=== ROLLBACK AUTO ==='; $lastCommit = git -C 'F:\\BUREAU\\turbo' log --oneline -1 2>$null; Write-Output \"  Dernier commit: $lastCommit\"; $changes = (git -C 'F:\\BUREAU\\turbo' diff HEAD~1 --stat 2>$null | Measure-Object).Count; Write-Output \"  Fichiers modifies: $changes\"; Write-Output '  Pour rollback: git revert HEAD'; Write-Output '  ATTENTION: Verifier avant de rollback'"),
+    ], "pipeline", "powershell:Write-Output '=== ROLLBACK AUTO ==='; $lastCommit = git -C 'F:/BUREAU/turbo' log --oneline -1 2>$null; Write-Output \"  Dernier commit: $lastCommit\"; $changes = (git -C 'F:/BUREAU/turbo' diff HEAD~1 --stat 2>$null | Measure-Object).Count; Write-Output \"  Fichiers modifies: $changes\"; Write-Output '  Pour rollback: git revert HEAD'; Write-Output '  ATTENTION: Verifier avant de rollback'"),
 
     JarvisCommand("hotfix_notification_broadcast", "pipeline", "Notifier tous les systemes d'un hotfix deploye", [
         "notifier hotfix", "broadcast hotfix", "alerter hotfix",
         "hotfix notification", "hotfix broadcast",
-    ], "pipeline", "powershell:Write-Output '=== BROADCAST HOTFIX ==='; $lastCommit = git -C 'F:\\BUREAU\\turbo' log --oneline -1 2>$null; Write-Output \"  Commit: $lastCommit\"; Write-Output '  Canaux de notification:'; Write-Output '    [Console] Affiche ici'; Write-Output '    [Telegram] @turboSSebot'; Write-Output '    [Dashboard] port 8080 (si actif)'; Write-Output '    [TTS] Annonce vocale (si voice actif)'; Write-Output '  Status: broadcast local OK'"),
+    ], "pipeline", "powershell:Write-Output '=== BROADCAST HOTFIX ==='; $lastCommit = git -C 'F:/BUREAU/turbo' log --oneline -1 2>$null; Write-Output \"  Commit: $lastCommit\"; Write-Output '  Canaux de notification:'; Write-Output '    [Console] Affiche ici'; Write-Output '    [Telegram] @turboSSebot'; Write-Output '    [Dashboard] port 8080 (si actif)'; Write-Output '    [TTS] Annonce vocale (si voice actif)'; Write-Output '  Status: broadcast local OK'"),
 
     # --- CLUSTER COMPLETION (1) ---
     JarvisCommand("cluster_vram_usage_predict", "pipeline", "Predire l'epuisement VRAM par GPU dans les prochaines heures", [
         "prediction vram", "vram prediction", "vram epuisement",
         "predict vram", "vram forecast",
-    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nAnalyse VRAM: RTX2060 12GB (10.3GB used), GTX1660S 6GB (0.5GB used x4), M2 3x8GB, M3 1x8GB. Predit quand chaque GPU atteindra 95%% utilisation. Quelles GPU sont a risque dans les 4h?\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output '=== PREDICTION VRAM ==='; Write-Output $msg } catch { Write-Output 'Prediction: M1 offline' }"),
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nAnalyse VRAM: RTX2060 12GB (10.3GB used), GTX1660S 6GB (0.5GB used x4), M2 3x8GB, M3 1x8GB. Predit quand chaque GPU atteindra 95%% utilisation. Quelles GPU sont a risque dans les 4h?\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output '=== PREDICTION VRAM ==='; Write-Output $msg } catch { Write-Output 'Prediction: M1 offline' }"),
 
     # --- N8N COMPLETIONS (2) ---
     JarvisCommand("n8n_workflow_duplicate", "pipeline", "Dupliquer un template de workflow n8n", [
         "dupliquer workflow", "copier workflow n8n", "n8n duplicate",
         "template n8n", "workflow copier",
-    ], "pipeline", "powershell:Write-Output '=== DUPLIQUER WORKFLOW ==='; if (Test-Path 'F:\\BUREAU\\n8n_workflows_backup') { $wf = Get-ChildItem 'F:\\BUREAU\\n8n_workflows_backup' -Filter '*.json'; Write-Output \"  Templates disponibles: $($wf.Count)\"; $wf | Select-Object -First 5 | ForEach-Object { Write-Output \"    $($_.Name)\" }; Write-Output '  Pour dupliquer: copier + modifier + importer via n8n UI' } else { Write-Output '  Aucun template disponible' }"),
+    ], "pipeline", "powershell:Write-Output '=== DUPLIQUER WORKFLOW ==='; if (Test-Path 'F:/BUREAU/n8n_workflows_backup') { $wf = Get-ChildItem 'F:/BUREAU/n8n_workflows_backup' -Filter '*.json'; Write-Output \"  Templates disponibles: $($wf.Count)\"; $wf | Select-Object -First 5 | ForEach-Object { Write-Output \"    $($_.Name)\" }; Write-Output '  Pour dupliquer: copier + modifier + importer via n8n UI' } else { Write-Output '  Aucun template disponible' }"),
 
     JarvisCommand("n8n_execution_history_clear", "pipeline", "Nettoyer l'historique d'executions n8n", [
         "nettoyer historique n8n", "clear n8n history", "n8n clear",
@@ -2657,13 +2657,13 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("api_key_rotation_schedule", "pipeline", "Planifier la rotation des cles API", [
         "rotation cles", "key rotation", "renouveler cles",
         "api rotation", "cles rotation",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); keys=c.execute('SELECT entity_name,role FROM map WHERE entity_type=\\\"tool\\\" AND (role LIKE \\\"%%key%%\\\" OR role LIKE \\\"%%token%%\\\" OR role LIKE \\\"%%api%%\\\")').fetchall(); print('=== ROTATION CLES API ==='); print(f'  Cles referencees: {len(keys)}'); [print(f'  {n}: {r[:50]}') for n,r in keys[:10]]; print('  Recommandation: rotation tous les 90 jours'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); keys=c.execute('SELECT entity_name,role FROM map WHERE entity_type=/\"tool/\" AND (role LIKE /\"%%key%%/\" OR role LIKE /\"%%token%%/\" OR role LIKE /\"%%api%%/\")').fetchall(); print('=== ROTATION CLES API ==='); print(f'  Cles referencees: {len(keys)}'); [print(f'  {n}: {r[:50]}') for n,r in keys[:10]]; print('  Recommandation: rotation tous les 90 jours'); c.close()\" 2>&1 | Out-String"),
 
     # --- WORKSPACE COMPLETIONS (2) ---
     JarvisCommand("workspace_restore_point", "pipeline", "Creer ou restaurer un point de restauration workspace", [
         "point restauration", "restore point", "workspace restore",
         "sauvegarder etat", "restore workspace",
-    ], "pipeline", "powershell:Write-Output '=== POINT RESTAURATION ==='; $branch = git -C 'F:\\BUREAU\\turbo' branch --show-current 2>$null; $commit = git -C 'F:\\BUREAU\\turbo' log --oneline -1 2>$null; Write-Output \"  Branche: $branch\"; Write-Output \"  Commit: $commit\"; $stash = git -C 'F:\\BUREAU\\turbo' stash list 2>$null; Write-Output \"  Stash: $(if ($stash) { ($stash | Measure-Object).Count } else { 0 }) sauvegardes\"; Write-Output '  Creer: git stash push -m \"restore_point\"'; Write-Output '  Restaurer: git stash pop'"),
+    ], "pipeline", "powershell:Write-Output '=== POINT RESTAURATION ==='; $branch = git -C 'F:/BUREAU/turbo' branch --show-current 2>$null; $commit = git -C 'F:/BUREAU/turbo' log --oneline -1 2>$null; Write-Output \"  Branche: $branch\"; Write-Output \"  Commit: $commit\"; $stash = git -C 'F:/BUREAU/turbo' stash list 2>$null; Write-Output \"  Stash: $(if ($stash) { ($stash | Measure-Object).Count } else { 0 }) sauvegardes\"; Write-Output '  Creer: git stash push -m \"restore_point\"'; Write-Output '  Restaurer: git stash pop'"),
 
     JarvisCommand("workspace_session_persist", "pipeline", "Persister la session actuelle pour reprise apres redemarrage", [
         "persister session", "save session", "session persist",
@@ -2674,7 +2674,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("trading_slippage_analyze", "pipeline", "Analyser l'impact du slippage sur les trades MEXC", [
         "slippage trading", "analyse slippage", "slippage impact",
         "glissement prix", "trading slippage",
-    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nAnalyse slippage MEXC Futures 10x: paires BTC ETH SOL SUI PEPE DOGE XRP ADA AVAX LINK. Size 10 USDT. Estime le slippage moyen par paire en %% et son impact sur le PnL avec TP 0.4%% et SL 0.25%%.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'Slippage: M1 offline' }"),
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nAnalyse slippage MEXC Futures 10x: paires BTC ETH SOL SUI PEPE DOGE XRP ADA AVAX LINK. Size 10 USDT. Estime le slippage moyen par paire en %% et son impact sur le PnL avec TP 0.4%% et SL 0.25%%.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output $msg } catch { Write-Output 'Slippage: M1 offline' }"),
 
     # --- NOTIFICATION COMPLETIONS (2) ---
     JarvisCommand("notification_frequency_optimize", "pipeline", "Optimiser la frequence des notifications pour eviter le spam", [
@@ -2685,18 +2685,18 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("notification_pattern_learn", "pipeline", "Apprendre les preferences de notification de l'utilisateur", [
         "apprendre notifications", "learn notifications", "preferences alertes",
         "notification preferences", "notification learn",
-    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nAnalyse les patterns de notification optimaux pour un developpeur IA: quelles alertes sont critiques (toujours notifier) vs informatives (regrouper)? Propose 5 regles de notification intelligentes.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output '=== LEARN NOTIFICATIONS ==='; Write-Output $msg } catch { Write-Output 'Notification learn: M1 offline' }"),
+    ], "pipeline", "powershell:$body = '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nAnalyse les patterns de notification optimaux pour un developpeur IA: quelles alertes sont critiques (toujours notifier) vs informatives (regrouper)? Propose 5 regles de notification intelligentes.\",\"temperature\":0.2,\"max_output_tokens\":256,\"stream\":false,\"store\":false}'; try { $r = Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/chat' -Method POST -Body $body -ContentType 'application/json' -Headers @{Authorization='Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'} -TimeoutSec 20 -UseBasicParsing; $d = $r.Content | ConvertFrom-Json; $msg = ($d.output | Where-Object { $_.type -eq 'message' } | Select-Object -Last 1).content; Write-Output '=== LEARN NOTIFICATIONS ==='; Write-Output $msg } catch { Write-Output 'Notification learn: M1 offline' }"),
 
     # --- DOCUMENTATION COMPLETIONS (2) ---
     JarvisCommand("doc_self_heal_broken", "pipeline", "Auto-reparer les commandes cassees detectees", [
         "reparer commandes", "self heal", "auto repair",
         "commandes cassees", "fix broken commands",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; broken=[]; [broken.append(p.name) for p in PIPELINE_COMMANDS if not p.action_string or len(p.triggers)<1]; print('=== SELF-HEAL ==='); print(f'  Total pipelines: {len(PIPELINE_COMMANDS)}'); print(f'  Cassees (action vide ou 0 triggers): {len(broken)}'); [print(f'  BROKEN: {b}') for b in broken[:10]]; print('  Status: ' + ('TOUT OK' if not broken else f'{len(broken)} a reparer'))\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; broken=[]; [broken.append(p.name) for p in PIPELINE_COMMANDS if not p.action_string or len(p.triggers)<1]; print('=== SELF-HEAL ==='); print(f'  Total pipelines: {len(PIPELINE_COMMANDS)}'); print(f'  Cassees (action vide ou 0 triggers): {len(broken)}'); [print(f'  BROKEN: {b}') for b in broken[:10]]; print('  Status: ' + ('TOUT OK' if not broken else f'{len(broken)} a reparer'))\" 2>&1 | Out-String"),
 
     JarvisCommand("self_heal_broken_command", "pipeline", "Diagnostiquer et reparer une commande vocale specifique", [
         "diagnostiquer commande", "heal command", "reparer commande vocale",
         "commande ne marche pas", "debug commande",
-    ], "pipeline", "powershell:& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/jarvis.db'); db_cmds=c.execute('SELECT COUNT(*) FROM commands').fetchone()[0]; pipe_cmds=len(PIPELINE_COMMANDS); print('=== DIAGNOSTIC COMMANDE ==='); print(f'  Commandes jarvis.db: {db_cmds}'); print(f'  Pipelines: {pipe_cmds}'); print(f'  Total vocal: {db_cmds + pipe_cmds}'); dupes=[p.name for p in PIPELINE_COMMANDS]; seen=set(); dups=[x for x in dupes if x in seen or seen.add(x)]; print(f'  Doublons pipelines: {len(dups)}'); print('  Status: OK' if not dups else f'  DOUBLONS: {dups[:5]}'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/jarvis.db'); db_cmds=c.execute('SELECT COUNT(*) FROM commands').fetchone()[0]; pipe_cmds=len(PIPELINE_COMMANDS); print('=== DIAGNOSTIC COMMANDE ==='); print(f'  Commandes jarvis.db: {db_cmds}'); print(f'  Pipelines: {pipe_cmds}'); print(f'  Total vocal: {db_cmds + pipe_cmds}'); dupes=[p.name for p in PIPELINE_COMMANDS]; seen=set(); dups=[x for x in dupes if x in seen or seen.add(x)]; print(f'  Doublons pipelines: {len(dups)}'); print('  Status: OK' if not dups else f'  DOUBLONS: {dups[:5]}'); c.close()\" 2>&1 | Out-String"),
     # ══════════════════════════════════════════════════════════════════════
     # PRODUCTION — Validation et model management (Session 29)
     # ══════════════════════════════════════════════════════════════════════
@@ -2866,10 +2866,10 @@ for _cmd in PIPELINE_COMMANDS:
 
 # Post-processing: replace hardcoded paths with config-driven values
 for _cmd in PIPELINE_COMMANDS:
-    if "F:\\BUREAU\\turbo" in _cmd.action:
-        _cmd.action = _cmd.action.replace("F:\\BUREAU\\turbo", _TURBO_DIR)
     if "F:/BUREAU/turbo" in _cmd.action:
-        _cmd.action = _cmd.action.replace("F:/BUREAU/turbo", _TURBO_DIR_FWD)
-    if "C:\\Users\\franc" in _cmd.action:
-        _cmd.action = _cmd.action.replace("C:\\Users\\franc", _USER_HOME)
+        _cmd.action = _cmd.action.replace("F:/BUREAU/turbo", _TURBO_DIR)
+    if "/home/turbo/jarvis-m1-ops" in _cmd.action:
+        _cmd.action = _cmd.action.replace("/home/turbo/jarvis-m1-ops", _TURBO_DIR_FWD)
+    if "/\Users/franc" in _cmd.action:
+        _cmd.action = _cmd.action.replace("/\Users/franc", _USER_HOME)
 del _cmd

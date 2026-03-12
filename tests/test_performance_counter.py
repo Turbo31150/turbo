@@ -23,8 +23,8 @@ from src.performance_counter import (
 )
 
 SNAPSHOT_JSON = json.dumps({
-    "\\\\desktop\\processor(_total)\\% processor time": 25.5,
-    "\\\\desktop\\memory\\available mbytes": 4096.0,
+    "//desktop/processor(_total)/% processor time": 25.5,
+    "//desktop/memory/available mbytes": 4096.0,
 })
 
 
@@ -90,15 +90,15 @@ class TestGetCounter:
         pcm = PerformanceCounterManager()
         mock_result = MagicMock()
         mock_result.returncode = 0
-        mock_result.stdout = json.dumps({"path": "\\cpu\\time", "value": 42.0})
+        mock_result.stdout = json.dumps({"path": "/cpu/time", "value": 42.0})
         with patch("subprocess.run", return_value=mock_result):
-            counter = pcm.get_counter("\\cpu\\time")
+            counter = pcm.get_counter("/cpu/time")
         assert counter["value"] == 42.0
 
     def test_failure(self):
         pcm = PerformanceCounterManager()
         with patch("subprocess.run", side_effect=Exception("fail")):
-            counter = pcm.get_counter("\\cpu\\time")
+            counter = pcm.get_counter("/cpu/time")
         assert counter["value"] == 0
 
 

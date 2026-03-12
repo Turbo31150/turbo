@@ -85,13 +85,13 @@ print("=" * 60)
 print("\n[ELECTRON DASHBOARD]")
 
 try:
-    out = ps("if (Test-Path 'F:\\BUREAU\\turbo\\electron\\package.json') { Get-Content 'F:\\BUREAU\\turbo\\electron\\package.json' | ConvertFrom-Json | Select-Object -ExpandProperty name } else { 'NOT FOUND' }")
+    out = ps("if (Test-Path 'F:/BUREAU/turbo/electron/package.json') { Get-Content 'F:/BUREAU/turbo/electron/package.json' | ConvertFrom-Json | Select-Object -ExpandProperty name } else { 'NOT FOUND' }")
     ok("electron_status", f"package: {out[:60]}")
 except Exception as e:
     fail("electron_status", str(e)[:80])
 
 try:
-    out = ps("if (Test-Path 'F:\\BUREAU\\turbo\\electron') { (Get-ChildItem 'F:\\BUREAU\\turbo\\electron' -Recurse -File | Measure-Object).Count } else { 0 }")
+    out = ps("if (Test-Path 'F:/BUREAU/turbo/electron') { (Get-ChildItem 'F:/BUREAU/turbo/electron' -Recurse -File | Measure-Object).Count } else { 0 }")
     ok("electron_build_check", f"{out} fichiers")
 except Exception as e:
     fail("electron_build_check", str(e)[:80])
@@ -103,25 +103,25 @@ except Exception as e:
     fail("electron_process_check", str(e)[:80])
 
 try:
-    out = ps("if (Test-Path 'F:\\BUREAU\\turbo\\python_ws') { (Get-ChildItem 'F:\\BUREAU\\turbo\\python_ws' -File '*.py' | Measure-Object).Count } else { 0 }")
+    out = ps("if (Test-Path 'F:/BUREAU/turbo/python_ws') { (Get-ChildItem 'F:/BUREAU/turbo/python_ws' -File '*.py' | Measure-Object).Count } else { 0 }")
     ok("electron_ws_status", f"{out} fichiers Python WS")
 except Exception as e:
     fail("electron_ws_status", str(e)[:80])
 
 try:
-    out = ps("if (Test-Path 'F:\\BUREAU\\turbo\\electron\\dist') { (Get-ChildItem 'F:\\BUREAU\\turbo\\electron\\dist' -Recurse | Measure-Object Length -Sum).Sum / 1MB } else { 'no dist' }")
+    out = ps("if (Test-Path 'F:/BUREAU/turbo/electron/dist') { (Get-ChildItem 'F:/BUREAU/turbo/electron/dist' -Recurse | Measure-Object Length -Sum).Sum / 1MB } else { 'no dist' }")
     ok("electron_dist_size", f"dist: {out}")
 except Exception as e:
     fail("electron_dist_size", str(e)[:80])
 
 try:
-    out = ps("if (Test-Path 'F:\\BUREAU\\turbo\\electron\\electron.log') { Get-Content 'F:\\BUREAU\\turbo\\electron\\electron.log' -Tail 3 } else { 'no log' }")
+    out = ps("if (Test-Path 'F:/BUREAU/turbo/electron/electron.log') { Get-Content 'F:/BUREAU/turbo/electron/electron.log' -Tail 3 } else { 'no log' }")
     ok("electron_logs", out[:80] if out else "pas de log")
 except Exception as e:
     fail("electron_logs", str(e)[:80])
 
 try:
-    out = ps("if (Test-Path 'F:\\BUREAU\\turbo\\electron\\src') { (Get-ChildItem 'F:\\BUREAU\\turbo\\electron\\src' -Recurse -File '*.tsx','*.ts','*.jsx' | Measure-Object).Count } else { 0 }")
+    out = ps("if (Test-Path 'F:/BUREAU/turbo/electron/src') { (Get-ChildItem 'F:/BUREAU/turbo/electron/src' -Recurse -File '*.tsx','*.ts','*.jsx' | Measure-Object).Count } else { 0 }")
     ok("electron_components", f"{out} composants React/TS")
 except Exception as e:
     fail("electron_components", str(e)[:80])
@@ -171,7 +171,7 @@ except Exception as e:
     fail("cluster_failover_test", str(e)[:80])
 
 try:
-    out = ps("$lms = 'C:\\Users\\franc\\.lmstudio\\bin\\lms.exe'; if (Test-Path $lms) { & $lms version 2>$null } else { 'lms not found' }")
+    out = ps("$lms = '/\Users/franc/.lmstudio/bin/lms.exe'; if (Test-Path $lms) { & $lms version 2>$null } else { 'lms not found' }")
     ok("cluster_lms_version", f"LMS: {out[:60]}")
 except Exception as e:
     fail("cluster_lms_version", str(e)[:80])
@@ -180,31 +180,31 @@ except Exception as e:
 print("\n[DATABASE MANAGEMENT]")
 
 try:
-    out = ps("python3 -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); r=c.execute('SELECT name FROM sqlite_master WHERE type=\\\"table\\\"').fetchall(); print(len(r),'tables:',','.join(x[0] for x in r)); c.close()\"")
+    out = ps("python3 -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('SELECT name FROM sqlite_master WHERE type=/\"table/\"').fetchall(); print(len(r),'tables:',','.join(x[0] for x in r)); c.close()\"")
     ok("db_etoile_status", out[:80])
 except Exception as e:
     fail("db_etoile_status", str(e)[:80])
 
 try:
-    out = ps("python3 -c \"import sqlite3,os; p='F:/BUREAU/turbo/data/etoile.db'; s=os.path.getsize(p)/1024; c=sqlite3.connect(p); t=c.execute('SELECT COUNT(*) FROM map').fetchone()[0]; print(f'{s:.0f}KB {t} entries'); c.close()\"")
+    out = ps("python3 -c \"import sqlite3,os; p='/home/turbo/jarvis-m1-ops/data/etoile.db'; s=os.path.getsize(p)/1024; c=sqlite3.connect(p); t=c.execute('SELECT COUNT(*) FROM map').fetchone()[0]; print(f'{s:.0f}KB {t} entries'); c.close()\"")
     ok("db_etoile_integrity", out[:80])
 except Exception as e:
     fail("db_etoile_integrity", str(e)[:80])
 
 try:
-    dbs = ps("Get-ChildItem 'F:\\BUREAU\\turbo\\data' -Filter '*.db' | ForEach-Object { $_.Name + ':' + [math]::Round($_.Length/1KB) + 'KB' }")
+    dbs = ps("Get-ChildItem 'F:/BUREAU/turbo/data' -Filter '*.db' | ForEach-Object { $_.Name + ':' + [math]::Round($_.Length/1KB) + 'KB' }")
     ok("db_list_all", dbs.replace("\n", " ")[:80])
 except Exception as e:
     fail("db_list_all", str(e)[:80])
 
 try:
-    out = ps("python3 -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); r=c.execute('SELECT category, COUNT(*) FROM memories GROUP BY category').fetchall(); print(dict(r)); c.close()\"")
+    out = ps("python3 -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('SELECT category, COUNT(*) FROM memories GROUP BY category').fetchall(); print(dict(r)); c.close()\"")
     ok("db_memories_stats", out[:80])
 except Exception as e:
     fail("db_memories_stats", str(e)[:80])
 
 try:
-    out = ps("python3 -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); c.execute('PRAGMA integrity_check'); print('integrity: OK'); c.close()\"")
+    out = ps("python3 -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); c.execute('PRAGMA integrity_check'); print('integrity: OK'); c.close()\"")
     ok("db_backup_check", out[:80])
 except Exception as e:
     fail("db_backup_check", str(e)[:80])
@@ -219,7 +219,7 @@ except Exception as e:
     fail("n8n_status", str(e)[:80])
 
 try:
-    out = ps("if (Test-Path 'F:\\BUREAU\\n8n_workflows_backup') { (Get-ChildItem 'F:\\BUREAU\\n8n_workflows_backup' -Filter '*.json' | Measure-Object).Count } else { 0 }")
+    out = ps("if (Test-Path 'F:/BUREAU/n8n_workflows_backup') { (Get-ChildItem 'F:/BUREAU/n8n_workflows_backup' -Filter '*.json' | Measure-Object).Count } else { 0 }")
     ok("n8n_workflow_count", f"{out} workflows sauvegardes")
 except Exception as e:
     fail("n8n_workflow_count", str(e)[:80])
@@ -234,7 +234,7 @@ except Exception as e:
     fail("n8n_health", str(e)[:80])
 
 try:
-    out = ps("if (Test-Path 'F:\\BUREAU\\n8n_workflows_backup') { Get-ChildItem 'F:\\BUREAU\\n8n_workflows_backup' -Filter '*.json' | Sort-Object LastWriteTime -Descending | Select-Object -First 3 Name | ForEach-Object { $_.Name } }")
+    out = ps("if (Test-Path 'F:/BUREAU/n8n_workflows_backup') { Get-ChildItem 'F:/BUREAU/n8n_workflows_backup' -Filter '*.json' | Sort-Object LastWriteTime -Descending | Select-Object -First 3 Name | ForEach-Object { $_.Name } }")
     ok("n8n_recent_workflows", out.replace("\n", ", ")[:80] if out else "aucun")
 except Exception as e:
     fail("n8n_recent_workflows", str(e)[:80])
@@ -251,23 +251,23 @@ except Exception as e:
     fail("agent_sdk_version", str(e)[:80])
 
 try:
-    out = ps("python3 -c \"import sys; sys.path.insert(0,'F:/BUREAU/turbo'); from agents import AGENTS; print(len(AGENTS),'agents')\" 2>$null")
+    out = ps("python3 -c \"import sys; sys.path.insert(0,'/home/turbo/jarvis-m1-ops'); from agents import AGENTS; print(len(AGENTS),'agents')\" 2>$null")
     if not out:
-        out = ps("if (Test-Path 'F:\\BUREAU\\turbo\\agents.py') { 'agents.py present' } else { 'not found' }")
+        out = ps("if (Test-Path 'F:/BUREAU/turbo/agents.py') { 'agents.py present' } else { 'not found' }")
     ok("agent_list", out[:60])
 except Exception as e:
     fail("agent_list", str(e)[:80])
 
 try:
-    out = ps("python3 -c \"import sys; sys.path.insert(0,'F:/BUREAU/turbo/src'); from tools import TOOLS; print(len(TOOLS),'outils MCP')\" 2>$null")
+    out = ps("python3 -c \"import sys; sys.path.insert(0,'/home/turbo/jarvis-m1-ops/src'); from tools import TOOLS; print(len(TOOLS),'outils MCP')\" 2>$null")
     if not out:
-        out = ps("if (Test-Path 'F:\\BUREAU\\turbo\\src\\tools.py') { 'tools.py present' } else { 'not found' }")
+        out = ps("if (Test-Path 'F:/BUREAU/turbo/src/tools.py') { 'tools.py present' } else { 'not found' }")
     ok("agent_tools_count", out[:60])
 except Exception as e:
     fail("agent_tools_count", str(e)[:80])
 
 try:
-    out = ps("if (Test-Path 'F:\\BUREAU\\turbo\\src\\mcp_server.py') { Select-String -Path 'F:\\BUREAU\\turbo\\src\\mcp_server.py' -Pattern 'async def handle_' | Measure-Object | Select-Object -ExpandProperty Count }")
+    out = ps("if (Test-Path 'F:/BUREAU/turbo/src/mcp_server.py') { Select-String -Path 'F:/BUREAU/turbo/src/mcp_server.py' -Pattern 'async def handle_' | Measure-Object | Select-Object -ExpandProperty Count }")
     ok("agent_mcp_handlers", f"{out} handlers MCP")
 except Exception as e:
     fail("agent_mcp_handlers", str(e)[:80])
@@ -276,25 +276,25 @@ except Exception as e:
 print("\n[FINE-TUNING]")
 
 try:
-    out = ps("if (Test-Path 'F:\\BUREAU\\turbo\\finetuning') { (Get-ChildItem 'F:\\BUREAU\\turbo\\finetuning' -Recurse -File | Measure-Object).Count } else { 0 }")
+    out = ps("if (Test-Path 'F:/BUREAU/turbo/finetuning') { (Get-ChildItem 'F:/BUREAU/turbo/finetuning' -Recurse -File | Measure-Object).Count } else { 0 }")
     ok("finetune_status", f"{out} fichiers finetuning")
 except Exception as e:
     fail("finetune_status", str(e)[:80])
 
 try:
-    out = ps("if (Test-Path 'F:\\BUREAU\\turbo\\finetuning\\data') { Get-ChildItem 'F:\\BUREAU\\turbo\\finetuning\\data' -Filter '*.jsonl' | ForEach-Object { $_.Name + ':' + [math]::Round($_.Length/1KB) + 'KB' } } else { 'no data dir' }")
+    out = ps("if (Test-Path 'F:/BUREAU/turbo/finetuning/data') { Get-ChildItem 'F:/BUREAU/turbo/finetuning/data' -Filter '*.jsonl' | ForEach-Object { $_.Name + ':' + [math]::Round($_.Length/1KB) + 'KB' } } else { 'no data dir' }")
     ok("finetune_dataset_check", out.replace("\n", " ")[:80] if out else "pas de dataset")
 except Exception as e:
     fail("finetune_dataset_check", str(e)[:80])
 
 try:
-    out = ps("if (Test-Path 'F:\\BUREAU\\turbo\\finetuning') { Get-ChildItem 'F:\\BUREAU\\turbo\\finetuning' -Filter '*.bat','*.sh','*.py' | ForEach-Object { $_.Name } } else { 'no dir' }")
+    out = ps("if (Test-Path 'F:/BUREAU/turbo/finetuning') { Get-ChildItem 'F:/BUREAU/turbo/finetuning' -Filter '*.bat','*.sh','*.py' | ForEach-Object { $_.Name } } else { 'no dir' }")
     ok("finetune_scripts", out.replace("\n", ", ")[:80] if out else "aucun script")
 except Exception as e:
     fail("finetune_scripts", str(e)[:80])
 
 try:
-    out = ps("if (Test-Path 'F:\\BUREAU\\turbo\\finetuning\\config') { Get-ChildItem 'F:\\BUREAU\\turbo\\finetuning\\config' | ForEach-Object { $_.Name } } else { 'config par defaut' }")
+    out = ps("if (Test-Path 'F:/BUREAU/turbo/finetuning/config') { Get-ChildItem 'F:/BUREAU/turbo/finetuning/config' | ForEach-Object { $_.Name } } else { 'config par defaut' }")
     ok("finetune_config", out.replace("\n", ", ")[:80] if out else "config OK")
 except Exception as e:
     fail("finetune_config", str(e)[:80])
@@ -303,7 +303,7 @@ except Exception as e:
 print("\n[TRADING AVANCE]")
 
 try:
-    out = ps("python3 -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); r=c.execute('SELECT COUNT(*) FROM map WHERE entity_type=\\\"trading_strategy\\\"').fetchone()[0]; print(r,'strategies'); c.close()\" 2>$null")
+    out = ps("python3 -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('SELECT COUNT(*) FROM map WHERE entity_type=/\"trading_strategy/\"').fetchone()[0]; print(r,'strategies'); c.close()\" 2>$null")
     if not out:
         out = "strategies check done"
     ok("trading_strategies", out[:60])
@@ -311,13 +311,13 @@ except Exception as e:
     fail("trading_strategies", str(e)[:80])
 
 try:
-    dbs = ps("Get-ChildItem 'F:\\BUREAU\\turbo\\data' -Filter 'trading*' | ForEach-Object { $_.Name + ':' + [math]::Round($_.Length/1KB) + 'KB' }")
+    dbs = ps("Get-ChildItem 'F:/BUREAU/turbo/data' -Filter 'trading*' | ForEach-Object { $_.Name + ':' + [math]::Round($_.Length/1KB) + 'KB' }")
     ok("trading_db_status", dbs.replace("\n", " ")[:80] if dbs else "aucune DB trading")
 except Exception as e:
     fail("trading_db_status", str(e)[:80])
 
 try:
-    out = ps("if (Test-Path 'F:\\BUREAU\\turbo\\src\\trading') { (Get-ChildItem 'F:\\BUREAU\\turbo\\src\\trading' -Recurse -File '*.py' | Measure-Object).Count } else { 'no trading dir' }")
+    out = ps("if (Test-Path 'F:/BUREAU/turbo/src/trading') { (Get-ChildItem 'F:/BUREAU/turbo/src/trading' -Recurse -File '*.py' | Measure-Object).Count } else { 'no trading dir' }")
     ok("trading_modules", f"{out} modules trading")
 except Exception as e:
     fail("trading_modules", str(e)[:80])
@@ -332,19 +332,19 @@ except Exception as e:
 print("\n[SKILL MANAGEMENT]")
 
 try:
-    out = ps("python3 -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); r=c.execute('SELECT COUNT(*) FROM map WHERE entity_type=\\\"skill\\\"').fetchone()[0]; print(r,'skills'); c.close()\"")
+    out = ps("python3 -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('SELECT COUNT(*) FROM map WHERE entity_type=/\"skill/\"').fetchone()[0]; print(r,'skills'); c.close()\"")
     ok("skill_inventory", out[:60])
 except Exception as e:
     fail("skill_inventory", str(e)[:80])
 
 try:
-    out = ps("python3 -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); r=c.execute('SELECT parent, COUNT(*) FROM map WHERE entity_type=\\\"skill\\\" GROUP BY parent').fetchall(); print(dict(r)); c.close()\"")
+    out = ps("python3 -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('SELECT parent, COUNT(*) FROM map WHERE entity_type=/\"skill/\" GROUP BY parent').fetchall(); print(dict(r)); c.close()\"")
     ok("skill_categories", out[:80])
 except Exception as e:
     fail("skill_categories", str(e)[:80])
 
 try:
-    out = ps("python3 -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); r=c.execute('SELECT entity_name FROM map WHERE entity_type=\\\"skill\\\" ORDER BY ROWID DESC LIMIT 5').fetchall(); print([x[0] for x in r]); c.close()\"")
+    out = ps("python3 -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('SELECT entity_name FROM map WHERE entity_type=/\"skill/\" ORDER BY ROWID DESC LIMIT 5').fetchall(); print([x[0] for x in r]); c.close()\"")
     ok("skill_recent", out[:80])
 except Exception as e:
     fail("skill_recent", str(e)[:80])

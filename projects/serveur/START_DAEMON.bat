@@ -8,7 +8,7 @@ echo   Mode: Service/Daemon (non-interactif)
 echo ============================================
 echo.
 
-cd /d C:\CLAUDE_WORKSPACE\SERVER_MANAGER\scripts
+cd /d /CLAUDE_WORKSPACE\SERVER_MANAGER\scripts
 python master_daemon.py
 
 pause

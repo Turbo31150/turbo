@@ -72,7 +72,7 @@ Version: 2.0 (10 nouveaux modules + patch MCP server)
 
 ### Etape 1: Patch du serveur MCP (OBLIGATOIRE)
 
-1. Ouvrir `F:\BUREAU\turbo\src\mcp_server_sse.py`
+1. Ouvrir `/home/turbo/jarvis-m1-ops\src\mcp_server_sse.py`
 2. Aller a la ligne ~352 (chercher `@contextlib.asynccontextmanager`)
 3. Remplacer tout le bloc lifespan par le contenu de `mcp_server_sse_lifespan_patch.py`
 4. Sauvegarder
@@ -82,7 +82,7 @@ Version: 2.0 (10 nouveaux modules + patch MCP server)
 Tous les nouveaux modules sont deja dans `src/`. Verifier qu'ils sont bien presents:
 
 ```powershell
-Get-ChildItem F:\BUREAU\turbo\src\ | Where-Object { $_.Name -match '(startup_wiring|event_bus_wiring|scheduler_cleanup|health_probe_registry|gpu_guardian|cluster_self_healer|trading_sentinel|perplexity_bridge|smart_retry|daily_report)' }
+Get-ChildItem /home/turbo/jarvis-m1-ops\src\ | Where-Object { $_.Name -match '(startup_wiring|event_bus_wiring|scheduler_cleanup|health_probe_registry|gpu_guardian|cluster_self_healer|trading_sentinel|perplexity_bridge|smart_retry|daily_report)' }
 ```
 
 Doit afficher 10 fichiers.
@@ -90,7 +90,7 @@ Doit afficher 10 fichiers.
 ### Etape 3: Tester le bootstrap
 
 ```powershell
-cd F:\BUREAU\turbo
+cd /home/turbo/jarvis-m1-ops
 python -c "import asyncio; from src.startup_wiring import bootstrap_jarvis; asyncio.run(bootstrap_jarvis())"
 ```
 

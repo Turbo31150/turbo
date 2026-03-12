@@ -9,7 +9,7 @@ version: 1.0.0
 ## Lancement
 
 ```bash
-cd "F:/BUREAU/turbo/scripts/trading_v2"
+cd "/home/turbo/jarvis-m1-ops/scripts/trading_v2"
 python3 gpu_pipeline.py --coins 100 --top 10 --json [OPTIONS]
 ```
 
@@ -70,7 +70,7 @@ Trois conditions REQUISES simultanement :
 
 ## Dashboard
 
-- URL: ouvrir `F:\BUREAU\turbo\scripts\trading_v2\dashboard_pro.html`
+- URL: ouvrir `/home/turbo/jarvis-m1-ops\scripts\trading_v2\dashboard_pro.html`
 - Donnees: chargement JSON depuis pipeline
 - WS: port 9742 pour real-time
 

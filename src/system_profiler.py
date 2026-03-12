@@ -105,7 +105,7 @@ class SystemProfiler:
         import shutil
         drives = {}
         for letter in "CDEF":
-            path = f"{letter}:\\"
+            path = f"{letter}:/"
             try:
                 t, u, f = shutil.disk_usage(path)
                 drives[letter] = {"total_gb": round(t / (1024**3), 1), "free_gb": round(f / (1024**3), 1)}

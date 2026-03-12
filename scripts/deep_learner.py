@@ -23,9 +23,9 @@ if sys.platform == "win32":
     os.environ.setdefault("PYTHONIOENCODING", "utf-8")
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-STRESS_DB = Path("F:/BUREAU/turbo/data/ultra_stress_v2.db")
-ETOILE_DB = Path("F:/BUREAU/turbo/data/etoile.db")
-LEARNINGS_FILE = Path("F:/BUREAU/turbo/data/cluster_learnings.json")
+STRESS_DB = Path("/home/turbo/jarvis-m1-ops/data/ultra_stress_v2.db")
+ETOILE_DB = Path("/home/turbo/jarvis-m1-ops/data/etoile.db")
+LEARNINGS_FILE = Path("/home/turbo/jarvis-m1-ops/data/cluster_learnings.json")
 
 # ── Prompt categories (regex-based) ──
 CATEGORIES = {

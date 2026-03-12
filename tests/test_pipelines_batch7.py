@@ -82,7 +82,7 @@ except Exception as e: fail("embedding_cache_prewarm", str(e)[:80])
 # BRAIN COMPLETION (1)
 print("\n[BRAIN COMPLETION]")
 try:
-    out = ps("& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); r=c.execute('SELECT COUNT(*) FROM memories').fetchone()[0]; print(f'memories importables: {r}')\" 2>&1")
+    out = ps("& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('SELECT COUNT(*) FROM memories').fetchone()[0]; print(f'memories importables: {r}')\" 2>&1")
     ok("brain_memory_import", out[:80])
 except Exception as e: fail("brain_memory_import", str(e)[:80])
 
@@ -123,17 +123,17 @@ except Exception as e: fail("rag_context_prepare", str(e)[:80])
 # DB OPTIMIZATION COMPLETIONS (3)
 print("\n[DB OPTIMIZATION COMPLETIONS]")
 try:
-    out = ps("& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); c.execute('VACUUM'); print('defragment: OK')\" 2>&1")
+    out = ps("& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); c.execute('VACUUM'); print('defragment: OK')\" 2>&1")
     ok("db_defragment_intensive", out[:80])
 except Exception as e: fail("db_defragment_intensive", str(e)[:80])
 
 try:
-    out = ps("& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); fk=c.execute('PRAGMA foreign_key_check').fetchall(); ic=c.execute('PRAGMA integrity_check').fetchone()[0]; print(f'deep: {ic}, fk_issues: {len(fk)}')\" 2>&1")
+    out = ps("& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); fk=c.execute('PRAGMA foreign_key_check').fetchall(); ic=c.execute('PRAGMA integrity_check').fetchone()[0]; print(f'deep: {ic}, fk_issues: {len(fk)}')\" 2>&1")
     ok("db_consistency_check_deep", out[:80])
 except Exception as e: fail("db_consistency_check_deep", str(e)[:80])
 
 try:
-    out = ps("& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); tables=c.execute(\\\"SELECT name FROM sqlite_master WHERE type='table'\\\").fetchall(); print(f'tables archivables: {len(tables)}')\" 2>&1")
+    out = ps("& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tables=c.execute(/\"SELECT name FROM sqlite_master WHERE type='table'/\").fetchall(); print(f'tables archivables: {len(tables)}')\" 2>&1")
     ok("db_split_archive", out[:80])
 except Exception as e: fail("db_split_archive", str(e)[:80])
 
@@ -152,7 +152,7 @@ except Exception as e: fail("consensus_weight_auto_tune", str(e)[:80])
 # SECURITY COMPLETION (1)
 print("\n[SECURITY COMPLETION]")
 try:
-    out = ps("$acl = (Get-Acl 'F:\\BUREAU\\turbo').Access.Count; Write-Output \"ACL entries: $acl\"")
+    out = ps("$acl = (Get-Acl 'F:/BUREAU/turbo').Access.Count; Write-Output \"ACL entries: $acl\"")
     ok("security_permission_audit_recursive", out[:80])
 except Exception as e: fail("security_permission_audit_recursive", str(e)[:80])
 
@@ -171,7 +171,7 @@ except Exception as e: fail("model_offload_aggressive", str(e)[:80])
 # HOTFIX COMPLETIONS (2)
 print("\n[HOTFIX COMPLETIONS]")
 try:
-    out = ps("$lastCommit = git -C 'F:\\BUREAU\\turbo' log -1 --oneline 2>$null; Write-Output \"Rollback target: $lastCommit\"")
+    out = ps("$lastCommit = git -C 'F:/BUREAU/turbo' log -1 --oneline 2>$null; Write-Output \"Rollback target: $lastCommit\"")
     ok("hotfix_rollback_auto", out[:80])
 except Exception as e: fail("hotfix_rollback_auto", str(e)[:80])
 
@@ -209,7 +209,7 @@ except Exception as e: fail("api_key_rotation_schedule", str(e)[:80])
 # WORKSPACE COMPLETIONS (2)
 print("\n[WORKSPACE COMPLETIONS]")
 try:
-    out = ps("$branch = git -C 'F:\\BUREAU\\turbo' rev-parse --short HEAD 2>$null; Write-Output \"Restore point: $branch\"")
+    out = ps("$branch = git -C 'F:/BUREAU/turbo' rev-parse --short HEAD 2>$null; Write-Output \"Restore point: $branch\"")
     ok("workspace_restore_point", out[:80])
 except Exception as e: fail("workspace_restore_point", str(e)[:80])
 
@@ -245,7 +245,7 @@ try:
 except Exception as e: fail("doc_self_heal_broken", str(e)[:80])
 
 try:
-    out = ps("& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; broken=[c for c in PIPELINE_COMMANDS if not c.triggers]; print(f'broken commands: {len(broken)}')\" 2>&1")
+    out = ps("& '/\Users/franc/.local/bin/uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; broken=[c for c in PIPELINE_COMMANDS if not c.triggers]; print(f'broken commands: {len(broken)}')\" 2>&1")
     ok("self_heal_broken_command", out[:80])
 except Exception as e: fail("self_heal_broken_command", str(e)[:80])
 

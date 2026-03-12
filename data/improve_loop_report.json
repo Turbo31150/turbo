@@ -605,7 +605,7 @@
       "context": "        \"\"\"Add intelligent caching for LM Studio queries.\"\"\"\n        # TODO: Implement LRU cache with TTL for LM queries\n        return {\"message\": \"LM caching optimization planned\", \"success\": False}\n    ",
       "issue": "TODO/FIXME: # TODO: Implement LRU cache with TTL for LM queries"
     },
-    "suggestion_raw": "\n\n{\n  \"old\": '        \"\"\"Add intelligent caching for LM Studio queries.\"\"\"\\n        # TODO: Implement LRU cache with TTL for LM queries\\n        return {\"message\": \"LM caching optimization planned\", \"",
+    "suggestion_raw": "\n\n{\n  \"old\": '        \"\"\"Add intelligent caching for LM Studio queries.\"\"\"/n        # TODO: Implement LRU cache with TTL for LM queries/n        return {\"message\": \"LM caching optimization planned\", \"",
     "duration_s": 4.5
   },
   {
@@ -1069,7 +1069,7 @@
       "context": "        \"\"\"Add Whisper integration for voice commands.\"\"\"\n        # TODO: Integrate faster-whisper for local STT\n        return {\"message\": \"Voice pipeline in development\", \"success\": False}\n    ",
       "issue": "TODO/FIXME: # TODO: Integrate faster-whisper for local STT"
     },
-    "suggestion_raw": "\n\n{\n  \"old\": '        \"\"\"Add Whisper integration for voice commands.\"\"\"\\n        # TODO: Integrate faster-whisper for local STT\\n        return {\"message\": \"Voice pipeline in development\", \"success\": ",
+    "suggestion_raw": "\n\n{\n  \"old\": '        \"\"\"Add Whisper integration for voice commands.\"\"\"/n        # TODO: Integrate faster-whisper for local STT/n        return {\"message\": \"Voice pipeline in development\", \"success\": ",
     "duration_s": 4.6
   },
   {
@@ -1532,7 +1532,7 @@
       "context": "        \"\"\"Implement multi-GPU load balancing.\"\"\"\n        # TODO: Detect multiple GPUs and distribute workload\n        return {\"message\": \"Multi-GPU balancing planned\", \"success\": False}\n    ",
       "issue": "TODO/FIXME: # TODO: Detect multiple GPUs and distribute workload"
     },
-    "suggestion_raw": "\n\n{\n  \"old\": '        \"\"\"Implement multi-GPU load balancing.\"\"\"\\n        # TODO: Detect multiple GPUs and distribute workload\\n        return {\"message\": \"Multi-GPU balancing planned\", \"success\": Fals",
+    "suggestion_raw": "\n\n{\n  \"old\": '        \"\"\"Implement multi-GPU load balancing.\"\"\"/n        # TODO: Detect multiple GPUs and distribute workload/n        return {\"message\": \"Multi-GPU balancing planned\", \"success\": Fals",
     "duration_s": 4.9
   },
   {
@@ -1796,12 +1796,12 @@
     "issue": {
       "file": "src/orchestrator.py",
       "line": 354,
-      "context": "            try:\n                user_input = await asyncio.get_running_loop().run_in_executor(None, input, \"\\n[COMMANDANT] > \")\n            except (EOFError, KeyboardInterrupt):\n                break\n\n            if not user_input.strip():",
+      "context": "            try:\n                user_input = await asyncio.get_running_loop().run_in_executor(None, input, \"/n[COMMANDANT] > \")\n            except (EOFError, KeyboardInterrupt):\n                break\n\n            if not user_input.strip():",
       "issue": "duplicated try/except block could be refactored"
     },
     "suggestion": {
-      "old": "            try:\n                user_input = await asyncio.get_running_loop().run_in_executor(None, input, \"\\n[COMMANDANT] > \")\n            except (EOFError, KeyboardInterrupt):\n                break\n\n            if not user_input.strip():",
-      "new": "            try:\n                user_input = await asyncio.get_running_loop().run_in_executor(None, input, \"\\n[COMMANDANT] > \")\n            except (EOFError, KeyboardInterrupt):\n                break\n            if not user_input.strip():",
+      "old": "            try:\n                user_input = await asyncio.get_running_loop().run_in_executor(None, input, \"/n[COMMANDANT] > \")\n            except (EOFError, KeyboardInterrupt):\n                break\n\n            if not user_input.strip():",
+      "new": "            try:\n                user_input = await asyncio.get_running_loop().run_in_executor(None, input, \"/n[COMMANDANT] > \")\n            except (EOFError, KeyboardInterrupt):\n                break\n            if not user_input.strip():",
       "action": "Suppression des sauts de ligne inutiles avant la condition if"
     },
     "applied": true,
@@ -1990,7 +1990,7 @@
       "context": "        \"\"\"Refactor orchestrator routing logic.\"\"\"\n        # TODO: Simplify node selection with better scoring\n        return {\"message\": \"Orchestrator refactor planned\", \"success\": False}\n    ",
       "issue": "TODO/FIXME: # TODO: Simplify node selection with better scoring"
     },
-    "suggestion_raw": "\n\n{\n  \"old\": '        \"\"\"Refactor orchestrator routing logic.\"\"\"\\n        # TODO: Simplify node selection with better scoring\\n        return {\"message\": \"Orchestrator refactor planned\", \"success\": Fa",
+    "suggestion_raw": "\n\n{\n  \"old\": '        \"\"\"Refactor orchestrator routing logic.\"\"\"/n        # TODO: Simplify node selection with better scoring/n        return {\"message\": \"Orchestrator refactor planned\", \"success\": Fa",
     "duration_s": 4.4
   },
   {
@@ -2030,12 +2030,12 @@
     "issue": {
       "file": "src/domino_executor.py",
       "line": 1241,
-      "context": "    import subprocess\n    try:\n        r = subprocess.run(\"git status --short\", shell=True, capture_output=True, text=True, timeout=5, cwd=\"F:/BUREAU/turbo\")\n        lines = r.stdout.strip().split(\"\\n\") if r.stdout.strip() else []\n        return f\"{len(lines)} files modified\" if lines else \"Working tree clean\"",
+      "context": "    import subprocess\n    try:\n        r = subprocess.run(\"git status --short\", shell=True, capture_output=True, text=True, timeout=5, cwd=\"/home/turbo/jarvis-m1-ops\")\n        lines = r.stdout.strip().split(\"/n\") if r.stdout.strip() else []\n        return f\"{len(lines)} files modified\" if lines else \"Working tree clean\"",
       "issue": "subprocess with shell=True (injection risk)"
     },
     "suggestion": {
-      "old": "    import subprocess\n    try:\n        r = subprocess.run(\"git status --short\", shell=True, capture_output=True, text=True, timeout=5, cwd=\"F:/BUREAU/turbo\")\n        lines = r.stdout.strip().split(\"\\n\") if r.stdout.strip() else []\n        return f\"{len(lines)} files modified\" if lines else \"Working tree clean\"",
-      "new": "    import subprocess\n    try:\n        r = subprocess.run(['git', 'status', '--short'], capture_output=True, text=True, timeout=5, cwd=\"F:/BUREAU/turbo\")\n        lines = r.stdout.strip().split(\"\\n\") if r.stdout.strip() else []\n        return f\"{len(lines)} files modified\" if lines else \"Working tree clean\"",
+      "old": "    import subprocess\n    try:\n        r = subprocess.run(\"git status --short\", shell=True, capture_output=True, text=True, timeout=5, cwd=\"/home/turbo/jarvis-m1-ops\")\n        lines = r.stdout.strip().split(\"/n\") if r.stdout.strip() else []\n        return f\"{len(lines)} files modified\" if lines else \"Working tree clean\"",
+      "new": "    import subprocess\n    try:\n        r = subprocess.run(['git', 'status', '--short'], capture_output=True, text=True, timeout=5, cwd=\"/home/turbo/jarvis-m1-ops\")\n        lines = r.stdout.strip().split(\"/n\") if r.stdout.strip() else []\n        return f\"{len(lines)} files modified\" if lines else \"Working tree clean\"",
       "action": "Remplacer l'utilisation de shell=True par une liste d'arguments pour Ã©viter les risques d'injection"
     },
     "applied": true,
@@ -2216,7 +2216,7 @@
       "context": "\"\"\"JARVIS — Commandes developpement et outils techniques.\"\"\"\n\nfrom __future__ import annotations\n\nimport os\nfrom pathlib import Path\n\nfrom src.commands import JarvisCommand\nfrom src.config import PATH",
       "issue": "No logging in commands_dev.py (90920 bytes)"
     },
-    "suggestion_raw": "\n\n{\n  \"old\": '\"JARVIS â€” Commandes developpement et outils techniques.\"\\n\\nfrom __future__ import annotations\\n\\nimport os\\nfrom pathlib import Path\\n\\nfrom src.commands import JarvisCommand\\nfrom sr",
+    "suggestion_raw": "\n\n{\n  \"old\": '\"JARVIS â€” Commandes developpement et outils techniques.\"/n/nfrom __future__ import annotations/n/nimport os/nfrom pathlib import Path/n/nfrom src.commands import JarvisCommand/nfrom sr",
     "duration_s": 4.7
   },
   {
@@ -2452,7 +2452,7 @@
       "context": "        \"\"\"Create unified DB connection pool.\"\"\"\n        # TODO: Implement connection pool with max connections\n        return {\"message\": \"DB connection pooling planned\", \"success\": False}\n    ",
       "issue": "TODO/FIXME: # TODO: Implement connection pool with max connections"
     },
-    "suggestion_raw": "\n\n{\n  \"old\": '        \"\"\"Create unified DB connection pool.\"\"\"\\n        # TODO: Implement connection pool with max connections\\n        return {\"message\": \"DB connection pooling planned\", \"success\": F",
+    "suggestion_raw": "\n\n{\n  \"old\": '        \"\"\"Create unified DB connection pool.\"\"\"/n        # TODO: Implement connection pool with max connections/n        return {\"message\": \"DB connection pooling planned\", \"success\": F",
     "duration_s": 4.5
   },
   {
@@ -2492,12 +2492,12 @@
     "issue": {
       "file": "src/domino_executor.py",
       "line": 1253,
-      "context": "    import subprocess\n    try:\n        r = subprocess.run(\"git log --oneline --since='1 day ago'\", shell=True, capture_output=True, text=True, timeout=5, cwd=\"F:/BUREAU/turbo\")\n        lines = r.stdout.strip().split(\"\\n\") if r.stdout.strip() else []\n        return f\"{len(lines)} commits today: {'; '.join(lines[:5])}\" if lines else \"No commits today\"",
+      "context": "    import subprocess\n    try:\n        r = subprocess.run(\"git log --oneline --since='1 day ago'\", shell=True, capture_output=True, text=True, timeout=5, cwd=\"/home/turbo/jarvis-m1-ops\")\n        lines = r.stdout.strip().split(\"/n\") if r.stdout.strip() else []\n        return f\"{len(lines)} commits today: {'; '.join(lines[:5])}\" if lines else \"No commits today\"",
       "issue": "subprocess with shell=True (injection risk)"
     },
     "suggestion": {
-      "old": "    import subprocess\n    try:\n        r = subprocess.run(\"git log --oneline --since='1 day ago'\", shell=True, capture_output=True, text=True, timeout=5, cwd=\"F:/BUREAU/turbo\")\n        lines = r.stdout.strip().split(\"\\n\") if r.stdout.strip() else []\n        return f\"{len(lines)} commits today: {'; '.join(lines[:5])}\" if lines else \"No commits today\"\n    except Exception as e:\n        print(f\"Error executing git log: {e}\")",
-      "new": "    import subprocess\n    try:\n        r = subprocess.run(['git', 'log', '--oneline', '--since=1 day ago'], capture_output=True, text=True, timeout=5, cwd='F:/BUREAU/turbo')\n        lines = r.stdout.strip().split('\\n') if r.stdout.strip() else []\n        return f'{len(lines)} commits today: {\"; \".join(lines[:5])}' if lines else 'No commits today'\n    except Exception as e:\n        print(f'Error executing git log: {e}')",
+      "old": "    import subprocess\n    try:\n        r = subprocess.run(\"git log --oneline --since='1 day ago'\", shell=True, capture_output=True, text=True, timeout=5, cwd=\"/home/turbo/jarvis-m1-ops\")\n        lines = r.stdout.strip().split(\"/n\") if r.stdout.strip() else []\n        return f\"{len(lines)} commits today: {'; '.join(lines[:5])}\" if lines else \"No commits today\"\n    except Exception as e:\n        print(f\"Error executing git log: {e}\")",
+      "new": "    import subprocess\n    try:\n        r = subprocess.run(['git', 'log', '--oneline', '--since=1 day ago'], capture_output=True, text=True, timeout=5, cwd='/home/turbo/jarvis-m1-ops')\n        lines = r.stdout.strip().split('/n') if r.stdout.strip() else []\n        return f'{len(lines)} commits today: {\"; \".join(lines[:5])}' if lines else 'No commits today'\n    except Exception as e:\n        print(f'Error executing git log: {e}')",
       "action": "Remplacer shell=True par une liste de commandes pour Ã©viter l'injection de commande"
     },
     "applied": false,
@@ -2677,7 +2677,7 @@
       "context": "\"\"\"JARVIS — Commandes de maintenance, monitoring et securite systeme.\"\"\"\n\nfrom __future__ import annotations\n\nimport os\n\nfrom src.commands import JarvisCommand\nfrom src.config import PATHS\n\n_TURBO_DIR",
       "issue": "No logging in commands_maintenance.py (160510 bytes)"
     },
-    "suggestion_raw": "\n\n{\n  \"old\": '\"from __future__ import annotations\\n\\nimport os\\n\\nfrom src.commands import JarvisCommand\\nfrom src.config import PATHS\\n\\n_TURBO_DIR\"',\n  \"new\": '\"from __future__ import annotations\\n\\",
+    "suggestion_raw": "\n\n{\n  \"old\": '\"from __future__ import annotations/n/nimport os/n/nfrom src.commands import JarvisCommand/nfrom src.config import PATHS/n/n_TURBO_DIR\"',\n  \"new\": '\"from __future__ import annotations/n/",
     "duration_s": 4.4
   },
   {
@@ -2912,7 +2912,7 @@
       "context": "        \"\"\"Generate complete API documentation.\"\"\"\n        # TODO: Auto-generate docs from docstrings\n        return {\"message\": \"API documentation in progress\", \"success\": False}\n    ",
       "issue": "TODO/FIXME: # TODO: Auto-generate docs from docstrings"
     },
-    "suggestion_raw": "\n\n{\n  \"old\": '        \"\"\"Generate complete API documentation.\"\"\"\\n        # TODO: Auto-generate docs from docstrings\\n        return {\"message\": \"API documentation in progress\", \"success\": False}\\n',\n",
+    "suggestion_raw": "\n\n{\n  \"old\": '        \"\"\"Generate complete API documentation.\"\"\"/n        # TODO: Auto-generate docs from docstrings/n        return {\"message\": \"API documentation in progress\", \"success\": False}/n',\n",
     "duration_s": 4.4
   },
   {
@@ -2952,12 +2952,12 @@
     "issue": {
       "file": "src/domino_executor.py",
       "line": 1269,
-      "context": "    except ImportError:\n        import subprocess\n        r = subprocess.run('powershell -Command \"(Get-CimInstance Win32_OperatingSystem | Select-Object FreePhysicalMemory,TotalVisibleMemorySize | ForEach-Object { \\\\\"$([math]::Round(($_.TotalVisibleMemorySize - $_.FreePhysicalMemory)/1MB,1))GB / $([math]::Round($_.TotalVisibleMemorySize/1MB,1))GB\\\\\" })\"', shell=True, capture_output=True, text=True, timeout=10)\n        return f\"RAM: {r.stdout.strip()}\" if r.stdout.strip() else \"RAM info N/A\"\n",
+      "context": "    except ImportError:\n        import subprocess\n        r = subprocess.run('powershell -Command \"(Get-CimInstance Win32_OperatingSystem | Select-Object FreePhysicalMemory,TotalVisibleMemorySize | ForEach-Object { //\"$([math]::Round(($_.TotalVisibleMemorySize - $_.FreePhysicalMemory)/1MB,1))GB / $([math]::Round($_.TotalVisibleMemorySize/1MB,1))GB//\" })\"', shell=True, capture_output=True, text=True, timeout=10)\n        return f\"RAM: {r.stdout.strip()}\" if r.stdout.strip() else \"RAM info N/A\"\n",
       "issue": "subprocess with shell=True (injection risk)"
     },
     "suggestion": {
-      "old": "    except ImportError:\n        import subprocess\n        r = subprocess.run('powershell -Command \"(Get-CimInstance Win32_OperatingSystem | Select-Object FreePhysicalMemory,TotalVisibleMemorySize | ForEach-Object { \\\"$([math]::Round(($(.TotalVisibleMemorySize - $.FreePhysicalMemory)/1MB,1))GB / $([math]::Round($(.TotalVisibleMemorySize/1MB,1))GB\\\") })\"', shell=True, capture_output=True, text=True, timeout=10)\n        return f\"RAM: {r.stdout.strip()}\" if r.stdout.strip() else \"RAM info N/A\"",
-      "new": "    except ImportError:\n        import subprocess\n        command = 'powershell -Command \"(Get-CimInstance Win32_OperatingSystem | Select-Object FreePhysicalMemory,TotalVisibleMemorySize | ForEach-Object { \\\"$([math]::Round(($(.TotalVisibleMemorySize - $.FreePhysicalMemory)/1MB,1))GB / $([math]::Round($(.TotalVisibleMemorySize/1MB,1))GB\\\") })\"'\n        r = subprocess.run(command, capture_output=True, text=True, timeout=10)\n        return f\"RAM: {r.stdout.strip()}\" if r.stdout.strip() else \"RAM info N/A\"",
+      "old": "    except ImportError:\n        import subprocess\n        r = subprocess.run('powershell -Command \"(Get-CimInstance Win32_OperatingSystem | Select-Object FreePhysicalMemory,TotalVisibleMemorySize | ForEach-Object { /\"$([math]::Round(($(.TotalVisibleMemorySize - $.FreePhysicalMemory)/1MB,1))GB / $([math]::Round($(.TotalVisibleMemorySize/1MB,1))GB/\") })\"', shell=True, capture_output=True, text=True, timeout=10)\n        return f\"RAM: {r.stdout.strip()}\" if r.stdout.strip() else \"RAM info N/A\"",
+      "new": "    except ImportError:\n        import subprocess\n        command = 'powershell -Command \"(Get-CimInstance Win32_OperatingSystem | Select-Object FreePhysicalMemory,TotalVisibleMemorySize | ForEach-Object { /\"$([math]::Round(($(.TotalVisibleMemorySize - $.FreePhysicalMemory)/1MB,1))GB / $([math]::Round($(.TotalVisibleMemorySize/1MB,1))GB/\") })\"'\n        r = subprocess.run(command, capture_output=True, text=True, timeout=10)\n        return f\"RAM: {r.stdout.strip()}\" if r.stdout.strip() else \"RAM info N/A\"",
       "action": "Utilisation de shell=False avec construction d'une commande sÃ©curisÃ©e pour Ã©viter l'injection"
     },
     "applied": false,
@@ -3425,12 +3425,12 @@
     "issue": {
       "file": "src/domino_executor.py",
       "line": 1290,
-      "context": "    import subprocess\n    try:\n        r = subprocess.run(\"git log --oneline -5\", shell=True, capture_output=True, text=True, timeout=5, cwd=\"F:/BUREAU/turbo\")\n        return r.stdout.strip() if r.stdout.strip() else \"No commits\"\n    except (subprocess.TimeoutExpired, OSError):",
+      "context": "    import subprocess\n    try:\n        r = subprocess.run(\"git log --oneline -5\", shell=True, capture_output=True, text=True, timeout=5, cwd=\"/home/turbo/jarvis-m1-ops\")\n        return r.stdout.strip() if r.stdout.strip() else \"No commits\"\n    except (subprocess.TimeoutExpired, OSError):",
       "issue": "subprocess with shell=True (injection risk)"
     },
     "suggestion": {
-      "old": "    import subprocess\n    try:\n        r = subprocess.run(\"git log --oneline -5\", shell=True, capture_output=True, text=True, timeout=5, cwd=\"F:/BUREAU/turbo\")\n        return r.stdout.strip() if r.stdout.strip() else \"No commits\"\n    except (subprocess.TimeoutExpired, OSError):",
-      "new": "    import subprocess\n    try:\n        r = subprocess.run(['git', 'log', '--oneline', '-5'], capture_output=True, text=True, timeout=5, cwd=\"F:/BUREAU/turbo\")\n        return r.stdout.strip() if r.stdout.strip() else \"No commits\"\n    except (subprocess.TimeoutExpired, OSError):",
+      "old": "    import subprocess\n    try:\n        r = subprocess.run(\"git log --oneline -5\", shell=True, capture_output=True, text=True, timeout=5, cwd=\"/home/turbo/jarvis-m1-ops\")\n        return r.stdout.strip() if r.stdout.strip() else \"No commits\"\n    except (subprocess.TimeoutExpired, OSError):",
+      "new": "    import subprocess\n    try:\n        r = subprocess.run(['git', 'log', '--oneline', '-5'], capture_output=True, text=True, timeout=5, cwd=\"/home/turbo/jarvis-m1-ops\")\n        return r.stdout.strip() if r.stdout.strip() else \"No commits\"\n    except (subprocess.TimeoutExpired, OSError):",
       "action": "Utilisation de la liste d'arguments au lieu de shell=True pour Ã©viter les risques d'injection"
     },
     "applied": true,
@@ -3609,7 +3609,7 @@
       "context": "\"\"\"JARVIS — Commandes pipeline multi-etapes (workflows pre-enregistres).\"\"\"\n\nfrom __future__ import annotations\n\nimport os\nfrom pathlib import Path\n\nfrom src.commands import JarvisCommand\nfrom src.con",
       "issue": "No logging in commands_pipelines.py (342434 bytes)"
     },
-    "suggestion_raw": "\n\n{\n  \"old\": '\"JARVIS â€” Commandes pipeline multi-etapes (workflows pre-enregistres).\"\\n\\nfrom __future__ import annotations\\n\\nimport os\\nfrom pathlib import Path\\n\\nfrom src.commands import JarvisC",
+    "suggestion_raw": "\n\n{\n  \"old\": '\"JARVIS â€” Commandes pipeline multi-etapes (workflows pre-enregistres).\"/n/nfrom __future__ import annotations/n/nimport os/nfrom pathlib import Path/n/nfrom src.commands import JarvisC",
     "duration_s": 4.8
   },
   {
@@ -3830,7 +3830,7 @@
       "context": "        \"\"\"Add intelligent caching for LM Studio queries.\"\"\"\n        # TODO: Implement LRU cache with TTL for LM queries\n        return {\"message\": \"LM caching optimization planned\", \"success\": False}\n    ",
       "issue": "TODO/FIXME: # TODO: Implement LRU cache with TTL for LM queries"
     },
-    "suggestion_raw": "\n\n{\n  \"old\": '        \"\"\"Add intelligent caching for LM Studio queries.\"\"\"\\n        # TODO: Implement LRU cache with TTL for LM queries\\n        return {\"message\": \"LM caching optimization planned\", \"",
+    "suggestion_raw": "\n\n{\n  \"old\": '        \"\"\"Add intelligent caching for LM Studio queries.\"\"\"/n        # TODO: Implement LRU cache with TTL for LM queries/n        return {\"message\": \"LM caching optimization planned\", \"",
     "duration_s": 4.6
   },
   {
@@ -3870,12 +3870,12 @@
     "issue": {
       "file": "src/domino_executor.py",
       "line": 1301,
-      "context": "    import subprocess\n    try:\n        r = subprocess.run(\"ls .github/workflows/*.yml 2>/dev/null | wc -l\", shell=True, capture_output=True, text=True, timeout=5, cwd=\"F:/BUREAU/turbo\")\n        count = r.stdout.strip()\n        return f\"GitHub workflows: {count}\"",
+      "context": "    import subprocess\n    try:\n        r = subprocess.run(\"ls .github/workflows/*.yml 2>/dev/null | wc -l\", shell=True, capture_output=True, text=True, timeout=5, cwd=\"/home/turbo/jarvis-m1-ops\")\n        count = r.stdout.strip()\n        return f\"GitHub workflows: {count}\"",
       "issue": "subprocess with shell=True (injection risk)"
     },
     "suggestion": {
-      "old": "    import subprocess\n    try:\n        r = subprocess.run(\"ls .github/workflows/*.yml 2>/dev/null | wc -l\", shell=True, capture_output=True, text=True, timeout=5, cwd=\"F:/BUREAU/turbo\")\n        count = r.stdout.strip()\n        return f\"GitHub workflows: {count}\"",
-      "new": "    import subprocess\n    try:\n        cmd = ['ls', '.github/workflows/*.yml', '2>/dev/null', '|', 'wc', '-l']\n        r = subprocess.run(cmd, capture_output=True, text=True, timeout=5, cwd=\"F:/BUREAU/turbo\")\n        count = r.stdout.strip()\n        return f\"GitHub workflows: {count}\"",
+      "old": "    import subprocess\n    try:\n        r = subprocess.run(\"ls .github/workflows/*.yml 2>/dev/null | wc -l\", shell=True, capture_output=True, text=True, timeout=5, cwd=\"/home/turbo/jarvis-m1-ops\")\n        count = r.stdout.strip()\n        return f\"GitHub workflows: {count}\"",
+      "new": "    import subprocess\n    try:\n        cmd = ['ls', '.github/workflows/*.yml', '2>/dev/null', '|', 'wc', '-l']\n        r = subprocess.run(cmd, capture_output=True, text=True, timeout=5, cwd=\"/home/turbo/jarvis-m1-ops\")\n        count = r.stdout.strip()\n        return f\"GitHub workflows: {count}\"",
       "action": "Remplacer shell=True par une liste de commandes pour Ã©viter les risques d'injection"
     },
     "applied": true,
@@ -4054,7 +4054,7 @@
       "context": "\"\"\"Config Vault — Secure secrets storage with namespaces, TTL, and access audit.\"\"\"\n\nfrom __future__ import annotations\n\nimport base64\nimport hashlib\nimport json\nimport time\nfrom dataclasses import da",
       "issue": "No logging in config_vault.py (7349 bytes)"
     },
-    "suggestion_raw": "\n\n{\n  \"old\": '\"Config Vault â€” Secure secrets storage with namespaces, TTL, and access audit.\"\\n\\nfrom __future__ import annotations\\n\\nimport base64\\nimport hashlib\\nimport json\\nimport time\\nfrom d",
+    "suggestion_raw": "\n\n{\n  \"old\": '\"Config Vault â€” Secure secrets storage with namespaces, TTL, and access audit.\"/n/nfrom __future__ import annotations/n/nimport base64/nimport hashlib/nimport json/nimport time/nfrom d",
     "duration_s": 4.9
   },
   {
@@ -4275,7 +4275,7 @@
       "context": "        \"\"\"Add Whisper integration for voice commands.\"\"\"\n        # TODO: Integrate faster-whisper for local STT\n        return {\"message\": \"Voice pipeline in development\", \"success\": False}\n    ",
       "issue": "TODO/FIXME: # TODO: Integrate faster-whisper for local STT"
     },
-    "suggestion_raw": "\n\n{\n  \"old\": '        \"\"\"Add Whisper integration for voice commands.\"\"\"\\n        # TODO: Integrate faster-whisper for local STT\\n        return {\"message\": \"Voice pipeline in development\", \"success\": ",
+    "suggestion_raw": "\n\n{\n  \"old\": '        \"\"\"Add Whisper integration for voice commands.\"\"\"/n        # TODO: Integrate faster-whisper for local STT/n        return {\"message\": \"Voice pipeline in development\", \"success\": ",
     "duration_s": 4.7
   },
   {

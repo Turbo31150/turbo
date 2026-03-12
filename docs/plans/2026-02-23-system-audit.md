@@ -28,7 +28,7 @@ Create `test_system_audit.py` — standalone async test (same pattern as existin
 
 **Step 2: Run test — expect ImportError (module does not exist yet)**
 
-Run: `cd F:/BUREAU/turbo && uv run python test_system_audit.py`
+Run: `cd /home/turbo/jarvis-m1-ops && uv run python test_system_audit.py`
 Expected: FAIL — ModuleNotFoundError
 
 **Step 3: Create `scripts/system_audit.py` with 3 async functions**
@@ -41,7 +41,7 @@ All return dicts with: name, url, role, status (ONLINE/OFFLINE/TIMEOUT), latency
 
 **Step 4: Run test**
 
-Run: `cd F:/BUREAU/turbo && uv run python test_system_audit.py`
+Run: `cd /home/turbo/jarvis-m1-ops && uv run python test_system_audit.py`
 Expected: PASS (at least 2/3 if M2 and OL1 are up)
 
 **Step 5: Commit**
@@ -156,7 +156,7 @@ Expected: PASS (8/8)
 
 **Step 5: Run the actual CLI**
 
-Run: `cd F:/BUREAU/turbo && uv run python scripts/system_audit.py`
+Run: `cd /home/turbo/jarvis-m1-ops && uv run python scripts/system_audit.py`
 Expected: Full 10-section report
 
 **Step 6: Commit**
@@ -191,7 +191,7 @@ Two new JarvisCommand entries in systeme category:
 
 **Step 4: Run CLI audit end-to-end**
 
-Run: `cd F:/BUREAU/turbo && uv run python scripts/system_audit.py --save`
+Run: `cd /home/turbo/jarvis-m1-ops && uv run python scripts/system_audit.py --save`
 Expected: Full report + JSON saved
 
 **Step 5: Commit**
@@ -206,7 +206,7 @@ git commit -m "feat(audit): integrate as MCP tool + voice commands"
 
 **Step 1: Run full test suite**
 
-Run: `cd F:/BUREAU/turbo && uv run python test_system_audit.py`
+Run: `cd /home/turbo/jarvis-m1-ops && uv run python test_system_audit.py`
 Expected: 8/8 PASS
 
 **Step 2: Run CLI with all modes**

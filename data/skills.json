@@ -2136,7 +2136,7 @@
       {
         "tool": "powershell_run",
         "args": {
-          "command": "Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"
+          "command": "Remove-Item $env:TEMP/* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"
         },
         "description": "Vider temp",
         "wait_for_result": true
@@ -2336,7 +2336,7 @@
       {
         "tool": "powershell_run",
         "args": {
-          "command": "Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"
+          "command": "Remove-Item $env:TEMP/* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"
         },
         "description": "Vider temp",
         "wait_for_result": true
@@ -2500,7 +2500,7 @@
       {
         "tool": "powershell_run",
         "args": {
-          "command": "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'AppsUseLightTheme' -Value 0; Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'SystemUsesLightTheme' -Value 0; 'Mode sombre active'"
+          "command": "Set-ItemProperty -Path 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Themes/Personalize' -Name 'AppsUseLightTheme' -Value 0; Set-ItemProperty -Path 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Themes/Personalize' -Name 'SystemUsesLightTheme' -Value 0; 'Mode sombre active'"
         },
         "description": "Mode sombre",
         "wait_for_result": true
@@ -2556,7 +2556,7 @@
       {
         "tool": "powershell_run",
         "args": {
-          "command": "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'AppsUseLightTheme' -Value 1; Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'SystemUsesLightTheme' -Value 1; 'Mode clair active'"
+          "command": "Set-ItemProperty -Path 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Themes/Personalize' -Name 'AppsUseLightTheme' -Value 1; Set-ItemProperty -Path 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Themes/Personalize' -Name 'SystemUsesLightTheme' -Value 1; 'Mode clair active'"
         },
         "description": "Mode clair",
         "wait_for_result": true
@@ -2826,7 +2826,7 @@
       {
         "tool": "powershell_run",
         "args": {
-          "command": "cd F:\\BUREAU\\turbo; git status"
+          "command": "cd F:/BUREAU/turbo; git status"
         },
         "description": "Git status",
         "wait_for_result": true
@@ -2834,7 +2834,7 @@
       {
         "tool": "powershell_run",
         "args": {
-          "command": "cd F:\\BUREAU\\turbo; git diff --stat | Out-String"
+          "command": "cd F:/BUREAU/turbo; git diff --stat | Out-String"
         },
         "description": "Git diff",
         "wait_for_result": true
@@ -2842,7 +2842,7 @@
       {
         "tool": "powershell_run",
         "args": {
-          "command": "cd F:\\BUREAU\\turbo; git log --oneline -5 | Out-String"
+          "command": "cd F:/BUREAU/turbo; git log --oneline -5 | Out-String"
         },
         "description": "Log recent",
         "wait_for_result": true
@@ -3053,7 +3053,7 @@
       {
         "tool": "powershell_run",
         "args": {
-          "command": "Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"
+          "command": "Remove-Item $env:TEMP/* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"
         },
         "description": "Vider temp",
         "wait_for_result": true
@@ -3420,7 +3420,7 @@
       {
         "tool": "powershell_run",
         "args": {
-          "command": "powercfg /batteryreport /output $env:TEMP\\battery.html 2>$null; 'Rapport genere dans Temp'"
+          "command": "powercfg /batteryreport /output $env:TEMP/battery.html 2>$null; 'Rapport genere dans Temp'"
         },
         "description": "Rapport batterie",
         "wait_for_result": true
@@ -3772,7 +3772,7 @@
       {
         "tool": "powershell_run",
         "args": {
-          "command": "Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"
+          "command": "Remove-Item $env:TEMP/* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"
         },
         "description": "Vider temp",
         "wait_for_result": true
@@ -3824,7 +3824,7 @@
       {
         "tool": "powershell_run",
         "args": {
-          "command": "cd F:\\BUREAU\\turbo; git status --short | Out-String"
+          "command": "cd F:/BUREAU/turbo; git status --short | Out-String"
         },
         "description": "Git status",
         "wait_for_result": true
@@ -3832,7 +3832,7 @@
       {
         "tool": "powershell_run",
         "args": {
-          "command": "$ts = Get-Date -Format 'yyyyMMdd_HHmm'; Compress-Archive -Path 'F:\\BUREAU\\turbo\\src' -DestinationPath \"F:\\BUREAU\\turbo_backup_$ts.zip\" -Force; \"Backup: turbo_backup_$ts.zip\""
+          "command": "$ts = Get-Date -Format 'yyyyMMdd_HHmm'; Compress-Archive -Path 'F:/BUREAU/turbo/src' -DestinationPath \"F:/BUREAU/turbo_backup_$ts.zip\" -Force; \"Backup: turbo_backup_$ts.zip\""
         },
         "description": "Compression",
         "wait_for_result": true
@@ -3868,7 +3868,7 @@
       {
         "tool": "powershell_run",
         "args": {
-          "command": "$py = Get-ChildItem 'F:\\BUREAU\\turbo\\src' -Filter '*.py' -Recurse; \"$($py.Count) fichiers Python\""
+          "command": "$py = Get-ChildItem 'F:/BUREAU/turbo/src' -Filter '*.py' -Recurse; \"$($py.Count) fichiers Python\""
         },
         "description": "Fichiers Python",
         "wait_for_result": true
@@ -3876,7 +3876,7 @@
       {
         "tool": "powershell_run",
         "args": {
-          "command": "$lines = (Get-ChildItem 'F:\\BUREAU\\turbo\\src' -Filter '*.py' -Recurse | Get-Content | Measure-Object -Line).Lines; \"$lines lignes de code\""
+          "command": "$lines = (Get-ChildItem 'F:/BUREAU/turbo/src' -Filter '*.py' -Recurse | Get-Content | Measure-Object -Line).Lines; \"$lines lignes de code\""
         },
         "description": "Lignes de code",
         "wait_for_result": true
@@ -3884,7 +3884,7 @@
       {
         "tool": "powershell_run",
         "args": {
-          "command": "$s = (Get-ChildItem 'F:\\BUREAU\\turbo\\src' -Recurse -File | Measure-Object Length -Sum).Sum / 1KB; \"Taille src: $([math]::Round($s,1)) KB\""
+          "command": "$s = (Get-ChildItem 'F:/BUREAU/turbo/src' -Recurse -File | Measure-Object Length -Sum).Sum / 1KB; \"Taille src: $([math]::Round($s,1)) KB\""
         },
         "description": "Taille",
         "wait_for_result": true
@@ -4058,7 +4058,7 @@
       {
         "tool": "powershell_run",
         "args": {
-          "command": "Get-Counter -Counter '\\Processor(_Total)\\% Processor Time' | Select-Object -ExpandProperty CounterSamples | Select-Object CookedValue"
+          "command": "Get-Counter -Counter '/Processor(_Total)/% Processor Time' | Select-Object -ExpandProperty CounterSamples | Select-Object CookedValue"
         },
         "description": "Evaluer charge systeme",
         "wait_for_result": true
@@ -4227,7 +4227,7 @@
       {
         "tool": "powershell_run",
         "args": {
-          "command": "Get-FileHash -Path 'M1_PATH\\*' | Compare-Object -ReferenceObject (Get-FileHash -Path 'M2_PATH\\*')"
+          "command": "Get-FileHash -Path 'M1_PATH/*' | Compare-Object -ReferenceObject (Get-FileHash -Path 'M2_PATH/*')"
         },
         "description": "Verifier les hashes",
         "wait_for_result": true

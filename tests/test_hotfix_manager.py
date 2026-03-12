@@ -23,9 +23,9 @@ from src.hotfix_manager import (
 
 HOTFIXES_JSON = json.dumps([
     {"HotFixID": "KB5034441", "Description": "Security Update",
-     "InstalledOn": "2026-02-15", "InstalledBy": "NT AUTHORITY\\SYSTEM"},
+     "InstalledOn": "2026-02-15", "InstalledBy": "NT AUTHORITY/SYSTEM"},
     {"HotFixID": "KB5035853", "Description": "Update",
-     "InstalledOn": "2026-03-01", "InstalledBy": "NT AUTHORITY\\SYSTEM"},
+     "InstalledOn": "2026-03-01", "InstalledBy": "NT AUTHORITY/SYSTEM"},
     {"HotFixID": "KB5032392", "Description": "Security Update",
      "InstalledOn": {"DateTime": "2026-01-10"}, "InstalledBy": ""},
 ])

@@ -227,7 +227,7 @@
      "ouvre le bureau",
      "ouvrir le bureau"
     ],
-    "action": "Start-Process explorer.exe -ArgumentList 'F:\\BUREAU'"
+    "action": "Start-Process explorer.exe -ArgumentList 'F:/BUREAU'"
    },
    {
     "name": "ouvrir_dossier",
@@ -243,7 +243,7 @@
      "ouvre les telechargements",
      "ouvre mes telechargements"
     ],
-    "action": "Start-Process explorer.exe -ArgumentList ([Environment]::GetFolderPath('UserProfile') + '\\Downloads')"
+    "action": "Start-Process explorer.exe -ArgumentList ([Environment]::GetFolderPath('UserProfile') + '/Downloads')"
    },
    {
     "name": "ouvrir_images",
@@ -267,7 +267,7 @@
      "ouvre mes projets",
      "va dans les projets"
     ],
-    "action": "Start-Process explorer.exe -ArgumentList 'F:\\BUREAU\\turbo'"
+    "action": "Start-Process explorer.exe -ArgumentList 'F:/BUREAU/turbo'"
    },
    {
     "name": "ouvrir_explorateur",
@@ -459,7 +459,7 @@
      "dossier captures",
      "ouvre les captures"
     ],
-    "action": "Start-Process ([Environment]::GetFolderPath('MyPictures') + '\\Screenshots')"
+    "action": "Start-Process ([Environment]::GetFolderPath('MyPictures') + '/Screenshots')"
    }
   ],
   "app": [
@@ -1533,7 +1533,7 @@
      "ne pas deranger",
      "focus assist"
     ],
-    "action": "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Notifications\\Settings' -Name 'NOC_GLOBAL_SETTING_ALLOW_NOTIFICATION_SOUND' -Value 0; 'Focus Assist active'"
+    "action": "Set-ItemProperty -Path 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Notifications/Settings' -Name 'NOC_GLOBAL_SETTING_ALLOW_NOTIFICATION_SOUND' -Value 0; 'Focus Assist active'"
    },
    {
     "name": "focus_assist_off",
@@ -1541,7 +1541,7 @@
      "desactive ne pas deranger",
      "reactive les notifications"
     ],
-    "action": "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Notifications\\Settings' -Name 'NOC_GLOBAL_SETTING_ALLOW_NOTIFICATION_SOUND' -Value 1; 'Focus Assist desactive'"
+    "action": "Set-ItemProperty -Path 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Notifications/Settings' -Name 'NOC_GLOBAL_SETTING_ALLOW_NOTIFICATION_SOUND' -Value 1; 'Focus Assist desactive'"
    },
    {
     "name": "taskbar_hide",
@@ -1549,7 +1549,7 @@
      "cache la barre des taches",
      "masque la taskbar"
     ],
-    "action": "$p = 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StuckRects3'; $v = (Get-ItemProperty -Path $p).Settings; $v[8] = 3; Set-ItemProperty -Path $p -Name Settings -Value $v; Stop-Process -Name explorer -Force; 'Taskbar masquee'"
+    "action": "$p = 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Explorer/StuckRects3'; $v = (Get-ItemProperty -Path $p).Settings; $v[8] = 3; Set-ItemProperty -Path $p -Name Settings -Value $v; Stop-Process -Name explorer -Force; 'Taskbar masquee'"
    },
    {
     "name": "taskbar_show",
@@ -1557,7 +1557,7 @@
      "montre la barre des taches",
      "affiche la taskbar"
     ],
-    "action": "$p = 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StuckRects3'; $v = (Get-ItemProperty -Path $p).Settings; $v[8] = 2; Set-ItemProperty -Path $p -Name Settings -Value $v; Stop-Process -Name explorer -Force; 'Taskbar affichee'"
+    "action": "$p = 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Explorer/StuckRects3'; $v = (Get-ItemProperty -Path $p).Settings; $v[8] = 2; Set-ItemProperty -Path $p -Name Settings -Value $v; Stop-Process -Name explorer -Force; 'Taskbar affichee'"
    },
    {
     "name": "night_light_on",
@@ -1565,7 +1565,7 @@
      "active la lumiere nocturne",
      "night light on"
     ],
-    "action": "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\CloudStore\\Store\\DefaultAccount\\Current\\default$windows.data.bluelightreduction.settings\\windows.data.bluelightreduction.settings' -Name 'Data' -Value ([byte[]](2,0,0,0,0x38,0,0,0,2,1,0xCA,0x14,0x0E,0x15,0,0,0,0x2A,6,0xFE,0xD2,0xB3,0xA5,0x04,0,0,0x43,0x42,1,0)); 'Night Light active'"
+    "action": "Set-ItemProperty -Path 'HKCU:/Software/Microsoft/Windows/CurrentVersion/CloudStore/Store/DefaultAccount/Current/default$windows.data.bluelightreduction.settings/windows.data.bluelightreduction.settings' -Name 'Data' -Value ([byte[]](2,0,0,0,0x38,0,0,0,2,1,0xCA,0x14,0x0E,0x15,0,0,0,0x2A,6,0xFE,0xD2,0xB3,0xA5,0x04,0,0,0x43,0x42,1,0)); 'Night Light active'"
    },
    {
     "name": "night_light_off",
@@ -1573,7 +1573,7 @@
      "desactive la lumiere nocturne",
      "night light off"
     ],
-    "action": "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\CloudStore\\Store\\DefaultAccount\\Current\\default$windows.data.bluelightreduction.settings\\windows.data.bluelightreduction.settings' -Name 'Data' -Value ([byte[]](2,0,0,0,0x38,0,0,0,0,1,0xCA,0x14,0x0E,0x15,0,0,0,0x2A,6,0xFE,0xD2,0xB3,0xA5,0x04,0,0,0x43,0x42,1,0)); 'Night Light desactive'"
+    "action": "Set-ItemProperty -Path 'HKCU:/Software/Microsoft/Windows/CurrentVersion/CloudStore/Store/DefaultAccount/Current/default$windows.data.bluelightreduction.settings/windows.data.bluelightreduction.settings' -Name 'Data' -Value ([byte[]](2,0,0,0,0x38,0,0,0,0,1,0xCA,0x14,0x0E,0x15,0,0,0,0x2A,6,0xFE,0xD2,0xB3,0xA5,0x04,0,0,0x43,0x42,1,0)); 'Night Light desactive'"
    },
    {
     "name": "info_disques",
@@ -1589,7 +1589,7 @@
      "vide les fichiers temporaires",
      "nettoie les temp"
     ],
-    "action": "$before = (Get-ChildItem $env:TEMP -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum / 1MB; Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; $after = (Get-ChildItem $env:TEMP -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum / 1MB; \"Temp nettoye: $([math]::Round($before - $after, 1)) MB liberes\""
+    "action": "$before = (Get-ChildItem $env:TEMP -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum / 1MB; Remove-Item $env:TEMP/* -Recurse -Force -ErrorAction SilentlyContinue; $after = (Get-ChildItem $env:TEMP -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum / 1MB; \"Temp nettoye: $([math]::Round($before - $after, 1)) MB liberes\""
    },
    {
     "name": "ouvrir_alarmes",
@@ -1853,7 +1853,7 @@
      "active le mode sombre",
      "dark mode on"
     ],
-    "action": "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'AppsUseLightTheme' -Value 0; Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'SystemUsesLightTheme' -Value 0; 'Mode sombre active'"
+    "action": "Set-ItemProperty -Path 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Themes/Personalize' -Name 'AppsUseLightTheme' -Value 0; Set-ItemProperty -Path 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Themes/Personalize' -Name 'SystemUsesLightTheme' -Value 0; 'Mode sombre active'"
    },
    {
     "name": "mode_clair",
@@ -1861,7 +1861,7 @@
      "active le mode clair",
      "light mode on"
     ],
-    "action": "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'AppsUseLightTheme' -Value 1; Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'SystemUsesLightTheme' -Value 1; 'Mode clair active'"
+    "action": "Set-ItemProperty -Path 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Themes/Personalize' -Name 'AppsUseLightTheme' -Value 1; Set-ItemProperty -Path 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Themes/Personalize' -Name 'SystemUsesLightTheme' -Value 1; 'Mode clair active'"
    },
    {
     "name": "param_son_avance",
@@ -2109,7 +2109,7 @@
      "recherche partout {terme}",
      "cherche partout {terme}"
     ],
-    "action": "Get-ChildItem -Path C:\\ -Recurse -Filter '*{terme}*' -ErrorAction SilentlyContinue | Select -First 20 FullName | Out-String"
+    "action": "Get-ChildItem -Path /\ -Recurse -Filter '*{terme}*' -ErrorAction SilentlyContinue | Select -First 20 FullName | Out-String"
    },
    {
     "name": "tache_planifier",
@@ -2309,7 +2309,7 @@
      "version de windows",
      "quelle version windows"
     ],
-    "action": "[System.Environment]::OSVersion.VersionString + ' - Build ' + (Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion').DisplayVersion"
+    "action": "[System.Environment]::OSVersion.VersionString + ' - Build ' + (Get-ItemProperty 'HKLM:/SOFTWARE/Microsoft/Windows NT/CurrentVersion').DisplayVersion"
    },
    {
     "name": "dns_changer_google",
@@ -2597,7 +2597,7 @@
      "rapport batterie",
      "battery report"
     ],
-    "action": "powercfg /batteryreport /output $env:USERPROFILE\\Desktop\\battery_report.html; Start-Process $env:USERPROFILE\\Desktop\\battery_report.html; 'Rapport genere sur le Bureau'"
+    "action": "powercfg /batteryreport /output $env:USERPROFILE/Desktop/battery_report.html; Start-Process $env:USERPROFILE/Desktop/battery_report.html; 'Rapport genere sur le Bureau'"
    },
    {
     "name": "ecran_timeout",
@@ -2613,7 +2613,7 @@
      "detecte les ecrans",
      "detect displays"
     ],
-    "action": "Get-CimInstance -Namespace root\\wmi -ClassName WmiMonitorBasicDisplayParams | Select InstanceName, Active | Out-String"
+    "action": "Get-CimInstance -Namespace root/wmi -ClassName WmiMonitorBasicDisplayParams | Select InstanceName, Active | Out-String"
    },
    {
     "name": "param_affichage",
@@ -2741,7 +2741,7 @@
      "montre le fichier hosts",
      "affiche hosts"
     ],
-    "action": "Get-Content C:\\Windows\\System32\\drivers\\etc\\hosts"
+    "action": "Get-Content /\Windows/System32/drivers/etc/hosts"
    },
    {
     "name": "dxdiag",
@@ -3087,7 +3087,7 @@
      "git status",
      "statut git"
     ],
-    "action": "cd F:\\BUREAU\\turbo; git status"
+    "action": "cd F:/BUREAU/turbo; git status"
    },
    {
     "name": "git_log",
@@ -3095,7 +3095,7 @@
      "git log",
      "historique git"
     ],
-    "action": "cd F:\\BUREAU\\turbo; git log --oneline -10"
+    "action": "cd F:/BUREAU/turbo; git log --oneline -10"
    },
    {
     "name": "git_pull",
@@ -3103,7 +3103,7 @@
      "git pull",
      "tire les changements"
     ],
-    "action": "cd F:\\BUREAU\\turbo; git pull origin main"
+    "action": "cd F:/BUREAU/turbo; git pull origin main"
    },
    {
     "name": "git_push",
@@ -3111,7 +3111,7 @@
      "git push",
      "pousse les commits"
     ],
-    "action": "cd F:\\BUREAU\\turbo; git push origin main"
+    "action": "cd F:/BUREAU/turbo; git push origin main"
    },
    {
     "name": "pip_list",
@@ -3119,7 +3119,7 @@
      "pip list",
      "packages python"
     ],
-    "action": "& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run --directory F:\\BUREAU\\turbo pip list | Out-String"
+    "action": "& '/\Users/franc/.local/bin/uv.exe' run --directory F:/BUREAU/turbo pip list | Out-String"
    },
    {
     "name": "python_version",
@@ -3127,7 +3127,7 @@
      "version python",
      "quelle version python"
     ],
-    "action": "& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run --directory F:\\BUREAU\\turbo python --version; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' --version"
+    "action": "& '/\Users/franc/.local/bin/uv.exe' run --directory F:/BUREAU/turbo python --version; & '/\Users/franc/.local/bin/uv.exe' --version"
    },
    {
     "name": "ouvrir_n8n",
@@ -3185,7 +3185,7 @@
      "historique des commandes",
      "quelles commandes j'ai utilise"
     ],
-    "action": "if (Test-Path 'F:\\BUREAU\\turbo\\data\\action_history.json') { Get-Content 'F:\\BUREAU\\turbo\\data\\action_history.json' | ConvertFrom-Json | Select -Last 10 | Out-String } else { 'Aucun historique' }"
+    "action": "if (Test-Path 'F:/BUREAU/turbo/data/action_history.json') { Get-Content 'F:/BUREAU/turbo/data/action_history.json' | ConvertFrom-Json | Select -Last 10 | Out-String } else { 'Aucun historique' }"
    },
    {
     "name": "jarvis_aide",

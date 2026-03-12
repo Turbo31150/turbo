@@ -58,7 +58,7 @@ MIN_VOL_24H = 500_000
 TP_MULT = 1.5
 SL_MULT = 1.0
 MIN_SCORE = 40
-DB_PATH = Path("F:/BUREAU/turbo/data/sniper.db")
+DB_PATH = Path("/home/turbo/jarvis-m1-ops/data/sniper.db")
 
 
 @dataclass
@@ -923,7 +923,7 @@ LM_OL1 = {"url": "http://127.0.0.1:11434/api/chat", "model": "qwen3:1.7b", "name
 # Cloud champions via Ollama
 OL_GPT_OSS = {"url": "http://127.0.0.1:11434/api/chat", "model": "gpt-oss:120b-cloud", "name": "gpt-oss/120b"}
 OL_DEVSTRAL = {"url": "http://127.0.0.1:11434/api/chat", "model": "devstral-2:123b-cloud", "name": "devstral/123b"}
-GEMINI_PROXY = "F:/BUREAU/turbo/gemini-proxy.js"
+GEMINI_PROXY = "/home/turbo/jarvis-m1-ops/gemini-proxy.js"
 
 
 async def ai_query_lmstudio(client, node, prompt, timeout=15):

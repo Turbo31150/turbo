@@ -247,7 +247,7 @@ class CoworkOrchestrator:
                 Design (if available): {result['phases'].get('design', 'N/A')}
                 
                 Write complete, production-ready Python code.
-                Use F:/BUREAU/turbo/src/ as base path.
+                Use /home/turbo/jarvis-m1-ops/src/ as base path.
                 Follow existing code style and patterns.
                 """
             )
@@ -384,7 +384,7 @@ class CoworkOrchestrator:
         """Extract file paths from code implementation response."""
         # Simplified - would parse markdown code blocks and extract paths
         import re
-        paths = re.findall(r'F:/BUREAU/turbo/src/[\w_/]+\.py', code_response)
+        paths = re.findall(r'/home/turbo/jarvis-m1-ops/src/[\w_/]+\.py', code_response)
         return list(set(paths))
 
     def _extract_review_score(self, review_response: str) -> float:

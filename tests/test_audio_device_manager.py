@@ -23,9 +23,9 @@ from src.audio_device_manager import (
 
 DEVICES_JSON = json.dumps([
     {"Name": "NVIDIA High Definition Audio", "Manufacturer": "NVIDIA",
-     "Status": "OK", "DeviceID": "HDAUDIO\\FUNC_01"},
+     "Status": "OK", "DeviceID": "HDAUDIO/FUNC_01"},
     {"Name": "Realtek High Definition Audio", "Manufacturer": "Realtek",
-     "Status": "OK", "DeviceID": "HDAUDIO\\FUNC_02"},
+     "Status": "OK", "DeviceID": "HDAUDIO/FUNC_02"},
 ])
 
 

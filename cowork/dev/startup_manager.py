@@ -22,7 +22,7 @@ if os.name == "nt":
     import winreg
 
 REG_RUN_PATH = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
-STARTUP_FOLDER = os.path.expandvars(r"%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup")
+STARTUP_FOLDER = os.path.expandvars(r"%APPDATA%/Microsoft/Windows/Start Menu/Programs/Startup")
 
 def get_registry_entries():
     entries = []

@@ -38,7 +38,7 @@ class AutoFixer:
     """Automated code improvement engine."""
 
     def __init__(self, project_root: Path | None = None):
-        self._root = project_root or Path("F:/BUREAU/turbo")
+        self._root = project_root or Path("/home/turbo/jarvis-m1-ops")
         self._auditor = AutoAuditor(self._root)
         self._tracker = CodeImprovementTracker()
         self._fixes: list[FixResult] = []

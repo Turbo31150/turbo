@@ -89,7 +89,7 @@ FLUX D'UTILISATION
 ================================================================================
 
 ÉTAPE 1: VÉRIFICATION (1 min)
-  cd F:\BUREAU\turbo
+  cd /home/turbo/jarvis-m1-ops
   uv run python finetuning/check_setup.py
   → Résultat: "OK CONFIGURATION OK"
 
@@ -218,7 +218,7 @@ MODÈLE DE BASE:
 
 MODÈLE FINE-TUNÉ:
   Type: LoRA adapters
-  Chemin: F:/BUREAU/turbo/finetuning/output/*/final/
+  Chemin: /home/turbo/jarvis-m1-ops/finetuning/output/*/final/
   Détection: Automatique (dernier dossier)
   Fichiers: adapter_config.json + adapter_model.bin
   Fallback: Si absent, benchmark utilise modèle base seul
@@ -227,7 +227,7 @@ MODÈLE FINE-TUNÉ:
 STRUCTURE DU RÉPERTOIRE
 ================================================================================
 
-F:\BUREAU\turbo\finetuning\
+/home/turbo/jarvis-m1-ops\finetuning\
 ├── benchmark.py                 ← Script principal
 ├── analyze_results.py           ← Analyseur
 ├── check_setup.py              ← Vérification
@@ -291,7 +291,7 @@ PROBLÈME: Import error (transformers, peft, etc.)
 
 PROBLÈME: LoRA adapter non trouvé
   SOLUTION:
-    - Vérifier chemin: F:/BUREAU/turbo/finetuning/output/*/final/
+    - Vérifier chemin: /home/turbo/jarvis-m1-ops/finetuning/output/*/final/
     - Vérifier: adapter_config.json existe
 
 PROBLÈME: Benchmark très lent
@@ -328,7 +328,7 @@ COMMANDES RAPIDES
 ================================================================================
 
 # Vérifier configuration
-cd F:\BUREAU\turbo
+cd /home/turbo/jarvis-m1-ops
 uv run python finetuning/check_setup.py
 
 # Test rapide
@@ -347,7 +347,7 @@ type finetuning\QUICKSTART.txt
 type finetuning\benchmark_report.txt
 
 # Double-clic launcher
-F:\BUREAU\turbo\finetuning\run_benchmark.bat
+/home/turbo/jarvis-m1-ops\finetuning\run_benchmark.bat
 
 ================================================================================
 CAPACITÉS COMPLÈTES
@@ -401,21 +401,21 @@ COMMENCER MAINTENANT
 ================================================================================
 
 Option 1 - Ligne de commande:
-  cd F:\BUREAU\turbo
+  cd /home/turbo/jarvis-m1-ops
   uv run python finetuning/check_setup.py
 
 Option 2 - Double-clic:
-  F:\BUREAU\turbo\finetuning\run_benchmark.bat
+  /home/turbo/jarvis-m1-ops\finetuning\run_benchmark.bat
 
 Option 3 - Documentation:
-  Lire: F:\BUREAU\turbo\finetuning\QUICKSTART.txt
+  Lire: /home/turbo/jarvis-m1-ops\finetuning\QUICKSTART.txt
 
 ================================================================================
 
 Fin du résumé.
 
 Pour plus d'informations, consulter les fichiers .md dans le répertoire
-F:\BUREAU\turbo\finetuning\
+/home/turbo/jarvis-m1-ops\finetuning\
 
 Prêt? Lancez: uv run python finetuning/check_setup.py
 

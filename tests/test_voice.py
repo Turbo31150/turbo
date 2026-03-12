@@ -77,16 +77,16 @@ class TestFindSystemPython:
         assert isinstance(result, Path)
 
     def test_finds_via_which(self):
-        with patch("shutil.which", return_value="C:\\Python313\\python.exe"):
+        with patch("shutil.which", return_value="/\Python313/python.exe"):
             result = _find_system_python()
         assert "python" in str(result).lower()
 
     def test_skips_venv(self):
         def fake_which(name):
             if name == "python3":
-                return "C:\\project\\.venv\\Scripts\\python.exe"
+                return "/\project/.venv/Scripts/python.exe"
             if name == "python":
-                return "C:\\Python313\\python.exe"
+                return "/\Python313/python.exe"
             return None
         with patch("shutil.which", side_effect=fake_which):
             result = _find_system_python()
@@ -140,7 +140,7 @@ class TestWhisperWorker:
 
     def test_start_missing_files(self):
         w = WhisperWorker()
-        with patch("src.voice.SYSTEM_PYTHON", Path("C:\\nonexistent\\python.exe")):
+        with patch("src.voice.SYSTEM_PYTHON", Path("/\nonexistent/python.exe")):
             assert w.start() is False
 
     def test_start_success(self):

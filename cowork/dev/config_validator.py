@@ -110,9 +110,9 @@ def check_disk() -> Dict[str, Any]:
     """Vérifie l'espace disque."""
     import shutil
     issues = []
-    drives = ["C:\\"]
-    if os.path.isdir("F:\\"):
-        drives.append("F:\\")
+    drives = ["/\"]
+    if os.path.isdir("F:/"):
+        drives.append("F:/")
 
     ok = 0
     for d in drives:

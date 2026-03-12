@@ -90,7 +90,7 @@ def list_restore_points():
 # ---------------------------------------------------------------------------
 def show_info():
     # Protection status
-    status = ps("Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SystemRestore' -Name RPSessionInterval -ErrorAction SilentlyContinue | Select-Object -ExpandProperty RPSessionInterval")
+    status = ps("Get-ItemProperty 'HKLM:/SOFTWARE/Microsoft/Windows NT/CurrentVersion/SystemRestore' -Name RPSessionInterval -ErrorAction SilentlyContinue | Select-Object -ExpandProperty RPSessionInterval")
     enabled = ps("(Get-ComputerRestorePoint -ErrorAction SilentlyContinue) -ne $null")
 
     # Disk usage
@@ -99,7 +99,7 @@ def show_info():
     print("=== Restauration système Windows ===")
 
     # Check if protection is enabled
-    protection = ps("Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SystemRestore' -ErrorAction SilentlyContinue | Select-Object RPSessionInterval,DisableSR | ConvertTo-Json -Compress")
+    protection = ps("Get-ItemProperty 'HKLM:/SOFTWARE/Microsoft/Windows NT/CurrentVersion/SystemRestore' -ErrorAction SilentlyContinue | Select-Object RPSessionInterval,DisableSR | ConvertTo-Json -Compress")
     if protection:
         try:
             data = json.loads(protection)

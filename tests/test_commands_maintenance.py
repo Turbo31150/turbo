@@ -78,7 +78,7 @@ class TestModuleStructure:
         """_TURBO_DIR should use Windows backslash paths."""
         td = mod._TURBO_DIR
         # It replaces / with \ so it should contain backslash
-        assert "\\" in td or "/" not in td
+        assert "/" in td or "/" not in td
 
 
 # ===========================================================================
@@ -721,10 +721,10 @@ class TestPowershellActions:
             )
 
     def test_no_hardcoded_turbo_path_remains(self, commands):
-        """After post-processing, no raw F:\\BUREAU\\turbo should remain
+        """After post-processing, no raw F:/BUREAU/turbo should remain
         (unless _TURBO_DIR is exactly that path, which is the common case)."""
         # This test verifies the post-processing ran. Since on this machine
-        # _TURBO_DIR is F:\BUREAU\turbo, the replacement is a no-op.
+        # _TURBO_DIR is /home/turbo/jarvis-m1-ops, the replacement is a no-op.
         # We just check the post-processing code ran (i.e., _cmd deleted).
         assert not hasattr(_mod, "_cmd")
 

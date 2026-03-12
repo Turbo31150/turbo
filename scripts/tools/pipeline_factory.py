@@ -58,19 +58,19 @@ def gen_pipelines():
 
     # ── DEVOPS (50 pipelines) ──
     devops = [
-        ("devops_git_push_cycle", "commit et push le projet", "powershell:cd F:\\BUREAU\\turbo; git add -A;;powershell:cd F:\\BUREAU\\turbo; git status;;sleep:1;;powershell:cd F:\\BUREAU\\turbo; git commit -m 'auto-commit';;powershell:cd F:\\BUREAU\\turbo; git push", "pipeline", "M1"),
-        ("devops_test_suite", "lance la suite de tests", "powershell:cd F:\\BUREAU\\turbo; python -m pytest tests/ -v;;sleep:5;;jarvis_tool:test_report", "pipeline", "M1,M2"),
-        ("devops_lint_fix", "lint et corrige le code", "powershell:cd F:\\BUREAU\\turbo; python -m ruff check src/ --fix;;sleep:2;;jarvis_tool:lint_report", "pipeline", "M1"),
-        ("devops_docker_deploy", "deploie avec docker", "powershell:cd F:\\BUREAU\\turbo; docker-compose build;;sleep:10;;powershell:cd F:\\BUREAU\\turbo; docker-compose up -d;;sleep:5;;jarvis_tool:docker_status", "pipeline", "M1"),
-        ("devops_build_electron", "compile l'app electron", "powershell:cd F:\\BUREAU\\turbo\\electron; npm run build;;sleep:15;;jarvis_tool:build_report", "pipeline", "M1"),
-        ("devops_update_deps", "met a jour les dependances", "powershell:cd F:\\BUREAU\\turbo; uv sync;;sleep:5;;powershell:cd F:\\BUREAU\\turbo\\electron; npm update;;sleep:5;;jarvis_tool:dep_report", "pipeline", "M1"),
+        ("devops_git_push_cycle", "commit et push le projet", "powershell:cd F:/BUREAU/turbo; git add -A;;powershell:cd F:/BUREAU/turbo; git status;;sleep:1;;powershell:cd F:/BUREAU/turbo; git commit -m 'auto-commit';;powershell:cd F:/BUREAU/turbo; git push", "pipeline", "M1"),
+        ("devops_test_suite", "lance la suite de tests", "powershell:cd F:/BUREAU/turbo; python -m pytest tests/ -v;;sleep:5;;jarvis_tool:test_report", "pipeline", "M1,M2"),
+        ("devops_lint_fix", "lint et corrige le code", "powershell:cd F:/BUREAU/turbo; python -m ruff check src/ --fix;;sleep:2;;jarvis_tool:lint_report", "pipeline", "M1"),
+        ("devops_docker_deploy", "deploie avec docker", "powershell:cd F:/BUREAU/turbo; docker-compose build;;sleep:10;;powershell:cd F:/BUREAU/turbo; docker-compose up -d;;sleep:5;;jarvis_tool:docker_status", "pipeline", "M1"),
+        ("devops_build_electron", "compile l'app electron", "powershell:cd F:/BUREAU/turbo/electron; npm run build;;sleep:15;;jarvis_tool:build_report", "pipeline", "M1"),
+        ("devops_update_deps", "met a jour les dependances", "powershell:cd F:/BUREAU/turbo; uv sync;;sleep:5;;powershell:cd F:/BUREAU/turbo/electron; npm update;;sleep:5;;jarvis_tool:dep_report", "pipeline", "M1"),
         ("devops_code_review_cycle", "revue de code automatique", "jarvis_tool:git_diff;;sleep:1;;jarvis_tool:code_review M2;;sleep:5;;jarvis_tool:code_review GEMINI;;sleep:5;;jarvis_tool:merge_reviews", "pipeline", "M2,GEMINI"),
-        ("devops_security_scan", "scan de securite du code", "powershell:cd F:\\BUREAU\\turbo; python -m bandit -r src/ -f json;;sleep:5;;jarvis_tool:security_report", "pipeline", "M1,GEMINI"),
-        ("devops_db_migrate", "migration de base de donnees", "jarvis_tool:backup_db;;sleep:1;;powershell:cd F:\\BUREAU\\turbo; python scripts/migrate_db.py;;sleep:3;;jarvis_tool:db_verify", "pipeline", "M1"),
+        ("devops_security_scan", "scan de securite du code", "powershell:cd F:/BUREAU/turbo; python -m bandit -r src/ -f json;;sleep:5;;jarvis_tool:security_report", "pipeline", "M1,GEMINI"),
+        ("devops_db_migrate", "migration de base de donnees", "jarvis_tool:backup_db;;sleep:1;;powershell:cd F:/BUREAU/turbo; python scripts/migrate_db.py;;sleep:3;;jarvis_tool:db_verify", "pipeline", "M1"),
         ("devops_release_cycle", "cycle complet de release", "jarvis_tool:test_suite;;sleep:10;;jarvis_tool:lint_fix;;sleep:3;;jarvis_tool:build_electron;;sleep:15;;jarvis_tool:git_tag_release;;jarvis_tool:deploy_notify", "pipeline", "M1,M2"),
         ("devops_hotfix", "hotfix rapide", "jarvis_tool:git_stash;;jarvis_tool:git_checkout_main;;sleep:1;;jarvis_tool:apply_fix;;jarvis_tool:test_quick;;jarvis_tool:git_push", "pipeline", "M1"),
-        ("devops_branch_cleanup", "nettoie les branches git", "powershell:cd F:\\BUREAU\\turbo; git fetch --prune;;powershell:cd F:\\BUREAU\\turbo; git branch --merged | findstr /v main | ForEach-Object { git branch -d $_.Trim() }", "pipeline", "M1"),
-        ("devops_perf_profile", "profile de performance du code", "powershell:cd F:\\BUREAU\\turbo; python -m cProfile -o data/profile.out src/main.py;;sleep:10;;jarvis_tool:profile_report", "pipeline", "M1"),
+        ("devops_branch_cleanup", "nettoie les branches git", "powershell:cd F:/BUREAU/turbo; git fetch --prune;;powershell:cd F:/BUREAU/turbo; git branch --merged | findstr /v main | ForEach-Object { git branch -d $_.Trim() }", "pipeline", "M1"),
+        ("devops_perf_profile", "profile de performance du code", "powershell:cd F:/BUREAU/turbo; python -m cProfile -o data/profile.out src/main.py;;sleep:10;;jarvis_tool:profile_report", "pipeline", "M1"),
         ("devops_doc_gen", "genere la documentation", "jarvis_tool:scan_codebase;;sleep:3;;jarvis_tool:gen_api_doc M1;;sleep:5;;jarvis_tool:gen_readme_section;;jarvis_tool:doc_commit", "pipeline", "M1,M2"),
         ("devops_ci_pipeline", "pipeline ci complet", "jarvis_tool:lint_fix;;sleep:2;;jarvis_tool:test_suite;;sleep:10;;jarvis_tool:security_scan;;sleep:5;;jarvis_tool:build_electron;;sleep:15;;jarvis_tool:deploy_staging", "pipeline", "M1,M2,GEMINI"),
     ]
@@ -166,7 +166,7 @@ def gen_pipelines():
         ("mon_lmstudio_health", "sante lm studio", "jarvis_tool:lms_models M1;;jarvis_tool:lms_models M2;;jarvis_tool:lms_models M3;;jarvis_tool:lmstudio_report", "pipeline", "M1,M2,M3"),
         ("mon_service_check", "verification des services", "jarvis_tool:check_port 1234 M1;;jarvis_tool:check_port 1234 M2;;jarvis_tool:check_port 1234 M3;;jarvis_tool:check_port 11434 OL1;;jarvis_tool:check_port 18800 canvas;;jarvis_tool:service_report", "pipeline", "M1,M2,M3,OL1"),
         ("mon_api_health", "sante des api", "jarvis_tool:ping_api M1;;jarvis_tool:ping_api M2;;jarvis_tool:ping_api M3;;jarvis_tool:ping_api OL1;;jarvis_tool:ping_api GEMINI;;jarvis_tool:api_health_report", "pipeline", "M1,M2,M3,OL1,GEMINI"),
-        ("mon_memory_pressure", "pression memoire", "powershell:Get-Counter '\\Memory\\Available MBytes';;powershell:Get-Counter '\\Memory\\% Committed Bytes In Use';;jarvis_tool:memory_report", "pipeline", "M1"),
+        ("mon_memory_pressure", "pression memoire", "powershell:Get-Counter '/Memory/Available MBytes';;powershell:Get-Counter '/Memory/% Committed Bytes In Use';;jarvis_tool:memory_report", "pipeline", "M1"),
         ("mon_uptime_report", "rapport d'uptime", "jarvis_tool:node_uptime M1;;jarvis_tool:node_uptime M2;;jarvis_tool:node_uptime M3;;jarvis_tool:node_uptime OL1;;jarvis_tool:uptime_report", "pipeline", "M1,M2,M3,OL1"),
     ]
     for pid, trigger, steps, atype, agents in monitoring:
@@ -200,7 +200,7 @@ def gen_pipelines():
         ("emg_disk_full", "disque plein urgence", "jarvis_tool:disk_usage;;sleep:1;;jarvis_tool:clean_temp;;sleep:2;;jarvis_tool:clean_cache;;sleep:2;;jarvis_tool:disk_usage;;jarvis_tool:disk_report", "pipeline", "M1"),
         ("emg_network_down", "reseau en panne", "powershell:Test-Connection 8.8.8.8 -Count 3;;sleep:2;;powershell:ipconfig /release;;sleep:2;;powershell:ipconfig /renew;;sleep:5;;jarvis_tool:network_verify", "pipeline", "M1"),
         ("emg_ollama_crash", "ollama crash", "powershell:taskkill /f /im ollama.exe;;sleep:2;;powershell:Start-Process ollama serve;;sleep:5;;jarvis_tool:ollama_health;;jarvis_tool:recovery_report", "pipeline", "OL1"),
-        ("emg_lmstudio_crash", "lm studio crash", "powershell:taskkill /f /im 'LM Studio.exe';;sleep:2;;powershell:Start-Process 'C:\\Users\\franc\\AppData\\Local\\Programs\\lm-studio\\LM Studio.exe';;sleep:10;;jarvis_tool:lmstudio_health", "pipeline", "M1"),
+        ("emg_lmstudio_crash", "lm studio crash", "powershell:taskkill /f /im 'LM Studio.exe';;sleep:2;;powershell:Start-Process '/\Users/franc/AppData/Local/Programs/lm-studio/LM Studio.exe';;sleep:10;;jarvis_tool:lmstudio_health", "pipeline", "M1"),
         ("emg_memory_critical", "memoire critique", "jarvis_tool:top_memory_procs;;sleep:1;;jarvis_tool:kill_memory_hogs;;sleep:2;;jarvis_tool:memory_status;;jarvis_tool:memory_report", "pipeline", "M1"),
         ("emg_db_corrupt", "base de donnees corrompue", "jarvis_tool:backup_db;;sleep:1;;jarvis_tool:check_db_integrity;;sleep:2;;jarvis_tool:repair_db;;sleep:3;;jarvis_tool:verify_db;;jarvis_tool:db_recovery_report", "pipeline", "M1"),
         ("emg_full_cluster_restart", "redemarrage complet du cluster", "jarvis_tool:save_all_state;;sleep:2;;jarvis_tool:shutdown_all;;sleep:10;;jarvis_tool:cold_start;;sleep:15;;jarvis_tool:cluster_check;;jarvis_tool:restart_report", "pipeline", "M1,M2,M3,OL1"),
@@ -220,7 +220,7 @@ def gen_pipelines():
         ("int_api_chain", "chaine d'api", "jarvis_tool:call_api_1;;sleep:2;;jarvis_tool:transform_data;;sleep:1;;jarvis_tool:call_api_2;;sleep:2;;jarvis_tool:chain_report", "pipeline", "M1,M2"),
         ("int_sync_notion", "synchronise avec notion", "jarvis_tool:fetch_notion_pages;;sleep:3;;jarvis_tool:update_local_db;;sleep:2;;jarvis_tool:sync_report", "pipeline", "M1"),
         ("int_export_hf", "export vers hugging face", "jarvis_tool:prepare_dataset;;sleep:2;;jarvis_tool:validate_format;;sleep:1;;jarvis_tool:upload_hf;;sleep:5;;jarvis_tool:hf_report", "pipeline", "M1,M2"),
-        ("int_github_sync", "synchronise github", "powershell:cd F:\\BUREAU\\turbo; git pull;;sleep:2;;jarvis_tool:merge_check;;sleep:1;;powershell:cd F:\\BUREAU\\turbo; git push;;jarvis_tool:github_sync_report", "pipeline", "M1"),
+        ("int_github_sync", "synchronise github", "powershell:cd F:/BUREAU/turbo; git pull;;sleep:2;;jarvis_tool:merge_check;;sleep:1;;powershell:cd F:/BUREAU/turbo; git push;;jarvis_tool:github_sync_report", "pipeline", "M1"),
         ("int_canva_export", "exporte vers canva", "jarvis_tool:prepare_design_data;;sleep:1;;jarvis_tool:canva_create;;sleep:5;;jarvis_tool:canva_export;;jarvis_tool:design_report", "pipeline", "M1,GEMINI"),
         ("int_multi_platform_publish", "publie sur plusieurs plateformes", "jarvis_tool:prepare_content;;sleep:1;;jarvis_tool:publish_github;;jarvis_tool:publish_hf;;jarvis_tool:publish_telegram;;jarvis_tool:publish_report", "pipeline", "M1,OL1"),
     ]

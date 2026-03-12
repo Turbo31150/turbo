@@ -271,7 +271,7 @@ def parse_commands_from_files():
     import ast
 
     cmds = []
-    for filepath in [r"F:\BUREAU\turbo\src\commands.py", r"F:\BUREAU\turbo\src\commands_pipelines.py"]:
+    for filepath in [r"/home/turbo/jarvis-m1-ops\src\commands.py", r"/home/turbo/jarvis-m1-ops\src\commands_pipelines.py"]:
         if not os.path.exists(filepath):
             continue
         with open(filepath, 'r', encoding='utf-8') as f:

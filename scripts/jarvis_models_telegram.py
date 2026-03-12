@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """JARVIS Models — Show loaded models across cluster for Telegram.
-Usage: python F:/BUREAU/turbo/scripts/jarvis_models_telegram.py
+Usage: python /home/turbo/jarvis-m1-ops/scripts/jarvis_models_telegram.py
 """
 import json, subprocess, sys, time
 

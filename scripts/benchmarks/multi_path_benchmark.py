@@ -30,7 +30,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 # CONFIGURATION
 # ══════════════════════════════════════════════════════════════════════════
 
-TURBO_ROOT = Path("F:/BUREAU/turbo")
+TURBO_ROOT = Path("/home/turbo/jarvis-m1-ops")
 DATA_DIR = TURBO_ROOT / "data"
 AGENTS_DIR = TURBO_ROOT / "plugins" / "jarvis-turbo" / "agents"
 ETOILE_DB = TURBO_ROOT / "data" / "etoile.db"
@@ -291,9 +291,9 @@ async def path_p4_external(client: httpx.AsyncClient, node_id: str, prompt: str)
     """P4: Via gemini-proxy.js or claude-proxy.js."""
     t0 = time.perf_counter()
     if "gemini" in node_id.lower():
-        cmd = ["node", "F:/BUREAU/turbo/gemini-proxy.js", "--json", prompt]
+        cmd = ["node", "/home/turbo/jarvis-m1-ops/gemini-proxy.js", "--json", prompt]
     else:
-        cmd = ["node", "F:/BUREAU/turbo/claude-proxy.js", "--json", "--budget", "0.30", prompt]
+        cmd = ["node", "/home/turbo/jarvis-m1-ops/claude-proxy.js", "--json", "--budget", "0.30", prompt]
     proc = await asyncio.create_subprocess_exec(
         *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
     )

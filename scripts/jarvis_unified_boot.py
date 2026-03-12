@@ -44,7 +44,7 @@ from src.process_singleton import singleton as _singleton
 # ============================================================================
 # CONFIG
 # ============================================================================
-TURBO_DIR = Path("F:/BUREAU/turbo")
+TURBO_DIR = Path("/home/turbo/jarvis-m1-ops")
 HOME = Path(os.path.expanduser("~"))
 OPENCLAW_DIR = HOME / ".openclaw"
 LOG_DIR = TURBO_DIR / "logs"
@@ -99,7 +99,7 @@ M1_REQUIRED_MODEL_SHORT = "qwen3-8b"
 M1_MODEL_OPTS = {"gpu": "max", "context": 28813, "parallel": 4}
 
 # n8n binary (Windows .cmd wrapper)
-N8N_CMD = r"C:\nvm4w\nodejs\n8n.cmd"
+N8N_CMD = r"/nvm4w\nodejs\n8n.cmd"
 
 LMS_CLI = str(HOME / ".lmstudio" / "bin" / "lms.exe")
 
@@ -489,7 +489,7 @@ def phase_2_models(dry_run: bool = False) -> dict:
         output = r.stdout + r.stderr
         # Strip ANSI
         import re
-        output = re.sub(r"\x1b\[[0-9;]*[a-zA-Z]|\[\\?25[hl]", "", output)
+        output = re.sub(r"\x1b\[[0-9;]*[a-zA-Z]|\[/?25[hl]", "", output)
         report["lms_ps"] = output.strip()
         log(f"Models charges: {output.strip()[:200]}", "DIM", indent=1)
     except (subprocess.SubprocessError, OSError):
@@ -944,7 +944,7 @@ def phase_6_validation() -> dict:
 
     # -- Disques --
     log("Disques:", "INFO", indent=1)
-    for drive in ("C:\\", "F:\\"):
+    for drive in ("/\", "F:/"):
         try:
             import shutil
             total, used, free = shutil.disk_usage(drive)

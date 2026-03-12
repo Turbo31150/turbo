@@ -8,7 +8,7 @@ import os
 import sqlite3
 import time
 
-ROOT = r"F:\BUREAU\TRADING_V2_PRODUCTION"
+ROOT = r"/home/turbo\TRADING_V2_PRODUCTION"
 DB_PATH = os.path.join(ROOT, "database", "trading.db")
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 sys.path.insert(0, os.path.join(ROOT, "voice_system"))

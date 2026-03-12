@@ -9,6 +9,6 @@ if ($backup) {
     Write-Host "[OK] LM Studio auto-start reactive: $backup"
 } else {
     # Default value
-    Set-ItemProperty $regPath -Name $regName -Value 'C:\Program Files\LM Studio\LM Studio.exe --run-as-service'
+    Set-ItemProperty $regPath -Name $regName -Value '/Program Files\LM Studio\LM Studio.exe --run-as-service'
     Write-Host "[OK] LM Studio auto-start reactive (valeur par defaut)"
 }

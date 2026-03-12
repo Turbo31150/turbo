@@ -91,7 +91,7 @@ Regles:
 - Attends le resultat avant de continuer
 - Apres execution, synthetise ce que tu as fait
 - Si une operation est dangereuse, previens l'utilisateur
-- Contexte systeme: Windows 11, disques C:\ et F:\, user franc
+- Contexte systeme: Windows 11, disques / et F:\, user franc
 ```
 
 ## Safety Gate

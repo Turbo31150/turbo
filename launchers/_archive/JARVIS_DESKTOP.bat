@@ -1,7 +1,7 @@
 @echo off
 title JARVIS Desktop v1.0
 color 0B
-cd /d F:\BUREAU\turbo
+cd /d /home/turbo/jarvis-m1-ops
 
 :: === SINGLETON GUARD ===
 python scripts/singleton_guard.py --name desktop --kill
@@ -15,11 +15,11 @@ echo.
 
 :: Kill any existing process on port 9742
 echo [1/3] Cleaning port 9742...
-powershell -ExecutionPolicy Bypass -File "F:\BUREAU\turbo\electron\kill-port.ps1" 2>nul
+powershell -ExecutionPolicy Bypass -File "/home/turbo/jarvis-m1-ops\electron\kill-port.ps1" 2>nul
 echo.
 
 :: Change to electron directory
-cd /d F:\BUREAU\turbo\electron
+cd /d /home/turbo/jarvis-m1-ops\electron
 
 :: Start development server (Vite + Electron + Python)
 echo [2/3] Starting JARVIS Desktop...

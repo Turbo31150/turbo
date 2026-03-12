@@ -9,7 +9,7 @@ from datetime import datetime
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-ROOT = r"F:\BUREAU\TRADING_V2_PRODUCTION"
+ROOT = r"/home/turbo\TRADING_V2_PRODUCTION"
 CONFIG_FILE = os.path.join(ROOT, "config", "cluster_map.json")
 DB_PATH = os.path.join(ROOT, "database", "trading.db")
 MAX_CYCLES = int(sys.argv[1]) if len(sys.argv) > 1 else 10

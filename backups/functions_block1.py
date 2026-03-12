@@ -1,14 +1,14 @@
 def _fixup_paths(commands: list) -> None:
     """Replace hardcoded paths with config-driven values in command actions."""
     for _cmd in commands:
-        if "F:\\BUREAU\\turbo" in _cmd.action:
-            _cmd.action = _cmd.action.replace("F:\\BUREAU\\turbo", _TURBO_DIR)
         if "F:/BUREAU/turbo" in _cmd.action:
-            _cmd.action = _cmd.action.replace("F:/BUREAU/turbo", _TURBO_DIR_FWD)
-        if "C:\\Users\\franc" in _cmd.action:
-            _cmd.action = _cmd.action.replace("C:\\Users\\franc", _USER_HOME)
+            _cmd.action = _cmd.action.replace("F:/BUREAU/turbo", _TURBO_DIR)
+        if "/home/turbo/jarvis-m1-ops" in _cmd.action:
+            _cmd.action = _cmd.action.replace("/home/turbo/jarvis-m1-ops", _TURBO_DIR_FWD)
+        if "/\Users/franc" in _cmd.action:
+            _cmd.action = _cmd.action.replace("/\Users/franc", _USER_HOME)
         if "C:/Users/franc" in _cmd.action:
-            _cmd.action = _cmd.action.replace("C:/Users/franc", _USER_HOME.replace("\\", "/"))
+            _cmd.action = _cmd.action.replace("C:/Users/franc", _USER_HOME.replace("/", "/"))
 
 _fixup_paths(COMMANDS)
 

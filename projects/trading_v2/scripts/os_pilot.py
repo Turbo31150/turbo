@@ -31,23 +31,23 @@ LOGS_DIR = os.path.join(os.path.dirname(__file__), '..', 'logs')
 
 # SPECIAL_FOLDERS - Mapping noms francais vers paths Windows
 SPECIAL_FOLDERS = {
-    "bureau": os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\franc"), "Desktop"),
-    "documents": os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\franc"), "Documents"),
-    "telechargements": os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\franc"), "Downloads"),
-    "downloads": os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\franc"), "Downloads"),
-    "images": os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\franc"), "Pictures"),
-    "musique": os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\franc"), "Music"),
-    "videos": os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\franc"), "Videos"),
-    "disque c": "C:\\",
-    "disque d": "D:\\",
-    "disque f": "F:\\",
-    "f bureau": r"F:\BUREAU",
-    "production": r"F:\BUREAU\TRADING_V2_PRODUCTION",
-    "trading": r"F:\BUREAU\TRADING_V2_PRODUCTION",
-    "scripts": r"F:\BUREAU\TRADING_V2_PRODUCTION\scripts",
-    "logs": r"F:\BUREAU\TRADING_V2_PRODUCTION\logs",
-    "config": r"F:\BUREAU\TRADING_V2_PRODUCTION\config",
-    "database": r"F:\BUREAU\TRADING_V2_PRODUCTION\database",
+    "bureau": os.path.join(os.environ.get("USERPROFILE", "/\Users/franc"), "Desktop"),
+    "documents": os.path.join(os.environ.get("USERPROFILE", "/\Users/franc"), "Documents"),
+    "telechargements": os.path.join(os.environ.get("USERPROFILE", "/\Users/franc"), "Downloads"),
+    "downloads": os.path.join(os.environ.get("USERPROFILE", "/\Users/franc"), "Downloads"),
+    "images": os.path.join(os.environ.get("USERPROFILE", "/\Users/franc"), "Pictures"),
+    "musique": os.path.join(os.environ.get("USERPROFILE", "/\Users/franc"), "Music"),
+    "videos": os.path.join(os.environ.get("USERPROFILE", "/\Users/franc"), "Videos"),
+    "disque c": "/\",
+    "disque d": "D:/",
+    "disque f": "F:/",
+    "f bureau": r"/home/turbo",
+    "production": r"/home/turbo\TRADING_V2_PRODUCTION",
+    "trading": r"/home/turbo\TRADING_V2_PRODUCTION",
+    "scripts": r"/home/turbo\TRADING_V2_PRODUCTION\scripts",
+    "logs": r"/home/turbo\TRADING_V2_PRODUCTION\logs",
+    "config": r"/home/turbo\TRADING_V2_PRODUCTION\config",
+    "database": r"/home/turbo\TRADING_V2_PRODUCTION\database",
 }
 
 
@@ -129,7 +129,7 @@ def run_command(intent, params=None):
             webbrowser.open(params or 'https://www.google.com')
 
         elif intent == "OPEN_FOLDER":
-            path = params or 'C:\\'
+            path = params or '/\'
             # Lookup SPECIAL_FOLDERS
             path_lower = path.lower().strip()
             if path_lower in SPECIAL_FOLDERS:

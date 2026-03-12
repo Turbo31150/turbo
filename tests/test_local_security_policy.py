@@ -34,7 +34,7 @@ AuditLogonEvents = 3
 AuditObjectAccess = 0
 
 [Registry Values]
-MACHINE\\Software\\Policies = 4,1
+MACHINE/Software/Policies = 4,1
 """
 
 

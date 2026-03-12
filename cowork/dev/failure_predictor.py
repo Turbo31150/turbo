@@ -155,7 +155,7 @@ def predict_resource_issues():
     try:
         if sys.platform == "win32":
             import ctypes
-            for drive, name in [("F:\\", "F"), ("C:\\", "C")]:
+            for drive, name in [("F:/", "F"), ("/\", "C")]:
                 free = ctypes.c_ulonglong()
                 total = ctypes.c_ulonglong()
                 ctypes.windll.kernel32.GetDiskFreeSpaceExW(

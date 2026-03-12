@@ -31,7 +31,7 @@ from difflib import SequenceMatcher
 import torch
 
 # === CHEMINS ===
-TURBO_DIR = Path("F:/BUREAU/turbo")
+TURBO_DIR = Path("/home/turbo/jarvis-m1-ops")
 FINETUNING_DIR = TURBO_DIR / "finetuning"
 OUTPUT_DIR = FINETUNING_DIR / "output"
 RESULTS_DIR = FINETUNING_DIR / "assessment_results"

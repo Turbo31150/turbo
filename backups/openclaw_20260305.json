@@ -592,7 +592,7 @@
           "alias": "claude-haiku"
         }
       },
-      "workspace": "C:\\Users\\franc\\.openclaw\\workspace",
+      "workspace": "/\Users/franc/.openclaw/workspace",
       "compaction": {
         "mode": "safeguard",
         "memoryFlush": {
@@ -626,7 +626,7 @@
     "list": [
       {
         "id": "main",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace",
+        "workspace": "/\Users/franc/.openclaw/workspace",
         "model": {
           "primary": "lm-m1/qwen3-8b",
           "fallbacks": [
@@ -639,7 +639,7 @@
       },
       {
         "id": "fast-chat",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-fast-chat",
+        "workspace": "/\Users/franc/.openclaw/workspace-fast-chat",
         "model": {
           "primary": "lm-m1/qwen3-8b",
           "fallbacks": [
@@ -652,7 +652,7 @@
       },
       {
         "id": "coding",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-coding",
+        "workspace": "/\Users/franc/.openclaw/workspace-coding",
         "model": {
           "primary": "lm-m1/qwen3-8b",
           "fallbacks": [
@@ -665,7 +665,7 @@
       },
       {
         "id": "deep-work",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-deep-work",
+        "workspace": "/\Users/franc/.openclaw/workspace-deep-work",
         "model": {
           "primary": "gemini/models/gemini-2.5-pro",
           "fallbacks": [
@@ -681,7 +681,7 @@
       },
       {
         "id": "trading",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-trading",
+        "workspace": "/\Users/franc/.openclaw/workspace-trading",
         "model": {
           "primary": "ollama/minimax-m2.5:cloud",
           "fallbacks": [
@@ -697,7 +697,7 @@
       },
       {
         "id": "voice-assistant",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-voice",
+        "workspace": "/\Users/franc/.openclaw/workspace-voice",
         "model": {
           "primary": "ollama/qwen3:14b",
           "fallbacks": [
@@ -714,8 +714,8 @@
       {
         "id": "m2-code",
         "name": "M2 Code Champion",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-m2-code",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\m2-code\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-m2-code",
+        "agentDir": "/\Users/franc/.openclaw/agents/m2-code/agent",
         "model": {
           "primary": "lm-m2/deepseek-coder-v2-lite-instruct",
           "fallbacks": [
@@ -731,8 +731,8 @@
       {
         "id": "m2-review",
         "name": "M2 Code Review",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-m2-review",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\m2-review\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-m2-review",
+        "agentDir": "/\Users/franc/.openclaw/agents/m2-review/agent",
         "model": {
           "primary": "lm-m2/deepseek-coder-v2-lite-instruct",
           "fallbacks": [
@@ -749,8 +749,8 @@
       {
         "id": "m3-general",
         "name": "M3 General",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-m3-general",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\m3-general\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-m3-general",
+        "agentDir": "/\Users/franc/.openclaw/agents/m3-general/agent",
         "model": {
           "primary": "lm-m3/mistral-7b-instruct-v0.3",
           "fallbacks": [
@@ -767,8 +767,8 @@
       {
         "id": "m1-deep",
         "name": "M1 Deep Analysis",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-m1-deep",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\m1-deep\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-m1-deep",
+        "agentDir": "/\Users/franc/.openclaw/agents/m1-deep/agent",
         "model": {
           "primary": "lm-m1/qwen/qwen3-30b-a3b-2507",
           "fallbacks": [
@@ -785,8 +785,8 @@
       {
         "id": "m1-reason",
         "name": "M1 Reasoning",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-m1-reason",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\m1-reason\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-m1-reason",
+        "agentDir": "/\Users/franc/.openclaw/agents/m1-reason/agent",
         "model": {
           "primary": "lm-m1/qwen/qwq-32b",
           "fallbacks": [
@@ -803,8 +803,8 @@
       {
         "id": "ol1-reasoning",
         "name": "OL1 Reasoning 14B",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-ol1-reasoning",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\ol1-reasoning\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-ol1-reasoning",
+        "agentDir": "/\Users/franc/.openclaw/agents/ol1-reasoning/agent",
         "model": {
           "primary": "ollama/qwen3:14b",
           "fallbacks": [
@@ -821,8 +821,8 @@
       {
         "id": "ol1-fast",
         "name": "OL1 Ultra-Fast",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-ol1-fast",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\ol1-fast\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-ol1-fast",
+        "agentDir": "/\Users/franc/.openclaw/agents/ol1-fast/agent",
         "model": {
           "primary": "ollama/qwen3:1.7b",
           "fallbacks": [
@@ -839,8 +839,8 @@
       {
         "id": "ol1-web",
         "name": "OL1 Web Search",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-ol1-web",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\ol1-web\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-ol1-web",
+        "agentDir": "/\Users/franc/.openclaw/agents/ol1-web/agent",
         "model": {
           "primary": "ollama/minimax-m2.5:cloud",
           "fallbacks": [
@@ -857,8 +857,8 @@
       {
         "id": "gemini-flash",
         "name": "Gemini Flash Cloud",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-gemini-flash",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\gemini-flash\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-gemini-flash",
+        "agentDir": "/\Users/franc/.openclaw/agents/gemini-flash/agent",
         "model": {
           "primary": "gemini/models/gemini-2.5-flash",
           "fallbacks": [
@@ -875,8 +875,8 @@
       {
         "id": "gemini-pro",
         "name": "Gemini Pro Architecture",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-gemini-pro",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\gemini-pro\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-gemini-pro",
+        "agentDir": "/\Users/franc/.openclaw/agents/gemini-pro/agent",
         "model": {
           "primary": "gemini/models/gemini-2.5-pro",
           "fallbacks": [
@@ -893,8 +893,8 @@
       {
         "id": "windows",
         "name": "Windows System Control",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-windows",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\windows\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-windows",
+        "agentDir": "/\Users/franc/.openclaw/agents/windows/agent",
         "model": {
           "primary": "gemini/models/gemini-2.5-flash",
           "fallbacks": [
@@ -911,8 +911,8 @@
       {
         "id": "trading-scanner",
         "name": "Trading Scanner MEXC",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-trading-scanner",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\trading-scanner\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-trading-scanner",
+        "agentDir": "/\Users/franc/.openclaw/agents/trading-scanner/agent",
         "model": {
           "primary": "ollama/minimax-m2.5:cloud",
           "fallbacks": [
@@ -929,8 +929,8 @@
       {
         "id": "securite-audit",
         "name": "Securite Audit Cluster",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-securite-audit",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\securite-audit\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-securite-audit",
+        "agentDir": "/\Users/franc/.openclaw/agents/securite-audit/agent",
         "model": {
           "primary": "lm-m2/deepseek-coder-v2-lite-instruct",
           "fallbacks": [
@@ -947,8 +947,8 @@
       {
         "id": "devops-ci",
         "name": "DevOps CI Automation",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-devops-ci",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\devops-ci\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-devops-ci",
+        "agentDir": "/\Users/franc/.openclaw/agents/devops-ci/agent",
         "model": {
           "primary": "lm-m2/deepseek-coder-v2-lite-instruct",
           "fallbacks": [
@@ -965,8 +965,8 @@
       {
         "id": "recherche-synthese",
         "name": "Recherche & Synthese",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-recherche-synthese",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\recherche-synthese\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-recherche-synthese",
+        "agentDir": "/\Users/franc/.openclaw/agents/recherche-synthese/agent",
         "model": {
           "primary": "ollama/minimax-m2.5:cloud",
           "fallbacks": [
@@ -983,8 +983,8 @@
       {
         "id": "claude-reasoning",
         "name": "Claude Reasoning Engine",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-claude-reasoning",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\claude-reasoning\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-claude-reasoning",
+        "agentDir": "/\Users/franc/.openclaw/agents/claude-reasoning/agent",
         "model": {
           "primary": "gemini/models/gemini-2.5-pro",
           "fallbacks": [
@@ -1001,8 +1001,8 @@
       {
         "id": "debug-detective",
         "name": "Debug Detective",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-debug-detective",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\debug-detective\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-debug-detective",
+        "agentDir": "/\Users/franc/.openclaw/agents/debug-detective/agent",
         "model": {
           "primary": "lm-m2/deepseek-coder-v2-lite-instruct",
           "fallbacks": [
@@ -1019,8 +1019,8 @@
       {
         "id": "doc-writer",
         "name": "Documentation Writer",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-doc-writer",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\doc-writer\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-doc-writer",
+        "agentDir": "/\Users/franc/.openclaw/agents/doc-writer/agent",
         "model": {
           "primary": "lm-m3/mistral-7b-instruct-v0.3",
           "fallbacks": [
@@ -1037,8 +1037,8 @@
       {
         "id": "data-analyst",
         "name": "Data Analyst",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-data-analyst",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\data-analyst\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-data-analyst",
+        "agentDir": "/\Users/franc/.openclaw/agents/data-analyst/agent",
         "model": {
           "primary": "lm-m2/deepseek-coder-v2-lite-instruct",
           "fallbacks": [
@@ -1055,8 +1055,8 @@
       {
         "id": "creative-brainstorm",
         "name": "Creative Brainstorm",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-creative-brainstorm",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\creative-brainstorm\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-creative-brainstorm",
+        "agentDir": "/\Users/franc/.openclaw/agents/creative-brainstorm/agent",
         "model": {
           "primary": "gemini/models/gemini-2.5-pro",
           "fallbacks": [
@@ -1073,8 +1073,8 @@
       {
         "id": "pipeline-monitor",
         "name": "Pipeline & Cluster Monitor",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-pipeline-monitor",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\pipeline-monitor\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-pipeline-monitor",
+        "agentDir": "/\Users/franc/.openclaw/agents/pipeline-monitor/agent",
         "model": {
           "primary": "ollama/qwen3:1.7b",
           "fallbacks": [
@@ -1091,8 +1091,8 @@
       {
         "id": "translator",
         "name": "Translator FR/EN",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-translator",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\translator\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-translator",
+        "agentDir": "/\Users/franc/.openclaw/agents/translator/agent",
         "model": {
           "primary": "lm-m3/mistral-7b-instruct-v0.3",
           "fallbacks": [
@@ -1109,8 +1109,8 @@
       {
         "id": "consensus-master",
         "name": "Consensus Multi-Modeles",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-consensus-master",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\consensus-master\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-consensus-master",
+        "agentDir": "/\Users/franc/.openclaw/agents/consensus-master/agent",
         "model": {
           "primary": "lm-m2/deepseek-coder-v2-lite-instruct",
           "fallbacks": [
@@ -1127,8 +1127,8 @@
       {
         "id": "pipeline-trading",
         "name": "Pipeline Trading GPU",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-pipeline-trading",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\pipeline-trading\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-pipeline-trading",
+        "agentDir": "/\Users/franc/.openclaw/agents/pipeline-trading/agent",
         "model": {
           "primary": "ollama/minimax-m2.5:cloud",
           "fallbacks": [
@@ -1145,8 +1145,8 @@
       {
         "id": "pipeline-modes",
         "name": "Pipeline Modes & Ambiances",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-pipeline-modes",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\pipeline-modes\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-pipeline-modes",
+        "agentDir": "/\Users/franc/.openclaw/agents/pipeline-modes/agent",
         "model": {
           "primary": "lm-m3/mistral-7b-instruct-v0.3",
           "fallbacks": [
@@ -1163,8 +1163,8 @@
       {
         "id": "pipeline-routines",
         "name": "Pipeline Routines Quotidiennes",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-pipeline-routines",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\pipeline-routines\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-pipeline-routines",
+        "agentDir": "/\Users/franc/.openclaw/agents/pipeline-routines/agent",
         "model": {
           "primary": "ollama/qwen3:1.7b",
           "fallbacks": [
@@ -1181,8 +1181,8 @@
       {
         "id": "pipeline-maintenance",
         "name": "Pipeline Maintenance Systeme",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-pipeline-maintenance",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\pipeline-maintenance\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-pipeline-maintenance",
+        "agentDir": "/\Users/franc/.openclaw/agents/pipeline-maintenance/agent",
         "model": {
           "primary": "lm-m2/deepseek-coder-v2-lite-instruct",
           "fallbacks": [
@@ -1199,8 +1199,8 @@
       {
         "id": "pipeline-comet",
         "name": "Pipeline Comet Browser",
-        "workspace": "C:\\Users\\franc\\.openclaw\\workspace-pipeline-comet",
-        "agentDir": "C:\\Users\\franc\\.openclaw\\agents\\pipeline-comet\\agent",
+        "workspace": "/\Users/franc/.openclaw/workspace-pipeline-comet",
+        "agentDir": "/\Users/franc/.openclaw/agents/pipeline-comet/agent",
         "model": {
           "primary": "lm-m3/mistral-7b-instruct-v0.3",
           "fallbacks": [

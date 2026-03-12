@@ -55,9 +55,9 @@ except Exception as e:
     print(f"[WARN] {e}")
 
 MODEL = "Qwen/Qwen3-8B"
-TRAIN_FILE = r"F:\BUREAU\turbo\finetuning\dataset\jarvis_final_train.jsonl"
-EVAL_FILE = r"F:\BUREAU\turbo\finetuning\dataset\jarvis_final_eval.jsonl"
-OUTPUT_DIR = Path(r"F:/BUREAU/turbo/finetuning/output")
+TRAIN_FILE = r"/home/turbo/jarvis-m1-ops\finetuning\dataset\jarvis_final_train.jsonl"
+EVAL_FILE = r"/home/turbo/jarvis-m1-ops\finetuning\dataset\jarvis_final_eval.jsonl"
+OUTPUT_DIR = Path(r"/home/turbo/jarvis-m1-ops/finetuning/output")
 
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 run_name = f"jarvis-qwen3-8b-3080-main-{timestamp}"

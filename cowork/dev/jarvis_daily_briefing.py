@@ -93,7 +93,7 @@ def collect_disk_status():
     disks = {}
     for drive in ["C:", "F:"]:
         try:
-            usage = shutil.disk_usage(drive + "\\")
+            usage = shutil.disk_usage(drive + "/")
             disks[drive] = {"free_gb": round(usage.free / (1024**3), 1), "total_gb": round(usage.total / (1024**3), 1)}
         except Exception:
             pass

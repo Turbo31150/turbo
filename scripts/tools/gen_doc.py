@@ -1,5 +1,5 @@
 import re, sqlite3, os
-os.chdir(r"F:\BUREAU\turbo")
+os.chdir(r"/home/turbo/jarvis-m1-ops")
 
 def count_cmds(fp):
     with open(fp, encoding="utf-8") as f:

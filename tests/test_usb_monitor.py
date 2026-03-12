@@ -49,8 +49,8 @@ class TestUSBEvent:
 # ===========================================================================
 
 DEVICES_JSON = json.dumps([
-    {"Name": "USB Keyboard", "DeviceID": "USB\\VID_1234", "Status": "OK", "Manufacturer": "Logitech"},
-    {"Name": "USB Mouse", "DeviceID": "USB\\VID_5678", "Status": "OK", "Manufacturer": "Razer"},
+    {"Name": "USB Keyboard", "DeviceID": "USB/VID_1234", "Status": "OK", "Manufacturer": "Logitech"},
+    {"Name": "USB Mouse", "DeviceID": "USB/VID_5678", "Status": "OK", "Manufacturer": "Razer"},
 ])
 
 
@@ -64,7 +64,7 @@ class TestListDevices:
             devices = um.list_devices()
         assert len(devices) == 2
         assert devices[0]["name"] == "USB Keyboard"
-        assert devices[0]["device_id"] == "USB\\VID_1234"
+        assert devices[0]["device_id"] == "USB/VID_1234"
         assert devices[1]["manufacturer"] == "Razer"
 
     def test_single_device_dict(self):
@@ -72,7 +72,7 @@ class TestListDevices:
         mock_result = MagicMock()
         mock_result.returncode = 0
         mock_result.stdout = json.dumps(
-            {"Name": "Hub", "DeviceID": "USB\\HUB1", "Status": "OK", "Manufacturer": ""})
+            {"Name": "Hub", "DeviceID": "USB/HUB1", "Status": "OK", "Manufacturer": ""})
         with patch("subprocess.run", return_value=mock_result):
             devices = um.list_devices()
         assert len(devices) == 1
@@ -80,7 +80,7 @@ class TestListDevices:
 
     def test_exception_falls_back_to_simple(self):
         um = USBMonitor()
-        pnp_output = "Instance ID:    USB\\VID_1234\nDevice Description:    Keyboard\nStatus:    Started\n"
+        pnp_output = "Instance ID:    USB/VID_1234\nDevice Description:    Keyboard\nStatus:    Started\n"
         mock_pnp = MagicMock()
         mock_pnp.stdout = pnp_output
         with patch("subprocess.run", side_effect=[Exception("fail"), mock_pnp]):
@@ -109,11 +109,11 @@ class TestListDevicesSimple:
     def test_parses_pnputil_output(self):
         um = USBMonitor()
         pnp_output = (
-            "Instance ID:    USB\\VID_A\n"
+            "Instance ID:    USB/VID_A\n"
             "Device Description:    Webcam\n"
             "Status:    Started\n"
             "\n"
-            "Instance ID:    USB\\VID_B\n"
+            "Instance ID:    USB/VID_B\n"
             "Device Description:    Mic\n"
             "Status:    OK\n"
         )

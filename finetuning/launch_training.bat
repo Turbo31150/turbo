@@ -4,8 +4,8 @@ echo  JARVIS Fine-Tuning — Pipeline complet
 echo ============================================================
 echo.
 
-set UV=C:\Users\franc\.local\bin\uv.exe
-set TURBO=F:\BUREAU\turbo
+set UV=/home/turbo\.local\bin\uv.exe
+set TURBO=/home/turbo/jarvis-m1-ops
 
 echo [!!] IMPORTANT: Arretez LM Studio avant de continuer !
 echo     Le fine-tuning a besoin de TOUTE la VRAM disponible.

@@ -1,4 +1,4 @@
-$dir = "F:\BUREAU\turbo\finetuning\dataset"
+$dir = "/home/turbo/jarvis-m1-ops\finetuning\dataset"
 if (Test-Path $dir) {
     Get-ChildItem $dir | ForEach-Object {
         $sizeMB = [math]::Round($_.Length / 1MB, 2)

@@ -11,7 +11,7 @@ import json
 from datetime import datetime
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "data", "etoile.db")
-TURBO_SRC = r"F:\BUREAU\turbo\src"
+TURBO_SRC = r"/home/turbo/jarvis-m1-ops\src"
 
 
 def connect():

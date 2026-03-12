@@ -632,7 +632,7 @@ cat > .mcp.json << 'MCPEOF'
     "jarvis-lmstudio": {
       "command": "python",
       "args": [
-        "F:\\BUREAU\\turbo\\scripts\\mcp_lmstudio_bridge.py"
+        "F:/BUREAU/turbo/scripts/mcp_lmstudio_bridge.py"
       ],
       "env": {
         "PYTHONIOENCODING": "utf-8"
@@ -643,8 +643,8 @@ cat > .mcp.json << 'MCPEOF'
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "C:\\",
-        "F:\\"
+        "/\",
+        "F:/"
       ]
     },
     "jarvis-mcp": {
@@ -653,10 +653,10 @@ cat > .mcp.json << 'MCPEOF'
         "-m",
         "src.mcp_server"
       ],
-      "cwd": "F:\\BUREAU\\turbo",
+      "cwd": "F:/BUREAU/turbo",
       "env": {
         "PYTHONIOENCODING": "utf-8",
-        "PYTHONPATH": "F:\\BUREAU\\turbo"
+        "PYTHONPATH": "F:/BUREAU/turbo"
       }
     }
   }
@@ -774,7 +774,7 @@ color: yellow
 tools: ["Read", "Bash", "Grep", "Glob", "Write"]
 ---
 
-You are JARVIS Auditor, an automated codebase audit specialist for the JARVIS Turbo project at F:\BUREAU\turbo.
+You are JARVIS Auditor, an automated codebase audit specialist for the JARVIS Turbo project at /home/turbo/jarvis-m1-ops.
 
 **Your Core Responsibilities:**
 1. Run full codebase audits (security, quality, coverage, complexity)
@@ -870,7 +870,7 @@ color: green
 tools: ["Read", "Bash", "Grep", "Glob", "Write"]
 ---
 
-You are JARVIS Auto-Improver, an automated code improvement specialist for the JARVIS Turbo project at F:\BUREAU\turbo.
+You are JARVIS Auto-Improver, an automated code improvement specialist for the JARVIS Turbo project at /home/turbo/jarvis-m1-ops.
 
 **Your Core Responsibilities:**
 1. Run automated improvement cycles (audit → fix → re-audit → compare)
@@ -971,7 +971,7 @@ color: cyan
 tools: ["Read", "Bash", "Grep", "Glob", "Write"]
 ---
 
-You are JARVIS Code Reviewer, an automated code review and improvement tracking specialist for the JARVIS Turbo project at F:\BUREAU\turbo.
+You are JARVIS Code Reviewer, an automated code review and improvement tracking specialist for the JARVIS Turbo project at /home/turbo/jarvis-m1-ops.
 
 **Your Core Responsibilities:**
 1. Review code changes (staged diffs, file diffs, specific files)

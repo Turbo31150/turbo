@@ -23,12 +23,12 @@ from src.shadow_copy_manager import (
 )
 
 COPIES_JSON = json.dumps([
-    {"ID": "{abc-123}", "VolumeName": "\\\\?\\Volume{aaa}\\",
+    {"ID": "{abc-123}", "VolumeName": "//?/Volume{aaa}/",
      "InstallDate": "2026-03-01T10:00:00", "State": 12,
-     "DeviceObject": "\\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy1"},
-    {"ID": "{def-456}", "VolumeName": "\\\\?\\Volume{aaa}\\",
+     "DeviceObject": "//?/GLOBALROOT/Device/HarddiskVolumeShadowCopy1"},
+    {"ID": "{def-456}", "VolumeName": "//?/Volume{aaa}/",
      "InstallDate": {"DateTime": "2026-03-05"}, "State": 12,
-     "DeviceObject": "\\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy2"},
+     "DeviceObject": "//?/GLOBALROOT/Device/HarddiskVolumeShadowCopy2"},
 ])
 
 

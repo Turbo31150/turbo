@@ -17,8 +17,8 @@ $ErrorActionPreference = "SilentlyContinue"
 $env:CUDA_VISIBLE_DEVICES = "5,0,1,2,3,4"
 
 # ── Configuration ─────────────────────────────────────────────────────────
-$LMS_PATH = "C:\Users\franc\.lmstudio\bin\lms.exe"
-$LOG_FILE = "F:\BUREAU\turbo\logs\cluster_boot.log"
+$LMS_PATH = "/home/turbo\.lmstudio\bin\lms.exe"
+$LOG_FILE = "/home/turbo/jarvis-m1-ops\logs\cluster_boot.log"
 
 # M1 — Modele permanent au boot
 $M1_MODEL = "qwen/qwen3-30b-a3b-2507"

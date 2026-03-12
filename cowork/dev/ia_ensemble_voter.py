@@ -23,7 +23,7 @@ DB_PATH = DEV / "data" / "ensemble_voter.db"
 
 # MAO weights
 AGENTS = [
-    {"name": "M1", "weight": 1.8, "cmd": 'curl -s http://127.0.0.1:1234/api/v1/chat -H "Content-Type: application/json" -d \'{"model":"qwen3-8b","input":"/nothink\\nPROMPT","temperature":0.2,"max_output_tokens":512,"stream":false,"store":false}\''},
+    {"name": "M1", "weight": 1.8, "cmd": 'curl -s http://127.0.0.1:1234/api/v1/chat -H "Content-Type: application/json" -d \'{"model":"qwen3-8b","input":"/nothink/nPROMPT","temperature":0.2,"max_output_tokens":512,"stream":false,"store":false}\''},
     {"name": "OL1", "weight": 1.3, "cmd": "curl -s http://127.0.0.1:11434/api/chat -d '{\"model\":\"qwen3:1.7b\",\"messages\":[{\"role\":\"user\",\"content\":\"PROMPT\"}],\"stream\":false}'"},
     {"name": "M2", "weight": 1.5, "cmd": "curl -s http://192.168.1.26:1234/api/v1/chat -H \"Content-Type: application/json\" -d '{\"model\":\"deepseek-r1-0528-qwen3-8b\",\"input\":\"PROMPT\",\"max_output_tokens\":2048,\"stream\":false,\"store\":false}' --max-time 60"},
 ]
@@ -47,7 +47,7 @@ def init_db():
 
 def query_agent(agent, question, timeout=60):
     """Query a single agent."""
-    cmd = agent["cmd"].replace("PROMPT", question.replace("'", "\\'").replace('"', '\\"'))
+    cmd = agent["cmd"].replace("PROMPT", question.replace("'", "/'").replace('"', '/"'))
     try:
         start = time.time()
         result = subprocess.run(

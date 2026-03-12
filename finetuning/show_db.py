@@ -1,7 +1,7 @@
 """Affiche le contenu de la DB memoire_finetuning."""
 import sqlite3
 
-conn = sqlite3.connect("F:/BUREAU/turbo/finetuning/memoire_finetuning.db")
+conn = sqlite3.connect("/home/turbo/jarvis-m1-ops/finetuning/memoire_finetuning.db")
 
 tables = conn.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
 print("=== memoire_finetuning.db ===")

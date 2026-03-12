@@ -41,7 +41,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Optional
 
-TURBO = Path("F:/BUREAU/turbo")
+TURBO = Path("/home/turbo/jarvis-m1-ops")
 DB_PATH = str(TURBO / "data" / "cluster_autonomy.db")
 ORCH_DB = str(TURBO / "data" / "task_orchestrator.db")
 LOG_PATH = str(TURBO / "data" / "cluster_autonomy.log")
@@ -282,7 +282,7 @@ class FailurePatternDetector:
         sig = lines[0][:80] if lines else "unknown"
         # Remove file paths and line numbers
         import re
-        sig = re.sub(r'[A-Z]:\\[^\s]+', 'PATH', sig)
+        sig = re.sub(r'[A-Z]:/[^\s]+', 'PATH', sig)
         sig = re.sub(r'/[^\s]+', 'PATH', sig)
         sig = re.sub(r'line \d+', 'line N', sig)
         sig = re.sub(r'\d{4,}', 'NUM', sig)

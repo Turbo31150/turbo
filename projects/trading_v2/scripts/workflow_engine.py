@@ -12,7 +12,7 @@ import sqlite3
 import requests
 import importlib.util
 
-ROOT = r"F:\BUREAU\TRADING_V2_PRODUCTION"
+ROOT = r"/home/turbo\TRADING_V2_PRODUCTION"
 DB_PATH = os.path.join(ROOT, "database", "trading.db")
 SCRIPTS = os.path.join(ROOT, "scripts")
 OS_PILOT_PATH = os.path.join(SCRIPTS, "os_pilot.py")

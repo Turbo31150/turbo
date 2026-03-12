@@ -274,7 +274,7 @@ def _recover_truncated(text: str) -> list | None:
     for i, ch in enumerate(text):
         if esc:
             esc = False; continue
-        if ch == '\\' and in_str:
+        if ch == '/' and in_str:
             esc = True; continue
         if ch == '"' and not esc:
             in_str = not in_str; continue
@@ -398,7 +398,7 @@ Genere exactement {count} pipelines JARVIS pour le domaine "{domain}" ({desc}).
 Chaque pipeline est un JSON object dans un array. Voici 3 exemples concrets:
 [
   {{"pipeline_id": "{domain}_volume_control_{seed}", "trigger_phrase": "monte le volume", "steps": "hotkey:volume_up;;sleep:1;;jarvis_tool:audio_status", "category": "{domain}", "action_type": "pipeline", "agents_involved": "M1"}},
-  {{"pipeline_id": "{domain}_full_backup_{seed+1}", "trigger_phrase": "lance un backup complet", "steps": "jarvis_tool:backup_start;;sleep:3;;powershell:Get-ChildItem -Path D:\\backup", "category": "{domain}", "action_type": "pipeline", "agents_involved": "M1,M2"}},
+  {{"pipeline_id": "{domain}_full_backup_{seed+1}", "trigger_phrase": "lance un backup complet", "steps": "jarvis_tool:backup_start;;sleep:3;;powershell:Get-ChildItem -Path D:/backup", "category": "{domain}", "action_type": "pipeline", "agents_involved": "M1,M2"}},
   {{"pipeline_id": "{domain}_status_check_{seed+2}", "trigger_phrase": "verifie le statut", "steps": "jarvis_tool:health_check;;sleep:1;;browser:navigate:http://127.0.0.1:8080", "category": "{domain}", "action_type": "pipeline", "agents_involved": "M1,OL1"}}
 ]
 

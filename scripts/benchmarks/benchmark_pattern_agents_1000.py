@@ -13,7 +13,7 @@ import time
 from pathlib import Path
 
 # Add project root to path
-PROJECT_ROOT = Path("F:/BUREAU/turbo")
+PROJECT_ROOT = Path("/home/turbo/jarvis-m1-ops")
 sys.path.insert(0, str(PROJECT_ROOT))
 os.chdir(PROJECT_ROOT)
 

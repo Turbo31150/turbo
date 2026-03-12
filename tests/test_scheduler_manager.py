@@ -30,7 +30,7 @@ from src.scheduler_manager import (
 class TestDataclasses:
     def test_scheduled_task(self):
         t = ScheduledTask(name="test")
-        assert t.folder == "\\"
+        assert t.folder == "/"
         assert t.status == ""
 
     def test_scheduler_event(self):
@@ -45,8 +45,8 @@ class TestDataclasses:
 
 CSV_OUTPUT = (
     '"TaskName","Status","Next Run Time","Last Run Time","Last Result","Author","Task To Run"\n'
-    '"\\JARVIS_Boot","Ready","3/7/2026 8:00:00","3/6/2026 8:00:00","0","JARVIS","python boot.py"\n'
-    '"\\JARVIS_Backup","Disabled","N/A","3/5/2026 12:00:00","0","JARVIS","python backup.py"\n'
+    '"/JARVIS_Boot","Ready","3/7/2026 8:00:00","3/6/2026 8:00:00","0","JARVIS","python boot.py"\n'
+    '"/JARVIS_Backup","Disabled","N/A","3/5/2026 12:00:00","0","JARVIS","python backup.py"\n'
 )
 
 
@@ -55,7 +55,7 @@ class TestParseCSV:
         sm = SchedulerManager()
         tasks = sm._parse_csv(CSV_OUTPUT)
         assert len(tasks) == 2
-        assert tasks[0]["name"] == "\\JARVIS_Boot"
+        assert tasks[0]["name"] == "/JARVIS_Boot"
         assert tasks[0]["status"] == "Ready"
         assert tasks[1]["status"] == "Disabled"
 
@@ -108,22 +108,22 @@ class TestGetTask:
         mock_result.returncode = 0
         mock_result.stdout = CSV_OUTPUT
         with patch("subprocess.run", return_value=mock_result):
-            task = sm.get_task("\\JARVIS_Boot")
+            task = sm.get_task("/JARVIS_Boot")
         assert task is not None
-        assert task["name"] == "\\JARVIS_Boot"
+        assert task["name"] == "/JARVIS_Boot"
 
     def test_not_found(self):
         sm = SchedulerManager()
         mock_result = MagicMock()
         mock_result.returncode = 1
         with patch("subprocess.run", return_value=mock_result):
-            task = sm.get_task("\\nope")
+            task = sm.get_task("/nope")
         assert task is None
 
     def test_exception(self):
         sm = SchedulerManager()
         with patch("subprocess.run", side_effect=Exception("fail")):
-            task = sm.get_task("\\test")
+            task = sm.get_task("/test")
         assert task is None
 
 
@@ -168,16 +168,16 @@ class TestListFolders:
         sm = SchedulerManager()
         csv = (
             '"TaskName","Status"\n'
-            '"\\Microsoft\\Windows\\Update","Ready"\n'
-            '"\\JARVIS\\Boot","Ready"\n'
+            '"/Microsoft/Windows/Update","Ready"\n'
+            '"/JARVIS/Boot","Ready"\n'
         )
         mock_result = MagicMock()
         mock_result.returncode = 0
         mock_result.stdout = csv
         with patch("subprocess.run", return_value=mock_result):
             folders = sm.list_folders()
-        assert "\\Microsoft\\Windows" in folders
-        assert "\\JARVIS" in folders
+        assert "/Microsoft/Windows" in folders
+        assert "/JARVIS" in folders
 
     def test_failure(self):
         sm = SchedulerManager()

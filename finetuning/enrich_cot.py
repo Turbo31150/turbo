@@ -16,7 +16,7 @@ Usage:
 import json
 from pathlib import Path
 
-TURBO_DIR = Path("F:/BUREAU/turbo")
+TURBO_DIR = Path("/home/turbo/jarvis-m1-ops")
 OUTPUT_DIR = TURBO_DIR / "finetuning" / "dataset"
 
 SYSTEM_PROMPT = (
@@ -62,7 +62,7 @@ COT_ROUTING = [
             "1. 'Ca rame' = probleme de performance systeme\n"
             "2. Je dois diagnostiquer: CPU, RAM, disque, GPU\n"
             "3. Outils disponibles: powershell_execute pour Get-Process, nvidia-smi\n"
-            "4. Verifier aussi l'espace disque (F:\\ et C:\\)\n"
+            "4. Verifier aussi l'espace disque (F:/ et /\)\n"
             "5. Commencer par les processus les plus gourmands en CPU/RAM\n"
             "6. Utiliser le sous-agent ia-system (Haiku) pour un diagnostic rapide"
         ),
@@ -71,7 +71,7 @@ COT_ROUTING = [
             "Verification en cours:\n"
             "1. Processus les plus gourmands (CPU/RAM)\n"
             "2. Utilisation VRAM des 5 GPUs\n"
-            "3. Espace disque C:\\ et F:\\\n"
+            "3. Espace disque /\ et F:/\n"
             "4. Services en arriere-plan\n\n"
             "Je t'affiche les resultats dans quelques secondes."
         ),
@@ -413,27 +413,27 @@ COT_MULTISTEP = [
             "L'utilisateur veut un backup complet. "
             "Chaine de reflexion:\n"
             "1. Projets a sauvegarder (selon config.py, 8 projets):\n"
-            "   - F:\\BUREAU\\turbo (JARVIS Turbo)\n"
-            "   - F:\\BUREAU\\carV1 (Trading AI Ultimate)\n"
-            "   - F:\\BUREAU\\JARVIS (Legacy)\n"
-            "   - F:\\BUREAU\\TRADING_V2_PRODUCTION\n"
+            "   - F:/BUREAU/turbo (JARVIS Turbo)\n"
+            "   - F:/BUREAU/carV1 (Trading AI Ultimate)\n"
+            "   - F:/BUREAU/JARVIS (Legacy)\n"
+            "   - F:/BUREAU/TRADING_V2_PRODUCTION\n"
             "   - + autres projets indexes\n"
-            "2. Destination: F:\\BUREAU\\ARCHIVES\\\n"
+            "2. Destination: F:/BUREAU/ARCHIVES/\n"
             "3. Methode: compression ZIP ou copie directe\n"
             "4. Exclure: node_modules, .venv, __pycache__, .git\n"
             "5. Taille estimee: quelques GB\n"
-            "6. Espace libre F:\\: 104+ GB → largement suffisant\n"
+            "6. Espace libre F:/: 104+ GB → largement suffisant\n"
             "7. Utiliser PowerShell Compress-Archive pour chaque projet\n"
             "8. Nommer avec date: backup_2026-02-18_turbo.zip"
         ),
         "response": (
             "Je lance le backup complet de tes projets.\n\n"
             "Projets a sauvegarder:\n"
-            "1. JARVIS Turbo (F:\\BUREAU\\turbo)\n"
-            "2. Trading AI Ultimate (F:\\BUREAU\\carV1)\n"
-            "3. JARVIS Legacy (F:\\BUREAU\\JARVIS)\n"
+            "1. JARVIS Turbo (F:/BUREAU/turbo)\n"
+            "2. Trading AI Ultimate (F:/BUREAU/carV1)\n"
+            "3. JARVIS Legacy (F:/BUREAU/JARVIS)\n"
             "4. Trading V2 Production\n\n"
-            "Destination: F:\\BUREAU\\ARCHIVES\\backup_2026-02-18\\\n"
+            "Destination: F:/BUREAU/ARCHIVES/backup_2026-02-18/\n"
             "Exclusions: .venv, node_modules, __pycache__, .git\n\n"
             "Compression en cours..."
         ),
@@ -501,11 +501,11 @@ COT_MULTISTEP = [
             "L'utilisateur manque d'espace disque. "
             "Chaine de reflexion:\n"
             "1. Verifier quel disque est plein:\n"
-            "   - C:\\ devrait avoir 82+ GB libre\n"
-            "   - F:\\ devrait avoir 104+ GB libre\n"
+            "   - /\ devrait avoir 82+ GB libre\n"
+            "   - F:/ devrait avoir 104+ GB libre\n"
             "2. Sources de fichiers volumineux:\n"
             "   - Cache HuggingFace: ~/.cache/huggingface (~300 GB de modeles)\n"
-            "   - Cache LM Studio: F:\\models lmsqtudio (~300 GB)\n"
+            "   - Cache LM Studio: F:/models lmsqtudio (~300 GB)\n"
             "   - __pycache__, .venv, node_modules\n"
             "   - Temp files Windows\n"
             "   - Archives de backup\n"
@@ -521,7 +521,7 @@ COT_MULTISTEP = [
         "response": (
             "Je lance un audit d'espace disque.\n\n"
             "Verification en cours:\n"
-            "1. Espace libre C:\\ et F:\\\n"
+            "1. Espace libre /\ et F:/\n"
             "2. Plus gros dossiers (cache modeles, archives)\n"
             "3. Fichiers temporaires nettoyables\n\n"
             "Je te proposerai les actions de nettoyage avec les tailles avant de supprimer quoi que ce soit."

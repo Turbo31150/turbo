@@ -13,7 +13,7 @@ Source: jarvis.db
 ## Quick Restore
 
 ```bash
-cd F:/BUREAU/turbo
+cd /home/turbo/jarvis-m1-ops
 bash restore/restore.sh
 # Then fill in .env.restore with your secrets and rename to .env
 ```

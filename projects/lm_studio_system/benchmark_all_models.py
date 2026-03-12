@@ -229,7 +229,7 @@ def run_benchmark():
         results['servers'].append(server_results)
 
     # Sauvegarder résultats
-    output_file = f"F:\\BUREAU\\lm_studio_system\\benchmark_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    output_file = f"F:/BUREAU/lm_studio_system/benchmark_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
 
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(results, f, indent=2, ensure_ascii=False)

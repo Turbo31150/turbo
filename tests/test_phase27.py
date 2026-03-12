@@ -192,7 +192,7 @@ class TestSchedulerManager:
 
     def test_scheduled_task_dataclass(self):
         from src.scheduler_manager import ScheduledTask
-        t = ScheduledTask(name="Backup", folder="\\Microsoft", status="Ready")
+        t = ScheduledTask(name="Backup", folder="/Microsoft", status="Ready")
         assert t.name == "Backup"
         assert t.last_result == ""
 
@@ -211,18 +211,18 @@ class TestSchedulerManager:
         sm = self._make()
         csv_data = (
             '"TaskName","Status","Next Run Time","Last Run Time","Last Result","Author","Task To Run"\n'
-            '"\\MyTask","Ready","10:00:00","09:00:00","0","Admin","cmd.exe"\n'
+            '"/MyTask","Ready","10:00:00","09:00:00","0","Admin","cmd.exe"\n'
         )
         tasks = sm._parse_csv(csv_data)
         assert len(tasks) == 1
-        assert tasks[0]["name"] == "\\MyTask"
+        assert tasks[0]["name"] == "/MyTask"
         assert tasks[0]["status"] == "Ready"
 
     def test_search_tasks_with_mock(self):
         sm = self._make()
         sm.list_tasks = lambda: [
-            {"name": "\\Backup", "status": "Ready"},
-            {"name": "\\Cleanup", "status": "Disabled"},
+            {"name": "/Backup", "status": "Ready"},
+            {"name": "/Cleanup", "status": "Disabled"},
         ]
         results = sm.search_tasks("backup")
         assert len(results) == 1

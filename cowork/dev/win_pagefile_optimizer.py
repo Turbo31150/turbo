@@ -244,7 +244,7 @@ def set_pagefile_size(db, size_mb):
 
     # Set via wmic
     try:
-        cmd = f"wmic pagefileset where name='C:\\\\pagefile.sys' set InitialSize={size_mb},MaximumSize={size_mb}"
+        cmd = f"wmic pagefileset where name='//\pagefile.sys' set InitialSize={size_mb},MaximumSize={size_mb}"
         out = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=15)
         success = out.returncode == 0
 

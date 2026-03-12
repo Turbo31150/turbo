@@ -63,7 +63,7 @@ def run_benchmark(cycles=5, tasks_per_cycle=40):
     try:
         subprocess.run(
             [sys.executable, os.path.join(os.path.dirname(__file__), "jarvis_autotest.py"), str(cycles), str(tasks_per_cycle)],
-            capture_output=True, text=True, timeout=1800, cwd="F:/BUREAU/turbo"
+            capture_output=True, text=True, timeout=1800, cwd="/home/turbo/jarvis-m1-ops"
         )
     except (subprocess.SubprocessError, OSError) as e:
         log(f"Benchmark subprocess error: {e}")

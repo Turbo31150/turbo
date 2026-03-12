@@ -21,10 +21,10 @@ import time
 from pathlib import Path
 from datetime import datetime
 
-FINETUNING_DIR = Path("F:/BUREAU/turbo/finetuning")
+FINETUNING_DIR = Path("/home/turbo/jarvis-m1-ops/finetuning")
 DATASET_DIR = FINETUNING_DIR / "dataset"
 OUTPUT_DIR = FINETUNING_DIR / "output"
-PYTHON_EXE = r"C:\Users\franc\AppData\Local\Programs\Python\Python312\python.exe"
+PYTHON_EXE = r"/home/turbo\AppData\Local\Programs\Python\Python312\python.exe"
 
 CONFIGS = [
     # Big GPUs — full config
@@ -210,14 +210,14 @@ except Exception as e:
 MODEL = "Qwen/Qwen3-8B"
 TRAIN_FILE = r"{cfg['dataset']}"
 {eval_line}
-OUTPUT_DIR = Path(r"F:/BUREAU/turbo/finetuning/output")
+OUTPUT_DIR = Path(r"/home/turbo/jarvis-m1-ops/finetuning/output")
 {extra_merge}
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 run_name = f"jarvis-qwen3-8b-{name}-{{timestamp}}"
 {resume_code}
 
 def main():
-    print(f"\\n===== GPU {gpu} ({name}) =====")
+    print(f"/n===== GPU {gpu} ({name}) =====")
     print(f"  Steps: {cfg['max_steps']} | Seq: {cfg['max_seq_len']} | Batch: {cfg['batch_size']}x{cfg['grad_accum']} | LoRA r={cfg['lora_r']}")
 
     # Unload LM Studio
@@ -333,20 +333,20 @@ def main():
     with open(os.path.join(output_dir, "metrics.json"), "w") as f:
         json.dump(metrics, f, indent=2)
 
-    print(f"\\n[DONE] GPU {gpu} ({name}): loss={{metrics.get('train_loss','?')}} runtime={{metrics.get('train_runtime',0):.0f}}s")
+    print(f"/n[DONE] GPU {gpu} ({name}): loss={{metrics.get('train_loss','?')}} runtime={{metrics.get('train_runtime',0):.0f}}s")
 
 if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        print(f"\\n[CRASH] GPU {gpu} ({name}): {{type(e).__name__}}: {{e}}")
+        print(f"/n[CRASH] GPU {gpu} ({name}): {{type(e).__name__}}: {{e}}")
         traceback.print_exc()
         sys.exit(1)
 '''
 
 
 def main():
-    print("\\n" + "=" * 60)
+    print("/n" + "=" * 60)
     print("JARVIS Fine-Tuning v2 -- 6 GPU Dispatch")
     print(f"  bf16=True (fix Turing) | CVE bypass | 63GB free")
     print("=" * 60)
@@ -385,7 +385,7 @@ def main():
         processes.append((cfg, p, log_path))
         print(f"  [PID {p.pid}] GPU {cfg['gpu_id']} ({cfg['name']}) -> {log_path.name}")
 
-    print(f"\\n[MONITOR] {len(CONFIGS)} workers. Ctrl+C pour stop.\\n")
+    print(f"/n[MONITOR] {len(CONFIGS)} workers. Ctrl+C pour stop./n")
 
     try:
         while True:
@@ -412,7 +412,7 @@ def main():
             if done:
                 break
     except KeyboardInterrupt:
-        print("\\n[STOP]")
+        print("/n[STOP]")
         for cfg, p, _ in processes:
             if p.poll() is None:
                 p.terminate()
@@ -420,7 +420,7 @@ def main():
     for f in log_handles:
         f.close()
 
-    print("\\n" + "=" * 60)
+    print("/n" + "=" * 60)
     for cfg, p, _ in processes:
         s = "OK" if p.returncode == 0 else f"FAIL({p.returncode})"
         print(f"  GPU {cfg['gpu_id']} ({cfg['name']}): {s}")

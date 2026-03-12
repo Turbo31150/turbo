@@ -205,8 +205,8 @@ def wave_health(db, online):
 
     # Task 2: Disk space
     import shutil
-    c = shutil.disk_usage("C:\\")
-    f = shutil.disk_usage("F:\\")
+    c = shutil.disk_usage("/\")
+    f = shutil.disk_usage("F:/")
     disk = f"C: {c.free // 1e9:.0f}GB free | F: {f.free // 1e9:.0f}GB free"
     tasks.append(("disk_check", "local", "ok", 0, disk, None))
 

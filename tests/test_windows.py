@@ -211,12 +211,12 @@ class TestProcesses:
 class TestFileOps:
     def test_open_folder(self):
         with patch("src.windows.subprocess.run", return_value=_mock_ps_success("Dossier ouvert")):
-            result = open_folder("C:\\Users")
+            result = open_folder("/\Users")
         assert "dossier" in result.lower()
 
     def test_create_folder(self):
-        with patch("src.windows.subprocess.run", return_value=_mock_ps_success("C:\\test")):
-            result = create_folder("C:\\test")
+        with patch("src.windows.subprocess.run", return_value=_mock_ps_success("/\test")):
+            result = create_folder("/\test")
         assert "test" in result
 
     def test_copy_item(self):
@@ -231,7 +231,7 @@ class TestFileOps:
 
     def test_search_files(self):
         with patch("src.windows.subprocess.run", return_value=_mock_ps_success("file1.py\nfile2.py")):
-            result = search_files("C:\\", "*.py")
+            result = search_files("/\", "*.py")
         assert "py" in result
 
 
@@ -242,16 +242,16 @@ class TestFileOps:
 class TestRegistry:
     def test_registry_get_value(self):
         with patch("src.windows.subprocess.run", return_value=_mock_ps_success("1")):
-            result = registry_get("HKCU:\\Software\\Test", "Key")
+            result = registry_get("HKCU:/Software/Test", "Key")
         assert result == "1"
 
     def test_registry_set_valid_type(self):
         with patch("src.windows.subprocess.run", return_value=_mock_ps_success("OK")):
-            result = registry_set("HKCU:\\Test", "Key", "Value", "String")
+            result = registry_set("HKCU:/Test", "Key", "Value", "String")
         assert "mis a jour" in result.lower() or result == "OK"
 
     def test_registry_set_invalid_type(self):
-        result = registry_set("HKCU:\\Test", "Key", "Value", "EVIL_TYPE")
+        result = registry_set("HKCU:/Test", "Key", "Value", "EVIL_TYPE")
         assert "ERREUR" in result
         assert "invalide" in result.lower()
 

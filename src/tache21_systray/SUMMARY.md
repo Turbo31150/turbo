@@ -213,8 +213,8 @@ CRITICAL Notification Created
 
 ### Services
 - **WebSocket Server:** `ws://127.0.0.1:9742` (externe)
-- **Base de données:** `F:/BUREAU/turbo/jarvis.db` (SQLite)
-- **Logs:** `F:/BUREAU/turbo/logs/` (directory)
+- **Base de données:** `/home/turbo/jarvis-m1-ops/jarvis.db` (SQLite)
+- **Logs:** `/home/turbo/jarvis-m1-ops/logs/` (directory)
 
 ### Telegram (optionnel)
 - Token bot Telegram
@@ -226,7 +226,7 @@ CRITICAL Notification Created
 
 ### Démarrage rapide
 ```bash
-cd F:\BUREAU\turbo\src\tache21_systray
+cd /home/turbo/jarvis-m1-ops\src\tache21_systray
 
 # Installation
 python deploy.py
@@ -289,7 +289,7 @@ python integration_example.py  # Lance 3 exemples complets
 ## Fichiers de Logs
 
 ```
-F:/BUREAU/turbo/logs/
+/home/turbo/jarvis-m1-ops/logs/
 ├── tray.log              # System tray events
 ├── notifications.log     # Notification history
 └── jarvis_tray.log      # General logs
@@ -310,7 +310,7 @@ Format: `2026-03-04 14:23:15,123 - module - LEVEL - message`
 
 ## Checklist d'installation
 
-- [ ] Clone/Download files à `F:\BUREAU\turbo\src\tache21_systray\`
+- [ ] Clone/Download files à `/home/turbo/jarvis-m1-ops\src\tache21_systray\`
 - [ ] Créer répertoires: `logs/`, `db/`
 - [ ] Copier `config.example.py` → `config.py`
 - [ ] Adapter `config.py` (tokens, paths)

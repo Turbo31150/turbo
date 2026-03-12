@@ -420,18 +420,18 @@
 | 29 | `deplacer_fichier` | Deplacer un fichier | `deplace {source} dans {destination}`, `deplace {source} vers {destination}`, `bouge {source} dans {destination}` | powershell | source, destination | — |
 | 30 | `explorer_nouvel_onglet` | Nouvel onglet dans l'Explorateur | `nouvel onglet explorateur`, `onglet explorateur`, `new tab explorer` +1 | powershell | — | — |
 | 31 | `dossier_captures` | Ouvrir le dossier captures d'ecran | `dossier captures`, `ouvre les captures`, `dossier screenshots` +2 | powershell | — | — |
-| 32 | `taille_dossiers_bureau` | Taille de chaque dossier dans F:\BUREAU | `taille des projets`, `poids des dossiers bureau`, `combien pese chaque projet` +1 | powershell | — | — |
+| 32 | `taille_dossiers_bureau` | Taille de chaque dossier dans /home/turbo | `taille des projets`, `poids des dossiers bureau`, `combien pese chaque projet` +1 | powershell | — | — |
 | 33 | `compresser_fichier` | Compresser un dossier en ZIP | `compresse en zip`, `zip le dossier`, `cree un zip` +2 | powershell | — | — |
 | 34 | `decompresser_fichier` | Decompresser un fichier ZIP | `decompresse le zip`, `unzip`, `extrais l'archive` +2 | powershell | — | — |
 | 35 | `compresser_turbo` | Compresser le projet turbo en ZIP (sans .git ni venv) | `zip turbo`, `archive turbo`, `compresse le projet` +1 | powershell | — | — |
 | 36 | `vider_dossier_temp` | Supprimer les fichiers temporaires | `vide le temp`, `nettoie les temporaires`, `clean temp` +1 | powershell | — | Oui |
 | 37 | `lister_fichiers_recents` | Lister les 20 fichiers les plus recents sur le bureau | `fichiers recents`, `derniers fichiers`, `quoi de recent` +1 | powershell | — | — |
 | 38 | `chercher_gros_fichiers` | Trouver les fichiers > 100 MB sur F: | `gros fichiers partout`, `fichiers enormes`, `quoi prend toute la place` +1 | powershell | — | — |
-| 39 | `doublons_bureau` | Detecter les doublons potentiels par nom dans F:\BUREAU | `doublons bureau`, `fichiers en double`, `trouve les doublons` +2 | powershell | — | — |
+| 39 | `doublons_bureau` | Detecter les doublons potentiels par nom dans /home/turbo | `doublons bureau`, `fichiers en double`, `trouve les doublons` +2 | powershell | — | — |
 | 40 | `taille_telechargements` | Taille du dossier Telechargements | `taille telechargements`, `poids downloads`, `combien dans les telechargements` +1 | powershell | — | — |
 | 41 | `vider_telechargements` | Vider le dossier Telechargements (fichiers > 30 jours) | `vide les telechargements`, `nettoie les downloads`, `clean downloads` +1 | powershell | — | Oui |
 | 42 | `lister_telechargements` | Derniers fichiers telecharges | `derniers telechargements`, `quoi de telecharge`, `recent downloads` +1 | powershell | — | — |
-| 43 | `ouvrir_bureau_dossier` | Ouvrir F:\BUREAU dans l'explorateur | `ouvre le bureau`, `dossier bureau`, `va dans bureau` +1 | powershell | — | — |
+| 43 | `ouvrir_bureau_dossier` | Ouvrir /home/turbo dans l'explorateur | `ouvre le bureau`, `dossier bureau`, `va dans bureau` +1 | powershell | — | — |
 | 44 | `fichier_recent_modifie` | Trouver le dernier fichier modifie partout | `dernier fichier modifie`, `quoi vient de changer`, `last modified` +1 | powershell | — | — |
 | 45 | `compter_fichiers_type` | Compter les fichiers par extension dans un dossier | `compte les fichiers par type`, `extensions dans {path}`, `quels types de fichiers dans {path}` | powershell | path | — |
 

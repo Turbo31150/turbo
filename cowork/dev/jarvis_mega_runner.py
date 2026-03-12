@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """jarvis_mega_runner.py — Unified runner for all jarvis_* scripts not individually wired.
 
-Scans F:\\BUREAU\\turbo\\cowork\\dev\\ for jarvis_*.py scripts, excludes those
+Scans F:/BUREAU/turbo/cowork/dev/ for jarvis_*.py scripts, excludes those
 already wired in the autonomous_orchestrator (jarvis_brain, jarvis_night_ops,
 jarvis_self_evolve) and itself, then executes them in priority order.
 

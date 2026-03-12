@@ -43,9 +43,9 @@ HF_TOKEN = os.getenv("HF_TOKEN", "")
 TG_TOKEN = os.getenv("TELEGRAM_TOKEN", "")
 TG_CHAT = os.getenv("TELEGRAM_CHAT", "")
 
-DB_PATH = Path("F:/BUREAU/turbo/data/learning_engine.db")
-ETOILE_DB = Path("F:/BUREAU/turbo/data/etoile.db")
-LEARNINGS_FILE = Path("F:/BUREAU/turbo/data/deep_learnings.json")
+DB_PATH = Path("/home/turbo/jarvis-m1-ops/data/learning_engine.db")
+ETOILE_DB = Path("/home/turbo/jarvis-m1-ops/data/etoile.db")
+LEARNINGS_FILE = Path("/home/turbo/jarvis-m1-ops/data/deep_learnings.json")
 
 # ── NODES (only proven + active ones) ──
 NODES = {

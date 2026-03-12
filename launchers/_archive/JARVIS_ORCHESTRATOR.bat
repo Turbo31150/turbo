@@ -1,6 +1,6 @@
 @echo off
 title JARVIS Task Orchestrator - Daemon
-cd /d F:\BUREAU\turbo
+cd /d /home/turbo/jarvis-m1-ops
 
 :: === SINGLETON GUARD: tue l'instance existante ===
 python scripts/singleton_guard.py --name orchestrator --kill

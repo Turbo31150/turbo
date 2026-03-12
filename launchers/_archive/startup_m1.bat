@@ -5,7 +5,7 @@ echo  5 GPU, 43GB VRAM - Optimized Config
 echo ============================================
 echo.
 
-set LMS="C:\Users\franc\.lmstudio\bin\lms.exe"
+set LMS="/home/turbo\.lmstudio\bin\lms.exe"
 
 echo [1/4] Starting LM Studio server...
 %LMS% server start -p 1234

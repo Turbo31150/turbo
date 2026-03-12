@@ -5,7 +5,7 @@ Contrôle du volume audio sous Windows.
 
 Fonctionnalités :
 * ``--volume N`` : définit le volume système à ``N`` (0‑100).  Si l'utilitaire
-  ``nircmd.exe`` est présent (habituellement dans ``C:\\Program Files\\nircmd``),
+  ``nircmd.exe`` est présent (habituellement dans ``/\Program Files/nircmd``),
   on utilise ``nircmd setsysvolume`` ; sinon on simule la montée/descente du
   volume via les touches de media (PowerShell ``SendKeys``).
 * ``--mute`` / ``--unmute`` : active ou désactive le mute du son (même logique que

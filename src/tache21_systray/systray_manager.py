@@ -22,7 +22,7 @@ import websockets
 from plyer import notification as plyer_notification
 
 # Configuration
-TRAY_DB = Path("F:/BUREAU/turbo/jarvis.db")
+TRAY_DB = Path("/home/turbo/jarvis-m1-ops/jarvis.db")
 WS_URL = "ws://127.0.0.1:9742"
 ICON_SIZE = 64
 NOTIF_SPAM_WINDOW = 30  # secondes
@@ -331,7 +331,7 @@ class TrayManager:
             level=logging.INFO,
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
             handlers=[
-                logging.FileHandler("F:/BUREAU/turbo/logs/tray.log"),
+                logging.FileHandler("/home/turbo/jarvis-m1-ops/logs/tray.log"),
                 logging.StreamHandler(),
             ],
         )

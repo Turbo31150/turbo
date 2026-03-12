@@ -25,7 +25,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 # ---------------------------------------------------------------------------
 
 _fake_config = MagicMock()
-_fake_config.PATHS = {"turbo": "F:/BUREAU/turbo"}
+_fake_config.PATHS = {"turbo": "/home/turbo/jarvis-m1-ops"}
 
 
 @pytest.fixture(autouse=True)

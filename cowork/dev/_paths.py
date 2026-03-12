@@ -1,6 +1,6 @@
 """Shared path constants and config for COWORK scripts.
 
-Derives TURBO_DIR from the file location instead of hardcoding F:/BUREAU/turbo.
+Derives TURBO_DIR from the file location instead of hardcoding /home/turbo/jarvis-m1-ops.
 All cowork scripts should use: from _paths import TURBO_DIR, ETOILE_DB, JARVIS_DB
 Telegram config loaded from .env (never hardcode tokens).
 """

@@ -17,7 +17,7 @@ import sys
 from pathlib import Path
 
 # === CHEMINS ===
-TURBO_DIR = Path("F:/BUREAU/turbo")
+TURBO_DIR = Path("/home/turbo/jarvis-m1-ops")
 DATA_DIR = TURBO_DIR / "data"
 DB_PATH = DATA_DIR / "jarvis.db"
 ETOILE_DB_PATH = DATA_DIR / "etoile.db"

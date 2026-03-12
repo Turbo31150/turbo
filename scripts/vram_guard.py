@@ -31,7 +31,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-TURBO_DIR = Path("F:/BUREAU/turbo")
+TURBO_DIR = Path("/home/turbo/jarvis-m1-ops")
 PAUSE_FLAG = TURBO_DIR / "data" / ".cowork-paused"
 LOG_FILE = TURBO_DIR / "logs" / "vram_guard.log"
 

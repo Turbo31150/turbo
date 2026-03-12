@@ -1,6 +1,6 @@
 """Auto-generate COMMANDES_VOCALES.md from the COMMANDS list."""
 import sys
-sys.path.insert(0, "F:\\BUREAU\\turbo")
+sys.path.insert(0, "F:/BUREAU/turbo")
 
 from src.commands import COMMANDS
 from datetime import date
@@ -143,7 +143,7 @@ for cat in cat_order:
 
 content = "\n".join(lines)
 
-with open("F:\\BUREAU\\turbo\\docs\\COMMANDES_VOCALES.md", "w", encoding="utf-8") as f:
+with open("F:/BUREAU/turbo/docs/COMMANDES_VOCALES.md", "w", encoding="utf-8") as f:
     f.write(content)
 
 print(f"Generated {len(lines)} lines, {len(content)} chars")

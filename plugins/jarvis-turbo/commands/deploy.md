@@ -6,7 +6,7 @@ description: Commit + push rapide du projet turbo avec message auto-genere
 Deploy rapide du projet JARVIS turbo. Equivalent de git add + commit + push.
 
 Etapes :
-1. `cd F:/BUREAU/turbo && git status -u` — voir les changements
+1. `cd /home/turbo/jarvis-m1-ops && git status -u` — voir les changements
 2. `git diff --stat` — resume des modifications
 3. `git log --oneline -3` — style des commits recents
 

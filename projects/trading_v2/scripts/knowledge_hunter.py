@@ -16,7 +16,7 @@ import argparse
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-CONFIG_PATH = r"F:\BUREAU\TRADING_V2_PRODUCTION\config\stt_corrections.json"
+CONFIG_PATH = r"/home/turbo\TRADING_V2_PRODUCTION\config\stt_corrections.json"
 
 # Glossaire local complet (150+ termes)
 LOCAL_GLOSSARY = {

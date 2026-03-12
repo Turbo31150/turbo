@@ -30,10 +30,10 @@ if sys.platform == "win32":
     os.environ.setdefault("PYTHONIOENCODING", "utf-8")
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-STRESS_DB = Path("F:/BUREAU/turbo/data/ultra_stress_v2.db")
-ETOILE_DB = Path("F:/BUREAU/turbo/data/etoile.db")
-LEARNINGS_FILE = Path("F:/BUREAU/turbo/data/deep_learnings.json")
-HISTORY_FILE = Path("F:/BUREAU/turbo/data/learning_history.json")
+STRESS_DB = Path("/home/turbo/jarvis-m1-ops/data/ultra_stress_v2.db")
+ETOILE_DB = Path("/home/turbo/jarvis-m1-ops/data/etoile.db")
+LEARNINGS_FILE = Path("/home/turbo/jarvis-m1-ops/data/deep_learnings.json")
+HISTORY_FILE = Path("/home/turbo/jarvis-m1-ops/data/learning_history.json")
 
 TG_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
 TG_CHAT = os.environ.get("TELEGRAM_CHAT", "")

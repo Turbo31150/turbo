@@ -412,20 +412,20 @@ Reparties en **14 categories**.
 | `deplacer_fichier` | powershell | Deplacer un fichier | deplace {source} dans {destination}, deplace {source} vers {destination} |
 | `explorer_nouvel_onglet` | powershell | Nouvel onglet dans l'Explorateur | nouvel onglet explorateur, onglet explorateur |
 | `dossier_captures` | powershell | Ouvrir le dossier captures d'ecran | dossier captures, ouvre les captures |
-| `taille_dossiers_bureau` | powershell | Taille de chaque dossier dans F:\BUREAU | taille des projets, poids des dossiers bureau |
+| `taille_dossiers_bureau` | powershell | Taille de chaque dossier dans /home/turbo | taille des projets, poids des dossiers bureau |
 | `compresser_fichier` | powershell | Compresser un dossier en ZIP | compresse en zip, zip le dossier |
 | `decompresser_fichier` | powershell | Decompresser un fichier ZIP | decompresse le zip, unzip |
 | `compresser_turbo` | powershell | Compresser le projet turbo en ZIP (sans .git ni venv) | zip turbo, archive turbo |
 | `vider_dossier_temp` | powershell | Supprimer les fichiers temporaires | vide le temp, nettoie les temporaires |
 | `lister_fichiers_recents` | powershell | Lister les 20 fichiers les plus recents sur le bureau | fichiers recents, derniers fichiers |
 | `chercher_gros_fichiers` | powershell | Trouver les fichiers > 100 MB sur F: | gros fichiers partout, fichiers enormes |
-| `doublons_bureau` | powershell | Detecter les doublons potentiels par nom dans F:\BUREAU | doublons bureau, fichiers en double |
+| `doublons_bureau` | powershell | Detecter les doublons potentiels par nom dans /home/turbo | doublons bureau, fichiers en double |
 | `taille_telechargements` | powershell | Taille du dossier Telechargements | taille telechargements, poids downloads |
 | `vider_telechargements` | powershell | Vider le dossier Telechargements (fichiers > 30 jours) | vide les telechargements, nettoie les downloads |
 | `lister_telechargements` | powershell | Derniers fichiers telecharges | derniers telechargements, quoi de telecharge |
 | `ouvrir_telechargements` | powershell | Ouvrir le dossier Telechargements | ouvre les telechargements, dossier downloads |
 | `ouvrir_documents` | powershell | Ouvrir le dossier Documents | ouvre les documents, dossier documents |
-| `ouvrir_bureau_dossier` | powershell | Ouvrir F:\BUREAU dans l'explorateur | ouvre le bureau, dossier bureau |
+| `ouvrir_bureau_dossier` | powershell | Ouvrir /home/turbo dans l'explorateur | ouvre le bureau, dossier bureau |
 | `fichier_recent_modifie` | powershell | Trouver le dernier fichier modifie partout | dernier fichier modifie, quoi vient de changer |
 | `compter_fichiers_type` | powershell | Compter les fichiers par extension dans un dossier | compte les fichiers par type, extensions dans {path} |
 

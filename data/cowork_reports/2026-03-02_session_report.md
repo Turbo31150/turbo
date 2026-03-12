@@ -54,7 +54,7 @@
 
 ## Tests backend (4/4 OK)
 
-- `system_info`: OK - Windows CPU:38% RAM:49% Disks:[C:\, F:\]
+- `system_info`: OK - Windows CPU:38% RAM:49% Disks:[/, F:\]
 - `ping`: OK - pong=True
 - `save_config`: OK - saved=True
 - `get_config`: OK - config loaded

@@ -37,16 +37,16 @@ M1 est le noeud principal — rapide et fiable pour toutes les taches.
 
 ### GEMINI — Architecture & Vision (Gemini 3 Pro, proxy Node)
 ```
-node F:/BUREAU/turbo/gemini-proxy.js "PROMPT"
+node /home/turbo/jarvis-m1-ops/gemini-proxy.js "PROMPT"
 ```
-JSON: `node F:/BUREAU/turbo/gemini-proxy.js --json "PROMPT"`
+JSON: `node /home/turbo/jarvis-m1-ops/gemini-proxy.js --json "PROMPT"`
 Proxy gere timeout 2min + fallback pro/flash.
 
 ### CLAUDE — Raisonnement Cloud (Claude Code CLI, proxy Node)
 ```
-node F:/BUREAU/turbo/claude-proxy.js "PROMPT"
+node /home/turbo/jarvis-m1-ops/claude-proxy.js "PROMPT"
 ```
-JSON: `node F:/BUREAU/turbo/claude-proxy.js --json "PROMPT"`
+JSON: `node /home/turbo/jarvis-m1-ops/claude-proxy.js --json "PROMPT"`
 Proxy gere timeout 2min + fallback sonnet/haiku/opus.
 
 ## Matrice de Routage (MaJ 2026-03-06)
@@ -90,13 +90,13 @@ Ces commandes sont en PowerShell (exec = PowerShell sur Windows).
 
 | Declencheur | Commande exec |
 |---|---|
-| "scan sniper" ou "sniper" | `Set-Location F:\BUREAU\turbo; & C:\Users\franc\.local\bin\uv.exe run python scripts/scan_sniper.py` |
-| "scan hyper" ou "hyper scan" | `Set-Location F:\BUREAU\turbo; & C:\Users\franc\.local\bin\uv.exe run python main.py "Lance le hyper scan: analyse toutes les paires en parallele, detecte les opportunites avec consensus IA."` |
-| "sniper 10" ou "sniper 10 cycles" | `Set-Location F:\BUREAU\turbo; & C:\Users\franc\.local\bin\uv.exe run python main.py "Lance le sniper 10 cycles: scan continu des breakouts sur toutes les paires, 10 iterations."` |
-| "pipeline 10" ou "pipeline intensif" | `Set-Location F:\BUREAU\turbo; & C:\Users\franc\.local\bin\uv.exe run python main.py "Lance le pipeline intensif 10 cycles avec les outils trading: scanner, analyser, executer les signaux."` |
-| "trident" ou "execute trident" | `Set-Location F:\BUREAU\turbo; & C:\Users\franc\.local\bin\uv.exe run python main.py "Execute le trident: consensus multi-IA sur les signaux trading, valide et execute les meilleurs."` |
-| "monitor river" ou "monitoring" | `Set-Location F:\BUREAU\turbo; & C:\Users\franc\.local\bin\uv.exe run python main.py "Lance le monitoring continu des positions et du marche."` |
-| "audit systeme" ou "audit cluster" | `Set-Location F:\BUREAU\turbo; & C:\Users\franc\.local\bin\uv.exe run python scripts/system_audit.py --quick` |
+| "scan sniper" ou "sniper" | `Set-Location /home/turbo/jarvis-m1-ops; & /home/turbo\.local\bin\uv.exe run python scripts/scan_sniper.py` |
+| "scan hyper" ou "hyper scan" | `Set-Location /home/turbo/jarvis-m1-ops; & /home/turbo\.local\bin\uv.exe run python main.py "Lance le hyper scan: analyse toutes les paires en parallele, detecte les opportunites avec consensus IA."` |
+| "sniper 10" ou "sniper 10 cycles" | `Set-Location /home/turbo/jarvis-m1-ops; & /home/turbo\.local\bin\uv.exe run python main.py "Lance le sniper 10 cycles: scan continu des breakouts sur toutes les paires, 10 iterations."` |
+| "pipeline 10" ou "pipeline intensif" | `Set-Location /home/turbo/jarvis-m1-ops; & /home/turbo\.local\bin\uv.exe run python main.py "Lance le pipeline intensif 10 cycles avec les outils trading: scanner, analyser, executer les signaux."` |
+| "trident" ou "execute trident" | `Set-Location /home/turbo/jarvis-m1-ops; & /home/turbo\.local\bin\uv.exe run python main.py "Execute le trident: consensus multi-IA sur les signaux trading, valide et execute les meilleurs."` |
+| "monitor river" ou "monitoring" | `Set-Location /home/turbo/jarvis-m1-ops; & /home/turbo\.local\bin\uv.exe run python main.py "Lance le monitoring continu des positions et du marche."` |
+| "audit systeme" ou "audit cluster" | `Set-Location /home/turbo/jarvis-m1-ops; & /home/turbo\.local\bin\uv.exe run python scripts/system_audit.py --quick` |
 | "scan marche" ou "scan mexc" | Execute directement: `curl.exe -s "https://contract.mexc.com/api/v1/contract/ticker"` et presente le top mouvements |
 
 ## Commandes Windows — OBLIGATOIRE: utilise exec avec la commande EXACTE ci-dessous
@@ -262,7 +262,7 @@ Reponds DIRECTEMENT (sans spawn) seulement si:
 
 ## Scripts et Outils (voir TOOLS.md pour details)
 
-- Audit cluster: `python F:/BUREAU/turbo/scripts/system_audit.py`
+- Audit cluster: `python /home/turbo/jarvis-m1-ops/scripts/system_audit.py`
 - Scan marche: `curl.exe -s "https://contract.mexc.com/api/v1/contract/ticker"`
 - Dashboard: `http://127.0.0.1:8080`
-- Launchers: `F:/BUREAU/turbo/launchers/`
+- Launchers: `/home/turbo/jarvis-m1-ops/launchers/`

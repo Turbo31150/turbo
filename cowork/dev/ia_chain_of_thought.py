@@ -3,7 +3,7 @@
 
 Decomposes a problem into reasoning steps, sends each to M1 (qwen3-8b).
 Uses LM Studio Responses API: POST http://127.0.0.1:1234/api/v1/chat
-Body: model=qwen3-8b, input="/nothink\\nPROMPT"
+Body: model=qwen3-8b, input="/nothink/nPROMPT"
 Extract: output[].type==message -> content[].type==output_text -> .text
 
 Usage:

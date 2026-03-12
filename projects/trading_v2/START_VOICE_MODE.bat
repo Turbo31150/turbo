@@ -18,7 +18,7 @@ echo  Securite: Souris dans un coin = STOP immediat
 echo ==================================================
 echo.
 
-cd /d F:\BUREAU\TRADING_V2_PRODUCTION\voice_system
+cd /d /home/turbo\TRADING_V2_PRODUCTION\voice_system
 python commander_v2.py
 
 pause

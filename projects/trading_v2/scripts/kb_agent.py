@@ -28,7 +28,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-DB_PATH = r"F:\BUREAU\TRADING_V2_PRODUCTION\database\trading.db"
+DB_PATH = r"/home/turbo\TRADING_V2_PRODUCTION\database\trading.db"
 
 
 class KnowledgeBase:

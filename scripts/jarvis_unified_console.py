@@ -14,13 +14,13 @@ from pathlib import Path
 import urllib.error
 from urllib.request import urlopen
 
-BASE = Path("F:/BUREAU/turbo")
+BASE = Path("/home/turbo/jarvis-m1-ops")
 HOME = Path(os.path.expanduser("~"))
 LOG_FILE = BASE / "data" / "jarvis_unified.log"
 LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
 VENV_PY = str(BASE / ".venv" / "Scripts" / "python.exe")
-NODE = r'"C:\Program Files\nodejs\node.exe"'
-N8N_CMD = r"C:\nvm4w\nodejs\n8n.cmd"
+NODE = r'"/Program Files\nodejs\node.exe"'
+N8N_CMD = r"/nvm4w\nodejs\n8n.cmd"
 LMS_CLI = str(HOME / ".lmstudio" / "bin" / "lms.exe")
 
 # ── ANSI colors for tags ────────────────────────────────────────────
@@ -307,14 +307,14 @@ SERVICES = [
     ("whisper", f'"{VENV_PY}" -m src.whisper_worker', str(BASE),
      "WHISPER", None, None, 1),
 
-    ("openclaw", f'{NODE} C:\\Users\\franc\\AppData\\Roaming\\npm\\node_modules\\openclaw\\dist\\index.js gateway --port 18789',
-     "C:\\Users\\franc\\.openclaw",
+    ("openclaw", f'{NODE} /\Users/franc/AppData/Roaming/npm/node_modules/openclaw/dist/index.js gateway --port 18789',
+     "/\Users/franc/.openclaw",
      "OPENCLAW", {"OPENCLAW_GATEWAY_PORT": "18789", "OPENCLAW_GATEWAY_TOKEN": "ae1cd158a0975c30e7712b274859e202896e7f67203de9d2"}, [18789], 2),
 
     ("telegram", f'{NODE} telegram-bot.js', str(BASE / "canvas"),
      "TELEGRAM", None, None, 2),
 
-    ("gemini", f'{NODE} C:\\Users\\franc\\.openclaw\\gemini-proxy.js',
+    ("gemini", f'{NODE} /\Users/franc/.openclaw/gemini-proxy.js',
      str(HOME / ".openclaw"),
      "GEMINI", None, [18791], 1),
 

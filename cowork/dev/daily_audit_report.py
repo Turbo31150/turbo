@@ -118,7 +118,7 @@ def run_audit():
             dry = data.get("config", {}).get("dry_run", True)
             scores["trading"] = 80 if sigs > 0 else 40
             report_lines.append(f"\n*Trading*: {sigs} signaux total, {opens} positions ouvertes")
-            report_lines.append(f"  Config: MEXC {data.get('config',{}).get('leverage',0)}x, DRY\\_RUN={'oui' if dry else 'non'}")
+            report_lines.append(f"  Config: MEXC {data.get('config',{}).get('leverage',0)}x, DRY/_RUN={'oui' if dry else 'non'}")
             print(f"OK ({sigs} sigs, {opens} open)")
         except Exception:
             scores["trading"] = 50
@@ -236,13 +236,13 @@ def run_audit():
     report_lines.append(f"Scores: {' | '.join(f'{k}={v}' for k,v in scores.items())}")
 
     # Workers check
-    report_lines.append(f"\n*Workers actifs*: evolution + orchestrator\\_v3 + strategy\\_worker + deep\\_analysis + MCP\\_server")
+    report_lines.append(f"\n*Workers actifs*: evolution + orchestrator/_v3 + strategy/_worker + deep/_analysis + MCP/_server")
 
     report = "\n".join(report_lines)
 
     # Save to file
     fname = REPORTS_DIR / f"audit_{ts.strftime('%Y-%m-%d_%H%M')}.md"
-    fname.write_text(report.replace("*", "**").replace("\\_", "_"), encoding="utf-8")
+    fname.write_text(report.replace("*", "**").replace("/_", "_"), encoding="utf-8")
     print(f"\n  Saved: {fname}")
 
     # Send to Telegram

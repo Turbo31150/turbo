@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS Voice Wake</title>
+    <style>
+        body { background: transparent; color: #00ffcc; font-family: monospace; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .mic-btn { background: #111; border: 2px solid #00ffcc; color: #00ffcc; padding: 10px 20px; font-size: 1.2rem; cursor: pointer; border-radius: 8px; transition: all 0.3s; }
+        .mic-btn.active { background: #00ffcc; color: #000; box-shadow: 0 0 15px #00ffcc; }
+        #status { margin-left: 15px; font-size: 1rem; }
+    </style>
+</head>
+<body>
+    <button id="micBtn" class="mic-btn">🎤 Activer JARVIS</button>
+    <div id="status">En attente...</div>
+
+    <script>
+        const btn = document.getElementById('micBtn');
+        const status = document.getElementById('status');
+        let ws;
+        let isListening = false;
+
+        btn.addEventListener('click', () => {
+            if (!isListening) {
+                startListening();
+            } else {
+                stopListening();
+            }
+        });
+
+        function startListening() {
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                isListening = true;
+                btn.classList.add('active');
+                status.innerText = "Écoute 'Hey Jarvis'...";
+                
+                // Connexion WS au backend skill
+                ws = new WebSocket('ws://127.0.0.1:8002/audio');
+                ws.onopen = () => console.log('Connecté au module Porcupine.');
+                ws.onmessage = (e) => {
+                    const data = JSON.parse(e.data);
+                    if(data.action === "trigger_mcp") {
+                        status.innerText = "JARVIS activé ! Appel MCP...";
+                        setTimeout(() => status.innerText = "Écoute 'Hey Jarvis'...", 3000);
+                    }
+                };
+
+                // (Ici le code Web Audio API pour le flux serait implémenté)
+                // Simulation d'un trigger pour la démo
+                setTimeout(() => {
+                    if(ws.readyState === WebSocket.OPEN) {
+                        ws.send(JSON.stringify({ event: 'wake_word_detected' }));
+                    }
+                }, 5000);
+
+            }).catch(err => {
+                console.error(err);
+                status.innerText = "Erreur micro.";
+            });
+        }
+
+        function stopListening() {
+            isListening = false;
+            btn.classList.remove('active');
+            status.innerText = "En attente...";
+            if(ws) ws.close();
+        }
+    </script>
+</body>
+</html>

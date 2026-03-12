@@ -127,7 +127,7 @@ except Exception as e:
     fail("voice_latency_check", str(e)[:80])
 
 try:
-    out = ps("if (Test-Path 'F:\\BUREAU\\turbo\\src\\voice.py') { $lines = (Get-Content 'F:\\BUREAU\\turbo\\src\\voice.py' | Select-String 'cache|LRU').Count; Write-Output \"$lines refs cache dans voice.py\" } else { Write-Output 'voice.py absent' }")
+    out = ps("if (Test-Path 'F:/BUREAU/turbo/src/voice.py') { $lines = (Get-Content 'F:/BUREAU/turbo/src/voice.py' | Select-String 'cache|LRU').Count; Write-Output \"$lines refs cache dans voice.py\" } else { Write-Output 'voice.py absent' }")
     ok("voice_cache_stats", out[:80])
 except Exception as e:
     fail("voice_cache_stats", str(e)[:80])
@@ -142,7 +142,7 @@ except Exception as e:
     fail("voice_fallback_chain", str(e)[:80])
 
 try:
-    out = ps("$v1 = if (Test-Path 'F:\\BUREAU\\turbo\\src\\voice.py') { [math]::Round((Get-Item 'F:\\BUREAU\\turbo\\src\\voice.py').Length/1KB) } else { 0 }; $v2 = if (Test-Path 'F:\\BUREAU\\turbo\\src\\voice_correction.py') { [math]::Round((Get-Item 'F:\\BUREAU\\turbo\\src\\voice_correction.py').Length/1KB) } else { 0 }; Write-Output \"voice.py: ${v1}KB, voice_correction.py: ${v2}KB\"")
+    out = ps("$v1 = if (Test-Path 'F:/BUREAU/turbo/src/voice.py') { [math]::Round((Get-Item 'F:/BUREAU/turbo/src/voice.py').Length/1KB) } else { 0 }; $v2 = if (Test-Path 'F:/BUREAU/turbo/src/voice_correction.py') { [math]::Round((Get-Item 'F:/BUREAU/turbo/src/voice_correction.py').Length/1KB) } else { 0 }; Write-Output \"voice.py: ${v1}KB, voice_correction.py: ${v2}KB\"")
     ok("voice_config_show", out[:80])
 except Exception as e:
     fail("voice_config_show", str(e)[:80])
@@ -151,31 +151,31 @@ except Exception as e:
 print("\n[PLUGIN MANAGEMENT]")
 
 try:
-    out = ps("$s = Get-Content 'C:\\Users\\franc\\.claude\\settings.json' | ConvertFrom-Json; $count = ($s.plugins | Measure-Object).Count; Write-Output \"$count plugins actifs\"")
+    out = ps("$s = Get-Content '/\Users/franc/.claude/settings.json' | ConvertFrom-Json; $count = ($s.plugins | Measure-Object).Count; Write-Output \"$count plugins actifs\"")
     ok("plugin_list_enabled", out[:80])
 except Exception as e:
     fail("plugin_list_enabled", str(e)[:80])
 
 try:
-    out = ps("$p = 'C:\\Users\\franc\\.claude\\plugins\\local\\jarvis-turbo\\plugin.json'; if (Test-Path $p) { $d = Get-Content $p | ConvertFrom-Json; Write-Output \"jarvis-turbo v$($d.version)\" } else { Write-Output 'non trouve' }")
+    out = ps("$p = '/\Users/franc/.claude/plugins/local/jarvis-turbo/plugin.json'; if (Test-Path $p) { $d = Get-Content $p | ConvertFrom-Json; Write-Output \"jarvis-turbo v$($d.version)\" } else { Write-Output 'non trouve' }")
     ok("plugin_jarvis_status", out[:80])
 except Exception as e:
     fail("plugin_jarvis_status", str(e)[:80])
 
 try:
-    out = ps("$local = if (Test-Path 'C:\\Users\\franc\\.claude\\plugins\\local') { (Get-ChildItem 'C:\\Users\\franc\\.claude\\plugins\\local' -Directory | Measure-Object).Count } else { 0 }; $cache = if (Test-Path 'C:\\Users\\franc\\.claude\\plugins\\cache') { (Get-ChildItem 'C:\\Users\\franc\\.claude\\plugins\\cache' -Directory | Measure-Object).Count } else { 0 }; Write-Output \"local: $local, cache: $cache\"")
+    out = ps("$local = if (Test-Path '/\Users/franc/.claude/plugins/local') { (Get-ChildItem '/\Users/franc/.claude/plugins/local' -Directory | Measure-Object).Count } else { 0 }; $cache = if (Test-Path '/\Users/franc/.claude/plugins/cache') { (Get-ChildItem '/\Users/franc/.claude/plugins/cache' -Directory | Measure-Object).Count } else { 0 }; Write-Output \"local: $local, cache: $cache\"")
     ok("plugin_health_check", out[:80])
 except Exception as e:
     fail("plugin_health_check", str(e)[:80])
 
 try:
-    out = ps("$mod = (Get-Item 'C:\\Users\\franc\\.claude\\settings.json').LastWriteTime; Write-Output \"settings.json modifie: $mod\"")
+    out = ps("$mod = (Get-Item '/\Users/franc/.claude/settings.json').LastWriteTime; Write-Output \"settings.json modifie: $mod\"")
     ok("plugin_reload_config", out[:80])
 except Exception as e:
     fail("plugin_reload_config", str(e)[:80])
 
 try:
-    out = ps("Get-ChildItem 'C:\\Users\\franc\\.claude\\plugins\\local' -Directory -ErrorAction SilentlyContinue | ForEach-Object { $_.Name } | Out-String")
+    out = ps("Get-ChildItem '/\Users/franc/.claude/plugins/local' -Directory -ErrorAction SilentlyContinue | ForEach-Object { $_.Name } | Out-String")
     ok("plugin_config_show", out.replace("\n", ", ")[:80] if out else "aucun plugin local")
 except Exception as e:
     fail("plugin_config_show", str(e)[:80])
@@ -196,7 +196,7 @@ except Exception as e:
     fail("embedding_search_test", str(e)[:80])
 
 try:
-    out = ps("$db = [math]::Round((Get-Item 'F:\\BUREAU\\turbo\\data\\etoile.db').Length / 1KB); Write-Output \"etoile.db: ${db}KB\"")
+    out = ps("$db = [math]::Round((Get-Item 'F:/BUREAU/turbo/data/etoile.db').Length / 1KB); Write-Output \"etoile.db: ${db}KB\"")
     ok("embedding_cache_status", out[:80])
 except Exception as e:
     fail("embedding_cache_status", str(e)[:80])
@@ -223,13 +223,13 @@ except Exception as e:
     fail("finetune_validate_quality", str(e)[:80])
 
 try:
-    out = ps("if (Test-Path 'F:\\BUREAU\\turbo\\finetuning') { $f = (Get-ChildItem 'F:\\BUREAU\\turbo\\finetuning' -Recurse -File | Measure-Object); Write-Output \"$($f.Count) fichiers finetuning\" } else { Write-Output '0 fichiers' }")
+    out = ps("if (Test-Path 'F:/BUREAU/turbo/finetuning') { $f = (Get-ChildItem 'F:/BUREAU/turbo/finetuning' -Recurse -File | Measure-Object); Write-Output \"$($f.Count) fichiers finetuning\" } else { Write-Output '0 fichiers' }")
     ok("finetune_dataset_stats", out[:80])
 except Exception as e:
     fail("finetune_dataset_stats", str(e)[:80])
 
 try:
-    out = ps("if (Test-Path 'F:\\BUREAU\\turbo\\finetuning') { $cp = Get-ChildItem 'F:\\BUREAU\\turbo\\finetuning' -Recurse -Directory -Filter 'checkpoint-*' -ErrorAction SilentlyContinue; Write-Output \"$($cp.Count) checkpoints\" } else { Write-Output '0 checkpoints' }")
+    out = ps("if (Test-Path 'F:/BUREAU/turbo/finetuning') { $cp = Get-ChildItem 'F:/BUREAU/turbo/finetuning' -Recurse -Directory -Filter 'checkpoint-*' -ErrorAction SilentlyContinue; Write-Output \"$($cp.Count) checkpoints\" } else { Write-Output '0 checkpoints' }")
     ok("finetune_export_lora", out[:80])
 except Exception as e:
     fail("finetune_export_lora", str(e)[:80])
@@ -238,7 +238,7 @@ except Exception as e:
 print("\n[BRAIN LEARNING & MEMORY]")
 
 try:
-    out = ps("& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); total=c.execute('SELECT COUNT(*) FROM memories').fetchone()[0]; cats=c.execute('SELECT COUNT(DISTINCT category) FROM memories').fetchone()[0]; print(f'{total} memories, {cats} categories'); c.close()\" 2>&1")
+    out = ps("& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); total=c.execute('SELECT COUNT(*) FROM memories').fetchone()[0]; cats=c.execute('SELECT COUNT(DISTINCT category) FROM memories').fetchone()[0]; print(f'{total} memories, {cats} categories'); c.close()\" 2>&1")
     ok("brain_memory_status", out[:80])
 except Exception as e:
     fail("brain_memory_status", str(e)[:80])
@@ -250,19 +250,19 @@ except Exception as e:
     fail("brain_pattern_learn", str(e)[:80])
 
 try:
-    out = ps("& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); dupes=c.execute('SELECT key,COUNT(*) FROM memories GROUP BY key HAVING COUNT(*)>1').fetchall(); print(f'{len(dupes)} doublons'); c.close()\" 2>&1")
+    out = ps("& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); dupes=c.execute('SELECT key,COUNT(*) FROM memories GROUP BY key HAVING COUNT(*)>1').fetchall(); print(f'{len(dupes)} doublons'); c.close()\" 2>&1")
     ok("brain_memory_consolidate", out[:80])
 except Exception as e:
     fail("brain_memory_consolidate", str(e)[:80])
 
 try:
-    out = ps("& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); r=c.execute('SELECT COUNT(*) FROM memories').fetchone()[0]; print(f'{r} entries exportables'); c.close()\" 2>&1")
+    out = ps("& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('SELECT COUNT(*) FROM memories').fetchone()[0]; print(f'{r} entries exportables'); c.close()\" 2>&1")
     ok("brain_memory_export", out[:80])
 except Exception as e:
     fail("brain_memory_export", str(e)[:80])
 
 try:
-    out = ps("& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); r=c.execute('SELECT category,key,value FROM memories ORDER BY ROWID DESC LIMIT 3').fetchall(); [print(f'  [{cat}] {k}: {v[:50]}') for cat,k,v in r]; c.close()\" 2>&1")
+    out = ps("& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('SELECT category,key,value FROM memories ORDER BY ROWID DESC LIMIT 3').fetchall(); [print(f'  [{cat}] {k}: {v[:50]}') for cat,k,v in r]; c.close()\" 2>&1")
     ok("brain_pattern_search", out[:80])
 except Exception as e:
     fail("brain_pattern_search", str(e)[:80])

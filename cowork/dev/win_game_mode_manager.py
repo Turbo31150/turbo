@@ -79,7 +79,7 @@ def init_db():
 def check_game_mode_registry():
     """Check if Windows Game Mode is enabled in registry."""
     try:
-        cmd = 'powershell -NoProfile -Command "(Get-ItemProperty -Path \'HKCU:\\SOFTWARE\\Microsoft\\GameBar\' -Name \'AutoGameModeEnabled\' -ErrorAction SilentlyContinue).AutoGameModeEnabled"'
+        cmd = 'powershell -NoProfile -Command "(Get-ItemProperty -Path \'HKCU:/SOFTWARE/Microsoft/GameBar\' -Name \'AutoGameModeEnabled\' -ErrorAction SilentlyContinue).AutoGameModeEnabled"'
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=10, shell=True)
         val = r.stdout.strip()
         return val == "1"
@@ -90,7 +90,7 @@ def set_game_mode_registry(enabled):
     """Enable/disable Game Mode via registry."""
     val = 1 if enabled else 0
     try:
-        cmd = f'powershell -NoProfile -Command "Set-ItemProperty -Path \'HKCU:\\SOFTWARE\\Microsoft\\GameBar\' -Name \'AutoGameModeEnabled\' -Value {val} -Type DWord -Force; Write-Output OK"'
+        cmd = f'powershell -NoProfile -Command "Set-ItemProperty -Path \'HKCU:/SOFTWARE/Microsoft/GameBar\' -Name \'AutoGameModeEnabled\' -Value {val} -Type DWord -Force; Write-Output OK"'
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=10, shell=True)
         return "OK" in r.stdout
     except Exception:

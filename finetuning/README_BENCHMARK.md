@@ -54,7 +54,7 @@ Score de 0.0 à 1.0 mesurant si la réponse mentionne des outils/commandes JARVI
 ## Installation des dépendances
 
 ```bash
-cd F:\BUREAU\turbo
+cd /home/turbo/jarvis-m1-ops
 uv pip install transformers peft bitsandbytes scikit-learn
 ```
 
@@ -63,14 +63,14 @@ uv pip install transformers peft bitsandbytes scikit-learn
 ### Lancer le benchmark
 
 ```bash
-cd F:\BUREAU\turbo
+cd /home/turbo/jarvis-m1-ops
 uv run python finetuning/benchmark.py
 ```
 
 ### Structure du répertoire attendue
 
 ```
-F:\BUREAU\turbo\finetuning\
+/home/turbo/jarvis-m1-ops\finetuning\
 ├── benchmark.py                 # Ce script
 ├── README_BENCHMARK.md         # Cette documentation
 ├── output/                      # Dossier contenant les adaptateurs LoRA
@@ -99,7 +99,7 @@ Le script génère :
 {
   "metadata": {
     "base_model": "Qwen/Qwen3-30B-A3B",
-    "lora_adapter": "F:/BUREAU/turbo/finetuning/output/.../final",
+    "lora_adapter": "/home/turbo/jarvis-m1-ops/finetuning/output/.../final",
     "device": "cuda",
     "timestamp": "2026-02-18T10:30:45.123456"
   },
@@ -195,7 +195,7 @@ Fine-tuning améliore le routage vers les bons outils
 ## Fichiers générés
 
 ```
-F:\BUREAU\turbo\finetuning\
+/home/turbo/jarvis-m1-ops\finetuning\
 ├── benchmark_results.json          # Rapport complet JSON
 ├── benchmark_results_summary.txt   # (Optionnel) Résumé texte
 └── benchmark_results_charts.html   # (Optionnel) Graphiques interactifs

@@ -27,7 +27,7 @@ curl -s --max-time 3 http://127.0.0.1:1234/api/v1/models -H "Authorization: Bear
 ```
 
 ```bash
-node F:/BUREAU/turbo/gemini-proxy.js --ping 2>/dev/null && echo "GEMINI OK" || echo "GEMINI OFFLINE"
+node /home/turbo/jarvis-m1-ops/gemini-proxy.js --ping 2>/dev/null && echo "GEMINI OK" || echo "GEMINI OFFLINE"
 ```
 
 Presente les resultats en tableau markdown avec colonnes: Noeud | Statut | Latence | Details.

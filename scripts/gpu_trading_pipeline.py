@@ -7,7 +7,7 @@ Architecture:
 
 Pipeline: MEXC scrape → Score → Filtre → Analyse IA fine → Classification → Signal
 Usage:
-  cd F:/BUREAU/turbo && uv run python scripts/gpu_trading_pipeline.py [--cycles N] [--json] [--top N] [--interval S]
+  cd /home/turbo/jarvis-m1-ops && uv run python scripts/gpu_trading_pipeline.py [--cycles N] [--json] [--top N] [--interval S]
 """
 import asyncio
 import httpx
@@ -429,7 +429,7 @@ async def run_pipeline(cycles: int = 1, interval: int = 60, top_n: int = 10,
 
         # Sauvegarder en JSON
         if analyses:
-            save_path = f"F:/BUREAU/turbo/data/pipeline_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            save_path = f"/home/turbo/jarvis-m1-ops/data/pipeline_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
             try:
                 with open(save_path, "w", encoding="utf-8") as f:
                     json.dump([asdict(a) for a in analyses], f, indent=2, ensure_ascii=False)

@@ -221,8 +221,8 @@ def proactive_alerts():
 
 def disk_usage():
     import shutil
-    c = shutil.disk_usage('C:\\')
-    f = shutil.disk_usage('F:\\')
+    c = shutil.disk_usage('/\')
+    f = shutil.disk_usage('F:/')
     print(json.dumps({
         'C_free': round(c.free / 1e9), 'C_total': round(c.total / 1e9),
         'F_free': round(f.free / 1e9), 'F_total': round(f.total / 1e9)

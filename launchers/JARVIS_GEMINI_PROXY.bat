@@ -1,6 +1,6 @@
 @echo off
 title JARVIS Gemini OpenAI Proxy (port 18793)
-cd /d F:\BUREAU\turbo
+cd /d /home/turbo/jarvis-m1-ops
 
 echo ============================================
 echo   GEMINI CLI → OpenAI Proxy

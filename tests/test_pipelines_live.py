@@ -155,8 +155,8 @@ print("=" * 60)
 
 # cognitif_resume_activite
 print("\n--- cognitif_resume_activite ---")
-git_log = ps("git -C F:\\BUREAU\\turbo log --since=\"8 hours ago\" --oneline")
-uptime = ps("$up = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; (New-TimeSpan -Start $up).ToString(\"d\\.hh\\:mm\")")
+git_log = ps("git -C F:/BUREAU/turbo log --since=\"8 hours ago\" --oneline")
+uptime = ps("$up = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; (New-TimeSpan -Start $up).ToString(\"d/.hh/:mm\")")
 prompt3 = f"Resume cette activite de dev en 3 lignes. Commits recents: {git_log}. Uptime: {uptime}"
 r3 = call_lmstudio("127.0.0.1", 1234, "qwen3-8b", prompt3, M1_AUTH)
 print(f"  Git (8h): {git_log[:200]}")
@@ -165,7 +165,7 @@ results["cognitif_resume_activite"] = "OK" if "ERREUR" not in r3 else "FAIL"
 
 # cognitif_suggestion_tache
 print("\n--- cognitif_suggestion_tache ---")
-git_count = ps("(git -C F:\\BUREAU\\turbo log --since=\"4 hours ago\" --oneline | Measure-Object -Line).Lines")
+git_count = ps("(git -C F:/BUREAU/turbo log --since=\"4 hours ago\" --oneline | Measure-Object -Line).Lines")
 heure = ps("(Get-Date).ToString(\"HH:mm\")")
 prompt4 = f"Il est {heure}, l'utilisateur a fait {git_count} commits ces 4 dernieres heures. Suggere une activite adaptee (2 lignes)."
 r4 = call_lmstudio("127.0.0.1", 1234, "qwen3-8b", prompt4, M1_AUTH)
@@ -203,7 +203,7 @@ print("=" * 60)
 print("\n--- securite_ports_ouverts ---")
 ports = ps("Get-NetTCPConnection -State Listen | Sort-Object LocalPort -Unique | Select-Object -First 10 LocalPort | ForEach-Object {$_.LocalPort}")
 print(f"  Ports en ecoute: {ports}")
-ext_conn = ps("(Get-NetTCPConnection -State Established | Where-Object {$_.RemoteAddress -notmatch '^(127\\.|::1|0\\.)'} | Measure-Object).Count")
+ext_conn = ps("(Get-NetTCPConnection -State Established | Where-Object {$_.RemoteAddress -notmatch '^(127/.|::1|0/.)'} | Measure-Object).Count")
 print(f"  Connexions externes: {ext_conn}")
 results["securite_ports_ouverts"] = "OK"
 
@@ -221,8 +221,8 @@ results["securite_audit_services"] = "OK"
 
 # securite_permissions_sensibles
 print("\n--- securite_permissions_sensibles ---")
-envfiles = ps("(Get-ChildItem -Path F:\\BUREAU -Recurse -Filter '*.env' -ErrorAction SilentlyContinue -Depth 3).Count")
-pemfiles = ps("(Get-ChildItem -Path F:\\BUREAU -Recurse -Filter '*.pem' -ErrorAction SilentlyContinue -Depth 3).Count")
+envfiles = ps("(Get-ChildItem -Path F:/BUREAU -Recurse -Filter '*.env' -ErrorAction SilentlyContinue -Depth 3).Count")
+pemfiles = ps("(Get-ChildItem -Path F:/BUREAU -Recurse -Filter '*.pem' -ErrorAction SilentlyContinue -Depth 3).Count")
 print(f"  Fichiers .env: {envfiles} | .pem: {pemfiles}")
 results["securite_permissions_sensibles"] = "OK"
 
@@ -301,8 +301,8 @@ results["routine_tout_va_bien"] = "OK"
 
 # routine_bilan_journee
 print("\n--- routine_bilan_journee ---")
-commits = ps("(git -C F:\\BUREAU\\turbo log --since='midnight' --oneline | Measure-Object -Line).Lines")
-uptime2 = ps("$up = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; (New-TimeSpan -Start $up).ToString('hh\\:mm')")
+commits = ps("(git -C F:/BUREAU/turbo log --since='midnight' --oneline | Measure-Object -Line).Lines")
+uptime2 = ps("$up = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; (New-TimeSpan -Start $up).ToString('hh/:mm')")
 prompt6 = f"L'utilisateur a fait {commits} commits aujourd'hui. Il est {heure}. Uptime: {uptime2}. Fais un bilan positif en 2 lignes."
 r6 = call_lmstudio("127.0.0.1", 1234, "qwen3-8b", prompt6, M1_AUTH, max_tokens=100)
 print(f"  Commits: {commits} | Uptime: {uptime2}")
@@ -311,10 +311,10 @@ results["routine_bilan_journee"] = "OK" if "ERREUR" not in r6 else "FAIL"
 
 # routine_jarvis_selfcheck
 print("\n--- routine_jarvis_selfcheck ---")
-db1 = ps("Test-Path 'F:\\BUREAU\\turbo\\data\\etoile.db'")
-db2 = ps("Test-Path 'F:\\BUREAU\\turbo\\data\\jarvis.db'")
-cmd_count = ps("(Get-Content F:\\BUREAU\\turbo\\src\\commands.py -Raw | Select-String -Pattern 'JarvisCommand\\(' -AllMatches).Matches.Count")
-pipe_count = ps("(Get-Content F:\\BUREAU\\turbo\\src\\commands_pipelines.py -Raw | Select-String -Pattern 'JarvisCommand\\(' -AllMatches).Matches.Count")
+db1 = ps("Test-Path 'F:/BUREAU/turbo/data/etoile.db'")
+db2 = ps("Test-Path 'F:/BUREAU/turbo/data/jarvis.db'")
+cmd_count = ps("(Get-Content F:/BUREAU/turbo/src/commands.py -Raw | Select-String -Pattern 'JarvisCommand/(' -AllMatches).Matches.Count")
+pipe_count = ps("(Get-Content F:/BUREAU/turbo/src/commands_pipelines.py -Raw | Select-String -Pattern 'JarvisCommand/(' -AllMatches).Matches.Count")
 print(f"  DBs: etoile={db1} jarvis={db2}")
 print(f"  Commandes: {cmd_count} | Pipelines: {pipe_count} | Total: {int(cmd_count or 0) + int(pipe_count or 0)}")
 results["routine_jarvis_selfcheck"] = "OK"

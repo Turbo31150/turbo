@@ -1371,7 +1371,7 @@ async def handle_security_scan(args: dict) -> list[TextContent]:
 
     # Check for .env file
     import pathlib
-    env_path = pathlib.Path("F:/BUREAU/turbo/.env")
+    env_path = pathlib.Path("/home/turbo/jarvis-m1-ops/.env")
     if env_path.exists():
         issues.append("OK: .env file exists for secret management")
     else:
@@ -1437,7 +1437,7 @@ async def handle_voice_analytics(args: dict) -> list[TextContent]:
     stats = {}
     try:
         def _get_stats():
-            conn = sqlite3.connect("F:/BUREAU/turbo/data/etoile.db")
+            conn = sqlite3.connect("/home/turbo/jarvis-m1-ops/data/etoile.db")
             try:
                 corrections = conn.execute("SELECT COUNT(*) FROM voice_corrections").fetchone()[0]
                 dominos = conn.execute("SELECT COUNT(*) FROM domino_chains").fetchone()[0]
@@ -3537,7 +3537,7 @@ async def handle_fwctl_stats(args: dict) -> list[TextContent]:
 
 async def handle_schedmgr_list(args: dict) -> list[TextContent]:
     from src.scheduler_manager import scheduler_manager
-    folder = args.get("folder", "\\")
+    folder = args.get("folder", "/")
     return _text(json.dumps(scheduler_manager.list_tasks(folder=folder), indent=2))
 
 
@@ -3681,7 +3681,7 @@ async def handle_themectl_stats(args: dict) -> list[TextContent]:
 
 async def handle_certmgr_list(args: dict) -> list[TextContent]:
     from src.certificate_manager import certificate_manager
-    store = args.get("store", "Cert:\\LocalMachine\\My")
+    store = args.get("store", "Cert:/LocalMachine/My")
     return _text(json.dumps(certificate_manager.list_certs(store=store), indent=2))
 
 

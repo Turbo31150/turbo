@@ -14,7 +14,7 @@ import warnings
 warnings.filterwarnings("ignore")
 os.environ.setdefault("TF_ENABLE_ONEDNN_OPTS", "0")
 
-OUTPUT_DIR = r"F:\BUREAU\TRADING_V2_PRODUCTION\logs"
+OUTPUT_DIR = r"/home/turbo\TRADING_V2_PRODUCTION\logs"
 
 # --- LOCAL MODEL (Chatterbox sur CUDA) ---
 LOCAL_MODEL = None

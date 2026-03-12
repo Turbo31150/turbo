@@ -57,7 +57,7 @@ CONVERSATIONS = [
         "**Systeme** : Windows 11 Pro, uptime 3j 14h, CPU i9-13900K a 12% d'utilisation.\n"
         "**RAM** : 31.2 GB utilises sur 64 GB (49%) — correct, pas de pression memoire.\n"
         "**GPU** : 5 GPU detectes, GPU 0 a 42°C, 18.56 GB VRAM occupes par qwen3-30b, GPU 1-4 en idle.\n"
-        "**Disques** : C:\\ 82 GB libres sur 476 GB, F:\\ 104 GB libres sur 446 GB.\n\n"
+        "**Disques** : /\ 82 GB libres sur 476 GB, F:/ 104 GB libres sur 446 GB.\n\n"
         "Verdict : tout est nominal. Aucune intervention requise."
     ),
     make_entry(
@@ -79,7 +79,7 @@ CONVERSATIONS = [
         "**Etape 3** — `lm_cluster_status` pour le cluster IA.\n"
         "**Etape 4** — `network_info` pour les interfaces reseau.\n"
         "**Etape 5** — `list_processes` pour les top 10 processus par RAM.\n"
-        "**Etape 6** — `write_text_file` pour sauvegarder le rapport dans `F:\\BUREAU\\rapport_systeme.txt`.\n\n"
+        "**Etape 6** — `write_text_file` pour sauvegarder le rapport dans `F:/BUREAU/rapport_systeme.txt`.\n\n"
         "Rapport sauvegarde avec succes. 6 sections : systeme, GPU, cluster, reseau, processus, resume. "
         "Le fichier fait 2.4 KB."
     ),
@@ -289,19 +289,19 @@ CONVERSATIONS = [
     make_entry(
         "Cree un dossier 'backup_trading' sur le bureau et copie-y les fichiers de config trading",
         "Je m'en occupe.\n\n"
-        "**Etape 1** — `create_folder(F:\\BUREAU\\backup_trading)` : dossier cree.\n"
-        "**Etape 2** — `search_files(F:\\BUREAU\\carV1, *.json)` : recherche des fichiers de config.\n"
+        "**Etape 1** — `create_folder(F:/BUREAU/backup_trading)` : dossier cree.\n"
+        "**Etape 2** — `search_files(F:/BUREAU/carV1, *.json)` : recherche des fichiers de config.\n"
         "**Etape 3** — `copy_item` pour chaque fichier de config trouve :\n"
         "  - config.json → copie\n"
         "  - trading_pairs.json → copie\n"
         "  - strategies.json → copie\n\n"
-        "Dossier `F:\\BUREAU\\backup_trading` cree avec 3 fichiers de configuration copies. "
+        "Dossier `F:/BUREAU/backup_trading` cree avec 3 fichiers de configuration copies. "
         "Total : 45 KB. Le backup est pret."
     ),
     make_entry(
         "Cherche tous les fichiers Python dans le projet turbo et dis-moi combien il y en a",
         "Je lance la recherche.\n\n"
-        "**Etape 1** — `search_files(F:\\BUREAU\\turbo, *.py)` : scan recursif.\n\n"
+        "**Etape 1** — `search_files(F:/BUREAU/turbo, *.py)` : scan recursif.\n\n"
         "**Resultats** :\n"
         "- `src/` : 12 fichiers Python (config, tools, orchestrator, voice, etc.)\n"
         "- `finetuning/` : 5 fichiers Python (prepare_dataset, train, convert_gguf, etc.)\n"
@@ -329,16 +329,16 @@ CONVERSATIONS = [
     make_entry(
         "Lis le fichier config.py du projet turbo et resume-moi les chemins configures",
         "Je lis le fichier.\n\n"
-        "**Etape 1** — `read_text_file(F:\\BUREAU\\turbo\\src\\config.py)` : lecture du fichier.\n\n"
+        "**Etape 1** — `read_text_file(F:/BUREAU/turbo/src/config.py)` : lecture du fichier.\n\n"
         "**Resume des chemins configures (PATHS)** :\n"
-        "- `carV1` → F:\\BUREAU\\carV1 (Trading AI, DB principale)\n"
-        "- `mcp_lmstudio` → F:\\BUREAU\\MCP_MCPLMSTUDIO1\n"
-        "- `lmstudio_backup` → F:\\BUREAU\\LMSTUDIO_BACKUP\n"
-        "- `prod_intensive` → F:\\BUREAU\\PROD_INTENSIVE_V1\n"
-        "- `trading_v2` → F:\\BUREAU\\TRADING_V2_PRODUCTION\n"
-        "- `turbo` → F:\\BUREAU\\turbo (ce projet)\n"
-        "- `jarvis_legacy` → F:\\BUREAU\\JARVIS\n"
-        "- `disk_cleaner` → F:\\BUREAU\\disk_cleaner\n\n"
+        "- `carV1` → F:/BUREAU/carV1 (Trading AI, DB principale)\n"
+        "- `mcp_lmstudio` → F:/BUREAU/MCP_MCPLMSTUDIO1\n"
+        "- `lmstudio_backup` → F:/BUREAU/LMSTUDIO_BACKUP\n"
+        "- `prod_intensive` → F:/BUREAU/PROD_INTENSIVE_V1\n"
+        "- `trading_v2` → F:/BUREAU/TRADING_V2_PRODUCTION\n"
+        "- `turbo` → F:/BUREAU/turbo (ce projet)\n"
+        "- `jarvis_legacy` → F:/BUREAU/JARVIS\n"
+        "- `disk_cleaner` → F:/BUREAU/disk_cleaner\n\n"
         "8 chemins de projets indexes, plus 30+ scripts dans SCRIPTS. "
         "Le cluster est configure avec M1 (127.0.0.1:1234), M2 (192.168.1.26:1234) et OL1 (127.0.0.1:11434)."
     ),
@@ -346,12 +346,12 @@ CONVERSATIONS = [
         "Regarde l'espace disque, et si C: a moins de 50 GB libres, lance le disk cleaner",
         "Je verifie l'espace disque.\n\n"
         "**Etape 1** — `system_info` : verification des disques.\n"
-        "  - C:\\ : 82 GB libres sur 476 GB (17% utilise)\n"
-        "  - F:\\ : 104 GB libres sur 446 GB (77% utilise)\n\n"
-        "C:\\ a 82 GB de libre, c'est au-dessus du seuil de 50 GB. "
+        "  - /\ : 82 GB libres sur 476 GB (17% utilise)\n"
+        "  - F:/ : 104 GB libres sur 446 GB (77% utilise)\n\n"
+        "/\ a 82 GB de libre, c'est au-dessus du seuil de 50 GB. "
         "Pas besoin de lancer le disk cleaner pour le moment.\n\n"
-        "F:\\ est plus charge avec 77% d'utilisation, principalement a cause du cache de modeles "
-        "LM Studio (~300 GB dans `F:\\models lmsqtudio`). Si tu veux liberer de l'espace sur F:\\, "
+        "F:/ est plus charge avec 77% d'utilisation, principalement a cause du cache de modeles "
+        "LM Studio (~300 GB dans `F:/models lmsqtudio`). Si tu veux liberer de l'espace sur F:/, "
         "je peux lister les modeles non utilises et proposer des suppressions."
     ),
 
@@ -400,8 +400,8 @@ CONVERSATIONS = [
     make_entry(
         "Prends une capture d'ecran et sauvegarde-la sur le bureau",
         "Je prends la capture.\n\n"
-        "**Etape 1** — `screenshot(F:\\BUREAU\\capture_2026-02-18.png)` : capture d'ecran prise.\n\n"
-        "Screenshot sauvegarde dans `F:\\BUREAU\\capture_2026-02-18.png`. "
+        "**Etape 1** — `screenshot(F:/BUREAU/capture_2026-02-18.png)` : capture d'ecran prise.\n\n"
+        "Screenshot sauvegarde dans `F:/BUREAU/capture_2026-02-18.png`. "
         "Resolution : 2560x1440. Taille : 1.2 MB. Tu veux que je l'ouvre pour verification ?"
     ),
     make_entry(
@@ -551,9 +551,9 @@ CONVERSATIONS = [
     make_entry(
         "Ouvre VS Code sur le projet turbo, lance le terminal integre et execute les tests",
         "Je configure l'environnement de dev.\n\n"
-        "**Etape 1** — `open_app(code, F:\\BUREAU\\turbo)` : VS Code s'ouvre sur le projet turbo.\n"
+        "**Etape 1** — `open_app(code, F:/BUREAU/turbo)` : VS Code s'ouvre sur le projet turbo.\n"
         "**Etape 2** — `press_hotkey(ctrl+backtick)` : terminal integre ouvert.\n"
-        "**Etape 3** — `powershell_run(cd F:\\BUREAU\\turbo && uv run python -m pytest tests/)` : "
+        "**Etape 3** — `powershell_run(cd F:/BUREAU/turbo && uv run python -m pytest tests/)` : "
         "execution des tests.\n\n"
         "**Resultats** :\n"
         "  - 15 tests trouves\n"
@@ -576,7 +576,7 @@ CONVERSATIONS = [
     make_entry(
         "Compile tous les fichiers Python du projet pour verifier la syntaxe",
         "Je lance la verification syntaxique.\n\n"
-        "**Etape 1** — `search_files(F:\\BUREAU\\turbo\\src, *.py)` : 12 fichiers trouves.\n"
+        "**Etape 1** — `search_files(F:/BUREAU/turbo/src, *.py)` : 12 fichiers trouves.\n"
         "**Etape 2** — `powershell_run(py_compile)` sur chaque fichier :\n\n"
         "  - config.py : OK\n"
         "  - agents.py : OK\n"
@@ -595,9 +595,9 @@ CONVERSATIONS = [
     make_entry(
         "Sauvegarde la base de donnees trading et verifie son integrite",
         "Je m'occupe de la sauvegarde.\n\n"
-        "**Etape 1** — `copy_item(F:\\BUREAU\\carV1\\database\\trading.db, "
-        "F:\\BUREAU\\backup_trading\\trading_backup_20260218.db)` : copie de la DB.\n\n"
-        "**Etape 2** — `powershell_run(sqlite3 'F:\\BUREAU\\carV1\\database\\trading.db' "
+        "**Etape 1** — `copy_item(F:/BUREAU/carV1/database/trading.db, "
+        "F:/BUREAU/backup_trading/trading_backup_20260218.db)` : copie de la DB.\n\n"
+        "**Etape 2** — `powershell_run(sqlite3 'F:/BUREAU/carV1/database/trading.db' "
         "'PRAGMA integrity_check')` : verification d'integrite.\n"
         "  Resultat : `ok` — la base est integre.\n\n"
         "**Etape 3** — Verification de la taille :\n"
@@ -644,16 +644,16 @@ CONVERSATIONS = [
         "  Processus fermes : Edge (2.4 GB), Teams (900 MB), SearchHost (350 MB)\n"
         "  Apres : 31.9 GB / 64 GB (50%)\n\n"
         "**Etape 2 — Fichiers temporaires** :\n"
-        "  `powershell_run(Remove-Item $env:TEMP\\* -Recurse -Force)`\n"
+        "  `powershell_run(Remove-Item $env:TEMP/* -Recurse -Force)`\n"
         "  1,847 fichiers supprimes, 3.1 GB liberes.\n\n"
         "**Etape 3 — Verification disques** :\n"
-        "  C:\\ : 85 GB libres (+3 GB)\n"
-        "  F:\\ : 104 GB libres\n\n"
+        "  /\ : 85 GB libres (+3 GB)\n"
+        "  F:/ : 104 GB libres\n\n"
         "**Score de sante global : 8.5/10**\n"
         "- CPU : 10/10 (9% utilisation)\n"
         "- RAM : 8/10 (50% apres nettoyage)\n"
         "- GPU : 9/10 (temperatures normales)\n"
-        "- Disques : 7/10 (F:\\ un peu charge)\n"
+        "- Disques : 7/10 (F:/ un peu charge)\n"
         "- Cluster IA : 9/10 (tous les noeuds OK)\n\n"
         "Le systeme est en bonne forme."
     ),
@@ -678,7 +678,7 @@ CONVERSATIONS = [
     make_entry(
         "Jarvis, cree-moi un environnement de travail complet : VS Code, 2 terminaux, Chrome sur docs Python, et mets de la musique de fond",
         "Je prepare tout ton environnement.\n\n"
-        "**Etape 1** — `open_app(code, F:\\BUREAU\\turbo)` : VS Code ouvert sur le projet.\n"
+        "**Etape 1** — `open_app(code, F:/BUREAU/turbo)` : VS Code ouvert sur le projet.\n"
         "**Etape 2** — `open_app(wt)` : premier terminal ouvert.\n"
         "**Etape 3** — `open_app(wt)` : deuxieme terminal ouvert.\n"
         "**Etape 4** — `open_url(https://docs.python.org/3/)` : documentation Python dans Chrome.\n"

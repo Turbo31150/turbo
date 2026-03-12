@@ -52,7 +52,7 @@ curl -s --max-time 3 http://HOST:PORT/endpoint || echo "OFFLINE"
 2. Aucune action urgente requise
 
 **GEMINI offline**:
-1. `node F:/BUREAU/turbo/gemini-proxy.js --ping`
+1. `node /home/turbo/jarvis-m1-ops/gemini-proxy.js --ping`
 2. API quota? Attendre 60s
 3. Fallback: CLAUDE pour architecture
 
@@ -65,5 +65,5 @@ curl -s --max-time 5 http://HOST:PORT/v1/chat/completions \
 ```
 
 ### 5. Post-mortem
-- Logger l'incident dans `F:\BUREAU\turbo\data\incidents.json`
+- Logger l'incident dans `/home/turbo/jarvis-m1-ops\data\incidents.json`
 - Si 3+ incidents en 24h sur le meme noeud → investigation approfondie

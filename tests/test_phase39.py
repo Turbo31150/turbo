@@ -30,7 +30,7 @@ class TestScheduledTaskManager:
 
     def test_scheduled_task_dataclass(self):
         from src.scheduled_task_manager import ScheduledTask
-        st = ScheduledTask(name="\\Microsoft\\Windows\\Defrag\\ScheduledDefrag")
+        st = ScheduledTask(name="/Microsoft/Windows/Defrag/ScheduledDefrag")
         assert st.name.endswith("ScheduledDefrag")
         assert st.status == ""
 
@@ -41,8 +41,8 @@ class TestScheduledTaskManager:
     def test_search_with_mock(self):
         m = self._make()
         m.list_tasks = lambda: [
-            {"name": "\\Defrag\\Defrag", "status": "Ready"},
-            {"name": "\\Update\\Check", "status": "Running"},
+            {"name": "/Defrag/Defrag", "status": "Ready"},
+            {"name": "/Update/Check", "status": "Running"},
         ]
         results = m.search("defrag")
         assert len(results) == 1
@@ -145,7 +145,7 @@ class TestUSBDeviceManager:
 
     def test_usb_device_dataclass(self):
         from src.usb_device_manager import USBDevice
-        ud = USBDevice(name="USB Hub", device_id="USB\\ROOT_HUB30")
+        ud = USBDevice(name="USB Hub", device_id="USB/ROOT_HUB30")
         assert ud.name == "USB Hub"
         assert ud.pnp_class == ""
 

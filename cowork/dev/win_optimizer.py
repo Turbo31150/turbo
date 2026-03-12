@@ -11,7 +11,7 @@ LOG_FILE = "C:/Users/franc/.openclaw/workspace/dev/optimizer_log.json"
 TEMP_DIRS = [
     os.path.expandvars(r"%TEMP%"),
     os.path.expandvars(r"%LOCALAPPDATA%\Temp"),
-    r"C:\Windows\Temp",
+    r"/Windows\Temp",
     os.path.expandvars(r"%LOCALAPPDATA%\Microsoft\Windows\INetCache"),
 ]
 

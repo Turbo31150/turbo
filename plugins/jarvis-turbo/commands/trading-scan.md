@@ -15,7 +15,7 @@ Etapes :
 3. Affiche les resultats (top coins, scores, signaux)
 
 ```bash
-cd "F:/BUREAU/turbo/scripts/trading_v2" && python3 gpu_pipeline.py --coins 100 --top 10 --json $ARGUMENTS_MODE_FLAG 2>&1 | tail -50
+cd "/home/turbo/jarvis-m1-ops/scripts/trading_v2" && python3 gpu_pipeline.py --coins 100 --top 10 --json $ARGUMENTS_MODE_FLAG 2>&1 | tail -50
 ```
 
 Ou $ARGUMENTS_MODE_FLAG est :

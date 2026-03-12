@@ -50,9 +50,9 @@ except ImportError:
 # ============================================================
 # CONFIG
 # ============================================================
-DB_PATH = r"F:\BUREAU\TRADING_V2_PRODUCTION\database\trading.db"
-LOGS_DIR = r"F:\BUREAU\TRADING_V2_PRODUCTION\logs"
-GEMINI_CMD = r"C:\Users\franc\AppData\Roaming\npm\gemini.cmd"
+DB_PATH = r"/home/turbo\TRADING_V2_PRODUCTION\database\trading.db"
+LOGS_DIR = r"/home/turbo\TRADING_V2_PRODUCTION\logs"
+GEMINI_CMD = r"/home/turbo\AppData\Roaming\npm\gemini.cmd"
 
 CLUSTER = {
     "M1": {
@@ -451,7 +451,7 @@ class MasterNode:
         self.speaker.speak("Je vous ecoute.")
         try:
             # Tente d'utiliser le voice_driver existant
-            sys.path.insert(0, r"F:\BUREAU\carV1\voice_system")
+            sys.path.insert(0, r"/home/turbo\carV1\voice_system")
             from voice_driver import VoiceListener
             # Simplified: single capture
             cprint("  [MIC] Parlez maintenant... (Ctrl+C pour annuler)", style="yellow")

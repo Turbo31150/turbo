@@ -87,7 +87,7 @@ class DiskMonitor:
         bitmask = ctypes.windll.kernel32.GetLogicalDrives()
         for i, letter in enumerate(string.ascii_uppercase):
             if bitmask & (1 << i):
-                path = f"{letter}:\\"
+                path = f"{letter}:/"
                 try:
                     total, used, free = shutil.disk_usage(path)
                     total_gb = round(total / (1024**3), 2)
@@ -114,8 +114,8 @@ class DiskMonitor:
 
     def get_drive(self, letter: str) -> dict[str, Any]:
         """Get info for a specific drive."""
-        letter = letter.upper().rstrip(":\\")
-        path = f"{letter}:\\"
+        letter = letter.upper().rstrip(":/")
+        path = f"{letter}:/"
         try:
             total, used, free = shutil.disk_usage(path)
             return {

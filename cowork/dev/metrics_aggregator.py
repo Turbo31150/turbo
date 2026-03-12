@@ -214,10 +214,10 @@ def collect_infra_metrics():
             import ctypes
             free = ctypes.c_ulonglong()
             ctypes.windll.kernel32.GetDiskFreeSpaceExW(
-                "F:\\", None, None, ctypes.pointer(free))
+                "F:/", None, None, ctypes.pointer(free))
             metrics["disk_f_free_gb"] = round(free.value / (1024**3), 1)
             ctypes.windll.kernel32.GetDiskFreeSpaceExW(
-                "C:\\", None, None, ctypes.pointer(free))
+                "/\", None, None, ctypes.pointer(free))
             metrics["disk_c_free_gb"] = round(free.value / (1024**3), 1)
     except Exception:
         pass

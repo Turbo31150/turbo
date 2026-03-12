@@ -26,7 +26,7 @@ from claude_agent_sdk import (
 
 from src.config import config, JARVIS_VERSION, PATHS, prepare_lmstudio_input, build_lmstudio_payload
 
-_TURBO_DIR_FWD = str(PATHS.get("turbo", "F:/BUREAU/turbo"))
+_TURBO_DIR_FWD = str(PATHS.get("turbo", "/home/turbo/jarvis-m1-ops"))
 from src.agents import JARVIS_AGENTS
 
 

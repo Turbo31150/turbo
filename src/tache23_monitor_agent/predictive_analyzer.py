@@ -16,9 +16,9 @@ import numpy as np
 import requests
 
 # ========== CONFIG ==========
-BASE_PATH = r"F:\BUREAU\turbo"
-DB_PATH = f"{BASE_PATH}\\jarvis.db"
-LOG_FILE = f"{BASE_PATH}\\logs\\predictor.log"
+BASE_PATH = r"/home/turbo/jarvis-m1-ops"
+DB_PATH = f"{BASE_PATH}/jarvis.db"
+LOG_FILE = f"{BASE_PATH}/logs/predictor.log"
 
 # Nodes
 NODES = ["M1", "M2", "M3", "OL1", "GEMINI", "CLAUDE"]

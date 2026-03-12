@@ -28,7 +28,7 @@ TRADING:
 
 APPLICATIONS:
 - OPEN_APP: params=nom (ex: "chrome","notepad") | OPEN_URL: params=url
-- OPEN_FOLDER: params=chemin (ex: "F:\\BUREAU") | CLOSE_WINDOW: fermer | KILL_PROCESS: params=nom.exe
+- OPEN_FOLDER: params=chemin (ex: "F:/BUREAU") | CLOSE_WINDOW: fermer | KILL_PROCESS: params=nom.exe
 
 FENETRES:
 - SNAP_LEFT/SNAP_RIGHT | MAXIMIZE/MINIMIZE/MINIMIZE_ALL | SWITCH_WINDOW | DESKTOP | TASK_MANAGER
@@ -54,7 +54,7 @@ SYSTEME:
 Exemples:
 "Ouvre chrome" -> {"action":"OPEN_APP","params":"chrome"}
 "Va sur tradingview.com" -> {"action":"GO_TO_URL","params":"https://tradingview.com"}
-"Ouvre le dossier bureau" -> {"action":"OPEN_FOLDER","params":"F:\\BUREAU"}
+"Ouvre le dossier bureau" -> {"action":"OPEN_FOLDER","params":"F:/BUREAU"}
 "Nouvel onglet" -> {"action":"NEW_TAB","params":""}
 "Ecris bonjour" -> {"action":"TYPE_TEXT","params":"bonjour"}
 "Tue chrome" -> {"action":"KILL_PROCESS","params":"chrome.exe"}"""
@@ -73,8 +73,8 @@ TEST_CASES = [
     ("Rafraichis la page", "REFRESH", ""),
     ("Retour en arriere", "BACK", ""),
     # FICHIERS & DOSSIERS
-    ("Ouvre le disque F", "OPEN_FOLDER", "F:\\"),
-    ("Ouvre le dossier bureau", "OPEN_FOLDER", "F:\\BUREAU"),
+    ("Ouvre le disque F", "OPEN_FOLDER", "F:/"),
+    ("Ouvre le dossier bureau", "OPEN_FOLDER", "F:/BUREAU"),
     ("Montre les telechargements", "OPEN_FOLDER", ""),
     # SOURIS & CLAVIER
     ("Clic droit", "RIGHT_CLICK", ""),

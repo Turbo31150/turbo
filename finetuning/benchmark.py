@@ -231,7 +231,7 @@ class JARVISBenchmark:
 
     def _find_lora_adapter(self) -> Optional[Path]:
         """Trouver le dernier dossier d'adaptateur LoRA"""
-        lora_base = Path("F:/BUREAU/turbo/finetuning/output")
+        lora_base = Path("/home/turbo/jarvis-m1-ops/finetuning/output")
         if not lora_base.exists():
             print(f"[AVERTISSEMENT] Chemin LoRA inexistant: {lora_base}")
             return None
@@ -575,7 +575,7 @@ class JARVISBenchmark:
 
 def main():
     """Point d'entrée principal"""
-    output_dir = Path("F:/BUREAU/turbo/finetuning")
+    output_dir = Path("/home/turbo/jarvis-m1-ops/finetuning")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     benchmark = JARVISBenchmark(base_model_id="Qwen/Qwen3-30B-A3B")

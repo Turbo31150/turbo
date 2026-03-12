@@ -41,7 +41,7 @@ async def _run_ollama_mode() -> None:
         cmd.append("--")
         cmd.extend(args)
     try:
-        subprocess.run(cmd, cwd="F:/BUREAU/turbo")
+        subprocess.run(cmd, cwd="/home/turbo/jarvis-m1-ops")
     except FileNotFoundError:
         print("[ERREUR] 'ollama' non trouve dans le PATH. Installe-le depuis https://ollama.com")
     except KeyboardInterrupt:

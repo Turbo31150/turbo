@@ -148,7 +148,7 @@ async def main():
 
         # Remplir l'éditeur
         editor = page.locator("[role='textbox']").first
-        await editor.fill("""{content.replace('"', '\\"')}""")
+        await editor.fill("""{content.replace('"', '/"')}""")
         await page.wait_for_timeout(1000)
 
         # Publier

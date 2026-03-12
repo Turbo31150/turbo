@@ -36,9 +36,9 @@ except ImportError:
 TG_TOKEN = os.getenv("TELEGRAM_TOKEN", "")
 TG_CHAT = os.getenv("TELEGRAM_CHAT", "")
 
-DB_PATH = Path("F:/BUREAU/turbo/data/mega_learning.db")
-ETOILE_DB = Path("F:/BUREAU/turbo/data/etoile.db")
-STATE_FILE = Path("F:/BUREAU/turbo/data/mega_learnings.json")
+DB_PATH = Path("/home/turbo/jarvis-m1-ops/data/mega_learning.db")
+ETOILE_DB = Path("/home/turbo/jarvis-m1-ops/data/etoile.db")
+STATE_FILE = Path("/home/turbo/jarvis-m1-ops/data/mega_learnings.json")
 
 # ══════════════════════════════════════════════════════════════
 # PROMPTS — 54 diversifies par categorie

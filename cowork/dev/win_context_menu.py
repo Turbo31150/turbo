@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """win_context_menu.py — Dynamic context menu manager (#245).
 
-Reads registry HKCU\\Software\\Classes\\*\\shell entries,
+Reads registry HKCU/Software/Classes/*/shell entries,
 lists/adds/removes custom context menu items.
 
 Usage:
@@ -64,7 +64,7 @@ def read_shell_entries(key_path, scope="file"):
 
                 # Try to read command subkey
                 try:
-                    cmd_key = winreg.OpenKey(key, f"{subkey_name}\\command")
+                    cmd_key = winreg.OpenKey(key, f"{subkey_name}/command")
                     command, _ = winreg.QueryValueEx(cmd_key, "")
                     entry["command"] = command
                     winreg.CloseKey(cmd_key)
@@ -131,7 +131,7 @@ def do_add(action_name):
 
     try:
         # Create shell key entry
-        key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, f"{SHELL_KEY_PATH}\\{action_name}")
+        key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, f"{SHELL_KEY_PATH}/{action_name}")
         winreg.SetValueEx(key, "", 0, winreg.REG_SZ, action_name)
 
         # Create command subkey - default to opening with notepad
@@ -172,10 +172,10 @@ def do_remove(action_name):
     try:
         # Try to delete command subkey first
         try:
-            winreg.DeleteKey(winreg.HKEY_CURRENT_USER, f"{SHELL_KEY_PATH}\\{action_name}\\command")
+            winreg.DeleteKey(winreg.HKEY_CURRENT_USER, f"{SHELL_KEY_PATH}/{action_name}/command")
         except FileNotFoundError:
             pass
-        winreg.DeleteKey(winreg.HKEY_CURRENT_USER, f"{SHELL_KEY_PATH}\\{action_name}")
+        winreg.DeleteKey(winreg.HKEY_CURRENT_USER, f"{SHELL_KEY_PATH}/{action_name}")
         success = True
         details = f"Removed '{action_name}' from file context menu"
     except FileNotFoundError:

@@ -71,7 +71,7 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | mode_gaming | "mode gaming" | powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c > pause 1s > Ouvrir steam > pause 2s > Raccourci: win+g |
 | mode_stream | "mode stream" | MinimizeAll > pause 1s > Ouvrir obs64 > pause 2s > Ouvrir spotify |
 | mode_presentation | "mode presentation" | DisplaySwitch.exe /clone > pause 2s > Ouvrir powerpnt |
-| mode_lecture | "mode lecture" | MinimizeAll > pause 1s > Comet: C:\Users\franc\AppData\Local\Perplexity\Comet\Application\comet.exe |
+| mode_lecture | "mode lecture" | MinimizeAll > pause 1s > Comet: /home/turbo\AppData\Local\Perplexity\Comet\Application\comet.exe |
 | mode_reunion | "mode reunion" | Ouvrir discord > pause 1s > Settings |
 | mode_code_turbo | "mode code turbo" | Ouvrir code > pause 1s > Ouvrir wt > pause 1s > Ouvrir lmstudio > pause 1s > Web: http://127.0.0.1:8080 |
 | mode_detente | "mode detente" | MinimizeAll > pause 1s > Ouvrir spotify > pause 1s > Start-Process ms-settings:nightlight |
@@ -101,10 +101,10 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | mode_focus_total | "mode focus total" | MinimizeAll > pause 1s > Settings > pause 1s > Start-Process ms-settings:nightlight > pause 1s > Ouvrir code |
 | mode_review | "mode review" | Ouvrir code > pause 1s > Web: https://github.com > pause 1s > Ouvrir wt |
 | routine_matin | "routine du matin" | Ouvrir lmstudio > pause 2s > Web: http://127.0.0.1:8080 > pause 1s > Web: https://www.tradingview.com > pause 1s > We... |
-| backup_express | "backup express" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Bac... (confirm) |
+| backup_express | "backup express" | cd /home/turbo/jarvis-m1-ops; git add -A; git commit -m 'Bac... (confirm) |
 | reboot_cluster | "reboot le cluster" | Stop-Process -Name 'ollama' -Force -ErrorAction Si... > pause 3s > $m2 = try{(Invoke-WebRequest -Uri 'http://192.168.... |
 | pause_travail | "pause travail" | MinimizeAll > pause 1s > Ouvrir spotify > pause 2s > Lock PC |
-| fin_journee | "fin de journee" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Fin... > pause 1s > Start-Process ms-settings:nightlight > pause 1s > ... |
+| fin_journee | "fin de journee" | cd /home/turbo/jarvis-m1-ops; git add -A; git commit -m 'Fin... > pause 1s > Start-Process ms-settings:nightlight > pause 1s > ... |
 | ouvre_github_via_comet | "ouvre github sur comet" | Comet: https://github.com |
 | ouvre_youtube_via_comet | "ouvre youtube sur comet" | Comet: https://www.youtube.com |
 | ouvre_tradingview_comet | "ouvre tradingview sur comet" | Comet: https://www.tradingview.com |
@@ -114,19 +114,19 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | mode_workout | "mode workout" | Ouvrir spotify > pause 2s > Web: https://www.youtube.com/results?search_query=workout+timer+30+min > pause 1s > $t=Ne... |
 | mode_etude | "mode etude" | MinimizeAll > pause 1s > Settings > pause 1s > Web: https://fr.wikipedia.org > pause 1s > Web: https://docs.google.com |
 | mode_diner | "mode diner" | MinimizeAll > pause 1s > Start-Process ms-settings:nightlight > pause 1s > Ouvrir spotify |
-| routine_depart | "routine depart" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Aut... > pause 1s > MinimizeAll > pause 1s > powercfg /setactive a1841... (confirm) |
+| routine_depart | "routine depart" | cd /home/turbo/jarvis-m1-ops; git add -A; git commit -m 'Aut... > pause 1s > MinimizeAll > pause 1s > powercfg /setactive a1841... (confirm) |
 | routine_retour | "routine retour" | powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c > pause 1s > Ouvrir lmstudio > pause 2s > Web: https://mail.... |
 | mode_nuit_totale | "mode nuit totale" | MinimizeAll > pause 1s > Start-Process ms-settings:nightlight > pause 1s > (New-Object -ComObject WScript.Shell).Send... (confirm) |
-| dev_morning_setup | "dev morning" | cd F:\BUREAU\turbo; git pull --rebase 2>&1 | Out-String > pause 1s > Ouvrir code > pause 2s > Ouvrir wt > pause 1s > ... |
+| dev_morning_setup | "dev morning" | cd /home/turbo/jarvis-m1-ops; git pull --rebase 2>&1 | Out-String > pause 1s > Ouvrir code > pause 2s > Ouvrir wt > pause 1s > ... |
 | dev_deep_work | "deep work" | Stop-Process -Name 'discord','telegram','slack' -F... > pause 1s > MinimizeAll > pause 1s > Settings > pause 1s > Ouv... |
-| dev_standup_prep | "standup prep" | cd F:\BUREAU\turbo; git log --since='yesterday' --... > pause 1s > Web: https://github.com > pause 1s > Web: http://1... |
-| dev_deploy_check | "check avant deploy" | cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:\BUREAU\turbo; git status -sb > docker ps --format 'tabl... |
-| dev_friday_report | "rapport vendredi" | cd F:\BUREAU\turbo; 'Commits cette semaine:'; git ... > cd F:\BUREAU\turbo; $py = (Get-ChildItem src/*.py ... > Web: ... |
-| dev_code_review_setup | "setup code review" | Web: https://github.com/pulls > pause 1s > Ouvrir code > pause 1s > cd F:\BUREAU\turbo; git diff --stat 2>&1 | Out-St... |
+| dev_standup_prep | "standup prep" | cd /home/turbo/jarvis-m1-ops; git log --since='yesterday' --... > pause 1s > Web: https://github.com > pause 1s > Web: http://1... |
+| dev_deploy_check | "check avant deploy" | cd /home/turbo/jarvis-m1-ops; & '/home/turbo\.local\bin\u... > cd /home/turbo/jarvis-m1-ops; git status -sb > docker ps --format 'tabl... |
+| dev_friday_report | "rapport vendredi" | cd /home/turbo/jarvis-m1-ops; 'Commits cette semaine:'; git ... > cd /home/turbo/jarvis-m1-ops; $py = (Get-ChildItem src/*.py ... > Web: ... |
+| dev_code_review_setup | "setup code review" | Web: https://github.com/pulls > pause 1s > Ouvrir code > pause 1s > cd /home/turbo/jarvis-m1-ops; git diff --stat 2>&1 | Out-St... |
 | audit_securite_complet | "audit securite complet" | Get-MpComputerStatus | Select AntivirusEnabled, Re... > Get-NetTCPConnection -State Listen | Group-Object ... > Get-N... |
 | rapport_systeme_complet | "rapport systeme complet" | $cpu = (Get-CimInstance Win32_Processor).Name; $us... > $os = Get-CimInstance Win32_OperatingSystem; $used... > nvidi... |
 | maintenance_totale | "maintenance totale" | Clear-RecycleBin -Force -ErrorAction SilentlyConti... > Remove-Item $env:TEMP\* -Recurse -Force -ErrorActi... > Remov... (confirm) |
-| sauvegarde_tous_projets | "sauvegarde tous les projets" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Bac... > cd F:\BUREAU\carV1; if(Test-Path .git){git add -A;... > cd F:... (confirm) |
+| sauvegarde_tous_projets | "sauvegarde tous les projets" | cd /home/turbo/jarvis-m1-ops; git add -A; git commit -m 'Bac... > cd /home/turbo\carV1; if(Test-Path .git){git add -A;... > cd F:... (confirm) |
 | pomodoro_start | "pomodoro" | Stop-Process -Name 'discord','telegram','slack' -F... > MinimizeAll > pause 1s > Ouvrir code > $end = (Get-Date).AddM... |
 | pomodoro_break | "pause pomodoro" | MinimizeAll > pause 1s > Ouvrir spotify > $end = (Get-Date).AddMinutes(5).ToString('HH:mm');... |
 | mode_entretien | "mode entretien" | Stop-Process -Name 'spotify' -Force -ErrorAction S... > MinimizeAll > pause 1s > Settings > pause 1s > Ouvrir discord |
@@ -148,14 +148,14 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | mode_brainstorm | "mode brainstorm" | Web: https://claude.ai > pause 1s > Web: https://www.notion.so > $end = (Get-Date).AddMinutes(30).ToString('HH:mm')... |
 | nettoyage_downloads | "nettoie les telechargements" | $count = (Get-ChildItem $env:USERPROFILE\Downloads... (confirm) |
 | rapport_reseau_complet | "rapport reseau complet" | (Invoke-RestMethod -Uri 'https://api.ipify.org?for... > $dns = Resolve-DnsName google.com -ErrorAction Sil... > $p = ... |
-| verif_toutes_mises_a_jour | "verifie toutes les mises a jour" | try{$s=New-Object -ComObject Microsoft.Update.Sess... > & 'C:\Users\franc\.local\bin\uv.exe' pip list --ou... > npm o... |
+| verif_toutes_mises_a_jour | "verifie toutes les mises a jour" | try{$s=New-Object -ComObject Microsoft.Update.Sess... > & '/home/turbo\.local\bin\uv.exe' pip list --ou... > npm o... |
 | snapshot_systeme | "snapshot systeme" | $d = Get-Date -Format 'yyyy-MM-dd_HHmm'; $f = "F:\... |
-| dev_hotfix | "hotfix" | cd F:\BUREAU\turbo; $branch = 'hotfix/' + (Get-Dat... > pause 1s > Ouvrir code > pause 1s > Ouvrir wt |
-| dev_new_feature | "nouvelle feature" | cd F:\BUREAU\turbo; $branch = 'feature/' + (Get-Da... > pause 1s > Ouvrir code > pause 1s > Ouvrir wt > cd F:\BUREAU\... |
-| dev_merge_prep | "prepare le merge" | cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:... |
-| dev_database_check | "check les databases" | $j = (Get-Item 'F:\BUREAU\turbo\data\jarvis.db' -E... > $e = (Get-Item 'F:\BUREAU\etoile.db' -ErrorAction ... > $t = ... |
+| dev_hotfix | "hotfix" | cd /home/turbo/jarvis-m1-ops; $branch = 'hotfix/' + (Get-Dat... > pause 1s > Ouvrir code > pause 1s > Ouvrir wt |
+| dev_new_feature | "nouvelle feature" | cd /home/turbo/jarvis-m1-ops; $branch = 'feature/' + (Get-Da... > pause 1s > Ouvrir code > pause 1s > Ouvrir wt > cd /home/turbo\... |
+| dev_merge_prep | "prepare le merge" | cd /home/turbo/jarvis-m1-ops; & '/home/turbo\.local\bin\u... > cd /home/turbo/jarvis-m1-ops; & '/home/turbo\.local\bin\u... > cd F:... |
+| dev_database_check | "check les databases" | $j = (Get-Item '/home/turbo/jarvis-m1-ops\data\jarvis.db' -E... > $e = (Get-Item '/home/turbo\etoile.db' -ErrorAction ... > $t = ... |
 | dev_live_coding | "live coding" | Ouvrir obs64 > pause 2s > Ouvrir code > pause 1s > Ouvrir wt > pause 1s > Web: http://localhost:3000 |
-| dev_cleanup | "dev cleanup" | cd F:\BUREAU\turbo; $pycache = (Get-ChildItem -Rec... > cd F:\BUREAU\turbo; $ruff = & 'C:\Users\franc\.loc... |
+| dev_cleanup | "dev cleanup" | cd /home/turbo/jarvis-m1-ops; $pycache = (Get-ChildItem -Rec... > cd /home/turbo/jarvis-m1-ops; $ruff = & '/home/turbo\.loc... |
 | mode_double_ecran_dev | "mode double ecran dev" | DisplaySwitch.exe /extend > pause 2s > Ouvrir code > pause 1s > Raccourci: win+left > pause 1s > Web: http://127.0.0.... |
 | mode_presentation_zoom | "mode presentation zoom" | Stop-Process -Name 'spotify','discord' -Force -Err... > MinimizeAll > pause 1s > DisplaySwitch.exe /clone > pause 2s ... |
 | mode_dashboard_complet | "dashboard complet" | Web: http://127.0.0.1:8080 > pause 1s > Web: https://www.tradingview.com > pause 1s > Web: http://127.0.0.1:5678 > pa... |
@@ -169,14 +169,14 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | mode_securite_audit | "mode securite" | Ouvrir wt > pause 1s > Get-MpComputerStatus | Select AntivirusEnabled, Re... > Get-NetTCPConnection -State Listen | G... |
 | mode_trading_scalp | "mode scalping" | Web: https://www.tradingview.com/chart/?symbol=BINANCE:BTCUSDT > pause 1s > Web: https://www.mexc.com/exchange/BTC_US... |
 | routine_midi | "routine midi" | MinimizeAll > pause 1s > Web: https://news.google.com > pause 1s > Web: https://www.tradingview.com > pause 1s > Ouvr... |
-| routine_nuit_urgence | "urgence nuit" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Eme... > pause 1s > MinimizeAll > Lock PC > pause 2s > Veille (confirm) |
+| routine_nuit_urgence | "urgence nuit" | cd /home/turbo/jarvis-m1-ops; git add -A; git commit -m 'Eme... > pause 1s > MinimizeAll > Lock PC > pause 2s > Veille (confirm) |
 | setup_meeting_rapide | "meeting rapide" | Stop-Process -Name 'spotify' -Force -ErrorAction S... > MinimizeAll > pause 1s > Settings > pause 1s > Ouvrir discord |
 | mode_veille_tech | "veille tech" | Web: https://news.ycombinator.com > pause 1s > Web: https://dev.to > pause 1s > Web: https://www.producthunt.com > pa... |
 | mode_freelance | "mode freelance" | Web: https://mail.google.com > pause 1s > Web: https://calendar.google.com > pause 1s > Web: https://www.notion.so > ... |
 | mode_debug_production | "debug production" | Ouvrir wt > pause 1s > Web: http://127.0.0.1:8080 > pause 1s > Get-WinEvent -FilterHashtable @{LogName='Applicati... ... |
 | mode_apprentissage_code | "mode apprentissage code" | Web: https://leetcode.com > pause 1s > Ouvrir code > pause 1s > Web: https://docs.python.org/3/ > $end = (Get-Date).A... |
 | mode_tutorial | "mode tutorial" | Web: https://www.youtube.com > pause 1s > Ouvrir code > pause 1s > Ouvrir wt > pause 1s > Web: https://developer.mozi... |
-| mode_backup_total | "backup total" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Ful... > cd F:\BUREAU\carV1; if(Test-Path .git){git add -A;... > cd F:... (confirm) |
+| mode_backup_total | "backup total" | cd /home/turbo/jarvis-m1-ops; git add -A; git commit -m 'Ful... > cd /home/turbo\carV1; if(Test-Path .git){git add -A;... > cd F:... (confirm) |
 | ouvre_dashboards_trading | "tous les dashboards trading" | Web: https://www.tradingview.com > pause 1s > Web: https://www.mexc.com/exchange/BTC_USDT > pause 1s > Web: https://w... |
 | mode_photo_edit | "mode photo" | Ouvrir mspaint > pause 1s > Web: https://www.pinterest.com > pause 1s > Web: https://www.canva.com |
 | mode_writing | "mode ecriture" | MinimizeAll > pause 1s > Start-Process ms-settings:nightlight > pause 1s > Settings > pause 1s > Web: https://docs.go... |
@@ -189,14 +189,14 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | ouvre_gmail_comet | "ouvre gmail sur comet" | Comet: https://mail.google.com |
 | mode_go_live | "go live" | Ouvrir obs64 > pause 2s > Web: https://dashboard.twitch.tv > pause 1s > Ouvrir spotify > pause 1s > Web: https://www.... |
 | mode_end_stream | "arrete le stream" | Stop-Process -Name 'obs64' -Force -ErrorAction Sil... > pause 1s > "Stream termine — GG!" |
-| mode_daily_report | "rapport quotidien" | cd F:\BUREAU\turbo; 'Commits du jour:'; git log --... > cd F:\BUREAU\turbo; $py = (Get-ChildItem src/*.py ... > Web: ... |
+| mode_daily_report | "rapport quotidien" | cd /home/turbo/jarvis-m1-ops; 'Commits du jour:'; git log --... > cd /home/turbo/jarvis-m1-ops; $py = (Get-ChildItem src/*.py ... > Web: ... |
 | mode_api_test | "mode api test" | Ouvrir wt > pause 1s > Web: http://127.0.0.1:8080 > pause 1s > Web: https://httpie.io/app > pause 1s > Web: https://r... |
 | mode_conference_full | "mode conference" | Stop-Process -Name 'spotify','obs64' -Force -Error... > MinimizeAll > pause 1s > Settings > pause 1s > Ouvrir teams >... |
 | mode_end_meeting | "fin du meeting" | Stop-Process -Name 'teams','zoom' -Force -ErrorAct... > pause 1s > Ouvrir spotify > "Reunion terminee — retour au tra... |
 | mode_home_theater | "mode home theater" | MinimizeAll > pause 1s > Start-Process ms-settings:nightlight > pause 1s > $w = New-Object -ComObject WScript.Shell; ... |
-| mode_refactoring | "mode refactoring" | Ouvrir code > pause 1s > cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:\BUREAU\turbo; git diff --stat ... |
-| mode_testing_complet | "mode testing complet" | Ouvrir wt > pause 1s > cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:\BUREAU\turbo; & 'C:\Users\franc\... |
-| mode_deploy_checklist | "checklist deploy" | cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:... |
+| mode_refactoring | "mode refactoring" | Ouvrir code > pause 1s > cd /home/turbo/jarvis-m1-ops; & '/home/turbo\.local\bin\u... > cd /home/turbo/jarvis-m1-ops; git diff --stat ... |
+| mode_testing_complet | "mode testing complet" | Ouvrir wt > pause 1s > cd /home/turbo/jarvis-m1-ops; & '/home/turbo\.local\bin\u... > cd /home/turbo/jarvis-m1-ops; & '/home/turbo\... |
+| mode_deploy_checklist | "checklist deploy" | cd /home/turbo/jarvis-m1-ops; & '/home/turbo\.local\bin\u... > cd /home/turbo/jarvis-m1-ops; & '/home/turbo\.local\bin\u... > cd F:... |
 | mode_documentation_code | "mode documentation code" | Ouvrir code > pause 1s > Web: https://www.notion.so > pause 1s > Ouvrir wt > pause 1s > Web: https://docs.python.org/3/ |
 | mode_open_source | "mode open source" | Web: https://github.com/pulls > pause 1s > Web: https://github.com/issues > pause 1s > Ouvrir code > pause 1s > Ouvri... |
 | mode_side_project | "mode side project" | Ouvrir code > pause 1s > Ouvrir wt > pause 1s > Web: https://github.com > $end = (Get-Date).AddHours(2).ToString('HH:... |
@@ -208,21 +208,21 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | mode_cuisine | "mode cuisine" | Web: https://www.youtube.com/results?search_query=recette+facile+rapide > pause 1s > Ouvrir spotify > $end = (Get-Dat... |
 | mode_meditation | "mode meditation" | MinimizeAll > pause 1s > Start-Process ms-settings:nightlight > pause 1s > Web: https://www.youtube.com/results?searc... |
 | mode_pair_programming | "mode pair programming" | Ouvrir code > pause 1s > Ouvrir discord > pause 1s > Ouvrir wt > pause 1s > Web: https://github.com |
-| mode_retrospective | "mode retro" | cd F:\BUREAU\turbo; 'Commits semaine:'; git log --... > Web: https://www.notion.so > pause 1s > Web: https://calendar... |
+| mode_retrospective | "mode retro" | cd /home/turbo/jarvis-m1-ops; 'Commits semaine:'; git log --... > Web: https://www.notion.so > pause 1s > Web: https://calendar... |
 | mode_demo | "mode demo" | DisplaySwitch.exe /clone > pause 2s > Web: http://127.0.0.1:8080 > pause 1s > Web: https://github.com > pause 1s > "D... |
-| mode_scrum_master | "mode scrum" | Web: https://github.com/projects > pause 1s > Web: https://calendar.google.com > pause 1s > cd F:\BUREAU\turbo; git l... |
+| mode_scrum_master | "mode scrum" | Web: https://github.com/projects > pause 1s > Web: https://calendar.google.com > pause 1s > cd /home/turbo/jarvis-m1-ops; git l... |
 | sim_reveil_complet | "demarre la journee complete" | powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a... > Ouvrir lmstudio > pause 2s > Web: http://127.0.0.1:8080 > pau... |
 | sim_check_matinal | "check matinal" | $m2 = try{(Invoke-WebRequest -Uri 'http://192.168.... > nvidia-smi --query-gpu=name,temperature.gpu,memory... > $os =... |
-| sim_start_coding | "je commence a coder" | cd F:\BUREAU\turbo; git pull --rebase 2>&1 | Out-String > Ouvrir code > pause 2s > Raccourci: win+left > pause 1s > O... |
-| sim_code_and_test | "teste mon code" | cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:... |
-| sim_commit_and_push | "commit et push" | cd F:\BUREAU\turbo; git add -A; git status -sb > cd F:\BUREAU\turbo; git commit -m 'Update auto-JAR... > cd F:\BUREAU... (confirm) |
+| sim_start_coding | "je commence a coder" | cd /home/turbo/jarvis-m1-ops; git pull --rebase 2>&1 | Out-String > Ouvrir code > pause 2s > Raccourci: win+left > pause 1s > O... |
+| sim_code_and_test | "teste mon code" | cd /home/turbo/jarvis-m1-ops; & '/home/turbo\.local\bin\u... > cd /home/turbo/jarvis-m1-ops; & '/home/turbo\.local\bin\u... > cd F:... |
+| sim_commit_and_push | "commit et push" | cd /home/turbo/jarvis-m1-ops; git add -A; git status -sb > cd /home/turbo/jarvis-m1-ops; git commit -m 'Update auto-JAR... > cd /home/turbo... (confirm) |
 | sim_debug_session | "session debug complete" | Ouvrir code > pause 1s > Raccourci: ctrl+` > pause 1s > Raccourci: f12 > Get-WinEvent -FilterHashtable @{LogName='App... |
 | sim_avant_reunion | "prepare la reunion" | Stop-Process -Name 'spotify','obs64' -Force -Error... > MinimizeAll > pause 1s > Settings > pause 1s > Web: https://c... |
 | sim_rejoindre_reunion | "rejoins la reunion" | Ouvrir discord > pause 2s > Raccourci: win+p > "En reunion — partage ecran disponible via Win+P" |
 | sim_presenter_ecran | "presente mon ecran" | DisplaySwitch.exe /clone > pause 2s > Web: http://127.0.0.1:8080 > pause 2s > Raccourci: f11 > "Presentation en cours" |
 | sim_apres_reunion | "reunion terminee reprends" | Stop-Process -Name 'teams','zoom','discord' -Force... > pause 1s > Ouvrir spotify > pause 1s > Ouvrir code > pause 1s... |
 | sim_pause_cafe | "pause cafe" | MinimizeAll > pause 1s > Lock PC > "Pause cafe — reviens frais!" |
-| sim_pause_longue | "longue pause" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Aut... > MinimizeAll > pause 1s > Start-Process ms-settings:nightlight... |
+| sim_pause_longue | "longue pause" | cd /home/turbo/jarvis-m1-ops; git add -A; git commit -m 'Aut... > MinimizeAll > pause 1s > Start-Process ms-settings:nightlight... |
 | sim_retour_pause | "je suis de retour" | powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c > Ouvrir code > pause 1s > Ouvrir wt > pause 1s > $m2 = try{... |
 | sim_recherche_intensive | "recherche intensive" | Web: https://claude.ai > pause 1s > Web: https://www.perplexity.ai > pause 1s > Web: https://scholar.google.com > pau... |
 | sim_formation_video | "formation video complete" | Settings > pause 1s > MinimizeAll > pause 1s > Web: https://www.youtube.com > pause 1s > Ouvrir code > pause 1s > Web... |
@@ -231,9 +231,9 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | sim_monitoring_positions | "surveille mes positions" | Web: https://www.mexc.com/exchange/BTC_USDT > pause 1s > Web: https://dexscreener.com > pause 1s > Web: https://www.t... |
 | sim_layout_dev_split | "layout dev split" | Ouvrir code > pause 2s > Raccourci: win+left > pause 1s > Web: http://127.0.0.1:8080 > pause 1s > Raccourci: win+righ... |
 | sim_layout_triple | "layout triple" | Ouvrir code > pause 2s > Raccourci: win+left > Raccourci: win+up > pause 1s > Ouvrir wt > pause 1s > Raccourci: win+l... |
-| sim_tout_fermer_propre | "ferme tout proprement" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Cle... > Stop-Process -Name 'code','wt','obs64','discord','... > pause... |
-| sim_fin_journee_complete | "fin de journee complete" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Fin... > cd F:\BUREAU\turbo; $c = (git log --since='today' ... > Stop-... (confirm) |
-| sim_weekend_mode | "mode weekend complet" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Wee... > Stop-Process -Name 'code','wt','lmstudio' -Force -... > pause... |
+| sim_tout_fermer_propre | "ferme tout proprement" | cd /home/turbo/jarvis-m1-ops; git add -A; git commit -m 'Cle... > Stop-Process -Name 'code','wt','obs64','discord','... > pause... |
+| sim_fin_journee_complete | "fin de journee complete" | cd /home/turbo/jarvis-m1-ops; git add -A; git commit -m 'Fin... > cd /home/turbo/jarvis-m1-ops; $c = (git log --since='today' ... > Stop-... (confirm) |
+| sim_weekend_mode | "mode weekend complet" | cd /home/turbo/jarvis-m1-ops; git add -A; git commit -m 'Wee... > Stop-Process -Name 'code','wt','lmstudio' -Force -... > pause... |
 | sim_urgence_gpu | "urgence gpu" | nvidia-smi --query-gpu=name,temperature.gpu,utiliz... > Get-Process | Sort WS -Descending | Select -First ... > "Chec... |
 | sim_urgence_reseau | "urgence reseau" | ipconfig /flushdns; 'DNS purge' > $p = Test-Connection 8.8.8.8 -Count 2 -ErrorAction... > $d = Resolve-DnsName google... |
 | sim_urgence_espace | "urgence espace disque" | Get-PSDrive -PSProvider FileSystem | Where Used -g... > $t = (Get-ChildItem $env:TEMP -Recurse -File -Erro... > $d = ... |
@@ -245,29 +245,29 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | sim_soiree_film | "soiree film complete" | Stop-Process -Name 'code','wt','discord','lmstudio... > MinimizeAll > pause 1s > Start-Process ms-settings:nightlight... |
 | sim_soiree_musique | "soiree musique" | MinimizeAll > pause 1s > Start-Process ms-settings:nightlight > pause 1s > Ouvrir spotify > pause 1s > $w = New-Objec... |
 | sim_maintenance_hebdo | "maintenance hebdomadaire" | Remove-Item $env:TEMP\* -Recurse -Force -ErrorActi... > Clear-RecycleBin -Force -ErrorAction SilentlyConti... > Remov... (confirm) |
-| sim_backup_hebdo | "backup hebdomadaire" | cd F:\BUREAU\turbo; git add -A; git commit -m 'Wee... > cd F:\BUREAU\turbo; $c = (git log --since='1 week ... > $d = ... (confirm) |
+| sim_backup_hebdo | "backup hebdomadaire" | cd /home/turbo/jarvis-m1-ops; git add -A; git commit -m 'Wee... > cd /home/turbo/jarvis-m1-ops; $c = (git log --since='1 week ... > $d = ... (confirm) |
 | sim_diag_reseau_complet | "diagnostic reseau complet" | ping 8.8.8.8 -n 3 | Select-String 'Moyenne|Average... > ipconfig /flushdns; nslookup google.com 2>&1 | Sel... > trace... |
 | sim_diag_wifi | "probleme wifi complet" | netsh wlan show interfaces | Select-String 'SSID|S... > ping 192.168.1.1 -n 3 | Select-String 'Moyenne|Ave... > ping ... |
 | sim_diag_cluster_deep | "diagnostic cluster profond" | $m2 = try{(Invoke-WebRequest -Uri 'http://192.168.... > nvidia-smi --query-gpu=name,temperature.gpu,utiliz... > (Invo... |
 | sim_audit_securite | "audit securite complet" | Get-NetTCPConnection -State Listen | Group-Object ... > Get-NetTCPConnection -State Established | Where Re... > $rdp ... |
 | sim_hardening_check | "check hardening" | Get-NetFirewallProfile | Select Name, Enabled | Out-String > $uac = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft... > ... |
 | sim_audit_mots_de_passe | "audit mots de passe" | net accounts 2>&1 | Out-String > Get-LocalUser | Select Name, Enabled, PasswordRequ... > "Audit mots de passe termine" |
-| sim_new_project_python | "nouveau projet python" | $name = 'new_project_' + (Get-Date -Format 'yyyyMM... > cd "F:\BUREAU\$((Get-ChildItem F:\BUREAU -Director... > Ouvri... |
-| sim_new_project_node | "nouveau projet node" | $name = 'node_project_' + (Get-Date -Format 'yyyyM... > cd "F:\BUREAU\$((Get-ChildItem F:\BUREAU -Director... > Ouvri... |
-| sim_clone_and_setup | "clone et setup {repo}" | cd F:\BUREAU; git clone '{repo}' 2>&1 | Out-String > pause 2s > Ouvrir code > pause 2s > "Repo clone et ouvert dans V... |
+| sim_new_project_python | "nouveau projet python" | $name = 'new_project_' + (Get-Date -Format 'yyyyMM... > cd "/home/turbo\$((Get-ChildItem /home/turbo -Director... > Ouvri... |
+| sim_new_project_node | "nouveau projet node" | $name = 'node_project_' + (Get-Date -Format 'yyyyM... > cd "/home/turbo\$((Get-ChildItem /home/turbo -Director... > Ouvri... |
+| sim_clone_and_setup | "clone et setup {repo}" | cd /home/turbo; git clone '{repo}' 2>&1 | Out-String > pause 2s > Ouvrir code > pause 2s > "Repo clone et ouvert dans V... |
 | sim_grand_nettoyage_disque | "grand nettoyage du disque" | $s1 = (Get-ChildItem $env:TEMP -Recurse -File -Err... > Remove-Item "$env:LOCALAPPDATA\Google\Chrome\User ... > Clear... (confirm) |
-| sim_archive_vieux_projets | "archive les vieux projets" | $old = Get-ChildItem F:\BUREAU -Directory | Where ... |
+| sim_archive_vieux_projets | "archive les vieux projets" | $old = Get-ChildItem /home/turbo -Directory | Where ... |
 | sim_scan_fichiers_orphelins | "scan fichiers orphelins" | "=== Fichiers > 100MB ==="; Get-ChildItem F:\BUREA... > "=== Doublons par nom ==="; Get-ChildItem F:\BUREA... > "=== ... |
 | sim_design_review | "review design complet" | Raccourci: win+shift+m > pause 3s > Raccourci: win+shift+c > pause 3s > Raccourci: win+shift+t > pause 3s > Raccourci... |
 | sim_layout_productif | "layout productif" | Ouvrir code > pause 2s > Raccourci: win+left > pause 1s > Web: http://127.0.0.1:8080 > pause 2s > Raccourci: win+righ... |
 | sim_copier_texte_image | "copie le texte de l'image" | Raccourci: win+shift+t > pause 5s > $clip = Get-Clipboard -ErrorAction SilentlyContinu... |
-| sim_db_health_check | "health check des bases" | $j = (Get-Item F:\BUREAU\turbo\data\jarvis.db -Err... > sqlite3 F:\BUREAU\turbo\data\jarvis.db 'PRAGMA int... > sqlit... |
+| sim_db_health_check | "health check des bases" | $j = (Get-Item /home/turbo/jarvis-m1-ops\data\jarvis.db -Err... > sqlite3 /home/turbo/jarvis-m1-ops\data\jarvis.db 'PRAGMA int... > sqlit... |
 | sim_db_backup | "backup les bases" | $d = Get-Date -Format 'yyyy-MM-dd_HHmm'; Copy-Item... |
-| sim_db_stats | "stats des bases" | sqlite3 F:\BUREAU\turbo\data\jarvis.db '.tables' 2... > sqlite3 F:\BUREAU\turbo\data\jarvis.db 'SELECT "sk... > sqlit... |
+| sim_db_stats | "stats des bases" | sqlite3 /home/turbo/jarvis-m1-ops\data\jarvis.db '.tables' 2... > sqlite3 /home/turbo/jarvis-m1-ops\data\jarvis.db 'SELECT "sk... > sqlit... |
 | sim_docker_full_status | "status docker complet" | docker ps --format 'table {{.Names}}\t{{.Status}}\... > docker images --format 'table {{.Repository}}\t{{.... > docke... |
 | sim_docker_cleanup | "nettoie docker a fond" | docker container prune -f 2>&1 | Out-String > docker image prune -a -f 2>&1 | Out-String > docker volume prune -f 2>&... (confirm) |
 | sim_docker_restart_all | "redemarre docker" | docker restart $(docker ps -q) 2>&1 | Out-String > pause 3s > docker ps --format 'table {{.Names}}\t{{.Status}}'... >... |
-| sim_code_review_prep | "prepare la code review" | cd F:\BUREAU\turbo; git log --oneline -5 2>&1 | Out-String > cd F:\BUREAU\turbo; git diff --stat HEAD~3 2>&1 | Out-St... |
+| sim_code_review_prep | "prepare la code review" | cd /home/turbo/jarvis-m1-ops; git log --oneline -5 2>&1 | Out-String > cd /home/turbo/jarvis-m1-ops; git diff --stat HEAD~3 2>&1 | Out-St... |
 | sim_code_review_split | "layout review" | Ouvrir code > pause 2s > Raccourci: win+left > pause 1s > Web: https://github.com/Turbo31150/turbo > pause 2s > Racco... |
 | sim_learn_topic | "session apprentissage {topic}" | Web: https://www.youtube.com/results?search_query={topic}+tutorial > pause 2s > Web: https://www.google.com/search?q=... |
 | sim_learn_python | "apprends moi python" | Web: https://docs.python.org/3/tutorial/ > pause 2s > Web: https://www.freecodecamp.org/learn/scientific-computing-wi... |
@@ -276,14 +276,14 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | sim_layout_trading_full | "layout trading complet" | Web: https://futures.mexc.com > pause 3s > Raccourci: win+left > pause 1s > Web: https://www.coingecko.com > pause 2s... |
 | sim_layout_recherche | "layout recherche" | Web: https://www.perplexity.ai > pause 2s > Raccourci: win+left > pause 1s > Web: https://claude.ai > pause 2s > Racc... |
 | sim_remote_work_start | "mode teletravail" | MinimizeAll > pause 1s > Ouvrir code > pause 2s > Raccourci: win+left > pause 1s > Web: https://mail.google.com > pau... |
-| sim_standup_meeting | "prepare le standup" | cd F:\BUREAU\turbo; "=== HIER ==="; git log --sinc... > cd F:\BUREAU\turbo; "=== AUJOURD'HUI ==="; git log... > cd F:... |
+| sim_standup_meeting | "prepare le standup" | cd /home/turbo/jarvis-m1-ops; "=== HIER ==="; git log --sinc... > cd /home/turbo/jarvis-m1-ops; "=== AUJOURD'HUI ==="; git log... > cd F:... |
 | sim_crypto_research | "recherche crypto complete" | Web: https://www.coingecko.com > pause 2s > Web: https://www.coindesk.com > pause 2s > Web: https://etherscan.io > pa... |
 | sim_trading_session | "session trading complete" | Web: https://futures.mexc.com > pause 3s > Web: https://www.tradingview.com > pause 2s > Ouvrir wt > pause 1s > cd F:... |
 | sim_post_crash_recovery | "recovery apres crash" | Get-PhysicalDisk | Select FriendlyName, HealthStat... > Get-WinEvent -FilterHashtable @{LogName='System';L... > Get-S... |
 | sim_repair_system | "repare le systeme" | DISM /Online /Cleanup-Image /CheckHealth 2>&1 | Out-String > sfc /verifyonly 2>&1 | Select -Last 3 | Out-String > "Ve... (confirm) |
-| sim_fullstack_build | "build complet du projet" | cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > "Buil... |
-| sim_deploy_check | "check avant deploiement" | cd F:\BUREAU\turbo; git status -sb 2>&1 | Out-String > cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:\... |
-| sim_git_release | "fais une release" | cd F:\BUREAU\turbo; $v = git describe --tags --abb... > cd F:\BUREAU\turbo; git log --oneline -10 2>&1 | Out-String >... |
+| sim_fullstack_build | "build complet du projet" | cd /home/turbo/jarvis-m1-ops; & '/home/turbo\.local\bin\u... > cd /home/turbo/jarvis-m1-ops; & '/home/turbo\.local\bin\u... > "Buil... |
+| sim_deploy_check | "check avant deploiement" | cd /home/turbo/jarvis-m1-ops; git status -sb 2>&1 | Out-String > cd /home/turbo/jarvis-m1-ops; & '/home/turbo\.local\bin\u... > cd F:\... |
+| sim_git_release | "fais une release" | cd /home/turbo/jarvis-m1-ops; $v = git describe --tags --abb... > cd /home/turbo/jarvis-m1-ops; git log --oneline -10 2>&1 | Out-String >... |
 | sim_api_test_session | "session test api" | Web: https://web.postman.co > pause 2s > Web: https://httpbin.org > pause 1s > Ouvrir wt > "Session API testing ouver... |
 | sim_api_endpoints_check | "check tous les endpoints" | try{$r=Invoke-WebRequest http://127.0.0.1:11434/ap... > try{$r=Invoke-WebRequest http://192.168.1.26:1234/... > try{$... |
 | sim_social_all | "ouvre tous les reseaux sociaux" | Web: https://x.com > pause 1s > Web: https://www.linkedin.com > pause 1s > Web: https://www.instagram.com > pause 1s ... |
@@ -295,43 +295,43 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | sim_learn_coding | "session apprentissage code" | Web: https://www.youtube.com > pause 1s > Web: https://developer.mozilla.org > pause 1s > Web: https://www.w3schools.... |
 | sim_learn_ai | "session apprentissage ia" | Web: https://huggingface.co/learn > pause 1s > Web: https://arxiv.org/list/cs.AI/recent > pause 1s > Web: https://www... |
 | sim_pomodoro_25 | "lance un pomodoro" | Add-Type -AssemblyName System.Speech; (New-Object ... > Settings > Start-Sleep -Seconds 1500; Add-Type -AssemblyName ... |
-| sim_backup_turbo | "backup le projet" | cd F:\BUREAU\turbo; git bundle create F:\BUREAU\tu... > Compress-Archive -Path F:\BUREAU\turbo\data -Desti... > "Back... |
-| sim_backup_verify | "verifie les backups" | Get-ChildItem F:\BUREAU\turbo_backup_*.bundle -Err... > Get-ChildItem F:\BUREAU\turbo_data_backup_*.zip -E... > "Veri... |
+| sim_backup_turbo | "backup le projet" | cd /home/turbo/jarvis-m1-ops; git bundle create /home/turbo\tu... > Compress-Archive -Path /home/turbo/jarvis-m1-ops\data -Desti... > "Back... |
+| sim_backup_verify | "verifie les backups" | Get-ChildItem /home/turbo/jarvis-m1-ops_backup_*.bundle -Err... > Get-ChildItem /home/turbo/jarvis-m1-ops_data_backup_*.zip -E... > "Veri... |
 | sim_morning_routine | "routine du matin" | Web: https://www.meteofrance.com > pause 1s > Web: https://news.google.com > pause 1s > Web: https://mail.google.com ... |
-| sim_evening_shutdown | "routine du soir" | cd F:\BUREAU\turbo; git status -sb 2>&1 | Out-String > cd F:\BUREAU\turbo; git stash 2>&1 | Out-String > Remove-Item ... |
+| sim_evening_shutdown | "routine du soir" | cd /home/turbo/jarvis-m1-ops; git status -sb 2>&1 | Out-String > cd /home/turbo/jarvis-m1-ops; git stash 2>&1 | Out-String > Remove-Item ... |
 | sim_freelance_setup | "mode freelance" | Web: https://www.malt.fr > pause 1s > Web: https://mail.google.com > pause 1s > Ouvrir wt > "Setup freelance pret — M... |
-| sim_client_meeting | "prepare le meeting client" | Ouvrir ms-teams > pause 3s > Ouvrir notepad > pause 1s > cd F:\BUREAU\turbo; git log --oneline -5 2>&1 | Out-String >... |
-| sim_db_backup_all | "backup toutes les bases" | $d=Get-Date -Format yyyyMMdd; Copy-Item F:\BUREAU\... > $d=Get-Date -Format yyyyMMdd; Copy-Item F:\BUREAU\... > "Back... |
+| sim_client_meeting | "prepare le meeting client" | Ouvrir ms-teams > pause 3s > Ouvrir notepad > pause 1s > cd /home/turbo/jarvis-m1-ops; git log --oneline -5 2>&1 | Out-String >... |
+| sim_db_backup_all | "backup toutes les bases" | $d=Get-Date -Format yyyyMMdd; Copy-Item /home/turbo\... > $d=Get-Date -Format yyyyMMdd; Copy-Item /home/turbo\... > "Back... |
 | sim_security_full_audit | "audit securite complet" | Get-NetTCPConnection -State Listen | Select -First... > Get-NetFirewallProfile | Select Name, Enabled | Fo... > Get-L... |
 | sim_security_network | "audit reseau" | Get-NetTCPConnection | Where { $_.State -eq 'Estab... > Get-DnsClientCache | Select -First 15 Entry, Data ... > arp -... |
 | sim_benchmark_system | "benchmark systeme" | $cpu = Get-CimInstance Win32_Processor; "CPU: $($c... > $ram = Get-CimInstance Win32_OperatingSystem; "RAM... > Get-P... |
 | sim_benchmark_cluster | "benchmark cluster" | $sw=[Diagnostics.Stopwatch]::StartNew(); try{Invok... > $sw=[Diagnostics.Stopwatch]::StartNew(); try{Invok... > $sw=[... |
-| sim_doc_session | "session documentation" | code F:\BUREAU\turbo\docs 2>$null > pause 2s > Web: https://devdocs.io > pause 1s > Web: https://markdownlivepreview.... |
-| sim_doc_generate | "genere toute la doc" | cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > "Docu... |
+| sim_doc_session | "session documentation" | code /home/turbo/jarvis-m1-ops\docs 2>$null > pause 2s > Web: https://devdocs.io > pause 1s > Web: https://markdownlivepreview.... |
+| sim_doc_generate | "genere toute la doc" | cd /home/turbo/jarvis-m1-ops; & '/home/turbo\.local\bin\u... > cd /home/turbo/jarvis-m1-ops; & '/home/turbo\.local\bin\u... > "Docu... |
 | sim_ai_workspace | "workspace ia" | Web: https://huggingface.co > pause 1s > Web: https://arxiv.org/list/cs.AI/recent > pause 1s > Ouvrir wt > pause 1s >... |
-| sim_model_eval | "evalue les modeles" | cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > "Evaluation modeles terminee — voir data/benchmark... |
+| sim_model_eval | "evalue les modeles" | cd /home/turbo/jarvis-m1-ops; & '/home/turbo\.local\bin\u... > "Evaluation modeles terminee — voir data/benchmark... |
 | sim_home_office | "mode bureau" | Ouvrir ms-teams > pause 2s > Web: https://mail.google.com > pause 1s > Ouvrir spotify > pause 1s > try{Invoke-WebRequ... |
 | sim_focus_deep_work | "mode deep work" | MinimizeAll > Settings > pause 1s > Ouvrir spotify > "Deep work active — Focus Assist ON, 90 minutes de... |
 | sim_weekend_chill | "mode weekend" | Web: https://www.netflix.com > pause 1s > Ouvrir spotify > pause 1s > Web: https://www.ubereats.com > powercfg /setac... |
 | sim_movie_night | "soiree film" | MinimizeAll > pause 1s > Web: https://www.netflix.com > Settings > "Soiree film prete — Netflix + Night Light" |
 | sim_tech_news | "veille tech" | Web: https://news.ycombinator.com > pause 1s > Web: https://techcrunch.com > pause 1s > Web: https://www.reddit.com/r... |
 | sim_ai_news | "news ia" | Web: https://arxiv.org/list/cs.AI/recent > pause 1s > Web: https://huggingface.co/papers > pause 1s > Web: https://ww... |
-| sim_deploy_vercel | "deploie sur vercel" | cd F:\BUREAU\turbo; git status -sb 2>&1 | Out-String > cd F:\BUREAU\turbo; git push origin main 2>&1 | Out-String > W... |
+| sim_deploy_vercel | "deploie sur vercel" | cd /home/turbo/jarvis-m1-ops; git status -sb 2>&1 | Out-String > cd /home/turbo/jarvis-m1-ops; git push origin main 2>&1 | Out-String > W... |
 | sim_deploy_docker | "deploie en docker" | docker build -t jarvis-turbo:latest . 2>&1 | Selec... > docker tag jarvis-turbo:latest jarvis-turbo:$(Get-... > docke... |
-| sim_datascience_setup | "mode data science" | cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > Web: https://huggingface.co/datasets > pause 1s > nvidia-smi ... |
+| sim_datascience_setup | "mode data science" | cd /home/turbo/jarvis-m1-ops; & '/home/turbo\.local\bin\u... > Web: https://huggingface.co/datasets > pause 1s > nvidia-smi ... |
 | sim_kaggle_session | "session kaggle" | Web: https://www.kaggle.com/competitions > pause 1s > Web: https://www.kaggle.com/datasets > pause 1s > Web: https://... |
 | sim_interview_prep | "prepare l'entretien" | Web: https://leetcode.com > pause 1s > Web: https://www.geeksforgeeks.org > pause 1s > Web: https://devdocs.io > paus... |
 | sim_photo_edit | "mode edition photo" | Web: https://www.photopea.com > pause 2s > Web: https://www.pexels.com > pause 1s > Web: https://www.remove.bg > paus... |
 | sim_system_hardening | "renforce la securite" | Get-NetFirewallProfile | Select Name, Enabled | Fo... > Get-LocalUser | Where Enabled | Select Name, LastL... > Get-N... |
 | sim_meal_prep | "meal prep" | Web: https://www.marmiton.org > pause 1s > Web: https://www.750g.com > pause 1s > Web: https://www.ubereats.com > pau... |
 | sim_monitoring_full | "monitoring complet" | nvidia-smi --query-gpu=name,temperature.gpu,memory... > @('http://127.0.0.1:11434/api/tags','http://192.16... > Get-N... |
-| sim_jarvis_selfcheck | "auto diagnostic jarvis" | cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > cd F:\BUREAU\turbo; & 'C:\Users\franc\.local\bin\u... > $dbs=... |
+| sim_jarvis_selfcheck | "auto diagnostic jarvis" | cd /home/turbo/jarvis-m1-ops; & '/home/turbo\.local\bin\u... > cd /home/turbo/jarvis-m1-ops; & '/home/turbo\.local\bin\u... > $dbs=... |
 | sim_network_diag_full | "diagnostic reseau complet" | netsh wlan show interfaces | Select-String 'SSID|S... > Test-Connection 8.8.8.8 -Count 3 | Select Address,... > Resol... |
 | sim_opensource_session | "mode open source" | Web: https://github.com/trending > pause 1s > Web: https://github.com/issues > pause 1s > Ouvrir wt > pause 1s > cd F... |
 | sim_stream_setup_full | "setup stream complet" | powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c > Ouvrir obs64 > pause 3s > Web: https://dashboard.twitch.tv... |
 | sim_crypto_portfolio | "portfolio crypto" | Web: https://www.coingecko.com > pause 1s > Web: https://defillama.com > pause 1s > Web: https://zapper.xyz > pause 1... |
 | sim_emergency_recovery | "urgence recovery" | Get-PhysicalDisk | Select FriendlyName, HealthStat... > Get-WinEvent -FilterHashtable @{LogName='System';L... > Get-S... |
-| sim_weekly_review | "review hebdomadaire" | cd F:\BUREAU\turbo; "=== COMMITS CETTE SEMAINE ===... > cd F:\BUREAU\turbo; $f=git diff --stat HEAD~10 2>&... > cd F:... |
+| sim_weekly_review | "review hebdomadaire" | cd /home/turbo/jarvis-m1-ops; "=== COMMITS CETTE SEMAINE ===... > cd /home/turbo/jarvis-m1-ops; $f=git diff --stat HEAD~10 2>&... > cd F:... |
 | sim_demo_prep | "prepare la demo" | MinimizeAll > pause 1s > Ouvrir wt > pause 1s > Web: https://docs.google.com/presentation > "Demo preparation termine... |
 
 ---
@@ -703,20 +703,20 @@ Les pipelines executent plusieurs actions en sequence (separees par `;;`).
 | deplacer_fichier | Deplacer un fichier | "deplace {source} dans {destination}", "deplace {source} vers {destination}", "bouge {source} dans {destination}" | powershell |
 | explorer_nouvel_onglet | Nouvel onglet dans l'Explorateur | "nouvel onglet explorateur", "onglet explorateur", "new tab explorer", +1 | powershell |
 | dossier_captures | Ouvrir le dossier captures d'ecran | "dossier captures", "ouvre les captures", "dossier screenshots", +2 | powershell |
-| taille_dossiers_bureau | Taille de chaque dossier dans F:\BUREAU | "taille des projets", "poids des dossiers bureau", "combien pese chaque projet", +1 | powershell |
+| taille_dossiers_bureau | Taille de chaque dossier dans /home/turbo | "taille des projets", "poids des dossiers bureau", "combien pese chaque projet", +1 | powershell |
 | compresser_fichier | Compresser un dossier en ZIP | "compresse en zip", "zip le dossier", "cree un zip", +2 | powershell |
 | decompresser_fichier | Decompresser un fichier ZIP | "decompresse le zip", "unzip", "extrais l'archive", +2 | powershell |
 | compresser_turbo | Compresser le projet turbo en ZIP (sans .git ni venv) | "zip turbo", "archive turbo", "compresse le projet", +1 | powershell |
 | vider_dossier_temp | Supprimer les fichiers temporaires | "vide le temp", "nettoie les temporaires", "clean temp", +1 | powershell |
 | lister_fichiers_recents | Lister les 20 fichiers les plus recents sur le bureau | "fichiers recents", "derniers fichiers", "quoi de recent", +1 | powershell |
 | chercher_gros_fichiers | Trouver les fichiers > 100 MB sur F: | "gros fichiers partout", "fichiers enormes", "quoi prend toute la place", +1 | powershell |
-| doublons_bureau | Detecter les doublons potentiels par nom dans F:\BUREAU | "doublons bureau", "fichiers en double", "trouve les doublons", +2 | powershell |
+| doublons_bureau | Detecter les doublons potentiels par nom dans /home/turbo | "doublons bureau", "fichiers en double", "trouve les doublons", +2 | powershell |
 | taille_telechargements | Taille du dossier Telechargements | "taille telechargements", "poids downloads", "combien dans les telechargements", +1 | powershell |
 | vider_telechargements | Vider le dossier Telechargements (fichiers > 30 jours) | "vide les telechargements", "nettoie les downloads", "clean downloads", +1 | powershell |
 | lister_telechargements | Derniers fichiers telecharges | "derniers telechargements", "quoi de telecharge", "recent downloads", +1 | powershell |
 | ouvrir_telechargements | Ouvrir le dossier Telechargements | "ouvre les telechargements", "dossier downloads", "va dans les telechargements", +1 | powershell |
 | ouvrir_documents | Ouvrir le dossier Documents | "ouvre les documents", "dossier documents", "mes documents", +1 | powershell |
-| ouvrir_bureau_dossier | Ouvrir F:\BUREAU dans l'explorateur | "ouvre le bureau", "dossier bureau", "va dans bureau", +1 | powershell |
+| ouvrir_bureau_dossier | Ouvrir /home/turbo dans l'explorateur | "ouvre le bureau", "dossier bureau", "va dans bureau", +1 | powershell |
 | fichier_recent_modifie | Trouver le dernier fichier modifie partout | "dernier fichier modifie", "quoi vient de changer", "last modified", +1 | powershell |
 | compter_fichiers_type | Compter les fichiers par extension dans un dossier | "compte les fichiers par type", "extensions dans {path}", "quels types de fichiers dans {path}" | powershell |
 

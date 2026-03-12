@@ -43,7 +43,7 @@ DB_PATH = str(Path(__file__).resolve().parent.parent / "data" / "etoile.db")
 # Cowork script locations (in order of preference)
 COWORK_PATHS = [
     Path("C:/Users/franc/.openclaw/workspace/dev"),
-    Path("F:/BUREAU/turbo/cowork/dev"),
+    Path("/home/turbo/jarvis-m1-ops/cowork/dev"),
 ]
 
 

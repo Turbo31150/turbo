@@ -1,7 +1,7 @@
 """Test rapide du Commander V2 - 5 commandes intent + TTS"""
 import sys, os, time, json
-sys.path.insert(0, r'F:\BUREAU\TRADING_V2_PRODUCTION\voice_system')
-sys.path.insert(0, r'F:\BUREAU\TRADING_V2_PRODUCTION\scripts')
+sys.path.insert(0, r'/home/turbo\TRADING_V2_PRODUCTION\voice_system')
+sys.path.insert(0, r'/home/turbo\TRADING_V2_PRODUCTION\scripts')
 
 print('=' * 60)
 print('  TEST COMMANDER V2 - 5 COMMANDES')

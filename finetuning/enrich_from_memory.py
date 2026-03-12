@@ -7,7 +7,7 @@ import sqlite3
 import os
 from pathlib import Path
 
-DATASET_DIR = Path("F:/BUREAU/turbo/finetuning/dataset")
+DATASET_DIR = Path("/home/turbo/jarvis-m1-ops/finetuning/dataset")
 TRAIN_FILE = DATASET_DIR / "jarvis_final_train.jsonl"
 ENRICHMENT_FILE = DATASET_DIR / "jarvis_memory_enrichment.jsonl"
 
@@ -100,7 +100,7 @@ def generate_cluster_examples() -> list:
         "Comment appeler M1 ?",
         "M1 utilise LM Studio Responses API. Appel sans auth :\n"
         "curl -s http://127.0.0.1:1234/api/v1/chat -H 'Content-Type: application/json' "
-        "-d '{\"model\":\"qwen3-8b\",\"input\":\"/nothink\\nTon prompt\",\"temperature\":0.2,"
+        "-d '{\"model\":\"qwen3-8b\",\"input\":\"/nothink/nTon prompt\",\"temperature\":0.2,"
         "\"max_output_tokens\":1024,\"stream\":false,\"store\":false}'\n"
         "IMPORTANT : prefixer /nothink pour eviter le thinking cache de Qwen3. "
         "Extraire le dernier element type=message dans output[]."
@@ -192,7 +192,7 @@ def generate_system_examples() -> list:
 
     examples.append(make_example(
         "Quels projets existent ?",
-        "12 projets dans F:\\BUREAU :\n"
+        "12 projets dans F:/BUREAU :\n"
         "- turbo : MAIN, JARVIS v10.3 SDK\n"
         "- carV1 : Trading AI Ultimate\n"
         "- lienDepart : 14 agents SDK\n"
@@ -201,7 +201,7 @@ def generate_system_examples() -> list:
         "- rag-v1 : RAG adaptatif (plugin LM Studio)\n"
         "- TRADING_V2_PRODUCTION : MCP v3.5\n"
         "- n8n_workflows_backup : 20 workflows\n"
-        "Disques : C:\\ (82+ GB libre / 476 GB), F:\\ (104+ GB / 446 GB)."
+        "Disques : /\ (82+ GB libre / 476 GB), F:/ (104+ GB / 446 GB)."
     ))
 
     examples.append(make_example(
@@ -314,7 +314,7 @@ def generate_skills_examples() -> list:
 def generate_domino_examples_from_db() -> list:
     """Genere des exemples a partir des chaines domino dans etoile.db."""
     examples = []
-    db_path = "F:/BUREAU/turbo/data/etoile.db"
+    db_path = "/home/turbo/jarvis-m1-ops/data/etoile.db"
     if not os.path.exists(db_path):
         return examples
 
@@ -388,7 +388,7 @@ def generate_domino_examples_from_db() -> list:
 def generate_commands_from_db() -> list:
     """Genere des exemples a partir des commandes dans jarvis.db."""
     examples = []
-    db_path = "F:/BUREAU/turbo/data/jarvis.db"
+    db_path = "/home/turbo/jarvis-m1-ops/data/jarvis.db"
     if not os.path.exists(db_path):
         return examples
 

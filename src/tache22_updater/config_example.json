@@ -110,15 +110,15 @@
     }
   },
   "paths": {
-    "base": "F:\\BUREAU\\turbo",
-    "src": "F:\\BUREAU\\turbo\\src",
-    "backups": "F:\\BUREAU\\turbo\\backups",
-    "logs": "F:\\BUREAU\\turbo\\logs",
-    "migrations": "F:\\BUREAU\\turbo\\migrations",
-    "config": "F:\\BUREAU\\turbo\\config"
+    "base": "F:/BUREAU/turbo",
+    "src": "F:/BUREAU/turbo/src",
+    "backups": "F:/BUREAU/turbo/backups",
+    "logs": "F:/BUREAU/turbo/logs",
+    "migrations": "F:/BUREAU/turbo/migrations",
+    "config": "F:/BUREAU/turbo/config"
   },
   "database": {
-    "path": "F:\\BUREAU\\turbo\\jarvis.db",
+    "path": "F:/BUREAU/turbo/jarvis.db",
     "auto_backup": true,
     "vacuum_interval_hours": 24
   }

@@ -124,7 +124,7 @@ INTENT_PATTERNS: dict[str, list[str]] = {
 ENTITY_PATTERNS: dict[str, str] = {
     "app_name": r"(?:ouvre|lance|demarre)\s+(\w+)",
     "url": r"(https?://\S+)",
-    "file_path": r"([A-Za-z]:\\[^\s]+|/[^\s]+)",
+    "file_path": r"([A-Za-z]:/[^\s]+|/[^\s]+)",
     "crypto_pair": r"\b(BTC|ETH|SOL|SUI|PEPE|DOGE|XRP|ADA|AVAX|LINK)\b",
     "node_name": r"\b(M[123]|OL1|GEMINI|CLAUDE)\b",
     "model_name": r"\b(qwen3-8b|qwen3-30b|gpt-oss-20b|qwq-32b|deepseek-r1|devstral)\b",

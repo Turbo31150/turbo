@@ -144,10 +144,10 @@ _SQL_INJECTION_PATTERNS = [
 
 # Path traversal patterns
 _PATH_TRAVERSAL_PATTERNS = [
-    r'\.\.[/\\]',
-    r'[/\\]etc[/\\]',
-    r'[/\\]proc[/\\]',
-    r'[/\\]sys[/\\]',
+    r'\.\.[//]',
+    r'[//]etc[//]',
+    r'[//]proc[//]',
+    r'[//]sys[//]',
     r'%2e%2e',         # URL-encoded ..
     r'%00',            # Null byte
 ]

@@ -14,7 +14,7 @@ from auto_updater import AutoUpdater
 from version_manager import VersionManager
 
 # Configuration
-BASE_PATH = Path("F:\\BUREAU\\turbo")
+BASE_PATH = Path("F:/BUREAU/turbo")
 CONFIG_PATH = BASE_PATH / "config"
 LOGS_PATH = BASE_PATH / "logs"
 

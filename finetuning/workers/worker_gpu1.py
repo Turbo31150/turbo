@@ -55,9 +55,9 @@ except Exception as e:
     print(f"[WARN] {e}")
 
 MODEL = "Qwen/Qwen3-8B"
-TRAIN_FILE = r"F:\BUREAU\turbo\finetuning\dataset\vocal_chunk_1.jsonl"
+TRAIN_FILE = r"/home/turbo/jarvis-m1-ops\finetuning\dataset\vocal_chunk_1.jsonl"
 EVAL_FILE = None
-OUTPUT_DIR = Path(r"F:/BUREAU/turbo/finetuning/output")
+OUTPUT_DIR = Path(r"/home/turbo/jarvis-m1-ops/finetuning/output")
 
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 run_name = f"jarvis-qwen3-8b-1660s-vocal1-{timestamp}"

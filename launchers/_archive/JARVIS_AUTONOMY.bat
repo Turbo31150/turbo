@@ -1,6 +1,6 @@
 @echo off
 title JARVIS Cluster Autonomy Engine - Daemon
-cd /d F:\BUREAU\turbo
+cd /d /home/turbo/jarvis-m1-ops
 
 :: === SINGLETON GUARD: tue l'instance existante ===
 python scripts/singleton_guard.py --name autonomy --kill

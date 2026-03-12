@@ -141,7 +141,7 @@ def _acquire_singleton():
     """Kill any existing whisper_worker to avoid GPU memory waste."""
     from pathlib import Path
     import subprocess
-    pid_file = Path("F:/BUREAU/turbo/data/pids/whisper_worker.pid")
+    pid_file = Path("/home/turbo/jarvis-m1-ops/data/pids/whisper_worker.pid")
     pid_file.parent.mkdir(parents=True, exist_ok=True)
     if pid_file.exists():
         try:

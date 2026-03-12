@@ -15,7 +15,7 @@ Deux bugs majeurs ont ete identifiés et corriges dans le module `brain` de JARV
 ## Bug 1: Mauvaise Gestion du Paramètre `auto_create`
 
 ### Localisation
-- **Fichier**: `F:/BUREAU/turbo/src/mcp_server.py`
+- **Fichier**: `/home/turbo/jarvis-m1-ops/src/mcp_server.py`
 - **Fonction**: `handle_brain_analyze`
 - **Ligne**: 555 (anciennement)
 
@@ -62,7 +62,7 @@ else:
 ## Bug 2: Mauvaise Gestion des Erreurs Cluster
 
 ### Localisation
-- **Fichier**: `F:/BUREAU/turbo/src/brain.py`
+- **Fichier**: `/home/turbo/jarvis-m1-ops/src/brain.py`
 - **Fonction**: `cluster_suggest_skill`
 - **Ligne**: 304 (anciennement)
 
@@ -157,11 +157,11 @@ Testing JARVIS brain fixes...
 
 ## Fichiers Modifiés
 
-1. **F:/BUREAU/turbo/src/mcp_server.py**
+1. **/home/turbo/jarvis-m1-ops/src/mcp_server.py**
    - Fonction: `handle_brain_analyze` (5 lignes modifiées)
    - Type: Bug fix
 
-2. **F:/BUREAU/turbo/src/brain.py**
+2. **/home/turbo/jarvis-m1-ops/src/brain.py**
    - Fonction: `cluster_suggest_skill` (21 lignes modifiées)
    - Type: Error handling improvement
 

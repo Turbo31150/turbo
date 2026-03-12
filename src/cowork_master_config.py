@@ -422,7 +422,7 @@ COWORK_CONFIG = {
     
     # Logging
     "log_level": "INFO",
-    "log_file": "F:/BUREAU/turbo/logs/cowork.log",
+    "log_file": "/home/turbo/jarvis-m1-ops/logs/cowork.log",
     
     # Notifications
     "notify_on_task_complete": True,

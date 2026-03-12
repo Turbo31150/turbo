@@ -13,11 +13,11 @@ Usage: python jarvis_url_handler.py "jarvis://command/args"
 import json, sys, subprocess, urllib.request, urllib.parse
 
 WS = "http://127.0.0.1:9742"
-SCRIPTS = "F:\\BUREAU\\turbo\\scripts"
+SCRIPTS = "F:/BUREAU/turbo/scripts"
 
 def run_script(script, args=""):
     try:
-        cmd = f'python "{SCRIPTS}\\{script}"'
+        cmd = f'python "{SCRIPTS}/{script}"'
         if args:
             cmd += f' {args}'
         r = subprocess.run(cmd, shell=True, capture_output=True, text=True,

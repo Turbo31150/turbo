@@ -9,8 +9,8 @@ from src.commands import JarvisCommand
 from src.config import PATHS
 
 _M2_KEY = os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", ""))
-_TURBO_DIR = str(PATHS.get("turbo", "F:/BUREAU/turbo")).replace("/", "\\")
-_TURBO_DIR_FWD = str(PATHS.get("turbo", "F:/BUREAU/turbo"))
+_TURBO_DIR = str(PATHS.get("turbo", "/home/turbo/jarvis-m1-ops")).replace("/", "/")
+_TURBO_DIR_FWD = str(PATHS.get("turbo", "/home/turbo/jarvis-m1-ops"))
 _USER_HOME = str(Path.home())
 
 DEV_COMMANDS: list[JarvisCommand] = [
@@ -20,27 +20,27 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("git_branches", "dev", "Lister les branches git", [
         "branches git", "quelles branches", "liste les branches",
         "git branches", "git branch",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git branch -a"),
+    ], "powershell", "cd F:/BUREAU/turbo; git branch -a"),
     JarvisCommand("git_diff", "dev", "Voir les modifications non commitees", [
         "git diff", "modifications en cours", "quelles modifications",
         "montre les changements", "diff git",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git diff --stat"),
+    ], "powershell", "cd F:/BUREAU/turbo; git diff --stat"),
     JarvisCommand("git_stash", "dev", "Sauvegarder les modifications en stash", [
         "git stash", "stash les changements", "sauvegarde les modifs",
         "mets de cote les changements",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git stash; 'Modifications sauvegardees en stash'"),
+    ], "powershell", "cd F:/BUREAU/turbo; git stash; 'Modifications sauvegardees en stash'"),
     JarvisCommand("git_stash_pop", "dev", "Restaurer les modifications du stash", [
         "git stash pop", "restaure le stash", "recupere le stash",
         "pop le stash",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git stash pop"),
+    ], "powershell", "cd F:/BUREAU/turbo; git stash pop"),
     JarvisCommand("git_last_commit", "dev", "Voir le dernier commit en detail", [
         "dernier commit", "last commit", "montre le dernier commit",
         "qu'est ce qui a ete commite",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git log -1 --format='%H%n%an%n%s%n%ai' --stat"),
+    ], "powershell", "cd F:/BUREAU/turbo; git log -1 --format='%H%n%an%n%s%n%ai' --stat"),
     JarvisCommand("git_count", "dev", "Compter les commits du projet", [
         "combien de commits", "nombre de commits", "git count",
         "total commits",
-    ], "powershell", "cd F:\\BUREAU\\turbo; $c = (git rev-list --count HEAD); \"$c commits au total\""),
+    ], "powershell", "cd F:/BUREAU/turbo; $c = (git rev-list --count HEAD); \"$c commits au total\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # NODE / NPM / BUN
@@ -84,15 +84,15 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("uv_sync", "dev", "Synchroniser les dependances uv", [
         "uv sync", "synchronise les dependances", "sync les packages",
         "installe les dependances",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' sync"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' sync"),
     JarvisCommand("python_test", "dev", "Lancer les tests Python du projet", [
         "lance les tests", "run tests", "pytest",
         "teste le projet", "lance pytest",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pytest -x -v 2>&1 | Select -First 30 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run pytest -x -v 2>&1 | Select -First 30 | Out-String"),
     JarvisCommand("python_lint", "dev", "Verifier le code avec ruff", [
         "lint le code", "ruff check", "verifie le code",
         "lance ruff", "check code quality",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff check src/ 2>&1 | Select -First 30 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run ruff check src/ 2>&1 | Select -First 30 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # DOCKER AVANCE
@@ -120,15 +120,15 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("turbo_lines", "dev", "Compter les lignes de code du projet turbo", [
         "combien de lignes de code", "lignes de code turbo",
         "lines of code", "taille du code", "loc turbo",
-    ], "powershell", "cd F:\\BUREAU\\turbo; $py = (Get-ChildItem src/*.py -Recurse | Get-Content | Measure-Object -Line).Lines; $total = (Get-ChildItem *.py,src/*.py -Recurse | Get-Content | Measure-Object -Line).Lines; \"Python src/: $py lignes | Total: $total lignes\""),
+    ], "powershell", "cd F:/BUREAU/turbo; $py = (Get-ChildItem src/*.py -Recurse | Get-Content | Measure-Object -Line).Lines; $total = (Get-ChildItem *.py,src/*.py -Recurse | Get-Content | Measure-Object -Line).Lines; \"Python src/: $py lignes | Total: $total lignes\""),
     JarvisCommand("turbo_size", "dev", "Taille totale du projet turbo", [
         "taille du projet turbo", "poids du projet", "combien pese turbo",
         "espace turbo",
-    ], "powershell", "$s = (Get-ChildItem 'F:\\BUREAU\\turbo' -Recurse -File -ErrorAction SilentlyContinue | Where { $_.FullName -notmatch '(node_modules|__pycache__|.git|dist)' } | Measure-Object Length -Sum).Sum; \"Projet turbo: $([math]::Round($s/1MB,1)) MB\""),
+    ], "powershell", "$s = (Get-ChildItem 'F:/BUREAU/turbo' -Recurse -File -ErrorAction SilentlyContinue | Where { $_.FullName -notmatch '(node_modules|__pycache__|.git|dist)' } | Measure-Object Length -Sum).Sum; \"Projet turbo: $([math]::Round($s/1MB,1)) MB\""),
     JarvisCommand("turbo_files", "dev", "Compter les fichiers du projet turbo", [
         "combien de fichiers turbo", "nombre de fichiers",
         "fichiers du projet", "count files turbo",
-    ], "powershell", "cd F:\\BUREAU\\turbo; $py = (Get-ChildItem -Recurse -Filter '*.py' | Where { $_.FullName -notmatch '__pycache__' }).Count; $js = (Get-ChildItem -Recurse -Filter '*.js' | Where { $_.FullName -notmatch 'node_modules' }).Count; $ts = (Get-ChildItem -Recurse -Filter '*.ts' | Where { $_.FullName -notmatch 'node_modules' }).Count; \"Python: $py | JS: $js | TS: $ts\""),
+    ], "powershell", "cd F:/BUREAU/turbo; $py = (Get-ChildItem -Recurse -Filter '*.py' | Where { $_.FullName -notmatch '__pycache__' }).Count; $js = (Get-ChildItem -Recurse -Filter '*.js' | Where { $_.FullName -notmatch 'node_modules' }).Count; $ts = (Get-ChildItem -Recurse -Filter '*.ts' | Where { $_.FullName -notmatch 'node_modules' }).Count; \"Python: $py | JS: $js | TS: $ts\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # LM STUDIO CLI (lms.exe)
@@ -136,23 +136,23 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("lms_status", "dev", "Statut du serveur LM Studio local", [
         "statut lm studio", "lm studio status", "etat lm studio",
         "lm studio marche", "lms status",
-    ], "powershell", "& 'C:\\Users\\franc\\.lmstudio\\bin\\lms.exe' status 2>&1 | Out-String"),
+    ], "powershell", "& '/\Users/franc/.lmstudio/bin/lms.exe' status 2>&1 | Out-String"),
     JarvisCommand("lms_list_loaded", "dev", "Modeles actuellement charges dans LM Studio local", [
         "modeles charges locaux", "lms loaded", "quels modeles tourment",
         "modeles en cours lm studio", "lms list loaded",
-    ], "powershell", "& 'C:\\Users\\franc\\.lmstudio\\bin\\lms.exe' ps 2>&1 | Out-String"),
+    ], "powershell", "& '/\Users/franc/.lmstudio/bin/lms.exe' ps 2>&1 | Out-String"),
     JarvisCommand("lms_load_model", "dev", "Charger un modele dans LM Studio local", [
         "charge le modele {model}", "lms load {model}",
         "load {model} dans lm studio", "monte le modele {model}",
-    ], "powershell", "& 'C:\\Users\\franc\\.lmstudio\\bin\\lms.exe' load {model} 2>&1 | Out-String", ["model"]),
+    ], "powershell", "& '/\Users/franc/.lmstudio/bin/lms.exe' load {model} 2>&1 | Out-String", ["model"]),
     JarvisCommand("lms_unload_model", "dev", "Decharger un modele de LM Studio local", [
         "decharge le modele {model}", "lms unload {model}",
         "unload {model}", "libere le modele {model}",
-    ], "powershell", "& 'C:\\Users\\franc\\.lmstudio\\bin\\lms.exe' unload {model} 2>&1 | Out-String", ["model"]),
+    ], "powershell", "& '/\Users/franc/.lmstudio/bin/lms.exe' unload {model} 2>&1 | Out-String", ["model"]),
     JarvisCommand("lms_list_available", "dev", "Lister les modeles disponibles sur le disque", [
         "modeles disponibles lm studio", "lms list",
         "quels modeles j'ai", "modeles telecharges",
-    ], "powershell", "& 'C:\\Users\\franc\\.lmstudio\\bin\\lms.exe' ls 2>&1 | Out-String"),
+    ], "powershell", "& '/\Users/franc/.lmstudio/bin/lms.exe' ls 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # GIT AVANCE — Supplementaire
@@ -160,15 +160,15 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("git_status_turbo", "dev", "Statut git du projet turbo", [
         "git status", "statut git", "etat du repo",
         "quoi de neuf en git",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git status -sb"),
+    ], "powershell", "cd F:/BUREAU/turbo; git status -sb"),
     JarvisCommand("git_log_short", "dev", "Derniers 10 commits (resume)", [
         "historique git", "git log", "derniers commits",
         "montre l'historique", "log git recent",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git log --oneline -10"),
+    ], "powershell", "cd F:/BUREAU/turbo; git log --oneline -10"),
     JarvisCommand("git_remote_info", "dev", "Informations sur le remote git", [
         "remote git", "git remote", "quel remote",
         "url du repo", "origine git",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git remote -v"),
+    ], "powershell", "cd F:/BUREAU/turbo; git remote -v"),
 
     # ══════════════════════════════════════════════════════════════════════
     # COMMUNICATION — Apps desktop
@@ -205,7 +205,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("python_uv_version", "dev", "Version de Python et uv", [
         "version python", "quelle version python", "python version",
         "version uv",
-    ], "powershell", "python --version; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' --version 2>&1 | Out-String"),
+    ], "powershell", "python --version; & '/\Users/franc/.local/bin/uv.exe' --version 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # PROJET TURBO — Commandes supplementaires
@@ -213,11 +213,11 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("turbo_recent_changes", "dev", "Fichiers modifies recemment dans turbo", [
         "fichiers recents turbo", "modifications recentes",
         "quoi de modifie recemment", "derniers fichiers touches",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git diff --name-only HEAD~5 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; git diff --name-only HEAD~5 2>&1 | Out-String"),
     JarvisCommand("turbo_todo", "dev", "Lister les TODO dans le code turbo", [
         "liste les todo", "todo dans le code", "quels todo reste",
         "cherche les todo", "todo turbo",
-    ], "powershell", "cd F:\\BUREAU\\turbo; Select-String -Path 'src\\*.py' -Pattern 'TODO|FIXME|HACK|XXX' | Select-Object Filename, LineNumber, Line | Format-Table -AutoSize | Out-String -Width 200"),
+    ], "powershell", "cd F:/BUREAU/turbo; Select-String -Path 'src/*.py' -Pattern 'TODO|FIXME|HACK|XXX' | Select-Object Filename, LineNumber, Line | Format-Table -AutoSize | Out-String -Width 200"),
 
     # ══════════════════════════════════════════════════════════════════════
     # GIT — Commandes supplementaires
@@ -225,23 +225,23 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("git_blame_file", "dev", "Git blame sur un fichier", [
         "git blame de {fichier}", "blame {fichier}",
         "qui a modifie {fichier}", "auteur de {fichier}",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git blame {fichier} | Select -Last 15 | Out-String", ["fichier"]),
+    ], "powershell", "cd F:/BUREAU/turbo; git blame {fichier} | Select -Last 15 | Out-String", ["fichier"]),
     JarvisCommand("git_clean_branches", "dev", "Nettoyer les branches git mergees", [
         "nettoie les branches", "clean branches", "supprime les branches mergees",
         "git clean branches",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git branch --merged main | Where { $_ -notmatch 'main' } | ForEach { git branch -d $_.Trim() 2>&1 } | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; git branch --merged main | Where { $_ -notmatch 'main' } | ForEach { git branch -d $_.Trim() 2>&1 } | Out-String"),
     JarvisCommand("git_contributors", "dev", "Lister les contributeurs du projet", [
         "contributeurs git", "qui a contribue", "git contributors",
         "auteurs du projet",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git shortlog -sn --all | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; git shortlog -sn --all | Out-String"),
     JarvisCommand("git_file_history", "dev", "Historique d'un fichier", [
         "historique du fichier {fichier}", "git log de {fichier}",
         "modifications de {fichier}",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git log --oneline -10 -- {fichier} | Out-String", ["fichier"]),
+    ], "powershell", "cd F:/BUREAU/turbo; git log --oneline -10 -- {fichier} | Out-String", ["fichier"]),
     JarvisCommand("git_undo_last", "dev", "Annuler le dernier commit (soft reset)", [
         "annule le dernier commit", "undo last commit", "git undo",
         "defais le dernier commit",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git reset --soft HEAD~1; 'Dernier commit annule (changements gardes)'", confirm=True),
+    ], "powershell", "cd F:/BUREAU/turbo; git reset --soft HEAD~1; 'Dernier commit annule (changements gardes)'", confirm=True),
 
     # ══════════════════════════════════════════════════════════════════════
     # NPM / BUN AVANCÉ
@@ -261,7 +261,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("pip_outdated", "dev", "Packages Python obsoletes", [
         "pip outdated", "packages python a mettre a jour",
         "quels packages python perime",
-    ], "powershell", "& 'C:\\Users\\franc\\.local\\bin\\uv.exe' pip list --outdated 2>&1 | Select -First 15 | Out-String"),
+    ], "powershell", "& '/\Users/franc/.local/bin/uv.exe' pip list --outdated 2>&1 | Select -First 15 | Out-String"),
     JarvisCommand("python_repl", "dev", "Lancer un REPL Python", [
         "lance python", "python repl", "ouvre python",
         "interprete python",
@@ -301,27 +301,27 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("git_reflog", "dev", "Voir le reflog git (historique complet)", [
         "git reflog", "reflog", "historique complet git",
         "undo avance git",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git reflog -15 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; git reflog -15 | Out-String"),
     JarvisCommand("git_tag_list", "dev", "Lister les tags git", [
         "tags git", "git tags", "liste les tags",
         "versions git", "releases git",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git tag -l --sort=-version:refname | Select -First 15 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; git tag -l --sort=-version:refname | Select -First 15 | Out-String"),
     JarvisCommand("git_search_commits", "dev", "Rechercher dans les messages de commit", [
         "cherche dans les commits {requete}", "git search {requete}",
         "commit contenant {requete}", "git log search {requete}",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git log --oneline --grep='{requete}' -15 | Out-String", ["requete"]),
+    ], "powershell", "cd F:/BUREAU/turbo; git log --oneline --grep='{requete}' -15 | Out-String", ["requete"]),
     JarvisCommand("git_repo_size", "dev", "Taille du depot git", [
         "taille du repo git", "poids du git", "git size",
         "combien pese le git",
-    ], "powershell", "cd F:\\BUREAU\\turbo; $s = (Get-ChildItem .git -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum; \"Depot .git: $([math]::Round($s/1MB,1)) MB\""),
+    ], "powershell", "cd F:/BUREAU/turbo; $s = (Get-ChildItem .git -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum; \"Depot .git: $([math]::Round($s/1MB,1)) MB\""),
     JarvisCommand("git_stash_list", "dev", "Lister les stash git", [
         "liste les stash", "git stash list", "stash en attente",
         "quels stash j'ai",
-    ], "powershell", "cd F:\\BUREAU\\turbo; $s = git stash list 2>&1; if($s){$s | Out-String}else{'Aucun stash'}"),
+    ], "powershell", "cd F:/BUREAU/turbo; $s = git stash list 2>&1; if($s){$s | Out-String}else{'Aucun stash'}"),
     JarvisCommand("git_diff_staged", "dev", "Voir les modifications stagees (pret a commit)", [
         "diff staged", "git diff staged", "quoi va etre commite",
         "modifications stagees",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git diff --cached --stat | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; git diff --cached --stat | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # DOCKER AVANCÉ — Compléments
@@ -373,7 +373,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("ssh_keys_list", "dev", "Lister les cles SSH", [
         "cles ssh", "ssh keys", "liste les cles ssh",
         "quelles cles ssh j'ai",
-    ], "powershell", "Get-ChildItem $env:USERPROFILE\\.ssh\\*.pub -ErrorAction SilentlyContinue | ForEach-Object { \"$($_.Name): $(Get-Content $_.FullName | Select -First 1)\" } | Out-String"),
+    ], "powershell", "Get-ChildItem $env:USERPROFILE/.ssh/*.pub -ErrorAction SilentlyContinue | ForEach-Object { \"$($_.Name): $(Get-Content $_.FullName | Select -First 1)\" } | Out-String"),
     JarvisCommand("npm_cache_clean", "dev", "Nettoyer le cache NPM", [
         "nettoie le cache npm", "npm cache clean", "clean npm cache",
         "purge npm",
@@ -385,23 +385,23 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("uv_pip_tree", "dev", "Arbre de dependances Python du projet", [
         "arbre de dependances", "pip tree", "dependency tree",
         "dependances python", "uv tree",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' tree 2>&1 | Select -First 40 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' tree 2>&1 | Select -First 40 | Out-String"),
     JarvisCommand("pip_show_package", "dev", "Details d'un package Python installe", [
         "details du package {package}", "pip show {package}",
         "info sur {package}", "version de {package}",
-    ], "powershell", "& 'C:\\Users\\franc\\.local\\bin\\uv.exe' pip show {package} 2>&1 | Out-String", ["package"]),
+    ], "powershell", "& '/\Users/franc/.local/bin/uv.exe' pip show {package} 2>&1 | Out-String", ["package"]),
     JarvisCommand("turbo_imports", "dev", "Imports utilises dans le projet turbo", [
         "imports du projet", "quels imports", "dependances importees",
         "analyse les imports",
-    ], "powershell", "cd F:\\BUREAU\\turbo; Select-String -Path 'src\\*.py' -Pattern '^(import |from )' | ForEach-Object { $_.Line.Trim() } | Sort -Unique | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; Select-String -Path 'src/*.py' -Pattern '^(import |from )' | ForEach-Object { $_.Line.Trim() } | Sort -Unique | Out-String"),
     JarvisCommand("python_format_check", "dev", "Verifier le formatage Python avec ruff format", [
         "verifie le formatage", "ruff format check", "check formatting",
         "code bien formate",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff format --check src/ 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run ruff format --check src/ 2>&1 | Out-String"),
     JarvisCommand("python_type_check", "dev", "Verifier les types Python (pyright/mypy)", [
         "verifie les types", "type check", "pyright check",
         "mypy check", "typage python",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pyright src/ 2>&1 | Select -Last 10 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run pyright src/ 2>&1 | Select -Last 10 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # RÉSEAU & SERVICES — Compléments dev
@@ -421,23 +421,23 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("git_worktree_list", "dev", "Lister les worktrees git", [
         "worktrees git", "git worktrees", "liste les worktrees",
         "arbres de travail git",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git worktree list 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; git worktree list 2>&1 | Out-String"),
     JarvisCommand("git_submodule_status", "dev", "Statut des submodules git", [
         "submodules git", "git submodules", "etat des submodules",
         "sous modules git",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git submodule status 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; git submodule status 2>&1 | Out-String"),
     JarvisCommand("git_cherry_unpicked", "dev", "Commits non cherry-picked entre branches", [
         "git cherry", "commits non picks", "cherry pick restant",
         "quels commits manquent",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git cherry -v main HEAD 2>&1 | Select -First 10 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; git cherry -v main HEAD 2>&1 | Select -First 10 | Out-String"),
     JarvisCommand("git_branch_age", "dev", "Age de chaque branche git", [
         "age des branches", "branches vieilles", "quand les branches ont ete crees",
         "branches recentes",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git for-each-ref --sort=-committerdate --format='%(committerdate:short) %(refname:short)' refs/heads/ | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; git for-each-ref --sort=-committerdate --format='%(committerdate:short) %(refname:short)' refs/heads/ | Out-String"),
     JarvisCommand("git_commit_stats", "dev", "Statistiques de commits (par jour/semaine)", [
         "stats commits", "frequence commits", "git stats",
         "combien de commits par jour",
-    ], "powershell", "cd F:\\BUREAU\\turbo; $total = (git rev-list --count HEAD); $week = (git log --since='1 week ago' --oneline | Measure-Object).Count; $today = (git log --since='today' --oneline | Measure-Object).Count; \"Total: $total | Semaine: $week | Aujourd'hui: $today\""),
+    ], "powershell", "cd F:/BUREAU/turbo; $total = (git rev-list --count HEAD); $week = (git log --since='1 week ago' --oneline | Measure-Object).Count; $today = (git log --since='today' --oneline | Measure-Object).Count; \"Total: $total | Semaine: $week | Aujourd'hui: $today\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # DOCKER — Compose & avancé
@@ -445,19 +445,19 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("docker_compose_up", "dev", "Docker compose up (demarrer les services)", [
         "docker compose up", "lance les conteneurs", "demarre docker compose",
         "up docker",
-    ], "powershell", "cd F:\\BUREAU\\turbo; docker compose up -d 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; docker compose up -d 2>&1 | Out-String"),
     JarvisCommand("docker_compose_down", "dev", "Docker compose down (arreter les services)", [
         "docker compose down", "arrete les conteneurs", "stop docker compose",
         "down docker",
-    ], "powershell", "cd F:\\BUREAU\\turbo; docker compose down 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; docker compose down 2>&1 | Out-String"),
     JarvisCommand("docker_compose_logs", "dev", "Voir les logs Docker Compose", [
         "logs docker compose", "compose logs", "docker compose logs",
         "journaux docker compose",
-    ], "powershell", "cd F:\\BUREAU\\turbo; docker compose logs --tail=20 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; docker compose logs --tail=20 2>&1 | Out-String"),
     JarvisCommand("docker_compose_ps", "dev", "Statut des services Docker Compose", [
         "services docker compose", "compose ps", "docker compose status",
         "etat docker compose",
-    ], "powershell", "cd F:\\BUREAU\\turbo; docker compose ps 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; docker compose ps 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # UV & PYTHON — Avancé
@@ -465,19 +465,19 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("uv_cache_clean", "dev", "Nettoyer le cache uv", [
         "nettoie le cache uv", "uv cache clean", "clean cache python",
         "purge uv",
-    ], "powershell", "& 'C:\\Users\\franc\\.local\\bin\\uv.exe' cache clean 2>&1 | Out-String"),
+    ], "powershell", "& '/\Users/franc/.local/bin/uv.exe' cache clean 2>&1 | Out-String"),
     JarvisCommand("uv_pip_install", "dev", "Installer un package Python via uv", [
         "installe {package} python", "uv pip install {package}",
         "ajoute {package}", "pip install {package}",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' add {package} 2>&1 | Out-String", ["package"]),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' add {package} 2>&1 | Out-String", ["package"]),
     JarvisCommand("turbo_test_file", "dev", "Lancer un fichier de test specifique", [
         "teste le fichier {fichier}", "pytest {fichier}",
         "lance le test {fichier}", "run test {fichier}",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pytest {fichier} -v --tb=short 2>&1 | Select -Last 20 | Out-String", ["fichier"]),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run pytest {fichier} -v --tb=short 2>&1 | Select -Last 20 | Out-String", ["fichier"]),
     JarvisCommand("turbo_coverage", "dev", "Couverture de tests du projet turbo", [
         "coverage turbo", "couverture de tests", "test coverage",
         "combien de couverture", "pytest coverage",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pytest --cov=src --cov-report=term-missing 2>&1 | Select -Last 15 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run pytest --cov=src --cov-report=term-missing 2>&1 | Select -Last 15 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # SYSTÈME — Process et versions
@@ -506,19 +506,19 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("turbo_skills_count", "dev", "Compter les skills et commandes vocales du projet", [
         "combien de skills", "nombre de commandes vocales",
         "inventaire skills", "stats commandes jarvis",
-    ], "powershell", "cd F:\\BUREAU\\turbo; $main = python -c \"from src.commands import COMMANDS; print(len(COMMANDS))\" 2>&1; $ext = python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; from src.commands_navigation import NAVIGATION_COMMANDS; from src.commands_maintenance import MAINTENANCE_COMMANDS; from src.commands_dev import DEV_COMMANDS; print(f'P:{len(PIPELINE_COMMANDS)} N:{len(NAVIGATION_COMMANDS)} M:{len(MAINTENANCE_COMMANDS)} D:{len(DEV_COMMANDS)}')\" 2>&1; \"Main: $main | Extensions: $ext\""),
+    ], "powershell", "cd F:/BUREAU/turbo; $main = python -c \"from src.commands import COMMANDS; print(len(COMMANDS))\" 2>&1; $ext = python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; from src.commands_navigation import NAVIGATION_COMMANDS; from src.commands_maintenance import MAINTENANCE_COMMANDS; from src.commands_dev import DEV_COMMANDS; print(f'P:{len(PIPELINE_COMMANDS)} N:{len(NAVIGATION_COMMANDS)} M:{len(MAINTENANCE_COMMANDS)} D:{len(DEV_COMMANDS)}')\" 2>&1; \"Main: $main | Extensions: $ext\""),
     JarvisCommand("turbo_find_duplicates", "dev", "Detecter les commandes vocales en doublon", [
         "cherche les doublons", "duplicates commands", "commandes en double",
         "doublons vocaux",
-    ], "powershell", "cd F:\\BUREAU\\turbo; python -c \"from src.commands import COMMANDS; from src.commands_pipelines import PIPELINE_COMMANDS; from src.commands_navigation import NAVIGATION_COMMANDS; from src.commands_maintenance import MAINTENANCE_COMMANDS; from src.commands_dev import DEV_COMMANDS; all_cmds = COMMANDS + PIPELINE_COMMANDS + NAVIGATION_COMMANDS + MAINTENANCE_COMMANDS + DEV_COMMANDS; names = [c.name for c in all_cmds]; dups = set(n for n in names if names.count(n) > 1); print(f'{len(dups)} doublons: {dups}' if dups else 'Aucun doublon')\" 2>&1"),
+    ], "powershell", "cd F:/BUREAU/turbo; python -c \"from src.commands import COMMANDS; from src.commands_pipelines import PIPELINE_COMMANDS; from src.commands_navigation import NAVIGATION_COMMANDS; from src.commands_maintenance import MAINTENANCE_COMMANDS; from src.commands_dev import DEV_COMMANDS; all_cmds = COMMANDS + PIPELINE_COMMANDS + NAVIGATION_COMMANDS + MAINTENANCE_COMMANDS + DEV_COMMANDS; names = [c.name for c in all_cmds]; dups = set(n for n in names if names.count(n) > 1); print(f'{len(dups)} doublons: {dups}' if dups else 'Aucun doublon')\" 2>&1"),
     JarvisCommand("turbo_generate_docs", "dev", "Regenerer la documentation des commandes vocales", [
         "regenere la doc", "update la doc vocale", "genere la doc commandes",
         "mets a jour la doc",
-    ], "powershell", "cd F:\\BUREAU\\turbo; python scripts/tools/gen_vocal_docs.py 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; python scripts/tools/gen_vocal_docs.py 2>&1 | Out-String"),
     JarvisCommand("turbo_generate_readme", "dev", "Regenerer la section commandes du README", [
         "regenere le readme", "update le readme", "genere le readme commandes",
         "mets a jour le readme",
-    ], "powershell", "cd F:\\BUREAU\\turbo; python scripts/gen_readme_commands.py > data/readme_commands_section.md 2>&1; \"README section generee dans data/readme_commands_section.md\""),
+    ], "powershell", "cd F:/BUREAU/turbo; python scripts/gen_readme_commands.py > data/readme_commands_section.md 2>&1; \"README section generee dans data/readme_commands_section.md\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # ENVIRONNEMENT & CONFIG — Checks rapides
@@ -526,7 +526,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("check_all_versions", "dev", "Toutes les versions d'outils installes", [
         "toutes les versions", "all versions", "inventaire outils",
         "versions de tout",
-    ], "powershell", "\"Python: $(python --version 2>&1)\"; \"Node: $(node --version 2>&1)\"; \"Git: $(git --version 2>&1)\"; \"Docker: $(docker --version 2>&1)\"; \"uv: $(& 'C:\\Users\\franc\\.local\\bin\\uv.exe' --version 2>&1)\""),
+    ], "powershell", "\"Python: $(python --version 2>&1)\"; \"Node: $(node --version 2>&1)\"; \"Git: $(git --version 2>&1)\"; \"Docker: $(docker --version 2>&1)\"; \"uv: $(& '/\Users/franc/.local/bin/uv.exe' --version 2>&1)\""),
     JarvisCommand("env_check_paths", "dev", "Verifier que les outils essentiels sont dans le PATH", [
         "check le path", "outils disponibles", "verifier le path",
         "quels outils j'ai",
@@ -542,19 +542,19 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("git_today", "dev", "Commits d'aujourd'hui", [
         "commits du jour", "git today", "quoi de neuf aujourd'hui",
         "qu'est ce que j'ai fait aujourd'hui",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git log --since='today' --oneline 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; git log --since='today' --oneline 2>&1 | Out-String"),
     JarvisCommand("git_this_week", "dev", "Commits de cette semaine", [
         "commits de la semaine", "git this week", "cette semaine en git",
         "quoi de neuf cette semaine",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git log --since='last monday' --oneline 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; git log --since='last monday' --oneline 2>&1 | Out-String"),
     JarvisCommand("git_push_turbo", "dev", "Pusher les commits du projet turbo", [
         "push turbo", "git push", "pousse le code",
         "envoie les commits",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git push 2>&1 | Out-String", confirm=True),
+    ], "powershell", "cd F:/BUREAU/turbo; git push 2>&1 | Out-String", confirm=True),
     JarvisCommand("git_pull_turbo", "dev", "Puller les commits du projet turbo", [
         "pull turbo", "git pull", "recupere les commits",
         "mets a jour le code",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git pull --rebase 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; git pull --rebase 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # WINDOWS TERMINAL — Controle avance du terminal
@@ -650,7 +650,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("docker_ps_all", "dev", "Lister tous les conteneurs Docker", [
         "tous les conteneurs", "docker ps all", "conteneurs docker",
         "docker containers all",
-    ], "powershell", "docker ps -a --format 'table {{.Names}}\\t{{.Status}}\\t{{.Image}}' 2>&1 | Out-String"),
+    ], "powershell", "docker ps -a --format 'table {{.Names}}/t{{.Status}}/t{{.Image}}' 2>&1 | Out-String"),
     JarvisCommand("docker_logs_last", "dev", "Logs du dernier conteneur lance", [
         "logs docker", "docker logs", "logs du conteneur",
         "voir les logs docker",
@@ -662,31 +662,31 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("pytest_turbo", "dev", "Lancer les tests pytest du projet turbo", [
         "lance les tests", "pytest", "run tests",
         "teste le projet", "tests turbo",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pytest -x -v 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run pytest -x -v 2>&1 | Out-String"),
     JarvisCommand("pytest_last_failed", "dev", "Relancer les tests qui ont echoue", [
         "relance les tests echoues", "pytest lf", "rerun failed",
         "tests echoues",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pytest --lf -v 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run pytest --lf -v 2>&1 | Out-String"),
     JarvisCommand("ruff_check", "dev", "Lancer ruff (linter Python) sur turbo", [
         "ruff check", "lint python", "verifie le code python",
         "linter turbo",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff check src/ 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run ruff check src/ 2>&1 | Out-String"),
     JarvisCommand("ruff_format", "dev", "Formater le code Python avec ruff format", [
         "ruff format", "formate le python", "format python",
         "auto format python",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff format src/ 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run ruff format src/ 2>&1 | Out-String"),
     JarvisCommand("mypy_check", "dev", "Verifier les types Python avec mypy", [
         "mypy check", "verifie les types", "type check python",
         "mypy turbo",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run mypy src/ --ignore-missing-imports 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run mypy src/ --ignore-missing-imports 2>&1 | Out-String"),
     JarvisCommand("pip_list_turbo", "dev", "Lister les packages Python du projet turbo", [
         "packages python", "pip list", "quels packages python",
         "dependances python", "pip freeze turbo",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' pip list 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' pip list 2>&1 | Out-String"),
     JarvisCommand("count_lines_python", "dev", "Compter les lignes de code Python du projet", [
         "combien de lignes de code", "lignes python", "count lines",
         "taille du code", "loc python",
-    ], "powershell", "$py = Get-ChildItem F:\\BUREAU\\turbo\\src\\*.py -Recurse; $lines = ($py | Get-Content | Measure-Object -Line).Lines; $files = $py.Count; \"$files fichiers Python | $lines lignes de code\""),
+    ], "powershell", "$py = Get-ChildItem F:/BUREAU/turbo/src/*.py -Recurse; $lines = ($py | Get-Content | Measure-Object -Line).Lines; $files = $py.Count; \"$files fichiers Python | $lines lignes de code\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # DATABASE CLI — Outils base de donnees
@@ -694,11 +694,11 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sqlite_jarvis", "dev", "Ouvrir la base JARVIS en SQLite", [
         "ouvre la base jarvis", "sqlite jarvis", "base de donnees jarvis",
         "explore la db",
-    ], "powershell", "sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db '.tables' 2>&1; sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db 'SELECT COUNT(*) as total FROM skills;' 2>&1 | Out-String"),
+    ], "powershell", "sqlite3 F:/BUREAU/turbo/data/jarvis.db '.tables' 2>&1; sqlite3 F:/BUREAU/turbo/data/jarvis.db 'SELECT COUNT(*) as total FROM skills;' 2>&1 | Out-String"),
     JarvisCommand("sqlite_etoile", "dev", "Explorer la base etoile.db", [
         "ouvre etoile db", "base etoile", "sqlite etoile",
         "explore etoile",
-    ], "powershell", "sqlite3 F:\\BUREAU\\turbo\\data\\etoile.db '.tables' 2>&1; sqlite3 F:\\BUREAU\\turbo\\data\\etoile.db 'SELECT category, COUNT(*) as c FROM map GROUP BY category ORDER BY c DESC;' 2>&1 | Out-String"),
+    ], "powershell", "sqlite3 F:/BUREAU/turbo/data/etoile.db '.tables' 2>&1; sqlite3 F:/BUREAU/turbo/data/etoile.db 'SELECT category, COUNT(*) as c FROM map GROUP BY category ORDER BY c DESC;' 2>&1 | Out-String"),
     JarvisCommand("sqlite_tables", "dev", "Lister les tables d'une base SQLite", [
         "tables sqlite {db}", "quelles tables dans {db}", "schema {db}",
         "structure de la base {db}",
@@ -718,15 +718,15 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("turbo_file_count", "dev", "Nombre de fichiers par type dans turbo", [
         "combien de fichiers turbo", "types de fichiers", "file count",
         "inventaire fichiers",
-    ], "powershell", "Get-ChildItem F:\\BUREAU\\turbo -Recurse -File -ErrorAction SilentlyContinue | Where { $_.FullName -notmatch '\\.git|__pycache__|node_modules|\\.venv|dist' } | Group-Object Extension | Sort Count -Descending | Select -First 15 @{N='Type';E={$_.Name}}, Count | Format-Table -AutoSize | Out-String"),
+    ], "powershell", "Get-ChildItem F:/BUREAU/turbo -Recurse -File -ErrorAction SilentlyContinue | Where { $_.FullName -notmatch '/.git|__pycache__|node_modules|/.venv|dist' } | Group-Object Extension | Sort Count -Descending | Select -First 15 @{N='Type';E={$_.Name}}, Count | Format-Table -AutoSize | Out-String"),
     JarvisCommand("turbo_todo_scan", "dev", "Scanner les TODO/FIXME/HACK dans le code", [
         "trouve les todo", "scan todo", "fixme dans le code",
         "quoi reste a faire", "todos turbo",
-    ], "powershell", "Get-ChildItem F:\\BUREAU\\turbo\\src\\*.py -Recurse | Select-String -Pattern 'TODO|FIXME|HACK|XXX' | Select Filename, LineNumber, Line | Format-Table -AutoSize | Out-String -Width 200"),
+    ], "powershell", "Get-ChildItem F:/BUREAU/turbo/src/*.py -Recurse | Select-String -Pattern 'TODO|FIXME|HACK|XXX' | Select Filename, LineNumber, Line | Format-Table -AutoSize | Out-String -Width 200"),
     JarvisCommand("turbo_import_graph", "dev", "Voir les imports entre modules turbo", [
         "graph des imports", "imports turbo", "dependances modules",
         "qui importe quoi",
-    ], "powershell", "Get-ChildItem F:\\BUREAU\\turbo\\src\\*.py | ForEach-Object { $f = $_.BaseName; Get-Content $_.FullName | Select-String '^from src\\.' | ForEach-Object { \"$f -> $($_.Line -replace 'from src\\.(\\w+).*','$1')\" } } | Sort -Unique | Out-String"),
+    ], "powershell", "Get-ChildItem F:/BUREAU/turbo/src/*.py | ForEach-Object { $f = $_.BaseName; Get-Content $_.FullName | Select-String '^from src/.' | ForEach-Object { \"$f -> $($_.Line -replace 'from src/.(/w+).*','$1')\" } } | Sort -Unique | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # GIT AVANCÉ — Opérations spécialisées
@@ -734,27 +734,27 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("git_cherry_pick", "dev", "Cherry-pick un commit specifique", [
         "cherry pick {hash}", "git cherry pick {hash}",
         "prends le commit {hash}",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git cherry-pick '{hash}' 2>&1 | Out-String", ["hash"]),
+    ], "powershell", "cd F:/BUREAU/turbo; git cherry-pick '{hash}' 2>&1 | Out-String", ["hash"]),
     JarvisCommand("git_tags", "dev", "Lister les tags git", [
         "tags git", "quels tags", "git tags", "versions git",
         "releases",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git tag -l --sort=-version:refname | Select -First 10 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; git tag -l --sort=-version:refname | Select -First 10 | Out-String"),
     JarvisCommand("git_branch_create", "dev", "Creer une nouvelle branche git", [
         "cree une branche {branch}", "nouvelle branche {branch}",
         "git branch {branch}",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git checkout -b '{branch}' 2>&1 | Out-String", ["branch"]),
+    ], "powershell", "cd F:/BUREAU/turbo; git checkout -b '{branch}' 2>&1 | Out-String", ["branch"]),
     JarvisCommand("git_branch_delete", "dev", "Supprimer une branche git locale", [
         "supprime la branche {branch}", "delete branch {branch}",
         "git branch delete {branch}",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git branch -d '{branch}' 2>&1 | Out-String", ["branch"], confirm=True),
+    ], "powershell", "cd F:/BUREAU/turbo; git branch -d '{branch}' 2>&1 | Out-String", ["branch"], confirm=True),
     JarvisCommand("git_branch_switch", "dev", "Changer de branche git", [
         "va sur la branche {branch}", "switch {branch}",
         "checkout {branch}", "git checkout {branch}",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git checkout '{branch}' 2>&1 | Out-String", ["branch"]),
+    ], "powershell", "cd F:/BUREAU/turbo; git checkout '{branch}' 2>&1 | Out-String", ["branch"]),
     JarvisCommand("git_merge_branch", "dev", "Merger une branche dans la branche actuelle", [
         "merge {branch}", "fusionne {branch}", "git merge {branch}",
         "integre {branch}",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git merge '{branch}' 2>&1 | Out-String", ["branch"]),
+    ], "powershell", "cd F:/BUREAU/turbo; git merge '{branch}' 2>&1 | Out-String", ["branch"]),
 
     # ══════════════════════════════════════════════════════════════════════
     # SSH & SCP — Transfert de fichiers distant
@@ -806,11 +806,11 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("python_profile_turbo", "dev", "Profiler le startup de JARVIS", [
         "profile jarvis", "temps de demarrage", "performance startup",
         "profiling python",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import time; t=time.time(); from src.config import Config; from src.commands import COMMANDS; print(f'Config+Commands: {time.time()-t:.3f}s ({len(COMMANDS)} cmds)')\" 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python -c \"import time; t=time.time(); from src.config import Config; from src.commands import COMMANDS; print(f'Config+Commands: {time.time()-t:.3f}s ({len(COMMANDS)} cmds)')\" 2>&1 | Out-String"),
     JarvisCommand("python_memory_usage", "dev", "Mesurer la memoire Python du projet", [
         "memoire python", "python memory", "consommation python",
         "ram python",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sys; from src.commands import COMMANDS; from src.config import Config; print(f'Objets charges: {len(COMMANDS)} commandes'); print(f'Taille sys.modules: {len(sys.modules)} modules')\" 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python -c \"import sys; from src.commands import COMMANDS; from src.config import Config; print(f'Objets charges: {len(COMMANDS)} commandes'); print(f'Taille sys.modules: {len(sys.modules)} modules')\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # ENVIRONNEMENT UV — Gestionnaire de packages Python
@@ -818,15 +818,15 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("uv_add_package", "dev", "Ajouter un package Python avec uv", [
         "uv add {package}", "installe {package}", "ajoute le package {package}",
         "pip install {package}",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' add '{package}' 2>&1 | Out-String", ["package"]),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' add '{package}' 2>&1 | Out-String", ["package"]),
     JarvisCommand("uv_remove_package", "dev", "Supprimer un package Python avec uv", [
         "uv remove {package}", "desinstalle {package}", "enleve {package}",
         "pip uninstall {package}",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' remove '{package}' 2>&1 | Out-String", ["package"]),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' remove '{package}' 2>&1 | Out-String", ["package"]),
     JarvisCommand("uv_lock", "dev", "Regenerer le lockfile uv", [
         "uv lock", "lock les deps", "regenere le lockfile",
         "verrouille les dependances",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' lock 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' lock 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # PROCESSUS & DEBUGGING — Outils de debug avancés
@@ -842,7 +842,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("tree_turbo", "dev", "Arborescence du projet turbo (2 niveaux)", [
         "arborescence turbo", "tree turbo", "structure du projet",
         "arbre des fichiers",
-    ], "powershell", "tree F:\\BUREAU\\turbo /F /A | Select -First 60 | Out-String"),
+    ], "powershell", "tree F:/BUREAU/turbo /F /A | Select -First 60 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # GITHUB CLI (gh) — Commandes GitHub depuis le terminal
@@ -850,35 +850,35 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("gh_create_issue", "dev", "Creer une issue GitHub", [
         "cree une issue {titre}", "nouvelle issue {titre}",
         "github issue {titre}", "ouvre un ticket {titre}",
-    ], "powershell", "cd F:\\BUREAU\\turbo; gh issue create --title '{titre}' --body 'Created by JARVIS' 2>&1 | Out-String", ["titre"]),
+    ], "powershell", "cd F:/BUREAU/turbo; gh issue create --title '{titre}' --body 'Created by JARVIS' 2>&1 | Out-String", ["titre"]),
     JarvisCommand("gh_list_issues", "dev", "Lister les issues GitHub ouvertes", [
         "liste les issues", "issues ouvertes", "github issues",
         "quelles issues",
-    ], "powershell", "cd F:\\BUREAU\\turbo; gh issue list --limit 15 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; gh issue list --limit 15 2>&1 | Out-String"),
     JarvisCommand("gh_list_prs", "dev", "Lister les pull requests GitHub", [
         "liste les pr", "pull requests", "github prs",
         "quelles pr ouvertes",
-    ], "powershell", "cd F:\\BUREAU\\turbo; gh pr list --limit 10 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; gh pr list --limit 10 2>&1 | Out-String"),
     JarvisCommand("gh_view_pr", "dev", "Voir les details d'une PR", [
         "montre la pr {num}", "detail pr {num}", "github pr {num}",
         "voir la pr {num}",
-    ], "powershell", "cd F:\\BUREAU\\turbo; gh pr view {num} 2>&1 | Out-String", ["num"]),
+    ], "powershell", "cd F:/BUREAU/turbo; gh pr view {num} 2>&1 | Out-String", ["num"]),
     JarvisCommand("gh_pr_checks", "dev", "Voir les checks d'une PR", [
         "checks de la pr {num}", "status pr {num}", "ci pr {num}",
         "tests de la pr {num}",
-    ], "powershell", "cd F:\\BUREAU\\turbo; gh pr checks {num} 2>&1 | Out-String", ["num"]),
+    ], "powershell", "cd F:/BUREAU/turbo; gh pr checks {num} 2>&1 | Out-String", ["num"]),
     JarvisCommand("gh_repo_view", "dev", "Voir les infos du repo GitHub courant", [
         "info du repo", "github repo info", "details du repo",
         "a propos du repo",
-    ], "powershell", "cd F:\\BUREAU\\turbo; gh repo view 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; gh repo view 2>&1 | Out-String"),
     JarvisCommand("gh_workflow_list", "dev", "Lister les workflows GitHub Actions", [
         "workflows github", "github actions", "liste les workflows",
         "ci cd status",
-    ], "powershell", "cd F:\\BUREAU\\turbo; gh workflow list 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; gh workflow list 2>&1 | Out-String"),
     JarvisCommand("gh_release_list", "dev", "Lister les releases GitHub", [
         "releases github", "liste les releases", "versions publiees",
         "quelles releases",
-    ], "powershell", "cd F:\\BUREAU\\turbo; gh release list --limit 5 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; gh release list --limit 5 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # GO TOOLING — Outils pour le langage Go
@@ -906,7 +906,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
     ], "powershell", "python -m venv .venv; '.venv cree avec succes'"),
     JarvisCommand("venv_activate", "dev", "Activer le virtualenv courant", [
         "active le venv", "activate venv", "source venv",
-    ], "powershell", "if(Test-Path .venv\\Scripts\\Activate.ps1){.venv\\Scripts\\Activate.ps1; 'venv active'}else{'Pas de .venv trouve'}"),
+    ], "powershell", "if(Test-Path .venv/Scripts/Activate.ps1){.venv/Scripts/Activate.ps1; 'venv active'}else{'Pas de .venv trouve'}"),
     JarvisCommand("conda_list_envs", "dev", "Lister les environnements Conda", [
         "conda envs", "liste les envs conda", "quels environnements conda",
     ], "powershell", "conda env list 2>&1 | Out-String"),
@@ -938,18 +938,18 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("lint_ruff_check", "dev", "Linter Python avec Ruff", [
         "ruff check", "lint python", "verifie le code python",
         "lance ruff",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff check src/ --output-format=concise 2>&1 | Select -Last 20 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run ruff check src/ --output-format=concise 2>&1 | Select -Last 20 | Out-String"),
     JarvisCommand("lint_ruff_fix", "dev", "Auto-fixer les erreurs Ruff", [
         "ruff fix", "fixe le lint", "corrige ruff",
         "auto fix python",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run ruff check src/ --fix 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run ruff check src/ --fix 2>&1 | Out-String"),
     JarvisCommand("format_black", "dev", "Formater Python avec Black", [
         "black format", "formate avec black", "black le code",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run black src/ 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run black src/ 2>&1 | Out-String"),
     JarvisCommand("lint_mypy", "dev", "Verifier les types Python avec mypy", [
         "mypy check", "verifie les types", "type check python",
         "lance mypy",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run mypy src/ --ignore-missing-imports 2>&1 | Select -Last 15 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run mypy src/ --ignore-missing-imports 2>&1 | Select -Last 15 | Out-String"),
     JarvisCommand("lint_eslint", "dev", "Linter JavaScript avec ESLint", [
         "eslint", "lint javascript", "verifie le js",
         "lance eslint",
@@ -964,7 +964,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("logs_turbo", "dev", "Voir les derniers logs JARVIS", [
         "logs jarvis", "dernieres logs", "montre les logs",
         "voir les logs turbo",
-    ], "powershell", "Get-Content F:\\BUREAU\\turbo\\data\\jarvis.log -Tail 30 -ErrorAction SilentlyContinue 2>&1 | Out-String"),
+    ], "powershell", "Get-Content F:/BUREAU/turbo/data/jarvis.log -Tail 30 -ErrorAction SilentlyContinue 2>&1 | Out-String"),
     JarvisCommand("logs_windows_errors", "dev", "Voir les erreurs recentes Windows", [
         "erreurs windows", "logs erreurs systeme", "event log errors",
         "erreurs recentes",
@@ -972,11 +972,11 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("logs_clear_turbo", "dev", "Vider les logs JARVIS", [
         "vide les logs", "efface les logs", "clear les logs",
         "nettoie les logs jarvis",
-    ], "powershell", "if(Test-Path F:\\BUREAU\\turbo\\data\\jarvis.log){Clear-Content F:\\BUREAU\\turbo\\data\\jarvis.log; 'Logs JARVIS videes'}else{'Pas de fichier log'}"),
+    ], "powershell", "if(Test-Path F:/BUREAU/turbo/data/jarvis.log){Clear-Content F:/BUREAU/turbo/data/jarvis.log; 'Logs JARVIS videes'}else{'Pas de fichier log'}"),
     JarvisCommand("logs_search", "dev", "Chercher dans les logs JARVIS", [
         "cherche dans les logs {pattern}", "grep les logs {pattern}",
         "logs contenant {pattern}",
-    ], "powershell", "Select-String -Path F:\\BUREAU\\turbo\\data\\jarvis.log -Pattern '{pattern}' -Context 1 -ErrorAction SilentlyContinue | Select -Last 20 | Out-String", ["pattern"]),
+    ], "powershell", "Select-String -Path F:/BUREAU/turbo/data/jarvis.log -Pattern '{pattern}' -Context 1 -ErrorAction SilentlyContinue | Select -Last 20 | Out-String", ["pattern"]),
 
     # ══════════════════════════════════════════════════════════════════════
     # CONTAINERS — Kubernetes et Docker Compose avancé
@@ -1006,22 +1006,22 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("pytest_verbose", "dev", "Lancer pytest en mode verbose", [
         "tests verbose", "pytest verbose", "lance les tests en detail",
         "tests avec details",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m pytest tests/ -v --tb=short 2>&1 | Select -Last 30 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python -m pytest tests/ -v --tb=short 2>&1 | Select -Last 30 | Out-String"),
     JarvisCommand("pytest_file", "dev", "Lancer pytest sur un fichier specifique", [
         "teste le fichier {fichier}", "pytest {fichier}",
         "lance les tests de {fichier}",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m pytest tests/{fichier} -v --tb=short 2>&1 | Select -Last 25 | Out-String", ["fichier"]),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python -m pytest tests/{fichier} -v --tb=short 2>&1 | Select -Last 25 | Out-String", ["fichier"]),
     JarvisCommand("pytest_coverage", "dev", "Lancer pytest avec couverture de code", [
         "tests avec couverture", "pytest coverage", "code coverage",
         "couverture de tests",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m pytest tests/ --cov=src --cov-report=term-missing 2>&1 | Select -Last 30 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python -m pytest tests/ --cov=src --cov-report=term-missing 2>&1 | Select -Last 30 | Out-String"),
     JarvisCommand("pytest_markers", "dev", "Lister les markers pytest disponibles", [
         "markers pytest", "pytest markers", "quels markers",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m pytest --markers 2>&1 | Select -First 25 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python -m pytest --markers 2>&1 | Select -First 25 | Out-String"),
     JarvisCommand("pytest_quick", "dev", "Tests rapides (fail at first error)", [
         "tests rapides", "pytest quick", "teste vite fait",
         "quick test",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m pytest tests/ -x -q 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python -m pytest tests/ -x -q 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # DATABASE CLI — Outils de base de données
@@ -1029,20 +1029,20 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sqlite_query", "dev", "Executer une requete SQLite", [
         "sqlite {requete}", "requete sqlite {requete}",
         "query sqlite {requete}",
-    ], "powershell", "sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db \"{requete}\" 2>&1 | Out-String", ["requete"]),
+    ], "powershell", "sqlite3 F:/BUREAU/turbo/data/jarvis.db \"{requete}\" 2>&1 | Out-String", ["requete"]),
     JarvisCommand("sqlite_schema", "dev", "Voir le schema d'une table", [
         "schema de {table}", "structure table {table}", "describe {table}",
-    ], "powershell", "sqlite3 F:\\BUREAU\\turbo\\data\\jarvis.db '.schema {table}' 2>&1 | Out-String", ["table"]),
+    ], "powershell", "sqlite3 F:/BUREAU/turbo/data/jarvis.db '.schema {table}' 2>&1 | Out-String", ["table"]),
     JarvisCommand("etoile_count", "dev", "Compter les entrees dans etoile.db", [
         "combien dans etoile", "entries etoile", "taille etoile db",
-    ], "powershell", "sqlite3 F:\\BUREAU\\turbo\\data\\etoile.db 'SELECT entity_type, COUNT(*) FROM map GROUP BY entity_type' 2>&1 | Out-String"),
+    ], "powershell", "sqlite3 F:/BUREAU/turbo/data/etoile.db 'SELECT entity_type, COUNT(*) FROM map GROUP BY entity_type' 2>&1 | Out-String"),
     JarvisCommand("etoile_query", "dev", "Requete sur etoile.db", [
         "query etoile {requete}", "etoile db {requete}", "cherche dans etoile {requete}",
-    ], "powershell", "sqlite3 F:\\BUREAU\\turbo\\data\\etoile.db \"{requete}\" 2>&1 | Out-String", ["requete"]),
+    ], "powershell", "sqlite3 F:/BUREAU/turbo/data/etoile.db \"{requete}\" 2>&1 | Out-String", ["requete"]),
     JarvisCommand("db_size_all", "dev", "Taille de toutes les bases de donnees", [
         "taille des bases", "poids des db", "db sizes",
         "combien pesent les bases",
-    ], "powershell", "@('F:\\BUREAU\\turbo\\data\\jarvis.db','F:\\BUREAU\\turbo\\data\\etoile.db','F:\\BUREAU\\carV1\\database\\trading_latest.db') | ForEach-Object { if(Test-Path $_){ $f=Get-Item $_; \"$($f.Name): $([math]::Round($f.Length/1MB,2)) MB\" } } | Out-String"),
+    ], "powershell", "@('F:/BUREAU/turbo/data/jarvis.db','F:/BUREAU/turbo/data/etoile.db','F:/BUREAU/carV1/database/trading_latest.db') | ForEach-Object { if(Test-Path $_){ $f=Get-Item $_; \"$($f.Name): $([math]::Round($f.Length/1MB,2)) MB\" } } | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # REGEX / DATA TOOLS — Manipulation de données
@@ -1058,7 +1058,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("csv_to_json", "dev", "Convertir un CSV en JSON", [
         "csv en json {fichier}", "convertis le csv {fichier}",
         "csv to json {fichier}",
-    ], "powershell", "$out = '{fichier}' -replace '\\.csv$','.json'; Import-Csv '{fichier}' | ConvertTo-Json | Set-Content $out; \"Converti: $out\"", ["fichier"]),
+    ], "powershell", "$out = '{fichier}' -replace '/.csv$','.json'; Import-Csv '{fichier}' | ConvertTo-Json | Set-Content $out; \"Converti: $out\"", ["fichier"]),
     JarvisCommand("count_lines_file", "dev", "Compter les lignes d'un fichier", [
         "combien de lignes {fichier}", "lines count {fichier}",
         "compte les lignes {fichier}",
@@ -1066,7 +1066,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("count_lines_src", "dev", "Compter les lignes de code du projet turbo", [
         "lignes de code turbo", "combien de lignes de code",
         "loc turbo", "lines of code",
-    ], "powershell", "Get-ChildItem F:\\BUREAU\\turbo\\src\\*.py -Recurse | ForEach-Object { $l = (Get-Content $_.FullName | Measure-Object -Line).Lines; [PSCustomObject]@{Fichier=$_.Name;Lignes=$l} } | Sort Lignes -Descending | Format-Table | Out-String"),
+    ], "powershell", "Get-ChildItem F:/BUREAU/turbo/src/*.py -Recurse | ForEach-Object { $l = (Get-Content $_.FullName | Measure-Object -Line).Lines; [PSCustomObject]@{Fichier=$_.Name;Lignes=$l} } | Sort Lignes -Descending | Format-Table | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # SECURITY SCAN — Audit de sécurité des dépendances
@@ -1074,11 +1074,11 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("pip_audit", "dev", "Auditer les deps Python (vulnerabilites)", [
         "pip audit", "vulnerabilites python", "securite deps python",
         "scan dependances",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pip-audit 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run pip-audit 2>&1 | Out-String"),
     JarvisCommand("bandit_scan", "dev", "Scanner Python avec Bandit (securite)", [
         "bandit scan", "securite code python", "scan bandit",
         "vulnerabilites code",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run bandit -r src/ -f screen 2>&1 | Select -Last 20 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run bandit -r src/ -f screen 2>&1 | Select -Last 20 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # ELECTRON DEV — Développement Electron / Vite
@@ -1086,21 +1086,21 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("electron_dev", "dev", "Lancer Electron en mode dev", [
         "electron dev", "lance electron", "electron en dev",
         "jarvis desktop dev",
-    ], "powershell", "cd F:\\BUREAU\\turbo\\electron; npm run dev 2>&1 | Select -Last 10 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo/electron; npm run dev 2>&1 | Select -Last 10 | Out-String"),
     JarvisCommand("electron_build", "dev", "Builder l'app Electron", [
         "electron build", "build electron", "compile electron",
         "package electron",
-    ], "powershell", "cd F:\\BUREAU\\turbo\\electron; npm run build 2>&1 | Select -Last 10 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo/electron; npm run build 2>&1 | Select -Last 10 | Out-String"),
     JarvisCommand("vite_dev", "dev", "Lancer Vite en mode dev", [
         "vite dev", "lance vite", "serveur vite",
         "dev server vite",
-    ], "powershell", "cd F:\\BUREAU\\turbo\\electron; npx vite 2>&1 | Select -Last 5 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo/electron; npx vite 2>&1 | Select -Last 5 | Out-String"),
     JarvisCommand("vite_build", "dev", "Builder avec Vite", [
         "vite build", "build vite", "compile vite",
-    ], "powershell", "cd F:\\BUREAU\\turbo\\electron; npx vite build 2>&1 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo/electron; npx vite build 2>&1 | Out-String"),
     JarvisCommand("vite_preview", "dev", "Previsualiser le build Vite", [
         "vite preview", "preview build", "previsualise le build",
-    ], "powershell", "cd F:\\BUREAU\\turbo\\electron; npx vite preview 2>&1 | Select -Last 5 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo/electron; npx vite preview 2>&1 | Select -Last 5 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # PERFORMANCE / BENCHMARK — Mesures de performance
@@ -1108,11 +1108,11 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("python_profile", "dev", "Profiler un script Python", [
         "profile python {script}", "profiling {script}",
         "benchmark python {script}",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m cProfile -s cumulative {script} 2>&1 | Select -Last 25 | Out-String", ["script"]),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python -m cProfile -s cumulative {script} 2>&1 | Select -Last 25 | Out-String", ["script"]),
     JarvisCommand("benchmark_import_time", "dev", "Mesurer le temps d'import de turbo", [
         "temps d'import turbo", "import time", "benchmark import",
         "vitesse de chargement",
-    ], "powershell", "cd F:\\BUREAU\\turbo; $sw=[Diagnostics.Stopwatch]::StartNew(); & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c 'from src import config' 2>&1; $sw.Stop(); \"Import config: $($sw.ElapsedMilliseconds)ms\""),
+    ], "powershell", "cd F:/BUREAU/turbo; $sw=[Diagnostics.Stopwatch]::StartNew(); & '/\Users/franc/.local/bin/uv.exe' run python -c 'from src import config' 2>&1; $sw.Stop(); \"Import config: $($sw.ElapsedMilliseconds)ms\""),
     JarvisCommand("memory_usage_python", "dev", "Utilisation memoire de Python", [
         "memoire python", "ram python", "python memory",
     ], "powershell", "Get-Process python* -ErrorAction SilentlyContinue | Select Name, @{N='RAM(MB)';E={[math]::Round($_.WorkingSet64/1MB)}}, CPU, Id | Format-Table | Out-String"),
@@ -1152,7 +1152,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
     # ══════════════════════════════════════════════════════════════════════
     JarvisCommand("pip_show", "dev", "Infos sur un package Python installe", [
         "pip show {package}", "info package {package}", "details de {package}",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run pip show {package} 2>&1 | Out-String", ["package"]),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run pip show {package} 2>&1 | Out-String", ["package"]),
     JarvisCommand("npm_info", "dev", "Infos sur un package NPM", [
         "npm info {package}", "details npm {package}", "package npm {package}",
     ], "powershell", "npm info {package} version description homepage 2>&1 | Out-String", ["package"]),
@@ -1161,16 +1161,16 @@ DEV_COMMANDS: list[JarvisCommand] = [
     # ══════════════════════════════════════════════════════════════════════
     JarvisCommand("git_blame", "dev", "Voir l'auteur de chaque ligne d'un fichier", [
         "git blame {fichier}", "qui a ecrit {fichier}", "blame {fichier}",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git blame {fichier} | Select -Last 20 | Out-String", ["fichier"]),
+    ], "powershell", "cd F:/BUREAU/turbo; git blame {fichier} | Select -Last 20 | Out-String", ["fichier"]),
     JarvisCommand("git_bisect_start", "dev", "Demarrer git bisect pour trouver un bug", [
         "git bisect", "cherche le bug", "bisect start",
-    ], "powershell", "cd F:\\BUREAU\\turbo; git bisect start 2>&1; 'Bisect demarre — utilisez good/bad pour naviguer' | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; git bisect start 2>&1; 'Bisect demarre — utilisez good/bad pour naviguer' | Out-String"),
     # ══════════════════════════════════════════════════════════════════════
     # SYSTEM DEV — Environnement de développement
     # ══════════════════════════════════════════════════════════════════════
     JarvisCommand("python_version", "dev", "Version de Python installee", [
         "version python", "quel python", "python version",
-    ], "powershell", "python --version 2>&1; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' --version 2>&1 | Out-String"),
+    ], "powershell", "python --version 2>&1; & '/\Users/franc/.local/bin/uv.exe' --version 2>&1 | Out-String"),
     JarvisCommand("which_command", "dev", "Trouver l'emplacement d'une commande", [
         "ou est {cmd}", "which {cmd}", "chemin de {cmd}",
         "trouve {cmd}",
@@ -1199,7 +1199,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("yaml_to_json", "dev", "Convertir YAML en JSON", [
         "yaml en json {fichier}", "convertis le yaml {fichier}",
         "yaml to json {fichier}",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import yaml,json,sys,pathlib; print(json.dumps(yaml.safe_load(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8')),indent=2))\" {fichier} 2>&1 | Out-String", ["fichier"]),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python -c \"import yaml,json,sys,pathlib; print(json.dumps(yaml.safe_load(pathlib.Path(sys.argv[1]).read_text(encoding='utf-8')),indent=2))\" {fichier} 2>&1 | Out-String", ["fichier"]),
     JarvisCommand("diff_files", "dev", "Comparer deux fichiers", [
         "compare {f1} et {f2}", "diff {f1} {f2}", "difference entre {f1} {f2}",
     ], "powershell", "Compare-Object (Get-Content '{f1}') (Get-Content '{f2}') | Format-Table -AutoSize | Out-String", ["f1", "f2"]),
@@ -1213,7 +1213,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("serve_static", "dev", "Lancer un serveur HTTP statique (Python)", [
         "serveur http", "serve static", "lance un serveur web",
         "python http server",
-    ], "powershell", "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m http.server 8000 2>&1 | Select -First 3 | Out-String"),
+    ], "powershell", "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python -m http.server 8000 2>&1 | Select -First 3 | Out-String"),
     JarvisCommand("lmstudio_status", "dev", "Status des serveurs LM Studio", [
         "status lm studio", "lm studio en ligne", "serveurs ia status",
     ], "powershell", "@{M1='http://127.0.0.1:1234';M2='http://192.168.1.26:1234';M3='http://192.168.1.113:1234'}.GetEnumerator() | ForEach-Object { try{Invoke-WebRequest \"$($_.Value)/api/v1/models\" -UseBasicParsing -TimeoutSec 3 >$null; \"$($_.Key): OK\"}catch{\"$($_.Key): OFFLINE\"} } | Out-String"),
@@ -1227,7 +1227,7 @@ DEV_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("run_python_expr", "dev", "Evaluer une expression Python (securisee)", [
         "python eval {expr}", "calcule en python {expr}",
         "execute python {expr}",
-    ], "powershell", "& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from ast import literal_eval; print(literal_eval(r'''{expr}'''))\" 2>&1 | Out-String", ["expr"], confirm=True),
+    ], "powershell", "& '/\Users/franc/.local/bin/uv.exe' run python -c \"from ast import literal_eval; print(literal_eval(r'''{expr}'''))\" 2>&1 | Out-String", ["expr"], confirm=True),
     JarvisCommand("run_powershell_expr", "dev", "Evaluer une expression PowerShell (confirme)", [
         "powershell eval {expr}", "execute {expr}",
     ], "powershell", "{expr} | Out-String", ["expr"], confirm=True),
@@ -1246,9 +1246,9 @@ DEV_COMMANDS: list[JarvisCommand] = [
 
 # Post-processing: replace hardcoded paths with config-driven values
 for _cmd in DEV_COMMANDS:
-    if "F:\\BUREAU\\turbo" in _cmd.action:
-        _cmd.action = _cmd.action.replace("F:\\BUREAU\\turbo", _TURBO_DIR)
     if "F:/BUREAU/turbo" in _cmd.action:
-        _cmd.action = _cmd.action.replace("F:/BUREAU/turbo", _TURBO_DIR_FWD)
-    if "C:\\Users\\franc" in _cmd.action:
-        _cmd.action = _cmd.action.replace("C:\\Users\\franc", _USER_HOME)
+        _cmd.action = _cmd.action.replace("F:/BUREAU/turbo", _TURBO_DIR)
+    if "/home/turbo/jarvis-m1-ops" in _cmd.action:
+        _cmd.action = _cmd.action.replace("/home/turbo/jarvis-m1-ops", _TURBO_DIR_FWD)
+    if "/\Users/franc" in _cmd.action:
+        _cmd.action = _cmd.action.replace("/\Users/franc", _USER_HOME)

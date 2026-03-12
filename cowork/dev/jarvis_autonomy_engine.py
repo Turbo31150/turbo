@@ -64,7 +64,7 @@ def scan_s():
                         for marker in ("", "FIXME", "STUB", "HACK", "XXX"):
                             if marker in line and not line.strip().startswith("#!"):
                                 s.append({
-                                    "file": fpath.replace("\\", "/"),
+                                    "file": fpath.replace("/", "/"),
                                     "line": i,
                                     "marker": marker,
                                     "text": line.strip()[:120],
@@ -88,7 +88,7 @@ def scan_stubs():
                 # Find functions with just pass or NotImplementedError
                 for m in re.finditer(r'def (\w+)\(.*?\).*?:\s*\n\s*(""".*?"""\s*\n\s*)?(pass|raise NotImplementedError)', content, re.DOTALL):
                     stubs.append({
-                        "file": fpath.replace("\\", "/"),
+                        "file": fpath.replace("/", "/"),
                         "function": m.group(1),
                         "type": "stub",
                     })

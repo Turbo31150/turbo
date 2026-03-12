@@ -24,7 +24,7 @@ DEV = Path(__file__).parent
 DB_PATH = DEV / "data" / "model_rotator.db"
 OL1_URL = "http://127.0.0.1:11434"
 M1_URL = "http://127.0.0.1:1234"
-LMS_EXE = r"C:\Users\franc\.lmstudio\bin\lms.exe"
+LMS_EXE = r"/home/turbo\.lmstudio\bin\lms.exe"
 
 
 def init_db():

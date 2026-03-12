@@ -105,7 +105,7 @@ def _get_battery_info():
         try:
             cmd = [
                 "powershell", "-NoProfile", "-Command",
-                "Get-CimInstance -ClassName BatteryFullChargedCapacity -Namespace root\\wmi 2>$null | Select-Object FullChargedCapacity | ConvertTo-Json"
+                "Get-CimInstance -ClassName BatteryFullChargedCapacity -Namespace root/wmi 2>$null | Select-Object FullChargedCapacity | ConvertTo-Json"
             ]
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=10,
                                     creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
@@ -120,7 +120,7 @@ def _get_battery_info():
         try:
             cmd = [
                 "powershell", "-NoProfile", "-Command",
-                "Get-CimInstance -ClassName BatteryStaticData -Namespace root\\wmi 2>$null | Select-Object DesignedCapacity | ConvertTo-Json"
+                "Get-CimInstance -ClassName BatteryStaticData -Namespace root/wmi 2>$null | Select-Object DesignedCapacity | ConvertTo-Json"
             ]
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=10,
                                     creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)

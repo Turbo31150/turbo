@@ -45,13 +45,13 @@ class TestGetTheme:
             "EnableTransparency": 1,
         }.get(v, -1)), \
              patch.object(tc, "_get_accent_color", return_value="#ff6600"), \
-             patch.object(tc, "_get_wallpaper", return_value="C:\\wall.jpg"):
+             patch.object(tc, "_get_wallpaper", return_value="/\wall.jpg"):
             theme = tc.get_theme()
         assert theme["dark_mode_apps"] is True
         assert theme["dark_mode_system"] is True
         assert theme["transparency"] is True
         assert theme["accent_color"] == "#ff6600"
-        assert theme["wallpaper"] == "C:\\wall.jpg"
+        assert theme["wallpaper"] == "/\wall.jpg"
 
     def test_light_mode(self):
         tc = ThemeController()

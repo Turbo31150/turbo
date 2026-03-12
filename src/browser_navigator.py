@@ -686,7 +686,7 @@ class BrowserNavigator:
         if not HAS_PLAYWRIGHT:
             raise RuntimeError("playwright not installed")
 
-        storage_dir = Path("F:/BUREAU/turbo/data/browser_profile")
+        storage_dir = Path("/home/turbo/jarvis-m1-ops/data/browser_profile")
         storage_dir.mkdir(parents=True, exist_ok=True)
 
         self._pw = await async_playwright().start()

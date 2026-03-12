@@ -33,7 +33,7 @@ __all__ = [
 logger = logging.getLogger("jarvis.agent_factory")
 
 DB_PATH = str(Path(__file__).resolve().parent.parent / "data" / "etoile.db")
-PROJECT_ROOT = Path("F:/BUREAU/turbo")
+PROJECT_ROOT = Path("/home/turbo/jarvis-m1-ops")
 
 
 @dataclass

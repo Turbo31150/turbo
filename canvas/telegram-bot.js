@@ -65,8 +65,8 @@ const PROXY_URL = 'http://127.0.0.1:18800';
 const POLL_TIMEOUT = 30; // secondes (long polling Telegram)
 const MAX_MSG_LEN = 4096; // limite Telegram
 const RECONNECT_DELAY = 5000; // ms avant retry si proxy down
-const TTS_SCRIPT = 'F:/BUREAU/turbo/cowork/dev/win_tts.py';
-const VENV_PYTHON = 'F:/BUREAU/turbo/.venv/Scripts/python.exe';
+const TTS_SCRIPT = '/home/turbo/jarvis-m1-ops/cowork/dev/win_tts.py';
+const VENV_PYTHON = '/home/turbo/jarvis-m1-ops/.venv/Scripts/python.exe';
 const VOICE_MODE = false; // Texte uniquement — WhisperFlow gère le vocal séparément
 const CLUSTER_RACE = true; // Utiliser tout le cluster en parallèle
 const ALERTS_FLAG_FILE = path.join(__dirname, '..', 'data', '.trading_alerts_off');
@@ -210,8 +210,8 @@ function escapeTelegramMarkdown(text) {
     if (i % 2 === 1) return part; // code block — keep as-is
     // Escape unmatched underscores, brackets, etc. that break Markdown
     return part
-      .replace(/([[\]])/g, '\\$1')  // escape [ ]
-      .replace(/(?<!\w)_(?!\w)/g, '\\_');  // escape lone underscores
+      .replace(/([[\]])/g, '/$1')  // escape [ ]
+      .replace(/(?<!\w)_(?!\w)/g, '/_');  // escape lone underscores
   }).join('');
 }
 
@@ -940,8 +940,8 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
     case '/demarre': {
       await sendMessage(chatId, '🔄 Diagnostic JARVIS en cours...');
       try {
-        const bootOut = execSync('python "F:\\BUREAU\\turbo\\scripts\\jarvis_boot_telegram.py"', {
-          timeout: 30000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+        const bootOut = execSync('python "F:/BUREAU/turbo/scripts/jarvis_boot_telegram.py"', {
+          timeout: 30000, encoding: 'utf8', windowsHide: true, cwd: 'F:/BUREAU/turbo'
         }).trim();
         return sendMessage(chatId, '```\n' + bootOut + '\n```', 'Markdown');
       } catch (e) {
@@ -1243,7 +1243,7 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
           const dbScript = `python -c "
 import sqlite3, time
 conn = sqlite3.connect('data/jarvis.db')
-conn.execute('INSERT INTO linkedin_posts (content, status, source) VALUES (?, \\'pending\\', \\'telegram\\')', ('${content.replace(/'/g, "\\'")}',))
+conn.execute('INSERT INTO linkedin_posts (content, status, source) VALUES (?, /'pending/', /'telegram/')', ('${content.replace(/'/g, "/'")}',))
 conn.commit(); conn.close(); print('saved')
 "`;
           execSync(dbScript, { timeout: 5000, cwd: path.join(__dirname, '..') });
@@ -1567,8 +1567,8 @@ conn.close()
     case '/logs': {
       const logArgs = args ? args.trim() : '20';
       try {
-        const out = execSync(`python "F:\\BUREAU\\turbo\\scripts\\jarvis_logs_telegram.py" ${logArgs}`, {
-          timeout: 10000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+        const out = execSync(`python "F:/BUREAU/turbo/scripts/jarvis_logs_telegram.py" ${logArgs}`, {
+          timeout: 10000, encoding: 'utf8', windowsHide: true, cwd: 'F:/BUREAU/turbo'
         }).trim();
         let msg = '```\n' + out + '\n```';
         if (msg.length > 4000) msg = msg.slice(0, 3950) + '\n```\n... (tronque)';
@@ -1628,8 +1628,8 @@ async function handleCockpitAutoFix(chatId) {
 
 async function handleAutoFixEnhanced(chatId) {
   try {
-    const out = execSync('python "F:\\BUREAU\\turbo\\scripts\\jarvis_autofix_telegram.py"', {
-      timeout: 120000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+    const out = execSync('python "F:/BUREAU/turbo/scripts/jarvis_autofix_telegram.py"', {
+      timeout: 120000, encoding: 'utf8', windowsHide: true, cwd: 'F:/BUREAU/turbo'
     }).trim();
     let msg = '```\n' + out + '\n```';
     if (msg.length > 4000) msg = msg.slice(0, 3950) + '\n```\n... (tronque)';
@@ -1643,8 +1643,8 @@ async function handleAutoFixEnhanced(chatId) {
 
 async function handleFullStatus(chatId) {
   try {
-    const out = execSync('python "F:\\BUREAU\\turbo\\scripts\\jarvis_fullstatus_telegram.py"', {
-      timeout: 30000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+    const out = execSync('python "F:/BUREAU/turbo/scripts/jarvis_fullstatus_telegram.py"', {
+      timeout: 30000, encoding: 'utf8', windowsHide: true, cwd: 'F:/BUREAU/turbo'
     }).trim();
     let msg = '```\n' + out + '\n```';
     if (msg.length > 4000) msg = msg.slice(0, 3950) + '\n```\n... (tronque)';
@@ -1658,9 +1658,9 @@ async function handleFullStatus(chatId) {
 
 async function handleSqlQuery(chatId, query) {
   try {
-    const arg = query ? `"${query.replace(/"/g, '\\"')}"` : 'stats';
-    const out = execSync(`python "F:\\BUREAU\\turbo\\scripts\\jarvis_sql_telegram.py" ${arg}`, {
-      timeout: 15000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+    const arg = query ? `"${query.replace(/"/g, '/"')}"` : 'stats';
+    const out = execSync(`python "F:/BUREAU/turbo/scripts/jarvis_sql_telegram.py" ${arg}`, {
+      timeout: 15000, encoding: 'utf8', windowsHide: true, cwd: 'F:/BUREAU/turbo'
     }).trim();
     let msg = '```\n' + out + '\n```';
     if (msg.length > 4000) msg = msg.slice(0, 3950) + '\n```\n... (tronque)';
@@ -1674,8 +1674,8 @@ async function handleSqlQuery(chatId, query) {
 
 async function handleModels(chatId) {
   try {
-    const out = execSync('python "F:\\BUREAU\\turbo\\scripts\\jarvis_models_telegram.py"', {
-      timeout: 15000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+    const out = execSync('python "F:/BUREAU/turbo/scripts/jarvis_models_telegram.py"', {
+      timeout: 15000, encoding: 'utf8', windowsHide: true, cwd: 'F:/BUREAU/turbo'
     }).trim();
     let msg = '```\n' + out + '\n```';
     if (msg.length > 4000) msg = msg.slice(0, 3950) + '\n```\n... (tronque)';
@@ -1689,8 +1689,8 @@ async function handleModels(chatId) {
 
 async function handleWeights(chatId) {
   try {
-    const out = execSync('python "F:\\BUREAU\\turbo\\scripts\\jarvis_weights_telegram.py"', {
-      timeout: 15000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+    const out = execSync('python "F:/BUREAU/turbo/scripts/jarvis_weights_telegram.py"', {
+      timeout: 15000, encoding: 'utf8', windowsHide: true, cwd: 'F:/BUREAU/turbo'
     }).trim();
     let msg = '```\n' + out + '\n```';
     if (msg.length > 4000) msg = msg.slice(0, 3950) + '\n```\n... (tronque)';
@@ -1704,8 +1704,8 @@ async function handleWeights(chatId) {
 
 async function handleSupervisor(chatId) {
   try {
-    const out = execSync('python "F:\\BUREAU\\turbo\\scripts\\jarvis_supervisor.py"', {
-      timeout: 30000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+    const out = execSync('python "F:/BUREAU/turbo/scripts/jarvis_supervisor.py"', {
+      timeout: 30000, encoding: 'utf8', windowsHide: true, cwd: 'F:/BUREAU/turbo'
     }).trim();
     let msg = '```\n' + out + '\n```';
     if (msg.length > 4000) msg = msg.slice(0, 3950) + '\n```\n... (tronque)';
@@ -1905,10 +1905,10 @@ async function handleJarvisCommand(chatId, voiceText) {
     } else if (match.action_type === 'hotkey' && match.action) {
       // Use PowerShell to send keys
       const keys = match.action.replace(/\+/g, ',');
-      execSync(`powershell -Command "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class KBD{[DllImport(\\\"user32.dll\\\")]public static extern void keybd_event(byte b,byte s,uint f,UIntPtr e);}'"`, { timeout: 5000 });
+      execSync(`powershell -Command "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class KBD{[DllImport(/\"user32.dll/\")]public static extern void keybd_event(byte b,byte s,uint f,UIntPtr e);}'"`, { timeout: 5000 });
       await sendVoiceReply(chatId, `Raccourci ${match.action} execute`);
     } else if (match.action_type === 'powershell' && match.action) {
-      const psResult = execSync(`powershell -NoProfile -Command "${match.action.replace(/"/g, '\\"')}"`, { timeout: 15000, encoding: 'utf-8' });
+      const psResult = execSync(`powershell -NoProfile -Command "${match.action.replace(/"/g, '/"')}"`, { timeout: 15000, encoding: 'utf-8' });
       const output = psResult.trim().slice(0, 500) || 'OK';
       await sendMessage(chatId, `Resultat:\n${output}`);
       await sendVoiceReply(chatId, `Commande executee: ${match.desc || match.name}`);
@@ -3016,7 +3016,7 @@ async function transcribeVoice(fileId) {
   if (!text) {
     try {
       text = execSync(
-        `"${VENV_PYTHON}" "F:/BUREAU/turbo/scripts/transcribe.py" "${tmpWav}" --language fr`,
+        `"${VENV_PYTHON}" "/home/turbo/jarvis-m1-ops/scripts/transcribe.py" "${tmpWav}" --language fr`,
         { timeout: 30000, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }
       ).trim();
       if (text) log(`  Whisper via script (fallback)`);
@@ -3156,8 +3156,8 @@ async function processMessage(msg) {
   if (/\b(demarre|boot|diagnostic complet|lance jarvis|status complet|etat du systeme)\b/i.test(low)) {
     try {
       await sendMessage(chatId, '🔄 Diagnostic JARVIS en cours...');
-      const bootOut = execSync('python "F:\\BUREAU\\turbo\\scripts\\jarvis_boot_telegram.py"', {
-        timeout: 30000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+      const bootOut = execSync('python "F:/BUREAU/turbo/scripts/jarvis_boot_telegram.py"', {
+        timeout: 30000, encoding: 'utf8', windowsHide: true, cwd: 'F:/BUREAU/turbo'
       }).trim();
       await sendMessage(chatId, '```\n' + bootOut + '\n```', 'Markdown');
       addToMemory(chatId, 'user', text);
@@ -3176,8 +3176,8 @@ async function processMessage(msg) {
   if (/\b(ameliore|auto.?improve|self.?improve|optimise.?toi)\b/i.test(low)) {
     try {
       await sendMessage(chatId, '🧠 Self-improve en cours...');
-      const improveOut = execSync('python "F:\\BUREAU\\turbo\\scripts\\jarvis_auto_improve_telegram.py"', {
-        timeout: 30000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+      const improveOut = execSync('python "F:/BUREAU/turbo/scripts/jarvis_auto_improve_telegram.py"', {
+        timeout: 30000, encoding: 'utf8', windowsHide: true, cwd: 'F:/BUREAU/turbo'
       }).trim();
       await sendMessage(chatId, '```\n' + improveOut + '\n```', 'Markdown');
       return;
@@ -3199,7 +3199,7 @@ async function processMessage(msg) {
   // Disk keywords → direct disk check
   if (/\b(disque|disk|espace disque|stockage|free space)\b/i.test(low) && low.length < 80) {
     try {
-      const diskOut = execSync('powershell -Command "Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Used -gt 0 } | ForEach-Object { $n=$_.Name; $f=[math]::Round($_.Free/1GB); $t=[math]::Round(($_.Used+$_.Free)/1GB); Write-Output (\\"$n`: $f/$t GB free\\") }"', {
+      const diskOut = execSync('powershell -Command "Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Used -gt 0 } | ForEach-Object { $n=$_.Name; $f=[math]::Round($_.Free/1GB); $t=[math]::Round(($_.Used+$_.Free)/1GB); Write-Output (/"$n`: $f/$t GB free/") }"', {
         timeout: 8000, encoding: 'utf8', windowsHide: true
       }).trim();
       return sendMessage(chatId, '💾 *Disques:*\n```\n' + diskOut + '\n```', 'Markdown');
@@ -3255,7 +3255,7 @@ async function processMessage(msg) {
       const ocResult = await new Promise((resolve, reject) => {
         const args = ['agent', '--agent', agentId, '--message', text, '--json', '--timeout', '120', '--session-id', sessionId];
         const proc = execFile('openclaw', args, {
-          cwd: 'C:\\Users\\franc\\.openclaw',
+          cwd: '/\Users/franc/.openclaw',
           timeout: 130000,
           maxBuffer: 1024 * 1024,
           encoding: 'utf-8',

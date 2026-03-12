@@ -19,7 +19,7 @@ from pathlib import Path
 def check_files():
     """Verifier que tous les fichiers sont deployes."""
     print("\n[1/6] Checking deployed files...")
-    src = Path("F:/BUREAU/turbo/src")
+    src = Path("/home/turbo/jarvis-m1-ops/src")
     files = [
         "startup_wiring.py",
         "event_bus_wiring.py",
@@ -73,7 +73,7 @@ def check_mcp_patch():
     """Verifier que le patch MCP est applique."""
     print("\n[3/6] Checking MCP server patch...")
     try:
-        mcp_file = Path("F:/BUREAU/turbo/src/mcp_server_sse.py")
+        mcp_file = Path("/home/turbo/jarvis-m1-ops/src/mcp_server_sse.py")
         content = mcp_file.read_text(encoding="utf-8")
         
         if "bootstrap_jarvis" in content:

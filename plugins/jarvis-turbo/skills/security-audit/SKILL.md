@@ -34,7 +34,7 @@ trading.db         # Donnees de trading
 ### 4. Scan rapide
 ```bash
 # Chercher des patterns de secrets dans les fichiers
-grep -r "sk-lm-\|Bearer \|api_key\|secret\|password" F:/BUREAU/turbo/src/ --include="*.py" -l
+grep -r "sk-lm-\|Bearer \|api_key\|secret\|password" /home/turbo/jarvis-m1-ops/src/ --include="*.py" -l
 ```
 
 ```bash

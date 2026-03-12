@@ -1,7 +1,7 @@
 @echo off
 title JARVIS v10.6 - Dashboard TUI
 color 0E
-cd /d F:\BUREAU\turbo
+cd /d /home/turbo/jarvis-m1-ops
 
 :: === SINGLETON GUARD ===
 python scripts/singleton_guard.py --name dashboard_tui --kill
@@ -12,7 +12,7 @@ echo    JARVIS v10.6 - DASHBOARD UNIFIE
 echo    Cluster ^| Trading ^| Skills ^| Brain
 echo  ==========================================
 echo.
-"F:\BUREAU\turbo\.venv\Scripts\python.exe" -c "from src.dashboard import run_dashboard; run_dashboard()"
+"/home/turbo/jarvis-m1-ops\.venv\Scripts\python.exe" -c "from src.dashboard import run_dashboard; run_dashboard()"
 echo.
 echo [JARVIS] Dashboard ferme.
 pause

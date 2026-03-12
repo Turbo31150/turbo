@@ -234,15 +234,15 @@ Tu es un agent specialise benchmarks pour JARVIS Turbo v10.3.
 
 ## Scripts disponibles
 
-- `python3 F:/BUREAU/turbo/benchmark_cluster.py` — 7 phases (health, inference, consensus, bridge, agents, stress, errors)
-- `python3 F:/BUREAU/turbo/benchmark_real_test.py` — 10 niveaux de difficulte
+- `python3 /home/turbo/jarvis-m1-ops/benchmark_cluster.py` — 7 phases (health, inference, consensus, bridge, agents, stress, errors)
+- `python3 /home/turbo/jarvis-m1-ops/benchmark_real_test.py` — 10 niveaux de difficulte
 - `python3 C:/Users/franc/jarvis_autotest.py` — 8 domaines x 4 noeuds + auto-correction
 
 ## Rapports
 
-- `F:/BUREAU/turbo/data/benchmark_report.json` — Dernier rapport cluster
-- `F:/BUREAU/turbo/data/benchmark_real_report.json` — Rapport tests reels
-- `F:/BUREAU/turbo/canvas/data/routing_scores.json` — Scores autolearn
+- `/home/turbo/jarvis-m1-ops/data/benchmark_report.json` — Dernier rapport cluster
+- `/home/turbo/jarvis-m1-ops/data/benchmark_real_report.json` — Rapport tests reels
+- `/home/turbo/jarvis-m1-ops/canvas/data/routing_scores.json` — Scores autolearn
 
 ## Regles
 
@@ -333,7 +333,7 @@ Ajouter une nouvelle section `PreToolUse` dans hooks.json :
     "hooks": [
       {
         "type": "command",
-        "command": "python3 -c \"import json,datetime,sqlite3,sys\ntry:\n db=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db')\n db.execute('CREATE TABLE IF NOT EXISTS routing_log(id INTEGER PRIMARY KEY,ts TEXT,category TEXT,node TEXT,latency_ms REAL,success INTEGER)')\n db.commit();db.close()\nexcept: pass\" 2>/dev/null || true",
+        "command": "python3 -c \"import json,datetime,sqlite3,sys\ntry:\n db=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db')\n db.execute('CREATE TABLE IF NOT EXISTS routing_log(id INTEGER PRIMARY KEY,ts TEXT,category TEXT,node TEXT,latency_ms REAL,success INTEGER)')\n db.commit();db.close()\nexcept: pass\" 2>/dev/null || true",
         "timeout": 3000
       }
     ]
@@ -352,7 +352,7 @@ Ajouter une nouvelle section `Stop` dans hooks.json :
     "hooks": [
       {
         "type": "command",
-        "command": "python3 -c \"import json,datetime,sqlite3\ntry:\n db=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db')\n db.execute('INSERT INTO sessions(ts,event,data) VALUES(?,?,?)',(datetime.datetime.now().isoformat(),'session_end',json.dumps({'source':'hook'})))\n db.commit();db.close()\nexcept: pass\" 2>/dev/null || true",
+        "command": "python3 -c \"import json,datetime,sqlite3\ntry:\n db=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db')\n db.execute('INSERT INTO sessions(ts,event,data) VALUES(?,?,?)',(datetime.datetime.now().isoformat(),'session_end',json.dumps({'source':'hook'})))\n db.commit();db.close()\nexcept: pass\" 2>/dev/null || true",
         "timeout": 5000
       }
     ]
@@ -435,14 +435,14 @@ Expected: M1 OK, M2 OK, OL1 OK
 **Step 2: Lancer benchmark cluster**
 
 ```bash
-cd F:/BUREAU/turbo && python3 benchmark_cluster.py
+cd /home/turbo/jarvis-m1-ops && python3 benchmark_cluster.py
 ```
 Expected: 7 phases passent, rapport généré dans `data/benchmark_report.json`
 
 **Step 3: Lancer benchmark réel 10 niveaux**
 
 ```bash
-cd F:/BUREAU/turbo && python3 benchmark_real_test.py
+cd /home/turbo/jarvis-m1-ops && python3 benchmark_real_test.py
 ```
 Expected: 10 niveaux testés, rapport dans `data/benchmark_real_report.json`
 

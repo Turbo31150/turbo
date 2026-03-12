@@ -1,6 +1,6 @@
 @echo off
 title JARVIS WhisperFlow
-cd /d F:\BUREAU\turbo
+cd /d /home/turbo/jarvis-m1-ops
 
 :: === SINGLETON GUARD ===
 python scripts/singleton_guard.py --name whisperflow --kill
@@ -13,7 +13,7 @@ echo.
 :: Start backend WebSocket server — kill existant + restart
 echo [*] WS Backend :9742 — kill existant + restart...
 python scripts/singleton_guard.py --name jarvis_ws --kill --port 9742
-start /min "JARVIS-WS-Backend" cmd /c "cd /d F:\BUREAU\turbo && C:\Users\franc\.local\bin\uv.exe run python -m python_ws.server"
+start /min "JARVIS-WS-Backend" cmd /c "cd /d /home/turbo/jarvis-m1-ops && /home/turbo\.local\bin\uv.exe run python -m python_ws.server"
 echo [*] Waiting for backend startup...
 timeout /t 3 /nobreak >nul
 
@@ -32,7 +32,7 @@ echo.
 where electron >nul 2>&1
 if %errorlevel% equ 0 (
     echo [*] Launching Electron overlay...
-    cd /d F:\BUREAU\turbo\whisperflow
+    cd /d /home/turbo/jarvis-m1-ops\whisperflow
     electron .
 ) else (
     echo [*] Opening WhisperFlow via HTTP backend...

@@ -1,0 +1,5 @@
+flask
+flask-sockets
+pvporcupine
+gevent
+gevent-websocket

@@ -13,7 +13,7 @@ import time
 import re
 
 # Config
-ROOT = r"F:\BUREAU\TRADING_V2_PRODUCTION"
+ROOT = r"/home/turbo\TRADING_V2_PRODUCTION"
 CONFIG_DIR = os.path.join(ROOT, "config")
 GLOSSARY_PATH = os.path.join(CONFIG_DIR, "stt_corrections.json")
 M2_URL = "http://192.168.1.26:1234/v1/chat/completions"

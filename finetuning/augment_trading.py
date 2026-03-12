@@ -841,7 +841,7 @@ def generate_dataset():
 
 
 def main():
-    output_dir = Path("F:/BUREAU/turbo/finetuning/dataset")
+    output_dir = Path("/home/turbo/jarvis-m1-ops/finetuning/dataset")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     augmented_path = output_dir / "jarvis_trading_augmented.jsonl"

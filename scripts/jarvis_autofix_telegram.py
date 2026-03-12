@@ -6,7 +6,7 @@
 4. Trigger self-improve cycle
 5. Re-run diagnostic to verify
 
-Usage: python F:/BUREAU/turbo/scripts/jarvis_autofix_telegram.py
+Usage: python /home/turbo/jarvis-m1-ops/scripts/jarvis_autofix_telegram.py
 """
 import json, subprocess, time, os, sys
 
@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     # Phase 1: Diagnostic
     lines.append("[Phase 1] Diagnostic...")
-    boot = run('python "F:/BUREAU/turbo/scripts/jarvis_boot_telegram.py"', timeout=30)
+    boot = run('python "/home/turbo/jarvis-m1-ops/scripts/jarvis_boot_telegram.py"', timeout=30)
     if boot:
         # Extract grade line
         for bl in boot.split("\n"):
@@ -82,7 +82,7 @@ if __name__ == "__main__":
         elif "DOWN: WS" in issue:
             lines.append(f"  FIX: Restarting WS FastAPI...")
             # Try to restart via unified boot
-            r = run('python "F:/BUREAU/turbo/scripts/jarvis_unified_boot.py" --phase python_services --skip openclaw', timeout=60)
+            r = run('python "/home/turbo/jarvis-m1-ops/scripts/jarvis_unified_boot.py" --phase python_services --skip openclaw', timeout=60)
             fixes_done += 1
         elif "DOWN: Proxy" in issue:
             lines.append(f"  FIX: Proxy restart needed (manual)")
@@ -133,7 +133,7 @@ if __name__ == "__main__":
     # Phase 5: Re-verify
     lines.append("")
     lines.append("[Phase 5] Verification...")
-    boot2 = run('python "F:/BUREAU/turbo/scripts/jarvis_boot_telegram.py"', timeout=30)
+    boot2 = run('python "/home/turbo/jarvis-m1-ops/scripts/jarvis_boot_telegram.py"', timeout=30)
     if boot2:
         for bl in boot2.split("\n"):
             if "Grade" in bl:

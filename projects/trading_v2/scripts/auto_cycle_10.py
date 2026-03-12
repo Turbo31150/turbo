@@ -21,7 +21,7 @@ LM_SERVERS = {
 }
 # Models that don't support system prompts
 NO_SYSTEM_MODELS = ['mistral-7b', 'phi-3.1-mini']
-GEMINI_CLI = r'C:\Users\franc\AppData\Roaming\npm\gemini.cmd'
+GEMINI_CLI = r'/home/turbo\AppData\Roaming\npm\gemini.cmd'
 LM_TIMEOUT = 60
 GEMINI_TIMEOUT = 25
 

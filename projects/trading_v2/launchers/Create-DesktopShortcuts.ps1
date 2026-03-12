@@ -3,7 +3,7 @@
 # Usage: powershell -ExecutionPolicy Bypass -File Create-DesktopShortcuts.ps1
 
 $Desktop = [System.Environment]::GetFolderPath("Desktop")
-$LaunchersDir = "F:\BUREAU\TRADING_V2_PRODUCTION\launchers"
+$LaunchersDir = "/home/turbo\TRADING_V2_PRODUCTION\launchers"
 $Shell = New-Object -ComObject WScript.Shell
 
 # Mapping: nom fichier -> (nom raccourci, description, icone Windows)
@@ -13,55 +13,55 @@ $Shortcuts = @(
         Bat = "JARVIS_GUI.bat"
         Name = "JARVIS - Command Center"
         Desc = "GUI Cockpit Pilotage + Memoire + Stats"
-        Icon = "C:\Windows\System32\shell32.dll,21"  # PC monitor
+        Icon = "/Windows\System32\shell32.dll,21"  # PC monitor
     },
     @{
         Bat = "JARVIS_VOICE.bat"
         Name = "JARVIS - Voice PTT"
         Desc = "Mode vocal Push-to-Talk (RIGHT_CTRL)"
-        Icon = "C:\Windows\System32\shell32.dll,168"  # Microphone
+        Icon = "/Windows\System32\shell32.dll,168"  # Microphone
     },
     @{
         Bat = "JARVIS_KEYBOARD.bat"
         Name = "JARVIS - Mode Clavier"
         Desc = "Commander v3.5 en mode texte"
-        Icon = "C:\Windows\System32\shell32.dll,44"  # Terminal/keyboard
+        Icon = "/Windows\System32\shell32.dll,44"  # Terminal/keyboard
     },
     @{
         Bat = "SCAN_HYPER.bat"
         Name = "JARVIS - Hyper Scan"
         Desc = "Grid Computing M2+M3+Gemini"
-        Icon = "C:\Windows\System32\shell32.dll,22"  # Search/magnifier
+        Icon = "/Windows\System32\shell32.dll,22"  # Search/magnifier
     },
     @{
         Bat = "SNIPER.bat"
         Name = "JARVIS - Sniper Breakout"
         Desc = "Detection pre-pump orderbook"
-        Icon = "C:\Windows\System32\shell32.dll,48"  # Target/crosshair
+        Icon = "/Windows\System32\shell32.dll,48"  # Target/crosshair
     },
     @{
         Bat = "PIPELINE_10.bat"
         Name = "JARVIS - Pipeline 10 Cycles"
         Desc = "Auto scan + DB 10 iterations"
-        Icon = "C:\Windows\System32\shell32.dll,46"  # Gears/refresh
+        Icon = "/Windows\System32\shell32.dll,46"  # Gears/refresh
     },
     @{
         Bat = "MONITOR_RIVER.bat"
         Name = "JARVIS - Monitor RIVER"
         Desc = "Scalp 1min avec alertes Telegram"
-        Icon = "C:\Windows\System32\shell32.dll,24"  # Chart/signal
+        Icon = "/Windows\System32\shell32.dll,24"  # Chart/signal
     },
     @{
         Bat = "TRIDENT.bat"
         Name = "JARVIS - Trident Execute"
         Desc = "Multi-ordres MEXC (DRY RUN)"
-        Icon = "C:\Windows\System32\shell32.dll,25"  # Lightning
+        Icon = "/Windows\System32\shell32.dll,25"  # Lightning
     },
     @{
         Bat = "SNIPER_10.bat"
         Name = "JARVIS - Sniper 10 Cycles"
         Desc = "Focus tracking continu"
-        Icon = "C:\Windows\System32\shell32.dll,176"  # Radar
+        Icon = "/Windows\System32\shell32.dll,176"  # Radar
     }
 )
 
@@ -94,9 +94,9 @@ foreach ($s in $Shortcuts) {
 # Raccourci special: dossier JARVIS complet
 $LnkAll = Join-Path $Desktop "JARVIS - Dossier Complet.lnk"
 $ShortcutAll = $Shell.CreateShortcut($LnkAll)
-$ShortcutAll.TargetPath = "F:\BUREAU\TRADING_V2_PRODUCTION"
+$ShortcutAll.TargetPath = "/home/turbo\TRADING_V2_PRODUCTION"
 $ShortcutAll.Description = "Dossier TRADING_V2_PRODUCTION complet"
-$ShortcutAll.IconLocation = "C:\Windows\System32\shell32.dll,4"  # Folder
+$ShortcutAll.IconLocation = "/Windows\System32\shell32.dll,4"  # Folder
 $ShortcutAll.Save()
 $Created++
 Write-Host "  OK: JARVIS - Dossier Complet" -ForegroundColor Green

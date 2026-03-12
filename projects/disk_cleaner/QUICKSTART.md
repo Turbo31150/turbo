@@ -26,7 +26,7 @@ Cela crée automatiquement un dossier de test avec :
 ### 2. Mode Simulation (Dry-Run)
 
 ```bash
-python disk_cleaner.py "C:\Users\<user>\AppData\Local\Temp\disk_cleaner_test_XXXXX"
+python disk_cleaner.py "/Users\<user>\AppData\Local\Temp\disk_cleaner_test_XXXXX"
 ```
 
 Remplacez le chemin par celui affiché à l'étape 1.
@@ -40,7 +40,7 @@ Remplacez le chemin par celui affiché à l'étape 1.
 ### 3. Mode Exécution (Modifications réelles)
 
 ```bash
-python disk_cleaner.py "C:\Users\<user>\AppData\Local\Temp\disk_cleaner_test_XXXXX" --execute
+python disk_cleaner.py "/Users\<user>\AppData\Local\Temp\disk_cleaner_test_XXXXX" --execute
 ```
 
 **Résultat :**
@@ -53,30 +53,30 @@ python disk_cleaner.py "C:\Users\<user>\AppData\Local\Temp\disk_cleaner_test_XXX
 ### Scanner votre disque (Simulation)
 
 ```bash
-python disk_cleaner.py "C:\Mes Documents"
+python disk_cleaner.py "/Mes Documents"
 ```
 
 ### Exécuter réellement
 
 ```bash
-python disk_cleaner.py "C:\Mes Documents" --execute
+python disk_cleaner.py "/Mes Documents" --execute
 ```
 
 ### Personnaliser les seuils
 
 ```bash
 # Garder si score ≥70, trash si <20
-python disk_cleaner.py "C:\Mes Documents" --keep 70 --trash 20
+python disk_cleaner.py "/Mes Documents" --keep 70 --trash 20
 ```
 
 ## Options Utiles
 
 ```bash
 # Spécifier le dossier de sortie
-python disk_cleaner.py "C:\Source" --output "D:\Trie"
+python disk_cleaner.py "/Source" --output "D:\Trie"
 
 # Mode silencieux
-python disk_cleaner.py "C:\Source" --quiet
+python disk_cleaner.py "/Source" --quiet
 
 # Aide complète
 python disk_cleaner.py --help

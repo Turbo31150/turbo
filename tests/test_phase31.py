@@ -188,7 +188,7 @@ class TestCredentialVault:
             "    Persistence: Local Machine\n\n"
             "    Target: TERMSRV/server1\n"
             "    Type: Domain Password\n"
-            "    User: DOMAIN\\admin\n"
+            "    User: DOMAIN/admin\n"
         )
         creds = cv._parse_cmdkey(sample)
         assert len(creds) == 2

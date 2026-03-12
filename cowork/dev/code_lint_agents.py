@@ -13,7 +13,7 @@ Usage:
 
 10 Agents:
   1. PUNCT     — Ponctuation: guillemets mal fermes, parentheses orphelines
-  2. ESCAPE    — Echappement: backslash parasite, \\n dans strings, unicode casse
+  2. ESCAPE    — Echappement: backslash parasite, /n dans strings, unicode casse
   3. PATH      — Chemins: localhost au lieu de 127.0.0.1, slash/backslash mix
   4. TOKEN     — Tokens/API keys: hardcode detecte, .env non lu, placeholder vide
   5. SYNTAX_PY — Syntaxe Python: compile check, indentation, encoding
@@ -93,22 +93,22 @@ def agent_punct(filepath, content, lines):
 # ── Agent 2: ESCAPE — Echappement ───────────────────────────
 
 def agent_escape(filepath, content, lines):
-    """Detecte les backslash parasites, \\n dans les mauvais contextes."""
+    """Detecte les backslash parasites, /n dans les mauvais contextes."""
     results = []
     for i, line in enumerate(lines, 1):
         # Windows backslash in Python string that should be forward slash
         if filepath.suffix == ".py":
             # Detect raw Windows paths not using raw strings
-            if re.search(r"['\"]F:\\\\BUREAU", line) and not re.search(r"r['\"]F:", line):
+            if re.search(r"['\"]F://BUREAU", line) and not re.search(r"r['\"]F:", line):
                 results.append(LintResult("ESCAPE", filepath, i, "WARN",
                     "Chemin Windows avec double backslash — utiliser raw string ou forward slash",
-                    fix="Utiliser r'F:\\BUREAU\\...' ou 'F:/BUREAU/...'"))
+                    fix="Utiliser r'F:/BUREAU/...' ou 'F:/BUREAU/...'"))
 
-        # \\n literal in execSync command (JS)
+        # /n literal in execSync command (JS)
         if filepath.suffix == ".js":
-            if "\\\\n" in line and "execSync" in line:
+            if "//n" in line and "execSync" in line:
                 results.append(LintResult("ESCAPE", filepath, i, "ERROR",
-                    "\\\\n literal dans execSync — sera interprete comme texte, pas newline"))
+                    "//n literal dans execSync — sera interprete comme texte, pas newline"))
 
         # Unescaped single quote in single-quoted string
         if filepath.suffix == ".py":
@@ -135,13 +135,13 @@ def agent_path(filepath, content, lines):
 
         # Mixed slash/backslash in same path
         if filepath.suffix in (".py", ".js"):
-            path_match = re.search(r"['\"]([A-Z]:[/\\].+?)['\"]", line)
+            path_match = re.search(r"['\"]([A-Z]:[//].+?)['\"]", line)
             if path_match:
                 p = path_match.group(1)
-                if "/" in p and "\\" in p:
+                if "/" in p and "/" in p:
                     results.append(LintResult("PATH", filepath, i, "WARN",
                         f"Chemin avec mix slash/backslash: {p[:50]}",
-                        fix="Uniformiser avec / ou \\\\ selon le contexte"))
+                        fix="Uniformiser avec / ou // selon le contexte"))
 
     return results
 
@@ -283,7 +283,7 @@ def agent_encoding(filepath, content, lines):
         pos = raw.index(b"\x00")
         line_num = raw[:pos].count(b"\n") + 1
         results.append(LintResult("ENCODING", filepath, line_num, "ERROR",
-            "Caractere NUL (\\x00) detecte — fichier possiblement corrompu"))
+            "Caractere NUL (/x00) detecte — fichier possiblement corrompu"))
 
     # Trailing whitespace on many lines
     trailing = sum(1 for line in lines if line.rstrip() != line.rstrip("\n"))
@@ -480,7 +480,7 @@ def main():
         if str(r.file) != current_file:
             current_file = str(r.file)
             # Shorten path
-            short = str(r.file).replace(str(TURBO), "").lstrip("/\\")
+            short = str(r.file).replace(str(TURBO), "").lstrip("//")
             print(f"\n  {short}:")
 
         icon = "X" if r.severity == "ERROR" else ("!" if r.severity == "WARN" else "i")

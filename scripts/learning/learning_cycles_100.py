@@ -36,19 +36,19 @@ TIMEOUT = 45      # secondes par requête
 # ── 100 SCENARIOS WINDOWS ───────────────────────────────────
 SCENARIOS = [
     # ── FICHIERS & DOSSIERS (1-15) ──
-    {"id": 1,  "cat": "fichiers", "cmd": "ouvre le dossier Documents", "expected": "explorer", "powershell": "Start-Process explorer $env:USERPROFILE\\Documents"},
-    {"id": 2,  "cat": "fichiers", "cmd": "crée un dossier Projets sur le bureau", "expected": "New-Item", "powershell": "New-Item -Path $env:USERPROFILE\\Desktop\\Projets -ItemType Directory"},
-    {"id": 3,  "cat": "fichiers", "cmd": "supprime les fichiers temporaires", "expected": "Remove-Item", "powershell": "Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue"},
-    {"id": 4,  "cat": "fichiers", "cmd": "liste les fichiers PDF sur le bureau", "expected": "Get-ChildItem", "powershell": "Get-ChildItem $env:USERPROFILE\\Desktop -Filter *.pdf"},
-    {"id": 5,  "cat": "fichiers", "cmd": "copie le fichier rapport.txt dans Documents", "expected": "Copy-Item", "powershell": "Copy-Item rapport.txt $env:USERPROFILE\\Documents\\"},
+    {"id": 1,  "cat": "fichiers", "cmd": "ouvre le dossier Documents", "expected": "explorer", "powershell": "Start-Process explorer $env:USERPROFILE/Documents"},
+    {"id": 2,  "cat": "fichiers", "cmd": "crée un dossier Projets sur le bureau", "expected": "New-Item", "powershell": "New-Item -Path $env:USERPROFILE/Desktop/Projets -ItemType Directory"},
+    {"id": 3,  "cat": "fichiers", "cmd": "supprime les fichiers temporaires", "expected": "Remove-Item", "powershell": "Remove-Item $env:TEMP/* -Recurse -Force -ErrorAction SilentlyContinue"},
+    {"id": 4,  "cat": "fichiers", "cmd": "liste les fichiers PDF sur le bureau", "expected": "Get-ChildItem", "powershell": "Get-ChildItem $env:USERPROFILE/Desktop -Filter *.pdf"},
+    {"id": 5,  "cat": "fichiers", "cmd": "copie le fichier rapport.txt dans Documents", "expected": "Copy-Item", "powershell": "Copy-Item rapport.txt $env:USERPROFILE/Documents/"},
     {"id": 6,  "cat": "fichiers", "cmd": "renomme le fichier ancien.txt en nouveau.txt", "expected": "Rename-Item", "powershell": "Rename-Item ancien.txt nouveau.txt"},
     {"id": 7,  "cat": "fichiers", "cmd": "montre l'espace disque disponible", "expected": "Get-PSDrive", "powershell": "Get-PSDrive -PSProvider FileSystem | Select Name, @{N='Free(GB)';E={[math]::Round($_.Free/1GB,2)}}"},
-    {"id": 8,  "cat": "fichiers", "cmd": "compresse le dossier Logs en zip", "expected": "Compress-Archive", "powershell": "Compress-Archive -Path .\\Logs -DestinationPath .\\Logs.zip"},
+    {"id": 8,  "cat": "fichiers", "cmd": "compresse le dossier Logs en zip", "expected": "Compress-Archive", "powershell": "Compress-Archive -Path ./Logs -DestinationPath ./Logs.zip"},
     {"id": 9,  "cat": "fichiers", "cmd": "cherche les fichiers modifiés aujourd'hui", "expected": "Get-ChildItem", "powershell": "Get-ChildItem -Recurse | Where-Object {$_.LastWriteTime -ge (Get-Date).Date}"},
-    {"id": 10, "cat": "fichiers", "cmd": "affiche la taille du dossier turbo", "expected": "Measure-Object", "powershell": "(Get-ChildItem F:\\BUREAU\\turbo -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB"},
+    {"id": 10, "cat": "fichiers", "cmd": "affiche la taille du dossier turbo", "expected": "Measure-Object", "powershell": "(Get-ChildItem F:/BUREAU/turbo -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB"},
     {"id": 11, "cat": "fichiers", "cmd": "crée un fichier texte avec du contenu", "expected": "Set-Content", "powershell": "Set-Content -Path note.txt -Value 'Hello JARVIS'"},
-    {"id": 12, "cat": "fichiers", "cmd": "déplace tous les PNG dans un dossier images", "expected": "Move-Item", "powershell": "Move-Item *.png .\\images\\ -Force"},
-    {"id": 13, "cat": "fichiers", "cmd": "affiche les 10 plus gros fichiers du disque", "expected": "Sort-Object", "powershell": "Get-ChildItem C:\\ -Recurse -File -ErrorAction SilentlyContinue | Sort-Object Length -Descending | Select -First 10 Name, @{N='MB';E={[math]::Round($_.Length/1MB,2)}}"},
+    {"id": 12, "cat": "fichiers", "cmd": "déplace tous les PNG dans un dossier images", "expected": "Move-Item", "powershell": "Move-Item *.png ./images/ -Force"},
+    {"id": 13, "cat": "fichiers", "cmd": "affiche les 10 plus gros fichiers du disque", "expected": "Sort-Object", "powershell": "Get-ChildItem /\ -Recurse -File -ErrorAction SilentlyContinue | Sort-Object Length -Descending | Select -First 10 Name, @{N='MB';E={[math]::Round($_.Length/1MB,2)}}"},
     {"id": 14, "cat": "fichiers", "cmd": "vide la corbeille", "expected": "Clear-RecycleBin", "powershell": "Clear-RecycleBin -Force"},
     {"id": 15, "cat": "fichiers", "cmd": "ouvre le fichier config.json dans notepad", "expected": "notepad", "powershell": "Start-Process notepad config.json"},
 
@@ -56,11 +56,11 @@ SCENARIOS = [
     {"id": 16, "cat": "processus", "cmd": "liste les processus qui utilisent le plus de mémoire", "expected": "Get-Process", "powershell": "Get-Process | Sort-Object WorkingSet64 -Descending | Select -First 10 Name, @{N='MB';E={[math]::Round($_.WorkingSet64/1MB)}}"},
     {"id": 17, "cat": "processus", "cmd": "ferme Chrome", "expected": "Stop-Process", "powershell": "Stop-Process -Name chrome -Force -ErrorAction SilentlyContinue"},
     {"id": 18, "cat": "processus", "cmd": "lance le calculateur Windows", "expected": "calc", "powershell": "Start-Process calc"},
-    {"id": 19, "cat": "processus", "cmd": "ouvre VS Code dans le dossier turbo", "expected": "code", "powershell": "Start-Process code F:\\BUREAU\\turbo"},
+    {"id": 19, "cat": "processus", "cmd": "ouvre VS Code dans le dossier turbo", "expected": "code", "powershell": "Start-Process code F:/BUREAU/turbo"},
     {"id": 20, "cat": "processus", "cmd": "vérifie si Discord est en cours d'exécution", "expected": "Get-Process", "powershell": "Get-Process discord -ErrorAction SilentlyContinue | Select Name, Id, CPU"},
     {"id": 21, "cat": "processus", "cmd": "ouvre le gestionnaire de tâches", "expected": "taskmgr", "powershell": "Start-Process taskmgr"},
     {"id": 22, "cat": "processus", "cmd": "redémarre l'explorateur Windows", "expected": "explorer", "powershell": "Stop-Process -Name explorer -Force; Start-Process explorer"},
-    {"id": 23, "cat": "processus", "cmd": "affiche l'utilisation CPU actuelle", "expected": "Get-Counter", "powershell": "(Get-Counter '\\Processor(_Total)\\% Processor Time').CounterSamples.CookedValue"},
+    {"id": 23, "cat": "processus", "cmd": "affiche l'utilisation CPU actuelle", "expected": "Get-Counter", "powershell": "(Get-Counter '/Processor(_Total)/% Processor Time').CounterSamples.CookedValue"},
     {"id": 24, "cat": "processus", "cmd": "lance PowerShell en tant qu'administrateur", "expected": "RunAs", "powershell": "Start-Process powershell -Verb RunAs"},
     {"id": 25, "cat": "processus", "cmd": "ferme toutes les fenêtres de Notepad", "expected": "Stop-Process", "powershell": "Stop-Process -Name notepad -Force -ErrorAction SilentlyContinue"},
     {"id": 26, "cat": "processus", "cmd": "liste les applications installées", "expected": "Get-Package", "powershell": "Get-Package | Select Name, Version | Sort Name"},
@@ -93,14 +93,14 @@ SCENARIOS = [
     {"id": 49, "cat": "systeme", "cmd": "affiche la RAM disponible", "expected": "Get-CimInstance", "powershell": "$os = Get-CimInstance Win32_OperatingSystem; '{0:N2} GB libre / {1:N2} GB total' -f ($os.FreePhysicalMemory/1MB), ($os.TotalVisibleMemorySize/1MB)"},
     {"id": 50, "cat": "systeme", "cmd": "affiche la température GPU", "expected": "nvidia-smi", "powershell": "nvidia-smi --query-gpu=name,temperature.gpu,memory.used,memory.total --format=csv,noheader"},
     {"id": 51, "cat": "systeme", "cmd": "affiche les variables d'environnement", "expected": "Get-ChildItem Env:", "powershell": "Get-ChildItem Env: | Sort Name | Select Name, Value"},
-    {"id": 52, "cat": "systeme", "cmd": "ajoute un chemin au PATH", "expected": "Environment", "powershell": "[Environment]::SetEnvironmentVariable('Path', $env:Path + ';C:\\NewPath', 'User')"},
+    {"id": 52, "cat": "systeme", "cmd": "ajoute un chemin au PATH", "expected": "Environment", "powershell": "[Environment]::SetEnvironmentVariable('Path', $env:Path + ';/\NewPath', 'User')"},
     {"id": 53, "cat": "systeme", "cmd": "planifie un redémarrage dans 1 heure", "expected": "shutdown", "powershell": "shutdown /r /t 3600 /c 'Redémarrage planifié par JARVIS'"},
     {"id": 54, "cat": "systeme", "cmd": "annule le redémarrage planifié", "expected": "shutdown /a", "powershell": "shutdown /a"},
     {"id": 55, "cat": "systeme", "cmd": "affiche les événements système récents", "expected": "Get-EventLog", "powershell": "Get-EventLog -LogName System -Newest 10 | Select TimeGenerated, EntryType, Message"},
     {"id": 56, "cat": "systeme", "cmd": "vérifie l'intégrité des fichiers système", "expected": "sfc", "powershell": "sfc /scannow"},
     {"id": 57, "cat": "systeme", "cmd": "affiche les pilotes installés", "expected": "Get-WindowsDriver", "powershell": "driverquery /FO CSV | ConvertFrom-Csv | Select 'Module Name', 'Display Name' | Sort 'Display Name'"},
     {"id": 58, "cat": "systeme", "cmd": "vérifie la santé du disque", "expected": "Get-PhysicalDisk", "powershell": "Get-PhysicalDisk | Select FriendlyName, MediaType, HealthStatus, @{N='Size(GB)';E={[math]::Round($_.Size/1GB)}}"},
-    {"id": 59, "cat": "systeme", "cmd": "affiche les clés de registre de démarrage", "expected": "Get-ItemProperty", "powershell": "Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run'"},
+    {"id": 59, "cat": "systeme", "cmd": "affiche les clés de registre de démarrage", "expected": "Get-ItemProperty", "powershell": "Get-ItemProperty 'HKLM:/SOFTWARE/Microsoft/Windows/CurrentVersion/Run'"},
     {"id": 60, "cat": "systeme", "cmd": "crée un point de restauration système", "expected": "Checkpoint-Computer", "powershell": "Checkpoint-Computer -Description 'JARVIS Backup' -RestorePointType MODIFY_SETTINGS"},
 
     # ── SERVICES WINDOWS (61-70) ──
@@ -109,31 +109,31 @@ SCENARIOS = [
     {"id": 63, "cat": "services", "cmd": "arrête le service de spouleur d'impression", "expected": "Stop-Service", "powershell": "Stop-Service Spooler -Force"},
     {"id": 64, "cat": "services", "cmd": "affiche les services désactivés", "expected": "Get-Service", "powershell": "Get-Service | Where StartType -eq Disabled | Select Name, DisplayName"},
     {"id": 65, "cat": "services", "cmd": "vérifie le statut du pare-feu Windows", "expected": "Get-NetFirewallProfile", "powershell": "Get-NetFirewallProfile | Select Name, Enabled"},
-    {"id": 66, "cat": "services", "cmd": "active le bureau à distance", "expected": "Set-ItemProperty", "powershell": "Set-ItemProperty 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server' -Name fDenyTSConnections -Value 0"},
+    {"id": 66, "cat": "services", "cmd": "active le bureau à distance", "expected": "Set-ItemProperty", "powershell": "Set-ItemProperty 'HKLM:/System/CurrentControlSet/Control/Terminal Server' -Name fDenyTSConnections -Value 0"},
     {"id": 67, "cat": "services", "cmd": "affiche les tâches planifiées", "expected": "Get-ScheduledTask", "powershell": "Get-ScheduledTask | Where State -eq Ready | Select TaskName, TaskPath | Sort TaskName"},
-    {"id": 68, "cat": "services", "cmd": "crée une tâche planifiée quotidienne", "expected": "Register-ScheduledTask", "powershell": "$action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument '-File C:\\script.ps1'; $trigger = New-ScheduledTaskTrigger -Daily -At '08:00'; Register-ScheduledTask -TaskName 'JarvisDaily' -Action $action -Trigger $trigger"},
+    {"id": 68, "cat": "services", "cmd": "crée une tâche planifiée quotidienne", "expected": "Register-ScheduledTask", "powershell": "$action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument '-File /\script.ps1'; $trigger = New-ScheduledTaskTrigger -Daily -At '08:00'; Register-ScheduledTask -TaskName 'JarvisDaily' -Action $action -Trigger $trigger"},
     {"id": 69, "cat": "services", "cmd": "vérifie l'antivirus Windows Defender", "expected": "Get-MpComputerStatus", "powershell": "Get-MpComputerStatus | Select AntivirusEnabled, RealTimeProtectionEnabled, AntivirusSignatureLastUpdated"},
     {"id": 70, "cat": "services", "cmd": "lance un scan antivirus rapide", "expected": "Start-MpScan", "powershell": "Start-MpScan -ScanType QuickScan"},
 
     # ── AUDIO & MULTIMEDIA (71-80) ──
     {"id": 71, "cat": "audio", "cmd": "monte le volume à 80%", "expected": "audio", "powershell": "$wshell = New-Object -ComObject WScript.Shell; 1..80 | ForEach { $wshell.SendKeys([char]175) }"},
     {"id": 72, "cat": "audio", "cmd": "coupe le son", "expected": "mute", "powershell": "$wshell = New-Object -ComObject WScript.Shell; $wshell.SendKeys([char]173)"},
-    {"id": 73, "cat": "audio", "cmd": "prends une capture d'écran", "expected": "screenshot", "powershell": "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Screen]::PrimaryScreen | ForEach { $bmp = New-Object Drawing.Bitmap($_.Bounds.Width, $_.Bounds.Height); $g = [Drawing.Graphics]::FromImage($bmp); $g.CopyFromScreen($_.Bounds.Location, [Drawing.Point]::Empty, $_.Bounds.Size); $bmp.Save(\"$env:USERPROFILE\\Desktop\\screenshot.png\") }"},
+    {"id": 73, "cat": "audio", "cmd": "prends une capture d'écran", "expected": "screenshot", "powershell": "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Screen]::PrimaryScreen | ForEach { $bmp = New-Object Drawing.Bitmap($_.Bounds.Width, $_.Bounds.Height); $g = [Drawing.Graphics]::FromImage($bmp); $g.CopyFromScreen($_.Bounds.Location, [Drawing.Point]::Empty, $_.Bounds.Size); $bmp.Save(\"$env:USERPROFILE/Desktop/screenshot.png\") }"},
     {"id": 74, "cat": "audio", "cmd": "ouvre le mixeur de volume", "expected": "sndvol", "powershell": "Start-Process sndvol"},
     {"id": 75, "cat": "audio", "cmd": "affiche les périphériques audio", "expected": "Get-AudioDevice", "powershell": "Get-PnpDevice -Class AudioEndpoint | Where Status -eq OK | Select FriendlyName, Status"},
     {"id": 76, "cat": "audio", "cmd": "joue un son de notification", "expected": "SystemSounds", "powershell": "[System.Media.SystemSounds]::Exclamation.Play()"},
     {"id": 77, "cat": "audio", "cmd": "ouvre le lecteur Windows Media", "expected": "wmplayer", "powershell": "Start-Process wmplayer"},
-    {"id": 78, "cat": "audio", "cmd": "enregistre l'écran pendant 10 secondes", "expected": "ffmpeg", "powershell": "ffmpeg -f gdigrab -framerate 30 -t 10 -i desktop -c:v libx264 -preset ultrafast $env:USERPROFILE\\Desktop\\recording.mp4"},
+    {"id": 78, "cat": "audio", "cmd": "enregistre l'écran pendant 10 secondes", "expected": "ffmpeg", "powershell": "ffmpeg -f gdigrab -framerate 30 -t 10 -i desktop -c:v libx264 -preset ultrafast $env:USERPROFILE/Desktop/recording.mp4"},
     {"id": 79, "cat": "audio", "cmd": "dis bonjour avec la synthèse vocale", "expected": "SAPI", "powershell": "Add-Type -AssemblyName System.Speech; $synth = New-Object System.Speech.Synthesis.SpeechSynthesizer; $synth.Speak('Bonjour, je suis JARVIS')"},
     {"id": 80, "cat": "audio", "cmd": "affiche la résolution d'écran", "expected": "Screen", "powershell": "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Screen]::PrimaryScreen.Bounds | Select Width, Height"},
 
     # ── AFFICHAGE & BUREAU (81-90) ──
-    {"id": 81, "cat": "affichage", "cmd": "active le mode sombre", "expected": "AppsUseLightTheme", "powershell": "Set-ItemProperty 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name AppsUseLightTheme -Value 0"},
-    {"id": 82, "cat": "affichage", "cmd": "active le mode clair", "expected": "AppsUseLightTheme", "powershell": "Set-ItemProperty 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name AppsUseLightTheme -Value 1"},
+    {"id": 81, "cat": "affichage", "cmd": "active le mode sombre", "expected": "AppsUseLightTheme", "powershell": "Set-ItemProperty 'HKCU:/SOFTWARE/Microsoft/Windows/CurrentVersion/Themes/Personalize' -Name AppsUseLightTheme -Value 0"},
+    {"id": 82, "cat": "affichage", "cmd": "active le mode clair", "expected": "AppsUseLightTheme", "powershell": "Set-ItemProperty 'HKCU:/SOFTWARE/Microsoft/Windows/CurrentVersion/Themes/Personalize' -Name AppsUseLightTheme -Value 1"},
     {"id": 83, "cat": "affichage", "cmd": "verrouille la session", "expected": "LockWorkStation", "powershell": "rundll32.exe user32.dll,LockWorkStation"},
     {"id": 84, "cat": "affichage", "cmd": "minimise toutes les fenêtres", "expected": "Shell.Application", "powershell": "(New-Object -ComObject Shell.Application).MinimizeAll()"},
     {"id": 85, "cat": "affichage", "cmd": "restaure toutes les fenêtres", "expected": "Shell.Application", "powershell": "(New-Object -ComObject Shell.Application).UndoMinimizeAll()"},
-    {"id": 86, "cat": "affichage", "cmd": "change le fond d'écran", "expected": "SystemParametersInfo", "powershell": "Add-Type @'`nusing System.Runtime.InteropServices;`npublic class Wallpaper { [DllImport(\"user32.dll\")] public static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni); }`n'@; [Wallpaper]::SystemParametersInfo(20, 0, 'C:\\path\\wallpaper.jpg', 3)"},
+    {"id": 86, "cat": "affichage", "cmd": "change le fond d'écran", "expected": "SystemParametersInfo", "powershell": "Add-Type @'`nusing System.Runtime.InteropServices;`npublic class Wallpaper { [DllImport(\"user32.dll\")] public static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni); }`n'@; [Wallpaper]::SystemParametersInfo(20, 0, '/\path/wallpaper.jpg', 3)"},
     {"id": 87, "cat": "affichage", "cmd": "active la veilleuse (night light)", "expected": "NightLight", "powershell": "Start-Process ms-settings:nightlight"},
     {"id": 88, "cat": "affichage", "cmd": "affiche les moniteurs connectés", "expected": "Get-CimInstance", "powershell": "Get-CimInstance Win32_DesktopMonitor | Select Name, ScreenWidth, ScreenHeight"},
     {"id": 89, "cat": "affichage", "cmd": "ouvre les paramètres d'affichage", "expected": "ms-settings:display", "powershell": "Start-Process ms-settings:display"},
@@ -302,7 +302,7 @@ async def run_cycles():
         "stats": stats,
         "results": results
     }
-    outpath = Path("F:/BUREAU/turbo/data") / f"learning_100cycles_{datetime.now().strftime('%Y%m%d_%H%M')}.json"
+    outpath = Path("/home/turbo/jarvis-m1-ops/data") / f"learning_100cycles_{datetime.now().strftime('%Y%m%d_%H%M')}.json"
     outpath.parent.mkdir(exist_ok=True)
     outpath.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\nRapport sauvé: {outpath}")

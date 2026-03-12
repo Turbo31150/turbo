@@ -119,8 +119,8 @@ def validate_markdown_file(config):
         lines = content.split("\n")
         for i, line in enumerate(lines):
             # Check file paths in backticks
-            for match in __import__("re").findall(r'`([A-Z]:[/\\][^`]+)`', line):
-                if not Path(match.replace("\\", "/")).exists():
+            for match in __import__("re").findall(r'`([A-Z]:[//][^`]+)`', line):
+                if not Path(match.replace("/", "/")).exists():
                     if not any(skip in match for skip in ["PROMPT", "example", "YYYY"]):
                         issues.append(f"L{i+1}: Broken path reference: {match[:60]}")
 

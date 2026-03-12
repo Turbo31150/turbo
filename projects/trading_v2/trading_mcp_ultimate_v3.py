@@ -2322,7 +2322,7 @@ def scan_sniper() -> Dict:
         return {
             'success': False,
             'error': 'Serveur scanner non disponible',
-            'message': 'Le serveur scanner doit etre demarre: C:\\LMStudio\\Scanner\\start_scanner.bat',
+            'message': 'Le serveur scanner doit etre demarre: /\LMStudio/Scanner/start_scanner.bat',
             'details': str(e)
         }
     except Exception as e:

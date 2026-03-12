@@ -30,7 +30,7 @@ echo    =============================================
 echo.
 set /p MODE="    Choix (1/2/3) [defaut=1]: "
 if "%MODE%"=="" set MODE=1
-cd /d F:\BUREAU\TRADING_V2_PRODUCTION\voice_system
+cd /d /home/turbo\TRADING_V2_PRODUCTION\voice_system
 if "%MODE%"=="1" (
     echo    Demarrage mode VOCAL PTT...
     python -u voice_jarvis.py

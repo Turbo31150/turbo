@@ -172,7 +172,7 @@ class PatternAgent:
     def _truncate_prompt(self, node_name: str, prompt: str) -> str:
         """Smart truncation: keep prompt within 70% of context window.
 
-        Preserves: the last user question (after last \\n\\n) + first 20% as context.
+        Preserves: the last user question (after last /n/n) + first 20% as context.
         Cuts: middle section that's usually repetitive context/history.
         """
         ctx_limit = self.NODE_CTX_LIMITS.get(node_name, 32000)

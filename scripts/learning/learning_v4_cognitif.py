@@ -569,7 +569,7 @@ async def main():
         "stats": dict(stats),
         "results": full_results
     }
-    p = Path("F:/BUREAU/turbo/data") / f"learning_v4_cognitif_{datetime.now().strftime('%Y%m%d_%H%M')}.json"
+    p = Path("/home/turbo/jarvis-m1-ops/data") / f"learning_v4_cognitif_{datetime.now().strftime('%Y%m%d_%H%M')}.json"
     p.parent.mkdir(exist_ok=True)
     p.write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
     print(f"\nRapport: {p}", flush=True)

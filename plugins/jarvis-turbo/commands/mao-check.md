@@ -23,12 +23,12 @@ curl -s --max-time 3 http://127.0.0.1:11434/api/ps 2>/dev/null | python3 -c "imp
 
 **Gemini proxy:**
 ```bash
-node F:/BUREAU/turbo/gemini-proxy.js --ping 2>/dev/null && echo "GEMINI OK" || echo "GEMINI OFFLINE"
+node /home/turbo/jarvis-m1-ops/gemini-proxy.js --ping 2>/dev/null && echo "GEMINI OK" || echo "GEMINI OFFLINE"
 ```
 
 **Claude proxy:**
 ```bash
-node F:/BUREAU/turbo/claude-proxy.js --ping 2>/dev/null && echo "CLAUDE OK" || echo "CLAUDE OFFLINE"
+node /home/turbo/jarvis-m1-ops/claude-proxy.js --ping 2>/dev/null && echo "CLAUDE OK" || echo "CLAUDE OFFLINE"
 ```
 
 **Canvas + Autolearn:**

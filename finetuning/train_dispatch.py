@@ -21,7 +21,7 @@ import signal
 from pathlib import Path
 from datetime import datetime
 
-FINETUNING_DIR = Path("F:/BUREAU/turbo/finetuning")
+FINETUNING_DIR = Path("/home/turbo/jarvis-m1-ops/finetuning")
 DATASET_DIR = FINETUNING_DIR / "dataset"
 
 # === GPU DISPATCH CONFIG ===
@@ -202,8 +202,8 @@ except Exception as e:
 MODEL_NAME = "{config["model"]}"
 TRAIN_FILE = r"{config["dataset"]}"
 {eval_setup}
-OUTPUT_DIR = Path(r"F:/BUREAU/turbo/finetuning/output")
-OFFLOAD_DIR = r"F:/BUREAU/turbo/finetuning/offload/{config["name"]}"
+OUTPUT_DIR = Path(r"/home/turbo/jarvis-m1-ops/finetuning/output")
+OFFLOAD_DIR = r"/home/turbo/jarvis-m1-ops/finetuning/offload/{config["name"]}"
 os.makedirs(OFFLOAD_DIR, exist_ok=True)
 
 MAX_STEPS = {config["max_steps"]}
@@ -221,7 +221,7 @@ run_name = f"jarvis-qwen3-8b-{config["name"]}-{{timestamp}}"
 {resume_code}
 
 def main():
-    print(f"\\n===== GPU {config["gpu_id"]} ({config["name"]}) =====")
+    print(f"/n===== GPU {config["gpu_id"]} ({config["name"]}) =====")
     print(f"  Model: {{MODEL_NAME}}")
     print(f"  Dataset: {{TRAIN_FILE}}")
     print(f"  Steps: {{MAX_STEPS}} | SeqLen: {{MAX_SEQ_LEN}} | Batch: {{BATCH_SIZE}}x{{GRAD_ACCUM}}")
@@ -343,7 +343,7 @@ def main():
     with open(os.path.join(output_dir, "training_metrics.json"), "w") as f:
         json.dump(metrics, f, indent=2)
 
-    print(f"\\n[DONE] GPU {config["gpu_id"]} ({config["name"]})")
+    print(f"/n[DONE] GPU {config["gpu_id"]} ({config["name"]})")
     print(f"  Loss: {{metrics.get('train_loss', 'N/A')}}")
     print(f"  Runtime: {{metrics.get('train_runtime', 0):.0f}}s")
     print(f"  Output: {{final_path}}")
@@ -352,7 +352,7 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        print(f"\\n[CRASH] GPU {config["gpu_id"]} ({config["name"]}): {{type(e).__name__}}: {{e}}")
+        print(f"/n[CRASH] GPU {config["gpu_id"]} ({config["name"]}): {{type(e).__name__}}: {{e}}")
         traceback.print_exc()
         sys.exit(1)
 '''
@@ -398,7 +398,7 @@ def main():
         log_files.append(log_f)
 
         # Use global Python 3.12 which has torch+CUDA installed
-        python_exe = r"C:\Users\franc\AppData\Local\Programs\Python\Python312\python.exe"
+        python_exe = r"/home/turbo\AppData\Local\Programs\Python\Python312\python.exe"
         p = subprocess.Popen(
             [python_exe, str(script_path)],
             stdout=log_f,

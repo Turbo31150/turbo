@@ -1,6 +1,6 @@
 @echo off
 title JARVIS Auto-Improve Daemon
-cd /d F:\BUREAU\turbo
+cd /d /home/turbo/jarvis-m1-ops
 
 echo [JARVIS] Auto-Improve Daemon starting...
 echo [JARVIS] Cycle: validate + fix + telegram every 15min

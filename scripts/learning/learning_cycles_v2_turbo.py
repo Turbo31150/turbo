@@ -61,29 +61,29 @@ TIMEOUT = 30
 
 # ── 100 SCENARIOS (repris de v1) ────────────────────────────
 SCENARIOS = [
-    {"id":1,"cat":"fichiers","cmd":"ouvre le dossier Documents","expected":"explorer","ps":"Start-Process explorer $env:USERPROFILE\\Documents"},
-    {"id":2,"cat":"fichiers","cmd":"cree un dossier Projets sur le bureau","expected":"New-Item","ps":"New-Item -Path $env:USERPROFILE\\Desktop\\Projets -ItemType Directory"},
-    {"id":3,"cat":"fichiers","cmd":"supprime les fichiers temporaires","expected":"Remove-Item","ps":"Remove-Item $env:TEMP\\* -Recurse -Force"},
-    {"id":4,"cat":"fichiers","cmd":"liste les fichiers PDF sur le bureau","expected":"Get-ChildItem","ps":"Get-ChildItem $env:USERPROFILE\\Desktop -Filter *.pdf"},
-    {"id":5,"cat":"fichiers","cmd":"copie le fichier rapport.txt dans Documents","expected":"Copy-Item","ps":"Copy-Item rapport.txt $env:USERPROFILE\\Documents\\"},
+    {"id":1,"cat":"fichiers","cmd":"ouvre le dossier Documents","expected":"explorer","ps":"Start-Process explorer $env:USERPROFILE/Documents"},
+    {"id":2,"cat":"fichiers","cmd":"cree un dossier Projets sur le bureau","expected":"New-Item","ps":"New-Item -Path $env:USERPROFILE/Desktop/Projets -ItemType Directory"},
+    {"id":3,"cat":"fichiers","cmd":"supprime les fichiers temporaires","expected":"Remove-Item","ps":"Remove-Item $env:TEMP/* -Recurse -Force"},
+    {"id":4,"cat":"fichiers","cmd":"liste les fichiers PDF sur le bureau","expected":"Get-ChildItem","ps":"Get-ChildItem $env:USERPROFILE/Desktop -Filter *.pdf"},
+    {"id":5,"cat":"fichiers","cmd":"copie le fichier rapport.txt dans Documents","expected":"Copy-Item","ps":"Copy-Item rapport.txt $env:USERPROFILE/Documents/"},
     {"id":6,"cat":"fichiers","cmd":"renomme le fichier ancien.txt en nouveau.txt","expected":"Rename-Item","ps":"Rename-Item ancien.txt nouveau.txt"},
     {"id":7,"cat":"fichiers","cmd":"montre l'espace disque disponible","expected":"Get-PSDrive","ps":"Get-PSDrive -PSProvider FileSystem"},
-    {"id":8,"cat":"fichiers","cmd":"compresse le dossier Logs en zip","expected":"Compress-Archive","ps":"Compress-Archive -Path .\\Logs -DestinationPath .\\Logs.zip"},
+    {"id":8,"cat":"fichiers","cmd":"compresse le dossier Logs en zip","expected":"Compress-Archive","ps":"Compress-Archive -Path ./Logs -DestinationPath ./Logs.zip"},
     {"id":9,"cat":"fichiers","cmd":"cherche les fichiers modifies aujourd'hui","expected":"Get-ChildItem","ps":"Get-ChildItem -Recurse | Where {$_.LastWriteTime -ge (Get-Date).Date}"},
-    {"id":10,"cat":"fichiers","cmd":"affiche la taille du dossier turbo","expected":"Measure-Object","ps":"(Get-ChildItem F:\\BUREAU\\turbo -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB"},
+    {"id":10,"cat":"fichiers","cmd":"affiche la taille du dossier turbo","expected":"Measure-Object","ps":"(Get-ChildItem F:/BUREAU/turbo -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB"},
     {"id":11,"cat":"fichiers","cmd":"cree un fichier texte avec du contenu","expected":"Set-Content","ps":"Set-Content -Path note.txt -Value 'Hello JARVIS'"},
-    {"id":12,"cat":"fichiers","cmd":"deplace tous les PNG dans un dossier images","expected":"Move-Item","ps":"Move-Item *.png .\\images\\ -Force"},
-    {"id":13,"cat":"fichiers","cmd":"affiche les 10 plus gros fichiers du disque","expected":"Sort-Object","ps":"Get-ChildItem C:\\ -Recurse -File | Sort-Object Length -Desc | Select -First 10"},
+    {"id":12,"cat":"fichiers","cmd":"deplace tous les PNG dans un dossier images","expected":"Move-Item","ps":"Move-Item *.png ./images/ -Force"},
+    {"id":13,"cat":"fichiers","cmd":"affiche les 10 plus gros fichiers du disque","expected":"Sort-Object","ps":"Get-ChildItem /\ -Recurse -File | Sort-Object Length -Desc | Select -First 10"},
     {"id":14,"cat":"fichiers","cmd":"vide la corbeille","expected":"Clear-RecycleBin","ps":"Clear-RecycleBin -Force"},
     {"id":15,"cat":"fichiers","cmd":"ouvre le fichier config.json dans notepad","expected":"notepad","ps":"Start-Process notepad config.json"},
     {"id":16,"cat":"processus","cmd":"liste les processus qui consomment le plus de memoire","expected":"Get-Process","ps":"Get-Process | Sort WorkingSet64 -Desc | Select -First 10"},
     {"id":17,"cat":"processus","cmd":"ferme Chrome","expected":"Stop-Process","ps":"Stop-Process -Name chrome -Force"},
     {"id":18,"cat":"processus","cmd":"lance le calculateur Windows","expected":"calc","ps":"Start-Process calc"},
-    {"id":19,"cat":"processus","cmd":"ouvre VS Code dans le dossier turbo","expected":"code","ps":"Start-Process code F:\\BUREAU\\turbo"},
+    {"id":19,"cat":"processus","cmd":"ouvre VS Code dans le dossier turbo","expected":"code","ps":"Start-Process code F:/BUREAU/turbo"},
     {"id":20,"cat":"processus","cmd":"verifie si Discord est en cours d'execution","expected":"Get-Process","ps":"Get-Process discord -ErrorAction SilentlyContinue"},
     {"id":21,"cat":"processus","cmd":"ouvre le gestionnaire de taches","expected":"taskmgr","ps":"Start-Process taskmgr"},
     {"id":22,"cat":"processus","cmd":"redemarre l'explorateur Windows","expected":"explorer","ps":"Stop-Process -Name explorer -Force; Start-Process explorer"},
-    {"id":23,"cat":"processus","cmd":"affiche l'utilisation CPU actuelle","expected":"Get-Counter","ps":"(Get-Counter '\\Processor(_Total)\\% Processor Time').CounterSamples.CookedValue"},
+    {"id":23,"cat":"processus","cmd":"affiche l'utilisation CPU actuelle","expected":"Get-Counter","ps":"(Get-Counter '/Processor(_Total)/% Processor Time').CounterSamples.CookedValue"},
     {"id":24,"cat":"processus","cmd":"lance PowerShell en tant qu'administrateur","expected":"RunAs","ps":"Start-Process powershell -Verb RunAs"},
     {"id":25,"cat":"processus","cmd":"ferme toutes les fenetres de Notepad","expected":"Stop-Process","ps":"Stop-Process -Name notepad -Force"},
     {"id":26,"cat":"processus","cmd":"liste les applications installees","expected":"Get-Package","ps":"Get-Package | Select Name, Version"},
@@ -112,21 +112,21 @@ SCENARIOS = [
     {"id":49,"cat":"systeme","cmd":"affiche la RAM disponible","expected":"Get-CimInstance","ps":"Get-CimInstance Win32_OperatingSystem | Select FreePhysicalMemory, TotalVisibleMemorySize"},
     {"id":50,"cat":"systeme","cmd":"affiche la temperature GPU","expected":"nvidia-smi","ps":"nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader"},
     {"id":51,"cat":"systeme","cmd":"affiche les variables d'environnement","expected":"Env:","ps":"Get-ChildItem Env: | Sort Name"},
-    {"id":52,"cat":"systeme","cmd":"ajoute un chemin au PATH","expected":"Environment","ps":"[Environment]::SetEnvironmentVariable('Path', $env:Path+';C:\\New', 'User')"},
+    {"id":52,"cat":"systeme","cmd":"ajoute un chemin au PATH","expected":"Environment","ps":"[Environment]::SetEnvironmentVariable('Path', $env:Path+';/\New', 'User')"},
     {"id":53,"cat":"systeme","cmd":"planifie un redemarrage dans 1 heure","expected":"shutdown","ps":"shutdown /r /t 3600"},
     {"id":54,"cat":"systeme","cmd":"annule le redemarrage planifie","expected":"shutdown /a","ps":"shutdown /a"},
     {"id":55,"cat":"systeme","cmd":"affiche les evenements systeme recents","expected":"Get-EventLog","ps":"Get-EventLog -LogName System -Newest 10"},
     {"id":56,"cat":"systeme","cmd":"verifie l'integrite des fichiers systeme","expected":"sfc","ps":"sfc /scannow"},
     {"id":57,"cat":"systeme","cmd":"affiche les pilotes installes","expected":"driverquery","ps":"driverquery /FO CSV"},
     {"id":58,"cat":"systeme","cmd":"verifie la sante du disque","expected":"Get-PhysicalDisk","ps":"Get-PhysicalDisk | Select FriendlyName, HealthStatus"},
-    {"id":59,"cat":"systeme","cmd":"affiche les cles de registre de demarrage","expected":"Get-ItemProperty","ps":"Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run'"},
+    {"id":59,"cat":"systeme","cmd":"affiche les cles de registre de demarrage","expected":"Get-ItemProperty","ps":"Get-ItemProperty 'HKLM:/SOFTWARE/Microsoft/Windows/CurrentVersion/Run'"},
     {"id":60,"cat":"systeme","cmd":"cree un point de restauration systeme","expected":"Checkpoint-Computer","ps":"Checkpoint-Computer -Description 'JARVIS Backup'"},
     {"id":61,"cat":"services","cmd":"liste les services en cours d'execution","expected":"Get-Service","ps":"Get-Service | Where Status -eq Running"},
     {"id":62,"cat":"services","cmd":"redemarre le service Windows Update","expected":"Restart-Service","ps":"Restart-Service wuauserv -Force"},
     {"id":63,"cat":"services","cmd":"arrete le service spouleur d'impression","expected":"Stop-Service","ps":"Stop-Service Spooler -Force"},
     {"id":64,"cat":"services","cmd":"affiche les services desactives","expected":"Get-Service","ps":"Get-Service | Where StartType -eq Disabled"},
     {"id":65,"cat":"services","cmd":"verifie le statut du pare-feu","expected":"Get-NetFirewallProfile","ps":"Get-NetFirewallProfile | Select Name, Enabled"},
-    {"id":66,"cat":"services","cmd":"active le bureau a distance","expected":"Set-ItemProperty","ps":"Set-ItemProperty 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server' -Name fDenyTSConnections -Value 0"},
+    {"id":66,"cat":"services","cmd":"active le bureau a distance","expected":"Set-ItemProperty","ps":"Set-ItemProperty 'HKLM:/System/CurrentControlSet/Control/Terminal Server' -Name fDenyTSConnections -Value 0"},
     {"id":67,"cat":"services","cmd":"affiche les taches planifiees","expected":"Get-ScheduledTask","ps":"Get-ScheduledTask | Where State -eq Ready"},
     {"id":68,"cat":"services","cmd":"cree une tache planifiee quotidienne","expected":"Register-ScheduledTask","ps":"Register-ScheduledTask -TaskName 'JarvisDaily'"},
     {"id":69,"cat":"services","cmd":"verifie l'antivirus Windows Defender","expected":"Get-MpComputerStatus","ps":"Get-MpComputerStatus"},
@@ -141,8 +141,8 @@ SCENARIOS = [
     {"id":78,"cat":"audio","cmd":"enregistre l'ecran pendant 10 secondes","expected":"ffmpeg","ps":"ffmpeg -f gdigrab -framerate 30 -t 10 -i desktop"},
     {"id":79,"cat":"audio","cmd":"dis bonjour avec la synthese vocale","expected":"Speech","ps":"(New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak('Bonjour')"},
     {"id":80,"cat":"audio","cmd":"affiche la resolution d'ecran","expected":"Screen","ps":"[System.Windows.Forms.Screen]::PrimaryScreen.Bounds"},
-    {"id":81,"cat":"affichage","cmd":"active le mode sombre","expected":"AppsUseLightTheme","ps":"Set-ItemProperty 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name AppsUseLightTheme -Value 0"},
-    {"id":82,"cat":"affichage","cmd":"active le mode clair","expected":"AppsUseLightTheme","ps":"Set-ItemProperty 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name AppsUseLightTheme -Value 1"},
+    {"id":81,"cat":"affichage","cmd":"active le mode sombre","expected":"AppsUseLightTheme","ps":"Set-ItemProperty 'HKCU:/SOFTWARE/Microsoft/Windows/CurrentVersion/Themes/Personalize' -Name AppsUseLightTheme -Value 0"},
+    {"id":82,"cat":"affichage","cmd":"active le mode clair","expected":"AppsUseLightTheme","ps":"Set-ItemProperty 'HKCU:/SOFTWARE/Microsoft/Windows/CurrentVersion/Themes/Personalize' -Name AppsUseLightTheme -Value 1"},
     {"id":83,"cat":"affichage","cmd":"verrouille la session","expected":"LockWorkStation","ps":"rundll32.exe user32.dll,LockWorkStation"},
     {"id":84,"cat":"affichage","cmd":"minimise toutes les fenetres","expected":"MinimizeAll","ps":"(New-Object -ComObject Shell.Application).MinimizeAll()"},
     {"id":85,"cat":"affichage","cmd":"restaure toutes les fenetres","expected":"UndoMinimizeAll","ps":"(New-Object -ComObject Shell.Application).UndoMinimizeAll()"},
@@ -205,7 +205,7 @@ async def call_gemini(prompt, sem):
         t0 = time.time()
         try:
             proc = await asyncio.create_subprocess_exec(
-                "node", "F:/BUREAU/turbo/gemini-proxy.js", prompt,
+                "node", "/home/turbo/jarvis-m1-ops/gemini-proxy.js", prompt,
                 stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
             stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=TIMEOUT)
             content = stdout.decode("utf-8", errors="replace").strip()
@@ -335,7 +335,7 @@ async def run():
         "stats": dict(stats),
         "results": full_results
     }
-    outpath = Path("F:/BUREAU/turbo/data") / f"learning_v2_{datetime.now().strftime('%Y%m%d_%H%M')}.json"
+    outpath = Path("/home/turbo/jarvis-m1-ops/data") / f"learning_v2_{datetime.now().strftime('%Y%m%d_%H%M')}.json"
     outpath.parent.mkdir(exist_ok=True)
     outpath.write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
     print(f"\nRapport: {outpath}", flush=True)

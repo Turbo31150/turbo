@@ -63,7 +63,7 @@ def check_high_contrast():
     try:
         out = subprocess.run(
             ["powershell", "-Command",
-             "(Get-ItemProperty 'HKCU:\\Control Panel\\Accessibility\\HighContrast' -Name Flags -ErrorAction SilentlyContinue).Flags"],
+             "(Get-ItemProperty 'HKCU:/Control Panel/Accessibility/HighContrast' -Name Flags -ErrorAction SilentlyContinue).Flags"],
             capture_output=True, text=True, timeout=5
         )
         flags = int(out.stdout.strip() or "0")

@@ -34,7 +34,7 @@ import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
-TURBO_DIR = Path("F:/BUREAU/turbo")
+TURBO_DIR = Path("/home/turbo/jarvis-m1-ops")
 DB_PATH = TURBO_DIR / "data" / "conversation_checkpoints.db"
 
 # Limits

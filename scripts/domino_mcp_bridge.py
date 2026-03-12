@@ -106,13 +106,13 @@ KEYWORD_ACTIONS = {
     "gpu": 'powershell.exe -NoProfile -Command "nvidia-smi --query-gpu=index,name,temperature.gpu,utilization.gpu,memory.used,memory.total --format=csv,noheader"',
     "disk": 'powershell.exe -NoProfile -Command "Get-PSDrive -PSProvider FileSystem | Select-Object Name,@{N=\'Used(GB)\';E={[math]::Round($_.Used/1GB,1)}},@{N=\'Free(GB)\';E={[math]::Round($_.Free/1GB,1)}} | Format-Table -AutoSize"',
     "ram": 'powershell.exe -NoProfile -Command "Get-Process | Sort-Object WorkingSet64 -Descending | Select-Object -First 10 Name,@{N=\'RAM(MB)\';E={[math]::Round($_.WorkingSet64/1MB)}} | Format-Table -AutoSize"',
-    "health": f'curl -s --max-time 3 http://127.0.0.1:9742/api/tools/execute -H "Content-Type: application/json" -d "{{\\"tool_name\\":\\"jarvis_cluster_health\\",\\"arguments\\":{{}}}}"',
-    "boot": f'curl -s --max-time 3 http://127.0.0.1:9742/api/tools/execute -H "Content-Type: application/json" -d "{{\\"tool_name\\":\\"jarvis_boot_status\\",\\"arguments\\":{{}}}}"',
-    "alert": f'curl -s --max-time 3 http://127.0.0.1:9742/api/tools/execute -H "Content-Type: application/json" -d "{{\\"tool_name\\":\\"jarvis_alerts_active\\",\\"arguments\\":{{}}}}"',
+    "health": f'curl -s --max-time 3 http://127.0.0.1:9742/api/tools/execute -H "Content-Type: application/json" -d "{{/"tool_name/":/"jarvis_cluster_health/",/"arguments/":{{}}}}"',
+    "boot": f'curl -s --max-time 3 http://127.0.0.1:9742/api/tools/execute -H "Content-Type: application/json" -d "{{/"tool_name/":/"jarvis_boot_status/",/"arguments/":{{}}}}"',
+    "alert": f'curl -s --max-time 3 http://127.0.0.1:9742/api/tools/execute -H "Content-Type: application/json" -d "{{/"tool_name/":/"jarvis_alerts_active/",/"arguments/":{{}}}}"',
     "temp": 'powershell.exe -NoProfile -Command "nvidia-smi --query-gpu=index,temperature.gpu,fan.speed,power.draw --format=csv,noheader"',
     "processes": 'powershell.exe -NoProfile -Command "Get-Process | Sort-Object CPU -Descending | Select-Object -First 15 Name,CPU,@{N=\'RAM(MB)\';E={[math]::Round($_.WorkingSet64/1MB)}} | Format-Table -AutoSize"',
     "network": 'powershell.exe -NoProfile -Command "Get-NetTCPConnection -State Listen | Select-Object LocalPort,OwningProcess | Sort-Object LocalPort | Format-Table -AutoSize"',
-    "services": 'powershell.exe -NoProfile -Command "netstat -ano | findstr LISTENING | findstr -E \\\":(1234|11434|18789|18800|9742|8080|8901)\\\" "',
+    "services": 'powershell.exe -NoProfile -Command "netstat -ano | findstr LISTENING | findstr -E /\":(1234|11434|18789|18800|9742|8080|8901)/\" "',
     "uptime": 'powershell.exe -NoProfile -Command "(Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime | Select-Object Days,Hours,Minutes"',
 }
 

@@ -2,7 +2,7 @@
 """JARVIS File Handler — Called from Windows Explorer context menu.
 Receives a file/folder path and sends it to JARVIS WS for processing.
 
-Usage: python jarvis_file_handler.py "C:\path\to\file.txt"
+Usage: python jarvis_file_handler.py "/path\to\file.txt"
 """
 import json, sys, os, urllib.request
 

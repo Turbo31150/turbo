@@ -15,7 +15,7 @@ import sys
 import time
 from pathlib import Path
 
-PROJECT_ROOT = r"F:\BUREAU\turbo"
+PROJECT_ROOT = r"/home/turbo/jarvis-m1-ops"
 os.chdir(PROJECT_ROOT)
 sys.path.insert(0, PROJECT_ROOT)
 

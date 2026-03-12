@@ -4,7 +4,7 @@
 
 ```bash
 # 1. Aller au répertoire
-cd F:\BUREAU\turbo\src\tache21_systray
+cd /home/turbo/jarvis-m1-ops\src\tache21_systray
 
 # 2. Installation auto
 python deploy.py
@@ -111,7 +111,7 @@ asyncio.run(demo())
 **Icon ne change pas?**
 - Updates toutes les 5s
 - Vérifier GPU temp updates via WebSocket
-- Check logs: `F:/BUREAU/turbo/logs/tray.log`
+- Check logs: `/home/turbo/jarvis-m1-ops/logs/tray.log`
 
 ## Tests
 
@@ -137,11 +137,11 @@ python integration_example.py
 ## Monitoring
 
 Logs:
-- `F:/BUREAU/turbo/logs/tray.log` - System tray events
-- `F:/BUREAU/turbo/logs/notifications.log` - Notifications
+- `/home/turbo/jarvis-m1-ops/logs/tray.log` - System tray events
+- `/home/turbo/jarvis-m1-ops/logs/notifications.log` - Notifications
 
 Base de données:
-- `F:/BUREAU/turbo/jarvis.db` - SQLite (auto-créée)
+- `/home/turbo/jarvis-m1-ops/jarvis.db` - SQLite (auto-créée)
 
 ## Configuration avancée
 

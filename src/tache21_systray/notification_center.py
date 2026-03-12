@@ -16,7 +16,7 @@ import json
 import httpx
 
 # Configuration
-NOTIF_DB = Path("F:/BUREAU/turbo/jarvis.db")
+NOTIF_DB = Path("/home/turbo/jarvis-m1-ops/jarvis.db")
 TELEGRAM_API = "https://api.telegram.org/bot{token}/sendMessage"
 MAX_HISTORY = 1000
 DEFAULT_TTL_SECONDS = 300
@@ -312,7 +312,7 @@ class NotificationCenter:
             level=logging.INFO,
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
             handlers=[
-                logging.FileHandler("F:/BUREAU/turbo/logs/notifications.log"),
+                logging.FileHandler("/home/turbo/jarvis-m1-ops/logs/notifications.log"),
                 logging.StreamHandler(),
             ],
         )

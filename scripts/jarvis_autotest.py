@@ -147,8 +147,8 @@ def evaluate(response, check_str, domain):
         return True, "check OK"
     # Fuzzy: strip LaTeX, espaces, virgules, backslashes, underscores
     import re
-    clean = re.sub(r'\\[,()\[\]{}]', '', response)  # strip LaTeX formatting
-    clean = clean.replace(" ", "").replace(",", "").replace("\\", "").replace("_", "").lower()
+    clean = re.sub(r'/[,()\[\]{}]', '', response)  # strip LaTeX formatting
+    clean = clean.replace(" ", "").replace(",", "").replace("/", "").replace("_", "").lower()
     clean = re.sub(r'[`$]', '', clean)  # strip markdown/LaTeX delimiters
     if check_lower.replace(" ", "") in clean:
         return True, "check OK (fuzzy)"

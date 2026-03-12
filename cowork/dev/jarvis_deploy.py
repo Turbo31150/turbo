@@ -31,7 +31,7 @@ def main():
 
     if not args.skip_restart:
         services = [
-            ("WS", "taskkill /F /IM python.exe /FI \"WINDOWTITLE eq jarvis_ws\" 2>nul & cd /d F:\\BUREAU\\turbo && start /b cmd /c \"title jarvis_ws && uv run python python_ws/server.py\""),
+            ("WS", "taskkill /F /IM python.exe /FI \"WINDOWTITLE eq jarvis_ws\" 2>nul & cd /d F:/BUREAU/turbo && start /b cmd /c \"title jarvis_ws && uv run python python_ws/server.py\""),
         ]
         for name, cmd in services:
             if args.dry_run:

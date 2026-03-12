@@ -18,7 +18,7 @@ if (-not $docker) {
 $dockerDesktop = Get-Process "Docker Desktop" -ErrorAction SilentlyContinue
 if (-not $dockerDesktop) {
     Write-Host "[...] Lancement Docker Desktop..." -ForegroundColor Yellow
-    Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+    Start-Process "/Program Files\Docker\Docker\Docker Desktop.exe"
     Write-Host "  Attente du demarrage Docker (30s)..."
     Start-Sleep 30
 }
@@ -51,7 +51,7 @@ else { Write-Host "[!] Ollama non accessible (127.0.0.1:11434)" -ForegroundColor
 
 # Lancer la stack
 Write-Host "`n[...] Lancement de la stack Docker..." -ForegroundColor Cyan
-Set-Location "F:\BUREAU\turbo\docker"
+Set-Location "/home/turbo/jarvis-m1-ops\docker"
 docker compose up -d
 
 # Afficher les URLs

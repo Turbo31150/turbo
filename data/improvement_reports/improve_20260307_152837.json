@@ -28,7 +28,7 @@
     "net_lines": 0,
     "records": [
       {
-        "file": "F:\\BUREAU\\turbo\\src\\autonomous_dev_agent.py",
+        "file": "F:/BUREAU/turbo/src/autonomous_dev_agent.py",
         "changed": false,
         "lines_before": 458,
         "lines_after": 458,
@@ -41,7 +41,7 @@
         "timestamp": 1772893717.7524068
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\autonomous_loop.py",
+        "file": "F:/BUREAU/turbo/src/autonomous_loop.py",
         "changed": false,
         "lines_before": 716,
         "lines_after": 716,
@@ -54,7 +54,7 @@
         "timestamp": 1772893717.7534063
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\cowork_agent_config.py",
+        "file": "F:/BUREAU/turbo/src/cowork_agent_config.py",
         "changed": false,
         "lines_before": 536,
         "lines_after": 536,
@@ -67,7 +67,7 @@
         "timestamp": 1772893717.7534063
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\domino_executor.py",
+        "file": "F:/BUREAU/turbo/src/domino_executor.py",
         "changed": false,
         "lines_before": 1800,
         "lines_after": 1800,
@@ -80,7 +80,7 @@
         "timestamp": 1772893717.7554057
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\mcp_server.py",
+        "file": "F:/BUREAU/turbo/src/mcp_server.py",
         "changed": false,
         "lines_before": 6457,
         "lines_after": 6457,
@@ -93,7 +93,7 @@
         "timestamp": 1772893717.7614138
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\orchestrator.py",
+        "file": "F:/BUREAU/turbo/src/orchestrator.py",
         "changed": false,
         "lines_before": 1063,
         "lines_after": 1063,
@@ -106,7 +106,7 @@
         "timestamp": 1772893717.7624142
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\skills.py",
+        "file": "F:/BUREAU/turbo/src/skills.py",
         "changed": false,
         "lines_before": 1753,
         "lines_after": 1753,
@@ -119,7 +119,7 @@
         "timestamp": 1772893717.764412
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\tools.py",
+        "file": "F:/BUREAU/turbo/src/tools.py",
         "changed": false,
         "lines_before": 2616,
         "lines_after": 2616,
@@ -132,7 +132,7 @@
         "timestamp": 1772893717.7673275
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\adaptive_router.py",
+        "file": "F:/BUREAU/turbo/src/adaptive_router.py",
         "changed": false,
         "lines_before": 384,
         "lines_after": 384,
@@ -145,7 +145,7 @@
         "timestamp": 1772893717.7683263
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\agent_auto_scaler.py",
+        "file": "F:/BUREAU/turbo/src/agent_auto_scaler.py",
         "changed": false,
         "lines_before": 396,
         "lines_after": 396,
@@ -158,7 +158,7 @@
         "timestamp": 1772893717.7688253
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\agent_collaboration.py",
+        "file": "F:/BUREAU/turbo/src/agent_collaboration.py",
         "changed": false,
         "lines_before": 281,
         "lines_after": 281,
@@ -171,7 +171,7 @@
         "timestamp": 1772893717.7688253
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\agent_ensemble.py",
+        "file": "F:/BUREAU/turbo/src/agent_ensemble.py",
         "changed": false,
         "lines_before": 403,
         "lines_after": 403,
@@ -184,7 +184,7 @@
         "timestamp": 1772893717.769325
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\agent_episodic_memory.py",
+        "file": "F:/BUREAU/turbo/src/agent_episodic_memory.py",
         "changed": false,
         "lines_before": 354,
         "lines_after": 354,
@@ -197,7 +197,7 @@
         "timestamp": 1772893717.769325
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\agent_factory.py",
+        "file": "F:/BUREAU/turbo/src/agent_factory.py",
         "changed": false,
         "lines_before": 302,
         "lines_after": 302,
@@ -210,7 +210,7 @@
         "timestamp": 1772893717.77033
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\agent_feedback_loop.py",
+        "file": "F:/BUREAU/turbo/src/agent_feedback_loop.py",
         "changed": false,
         "lines_before": 365,
         "lines_after": 365,
@@ -223,7 +223,7 @@
         "timestamp": 1772893717.770836
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\agent_health_guardian.py",
+        "file": "F:/BUREAU/turbo/src/agent_health_guardian.py",
         "changed": false,
         "lines_before": 309,
         "lines_after": 309,
@@ -236,7 +236,7 @@
         "timestamp": 1772893717.7713366
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\agent_monitor.py",
+        "file": "F:/BUREAU/turbo/src/agent_monitor.py",
         "changed": false,
         "lines_before": 270,
         "lines_after": 270,
@@ -249,7 +249,7 @@
         "timestamp": 1772893717.7713366
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\agent_orchestrator_v3.py",
+        "file": "F:/BUREAU/turbo/src/agent_orchestrator_v3.py",
         "changed": false,
         "lines_before": 432,
         "lines_after": 432,
@@ -262,7 +262,7 @@
         "timestamp": 1772893717.7718356
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\agent_prompt_optimizer.py",
+        "file": "F:/BUREAU/turbo/src/agent_prompt_optimizer.py",
         "changed": false,
         "lines_before": 351,
         "lines_after": 351,
@@ -275,7 +275,7 @@
         "timestamp": 1772893717.7723365
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\agent_self_improve.py",
+        "file": "F:/BUREAU/turbo/src/agent_self_improve.py",
         "changed": false,
         "lines_before": 404,
         "lines_after": 404,
@@ -288,7 +288,7 @@
         "timestamp": 1772893717.7728355
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\agent_task_planner.py",
+        "file": "F:/BUREAU/turbo/src/agent_task_planner.py",
         "changed": false,
         "lines_before": 337,
         "lines_after": 337,
@@ -301,7 +301,7 @@
         "timestamp": 1772893717.7738361
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\alert_manager.py",
+        "file": "F:/BUREAU/turbo/src/alert_manager.py",
         "changed": false,
         "lines_before": 203,
         "lines_after": 203,
@@ -314,7 +314,7 @@
         "timestamp": 1772893717.7738361
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\app_launcher.py",
+        "file": "F:/BUREAU/turbo/src/app_launcher.py",
         "changed": false,
         "lines_before": 220,
         "lines_after": 220,
@@ -327,7 +327,7 @@
         "timestamp": 1772893717.7743354
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\audio_controller.py",
+        "file": "F:/BUREAU/turbo/src/audio_controller.py",
         "changed": false,
         "lines_before": 238,
         "lines_after": 238,
@@ -340,7 +340,7 @@
         "timestamp": 1772893717.7743354
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\auto_auditor.py",
+        "file": "F:/BUREAU/turbo/src/auto_auditor.py",
         "changed": false,
         "lines_before": 406,
         "lines_after": 406,
@@ -353,7 +353,7 @@
         "timestamp": 1772893717.7748358
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\auto_developer.py",
+        "file": "F:/BUREAU/turbo/src/auto_developer.py",
         "changed": false,
         "lines_before": 367,
         "lines_after": 367,
@@ -366,7 +366,7 @@
         "timestamp": 1772893717.7753353
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\auto_scaler.py",
+        "file": "F:/BUREAU/turbo/src/auto_scaler.py",
         "changed": false,
         "lines_before": 221,
         "lines_after": 221,
@@ -379,7 +379,7 @@
         "timestamp": 1772893717.7753353
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\auto_tune.py",
+        "file": "F:/BUREAU/turbo/src/auto_tune.py",
         "changed": false,
         "lines_before": 201,
         "lines_after": 201,
@@ -392,7 +392,7 @@
         "timestamp": 1772893717.7758358
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\brain.py",
+        "file": "F:/BUREAU/turbo/src/brain.py",
         "changed": false,
         "lines_before": 652,
         "lines_after": 652,
@@ -405,7 +405,7 @@
         "timestamp": 1772893717.7763357
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\browser_navigator.py",
+        "file": "F:/BUREAU/turbo/src/browser_navigator.py",
         "changed": false,
         "lines_before": 798,
         "lines_after": 798,
@@ -418,7 +418,7 @@
         "timestamp": 1772893717.7768354
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\cache.py",
+        "file": "F:/BUREAU/turbo/src/cache.py",
         "changed": false,
         "lines_before": 263,
         "lines_after": 263,
@@ -431,7 +431,7 @@
         "timestamp": 1772893717.7773356
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\circuit_breaker.py",
+        "file": "F:/BUREAU/turbo/src/circuit_breaker.py",
         "changed": false,
         "lines_before": 301,
         "lines_after": 301,
@@ -444,7 +444,7 @@
         "timestamp": 1772893717.7778356
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\cluster_intelligence.py",
+        "file": "F:/BUREAU/turbo/src/cluster_intelligence.py",
         "changed": false,
         "lines_before": 422,
         "lines_after": 422,
@@ -457,7 +457,7 @@
         "timestamp": 1772893717.7778356
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\cluster_self_healer.py",
+        "file": "F:/BUREAU/turbo/src/cluster_self_healer.py",
         "changed": false,
         "lines_before": 277,
         "lines_after": 277,
@@ -470,7 +470,7 @@
         "timestamp": 1772893717.7783358
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\cluster_startup.py",
+        "file": "F:/BUREAU/turbo/src/cluster_startup.py",
         "changed": false,
         "lines_before": 813,
         "lines_after": 813,
@@ -483,7 +483,7 @@
         "timestamp": 1772893717.7793357
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\code_improvement_tracker.py",
+        "file": "F:/BUREAU/turbo/src/code_improvement_tracker.py",
         "changed": false,
         "lines_before": 264,
         "lines_after": 264,
@@ -496,7 +496,7 @@
         "timestamp": 1772893717.7793357
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\code_review_480b.py",
+        "file": "F:/BUREAU/turbo/src/code_review_480b.py",
         "changed": false,
         "lines_before": 365,
         "lines_after": 365,
@@ -509,7 +509,7 @@
         "timestamp": 1772893717.7798357
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\commander.py",
+        "file": "F:/BUREAU/turbo/src/commander.py",
         "changed": false,
         "lines_before": 618,
         "lines_after": 618,
@@ -522,7 +522,7 @@
         "timestamp": 1772893717.7803357
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\commands.py",
+        "file": "F:/BUREAU/turbo/src/commands.py",
         "changed": false,
         "lines_before": 518,
         "lines_after": 518,
@@ -535,7 +535,7 @@
         "timestamp": 1772893717.781337
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\commands_browser.py",
+        "file": "F:/BUREAU/turbo/src/commands_browser.py",
         "changed": false,
         "lines_before": 393,
         "lines_after": 393,
@@ -548,7 +548,7 @@
         "timestamp": 1772893717.7818363
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\config.py",
+        "file": "F:/BUREAU/turbo/src/config.py",
         "changed": false,
         "lines_before": 533,
         "lines_after": 533,
@@ -561,7 +561,7 @@
         "timestamp": 1772893717.7823353
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\context_manager.py",
+        "file": "F:/BUREAU/turbo/src/context_manager.py",
         "changed": false,
         "lines_before": 255,
         "lines_after": 255,
@@ -574,7 +574,7 @@
         "timestamp": 1772893717.7823353
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\cowork_bridge.py",
+        "file": "F:/BUREAU/turbo/src/cowork_bridge.py",
         "changed": false,
         "lines_before": 382,
         "lines_after": 382,
@@ -587,7 +587,7 @@
         "timestamp": 1772893717.782837
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\cowork_master_config.py",
+        "file": "F:/BUREAU/turbo/src/cowork_master_config.py",
         "changed": false,
         "lines_before": 435,
         "lines_after": 435,
@@ -600,7 +600,7 @@
         "timestamp": 1772893717.7833354
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\cowork_orchestrator.py",
+        "file": "F:/BUREAU/turbo/src/cowork_orchestrator.py",
         "changed": false,
         "lines_before": 432,
         "lines_after": 432,
@@ -613,7 +613,7 @@
         "timestamp": 1772893717.783835
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\cowork_proactive.py",
+        "file": "F:/BUREAU/turbo/src/cowork_proactive.py",
         "changed": false,
         "lines_before": 440,
         "lines_after": 440,
@@ -626,7 +626,7 @@
         "timestamp": 1772893717.783835
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\cron_manager.py",
+        "file": "F:/BUREAU/turbo/src/cron_manager.py",
         "changed": false,
         "lines_before": 243,
         "lines_after": 243,
@@ -639,7 +639,7 @@
         "timestamp": 1772893717.7843354
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\dashboard.py",
+        "file": "F:/BUREAU/turbo/src/dashboard.py",
         "changed": false,
         "lines_before": 564,
         "lines_after": 564,
@@ -652,7 +652,7 @@
         "timestamp": 1772893717.7848356
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\data_validator.py",
+        "file": "F:/BUREAU/turbo/src/data_validator.py",
         "changed": false,
         "lines_before": 264,
         "lines_after": 264,
@@ -665,7 +665,7 @@
         "timestamp": 1772893717.7853353
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\database.py",
+        "file": "F:/BUREAU/turbo/src/database.py",
         "changed": false,
         "lines_before": 759,
         "lines_after": 759,
@@ -678,7 +678,7 @@
         "timestamp": 1772893717.7858355
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\disk_monitor.py",
+        "file": "F:/BUREAU/turbo/src/disk_monitor.py",
         "changed": false,
         "lines_before": 231,
         "lines_after": 231,
@@ -691,7 +691,7 @@
         "timestamp": 1772893717.786335
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\dispatch_engine.py",
+        "file": "F:/BUREAU/turbo/src/dispatch_engine.py",
         "changed": false,
         "lines_before": 781,
         "lines_after": 781,
@@ -704,7 +704,7 @@
         "timestamp": 1772893717.7868357
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\display_manager.py",
+        "file": "F:/BUREAU/turbo/src/display_manager.py",
         "changed": false,
         "lines_before": 235,
         "lines_after": 235,
@@ -717,7 +717,7 @@
         "timestamp": 1772893717.7868357
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\domino_pipelines.py",
+        "file": "F:/BUREAU/turbo/src/domino_pipelines.py",
         "changed": false,
         "lines_before": 5850,
         "lines_after": 5850,
@@ -730,7 +730,7 @@
         "timestamp": 1772893717.793844
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\download_manager.py",
+        "file": "F:/BUREAU/turbo/src/download_manager.py",
         "changed": false,
         "lines_before": 240,
         "lines_after": 240,
@@ -743,7 +743,7 @@
         "timestamp": 1772893717.7943454
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\dynamic_agents.py",
+        "file": "F:/BUREAU/turbo/src/dynamic_agents.py",
         "changed": false,
         "lines_before": 308,
         "lines_after": 308,
@@ -756,7 +756,7 @@
         "timestamp": 1772893717.7948465
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\email_sender.py",
+        "file": "F:/BUREAU/turbo/src/email_sender.py",
         "changed": false,
         "lines_before": 286,
         "lines_after": 286,
@@ -769,7 +769,7 @@
         "timestamp": 1772893717.7948465
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\event_stream.py",
+        "file": "F:/BUREAU/turbo/src/event_stream.py",
         "changed": false,
         "lines_before": 239,
         "lines_after": 239,
@@ -782,7 +782,7 @@
         "timestamp": 1772893717.7953463
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\exchanges.py",
+        "file": "F:/BUREAU/turbo/src/exchanges.py",
         "changed": false,
         "lines_before": 317,
         "lines_after": 317,
@@ -795,7 +795,7 @@
         "timestamp": 1772893717.7953463
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\executor.py",
+        "file": "F:/BUREAU/turbo/src/executor.py",
         "changed": false,
         "lines_before": 623,
         "lines_after": 623,
@@ -808,7 +808,7 @@
         "timestamp": 1772893717.7963464
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\file_watcher.py",
+        "file": "F:/BUREAU/turbo/src/file_watcher.py",
         "changed": false,
         "lines_before": 282,
         "lines_after": 282,
@@ -821,7 +821,7 @@
         "timestamp": 1772893717.7968452
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\gpu_guardian.py",
+        "file": "F:/BUREAU/turbo/src/gpu_guardian.py",
         "changed": false,
         "lines_before": 287,
         "lines_after": 287,
@@ -834,7 +834,7 @@
         "timestamp": 1772893717.7973464
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\ia_tool_executor.py",
+        "file": "F:/BUREAU/turbo/src/ia_tool_executor.py",
         "changed": false,
         "lines_before": 357,
         "lines_after": 357,
@@ -847,7 +847,7 @@
         "timestamp": 1772893717.7978463
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\logging_config.py",
+        "file": "F:/BUREAU/turbo/src/logging_config.py",
         "changed": false,
         "lines_before": 216,
         "lines_after": 216,
@@ -860,7 +860,7 @@
         "timestamp": 1772893717.7978463
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\mcp_server_sse.py",
+        "file": "F:/BUREAU/turbo/src/mcp_server_sse.py",
         "changed": false,
         "lines_before": 511,
         "lines_after": 511,
@@ -873,7 +873,7 @@
         "timestamp": 1772893717.7983465
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\network_monitor.py",
+        "file": "F:/BUREAU/turbo/src/network_monitor.py",
         "changed": false,
         "lines_before": 220,
         "lines_after": 220,
@@ -886,7 +886,7 @@
         "timestamp": 1772893717.7988474
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\network_scanner.py",
+        "file": "F:/BUREAU/turbo/src/network_scanner.py",
         "changed": false,
         "lines_before": 221,
         "lines_after": 221,
@@ -899,7 +899,7 @@
         "timestamp": 1772893717.7988474
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\notification_hub.py",
+        "file": "F:/BUREAU/turbo/src/notification_hub.py",
         "changed": false,
         "lines_before": 222,
         "lines_after": 222,
@@ -912,7 +912,7 @@
         "timestamp": 1772893717.7988474
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\openclaw_bridge.py",
+        "file": "F:/BUREAU/turbo/src/openclaw_bridge.py",
         "changed": false,
         "lines_before": 366,
         "lines_after": 366,
@@ -925,7 +925,7 @@
         "timestamp": 1772893717.7998536
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\orchestrator_v2.py",
+        "file": "F:/BUREAU/turbo/src/orchestrator_v2.py",
         "changed": false,
         "lines_before": 351,
         "lines_after": 351,
@@ -938,7 +938,7 @@
         "timestamp": 1772893717.8003602
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\pattern_agents.py",
+        "file": "F:/BUREAU/turbo/src/pattern_agents.py",
         "changed": false,
         "lines_before": 917,
         "lines_after": 917,
@@ -951,7 +951,7 @@
         "timestamp": 1772893717.8013608
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\pattern_benchmark_runner.py",
+        "file": "F:/BUREAU/turbo/src/pattern_benchmark_runner.py",
         "changed": false,
         "lines_before": 323,
         "lines_after": 323,
@@ -964,7 +964,7 @@
         "timestamp": 1772893717.8018599
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\pattern_discovery.py",
+        "file": "F:/BUREAU/turbo/src/pattern_discovery.py",
         "changed": false,
         "lines_before": 445,
         "lines_after": 445,
@@ -977,7 +977,7 @@
         "timestamp": 1772893717.8023593
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\pattern_evolution.py",
+        "file": "F:/BUREAU/turbo/src/pattern_evolution.py",
         "changed": false,
         "lines_before": 350,
         "lines_after": 350,
@@ -990,7 +990,7 @@
         "timestamp": 1772893717.8023593
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\pattern_lifecycle.py",
+        "file": "F:/BUREAU/turbo/src/pattern_lifecycle.py",
         "changed": false,
         "lines_before": 389,
         "lines_after": 389,
@@ -1003,7 +1003,7 @@
         "timestamp": 1772893717.802859
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\perplexity_bridge.py",
+        "file": "F:/BUREAU/turbo/src/perplexity_bridge.py",
         "changed": false,
         "lines_before": 286,
         "lines_after": 286,
@@ -1016,7 +1016,7 @@
         "timestamp": 1772893717.8033593
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\pipeline_composer.py",
+        "file": "F:/BUREAU/turbo/src/pipeline_composer.py",
         "changed": false,
         "lines_before": 243,
         "lines_after": 243,
@@ -1029,7 +1029,7 @@
         "timestamp": 1772893717.8033593
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\power_manager.py",
+        "file": "F:/BUREAU/turbo/src/power_manager.py",
         "changed": false,
         "lines_before": 214,
         "lines_after": 214,
@@ -1042,7 +1042,7 @@
         "timestamp": 1772893717.80386
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\prediction_engine.py",
+        "file": "F:/BUREAU/turbo/src/prediction_engine.py",
         "changed": false,
         "lines_before": 269,
         "lines_after": 269,
@@ -1055,7 +1055,7 @@
         "timestamp": 1772893717.80386
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\proactive_agent.py",
+        "file": "F:/BUREAU/turbo/src/proactive_agent.py",
         "changed": false,
         "lines_before": 370,
         "lines_after": 370,
@@ -1068,7 +1068,7 @@
         "timestamp": 1772893717.8043597
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\process_manager.py",
+        "file": "F:/BUREAU/turbo/src/process_manager.py",
         "changed": false,
         "lines_before": 335,
         "lines_after": 335,
@@ -1081,7 +1081,7 @@
         "timestamp": 1772893717.8048592
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\quality_gate.py",
+        "file": "F:/BUREAU/turbo/src/quality_gate.py",
         "changed": false,
         "lines_before": 474,
         "lines_after": 474,
@@ -1094,7 +1094,7 @@
         "timestamp": 1772893717.80586
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\reflection_engine.py",
+        "file": "F:/BUREAU/turbo/src/reflection_engine.py",
         "changed": false,
         "lines_before": 502,
         "lines_after": 502,
@@ -1107,7 +1107,7 @@
         "timestamp": 1772893717.8068604
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\registry_manager.py",
+        "file": "F:/BUREAU/turbo/src/registry_manager.py",
         "changed": false,
         "lines_before": 251,
         "lines_after": 251,
@@ -1120,7 +1120,7 @@
         "timestamp": 1772893717.8068604
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\routing_optimizer.py",
+        "file": "F:/BUREAU/turbo/src/routing_optimizer.py",
         "changed": false,
         "lines_before": 271,
         "lines_after": 271,
@@ -1133,7 +1133,7 @@
         "timestamp": 1772893717.8073592
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\scenarios.py",
+        "file": "F:/BUREAU/turbo/src/scenarios.py",
         "changed": false,
         "lines_before": 1598,
         "lines_after": 1598,
@@ -1146,7 +1146,7 @@
         "timestamp": 1772893717.8088593
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\screen_capture.py",
+        "file": "F:/BUREAU/turbo/src/screen_capture.py",
         "changed": false,
         "lines_before": 249,
         "lines_after": 249,
@@ -1159,7 +1159,7 @@
         "timestamp": 1772893717.8098633
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\security.py",
+        "file": "F:/BUREAU/turbo/src/security.py",
         "changed": false,
         "lines_before": 503,
         "lines_after": 503,
@@ -1172,7 +1172,7 @@
         "timestamp": 1772893717.8098633
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\self_improvement.py",
+        "file": "F:/BUREAU/turbo/src/self_improvement.py",
         "changed": false,
         "lines_before": 553,
         "lines_after": 553,
@@ -1185,7 +1185,7 @@
         "timestamp": 1772893717.8108761
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\service_controller.py",
+        "file": "F:/BUREAU/turbo/src/service_controller.py",
         "changed": false,
         "lines_before": 234,
         "lines_after": 234,
@@ -1198,7 +1198,7 @@
         "timestamp": 1772893717.8113823
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\shortcut_manager.py",
+        "file": "F:/BUREAU/turbo/src/shortcut_manager.py",
         "changed": false,
         "lines_before": 225,
         "lines_after": 225,
@@ -1211,7 +1211,7 @@
         "timestamp": 1772893717.811882
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\smart_dispatcher.py",
+        "file": "F:/BUREAU/turbo/src/smart_dispatcher.py",
         "changed": false,
         "lines_before": 351,
         "lines_after": 351,
@@ -1224,7 +1224,7 @@
         "timestamp": 1772893717.8123813
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\startup_manager.py",
+        "file": "F:/BUREAU/turbo/src/startup_manager.py",
         "changed": false,
         "lines_before": 210,
         "lines_after": 210,
@@ -1237,7 +1237,7 @@
         "timestamp": 1772893717.8133857
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\system_info_collector.py",
+        "file": "F:/BUREAU/turbo/src/system_info_collector.py",
         "changed": false,
         "lines_before": 207,
         "lines_after": 207,
@@ -1250,7 +1250,7 @@
         "timestamp": 1772893717.813886
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\system_profiler.py",
+        "file": "F:/BUREAU/turbo/src/system_profiler.py",
         "changed": false,
         "lines_before": 240,
         "lines_after": 240,
@@ -1263,7 +1263,7 @@
         "timestamp": 1772893717.813886
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\task_queue.py",
+        "file": "F:/BUREAU/turbo/src/task_queue.py",
         "changed": false,
         "lines_before": 312,
         "lines_after": 312,
@@ -1276,7 +1276,7 @@
         "timestamp": 1772893717.8143861
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\trading.py",
+        "file": "F:/BUREAU/turbo/src/trading.py",
         "changed": false,
         "lines_before": 506,
         "lines_after": 506,
@@ -1289,7 +1289,7 @@
         "timestamp": 1772893717.8148854
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\trading_engine.py",
+        "file": "F:/BUREAU/turbo/src/trading_engine.py",
         "changed": false,
         "lines_before": 339,
         "lines_after": 339,
@@ -1302,7 +1302,7 @@
         "timestamp": 1772893717.815385
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\trading_sentinel.py",
+        "file": "F:/BUREAU/turbo/src/trading_sentinel.py",
         "changed": false,
         "lines_before": 252,
         "lines_after": 252,
@@ -1315,7 +1315,7 @@
         "timestamp": 1772893717.815385
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\tts_streaming.py",
+        "file": "F:/BUREAU/turbo/src/tts_streaming.py",
         "changed": false,
         "lines_before": 209,
         "lines_after": 209,
@@ -1328,7 +1328,7 @@
         "timestamp": 1772893717.815886
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\vad.py",
+        "file": "F:/BUREAU/turbo/src/vad.py",
         "changed": false,
         "lines_before": 272,
         "lines_after": 272,
@@ -1341,7 +1341,7 @@
         "timestamp": 1772893717.815886
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\voice.py",
+        "file": "F:/BUREAU/turbo/src/voice.py",
         "changed": false,
         "lines_before": 727,
         "lines_after": 727,
@@ -1354,7 +1354,7 @@
         "timestamp": 1772893717.8168855
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\voice_correction.py",
+        "file": "F:/BUREAU/turbo/src/voice_correction.py",
         "changed": false,
         "lines_before": 2399,
         "lines_after": 2399,
@@ -1367,7 +1367,7 @@
         "timestamp": 1772893717.8188846
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\wifi_manager.py",
+        "file": "F:/BUREAU/turbo/src/wifi_manager.py",
         "changed": false,
         "lines_before": 230,
         "lines_after": 230,
@@ -1380,7 +1380,7 @@
         "timestamp": 1772893717.8188846
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\window_manager.py",
+        "file": "F:/BUREAU/turbo/src/window_manager.py",
         "changed": false,
         "lines_before": 228,
         "lines_after": 228,
@@ -1393,7 +1393,7 @@
         "timestamp": 1772893717.8188846
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\windows.py",
+        "file": "F:/BUREAU/turbo/src/windows.py",
         "changed": false,
         "lines_before": 597,
         "lines_after": 597,
@@ -1406,7 +1406,7 @@
         "timestamp": 1772893717.8198895
       },
       {
-        "file": "F:\\BUREAU\\turbo\\src\\workflow_engine.py",
+        "file": "F:/BUREAU/turbo/src/workflow_engine.py",
         "changed": false,
         "lines_before": 324,
         "lines_after": 324,

@@ -10,7 +10,7 @@ Usage:
     python benchmark_endpoints.py            # Human-readable table
     python benchmark_endpoints.py --json     # Machine-readable JSON to stdout
 
-Results are always saved to: F:/BUREAU/turbo/data/endpoint_benchmarks.json
+Results are always saved to: /home/turbo/jarvis-m1-ops/data/endpoint_benchmarks.json
 """
 
 from __future__ import annotations

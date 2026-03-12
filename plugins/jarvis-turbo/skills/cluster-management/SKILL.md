@@ -42,9 +42,9 @@ curl -s http://HOST:1234/v1/models/unload -H "Content-Type: application/json" -H
 
 **CLI local (M1 seulement):**
 ```bash
-"C:\Users\franc\.lmstudio\bin\lms.exe" load MODEL_ID --gpu max --context-length 32768
-"C:\Users\franc\.lmstudio\bin\lms.exe" unload MODEL_ID
-"C:\Users\franc\.lmstudio\bin\lms.exe" ps
+"/home/turbo\.lmstudio\bin\lms.exe" load MODEL_ID --gpu max --context-length 32768
+"/home/turbo\.lmstudio\bin\lms.exe" unload MODEL_ID
+"/home/turbo\.lmstudio\bin\lms.exe" ps
 ```
 
 ## Seuils thermiques GPU

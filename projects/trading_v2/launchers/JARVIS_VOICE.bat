@@ -9,6 +9,6 @@ echo   Cluster: M1 + M2 + Ollama Cloud
 echo   IAs: Claude + qwen3-30b + gpt-oss-20b
 echo ============================================
 echo.
-cd /d F:\BUREAU\turbo
-C:\Users\franc\.local\bin\uv.exe run python main.py -v
+cd /d /home/turbo/jarvis-m1-ops
+/home/turbo\.local\bin\uv.exe run python main.py -v
 pause

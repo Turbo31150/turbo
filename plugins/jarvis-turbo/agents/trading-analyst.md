@@ -31,9 +31,9 @@ Le trading se fait sur MEXC Futures, levier 10x, 10 paires principales (BTC ETH 
 
 ## Outils
 
-- Pipeline GPU: `cd F:/BUREAU/turbo/scripts/trading_v2 && python3 gpu_pipeline.py --coins 100 --top 10 --json`
+- Pipeline GPU: `cd /home/turbo/jarvis-m1-ops/scripts/trading_v2 && python3 gpu_pipeline.py --coins 100 --top 10 --json`
   - `--quick` (2 IA, 19s) | `--no-gemini` (5 IA, 30s) | full (6 IA, 90s)
-- Base de donnees: `F:\BUREAU\carV1\database\trading_latest.db`
+- Base de donnees: `/home/turbo\carV1\database\trading_latest.db`
 - MCP trading: 70+ outils disponibles via trading-ai-ultimate
 
 ## Regles

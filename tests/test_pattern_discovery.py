@@ -5,8 +5,8 @@ import sqlite3
 import sys
 import os
 
-sys.path.insert(0, "F:/BUREAU/turbo")
-os.chdir("F:/BUREAU/turbo")
+sys.path.insert(0, "/home/turbo/jarvis-m1-ops")
+os.chdir("/home/turbo/jarvis-m1-ops")
 
 import pytest
 from unittest.mock import patch, MagicMock

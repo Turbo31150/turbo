@@ -269,7 +269,7 @@ const SYS_PROMPTS = {
     '- Variables descriptives (userCount, pas x). Fonctions <30 lignes. Un seul role par fonction.\n' +
     '- Error handling: try/except avec messages utiles. Valide les inputs.\n' +
     '- Commentaires: seulement quand le "pourquoi" n\'est pas evident, JAMAIS le "quoi".\n\n' +
-    'FORMAT: ```language\\n// path/to/file.ext\\ncode...\\n``` — Un bloc par fichier.\n' +
+    'FORMAT: ```language/n// path/to/file.ext/ncode.../n``` — Un bloc par fichier.\n' +
     'LANGUE: Reponds en francais. Code et commentaires en anglais.\n' +
     'INTERDIT: Repondre sans code quand du code est demande. Laisser des TODO/placeholder.',
 
@@ -327,10 +327,10 @@ const SYS_PROMPTS = {
     '3. Auto-repair: si un service est down, tente de le relancer\n' +
     '4. Concis mais complet. Chiffres precis.\n\n' +
     '## CHEMINS\n' +
-    '- Projet: F:\\BUREAU\\turbo\\\n' +
-    '- Data/DB: F:\\BUREAU\\turbo\\data\\ (etoile.db, jarvis.db, sniper.db)\n' +
-    '- Scripts: F:\\BUREAU\\turbo\\scripts\\\n' +
-    '- Boot: F:\\BUREAU\\turbo\\jarvis_unified_boot.py\n\n' +
+    '- Projet: F:/BUREAU/turbo/\n' +
+    '- Data/DB: F:/BUREAU/turbo/data/ (etoile.db, jarvis.db, sniper.db)\n' +
+    '- Scripts: F:/BUREAU/turbo/scripts/\n' +
+    '- Boot: F:/BUREAU/turbo/jarvis_unified_boot.py\n\n' +
     'ENV: Windows 11 Pro, 6 GPU (RTX2060 12GB + 4x GTX1660S 6GB + RTX3080 10GB), cluster 3 machines.\n' +
     'INTERDIT: Placeholder. Commandes destructives sans confirmation. Syntaxe PowerShell sans prefixe "powershell -Command".',
 
@@ -392,7 +392,7 @@ const SYS_PROMPTS = {
     '1. **Besoin** — Format source → format cible, qualite, contraintes.\n' +
     '2. **Commande** — FFmpeg/ImageMagick COMPLETE, copiable directement.\n' +
     '3. **Explication** — Chaque flag important explique en 1 ligne.\n\n' +
-    'FORMAT: ```bash\\nffmpeg -i input.ext [options] output.ext\\n```\n' +
+    'FORMAT: ```bash/nffmpeg -i input.ext [options] output.ext/n```\n' +
     'REGLES: Codecs explicites (pas de -c copy sauf justifie). Qualite recommandee.',
 
   meta: 'Tu es JARVIS, pedagogiste expert qui rend les concepts complexes accessibles.\n\n' +
@@ -456,7 +456,7 @@ const SYS_PROMPTS = {
     '- **write_file**: Ecrire/creer un fichier\n' +
     '- **edit_file**: Modifier un fichier existant (old→new)\n' +
     '- **list_dir**: Lister un dossier\n' +
-    '- **query_db**: SQL SELECT sur etoile.db, jarvis.db, sniper.db (chemin: F:/BUREAU/turbo/data/)\n' +
+    '- **query_db**: SQL SELECT sur etoile.db, jarvis.db, sniper.db (chemin: /home/turbo/jarvis-m1-ops/data/)\n' +
     '- **mkdir, delete**: Creer/supprimer dossiers/fichiers\n' +
     '- **pipeline**: Lancer un launcher/script JARVIS\n\n' +
     '## AUTONOMIE — REGLES ABSOLUES\n' +
@@ -472,14 +472,14 @@ const SYS_PROMPTS = {
     '5. query_db: SELECT COUNT(*) as total_rows FROM map → etoile.db\n' +
     '6. Rapport structure: Cluster OK/KO, GPU temps, services UP/DOWN, DB stats\n\n' +
     '## CHEMINS IMPORTANTS\n' +
-    '- Projet: F:/BUREAU/turbo/\n' +
-    '- Sources: F:/BUREAU/turbo/src/\n' +
-    '- Scripts: F:/BUREAU/turbo/scripts/\n' +
-    '- Data/DB: F:/BUREAU/turbo/data/ (etoile.db, jarvis.db, sniper.db, scheduler.db)\n' +
-    '- Canvas: F:/BUREAU/turbo/canvas/\n' +
-    '- Launchers: F:/BUREAU/turbo/launchers/\n' +
-    '- Cowork: F:/BUREAU/turbo/cowork/dev/\n' +
-    '- Boot: F:/BUREAU/turbo/jarvis_unified_boot.py\n\n' +
+    '- Projet: /home/turbo/jarvis-m1-ops/\n' +
+    '- Sources: /home/turbo/jarvis-m1-ops/src/\n' +
+    '- Scripts: /home/turbo/jarvis-m1-ops/scripts/\n' +
+    '- Data/DB: /home/turbo/jarvis-m1-ops/data/ (etoile.db, jarvis.db, sniper.db, scheduler.db)\n' +
+    '- Canvas: /home/turbo/jarvis-m1-ops/canvas/\n' +
+    '- Launchers: /home/turbo/jarvis-m1-ops/launchers/\n' +
+    '- Cowork: /home/turbo/jarvis-m1-ops/cowork/dev/\n' +
+    '- Boot: /home/turbo/jarvis-m1-ops/jarvis_unified_boot.py\n\n' +
     '## SHELL = cmd.exe (CRITIQUE)\n' +
     'exec utilise cmd.exe. PAS PowerShell, PAS bash.\n' +
     'INTERDIT en direct: Get-Process, Get-WmiObject, Get-CimInstance, Select-Object, Sort-Object, Where-Object, $env:.\n' +
@@ -495,7 +495,7 @@ const SYS_PROMPTS = {
     '## SELF-IMPROVE\n' +
     'Quand Turbo dit "ameliore-toi" ou "auto-improve":\n' +
     '1. query_db: SELECT * FROM self_improve_log ORDER BY rowid DESC LIMIT 5 → derniers cycles\n' +
-    '2. exec: python F:/BUREAU/turbo/src/self_improve_engine.py → lancer un cycle\n' +
+    '2. exec: python /home/turbo/jarvis-m1-ops/src/self_improve_engine.py → lancer un cycle\n' +
     '3. Analyser les resultats et reporter\n\n' +
     '## STYLE\n' +
     '- Concis mais complet. Pas de blabla.\n' +
@@ -587,7 +587,7 @@ try {
 
 // ── Safety Gate ─────────────────────────────────────────────────────────────
 const DANGEROUS_EXEC = /\b(rm\s+-rf|del\s+\/[sfq]|rmdir\s+\/s|format\s|fdisk|drop\s+table|truncate\s|push\s+--force|reset\s+--hard|shutdown|restart-computer)\b/i;
-const DANGEROUS_WRITE = /\.(env|credentials|pem|key|p12)$|system32|\\windows\\/i;
+const DANGEROUS_WRITE = /\.(env|credentials|pem|key|p12)$|system32|/windows//i;
 const DANGEROUS_SQL = /\b(DELETE|DROP|TRUNCATE|ALTER|UPDATE)\b/i;
 
 const pendingConfirms = new Map();
@@ -613,7 +613,7 @@ const TOOLS = {
     try {
       const output = execSync(cmd, {
         timeout: 60000, maxBuffer: 1024 * 1024,
-        cwd: args.cwd || 'C:\\Users\\franc',
+        cwd: args.cwd || '/\Users/franc',
         encoding: 'utf8', shell: true, windowsHide: true
       });
       return { ok: true, output: output.slice(0, 50000), cmd };
@@ -748,8 +748,8 @@ const TOOLS = {
       }).trim();
       if (!row) {
         // Try fuzzy match — escape LIKE wildcards
-        const likeSafe = sqlSafe.replace(/%/g, '\\%').replace(/_/g, '\\_');
-        const fuzzy = execSync('sqlite3 "' + ETOILE_DB + '" "SELECT entity_name, entity_type, role FROM map WHERE entity_name LIKE \'%' + likeSafe + '%\' ESCAPE \'\\\\\' LIMIT 5;"', {
+        const likeSafe = sqlSafe.replace(/%/g, '/%').replace(/_/g, '/_');
+        const fuzzy = execSync('sqlite3 "' + ETOILE_DB + '" "SELECT entity_name, entity_type, role FROM map WHERE entity_name LIKE \'%' + likeSafe + '%\' ESCAPE \'//\' LIMIT 5;"', {
           timeout: 5000, encoding: 'utf8', windowsHide: true
         }).trim();
         if (fuzzy) return { ok: false, error: "'" + name + "' non trouve. Suggestions:\n" + fuzzy, pipeline: name };
@@ -765,12 +765,12 @@ const TOOLS = {
       // Launchers: .bat files in launchers/ — launched detached (non-blocking)
       if (entityType === 'launcher') {
         // Prevent path traversal — strip any directory components
-        const cleanEntity = entityName.replace(/[\\\/\.]/g, '');
-        const batPath = 'F:\\BUREAU\\turbo\\launchers\\' + cleanEntity + '.bat';
+        const cleanEntity = entityName.replace(/[/\/\.]/g, '');
+        const batPath = 'F:/BUREAU/turbo/launchers/' + cleanEntity + '.bat';
         const exists = fs.existsSync(batPath);
         if (!exists) return { ok: false, pipeline: entityName, type: entityType, role, error: 'Launcher bat non trouve: ' + batPath };
         const child = spawn('cmd', ['/c', batPath], {
-          detached: true, stdio: 'ignore', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+          detached: true, stdio: 'ignore', windowsHide: true, cwd: 'F:/BUREAU/turbo'
         });
         child.unref();
         return { ok: true, pipeline: entityName, type: entityType, role, command: batPath, output: 'Launcher ' + entityName + ' demarre (PID ' + child.pid + '). Processus detache.' };
@@ -779,14 +779,14 @@ const TOOLS = {
       // Scripts: .py in scripts/ or root
       if (entityType === 'script') {
         // Prevent path traversal — strip directory separators and dots at start
-        const cleanScript = entityName.replace(/[\\\/]/g, '').replace(/^\.+/, '');
-        let scriptPath = 'F:\\BUREAU\\turbo\\scripts\\' + cleanScript + (cleanScript.includes('.') ? '' : '.py');
-        if (!fs.existsSync(scriptPath)) scriptPath = 'F:\\BUREAU\\turbo\\' + cleanScript + (cleanScript.includes('.') ? '' : '.py');
+        const cleanScript = entityName.replace(/[/\/]/g, '').replace(/^\.+/, '');
+        let scriptPath = 'F:/BUREAU/turbo/scripts/' + cleanScript + (cleanScript.includes('.') ? '' : '.py');
+        if (!fs.existsSync(scriptPath)) scriptPath = 'F:/BUREAU/turbo/' + cleanScript + (cleanScript.includes('.') ? '' : '.py');
         if (!fs.existsSync(scriptPath)) return { ok: false, pipeline: entityName, type: entityType, role, error: 'Script non trouve: ' + entityName };
         const isJs = scriptPath.endsWith('.js');
         const cmd = isJs ? 'node "' + scriptPath + '"' : 'uv run python "' + scriptPath + '"';
         try {
-          const output = execSync(cmd, { timeout: 120000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo' });
+          const output = execSync(cmd, { timeout: 120000, encoding: 'utf8', windowsHide: true, cwd: 'F:/BUREAU/turbo' });
           return { ok: true, pipeline: entityName, type: entityType, role, command: cmd, output: output.slice(0, 20000) };
         } catch (e) {
           return { ok: true, pipeline: entityName, type: entityType, role, command: cmd, output: (e.stdout || '').slice(0, 5000), error: (e.stderr || '').slice(0, 2000) };
@@ -891,7 +891,7 @@ const COCKPIT_TOOLS_PROMPT = [
   '- Processes: tasklist /fo csv /nh',
   '- Disk:      wmic logicaldisk get size,freespace,caption',
   '- RAM:       tasklist /fi "memusage gt 100000" /fo csv',
-  '- Boot diag: python F:/BUREAU/turbo/scripts/jarvis_boot_telegram.py',
+  '- Boot diag: python /home/turbo/jarvis-m1-ops/scripts/jarvis_boot_telegram.py',
   '',
   '=== OUTILS SYSTEME (OBLIGATOIRE) ===',
   'Tu as acces au systeme Windows. Pour TOUTE action (lire fichier, lister dossier, executer commande, etc.),',
@@ -901,13 +901,13 @@ const COCKPIT_TOOLS_PROMPT = [
   '[TOOL:nom:argument]',
   '',
   'Exemples:',
-  '[TOOL:list_dir:C:\\Users\\franc\\Desktop]',
-  '[TOOL:exec:dir C:\\Users\\franc\\Desktop]',
-  '[TOOL:read_file:F:\\BUREAU\\turbo\\README.md]',
-  '[TOOL:write_file:{"path":"C:\\Users\\franc\\Desktop\\test.txt","content":"hello"}]',
+  '[TOOL:list_dir:/\Users/franc/Desktop]',
+  '[TOOL:exec:dir /\Users/franc/Desktop]',
+  '[TOOL:read_file:F:/BUREAU/turbo/README.md]',
+  '[TOOL:write_file:{"path":"/\Users/franc/Desktop/test.txt","content":"hello"}]',
   '[TOOL:edit_file:{"path":"fichier.py","old":"ancien","new":"nouveau"}]',
-  '[TOOL:mkdir:C:\\Users\\franc\\Desktop\\MonDossier]',
-  '[TOOL:delete:C:\\Users\\franc\\Desktop\\test.txt]',
+  '[TOOL:mkdir:/\Users/franc/Desktop/MonDossier]',
+  '[TOOL:delete:/\Users/franc/Desktop/test.txt]',
   '[TOOL:query_db:SELECT * FROM map LIMIT 5]',
   '[TOOL:pipeline:trading-scan]',
   '[TOOL:web_search:bitcoin prix aujourd hui]',
@@ -917,7 +917,7 @@ const COCKPIT_TOOLS_PROMPT = [
   '- Attends le resultat avant de continuer',
   '- NE FABRIQUE JAMAIS de donnees. Si on demande des fichiers, utilise list_dir ou exec.',
   '- Quand tu as le resultat et que tu as fini, reponds normalement SANS [TOOL:]',
-  '- Contexte: Windows 11, user franc, C:\\ et F:\\, JARVIS: F:\\BUREAU\\turbo, Bureau: C:\\Users\\franc\\Desktop',
+  '- Contexte: Windows 11, user franc, /\ et F:/, JARVIS: F:/BUREAU/turbo, Bureau: /\Users/franc/Desktop',
   '',
   'DB etoile.db disponible via query_db. Tables principales: map, agents, api_keys, memories, metrics, sessions, agent_dispatch_log, agent_patterns, cowork_script_mapping, benchmark_results.',
   'Pour connaitre les colonnes d\'une table, fais: query_db "PRAGMA table_info(nom_table)"'
@@ -1769,8 +1769,8 @@ const server = http.createServer(async (req, res) => {
   } else if (req.method === 'GET' && req.url === '/boot') {
     // Direct boot diagnostic — no AI needed, runs Python script
     try {
-      const bootOut = execSync('python "F:\\BUREAU\\turbo\\scripts\\jarvis_boot_telegram.py"', {
-        timeout: 30000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo'
+      const bootOut = execSync('python "F:/BUREAU/turbo/scripts/jarvis_boot_telegram.py"', {
+        timeout: 30000, encoding: 'utf8', windowsHide: true, cwd: 'F:/BUREAU/turbo'
       }).trim();
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ ok: true, report: bootOut }));
@@ -1799,7 +1799,7 @@ const server = http.createServer(async (req, res) => {
   } else if (req.method === 'GET' && req.url === '/signals') {
     // Live signal tracker data for Telegram and other consumers
     try {
-      const sigData = execSync('python "F:\\BUREAU\\turbo\\scripts\\signal_tracker_api.py"', { timeout: 10000, encoding: 'utf8', windowsHide: true, cwd: 'F:\\BUREAU\\turbo' }).trim();
+      const sigData = execSync('python "F:/BUREAU/turbo/scripts/signal_tracker_api.py"', { timeout: 10000, encoding: 'utf8', windowsHide: true, cwd: 'F:/BUREAU/turbo' }).trim();
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ ok: true, data: JSON.parse(sigData) }));
     } catch (e) {

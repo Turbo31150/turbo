@@ -377,7 +377,7 @@ async def run_full_benchmark(quick=False):
         "rankings": sorted(rankings, key=lambda x: -x["score"]),
         "best_strategy": best["strategy"] if rankings else None,
     }
-    out_path = Path("F:/BUREAU/turbo/data/cluster_stress_results.json")
+    out_path = Path("/home/turbo/jarvis-m1-ops/data/cluster_stress_results.json")
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, ensure_ascii=False, default=str)
     print(f"\n  Saved: {out_path}")

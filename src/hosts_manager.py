@@ -1,7 +1,7 @@
 """Hosts Manager — Windows hosts file management.
 
 Read, search, and query the Windows hosts file.
-Direct file access to C:\\Windows\\System32\\drivers\\etc\\hosts.
+Direct file access to /\Windows/System32/drivers/etc/hosts.
 Designed for JARVIS autonomous network configuration.
 """
 
@@ -23,7 +23,7 @@ __all__ = [
 
 logger = logging.getLogger("jarvis.hosts_manager")
 
-HOSTS_PATH = os.path.join(os.environ.get("SYSTEMROOT", r"C:\Windows"),
+HOSTS_PATH = os.path.join(os.environ.get("SYSTEMROOT", r"/Windows"),
                           "System32", "drivers", "etc", "hosts")
 
 

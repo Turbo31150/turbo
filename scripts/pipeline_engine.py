@@ -53,7 +53,7 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
 )
 
-TURBO = Path(os.environ.get("TURBO", r"F:\BUREAU\turbo"))
+TURBO = Path(os.environ.get("TURBO", r"/home/turbo/jarvis-m1-ops"))
 DB_PATH = TURBO / "data" / "pipeline.db"
 
 

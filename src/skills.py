@@ -44,7 +44,7 @@ _M2_KEY = os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", ""))
 
 from src.config import PATHS
 
-_TURBO_DIR = str(PATHS.get("turbo", "F:/BUREAU/turbo")).replace("/", "\\")
+_TURBO_DIR = str(PATHS.get("turbo", "/home/turbo/jarvis-m1-ops")).replace("/", "/")
 
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
@@ -944,7 +944,7 @@ def _default_skills() -> list[Skill]:
                 "nettoie tout", "purge complete",
             ],
             steps=[
-                SkillStep("powershell_run", {"command": "Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"}, "Vider temp"),
+                SkillStep("powershell_run", {"command": "Remove-Item $env:TEMP/* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"}, "Vider temp"),
                 SkillStep("powershell_run", {"command": "Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe'"}, "Vider corbeille"),
                 SkillStep("powershell_run", {"command": "ipconfig /flushdns"}, "Vider DNS"),
                 SkillStep("system_info", {}, "Diagnostic systeme"),
@@ -1008,7 +1008,7 @@ def _default_skills() -> list[Skill]:
                 "entretien complet", "soin du pc",
             ],
             steps=[
-                SkillStep("powershell_run", {"command": "Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"}, "Vider temp"),
+                SkillStep("powershell_run", {"command": "Remove-Item $env:TEMP/* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"}, "Vider temp"),
                 SkillStep("powershell_run", {"command": "Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe'"}, "Vider corbeille"),
                 SkillStep("powershell_run", {"command": "Get-CimInstance Win32_LogicalDisk | Select DeviceID, @{N='Free(GB)';E={[math]::Round($_.FreeSpace/1GB,1)}} | Out-String"}, "Espace disque"),
                 SkillStep("system_info", {}, "Diagnostic systeme"),
@@ -1059,7 +1059,7 @@ def _default_skills() -> list[Skill]:
                 "active tout le mode nuit", "nuit totale",
             ],
             steps=[
-                SkillStep("powershell_run", {"command": "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'AppsUseLightTheme' -Value 0; Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'SystemUsesLightTheme' -Value 0; 'Mode sombre active'"}, "Mode sombre"),
+                SkillStep("powershell_run", {"command": "Set-ItemProperty -Path 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Themes/Personalize' -Name 'AppsUseLightTheme' -Value 0; Set-ItemProperty -Path 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Themes/Personalize' -Name 'SystemUsesLightTheme' -Value 0; 'Mode sombre active'"}, "Mode sombre"),
                 SkillStep("powershell_run", {"command": "$b = 20; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"}, "Luminosite basse"),
                 SkillStep("volume_down", {}, "Volume bas"),
                 SkillStep("volume_down", {}, "Volume minimal"),
@@ -1075,7 +1075,7 @@ def _default_skills() -> list[Skill]:
                 "ambiance jour", "reveil",
             ],
             steps=[
-                SkillStep("powershell_run", {"command": "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'AppsUseLightTheme' -Value 1; Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'SystemUsesLightTheme' -Value 1; 'Mode clair active'"}, "Mode clair"),
+                SkillStep("powershell_run", {"command": "Set-ItemProperty -Path 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Themes/Personalize' -Name 'AppsUseLightTheme' -Value 1; Set-ItemProperty -Path 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Themes/Personalize' -Name 'SystemUsesLightTheme' -Value 1; 'Mode clair active'"}, "Mode clair"),
                 SkillStep("powershell_run", {"command": "$b = 80; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"}, "Luminosite haute"),
                 SkillStep("volume_up", {}, "Volume normal"),
                 SkillStep("notify", {"title": "JARVIS", "message": "Mode jour actif. Bonne journee."}, "Notification"),
@@ -1159,9 +1159,9 @@ def _default_skills() -> list[Skill]:
                 "synchronise git", "mise a jour git",
             ],
             steps=[
-                SkillStep("powershell_run", {"command": "cd F:\\BUREAU\\turbo; git status"}, "Git status"),
-                SkillStep("powershell_run", {"command": "cd F:\\BUREAU\\turbo; git diff --stat | Out-String"}, "Git diff"),
-                SkillStep("powershell_run", {"command": "cd F:\\BUREAU\\turbo; git log --oneline -5 | Out-String"}, "Log recent"),
+                SkillStep("powershell_run", {"command": "cd F:/BUREAU/turbo; git status"}, "Git status"),
+                SkillStep("powershell_run", {"command": "cd F:/BUREAU/turbo; git diff --stat | Out-String"}, "Git diff"),
+                SkillStep("powershell_run", {"command": "cd F:/BUREAU/turbo; git log --oneline -5 | Out-String"}, "Log recent"),
                 SkillStep("notify", {"title": "JARVIS", "message": "Git workflow check termine."}, "Notification"),
             ],
             category="dev",
@@ -1226,7 +1226,7 @@ def _default_skills() -> list[Skill]:
             ],
             steps=[
                 SkillStep("powershell_run", {"command": "Set-Clipboard -Value $null; 'Clipboard vide'"}, "Vider clipboard"),
-                SkillStep("powershell_run", {"command": "Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"}, "Vider temp"),
+                SkillStep("powershell_run", {"command": "Remove-Item $env:TEMP/* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"}, "Vider temp"),
                 SkillStep("notify", {"title": "JARVIS", "message": "Nettoyage rapide termine."}, "Notification"),
             ],
             category="systeme",
@@ -1338,7 +1338,7 @@ def _default_skills() -> list[Skill]:
             ],
             steps=[
                 SkillStep("powershell_run", {"command": "$b = Get-CimInstance Win32_Battery; if ($b) { \"Niveau: $($b.EstimatedChargeRemaining)%`nStatut: $($b.BatteryStatus)`nEstimation: $($b.EstimatedRunTime) min\" } else { 'PC fixe - pas de batterie' }"}, "Niveau batterie"),
-                SkillStep("powershell_run", {"command": "powercfg /batteryreport /output $env:TEMP\\battery.html 2>$null; 'Rapport genere dans Temp'"}, "Rapport batterie"),
+                SkillStep("powershell_run", {"command": "powercfg /batteryreport /output $env:TEMP/battery.html 2>$null; 'Rapport genere dans Temp'"}, "Rapport batterie"),
                 SkillStep("notify", {"title": "JARVIS", "message": "Rapport batterie genere."}, "Notification"),
             ],
             category="systeme",
@@ -1452,7 +1452,7 @@ def _default_skills() -> list[Skill]:
                 "clean les fichiers", "libere de l'espace",
             ],
             steps=[
-                SkillStep("powershell_run", {"command": "Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"}, "Vider temp"),
+                SkillStep("powershell_run", {"command": "Remove-Item $env:TEMP/* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"}, "Vider temp"),
                 SkillStep("powershell_run", {"command": "$e = Get-ChildItem -Directory -Recurse -Path $env:USERPROFILE -ErrorAction SilentlyContinue | Where { (Get-ChildItem $_.FullName -Force -ErrorAction SilentlyContinue).Count -eq 0 }; \"$($e.Count) dossiers vides trouves\""}, "Dossiers vides"),
                 SkillStep("powershell_run", {"command": "Get-ChildItem $env:USERPROFILE -Recurse -File -ErrorAction SilentlyContinue | Sort Length -Desc | Select -First 10 Name, @{N='MB';E={[math]::Round($_.Length/1MB,1)}} | Out-String"}, "Top 10 gros fichiers"),
                 SkillStep("notify", {"title": "JARVIS", "message": "Analyse fichiers terminee."}, "Notification"),
@@ -1467,8 +1467,8 @@ def _default_skills() -> list[Skill]:
                 "compresse turbo", "backup turbo",
             ],
             steps=[
-                SkillStep("powershell_run", {"command": "cd F:\\BUREAU\\turbo; git status --short | Out-String"}, "Git status"),
-                SkillStep("powershell_run", {"command": "$ts = Get-Date -Format 'yyyyMMdd_HHmm'; Compress-Archive -Path 'F:\\BUREAU\\turbo\\src' -DestinationPath \"F:\\BUREAU\\turbo_backup_$ts.zip\" -Force; \"Backup: turbo_backup_$ts.zip\""}, "Compression"),
+                SkillStep("powershell_run", {"command": "cd F:/BUREAU/turbo; git status --short | Out-String"}, "Git status"),
+                SkillStep("powershell_run", {"command": "$ts = Get-Date -Format 'yyyyMMdd_HHmm'; Compress-Archive -Path 'F:/BUREAU/turbo/src' -DestinationPath \"F:/BUREAU/turbo_backup_$ts.zip\" -Force; \"Backup: turbo_backup_$ts.zip\""}, "Compression"),
                 SkillStep("notify", {"title": "JARVIS", "message": "Backup projet termine."}, "Notification"),
             ],
             category="dev",
@@ -1481,9 +1481,9 @@ def _default_skills() -> list[Skill]:
                 "metriques du projet", "analyse le projet",
             ],
             steps=[
-                SkillStep("powershell_run", {"command": "$py = Get-ChildItem 'F:\\BUREAU\\turbo\\src' -Filter '*.py' -Recurse; \"$($py.Count) fichiers Python\""}, "Fichiers Python"),
-                SkillStep("powershell_run", {"command": "$lines = (Get-ChildItem 'F:\\BUREAU\\turbo\\src' -Filter '*.py' -Recurse | Get-Content | Measure-Object -Line).Lines; \"$lines lignes de code\""}, "Lignes de code"),
-                SkillStep("powershell_run", {"command": "$s = (Get-ChildItem 'F:\\BUREAU\\turbo\\src' -Recurse -File | Measure-Object Length -Sum).Sum / 1KB; \"Taille src: $([math]::Round($s,1)) KB\""}, "Taille"),
+                SkillStep("powershell_run", {"command": "$py = Get-ChildItem 'F:/BUREAU/turbo/src' -Filter '*.py' -Recurse; \"$($py.Count) fichiers Python\""}, "Fichiers Python"),
+                SkillStep("powershell_run", {"command": "$lines = (Get-ChildItem 'F:/BUREAU/turbo/src' -Filter '*.py' -Recurse | Get-Content | Measure-Object -Line).Lines; \"$lines lignes de code\""}, "Lignes de code"),
+                SkillStep("powershell_run", {"command": "$s = (Get-ChildItem 'F:/BUREAU/turbo/src' -Recurse -File | Measure-Object Length -Sum).Sum / 1KB; \"Taille src: $([math]::Round($s,1)) KB\""}, "Taille"),
                 SkillStep("notify", {"title": "JARVIS", "message": "Analyse code terminee."}, "Notification"),
             ],
             category="dev",
@@ -1528,8 +1528,8 @@ def _default_skills() -> list[Skill]:
                 "mets a jour la memoire", "apprends le projet",
             ],
             steps=[
-                SkillStep("powershell_run", {"command": "$py = Get-ChildItem 'F:\\BUREAU\\turbo\\src' -Filter '*.py' -Recurse; $py | Select Name, @{N='KB';E={[math]::Round($_.Length/1KB,1)}} | Out-String"}, "Lister fichiers source"),
-                SkillStep("powershell_run", {"command": "$lines = (Get-ChildItem 'F:\\BUREAU\\turbo\\src' -Filter '*.py' -Recurse | Get-Content | Measure-Object -Line).Lines; \"$lines lignes de code total\""}, "Compter les lignes"),
+                SkillStep("powershell_run", {"command": "$py = Get-ChildItem 'F:/BUREAU/turbo/src' -Filter '*.py' -Recurse; $py | Select Name, @{N='KB';E={[math]::Round($_.Length/1KB,1)}} | Out-String"}, "Lister fichiers source"),
+                SkillStep("powershell_run", {"command": "$lines = (Get-ChildItem 'F:/BUREAU/turbo/src' -Filter '*.py' -Recurse | Get-Content | Measure-Object -Line).Lines; \"$lines lignes de code total\""}, "Compter les lignes"),
                 SkillStep("lm_query", {"prompt": "Resume en 5 lignes l'architecture de ce projet Python: structure des fichiers, patterns utilises, technologies.", "node": "M1"}, "M1 resume le projet"),
                 SkillStep("notify", {"title": "JARVIS Brain", "message": "Projet indexe dans la memoire."}, "Notification"),
             ],
@@ -1578,7 +1578,7 @@ def _default_skills() -> list[Skill]:
             ],
             steps=[
                 SkillStep("lm_query", {"prompt": "Genere un script pytest complet pour tester le code demande. Code uniquement.", "node": "M1"}, "M1 genere les tests"),
-                SkillStep("powershell_run", {"command": "cd F:\\BUREAU\\turbo; & 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -m pytest src/ --tb=short -q 2>&1 | Out-String"}, "Executer pytest"),
+                SkillStep("powershell_run", {"command": "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python -m pytest src/ --tb=short -q 2>&1 | Out-String"}, "Executer pytest"),
                 SkillStep("notify", {"title": "JARVIS Lab", "message": "Tests executes. Resultats disponibles."}, "Notification"),
             ],
             category="dev",
@@ -1591,7 +1591,7 @@ def _default_skills() -> list[Skill]:
                 "schema du projet", "architect", "mermaid",
             ],
             steps=[
-                SkillStep("powershell_run", {"command": "$py = Get-ChildItem 'F:\\BUREAU\\turbo\\src' -Filter '*.py' -Recurse; $py | ForEach-Object { $_.Name + ': ' + (Select-String -Path $_.FullName -Pattern '^(class |def |async def )' | Measure-Object).Count + ' definitions' } | Out-String"}, "Scanner structure code"),
+                SkillStep("powershell_run", {"command": "$py = Get-ChildItem 'F:/BUREAU/turbo/src' -Filter '*.py' -Recurse; $py | ForEach-Object { $_.Name + ': ' + (Select-String -Path $_.FullName -Pattern '^(class |def |async def )' | Measure-Object).Count + ' definitions' } | Out-String"}, "Scanner structure code"),
                 SkillStep("lm_query", {"prompt": "Analyse cette structure de fichiers Python et genere un diagramme Mermaid.js montrant les relations entre modules. Format: ```mermaid ... ```", "node": "M1"}, "M1 genere le diagramme"),
                 SkillStep("notify", {"title": "JARVIS Architect", "message": "Diagramme architecture genere."}, "Notification"),
             ],
@@ -1620,7 +1620,7 @@ def _default_skills() -> list[Skill]:
             ],
             steps=[
                 SkillStep("powershell_run", {"command": "Get-NetTCPConnection -State Listen | Select LocalPort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Sort LocalPort | Out-String"}, "Ports en ecoute"),
-                SkillStep("powershell_run", {"command": "Get-NetTCPConnection -State Established | Where { $_.RemoteAddress -notmatch '^(127|10|192\\.168|0\\.0)' } | Select RemoteAddress, RemotePort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Out-String"}, "Connexions externes"),
+                SkillStep("powershell_run", {"command": "Get-NetTCPConnection -State Established | Where { $_.RemoteAddress -notmatch '^(127|10|192/.168|0/.0)' } | Select RemoteAddress, RemotePort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Out-String"}, "Connexions externes"),
                 SkillStep("powershell_run", {"command": "Get-NetFirewallRule -Enabled True -Direction Inbound | Where Action -eq Allow | Select DisplayName, Profile | Select -First 10 | Out-String"}, "Regles pare-feu entrantes"),
                 SkillStep("notify", {"title": "JARVIS Sentinel", "message": "Scan securite termine."}, "Notification"),
             ],
@@ -1647,7 +1647,7 @@ def _default_skills() -> list[Skill]:
                 "resume de la journee", "qu'est ce qui s'est passe",
             ],
             steps=[
-                SkillStep("powershell_run", {"command": "cd F:\\BUREAU\\turbo; git log --since='24 hours ago' --oneline 2>&1 | Out-String"}, "Git log 24h"),
+                SkillStep("powershell_run", {"command": "cd F:/BUREAU/turbo; git log --since='24 hours ago' --oneline 2>&1 | Out-String"}, "Git log 24h"),
                 SkillStep("system_info", {}, "Status systeme"),
                 SkillStep("trading_status", {}, "Status trading"),
                 SkillStep("lm_query", {"prompt": "En tant que chef de projet, fais un rapport vocal court (5 lignes max) de l'avancement basé sur ces infos: commits recents, status systeme, status trading.", "node": "M1"}, "M1 genere le rapport"),
@@ -1661,10 +1661,10 @@ def _default_skills() -> list[Skill]:
     for skill in skills:
         for step in skill.steps:
             cmd = step.args.get("command", "")
-            if "F:\\BUREAU\\turbo" in cmd:
-                cmd = cmd.replace("F:\\BUREAU\\turbo", _TURBO_DIR)
-            if "C:\\Users\\franc" in cmd:
-                cmd = cmd.replace("C:\\Users\\franc", _user_home)
+            if "F:/BUREAU/turbo" in cmd:
+                cmd = cmd.replace("F:/BUREAU/turbo", _TURBO_DIR)
+            if "/\Users/franc" in cmd:
+                cmd = cmd.replace("/\Users/franc", _user_home)
             step.args["command"] = cmd
     return skills
 

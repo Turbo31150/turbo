@@ -98,7 +98,7 @@ class TestStripAnsi:
     def test_removes_cursor_codes(self):
         # The regex matches [25h/[25l (no backslash) and [\25h/[\25l (with backslash)
         assert cs._strip_ansi("[25htext[25l") == "text"
-        assert cs._strip_ansi("[\\25htext[\\25l") == "text"
+        assert cs._strip_ansi("[/25htext[/25l") == "text"
 
     def test_passthrough_clean_text(self):
         assert cs._strip_ansi("hello world") == "hello world"

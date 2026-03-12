@@ -18,7 +18,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-TURBO_DIR = Path("F:/BUREAU/turbo")
+TURBO_DIR = Path("/home/turbo/jarvis-m1-ops")
 FINETUNING_DIR = TURBO_DIR / "finetuning"
 OUTPUT_DIR = FINETUNING_DIR / "output"
 GGUF_DIR = FINETUNING_DIR / "gguf"
@@ -169,7 +169,7 @@ def convert_to_gguf(merged_path: Path, quant_type: str = "Q4_K_M") -> Path:
             print(f"[INFO] Le GGUF BF16 est utilisable directement dans LM Studio.")
             print(f"       Pour quantifier manuellement:")
             print(f"       cd {llama_dir} && cmake -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release")
-            print(f"       .\\build\\bin\\llama-quantize {gguf_bf16} {gguf_quant} {quant_type}")
+            print(f"       ./build/bin/llama-quantize {gguf_bf16} {gguf_quant} {quant_type}")
         except (subprocess.SubprocessError, OSError):
             pass
         return gguf_bf16

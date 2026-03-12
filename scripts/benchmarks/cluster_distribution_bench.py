@@ -28,7 +28,7 @@ from urllib.request import Request, urlopen
 # ============================================================================
 # CONFIG
 # ============================================================================
-TURBO_DIR = Path("F:/BUREAU/turbo")
+TURBO_DIR = Path("/home/turbo/jarvis-m1-ops")
 DB_PATH = TURBO_DIR / "data" / "etoile.db"
 
 SCENARIOS = {

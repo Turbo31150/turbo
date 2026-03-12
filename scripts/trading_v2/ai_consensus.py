@@ -44,7 +44,7 @@ MODELS = [
         "name": "GEMINI/proxy",
         "weight": 1.1,
         "type": "validation",
-        "proxy_path": "F:/BUREAU/turbo/gemini-proxy.js",
+        "proxy_path": "/home/turbo/jarvis-m1-ops/gemini-proxy.js",
         "timeout": 120,
         "method": "gemini_proxy",
     },

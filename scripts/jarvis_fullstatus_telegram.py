@@ -2,13 +2,13 @@
 """JARVIS Full Status — Complete dashboard for Telegram.
 Combines: boot diagnostic + GPU details + cluster + DBs + automation + disk.
 
-Usage: python F:/BUREAU/turbo/scripts/jarvis_fullstatus_telegram.py
+Usage: python /home/turbo/jarvis-m1-ops/scripts/jarvis_fullstatus_telegram.py
 """
 import json, subprocess, time, sqlite3, os, sys
 from pathlib import Path
 
 TIMEOUT = 5
-DATA = Path("F:/BUREAU/turbo/data")
+DATA = Path("/home/turbo/jarvis-m1-ops/data")
 WS_URL = "http://127.0.0.1:9742"
 
 def run(cmd, timeout=TIMEOUT):
@@ -171,7 +171,7 @@ def sect_automation():
 # ── SECTION 6: DISK ────────────────────────────────────────────────
 def sect_disk():
     lines = ["DISKS"]
-    r = run('powershell -Command "Get-PSDrive -PSProvider FileSystem | ForEach-Object { $t=[math]::Round(($_.Used+$_.Free)/1GB); if($t -gt 0){ Write-Host ($_.Name + \\\":\\\" + [math]::Round($_.Free/1GB) + \\\"/\\\" + $t) } }"')
+    r = run('powershell -Command "Get-PSDrive -PSProvider FileSystem | ForEach-Object { $t=[math]::Round(($_.Used+$_.Free)/1GB); if($t -gt 0){ Write-Host ($_.Name + /\":/\" + [math]::Round($_.Free/1GB) + /\"//\" + $t) } }"')
     if not r:
         return "DISKS\n  unavailable"
     for line in r.strip().split("\n"):

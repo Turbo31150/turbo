@@ -1,9 +1,9 @@
 @echo off
 title JARVIS Mode Ollama Cloud
-cd /d F:\BUREAU\turbo
+cd /d /home/turbo/jarvis-m1-ops
 echo === JARVIS OLLAMA CLOUD ===
 echo Modele: minimax-m2.5:cloud
 echo Sous-agents + Recherche web natifs
 echo ================================
-C:\Users\franc\.local\bin\uv.exe run python main.py -o
+/home/turbo\.local\bin\uv.exe run python main.py -o
 pause

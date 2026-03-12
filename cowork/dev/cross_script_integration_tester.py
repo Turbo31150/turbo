@@ -286,7 +286,7 @@ def test_dashboard_sections():
     Verify each returns a (text, keyboard) tuple.
     """
     # Build inline test code that imports the dashboard and calls each section
-    escaped_dir = str(SCRIPT_DIR).replace("\\", "\\\\")
+    escaped_dir = str(SCRIPT_DIR).replace("/", "//")
     test_code = (
         "import sys, json\n"
         f"sys.path.insert(0, r\"{escaped_dir}\")\n"

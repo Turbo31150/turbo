@@ -8,7 +8,7 @@ import time
 import json
 import requests
 
-ROOT = r"F:\BUREAU\TRADING_V2_PRODUCTION"
+ROOT = r"/home/turbo\TRADING_V2_PRODUCTION"
 SCRIPTS_DIR = os.path.join(ROOT, "scripts")
 GENERATED_DIR = os.path.join(SCRIPTS_DIR, "generated")
 M2_URL = "http://192.168.1.26:1234/v1/chat/completions"
@@ -104,7 +104,7 @@ def list_generated():
 if __name__ == "__main__":
     print("=== GENESIS MODULE - TEST ===")
     filepath, err = generate_tool(
-        "Liste les 5 plus gros fichiers du dossier F:\\BUREAU et affiche leur taille en MB",
+        "Liste les 5 plus gros fichiers du dossier F:/BUREAU et affiche leur taille en MB",
         "disk_analyzer.py"
     )
     if filepath:

@@ -119,14 +119,14 @@ class ShareManager:
             for line in result.stdout.split("\n"):
                 line = line.strip()
                 parts = line.split()
-                if len(parts) >= 3 and ":" in line and "\\\\" in line:
+                if len(parts) >= 3 and ":" in line and "//" in line:
                     status = parts[0] if parts[0] in ("OK", "Disconnected", "Unavailable") else ""
                     drive = ""
                     remote = ""
                     for p in parts:
                         if ":" in p and len(p) <= 3:
                             drive = p
-                        elif p.startswith("\\\\"):
+                        elif p.startswith("//"):
                             remote = p
                     if drive or remote:
                         drives.append({

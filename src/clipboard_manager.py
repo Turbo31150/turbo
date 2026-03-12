@@ -53,7 +53,7 @@ def _detect_category(text: str) -> ClipCategory:
     stripped = text.strip()
     if stripped.startswith(("http://", "https://", "ftp://")):
         return ClipCategory.URL
-    if stripped.startswith(("/", "\\", "C:", "D:", "E:", "F:")) or "\\" in stripped[:10]:
+    if stripped.startswith(("/", "/", "C:", "D:", "E:", "F:")) or "/" in stripped[:10]:
         return ClipCategory.PATH
     if any(kw in stripped for kw in ("def ", "class ", "function ", "import ", "const ", "var ", "{", "}")):
         return ClipCategory.CODE

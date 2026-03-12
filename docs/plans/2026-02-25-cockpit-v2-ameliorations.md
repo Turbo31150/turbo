@@ -13,7 +13,7 @@
 ### Task 1: Injecter les schemas etoile.db dans le prompt systeme
 
 **Files:**
-- Modify: `F:/BUREAU/turbo/canvas/direct-proxy.js` (section ETOILE_SUMMARY ~ligne 102-130)
+- Modify: `/home/turbo/jarvis-m1-ops/canvas/direct-proxy.js` (section ETOILE_SUMMARY ~ligne 102-130)
 
 **Step 1: Ajouter l'extraction des schemas au demarrage**
 
@@ -50,7 +50,7 @@ IMPORTANT: Utilise UNIQUEMENT les colonnes listees ci-dessus pour query_db. Ne d
 
 **Step 3: Verifier le demarrage**
 
-Run: `node F:/BUREAU/turbo/canvas/direct-proxy.js` (dans un terminal separe)
+Run: `node /home/turbo/jarvis-m1-ops/canvas/direct-proxy.js` (dans un terminal separe)
 Expected: Log `[Cockpit] Schemas etoile.db charges: N tables`
 
 **Step 4: Tester query_db avec les bons schemas**
@@ -72,7 +72,7 @@ git commit -m "feat(cockpit): inject etoile.db schemas into system prompt"
 ### Task 2: Detection anti-loop (meme outil echoue 3x → stop)
 
 **Files:**
-- Modify: `F:/BUREAU/turbo/canvas/direct-proxy.js` (fonction agenticChat ~ligne 440)
+- Modify: `/home/turbo/jarvis-m1-ops/canvas/direct-proxy.js` (fonction agenticChat ~ligne 440)
 
 **Step 1: Ajouter le compteur d'echecs par outil**
 
@@ -137,7 +137,7 @@ git commit -m "feat(cockpit): anti-loop detection — stop after 3 same-tool fai
 ### Task 3: Meilleur feedback d'erreur + HINT dans retour outil
 
 **Files:**
-- Modify: `F:/BUREAU/turbo/canvas/direct-proxy.js` (outils query_db et pipeline)
+- Modify: `/home/turbo/jarvis-m1-ops/canvas/direct-proxy.js` (outils query_db et pipeline)
 
 **Step 1: Enrichir le retour d'erreur de query_db**
 
@@ -198,7 +198,7 @@ git commit -m "feat(cockpit): enriched error hints for query_db and pipeline too
 ### Task 4: Badge orange frontend quand >5 tours
 
 **Files:**
-- Modify: `F:/BUREAU/turbo/canvas/index.html` (fonction addCockpitMsg + CSS)
+- Modify: `/home/turbo/jarvis-m1-ops/canvas/index.html` (fonction addCockpitMsg + CSS)
 
 **Step 1: Ajouter le CSS pour le badge warning**
 
@@ -254,7 +254,7 @@ git commit -m "feat(cockpit): orange warning badge when >5 agentic turns"
 # Kill ancien proxy
 taskkill /F /IM node.exe /FI "WINDOWTITLE eq *direct-proxy*" 2>/dev/null
 # Relancer
-cd F:/BUREAU/turbo && node canvas/direct-proxy.js &
+cd /home/turbo/jarvis-m1-ops && node canvas/direct-proxy.js &
 ```
 
 **Step 2: Test E2E — query_db avec schemas**

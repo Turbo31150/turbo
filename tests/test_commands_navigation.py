@@ -30,7 +30,7 @@ def nav_commands():
     """Import NAVIGATION_COMMANDS with external deps mocked."""
     # Mock src.config.PATHS to avoid filesystem dependency
     mock_config = MagicMock()
-    mock_config.PATHS = {"turbo": "F:/BUREAU/turbo"}
+    mock_config.PATHS = {"turbo": "/home/turbo/jarvis-m1-ops"}
     with patch.dict("sys.modules", {
         "src.config": mock_config,
         "dotenv": MagicMock(),

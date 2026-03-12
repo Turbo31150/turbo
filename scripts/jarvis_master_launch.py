@@ -14,7 +14,7 @@ from pathlib import Path
 from datetime import datetime
 
 # === CONFIGURATION ===
-TURBO_ROOT = Path("F:/BUREAU/turbo")
+TURBO_ROOT = Path("/home/turbo/jarvis-m1-ops")
 OPENCLAW_ROOT = Path("C:/Users/franc/.openclaw")
 DATA_DIR = TURBO_ROOT / "data"
 

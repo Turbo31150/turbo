@@ -49,13 +49,13 @@ class TestReadCounter:
         mock_result.returncode = 0
         mock_result.stdout = "45.67\n"
         with patch("subprocess.run", return_value=mock_result):
-            val = pc.read_counter("\\Processor(_Total)\\% Processor Time")
+            val = pc.read_counter("/Processor(_Total)/% Processor Time")
         assert val == pytest.approx(45.67)
 
     def test_failure(self):
         pc = PerfCounter()
         with patch("subprocess.run", side_effect=Exception("fail")):
-            val = pc.read_counter("\\Processor\\test")
+            val = pc.read_counter("/Processor/test")
         assert val is None
 
     def test_nonzero_return(self):
@@ -64,7 +64,7 @@ class TestReadCounter:
         mock_result.returncode = 1
         mock_result.stdout = ""
         with patch("subprocess.run", return_value=mock_result):
-            val = pc.read_counter("\\Test")
+            val = pc.read_counter("/Test")
         assert val is None
 
 
@@ -93,10 +93,10 @@ class TestReadNamed:
 # ===========================================================================
 
 SNAPSHOT_JSON = json.dumps([
-    {"Path": "\\\\pc\\processor(_total)\\% processor time", "CookedValue": 32.5},
-    {"Path": "\\\\pc\\memory\\available mbytes", "CookedValue": 16384.0},
-    {"Path": "\\\\pc\\system\\processes", "CookedValue": 250},
-    {"Path": "\\\\pc\\system\\threads", "CookedValue": 3000},
+    {"Path": "//pc/processor(_total)/% processor time", "CookedValue": 32.5},
+    {"Path": "//pc/memory/available mbytes", "CookedValue": 16384.0},
+    {"Path": "//pc/system/processes", "CookedValue": 250},
+    {"Path": "//pc/system/threads", "CookedValue": 3000},
 ])
 
 

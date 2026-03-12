@@ -1,6 +1,6 @@
 @echo off
 title JARVIS Telegram Bot
-cd /d F:\BUREAU\turbo
+cd /d /home/turbo/jarvis-m1-ops
 
 :: === SINGLETON GUARD ===
 python scripts/singleton_guard.py --name telegram_bot --kill
@@ -14,7 +14,7 @@ echo.
 curl -s --max-time 2 http://127.0.0.1:18800/health >nul 2>&1
 if %errorlevel% neq 0 (
     echo [*] Demarrage du Canvas Direct Proxy...
-    start "JARVIS Proxy" /min cmd /c "cd /d F:\BUREAU\turbo && node canvas\direct-proxy.js"
+    start "JARVIS Proxy" /min cmd /c "cd /d /home/turbo/jarvis-m1-ops && node canvas\direct-proxy.js"
     echo [*] Attente 3s pour le proxy...
     timeout /t 3 /nobreak >nul
 ) else (

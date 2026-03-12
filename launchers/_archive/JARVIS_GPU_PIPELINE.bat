@@ -9,7 +9,7 @@ echo  ============================================
 echo.
 
 set PYTHONIOENCODING=utf-8
-cd /d F:\BUREAU\turbo
+cd /d /home/turbo/jarvis-m1-ops
 
 echo  [1] Scan rapide (50 coins, M3+OL1 quick)
 echo  [2] Scan fast (100 coins, 5 IA sans Gemini)
@@ -21,17 +21,17 @@ echo.
 set /p choice="Choix [1-6]: "
 
 if "%choice%"=="1" (
-    C:\Users\franc\.local\bin\uv.exe run python scripts\trading_v2\gpu_pipeline.py --coins 50 --top 5 --quick --json
+    /home/turbo\.local\bin\uv.exe run python scripts\trading_v2\gpu_pipeline.py --coins 50 --top 5 --quick --json
 ) else if "%choice%"=="2" (
-    C:\Users\franc\.local\bin\uv.exe run python scripts\trading_v2\gpu_pipeline.py --coins 100 --top 10 --no-gemini --json
+    /home/turbo\.local\bin\uv.exe run python scripts\trading_v2\gpu_pipeline.py --coins 100 --top 10 --no-gemini --json
 ) else if "%choice%"=="3" (
-    C:\Users\franc\.local\bin\uv.exe run python scripts\trading_v2\gpu_pipeline.py --coins 200 --top 10 --json
+    /home/turbo\.local\bin\uv.exe run python scripts\trading_v2\gpu_pipeline.py --coins 200 --top 10 --json
 ) else if "%choice%"=="4" (
-    C:\Users\franc\.local\bin\uv.exe run python scripts\trading_v2\gpu_pipeline.py --coins 100 --top 10 --no-ai --json
+    /home/turbo\.local\bin\uv.exe run python scripts\trading_v2\gpu_pipeline.py --coins 100 --top 10 --no-ai --json
 ) else if "%choice%"=="5" (
-    C:\Users\franc\.local\bin\uv.exe run python scripts\trading_v2\gpu_pipeline.py --coins 200 --top 10 --no-gemini --cycles 0 --interval 300 --json
+    /home/turbo\.local\bin\uv.exe run python scripts\trading_v2\gpu_pipeline.py --coins 200 --top 10 --no-gemini --cycles 0 --interval 300 --json
 ) else if "%choice%"=="6" (
-    start "" "F:\BUREAU\turbo\scripts\trading_v2\dashboard_pro.html"
+    start "" "/home/turbo/jarvis-m1-ops\scripts\trading_v2\dashboard_pro.html"
 ) else (
     echo Choix invalide.
 )

@@ -46,11 +46,11 @@ tools: ["Bash", "Read", "Grep", "Glob"]
 You are the **Canvas Operator**, an autonomous agent specializing in the JARVIS Canvas Command Center running at `http://127.0.0.1:18800/`.
 
 **Architecture you manage:**
-- **Proxy**: Node.js server (`F:/BUREAU/turbo/canvas/direct-proxy.js`) on port 18800
-- **UI**: Single-page app (`F:/BUREAU/turbo/canvas/index.html`) — Command Center v2
-- **Autolearn Engine**: `F:/BUREAU/turbo/canvas/autolearn.js` — 3 pillars (memory, tuning, review)
-- **Data**: `F:/BUREAU/turbo/canvas/data/` — memory.json, routing_scores.json, autolearn_history.json
-- **Launcher**: `F:/BUREAU/turbo/canvas/start.bat`
+- **Proxy**: Node.js server (`/home/turbo/jarvis-m1-ops/canvas/direct-proxy.js`) on port 18800
+- **UI**: Single-page app (`/home/turbo/jarvis-m1-ops/canvas/index.html`) — Command Center v2
+- **Autolearn Engine**: `/home/turbo/jarvis-m1-ops/canvas/autolearn.js` — 3 pillars (memory, tuning, review)
+- **Data**: `/home/turbo/jarvis-m1-ops/canvas/data/` — memory.json, routing_scores.json, autolearn_history.json
+- **Launcher**: `/home/turbo/jarvis-m1-ops/canvas/start.bat`
 
 **API Endpoints:**
 
@@ -91,7 +91,7 @@ taskkill /F /FI "WINDOWTITLE eq JARVIS*Canvas*" 2>/dev/null
 # Or by port
 for /f "tokens=5" %a in ('netstat -ano ^| findstr :18800') do taskkill /F /PID %a
 # Restart
-cd F:/BUREAU/turbo/canvas && start "" cmd /c "node direct-proxy.js"
+cd /home/turbo/jarvis-m1-ops/canvas && start "" cmd /c "node direct-proxy.js"
 ```
 
 **Autolearn Interpretation Guide:**

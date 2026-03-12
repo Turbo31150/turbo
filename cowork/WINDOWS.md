@@ -9,43 +9,43 @@ IMPORTANT: exec = PowerShell sur Windows. Utilise ces commandes telles quelles.
 
 ```powershell
 # Lister un dossier
-Get-ChildItem "C:\chemin" | Select-Object Mode, LastWriteTime, Length, Name | Format-Table -AutoSize
+Get-ChildItem "/chemin" | Select-Object Mode, LastWriteTime, Length, Name | Format-Table -AutoSize
 
 # Lister recursivement avec filtre
-Get-ChildItem "C:\chemin" -Recurse -Filter "*.txt" -ErrorAction SilentlyContinue | Select-Object -First 20 FullName
+Get-ChildItem "/chemin" -Recurse -Filter "*.txt" -ErrorAction SilentlyContinue | Select-Object -First 20 FullName
 
 # Creer un dossier
-New-Item -ItemType Directory -Force -Path "C:\chemin\nouveau"
+New-Item -ItemType Directory -Force -Path "/chemin\nouveau"
 
 # Copier fichier/dossier
-Copy-Item "C:\source" "C:\destination" -Recurse -Force
+Copy-Item "/source" "/destination" -Recurse -Force
 
 # Deplacer fichier/dossier
-Move-Item "C:\source" "C:\destination" -Force
+Move-Item "/source" "/destination" -Force
 
 # Supprimer (vers corbeille — SECURISE)
-Add-Type -AssemblyName Microsoft.VisualBasic; [Microsoft.VisualBasic.FileIO.FileSystem]::DeleteFile("C:\fichier", "UIOption.OnlyErrorDialogs", "RecycleOption.SendToRecycleBin")
+Add-Type -AssemblyName Microsoft.VisualBasic; [Microsoft.VisualBasic.FileIO.FileSystem]::DeleteFile("/fichier", "UIOption.OnlyErrorDialogs", "RecycleOption.SendToRecycleBin")
 
 # Supprimer (permanent — ATTENTION)
-Remove-Item "C:\chemin" -Recurse -Force
+Remove-Item "/chemin" -Recurse -Force
 
 # Lire un fichier texte (50 premieres lignes)
-Get-Content "C:\fichier.txt" -TotalCount 50
+Get-Content "/fichier.txt" -TotalCount 50
 
 # Ecrire dans un fichier
-Set-Content "C:\fichier.txt" -Value "contenu"
+Set-Content "/fichier.txt" -Value "contenu"
 
 # Ajouter a un fichier
-Add-Content "C:\fichier.txt" -Value "ligne ajoutee"
+Add-Content "/fichier.txt" -Value "ligne ajoutee"
 
 # Compresser en ZIP
-Compress-Archive -Path "C:\dossier" -DestinationPath "C:\archive.zip" -Force
+Compress-Archive -Path "/dossier" -DestinationPath "/archive.zip" -Force
 
 # Decompresser un ZIP
-Expand-Archive -Path "C:\archive.zip" -DestinationPath "C:\destination" -Force
+Expand-Archive -Path "/archive.zip" -DestinationPath "/destination" -Force
 
 # Taille d'un dossier
-(Get-ChildItem "C:\dossier" -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB
+(Get-ChildItem "/dossier" -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB
 ```
 
 ---
@@ -193,7 +193,7 @@ Get-Clipboard
 Set-Clipboard -Value "texte a copier"
 
 # Copier un fichier dans le clipboard
-Get-Content "C:\fichier.txt" | Set-Clipboard
+Get-Content "/fichier.txt" | Set-Clipboard
 
 # Vider le clipboard
 Set-Clipboard -Value ""
@@ -259,11 +259,11 @@ Start-Process "chrome" "https://google.com"
 Start-Process "https://google.com"   # navigateur par defaut
 
 # Ouvrir un fichier avec l'app par defaut
-Start-Process "C:\chemin\fichier.pdf"
-Invoke-Item "C:\chemin\fichier.pdf"
+Start-Process "/chemin\fichier.pdf"
+Invoke-Item "/chemin\fichier.pdf"
 
 # Ouvrir un dossier dans Explorer
-Start-Process explorer.exe -ArgumentList "C:\chemin"
+Start-Process explorer.exe -ArgumentList "/chemin"
 
 # Fermer une application
 Stop-Process -Name "chrome" -Force -ErrorAction SilentlyContinue
@@ -452,7 +452,7 @@ Test-NetConnection google.com -TraceRoute
 
 ### Rechercher dans le contenu de fichiers
 ```powershell
-Select-String -Path "C:\logs\*.log" -Pattern "ERROR" | Select-Object Path, LineNumber, Line
+Select-String -Path "/logs\*.log" -Pattern "ERROR" | Select-Object Path, LineNumber, Line
 ```
 
 ### Programmes installes (64+32 bit)
@@ -471,7 +471,7 @@ Get-PnpDevice | Where-Object { $_.Class -eq "Bluetooth" } | Disable-PnpDevice -C
 
 ### Imprimante — imprimer un fichier
 ```powershell
-Start-Process "C:\document.pdf" -Verb Print
+Start-Process "/document.pdf" -Verb Print
 ```
 
 ### Multi-moniteur — changer disposition

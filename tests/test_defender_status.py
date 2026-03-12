@@ -35,7 +35,7 @@ STATUS_JSON = json.dumps({
 
 THREATS_JSON = json.dumps([
     {"ThreatID": 12345, "ProcessName": "test.exe",
-     "DomainUser": "DESKTOP\\user",
+     "DomainUser": "DESKTOP/user",
      "InitialDetectionTime": {"DateTime": "2026-03-05"},
      "ActionSuccess": True},
 ])

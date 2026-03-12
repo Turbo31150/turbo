@@ -11,7 +11,7 @@ LM_SERVERS = {
     'M2': {'url': 'http://192.168.1.26:1234', 'model': 'gpt-oss-20b'},
     'M3': {'url': 'http://192.168.1.113:1234', 'model': 'mistral-7b-instruct-v0.3'},
 }
-GEMINI_CLI = r'C:\Users\franc\AppData\Roaming\npm\gemini.cmd'
+GEMINI_CLI = r'/home/turbo\AppData\Roaming\npm\gemini.cmd'
 
 prompt = 'BTC_USDT prix 97500, change +2.1%, RSI 62, OB 1.3x BUY. Direction LONG SHORT ou NEUTRAL? Reponds JSON: {"direction":"...","confidence":0-100,"reason":"..."}'
 

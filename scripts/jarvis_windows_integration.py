@@ -8,7 +8,7 @@ Usage:
 import subprocess, sys, os
 
 PYTHON = sys.executable
-BASE = "F:\\BUREAU\\turbo"
+BASE = "F:/BUREAU/turbo"
 
 def run(cmd, timeout=15):
     try:
@@ -23,25 +23,25 @@ TASKS = [
     {
         "name": "JARVIS_Supervisor",
         "desc": "JARVIS Supervisor — monitor all services every 5 min",
-        "cmd": f'"{PYTHON}" "{BASE}\\scripts\\jarvis_supervisor.py"',
+        "cmd": f'"{PYTHON}" "{BASE}/scripts/jarvis_supervisor.py"',
         "schedule": "/SC MINUTE /MO 5",
     },
     {
         "name": "JARVIS_SelfImprove",
         "desc": "JARVIS Self-Improve — auto optimize weights every 15 min",
-        "cmd": f'"{PYTHON}" "{BASE}\\scripts\\jarvis_auto_improve_telegram.py"',
+        "cmd": f'"{PYTHON}" "{BASE}/scripts/jarvis_auto_improve_telegram.py"',
         "schedule": "/SC MINUTE /MO 15",
     },
     {
         "name": "JARVIS_Boot",
         "desc": "JARVIS Boot — full system startup on logon",
-        "cmd": f'"{PYTHON}" "{BASE}\\scripts\\jarvis_unified_boot.py"',
+        "cmd": f'"{PYTHON}" "{BASE}/scripts/jarvis_unified_boot.py"',
         "schedule": "/SC ONLOGON",
     },
     {
         "name": "JARVIS_Notifications",
         "desc": "JARVIS Notifications — Windows toast daemon on logon",
-        "cmd": f'"{PYTHON}" "{BASE}\\scripts\\jarvis_windows_notify.py" --daemon',
+        "cmd": f'"{PYTHON}" "{BASE}/scripts/jarvis_windows_notify.py" --daemon',
         "schedule": "/SC ONLOGON",
     },
 ]
@@ -86,19 +86,19 @@ def status_tasks():
 # ── CONTEXT MENU (Explorer right-click) ─────────────────────────────
 CONTEXT_MENU_REG = f"""Windows Registry Editor Version 5.00
 
-[HKEY_CURRENT_USER\\Software\\Classes\\*\\shell\\JarvisAnalyze]
+[HKEY_CURRENT_USER/Software/Classes/*/shell/JarvisAnalyze]
 @="Send to JARVIS"
 "Icon"="{PYTHON.replace(chr(92), chr(92)*2)}"
 
-[HKEY_CURRENT_USER\\Software\\Classes\\*\\shell\\JarvisAnalyze\\command]
-@="\\"{PYTHON.replace(chr(92), chr(92)*2)}\\" \\"{BASE.replace(chr(92), chr(92)*2)}\\\\scripts\\\\jarvis_file_handler.py\\" \\"%1\\""
+[HKEY_CURRENT_USER/Software/Classes/*/shell/JarvisAnalyze/command]
+@="/"{PYTHON.replace(chr(92), chr(92)*2)}/" /"{BASE.replace(chr(92), chr(92)*2)}//scripts//jarvis_file_handler.py/" /"%1/""
 
-[HKEY_CURRENT_USER\\Software\\Classes\\Directory\\shell\\JarvisOpen]
+[HKEY_CURRENT_USER/Software/Classes/Directory/shell/JarvisOpen]
 @="Open in JARVIS"
 "Icon"="{PYTHON.replace(chr(92), chr(92)*2)}"
 
-[HKEY_CURRENT_USER\\Software\\Classes\\Directory\\shell\\JarvisOpen\\command]
-@="\\"{PYTHON.replace(chr(92), chr(92)*2)}\\" \\"{BASE.replace(chr(92), chr(92)*2)}\\\\scripts\\\\jarvis_file_handler.py\\" \\"%1\\""
+[HKEY_CURRENT_USER/Software/Classes/Directory/shell/JarvisOpen/command]
+@="/"{PYTHON.replace(chr(92), chr(92)*2)}/" /"{BASE.replace(chr(92), chr(92)*2)}//scripts//jarvis_file_handler.py/" /"%1/""
 """
 
 def install_context_menu():
@@ -111,16 +111,16 @@ def install_context_menu():
     return f"Context menu FAILED: {err[:100]}"
 
 def uninstall_context_menu():
-    run('reg delete "HKCU\\Software\\Classes\\*\\shell\\JarvisAnalyze" /f')
-    run('reg delete "HKCU\\Software\\Classes\\Directory\\shell\\JarvisOpen" /f')
+    run('reg delete "HKCU/Software/Classes/*/shell/JarvisAnalyze" /f')
+    run('reg delete "HKCU/Software/Classes/Directory/shell/JarvisOpen" /f')
     return "Context menu removed"
 
 # ── URL PROTOCOL HANDLER (jarvis://) ────────────────────────────────
 def install_protocol():
     cmds = [
-        'reg add "HKCU\\Software\\Classes\\jarvis" /ve /d "URL:JARVIS Protocol" /f',
-        'reg add "HKCU\\Software\\Classes\\jarvis" /v "URL Protocol" /d "" /f',
-        f'reg add "HKCU\\Software\\Classes\\jarvis\\shell\\open\\command" /ve /d "\\"{PYTHON}\\" \\"{BASE}\\scripts\\jarvis_url_handler.py\\" \\"%1\\"" /f',
+        'reg add "HKCU/Software/Classes/jarvis" /ve /d "URL:JARVIS Protocol" /f',
+        'reg add "HKCU/Software/Classes/jarvis" /v "URL Protocol" /d "" /f',
+        f'reg add "HKCU/Software/Classes/jarvis/shell/open/command" /ve /d "/"{PYTHON}/" /"{BASE}/scripts/jarvis_url_handler.py/" /"%1/"" /f',
     ]
     for cmd in cmds:
         run(cmd)

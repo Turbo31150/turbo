@@ -189,7 +189,7 @@ async def test():
             {"name": "M2", "url": "http://192.168.1.26:1234", "status": "ONLINE", "role": "fast_inference", "latency_ms": 50, "error": None, "models": [{"id": "deepseek"}]},
             {"name": "M3", "url": "http://192.168.1.113:1234", "status": "OFFLINE", "role": "general_inference", "latency_ms": 0, "error": "refused", "models": []},
             {"name": "OL1", "url": "http://127.0.0.1:11434", "status": "OFFLINE", "role": "cloud_inference", "latency_ms": 0, "error": "refused", "models": []},
-            {"name": "GEMINI", "proxy_path": "F:/BUREAU/turbo/gemini-proxy.js", "status": "ONLINE", "role": "architecture", "latency_ms": 800, "error": None, "models": []},
+            {"name": "GEMINI", "proxy_path": "/home/turbo/jarvis-m1-ops/gemini-proxy.js", "status": "ONLINE", "role": "architecture", "latency_ms": 800, "error": None, "models": []},
         ]
 
         spofs = analyze_spof(fake_nodes_degraded)

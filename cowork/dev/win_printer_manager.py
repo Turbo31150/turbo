@@ -98,7 +98,7 @@ def set_default_printer(name):
     try:
         # Escape quotes in printer name
         safe_name = name.replace('"', '`"')
-        cmd = f'powershell -NoProfile -Command "Set-DefaultPrinter -Name \\"{safe_name}\\" -ErrorAction SilentlyContinue; if($?) {{ Write-Output OK }} else {{ (New-Object -ComObject WScript.Network).SetDefaultPrinter(\\"{safe_name}\\"); Write-Output OK2 }}"'
+        cmd = f'powershell -NoProfile -Command "Set-DefaultPrinter -Name /"{safe_name}/" -ErrorAction SilentlyContinue; if($?) {{ Write-Output OK }} else {{ (New-Object -ComObject WScript.Network).SetDefaultPrinter(/"{safe_name}/"); Write-Output OK2 }}"'
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=10, shell=True)
         ok = "OK" in r.stdout
         if not ok:

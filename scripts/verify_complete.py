@@ -18,7 +18,7 @@ import sys
 import time
 from pathlib import Path
 
-TURBO = Path("F:/BUREAU/turbo")
+TURBO = Path("/home/turbo/jarvis-m1-ops")
 ETOILE = TURBO / "data" / "etoile.db"
 JARVIS = TURBO / "data" / "jarvis.db"
 SNIPER = TURBO / "data" / "sniper.db"

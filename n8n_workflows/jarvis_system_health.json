@@ -13,7 +13,7 @@
     },
     {
       "parameters": {
-        "command": "powershell -NoProfile -Command \"$cpu = (Get-CimInstance Win32_Processor).LoadPercentage; $os = Get-CimInstance Win32_OperatingSystem; $ramPct = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory) / $os.TotalVisibleMemorySize * 100, 1); $disks = Get-CimInstance Win32_LogicalDisk | ForEach-Object { @{Drive=$_.DeviceID; FreePct=if($_.Size -gt 0){[math]::Round($_.FreeSpace/$_.Size*100,1)}else{0}} }; $diskAlert = ($disks | Where-Object { $_.FreePct -lt 10 }).Count; Write-Output \\\"CPU:$cpu|RAM:$ramPct|DiskAlerts:$diskAlert\\\"\""
+        "command": "powershell -NoProfile -Command \"$cpu = (Get-CimInstance Win32_Processor).LoadPercentage; $os = Get-CimInstance Win32_OperatingSystem; $ramPct = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory) / $os.TotalVisibleMemorySize * 100, 1); $disks = Get-CimInstance Win32_LogicalDisk | ForEach-Object { @{Drive=$_.DeviceID; FreePct=if($_.Size -gt 0){[math]::Round($_.FreeSpace/$_.Size*100,1)}else{0}} }; $diskAlert = ($disks | Where-Object { $_.FreePct -lt 10 }).Count; Write-Output /\"CPU:$cpu|RAM:$ramPct|DiskAlerts:$diskAlert/\"\""
       },
       "id": "system-metrics",
       "name": "Get System Metrics",

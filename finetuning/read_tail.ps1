@@ -1,4 +1,4 @@
-$file = "C:\Users\franc\AppData\Local\Temp\claude\C--Users-franc\tasks\b61f00b.output"
+$file = "/home/turbo\AppData\Local\Temp\claude\C--Users-franc\tasks\b61f00b.output"
 $stream = [System.IO.File]::Open($file, 'Open', 'Read', 'ReadWrite')
 $size = $stream.Length
 $readSize = [math]::Min(4000, $size)

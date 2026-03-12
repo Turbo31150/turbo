@@ -1,7 +1,7 @@
 @echo off
 title [SESSION 4] JARVIS Supervisor — Watch All Sessions
 color 0E
-cd /D F:\BUREAU\turbo
+cd /D /home/turbo/jarvis-m1-ops
 echo ===================================================
 echo   SESSION 4 — Supervisor (Guide les 3 autres)
 echo   Scan toutes les 30s  ^|  Auto-restart  ^|  Alertes TG

@@ -7,7 +7,7 @@ import os
 from src.commands import JarvisCommand
 from src.config import PATHS
 
-_TURBO_DIR = str(PATHS.get("turbo", "F:/BUREAU/turbo")).replace("/", "\\")
+_TURBO_DIR = str(PATHS.get("turbo", "/home/turbo/jarvis-m1-ops")).replace("/", "/")
 
 _M1_KEY = os.getenv("LM_STUDIO_1_API_KEY", os.getenv("LM_STUDIO_1_KEY", ""))
 _M2_KEY = os.getenv("LM_STUDIO_2_API_KEY", os.getenv("LM_STUDIO_2_KEY", ""))
@@ -41,11 +41,11 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("disk_io", "systeme", "Activite I/O des disques", [
         "activite des disques", "io disques", "disk io",
         "lecture ecriture disque", "performance disque",
-    ], "powershell", "Get-Counter '\\PhysicalDisk(*)\\Disk Reads/sec','\\PhysicalDisk(*)\\Disk Writes/sec' -SampleInterval 1 -MaxSamples 1 | Select-Object -ExpandProperty CounterSamples | Select InstanceName, CookedValue | Out-String"),
+    ], "powershell", "Get-Counter '/PhysicalDisk(*)/Disk Reads/sec','/PhysicalDisk(*)/Disk Writes/sec' -SampleInterval 1 -MaxSamples 1 | Select-Object -ExpandProperty CounterSamples | Select InstanceName, CookedValue | Out-String"),
     JarvisCommand("network_io", "systeme", "Debit reseau en temps reel", [
         "debit reseau", "trafic reseau", "network io",
         "bande passante utilisee", "activite reseau",
-    ], "powershell", "Get-Counter '\\Network Interface(*)\\Bytes Received/sec','\\Network Interface(*)\\Bytes Sent/sec' -SampleInterval 1 -MaxSamples 1 | Select-Object -ExpandProperty CounterSamples | Where CookedValue -gt 0 | Select InstanceName, @{N='KB/s';E={[math]::Round($_.CookedValue/1KB,1)}} | Out-String"),
+    ], "powershell", "Get-Counter '/Network Interface(*)/Bytes Received/sec','/Network Interface(*)/Bytes Sent/sec' -SampleInterval 1 -MaxSamples 1 | Select-Object -ExpandProperty CounterSamples | Where CookedValue -gt 0 | Select InstanceName, @{N='KB/s';E={[math]::Round($_.CookedValue/1KB,1)}} | Out-String"),
     JarvisCommand("services_failed", "systeme", "Services Windows en echec", [
         "services en echec", "services plantes", "services failed",
         "quels services ne marchent pas", "services ko",
@@ -65,19 +65,19 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("nettoyer_prefetch", "systeme", "Nettoyer le dossier Prefetch", [
         "nettoie prefetch", "vide prefetch", "clean prefetch",
         "supprime prefetch",
-    ], "powershell", "Remove-Item C:\\Windows\\Prefetch\\* -Force -ErrorAction SilentlyContinue; 'Prefetch nettoye'", confirm=True),
+    ], "powershell", "Remove-Item /\Windows/Prefetch/* -Force -ErrorAction SilentlyContinue; 'Prefetch nettoye'", confirm=True),
     JarvisCommand("nettoyer_thumbnails", "systeme", "Nettoyer le cache des miniatures", [
         "nettoie les miniatures", "vide le cache miniatures",
         "clean thumbnails", "supprime les thumbnails",
-    ], "powershell", "Remove-Item \"$env:LOCALAPPDATA\\Microsoft\\Windows\\Explorer\\thumbcache_*\" -Force -ErrorAction SilentlyContinue; 'Cache miniatures nettoye'"),
+    ], "powershell", "Remove-Item \"$env:LOCALAPPDATA/Microsoft/Windows/Explorer/thumbcache_*\" -Force -ErrorAction SilentlyContinue; 'Cache miniatures nettoye'"),
     JarvisCommand("nettoyer_logs", "systeme", "Nettoyer les vieux logs", [
         "nettoie les logs", "supprime les vieux logs", "clean logs",
         "vide les logs", "nettoie les journaux",
     ], "powershell", "wevtutil el | ForEach-Object { wevtutil cl $_ 2>$null }; 'Journaux systeme nettoyes'", confirm=True),
-    JarvisCommand("taille_dossiers_bureau", "fichiers", "Taille de chaque dossier dans F:\\BUREAU", [
+    JarvisCommand("taille_dossiers_bureau", "fichiers", "Taille de chaque dossier dans F:/BUREAU", [
         "taille des projets", "poids des dossiers bureau",
         "combien pese chaque projet", "espace par projet",
-    ], "powershell", "Get-ChildItem 'F:\\BUREAU' -Directory | ForEach-Object { $s = (Get-ChildItem $_.FullName -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum; [PSCustomObject]@{Dossier=$_.Name; 'Taille(GB)'=[math]::Round($s/1GB,2)} } | Sort 'Taille(GB)' -Descending | Out-String"),
+    ], "powershell", "Get-ChildItem 'F:/BUREAU' -Directory | ForEach-Object { $s = (Get-ChildItem $_.FullName -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum; [PSCustomObject]@{Dossier=$_.Name; 'Taille(GB)'=[math]::Round($s/1GB,2)} } | Sort 'Taille(GB)' -Descending | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # SECURITE & AUDIT
@@ -89,12 +89,12 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("connexions_suspectes", "systeme", "Verifier les connexions sortantes suspectes", [
         "connexions suspectes", "qui se connecte dehors",
         "connexions sortantes", "check connexions",
-    ], "powershell", "Get-NetTCPConnection -State Established | Where RemoteAddress -notmatch '^(127|10|192\\.168|0\\.)' | Select RemoteAddress, RemotePort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Sort RemoteAddress -Unique | Out-String"),
+    ], "powershell", "Get-NetTCPConnection -State Established | Where RemoteAddress -notmatch '^(127|10|192/.168|0/.)' | Select RemoteAddress, RemotePort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Sort RemoteAddress -Unique | Out-String"),
     JarvisCommand("autorun_check", "systeme", "Verifier les programmes au demarrage", [
         "quoi se lance au demarrage", "autorun check",
         "programmes auto start", "verifie le demarrage",
         "audit demarrage",
-    ], "powershell", "Get-CimInstance Win32_StartupCommand | Select Name, Command, Location | Out-String; Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -ErrorAction SilentlyContinue | Select * -ExcludeProperty PS* | Out-String"),
+    ], "powershell", "Get-CimInstance Win32_StartupCommand | Select Name, Command, Location | Out-String; Get-ItemProperty 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Run' -ErrorAction SilentlyContinue | Select * -ExcludeProperty PS* | Out-String"),
     JarvisCommand("defender_scan_rapide", "systeme", "Lancer un scan rapide Windows Defender", [
         "scan antivirus", "lance un scan defender", "scan rapide",
         "antivirus scan", "defender scan",
@@ -150,7 +150,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("gros_fichiers_bureau", "systeme", "Top 10 plus gros fichiers du bureau", [
         "plus gros fichiers", "gros fichiers bureau",
         "fichiers les plus lourds", "quoi prend de la place",
-    ], "powershell", "Get-ChildItem 'F:\\BUREAU' -Recurse -File -ErrorAction SilentlyContinue | Sort Length -Descending | Select -First 10 @{N='Taille(MB)';E={[math]::Round($_.Length/1MB,1)}}, FullName | Format-Table -AutoSize | Out-String -Width 200"),
+    ], "powershell", "Get-ChildItem 'F:/BUREAU' -Recurse -File -ErrorAction SilentlyContinue | Sort Length -Descending | Select -First 10 @{N='Taille(MB)';E={[math]::Round($_.Length/1MB,1)}}, FullName | Format-Table -AutoSize | Out-String -Width 200"),
 
     # ══════════════════════════════════════════════════════════════════════
     # MONITORING AVANCÉ
@@ -170,7 +170,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("taille_cache_navigateur", "systeme", "Taille des caches navigateur Chrome/Edge", [
         "taille cache navigateur", "cache chrome", "cache edge",
         "combien pese le cache web",
-    ], "powershell", "$chrome = (Get-ChildItem \"$env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Default\\Cache\" -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1MB; $edge = (Get-ChildItem \"$env:LOCALAPPDATA\\Microsoft\\Edge\\User Data\\Default\\Cache\" -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1MB; \"Chrome cache: $([math]::Round($chrome,1)) MB | Edge cache: $([math]::Round($edge,1)) MB\""),
+    ], "powershell", "$chrome = (Get-ChildItem \"$env:LOCALAPPDATA/Google/Chrome/User Data/Default/Cache\" -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1MB; $edge = (Get-ChildItem \"$env:LOCALAPPDATA/Microsoft/Edge/User Data/Default/Cache\" -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1MB; \"Chrome cache: $([math]::Round($chrome,1)) MB | Edge cache: $([math]::Round($edge,1)) MB\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # NETTOYAGE AVANCÉ
@@ -178,15 +178,15 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("nettoyer_cache_navigateur", "systeme", "Vider les caches Chrome et Edge", [
         "vide le cache navigateur", "nettoie le cache chrome",
         "clean cache web", "purge cache navigateur",
-    ], "powershell", "Remove-Item \"$env:LOCALAPPDATA\\Google\\Chrome\\User Data\\Default\\Cache\\*\" -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item \"$env:LOCALAPPDATA\\Microsoft\\Edge\\User Data\\Default\\Cache\\*\" -Recurse -Force -ErrorAction SilentlyContinue; 'Caches navigateur nettoyes'", confirm=True),
+    ], "powershell", "Remove-Item \"$env:LOCALAPPDATA/Google/Chrome/User Data/Default/Cache/*\" -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item \"$env:LOCALAPPDATA/Microsoft/Edge/User Data/Default/Cache/*\" -Recurse -Force -ErrorAction SilentlyContinue; 'Caches navigateur nettoyes'", confirm=True),
     JarvisCommand("nettoyer_crash_dumps", "systeme", "Supprimer les crash dumps Windows", [
         "nettoie les crash dumps", "supprime les dumps",
         "clean crash dumps", "vide les crash dumps",
-    ], "powershell", "$count = (Get-ChildItem \"$env:LOCALAPPDATA\\CrashDumps\" -File -ErrorAction SilentlyContinue).Count; Remove-Item \"$env:LOCALAPPDATA\\CrashDumps\\*\" -Force -ErrorAction SilentlyContinue; \"$count crash dumps supprimes\""),
+    ], "powershell", "$count = (Get-ChildItem \"$env:LOCALAPPDATA/CrashDumps\" -File -ErrorAction SilentlyContinue).Count; Remove-Item \"$env:LOCALAPPDATA/CrashDumps/*\" -Force -ErrorAction SilentlyContinue; \"$count crash dumps supprimes\""),
     JarvisCommand("nettoyer_windows_old", "systeme", "Taille du dossier Windows.old (ancien systeme)", [
         "taille windows old", "windows old", "combien pese windows old",
         "ancien systeme",
-    ], "powershell", "if(Test-Path 'C:\\Windows.old'){ $s = (Get-ChildItem 'C:\\Windows.old' -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1GB; \"Windows.old: $([math]::Round($s,1)) GB\" }else{ 'Pas de dossier Windows.old' }"),
+    ], "powershell", "if(Test-Path '/\Windows.old'){ $s = (Get-ChildItem '/\Windows.old' -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1GB; \"Windows.old: $([math]::Round($s,1)) GB\" }else{ 'Pas de dossier Windows.old' }"),
 
     # ══════════════════════════════════════════════════════════════════════
     # CLUSTER IA — Monitoring avance
@@ -214,7 +214,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("installed_apps_list", "systeme", "Lister les applications installees", [
         "liste les applications", "apps installees", "quelles apps j'ai",
         "programmes installes", "inventaire logiciels",
-    ], "powershell", "Get-ItemProperty HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | Where DisplayName | Select DisplayName, DisplayVersion, Publisher | Sort DisplayName | Out-String -Width 200"),
+    ], "powershell", "Get-ItemProperty HKLM:/Software/Microsoft/Windows/CurrentVersion/Uninstall/* | Where DisplayName | Select DisplayName, DisplayVersion, Publisher | Sort DisplayName | Out-String -Width 200"),
     JarvisCommand("hotfix_history", "systeme", "Historique des correctifs Windows installes", [
         "historique hotfix", "correctifs installes", "patches windows",
         "quels hotfix", "mises a jour installees",
@@ -222,7 +222,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("scheduled_tasks_active", "systeme", "Taches planifiees actives", [
         "taches planifiees actives", "scheduled tasks", "quelles taches auto",
         "taches programmees", "cron windows",
-    ], "powershell", "Get-ScheduledTask | Where State -eq 'Ready' | Where TaskPath -notmatch '^\\\\Microsoft' | Select TaskName, State, @{N='Next';E={($_ | Get-ScheduledTaskInfo).NextRunTime}} | Out-String"),
+    ], "powershell", "Get-ScheduledTask | Where State -eq 'Ready' | Where TaskPath -notmatch '^//Microsoft' | Select TaskName, State, @{N='Next';E={($_ | Get-ScheduledTaskInfo).NextRunTime}} | Out-String"),
     JarvisCommand("tpm_info", "systeme", "Informations sur le module TPM", [
         "info tpm", "tpm status", "etat du tpm",
         "module tpm", "securite tpm",
@@ -234,7 +234,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("startup_impact", "systeme", "Impact des programmes au demarrage sur le boot", [
         "impact demarrage", "startup impact", "quoi ralentit le boot",
         "programmes lents au demarrage", "performance boot",
-    ], "powershell", "Get-CimInstance Win32_StartupCommand | Select Name, Command, Location | Out-String; '---'; Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -ErrorAction SilentlyContinue | Select * -ExcludeProperty PS* | Out-String"),
+    ], "powershell", "Get-CimInstance Win32_StartupCommand | Select Name, Command, Location | Out-String; '---'; Get-ItemProperty 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Run' -ErrorAction SilentlyContinue | Select * -ExcludeProperty PS* | Out-String"),
     JarvisCommand("system_info_detaille", "systeme", "Infos systeme detaillees (OS, BIOS, carte mere)", [
         "infos systeme detaillees", "system info", "details du pc",
         "specs du pc", "configuration materielle",
@@ -270,7 +270,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("bluescreen_history", "systeme", "Historique des ecrans bleus (BSOD)", [
         "ecrans bleus", "bsod", "bluescreen", "historique bsod",
         "crashs windows", "blue screen of death",
-    ], "powershell", "$dumps = Get-ChildItem 'C:\\Windows\\Minidump' -ErrorAction SilentlyContinue; if($dumps){$dumps | Select Name, @{N='Date';E={$_.LastWriteTime.ToString('dd/MM/yyyy HH:mm')}}, @{N='Taille(KB)';E={[math]::Round($_.Length/1KB)}} | Out-String}else{'Aucun BSOD enregistre'}"),
+    ], "powershell", "$dumps = Get-ChildItem '/\Windows/Minidump' -ErrorAction SilentlyContinue; if($dumps){$dumps | Select Name, @{N='Date';E={$_.LastWriteTime.ToString('dd/MM/yyyy HH:mm')}}, @{N='Taille(KB)';E={[math]::Round($_.Length/1KB)}} | Out-String}else{'Aucun BSOD enregistre'}"),
     JarvisCommand("disk_smart_health", "systeme", "Etat de sante SMART des disques", [
         "sante disques", "smart disques", "disk health",
         "etat ssd", "disques en bonne sante",
@@ -321,7 +321,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("certificates_list", "systeme", "Certificats systeme installes (racine)", [
         "certificats installes", "certificates", "liste les certificats",
         "certificats racine", "certs systeme",
-    ], "powershell", "Get-ChildItem Cert:\\LocalMachine\\Root | Select -First 15 Subject, NotAfter | Format-Table -AutoSize | Out-String"),
+    ], "powershell", "Get-ChildItem Cert:/LocalMachine/Root | Select -First 15 Subject, NotAfter | Format-Table -AutoSize | Out-String"),
     JarvisCommand("page_file_info", "systeme", "Configuration du fichier de pagination (swap)", [
         "page file", "fichier de pagination", "swap windows",
         "memoire virtuelle", "taille du swap",
@@ -353,7 +353,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("shared_folders", "systeme", "Dossiers partages sur ce PC", [
         "dossiers partages", "partages reseau", "shared folders",
         "quels dossiers sont partages", "partages windows",
-    ], "powershell", "Get-SmbShare | Where Name -notmatch '\\$' | Select Name, Path, Description | Format-Table -AutoSize | Out-String"),
+    ], "powershell", "Get-SmbShare | Where Name -notmatch '/$' | Select Name, Path, Description | Format-Table -AutoSize | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # PILOTAGE WINDOWS SANS SOURIS — Fenêtres, apps, audio, affichage
@@ -397,7 +397,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("toggle_dark_mode", "systeme", "Basculer entre mode sombre et mode clair", [
         "mode sombre", "dark mode", "toggle dark mode",
         "mode clair", "change le theme", "light mode",
-    ], "powershell", "$k = 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize'; $v = (Get-ItemProperty $k).AppsUseLightTheme; if($v -eq 0){Set-ItemProperty $k AppsUseLightTheme 1; Set-ItemProperty $k SystemUsesLightTheme 1; 'Mode clair active'}else{Set-ItemProperty $k AppsUseLightTheme 0; Set-ItemProperty $k SystemUsesLightTheme 0; 'Mode sombre active'}"),
+    ], "powershell", "$k = 'HKCU:/SOFTWARE/Microsoft/Windows/CurrentVersion/Themes/Personalize'; $v = (Get-ItemProperty $k).AppsUseLightTheme; if($v -eq 0){Set-ItemProperty $k AppsUseLightTheme 1; Set-ItemProperty $k SystemUsesLightTheme 1; 'Mode clair active'}else{Set-ItemProperty $k AppsUseLightTheme 0; Set-ItemProperty $k SystemUsesLightTheme 0; 'Mode sombre active'}"),
     JarvisCommand("taper_date", "systeme", "Taper la date du jour automatiquement", [
         "tape la date", "ecris la date", "insere la date",
         "date du jour", "quelle date",
@@ -573,7 +573,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("vscode_split_editor", "systeme", "Diviser l'editeur VSCode en deux", [
         "divise l'editeur", "split editor", "editeur cote a cote",
         "deux colonnes vscode",
-    ], "hotkey", "ctrl+\\"),
+    ], "hotkey", "ctrl+/"),
     JarvisCommand("vscode_close_all", "systeme", "Fermer tous les fichiers ouverts dans VSCode", [
         "ferme tous les fichiers vscode", "close all tabs vscode",
         "nettoie vscode", "ferme tout dans vscode",
@@ -589,11 +589,11 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("explorer_afficher_caches", "systeme", "Afficher les fichiers caches dans l'Explorateur", [
         "montre les fichiers caches", "fichiers caches", "show hidden files",
         "affiche les fichiers invisibles",
-    ], "powershell", "Set-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' Hidden 1; Stop-Process -Name explorer -Force; Start-Process explorer; 'Fichiers caches visibles'"),
+    ], "powershell", "Set-ItemProperty 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced' Hidden 1; Stop-Process -Name explorer -Force; Start-Process explorer; 'Fichiers caches visibles'"),
     JarvisCommand("explorer_masquer_caches", "systeme", "Masquer les fichiers caches", [
         "cache les fichiers caches", "masque les fichiers invisibles", "hide hidden files",
         "desactive les fichiers caches",
-    ], "powershell", "Set-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced' Hidden 2; Stop-Process -Name explorer -Force; Start-Process explorer; 'Fichiers caches masques'"),
+    ], "powershell", "Set-ItemProperty 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced' Hidden 2; Stop-Process -Name explorer -Force; Start-Process explorer; 'Fichiers caches masques'"),
 
     # ══════════════════════════════════════════════════════════════════════
     # SCROLL & NAVIGATION PAGE — Contrôle sans souris
@@ -965,31 +965,31 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("compresser_fichier", "fichiers", "Compresser un dossier en ZIP", [
         "compresse en zip", "zip le dossier", "cree un zip",
         "archive le dossier", "compress files",
-    ], "powershell", "$d = (Get-ChildItem F:\\BUREAU -Directory | Sort LastWriteTime -Descending | Select -First 1).FullName; $zip = \"$d.zip\"; Compress-Archive -Path $d -DestinationPath $zip -Force; \"Compresse: $zip\""),
+    ], "powershell", "$d = (Get-ChildItem F:/BUREAU -Directory | Sort LastWriteTime -Descending | Select -First 1).FullName; $zip = \"$d.zip\"; Compress-Archive -Path $d -DestinationPath $zip -Force; \"Compresse: $zip\""),
     JarvisCommand("decompresser_fichier", "fichiers", "Decompresser un fichier ZIP", [
         "decompresse le zip", "unzip", "extrais l'archive",
         "dezippe", "decompresser",
-    ], "powershell", "$z = Get-ChildItem F:\\BUREAU\\*.zip -ErrorAction SilentlyContinue | Sort LastWriteTime -Descending | Select -First 1; if($z){Expand-Archive $z.FullName -DestinationPath ($z.FullName -replace '\\.zip$','') -Force; \"Extrait: $($z.Name)\"}else{'Aucun ZIP trouve'}"),
+    ], "powershell", "$z = Get-ChildItem F:/BUREAU/*.zip -ErrorAction SilentlyContinue | Sort LastWriteTime -Descending | Select -First 1; if($z){Expand-Archive $z.FullName -DestinationPath ($z.FullName -replace '/.zip$','') -Force; \"Extrait: $($z.Name)\"}else{'Aucun ZIP trouve'}"),
     JarvisCommand("compresser_turbo", "fichiers", "Compresser le projet turbo en ZIP (sans .git ni venv)", [
         "zip turbo", "archive turbo", "compresse le projet",
         "backup zip turbo",
-    ], "powershell", "$dest = \"F:\\BUREAU\\turbo_$(Get-Date -Format 'yyyy-MM-dd_HHmm').zip\"; Get-ChildItem F:\\BUREAU\\turbo -Recurse -File | Where { $_.FullName -notmatch '\\.git\\\\|__pycache__|node_modules|\\.venv|dist' } | Compress-Archive -DestinationPath $dest -Force; \"Archive: $dest\""),
+    ], "powershell", "$dest = \"F:/BUREAU/turbo_$(Get-Date -Format 'yyyy-MM-dd_HHmm').zip\"; Get-ChildItem F:/BUREAU/turbo -Recurse -File | Where { $_.FullName -notmatch '/.git//|__pycache__|node_modules|/.venv|dist' } | Compress-Archive -DestinationPath $dest -Force; \"Archive: $dest\""),
     JarvisCommand("vider_dossier_temp", "fichiers", "Supprimer les fichiers temporaires", [
         "vide le temp", "nettoie les temporaires", "clean temp",
         "supprime les fichiers temporaires",
-    ], "powershell", "$count = (Get-ChildItem $env:TEMP -Recurse -File -ErrorAction SilentlyContinue).Count; Remove-Item \"$env:TEMP\\*\" -Recurse -Force -ErrorAction SilentlyContinue; \"$count fichiers temporaires supprimes\"", confirm=True),
+    ], "powershell", "$count = (Get-ChildItem $env:TEMP -Recurse -File -ErrorAction SilentlyContinue).Count; Remove-Item \"$env:TEMP/*\" -Recurse -Force -ErrorAction SilentlyContinue; \"$count fichiers temporaires supprimes\"", confirm=True),
     JarvisCommand("lister_fichiers_recents", "fichiers", "Lister les 20 fichiers les plus recents sur le bureau", [
         "fichiers recents", "derniers fichiers", "quoi de recent",
         "fichiers modifies recemment",
-    ], "powershell", "Get-ChildItem F:\\BUREAU -Recurse -File -ErrorAction SilentlyContinue | Sort LastWriteTime -Descending | Select -First 20 @{N='Modifie';E={$_.LastWriteTime.ToString('dd/MM HH:mm')}}, @{N='Taille(KB)';E={[math]::Round($_.Length/1KB)}}, Name | Format-Table -AutoSize | Out-String"),
+    ], "powershell", "Get-ChildItem F:/BUREAU -Recurse -File -ErrorAction SilentlyContinue | Sort LastWriteTime -Descending | Select -First 20 @{N='Modifie';E={$_.LastWriteTime.ToString('dd/MM HH:mm')}}, @{N='Taille(KB)';E={[math]::Round($_.Length/1KB)}}, Name | Format-Table -AutoSize | Out-String"),
     JarvisCommand("chercher_gros_fichiers", "fichiers", "Trouver les fichiers > 100 MB sur F:", [
         "gros fichiers partout", "fichiers enormes", "quoi prend toute la place",
         "plus gros fichiers systeme",
-    ], "powershell", "Get-ChildItem F:\\ -Recurse -File -ErrorAction SilentlyContinue | Where Length -gt 100MB | Sort Length -Descending | Select -First 15 @{N='Taille(MB)';E={[math]::Round($_.Length/1MB)}}, FullName | Format-Table -AutoSize | Out-String -Width 200"),
-    JarvisCommand("doublons_bureau", "fichiers", "Detecter les doublons potentiels par nom dans F:\\BUREAU", [
+    ], "powershell", "Get-ChildItem F:/ -Recurse -File -ErrorAction SilentlyContinue | Where Length -gt 100MB | Sort Length -Descending | Select -First 15 @{N='Taille(MB)';E={[math]::Round($_.Length/1MB)}}, FullName | Format-Table -AutoSize | Out-String -Width 200"),
+    JarvisCommand("doublons_bureau", "fichiers", "Detecter les doublons potentiels par nom dans F:/BUREAU", [
         "doublons bureau", "fichiers en double", "trouve les doublons",
         "duplicate files", "doublons dans mes projets",
-    ], "powershell", "Get-ChildItem F:\\BUREAU -Recurse -File -ErrorAction SilentlyContinue | Group-Object Name | Where Count -gt 1 | Select Name, Count | Sort Count -Descending | Select -First 20 | Format-Table -AutoSize | Out-String"),
+    ], "powershell", "Get-ChildItem F:/BUREAU -Recurse -File -ErrorAction SilentlyContinue | Group-Object Name | Where Count -gt 1 | Select Name, Count | Sort Count -Descending | Select -First 20 | Format-Table -AutoSize | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # RÉSEAU AVANCÉ — Diagnostic, VPN, DNS
@@ -1069,7 +1069,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("audit_rdp", "systeme", "Verifier si le Bureau a distance est active", [
         "rdp actif", "bureau a distance", "remote desktop status",
         "check rdp", "est ce que rdp est active",
-    ], "powershell", "$rdp = (Get-ItemProperty 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server').fDenyTSConnections; if($rdp -eq 0){'RDP ACTIVE — attention securite!'}else{'RDP desactive (ok)'}"),
+    ], "powershell", "$rdp = (Get-ItemProperty 'HKLM:/System/CurrentControlSet/Control/Terminal Server').fDenyTSConnections; if($rdp -eq 0){'RDP ACTIVE — attention securite!'}else{'RDP desactive (ok)'}"),
     JarvisCommand("audit_admin_users", "systeme", "Lister les utilisateurs administrateurs", [
         "qui est admin", "utilisateurs administrateurs", "admin users",
         "comptes admin", "quels comptes ont les droits admin",
@@ -1085,7 +1085,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("audit_software_recent", "systeme", "Logiciels installes recemment (30 derniers jours)", [
         "logiciels recemment installes", "quoi de neuf installe",
         "installations recentes", "derniers logiciels",
-    ], "powershell", "Get-ItemProperty HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* | Where InstallDate | Where { try { [datetime]::ParseExact($_.InstallDate,'yyyyMMdd',$null) -gt (Get-Date).AddDays(-30) } catch { $false } } | Select DisplayName, InstallDate | Sort InstallDate -Descending | Format-Table -AutoSize | Out-String"),
+    ], "powershell", "Get-ItemProperty HKLM:/Software/Microsoft/Windows/CurrentVersion/Uninstall/* | Where InstallDate | Where { try { [datetime]::ParseExact($_.InstallDate,'yyyyMMdd',$null) -gt (Get-Date).AddDays(-30) } catch { $false } } | Select DisplayName, InstallDate | Sort InstallDate -Descending | Format-Table -AutoSize | Out-String"),
     JarvisCommand("firewall_toggle_profil", "systeme", "Activer/desactiver le pare-feu pour le profil actif", [
         "toggle firewall", "active le pare feu", "desactive le firewall",
         "firewall on off", "bascule le pare feu",
@@ -1189,7 +1189,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("wsl_disk_usage", "systeme", "Espace disque utilise par WSL", [
         "taille wsl", "espace wsl", "combien pese linux",
         "disque wsl",
-    ], "powershell", "Get-ChildItem \"$env:LOCALAPPDATA\\Packages\\*Linux*\\LocalState\\ext4.vhdx\" -ErrorAction SilentlyContinue | Select @{N='Distro';E={($_.Directory.Parent.Name -split '_')[0]}}, @{N='Taille(GB)';E={[math]::Round($_.Length/1GB,2)}} | Out-String"),
+    ], "powershell", "Get-ChildItem \"$env:LOCALAPPDATA/Packages/*Linux*/LocalState/ext4.vhdx\" -ErrorAction SilentlyContinue | Select @{N='Distro';E={($_.Directory.Parent.Name -split '_')[0]}}, @{N='Taille(GB)';E={[math]::Round($_.Length/1GB,2)}} | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # ACCESSIBILITÉ — Outils d'aide Windows
@@ -1277,7 +1277,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("startup_apps_list", "systeme", "Lister les apps qui demarrent au boot", [
         "apps au demarrage", "startup apps", "quoi se lance au boot",
         "programmes au demarrage",
-    ], "powershell", "Get-CimInstance Win32_StartupCommand | Select Name, Command | Format-Table -AutoSize | Out-String; '---Registre---'; Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -ErrorAction SilentlyContinue | Select * -ExcludeProperty PS* | Format-List | Out-String"),
+    ], "powershell", "Get-CimInstance Win32_StartupCommand | Select Name, Command | Format-Table -AutoSize | Out-String; '---Registre---'; Get-ItemProperty 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Run' -ErrorAction SilentlyContinue | Select * -ExcludeProperty PS* | Format-List | Out-String"),
     JarvisCommand("startup_settings", "systeme", "Ouvrir les parametres des apps au demarrage", [
         "parametres demarrage", "startup settings", "gerer le demarrage",
         "config startup",
@@ -1353,11 +1353,11 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("wallpaper_info", "systeme", "Voir le fond d'ecran actuel", [
         "quel fond d'ecran", "wallpaper actuel", "image de fond",
         "fond d ecran",
-    ], "powershell", "(Get-ItemProperty 'HKCU:\\Control Panel\\Desktop' TranscodedImageCache -ErrorAction SilentlyContinue | Out-Null); $p = (Get-ItemProperty 'HKCU:\\Control Panel\\Desktop').WallPaper; \"Fond d'ecran: $p\""),
+    ], "powershell", "(Get-ItemProperty 'HKCU:/Control Panel/Desktop' TranscodedImageCache -ErrorAction SilentlyContinue | Out-Null); $p = (Get-ItemProperty 'HKCU:/Control Panel/Desktop').WallPaper; \"Fond d'ecran: $p\""),
     JarvisCommand("icones_bureau_toggle", "systeme", "Afficher/masquer les icones du bureau", [
         "cache les icones", "montre les icones", "icones bureau",
         "toggle desktop icons", "bureau vide",
-    ], "powershell", "$r = 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced'; $v = (Get-ItemProperty $r).HideIcons; Set-ItemProperty $r HideIcons $(1-$v); Stop-Process -Name explorer -Force; Start-Process explorer; if($v){'Icones affichees'}else{'Icones masquees'}"),
+    ], "powershell", "$r = 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Explorer/Advanced'; $v = (Get-ItemProperty $r).HideIcons; Set-ItemProperty $r HideIcons $(1-$v); Stop-Process -Name explorer -Force; Start-Process explorer; if($v){'Icones affichees'}else{'Icones masquees'}"),
 
     # ══════════════════════════════════════════════════════════════════════
     # HYPER-V & SANDBOX — Virtualisation
@@ -1429,7 +1429,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("clipboard_compter_mots", "systeme", "Compter les mots dans le presse-papier", [
         "combien de mots copies", "word count clipboard", "compte les mots",
         "mots dans le clipboard",
-    ], "powershell", "$c = Get-Clipboard; if($c){$w = ($c -split '\\s+').Count; $ch = $c.Length; $l = ($c -split '`n').Count; \"$w mots | $ch caracteres | $l lignes\"}else{'Presse-papier vide'}"),
+    ], "powershell", "$c = Get-Clipboard; if($c){$w = ($c -split '/s+').Count; $ch = $c.Length; $l = ($c -split '`n').Count; \"$w mots | $ch caracteres | $l lignes\"}else{'Presse-papier vide'}"),
     JarvisCommand("clipboard_trim", "systeme", "Nettoyer les espaces du texte clipboard", [
         "nettoie le clipboard", "trim clipboard", "enleve les espaces",
         "clean le presse papier",
@@ -1529,7 +1529,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("calculer_expression", "systeme", "Calculer une expression mathematique", [
         "calcule {expr}", "combien fait {expr}", "resultat de {expr}",
         "{expr} egal combien",
-    ], "powershell", "$e = '{expr}' -replace '[^0-9+\\-*/()., ]', ''; if($e) {{ $r = [System.Data.DataTable]::new().Compute($e,''); \"Resultat: $r\" }} else {{ \"Expression invalide\" }}", ["expr"]),
+    ], "powershell", "$e = '{expr}' -replace '[^0-9+/-*/()., ]', ''; if($e) {{ $r = [System.Data.DataTable]::new().Compute($e,''); \"Resultat: $r\" }} else {{ \"Expression invalide\" }}", ["expr"]),
     JarvisCommand("convertir_temperature", "systeme", "Convertir Celsius en Fahrenheit et inversement", [
         "convertis {temp} degres", "celsius en fahrenheit {temp}",
         "fahrenheit en celsius {temp}", "temperature {temp}",
@@ -1581,31 +1581,31 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("taille_telechargements", "fichiers", "Taille du dossier Telechargements", [
         "taille telechargements", "poids downloads", "combien dans les telechargements",
         "downloads size",
-    ], "powershell", "$d = \"$env:USERPROFILE\\Downloads\"; $s = (Get-ChildItem $d -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum; $c = (Get-ChildItem $d -File -ErrorAction SilentlyContinue).Count; \"Telechargements: $([math]::Round($s/1GB,2)) GB ($c fichiers)\""),
+    ], "powershell", "$d = \"$env:USERPROFILE/Downloads\"; $s = (Get-ChildItem $d -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum; $c = (Get-ChildItem $d -File -ErrorAction SilentlyContinue).Count; \"Telechargements: $([math]::Round($s/1GB,2)) GB ($c fichiers)\""),
     JarvisCommand("vider_telechargements", "fichiers", "Vider le dossier Telechargements (fichiers > 30 jours)", [
         "vide les telechargements", "nettoie les downloads", "clean downloads",
         "supprime les vieux telechargements",
-    ], "powershell", "$d = \"$env:USERPROFILE\\Downloads\"; $old = Get-ChildItem $d -File | Where { $_.LastWriteTime -lt (Get-Date).AddDays(-30) }; $old | Remove-Item -Force -ErrorAction SilentlyContinue; \"$($old.Count) fichiers > 30 jours supprimes\"", confirm=True),
+    ], "powershell", "$d = \"$env:USERPROFILE/Downloads\"; $old = Get-ChildItem $d -File | Where { $_.LastWriteTime -lt (Get-Date).AddDays(-30) }; $old | Remove-Item -Force -ErrorAction SilentlyContinue; \"$($old.Count) fichiers > 30 jours supprimes\"", confirm=True),
     JarvisCommand("lister_telechargements", "fichiers", "Derniers fichiers telecharges", [
         "derniers telechargements", "quoi de telecharge", "recent downloads",
         "fichiers telecharges",
-    ], "powershell", "Get-ChildItem \"$env:USERPROFILE\\Downloads\" -File | Sort LastWriteTime -Descending | Select -First 15 @{N='Date';E={$_.LastWriteTime.ToString('dd/MM HH:mm')}}, @{N='Taille(MB)';E={[math]::Round($_.Length/1MB,1)}}, Name | Format-Table -AutoSize | Out-String"),
+    ], "powershell", "Get-ChildItem \"$env:USERPROFILE/Downloads\" -File | Sort LastWriteTime -Descending | Select -First 15 @{N='Date';E={$_.LastWriteTime.ToString('dd/MM HH:mm')}}, @{N='Taille(MB)';E={[math]::Round($_.Length/1MB,1)}}, Name | Format-Table -AutoSize | Out-String"),
     JarvisCommand("ouvrir_telechargements", "fichiers", "Ouvrir le dossier Telechargements", [
         "ouvre les telechargements", "dossier downloads", "va dans les telechargements",
         "ouvre downloads",
-    ], "powershell", "Start-Process explorer \"$env:USERPROFILE\\Downloads\""),
+    ], "powershell", "Start-Process explorer \"$env:USERPROFILE/Downloads\""),
     JarvisCommand("ouvrir_documents", "fichiers", "Ouvrir le dossier Documents", [
         "ouvre les documents", "dossier documents", "mes documents",
         "ouvre mes fichiers",
-    ], "powershell", "Start-Process explorer \"$env:USERPROFILE\\Documents\""),
-    JarvisCommand("ouvrir_bureau_dossier", "fichiers", "Ouvrir F:\\BUREAU dans l'explorateur", [
+    ], "powershell", "Start-Process explorer \"$env:USERPROFILE/Documents\""),
+    JarvisCommand("ouvrir_bureau_dossier", "fichiers", "Ouvrir F:/BUREAU dans l'explorateur", [
         "ouvre le bureau", "dossier bureau", "va dans bureau",
         "explore le bureau",
-    ], "powershell", "Start-Process explorer 'F:\\BUREAU'"),
+    ], "powershell", "Start-Process explorer 'F:/BUREAU'"),
     JarvisCommand("fichier_recent_modifie", "fichiers", "Trouver le dernier fichier modifie partout", [
         "dernier fichier modifie", "quoi vient de changer", "last modified",
         "fichier le plus recent",
-    ], "powershell", "Get-ChildItem F:\\BUREAU -Recurse -File -ErrorAction SilentlyContinue | Where { $_.FullName -notmatch '\\.git|__pycache__|node_modules' } | Sort LastWriteTime -Descending | Select -First 1 @{N='Modifie';E={$_.LastWriteTime.ToString('dd/MM/yyyy HH:mm')}}, FullName | Out-String"),
+    ], "powershell", "Get-ChildItem F:/BUREAU -Recurse -File -ErrorAction SilentlyContinue | Where { $_.FullName -notmatch '/.git|__pycache__|node_modules' } | Sort LastWriteTime -Descending | Select -First 1 @{N='Modifie';E={$_.LastWriteTime.ToString('dd/MM/yyyy HH:mm')}}, FullName | Out-String"),
     JarvisCommand("compter_fichiers_type", "fichiers", "Compter les fichiers par extension dans un dossier", [
         "compte les fichiers par type", "extensions dans {path}",
         "quels types de fichiers dans {path}",
@@ -1661,17 +1661,17 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("registry_backup", "systeme", "Sauvegarder le registre complet", [
         "backup registre", "sauvegarde le registre", "exporte le registre",
         "backup registry",
-    ], "powershell", "reg export HKLM F:\\BUREAU\\registry_backup_$(Get-Date -Format yyyyMMdd).reg /y 2>&1; 'Registre HKLM exporte'", confirm=True),
+    ], "powershell", "reg export HKLM F:/BUREAU/registry_backup_$(Get-Date -Format yyyyMMdd).reg /y 2>&1; 'Registre HKLM exporte'", confirm=True),
     JarvisCommand("registry_search", "systeme", "Chercher une cle dans le registre", [
         "cherche dans le registre {cle}", "registry search {cle}",
         "trouve la cle {cle}",
-    ], "powershell", "Get-ChildItem -Path HKCU:\\Software -Recurse -ErrorAction SilentlyContinue | Where-Object { $_.Name -like '*{cle}*' } | Select -First 10 | Out-String", ["cle"]),
+    ], "powershell", "Get-ChildItem -Path HKCU:/Software -Recurse -ErrorAction SilentlyContinue | Where-Object { $_.Name -like '*{cle}*' } | Select -First 10 | Out-String", ["cle"]),
     JarvisCommand("registry_recent_changes", "systeme", "Cles de registre recemment modifiees", [
         "registre recent", "changements registre", "modifications registre",
-    ], "powershell", "Get-ChildItem HKCU:\\Software -ErrorAction SilentlyContinue | Sort LastWriteTime -Descending | Select -First 15 Name, @{N='Modified';E={$_.LastWriteTime}} | Format-Table | Out-String"),
+    ], "powershell", "Get-ChildItem HKCU:/Software -ErrorAction SilentlyContinue | Sort LastWriteTime -Descending | Select -First 15 Name, @{N='Modified';E={$_.LastWriteTime}} | Format-Table | Out-String"),
     JarvisCommand("registry_startup_entries", "systeme", "Lister les entrees de demarrage dans le registre", [
         "startup registre", "autorun registre", "demarrage registre",
-    ], "powershell", "Get-ItemProperty HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run -ErrorAction SilentlyContinue | Format-List | Out-String"),
+    ], "powershell", "Get-ItemProperty HKCU:/Software/Microsoft/Windows/CurrentVersion/Run -ErrorAction SilentlyContinue | Format-List | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # POLICES — Gestion des fonts Windows
@@ -1685,7 +1685,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     ], "powershell", "$c = (New-Object System.Drawing.Text.InstalledFontCollection).Families.Count; \"$c polices installees\""),
     JarvisCommand("fonts_folder", "systeme", "Ouvrir le dossier des polices", [
         "dossier polices", "ouvre les fonts", "ouvrir dossier fonts",
-    ], "powershell", "Start-Process 'C:\\Windows\\Fonts'"),
+    ], "powershell", "Start-Process '/\Windows/Fonts'"),
 
     # ══════════════════════════════════════════════════════════════════════
     # VARIABLES D'ENVIRONNEMENT — Gestion des env vars
@@ -1751,7 +1751,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("disk_space_by_folder", "systeme", "Espace utilise par dossier (top 15)", [
         "espace par dossier", "quels dossiers prennent de la place",
         "gros dossiers", "qui prend de la place",
-    ], "powershell", "Get-ChildItem F:\\ -Directory -ErrorAction SilentlyContinue | ForEach-Object { $s = (Get-ChildItem $_.FullName -Recurse -File -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum; [PSCustomObject]@{Dossier=$_.Name; 'Taille(GB)'=[math]::Round($s/1GB,2)} } | Sort 'Taille(GB)' -Descending | Select -First 15 | Format-Table | Out-String"),
+    ], "powershell", "Get-ChildItem F:/ -Directory -ErrorAction SilentlyContinue | ForEach-Object { $s = (Get-ChildItem $_.FullName -Recurse -File -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum; [PSCustomObject]@{Dossier=$_.Name; 'Taille(GB)'=[math]::Round($s/1GB,2)} } | Sort 'Taille(GB)' -Descending | Select -First 15 | Format-Table | Out-String"),
     JarvisCommand("disk_temp_files_age", "systeme", "Fichiers temporaires les plus anciens", [
         "vieux fichiers temp", "anciens temp", "temp files age",
     ], "powershell", "Get-ChildItem $env:TEMP -File -ErrorAction SilentlyContinue | Where { $_.LastWriteTime -lt (Get-Date).AddDays(-7) } | Sort LastWriteTime | Select -First 15 Name, @{N='Age(j)';E={((Get-Date)-$_.LastWriteTime).Days}}, @{N='MB';E={[math]::Round($_.Length/1MB,1)}} | Format-Table | Out-String"),
@@ -1774,7 +1774,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("usb_history", "systeme", "Historique des peripheriques USB connectes", [
         "historique usb", "anciens usb", "usb history",
         "quels usb ont ete branches",
-    ], "powershell", "Get-ItemProperty HKLM:\\SYSTEM\\CurrentControlSet\\Enum\\USBSTOR\\*\\* -ErrorAction SilentlyContinue | Select FriendlyName, @{N='LastSeen';E={$_.ContainerID}} | Select -First 20 | Format-Table | Out-String"),
+    ], "powershell", "Get-ItemProperty HKLM:/SYSTEM/CurrentControlSet/Enum/USBSTOR/*/* -ErrorAction SilentlyContinue | Select FriendlyName, @{N='LastSeen';E={$_.ContainerID}} | Select -First 20 | Format-Table | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # ÉCRAN / AFFICHAGE — Paramètres d'écran
@@ -1897,7 +1897,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     # ══════════════════════════════════════════════════════════════════════
     JarvisCommand("default_browser_check", "systeme", "Voir quel est le navigateur par defaut", [
         "quel navigateur par defaut", "default browser", "navigateur principal",
-    ], "powershell", "$b = (Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice' -ErrorAction SilentlyContinue).ProgId; \"Navigateur par defaut: $b\""),
+    ], "powershell", "$b = (Get-ItemProperty 'HKCU:/Software/Microsoft/Windows/Shell/Associations/UrlAssociations/http/UserChoice' -ErrorAction SilentlyContinue).ProgId; \"Navigateur par defaut: $b\""),
     JarvisCommand("default_apps_settings", "systeme", "Ouvrir les parametres d'applis par defaut", [
         "applis par defaut", "apps par defaut", "default apps",
         "choisis les applis par defaut",
@@ -1916,7 +1916,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("extract_archive", "systeme", "Extraire une archive ZIP", [
         "extrais {archive}", "dezippe {archive}", "decompresse {archive}",
         "unzip {archive}",
-    ], "powershell", "$dest = '{archive}' -replace '\\.zip$',''; Expand-Archive -Path '{archive}' -DestinationPath $dest -Force; \"Extrait dans: $dest\"", ["archive"]),
+    ], "powershell", "$dest = '{archive}' -replace '/.zip$',''; Expand-Archive -Path '{archive}' -DestinationPath $dest -Force; \"Extrait dans: $dest\"", ["archive"]),
     JarvisCommand("rename_files_batch", "systeme", "Renommer des fichiers en lot (prefixe)", [
         "renomme en lot {prefix}", "batch rename {prefix}",
         "renomme les fichiers {prefix}",
@@ -1924,11 +1924,11 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("find_large_files", "systeme", "Trouver les plus gros fichiers (top 20)", [
         "plus gros fichiers", "fichiers les plus lourds", "big files",
         "qui prend de la place",
-    ], "powershell", "Get-ChildItem F:\\ -Recurse -File -ErrorAction SilentlyContinue | Sort Length -Descending | Select -First 20 @{N='Size(MB)';E={[math]::Round($_.Length/1MB,1)}}, FullName | Format-Table | Out-String"),
+    ], "powershell", "Get-ChildItem F:/ -Recurse -File -ErrorAction SilentlyContinue | Sort Length -Descending | Select -First 20 @{N='Size(MB)';E={[math]::Round($_.Length/1MB,1)}}, FullName | Format-Table | Out-String"),
     JarvisCommand("find_old_files", "systeme", "Trouver les fichiers non modifies depuis 90 jours", [
         "vieux fichiers", "fichiers anciens", "old files",
         "fichiers pas touches depuis longtemps",
-    ], "powershell", "Get-ChildItem F:\\BUREAU -Recurse -File -ErrorAction SilentlyContinue | Where { $_.LastWriteTime -lt (Get-Date).AddDays(-90) } | Sort LastWriteTime | Select -First 20 @{N='Age(j)';E={((Get-Date)-$_.LastWriteTime).Days}}, @{N='MB';E={[math]::Round($_.Length/1MB,1)}}, Name | Format-Table | Out-String"),
+    ], "powershell", "Get-ChildItem F:/BUREAU -Recurse -File -ErrorAction SilentlyContinue | Where { $_.LastWriteTime -lt (Get-Date).AddDays(-90) } | Sort LastWriteTime | Select -First 20 @{N='Age(j)';E={((Get-Date)-$_.LastWriteTime).Days}}, @{N='MB';E={[math]::Round($_.Length/1MB,1)}}, Name | Format-Table | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # INFO MATÉRIEL — Détails hardware avancés
@@ -1944,7 +1944,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("windows_license", "systeme", "Statut de la licence Windows", [
         "licence windows", "windows active", "statut activation",
         "est ce que windows est active",
-    ], "powershell", "cscript //nologo C:\\Windows\\System32\\slmgr.vbs /dli 2>&1 | Out-String"),
+    ], "powershell", "cscript //nologo /\Windows/System32/slmgr.vbs /dli 2>&1 | Out-String"),
     JarvisCommand("boot_config", "systeme", "Configuration de demarrage (BCD)", [
         "config demarrage", "boot config", "bcd edit",
         "configuration boot",
@@ -2059,7 +2059,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("jobs_list", "systeme", "Lister les jobs PowerShell en arriere-plan", [
         "jobs en cours", "taches en arriere plan", "background jobs",
         "quels jobs",
-    ], "powershell", "Get-Job | Select Id, Name, State, @{N='Duration';E={if($_.PSEndTime -and $_.PSBeginTime){($_.PSEndTime-$_.PSBeginTime).ToString('hh\\:mm\\:ss')}else{'en cours'}}} | Format-Table | Out-String"),
+    ], "powershell", "Get-Job | Select Id, Name, State, @{N='Duration';E={if($_.PSEndTime -and $_.PSBeginTime){($_.PSEndTime-$_.PSBeginTime).ToString('hh/:mm/:ss')}else{'en cours'}}} | Format-Table | Out-String"),
     JarvisCommand("jobs_clean", "systeme", "Nettoyer les jobs termines", [
         "nettoie les jobs", "clean jobs", "supprime les jobs finis",
     ], "powershell", "$c = (Get-Job -State Completed,Failed | Measure-Object).Count; Get-Job -State Completed,Failed | Remove-Job; \"$c jobs nettoyes\""),
@@ -2079,6 +2079,6 @@ del _KEY_MAP
 
 # Post-processing: replace hardcoded paths with config-driven values
 for _cmd in MAINTENANCE_COMMANDS:
-    if "F:\\BUREAU\\turbo" in _cmd.action:
-        _cmd.action = _cmd.action.replace("F:\\BUREAU\\turbo", _TURBO_DIR)
+    if "F:/BUREAU/turbo" in _cmd.action:
+        _cmd.action = _cmd.action.replace("F:/BUREAU/turbo", _TURBO_DIR)
 del _cmd

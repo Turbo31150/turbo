@@ -1,5 +1,5 @@
 const fs = require('fs');
-const code = fs.readFileSync('F:/BUREAU/turbo/canvas/telegram-bot.js', 'utf-8');
+const code = fs.readFileSync('/home/turbo/jarvis-m1-ops/canvas/telegram-bot.js', 'utf-8');
 
 const checks = [
   ['normalizeNodes function exists', /function normalizeNodes\(nodes\)/.test(code)],

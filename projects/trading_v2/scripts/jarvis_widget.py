@@ -10,7 +10,7 @@ import sys
 import sqlite3
 from datetime import datetime
 
-ROOT = r"F:\BUREAU\TRADING_V2_PRODUCTION"
+ROOT = r"/home/turbo\TRADING_V2_PRODUCTION"
 LAUNCHERS = os.path.join(ROOT, "launchers")
 SCRIPTS = os.path.join(ROOT, "scripts")
 VOICE = os.path.join(ROOT, "voice_system")

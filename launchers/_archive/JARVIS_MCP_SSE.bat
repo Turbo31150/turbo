@@ -1,6 +1,6 @@
 @echo off
 title JARVIS MCP Remote Server (port 8901)
-cd /d F:\BUREAU\turbo
+cd /d /home/turbo/jarvis-m1-ops
 
 :: === SINGLETON GUARD ===
 python scripts/singleton_guard.py --name mcp_sse --kill
@@ -21,6 +21,6 @@ echo Copiez l'URL HTTPS affichee ci-dessous dans Perplexity.
 echo Ajoutez /mcp/ a la fin de l'URL cloudflared.
 echo Exemple: https://xxxx-xx-xx.trycloudflare.com/mcp/
 echo.
-"C:\Program Files (x86)\cloudflared\cloudflared.exe" tunnel --url http://127.0.0.1:8901
+"/Program Files (x86)\cloudflared\cloudflared.exe" tunnel --url http://127.0.0.1:8901
 
 pause

@@ -11,7 +11,7 @@
 ## Structure
 
 ```
-C:\CLAUDE_WORKSPACE\SERVER_MANAGER\
+/CLAUDE_WORKSPACE\SERVER_MANAGER\
 ├── config/
 │   └── network_config.json     # Config cluster
 ├── scripts/
@@ -90,7 +90,7 @@ Le Master Daemon accepte ces commandes TCP (JSON):
 
 Sur chaque worker:
 
-1. Copier le dossier `SERVER_MANAGER` vers `C:\CLAUDE_WORKSPACE\`
+1. Copier le dossier `SERVER_MANAGER` vers `/CLAUDE_WORKSPACE\`
 2. Ouvrir le port 5001 (worker1) ou 5002 (worker2) dans le firewall
 3. Lancer `START_WORKER.bat`
 

@@ -62,7 +62,7 @@ TELEGRAM_MESSAGES = [
     "Version de Python installée ?",
     # Actions
     "Envoie un message Telegram: Benchmark en cours",
-    "Liste les fichiers dans F:/BUREAU/turbo/src/",
+    "Liste les fichiers dans /home/turbo/jarvis-m1-ops/src/",
     "Vérifie si le port 9742 est ouvert",
 ]
 

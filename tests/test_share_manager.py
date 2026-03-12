@@ -43,8 +43,8 @@ class TestDataclasses:
 # ===========================================================================
 
 PS_SHARES_JSON = json.dumps([
-    {"Name": "ADMIN$", "Path": "C:\\Windows", "Description": "Admin", "ShareType": 0},
-    {"Name": "Public", "Path": "C:\\Users\\Public", "Description": "Public folder", "ShareType": 0},
+    {"Name": "ADMIN$", "Path": "/\Windows", "Description": "Admin", "ShareType": 0},
+    {"Name": "Public", "Path": "/\Users/Public", "Description": "Public folder", "ShareType": 0},
 ])
 
 
@@ -64,7 +64,7 @@ class TestListShares:
         sm = ShareManager()
         mock_result = MagicMock()
         mock_result.returncode = 0
-        mock_result.stdout = json.dumps({"Name": "Solo", "Path": "C:\\Solo", "Description": "", "ShareType": 0})
+        mock_result.stdout = json.dumps({"Name": "Solo", "Path": "/\Solo", "Description": "", "ShareType": 0})
         with patch("subprocess.run", return_value=mock_result):
             shares = sm.list_shares()
         assert len(shares) == 1
@@ -85,8 +85,8 @@ class TestListShares:
 NET_SHARE_OUTPUT = """Share name   Resource                        Remark
 
 -------------------------------------------------------------------------------
-ADMIN$       C:\\Windows                       Remote Admin
-C$           C:\\                              Default share
+ADMIN$       /\Windows                       Remote Admin
+C$           /\                              Default share
 The command completed successfully.
 """
 
@@ -116,8 +116,8 @@ NET_USE_OUTPUT = """New connections will be remembered.
 
 Status       Local     Remote                    Network
 -------------------------------------------------------------------------------
-OK           Z:        \\\\server\\share            Microsoft Windows Network
-Disconnected Y:        \\\\nas\\backup              Microsoft Windows Network
+OK           Z:        //server/share            Microsoft Windows Network
+Disconnected Y:        //nas/backup              Microsoft Windows Network
 The command completed successfully.
 """
 

@@ -28,16 +28,16 @@ _NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 
 # Common performance counter paths
 COUNTER_PATHS = {
-    "cpu": "\\Processor(_Total)\\% Processor Time",
-    "memory": "\\Memory\\Available MBytes",
-    "disk_read": "\\PhysicalDisk(_Total)\\Disk Read Bytes/sec",
-    "disk_write": "\\PhysicalDisk(_Total)\\Disk Write Bytes/sec",
-    "disk_queue": "\\PhysicalDisk(_Total)\\Current Disk Queue Length",
-    "net_recv": "\\Network Interface(*)\\Bytes Received/sec",
-    "net_sent": "\\Network Interface(*)\\Bytes Sent/sec",
-    "processes": "\\System\\Processes",
-    "threads": "\\System\\Threads",
-    "handles": "\\Process(_Total)\\Handle Count",
+    "cpu": "/Processor(_Total)/% Processor Time",
+    "memory": "/Memory/Available MBytes",
+    "disk_read": "/PhysicalDisk(_Total)/Disk Read Bytes/sec",
+    "disk_write": "/PhysicalDisk(_Total)/Disk Write Bytes/sec",
+    "disk_queue": "/PhysicalDisk(_Total)/Current Disk Queue Length",
+    "net_recv": "/Network Interface(*)/Bytes Received/sec",
+    "net_sent": "/Network Interface(*)/Bytes Sent/sec",
+    "processes": "/System/Processes",
+    "threads": "/System/Threads",
+    "handles": "/Process(_Total)/Handle Count",
 }
 
 

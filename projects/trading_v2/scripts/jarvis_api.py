@@ -11,7 +11,7 @@ import sqlite3
 import time
 from datetime import datetime
 
-ROOT = r"F:\BUREAU\TRADING_V2_PRODUCTION"
+ROOT = r"/home/turbo\TRADING_V2_PRODUCTION"
 sys.path.insert(0, os.path.join(ROOT, "voice_system"))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 

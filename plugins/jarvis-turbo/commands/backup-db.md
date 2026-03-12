@@ -14,7 +14,7 @@ ts = datetime.datetime.now().strftime('%Y-%m-%d_%H%M')
 backups = [
     ('F:/BUREAU/etoile.db', f'F:/BUREAU/backups/etoile_backup_{ts}.db'),
     ('F:/BUREAU/carV1/database/trading_latest.db', f'F:/BUREAU/carV1/backups/trading_backup_{ts}.db'),
-    ('F:/BUREAU/turbo/data/jarvis.db', f'F:/BUREAU/turbo/data/backups/jarvis_backup_{ts}.db'),
+    ('/home/turbo/jarvis-m1-ops/data/jarvis.db', f'/home/turbo/jarvis-m1-ops/data/backups/jarvis_backup_{ts}.db'),
 ]
 for src, dst in backups:
     if os.path.exists(src):

@@ -21,7 +21,7 @@ import sqlite3
 import sys
 import time
 
-PROJECT_ROOT = r"F:\BUREAU\turbo"
+PROJECT_ROOT = r"/home/turbo/jarvis-m1-ops"
 os.chdir(PROJECT_ROOT)
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)

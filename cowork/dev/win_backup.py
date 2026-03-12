@@ -54,7 +54,7 @@ def backup_files():
             path = path.replace("/", os.sep)
             try:
                 if os.path.isdir(path):
-                    dest = os.path.join(cat_dir, os.path.basename(path.rstrip("/\\")))
+                    dest = os.path.join(cat_dir, os.path.basename(path.rstrip("//")))
                     shutil.copytree(path, dest, dirs_exist_ok=True)
                     stats["dirs"] += 1
                 elif os.path.isfile(path):

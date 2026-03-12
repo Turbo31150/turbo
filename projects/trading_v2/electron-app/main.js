@@ -10,7 +10,7 @@ let mainWindow;
 let tray;
 let pythonServer;
 
-const ROOT = 'F:\\BUREAU\\TRADING_V2_PRODUCTION';
+const ROOT = 'F:/BUREAU/TRADING_V2_PRODUCTION';
 const PYTHON_SERVER = path.join(ROOT, 'scripts', 'jarvis_api.py');
 
 function createWindow() {

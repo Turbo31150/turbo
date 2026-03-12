@@ -4,8 +4,8 @@ Teste: Intent M2, latence, actions manquantes, controle Windows total
 """
 import sys, os, time, json, requests
 
-sys.path.insert(0, r'F:\BUREAU\TRADING_V2_PRODUCTION\voice_system')
-sys.path.insert(0, r'F:\BUREAU\TRADING_V2_PRODUCTION\scripts')
+sys.path.insert(0, r'/home/turbo\TRADING_V2_PRODUCTION\voice_system')
+sys.path.insert(0, r'/home/turbo\TRADING_V2_PRODUCTION\scripts')
 
 M2_URL = "http://192.168.1.26:1234/v1/chat/completions"
 M2_MODEL = "openai/gpt-oss-20b"

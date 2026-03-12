@@ -24,7 +24,7 @@ from datetime import datetime
 from pathlib import Path
 from urllib.request import Request, urlopen
 
-TURBO = Path("F:/BUREAU/turbo")
+TURBO = Path("/home/turbo/jarvis-m1-ops")
 DB_PATH = TURBO / "data" / "etoile.db"
 
 # ============================================================================

@@ -17,7 +17,7 @@ import re
 import requests
 
 # CONFIGURATION
-ROOT = r"F:\BUREAU\TRADING_V2_PRODUCTION"
+ROOT = r"/home/turbo\TRADING_V2_PRODUCTION"
 SCRIPTS = os.path.join(ROOT, "scripts")
 PILOT_PATH = os.path.join(SCRIPTS, "os_pilot.py")
 GENESIS_PATH = os.path.join(SCRIPTS, "self_coder.py")
@@ -771,24 +771,24 @@ PARAM_KEYWORDS = {
 # FOLDER_ALIASES - noms connus vers paths Windows
 # ================================================================
 FOLDER_ALIASES = {
-    "bureau": os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\franc"), "Desktop"),
-    "documents": os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\franc"), "Documents"),
-    "downloads": os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\franc"), "Downloads"),
-    "telechargements": os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\franc"), "Downloads"),
-    "images": os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\franc"), "Pictures"),
-    "musique": os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\franc"), "Music"),
-    "videos": os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\franc"), "Videos"),
-    "disque c": "C:\\",
-    "disque d": "D:\\",
-    "disque f": "F:\\",
-    "f bureau": r"F:\BUREAU",
-    "production": r"F:\BUREAU\TRADING_V2_PRODUCTION",
-    "trading v2": r"F:\BUREAU\TRADING_V2_PRODUCTION",
-    "scripts": r"F:\BUREAU\TRADING_V2_PRODUCTION\scripts",
-    "logs": r"F:\BUREAU\TRADING_V2_PRODUCTION\logs",
-    "config": r"F:\BUREAU\TRADING_V2_PRODUCTION\config",
-    "database": r"F:\BUREAU\TRADING_V2_PRODUCTION\database",
-    "voice": r"F:\BUREAU\TRADING_V2_PRODUCTION\voice_system",
+    "bureau": os.path.join(os.environ.get("USERPROFILE", "/\Users/franc"), "Desktop"),
+    "documents": os.path.join(os.environ.get("USERPROFILE", "/\Users/franc"), "Documents"),
+    "downloads": os.path.join(os.environ.get("USERPROFILE", "/\Users/franc"), "Downloads"),
+    "telechargements": os.path.join(os.environ.get("USERPROFILE", "/\Users/franc"), "Downloads"),
+    "images": os.path.join(os.environ.get("USERPROFILE", "/\Users/franc"), "Pictures"),
+    "musique": os.path.join(os.environ.get("USERPROFILE", "/\Users/franc"), "Music"),
+    "videos": os.path.join(os.environ.get("USERPROFILE", "/\Users/franc"), "Videos"),
+    "disque c": "/\",
+    "disque d": "D:/",
+    "disque f": "F:/",
+    "f bureau": r"/home/turbo",
+    "production": r"/home/turbo\TRADING_V2_PRODUCTION",
+    "trading v2": r"/home/turbo\TRADING_V2_PRODUCTION",
+    "scripts": r"/home/turbo\TRADING_V2_PRODUCTION\scripts",
+    "logs": r"/home/turbo\TRADING_V2_PRODUCTION\logs",
+    "config": r"/home/turbo\TRADING_V2_PRODUCTION\config",
+    "database": r"/home/turbo\TRADING_V2_PRODUCTION\database",
+    "voice": r"/home/turbo\TRADING_V2_PRODUCTION\voice_system",
 }
 
 # APP ALIASES - noms courants vers noms Windows
@@ -930,7 +930,7 @@ def execute_command(intent_data):
 
     elif action == "RUN_DASHBOARD":
         speak("Lancement du dashboard.")
-        dash = r"F:\BUREAU\MCP_MCPLMSTUDIO1\dashboard\app.py"
+        dash = r"/home/turbo\MCP_MCPLMSTUDIO1\dashboard\app.py"
         if os.path.exists(dash):
             subprocess.Popen(f'start cmd /k "{PYTHON_EXE}" -u "{dash}"', shell=True)
         else:

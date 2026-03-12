@@ -80,14 +80,14 @@ class TestBuildOptions:
 
     def test_build_options_returns_object(self):
         from src.orchestrator import build_options
-        opts = build_options(cwd="F:/BUREAU/turbo")
+        opts = build_options(cwd="/home/turbo/jarvis-m1-ops")
         assert opts is not None
 
     def test_build_options_commander_flag(self):
         """commander=True should use COMMANDER_PROMPT."""
         from src.orchestrator import build_options, COMMANDER_PROMPT, SYSTEM_PROMPT
-        opts_cmd = build_options(cwd="F:/BUREAU/turbo", commander=True)
-        opts_std = build_options(cwd="F:/BUREAU/turbo", commander=False)
+        opts_cmd = build_options(cwd="/home/turbo/jarvis-m1-ops", commander=True)
+        opts_std = build_options(cwd="/home/turbo/jarvis-m1-ops", commander=False)
         # The two should produce different system prompts
         assert opts_cmd is not None
         assert opts_std is not None

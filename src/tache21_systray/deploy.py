@@ -15,7 +15,7 @@ class Deployer:
 
     def __init__(self):
         self.project_dir = Path(__file__).parent
-        self.logs_dir = Path("F:/BUREAU/turbo/logs")
+        self.logs_dir = Path("/home/turbo/jarvis-m1-ops/logs")
         self.venv_dir = self.project_dir / "venv"
 
     def log(self, message: str, level: str = "INFO"):
@@ -47,7 +47,7 @@ class Deployer:
         self.log("Création des répertoires...", "INFO")
         try:
             self.logs_dir.mkdir(parents=True, exist_ok=True)
-            (Path("F:/BUREAU/turbo/db") / "jarvis").mkdir(parents=True, exist_ok=True)
+            (Path("/home/turbo/jarvis-m1-ops/db") / "jarvis").mkdir(parents=True, exist_ok=True)
             self.log("✓ Répertoires créés", "OK")
             return True
         except Exception as e:

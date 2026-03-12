@@ -29,7 +29,7 @@ from src.registry_manager import (
 
 class TestRegistryEvent:
     def test_defaults(self):
-        e = RegistryEvent(action="read", hive="HKCU", path="Software\\Test")
+        e = RegistryEvent(action="read", hive="HKCU", path="Software/Test")
         assert e.value_name == ""
         assert e.success is True
         assert e.detail == ""
@@ -38,7 +38,7 @@ class TestRegistryEvent:
 
 class TestRegistryFavorite:
     def test_defaults(self):
-        f = RegistryFavorite(name="startup", hive="HKCU", path="Software\\Microsoft\\Windows\\CurrentVersion\\Run")
+        f = RegistryFavorite(name="startup", hive="HKCU", path="Software/Microsoft/Windows/CurrentVersion/Run")
         assert f.description == ""
         assert f.created_at > 0
 
@@ -62,7 +62,7 @@ class TestConstants:
 class TestFavorites:
     def test_add(self):
         rm = RegistryManager()
-        fav = rm.add_favorite("startup", "HKCU", "Software\\Test", "test")
+        fav = rm.add_favorite("startup", "HKCU", "Software/Test", "test")
         assert fav.name == "startup"
         assert fav.description == "test"
 
@@ -104,14 +104,14 @@ class TestReadValue:
              patch("src.registry_manager.winreg.QueryValueEx", return_value=("test_value", winreg.REG_SZ)):
             mock_key.__enter__ = MagicMock(return_value=mock_key)
             mock_key.__exit__ = MagicMock(return_value=False)
-            result = rm.read_value("HKCU", "Software\\Test", "MyKey")
+            result = rm.read_value("HKCU", "Software/Test", "MyKey")
         assert result["value"] == "test_value"
         assert result["type"] == "REG_SZ"
 
     def test_not_found(self):
         rm = RegistryManager()
         with patch("src.registry_manager.winreg.OpenKey", side_effect=FileNotFoundError):
-            result = rm.read_value("HKCU", "Software\\Nope", "key")
+            result = rm.read_value("HKCU", "Software/Nope", "key")
         assert "error" in result
         assert "not found" in result["error"]
 
@@ -147,7 +147,7 @@ class TestListValues:
 
         with patch("src.registry_manager.winreg.OpenKey", return_value=mock_key), \
              patch("src.registry_manager.winreg.EnumValue", side_effect=mock_enum):
-            values = rm.list_values("HKCU", "Software\\Test")
+            values = rm.list_values("HKCU", "Software/Test")
         assert len(values) == 1
         assert values[0]["name"] == "Name"
 
@@ -176,7 +176,7 @@ class TestListSubkeys:
 
         with patch("src.registry_manager.winreg.OpenKey", return_value=mock_key), \
              patch("src.registry_manager.winreg.EnumKey", side_effect=mock_enum):
-            keys = rm.list_subkeys("HKCU", "Software\\Test")
+            keys = rm.list_subkeys("HKCU", "Software/Test")
         assert keys == ["SubKey1", "SubKey2"]
 
 
@@ -196,7 +196,7 @@ class TestWriteDelete:
         mock_key.__exit__ = MagicMock(return_value=False)
         with patch("src.registry_manager.winreg.CreateKeyEx", return_value=mock_key), \
              patch("src.registry_manager.winreg.SetValueEx"):
-            assert rm.write_value("HKCU", "Software\\Test", "name", "value") is True
+            assert rm.write_value("HKCU", "Software/Test", "name", "value") is True
 
     def test_delete_unknown_hive(self):
         rm = RegistryManager()
@@ -209,7 +209,7 @@ class TestWriteDelete:
         mock_key.__exit__ = MagicMock(return_value=False)
         with patch("src.registry_manager.winreg.OpenKey", return_value=mock_key), \
              patch("src.registry_manager.winreg.DeleteValue"):
-            assert rm.delete_value("HKCU", "Software\\Test", "name") is True
+            assert rm.delete_value("HKCU", "Software/Test", "name") is True
 
 
 # ===========================================================================
@@ -228,9 +228,9 @@ class TestSearchValues:
         def mock_enum(key, index):
             call_count[0] += 1
             if call_count[0] == 1:
-                return ("PythonPath", "C:\\Python", winreg.REG_SZ)
+                return ("PythonPath", "/\Python", winreg.REG_SZ)
             if call_count[0] == 2:
-                return ("JavaPath", "C:\\Java", winreg.REG_SZ)
+                return ("JavaPath", "/\Java", winreg.REG_SZ)
             raise OSError("no more")
 
         with patch("src.registry_manager.winreg.OpenKey", return_value=mock_key), \
@@ -249,9 +249,9 @@ class TestExportKey:
         rm = RegistryManager()
         with patch.object(rm, "list_values", return_value=[{"name": "v1"}]), \
              patch.object(rm, "list_subkeys", return_value=["sub1"]):
-            export = rm.export_key("HKCU", "Software\\Test")
+            export = rm.export_key("HKCU", "Software/Test")
         assert export["hive"] == "HKCU"
-        assert export["path"] == "Software\\Test"
+        assert export["path"] == "Software/Test"
         assert len(export["values"]) == 1
         assert export["subkeys"] == ["sub1"]
         assert "exported_at" in export

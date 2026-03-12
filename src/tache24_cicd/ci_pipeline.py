@@ -170,7 +170,7 @@ class LockManager:
 class CIPipeline:
     """Pipeline CI/CD principal"""
     
-    def __init__(self, base_path: str = "F:\\BUREAU\\turbo"):
+    def __init__(self, base_path: str = "F:/BUREAU/turbo"):
         self.base_path = Path(base_path)
         self.src_path = self.base_path / "src"
         self.prod_path = self.base_path / "prod"
@@ -608,7 +608,7 @@ async def main():
     
     parser = argparse.ArgumentParser(description="JARVIS CI/CD Pipeline")
     parser.add_argument("--hotfix", action="store_true", help="Mode hotfix (skip lint+test)")
-    parser.add_argument("--base-path", default="F:\\BUREAU\\turbo", help="Base path")
+    parser.add_argument("--base-path", default="F:/BUREAU/turbo", help="Base path")
     parser.add_argument("--triggered-by", default="manual", help="Déclenché par")
     
     args = parser.parse_args()

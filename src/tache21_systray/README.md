@@ -261,8 +261,8 @@ TELEGRAM_CONFIG = {
 ## Logging
 
 **Fichiers log:**
-- `F:/BUREAU/turbo/logs/tray.log` - System tray
-- `F:/BUREAU/turbo/logs/notifications.log` - Notifications
+- `/home/turbo/jarvis-m1-ops/logs/tray.log` - System tray
+- `/home/turbo/jarvis-m1-ops/logs/notifications.log` - Notifications
 
 **Level:** INFO
 
@@ -289,7 +289,7 @@ TELEGRAM_CONFIG = {
 ```
 1. Vérifier que le serveur écoute sur 127.0.0.1:9742
 2. Check firewall Windows
-3. Logs: F:/BUREAU/turbo/logs/tray.log
+3. Logs: /home/turbo/jarvis-m1-ops/logs/tray.log
 ```
 
 ### Notifications ne s'affichent pas

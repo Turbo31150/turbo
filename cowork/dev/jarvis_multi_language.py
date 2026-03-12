@@ -124,7 +124,7 @@ def translate_via_m1(text, source_lang, target_lang):
     src_name = lang_names.get(source_lang, source_lang)
     tgt_name = lang_names.get(target_lang, target_lang)
 
-    prompt = f"/nothink\\nTranslate the following text from {src_name} to {tgt_name}. Return ONLY the translation, nothing else.\\n\\nText: {text}"
+    prompt = f"/nothink/nTranslate the following text from {src_name} to {tgt_name}. Return ONLY the translation, nothing else./n/nText: {text}"
     payload = json.dumps({
         "model": "qwen3-8b",
         "input": prompt,

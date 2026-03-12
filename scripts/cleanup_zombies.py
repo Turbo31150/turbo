@@ -59,7 +59,7 @@ def main():
         print("  OK (1 instance)")
 
     # 3. Dashboard — kill duplicates
-    pids = get_processes("dashboard\\\\server.py")
+    pids = get_processes("dashboard//server.py")
     if not pids:
         pids = get_processes("dashboard/server.py")
     print(f"\ndashboard/server.py: {len(pids)} instances")
@@ -70,7 +70,7 @@ def main():
         print("  OK")
 
     # 4. Python WS — kill duplicates
-    pids = get_processes("python_ws\\\\server.py")
+    pids = get_processes("python_ws//server.py")
     if not pids:
         pids = get_processes("python_ws/server.py")
     print(f"\npython_ws/server.py: {len(pids)} instances")
@@ -90,7 +90,7 @@ def main():
         print("  OK")
 
     # Clean lock file
-    lock = "F:/BUREAU/turbo/data/.linkedin-scheduler.lock"
+    lock = "/home/turbo/jarvis-m1-ops/data/.linkedin-scheduler.lock"
     try:
         os.unlink(lock)
         print(f"\nLock file removed: {lock}")

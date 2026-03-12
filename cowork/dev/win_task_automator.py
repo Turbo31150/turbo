@@ -15,7 +15,7 @@ Templates (pre-filled command strings) are provided for common JARVIS services:
   * Backup health check
 
 Typical usage:
-  python win_task_automator.py --create "JARVIS_LM_Studio" /TR "C:\\Program Files\\LMStudio\\lmstudio.exe" /SC DAILY /ST 09:00
+  python win_task_automator.py --create "JARVIS_LM_Studio" /TR "/\Program Files/LMStudio/lmstudio.exe" /SC DAILY /ST 09:00
   python win_task_automator.py --list
 
 The script only uses the Python standard library (subprocess, argparse, json, os, sys).

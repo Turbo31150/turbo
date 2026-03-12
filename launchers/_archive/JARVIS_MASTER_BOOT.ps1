@@ -23,7 +23,7 @@ $Host.UI.RawUI.WindowTitle = "JARVIS Master Boot v2.0"
 # =============================================================================
 # CONFIG
 # =============================================================================
-$TURBO = "F:\BUREAU\turbo"
+$TURBO = "/home/turbo/jarvis-m1-ops"
 $HOME_DIR = $env:USERPROFILE
 $OPENCLAW_DIR = "$HOME_DIR\.openclaw"
 $LOG_DIR = "$TURBO\logs"
@@ -342,7 +342,7 @@ Reponds en format structure court.
     }
 
     # 4e. Disk check
-    foreach ($drive in @("C:\", "F:\")) {
+    foreach ($drive in @("/", "F:\")) {
         try {
             $disk = Get-PSDrive -Name $drive[0] 2>$null
             if ($disk) {

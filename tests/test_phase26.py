@@ -190,7 +190,7 @@ class TestUSBMonitor:
 
     def test_usb_device_dataclass(self):
         from src.usb_monitor import USBDevice
-        d = USBDevice(name="Mouse", device_id="USB\\VID_1234", status="OK")
+        d = USBDevice(name="Mouse", device_id="USB/VID_1234", status="OK")
         assert d.name == "Mouse"
         assert d.manufacturer == ""
 

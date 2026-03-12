@@ -52,7 +52,7 @@ def query_m1(prompt):
     """Query M1 via curl."""
     payload = json.dumps({
         "model": "qwen3-8b",
-        "input": f"/nothink\\n{prompt}",
+        "input": f"/nothink/n{prompt}",
         "temperature": 0.4,
         "max_output_tokens": 1024,
         "stream": False,

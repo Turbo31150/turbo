@@ -834,7 +834,7 @@ def _export_csv(db_name: str = "etoile.db") -> str:
     """Export all tables from a SQLite DB to CSV files."""
     import csv
     import sqlite3
-    db_path = Path(os.getenv("TURBO_DIR", "F:/BUREAU/turbo")) / "data" / db_name
+    db_path = Path(os.getenv("TURBO_DIR", "/home/turbo/jarvis-m1-ops")) / "data" / db_name
     out_dir = db_path.parent / "exports"
     out_dir.mkdir(exist_ok=True)
     if not db_path.exists():
@@ -865,7 +865,7 @@ def _sqlite3_analyze() -> str:
     import sqlite3
     results = []
     for db_name in ("etoile.db", "jarvis.db", "sniper.db"):
-        db_path = Path(os.getenv("TURBO_DIR", "F:/BUREAU/turbo")) / "data" / db_name
+        db_path = Path(os.getenv("TURBO_DIR", "/home/turbo/jarvis-m1-ops")) / "data" / db_name
         if not db_path.exists():
             continue
         try:
@@ -916,7 +916,7 @@ def _backup_db(db_name: str = "jarvis.db") -> str:
     """Backup a specific database file."""
     import shutil
     from datetime import datetime
-    db_path = Path(os.getenv("TURBO_DIR", "F:/BUREAU/turbo")) / "data" / db_name
+    db_path = Path(os.getenv("TURBO_DIR", "/home/turbo/jarvis-m1-ops")) / "data" / db_name
     if not db_path.exists():
         return f"DB introuvable: {db_path}"
     backup_dir = db_path.parent / "backups"
@@ -987,7 +987,7 @@ def _get_disk_usage() -> str:
     """Get disk usage for main drives."""
     import shutil
     results = []
-    for drive in ["C:\\", "F:\\"]:
+    for drive in ["/\", "F:/"]:
         try:
             usage = shutil.disk_usage(drive)
             free_gb = usage.free / (1024**3)
@@ -1022,9 +1022,9 @@ def _count_lines_of_code() -> str:
     import glob
     total = 0
     files = 0
-    for f in glob.glob("src/*.py", root_dir="F:/BUREAU/turbo"):
+    for f in glob.glob("src/*.py", root_dir="/home/turbo/jarvis-m1-ops"):
         try:
-            with open(f"F:/BUREAU/turbo/src/{f.replace('src/', '')}" if "/" in f else f"F:/BUREAU/turbo/{f}") as fh:
+            with open(f"/home/turbo/jarvis-m1-ops/src/{f.replace('src/', '')}" if "/" in f else f"/home/turbo/jarvis-m1-ops/{f}") as fh:
                 lines = sum(1 for _ in fh)
                 total += lines
                 files += 1
@@ -1053,7 +1053,7 @@ def _db_table_count() -> str:
     import sqlite3
     results = []
     for db_name in ["etoile.db", "jarvis.db", "sniper.db", "finetuning.db"]:
-        db_path = f"F:/BUREAU/turbo/data/{db_name}"
+        db_path = f"/home/turbo/jarvis-m1-ops/data/{db_name}"
         try:
             conn = sqlite3.connect(db_path)
             tables = conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
@@ -1072,7 +1072,7 @@ def _validate_json_files() -> str:
     import glob
     ok = 0
     errors = []
-    for f in glob.glob("F:/BUREAU/turbo/data/*.json"):
+    for f in glob.glob("/home/turbo/jarvis-m1-ops/data/*.json"):
         try:
             with open(f) as fh:
                 json.load(fh)
@@ -1120,7 +1120,7 @@ def _large_files_check() -> str:
     """Find large Python files in the project."""
     import os
     large = []
-    src_dir = "F:/BUREAU/turbo/src"
+    src_dir = "/home/turbo/jarvis-m1-ops/src"
     try:
         for f in os.listdir(src_dir):
             if f.endswith(".py"):
@@ -1257,7 +1257,7 @@ def _git_status_short() -> str:
     """Get git status summary."""
     import subprocess
     try:
-        r = subprocess.run(['git', 'status', '--short'], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5, cwd="F:/BUREAU/turbo")
+        r = subprocess.run(['git', 'status', '--short'], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5, cwd="/home/turbo/jarvis-m1-ops")
         lines = r.stdout.strip().split("\n") if r.stdout.strip() else []
         return f"{len(lines)} files modified" if lines else "Working tree clean"
     except (subprocess.TimeoutExpired, OSError):
@@ -1269,7 +1269,7 @@ def _git_log_today() -> str:
     """Get today's git commits."""
     import subprocess
     try:
-        r = subprocess.run(["git", "log", "--oneline", "--since=1 day ago"], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5, cwd="F:/BUREAU/turbo")
+        r = subprocess.run(["git", "log", "--oneline", "--since=1 day ago"], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5, cwd="/home/turbo/jarvis-m1-ops")
         lines = r.stdout.strip().split("\n") if r.stdout.strip() else []
         return f"{len(lines)} commits today: {'; '.join(lines[:5])}" if lines else "No commits today"
     except (subprocess.TimeoutExpired, OSError):
@@ -1285,7 +1285,7 @@ def _system_memory_usage() -> str:
         return f"RAM: {mem.used // (1024**3)}GB / {mem.total // (1024**3)}GB ({mem.percent}%)"
     except ImportError:
         import subprocess
-        r = subprocess.run('powershell -Command "(Get-CimInstance Win32_OperatingSystem | Select-Object FreePhysicalMemory,TotalVisibleMemorySize | ForEach-Object { \\"$([math]::Round(($_.TotalVisibleMemorySize - $_.FreePhysicalMemory)/1MB,1))GB / $([math]::Round($_.TotalVisibleMemorySize/1MB,1))GB\\" })"', shell=True, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10)
+        r = subprocess.run('powershell -Command "(Get-CimInstance Win32_OperatingSystem | Select-Object FreePhysicalMemory,TotalVisibleMemorySize | ForEach-Object { /"$([math]::Round(($_.TotalVisibleMemorySize - $_.FreePhysicalMemory)/1MB,1))GB / $([math]::Round($_.TotalVisibleMemorySize/1MB,1))GB/" })"', shell=True, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10)
         return f"RAM: {r.stdout.strip()}" if r.stdout.strip() else "RAM info N/A"
 
 
@@ -1306,7 +1306,7 @@ def _recent_commits() -> str:
     """Get last 5 commit subjects."""
     import subprocess
     try:
-        r = subprocess.run(['git', 'log', '--oneline', '-5'], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5, cwd="F:/BUREAU/turbo")
+        r = subprocess.run(['git', 'log', '--oneline', '-5'], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5, cwd="/home/turbo/jarvis-m1-ops")
         return r.stdout.strip() if r.stdout.strip() else "No commits"
     except (subprocess.TimeoutExpired, OSError):
         return "Git N/A"
@@ -1318,7 +1318,7 @@ def _ci_pipeline_count() -> str:
     import subprocess
     try:
         cmd = ['ls', '.github/workflows/*.yml', '2>/dev/null', '|', 'wc', '-l']
-        r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5, cwd="F:/BUREAU/turbo")
+        r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5, cwd="/home/turbo/jarvis-m1-ops")
         count = r.stdout.strip()
         return f"GitHub workflows: {count}"
     except (subprocess.TimeoutExpired, OSError):
@@ -1363,7 +1363,7 @@ def _state_mgmt_check() -> str:
     """Check state management libraries in package.json."""
     import json
     try:
-        with open("F:/BUREAU/turbo/electron/package.json") as f:
+        with open("/home/turbo/jarvis-m1-ops/electron/package.json") as f:
             pkg = json.load(f)
         deps = {**pkg.get("dependencies", {}), **pkg.get("devDependencies", {})}
         libs = ["redux", "zustand", "mobx", "recoil", "jotai", "pinia", "vuex"]

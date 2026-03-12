@@ -16,7 +16,7 @@ from tache21_systray.notification_center import NotificationCenter
 
 def setup_logging():
     """Configure le logging."""
-    log_dir = Path("F:/BUREAU/turbo/logs")
+    log_dir = Path("/home/turbo/jarvis-m1-ops/logs")
     log_dir.mkdir(parents=True, exist_ok=True)
 
     logging.basicConfig(

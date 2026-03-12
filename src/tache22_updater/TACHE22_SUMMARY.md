@@ -210,7 +210,7 @@
 
 ### Paths Configurés
 ```
-Base: F:\BUREAU\turbo
+Base: /home/turbo/jarvis-m1-ops
 ├─ src/                  # Code source
 ├─ backups/              # Sauvegardes versions
 ├─ logs/                 # Fichiers logs
@@ -314,7 +314,7 @@ consensus("update_recommended", nodes="M1,M2,M3")
 ## Fichiers Créés (Chemins Complets)
 
 ```
-F:\BUREAU\turbo\src\tache22_updater\
+/home/turbo/jarvis-m1-ops\src\tache22_updater\
 ├── __init__.py                 (58 lignes)
 ├── auto_updater.py             (478 lignes)
 ├── version_manager.py           (607 lignes)
@@ -330,7 +330,7 @@ F:\BUREAU\turbo\src\tache22_updater\
 
 ### Installation
 ```bash
-cd F:\BUREAU\turbo\src\tache22_updater
+cd /home/turbo/jarvis-m1-ops\src\tache22_updater
 pip install -r requirements.txt
 ```
 

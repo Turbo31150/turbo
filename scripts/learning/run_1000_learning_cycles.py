@@ -15,7 +15,7 @@ from src.domino_pipelines import DOMINO_PIPELINES
 # CONFIG
 # ══════════════════════════════════════════════════════════════════════════════
 
-JSONL_PATH = Path("F:/BUREAU/turbo/data/domino_learning_dataset.jsonl")
+JSONL_PATH = Path("/home/turbo/jarvis-m1-ops/data/domino_learning_dataset.jsonl")
 try:
     TARGET_CYCLES = int(os.environ.get("CYCLES", "1000"))
 except (ValueError, TypeError):

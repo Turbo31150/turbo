@@ -59,7 +59,7 @@ class TestDetectCategory:
         assert _detect_category("ftp://files.example.com") == ClipCategory.URL
 
     def test_path_windows(self):
-        assert _detect_category("C:\\Users\\test\\file.txt") == ClipCategory.PATH
+        assert _detect_category("/\Users/test/file.txt") == ClipCategory.PATH
 
     def test_path_unix(self):
         assert _detect_category("/home/user/file.txt") == ClipCategory.PATH

@@ -111,7 +111,7 @@ class IPConfigManager:
                 name = line.split(":", 1)[0].strip()
                 # Remove "Ethernet adapter", "Wireless LAN adapter" prefix
                 for prefix in ("Ethernet adapter", "Wireless LAN adapter",
-                               "Carte Ethernet", "Carte r\\xe9seau sans fil"):
+                               "Carte Ethernet", "Carte r/xe9seau sans fil"):
                     if name.startswith(prefix):
                         name = name[len(prefix):].strip()
                 current = {"name": name, "dns_servers": []}

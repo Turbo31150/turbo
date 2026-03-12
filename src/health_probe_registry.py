@@ -142,9 +142,9 @@ def register_all_probes() -> dict[str, bool]:
             free_gb = usage.free / (1024**3)
             pct_used = usage.used / usage.total * 100
             if free_gb < 5:
-                return f"CRITICAL: Only {free_gb:.1f}GB free on F:\\"
+                return f"CRITICAL: Only {free_gb:.1f}GB free on F:/"
             if free_gb < 20:
-                return f"WARNING: {free_gb:.1f}GB free on F:\\ ({pct_used:.0f}% used)"
+                return f"WARNING: {free_gb:.1f}GB free on F:/ ({pct_used:.0f}% used)"
             return True
         except Exception as e:
             return f"Disk check failed: {e}"

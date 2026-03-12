@@ -20,9 +20,9 @@ from dataclasses import dataclass, asdict
 from enum import Enum
 
 # ========== CONFIG ==========
-BASE_PATH = r"F:\BUREAU\turbo"
-DB_PATH = f"{BASE_PATH}\\jarvis.db"
-LOG_FILE = f"{BASE_PATH}\\logs\\watchdog.log"
+BASE_PATH = r"/home/turbo/jarvis-m1-ops"
+DB_PATH = f"{BASE_PATH}/jarvis.db"
+LOG_FILE = f"{BASE_PATH}/logs/watchdog.log"
 
 CYCLE_SECONDS = 30  # Probe toutes les 30s
 HEARTBEAT_INTERVAL = 300  # Log heartbeat toutes les 5min

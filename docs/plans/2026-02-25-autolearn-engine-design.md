@@ -1,7 +1,7 @@
 # JARVIS Autolearn Engine — Design Document
 **Date**: 2026-02-25
 **Statut**: Approuvé
-**Localisation**: `F:\BUREAU\turbo\canvas\`
+**Localisation**: `/home/turbo/jarvis-m1-ops\canvas\`
 
 ## Objectif
 Rendre JARVIS Canvas autonome en apprentissage continu — mémoire conversationnelle, auto-tuning du routage, et auto-review des prompts via le cluster distribué (M1/M2/M3/OL1).

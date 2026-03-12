@@ -23,9 +23,9 @@ from src.bluetooth_manager import (
 )
 
 DEVICES_JSON = json.dumps([
-    {"FriendlyName": "Intel Bluetooth", "InstanceId": "USB\\VID_8087",
+    {"FriendlyName": "Intel Bluetooth", "InstanceId": "USB/VID_8087",
      "Status": "OK", "Class": "Bluetooth", "Manufacturer": "Intel"},
-    {"FriendlyName": "AirPods Pro", "InstanceId": "BTHENUM\\123",
+    {"FriendlyName": "AirPods Pro", "InstanceId": "BTHENUM/123",
      "Status": "OK", "Class": "Bluetooth", "Manufacturer": "Apple"},
 ])
 

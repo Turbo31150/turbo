@@ -1,6 +1,6 @@
 @echo off
 title CLUSTER MONITOR
-cd /d C:\CLAUDE_WORKSPACE\SERVER_MANAGER\scripts
+cd /d /CLAUDE_WORKSPACE\SERVER_MANAGER\scripts
 
 if "%1"=="" (
     python cluster_monitor.py

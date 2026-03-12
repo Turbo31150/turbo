@@ -1797,7 +1797,7 @@ function renderHistory() {
     const statusBadge = h.status === 'ok' ? '<span class="history-status ok">OK</span>'
       : h.status === 'fail' ? '<span class="history-status fail">FAIL</span>' : '';
     return `
-    <div class="history-item" onclick="showTranscript('${h.text.replace(/'/g,"\\'")}','')">
+    <div class="history-item" onclick="showTranscript('${h.text.replace(/'/g,"/'")}','')">
       <span class="history-time">${h.time}</span>
       <span class="history-text">${h.text}</span>
       ${h.domino ? `<span class="history-domino">${typeof h.domino === 'string' ? h.domino : h.domino.id || ''}</span>` : ''}

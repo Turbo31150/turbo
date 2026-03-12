@@ -137,9 +137,9 @@ def check_services() -> Dict[str, Any]:
 
 def check_disk() -> Dict[str, Any]:
     # Check free space on C: (and F: if exists)
-    drives = ["C:\\"]
-    if os.path.isdir("F:\\"):
-        drives.append("F:\\")
+    drives = ["/\"]
+    if os.path.isdir("F:/"):
+        drives.append("F:/")
     free_total_gb = 0.0
     total_gb = 0.0
     for d in drives:

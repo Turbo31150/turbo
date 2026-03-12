@@ -8,8 +8,8 @@ echo    Tape comme si tu parlais (clavier+vocal)
 echo    69 outils MCP ^| 125 commandes ^| Brain IA
 echo  ==========================================
 echo.
-cd /d F:\BUREAU\turbo
-"F:\BUREAU\turbo\.venv\Scripts\python.exe" -c "import asyncio; from src.orchestrator import run_hybrid; asyncio.run(run_hybrid(cwd='F:/BUREAU/turbo'))"
+cd /d /home/turbo/jarvis-m1-ops
+"/home/turbo/jarvis-m1-ops\.venv\Scripts\python.exe" -c "import asyncio; from src.orchestrator import run_hybrid; asyncio.run(run_hybrid(cwd='/home/turbo/jarvis-m1-ops'))"
 echo.
 echo [JARVIS] Session terminee.
 pause

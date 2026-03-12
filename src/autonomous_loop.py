@@ -650,7 +650,7 @@ class AutonomousLoop:
     async def _task_zombie_gc() -> dict[str, Any]:
         """Kill zombie Python processes (every 10min)."""
         import subprocess
-        turbo = __import__("pathlib").Path("F:/BUREAU/turbo")
+        turbo = __import__("pathlib").Path("/home/turbo/jarvis-m1-ops")
         try:
             r = await asyncio.to_thread(
                 subprocess.run,
@@ -678,7 +678,7 @@ class AutonomousLoop:
     async def _task_vram_audit() -> dict[str, Any]:
         """Monitor VRAM and pause cowork if critical (every 10min)."""
         import subprocess, json as _json
-        turbo = __import__("pathlib").Path("F:/BUREAU/turbo")
+        turbo = __import__("pathlib").Path("/home/turbo/jarvis-m1-ops")
         try:
             r = await asyncio.to_thread(
                 subprocess.run,
@@ -710,7 +710,7 @@ class AutonomousLoop:
     async def _task_conv_checkpoint() -> dict[str, Any]:
         """Summarize and GC old conversation checkpoints (every 30min)."""
         import subprocess
-        turbo = __import__("pathlib").Path("F:/BUREAU/turbo")
+        turbo = __import__("pathlib").Path("/home/turbo/jarvis-m1-ops")
         script = turbo / "scripts" / "conversation_checkpoint.py"
         if not script.exists():
             return {"status": "script_not_found"}
@@ -772,7 +772,7 @@ class AutonomousLoop:
     async def _task_system_audit() -> dict[str, Any]:
         """Escalation audit: if VRAM/zombies high, run full system_audit (every 10min)."""
         import subprocess, json as _json
-        turbo = __import__("pathlib").Path("F:/BUREAU/turbo")
+        turbo = __import__("pathlib").Path("/home/turbo/jarvis-m1-ops")
         exe = __import__("sys").executable
         # Quick checks
         try:

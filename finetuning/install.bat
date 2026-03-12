@@ -4,8 +4,8 @@ echo  JARVIS Fine-Tuning — Installation des dependances
 echo ============================================================
 echo.
 
-set UV=C:\Users\franc\.local\bin\uv.exe
-set TURBO=F:\BUREAU\turbo
+set UV=/home/turbo\.local\bin\uv.exe
+set TURBO=/home/turbo/jarvis-m1-ops
 
 echo [1/3] Installation de PyTorch 2.10 avec CUDA 13.0...
 echo       (Driver NVIDIA 591.86 / CUDA 13.1 — compatible)

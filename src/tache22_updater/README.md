@@ -282,7 +282,7 @@ updater.disable_auto_updates()  # Arrête la boucle
 ## Logging
 
 Trois niveaux:
-1. **Auto-updater logs**: `F:\BUREAU\turbo\logs\auto_updater.log`
+1. **Auto-updater logs**: `/home/turbo/jarvis-m1-ops\logs\auto_updater.log`
 2. **SQLite history**: `jarvis.db` table `updates`
 3. **Console output**: INFO level par défaut
 

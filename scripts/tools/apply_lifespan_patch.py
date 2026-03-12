@@ -13,7 +13,7 @@ from datetime import datetime
 from pathlib import Path
 
 # Fichier a patcher
-TARGET_FILE = Path("F:/BUREAU/turbo/src/mcp_server_sse.py")
+TARGET_FILE = Path("/home/turbo/jarvis-m1-ops/src/mcp_server_sse.py")
 
 # Nouveau code lifespan
 NEW_LIFESPAN = '''    @contextlib.asynccontextmanager

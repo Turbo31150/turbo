@@ -57,7 +57,7 @@ print()
 
 # 4. Vérifier la structure des répertoires
 print("[4/6] Structure de répertoires")
-finetuning_dir = Path("F:/BUREAU/turbo/finetuning")
+finetuning_dir = Path("/home/turbo/jarvis-m1-ops/finetuning")
 if finetuning_dir.exists():
     print(f"  ✓ {finetuning_dir}")
 else:
@@ -80,7 +80,7 @@ print()
 
 # 5. Vérifier les adaptateurs LoRA
 print("[5/6] Adaptateurs LoRA")
-lora_base = Path("F:/BUREAU/turbo/finetuning/output")
+lora_base = Path("/home/turbo/jarvis-m1-ops/finetuning/output")
 if lora_base.exists():
     print(f"  ✓ Répertoire output existe")
 
@@ -115,11 +115,11 @@ if deps_ok:
     print("✓ CONFIGURATION OK - Vous pouvez lancer le benchmark")
     print()
     print("  Lancer le benchmark:")
-    print("    cd F:\\BUREAU\\turbo")
+    print("    cd F:/BUREAU/turbo")
     print("    uv run python finetuning/benchmark.py")
     print()
     print("  Ou utiliser le launcher:")
-    print("    F:\\BUREAU\\turbo\\finetuning\\run_benchmark.bat")
+    print("    F:/BUREAU/turbo/finetuning/run_benchmark.bat")
     print()
     return_code = 0
 else:

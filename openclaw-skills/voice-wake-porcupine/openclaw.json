@@ -1,0 +1,12 @@
+{
+  "name": "voice-wake-porcupine",
+  "version": "1.0.0",
+  "description": "Wake word Porcupine & Web Audio Integration for OpenClaw UI",
+  "entrypoint": "skill.py",
+  "type": "custom",
+  "dependencies": [
+    "flask",
+    "flask-sockets",
+    "pvporcupine"
+  ]
+}

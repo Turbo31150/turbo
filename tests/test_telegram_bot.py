@@ -9,7 +9,7 @@ import pytest
 
 # ─── Test splitMessage via Node.js ─────────────────────────────────────────────
 
-BOT_PATH = "F:/BUREAU/turbo/canvas/telegram-bot.js"
+BOT_PATH = "/home/turbo/jarvis-m1-ops/canvas/telegram-bot.js"
 
 # On teste splitMessage en l'extrayant directement via Node
 SPLIT_JS = """
@@ -28,7 +28,7 @@ const fs = require('fs');
 const code = fs.readFileSync('%s', 'utf-8');
 
 // Extraire splitMessage sans exécuter main()
-const match = code.match(/function splitMessage[\\s\\S]*?^}/m);
+const match = code.match(/function splitMessage[/s/S]*?^}/m);
 if (!match) { console.log(JSON.stringify({error: 'splitMessage not found'})); process.exit(0); }
 const fn = new Function('MAX_MSG_LEN', 'text', match[0].replace('function splitMessage(text)', 'return (function splitMessage(text)').replace(/^}$/m, '})(text)'));
 
@@ -36,7 +36,7 @@ const input = process.argv[2];
 const maxLen = parseInt(process.argv[3] || '4096');
 const result = fn(maxLen, input);
 console.log(JSON.stringify(result));
-""".replace('%s', BOT_PATH.replace('\\', '/'))
+""".replace('%s', BOT_PATH.replace('/', '/'))
 
 
 def run_split(text: str, max_len: int = 4096) -> list[str]:
@@ -209,17 +209,17 @@ class TestEnvLoading:
     def test_env_file_exists(self):
         """Le fichier .env doit exister."""
         import os
-        assert os.path.exists("F:/BUREAU/turbo/.env")
+        assert os.path.exists("/home/turbo/jarvis-m1-ops/.env")
 
     def test_env_has_telegram_token(self):
         """Le .env doit contenir TELEGRAM_TOKEN."""
-        with open("F:/BUREAU/turbo/.env") as f:
+        with open("/home/turbo/jarvis-m1-ops/.env") as f:
             content = f.read()
         assert "TELEGRAM_TOKEN=" in content
 
     def test_env_has_telegram_chat(self):
         """Le .env doit contenir TELEGRAM_CHAT."""
-        with open("F:/BUREAU/turbo/.env") as f:
+        with open("/home/turbo/jarvis-m1-ops/.env") as f:
             content = f.read()
         assert "TELEGRAM_CHAT=" in content
 

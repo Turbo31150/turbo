@@ -1,6 +1,6 @@
 @echo off
 title JARVIS Watchdog Autonome
-cd /d F:\BUREAU\turbo
+cd /d /home/turbo/jarvis-m1-ops
 
 echo ============================================
 echo   JARVIS WATCHDOG AUTONOME

@@ -128,13 +128,13 @@ TEST RAPIDE (3 commandes)
 UTILISATION REELLE
 
   # Mode simulation (aucune modification)
-  python disk_cleaner.py "C:\Mes Documents"
+  python disk_cleaner.py "/Mes Documents"
 
   # Mode exécution (modifications réelles)
-  python disk_cleaner.py "C:\Mes Documents" --execute
+  python disk_cleaner.py "/Mes Documents" --execute
 
   # Personnaliser seuils
-  python disk_cleaner.py "C:\Source" --keep 70 --trash 20
+  python disk_cleaner.py "/Source" --keep 70 --trash 20
 
   # Aide complète
   python disk_cleaner.py --help
@@ -354,10 +354,10 @@ PROCHAINES ETAPES
    python disk_cleaner.py "<chemin_test>"
 
 3. Utiliser sur vos données :
-   python disk_cleaner.py "C:\Mes Documents"
+   python disk_cleaner.py "/Mes Documents"
 
 4. Exécuter réellement :
-   python disk_cleaner.py "C:\Mes Documents" --execute
+   python disk_cleaner.py "/Mes Documents" --execute
 
 5. Consulter la base de données :
    sqlite3 disk_cleaner.db

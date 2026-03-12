@@ -27,12 +27,12 @@ _NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 
 # Common counter paths
 COUNTER_PATHS = [
-    "\\Processor(_Total)\\% Processor Time",
-    "\\Memory\\Available MBytes",
-    "\\Memory\\% Committed Bytes In Use",
-    "\\PhysicalDisk(_Total)\\% Disk Time",
-    "\\PhysicalDisk(_Total)\\Disk Read Bytes/sec",
-    "\\PhysicalDisk(_Total)\\Disk Write Bytes/sec",
+    "/Processor(_Total)/% Processor Time",
+    "/Memory/Available MBytes",
+    "/Memory/% Committed Bytes In Use",
+    "/PhysicalDisk(_Total)/% Disk Time",
+    "/PhysicalDisk(_Total)/Disk Read Bytes/sec",
+    "/PhysicalDisk(_Total)/Disk Write Bytes/sec",
 ]
 
 
@@ -80,7 +80,7 @@ class PerformanceCounterManager:
                 counters: dict[str, float] = {}
                 for path, val in raw.items():
                     # Extract short name from full path
-                    short = path.rsplit("\\", 1)[-1] if "\\" in path else path
+                    short = path.rsplit("/", 1)[-1] if "/" in path else path
                     counters[short] = val
                 snap = {
                     "timestamp": time.time(),

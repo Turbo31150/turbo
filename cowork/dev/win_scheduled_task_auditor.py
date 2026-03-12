@@ -23,7 +23,7 @@ from pathlib import Path
 DEV = Path(__file__).parent
 DB_PATH = DEV / "data" / "scheduled_task_auditor.db"
 TRUSTED_AUTHORS = {"microsoft", "microsoft corporation", "intel", "nvidia", "realtek", "adobe"}
-SUSPICIOUS_PATHS = ["%temp%", "appdata\\local\\temp", "downloads\\", "public\\"]
+SUSPICIOUS_PATHS = ["%temp%", "appdata/local/temp", "downloads/", "public/"]
 
 
 def init_db():

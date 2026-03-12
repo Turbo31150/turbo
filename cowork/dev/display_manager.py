@@ -8,7 +8,7 @@ Fonctionnalités :
 * ``--resolution WxH`` – modifie la résolution (ex. ``1920x1080``) via l'API Win32 (user32.dll).
 * ``--brightness N`` – règle la luminosité (0‑100) à l'aide de WMI (classe ``WmiMonitorBrightnessMethods``).
 * ``--night-mode on|off`` – active ou désactive le mode sombre du système en modifiant
-  la clé de registre ``HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize``.
+  la clé de registre ``HKCU/Software/Microsoft/Windows/CurrentVersion/Themes/Personalize``.
 
 Le script utilise uniquement la bibliothèque standard : ``subprocess``, ``argparse``, ``re``,
 ``ctypes`` et ``winreg``.  Les appels PowerShell sont exécutés via ``subprocess``.

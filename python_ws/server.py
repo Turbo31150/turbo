@@ -170,8 +170,8 @@ async def api_voice_transcribe_blob(request: Request):
             # Fallback: use scripts/transcribe.py
             import subprocess
             result = subprocess.run(
-                ["F:/BUREAU/turbo/.venv/Scripts/python.exe",
-                 "F:/BUREAU/turbo/scripts/transcribe.py", wav_path, "--language", lang],
+                ["/home/turbo/jarvis-m1-ops/.venv/Scripts/python.exe",
+                 "/home/turbo/jarvis-m1-ops/scripts/transcribe.py", wav_path, "--language", lang],
                 capture_output=True, text=True, timeout=30,
             )
             text = result.stdout.strip()
@@ -3916,7 +3916,7 @@ async def api_firewall_stats():
 # ── Scheduler Manager — Phase 27 ────────────────────────────────────────────
 
 @app.get("/api/scheduler/list")
-async def api_scheduler_list(folder: str = "\\"):
+async def api_scheduler_list(folder: str = "/"):
     from src.scheduler_manager import scheduler_manager
     return scheduler_manager.list_tasks(folder=folder)
 
@@ -4053,7 +4053,7 @@ async def api_theme_stats():
 # ── Certificate Manager — Phase 30 ──────────────────────────────────────────
 
 @app.get("/api/certs/list")
-async def api_certs_list(store: str = "Cert:\\LocalMachine\\My"):
+async def api_certs_list(store: str = "Cert:/LocalMachine/My"):
     from src.certificate_manager import certificate_manager
     return certificate_manager.list_certs(store=store)
 
@@ -5710,7 +5710,7 @@ async def api_openclaw_health():
     """OpenClaw provider health check — latency, models, status per provider."""
     import subprocess
     import sys
-    health_script = Path("F:/BUREAU/turbo/scripts/openclaw_provider_health.py")
+    health_script = Path("/home/turbo/jarvis-m1-ops/scripts/openclaw_provider_health.py")
     if not health_script.exists():
         return JSONResponse({"error": "health script not found"}, status_code=500)
     try:
@@ -5739,7 +5739,7 @@ async def api_openclaw_smoke(timeout: int = 30):
     """OpenClaw E2E smoke test — real inference on all providers."""
     import subprocess
     import sys
-    smoke_script = Path("F:/BUREAU/turbo/scripts/openclaw_smoke_test.py")
+    smoke_script = Path("/home/turbo/jarvis-m1-ops/scripts/openclaw_smoke_test.py")
     if not smoke_script.exists():
         return JSONResponse({"error": "smoke script not found"}, status_code=500)
     try:

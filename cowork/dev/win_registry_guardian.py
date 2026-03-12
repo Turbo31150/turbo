@@ -16,13 +16,13 @@ BACKUP_DIR = Path(__file__).parent / "registry_backups"
 
 # Critical registry keys to monitor
 WATCHED_KEYS = {
-    "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run": "Startup programs (machine)",
-    "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run": "Startup programs (user)",
-    "HKLM\\SYSTEM\\CurrentControlSet\\Services": "Windows services",
-    "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon": "Login settings",
-    "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced": "Explorer settings",
-    "HKLM\\SOFTWARE\\Policies": "Group policies",
-    "HKCU\\Environment": "User environment variables",
+    "HKLM/SOFTWARE/Microsoft/Windows/CurrentVersion/Run": "Startup programs (machine)",
+    "HKCU/SOFTWARE/Microsoft/Windows/CurrentVersion/Run": "Startup programs (user)",
+    "HKLM/SYSTEM/CurrentControlSet/Services": "Windows services",
+    "HKLM/SOFTWARE/Microsoft/Windows NT/CurrentVersion/Winlogon": "Login settings",
+    "HKCU/SOFTWARE/Microsoft/Windows/CurrentVersion/Explorer/Advanced": "Explorer settings",
+    "HKLM/SOFTWARE/Policies": "Group policies",
+    "HKCU/Environment": "User environment variables",
 }
 
 def init_db():
@@ -91,7 +91,7 @@ def take_snapshot(db):
 def backup_key(db, key):
     """Export a registry key to .reg file."""
     BACKUP_DIR.mkdir(exist_ok=True)
-    safe_name = key.replace("\\", "_").replace("/", "_")[:50]
+    safe_name = key.replace("/", "_").replace("/", "_")[:50]
     backup_path = BACKUP_DIR / f"{safe_name}_{time.strftime('%Y%m%d_%H%M')}.reg"
     try:
         r = subprocess.run(

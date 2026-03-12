@@ -20,7 +20,7 @@ Si un PID est trouve, le tuer avec `taskkill //PID <PID> //F`.
 
 Puis relancer :
 ```bash
-cd "F:/BUREAU/turbo/canvas" && node direct-proxy.js &
+cd "/home/turbo/jarvis-m1-ops/canvas" && node direct-proxy.js &
 ```
 
 Attends 2 secondes puis verifie :

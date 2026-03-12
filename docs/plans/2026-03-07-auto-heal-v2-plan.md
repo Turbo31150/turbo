@@ -169,7 +169,7 @@ def test_detect_db_ok(tmp_path):
 
 **Step 2: Run tests to verify they fail**
 
-Run: `cd F:/BUREAU/turbo && python -m pytest tests/test_heal_detectors.py -v 2>&1 | head -30`
+Run: `cd /home/turbo/jarvis-m1-ops && python -m pytest tests/test_heal_detectors.py -v 2>&1 | head -30`
 Expected: FAIL — `ModuleNotFoundError: No module named 'src.heal_detectors'`
 
 **Step 3: Implement heal_detectors.py**
@@ -537,7 +537,7 @@ def run_all_detectors() -> list[Issue]:
 
 **Step 4: Run tests to verify they pass**
 
-Run: `cd F:/BUREAU/turbo && python -m pytest tests/test_heal_detectors.py -v`
+Run: `cd /home/turbo/jarvis-m1-ops && python -m pytest tests/test_heal_detectors.py -v`
 Expected: All 11 tests PASS
 
 **Step 5: Commit**
@@ -622,7 +622,7 @@ def test_get_risk_level():
 
 **Step 2: Run tests to verify they fail**
 
-Run: `cd F:/BUREAU/turbo && python -m pytest tests/test_heal_fixes.py -v 2>&1 | head -20`
+Run: `cd /home/turbo/jarvis-m1-ops && python -m pytest tests/test_heal_fixes.py -v 2>&1 | head -20`
 Expected: FAIL — `ModuleNotFoundError: No module named 'src.heal_fixes'`
 
 **Step 3: Implement heal_fixes.py**
@@ -873,7 +873,7 @@ def verify_fix(issue) -> bool:
 
 **Step 4: Run tests**
 
-Run: `cd F:/BUREAU/turbo && python -m pytest tests/test_heal_fixes.py -v`
+Run: `cd /home/turbo/jarvis-m1-ops && python -m pytest tests/test_heal_fixes.py -v`
 Expected: All 6 tests PASS
 
 **Step 5: Commit**
@@ -954,7 +954,7 @@ def test_analyze_issue_parallel():
 
 **Step 2: Run to verify fail**
 
-Run: `cd F:/BUREAU/turbo && python -m pytest tests/test_heal_pipeline.py -v 2>&1 | head -20`
+Run: `cd /home/turbo/jarvis-m1-ops && python -m pytest tests/test_heal_pipeline.py -v 2>&1 | head -20`
 
 **Step 3: Implement heal_pipeline.py**
 
@@ -1164,7 +1164,7 @@ def analyze_issue(issue) -> dict[str, Any]:
 
 **Step 4: Run tests**
 
-Run: `cd F:/BUREAU/turbo && python -m pytest tests/test_heal_pipeline.py -v`
+Run: `cd /home/turbo/jarvis-m1-ops && python -m pytest tests/test_heal_pipeline.py -v`
 Expected: All 5 tests PASS
 
 **Step 5: Commit**
@@ -1256,7 +1256,7 @@ def test_pending_timeout():
 
 **Step 2: Run to verify fail**
 
-Run: `cd F:/BUREAU/turbo && python -m pytest tests/test_heal_telegram.py -v 2>&1 | head -20`
+Run: `cd /home/turbo/jarvis-m1-ops && python -m pytest tests/test_heal_telegram.py -v 2>&1 | head -20`
 
 **Step 3: Implement heal_telegram.py**
 
@@ -1501,7 +1501,7 @@ class HealTelegramBot:
 
 **Step 4: Run tests**
 
-Run: `cd F:/BUREAU/turbo && python -m pytest tests/test_heal_telegram.py -v`
+Run: `cd /home/turbo/jarvis-m1-ops && python -m pytest tests/test_heal_telegram.py -v`
 Expected: All 7 tests PASS
 
 **Step 5: Commit**
@@ -1613,7 +1613,7 @@ def run_cycle(cycle: int, bot: HealTelegramBot, dry_run: bool = False) -> CycleR
 
 **Step 2: Run smoke test**
 
-Run: `cd F:/BUREAU/turbo && python scripts/auto_heal_daemon.py --cycles 2 --interval 5 --no-telegram`
+Run: `cd /home/turbo/jarvis-m1-ops && python scripts/auto_heal_daemon.py --cycles 2 --interval 5 --no-telegram`
 Expected: 2 cycles complete, detects current issues, no crashes
 
 **Step 3: Commit**
@@ -1684,7 +1684,7 @@ def test_fix_catalogue_covers_all_detectors():
 
 **Step 2: Run all tests**
 
-Run: `cd F:/BUREAU/turbo && python -m pytest tests/test_heal_detectors.py tests/test_heal_fixes.py tests/test_heal_pipeline.py tests/test_heal_telegram.py tests/test_heal_integration.py -v`
+Run: `cd /home/turbo/jarvis-m1-ops && python -m pytest tests/test_heal_detectors.py tests/test_heal_fixes.py tests/test_heal_pipeline.py tests/test_heal_telegram.py tests/test_heal_integration.py -v`
 Expected: All tests PASS
 
 **Step 3: Commit**

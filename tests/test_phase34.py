@@ -33,8 +33,8 @@ class TestPagefileManager:
 
     def test_pagefile_info_dataclass(self):
         from src.pagefile_manager import PagefileInfo
-        pi = PagefileInfo(name="C:\\pagefile.sys", allocated_mb=4096)
-        assert pi.name == "C:\\pagefile.sys"
+        pi = PagefileInfo(name="/\pagefile.sys", allocated_mb=4096)
+        assert pi.name == "/\pagefile.sys"
         assert pi.current_usage_mb == 0
 
     def test_pagefile_event_dataclass(self):

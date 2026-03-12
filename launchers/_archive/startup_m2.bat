@@ -8,7 +8,7 @@ echo INSTRUCTIONS: Copier ce script sur M2 et l'executer.
 echo Ajuster le chemin de lms.exe si necessaire.
 echo.
 
-set LMS="C:\Users\franc\.lmstudio\bin\lms.exe"
+set LMS="/home/turbo\.lmstudio\bin\lms.exe"
 
 echo [1/4] Starting LM Studio server (accessible reseau)...
 %LMS% server start -p 1234 --bind 0.0.0.0

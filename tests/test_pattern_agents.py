@@ -4,8 +4,8 @@ import asyncio
 import json
 import sys
 import os
-sys.path.insert(0, "F:/BUREAU/turbo")
-os.chdir("F:/BUREAU/turbo")
+sys.path.insert(0, "/home/turbo/jarvis-m1-ops")
+os.chdir("/home/turbo/jarvis-m1-ops")
 
 import pytest
 
@@ -217,7 +217,7 @@ class TestAutoScaler:
     def test_init(self):
         from src.auto_scaler import AutoScaler
         s = AutoScaler()
-        assert s.db_path == "F:/BUREAU/turbo/etoile.db"
+        assert s.db_path == "/home/turbo/jarvis-m1-ops/etoile.db"
 
     @pytest.mark.asyncio
     async def test_scale(self):

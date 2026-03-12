@@ -519,7 +519,7 @@ def detect_process_doublons() -> list[Issue]:
             # Skip bash shells, wmic, grep, etc. that match on substring
             cmd_lower = cmd.lower().strip().strip('"')
             is_python = (cmd_lower.startswith("python") or
-                         cmd_lower.startswith("c:\\") and "python" in cmd_lower.split("\\")[-1].lower())
+                         cmd_lower.startswith("c:/") and "python" in cmd_lower.split("/")[-1].lower())
             if not is_python:
                 continue
             if "server.py" in cmd and "python_ws" in cmd:

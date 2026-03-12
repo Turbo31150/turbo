@@ -13,7 +13,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-DB_PATH = Path("F:/BUREAU/turbo/finetuning/memoire_finetuning.db")
+DB_PATH = Path("/home/turbo/jarvis-m1-ops/finetuning/memoire_finetuning.db")
 
 
 def create_tables(conn: sqlite3.Connection):
@@ -240,7 +240,7 @@ def _patched_params4bit_new(cls, data=None, requires_grad=True, **kwargs):
         "gradient_checkpointing": True,
         "fp16": True,
         "cuda_alloc_conf": "expandable_segments:True",
-        "offload_folder": "F:/BUREAU/turbo/finetuning/offload",
+        "offload_folder": "/home/turbo/jarvis-m1-ops/finetuning/offload",
         "offload_state_dict": True,
     }
 
@@ -282,7 +282,7 @@ def _patched_params4bit_new(cls, data=None, requires_grad=True, **kwargs):
         ("original_eval", "dataset/jarvis_finetune_eval.jsonl", 2843, None, None, None),
     ]
     for ds_type, fpath, num, size, jpct, gpct in datasets:
-        full_path = f"F:/BUREAU/turbo/finetuning/{fpath}"
+        full_path = f"/home/turbo/jarvis-m1-ops/finetuning/{fpath}"
         file_size = None
         try:
             file_size = round(Path(full_path).stat().st_size / (1024 * 1024), 2)

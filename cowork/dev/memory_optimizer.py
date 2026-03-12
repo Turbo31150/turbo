@@ -993,7 +993,7 @@ def main():
 Exemples:
   %(prog)s --analyze                        Analyse complete RAM + VRAM + processus
   %(prog)s --analyze --top 30               Top 30 processus (defaut: 20)
-  %(prog)s --clean --path F:\\BUREAU\\turbo   Nettoyer les caches Python
+  %(prog)s --clean --path F:/BUREAU/turbo   Nettoyer les caches Python
   %(prog)s --clean --path . --dry-run       Simuler le nettoyage (sans supprimer)
   %(prog)s --monitor --duration 60          Monitoring 60 secondes
   %(prog)s --monitor --interval 5           Echantillonnage toutes les 5 secondes

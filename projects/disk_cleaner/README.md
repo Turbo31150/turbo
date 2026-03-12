@@ -72,7 +72,7 @@ Dossier_Trie/
 
 ```bash
 # Cloner ou télécharger le script
-cd F:\BUREAU\disk_cleaner
+cd /home/turbo\disk_cleaner
 
 # Installer les dépendances
 pip install -r requirements.txt
@@ -86,30 +86,30 @@ Dépendances : `tqdm` (barre de progression)
 
 ```bash
 # Scanner un dossier (aucune modification réelle)
-python disk_cleaner.py "C:\Mes Documents"
+python disk_cleaner.py "/Mes Documents"
 ```
 
 ### Mode Exécution (Modifications réelles)
 
 ```bash
 # Exécuter réellement les actions
-python disk_cleaner.py "C:\Mes Documents" --execute
+python disk_cleaner.py "/Mes Documents" --execute
 ```
 
 ### Options Avancées
 
 ```bash
 # Personnaliser les seuils de score
-python disk_cleaner.py "C:\Mes Documents" --keep 70 --trash 20
+python disk_cleaner.py "/Mes Documents" --keep 70 --trash 20
 
 # Spécifier le dossier de sortie
-python disk_cleaner.py "C:\Mes Documents" --output "D:\Fichiers_Tries"
+python disk_cleaner.py "/Mes Documents" --output "D:\Fichiers_Tries"
 
 # Mode silencieux
-python disk_cleaner.py "C:\Mes Documents" --quiet
+python disk_cleaner.py "/Mes Documents" --quiet
 
 # Spécifier la base de données
-python disk_cleaner.py "C:\Mes Documents" --db "./ma_base.db"
+python disk_cleaner.py "/Mes Documents" --db "./ma_base.db"
 ```
 
 ### Aide Complète
@@ -150,7 +150,7 @@ python disk_cleaner.py --help
 🧹 DISK CLEANER - Nettoyage et Organisation Intelligente
 ==================================================================
 
-📂 Répertoire source: C:\Mes Documents
+📂 Répertoire source: /Mes Documents
 🎯 Mode: DRY-RUN (Simulation)
 📊 Seuils: Garder ≥60, Trash <30
 
@@ -158,7 +158,7 @@ python disk_cleaner.py --help
 ÉTAPE 1/3 : SCAN ET DÉTECTION DE DOUBLONS
 ==================================================================
 
-🔍 Scan du répertoire: C:\Mes Documents
+🔍 Scan du répertoire: /Mes Documents
 📁 Nombre de fichiers détectés: 1523
 Scan en cours: 100%|████████████████| 1523/1523 [00:12<00:00, 125.2 fichier/s]
 ✅ Scan terminé: 1523 fichiers analysés
@@ -280,7 +280,7 @@ class Config:
 
 ### Nettoyage de disque saturé
 ```bash
-python disk_cleaner.py "C:\" --execute --trash 20
+python disk_cleaner.py "/" --execute --trash 20
 ```
 
 ### Organisation photos
@@ -291,15 +291,15 @@ python disk_cleaner.py "D:\Photos" --execute --keep 50
 ### Suppression des doublons
 ```bash
 # 1. Mode simulation pour voir les doublons
-python disk_cleaner.py "C:\Documents"
+python disk_cleaner.py "/Documents"
 
 # 2. Exécution réelle
-python disk_cleaner.py "C:\Documents" --execute
+python disk_cleaner.py "/Documents" --execute
 ```
 
 ### Nettoyage de vieux logs
 ```bash
-python disk_cleaner.py "C:\Logs" --execute --trash 40
+python disk_cleaner.py "/Logs" --execute --trash 40
 ```
 
 ## 🐛 Troubleshooting

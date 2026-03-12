@@ -21,17 +21,17 @@ from src.scheduled_task_manager import (
     ScheduledTask, SchedEvent, ScheduledTaskManager, scheduled_task_manager,
 )
 
-SCHTASKS_CSV = '''"\\JARVIS_LinkedIn_Publish","07/03/2026 08:05:00","Ready"
-"\\JARVIS_LinkedIn_Routine","08/03/2026 07:30:00","Ready"
-"\\Microsoft\\Windows\\UpdateOrchestrator\\Schedule Scan","N/A","Disabled"
+SCHTASKS_CSV = '''"/JARVIS_LinkedIn_Publish","07/03/2026 08:05:00","Ready"
+"/JARVIS_LinkedIn_Routine","08/03/2026 07:30:00","Ready"
+"/Microsoft/Windows/UpdateOrchestrator/Schedule Scan","N/A","Disabled"
 '''
 
 TASK_DETAIL_OUTPUT = """\
 HostName:                             DESKTOP-TEST
-TaskName:                             \\JARVIS_LinkedIn_Publish
+TaskName:                             /JARVIS_LinkedIn_Publish
 Next Run Time:                        07/03/2026 08:05:00
 Status:                               Ready
-Author:                               DESKTOP-TEST\\franc
+Author:                               DESKTOP-TEST/franc
 """
 
 
@@ -55,7 +55,7 @@ class TestListTasks:
         with patch("subprocess.run", return_value=mock_result):
             tasks = stm.list_tasks()
         assert len(tasks) == 3
-        assert tasks[0]["name"] == "\\JARVIS_LinkedIn_Publish"
+        assert tasks[0]["name"] == "/JARVIS_LinkedIn_Publish"
         assert tasks[0]["status"] == "Ready"
         assert tasks[2]["status"] == "Disabled"
 
@@ -68,13 +68,13 @@ class TestListTasks:
 class TestSearch:
     def test_search(self):
         stm = ScheduledTaskManager()
-        fake = [{"name": "\\JARVIS_Publish"}, {"name": "\\Windows\\Update"}]
+        fake = [{"name": "/JARVIS_Publish"}, {"name": "/Windows/Update"}]
         with patch.object(stm, "list_tasks", return_value=fake):
             assert len(stm.search("jarvis")) == 1
 
     def test_search_no_match(self):
         stm = ScheduledTaskManager()
-        fake = [{"name": "\\Windows\\Update"}]
+        fake = [{"name": "/Windows/Update"}]
         with patch.object(stm, "list_tasks", return_value=fake):
             assert len(stm.search("nope")) == 0
 
@@ -96,7 +96,7 @@ class TestGetTaskDetail:
         mock_result.returncode = 0
         mock_result.stdout = TASK_DETAIL_OUTPUT
         with patch("subprocess.run", return_value=mock_result):
-            detail = stm.get_task_detail("\\JARVIS_LinkedIn_Publish")
+            detail = stm.get_task_detail("/JARVIS_LinkedIn_Publish")
         assert "TaskName" in detail
         assert detail["Status"] == "Ready"
 

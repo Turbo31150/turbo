@@ -188,7 +188,7 @@ async def _get_recommendations() -> list[str]:
     try:
         resources = await _get_system_resources()
         if resources.get("disk_free_gb", 100) < 20:
-            recs.append(f"Disk space low: {resources['disk_free_gb']}GB free on F:\\")
+            recs.append(f"Disk space low: {resources['disk_free_gb']}GB free on F:/")
         if resources.get("ram_percent", 0) > 85:
             recs.append(f"RAM usage high: {resources['ram_percent']}%")
     except Exception:

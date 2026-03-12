@@ -4,7 +4,7 @@ Manifeste complet des fichiers livrés
 ================================================================================
 
 CRÉÉ: 2026-03-04
-LOCALISATION: F:\BUREAU\turbo\src\tache21_systray\
+LOCALISATION: /home/turbo/jarvis-m1-ops\src\tache21_systray\
 STATUS: Production Ready
 
 ================================================================================
@@ -192,13 +192,13 @@ Optionnels:
   • Peut étendre config.py avec settings custom
 
 Base de données:
-  • F:/BUREAU/turbo/jarvis.db (SQLite)
+  • /home/turbo/jarvis-m1-ops/jarvis.db (SQLite)
   • Tables: preferences, notifications, filters
   • Auto-création si manquant
 
 Logs:
-  • F:/BUREAU/turbo/logs/tray.log
-  • F:/BUREAU/turbo/logs/notifications.log
+  • /home/turbo/jarvis-m1-ops/logs/tray.log
+  • /home/turbo/jarvis-m1-ops/logs/notifications.log
   • Format: [TIMESTAMP] [LOGGER] [LEVEL] message
 
 ================================================================================
@@ -316,7 +316,7 @@ CONTACT & SUPPORT
 Version: 1.0.0
 Author: JARVIS v10.6 (turbONE)
 Created: 2026-03-04
-Repository: F:\BUREAU\turbo\src\tache21_systray\
+Repository: /home/turbo/jarvis-m1-ops\src\tache21_systray\
 
 Fichiers clés:
   • Code: systray_manager.py + notification_center.py
@@ -333,7 +333,7 @@ CHECKLIST FINAL
 ================================================================================
 
 Installation:
-  ☐ Copier tous fichiers à F:\BUREAU\turbo\src\tache21_systray\
+  ☐ Copier tous fichiers à /home/turbo/jarvis-m1-ops\src\tache21_systray\
   ☐ Créer répertoires: logs/, db/
   ☐ Copier config.example.py → config.py
   ☐ Adapter config.py (tokens, paths)

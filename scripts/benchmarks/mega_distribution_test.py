@@ -15,7 +15,7 @@ from datetime import datetime
 from pathlib import Path
 from urllib.request import Request, urlopen
 
-TURBO = Path("F:/BUREAU/turbo")
+TURBO = Path("/home/turbo/jarvis-m1-ops")
 DB = sqlite3.connect(str(TURBO / "data" / "etoile.db"))
 DB.execute("""CREATE TABLE IF NOT EXISTS mega_bench (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

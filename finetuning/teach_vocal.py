@@ -31,7 +31,7 @@ examples = []
 
 # === 1. COMMANDES depuis jarvis.db ===
 print("[1/7] Commandes jarvis.db...")
-conn = sqlite3.connect('F:/BUREAU/turbo/data/jarvis.db')
+conn = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/jarvis.db')
 cur = conn.cursor()
 
 rows = cur.execute(
@@ -119,7 +119,7 @@ print(f"  -> {len(examples) - count_before} exemples")
 # === 4. PIPELINES depuis etoile.db ===
 print("[4/7] Pipelines etoile.db...")
 count_before = len(examples)
-conn2 = sqlite3.connect('F:/BUREAU/turbo/data/etoile.db')
+conn2 = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db')
 cur2 = conn2.cursor()
 
 pipelines = cur2.execute(
@@ -233,13 +233,13 @@ examples.extend(vocal_general)
 print(f"  -> {len(vocal_general)} exemples")
 
 # === SAUVEGARDE ===
-outfile = 'F:/BUREAU/turbo/finetuning/dataset/jarvis_vocal_teaching.jsonl'
+outfile = '/home/turbo/jarvis-m1-ops/finetuning/dataset/jarvis_vocal_teaching.jsonl'
 with open(outfile, 'w', encoding='utf-8') as f:
     for ex in examples:
         f.write(json.dumps(ex, ensure_ascii=False) + '\n')
 
 # Ajouter au dataset principal
-with open('F:/BUREAU/turbo/finetuning/dataset/jarvis_final_train.jsonl', 'a', encoding='utf-8') as f:
+with open('/home/turbo/jarvis-m1-ops/finetuning/dataset/jarvis_final_train.jsonl', 'a', encoding='utf-8') as f:
     for ex in examples:
         f.write(json.dumps(ex, ensure_ascii=False) + '\n')
 
@@ -247,5 +247,5 @@ print(f"\n{'='*50}")
 print(f"TOTAL: {len(examples)} exemples vocaux generes")
 print(f"Fichier: {outfile}")
 
-total = len(Path('F:/BUREAU/turbo/finetuning/dataset/jarvis_final_train.jsonl').read_text(encoding='utf-8').splitlines())
+total = len(Path('/home/turbo/jarvis-m1-ops/finetuning/dataset/jarvis_final_train.jsonl').read_text(encoding='utf-8').splitlines())
 print(f"DATASET TOTAL: {total} exemples")

@@ -1,0 +1,9 @@
+{
+  "lm_studio_url": "http://192.168.1.26:1234/v1",
+  "model": "qwen2.5-32b-instruct",
+  "ollama_fallback_url": "http://127.0.0.1:11434/v1",
+  "ollama_fallback_model": "deepseek-r1:7b",
+  "project_dir": "/home/turbo/jarvis-m1-ops",
+  "scan_interval_seconds": 300,
+  "max_retries": 5
+}

@@ -9,7 +9,7 @@ import time
 import uuid
 from datetime import datetime
 
-ROOT = r"F:\BUREAU\TRADING_V2_PRODUCTION"
+ROOT = r"/home/turbo\TRADING_V2_PRODUCTION"
 DB_PATH = os.path.join(ROOT, "database", "trading.db")
 
 # Session ID unique par lancement

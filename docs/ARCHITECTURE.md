@@ -461,7 +461,7 @@ Sortie:
 
 Scripts: dev/win_tts.py, src/tts_streaming.py
 Voix: fr-FR-DeniseNeural (permanent, voix femme)
-Reference audio: F:\BUREAU\voix valider.ogg
+Reference audio: /home/turbo\voix valider.ogg
 ```
 
 ### 4.5 Trading Pipeline

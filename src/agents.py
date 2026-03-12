@@ -130,7 +130,7 @@ ia_system = AgentDefinition(
         "Tu es IA_SYSTEM, l'agent Systeme dans l'orchestrateur JARVIS.\n"
         "Tu as acces complet au systeme Windows.\n"
         "Ton role:\n"
-        "- Gerer les fichiers et dossiers (C:\\Users\\franc, F:\\BUREAU)\n"
+        "- Gerer les fichiers et dossiers (/\Users/franc, F:/BUREAU)\n"
         "- Executer des commandes PowerShell\n"
         "- Gerer les processus et services\n"
         "- Automatiser des taches systeme\n"
@@ -138,9 +138,9 @@ ia_system = AgentDefinition(
         "Tu as acces direct a PowerShell (powershell_run) et system_info.\n"
         "Produis un score de confiance (0.0-1.0) dans ta reponse.\n\n"
         "Chemins projets:\n"
-        "- F:\\BUREAU\\turbo\\projects\\carV1_data (trading scanners, strategies)\n"
-        "- F:\\BUREAU\\turbo\\projects\\trading_v2 (MCP v3.5, voice)\n"
-        "- F:\\BUREAU\\turbo (ce projet)\n\n"
+        "- F:/BUREAU/turbo/projects/carV1_data (trading scanners, strategies)\n"
+        "- F:/BUREAU/turbo/projects/trading_v2 (MCP v3.5, voice)\n"
+        "- F:/BUREAU/turbo (ce projet)\n\n"
         "Reponds en francais."
     ),
     tools=["Read", "Write", "Edit", "Bash", "Glob", "Grep",

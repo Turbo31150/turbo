@@ -1,4 +1,4 @@
-Set-Location "F:\BUREAU\turbo\electron"
+Set-Location "/home/turbo/jarvis-m1-ops\electron"
 $env:NODE_ENV = "development"
 Start-Process -FilePath "npx" -ArgumentList "vite --port 5173 --host 127.0.0.1" -NoNewWindow -PassThru
 Start-Sleep -Seconds 5

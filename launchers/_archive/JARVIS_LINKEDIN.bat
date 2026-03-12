@@ -9,7 +9,7 @@
 ::   JARVIS_LINKEDIN.bat generate  : Generate 5 posts in advance
 
 set PYTHONIOENCODING=utf-8
-cd /d F:\BUREAU\turbo\cowork\dev
+cd /d /home/turbo/jarvis-m1-ops\cowork\dev
 
 if "%1"=="once" (
     python linkedin_scheduler.py --once --method all
@@ -27,9 +27,9 @@ if "%1"=="generate" (
 )
 
 :: Default: daemon mode — singleton guard
-cd /d F:\BUREAU\turbo
+cd /d /home/turbo/jarvis-m1-ops
 python scripts/singleton_guard.py --name linkedin --kill
-cd /d F:\BUREAU\turbo\cowork\dev
+cd /d /home/turbo/jarvis-m1-ops\cowork\dev
 
 echo JARVIS LinkedIn Scheduler - Daemon Mode
 echo Press Ctrl+C to stop

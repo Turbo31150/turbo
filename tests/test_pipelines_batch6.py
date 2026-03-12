@@ -18,7 +18,7 @@ print("=" * 60)
 # USER PREFERENCES (3)
 print("\n[USER PREFERENCE LEARNING]")
 try:
-    out = ps("$hour = (Get-Date).Hour; $period = if ($hour -lt 6) { 'nuit' } elseif ($hour -lt 12) { 'matin' } elseif ($hour -lt 18) { 'apres-midi' } else { 'soiree' }; $commits = (git -C 'F:\\BUREAU\\turbo' log --oneline --since='7 days ago' 2>$null | Measure-Object).Count; Write-Output \"$period, $commits commits 7j\"")
+    out = ps("$hour = (Get-Date).Hour; $period = if ($hour -lt 6) { 'nuit' } elseif ($hour -lt 12) { 'matin' } elseif ($hour -lt 18) { 'apres-midi' } else { 'soiree' }; $commits = (git -C 'F:/BUREAU/turbo' log --oneline --since='7 days ago' 2>$null | Measure-Object).Count; Write-Output \"$period, $commits commits 7j\"")
     ok("preference_work_hours", out[:80])
 except Exception as e: fail("preference_work_hours", str(e)[:80])
 
@@ -35,7 +35,7 @@ except Exception as e: fail("preference_auto_suggest", str(e)[:80])
 # ACCESSIBILITY (3)
 print("\n[ACCESSIBILITY ENHANCEMENTS]")
 try:
-    out = ps("$theme = Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -ErrorAction SilentlyContinue; Write-Output \"Dark apps: $(if ($theme.AppsUseLightTheme -eq 0) { 'OUI' } else { 'NON' })\"")
+    out = ps("$theme = Get-ItemProperty 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Themes/Personalize' -ErrorAction SilentlyContinue; Write-Output \"Dark apps: $(if ($theme.AppsUseLightTheme -eq 0) { 'OUI' } else { 'NON' })\"")
     ok("accessibility_profile_show", out[:80])
 except Exception as e: fail("accessibility_profile_show", str(e)[:80])
 
@@ -45,7 +45,7 @@ try:
 except Exception as e: fail("accessibility_voice_speed", str(e)[:80])
 
 try:
-    out = ps("$theme = Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -ErrorAction SilentlyContinue; Write-Output \"Dark systeme: $(if ($theme.SystemUsesLightTheme -eq 0) { 'OUI' } else { 'NON' })\"")
+    out = ps("$theme = Get-ItemProperty 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Themes/Personalize' -ErrorAction SilentlyContinue; Write-Output \"Dark systeme: $(if ($theme.SystemUsesLightTheme -eq 0) { 'OUI' } else { 'NON' })\"")
     ok("accessibility_contrast_check", out[:80])
 except Exception as e: fail("accessibility_contrast_check", str(e)[:80])
 
@@ -74,12 +74,12 @@ try:
 except Exception as e: fail("collab_sync_status", str(e)[:80])
 
 try:
-    out = ps("& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; print(f'{len(PIPELINE_COMMANDS)} pipelines exportables')\" 2>&1")
+    out = ps("& '/\Users/franc/.local/bin/uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; print(f'{len(PIPELINE_COMMANDS)} pipelines exportables')\" 2>&1")
     ok("collab_commands_export", out[:80])
 except Exception as e: fail("collab_commands_export", str(e)[:80])
 
 try:
-    out = ps("& 'C:\\Users\\franc\\.local\\bin\\uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db'); r=c.execute('PRAGMA integrity_check').fetchone()[0]; print(f'integrity: {r}')\" 2>&1")
+    out = ps("& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('PRAGMA integrity_check').fetchone()[0]; print(f'integrity: {r}')\" 2>&1")
     ok("collab_db_merge_check", out[:80])
 except Exception as e: fail("collab_db_merge_check", str(e)[:80])
 

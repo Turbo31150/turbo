@@ -57,19 +57,19 @@ curl -s http://127.0.0.1:11434/api/chat \
 ### AGENT GEMINI — Architecture & Vision Globale (Google Gemini 2.5)
 - **Modèles:** gemini-2.5-pro (défaut, fallback: gemini-2.5-flash)
 - **Spécialités:** Architecture système, planification stratégique, raisonnement long, revue de code senior
-- **Auth:** OAuth personnel (configuré dans `C:\Users\franc\.gemini\settings.json`)
+- **Auth:** OAuth personnel (configuré dans `/home/turbo\.gemini\settings.json`)
 - **Rate limit:** Gemini gratuit → 429 fréquents. Le proxy fait fallback pro→flash automatiquement.
 - **Appel recommandé (via proxy, avec timeout + fallback + filtrage warnings):**
 ```bash
-node F:/BUREAU/turbo/gemini-proxy.js "PROMPT_ICI"
+node /home/turbo/jarvis-m1-ops/gemini-proxy.js "PROMPT_ICI"
 ```
 - **Appel JSON structuré:**
 ```bash
-node F:/BUREAU/turbo/gemini-proxy.js --json "PROMPT_ICI"
+node /home/turbo/jarvis-m1-ops/gemini-proxy.js --json "PROMPT_ICI"
 ```
 - **Appel avec modèle spécifique:**
 ```bash
-node F:/BUREAU/turbo/gemini-proxy.js --model gemini-2.5-pro "PROMPT_ICI"
+node /home/turbo/jarvis-m1-ops/gemini-proxy.js --model gemini-2.5-pro "PROMPT_ICI"
 ```
 - **Appel direct (sans proxy, warnings bruts):**
 ```bash
@@ -228,21 +228,21 @@ Par défaut, le protocole MAO est TOUJOURS actif pour les tâches complexes.
 ### Option A — CLAUDE.md projet (recommandé)
 Ajouter ce fichier ou son contenu dans le CLAUDE.md du projet :
 ```
-F:\BUREAU\turbo\CLAUDE.md
+/home/turbo/jarvis-m1-ops\CLAUDE.md
 ```
 Claude Code charge automatiquement CLAUDE.md à chaque session dans ce dossier.
 
 ### Option B — Instructions globales
 Copier le contenu dans les instructions globales Claude Code :
 ```
-C:\Users\franc\.claude\CLAUDE.md
+/home/turbo\.claude\CLAUDE.md
 ```
 Sera actif pour TOUTES les sessions Claude Code, pas seulement dans turbo.
 
 ### Option C — Début de session
 Coller au début de chaque conversation :
 ```
-Charge et applique le protocole MAO défini dans F:\BUREAU\turbo\CLAUDE_MULTI_AGENT.md
+Charge et applique le protocole MAO défini dans /home/turbo/jarvis-m1-ops\CLAUDE_MULTI_AGENT.md
 ```
 
 ---
@@ -268,7 +268,7 @@ Charge et applique le protocole MAO défini dans F:\BUREAU\turbo\CLAUDE_MULTI_AG
 
 ## 10. NOTES TECHNIQUES
 
-- **Windows paths** : Utiliser `/` ou `\\` dans les commandes Bash (pas de `\` simple)
+- **Windows paths** : Utiliser `/` ou `/` dans les commandes Bash (pas de `\` simple)
 - **JSON escaping** : Les guillemets dans les prompts curl doivent être échappés avec `\"`
 - **Latence réseau** : M1 (127.0.0.1) est sur le réseau local, latence < 1ms. M2 (192.168.1.26) idem.
 - **GPU partagés** : M1 charge qwen3-8b (primary). Autres modeles (qwen3-30b, qwen3-coder-30b) en on-demand. Ne pas les charger tous en même temps.

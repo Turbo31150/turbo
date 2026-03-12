@@ -2,7 +2,7 @@
 import sqlite3
 from datetime import datetime
 
-conn = sqlite3.connect("F:/BUREAU/turbo/data/etoile.db")
+conn = sqlite3.connect("/home/turbo/jarvis-m1-ops/data/etoile.db")
 cur = conn.cursor()
 
 test_date = datetime.now().isoformat()

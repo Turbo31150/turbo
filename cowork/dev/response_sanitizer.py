@@ -8,7 +8,7 @@ parasites sont supprimes AVANT et APRES le transit.
 10 agents de sanitisation:
   1. THINK_STRIP   — Supprime les blocs <think>...</think> et reasoning tokens
   2. PUNCT_CLEAN   — Corrige les ponctuations doubles, espaces avant ponctuation
-  3. ESCAPE_CLEAN  — Supprime les backslash parasites \\n, \\t en dehors du code
+  3. ESCAPE_CLEAN  — Supprime les backslash parasites /n, /t en dehors du code
   4. FORMAT_NORM   — Normalise le formatage Markdown (**, `, #, etc.)
   5. UNICODE_FIX   — Remplace les caracteres Unicode speciaux par ASCII
   6. CODE_FENCE    — Corrige les code blocks mal fermes (``` sans fermeture)
@@ -71,11 +71,11 @@ def clean_escapes(text):
         if line.strip().startswith("```"):
             in_code = not in_code
         if not in_code:
-            # Remove literal \\n that should be newlines
-            line = line.replace("\\n", "\n")
+            # Remove literal /n that should be newlines
+            line = line.replace("/n", "\n")
             # Remove escaped quotes that shouldn't be
-            line = line.replace('\\"', '"')
-            line = line.replace("\\'", "'")
+            line = line.replace('/"', '"')
+            line = line.replace("/'", "'")
         result.append(line)
     return "\n".join(result)
 

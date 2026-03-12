@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-ROOT = r"F:\BUREAU\TRADING_V2_PRODUCTION"
+ROOT = r"/home/turbo\TRADING_V2_PRODUCTION"
 DB_PATH = os.path.join(ROOT, "database", "trading.db")
 MEXC_TICKER_URL = "https://contract.mexc.com/api/v1/contract/ticker"
 MEXC_KLINE_URL = "https://contract.mexc.com/api/v1/contract/kline"

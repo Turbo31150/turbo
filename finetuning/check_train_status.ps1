@@ -6,7 +6,7 @@ Get-Process python* -ErrorAction SilentlyContinue | ForEach-Object {
 }
 
 Write-Host "`n=== Output File ==="
-$outFile = "C:\Users\franc\AppData\Local\Temp\claude\C--Users-franc\tasks\b7b9b99.output"
+$outFile = "/home/turbo\AppData\Local\Temp\claude\C--Users-franc\tasks\b7b9b99.output"
 if (Test-Path $outFile) {
     $info = Get-Item $outFile
     Write-Host "Last modified: $($info.LastWriteTime)"

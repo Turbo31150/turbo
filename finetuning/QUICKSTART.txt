@@ -3,39 +3,39 @@ QUICKSTART - BENCHMARK JARVIS
 ================================================================================
 
 1. VERIFICATION INITIALE (5 min)
-   cd F:\BUREAU\turbo
+   cd /home/turbo/jarvis-m1-ops
    uv run python finetuning/check_setup.py
 
    Resultat attendu: "OK CONFIGURATION OK"
 
 2. TEST RAPIDE (5 min)
-   cd F:\BUREAU\turbo
+   cd /home/turbo/jarvis-m1-ops
    uv run python finetuning/quick_test.py
 
    Resultat attendu: "OK QUICK TEST REUSSI"
 
 3. BENCHMARK COMPLET (3-5 min)
-   cd F:\BUREAU\turbo
+   cd /home/turbo/jarvis-m1-ops
    uv run python finetuning/benchmark.py
 
    Resultat attendu: JSON report + console output
 
 4. ANALYSER RESULTATS (1 min)
-   cd F:\BUREAU\turbo
+   cd /home/turbo/jarvis-m1-ops
    uv run python finetuning/analyze_results.py
 
    Resultat attendu: Rapport texte + graphiques
 
 5. CONSULTER RESULTATS
-   - Rapport texte: F:\BUREAU\turbo\finetuning\benchmark_report.txt
-   - Rapport JSON:  F:\BUREAU\turbo\finetuning\benchmark_results.json
-   - Graphiques:    F:\BUREAU\turbo\finetuning\benchmark_charts.png
+   - Rapport texte: /home/turbo/jarvis-m1-ops\finetuning\benchmark_report.txt
+   - Rapport JSON:  /home/turbo/jarvis-m1-ops\finetuning\benchmark_results.json
+   - Graphiques:    /home/turbo/jarvis-m1-ops\finetuning\benchmark_charts.png
 
 ================================================================================
 ALTERNATIVE: LAUNCHER WINDOWS
 ================================================================================
 
-Double-cliquer: F:\BUREAU\turbo\finetuning\run_benchmark.bat
+Double-cliquer: /home/turbo/jarvis-m1-ops\finetuning\run_benchmark.bat
 
 (Lance directement le benchmark complet)
 
@@ -116,7 +116,7 @@ Import error:
   uv pip install --force-reinstall transformers peft bitsandbytes
 
 Adaptateur LoRA non trouve:
-  - Placer dans: F:\BUREAU\turbo\finetuning\output\final\
+  - Placer dans: /home/turbo/jarvis-m1-ops\finetuning\output\final\
   - Verifier: adapter_config.json existe
 
 Benchmark tres lent:

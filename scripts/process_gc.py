@@ -29,14 +29,14 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-TURBO_DIR = Path("F:/BUREAU/turbo")
+TURBO_DIR = Path("/home/turbo/jarvis-m1-ops")
 LOG_DIR = TURBO_DIR / "logs"
 DB_PATH = TURBO_DIR / "data" / "process_gc.db"
 
 # Processes matching these command-line patterns are GC candidates.
 # They are cowork scripts that should finish quickly (<120s).
 COWORK_PATTERNS = [
-    "cowork\\\\dev\\\\",
+    "cowork//dev//",
     "cowork/dev/",
 ]
 
@@ -249,7 +249,7 @@ def print_status():
     if cowork:
         print(f"\n  Active cowork processes:")
         for p in sorted(cowork, key=lambda x: -x["age_s"])[:15]:
-            script = p["cmdline"].split("\\")[-1].split("/")[-1][:40] if p["cmdline"] else "?"
+            script = p["cmdline"].split("/")[-1].split("/")[-1][:40] if p["cmdline"] else "?"
             print(f"    PID {p['pid']:6d}  {p['age_s']:6.0f}s  {p['memory_mb']:6.1f}MB  {script}")
 
     if heavy:
@@ -295,7 +295,7 @@ def main():
             print(f"\n  {prefix}Process GC: {summary['killed']} killed, "
                   f"{summary['skipped']} skipped, {summary['protected']} protected")
             for d in summary["details"]:
-                script = d["cmdline"].split("\\")[-1].split("/")[-1][:40]
+                script = d["cmdline"].split("/")[-1].split("/")[-1][:40]
                 print(f"    {d['action']:8s} PID {d['pid']:6d}  {d['reason']}  {script}")
         conn.close()
         return

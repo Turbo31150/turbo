@@ -96,7 +96,7 @@ async def _model_swap(payload: dict) -> dict[str, Any]:
 
     if node in ("M1", "M2", "M3"):
         # LM Studio CLI
-        lms_path = r"C:\Users\franc\.lmstudio\bin\lms.exe"
+        lms_path = r"/home/turbo\.lmstudio\bin\lms.exe"
         try:
             cmd = [lms_path, action, model] if action == "load" else [lms_path, "unload", model]
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)

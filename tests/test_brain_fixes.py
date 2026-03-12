@@ -46,7 +46,7 @@ async def test_cluster_error_handling():
 
     # We can't fully test this without running the actual code,
     # but we can verify the fix is in place
-    with open("F:/BUREAU/turbo/src/brain.py", "r", encoding="utf-8") as f:
+    with open("/home/turbo/jarvis-m1-ops/src/brain.py", "r", encoding="utf-8") as f:
         content = f.read()
 
     # Check that specific error handling is present
@@ -67,7 +67,7 @@ def verify_mcp_server_fix():
     """Verify the fix in mcp_server.py."""
     print("\n=== TEST 3: mcp_server.py brain_analyze fix ===")
 
-    with open("F:/BUREAU/turbo/src/mcp_server.py", "r", encoding="utf-8") as f:
+    with open("/home/turbo/jarvis-m1-ops/src/mcp_server.py", "r", encoding="utf-8") as f:
         content = f.read()
 
     # Check that the isinstance check is present

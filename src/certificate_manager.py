@@ -1,7 +1,7 @@
 """Certificate Manager — Windows certificate store management.
 
 List certificates, check expiration, search, store info.
-Uses PowerShell Get-ChildItem Cert:\\ (no external deps).
+Uses PowerShell Get-ChildItem Cert:/ (no external deps).
 Designed for JARVIS autonomous security monitoring.
 """
 
@@ -27,11 +27,11 @@ logger = logging.getLogger("jarvis.certificate_manager")
 _NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 
 CERT_STORES = [
-    "Cert:\\LocalMachine\\My",
-    "Cert:\\LocalMachine\\Root",
-    "Cert:\\LocalMachine\\CA",
-    "Cert:\\CurrentUser\\My",
-    "Cert:\\CurrentUser\\Root",
+    "Cert:/LocalMachine/My",
+    "Cert:/LocalMachine/Root",
+    "Cert:/LocalMachine/CA",
+    "Cert:/CurrentUser/My",
+    "Cert:/CurrentUser/Root",
 ]
 
 
@@ -64,7 +64,7 @@ class CertificateManager:
 
     # ── Certificate Listing ────────────────────────────────────────────
 
-    def list_certs(self, store: str = "Cert:\\LocalMachine\\My") -> list[dict[str, Any]]:
+    def list_certs(self, store: str = "Cert:/LocalMachine/My") -> list[dict[str, Any]]:
         """List certificates in a store."""
         try:
             result = subprocess.run(
@@ -99,12 +99,12 @@ class CertificateManager:
         """List known certificate stores."""
         return list(CERT_STORES)
 
-    def search(self, query: str, store: str = "Cert:\\LocalMachine\\My") -> list[dict[str, Any]]:
+    def search(self, query: str, store: str = "Cert:/LocalMachine/My") -> list[dict[str, Any]]:
         """Search certificates by subject."""
         q = query.lower()
         return [c for c in self.list_certs(store) if q in c.get("subject", "").lower()]
 
-    def get_expiring(self, days: int = 30, store: str = "Cert:\\LocalMachine\\My") -> list[dict[str, Any]]:
+    def get_expiring(self, days: int = 30, store: str = "Cert:/LocalMachine/My") -> list[dict[str, Any]]:
         """Get certificates expiring within N days."""
         try:
             result = subprocess.run(

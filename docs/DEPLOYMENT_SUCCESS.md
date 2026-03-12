@@ -137,7 +137,7 @@ Categories d'evenements:
 ### Commande
 
 ```bash
-cd F:\BUREAU\turbo
+cd /home/turbo/jarvis-m1-ops
 python -m src.mcp_server_sse --port 8901 --light
 ```
 

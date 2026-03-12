@@ -251,7 +251,7 @@ def export_config(db_path: str, output_dir: str) -> None:
             dirpath = str(Path(filepath).parent)
             lines.append(f"mkdir -p '{dirpath}'")
             # Escape content for heredoc
-            safe = content.replace("'", "'\\''")
+            safe = content.replace("'", "'/''")
             lines.append(f"cat > '{filepath}' << 'PLUGEOF'")
             lines.append(content)
             lines.append("PLUGEOF")
@@ -276,7 +276,7 @@ def export_config(db_path: str, output_dir: str) -> None:
             db_file = {"etoile": "etoile.db", "jarvis": "data/jarvis.db", "sniper": "data/sniper.db"}[db_name]
             for sql in schema:
                 if sql:
-                    safe_sql = sql.replace("'", "'\\''")
+                    safe_sql = sql.replace("'", "'/''")
                     lines.append(f"sqlite3 '{db_file}' '{safe_sql};' 2>/dev/null")
 
     lines.append("")
@@ -301,7 +301,7 @@ Source: {Path(db_path).name}
 ## Quick Restore
 
 ```bash
-cd F:/BUREAU/turbo
+cd /home/turbo/jarvis-m1-ops
 bash restore/restore.sh
 # Then fill in .env.restore with your secrets and rename to .env
 ```

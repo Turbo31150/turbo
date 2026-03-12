@@ -402,7 +402,7 @@ async def _execute_jarvis_tool(action: str) -> str:
         return f"Focus sur {action_param}." if result["success"] else f"Fenetre non trouvee."
     if base_action == "search_files":
         result = run_powershell(
-            f"Get-ChildItem -Path F:\\BUREAU -Recurse -Filter '*{action_param}*' -ErrorAction SilentlyContinue | "
+            f"Get-ChildItem -Path F:/BUREAU -Recurse -Filter '*{action_param}*' -ErrorAction SilentlyContinue | "
             "Select -First 10 FullName | Out-String", timeout=15)
         return result["stdout"][:800] if result["success"] and result["stdout"] else f"Aucun fichier '{action_param}' trouve."
     if base_action == "create_folder":

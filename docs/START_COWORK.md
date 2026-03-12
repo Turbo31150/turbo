@@ -127,7 +127,7 @@ corriger des bugs, optimiser le code, et ameliorer JARVIS 24/7.
 ### Etape 1: Verifier la configuration
 
 ```powershell
-cd F:\BUREAU\turbo
+cd /home/turbo/jarvis-m1-ops
 python -c "from src.cowork_master_config import *; print(f'{len(AVAILABLE_AGENTS)} agents, {len(DEVELOPMENT_QUEUE)} tasks')"
 ```
 
@@ -180,7 +180,7 @@ print(f"Queue: {status['queue_size']}")
 
 Les logs sont ecrits dans :
 - **Console** : Tous les evenements importants
-- **Fichier** : `F:/BUREAU/turbo/logs/cowork.log`
+- **Fichier** : `/home/turbo/jarvis-m1-ops/logs/cowork.log`
 - **Event bus** : Events `cowork/task_completed` et `cowork/task_failed`
 
 ---

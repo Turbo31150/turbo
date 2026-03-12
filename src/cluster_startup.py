@@ -62,7 +62,7 @@ WARMUP_PROMPT = "Reponds OK."
 WARMUP_MAX_TOKENS = 5
 
 # ── Strip ANSI escape codes from lms.exe output ──────────────────────────
-_ANSI_RE = re.compile(r"\x1b\[[0-9;]*[a-zA-Z]|\[\\?25[hl]")
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*[a-zA-Z]|\[/?25[hl]")
 
 
 def _strip_ansi(text: str) -> str:

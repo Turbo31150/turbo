@@ -22,12 +22,12 @@ Extraction: dernier element `type=message` dans `.output[]`
 
 ## Architecture a connaitre
 
-- **28 modules** Python dans `F:\BUREAU\turbo\src\`
-- **Canvas standalone**: `F:\BUREAU\turbo\canvas\` (direct-proxy.js, autolearn.js, index.html)
-- **Electron desktop**: `F:\BUREAU\turbo\electron\`
-- **Trading pipeline**: `F:\BUREAU\turbo\scripts\trading_v2\`
-- **Dashboard**: `F:\BUREAU\turbo\dashboard\`
-- **SDK agents**: `F:\BUREAU\turbo\src\agents.py`
+- **28 modules** Python dans `/home/turbo/jarvis-m1-ops\src\`
+- **Canvas standalone**: `/home/turbo/jarvis-m1-ops\canvas\` (direct-proxy.js, autolearn.js, index.html)
+- **Electron desktop**: `/home/turbo/jarvis-m1-ops\electron\`
+- **Trading pipeline**: `/home/turbo/jarvis-m1-ops\scripts\trading_v2\`
+- **Dashboard**: `/home/turbo/jarvis-m1-ops\dashboard\`
+- **SDK agents**: `/home/turbo/jarvis-m1-ops\src\agents.py`
 
 ## Ports critiques
 

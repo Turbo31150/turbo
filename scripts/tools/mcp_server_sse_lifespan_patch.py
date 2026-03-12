@@ -3,7 +3,7 @@
 Remplace le lifespan actuel ligne ~352 par ce code ameliore.
 
 Instructions:
-    1. Ouvrir F:\\BUREAU\\turbo\\src\\mcp_server_sse.py
+    1. Ouvrir F:/BUREAU/turbo/src/mcp_server_sse.py
     2. Trouver la fonction lifespan (ligne ~352)
     3. Remplacer le @contextlib.asynccontextmanager + fonction par le code ci-dessous
 """

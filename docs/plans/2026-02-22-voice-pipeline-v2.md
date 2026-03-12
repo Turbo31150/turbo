@@ -13,7 +13,7 @@
 ### Task 1: Install dependencies
 
 **Files:**
-- Modify: `F:/BUREAU/turbo/pyproject.toml`
+- Modify: `/home/turbo/jarvis-m1-ops/pyproject.toml`
 
 **Step 1: Add new dependencies to pyproject.toml**
 
@@ -27,18 +27,18 @@ Note: `faster-whisper` is already installed system-wide via Python 3.12. `edge-t
 
 **Step 2: Install dependencies**
 
-Run: `cd F:/BUREAU/turbo && uv pip install openwakeword edge-tts`
+Run: `cd /home/turbo/jarvis-m1-ops && uv pip install openwakeword edge-tts`
 Expected: packages installed successfully
 
 **Step 3: Verify imports work**
 
-Run: `cd F:/BUREAU/turbo && python -c "import openwakeword; import edge_tts; print('OK')"`
+Run: `cd /home/turbo/jarvis-m1-ops && python -c "import openwakeword; import edge_tts; print('OK')"`
 Expected: `OK`
 
 **Step 4: Commit**
 
 ```bash
-cd F:/BUREAU/turbo
+cd /home/turbo/jarvis-m1-ops
 git add pyproject.toml
 git commit -m "feat(voice): add openwakeword + edge-tts dependencies for pipeline v2"
 ```
@@ -48,7 +48,7 @@ git commit -m "feat(voice): add openwakeword + edge-tts dependencies for pipelin
 ### Task 2: Create wake_word.py — Local "Jarvis" detection
 
 **Files:**
-- Create: `F:/BUREAU/turbo/src/wake_word.py`
+- Create: `/home/turbo/jarvis-m1-ops/src/wake_word.py`
 
 **Step 1: Create wake_word.py with OpenWakeWord listener**
 
@@ -58,13 +58,13 @@ Key design: WakeWordDetector class with start/stop lifecycle, daemon thread, 1s 
 
 **Step 2: Smoke test — verify module imports**
 
-Run: `cd F:/BUREAU/turbo && python -c "from src.wake_word import WakeWordDetector; print('OK')"`
+Run: `cd /home/turbo/jarvis-m1-ops && python -c "from src.wake_word import WakeWordDetector; print('OK')"`
 Expected: `OK`
 
 **Step 3: Commit**
 
 ```bash
-cd F:/BUREAU/turbo
+cd /home/turbo/jarvis-m1-ops
 git add src/wake_word.py
 git commit -m "feat(voice): add wake word detector with OpenWakeWord"
 ```
@@ -74,7 +74,7 @@ git commit -m "feat(voice): add wake word detector with OpenWakeWord"
 ### Task 3: Upgrade whisper_worker.py — Streaming mode + beam=1
 
 **Files:**
-- Modify: `F:/BUREAU/turbo/src/whisper_worker.py`
+- Modify: `/home/turbo/jarvis-m1-ops/src/whisper_worker.py`
 
 **Step 1: Modify whisper_worker.py**
 
@@ -88,13 +88,13 @@ The transcription loop emits `SEGMENT: text` for each VAD segment as it arrives,
 
 **Step 2: Verify worker still starts**
 
-Run: `echo "QUIT" | C:/Users/franc/AppData/Local/Programs/Python/Python312/python.exe F:/BUREAU/turbo/src/whisper_worker.py`
+Run: `echo "QUIT" | C:/Users/franc/AppData/Local/Programs/Python/Python312/python.exe /home/turbo/jarvis-m1-ops/src/whisper_worker.py`
 Expected: `WHISPER_READY ...` then `WHISPER_LOADED ...` then exits cleanly
 
 **Step 3: Commit**
 
 ```bash
-cd F:/BUREAU/turbo
+cd /home/turbo/jarvis-m1-ops
 git add src/whisper_worker.py
 git commit -m "feat(voice): whisper streaming segments + beam=1 for 3x speedup"
 ```
@@ -104,7 +104,7 @@ git commit -m "feat(voice): whisper streaming segments + beam=1 for 3x speedup"
 ### Task 4: Create tts_streaming.py — Edge TTS streaming playback
 
 **Files:**
-- Create: `F:/BUREAU/turbo/src/tts_streaming.py`
+- Create: `/home/turbo/jarvis-m1-ops/src/tts_streaming.py`
 
 **Step 1: Create tts_streaming.py**
 
@@ -116,13 +116,13 @@ Two functions:
 
 **Step 2: Verify import**
 
-Run: `cd F:/BUREAU/turbo && python -c "from src.tts_streaming import speak_streaming; print('OK')"`
+Run: `cd /home/turbo/jarvis-m1-ops && python -c "from src.tts_streaming import speak_streaming; print('OK')"`
 Expected: `OK`
 
 **Step 3: Commit**
 
 ```bash
-cd F:/BUREAU/turbo
+cd /home/turbo/jarvis-m1-ops
 git add src/tts_streaming.py
 git commit -m "feat(voice): add streaming TTS with edge-tts"
 ```
@@ -132,7 +132,7 @@ git commit -m "feat(voice): add streaming TTS with edge-tts"
 ### Task 5: Upgrade voice_correction.py — Confidence-based IA bypass
 
 **Files:**
-- Modify: `F:/BUREAU/turbo/src/voice_correction.py`
+- Modify: `/home/turbo/jarvis-m1-ops/src/voice_correction.py`
 
 **Step 1: Add early exit in full_correction_pipeline**
 
@@ -145,13 +145,13 @@ This means ~80% of known commands (438 indexed) skip the network call entirely.
 
 **Step 2: Verify module still imports**
 
-Run: `cd F:/BUREAU/turbo && python -c "from src.voice_correction import full_correction_pipeline; print('OK')"`
+Run: `cd /home/turbo/jarvis-m1-ops && python -c "from src.voice_correction import full_correction_pipeline; print('OK')"`
 Expected: `OK`
 
 **Step 3: Commit**
 
 ```bash
-cd F:/BUREAU/turbo
+cd /home/turbo/jarvis-m1-ops
 git add src/voice_correction.py
 git commit -m "feat(voice): bypass IA for high-confidence local matches (>85%)"
 ```
@@ -161,7 +161,7 @@ git commit -m "feat(voice): bypass IA for high-confidence local matches (>85%)"
 ### Task 6: Upgrade voice.py — Streaming pipeline + cache + OL1
 
 **Files:**
-- Modify: `F:/BUREAU/turbo/src/voice.py`
+- Modify: `/home/turbo/jarvis-m1-ops/src/voice.py`
 
 **Step 1: Replace M1 with OL1 in constants**
 
@@ -193,13 +193,13 @@ Background async task that sends a minimal request to keep the model in GPU memo
 
 **Step 6: Verify**
 
-Run: `cd F:/BUREAU/turbo && python -c "from src.voice import listen_voice; print('OK')"`
+Run: `cd /home/turbo/jarvis-m1-ops && python -c "from src.voice import listen_voice; print('OK')"`
 Expected: `OK`
 
 **Step 7: Commit**
 
 ```bash
-cd F:/BUREAU/turbo
+cd /home/turbo/jarvis-m1-ops
 git add src/voice.py
 git commit -m "feat(voice): streaming pipeline v2 - OL1, cache, warm-up, beam=1"
 ```
@@ -209,7 +209,7 @@ git commit -m "feat(voice): streaming pipeline v2 - OL1, cache, warm-up, beam=1"
 ### Task 7: Integration — Wire wake word into main voice loop
 
 **Files:**
-- Modify: `F:/BUREAU/turbo/src/voice.py`
+- Modify: `/home/turbo/jarvis-m1-ops/src/voice.py`
 
 **Step 1: Add listen_voice_v2 function**
 
@@ -225,13 +225,13 @@ Also add `_record_timed()` helper for post-wake-word recording with silence dete
 
 **Step 2: Verify**
 
-Run: `cd F:/BUREAU/turbo && python -c "from src.voice import listen_voice_v2; print('OK')"`
+Run: `cd /home/turbo/jarvis-m1-ops && python -c "from src.voice import listen_voice_v2; print('OK')"`
 Expected: `OK`
 
 **Step 3: Commit**
 
 ```bash
-cd F:/BUREAU/turbo
+cd /home/turbo/jarvis-m1-ops
 git add src/voice.py
 git commit -m "feat(voice): integrate wake word + cache + silence detection into v2 pipeline"
 ```
@@ -241,7 +241,7 @@ git commit -m "feat(voice): integrate wake word + cache + silence detection into
 ### Task 8: Config update — Add voice v2 constants
 
 **Files:**
-- Modify: `F:/BUREAU/turbo/src/config.py`
+- Modify: `/home/turbo/jarvis-m1-ops/src/config.py`
 
 **Step 1: Add voice v2 config to JarvisConfig dataclass**
 
@@ -263,7 +263,7 @@ git commit -m "feat(voice): integrate wake word + cache + silence detection into
 **Step 2: Commit**
 
 ```bash
-cd F:/BUREAU/turbo
+cd /home/turbo/jarvis-m1-ops
 git add src/config.py
 git commit -m "feat(voice): add voice pipeline v2 config constants"
 ```
@@ -274,7 +274,7 @@ git commit -m "feat(voice): add voice pipeline v2 config constants"
 
 **Step 1: Create test script**
 
-Create: `F:/BUREAU/turbo/test_voice_v2.py`
+Create: `/home/turbo/jarvis-m1-ops/test_voice_v2.py`
 
 Test 7 things:
 1. WakeWordDetector imports
@@ -287,13 +287,13 @@ Test 7 things:
 
 **Step 2: Run integration test**
 
-Run: `cd F:/BUREAU/turbo && python test_voice_v2.py`
+Run: `cd /home/turbo/jarvis-m1-ops && python test_voice_v2.py`
 Expected: All 7 tests OK (or SKIP for CUDA if not on GPU machine)
 
 **Step 3: Commit**
 
 ```bash
-cd F:/BUREAU/turbo
+cd /home/turbo/jarvis-m1-ops
 git add test_voice_v2.py
 git commit -m "test(voice): add voice pipeline v2 integration test"
 ```

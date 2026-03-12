@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """win_autonomics_runner.py -- Run all Windows automation scripts.
 
-Orchestrates 78 win_*.py scripts in F:\\BUREAU\\turbo\\cowork\\dev\\.
+Orchestrates 78 win_*.py scripts in F:/BUREAU/turbo/cowork/dev/.
 Groups by category with priority ordering: monitors > guards > analyzers >
 managers > optimizers > utilities.
 

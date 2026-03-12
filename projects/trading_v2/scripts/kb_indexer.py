@@ -9,7 +9,7 @@ import hashlib
 from datetime import datetime
 from pathlib import Path
 
-DB_PATH = r"F:\BUREAU\TRADING_V2_PRODUCTION\database\trading.db"
+DB_PATH = r"/home/turbo\TRADING_V2_PRODUCTION\database\trading.db"
 
 # Categories avec mapping automatique
 CATEGORIES = {
@@ -39,12 +39,12 @@ CATEGORIES = {
 
 # Dossiers a scanner
 SCAN_DIRS = [
-    (r"F:\BUREAU\DOCUMENTATION", "documentation"),
-    (r"F:\BUREAU\TRADING_V2_PRODUCTION\config", "configs"),
-    (r"F:\BUREAU\PROD_INTENSIVE_V1\config", "configs"),
-    (r"F:\BUREAU\carV1\config", "configs"),
-    (r"F:\BUREAU\SCRIPTS", "scripts"),
-    (r"F:\BUREAU\SCRIPTS_LANCEURS", "scripts"),
+    (r"/home/turbo\DOCUMENTATION", "documentation"),
+    (r"/home/turbo\TRADING_V2_PRODUCTION\config", "configs"),
+    (r"/home/turbo\PROD_INTENSIVE_V1\config", "configs"),
+    (r"/home/turbo\carV1\config", "configs"),
+    (r"/home/turbo\SCRIPTS", "scripts"),
+    (r"/home/turbo\SCRIPTS_LANCEURS", "scripts"),
 ]
 
 # Extensions a indexer

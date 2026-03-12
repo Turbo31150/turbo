@@ -14,7 +14,7 @@
 - [ ] Vérifier imports: `uv run python finetuning/check_setup.py` → OK
 
 ### Structure fichiers
-- [ ] Répertoire `F:\BUREAU\turbo\finetuning\` existe
+- [ ] Répertoire `/home/turbo/jarvis-m1-ops\finetuning\` existe
 - [ ] Tous les scripts Python présents (4 fichiers)
 - [ ] Fichier configuration JSON présent
 - [ ] Documentation présente (6 fichiers)
@@ -35,7 +35,7 @@
 
 ### Étape 1: Vérification (1 min)
 ```bash
-cd F:\BUREAU\turbo
+cd /home/turbo/jarvis-m1-ops
 uv run python finetuning/check_setup.py
 ```
 - [ ] Affiche: "✓ CONFIGURATION OK"
@@ -163,7 +163,7 @@ uv run python finetuning/analyze_results.py
 - [ ] Considérer CPU fallback
 
 ### Si adaptateur LoRA non trouvé
-- [ ] Vérifier chemin: `F:/BUREAU/turbo/finetuning/output/*/final/`
+- [ ] Vérifier chemin: `/home/turbo/jarvis-m1-ops/finetuning/output/*/final/`
 - [ ] Vérifier `adapter_config.json` existe
 - [ ] Benchmark fonctionne sans (modèle base seul)
 
@@ -255,7 +255,7 @@ uv run python finetuning/analyze_results.py
 
 ```bash
 # Aller au répertoire
-cd F:\BUREAU\turbo
+cd /home/turbo/jarvis-m1-ops
 
 # Vérifier configuration
 uv run python finetuning/check_setup.py

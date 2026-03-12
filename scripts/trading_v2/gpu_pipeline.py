@@ -49,7 +49,7 @@ GPU_DETECTOR = 4
 GPU_WORKERS = [1, 2, 3]
 
 # Output
-OUTPUT_DIR = Path("F:/BUREAU/turbo/data/trading_v2")
+OUTPUT_DIR = Path("/home/turbo/jarvis-m1-ops/data/trading_v2")
 
 
 GPU_TEMP_WARNING = 75   # °C — ralentir

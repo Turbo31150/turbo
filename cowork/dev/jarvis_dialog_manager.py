@@ -87,7 +87,7 @@ def extract_entities(text):
     """Extract simple entities (names, numbers, paths, URLs)."""
     entities = []
     # File paths
-    paths = re.findall(r'[A-Za-z]:[/\\][\w/\\.\\-]+', text)
+    paths = re.findall(r'[A-Za-z]:[//][\w//./-]+', text)
     for p in paths:
         entities.append({"type": "path", "value": p})
     # Numbers

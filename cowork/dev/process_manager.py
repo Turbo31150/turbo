@@ -10,7 +10,7 @@ Provides three subcommands:
 Usage examples:
   python process_manager.py list
   python process_manager.py kill 1234
-  python process_manager.py restart 1234 "C:\\Program Files\\MyApp\\myapp.exe"
+  python process_manager.py restart 1234 "/\Program Files/MyApp/myapp.exe"
 
 The script uses only the Python standard library and works on Windows.
 """

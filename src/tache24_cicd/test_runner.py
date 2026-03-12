@@ -158,7 +158,7 @@ class MockGateway:
 class TestRunner:
     """Runner principal de tests"""
     
-    def __init__(self, tests_dir: str, base_path: str = "F:\\BUREAU\\turbo"):
+    def __init__(self, tests_dir: str, base_path: str = "F:/BUREAU/turbo"):
         self.tests_dir = Path(tests_dir)
         self.base_path = Path(base_path)
         self.db_path = self.base_path / "db" / "test_history.db"
@@ -536,7 +536,7 @@ class TestRunner:
 
 async def main():
     """Point d'entrée"""
-    base_path = "F:\\BUREAU\\turbo"
+    base_path = "F:/BUREAU/turbo"
     tests_dir = Path(base_path) / "tests"
     
     runner = TestRunner(str(tests_dir), base_path)

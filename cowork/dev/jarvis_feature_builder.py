@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """JARVIS Feature Builder — Scan /FIXME/STUB in codebase, generate feature specs.
 
-Continuously scans F:\\BUREAU\\turbo\\src\\ for incomplete features,
+Continuously scans F:/BUREAU/turbo/src/ for incomplete features,
 generates implementation specs, and dispatches to cluster for coding.
 """
 import argparse

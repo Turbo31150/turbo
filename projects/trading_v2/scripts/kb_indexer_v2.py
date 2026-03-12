@@ -1,6 +1,6 @@
 """
 Knowledge Base Indexer V2.0 - FULL BUREAU + WEB DOCS
-Indexe TOUT F:\BUREAU + documentation externe depuis internet
+Indexe TOUT /home/turbo + documentation externe depuis internet
 """
 import sqlite3
 import os
@@ -14,7 +14,7 @@ from datetime import datetime
 from pathlib import Path
 from html.parser import HTMLParser
 
-DB_PATH = r"F:\BUREAU\TRADING_V2_PRODUCTION\database\trading.db"
+DB_PATH = r"/home/turbo\TRADING_V2_PRODUCTION\database\trading.db"
 
 # ==========================================
 # CATEGORIES ENRICHIES
@@ -71,55 +71,55 @@ CATEGORIES = {
 # ==========================================
 SCAN_DIRS = [
     # Documentation
-    (r"F:\BUREAU\DOCUMENTATION", "guides"),
+    (r"/home/turbo\DOCUMENTATION", "guides"),
     # Trading V2 Production
-    (r"F:\BUREAU\TRADING_V2_PRODUCTION\config", "configs"),
-    (r"F:\BUREAU\TRADING_V2_PRODUCTION\scripts", "scripts_py"),
+    (r"/home/turbo\TRADING_V2_PRODUCTION\config", "configs"),
+    (r"/home/turbo\TRADING_V2_PRODUCTION\scripts", "scripts_py"),
     # Prod V1
-    (r"F:\BUREAU\PROD_INTENSIVE_V1\config", "configs"),
-    (r"F:\BUREAU\PROD_INTENSIVE_V1\scripts", "scripts_py"),
+    (r"/home/turbo\PROD_INTENSIVE_V1\config", "configs"),
+    (r"/home/turbo\PROD_INTENSIVE_V1\scripts", "scripts_py"),
     # CarV1 - CORE
-    (r"F:\BUREAU\carV1\config", "configs"),
-    (r"F:\BUREAU\carV1\python_scripts", "mcp_server"),
-    (r"F:\BUREAU\carV1\scripts", "scripts_py"),
-    (r"F:\BUREAU\carV1\voice_system", "voice_system"),
-    (r"F:\BUREAU\carV1\launchers", "scripts_ps"),
-    (r"F:\BUREAU\carV1\app", "systeme"),
-    (r"F:\BUREAU\carV1\app\services", "systeme"),
-    (r"F:\BUREAU\carV1\docs", "guides"),
-    (r"F:\BUREAU\carV1\database", "configs"),
+    (r"/home/turbo\carV1\config", "configs"),
+    (r"/home/turbo\carV1\python_scripts", "mcp_server"),
+    (r"/home/turbo\carV1\scripts", "scripts_py"),
+    (r"/home/turbo\carV1\voice_system", "voice_system"),
+    (r"/home/turbo\carV1\launchers", "scripts_ps"),
+    (r"/home/turbo\carV1\app", "systeme"),
+    (r"/home/turbo\carV1\app\services", "systeme"),
+    (r"/home/turbo\carV1\docs", "guides"),
+    (r"/home/turbo\carV1\database", "configs"),
     # Meta orchestrator
-    (r"F:\BUREAU\carV1\meta_orchestrator", "orchestrateur"),
+    (r"/home/turbo\carV1\meta_orchestrator", "orchestrateur"),
     # SYSTEMES_IA
-    (r"F:\BUREAU\carV1\SYSTEMES_IA", "gpu_cluster"),
+    (r"/home/turbo\carV1\SYSTEMES_IA", "gpu_cluster"),
     # Trading cluster manager
-    (r"F:\BUREAU\carV1\trading-cluster-manager", "n8n_workflows"),
+    (r"/home/turbo\carV1\trading-cluster-manager", "n8n_workflows"),
     # Control center
-    (r"F:\BUREAU\carV1\control-center", "orchestrateur"),
+    (r"/home/turbo\carV1\control-center", "orchestrateur"),
     # Shadow data (market)
-    (r"F:\BUREAU\carV1\shadow_data", "market_data"),
+    (r"/home/turbo\carV1\shadow_data", "market_data"),
     # Scripts user
-    (r"F:\BUREAU\carV1\scripts_user", "scripts_py"),
+    (r"/home/turbo\carV1\scripts_user", "scripts_py"),
     # Multi IA comm
-    (r"F:\BUREAU\carV1\multi_ia_comm", "consensus"),
+    (r"/home/turbo\carV1\multi_ia_comm", "consensus"),
     # SCRIPTS bureau
-    (r"F:\BUREAU\SCRIPTS", "scripts_ps"),
-    (r"F:\BUREAU\SCRIPTS_LANCEURS", "scripts_ps"),
+    (r"/home/turbo\SCRIPTS", "scripts_ps"),
+    (r"/home/turbo\SCRIPTS_LANCEURS", "scripts_ps"),
     # JARVIS
-    (r"F:\BUREAU\JARVIS", "jarvis"),
-    (r"F:\BUREAU\JARVIS\config", "jarvis"),
+    (r"/home/turbo\JARVIS", "jarvis"),
+    (r"/home/turbo\JARVIS\config", "jarvis"),
     # Backups
-    (r"F:\BUREAU\carV1\backups", "backup"),
-    (r"F:\BUREAU\LMSTUDIO_BACKUP", "backup"),
-    (r"F:\BUREAU\LMSTUDIO_BACKUP\scripts", "backup"),
+    (r"/home/turbo\carV1\backups", "backup"),
+    (r"/home/turbo\LMSTUDIO_BACKUP", "backup"),
+    (r"/home/turbo\LMSTUDIO_BACKUP\scripts", "backup"),
     # n8n workflows
-    (r"F:\BUREAU\n8n_workflows_backup", "n8n_workflows"),
+    (r"/home/turbo\n8n_workflows_backup", "n8n_workflows"),
     # Extrait
-    (r"F:\BUREAU\extrait\bureau-profilshell", "scripts_ps"),
+    (r"/home/turbo\extrait\bureau-profilshell", "scripts_ps"),
     # Page Trading (frontend)
-    (r"F:\BUREAU\Page-Trading", "trading_core"),
+    (r"/home/turbo\Page-Trading", "trading_core"),
     # Marche
-    (r"F:\BUREAU\carV1\marche", "trading_core"),
+    (r"/home/turbo\carV1\marche", "trading_core"),
 ]
 
 # Extensions indexables
@@ -552,7 +552,7 @@ def main():
     print(f"  => {len(category_map)} categories")
 
     # 2. Indexation fichiers locaux
-    print("\n[2/4] Indexation COMPLETE F:\\BUREAU...")
+    print("\n[2/4] Indexation COMPLETE F:/BUREAU...")
     stats = {"total": 0, "inserted": 0, "updated": 0, "skipped": 0, "chunks": 0, "bytes": 0, "errors": 0}
 
     for scan_dir, source_tag in SCAN_DIRS:
@@ -596,7 +596,7 @@ def main():
 
         total_dir = dir_inserted + dir_updated
         if total_dir > 0:
-            print(f"  {scan_dir.replace('F:\\BUREAU\\', '')[:50]:50s} +{dir_inserted:3d} ~{dir_updated:3d} ({total_dir} docs)")
+            print(f"  {scan_dir.replace('F:/BUREAU/', '')[:50]:50s} +{dir_inserted:3d} ~{dir_updated:3d} ({total_dir} docs)")
 
     conn.commit()
 

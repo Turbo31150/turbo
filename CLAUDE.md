@@ -1,73 +1,124 @@
-# JARVIS Turbo v12.4 — Project Instructions
+# JARVIS Turmont – CLAUDE.md
 
-## Langue
-Toujours repondre en francais. Code en anglais, commentaires en francais si pertinent.
+## Rôle de ce projet
 
-## Architecture
-- **SDK**: Claude Agent SDK Python v0.1.35 | **Runtime**: uv v0.10.2 + Python 3.13
-- **Cluster**: 4 noeuds IA (M1/M1B/M2/M3) + cloud (gpt-oss/devstral/glm/minimax) | 10 GPU, 78 GB VRAM
-- **Modules**: 246 dans `src/` (93K lignes) | **Outils MCP**: 609 handlers | **REST**: 517 endpoints
-- **Canvas**: `canvas/` — UI standalone port 18800 avec autolearn engine
-- **COWORK**: 409 scripts dans `cowork/dev/` | Pipeline autonome
-- **OpenClaw**: 40 agents + 56 dynamic | 11 crons | Gateway port 18789
-- **Tests**: 2,241 fonctions (77 fichiers) | Couverture src: 85.5%
-- **Electron**: 29 pages | **Launchers**: 35 | **n8n**: 63 workflows
-- **DBs**: 63 bases (160 MB total) | etoile.db (42 tables, 13.5K rows)
+Ce dépôt contient le cœur de **JARVIS Turmont** sur M1 (Ubuntu 22.04) :
+- Machine principale de création et d'orchestration (M1) :
+  - CPU : Ryzen 7 5700X3D
+  - RAM : 46 Go
+  - GPUs : 6 cartes NVIDIA (4x1660S, 1x2060, 1x3080)
+- Ce repo gère :
+  - Les scripts JARVIS (santé, vagues, orchestration, voix, crypto, etc.)
+  - Les services systemd / timers
+  - Le serveur MCP Flask JARVIS
+  - Les intégrations OpenClaw, WhisperFlow, Porcupine, Gemini CLI, LM Studio.
 
-## Conventions Code
-- Python: type hints, async/await, f-strings, dataclasses
-- Imports: `from __future__ import annotations` en premier
-- Node.js (canvas): CommonJS require, pas d'ESM
-- Nommage: snake_case Python, camelCase JS
-- Tests: `uv run pytest` — fichiers `test_*.py`
+Ton objectif principal en tant qu'agent : **améliorer et orchestrer ce système de cluster IA** sans casser la prod.
 
-## Fichiers critiques (ne pas casser)
-- `src/config.py` — Noeuds cluster, routage, chemins projets
-- `src/tools.py` — Outils MCP (pool httpx partagee)
-- `src/mcp_server.py` — 602 handlers (6282 lignes)
-- `src/commands.py` — Commandes vocales
-- `src/commander.py` — Classification/decomposition taches
-- `canvas/direct-proxy.js` — Proxy HTTP cluster + autolearn
+---
 
-## Cluster — Acces rapide
-| Noeud | URL | Modele | Role | Score |
-|-------|-----|--------|------|-------|
-| M1 | 127.0.0.1:1234 | qwen3-8b | CHAMPION LOCAL (46tok/s) | 98.4/100 |
-| M1B | 127.0.0.1:1234 | gpt-oss-20b | Deep local (9s, ctx25k) | — |
-| M2 | 192.168.1.26:1234 | deepseek-r1-0528-qwen3-8b | Reasoning (44tok/s) | — |
-| M3 | 192.168.1.113:1234 | deepseek-r1-0528-qwen3-8b | Reasoning fallback | — |
-| OL1 cloud | 127.0.0.1:11434 | gpt-oss:120b-cloud | CHAMPION CLOUD (51tok/s) | 100/100 |
-| OL1 cloud | 127.0.0.1:11434 | devstral-2:123b-cloud | Code cloud #2 | 94/100 |
-| OL1 local | 127.0.0.1:11434 | qwen3:1.7b | Ultra-rapide (84tok/s) | — |
+## Architecture haute niveau
 
-## Regles
-- JAMAIS `localhost` → toujours `127.0.0.1` (IPv6 lag Windows)
-- Ollama cloud: `think:false` OBLIGATOIRE
-- M1: `/nothink` prefix OBLIGATOIRE pour qwen3/gpt-oss (pas deepseek-r1)
-- M2/M3: max_output_tokens=2048 minimum (reasoning needs space)
-- LM Studio API: `/api/v1/chat` (Responses API) — output[].content
-- GPU: warning 75C, critical 85C → re-routage cascade
-- Ne pas committer: `data/*.db`, `.env`, credentials, `node_modules/`
+### Machines / nœuds
 
-## Scripts utiles
-```bash
-uv run python scripts/system_audit.py --quick          # Audit rapide
-uv run python scripts/trading_v2/gpu_pipeline.py --quick --json  # Trading scan
-node canvas/direct-proxy.js                             # Canvas proxy
-python cowork/dev/autonomous_cluster_pipeline.py        # Pipeline autonome
-```
+- **M1 (cette machine)** : orchestration, MCP Flask, OpenClaw client, Gemini CLI, scripts système.
+- **M2 (LMT2)** : LM Studio avec modèles locaux (API OpenAI-compatible, HTTP).
+- **Server (Quadro)** : nœud de calcul additionnel (3x Quadro).
 
-## Slash commands (plugin jarvis-turbo, 43 commandes)
-`/cluster-check` `/mao-check` `/gpu-status` `/thermal` `/heal-cluster`
-`/consensus` `/quick-ask` `/web-search` `/trading-scan` `/trading-feedback`
-`/canvas-status` `/canvas-restart` `/audit` `/model-swap` `/deploy`
+### Composants logiciels clés
 
-## Troubleshooting rapide
-| Symptome | Fix |
-|----------|-----|
-| M2/M3 TIMEOUT | max_output_tokens trop bas pour deepseek-r1, minimum 2048 |
-| OL1 OFFLINE | `ollama serve` restart |
-| Canvas crash | `node canvas/direct-proxy.js` restart (port 18800) |
-| GPU >75C | `/thermal`, decharger modeles |
-| Context exceeded | Reduire prompt ou max_output_tokens |
-| OpenClaw cron spam | Verifier jobs.json, max 11 crons actifs |
+- `mcp-flask-server/` : serveur MCP (Flask) exposant des tools pour le cluster (gpu_scale, run_wave, get_cluster_status, etc.).
+- `monitoring/` : scripts health (GPU, CPU, Docker, cluster).
+- `jarvis-voice-control/` : wake word Porcupine, STT, intégration voix.
+- `systemd/` : fichiers .service/.timer générés côté projet (à copier ensuite dans `/etc/systemd/system` ou `~/.config/systemd/user/`).
+- Intégrations externes :
+  - **OpenClaw** (daemon + gateway HTTP sur M1, port 18790)
+  - **WhisperFlow** (STT temps réel)
+  - **Porcupine** (wake word "Hey Jarvis")
+  - **Gemini CLI / Claude Code** (orchestration + codage)
+  - **LM Studio** (modèles locaux via API HTTP sur M2).
+
+---
+
+## Commandes standard à privilégier
+
+Merci d'utiliser ces commandes plutôt que d'en inventer d'autres :
+
+### Démarrage / arrêt cluster (une fois qu'ils existent)
+
+- Prévol :
+  - `./jarvis_preflight_check.sh`
+- Démarrer tout le cluster :
+  - `./jarvis_cluster_start.sh`
+- Arrêter proprement tout :
+  - `./jarvis_cluster_stop.sh`
+
+### MCP Flask JARVIS
+
+- Dossier : `mcp-flask-server/`
+- Lancement manuel :
+  - `cd mcp-flask-server && source venv/bin/activate && python app.py`
+
+### Monitoring & dashboards
+
+- Dashboard Electron JARVIS Etoile :
+  - `cd ~/jarvis/electron && npm start`
+- Dashboard tmux JARVIS (si alias existant) :
+  - `jdash`
+
+### OpenClaw
+
+- Statut daemon + gateway :
+  - `openclaw daemon status && openclaw gateway status`
+- UI web :
+  - `http://127.0.0.1:18790/`
+
+### LM Studio (M2)
+
+- Test API (remplacer `M2_IP` par `192.168.1.26`) :
+  - `curl http://192.168.1.26:1234/v1/models`
+
+---
+
+## Règles de travail importantes
+
+### 1. Sécurité et "zones sensibles"
+
+- Ne **jamais** :
+  - Toucher directement aux fichiers système critiques hors `~/.config/systemd/user/` et `/opt/jarvis` sans plan explicite.
+  - Supprimer des fichiers de configuration existants sans backup.
+- Toujours :
+  - Montrer les diff avant d'écrire les fichiers importants.
+  - Prévoir un rollback simple (via `git revert` ou sauvegarde `.bak`).
+  - Utiliser SUDO sans mot de passe si configuré, ou assumer le mode root selon les instructions.
+
+### 2. Workflow attendu
+
+Pour toute tâche non triviale :
+1. **Explorer** : lire fichiers, logs, vérifier l'architecture -> ne pas coder tout de suite.
+2. **Planifier** : écrire un plan clair en étapes (A/B/C...).
+3. **Implémenter** : appliquer les changements par petites étapes.
+4. **Tester** : utiliser les scripts de tests / health déjà présents ou à créer.
+5. **Documenter** : mettre à jour README / fichiers `.md` concernés.
+
+---
+
+## Distribution des tâches entre moteurs (routing)
+
+- **Claude Code (toi)** : Architecture du cluster, gros refactors, système de timers, orchestration globale. Création/modification de scripts système, pipelines CI.
+- **Gemini CLI** : Scripts shell, petites automations, génération rapide de fichiers, "bricolage" DevOps. Tâches longues et répétitives.
+- **LM Studio (M2)** : Agent de debug continu, analyse de gros volumes de code/logs, optimisation long-terme.
+- **OpenClaw** : Interface utilisateur (web, voix, mobile), multi-canaux.
+- **MCP Flask JARVIS** : Pont unique pour parler au cluster (GPU, vagues, stats, etc.) depuis les agents.
+
+---
+
+## Comportement attendu pour les gros travaux
+
+- Toujours commencer par un **plan écrit** (et me le montrer) pour :
+  - lancer/arrêter tout le cluster,
+  - refactorer des modules importants,
+  - intégrer un nouveau modèle ou un nouveau service.
+- Éviter de modifier 20 fichiers en une seule passe sans étapes intermédiaires.
+
+Ce fichier est versionné dans git et fait office de "mémoire projet" pour les agents.

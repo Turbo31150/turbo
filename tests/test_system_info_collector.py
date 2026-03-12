@@ -53,7 +53,7 @@ OS_INFO_JSON = json.dumps({
     "Version": "10.0.26300",
     "BuildNumber": "26300",
     "OSArchitecture": "64-bit",
-    "SystemDirectory": "C:\\Windows\\system32",
+    "SystemDirectory": "/\Windows/system32",
     "TotalVisibleMemorySize": 65536000,
     "FreePhysicalMemory": 32000000,
     "LastBootUpTime": "2026-03-07T08:00:00",
@@ -91,7 +91,7 @@ class TestGetOsInfo:
     def test_boot_time_dict(self):
         sic = SystemInfoCollector()
         data = {"Caption": "Win11", "Version": "10.0", "BuildNumber": "26300",
-                "OSArchitecture": "64-bit", "SystemDirectory": "C:\\Windows",
+                "OSArchitecture": "64-bit", "SystemDirectory": "/\Windows",
                 "TotalVisibleMemorySize": 1000, "FreePhysicalMemory": 500,
                 "LastBootUpTime": {"DateTime": "2026-03-07T08:00:00"}}
         mock_result = MagicMock()

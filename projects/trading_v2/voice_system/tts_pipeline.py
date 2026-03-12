@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from voice_cloner import VoiceCloner
 from local_tts import LocalTTS
 
-REF_AUDIO = r"F:\BUREAU\TRADING_V2_PRODUCTION\config\my_voice_ref.wav"
+REF_AUDIO = r"/home/turbo\TRADING_V2_PRODUCTION\config\my_voice_ref.wav"
 
 
 class TTSPipeline:

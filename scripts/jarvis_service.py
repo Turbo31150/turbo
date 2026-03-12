@@ -104,7 +104,7 @@ def _install_task_scheduler():
     task_name = "JARVIS_Desktop_AutoStart"
 
     cmd = (
-        f'schtasks /Create /TN "{task_name}" /TR "\\\"{python}\\\" \\\"{script}\\\"" '
+        f'schtasks /Create /TN "{task_name}" /TR "/\"{python}/\" /\"{script}/\"" '
         f'/SC ONLOGON /RL HIGHEST /F /DELAY 0000:15'
     )
     r = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=10)

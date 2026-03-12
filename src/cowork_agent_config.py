@@ -492,7 +492,7 @@ Exigences:
 - Intégration event_bus si pertinent
 - Tests unitaires
 
-Génère le code complet prêt à être déployé dans F:\\BUREAU\\turbo\\src\\
+Génère le code complet prêt à être déployé dans F:/BUREAU/turbo/src/
 """
         # Appel à Perplexity ici
     

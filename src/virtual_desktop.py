@@ -61,7 +61,7 @@ class VirtualDesktopManager:
         try:
             result = subprocess.run(
                 ["powershell", "-Command",
-                 "(Get-CimInstance -Namespace ROOT\\Microsoft\\Windows\\DesktopManager "
+                 "(Get-CimInstance -Namespace ROOT/Microsoft/Windows/DesktopManager "
                  "-ClassName MSFT_VirtualDesktop | Measure-Object).Count"],
                 capture_output=True, text=True, timeout=10,
                 creationflags=_NO_WINDOW,
@@ -81,7 +81,7 @@ class VirtualDesktopManager:
         try:
             result = subprocess.run(
                 ["powershell", "-Command",
-                 "Get-CimInstance -Namespace ROOT\\Microsoft\\Windows\\DesktopManager "
+                 "Get-CimInstance -Namespace ROOT/Microsoft/Windows/DesktopManager "
                  "-ClassName MSFT_VirtualDesktop | "
                  "Select-Object Id, Name, IsCurrentDesktop | "
                  "ConvertTo-Json -Depth 1"],

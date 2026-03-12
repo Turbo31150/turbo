@@ -50,7 +50,7 @@ def analyze_path():
 
     seen = {}
     for i, entry in enumerate(entries):
-        normalized = entry.lower().replace("/", "\\")
+        normalized = entry.lower().replace("/", "/")
         exists = os.path.isdir(entry)
 
         result = {

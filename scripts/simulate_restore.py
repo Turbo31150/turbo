@@ -13,7 +13,7 @@ import sqlite3
 import time
 from pathlib import Path
 
-ROOT = Path("F:/BUREAU/turbo")
+ROOT = Path("/home/turbo/jarvis-m1-ops")
 SIM = Path("C:/Users/franc/AppData/Local/Temp/jarvis_restore_test")
 DB_PATH = ROOT / "data" / "jarvis.db"
 

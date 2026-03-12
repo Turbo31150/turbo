@@ -38,7 +38,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Optional
 
-TURBO = Path("F:/BUREAU/turbo")
+TURBO = Path("/home/turbo/jarvis-m1-ops")
 DB_PATH = str(TURBO / "data" / "task_orchestrator.db")
 LOG_PATH = str(TURBO / "data" / "task_orchestrator.log")
 
@@ -692,7 +692,7 @@ def execute_branch(task: TaskDef) -> TaskResult:
         try:
             r = subprocess.run(
                 [sys.executable, "-c",
-                 "import sys;sys.path.insert(0,'F:/BUREAU/turbo');"
+                 "import sys;sys.path.insert(0,'/home/turbo/jarvis-m1-ops');"
                  "from src.auto_auditor import AutoAuditor;"
                  "r=AutoAuditor().run_full_audit();"
                  f"print('pass' if r.summary['score']>={threshold} else 'fail')"],
@@ -1170,7 +1170,7 @@ def execute_pipeline_with_data(task: TaskDef) -> TaskResult:
         # Template substitution: replace {{step_N_output}} placeholders
         step_payload = json.dumps(step.get("payload", {}))
         for k, v in chain_data.items():
-            step_payload = step_payload.replace(f"{{{{{k}}}}}", str(v).replace('"', '\\"')[:500])
+            step_payload = step_payload.replace(f"{{{{{k}}}}}", str(v).replace('"', '/"')[:500])
         try:
             resolved_payload = json.loads(step_payload)
         except json.JSONDecodeError:
@@ -1438,8 +1438,8 @@ TASK_TEMPLATES = {
 import shutil, sqlite3
 from pathlib import Path
 from datetime import datetime
-src = Path('F:/BUREAU/turbo') / '{db_path}'
-dst = Path('F:/BUREAU/turbo/backups') / f'{{src.stem}}_{{datetime.now():%Y%m%d_%H%M%S}}.db'
+src = Path('/home/turbo/jarvis-m1-ops') / '{db_path}'
+dst = Path('/home/turbo/jarvis-m1-ops/backups') / f'{{src.stem}}_{{datetime.now():%Y%m%d_%H%M%S}}.db'
 dst.parent.mkdir(exist_ok=True)
 shutil.copy2(str(src), str(dst))
 c = sqlite3.connect(str(dst))
@@ -1598,7 +1598,7 @@ else: print("nvidia-smi failed")
             task_type="audit",
             action="python",
             payload={"code": """
-import sys; sys.path.insert(0, 'F:/BUREAU/turbo')
+import sys; sys.path.insert(0, '/home/turbo/jarvis-m1-ops')
 from src.auto_auditor import AutoAuditor
 auditor = AutoAuditor()
 report = auditor.run_full_audit()
@@ -1617,7 +1617,7 @@ print(f"Modules: {report.total_modules} | Tests: {report.total_test_files} | Lin
             task_type="audit",
             action="python",
             payload={"code": """
-import sys; sys.path.insert(0, 'F:/BUREAU/turbo')
+import sys; sys.path.insert(0, '/home/turbo/jarvis-m1-ops')
 from src.auto_fixer import AutoFixer
 fixer = AutoFixer()
 result = fixer.run_fix_cycle(dry_run=False)
@@ -1652,7 +1652,7 @@ print(f"Applied: {len(applied)} fixes")
 import shutil, hashlib, sqlite3
 from pathlib import Path
 from datetime import datetime
-TURBO = Path('F:/BUREAU/turbo')
+TURBO = Path('/home/turbo/jarvis-m1-ops')
 ts = datetime.now().strftime('%Y%m%d_%H%M%S')
 backups = TURBO / 'backups'
 backups.mkdir(exist_ok=True)
@@ -1698,9 +1698,9 @@ for stem in ['jarvis', 'etoile', 'sniper']:
             action="python",
             payload={"code": """
 import subprocess
-r = subprocess.run(['git','status','--porcelain','-u'], capture_output=True, text=True, cwd='F:/BUREAU/turbo')
+r = subprocess.run(['git','status','--porcelain','-u'], capture_output=True, text=True, cwd='/home/turbo/jarvis-m1-ops')
 changes = len([l for l in r.stdout.splitlines() if l.strip()])
-r2 = subprocess.run(['git','log','--oneline','-1'], capture_output=True, text=True, cwd='F:/BUREAU/turbo')
+r2 = subprocess.run(['git','log','--oneline','-1'], capture_output=True, text=True, cwd='/home/turbo/jarvis-m1-ops')
 print(f'HEAD: {r2.stdout.strip()}')
 print(f'Uncommitted changes: {changes}')
 if changes > 20:
@@ -1724,7 +1724,7 @@ if changes > 20:
                         "action": "python",
                         "type": "trading",
                         "payload": {"code": """
-import sys; sys.path.insert(0, 'F:/BUREAU/turbo')
+import sys; sys.path.insert(0, '/home/turbo/jarvis-m1-ops')
 try:
     from src.trading import TradingEngine
     engine = TradingEngine()
@@ -1772,11 +1772,11 @@ except Exception as e:
             task_type="audit",
             action="python",
             payload={"code": """
-import sys; sys.path.insert(0, 'F:/BUREAU/turbo')
+import sys; sys.path.insert(0, '/home/turbo/jarvis-m1-ops')
 # Quick 100-loop version for scheduled runs
 import hashlib, json, sqlite3, random, time
 from pathlib import Path
-ROOT = Path('F:/BUREAU/turbo')
+ROOT = Path('/home/turbo/jarvis-m1-ops')
 DB = str(ROOT / 'data' / 'jarvis.db')
 conn = sqlite3.connect(DB)
 rows = conn.execute('SELECT key, value FROM system_config').fetchall()
@@ -1817,7 +1817,7 @@ else: print(f'WARNING: {failed} failures')
                  "required": True},
                 {"action": "python", "type": "audit",
                  "payload": {"code": """
-import sys; sys.path.insert(0, 'F:/BUREAU/turbo')
+import sys; sys.path.insert(0, '/home/turbo/jarvis-m1-ops')
 from src.auto_auditor import AutoAuditor
 r = AutoAuditor().run_full_audit()
 print(f"Audit: {r.summary['score']}/100, {len(r.findings)} findings")
@@ -1827,7 +1827,7 @@ print(f"Audit: {r.summary['score']}/100, {len(r.findings)} findings")
                  "payload": {"code": """
 import subprocess
 r = subprocess.run(['python','-m','pytest','tests/','-x','-q','--tb=no','-k','not integration'],
-    capture_output=True, text=True, cwd='F:/BUREAU/turbo', timeout=300)
+    capture_output=True, text=True, cwd='/home/turbo/jarvis-m1-ops', timeout=300)
 lines = r.stdout.strip().splitlines()
 print(lines[-1] if lines else 'No output')
 """},
@@ -1865,7 +1865,7 @@ print(lines[-1] if lines else 'No output')
             payload={"code": """
 from pathlib import Path
 from datetime import datetime, timedelta
-TURBO = Path('F:/BUREAU/turbo')
+TURBO = Path('/home/turbo/jarvis-m1-ops')
 cutoff = datetime.now() - timedelta(days=7)
 cleaned = 0
 for pattern in ['data/*.log', 'data/audit_reports/*.json']:
@@ -1887,7 +1887,7 @@ print(f'Cleaned {cleaned} old files')
             action="python",
             payload={"code": """
 from pathlib import Path
-TURBO = Path('F:/BUREAU/turbo')
+TURBO = Path('/home/turbo/jarvis-m1-ops')
 backups = TURBO / 'backups'
 if backups.exists():
     cleaned = 0
@@ -2038,7 +2038,7 @@ print("Consider cleaning HuggingFace cache (78GB on C:) or old backups")
                 {"action": "python", "type": "backup", "payload": {"code": """
 import sqlite3
 from pathlib import Path
-TURBO = Path('F:/BUREAU/turbo')
+TURBO = Path('/home/turbo/jarvis-m1-ops')
 dbs = list(TURBO.glob('data/*.db')) + list(TURBO.glob('*.db'))
 ok = corrupt = 0
 for db in dbs:
@@ -2062,7 +2062,7 @@ if corrupt > 0:
 # Cross-DB config redundancy check
 import sqlite3, json
 from pathlib import Path
-TURBO = Path('F:/BUREAU/turbo')
+TURBO = Path('/home/turbo/jarvis-m1-ops')
 for name, path, table in [
     ('jarvis', 'data/jarvis.db', 'system_config'),
     ('etoile', 'etoile.db', 'system_restore'),
@@ -2090,9 +2090,9 @@ for name, path, table in [
             action="python",
             payload={"code": """
 import sys, os, subprocess, sqlite3, json
-sys.path.insert(0, 'F:/BUREAU/turbo')
+sys.path.insert(0, '/home/turbo/jarvis-m1-ops')
 from pathlib import Path
-TURBO = Path('F:/BUREAU/turbo')
+TURBO = Path('/home/turbo/jarvis-m1-ops')
 # Build status message
 lines = ['<b>JARVIS Daily Report</b>']
 # Cluster
@@ -2155,7 +2155,7 @@ if token and chat_id:
 import sqlite3, subprocess, json
 from pathlib import Path
 from datetime import datetime, timedelta
-TURBO = Path('F:/BUREAU/turbo')
+TURBO = Path('/home/turbo/jarvis-m1-ops')
 c = sqlite3.connect(str(TURBO/'data/task_orchestrator.db'))
 cutoff = (datetime.now() - timedelta(minutes=30)).isoformat()
 fails = c.execute("SELECT task_id, error, started_at FROM task_runs WHERE status='failed' AND started_at > ?", (cutoff,)).fetchall()
@@ -2163,9 +2163,9 @@ c.close()
 if not fails:
     print('No recent failures')
 else:
-    msg = f'JARVIS ALERT: {len(fails)} task(s) failed\\n'
+    msg = f'JARVIS ALERT: {len(fails)} task(s) failed/n'
     for tid, err, ts in fails[:5]:
-        msg += f'  {tid}: {(err or "?")[:60]}\\n'
+        msg += f'  {tid}: {(err or "?")[:60]}/n'
     print(msg)
     env = TURBO / '.env'
     token = chat_id = None
@@ -2241,7 +2241,7 @@ if r.returncode == 0 and r.stdout:
     print(f"Proxy OK: {r.stdout[:100]}")
 else:
     print("Proxy DOWN - restarting...")
-    subprocess.Popen(["node","F:/BUREAU/turbo/direct-proxy.js"], creationflags=0x00000008)
+    subprocess.Popen(["node","/home/turbo/jarvis-m1-ops/direct-proxy.js"], creationflags=0x00000008)
     print("Proxy restart initiated")
 """},
                     },
@@ -2278,10 +2278,10 @@ print(f"OpenClaw: {'OK' if r.returncode==0 else 'ERROR'} {r.stdout[:80]}")
                         "payload": {"code": """
 import subprocess, os
 print("OpenClaw not running - starting...")
-openclaw_cmd = os.path.expandvars(r'%APPDATA%\\npm\\openclaw.cmd')
+openclaw_cmd = os.path.expandvars(r'%APPDATA%/npm/openclaw.cmd')
 if os.path.exists(openclaw_cmd):
     subprocess.Popen([openclaw_cmd, 'serve'], creationflags=0x00000008,
-                     cwd='F:/BUREAU/turbo', shell=True)
+                     cwd='/home/turbo/jarvis-m1-ops', shell=True)
     print("OpenClaw start initiated")
 else:
     print(f"OpenClaw binary not found: {openclaw_cmd}")
@@ -2357,14 +2357,14 @@ else:
                         "type": "audit",
                         "payload": {"steps": [
                             {"action": "python", "type": "audit", "payload": {"code": """
-import sys; sys.path.insert(0, 'F:/BUREAU/turbo')
+import sys; sys.path.insert(0, '/home/turbo/jarvis-m1-ops')
 from src.auto_fixer import AutoFixer
 r = AutoFixer().run_fix_cycle(dry_run=False)
 applied = [f for f in r.get('fixes',[]) if f.get('applied')]
 print(f"Applied {len(applied)} fixes")
 """}},
                             {"action": "python", "type": "audit", "payload": {"code": """
-import sys; sys.path.insert(0, 'F:/BUREAU/turbo')
+import sys; sys.path.insert(0, '/home/turbo/jarvis-m1-ops')
 from src.auto_auditor import AutoAuditor
 r = AutoAuditor().run_full_audit()
 print(f"New score: {r.summary['score']}/100")
@@ -2391,7 +2391,7 @@ print(f"New score: {r.summary['score']}/100")
             payload={"code": """
 import hashlib, json, sqlite3
 from pathlib import Path
-ROOT = Path('F:/BUREAU/turbo')
+ROOT = Path('/home/turbo/jarvis-m1-ops')
 conn = sqlite3.connect(str(ROOT / 'data/jarvis.db'))
 row = conn.execute("SELECT value FROM system_config WHERE key='src_module_registry'").fetchone()
 registry = json.loads(row[0]) if row else {}
@@ -2444,7 +2444,7 @@ print(f"Cluster: {', '.join(status)}")
                 {"action": "script", "type": "backup", "payload": {
                     "script": "scripts/save_full_config.py"}, "required": True},
                 {"action": "python", "type": "audit", "payload": {"code": """
-import sys; sys.path.insert(0, 'F:/BUREAU/turbo')
+import sys; sys.path.insert(0, '/home/turbo/jarvis-m1-ops')
 from src.auto_fixer import AutoFixer
 from src.auto_auditor import AutoAuditor
 AutoFixer().run_fix_cycle(dry_run=False)
@@ -2454,14 +2454,14 @@ print(f"Score: {r.summary['score']}/100, {len(r.findings)} findings")
                 {"action": "python", "type": "test", "payload": {"code": """
 import subprocess
 r = subprocess.run(['python','-m','pytest','tests/','-x','-q','--tb=no','-k','not integration'],
-    capture_output=True, text=True, cwd='F:/BUREAU/turbo', timeout=300)
+    capture_output=True, text=True, cwd='/home/turbo/jarvis-m1-ops', timeout=300)
 lines = r.stdout.strip().splitlines()
 print(lines[-1] if lines else 'No test output')
 """}, "timeout": 300, "required": False},
                 {"action": "python", "type": "sync", "payload": {"code": """
 import hashlib, json, sqlite3
 from pathlib import Path
-ROOT = Path('F:/BUREAU/turbo')
+ROOT = Path('/home/turbo/jarvis-m1-ops')
 conn = sqlite3.connect(str(ROOT/'data/jarvis.db'))
 row = conn.execute("SELECT value FROM system_config WHERE key='src_module_registry'").fetchone()
 reg = json.loads(row[0]) if row else {}
@@ -2483,7 +2483,7 @@ print(f'MD5 sync: {updated} updated')
 import shutil, hashlib, sqlite3
 from pathlib import Path
 from datetime import datetime
-TURBO = Path('F:/BUREAU/turbo')
+TURBO = Path('/home/turbo/jarvis-m1-ops')
 ts = datetime.now().strftime('%Y%m%d_%H%M%S')
 backups = TURBO / 'backups'
 backups.mkdir(exist_ok=True)
@@ -2603,9 +2603,9 @@ else:
             action="python",
             payload={"code": """
 import sys, os, subprocess, json, sqlite3
-sys.path.insert(0, 'F:/BUREAU/turbo')
+sys.path.insert(0, '/home/turbo/jarvis-m1-ops')
 from pathlib import Path
-TURBO = Path('F:/BUREAU/turbo')
+TURBO = Path('/home/turbo/jarvis-m1-ops')
 DB = str(TURBO / 'data/task_orchestrator.db')
 conn = sqlite3.connect(DB)
 def rec(name, val):
@@ -2654,7 +2654,7 @@ print('Metrics collected')
 import sqlite3, json
 from pathlib import Path
 from datetime import datetime, timedelta
-DB = str(Path('F:/BUREAU/turbo/data/task_orchestrator.db'))
+DB = str(Path('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db'))
 conn = sqlite3.connect(DB)
 issues = []
 # DB size
@@ -2694,7 +2694,7 @@ else:
 import sqlite3
 from pathlib import Path
 from datetime import datetime, timedelta
-DB = str(Path('F:/BUREAU/turbo/data/task_orchestrator.db'))
+DB = str(Path('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db'))
 conn = sqlite3.connect(DB)
 cutoff = (datetime.now() - timedelta(days=7)).isoformat()
 conn.execute('DELETE FROM task_metrics WHERE recorded_at < ?', (cutoff,))
@@ -2730,7 +2730,7 @@ print(f"WS Server: {'OK' if r.returncode==0 else 'ERROR'} {r.stdout[:80]}")
                     "closed": {"action": "python", "payload": {"code": """
 import subprocess
 print('WS Server DOWN - attempting restart...')
-subprocess.Popen(['python','python_ws/server.py'], cwd='F:/BUREAU/turbo', creationflags=0x00000008)
+subprocess.Popen(['python','python_ws/server.py'], cwd='/home/turbo/jarvis-m1-ops', creationflags=0x00000008)
 print('WS restart initiated')
 """}},
                 },
@@ -2752,7 +2752,7 @@ print('WS restart initiated')
                     "running": {"action": "python", "payload": {"code": """
 import subprocess
 # Test gemini proxy
-r = subprocess.run(['node','F:/BUREAU/turbo/gemini-proxy.js','--ping'],
+r = subprocess.run(['node','/home/turbo/jarvis-m1-ops/gemini-proxy.js','--ping'],
     capture_output=True, text=True, timeout=10)
 if r.returncode == 0:
     print(f'Gemini proxy: OK')
@@ -2819,7 +2819,7 @@ except: print('Ollama restart failed')
 import sqlite3, json
 from pathlib import Path
 from datetime import datetime, timedelta
-DB = str(Path('F:/BUREAU/turbo/data/task_orchestrator.db'))
+DB = str(Path('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db'))
 conn = sqlite3.connect(DB)
 cutoff = (datetime.now() - timedelta(hours=1)).isoformat()
 # Per-task error rates
@@ -2856,7 +2856,7 @@ else:
 import sqlite3, json
 from pathlib import Path
 from datetime import datetime, timedelta
-TURBO = Path('F:/BUREAU/turbo')
+TURBO = Path('/home/turbo/jarvis-m1-ops')
 DB = str(TURBO / 'data/task_orchestrator.db')
 conn = sqlite3.connect(DB)
 # Tasks
@@ -2897,7 +2897,7 @@ print(f'Dashboard export: {len(tasks)} tasks, {len(recent)} runs, {len(metrics)}
                 "branches": {
                     "running": {"action": "python", "payload": {"code": """
 from pathlib import Path
-lock = Path('F:/BUREAU/turbo/.telegram-bot.lock')
+lock = Path('/home/turbo/jarvis-m1-ops/.telegram-bot.lock')
 if lock.exists():
     pid = lock.read_text().strip()
     print(f'Telegram bot lock: PID {pid}')
@@ -2954,7 +2954,7 @@ else:
                 "condition": {"type": "script", "code": """
 import subprocess
 r = subprocess.run(['git','status','--porcelain','-u'],
-    capture_output=True, text=True, cwd='F:/BUREAU/turbo')
+    capture_output=True, text=True, cwd='/home/turbo/jarvis-m1-ops')
 changes = len([l for l in r.stdout.splitlines() if l.strip()])
 exit(0 if changes > 30 else 1)
 """},
@@ -2962,18 +2962,18 @@ exit(0 if changes > 30 else 1)
                     "success": {"action": "python", "payload": {"code": """
 import subprocess
 r = subprocess.run(['git','status','--porcelain','-u'],
-    capture_output=True, text=True, cwd='F:/BUREAU/turbo')
+    capture_output=True, text=True, cwd='/home/turbo/jarvis-m1-ops')
 changes = len([l for l in r.stdout.splitlines() if l.strip()])
 print(f'WARNING: {changes} uncommitted changes! Consider committing.')
 r2 = subprocess.run(['git','diff','--stat','--cached'],
-    capture_output=True, text=True, cwd='F:/BUREAU/turbo')
+    capture_output=True, text=True, cwd='/home/turbo/jarvis-m1-ops')
 if r2.stdout.strip():
     print(f'Staged: {r2.stdout.strip().splitlines()[-1]}')
 """}},
                     "failure": {"action": "python", "payload": {"code": """
 import subprocess
 r = subprocess.run(['git','status','--porcelain','-u'],
-    capture_output=True, text=True, cwd='F:/BUREAU/turbo')
+    capture_output=True, text=True, cwd='/home/turbo/jarvis-m1-ops')
 changes = len([l for l in r.stdout.splitlines() if l.strip()])
 print(f'Git OK: {changes} changes (under threshold)')
 """}},
@@ -3006,7 +3006,7 @@ for mod in critical:
         print(f'  MISSING: {mod}')
 print(f'Modules: {ok}/{len(critical)} OK')
 # Check venv
-venv = 'F:/BUREAU/turbo/.venv'
+venv = '/home/turbo/jarvis-m1-ops/.venv'
 from pathlib import Path
 if Path(venv).exists():
     print(f'venv: OK ({venv})')
@@ -3069,7 +3069,7 @@ for name, url in [('M1','127.0.0.1:1234/v1/models'),('OL1','127.0.0.1:11434/api/
 print(f'Cluster: {nodes_ok}/2 nodes online')
 """}, "required": True},
                 {"action": "python", "type": "audit", "payload": {"code": """
-import sys; sys.path.insert(0, 'F:/BUREAU/turbo')
+import sys; sys.path.insert(0, '/home/turbo/jarvis-m1-ops')
 from src.auto_fixer import AutoFixer
 from src.auto_auditor import AutoAuditor
 AutoFixer().run_fix_cycle(dry_run=False)
@@ -3079,7 +3079,7 @@ print(f'Audit: {r.summary["score"]}/100, {len(r.findings)} findings')
                 {"action": "python", "type": "test", "payload": {"code": """
 import subprocess
 r = subprocess.run(['python','-m','pytest','tests/','-x','-q','--tb=no','-k','not integration'],
-    capture_output=True, text=True, cwd='F:/BUREAU/turbo', timeout=300)
+    capture_output=True, text=True, cwd='/home/turbo/jarvis-m1-ops', timeout=300)
 lines = r.stdout.strip().splitlines()
 print(lines[-1] if lines else 'No output')
 """}, "timeout": 300, "required": False},
@@ -3087,7 +3087,7 @@ print(lines[-1] if lines else 'No output')
 import shutil, hashlib, sqlite3
 from pathlib import Path
 from datetime import datetime
-TURBO = Path('F:/BUREAU/turbo')
+TURBO = Path('/home/turbo/jarvis-m1-ops')
 ts = datetime.now().strftime('%Y%m%d_%H%M%S')
 backups = TURBO / 'backups'
 backups.mkdir(exist_ok=True)
@@ -3102,18 +3102,18 @@ for db in ['data/jarvis.db','etoile.db','data/sniper.db']:
                 {"action": "python", "type": "sync", "payload": {"code": """
 import subprocess
 r = subprocess.run(['git','log','--oneline','-5'],
-    capture_output=True, text=True, cwd='F:/BUREAU/turbo')
+    capture_output=True, text=True, cwd='/home/turbo/jarvis-m1-ops')
 print('Last 5 commits:')
 print(r.stdout.strip())
 r2 = subprocess.run(['git','status','--porcelain','-u'],
-    capture_output=True, text=True, cwd='F:/BUREAU/turbo')
+    capture_output=True, text=True, cwd='/home/turbo/jarvis-m1-ops')
 changes = len([l for l in r2.stdout.splitlines() if l.strip()])
 print(f'Uncommitted: {changes} files')
 """}, "required": False},
                 {"action": "python", "type": "health", "payload": {"code": """
 import sqlite3, json
 from pathlib import Path
-TURBO = Path('F:/BUREAU/turbo')
+TURBO = Path('/home/turbo/jarvis-m1-ops')
 # Orchestrator stats
 c = sqlite3.connect(str(TURBO/'data/task_orchestrator.db'))
 total = c.execute('SELECT count(*) FROM task_runs').fetchone()[0]
@@ -3158,7 +3158,7 @@ print(f'Orchestrator: {tasks} tasks, {total} runs, {rate:.1f}% success, {fail} f
             payload={"code": """
 import sqlite3
 from pathlib import Path
-DB = str(Path('F:/BUREAU/turbo/data/task_orchestrator.db'))
+DB = str(Path('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db'))
 conn = sqlite3.connect(DB)
 try:
     rows = conn.execute('SELECT task_id, consecutive_fails FROM task_escalation WHERE consecutive_fails > 0').fetchall()
@@ -3186,7 +3186,7 @@ else:
             payload={"code": """
 import sqlite3
 from pathlib import Path
-DB = str(Path('F:/BUREAU/turbo/data/task_orchestrator.db'))
+DB = str(Path('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db'))
 conn = sqlite3.connect(DB)
 try:
     rows = conn.execute('SELECT event_type, source, task_id, trigger_count, last_triggered FROM task_events WHERE enabled=1').fetchall()
@@ -3247,7 +3247,7 @@ for name, pid, mem in procs[:10]:
             action="python",
             payload={"code": """
 from pathlib import Path
-cowork = Path('F:/BUREAU/turbo/cowork/dev')
+cowork = Path('/home/turbo/jarvis-m1-ops/cowork/dev')
 if cowork.exists():
     scripts = list(cowork.glob('*.py'))
     total_lines = sum(1 for s in scripts for _ in s.read_text(errors='replace').splitlines())
@@ -3297,7 +3297,7 @@ for t in jarvis_tasks:
             payload={"code": """
 import sqlite3, hashlib
 from pathlib import Path
-TURBO = Path('F:/BUREAU/turbo')
+TURBO = Path('/home/turbo/jarvis-m1-ops')
 backups = TURBO / 'backups'
 if not backups.exists():
     print('No backups directory')
@@ -3376,7 +3376,7 @@ print(f'Cluster: {online}/{len(nodes)} online')
             payload={"code": """
 import subprocess, sys
 r = subprocess.run([sys.executable, 'scripts/cluster_autonomy.py', '--status'],
-    capture_output=True, text=True, timeout=120, cwd='F:/BUREAU/turbo')
+    capture_output=True, text=True, timeout=120, cwd='/home/turbo/jarvis-m1-ops')
 print(r.stdout[-2000:] if len(r.stdout) > 2000 else r.stdout)
 if r.returncode != 0:
     print('STDERR:', r.stderr[-500:])
@@ -3394,7 +3394,7 @@ if r.returncode != 0:
             payload={"code": """
 import subprocess, sys
 r = subprocess.run([sys.executable, 'scripts/cluster_autonomy.py', '--heal'],
-    capture_output=True, text=True, timeout=60, cwd='F:/BUREAU/turbo')
+    capture_output=True, text=True, timeout=60, cwd='/home/turbo/jarvis-m1-ops')
 print(r.stdout[-2000:] if len(r.stdout) > 2000 else r.stdout)
 if r.returncode != 0:
     print('STDERR:', r.stderr[-500:])
@@ -3412,7 +3412,7 @@ if r.returncode != 0:
             payload={"code": """
 import subprocess, sys
 r = subprocess.run([sys.executable, 'scripts/cluster_autonomy.py', '--trends'],
-    capture_output=True, text=True, timeout=60, cwd='F:/BUREAU/turbo')
+    capture_output=True, text=True, timeout=60, cwd='/home/turbo/jarvis-m1-ops')
 print(r.stdout[-2000:] if len(r.stdout) > 2000 else r.stdout)
 if r.returncode != 0:
     print('STDERR:', r.stderr[-500:])
@@ -3430,7 +3430,7 @@ if r.returncode != 0:
             payload={"code": """
 import subprocess, sys
 r = subprocess.run([sys.executable, 'scripts/cluster_autonomy.py', '--optimize'],
-    capture_output=True, text=True, timeout=60, cwd='F:/BUREAU/turbo')
+    capture_output=True, text=True, timeout=60, cwd='/home/turbo/jarvis-m1-ops')
 print(r.stdout[-2000:] if len(r.stdout) > 2000 else r.stdout)
 if r.returncode != 0:
     print('STDERR:', r.stderr[-500:])
@@ -3455,7 +3455,7 @@ import sqlite3, json
 from pathlib import Path
 from datetime import datetime, timedelta
 
-db = sqlite3.connect(str(Path('F:/BUREAU/turbo/data/task_orchestrator.db')))
+db = sqlite3.connect(str(Path('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')))
 
 # 1. Detect tasks with increasing failure rate (3 periods comparison)
 cutoffs = [
@@ -3523,7 +3523,7 @@ db.close()
 import sqlite3, json, re, os, sys
 from pathlib import Path
 
-db = sqlite3.connect(str(Path('F:/BUREAU/turbo/data/task_orchestrator.db')))
+db = sqlite3.connect(str(Path('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')))
 
 # Find tasks that failed 3+ times in last 2 hours
 rows = db.execute('''
@@ -3652,7 +3652,7 @@ print(f'  Total capacity: {total_capacity}/{len(nodes)} online')
 import os, re
 from pathlib import Path
 
-turbo = Path('F:/BUREAU/turbo')
+turbo = Path('/home/turbo/jarvis-m1-ops')
 issues = []
 
 # 1. Find Python files with no error handling in main()
@@ -3660,7 +3660,7 @@ for py in (turbo / 'scripts').glob('*.py'):
     try:
         code = py.read_text(encoding='utf-8', errors='replace')
         if 'def main(' in code and 'if __name__' in code:
-            if 'try:' not in code.split('def main(')[1].split('\\ndef ')[0][:500]:
+            if 'try:' not in code.split('def main(')[1].split('/ndef ')[0][:500]:
                 issues.append(('no_try_main', py.name))
     except: pass
 
@@ -3728,20 +3728,20 @@ from pathlib import Path
 print('=== TEST EVOLUTION ===')
 r = subprocess.run(
     [sys.executable, '-m', 'pytest', 'tests/', '-v', '--tb=line', '-q', '--no-header'],
-    capture_output=True, text=True, timeout=120, cwd='F:/BUREAU/turbo')
+    capture_output=True, text=True, timeout=120, cwd='/home/turbo/jarvis-m1-ops')
 
 # Parse results
 lines = r.stdout.strip().splitlines()
 passed = failed = errors = 0
 for line in lines:
     if ' passed' in line:
-        m = re.search(r'(\\d+) passed', line)
+        m = re.search(r'(/d+) passed', line)
         if m: passed = int(m.group(1))
     if ' failed' in line:
-        m = re.search(r'(\\d+) failed', line)
+        m = re.search(r'(/d+) failed', line)
         if m: failed = int(m.group(1))
     if ' error' in line:
-        m = re.search(r'(\\d+) error', line)
+        m = re.search(r'(/d+) error', line)
         if m: errors = int(m.group(1))
 
 total = passed + failed + errors
@@ -3749,7 +3749,7 @@ print(f'  Passed: {passed}/{total} ({passed/max(1,total):.0%})')
 print(f'  Failed: {failed}  Errors: {errors}')
 
 # Store metric
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 from datetime import datetime
 now = datetime.now().isoformat()
 db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
@@ -3789,7 +3789,7 @@ def bench_node(name, url, prompt):
             body = json.dumps({'model':'qwen3:1.7b','messages':[{'role':'user','content':prompt}],'stream':False})
             cmd = ['curl','-s','--max-time','15',f'http://{url}/api/chat','-d',body]
         else:
-            body = json.dumps({'model':'qwen3-8b','input':f'/nothink\\n{prompt}','temperature':0.1,'max_output_tokens':100,'stream':False,'store':False})
+            body = json.dumps({'model':'qwen3-8b','input':f'/nothink/n{prompt}','temperature':0.1,'max_output_tokens':100,'stream':False,'store':False})
             cmd = ['curl','-s','--max-time','15',f'http://{url}/api/v1/chat','-H','Content-Type: application/json','-d',body]
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=20)
         ms = (time.monotonic()-t0)*1000
@@ -3820,7 +3820,7 @@ print('=== CLUSTER BENCHMARK ===')
 with ThreadPoolExecutor(max_workers=3) as pool:
     results = list(pool.map(lambda n: bench_node(n[0], n[1], prompt), nodes))
 
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 now = datetime.now().isoformat()
 for name, status, ms, tokens, tok_s in results:
     print(f'  {name}: {status} {ms:.0f}ms tokens={tokens} {tok_s:.1f} tok/s')
@@ -3849,7 +3849,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 from collections import Counter
 
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 # Get all failures from last 24h
 rows = db.execute('''
@@ -3942,7 +3942,7 @@ def query_node(name, url, prompt):
             r = subprocess.run(['curl','-s','--max-time','10',f'http://{url}/api/chat','-d',body],
                 capture_output=True, text=True, timeout=15)
         else:
-            body = json.dumps({'model':'qwen3-8b','input':f'/nothink\\n{prompt}','temperature':0.3,'max_output_tokens':200,'stream':False,'store':False})
+            body = json.dumps({'model':'qwen3-8b','input':f'/nothink/n{prompt}','temperature':0.3,'max_output_tokens':200,'stream':False,'store':False})
             r = subprocess.run(['curl','-s','--max-time','10',f'http://{url}/api/v1/chat',
                 '-H','Content-Type: application/json','-d',body],
                 capture_output=True, text=True, timeout=15)
@@ -4001,7 +4001,7 @@ for mod in key_modules:
         print(f'  [MISSING] {mod}')
 
 # 2. Check pyproject.toml exists and is valid
-pyp = Path('F:/BUREAU/turbo/pyproject.toml')
+pyp = Path('/home/turbo/jarvis-m1-ops/pyproject.toml')
 if pyp.exists():
     content = pyp.read_text(encoding='utf-8')
     deps = re.findall(r'"([a-zA-Z0-9_-]+)', content)
@@ -4010,7 +4010,7 @@ else:
     print(f'  [WARN] pyproject.toml not found')
 
 # 3. Check .venv health
-venv = Path('F:/BUREAU/turbo/.venv')
+venv = Path('/home/turbo/jarvis-m1-ops/.venv')
 if venv.exists():
     python_exe = venv / 'Scripts' / 'python.exe'
     if python_exe.exists():
@@ -4045,7 +4045,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 from collections import Counter
 
-log_dir = Path('F:/BUREAU/turbo/logs')
+log_dir = Path('/home/turbo/jarvis-m1-ops/logs')
 print('=== LOG ANOMALY DETECTION ===')
 
 anomalies = []
@@ -4061,7 +4061,7 @@ for log_file in log_dir.glob('*.log'):
     except: pass
 
 # Check orchestrator log specifically
-orch_log = Path('F:/BUREAU/turbo/data/task_orchestrator.log')
+orch_log = Path('/home/turbo/jarvis-m1-ops/data/task_orchestrator.log')
 if orch_log.exists():
     try:
         lines = orch_log.read_text(encoding='utf-8', errors='replace').splitlines()[-200:]
@@ -4095,7 +4095,7 @@ else:
 import sqlite3
 from datetime import datetime, timedelta
 
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 print('=== PERFORMANCE REGRESSION ===')
 
 # Compare avg duration now vs 24h ago for each task
@@ -4147,7 +4147,7 @@ from datetime import datetime
 
 print('=== CLUSTER KNOWLEDGE SYNC ===')
 
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 # 1. Get cluster state summary
 metrics = db.execute('''
@@ -4184,7 +4184,7 @@ dashboard = {
     'top_metrics': {k: round(v, 2) for k, v in list(state.items())[:20]},
 }
 
-out = 'F:/BUREAU/turbo/data/cluster_knowledge.json'
+out = '/home/turbo/jarvis-m1-ops/data/cluster_knowledge.json'
 with open(out, 'w') as f:
     json.dump(dashboard, f, indent=2)
 print(f'  Exported to {out}')
@@ -4206,7 +4206,7 @@ db.close()
 import sqlite3
 from datetime import datetime
 
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 print('=== SMART SCHEDULER ===')
 
 # Find tasks that always succeed and take <100ms — reduce frequency
@@ -4267,7 +4267,7 @@ from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 
 # Pick a random recently modified Python file
-turbo = Path('F:/BUREAU/turbo')
+turbo = Path('/home/turbo/jarvis-m1-ops')
 candidates = sorted(
     [f for f in list((turbo/'src').glob('*.py')) + list((turbo/'scripts').glob('*.py'))
      if f.stat().st_size > 500 and f.stat().st_size < 50000],
@@ -4281,8 +4281,8 @@ if not candidates:
 target = random.choice(candidates)
 # Read first 100 lines
 code = target.read_text(encoding='utf-8', errors='replace')
-snippet = '\\n'.join(code.splitlines()[:80])
-prompt = f'Review this Python code for bugs, security issues, and improvements. Be concise (3-5 points):\\n\\n```python\\n{snippet}\\n```'
+snippet = '/n'.join(code.splitlines()[:80])
+prompt = f'Review this Python code for bugs, security issues, and improvements. Be concise (3-5 points):/n/n```python/n{snippet}/n```'
 
 def review_node(name, url):
     t0 = time.monotonic()
@@ -4292,7 +4292,7 @@ def review_node(name, url):
             r = subprocess.run(['curl','-s','--max-time','15',f'http://{url}/api/chat','-d',body],
                 capture_output=True, text=True, timeout=20)
         else:
-            body = json.dumps({'model':'qwen3-8b','input':f'/nothink\\n{prompt}','temperature':0.2,'max_output_tokens':500,'stream':False,'store':False})
+            body = json.dumps({'model':'qwen3-8b','input':f'/nothink/n{prompt}','temperature':0.2,'max_output_tokens':500,'stream':False,'store':False})
             r = subprocess.run(['curl','-s','--max-time','15',f'http://{url}/api/v1/chat',
                 '-H','Content-Type: application/json','-d',body],
                 capture_output=True, text=True, timeout=20)
@@ -4315,7 +4315,7 @@ with ThreadPoolExecutor(max_workers=2) as pool:
     results = list(pool.map(lambda n: review_node(n[0], n[1]), nodes))
 
 for name, ms, review in results:
-    print(f'\\n  [{name}] ({ms:.0f}ms):')
+    print(f'/n  [{name}] ({ms:.0f}ms):')
     print(f'  {review[:300]}')
 """},
             priority="low",
@@ -4333,7 +4333,7 @@ for name, ms, review in results:
 import sqlite3, shutil
 from datetime import datetime
 
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 print('=== RESOURCE PREDICTION ===')
 
 # 1. Disk usage trend
@@ -4366,7 +4366,7 @@ for drive, label in [('C:/', 'C:'), ('F:/', 'F:')]:
 # 2. DB growth trend
 import os
 for db_name in ['task_orchestrator', 'etoile', 'jarvis']:
-    db_path = f'F:/BUREAU/turbo/data/{db_name}.db'
+    db_path = f'/home/turbo/jarvis-m1-ops/data/{db_name}.db'
     if os.path.exists(db_path):
         size_mb = os.path.getsize(db_path) / 1e6
         db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
@@ -4401,12 +4401,12 @@ issues = []
 
 # 1. Scan for hardcoded secrets in recent git changes
 r = subprocess.run(['git', 'diff', '--name-only', 'HEAD~5'], capture_output=True, text=True,
-    cwd='F:/BUREAU/turbo', timeout=10)
-for f in r.stdout.strip().split('\\n'):
-    if not f or not Path(f'F:/BUREAU/turbo/{f}').exists():
+    cwd='/home/turbo/jarvis-m1-ops', timeout=10)
+for f in r.stdout.strip().split('/n'):
+    if not f or not Path(f'/home/turbo/jarvis-m1-ops/{f}').exists():
         continue
     try:
-        content = Path(f'F:/BUREAU/turbo/{f}').read_text(errors='ignore')
+        content = Path(f'/home/turbo/jarvis-m1-ops/{f}').read_text(errors='ignore')
         for pattern in ['sk-', 'Bearer ', 'password=', 'token=', 'SECRET']:
             if pattern in content and not f.endswith(('.md', '.example', '.bat')):
                 issues.append(f'  CRED: {pattern} found in {f}')
@@ -4415,7 +4415,7 @@ for f in r.stdout.strip().split('\\n'):
 
 # 2. Check .env exists and not tracked
 env_tracked = subprocess.run(['git', 'ls-files', '.env'], capture_output=True, text=True,
-    cwd='F:/BUREAU/turbo', timeout=5).stdout.strip()
+    cwd='/home/turbo/jarvis-m1-ops', timeout=5).stdout.strip()
 if env_tracked:
     issues.append('  CRITICAL: .env is tracked in git!')
 
@@ -4438,7 +4438,7 @@ for port in [1234, 9742, 11434, 18789, 18800, 3000, 5000]:
         pass
 
 # 4. PID files with stale processes
-pid_dir = Path('F:/BUREAU/turbo/data/pids')
+pid_dir = Path('/home/turbo/jarvis-m1-ops/data/pids')
 if pid_dir.exists():
     for pf in pid_dir.glob('*.pid'):
         try:
@@ -4452,7 +4452,7 @@ if pid_dir.exists():
 if issues:
     for i in issues:
         print(i)
-    print(f'\\n  {len(issues)} security issues found')
+    print(f'/n  {len(issues)} security issues found')
 else:
     print('  No security issues detected')
 """},
@@ -4472,7 +4472,7 @@ import sqlite3, os
 from pathlib import Path
 
 print('=== DB VACUUM & OPTIMIZE ===')
-dbs = list(Path('F:/BUREAU/turbo/data').glob('*.db'))
+dbs = list(Path('/home/turbo/jarvis-m1-ops/data').glob('*.db'))
 for db_path in dbs:
     try:
         size_before = db_path.stat().st_size / 1e6
@@ -4515,8 +4515,8 @@ r = subprocess.run(['nvidia-smi', '--query-gpu=index,temperature.gpu,utilization
 if r.returncode != 0:
     print('  nvidia-smi unavailable')
 else:
-    db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
-    for line in r.stdout.strip().split('\\n'):
+    db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
+    for line in r.stdout.strip().split('/n'):
         parts = [p.strip() for p in line.split(',')]
         if len(parts) >= 6:
             idx, temp, util, power, mem_used, mem_total = parts[:6]
@@ -4599,7 +4599,7 @@ for name, check_type, target, restart_cmd in services:
         if restart_cmd:
             try:
                 flags = 0x00000008 | 0x00000200  # DETACHED + NEW_PROCESS_GROUP
-                subprocess.Popen(restart_cmd, cwd='F:/BUREAU/turbo',
+                subprocess.Popen(restart_cmd, cwd='/home/turbo/jarvis-m1-ops',
                     creationflags=flags, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 recovered.append(name)
                 print(f'  {name}: RESTARTED')
@@ -4609,7 +4609,7 @@ for name, check_type, target, restart_cmd in services:
             print(f'  {name}: needs manual restart')
 
 if recovered:
-    print(f'\\n  Auto-recovered: {recovered}')
+    print(f'/n  Auto-recovered: {recovered}')
 else:
     print('  All services stable')
 """},
@@ -4629,7 +4629,7 @@ import subprocess, json
 from pathlib import Path
 
 print('=== DEAD CODE SCAN ===')
-src_dir = Path('F:/BUREAU/turbo/src')
+src_dir = Path('/home/turbo/jarvis-m1-ops/src')
 findings = []
 
 # Check for unused imports with a quick heuristic
@@ -4649,7 +4649,7 @@ for py_file in sorted(src_dir.glob('*.py'))[:30]:
                     if name and name != '*':
                         imports.append(name)
 
-        content = '\\n'.join(lines)
+        content = '/n'.join(lines)
         unused = [imp for imp in imports if content.count(imp) == 1 and imp not in
                   ('__future__', 'annotations', 'typing', 'os', 'sys', 'json', 'logging')]
         if unused:
@@ -4683,7 +4683,7 @@ import json, os
 from pathlib import Path
 
 print('=== CONFIG DRIFT DETECTION ===')
-base = Path('F:/BUREAU/turbo')
+base = Path('/home/turbo/jarvis-m1-ops')
 drifts = []
 
 # 1. Check .env.example vs .env consistency
@@ -4760,7 +4760,7 @@ from urllib.request import urlopen, Request
 from urllib.error import URLError
 
 print('=== API LATENCY TRACKING ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 endpoints = [
     ('M1', 'http://127.0.0.1:1234/api/v1/models'),
@@ -4824,7 +4824,7 @@ print('=== SELF-DOCUMENTATION ===')
 doc = {'timestamp': datetime.now().isoformat(), 'system': {}}
 
 # 1. Task stats
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 doc['system']['total_tasks'] = db.execute('SELECT COUNT(*) FROM tasks WHERE enabled=1').fetchone()[0]
 doc['system']['total_runs'] = db.execute('SELECT COUNT(*) FROM task_runs').fetchone()[0]
 doc['system']['failed_24h'] = db.execute(
@@ -4854,15 +4854,15 @@ for name, port in services.items():
 
 # 4. Git status
 r = subprocess.run(['git', 'log', '--oneline', '-1'], capture_output=True, text=True,
-    cwd='F:/BUREAU/turbo', timeout=5)
+    cwd='/home/turbo/jarvis-m1-ops', timeout=5)
 doc['system']['git_head'] = r.stdout.strip()
 
 # 5. Python module count
-doc['system']['src_modules'] = len(list(Path('F:/BUREAU/turbo/src').glob('*.py')))
-doc['system']['test_files'] = len(list(Path('F:/BUREAU/turbo/tests').glob('test_*.py')))
+doc['system']['src_modules'] = len(list(Path('/home/turbo/jarvis-m1-ops/src').glob('*.py')))
+doc['system']['test_files'] = len(list(Path('/home/turbo/jarvis-m1-ops/tests').glob('test_*.py')))
 
 # Write snapshot
-out = Path('F:/BUREAU/turbo/data/system_snapshot.json')
+out = Path('/home/turbo/jarvis-m1-ops/data/system_snapshot.json')
 out.write_text(json.dumps(doc, indent=2, ensure_ascii=False))
 db.close()
 
@@ -4892,9 +4892,9 @@ print('=== FAILOVER DRILL ===')
 # Test each node can answer a simple prompt
 nodes = [
     ('M1', 'http://127.0.0.1:1234/api/v1/chat',
-     {'model':'qwen3-8b','input':'/nothink\\nReply OK','temperature':0.1,'max_output_tokens':10,'stream':False,'store':False}),
+     {'model':'qwen3-8b','input':'/nothink/nReply OK','temperature':0.1,'max_output_tokens':10,'stream':False,'store':False}),
     ('OL1', 'http://127.0.0.1:11434/api/chat',
-     {'model':'qwen3:1.7b','messages':[{'role':'user','content':'/nothink\\nReply OK'}],'stream':False}),
+     {'model':'qwen3:1.7b','messages':[{'role':'user','content':'/nothink/nReply OK'}],'stream':False}),
     ('M3', 'http://192.168.1.113:1234/api/v1/chat',
      {'model':'deepseek-r1-0528-qwen3-8b','input':'Reply OK','temperature':0.1,'max_output_tokens':10,'stream':False,'store':False}),
 ]
@@ -4944,7 +4944,7 @@ print('=== ORPHAN DATA CLEANUP ===')
 cleaned = 0
 
 # 1. Clean old task_runs (>7 days, keep last 100 per task)
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 old_runs = db.execute('''
     DELETE FROM task_runs WHERE id NOT IN (
         SELECT id FROM (
@@ -4967,7 +4967,7 @@ if old_metrics.rowcount > 0:
 db.commit()
 
 # 3. Temp files older than 24h
-temp_dirs = [Path('F:/BUREAU/turbo/data/tmp'), Path(os.environ.get('TEMP', '/tmp'))]
+temp_dirs = [Path('/home/turbo/jarvis-m1-ops/data/tmp'), Path(os.environ.get('TEMP', '/tmp'))]
 for td in temp_dirs:
     if not td.exists():
         continue
@@ -4981,7 +4981,7 @@ for td in temp_dirs:
             pass
 
 # 4. Empty log files
-log_dir = Path('F:/BUREAU/turbo/data/logs')
+log_dir = Path('/home/turbo/jarvis-m1-ops/data/logs')
 if log_dir.exists():
     for f in log_dir.glob('*.log'):
         try:
@@ -5012,7 +5012,7 @@ from datetime import datetime
 start = time.perf_counter()
 
 # Basic sanity: can we write/read DB?
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
     ('canary_heartbeat', 1.0, datetime.now().isoformat()))
 db.commit()
@@ -5021,7 +5021,7 @@ assert val and val[0] == 1.0, 'DB read/write failed!'
 db.close()
 
 # Can we access filesystem?
-assert os.path.exists('F:/BUREAU/turbo/scripts/task_orchestrator.py'), 'Filesystem access failed!'
+assert os.path.exists('/home/turbo/jarvis-m1-ops/scripts/task_orchestrator.py'), 'Filesystem access failed!'
 
 elapsed = (time.perf_counter() - start) * 1000
 print(f'Canary OK: DB read/write + FS check in {elapsed:.0f}ms')
@@ -5042,7 +5042,7 @@ import sqlite3, json
 from datetime import datetime, timedelta
 
 print('=== CLUSTER UTILIZATION ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 # Count task runs per node (by analyzing which tasks route where)
 node_tasks = {'M1': 0, 'OL1': 0, 'M3': 0, 'GEMINI': 0}
@@ -5098,29 +5098,29 @@ from pathlib import Path
 print('=== AUTO-CHANGELOG ===')
 # Get commits from last 24h
 r = subprocess.run(['git', 'log', '--oneline', '--since=24 hours ago', '--no-merges'],
-    capture_output=True, text=True, cwd='F:/BUREAU/turbo', timeout=10)
-commits = r.stdout.strip().split('\\n') if r.stdout.strip() else []
+    capture_output=True, text=True, cwd='/home/turbo/jarvis-m1-ops', timeout=10)
+commits = r.stdout.strip().split('/n') if r.stdout.strip() else []
 print(f'  Commits (24h): {len(commits)}')
 for c in commits[:10]:
     print(f'    {c}')
 
 # File change stats
 r2 = subprocess.run(['git', 'diff', '--stat', 'HEAD~5'], capture_output=True, text=True,
-    cwd='F:/BUREAU/turbo', timeout=10)
+    cwd='/home/turbo/jarvis-m1-ops', timeout=10)
 if r2.stdout:
-    lines = r2.stdout.strip().split('\\n')
+    lines = r2.stdout.strip().split('/n')
     if lines:
         print(f'  {lines[-1].strip()}')
 
 # Save changelog entry
-changelog = Path('F:/BUREAU/turbo/data/changelog_auto.jsonl')
+changelog = Path('/home/turbo/jarvis-m1-ops/data/changelog_auto.jsonl')
 entry = {
     'date': datetime.now().isoformat(),
     'commits_24h': len(commits),
     'recent': commits[:5]
 }
 with open(changelog, 'a') as f:
-    f.write(json.dumps(entry) + '\\n')
+    f.write(json.dumps(entry) + '/n')
 print(f'  Changelog appended: {changelog}')
 """},
             priority="low",
@@ -5139,7 +5139,7 @@ import sqlite3
 from datetime import datetime, timedelta
 
 print('=== CIRCUIT BREAKER ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 cutoff = (datetime.now() - timedelta(hours=1)).isoformat()
 
 # Find tasks with >5 consecutive failures in last hour
@@ -5187,17 +5187,17 @@ from datetime import datetime
 
 print('=== CONTINUOUS TEST RUNNER ===')
 r = subprocess.run([sys.executable, '-m', 'pytest', 'tests/', '-q', '--tb=line', '-x',
-    '--timeout=30'], capture_output=True, text=True, timeout=120, cwd='F:/BUREAU/turbo')
+    '--timeout=30'], capture_output=True, text=True, timeout=120, cwd='/home/turbo/jarvis-m1-ops')
 
 # Parse results
 output = r.stdout + r.stderr
-lines = output.strip().split('\\n')
+lines = output.strip().split('/n')
 summary = lines[-1] if lines else 'no output'
 print(f'  Result: {summary}')
 print(f'  Return code: {r.returncode}')
 
 # Record metric
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 passed = 0
 failed = 0
 for line in lines:
@@ -5242,7 +5242,7 @@ import sqlite3, shutil
 from datetime import datetime
 
 print('=== DISK FILL RATE PREDICTION ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 for drive in ['C:', 'F:']:
     usage = shutil.disk_usage(drive + '/')
@@ -5298,10 +5298,10 @@ expected = '56'
 
 nodes = [
     ('M1', 'http://127.0.0.1:1234/api/v1/chat',
-     {'model':'qwen3-8b','input':f'/nothink\\n{test_prompt}','temperature':0,'max_output_tokens':20,'stream':False,'store':False},
+     {'model':'qwen3-8b','input':f'/nothink/n{test_prompt}','temperature':0,'max_output_tokens':20,'stream':False,'store':False},
      'lmstudio'),
     ('OL1', 'http://127.0.0.1:11434/api/chat',
-     {'model':'qwen3:1.7b','messages':[{'role':'user','content':f'/nothink\\n{test_prompt}'}],'stream':False},
+     {'model':'qwen3:1.7b','messages':[{'role':'user','content':f'/nothink/n{test_prompt}'}],'stream':False},
      'ollama'),
 ]
 
@@ -5360,7 +5360,7 @@ for line in r.stdout.splitlines()[1:]:
         pid = int(parts[1].strip('"'))
     except Exception:
         continue
-    mem_str = parts[4].strip('"').replace(',', '').replace(' K', '').replace('\\xa0', '')
+    mem_str = parts[4].strip('"').replace(',', '').replace(' K', '').replace('/xa0', '')
     try:
         mem_kb = int(mem_str)
     except Exception:
@@ -5417,7 +5417,7 @@ except Exception:
     print('  Could not check pip packages')
 
 # 2. Check npm outdated (if applicable)
-pkg_json = Path('F:/BUREAU/turbo/electron/package.json')
+pkg_json = Path('/home/turbo/jarvis-m1-ops/electron/package.json')
 if pkg_json.exists():
     r2 = subprocess.run(['npm', 'outdated', '--json'], capture_output=True, text=True,
         timeout=30, cwd=str(pkg_json.parent))
@@ -5450,7 +5450,7 @@ from urllib.error import URLError
 from datetime import datetime
 
 print('=== CLUSTER WORK GENERATOR ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 # Check which nodes are idle (no tasks in last 5 min)
 idle_nodes = []
@@ -5487,7 +5487,7 @@ else:
         try:
             payload = json.dumps({
                 'model': 'qwen3-8b',
-                'input': f'/nothink\\n{work}. Be brief, 3 sentences max.',
+                'input': f'/nothink/n{work}. Be brief, 3 sentences max.',
                 'temperature': 0.3, 'max_output_tokens': 200,
                 'stream': False, 'store': False
             }).encode()
@@ -5529,7 +5529,7 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 
 print('=== ERROR ROOT CAUSE CORRELATION ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 cutoff = (datetime.now() - timedelta(hours=6)).isoformat()
 
 # Get all failures in last 6h with timestamps
@@ -5573,7 +5573,7 @@ else:
         print(f'  {len(fails)} failures but no correlations (all independent)')
 
     # Detect cascade patterns: task A fails → task B fails within 60s
-    print('\\n  Cascade analysis:')
+    print('/n  Cascade analysis:')
     cascade_count = 0
     for i, (tid1, ts1, _) in enumerate(fails):
         for tid2, ts2, _ in fails[i+1:i+5]:
@@ -5608,8 +5608,8 @@ import ast, json
 from pathlib import Path
 
 print('=== AUTO-TEST GENERATOR ===')
-src_dir = Path('F:/BUREAU/turbo/src')
-test_dir = Path('F:/BUREAU/turbo/tests')
+src_dir = Path('/home/turbo/jarvis-m1-ops/src')
+test_dir = Path('/home/turbo/jarvis-m1-ops/tests')
 
 # Get existing test coverage
 tested_modules = set()
@@ -5647,20 +5647,20 @@ if untested:
         # Generate test stub if doesn't exist
         stub_path = test_dir / f'test_{mod}.py'
         if not stub_path.exists() and stubs_generated < 3:
-            stub = f'''\"\"\"Auto-generated test stub for {mod}.\"\"\"\\nimport pytest\\n\\n'''
-            stub += f'# TODO: {funcs} functions and {cls} classes need tests\\n'
-            stub += f'# Source: src/{mod}.py ({size_kb:.0f}KB)\\n\\n'
-            stub += f'class Test{mod.title().replace(\"_\", \"\")}:\\n'
-            stub += f'    def test_import(self):\\n'
-            stub += f'        \"\"\"Verify module imports without error.\"\"\"\\n'
-            stub += f'        from src import {mod}  # noqa\\n'
+            stub = f'''\"\"\"Auto-generated test stub for {mod}.\"\"\"/nimport pytest/n/n'''
+            stub += f'# TODO: {funcs} functions and {cls} classes need tests/n'
+            stub += f'# Source: src/{mod}.py ({size_kb:.0f}KB)/n/n'
+            stub += f'class Test{mod.title().replace(\"_\", \"\")}:/n'
+            stub += f'    def test_import(self):/n'
+            stub += f'        \"\"\"Verify module imports without error.\"\"\"/n'
+            stub += f'        from src import {mod}  # noqa/n'
             # Don't write — just report what we would generate
             stubs_generated += 1
             print(f'      -> would generate {stub_path.name}')
 else:
     print('  All modules have test coverage!')
 
-print(f'\\n  Coverage: {len(tested_modules)}/{len(tested_modules)+len(untested)} modules tested '
+print(f'/n  Coverage: {len(tested_modules)}/{len(tested_modules)+len(untested)} modules tested '
       f'({len(tested_modules)/(len(tested_modules)+len(untested))*100:.0f}%)')
 """},
             priority="low",
@@ -5680,7 +5680,7 @@ from datetime import datetime, timedelta
 from urllib.request import urlopen, Request
 
 print('=== PROMPT OPTIMIZER ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 # Find tasks with >50% failure rate in last 24h
 cutoff = (datetime.now() - timedelta(hours=24)).isoformat()
@@ -5703,7 +5703,7 @@ else:
         if errors:
             # Ask M1 to analyze the error pattern
             error_sample = errors[:300]
-            prompt = f'/nothink\\nAnalyze this error pattern from task \"{task_id}\" (failed {fails}/{total} times). Errors: {error_sample}. What is the root cause? Suggest a 1-line fix. Be very brief.'
+            prompt = f'/nothink/nAnalyze this error pattern from task \"{task_id}\" (failed {fails}/{total} times). Errors: {error_sample}. What is the root cause? Suggest a 1-line fix. Be very brief.'
             try:
                 data = json.dumps({
                     'model': 'qwen3-8b', 'input': prompt,
@@ -5742,7 +5742,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 print('=== SYSTEM ENTROPY SCORE ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 score = 100  # Start perfect, deduct points
 details = []
 
@@ -5757,7 +5757,7 @@ if total > 0:
     details.append(f'Fail rate: {fail_rate:.0%} (-{penalty})')
 
 # 2. Stale PID files (-5 each)
-pid_dir = Path('F:/BUREAU/turbo/data/pids')
+pid_dir = Path('/home/turbo/jarvis-m1-ops/data/pids')
 if pid_dir.exists():
     for pf in pid_dir.glob('*.pid'):
         try:
@@ -5780,7 +5780,7 @@ for drive in ['C:', 'F:']:
         details.append(f'{drive} moderate: {free:.0f}GB (-3)')
 
 # 4. DB bloat (-5 per DB >50MB)
-for db_path in Path('F:/BUREAU/turbo/data').glob('*.db'):
+for db_path in Path('/home/turbo/jarvis-m1-ops/data').glob('*.db'):
     size_mb = db_path.stat().st_size / 1e6
     if size_mb > 50:
         score -= 5
@@ -5834,7 +5834,7 @@ import subprocess, sqlite3, json, os
 from datetime import datetime
 
 print('=== MEMORY LEAK DETECTION ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 # Get memory usage of key processes
 r = subprocess.run(['tasklist', '/FO', 'CSV', '/NH'], capture_output=True, text=True,
@@ -5850,7 +5850,7 @@ for line in r.stdout.splitlines():
         pid = int(parts[1])
     except Exception:
         continue
-    mem_str = parts[4].replace(',', '').replace(' K', '').replace('\\xa0', '').strip('"')
+    mem_str = parts[4].replace(',', '').replace(' K', '').replace('/xa0', '').strip('"')
     try:
         mem_kb = int(mem_str)
     except Exception:
@@ -5905,7 +5905,7 @@ import sqlite3, json
 from collections import defaultdict
 
 print('=== TASK REDUNDANCY ANALYSIS ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 tasks = db.execute('SELECT id, name, task_type, action, priority, schedule FROM tasks WHERE enabled=1').fetchall()
 
@@ -5932,7 +5932,7 @@ for i, (id1, name1) in enumerate(names):
             similar.append((id1, id2, ratio))
 
 if similar:
-    print(f'\\n  SIMILAR TASKS (possible duplicates):')
+    print(f'/n  SIMILAR TASKS (possible duplicates):')
     for id1, id2, ratio in similar[:8]:
         print(f'    {id1} <-> {id2} ({ratio:.0%} similar)')
 
@@ -5944,11 +5944,11 @@ always_fail = db.execute('''
     HAVING runs >= 5 AND SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END) = 0
 ''').fetchall()
 if always_fail:
-    print(f'\\n  ALWAYS-FAILING tasks (candidates for removal):')
+    print(f'/n  ALWAYS-FAILING tasks (candidates for removal):')
     for tid, runs in always_fail:
         print(f'    {tid}: {runs} runs, 0 completions')
 
-print(f'\\n  Total: {len(tasks)} active tasks, {len(concurrent)} high-concurrency windows')
+print(f'/n  Total: {len(tasks)} active tasks, {len(concurrent)} high-concurrency windows')
 db.close()
 """},
             priority="low",
@@ -5979,10 +5979,10 @@ answers = {}
 
 nodes = [
     ('M1', 'http://127.0.0.1:1234/api/v1/chat',
-     {'model':'qwen3-8b','input':f'/nothink\\n{q} Reply with just the answer, one word.','temperature':0,'max_output_tokens':20,'stream':False,'store':False},
+     {'model':'qwen3-8b','input':f'/nothink/n{q} Reply with just the answer, one word.','temperature':0,'max_output_tokens':20,'stream':False,'store':False},
      'lmstudio'),
     ('OL1', 'http://127.0.0.1:11434/api/chat',
-     {'model':'qwen3:1.7b','messages':[{'role':'user','content':f'/nothink\\n{q} Reply with just the answer, one word.'}],'stream':False},
+     {'model':'qwen3:1.7b','messages':[{'role':'user','content':f'/nothink/n{q} Reply with just the answer, one word.'}],'stream':False},
      'ollama'),
 ]
 
@@ -6034,7 +6034,7 @@ import ast, sys, importlib
 from pathlib import Path
 
 print('=== IMPORT & SYNTAX HEALER ===')
-src_dir = Path('F:/BUREAU/turbo/src')
+src_dir = Path('/home/turbo/jarvis-m1-ops/src')
 issues = []
 
 for py in sorted(src_dir.glob('*.py')):
@@ -6091,7 +6091,7 @@ import sqlite3
 from datetime import datetime, timedelta
 
 print('=== PERFORMANCE PROFILER ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 # Top 10 slowest tasks (avg duration)
 slow = db.execute('''
@@ -6111,7 +6111,7 @@ if slow:
         print(f'  {tid:35s} {avg:7.0f}ms {mx:7.0f}ms {mn:7.0f}ms {runs:5d}')
 
 # Tasks getting slower over time
-print('\\n  Degradation analysis:')
+print('/n  Degradation analysis:')
 degrading = []
 for (tid,) in db.execute('SELECT DISTINCT task_id FROM task_runs WHERE status="completed"').fetchall():
     rows = db.execute('''
@@ -6137,7 +6137,7 @@ total = db.execute('''
     SELECT SUM(duration_ms) FROM task_runs
     WHERE started_at > datetime('now', '-1 hour') AND status='completed'
 ''').fetchone()[0] or 0
-print(f'\\n  Total execution time (last hour): {total/1000:.1f}s')
+print(f'/n  Total execution time (last hour): {total/1000:.1f}s')
 db.close()
 """},
             priority="low",
@@ -6157,7 +6157,7 @@ from datetime import datetime, timedelta
 from collections import Counter
 
 print('=== ALERT AGGREGATION ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 cutoff = (datetime.now() - timedelta(hours=1)).isoformat()
 
 # Gather all failures as "alerts"
@@ -6197,7 +6197,7 @@ else:
     # Dedup recommendation
     repeat = {k: v for k, v in by_task.items() if v >= 3}
     if repeat:
-        print(f'\\n  NOISY tasks (>=3 alerts/h):')
+        print(f'/n  NOISY tasks (>=3 alerts/h):')
         for tid, count in repeat.most_common(5):
             print(f'    {tid}: {count} alerts — consider reducing frequency or fixing')
 
@@ -6219,7 +6219,7 @@ import sqlite3, json
 from datetime import datetime, timedelta
 
 print('=== EVOLUTION FITNESS ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 # Compare metrics across time periods
 periods = [
@@ -6253,7 +6253,7 @@ for window, offset1, offset2 in [('recent vs older', '-3 hours', '-6 hours')]:
     new_rate = (r2[0] or 0) * 100
     delta = new_rate - old_rate
     trend = 'IMPROVING' if delta > 2 else 'DEGRADING' if delta < -2 else 'STABLE'
-    print(f'\\n  Trend: {old_rate:.0f}% -> {new_rate:.0f}% ({delta:+.1f}%) — {trend}')
+    print(f'/n  Trend: {old_rate:.0f}% -> {new_rate:.0f}% ({delta:+.1f}%) — {trend}')
 
 # Record fitness metric
 score = db.execute('''
@@ -6299,7 +6299,7 @@ else:
 # Ping M1 with a tiny prompt to keep model loaded
 nodes_to_warm = [
     ('M1', 'http://127.0.0.1:1234/api/v1/chat',
-     {'model':'qwen3-8b','input':'/nothink\\nOK','temperature':0,'max_output_tokens':5,'stream':False,'store':False},
+     {'model':'qwen3-8b','input':'/nothink/nOK','temperature':0,'max_output_tokens':5,'stream':False,'store':False},
      'lmstudio'),
 ]
 
@@ -6333,12 +6333,12 @@ import subprocess, sys, sqlite3, json
 from datetime import datetime, timedelta
 
 print('=== AUTO-ROLLBACK SENTINEL ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 # Check if there was a recent commit
 r = subprocess.run(['git', 'log', '--oneline', '--since=30 minutes ago'],
-    capture_output=True, text=True, cwd='F:/BUREAU/turbo', timeout=10)
-recent_commits = r.stdout.strip().split('\\n') if r.stdout.strip() else []
+    capture_output=True, text=True, cwd='/home/turbo/jarvis-m1-ops', timeout=10)
+recent_commits = r.stdout.strip().split('/n') if r.stdout.strip() else []
 
 if not recent_commits:
     print('  No recent commits — nothing to guard')
@@ -6348,15 +6348,15 @@ else:
     # Run a quick smoke test
     r2 = subprocess.run([sys.executable, '-m', 'pytest', 'tests/test_task_orchestrator.py',
         '-q', '--tb=line', '-x', '--timeout=30'],
-        capture_output=True, text=True, timeout=60, cwd='F:/BUREAU/turbo')
+        capture_output=True, text=True, timeout=60, cwd='/home/turbo/jarvis-m1-ops')
 
     if r2.returncode == 0:
-        lines = r2.stdout.strip().split('\\n')
+        lines = r2.stdout.strip().split('/n')
         print(f'  Smoke test: PASSED ({lines[-1] if lines else "ok"})')
     else:
         print(f'  Smoke test: FAILED!')
         # Show what failed
-        for line in r2.stdout.split('\\n'):
+        for line in r2.stdout.split('/n'):
             if 'FAILED' in line:
                 print(f'    {line.strip()}')
 
@@ -6389,8 +6389,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 print('=== KNOWLEDGE BASE BUILDER ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
-kb_path = Path('F:/BUREAU/turbo/data/knowledge_base.jsonl')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
+kb_path = Path('/home/turbo/jarvis-m1-ops/data/knowledge_base.jsonl')
 
 # Find tasks that recovered (were failing, now succeeding)
 recoveries = db.execute('''
@@ -6431,7 +6431,7 @@ for (task_id,) in recoveries:
 if entries:
     with open(kb_path, 'a') as f:
         for e in entries:
-            f.write(json.dumps(e) + '\\n')
+            f.write(json.dumps(e) + '/n')
     print(f'  Added {len(entries)} recovery patterns to knowledge base')
     for e in entries[:5]:
         print(f'    {e[\"task_id\"]}: {e[\"error\"][:80]}')
@@ -6440,7 +6440,7 @@ else:
 
 # Stats
 if kb_path.exists():
-    lines = len(kb_path.read_text().strip().split('\\n'))
+    lines = len(kb_path.read_text().strip().split('/n'))
     print(f'  Knowledge base: {lines} entries total')
 else:
     print('  Knowledge base: empty (will grow over time)')
@@ -6464,14 +6464,14 @@ from urllib.request import urlopen, Request
 from datetime import datetime
 
 print('=== SATURATION BALANCING ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 # Measure actual throughput per node
 nodes = {
     'M1': ('http://127.0.0.1:1234/api/v1/chat',
-           {'model':'qwen3-8b','input':'/nothink\\n1+1=?','temperature':0,'max_output_tokens':5,'stream':False,'store':False}),
+           {'model':'qwen3-8b','input':'/nothink/n1+1=?','temperature':0,'max_output_tokens':5,'stream':False,'store':False}),
     'OL1': ('http://127.0.0.1:11434/api/chat',
-            {'model':'qwen3:1.7b','messages':[{'role':'user','content':'/nothink\\n1+1=?'}],'stream':False}),
+            {'model':'qwen3:1.7b','messages':[{'role':'user','content':'/nothink/n1+1=?'}],'stream':False}),
 }
 
 latencies = {}
@@ -6534,7 +6534,7 @@ import sqlite3, json
 from datetime import datetime, timedelta
 
 print('=== TASK FREQUENCY AUTO-TUNER ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 # Find tasks where output never changes (running too often)
 tasks = db.execute('''
@@ -6590,7 +6590,7 @@ import sqlite3
 from datetime import datetime, timedelta
 
 print('=== TASK RETIREMENT ENGINE ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 # Protected tasks that should NEVER be retired
 PROTECTED = {'canary_heartbeat', 'health_cluster', 'auto_recovery', 'orchestrator',
@@ -6627,7 +6627,7 @@ zombies = db.execute('''
 ''').fetchall()
 
 if zombies:
-    print(f'\\n  ZOMBIES ({len(zombies)} tasks not run in 48h):')
+    print(f'/n  ZOMBIES ({len(zombies)} tasks not run in 48h):')
     for tid, last_run in zombies[:10]:
         print(f'    {tid}: last run {last_run or "never"}')
 
@@ -6667,7 +6667,7 @@ print(f'  Topic: {topic}')
 # Ask M1 (teacher)
 try:
     data = json.dumps({
-        'model': 'qwen3-8b', 'input': f'/nothink\\n{topic}',
+        'model': 'qwen3-8b', 'input': f'/nothink/n{topic}',
         'temperature': 0.2, 'max_output_tokens': 150, 'stream': False, 'store': False
     }).encode()
     req = Request('http://127.0.0.1:1234/api/v1/chat', data=data,
@@ -6689,7 +6689,7 @@ except Exception as e:
 try:
     data = json.dumps({
         'model': 'qwen3:1.7b',
-        'messages': [{'role': 'user', 'content': f'/nothink\\n{topic}'}],
+        'messages': [{'role': 'user', 'content': f'/nothink/n{topic}'}],
         'stream': False
     }).encode()
     req = Request('http://127.0.0.1:11434/api/chat', data=data,
@@ -6727,9 +6727,9 @@ from pathlib import Path
 from datetime import datetime
 
 print('=== CODE COMPLEXITY TRACKER ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
-src_dir = Path('F:/BUREAU/turbo/src')
-scripts_dir = Path('F:/BUREAU/turbo/scripts')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
+src_dir = Path('/home/turbo/jarvis-m1-ops/src')
+scripts_dir = Path('/home/turbo/jarvis-m1-ops/scripts')
 
 total_loc = 0
 total_funcs = 0
@@ -6765,7 +6765,7 @@ print(f'  Total: {total_loc:,} LOC, {total_funcs} functions, {total_classes} cla
 
 if big_files:
     big_files.sort(key=lambda x: -x[1])
-    print(f'\\n  Large files (>500 LOC):')
+    print(f'/n  Large files (>500 LOC):')
     for name, loc, funcs in big_files[:8]:
         print(f'    {name:40s} {loc:6d} LOC  {funcs:3d} funcs')
 
@@ -6778,7 +6778,7 @@ if len(rows) >= 3:
     recent = rows[0][0]
     older = rows[-1][0]
     delta = recent - older
-    print(f'\\n  LOC trend: {older:.0f} -> {recent:.0f} ({delta:+.0f} lines)')
+    print(f'/n  LOC trend: {older:.0f} -> {recent:.0f} ({delta:+.0f} lines)')
 
 db.commit()
 db.close()
@@ -6799,7 +6799,7 @@ import sqlite3, json
 from datetime import datetime, timedelta
 
 print('=== A/B TASK PERFORMANCE ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 # Compare M1 vs OL1 for the same type of work
 # Use task_runs data to find which node-typed tasks perform better
@@ -6862,7 +6862,7 @@ print('=== DATA PIPELINE VALIDATION ===')
 checks = []
 
 # 1. Orchestrator DB consistency
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 tasks = db.execute('SELECT COUNT(*) FROM tasks WHERE enabled=1').fetchone()[0]
 schedules = db.execute('SELECT COUNT(*) FROM task_schedule').fetchone()[0]
 # Every enabled task with a schedule should have a schedule entry
@@ -6887,15 +6887,15 @@ checks.append(f'OK: {recent_runs} task runs in last 30min' if recent_runs > 0
     else 'NO RUNS in last 30min!')
 
 # 4. Knowledge base growing
-kb = Path('F:/BUREAU/turbo/data/knowledge_base.jsonl')
+kb = Path('/home/turbo/jarvis-m1-ops/data/knowledge_base.jsonl')
 if kb.exists():
-    kb_lines = len(kb.read_text().strip().split('\\n'))
+    kb_lines = len(kb.read_text().strip().split('/n'))
     checks.append(f'OK: knowledge base has {kb_lines} entries')
 else:
     checks.append('INFO: knowledge base not yet created')
 
 # 5. System snapshot fresh
-snap = Path('F:/BUREAU/turbo/data/system_snapshot.json')
+snap = Path('/home/turbo/jarvis-m1-ops/data/system_snapshot.json')
 if snap.exists():
     age_min = (datetime.now().timestamp() - snap.stat().st_mtime) / 60
     if age_min > 60:
@@ -6904,9 +6904,9 @@ if snap.exists():
         checks.append(f'OK: system snapshot is {age_min:.0f}min old')
 
 # 6. Changelog flowing
-cl = Path('F:/BUREAU/turbo/data/changelog_auto.jsonl')
+cl = Path('/home/turbo/jarvis-m1-ops/data/changelog_auto.jsonl')
 if cl.exists():
-    cl_lines = len(cl.read_text().strip().split('\\n'))
+    cl_lines = len(cl.read_text().strip().split('/n'))
     checks.append(f'OK: auto-changelog has {cl_lines} entries')
 
 db.close()
@@ -6929,7 +6929,7 @@ import socket, json, sqlite3
 from datetime import datetime
 
 print('=== SERVICE MESH TOPOLOGY ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 # Map all known service endpoints and their connectivity
 services = {
@@ -6965,7 +6965,7 @@ for name, (host, port) in services.items():
 # Connectivity score
 total = len(services)
 score = online / total * 100
-print(f'\\n  Mesh health: {online}/{total} services online ({score:.0f}%)')
+print(f'/n  Mesh health: {online}/{total} services online ({score:.0f}%)')
 
 # Record
 db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
@@ -6991,7 +6991,7 @@ from pathlib import Path
 from urllib.request import urlopen, Request
 
 print('=== DAILY INSIGHT GENERATOR ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 # Gather key stats
 stats = {}
@@ -7013,7 +7013,7 @@ if stats['entropy']:
 
 # Ask M1 to generate insight
 try:
-    prompt = f'/nothink\\nYou are JARVIS system analyst. Based on these stats, give 3 actionable insights. Stats: {summary}. Be concise, 1 sentence per insight.'
+    prompt = f'/nothink/nYou are JARVIS system analyst. Based on these stats, give 3 actionable insights. Stats: {summary}. Be concise, 1 sentence per insight.'
     data = json.dumps({
         'model': 'qwen3-8b', 'input': prompt,
         'temperature': 0.3, 'max_output_tokens': 200, 'stream': False, 'store': False
@@ -7034,10 +7034,10 @@ except Exception as e:
     print(f'  {summary}')
 
 # Save insight
-insight_path = Path('F:/BUREAU/turbo/data/daily_insights.jsonl')
+insight_path = Path('/home/turbo/jarvis-m1-ops/data/daily_insights.jsonl')
 entry = {'date': datetime.now().isoformat(), 'stats': summary}
 with open(insight_path, 'a') as f:
-    f.write(json.dumps(entry) + '\\n')
+    f.write(json.dumps(entry) + '/n')
 
 db.close()
 """},
@@ -7058,7 +7058,7 @@ from collections import Counter
 from datetime import datetime, timedelta
 
 print('=== ERROR DEDUPLICATION ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 cutoff = (datetime.now() - timedelta(hours=6)).isoformat()
 
 errors = db.execute('''
@@ -7072,9 +7072,9 @@ else:
     # Normalize errors (first line, strip paths)
     normalized = []
     for tid, err in errors:
-        first_line = err.strip().split('\\n')[-1][:100] if err else 'unknown'
+        first_line = err.strip().split('/n')[-1][:100] if err else 'unknown'
         # Strip file paths for grouping
-        for prefix in ['F:/BUREAU/turbo/', 'C:/Users/franc/', '/']:
+        for prefix in ['/home/turbo/jarvis-m1-ops/', 'C:/Users/franc/', '/']:
             first_line = first_line.replace(prefix, '')
         normalized.append((tid, first_line))
 
@@ -7090,7 +7090,7 @@ else:
             print(f'          tasks: {tasks_affected[:3]}... (+{len(tasks_affected)-3})')
 
     compression = (1 - len(patterns) / len(errors)) * 100 if errors else 0
-    print(f'\\n  Compression: {compression:.0f}% ({len(errors)} -> {len(patterns)} patterns)')
+    print(f'/n  Compression: {compression:.0f}% ({len(errors)} -> {len(patterns)} patterns)')
 
 db.close()
 """},
@@ -7114,13 +7114,13 @@ print('=== GIT ACTIVITY INTELLIGENCE ===')
 
 # Analyze last 30 commits
 r = subprocess.run(['git', 'log', '--oneline', '--format=%H|%s|%ai', '-30'],
-    capture_output=True, text=True, cwd='F:/BUREAU/turbo', timeout=10)
+    capture_output=True, text=True, cwd='/home/turbo/jarvis-m1-ops', timeout=10)
 
 if not r.stdout.strip():
     print('  No git history')
 else:
     commits = []
-    for line in r.stdout.strip().split('\\n'):
+    for line in r.stdout.strip().split('/n'):
         parts = line.split('|', 2)
         if len(parts) >= 3:
             commits.append({'hash': parts[0][:7], 'msg': parts[1], 'date': parts[2]})
@@ -7154,16 +7154,16 @@ else:
             last = datetime.fromisoformat(commits[0]['date'].strip().replace(' ', 'T')[:19])
             days = max(1, (last - first).days)
             velocity = len(commits) / days
-            print(f'\\n  Velocity: {velocity:.1f} commits/day over {days} days')
+            print(f'/n  Velocity: {velocity:.1f} commits/day over {days} days')
         except Exception:
             pass
 
     # Files most changed
     r2 = subprocess.run(['git', 'log', '--name-only', '--format=', '-10'],
-        capture_output=True, text=True, cwd='F:/BUREAU/turbo', timeout=10)
+        capture_output=True, text=True, cwd='/home/turbo/jarvis-m1-ops', timeout=10)
     if r2.stdout:
-        files = Counter(f for f in r2.stdout.strip().split('\\n') if f.strip())
-        print(f'\\n  Hotspots (most changed files):')
+        files = Counter(f for f in r2.stdout.strip().split('/n') if f.strip())
+        print(f'/n  Hotspots (most changed files):')
         for fname, count in files.most_common(5):
             print(f'    {fname}: {count} changes')
 """},
@@ -7183,7 +7183,7 @@ import sqlite3, json
 from datetime import datetime, timedelta
 
 print('=== CLUSTER QUALITY FEEDBACK ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 # Analyze which task categories have best/worst performance
 cutoff = (datetime.now() - timedelta(hours=12)).isoformat()
@@ -7257,7 +7257,7 @@ import sqlite3, json, shutil
 from datetime import datetime
 
 print('=== DYNAMIC PRIORITY ADJUSTMENT ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 adjustments = []
 
@@ -7313,7 +7313,7 @@ import time, sqlite3, json
 from datetime import datetime
 
 print('=== SELF-BENCHMARK ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 results = {}
 
 # 1. DB write speed
@@ -7351,7 +7351,7 @@ for name, ms in results.items():
 
 # Overall score
 total_ms = sum(results.values())
-print(f'\\n  Total benchmark: {total_ms:.0f}ms')
+print(f'/n  Total benchmark: {total_ms:.0f}ms')
 grade = 'S' if total_ms < 200 else 'A' if total_ms < 500 else 'B' if total_ms < 1000 else 'C'
 print(f'  Grade: {grade}')
 
@@ -7375,7 +7375,7 @@ from urllib.request import urlopen, Request
 from datetime import datetime
 
 print('=== MODEL ARBITRAGE ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 # Test different task types on different models
 test_cases = [
@@ -7389,10 +7389,10 @@ print(f'  Test [{category}]: {question}')
 
 models = [
     ('M1/qwen3-8b', 'http://127.0.0.1:1234/api/v1/chat',
-     {'model':'qwen3-8b','input':f'/nothink\\n{question}','temperature':0,'max_output_tokens':20,'stream':False,'store':False},
+     {'model':'qwen3-8b','input':f'/nothink/n{question}','temperature':0,'max_output_tokens':20,'stream':False,'store':False},
      'lmstudio'),
     ('OL1/qwen3-1.7b', 'http://127.0.0.1:11434/api/chat',
-     {'model':'qwen3:1.7b','messages':[{'role':'user','content':f'/nothink\\n{question}'}],'stream':False},
+     {'model':'qwen3:1.7b','messages':[{'role':'user','content':f'/nothink/n{question}'}],'stream':False},
      'ollama'),
 ]
 
@@ -7427,7 +7427,7 @@ if results:
     correct_fast = [(n, l) for n, c, l, _ in results if c]
     if correct_fast:
         best = min(correct_fast, key=lambda x: x[1])
-        print(f'\\n  Best for [{category}]: {best[0]} ({best[1]:.0f}ms)')
+        print(f'/n  Best for [{category}]: {best[0]} ({best[1]:.0f}ms)')
         db.execute('INSERT INTO task_metrics (metric_name, metric_value, recorded_at) VALUES (?,?,?)',
             (f'arbitrage_{category}_winner', hash(best[0]) % 1000, datetime.now().isoformat()))
     db.commit()
@@ -7451,7 +7451,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 print('=== EVOLUTION REPORT CARD ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 report = {}
 
@@ -7469,8 +7469,8 @@ for label, hours in [('1h', 1), ('6h', 6), ('24h', 24)]:
     report[f'success_{label}'] = r[0] or 0
 
 # 3. Knowledge base size
-kb = Path('F:/BUREAU/turbo/data/knowledge_base.jsonl')
-report['knowledge_entries'] = len(kb.read_text().strip().split('\\n')) if kb.exists() else 0
+kb = Path('/home/turbo/jarvis-m1-ops/data/knowledge_base.jsonl')
+report['knowledge_entries'] = len(kb.read_text().strip().split('/n')) if kb.exists() else 0
 
 # 4. Entropy score
 e = db.execute("SELECT metric_value FROM task_metrics WHERE metric_name='system_entropy_score' ORDER BY id DESC LIMIT 1").fetchone()
@@ -7506,12 +7506,12 @@ elif report['mesh_health'] >= 50: grades.append('B')
 else: grades.append('C')
 
 overall = 'A' if all(g == 'A' for g in grades) else 'B' if 'C' not in grades else 'C'
-print(f'\\n  OVERALL GRADE: {overall}')
+print(f'/n  OVERALL GRADE: {overall}')
 
 # Save
 report['timestamp'] = datetime.now().isoformat()
 report['grade'] = overall
-Path('F:/BUREAU/turbo/data/evolution_report.json').write_text(json.dumps(report, indent=2))
+Path('/home/turbo/jarvis-m1-ops/data/evolution_report.json').write_text(json.dumps(report, indent=2))
 
 db.close()
 """},
@@ -7536,7 +7536,7 @@ import sqlite3, json
 from datetime import datetime, timedelta
 
 print('=== PREDICTIVE FAILURE DETECTION ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 predictions = []
 
@@ -7610,7 +7610,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 print('=== META-WATCHDOG ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 # Critical watchers that MUST be running
 critical_watchers = [
@@ -7638,7 +7638,7 @@ for watcher in critical_watchers:
         print(f'  OK: {watcher}')
 
 # Check orchestrator daemon is alive
-pid_file = Path('F:/BUREAU/turbo/data/pids/orchestrator.pid')
+pid_file = Path('/home/turbo/jarvis-m1-ops/data/pids/orchestrator.pid')
 if pid_file.exists():
     try:
         pid = int(pid_file.read_text().strip())
@@ -7655,7 +7655,7 @@ else:
 if issues:
     for i in issues:
         print(i)
-    print(f'\\n  ALERT: {len(issues)} watcher issues — system may be unmonitored!')
+    print(f'/n  ALERT: {len(issues)} watcher issues — system may be unmonitored!')
 else:
     print('  All watchers healthy — supervision intact')
 
@@ -7679,7 +7679,7 @@ from urllib.request import urlopen, Request
 from urllib.error import URLError
 
 print('=== EXTERNAL CONNECTIVITY ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 checks = [
     ('DNS', 'dns', 'google.com'),
@@ -7737,7 +7737,7 @@ from collections import Counter
 from datetime import datetime
 
 print('=== LOG INTELLIGENCE ===')
-log_dir = Path('F:/BUREAU/turbo/data/logs')
+log_dir = Path('/home/turbo/jarvis-m1-ops/data/logs')
 patterns = Counter()
 warnings = []
 total_lines = 0
@@ -7758,7 +7758,7 @@ else:
                 if 'error' in lower or 'exception' in lower:
                     patterns['errors'] += 1
                     # Extract error type
-                    m = re.search(r'(\\w+Error|\\w+Exception)', line)
+                    m = re.search(r'(/w+Error|/w+Exception)', line)
                     if m:
                         warnings.append((log_file.name, m.group(1)))
                 elif 'warning' in lower or 'warn' in lower:
@@ -7776,7 +7776,7 @@ else:
 
     if warnings:
         error_types = Counter(w[1] for w in warnings)
-        print(f'\\n  Top error types:')
+        print(f'/n  Top error types:')
         for etype, count in error_types.most_common(5):
             source = [w[0] for w in warnings if w[1] == etype][0]
             print(f'    {etype}: {count}x (from {source})')
@@ -7797,7 +7797,7 @@ import sqlite3, tempfile, shutil, os
 from pathlib import Path
 
 print('=== BACKUP RESTORE TEST ===')
-backup_dir = Path('F:/BUREAU/turbo/data/backups')
+backup_dir = Path('/home/turbo/jarvis-m1-ops/data/backups')
 results = []
 
 if not backup_dir.exists():
@@ -7837,7 +7837,7 @@ else:
         print('  No backups found to test')
     else:
         restorable = sum(1 for r in results if r[1] == 'RESTORABLE')
-        print(f'\\n  {restorable}/{len(results)} backups restorable')
+        print(f'/n  {restorable}/{len(results)} backups restorable')
 """},
             priority="normal",
             schedule="every:6h",
@@ -7856,7 +7856,7 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 
 print('=== TASK CHAIN OPTIMIZATION ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 # Find tasks that frequently run together (within 1min windows)
 cutoff = (datetime.now() - timedelta(hours=6)).isoformat()
@@ -7909,7 +7909,7 @@ bottlenecks = [(tid, sum(gaps)/len(gaps), len(gaps))
                for tid, gaps in slow_before.items() if len(gaps) >= 3]
 bottlenecks.sort(key=lambda x: -x[1])
 if bottlenecks:
-    print(f'\\n  Bottleneck tasks (cause delays after):')
+    print(f'/n  Bottleneck tasks (cause delays after):')
     for tid, avg_gap, count in bottlenecks[:5]:
         print(f'    {tid}: avg {avg_gap:.0f}s gap after ({count}x)')
 
@@ -7932,11 +7932,11 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 print('=== AUTO-FIX ENGINE ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 fixes_applied = []
 
 # 1. Fix stale PID files
-pid_dir = Path('F:/BUREAU/turbo/data/pids')
+pid_dir = Path('/home/turbo/jarvis-m1-ops/data/pids')
 if pid_dir.exists():
     for pf in pid_dir.glob('*.pid'):
         try:
@@ -8005,7 +8005,7 @@ import sqlite3, shutil
 from datetime import datetime, timedelta
 
 print('=== CAPACITY PLANNING ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 # 1. Task growth rate
 task_count = db.execute("SELECT COUNT(*) FROM tasks WHERE enabled=1").fetchone()[0]
@@ -8069,7 +8069,7 @@ import time, socket, sqlite3, json
 from datetime import datetime
 
 print('=== NODE LATENCY MATRIX ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 nodes = {
     'M1':  ('127.0.0.1', 1234),
@@ -8127,8 +8127,8 @@ from pathlib import Path
 print('=== AUTONOMOUS CODE REVIEW ===')
 # Get files changed in last commit
 r = subprocess.run(['git', 'diff', '--name-only', 'HEAD~1'], capture_output=True, text=True,
-    cwd='F:/BUREAU/turbo', timeout=10)
-files = [f for f in r.stdout.strip().split('\\n') if f.endswith('.py') and f.strip()]
+    cwd='/home/turbo/jarvis-m1-ops', timeout=10)
+files = [f for f in r.stdout.strip().split('/n') if f.endswith('.py') and f.strip()]
 
 if not files:
     print('  No Python files changed in last commit')
@@ -8137,11 +8137,11 @@ else:
     target = files[0]
     try:
         diff = subprocess.run(['git', 'diff', 'HEAD~1', '--', target],
-            capture_output=True, text=True, cwd='F:/BUREAU/turbo', timeout=10).stdout
+            capture_output=True, text=True, cwd='/home/turbo/jarvis-m1-ops', timeout=10).stdout
         # Truncate diff to fit in prompt
         diff_short = diff[:1500] if len(diff) > 1500 else diff
 
-        prompt = f'/nothink\\nReview this Python code diff. Find 1-2 potential bugs or improvements. Be very brief (3 lines max).\\n\\n{diff_short}'
+        prompt = f'/nothink/nReview this Python code diff. Find 1-2 potential bugs or improvements. Be very brief (3 lines max)./n/n{diff_short}'
         data = json.dumps({
             'model': 'qwen3-8b', 'input': prompt,
             'temperature': 0.2, 'max_output_tokens': 200,
@@ -8178,7 +8178,7 @@ import sqlite3, json
 from datetime import datetime, timedelta
 
 print('=== TASK VALUE SCORING ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 cutoff = (datetime.now() - timedelta(hours=24)).isoformat()
 
 scores = []
@@ -8211,13 +8211,13 @@ for tid, name, score, total, ok in scores[:8]:
     print(f'    {score:5.0f}/100  {tid:35s} ({ok}/{total} ok)')
 
 # Top 10 (highest value)
-print('\\n  HIGHEST VALUE:')
+print('/n  HIGHEST VALUE:')
 for tid, name, score, total, ok in scores[-5:]:
     print(f'    {score:5.0f}/100  {tid:35s} ({ok}/{total} ok)')
 
 # Average
 avg_score = sum(s[2] for s in scores) / len(scores) if scores else 0
-print(f'\\n  Average task value: {avg_score:.0f}/100')
+print(f'/n  Average task value: {avg_score:.0f}/100')
 
 db.close()
 """},
@@ -8250,10 +8250,10 @@ print(f'  Question: {question}')
 answers = {}
 nodes = [
     ('M1', 'http://127.0.0.1:1234/api/v1/chat',
-     {'model':'qwen3-8b','input':f'/nothink\\n{question} Answer in 1-2 sentences.','temperature':0.3,'max_output_tokens':100,'stream':False,'store':False},
+     {'model':'qwen3-8b','input':f'/nothink/n{question} Answer in 1-2 sentences.','temperature':0.3,'max_output_tokens':100,'stream':False,'store':False},
      'lmstudio'),
     ('OL1', 'http://127.0.0.1:11434/api/chat',
-     {'model':'qwen3:1.7b','messages':[{'role':'user','content':f'/nothink\\n{question} Answer in 1-2 sentences.'}],'stream':False},
+     {'model':'qwen3:1.7b','messages':[{'role':'user','content':f'/nothink/n{question} Answer in 1-2 sentences.'}],'stream':False},
      'ollama'),
 ]
 
@@ -8276,7 +8276,7 @@ for name, url, payload, api_type in nodes:
         print(f'  {name}: unavailable ({type(e).__name__})')
 
 if len(answers) >= 2:
-    print(f'\\n  Consensus: {len(answers)} nodes responded')
+    print(f'/n  Consensus: {len(answers)} nodes responded')
 """},
             priority="low",
             schedule="every:2h",
@@ -8295,7 +8295,7 @@ from pathlib import Path
 from datetime import datetime
 
 print('=== SCHEMA DRIFT MONITOR ===')
-schema_cache = Path('F:/BUREAU/turbo/data/schema_fingerprints.json')
+schema_cache = Path('/home/turbo/jarvis-m1-ops/data/schema_fingerprints.json')
 
 # Load previous fingerprints
 prev = {}
@@ -8308,13 +8308,13 @@ if schema_cache.exists():
 current = {}
 drifts = []
 
-for db_path in sorted(Path('F:/BUREAU/turbo/data').glob('*.db')):
+for db_path in sorted(Path('/home/turbo/jarvis-m1-ops/data').glob('*.db')):
     try:
         conn = sqlite3.connect(str(db_path))
         schema = conn.execute("SELECT sql FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
         conn.close()
         # Fingerprint = hash of all CREATE TABLE statements
-        schema_str = '\\n'.join(s[0] or '' for s in schema)
+        schema_str = '/n'.join(s[0] or '' for s in schema)
         fingerprint = hashlib.md5(schema_str.encode()).hexdigest()[:12]
         current[db_path.name] = fingerprint
         tables = len(schema)
@@ -8331,11 +8331,11 @@ for db_path in sorted(Path('F:/BUREAU/turbo/data').glob('*.db')):
 schema_cache.write_text(json.dumps(current, indent=2))
 
 if drifts:
-    print(f'\\n  {len(drifts)} schema changes detected!')
+    print(f'/n  {len(drifts)} schema changes detected!')
 elif prev:
-    print(f'\\n  All schemas stable since last check')
+    print(f'/n  All schemas stable since last check')
 else:
-    print(f'\\n  First run — fingerprints saved for future comparison')
+    print(f'/n  First run — fingerprints saved for future comparison')
 """},
             priority="normal",
             schedule="every:4h",
@@ -8354,7 +8354,7 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 
 print('=== EXECUTION HEATMAP ===')
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 
 # Count task runs per hour for last 24h
 heatmap = defaultdict(int)
@@ -8384,7 +8384,7 @@ if heatmap:
     # Peak/quiet hours
     peak_hour = max(heatmap, key=heatmap.get) if heatmap else 0
     quiet_hour = min(heatmap, key=heatmap.get) if heatmap else 0
-    print(f'\\n  Peak: {peak_hour:02d}:00 ({heatmap[peak_hour]} runs)')
+    print(f'/n  Peak: {peak_hour:02d}:00 ({heatmap[peak_hour]} runs)')
     print(f'  Quiet: {quiet_hour:02d}:00 ({heatmap[quiet_hour]} runs)')
     print(f'  Total: {sum(heatmap.values())} runs in 24h')
 else:
@@ -8424,7 +8424,7 @@ for drive in ['C:', 'F:']:
     genome[f'disk_{drive[0]}'] = {'total_gb': round(u.total/1e9), 'free_gb': round(u.free/1e9)}
 
 # 3. Task ecosystem
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 genome['tasks'] = {
     'active': db.execute("SELECT COUNT(*) FROM tasks WHERE enabled=1").fetchone()[0],
     'disabled': db.execute("SELECT COUNT(*) FROM tasks WHERE enabled=0").fetchone()[0],
@@ -8434,18 +8434,18 @@ genome['tasks'] = {
 
 # 4. Codebase
 genome['codebase'] = {
-    'src_modules': len(list(Path('F:/BUREAU/turbo/src').glob('*.py'))),
-    'scripts': len(list(Path('F:/BUREAU/turbo/scripts').glob('*.py'))),
-    'tests': len(list(Path('F:/BUREAU/turbo/tests').glob('test_*.py'))),
-    'databases': len(list(Path('F:/BUREAU/turbo/data').glob('*.db'))),
+    'src_modules': len(list(Path('/home/turbo/jarvis-m1-ops/src').glob('*.py'))),
+    'scripts': len(list(Path('/home/turbo/jarvis-m1-ops/scripts').glob('*.py'))),
+    'tests': len(list(Path('/home/turbo/jarvis-m1-ops/tests').glob('test_*.py'))),
+    'databases': len(list(Path('/home/turbo/jarvis-m1-ops/data').glob('*.db'))),
 }
 
 # 5. Git
 r = subprocess.run(['git', 'log', '--oneline', '-1'], capture_output=True, text=True,
-    cwd='F:/BUREAU/turbo', timeout=5)
+    cwd='/home/turbo/jarvis-m1-ops', timeout=5)
 genome['git_head'] = r.stdout.strip()
 r2 = subprocess.run(['git', 'rev-list', '--count', 'HEAD'], capture_output=True, text=True,
-    cwd='F:/BUREAU/turbo', timeout=5)
+    cwd='/home/turbo/jarvis-m1-ops', timeout=5)
 genome['git_commits'] = int(r2.stdout.strip()) if r2.stdout.strip().isdigit() else 0
 
 # 6. Services
@@ -8464,7 +8464,7 @@ for name, port in [('M1', 1234), ('OL1', 11434), ('M3_remote', 1234), ('WS', 974
 genome['services_online'] = services_up
 
 # Save
-out = Path('F:/BUREAU/turbo/data/system_genome.json')
+out = Path('/home/turbo/jarvis-m1-ops/data/system_genome.json')
 out.write_text(json.dumps(genome, indent=2, ensure_ascii=False))
 
 print(f'  Platform: {genome["platform"]["os"]}')
@@ -8489,7 +8489,7 @@ db.close()
             task_type="quick", action="python",
             payload={"code": """
 import subprocess, sys
-r = subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--report', 'cluster'],
+r = subprocess.run([sys.executable, '/home/turbo/jarvis-m1-ops/scripts/telegram_cockpit.py', '--report', 'cluster'],
     capture_output=True, timeout=20, encoding='utf-8', errors='replace')
 print(r.stdout[:500] if r.stdout else r.stderr[:200])
 """},
@@ -8504,7 +8504,7 @@ print(r.stdout[:500] if r.stdout else r.stderr[:200])
             task_type="quick", action="python",
             payload={"code": """
 import subprocess, sys
-r = subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--report', 'evolution'],
+r = subprocess.run([sys.executable, '/home/turbo/jarvis-m1-ops/scripts/telegram_cockpit.py', '--report', 'evolution'],
     capture_output=True, timeout=20, encoding='utf-8', errors='replace')
 print(r.stdout[:500] if r.stdout else r.stderr[:200])
 """},
@@ -8519,7 +8519,7 @@ print(r.stdout[:500] if r.stdout else r.stderr[:200])
             task_type="quick", action="python",
             payload={"code": """
 import subprocess, sys
-r = subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py',
+r = subprocess.run([sys.executable, '/home/turbo/jarvis-m1-ops/scripts/telegram_cockpit.py',
     '--watch-errors', '--auto-fix'],
     capture_output=True, timeout=60, encoding='utf-8', errors='replace')
 out = r.stdout or ''
@@ -8539,7 +8539,7 @@ else:
             task_type="quick", action="python",
             payload={"code": """
 import subprocess, sys
-r = subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py',
+r = subprocess.run([sys.executable, '/home/turbo/jarvis-m1-ops/scripts/telegram_cockpit.py',
     '--report', 'alerts', '--quiet'],
     capture_output=True, timeout=15, encoding='utf-8', errors='replace')
 print(r.stdout[:300] if r.stdout else 'quiet: no alerts')
@@ -8555,7 +8555,7 @@ print(r.stdout[:300] if r.stdout else 'quiet: no alerts')
             task_type="quick", action="python",
             payload={"code": """
 import subprocess, sys
-r = subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--report', 'tasks'],
+r = subprocess.run([sys.executable, '/home/turbo/jarvis-m1-ops/scripts/telegram_cockpit.py', '--report', 'tasks'],
     capture_output=True, timeout=20, encoding='utf-8', errors='replace')
 print(r.stdout[:500] if r.stdout else r.stderr[:200])
 """},
@@ -8570,7 +8570,7 @@ print(r.stdout[:500] if r.stdout else r.stderr[:200])
             task_type="quick", action="python",
             payload={"code": """
 import subprocess, sys
-r = subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--report', 'patterns'],
+r = subprocess.run([sys.executable, '/home/turbo/jarvis-m1-ops/scripts/telegram_cockpit.py', '--report', 'patterns'],
     capture_output=True, timeout=20, encoding='utf-8', errors='replace')
 print(r.stdout[:500] if r.stdout else r.stderr[:200])
 """},
@@ -8585,7 +8585,7 @@ print(r.stdout[:500] if r.stdout else r.stderr[:200])
             task_type="quick", action="python",
             payload={"code": """
 import subprocess, sys
-r = subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--report', 'genome'],
+r = subprocess.run([sys.executable, '/home/turbo/jarvis-m1-ops/scripts/telegram_cockpit.py', '--report', 'genome'],
     capture_output=True, timeout=15, encoding='utf-8', errors='replace')
 print(r.stdout[:500] if r.stdout else r.stderr[:200])
 """},
@@ -8610,7 +8610,7 @@ for host, port in [('127.0.0.1',1234),('127.0.0.1',11434),('127.0.0.1',9742)]:
     except: pass
 
 import sqlite3
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 active = db.execute("SELECT COUNT(*) FROM tasks WHERE enabled=1").fetchone()[0]
 r = db.execute("SELECT COUNT(*), SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END) FROM task_runs WHERE started_at > datetime('now','-1 hour')").fetchone()
 runs, ok = r[0] or 0, r[1] or 0
@@ -8619,7 +8619,7 @@ fails = db.execute("SELECT COUNT(*) FROM task_runs WHERE status='failed' AND sta
 db.close()
 
 brief = f"JARVIS status: {online} services en ligne sur 3. {active} taches actives, {rate} pourcent de succes, {fails} echecs cette heure."
-r = subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--voice', brief],
+r = subprocess.run([sys.executable, '/home/turbo/jarvis-m1-ops/scripts/telegram_cockpit.py', '--voice', brief],
     capture_output=True, timeout=20, encoding='utf-8', errors='replace')
 print(r.stdout[:200] if r.stdout else r.stderr[:100])
 """},
@@ -8634,7 +8634,7 @@ print(r.stdout[:200] if r.stdout else r.stderr[:100])
             task_type="quick", action="python",
             payload={"code": """
 import subprocess, sys
-r = subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py',
+r = subprocess.run([sys.executable, '/home/turbo/jarvis-m1-ops/scripts/telegram_cockpit.py',
     '--ask', 'Analyse les 24 dernieres heures du cluster JARVIS. Donne 3 insights cles: ce qui va bien, ce qui echoue, et une suggestion amelioration. Sois concis.'],
     capture_output=True, timeout=30, encoding='utf-8', errors='replace')
 print(r.stdout[:600] if r.stdout else r.stderr[:200])
@@ -8663,7 +8663,7 @@ for name, host, port in [('M1','127.0.0.1',1234),('OL1','127.0.0.1',11434),('WS'
 
 if down:
     msg = f"ALERTE: {len(down)} service(s) DOWN: {', '.join(down)}"
-    subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--send', msg],
+    subprocess.run([sys.executable, '/home/turbo/jarvis-m1-ops/scripts/telegram_cockpit.py', '--send', msg],
         capture_output=True, timeout=10, encoding='utf-8', errors='replace')
     print(msg)
 else:
@@ -8681,7 +8681,7 @@ else:
             payload={"code": """
 import sqlite3, subprocess, sys
 
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 tripped = db.execute("SELECT task_id, consecutive_fails FROM task_escalation WHERE consecutive_fails >= 5").fetchall()
 db.close()
 
@@ -8689,8 +8689,8 @@ if tripped:
     lines = [f"CIRCUIT BREAKER: {len(tripped)} tache(s) en echec critique"]
     for tid, fails in tripped[:5]:
         lines.append(f"  - {tid}: {fails} echecs consecutifs")
-    msg = '\\n'.join(lines)
-    subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--send', msg],
+    msg = '/n'.join(lines)
+    subprocess.run([sys.executable, '/home/turbo/jarvis-m1-ops/scripts/telegram_cockpit.py', '--send', msg],
         capture_output=True, timeout=10, encoding='utf-8', errors='replace')
     print(msg)
 else:
@@ -8720,7 +8720,7 @@ for drive in ['C:/', 'F:/']:
 
 if alerts:
     msg = 'DISQUE: ' + ' | '.join(alerts)
-    subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--send', msg],
+    subprocess.run([sys.executable, '/home/turbo/jarvis-m1-ops/scripts/telegram_cockpit.py', '--send', msg],
         capture_output=True, timeout=10, encoding='utf-8', errors='replace')
     print(msg)
 else:
@@ -8738,7 +8738,7 @@ else:
             payload={"code": """
 import sqlite3, subprocess, sys
 
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 top_fail = db.execute('''
     SELECT task_id, COUNT(*) as c FROM task_runs
     WHERE status='failed' AND started_at > datetime('now', '-2 hours')
@@ -8751,7 +8751,7 @@ if not top_fail:
 else:
     for tid, count in top_fail:
         print(f'Auto-fixing {tid} ({count} failures)...')
-        r = subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--fix', tid],
+        r = subprocess.run([sys.executable, '/home/turbo/jarvis-m1-ops/scripts/telegram_cockpit.py', '--fix', tid],
             capture_output=True, timeout=45, encoding='utf-8', errors='replace')
         print(r.stdout[:300] if r.stdout else r.stderr[:100])
 """},
@@ -8767,7 +8767,7 @@ else:
             payload={"code": """
 import sqlite3, subprocess, sys
 
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 e = db.execute("SELECT metric_value FROM task_metrics WHERE metric_name='system_entropy_score' ORDER BY id DESC LIMIT 1").fetchone()
 db.close()
 
@@ -8775,12 +8775,12 @@ if e:
     val = float(e[0])
     if val < 50:
         msg = f"ENTROPIE CRITIQUE: {val:.0f}/100 - Le systeme stagne, il faut intervenir"
-        subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--send', msg],
+        subprocess.run([sys.executable, '/home/turbo/jarvis-m1-ops/scripts/telegram_cockpit.py', '--send', msg],
             capture_output=True, timeout=10, encoding='utf-8', errors='replace')
         print(msg)
     elif val < 70:
         msg = f"Entropie basse: {val:.0f}/100 - Surveillance active"
-        subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--send', msg],
+        subprocess.run([sys.executable, '/home/turbo/jarvis-m1-ops/scripts/telegram_cockpit.py', '--send', msg],
             capture_output=True, timeout=10, encoding='utf-8', errors='replace')
         print(msg)
     else:
@@ -8800,7 +8800,7 @@ else:
             payload={"code": """
 import sqlite3, subprocess, sys
 
-db = sqlite3.connect('F:/BUREAU/turbo/data/task_orchestrator.db')
+db = sqlite3.connect('/home/turbo/jarvis-m1-ops/data/task_orchestrator.db')
 r = db.execute('''
     SELECT COUNT(*), SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END)
     FROM task_runs WHERE started_at > datetime('now', '-1 hour')
@@ -8812,7 +8812,7 @@ if runs >= 10:
     rate = ok / runs * 100
     if rate < 80:
         msg = f"SUCCESS RATE BAS: {rate:.0f}% ({ok}/{runs} en 1h) - Verification requise"
-        subprocess.run([sys.executable, 'F:/BUREAU/turbo/scripts/telegram_cockpit.py', '--send', msg],
+        subprocess.run([sys.executable, '/home/turbo/jarvis-m1-ops/scripts/telegram_cockpit.py', '--send', msg],
             capture_output=True, timeout=10, encoding='utf-8', errors='replace')
         print(msg)
     else:

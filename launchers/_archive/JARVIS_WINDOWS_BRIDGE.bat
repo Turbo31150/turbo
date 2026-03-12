@@ -1,6 +1,6 @@
 @echo off
 title JARVIS Windows Bridge
-cd /d F:\BUREAU\turbo
+cd /d /home/turbo/jarvis-m1-ops
 
 echo [JARVIS] Windows Notification + Command Bridge
 echo [JARVIS] Toast notifications + command dialog

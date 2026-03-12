@@ -173,7 +173,7 @@ if (-not $rule11434) {
 Write-Step "6. Alias et commandes utiles"
 
 # Creer le dossier data pour Open WebUI
-$dataDir = "F:\BUREAU\turbo\docker\data\open-webui"
+$dataDir = "/home/turbo/jarvis-m1-ops\docker\data\open-webui"
 if (-not (Test-Path $dataDir)) {
     New-Item -ItemType Directory -Path $dataDir -Force | Out-Null
     Write-OK "Dossier data cree: $dataDir"
@@ -195,7 +195,7 @@ Write-Host "Prochaines etapes:" -ForegroundColor Cyan
 Write-Host "  1. Redemarrez Docker Desktop s'il n'est pas deja lance"
 Write-Host "  2. Verifiez que le backend WSL2 est actif dans Docker Desktop > Settings > General"
 Write-Host "  3. Lancez la stack JARVIS:"
-Write-Host "     cd F:\BUREAU\turbo\docker" -ForegroundColor Yellow
+Write-Host "     cd /home/turbo/jarvis-m1-ops\docker" -ForegroundColor Yellow
 Write-Host "     docker compose up -d" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "Acces:" -ForegroundColor Cyan

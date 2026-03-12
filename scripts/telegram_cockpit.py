@@ -594,7 +594,7 @@ def generate_debug_commands(error: dict) -> list[str]:
 
     # Permission/file errors
     if "permission" in err or "access denied" in err:
-        commands.append(f"icacls F:/BUREAU/turbo/data/ 2>&1 | head -5")
+        commands.append(f"icacls /home/turbo/jarvis-m1-ops/data/ 2>&1 | head -5")
 
     # Timeout errors
     if "timeout" in err or "timed out" in err:
@@ -611,7 +611,7 @@ def generate_debug_commands(error: dict) -> list[str]:
 
     # Generic task debug
     if not commands:
-        commands.append(f"python F:/BUREAU/turbo/scripts/task_orchestrator.py --run-once {tid} 2>&1 | tail -20")
+        commands.append(f"python /home/turbo/jarvis-m1-ops/scripts/task_orchestrator.py --run-once {tid} 2>&1 | tail -20")
         commands.append(f"python -c \"import sqlite3; db=sqlite3.connect('{ORCH_DB}'); r=db.execute('SELECT * FROM task_runs WHERE task_id=? ORDER BY id DESC LIMIT 1', ('{tid}',)).fetchone(); print(r)\"")
 
     return commands

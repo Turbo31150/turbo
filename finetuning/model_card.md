@@ -208,7 +208,7 @@ Le modèle peut accéder à 83 outils MCP :
 ### Configuration M1
 
 ```
-LM Studio CLI: C:\Users\franc\.lmstudio\bin\lms.exe
+LM Studio CLI: /home/turbo\.lmstudio\bin\lms.exe
 Modèle: JARVIS-Qwen3-30B-Fine-tuned
 Context: 32,768 tokens
 Parallel requests: 2

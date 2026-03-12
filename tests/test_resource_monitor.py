@@ -134,7 +134,7 @@ class TestQueryDisks:
         rm = ResourceMonitor()
         mock_psutil = MagicMock()
         mock_part = MagicMock()
-        mock_part.mountpoint = "C:\\"
+        mock_part.mountpoint = "/\"
         mock_psutil.disk_partitions.return_value = [mock_part]
         mock_usage = MagicMock()
         mock_usage.total = 500 * (1024**3)
@@ -145,7 +145,7 @@ class TestQueryDisks:
         with patch.dict("sys.modules", {"psutil": mock_psutil}):
             disks = rm._query_disks()
         assert len(disks) == 1
-        assert disks[0]["mount"] == "C:\\"
+        assert disks[0]["mount"] == "/\"
         assert disks[0]["percent"] == 60.0
 
     def test_no_psutil(self):

@@ -1,7 +1,7 @@
 @echo off
 title [SESSION 3] JARVIS Windows Integration — Deep OS Layer
 color 0D
-cd /D F:\BUREAU\turbo
+cd /D /home/turbo/jarvis-m1-ops
 echo ===================================================
 echo   SESSION 3 — Windows Deep Integration
 echo   Tasks: Supervisor(5min) SelfImprove(15min)

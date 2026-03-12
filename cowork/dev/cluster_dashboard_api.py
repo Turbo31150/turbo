@@ -89,13 +89,13 @@ def get_metrics():
         # PowerShell fallback (Windows only)
         try:
             cpu_out = subprocess.check_output(
-                ["powershell", "-Command", "(Get-Counter '\\Processor(_Total)\\% Processor Time').CounterSamples[0].CookedValue"],
+                ["powershell", "-Command", "(Get-Counter '/Processor(_Total)/% Processor Time').CounterSamples[0].CookedValue"],
                 text=True,
                 timeout=5,
             )
             result["cpu_percent"] = float(cpu_out.strip())
             ram_out = subprocess.check_output(
-                ["powershell", "-Command", "(Get-Counter '\\Memory\\% Committed Bytes In Use').CounterSamples[0].CookedValue"],
+                ["powershell", "-Command", "(Get-Counter '/Memory/% Committed Bytes In Use').CounterSamples[0].CookedValue"],
                 text=True,
                 timeout=5,
             )

@@ -15,7 +15,7 @@ WS_CONFIG = {
 
 # Database Configuration
 DB_CONFIG = {
-    "path": "F:/BUREAU/turbo/jarvis.db",
+    "path": "/home/turbo/jarvis-m1-ops/jarvis.db",
     "max_history": 1000,
     "cleanup_interval": 3600,  # secondes
 }
@@ -47,7 +47,7 @@ TELEGRAM_CONFIG = {
 # Logging Configuration
 LOGGING_CONFIG = {
     "level": "INFO",
-    "file": "F:/BUREAU/turbo/logs/tray.log",
+    "file": "/home/turbo/jarvis-m1-ops/logs/tray.log",
     "max_bytes": 10485760,  # 10MB
     "backup_count": 5,
 }

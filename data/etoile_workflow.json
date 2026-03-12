@@ -146,7 +146,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nconst results = [];\nfor (const item of items) {\n  const c = item.json?.output?.[0]?.content || item.json?.message?.content || 'N/A';\n  results.push(c);\n}\nreturn [{\n  json: {\n    synthesis: results.join('\\n---\\n'),\n    timestamp: new Date().toISOString(),\n    pipeline: 'Etoile Commander v10.2',\n    nodes_count: items.length\n  }\n}];"
+        "jsCode": "const items = $input.all();\nconst results = [];\nfor (const item of items) {\n  const c = item.json?.output?.[0]?.content || item.json?.message?.content || 'N/A';\n  results.push(c);\n}\nreturn [{\n  json: {\n    synthesis: results.join('/n---/n'),\n    timestamp: new Date().toISOString(),\n    pipeline: 'Etoile Commander v10.2',\n    nodes_count: items.length\n  }\n}];"
       },
       "id": "synthesize",
       "name": "5. Synthesize",

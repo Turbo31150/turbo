@@ -23,7 +23,7 @@ except ImportError:
 class BenchmarkAnalyzer:
     """Analyser les résultats du benchmark"""
 
-    def __init__(self, json_file: str = "F:/BUREAU/turbo/finetuning/benchmark_results.json"):
+    def __init__(self, json_file: str = "/home/turbo/jarvis-m1-ops/finetuning/benchmark_results.json"):
         """Charger les résultats"""
         self.json_file = Path(json_file)
         self.data = None

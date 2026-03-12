@@ -47,7 +47,7 @@ def build_faq():
         defaults = [
             ("Comment verifier le cluster?", "python dev/ia_workload_balancer.py --once", "cluster"),
             ("Comment voir les GPU?", "nvidia-smi ou python dev/win_thermal_monitor.py --once", "hardware"),
-            ("Comment lancer JARVIS?", "cd F:/BUREAU/turbo && uv run python main.py", "jarvis"),
+            ("Comment lancer JARVIS?", "cd /home/turbo/jarvis-m1-ops && uv run python main.py", "jarvis"),
             ("Comment tester un script?", "python dev/SCRIPT.py --help && python dev/SCRIPT.py --once", "dev"),
             ("Quel modele utiliser pour le code?", "M1 qwen3-8b (champion local) ou M2 deepseek-r1 (reasoning)", "ia"),
             ("Comment voir la sante systeme?", "python dev/jarvis_health_aggregator.py --once", "system"),

@@ -12,7 +12,7 @@ import sqlite3
 import io
 from datetime import datetime
 
-ROOT_DIR = r"F:\BUREAU\TRADING_V2_PRODUCTION"
+ROOT_DIR = r"/home/turbo\TRADING_V2_PRODUCTION"
 SYS_PATH = os.path.join(ROOT_DIR, "voice_system")
 SCRIPTS_PATH = os.path.join(ROOT_DIR, "scripts")
 DB_PATH = os.path.join(ROOT_DIR, "database", "trading.db")

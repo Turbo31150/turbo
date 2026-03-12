@@ -3,7 +3,7 @@ REM JARVIS DevOps Orchestrator — Persistent Daemon
 REM Runs in background via pythonw.exe (no console window)
 REM Usage: devops_daemon.bat [start|stop|status]
 
-set TURBO=F:\BUREAU\turbo
+set TURBO=/home/turbo/jarvis-m1-ops
 set PYTHON=pythonw.exe
 set SCRIPT=%TURBO%\scripts\devops_orchestrator.py
 set PIDFILE=%TURBO%\data\devops_daemon.pid

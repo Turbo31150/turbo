@@ -13,7 +13,7 @@
     },
     {
       "parameters": {
-        "command": "cd F:\\BUREAU\\turbo && .venv\\Scripts\\python.exe -c \"import json; from src.skills import get_action_history, load_skills; h = get_action_history(100); s = load_skills(); print(json.dumps({'history_count': len(h), 'skills_count': len(s), 'last_actions': [a['action'] for a in h[-5:]]}))\""
+        "command": "cd F:/BUREAU/turbo && .venv/Scripts/python.exe -c \"import json; from src.skills import get_action_history, load_skills; h = get_action_history(100); s = load_skills(); print(json.dumps({'history_count': len(h), 'skills_count': len(s), 'last_actions': [a['action'] for a in h[-5:]]}))\""
       },
       "id": "check-history",
       "name": "Check Action History",
@@ -45,7 +45,7 @@
     },
     {
       "parameters": {
-        "command": "cd F:\\BUREAU\\turbo && .venv\\Scripts\\python.exe -c \"from src.brain import analyze_and_learn; import json; r = analyze_and_learn(auto_create=True, min_confidence=0.6); print(json.dumps(r, default=str))\""
+        "command": "cd F:/BUREAU/turbo && .venv/Scripts/python.exe -c \"from src.brain import analyze_and_learn; import json; r = analyze_and_learn(auto_create=True, min_confidence=0.6); print(json.dumps(r, default=str))\""
       },
       "id": "brain-learn",
       "name": "Brain Auto-Learn",

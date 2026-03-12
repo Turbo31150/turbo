@@ -52,8 +52,8 @@ class TestListEntries:
         with patch("src.startup_manager.winreg.OpenKey", return_value=mock_key), \
              patch("src.startup_manager.winreg.EnumValue") as mock_enum:
             mock_enum.side_effect = [
-                ("App1", "C:\\app1.exe", 1),
-                ("App2", "C:\\app2.exe", 1),
+                ("App1", "/\app1.exe", 1),
+                ("App2", "/\app2.exe", 1),
                 OSError("no more"),
             ]
             mock_key.__enter__ = MagicMock(return_value=mock_key)
@@ -93,7 +93,7 @@ class TestAddRemove:
         mock_key.__exit__ = MagicMock(return_value=False)
         with patch("src.startup_manager.winreg.OpenKey", return_value=mock_key), \
              patch("src.startup_manager.winreg.SetValueEx") as mock_set:
-            result = sm.add_entry("MyApp", "C:\\myapp.exe", scope="user")
+            result = sm.add_entry("MyApp", "/\myapp.exe", scope="user")
         assert result is True
         mock_set.assert_called_once()
 
@@ -203,7 +203,7 @@ class TestSearchBackup:
     def test_search_by_command(self):
         sm = StartupManager()
         with patch.object(sm, "list_all", return_value=[
-            {"name": "App", "command": "C:\\Program Files\\app.exe", "scope": "user", "enabled": True},
+            {"name": "App", "command": "/\Program Files/app.exe", "scope": "user", "enabled": True},
         ]):
             results = sm.search("program files")
         assert len(results) == 1

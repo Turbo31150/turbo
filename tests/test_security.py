@@ -56,13 +56,13 @@ class TestSanitizeInput:
         assert "\x00" not in result.clean
 
     def test_safe_path(self):
-        result = sanitize_input("F:/BUREAU/turbo/src/config.py", context="path")
+        result = sanitize_input("/home/turbo/jarvis-m1-ops/src/config.py", context="path")
         assert result.is_safe
 
 
 class TestSanitizeMCPArgs:
     def test_powershell_sanitization(self):
-        args = {"command": "Get-Process; Remove-Item C:\\"}
+        args = {"command": "Get-Process; Remove-Item /\"}
         result = sanitize_mcp_args("powershell_run", args)
         assert ";" not in result["command"]
 

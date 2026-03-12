@@ -29,7 +29,7 @@ for pid in pids2:
 
 # Remove lock
 from pathlib import Path
-lock = Path('F:/BUREAU/turbo/canvas/.telegram-bot.lock')
+lock = Path('/home/turbo/jarvis-m1-ops/canvas/.telegram-bot.lock')
 if lock.exists():
     lock.unlink()
     print('Lock removed')

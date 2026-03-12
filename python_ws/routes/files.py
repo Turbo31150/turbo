@@ -38,7 +38,7 @@ def _handle_upload(payload: dict) -> dict:
         return {"error": "Missing name or data"}
 
     # Sanitize filename — strip path traversal, leading dots, length limit
-    basename = name.rsplit("/", 1)[-1].rsplit("\\", 1)[-1]
+    basename = name.rsplit("/", 1)[-1].rsplit("/", 1)[-1]
     safe_name = "".join(c for c in basename if c.isalnum() or c in ".-_ ").strip().lstrip(".")
     if not safe_name:
         safe_name = f"file_{int(time.time())}"

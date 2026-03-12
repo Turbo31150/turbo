@@ -26,7 +26,7 @@ Currently stored credentials:
 
     Target: TERMSRV/server1
     Type: Domain Password
-    User: DOMAIN\\admin
+    User: DOMAIN/admin
     Persistence: Enterprise
 
     Target: git:https://github.com

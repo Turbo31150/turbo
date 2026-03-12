@@ -7,8 +7,8 @@ Usage: python jarvis_logs_telegram.py [N] [filter]
 import re, sys
 from pathlib import Path
 
-LOG_FILE = Path("F:/BUREAU/turbo/data/jarvis_unified.log")
-SUPERVISOR_LOG = Path("F:/BUREAU/turbo/data/supervisor.log")
+LOG_FILE = Path("/home/turbo/jarvis-m1-ops/data/jarvis_unified.log")
+SUPERVISOR_LOG = Path("/home/turbo/jarvis-m1-ops/data/supervisor.log")
 
 def read_logs(filepath, n=30, filt=None):
     if not filepath.exists():

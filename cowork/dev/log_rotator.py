@@ -6,7 +6,7 @@ Batch 7.2 – Rotation et compression des logs.
 Fonctionnalités :
 * Parcourt plusieurs répertoires de logs :
   - ``~/.openclaw/agents/main/logs/``
-  - ``F:/BUREAU/turbo/data/``
+  - ``/home/turbo/jarvis-m1-ops/data/``
   - ``~/.openclaw/workspace/dev/`` (le dossier courant du script).
 * Compresse les fichiers ``*.log`` et ``*.json`` dont la taille > 10 MiB en ``.gz`` (gzip).
 * Supprime les archives ``*.gz`` plus vieilles que 30 jours.

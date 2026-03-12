@@ -153,7 +153,7 @@ def example_changelog_generation():
     from version_manager import ChangelogGenerator
     
     # Exemple avec git (si le repo local existe)
-    repo_path = Path("F:\\BUREAU\\turbo")
+    repo_path = Path("F:/BUREAU/turbo")
     
     if repo_path.exists():
         changelog = ChangelogGenerator.generate_from_git(

@@ -10,7 +10,7 @@
 $script:MEXC_API = "https://contract.mexc.com/api/v1/contract"
 $script:TELEGRAM_TOKEN = $global:TELEGRAM_TOKEN
 $script:TELEGRAM_CHAT = $global:TELEGRAM_CHAT
-$script:SQL_DB = if ($global:SQL_DATABASE) { $global:SQL_DATABASE } else { "F:\BUREAU\laaaaaaaaaaaa\database\trading.db" }
+$script:SQL_DB = if ($global:SQL_DATABASE) { $global:SQL_DATABASE } else { "/home/turbo\laaaaaaaaaaaa\database\trading.db" }
 $script:LM_STUDIO_URL = if ($global:LM_STUDIO_URL) { $global:LM_STUDIO_URL } else { "http://127.0.0.1:1234" }
 
 # --- CQ CLUSTER CONFIG ---
@@ -1902,7 +1902,7 @@ function Save-Signal {
         } else {
             # Fallback: System.Data.SQLite si disponible
             try {
-                Add-Type -Path "C:\Program Files\System.Data.SQLite\System.Data.SQLite.dll" -ErrorAction SilentlyContinue
+                Add-Type -Path "/Program Files\System.Data.SQLite\System.Data.SQLite.dll" -ErrorAction SilentlyContinue
                 $conn = New-Object System.Data.SQLite.SQLiteConnection("Data Source=$($script:SQL_DB)")
                 $conn.Open()
                 $cmd = $conn.CreateCommand()
@@ -1959,7 +1959,7 @@ CREATE TABLE IF NOT EXISTS predictions (
             return $true
         } else {
             try {
-                Add-Type -Path "C:\Program Files\System.Data.SQLite\System.Data.SQLite.dll" -ErrorAction SilentlyContinue
+                Add-Type -Path "/Program Files\System.Data.SQLite\System.Data.SQLite.dll" -ErrorAction SilentlyContinue
                 $conn = New-Object System.Data.SQLite.SQLiteConnection("Data Source=$($script:SQL_DB)")
                 $conn.Open()
                 $cmd = $conn.CreateCommand()
@@ -2001,7 +2001,7 @@ function Save-Prediction {
             & sqlite3 $script:SQL_DB $query 2>$null
         } else {
             try {
-                Add-Type -Path "C:\Program Files\System.Data.SQLite\System.Data.SQLite.dll" -ErrorAction SilentlyContinue
+                Add-Type -Path "/Program Files\System.Data.SQLite\System.Data.SQLite.dll" -ErrorAction SilentlyContinue
                 $conn = New-Object System.Data.SQLite.SQLiteConnection("Data Source=$($script:SQL_DB)")
                 $conn.Open()
                 $cmd = $conn.CreateCommand()

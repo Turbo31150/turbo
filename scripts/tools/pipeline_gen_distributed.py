@@ -354,7 +354,7 @@ def _recover_truncated_array(text: str) -> list | None:
         if escape:
             escape = False
             continue
-        if ch == '\\' and in_string:
+        if ch == '/' and in_string:
             escape = True
             continue
         if ch == '"' and not escape:

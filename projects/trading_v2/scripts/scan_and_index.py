@@ -2,8 +2,8 @@
 import requests, json, time, sqlite3, os
 from datetime import datetime
 
-DB_PATH = r"F:\BUREAU\TRADING_V2_PRODUCTION\database\trading.db"
-LOGS_DIR = r"F:\BUREAU\TRADING_V2_PRODUCTION\logs"
+DB_PATH = r"/home/turbo\TRADING_V2_PRODUCTION\database\trading.db"
+LOGS_DIR = r"/home/turbo\TRADING_V2_PRODUCTION\logs"
 
 def scan_mexc():
     """Scan tous les contrats MEXC futures"""
