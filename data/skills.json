@@ -7124,5 +7124,623 @@
     "last_used": 0.0,
     "success_rate": 1.0,
     "confirm": false
+  },
+  {
+    "name": "terminal_multiplexer_linux",
+    "description": "Gestion tmux: sessions, fenêtres, panneaux, attach/detach",
+    "triggers": [
+      "gère tmux",
+      "sessions tmux",
+      "ouvre tmux",
+      "nouvelle session",
+      "liste les sessions tmux"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== SESSIONS ===' && tmux list-sessions 2>/dev/null || echo 'Aucune session tmux'"
+        },
+        "description": "Sessions tmux actives",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== FENÊTRES ===' && tmux list-windows -a 2>/dev/null | head -15 || echo 'N/A'"
+        },
+        "description": "Fenêtres tmux",
+        "wait_for_result": true
+      }
+    ],
+    "category": "dev",
+    "created_at": 1773600413.3085108,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "pip_packages_linux",
+    "description": "Gestion paquets Python: liste, install, outdated, vulnérabilités",
+    "triggers": [
+      "paquets python",
+      "pip list",
+      "paquets périmés",
+      "vulnérabilités pip",
+      "dépendances python"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== INSTALLÉS ===' && pip list 2>/dev/null | wc -l && echo 'paquets Python'"
+        },
+        "description": "Nombre paquets",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== PÉRIMÉS ===' && pip list --outdated 2>/dev/null | head -15 || echo 'Vérification impossible'"
+        },
+        "description": "Paquets à mettre à jour",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== AUDIT ===' && pip audit 2>/dev/null | tail -5 || echo 'pip-audit non installé'"
+        },
+        "description": "Audit sécurité",
+        "wait_for_result": true
+      }
+    ],
+    "category": "dev",
+    "created_at": 1773600416.419231,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "systemd_journal_live",
+    "description": "Suivi en direct des logs système: journalctl follow, filtres par service/priorité",
+    "triggers": [
+      "logs en direct",
+      "suivi des logs",
+      "journalctl follow",
+      "logs temps réel",
+      "surveille les logs"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== 20 DERNIERS LOGS ===' && journalctl --user -n 20 --no-pager 2>/dev/null"
+        },
+        "description": "Derniers logs utilisateur",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== ERREURS RÉCENTES ===' && journalctl -p err --since '1h ago' --no-pager 2>/dev/null | tail -10"
+        },
+        "description": "Erreurs dernière heure",
+        "wait_for_result": true
+      }
+    ],
+    "category": "monitoring",
+    "created_at": 1773600420.3503027,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "git_advanced_linux",
+    "description": "Git avancé: stash, rebase, cherry-pick, bisect, reflog, blame",
+    "triggers": [
+      "git avancé",
+      "stash le code",
+      "historique git détaillé",
+      "qui a écrit ce code",
+      "cherche le bug git"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "cd /home/turbo/jarvis && echo '=== STASH ===' && git stash list | head -5 || echo 'Aucun stash'"
+        },
+        "description": "Stash list",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "cd /home/turbo/jarvis && echo '=== REFLOG ===' && git reflog --oneline -10"
+        },
+        "description": "Reflog récent",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "cd /home/turbo/jarvis && echo '=== BRANCHES ===' && git branch -a --sort=-committerdate | head -10"
+        },
+        "description": "Branches par date",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "cd /home/turbo/jarvis && echo '=== STATS ===' && git shortlog -sn --all | head -5"
+        },
+        "description": "Top contributeurs",
+        "wait_for_result": true
+      }
+    ],
+    "category": "dev",
+    "created_at": 1773600424.3503585,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "env_manager_linux",
+    "description": "Gestion variables d'environnement: lister, vérifier, .env status",
+    "triggers": [
+      "variables d'environnement",
+      "env vars",
+      "vérifie le env",
+      "dotenv status",
+      "environnement système"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== JARVIS ENV ===' && env | grep -iE 'JARVIS|TELEGRAM|GEMINI|DISCORD|OPENAI|CLAUDE' | sed 's/=.*/=***/' | sort"
+        },
+        "description": "Variables JARVIS (masquées)",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== .ENV ===' && wc -l /home/turbo/jarvis/.env 2>/dev/null && echo 'lignes dans .env' || echo '.env non trouvé'"
+        },
+        "description": "Fichier .env",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== PATH ===' && echo $PATH | tr ':' '\\n' | head -10"
+        },
+        "description": "Premiers éléments du PATH",
+        "wait_for_result": true
+      }
+    ],
+    "category": "system",
+    "created_at": 1773600428.722523,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "ip_geolocation_linux",
+    "description": "Géolocalisation IP: IP publique, localisation, ISP, VPN check",
+    "triggers": [
+      "mon ip publique",
+      "où suis-je",
+      "géolocalisation",
+      "ip externe",
+      "quel est mon fournisseur"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "curl -s 'https://ipapi.co/json/' 2>/dev/null | python3 -c 'import sys,json;d=json.load(sys.stdin);print(f\"IP: {d[\"ip\"]}\\nVille: {d.get(\"city\",\"?\")}\\nPays: {d.get(\"country_name\",\"?\")}\\nISP: {d.get(\"org\",\"?\")}\\nVPN: {\"Oui\" if d.get(\"org\",\"\").lower().count(\"vpn\")>0 else \"Non détecté\"}\")' 2>/dev/null || echo 'Service indisponible'"
+        },
+        "description": "Info IP publique",
+        "wait_for_result": true
+      }
+    ],
+    "category": "network",
+    "created_at": 1773600441.359277,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "system_uptime_report",
+    "description": "Rapport uptime: durée, dernier boot, reboots récents, charge moyenne",
+    "triggers": [
+      "uptime",
+      "depuis combien de temps",
+      "dernier redémarrage",
+      "durée de fonctionnement",
+      "quand ai-je redémarré"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== UPTIME ===' && uptime -p && echo '=== DERNIER BOOT ===' && who -b && echo '=== CHARGE ===' && cat /proc/loadavg && echo '=== REBOOTS RÉCENTS ===' && last reboot | head -5"
+        },
+        "description": "Rapport uptime complet",
+        "wait_for_result": true
+      }
+    ],
+    "category": "monitoring",
+    "created_at": 1773600444.4757676,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "compress_extract_linux",
+    "description": "Compression/extraction: tar, zip, 7z, gzip — créer et extraire archives",
+    "triggers": [
+      "compresse le dossier",
+      "extrais l'archive",
+      "crée une archive",
+      "décompresse",
+      "zip le dossier"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo 'Formats supportés:' && echo '  tar.gz: tar -czf archive.tar.gz dossier/' && echo '  zip:    zip -r archive.zip dossier/' && echo '  7z:     7z a archive.7z dossier/' && echo '' && echo 'Extraction:' && echo '  tar.gz: tar -xzf archive.tar.gz' && echo '  zip:    unzip archive.zip' && echo '  7z:     7z x archive.7z'"
+        },
+        "description": "Aide compression/extraction",
+        "wait_for_result": true
+      }
+    ],
+    "category": "files",
+    "created_at": 1773600448.0478597,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "calendar_time_linux",
+    "description": "Date, heure, calendrier, timezone, timer, chronomètre",
+    "triggers": [
+      "quelle heure est-il",
+      "quel jour sommes-nous",
+      "calendrier",
+      "date et heure",
+      "timezone",
+      "fuseau horaire"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo \"Date: $(LANG=fr_FR.UTF-8 date '+%A %d %B %Y')\" && echo \"Heure: $(date '+%H:%M:%S')\" && echo \"Timezone: $(timedatectl show -p Timezone --value)\" && echo \"Uptime: $(uptime -p)\""
+        },
+        "description": "Date et heure actuelles",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "LANG=fr_FR.UTF-8 cal"
+        },
+        "description": "Calendrier du mois",
+        "wait_for_result": true
+      }
+    ],
+    "category": "utility",
+    "created_at": 1773600451.754944,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "profil_normal",
+    "description": "Active le profil vocal normal: toutes commandes, comportement par defaut",
+    "triggers": [
+      "mode normal",
+      "profil normal",
+      "retour normal",
+      "desactive le mode",
+      "mode par defaut"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "python3 -c \"from src.voice_profiles import profile_manager; r=profile_manager.activate_profile('normal'); print(r)\""
+        },
+        "description": "Activer profil normal",
+        "wait_for_result": true
+      }
+    ],
+    "category": "profil",
+    "created_at": 1773600526.4551256,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "profil_dev",
+    "description": "Active le profil vocal dev: priorite git, docker, pytest, IDE",
+    "triggers": [
+      "mode dev",
+      "profil dev",
+      "mode developpement",
+      "session dev",
+      "mode code",
+      "mode programmation"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "python3 -c \"from src.voice_profiles import profile_manager; r=profile_manager.activate_profile('dev'); print(r)\""
+        },
+        "description": "Activer profil dev",
+        "wait_for_result": true
+      },
+      {
+        "tool": "app_open",
+        "args": {
+          "name": "cursor"
+        },
+        "description": "Ouvrir Cursor IDE",
+        "wait_for_result": true
+      },
+      {
+        "tool": "app_open",
+        "args": {
+          "name": "wt"
+        },
+        "description": "Ouvrir Terminal",
+        "wait_for_result": true
+      }
+    ],
+    "category": "profil",
+    "created_at": 1773600526.4551256,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "profil_trading",
+    "description": "Active le profil vocal trading: priorite scans, alertes, pipelines",
+    "triggers": [
+      "mode trading",
+      "profil trading",
+      "session trading",
+      "active le trading",
+      "demarre le trading"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "cd /home/turbo/jarvis && python3 -c \"from src.voice_profiles import profile_manager; r=profile_manager.activate_profile('trading'); print(r)\""
+        },
+        "description": "Activer profil trading",
+        "wait_for_result": true
+      },
+      {
+        "tool": "app_open",
+        "args": {
+          "name": "chrome"
+        },
+        "description": "Ouvrir Chrome",
+        "wait_for_result": true
+      },
+      {
+        "tool": "open_url",
+        "args": {
+          "url": "https://www.tradingview.com"
+        },
+        "description": "TradingView",
+        "wait_for_result": true
+      },
+      {
+        "tool": "trading_status",
+        "args": {},
+        "description": "Verifier le pipeline",
+        "wait_for_result": true
+      }
+    ],
+    "category": "profil",
+    "created_at": 1773600526.4551256,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "profil_gaming",
+    "description": "Active le profil vocal gaming: performance, son max, minimal",
+    "triggers": [
+      "mode gaming",
+      "profil gaming",
+      "mode jeu",
+      "session gaming",
+      "on joue"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "cd /home/turbo/jarvis && python3 -c \"from src.voice_profiles import profile_manager; r=profile_manager.activate_profile('gaming'); print(r)\""
+        },
+        "description": "Activer profil gaming",
+        "wait_for_result": true
+      },
+      {
+        "tool": "close_app",
+        "args": {
+          "name": "chrome"
+        },
+        "description": "Fermer Chrome",
+        "wait_for_result": true
+      },
+      {
+        "tool": "app_open",
+        "args": {
+          "name": "steam"
+        },
+        "description": "Lancer Steam",
+        "wait_for_result": true
+      }
+    ],
+    "category": "profil",
+    "created_at": 1773600526.4551256,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "profil_presentation",
+    "description": "Active le profil vocal presentation: DND, plein ecran, pas de notifications",
+    "triggers": [
+      "mode presentation",
+      "profil presentation",
+      "mode prez",
+      "mode conference",
+      "mode meeting"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "cd /home/turbo/jarvis && python3 -c \"from src.voice_profiles import profile_manager; r=profile_manager.activate_profile('presentation'); print(r)\""
+        },
+        "description": "Activer profil presentation",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "gsettings set org.gnome.desktop.notifications show-banners false"
+        },
+        "description": "Desactiver notifications",
+        "wait_for_result": true
+      }
+    ],
+    "category": "profil",
+    "created_at": 1773600526.4551256,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "profil_sleep",
+    "description": "Active le profil vocal sleep: economie energie, services reduits, verrouillage",
+    "triggers": [
+      "mode sleep",
+      "profil sleep",
+      "mode veille",
+      "mode nuit",
+      "bonne nuit",
+      "mode economie"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "cd /home/turbo/jarvis && python3 -c \"from src.voice_profiles import profile_manager; r=profile_manager.activate_profile('sleep'); print(r)\""
+        },
+        "description": "Activer profil sleep",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "loginctl lock-session 2>/dev/null || true"
+        },
+        "description": "Verrouiller session",
+        "wait_for_result": true
+      }
+    ],
+    "category": "profil",
+    "created_at": 1773600526.4551256,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "profil_debug",
+    "description": "Active le profil vocal debug: logs verbeux, monitoring detaille",
+    "triggers": [
+      "mode debug",
+      "profil debug",
+      "mode diagnostic",
+      "mode verbose",
+      "mode logs"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "cd /home/turbo/jarvis && python3 -c \"from src.voice_profiles import profile_manager; r=profile_manager.activate_profile('debug'); print(r)\""
+        },
+        "description": "Activer profil debug",
+        "wait_for_result": true
+      },
+      {
+        "tool": "diagnostics_run",
+        "args": {},
+        "description": "Lancer diagnostics",
+        "wait_for_result": true
+      }
+    ],
+    "category": "profil",
+    "created_at": 1773600526.4551256,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "profil_guest",
+    "description": "Active le profil vocal invite: commandes limitees, pas d'actions destructives",
+    "triggers": [
+      "mode invite",
+      "profil invite",
+      "mode guest",
+      "profil guest",
+      "mode visiteur"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "cd /home/turbo/jarvis && python3 -c \"from src.voice_profiles import profile_manager; r=profile_manager.activate_profile('guest'); print(r)\""
+        },
+        "description": "Activer profil guest",
+        "wait_for_result": true
+      }
+    ],
+    "category": "profil",
+    "created_at": 1773600526.4551256,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
   }
 ]

@@ -1590,9 +1590,13 @@ def execute_with_learned_actions(text: str) -> dict | None:
     start = time.time()
     results = []
     for i, step_dict in enumerate(match["pipeline_steps"]):
+        command = step_dict["command"]
+        if match.get("params"):
+            for key, val in match["params"].items():
+                command = command.replace(f"{{{key}}}", val)
         domino_step = DominoStep(
             name=step_dict.get("label", f"step_{i}"),
-            action=step_dict["command"],
+            action=command,
             action_type=step_dict["type"],
             timeout_s=step_dict.get("timeout", 30),
         )

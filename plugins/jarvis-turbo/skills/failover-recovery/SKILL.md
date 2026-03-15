@@ -33,6 +33,8 @@ curl -s --max-time 3 http://HOST:PORT/endpoint || echo "OFFLINE"
 
 ### 3. Actions par noeud
 
+#### Windows
+
 **OL1 offline** (127.0.0.1:11434):
 1. `tasklist | findstr ollama` → processus vivant ?
 2. `ollama serve` → relancer
@@ -56,6 +58,50 @@ curl -s --max-time 3 http://HOST:PORT/endpoint || echo "OFFLINE"
 2. API quota? Attendre 60s
 3. Fallback: CLAUDE pour architecture
 
+#### Linux
+
+**OL1 offline** (127.0.0.1:11434):
+1. `pgrep -a ollama` → processus vivant ?
+2. `systemctl restart ollama` ou `ollama serve &` → relancer
+3. Logs: `journalctl -u ollama --since "5 min ago" --no-pager`
+4. Fallback: M3 pour les taches rapides
+
+**M2 offline** (192.168.1.26:1234):
+1. `ping -c 1 192.168.1.26` → machine joignable ?
+2. Si oui: redemarrer LM Studio sur M2 (`systemctl --user restart lmstudio` ou relancer manuellement)
+3. Fallback: M3 pour code review, OL1 pour questions
+
+**M3 offline** (192.168.1.113:1234):
+1. `ping -c 1 192.168.1.113` → machine joignable ?
+2. Fallback: M2 prend tout (surcharge acceptee)
+
+**M1 offline** (127.0.0.1:1234):
+1. Impact minimal — M1 reserve embedding
+2. Aucune action urgente requise
+
+**Services JARVIS (Linux systemd):**
+```bash
+# Redemarrer tous les services JARVIS
+systemctl --user restart jarvis-*
+
+# Diagnostiquer un service specifique
+journalctl --user -u jarvis-mcp --since "5 min ago" --no-pager
+journalctl --user -u jarvis-canvas --since "5 min ago" --no-pager
+
+# Recovery Docker (deploiement conteneurise)
+docker compose -f projects/linux/docker-compose.yml restart
+docker compose -f projects/linux/docker-compose.yml logs --tail=100
+
+# jarvis-ctl.sh — utilitaire de recovery complet
+bash projects/linux/jarvis-ctl.sh status
+bash projects/linux/jarvis-ctl.sh restart
+```
+
+**GEMINI offline**:
+1. `node /home/turbo/jarvis/gemini-proxy.js --ping`
+2. API quota? Attendre 60s
+3. Fallback: CLAUDE pour architecture
+
 ### 4. Verification post-recovery
 ```bash
 # Tester que le noeud repond correctement
@@ -65,5 +111,9 @@ curl -s --max-time 5 http://HOST:PORT/v1/chat/completions \
 ```
 
 ### 5. Post-mortem
-- Logger l'incident dans `/home/turbo/jarvis-m1-ops\data\incidents.json`
+- **Windows**: Logger l'incident dans `data\incidents.json`
+- **Linux**: Logger l'incident dans `data/incidents.json`
+- Verifier les logs systeme:
+  - Windows: Event Viewer → Application / System
+  - Linux: `journalctl --user -u 'jarvis-*' --since "1 hour ago" --no-pager`
 - Si 3+ incidents en 24h sur le meme noeud → investigation approfondie

@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import sqlite3
 import time
 from difflib import SequenceMatcher
@@ -199,6 +200,26 @@ class LearnedActionsEngine:
             if action and action["platform"] in (platform, "both"):
                 return action
 
+        # 3. Parameterized match — triggers with {param} placeholders
+        with self._conn() as conn:
+            param_triggers = conn.execute(
+                "SELECT action_id, phrase FROM learned_action_triggers WHERE phrase LIKE '%{%'"
+            ).fetchall()
+
+        for row in param_triggers:
+            phrase_pattern = row["phrase"]
+            action_id = row["action_id"]
+            # Convert "{service}" to named capture group
+            regex_str = re.escape(phrase_pattern)
+            regex_str = re.sub(r'\\{(\w+)\\}', r'(?P<\1>.+?)', regex_str)
+            regex_str = f"^{regex_str}$"
+            m = re.match(regex_str, text_lower)
+            if m:
+                action = self.get_action(action_id)
+                if action and action["platform"] in (platform, "both"):
+                    action["params"] = m.groupdict()
+                    return action
+
         return None
 
     def record_execution(
@@ -234,6 +255,54 @@ class LearnedActionsEngine:
                     "UPDATE learned_actions SET fail_count = fail_count + 1 WHERE id = ?",
                     (action_id,),
                 )
+
+    def auto_learn_from_execution(
+        self,
+        trigger_text: str,
+        steps_executed: list[dict],
+        category: str = "auto",
+        learned_from: str = "auto_learn",
+    ) -> int | None:
+        """Auto-apprend une action à partir d'une exécution réussie.
+
+        Génère un canonical_name à partir du trigger et sauvegarde.
+        Retourne l'action_id ou None si déjà existante.
+        """
+        # Vérifier si une action similaire existe déjà
+        existing = self.match(trigger_text)
+        if existing:
+            return None  # Déjà apprise
+
+        # Générer un nom canonique
+        canonical = re.sub(r'[^a-z0-9]+', '-', trigger_text.lower().strip())
+        canonical = canonical.strip('-')[:50]
+
+        # Éviter les doublons de nom
+        with self._conn() as conn:
+            existing_name = conn.execute(
+                "SELECT id FROM learned_actions WHERE canonical_name = ?",
+                (canonical,)
+            ).fetchone()
+        if existing_name:
+            canonical = f"{canonical}-{int(time.time()) % 10000}"
+
+        return self.save_action(
+            canonical_name=canonical,
+            category=category,
+            platform=_CURRENT_PLATFORM,
+            trigger_phrases=[trigger_text],
+            pipeline_steps=steps_executed,
+            learned_from=learned_from,
+        )
+
+    def recent_actions(self, limit: int = 10) -> list[dict[str, Any]]:
+        """Les actions les plus récemment créées."""
+        with self._conn() as conn:
+            rows = conn.execute(
+                "SELECT * FROM learned_actions ORDER BY created_at DESC LIMIT ?",
+                (limit,)
+            ).fetchall()
+        return [dict(r) for r in rows]
 
     def list_actions(
         self, category: str | None = None, platform: str | None = None

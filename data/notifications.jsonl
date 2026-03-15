@@ -1,0 +1,6 @@
+{"title": "JARVIS Smart Notifications", "message": "Surveillance intelligente activée", "level": "info", "source": "startup", "ts": 1773600513.729189, "spoken": false, "metadata": {}}
+{"title": "Disque presque plein", "message": "Utilisation : 92.1%", "level": "warning", "source": "disk_monitor", "ts": 1773600513.7992005, "spoken": true, "metadata": {"disk_pct": 92.1}}
+{"title": "Service JARVIS tombé", "message": "En échec : ●", "level": "critical", "source": "service_monitor", "ts": 1773600514.1219332, "spoken": true, "metadata": {"failed_services": ["●"]}}
+{"title": "JARVIS Smart Notifications", "message": "Surveillance intelligente activée", "level": "info", "source": "startup", "ts": 1773600543.467879, "spoken": false, "metadata": {}}
+{"title": "Disque presque plein", "message": "Utilisation : 92.2%", "level": "warning", "source": "disk_monitor", "ts": 1773600543.546101, "spoken": true, "metadata": {"disk_pct": 92.2}}
+{"title": "Service JARVIS tombé", "message": "En échec : jarvis-wave@5", "level": "critical", "source": "service_monitor", "ts": 1773600543.920761, "spoken": true, "metadata": {"failed_services": ["jarvis-wave@5"]}}
