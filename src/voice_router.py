@@ -94,6 +94,18 @@ def route_voice_command(text: str) -> dict:
         return {"success": False, "method": "none", "result": "Commande vide",
                 "confidence": 0.0, "module": "none", "latency_ms": 0}
 
+    # Voice aliases: raccourcis vocaux ultra-courts (priorite maximale)
+    try:
+        from src.voice_aliases import execute_alias
+        alias_result = execute_alias(normalized)
+        if alias_result:
+            alias_result["latency_ms"] = round((time.time() - start) * 1000, 1)
+            _log_voice_analytics(normalized, alias_result)
+            _log_action_history(normalized, alias_result)
+            return alias_result
+    except Exception:
+        pass  # Fallback vers le routage normal si les aliases echouent
+
     # Appliquer les corrections vocales du cache SQL
     original = normalized
     try:

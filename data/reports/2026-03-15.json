@@ -1,0 +1,310 @@
+{
+  "date": "2026-03-15",
+  "generated_at": "2026-03-15T20:20:36.708744",
+  "sections": {
+    "system": {
+      "uptime": "0j 1h",
+      "uptime_seconds": 7165.18,
+      "load_avg_1m": 6.44,
+      "load_avg_5m": 7.35,
+      "load_avg_15m": 7.52,
+      "cpu_avg_percent": 43.4,
+      "cpu_count": 16,
+      "ram_used_gb": 22.8,
+      "ram_total_gb": 47.0,
+      "ram_percent": 48.5,
+      "gpus": [
+        {
+          "name": "NVIDIA GeForce RTX 2060",
+          "temp_c": 57,
+          "utilization_percent": 41,
+          "vram_used_mb": 4598,
+          "vram_total_mb": 12288
+        },
+        {
+          "name": "NVIDIA GeForce GTX 1660 SUPER",
+          "temp_c": 50,
+          "utilization_percent": 15,
+          "vram_used_mb": 1451,
+          "vram_total_mb": 6144
+        },
+        {
+          "name": "NVIDIA GeForce GTX 1660 SUPER",
+          "temp_c": 53,
+          "utilization_percent": 14,
+          "vram_used_mb": 1437,
+          "vram_total_mb": 6144
+        },
+        {
+          "name": "NVIDIA GeForce GTX 1660 SUPER",
+          "temp_c": 57,
+          "utilization_percent": 15,
+          "vram_used_mb": 1463,
+          "vram_total_mb": 6144
+        },
+        {
+          "name": "NVIDIA GeForce GTX 1660 SUPER",
+          "temp_c": 58,
+          "utilization_percent": 25,
+          "vram_used_mb": 1967,
+          "vram_total_mb": 6144
+        },
+        {
+          "name": "NVIDIA GeForce RTX 3080",
+          "temp_c": 58,
+          "utilization_percent": 5,
+          "vram_used_mb": 4716,
+          "vram_total_mb": 10240
+        }
+      ],
+      "gpu_count": 6,
+      "gpu_max_temp_c": 58,
+      "gpu_avg_util": 19.2,
+      "vram_total_mb": 47104,
+      "vram_used_mb": 15632,
+      "disk_total_gb": 914.8,
+      "disk_used_gb": 800.4,
+      "disk_free_gb": 67.9,
+      "disk_percent_used": 87.5
+    },
+    "services": {
+      "active": [
+        "jarvis-mcp"
+      ],
+      "failed": [],
+      "inactive": [
+        "jarvis-auditor",
+        "jarvis-health-watcher",
+        "jarvis-lms-guard",
+        "jarvis-perf-monitor",
+        "jarvis-proxy",
+        "jarvis-watchdog",
+        "jarvis-ws"
+      ],
+      "healed_count": 0,
+      "healed_services": [],
+      "active_count": 1,
+      "failed_count": 0
+    },
+    "cluster": {
+      "nodes": {
+        "M1": {
+          "address": "127.0.0.1:1234",
+          "online": true,
+          "models": [
+            "deepseek/deepseek-r1-0528-qwen3-8b",
+            "qwen/qwen3-coder-30b",
+            "qwen/qwen3.5-35b-a3b",
+            "openai/gpt-oss-20b",
+            "qwen/qwen3.5-9b",
+            "google/gemma-3-4b",
+            "text-embedding-nomic-embed-text-v1.5"
+          ]
+        },
+        "M2": {
+          "address": "192.168.1.26:1234",
+          "online": true,
+          "models": [
+            "deepseek-r1-0528-qwen3-8b",
+            "qwen/qwen3-8b",
+            "deepseek/deepseek-r1-0528-qwen3-8b",
+            "text-embedding-nomic-embed-text-v1.5",
+            "nvidia/nemotron-3-nano",
+            "zai-org/glm-4.7-flash",
+            "deepseek-coder-v2-lite-instruct",
+            "openai/gpt-oss-20b"
+          ]
+        },
+        "M3": {
+          "address": "192.168.1.113:1234",
+          "online": false,
+          "models": []
+        },
+        "OL1": {
+          "address": "127.0.0.1:11434",
+          "online": true,
+          "models": [
+            "deepseek-r1:7b",
+            "qwen2.5:1.5b"
+          ]
+        }
+      },
+      "models_loaded": [
+        "deepseek/deepseek-r1-0528-qwen3-8b",
+        "qwen/qwen3-coder-30b",
+        "qwen/qwen3.5-35b-a3b",
+        "openai/gpt-oss-20b",
+        "qwen/qwen3.5-9b",
+        "google/gemma-3-4b",
+        "text-embedding-nomic-embed-text-v1.5",
+        "deepseek-r1-0528-qwen3-8b",
+        "qwen/qwen3-8b",
+        "deepseek/deepseek-r1-0528-qwen3-8b",
+        "text-embedding-nomic-embed-text-v1.5",
+        "nvidia/nemotron-3-nano",
+        "zai-org/glm-4.7-flash",
+        "deepseek-coder-v2-lite-instruct",
+        "openai/gpt-oss-20b",
+        "deepseek-r1:7b",
+        "qwen2.5:1.5b"
+      ],
+      "online_count": 3,
+      "total_nodes": 4,
+      "total_models": 14
+    },
+    "voice_commands": {
+      "total_executed": 0,
+      "success_count": 0,
+      "failure_count": 0,
+      "success_rate": 100.0,
+      "top_commands": [],
+      "failures": []
+    },
+    "brain": {
+      "total_skills": 203,
+      "patterns_detected": 0,
+      "improve_cycles": 40,
+      "recent_skills": [],
+      "brain_confidence": null,
+      "last_analysis": 1773602439.4775445,
+      "improve_cycles_today": 40
+    },
+    "security": {
+      "failed_login_attempts": 0,
+      "open_ports": [
+        "53",
+        "80",
+        "631",
+        "1234",
+        "2234",
+        "8080",
+        "8088",
+        "8901",
+        "9000",
+        "9742",
+        "9743",
+        "11434",
+        "18001",
+        "18789",
+        "18790",
+        "18792",
+        "18793",
+        "18800",
+        "18901",
+        "19742",
+        "21434",
+        "28789",
+        "41343"
+      ],
+      "firewall_status": "inconnu",
+      "alerts": [],
+      "open_ports_count": 23
+    },
+    "performance": {
+      "samples_count": 0,
+      "cpu": {},
+      "ram": {},
+      "gpu_temp": {}
+    },
+    "notifications": {
+      "total_count": 13,
+      "warning_count": 8,
+      "critical_count": 3,
+      "info_count": 2,
+      "recent": [
+        {
+          "level": "info",
+          "message": "Surveillance intelligente activée",
+          "timestamp": 1773600513.729189
+        },
+        {
+          "level": "warning",
+          "message": "Utilisation : 92.1%",
+          "timestamp": 1773600513.7992005
+        },
+        {
+          "level": "critical",
+          "message": "En échec : ●",
+          "timestamp": 1773600514.1219332
+        },
+        {
+          "level": "info",
+          "message": "Surveillance intelligente activée",
+          "timestamp": 1773600543.467879
+        },
+        {
+          "level": "warning",
+          "message": "Utilisation : 92.2%",
+          "timestamp": 1773600543.546101
+        },
+        {
+          "level": "critical",
+          "message": "En échec : jarvis-wave@5",
+          "timestamp": 1773600543.920761
+        },
+        {
+          "level": "warning",
+          "message": "Utilisation : 92.2%",
+          "timestamp": 1773600844.9418097
+        },
+        {
+          "level": "warning",
+          "message": "Utilisation : 92.3%",
+          "timestamp": 1773601146.062123
+        },
+        {
+          "level": "warning",
+          "message": "Utilisation : 92.4%",
+          "timestamp": 1773601447.1347396
+        },
+        {
+          "level": "warning",
+          "message": "Utilisation : 92.4%",
+          "timestamp": 1773601748.2045
+        },
+        {
+          "level": "warning",
+          "message": "Utilisation : 92.5%",
+          "timestamp": 1773602049.542769
+        },
+        {
+          "level": "critical",
+          "message": "En échec : jarvis-health",
+          "timestamp": 1773602140.0658295
+        },
+        {
+          "level": "warning",
+          "message": "Utilisation : 92.6%",
+          "timestamp": 1773602350.8847775
+        }
+      ]
+    },
+    "git": {
+      "commits_count": 16,
+      "files_changed": 14,
+      "commits": [
+        "f0e9a22 feat: Vague 9 partiel — command chaining, benchmarks 30/30",
+        "2d8eba2 feat: Vague 8 final — analytics, multi-intent, 215 voice cmds",
+        "42a9c02 feat: Vague 8 partiel — routines, renforcement vocal, scheduler",
+        "99f76e4 feat: Vague 7 final — 203 skills, Telegram bot Linux, 15 commandes",
+        "39dc665 feat: Vague 7 partiel — context engine, auto-healer, prédiction",
+        "aa9a0c3 feat: Wave 7 — 21 Linux modules, 73 STT corrections, deploy improvements",
+        "d1d276e feat: Vague 6 — prédiction Markov, hotkeys, accessibilité, perf monitor",
+        "75bc0b8 feat: Wave 6 — fix 13 SyntaxErrors, 41 dominos, systemd timers, plugin skills",
+        "c3850d7 feat: Vague 5 — Conky brain, profils vocaux, notifications, documentation",
+        "591f572 feat: Vague 4 final — 30 tests intégration, fix skills.py SyntaxError",
+        "677c78f feat: Wave 3 — 30 dominos Linux, voice pipeline integration, platform modules",
+        "021d4e1 feat: Vague 4 — engine conversationnel IA, 30 macros, voice_macros amélioré",
+        "8fcfdda feat: Vague 3+4 — 494 dominos, 325 corrections STT, mega-improve loop, dashboard brain",
+        "7db44f1 feat: JARVIS Linux — Learned Actions engine + 16 dominos + platform dispatch",
+        "a03d222 feat: Vague 2 — 55 commandes vocales, 104 tests, 15+ skills, secrets nettoyés",
+        "d307c7a feat: JARVIS Linux Full Port — apprentissage conversationnel, 443 dominos, 11 modules Linux"
+      ]
+    }
+  },
+  "recommendations": [
+    "Espace disque faible (87.5% utilisé) — nettoyage recommandé",
+    "Noeud(s) cluster hors ligne : M3",
+    "Aucune donnée de performance — vérifier que perf_monitor est actif"
+  ]
+}

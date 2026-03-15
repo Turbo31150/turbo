@@ -103,6 +103,16 @@ DEFAULT_ROUTINES: list[dict[str, Any]] = [
         "auto_execute": True,
         "last_run": None,
     },
+    {
+        "name": "daily_report",
+        "skill": "daily_report_generate",
+        "description": "Génération du rapport quotidien JARVIS (HTML + JSON)",
+        "schedule": {"hours": [23], "minutes": [55], "days": [0, 1, 2, 3, 4, 5, 6]},
+        "extras": [],
+        "enabled": True,
+        "auto_execute": True,
+        "last_run": None,
+    },
 ]
 
 # Jours de la semaine (Monday=0 pour correspondre à datetime.weekday())
