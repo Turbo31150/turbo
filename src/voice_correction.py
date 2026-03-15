@@ -355,6 +355,26 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["codestral", "code stral", "codstralle", "codestrale"],
     ["starcoder", "star coder", "starcodeur", "starcaudeur"],
     ["codegemma", "code gem ma", "codejem", "codejemma"],
+    # Vague 41 — Linux commands STT phonetiques (commandes systeme)
+    ["systemctl", "système ctl", "system ctl", "système cé té aile"],
+    ["journalctl", "journal ctl", "journal cé té aile", "journale ctl"],
+    ["nvidia", "en vidya", "enne vidya", "enne vidia", "en vidia"],
+    ["nvidia-smi", "en vidya smi", "enne vidya smi", "nvidia smi"],
+    ["sudo", "sud o", "soudo", "su do", "sudeau"],
+    ["apt", "apte", "ape te"],
+    ["grub", "grou be", "groub", "groube"],
+    ["systemd", "système d", "système de", "systeme d"],
+    ["uv", "u vé", "ou vé", "you vé"],
+    ["pytest", "pie test", "pi teste", "pie teste", "pi test"],
+    ["github", "guite hub", "guite hobe", "guithub"],
+    ["ollama", "oula ma", "oulama", "oh la ma", "au lama"],
+    ["kubernetes", "cou beur nètes", "kubernètes", "cou beur nette"],
+    ["chmod", "cht mod", "c h mod", "chaud mode"],
+    ["chown", "cht own", "c h own"],
+    ["htop", "h top", "ache top"],
+    ["crontab", "cron tab", "cron tabe"],
+    ["iptables", "i p tables", "i pé tables"],
+    ["ssh", "esse esse h", "esse s h"],
 ]
 
 # ═══════════════════════════════════════════════════════════════════════════

@@ -114,8 +114,86 @@ except: print(0)" 2>/dev/null || echo "0")
     python scripts/pipeline_engine.py "$@"
     ;;
 
+  seed)
+    echo -e "${CYAN}Seeding learned_actions.db...${NC}"
+    cd "$JARVIS_HOME"
+    LEARNED_DB="$JARVIS_HOME/data/learned_actions.db"
+    if [ -f "scripts/seed_learned_actions.py" ]; then
+        source .venv/bin/activate 2>/dev/null || true
+        python scripts/seed_learned_actions.py
+    else
+        # Inline seed if script not found
+        python3 - "$LEARNED_DB" << 'PYEOF'
+import sqlite3, sys
+db_path = sys.argv[1]
+conn = sqlite3.connect(db_path)
+c = conn.cursor()
+c.execute("""CREATE TABLE IF NOT EXISTS learned_actions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    action TEXT NOT NULL,
+    category TEXT DEFAULT 'general',
+    source TEXT DEFAULT 'seed',
+    confidence REAL DEFAULT 0.5,
+    usage_count INTEGER DEFAULT 0,
+    last_used TEXT,
+    created_at TEXT DEFAULT (datetime('now'))
+)""")
+c.execute("""CREATE TABLE IF NOT EXISTS dominos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    steps TEXT,
+    enabled INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT (datetime('now'))
+)""")
+seeds = [
+    ("health_check", "Run full cluster health check", '["check_ws", "check_proxy", "check_openclaw", "check_cluster"]'),
+    ("daily_audit", "Run daily system audit", '["system_audit", "db_maintenance", "log_rotate"]'),
+    ("restart_all", "Restart all JARVIS services", '["stop_services", "wait_5s", "start_services", "health_check"]'),
+]
+for name, desc, steps in seeds:
+    c.execute("INSERT OR IGNORE INTO dominos (name, description, steps) VALUES (?, ?, ?)", (name, desc, steps))
+conn.commit()
+conn.close()
+print(f"Seeded {db_path}")
+PYEOF
+    fi
+    echo -e "${GREEN}Done.${NC}"
+    ;;
+
+  timers)
+    echo -e "${CYAN}═══ Systemd Timers ═══${NC}"
+    systemctl --user list-timers --all --no-pager 2>/dev/null || \
+        echo -e "${ORANGE}No user timers found${NC}"
+    ;;
+
+  dominos)
+    echo -e "${CYAN}═══ Available Dominos ═══${NC}"
+    LEARNED_DB="$JARVIS_HOME/data/learned_actions.db"
+    if [ -f "$LEARNED_DB" ]; then
+        python3 - "$LEARNED_DB" << 'PYEOF'
+import sqlite3, sys
+conn = sqlite3.connect(sys.argv[1])
+c = conn.cursor()
+try:
+    c.execute("SELECT name, description, enabled FROM dominos ORDER BY name")
+    rows = c.fetchall()
+    if not rows:
+        print("  No dominos found.")
+    for name, desc, enabled in rows:
+        status = "\033[0;32m●\033[0m" if enabled else "\033[0;31m●\033[0m"
+        print(f"  {status} {name:<20} — {desc or 'no description'}")
+except sqlite3.OperationalError:
+    print("  No dominos table found. Run: jarvis-ctl.sh seed")
+conn.close()
+PYEOF
+    else
+        echo -e "${ORANGE}learned_actions.db not found. Run: $0 seed${NC}"
+    fi
+    ;;
+
   *)
-    echo "Usage: $0 {start|stop|restart|status|logs [service]|health|update|pipeline [args]}"
+    echo "Usage: $0 {start|stop|restart|status|logs [service]|health|update|pipeline [args]|seed|timers|dominos}"
     exit 1
     ;;
 esac

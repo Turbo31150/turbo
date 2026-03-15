@@ -25,7 +25,7 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9742/health"]
       interval: 30s
-      timeout: 5s
+      timeout: 10s
       retries: 3
 
   # ── Direct Proxy ───────────────────────────────────────────
@@ -43,6 +43,11 @@ services:
       - TURBO=/app
     command: node canvas/direct-proxy.js
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:18800/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     depends_on:
       jarvis-ws:
         condition: service_healthy
@@ -61,6 +66,11 @@ services:
       - PYTHONUNBUFFERED=1
     command: python scripts/pipeline_engine.py --daemon
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9742/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     depends_on:
       jarvis-ws:
         condition: service_healthy
@@ -96,8 +106,14 @@ services:
       - JARVIS_HOME=/app
     command: python -m src.openclaw_server
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:18789/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     depends_on:
-      - jarvis-ws
+      jarvis-ws:
+        condition: service_healthy
 
 volumes:
   ollama_data:

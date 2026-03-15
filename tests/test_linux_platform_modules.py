@@ -48,3 +48,23 @@ def test_platform_dispatch_resolves_services():
     from src.platform_dispatch import get_platform_module
     mod = get_platform_module("services")
     assert hasattr(mod, "list_services")
+
+
+def test_linux_network_imports():
+    from src.linux_network import get_interfaces, get_wifi_networks, ping_host, get_dns_servers
+    assert callable(get_interfaces)
+    assert callable(ping_host)
+
+def test_linux_packages_imports():
+    from src.linux_packages import list_installed, check_updates, search_package
+    assert callable(list_installed)
+
+def test_platform_dispatch_resolves_network():
+    from src.platform_dispatch import get_platform_module
+    mod = get_platform_module("network")
+    assert hasattr(mod, "get_interfaces")
+
+def test_platform_dispatch_resolves_packages():
+    from src.platform_dispatch import get_platform_module
+    mod = get_platform_module("packages")
+    assert hasattr(mod, "list_installed")
