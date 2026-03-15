@@ -68,7 +68,7 @@ class CertificateManager:
         """List certificates in a store."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  f"Get-ChildItem '{store}' | "
                  "Select-Object Subject, Issuer, Thumbprint, NotAfter, NotBefore | "
                  "ConvertTo-Json -Depth 1"],
@@ -108,7 +108,7 @@ class CertificateManager:
         """Get certificates expiring within N days."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  f"Get-ChildItem '{store}' | "
                  f"Where-Object {{ $_.NotAfter -lt (Get-Date).AddDays({days}) }} | "
                  "Select-Object Subject, Thumbprint, NotAfter | "

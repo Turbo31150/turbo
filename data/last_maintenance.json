@@ -1,20 +1,20 @@
 {
-  "last_run": 1772938806.139032,
+  "last_run": 1773543609.5902462,
   "last_results": {
     "jarvis": {
       "status": "ok",
       "integrity": "ok",
-      "duration_ms": 56.1
+      "duration_ms": 17.0
     },
     "etoile": {
       "status": "ok",
       "integrity": "ok",
-      "duration_ms": 103.6
+      "duration_ms": 49.3
     },
     "sniper": {
       "status": "ok",
       "integrity": "ok",
-      "duration_ms": 16.4
+      "duration_ms": 29.2
     }
   }
 }

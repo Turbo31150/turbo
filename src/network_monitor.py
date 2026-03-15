@@ -60,7 +60,7 @@ class NetworkMonitor:
         """List all network adapters."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-NetAdapter | Select-Object Name, Status, MacAddress, "
                  "LinkSpeed, InterfaceDescription | ConvertTo-Json -Depth 1"],
                 capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
@@ -89,7 +89,7 @@ class NetworkMonitor:
         """Get IP configuration for all adapters."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-NetIPAddress -AddressFamily IPv4 | "
                  "Select-Object InterfaceAlias, IPAddress, PrefixLength | "
                  "ConvertTo-Json -Depth 1"],
@@ -116,7 +116,7 @@ class NetworkMonitor:
         """Get configured DNS servers."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-DnsClientServerAddress -AddressFamily IPv4 | "
                  "Where-Object {$_.ServerAddresses.Count -gt 0} | "
                  "Select-Object InterfaceAlias, ServerAddresses | "
@@ -175,7 +175,7 @@ class NetworkMonitor:
         """Get active TCP connections."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  f"Get-NetTCPConnection -State Established | "
                  f"Select-Object -First {limit} LocalAddress, LocalPort, "
                  f"RemoteAddress, RemotePort, OwningProcess | "

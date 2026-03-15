@@ -1682,10 +1682,10 @@ async def network_info_tool(args: dict[str, Any]) -> dict[str, Any]:
     return _text(get_network_info())
 
 
-@tool("powershell_run", "Executer une commande PowerShell. Args: command.", {"command": str})
-async def powershell_run_tool(args: dict[str, Any]) -> dict[str, Any]:
-    from src.windows import run_powershell
-    r = run_powershell(args["command"], timeout=60)
+@tool("bash_run", "Executer une commande PowerShell. Args: command.", {"command": str})
+async def bash_run_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import run_bash
+    r = run_bash(args["command"], timeout=60)
     out = r["stdout"] if r["success"] else f"ERREUR: {r['stderr']}"
     return _text(f"[PS] exit={r['exit_code']}\n{out}")
 
@@ -1991,7 +1991,7 @@ _DICT_VALID_CATEGORIES = {
     "fichiers", "daily", "cluster", "voice", "custom",
 }
 _DICT_VALID_ACTION_TYPES = {
-    "powershell", "curl", "python", "pipeline", "condition",
+    "bash", "curl", "python", "pipeline", "condition",
     "system", "media", "browser", "voice", "shortcut", "script",
 }
 _DICT_TABLES = {"pipeline_dictionary", "domino_chains", "voice_corrections"}
@@ -2780,7 +2780,7 @@ jarvis_server = create_sdk_mcp_server(
         # Ecran (2)
         screenshot_tool, screen_resolution_tool,
         # Systeme (7)
-        system_info_tool, gpu_info_tool, network_info_tool, powershell_run_tool,
+        system_info_tool, gpu_info_tool, network_info_tool, bash_run_tool,
         lock_screen_tool, shutdown_pc_tool, restart_pc_tool, sleep_pc_tool,
         # Services (3)
         list_services_tool, start_service_tool, stop_service_tool,

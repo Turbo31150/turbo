@@ -23,7 +23,7 @@ import shlex
 
 def list_processes():
     # Use PowerShell Get-Process to list processes in a parsable format
-    cmd = ["powershell.exe", "-Command", "Get-Process | Select-Object -Property Id, ProcessName, CPU, @{Name='MemoryMB';Expression={[math]::Round($_.WorkingSet64/1MB,1)}} | ConvertTo-Json -Depth 2"]
+    cmd = ["bash.exe", "-Command", "Get-Process | Select-Object -Property Id, ProcessName, CPU, @{Name='MemoryMB';Expression={[math]::Round($_.WorkingSet64/1MB,1)}} | ConvertTo-Json -Depth 2"]
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
         print("Error retrieving processes:", result.stderr, file=sys.stderr)

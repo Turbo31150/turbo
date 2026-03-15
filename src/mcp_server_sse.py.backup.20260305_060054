@@ -57,7 +57,7 @@ PERPLEXITY_TOOLS = {
     # System info
     "system_info",           # CPU/RAM/OS info
     "gpu_info",              # GPU stats (nvidia-smi)
-    "powershell_run",        # Run PowerShell command
+    "bash_run",        # Run PowerShell command
 
     # Brain & Memory
     "brain_status",          # Brain learning patterns
@@ -174,7 +174,7 @@ FULL_TOOLS = {
     "health_summary",        # Quick cluster health summary
 
     # ── System Control (6) ─────────────────────────────────────────────────
-    "powershell_run",        # Run PowerShell command
+    "bash_run",        # Run PowerShell command
     "screenshot",            # Take screenshot
     "list_processes",        # List processes
     "kill_process",          # Kill a process

@@ -91,7 +91,7 @@ async def _fetch_system() -> dict:
     def _get():
         try:
             r = subprocess.run(
-                ["powershell", "-NoProfile", "-Command",
+                ["bash", "-NoProfile", "-Command",
                  "$os = Get-CimInstance Win32_OperatingSystem; "
                  "$cpu = Get-CimInstance Win32_Processor | Select -First 1; "
                  "$ram_total = [math]::Round($os.TotalVisibleMemorySize/1MB,1); "

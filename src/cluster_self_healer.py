@@ -185,7 +185,7 @@ class ClusterSelfHealer:
             if config.node_type == "lm_studio":
                 # PowerShell restart
                 proc = await asyncio.create_subprocess_exec(
-                    "powershell", "-Command", config.restart_command,
+                    "bash", "-Command", config.restart_command,
                     stdout=asyncio.subprocess.PIPE,
                     stderr=asyncio.subprocess.PIPE
                 )

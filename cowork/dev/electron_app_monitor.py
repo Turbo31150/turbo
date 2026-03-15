@@ -34,7 +34,7 @@ def check_electron():
     """Check if Electron process is running."""
     try:
         r = subprocess.run(
-            ["powershell", "-NoProfile", "-Command",
+            ["bash", "-NoProfile", "-Command",
              "Get-Process -Name 'electron','JARVIS*' -ErrorAction SilentlyContinue | "
              "Select-Object Name, Id, @{N='MemMB';E={[math]::Round($_.WorkingSet64/1MB)}} | "
              "ConvertTo-Json -Compress"],
@@ -75,7 +75,7 @@ def check_python_ws_memory():
     """Check Python WebSocket server memory."""
     try:
         r = subprocess.run(
-            ["powershell", "-NoProfile", "-Command",
+            ["bash", "-NoProfile", "-Command",
              "(Get-Process python* -ErrorAction SilentlyContinue | "
              "Where-Object {$_.CommandLine -match 'server.py|python_ws'} | "
              "Measure-Object -Property WorkingSet64 -Sum).Sum / 1MB"],

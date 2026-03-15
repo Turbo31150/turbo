@@ -56,7 +56,7 @@ class VolumeManager:
         """List all volumes."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-Volume | Where-Object { $_.DriveLetter } | "
                  "Select-Object DriveLetter, FileSystemLabel, FileSystem, "
                  "DriveType, Size, SizeRemaining, HealthStatus | "
@@ -92,7 +92,7 @@ class VolumeManager:
         """List disk partitions."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-Partition | Select-Object DiskNumber, PartitionNumber, "
                  "DriveLetter, Size, Type, IsActive | "
                  "ConvertTo-Json -Depth 1 -Compress"],

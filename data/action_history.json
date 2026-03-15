@@ -40,5 +40,17 @@
     "result": "prompt=q",
     "success": true,
     "timestamp": 1772925399.2088115
+  },
+  {
+    "action": "test:pipeline_connect",
+    "result": "Test du pipeline bout-en-bout",
+    "success": true,
+    "timestamp": 1773596744.7969823
+  },
+  {
+    "action": "learn:pipeline:learned_test_apprentissage_pipeline",
+    "result": "Learned from 'test apprentissage pipeline' → 1 steps",
+    "success": true,
+    "timestamp": 1773596744.8179028
   }
 ]

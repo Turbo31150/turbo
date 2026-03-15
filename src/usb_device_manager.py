@@ -53,30 +53,26 @@ class USBDeviceManager:
         self._lock = threading.Lock()
 
     def list_devices(self) -> list[dict[str, Any]]:
-        """List USB devices via Win32_PnPEntity filtered by USB DeviceID."""
+        """List USB devices via Linux lsusb."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
-                 "Get-CimInstance Win32_PnPEntity | "
-                 "Where-Object { $_.DeviceID -like 'USB*' } | "
-                 "Select-Object Name, DeviceID, Manufacturer, Status, PNPClass | "
-                 "ConvertTo-Json -Depth 1 -Compress"],
-                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=20,
-                creationflags=_NO_WINDOW,
+                ["lsusb"],
+                capture_output=True, text=True, timeout=10
             )
+            devices = []
             if result.returncode == 0 and result.stdout.strip():
-                data = json.loads(result.stdout)
-                if isinstance(data, dict):
-                    data = [data]
-                devices = []
-                for d in data:
-                    devices.append({
-                        "name": d.get("Name", "") or "",
-                        "device_id": d.get("DeviceID", "") or "",
-                        "manufacturer": d.get("Manufacturer", "") or "",
-                        "status": d.get("Status", "") or "",
-                        "pnp_class": d.get("PNPClass", "") or "",
-                    })
+                for line in result.stdout.strip().split('\n'):
+                    # Format: Bus 001 Device 002: ID 8087:0024 Intel Corp. Integrated Rate Matching Hub
+                    parts = line.split(': ID ')
+                    if len(parts) >= 2:
+                        id_info = parts[1].split(' ')
+                        devices.append({
+                            "name": ' '.join(id_info[1:]),
+                            "device_id": id_info[0],
+                            "manufacturer": "USB Vendor",
+                            "status": "OK",
+                            "pnp_class": "USB",
+                        })
                 self._record("list_devices", True, f"{len(devices)} devices")
                 return devices
         except Exception as e:

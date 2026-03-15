@@ -88,7 +88,7 @@ class CrashDumpReader:
         """Get BSOD/BugCheck events from System event log."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  f"Get-WinEvent -FilterHashtable @{{LogName='System';"
                  f"Id=1001}} -MaxEvents {max_events} -ErrorAction SilentlyContinue | "
                  "Select-Object TimeCreated, Id, Message | "

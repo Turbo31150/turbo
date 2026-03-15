@@ -1,0 +1,86 @@
+version: '3.8'
+
+# ═══════════════════════════════════════════════════════════════
+# JARVIS Docker Compose — Full stack deployment
+# Usage: docker compose up -d
+# ═══════════════════════════════════════════════════════════════
+
+services:
+  # ── Main WebSocket Server ──────────────────────────────────
+  jarvis-ws:
+    build:
+      context: ../..
+      dockerfile: projects/linux/Dockerfile
+    container_name: jarvis-ws
+    ports:
+      - "9742:9742"
+    volumes:
+      - ../../data:/app/data
+      - ../../.env:/app/.env:ro
+    environment:
+      - TURBO=/app
+      - PYTHONUNBUFFERED=1
+    command: python -m python_ws.server
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9742/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ── Direct Proxy ───────────────────────────────────────────
+  jarvis-proxy:
+    build:
+      context: ../..
+      dockerfile: projects/linux/Dockerfile.node
+    container_name: jarvis-proxy
+    ports:
+      - "18800:18800"
+    volumes:
+      - ../../canvas:/app/canvas:ro
+      - ../../.env:/app/.env:ro
+    environment:
+      - TURBO=/app
+    command: node canvas/direct-proxy.js
+    restart: unless-stopped
+    depends_on:
+      jarvis-ws:
+        condition: service_healthy
+
+  # ── Pipeline Engine Daemon ─────────────────────────────────
+  jarvis-pipeline:
+    build:
+      context: ../..
+      dockerfile: projects/linux/Dockerfile
+    container_name: jarvis-pipeline
+    volumes:
+      - ../../data:/app/data
+      - ../../.env:/app/.env:ro
+    environment:
+      - TURBO=/app
+      - PYTHONUNBUFFERED=1
+    command: python scripts/pipeline_engine.py --daemon
+    restart: unless-stopped
+    depends_on:
+      jarvis-ws:
+        condition: service_healthy
+
+  # ── Ollama (local LLM) ────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: jarvis-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+
+volumes:
+  ollama_data:

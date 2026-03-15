@@ -73,17 +73,14 @@ def restart_gemini_proxy():
 
 def restart_gateway():
     """Restart the OpenClaw gateway."""
-    openclaw_dir = Path.home() / ".openclaw"
     try:
         subprocess.Popen(
-            ["npx", "openclaw", "gateway", "--port", "18789"],
-            cwd=str(openclaw_dir),
+            [sys.executable, "-m", "src.openclaw_server"],
+            cwd=str(ROOT),
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-            creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
-            shell=True,
         )
-        time.sleep(8)
+        time.sleep(5)
         alive = check_port("127.0.0.1", 18789)
         log.info("Gateway restart: %s", "OK" if alive else "FAILED")
         return alive

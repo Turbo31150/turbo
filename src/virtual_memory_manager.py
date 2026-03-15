@@ -54,50 +54,42 @@ class VirtualMemoryManager:
         self._lock = threading.Lock()
 
     def get_status(self) -> dict[str, Any]:
-        """Get virtual memory status via Win32_OperatingSystem."""
+        """Get virtual memory status via psutil."""
         try:
-            result = subprocess.run(
-                ["powershell", "-Command",
-                 "Get-CimInstance Win32_OperatingSystem | "
-                 "Select-Object TotalVisibleMemorySize, FreePhysicalMemory, "
-                 "TotalVirtualMemorySize, FreeVirtualMemory, "
-                 "SizeStoredInPagingFiles, FreeSpaceInPagingFiles | "
-                 "ConvertTo-Json -Compress"],
-                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
-                creationflags=_NO_WINDOW,
-            )
-            if result.returncode == 0 and result.stdout.strip():
-                d = json.loads(result.stdout)
-                to_mb = lambda k: round((d.get(k, 0) or 0) / 1024)
-                status = {
-                    "total_visible_mb": to_mb("TotalVisibleMemorySize"),
-                    "free_physical_mb": to_mb("FreePhysicalMemory"),
-                    "total_virtual_mb": to_mb("TotalVirtualMemorySize"),
-                    "free_virtual_mb": to_mb("FreeVirtualMemory"),
-                    "pagefile_size_mb": to_mb("SizeStoredInPagingFiles"),
-                    "pagefile_free_mb": to_mb("FreeSpaceInPagingFiles"),
-                }
-                total = status["total_visible_mb"]
-                free = status["free_physical_mb"]
-                status["used_percent"] = round((total - free) / total * 100, 1) if total > 0 else 0
-                self._record("get_status", True)
-                return status
+            import psutil
+            mem = psutil.virtual_memory()
+            swap = psutil.swap_memory()
+            status = {
+                "total_visible_mb": mem.total // (1024**2),
+                "free_physical_mb": mem.available // (1024**2),
+                "total_virtual_mb": (mem.total + swap.total) // (1024**2),
+                "free_virtual_mb": (mem.available + swap.free) // (1024**2),
+                "pagefile_size_mb": swap.total // (1024**2),
+                "pagefile_free_mb": swap.free // (1024**2),
+                "used_percent": mem.percent
+            }
+            self._record("get_status", True)
+            return status
         except Exception as e:
             self._record("get_status", False, str(e))
         return {"total_visible_mb": 0, "free_physical_mb": 0, "used_percent": 0}
 
     def get_top_consumers(self, limit: int = 10) -> list[dict[str, Any]]:
-        """Get top memory consuming processes."""
+        """Get top memory consuming processes via psutil."""
         try:
-            result = subprocess.run(
-                ["powershell", "-Command",
-                 f"Get-Process | Sort-Object WorkingSet64 -Descending | "
-                 f"Select-Object -First {limit} Name, Id, "
-                 "@{N='WorkingSetMB';E={[math]::Round($_.WorkingSet64/1MB,1)}}, "
-                 "@{N='VirtualMB';E={[math]::Round($_.VirtualMemorySize64/1MB,1)}} | "
-                 "ConvertTo-Json -Depth 1 -Compress"],
-                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
-                creationflags=_NO_WINDOW,
+            import psutil
+            procs = []
+            for p in sorted(psutil.process_iter(['name', 'pid', 'memory_info']), key=lambda x: x.info['memory_info'].rss, reverse=True)[:limit]:
+                procs.append({
+                    "Name": p.info['name'],
+                    "Id": p.info['pid'],
+                    "WorkingSetMB": round(p.info['memory_info'].rss / (1024**2), 1),
+                    "VirtualMB": round(p.info['memory_info'].vms / (1024**2), 1)
+                })
+            return procs
+        except Exception as e:
+            self._record("get_top_consumers", False, str(e))
+            return []
             )
             if result.returncode == 0 and result.stdout.strip():
                 data = json.loads(result.stdout)

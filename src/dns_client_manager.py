@@ -55,7 +55,7 @@ class DNSClientManager:
         """Get DNS server addresses per interface."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-DnsClientServerAddress -ErrorAction SilentlyContinue | "
                  "Where-Object { $_.ServerAddresses.Count -gt 0 } | "
                  "Select-Object InterfaceAlias, AddressFamily, ServerAddresses | "
@@ -84,7 +84,7 @@ class DNSClientManager:
         """Get DNS client cache entries."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  f"Get-DnsClientCache -ErrorAction SilentlyContinue | "
                  f"Select-Object -First {min(limit, 200)} Entry, RecordName, Data, TimeToLive, Type | "
                  "ConvertTo-Json -Depth 1 -Compress"],

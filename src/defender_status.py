@@ -55,7 +55,7 @@ class DefenderStatus:
         """Get Defender computer status."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-MpComputerStatus | Select-Object "
                  "AntivirusEnabled, RealTimeProtectionEnabled, "
                  "AntivirusSignatureLastUpdated, "
@@ -97,7 +97,7 @@ class DefenderStatus:
         """Get recent threat detections."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-MpThreatDetection | Select-Object -First 20 "
                  "ThreatID, ProcessName, DomainUser, "
                  "InitialDetectionTime, ActionSuccess | "

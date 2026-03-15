@@ -58,7 +58,7 @@ class ShareManager:
         """List local shared folders."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-SmbShare | Select-Object Name, Path, Description, "
                  "ShareType | ConvertTo-Json -Depth 1"],
                 capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,

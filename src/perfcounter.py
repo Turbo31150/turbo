@@ -73,7 +73,7 @@ class PerfCounter:
         """Read a single performance counter value."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  f"(Get-Counter '{counter_path}').CounterSamples[0].CookedValue"],
                 capture_output=True, text=True, timeout=10,
                 creationflags=_NO_WINDOW,
@@ -101,7 +101,7 @@ class PerfCounter:
                      COUNTER_PATHS["processes"], COUNTER_PATHS["threads"]]
             paths_str = "', '".join(paths)
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  f"(Get-Counter @('{paths_str}')).CounterSamples | "
                  "Select-Object Path, CookedValue | ConvertTo-Json -Depth 1"],
                 capture_output=True, text=True, timeout=15,

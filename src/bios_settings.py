@@ -56,7 +56,7 @@ class BIOSSettingsReader:
         """Get BIOS information via Win32_BIOS."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-CimInstance Win32_BIOS | "
                  "Select-Object Manufacturer, Name, Version, SerialNumber, "
                  "SMBIOSBIOSVersion, SMBIOSMajorVersion, SMBIOSMinorVersion, "
@@ -92,7 +92,7 @@ class BIOSSettingsReader:
         """Check Secure Boot status."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "try { $sb = Confirm-SecureBootUEFI; ConvertTo-Json @{secure_boot=$sb; uefi=$true} } "
                  "catch { ConvertTo-Json @{secure_boot=$false; uefi=$false; error=$_.Exception.Message} }"],
                 capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,

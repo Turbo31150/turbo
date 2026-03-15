@@ -56,7 +56,7 @@ class NetworkAdapterManager:
         """List all network adapters via Get-NetAdapter."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-NetAdapter -ErrorAction SilentlyContinue | "
                  "Select-Object Name, InterfaceDescription, Status, "
                  "LinkSpeed, MacAddress, ifIndex, MediaType | "

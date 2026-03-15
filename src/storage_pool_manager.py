@@ -55,7 +55,7 @@ class StoragePoolManager:
         """List storage pools."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-StoragePool -ErrorAction SilentlyContinue | "
                  "Select-Object FriendlyName, HealthStatus, OperationalStatus, "
                  "Size, AllocatedSize, IsReadOnly | "
@@ -89,7 +89,7 @@ class StoragePoolManager:
         """List physical disks in storage subsystem."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-PhysicalDisk -ErrorAction SilentlyContinue | "
                  "Select-Object FriendlyName, MediaType, HealthStatus, "
                  "Size, BusType, OperationalStatus | "

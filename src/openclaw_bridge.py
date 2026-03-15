@@ -46,6 +46,11 @@ _ETOILE_DB = Path(__file__).resolve().parent.parent / "data" / "etoile.db"
 # Maps classified intents to the best OpenClaw agent for that task.
 
 INTENT_TO_AGENT: dict[str, str] = {
+    # Gemini CLI Orchestrator — for autonomous dev & cluster management
+    "orchestration": "gemini-cli",
+    "self_improve": "gemini-cli",
+    "developer": "gemini-cli",
+
     # Code & Development — all code/bug/dev → @coding agent
     "code_dev": "coding",
     "code": "coding",
@@ -136,7 +141,7 @@ _FAST_PATTERNS: list[tuple[re.Pattern, str]] = [
     # Pipeline
     (re.compile(r"(?:pipeline|domino|routine|workflow|maintenance)", re.I), "pipeline"),
     # Windows system
-    (re.compile(r"(?:windows|powershell|registre|(?<!\w)service(?!s?\s+distribu)|processus|disque|defender)", re.I), "windows"),
+    (re.compile(r"(?:windows|bash|registre|(?<!\w)service(?!s?\s+distribu)|processus|disque|defender)", re.I), "windows"),
     # Reasoning/Math
     (re.compile(r"(?:raisonnement|logique|mathematique|calcul|equation|preuve)", re.I), "reasoning"),
     # Data analysis

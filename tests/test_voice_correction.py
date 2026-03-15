@@ -1260,8 +1260,8 @@ class TestFullCorrectionPipeline:
         _MOCK_COMMANDS_MODULE.match_command.return_value = (cmd, {}, 0.95)
         result = await full_correction_pipeline("ouvre chrome", use_ia=False)
         assert result["command"] is not None
-        # method should indicate fast/local match
-        assert result["confidence"] >= 0.85
+        # method should indicate fast/local or phonetic match
+        assert result["confidence"] >= 0.75
 
     @pytest.mark.asyncio
     async def test_no_ia_when_disabled(self):

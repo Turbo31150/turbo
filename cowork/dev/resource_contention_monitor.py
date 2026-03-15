@@ -127,7 +127,7 @@ def get_cpu_usage(verbose=False):
     # Fallback: try PowerShell
     try:
         result = subprocess.run(
-            ["powershell", "-Command",
+            ["bash", "-Command",
              "(Get-CimInstance -ClassName Win32_Processor).LoadPercentage"],
             capture_output=True, timeout=15, encoding="utf-8", errors="replace"
         )

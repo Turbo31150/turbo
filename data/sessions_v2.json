@@ -1549,5 +1549,27 @@
     "status": "active",
     "activity_count": 0,
     "tags": []
+  },
+  "fd53ae31-6d5": {
+    "session_id": "fd53ae31-6d5",
+    "owner": "test_user",
+    "created_at": 1773412095.2303958,
+    "last_activity": 1773412095.2303963,
+    "timeout_s": 3600.0,
+    "metadata": {},
+    "status": "active",
+    "activity_count": 0,
+    "tags": []
+  },
+  "525d3616-39c": {
+    "session_id": "525d3616-39c",
+    "owner": "test_user",
+    "created_at": 1773597379.287371,
+    "last_activity": 1773597379.2873712,
+    "timeout_s": 3600.0,
+    "metadata": {},
+    "status": "active",
+    "activity_count": 0,
+    "tags": []
   }
 }

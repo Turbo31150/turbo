@@ -56,7 +56,7 @@ class InstalledAppsManager:
         """List Win32 installed apps from Registry."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-ItemProperty "
                  "'HKLM:/Software/Microsoft/Windows/CurrentVersion/Uninstall/*', "
                  "'HKLM:/Software/Wow6432Node/Microsoft/Windows/CurrentVersion/Uninstall/*' "
@@ -91,7 +91,7 @@ class InstalledAppsManager:
         """List UWP/Store apps."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-AppxPackage | Select-Object Name, Version, Publisher | "
                  "ConvertTo-Json -Depth 1 -Compress"],
                 capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=20,

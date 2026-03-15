@@ -58,7 +58,7 @@ class EnvVariableManager:
         """List system-level environment variables."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "[System.Environment]::GetEnvironmentVariables('Machine') | "
                  "ForEach-Object { $_.GetEnumerator() | "
                  "Select-Object Key, Value } | ConvertTo-Json -Depth 1 -Compress"],
@@ -87,7 +87,7 @@ class EnvVariableManager:
         """List user-level environment variables."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "[System.Environment]::GetEnvironmentVariables('User') | "
                  "ForEach-Object { $_.GetEnumerator() | "
                  "Select-Object Key, Value } | ConvertTo-Json -Depth 1 -Compress"],

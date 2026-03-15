@@ -11,6 +11,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
+from pathlib import Path
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
@@ -108,7 +109,7 @@ class Notifier:
             )
             await asyncio.to_thread(
                 lambda: subprocess.run(
-                    ["powershell", "-NoProfile", "-Command", ps_cmd],
+                    ["bash", "-NoProfile", "-Command", ps_cmd],
                     capture_output=True, timeout=5,
                 )
             )

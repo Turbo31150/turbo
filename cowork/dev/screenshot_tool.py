@@ -28,7 +28,7 @@ $bmp.Dispose()
 Write-Output "Saved: {filepath.replace(chr(92), "/")}"
 """
     try:
-        r = subprocess.run(["powershell", "-Command", ps],
+        r = subprocess.run(["bash", "-Command", ps],
                           capture_output=True, text=True, timeout=15)
         if r.returncode == 0 and os.path.exists(filepath):
             size_kb = round(os.path.getsize(filepath) / 1024, 1)
@@ -58,7 +58,7 @@ if ($img) {{
 }}
 """
     try:
-        r = subprocess.run(["powershell", "-Command", ps],
+        r = subprocess.run(["bash", "-Command", ps],
                           capture_output=True, text=True, timeout=15)
         if os.path.exists(filepath):
             size_kb = round(os.path.getsize(filepath) / 1024, 1)

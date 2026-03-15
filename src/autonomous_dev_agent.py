@@ -186,7 +186,7 @@ class AutonomousDevAgent:
                 "description": "Cache PowerShell session for faster command execution",
                 "priority": 2,
                 "estimated_time": 900,
-                "action": self._task_optimize_powershell,
+                "action": self._task_optimize_bash,
             },
             
             # AI improvements
@@ -396,7 +396,7 @@ class AutonomousDevAgent:
         # TODO: Use win10toast or plyer for notifications
         return {"message": "Windows notifications planned", "success": False}
     
-    async def _task_optimize_powershell(self) -> dict:
+    async def _task_optimize_bash(self) -> dict:
         """Optimize PowerShell execution with session caching."""
         # TODO: Keep PowerShell session alive between commands
         return {"message": "PowerShell optimization planned", "success": False}

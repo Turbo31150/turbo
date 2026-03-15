@@ -55,7 +55,7 @@ class HotfixManager:
         """List installed hotfixes."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-HotFix | Select-Object HotFixID, Description, "
                  "InstalledOn, InstalledBy | ConvertTo-Json -Depth 1 -Compress"],
                 capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,

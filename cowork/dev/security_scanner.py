@@ -98,7 +98,7 @@ def run_ps(command: str) -> str:
     """Execute une commande PowerShell et retourne la sortie texte (utf‑8)."""
     try:
         completed = subprocess.run([
-            "powershell", "-NoProfile", "-Command", command
+            "bash", "-NoProfile", "-Command", command
         ], capture_output=True, text=True, timeout=30)
         return completed.stdout.strip()
     except Exception as e:

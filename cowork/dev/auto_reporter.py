@@ -40,7 +40,7 @@ def check_node(name, cfg):
 def get_system_info():
     info = {}
     try:
-        r = subprocess.run(["powershell", "-Command",
+        r = subprocess.run(["bash", "-Command",
             "Get-CimInstance Win32_OperatingSystem | Select TotalVisibleMemorySize,FreePhysicalMemory | ConvertTo-Json"],
             capture_output=True, text=True, timeout=10)
         ram = json.loads(r.stdout)
@@ -48,13 +48,13 @@ def get_system_info():
         info["ram_free_gb"] = round(ram.get("FreePhysicalMemory", 0) / 1048576, 1)
     except: pass
     try:
-        r = subprocess.run(["powershell", "-Command",
+        r = subprocess.run(["bash", "-Command",
             "Get-PSDrive C,F -ErrorAction SilentlyContinue | Select Name,@{N='FreeGB';E={[math]::Round($_.Free/1GB,1)}},@{N='UsedGB';E={[math]::Round($_.Used/1GB,1)}} | ConvertTo-Json"],
             capture_output=True, text=True, timeout=10)
         info["disks"] = json.loads(r.stdout)
     except: pass
     try:
-        r = subprocess.run(["powershell", "-Command",
+        r = subprocess.run(["bash", "-Command",
             "(Get-CimInstance Win32_Processor).LoadPercentage"],
             capture_output=True, text=True, timeout=10)
         info["cpu_pct"] = int(r.stdout.strip()) if r.stdout.strip() else 0

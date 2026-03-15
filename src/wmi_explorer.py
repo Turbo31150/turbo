@@ -89,7 +89,7 @@ class WMIExplorer:
 
         try:
             result = subprocess.run(
-                ["powershell", "-Command", cmd],
+                ["bash", "-Command", cmd],
                 capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=20,
                 creationflags=_NO_WINDOW,
             )
@@ -133,7 +133,7 @@ class WMIExplorer:
             return 0
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  f"(Get-CimInstance {safe_class} | Measure-Object).Count"],
                 capture_output=True, text=True, timeout=15,
                 creationflags=_NO_WINDOW,

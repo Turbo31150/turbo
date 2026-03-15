@@ -77,7 +77,7 @@ class EventLogReader:
         )
         try:
             result = subprocess.run(
-                ["powershell", "-Command", cmd],
+                ["bash", "-Command", cmd],
                 capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=20,
                 creationflags=_NO_WINDOW,
             )
@@ -105,7 +105,7 @@ class EventLogReader:
         """List available event log names."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-WinEvent -ListLog * -ErrorAction SilentlyContinue | "
                  "Where-Object {$_.RecordCount -gt 0} | "
                  "Select-Object -ExpandProperty LogName | Sort-Object"],

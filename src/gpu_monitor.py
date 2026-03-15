@@ -97,7 +97,7 @@ class GPUMonitor:
         """List all GPUs via WMI."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-CimInstance Win32_VideoController | "
                  "Select-Object Name, DriverVersion, AdapterRAM, "
                  "VideoProcessor, Status | ConvertTo-Json -Depth 1"],

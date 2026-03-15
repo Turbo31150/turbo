@@ -110,11 +110,11 @@ METHODOLOGIE:
 FORMAT:
 Diagnostic: [situation]
 Cause: [explication]
-```powershell
+```bash
 # Solution
 [commande complete]
 ```
-```powershell
+```bash
 # Verification
 [commande de check]
 ```""",
@@ -350,7 +350,7 @@ _STRUCTURED_TRIGGERS = [
 _CODE_TRIGGERS = [
     "code", "script", "fonction", "classe", "api",
     "implementation", "programme", "ecris", "cree",
-    "python", "javascript", "typescript", "bash", "powershell",
+    "python", "javascript", "typescript", "bash", "bash",
     "sql", "html", "css", "json", "yaml",
 ]
 

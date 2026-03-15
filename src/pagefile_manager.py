@@ -58,7 +58,7 @@ class PagefileManager:
         """Get current pagefile usage."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-CimInstance Win32_PageFileUsage | "
                  "Select-Object Name, AllocatedBaseSize, CurrentUsage, "
                  "PeakUsage | ConvertTo-Json -Depth 1"],
@@ -87,7 +87,7 @@ class PagefileManager:
         """Get pagefile settings (initial/max size)."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-CimInstance Win32_PageFileSetting | "
                  "Select-Object Name, InitialSize, MaximumSize | "
                  "ConvertTo-Json -Depth 1"],
@@ -114,7 +114,7 @@ class PagefileManager:
         """Get OS virtual memory stats."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-CimInstance Win32_OperatingSystem | "
                  "Select-Object TotalVirtualMemorySize, FreeVirtualMemory, "
                  "TotalVisibleMemorySize, FreePhysicalMemory | "

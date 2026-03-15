@@ -138,11 +138,11 @@ class AutoDeveloper:
             "Genere UNE commande vocale JARVIS en JSON strict:\n"
             '{"name": "string", "category": "string", "description": "string", '
             '"triggers": ["phrase1", "phrase2", "phrase3"], '
-            '"action_type": "powershell|hotkey|python|browser|app_open", '
+            '"action_type": "bash|hotkey|python|browser|app_open", '
             '"action": "command_to_execute"}\n\n'
             "Categories: navigation, fichiers, systeme, media, app, trading, dev, communication.\n"
             "action_type:\n"
-            "- powershell: commande PowerShell Windows\n"
+            "- bash: commande PowerShell Windows\n"
             "- hotkey: raccourci clavier (ex: ctrl+c, win+left)\n"
             "- python: fonction Python (module.function)\n"
             "- browser: navigate:URL ou search:query\n"
@@ -170,7 +170,7 @@ class AutoDeveloper:
                 category=data.get("category", "systeme"),
                 description=data.get("description", gap.description),
                 triggers=data.get("triggers", [gap.pattern]),
-                action_type=data.get("action_type", "powershell"),
+                action_type=data.get("action_type", "bash"),
                 action=data.get("action", ""),
                 confidence=0.7,
             )
@@ -234,7 +234,7 @@ class AutoDeveloper:
         # Validate structure
         if not cmd.name or not cmd.triggers or not cmd.action:
             return False
-        if cmd.action_type not in ("powershell", "hotkey", "python", "browser", "app_open", "bash",
+        if cmd.action_type not in ("bash", "hotkey", "python", "browser", "app_open", "bash",
                                     "ms_settings", "pipeline", "script"):
             return False
         if len(cmd.triggers) < 1:

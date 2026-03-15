@@ -24,6 +24,8 @@ __all__ = [
     "get_suggestions",
     "load_db_corrections",
     "normalize_text",
+    "phonetic_distance",
+    "phonetic_fuzzy_match",
     "phonetic_normalize",
     "phonetic_similarity",
     "remove_accents",
@@ -354,6 +356,80 @@ PHONETIC_GROUPS: list[list[str]] = [
     ["starcoder", "star coder", "starcodeur", "starcaudeur"],
     ["codegemma", "code gem ma", "codejem", "codejemma"],
 ]
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PHONETIC SIMILARITY MATRIX — Bidirectional sound distance
+# ═══════════════════════════════════════════════════════════════════════════
+
+_phonetic_map: dict[str, set[str]] = {}
+
+def _build_phonetic_map():
+    """Build bidirectional phonetic confusion map from PHONETIC_GROUPS."""
+    for group in PHONETIC_GROUPS:
+        for sound in group:
+            s = sound.lower()
+            if s not in _phonetic_map:
+                _phonetic_map[s] = set()
+            for other in group:
+                o = other.lower()
+                if o != s:
+                    _phonetic_map[s].add(o)
+
+_build_phonetic_map()
+
+
+def phonetic_distance(word_a: str, word_b: str) -> float:
+    """Calculate phonetic distance between two words (0.0 = identical, 1.0 = different).
+
+    Uses the phonetic confusion map to score similarity beyond character-level edit distance.
+    Words that sound similar in French get lower distance scores.
+    """
+    a, b = word_a.lower().strip(), word_b.lower().strip()
+    if a == b:
+        return 0.0
+
+    # Check if one is a known phonetic variant of the other
+    if a in _phonetic_map and b in _phonetic_map[a]:
+        return 0.1
+
+    # Character-level comparison with phonetic substitution awareness
+    from difflib import SequenceMatcher
+
+    # Base edit distance
+    base_score = 1.0 - SequenceMatcher(None, a, b).ratio()
+
+    # Check for phonetic substring substitutions
+    phonetic_bonus = 0.0
+    for sound, variants in _phonetic_map.items():
+        if sound in a:
+            for variant in variants:
+                # Would substituting this phonetic group make them closer?
+                modified = a.replace(sound, variant, 1)
+                new_score = 1.0 - SequenceMatcher(None, modified, b).ratio()
+                if new_score < base_score:
+                    phonetic_bonus = max(phonetic_bonus, base_score - new_score)
+
+    return max(0.0, base_score - phonetic_bonus)
+
+
+def phonetic_fuzzy_match(text: str, candidates: list[str], threshold: float = 0.4) -> list[tuple[str, float]]:
+    """Find candidates that sound similar to text using phonetic distance.
+
+    Returns list of (candidate, score) sorted by score descending.
+    Score 1.0 = perfect phonetic match, 0.0 = no match.
+    """
+    results = []
+    text_lower = text.lower().strip()
+
+    for candidate in candidates:
+        dist = phonetic_distance(text_lower, candidate.lower().strip())
+        score = 1.0 - dist
+        if score >= threshold:
+            results.append((candidate, score))
+
+    results.sort(key=lambda x: x[1], reverse=True)
+    return results
+
 
 # Mots-outils souvent rajoutes/enleves par le STT
 FILLER_WORDS = {
@@ -880,7 +956,7 @@ IMPLICIT_COMMANDS: dict[str, str] = {
     "windows update": "mets a jour windows",
     "winupdate": "mets a jour windows",
     "defender": "securite windows",
-    "powershell": "ouvre powershell",
+    "bash": "ouvre bash",
     "cmd": "ouvre le terminal",
     "command prompt": "ouvre le terminal",
     # Vague 32 — JARVIS raccourcis
@@ -2144,6 +2220,24 @@ async def full_correction_pipeline(
         _cache_match_result(raw_text, result)
         return result
 
+    # Step 6.5: Try bidirectional phonetic fuzzy matching (before old phonetic step)
+    if not cmd or score < 0.85:
+        all_triggers = [t for c in COMMANDS for t in c.triggers]
+        phonetic_matches = phonetic_fuzzy_match(intent, all_triggers, threshold=0.6)
+        if phonetic_matches:
+            best_phonetic = phonetic_matches[0]
+            for c in COMMANDS:
+                if best_phonetic[0] in c.triggers:
+                    if best_phonetic[1] > (score or 0.0):
+                        result["command"] = c
+                        result["confidence"] = best_phonetic[1]
+                        result["corrected"] = corrected
+                        result["intent"] = intent
+                        result["method"] = "phonetic_bidirectional"
+                        _cache_match_result(raw_text, result)
+                        return result
+                    break
+
     # Step 7: Try phonetic matching
     best_phon_cmd = None
     best_phon_score = 0.0
@@ -2201,7 +2295,7 @@ async def full_correction_pipeline(
             result["confidence"] = 0.80
             result["method"] = "domino"
             return result
-    except ImportError:
+    except (ImportError, SyntaxError):
         pass
 
     # No match — will be sent to Claude as freeform

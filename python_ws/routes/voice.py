@@ -252,6 +252,16 @@ async def handle_voice_request(action: str, payload: dict) -> dict:
         return await _handle_tts(payload)
     elif action == "get_transcriptions":
         return {"transcriptions": _transcriptions[-50:]}
+    elif action == "learn_command":
+        return _handle_learn(payload)
+    elif action == "unlearn_command":
+        return _handle_unlearn(payload)
+    elif action == "voice_analytics":
+        return _handle_voice_analytics(payload)
+    elif action == "list_voices":
+        return _handle_list_voices()
+    elif action == "session_stats":
+        return _handle_session_stats()
     return {"error": f"Unknown voice action: {action}"}
 
 
@@ -526,3 +536,139 @@ async def _handle_tts(payload: dict) -> dict:
 
     # Fallback: signal client to use browser Web Speech API (speechSynthesis)
     return {"spoken": False, "text": text, "fallback": "web_speech_api"}
+
+
+# ── Voice Learning (teach/forget commands via WebSocket) ─────────────────
+
+def _handle_learn(payload: dict) -> dict:
+    """Teach JARVIS a new voice trigger via WebSocket.
+
+    Payload:
+        trigger: str — the voice phrase (e.g. "montre les positions")
+        target_command: str? — existing command name to map to
+        action: str? — bash/script action for new command
+        action_type: str? — "bash", "script", "browser" (default "bash")
+    """
+    trigger = payload.get("trigger", "").strip()
+    if not trigger:
+        return {"success": False, "error": "trigger requis"}
+
+    try:
+        from src.commands import learn_voice_command
+        result = learn_voice_command(
+            trigger=trigger,
+            target_command=payload.get("target_command"),
+            action=payload.get("action"),
+            action_type=payload.get("action_type", "bash"),
+            category=payload.get("category", "learned"),
+            description=payload.get("description", ""),
+            confirm=payload.get("confirm", False),
+        )
+        return result
+    except Exception as e:
+        logger.error("learn_command error: %s", e)
+        return {"success": False, "error": str(e)}
+
+
+def _handle_unlearn(payload: dict) -> dict:
+    """Remove a voice trigger via WebSocket.
+
+    Payload:
+        trigger: str — the voice phrase to forget
+    """
+    trigger = payload.get("trigger", "").strip()
+    if not trigger:
+        return {"success": False, "error": "trigger requis"}
+
+    try:
+        from src.commands import unlearn_voice_command
+        return unlearn_voice_command(trigger)
+    except Exception as e:
+        logger.error("unlearn_command error: %s", e)
+        return {"success": False, "error": str(e)}
+
+
+def _handle_voice_analytics(payload: dict) -> dict:
+    """Return voice pipeline analytics from voice_analytics table.
+
+    Payload:
+        limit: int — max rows to return (default 100)
+        stage: str? — filter by stage (stt, correction, execution, learn)
+    """
+    import sqlite3
+    from pathlib import Path
+
+    db_path = Path(__file__).resolve().parent.parent.parent / "data" / "jarvis.db"
+    limit = min(int(payload.get("limit", 100)), 500)
+    stage_filter = payload.get("stage", "")
+
+    try:
+        conn = sqlite3.connect(str(db_path), timeout=3)
+        conn.row_factory = sqlite3.Row
+
+        if stage_filter:
+            rows = conn.execute(
+                "SELECT * FROM voice_analytics WHERE stage = ? ORDER BY id DESC LIMIT ?",
+                (stage_filter, limit),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM voice_analytics ORDER BY id DESC LIMIT ?",
+                (limit,),
+            ).fetchall()
+        conn.close()
+
+        events = [dict(r) for r in rows]
+
+        # Compute summary stats
+        total = len(events)
+        stages = {}
+        for e in events:
+            s = e.get("stage", "?")
+            stages[s] = stages.get(s, 0) + 1
+
+        avg_latency = {}
+        for stage_name in ("stt", "correction"):
+            latencies = [e["latency_ms"] for e in events
+                         if e.get("stage") == stage_name and e.get("latency_ms", 0) > 0]
+            if latencies:
+                avg_latency[stage_name] = round(sum(latencies) / len(latencies), 1)
+
+        success_rate = 0.0
+        if total > 0:
+            success_rate = round(sum(1 for e in events if e.get("success")) / total * 100, 1)
+
+        return {
+            "events": events[:50],
+            "total": total,
+            "stages": stages,
+            "avg_latency_ms": avg_latency,
+            "success_rate": success_rate,
+        }
+    except Exception as e:
+        return {"events": [], "error": str(e)}
+
+
+def _handle_list_voices() -> dict:
+    """List available TTS voices."""
+    try:
+        from src.tts_streaming import VOICES
+        return {"voices": VOICES, "default": "denise"}
+    except ImportError:
+        return {
+            "voices": {
+                "denise": "fr-FR-DeniseNeural",
+                "henri": "fr-FR-HenriNeural",
+            },
+            "default": "denise",
+        }
+
+
+def _handle_session_stats() -> dict:
+    """Return current voice session stats."""
+    try:
+        from src.voice_session import get_voice_session
+        session = get_voice_session()
+        return session.to_dict()
+    except Exception as e:
+        return {"error": str(e)}

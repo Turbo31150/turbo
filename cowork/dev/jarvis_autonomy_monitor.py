@@ -72,7 +72,7 @@ def restart_ollama():
     """Restart Ollama service."""
     try:
         subprocess.run(
-            ["powershell", "-NoProfile", "-Command",
+            ["bash", "-NoProfile", "-Command",
              "Stop-Process -Name ollama -Force -ErrorAction SilentlyContinue; "
              "Start-Sleep 2; Start-Process ollama -ArgumentList 'serve' -WindowStyle Hidden"],
             capture_output=True, timeout=15

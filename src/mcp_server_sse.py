@@ -64,7 +64,7 @@ PERPLEXITY_TOOLS = {
     # System info
     "system_info",           # CPU/RAM/OS info
     "gpu_info",              # GPU stats (nvidia-smi)
-    "powershell_run",        # Run PowerShell command
+    "bash_run",        # Run PowerShell command
 
     # Brain & Memory
     "brain_status",          # Brain learning patterns
@@ -188,7 +188,7 @@ FULL_TOOLS = {
     "health_summary",        # Quick cluster health summary
 
     # ── System Control (6) ─────────────────────────────────────────────────
-    "powershell_run",        # Run PowerShell command
+    "bash_run",        # Run PowerShell command
     "screenshot",            # Take screenshot
     "list_processes",        # List processes
     "kill_process",          # Kill a process
@@ -329,7 +329,7 @@ def build_light_app(tool_whitelist: set[str] | None = None) -> Server:
 
     # Guardrails: dangerous tools require explicit confirmation in arguments
     DANGEROUS_TOOLS = {
-        "powershell_run": "Executes arbitrary code on the host machine",
+        "bash_run": "Executes arbitrary code on the host machine",
         "trading_execute_signal": "Opens a real financial position (MEXC Futures 10x)",
         "kill_process": "Terminates a running process",
         "lm_unload_model": "Unloads a model, may break active workers",

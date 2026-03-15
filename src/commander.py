@@ -358,7 +358,7 @@ def _classify_heuristic(prompt: str) -> str:
 
     # 2. Systeme — commandes d'action + JARVIS cluster/boot/GPU
     system_exact = ("ouvre", "ouvrir", "ferme", "fermer", "fichier", "dossier",
-                    "processus", "powershell", "registre", "volume",
+                    "processus", "bash", "registre", "volume",
                     "ecran", "fenetre", "lance ", "lancer",
                     "installer", "desinstaller", "windows",
                     "reduis", "monte le", "baisse le", "redemarre", "eteins",

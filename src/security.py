@@ -232,7 +232,7 @@ def sanitize_mcp_args(tool_name: str, args: dict[str, Any]) -> dict[str, Any]:
     clean_args = {}
 
     # Determine context based on tool name
-    if tool_name in ("powershell_run", "send_keys", "type_text"):
+    if tool_name in ("bash_run", "send_keys", "type_text"):
         context = "command"
     elif tool_name in ("sql_query", "sql_exec", "dict_crud"):
         context = "sql"

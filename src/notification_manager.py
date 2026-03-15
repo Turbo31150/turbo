@@ -70,7 +70,7 @@ class NotificationManager:
             title=title, message=message, priority=priority, source=source,
         )
         # Try PowerShell toast
-        success = self._send_powershell(title, message)
+        success = self._send_bash(title, message)
         notif.sent = success
         with self._lock:
             self._history.append(notif)
@@ -79,7 +79,7 @@ class NotificationManager:
         self._record("send", success, f"{title}: {message[:50]}")
         return success
 
-    def _send_powershell(self, title: str, message: str) -> bool:
+    def _send_bash(self, title: str, message: str) -> bool:
         """Send toast via PowerShell."""
         # Escape single quotes
         title_safe = title.replace("'", "''")
@@ -98,7 +98,7 @@ class NotificationManager:
         )
         try:
             result = subprocess.run(
-                ["powershell", "-Command", ps_cmd],
+                ["bash", "-Command", ps_cmd],
                 capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
                 creationflags=_NO_WINDOW,
             )

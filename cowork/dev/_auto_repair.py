@@ -76,7 +76,7 @@ def attempt_repair(failure):
         # Try restarting the relevant service
         if "11434" in error:
             try:
-                subprocess.run(["powershell", "-Command", "Start-Process ollama -ArgumentList 'serve' -WindowStyle Hidden"],
+                subprocess.run(["bash", "-Command", "Start-Process ollama -ArgumentList 'serve' -WindowStyle Hidden"],
                              capture_output=True, timeout=10)
                 repairs.append("restarted Ollama")
             except Exception:
@@ -122,7 +122,7 @@ def main():
         if status == "offline":
             if name == "OL1":
                 try:
-                    subprocess.run(["powershell", "-Command",
+                    subprocess.run(["bash", "-Command",
                                   "Start-Process ollama -ArgumentList 'serve' -WindowStyle Hidden"],
                                  capture_output=True, timeout=10)
                     repairs_done.append(f"{name}: attempted Ollama restart")

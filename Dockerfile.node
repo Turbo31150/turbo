@@ -1,0 +1,14 @@
+FROM node:20-slim
+
+WORKDIR /app
+
+COPY canvas/package*.json ./canvas/
+RUN cd canvas && npm install --production 2>/dev/null || true
+
+COPY . .
+
+ENV TURBO=/app
+
+EXPOSE 18800
+
+CMD ["node", "canvas/direct-proxy.js"]

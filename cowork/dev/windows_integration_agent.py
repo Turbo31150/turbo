@@ -44,7 +44,7 @@ $toast = [Windows.UI.Notifications.ToastNotification]::new($xml)
 '''
     try:
         result = subprocess.run(
-            ["powershell", "-NoProfile", "-Command", ps_script],
+            ["bash", "-NoProfile", "-Command", ps_script],
             capture_output=True, text=True, timeout=10,
         )
         return result.returncode == 0

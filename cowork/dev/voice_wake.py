@@ -21,7 +21,7 @@ def listen_loop(wake_word: str = "jarvis", callback_url: str = None):
     }}
     '''
     try:
-        r = subprocess.run(["powershell", "-c", ps_script], capture_output=True, text=True, timeout=300)
+        r = subprocess.run(["bash", "-c", ps_script], capture_output=True, text=True, timeout=300)
         if r.stdout.strip():
             print(f"Wake word detected! Full: {r.stdout.strip()}")
             if callback_url:

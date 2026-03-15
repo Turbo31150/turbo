@@ -4261,5 +4261,26 @@
     "last_used": 0.0,
     "success_rate": 1.0,
     "confirm": false
+  },
+  {
+    "name": "learned_test_apprentissage_pipeline",
+    "description": "Auto-appris: test apprentissage pipeline. Resultat: test reussi",
+    "triggers": [
+      "test apprentissage pipeline"
+    ],
+    "steps": [
+      {
+        "tool": "system_info",
+        "args": {},
+        "description": "Test info systeme",
+        "wait_for_result": true
+      }
+    ],
+    "category": "auto_learned",
+    "created_at": 1773596744.813577,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
   }
 ]

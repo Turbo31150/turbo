@@ -54,7 +54,7 @@ class RecycleBinManager:
         """Get recycle bin item count and size."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "$shell = New-Object -ComObject Shell.Application; "
                  "$rb = $shell.NameSpace(0x0a); "
                  "$items = $rb.Items(); "
@@ -82,7 +82,7 @@ class RecycleBinManager:
         """Fallback using simpler PowerShell."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "(New-Object -ComObject Shell.Application).NameSpace(0x0a).Items().Count"],
                 capture_output=True, text=True, timeout=10,
                 creationflags=_NO_WINDOW,

@@ -66,7 +66,7 @@ class PerformanceCounterManager:
         try:
             paths_arg = ",".join(f"'{p}'" for p in COUNTER_PATHS)
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  f"$c = Get-Counter -Counter {paths_arg} -ErrorAction SilentlyContinue; "
                  "$out = @{}; foreach($s in $c.CounterSamples) { "
                  "$out[$s.Path] = [math]::Round($s.CookedValue, 2) }; "
@@ -105,7 +105,7 @@ class PerformanceCounterManager:
         """Get a single custom counter value."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  f"$c = Get-Counter -Counter '{counter_path}' -ErrorAction Stop; "
                  "ConvertTo-Json @{path=$c.CounterSamples[0].Path; "
                  "value=[math]::Round($c.CounterSamples[0].CookedValue, 2)} -Compress"],

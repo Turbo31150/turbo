@@ -93,7 +93,7 @@ class ClipboardManager:
         """Get current system clipboard content (Windows)."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command", "Get-Clipboard"],
+                ["bash", "-Command", "Get-Clipboard"],
                 capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=5,
                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             )
@@ -105,7 +105,7 @@ class ClipboardManager:
         """Set system clipboard content (Windows)."""
         try:
             proc = subprocess.Popen(
-                ["powershell", "-Command", "Set-Clipboard", "-Value", content],
+                ["bash", "-Command", "Set-Clipboard", "-Value", content],
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             )

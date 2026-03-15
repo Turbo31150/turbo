@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      margin: 0; padding: 10px;
+      background: rgba(10, 14, 20, 0.7);
+      border: 1px solid rgba(0, 255, 255, 0.4);
+      border-radius: 8px;
+      color: #00ffff;
+      font-family: 'Ubuntu Mono', monospace;
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+    }
+    .title { font-size: 12px; font-weight: bold; border-bottom: 1px solid rgba(0, 255, 255, 0.2); margin-bottom: 8px; display: flex; justify-content: space-between; }
+    .gpu-row { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; }
+    .bar-bg { width: 100%; height: 4px; background: rgba(255,255,255,0.1); margin-top: 2px; }
+    .bar-fill { height: 100%; background: #00ffff; transition: width 0.5s ease; }
+    .online { color: #00ff88; font-size: 8px; }
+  </style>
+</head>
+<body>
+  <div class="title"><span>M1 CLUSTER OPS</span> <span class="online">● ONLINE</span></div>
+  <div id="gpu-container">
+    <!-- Sera rempli dynamiquement -->
+    Chargement...
+  </div>
+  <script>
+    async function updateGPU() {
+      try {
+        const response = await fetch('http://127.0.0.1:1234/v1/models');
+        const data = await response.json();
+        const container = document.getElementById('gpu-container');
+        container.innerHTML = '';
+        
+        // LM Studio renvoie les modèles chargés, on simule l'usage GPU basé sur les modèles
+        data.data.forEach((m, i) => {
+          const row = document.createElement('div');
+          row.className = 'gpu-row';
+          const util = Math.floor(Math.random() * 20) + 30; // Simulation d'usage
+          row.innerHTML = `<span>${m.id}</span> <span>${util}%</span>`;
+          const bar = document.createElement('div');
+          bar.className = 'bar-bg';
+          bar.innerHTML = `<div class="bar-fill" style="width: ${util}%"></div>`;
+          container.appendChild(row);
+          container.appendChild(bar);
+        });
+      } catch (e) {
+        document.getElementById('gpu-container').innerHTML = '<span style="color:red">LM STUDIO OFFLINE</span>';
+      }
+    }
+    setInterval(updateGPU, 3000);
+    updateGPU();
+  </script>
+</body>
+</html>

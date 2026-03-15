@@ -462,7 +462,7 @@ AGENT_CONFIGS = [
         fallback_nodes=["OL1"],
         strategy="single",  # benchmark: single 100% vs category 86%
         priority=3,
-        keywords=["gpu", "cpu", "ram", "disque", "service", "process", "powershell", "windows", "monitoring"],
+        keywords=["gpu", "cpu", "ram", "disque", "service", "process", "bash", "windows", "monitoring"],
     ),
     PatternAgent(
         pattern_id="PAT_CREATIVE_WRITER",

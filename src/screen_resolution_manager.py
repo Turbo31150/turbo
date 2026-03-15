@@ -55,7 +55,7 @@ class ScreenResolutionManager:
         """List display adapters via Win32_VideoController."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-CimInstance Win32_VideoController | "
                  "Select-Object Name, "
                  "CurrentHorizontalResolution, CurrentVerticalResolution, "

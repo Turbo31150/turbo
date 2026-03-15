@@ -267,7 +267,7 @@ async def check_system_info() -> dict:
     }
 
     ps_script = (
-        "Get-CimInstance Win32_OperatingSystem | "
+        "free -h | "
         "ForEach-Object { "
         "  $r = @{ Caption=$_.Caption; TotalVisibleMemorySize=$_.TotalVisibleMemorySize; FreePhysicalMemory=$_.FreePhysicalMemory }; "
         "  $r | ConvertTo-Json -Compress "
@@ -496,7 +496,7 @@ def analyze_persistence() -> dict:
     """
     checks = {
         "data/": DATA_DIR,
-        "LMSTUDIO_BACKUP/": Path("F:/BUREAU/LMSTUDIO_BACKUP"),
+        "LMSTUDIO_BACKUP/": PROJECT_ROOT / "projects/lmstudio_backup",
         "etoile.db": DATA_DIR / "etoile.db",
         "jarvis.db": DATA_DIR / "jarvis.db",
         "logs/": PROJECT_ROOT / "logs",

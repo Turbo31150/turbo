@@ -57,7 +57,7 @@ class LocaleManager:
         """Get system locale info."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-WinSystemLocale | Select-Object Name, DisplayName, "
                  "LCID | ConvertTo-Json"],
                 capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
@@ -79,7 +79,7 @@ class LocaleManager:
         """Get user preferred languages."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-WinUserLanguageList | Select-Object LanguageTag, "
                  "Autonym, EnglishName | ConvertTo-Json -Depth 1"],
                 capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
@@ -105,7 +105,7 @@ class LocaleManager:
         """Get installed keyboard layouts."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-WinUserLanguageList | ForEach-Object { $_.InputMethodTips } | "
                  "ConvertTo-Json"],
                 capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
@@ -124,7 +124,7 @@ class LocaleManager:
         """Get current timezone."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-TimeZone | Select-Object Id, DisplayName, "
                  "BaseUtcOffset | ConvertTo-Json"],
                 capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
@@ -147,7 +147,7 @@ class LocaleManager:
         """Get date/time format settings."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "(Get-Culture).DateTimeFormat | Select-Object "
                  "ShortDatePattern, LongDatePattern, ShortTimePattern, "
                  "LongTimePattern | ConvertTo-Json"],

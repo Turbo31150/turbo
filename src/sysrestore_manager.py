@@ -58,7 +58,7 @@ class SysRestoreManager:
         """List all system restore points."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-ComputerRestorePoint | "
                  "Select-Object SequenceNumber, Description, RestorePointType, CreationTime | "
                  "ConvertTo-Json -Depth 1"],

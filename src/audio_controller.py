@@ -1,15 +1,15 @@
-"""Audio Controller — Windows audio volume and device management.
+"""Audio Controller — Linux audio volume and device management.
 
-Get/set volume, mute/unmute, list audio devices, audio routing.
-Uses ctypes with Windows Core Audio API (MMDevice/EndpointVolume).
+Get/set volume, mute/unmute, list audio devices via PulseAudio/PipeWire.
+Falls back to amixer if pactl is not available.
 Designed for JARVIS voice-commanded audio control.
 """
 
 from __future__ import annotations
 
-import ctypes
-import ctypes.wintypes
 import logging
+import re
+import shutil
 import subprocess
 import threading
 import time
@@ -25,7 +25,13 @@ __all__ = [
 
 logger = logging.getLogger("jarvis.audio_controller")
 
-_NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+
+def _has_pactl() -> bool:
+    return shutil.which("pactl") is not None
+
+
+def _has_amixer() -> bool:
+    return shutil.which("amixer") is not None
 
 
 @dataclass
@@ -42,156 +48,179 @@ class AudioDevice:
     """An audio endpoint device."""
     name: str
     device_id: str = ""
-    device_type: str = ""  # playback, recording
+    device_type: str = ""
     is_default: bool = False
 
 
 class AudioController:
-    """Windows audio control with history."""
+    """Linux audio control with history."""
 
     def __init__(self) -> None:
         self._events: list[AudioEvent] = []
         self._lock = threading.Lock()
-        self._presets: dict[str, int] = {}  # name -> volume level
+        self._presets: dict[str, int] = {}
+        self._use_pactl = _has_pactl()
+        self._use_amixer = _has_amixer()
 
-    # ── Volume Control (via nircmd/PowerShell) ────────────────────────
+    def _run(self, cmd: list[str], timeout: int = 5) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            encoding="utf-8",
+            errors="replace",
+        )
 
     def get_volume(self) -> dict[str, Any]:
         """Get current system volume level."""
-        try:
-            result = subprocess.run(
-                ["powershell", "-Command",
-                 "(Get-AudioDevice -PlaybackVolume).Volume"],
-                capture_output=True, text=True, timeout=5,
-                creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
-            )
-            if result.returncode == 0 and result.stdout.strip():
-                vol = int(float(result.stdout.strip()))
-                return {"volume": vol, "source": "AudioDevice"}
-        except Exception as e:
-            print(f"Error parsing volume: {e}")
-        # Fallback: use PowerShell WMI
-        try:
-            result = subprocess.run(
-                ["powershell", "-Command",
-                 "$vol = [Audio]::Volume; [int]($vol * 100)"],
-                capture_output=True, text=True, timeout=5,
-                creationflags=_NO_WINDOW,
-                encoding="utf-8", errors="replace",
-            )
-            if result.returncode == 0 and result.stdout.strip():
-                return {"volume": int(result.stdout.strip()), "source": "WMI"}
-        except Exception as e:
-            print(f"Error reading volume: {e}")
-            pass
+        if self._use_pactl:
+            try:
+                result = self._run(["pactl", "get-sink-volume", "@DEFAULT_SINK@"])
+                if result.returncode == 0 and result.stdout.strip():
+                    match = re.search(r"(\d+)%", result.stdout)
+                    if match:
+                        vol = int(match.group(1))
+                        self._record("get_volume", True, f"volume={vol}")
+                        return {"volume": vol, "source": "pactl"}
+            except Exception as e:
+                logger.debug("pactl get_volume error: %s", e)
+
+        if self._use_amixer:
+            try:
+                result = self._run(["amixer", "sget", "Master"])
+                if result.returncode == 0 and result.stdout.strip():
+                    match = re.search(r"\[(\d+)%\]", result.stdout)
+                    if match:
+                        vol = int(match.group(1))
+                        self._record("get_volume", True, f"volume={vol}")
+                        return {"volume": vol, "source": "amixer"}
+            except Exception as e:
+                logger.debug("amixer get_volume error: %s", e)
+
+        self._record("get_volume", False, "no backend available")
         return {"volume": -1, "error": "Cannot read volume"}
 
     def set_volume(self, level: int) -> bool:
         """Set system volume (0-100)."""
         level = max(0, min(100, level))
-        try:
-            # Use nircmd if available, else PowerShell
-            subprocess.run(
-                ["nircmd", "setsysvolume", str(int(level * 655.35))],
-                capture_output=True, timeout=3, creationflags=_NO_WINDOW,
-            )
-            self._record("set_volume", True, f"level={level}")
-            return True
-        except FileNotFoundError:
-            logging.error("File not found: %s", sys.exc_info()[0])
-        # PowerShell fallback
-        try:
-            ps_cmd = f"$obj = New-Object -ComObject WScript.Shell; " + \
-                     "".join(["$obj.SendKeys([char]174); " for _ in range(50)]) + \
-                     "".join([f"$obj.SendKeys([char]175); " for _ in range(level // 2)])
-            subprocess.run(
-                ["powershell", "-Command", ps_cmd],
-                capture_output=True, timeout=10, creationflags=_NO_WINDOW,
-            )
-            self._record("set_volume", True, f"level={level} (ps)")
-            return True
-        except Exception as e:
-            self._record("set_volume", False, str(e))
-            return False
+
+        if self._use_pactl:
+            try:
+                result = self._run(["pactl", "set-sink-volume", "@DEFAULT_SINK@", f"{level}%"])
+                if result.returncode == 0:
+                    self._record("set_volume", True, f"level={level}")
+                    return True
+            except Exception as e:
+                logger.debug("pactl set_volume error: %s", e)
+
+        if self._use_amixer:
+            try:
+                result = self._run(["amixer", "sset", "Master", f"{level}%"])
+                if result.returncode == 0:
+                    self._record("set_volume", True, f"level={level} (amixer)")
+                    return True
+            except Exception as e:
+                logger.debug("amixer set_volume error: %s", e)
+
+        self._record("set_volume", False, "no backend available")
+        return False
 
     def mute(self) -> bool:
         """Mute system audio."""
-        try:
-            subprocess.run(
-                ["nircmd", "mutesysvolume", "1"],
-                capture_output=True, timeout=3, creationflags=_NO_WINDOW,
-            )
-            self._record("mute", True)
-            return True
-        except FileNotFoundError:
-            # Handle or log the error appropriately instead of silently passing
-            pass
-        try:
-            subprocess.run(
-                ["powershell", "-Command",
-                 "$obj = New-Object -ComObject WScript.Shell; $obj.SendKeys([char]173)"],
-                capture_output=True, timeout=5, creationflags=_NO_WINDOW,
-            )
-            self._record("mute", True, "ps_toggle")
-            return True
-        except Exception as e:
-            self._record("mute", False, str(e))
-            return False
+        if self._use_pactl:
+            try:
+                result = self._run(["pactl", "set-sink-mute", "@DEFAULT_SINK@", "1"])
+                if result.returncode == 0:
+                    self._record("mute", True)
+                    return True
+            except Exception as e:
+                logger.debug("pactl mute error: %s", e)
+
+        if self._use_amixer:
+            try:
+                result = self._run(["amixer", "sset", "Master", "mute"])
+                if result.returncode == 0:
+                    self._record("mute", True, "amixer")
+                    return True
+            except Exception as e:
+                logger.debug("amixer mute error: %s", e)
+
+        self._record("mute", False, "no backend available")
+        return False
 
     def unmute(self) -> bool:
         """Unmute system audio."""
-        try:
-            subprocess.run(
-                ["nircmd", "mutesysvolume", "0"],
-                capture_output=True, timeout=3, creationflags=_NO_WINDOW,
-            )
-            self._record("unmute", True)
-            return True
-        except FileNotFoundError:
-            # Handle or log the error instead of silently passing
-            pass
-        try:
-            subprocess.run(
-                ["powershell", "-Command",
-                 "$obj = New-Object -ComObject WScript.Shell; $obj.SendKeys([char]173)"],
-                capture_output=True, timeout=5, creationflags=_NO_WINDOW,
-            )
-            self._record("unmute", True, "ps_toggle")
-            return True
-        except Exception as e:
-            self._record("unmute", False, str(e))
-            return False
+        if self._use_pactl:
+            try:
+                result = self._run(["pactl", "set-sink-mute", "@DEFAULT_SINK@", "0"])
+                if result.returncode == 0:
+                    self._record("unmute", True)
+                    return True
+            except Exception as e:
+                logger.debug("pactl unmute error: %s", e)
 
-    # ── Device Listing ────────────────────────────────────────────────
+        if self._use_amixer:
+            try:
+                result = self._run(["amixer", "sset", "Master", "unmute"])
+                if result.returncode == 0:
+                    self._record("unmute", True, "amixer")
+                    return True
+            except Exception as e:
+                logger.debug("amixer unmute error: %s", e)
+
+        self._record("unmute", False, "no backend available")
+        return False
 
     def list_devices(self) -> list[dict[str, Any]]:
         """List audio playback and recording devices."""
-        devices = []
-        try:
-            result = subprocess.run(
-                ["powershell", "-Command",
-                 "Get-CimInstance Win32_SoundDevice | Select-Object Name, DeviceID, Status | ConvertTo-Json"],
-                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
-                creationflags=_NO_WINDOW,
-            )
-            if result.returncode == 0 and result.stdout.strip():
-                import json
-                data = json.loads(result.stdout)
-                if isinstance(data, dict):
-                    data = [data]
-                for d in data:
-                    devices.append({
-                        "name": d.get("Name", "Unknown"),
-                        "device_id": d.get("DeviceID", ""),
-                        "status": d.get("Status", ""),
-                    })
-        except Exception as e:
-            logger.debug("list_devices error: %s", e)
+        devices: list[dict[str, Any]] = []
+
+        if self._use_pactl:
+            try:
+                sinks = self._run(["pactl", "list", "short", "sinks"], timeout=10)
+                if sinks.returncode == 0:
+                    for line in sinks.stdout.strip().splitlines():
+                        parts = line.split("\t")
+                        if len(parts) >= 2:
+                            devices.append({
+                                "name": parts[1],
+                                "device_id": parts[0],
+                                "device_type": "playback",
+                                "status": parts[-1] if len(parts) > 2 else "",
+                            })
+
+                sources = self._run(["pactl", "list", "short", "sources"], timeout=10)
+                if sources.returncode == 0:
+                    for line in sources.stdout.strip().splitlines():
+                        parts = line.split("\t")
+                        if len(parts) >= 2:
+                            devices.append({
+                                "name": parts[1],
+                                "device_id": parts[0],
+                                "device_type": "recording",
+                                "status": parts[-1] if len(parts) > 2 else "",
+                            })
+            except Exception as e:
+                logger.debug("pactl list_devices error: %s", e)
+
+        elif self._use_amixer:
+            try:
+                result = self._run(["amixer", "info"], timeout=10)
+                if result.returncode == 0:
+                    match = re.search(r"Card .+ '(.+)'/", result.stdout)
+                    if match:
+                        devices.append({
+                            "name": match.group(1),
+                            "device_id": "0",
+                            "device_type": "playback",
+                            "status": "RUNNING",
+                        })
+            except Exception as e:
+                logger.debug("amixer list_devices error: %s", e)
+
         self._record("list_devices", True, f"{len(devices)} devices")
         return devices
-
-    # ── Presets ────────────────────────────────────────────────────────
 
     def save_preset(self, name: str, volume: int) -> None:
         """Save a named volume preset."""
@@ -218,8 +247,6 @@ class AudioController:
                 return True
             return False
 
-    # ── Query ─────────────────────────────────────────────────────────
-
     def _record(self, action: str, success: bool, detail: str = "") -> None:
         with self._lock:
             self._events.append(AudioEvent(action=action, success=success, detail=detail))
@@ -240,5 +267,4 @@ class AudioController:
             }
 
 
-# ── Singleton ───────────────────────────────────────────────────────
 audio_controller = AudioController()

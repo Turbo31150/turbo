@@ -56,7 +56,7 @@ class WindowsFeatureManager:
         """List all optional features."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-WindowsOptionalFeature -Online | "
                  "Select-Object FeatureName, State | "
                  "ConvertTo-Json -Depth 1 -Compress"],

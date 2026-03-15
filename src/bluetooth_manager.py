@@ -60,7 +60,7 @@ class BluetoothManager:
         """List all Bluetooth devices."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-PnpDevice -Class Bluetooth | "
                  "Select-Object FriendlyName, InstanceId, Status, Class, Manufacturer | "
                  "ConvertTo-Json -Depth 1"],
@@ -95,7 +95,7 @@ class BluetoothManager:
         """Check if Bluetooth adapter is available."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-PnpDevice -Class Bluetooth | Where-Object {"
                  "$_.FriendlyName -like '*Bluetooth*'} | Select-Object Status | "
                  "ConvertTo-Json"],

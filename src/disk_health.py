@@ -58,7 +58,7 @@ class DiskHealthMonitor:
         """List physical disks with health status."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-PhysicalDisk | Select-Object FriendlyName, MediaType, "
                  "HealthStatus, OperationalStatus, Size, BusType | "
                  "ConvertTo-Json -Depth 1"],
@@ -90,7 +90,7 @@ class DiskHealthMonitor:
         """Get storage reliability counters (SMART-like data)."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-PhysicalDisk | Get-StorageReliabilityCounter | "
                  "Select-Object DeviceId, Temperature, Wear, "
                  "ReadErrorsTotal, WriteErrorsTotal, PowerOnHours | "

@@ -91,7 +91,7 @@ def check_databases():
 def restart_service(name):
     """Attempt to restart a failed service."""
     actions = {
-        "ol1": ["powershell", "-NoProfile", "-Command",
+        "ol1": ["bash", "-NoProfile", "-Command",
                  "Stop-Process -Name ollama -Force -ErrorAction SilentlyContinue; "
                  "Start-Sleep 2; Start-Process ollama -ArgumentList 'serve' -WindowStyle Hidden"],
     }

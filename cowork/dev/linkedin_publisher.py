@@ -53,7 +53,7 @@ def method_clipboard(post_text, dry_run=False):
         # Copy to clipboard via PowerShell (pipe to avoid quoting issues)
         ps_script = '$input | Set-Clipboard'
         r = subprocess.run(
-            ['powershell', '-Command', ps_script],
+            ['bash', '-Command', ps_script],
             input=post_text.encode('utf-8'),
             capture_output=True, timeout=10)
         if r.returncode != 0:
@@ -62,14 +62,14 @@ def method_clipboard(post_text, dry_run=False):
 
         # Verify clipboard
         verify = subprocess.run(
-            'powershell -Command "Get-Clipboard | Measure-Object -Character | Select-Object -ExpandProperty Characters"',
+            'bash -Command "Get-Clipboard | Measure-Object -Character | Select-Object -ExpandProperty Characters"',
             shell=True, capture_output=True, text=True, timeout=10)
         chars = verify.stdout.strip()
         print(f"  Clipboard: {chars} chars copied")
 
         # Open LinkedIn new post page
         subprocess.Popen(
-            ['powershell', '-Command',
+            ['bash', '-Command',
              'Start-Process "https://www.linkedin.com/feed/"'],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 

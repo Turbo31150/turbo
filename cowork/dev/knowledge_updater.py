@@ -21,7 +21,7 @@ KEYWORDS = {
     "code": ["python", "javascript", "typescript", "bash", "sql", "api", "function", "class", "module"],
     "trading": ["mexc", "futures", "btc", "eth", "signal", "strategy", "tp", "sl", "position"],
     "cluster": ["m1", "m2", "m3", "ol1", "gemini", "claude", "agent", "node", "orchestrator", "latency"],
-    "windows": ["powershell", "batch", "cmd", "registry", "user", "admin", "permission", "wsl"],
+    "windows": ["bash", "batch", "cmd", "registry", "user", "admin", "permission", "wsl"],
     "general": []
 }
 

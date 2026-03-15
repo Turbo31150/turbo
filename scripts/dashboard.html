@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>JARVIS OS Dashboard</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#050812;color:#00b4eb;font-family:'Ubuntu Mono','Courier New',monospace;font-size:13px}
+.header{text-align:center;padding:15px;border-bottom:1px solid #003355}
+.header h1{font-size:28px;color:#00dcff;letter-spacing:8px}
+.header .sub{color:#5588aa;font-size:12px;margin-top:4px}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:10px}
+.panel{background:rgba(0,40,65,0.3);border:1px solid #003355;border-radius:4px;padding:10px}
+.ptitle{color:#00b4eb;font-size:12px;font-weight:bold;border-bottom:1px solid #002244;padding-bottom:5px;margin-bottom:8px}
+.grow{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #001122}
+.gname{color:#88ccdd}.gtemp{color:#00cc66}
+.barbg{background:#001122;height:8px;border-radius:4px;margin:3px 0}
+.bar{height:100%;border-radius:4px;transition:width 0.5s}
+.bcyan{background:linear-gradient(90deg,#003355,#00b4eb)}
+.bgreen{background:linear-gradient(90deg,#003322,#00cc66)}
+.borange{background:linear-gradient(90deg,#332200,#ff6633)}
+.bred{background:linear-gradient(90deg,#330000,#ff3333)}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:2px 0}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}
+.don{background:#00cc66;box-shadow:0 0 4px #00cc66}.doff{background:#ff3333}
+.btn{background:#002244;color:#00b4eb;border:1px solid #003355;padding:3px 10px;border-radius:3px;cursor:pointer;font-size:11px;font-family:inherit;margin:2px}
+.btn:hover{background:#003366}
+.cnode{display:inline-block;padding:4px 12px;margin:3px;border-radius:3px}
+.cok{background:rgba(0,200,100,0.15);border:1px solid #00cc66;color:#00cc66}
+.coff{background:rgba(255,50,50,0.15);border:1px solid #ff3333;color:#ff3333}
+.stat{display:flex;justify-content:space-between;padding:2px 0}
+.sl{color:#5588aa}.sv{color:#ddeeff}
+.footer{text-align:center;padding:8px;color:#334455;font-size:10px;border-top:1px solid #001122}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.live{animation:pulse 2s infinite;color:#00cc66;font-size:10px}
+.clock{text-align:center;font-size:32px;color:#00dcff;padding:10px 0}
+</style>
+</head>
+<body>
+<div class="header"><h1>J.A.R.V.I.S</h1><div class="sub">Turbo AI Cluster — M1 La Créatrice — <span class="live">LIVE</span></div>
+<div style="margin-top:8px;color:#5588aa;font-size:11px">Touche Super = touche Windows ⊞ (entre Ctrl et Alt)</div></div>
+<div class="grid" id="dash"></div>
+<!-- Panel raccourcis clavier JARVIS -->
+<div style="padding:10px">
+<div class="panel" style="max-width:600px;margin:0 auto">
+<div class="ptitle">KEYBOARD SHORTCUTS</div>
+<table style="width:100%;border-collapse:collapse;margin-top:6px">
+<tr style="border-bottom:1px solid #002244"><th style="text-align:left;padding:5px 8px;color:#00dcff;font-size:11px">Shortcut</th><th style="text-align:left;padding:5px 8px;color:#00dcff;font-size:11px">Action</th></tr>
+<tr style="border-bottom:1px solid #001122"><td style="padding:4px 8px"><kbd style="background:#002244;border:1px solid #003355;border-radius:3px;padding:1px 6px;color:#00dcff;font-family:inherit">Super+J</kbd></td><td style="padding:4px 8px;color:#88ccdd">Pipeline vocal JARVIS</td></tr>
+<tr style="border-bottom:1px solid #001122"><td style="padding:4px 8px"><kbd style="background:#002244;border:1px solid #003355;border-radius:3px;padding:1px 6px;color:#00dcff;font-family:inherit">Super+G</kbd></td><td style="padding:4px 8px;color:#88ccdd">Moniteur GPU</td></tr>
+<tr style="border-bottom:1px solid #001122"><td style="padding:4px 8px"><kbd style="background:#002244;border:1px solid #003355;border-radius:3px;padding:1px 6px;color:#00dcff;font-family:inherit">Super+Shift+D</kbd></td><td style="padding:4px 8px;color:#88ccdd">Dashboard système (tmux)</td></tr>
+<tr style="border-bottom:1px solid #001122"><td style="padding:4px 8px"><kbd style="background:#002244;border:1px solid #003355;border-radius:3px;padding:1px 6px;color:#00dcff;font-family:inherit">Super+Shift+T</kbd></td><td style="padding:4px 8px;color:#88ccdd">Terminal JARVIS</td></tr>
+<tr><td style="padding:4px 8px"><kbd style="background:#002244;border:1px solid #003355;border-radius:3px;padding:1px 6px;color:#00dcff;font-family:inherit">Super+Shift+W</kbd></td><td style="padding:4px 8px;color:#88ccdd">Dashboard web (cette page)</td></tr>
+</table>
+</div>
+</div>
+<div class="footer">JARVIS OS v12.4 — Dashboard 8088 — <span id="ts">...</span></div>
+<script>
+function bc(p){return p>85?'bred':p>70?'borange':p>40?'bcyan':'bgreen'}
+function esc(s){return String(s).replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m]})}
+function mk(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt)e.textContent=txt;return e}
+function addStat(p,l,v){var r=mk('div','stat');r.appendChild(mk('span','sl',l));r.appendChild(mk('span','sv',v));p.appendChild(r)}
+function addBar(p,pct){var bg=mk('div','barbg');var b=mk('div','bar '+bc(pct));b.style.width=pct+'%';bg.appendChild(b);p.appendChild(bg)}
+
+function refresh(){
+fetch('/api/data').then(function(r){return r.json()}).then(function(d){
+var el=document.getElementById('dash');
+while(el.firstChild)el.removeChild(el.firstChild);
+
+var p=mk('div','panel');p.appendChild(mk('div','ptitle','SYSTEME'));
+addStat(p,'Uptime',d.uptime);addStat(p,'Load',d.load.m1+' / '+d.load.m5+' / '+d.load.m15);
+addStat(p,'RAM',d.ram.used_gb+'/'+d.ram.total_gb+'GB ('+d.ram.pct+'%)');addBar(p,d.ram.pct);
+addStat(p,'Disk',d.disk.used+'/'+d.disk.total+' ('+d.disk.pct+')');el.appendChild(p);
+
+p=mk('div','panel');p.appendChild(mk('div','ptitle','GPU CLUSTER ['+d.gpus.length+'x]'));
+d.gpus.forEach(function(g){var vp=Math.round(g.vram_used/g.vram_total*100);
+var r=mk('div','grow');r.appendChild(mk('span','gname','GPU'+g.id+' '+g.name.substring(0,12)));
+var t=mk('span','gtemp',g.temp+'C');if(g.temp>=75)t.style.color='#ff6633';r.appendChild(t);
+r.appendChild(mk('span','',g.util+'%'));r.appendChild(mk('span','',g.vram_used+'/'+g.vram_total+'MB'));
+p.appendChild(r);addBar(p,vp)});el.appendChild(p);
+
+p=mk('div','panel');var act=d.services.filter(function(s){return s.active}).length;
+p.appendChild(mk('div','ptitle','SERVICES ('+act+'/'+d.services.length+')'));
+d.services.filter(function(s){return s.name.indexOf('@')<0}).slice(0,12).forEach(function(s){
+var r=mk('div','srow');var sp=mk('span','');var dot=mk('span','dot '+(s.active?'don':'doff'));
+sp.appendChild(dot);sp.appendChild(document.createTextNode(s.name.replace('jarvis-','')));r.appendChild(sp);
+var bt=mk('button','btn',s.active?'restart':'start');
+bt.addEventListener('click',function(){fetch('/api/service?name='+encodeURIComponent(s.name)+'&action='+(s.active?'restart':'start')).then(function(){setTimeout(refresh,1500)})});
+r.appendChild(bt);p.appendChild(r)});el.appendChild(p);
+
+p=mk('div','panel');p.appendChild(mk('div','ptitle','CLUSTER & VOICE'));
+Object.keys(d.cluster).forEach(function(n){var sp=mk('span','cnode '+(d.cluster[n]?'cok':'coff'),n+': '+(d.cluster[n]?'OK':'OFF'));p.appendChild(sp)});
+p.appendChild(mk('br',''));p.appendChild(mk('br',''));
+addStat(p,'Voice','898 cmds');addStat(p,'Corrections','124 STT');addStat(p,'Pipeline','v3.1 VAD');el.appendChild(p);
+
+p=mk('div','panel');p.appendChild(mk('div','ptitle','ACTIONS'));
+[['restart-voice','Voice'],['backup','Backup'],['learn','Learn'],['gpu','GPU'],['db','DB Check'],['dashboard','Dash CLI']].forEach(function(a){
+var bt=mk('button','btn',a[1]);bt.addEventListener('click',function(){fetch('/api/action?cmd='+a[0]).then(function(r){return r.json()}).then(function(dd){if(dd.result)alert(dd.result);setTimeout(refresh,1500)})});
+p.appendChild(bt)});el.appendChild(p);
+
+p=mk('div','panel');p.appendChild(mk('div','ptitle','HORLOGE'));
+var now=new Date();p.appendChild(mk('div','clock',now.toLocaleTimeString('fr-FR')));
+var dt=mk('div','');dt.style.textAlign='center';dt.style.color='#5588aa';
+dt.textContent=now.toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+p.appendChild(dt);el.appendChild(p);
+
+document.getElementById('ts').textContent='MaJ: '+new Date().toLocaleTimeString('fr-FR');
+}).catch(function(e){console.error(e)})}
+refresh();setInterval(refresh,3000);
+</script>
+</body>
+</html>

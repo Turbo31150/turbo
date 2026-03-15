@@ -78,7 +78,13 @@ async def _bootstrap_internal(
     logger.info("=" * 60)
     logger.info("JARVIS Bootstrap v2  Wiring ALL systems...")
     logger.info("=" * 60)
-    
+
+    # --- Step 0: DB Boot Validation (integrite + preload cache vocal) ---
+    results["steps"]["0_db_validation"] = await _safe_step(
+        "DB Boot Validation", 0, 12, results,
+        _step_db_validation
+    )
+
     # --- Step 1: Fix scheduler duplicate bug ---
     results["steps"]["1_scheduler_fix"] = await _safe_step(
         "Scheduler fix", 1, 9, results,
@@ -158,7 +164,7 @@ async def _bootstrap_internal(
     )
 
     # --- Final status ---
-    _TOTAL_STEPS = 11
+    _TOTAL_STEPS = 12
     results["success"] = len(results["errors"]) == 0
     results["duration_ms"] = round((time.time() - results["ts"]) * 1000, 1)
     results["steps_ok"] = sum(
@@ -246,6 +252,24 @@ async def shutdown_jarvis() -> dict[str, Any]:
 # Individual bootstrap steps
 # ----------------------------------------------------------------
 
+async def _step_db_validation() -> dict[str, Any]:
+    from src.db_boot_validator import validate_all_databases
+    report = validate_all_databases(repair=True)
+    s = report["summary"]
+    vc = report.get("voice_cache", {})
+    return {
+        "databases_ok": s["ok"],
+        "databases_total": s["total"],
+        "corrupted": s["corrupted"],
+        "healthy": report["healthy"],
+        "voice_corrections": len(vc.get("corrections", {})),
+        "commands_sql": vc.get("commands_count", 0),
+        "skills_sql": vc.get("skills_count", 0),
+        "pipelines": len(vc.get("pipelines", [])),
+        "duration_ms": report["duration_ms"],
+    }
+
+
 async def _step_scheduler_fix() -> dict[str, Any]:
     from src.scheduler_cleanup import fix_startup_duplicate_bug
     result = await fix_startup_duplicate_bug()
@@ -275,6 +299,7 @@ async def _step_scheduler_bootstrap() -> dict[str, Any]:
         ("db_maintenance", "db_vacuum", 86400, {"force": False}),
         ("drift_check", "drift_check", 7200, {}),
         ("security_scan", "security_scan", 43200, {}),
+        ("voice_learning", "voice_learning", 21600, {"auto_apply": True, "min_score": 0.75}),
     ]
     created = []
     existing_jobs = {j["name"] for j in task_scheduler.list_jobs()}
@@ -321,6 +346,15 @@ async def _step_scheduler_bootstrap() -> dict[str, Any]:
         await event_bus.emit(f"skill.execute", {"skill": skill_name})
         return f"skill={skill_name}"
 
+    async def _voice_learning(params: dict) -> str:
+        from src.voice_learning import learn_and_improve
+        result = learn_and_improve(
+            auto_apply=params.get("auto_apply", True),
+            min_score=params.get("min_score", 0.75),
+        )
+        return f"suggestions={result['suggestions_count']},applied={result['applied']}"
+
+    task_scheduler.register_handler("voice_learning", _voice_learning)
     task_scheduler.register_handler("health_check", _health_check)
     task_scheduler.register_handler("trading_scan", _trading_scan)
     task_scheduler.register_handler("brain_analyze", _brain_analyze)

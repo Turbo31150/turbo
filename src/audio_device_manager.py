@@ -52,30 +52,34 @@ class AudioDeviceManager:
         self._lock = threading.Lock()
 
     def list_devices(self) -> list[dict[str, Any]]:
-        """List audio devices via Win32_SoundDevice."""
+        """List audio devices via Linux pactl or aplay."""
         try:
+            # Try pactl (PulseAudio/PipeWire)
             result = subprocess.run(
-                ["powershell", "-Command",
-                 "Get-CimInstance Win32_SoundDevice | "
-                 "Select-Object Name, Manufacturer, Status, DeviceID | "
-                 "ConvertTo-Json -Depth 1 -Compress"],
-                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=15,
-                creationflags=_NO_WINDOW,
+                ["pactl", "list", "short", "sinks"],
+                capture_output=True, text=True, timeout=5
             )
+            devices = []
             if result.returncode == 0 and result.stdout.strip():
-                data = json.loads(result.stdout)
-                if isinstance(data, dict):
-                    data = [data]
-                devices = []
-                for d in data:
-                    devices.append({
-                        "name": d.get("Name", "") or "",
-                        "manufacturer": d.get("Manufacturer", "") or "",
-                        "status": d.get("Status", "") or "",
-                        "device_id": d.get("DeviceID", "") or "",
-                    })
-                self._record("list_devices", True, f"{len(devices)} devices")
-                return devices
+                for line in result.stdout.strip().split('\n'):
+                    parts = line.split('\t')
+                    if len(parts) >= 2:
+                        devices.append({
+                            "name": parts[1],
+                            "manufacturer": "Linux Audio",
+                            "status": "Running",
+                            "device_id": parts[0],
+                        })
+            
+            # Fallback to aplay if no pulse devices
+            if not devices:
+                result = subprocess.run(["aplay", "-l"], capture_output=True, text=True, timeout=5)
+                for line in result.stdout.split('\n'):
+                    if line.startswith('carte'):
+                        devices.append({"name": line.strip(), "manufacturer": "ALSA", "status": "Ready", "device_id": "alsa"})
+
+            self._record("list_devices", True, f"{len(devices)} devices")
+            return devices
         except Exception as e:
             self._record("list_devices", False, str(e))
         return []

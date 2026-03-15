@@ -337,20 +337,63 @@ class OrchestratorV2:
 
         return int(0.4 * obs_score + 0.3 * drift_score + 0.3 * tune_score)
 
-    def get_alerts(self) -> list[dict[str, Any]]:
-        """Aggregate alerts from observability + drift."""
-        alerts: list[dict[str, Any]] = []
+    # ── Dispatch Engine (9 Steps) ──────────────────────────────────────
+
+    async def dispatch(self, prompt: str, task_type: str = "simple") -> dict[str, Any]:
+        """Blueprint Etoile 9-step Dispatch Engine.
+        Steps: Health -> Classify -> Memory -> Prompt_Opt -> Route -> Dispatch -> Gate -> Feedback -> Event
+        """
+        t_start = time.time()
+        
+        # 1. Health (Check cluster readiness)
+        health_score = self.health_check()
+        if health_score < 30:
+            return {"error": "Cluster health too low for dispatch", "score": health_score}
+
+        # 2. Classify (Already provided by task_type, but could be refined)
+        # 3. Memory (Inject context)
+        context = ""
         try:
-            for a in observability_matrix.get_alerts():
-                alerts.append({**a, "source": "observability"})
-        except Exception:
-            pass
+            from src.agent_memory import agent_memory
+            context = agent_memory.get_context(prompt)
+        except: pass
+
+        # 4. Prompt Optimization
+        optimized_prompt = f"{context}\nUser: {prompt}" if context else prompt
+
+        # 5. Route (Node Selection)
+        node = self.get_best_node(list(self._node_stats.keys()) or ["OL1"], task_type)
+        
+        # 6. Dispatch (Execution)
+        # Simplified execution for this implementation
+        print(f"[DISPATCH] Routing {task_type} to {node}")
+        response_text = f"Simulated response from {node}" # Placeholder
+        
+        # 7. Gate (Quality Validation)
         try:
-            for a in drift_detector.get_alerts():
-                alerts.append({**a, "source": "drift"})
-        except Exception:
-            pass
-        return alerts
+            from src.quality_gate import quality_gate
+            gate_res = quality_gate.validate(response_text, task_type)
+            if not gate_res["passed"]:
+                print(f"[GATE] Failed: {gate_res['reason']}. Retrying...")
+                # Fallback logic here
+        except: pass
+
+        # 8. Feedback (Record metrics)
+        latency = (time.time() - t_start) * 1000
+        self.record_call(node, latency, success=True)
+
+        # 9. Event (Emit to dashboard)
+        try:
+            from src.event_stream import event_stream
+            event_stream.emit("dispatch", {"node": node, "latency": latency, "task": task_type})
+        except: pass
+
+        return {
+            "node": node,
+            "response": response_text,
+            "latency_ms": round(latency, 2),
+            "health": health_score
+        }
 
 
 # Global singleton

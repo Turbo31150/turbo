@@ -86,7 +86,7 @@ def get_cpu_load():
     """Get CPU load percentage."""
     try:
         result = subprocess.run(
-            ["powershell", "-NoProfile", "-Command",
+            ["bash", "-NoProfile", "-Command",
              "(Get-CimInstance Win32_Processor | Measure-Object -Property LoadPercentage -Average).Average"],
             capture_output=True, text=True, timeout=5
         )

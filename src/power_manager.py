@@ -93,7 +93,7 @@ class PowerManager:
         """Put computer to sleep."""
         try:
             subprocess.run(
-                ["powershell", "-Command", "Add-Type -Assembly System.Windows.Forms; [System.Windows.Forms.Application]::SetSuspendState('Suspend', $false, $false)"],
+                ["bash", "-Command", "Add-Type -Assembly System.Windows.Forms; [System.Windows.Forms.Application]::SetSuspendState('Suspend', $false, $false)"],
                 timeout=5, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             )
             self._record("sleep", True)

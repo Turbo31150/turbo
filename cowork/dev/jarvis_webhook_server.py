@@ -209,7 +209,7 @@ def start_server(db, foreground=False):
             pid = int(PID_FILE.read_text().strip())
             # Check if process exists
             out = subprocess.run(
-                ["powershell", "-NoProfile", "-Command",
+                ["bash", "-NoProfile", "-Command",
                  f"Get-Process -Id {pid} -ErrorAction SilentlyContinue | Select-Object Id"],
                 capture_output=True, text=True, timeout=5
             )
@@ -275,7 +275,7 @@ def stop_server(db):
     try:
         pid = int(PID_FILE.read_text().strip())
         subprocess.run(
-            ["powershell", "-NoProfile", "-Command", f"Stop-Process -Id {pid} -Force -ErrorAction SilentlyContinue"],
+            ["bash", "-NoProfile", "-Command", f"Stop-Process -Id {pid} -Force -ErrorAction SilentlyContinue"],
             capture_output=True, text=True, timeout=10
         )
         PID_FILE.unlink(missing_ok=True)

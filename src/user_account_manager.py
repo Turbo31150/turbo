@@ -58,7 +58,7 @@ class UserAccountManager:
         """List local user accounts."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-LocalUser | Select-Object Name, Enabled, FullName, "
                  "Description, SID, LastLogon | ConvertTo-Json -Depth 1"],
                 capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,
@@ -90,7 +90,7 @@ class UserAccountManager:
         """List local groups."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "Get-LocalGroup | Select-Object Name, Description, SID | "
                  "ConvertTo-Json -Depth 1"],
                 capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=10,

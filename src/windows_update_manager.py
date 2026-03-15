@@ -55,7 +55,7 @@ class WindowsUpdateManager:
         """Get recent Windows Update history via COM Session."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "$session = New-Object -ComObject Microsoft.Update.Session; "
                  "$searcher = $session.CreateUpdateSearcher(); "
                  f"$history = $searcher.QueryHistory(0, {min(limit, 100)}); "
@@ -90,7 +90,7 @@ class WindowsUpdateManager:
         """Get pending (not yet installed) updates."""
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  "$session = New-Object -ComObject Microsoft.Update.Session; "
                  "$searcher = $session.CreateUpdateSearcher(); "
                  "$results = $searcher.Search('IsInstalled=0'); "

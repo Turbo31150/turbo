@@ -59,7 +59,7 @@ class WindowsEventLogReader:
         safe_log = "".join(c for c in log_name if c.isalnum() or c in "-_/ ")
         try:
             result = subprocess.run(
-                ["powershell", "-Command",
+                ["bash", "-Command",
                  f"Get-WinEvent -LogName '{safe_log}' -MaxEvents {min(max_events, 100)} "
                  "-ErrorAction SilentlyContinue | "
                  "Select-Object Id, LevelDisplayName, Message, TimeCreated, ProviderName | "
