@@ -12,7 +12,11 @@ from typing import Optional
 TOTAL_CYCLES = 1000
 MAX_PARALLEL = 12  # respect cluster capacity
 TIMEOUT_S = 30
+<<<<<<< Updated upstream
 RESULTS_PATH = "/home/turbo/jarvis-m1-ops/data/benchmark_1000_results.json"
+=======
+RESULTS_PATH = "/home/turbo/jarvis/data/benchmark_1000_results.json"
+>>>>>>> Stashed changes
 
 # ── NODES ───────────────────────────────────────────
 NODES = {

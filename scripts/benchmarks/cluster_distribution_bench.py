@@ -28,7 +28,11 @@ from urllib.request import Request, urlopen
 # ============================================================================
 # CONFIG
 # ============================================================================
+<<<<<<< Updated upstream
 TURBO_DIR = Path("/home/turbo/jarvis-m1-ops")
+=======
+TURBO_DIR = Path("/home/turbo/jarvis")
+>>>>>>> Stashed changes
 DB_PATH = TURBO_DIR / "data" / "etoile.db"
 
 SCENARIOS = {

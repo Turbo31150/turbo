@@ -13,25 +13,33 @@
     "steps": [
       {
         "tool": "lm_cluster_status",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Statut du cluster IA",
         "wait_for_result": true
       },
       {
         "tool": "system_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Infos systeme",
         "wait_for_result": true
       },
       {
         "tool": "trading_status",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Status pipeline trading",
         "wait_for_result": true
       },
       {
         "tool": "trading_pending_signals",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Signaux en attente",
         "wait_for_result": true
       }
@@ -57,7 +65,8 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "chrome"
+          "name": "chrome",
+          "command": ""
         },
         "description": "Ouvrir Chrome",
         "wait_for_result": true
@@ -65,20 +74,25 @@
       {
         "tool": "open_url",
         "args": {
-          "url": "https://www.tradingview.com"
+          "url": "https://www.tradingview.com",
+          "command": ""
         },
         "description": "TradingView",
         "wait_for_result": true
       },
       {
         "tool": "trading_status",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Verifier le pipeline",
         "wait_for_result": true
       },
       {
         "tool": "lm_cluster_status",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Verifier le cluster IA",
         "wait_for_result": true
       }
@@ -105,7 +119,8 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "cursor"
+          "name": "cursor",
+          "command": ""
         },
         "description": "Ouvrir Cursor IDE",
         "wait_for_result": true
@@ -113,14 +128,17 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "wt"
+          "name": "wt",
+          "command": ""
         },
         "description": "Ouvrir Terminal",
         "wait_for_result": true
       },
       {
         "tool": "lm_cluster_status",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Verifier le cluster IA",
         "wait_for_result": true
       }
@@ -146,7 +164,8 @@
       {
         "tool": "close_app",
         "args": {
-          "name": "chrome"
+          "name": "chrome",
+          "command": ""
         },
         "description": "Fermer Chrome",
         "wait_for_result": true
@@ -154,20 +173,25 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "steam"
+          "name": "steam",
+          "command": ""
         },
         "description": "Lancer Steam",
         "wait_for_result": true
       },
       {
         "tool": "volume_up",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Monter le volume",
         "wait_for_result": true
       },
       {
         "tool": "volume_up",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Monter le volume",
         "wait_for_result": true
       }
@@ -193,25 +217,33 @@
     "steps": [
       {
         "tool": "system_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Infos systeme",
         "wait_for_result": true
       },
       {
         "tool": "gpu_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Infos GPU",
         "wait_for_result": true
       },
       {
         "tool": "lm_cluster_status",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Statut cluster",
         "wait_for_result": true
       },
       {
         "tool": "network_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Infos reseau",
         "wait_for_result": true
       }
@@ -236,7 +268,9 @@
     "steps": [
       {
         "tool": "trading_status",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Status pipeline",
         "wait_for_result": true
       },
@@ -244,7 +278,8 @@
         "tool": "consensus",
         "args": {
           "prompt": "Analyse rapide du marche crypto. BTC, ETH, SOL. Tendance et signal en 3 lignes.",
-          "nodes": "M1,M2,M3"
+          "nodes": "M1,M2,M3",
+          "command": ""
         },
         "description": "Consensus cluster",
         "wait_for_result": true
@@ -270,14 +305,17 @@
     "steps": [
       {
         "tool": "system_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Verifier la RAM",
         "wait_for_result": true
       },
       {
         "tool": "list_processes",
         "args": {
-          "filter": ""
+          "filter": "",
+          "command": ""
         },
         "description": "Lister les processus",
         "wait_for_result": true
@@ -304,7 +342,8 @@
       {
         "tool": "close_app",
         "args": {
-          "name": "chrome"
+          "name": "chrome",
+          "command": ""
         },
         "description": "Fermer Chrome",
         "wait_for_result": true
@@ -312,7 +351,8 @@
       {
         "tool": "close_app",
         "args": {
-          "name": "discord"
+          "name": "discord",
+          "command": ""
         },
         "description": "Fermer Discord",
         "wait_for_result": true
@@ -320,7 +360,8 @@
       {
         "tool": "close_app",
         "args": {
-          "name": "spotify"
+          "name": "spotify",
+          "command": ""
         },
         "description": "Fermer Spotify",
         "wait_for_result": true
@@ -328,7 +369,8 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "win+d"
+          "keys": "win+d",
+          "command": ""
         },
         "description": "Afficher le bureau",
         "wait_for_result": true
@@ -355,13 +397,14 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "win+p"
+          "keys": "win+p",
+          "command": ""
         },
         "description": "Ouvrir projection ecran",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "$b = 100; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"
         },
@@ -370,14 +413,17 @@
       },
       {
         "tool": "volume_down",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Baisser le volume",
         "wait_for_result": true
       },
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "win+d"
+          "keys": "win+d",
+          "command": ""
         },
         "description": "Afficher le bureau",
         "wait_for_result": true
@@ -405,7 +451,8 @@
       {
         "tool": "close_app",
         "args": {
-          "name": "discord"
+          "name": "discord",
+          "command": ""
         },
         "description": "Fermer Discord",
         "wait_for_result": true
@@ -413,7 +460,8 @@
       {
         "tool": "close_app",
         "args": {
-          "name": "spotify"
+          "name": "spotify",
+          "command": ""
         },
         "description": "Fermer Spotify",
         "wait_for_result": true
@@ -421,14 +469,17 @@
       {
         "tool": "close_app",
         "args": {
-          "name": "telegram"
+          "name": "telegram",
+          "command": ""
         },
         "description": "Fermer Telegram",
         "wait_for_result": true
       },
       {
         "tool": "volume_mute",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Couper le son",
         "wait_for_result": true
       },
@@ -436,7 +487,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode Focus actif. Aucune distraction."
+          "message": "Mode Focus actif. Aucune distraction.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -463,14 +515,17 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "spotify"
+          "name": "spotify",
+          "command": ""
         },
         "description": "Lancer Spotify",
         "wait_for_result": true
       },
       {
         "tool": "volume_down",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Baisser un peu le volume",
         "wait_for_result": true
       },
@@ -478,7 +533,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode musique actif. Spotify lance."
+          "message": "Mode musique actif. Spotify lance.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -506,7 +562,8 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "ctrl+s"
+          "keys": "ctrl+s",
+          "command": ""
         },
         "description": "Sauvegarder le travail en cours",
         "wait_for_result": true
@@ -514,7 +571,8 @@
       {
         "tool": "close_app",
         "args": {
-          "name": "chrome"
+          "name": "chrome",
+          "command": ""
         },
         "description": "Fermer Chrome",
         "wait_for_result": true
@@ -522,7 +580,8 @@
       {
         "tool": "close_app",
         "args": {
-          "name": "code"
+          "name": "code",
+          "command": ""
         },
         "description": "Fermer VSCode",
         "wait_for_result": true
@@ -530,7 +589,8 @@
       {
         "tool": "close_app",
         "args": {
-          "name": "discord"
+          "name": "discord",
+          "command": ""
         },
         "description": "Fermer Discord",
         "wait_for_result": true
@@ -538,13 +598,14 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "win+a"
+          "keys": "win+a",
+          "command": ""
         },
         "description": "Activer mode nuit",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "$b = 20; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"
         },
@@ -555,7 +616,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Bonne nuit. Routine terminee."
+          "message": "Bonne nuit. Routine terminee.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -582,7 +644,8 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "code"
+          "name": "code",
+          "command": ""
         },
         "description": "Ouvrir VSCode",
         "wait_for_result": true
@@ -590,7 +653,8 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "wt"
+          "name": "wt",
+          "command": ""
         },
         "description": "Ouvrir Terminal",
         "wait_for_result": true
@@ -598,16 +662,18 @@
       {
         "tool": "open_url",
         "args": {
-          "url": "http://localhost:3000"
+          "url": "http://127.0.0.1:3000",
+          "command": ""
         },
-        "description": "Ouvrir localhost:3000",
+        "description": "Ouvrir 127.0.0.1:3000",
         "wait_for_result": true
       },
       {
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Workspace frontend pret."
+          "message": "Workspace frontend pret.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -634,7 +700,8 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "code"
+          "name": "code",
+          "command": ""
         },
         "description": "Ouvrir VSCode",
         "wait_for_result": true
@@ -642,7 +709,8 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "wt"
+          "name": "wt",
+          "command": ""
         },
         "description": "Ouvrir Terminal",
         "wait_for_result": true
@@ -650,14 +718,17 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "lmstudio"
+          "name": "lmstudio",
+          "command": ""
         },
         "description": "Ouvrir LM Studio",
         "wait_for_result": true
       },
       {
         "tool": "lm_cluster_status",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Verifier le cluster",
         "wait_for_result": true
       },
@@ -665,7 +736,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Workspace backend pret."
+          "message": "Workspace backend pret.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -692,20 +764,23 @@
     "steps": [
       {
         "tool": "system_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Diagnostic systeme",
         "wait_for_result": true
       },
       {
         "tool": "list_processes",
         "args": {
-          "filter": ""
+          "filter": "",
+          "command": ""
         },
         "description": "Lister processus gourmands",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe'"
         },
@@ -714,7 +789,9 @@
       },
       {
         "tool": "gpu_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Verifier les GPU",
         "wait_for_result": true
       },
@@ -722,7 +799,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Optimisation terminee. Verifie les resultats."
+          "message": "Optimisation terminee. Verifie les resultats.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -748,43 +826,57 @@
     "steps": [
       {
         "tool": "system_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Infos systeme",
         "wait_for_result": true
       },
       {
         "tool": "gpu_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Infos GPU",
         "wait_for_result": true
       },
       {
         "tool": "network_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Infos reseau",
         "wait_for_result": true
       },
       {
         "tool": "lm_cluster_status",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Cluster IA",
         "wait_for_result": true
       },
       {
         "tool": "screen_resolution",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Resolution ecran",
         "wait_for_result": true
       },
       {
         "tool": "wifi_networks",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Reseaux Wi-Fi",
         "wait_for_result": true
       },
       {
         "tool": "list_services",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Services Windows",
         "wait_for_result": true
       }
@@ -813,7 +905,8 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "chrome"
+          "name": "chrome",
+          "command": ""
         },
         "description": "Ouvrir Chrome",
         "wait_for_result": true
@@ -821,7 +914,8 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "win+left"
+          "keys": "win+left",
+          "command": ""
         },
         "description": "Chrome a gauche",
         "wait_for_result": true
@@ -829,7 +923,8 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "code"
+          "name": "code",
+          "command": ""
         },
         "description": "Ouvrir VSCode",
         "wait_for_result": true
@@ -837,7 +932,8 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "win+right"
+          "keys": "win+right",
+          "command": ""
         },
         "description": "VSCode a droite",
         "wait_for_result": true
@@ -864,14 +960,17 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "ctrl+s"
+          "keys": "ctrl+s",
+          "command": ""
         },
         "description": "Sauvegarder fichier actif",
         "wait_for_result": true
       },
       {
         "tool": "screenshot",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Capture d'ecran",
         "wait_for_result": true
       },
@@ -879,7 +978,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Sauvegarde rapide effectuee."
+          "message": "Sauvegarde rapide effectuee.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -906,7 +1006,8 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "obs64"
+          "name": "obs64",
+          "command": ""
         },
         "description": "Lancer OBS Studio",
         "wait_for_result": true
@@ -914,14 +1015,17 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "chrome"
+          "name": "chrome",
+          "command": ""
         },
         "description": "Ouvrir Chrome",
         "wait_for_result": true
       },
       {
         "tool": "volume_up",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Monter le volume",
         "wait_for_result": true
       },
@@ -929,7 +1033,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode stream actif. OBS pret."
+          "message": "Mode stream actif. OBS pret.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -955,25 +1060,33 @@
     "steps": [
       {
         "tool": "trading_status",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Status pipeline trading",
         "wait_for_result": true
       },
       {
         "tool": "trading_positions",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Positions ouvertes",
         "wait_for_result": true
       },
       {
         "tool": "trading_pending_signals",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Signaux en attente",
         "wait_for_result": true
       },
       {
         "tool": "lm_cluster_status",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Cluster IA",
         "wait_for_result": true
       },
@@ -981,7 +1094,8 @@
         "tool": "consensus",
         "args": {
           "prompt": "Analyse marche crypto: BTC ETH SOL. Tendance, risque, signal.",
-          "nodes": "M1,M2,M3"
+          "nodes": "M1,M2,M3",
+          "command": ""
         },
         "description": "Consensus multi-IA",
         "wait_for_result": true
@@ -1009,20 +1123,25 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "teams"
+          "name": "teams",
+          "command": ""
         },
         "description": "Ouvrir Teams",
         "wait_for_result": true
       },
       {
         "tool": "volume_down",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Baisser le volume",
         "wait_for_result": true
       },
       {
         "tool": "volume_down",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Baisser encore",
         "wait_for_result": true
       },
@@ -1030,7 +1149,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode reunion actif. Micro coupe par defaut."
+          "message": "Mode reunion actif. Micro coupe par defaut.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -1057,7 +1177,8 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "discord"
+          "name": "discord",
+          "command": ""
         },
         "description": "Ouvrir Discord",
         "wait_for_result": true
@@ -1065,7 +1186,8 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "telegram"
+          "name": "telegram",
+          "command": ""
         },
         "description": "Ouvrir Telegram",
         "wait_for_result": true
@@ -1073,7 +1195,8 @@
       {
         "tool": "open_url",
         "args": {
-          "url": "https://mail.google.com"
+          "url": "https://mail.google.com",
+          "command": ""
         },
         "description": "Ouvrir Gmail",
         "wait_for_result": true
@@ -1082,7 +1205,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Messageries ouvertes."
+          "message": "Messageries ouvertes.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -1110,20 +1234,25 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "ctrl+s"
+          "keys": "ctrl+s",
+          "command": ""
         },
         "description": "Sauvegarder",
         "wait_for_result": true
       },
       {
         "tool": "volume_mute",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Couper le son",
         "wait_for_result": true
       },
       {
         "tool": "lock_screen",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Verrouiller le PC",
         "wait_for_result": true
       }
@@ -1149,19 +1278,25 @@
     "steps": [
       {
         "tool": "volume_up",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Remettre le son",
         "wait_for_result": true
       },
       {
         "tool": "volume_up",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Volume normal",
         "wait_for_result": true
       },
       {
         "tool": "system_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Check systeme rapide",
         "wait_for_result": true
       },
@@ -1169,7 +1304,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Bon retour. Tout est operationnel."
+          "message": "Bon retour. Tout est operationnel.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -1197,20 +1333,25 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "lmstudio"
+          "name": "lmstudio",
+          "command": ""
         },
         "description": "Lancer LM Studio",
         "wait_for_result": true
       },
       {
         "tool": "lm_cluster_status",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Verifier le cluster",
         "wait_for_result": true
       },
       {
         "tool": "lm_models",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Lister les modeles charges",
         "wait_for_result": true
       },
@@ -1218,7 +1359,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode IA actif. Cluster verifie."
+          "message": "Mode IA actif. Cluster verifie.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -1246,26 +1388,33 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "wt"
+          "name": "wt",
+          "command": ""
         },
         "description": "Ouvrir Terminal",
         "wait_for_result": true
       },
       {
         "tool": "system_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Check systeme",
         "wait_for_result": true
       },
       {
         "tool": "list_services",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Verifier les services",
         "wait_for_result": true
       },
       {
         "tool": "network_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Check reseau",
         "wait_for_result": true
       },
@@ -1273,7 +1422,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode deploiement pret."
+          "message": "Mode deploiement pret.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -1300,20 +1450,25 @@
     "steps": [
       {
         "tool": "network_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Infos reseau",
         "wait_for_result": true
       },
       {
         "tool": "wifi_networks",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Scanner Wi-Fi",
         "wait_for_result": true
       },
       {
         "tool": "ping",
         "args": {
-          "host": "8.8.8.8"
+          "host": "8.8.8.8",
+          "command": ""
         },
         "description": "Ping Google DNS",
         "wait_for_result": true
@@ -1321,7 +1476,8 @@
       {
         "tool": "ping",
         "args": {
-          "host": "192.168.1.1"
+          "host": "192.168.1.1",
+          "command": ""
         },
         "description": "Ping gateway",
         "wait_for_result": true
@@ -1330,7 +1486,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Diagnostic reseau termine."
+          "message": "Diagnostic reseau termine.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -1358,7 +1515,8 @@
       {
         "tool": "close_app",
         "args": {
-          "name": "discord"
+          "name": "discord",
+          "command": ""
         },
         "description": "Fermer Discord",
         "wait_for_result": true
@@ -1366,7 +1524,8 @@
       {
         "tool": "close_app",
         "args": {
-          "name": "spotify"
+          "name": "spotify",
+          "command": ""
         },
         "description": "Fermer Spotify",
         "wait_for_result": true
@@ -1374,20 +1533,25 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "win+a"
+          "keys": "win+a",
+          "command": ""
         },
         "description": "Mode nuit",
         "wait_for_result": true
       },
       {
         "tool": "volume_down",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Baisser le volume",
         "wait_for_result": true
       },
       {
         "tool": "volume_down",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Volume minimal",
         "wait_for_result": true
       },
@@ -1395,7 +1559,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode lecture actif."
+          "message": "Mode lecture actif.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -1422,19 +1587,22 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "ctrl+s"
+          "keys": "ctrl+s",
+          "command": ""
         },
         "description": "Sauvegarder le travail",
         "wait_for_result": true
       },
       {
         "tool": "system_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Check systeme",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Get-CimInstance Win32_LogicalDisk | Select DeviceID, @{N='Free(GB)';E={[math]::Round($_.FreeSpace/1GB,1)}} | Out-String"
         },
@@ -1445,7 +1613,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Systeme pret pour mise a jour."
+          "message": "Systeme pret pour mise a jour.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -1472,7 +1641,8 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "chrome"
+          "name": "chrome",
+          "command": ""
         },
         "description": "Ouvrir Chrome",
         "wait_for_result": true
@@ -1480,7 +1650,8 @@
       {
         "tool": "open_url",
         "args": {
-          "url": "https://www.google.com"
+          "url": "https://www.google.com",
+          "command": ""
         },
         "description": "Google",
         "wait_for_result": true
@@ -1488,7 +1659,8 @@
       {
         "tool": "open_url",
         "args": {
-          "url": "https://www.perplexity.ai"
+          "url": "https://www.perplexity.ai",
+          "command": ""
         },
         "description": "Perplexity",
         "wait_for_result": true
@@ -1497,7 +1669,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode recherche actif. Chrome + Perplexity."
+          "message": "Mode recherche actif. Chrome + Perplexity.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -1525,7 +1698,8 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "code"
+          "name": "code",
+          "command": ""
         },
         "description": "Ouvrir VSCode",
         "wait_for_result": true
@@ -1533,7 +1707,8 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "wt"
+          "name": "wt",
+          "command": ""
         },
         "description": "Ouvrir Terminal",
         "wait_for_result": true
@@ -1541,14 +1716,17 @@
       {
         "tool": "open_url",
         "args": {
-          "url": "https://github.com/Turbo31150/turbo"
+          "url": "https://github.com/Turbo31150/turbo",
+          "command": ""
         },
         "description": "GitHub Turbo",
         "wait_for_result": true
       },
       {
         "tool": "lm_cluster_status",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Verifier le cluster",
         "wait_for_result": true
       },
@@ -1556,7 +1734,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Workspace Turbo pret."
+          "message": "Workspace Turbo pret.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -1582,31 +1761,41 @@
     "steps": [
       {
         "tool": "trading_status",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Bilan trading",
         "wait_for_result": true
       },
       {
         "tool": "trading_positions",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Positions restantes",
         "wait_for_result": true
       },
       {
         "tool": "lm_cluster_status",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Status cluster",
         "wait_for_result": true
       },
       {
         "tool": "system_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Status systeme",
         "wait_for_result": true
       },
       {
         "tool": "action_history",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Historique des actions",
         "wait_for_result": true
       }
@@ -1632,7 +1821,8 @@
       {
         "tool": "close_app",
         "args": {
-          "name": "discord"
+          "name": "discord",
+          "command": ""
         },
         "description": "Fermer Discord",
         "wait_for_result": true
@@ -1640,25 +1830,30 @@
       {
         "tool": "close_app",
         "args": {
-          "name": "telegram"
+          "name": "telegram",
+          "command": ""
         },
         "description": "Fermer Telegram",
         "wait_for_result": true
       },
       {
         "tool": "volume_up",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Monter le volume",
         "wait_for_result": true
       },
       {
         "tool": "volume_up",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Volume max",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "$b = 30; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"
         },
@@ -1669,7 +1864,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode cinema actif. Bon film."
+          "message": "Mode cinema actif. Bon film.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -1696,13 +1892,14 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "ctrl+s"
+          "keys": "ctrl+s",
+          "command": ""
         },
         "description": "Sauvegarder",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Add-Type -AssemblyName System.Runtime.WindowsRuntime; $radio = [Windows.Devices.Radios.Radio,Windows.System.Devices,ContentType=WindowsRuntime]::GetRadiosAsync().GetAwaiter().GetResult() | Where-Object { $_.Kind -eq 'Bluetooth' }; if($radio) { $radio[0].SetStateAsync('Off').GetAwaiter().GetResult() | Out-Null; 'Bluetooth off' }"
         },
@@ -1711,7 +1908,9 @@
       },
       {
         "tool": "volume_mute",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Couper le son",
         "wait_for_result": true
       },
@@ -1719,7 +1918,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode securite actif."
+          "message": "Mode securite actif.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -1746,13 +1946,14 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "win++"
+          "keys": "win++",
+          "command": ""
         },
         "description": "Activer la loupe",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Start-Process osk"
         },
@@ -1763,7 +1964,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode accessibilite actif: loupe + clavier visuel."
+          "message": "Mode accessibilite actif: loupe + clavier visuel.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -1788,7 +1990,7 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "powercfg /setactive a1841308-3541-4fab-bc81-f71556f20b4a; 'Mode economie active'"
         },
@@ -1796,7 +1998,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "$b = 20; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"
         },
@@ -1804,7 +2006,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Add-Type -AssemblyName System.Runtime.WindowsRuntime; $radio = [Windows.Devices.Radios.Radio,Windows.System.Devices,ContentType=WindowsRuntime]::GetRadiosAsync().GetAwaiter().GetResult() | Where-Object { $_.Kind -eq 'Bluetooth' }; if($radio) { $radio[0].SetStateAsync('Off').GetAwaiter().GetResult() | Out-Null; 'Bluetooth off' }"
         },
@@ -1814,7 +2016,8 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "win+a"
+          "keys": "win+a",
+          "command": ""
         },
         "description": "Mode nuit",
         "wait_for_result": true
@@ -1823,7 +2026,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode economie actif. Batterie preservee."
+          "message": "Mode economie actif. Batterie preservee.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -1848,7 +2052,7 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c; 'Mode haute performance active'"
         },
@@ -1856,7 +2060,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "$b = 100; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"
         },
@@ -1867,7 +2071,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode performance max actif."
+          "message": "Mode performance max actif.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -1892,7 +2097,7 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "ipconfig /flushdns"
         },
@@ -1901,20 +2106,25 @@
       },
       {
         "tool": "network_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Infos reseau",
         "wait_for_result": true
       },
       {
         "tool": "wifi_networks",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Scanner Wi-Fi",
         "wait_for_result": true
       },
       {
         "tool": "ping",
         "args": {
-          "host": "8.8.8.8"
+          "host": "8.8.8.8",
+          "command": ""
         },
         "description": "Ping Google DNS",
         "wait_for_result": true
@@ -1923,7 +2133,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Nettoyage reseau termine."
+          "message": "Nettoyage reseau termine.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -1950,7 +2161,8 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "chrome"
+          "name": "chrome",
+          "command": ""
         },
         "description": "Ouvrir Chrome",
         "wait_for_result": true
@@ -1958,7 +2170,8 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "lmstudio"
+          "name": "lmstudio",
+          "command": ""
         },
         "description": "Ouvrir LM Studio",
         "wait_for_result": true
@@ -1966,7 +2179,8 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "wt"
+          "name": "wt",
+          "command": ""
         },
         "description": "Ouvrir Terminal",
         "wait_for_result": true
@@ -1974,14 +2188,17 @@
       {
         "tool": "open_url",
         "args": {
-          "url": "http://localhost:8888"
+          "url": "http://127.0.0.1:8888",
+          "command": ""
         },
         "description": "Ouvrir Jupyter",
         "wait_for_result": true
       },
       {
         "tool": "lm_cluster_status",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Verifier le cluster",
         "wait_for_result": true
       },
@@ -1989,7 +2206,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Workspace data pret."
+          "message": "Workspace data pret.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -2016,7 +2234,8 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "spotify"
+          "name": "spotify",
+          "command": ""
         },
         "description": "Lancer Spotify",
         "wait_for_result": true
@@ -2024,13 +2243,14 @@
       {
         "tool": "close_app",
         "args": {
-          "name": "discord"
+          "name": "discord",
+          "command": ""
         },
         "description": "Fermer Discord",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "$b = 60; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"
         },
@@ -2041,7 +2261,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode creatif actif. Bonne inspiration."
+          "message": "Mode creatif actif. Bonne inspiration.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -2066,7 +2287,7 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "DisplaySwitch.exe /extend"
         },
@@ -2076,7 +2297,8 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "chrome"
+          "name": "chrome",
+          "command": ""
         },
         "description": "Ouvrir Chrome",
         "wait_for_result": true
@@ -2084,7 +2306,8 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "win+left"
+          "keys": "win+left",
+          "command": ""
         },
         "description": "Chrome a gauche",
         "wait_for_result": true
@@ -2092,7 +2315,8 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "code"
+          "name": "code",
+          "command": ""
         },
         "description": "Ouvrir VSCode",
         "wait_for_result": true
@@ -2100,7 +2324,8 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "win+right"
+          "keys": "win+right",
+          "command": ""
         },
         "description": "VSCode a droite",
         "wait_for_result": true
@@ -2109,7 +2334,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode double ecran actif."
+          "message": "Mode double ecran actif.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -2134,15 +2360,15 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "Remove-Item $env:TEMP/* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"
+          "command": "Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"
         },
         "description": "Vider temp",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe'"
         },
@@ -2150,7 +2376,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "ipconfig /flushdns"
         },
@@ -2159,7 +2385,9 @@
       },
       {
         "tool": "system_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Diagnostic systeme",
         "wait_for_result": true
       },
@@ -2167,7 +2395,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Nettoyage complet termine."
+          "message": "Nettoyage complet termine.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -2192,7 +2421,7 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "$b = 50; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"
         },
@@ -2201,14 +2430,17 @@
       },
       {
         "tool": "volume_down",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Volume moyen",
         "wait_for_result": true
       },
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "win+a"
+          "keys": "win+a",
+          "command": ""
         },
         "description": "Mode nuit",
         "wait_for_result": true
@@ -2217,7 +2449,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode confort actif. Ambiance douce."
+          "message": "Mode confort actif. Ambiance douce.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -2242,7 +2475,7 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Get-CimInstance Win32_LogicalDisk | Select DeviceID, @{N='Total(GB)';E={[math]::Round($_.Size/1GB,1)}}, @{N='Free(GB)';E={[math]::Round($_.FreeSpace/1GB,1)}} | Out-String"
         },
@@ -2250,7 +2483,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "$s = (Get-ChildItem $env:TEMP -Recurse -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum / 1MB; \"Temp: $([math]::Round($s,1)) MB\""
         },
@@ -2261,7 +2494,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Verification espace terminee."
+          "message": "Verification espace terminee.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -2288,20 +2522,25 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "windowsdefender:"
+          "name": "windowsdefender:",
+          "command": ""
         },
         "description": "Ouvrir Windows Security",
         "wait_for_result": true
       },
       {
         "tool": "list_services",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Verifier les services",
         "wait_for_result": true
       },
       {
         "tool": "network_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Check reseau",
         "wait_for_result": true
       },
@@ -2309,7 +2548,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Audit securite termine."
+          "message": "Audit securite termine.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -2334,15 +2574,15 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "Remove-Item $env:TEMP/* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"
+          "command": "Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"
         },
         "description": "Vider temp",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe'"
         },
@@ -2350,7 +2590,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Get-CimInstance Win32_LogicalDisk | Select DeviceID, @{N='Free(GB)';E={[math]::Round($_.FreeSpace/1GB,1)}} | Out-String"
         },
@@ -2359,13 +2599,17 @@
       },
       {
         "tool": "system_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Diagnostic systeme",
         "wait_for_result": true
       },
       {
         "tool": "gpu_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Check GPU",
         "wait_for_result": true
       },
@@ -2373,7 +2617,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Maintenance complete terminee."
+          "message": "Maintenance complete terminee.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -2400,13 +2645,14 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "win+k"
+          "keys": "win+k",
+          "command": ""
         },
         "description": "Ouvrir Miracast",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "$b = 100; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"
         },
@@ -2417,7 +2663,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode partage ecran actif."
+          "message": "Mode partage ecran actif.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -2442,7 +2689,7 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Get-CimInstance Win32_StartupCommand | Select Name, Command | Out-String"
         },
@@ -2451,18 +2698,22 @@
       },
       {
         "tool": "list_services",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Services actifs",
         "wait_for_result": true
       },
       {
         "tool": "system_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Diagnostic systeme",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Get-CimInstance Win32_LogicalDisk | Select DeviceID, @{N='Free(GB)';E={[math]::Round($_.FreeSpace/1GB,1)}} | Out-String"
         },
@@ -2473,7 +2724,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Diagnostic demarrage termine."
+          "message": "Diagnostic demarrage termine.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -2498,15 +2750,15 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "Set-ItemProperty -Path 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Themes/Personalize' -Name 'AppsUseLightTheme' -Value 0; Set-ItemProperty -Path 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Themes/Personalize' -Name 'SystemUsesLightTheme' -Value 0; 'Mode sombre active'"
+          "command": "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'AppsUseLightTheme' -Value 0; Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'SystemUsesLightTheme' -Value 0; 'Mode sombre active'"
         },
         "description": "Mode sombre",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "$b = 20; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"
         },
@@ -2515,13 +2767,17 @@
       },
       {
         "tool": "volume_down",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Volume bas",
         "wait_for_result": true
       },
       {
         "tool": "volume_down",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Volume minimal",
         "wait_for_result": true
       },
@@ -2529,7 +2785,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode nuit complet actif."
+          "message": "Mode nuit complet actif.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -2554,15 +2811,15 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "Set-ItemProperty -Path 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Themes/Personalize' -Name 'AppsUseLightTheme' -Value 1; Set-ItemProperty -Path 'HKCU:/Software/Microsoft/Windows/CurrentVersion/Themes/Personalize' -Name 'SystemUsesLightTheme' -Value 1; 'Mode clair active'"
+          "command": "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'AppsUseLightTheme' -Value 1; Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize' -Name 'SystemUsesLightTheme' -Value 1; 'Mode clair active'"
         },
         "description": "Mode clair",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "$b = 80; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"
         },
@@ -2571,7 +2828,9 @@
       },
       {
         "tool": "volume_up",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Volume normal",
         "wait_for_result": true
       },
@@ -2579,7 +2838,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode jour actif. Bonne journee."
+          "message": "Mode jour actif. Bonne journee.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -2604,12 +2864,14 @@
     "steps": [
       {
         "tool": "network_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Infos reseau",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Get-NetAdapter | Select Name, MacAddress, Status, LinkSpeed | Out-String"
         },
@@ -2618,20 +2880,23 @@
       },
       {
         "tool": "wifi_networks",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Reseaux Wi-Fi",
         "wait_for_result": true
       },
       {
         "tool": "ping",
         "args": {
-          "host": "8.8.8.8"
+          "host": "8.8.8.8",
+          "command": ""
         },
         "description": "Ping Google",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "ipconfig /flushdns; 'DNS flush OK'"
         },
@@ -2642,7 +2907,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Diagnostic reseau complet termine."
+          "message": "Diagnostic reseau complet termine.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -2668,18 +2934,22 @@
     "steps": [
       {
         "tool": "system_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Infos systeme",
         "wait_for_result": true
       },
       {
         "tool": "gpu_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Infos GPU",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "$boot = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; $up = (Get-Date) - $boot; \"Uptime: $($up.Days)j $($up.Hours)h $($up.Minutes)m\""
         },
@@ -2687,7 +2957,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Get-CimInstance Win32_LogicalDisk | Select DeviceID, @{N='Free(GB)';E={[math]::Round($_.FreeSpace/1GB,1)}} | Out-String"
         },
@@ -2698,7 +2968,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Diagnostic sante termine."
+          "message": "Diagnostic sante termine.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -2724,13 +2995,14 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "ctrl+s"
+          "keys": "ctrl+s",
+          "command": ""
         },
         "description": "Sauvegarder fichier actif",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Get-CimInstance Win32_LogicalDisk | Select DeviceID, @{N='Free(GB)';E={[math]::Round($_.FreeSpace/1GB,1)}} | Out-String"
         },
@@ -2739,7 +3011,9 @@
       },
       {
         "tool": "system_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Check systeme",
         "wait_for_result": true
       },
@@ -2747,7 +3021,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Pre-backup OK. Pret pour la sauvegarde."
+          "message": "Pre-backup OK. Pret pour la sauvegarde.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -2772,7 +3047,7 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' | Out-String"
         },
@@ -2780,7 +3055,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "docker images --format 'table {{.Repository}}\t{{.Tag}}\t{{.Size}}' | Out-String"
         },
@@ -2788,7 +3063,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "docker system df | Out-String"
         },
@@ -2799,7 +3074,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Check Docker termine."
+          "message": "Check Docker termine.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -2824,25 +3100,25 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "cd F:/BUREAU/turbo; git status"
+          "command": "cd \\home\\turbo\\jarvis; git status"
         },
         "description": "Git status",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "cd F:/BUREAU/turbo; git diff --stat | Out-String"
+          "command": "cd \\home\\turbo\\jarvis; git diff --stat | Out-String"
         },
         "description": "Git diff",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "cd F:/BUREAU/turbo; git log --oneline -5 | Out-String"
+          "command": "cd \\home\\turbo\\jarvis; git log --oneline -5 | Out-String"
         },
         "description": "Log recent",
         "wait_for_result": true
@@ -2851,7 +3127,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Git workflow check termine."
+          "message": "Git workflow check termine.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -2876,7 +3153,7 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Start-Process lmstudio"
         },
@@ -2886,28 +3163,33 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "chrome"
+          "name": "chrome",
+          "command": ""
         },
         "description": "Ouvrir Chrome",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "Start-Process 'http://localhost:8888'"
+          "command": "Start-Process 'http://127.0.0.1:8888'"
         },
         "description": "Ouvrir Jupyter",
         "wait_for_result": true
       },
       {
         "tool": "gpu_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Check GPU",
         "wait_for_result": true
       },
       {
         "tool": "lm_cluster_status",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "Statut cluster",
         "wait_for_result": true
       },
@@ -2915,7 +3197,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Workspace ML pret."
+          "message": "Workspace ML pret.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -2940,7 +3223,7 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "docker ps -a --format 'table {{.Names}}\t{{.Status}}' | Out-String"
         },
@@ -2948,7 +3231,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "docker volume ls | Out-String"
         },
@@ -2956,7 +3239,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "docker system prune -f 2>&1 | Out-String"
         },
@@ -2967,7 +3250,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Debug Docker termine."
+          "message": "Debug Docker termine.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -2981,20 +3265,20 @@
     "confirm": true
   },
   {
-    "name": "mode_stream",
-    "description": "Mode stream: OBS + micro check + game bar + performance max",
+    "name": "mode_stream_pro",
+    "description": "Mode stream pro: OBS + micro check + game bar + performance max",
     "triggers": [
-      "mode stream",
-      "lance le stream",
+      "mode stream pro",
       "prepare le stream",
-      "streaming",
+      "streaming pro",
       "je vais streamer"
     ],
     "steps": [
       {
         "tool": "app_open",
         "args": {
-          "name": "obs64"
+          "name": "obs64",
+          "command": ""
         },
         "description": "Lancer OBS",
         "wait_for_result": true
@@ -3002,13 +3286,14 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "win+g"
+          "keys": "win+g",
+          "command": ""
         },
         "description": "Game Bar",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c 2>$null; 'Mode haute performance'"
         },
@@ -3019,7 +3304,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode stream pret. OBS lance."
+          "message": "Mode stream pret. OBS lance.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -3043,7 +3329,7 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Set-Clipboard -Value $null; 'Clipboard vide'"
         },
@@ -3051,9 +3337,9 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "Remove-Item $env:TEMP/* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"
+          "command": "Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"
         },
         "description": "Vider temp",
         "wait_for_result": true
@@ -3062,7 +3348,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Nettoyage rapide termine."
+          "message": "Nettoyage rapide termine.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -3086,7 +3373,7 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Get-Package | Select Name, Version | Sort Name | Out-String"
         },
@@ -3094,7 +3381,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "python --version 2>&1; docker --version 2>&1; git --version 2>&1; node --version 2>&1"
         },
@@ -3102,7 +3389,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "$env:PATH -split ';' | Where-Object { $_ -ne '' } | Out-String"
         },
@@ -3113,7 +3400,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Inventaire applications termine."
+          "message": "Inventaire applications termine.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -3127,18 +3415,17 @@
     "confirm": false
   },
   {
-    "name": "mode_presentation",
-    "description": "Mode presentation: ecran etendu + volume off + focus assist + luminosite max",
+    "name": "mode_presentation_pro",
+    "description": "Mode presentation pro: ecran etendu + volume off + focus assist + luminosite max",
     "triggers": [
-      "mode presentation",
+      "mode presentation pro",
       "je vais presenter",
-      "lance la presentation",
       "prepare la presentation",
       "powerpoint mode"
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "displayswitch.exe /extend"
         },
@@ -3146,7 +3433,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "$b = 100; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"
         },
@@ -3156,7 +3443,8 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "volume_mute"
+          "keys": "volume_mute",
+          "command": ""
         },
         "description": "Couper le son",
         "wait_for_result": true
@@ -3165,7 +3453,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode presentation actif."
+          "message": "Mode presentation actif.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -3192,13 +3481,14 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "ctrl+s"
+          "keys": "ctrl+s",
+          "command": ""
         },
         "description": "Sauvegarder",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Get-Date -Format 'dddd dd MMMM yyyy HH:mm' | Out-String"
         },
@@ -3209,7 +3499,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Bonne soiree ! Tout est sauvegarde."
+          "message": "Bonne soiree ! Tout est sauvegarde.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -3234,7 +3525,7 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "displayswitch.exe /extend"
         },
@@ -3242,7 +3533,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "$b = 70; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"
         },
@@ -3253,7 +3544,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode double ecran actif."
+          "message": "Mode double ecran actif.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -3278,7 +3570,7 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Get-CimInstance Win32_Processor | Select Name, NumberOfCores, MaxClockSpeed | Out-String"
         },
@@ -3286,7 +3578,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Get-CimInstance Win32_PhysicalMemory | Select Manufacturer, Capacity, Speed | Out-String"
         },
@@ -3295,12 +3587,14 @@
       },
       {
         "tool": "gpu_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "GPU",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Get-CimInstance Win32_BaseBoard | Select Manufacturer, Product | Out-String"
         },
@@ -3308,7 +3602,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Get-PhysicalDisk | Select FriendlyName, MediaType, HealthStatus, Size | Out-String"
         },
@@ -3316,7 +3610,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Get-CimInstance Win32_BIOS | Select SMBIOSBIOSVersion | Out-String"
         },
@@ -3327,7 +3621,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Inventaire hardware complet termine."
+          "message": "Inventaire hardware complet termine.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -3352,7 +3647,7 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "$cpu = (Get-CimInstance Win32_Processor).LoadPercentage; \"CPU: $cpu%\""
         },
@@ -3360,7 +3655,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "$os = Get-CimInstance Win32_OperatingSystem; $used = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory)/1MB,1); \"RAM utilisee: $used GB\""
         },
@@ -3368,7 +3663,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Get-Process | Sort WorkingSet64 -Desc | Select -First 5 Name, @{N='MB';E={[math]::Round($_.WorkingSet64/1MB)}} | Out-String"
         },
@@ -3377,7 +3672,9 @@
       },
       {
         "tool": "gpu_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "GPU",
         "wait_for_result": true
       },
@@ -3385,7 +3682,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Check performances termine."
+          "message": "Check performances termine.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -3410,7 +3708,7 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "$b = Get-CimInstance Win32_Battery; if ($b) { \"Niveau: $($b.EstimatedChargeRemaining)%`nStatut: $($b.BatteryStatus)`nEstimation: $($b.EstimatedRunTime) min\" } else { 'PC fixe - pas de batterie' }"
         },
@@ -3418,9 +3716,9 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "powercfg /batteryreport /output $env:TEMP/battery.html 2>$null; 'Rapport genere dans Temp'"
+          "command": "powercfg /batteryreport /output $env:TEMP\\battery.html 2>$null; 'Rapport genere dans Temp'"
         },
         "description": "Rapport batterie",
         "wait_for_result": true
@@ -3429,7 +3727,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Rapport batterie genere."
+          "message": "Rapport batterie genere.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -3456,13 +3755,14 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "win+tab"
+          "keys": "win+tab",
+          "command": ""
         },
         "description": "Vue des taches",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "$b = 70; (Get-CimInstance -Namespace root/WMI -ClassName WmiMonitorBrightnessMethods).WmiSetBrightness(1, $b)"
         },
@@ -3473,7 +3773,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode 4 fenetres - utilisez Snap Layout pour positionner."
+          "message": "Mode 4 fenetres - utilisez Snap Layout pour positionner.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -3497,7 +3798,7 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Start-Process osk"
         },
@@ -3507,7 +3808,8 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "win+plus"
+          "keys": "win+plus",
+          "command": ""
         },
         "description": "Loupe",
         "wait_for_result": true
@@ -3516,7 +3818,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Mode accessibilite complet actif."
+          "message": "Mode accessibilite complet actif.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -3542,7 +3845,8 @@
       {
         "tool": "app_open",
         "args": {
-          "name": "chrome"
+          "name": "chrome",
+          "command": ""
         },
         "description": "Ouvrir Chrome",
         "wait_for_result": true
@@ -3550,7 +3854,8 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "ctrl+t"
+          "keys": "ctrl+t",
+          "command": ""
         },
         "description": "Nouvel onglet",
         "wait_for_result": true
@@ -3558,7 +3863,8 @@
       {
         "tool": "press_hotkey",
         "args": {
-          "keys": "ctrl+0"
+          "keys": "ctrl+0",
+          "command": ""
         },
         "description": "Reset zoom",
         "wait_for_result": true
@@ -3567,7 +3873,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Navigation rapide prete."
+          "message": "Navigation rapide prete.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -3592,7 +3899,7 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "(Invoke-WebRequest -Uri 'https://api.ipify.org' -UseBasicParsing).Content"
         },
@@ -3601,12 +3908,14 @@
       },
       {
         "tool": "network_info",
-        "args": {},
+        "args": {
+          "command": ""
+        },
         "description": "IP locale",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Get-NetTCPConnection -State Listen | Select LocalPort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Sort LocalPort | Select -First 15 | Out-String"
         },
@@ -3614,7 +3923,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Get-NetNeighbor | Where State -ne Unreachable | Select IPAddress, LinkLayerAddress | Out-String"
         },
@@ -3622,7 +3931,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Get-NetAdapter | Where Status -eq Up | Select Name, LinkSpeed | Out-String"
         },
@@ -3633,7 +3942,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Audit reseau termine."
+          "message": "Audit reseau termine.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -3658,7 +3968,7 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "ipconfig /flushdns; 'DNS flush OK'"
         },
@@ -3666,7 +3976,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Set-DnsClientServerAddress -InterfaceAlias 'Wi-Fi' -ServerAddresses ('1.1.1.1','1.0.0.1'); 'DNS Cloudflare configure'"
         },
@@ -3676,7 +3986,8 @@
       {
         "tool": "ping",
         "args": {
-          "host": "google.com"
+          "host": "google.com",
+          "command": ""
         },
         "description": "Test connexion",
         "wait_for_result": true
@@ -3685,7 +3996,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "DNS optimise sur Cloudflare."
+          "message": "DNS optimise sur Cloudflare.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -3710,7 +4022,7 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Get-NetAdapter | Where Status -eq Up | Select Name, LinkSpeed, Status | Out-String"
         },
@@ -3720,13 +4032,14 @@
       {
         "tool": "ping",
         "args": {
-          "host": "8.8.8.8"
+          "host": "8.8.8.8",
+          "command": ""
         },
         "description": "Ping Google DNS",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Resolve-DnsName google.com -ErrorAction SilentlyContinue | Select Name, IPAddress | Out-String"
         },
@@ -3734,7 +4047,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "(Invoke-WebRequest -Uri 'https://api.ipify.org' -UseBasicParsing -TimeoutSec 5).Content"
         },
@@ -3745,7 +4058,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Diagnostic connexion termine."
+          "message": "Diagnostic connexion termine.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -3770,15 +4084,15 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "Remove-Item $env:TEMP/* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"
+          "command": "Remove-Item $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye'"
         },
         "description": "Vider temp",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "$e = Get-ChildItem -Directory -Recurse -Path $env:USERPROFILE -ErrorAction SilentlyContinue | Where { (Get-ChildItem $_.FullName -Force -ErrorAction SilentlyContinue).Count -eq 0 }; \"$($e.Count) dossiers vides trouves\""
         },
@@ -3786,7 +4100,7 @@
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
           "command": "Get-ChildItem $env:USERPROFILE -Recurse -File -ErrorAction SilentlyContinue | Sort Length -Desc | Select -First 10 Name, @{N='MB';E={[math]::Round($_.Length/1MB,1)}} | Out-String"
         },
@@ -3797,7 +4111,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Analyse fichiers terminee."
+          "message": "Analyse fichiers terminee.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -3822,17 +4137,17 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "cd F:/BUREAU/turbo; git status --short | Out-String"
+          "command": "cd \\home\\turbo\\jarvis; git status --short | Out-String"
         },
         "description": "Git status",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "$ts = Get-Date -Format 'yyyyMMdd_HHmm'; Compress-Archive -Path 'F:/BUREAU/turbo/src' -DestinationPath \"F:/BUREAU/turbo_backup_$ts.zip\" -Force; \"Backup: turbo_backup_$ts.zip\""
+          "command": "$ts = Get-Date -Format 'yyyyMMdd_HHmm'; Compress-Archive -Path '\\home\\turbo\\jarvis\\src' -DestinationPath \"\\home\\turbo\\jarvis_backup_$ts.zip\" -Force; \"Backup: turbo_backup_$ts.zip\""
         },
         "description": "Compression",
         "wait_for_result": true
@@ -3841,7 +4156,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Backup projet termine."
+          "message": "Backup projet termine.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -3866,25 +4182,25 @@
     ],
     "steps": [
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "$py = Get-ChildItem 'F:/BUREAU/turbo/src' -Filter '*.py' -Recurse; \"$($py.Count) fichiers Python\""
+          "command": "$py = Get-ChildItem '\\home\\turbo\\jarvis\\src' -Filter '*.py' -Recurse; \"$($py.Count) fichiers Python\""
         },
         "description": "Fichiers Python",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "$lines = (Get-ChildItem 'F:/BUREAU/turbo/src' -Filter '*.py' -Recurse | Get-Content | Measure-Object -Line).Lines; \"$lines lignes de code\""
+          "command": "$lines = (Get-ChildItem '\\home\\turbo\\jarvis\\src' -Filter '*.py' -Recurse | Get-Content | Measure-Object -Line).Lines; \"$lines lignes de code\""
         },
         "description": "Lignes de code",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "$s = (Get-ChildItem 'F:/BUREAU/turbo/src' -Recurse -File | Measure-Object Length -Sum).Sum / 1KB; \"Taille src: $([math]::Round($s,1)) KB\""
+          "command": "$s = (Get-ChildItem '\\home\\turbo\\jarvis\\src' -Recurse -File | Measure-Object Length -Sum).Sum / 1KB; \"Taille src: $([math]::Round($s,1)) KB\""
         },
         "description": "Taille",
         "wait_for_result": true
@@ -3893,7 +4209,8 @@
         "tool": "notify",
         "args": {
           "title": "JARVIS",
-          "message": "Analyse code terminee."
+          "message": "Analyse code terminee.",
+          "command": ""
         },
         "description": "Notification",
         "wait_for_result": true
@@ -3907,380 +4224,1870 @@
     "confirm": false
   },
   {
-    "name": "mode_visio",
-    "description": "Preparation visio: Teams, volume OK, notification",
+    "name": "forge_code",
+    "description": "The Forge: M2 genere le code, M1 review logique, correction auto si erreur",
     "triggers": [
-      "mode visio",
-      "mode visioconference",
-      "prepare la visio"
+      "forge du code",
+      "genere du code",
+      "code autonome",
+      "auto code",
+      "la forge",
+      "lance la forge"
     ],
     "steps": [
       {
-        "tool": "app_open",
+        "tool": "lm_cluster_status",
         "args": {
-          "app": "teams"
+          "command": ""
         },
-        "description": "Ouvrir Teams",
+        "description": "Verifier cluster disponible",
         "wait_for_result": true
       },
       {
-        "tool": "volume_down",
-        "args": {},
-        "description": "Volume raisonnable",
+        "tool": "lm_query",
+        "args": {
+          "prompt": "Genere le code Python demande. Code uniquement, pas d'explication.",
+          "node": "M2",
+          "command": ""
+        },
+        "description": "M2 genere le code",
+        "wait_for_result": true
+      },
+      {
+        "tool": "lm_query",
+        "args": {
+          "prompt": "Review ce code. Identifie bugs, problemes logiques, optimisations. Sois precis.",
+          "node": "M1",
+          "command": ""
+        },
+        "description": "M1 review logique",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "title": "JARVIS Forge",
+          "message": "Code genere par M2 et review par M1.",
+          "command": ""
+        },
+        "description": "Notification",
         "wait_for_result": true
       }
     ],
-    "category": "communication",
-    "created_at": 1770832974.19784,
+    "category": "dev",
+    "created_at": 0.0,
     "usage_count": 0,
     "last_used": 0.0,
     "success_rate": 1.0,
     "confirm": false
   },
   {
-    "name": "mode_scalping",
-    "description": "Mode scalping: lance le scalper 1min, status trading, notification",
+    "name": "shield_audit",
+    "description": "The Shield: Audit securite multi-IA parallele (M1 + M2 analysent en parallele)",
     "triggers": [
-      "mode scalping",
-      "lance le scalp",
-      "scalp mode"
+      "audit de securite",
+      "shield",
+      "scan de securite",
+      "verifie la securite du code",
+      "audit code"
     ],
     "steps": [
       {
-        "tool": "run_script",
+        "tool": "lm_query",
         "args": {
-          "script": "river_scalp_1min"
+          "prompt": "Analyse ce code pour les failles de securite: injections SQL, XSS, fuites de cles API, OWASP top 10. Liste chaque probleme.",
+          "node": "M1",
+          "command": ""
         },
-        "description": "Scalper 1min",
+        "description": "M1 analyse securite",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "lm_query",
         "args": {
-          "command": "echo 'Trading status check'"
+          "prompt": "Verifie ce code pour les bugs logiques, race conditions, et erreurs de gestion memoire.",
+          "node": "M2",
+          "command": ""
         },
-        "description": "Status trading",
+        "description": "M2 analyse logique",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "title": "JARVIS Shield",
+          "message": "Audit securite termine. M1 + M2 ont analyse.",
+          "command": ""
+        },
+        "description": "Notification",
         "wait_for_result": true
       }
     ],
-    "category": "trading",
-    "created_at": 1770832974.1978464,
+    "category": "dev",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "brain_index",
+    "description": "The Brain: Indexe le projet dans la memoire JARVIS via M1",
+    "triggers": [
+      "indexe le projet",
+      "memorise le projet",
+      "brain index",
+      "mets a jour la memoire",
+      "apprends le projet"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "$py = Get-ChildItem '\\home\\turbo\\jarvis\\src' -Filter '*.py' -Recurse; $py | Select Name, @{N='KB';E={[math]::Round($_.Length/1KB,1)}} | Out-String"
+        },
+        "description": "Lister fichiers source",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "$lines = (Get-ChildItem '\\home\\turbo\\jarvis\\src' -Filter '*.py' -Recurse | Get-Content | Measure-Object -Line).Lines; \"$lines lignes de code total\""
+        },
+        "description": "Compter les lignes",
+        "wait_for_result": true
+      },
+      {
+        "tool": "lm_query",
+        "args": {
+          "prompt": "Resume en 5 lignes l'architecture de ce projet Python: structure des fichiers, patterns utilises, technologies.",
+          "node": "M1",
+          "command": ""
+        },
+        "description": "M1 resume le projet",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "title": "JARVIS Brain",
+          "message": "Projet indexe dans la memoire.",
+          "command": ""
+        },
+        "description": "Notification",
+        "wait_for_result": true
+      }
+    ],
+    "category": "dev",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "medic_repair",
+    "description": "The Medic: Auto-reparation cluster — verifie et relance M1, M2, Ollama",
+    "triggers": [
+      "medic",
+      "repare le cluster",
+      "auto reparation",
+      "le cluster est casse",
+      "relance les agents",
+      "repare les ia"
+    ],
+    "steps": [
+      {
+        "tool": "lm_cluster_status",
+        "args": {
+          "command": ""
+        },
+        "description": "Check cluster complet",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "$r = try { (Invoke-WebRequest -Uri 'http://127.0.0.1:1234/api/v1/models' -Headers @{Authorization='Bearer '} -TimeoutSec 3).StatusCode } catch { 0 }; if ($r -eq 200) { 'M1 OK' } else { 'M1 OFFLINE — relance LM Studio' }"
+        },
+        "description": "Check M1",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "$r = try { (Invoke-WebRequest -Uri 'http://192.168.1.26:1234/api/v1/models' -Headers @{Authorization='Bearer '} -TimeoutSec 3).StatusCode } catch { 0 }; if ($r -eq 200) { 'M2 OK' } else { 'M2 OFFLINE' }"
+        },
+        "description": "Check M2",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "$r = try { (Invoke-WebRequest -Uri 'http://127.0.0.1:11434/api/tags' -TimeoutSec 3).StatusCode } catch { 0 }; if ($r -eq 200) { 'Ollama OK' } else { Start-Process ollama -ArgumentList 'serve' -WindowStyle Hidden; 'Ollama relance' }"
+        },
+        "description": "Check/Relance Ollama",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "title": "JARVIS Medic",
+          "message": "Diagnostic cluster termine. Agents verifies.",
+          "command": ""
+        },
+        "description": "Notification",
+        "wait_for_result": true
+      }
+    ],
+    "category": "systeme",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "consensus_mao",
+    "description": "MAO Consensus: Question envoyee a M1 + M2 + OL1, synthese des reponses",
+    "triggers": [
+      "consensus complet",
+      "mao consensus",
+      "avis de tous les agents",
+      "demande a tout le monde",
+      "consensus multi agent"
+    ],
+    "steps": [
+      {
+        "tool": "lm_cluster_status",
+        "args": {
+          "command": ""
+        },
+        "description": "Verifier disponibilite agents",
+        "wait_for_result": true
+      },
+      {
+        "tool": "consensus",
+        "args": {
+          "prompt": "Reponds a cette question avec ta recommandation + niveau de confiance (1-10) + justification courte.",
+          "nodes": "M1,M2",
+          "command": ""
+        },
+        "description": "Consensus M1+M2",
+        "wait_for_result": true
+      },
+      {
+        "tool": "lm_query",
+        "args": {
+          "prompt": "Donne ton avis sur cette question en 3 lignes. Niveau de confiance 1-10.",
+          "node": "OL1",
+          "command": ""
+        },
+        "description": "Avis OL1",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "title": "JARVIS MAO",
+          "message": "Consensus multi-agent termine.",
+          "command": ""
+        },
+        "description": "Notification",
+        "wait_for_result": true
+      }
+    ],
+    "category": "dev",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "lab_tests",
+    "description": "The Lab: M1 genere les tests, execute localement, M2 analyse les echecs",
+    "triggers": [
+      "lance les tests",
+      "genere des tests",
+      "test automatique",
+      "lab tests",
+      "teste le code",
+      "pytest"
+    ],
+    "steps": [
+      {
+        "tool": "lm_query",
+        "args": {
+          "prompt": "Genere un script pytest complet pour tester le code demande. Code uniquement.",
+          "node": "M1",
+          "command": ""
+        },
+        "description": "M1 genere les tests",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "cd \\home\\turbo\\jarvis; & 'uv' run python -m pytest src/ --tb=short -q 2>&1 | Out-String"
+        },
+        "description": "Executer pytest",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "title": "JARVIS Lab",
+          "message": "Tests executes. Resultats disponibles.",
+          "command": ""
+        },
+        "description": "Notification",
+        "wait_for_result": true
+      }
+    ],
+    "category": "dev",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "architect_diagram",
+    "description": "The Architect: M1 analyse le code et genere un diagramme Mermaid de l'architecture",
+    "triggers": [
+      "diagramme architecture",
+      "documente l'architecture",
+      "schema du projet",
+      "architect",
+      "mermaid"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "$py = Get-ChildItem '\\home\\turbo\\jarvis\\src' -Filter '*.py' -Recurse; $py | ForEach-Object { $_.Name + ': ' + (Select-String -Path $_.FullName -Pattern '^(class |def |async def )' | Measure-Object).Count + ' definitions' } | Out-String"
+        },
+        "description": "Scanner structure code",
+        "wait_for_result": true
+      },
+      {
+        "tool": "lm_query",
+        "args": {
+          "prompt": "Analyse cette structure de fichiers Python et genere un diagramme Mermaid.js montrant les relations entre modules. Format: ```mermaid ... ```",
+          "node": "M1",
+          "command": ""
+        },
+        "description": "M1 genere le diagramme",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "title": "JARVIS Architect",
+          "message": "Diagramme architecture genere.",
+          "command": ""
+        },
+        "description": "Notification",
+        "wait_for_result": true
+      }
+    ],
+    "category": "dev",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "oracle_veille",
+    "description": "The Oracle: Recherche web via OL1 cloud (minimax) + synthese M1",
+    "triggers": [
+      "veille technologique",
+      "recherche sur le web",
+      "oracle",
+      "cherche des infos",
+      "renseigne toi sur"
+    ],
+    "steps": [
+      {
+        "tool": "ollama_web_search",
+        "args": {
+          "query": "Recherche les dernieres informations sur le sujet demande",
+          "command": ""
+        },
+        "description": "OL1 cloud recherche web",
+        "wait_for_result": true
+      },
+      {
+        "tool": "lm_query",
+        "args": {
+          "prompt": "Synthese en 5 points des informations trouvees. Sois factuel et precis.",
+          "node": "M1",
+          "command": ""
+        },
+        "description": "M1 synthetise",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "title": "JARVIS Oracle",
+          "message": "Veille technologique terminee.",
+          "command": ""
+        },
+        "description": "Notification",
+        "wait_for_result": true
+      }
+    ],
+    "category": "dev",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "sentinel_securite",
+    "description": "The Sentinel: Scan ports ouverts, connexions actives, processus suspects",
+    "triggers": [
+      "sentinel",
+      "scan de menaces",
+      "cyber defense",
+      "connexions suspectes",
+      "qui est connecte",
+      "scan securite reseau"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "Get-NetTCPConnection -State Listen | Select LocalPort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Sort LocalPort | Out-String"
+        },
+        "description": "Ports en ecoute",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "Get-NetTCPConnection -State Established | Where { $_.RemoteAddress -notmatch '^(127|10|192\\.168|0\\.0)' } | Select RemoteAddress, RemotePort, @{N='Process';E={(Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue).Name}} | Out-String"
+        },
+        "description": "Connexions externes",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "Get-NetFirewallRule -Enabled True -Direction Inbound | Where Action -eq Allow | Select DisplayName, Profile | Select -First 10 | Out-String"
+        },
+        "description": "Regles pare-feu entrantes",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "title": "JARVIS Sentinel",
+          "message": "Scan securite termine.",
+          "command": ""
+        },
+        "description": "Notification",
+        "wait_for_result": true
+      }
+    ],
+    "category": "systeme",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "alchemist_transform",
+    "description": "The Alchemist: M1 transforme des donnees d'un format a un autre (CSV, JSON, SQL...)",
+    "triggers": [
+      "transforme les donnees",
+      "convertis le fichier",
+      "alchemist",
+      "change le format",
+      "csv vers json",
+      "json vers csv"
+    ],
+    "steps": [
+      {
+        "tool": "lm_query",
+        "args": {
+          "prompt": "Transforme ces donnees dans le format demande. Retourne uniquement les donnees converties, pas d'explication.",
+          "node": "M1",
+          "command": ""
+        },
+        "description": "M1 transforme les donnees",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "title": "JARVIS Alchemist",
+          "message": "Transformation de donnees terminee.",
+          "command": ""
+        },
+        "description": "Notification",
+        "wait_for_result": true
+      }
+    ],
+    "category": "dev",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "director_standup",
+    "description": "The Director: Rapport quotidien basé sur git log + status systeme + trading",
+    "triggers": [
+      "rapport quotidien",
+      "standup",
+      "director",
+      "resume de la journee",
+      "qu'est ce qui s'est passe"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "cd \\home\\turbo\\jarvis; git log --since='24 hours ago' --oneline 2>&1 | Out-String"
+        },
+        "description": "Git log 24h",
+        "wait_for_result": true
+      },
+      {
+        "tool": "system_info",
+        "args": {
+          "command": ""
+        },
+        "description": "Status systeme",
+        "wait_for_result": true
+      },
+      {
+        "tool": "trading_status",
+        "args": {
+          "command": ""
+        },
+        "description": "Status trading",
+        "wait_for_result": true
+      },
+      {
+        "tool": "lm_query",
+        "args": {
+          "prompt": "En tant que chef de projet, fais un rapport vocal court (5 lignes max) de l'avancement basé sur ces infos: commits recents, status systeme, status trading.",
+          "node": "M1",
+          "command": ""
+        },
+        "description": "M1 genere le rapport",
+        "wait_for_result": true
+      },
+      {
+        "tool": "notify",
+        "args": {
+          "title": "JARVIS Director",
+          "message": "Rapport quotidien genere.",
+          "command": ""
+        },
+        "description": "Notification",
+        "wait_for_result": true
+      }
+    ],
+    "category": "routine",
+    "created_at": 0.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "linux_health_check",
+    "description": "Diagnostic complet santé Linux: CPU, RAM, GPU, disques, services, réseau",
+    "triggers": [
+      "vérifie la santé du système",
+      "health check linux",
+      "diagnostic système",
+      "comment va le système",
+      "état de santé"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== CPU ===' && cat /proc/loadavg && echo '=== RAM ===' && free -h && echo '=== GPU ===' && nvidia-smi --query-gpu=name,temperature.gpu,utilization.gpu,memory.used --format=csv,noheader && echo '=== DISK ===' && df -h / /home && echo '=== SERVICES ===' && systemctl --user list-units jarvis-* --no-pager | grep -E 'running|failed' && echo '=== NETWORK ===' && ip -br addr | grep UP"
+        },
+        "description": "Diagnostic complet système Linux",
+        "wait_for_result": true
+      }
+    ],
+    "category": "monitoring",
+    "created_at": 1773598806.8297713,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "optimise_gpu_linux",
+    "description": "Optimisation GPU: températures, VRAM, processus idle, persistence mode",
+    "triggers": [
+      "optimise les gpu",
+      "optimise la vram",
+      "gpu optimize",
+      "libère la vram",
+      "performance gpu"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "nvidia-smi --query-gpu=index,name,temperature.gpu,utilization.gpu,memory.used,memory.total,fan.speed,power.draw --format=csv,noheader"
+        },
+        "description": "État GPU détaillé",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "nvidia-smi --query-compute-apps=pid,name,used_memory --format=csv,noheader 2>/dev/null"
+        },
+        "description": "Processus GPU actifs",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "nvidia-smi -pm 1 2>/dev/null"
+        },
+        "description": "Active persistence mode",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "sync && echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null"
+        },
+        "description": "Libère cache mémoire",
+        "wait_for_result": true
+      }
+    ],
+    "category": "gpu",
+    "created_at": 1773598828.958563,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "backup_jarvis_linux",
+    "description": "Backup complet JARVIS: bases de données, configs, scripts, git bundle",
+    "triggers": [
+      "backup jarvis",
+      "sauvegarde jarvis",
+      "backup complet",
+      "fais un backup",
+      "sauvegarde tout"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "mkdir -p /home/turbo/jarvis/backups/$(date +%Y%m%d)"
+        },
+        "description": "Crée dossier backup du jour",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "for db in /home/turbo/jarvis/data/*.db; do sqlite3 \"$db\" \".backup /home/turbo/jarvis/backups/$(date +%Y%m%d)/$(basename $db)\"; done && echo 'DBs sauvegardées'"
+        },
+        "description": "Backup toutes les bases SQLite",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "cp /home/turbo/jarvis/data/skills.json /home/turbo/jarvis/backups/$(date +%Y%m%d)/skills.json && echo 'Skills sauvegardés'"
+        },
+        "description": "Backup skills",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "cd /home/turbo/jarvis && git bundle create backups/$(date +%Y%m%d)/jarvis-$(date +%Y%m%d).bundle --all && echo 'Git bundle créé'"
+        },
+        "description": "Git bundle complet",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "du -sh /home/turbo/jarvis/backups/$(date +%Y%m%d)/ && echo 'Backup terminé'"
+        },
+        "description": "Taille du backup",
+        "wait_for_result": true
+      }
+    ],
+    "category": "backup",
+    "created_at": 1773598883.194844,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "cluster_check_linux",
+    "description": "Vérification complète du cluster JARVIS: M1, M2, M3, OL1, latences, modèles",
+    "triggers": [
+      "vérifie le cluster",
+      "état du cluster",
+      "cluster check",
+      "teste les noeuds",
+      "santé du cluster"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== M1 ===' && curl -s --max-time 3 http://127.0.0.1:1234/api/v1/models | python3 -c 'import sys,json;d=json.load(sys.stdin);[print(f\"  {m[\"id\"]}\") for m in d.get(\"data\",[])]' 2>/dev/null || echo '  OFFLINE'"
+        },
+        "description": "Check M1",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== M2 ===' && curl -s --max-time 3 http://192.168.1.26:1234/api/v1/models | python3 -c 'import sys,json;d=json.load(sys.stdin);[print(f\"  {m[\"id\"]}\") for m in d.get(\"data\",[])]' 2>/dev/null || echo '  OFFLINE'"
+        },
+        "description": "Check M2",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== M3 ===' && curl -s --max-time 3 http://192.168.1.113:1234/api/v1/models | python3 -c 'import sys,json;d=json.load(sys.stdin);[print(f\"  {m[\"id\"]}\") for m in d.get(\"data\",[])]' 2>/dev/null || echo '  OFFLINE'"
+        },
+        "description": "Check M3",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== OL1 ===' && curl -s --max-time 3 http://127.0.0.1:11434/api/tags | python3 -c 'import sys,json;[print(f\"  {m[\"name\"]}\") for m in json.load(sys.stdin).get(\"models\",[])]' 2>/dev/null || echo '  OFFLINE'"
+        },
+        "description": "Check OL1",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== LATENCES ===' && for h in 127.0.0.1:1234 192.168.1.26:1234 192.168.1.113:1234 127.0.0.1:11434; do t=$(curl -o /dev/null -s -w '%{time_total}' --max-time 2 http://$h/ 2>/dev/null); echo \"  $h: ${t}s\"; done"
+        },
+        "description": "Test latences",
+        "wait_for_result": true
+      }
+    ],
+    "category": "cluster",
+    "created_at": 1773598896.1414952,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "fix_audio_linux",
+    "description": "Réparer le son: restart PipeWire/PulseAudio, vérifier sinks, volume",
+    "triggers": [
+      "répare le son",
+      "pas de son",
+      "problème audio",
+      "le son marche pas",
+      "fix audio",
+      "son coupé"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== ÉTAT AUDIO ===' && pactl info | grep -E 'Server Name|Default Sink'"
+        },
+        "description": "Info serveur audio",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "systemctl --user restart pipewire pipewire-pulse wireplumber 2>/dev/null && echo 'PipeWire redémarré' || (pulseaudio -k && pulseaudio --start && echo 'PulseAudio redémarré')"
+        },
+        "description": "Restart audio",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "sleep 1 && pactl list sinks short"
+        },
+        "description": "Liste des sorties audio",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "pactl set-sink-mute @DEFAULT_SINK@ 0 && pactl set-sink-volume @DEFAULT_SINK@ 70% && echo 'Volume à 70%, unmute'"
+        },
+        "description": "Rétablit volume",
+        "wait_for_result": true
+      }
+    ],
+    "category": "fix",
+    "created_at": 1773598902.6263077,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "git_status_jarvis",
+    "description": "État git JARVIS: status, branches, derniers commits, diff résumé",
+    "triggers": [
+      "état du git",
+      "git status",
+      "derniers commits",
+      "qu'est-ce qui a changé",
+      "historique git"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "cd /home/turbo/jarvis && echo '=== BRANCHE ===' && git branch --show-current && echo '=== STATUS ===' && git status --short | head -20 && echo '=== DERNIERS COMMITS ===' && git log --oneline -10"
+        },
+        "description": "État git complet",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "cd /home/turbo/jarvis && echo '=== FICHIERS MODIFIÉS ===' && git diff --stat | tail -5"
+        },
+        "description": "Résumé des changements",
+        "wait_for_result": true
+      }
+    ],
+    "category": "dev",
+    "created_at": 1773598906.1695442,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "wifi_manager_linux",
+    "description": "Gestion WiFi: scanner, connecter, déconnecter, info connexion",
+    "triggers": [
+      "gère le wifi",
+      "wifi status",
+      "scanner wifi",
+      "connecte au wifi",
+      "réseaux disponibles",
+      "problème wifi"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== CONNEXION ACTIVE ===' && nmcli -t -f NAME,DEVICE,TYPE con show --active 2>/dev/null"
+        },
+        "description": "Connexion WiFi active",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== SIGNAL ===' && nmcli -f SSID,SIGNAL,SECURITY dev wifi list 2>/dev/null | head -15"
+        },
+        "description": "Réseaux disponibles",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== IP ===' && ip -br addr | grep wl"
+        },
+        "description": "Adresse IP WiFi",
+        "wait_for_result": true
+      }
+    ],
+    "category": "network",
+    "created_at": 1773598909.6799357,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "process_killer_linux",
+    "description": "Gestion processus: top consommateurs, kill processus, zombies",
+    "triggers": [
+      "tue le processus",
+      "processus bloqué",
+      "kill process",
+      "processus qui rame",
+      "top processus",
+      "application bloquée"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== TOP CPU ===' && ps aux --sort=-%cpu | head -8"
+        },
+        "description": "Top processus CPU",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== TOP RAM ===' && ps aux --sort=-%mem | head -8"
+        },
+        "description": "Top processus RAM",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== ZOMBIES ===' && ps aux | awk '$8==\"Z\"' | head -5 || echo 'Aucun zombie'"
+        },
+        "description": "Processus zombies",
+        "wait_for_result": true
+      }
+    ],
+    "category": "system",
+    "created_at": 1773598913.0509717,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "desktop_reset_linux",
+    "description": "Reset bureau GNOME: restart shell, extensions, thème, résolution",
+    "triggers": [
+      "reset le bureau",
+      "bureau planté",
+      "gnome planté",
+      "écran figé",
+      "redémarre gnome",
+      "desktop reset"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s 'Meta.restart(\"Restarting…\")' 2>/dev/null && echo 'GNOME Shell redémarré' || echo 'Restart via busctl échoué'"
+        },
+        "description": "Restart GNOME Shell",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "sleep 2 && gnome-extensions list --enabled 2>/dev/null | head -10"
+        },
+        "description": "Extensions actives",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "gsettings get org.gnome.desktop.interface color-scheme && xrandr | grep ' connected' | head -3"
+        },
+        "description": "Thème et résolution",
+        "wait_for_result": true
+      }
+    ],
+    "category": "desktop",
+    "created_at": 1773598926.3306649,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "disk_analysis_linux",
+    "description": "Analyse disque: espace, gros fichiers, SMART, IO",
+    "triggers": [
+      "analyse le disque",
+      "espace disque",
+      "gros fichiers",
+      "santé du disque",
+      "disque plein",
+      "stockage"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== ESPACE ===' && df -h / /home /tmp"
+        },
+        "description": "Espace disque",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== TOP 10 GROS FICHIERS ===' && find /home/turbo -type f -size +100M -exec ls -lh {} \\; 2>/dev/null | sort -k5 -h -r | head -10"
+        },
+        "description": "Plus gros fichiers",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== TOP DOSSIERS ===' && du -sh /home/turbo/*/ 2>/dev/null | sort -h -r | head -10"
+        },
+        "description": "Plus gros dossiers",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== SMART ===' && sudo smartctl -H /dev/sda 2>/dev/null | grep -E 'result|Status' || echo 'smartctl non disponible'"
+        },
+        "description": "Santé SMART",
+        "wait_for_result": true
+      }
+    ],
+    "category": "monitoring",
+    "created_at": 1773598932.2335763,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "service_manager_linux",
+    "description": "Gestion services JARVIS: lister, redémarrer, activer, désactiver",
+    "triggers": [
+      "gère les services",
+      "services jarvis",
+      "redémarre les services",
+      "services plantés",
+      "liste les services"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== SERVICES ACTIFS ===' && systemctl --user list-units jarvis-* --no-pager --no-legend | grep running"
+        },
+        "description": "Services running",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== SERVICES FAILED ===' && systemctl --user list-units jarvis-* --no-pager --no-legend | grep -E 'failed|dead' || echo 'Aucun service en échec'"
+        },
+        "description": "Services en échec",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== TIMERS ===' && systemctl --user list-timers jarvis-* --no-pager --no-legend | head -10"
+        },
+        "description": "Timers actifs",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== MÉMOIRE SERVICES ===' && systemctl --user list-units jarvis-* --no-pager --no-legend | awk '{print $1}' | while read s; do m=$(systemctl --user show $s --property=MemoryCurrent --value 2>/dev/null); [ \"$m\" != \"[not set]\" ] && [ -n \"$m\" ] && echo \"  $s: $((m/1024/1024))MB\"; done 2>/dev/null"
+        },
+        "description": "Mémoire par service",
+        "wait_for_result": true
+      }
+    ],
+    "category": "system",
+    "created_at": 1773598937.3243496,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "voice_test_linux",
+    "description": "Test pipeline vocal: Vosk, Whisper, Piper TTS, microphone",
+    "triggers": [
+      "teste la voix",
+      "test vocal",
+      "microphone marche",
+      "teste le micro",
+      "pipeline vocal",
+      "whisper fonctionne"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== MICROPHONE ===' && arecord -l 2>/dev/null | grep -i card || echo 'Aucun micro détecté'"
+        },
+        "description": "Détection microphone",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== WHISPER ===' && curl -s --max-time 3 http://127.0.0.1:9000/health 2>/dev/null && echo 'Whisper OK' || echo 'Whisper OFFLINE'"
+        },
+        "description": "Check Whisper",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== VOSK ===' && ls /home/turbo/jarvis/data/vosk-model-small-fr-0.22/ >/dev/null 2>&1 && echo 'Modèle Vosk OK' || echo 'Modèle Vosk MANQUANT'"
+        },
+        "description": "Check modèle Vosk",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== PIPER TTS ===' && which piper >/dev/null 2>&1 && echo 'Piper installé' || echo 'Piper NON installé'"
+        },
+        "description": "Check Piper TTS",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== SERVICE VOCAL ===' && systemctl --user is-active jarvis-voice 2>/dev/null || echo 'Service vocal inactif'"
+        },
+        "description": "Service vocal JARVIS",
+        "wait_for_result": true
+      }
+    ],
+    "category": "voice",
+    "created_at": 1773598942.9688144,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "maintenance_complete_linux",
+    "description": "Maintenance complete Linux: apt update/upgrade, snap refresh, autoremove, vacuum journaux, clean tmp, check services",
+    "triggers": [
+      "fais une maintenance complete",
+      "maintenance complete linux",
+      "maintenance systeme",
+      "mets a jour et nettoie",
+      "entretien complet",
+      "maintenance full linux",
+      "apt update et nettoyage"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "sudo apt update -y 2>&1 | tail -5"
+        },
+        "description": "Mise a jour des paquets APT",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "sudo apt upgrade -y 2>&1 | tail -10"
+        },
+        "description": "Upgrade des paquets APT",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "sudo snap refresh 2>&1 | tail -5"
+        },
+        "description": "Mise a jour des snaps",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "sudo apt autoremove -y 2>&1 | tail -5"
+        },
+        "description": "Suppression paquets orphelins",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "sudo journalctl --vacuum-time=7d 2>&1"
+        },
+        "description": "Nettoyage journaux systeme (7 jours)",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "sudo find /tmp -type f -atime +7 -delete 2>/dev/null; echo 'tmp cleaned'"
+        },
+        "description": "Nettoyage fichiers tmp anciens",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "systemctl --failed --no-pager 2>&1"
+        },
+        "description": "Verification services en echec",
+        "wait_for_result": true
+      }
+    ],
+    "category": "maintenance",
+    "created_at": 1710460800.0,
     "usage_count": 0,
     "last_used": 0.0,
     "success_rate": 1.0,
     "confirm": true
   },
   {
-    "name": "auto_recovery_services",
-    "description": "Detecte et redemarre les services crashés automatiquement",
+    "name": "securite_audit_linux",
+    "description": "Audit de securite Linux: ufw, fail2ban, ports ouverts, apparmor, rootkits, permissions home",
     "triggers": [
-      "service crashé",
-      "service ne répond pas",
-      "redémarre les services",
-      "recovery services"
+      "audit de securite",
+      "securite audit linux",
+      "check securite",
+      "verifie la securite",
+      "scan de securite",
+      "audit securite complet",
+      "analyse securite linux"
     ],
     "steps": [
       {
-        "tool": "list_services",
-        "args": {},
-        "description": "Liste les services",
+        "tool": "bash_run",
+        "args": {
+          "command": "sudo ufw status verbose 2>&1"
+        },
+        "description": "Statut du pare-feu UFW",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "Get-Service | Where-Object {$_.Status -eq 'Stopped'} | Select-Object DisplayName,Status"
+          "command": "sudo systemctl status fail2ban --no-pager 2>&1 | head -20"
         },
-        "description": "Identifier les services en echec",
+        "description": "Statut Fail2Ban",
         "wait_for_result": true
       },
       {
-        "tool": "stop_service",
+        "tool": "bash_run",
         "args": {
-          "service": "target_service"
+          "command": "sudo ss -tulnp 2>&1 | head -30"
         },
-        "description": "Arreter le service",
+        "description": "Ports ouverts et services a l'ecoute",
         "wait_for_result": true
       },
       {
-        "tool": "start_service",
+        "tool": "bash_run",
         "args": {
-          "service": "target_service"
+          "command": "sudo aa-status 2>&1 | head -20"
         },
-        "description": "Redemarrer le service",
+        "description": "Statut AppArmor",
         "wait_for_result": true
       },
       {
-        "tool": "notify",
+        "tool": "bash_run",
         "args": {
-          "message": "Service recovery complete"
+          "command": "sudo chkrootkit 2>&1 | grep -i 'infected\\|INFECTED' || echo 'Aucun rootkit detecte'"
         },
-        "description": "Notification completion",
-        "wait_for_result": false
+        "description": "Verification rootkits",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "find /home -maxdepth 2 -type f -perm /o+w 2>/dev/null | head -20; echo '--- Permissions /home verifiees ---'"
+        },
+        "description": "Verification permissions /home",
+        "wait_for_result": true
       }
     ],
-    "category": "systeme",
-    "created_at": 0.0,
+    "category": "security",
+    "created_at": 1710460800.0,
     "usage_count": 0,
     "last_used": 0.0,
     "success_rate": 1.0,
     "confirm": false
   },
   {
-    "name": "ai_load_balancer",
-    "description": "Switch dynamique entre modèles IA selon la charge du systeme",
+    "name": "optimise_systeme_linux",
+    "description": "Optimisation systeme Linux: swap, caches, GPU, zombies, compactage DB, espace disque",
     "triggers": [
-      "modèle lent",
-      "charge IA élevée",
-      "optimise les modèles",
-      "equilibre les modeles",
-      "load balance IA"
+      "optimise le systeme",
+      "optimisation linux",
+      "boost le systeme",
+      "accelere le pc",
+      "optimise linux",
+      "rends le systeme plus rapide",
+      "performance systeme"
     ],
     "steps": [
       {
-        "tool": "lm_cluster_status",
-        "args": {},
-        "description": "Statut du cluster IA",
+        "tool": "bash_run",
+        "args": {
+          "command": "sudo swapoff -a && sudo swapon -a 2>&1; echo 'Swap reinitialise'"
+        },
+        "description": "Reinitialisation du swap",
         "wait_for_result": true
       },
       {
-        "tool": "system_info",
-        "args": {},
-        "description": "Infos systeme",
+        "tool": "bash_run",
+        "args": {
+          "command": "sync && echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null; echo 'Caches dropped'"
+        },
+        "description": "Liberation des caches memoire",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "for gpu in $(seq 0 5); do sudo nvidia-smi -i $gpu -pm 1 2>/dev/null; done; nvidia-smi --query-gpu=index,name,power.draw,temperature.gpu --format=csv,noheader 2>&1"
+        },
+        "description": "Optimisation GPU persistence mode",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "ps aux | awk '$8==\"Z\" {print $2}' | xargs -r sudo kill -9 2>/dev/null; echo 'Zombies tues'"
+        },
+        "description": "Suppression processus zombies",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "sudo sqlite3 /home/turbo/jarvis/memory/long_term.db 'VACUUM;' 2>/dev/null; echo 'DB compactee'"
+        },
+        "description": "Compactage bases de donnees",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "df -h / /home /tmp 2>&1"
+        },
+        "description": "Verification espace disque",
+        "wait_for_result": true
+      }
+    ],
+    "category": "performance",
+    "created_at": 1710460800.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": true
+  },
+  {
+    "name": "backup_complet_linux",
+    "description": "Backup complet Linux: snapshot LVM, dump DBs, tar configs, sync backup, verification checksums",
+    "triggers": [
+      "backup complet",
+      "backup complet linux",
+      "sauvegarde complete",
+      "fais un backup",
+      "sauvegarde tout",
+      "backup full linux",
+      "lance le backup"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "sudo lvcreate --size 2G --snapshot --name jarvis_snap /dev/mapper/ubuntu--vg-ubuntu--lv 2>&1 || echo 'LVM snapshot skip (pas de LVM ou deja existant)'"
+        },
+        "description": "Snapshot LVM du systeme",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "mkdir -p /home/turbo/backups/$(date +%Y%m%d) && sqlite3 /home/turbo/jarvis/memory/long_term.db '.backup /home/turbo/backups/'$(date +%Y%m%d)'/long_term.db' 2>&1; echo 'DB backed up'"
+        },
+        "description": "Dump des bases de donnees",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "tar czf /home/turbo/backups/$(date +%Y%m%d)/configs_$(date +%Y%m%d).tar.gz /etc/nginx /etc/ufw /etc/fail2ban /home/turbo/jarvis/data/skills.json /home/turbo/jarvis/src/config.py 2>&1 | tail -3; echo 'Configs archived'"
+        },
+        "description": "Archivage des configurations",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "rsync -avz --delete /home/turbo/jarvis/ /home/turbo/backups/$(date +%Y%m%d)/jarvis_sync/ 2>&1 | tail -5; echo 'Sync done'"
+        },
+        "description": "Synchronisation vers repertoire backup",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "cd /home/turbo/backups/$(date +%Y%m%d) && sha256sum *.tar.gz *.db 2>/dev/null > checksums.sha256 && cat checksums.sha256; echo 'Checksums generated'"
+        },
+        "description": "Verification des checksums",
+        "wait_for_result": true
+      }
+    ],
+    "category": "backup",
+    "created_at": 1710460800.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": true
+  },
+  {
+    "name": "diagnostic_reseau_linux",
+    "description": "Diagnostic reseau complet Linux: IP, nmcli, DNS, ping, traceroute, connexions, bande passante",
+    "triggers": [
+      "diagnostic reseau complet",
+      "diagnostic reseau linux",
+      "check le reseau",
+      "probleme reseau",
+      "analyse reseau",
+      "debug reseau linux",
+      "test reseau complet"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "ip addr show 2>&1 | grep -E 'inet |state' | head -20"
+        },
+        "description": "Adresses IP et interfaces",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "nmcli general status 2>&1; echo '---'; nmcli device status 2>&1"
+        },
+        "description": "Statut NetworkManager",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "dig google.com +short 2>&1; echo '---'; cat /etc/resolv.conf | grep nameserver"
+        },
+        "description": "Verification DNS",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "ip route | grep default; echo '---'; ping -c 3 $(ip route | grep default | awk '{print $3}') 2>&1"
+        },
+        "description": "Ping de la passerelle",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "traceroute -m 15 -w 2 8.8.8.8 2>&1 | head -20"
+        },
+        "description": "Traceroute vers Google DNS",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "ss -tunap 2>&1 | head -30"
+        },
+        "description": "Connexions actives",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "timeout 10 curl -s -o /dev/null -w 'Download speed: %{speed_download} bytes/sec\\nTotal time: %{time_total}s\\n' https://speed.cloudflare.com/__down?bytes=10000000 2>&1 || echo 'Speed test timeout'"
+        },
+        "description": "Test de bande passante rapide",
+        "wait_for_result": true
+      }
+    ],
+    "category": "network",
+    "created_at": 1710460800.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "mode_dev_linux",
+    "description": "Mode developpement Linux: VSCode, terminal, git status, services, GPU, load model M1",
+    "triggers": [
+      "mode developpement linux",
+      "mode dev linux",
+      "session dev linux",
+      "lance le dev linux",
+      "environnement dev",
+      "prepare le dev",
+      "mode programmation linux"
+    ],
+    "steps": [
+      {
+        "tool": "open_app",
+        "args": {
+          "name": "code"
+        },
+        "description": "Ouvrir VSCode",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "gnome-terminal --tab --title='JARVIS' -- bash -c 'exec bash' 2>/dev/null &; echo 'Terminal JARVIS ouvert'"
+        },
+        "description": "Ouvrir terminal JARVIS",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "git status --short 2>&1 | head -20"
+        },
+        "description": "Git status du projet JARVIS",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "systemctl --user list-units --state=running --no-pager 2>&1 | head -15; echo '---'; systemctl list-units --state=running --no-pager 2>&1 | grep -E 'jarvis|flask|lm|whisper' | head -10"
+        },
+        "description": "Verification services actifs",
         "wait_for_result": true
       },
       {
         "tool": "gpu_info",
         "args": {},
-        "description": "Infos GPU",
+        "description": "Statut GPU complet",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
-        "args": {
-          "command": "Get-Counter -Counter '/Processor(_Total)/% Processor Time' | Select-Object -ExpandProperty CounterSamples | Select-Object CookedValue"
-        },
-        "description": "Evaluer charge systeme",
+        "tool": "lm_cluster_status",
+        "args": {},
+        "description": "Statut cluster IA et modeles M1",
         "wait_for_result": true
-      },
-      {
-        "tool": "powershell_run",
-        "args": {
-          "command": "echo 'Switching to optimal model based on load'"
-        },
-        "description": "Switch modele IA optimal",
-        "wait_for_result": true
-      },
-      {
-        "tool": "notify",
-        "args": {
-          "message": "AI model switched for optimal performance"
-        },
-        "description": "Notification de switch",
-        "wait_for_result": false
       }
     ],
-    "category": "ia",
-    "created_at": 0.0,
+    "category": "dev",
+    "created_at": 1710460800.0,
     "usage_count": 0,
     "last_used": 0.0,
     "success_rate": 1.0,
     "confirm": false
   },
   {
-    "name": "trading_risk_alert",
-    "description": "Alertes avancees pour drawdown et risque de liquidation",
+    "name": "rapport_systeme_linux",
+    "description": "Rapport systeme complet Linux: CPU/RAM/Disk, GPU, services, cluster, uptime, erreurs journal",
     "triggers": [
-      "alerte trading",
-      "risque liquidation",
-      "drawdown élevé",
-      "check risk",
-      "trading alert"
+      "rapport systeme complet",
+      "rapport systeme linux",
+      "etat du systeme",
+      "resume systeme",
+      "status complet linux",
+      "bilan systeme",
+      "comment va le systeme"
     ],
     "steps": [
       {
-        "tool": "trading_positions",
+        "tool": "system_info",
         "args": {},
-        "description": "Positions trading actuelles",
+        "description": "Infos CPU/RAM/Disque",
         "wait_for_result": true
       },
       {
-        "tool": "trading_status",
+        "tool": "gpu_info",
         "args": {},
-        "description": "Status pipeline trading",
+        "description": "Infos GPU complet (6 GPUs)",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "echo 'Calculating drawdown percentage'"
+          "command": "systemctl list-units --state=running --no-pager 2>&1 | grep -E 'jarvis|flask|lm|whisper|nginx|trading|domino' | head -15"
         },
-        "description": "Calculer le drawdown",
+        "description": "Services JARVIS actifs",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
-        "args": {
-          "command": "if (drawdown -gt 15) { echo 'High drawdown risk' }"
-        },
-        "description": "Alerte si drawdown > 15 pourcent",
+        "tool": "lm_cluster_status",
+        "args": {},
+        "description": "Sante du cluster IA",
         "wait_for_result": true
       },
       {
-        "tool": "speak",
+        "tool": "bash_run",
         "args": {
-          "text": "Attention, risque de liquidation detecte"
+          "command": "uptime 2>&1; echo '---'; cat /proc/loadavg 2>&1"
         },
-        "description": "Alerte vocale warning",
+        "description": "Uptime et charge systeme",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "journalctl --priority=err --since='24 hours ago' --no-pager 2>&1 | tail -25"
+        },
+        "description": "Erreurs journal des 24 dernieres heures",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== RAPPORT SYSTEME LINUX ===' && echo \"Date: $(date)\" && echo \"Hostname: $(hostname)\" && echo \"Kernel: $(uname -r)\" && echo \"Load: $(cat /proc/loadavg)\" && df -h / /home | tail -2 && free -h | head -2"
+        },
+        "description": "Resume formate du rapport",
+        "wait_for_result": true
+      }
+    ],
+    "category": "monitoring",
+    "created_at": 1710460800.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "nettoyage_profond_linux",
+    "description": "Nettoyage profond Linux: corbeille, autoremove, snap prune, journal vacuum, vieux logs, docker prune, tmp",
+    "triggers": [
+      "nettoyage profond",
+      "nettoyage profond linux",
+      "clean profond",
+      "nettoie tout en profondeur",
+      "grand nettoyage",
+      "purge complete",
+      "libere de l'espace"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "rm -rf ~/.local/share/Trash/files/* ~/.local/share/Trash/info/* 2>/dev/null; echo 'Corbeille videe'"
+        },
+        "description": "Vider la corbeille",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "sudo apt autoremove -y && sudo apt autoclean -y 2>&1 | tail -5"
+        },
+        "description": "APT autoremove et autoclean",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "snap list --all | awk '/disabled/{print $1, $3}' | while read snapname revision; do sudo snap remove \"$snapname\" --revision=\"$revision\" 2>/dev/null; done; echo 'Snap prune done'"
+        },
+        "description": "Suppression anciennes revisions snap",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "sudo journalctl --vacuum-size=200M 2>&1"
+        },
+        "description": "Vacuum des journaux systeme (max 200M)",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "sudo find /var/log -name '*.gz' -delete 2>/dev/null; sudo find /var/log -name '*.old' -delete 2>/dev/null; sudo find /var/log -name '*.1' -delete 2>/dev/null; echo 'Vieux logs supprimes'"
+        },
+        "description": "Nettoyage vieux logs comprimes",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "docker system prune -af --volumes 2>&1 | tail -5 || echo 'Docker non installe ou non actif'"
+        },
+        "description": "Docker prune complet",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "sudo rm -rf /tmp/* /var/tmp/* 2>/dev/null; echo 'Tmp nettoye'; df -h / | tail -1"
+        },
+        "description": "Nettoyage tmp et verification espace libere",
+        "wait_for_result": true
+      }
+    ],
+    "category": "maintenance",
+    "created_at": 1710460800.0,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": true
+  },
+  {
+    "name": "preparation_trading_linux",
+    "description": "Preparation trading Linux: check GPU temps, load models, cluster, TradingView, pipeline, connexions",
+    "triggers": [
+      "prepare le trading",
+      "preparation trading",
+      "setup trading linux",
+      "lance la session trading linux",
+      "init trading",
+      "demarre le trading linux",
+      "pret pour le trading"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "nvidia-smi --query-gpu=index,temperature.gpu,power.draw,memory.used,memory.total --format=csv,noheader 2>&1"
+        },
+        "description": "Verification temperatures GPU",
+        "wait_for_result": true
+      },
+      {
+        "tool": "lm_cluster_status",
+        "args": {},
+        "description": "Verification cluster IA",
+        "wait_for_result": true
+      },
+      {
+        "tool": "lm_load_model",
+        "args": {
+          "model": "default"
+        },
+        "description": "Chargement modele IA pour trading",
+        "wait_for_result": true
+      },
+      {
+        "tool": "open_url",
+        "args": {
+          "url": "https://www.tradingview.com"
+        },
+        "description": "Ouvrir TradingView dans le navigateur",
+        "wait_for_result": true
+      },
+      {
+        "tool": "trading_pipeline_v2",
+        "args": {},
+        "description": "Demarrage pipeline trading V2",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "curl -s http://localhost:8080/health 2>&1 || echo 'MCP Flask non joignable'; curl -s http://lmt2:1234/v1/models 2>&1 | head -5 || echo 'LM Studio M2 non joignable'"
+        },
+        "description": "Verification connexions services",
         "wait_for_result": true
       }
     ],
     "category": "trading",
-    "created_at": 0.0,
+    "created_at": 1710460800.0,
     "usage_count": 0,
     "last_used": 0.0,
     "success_rate": 1.0,
     "confirm": false
   },
   {
-    "name": "gpu_benchmark",
-    "description": "Benchmark GPU automatique et comparaison avec baseline",
+    "name": "bonne_nuit_linux",
+    "description": "Bonne nuit Linux: sauvegarde, backup DBs, check crons, power-saver, reduce GPU, stop services, lock screen",
     "triggers": [
-      "benchmark gpu",
-      "test gpu",
-      "performance gpu",
-      "bench gpu",
-      "gpu benchmark"
+      "bonne nuit jarvis linux",
+      "bonne nuit linux",
+      "mode nuit linux",
+      "dodo linux",
+      "eteins tout linux",
+      "fin de journee linux",
+      "jarvis bonne nuit"
     ],
     "steps": [
       {
-        "tool": "gpu_info",
-        "args": {},
-        "description": "Infos GPU",
+        "tool": "bash_run",
+        "args": {
+          "command": "sync; echo 'Toutes les ecritures synchronisees'"
+        },
+        "description": "Synchronisation ecritures disque",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "nvidia-smi --query-gpu=index,name,driver_version,memory.total --format=csv"
+          "command": "mkdir -p /home/turbo/backups/nightly && sqlite3 /home/turbo/jarvis/memory/long_term.db '.backup /home/turbo/backups/nightly/long_term_$(date +%Y%m%d).db' 2>&1; echo 'DB sauvegardee'"
         },
-        "description": "Benchmark GPU avec nvidia-smi",
+        "description": "Backup des bases de donnees",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "echo 'Comparing with baseline performance'"
+          "command": "crontab -l 2>&1; echo '---'; sudo systemctl list-timers --no-pager 2>&1 | head -10"
         },
-        "description": "Comparer avec baseline",
+        "description": "Verification des taches planifiees",
         "wait_for_result": true
       },
       {
-        "tool": "notify",
+        "tool": "bash_run",
         "args": {
-          "message": "GPU benchmark complete"
+          "command": "sudo cpupower frequency-set -g powersave 2>/dev/null || echo 'cpupower non dispo'; echo 'Mode economie active'"
         },
-        "description": "Notifier resultats",
-        "wait_for_result": false
-      }
-    ],
-    "category": "systeme",
-    "created_at": 0.0,
-    "usage_count": 0,
-    "last_used": 0.0,
-    "success_rate": 1.0,
-    "confirm": false
-  },
-  {
-    "name": "sync_machines",
-    "description": "Synchronise les fichiers critiques entre M1 et M2",
-    "triggers": [
-      "sync machines",
-      "sync M1 M2",
-      "synchronise les machines",
-      "sync cluster",
-      "rsync M1 M2"
-    ],
-    "steps": [
-      {
-        "tool": "system_info",
-        "args": {},
-        "description": "Infos systeme",
+        "description": "Activation mode economie CPU",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "echo 'Listing critical files to sync'"
+          "command": "for gpu in $(seq 0 5); do sudo nvidia-smi -i $gpu -pl 50 2>/dev/null; done; echo 'GPUs en mode basse consommation'"
         },
-        "description": "Lister fichiers critiques",
+        "description": "Reduction puissance GPU",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "robocopy M1_PATH M2_PATH /MIR /Z /R:3"
+          "command": "sudo systemctl stop whisperflow 2>/dev/null; sudo systemctl stop jarvis-web 2>/dev/null; echo 'Services non-essentiels arretes'"
         },
-        "description": "Rsync M1 vers M2",
+        "description": "Arret des services non essentiels",
         "wait_for_result": true
       },
       {
-        "tool": "powershell_run",
+        "tool": "bash_run",
         "args": {
-          "command": "Get-FileHash -Path 'M1_PATH/*' | Compare-Object -ReferenceObject (Get-FileHash -Path 'M2_PATH/*')"
+          "command": "loginctl lock-session 2>/dev/null || xdg-screensaver lock 2>/dev/null || gnome-screensaver-command -l 2>/dev/null; echo 'Ecran verrouille'"
         },
-        "description": "Verifier les hashes",
-        "wait_for_result": true
-      },
-      {
-        "tool": "notify",
-        "args": {
-          "message": "Machine synchronization complete"
-        },
-        "description": "Notification sync complete",
-        "wait_for_result": false
-      }
-    ],
-    "category": "cluster",
-    "created_at": 0.0,
-    "usage_count": 0,
-    "last_used": 0.0,
-    "success_rate": 1.0,
-    "confirm": false
-  },
-  {
-    "name": "bad_skill",
-    "description": "x",
-    "triggers": [
-      "x"
-    ],
-    "steps": [],
-    "category": "perplexity_auto",
-    "created_at": 1772925399.2331626,
-    "usage_count": 0,
-    "last_used": 0.0,
-    "success_rate": 1.0,
-    "confirm": false
-  },
-  {
-    "name": "learned_test_apprentissage_pipeline",
-    "description": "Auto-appris: test apprentissage pipeline. Resultat: test reussi",
-    "triggers": [
-      "test apprentissage pipeline"
-    ],
-    "steps": [
-      {
-        "tool": "system_info",
-        "args": {},
-        "description": "Test info systeme",
+        "description": "Verrouillage de l'ecran",
         "wait_for_result": true
       }
     ],
-    "category": "auto_learned",
-    "created_at": 1773596744.813577,
+    "category": "routine",
+    "created_at": 1710460800.0,
     "usage_count": 0,
     "last_used": 0.0,
     "success_rate": 1.0,
-    "confirm": false
+    "confirm": true
   }
 ]

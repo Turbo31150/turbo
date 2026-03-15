@@ -335,7 +335,7 @@
       },
       "gemini": {
         "baseUrl": "https://generativelanguage.googleapis.com/v1beta",
-        "apiKey": "AIzaSyBxFBszdaf4UutnxbP3ywsRLuMCI9scSlc",
+        "apiKey": "${GEMINI_API_KEY}",
         "api": "gemini-rest",
         "models": [
           {
@@ -1288,7 +1288,7 @@
     "telegram": {
       "enabled": true,
       "dmPolicy": "pairing",
-      "botToken": "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw",
+      "botToken": "${TELEGRAM_TOKEN}",
       "groupPolicy": "allowlist",
       "streamMode": "partial",
       "actions": {

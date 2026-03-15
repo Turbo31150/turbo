@@ -13,7 +13,11 @@ import time
 from pathlib import Path
 
 # Add project root to path
+<<<<<<< Updated upstream
 PROJECT_ROOT = Path("/home/turbo/jarvis-m1-ops")
+=======
+PROJECT_ROOT = Path("/home/turbo/jarvis")
+>>>>>>> Stashed changes
 sys.path.insert(0, str(PROJECT_ROOT))
 os.chdir(PROJECT_ROOT)
 

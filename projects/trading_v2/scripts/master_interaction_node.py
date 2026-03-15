@@ -355,7 +355,7 @@ def execute_task(task_type, params=None):
 
     elif task_type == "send_telegram":
         msg = params.get("message", "Test PRISC")
-        token = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
+        token = os.environ.get("TELEGRAM_TOKEN", "")
         chat_id = "2010747443"
         r = requests.post(
             f"https://api.telegram.org/bot{token}/sendMessage",

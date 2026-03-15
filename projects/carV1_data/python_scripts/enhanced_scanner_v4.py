@@ -4,6 +4,7 @@ TRADING AI ULTIMATE v4.0 - Enhanced Scanner
 Pipeline: Scan -> Deep Analysis -> 3-IA Consensus -> Telegram
 """
 
+import os
 import asyncio
 import aiohttp
 import json
@@ -12,10 +13,10 @@ from datetime import datetime
 # Configuration
 CONFIG = {
     "mexc_api": "https://contract.mexc.com/api/v1/contract/ticker",
-    "gemini_key": "AIzaSyBT1vDFHmMA8Fc4880rFM8Ylk-IYzeH2vA",
+    "gemini_key": os.environ.get("GEMINI_API_KEY", ""),
     "lm_studio_1": "http://192.168.1.85:1234",
     "lm_studio_2": "http://192.168.1.26:1234",
-    "telegram_token": "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw",
+    "telegram_token": os.environ.get("TELEGRAM_TOKEN", ""),
     "telegram_chat": "2010747443",
     "min_score": 70,
     "max_rsi": 75,

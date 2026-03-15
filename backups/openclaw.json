@@ -34,7 +34,7 @@
     "telegram": {
       "enabled": true,
       "dmPolicy": "pairing",
-      "botToken": "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw",
+      "botToken": "${TELEGRAM_TOKEN}",
       "groupAllowFrom": [
         "2010747443"
       ],
