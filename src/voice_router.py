@@ -227,7 +227,7 @@ def _fallback_faq(text: str) -> dict | None:
 
 def _fallback_ia(text: str, original: str) -> dict | None:
     """Fallback IA: envoie a qwen3-8b pour interpreter ou repondre."""
-    import urllib.request
+    import urllib.request  # Import lazy — uniquement si le fallback IA est atteint
 
     # Construire le prompt avec les categories de commandes disponibles
     prompt = (

@@ -231,7 +231,7 @@ class TestFileOps:
 
     def test_search_files(self):
         with patch("src.windows.subprocess.run", return_value=_mock_ps_success("file1.py\nfile2.py")):
-            result = search_files("/\", "*.py")
+            result = search_files("C:\\", "*.py")
         assert "py" in result
 
 

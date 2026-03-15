@@ -178,7 +178,7 @@ class TestShareManager:
 
     def test_share_info_dataclass(self):
         from src.share_manager import ShareInfo
-        si = ShareInfo(name="Documents", path="/\Users/Public")
+        si = ShareInfo(name="Documents", path="C:\\Users\\Public")
         assert si.name == "Documents"
         assert si.remark == ""
         assert si.share_type == ""

@@ -32,7 +32,7 @@ class TestClipboardManager:
 
     def test_auto_detect_path(self):
         cm = self._make()
-        entry = cm.capture("/\Users/test/file.txt")
+        entry = cm.capture("C:\\Users\\test\\file.txt")
         assert entry.category.value == "path"
 
     def test_auto_detect_code(self):

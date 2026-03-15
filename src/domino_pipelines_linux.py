@@ -369,6 +369,79 @@ LINUX_PIPELINES: dict[str, dict] = {
             {"type": "bash", "command": "ss -tn state established 2>/dev/null | grep -E ':(9742|18800|18789)' | wc -l | xargs -I{} echo '{} connexions JARVIS actives'", "label": "JARVIS connections"},
         ],
     },
+    # === WORKFLOWS CHAÎNÉS AVANCÉS ===
+    "deploy-check": {
+        "name": "Vérification Pré-Déploiement",
+        "triggers": ["vérifie avant déploiement", "pre-deploy check", "prêt pour déployer", "check deploy"],
+        "category": "dev",
+        "steps": [
+            {"type": "bash", "command": "cd ~/jarvis && git status --porcelain | wc -l | xargs -I{} echo '{} fichiers non commités'", "label": "Git clean"},
+            {"type": "bash", "command": "cd ~/jarvis && uv run pytest tests/test_learned_actions.py tests/test_domino_pipelines_linux.py tests/test_platform_dispatch.py -q 2>&1 | tail -3", "label": "Core tests"},
+            {"type": "bash", "command": "nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader 2>/dev/null | awk '{if($1>75) print \"WARNING: GPU \"NR\" at \"$1\"C\"; else print \"GPU \"NR\": \"$1\"C OK\"}'", "label": "GPU thermal"},
+            {"type": "bash", "command": "curl -s --max-time 5 http://127.0.0.1:1234/v1/models >/dev/null 2>&1 && echo 'M1: READY' || echo 'M1: OFFLINE — deploy blocked'", "label": "Cluster ready"},
+            {"type": "bash", "command": "df -h / --output=avail | tail -1 | awk '{if(int($1)<5) print \"WARNING: <5GB free\"; else print \"Disk: \"$1\" free OK\"}'", "label": "Disk space"},
+        ],
+    },
+    "git-sync": {
+        "name": "Synchroniser Git",
+        "triggers": ["synchronise git", "git sync", "push et pull", "met à jour le repo"],
+        "category": "dev",
+        "steps": [
+            {"type": "bash", "command": "cd ~/jarvis && git stash list | head -5 2>/dev/null", "label": "Stash check"},
+            {"type": "bash", "command": "cd ~/jarvis && git fetch --all --prune 2>&1 | tail -5", "label": "Fetch"},
+            {"type": "bash", "command": "cd ~/jarvis && git status --short | head -20", "label": "Status"},
+            {"type": "bash", "command": "cd ~/jarvis && git log --oneline origin/main..HEAD 2>/dev/null | head -10 || echo 'Rien à pousser'", "label": "Unpushed"},
+        ],
+    },
+    "cluster-warm-up": {
+        "name": "Préchauffer le Cluster",
+        "triggers": ["préchauffe le cluster", "warm up cluster", "démarre le cluster", "allume tout"],
+        "category": "cluster",
+        "steps": [
+            {"type": "bash", "command": "echo '=== Vérification noeuds ===' && for url in http://127.0.0.1:1234 http://192.168.1.26:1234 http://192.168.1.113:1234 http://127.0.0.1:11434; do curl -s --max-time 3 $url/v1/models >/dev/null 2>&1 && echo \"$url: UP\" || echo \"$url: DOWN\"; done", "label": "Check nodes"},
+            {"type": "bash", "command": "echo '=== Warm-up M1 ===' && curl -s --max-time 15 http://127.0.0.1:1234/api/v1/chat -H 'Content-Type: application/json' -d '{\"model\":\"qwen/qwen3-8b\",\"input\":\"/nothink\\nReponds OK en un mot\",\"max_output_tokens\":5,\"stream\":false,\"store\":false}' 2>/dev/null | python3 -c \"import sys,json; d=json.load(sys.stdin); print('M1 warm: OK')\" 2>/dev/null || echo 'M1 warm: SKIP'", "label": "Warm M1"},
+            {"type": "bash", "command": "echo '=== Warm-up OL1 ===' && curl -s --max-time 15 http://127.0.0.1:11434/api/chat -d '{\"model\":\"qwen3:1.7b\",\"messages\":[{\"role\":\"user\",\"content\":\"OK\"}],\"stream\":false,\"think\":false}' 2>/dev/null | python3 -c \"import sys,json; print('OL1 warm: OK')\" 2>/dev/null || echo 'OL1 warm: SKIP'", "label": "Warm OL1"},
+        ],
+    },
+    "security-scan": {
+        "name": "Scan Sécurité",
+        "triggers": ["scan sécurité", "security scan", "vérifie la sécurité", "audit sécurité"],
+        "category": "system",
+        "steps": [
+            {"type": "bash", "command": "echo '=== Fichiers sensibles ===' && find ~/jarvis -name '.env' -o -name '*.key' -o -name '*.pem' 2>/dev/null | head -10 || echo 'Aucun fichier sensible exposé'", "label": "Sensitive files"},
+            {"type": "bash", "command": "echo '=== Ports ouverts ===' && ss -tlnp 2>/dev/null | grep LISTEN | head -15", "label": "Open ports"},
+            {"type": "bash", "command": "echo '=== Permissions larges ===' && find ~/jarvis -perm -o+w -type f 2>/dev/null | head -10 || echo 'Aucun fichier world-writable'", "label": "Permissions"},
+            {"type": "bash", "command": "echo '=== Dernières connexions ===' && last -5 2>/dev/null || echo 'last non disponible'", "label": "Logins"},
+            {"type": "bash", "command": "echo '=== Secrets dans git ===' && cd ~/jarvis && git log --diff-filter=A --name-only --pretty=format: HEAD~5..HEAD 2>/dev/null | grep -iE '\\.env|\\.key|\\.pem|secret|password|token' || echo 'Aucun secret détecté dans les 5 derniers commits'", "label": "Git secrets"},
+        ],
+    },
+    "performance-report": {
+        "name": "Rapport Performance",
+        "triggers": ["rapport performance", "performance report", "comment va le système", "stats performance"],
+        "category": "system",
+        "steps": [
+            {"type": "bash", "command": "echo '=== LOAD ===' && uptime", "label": "Load"},
+            {"type": "bash", "command": "echo '=== CPU ===' && grep 'model name' /proc/cpuinfo | head -1 && echo \"Cores: $(nproc)\"", "label": "CPU"},
+            {"type": "bash", "command": "echo '=== RAM ===' && free -h | grep Mem", "label": "RAM"},
+            {"type": "bash", "command": "echo '=== SWAP/ZRAM ===' && free -h | grep Swap && zramctl 2>/dev/null || true", "label": "Swap"},
+            {"type": "bash", "command": "echo '=== DISK I/O ===' && iostat -d 1 1 2>/dev/null | head -10 || echo 'iostat non disponible (apt install sysstat)'", "label": "IO"},
+            {"type": "bash", "command": "echo '=== GPU ===' && nvidia-smi --query-gpu=name,temperature.gpu,utilization.gpu,memory.used,memory.total,power.draw --format=csv,noheader 2>/dev/null || echo 'No GPU'", "label": "GPU"},
+            {"type": "bash", "command": "echo '=== NETWORK ===' && ip -s link show | grep -A2 'state UP' | head -10", "label": "Network"},
+        ],
+    },
+    "jarvis-status": {
+        "name": "Status JARVIS Complet",
+        "triggers": ["status jarvis", "état de jarvis", "jarvis status", "comment va jarvis"],
+        "category": "system",
+        "steps": [
+            {"type": "bash", "command": "echo '=== SERVICES ===' && systemctl --user list-units 'jarvis-*' --no-pager --plain 2>/dev/null | head -10 || echo 'Pas de services systemd'", "label": "Services"},
+            {"type": "bash", "command": "echo '=== DOCKER ===' && docker ps --filter name=jarvis --format '{{.Names}}: {{.Status}}' 2>/dev/null || echo 'Docker off'", "label": "Docker"},
+            {"type": "bash", "command": "echo '=== LEARNED ACTIONS ===' && sqlite3 ~/jarvis/data/learned_actions.db \"SELECT COUNT(*) || ' actions, ' || SUM(success_count) || ' exécutions' FROM learned_actions\" 2>/dev/null || echo 'DB non dispo'", "label": "Actions"},
+            {"type": "bash", "command": "echo '=== CLUSTER ===' && for n in M1:127.0.0.1:1234 M2:192.168.1.26:1234 M3:192.168.1.113:1234 OL1:127.0.0.1:11434; do name=${n%%:*}; url=${n#*:}; curl -s --max-time 3 http://$url/v1/models >/dev/null 2>&1 && echo \"$name: UP\" || echo \"$name: DOWN\"; done", "label": "Cluster"},
+            {"type": "bash", "command": "echo '=== TIMERS ===' && systemctl --user list-timers --no-pager 2>/dev/null | grep jarvis || echo 'Pas de timers'", "label": "Timers"},
+            {"type": "bash", "command": "echo '=== DERNIÈRE ACTIVITÉ ===' && sqlite3 ~/jarvis/data/learned_actions.db \"SELECT canonical_name, status, duration_ms||'ms' FROM action_executions ORDER BY executed_at DESC LIMIT 5\" 2>/dev/null || echo 'Pas d activité récente'", "label": "Recent"},
+        ],
+    },
 }
 
 

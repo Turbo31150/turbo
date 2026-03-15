@@ -24,12 +24,18 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 # We need to ensure no real Windows API calls happen.
 # ---------------------------------------------------------------------------
 
+import ctypes
+
 _mock_user32 = MagicMock()
 _mock_windll = MagicMock()
 _mock_windll.user32 = _mock_user32
 
+# On Linux, ctypes.windll does not exist — create it so patch() can replace it
+if not hasattr(ctypes, "windll"):
+    ctypes.windll = MagicMock()
+
 # Patch ctypes.windll at module level (used by move_window_to_next_monitor and snap_window)
-_windll_patcher = patch("ctypes.windll", _mock_windll)
+_windll_patcher = patch("ctypes.windll", _mock_windll, create=True)
 _windll_patcher.start()
 
 from src.desktop_actions import (

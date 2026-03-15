@@ -12,3 +12,6 @@
 {"title": "Service JARVIS tombé", "message": "En échec : jarvis-health", "level": "critical", "source": "service_monitor", "ts": 1773602140.0658295, "spoken": true, "metadata": {"failed_services": ["jarvis-health"]}}
 {"title": "Disque presque plein", "message": "Utilisation : 92.6%", "level": "warning", "source": "disk_monitor", "ts": 1773602350.8847775, "spoken": true, "metadata": {"disk_pct": 92.6}}
 {"title": "Disque presque plein", "message": "Utilisation : 92.6%", "level": "warning", "source": "disk_monitor", "ts": 1773602651.9349575, "spoken": true, "metadata": {"disk_pct": 92.6}}
+{"title": "Disque presque plein", "message": "Utilisation : 92.7%", "level": "warning", "source": "disk_monitor", "ts": 1773602953.175454, "spoken": true, "metadata": {"disk_pct": 92.7}}
+{"title": "Disque presque plein", "message": "Utilisation : 92.8%", "level": "warning", "source": "disk_monitor", "ts": 1773603254.263065, "spoken": true, "metadata": {"disk_pct": 92.8}}
+{"title": "Disque presque plein", "message": "Utilisation : 91.4%", "level": "warning", "source": "disk_monitor", "ts": 1773603555.4638124, "spoken": true, "metadata": {"disk_pct": 91.4}}

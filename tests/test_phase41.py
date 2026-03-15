@@ -141,7 +141,7 @@ class TestShadowCopyManager:
 
     def test_dataclass(self):
         from src.shadow_copy_manager import ShadowCopy
-        sc = ShadowCopy(shadow_id="ABC-123", volume_name="/\")
+        sc = ShadowCopy(shadow_id="ABC-123", volume_name="C:\\")
         assert sc.shadow_id == "ABC-123"
         assert sc.state == ""
 
