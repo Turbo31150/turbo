@@ -8,11 +8,16 @@ Designed for JARVIS autonomous desktop personalization.
 from __future__ import annotations
 
 import logging
+import os
 import threading
 import time
-import winreg
 from dataclasses import dataclass, field
 from typing import Any
+
+if os.name == "nt":
+    import winreg
+else:
+    winreg = None  # type: ignore[assignment]
 
 logger = logging.getLogger("jarvis.theme_controller")
 
@@ -57,6 +62,8 @@ class ThemeController:
 
     def _read_personalize(self, value_name: str) -> int:
         """Read a value from Personalize registry key."""
+        if winreg is None:
+            return -1
         try:
             key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, PERSONALIZE_KEY)
             try:
@@ -70,6 +77,8 @@ class ThemeController:
 
     def _get_accent_color(self) -> str:
         """Get Windows accent color as hex."""
+        if winreg is None:
+            return "#0078d4"
         try:
             key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, ACCENT_KEY)
             try:
@@ -86,6 +95,8 @@ class ThemeController:
 
     def _get_wallpaper(self) -> str:
         """Get current wallpaper path."""
+        if winreg is None:
+            return ""
         try:
             key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, DESKTOP_KEY)
             try:

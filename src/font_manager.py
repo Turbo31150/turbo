@@ -8,11 +8,16 @@ Designed for JARVIS autonomous font management.
 from __future__ import annotations
 
 import logging
+import os
 import threading
 import time
-import winreg
 from dataclasses import dataclass, field
 from typing import Any
+
+if os.name == "nt":
+    import winreg
+else:
+    winreg = None  # type: ignore[assignment]
 
 
 __all__ = [
@@ -57,6 +62,10 @@ class FontManager:
 
     def list_fonts(self, use_cache: bool = True) -> list[dict[str, Any]]:
         """List all installed fonts from Registry."""
+        if winreg is None:
+            self._record("list_fonts", "", False, "Windows-only (winreg unavailable)")
+            return []
+
         if use_cache and self._cache and (time.time() - self._cache_time) < 60:
             return self._cache
 

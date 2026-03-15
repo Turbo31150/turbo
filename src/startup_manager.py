@@ -8,11 +8,16 @@ Designed for JARVIS autonomous boot optimization.
 from __future__ import annotations
 
 import logging
+import os
 import threading
 import time
-import winreg
 from dataclasses import dataclass, field
 from typing import Any
+
+if os.name == "nt":
+    import winreg
+else:
+    winreg = None  # type: ignore[assignment]
 
 
 __all__ = [
@@ -23,12 +28,15 @@ __all__ = [
 
 logger = logging.getLogger("jarvis.startup_manager")
 
-# Registry paths for startup entries
-STARTUP_KEYS = {
-    "user": (winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run"),
-    "user_once": (winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\RunOnce"),
-    "machine": (winreg.HKEY_LOCAL_MACHINE, r"Software\Microsoft\Windows\CurrentVersion\Run"),
-}
+# Registry paths for startup entries — populated only on Windows
+STARTUP_KEYS: dict[str, tuple[Any, str]] = {}
+
+if winreg is not None:
+    STARTUP_KEYS = {
+        "user": (winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run"),
+        "user_once": (winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\RunOnce"),
+        "machine": (winreg.HKEY_LOCAL_MACHINE, r"Software\Microsoft\Windows\CurrentVersion\Run"),
+    }
 
 
 @dataclass

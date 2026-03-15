@@ -3857,7 +3857,19 @@ async function sendMenuKeyboard(chatId) {
         { text: '📖 Dict', callback_data: 'cmd_dict' },
         { text: '🔁 Loop', callback_data: 'cmd_loop' },
       ],
-      // Row 5: Systeme
+      // Row 5: Linux Skills
+      [
+        { text: '🔍 Health', callback_data: 'cmd_linux_health' },
+        { text: '🛡️ Securite', callback_data: 'cmd_linux_security' },
+        { text: '🧹 Cleanup', callback_data: 'cmd_linux_cleanup' },
+      ],
+      // Row 6: Linux Skills (suite)
+      [
+        { text: '🧠 Brain', callback_data: 'cmd_brain_status' },
+        { text: '🎤 Voice', callback_data: 'cmd_voice_stats' },
+        { text: '📊 Stats', callback_data: 'cmd_linux_stats' },
+      ],
+      // Row 7: Systeme
       [
         { text: '💾 Disque', callback_data: 'cmd_disk' },
         { text: TRADING_ALERTS ? '🔕 Alertes OFF' : '🔔 Alertes ON', callback_data: TRADING_ALERTS ? 'cmd_alertoff' : 'cmd_alerton' },
@@ -3903,6 +3915,13 @@ async function handleCallback(query) {
     case 'cmd_dominos': return handleDominos(chatId);
     case 'cmd_dict': return handleDictSearch(chatId, '');
     case 'cmd_disk': return handleCommand(chatId, '/disk', '', isAdmin);
+    // Linux Skills callbacks
+    case 'cmd_linux_health': return handleCommand(chatId, '/linux_health', '', isAdmin);
+    case 'cmd_linux_security': return handleCommand(chatId, '/linux_security', '', isAdmin);
+    case 'cmd_linux_cleanup': return handleCommand(chatId, '/linux_cleanup', '', isAdmin);
+    case 'cmd_linux_stats': return handleCommand(chatId, '/linux_stats', '', isAdmin);
+    case 'cmd_brain_status': return handleCommand(chatId, '/brain_status', '', isAdmin);
+    case 'cmd_voice_stats': return handleCommand(chatId, '/voice_stats', '', isAdmin);
     case 'cmd_alerton': {
       TRADING_ALERTS = true;
       try { fs.unlinkSync(ALERTS_FLAG_FILE); } catch {}

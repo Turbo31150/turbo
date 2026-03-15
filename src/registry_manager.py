@@ -8,11 +8,16 @@ Designed for JARVIS autonomous Windows configuration.
 from __future__ import annotations
 
 import logging
+import os
 import threading
 import time
-import winreg
 from dataclasses import dataclass, field
 from typing import Any
+
+if os.name == "nt":
+    import winreg
+else:
+    winreg = None  # type: ignore[assignment]
 
 
 __all__ = [
@@ -23,23 +28,26 @@ __all__ = [
 
 logger = logging.getLogger("jarvis.registry_manager")
 
-# Hive name mapping
-HIVES = {
-    "HKCU": winreg.HKEY_CURRENT_USER,
-    "HKLM": winreg.HKEY_LOCAL_MACHINE,
-    "HKCR": winreg.HKEY_CLASSES_ROOT,
-    "HKU": winreg.HKEY_USERS,
-    "HKCC": winreg.HKEY_CURRENT_CONFIG,
-}
+# Hive name mapping — populated only on Windows
+HIVES: dict[str, Any] = {}
+TYPE_MAP: dict[int, str] = {}
 
-TYPE_MAP = {
-    winreg.REG_SZ: "REG_SZ",
-    winreg.REG_EXPAND_SZ: "REG_EXPAND_SZ",
-    winreg.REG_DWORD: "REG_DWORD",
-    winreg.REG_QWORD: "REG_QWORD",
-    winreg.REG_BINARY: "REG_BINARY",
-    winreg.REG_MULTI_SZ: "REG_MULTI_SZ",
-}
+if winreg is not None:
+    HIVES = {
+        "HKCU": winreg.HKEY_CURRENT_USER,
+        "HKLM": winreg.HKEY_LOCAL_MACHINE,
+        "HKCR": winreg.HKEY_CLASSES_ROOT,
+        "HKU": winreg.HKEY_USERS,
+        "HKCC": winreg.HKEY_CURRENT_CONFIG,
+    }
+    TYPE_MAP = {
+        winreg.REG_SZ: "REG_SZ",
+        winreg.REG_EXPAND_SZ: "REG_EXPAND_SZ",
+        winreg.REG_DWORD: "REG_DWORD",
+        winreg.REG_QWORD: "REG_QWORD",
+        winreg.REG_BINARY: "REG_BINARY",
+        winreg.REG_MULTI_SZ: "REG_MULTI_SZ",
+    }
 
 
 @dataclass
@@ -148,8 +156,12 @@ class RegistryManager:
     # ── Write ─────────────────────────────────────────────────────────
 
     def write_value(self, hive: str, path: str, name: str, value: Any,
-                    reg_type: int = winreg.REG_SZ) -> bool:
+                    reg_type: int | None = None) -> bool:
         """Write a registry value."""
+        if winreg is None:
+            return False
+        if reg_type is None:
+            reg_type = winreg.REG_SZ
         hkey = HIVES.get(hive.upper())
         if not hkey:
             return False
