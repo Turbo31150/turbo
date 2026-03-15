@@ -19,6 +19,14 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs
 
+# Import du module voice analytics
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
+try:
+    from voice_analytics_dashboard import get_voice_analytics_json
+except ImportError:
+    get_voice_analytics_json = None
+
 PORT = 8088
 JARVIS_HOME = Path(__file__).resolve().parent.parent
 
@@ -221,6 +229,15 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
         elif parsed.path == "/api/skills":
             self._json_response(get_skills_data())
+
+        elif parsed.path == "/api/voice_analytics":
+            # Endpoint voice analytics — paramètre optionnel ?hours=N
+            if get_voice_analytics_json is None:
+                self._json_response({"error": "voice_analytics module not available"}, 500)
+                return
+            params = parse_qs(parsed.query)
+            hours = int(params.get("hours", ["24"])[0])
+            self._json_response(get_voice_analytics_json(hours))
 
         elif parsed.path == "/api/service":
             params = parse_qs(parsed.query)

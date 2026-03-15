@@ -262,37 +262,59 @@ class MultiIntentParser:
 
         Algorithme : on scanne le texte de gauche a droite, on trouve le
         premier separateur, on decoupe, et on recurse sur le reste.
+        Les modificateurs de phrase ("en meme temps", "simultanement") en fin
+        de texte changent le mode de tous les intents.
         """
+        lower_text = text.lower()
+
+        # Phase 1 : detecter les modificateurs de phrase en fin de texte
+        # "en meme temps" / "simultanement" a la fin → tout est PARALLEL
+        phrase_mode: IntentMode | None = None
+        cleaned_text = text
+        for pattern, mode in _SEPARATOR_PATTERNS[:2]:  # PARALLEL patterns only
+            match = re.search(pattern + r"\s*$", lower_text)
+            if match:
+                phrase_mode = mode
+                cleaned_text = text[:match.start()].strip()
+                lower_text = cleaned_text.lower()
+                break
+
+        # Phase 2 : trouver le premier separateur (le plus a gauche)
         best_match: tuple[int, int, IntentMode] | None = None
-        best_start = len(text)  # Position du match le plus tot
+        best_start = len(cleaned_text)
 
         for pattern, mode in _SEPARATOR_PATTERNS:
-            match = re.search(pattern, text.lower())
+            match = re.search(pattern, lower_text)
             if match and match.start() < best_start:
                 # Verifier qu'il y a du contenu avant ET apres le separateur
-                before = text[:match.start()].strip()
-                after = text[match.end():].strip()
+                before = cleaned_text[:match.start()].strip()
+                after = cleaned_text[match.end():].strip()
                 if before and after:
                     best_match = (match.start(), match.end(), mode)
                     best_start = match.start()
 
         if best_match is None:
             # Pas de separateur : une seule intention
-            cleaned = text.strip()
-            if not cleaned:
+            final = cleaned_text.strip()
+            if not final:
                 return []
             # Verifier s'il y a un delai dans ce segment
-            cleaned, delay = _extract_delay(cleaned)
-            if not cleaned:
+            final, delay = _extract_delay(final)
+            if not final:
                 return []
-            intent = Intent(text=cleaned, delay_seconds=delay)
+            intent = Intent(text=final, delay_seconds=delay)
             if delay > 0:
                 intent.mode = IntentMode.DELAY_THEN
+            elif phrase_mode:
+                intent.mode = phrase_mode
             return [intent]
 
         start, end, mode = best_match
-        before = text[:start].strip()
-        after = text[end:].strip()
+        before = cleaned_text[:start].strip()
+        after = cleaned_text[end:].strip()
+
+        # Si un modificateur de phrase a ete detecte, forcer le mode
+        effective_mode = phrase_mode if phrase_mode else mode
 
         # Extraire le delai pour la partie avant
         before_cleaned, before_delay = _extract_delay(before)
@@ -300,14 +322,19 @@ class MultiIntentParser:
         # Creer l'intent pour la partie avant
         intent_before = Intent(
             text=before_cleaned,
-            mode=mode,  # Le mode s'applique a la liaison VERS le suivant
+            mode=effective_mode,  # Le mode s'applique a la liaison VERS le suivant
             delay_seconds=before_delay,
         )
-        if before_delay > 0 and mode not in (IntentMode.DELAY_THEN,):
+        if before_delay > 0 and effective_mode not in (IntentMode.DELAY_THEN,):
             intent_before.mode = IntentMode.DELAY_THEN
 
         # Parser recursivement la partie apres
         intents_after = self._split_by_separators(after)
+
+        # Appliquer le modificateur de phrase a tous les intents
+        if phrase_mode:
+            for intent in intents_after:
+                intent.mode = phrase_mode
 
         result = [intent_before] + intents_after
         return result
