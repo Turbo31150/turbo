@@ -1,0 +1,215 @@
+# CI/CD automatise pour JARVIS Linux
+# Declenchement sur push main et pull requests
+name: JARVIS CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  # ---- Job 1 : Linting rapide avec ruff ----
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ruff
+        run: pip install ruff
+
+      - name: Run ruff linter
+        run: ruff check src/ --select E,F --ignore E501 --output-format github
+
+  # ---- Job 2 : Tests des modules Linux ----
+  test-linux-modules:
+    name: Test Linux Modules
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync --frozen || uv sync
+
+      - name: Run Linux module tests
+        run: uv run pytest tests/test_linux_modules.py -v --tb=short --junitxml=results/linux-modules.xml
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-linux-modules
+          path: results/linux-modules.xml
+          retention-days: 30
+
+  # ---- Job 3 : Tests d'integration du pipeline vocal ----
+  test-integration:
+    name: Test Voice Pipeline Integration
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync --frozen || uv sync
+
+      - name: Run integration tests
+        run: uv run pytest tests/test_voice_pipeline_integration.py -v --tb=short --junitxml=results/integration.xml
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-integration
+          path: results/integration.xml
+          retention-days: 30
+
+  # ---- Job 4 : Tests de benchmark (necessite des services) ----
+  test-benchmark:
+    name: Test Benchmark
+    runs-on: ubuntu-latest
+    needs: [test-linux-modules, test-integration]
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync --frozen || uv sync
+
+      - name: Run benchmark tests
+        run: uv run pytest tests/test_jarvis_benchmark.py -v --tb=short --junitxml=results/benchmark.xml
+        env:
+          REDIS_URL: "redis://127.0.0.1:6379"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-benchmark
+          path: results/benchmark.xml
+          retention-days: 30
+
+  # ---- Job 5 : Scan de securite (secrets hardcodes) ----
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Scan for hardcoded secrets
+        run: |
+          echo "=== Scanning for hardcoded secrets ==="
+          FOUND=0
+          if grep -rE "AIzaSy[a-zA-Z0-9_-]{33}" src/ scripts/ --include="*.py" --include="*.sh"; then
+            echo "::error::Google API key found in source code!"
+            FOUND=1
+          fi
+          if grep -rE "sk-[a-zA-Z0-9]{32,}" src/ scripts/ --include="*.py" --include="*.sh"; then
+            echo "::error::OpenAI API key found in source code!"
+            FOUND=1
+          fi
+          if grep -rE "ghp_[a-zA-Z0-9]{36}" src/ scripts/ --include="*.py" --include="*.sh"; then
+            echo "::error::GitHub token found in source code!"
+            FOUND=1
+          fi
+          if grep -rE "(password|secret|token)\s*=\s*['\"][^'\"]{8,}['\"]" src/ scripts/ --include="*.py" -i; then
+            echo "::warning::Potential hardcoded credential detected (review manually)"
+          fi
+          if [ "$FOUND" -eq 1 ]; then
+            echo "::error::SECRETS DETECTED - fix before merging!"
+            exit 1
+          fi
+          echo "OK - No hardcoded secrets found"
+
+  # ---- Job 6 : Verification syntaxique des nouveaux fichiers src/ ----
+  syntax-check:
+    name: Syntax Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile-check new/modified Python files in src/
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          echo "=== Verification syntaxique des fichiers src/ ==="
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            FILES=$(git diff --name-only --diff-filter=AM "$PR_BASE_SHA" HEAD -- 'src/*.py' 'src/**/*.py')
+          else
+            FILES=$(git diff --name-only --diff-filter=AM HEAD~1 HEAD -- 'src/*.py' 'src/**/*.py' 2>/dev/null || find src/ -name "*.py" -type f)
+          fi
+          if [ -z "$FILES" ]; then
+            echo "No new/modified Python files in src/ - skipping"
+            exit 0
+          fi
+          ERRORS=0
+          for f in $FILES; do
+            if [ -f "$f" ]; then
+              if ! python3 -m py_compile "$f" 2>&1; then
+                echo "::error file=$f::Syntax error in $f"
+                ERRORS=$((ERRORS + 1))
+              fi
+            fi
+          done
+          if [ "$ERRORS" -gt 0 ]; then
+            echo "::error::$ERRORS file(s) with syntax errors!"
+            exit 1
+          fi
+          echo "OK - All files passed syntax check"

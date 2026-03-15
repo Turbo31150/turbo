@@ -178,6 +178,16 @@ def route_voice_command(text: str) -> dict:
         _log_action_history(original, context_result)
         return context_result
 
+    # Voice FAQ: reponses instantanees aux questions frequentes
+    faq_result = _fallback_faq(normalized)
+    if faq_result and faq_result.get("success"):
+        faq_result["latency_ms"] = round((time.time() - start) * 1000, 1)
+        if normalized != original:
+            faq_result["corrected_from"] = original
+        _log_voice_analytics(original, faq_result)
+        _log_action_history(original, faq_result)
+        return faq_result
+
     # Fallback IA: quand aucun module ne reconnait la commande,
     # envoyer a l'IA locale pour interpretation ou reponse conversationnelle
     ai_result = _fallback_ia(text, original)
@@ -204,6 +214,15 @@ def route_voice_command(text: str) -> dict:
     _log_voice_analytics(original, fail_result)
     _log_action_history(original, fail_result)
     return fail_result
+
+
+def _fallback_faq(text: str) -> dict | None:
+    """Fallback FAQ: reponses instantanees aux questions frequentes."""
+    try:
+        from src.voice_faq import find_faq_answer
+        return find_faq_answer(text)
+    except Exception:
+        return None
 
 
 def _fallback_ia(text: str, original: str) -> dict | None:
