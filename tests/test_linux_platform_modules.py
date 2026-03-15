@@ -26,3 +26,25 @@ def test_platform_dispatch_resolves_display():
     mod = get_platform_module("display")
     assert hasattr(mod, "get_displays")
     assert "stub" not in mod.__name__
+
+
+def test_linux_screen_imports():
+    from src.linux_screen import capture_screen, capture_window
+    assert callable(capture_screen)
+
+
+def test_linux_services_imports():
+    from src.linux_services import list_services, start_service, stop_service, service_status
+    assert callable(list_services)
+
+
+def test_platform_dispatch_resolves_screen():
+    from src.platform_dispatch import get_platform_module
+    mod = get_platform_module("screen")
+    assert hasattr(mod, "capture_screen")
+
+
+def test_platform_dispatch_resolves_services():
+    from src.platform_dispatch import get_platform_module
+    mod = get_platform_module("services")
+    assert hasattr(mod, "list_services")

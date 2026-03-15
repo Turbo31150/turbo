@@ -1095,6 +1095,95 @@ async def handle_brain_learn(args: dict) -> list[TextContent]:
         return _text("Pas assez d'historique pour apprendre. Continue a utiliser JARVIS.")
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# LEARNED ACTIONS HANDLERS (4)
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def handle_learned_action_list(args: dict) -> list[TextContent]:
+    """Liste toutes les actions apprises, avec filtre optionnel par categorie/platform."""
+    from src.learned_actions import LearnedActionsEngine
+    try:
+        engine = LearnedActionsEngine()
+        actions = await _run(
+            engine.list_actions,
+            args.get("category") or None,
+            args.get("platform") or None,
+        )
+        return _text(json.dumps({"actions": actions, "count": len(actions)}, ensure_ascii=False, indent=2))
+    except Exception as e:
+        return _error(f"learned_action_list: {e}")
+
+
+async def handle_learned_action_match(args: dict) -> list[TextContent]:
+    """Cherche une action apprise correspondant a une phrase (exact + fuzzy)."""
+    from src.learned_actions import LearnedActionsEngine
+    phrase = args.get("phrase", "")
+    if not phrase:
+        return _error("missing 'phrase'")
+    try:
+        engine = LearnedActionsEngine()
+        result = await _run(engine.match, phrase, args.get("platform") or None)
+        if result is None:
+            return _text(json.dumps({"matched": False, "phrase": phrase}, ensure_ascii=False))
+        return _text(json.dumps({"matched": True, "action": result}, ensure_ascii=False, indent=2))
+    except Exception as e:
+        return _error(f"learned_action_match: {e}")
+
+
+async def handle_learned_action_save(args: dict) -> list[TextContent]:
+    """Sauvegarde une nouvelle action apprise."""
+    from src.learned_actions import LearnedActionsEngine
+    name = args.get("name", "")
+    if not name:
+        return _error("missing 'name'")
+    category = args.get("category", "general")
+    platform = args.get("platform", "both")
+    triggers = _safe_json_loads(args.get("triggers", "[]"), [])
+    if isinstance(triggers, str):
+        triggers = [triggers]
+    steps = _safe_json_loads(args.get("steps", "[]"), [])
+    context_required = _safe_json_loads(args.get("context_required", "{}"), {})
+    learned_from = args.get("learned_from") or None
+    try:
+        engine = LearnedActionsEngine()
+        action_id = await _run(
+            engine.save_action,
+            name, category, platform, triggers, steps,
+            context_required or None, learned_from,
+        )
+        return _text(json.dumps({"saved": True, "action_id": action_id, "name": name}, ensure_ascii=False))
+    except Exception as e:
+        return _error(f"learned_action_save: {e}")
+
+
+async def handle_learned_action_stats(args: dict) -> list[TextContent]:
+    """Stats des actions apprises: count par categorie, top used."""
+    from src.learned_actions import LearnedActionsEngine
+    try:
+        engine = LearnedActionsEngine()
+        all_actions = await _run(engine.list_actions, None, None)
+        # Count par categorie
+        by_category: dict[str, int] = {}
+        for a in all_actions:
+            cat = a.get("category", "unknown")
+            by_category[cat] = by_category.get(cat, 0) + 1
+        # Top used (par success_count decroissant)
+        top_used = sorted(all_actions, key=lambda x: x.get("success_count", 0), reverse=True)[:10]
+        top_list = [
+            {"name": a["canonical_name"], "category": a["category"],
+             "success_count": a.get("success_count", 0), "fail_count": a.get("fail_count", 0)}
+            for a in top_used
+        ]
+        stats = {
+            "total_actions": len(all_actions),
+            "by_category": by_category,
+            "top_used": top_list,
+        }
+        return _text(json.dumps(stats, ensure_ascii=False, indent=2))
+    except Exception as e:
+        return _error(f"learned_action_stats: {e}")
+
+
 # ── Domino Executor handlers ───────────────────────────────────────────────
 
 def _domino_run_sync(domino_id: str) -> dict:
@@ -6296,6 +6385,11 @@ TOOL_DEFINITIONS: list[tuple[str, str, dict, Any]] = [
     ("evolution_gaps", "Analyser les lacunes et suggerer de nouveaux patterns.", {}, handle_evolution_gaps),
     ("evolution_create", "Auto-creer des patterns depuis les suggestions.", {"min_confidence": "number"}, handle_evolution_create),
     ("evolution_stats", "Stats de l'evolution des patterns.", {}, handle_evolution_stats),
+    # Learned Actions (4)
+    ("learned_action_list", "Liste toutes les actions apprises (filtre optionnel par categorie/platform).", {"category": "string", "platform": "string"}, handle_learned_action_list),
+    ("learned_action_match", "Cherche une action apprise par phrase (exact + fuzzy match).", {"phrase": "string", "platform": "string"}, handle_learned_action_match),
+    ("learned_action_save", "Sauvegarder une nouvelle action apprise.", {"name": "string", "category": "string", "platform": "string", "triggers": "string", "steps": "string", "context_required": "string", "learned_from": "string"}, handle_learned_action_save),
+    ("learned_action_stats", "Stats des actions apprises (count par categorie, top used).", {}, handle_learned_action_stats),
 ]
 
 # ── COWORK MCP Bridge ─────────────────────────────────────────────────

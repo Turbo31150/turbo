@@ -1578,7 +1578,7 @@ def _default_skills() -> list[Skill]:
             ],
             steps=[
                 SkillStep("lm_query", {"prompt": "Genere un script pytest complet pour tester le code demande. Code uniquement.", "node": "M1"}, "M1 genere les tests"),
-                SkillStep("powershell_run", {"command": "cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python -m pytest src/ --tb=short -q 2>&1 | Out-String"}, "Executer pytest"),
+                SkillStep("powershell_run", {"command": r"cd F:/BUREAU/turbo; & '/Users/franc/.local/bin/uv.exe' run python -m pytest src/ --tb=short -q 2>&1 | Out-String"}, "Executer pytest"),
                 SkillStep("notify", {"title": "JARVIS Lab", "message": "Tests executes. Resultats disponibles."}, "Notification"),
             ],
             category="dev",
@@ -1663,8 +1663,8 @@ def _default_skills() -> list[Skill]:
             cmd = step.args.get("command", "")
             if "F:/BUREAU/turbo" in cmd:
                 cmd = cmd.replace("F:/BUREAU/turbo", _TURBO_DIR)
-            if "/\Users/franc" in cmd:
-                cmd = cmd.replace("/\Users/franc", _user_home)
+            if r"/\Users/franc" in cmd:
+                cmd = cmd.replace(r"/\Users/franc", _user_home)
             step.args["command"] = cmd
     return skills
 
