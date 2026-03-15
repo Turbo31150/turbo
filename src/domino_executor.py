@@ -42,6 +42,9 @@ logger = logging.getLogger("jarvis.domino_executor")
 
 from src.config import config, prepare_lmstudio_input, PATHS
 from src.domino_pipelines import DominoPipeline, DominoStep, find_domino
+from src.learned_actions import LearnedActionsEngine
+
+_learned_engine = LearnedActionsEngine()
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1575,6 +1578,40 @@ def execute_step(step: DominoStep, node: str) -> tuple[str, str]:
         return "FAIL", f"TIMEOUT ({step.timeout_s}s)"
     except (OSError, ValueError) as e:
         return "FAIL", str(e)[:200]
+
+
+def execute_with_learned_actions(text: str) -> dict | None:
+    """Tente un replay learned action. Retourne None si pas de match."""
+    match = _learned_engine.match(text)
+    if not match:
+        return None
+
+    logger.info("Learned action match: %s", match["canonical_name"])
+    start = time.time()
+    results = []
+    for i, step_dict in enumerate(match["pipeline_steps"]):
+        domino_step = DominoStep(
+            name=step_dict.get("label", f"step_{i}"),
+            action=step_dict["command"],
+            action_type=step_dict["type"],
+            timeout_s=step_dict.get("timeout", 30),
+        )
+        node = route_step(domino_step)
+        status, output = execute_step(domino_step, node)
+        results.append({"step": domino_step.name, "status": status, "output": output})
+        if status == "FAIL" and step_dict.get("on_fail", "stop") == "stop":
+            break
+
+    duration = (time.time() - start) * 1000
+    all_passed = all(r["status"] == "PASS" for r in results)
+    _learned_engine.record_execution(
+        action_id=match["id"],
+        trigger_text=text,
+        status="success" if all_passed else "failed",
+        duration_ms=duration,
+        output=str(results[-1]["output"]) if results else "",
+    )
+    return {"source": "learned_action", "name": match["canonical_name"], "results": results}
 
 
 # ══════════════════════════════════════════════════════════════════════════════

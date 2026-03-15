@@ -28,6 +28,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
+from src.config import PATHS
+
 
 __all__ = [
     "CoworkBridge",
@@ -40,11 +42,10 @@ logger = logging.getLogger("jarvis.cowork_bridge")
 
 DB_PATH = str(Path(__file__).resolve().parent.parent / "data" / "etoile.db")
 
-# Cowork script locations (in order of preference)
-COWORK_PATHS = [
-    Path("C:/Users/franc/.openclaw/workspace/dev"),
-    Path("/home/turbo/jarvis-m1-ops/cowork/dev"),
-]
+# Cowork script locations (config-driven)
+COWORK_PATHS = [PATHS["turbo"] / "cowork" / "dev"]
+if os.name == "nt":
+    COWORK_PATHS.insert(0, Path("C:/Users/franc/.openclaw/workspace/dev"))
 
 
 @dataclass

@@ -37,8 +37,8 @@ __all__ = [
     "similarity",
 ]
 
-_TURBO_DIR = str(PATHS.get("turbo", "/home/turbo/jarvis-m1-ops")).replace("/", "/")
-_TURBO_DIR_FWD = str(PATHS.get("turbo", "/home/turbo/jarvis-m1-ops"))
+_TURBO_DIR = str(PATHS.get("turbo", "/home/turbo/jarvis"))
+_TURBO_DIR_FWD = str(PATHS.get("turbo", "/home/turbo/jarvis"))
 _USER_HOME = str(Path.home())
 
 _DB_PATH = Path(__file__).resolve().parent.parent / "data" / "jarvis.db"

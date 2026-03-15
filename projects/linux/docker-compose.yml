@@ -82,5 +82,22 @@ services:
               capabilities: [gpu]
     restart: unless-stopped
 
+  # ── OpenClaw Server ──────────────────────────────────────
+  jarvis-openclaw:
+    build:
+      context: ../..
+      dockerfile: projects/linux/Dockerfile
+    container_name: jarvis-openclaw
+    ports:
+      - "18789:18789"
+    volumes:
+      - ../../:/app
+    environment:
+      - JARVIS_HOME=/app
+    command: python -m src.openclaw_server
+    restart: unless-stopped
+    depends_on:
+      - jarvis-ws
+
 volumes:
   ollama_data:

@@ -154,7 +154,7 @@ After=network.target jarvis-ws.service
 [Service]
 Type=simple
 WorkingDirectory=$JARVIS_HOME
-ExecStart=$JARVIS_HOME/.venv/bin/python -m src.openclaw_bridge
+ExecStart=$JARVIS_HOME/.venv/bin/python -m src.openclaw_server
 Restart=always
 RestartSec=10
 Environment=TURBO=$JARVIS_HOME
