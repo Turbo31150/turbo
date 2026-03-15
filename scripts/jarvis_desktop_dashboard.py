@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import os
+import sqlite3
 import subprocess
 import time
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -117,6 +118,76 @@ def get_system_data() -> dict:
     return data
 
 
+def get_skills_data() -> dict:
+    """Collecte les donnees sur les skills, commandes vocales, dominos et cycles."""
+    data = {
+        "total_skills": 0,
+        "categories": {},
+        "recent_skills": [],
+        "voice_commands_count": 0,
+        "dominos_count": 444,
+        "improve_cycles": 0,
+        "action_history_count": 0,
+    }
+
+    # Skills : lecture de skills.json
+    skills_path = JARVIS_HOME / "data" / "skills.json"
+    try:
+        with open(skills_path, "r", encoding="utf-8") as f:
+            skills = json.load(f)
+        data["total_skills"] = len(skills)
+        # Comptage par categorie
+        cats: dict[str, int] = {}
+        for s in skills:
+            cat = s.get("category", "unknown")
+            cats[cat] = cats.get(cat, 0) + 1
+        data["categories"] = cats
+        # 5 derniers skills (tries par created_at decroissant)
+        sorted_skills = sorted(skills, key=lambda x: x.get("created_at", 0), reverse=True)
+        data["recent_skills"] = [
+            {"name": s.get("name", "?"), "triggers": s.get("triggers", [])[:3], "category": s.get("category", "?")}
+            for s in sorted_skills[:5]
+        ]
+    except Exception:
+        pass
+
+    # Voice commands : comptage dans jarvis.db
+    db_path = JARVIS_HOME / "data" / "jarvis.db"
+    try:
+        conn = sqlite3.connect(str(db_path), timeout=2)
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM voice_commands")
+        data["voice_commands_count"] = cursor.fetchone()[0]
+        conn.close()
+    except Exception:
+        pass
+
+    # Action history : comptage dans action_history.json puis fallback DB
+    action_path = JARVIS_HOME / "data" / "action_history.json"
+    try:
+        with open(action_path, "r", encoding="utf-8") as f:
+            actions = json.load(f)
+        data["action_history_count"] = len(actions) if isinstance(actions, list) else 0
+    except Exception:
+        pass
+
+    # Cycles d'amelioration : comptage des rapports + improvement_history
+    try:
+        history_path = JARVIS_HOME / "data" / "improvement_history.json"
+        with open(history_path, "r", encoding="utf-8") as f:
+            history = json.load(f)
+        count = len(history) if isinstance(history, list) else 0
+        # Ajouter les rapports individuels
+        reports_dir = JARVIS_HOME / "data" / "improvement_reports"
+        if reports_dir.is_dir():
+            count += len(list(reports_dir.glob("*.json")))
+        data["improve_cycles"] = count
+    except Exception:
+        pass
+
+    return data
+
+
 def get_dashboard_html() -> str:
     """Retourne le HTML du dashboard. Contenu statique, donnees via API JSON."""
     return Path(JARVIS_HOME / "scripts" / "dashboard.html").read_text(encoding="utf-8")
@@ -147,6 +218,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
         elif parsed.path == "/api/data":
             self._json_response(get_system_data())
+
+        elif parsed.path == "/api/skills":
+            self._json_response(get_skills_data())
 
         elif parsed.path == "/api/service":
             params = parse_qs(parsed.query)

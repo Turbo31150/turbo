@@ -54,6 +54,44 @@ body{background:#050812;color:#00b4eb;font-family:'Ubuntu Mono','Courier New',mo
 </table>
 </div>
 </div>
+<!-- Section JARVIS Brain Intelligence -->
+<div style="padding:10px">
+<div class="panel" style="max-width:900px;margin:0 auto" id="brain-panel">
+<div class="ptitle">JARVIS BRAIN INTELLIGENCE</div>
+<div id="brain-counters" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:10px 0">
+<div class="brain-counter" style="text-align:center;padding:12px 6px;background:rgba(0,60,90,0.25);border:1px solid #003355;border-radius:6px">
+<div style="font-size:22px;margin-bottom:4px">&#129504;</div>
+<div id="bc-skills" class="bc-value" style="font-size:26px;color:#00dcff;font-weight:bold" data-target="0">0</div>
+<div style="color:#5588aa;font-size:10px;margin-top:2px">Skills</div>
+</div>
+<div class="brain-counter" style="text-align:center;padding:12px 6px;background:rgba(0,60,90,0.25);border:1px solid #003355;border-radius:6px">
+<div style="font-size:22px;margin-bottom:4px">&#127908;</div>
+<div id="bc-voice" class="bc-value" style="font-size:26px;color:#00dcff;font-weight:bold" data-target="0">0</div>
+<div style="color:#5588aa;font-size:10px;margin-top:2px">Commandes vocales</div>
+</div>
+<div class="brain-counter" style="text-align:center;padding:12px 6px;background:rgba(0,60,90,0.25);border:1px solid #003355;border-radius:6px">
+<div style="font-size:22px;margin-bottom:4px">&#128279;</div>
+<div id="bc-dominos" class="bc-value" style="font-size:26px;color:#00dcff;font-weight:bold" data-target="0">0</div>
+<div style="color:#5588aa;font-size:10px;margin-top:2px">Dominos</div>
+</div>
+<div class="brain-counter" style="text-align:center;padding:12px 6px;background:rgba(0,60,90,0.25);border:1px solid #003355;border-radius:6px">
+<div style="font-size:22px;margin-bottom:4px">&#128202;</div>
+<div id="bc-actions" class="bc-value" style="font-size:26px;color:#00dcff;font-weight:bold" data-target="0">0</div>
+<div style="color:#5588aa;font-size:10px;margin-top:2px">Actions logu&#233;es</div>
+</div>
+<div class="brain-counter" style="text-align:center;padding:12px 6px;background:rgba(0,60,90,0.25);border:1px solid #003355;border-radius:6px">
+<div style="font-size:22px;margin-bottom:4px">&#128260;</div>
+<div id="bc-cycles" class="bc-value" style="font-size:26px;color:#00dcff;font-weight:bold" data-target="0">0</div>
+<div style="color:#5588aa;font-size:10px;margin-top:2px">Cycles d'am&#233;lioration</div>
+</div>
+</div>
+<div style="margin-top:10px">
+<div style="color:#00b4eb;font-size:11px;font-weight:bold;border-bottom:1px solid #002244;padding-bottom:4px;margin-bottom:6px">RECENT SKILLS</div>
+<div id="brain-skills-list" style="font-size:12px"></div>
+</div>
+<div id="brain-categories" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:4px"></div>
+</div>
+</div>
 <div class="footer">JARVIS OS v12.4 — Dashboard 8088 — <span id="ts">...</span></div>
 <script>
 function bc(p){return p>85?'bred':p>70?'borange':p>40?'bcyan':'bgreen'}
@@ -107,6 +145,64 @@ p.appendChild(dt);el.appendChild(p);
 document.getElementById('ts').textContent='MaJ: '+new Date().toLocaleTimeString('fr-FR');
 }).catch(function(e){console.error(e)})}
 refresh();setInterval(refresh,3000);
+
+/* --- JARVIS Brain Intelligence : chargement et animation des compteurs --- */
+function animateCounter(el, target) {
+  var current = parseInt(el.textContent) || 0;
+  if (current === target) return;
+  var step = Math.max(1, Math.ceil(Math.abs(target - current) / 30));
+  var dir = target > current ? 1 : -1;
+  function tick() {
+    current += step * dir;
+    if ((dir === 1 && current >= target) || (dir === -1 && current <= target)) {
+      el.textContent = target;
+      return;
+    }
+    el.textContent = current;
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+function refreshBrain() {
+  fetch('/api/skills').then(function(r) { return r.json(); }).then(function(d) {
+    /* Compteurs animes */
+    animateCounter(document.getElementById('bc-skills'), d.total_skills || 0);
+    animateCounter(document.getElementById('bc-voice'), d.voice_commands_count || 0);
+    animateCounter(document.getElementById('bc-dominos'), d.dominos_count || 0);
+    animateCounter(document.getElementById('bc-actions'), d.action_history_count || 0);
+    animateCounter(document.getElementById('bc-cycles'), d.improve_cycles || 0);
+
+    /* Liste des skills recents */
+    var list = document.getElementById('brain-skills-list');
+    while (list.firstChild) list.removeChild(list.firstChild);
+    (d.recent_skills || []).forEach(function(s) {
+      var row = mk('div', '', '');
+      row.style.cssText = 'padding:3px 0;border-bottom:1px solid #001122;display:flex;justify-content:space-between;align-items:center';
+      var name = mk('span', '', s.name);
+      name.style.color = '#00dcff';
+      row.appendChild(name);
+      var triggers = mk('span', '', s.triggers.join(', '));
+      triggers.style.cssText = 'color:#5588aa;font-size:10px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+      row.appendChild(triggers);
+      var cat = mk('span', '', s.category);
+      cat.style.cssText = 'color:#00cc66;font-size:10px;background:rgba(0,200,100,0.1);border:1px solid #003322;border-radius:3px;padding:1px 6px';
+      row.appendChild(cat);
+      list.appendChild(row);
+    });
+
+    /* Categories en badges */
+    var catDiv = document.getElementById('brain-categories');
+    while (catDiv.firstChild) catDiv.removeChild(catDiv.firstChild);
+    var cats = d.categories || {};
+    Object.keys(cats).sort(function(a, b) { return cats[b] - cats[a]; }).forEach(function(c) {
+      var badge = mk('span', '', c + ': ' + cats[c]);
+      badge.style.cssText = 'font-size:10px;padding:2px 8px;background:rgba(0,60,90,0.3);border:1px solid #003355;border-radius:3px;color:#88ccdd';
+      catDiv.appendChild(badge);
+    });
+  }).catch(function(e) { console.error('Brain refresh error:', e); });
+}
+refreshBrain(); setInterval(refreshBrain, 10000);
 </script>
 </body>
 </html>

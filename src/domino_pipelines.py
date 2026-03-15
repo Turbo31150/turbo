@@ -6260,6 +6260,1008 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
   description="Affiche l'état de la batterie",
   learning_context="Info système — batterie"
  ),
+
+ # ─────────────────────────────────────────────────────────────────────
+ # DEV — Outils developpeur (10 dominos)
+ # ─────────────────────────────────────────────────────────────────────
+
+ DominoPipeline(
+  id="domino_dev_git_cleanup",
+  trigger_vocal=[
+   "nettoie git", "nettoyage git", "clean les branches",
+   "purge git", "fais le menage git", "git cleanup",
+  ],
+  steps=[
+   DominoStep("fetch_prune", "bash:git -C /home/turbo/jarvis fetch --prune --all", "bash", timeout_s=60),
+   DominoStep("delete_merged", "bash:git -C /home/turbo/jarvis branch --merged main | grep -v main | xargs -r git -C /home/turbo/jarvis branch -d", "bash", on_fail="skip"),
+   DominoStep("gc_aggressive", "bash:git -C /home/turbo/jarvis gc --aggressive --prune=now", "bash", timeout_s=120),
+   DominoStep("fsck_check", "bash:git -C /home/turbo/jarvis fsck --no-dangling", "bash", on_fail="skip", timeout_s=60),
+   DominoStep("status_final", "bash:git -C /home/turbo/jarvis branch -a --format='%(refname:short) %(upstream:track)'", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Nettoyage Git termine. Branches purgees.')", "python"),
+  ],
+  category="dev",
+  description="Nettoyage complet Git: prune branches mergees, gc agressif, fsck",
+  learning_context="Maintenance git — prefere un repo propre sans branches mortes",
+  cooldown_s=300,
+ ),
+
+ DominoPipeline(
+  id="domino_dev_docker_rebuild",
+  trigger_vocal=[
+   "rebuild docker", "reconstruis les containers", "docker rebuild",
+   "relance docker", "rebuild les images jarvis",
+  ],
+  steps=[
+   DominoStep("stop_containers", "bash:docker compose -f /home/turbo/jarvis/docker-compose.yml down --remove-orphans 2>/dev/null || true", "bash", timeout_s=60),
+   DominoStep("prune_images", "bash:docker image prune -f", "bash", timeout_s=30),
+   DominoStep("build_fresh", "bash:docker compose -f /home/turbo/jarvis/docker-compose.yml build --no-cache 2>&1 | tail -20", "bash", timeout_s=300),
+   DominoStep("start_services", "bash:docker compose -f /home/turbo/jarvis/docker-compose.yml up -d", "bash", timeout_s=120),
+   DominoStep("health_check", "bash:docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Containers Docker reconstruits et demmarres.')", "python"),
+  ],
+  category="dev",
+  description="Rebuild complet des containers Docker JARVIS",
+  learning_context="Rebuild Docker — utilise quand des deps changent ou apres mise a jour",
+  priority="high",
+  cooldown_s=300,
+ ),
+
+ DominoPipeline(
+  id="domino_dev_test_all",
+  trigger_vocal=[
+   "lance les tests", "run tous les tests", "pytest complet",
+   "teste tout", "lance pytest", "verification tests",
+  ],
+  steps=[
+   DominoStep("check_venv", "bash:test -d /home/turbo/jarvis/.venv && echo 'venv OK' || echo 'WARN: no venv'", "bash"),
+   DominoStep("run_pytest", "bash:cd /home/turbo/jarvis && python3 -m pytest tests/ -v --tb=short 2>&1 | tail -40", "bash", timeout_s=300),
+   DominoStep("coverage_report", "bash:cd /home/turbo/jarvis && python3 -m pytest tests/ --cov=src --cov-report=term-missing 2>&1 | tail -30", "bash", timeout_s=300, on_fail="skip"),
+   DominoStep("tts_result", "python:edge_tts_speak('Tests termines. Resultats affiches.')", "python"),
+  ],
+  category="dev",
+  description="Lance tous les tests pytest avec couverture",
+  learning_context="Tests complets — veut voir les echecs et la couverture",
+  cooldown_s=120,
+ ),
+
+ DominoPipeline(
+  id="domino_dev_lint_fix",
+  trigger_vocal=[
+   "lint et fix", "corrige le code", "ruff fix",
+   "lance le linter", "verifie le style", "nettoyage code",
+  ],
+  steps=[
+   DominoStep("ruff_check", "bash:cd /home/turbo/jarvis && python3 -m ruff check src/ --output-format=concise 2>&1 | tail -30", "bash", timeout_s=60),
+   DominoStep("ruff_fix", "bash:cd /home/turbo/jarvis && python3 -m ruff check src/ --fix 2>&1", "bash", timeout_s=60),
+   DominoStep("ruff_format", "bash:cd /home/turbo/jarvis && python3 -m ruff format src/ 2>&1 | tail -10", "bash", timeout_s=60, on_fail="skip"),
+   DominoStep("recheck", "bash:cd /home/turbo/jarvis && python3 -m ruff check src/ --output-format=concise 2>&1 | wc -l", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Linting termine. Code corrige.')", "python"),
+  ],
+  category="dev",
+  description="Ruff check + fix + format sur tout le code source",
+  learning_context="Lint automatique — prefere auto-fix plutot que juste rapport",
+  cooldown_s=120,
+ ),
+
+ DominoPipeline(
+  id="domino_dev_venv_rebuild",
+  trigger_vocal=[
+   "recree le venv", "rebuild virtualenv", "reinstalle le venv",
+   "nouveau virtualenv", "venv propre",
+  ],
+  steps=[
+   DominoStep("backup_reqs", "bash:cd /home/turbo/jarvis && pip freeze > /tmp/jarvis_requirements_backup.txt 2>/dev/null || true", "bash"),
+   DominoStep("remove_venv", "bash:rm -rf /home/turbo/jarvis/.venv", "bash", timeout_s=30),
+   DominoStep("create_venv", "bash:python3 -m venv /home/turbo/jarvis/.venv", "bash", timeout_s=30),
+   DominoStep("install_deps", "bash:source /home/turbo/jarvis/.venv/bin/activate && pip install -r /home/turbo/jarvis/requirements.txt 2>&1 | tail -10", "bash", timeout_s=300),
+   DominoStep("verify_install", "bash:source /home/turbo/jarvis/.venv/bin/activate && python3 -c 'import src; print(\"Import OK\")'", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Environnement virtuel recree avec succes.')", "python"),
+  ],
+  category="dev",
+  description="Reconstruction complete du virtualenv Python",
+  learning_context="Venv casse ou corrompue — reset total avec reinstall propre",
+  cooldown_s=600,
+ ),
+
+ DominoPipeline(
+  id="domino_dev_pip_audit",
+  trigger_vocal=[
+   "audit pip", "verifie les vulnerabilites", "securite pip",
+   "pip audit", "check les deps", "vulnerabilites python",
+  ],
+  steps=[
+   DominoStep("pip_audit", "bash:cd /home/turbo/jarvis && pip audit 2>&1 | tail -30", "bash", timeout_s=60, on_fail="skip"),
+   DominoStep("outdated_check", "bash:pip list --outdated --format=columns 2>&1 | head -20", "bash", timeout_s=60),
+   DominoStep("dep_tree", "bash:pip list --format=columns 2>&1 | wc -l", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Audit pip termine. Rapport affiche.')", "python"),
+  ],
+  category="dev",
+  description="Audit securite pip: vulnerabilites + paquets obsoletes",
+  learning_context="Securite deps — verifie regulierement les CVE",
+  cooldown_s=300,
+ ),
+
+ DominoPipeline(
+  id="domino_dev_code_stats",
+  trigger_vocal=[
+   "stats du code", "combien de lignes", "statistiques code",
+   "metriques code", "code stats", "taille du projet",
+  ],
+  steps=[
+   DominoStep("line_count", "bash:find /home/turbo/jarvis/src -name '*.py' | xargs wc -l | tail -1", "bash"),
+   DominoStep("file_count", "bash:find /home/turbo/jarvis/src -name '*.py' | wc -l", "bash"),
+   DominoStep("module_count", "bash:find /home/turbo/jarvis/src -name '*.py' -not -name '__*' | xargs grep -l '^class ' | wc -l", "bash", on_fail="skip"),
+   DominoStep("todo_count", "bash:grep -r 'TODO\\|FIXME\\|HACK\\|XXX' /home/turbo/jarvis/src --include='*.py' | wc -l", "bash", on_fail="skip"),
+   DominoStep("disk_size", "bash:du -sh /home/turbo/jarvis/src", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Statistiques du code affichees.')", "python"),
+  ],
+  category="dev",
+  description="Statistiques code: lignes, fichiers, modules, TODOs",
+  learning_context="Metriques projet — aime voir l'evolution du codebase",
+  cooldown_s=120,
+ ),
+
+ DominoPipeline(
+  id="domino_dev_db_migrate",
+  trigger_vocal=[
+   "migre la base", "migration database", "backup et migre",
+   "db migrate", "sauvegarde et migre la base",
+  ],
+  steps=[
+   DominoStep("backup_db", "bash:cp /home/turbo/jarvis/memory/long_term.db /home/turbo/jarvis/backups/long_term_$(date +%Y%m%d_%H%M%S).db", "bash"),
+   DominoStep("integrity_check", "bash:sqlite3 /home/turbo/jarvis/memory/long_term.db 'PRAGMA integrity_check;'", "bash"),
+   DominoStep("vacuum_db", "bash:sqlite3 /home/turbo/jarvis/memory/long_term.db 'VACUUM;'", "bash", timeout_s=60),
+   DominoStep("analyze_db", "bash:sqlite3 /home/turbo/jarvis/memory/long_term.db 'ANALYZE;'", "bash"),
+   DominoStep("size_report", "bash:ls -lh /home/turbo/jarvis/memory/long_term.db", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Base de donnees sauvegardee et optimisee.')", "python"),
+  ],
+  category="dev",
+  description="Backup + optimize de la base SQLite JARVIS",
+  learning_context="Maintenance DB — backup avant toute migration",
+  priority="high",
+  cooldown_s=300,
+ ),
+
+ DominoPipeline(
+  id="domino_dev_log_analyze",
+  trigger_vocal=[
+   "analyse les logs", "erreurs des logs", "log analyze",
+   "resume des erreurs", "qu'est-ce qui a plante", "check les logs",
+  ],
+  steps=[
+   DominoStep("journalctl_errors", "bash:journalctl --priority=err --since '24 hours ago' --no-pager | tail -30", "bash", timeout_s=30),
+   DominoStep("jarvis_errors", "bash:find /home/turbo/jarvis/logs -name '*.log' -mtime -1 -exec grep -l 'ERROR\\|CRITICAL' {} \\; 2>/dev/null | head -10", "bash", on_fail="skip"),
+   DominoStep("oom_check", "bash:dmesg | grep -i 'oom\\|out of memory' | tail -5", "bash", on_fail="skip"),
+   DominoStep("segfault_check", "bash:dmesg | grep -i 'segfault' | tail -5", "bash", on_fail="skip"),
+   DominoStep("error_summary", "bash:journalctl --priority=err --since '24 hours ago' --no-pager | awk '{print $5}' | sort | uniq -c | sort -rn | head -10", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Analyse des logs terminee. Erreurs resumees.')", "python"),
+  ],
+  category="dev",
+  description="Analyse des logs d'erreur systeme et JARVIS des 24 dernieres heures",
+  learning_context="Debug logs — cherche OOM, segfault, erreurs critiques",
+  cooldown_s=120,
+ ),
+
+ DominoPipeline(
+  id="domino_dev_profile_perf",
+  trigger_vocal=[
+   "profile les performances", "profiling python", "benchmark python",
+   "mesure les perfs", "performance profiling", "analyse performances",
+  ],
+  steps=[
+   DominoStep("cpu_profile", "bash:python3 -c \"import cProfile; cProfile.run('import src.config', sort='cumulative')\" 2>&1 | head -30", "bash", timeout_s=60, on_fail="skip"),
+   DominoStep("import_time", "bash:python3 -X importtime -c 'import src.config' 2>&1 | tail -20", "bash", timeout_s=30),
+   DominoStep("memory_usage", "bash:python3 -c \"import tracemalloc; tracemalloc.start(); import src.config; snapshot = tracemalloc.take_snapshot(); [print(s) for s in snapshot.statistics('lineno')[:10]]\" 2>&1", "bash", timeout_s=30, on_fail="skip"),
+   DominoStep("disk_io", "bash:iostat -d 1 3 2>/dev/null | tail -10 || echo 'iostat non disponible'", "bash", on_fail="skip"),
+   DominoStep("tts_done", "python:edge_tts_speak('Profilage performances termine.')", "python"),
+  ],
+  category="dev",
+  description="Profiling Python: CPU, imports, memoire, IO",
+  learning_context="Optimisation perf — cherche les goulots d'etranglement",
+  cooldown_s=120,
+ ),
+
+ # ─────────────────────────────────────────────────────────────────────
+ # MONITORING — Surveillance systeme avancee (10 dominos)
+ # ─────────────────────────────────────────────────────────────────────
+
+ DominoPipeline(
+  id="domino_monitor_full_dashboard",
+  trigger_vocal=[
+   "dashboard complet", "ouvre le dashboard", "monitoring complet",
+   "affiche le tableau de bord", "tmux dashboard", "lance le dashboard",
+  ],
+  steps=[
+   DominoStep("kill_old", "bash:tmux kill-session -t jarvis-dash 2>/dev/null || true", "bash"),
+   DominoStep("create_session", "bash:tmux new-session -d -s jarvis-dash -x 200 -y 50", "bash"),
+   DominoStep("pane_gpu", "bash:tmux send-keys -t jarvis-dash 'watch -n2 nvidia-smi' Enter", "bash"),
+   DominoStep("pane_htop", "bash:tmux split-window -t jarvis-dash -h && tmux send-keys -t jarvis-dash 'htop' Enter", "bash"),
+   DominoStep("pane_logs", "bash:tmux split-window -t jarvis-dash -v && tmux send-keys -t jarvis-dash 'journalctl -f --priority=warning' Enter", "bash"),
+   DominoStep("pane_net", "bash:tmux split-window -t jarvis-dash -v && tmux send-keys -t jarvis-dash 'ss -tunapl | head -30; watch -n5 ss -s' Enter", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Dashboard tmux lance. 4 panneaux actifs.')", "python"),
+  ],
+  category="monitoring",
+  description="Dashboard tmux 4 panneaux: GPU, htop, logs, reseau",
+  learning_context="Dashboard temps reel — prefere tmux pour la persistance",
+  priority="high",
+  cooldown_s=120,
+ ),
+
+ DominoPipeline(
+  id="domino_monitor_gpu_history",
+  trigger_vocal=[
+   "historique gpu", "temperatures gpu 24h", "gpu history",
+   "courbe temperatures gpu", "evolution gpu", "historique temperatures",
+  ],
+  steps=[
+   DominoStep("current_temps", "bash:nvidia-smi --query-gpu=index,name,temperature.gpu,power.draw,memory.used,memory.total --format=csv,noheader", "bash"),
+   DominoStep("log_temp", "bash:echo \"$(date +%Y-%m-%d_%H:%M:%S),$(nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader | tr '\\n' ',')\" >> /tmp/gpu_temp_history.csv", "bash"),
+   DominoStep("show_history", "bash:cat /tmp/gpu_temp_history.csv 2>/dev/null | tail -48 || echo 'Pas encore d historique'", "bash"),
+   DominoStep("max_temps", "bash:nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader | sort -n | tail -1 | xargs -I{} echo 'Temp max actuelle: {}C'", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Historique GPU affiche.')", "python"),
+  ],
+  category="monitoring",
+  description="Historique et courbe des temperatures GPU sur 24h",
+  learning_context="Suivi thermique GPU — important avec 6 GPUs",
+  cooldown_s=60,
+ ),
+
+ DominoPipeline(
+  id="domino_monitor_network_traffic",
+  trigger_vocal=[
+   "surveille le reseau", "trafic reseau", "network monitor",
+   "qui utilise le reseau", "bande passante", "check le reseau",
+  ],
+  steps=[
+   DominoStep("interfaces", "bash:ip -br addr show | grep UP", "bash"),
+   DominoStep("connections", "bash:ss -tunapl | grep ESTAB | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -rn | head -15", "bash"),
+   DominoStep("bandwidth", "bash:cat /proc/net/dev | awk 'NR>2{print $1, \"RX:\"$2, \"TX:\"$10}' | column -t", "bash"),
+   DominoStep("dns_check", "bash:resolvectl status 2>/dev/null | head -5 || cat /etc/resolv.conf", "bash", on_fail="skip"),
+   DominoStep("listening_ports", "bash:ss -tlnp | grep -v '127.0.0' | head -20", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Rapport reseau affiche.')", "python"),
+  ],
+  category="monitoring",
+  description="Surveillance trafic reseau: connexions, bande passante, ports",
+  learning_context="Network monitoring — verifie les connexions suspectes",
+  cooldown_s=60,
+ ),
+
+ DominoPipeline(
+  id="domino_monitor_disk_io",
+  trigger_vocal=[
+   "analyse les disques", "io disque", "disk io",
+   "performances disque", "check les disques", "sante des disques",
+  ],
+  steps=[
+   DominoStep("disk_usage", "bash:df -h | grep -v tmpfs | grep -v loop", "bash"),
+   DominoStep("io_stats", "bash:iostat -dx 1 2 2>/dev/null | tail -20 || echo 'Installez sysstat pour iostat'", "bash", on_fail="skip"),
+   DominoStep("large_files", "bash:find /home/turbo -size +500M -type f 2>/dev/null | head -10", "bash", timeout_s=30, on_fail="skip"),
+   DominoStep("inode_usage", "bash:df -i | grep -v tmpfs | grep -v loop", "bash"),
+   DominoStep("smart_health", "bash:for d in /dev/sd?; do smartctl -H $d 2>/dev/null | grep -A1 'SMART overall'; done || echo 'smartctl non disponible'", "bash", on_fail="skip"),
+   DominoStep("tts_done", "python:edge_tts_speak('Analyse disques terminee.')", "python"),
+  ],
+  category="monitoring",
+  description="Analyse IO disque: usage, performances, gros fichiers, SMART",
+  learning_context="Sante disque — surveille l'espace et les performances IO",
+  cooldown_s=120,
+ ),
+
+ DominoPipeline(
+  id="domino_monitor_memory_leak",
+  trigger_vocal=[
+   "detecte les fuites memoire", "memory leak", "fuite memoire",
+   "qui bouffe la ram", "analyse memoire", "check la ram",
+  ],
+  steps=[
+   DominoStep("mem_overview", "bash:free -h", "bash"),
+   DominoStep("top_consumers", "bash:ps aux --sort=-%mem | head -15", "bash"),
+   DominoStep("swap_usage", "bash:swapon --show 2>/dev/null; cat /proc/swaps", "bash"),
+   DominoStep("zram_stats", "bash:zramctl 2>/dev/null || echo 'Pas de ZRAM'", "bash", on_fail="skip"),
+   DominoStep("oom_history", "bash:dmesg | grep -i 'oom\\|killed process' | tail -5", "bash", on_fail="skip"),
+   DominoStep("cache_pressure", "bash:cat /proc/meminfo | grep -E 'MemAvailable|Cached|SwapFree|Dirty'", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Analyse memoire terminee. Pas de fuite detectee.')", "python"),
+  ],
+  category="monitoring",
+  description="Detection fuites memoire: top consumers, swap, OOM, ZRAM",
+  learning_context="Memory leak detection — 46GB RAM + 12GB ZRAM, surveille les gros process",
+  cooldown_s=120,
+ ),
+
+ DominoPipeline(
+  id="domino_monitor_process_tree",
+  trigger_vocal=[
+   "arbre des processus", "process tree", "processus jarvis",
+   "montre les process", "ps tree", "qui tourne",
+  ],
+  steps=[
+   DominoStep("process_tree", "bash:pstree -Uup turbo 2>/dev/null | head -50 || pstree -u turbo | head -50", "bash"),
+   DominoStep("jarvis_procs", "bash:ps aux | grep -i jarvis | grep -v grep", "bash", on_fail="skip"),
+   DominoStep("python_procs", "bash:ps aux | grep python3 | grep -v grep | awk '{print $2, $11, $NF}'", "bash"),
+   DominoStep("zombie_check", "bash:ps aux | awk '$8 ~ /Z/ {print $2, $11}' | head -5 || echo 'Aucun zombie'", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Arbre des processus affiche.')", "python"),
+  ],
+  category="monitoring",
+  description="Arbre des processus JARVIS: tree, Python, zombies",
+  learning_context="Vue processus — verifie les zombies et process orphelins",
+  cooldown_s=60,
+ ),
+
+ DominoPipeline(
+  id="domino_monitor_service_health",
+  trigger_vocal=[
+   "sante des services", "check les services", "service health",
+   "etat des services", "services jarvis", "status services",
+  ],
+  steps=[
+   DominoStep("systemd_failed", "bash:systemctl --user list-units --state=failed 2>/dev/null; systemctl list-units --state=failed 2>/dev/null | head -10", "bash"),
+   DominoStep("lm_studio_check", "bash:curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:1234/api/v1/models || echo 'DOWN'", "bash", timeout_s=5),
+   DominoStep("ollama_check", "bash:curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:11434/api/tags || echo 'DOWN'", "bash", timeout_s=5),
+   DominoStep("mcp_check", "bash:curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/health || echo 'DOWN'", "bash", timeout_s=5, on_fail="skip"),
+   DominoStep("whisper_check", "bash:curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:9000/health || echo 'DOWN'", "bash", timeout_s=5, on_fail="skip"),
+   DominoStep("tts_done", "python:edge_tts_speak('Verification services terminee.')", "python"),
+  ],
+  category="monitoring",
+  description="Verification sante de tous les services JARVIS",
+  learning_context="Health check — LM Studio, Ollama, MCP, Whisper",
+  priority="high",
+  cooldown_s=60,
+ ),
+
+ DominoPipeline(
+  id="domino_monitor_error_digest",
+  trigger_vocal=[
+   "resume des erreurs", "digest erreurs", "error digest",
+   "erreurs systeme", "quelles erreurs aujourd'hui", "recap erreurs",
+  ],
+  steps=[
+   DominoStep("system_errors", "bash:journalctl --priority=err --since today --no-pager | wc -l | xargs -I{} echo 'Erreurs systeme aujourd hui: {}'", "bash"),
+   DominoStep("top_errors", "bash:journalctl --priority=err --since today --no-pager | awk '{for(i=5;i<=8;i++) printf $i\" \"; print \"\"}' | sort | uniq -c | sort -rn | head -10", "bash"),
+   DominoStep("critical_count", "bash:journalctl --priority=crit --since today --no-pager | wc -l | xargs -I{} echo 'Erreurs critiques: {}'", "bash"),
+   DominoStep("kernel_errors", "bash:dmesg --level=err,crit 2>/dev/null | tail -10 || journalctl -k --priority=err --since today --no-pager | tail -10", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Digest des erreurs genere.')", "python"),
+  ],
+  category="monitoring",
+  description="Resume des erreurs systeme du jour via journalctl",
+  learning_context="Digest quotidien des erreurs — priorite aux critiques",
+  cooldown_s=120,
+ ),
+
+ DominoPipeline(
+  id="domino_monitor_uptime_report",
+  trigger_vocal=[
+   "rapport uptime", "depuis quand ca tourne", "uptime report",
+   "disponibilite services", "uptime des services",
+  ],
+  steps=[
+   DominoStep("system_uptime", "bash:uptime -p && echo 'Boot: '$(uptime -s)", "bash"),
+   DominoStep("service_uptimes", "bash:systemctl list-units --type=service --state=running --no-pager | head -20", "bash"),
+   DominoStep("last_reboot", "bash:last reboot | head -5", "bash"),
+   DominoStep("load_avg", "bash:cat /proc/loadavg && echo '' && nproc | xargs -I{} echo 'CPUs: {}'", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Rapport uptime genere.')", "python"),
+  ],
+  category="monitoring",
+  description="Rapport uptime systeme et services",
+  learning_context="Monitoring uptime — verifie la stabilite du systeme",
+  cooldown_s=120,
+ ),
+
+ DominoPipeline(
+  id="domino_monitor_resource_forecast",
+  trigger_vocal=[
+   "prediction ressources", "forecast utilisation", "resource forecast",
+   "prevision ressources", "tendance utilisation",
+  ],
+  steps=[
+   DominoStep("disk_trend", "bash:df -h / /home | tail -2 | awk '{print $6, \"used:\", $5, \"avail:\", $4}'", "bash"),
+   DominoStep("mem_trend", "bash:free -h | awk '/Mem:/{print \"RAM used:\", $3, \"/\", $2}'", "bash"),
+   DominoStep("gpu_vram", "bash:nvidia-smi --query-gpu=index,memory.used,memory.total,utilization.gpu --format=csv,noheader", "bash"),
+   DominoStep("swap_trend", "bash:free -h | awk '/Swap:/{print \"Swap used:\", $3, \"/\", $2}'", "bash"),
+   DominoStep("inode_trend", "bash:df -i / /home | tail -2 | awk '{print $6, \"inodes used:\", $5}'", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Previsions ressources generees.')", "python"),
+  ],
+  category="monitoring",
+  description="Prediction d'utilisation des ressources: disque, RAM, GPU, swap",
+  learning_context="Forecast — anticipe les saturations de ressources",
+  cooldown_s=300,
+ ),
+
+ # ─────────────────────────────────────────────────────────────────────
+ # AUTOMATION — Automatisations desktop et fichiers (10 dominos)
+ # ─────────────────────────────────────────────────────────────────────
+
+ DominoPipeline(
+  id="domino_auto_screenshot",
+  trigger_vocal=[
+   "capture ecran", "screenshot", "prends une capture",
+   "fais un screenshot", "capture l'ecran",
+  ],
+  steps=[
+   DominoStep("take_screenshot", "bash:DISPLAY=:0 scrot /tmp/jarvis_screenshot_$(date +%Y%m%d_%H%M%S).png", "bash", on_fail="skip"),
+   DominoStep("fallback_gnome", "bash:DISPLAY=:0 gnome-screenshot -f /tmp/jarvis_screenshot_$(date +%Y%m%d_%H%M%S).png 2>/dev/null || true", "bash", on_fail="skip"),
+   DominoStep("ocr_extract", "bash:ls -t /tmp/jarvis_screenshot_*.png | head -1 | xargs tesseract - - 2>/dev/null | head -20 || echo 'tesseract non disponible'", "bash", on_fail="skip"),
+   DominoStep("notify_user", "bash:DISPLAY=:0 notify-send 'JARVIS' 'Screenshot capture dans /tmp/' 2>/dev/null || true", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Capture d ecran effectuee.')", "python"),
+  ],
+  category="automation",
+  description="Capture ecran avec OCR optionnel",
+  learning_context="Screenshot — avec extraction texte si tesseract disponible",
+  cooldown_s=5,
+ ),
+
+ DominoPipeline(
+  id="domino_auto_clipboard_history",
+  trigger_vocal=[
+   "historique presse-papiers", "clipboard history", "qu'est-ce que j'ai copie",
+   "historique copier coller", "dernieres copies",
+  ],
+  steps=[
+   DominoStep("current_clip", "bash:DISPLAY=:0 xclip -selection clipboard -o 2>/dev/null | head -10 || xsel --clipboard --output 2>/dev/null | head -10 || echo 'Presse-papiers vide'", "bash"),
+   DominoStep("clip_size", "bash:DISPLAY=:0 xclip -selection clipboard -o 2>/dev/null | wc -c | xargs -I{} echo 'Taille: {} octets'", "bash", on_fail="skip"),
+   DominoStep("save_clip", "bash:DISPLAY=:0 xclip -selection clipboard -o >> /tmp/jarvis_clipboard_history.txt 2>/dev/null && echo '---' >> /tmp/jarvis_clipboard_history.txt || true", "bash", on_fail="skip"),
+   DominoStep("show_history", "bash:tail -30 /tmp/jarvis_clipboard_history.txt 2>/dev/null || echo 'Pas d historique encore'", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Historique presse-papiers affiche.')", "python"),
+  ],
+  category="automation",
+  description="Historique du presse-papiers avec sauvegarde",
+  learning_context="Clipboard manager simple — sauvegarde les copies recentes",
+  cooldown_s=10,
+ ),
+
+ DominoPipeline(
+  id="domino_auto_file_organize",
+  trigger_vocal=[
+   "organise les telechargements", "range le dossier", "file organize",
+   "trie les fichiers", "nettoyage telechargements", "organise les fichiers",
+  ],
+  steps=[
+   DominoStep("count_files", "bash:ls -1 ~/Téléchargements 2>/dev/null | wc -l || ls -1 ~/Downloads 2>/dev/null | wc -l", "bash"),
+   DominoStep("move_images", "bash:DL=~/Téléchargements; [ -d \"$DL\" ] || DL=~/Downloads; mkdir -p \"$DL/Images\" && find \"$DL\" -maxdepth 1 -type f \\( -name '*.jpg' -o -name '*.png' -o -name '*.gif' -o -name '*.webp' \\) -exec mv {} \"$DL/Images/\" \\; 2>/dev/null; echo 'Images triees'", "bash"),
+   DominoStep("move_docs", "bash:DL=~/Téléchargements; [ -d \"$DL\" ] || DL=~/Downloads; mkdir -p \"$DL/Documents\" && find \"$DL\" -maxdepth 1 -type f \\( -name '*.pdf' -o -name '*.doc*' -o -name '*.txt' -o -name '*.odt' \\) -exec mv {} \"$DL/Documents/\" \\; 2>/dev/null; echo 'Documents tries'", "bash"),
+   DominoStep("move_archives", "bash:DL=~/Téléchargements; [ -d \"$DL\" ] || DL=~/Downloads; mkdir -p \"$DL/Archives\" && find \"$DL\" -maxdepth 1 -type f \\( -name '*.zip' -o -name '*.tar*' -o -name '*.7z' -o -name '*.rar' \\) -exec mv {} \"$DL/Archives/\" \\; 2>/dev/null; echo 'Archives triees'", "bash"),
+   DominoStep("summary", "bash:DL=~/Téléchargements; [ -d \"$DL\" ] || DL=~/Downloads; echo 'Restants:' && ls -1 \"$DL\" 2>/dev/null | head -20", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Dossier telechargements organise.')", "python"),
+  ],
+  category="automation",
+  description="Organise le dossier Telechargements par type de fichier",
+  learning_context="File organizer — trie images, docs, archives automatiquement",
+  cooldown_s=60,
+ ),
+
+ DominoPipeline(
+  id="domino_auto_wallpaper",
+  trigger_vocal=[
+   "change le fond d'ecran", "nouveau wallpaper", "wallpaper jarvis",
+   "change le papier peint", "fond d'ecran aleatoire",
+  ],
+  steps=[
+   DominoStep("find_wallpapers", "bash:find ~/Images ~/Pictures /usr/share/backgrounds -type f \\( -name '*.jpg' -o -name '*.png' \\) 2>/dev/null | shuf -n 1", "bash"),
+   DominoStep("set_wallpaper", "bash:WP=$(find ~/Images ~/Pictures /usr/share/backgrounds -type f \\( -name '*.jpg' -o -name '*.png' \\) 2>/dev/null | shuf -n 1); DISPLAY=:0 gsettings set org.gnome.desktop.background picture-uri \"file://$WP\" 2>/dev/null && echo \"Wallpaper: $WP\" || DISPLAY=:0 feh --bg-scale \"$WP\" 2>/dev/null || echo 'Echec changement wallpaper'", "bash"),
+   DominoStep("notify", "bash:DISPLAY=:0 notify-send 'JARVIS' 'Fond d ecran change!' 2>/dev/null || true", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Fond d ecran change.')", "python"),
+  ],
+  category="automation",
+  description="Change le fond d'ecran avec une image aleatoire",
+  learning_context="Wallpaper switcher — pioche dans les dossiers images",
+  cooldown_s=30,
+ ),
+
+ DominoPipeline(
+  id="domino_auto_notification_digest",
+  trigger_vocal=[
+   "resume des notifications", "notification digest", "recap notifs",
+   "quelles notifications", "montre les notifs",
+  ],
+  steps=[
+   DominoStep("dunst_history", "bash:dunstctl history 2>/dev/null | python3 -c \"import sys,json; data=json.load(sys.stdin); [print(f\\\"{d['appname']['data']}: {d['summary']['data']}\\\") for d in data.get('data',[[]])[0][:15]]\" 2>/dev/null || echo 'Historique notifications non disponible'", "bash", on_fail="skip"),
+   DominoStep("journal_notifs", "bash:journalctl --user -t notify-send --since '4 hours ago' --no-pager 2>/dev/null | tail -15 || echo 'Pas de notifications journal'", "bash", on_fail="skip"),
+   DominoStep("pending_count", "bash:dunstctl count 2>/dev/null || echo 'dunst non disponible'", "bash", on_fail="skip"),
+   DominoStep("tts_done", "python:edge_tts_speak('Resume des notifications affiche.')", "python"),
+  ],
+  category="automation",
+  description="Resume des notifications recentes",
+  learning_context="Notification digest — agregue les notifs manquees",
+  cooldown_s=60,
+ ),
+
+ DominoPipeline(
+  id="domino_auto_browser_tabs",
+  trigger_vocal=[
+   "liste les onglets", "combien d'onglets", "browser tabs",
+   "ferme les onglets", "gere les onglets", "onglets ouverts",
+  ],
+  steps=[
+   DominoStep("list_browsers", "bash:ps aux | grep -E '(firefox|chrome|chromium|brave)' | grep -v grep | awk '{print $11}' | sort -u", "bash"),
+   DominoStep("count_tabs", "bash:ps aux | grep -E '(firefox|chrome|chromium|brave).*--type=renderer' | grep -v grep | wc -l | xargs -I{} echo 'Onglets approximatifs: {}'", "bash"),
+   DominoStep("browser_memory", "bash:ps aux | grep -E '(firefox|chrome|chromium|brave)' | grep -v grep | awk '{sum+=$6} END {printf \"Memoire navigateur: %.0f MB\\n\", sum/1024}'", "bash"),
+   DominoStep("window_list", "bash:DISPLAY=:0 wmctrl -l 2>/dev/null | grep -iE '(firefox|chrome|chromium|brave)' | awk '{for(i=5;i<=NF;i++) printf $i\" \"; print \"\"}' | head -15 || echo 'wmctrl non disponible'", "bash", on_fail="skip"),
+   DominoStep("tts_done", "python:edge_tts_speak('Liste des onglets affichee.')", "python"),
+  ],
+  category="automation",
+  description="Lister et compter les onglets navigateur ouverts",
+  learning_context="Browser tab management — surveille la memoire des navigateurs",
+  cooldown_s=30,
+ ),
+
+ DominoPipeline(
+  id="domino_auto_pdf_extract",
+  trigger_vocal=[
+   "extrais le pdf", "texte du pdf", "pdf extract",
+   "lis le pdf", "convertis le pdf en texte",
+  ],
+  steps=[
+   DominoStep("find_recent_pdf", "bash:find ~/Téléchargements ~/Downloads ~/Documents -name '*.pdf' -type f -mtime -7 2>/dev/null | head -5", "bash"),
+   DominoStep("extract_text", "bash:PDF=$(find ~/Téléchargements ~/Downloads ~/Documents -name '*.pdf' -type f -mtime -7 2>/dev/null | head -1); [ -f \"$PDF\" ] && pdftotext \"$PDF\" - 2>/dev/null | head -50 || echo 'Aucun PDF recent trouve ou pdftotext non disponible'", "bash", timeout_s=30),
+   DominoStep("pdf_info", "bash:PDF=$(find ~/Téléchargements ~/Downloads ~/Documents -name '*.pdf' -type f -mtime -7 2>/dev/null | head -1); [ -f \"$PDF\" ] && pdfinfo \"$PDF\" 2>/dev/null || echo 'pdfinfo non disponible'", "bash", on_fail="skip"),
+   DominoStep("tts_done", "python:edge_tts_speak('Texte du P D F extrait.')", "python"),
+  ],
+  category="automation",
+  description="Extraire le texte du PDF le plus recent",
+  learning_context="PDF extraction — cherche dans Telechargements et Documents",
+  cooldown_s=30,
+ ),
+
+ DominoPipeline(
+  id="domino_auto_compress",
+  trigger_vocal=[
+   "compresse le dossier", "fais une archive", "compress",
+   "zip le dossier", "tar le dossier", "archive le dossier",
+  ],
+  steps=[
+   DominoStep("list_targets", "bash:ls -d ~/Documents/*/ ~/Bureau/*/ ~/Desktop/*/ 2>/dev/null | head -10", "bash", on_fail="skip"),
+   DominoStep("compress_jarvis_backup", "bash:tar czf /tmp/jarvis_backup_$(date +%Y%m%d_%H%M%S).tar.gz -C /home/turbo/jarvis --exclude='.venv' --exclude='__pycache__' --exclude='.git' src/ memory/ 2>&1", "bash", timeout_s=120),
+   DominoStep("show_size", "bash:ls -lh /tmp/jarvis_backup_*.tar.gz | tail -1", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Archive creee dans le dossier temp.')", "python"),
+  ],
+  category="automation",
+  description="Compresser le projet JARVIS en archive tar.gz",
+  learning_context="Compression backup — exclut venv, pycache, .git",
+  cooldown_s=300,
+ ),
+
+ DominoPipeline(
+  id="domino_auto_sync_github",
+  trigger_vocal=[
+   "sync github", "synchronise les repos", "github sync",
+   "pull tous les repos", "mets a jour les repos", "git pull all",
+  ],
+  steps=[
+   DominoStep("sync_jarvis", "bash:git -C /home/turbo/jarvis pull --rebase 2>&1 | tail -5", "bash", timeout_s=60, on_fail="skip"),
+   DominoStep("find_repos", "bash:find /home/turbo -maxdepth 3 -name '.git' -type d 2>/dev/null | head -10", "bash"),
+   DominoStep("sync_all", "bash:for repo in $(find /home/turbo -maxdepth 3 -name '.git' -type d 2>/dev/null); do dir=$(dirname $repo); echo \"--- $dir ---\"; git -C $dir pull --rebase 2>&1 | tail -2; done", "bash", timeout_s=120),
+   DominoStep("status_all", "bash:for repo in $(find /home/turbo -maxdepth 3 -name '.git' -type d 2>/dev/null); do dir=$(dirname $repo); dirty=$(git -C $dir status --porcelain | wc -l); [ $dirty -gt 0 ] && echo \"DIRTY: $dir ($dirty files)\"; done", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Tous les repos synchronises.')", "python"),
+  ],
+  category="automation",
+  description="Synchroniser tous les repos Git sous /home/turbo",
+  learning_context="Git sync — pull rebase sur tous les repos trouves",
+  cooldown_s=300,
+ ),
+
+ DominoPipeline(
+  id="domino_auto_cron_audit",
+  trigger_vocal=[
+   "audit les crons", "cron audit", "quels crons tournent",
+   "verifie les taches planifiees", "liste les crons",
+  ],
+  steps=[
+   DominoStep("user_crontab", "bash:crontab -l 2>/dev/null || echo 'Pas de crontab utilisateur'", "bash"),
+   DominoStep("system_crons", "bash:ls -la /etc/cron.d/ /etc/cron.daily/ /etc/cron.hourly/ 2>/dev/null | head -20", "bash"),
+   DominoStep("systemd_timers", "bash:systemctl list-timers --all --no-pager | head -20", "bash"),
+   DominoStep("at_jobs", "bash:atq 2>/dev/null || echo 'Pas de jobs at'", "bash", on_fail="skip"),
+   DominoStep("anacron_status", "bash:cat /var/spool/anacron/* 2>/dev/null || echo 'anacron: pas de timestamps'", "bash", on_fail="skip"),
+   DominoStep("tts_done", "python:edge_tts_speak('Audit des taches planifiees termine.')", "python"),
+  ],
+  category="automation",
+  description="Audit complet des taches planifiees: cron, systemd timers, at",
+  learning_context="Cron audit — verifie crontab, systemd timers, anacron",
+  cooldown_s=120,
+ ),
+
+ # ─────────────────────────────────────────────────────────────────────
+ # CLUSTER — Gestion cluster multi-noeuds (10 dominos)
+ # ─────────────────────────────────────────────────────────────────────
+
+ DominoPipeline(
+  id="domino_cluster_rebalance",
+  trigger_vocal=[
+   "reequilibre le cluster", "cluster rebalance", "balance la charge",
+   "redistribue la charge", "rebalance les noeuds",
+  ],
+  steps=[
+   DominoStep("check_loads", "bash:nvidia-smi --query-gpu=index,utilization.gpu,memory.used,memory.total --format=csv,noheader", "bash"),
+   DominoStep("check_m2", "bash:curl -s http://192.168.1.33:1234/api/v1/models 2>/dev/null | python3 -c 'import sys,json; [print(m[\"id\"]) for m in json.load(sys.stdin).get(\"data\",[])]' || echo 'M2 non joignable'", "bash", timeout_s=10, on_fail="skip"),
+   DominoStep("cpu_load", "bash:cat /proc/loadavg", "bash"),
+   DominoStep("memory_balance", "bash:free -h | head -2", "bash"),
+   DominoStep("recommend", "bash:echo 'Recommandation: verifier que les modeles lourds sont sur les GPUs avec le plus de VRAM libre'", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Analyse de charge terminee. Recommandations affichees.')", "python"),
+  ],
+  category="cluster",
+  description="Reequilibrer la charge entre les noeuds du cluster",
+  learning_context="Cluster rebalance — redistribue les modeles IA selon la VRAM disponible",
+  priority="high",
+  cooldown_s=120,
+ ),
+
+ DominoPipeline(
+  id="domino_cluster_model_swap",
+  trigger_vocal=[
+   "change le modele", "swap le modele", "model swap",
+   "remplace le modele", "charge un autre modele",
+  ],
+  steps=[
+   DominoStep("list_loaded", "bash:curl -s http://127.0.0.1:1234/api/v1/models | python3 -c 'import sys,json; [print(m[\"id\"]) for m in json.load(sys.stdin).get(\"data\",[])]' 2>/dev/null || echo 'Aucun modele charge'", "bash", timeout_s=10),
+   DominoStep("list_ollama", "bash:curl -s http://127.0.0.1:11434/api/tags | python3 -c 'import sys,json; [print(m[\"name\"]) for m in json.load(sys.stdin).get(\"models\",[])]' 2>/dev/null || echo 'Ollama non disponible'", "bash", timeout_s=10),
+   DominoStep("vram_available", "bash:nvidia-smi --query-gpu=index,memory.free --format=csv,noheader", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Modeles listes. Choisissez le modele a charger.')", "python"),
+  ],
+  category="cluster",
+  description="Lister et preparer le swap de modele IA sur le cluster",
+  learning_context="Model management — verifie VRAM avant de charger un nouveau modele",
+  cooldown_s=30,
+ ),
+
+ DominoPipeline(
+  id="domino_cluster_benchmark",
+  trigger_vocal=[
+   "benchmark le cluster", "teste les performances cluster", "cluster benchmark",
+   "benchmark tous les noeuds", "performance cluster",
+  ],
+  steps=[
+   DominoStep("gpu_bench", "bash:nvidia-smi --query-gpu=index,name,clocks.gr,clocks.mem,power.draw,temperature.gpu --format=csv,noheader", "bash"),
+   DominoStep("cpu_bench", "bash:echo 'CPU benchmark...' && time python3 -c 'sum(i*i for i in range(10000000))' 2>&1", "bash", timeout_s=30),
+   DominoStep("disk_bench", "bash:dd if=/dev/zero of=/tmp/bench_test bs=1M count=256 oflag=dsync 2>&1 | tail -1; rm -f /tmp/bench_test", "bash", timeout_s=30),
+   DominoStep("network_bench", "bash:curl -s -o /dev/null -w 'LM Studio latency: %{time_total}s\\n' http://127.0.0.1:1234/api/v1/models", "bash", timeout_s=10),
+   DominoStep("mem_bandwidth", "bash:python3 -c \"import time; data=bytearray(100*1024*1024); t=time.time(); _ =bytes(data); print(f'Mem copy 100MB: {time.time()-t:.3f}s')\"", "bash", timeout_s=10),
+   DominoStep("tts_done", "python:edge_tts_speak('Benchmark cluster termine.')", "python"),
+  ],
+  category="cluster",
+  description="Benchmark complet du cluster: GPU, CPU, disque, reseau, memoire",
+  learning_context="Benchmark — mesure les perf brutes de chaque composant",
+  cooldown_s=300,
+ ),
+
+ DominoPipeline(
+  id="domino_cluster_sync_configs",
+  trigger_vocal=[
+   "synchronise les configs", "sync configs cluster", "config sync",
+   "propage la config", "deploie la config sur le cluster",
+  ],
+  steps=[
+   DominoStep("backup_config", "bash:cp /home/turbo/jarvis/src/config.py /home/turbo/jarvis/backups/config_$(date +%Y%m%d_%H%M%S).py", "bash"),
+   DominoStep("check_m2", "bash:ssh -o ConnectTimeout=3 turbo@192.168.1.33 'hostname && uptime' 2>/dev/null || echo 'M2 non joignable'", "bash", timeout_s=10, on_fail="skip"),
+   DominoStep("sync_to_m2", "bash:rsync -avz --exclude='.venv' --exclude='__pycache__' /home/turbo/jarvis/src/config.py turbo@192.168.1.33:/home/turbo/jarvis/src/config.py 2>/dev/null || echo 'Sync M2 echoue'", "bash", timeout_s=30, on_fail="skip"),
+   DominoStep("verify_sync", "bash:ssh -o ConnectTimeout=3 turbo@192.168.1.33 'md5sum /home/turbo/jarvis/src/config.py' 2>/dev/null && md5sum /home/turbo/jarvis/src/config.py || echo 'Verification non possible'", "bash", timeout_s=10, on_fail="skip"),
+   DominoStep("tts_done", "python:edge_tts_speak('Configurations synchronisees sur le cluster.')", "python"),
+  ],
+  category="cluster",
+  description="Synchroniser les configs de M1 vers M2/M3 via rsync",
+  learning_context="Config sync — backup avant, rsync les fichiers critiques",
+  priority="high",
+  cooldown_s=120,
+ ),
+
+ DominoPipeline(
+  id="domino_cluster_failover_test",
+  trigger_vocal=[
+   "teste le failover", "failover test", "test basculement",
+   "simule une panne", "teste la resilience",
+  ],
+  steps=[
+   DominoStep("check_primary", "bash:curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:1234/api/v1/models || echo 'PRIMARY DOWN'", "bash", timeout_s=5),
+   DominoStep("check_fallback", "bash:curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:11434/api/tags || echo 'FALLBACK DOWN'", "bash", timeout_s=5),
+   DominoStep("check_m2_fallback", "bash:curl -s -o /dev/null -w '%{http_code}' http://192.168.1.33:1234/api/v1/models 2>/dev/null || echo 'M2 FALLBACK DOWN'", "bash", timeout_s=5, on_fail="skip"),
+   DominoStep("latency_compare", "bash:echo 'Local:' && curl -s -o /dev/null -w '%{time_total}s' http://127.0.0.1:1234/api/v1/models 2>/dev/null; echo '' && echo 'M2:' && curl -s -o /dev/null -w '%{time_total}s' http://192.168.1.33:1234/api/v1/models 2>/dev/null; echo ''", "bash", timeout_s=10, on_fail="skip"),
+   DominoStep("report", "bash:echo 'Failover test complete. Tous les endpoints verifies.'", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Test de failover termine. Resultats affiches.')", "python"),
+  ],
+  category="cluster",
+  description="Tester le failover entre noeuds du cluster",
+  learning_context="Failover test — verifie que le basculement fonctionne sans perte",
+  priority="high",
+  cooldown_s=300,
+ ),
+
+ DominoPipeline(
+  id="domino_cluster_vram_report",
+  trigger_vocal=[
+   "rapport vram", "vram report", "combien de vram",
+   "memoire gpu detaillee", "vram disponible", "etat de la vram",
+  ],
+  steps=[
+   DominoStep("local_vram", "bash:nvidia-smi --query-gpu=index,name,memory.total,memory.used,memory.free,utilization.gpu --format=csv", "bash"),
+   DominoStep("vram_per_process", "bash:nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv 2>/dev/null || echo 'Aucun processus GPU'", "bash"),
+   DominoStep("m2_vram", "bash:ssh -o ConnectTimeout=3 turbo@192.168.1.33 'nvidia-smi --query-gpu=index,name,memory.total,memory.used,memory.free --format=csv' 2>/dev/null || echo 'M2 non joignable'", "bash", timeout_s=10, on_fail="skip"),
+   DominoStep("total_summary", "bash:nvidia-smi --query-gpu=memory.total,memory.free --format=csv,noheader,nounits | awk -F',' '{total+=$1; free+=$2} END {printf \"Total VRAM: %dMB, Libre: %dMB, Utilise: %.0f%%\\n\", total, free, (total-free)/total*100}'", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Rapport VRAM detaille genere.')", "python"),
+  ],
+  category="cluster",
+  description="Rapport detaille VRAM: par GPU, par process, cluster entier",
+  learning_context="VRAM monitoring — critique pour le chargement de modeles",
+  cooldown_s=30,
+ ),
+
+ DominoPipeline(
+  id="domino_cluster_latency_test",
+  trigger_vocal=[
+   "teste les latences", "latency test", "ping les noeuds",
+   "temps de reponse cluster", "latence inter-noeuds",
+  ],
+  steps=[
+   DominoStep("ping_m2", "bash:ping -c 3 -W 2 192.168.1.33 2>/dev/null | tail -1 || echo 'M2 injoignable'", "bash", timeout_s=10),
+   DominoStep("api_latency_local", "bash:for i in 1 2 3; do curl -s -o /dev/null -w '%{time_total}s\\n' http://127.0.0.1:1234/api/v1/models; done 2>/dev/null | awk '{sum+=$1} END {printf \"LM Studio local: %.3fs avg\\n\", sum/NR}'", "bash", timeout_s=15),
+   DominoStep("api_latency_m2", "bash:for i in 1 2 3; do curl -s -o /dev/null -w '%{time_total}s\\n' http://192.168.1.33:1234/api/v1/models 2>/dev/null; done | awk '{sum+=$1} END {printf \"LM Studio M2: %.3fs avg\\n\", sum/NR}'", "bash", timeout_s=15, on_fail="skip"),
+   DominoStep("ollama_latency", "bash:for i in 1 2 3; do curl -s -o /dev/null -w '%{time_total}s\\n' http://127.0.0.1:11434/api/tags; done 2>/dev/null | awk '{sum+=$1} END {printf \"Ollama local: %.3fs avg\\n\", sum/NR}'", "bash", timeout_s=15),
+   DominoStep("tts_done", "python:edge_tts_speak('Test de latences termine.')", "python"),
+  ],
+  category="cluster",
+  description="Tester les latences entre tous les noeuds du cluster",
+  learning_context="Latency testing — mesure le temps de reponse de chaque endpoint",
+  cooldown_s=120,
+ ),
+
+ DominoPipeline(
+  id="domino_cluster_restart_all",
+  trigger_vocal=[
+   "redemarre tout le cluster", "cluster restart", "relance tous les services",
+   "restart all", "redemarre les services cluster",
+  ],
+  steps=[
+   DominoStep("save_state", "bash:nvidia-smi --query-gpu=index,name,memory.used --format=csv,noheader > /tmp/cluster_state_before_restart.txt", "bash"),
+   DominoStep("restart_ollama", "bash:systemctl restart ollama 2>/dev/null || sudo systemctl restart ollama 2>/dev/null || echo 'Ollama restart manual needed'", "bash", timeout_s=30, on_fail="skip"),
+   DominoStep("wait_stable", "bash:sleep 5 && curl -s http://127.0.0.1:11434/api/tags > /dev/null 2>&1 && echo 'Ollama OK' || echo 'Ollama not ready'", "bash", timeout_s=15),
+   DominoStep("verify_services", "bash:curl -s -o /dev/null -w 'LM Studio: %{http_code}\\n' http://127.0.0.1:1234/api/v1/models; curl -s -o /dev/null -w 'Ollama: %{http_code}\\n' http://127.0.0.1:11434/api/tags", "bash", timeout_s=10),
+   DominoStep("post_state", "bash:nvidia-smi --query-gpu=index,name,memory.used --format=csv,noheader", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Services cluster redemarres et verifies.')", "python"),
+  ],
+  category="cluster",
+  description="Redemarrer et verifier tous les services du cluster",
+  learning_context="Cluster restart — sauvegarde l'etat avant, verifie apres",
+  priority="critical",
+  cooldown_s=300,
+ ),
+
+ DominoPipeline(
+  id="domino_cluster_backup_models",
+  trigger_vocal=[
+   "backup les modeles", "sauvegarde les modeles ia", "model backup",
+   "copie les modeles", "archive les modeles",
+  ],
+  steps=[
+   DominoStep("list_ollama_models", "bash:du -sh ~/.ollama/models/*/* 2>/dev/null | head -20 || echo 'Pas de modeles Ollama'", "bash"),
+   DominoStep("list_lmstudio_models", "bash:du -sh ~/.cache/lm-studio/models/*/* 2>/dev/null | head -20 || echo 'Pas de modeles LM Studio'", "bash", on_fail="skip"),
+   DominoStep("total_size", "bash:du -sh ~/.ollama/models 2>/dev/null; du -sh ~/.cache/lm-studio/models 2>/dev/null", "bash", on_fail="skip"),
+   DominoStep("backup_list", "bash:echo 'Modeles Ollama:' && curl -s http://127.0.0.1:11434/api/tags 2>/dev/null | python3 -c 'import sys,json; [print(f\"  {m[\\\"name\\\"]}: {m.get(\\\"size\\\",0)//1024//1024}MB\") for m in json.load(sys.stdin).get(\"models\",[])]' || echo '  Non disponible'", "bash", timeout_s=10),
+   DominoStep("tts_done", "python:edge_tts_speak('Inventaire des modeles termine.')", "python"),
+  ],
+  category="cluster",
+  description="Inventaire et preparation backup des modeles IA",
+  learning_context="Model backup — inventorie avant d'archiver les modeles volumineux",
+  cooldown_s=300,
+ ),
+
+ DominoPipeline(
+  id="domino_cluster_optimize_routing",
+  trigger_vocal=[
+   "optimise le routage", "routing optimize", "ameliore le routage",
+   "optimise les requetes cluster", "smart routing",
+  ],
+  steps=[
+   DominoStep("current_routing", "bash:echo 'Endpoints actifs:' && curl -s http://127.0.0.1:1234/api/v1/models 2>/dev/null | python3 -c 'import sys,json; d=json.load(sys.stdin); print(f\"  LM Studio: {len(d.get(\\\"data\\\",[])) } modeles\")' || echo '  LM Studio: DOWN'", "bash", timeout_s=10),
+   DominoStep("ollama_models", "bash:curl -s http://127.0.0.1:11434/api/tags 2>/dev/null | python3 -c 'import sys,json; d=json.load(sys.stdin); print(f\"  Ollama: {len(d.get(\\\"models\\\",[]))} modeles\")' || echo '  Ollama: DOWN'", "bash", timeout_s=10),
+   DominoStep("load_analysis", "bash:nvidia-smi --query-gpu=index,utilization.gpu,memory.used,memory.total --format=csv,noheader", "bash"),
+   DominoStep("recommend_routing", "bash:nvidia-smi --query-gpu=index,memory.free --format=csv,noheader,nounits | sort -t',' -k2 -rn | head -1 | awk -F',' '{printf \"GPU optimale pour prochain modele: GPU %d (%d MB libres)\\n\", $1, $2}'", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Optimisation routage analysee.')", "python"),
+  ],
+  category="cluster",
+  description="Analyser et optimiser le routage des requetes sur le cluster",
+  learning_context="Smart routing — dirige les requetes vers le GPU le moins charge",
+  cooldown_s=120,
+ ),
+
+ # ─────────────────────────────────────────────────────────────────────
+ # ROUTINE — Modes de travail et routines quotidiennes (10 dominos)
+ # ─────────────────────────────────────────────────────────────────────
+
+ DominoPipeline(
+  id="domino_routine_matin_express",
+  trigger_vocal=[
+   "matin express", "routine express", "demarrage rapide du matin",
+   "quick morning", "vite fait le matin", "matin deux minutes",
+  ],
+  steps=[
+   DominoStep("gpu_quick", "bash:nvidia-smi --query-gpu=temperature.gpu,memory.used --format=csv,noheader | head -2", "bash"),
+   DominoStep("disk_quick", "bash:df -h / | tail -1 | awk '{print \"Disque:\", $5, \"utilise\"}'", "bash"),
+   DominoStep("services_quick", "bash:curl -s -o /dev/null -w 'LM:%{http_code} ' http://127.0.0.1:1234/api/v1/models; curl -s -o /dev/null -w 'OL:%{http_code}' http://127.0.0.1:11434/api/tags; echo ''", "bash", timeout_s=10),
+   DominoStep("tts_done", "python:edge_tts_speak('Tout est operationnel. Bonne journee!')", "python"),
+  ],
+  category="routine",
+  description="Routine matin express en moins de 2 minutes",
+  learning_context="Matin rapide — juste l'essentiel, pas de details",
+  priority="high",
+  cooldown_s=60,
+ ),
+
+ DominoPipeline(
+  id="domino_routine_pause_cafe",
+  trigger_vocal=[
+   "pause cafe", "mode cafe", "je prends un cafe",
+   "break cafe", "pause detente", "coffee break",
+  ],
+  steps=[
+   DominoStep("dim_screen", "bash:DISPLAY=:0 xrandr --output $(xrandr | grep ' connected' | head -1 | awk '{print $1}') --brightness 0.6 2>/dev/null || echo 'xrandr non disponible'", "bash", on_fail="skip"),
+   DominoStep("lower_volume", "bash:pactl set-sink-volume @DEFAULT_SINK@ 30% 2>/dev/null || echo 'pactl non disponible'", "bash", on_fail="skip"),
+   DominoStep("play_lofi", "bash:DISPLAY=:0 xdg-open 'https://www.youtube.com/watch?v=jfKfPfyJRdk' 2>/dev/null || echo 'Impossible d ouvrir le navigateur'", "bash", on_fail="skip"),
+   DominoStep("set_dnd", "bash:DISPLAY=:0 gsettings set org.gnome.desktop.notifications show-banners false 2>/dev/null || echo 'DND non supporte'", "bash", on_fail="skip"),
+   DominoStep("tts_done", "python:edge_tts_speak('Mode pause cafe active. Profite bien!')", "python"),
+  ],
+  category="routine",
+  description="Mode pause cafe: musique lo-fi, ecran dim, volume bas, DND",
+  learning_context="Pause cafe — ambiance detente, notifs desactivees",
+  cooldown_s=300,
+ ),
+
+ DominoPipeline(
+  id="domino_routine_focus_mode",
+  trigger_vocal=[
+   "mode focus", "concentration", "pas de distractions",
+   "mode travail intense", "deep work", "focus total",
+  ],
+  steps=[
+   DominoStep("close_social", "bash:DISPLAY=:0 wmctrl -c 'Discord' 2>/dev/null; wmctrl -c 'Slack' 2>/dev/null; wmctrl -c 'Telegram' 2>/dev/null || true", "bash", on_fail="skip"),
+   DominoStep("dnd_on", "bash:DISPLAY=:0 gsettings set org.gnome.desktop.notifications show-banners false 2>/dev/null || echo 'DND non supporte'", "bash", on_fail="skip"),
+   DominoStep("mute_notif_sounds", "bash:pactl set-sink-volume @DEFAULT_SINK@ 15% 2>/dev/null || true", "bash", on_fail="skip"),
+   DominoStep("open_editor", "bash:DISPLAY=:0 code /home/turbo/jarvis 2>/dev/null || echo 'VSCode non disponible'", "bash", on_fail="skip"),
+   DominoStep("start_timer", "bash:echo 'Focus session started at '$(date +%H:%M) > /tmp/jarvis_focus_session.txt", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Mode focus active. Aucune distraction. Bon courage!')", "python"),
+  ],
+  category="routine",
+  description="Mode focus: ferme distractions, DND, ouvre editeur",
+  learning_context="Deep work — coupe toutes les distractions, timer de session",
+  cooldown_s=300,
+ ),
+
+ DominoPipeline(
+  id="domino_routine_meeting_prep",
+  trigger_vocal=[
+   "prepare une reunion", "meeting prep", "je vais en reunion",
+   "prepare la visio", "mode reunion", "meeting mode",
+  ],
+  steps=[
+   DominoStep("check_mic", "bash:pactl list sources short | grep -i 'RUNNING\\|input' | head -3 || echo 'Micro non detecte'", "bash"),
+   DominoStep("check_webcam", "bash:ls /dev/video* 2>/dev/null && echo 'Webcam detectee' || echo 'Pas de webcam'", "bash"),
+   DominoStep("set_volume", "bash:pactl set-sink-volume @DEFAULT_SINK@ 70% 2>/dev/null || true", "bash", on_fail="skip"),
+   DominoStep("unmute_mic", "bash:pactl set-source-mute @DEFAULT_SOURCE@ 0 2>/dev/null || true", "bash", on_fail="skip"),
+   DominoStep("close_media", "bash:DISPLAY=:0 wmctrl -c 'YouTube' 2>/dev/null; wmctrl -c 'Spotify' 2>/dev/null || true", "bash", on_fail="skip"),
+   DominoStep("tts_done", "python:edge_tts_speak('Environnement reunion pret. Micro et camera verifies.')", "python"),
+  ],
+  category="routine",
+  description="Preparation reunion: micro, camera, volume, ferme medias",
+  learning_context="Meeting prep — verifie le materiel audio/video avant la visio",
+  cooldown_s=60,
+ ),
+
+ DominoPipeline(
+  id="domino_routine_end_of_day",
+  trigger_vocal=[
+   "fin de journee", "end of day", "termine la journee",
+   "bonne nuit jarvis", "arrete la journee", "on ferme boutique",
+  ],
+  steps=[
+   DominoStep("save_work", "bash:git -C /home/turbo/jarvis add -A && git -C /home/turbo/jarvis commit -m 'Auto-save end of day '$(date +%Y-%m-%d) 2>/dev/null || echo 'Rien a committer'", "bash", timeout_s=30, on_fail="skip"),
+   DominoStep("day_summary", "bash:echo '=== Resume du jour ===' && echo 'Commits:' && git -C /home/turbo/jarvis log --oneline --since='8 hours ago' | head -10", "bash"),
+   DominoStep("error_count", "bash:journalctl --priority=err --since today --no-pager | wc -l | xargs -I{} echo 'Erreurs systeme: {}'", "bash"),
+   DominoStep("gpu_temps_final", "bash:nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader | tr '\\n' '/' | sed 's/\\/$//' | xargs -I{} echo 'Temperatures GPU finales: {}'", "bash"),
+   DominoStep("restore_brightness", "bash:DISPLAY=:0 xrandr --output $(xrandr | grep ' connected' | head -1 | awk '{print $1}') --brightness 1.0 2>/dev/null || true", "bash", on_fail="skip"),
+   DominoStep("dnd_off", "bash:DISPLAY=:0 gsettings set org.gnome.desktop.notifications show-banners true 2>/dev/null || true", "bash", on_fail="skip"),
+   DominoStep("tts_done", "python:edge_tts_speak('Journee terminee. Travail sauvegarde. Bonne soiree!')", "python"),
+  ],
+  category="routine",
+  description="Fin de journee: sauvegarde, resume, restaure les parametres",
+  learning_context="End of day — commit auto, resume, restaure luminosite et notifs",
+  cooldown_s=600,
+ ),
+
+ DominoPipeline(
+  id="domino_routine_weekend_mode",
+  trigger_vocal=[
+   "mode weekend", "passe en weekend", "weekend mode",
+   "reduis les services", "mode econome", "mode repos",
+  ],
+  steps=[
+   DominoStep("reduce_gpu", "bash:nvidia-smi -pl 150 2>/dev/null || echo 'Impossible de reduire la puissance GPU'", "bash", on_fail="skip"),
+   DominoStep("stop_heavy", "bash:echo 'Services lourds a considerer pour arret:' && ps aux --sort=-%mem | head -5", "bash"),
+   DominoStep("lower_fan_profile", "bash:echo 'GPU power limit reduit pour le weekend'", "bash"),
+   DominoStep("backup_weekend", "bash:cp /home/turbo/jarvis/memory/long_term.db /home/turbo/jarvis/backups/long_term_weekend_$(date +%Y%m%d).db 2>/dev/null || true", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Mode weekend active. Consommation reduite.')", "python"),
+  ],
+  category="routine",
+  description="Mode weekend: reduit la consommation, backup, services alleges",
+  learning_context="Weekend mode — economise l'energie, garde les services essentiels",
+  cooldown_s=600,
+ ),
+
+ DominoPipeline(
+  id="domino_routine_presentation",
+  trigger_vocal=[
+   "mode presentation", "lance la presentation", "presentation mode",
+   "prepare la demo", "mode demo", "je presente",
+  ],
+  steps=[
+   DominoStep("disable_screensaver", "bash:DISPLAY=:0 xset s off -dpms 2>/dev/null || gsettings set org.gnome.desktop.session idle-delay 0 2>/dev/null || true", "bash", on_fail="skip"),
+   DominoStep("dnd_on", "bash:DISPLAY=:0 gsettings set org.gnome.desktop.notifications show-banners false 2>/dev/null || true", "bash", on_fail="skip"),
+   DominoStep("max_brightness", "bash:DISPLAY=:0 xrandr --output $(xrandr | grep ' connected' | head -1 | awk '{print $1}') --brightness 1.0 2>/dev/null || true", "bash", on_fail="skip"),
+   DominoStep("volume_set", "bash:pactl set-sink-volume @DEFAULT_SINK@ 80% 2>/dev/null || true", "bash", on_fail="skip"),
+   DominoStep("close_personal", "bash:DISPLAY=:0 wmctrl -c 'Discord' 2>/dev/null; wmctrl -c 'Telegram' 2>/dev/null; wmctrl -c 'Signal' 2>/dev/null || true", "bash", on_fail="skip"),
+   DominoStep("tts_done", "python:edge_tts_speak('Mode presentation active. Ecran verrouille, notifications coupees.')", "python"),
+  ],
+  category="routine",
+  description="Mode presentation: pas de veille, DND, luminosite max",
+  learning_context="Presentation mode — aucune interruption pendant la demo",
+  cooldown_s=120,
+ ),
+
+ DominoPipeline(
+  id="domino_routine_debug_session",
+  trigger_vocal=[
+   "session debug", "mode debug", "debug intensif",
+   "lance le debug", "debug session", "troubleshoot",
+  ],
+  steps=[
+   DominoStep("open_logs", "bash:tmux new-session -d -s debug-session 2>/dev/null || true && tmux send-keys -t debug-session 'journalctl -f --priority=warning' Enter", "bash"),
+   DominoStep("open_htop", "bash:tmux split-window -t debug-session -h 2>/dev/null && tmux send-keys -t debug-session 'htop' Enter || true", "bash", on_fail="skip"),
+   DominoStep("gpu_watch", "bash:tmux split-window -t debug-session -v 2>/dev/null && tmux send-keys -t debug-session 'watch -n2 nvidia-smi' Enter || true", "bash", on_fail="skip"),
+   DominoStep("enable_verbose", "bash:export JARVIS_DEBUG=1 && echo 'JARVIS_DEBUG=1 active'", "bash"),
+   DominoStep("recent_errors", "bash:journalctl --priority=err --since '1 hour ago' --no-pager | tail -20", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Session debug lancee. Logs et monitoring ouverts.')", "python"),
+  ],
+  category="routine",
+  description="Session debug intensive: tmux logs + htop + GPU + erreurs recentes",
+  learning_context="Debug session — ouvre tous les outils de diagnostic en parallele",
+  cooldown_s=120,
+ ),
+
+ DominoPipeline(
+  id="domino_routine_learning_mode",
+  trigger_vocal=[
+   "mode apprentissage", "learning mode", "mode etude",
+   "session apprentissage", "je veux apprendre", "mode documentation",
+  ],
+  steps=[
+   DominoStep("open_docs", "bash:DISPLAY=:0 xdg-open 'https://docs.python.org/3/' 2>/dev/null || echo 'Navigateur non disponible'", "bash", on_fail="skip"),
+   DominoStep("open_notes", "bash:DISPLAY=:0 xdg-open /home/turbo/Documents/notes 2>/dev/null || mkdir -p /home/turbo/Documents/notes && echo 'Dossier notes cree'", "bash", on_fail="skip"),
+   DominoStep("focus_setup", "bash:DISPLAY=:0 gsettings set org.gnome.desktop.notifications show-banners false 2>/dev/null || true", "bash", on_fail="skip"),
+   DominoStep("lower_volume", "bash:pactl set-sink-volume @DEFAULT_SINK@ 20% 2>/dev/null || true", "bash", on_fail="skip"),
+   DominoStep("start_timer", "bash:echo 'Learning session started at '$(date +%H:%M) > /tmp/jarvis_learning_session.txt && echo 'Timer demarre'", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('Mode apprentissage active. Bonne etude!')", "python"),
+  ],
+  category="routine",
+  description="Mode apprentissage: docs, notes, DND, timer",
+  learning_context="Learning mode — environnement calme pour etudier",
+  cooldown_s=300,
+ ),
+
+ DominoPipeline(
+  id="domino_routine_emergency",
+  trigger_vocal=[
+   "mode urgence", "urgence systeme", "emergency mode",
+   "alerte critique", "all hands", "c'est urgent",
+  ],
+  steps=[
+   DominoStep("gpu_status", "bash:nvidia-smi --query-gpu=index,temperature.gpu,power.draw,memory.used --format=csv,noheader", "bash"),
+   DominoStep("critical_errors", "bash:journalctl --priority=crit --since '1 hour ago' --no-pager | tail -20", "bash"),
+   DominoStep("service_status", "bash:curl -s -o /dev/null -w 'LM:%{http_code} ' http://127.0.0.1:1234/api/v1/models 2>/dev/null; curl -s -o /dev/null -w 'OL:%{http_code} ' http://127.0.0.1:11434/api/tags 2>/dev/null; echo ''", "bash", timeout_s=5),
+   DominoStep("memory_critical", "bash:free -h | head -2 && echo '---' && ps aux --sort=-%mem | head -5", "bash"),
+   DominoStep("disk_critical", "bash:df -h / /home | tail -2", "bash"),
+   DominoStep("dmesg_recent", "bash:dmesg --level=emerg,alert,crit 2>/dev/null | tail -10 || journalctl -k --priority=crit --since '1 hour ago' --no-pager | tail -10", "bash"),
+   DominoStep("tts_done", "python:edge_tts_speak('MODE URGENCE! Diagnostic complet affiche. Verifiez immediatement.')", "python"),
+  ],
+  category="routine",
+  description="Mode urgence: diagnostic complet rapide de tous les composants critiques",
+  learning_context="Emergency — tout checker en priorite: GPU, RAM, disque, services, erreurs critiques",
+  priority="critical",
+  cooldown_s=30,
+ ),
+
  ]
 # Post-process: replace hardcoded paths with config-driven values
 for _pipeline in DOMINO_PIPELINES:

@@ -6089,5 +6089,1040 @@
     "last_used": 0.0,
     "success_rate": 1.0,
     "confirm": true
+  },
+  {
+    "name": "screenshot_ocr_linux",
+    "description": "Capture écran avec OCR: screenshot, extraction texte, description IA",
+    "triggers": [
+      "capture l'écran",
+      "screenshot",
+      "fais une capture",
+      "lis l'écran",
+      "texte à l'écran",
+      "ocr écran"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "gnome-screenshot -f /tmp/jarvis-screenshot-$(date +%s).png && echo 'Capture: /tmp/jarvis-screenshot-*.png' && ls -t /tmp/jarvis-screenshot-*.png | head -1"
+        },
+        "description": "Capture écran",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "IMG=$(ls -t /tmp/jarvis-screenshot-*.png | head -1) && tesseract \"$IMG\" stdout -l fra 2>/dev/null | head -30 || echo 'tesseract non installé'"
+        },
+        "description": "OCR extraction texte",
+        "wait_for_result": true
+      }
+    ],
+    "category": "desktop",
+    "created_at": 1773599282.9128623,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "bluetooth_manager_linux",
+    "description": "Gestion Bluetooth: scanner, connecter, déconnecter, info appareils",
+    "triggers": [
+      "gère le bluetooth",
+      "bluetooth status",
+      "appareils bluetooth",
+      "connecte bluetooth",
+      "scanner bluetooth"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "bluetoothctl show 2>/dev/null | grep -E 'Powered|Name' || echo 'Bluetooth non disponible'"
+        },
+        "description": "État Bluetooth",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "bluetoothctl devices 2>/dev/null || echo 'Aucun appareil'"
+        },
+        "description": "Appareils connus",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "bluetoothctl info 2>/dev/null | grep -E 'Name|Connected|Battery' || echo 'Pas d appareil connecté'"
+        },
+        "description": "Info appareil connecté",
+        "wait_for_result": true
+      }
+    ],
+    "category": "hardware",
+    "created_at": 1773599286.648496,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "system_benchmark_linux",
+    "description": "Benchmark système: CPU, RAM, disque, GPU, réseau",
+    "triggers": [
+      "benchmark système",
+      "teste les performances",
+      "vitesse du système",
+      "benchmark",
+      "test de performance"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== CPU ===' && python3 -c 'import time;s=time.time();sum(range(10**7));print(f\"10M additions: {time.time()-s:.2f}s\")'"
+        },
+        "description": "Benchmark CPU",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== DISQUE ===' && dd if=/dev/zero of=/tmp/jarvis-bench.tmp bs=1M count=256 oflag=dsync 2>&1 | tail -1 && rm -f /tmp/jarvis-bench.tmp"
+        },
+        "description": "Benchmark disque",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== GPU ===' && nvidia-smi --query-gpu=name,clocks.gr,clocks.mem,power.draw --format=csv,noheader"
+        },
+        "description": "Info GPU",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== RÉSEAU ===' && curl -s -o /dev/null -w 'Download: %{speed_download} bytes/s\\nLatency: %{time_connect}s' https://speed.cloudflare.com/__down?bytes=1000000 2>/dev/null || echo 'Test réseau échoué'"
+        },
+        "description": "Benchmark réseau",
+        "wait_for_result": true
+      }
+    ],
+    "category": "monitoring",
+    "created_at": 1773599292.8377664,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "docker_manager_linux",
+    "description": "Gestion Docker: containers, images, logs, restart, prune",
+    "triggers": [
+      "gère docker",
+      "containers docker",
+      "images docker",
+      "docker status",
+      "docker actifs"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== CONTAINERS ===' && docker ps --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}' 2>/dev/null || echo 'Docker non disponible'"
+        },
+        "description": "Containers actifs",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== IMAGES ===' && docker images --format 'table {{.Repository}}\\t{{.Tag}}\\t{{.Size}}' 2>/dev/null | head -15"
+        },
+        "description": "Images Docker",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== ESPACE ===' && docker system df 2>/dev/null"
+        },
+        "description": "Espace Docker",
+        "wait_for_result": true
+      }
+    ],
+    "category": "dev",
+    "created_at": 1773599296.0313563,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "cron_audit_linux",
+    "description": "Audit des tâches planifiées: crons, timers systemd, at jobs",
+    "triggers": [
+      "vérifie les crons",
+      "tâches planifiées",
+      "cron audit",
+      "timers actifs",
+      "jobs planifiés"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== CRONS USER ===' && crontab -l 2>/dev/null || echo 'Aucun cron utilisateur'"
+        },
+        "description": "Crons utilisateur",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== TIMERS SYSTEMD ===' && systemctl --user list-timers --no-pager | head -15"
+        },
+        "description": "Timers systemd user",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== TIMERS SYSTEM ===' && systemctl list-timers --no-pager | head -10"
+        },
+        "description": "Timers systemd système",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== AT JOBS ===' && atq 2>/dev/null || echo 'Aucun at job'"
+        },
+        "description": "Jobs AT",
+        "wait_for_result": true
+      }
+    ],
+    "category": "system",
+    "created_at": 1773599300.1290271,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "usb_devices_linux",
+    "description": "Gestion USB: lister appareils, éjecter, monter clés USB",
+    "triggers": [
+      "appareils usb",
+      "liste les usb",
+      "clé usb",
+      "éjecte la clé",
+      "périphériques connectés"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== USB DEVICES ===' && lsusb | grep -v 'hub' | head -15"
+        },
+        "description": "Appareils USB",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== STOCKAGE AMOVIBLE ===' && lsblk -o NAME,SIZE,TYPE,MOUNTPOINT | grep -E 'disk|part' | head -10"
+        },
+        "description": "Disques et partitions",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== MONTAGES ===' && mount | grep -E '/media|/mnt' || echo 'Aucun montage externe'"
+        },
+        "description": "Points de montage externes",
+        "wait_for_result": true
+      }
+    ],
+    "category": "hardware",
+    "created_at": 1773599304.1470258,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "printer_manager_linux",
+    "description": "Gestion imprimantes: lister, imprimer, file d'attente, état",
+    "triggers": [
+      "gère les imprimantes",
+      "imprimante status",
+      "liste les imprimantes",
+      "file d'impression",
+      "état imprimante"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "lpstat -p 2>/dev/null || echo 'CUPS non disponible'"
+        },
+        "description": "Imprimantes disponibles",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "lpstat -o 2>/dev/null || echo 'Aucun job en file'"
+        },
+        "description": "File d'impression",
+        "wait_for_result": true
+      }
+    ],
+    "category": "hardware",
+    "created_at": 1773599312.6370625,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "startup_optimizer_linux",
+    "description": "Optimiser le démarrage: analyser temps boot, apps autostart, services lents",
+    "triggers": [
+      "optimise le démarrage",
+      "boot lent",
+      "temps de démarrage",
+      "analyse le boot",
+      "startup optimizer"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== TEMPS BOOT ===' && systemd-analyze"
+        },
+        "description": "Temps de boot total",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== TOP 10 SERVICES LENTS ===' && systemd-analyze blame | head -10"
+        },
+        "description": "Services les plus lents",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== AUTOSTART ===' && ls ~/.config/autostart/ 2>/dev/null"
+        },
+        "description": "Apps au démarrage",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== SERVICES ENABLED ===' && systemctl --user list-unit-files --state=enabled --no-pager | head -20"
+        },
+        "description": "Services activés",
+        "wait_for_result": true
+      }
+    ],
+    "category": "performance",
+    "created_at": 1773599317.5562723,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "log_forensics_linux",
+    "description": "Analyse forensique des logs: erreurs critiques, patterns, anomalies, timeline",
+    "triggers": [
+      "analyse les logs",
+      "forensique logs",
+      "erreurs critiques",
+      "anomalies système",
+      "investigation logs"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== ERREURS CRITIQUES 24H ===' && journalctl -p crit --since '24h ago' --no-pager 2>/dev/null | tail -20"
+        },
+        "description": "Erreurs critiques",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== KERNEL ERRORS ===' && journalctl -k -p err --since '24h ago' --no-pager 2>/dev/null | tail -10"
+        },
+        "description": "Erreurs kernel",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== OOM KILLS ===' && journalctl --since '7d ago' --no-pager 2>/dev/null | grep -i 'oom\\|out of memory' | tail -5 || echo 'Aucun OOM'"
+        },
+        "description": "Out of memory events",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== SEGFAULTS ===' && journalctl --since '7d ago' --no-pager 2>/dev/null | grep -i segfault | tail -5 || echo 'Aucun segfault'"
+        },
+        "description": "Segmentation faults",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== GPU ERRORS ===' && journalctl --since '24h ago' --no-pager 2>/dev/null | grep -i 'nvidia\\|gpu\\|xid' | grep -i 'err\\|fail\\|fault' | tail -5 || echo 'Aucune erreur GPU'"
+        },
+        "description": "Erreurs GPU",
+        "wait_for_result": true
+      }
+    ],
+    "category": "monitoring",
+    "created_at": 1773599324.9990816,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "model_manager_linux",
+    "description": "Gestion modèles IA: lister, charger, décharger, benchmark modèles sur cluster",
+    "triggers": [
+      "gère les modèles",
+      "modèles disponibles",
+      "charge un modèle",
+      "décharge le modèle",
+      "modèles ia",
+      "quel modèle tourne"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== M1 (LM Studio) ===' && curl -s --max-time 3 http://127.0.0.1:1234/api/v1/models 2>/dev/null | python3 -c 'import sys,json;[print(f\"  {m[\"id\"]}\") for m in json.load(sys.stdin).get(\"data\",[])]' 2>/dev/null || echo '  OFFLINE'"
+        },
+        "description": "Modèles M1",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== OL1 (Ollama) ===' && curl -s --max-time 3 http://127.0.0.1:11434/api/tags 2>/dev/null | python3 -c 'import sys,json;[print(f\"  {m[\"name\"]} ({m.get(\"size\",0)//1e9:.1f}GB)\") for m in json.load(sys.stdin).get(\"models\",[])]' 2>/dev/null || echo '  OFFLINE'"
+        },
+        "description": "Modèles OL1",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== VRAM ===' && nvidia-smi --query-gpu=index,memory.used,memory.total --format=csv,noheader"
+        },
+        "description": "Utilisation VRAM",
+        "wait_for_result": true
+      }
+    ],
+    "category": "cluster",
+    "created_at": 1773599332.6105433,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "database_manager_linux",
+    "description": "Gestion bases de données JARVIS: tailles, intégrité, vacuum, stats",
+    "triggers": [
+      "gère les bases de données",
+      "état des bases",
+      "database status",
+      "taille des bases",
+      "intégrité db"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== TAILLES ===' && for db in /home/turbo/jarvis/data/*.db; do echo \"  $(basename $db): $(du -sh $db 2>/dev/null | cut -f1)\"; done"
+        },
+        "description": "Tailles des bases",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== INTÉGRITÉ ===' && for db in /home/turbo/jarvis/data/*.db; do r=$(sqlite3 $db 'PRAGMA integrity_check;' 2>/dev/null); echo \"  $(basename $db): $r\"; done"
+        },
+        "description": "Check intégrité",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== TABLES JARVIS.DB ===' && sqlite3 /home/turbo/jarvis/data/jarvis.db '.tables' 2>/dev/null"
+        },
+        "description": "Tables jarvis.db",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== STATS ===' && sqlite3 /home/turbo/jarvis/data/jarvis.db 'SELECT \"commands: \" || COUNT(*) FROM commands UNION ALL SELECT \"voice_commands: \" || COUNT(*) FROM voice_commands UNION ALL SELECT \"skills: \" || (SELECT COUNT(*) FROM voice_corrections)' 2>/dev/null"
+        },
+        "description": "Compteurs",
+        "wait_for_result": true
+      }
+    ],
+    "category": "maintenance",
+    "created_at": 1773599336.15738,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "notification_center_linux",
+    "description": "Centre de notifications: envoyer, historique, activer/désactiver DND",
+    "triggers": [
+      "notifications",
+      "ne pas déranger",
+      "mode dnd",
+      "envoie une notification",
+      "désactive les notifications",
+      "active les notifications"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "gsettings get org.gnome.desktop.notifications show-banners && echo 'Notifications: activées' || echo 'Notifications: désactivées'"
+        },
+        "description": "État notifications",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "notify-send 'JARVIS' 'Test notification - Système opérationnel' -i dialog-information"
+        },
+        "description": "Test notification",
+        "wait_for_result": true
+      }
+    ],
+    "category": "desktop",
+    "created_at": 1773599338.4206398,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "theme_switcher_linux",
+    "description": "Changer thème GNOME: sombre, clair, accent, icônes, curseur, fond d'écran",
+    "triggers": [
+      "change le thème",
+      "thème sombre",
+      "thème clair",
+      "apparence du bureau",
+      "personnalise le bureau"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== THÈME ACTUEL ===' && gsettings get org.gnome.desktop.interface color-scheme && gsettings get org.gnome.desktop.interface gtk-theme && gsettings get org.gnome.desktop.interface icon-theme"
+        },
+        "description": "Thème actuel",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== FOND D ÉCRAN ===' && gsettings get org.gnome.desktop.background picture-uri-dark 2>/dev/null | tr -d \"'\""
+        },
+        "description": "Fond d'écran actuel",
+        "wait_for_result": true
+      }
+    ],
+    "category": "desktop",
+    "created_at": 1773599348.1062915,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "display_manager_linux",
+    "description": "Gestion écrans: résolution, multi-écran, luminosité, orientation",
+    "triggers": [
+      "gère les écrans",
+      "résolution écran",
+      "luminosité",
+      "multi écran",
+      "orientation écran",
+      "affichage"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== ÉCRANS ===' && xrandr --query 2>/dev/null | grep ' connected'"
+        },
+        "description": "Écrans connectés",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== RÉSOLUTION ===' && xrandr --query 2>/dev/null | grep '*'"
+        },
+        "description": "Résolution actuelle",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== LUMINOSITÉ ===' && cat /sys/class/backlight/*/brightness 2>/dev/null || xrandr --verbose 2>/dev/null | grep -i brightness | head -1 || echo 'Non disponible'"
+        },
+        "description": "Luminosité",
+        "wait_for_result": true
+      }
+    ],
+    "category": "desktop",
+    "created_at": 1773599352.1551697,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "keyboard_layout_linux",
+    "description": "Gestion clavier: layout, raccourcis personnalisés, vitesse de répétition",
+    "triggers": [
+      "layout clavier",
+      "disposition clavier",
+      "change le clavier",
+      "clavier azerty",
+      "raccourcis clavier custom"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== LAYOUT ===' && setxkbmap -query 2>/dev/null || gsettings get org.gnome.desktop.input-sources sources"
+        },
+        "description": "Layout clavier",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== RACCOURCIS CUSTOM ===' && gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings 2>/dev/null"
+        },
+        "description": "Raccourcis personnalisés",
+        "wait_for_result": true
+      }
+    ],
+    "category": "desktop",
+    "created_at": 1773599354.8880243,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "jarvis_self_diagnostic",
+    "description": "Auto-diagnostic complet JARVIS: services, DB, voice, brain, cluster, dashboard",
+    "triggers": [
+      "auto diagnostic jarvis",
+      "diagnostic complet jarvis",
+      "santé de jarvis",
+      "vérifie que jarvis marche",
+      "self diagnostic"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== SERVICES ===' && systemctl --user list-units jarvis-* --no-pager --no-legend | awk '{print $4, $1}' | sort"
+        },
+        "description": "Tous les services JARVIS",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== BASES DE DONNÉES ===' && for db in /home/turbo/jarvis/data/{jarvis,etoile}.db; do echo \"$(basename $db): $(sqlite3 $db 'PRAGMA integrity_check;' 2>/dev/null)\"; done"
+        },
+        "description": "Intégrité DB",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== DASHBOARD WEB ===' && curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8088 && echo ' OK' || echo 'OFFLINE'"
+        },
+        "description": "Dashboard web",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== MCP SERVER ===' && curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080 && echo ' OK' || echo 'OFFLINE'"
+        },
+        "description": "MCP server",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== WHISPER ===' && curl -s --max-time 2 http://127.0.0.1:9000/health 2>/dev/null && echo 'OK' || echo 'OFFLINE'"
+        },
+        "description": "Whisper STT",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== BRAIN ===' && python3 -c \"import json; d=json.load(open('/home/turbo/jarvis/data/skills.json')); print(f'{len(d)} skills')\" 2>/dev/null"
+        },
+        "description": "Brain skills count",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== CLUSTER ===' && for u in http://127.0.0.1:1234/api/v1/models http://127.0.0.1:11434/api/tags; do curl -s --max-time 2 $u >/dev/null 2>&1 && echo \"$u: OK\" || echo \"$u: OFFLINE\"; done"
+        },
+        "description": "Cluster nodes",
+        "wait_for_result": true
+      }
+    ],
+    "category": "monitoring",
+    "created_at": 1773599364.759812,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "file_search_linux",
+    "description": "Recherche de fichiers: par nom, contenu, taille, date, type",
+    "triggers": [
+      "cherche un fichier",
+      "trouve le fichier",
+      "recherche fichier",
+      "où est le fichier",
+      "find file"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo 'Usage: dis-moi quel fichier chercher et je le trouverai' && echo '=== FICHIERS RÉCENTS ===' && find /home/turbo -maxdepth 3 -type f -mmin -60 -not -path '*/.*' 2>/dev/null | head -15"
+        },
+        "description": "Fichiers modifiés dernière heure",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== GROS FICHIERS ===' && find /home/turbo -type f -size +500M -not -path '*/.cache/*' 2>/dev/null | head -10"
+        },
+        "description": "Fichiers >500MB",
+        "wait_for_result": true
+      }
+    ],
+    "category": "files",
+    "created_at": 1773599368.8194847,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "focus_mode_linux",
+    "description": "Mode focus: DND, ferme distractions, timer pomodoro, réduit notifications",
+    "triggers": [
+      "mode focus",
+      "concentration",
+      "ne me dérange pas",
+      "pomodoro",
+      "mode travail",
+      "focus"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "gsettings set org.gnome.desktop.notifications show-banners false && echo 'Notifications désactivées'"
+        },
+        "description": "Désactive notifications",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "wmctrl -c 'Discord' 2>/dev/null; wmctrl -c 'Spotify' 2>/dev/null; wmctrl -c 'Telegram' 2>/dev/null; echo 'Distractions fermées'"
+        },
+        "description": "Ferme apps distrayantes",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "notify-send 'JARVIS Focus Mode' '25 minutes de concentration. Go!' -i dialog-information && (sleep 1500 && notify-send 'JARVIS' 'Pause! 5 minutes.' -u critical && gsettings set org.gnome.desktop.notifications show-banners true) &"
+        },
+        "description": "Timer pomodoro 25min",
+        "wait_for_result": true
+      }
+    ],
+    "category": "productivity",
+    "created_at": 1773599699.344581,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "weather_info_linux",
+    "description": "Météo locale: température, conditions, prévisions via wttr.in",
+    "triggers": [
+      "quelle météo",
+      "quel temps fait-il",
+      "météo",
+      "température dehors",
+      "prévisions météo",
+      "il fait combien"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "curl -s 'wttr.in/?format=3&lang=fr' 2>/dev/null || echo 'Service météo indisponible'"
+        },
+        "description": "Météo actuelle",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "curl -s 'wttr.in/?format=%l:+%c+%t+%h+%w&lang=fr' 2>/dev/null"
+        },
+        "description": "Détails météo",
+        "wait_for_result": true
+      }
+    ],
+    "category": "info",
+    "created_at": 1773599702.8633418,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "quick_note_linux",
+    "description": "Prendre une note rapide: sauvegarder texte, lister notes, chercher",
+    "triggers": [
+      "prends une note",
+      "note rapide",
+      "sauvegarde cette note",
+      "mes notes",
+      "liste les notes"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "mkdir -p /home/turbo/jarvis/data/notes && ls -lt /home/turbo/jarvis/data/notes/*.md 2>/dev/null | head -10 || echo 'Aucune note'"
+        },
+        "description": "Notes existantes",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo 'Pour créer une note, dis: jarvis note [ton texte]'"
+        },
+        "description": "Guide utilisation",
+        "wait_for_result": true
+      }
+    ],
+    "category": "productivity",
+    "created_at": 1773599706.9233143,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "system_cleanup_aggressive",
+    "description": "Nettoyage agressif: tout supprimer pour récupérer max d'espace disque",
+    "triggers": [
+      "nettoyage agressif",
+      "libère tout l'espace",
+      "nettoyage maximum",
+      "vide tout",
+      "espace critique"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo 'AVANT:' && df -h / | tail -1"
+        },
+        "description": "Espace avant",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "sudo apt autoremove -y && sudo apt autoclean -y 2>/dev/null"
+        },
+        "description": "APT cleanup",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "snap list --all | awk '/disabled/{print $1, $3}' | while read pkg rev; do sudo snap remove \"$pkg\" --revision=\"$rev\" 2>/dev/null; done"
+        },
+        "description": "Snap revisions",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "sudo journalctl --vacuum-size=50M 2>/dev/null"
+        },
+        "description": "Journaux à 50MB max",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "gio trash --empty 2>/dev/null; rm -rf ~/.cache/thumbnails/* /tmp/jarvis-* ~/.local/share/Trash/files/* 2>/dev/null"
+        },
+        "description": "Cache + corbeille + tmp",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "docker system prune -af 2>/dev/null"
+        },
+        "description": "Docker total prune",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "pip cache purge 2>/dev/null; npm cache clean --force 2>/dev/null"
+        },
+        "description": "Cache pip + npm",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo 'APRÈS:' && df -h / | tail -1"
+        },
+        "description": "Espace après",
+        "wait_for_result": true
+      }
+    ],
+    "category": "maintenance",
+    "created_at": 1773599714.1389244,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "ssh_manager_linux",
+    "description": "Gestion SSH: connexions, clés, tunnels, config",
+    "triggers": [
+      "gère le ssh",
+      "connexions ssh",
+      "clés ssh",
+      "tunnel ssh",
+      "ssh config"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== CLÉS SSH ===' && ls -la ~/.ssh/*.pub 2>/dev/null || echo 'Aucune clé SSH'"
+        },
+        "description": "Clés publiques",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== CONNEXIONS ACTIVES ===' && ss -tn state established | grep ':22' || echo 'Aucune connexion SSH'"
+        },
+        "description": "Connexions SSH actives",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== CONFIG ===' && cat ~/.ssh/config 2>/dev/null | head -20 || echo 'Pas de config SSH'"
+        },
+        "description": "Config SSH",
+        "wait_for_result": true
+      }
+    ],
+    "category": "network",
+    "created_at": 1773599718.0897617,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "convert_units_linux",
+    "description": "Convertir unités: température, taille fichier, monnaie, distance",
+    "triggers": [
+      "convertis",
+      "conversion",
+      "combien fait",
+      "transforme en",
+      "calcule"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "python3 -c \"print('Conversions courantes:'); print('  1 GB = 1024 MB = 1048576 KB'); print('  1 TB = 1024 GB'); print('  °C → °F: (C × 9/5) + 32'); print('  1 mile = 1.609 km'); print('  1 pouce = 2.54 cm')\""
+        },
+        "description": "Aide conversion",
+        "wait_for_result": true
+      }
+    ],
+    "category": "utility",
+    "created_at": 1773599721.2696729,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
   }
 ]
