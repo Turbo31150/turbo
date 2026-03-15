@@ -8,7 +8,10 @@ Designed for JARVIS autonomous window management on Windows.
 from __future__ import annotations
 
 import ctypes
-import ctypes.wintypes
+try:
+    import ctypes.wintypes
+except (ImportError, ValueError):
+    pass
 import logging
 import threading
 import time
@@ -24,8 +27,12 @@ __all__ = [
 
 logger = logging.getLogger("jarvis.window_manager")
 
-user32 = ctypes.windll.user32
-kernel32 = ctypes.windll.kernel32
+if hasattr(ctypes, "windll"):
+    user32 = ctypes.windll.user32
+    kernel32 = ctypes.windll.kernel32
+else:
+    user32 = None
+    kernel32 = None
 
 
 @dataclass

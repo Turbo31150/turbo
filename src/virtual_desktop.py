@@ -8,7 +8,10 @@ Designed for JARVIS autonomous workspace management.
 from __future__ import annotations
 
 import ctypes
-import ctypes.wintypes
+try:
+    import ctypes.wintypes
+except (ImportError, ValueError):
+    pass
 import json
 import logging
 import subprocess
@@ -26,7 +29,7 @@ __all__ = [
 
 logger = logging.getLogger("jarvis.virtual_desktop")
 
-user32 = ctypes.windll.user32
+user32 = ctypes.windll.user32 if hasattr(ctypes, "windll") else None
 _NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 
 

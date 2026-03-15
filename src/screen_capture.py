@@ -8,7 +8,10 @@ Designed for JARVIS autonomous visual monitoring.
 from __future__ import annotations
 
 import ctypes
-import ctypes.wintypes
+try:
+    import ctypes.wintypes
+except (ImportError, ValueError):
+    pass
 import logging
 import os
 import struct
@@ -26,8 +29,12 @@ __all__ = [
 
 logger = logging.getLogger("jarvis.screen_capture")
 
-user32 = ctypes.windll.user32
-gdi32 = ctypes.windll.gdi32
+if os.name == "nt":
+    user32 = ctypes.windll.user32
+    gdi32 = ctypes.windll.gdi32
+else:
+    user32 = None
+    gdi32 = None
 
 
 @dataclass
