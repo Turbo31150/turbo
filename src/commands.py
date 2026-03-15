@@ -320,6 +320,23 @@ def match_command(voice_text: str, threshold: float = 0.55) -> tuple[JarvisComma
     then falls back to fuzzy similarity only when needed.
     Returns: (command, extracted_params, confidence_score)
     """
+    # --- Learned actions: priorite absolue avant le matching classique ---
+    try:
+        from src.learned_actions import LearnedActionsEngine
+        _la = LearnedActionsEngine()
+        la_match = _la.match(voice_text)
+        if la_match:
+            return JarvisCommand(
+                name=la_match["canonical_name"],
+                category=la_match.get("category", "system"),
+                description=f"Learned action: {la_match['canonical_name']}",
+                triggers=la_match.get("triggers", [voice_text]),
+                action_type="learned_action",
+                action=la_match["canonical_name"],
+            ), {}, 1.0
+    except Exception:
+        pass  # Fallback au matching normal si learned_actions echoue
+
     _build_trigger_index()
 
     corrected = correct_voice_text(voice_text)

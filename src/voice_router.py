@@ -140,6 +140,16 @@ def route_voice_command(text: str) -> dict:
         _log_action_history(original, ai_result)
         return ai_result
 
+    # Dernier fallback: moteur conversationnel IA (genere et execute un plan bash)
+    conv_result = _fallback_conversational(text)
+    if conv_result and conv_result.get("success"):
+        conv_result["latency_ms"] = round((time.time() - start) * 1000, 1)
+        if normalized != original:
+            conv_result["corrected_from"] = original
+        _log_voice_analytics(original, conv_result)
+        _log_action_history(original, conv_result)
+        return conv_result
+
     latency = round((time.time() - start) * 1000, 1)
     fail_result = {"success": False, "method": "unknown",
                    "result": f"Commande non reconnue: {text}",
@@ -196,6 +206,18 @@ def _fallback_ia(text: str, original: str) -> dict | None:
         except Exception:
             continue
 
+    return None
+
+
+def _fallback_conversational(text: str) -> dict | None:
+    """Dernier fallback: moteur conversationnel IA qui genere et execute un plan bash."""
+    try:
+        from src.voice_conversational import process_unknown_command
+        result = process_unknown_command(text)
+        if result and result.get("success"):
+            return result
+    except Exception:
+        pass
     return None
 
 

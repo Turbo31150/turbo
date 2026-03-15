@@ -140,6 +140,15 @@ async def execute_command(cmd: JarvisCommand, params: dict[str, str]) -> str:
     if cmd.action_type == "domino":
         return await _execute_domino(cmd.action)
 
+    if cmd.action_type == "learned_action":
+        from src.domino_executor import execute_with_learned_actions
+        result = await asyncio.to_thread(execute_with_learned_actions, cmd.trigger if hasattr(cmd, "trigger") else cmd.action)
+        if result:
+            steps_ok = sum(1 for r in result.get("results", []) if r["status"] == "PASS")
+            total = len(result.get("results", []))
+            return f"Learned action '{result['name']}' executee ({steps_ok}/{total} etapes OK)."
+        return f"Learned action '{cmd.action}' — aucun match au replay."
+
     return f"Type d'action inconnu: {cmd.action_type}"
 
 
