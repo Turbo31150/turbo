@@ -211,7 +211,7 @@ class TestProcesses:
 class TestFileOps:
     def test_open_folder(self):
         with patch("src.windows.subprocess.run", return_value=_mock_ps_success("Dossier ouvert")):
-            result = open_folder("/\Users")
+            result = open_folder("C:\\Users")
         assert "dossier" in result.lower()
 
     def test_create_folder(self):

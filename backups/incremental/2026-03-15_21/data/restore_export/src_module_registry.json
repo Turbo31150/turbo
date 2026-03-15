@@ -1,0 +1,1598 @@
+{
+  "adaptive_router": {
+    "lines": 394,
+    "size": 15265,
+    "md5": "a9c74d81a3ff",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "agent_auto_scaler": {
+    "lines": 405,
+    "size": 15794,
+    "md5": "cc4a7443e761",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "agent_collaboration": {
+    "lines": 289,
+    "size": 10393,
+    "md5": "0cc02ee86344",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "agent_ensemble": {
+    "lines": 411,
+    "size": 16055,
+    "md5": "5a48c8538f75",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "agent_episodic_memory": {
+    "lines": 363,
+    "size": 14478,
+    "md5": "470ff17ec605",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "agent_factory": {
+    "lines": 309,
+    "size": 12433,
+    "md5": "d7f00bd3f547",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "agent_feedback_loop": {
+    "lines": 374,
+    "size": 14412,
+    "md5": "9e012da3a380",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "agent_health_guardian": {
+    "lines": 317,
+    "size": 11644,
+    "md5": "c9f149876e15",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "agent_memory": {
+    "lines": 226,
+    "size": 8963,
+    "md5": "2e981157ad4e",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "agent_monitor": {
+    "lines": 280,
+    "size": 9545,
+    "md5": "543c83bd03dd",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "agent_orchestrator_v3": {
+    "lines": 440,
+    "size": 17923,
+    "md5": "ad6cb4bbb0b0",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "agent_prompt_optimizer": {
+    "lines": 359,
+    "size": 15252,
+    "md5": "a002d4d35e32",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "agent_self_improve": {
+    "lines": 411,
+    "size": 15827,
+    "md5": "f65f7d385010",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "agent_task_planner": {
+    "lines": 345,
+    "size": 12798,
+    "md5": "f49be43f81fe",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "agents": {
+    "lines": 446,
+    "size": 22747,
+    "md5": "3e39ff9fb74d",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "alert_manager": {
+    "lines": 203,
+    "size": 7430,
+    "md5": "56c03a2e2b6e",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "api_gateway": {
+    "lines": 188,
+    "size": 6089,
+    "md5": "4e8c327be3aa",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "app_launcher": {
+    "lines": 227,
+    "size": 8437,
+    "md5": "0f66dd916245",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "audio_controller": {
+    "lines": 245,
+    "size": 9501,
+    "md5": "2513dbc816c9",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "audio_device_manager": {
+    "lines": 117,
+    "size": 3739,
+    "md5": "63bf5cee7104",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "audit_trail": {
+    "lines": 163,
+    "size": 6821,
+    "md5": "3e427b361fb9",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "auto_auditor": {
+    "lines": 414,
+    "size": 17805,
+    "md5": "936dcd4fd4b4",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "auto_developer": {
+    "lines": 374,
+    "size": 15252,
+    "md5": "bd743da841b1",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "auto_fixer": {
+    "lines": 325,
+    "size": 12502,
+    "md5": "c15ceb09cd4c",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "auto_optimizer": {
+    "lines": 207,
+    "size": 7753,
+    "md5": "7b1a2e462cc1",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "auto_scaler": {
+    "lines": 221,
+    "size": 8325,
+    "md5": "5bda373bd741",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "auto_tune": {
+    "lines": 208,
+    "size": 7552,
+    "md5": "0bdbb3c73647",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "autonomous_dev_agent": {
+    "lines": 458,
+    "size": 17870,
+    "md5": "561b3fd7f709",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "autonomous_loop": {
+    "lines": 723,
+    "size": 30887,
+    "md5": "0eda908a18dc",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "backup_manager": {
+    "lines": 208,
+    "size": 8007,
+    "md5": "04cda7ad4a5b",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "bios_settings": {
+    "lines": 127,
+    "size": 4665,
+    "md5": "f660c2e0c1bd",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "bluetooth_manager": {
+    "lines": 150,
+    "size": 5627,
+    "md5": "4f3891bc20ac",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "brain": {
+    "lines": 670,
+    "size": 24018,
+    "md5": "25ba79e64972",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "browser_memory": {
+    "lines": 432,
+    "size": 19283,
+    "md5": "2d60d7816e02",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "browser_navigator": {
+    "lines": 798,
+    "size": 35965,
+    "md5": "f5afc640a639",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "cache": {
+    "lines": 270,
+    "size": 8976,
+    "md5": "3a5773f0f8d9",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "cache_manager": {
+    "lines": 182,
+    "size": 6417,
+    "md5": "061f2ba9e9b4",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "certificate_manager": {
+    "lines": 169,
+    "size": 6111,
+    "md5": "a35629312d3c",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "circuit_breaker": {
+    "lines": 309,
+    "size": 10953,
+    "md5": "69206a520314",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "clipboard_manager": {
+    "lines": 201,
+    "size": 7576,
+    "md5": "4323fb09045a",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "cluster_diagnostics": {
+    "lines": 305,
+    "size": 12107,
+    "md5": "a7d8f167bac9",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "cluster_intelligence": {
+    "lines": 429,
+    "size": 16314,
+    "md5": "a0609f6798fc",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "cluster_self_healer": {
+    "lines": 284,
+    "size": 10941,
+    "md5": "9e0c9dadec21",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "cluster_startup": {
+    "lines": 821,
+    "size": 35968,
+    "md5": "99277b30c7d3",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "code_improvement_tracker": {
+    "lines": 272,
+    "size": 10320,
+    "md5": "389108eb4e24",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "code_review_480b": {
+    "lines": 365,
+    "size": 13467,
+    "md5": "cb5476f0730f",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "collab_bridge": {
+    "lines": 148,
+    "size": 4859,
+    "md5": "d4b4340f1cf1",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "command_registry": {
+    "lines": 155,
+    "size": 6069,
+    "md5": "b1198b744d09",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "command_router": {
+    "lines": 183,
+    "size": 5999,
+    "md5": "3366d9dad4c5",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "commander": {
+    "lines": 635,
+    "size": 27533,
+    "md5": "93f45c2ce3a0",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "commands": {
+    "lines": 535,
+    "size": 24087,
+    "md5": "54efcd4aaa75",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "commands_browser": {
+    "lines": 393,
+    "size": 16715,
+    "md5": "1780ffb76c11",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "commands_dev": {
+    "lines": 1255,
+    "size": 109278,
+    "md5": "bd613be0b88e",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "commands_maintenance": {
+    "lines": 2085,
+    "size": 183935,
+    "md5": "8c56f2ca06f9",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "commands_navigation": {
+    "lines": 1398,
+    "size": 104041,
+    "md5": "408c7b2ab36d",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "commands_pipelines": {
+    "lines": 2722,
+    "size": 379059,
+    "md5": "82c3e30eb89c",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "config": {
+    "lines": 544,
+    "size": 25298,
+    "md5": "066e20f29315",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "config_manager": {
+    "lines": 201,
+    "size": 7029,
+    "md5": "635f7f047577",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "config_vault": {
+    "lines": 201,
+    "size": 8239,
+    "md5": "af95df8c7220",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "context_manager": {
+    "lines": 262,
+    "size": 10253,
+    "md5": "18135819a805",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "conversation_store": {
+    "lines": 186,
+    "size": 8280,
+    "md5": "d1f3e01705a9",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "cowork_agent_config": {
+    "lines": 536,
+    "size": 18256,
+    "md5": "b8a350b55561",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "cowork_bridge": {
+    "lines": 390,
+    "size": 13320,
+    "md5": "477ad8bd4d28",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "cowork_master_config": {
+    "lines": 443,
+    "size": 16496,
+    "md5": "01f28256ea3f",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "cowork_orchestrator": {
+    "lines": 432,
+    "size": 16173,
+    "md5": "913bc862fe73",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "cowork_perplexity_executor": {
+    "lines": 235,
+    "size": 7096,
+    "md5": "9ede2f645e5e",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "cowork_proactive": {
+    "lines": 448,
+    "size": 19305,
+    "md5": "c828c022b539",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "crash_dump_reader": {
+    "lines": 157,
+    "size": 6152,
+    "md5": "402dc54ccf08",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "credential_vault": {
+    "lines": 139,
+    "size": 5023,
+    "md5": "5dd40d7dd1ae",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "cron_manager": {
+    "lines": 251,
+    "size": 8709,
+    "md5": "641cc2abebeb",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "daily_report": {
+    "lines": 237,
+    "size": 7920,
+    "md5": "879a96d6e51a",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "dashboard": {
+    "lines": 576,
+    "size": 21380,
+    "md5": "3ada17848197",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "data_pipeline": {
+    "lines": 177,
+    "size": 5803,
+    "md5": "5c909eeb38c2",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "data_validator": {
+    "lines": 273,
+    "size": 10491,
+    "md5": "fbf1a8b8fa33",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "database": {
+    "lines": 786,
+    "size": 34158,
+    "md5": "5b5d88db6231",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "defender_status": {
+    "lines": 155,
+    "size": 5925,
+    "md5": "2689600a1bae",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "dependency_graph": {
+    "lines": 215,
+    "size": 8055,
+    "md5": "b270d3592216",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "desktop_actions": {
+    "lines": 199,
+    "size": 6650,
+    "md5": "9a9141eafabb",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "disk_health": {
+    "lines": 157,
+    "size": 6139,
+    "md5": "857b32238652",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "disk_monitor": {
+    "lines": 239,
+    "size": 9098,
+    "md5": "266277aff8bd",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "dispatch_engine": {
+    "lines": 789,
+    "size": 32548,
+    "md5": "371a04289a4b",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "display_manager": {
+    "lines": 245,
+    "size": 8984,
+    "md5": "705122f0e4e3",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "dns_client_manager": {
+    "lines": 136,
+    "size": 4887,
+    "md5": "acd58da68988",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "domino_executor": {
+    "lines": 1816,
+    "size": 75802,
+    "md5": "b5328f789991",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "domino_pipelines": {
+    "lines": 5858,
+    "size": 379253,
+    "md5": "8ed3b2542499",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "download_manager": {
+    "lines": 247,
+    "size": 9047,
+    "md5": "53214df514cf",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "drift_detector": {
+    "lines": 241,
+    "size": 9546,
+    "md5": "af41a212b9a2",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "driver_manager": {
+    "lines": 142,
+    "size": 5116,
+    "md5": "1934375bccf0",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "dynamic_agents": {
+    "lines": 315,
+    "size": 12336,
+    "md5": "fc6e20d5edc9",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "email_sender": {
+    "lines": 295,
+    "size": 11311,
+    "md5": "4aaea67cb8e4",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "env_manager": {
+    "lines": 128,
+    "size": 4471,
+    "md5": "4a5faa3802d6",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "env_variable_manager": {
+    "lines": 164,
+    "size": 6376,
+    "md5": "e3a40ac3b22c",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "event_bus": {
+    "lines": 139,
+    "size": 4481,
+    "md5": "b2d58d5f31ac",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "event_bus_wiring": {
+    "lines": 276,
+    "size": 11736,
+    "md5": "d4ea85600f3a",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "event_store": {
+    "lines": 152,
+    "size": 6382,
+    "md5": "e8e7d8390377",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "event_stream": {
+    "lines": 246,
+    "size": 8479,
+    "md5": "1795c94100d8",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "eventlog_reader": {
+    "lines": 169,
+    "size": 6501,
+    "md5": "8f18fb2097ff",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "exchanges": {
+    "lines": 326,
+    "size": 10598,
+    "md5": "d168594b3018",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "executor": {
+    "lines": 623,
+    "size": 27607,
+    "md5": "b3cb1cd77431",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "feature_flags": {
+    "lines": 163,
+    "size": 5975,
+    "md5": "11c6d6159656",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "file_watcher": {
+    "lines": 290,
+    "size": 10722,
+    "md5": "9e09119895a8",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "firewall_controller": {
+    "lines": 194,
+    "size": 7464,
+    "md5": "4df8ec698925",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "font_manager": {
+    "lines": 174,
+    "size": 5973,
+    "md5": "91120fae8da9",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "gpu_guardian": {
+    "lines": 294,
+    "size": 11049,
+    "md5": "872c64209076",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "gpu_monitor": {
+    "lines": 187,
+    "size": 7404,
+    "md5": "f10b1ebabd77",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "group_policy_reader": {
+    "lines": 164,
+    "size": 5877,
+    "md5": "fac1bdf1692e",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "health_dashboard": {
+    "lines": 177,
+    "size": 6902,
+    "md5": "3ef59b53adad",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "health_probe": {
+    "lines": 179,
+    "size": 6905,
+    "md5": "b0a3e1a62924",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "health_probe_registry": {
+    "lines": 222,
+    "size": 8667,
+    "md5": "06b73d83a614",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "hosts_manager": {
+    "lines": 149,
+    "size": 5155,
+    "md5": "ae6460ef77f0",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "hotfix_manager": {
+    "lines": 124,
+    "size": 4153,
+    "md5": "a22e45f9c8a0",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "ia_tool_executor": {
+    "lines": 364,
+    "size": 14501,
+    "md5": "5f2a4cfe5cbc",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "ia_tools": {
+    "lines": 628,
+    "size": 25172,
+    "md5": "361b26b28deb",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "installed_apps_manager": {
+    "lines": 155,
+    "size": 5555,
+    "md5": "247c5dd7a248",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "intent_classifier": {
+    "lines": 226,
+    "size": 8810,
+    "md5": "96ff2894896c",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "ip_config_manager": {
+    "lines": 176,
+    "size": 6064,
+    "md5": "da7470f7b4ba",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "load_balancer": {
+    "lines": 153,
+    "size": 6106,
+    "md5": "c41733d18cc2",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "local_security_policy": {
+    "lines": 133,
+    "size": 4727,
+    "md5": "2fd9c0cf652d",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "locale_manager": {
+    "lines": 191,
+    "size": 7285,
+    "md5": "cd0fa740c828",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "log_aggregator": {
+    "lines": 107,
+    "size": 3752,
+    "md5": "a55e1016e473",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "logging_config": {
+    "lines": 228,
+    "size": 7367,
+    "md5": "b359d89f1c88",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "mcp_server": {
+    "lines": 6457,
+    "size": 344069,
+    "md5": "49d602fe2ee1",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "mcp_server_sse": {
+    "lines": 518,
+    "size": 25801,
+    "md5": "be4e1c47fe31",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "memory_diagnostics": {
+    "lines": 136,
+    "size": 5085,
+    "md5": "53d0b2644497",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "message_broker": {
+    "lines": 134,
+    "size": 5310,
+    "md5": "9ba7e0636ac7",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "metrics": {
+    "lines": 327,
+    "size": 10743,
+    "md5": "fdcaec8d4522",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "metrics_aggregator": {
+    "lines": 176,
+    "size": 6668,
+    "md5": "fcdaa77569f7",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "network_adapter_manager": {
+    "lines": 122,
+    "size": 4129,
+    "md5": "156a9c3d6c8d",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "network_monitor": {
+    "lines": 227,
+    "size": 8745,
+    "md5": "10a4a6b38819",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "network_scanner": {
+    "lines": 229,
+    "size": 9041,
+    "md5": "19d37eca3649",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "notification_hub": {
+    "lines": 229,
+    "size": 8261,
+    "md5": "aa9ab3b44664",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "notification_manager": {
+    "lines": 189,
+    "size": 7580,
+    "md5": "bb80bbc360b5",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "notifier": {
+    "lines": 182,
+    "size": 6389,
+    "md5": "459c31ebabf7",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "observability": {
+    "lines": 217,
+    "size": 8578,
+    "md5": "3488196620a0",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "openclaw_bridge": {
+    "lines": 373,
+    "size": 14428,
+    "md5": "251fa58cfd99",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "orchestrator": {
+    "lines": 1063,
+    "size": 49529,
+    "md5": "d6124c3344f8",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "orchestrator_v2": {
+    "lines": 358,
+    "size": 13387,
+    "md5": "2ef885d7fcf9",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "output": {
+    "lines": 163,
+    "size": 4548,
+    "md5": "9ac07bc48908",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "pagefile_manager": {
+    "lines": 162,
+    "size": 6124,
+    "md5": "4519471947b9",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "pattern_agents": {
+    "lines": 924,
+    "size": 39379,
+    "md5": "edf1fc13fd67",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "pattern_benchmark_runner": {
+    "lines": 330,
+    "size": 11729,
+    "md5": "d56c47ada77f",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "pattern_discovery": {
+    "lines": 452,
+    "size": 17871,
+    "md5": "d5d57f98aa88",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "pattern_evolution": {
+    "lines": 357,
+    "size": 14361,
+    "md5": "0e0738a7bf4f",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "pattern_lifecycle": {
+    "lines": 397,
+    "size": 15075,
+    "md5": "3ea181944596",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "perfcounter": {
+    "lines": 173,
+    "size": 6612,
+    "md5": "ed30b513a8d8",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "performance_counter": {
+    "lines": 145,
+    "size": 5293,
+    "md5": "648ec80a283f",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "permission_manager": {
+    "lines": 154,
+    "size": 5035,
+    "md5": "95ba4d488d49",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "perplexity_bridge": {
+    "lines": 286,
+    "size": 9778,
+    "md5": "8f794a5750f1",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "pipeline_composer": {
+    "lines": 255,
+    "size": 9413,
+    "md5": "437eecb7f2cf",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "plugin_manager": {
+    "lines": 159,
+    "size": 5895,
+    "md5": "2150e6b52c4a",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "power_manager": {
+    "lines": 222,
+    "size": 8551,
+    "md5": "03700ad6238e",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "power_plan_manager": {
+    "lines": 134,
+    "size": 4652,
+    "md5": "e1fbd3131bcf",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "prediction_engine": {
+    "lines": 269,
+    "size": 11311,
+    "md5": "1b0bd68df92a",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "printer_manager": {
+    "lines": 205,
+    "size": 8118,
+    "md5": "1d3abddf0688",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "proactive_agent": {
+    "lines": 370,
+    "size": 14920,
+    "md5": "a0e17b6b7771",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "process_manager": {
+    "lines": 343,
+    "size": 13139,
+    "md5": "e6eeb6daedac",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "quality_gate": {
+    "lines": 482,
+    "size": 18462,
+    "md5": "340398b156d7",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "queue_manager": {
+    "lines": 163,
+    "size": 5734,
+    "md5": "3b93dfea91c0",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "rate_limiter": {
+    "lines": 142,
+    "size": 5080,
+    "md5": "d76c03363554",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "recycle_bin_manager": {
+    "lines": 120,
+    "size": 4082,
+    "md5": "3936ca2fca18",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "reflection_engine": {
+    "lines": 509,
+    "size": 21527,
+    "md5": "4d74769694d7",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "registry_manager": {
+    "lines": 258,
+    "size": 10063,
+    "md5": "a0b647f5316c",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "resource_monitor": {
+    "lines": 175,
+    "size": 6310,
+    "md5": "4b2515532946",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "retry_manager": {
+    "lines": 199,
+    "size": 6724,
+    "md5": "2d9449b28bde",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "retry_policy": {
+    "lines": 184,
+    "size": 6615,
+    "md5": "21352084feb9",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "routing_optimizer": {
+    "lines": 278,
+    "size": 10006,
+    "md5": "197b23d562b0",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "rule_engine": {
+    "lines": 165,
+    "size": 6481,
+    "md5": "6cb26bb18dec",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "scenarios": {
+    "lines": 1605,
+    "size": 99537,
+    "md5": "79c2fcb74b1f",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "scheduled_task_manager": {
+    "lines": 132,
+    "size": 4505,
+    "md5": "de731732ee98",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "scheduler_cleanup": {
+    "lines": 176,
+    "size": 6064,
+    "md5": "359dac5b3019",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "scheduler_manager": {
+    "lines": 178,
+    "size": 6860,
+    "md5": "89ff97c8f583",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "screen_capture": {
+    "lines": 256,
+    "size": 9851,
+    "md5": "918ccae56aa2",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "screen_resolution_manager": {
+    "lines": 120,
+    "size": 4176,
+    "md5": "e2c85e421bc3",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "secret_vault": {
+    "lines": 157,
+    "size": 5303,
+    "md5": "7450e5cf430c",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "security": {
+    "lines": 517,
+    "size": 17697,
+    "md5": "54f891892931",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "self_improvement": {
+    "lines": 560,
+    "size": 24472,
+    "md5": "db25ae16f276",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "service_controller": {
+    "lines": 241,
+    "size": 10034,
+    "md5": "65acde3bbc47",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "service_mesh": {
+    "lines": 191,
+    "size": 7514,
+    "md5": "9f6819355758",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "service_registry": {
+    "lines": 146,
+    "size": 5323,
+    "md5": "d495cd88392f",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "session_manager": {
+    "lines": 179,
+    "size": 7310,
+    "md5": "03cd97688eaf",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "session_manager_v2": {
+    "lines": 152,
+    "size": 5313,
+    "md5": "9c66d4d22e71",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "shadow_copy_manager": {
+    "lines": 122,
+    "size": 3978,
+    "md5": "96b43af45242",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "share_manager": {
+    "lines": 175,
+    "size": 6636,
+    "md5": "256993bfd5c7",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "shortcut_manager": {
+    "lines": 232,
+    "size": 8471,
+    "md5": "ceec872a7031",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "signal_formatter": {
+    "lines": 163,
+    "size": 5280,
+    "md5": "a1ab540f1ca0",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "skills": {
+    "lines": 1774,
+    "size": 92805,
+    "md5": "88b57571f47b",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "smart_dispatcher": {
+    "lines": 351,
+    "size": 14568,
+    "md5": "7daaa2ac418e",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "smart_retry": {
+    "lines": 195,
+    "size": 6948,
+    "md5": "053eb1b60ab3",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "snapshot_manager": {
+    "lines": 196,
+    "size": 7688,
+    "md5": "8e0e1b693dab",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "startup_manager": {
+    "lines": 217,
+    "size": 8450,
+    "md5": "10a35432ad03",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "startup_wiring": {
+    "lines": 459,
+    "size": 16472,
+    "md5": "ad46952cb005",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "state_machine": {
+    "lines": 146,
+    "size": 4994,
+    "md5": "9de44b11e8ea",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "storage_pool_manager": {
+    "lines": 138,
+    "size": 5125,
+    "md5": "009f7be7adba",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "sysrestore_manager": {
+    "lines": 129,
+    "size": 4701,
+    "md5": "fdd4f83aa2f6",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "system_info_collector": {
+    "lines": 214,
+    "size": 8985,
+    "md5": "2afa8a0c4e46",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "system_profiler": {
+    "lines": 247,
+    "size": 9435,
+    "md5": "58ac7d8af83f",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "systray": {
+    "lines": 155,
+    "size": 5096,
+    "md5": "a62232812331",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "task_queue": {
+    "lines": 319,
+    "size": 12402,
+    "md5": "d32faf4c4949",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "task_scheduler": {
+    "lines": 211,
+    "size": 8179,
+    "md5": "a3f41e0251fc",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "telemetry_collector": {
+    "lines": 114,
+    "size": 4020,
+    "md5": "f0031f7217a0",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "template_engine": {
+    "lines": 152,
+    "size": 5797,
+    "md5": "687d11a61996",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "theme_controller": {
+    "lines": 146,
+    "size": 5352,
+    "md5": "62aadb8ff3cc",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "time_sync_manager": {
+    "lines": 183,
+    "size": 6723,
+    "md5": "4d9072a371de",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "tools": {
+    "lines": 2671,
+    "size": 129416,
+    "md5": "cedb1a1c21c4",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "trading": {
+    "lines": 518,
+    "size": 20170,
+    "md5": "988bcea7c26b",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "trading_engine": {
+    "lines": 348,
+    "size": 14155,
+    "md5": "6846869f0e76",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "trading_sentinel": {
+    "lines": 259,
+    "size": 9849,
+    "md5": "2c0a825bd160",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "tts_streaming": {
+    "lines": 209,
+    "size": 6799,
+    "md5": "4dafb27a33cf",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "usb_device_manager": {
+    "lines": 120,
+    "size": 3919,
+    "md5": "f4d42a39d46e",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "usb_monitor": {
+    "lines": 203,
+    "size": 7790,
+    "md5": "ba0128f578a8",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "user_account_manager": {
+    "lines": 153,
+    "size": 6043,
+    "md5": "15a43c8e5ca2",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "vad": {
+    "lines": 279,
+    "size": 10132,
+    "md5": "8544e72107a8",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "virtual_desktop": {
+    "lines": 151,
+    "size": 5574,
+    "md5": "c0aec5075956",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "virtual_memory_manager": {
+    "lines": 138,
+    "size": 5277,
+    "md5": "8613501d19d6",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "voice": {
+    "lines": 736,
+    "size": 27328,
+    "md5": "a002ed4774f2",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "voice_correction": {
+    "lines": 2416,
+    "size": 98339,
+    "md5": "32c01b864eaa",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "volume_manager": {
+    "lines": 160,
+    "size": 5894,
+    "md5": "c8c0cc914fa5",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "wake_word": {
+    "lines": 93,
+    "size": 3232,
+    "md5": "639e204f0a1c",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "webhook_manager": {
+    "lines": 186,
+    "size": 7395,
+    "md5": "8ee37d603270",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "whisper_worker": {
+    "lines": 203,
+    "size": 6877,
+    "md5": "cdc7666bcbca",
+    "has_all": false,
+    "has_docstring": true
+  },
+  "wifi_manager": {
+    "lines": 237,
+    "size": 9949,
+    "md5": "27eb383a5674",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "window_manager": {
+    "lines": 235,
+    "size": 8334,
+    "md5": "31ddc750e930",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "windows": {
+    "lines": 652,
+    "size": 30552,
+    "md5": "4b1c833bf778",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "windows_event_log_reader": {
+    "lines": 130,
+    "size": 4638,
+    "md5": "9471cfa151e0",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "windows_feature_manager": {
+    "lines": 142,
+    "size": 5200,
+    "md5": "57675dc6abc9",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "windows_update_manager": {
+    "lines": 145,
+    "size": 5439,
+    "md5": "3ab133d38a53",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "wmi_explorer": {
+    "lines": 174,
+    "size": 6078,
+    "md5": "eadd31fcc0e8",
+    "has_all": true,
+    "has_docstring": true
+  },
+  "workflow_engine": {
+    "lines": 324,
+    "size": 14207,
+    "md5": "46d55f075d86",
+    "has_all": false,
+    "has_docstring": true
+  }
+}

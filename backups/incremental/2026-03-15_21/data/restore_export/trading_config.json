@@ -1,0 +1,20 @@
+{
+  "exchange": "MEXC Futures",
+  "leverage": 10,
+  "tp": 0.4,
+  "sl": 0.25,
+  "size": 10,
+  "min_score": 70,
+  "pairs": [
+    "BTC",
+    "ETH",
+    "SOL",
+    "SUI",
+    "PEPE",
+    "DOGE",
+    "XRP",
+    "ADA",
+    "AVAX",
+    "LINK"
+  ]
+}

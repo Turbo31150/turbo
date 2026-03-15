@@ -16,8 +16,14 @@ from dataclasses import dataclass, field
 
 logger = logging.getLogger("jarvis.wake_word")
 
-import numpy as np
-import sounddevice as sd
+try:
+    import numpy as np
+except ImportError:
+    np = None  # type: ignore[assignment]
+try:
+    import sounddevice as sd
+except ImportError:
+    sd = None  # type: ignore[assignment]
 
 # ── Configuration multi-modèle ──────────────────────────────────────────
 WAKE_WORDS: list[str] = [
@@ -26,6 +32,10 @@ WAKE_WORDS: list[str] = [
 
 # Seuils par défaut
 DEFAULT_THRESHOLD = 0.7
+
+# Aliases for backward compatibility
+WAKE_WORD = WAKE_WORDS[0] if WAKE_WORDS else "hey_jarvis_v0.1"
+THRESHOLD = DEFAULT_THRESHOLD
 SAMPLE_RATE = 16000
 CHUNK_SIZE = 1280  # 80ms chunks (OpenWakeWord attend 80ms)
 DEFAULT_COOLDOWN = 1.5  # Secondes entre deux détections

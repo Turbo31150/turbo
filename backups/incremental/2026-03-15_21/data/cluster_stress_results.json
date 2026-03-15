@@ -1,0 +1,569 @@
+{
+  "timestamp": "2026-03-05T15:22:47.129349",
+  "nodes": [
+    "M1",
+    "M2",
+    "M3",
+    "OL1-1.7b"
+  ],
+  "tasks_count": 10,
+  "results": {
+    "race": [
+      {
+        "task": "T01",
+        "cat": "simple",
+        "size": "micro",
+        "winner": "OL1-1.7b",
+        "time": 0.3596006000007037,
+        "quality": 100,
+        "all": [
+          {
+            "M1": "Q=100 0.6s"
+          },
+          {
+            "M2": "Q=100 13.0s"
+          },
+          {
+            "M3": "Q=100 13.8s"
+          },
+          {
+            "OL1-1.7b": "Q=100 0.4s"
+          }
+        ]
+      },
+      {
+        "task": "T02",
+        "cat": "simple",
+        "size": "micro",
+        "winner": "M1",
+        "time": 0.4302540999997291,
+        "quality": 100,
+        "all": [
+          {
+            "M1": "Q=100 0.4s"
+          },
+          {
+            "M2": "Q=100 10.9s"
+          },
+          {
+            "M3": "Q=100 32.7s"
+          },
+          {
+            "OL1-1.7b": "Q=100 0.6s"
+          }
+        ]
+      },
+      {
+        "task": "T03",
+        "cat": "simple",
+        "size": "micro",
+        "winner": "M1",
+        "time": 0.4569025999999212,
+        "quality": 20,
+        "all": [
+          {
+            "M1": "Q=20 0.5s"
+          },
+          {
+            "M2": "Q=20 6.5s"
+          },
+          {
+            "M3": "Q=20 9.0s"
+          },
+          {
+            "OL1-1.7b": "Q=20 0.7s"
+          }
+        ]
+      },
+      {
+        "task": "T04",
+        "cat": "simple",
+        "size": "micro",
+        "winner": "M1",
+        "time": 1.2090811999996731,
+        "quality": 100,
+        "all": [
+          {
+            "M1": "Q=100 1.2s"
+          },
+          {
+            "M2": "Q=100 24.1s"
+          },
+          {
+            "M3": "Q=100 45.9s"
+          },
+          {
+            "OL1-1.7b": "Q=100 3.2s"
+          }
+        ]
+      },
+      {
+        "task": "T05",
+        "cat": "simple",
+        "size": "micro",
+        "winner": "M1",
+        "time": 0.2098254000002271,
+        "quality": 100,
+        "all": [
+          {
+            "M1": "Q=100 0.2s"
+          },
+          {
+            "M2": "Q=100 10.7s"
+          },
+          {
+            "M3": "Q=100 6.8s"
+          },
+          {
+            "OL1-1.7b": "Q=100 0.4s"
+          }
+        ]
+      },
+      {
+        "task": "T06",
+        "cat": "code",
+        "size": "small",
+        "winner": "M1",
+        "time": 1.8955040999999255,
+        "quality": 100,
+        "all": [
+          {
+            "M1": "Q=100 1.9s"
+          },
+          {
+            "M2": "Q=100 15.4s"
+          },
+          {
+            "M3": "Q=100 13.4s"
+          },
+          {
+            "OL1-1.7b": "Q=100 4.9s"
+          }
+        ]
+      },
+      {
+        "task": "T07",
+        "cat": "code",
+        "size": "small",
+        "winner": "M1",
+        "time": 1.7942095999997036,
+        "quality": 100,
+        "all": [
+          {
+            "M1": "Q=100 1.8s"
+          },
+          {
+            "M2": "Q=100 20.9s"
+          },
+          {
+            "M3": "Q=100 9.5s"
+          },
+          {
+            "OL1-1.7b": "Q=100 5.3s"
+          }
+        ]
+      },
+      {
+        "task": "T08",
+        "cat": "reasoning",
+        "size": "small",
+        "winner": "M1",
+        "time": 0.2264126000000033,
+        "quality": 100,
+        "all": [
+          {
+            "M1": "Q=100 0.2s"
+          },
+          {
+            "M2": "Q=100 21.5s"
+          },
+          {
+            "M3": "Q=100 32.4s"
+          },
+          {
+            "OL1-1.7b": "Q=100 1.0s"
+          }
+        ]
+      },
+      {
+        "task": "T09",
+        "cat": "code",
+        "size": "small",
+        "winner": "M1",
+        "time": 1.7786231999998563,
+        "quality": 100,
+        "all": [
+          {
+            "M1": "Q=100 1.8s"
+          },
+          {
+            "M2": "Q=100 37.1s"
+          },
+          {
+            "M3": "Q=100 30.4s"
+          },
+          {
+            "OL1-1.7b": "Q=100 7.4s"
+          }
+        ]
+      },
+      {
+        "task": "T10",
+        "cat": "analysis",
+        "size": "small",
+        "winner": "OL1-1.7b",
+        "time": 2.2787327999994886,
+        "quality": 100,
+        "all": [
+          {
+            "M1": "Q=20 1.3s"
+          },
+          {
+            "M2": "Q=100 17.5s"
+          },
+          {
+            "M3": "Q=100 24.5s"
+          },
+          {
+            "OL1-1.7b": "Q=100 2.3s"
+          }
+        ]
+      }
+    ],
+    "round_robin": [
+      {
+        "task": "T01",
+        "cat": "simple",
+        "size": "micro",
+        "node": "M1",
+        "time": 0.3688977000001614,
+        "tokens": 1,
+        "quality": 100,
+        "error": null
+      },
+      {
+        "task": "T02",
+        "cat": "simple",
+        "size": "micro",
+        "node": "M2",
+        "time": 10.568958300000304,
+        "tokens": 1,
+        "quality": 100,
+        "error": null
+      },
+      {
+        "task": "T03",
+        "cat": "simple",
+        "size": "micro",
+        "node": "M3",
+        "time": 10.96318220000012,
+        "tokens": 1,
+        "quality": 20,
+        "error": null
+      },
+      {
+        "task": "T04",
+        "cat": "simple",
+        "size": "micro",
+        "node": "OL1-1.7b",
+        "time": 2.163261799999418,
+        "tokens": 49,
+        "quality": 100,
+        "error": null
+      },
+      {
+        "task": "T05",
+        "cat": "simple",
+        "size": "micro",
+        "node": "M1",
+        "time": 0.3973642999999356,
+        "tokens": 1,
+        "quality": 100,
+        "error": null
+      },
+      {
+        "task": "T06",
+        "cat": "code",
+        "size": "small",
+        "node": "M2",
+        "time": 11.075108199999704,
+        "tokens": 83,
+        "quality": 100,
+        "error": null
+      },
+      {
+        "task": "T07",
+        "cat": "code",
+        "size": "small",
+        "node": "M3",
+        "time": 30.066981300000407,
+        "tokens": 63,
+        "quality": 100,
+        "error": null
+      },
+      {
+        "task": "T08",
+        "cat": "reasoning",
+        "size": "small",
+        "node": "OL1-1.7b",
+        "time": 1.2698889000002964,
+        "tokens": 13,
+        "quality": 100,
+        "error": null
+      },
+      {
+        "task": "T09",
+        "cat": "code",
+        "size": "small",
+        "node": "M1",
+        "time": 1.9600239000001238,
+        "tokens": 64,
+        "quality": 100,
+        "error": null
+      },
+      {
+        "task": "T10",
+        "cat": "analysis",
+        "size": "small",
+        "node": "M2",
+        "time": 26.093864200000098,
+        "tokens": 129,
+        "quality": 100,
+        "error": null
+      }
+    ],
+    "category": [
+      {
+        "node": "OL1-1.7b",
+        "time": 1.7928517000000284,
+        "tokens": 1,
+        "quality": 100,
+        "error": null,
+        "task": "T01",
+        "cat": "simple",
+        "size": "micro"
+      },
+      {
+        "node": "OL1-1.7b",
+        "time": 0.5957073999998101,
+        "tokens": 1,
+        "quality": 100,
+        "error": null,
+        "task": "T02",
+        "cat": "simple",
+        "size": "micro"
+      },
+      {
+        "node": "OL1-1.7b",
+        "time": 1.3728690999996616,
+        "tokens": 1,
+        "quality": 20,
+        "error": null,
+        "task": "T03",
+        "cat": "simple",
+        "size": "micro"
+      },
+      {
+        "node": "OL1-1.7b",
+        "time": 3.7741349000007176,
+        "tokens": 37,
+        "quality": 100,
+        "error": null,
+        "task": "T04",
+        "cat": "simple",
+        "size": "micro"
+      },
+      {
+        "node": "OL1-1.7b",
+        "time": 1.369030799999564,
+        "tokens": 1,
+        "quality": 100,
+        "error": null,
+        "task": "T05",
+        "cat": "simple",
+        "size": "micro"
+      },
+      {
+        "node": "M1",
+        "time": 3.88630269999976,
+        "tokens": 60,
+        "quality": 100,
+        "error": null,
+        "task": "T06",
+        "cat": "code",
+        "size": "small"
+      },
+      {
+        "node": "M1",
+        "time": 3.6515650000001187,
+        "tokens": 50,
+        "quality": 100,
+        "error": null,
+        "task": "T07",
+        "cat": "code",
+        "size": "small"
+      },
+      {
+        "node": "M2",
+        "time": 90.02219729999979,
+        "tokens": 0,
+        "quality": 0,
+        "error": "",
+        "task": "T08",
+        "cat": "reasoning",
+        "size": "small"
+      },
+      {
+        "node": "M1",
+        "time": 3.586447699999553,
+        "tokens": 67,
+        "quality": 100,
+        "error": null,
+        "task": "T09",
+        "cat": "code",
+        "size": "small"
+      },
+      {
+        "node": "M1",
+        "time": 2.63958299999922,
+        "tokens": 39,
+        "quality": 100,
+        "error": null,
+        "task": "T10",
+        "cat": "analysis",
+        "size": "small"
+      }
+    ],
+    "consensus": [
+      {
+        "task": "T01",
+        "winner": "M1",
+        "quality": 100,
+        "weighted": 180.0,
+        "time": 0.22059449999960634
+      },
+      {
+        "task": "T02",
+        "winner": "M1",
+        "quality": 100,
+        "weighted": 180.0,
+        "time": 0.2934437000003527
+      },
+      {
+        "task": "T03",
+        "winner": "M1",
+        "quality": 20,
+        "weighted": 36.0,
+        "time": 0.28160790000038105
+      },
+      {
+        "task": "T04",
+        "winner": "M1",
+        "quality": 100,
+        "weighted": 180.0,
+        "time": 1.6097530999995797
+      }
+    ]
+  },
+  "strategy_scores": {
+    "single/M1": {
+      "avg_quality": 84,
+      "avg_time": 3.489109680000001,
+      "total_time": 34.891096800000014,
+      "success_rate": 100.0
+    },
+    "single/M2": {
+      "avg_quality": 92,
+      "avg_time": 42.253881150000055,
+      "total_time": 422.5388115000005,
+      "success_rate": 100.0
+    },
+    "single/M3": {
+      "avg_quality": 91.11111111111111,
+      "avg_time": 29.670826422222188,
+      "total_time": 357.0655050999994,
+      "success_rate": 90.0
+    },
+    "single/OL1-1.7b": {
+      "avg_quality": 92,
+      "avg_time": 15.241270229999918,
+      "total_time": 152.41270229999918,
+      "success_rate": 100.0
+    },
+    "race": {
+      "avg_quality": 92,
+      "avg_time": 1.0639146199999232,
+      "success_rate": 100.0
+    },
+    "round_robin": {
+      "avg_quality": 92,
+      "avg_time": 9.492753080000057,
+      "total_time": 94.92753080000057,
+      "success_rate": 100.0
+    },
+    "category": {
+      "avg_quality": 91.11111111111111,
+      "avg_time": 2.5187213666664925,
+      "total_time": 112.69068959999822,
+      "success_rate": 90.0
+    }
+  },
+  "rankings": [
+    {
+      "strategy": "race",
+      "score": 92.00825614000023,
+      "avg_quality": 92,
+      "avg_time": 1.0639146199999232,
+      "success_rate": 100.0
+    },
+    {
+      "strategy": "category",
+      "score": 86.1105025666672,
+      "avg_quality": 91.11111111111111,
+      "avg_time": 2.5187213666664925,
+      "total_time": 112.69068959999822,
+      "success_rate": 90.0
+    },
+    {
+      "strategy": "single/M1",
+      "score": 79.93267096,
+      "avg_quality": 84,
+      "avg_time": 3.489109680000001,
+      "total_time": 34.891096800000014,
+      "success_rate": 100.0
+    },
+    {
+      "strategy": "round_robin",
+      "score": 66.72174075999982,
+      "avg_quality": 92,
+      "avg_time": 9.492753080000057,
+      "total_time": 94.92753080000057,
+      "success_rate": 100.0
+    },
+    {
+      "strategy": "single/M2",
+      "score": 65.19999999999999,
+      "avg_quality": 92,
+      "avg_time": 42.253881150000055,
+      "total_time": 422.5388115000005,
+      "success_rate": 100.0
+    },
+    {
+      "strategy": "single/OL1-1.7b",
+      "score": 65.19999999999999,
+      "avg_quality": 92,
+      "avg_time": 15.241270229999918,
+      "total_time": 152.41270229999918,
+      "success_rate": 100.0
+    },
+    {
+      "strategy": "single/M3",
+      "score": 63.666666666666664,
+      "avg_quality": 91.11111111111111,
+      "avg_time": 29.670826422222188,
+      "total_time": 357.0655050999994,
+      "success_rate": 90.0
+    }
+  ],
+  "best_strategy": "race"
+}

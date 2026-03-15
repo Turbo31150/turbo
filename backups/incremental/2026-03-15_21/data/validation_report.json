@@ -1,0 +1,500 @@
+{
+  "summary": {
+    "total_cycles": 50,
+    "total_tests": 15200,
+    "total_passed": 15200,
+    "total_failed": 0,
+    "total_partial": 0,
+    "global_pass_rate": 100.0
+  },
+  "db_stats": {
+    "commands": 426,
+    "skills": 75,
+    "corrections": 505,
+    "scenarios": 304,
+    "scenarios_validated": 0,
+    "history_entries": 0,
+    "validation_cycles": 50150,
+    "categories_commands": [
+      "accessibilite",
+      "app",
+      "clipboard",
+      "dev",
+      "fenetre",
+      "fichiers",
+      "jarvis",
+      "media",
+      "navigation",
+      "saisie",
+      "systeme",
+      "trading"
+    ],
+    "categories_skills": [
+      "accessibilite",
+      "communication",
+      "dev",
+      "fichiers",
+      "loisir",
+      "navigation",
+      "productivite",
+      "routine",
+      "systeme",
+      "trading"
+    ],
+    "validation_pass_rate": 100.0,
+    "last_cycle": 50
+  },
+  "failures": {},
+  "cycles": [
+    {
+      "cycle": 1,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 65.43
+    },
+    {
+      "cycle": 2,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 65.04
+    },
+    {
+      "cycle": 3,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 65.17
+    },
+    {
+      "cycle": 4,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 65.59
+    },
+    {
+      "cycle": 5,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 65.0
+    },
+    {
+      "cycle": 6,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 65.59
+    },
+    {
+      "cycle": 7,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 67.13
+    },
+    {
+      "cycle": 8,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 66.45
+    },
+    {
+      "cycle": 9,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 67.19
+    },
+    {
+      "cycle": 10,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 66.0
+    },
+    {
+      "cycle": 11,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 66.29
+    },
+    {
+      "cycle": 12,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 67.01
+    },
+    {
+      "cycle": 13,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 67.37
+    },
+    {
+      "cycle": 14,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 66.84
+    },
+    {
+      "cycle": 15,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 66.58
+    },
+    {
+      "cycle": 16,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 67.39
+    },
+    {
+      "cycle": 17,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 67.4
+    },
+    {
+      "cycle": 18,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 66.36
+    },
+    {
+      "cycle": 19,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 66.47
+    },
+    {
+      "cycle": 20,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 67.59
+    },
+    {
+      "cycle": 21,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 67.25
+    },
+    {
+      "cycle": 22,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 67.56
+    },
+    {
+      "cycle": 23,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 66.89
+    },
+    {
+      "cycle": 24,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 66.4
+    },
+    {
+      "cycle": 25,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 66.49
+    },
+    {
+      "cycle": 26,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 66.75
+    },
+    {
+      "cycle": 27,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 66.45
+    },
+    {
+      "cycle": 28,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 66.32
+    },
+    {
+      "cycle": 29,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 66.59
+    },
+    {
+      "cycle": 30,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 64.74
+    },
+    {
+      "cycle": 31,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 65.01
+    },
+    {
+      "cycle": 32,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 64.96
+    },
+    {
+      "cycle": 33,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 65.22
+    },
+    {
+      "cycle": 34,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 64.88
+    },
+    {
+      "cycle": 35,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 65.02
+    },
+    {
+      "cycle": 36,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 65.07
+    },
+    {
+      "cycle": 37,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 65.25
+    },
+    {
+      "cycle": 38,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 65.21
+    },
+    {
+      "cycle": 39,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 78.49
+    },
+    {
+      "cycle": 40,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 92.23
+    },
+    {
+      "cycle": 41,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 91.24
+    },
+    {
+      "cycle": 42,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 91.96
+    },
+    {
+      "cycle": 43,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 92.0
+    },
+    {
+      "cycle": 44,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 91.32
+    },
+    {
+      "cycle": 45,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 90.78
+    },
+    {
+      "cycle": 46,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 90.84
+    },
+    {
+      "cycle": 47,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 90.85
+    },
+    {
+      "cycle": 48,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 89.8
+    },
+    {
+      "cycle": 49,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 89.14
+    },
+    {
+      "cycle": 50,
+      "total": 304,
+      "passed": 304,
+      "failed": 0,
+      "partial": 0,
+      "pass_rate": 100.0,
+      "avg_time_ms": 89.09
+    }
+  ]
+}

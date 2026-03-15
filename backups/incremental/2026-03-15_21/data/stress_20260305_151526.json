@@ -1,0 +1,314 @@
+{
+  "run_id": "stress_20260305_151526",
+  "ts": "2026-03-05T15:15:26.131248",
+  "phases": [
+    {
+      "phase": "micro",
+      "results": [
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 1.27,
+          "toks": 38,
+          "toks_s": 29.9,
+          "content": "\n\n**REST** (Representational State Transfer) est un **style d'architecture de logiciels** qui définit une manière de concevoir des services web, notamment pour la communication entre clients et serveurs. Il ne se réfère pas à une technologie ou un protocole"
+        },
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 1.24,
+          "toks": 32,
+          "toks_s": 25.7,
+          "content": "\n\nEn JavaScript, `let` et `const` sont des mots-clés utilisés pour déclarer des variables. Ils ont des différences importantes concernant **la portée**, **la mutabilité** (si la variable peut être modifiée) et **le hoisting**"
+        },
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 1.26,
+          "toks": 29,
+          "toks_s": 23.0,
+          "content": "\n\nUn **mutex** (abrégé de *mutual exclusion*) est un **mécanisme de synchronisation** utilisé en informatique, notamment dans les systèmes multitâches ou multithreadés, pour **protéger l'accès exclusif à une ressource partag"
+        },
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 1.2,
+          "toks": 37,
+          "toks_s": 30.9,
+          "content": "\n\n**CORS** signifie **Cross-Origin Resource Sharing** (Partage de ressources entre origines). C’est un mécanisme de sécurité intégré dans les navigateurs web qui contrôle les requêtes HTTP effectuées depuis une page web vers un serveur distant.\n\n### En ré"
+        },
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 1.17,
+          "toks": 28,
+          "toks_s": 24.0,
+          "content": "\n\nTCP est un protocole fiable et orienté connexion pour la transmission de données, tandis que UDP est un protocole plus rapide mais non fiable et non orienté connexion."
+        },
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 1.24,
+          "toks": 43,
+          "toks_s": 34.6,
+          "content": "\n\nUn **index SQL** est une structure de données qui permet d'accélérer la recherche et l'accès aux données dans une base de données relationnelle. Il fonctionne de manière similaire à un **index dans un livre**, où les pages sont organisées pour faciliter la local"
+        },
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 1.29,
+          "toks": 33,
+          "toks_s": 25.6,
+          "content": "\n\nLa **différence entre le stack (pile) et le heap (tas)** réside dans leur **mode d'allocation de mémoire**, leurs **gestions** et leurs **utilisations** dans un programme. Voici une explication claire :\n\n---\n\n## 📌 "
+        },
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 1.63,
+          "toks": 35,
+          "toks_s": 21.5,
+          "content": "\n\nUn **CDN** (ou *Content Delivery Network*) est un réseau de serveurs distribués géographiquement qui permet de délivrer du contenu (comme des images, vidéos, scripts, etc.) plus rapidement aux utilisateurs, en réduisant la distance entre le"
+        },
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 1.26,
+          "toks": 30,
+          "toks_s": 23.8,
+          "content": "\n\nLe **DNS** (Domain Name System, ou **Système de Noms de Domaine**) est un système informatique qui permet de traduire des noms de domaines (comme *example.com*) en adresses IP (comme *192.0.2"
+        },
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 1.11,
+          "toks": 27,
+          "toks_s": 24.3,
+          "content": "\n\nOAuth 2 est un protocole d'authentification et d'autorisation qui permet aux applications de sécuriser l'accès aux ressources d'un utilisateur sans avoir à divulguer son mot de passe."
+        }
+      ],
+      "duration": 12.7,
+      "throughput": 0.79,
+      "avg_lat": 1.27
+    },
+    {
+      "phase": "code_parallel",
+      "results": [
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 7.13,
+          "toks": 124,
+          "toks_s": 17.4,
+          "content": "\n\nVoici un exemple d'un **décorateur Python** qui implémente une **cache LRU (Least Recently Used)** pour stocker les résultats d'une fonction.\n\nCe décorateur utilise le module `functools.lru_cache`, mais si tu veux un cache personnalisé, voici une version complète utilisant un dictionnaire et une l"
+        },
+        {
+          "node": "M2",
+          "ok": true,
+          "lat": 8.34,
+          "toks": 0,
+          "toks_s": 0.0,
+          "content": ""
+        },
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 7.13,
+          "toks": 148,
+          "toks_s": 20.8,
+          "content": "\n\nVoici un exemple simple et fonctionnel d'une **classe TypeScript** qui implémente une **file d’attente (queue)**. Cette classe permettra d'ajouter des éléments à la fin de la file, de retirer les éléments du début, et de vérifier si la file est vide.\n\n---\n\n### 📜 Exemple : Classe `Queue` en TypeScr"
+        },
+        {
+          "node": "M2",
+          "ok": true,
+          "lat": 4.85,
+          "toks": 0,
+          "toks_s": 0.0,
+          "content": ""
+        },
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 4.46,
+          "toks": 103,
+          "toks_s": 23.1,
+          "content": "\n\nVoici un exemple d'une **fonction `debounce`** en JavaScript, qui permet d'attendre un certain délai avant d'exécuter une fonction, ce qui est utile pour optimiser les appels fréquents (comme des recherches ou des scroll events).\n\n---\n\n### ✅ Fonction debounce en JavaScript\n\n```javascript\nfunction "
+        }
+      ],
+      "duration": 9.3
+    },
+    {
+      "phase": "analyse_distributed",
+      "results": [
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 9.75,
+          "toks": 294,
+          "toks_s": 30.1,
+          "content": "\n\nVoici une comparaison des **architectures microservices** et **monolithique** pour une **startup**, en se basant sur **trois critères clés** :\n\n---\n\n### ✅ **1. Rapidité de mise en œuvre et développement initial**\n\n| **Critère** | **Monolithe** | **Microservices** |\n|-------------|----------------|"
+        },
+        {
+          "node": "M2",
+          "ok": true,
+          "lat": 14.27,
+          "toks": 0,
+          "toks_s": 0.0,
+          "content": ""
+        },
+        {
+          "node": "M3",
+          "ok": true,
+          "lat": 17.44,
+          "toks": 0,
+          "toks_s": 0.0,
+          "content": ""
+        }
+      ],
+      "duration": 17.4
+    },
+    {
+      "phase": "chain",
+      "results": [
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 5.05,
+          "toks": 154,
+          "toks_s": 30.5,
+          "content": "\n\nVoici trois **design patterns courants** utilisés dans le développement d’un **système de cache** :\n\n---\n\n### 1. **Cache Pattern (ou Cache Strategy)**\n- **Description** : Ce modèle permet de séparer la logique de stockage et de récupération des données du reste de l’application.\n- **Utilisation** ",
+          "chain": 1,
+          "step": 1
+        },
+        {
+          "node": "M2",
+          "ok": true,
+          "lat": 13.49,
+          "toks": 0,
+          "toks_s": 0.0,
+          "content": "",
+          "chain": 1,
+          "step": 2
+        },
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 4.99,
+          "toks": 137,
+          "toks_s": 27.5,
+          "content": "\n\nVoici trois failles de sécurité courantes trouvées dans les APIs REST :\n\n---\n\n### 1. **Manque de validation des entrées (Input Validation)**\n- **Problème** : L'absence de vérification des données reçues par l'API peut permettre à un attaquant d'injecter du code malveillant, comme dans le cas des *",
+          "chain": 2,
+          "step": 1
+        },
+        {
+          "node": "M2",
+          "ok": true,
+          "lat": 12.85,
+          "toks": 0,
+          "toks_s": 0.0,
+          "content": "",
+          "chain": 2,
+          "step": 2
+        }
+      ],
+      "duration": 36.4
+    },
+    {
+      "phase": "race",
+      "results": [
+        {
+          "node": "OL1-14b",
+          "ok": true,
+          "lat": 6.9,
+          "toks": 32,
+          "toks_s": 4.6,
+          "content": "```python\nimport asyncio\nimport websockets\n\nasync def handle_connection(websocket, path):\n    async for message in websocket:\n        await websocket.send(f\"Echo: {message}\")\n\nasync def main():\n    async with websockets.serve(handle_connection, \"localhost\", 8765):\n        await asyncio.Future()  # r",
+          "rank": 1
+        },
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 8.88,
+          "toks": 213,
+          "toks_s": 24.0,
+          "content": "\n\nVoici un exemple de **serveur WebSocket minimaliste** écrit en **Python** utilisant `asyncio` et le module `websockets`. Ce code permet d'accepter des connexions WebSocket, de recevoir des messages et de les envoyer en retour (écho).\n\n```python\nimport asyncio\nimport websockets\n\nasync def echo(webs",
+          "rank": 2
+        },
+        {
+          "node": "M2",
+          "ok": true,
+          "lat": 12.5,
+          "toks": 48,
+          "toks_s": 3.8,
+          "content": "\nVoici un code minimaliste d'un serveur WebSocket en utilisant le module `websockets` (qui repose sur asyncio) :\n\n```python\nimport asyncio\nimport websockets\nimport ssl\n\nasync def handler(websocket):\n    try:\n        # Accepter la connexion et compléter l'handsake\n        async for message in websock",
+          "rank": 3
+        },
+        {
+          "node": "M3",
+          "ok": true,
+          "lat": 52.36,
+          "toks": 0,
+          "toks_s": 0.0,
+          "content": "",
+          "rank": 4
+        }
+      ],
+      "duration": 52.4
+    },
+    {
+      "phase": "routing",
+      "results": [
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 1.52,
+          "toks": 40,
+          "toks_s": 26.3,
+          "content": "\n\nUn **webhook** est une méthode de communication entre deux services ou applications, qui permet à l'un d'envoyer des données en temps réel à l'autre sans avoir besoin d'être constamment interrogé (comme dans le cas d'une API traditionnelle).\n\n### En ré",
+          "category": "micro",
+          "routed_to": "M1"
+        },
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 4.9,
+          "toks": 136,
+          "toks_s": 27.8,
+          "content": "\n\nVoici un exemple de **singleton thread-safe** en Python, qui garantit que l'instance est créée une seule fois et qu'elle est accessible de manière sécurisée par plusieurs threads :\n\n```python\nimport threading\n\nclass Singleton:\n    _instance = None\n    _lock = threading.Lock()\n\n    def __new__(cls)",
+          "category": "code",
+          "routed_to": "M1"
+        },
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 9.54,
+          "toks": 271,
+          "toks_s": 28.4,
+          "content": "\n\nLorsqu'on compare **Redis** et **Memcached**, les deux sont des outils de **cache en mémoire** très populaires, mais ils présentent des différences importantes qui peuvent influencer le choix selon l'usage que vous souhaitez faire d'eux. Voici une comparaison détaillée pour un usage de **cache app",
+          "category": "analyse",
+          "routed_to": "M1"
+        },
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 4.9,
+          "toks": 141,
+          "toks_s": 28.8,
+          "content": "\n\nLa fonction que tu as écrite est une **implémentation récursive** de la suite de Fibonacci, mais elle contient un **bug important** : elle ne gère pas les cas de base.\n\n### Voici la version incomplète :\n\n```python\ndef fib(n):\n    return fib(n-1) + fib(n-2)\n```\n\n---\n\n### 🚨 Le bug est :\n- **Elle n'a",
+          "category": "debug",
+          "routed_to": "M1"
+        },
+        {
+          "node": "M1",
+          "ok": true,
+          "lat": 10.73,
+          "toks": 301,
+          "toks_s": 28.0,
+          "content": "\n\nVoici une proposition de **pipeline ETL (Extract, Transform, Load)** conçu pour gérer des données avec **1 million de lignes par jour**, en tenant compte des contraintes techniques et des performances.\n\n---\n\n## 📌 1. **Contexte & Objectifs**\n- **Volume** : 1M lignes/jour\n- **Fréquence** : quotidien",
+          "category": "archi",
+          "routed_to": "M1"
+        }
+      ],
+      "duration": 31.6
+    }
+  ]
+}

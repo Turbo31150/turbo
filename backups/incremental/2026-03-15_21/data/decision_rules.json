@@ -1,0 +1,65 @@
+[
+  {
+    "name": "service_ws_down",
+    "pattern": "WS.*DOWN|:9742.*DOWN",
+    "severity": "warning",
+    "action": "notify",
+    "target": "WS",
+    "reason": "WebSocket service down — operator should check",
+    "priority": 2
+  },
+  {
+    "name": "db_integrity_fail",
+    "pattern": "integrity FAILED",
+    "severity": "critical",
+    "action": "notify",
+    "target": "database",
+    "reason": "Database integrity check failed — manual intervention needed",
+    "priority": 1
+  },
+  {
+    "name": "dispatch_quality_low",
+    "pattern": "Dispatch quality low",
+    "severity": "warning",
+    "action": "analyze_logs",
+    "target": "dispatch",
+    "reason": "Dispatch quality degraded — analyzing logs for root cause",
+    "priority": 4
+  },
+  {
+    "name": "circuit_breaker_open",
+    "pattern": "circuit.*OPEN|breaker.*OPEN",
+    "severity": "warning",
+    "action": "reset_breaker",
+    "target": "system",
+    "reason": "Circuit breaker open — auto-resetting to restore routing",
+    "priority": 3
+  },
+  {
+    "name": "high_log_errors",
+    "pattern": "High error rate in logs|ERROR.*CRITICAL.*last hour",
+    "severity": "critical",
+    "action": "analyze_logs",
+    "target": "logs",
+    "reason": "Elevated error rate in logs — running predictive analysis",
+    "priority": 2
+  },
+  {
+    "name": "node_m2_offline",
+    "pattern": "M2.*OFFLINE|192/.168/.1/.26.*OFFLINE",
+    "severity": "warning",
+    "action": "notify",
+    "target": "M2",
+    "reason": "M2 reasoning node offline — dispatching to M3 fallback",
+    "priority": 4
+  },
+  {
+    "name": "vram_high_3080",
+    "pattern": "RTX 3080.*VRAM.*>95%|VRAM.*9[0-9]{2,3}/10240",
+    "severity": "warning",
+    "action": "notify",
+    "target": "GPU",
+    "reason": "RTX 3080 VRAM >95% — consider unloading unused models",
+    "priority": 3
+  }
+]

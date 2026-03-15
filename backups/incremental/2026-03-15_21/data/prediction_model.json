@@ -1,0 +1,362 @@
+{
+  "version": 1,
+  "created_at": 1773601336.3003283,
+  "updated_at": 1773602642.2893596,
+  "total_transitions": 116,
+  "total_commands": 111,
+  "last_command": "git clone",
+  "transitions": {
+    "ouvre terminal": {
+      "git status": 3.0,
+      "ouvre firefox": 1.0,
+      "lance python": 2.0,
+      "git clone": 1.0
+    },
+    "git status": {
+      "git commit": 4.0,
+      "git diff": 2.5,
+      "git pull": 1.5
+    },
+    "git commit": {
+      "git push": 5.0,
+      "git log": 1.5
+    },
+    "git push": {
+      "git status": 2.0
+    },
+    "git pull": {
+      "git status": 3.5
+    },
+    "git diff": {
+      "git commit": 3.5
+    },
+    "git log": {
+      "git push": 2.5
+    },
+    "ouvre firefox": {
+      "ouvre spotify": 2.0,
+      "ouvre terminal": 1.5
+    },
+    "ouvre spotify": {
+      "volume haut": 2.5
+    },
+    "ouvre vscode": {
+      "ouvre terminal": 3.0,
+      "git status": 2.5
+    },
+    "vérifie le cluster": {
+      "gpu status": 3.0,
+      "état du réseau": 2.0
+    },
+    "gpu status": {
+      "température gpu": 2.5,
+      "vérifie le cluster": 2.0
+    },
+    "température gpu": {
+      "vérifie le cluster": 1.5
+    },
+    "état du réseau": {
+      "vérifie le cluster": 1.5
+    },
+    "bonjour jarvis": {
+      "rapport système": 3.5
+    },
+    "rapport système": {
+      "vérifie le cluster": 3.0,
+      "check mails": 2.0,
+      "diagnostic système": 1.5
+    },
+    "check mails": {
+      "agenda du jour": 3.0
+    },
+    "agenda du jour": {
+      "météo": 2.5
+    },
+    "bonne nuit": {
+      "éteins les lumières": 4.0,
+      "mode veille": 3.0
+    },
+    "éteins les lumières": {
+      "mode veille": 3.5
+    },
+    "trading status": {
+      "trading scan": 3.0,
+      "rapport trading": 2.0
+    },
+    "trading scan": {
+      "trading execute": 2.0,
+      "trading status": 2.5
+    },
+    "mode dev": {
+      "ouvre vscode": 4.0,
+      "ouvre terminal": 3.0
+    },
+    "mode weekend": {
+      "ouvre spotify": 3.0,
+      "ouvre firefox": 2.5
+    },
+    "volume haut": {
+      "volume bas": 1.5
+    },
+    "volume bas": {
+      "volume haut": 1.5
+    },
+    "lance musique": {
+      "volume haut": 2.5,
+      "pause musique": 2.0
+    },
+    "pause musique": {
+      "lance musique": 3.0
+    },
+    "diagnostic système": {
+      "rapport système": 3.0
+    },
+    "redémarre service": {
+      "vérifie le cluster": 3.5
+    },
+    "santé cluster": {
+      "gpu status": 2.5,
+      "rapport système": 2.0
+    },
+    "skill:consensus_trading": {
+      "test_fix": 11.0
+    },
+    "test_fix": {
+      "voice_command": 11.0
+    },
+    "voice_command": {
+      "perplexity_interaction": 11.0
+    },
+    "perplexity_interaction": {
+      "test:pipeline_connect": 11.0
+    },
+    "test:pipeline_connect": {
+      "learn:pipeline:learned_test_apprentissage_pipeline": 11.0
+    },
+    "learn:pipeline:learned_test_apprentissage_pipeline": {
+      "brain:create_skill:auto_perplexity_interaction_perplexity_interaction": 11.0
+    }
+  },
+  "hourly_patterns": {
+    "6": {
+      "bonjour jarvis": 2.0,
+      "rapport système": 1.75,
+      "check mails": 1.5,
+      "météo": 1.25,
+      "agenda du jour": 1.0
+    },
+    "7": {
+      "bonjour jarvis": 2.0,
+      "rapport système": 1.75,
+      "check mails": 1.5,
+      "météo": 1.25,
+      "agenda du jour": 1.0
+    },
+    "8": {
+      "bonjour jarvis": 2.0,
+      "rapport système": 1.75,
+      "check mails": 1.5,
+      "météo": 1.25,
+      "agenda du jour": 1.0
+    },
+    "9": {
+      "mode dev": 1.5,
+      "ouvre vscode": 1.25,
+      "git status": 1.0,
+      "trading scan": 1.0,
+      "vérifie le cluster": 0.75
+    },
+    "10": {
+      "mode dev": 1.5,
+      "ouvre vscode": 1.25,
+      "git status": 1.0,
+      "trading scan": 1.0,
+      "vérifie le cluster": 0.75
+    },
+    "11": {
+      "mode dev": 1.5,
+      "ouvre vscode": 1.25,
+      "git status": 1.0,
+      "trading scan": 1.0,
+      "vérifie le cluster": 0.75
+    },
+    "12": {
+      "trading status": 1.25,
+      "git status": 1.0,
+      "gpu status": 0.75,
+      "diagnostic système": 0.75,
+      "ouvre terminal": 0.5
+    },
+    "13": {
+      "trading status": 1.25,
+      "git status": 1.0,
+      "gpu status": 0.75,
+      "diagnostic système": 0.75,
+      "ouvre terminal": 0.5
+    },
+    "14": {
+      "trading status": 1.25,
+      "git status": 1.0,
+      "gpu status": 0.75,
+      "diagnostic système": 0.75,
+      "ouvre terminal": 0.5
+    },
+    "15": {
+      "trading status": 1.25,
+      "git status": 1.0,
+      "gpu status": 0.75,
+      "diagnostic système": 0.75,
+      "ouvre terminal": 0.5
+    },
+    "16": {
+      "trading status": 1.25,
+      "git status": 1.0,
+      "gpu status": 0.75,
+      "diagnostic système": 0.75,
+      "ouvre terminal": 0.5
+    },
+    "17": {
+      "trading status": 1.25,
+      "git status": 1.0,
+      "gpu status": 0.75,
+      "diagnostic système": 0.75,
+      "ouvre terminal": 0.5
+    },
+    "18": {
+      "mode weekend": 1.0,
+      "lance musique": 1.25,
+      "ouvre spotify": 1.0,
+      "rapport trading": 0.75,
+      "ouvre firefox": 0.75,
+      "test:pipeline_connect": 11.0,
+      "learn:pipeline:learned_test_apprentissage_pipeline": 11.0
+    },
+    "19": {
+      "mode weekend": 1.0,
+      "lance musique": 1.25,
+      "ouvre spotify": 1.0,
+      "rapport trading": 0.75,
+      "ouvre firefox": 0.75,
+      "brain:create_skill:auto_perplexity_interaction_perplexity_interaction": 11.0
+    },
+    "20": {
+      "mode weekend": 1.0,
+      "lance musique": 1.25,
+      "ouvre spotify": 1.0,
+      "rapport trading": 0.75,
+      "ouvre firefox": 0.75,
+      "skill:consensus_trading": 11.0,
+      "git clone": 1.0
+    },
+    "21": {
+      "mode weekend": 1.0,
+      "lance musique": 1.25,
+      "ouvre spotify": 1.0,
+      "rapport trading": 0.75,
+      "ouvre firefox": 0.75
+    },
+    "22": {
+      "bonne nuit": 2.0,
+      "éteins les lumières": 1.5,
+      "mode veille": 1.25,
+      "rapport système": 0.5,
+      "trading status": 0.5
+    },
+    "23": {
+      "bonne nuit": 2.0,
+      "éteins les lumières": 1.5,
+      "mode veille": 1.25,
+      "rapport système": 0.5,
+      "trading status": 0.5
+    },
+    "0": {
+      "bonne nuit": 2.0,
+      "éteins les lumières": 1.5,
+      "mode veille": 1.25,
+      "rapport système": 0.5,
+      "trading status": 0.5,
+      "test_fix": 11.0,
+      "voice_command": 11.0,
+      "perplexity_interaction": 44.0
+    },
+    "1": {
+      "bonne nuit": 2.0,
+      "éteins les lumières": 1.5,
+      "mode veille": 1.25,
+      "rapport système": 0.5,
+      "trading status": 0.5
+    },
+    "2": {
+      "bonne nuit": 2.0,
+      "éteins les lumières": 1.5,
+      "mode veille": 1.25,
+      "rapport système": 0.5,
+      "trading status": 0.5
+    },
+    "3": {
+      "bonne nuit": 2.0,
+      "éteins les lumières": 1.5,
+      "mode veille": 1.25,
+      "rapport système": 0.5,
+      "trading status": 0.5
+    },
+    "4": {
+      "bonne nuit": 2.0,
+      "éteins les lumières": 1.5,
+      "mode veille": 1.25,
+      "rapport système": 0.5,
+      "trading status": 0.5
+    },
+    "5": {
+      "bonne nuit": 2.0,
+      "éteins les lumières": 1.5,
+      "mode veille": 1.25,
+      "rapport système": 0.5,
+      "trading status": 0.5
+    }
+  },
+  "weekday_patterns": {
+    "0": {
+      "mode dev": 1.75,
+      "rapport système": 1.5
+    },
+    "1": {
+      "mode dev": 1.5,
+      "trading scan": 1.25,
+      "skill:consensus_trading": 11.0
+    },
+    "2": {
+      "mode dev": 1.5,
+      "vérifie le cluster": 1.0
+    },
+    "3": {
+      "trading scan": 1.25,
+      "mode dev": 1.25
+    },
+    "4": {
+      "mode weekend": 1.5,
+      "rapport trading": 1.25
+    },
+    "5": {
+      "lance musique": 1.5,
+      "ouvre firefox": 1.25
+    },
+    "6": {
+      "lance musique": 1.25,
+      "rapport système": 1.0,
+      "test_fix": 11.0,
+      "voice_command": 11.0,
+      "perplexity_interaction": 44.0,
+      "test:pipeline_connect": 11.0,
+      "learn:pipeline:learned_test_apprentissage_pipeline": 11.0,
+      "brain:create_skill:auto_perplexity_interaction_perplexity_interaction": 11.0,
+      "git clone": 1.0
+    }
+  },
+  "recent_commands": [
+    [
+      "git clone",
+      1773601336.302488
+    ]
+  ]
+}

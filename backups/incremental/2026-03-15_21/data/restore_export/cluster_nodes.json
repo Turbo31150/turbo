@@ -1,0 +1,25 @@
+{
+  "M1": {
+    "host": "127.0.0.1:1234",
+    "model": "qwen3-8b",
+    "weight": 1.8,
+    "gpu": "6x GPU 46GB"
+  },
+  "M2": {
+    "host": "192.168.1.26:1234",
+    "model": "deepseek-r1-0528-qwen3-8b",
+    "weight": 1.5,
+    "gpu": "3x GPU 24GB"
+  },
+  "M3": {
+    "host": "192.168.1.113:1234",
+    "model": "deepseek-r1-0528-qwen3-8b",
+    "weight": 1.2,
+    "gpu": "1x GPU 8GB"
+  },
+  "OL1": {
+    "host": "127.0.0.1:11434",
+    "model": "qwen3:1.7b",
+    "weight": 1.3
+  }
+}

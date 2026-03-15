@@ -1,0 +1,9 @@
+{
+  "pipeline": "OpenWakeWord>Whisper-large-v3-turbo>TTS-Edge",
+  "voice": "fr-FR-DeniseNeural",
+  "fallback": [
+    "Edge TTS",
+    "Windows SAPI Hortense",
+    "Web Speech API"
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "timestamp": "2026-03-05T14:59:27.961169",
+  "cluster": {
+    "M1": {
+      "status": "UP",
+      "models": 1,
+      "loaded": [
+        "?"
+      ]
+    },
+    "M2": {
+      "status": "UP",
+      "models": 1,
+      "loaded": [
+        "?"
+      ]
+    },
+    "M3": {
+      "status": "DOWN",
+      "error": ""
+    },
+    "OL1": {
+      "status": "UP",
+      "models": 15
+    },
+    "GEMINI": {
+      "status": "DOWN",
+      "error": "All connection attempts failed"
+    },
+    "CLAUDE": {
+      "status": "DOWN",
+      "error": "All connection attempts failed"
+    }
+  },
+  "services": {
+    "OpenClaw Gateway": {
+      "status": "DOWN"
+    },
+    "Gemini Proxy": {
+      "status": "DOWN"
+    },
+    "Claude Bridge": {
+      "status": "DOWN"
+    },
+    "n8n": {
+      "status": "DOWN"
+    },
+    "Python WS": {
+      "status": "DOWN"
+    },
+    "Dashboard": {
+      "status": "DOWN"
+    },
+    "Chat Proxy": {
+      "status": "DOWN"
+    }
+  },
+  "gpus": [
+    {
+      "idx": "0",
+      "name": "NVIDIA GeForce RTX 2060",
+      "temp": 47,
+      "mem_used": 9467,
+      "mem_total": 12288,
+      "util": 0
+    },
+    {
+      "idx": "1",
+      "name": "NVIDIA GeForce GTX 1660 SUPER",
+      "temp": 34,
+      "mem_used": 4370,
+      "mem_total": 6144,
+      "util": 0
+    },
+    {
+      "idx": "2",
+      "name": "NVIDIA GeForce GTX 1660 SUPER",
+      "temp": 52,
+      "mem_used": 230,
+      "mem_total": 6144,
+      "util": 0
+    },
+    {
+      "idx": "3",
+      "name": "NVIDIA GeForce GTX 1660 SUPER",
+      "temp": 42,
+      "mem_used": 130,
+      "mem_total": 6144,
+      "util": 0
+    },
+    {
+      "idx": "4",
+      "name": "NVIDIA GeForce GTX 1660 SUPER",
+      "temp": 37,
+      "mem_used": 130,
+      "mem_total": 6144,
+      "util": 0
+    },
+    {
+      "idx": "5",
+      "name": "NVIDIA GeForce RTX 3080",
+      "temp": 56,
+      "mem_used": 8665,
+      "mem_total": 10240,
+      "util": 1
+    }
+  ]
+}

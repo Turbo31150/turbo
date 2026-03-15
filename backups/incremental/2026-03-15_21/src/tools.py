@@ -1,0 +1,2856 @@
+"""JARVIS MCP Tools — Complete toolkit: LM Studio, Windows, files, browser, trading.
+
+Optimizations:
+- Shared httpx client pool (persistent connections, HTTP/2 ready)
+- Retry with exponential backoff on transient errors
+- Auto-warmup on first inference call
+- LM Studio model management tools (load/unload/switch)
+- GPU monitoring tool
+- Performance metrics tracking
+"""
+
+from __future__ import annotations
+
+import asyncio
+import json
+import logging
+import re
+import sqlite3
+import subprocess
+import sys
+import time
+from pathlib import Path as _Path
+from typing import Any
+
+
+__all__ = [
+    "ToolMetrics",
+    "adaptive_router_pick_tool",
+    "adaptive_router_status_tool",
+    "auto_scaler_capacity_tool",
+    "auto_scaler_metrics_tool",
+    "cache_response",
+    "clear_cache",
+    "cowork_execute_tool",
+    "cowork_list_tool",
+    "cowork_proactive_anticipate_tool",
+    "cowork_proactive_needs_tool",
+    "cowork_proactive_run_tool",
+    "cowork_search_tool",
+    "cowork_stats_tool",
+    "dispatch_engine_report_tool",
+    "dispatch_engine_stats_tool",
+    "dispatch_engine_tool",
+    "dynamic_agents_list_tool",
+    "dynamic_agents_register_tool",
+    "dynamic_agents_stats_tool",
+    "ensemble_execute_tool",
+    "ensemble_stats_tool",
+    "episodic_learn_tool",
+    "episodic_node_tool",
+    "episodic_pattern_tool",
+    "episodic_recall_tool",
+    "event_stream_latest_tool",
+    "event_stream_stats_tool",
+    "extract_lms_output",
+    "feedback_quality_tool",
+    "feedback_trends_tool",
+    "get_cache_stats",
+    "get_tool_metrics_report",
+    "intelligence_actions_tool",
+    "intelligence_report_tool",
+    "intelligence_status_tool",
+    "lifecycle_actions_tool",
+    "lifecycle_health_tool",
+    "pattern_discovery_register_tool",
+    "pattern_discovery_tool",
+    "prompt_analyze_tool",
+    "prompt_insights_tool",
+    "prompt_optimize_tool",
+    "quality_gate_tool",
+    "reset_tool_metrics",
+    "self_improve_history_tool",
+    "self_improvement_analyze_tool",
+    "self_improvement_apply_tool",
+    "self_improvement_stats_tool",
+    "self_improvement_suggest_tool",
+    "task_planner_tool",
+]
+
+logger = logging.getLogger("jarvis.tools")
+
+import httpx
+from claude_agent_sdk import tool, create_sdk_mcp_server
+
+from src.config import config, SCRIPTS, PATHS, prepare_lmstudio_input, build_lmstudio_payload, build_ollama_payload
+
+
+def _strip_thinking_tags(text: str) -> str:
+    """Remove <think>...</think> blocks from LLM output."""
+    return re.sub(r'<think>.*?</think>\s*', '', text, flags=re.DOTALL).strip()
+
+
+def extract_lms_output(data: dict) -> str:
+    """Extract content from LM Studio native API response.
+
+    Handles all known response formats:
+    - output[]: list of {type: message/text/tool_call/reasoning}
+    - output as string (direct)
+    - OpenAI fallback: choices[0].message.content
+    - Strips <think>...</think> tags from all content
+    """
+    # Try native output field
+    output = data.get("output", [])
+
+    # String output (some models return plain string)
+    if isinstance(output, str):
+        return _strip_thinking_tags(output)
+
+    # List output (standard LM Studio format)
+    if isinstance(output, list) and output:
+        parts = []
+        for item in output:
+            if isinstance(item, str):
+                parts.append(item)
+                continue
+            item_type = item.get("type", "message")
+            if item_type in ("message", "text"):
+                c = item.get("content", "")
+                if c:
+                    parts.append(c)
+            elif item_type == "tool_call":
+                tool_name = item.get("tool", "?")
+                tool_output = item.get("output", "")
+                parts.append(f"[MCP:{tool_name}] {tool_output}")
+            # reasoning/thinking types: ignored
+        if parts:
+            return _strip_thinking_tags("\n".join(parts))
+
+    # OpenAI-compatible fallback: choices[0].message.content
+    choices = data.get("choices", [])
+    if choices:
+        msg = choices[0].get("message", {})
+        content = msg.get("content", "")
+        if content:
+            return _strip_thinking_tags(content)
+
+    return ""
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# CONNECTION POOL — Shared async client for all LM Studio/Ollama calls
+# ═══════════════════════════════════════════════════════════════════════════
+
+_HTTP_POOL: httpx.AsyncClient | None = None
+_POOL_LOCK = asyncio.Lock()
+
+
+async def _get_client() -> httpx.AsyncClient:
+    """Get or create the shared httpx client with connection pooling."""
+    global _HTTP_POOL
+    if _HTTP_POOL is None or _HTTP_POOL.is_closed:
+        async with _POOL_LOCK:
+            if _HTTP_POOL is None or _HTTP_POOL.is_closed:
+                _HTTP_POOL = httpx.AsyncClient(
+                    timeout=httpx.Timeout(
+                        connect=config.connect_timeout,
+                        read=config.inference_timeout,
+                        write=10.0,
+                        pool=5.0,
+                    ),
+                    limits=httpx.Limits(
+                        max_connections=20,
+                        max_keepalive_connections=10,
+                        keepalive_expiry=300,
+                    ),
+                )
+    return _HTTP_POOL
+
+
+async def _retry_request(
+    method: str, url: str, json: dict | None = None,
+    max_retries: int = 2, timeout: float | None = None,
+    headers: dict[str, str] | None = None,
+) -> httpx.Response:
+    """Execute HTTP request with retry and exponential backoff."""
+    client = await _get_client()
+    last_error = None
+    for attempt in range(max_retries + 1):
+        try:
+            kwargs: dict[str, Any] = {"url": url}
+            if json:
+                kwargs["json"] = json
+            if timeout:
+                kwargs["timeout"] = timeout
+            if headers:
+                kwargs["headers"] = headers
+            if method == "GET":
+                r = await client.get(**kwargs)
+            else:
+                r = await client.post(**kwargs)
+            r.raise_for_status()
+            return r
+        except (httpx.ConnectError, httpx.ConnectTimeout) as e:
+            last_error = e
+            if attempt < max_retries:
+                await asyncio.sleep(0.5 * (2 ** attempt))
+        except httpx.HTTPStatusError:
+            raise
+        except (httpx.HTTPError, OSError, ValueError) as e:
+            last_error = e
+            if attempt < max_retries:
+                await asyncio.sleep(0.5 * (2 ** attempt))
+    raise last_error or ConnectionError("Request failed")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TOOL METRICS v2 — Per-tool latency, success/error counts, cache stats
+# ═══════════════════════════════════════════════════════════════════════════
+
+import collections
+import hashlib
+import threading as _threading
+from functools import wraps
+
+
+class ToolMetrics:
+    """Singleton collecting per-tool performance metrics (thread-safe)."""
+
+    _instance = None
+    _lock = _threading.Lock()
+
+    def __new__(cls):
+        with cls._lock:
+            if cls._instance is None:
+                cls._instance = super().__new__(cls)
+                cls._instance._init()
+        return cls._instance
+
+    def _init(self):
+        self._data_lock = _threading.Lock()
+        self.latency_sum: dict[str, float] = collections.defaultdict(float)
+        self.call_count: dict[str, int] = collections.defaultdict(int)
+        self.success_count: dict[str, int] = collections.defaultdict(int)
+        self.error_count: dict[str, int] = collections.defaultdict(int)
+        self.cache_hits: dict[str, int] = collections.defaultdict(int)
+        self.last_latency: dict[str, float] = {}
+
+    def record(self, name: str, latency_ms: float, success: bool = True):
+        with self._data_lock:
+            self.latency_sum[name] += latency_ms
+            self.call_count[name] += 1
+            self.last_latency[name] = latency_ms
+            if success:
+                self.success_count[name] += 1
+            else:
+                self.error_count[name] += 1
+
+    def record_cache_hit(self, name: str):
+        with self._data_lock:
+            self.cache_hits[name] += 1
+
+    def get_report(self) -> dict:
+        with self._data_lock:
+            report = {}
+            for name in self.call_count:
+                total = self.call_count[name]
+                report[name] = {
+                    "calls": total,
+                    "avg_ms": round(self.latency_sum[name] / total, 1) if total else 0,
+                    "last_ms": round(self.last_latency.get(name, 0), 1),
+                    "success": self.success_count[name],
+                    "errors": self.error_count[name],
+                    "cache_hits": self.cache_hits.get(name, 0),
+                    "success_rate": round(self.success_count[name] / total, 3) if total else 1.0,
+                }
+            return report
+
+    def reset(self):
+        with self._data_lock:
+            self._init()
+
+
+_tool_metrics = ToolMetrics()
+
+
+def _track_metrics(fn):
+    """Decorator that records call latency and success/failure in ToolMetrics."""
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        try:
+            result = fn(*args, **kwargs)
+            _tool_metrics.record(fn.__name__, (time.time() - start) * 1000, success=True)
+            return result
+        except Exception:
+            _tool_metrics.record(fn.__name__, (time.time() - start) * 1000, success=False)
+            raise
+    return wrapper
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# LRU CACHE with TTL — Per-category response caching
+# ═══════════════════════════════════════════════════════════════════════════
+
+_CACHE_TTL = {"code": 60, "system": 30, "trading": 10, "query": 45, "default": 20}
+_CACHE_STORES: dict[str, collections.OrderedDict] = {
+    cat: collections.OrderedDict() for cat in _CACHE_TTL
+}
+_CACHE_LOCK = _threading.Lock()
+_CACHE_MAX = 256
+
+
+def _cache_key(args: tuple, kwargs: dict) -> str:
+    raw = repr(args) + repr(sorted(kwargs.items()))
+    return hashlib.md5(raw.encode()).hexdigest()
+
+
+def cache_response(category: str = "default"):
+    """Decorator: cache async tool responses with per-category TTL."""
+    ttl = _CACHE_TTL.get(category, _CACHE_TTL["default"])
+    store = _CACHE_STORES.setdefault(category, collections.OrderedDict())
+
+    def decorator(fn):
+        @wraps(fn)
+        async def wrapper(*args, **kwargs):
+            key = _cache_key(args, kwargs)
+            now = time.time()
+            with _CACHE_LOCK:
+                entry = store.get(key)
+                if entry and entry[1] > now:
+                    store.move_to_end(key)
+                    _tool_metrics.record_cache_hit(fn.__name__)
+                    return entry[0]
+
+            result = await fn(*args, **kwargs)
+
+            with _CACHE_LOCK:
+                if len(store) >= _CACHE_MAX:
+                    store.popitem(last=False)
+                store[key] = (result, now + ttl)
+            return result
+        return wrapper
+    return decorator
+
+
+def clear_cache(category: str | None = None):
+    """Clear response cache. None = all categories."""
+    with _CACHE_LOCK:
+        if category:
+            store = _CACHE_STORES.get(category)
+            if store:
+                store.clear()
+        else:
+            for store in _CACHE_STORES.values():
+                store.clear()
+
+
+def get_cache_stats() -> dict:
+    """Get cache statistics per category."""
+    with _CACHE_LOCK:
+        now = time.time()
+        return {
+            cat: {
+                "entries": len(store),
+                "valid": sum(1 for _, exp in store.values() if exp > now),
+                "ttl_seconds": _CACHE_TTL.get(cat, 20),
+            }
+            for cat, store in _CACHE_STORES.items()
+        }
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# LEGACY COMPAT + NODE TRACKING
+# ═══════════════════════════════════════════════════════════════════════════
+
+_METRICS: dict[str, list[float]] = {}
+_METRICS_LOCK = _threading.Lock()
+
+
+def _track_latency(node: str, latency_ms: float) -> None:
+    """Track latency for auto-tune routing + tool metrics."""
+    with _METRICS_LOCK:
+        if node not in _METRICS:
+            _METRICS[node] = []
+        _METRICS[node].append(latency_ms)
+        if len(_METRICS[node]) > 20:
+            _METRICS[node] = _METRICS[node][-20:]
+    config.update_latency(node, int(latency_ms))
+    _tool_metrics.record(f"node_{node}", latency_ms)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# LM STUDIO TOOLS
+# ═══════════════════════════════════════════════════════════════════════════
+
+@tool("lm_query", "Interroger un noeud LM Studio. Args: prompt, node (M1/M2), model (optionnel), mode (fast/deep/default).", {"prompt": str, "node": str, "model": str, "mode": str})
+async def lm_query(args: dict[str, Any]) -> dict[str, Any]:
+    prompt = args["prompt"]
+    node = config.get_node(args.get("node", "M1"))
+    if not node:
+        return _error(f"Noeud inconnu: {args.get('node')}")
+    model = args.get("model", node.default_model)
+    mode = args.get("mode", "default")
+
+    # Adapt parameters to mode
+    max_tokens = {
+        "fast": config.fast_max_tokens,
+        "deep": config.deep_max_tokens,
+    }.get(mode, config.max_tokens)
+    timeout = config.get_timeout(mode)
+    temp = 0.2 if mode == "fast" else config.temperature
+
+    input_text = prepare_lmstudio_input(prompt, node.name, model)
+
+    try:
+        t0 = time.monotonic()
+        r = await _retry_request("POST", f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
+            model, input_text, temperature=temp, max_output_tokens=max_tokens,
+        ), timeout=timeout, headers=node.auth_headers)
+        latency = (time.monotonic() - t0) * 1000
+        _track_latency(node.name, latency)
+        _tool_metrics.record("lm_query", latency, success=True)
+        data = r.json()
+        content = extract_lms_output(data)
+        usage = data.get("stats", {})
+        return _text(
+            f"[{node.name}/{model}] {content}\n"
+            f"--- {int(latency)}ms | {usage.get('total_output_tokens', '?')} tokens"
+        )
+    except httpx.ConnectError:
+        _tool_metrics.record("lm_query", 0, success=False)
+        return _error(f"Noeud {node.name} hors ligne ({node.url})")
+    except httpx.ReadTimeout:
+        _tool_metrics.record("lm_query", (time.monotonic() - t0) * 1000, success=False)
+        return _error(f"Timeout {node.name} ({timeout}s) — essaie mode=fast pour limiter les tokens")
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
+        _tool_metrics.record("lm_query", 0, success=False)
+        return _error(f"Erreur LM Studio: {e}")
+
+
+@tool("lm_mcp_query", "Interroger M1/M2 avec serveurs MCP (HuggingFace, Playwright, etc). Args: prompt, node, model, servers, allowed_tools, context_length.",
+      {"prompt": str, "node": str, "model": str, "servers": str, "allowed_tools": str, "context_length": int})
+async def lm_mcp_query(args: dict[str, Any]) -> dict[str, Any]:
+    prompt = args["prompt"]
+    node = config.get_node(args.get("node", "M1"))
+    if not node:
+        return _error(f"Noeud inconnu: {args.get('node')}")
+    model = args.get("model", node.default_model)
+
+    # Parse servers: "huggingface,context7" -> ["huggingface", "context7"]
+    server_names = [s.strip() for s in args.get("servers", "huggingface").split(",")]
+    allowed_tools_raw = args.get("allowed_tools", "")
+    allowed_tools = [t.strip() for t in allowed_tools_raw.split(",") if t.strip()] or None
+
+    integrations = config.get_mcp_integrations(server_names, allowed_tools)
+    if not integrations:
+        return _error(f"Aucun serveur MCP valide: {server_names}. Disponibles: {list(config.mcp_servers.keys())}")
+
+    ctx_len = args.get("context_length", node.context_length)
+
+    try:
+        t0 = time.monotonic()
+        r = await _retry_request("POST", f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
+            model, prompt, temperature=config.temperature, max_output_tokens=config.max_tokens,
+            integrations=integrations, context_length=ctx_len,
+        ), timeout=config.inference_timeout, headers=node.auth_headers)
+        latency = (time.monotonic() - t0) * 1000
+        _track_latency(node.name, latency)
+        data = r.json()
+        content = extract_lms_output(data)
+        usage = data.get("stats", {})
+        tool_calls = [o for o in data.get("output", []) if o.get("type") == "tool_call"]
+        tc_info = f" | {len(tool_calls)} tool_call(s)" if tool_calls else ""
+        return _text(
+            f"[{node.name}/{model} +MCP:{','.join(server_names)}] {content}\n"
+            f"--- {int(latency)}ms | {usage.get('total_output_tokens', '?')} tokens{tc_info}"
+        )
+    except httpx.ConnectError:
+        return _error(f"Noeud {node.name} hors ligne ({node.url})")
+    except httpx.ReadTimeout:
+        return _error(f"Timeout {node.name} (MCP peut etre lent) — essaie context_length plus petit")
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
+        return _error(f"Erreur LM Studio MCP: {e}")
+
+
+@tool("lm_list_mcp_servers", "Lister les serveurs MCP disponibles pour LM Studio.", {})
+async def lm_list_mcp_servers(args: dict[str, Any]) -> dict[str, Any]:
+    lines = []
+    for name, srv in config.mcp_servers.items():
+        stype = srv.get("type", "?")
+        url = srv.get("server_url", srv.get("id", "?"))
+        lines.append(f"  {name}: [{stype}] {url}")
+    return _text("Serveurs MCP:\n" + "\n".join(lines))
+
+
+@tool("gemini_query", "Interroger Gemini via proxy. Args: prompt, model (gemini-2.5-pro/flash), json_mode.", {"prompt": str, "model": str, "json_mode": bool})
+async def gemini_query(args: dict[str, Any]) -> dict[str, Any]:
+    prompt = args["prompt"]
+    json_mode = args.get("json_mode", False)
+
+    cmd = ["node", config.gemini_node.proxy_path]
+    if json_mode:
+        cmd.append("--json")
+    cmd.append(prompt)
+
+    try:
+        t0 = time.monotonic()
+        proc = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        stdout, stderr = await asyncio.wait_for(
+            proc.communicate(),
+            timeout=config.gemini_node.timeout_ms / 1000,
+        )
+        latency = int((time.monotonic() - t0) * 1000)
+        _track_latency("GEMINI", latency)
+        _tool_metrics.record("gemini_query", latency, success=True)
+
+        output = stdout.decode(errors="replace").strip()
+        if proc.returncode != 0 and not output:
+            err = stderr.decode(errors="replace").strip()
+            _tool_metrics.record("gemini_query", latency, success=False)
+            return _error(f"Gemini erreur (exit {proc.returncode}): {err[:500]}")
+
+        model = config.gemini_node.default_model
+        return _text(f"[GEMINI/{model}] {_strip_thinking_tags(output)}\n--- {latency}ms")
+    except asyncio.TimeoutError:
+        _tool_metrics.record("gemini_query", 0, success=False)
+        return _error(f"Gemini timeout ({config.gemini_node.timeout_ms / 1000}s)")
+    except FileNotFoundError:
+        _tool_metrics.record("gemini_query", 0, success=False)
+        return _error("node.js non trouve — gemini-proxy.js necessite Node.js")
+    except (OSError, subprocess.SubprocessError, ValueError) as e:
+        _tool_metrics.record("gemini_query", 0, success=False)
+        return _error(f"Erreur Gemini: {e}")
+
+
+@tool("bridge_query", "Routage intelligent vers le meilleur noeud selon task_type. Args: prompt, task_type, preferred_node.", {"prompt": str, "task_type": str, "preferred_node": str})
+async def bridge_query(args: dict[str, Any]) -> dict[str, Any]:
+    prompt = args["prompt"]
+    task_type = args.get("task_type", "short_answer")
+    preferred = args.get("preferred_node", "")
+
+    if preferred:
+        nodes = [preferred] + [n for n in config.route(task_type) if n != preferred]
+    else:
+        nodes = config.route(task_type)
+
+    if not nodes:
+        nodes = ["M1"]
+
+    for name in nodes:
+        upper = name.upper()
+        try:
+            if upper == "GEMINI":
+                result = await gemini_query({"prompt": prompt})
+            elif config.get_ollama_node(name):
+                result = await ollama_query({"prompt": prompt, "model": config.get_ollama_node(name).default_model})
+            else:
+                node = config.get_node(name)
+                if not node:
+                    continue
+                result = await lm_query({"prompt": prompt, "node": name})
+
+            if not result.get("is_error"):
+                return result
+        except (httpx.HTTPError, asyncio.TimeoutError, OSError) as exc:
+            logger.debug("bridge_query %s failed: %s", name, exc)
+            continue
+
+    return _error(f"Tous les noeuds ont echoue pour task_type={task_type}: {nodes}")
+
+
+@tool("bridge_mesh", "Requete parallele sur N noeuds. Args: prompt, nodes (M1,M2,OL1,GEMINI), timeout_per_node.", {"prompt": str, "nodes": str, "timeout_per_node": int})
+async def bridge_mesh(args: dict[str, Any]) -> dict[str, Any]:
+    prompt = args["prompt"]
+    names = [n.strip() for n in args.get("nodes", "M1,M2,OL1,GEMINI").split(",")]
+    per_timeout = args.get("timeout_per_node", 60)
+    client = await _get_client()
+
+    async def _query_one(name: str) -> str:
+        upper = name.upper()
+        try:
+            t0 = time.monotonic()
+
+            if upper == "GEMINI":
+                from src.gemini_provider import get_gemini
+                gp = get_gemini()
+                result = await asyncio.wait_for(gp.chat(prompt, model="fast", max_tokens=config.max_tokens), timeout=per_timeout)
+                latency = int((time.monotonic() - t0) * 1000)
+                if result.get("error"):
+                    return f"[GEMINI] ERREUR: {result['error']}"
+                return f"[GEMINI/{result.get('model', 'gemini')}] {result['text']} --- {latency}ms"
+
+            ol_node = config.get_ollama_node(name)
+            if ol_node:
+                r = await client.post(f"{ol_node.url}/api/chat", json=build_ollama_payload(
+                    ol_node.default_model, [{"role": "user", "content": prompt}],
+                    temperature=config.temperature, num_predict=config.max_tokens,
+                ), timeout=per_timeout)
+                r.raise_for_status()
+                latency = int((time.monotonic() - t0) * 1000)
+                return f"[{name}/{ol_node.default_model}] {r.json()['message']['content']} --- {latency}ms"
+
+            node = config.get_node(name)
+            if not node:
+                return f"[{name}] ERREUR: noeud inconnu"
+            input_text = prepare_lmstudio_input(prompt, node.name, node.default_model)
+            r = await client.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
+                node.default_model, input_text,
+                temperature=config.temperature, max_output_tokens=config.max_tokens,
+            ), timeout=per_timeout, headers=node.auth_headers)
+            r.raise_for_status()
+            latency = int((time.monotonic() - t0) * 1000)
+            _track_latency(name, latency)
+            return f"[{name}/{node.default_model}] {extract_lms_output(r.json())} --- {latency}ms"
+
+        except asyncio.TimeoutError:
+            return f"[{name}] TIMEOUT ({per_timeout}s)"
+        except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError, subprocess.SubprocessError) as e:
+            return f"[{name}] ERREUR: {e}"
+
+    results = await asyncio.gather(*[_query_one(n) for n in names], return_exceptions=True)
+    responses = []
+    ok_count = 0
+    for r in results:
+        if isinstance(r, Exception):
+            responses.append(f"[?] EXCEPTION: {r}")
+        else:
+            responses.append(str(r))
+            if "ERREUR" not in str(r) and "TIMEOUT" not in str(r):
+                ok_count += 1
+
+    return _text(
+        f"Bridge Mesh ({ok_count}/{len(names)} OK):\n\n"
+        + "\n\n---\n\n".join(responses)
+    )
+
+
+@tool("lm_models", "Lister les modeles charges sur un noeud LM Studio.", {"node": str})
+async def lm_models(args: dict[str, Any]) -> dict[str, Any]:
+    node_name = args.get("node", "M1")
+    node = config.get_node(node_name)
+    if not node:
+        return _error("Noeud inconnu")
+    try:
+        r = await _retry_request("GET", f"{node.url}/api/v1/models", timeout=config.health_timeout, headers=node.auth_headers)
+        models = [m["key"] for m in r.json().get("models", []) if m.get("loaded_instances")]
+        return _text(f"Modeles: {', '.join(models) if models else 'aucun'}")
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
+        return _error(str(e))
+
+
+@tool("lm_cluster_status", "Sante de tous les noeuds du cluster (LM Studio + Ollama) avec metriques.", {})
+async def lm_cluster_status(args: dict[str, Any]) -> dict[str, Any]:
+    results, online = [], 0
+    total_nodes = len(config.lm_nodes) + len(config.ollama_nodes)
+    total_models = 0
+    client = await _get_client()
+
+    for n in config.lm_nodes:
+        try:
+            t0 = time.monotonic()
+            r = await client.get(f"{n.url}/api/v1/models", timeout=config.health_timeout, headers=n.auth_headers)
+            r.raise_for_status()
+            latency = int((time.monotonic() - t0) * 1000)
+            models = [m["key"] for m in r.json().get("models", []) if m.get("loaded_instances")]
+            cnt = len(models)
+            total_models += cnt
+            online += 1
+            _track_latency(n.name, latency)
+            with _METRICS_LOCK:
+                avg = int(sum(_METRICS.get(n.name, [latency])) / max(len(_METRICS.get(n.name, [1])), 1))
+            results.append(
+                f"  [OK] {n.name} ({n.role}) — {n.gpus} GPU, {n.vram_gb}GB — "
+                f"{cnt} modeles — {latency}ms (avg {avg}ms)\n"
+                f"       Modeles: {', '.join(models)}"
+            )
+        except (httpx.HTTPError, OSError) as exc:
+            logger.debug("cluster_status %s offline: %s", n.name, exc)
+            results.append(f"  [--] {n.name} ({n.role}) — hors ligne")
+
+    for n in config.ollama_nodes:
+        try:
+            t0 = time.monotonic()
+            r = await client.get(f"{n.url}/api/tags", timeout=config.health_timeout)
+            r.raise_for_status()
+            latency = int((time.monotonic() - t0) * 1000)
+            models = [m["name"] for m in r.json().get("models", [])]
+            cnt = len(models)
+            total_models += cnt
+            online += 1
+            results.append(
+                f"  [OK] {n.name} ({n.role}) — {cnt} modeles — {latency}ms [Ollama]\n"
+                f"       Modeles: {', '.join(models)}"
+            )
+        except (httpx.HTTPError, OSError) as exc:
+            logger.debug("cluster_status %s offline: %s", n.name, exc)
+            results.append(f"  [--] {n.name} ({n.role}) — hors ligne [Ollama]")
+
+    return _text(
+        f"Cluster: {online}/{total_nodes} en ligne, {total_models} modeles\n"
+        + "\n".join(results)
+    )
+
+
+@tool("system_audit", "Audit complet du cluster — 10 sections + scores readiness.", {"mode": str})
+async def system_audit(args: dict[str, Any]) -> dict[str, Any]:
+    """Run complete system audit with readiness scores."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "system_audit", str(PATHS["turbo"] / "scripts" / "system_audit.py")
+    )
+    if spec is None or spec.loader is None:
+        return _error("system_audit.py script not found")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    mode = args.get("mode", "full")
+    quick = mode == "quick"
+    report = await mod.run_audit(quick=quick)
+    text = mod.format_report(report)
+    return _text(text)
+
+
+@tool("consensus", "Consensus multi-noeuds IA (M1,M2,OL1,GEMINI). Args: prompt, nodes, timeout_per_node.", {"prompt": str, "nodes": str, "timeout_per_node": int})
+async def consensus(args: dict[str, Any]) -> dict[str, Any]:
+    prompt = args["prompt"]
+    names = [n.strip() for n in args.get("nodes", "M1,M2,OL1").split(",")]
+    per_timeout = args.get("timeout_per_node", 60)
+    responses = []
+    client = await _get_client()
+
+    async def _query_node(name: str) -> str:
+        upper = name.upper()
+
+        # Gemini via subprocess
+        if upper == "GEMINI":
+            try:
+                cmd = ["node", config.gemini_node.proxy_path, prompt]
+                proc = await asyncio.create_subprocess_exec(
+                    *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+                )
+                stdout, _ = await asyncio.wait_for(
+                    proc.communicate(), timeout=per_timeout,
+                )
+                output = stdout.decode(errors="replace").strip()
+                if proc.returncode != 0 and not output:
+                    return f"[GEMINI] ERREUR (exit {proc.returncode})"
+                return f"[GEMINI/{config.gemini_node.default_model}] {_strip_thinking_tags(output)}"
+            except asyncio.TimeoutError:
+                return f"[GEMINI] TIMEOUT ({per_timeout}s)"
+            except (OSError, subprocess.SubprocessError, ValueError) as e:
+                return f"[GEMINI] ERREUR: {e}"
+
+        ol_node = config.get_ollama_node(name)
+        if ol_node:
+            try:
+                r = await asyncio.wait_for(client.post(f"{ol_node.url}/api/chat", json=build_ollama_payload(
+                    ol_node.default_model, [{"role": "user", "content": prompt}],
+                    temperature=config.temperature, num_predict=config.max_tokens,
+                ), timeout=per_timeout), timeout=per_timeout)
+                r.raise_for_status()
+                content = r.json()["message"]["content"]
+                return f"[{name}/{ol_node.default_model}] {_strip_thinking_tags(content)}"
+            except asyncio.TimeoutError:
+                return f"[{name}/Ollama] TIMEOUT ({per_timeout}s)"
+            except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
+                return f"[{name}/Ollama] ERREUR: {e}"
+
+        node = config.get_node(name)
+        if not node:
+            return f"[{name}] ERREUR: inconnu"
+        input_text = prepare_lmstudio_input(prompt, node.name, node.default_model)
+
+        try:
+            r = await asyncio.wait_for(client.post(f"{node.url}/api/v1/chat", json=build_lmstudio_payload(
+                node.default_model, input_text,
+                temperature=config.temperature, max_output_tokens=config.max_tokens,
+            ), timeout=per_timeout, headers=node.auth_headers), timeout=per_timeout)
+            r.raise_for_status()
+            return f"[{name}/{node.default_model}] {extract_lms_output(r.json())}"
+        except asyncio.TimeoutError:
+            return f"[{name}] TIMEOUT ({per_timeout}s)"
+        except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
+            return f"[{name}] ERREUR: {e}"
+
+    # Run all queries in parallel
+    results = await asyncio.gather(*[_query_node(n) for n in names], return_exceptions=True)
+    for r in results:
+        responses.append(str(r) if isinstance(r, Exception) else r)
+
+    # Weighted voting summary
+    weights = config.node_weights
+    weight_info = " | ".join(f"{n}={weights.get(n, 1.0)}" for n in names)
+    return _text(f"Consensus (poids: {weight_info}):\n\n" + "\n\n---\n\n".join(responses))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# LM STUDIO MODEL MANAGEMENT
+# ═══════════════════════════════════════════════════════════════════════════
+
+LMS_CLI = str(_Path.home() / ".lmstudio" / "bin" / "lms.exe")
+
+
+@tool("lm_load_model", "Charger un modele sur M1. Args: model, context, parallel.", {"model": str, "context": int, "parallel": int})
+async def lm_load_model(args: dict[str, Any]) -> dict[str, Any]:
+    from src.cluster_startup import load_model_on_demand
+    model = args["model"]
+    context = args.get("context", 16384)
+    parallel = args.get("parallel", 2)
+    result = await load_model_on_demand(model, context=context, parallel=parallel)
+    if result["ok"]:
+        bench = result.get("bench", {})
+        return _text(f"Modele {model} charge — {bench.get('latency_ms', '?')}ms warmup")
+    return _error(f"Echec chargement {model}: {result.get('status', '?')}")
+
+
+@tool("lm_unload_model", "Decharger un modele de M1. Args: model.", {"model": str})
+async def lm_unload_model(args: dict[str, Any]) -> dict[str, Any]:
+    from src.cluster_startup import _lms_unload
+    model = args["model"]
+    ok = _lms_unload(model)
+    return _text(f"Modele {model} {'decharge' if ok else 'echec decharge'}")
+
+
+@tool("lm_switch_coder", "Basculer M1 en mode code (charge qwen3-coder-30b).", {})
+async def lm_switch_coder(args: dict[str, Any]) -> dict[str, Any]:
+    from src.cluster_startup import switch_to_coder_mode
+    result = await switch_to_coder_mode()
+    return _text(f"Mode coder: {result['status']}") if result["ok"] else _error(f"Echec: {result['status']}")
+
+
+@tool("lm_switch_dev", "Basculer M1 en mode dev (charge qwen3-coder-30b).", {})
+async def lm_switch_dev(args: dict[str, Any]) -> dict[str, Any]:
+    from src.cluster_startup import switch_to_dev_mode
+    result = await switch_to_dev_mode()
+    return _text(f"Mode dev: {result['status']}") if result["ok"] else _error(f"Echec: {result['status']}")
+
+
+@tool("lm_gpu_stats", "Statistiques GPU detaillees (VRAM, utilisation, temperature).", {})
+async def lm_gpu_stats(args: dict[str, Any]) -> dict[str, Any]:
+    from src.cluster_startup import _get_gpu_stats
+    gpus = _get_gpu_stats()
+    if not gpus:
+        return _error("nvidia-smi non disponible")
+    lines = []
+    total_used = sum(g["vram_used_mb"] for g in gpus)
+    total_avail = sum(g["vram_total_mb"] for g in gpus)
+    lines.append(f"VRAM Total: {total_used}MB / {total_avail}MB ({round(total_used/max(total_avail,1)*100)}%)\n")
+    for g in gpus:
+        bar = "#" * int(g["vram_pct"] / 5) + "." * (20 - int(g["vram_pct"] / 5))
+        lines.append(f"GPU{g['index']} {g['name']} [{bar}] {g['vram_used_mb']}MB/{g['vram_total_mb']}MB ({g['vram_pct']}%) | util={g['gpu_util']}%")
+    return _text("\n".join(lines))
+
+
+@tool("lm_benchmark", "Benchmark latence M1/M2/OL1 avec inference reelle.", {"nodes": str})
+async def lm_benchmark(args: dict[str, Any]) -> dict[str, Any]:
+    from src.cluster_startup import _warmup_model, _warmup_ollama
+    nodes = [n.strip() for n in args.get("nodes", "M1,M2,OL1").split(",")]
+    results = []
+    for name in nodes:
+        ol = config.get_ollama_node(name)
+        if ol:
+            bench = await _warmup_ollama(ol.url, ol.default_model)
+            results.append(f"  {name} (Ollama/{ol.default_model}): {'OK' if bench['ok'] else 'ECHEC'} — {bench['latency_ms']}ms")
+            continue
+        node = config.get_node(name)
+        if node:
+            bench = await _warmup_model(node.url, node.default_model)
+            if bench["ok"]:
+                results.append(f"  {name} ({node.default_model}): OK — {bench['latency_ms']}ms, {bench['tokens_per_sec']} tok/s")
+                _track_latency(name, bench["latency_ms"])
+            else:
+                results.append(f"  {name}: ECHEC — {bench.get('error', '?')}")
+    return _text("Benchmark:\n" + "\n".join(results))
+
+
+@tool("lm_perf_metrics", "Metriques de performance du cluster (latences moyennes, requetes).", {})
+async def lm_perf_metrics(args: dict[str, Any]) -> dict[str, Any]:
+    with _METRICS_LOCK:
+        snapshot = dict(_METRICS)
+    if not snapshot:
+        return _text("Aucune metrique collectee. Lance lm_benchmark d'abord.")
+    lines = ["Metriques de performance:"]
+    for node, latencies in snapshot.items():
+        if not latencies:
+            continue
+        avg = int(sum(latencies) / len(latencies))
+        mn = int(min(latencies))
+        mx = int(max(latencies))
+        lines.append(f"  {node}: avg={avg}ms min={mn}ms max={mx}ms ({len(latencies)} requetes)")
+    return _text("\n".join(lines))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# OLLAMA TOOLS
+# ═══════════════════════════════════════════════════════════════════════════
+
+@tool("ollama_query", "Interroger Ollama (local ou cloud). Args: prompt, model (defaut: qwen3:1.7b).", {"prompt": str, "model": str})
+async def ollama_query(args: dict[str, Any]) -> dict[str, Any]:
+    node = config.get_ollama_node("OL1")
+    if not node:
+        return _error("Noeud Ollama OL1 non configure")
+    model = args.get("model", node.default_model)
+    try:
+        t0 = time.monotonic()
+        r = await _retry_request("POST", f"{node.url}/api/chat", json={
+            "model": model,
+            "messages": [{"role": "user", "content": args["prompt"]}],
+            "stream": False, "think": False,
+            "options": {"temperature": config.temperature, "num_predict": config.max_tokens},
+        })
+        latency = int((time.monotonic() - t0) * 1000)
+        _track_latency("OL1", latency)
+        _tool_metrics.record("ollama_query", latency, success=True)
+        return _text(f"[OL1/{model}] {r.json()['message']['content']} --- {latency}ms")
+    except httpx.ConnectError:
+        _tool_metrics.record("ollama_query", 0, success=False)
+        return _error("Ollama hors ligne (127.0.0.1:11434)")
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
+        _tool_metrics.record("ollama_query", 0, success=False)
+        return _error(f"Erreur Ollama: {e}")
+
+
+@tool("ollama_models", "Lister les modeles Ollama disponibles (locaux + cloud).", {})
+async def ollama_models(args: dict[str, Any]) -> dict[str, Any]:
+    node = config.get_ollama_node("OL1")
+    if not node:
+        return _error("Noeud Ollama OL1 non configure")
+    try:
+        r = await _retry_request("GET", f"{node.url}/api/tags", timeout=config.health_timeout)
+        models = [m["name"] for m in r.json().get("models", [])]
+        return _text(f"Modeles Ollama: {', '.join(models) if models else 'aucun'}")
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
+        return _error(f"Erreur Ollama: {e}")
+
+
+@tool("ollama_pull", "Telecharger un modele Ollama. Args: model_name.", {"model_name": str})
+async def ollama_pull(args: dict[str, Any]) -> dict[str, Any]:
+    node = config.get_ollama_node("OL1")
+    if not node:
+        return _error("Noeud Ollama OL1 non configure")
+    model_name = args["model_name"]
+    try:
+        client = await _get_client()
+        r = await client.post(f"{node.url}/api/pull", json={"name": model_name, "stream": False}, timeout=600)
+        r.raise_for_status()
+        return _text(f"Modele '{model_name}' telecharge avec succes.")
+    except (httpx.HTTPError, OSError) as e:
+        return _error(f"Erreur pull Ollama: {e}")
+
+
+@tool("ollama_status", "Sante du backend Ollama: version, modeles, status.", {})
+async def ollama_status(args: dict[str, Any]) -> dict[str, Any]:
+    node = config.get_ollama_node("OL1")
+    if not node:
+        return _error("Noeud Ollama OL1 non configure")
+    try:
+        r = await _retry_request("GET", f"{node.url}/api/tags", timeout=config.health_timeout)
+        data = r.json()
+        models = [m["name"] for m in data.get("models", [])]
+        return _text(
+            f"Ollama OL1: ONLINE\n"
+            f"  URL: {node.url}\n"
+            f"  Modeles: {len(models)} ({', '.join(models) if models else 'aucun'})\n"
+            f"  Role: {node.role}"
+        )
+    except httpx.ConnectError:
+        return _error("Ollama OL1: OFFLINE (127.0.0.1:11434)")
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
+        return _error(f"Erreur Ollama status: {e}")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# GEMINI API — Chat, Vision, Search, Code
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+@tool("gemini_query", "Interroger Gemini API (chat texte). Args: prompt, model (fast/pro/flash3/pro3/lite), system, temperature, max_tokens, thinking (minimal/low/medium/high).",
+      {"prompt": str, "model": str, "system": str, "temperature": float, "max_tokens": int, "thinking": str})
+async def gemini_query(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    gp = get_gemini()
+    result = await gp.chat(
+        args["prompt"],
+        model=args.get("model"),
+        system=args.get("system"),
+        temperature=args.get("temperature", 0.7),
+        max_tokens=args.get("max_tokens", 2048),
+        thinking=args.get("thinking"),
+    )
+    if result.get("error"):
+        _tool_metrics.record("gemini_query", 0, success=False)
+        return _error(f"Gemini: {result['error']}")
+    _tool_metrics.record("gemini_query", result.get("latency_ms", 0), success=True)
+    return _text(
+        f"[GEMINI/{result['model']}] {result['text']}\n"
+        f"--- {result['latency_ms']:.0f}ms | {result.get('tokens_out', '?')} tokens"
+    )
+
+
+@tool("gemini_search", "Recherche web grounded via Google Search + Gemini. Args: prompt, model.",
+      {"prompt": str, "model": str})
+async def gemini_search(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    gp = get_gemini()
+    result = await gp.search(args["prompt"], model=args.get("model"))
+    if result.get("error"):
+        _tool_metrics.record("gemini_search", 0, success=False)
+        return _error(f"Gemini Search: {result['error']}")
+    _tool_metrics.record("gemini_search", result.get("latency_ms", 0), success=True)
+    sources = result.get("sources", [])
+    sources_txt = ""
+    if sources:
+        sources_txt = "\nSources:\n" + "\n".join(f"  - {s['title']}: {s['uri']}" for s in sources[:5])
+    return _text(
+        f"[GEMINI-SEARCH/{result['model']}] {result['text']}{sources_txt}\n"
+        f"--- {result['latency_ms']:.0f}ms | {result.get('tokens_out', '?')} tokens"
+    )
+
+
+@tool("gemini_vision", "Analyser une image via Gemini. Args: prompt, image_path.",
+      {"prompt": str, "image_path": str})
+async def gemini_vision(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    gp = get_gemini()
+    result = await gp.vision(
+        args["prompt"],
+        image_path=args.get("image_path"),
+    )
+    if result.get("error"):
+        _tool_metrics.record("gemini_vision", 0, success=False)
+        return _error(f"Gemini Vision: {result['error']}")
+    _tool_metrics.record("gemini_vision", result.get("latency_ms", 0), success=True)
+    return _text(
+        f"[GEMINI-VISION/{result['model']}] {result['text']}\n"
+        f"--- {result['latency_ms']:.0f}ms | {result.get('tokens_out', '?')} tokens"
+    )
+
+
+@tool("gemini_code", "Exécuter du code Python via Gemini Code Execution. Args: prompt.",
+      {"prompt": str})
+async def gemini_code(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    gp = get_gemini()
+    result = await gp.code(args["prompt"])
+    if result.get("error"):
+        _tool_metrics.record("gemini_code", 0, success=False)
+        return _error(f"Gemini Code: {result['error']}")
+    _tool_metrics.record("gemini_code", result.get("latency_ms", 0), success=True)
+    code_blocks = result.get("code", [])
+    code_txt = ""
+    if code_blocks:
+        code_txt = "\n```python\n" + "\n".join(code_blocks) + "\n```"
+    return _text(
+        f"[GEMINI-CODE/{result['model']}] {result['text']}{code_txt}\n"
+        f"--- {result['latency_ms']:.0f}ms | {result.get('tokens_out', '?')} tokens"
+    )
+
+
+@tool("gemini_status", "Status du provider Gemini API: circuit, latency, tokens.", {})
+async def gemini_status(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    status = get_gemini().status()
+    return _text(json.dumps(status, indent=2, ensure_ascii=False))
+
+
+@tool("gemini_health", "Health check Gemini API.", {})
+async def gemini_health(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    result = await get_gemini().health()
+    if result.get("ok"):
+        return _text(f"Gemini ONLINE — {result['model']} — {result['latency_ms']:.0f}ms")
+    return _error(f"Gemini OFFLINE: {result.get('response', 'unknown')}")
+
+
+@tool("gemini_models", "Lister les modèles Gemini disponibles.", {})
+async def gemini_models(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    result = await get_gemini().list_models()
+    if result.get("error"):
+        return _error(f"Gemini: {result['error']}")
+    models = result.get("models", [])
+    lines = [f"Modeles Gemini ({len(models)}):"]
+    for m in models[:30]:
+        lines.append(f"  {m['id']}: in={m['inputTokenLimit']} out={m['outputTokenLimit']}")
+    return _text("\n".join(lines))
+
+
+@tool("gemini_image", "Generer une image via Imagen 4. Args: prompt, output_path, model (imagen4/imagen4ultra/imagen4fast).",
+      {"prompt": str, "output_path": str, "model": str})
+async def gemini_image(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    gp = get_gemini()
+    output = args.get("output_path", "")
+    if output:
+        result = await gp.save_image(args["prompt"], output, model=args.get("model", "imagen4"))
+        if result.get("error"):
+            return _error(f"Imagen: {result['error']}")
+        return _text(f"[GEMINI-IMAGE/{result['model']}] Image sauvegardee: {result['saved_to']} ({result.get('size_bytes',0)} bytes) --- {result['latency_ms']:.0f}ms")
+    result = await gp.generate_image(args["prompt"], model=args.get("model", "imagen4"))
+    if result.get("error"):
+        return _error(f"Imagen: {result['error']}")
+    return _text(f"[GEMINI-IMAGE/{result['model']}] {result['count']} image(s) generee(s) --- {result['latency_ms']:.0f}ms")
+
+
+@tool("gemini_video", "Lancer generation video via Veo 3.1. Args: prompt, model (veo31/veo31fast/veo3).",
+      {"prompt": str, "model": str})
+async def gemini_video(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    result = await get_gemini().generate_video(args["prompt"], model=args.get("model", "veo31fast"))
+    if result.get("error"):
+        return _error(f"Veo: {result['error']}")
+    return _text(f"[GEMINI-VIDEO/{result['model']}] Generation lancee. Operation: {result['operation']} --- {result['latency_ms']:.0f}ms\nPoll: {result.get('poll_url','')}")
+
+
+@tool("gemini_tts", "Synthese vocale via Gemini TTS. Args: prompt, output_path, voice (Kore/Puck/Charon/Fenrir/Aoede).",
+      {"prompt": str, "output_path": str, "voice": str})
+async def gemini_tts(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    output = args.get("output_path", "")
+    if output:
+        result = await get_gemini().save_tts(args["prompt"], output, voice=args.get("voice", "Kore"))
+        if result.get("error"):
+            return _error(f"TTS: {result['error']}")
+        return _text(f"[GEMINI-TTS/{result['model']}] Audio sauvegarde: {result['saved_to']} ({result.get('size_bytes',0)} bytes) --- {result['latency_ms']:.0f}ms")
+    result = await get_gemini().tts(args["prompt"], voice=args.get("voice", "Kore"))
+    if result.get("error"):
+        return _error(f"TTS: {result['error']}")
+    return _text(f"[GEMINI-TTS/{result['model']}] Audio genere ({result.get('mimeType','')}) --- {result['latency_ms']:.0f}ms")
+
+
+@tool("gemini_pdf", "Analyser un PDF via Gemini. Args: prompt, pdf_path.",
+      {"prompt": str, "pdf_path": str})
+async def gemini_pdf(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    result = await get_gemini().analyze_pdf(args["prompt"], args["pdf_path"])
+    if result.get("error"):
+        return _error(f"PDF: {result['error']}")
+    return _text(f"[GEMINI-PDF/{result['model']}] {result['text'][:2000]}\n--- {result['latency_ms']:.0f}ms")
+
+
+@tool("gemini_audio", "Analyser un fichier audio via Gemini. Args: prompt, audio_path.",
+      {"prompt": str, "audio_path": str})
+async def gemini_audio(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    result = await get_gemini().analyze_audio(args["prompt"], args["audio_path"])
+    if result.get("error"):
+        return _error(f"Audio: {result['error']}")
+    return _text(f"[GEMINI-AUDIO/{result['model']}] {result['text'][:2000]}\n--- {result['latency_ms']:.0f}ms")
+
+
+@tool("gemini_deep_research", "Recherche autonome multi-etapes via Deep Research Pro. Args: prompt.",
+      {"prompt": str})
+async def gemini_deep_research(args: dict[str, Any]) -> dict[str, Any]:
+    from src.gemini_provider import get_gemini
+    result = await get_gemini().deep_research(args["prompt"])
+    if result.get("error"):
+        return _error(f"Deep Research: {result['error']}")
+    return _text(f"[GEMINI-RESEARCH/{result['model']}] {result['text'][:3000]}\n--- {result['latency_ms']:.0f}ms | {result.get('tokens_out',0)} tokens")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# OLLAMA CLOUD — Web Search + Sub-agents
+# ═══════════════════════════════════════════════════════════════════════════
+
+CLOUD_MODELS = ["minimax-m2.5:cloud", "glm-5:cloud", "kimi-k2.5:cloud"]
+
+
+async def _ollama_cloud_query(
+    prompt: str, model: str, timeout: float = 60.0, system: str | None = None,
+) -> str:
+    """Query an Ollama cloud model with fallback to local qwen3:1.7b.
+
+    If the cloud model returns 404/401 (not installed or not authenticated),
+    falls back to the local qwen3:1.7b model automatically.
+    """
+    node = config.get_ollama_node("OL1")
+    if not node:
+        raise ConnectionError("Ollama OL1 non configure")
+    messages = []
+    if system:
+        messages.append({"role": "system", "content": system})
+    messages.append({"role": "user", "content": prompt})
+
+    # Try cloud model first
+    try:
+        r = await _retry_request("POST", f"{node.url}/api/chat", json={
+            "model": model, "messages": messages,
+            "stream": False, "think": False,
+            "options": {"temperature": 0.3, "num_predict": config.max_tokens},
+        }, timeout=timeout)
+        msg = r.json()["message"]
+        content = msg.get("content", "")
+        if not content and msg.get("thinking"):
+            content = msg["thinking"]
+        return content
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code in (404, 401) and model != "qwen3:1.7b":
+            # Fallback to local model
+            r = await _retry_request("POST", f"{node.url}/api/chat", json={
+                "model": "qwen3:1.7b", "messages": messages,
+                "stream": False, "think": False,
+                "options": {"temperature": 0.3, "num_predict": config.max_tokens},
+            }, timeout=timeout)
+            msg = r.json()["message"]
+            content = msg.get("content", "")
+            if not content and msg.get("thinking"):
+                content = msg["thinking"]
+            return f"[FALLBACK qwen3:1.7b] {content}"
+        raise
+
+
+@tool(
+    "ollama_web_search",
+    "Recherche web via Ollama cloud (minimax-m2.5). Les modeles cloud ont la recherche web integree. Args: query, model.",
+    {"query": str, "model": str},
+)
+async def ollama_web_search(args: dict[str, Any]) -> dict[str, Any]:
+    model = args.get("model", "minimax-m2.5:cloud")
+    query = args["query"]
+    system = (
+        "Tu es un assistant de recherche. Utilise ta capacite de recherche web "
+        "pour trouver des informations actualisees. Reponds en francais avec des "
+        "donnees precises, chiffres et sources quand possible."
+    )
+    try:
+        result = await _ollama_cloud_query(query, model, timeout=60, system=system)
+        return _text(f"[WEB/{model}] {result}")
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 401:
+            return _error("Ollama cloud non authentifie. Lance 'ollama signin' pour te connecter.")
+        return _error(f"Erreur web search: {e}")
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
+        return _error(f"Erreur web search: {e}")
+
+
+@tool(
+    "ollama_subagents",
+    "Lancer 3 sous-agents Ollama cloud en parallele sur un sujet. Chaque agent (minimax, glm, kimi) analyse un aspect different. Args: task, aspects.",
+    {"task": str, "aspects": str},
+)
+async def ollama_subagents(args: dict[str, Any]) -> dict[str, Any]:
+    task = args["task"]
+    aspects_raw = args.get("aspects", "")
+
+    if aspects_raw:
+        aspects = [a.strip() for a in aspects_raw.split(",")][:3]
+    else:
+        aspects = ["analyse technique", "donnees actuelles", "recommandation"]
+    while len(aspects) < 3:
+        aspects.append(f"perspective {len(aspects)+1}")
+
+    system = (
+        "Tu es un sous-agent specialise. Analyse le sujet sous l'angle specifie. "
+        "Sois precis, concis et factuel. Reponds en francais."
+    )
+
+    async def _run_agent(model: str, aspect: str) -> str:
+        prompt = f"TACHE: {task}\nANGLE D'ANALYSE: {aspect}\n\nAnalyse ce sujet sous cet angle specifique."
+        try:
+            result = await _ollama_cloud_query(prompt, model, timeout=90, system=system)
+            return f"[{model.split(':')[0].upper()} — {aspect}]\n{result}"
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 401:
+                return f"[{model}] Non authentifie — lance 'ollama signin'"
+            return f"[{model}] Erreur: {e}"
+        except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
+            return f"[{model}] Erreur: {e}"
+
+    tasks = [
+        _run_agent(CLOUD_MODELS[i % len(CLOUD_MODELS)], aspects[i])
+        for i in range(len(aspects))
+    ]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    output_parts = []
+    for r in results:
+        output_parts.append(f"[ERREUR] {r}" if isinstance(r, Exception) else str(r))
+
+    return _text(
+        f"=== SOUS-AGENTS OLLAMA ({len(aspects)} paralleles) ===\n\n"
+        + "\n\n---\n\n".join(output_parts)
+    )
+
+
+@tool(
+    "ollama_trading_analysis",
+    "Analyse trading parallele via 3 sous-agents cloud: scanner marche, analyse technique, recommandation. Args: pair, timeframe.",
+    {"pair": str, "timeframe": str},
+)
+async def ollama_trading_analysis(args: dict[str, Any]) -> dict[str, Any]:
+    pair = args.get("pair", "BTC/USDT")
+    timeframe = args.get("timeframe", "1h")
+
+    agents_config = [
+        ("minimax-m2.5:cloud", "SCANNER", f"Recherche les dernieres donnees de marche pour {pair}. Prix actuel, volume 24h, variation, funding rate. Donne les chiffres exacts."),
+        ("glm-5:cloud", "ANALYSTE", f"Analyse technique de {pair} en {timeframe}. RSI, MACD, supports/resistances, tendance. Base-toi sur les donnees recentes."),
+        ("kimi-k2.5:cloud", "STRATEGE", f"Recommandation trading pour {pair} en {timeframe}. Entry, TP, SL, direction (long/short), score de confiance 0-100. Justifie brievement."),
+    ]
+
+    system = "Tu es un expert trading crypto. Reponds en francais, sois precis et concis."
+
+    async def _run(model: str, role: str, prompt: str) -> str:
+        try:
+            result = await _ollama_cloud_query(prompt, model, timeout=90, system=system)
+            return f"[{role}] {result}"
+        except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
+            return f"[{role}] Erreur: {e}"
+
+    results = await asyncio.gather(*[_run(m, r, p) for m, r, p in agents_config])
+
+    return _text(
+        f"=== TRADING ANALYSIS {pair} ({timeframe}) — 3 AGENTS ===\n\n"
+        + "\n\n---\n\n".join(results)
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# CODE REVIEW — Pipeline OL1-480b (qwen3-coder:480b-cloud)
+# ═══════════════════════════════════════════════════════════════════════════
+
+@tool(
+    "code_review_480b",
+    "Review de code automatique via qwen3-coder:480b-cloud (68tok/s, 480B params). "
+    "Retourne score/100, verdict, bugs, securite, performance, style. "
+    "Args: code (str), context (str optionnel: nom fichier, description).",
+    {"code": str, "context": str},
+)
+async def code_review_480b(args: dict[str, Any]) -> dict[str, Any]:
+    from src.code_review_480b import review_code
+    code = args["code"]
+    context = args.get("context", "")
+    try:
+        result = await review_code(code, context=context)
+        return _text(result.format_report())
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
+        return _error(f"Code review echoue: {e}")
+
+
+@tool(
+    "code_review_diff",
+    "Review du git diff courant via qwen3-coder:480b-cloud. "
+    "Analyse les changements staged ou unstaged et detecte bugs/regressions. "
+    "Args: diff_text (str optionnel, sinon git diff auto).",
+    {"diff_text": str},
+)
+async def code_review_diff(args: dict[str, Any]) -> dict[str, Any]:
+    from src.code_review_480b import review_diff
+    diff_text = args.get("diff_text") or None
+    try:
+        result = await review_diff(diff_text)
+        return _text(result.format_report())
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
+        return _error(f"Diff review echoue: {e}")
+
+
+@tool(
+    "code_review_dual",
+    "Double review parallele: 480b (code quality) + kimi-k2.5 (reasoning). "
+    "Compare deux perspectives pour une review plus approfondie. "
+    "Args: code (str), context (str optionnel).",
+    {"code": str, "context": str},
+)
+async def code_review_dual(args: dict[str, Any]) -> dict[str, Any]:
+    from src.code_review_480b import dual_review
+    code = args["code"]
+    context = args.get("context", "")
+    try:
+        r480b, rkimi = await dual_review(code, context=context)
+        report = r480b.format_report() + "\n\n" + rkimi.format_report()
+        avg_score = (r480b.score + rkimi.score) // 2
+        total_bugs = len(r480b.bugs) + len(rkimi.bugs)
+        report += f"\n  CONSENSUS: {avg_score}/100 | {total_bugs} bugs detectes"
+        return _text(report)
+    except (httpx.HTTPError, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
+        return _error(f"Dual review echoue: {e}")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SCRIPTS & PROJETS
+# ═══════════════════════════════════════════════════════════════════════════
+
+@tool("run_script", "Executer un script Python indexe. Args: script_name, args.", {"script_name": str, "args": str})
+async def run_script(args: dict[str, Any]) -> dict[str, Any]:
+    name = args["script_name"]
+    path = SCRIPTS.get(name)
+    if not path:
+        return _error(f"Script inconnu: {name}. Disponibles: {', '.join(sorted(SCRIPTS))}")
+    if not path.exists():
+        return _error(f"Fichier absent: {path}")
+    try:
+        cmd = [sys.executable, str(path)]
+        if args.get("args"):
+            cmd.extend(args["args"].split())
+
+        def _do():
+            return subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120, cwd=str(path.parent))
+
+        r = await asyncio.to_thread(_do)
+        out = r.stdout[-3000:] if len(r.stdout) > 3000 else r.stdout
+        if r.returncode != 0:
+            out += f"\n[STDERR] {r.stderr[-1000:]}"
+        return _text(f"[{name}] exit={r.returncode}\n{out}")
+    except subprocess.TimeoutExpired:
+        return _error(f"Timeout 120s: {name}")
+    except (OSError, subprocess.SubprocessError, ValueError) as e:
+        return _error(str(e))
+
+
+@tool("list_scripts", "Lister les scripts Python disponibles.", {})
+async def list_scripts(args: dict[str, Any]) -> dict[str, Any]:
+    lines = [f"  [{'OK' if p.exists() else 'ABSENT'}] {n}: {p}" for n, p in sorted(SCRIPTS.items())]
+    return _text("Scripts:\n" + "\n".join(lines))
+
+
+@tool("list_project_paths", "Lister les dossiers projets indexes.", {})
+async def list_project_paths(args: dict[str, Any]) -> dict[str, Any]:
+    lines = [f"  [{'OK' if p.exists() else 'ABSENT'}] {n}: {p}" for n, p in sorted(PATHS.items())]
+    return _text("Projets:\n" + "\n".join(lines))
+
+
+@tool("trading_pipeline_v2", "Pipeline GPU Trading AI v2.2 — 100 strategies + consensus 5 IA. Args: coins (int), top (int), quick (bool), no_ai (bool), json_output (bool).", {"coins": int, "top": int, "quick": bool, "no_ai": bool, "json_output": bool})
+async def trading_pipeline_v2(args: dict[str, Any]) -> dict[str, Any]:
+    """Lance le pipeline GPU Trading AI v2.2."""
+    script = SCRIPTS.get("trading_v2_pipeline")
+    if not script or not script.exists():
+        return _error("Script trading_v2_pipeline absent")
+    cmd = [sys.executable, str(script)]
+    if args.get("coins"):
+        cmd.extend(["--coins", str(args["coins"])])
+    if args.get("top"):
+        cmd.extend(["--top", str(args["top"])])
+    if args.get("quick"):
+        cmd.append("--quick")
+    if args.get("no_ai"):
+        cmd.append("--no-ai")
+    if args.get("json_output"):
+        cmd.append("--json")
+    try:
+        import os as _os
+        env = {**_os.environ, "PYTHONIOENCODING": "utf-8"}
+
+        def _do():
+            return subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=300,
+                                  cwd=str(script.parent), env=env)
+
+        r = await asyncio.to_thread(_do)
+        out = r.stdout[-4000:] if len(r.stdout) > 4000 else r.stdout
+        if r.returncode != 0:
+            out += f"\n[STDERR] {r.stderr[-1000:]}"
+        return _text(f"[Trading AI v2.2] exit={r.returncode}\n{out}")
+    except subprocess.TimeoutExpired:
+        return _error("Timeout 300s: pipeline GPU")
+    except (OSError, subprocess.SubprocessError, ValueError) as e:
+        return _error(str(e))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# WINDOWS — APPLICATIONS
+# ═══════════════════════════════════════════════════════════════════════════
+
+@tool("open_app", "Ouvrir une application par nom. Args: name, args.", {"name": str, "args": str})
+async def open_app(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import open_application
+    return _text(open_application(args["name"], args.get("args", "")))
+
+
+@tool("close_app", "Fermer une application par nom de processus. Args: name.", {"name": str})
+async def close_app(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import close_application
+    return _text(close_application(args["name"]))
+
+
+@tool("open_url", "Ouvrir une URL dans le navigateur. Args: url, browser.", {"url": str, "browser": str})
+async def open_url_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import open_url
+    return _text(open_url(args["url"], args.get("browser", "chrome")))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# WINDOWS — PROCESSUS
+# ═══════════════════════════════════════════════════════════════════════════
+
+@tool("list_processes", "Lister les processus Windows. Args: filter.", {"filter": str})
+async def list_processes_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import list_processes
+    procs = list_processes(args.get("filter"))
+    if not procs:
+        return _text("Aucun processus.")
+    lines = [f"  {p.get('Name','?')} (PID {p.get('Id','?')}) — {round(p.get('WorkingSet64',0)/1048576,1)} MB" for p in procs[:30]]
+    return _text(f"Processus ({len(procs)}):\n" + "\n".join(lines))
+
+
+@tool("kill_process", "Arreter un processus par nom ou PID. Args: target.", {"target": str})
+async def kill_process_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import kill_process
+    return _text(kill_process(args["target"]))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# WINDOWS — FENETRES
+# ═══════════════════════════════════════════════════════════════════════════
+
+@tool("list_windows", "Lister toutes les fenetres visibles avec leurs titres.", {})
+async def list_windows_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import list_windows
+    return _text(list_windows())
+
+
+@tool("focus_window", "Mettre une fenetre au premier plan. Args: title.", {"title": str})
+async def focus_window_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import focus_window
+    return _text(focus_window(args["title"]))
+
+
+@tool("minimize_window", "Minimiser une fenetre. Args: title.", {"title": str})
+async def minimize_window_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import minimize_window
+    return _text(minimize_window(args["title"]))
+
+
+@tool("maximize_window", "Maximiser une fenetre. Args: title.", {"title": str})
+async def maximize_window_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import maximize_window
+    return _text(maximize_window(args["title"]))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# WINDOWS — CLAVIER & SOURIS
+# ═══════════════════════════════════════════════════════════════════════════
+
+@tool("send_keys", "Envoyer des touches clavier a la fenetre active. Args: keys.", {"keys": str})
+async def send_keys_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import send_keys
+    return _text(send_keys(args["keys"]))
+
+
+@tool("type_text", "Taper du texte dans la fenetre active. Args: text.", {"text": str})
+async def type_text_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import type_text
+    return _text(type_text(args["text"]))
+
+
+@tool("press_hotkey", "Appuyer sur un raccourci clavier (ctrl+c, alt+tab, win+d). Args: keys.", {"keys": str})
+async def press_hotkey_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import press_hotkey
+    return _text(press_hotkey(args["keys"]))
+
+
+@tool("mouse_click", "Cliquer a des coordonnees ecran. Args: x, y.", {"x": int, "y": int})
+async def mouse_click_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import mouse_click
+    return _text(mouse_click(args["x"], args["y"]))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# WINDOWS — CLIPBOARD
+# ═══════════════════════════════════════════════════════════════════════════
+
+@tool("clipboard_get", "Lire le contenu du presse-papier.", {})
+async def clipboard_get_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import clipboard_get
+    return _text(f"Presse-papier: {clipboard_get()}")
+
+
+@tool("clipboard_set", "Ecrire dans le presse-papier. Args: text.", {"text": str})
+async def clipboard_set_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import clipboard_set
+    return _text(clipboard_set(args["text"]))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# WINDOWS — FICHIERS
+# ═══════════════════════════════════════════════════════════════════════════
+
+@tool("open_folder", "Ouvrir un dossier dans l'Explorateur. Args: path.", {"path": str})
+async def open_folder_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import open_folder
+    return _text(open_folder(args["path"]))
+
+
+@tool("list_folder", "Lister le contenu d'un dossier. Args: path, pattern.", {"path": str, "pattern": str})
+async def list_folder_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import list_folder
+    return _text(list_folder(args["path"], args.get("pattern", "*")))
+
+
+@tool("create_folder", "Creer un nouveau dossier. Args: path.", {"path": str})
+async def create_folder_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import create_folder
+    return _text(create_folder(args["path"]))
+
+
+@tool("copy_item", "Copier un fichier ou dossier. Args: source, dest.", {"source": str, "dest": str})
+async def copy_item_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import copy_item
+    return _text(copy_item(args["source"], args["dest"]))
+
+
+@tool("move_item", "Deplacer un fichier ou dossier. Args: source, dest.", {"source": str, "dest": str})
+async def move_item_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import move_item
+    return _text(move_item(args["source"], args["dest"]))
+
+
+@tool("delete_item", "Supprimer un fichier (vers la corbeille). Args: path.", {"path": str})
+async def delete_item_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import delete_item
+    return _text(delete_item(args["path"]))
+
+
+@tool("read_text_file", "Lire un fichier texte. Args: path, lines.", {"path": str, "lines": int})
+async def read_text_file_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import read_file
+    return _text(read_file(args["path"], args.get("lines", 50)))
+
+
+@tool("write_text_file", "Ecrire dans un fichier texte. Args: path, content.", {"path": str, "content": str})
+async def write_text_file_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import write_file
+    return _text(write_file(args["path"], args["content"]))
+
+
+@tool("search_files", "Chercher des fichiers recursivement. Args: path, pattern.", {"path": str, "pattern": str})
+async def search_files_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import search_files
+    return _text(search_files(args["path"], args["pattern"]))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# WINDOWS — AUDIO
+# ═══════════════════════════════════════════════════════════════════════════
+
+@tool("volume_up", "Augmenter le volume systeme.", {})
+async def volume_up_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import volume_up
+    return _text(volume_up())
+
+
+@tool("volume_down", "Baisser le volume systeme.", {})
+async def volume_down_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import volume_down
+    return _text(volume_down())
+
+
+@tool("volume_mute", "Basculer muet/son.", {})
+async def volume_mute_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import volume_mute
+    return _text(volume_mute())
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# WINDOWS — ECRAN
+# ═══════════════════════════════════════════════════════════════════════════
+
+@tool("screenshot", "Prendre une capture d'ecran. Args: filename.", {"filename": str})
+async def screenshot_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import screenshot
+    return _text(screenshot(args.get("filename", "")))
+
+
+@tool("screen_resolution", "Obtenir la resolution de l'ecran.", {})
+async def screen_resolution_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import get_screen_resolution
+    return _text(get_screen_resolution())
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# WINDOWS — SYSTEME
+# ═══════════════════════════════════════════════════════════════════════════
+
+@tool("system_info", "Infos systeme completes: CPU, RAM, GPU, disques, uptime.", {})
+async def system_info_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import get_system_info
+    info = get_system_info()
+    return _text("Systeme:\n" + "\n".join(f"  {k}: {v}" for k, v in info.items()))
+
+
+@tool("gpu_info", "Infos detaillees GPU (VRAM, driver).", {})
+async def gpu_info_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import get_gpu_info
+    return _text(get_gpu_info())
+
+
+@tool("network_info", "Adresses IP et interfaces reseau.", {})
+async def network_info_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import get_network_info
+    return _text(get_network_info())
+
+
+@tool("bash_run", "Executer une commande PowerShell. Args: command.", {"command": str})
+async def bash_run_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import run_bash
+    r = run_bash(args["command"], timeout=60)
+    out = r["stdout"] if r["success"] else f"ERREUR: {r['stderr']}"
+    return _text(f"[PS] exit={r['exit_code']}\n{out}")
+
+
+@tool("lock_screen", "Verrouiller le PC.", {})
+async def lock_screen_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import lock_screen
+    return _text(lock_screen())
+
+
+@tool("shutdown_pc", "Eteindre le PC.", {})
+async def shutdown_pc_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import shutdown_pc
+    return _text(shutdown_pc())
+
+
+@tool("restart_pc", "Redemarrer le PC.", {})
+async def restart_pc_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import restart_pc
+    return _text(restart_pc())
+
+
+@tool("sleep_pc", "Mettre le PC en veille.", {})
+async def sleep_pc_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import sleep_pc
+    return _text(sleep_pc())
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# WINDOWS — SERVICES
+# ═══════════════════════════════════════════════════════════════════════════
+
+@tool("list_services", "Lister les services Windows. Args: filter.", {"filter": str})
+async def list_services_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import list_services
+    return _text(list_services(args.get("filter", "")))
+
+
+@tool("start_service", "Demarrer un service Windows. Args: name.", {"name": str})
+async def start_service_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import start_service
+    return _text(start_service(args["name"]))
+
+
+@tool("stop_service", "Arreter un service Windows. Args: name.", {"name": str})
+async def stop_service_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import stop_service
+    return _text(stop_service(args["name"]))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# WINDOWS — RESEAU
+# ═══════════════════════════════════════════════════════════════════════════
+
+@tool("wifi_networks", "Lister les reseaux WiFi disponibles.", {})
+async def wifi_networks_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import get_wifi_networks
+    return _text(get_wifi_networks())
+
+
+@tool("ping", "Ping un hote. Args: host.", {"host": str})
+async def ping_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import ping_host
+    return _text(ping_host(args["host"]))
+
+
+@tool("get_ip", "Obtenir les adresses IP locales.", {})
+async def get_ip_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import get_ip_address
+    return _text(get_ip_address())
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# WINDOWS — REGISTRE
+# ═══════════════════════════════════════════════════════════════════════════
+
+@tool("registry_read", "Lire une valeur du registre Windows. Args: path, name.", {"path": str, "name": str})
+async def registry_read_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import registry_get
+    return _text(registry_get(args["path"], args.get("name", "")))
+
+
+@tool("registry_write", "Ecrire une valeur dans le registre. Args: path, name, value, type.", {"path": str, "name": str, "value": str, "type": str})
+async def registry_write_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import registry_set
+    return _text(registry_set(args["path"], args["name"], args["value"], args.get("type", "String")))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# WINDOWS — NOTIFICATIONS & VOIX
+# ═══════════════════════════════════════════════════════════════════════════
+
+@tool("notify", "Notification toast Windows. Args: title, message.", {"title": str, "message": str})
+async def notify_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import notify_windows
+    ok = notify_windows(args.get("title", "JARVIS"), args.get("message", ""))
+    return _text(f"Notification {'OK' if ok else 'echouee'}")
+
+
+@tool("speak", "Synthese vocale Windows SAPI. Args: text.", {"text": str})
+async def speak_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.voice import speak_text
+    ok = await speak_text(args.get("text", ""))
+    return _text(f"Parole {'OK' if ok else 'echouee'}")
+
+
+@tool("scheduled_tasks", "Lister les taches planifiees Windows. Args: filter.", {"filter": str})
+async def scheduled_tasks_tool(args: dict[str, Any]) -> dict[str, Any]:
+    from src.windows import list_scheduled_tasks
+    return _text(list_scheduled_tasks(args.get("filter", "")))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# HELPERS
+# ═══════════════════════════════════════════════════════════════════════════
+
+def _text(text: str) -> dict[str, Any]:
+    return {"content": [{"type": "text", "text": text}]}
+
+def _error(text: str) -> dict[str, Any]:
+    return {"content": [{"type": "text", "text": text}], "is_error": True}
+
+def _safe_int(val, default: int) -> int:
+    try:
+        return int(val)
+    except (TypeError, ValueError):
+        return default
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DATABASE — SQL QUERIES
+# ═══════════════════════════════════════════════════════════════════════════
+
+_DB_ALIASES = {
+    "etoile": PATHS.get("etoile_db", _Path(__file__).resolve().parent.parent / "data" / "etoile.db"),
+    "jarvis": PATHS.get("jarvis_db", _Path(__file__).resolve().parent.parent / "data" / "jarvis.db"),
+    "trading": config.db_trading,
+    "predictions": config.db_predictions,
+}
+
+_SQL_FORBIDDEN = re.compile(r"\b(DROP|ALTER|TRUNCATE|ATTACH|DETACH|PRAGMA\s+(?!table_info))\b", re.IGNORECASE)
+
+
+def _resolve_db(database: str) -> str:
+    """Resolve database alias to file path."""
+    db_path = _DB_ALIASES.get(database.lower())
+    if not db_path:
+        raise ValueError(f"Unknown database '{database}'. Available: {', '.join(_DB_ALIASES)}")
+    path_str = str(db_path)
+    if not _Path(path_str).exists():
+        raise FileNotFoundError(f"Database not found: {path_str}")
+    return path_str
+
+
+@tool("sql_query", "Execute une requete SQL (SELECT/INSERT/UPDATE/DELETE). Args: database (etoile|jarvis|trading|predictions), query, params (optional list).",
+      {"database": str, "query": str, "params": list})
+async def sql_query_tool(args: dict[str, Any]) -> dict[str, Any]:
+    try:
+        db_path = _resolve_db(args["database"])
+        query = args["query"].strip()
+        params = args.get("params") or []
+        if _SQL_FORBIDDEN.search(query):
+            return _error("Forbidden SQL operation (DROP/ALTER/TRUNCATE not allowed)")
+        with sqlite3.connect(db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            cur = conn.execute(query, params)
+            upper = query.upper().lstrip()
+            if upper.startswith("SELECT") or upper.startswith("PRAGMA"):
+                rows = cur.fetchall()
+                result = [dict(r) for r in rows]
+                return _text(json.dumps(result, ensure_ascii=False, indent=2, default=str) if result else "No results")
+            else:
+                affected = cur.rowcount
+                conn.commit()
+                return _text(f"OK — {affected} row(s) affected")
+    except (sqlite3.Error, OSError, KeyError, ValueError, json.JSONDecodeError) as e:
+        return _error(f"SQL error: {e}")
+
+
+@tool("sql_list_tables", "Liste les tables d'une base de donnees. Args: database (etoile|jarvis|trading|predictions).",
+      {"database": str})
+async def sql_list_tables_tool(args: dict[str, Any]) -> dict[str, Any]:
+    try:
+        db_path = _resolve_db(args["database"])
+        with sqlite3.connect(db_path) as conn:
+            tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()]
+        return _text(f"Tables in {args['database']}: {', '.join(tables)}" if tables else "No tables found")
+    except (sqlite3.Error, OSError, ValueError) as e:
+        return _error(f"Error: {e}")
+
+
+@tool("sql_schema", "Affiche le CREATE TABLE d'une table. Args: database, table.",
+      {"database": str, "table": str})
+async def sql_schema_tool(args: dict[str, Any]) -> dict[str, Any]:
+    try:
+        db_path = _resolve_db(args["database"])
+        with sqlite3.connect(db_path) as conn:
+            row = conn.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name=?", (args["table"],)).fetchone()
+        if row:
+            return _text(row[0])
+        return _error(f"Table '{args['table']}' not found in {args['database']}")
+    except (sqlite3.Error, OSError, ValueError) as e:
+        return _error(f"Error: {e}")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DOMINO PIPELINE EXECUTION
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+@tool("execute_domino",
+      "Executer un domino pipeline par ID ou texte de trigger vocal. "
+      "Args: domino_id (ID du pipeline ou texte de commande vocale).",
+      {"domino_id": str})
+async def execute_domino_tool(args: dict[str, Any]) -> dict[str, Any]:
+    domino_id = args.get("domino_id", "").strip()
+    if not domino_id:
+        return _error("domino_id requis (ID ou texte de commande)")
+    try:
+        def _run_domino():
+            from src.domino_pipelines import find_domino, DOMINO_PIPELINES
+            from src.domino_executor import DominoExecutor
+            domino = None
+            for d in DOMINO_PIPELINES:
+                if d.id == domino_id:
+                    domino = d
+                    break
+            if not domino:
+                domino = find_domino(domino_id)
+            if not domino:
+                return {"error": f"Domino introuvable: {domino_id}"}
+            return DominoExecutor().run(domino)
+
+        result = await asyncio.to_thread(_run_domino)
+        if "error" in result:
+            return _error(result["error"])
+        return _text(
+            f"Domino {result['domino_id']} — "
+            f"{result['passed']} PASS / {result['failed']} FAIL / {result['skipped']} SKIP "
+            f"({result['total_steps']} steps en {result['total_ms']:.0f}ms)"
+        )
+    except (ImportError, OSError, ValueError, RuntimeError) as e:
+        return _error(f"Domino execution failed: {e}")
+
+
+@tool("list_dominos",
+      "Lister tous les domino pipelines disponibles. Args: category (optionnel).",
+      {"category": str})
+async def list_dominos_tool(args: dict[str, Any]) -> dict[str, Any]:
+    try:
+        from src.domino_pipelines import DOMINO_PIPELINES
+        category = args.get("category", "").strip().lower()
+        dominos = DOMINO_PIPELINES
+        if category:
+            dominos = [d for d in dominos if d.category == category]
+        lines = [f"{len(dominos)} dominos" + (f" (categorie: {category})" if category else "") + ":"]
+        for d in dominos:
+            triggers = ", ".join(d.triggers[:3]) if d.triggers else "—"
+            lines.append(f"  {d.id} [{d.category}] {d.description} | triggers: {triggers} | {len(d.steps)} steps")
+        return _text("\n".join(lines))
+    except ImportError as e:
+        return _error(f"domino_pipelines non disponible: {e}")
+
+
+@tool("domino_stats",
+      "Historique d'execution des dominos (SQLite logs).",
+      {"limit": int})
+async def domino_stats_tool(args: dict[str, Any]) -> dict[str, Any]:
+    try:
+        from src.domino_executor import DominoLogger
+        db_logger = DominoLogger()
+        limit = _safe_int(args.get("limit"), 20)
+        with sqlite3.connect(db_logger.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            runs = conn.execute(
+                "SELECT DISTINCT run_id, domino_id, MIN(ts) as started, COUNT(*) as steps, "
+                "SUM(CASE WHEN status='PASS' THEN 1 ELSE 0 END) as passed, "
+                "SUM(CASE WHEN status='FAIL' THEN 1 ELSE 0 END) as failed, "
+                "SUM(duration_ms) as total_ms "
+                "FROM domino_logs GROUP BY run_id ORDER BY started DESC LIMIT ?",
+                (limit,)
+            ).fetchall()
+        if not runs:
+            return _text("Aucun historique domino.")
+        lines = [f"{len(runs)} dernieres executions:"]
+        for r in runs:
+            lines.append(
+                f"  {r['domino_id']} | {r['passed']}/{r['steps']} PASS | "
+                f"{r['failed']} FAIL | {r['total_ms']:.0f}ms | {r['started']}"
+            )
+        return _text("\n".join(lines))
+    except (sqlite3.Error, ImportError, OSError) as e:
+        return _error(f"domino_stats: {e}")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DICTIONARY CRUD — pipeline_dictionary, domino_chains, voice_corrections
+# ═══════════════════════════════════════════════════════════════════════════
+
+_DICT_VALID_CATEGORIES = {
+    "system", "media", "navigation", "trading", "dev", "ia",
+    "communication", "productivity", "entertainment", "accessibility",
+    "fichiers", "daily", "cluster", "voice", "custom",
+}
+_DICT_VALID_ACTION_TYPES = {
+    "bash", "curl", "python", "pipeline", "condition",
+    "system", "media", "browser", "voice", "shortcut", "script",
+}
+_DICT_TABLES = {"pipeline_dictionary", "domino_chains", "voice_corrections"}
+_SAFE_COL_RE = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
+
+
+@tool("dict_crud",
+      "CRUD operations on dictionary tables (pipeline_dictionary, domino_chains, voice_corrections). "
+      "Args: operation (add|edit|delete|search|stats), table, data (dict with fields).",
+      {"operation": str, "table": str, "data": str})
+async def dict_crud_tool(args: dict[str, Any]) -> dict[str, Any]:
+    operation = args.get("operation", "").lower()
+    table = args.get("table", "pipeline_dictionary").lower()
+    data = args.get("data", {})
+    if isinstance(data, str):
+        try:
+            data = json.loads(data)
+        except json.JSONDecodeError:
+            return _error("data must be a valid JSON object")
+
+    if table not in _DICT_TABLES:
+        return _error(f"Invalid table: {table}. Valid: {sorted(_DICT_TABLES)}")
+
+    db_path = str(PATHS.get("etoile_db", _Path(__file__).resolve().parent.parent / "data" / "etoile.db"))
+    if not _Path(db_path).exists():
+        return _error(f"Database not found: {db_path}")
+
+    conn = None
+    try:
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+
+        if operation == "stats":
+            counts = {}
+            for t in _DICT_TABLES:
+                if not t.isidentifier():
+                    raise ValueError(f"Unsafe table name: {t}")
+                counts[t] = conn.execute(f"SELECT COUNT(*) FROM [{t}]").fetchone()[0]
+            if table == "pipeline_dictionary":
+                cats = conn.execute(
+                    "SELECT category, COUNT(*) as cnt FROM pipeline_dictionary GROUP BY category ORDER BY cnt DESC"
+                ).fetchall()
+                counts["categories"] = {r["category"]: r["cnt"] for r in cats}
+            return _text(json.dumps(counts, ensure_ascii=False, indent=2))
+
+        if operation == "search":
+            query = (data.get("query") or "").lower().strip()
+            limit = _safe_int(data.get("limit"), 20)
+            if not query:
+                return _error("data.query is required for search")
+            if table == "pipeline_dictionary":
+                rows = conn.execute(
+                    "SELECT * FROM pipeline_dictionary WHERE trigger_phrase LIKE ? OR pipeline_id LIKE ? OR category LIKE ? LIMIT ?",
+                    (f"%{query}%", f"%{query}%", f"%{query}%", limit)
+                ).fetchall()
+            elif table == "domino_chains":
+                rows = conn.execute(
+                    "SELECT * FROM domino_chains WHERE trigger_cmd LIKE ? OR next_cmd LIKE ? OR description LIKE ? LIMIT ?",
+                    (f"%{query}%", f"%{query}%", f"%{query}%", limit)
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    "SELECT * FROM voice_corrections WHERE wrong LIKE ? OR correct LIKE ? LIMIT ?",
+                    (f"%{query}%", f"%{query}%", limit)
+                ).fetchall()
+            result = [dict(r) for r in rows]
+            return _text(json.dumps(result, ensure_ascii=False, indent=2, default=str) if result else "No results")
+
+        if operation == "add":
+            if table == "pipeline_dictionary":
+                name = data.get("name", "").strip()
+                trigger = data.get("trigger_phrase", name).strip()
+                category = data.get("category", "custom").lower()
+                action_type = data.get("action_type", "pipeline").lower()
+                if category not in _DICT_VALID_CATEGORIES:
+                    return _error(f"Invalid category: {category}")
+                if action_type not in _DICT_VALID_ACTION_TYPES:
+                    return _error(f"Invalid action_type: {action_type}")
+                # Check uniqueness
+                existing = conn.execute("SELECT id FROM pipeline_dictionary WHERE trigger_phrase = ?", (trigger,)).fetchone()
+                if existing:
+                    return _error(f"Trigger '{trigger}' already exists (id={existing['id']})")
+                pipeline_id = name.lower().replace(" ", "_") if name else trigger.lower().replace(" ", "_")
+                conn.execute(
+                    "INSERT INTO pipeline_dictionary (pipeline_id, trigger_phrase, steps, category, action_type, agents_involved, avg_duration_ms, usage_count, created_at) "
+                    "VALUES (?, ?, ?, ?, ?, ?, 0, 0, ?)",
+                    (pipeline_id, trigger, data.get("steps", ""), category, action_type, data.get("agents_involved", ""),
+                     __import__("datetime").datetime.now().isoformat())
+                )
+                conn.commit()
+                new_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+                return _text(f"OK — Added to pipeline_dictionary: id={new_id}, trigger='{trigger}', category={category}")
+
+            elif table == "domino_chains":
+                trigger_cmd = data.get("trigger_cmd", "").strip()
+                next_cmd = data.get("next_cmd", "").strip()
+                if not trigger_cmd or not next_cmd:
+                    return _error("trigger_cmd and next_cmd are required")
+                conn.execute(
+                    "INSERT INTO domino_chains (trigger_cmd, condition, next_cmd, delay_ms, auto, description) VALUES (?, ?, ?, ?, ?, ?)",
+                    (trigger_cmd, data.get("condition", ""), next_cmd,
+                     _safe_int(data.get("delay_ms"), 0), 1 if data.get("auto", True) else 0,
+                     data.get("description", ""))
+                )
+                conn.commit()
+                new_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+                return _text(f"OK — Added to domino_chains: id={new_id}, {trigger_cmd} -> {next_cmd}")
+
+            else:  # voice_corrections
+                wrong = data.get("wrong", "").strip()
+                correct = data.get("correct", "").strip()
+                if not wrong or not correct:
+                    return _error("wrong and correct are required")
+                existing = conn.execute("SELECT id FROM voice_corrections WHERE wrong = ?", (wrong,)).fetchone()
+                if existing:
+                    conn.execute("UPDATE voice_corrections SET correct = ?, category = ? WHERE id = ?",
+                                 (correct, data.get("category", "general"), existing["id"]))
+                    conn.commit()
+                    return _text(f"OK — Updated voice_corrections: id={existing['id']}, '{wrong}' -> '{correct}'")
+                conn.execute(
+                    "INSERT INTO voice_corrections (wrong, correct, category, hit_count) VALUES (?, ?, ?, 0)",
+                    (wrong, correct, data.get("category", "general"))
+                )
+                conn.commit()
+                new_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+                return _text(f"OK — Added to voice_corrections: id={new_id}, '{wrong}' -> '{correct}'")
+
+        if operation == "edit":
+            record_id = data.get("id")
+            fields = data.get("fields", {})
+            if not record_id:
+                return _error("data.id is required for edit")
+            if not fields:
+                return _error("data.fields dict is required")
+            bad_cols = [k for k in fields if not _SAFE_COL_RE.match(k)]
+            if bad_cols:
+                return _error(f"Invalid column name(s): {bad_cols}")
+            set_parts = [f"{k} = ?" for k in fields]
+            values = list(fields.values()) + [int(record_id)]
+            cursor = conn.execute(f"UPDATE [{table}] SET {', '.join(set_parts)} WHERE id = ?", values)
+            conn.commit()
+            affected = cursor.rowcount
+            if affected == 0:
+                return _error(f"No record with id={record_id} in {table}")
+            return _text(f"OK — Updated {table}: id={record_id}, {affected} row(s)")
+
+        if operation == "delete":
+            record_id = data.get("id")
+            if not record_id:
+                return _error("data.id is required for delete")
+            cursor = conn.execute(f"DELETE FROM [{table}] WHERE id = ?", (int(record_id),))
+            conn.commit()
+            affected = cursor.rowcount
+            if affected == 0:
+                return _error(f"No record with id={record_id} in {table}")
+            return _text(f"OK — Deleted from {table}: id={record_id}")
+
+        return _error(f"Unknown operation: {operation}. Valid: add, edit, delete, search, stats")
+    except (sqlite3.Error, OSError, KeyError, ValueError, json.JSONDecodeError, TypeError) as e:
+        return _error(f"dict_crud error: {e}")
+    finally:
+        if conn:
+            conn.close()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PATTERN AGENTS TOOLS (5) — v11.1
+# ═══════════════════════════════════════════════════════════════════════════
+
+@tool("agent_dispatch", "Dispatch intelligent vers le meilleur agent (14 patterns). Auto-classifie si pattern absent.", {"prompt": str, "pattern": str})
+async def agent_dispatch_tool(prompt: str = "", pattern: str = "") -> str:
+    from src.smart_dispatcher import SmartDispatcher
+    if not prompt:
+        return "ERREUR: prompt required"
+    d = SmartDispatcher()
+    r = await d.dispatch_typed(pattern, prompt) if pattern else await d.dispatch(prompt)
+    await d.close()
+    return json.dumps({"ok": r.ok, "content": r.content[:2000], "pattern": r.pattern,
+        "node": r.node, "model": r.model, "latency_ms": round(r.latency_ms),
+        "tokens": r.tokens, "quality": r.quality_score, "strategy": r.strategy}, ensure_ascii=False)
+
+
+@tool("agent_classify", "Classifie un prompt en type de pattern (code/analysis/trading/math/...).", {"prompt": str})
+async def agent_classify_tool(prompt: str = "") -> str:
+    from src.pattern_agents import PatternAgentRegistry
+    if not prompt:
+        return "ERREUR: prompt required"
+    reg = PatternAgentRegistry()
+    pattern = reg.classify(prompt)
+    agent = reg.agents.get(pattern)
+    return json.dumps({"pattern": pattern, "agent": agent.agent_id if agent else "unknown",
+        "node": agent.primary_node if agent else "M1", "strategy": agent.strategy if agent else "single"})
+
+
+@tool("agent_list", "Liste les 14 agents pattern avec config (type, node, strategie, priorite).", {})
+async def agent_list_tool() -> str:
+    from src.pattern_agents import PatternAgentRegistry
+    reg = PatternAgentRegistry()
+    return json.dumps({"agents": reg.list_agents()}, ensure_ascii=False)
+
+
+@tool("agent_routing", "Rapport de routing intelligent base sur l'historique dispatch_log.", {})
+async def agent_routing_tool() -> str:
+    from src.smart_dispatcher import SmartDispatcher
+    d = SmartDispatcher()
+    report = d.get_routing_report()
+    await d.close()
+    return json.dumps(report, ensure_ascii=False, default=str)
+
+
+@tool("agent_evolve", "Evolution automatique des agents: decouverte patterns, tuning nodes/strategies.", {})
+async def agent_evolve_tool() -> str:
+    from src.agent_factory import AgentFactory
+    f = AgentFactory()
+    evolutions = f.analyze_and_evolve()
+    return json.dumps({"count": len(evolutions), "evolutions": [
+        {"pattern": e.pattern_type, "action": e.action, "old": e.old_value,
+         "new": e.new_value, "reason": e.reason} for e in evolutions
+    ]}, ensure_ascii=False)
+
+
+@tool("pipeline_run", "Executer un pipeline multi-agents. Pipelines: code-review, smart-qa, trading-analysis, architecture-design, devops-deploy.", {"pipeline": str, "prompt": str})
+async def pipeline_run_tool(pipeline: str = "", prompt: str = "") -> str:
+    from src.pipeline_composer import run_pipeline
+    if not pipeline or not prompt:
+        return "ERREUR: pipeline et prompt requis"
+    result = await run_pipeline(pipeline, prompt)
+    return json.dumps({"ok": result.ok, "pipeline": result.pipeline_name,
+        "total_ms": round(result.total_ms), "steps": result.steps,
+        "output": result.final_output[:2000]}, ensure_ascii=False, default=str)
+
+
+@tool("pipeline_list", "Lister les pipelines multi-agents disponibles.", {})
+async def pipeline_list_tool() -> str:
+    from src.pipeline_composer import PIPELINES
+    return json.dumps({"pipelines": list(PIPELINES.keys())})
+
+
+@tool("agent_dashboard", "Dashboard temps reel des 14 agents: dispatches, latence, qualite, alertes.", {})
+async def agent_dashboard_tool() -> str:
+    from src.agent_monitor import get_monitor
+    return json.dumps(get_monitor().get_dashboard(), default=str)
+
+
+@tool("routing_optimizer", "Rapport optimisation routing: noeuds, recommandations, profils.", {})
+async def routing_optimizer_tool() -> str:
+    from src.routing_optimizer import RoutingOptimizer
+    return json.dumps(RoutingOptimizer().report(), ensure_ascii=False)
+
+
+@tool("agent_auto_scale", "Auto-scaling: ajuste concurrency et timeouts selon la charge cluster.", {})
+async def agent_auto_scale_tool() -> str:
+    from src.auto_scaler import AutoScaler
+    scaler = AutoScaler()
+    actions = await scaler.scale()
+    return json.dumps({"actions": actions}, ensure_ascii=False)
+
+
+@tool("adaptive_router_status", "Routeur adaptatif: circuits, sante noeuds, affinites pattern-noeud.", {})
+def adaptive_router_status_tool() -> str:
+    from src.adaptive_router import get_router
+    router = get_router()
+    status = router.get_status()
+    status["recommendations"] = router.get_recommendations()
+    return json.dumps(status, default=str, ensure_ascii=False)
+
+
+@tool("adaptive_router_pick", "Choisir noeud optimal pour un pattern.", {"pattern": "string", "count": "number"})
+def adaptive_router_pick_tool(pattern: str = "code", count: int = 1) -> str:
+    from src.adaptive_router import get_router
+    router = get_router()
+    if count > 1:
+        return json.dumps({"nodes": router.pick_nodes(pattern, count=count)})
+    return json.dumps({"node": router.pick_node(pattern)})
+
+
+@tool("pattern_discovery", "Decouvrir nouveaux patterns depuis dispatch_log + analyse comportement.", {})
+def pattern_discovery_tool() -> str:
+    from src.pattern_discovery import PatternDiscovery
+    return json.dumps(PatternDiscovery().full_report(), default=str, ensure_ascii=False)
+
+
+@tool("pattern_discovery_register", "Decouvrir et enregistrer nouveaux patterns en DB.", {})
+def pattern_discovery_register_tool() -> str:
+    from src.pattern_discovery import PatternDiscovery
+    d = PatternDiscovery()
+    patterns = d.discover()
+    count = d.register_patterns(patterns)
+    return json.dumps({"discovered": len(patterns), "registered": count})
+
+
+@tool("orchestrate", "Workflow orchestre multi-agents (auto/deep-analysis/code-generate/consensus-3/trading-full/security-audit).", {"prompt": "string", "workflow": "string"})
+async def orchestrate_tool(prompt: str, workflow: str = "auto") -> str:
+    from src.agent_orchestrator_v3 import Orchestrator
+    o = Orchestrator()
+    r = await o.execute(prompt, workflow=workflow, budget_s=60)
+    await o.close()
+    return json.dumps({
+        "ok": r.ok, "workflow": r.strategy_used,
+        "content": r.final_content[:2000],
+        "total_ms": round(r.total_latency_ms),
+        "summary": r.summary,
+    }, ensure_ascii=False)
+
+
+@tool("orchestrate_race", "Course multi-noeuds: le plus rapide gagne.", {"prompt": "string", "pattern": "string"})
+async def orchestrate_race_tool(prompt: str, pattern: str = "code") -> str:
+    from src.agent_orchestrator_v3 import Orchestrator
+    o = Orchestrator()
+    r = await o.execute_race(prompt, pattern=pattern, count=3)
+    await o.close()
+    return json.dumps({
+        "ok": r.ok, "content": r.final_content[:2000],
+        "winner": r.metadata.get("winner"),
+    }, ensure_ascii=False)
+
+
+@tool("orchestrate_consensus", "Consensus multi-noeuds avec vote pondere.", {"prompt": "string"})
+async def orchestrate_consensus_tool(prompt: str) -> str:
+    from src.agent_orchestrator_v3 import Orchestrator
+    o = Orchestrator()
+    r = await o.execute_consensus(prompt, min_agree=2)
+    await o.close()
+    return json.dumps({
+        "ok": r.ok, "content": r.final_content[:2000],
+        "agreed": r.metadata.get("agreed", 0),
+    }, ensure_ascii=False)
+
+
+@tool("episodic_recall", "Rappeler episodes pertinents depuis la memoire agents.", {"query": "string", "top_k": "number"})
+def episodic_recall_tool(query: str, top_k: int = 5) -> str:
+    from src.agent_episodic_memory import get_episodic_memory
+    episodes = get_episodic_memory().recall(query, top_k=top_k)
+    return json.dumps([
+        {"pattern": e.pattern, "node": e.node, "preview": e.prompt_preview,
+         "ok": e.success, "relevance": round(e.relevance, 2)}
+        for e in episodes
+    ], ensure_ascii=False)
+
+
+@tool("episodic_learn", "Analyser historique dispatches et generer faits semantiques.", {})
+def episodic_learn_tool() -> str:
+    from src.agent_episodic_memory import get_episodic_memory
+    mem = get_episodic_memory()
+    learned = mem.learn_from_history()
+    return json.dumps({"learned": learned, "total_facts": len(mem._facts)})
+
+
+@tool("episodic_node", "Memoire episodique d'un noeud specifique.", {"node": "string"})
+def episodic_node_tool(node: str = "M1") -> str:
+    from src.agent_episodic_memory import get_episodic_memory
+    return json.dumps(get_episodic_memory().get_node_memory(node), ensure_ascii=False)
+
+
+@tool("episodic_pattern", "Memoire episodique d'un pattern specifique.", {"pattern": "string"})
+def episodic_pattern_tool(pattern: str = "code") -> str:
+    from src.agent_episodic_memory import get_episodic_memory
+    return json.dumps(get_episodic_memory().get_pattern_memory(pattern), ensure_ascii=False)
+
+
+@tool("self_improve", "Lancer un cycle d'auto-amelioration (analyse, decouverte, apprentissage, optimisation).", {})
+async def self_improve_tool() -> str:
+    from src.agent_self_improve import SelfImprover
+    report = await SelfImprover().run_cycle()
+    return json.dumps({
+        "cycle": report.cycle_id, "actions": len(report.actions),
+        "recommendations": report.recommendations, "summary": report.summary,
+    }, ensure_ascii=False)
+
+
+@tool("self_improve_history", "Historique des cycles d'auto-amelioration.", {})
+def self_improve_history_tool() -> str:
+    from src.agent_self_improve import SelfImprover
+    return json.dumps(SelfImprover().get_history(), default=str)
+
+
+@tool("collab_chain", "Chaine collaborative: agents executent en sequence.", {"agents": "string", "prompt": "string"})
+async def collab_chain_tool(agents: str = "simple,code", prompt: str = "") -> str:
+    from src.agent_collaboration import get_bus
+    agent_list = [a.strip() for a in agents.split(",")]
+    r = await get_bus().chain(agent_list, prompt)
+    return json.dumps({"ok": r.ok, "content": r.final_content[:2000], "summary": r.summary}, ensure_ascii=False)
+
+
+@tool("collab_debate", "Debat multi-agents sur une question.", {"agents": "string", "question": "string"})
+async def collab_debate_tool(agents: str = "code,reasoning", question: str = "") -> str:
+    from src.agent_collaboration import get_bus
+    agent_list = [a.strip() for a in agents.split(",")]
+    r = await get_bus().debate(agent_list, question, rounds=2)
+    return json.dumps({"ok": r.ok, "content": r.final_content[:2000], "steps_ok": r.steps_ok}, ensure_ascii=False)
+
+
+@tool("health_check", "Health check complet de tous les noeuds du cluster.", {})
+async def health_check_tool() -> str:
+    from src.agent_health_guardian import HealthGuardian
+    g = HealthGuardian()
+    report = await g.check_all()
+    return json.dumps({
+        "status": report.overall_status, "healthy": report.healthy_nodes,
+        "total": report.total_nodes, "alerts": len(report.alerts),
+        "nodes": [{"node": n.node, "status": n.status} for n in report.node_checks],
+    }, ensure_ascii=False)
+
+
+@tool("health_heal", "Auto-healing des problemes detectes.", {})
+async def health_heal_tool() -> str:
+    from src.agent_health_guardian import HealthGuardian
+    g = HealthGuardian()
+    healed = await g.auto_heal()
+    return json.dumps({"actions": healed}, ensure_ascii=False)
+
+
+@tool("benchmark_quick", "Benchmark rapide: 1 test par pattern, ~2min.", {})
+async def benchmark_quick_tool() -> str:
+    from src.pattern_benchmark_runner import BenchmarkRunner
+    r = BenchmarkRunner()
+    report = await r.run_quick()
+    await r.close()
+    return json.dumps({
+        "rate": round(report.success_rate * 100, 1),
+        "total": report.total_tests, "ok": report.success_count,
+        "ms": round(report.duration_ms), "summary": report.summary,
+    }, ensure_ascii=False)
+
+
+@tool("task_planner", "Planifier une tache complexe: decomposition en sous-taches.", {"prompt": "string"})
+def task_planner_tool(prompt: str = "") -> str:
+    from src.agent_task_planner import TaskPlanner
+    p = TaskPlanner()
+    plan = p.plan(prompt)
+    return json.dumps(p.plan_to_dict(plan), ensure_ascii=False)
+
+
+@tool("task_execute", "Planifier et executer une tache complexe.", {"prompt": "string"})
+async def task_execute_tool(prompt: str = "") -> str:
+    from src.agent_task_planner import TaskPlanner
+    p = TaskPlanner()
+    plan = p.plan(prompt)
+    result = await p.execute_plan(plan)
+    await p.close()
+    return json.dumps({
+        "ok": result.ok, "output": result.final_output[:2000],
+        "steps_ok": result.steps_ok, "summary": result.summary,
+    }, ensure_ascii=False)
+
+
+@tool("feedback_quality", "Rapport qualite de la boucle de retro-action.", {})
+def feedback_quality_tool() -> str:
+    from src.agent_feedback_loop import get_feedback
+    return json.dumps(get_feedback().get_quality_report(), ensure_ascii=False)
+
+
+@tool("feedback_trends", "Tendances qualite et ajustements suggerees.", {})
+def feedback_trends_tool() -> str:
+    from src.agent_feedback_loop import get_feedback
+    fb = get_feedback()
+    trends = fb.get_trends()
+    adj = fb.suggest_adjustments()
+    return json.dumps({
+        "trends": [{"pattern": t.pattern, "direction": t.direction, "change": t.change_pct} for t in trends[:10]],
+        "adjustments": [{"pattern": a.pattern, "action": a.action, "suggested": a.suggested} for a in adj[:5]],
+    }, ensure_ascii=False)
+
+
+# ── Phase 13: Dispatch Engine + Prompt Optimizer + Auto Scaler + Event Stream + Ensemble ──
+
+@tool("dispatch_engine", "Pipeline unifie: health→route→dispatch→feedback→memory.", {"pattern": str, "prompt": str})
+def dispatch_engine_tool(pattern: str, prompt: str) -> str:
+    """Pipeline unifie: health→route→dispatch→feedback→memory."""
+    import asyncio
+    from src.dispatch_engine import get_engine
+    engine = get_engine()
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = None
+    if loop and loop.is_running():
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor() as pool:
+            result = pool.submit(asyncio.run, engine.dispatch(pattern, prompt)).result(timeout=120)
+    else:
+        result = asyncio.run(engine.dispatch(pattern, prompt))
+    return json.dumps({
+        "node": result.node, "quality": result.quality,
+        "content": result.content[:2000], "success": result.success,
+        "pipeline_ms": round(result.pipeline_ms, 1),
+        "enriched": result.enriched, "fallback_used": result.fallback_used,
+    }, ensure_ascii=False)
+
+
+@tool("dispatch_engine_stats", "Stats pipeline dispatch unifie.", {})
+def dispatch_engine_stats_tool() -> str:
+    """Stats pipeline dispatch unifie."""
+    from src.dispatch_engine import get_engine
+    return json.dumps(get_engine().get_stats(), ensure_ascii=False)
+
+
+@tool("dispatch_engine_report", "Rapport detaille pipeline dispatch.", {})
+def dispatch_engine_report_tool() -> str:
+    """Rapport detaille pipeline dispatch."""
+    from src.dispatch_engine import get_engine
+    return json.dumps(get_engine().get_pipeline_report(), ensure_ascii=False)
+
+
+@tool("prompt_optimize", "Optimiser un prompt pour un pattern donne.", {"pattern": str, "prompt": str})
+def prompt_optimize_tool(pattern: str, prompt: str) -> str:
+    """Optimiser un prompt pour un pattern donne."""
+    from src.agent_prompt_optimizer import get_optimizer
+    return json.dumps(get_optimizer().optimize(pattern, prompt), ensure_ascii=False)
+
+
+@tool("prompt_insights", "Insights sur les prompts par pattern.", {"pattern": str})
+def prompt_insights_tool(pattern: str = "") -> str:
+    """Insights sur les prompts par pattern."""
+    from src.agent_prompt_optimizer import get_optimizer
+    return json.dumps(get_optimizer().get_insights(pattern or None), ensure_ascii=False)
+
+
+@tool("prompt_analyze", "Analyser un prompt et suggerer des ameliorations.", {"pattern": str, "prompt": str})
+def prompt_analyze_tool(pattern: str, prompt: str) -> str:
+    """Analyser un prompt et suggerer des ameliorations."""
+    from src.agent_prompt_optimizer import get_optimizer
+    return json.dumps(get_optimizer().analyze_prompt(pattern, prompt), ensure_ascii=False)
+
+
+@tool("auto_scaler_metrics", "Metriques de charge par noeud.", {})
+def auto_scaler_metrics_tool() -> str:
+    """Metriques de charge par noeud."""
+    from src.agent_auto_scaler import get_scaler
+    metrics = get_scaler().get_load_metrics()
+    return json.dumps({n: {"avg_lat": m.avg_latency_ms, "err_rate": m.error_rate,
+                           "req_5min": m.requests_last_5min} for n, m in metrics.items()}, ensure_ascii=False)
+
+
+@tool("auto_scaler_capacity", "Rapport capacite cluster complet.", {})
+def auto_scaler_capacity_tool() -> str:
+    """Rapport capacite cluster complet."""
+    from src.agent_auto_scaler import get_scaler
+    return json.dumps(get_scaler().get_capacity_report(), ensure_ascii=False)
+
+
+@tool("event_stream_latest", "Derniers evenements du flux temps reel.", {"topic": str, "n": int})
+def event_stream_latest_tool(topic: str = "", n: int = 10) -> str:
+    """Derniers evenements du flux temps reel."""
+    from src.event_stream import get_stream
+    return json.dumps(get_stream().get_latest(topic or None, n), ensure_ascii=False)
+
+
+@tool("event_stream_stats", "Stats du flux d'evenements.", {})
+def event_stream_stats_tool() -> str:
+    """Stats du flux d'evenements."""
+    from src.event_stream import get_stream
+    return json.dumps(get_stream().get_stats(), ensure_ascii=False)
+
+
+@tool("ensemble_execute", "Execution ensemble multi-agents avec scoring.", {"pattern": str, "prompt": str, "strategy": str})
+def ensemble_execute_tool(pattern: str, prompt: str, strategy: str = "best_of_n") -> str:
+    """Execution ensemble multi-agents avec scoring."""
+    import asyncio
+    from src.agent_ensemble import get_ensemble
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = None
+    if loop and loop.is_running():
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor() as pool:
+            result = pool.submit(asyncio.run, get_ensemble().execute(pattern, prompt, strategy=strategy)).result(timeout=120)
+    else:
+        result = asyncio.run(get_ensemble().execute(pattern, prompt, strategy=strategy))
+    return json.dumps({
+        "best_node": result.best_output.node,
+        "best_score": round(result.best_output.total_score, 3),
+        "agreement": round(result.agreement_score, 3),
+        "content": result.best_output.content[:2000],
+    }, ensure_ascii=False)
+
+
+@tool("ensemble_stats", "Stats des executions ensemble.", {})
+def ensemble_stats_tool() -> str:
+    """Stats des executions ensemble."""
+    from src.agent_ensemble import get_ensemble
+    return json.dumps(get_ensemble().get_ensemble_stats(), ensure_ascii=False)
+
+
+# ── Phase 14: Quality Gate + Lifecycle + Intelligence ────────────────────────
+
+@tool("quality_gate", "Evaluer la qualite d'un output agent (6 gates).", {"pattern": str, "prompt": str, "content": str})
+def quality_gate_tool(pattern: str, prompt: str, content: str) -> str:
+    """Evaluer la qualite d'un output agent (6 gates)."""
+    from src.quality_gate import get_gate
+    result = get_gate().evaluate(pattern, prompt, content)
+    return json.dumps({
+        "passed": result.passed, "score": result.overall_score,
+        "failed": result.failed_gates, "suggestions": result.suggestions,
+    }, ensure_ascii=False)
+
+
+@tool("lifecycle_health", "Rapport sante de tous les patterns.", {})
+def lifecycle_health_tool() -> str:
+    """Rapport sante de tous les patterns."""
+    from src.pattern_lifecycle import get_lifecycle
+    return json.dumps(get_lifecycle().health_report(), ensure_ascii=False, default=str)
+
+
+@tool("lifecycle_actions", "Actions lifecycle suggerees (evolve, deprecate, merge).", {})
+def lifecycle_actions_tool() -> str:
+    """Actions lifecycle suggerees (evolve, deprecate, merge)."""
+    from src.pattern_lifecycle import get_lifecycle
+    return json.dumps(get_lifecycle().suggest_actions(), ensure_ascii=False)
+
+
+@tool("intelligence_report", "Rapport intelligence cluster unifie (health score 0-100).", {})
+def intelligence_report_tool() -> str:
+    """Rapport intelligence cluster unifie (health score 0-100)."""
+    from src.cluster_intelligence import get_intelligence
+    return json.dumps(get_intelligence().full_report(), ensure_ascii=False, default=str)
+
+
+@tool("intelligence_status", "Statut rapide cluster.", {})
+def intelligence_status_tool() -> str:
+    """Statut rapide cluster."""
+    from src.cluster_intelligence import get_intelligence
+    return json.dumps(get_intelligence().quick_status(), ensure_ascii=False)
+
+
+@tool("intelligence_actions", "Actions prioritaires du cluster intelligence.", {})
+def intelligence_actions_tool() -> str:
+    """Actions prioritaires du cluster intelligence."""
+    from src.cluster_intelligence import get_intelligence
+    actions = get_intelligence().priority_actions()
+    return json.dumps([a.__dict__ for a in actions[:10]], ensure_ascii=False)
+
+
+# ── Cowork Bridge ────────────────────────────────────────────────────────────
+
+@tool("cowork_list", "Lister les scripts cowork par categorie.", {"category": str})
+def cowork_list_tool(category: str = "") -> str:
+    """Lister les scripts cowork (414+) par categorie."""
+    from src.cowork_bridge import get_bridge
+    scripts = get_bridge().list_scripts(category or None)
+    return json.dumps(scripts[:50], ensure_ascii=False)
+
+
+@tool("cowork_search", "Chercher un script cowork par nom ou description.", {"query": str})
+def cowork_search_tool(query: str) -> str:
+    """Chercher un script cowork par nom ou description."""
+    from src.cowork_bridge import get_bridge
+    return json.dumps(get_bridge().search(query, limit=20), ensure_ascii=False)
+
+
+@tool("cowork_execute", "Executer un script cowork avec --once.", {"script": str})
+def cowork_execute_tool(script: str) -> str:
+    """Executer un script cowork avec --once."""
+    from src.cowork_bridge import get_bridge
+    result = get_bridge().execute(script, ["--once"], timeout_s=60)
+    return json.dumps({
+        "script": result.script, "success": result.success,
+        "stdout": result.stdout[:2000], "duration_ms": round(result.duration_ms, 1),
+    }, ensure_ascii=False)
+
+
+@tool("cowork_stats", "Stats du bridge cowork.", {})
+def cowork_stats_tool() -> str:
+    """Stats du bridge cowork (414+ scripts)."""
+    from src.cowork_bridge import get_bridge
+    return json.dumps(get_bridge().get_stats(), ensure_ascii=False)
+
+
+# ── Phase 15: Self-Improvement Loop ─────────────────────────────────────
+
+@tool("self_improvement_analyze", "Analyse complete des performances et gate failures pour auto-amelioration.", {})
+def self_improvement_analyze_tool() -> str:
+    """Analyse complete des performances et gate failures pour auto-amelioration."""
+    from src.self_improvement import get_improver
+    return json.dumps(get_improver().analyze(), ensure_ascii=False, indent=2)
+
+@tool("self_improvement_suggest", "Suggestions d'amelioration automatiques.", {})
+def self_improvement_suggest_tool() -> str:
+    """Suggestions d'amelioration automatiques (route_shift, temp_adjust, gate_tune, prompt_enhance)."""
+    from src.self_improvement import get_improver
+    actions = get_improver().suggest_improvements()
+    return json.dumps([{"type": a.action_type, "target": a.target,
+                        "description": a.description, "priority": a.priority}
+                       for a in actions], ensure_ascii=False, indent=2)
+
+@tool("self_improvement_apply", "Appliquer les ameliorations suggerees.", {"auto": bool, "max_actions": int})
+def self_improvement_apply_tool(auto: bool = False, max_actions: int = 5) -> str:
+    """Appliquer les ameliorations suggerees. auto=True pour appliquer les critiques/high automatiquement."""
+    from src.self_improvement import get_improver
+    results = get_improver().apply_improvements(auto=auto, max_actions=max_actions)
+    return json.dumps(results, ensure_ascii=False, indent=2)
+
+@tool("self_improvement_stats", "Stats du self-improvement loop.", {})
+def self_improvement_stats_tool() -> str:
+    """Stats du self-improvement loop."""
+    from src.self_improvement import get_improver
+    return json.dumps(get_improver().get_stats(), ensure_ascii=False)
+
+
+# ── Phase 15: Dynamic Agents ───────────────────────────────────────────
+
+@tool("dynamic_agents_list", "Lister les agents dynamiques charges depuis la DB.", {})
+def dynamic_agents_list_tool() -> str:
+    """Lister les 56+ agents dynamiques charges depuis la DB."""
+    from src.dynamic_agents import get_spawner
+    return json.dumps(get_spawner().list_agents(), ensure_ascii=False, indent=2)
+
+@tool("dynamic_agents_stats", "Stats des agents dynamiques.", {})
+def dynamic_agents_stats_tool() -> str:
+    """Stats des agents dynamiques: strategie, noeuds, cowork scripts."""
+    from src.dynamic_agents import get_spawner
+    return json.dumps(get_spawner().get_stats(), ensure_ascii=False, indent=2)
+
+@tool("dynamic_agents_register", "Enregistrer tous les agents dynamiques dans le PatternAgentRegistry.", {})
+def dynamic_agents_register_tool() -> str:
+    """Enregistrer tous les agents dynamiques dans le PatternAgentRegistry live."""
+    from src.dynamic_agents import get_spawner
+    count = get_spawner().register_to_registry()
+    return json.dumps({"registered": count, "message": f"{count} agents dynamiques enregistres"})
+
+
+# ── Phase 15: Cowork Proactive ──────────────────────────────────────────
+
+@tool("cowork_proactive_needs", "Detecter les besoins systeme pour execution proactive.", {})
+def cowork_proactive_needs_tool() -> str:
+    """Detecter les besoins systeme pour execution proactive de scripts cowork."""
+    from src.cowork_proactive import get_proactive
+    needs = get_proactive().detect_needs()
+    return json.dumps([{"category": n.category, "urgency": n.urgency,
+                        "description": n.description, "source": n.source}
+                       for n in needs], ensure_ascii=False, indent=2)
+
+@tool("cowork_proactive_run", "Cycle proactif: detecter besoins -> planifier -> executer.", {"dry_run": bool, "max_scripts": int})
+def cowork_proactive_run_tool(dry_run: bool = True, max_scripts: int = 5) -> str:
+    """Cycle proactif: detecter besoins -> planifier scripts -> executer."""
+    from src.cowork_proactive import get_proactive
+    return json.dumps(get_proactive().run_proactive(max_scripts=max_scripts, dry_run=dry_run),
+                      ensure_ascii=False, indent=2)
+
+@tool("cowork_proactive_anticipate", "Predictions de besoins futurs bases sur les tendances.", {})
+def cowork_proactive_anticipate_tool() -> str:
+    """Predictions de besoins futurs bases sur les tendances."""
+    from src.cowork_proactive import get_proactive
+    return json.dumps(get_proactive().anticipate(), ensure_ascii=False, indent=2)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ASSEMBLE MCP SERVER — ALL TOOLS
+# ═══════════════════════════════════════════════════════════════════════════
+
+jarvis_server = create_sdk_mcp_server(
+    name="jarvis",
+    version="3.3.0",
+    tools=[
+        # LM Studio (4 + 2 MCP)
+        lm_query, lm_mcp_query, lm_list_mcp_servers,
+        lm_models, lm_cluster_status, consensus,
+        # Gemini + Bridge Multi-Noeuds (3)
+        gemini_query, bridge_query, bridge_mesh,
+        # LM Studio Model Management (7)
+        lm_load_model, lm_unload_model, lm_switch_coder, lm_switch_dev,
+        lm_gpu_stats, lm_benchmark, lm_perf_metrics,
+        # Ollama local (4)
+        ollama_query, ollama_models, ollama_pull, ollama_status,
+        # Ollama Cloud — Web Search + Sub-agents (3)
+        ollama_web_search, ollama_subagents, ollama_trading_analysis,
+        # Scripts & projets (3)
+        run_script, list_scripts, list_project_paths,
+        # Applications (3)
+        open_app, close_app, open_url_tool,
+        # Processus (2)
+        list_processes_tool, kill_process_tool,
+        # Fenetres (4)
+        list_windows_tool, focus_window_tool, minimize_window_tool, maximize_window_tool,
+        # Clavier & souris (4)
+        send_keys_tool, type_text_tool, press_hotkey_tool, mouse_click_tool,
+        # Clipboard (2)
+        clipboard_get_tool, clipboard_set_tool,
+        # Fichiers (8)
+        open_folder_tool, list_folder_tool, create_folder_tool,
+        copy_item_tool, move_item_tool, delete_item_tool,
+        read_text_file_tool, write_text_file_tool, search_files_tool,
+        # Audio (3)
+        volume_up_tool, volume_down_tool, volume_mute_tool,
+        # Ecran (2)
+        screenshot_tool, screen_resolution_tool,
+        # Systeme (7)
+        system_info_tool, gpu_info_tool, network_info_tool, bash_run_tool,
+        lock_screen_tool, shutdown_pc_tool, restart_pc_tool, sleep_pc_tool,
+        # Services (3)
+        list_services_tool, start_service_tool, stop_service_tool,
+        # Reseau (3)
+        wifi_networks_tool, ping_tool, get_ip_tool,
+        # Registre (2)
+        registry_read_tool, registry_write_tool,
+        # Notifications & voix (3)
+        notify_tool, speak_tool, scheduled_tasks_tool,
+        # Database SQL (3)
+        sql_query_tool, sql_list_tables_tool, sql_schema_tool,
+        # Dictionary CRUD (1)
+        dict_crud_tool,
+        # Domino Pipelines (3)
+        execute_domino_tool, list_dominos_tool, domino_stats_tool,
+        # Pattern Agents (5) — v11.1
+        agent_dispatch_tool, agent_classify_tool, agent_list_tool,
+        agent_routing_tool, agent_evolve_tool,
+        # Pipelines + Monitor + Optimizer (5) — v11.1
+        pipeline_run_tool, pipeline_list_tool, agent_dashboard_tool,
+        routing_optimizer_tool, agent_auto_scale_tool,
+        # Adaptive Router + Discovery + Orchestrator v3 (7) — v11.2
+        adaptive_router_status_tool, adaptive_router_pick_tool,
+        pattern_discovery_tool, pattern_discovery_register_tool,
+        orchestrate_tool, orchestrate_race_tool, orchestrate_consensus_tool,
+        # Episodic Memory (4) — v11.2
+        episodic_recall_tool, episodic_learn_tool, episodic_node_tool, episodic_pattern_tool,
+        # Self-Improve (2) — v11.2
+        self_improve_tool, self_improve_history_tool,
+        # Collaboration + Health + Benchmark (5) — v11.2
+        collab_chain_tool, collab_debate_tool,
+        health_check_tool, health_heal_tool,
+        benchmark_quick_tool,
+        # Task Planner + Feedback (4) — v11.2
+        task_planner_tool, task_execute_tool,
+        feedback_quality_tool, feedback_trends_tool,
+        # Phase 13: Dispatch Engine + Prompt + Scaler + Events + Ensemble (12)
+        dispatch_engine_tool, dispatch_engine_stats_tool, dispatch_engine_report_tool,
+        prompt_optimize_tool, prompt_insights_tool, prompt_analyze_tool,
+        auto_scaler_metrics_tool, auto_scaler_capacity_tool,
+        event_stream_latest_tool, event_stream_stats_tool,
+        ensemble_execute_tool, ensemble_stats_tool,
+        # Phase 14: Quality Gate + Lifecycle + Intelligence (6)
+        quality_gate_tool, lifecycle_health_tool, lifecycle_actions_tool,
+        intelligence_report_tool, intelligence_status_tool, intelligence_actions_tool,
+        # Cowork Bridge (4)
+        cowork_list_tool, cowork_search_tool, cowork_execute_tool, cowork_stats_tool,
+        # Phase 15: Self-Improvement + Dynamic Agents + Proactive (10)
+        self_improvement_analyze_tool, self_improvement_suggest_tool,
+        self_improvement_apply_tool, self_improvement_stats_tool,
+        dynamic_agents_list_tool, dynamic_agents_stats_tool, dynamic_agents_register_tool,
+        cowork_proactive_needs_tool, cowork_proactive_run_tool, cowork_proactive_anticipate_tool,
+    ],
+)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# METRICS & CACHE PUBLIC API
+# ═══════════════════════════════════════════════════════════════════════════
+
+def get_tool_metrics_report() -> dict:
+    """Get full tool metrics report (latency, success, cache)."""
+    return {
+        "tools": _tool_metrics.get_report(),
+        "cache": get_cache_stats(),
+        "node_latencies": {k: round(sum(v) / len(v), 1) for k, v in _METRICS.items() if v},
+    }
+
+
+def reset_tool_metrics():
+    """Reset all tool metrics and cache."""
+    _tool_metrics.reset()
+    clear_cache()

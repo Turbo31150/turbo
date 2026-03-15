@@ -1,0 +1,591 @@
+{
+  "node_scores": {
+    "debug": {
+      "M1/gpt-oss-20b": 0.2,
+      "OL1/minimax-cloud": 0.2,
+      "M2/qwen3-8b": 0.2,
+      "M3/gpt-oss-20b": 0.2,
+      "HF/Qwen3.5-27B": 0.2,
+      "M1/qwen3-30b": 0.2,
+      "OL1/glm5-cloud": 0.40622,
+      "M2/gpt-oss-20b": 0.2,
+      "M1/glm-4.7": 0.2,
+      "M3/mistral-7b": 0.2,
+      "M1/gemma3-12b": 0.2,
+      "M1/lfm2.5-1.2b": 0.45321275237381675,
+      "M2/deepseek-r1": 0.3677789489294194,
+      "M3/deepseek-r1": 0.9251505374273152,
+      "OL1/qwen3:1.7b": 0.46894,
+      "M1/qwen3-8b": 0.24041467653640625,
+      "M1/llama-1b": 0.6276938176437534
+    },
+    "code": {
+      "M1/qwen3-30b": 0.2,
+      "OL1/glm5-cloud": 0.43944428571428573,
+      "M2/gpt-oss-20b": 0.2,
+      "M3/nemotron": 0.2,
+      "HF/Qwen3.5-27B": 0.2,
+      "M1/deepseek-r1": 0.2,
+      "OL1/kimi-cloud": 0.3208333333333333,
+      "M2/nemotron": 0.2,
+      "M3/mistral-7b": 0.2,
+      "M1/qwq-32b": 0.2,
+      "OL1/gpt-oss-cloud": 0.3998366666666667,
+      "M2/glm-4.7": 0.2,
+      "M3/deepseek-r1": 0.9256750672290786,
+      "M1/nemotron-30b": 0.2,
+      "OL1/qwen3:1.7b": 0.5133798518041237,
+      "M2/deepseek-r1": 0.38122673835993515,
+      "M3/gpt-oss-20b": 0.2,
+      "M1/lfm2.5-1.2b": 0.5946157282709562,
+      "M1/devstral-24b": 0.2,
+      "M1/gpt-oss-20b": 0.2,
+      "OL1/minimax-cloud": 0.2,
+      "M2/qwen3-8b": 0.2,
+      "M1/grok3-12b": 0.2,
+      "M1/gemma3-12b": 0.2,
+      "M1/qwen3-coder-30b": 0.2,
+      "M1/qwen3-8b": 0.29793252257434155,
+      "M1/rnj-1": 0.2,
+      "M1/glm-4.7": 0.2,
+      "M1/llama-1b": 0.28719702795430646
+    },
+    "math": {
+      "M1/grok3-12b": 0.2,
+      "OL1/qwen3:1.7b": 0.49150547889610385,
+      "M2/deepseek-r1": 0.3481927999101655,
+      "M3/gpt-oss-20b": 0.2,
+      "HF/Qwen3.5-27B": 0.2,
+      "M1/glm-4.7": 0.2,
+      "OL1/minimax-cloud": 0.2,
+      "M2/qwen3-8b": 0.2,
+      "M3/nemotron": 0.2,
+      "M1/gpt-oss-20b": 0.2,
+      "M3/deepseek-r1": 0.9212885490561272,
+      "M1/deepseek-r1": 0.2,
+      "OL1/kimi-cloud": 0.5006933333333333,
+      "M2/nemotron": 0.2,
+      "M1/qwq-32b": 0.2,
+      "OL1/gpt-oss-cloud": 0.3833333333333333,
+      "M2/glm-4.7": 0.2,
+      "M3/mistral-7b": 0.2,
+      "M1/gemma3-12b": 0.2,
+      "OL1/glm5-cloud": 0.21354833333333334,
+      "M2/gpt-oss-20b": 0.2,
+      "M1/qwen3-coder-30b": 0.2,
+      "M1/nemotron-30b": 0.2,
+      "M1/ministral-14b": 0.2,
+      "M1/devstral-24b": 0.2,
+      "M1/llama-1b": 0.44474108921553074,
+      "M1/lfm2.5-1.2b": 0.624063926854507,
+      "M1/qwen3-8b": 0.48197392876262524
+    },
+    "reasoning": {
+      "M1/gemma3-12b": 0.2,
+      "OL1/glm5-cloud": 0.2,
+      "M2/gpt-oss-20b": 0.2,
+      "M3/mistral-7b": 0.2,
+      "HF/Qwen3.5-27B": 0.2,
+      "M1/llama-1b": 0.4424452555625,
+      "M3/gpt-oss-20b": 0.2,
+      "M1/lfm2.5-1.2b": 0.4505281622477678,
+      "M2/deepseek-r1": 0.5224105225625515,
+      "M3/deepseek-r1": 0.9100407765322129,
+      "OL1/qwen3:1.7b": 0.728954,
+      "M1/qwen3-8b": 0.3645851855
+    },
+    "trading": {
+      "M1/devstral-24b": 0.2,
+      "OL1/kimi-cloud": 0.2,
+      "M2/nemotron": 0.2,
+      "M3/deepseek-r1": 0.925720658158671,
+      "HF/Qwen3.5-27B": 0.2,
+      "M1/qwen3-coder-30b": 0.2,
+      "OL1/gpt-oss-cloud": 0.2,
+      "M2/glm-4.7": 0.2,
+      "M3/gpt-oss-20b": 0.2,
+      "M1/glm-4.7": 0.2,
+      "OL1/minimax-cloud": 0.5439166666666666,
+      "M2/qwen3-8b": 0.2,
+      "M1/qwen3-8b": 0.32785517465003877,
+      "OL1/qwen3:1.7b": 0.2,
+      "M2/deepseek-r1": 0.40182325548130754,
+      "M3/nemotron": 0.2,
+      "M1/gemma3-12b": 0.2,
+      "OL1/glm5-cloud": 0.2,
+      "M2/gpt-oss-20b": 0.2,
+      "M1/rnj-1": 0.2,
+      "M1/lfm2.5-1.2b": 0.4953765525962076,
+      "M3/mistral-7b": 0.2,
+      "M1/ministral-14b": 0.2,
+      "M1/grok3-12b": 0.2,
+      "M1/llama-1b": 0.39919047455108403
+    },
+    "architecture": {
+      "M1/nemotron-30b": 0.2,
+      "OL1/qwen3:1.7b": 0.4334519298245614,
+      "M2/deepseek-r1": 0.23320111939398916,
+      "M3/nemotron": 0.2,
+      "HF/Qwen3.5-27B": 0.2,
+      "M1/llama-1b": 0.4482998746688122,
+      "OL1/glm5-cloud": 0.2,
+      "M2/gpt-oss-20b": 0.2,
+      "M3/deepseek-r1": 0.9259668594191953,
+      "M1/grok3-12b": 0.2,
+      "M3/mistral-7b": 0.2,
+      "M1/glm-4.7": 0.2,
+      "OL1/minimax-cloud": 0.2,
+      "M2/qwen3-8b": 0.2,
+      "M1/lfm2.5-1.2b": 0.6616592204492264,
+      "OL1/gpt-oss-cloud": 0.2,
+      "M2/glm-4.7": 0.2,
+      "M1/qwen3-8b": 0.37738266956656613,
+      "M1/qwen3-30b": 0.2,
+      "M3/gpt-oss-20b": 0.2,
+      "M1/ministral-14b": 0.2,
+      "M1/qwq-32b": 0.2
+    },
+    "database": {
+      "M1/ministral-14b": 0.2,
+      "OL1/minimax-cloud": 0.34808666666666666,
+      "M2/qwen3-8b": 0.2,
+      "M3/mistral-7b": 0.2,
+      "HF/Qwen3.5-27B": 0.2,
+      "M3/nemotron": 0.2,
+      "M1/llama-1b": 0.31774534514160735,
+      "OL1/glm5-cloud": 0.4438,
+      "M2/gpt-oss-20b": 0.2,
+      "M1/nemotron-30b": 0.2,
+      "OL1/qwen3:1.7b": 0.3128205128205128,
+      "M2/deepseek-r1": 0.315769979215598,
+      "M3/deepseek-r1": 0.9255255057220504,
+      "M1/gpt-oss-20b": 0.2,
+      "M3/gpt-oss-20b": 0.2,
+      "M1/qwen3-30b": 0.2,
+      "M1/qwen3-8b": 0.37054155367615216,
+      "M1/lfm2.5-1.2b": 0.633935189000923
+    },
+    "system": {
+      "M1/rnj-1": 0.2,
+      "OL1/kimi-cloud": 0.2,
+      "M2/nemotron": 0.2,
+      "M3/gpt-oss-20b": 0.2,
+      "HF/Qwen3.5-27B": 0.2,
+      "M3/deepseek-r1": 0.925826300625057,
+      "M1/qwen3-30b": 0.2,
+      "OL1/glm5-cloud": 0.39647777777777776,
+      "M2/gpt-oss-20b": 0.2,
+      "M1/qwen3-coder-30b": 0.2,
+      "OL1/gpt-oss-cloud": 0.2,
+      "M2/glm-4.7": 0.2,
+      "M3/mistral-7b": 0.2,
+      "M1/ministral-14b": 0.2,
+      "OL1/minimax-cloud": 0.43545333333333336,
+      "M2/qwen3-8b": 0.2,
+      "M1/llama-1b": 0.3191926479270626,
+      "M3/nemotron": 0.2,
+      "M1/deepseek-r1": 0.2,
+      "M1/gemma3-12b": 0.2,
+      "M1/lfm2.5-1.2b": 0.6629451846837033,
+      "M1/gpt-oss-20b": 0.2,
+      "M2/deepseek-r1": 0.20789663796786803,
+      "M1/qwen3-8b": 0.22944168773284862,
+      "OL1/qwen3:1.7b": 0.31020408163265306
+    },
+    "creative": {
+      "M1/lfm2.5-1.2b": 0.6106416592005068,
+      "OL1/gpt-oss-cloud": 0.3833333333333333,
+      "M2/glm-4.7": 0.2,
+      "M3/nemotron": 0.2,
+      "HF/Qwen3.5-27B": 0.2,
+      "M1/qwen3-8b": 0.6636359754868384,
+      "OL1/qwen3:1.7b": 0.5787725641025641,
+      "M2/deepseek-r1": 0.476247144129304,
+      "M3/mistral-7b": 0.2,
+      "M1/qwq-32b": 0.2,
+      "M3/deepseek-r1": 0.9269022069416164,
+      "M1/grok3-12b": 0.2,
+      "M3/gpt-oss-20b": 0.2,
+      "OL1/glm5-cloud": 0.2,
+      "M1/llama-1b": 0.6460166272583225
+    },
+    "knowledge": {
+      "M1/grok3-12b": 0.2,
+      "OL1/qwen3:1.7b": 0.2669820338983051,
+      "M2/deepseek-r1": 0.3076163852299004,
+      "M3/deepseek-r1": 0.9209465987918906,
+      "HF/Qwen3.5-27B": 0.2,
+      "M1/devstral-24b": 0.2,
+      "OL1/kimi-cloud": 0.27496333333333334,
+      "M2/nemotron": 0.2,
+      "M3/mistral-7b": 0.2,
+      "M1/qwq-32b": 0.2,
+      "OL1/gpt-oss-cloud": 0.2,
+      "M2/glm-4.7": 0.2,
+      "M3/nemotron": 0.2,
+      "M1/rnj-1": 0.2,
+      "M1/qwen3-8b": 0.29326638716984943,
+      "M3/gpt-oss-20b": 0.2,
+      "M1/qwen3-30b": 0.2,
+      "OL1/glm5-cloud": 0.2,
+      "M2/gpt-oss-20b": 0.2,
+      "M1/nemotron-30b": 0.2,
+      "M1/qwen3-coder-30b": 0.2,
+      "M1/deepseek-r1": 0.2,
+      "M1/gemma3-12b": 0.2,
+      "M1/lfm2.5-1.2b": 0.6327833773018364,
+      "M1/llama-1b": 0.3422984895067752
+    },
+    "general": {
+      "M1/gpt-oss-20b": 0.2,
+      "OL1/minimax-cloud": 0.2,
+      "M2/qwen3-8b": 0.2,
+      "M3/mistral-7b": 0.2,
+      "HF/Qwen3.5-27B": 0.2,
+      "M1/glm-4.7": 0.2,
+      "M3/gpt-oss-20b": 0.2,
+      "M1/lfm2.5-1.2b": 0.6554375188278846,
+      "M2/deepseek-r1": 0.36971574973927457,
+      "M3/deepseek-r1": 0.9216584390983052,
+      "OL1/glm5-cloud": 0.2,
+      "OL1/qwen3:1.7b": 0.37142857142857144,
+      "M1/llama-1b": 0.2,
+      "M1/qwen3-8b": 0.269427575
+    }
+  },
+  "quality_ema": {
+    "OL1/glm5-cloud": 4648.219618749999,
+    "M1/lfm2.5-1.2b": 123.78226106967367,
+    "M2/deepseek-r1": 762.6780836486062,
+    "M3/deepseek-r1": 696.9684985686006,
+    "OL1/qwen3:1.7b": 1921.1573686686806,
+    "OL1/kimi-cloud": 4946.299999999999,
+    "OL1/gpt-oss-cloud": 6033.75,
+    "M1/qwen3-8b": 96.30023471959414,
+    "OL1/minimax-cloud": 1802.89375,
+    "M1/llama-1b": 342.82248841095077
+  },
+  "latency_ema": {
+    "OL1/glm5-cloud": 12511.09300625,
+    "M1/lfm2.5-1.2b": 7655.875365629155,
+    "M2/deepseek-r1": 13269.563583886486,
+    "M3/deepseek-r1": 6983.107187392141,
+    "OL1/qwen3:1.7b": 17111.456806063095,
+    "OL1/kimi-cloud": 26285.437499999996,
+    "OL1/gpt-oss-cloud": 18274.179999999997,
+    "M1/qwen3-8b": 8906.532033927462,
+    "OL1/minimax-cloud": 13555.032500000001,
+    "M1/llama-1b": 8832.408482321001
+  },
+  "last_cycle_seen": 1425,
+  "learning_cycle": 656,
+  "complexity_routing": {
+    "1": {
+      "debug": {
+        "node": "M2/deepseek-r1",
+        "score": 0.853
+      },
+      "code": {
+        "node": "M2/deepseek-r1",
+        "score": 0.83
+      },
+      "math": {
+        "node": "M2/deepseek-r1",
+        "score": 0.828
+      },
+      "reasoning": {
+        "node": "M3/deepseek-r1",
+        "score": 0.827
+      },
+      "trading": {
+        "node": "M2/deepseek-r1",
+        "score": 0.842
+      },
+      "database": {
+        "node": "M2/deepseek-r1",
+        "score": 0.818
+      },
+      "creative": {
+        "node": "M1/qwen3-8b",
+        "score": 0.905
+      },
+      "knowledge": {
+        "node": "M2/deepseek-r1",
+        "score": 0.851
+      },
+      "system": {
+        "node": "M2/deepseek-r1",
+        "score": 0.846
+      },
+      "general": {
+        "node": "M2/deepseek-r1",
+        "score": 0.797
+      }
+    },
+    "2": {
+      "code": {
+        "node": "M2/deepseek-r1",
+        "score": 0.85
+      },
+      "math": {
+        "node": "M2/deepseek-r1",
+        "score": 0.836
+      },
+      "trading": {
+        "node": "M2/deepseek-r1",
+        "score": 0.851
+      },
+      "architecture": {
+        "node": "M2/deepseek-r1",
+        "score": 0.84
+      },
+      "database": {
+        "node": "M2/deepseek-r1",
+        "score": 0.85
+      },
+      "knowledge": {
+        "node": "M2/deepseek-r1",
+        "score": 0.838
+      }
+    },
+    "3": {
+      "system": {
+        "node": "M2/deepseek-r1",
+        "score": 0.85
+      },
+      "math": {
+        "node": "M2/deepseek-r1",
+        "score": 0.846
+      }
+    },
+    "4": {
+      "code": {
+        "node": "M2/deepseek-r1",
+        "score": 0.843
+      }
+    }
+  },
+  "timestamp": 1773242350.4407818,
+  "routing_table": {
+    "debug": {
+      "node": "M3/deepseek-r1",
+      "score": 0.925,
+      "latency_ms": 6983,
+      "quality": 696,
+      "alternatives": [
+        [
+          "M1/llama-1b",
+          0.628
+        ],
+        [
+          "OL1/qwen3:1.7b",
+          0.469
+        ],
+        [
+          "M1/lfm2.5-1.2b",
+          0.453
+        ]
+      ]
+    },
+    "code": {
+      "node": "M3/deepseek-r1",
+      "score": 0.926,
+      "latency_ms": 6983,
+      "quality": 696,
+      "alternatives": [
+        [
+          "M1/lfm2.5-1.2b",
+          0.595
+        ],
+        [
+          "OL1/qwen3:1.7b",
+          0.513
+        ],
+        [
+          "OL1/glm5-cloud",
+          0.439
+        ]
+      ]
+    },
+    "math": {
+      "node": "M3/deepseek-r1",
+      "score": 0.921,
+      "latency_ms": 6983,
+      "quality": 696,
+      "alternatives": [
+        [
+          "M1/lfm2.5-1.2b",
+          0.624
+        ],
+        [
+          "OL1/kimi-cloud",
+          0.501
+        ],
+        [
+          "OL1/qwen3:1.7b",
+          0.492
+        ]
+      ]
+    },
+    "reasoning": {
+      "node": "M3/deepseek-r1",
+      "score": 0.91,
+      "latency_ms": 6983,
+      "quality": 696,
+      "alternatives": [
+        [
+          "OL1/qwen3:1.7b",
+          0.729
+        ],
+        [
+          "M2/deepseek-r1",
+          0.522
+        ],
+        [
+          "M1/lfm2.5-1.2b",
+          0.451
+        ]
+      ]
+    },
+    "trading": {
+      "node": "M3/deepseek-r1",
+      "score": 0.926,
+      "latency_ms": 6983,
+      "quality": 696,
+      "alternatives": [
+        [
+          "OL1/minimax-cloud",
+          0.544
+        ],
+        [
+          "M1/lfm2.5-1.2b",
+          0.495
+        ],
+        [
+          "M2/deepseek-r1",
+          0.402
+        ]
+      ]
+    },
+    "architecture": {
+      "node": "M3/deepseek-r1",
+      "score": 0.926,
+      "latency_ms": 6983,
+      "quality": 696,
+      "alternatives": [
+        [
+          "M1/lfm2.5-1.2b",
+          0.662
+        ],
+        [
+          "M1/llama-1b",
+          0.448
+        ],
+        [
+          "OL1/qwen3:1.7b",
+          0.433
+        ]
+      ]
+    },
+    "database": {
+      "node": "M3/deepseek-r1",
+      "score": 0.926,
+      "latency_ms": 6983,
+      "quality": 696,
+      "alternatives": [
+        [
+          "M1/lfm2.5-1.2b",
+          0.634
+        ],
+        [
+          "OL1/glm5-cloud",
+          0.444
+        ],
+        [
+          "M1/qwen3-8b",
+          0.371
+        ]
+      ]
+    },
+    "system": {
+      "node": "M3/deepseek-r1",
+      "score": 0.926,
+      "latency_ms": 6983,
+      "quality": 696,
+      "alternatives": [
+        [
+          "M1/lfm2.5-1.2b",
+          0.663
+        ],
+        [
+          "OL1/minimax-cloud",
+          0.435
+        ],
+        [
+          "OL1/glm5-cloud",
+          0.396
+        ]
+      ]
+    },
+    "creative": {
+      "node": "M3/deepseek-r1",
+      "score": 0.927,
+      "latency_ms": 6983,
+      "quality": 696,
+      "alternatives": [
+        [
+          "M1/qwen3-8b",
+          0.664
+        ],
+        [
+          "M1/llama-1b",
+          0.646
+        ],
+        [
+          "M1/lfm2.5-1.2b",
+          0.611
+        ]
+      ]
+    },
+    "knowledge": {
+      "node": "M3/deepseek-r1",
+      "score": 0.921,
+      "latency_ms": 6983,
+      "quality": 696,
+      "alternatives": [
+        [
+          "M1/lfm2.5-1.2b",
+          0.633
+        ],
+        [
+          "M1/llama-1b",
+          0.342
+        ],
+        [
+          "M2/deepseek-r1",
+          0.308
+        ]
+      ]
+    },
+    "general": {
+      "node": "M3/deepseek-r1",
+      "score": 0.922,
+      "latency_ms": 6983,
+      "quality": 696,
+      "alternatives": [
+        [
+          "M1/lfm2.5-1.2b",
+          0.655
+        ],
+        [
+          "OL1/qwen3:1.7b",
+          0.371
+        ],
+        [
+          "M2/deepseek-r1",
+          0.37
+        ]
+      ]
+    }
+  }
+}

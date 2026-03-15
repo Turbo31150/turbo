@@ -1,0 +1,16 @@
+{
+  "run_id": "mega_20260305_152142",
+  "ts": "2026-03-05T15:21:42.405943",
+  "total_ok": 51,
+  "total_fail": 0,
+  "total_duration_s": 434.9,
+  "durations": {
+    "micro": 32.9,
+    "small": 13.8,
+    "medium": 40.1,
+    "long": 128.6,
+    "xl": 56.5,
+    "chain": 79.2,
+    "routing": 83.8
+  }
+}

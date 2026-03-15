@@ -106,6 +106,18 @@ def route_voice_command(text: str) -> dict:
     except Exception:
         pass  # Fallback vers le routage normal si les aliases echouent
 
+    # App controller: commandes applicatives (navigateur, VSCode, terminal, Spotify, GNOME)
+    try:
+        from src.voice_app_controller import execute_app_command
+        app_result = execute_app_command(normalized)
+        if app_result and app_result.get("success"):
+            app_result["latency_ms"] = round((time.time() - start) * 1000, 1)
+            _log_voice_analytics(normalized, app_result)
+            _log_action_history(normalized, app_result)
+            return app_result
+    except Exception:
+        pass  # Fallback vers le routage normal si app_controller echoue
+
     # Appliquer les corrections vocales du cache SQL
     original = normalized
     try:
@@ -415,7 +427,14 @@ def get_all_commands() -> dict[str, list[str]]:
         "src.voice_dictation": "Dictee",
         "src.voice_window_manager": "Fenetres",
         "src.voice_screen_reader": "Ecran",
+        "src.voice_app_controller": "Applications",
     }
+    # Ajouter les commandes applicatives (module prioritaire hors MODULES)
+    try:
+        from src.voice_app_controller import VOICE_COMMANDS as APP_VOICE_COMMANDS
+        all_cmds["Applications"] = sorted(APP_VOICE_COMMANDS.keys())
+    except Exception:
+        pass
     for mod_name, _ in MODULES:
         try:
             mod = _import_module(mod_name)

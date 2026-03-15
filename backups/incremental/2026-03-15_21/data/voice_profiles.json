@@ -1,0 +1,27 @@
+{
+  "active_profile": "normal",
+  "activated_at": 1773600536.2661881,
+  "history": [
+    {
+      "from": "normal",
+      "to": "dev",
+      "timestamp": 1773600536.2640383
+    },
+    {
+      "from": "dev",
+      "to": "normal",
+      "timestamp": 1773600536.2641785
+    },
+    {
+      "from": "normal",
+      "to": "guest",
+      "timestamp": 1773600536.265272
+    },
+    {
+      "from": "guest",
+      "to": "normal",
+      "timestamp": 1773600536.2661881
+    }
+  ],
+  "custom_profiles": []
+}

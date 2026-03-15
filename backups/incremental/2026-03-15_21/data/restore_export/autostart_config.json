@@ -1,0 +1,5 @@
+{
+  "startup": "JARVIS_BOOT_V2.bat",
+  "watchdog_services": 7,
+  "layers": 3
+}

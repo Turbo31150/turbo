@@ -1,0 +1,808 @@
+"""JARVIS Command Executor — Executes matched voice commands on the system."""
+
+from __future__ import annotations
+
+import asyncio
+import logging
+import subprocess
+from typing import Any
+
+logger = logging.getLogger("jarvis.executor")
+
+from src.commands import (
+    JarvisCommand, APP_PATHS, SITE_ALIASES,
+    match_command, correct_voice_text, format_commands_help,
+)
+from src.windows import run_powershell
+from src.config import SCRIPTS
+from src.signal_formatter import parse_sniper_json, format_telegram_signals, format_chat_signals
+
+
+async def execute_command(cmd: JarvisCommand, params: dict[str, str]) -> str:
+    """Execute a matched command and return the result text."""
+
+    if cmd.action_type == "exit":
+        return "__EXIT__"
+
+    if cmd.action_type == "list_commands":
+        return format_commands_help()
+
+    if cmd.action_type == "jarvis_repeat":
+        return "__REPEAT__"
+
+    if cmd.action_type == "app_open":
+        app_name = cmd.action
+        if "{" in app_name and params:
+            for k, v in params.items():
+                app_name = app_name.replace(f"{{{k}}}", v)
+        resolved = APP_PATHS.get(app_name.lower(), app_name)
+        safe_resolved = resolved.replace("'", "''")
+        result = run_powershell(f"Start-Process '{safe_resolved}'", timeout=10)
+        if result["success"]:
+            return f"Application {app_name} ouverte."
+        else:
+            return f"Impossible d'ouvrir {app_name}: {result['stderr']}"
+
+    if cmd.action_type == "ms_settings":
+        uri = cmd.action.replace("'", "''")
+        result = run_powershell(f"Start-Process '{uri}'", timeout=10)
+        if result["success"]:
+            return f"Parametres ouverts: {uri}"
+        else:
+            return f"Erreur ouverture parametres: {result['stderr']}"
+
+    if cmd.action_type == "hotkey":
+        action = cmd.action
+        for k, v in params.items():
+            action = action.replace(f"{{{k}}}", v)
+        return _execute_hotkey(action)
+
+    if cmd.action_type == "browser":
+        action = cmd.action
+        for k, v in params.items():
+            action = action.replace(f"{{{k}}}", v)
+
+        if action.startswith("navigate:"):
+            url = action[len("navigate:"):]
+            url = SITE_ALIASES.get(url.lower(), url)
+            if not url.startswith("http"):
+                url = f"https://{url}"
+            safe_url = url.replace("'", "''")
+            result = run_powershell(f"Start-Process chrome '{safe_url}'", timeout=10)
+            if result["success"]:
+                return f"Navigation vers {url}."
+            else:
+                return f"Erreur navigation: {result['stderr']}"
+
+        elif action.startswith("search:"):
+            query = action[len("search:"):]
+            from urllib.parse import quote_plus
+            url = f"https://www.google.com/search?q={quote_plus(query)}"
+            safe_url = url.replace("'", "''")
+            result = run_powershell(f"Start-Process chrome '{safe_url}'", timeout=10)
+            if result["success"]:
+                return f"Recherche Google: {query}."
+            else:
+                return f"Erreur recherche: {result['stderr']}"
+
+    if cmd.action_type == "powershell":
+        action = cmd.action
+        for k, v in params.items():
+            action = action.replace(f"{{{k}}}", v.replace("'", "''"))
+        result = run_powershell(action, timeout=30)
+        if result["success"]:
+            output = result["stdout"][:200] if result["stdout"] else "OK"
+            return f"Commande executee. {output}"
+        else:
+            return f"Erreur: {result['stderr'][:200]}"
+
+    if cmd.action_type == "script":
+        import sys
+        import shlex
+        action = cmd.action
+        for k, v in (params or {}).items():
+            action = action.replace(f"{{{k}}}", v)
+        parts = shlex.split(action)
+        script_name = parts[0]
+        script_args = parts[1:]
+        script_path = SCRIPTS.get(script_name)
+        if not script_path or not script_path.exists():
+            return f"Script introuvable: {script_name}"
+        try:
+            # Run in thread to avoid blocking the async event loop
+            result = await asyncio.to_thread(
+                subprocess.run,
+                [sys.executable, str(script_path)] + script_args,
+                capture_output=True, text=True, timeout=600,
+                cwd=str(script_path.parent),
+            )
+            # Trading scripts: keep full output for JSON parsing + Telegram
+            formatted = _postprocess_trading_script(script_name, result.stdout)
+            if formatted:
+                return formatted
+            # Default: truncate for non-trading scripts
+            output = result.stdout[-500:] if len(result.stdout) > 500 else result.stdout
+            return f"Script {script_name} termine (exit={result.returncode}). {output}"
+        except subprocess.TimeoutExpired:
+            return f"Script {script_name} timeout (600s)."
+        except (OSError, ValueError) as e:
+            return f"Erreur script: {e}"
+
+    if cmd.action_type == "jarvis_tool":
+        action = cmd.action
+        for k, v in params.items():
+            action = action.replace(f"{{{k}}}", v)
+        return await _execute_jarvis_tool(action)
+
+    if cmd.action_type == "pipeline":
+        return await _execute_pipeline(cmd.action, params or {})
+
+    if cmd.action_type == "domino":
+        return await _execute_domino(cmd.action)
+
+    if cmd.action_type == "learned_action":
+        from src.domino_executor import execute_with_learned_actions
+        # Utiliser le premier trigger (phrase vocale) pour le re-match interne
+        replay_text = cmd.triggers[0] if cmd.triggers else cmd.action
+        result = await asyncio.to_thread(execute_with_learned_actions, replay_text)
+        if result:
+            steps_ok = sum(1 for r in result.get("results", []) if r["status"] == "PASS")
+            total = len(result.get("results", []))
+            return f"Learned action '{result['name']}' executee ({steps_ok}/{total} etapes OK)."
+        return f"Learned action '{cmd.action}' — aucun match au replay."
+
+    return f"Type d'action inconnu: {cmd.action_type}"
+
+
+async def _execute_domino(action: str) -> str:
+    """Execute a domino pipeline by name."""
+    try:
+        from src.domino_pipelines import DOMINO_PIPELINES
+        from src.domino_executor import DominoExecutor
+        # Find domino by name
+        domino = None
+        for d in DOMINO_PIPELINES:
+            if d.name == action:
+                domino = d
+                break
+        if not domino:
+            return f"Domino '{action}' introuvable parmi {len(DOMINO_PIPELINES)} cascades."
+        executor = DominoExecutor()
+        result = await asyncio.to_thread(executor.run, domino)
+        passed = result.get("passed", 0)
+        failed = result.get("failed", 0)
+        elapsed = result.get("elapsed_s", 0)
+        status = "OK" if failed == 0 else "ERREUR"
+        return f"Domino {action}: {status} ({passed} pass, {failed} fail, {elapsed:.1f}s)"
+    except (ImportError, Exception) as e:
+        return f"Erreur domino {action}: {e}"
+
+
+async def _execute_pipeline(action: str, params: dict[str, str]) -> str:
+    """Execute a multi-step pipeline. Steps separated by ';;'.
+
+    Each step: 'type:action' where type is powershell, app_open, browser, etc.
+    Special: 'sleep:N' pauses N seconds between steps.
+    """
+    steps = [s.strip() for s in action.split(";;") if s.strip()]
+    results = []
+
+    for step in steps:
+        if step.startswith("sleep:"):
+            try:
+                await asyncio.sleep(float(step[6:]))
+            except ValueError as exc:
+                logger.debug("Invalid sleep duration in step %r: %s", step, exc)
+            continue
+
+        sep = step.find(":")
+        if sep == -1:
+            results.append(f"Step invalide: {step}")
+            continue
+
+        step_type = step[:sep].strip()
+        step_action = step[sep + 1:].strip()
+
+        if step_type == "pipeline":
+            results.append("Erreur: pipeline imbriquee non supportee")
+            continue
+
+        for k, v in params.items():
+            step_action = step_action.replace(f"{{{k}}}", v)
+
+        sub_cmd = JarvisCommand(
+            name="pipeline_step",
+            category="pipeline",
+            description="",
+            triggers=[],
+            action_type=step_type,
+            action=step_action,
+        )
+        result = await execute_command(sub_cmd, {})
+        if result and not result.startswith("__"):
+            results.append(result)
+
+    return " | ".join(results) if results else "Pipeline execute"
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TRADING SCRIPT POST-PROCESSING
+# ═══════════════════════════════════════════════════════════════════════════
+
+_TRADING_SCRIPTS = {"scan_sniper", "mexc_scanner"}
+
+
+def _postprocess_trading_script(script_name: str, stdout: str) -> str | None:
+    """Parse JSON output from trading scripts, format for chat, send Telegram.
+
+    Returns formatted chat string, or None to fall back to default truncation.
+    """
+    if script_name not in _TRADING_SCRIPTS:
+        return None
+    data = parse_sniper_json(stdout)
+    if not data or not data.get("signals"):
+        return None
+    # Send Telegram notification (fire-and-forget, don't block on failure)
+    try:
+        from src.trading import send_telegram
+        tg_msg = format_telegram_signals(data)
+        ok = send_telegram(tg_msg)
+        logger.info(
+            "Telegram sniper: %s (%d signals)", "sent" if ok else "failed", len(data.get("signals", []))
+        )
+    except (OSError, ImportError, ValueError, RuntimeError) as e:
+        logger.warning("Telegram sniper error: %s", e)
+    # Return structured chat format
+    return format_chat_signals(data)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SKILL / PIPELINE EXECUTION
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def execute_skill_step(step, mcp_call) -> str:
+    """Execute a single skill step using the MCP callback.
+
+    Args:
+        step: SkillStep with tool name and args
+        mcp_call: async callable(tool_name, args) -> str
+    """
+    from src.skills import log_action
+    try:
+        result = await mcp_call(step.tool, step.args)
+        log_action(f"{step.tool}({step.args})", result, True)
+        return result
+    except (OSError, ValueError, KeyError, TypeError, RuntimeError, TimeoutError) as e:
+        log_action(f"{step.tool}({step.args})", str(e), False)
+        return f"Erreur {step.tool}: {e}"
+
+
+async def execute_skill(skill, mcp_call) -> str:
+    """Execute a full skill pipeline.
+
+    Args:
+        skill: Skill object with steps
+        mcp_call: async callable(tool_name, args) -> str
+    """
+    from src.skills import record_skill_use
+    results = []
+    all_success = True
+
+    for i, step in enumerate(skill.steps):
+        desc = step.description or step.tool
+        results.append(f"[{i+1}/{len(skill.steps)}] {desc}...")
+        result = await execute_skill_step(step, mcp_call)
+        if "ERREUR" in result.upper():
+            all_success = False
+            results.append(f"  Erreur: {result[:100]}")
+        else:
+            results.append(f"  OK: {result[:150]}")
+
+    record_skill_use(skill.name, all_success)
+    status = "termine" if all_success else "termine avec erreurs"
+    return f"Skill '{skill.name}' {status}.\n" + "\n".join(results)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# JARVIS TOOL EXECUTION (38 tools: IA tools + WS API + PowerShell direct)
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Map pipeline jarvis_tool actions → IA tool names (when they differ)
+_TOOL_REMAP = {
+    "gpu_info": "jarvis_gpu_status",
+    "system_info": "jarvis_diagnostics_quick",
+    "lm_cluster_status": "jarvis_cluster_health",
+    "lm_models": "jarvis_cluster_health",
+    "brain_status": "jarvis_diagnostics_quick",
+    "ollama_status": "jarvis_cluster_health",
+    "ollama_models": "jarvis_cluster_health",
+}
+
+# WS API routes for tools that map to direct endpoints
+_WS_TOOL_ROUTES = {
+    "trading_status": "/api/trading/rankings",
+    "list_scripts": "/api/cowork/list",
+    "list_project_paths": "/api/projects/list",
+}
+
+# PowerShell direct execution for system tools
+_PS_TOOLS = {
+    "list_processes": "Get-Process | Sort CPU -Desc | Select -First 15 Name, CPU, PM | Format-Table -Auto | Out-String",
+    "list_services": "Get-Service | Where Status -eq Running | Select -First 20 Name, DisplayName | Format-Table -Auto | Out-String",
+    "get_ip": "(Get-NetIPAddress -AddressFamily IPv4 | Where {$_.IPAddress -ne '127.0.0.1'}).IPAddress",
+    "network_info": "Get-NetAdapter | Where Status -eq Up | Select Name, LinkSpeed, MacAddress | Format-Table -Auto | Out-String",
+    "wifi_networks": "netsh wlan show networks mode=bssid | Select-String 'SSID|Signal' | Out-String",
+    "screen_resolution": "[System.Windows.Forms.Screen]::PrimaryScreen.Bounds | Out-String",
+    "clipboard_get": "Get-Clipboard",
+    "list_windows": "Get-Process | Where {$_.MainWindowTitle} | Select MainWindowTitle | Format-Table -Auto | Out-String",
+}
+
+
+async def _execute_jarvis_tool(action: str) -> str:
+    """Execute a jarvis_tool action using the best available method.
+
+    Priority: 1) IA tool executor, 2) WS API, 3) PowerShell, 4) sentinel fallback.
+    """
+    import json as _json
+
+    # Parse action:param format
+    parts = action.split(":", 1)
+    base_action = parts[0]
+    action_param = parts[1] if len(parts) > 1 else ""
+
+    # 1. Try IA tool executor (23 tools via HTTP to WS)
+    tool_name = _TOOL_REMAP.get(base_action, f"jarvis_{base_action}")
+    try:
+        from src.ia_tool_executor import execute_tool_call, TOOLS_BY_NAME
+        if tool_name in TOOLS_BY_NAME:
+            args = {}
+            if action_param:
+                # Pass param as first argument name from tool schema
+                meta = TOOLS_BY_NAME[tool_name]
+                param_names = [p["name"] for p in meta.get("function", {}).get("parameters", {}).get("properties", {}).keys()] if meta else []
+                if param_names:
+                    args[param_names[0]] = action_param
+            result = await execute_tool_call(tool_name, args, caller="executor")
+            if result.get("ok"):
+                data = result.get("result", "")
+                if isinstance(data, dict):
+                    return _json.dumps(data, ensure_ascii=False, indent=1)[:1000]
+                return str(data)[:1000]
+    except (ImportError, Exception) as e:
+        logger.debug("IA tool exec failed for %s: %s", tool_name, e)
+
+    # 2. Try WS API direct route
+    ws_route = _WS_TOOL_ROUTES.get(base_action)
+    if ws_route:
+        try:
+            import httpx
+            async with httpx.AsyncClient(timeout=10) as client:
+                url = f"http://127.0.0.1:9742{ws_route}"
+                if action_param:
+                    url += f"?q={action_param}"
+                resp = await client.get(url)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    return _json.dumps(data, ensure_ascii=False, indent=1)[:1000]
+        except (httpx.HTTPError, OSError, ValueError) as e:
+            logger.debug("WS API call failed for %s: %s", ws_route, e)
+
+    # 3. Try PowerShell direct
+    ps_cmd = _PS_TOOLS.get(base_action)
+    if ps_cmd:
+        result = run_powershell(ps_cmd, timeout=15)
+        if result["success"]:
+            return result["stdout"][:1000] if result["stdout"] else "OK"
+        return f"Erreur: {result['stderr'][:200]}"
+
+    # 4. Parameterized PS tools
+    if base_action == "ping":
+        result = run_powershell(f"Test-Connection -ComputerName {action_param} -Count 2 -ErrorAction Stop | Out-String", timeout=15)
+        return result["stdout"][:500] if result["success"] else f"Ping echoue: {result['stderr'][:200]}"
+    if base_action == "kill_process":
+        result = run_powershell(f"Stop-Process -Name '{action_param}' -Force -ErrorAction Stop", timeout=10)
+        return f"Processus {action_param} arrete." if result["success"] else f"Erreur: {result['stderr'][:200]}"
+    if base_action == "close_app":
+        result = run_powershell(f"Stop-Process -Name '{action_param}' -Force -ErrorAction SilentlyContinue", timeout=10)
+        return f"{action_param} ferme." if result["success"] else f"Erreur: {result['stderr'][:200]}"
+    if base_action == "focus_window":
+        result = run_powershell(
+            f"$w = Get-Process | Where {{$_.MainWindowTitle -like '*{action_param}*'}} | Select -First 1; "
+            f"if($w) {{ [void][System.Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic'); "
+            f"[Microsoft.VisualBasic.Interaction]::AppActivate($w.Id) }}", timeout=10)
+        return f"Focus sur {action_param}." if result["success"] else f"Fenetre non trouvee."
+    if base_action == "search_files":
+        result = run_powershell(
+            f"Get-ChildItem -Path F:/BUREAU -Recurse -Filter '*{action_param}*' -ErrorAction SilentlyContinue | "
+            "Select -First 10 FullName | Out-String", timeout=15)
+        return result["stdout"][:800] if result["success"] and result["stdout"] else f"Aucun fichier '{action_param}' trouve."
+    if base_action == "create_folder":
+        result = run_powershell(f"New-Item -ItemType Directory -Path '{action_param}' -Force | Out-String", timeout=10)
+        return f"Dossier {action_param} cree." if result["success"] else f"Erreur: {result['stderr'][:200]}"
+    if base_action == "list_folder":
+        result = run_powershell(f"Get-ChildItem -Path '{action_param}' | Select Name, Length, LastWriteTime | Format-Table -Auto | Out-String", timeout=10)
+        return result["stdout"][:800] if result["success"] and result["stdout"] else f"Dossier vide ou introuvable."
+    if base_action == "type_text":
+        result = run_powershell(
+            f"Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait('{action_param}')", timeout=5)
+        return f"Texte saisi." if result["success"] else f"Erreur saisie: {result['stderr'][:200]}"
+    if base_action == "notify":
+        parts_n = action_param.split(":", 1)
+        title = parts_n[0] if len(parts_n) > 1 else "JARVIS"
+        msg = parts_n[1] if len(parts_n) > 1 else action_param
+        result = run_powershell(
+            f"[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms'); "
+            f"$n = New-Object System.Windows.Forms.NotifyIcon; $n.Icon = [System.Drawing.SystemIcons]::Information; "
+            f"$n.Visible = $true; $n.ShowBalloonTip(3000, '{title}', '{msg}', 'Info')", timeout=10)
+        return f"Notification envoyee: {msg[:100]}"
+
+    # 5. LM query tools → dispatch to cluster
+    if base_action in ("lm_query", "ollama_query", "consensus"):
+        try:
+            from src.dispatch_engine import DispatchEngine
+            engine = DispatchEngine()
+            pattern = "consensus" if base_action == "consensus" else "simple"
+            result = await engine.dispatch(pattern, action_param)
+            return result.content[:1000] if result.content else "Pas de reponse."
+        except (ImportError, Exception) as e:
+            logger.debug("Dispatch failed for %s: %s", base_action, e)
+
+    # Fallback sentinel for orchestrator compatibility
+    return f"__TOOL__{action}"
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# HOTKEY EXECUTION
+# ═══════════════════════════════════════════════════════════════════════════
+
+def _win_hotkey_ps(letter: str) -> str:
+    """PowerShell to simulate Win+Letter via keybd_event."""
+    vk = ord(letter.upper())
+    return (
+        f"Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;"
+        f"public class K{{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}}'; "
+        f"[K]::keybd_event(0x5B,0,0,0); [K]::keybd_event({vk},0,0,0); "
+        f"[K]::keybd_event({vk},0,2,0); [K]::keybd_event(0x5B,0,2,0)"
+    )
+
+
+def _win_arrow_ps(direction: str) -> str:
+    """PowerShell to simulate Win+Arrow via keybd_event."""
+    vk_map = {"UP": "0x26", "DOWN": "0x28", "LEFT": "0x25", "RIGHT": "0x27"}
+    vk = vk_map[direction]
+    return (
+        f"Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;"
+        f"public class K{{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}}'; "
+        f"[K]::keybd_event(0x5B,0,0,0); [K]::keybd_event({vk},0,0,0); "
+        f"[K]::keybd_event({vk},0,2,0); [K]::keybd_event(0x5B,0,2,0)"
+    )
+
+
+def _win_tab_ps() -> str:
+    """PowerShell to simulate Win+Tab (Task View)."""
+    return (
+        "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;"
+        "public class K{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; "
+        "[K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x09,0,0,0); "
+        "[K]::keybd_event(0x09,0,2,0); [K]::keybd_event(0x5B,0,2,0)"
+    )
+
+
+def _ctrl_win_arrow_ps(direction: str) -> str:
+    """PowerShell to simulate Ctrl+Win+Arrow for virtual desktop switching."""
+    vk_map = {"LEFT": "0x25", "RIGHT": "0x27"}
+    vk = vk_map[direction]
+    return (
+        "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;"
+        "public class K{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; "
+        f"[K]::keybd_event(0x11,0,0,0); [K]::keybd_event(0x5B,0,0,0); "
+        f"[K]::keybd_event({vk},0,0,0); [K]::keybd_event({vk},0,2,0); "
+        "[K]::keybd_event(0x5B,0,2,0); [K]::keybd_event(0x11,0,2,0)"
+    )
+
+
+def _win_semicolon_ps() -> str:
+    """PowerShell to simulate Win+; (emoji panel, VK_OEM_1 = 0xBA)."""
+    return (
+        "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;"
+        "public class K{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; "
+        "[K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0xBA,0,0,0); "
+        "[K]::keybd_event(0xBA,0,2,0); [K]::keybd_event(0x5B,0,2,0)"
+    )
+
+
+def _win_shift_s_ps() -> str:
+    """PowerShell to simulate Win+Shift+S (screenshot)."""
+    return (
+        "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;"
+        "public class K{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; "
+        "[K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x10,0,0,0); [K]::keybd_event(0x53,0,0,0); "
+        "[K]::keybd_event(0x53,0,2,0); [K]::keybd_event(0x10,0,2,0); [K]::keybd_event(0x5B,0,2,0)"
+    )
+
+
+# Map of hotkey names to PowerShell WScript.Shell SendKeys or VK codes
+HOTKEY_MAP: dict[str, str] = {
+    # Media keys (virtual key codes)
+    "media_play_pause": "(New-Object -ComObject WScript.Shell).SendKeys([char]179)",
+    "media_next": "(New-Object -ComObject WScript.Shell).SendKeys([char]176)",
+    "media_previous": "(New-Object -ComObject WScript.Shell).SendKeys([char]177)",
+    "media_stop": "(New-Object -ComObject WScript.Shell).SendKeys([char]178)",
+    "volume_up": "(New-Object -ComObject WScript.Shell).SendKeys([char]175)",
+    "volume_down": "(New-Object -ComObject WScript.Shell).SendKeys([char]174)",
+    "volume_mute": "(New-Object -ComObject WScript.Shell).SendKeys([char]173)",
+    # Keyboard shortcuts (SendKeys syntax)
+    "ctrl+c": "(New-Object -ComObject WScript.Shell).SendKeys('^c')",
+    "ctrl+v": "(New-Object -ComObject WScript.Shell).SendKeys('^v')",
+    "ctrl+x": "(New-Object -ComObject WScript.Shell).SendKeys('^x')",
+    "ctrl+z": "(New-Object -ComObject WScript.Shell).SendKeys('^z')",
+    "ctrl+y": "(New-Object -ComObject WScript.Shell).SendKeys('^y')",
+    "ctrl+a": "(New-Object -ComObject WScript.Shell).SendKeys('^a')",
+    "ctrl+s": "(New-Object -ComObject WScript.Shell).SendKeys('^s')",
+    "ctrl+t": "(New-Object -ComObject WScript.Shell).SendKeys('^t')",
+    "ctrl+w": "(New-Object -ComObject WScript.Shell).SendKeys('^w')",
+    "ctrl+f": "(New-Object -ComObject WScript.Shell).SendKeys('^f')",
+    "alt+tab": "(New-Object -ComObject WScript.Shell).SendKeys('%{TAB}')",
+    "alt+F4": "(New-Object -ComObject WScript.Shell).SendKeys('%{F4}')",
+    # Win key combos (use PowerShell keybd_event)
+    "win+d": _win_hotkey_ps("D"),
+    "win+e": _win_hotkey_ps("E"),
+    "win+l": _win_hotkey_ps("L"),
+    "win+r": _win_hotkey_ps("R"),
+    "win+a": _win_hotkey_ps("A"),
+    "win+up": _win_arrow_ps("UP"),
+    "win+down": _win_arrow_ps("DOWN"),
+    "win+left": _win_arrow_ps("LEFT"),
+    "win+right": _win_arrow_ps("RIGHT"),
+    "win+shift+s": _win_shift_s_ps(),
+    # Win key combos supplementaires (Windows 11)
+    "win+s": _win_hotkey_ps("S"),         # Recherche Windows
+    "win+n": _win_hotkey_ps("N"),         # Centre notifications
+    "win+w": _win_hotkey_ps("W"),         # Widgets
+    "win+v": _win_hotkey_ps("V"),         # Historique presse-papier
+    "win+p": _win_hotkey_ps("P"),         # Projeter ecran
+    "win+tab": _win_tab_ps(),             # Vue des taches
+    "win+;": _win_semicolon_ps(),         # Panneau emojis
+    # Bureaux virtuels
+    "ctrl+win+right": _ctrl_win_arrow_ps("RIGHT"),
+    "ctrl+win+left": _ctrl_win_arrow_ps("LEFT"),
+    # Bureaux virtuels avances
+    "ctrl+win+d": (
+        "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;"
+        "public class K{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; "
+        "[K]::keybd_event(0x11,0,0,0); [K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x44,0,0,0); "
+        "[K]::keybd_event(0x44,0,2,0); [K]::keybd_event(0x5B,0,2,0); [K]::keybd_event(0x11,0,2,0)"
+    ),
+    "ctrl+win+F4": (
+        "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;"
+        "public class K{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; "
+        "[K]::keybd_event(0x11,0,0,0); [K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x73,0,0,0); "
+        "[K]::keybd_event(0x73,0,2,0); [K]::keybd_event(0x5B,0,2,0); [K]::keybd_event(0x11,0,2,0)"
+    ),
+    # Navigation/Edition
+    "ctrl++": "(New-Object -ComObject WScript.Shell).SendKeys('^{+}')",
+    "ctrl+-": "(New-Object -ComObject WScript.Shell).SendKeys('^{-}')",
+    "ctrl+0": "(New-Object -ComObject WScript.Shell).SendKeys('^0')",
+    "ctrl+p": "(New-Object -ComObject WScript.Shell).SendKeys('^p')",
+    "F2": "(New-Object -ComObject WScript.Shell).SendKeys('{F2}')",
+    "F5": "(New-Object -ComObject WScript.Shell).SendKeys('{F5}')",
+    "delete": "(New-Object -ComObject WScript.Shell).SendKeys('{DELETE}')",
+    "alt+enter": "(New-Object -ComObject WScript.Shell).SendKeys('%{ENTER}')",
+    # Vague 3 — Accessibilite
+    "win++": (
+        "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;"
+        "public class K{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; "
+        "[K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0xBB,0,0,0); "
+        "[K]::keybd_event(0xBB,0,2,0); [K]::keybd_event(0x5B,0,2,0)"
+    ),
+    "win+escape": (
+        "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;"
+        "public class K{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; "
+        "[K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x1B,0,0,0); "
+        "[K]::keybd_event(0x1B,0,2,0); [K]::keybd_event(0x5B,0,2,0)"
+    ),
+    "ctrl+win+enter": (
+        "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;"
+        "public class K{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; "
+        "[K]::keybd_event(0x11,0,0,0); [K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x0D,0,0,0); "
+        "[K]::keybd_event(0x0D,0,2,0); [K]::keybd_event(0x5B,0,2,0); [K]::keybd_event(0x11,0,2,0)"
+    ),
+    "win+h": _win_hotkey_ps("H"),           # Dictee vocale
+    "alt+shift+print": (
+        "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;"
+        "public class K{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; "
+        "[K]::keybd_event(0x12,0,0,0); [K]::keybd_event(0x10,0,0,0); [K]::keybd_event(0x2C,0,0,0); "
+        "[K]::keybd_event(0x2C,0,2,0); [K]::keybd_event(0x10,0,2,0); [K]::keybd_event(0x12,0,2,0)"
+    ),
+    # Vague 3 — Multimedia / Game Bar
+    "win+alt+r": (
+        "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;"
+        "public class K{[DllImport(\"user32.dll\")]public static extern void keybd_event(byte k,byte s,int f,int e);}'; "
+        "[K]::keybd_event(0x5B,0,0,0); [K]::keybd_event(0x12,0,0,0); [K]::keybd_event(0x52,0,0,0); "
+        "[K]::keybd_event(0x52,0,2,0); [K]::keybd_event(0x12,0,2,0); [K]::keybd_event(0x5B,0,2,0)"
+    ),
+    "win+g": _win_hotkey_ps("G"),           # Xbox Game Bar
+    "win+z": _win_hotkey_ps("Z"),           # Snap Layout
+    # Vague 3 — Chrome navigation
+    "ctrl+h": "(New-Object -ComObject WScript.Shell).SendKeys('^h')",
+    "ctrl+d": "(New-Object -ComObject WScript.Shell).SendKeys('^d')",
+    "ctrl+j": "(New-Object -ComObject WScript.Shell).SendKeys('^j')",
+    # Vague 5 — Miracast
+    "win+k": _win_hotkey_ps("K"),           # Connect / Miracast
+}
+
+
+def _execute_hotkey(key: str) -> str:
+    """Execute a hotkey by name."""
+    ps_cmd = HOTKEY_MAP.get(key)
+    if not ps_cmd:
+        return f"Raccourci inconnu: {key}"
+    result = run_powershell(ps_cmd, timeout=5)
+    if result["success"]:
+        return f"Raccourci {key} execute."
+    else:
+        return f"Erreur raccourci: {result['stderr'][:100]}"
+
+
+async def process_voice_input(text: str) -> tuple[str, float]:
+    """Process raw voice input: correct, match, execute.
+
+    Returns: (response_text, confidence_score)
+
+    Pipeline v2: intent classification -> command matching -> analytics recording.
+    """
+    import time as _time
+
+    # Step 0: Classify intent (non-blocking, for analytics + routing)
+    intent_result = None
+    try:
+        from src.intent_classifier import intent_classifier
+        intent_result = intent_classifier.classify_single(text)
+    except Exception:
+        pass
+
+    # Step 1: Correct voice errors
+    corrected = correct_voice_text(text)
+
+    # Step 2: Try to match a pre-registered command
+    cmd, params, score = match_command(corrected)
+
+    if cmd is None:
+        # Record analytics for unmatched input
+        _record_execution(text, corrected, None, score, intent_result)
+        return f"__FREEFORM__{corrected}", score
+
+    # Step 3: Check if confirmation needed
+    if cmd.confirm:
+        _record_execution(text, corrected, cmd.name, score, intent_result)
+        return f"__CONFIRM__{cmd.name}|{cmd.description}", score
+
+    # Step 4: Execute the command
+    t0 = _time.perf_counter()
+    result = await execute_command(cmd, params)
+    elapsed_ms = (_time.perf_counter() - t0) * 1000
+
+    # Step 5: Record analytics
+    _record_execution(text, corrected, cmd.name, score, intent_result, elapsed_ms)
+
+    return result, score
+
+
+def _record_execution(
+    raw_text: str,
+    corrected: str,
+    command_name: str | None,
+    confidence: float,
+    intent_result: Any = None,
+    exec_ms: float = 0.0,
+) -> None:
+    """Record command execution analytics (best-effort, never fails)."""
+    try:
+        from src.commands import record_command_execution
+        record_command_execution(
+            command_name or "__unmatched__",
+            raw_text,
+            confidence,
+        )
+    except Exception:
+        pass
+
+    try:
+        from src.orchestrator_v2 import orchestrator_v2
+        if intent_result and command_name:
+            orchestrator_v2.record_call(
+                "executor",
+                latency_ms=exec_ms,
+                success=True,
+                quality=confidence,
+            )
+    except Exception:
+        pass
+
+
+async def correct_with_ia(text: str, node_url: str = "http://127.0.0.1:11434") -> str:
+    """Use drift-aware routing to pick the best node for voice correction.
+
+    Pipeline v2: orchestrator_v2 selects best node -> try correction -> record result.
+    Fallback chain: OL1 (qwen3:1.7b) -> M1 (qwen3-8b) -> static correction.
+    """
+    import httpx
+    import time as _time
+    from src.config import config, build_ollama_payload
+    prompt = (
+        "Tu es un correcteur de texte francais specialise dans la correction "
+        "de transcriptions vocales. Corrige les erreurs sans changer le sens. "
+        "Reponds UNIQUEMENT avec le texte corrige, rien d'autre.\n\n"
+        f"Texte a corriger: {text}"
+    )
+    messages = [{"role": "user", "content": prompt}]
+
+    # v2: drift-aware node selection
+    best_node = "OL1"
+    try:
+        from src.orchestrator_v2 import orchestrator_v2
+        pick = orchestrator_v2.get_best_node(["OL1", "M1"], task_type="voice")
+        if pick:
+            best_node = pick
+    except Exception:
+        pass
+
+    t0 = _time.perf_counter()
+    # Try best node first
+    if best_node == "OL1":
+        ol = config.get_ollama_node("OL1")
+        if ol:
+            try:
+                async with httpx.AsyncClient(timeout=5) as client:
+                    resp = await client.post(
+                        f"{ol.url}/api/chat",
+                        json=build_ollama_payload(
+                            "qwen3:1.7b", messages,
+                            temperature=0.1, num_predict=256,
+                        ),
+                    )
+                    resp.raise_for_status()
+                    result = resp.json()["message"]["content"].strip()
+                    _record_ia_correction(best_node, _time.perf_counter() - t0, True)
+                    return result
+            except (httpx.HTTPError, OSError, KeyError, ValueError) as exc:
+                logger.debug("OL1 voice correction failed: %s", exc)
+                _record_ia_correction("OL1", _time.perf_counter() - t0, False)
+
+    # Fallback: M1
+    m1 = config.get_lm_node("M1")
+    if m1:
+        try:
+            from python_ws.helpers import extract_lmstudio_content
+            async with httpx.AsyncClient(timeout=8) as client:
+                resp = await client.post(
+                    f"{m1.url}/api/v1/chat",
+                    headers={"Content-Type": "application/json"},
+                    json={
+                        "model": m1.model,
+                        "input": f"/nothink\n{prompt}",
+                        "temperature": 0.1,
+                        "max_output_tokens": 256,
+                        "stream": False,
+                        "store": False,
+                    },
+                )
+                resp.raise_for_status()
+                result = extract_lmstudio_content(resp.json())
+                if result:
+                    _record_ia_correction("M1", _time.perf_counter() - t0, True)
+                    return result
+        except (httpx.HTTPError, OSError, KeyError, ValueError) as exc:
+            logger.debug("M1 voice correction failed: %s", exc)
+            _record_ia_correction("M1", _time.perf_counter() - t0, False)
+
+    return correct_voice_text(text)
+
+
+def _record_ia_correction(node: str, elapsed_s: float, success: bool) -> None:
+    """Record IA correction result in orchestrator_v2 (best-effort)."""
+    try:
+        from src.orchestrator_v2 import orchestrator_v2
+        orchestrator_v2.record_call(node, latency_ms=elapsed_s * 1000, success=success)
+    except Exception:
+        pass

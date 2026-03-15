@@ -1,0 +1,10 @@
+{
+  "env_file": ".env",
+  "hardcoded_secrets": 0,
+  "paths_module": "src/_paths.py",
+  "gitignore": [
+    ".env",
+    "*.db",
+    ".secret"
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "cycles": 7,
+  "total": 56,
+  "pass": 12,
+  "fail": 0,
+  "errors": 44,
+  "by_node": {
+    "M1": {
+      "total": 26,
+      "pass": 0,
+      "fail": 0,
+      "error": 26,
+      "avg_latency": 67
+    },
+    "M2": {
+      "total": 16,
+      "pass": 0,
+      "fail": 0,
+      "error": 16,
+      "avg_latency": 14026
+    },
+    "M3": {
+      "total": 2,
+      "pass": 0,
+      "fail": 0,
+      "error": 2,
+      "avg_latency": 30023
+    },
+    "OL1": {
+      "total": 12,
+      "pass": 12,
+      "fail": 0,
+      "error": 0,
+      "avg_latency": 2451
+    }
+  },
+  "by_domain": {
+    "traduction": {
+      "total": 6,
+      "pass": 2,
+      "fail": 0,
+      "error": 4
+    },
+    "math": {
+      "total": 8,
+      "pass": 2,
+      "fail": 0,
+      "error": 6
+    },
+    "trading": {
+      "total": 12,
+      "pass": 3,
+      "fail": 0,
+      "error": 9
+    },
+    "web": {
+      "total": 8,
+      "pass": 2,
+      "fail": 0,
+      "error": 6
+    },
+    "securite": {
+      "total": 6,
+      "pass": 0,
+      "fail": 0,
+      "error": 6
+    },
+    "code": {
+      "total": 10,
+      "pass": 2,
+      "fail": 0,
+      "error": 8
+    },
+    "systeme": {
+      "total": 5,
+      "pass": 1,
+      "fail": 0,
+      "error": 4
+    },
+    "raisonnement": {
+      "total": 1,
+      "pass": 0,
+      "fail": 0,
+      "error": 1
+    }
+  },
+  "failures": [],
+  "improvements": [],
+  "corrections": [
+    {
+      "node": "M3",
+      "domain": "securite",
+      "action": "timeout -> M3 offline, retry on M2"
+    },
+    {
+      "node": "M3",
+      "domain": "code",
+      "action": "timeout -> M3 offline, retry on M1"
+    }
+  ],
+  "offline_nodes": [
+    "M3"
+  ]
+}

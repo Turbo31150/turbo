@@ -3,6 +3,7 @@ Adapted from Windows version for Ubuntu 22.04 LTS.
 """
 from __future__ import annotations
 import json
+import logging
 import subprocess
 import threading
 import time

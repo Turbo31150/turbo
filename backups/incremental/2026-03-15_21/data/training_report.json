@@ -1,0 +1,22 @@
+{
+  "timestamp": 1771365268.7006977,
+  "stats": {
+    "total": 140,
+    "correct": 137,
+    "wrong_cmd": 1,
+    "no_match": 0,
+    "freeform_ok": 2,
+    "ia_fixed": 135,
+    "corrections_saved": 1
+  },
+  "accuracy": 99.28571428571429,
+  "avg_ms": 333.83128302437916,
+  "errors": [
+    {
+      "phrase": "met en pleins ecrants",
+      "expected": "chrome_plein_ecran",
+      "got": "maximiser_fenetre",
+      "conf": 0.9
+    }
+  ]
+}

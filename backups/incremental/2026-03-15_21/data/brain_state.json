@@ -1,0 +1,18 @@
+{
+  "patterns_detected": [
+    {
+      "name": "auto_perplexity_interaction_perplexity_interaction",
+      "count": 3,
+      "confidence": 0.6
+    },
+    {
+      "name": "auto_perplexity_interaction_perplexity_interaction_x3",
+      "count": 2,
+      "confidence": 0.4
+    }
+  ],
+  "skills_created": [],
+  "last_analysis": 1773604833.276536,
+  "total_analyses": 8689,
+  "rejected_patterns": []
+}

@@ -1,0 +1,1397 @@
+"""JARVIS — Commandes navigation web supplementaires (sites et services)."""
+
+from __future__ import annotations
+
+import logging
+
+from src.commands import JarvisCommand
+
+NAVIGATION_COMMANDS: list[JarvisCommand] = [
+    # ══════════════════════════════════════════════════════════════════════
+    # RESEAUX SOCIAUX
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_twitter", "navigation", "Ouvrir Twitter/X", [
+        "ouvre twitter", "va sur twitter", "ouvre x",
+        "va sur x", "lance twitter",
+    ], "browser", "navigate:https://x.com"),
+    JarvisCommand("ouvrir_reddit", "navigation", "Ouvrir Reddit", [
+        "ouvre reddit", "va sur reddit", "lance reddit",
+        "ouvrir reddit",
+    ], "browser", "navigate:https://www.reddit.com"),
+    JarvisCommand("ouvrir_linkedin", "navigation", "Ouvrir LinkedIn", [
+        "ouvre linkedin", "va sur linkedin", "lance linkedin",
+        "ouvrir linkedin",
+    ], "browser", "navigate:https://www.linkedin.com"),
+    JarvisCommand("ouvrir_instagram", "navigation", "Ouvrir Instagram", [
+        "ouvre instagram", "va sur instagram", "lance instagram",
+        "ouvre insta", "va sur insta",
+    ], "browser", "navigate:https://www.instagram.com"),
+    JarvisCommand("ouvrir_tiktok", "navigation", "Ouvrir TikTok", [
+        "ouvre tiktok", "va sur tiktok", "lance tiktok",
+    ], "browser", "navigate:https://www.tiktok.com"),
+    JarvisCommand("ouvrir_twitch", "navigation", "Ouvrir Twitch", [
+        "ouvre twitch", "va sur twitch", "lance twitch",
+        "ouvrir twitch",
+    ], "browser", "navigate:https://www.twitch.tv"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # IA & RECHERCHE
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_chatgpt", "navigation", "Ouvrir ChatGPT", [
+        "ouvre chatgpt", "va sur chatgpt", "lance chatgpt",
+        "ouvre chat gpt", "ouvrir chatgpt",
+    ], "browser", "navigate:https://chat.openai.com"),
+    JarvisCommand("ouvrir_claude", "navigation", "Ouvrir Claude AI", [
+        "ouvre claude", "va sur claude", "lance claude",
+        "ouvre claude ai", "ouvrir claude",
+    ], "browser", "navigate:https://claude.ai"),
+    JarvisCommand("ouvrir_perplexity", "navigation", "Ouvrir Perplexity", [
+        "ouvre perplexity", "va sur perplexity", "lance perplexity",
+        "ouvrir perplexity",
+    ], "browser", "navigate:https://www.perplexity.ai"),
+    JarvisCommand("ouvrir_huggingface", "navigation", "Ouvrir Hugging Face", [
+        "ouvre hugging face", "va sur hugging face",
+        "lance hugging face", "ouvre huggingface",
+    ], "browser", "navigate:https://huggingface.co"),
+    JarvisCommand("ouvrir_wikipedia", "navigation", "Ouvrir Wikipedia", [
+        "ouvre wikipedia", "va sur wikipedia", "lance wikipedia",
+        "ouvre wiki",
+    ], "browser", "navigate:https://fr.wikipedia.org"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SHOPPING & SERVICES
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_amazon", "navigation", "Ouvrir Amazon", [
+        "ouvre amazon", "va sur amazon", "lance amazon",
+        "ouvrir amazon",
+    ], "browser", "navigate:https://www.amazon.fr"),
+    JarvisCommand("ouvrir_leboncoin", "navigation", "Ouvrir Leboncoin", [
+        "ouvre leboncoin", "va sur leboncoin", "lance leboncoin",
+        "le bon coin", "ouvre le bon coin",
+    ], "browser", "navigate:https://www.leboncoin.fr"),
+    JarvisCommand("ouvrir_netflix", "navigation", "Ouvrir Netflix", [
+        "ouvre netflix", "va sur netflix", "lance netflix",
+    ], "browser", "navigate:https://www.netflix.com"),
+    JarvisCommand("ouvrir_spotify_web", "navigation", "Ouvrir Spotify Web Player", [
+        "ouvre spotify web", "spotify web", "lance spotify en ligne",
+        "ouvre le lecteur spotify web",
+    ], "browser", "navigate:https://open.spotify.com"),
+    JarvisCommand("ouvrir_disney_plus", "navigation", "Ouvrir Disney+", [
+        "ouvre disney plus", "va sur disney plus", "lance disney",
+        "ouvre disney+",
+    ], "browser", "navigate:https://www.disneyplus.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DEV & TECH
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_stackoverflow", "navigation", "Ouvrir Stack Overflow", [
+        "ouvre stackoverflow", "va sur stackoverflow",
+        "ouvre stack overflow", "lance stackoverflow",
+    ], "browser", "navigate:https://stackoverflow.com"),
+    JarvisCommand("ouvrir_npmjs", "navigation", "Ouvrir NPM", [
+        "ouvre npm", "va sur npm", "ouvre npmjs",
+        "npm registry",
+    ], "browser", "navigate:https://www.npmjs.com"),
+    JarvisCommand("ouvrir_pypi", "navigation", "Ouvrir PyPI", [
+        "ouvre pypi", "va sur pypi", "lance pypi",
+        "python packages",
+    ], "browser", "navigate:https://pypi.org"),
+    JarvisCommand("ouvrir_docker_hub", "navigation", "Ouvrir Docker Hub", [
+        "ouvre docker hub", "va sur docker hub",
+        "lance docker hub",
+    ], "browser", "navigate:https://hub.docker.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # OUTILS EN LIGNE
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_google_drive", "navigation", "Ouvrir Google Drive", [
+        "ouvre google drive", "va sur google drive", "ouvre drive",
+        "ouvre mon drive", "lance google drive",
+    ], "browser", "navigate:https://drive.google.com"),
+    JarvisCommand("ouvrir_google_docs", "navigation", "Ouvrir Google Docs", [
+        "ouvre google docs", "va sur google docs", "ouvre docs",
+        "nouveau document google",
+    ], "browser", "navigate:https://docs.google.com"),
+    JarvisCommand("ouvrir_google_sheets", "navigation", "Ouvrir Google Sheets", [
+        "ouvre google sheets", "va sur google sheets", "ouvre sheets",
+        "nouveau tableur google",
+    ], "browser", "navigate:https://sheets.google.com"),
+    JarvisCommand("ouvrir_google_maps", "navigation", "Ouvrir Google Maps", [
+        "ouvre google maps", "va sur google maps", "ouvre maps",
+        "lance google maps", "ouvre la carte",
+    ], "browser", "navigate:https://maps.google.com"),
+    JarvisCommand("ouvrir_google_calendar", "navigation", "Ouvrir Google Calendar", [
+        "ouvre google calendar", "ouvre l'agenda", "ouvre le calendrier",
+        "va sur google calendar", "ouvre agenda google",
+    ], "browser", "navigate:https://calendar.google.com"),
+    JarvisCommand("ouvrir_notion", "navigation", "Ouvrir Notion", [
+        "ouvre notion", "va sur notion", "lance notion",
+        "ouvre mon notion",
+    ], "browser", "navigate:https://www.notion.so"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RECHERCHE SPECIALISEE
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("chercher_images", "navigation", "Rechercher des images sur Google", [
+        "cherche des images de {requete}", "images de {requete}",
+        "google images {requete}", "trouve des images de {requete}",
+    ], "browser", "navigate:https://www.google.com/search?tbm=isch&q={requete}", ["requete"]),
+    JarvisCommand("chercher_reddit", "navigation", "Rechercher sur Reddit", [
+        "cherche sur reddit {requete}", "reddit {requete}",
+        "recherche reddit {requete}",
+    ], "browser", "navigate:https://www.reddit.com/search/?q={requete}", ["requete"]),
+    JarvisCommand("chercher_wikipedia", "navigation", "Rechercher sur Wikipedia", [
+        "cherche sur wikipedia {requete}", "wikipedia {requete}",
+        "wiki {requete}",
+    ], "browser", "navigate:https://fr.wikipedia.org/w/index.php?search={requete}", ["requete"]),
+    JarvisCommand("chercher_amazon", "navigation", "Rechercher sur Amazon", [
+        "cherche sur amazon {requete}", "amazon {requete}",
+        "recherche amazon {requete}", "acheter {requete}",
+    ], "browser", "navigate:https://www.amazon.fr/s?k={requete}", ["requete"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CRYPTO & TRADING
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_tradingview_web", "navigation", "Ouvrir TradingView", [
+        "ouvre tradingview", "va sur tradingview", "lance tradingview",
+        "ouvre trading view",
+    ], "browser", "navigate:https://www.tradingview.com"),
+    JarvisCommand("ouvrir_coingecko", "navigation", "Ouvrir CoinGecko", [
+        "ouvre coingecko", "va sur coingecko", "lance coingecko",
+        "ouvre coin gecko",
+    ], "browser", "navigate:https://www.coingecko.com"),
+    JarvisCommand("ouvrir_coinmarketcap", "navigation", "Ouvrir CoinMarketCap", [
+        "ouvre coinmarketcap", "va sur coinmarketcap",
+        "lance coinmarketcap", "ouvre cmc",
+    ], "browser", "navigate:https://coinmarketcap.com"),
+    JarvisCommand("ouvrir_mexc_exchange", "navigation", "Ouvrir MEXC Exchange", [
+        "ouvre mexc", "va sur mexc", "lance mexc",
+        "ouvre l'exchange",
+    ], "browser", "navigate:https://www.mexc.com"),
+    JarvisCommand("ouvrir_dexscreener", "navigation", "Ouvrir DexScreener", [
+        "ouvre dexscreener", "va sur dexscreener", "lance dexscreener",
+        "ouvre dex screener",
+    ], "browser", "navigate:https://dexscreener.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # COMMUNICATION WEB
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_telegram_web", "navigation", "Ouvrir Telegram Web", [
+        "ouvre telegram web", "telegram web", "telegram en ligne",
+        "va sur telegram web",
+    ], "browser", "navigate:https://web.telegram.org"),
+    JarvisCommand("ouvrir_whatsapp_web", "navigation", "Ouvrir WhatsApp Web", [
+        "ouvre whatsapp web", "whatsapp web", "whatsapp en ligne",
+        "va sur whatsapp web",
+    ], "browser", "navigate:https://web.whatsapp.com"),
+    JarvisCommand("ouvrir_slack_web", "navigation", "Ouvrir Slack Web", [
+        "ouvre slack web", "slack web", "slack en ligne",
+        "va sur slack web",
+    ], "browser", "navigate:https://app.slack.com"),
+    JarvisCommand("ouvrir_teams_web", "navigation", "Ouvrir Microsoft Teams Web", [
+        "ouvre teams web", "teams web", "teams en ligne",
+        "va sur teams web",
+    ], "browser", "navigate:https://teams.microsoft.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # VIDEO & STREAMING
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_youtube_music", "navigation", "Ouvrir YouTube Music", [
+        "ouvre youtube music", "youtube music", "lance youtube music",
+        "ouvre la musique youtube",
+    ], "browser", "navigate:https://music.youtube.com"),
+    JarvisCommand("ouvrir_prime_video", "navigation", "Ouvrir Amazon Prime Video", [
+        "ouvre prime video", "va sur prime video", "lance prime video",
+        "ouvre amazon prime",
+    ], "browser", "navigate:https://www.primevideo.com"),
+    JarvisCommand("ouvrir_crunchyroll", "navigation", "Ouvrir Crunchyroll", [
+        "ouvre crunchyroll", "va sur crunchyroll", "lance crunchyroll",
+        "ouvre crunchy",
+    ], "browser", "navigate:https://www.crunchyroll.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DEV & TECH — Sites supplementaires
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_github_web", "navigation", "Ouvrir GitHub", [
+        "ouvre github", "va sur github", "lance github",
+        "ouvrir github",
+    ], "browser", "navigate:https://github.com"),
+    JarvisCommand("ouvrir_vercel", "navigation", "Ouvrir Vercel", [
+        "ouvre vercel", "va sur vercel", "lance vercel",
+    ], "browser", "navigate:https://vercel.com"),
+    JarvisCommand("ouvrir_crates_io", "navigation", "Ouvrir crates.io (Rust packages)", [
+        "ouvre crates io", "va sur crates", "crates rust",
+        "packages rust",
+    ], "browser", "navigate:https://crates.io"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RECHERCHE SPECIALISEE — Supplementaire
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("chercher_video_youtube", "navigation", "Rechercher sur YouTube", [
+        "cherche sur youtube {requete}", "youtube {requete}",
+        "recherche youtube {requete}", "video {requete}",
+    ], "browser", "navigate:https://www.youtube.com/results?search_query={requete}", ["requete"]),
+    JarvisCommand("chercher_github", "navigation", "Rechercher sur GitHub", [
+        "cherche sur github {requete}", "github {requete}",
+        "recherche github {requete}", "repo {requete}",
+    ], "browser", "navigate:https://github.com/search?q={requete}", ["requete"]),
+    JarvisCommand("chercher_stackoverflow", "navigation", "Rechercher sur Stack Overflow", [
+        "cherche sur stackoverflow {requete}", "stackoverflow {requete}",
+        "stack overflow {requete}",
+    ], "browser", "navigate:https://stackoverflow.com/search?q={requete}", ["requete"]),
+    JarvisCommand("chercher_npm", "navigation", "Rechercher un package NPM", [
+        "cherche sur npm {requete}", "npm {requete}",
+        "recherche npm {requete}", "package npm {requete}",
+    ], "browser", "navigate:https://www.npmjs.com/search?q={requete}", ["requete"]),
+    JarvisCommand("chercher_pypi", "navigation", "Rechercher un package PyPI", [
+        "cherche sur pypi {requete}", "pypi {requete}",
+        "recherche pypi {requete}", "package python {requete}",
+    ], "browser", "navigate:https://pypi.org/search/?q={requete}", ["requete"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # OUTILS EN LIGNE — Developpement & Utilitaires
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_google_translate", "navigation", "Ouvrir Google Translate", [
+        "ouvre google translate", "traducteur", "google traduction",
+        "ouvre le traducteur", "lance google translate",
+    ], "browser", "navigate:https://translate.google.com"),
+    JarvisCommand("ouvrir_google_news", "navigation", "Ouvrir Google Actualites", [
+        "ouvre google news", "google actualites", "lance les news",
+        "ouvre les actualites",
+    ], "browser", "navigate:https://news.google.com"),
+    JarvisCommand("ouvrir_figma", "navigation", "Ouvrir Figma", [
+        "ouvre figma", "va sur figma", "lance figma",
+    ], "browser", "navigate:https://www.figma.com"),
+    JarvisCommand("ouvrir_canva", "navigation", "Ouvrir Canva", [
+        "ouvre canva", "va sur canva", "lance canva",
+    ], "browser", "navigate:https://www.canva.com"),
+    JarvisCommand("ouvrir_pinterest", "navigation", "Ouvrir Pinterest", [
+        "ouvre pinterest", "va sur pinterest", "lance pinterest",
+    ], "browser", "navigate:https://www.pinterest.com"),
+    JarvisCommand("ouvrir_udemy", "navigation", "Ouvrir Udemy", [
+        "ouvre udemy", "va sur udemy", "lance udemy",
+        "cours en ligne",
+    ], "browser", "navigate:https://www.udemy.com"),
+    JarvisCommand("ouvrir_regex101", "navigation", "Ouvrir Regex101 (testeur de regex)", [
+        "ouvre regex101", "testeur regex", "lance regex101",
+        "regex en ligne",
+    ], "browser", "navigate:https://regex101.com"),
+    JarvisCommand("ouvrir_jsonformatter", "navigation", "Ouvrir un formatteur JSON en ligne", [
+        "ouvre json formatter", "formatte du json", "json en ligne",
+        "json formatter",
+    ], "browser", "navigate:https://jsonformatter.org"),
+    JarvisCommand("ouvrir_speedtest", "navigation", "Ouvrir Speedtest", [
+        "ouvre speedtest", "lance un speed test", "test de debit",
+        "teste ma connexion",
+    ], "browser", "navigate:https://www.speedtest.net"),
+    JarvisCommand("ouvrir_excalidraw", "navigation", "Ouvrir Excalidraw (tableau blanc)", [
+        "ouvre excalidraw", "tableau blanc", "lance excalidraw",
+        "whiteboard en ligne",
+    ], "browser", "navigate:https://excalidraw.com"),
+    JarvisCommand("ouvrir_soundcloud", "navigation", "Ouvrir SoundCloud", [
+        "ouvre soundcloud", "va sur soundcloud", "lance soundcloud",
+    ], "browser", "navigate:https://soundcloud.com"),
+    JarvisCommand("ouvrir_google_scholar", "navigation", "Ouvrir Google Scholar", [
+        "ouvre google scholar", "google scholar", "recherche academique",
+        "articles scientifiques",
+    ], "browser", "navigate:https://scholar.google.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RECHERCHE SPECIALISEE — Supplementaire
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("chercher_traduction", "navigation", "Traduire un texte via Google Translate", [
+        "traduis {requete}", "traduction de {requete}",
+        "translate {requete}", "comment on dit {requete}",
+    ], "browser", "navigate:https://translate.google.com/?sl=auto&tl=fr&text={requete}", ["requete"]),
+    JarvisCommand("chercher_google_scholar", "navigation", "Rechercher sur Google Scholar", [
+        "cherche sur scholar {requete}", "article sur {requete}",
+        "recherche academique {requete}", "scholar {requete}",
+    ], "browser", "navigate:https://scholar.google.com/scholar?q={requete}", ["requete"]),
+    JarvisCommand("chercher_huggingface", "navigation", "Rechercher un modele sur Hugging Face", [
+        "cherche sur hugging face {requete}", "modele {requete} huggingface",
+        "hugging face {requete}",
+    ], "browser", "navigate:https://huggingface.co/models?search={requete}", ["requete"]),
+    JarvisCommand("chercher_docker_hub", "navigation", "Rechercher une image Docker Hub", [
+        "cherche sur docker hub {requete}", "image docker {requete}",
+        "docker hub {requete}",
+    ], "browser", "navigate:https://hub.docker.com/search?q={requete}", ["requete"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # GOOGLE WORKSPACE
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_gmail_web", "navigation", "Ouvrir Gmail", [
+        "ouvre gmail", "va sur gmail", "lance gmail",
+        "ouvre mes mails", "ouvre ma boite mail",
+    ], "browser", "navigate:https://mail.google.com"),
+    JarvisCommand("ouvrir_google_keep", "navigation", "Ouvrir Google Keep (notes)", [
+        "ouvre google keep", "ouvre keep", "lance keep",
+        "mes notes google", "ouvre les notes",
+    ], "browser", "navigate:https://keep.google.com"),
+    JarvisCommand("ouvrir_google_photos", "navigation", "Ouvrir Google Photos", [
+        "ouvre google photos", "va sur google photos", "mes photos",
+        "ouvre les photos", "lance google photos",
+    ], "browser", "navigate:https://photos.google.com"),
+    JarvisCommand("ouvrir_google_meet", "navigation", "Ouvrir Google Meet", [
+        "ouvre google meet", "lance meet", "google meet",
+        "ouvre meet", "visio google",
+    ], "browser", "navigate:https://meet.google.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # TRADUCTION & RÉFÉRENCE
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_deepl", "navigation", "Ouvrir DeepL Traducteur", [
+        "ouvre deepl", "va sur deepl", "lance deepl",
+        "traducteur deepl", "deepl traduction",
+    ], "browser", "navigate:https://www.deepl.com/translator"),
+    JarvisCommand("ouvrir_wayback_machine", "navigation", "Ouvrir la Wayback Machine (archive web)", [
+        "ouvre wayback machine", "wayback machine", "archive internet",
+        "web archive", "ancienne version d'un site",
+    ], "browser", "navigate:https://web.archive.org"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DEV — Playgrounds & Communautés
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_codepen", "navigation", "Ouvrir CodePen", [
+        "ouvre codepen", "va sur codepen", "lance codepen",
+        "code pen", "playground codepen",
+    ], "browser", "navigate:https://codepen.io"),
+    JarvisCommand("ouvrir_jsfiddle", "navigation", "Ouvrir JSFiddle", [
+        "ouvre jsfiddle", "va sur jsfiddle", "lance jsfiddle",
+        "js fiddle",
+    ], "browser", "navigate:https://jsfiddle.net"),
+    JarvisCommand("ouvrir_dev_to", "navigation", "Ouvrir dev.to (communaute dev)", [
+        "ouvre dev to", "va sur dev to", "lance dev.to",
+        "ouvre dev point to", "communaute dev",
+    ], "browser", "navigate:https://dev.to"),
+    JarvisCommand("ouvrir_medium", "navigation", "Ouvrir Medium", [
+        "ouvre medium", "va sur medium", "lance medium",
+        "articles medium",
+    ], "browser", "navigate:https://medium.com"),
+    JarvisCommand("ouvrir_hacker_news", "navigation", "Ouvrir Hacker News", [
+        "ouvre hacker news", "va sur hacker news", "lance hacker news",
+        "ouvre hn", "ycombinator news",
+    ], "browser", "navigate:https://news.ycombinator.com"),
+    JarvisCommand("ouvrir_producthunt", "navigation", "Ouvrir Product Hunt", [
+        "ouvre product hunt", "va sur product hunt", "lance product hunt",
+        "producthunt", "nouveaux produits tech",
+    ], "browser", "navigate:https://www.producthunt.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # ÉDUCATION & DATA SCIENCE
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_coursera", "navigation", "Ouvrir Coursera", [
+        "ouvre coursera", "va sur coursera", "lance coursera",
+        "cours coursera", "formation coursera",
+    ], "browser", "navigate:https://www.coursera.org"),
+    JarvisCommand("ouvrir_kaggle", "navigation", "Ouvrir Kaggle", [
+        "ouvre kaggle", "va sur kaggle", "lance kaggle",
+        "datasets kaggle", "competitions kaggle",
+    ], "browser", "navigate:https://www.kaggle.com"),
+    JarvisCommand("ouvrir_arxiv", "navigation", "Ouvrir arXiv (articles scientifiques)", [
+        "ouvre arxiv", "va sur arxiv", "lance arxiv",
+        "papers arxiv", "articles arxiv",
+    ], "browser", "navigate:https://arxiv.org"),
+    JarvisCommand("ouvrir_gitlab", "navigation", "Ouvrir GitLab", [
+        "ouvre gitlab", "va sur gitlab", "lance gitlab",
+    ], "browser", "navigate:https://gitlab.com"),
+    JarvisCommand("ouvrir_bitbucket", "navigation", "Ouvrir Bitbucket", [
+        "ouvre bitbucket", "va sur bitbucket", "lance bitbucket",
+    ], "browser", "navigate:https://bitbucket.org"),
+    JarvisCommand("ouvrir_leetcode", "navigation", "Ouvrir LeetCode", [
+        "ouvre leetcode", "va sur leetcode", "lance leetcode",
+        "exercices code", "algo leetcode",
+    ], "browser", "navigate:https://leetcode.com"),
+    JarvisCommand("ouvrir_codewars", "navigation", "Ouvrir Codewars", [
+        "ouvre codewars", "va sur codewars", "lance codewars",
+        "kata codewars", "challenges code",
+    ], "browser", "navigate:https://www.codewars.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RECHERCHE SPÉCIALISÉE — Nouvelles
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("chercher_deepl", "navigation", "Traduire via DeepL", [
+        "traduis avec deepl {requete}", "deepl {requete}",
+        "traduction deepl {requete}", "deepl traduction {requete}",
+    ], "browser", "navigate:https://www.deepl.com/translator#auto/fr/{requete}", ["requete"]),
+    JarvisCommand("chercher_arxiv", "navigation", "Rechercher sur arXiv", [
+        "cherche sur arxiv {requete}", "arxiv {requete}",
+        "paper sur {requete}", "articles scientifiques sur {requete}",
+    ], "browser", "navigate:https://arxiv.org/search/?query={requete}", ["requete"]),
+    JarvisCommand("chercher_kaggle", "navigation", "Rechercher sur Kaggle", [
+        "cherche sur kaggle {requete}", "kaggle {requete}",
+        "dataset {requete}", "competition {requete}",
+    ], "browser", "navigate:https://www.kaggle.com/search?q={requete}", ["requete"]),
+    JarvisCommand("chercher_leetcode", "navigation", "Rechercher un probleme LeetCode", [
+        "cherche sur leetcode {requete}", "leetcode {requete}",
+        "probleme {requete} leetcode",
+    ], "browser", "navigate:https://leetcode.com/problemset/?search={requete}", ["requete"]),
+    JarvisCommand("chercher_medium", "navigation", "Rechercher sur Medium", [
+        "cherche sur medium {requete}", "medium {requete}",
+        "article medium {requete}",
+    ], "browser", "navigate:https://medium.com/search?q={requete}", ["requete"]),
+    JarvisCommand("chercher_hacker_news", "navigation", "Rechercher sur Hacker News", [
+        "cherche sur hacker news {requete}", "hn {requete}",
+        "hacker news {requete}",
+    ], "browser", "navigate:https://hn.algolia.com/?q={requete}", ["requete"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DEV MODERNE — Cloud & DevOps platforms
+    # (source: Raycast extensions, Alfred workflows)
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_linear", "navigation", "Ouvrir Linear (gestion de projet dev)", [
+        "ouvre linear", "va sur linear", "lance linear",
+        "issues linear", "board linear",
+    ], "browser", "navigate:https://linear.app"),
+    JarvisCommand("ouvrir_miro", "navigation", "Ouvrir Miro (whiteboard collaboratif)", [
+        "ouvre miro", "va sur miro", "lance miro",
+        "whiteboard miro", "tableau miro",
+    ], "browser", "navigate:https://miro.com"),
+    JarvisCommand("ouvrir_loom", "navigation", "Ouvrir Loom (enregistrement ecran)", [
+        "ouvre loom", "va sur loom", "lance loom",
+        "enregistre avec loom",
+    ], "browser", "navigate:https://www.loom.com"),
+    JarvisCommand("ouvrir_supabase", "navigation", "Ouvrir Supabase", [
+        "ouvre supabase", "va sur supabase", "lance supabase",
+        "dashboard supabase",
+    ], "browser", "navigate:https://supabase.com/dashboard"),
+    JarvisCommand("ouvrir_firebase", "navigation", "Ouvrir Firebase Console", [
+        "ouvre firebase", "va sur firebase", "lance firebase",
+        "console firebase",
+    ], "browser", "navigate:https://console.firebase.google.com"),
+    JarvisCommand("ouvrir_railway", "navigation", "Ouvrir Railway (deploy)", [
+        "ouvre railway", "va sur railway", "lance railway",
+        "dashboard railway",
+    ], "browser", "navigate:https://railway.app/dashboard"),
+    JarvisCommand("ouvrir_cloudflare", "navigation", "Ouvrir Cloudflare Dashboard", [
+        "ouvre cloudflare", "va sur cloudflare", "lance cloudflare",
+        "dashboard cloudflare",
+    ], "browser", "navigate:https://dash.cloudflare.com"),
+    JarvisCommand("ouvrir_render", "navigation", "Ouvrir Render (hosting)", [
+        "ouvre render", "va sur render", "lance render",
+        "dashboard render",
+    ], "browser", "navigate:https://dashboard.render.com"),
+    JarvisCommand("ouvrir_fly_io", "navigation", "Ouvrir Fly.io", [
+        "ouvre fly io", "va sur fly", "lance fly io",
+        "dashboard fly",
+    ], "browser", "navigate:https://fly.io/dashboard"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DOCUMENTATION DEV — Références essentielles
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_mdn", "navigation", "Ouvrir MDN Web Docs", [
+        "ouvre mdn", "va sur mdn", "docs mdn",
+        "mozilla docs", "mdn web docs",
+    ], "browser", "navigate:https://developer.mozilla.org"),
+    JarvisCommand("ouvrir_devdocs", "navigation", "Ouvrir DevDocs.io (toute la doc dev)", [
+        "ouvre devdocs", "va sur devdocs", "lance devdocs",
+        "documentation dev", "all docs",
+    ], "browser", "navigate:https://devdocs.io"),
+    JarvisCommand("ouvrir_can_i_use", "navigation", "Ouvrir Can I Use (compatibilite navigateurs)", [
+        "ouvre can i use", "can i use", "compatibilite navigateur",
+        "support navigateur",
+    ], "browser", "navigate:https://caniuse.com"),
+    JarvisCommand("ouvrir_bundlephobia", "navigation", "Ouvrir Bundlephobia (taille des packages)", [
+        "ouvre bundlephobia", "bundlephobia", "taille package npm",
+        "poids d'un package",
+    ], "browser", "navigate:https://bundlephobia.com"),
+    JarvisCommand("ouvrir_w3schools", "navigation", "Ouvrir W3Schools", [
+        "ouvre w3schools", "va sur w3schools", "tuto w3schools",
+        "w3 schools",
+    ], "browser", "navigate:https://www.w3schools.com"),
+    JarvisCommand("ouvrir_python_docs", "navigation", "Ouvrir la documentation Python officielle", [
+        "ouvre la doc python", "doc python", "python docs",
+        "documentation python officielle",
+    ], "browser", "navigate:https://docs.python.org/3/"),
+    JarvisCommand("ouvrir_rust_docs", "navigation", "Ouvrir la documentation Rust (The Book)", [
+        "ouvre la doc rust", "doc rust", "rust book",
+        "documentation rust",
+    ], "browser", "navigate:https://doc.rust-lang.org/book/"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PLAYGROUNDS & IDE EN LIGNE
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_replit", "navigation", "Ouvrir Replit (IDE en ligne)", [
+        "ouvre replit", "va sur replit", "lance replit",
+        "code en ligne replit",
+    ], "browser", "navigate:https://replit.com"),
+    JarvisCommand("ouvrir_codesandbox", "navigation", "Ouvrir CodeSandbox", [
+        "ouvre codesandbox", "va sur codesandbox", "lance codesandbox",
+        "sandbox en ligne",
+    ], "browser", "navigate:https://codesandbox.io"),
+    JarvisCommand("ouvrir_stackblitz", "navigation", "Ouvrir StackBlitz", [
+        "ouvre stackblitz", "va sur stackblitz", "lance stackblitz",
+        "ide stackblitz",
+    ], "browser", "navigate:https://stackblitz.com"),
+    JarvisCommand("ouvrir_typescript_playground", "navigation", "Ouvrir TypeScript Playground", [
+        "ouvre typescript playground", "typescript playground",
+        "teste du typescript", "ts playground",
+    ], "browser", "navigate:https://www.typescriptlang.org/play"),
+    JarvisCommand("ouvrir_rust_playground", "navigation", "Ouvrir Rust Playground", [
+        "ouvre rust playground", "rust playground",
+        "teste du rust", "playground rust",
+    ], "browser", "navigate:https://play.rust-lang.org"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # UTILITAIRES & TENDANCES
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_google_trends", "navigation", "Ouvrir Google Trends", [
+        "ouvre google trends", "google trends", "tendances google",
+        "quoi est tendance",
+    ], "browser", "navigate:https://trends.google.com"),
+    JarvisCommand("ouvrir_alternativeto", "navigation", "Ouvrir AlternativeTo (alternatives logiciels)", [
+        "ouvre alternativeto", "alternativeto", "alternative a un logiciel",
+        "trouve une alternative",
+    ], "browser", "navigate:https://alternativeto.net"),
+    JarvisCommand("ouvrir_downdetector", "navigation", "Ouvrir DownDetector (status services)", [
+        "ouvre downdetector", "downdetector", "c'est en panne",
+        "status d'un service", "est ce que c'est down",
+    ], "browser", "navigate:https://downdetector.com"),
+    JarvisCommand("ouvrir_virustotal", "navigation", "Ouvrir VirusTotal (scan fichiers/URLs)", [
+        "ouvre virustotal", "virustotal", "scan un fichier",
+        "analyse de virus",
+    ], "browser", "navigate:https://www.virustotal.com"),
+    JarvisCommand("ouvrir_haveibeenpwned", "navigation", "Ouvrir Have I Been Pwned (verification email)", [
+        "ouvre have i been pwned", "haveibeenpwned", "mon email a ete pirate",
+        "check email breach", "verification piratage",
+    ], "browser", "navigate:https://haveibeenpwned.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RECHERCHE SPÉCIALISÉE — Nouvelles
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("chercher_crates_io", "navigation", "Rechercher un crate Rust", [
+        "cherche sur crates {requete}", "crate rust {requete}",
+        "package rust {requete}",
+    ], "browser", "navigate:https://crates.io/search?q={requete}", ["requete"]),
+    JarvisCommand("chercher_alternativeto", "navigation", "Chercher une alternative a un logiciel", [
+        "alternative a {requete}", "cherche une alternative a {requete}",
+        "remplace {requete}",
+    ], "browser", "navigate:https://alternativeto.net/software/{requete}/", ["requete"]),
+    JarvisCommand("chercher_mdn", "navigation", "Rechercher sur MDN Web Docs", [
+        "cherche sur mdn {requete}", "mdn {requete}",
+        "doc web {requete}",
+    ], "browser", "navigate:https://developer.mozilla.org/search?q={requete}", ["requete"]),
+    JarvisCommand("chercher_can_i_use", "navigation", "Verifier la compatibilite d'une feature web", [
+        "can i use {requete}", "compatibilite de {requete}",
+        "support de {requete}",
+    ], "browser", "navigate:https://caniuse.com/?search={requete}", ["requete"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PRODUCTIVITÉ & OUTILS QUOTIDIENS
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_chatgpt_plugins", "navigation", "Ouvrir ChatGPT (avec GPTs)", [
+        "ouvre les gpts", "chatgpt gpts", "custom gpt",
+        "lance les gpts",
+    ], "browser", "navigate:https://chat.openai.com/gpts"),
+    JarvisCommand("ouvrir_anthropic_console", "navigation", "Ouvrir la console Anthropic API", [
+        "ouvre anthropic console", "console anthropic", "api anthropic",
+        "dashboard claude api",
+    ], "browser", "navigate:https://console.anthropic.com"),
+    JarvisCommand("ouvrir_openai_platform", "navigation", "Ouvrir la plateforme OpenAI API", [
+        "ouvre openai platform", "console openai", "api openai",
+        "dashboard openai",
+    ], "browser", "navigate:https://platform.openai.com"),
+    JarvisCommand("ouvrir_google_colab", "navigation", "Ouvrir Google Colab", [
+        "ouvre google colab", "colab", "lance colab",
+        "jupyter colab", "notebook colab",
+    ], "browser", "navigate:https://colab.research.google.com"),
+    JarvisCommand("ouvrir_overleaf", "navigation", "Ouvrir Overleaf (LaTeX en ligne)", [
+        "ouvre overleaf", "va sur overleaf", "latex en ligne",
+        "editeur latex",
+    ], "browser", "navigate:https://www.overleaf.com"),
+    JarvisCommand("ouvrir_whimsical", "navigation", "Ouvrir Whimsical (diagrams & flowcharts)", [
+        "ouvre whimsical", "whimsical", "diagrammes whimsical",
+        "flowchart en ligne",
+    ], "browser", "navigate:https://whimsical.com"),
+    JarvisCommand("ouvrir_grammarly", "navigation", "Ouvrir Grammarly", [
+        "ouvre grammarly", "grammarly", "correcteur anglais",
+        "check grammaire",
+    ], "browser", "navigate:https://app.grammarly.com"),
+    JarvisCommand("ouvrir_remove_bg", "navigation", "Ouvrir Remove.bg (supprimer arriere-plan)", [
+        "ouvre remove bg", "supprime l'arriere plan", "remove background",
+        "detourage image",
+    ], "browser", "navigate:https://www.remove.bg"),
+    JarvisCommand("ouvrir_tinypng", "navigation", "Ouvrir TinyPNG (compression images)", [
+        "ouvre tinypng", "compresse une image", "tiny png",
+        "optimise les images",
+    ], "browser", "navigate:https://tinypng.com"),
+    JarvisCommand("ouvrir_draw_io", "navigation", "Ouvrir draw.io (diagrammes)", [
+        "ouvre draw io", "drawio", "diagramme en ligne",
+        "lance draw io",
+    ], "browser", "navigate:https://app.diagrams.net"),
+    JarvisCommand("ouvrir_notion_calendar", "navigation", "Ouvrir Notion Calendar", [
+        "ouvre notion calendar", "calendrier notion", "notion agenda",
+        "lance notion calendar",
+    ], "browser", "navigate:https://calendar.notion.so"),
+    JarvisCommand("ouvrir_todoist", "navigation", "Ouvrir Todoist (gestion de taches)", [
+        "ouvre todoist", "va sur todoist", "mes taches todoist",
+        "todo list en ligne",
+    ], "browser", "navigate:https://todoist.com/app"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # FINANCE & ACTUALITÉS
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_google_finance", "navigation", "Ouvrir Google Finance", [
+        "ouvre google finance", "google finance", "cours de bourse",
+        "actions google",
+    ], "browser", "navigate:https://www.google.com/finance"),
+    JarvisCommand("ouvrir_yahoo_finance", "navigation", "Ouvrir Yahoo Finance", [
+        "ouvre yahoo finance", "yahoo finance", "yahoo bourse",
+        "finance yahoo",
+    ], "browser", "navigate:https://finance.yahoo.com"),
+    JarvisCommand("ouvrir_coindesk", "navigation", "Ouvrir CoinDesk (news crypto)", [
+        "ouvre coindesk", "news crypto", "coindesk",
+        "actualites crypto",
+    ], "browser", "navigate:https://www.coindesk.com"),
+    JarvisCommand("ouvrir_meteo", "navigation", "Ouvrir la meteo", [
+        "ouvre la meteo", "quel temps fait il", "meteo",
+        "previsions meteo", "meteo du jour",
+    ], "browser", "navigate:https://www.google.com/search?q=meteo"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RECHERCHE SPÉCIALISÉE — Nouvelles
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("chercher_google_colab", "navigation", "Rechercher un notebook Colab", [
+        "cherche un notebook {requete}", "colab {requete}",
+        "notebook sur {requete}",
+    ], "browser", "navigate:https://www.google.com/search?q={requete}+site:colab.research.google.com", ["requete"]),
+    JarvisCommand("chercher_perplexity", "navigation", "Rechercher sur Perplexity AI", [
+        "cherche sur perplexity {requete}", "perplexity {requete}",
+        "demande a perplexity {requete}",
+    ], "browser", "navigate:https://www.perplexity.ai/search?q={requete}", ["requete"]),
+    JarvisCommand("chercher_google_maps", "navigation", "Rechercher sur Google Maps", [
+        "cherche sur maps {requete}", "maps {requete}",
+        "trouve {requete} sur la carte", "ou est {requete}",
+    ], "browser", "navigate:https://www.google.com/maps/search/{requete}", ["requete"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SITES FRANÇAIS QUOTIDIENS — Administration, services publics
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_impots", "navigation", "Ouvrir impots.gouv.fr", [
+        "ouvre les impots", "impots gouv", "va sur les impots",
+        "site des impots", "declaration impots",
+    ], "browser", "navigate:https://www.impots.gouv.fr"),
+    JarvisCommand("ouvrir_ameli", "navigation", "Ouvrir Ameli (Assurance Maladie)", [
+        "ouvre ameli", "assurance maladie", "va sur ameli",
+        "securite sociale", "carte vitale",
+    ], "browser", "navigate:https://www.ameli.fr"),
+    JarvisCommand("ouvrir_caf", "navigation", "Ouvrir la CAF", [
+        "ouvre la caf", "allocations familiales", "va sur la caf",
+        "caf en ligne",
+    ], "browser", "navigate:https://www.caf.fr"),
+    JarvisCommand("ouvrir_sncf", "navigation", "Ouvrir SNCF Connect (trains)", [
+        "ouvre sncf", "billets de train", "va sur sncf",
+        "sncf connect", "reserv un train",
+    ], "browser", "navigate:https://www.sncf-connect.com"),
+    JarvisCommand("ouvrir_doctolib", "navigation", "Ouvrir Doctolib (rendez-vous medical)", [
+        "ouvre doctolib", "prends un rdv medical", "va sur doctolib",
+        "rendez vous docteur", "medecin en ligne",
+    ], "browser", "navigate:https://www.doctolib.fr"),
+    JarvisCommand("ouvrir_la_poste", "navigation", "Ouvrir La Poste (suivi colis)", [
+        "ouvre la poste", "suivi colis", "va sur la poste",
+        "ou est mon colis", "la poste tracking",
+    ], "browser", "navigate:https://www.laposte.fr"),
+    JarvisCommand("ouvrir_pole_emploi", "navigation", "Ouvrir France Travail (ex Pole Emploi)", [
+        "ouvre pole emploi", "france travail", "va sur pole emploi",
+        "offres d'emploi",
+    ], "browser", "navigate:https://www.francetravail.fr"),
+    JarvisCommand("ouvrir_service_public", "navigation", "Ouvrir Service-Public.fr", [
+        "service public", "demarches administratives", "va sur service public",
+        "site du gouvernement",
+    ], "browser", "navigate:https://www.service-public.fr"),
+    JarvisCommand("ouvrir_fnac", "navigation", "Ouvrir Fnac.com", [
+        "ouvre la fnac", "va sur la fnac", "fnac en ligne",
+        "acheter a la fnac",
+    ], "browser", "navigate:https://www.fnac.com"),
+    JarvisCommand("ouvrir_cdiscount", "navigation", "Ouvrir Cdiscount", [
+        "ouvre cdiscount", "va sur cdiscount", "cdiscount",
+        "acheter sur cdiscount",
+    ], "browser", "navigate:https://www.cdiscount.com"),
+    JarvisCommand("ouvrir_amazon_fr", "navigation", "Ouvrir Amazon France", [
+        "ouvre amazon france", "amazon fr", "va sur amazon",
+        "acheter sur amazon",
+    ], "browser", "navigate:https://www.amazon.fr"),
+    JarvisCommand("ouvrir_boursorama", "navigation", "Ouvrir Boursorama (banque/bourse)", [
+        "ouvre boursorama", "va sur boursorama", "banque en ligne",
+        "bourse boursorama",
+    ], "browser", "navigate:https://www.boursorama.com"),
+    JarvisCommand("ouvrir_free_mobile", "navigation", "Ouvrir Free Mobile (espace client)", [
+        "ouvre free", "espace client free", "va sur free",
+        "mon compte free",
+    ], "browser", "navigate:https://mobile.free.fr/account/"),
+    JarvisCommand("ouvrir_edf", "navigation", "Ouvrir EDF (electricite)", [
+        "ouvre edf", "mon compte edf", "facture electricite",
+        "va sur edf",
+    ], "browser", "navigate:https://www.edf.fr"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CLOUD & HOSTING — Plateformes cloud et deploiement
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_aws_console", "navigation", "Ouvrir AWS Console", [
+        "ouvre aws", "console aws", "va sur aws",
+        "amazon web services", "aws console",
+    ], "browser", "navigate:https://console.aws.amazon.com"),
+    JarvisCommand("ouvrir_azure_portal", "navigation", "Ouvrir Azure Portal", [
+        "ouvre azure", "portal azure", "va sur azure",
+        "microsoft azure", "azure console",
+    ], "browser", "navigate:https://portal.azure.com"),
+    JarvisCommand("ouvrir_gcp_console", "navigation", "Ouvrir Google Cloud Console", [
+        "ouvre google cloud", "gcp console", "va sur google cloud",
+        "cloud google", "google cloud platform",
+    ], "browser", "navigate:https://console.cloud.google.com"),
+    JarvisCommand("ouvrir_netlify", "navigation", "Ouvrir Netlify (deploiement)", [
+        "ouvre netlify", "va sur netlify", "netlify dashboard",
+        "deploiement netlify",
+    ], "browser", "navigate:https://app.netlify.com"),
+    JarvisCommand("ouvrir_digitalocean", "navigation", "Ouvrir DigitalOcean", [
+        "ouvre digitalocean", "va sur digital ocean", "digital ocean",
+        "droplets digitalocean",
+    ], "browser", "navigate:https://cloud.digitalocean.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # OUTILS DEV WEB — Editeurs, playgrounds, design
+    # ══════════════════════════════════════════════════════════════════════
+
+    # ══════════════════════════════════════════════════════════════════════
+    # NEWS & MÉDIAS — Actualites FR et tech
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_le_monde", "navigation", "Ouvrir Le Monde", [
+        "ouvre le monde", "actualites le monde", "va sur le monde",
+        "infos le monde", "lemonde",
+    ], "browser", "navigate:https://www.lemonde.fr"),
+    JarvisCommand("ouvrir_le_figaro", "navigation", "Ouvrir Le Figaro", [
+        "ouvre le figaro", "actualites figaro", "va sur le figaro",
+        "infos figaro",
+    ], "browser", "navigate:https://www.lefigaro.fr"),
+    JarvisCommand("ouvrir_liberation", "navigation", "Ouvrir Liberation", [
+        "ouvre liberation", "actualites liberation", "va sur libe",
+        "infos liberation",
+    ], "browser", "navigate:https://www.liberation.fr"),
+    JarvisCommand("ouvrir_france_info", "navigation", "Ouvrir France Info", [
+        "ouvre france info", "actualites france", "va sur france info",
+        "infos en direct",
+    ], "browser", "navigate:https://www.francetvinfo.fr"),
+    JarvisCommand("ouvrir_techcrunch", "navigation", "Ouvrir TechCrunch (tech news)", [
+        "ouvre techcrunch", "news tech", "va sur techcrunch",
+        "actualites tech",
+    ], "browser", "navigate:https://techcrunch.com"),
+    JarvisCommand("ouvrir_hackernews", "navigation", "Ouvrir Hacker News", [
+        "ouvre hacker news", "va sur hacker news", "ycombinator news",
+        "hn", "hackernews",
+    ], "browser", "navigate:https://news.ycombinator.com"),
+    JarvisCommand("ouvrir_ars_technica", "navigation", "Ouvrir Ars Technica", [
+        "ouvre ars technica", "va sur ars technica", "ars technica",
+        "tech reviews",
+    ], "browser", "navigate:https://arstechnica.com"),
+    JarvisCommand("ouvrir_the_verge", "navigation", "Ouvrir The Verge", [
+        "ouvre the verge", "va sur the verge", "the verge",
+        "tech the verge",
+    ], "browser", "navigate:https://www.theverge.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # STREAMING & ENTERTAINMENT — Plateformes de contenu
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_deezer", "navigation", "Ouvrir Deezer", [
+        "ouvre deezer", "va sur deezer", "musique deezer",
+        "streaming deezer",
+    ], "browser", "navigate:https://www.deezer.com"),
+    JarvisCommand("ouvrir_mycanal", "navigation", "Ouvrir MyCanal", [
+        "ouvre canal plus", "va sur mycanal", "canal+",
+        "mycanal streaming",
+    ], "browser", "navigate:https://www.mycanal.fr"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RECHERCHE SPÉCIALISÉE — Nouvelles catégories
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("chercher_leboncoin", "navigation", "Rechercher sur Leboncoin", [
+        "cherche sur leboncoin {requete}", "leboncoin {requete}",
+        "annonce {requete}", "occasion {requete}",
+    ], "browser", "navigate:https://www.leboncoin.fr/recherche?text={requete}", ["requete"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # ÉDUCATION & FORMATION — MOOC et tutoriels
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_khan_academy", "navigation", "Ouvrir Khan Academy", [
+        "ouvre khan academy", "va sur khan academy", "khan academy",
+        "apprendre gratuitement",
+    ], "browser", "navigate:https://www.khanacademy.org"),
+    JarvisCommand("ouvrir_edx", "navigation", "Ouvrir edX", [
+        "ouvre edx", "va sur edx", "mooc edx",
+        "universite en ligne",
+    ], "browser", "navigate:https://www.edx.org"),
+    JarvisCommand("ouvrir_freecodecamp", "navigation", "Ouvrir freeCodeCamp", [
+        "ouvre freecodecamp", "va sur freecodecamp", "apprendre a coder",
+        "free code camp",
+    ], "browser", "navigate:https://www.freecodecamp.org"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DOCUMENTATION DEV — Références techniques
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_caniuse", "navigation", "Ouvrir Can I Use (compatibilite navigateur)", [
+        "ouvre can i use", "compatibilite navigateur", "caniuse",
+        "support css", "support html",
+    ], "browser", "navigate:https://caniuse.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # NEWS TECH FR — Sites tech francophones
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_frandroid", "navigation", "Ouvrir Frandroid (tech FR)", [
+        "ouvre frandroid", "va sur frandroid", "actu tech frandroid",
+        "frandroid",
+    ], "browser", "navigate:https://www.frandroid.com"),
+    JarvisCommand("ouvrir_numerama", "navigation", "Ouvrir Numerama (tech FR)", [
+        "ouvre numerama", "va sur numerama", "actu numerama",
+        "numerama",
+    ], "browser", "navigate:https://www.numerama.com"),
+    JarvisCommand("ouvrir_les_numeriques", "navigation", "Ouvrir Les Numeriques (tests produits)", [
+        "ouvre les numeriques", "les numeriques", "tests produits",
+        "comparatifs tech",
+    ], "browser", "navigate:https://www.lesnumeriques.com"),
+    JarvisCommand("ouvrir_01net", "navigation", "Ouvrir 01net (tech FR)", [
+        "ouvre 01net", "va sur 01 net", "01net",
+        "actu informatique",
+    ], "browser", "navigate:https://www.01net.com"),
+    JarvisCommand("ouvrir_journal_du_net", "navigation", "Ouvrir Le Journal du Net", [
+        "ouvre journal du net", "jdn", "journal du net",
+        "actu digital",
+    ], "browser", "navigate:https://www.journaldunet.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CRYPTO & EXCHANGES — Plateformes crypto
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_binance", "navigation", "Ouvrir Binance", [
+        "ouvre binance", "va sur binance", "binance exchange",
+        "trading binance",
+    ], "browser", "navigate:https://www.binance.com"),
+    JarvisCommand("ouvrir_coinbase", "navigation", "Ouvrir Coinbase", [
+        "ouvre coinbase", "va sur coinbase", "coinbase exchange",
+        "acheter du bitcoin",
+    ], "browser", "navigate:https://www.coinbase.com"),
+    JarvisCommand("ouvrir_kraken", "navigation", "Ouvrir Kraken", [
+        "ouvre kraken", "va sur kraken", "kraken exchange",
+        "trading kraken",
+    ], "browser", "navigate:https://www.kraken.com"),
+    JarvisCommand("ouvrir_etherscan", "navigation", "Ouvrir Etherscan (explorateur Ethereum)", [
+        "ouvre etherscan", "etherscan", "explorateur ethereum",
+        "transactions eth",
+    ], "browser", "navigate:https://etherscan.io"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # VOYAGE & RÉSERVATION — Sites de voyage
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_booking", "navigation", "Ouvrir Booking.com (hotels)", [
+        "ouvre booking", "reserve un hotel", "va sur booking",
+        "hotels booking",
+    ], "browser", "navigate:https://www.booking.com"),
+    JarvisCommand("ouvrir_airbnb", "navigation", "Ouvrir Airbnb", [
+        "ouvre airbnb", "va sur airbnb", "location airbnb",
+        "reserve un airbnb",
+    ], "browser", "navigate:https://www.airbnb.fr"),
+    JarvisCommand("ouvrir_google_flights", "navigation", "Ouvrir Google Flights (vols)", [
+        "ouvre google flights", "billets d'avion", "cherche un vol",
+        "vols pas cher", "google vols",
+    ], "browser", "navigate:https://www.google.com/travel/flights"),
+    JarvisCommand("ouvrir_tripadvisor", "navigation", "Ouvrir TripAdvisor", [
+        "ouvre tripadvisor", "avis restaurants", "va sur tripadvisor",
+        "trip advisor",
+    ], "browser", "navigate:https://www.tripadvisor.fr"),
+    JarvisCommand("ouvrir_blablacar", "navigation", "Ouvrir BlaBlaCar (covoiturage)", [
+        "ouvre blablacar", "covoiturage", "va sur blablacar",
+        "trajet blablacar",
+    ], "browser", "navigate:https://www.blablacar.fr"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # JURIDIQUE & ADMINISTRATION FR
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_legifrance", "navigation", "Ouvrir Legifrance (textes de loi)", [
+        "ouvre legifrance", "textes de loi", "va sur legifrance",
+        "code juridique", "legislation",
+    ], "browser", "navigate:https://www.legifrance.gouv.fr"),
+    JarvisCommand("ouvrir_ants", "navigation", "Ouvrir ANTS (carte d'identite, permis)", [
+        "ouvre ants", "carte d'identite", "va sur ants",
+        "passeport", "permis de conduire",
+    ], "browser", "navigate:https://ants.gouv.fr"),
+    JarvisCommand("ouvrir_prefecture", "navigation", "Ouvrir la prise de RDV en prefecture", [
+        "rendez vous prefecture", "ouvre la prefecture", "va sur la prefecture",
+        "rdv prefecture",
+    ], "browser", "navigate:https://www.prefectures-regions.gouv.fr"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # GAMING — Plateformes de jeux
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_steam_store", "navigation", "Ouvrir le Steam Store", [
+        "ouvre le store steam", "magasin steam", "steam shop",
+        "jeux steam", "acheter un jeu steam",
+    ], "browser", "navigate:https://store.steampowered.com"),
+    JarvisCommand("ouvrir_epic_games", "navigation", "Ouvrir Epic Games Store", [
+        "ouvre epic games", "va sur epic games", "epic store",
+        "jeux epic", "jeux gratuits epic",
+    ], "browser", "navigate:https://store.epicgames.com"),
+    JarvisCommand("ouvrir_gog", "navigation", "Ouvrir GOG.com (jeux sans DRM)", [
+        "ouvre gog", "va sur gog", "jeux gog",
+        "jeux sans drm",
+    ], "browser", "navigate:https://www.gog.com"),
+    JarvisCommand("ouvrir_humble_bundle", "navigation", "Ouvrir Humble Bundle", [
+        "ouvre humble bundle", "humble bundle", "bundle de jeux",
+        "jeux en promo",
+    ], "browser", "navigate:https://www.humblebundle.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SANTÉ — Sites médicaux FR
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_vidal", "navigation", "Ouvrir Vidal (medicaments)", [
+        "ouvre vidal", "notice medicament", "va sur vidal",
+        "posologie",
+    ], "browser", "navigate:https://www.vidal.fr"),
+    JarvisCommand("ouvrir_doctissimo", "navigation", "Ouvrir Doctissimo (sante)", [
+        "ouvre doctissimo", "symptomes", "va sur doctissimo",
+        "sante en ligne",
+    ], "browser", "navigate:https://www.doctissimo.fr"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # RECHERCHE SPÉCIALISÉE — Batch 8
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("chercher_github_repos", "navigation", "Rechercher un repo sur GitHub", [
+        "cherche un repo {requete}", "github repo {requete}",
+        "projet github {requete}",
+    ], "browser", "navigate:https://github.com/search?q={requete}&type=repositories", ["requete"]),
+    JarvisCommand("chercher_huggingface_models", "navigation", "Rechercher un modele sur Hugging Face", [
+        "cherche un modele {requete}", "huggingface model {requete}",
+        "modele ia {requete}",
+    ], "browser", "navigate:https://huggingface.co/models?search={requete}", ["requete"]),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # MONITORING / DEVOPS — Plateformes d'observabilité
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_grafana_cloud", "navigation", "Ouvrir Grafana Cloud", [
+        "ouvre grafana", "va sur grafana", "dashboard grafana",
+        "monitoring grafana",
+    ], "browser", "navigate:https://grafana.com"),
+    JarvisCommand("ouvrir_datadog", "navigation", "Ouvrir Datadog", [
+        "ouvre datadog", "va sur datadog", "monitoring datadog",
+        "dashboard datadog",
+    ], "browser", "navigate:https://app.datadoghq.com"),
+    JarvisCommand("ouvrir_sentry", "navigation", "Ouvrir Sentry (error tracking)", [
+        "ouvre sentry", "va sur sentry", "erreurs sentry",
+        "tracking bugs sentry",
+    ], "browser", "navigate:https://sentry.io"),
+    JarvisCommand("ouvrir_pagerduty", "navigation", "Ouvrir PagerDuty (alerting)", [
+        "ouvre pagerduty", "alertes pagerduty", "on call pagerduty",
+    ], "browser", "navigate:https://www.pagerduty.com"),
+    JarvisCommand("ouvrir_newrelic", "navigation", "Ouvrir New Relic (APM)", [
+        "ouvre new relic", "va sur newrelic", "performance newrelic",
+        "apm newrelic",
+    ], "browser", "navigate:https://newrelic.com"),
+    JarvisCommand("ouvrir_uptime_robot", "navigation", "Ouvrir UptimeRobot (monitoring)", [
+        "ouvre uptime robot", "status sites", "monitoring uptime",
+    ], "browser", "navigate:https://uptimerobot.com"),
+    JarvisCommand("ouvrir_prometheus_docs", "navigation", "Ouvrir la doc Prometheus", [
+        "doc prometheus", "prometheus documentation", "ouvre prometheus",
+    ], "browser", "navigate:https://prometheus.io/docs/"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CI/CD — Plateformes d'intégration continue
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_jenkins", "navigation", "Ouvrir Jenkins", [
+        "ouvre jenkins", "va sur jenkins", "builds jenkins",
+    ], "browser", "navigate:https://www.jenkins.io"),
+    JarvisCommand("ouvrir_circleci", "navigation", "Ouvrir CircleCI", [
+        "ouvre circleci", "circle ci", "builds circleci",
+    ], "browser", "navigate:https://app.circleci.com"),
+    JarvisCommand("ouvrir_travis_ci", "navigation", "Ouvrir Travis CI", [
+        "ouvre travis", "travis ci", "builds travis",
+    ], "browser", "navigate:https://app.travis-ci.com"),
+    JarvisCommand("ouvrir_gitlab_ci", "navigation", "Ouvrir GitLab CI/CD", [
+        "ouvre gitlab ci", "gitlab pipelines", "builds gitlab",
+    ], "browser", "navigate:https://gitlab.com"),
+    # ══════════════════════════════════════════════════════════════════════
+    # API TOOLS — Outils de test et documentation API
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_postman_web", "navigation", "Ouvrir Postman Web", [
+        "ouvre postman", "va sur postman", "test api postman",
+        "postman web",
+    ], "browser", "navigate:https://web.postman.co"),
+    JarvisCommand("ouvrir_swagger_editor", "navigation", "Ouvrir Swagger Editor", [
+        "ouvre swagger", "swagger editor", "editeur openapi",
+    ], "browser", "navigate:https://editor.swagger.io"),
+    JarvisCommand("ouvrir_rapidapi", "navigation", "Ouvrir RapidAPI (marketplace API)", [
+        "ouvre rapidapi", "va sur rapidapi", "marketplace api",
+        "api marketplace",
+    ], "browser", "navigate:https://rapidapi.com"),
+    JarvisCommand("ouvrir_httpbin", "navigation", "Ouvrir HTTPBin (test HTTP)", [
+        "ouvre httpbin", "test http", "httpbin test",
+    ], "browser", "navigate:https://httpbin.org"),
+    JarvisCommand("ouvrir_reqbin", "navigation", "Ouvrir ReqBin (HTTP client en ligne)", [
+        "ouvre reqbin", "client http en ligne", "tester une requete",
+    ], "browser", "navigate:https://reqbin.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # FREELANCE / EMPLOI — Plateformes de travail
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_malt", "navigation", "Ouvrir Malt (freelance FR)", [
+        "ouvre malt", "va sur malt", "freelance malt",
+        "missions freelance",
+    ], "browser", "navigate:https://www.malt.fr"),
+    JarvisCommand("ouvrir_fiverr", "navigation", "Ouvrir Fiverr", [
+        "ouvre fiverr", "va sur fiverr", "services fiverr",
+    ], "browser", "navigate:https://www.fiverr.com"),
+    JarvisCommand("ouvrir_upwork", "navigation", "Ouvrir Upwork", [
+        "ouvre upwork", "va sur upwork", "jobs upwork",
+        "freelance upwork",
+    ], "browser", "navigate:https://www.upwork.com"),
+    JarvisCommand("ouvrir_welcome_jungle", "navigation", "Ouvrir Welcome to the Jungle (emploi tech)", [
+        "ouvre welcome to the jungle", "offres d'emploi tech",
+        "welcome jungle", "jobs tech",
+    ], "browser", "navigate:https://www.welcometothejungle.com"),
+    JarvisCommand("ouvrir_indeed", "navigation", "Ouvrir Indeed", [
+        "ouvre indeed", "va sur indeed", "offres d'emploi",
+        "cherche un emploi",
+    ], "browser", "navigate:https://www.indeed.fr"),
+    # ══════════════════════════════════════════════════════════════════════
+    # FOOD / LIVRAISON — Plateformes de livraison
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_uber_eats", "navigation", "Ouvrir Uber Eats", [
+        "ouvre uber eats", "commande uber eats", "uber eats",
+        "commande a manger",
+    ], "browser", "navigate:https://www.ubereats.com"),
+    JarvisCommand("ouvrir_deliveroo", "navigation", "Ouvrir Deliveroo", [
+        "ouvre deliveroo", "commande deliveroo", "livraison deliveroo",
+    ], "browser", "navigate:https://deliveroo.fr"),
+    JarvisCommand("ouvrir_just_eat", "navigation", "Ouvrir Just Eat", [
+        "ouvre just eat", "commande just eat", "livraison just eat",
+    ], "browser", "navigate:https://www.just-eat.fr"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # MÉDIAS FR — Chaînes et médias français
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_tf1_plus", "navigation", "Ouvrir TF1+ (replay TF1)", [
+        "ouvre tf1", "replay tf1", "tf1 plus", "va sur tf1",
+    ], "browser", "navigate:https://www.tf1plus.com"),
+    JarvisCommand("ouvrir_france_tv", "navigation", "Ouvrir France.tv (replay France TV)", [
+        "ouvre france tv", "replay france tv", "france television",
+        "va sur france tv",
+    ], "browser", "navigate:https://www.france.tv"),
+    JarvisCommand("ouvrir_arte_replay", "navigation", "Ouvrir Arte.tv (replay)", [
+        "ouvre arte", "replay arte", "arte tv", "va sur arte",
+    ], "browser", "navigate:https://www.arte.tv/fr/"),
+    JarvisCommand("ouvrir_bfm_tv", "navigation", "Ouvrir BFM TV en direct", [
+        "ouvre bfm", "bfm tv", "info en direct", "bfm en direct",
+    ], "browser", "navigate:https://www.bfmtv.com"),
+    JarvisCommand("ouvrir_cnews", "navigation", "Ouvrir CNews", [
+        "ouvre cnews", "c news", "cnews en direct",
+    ], "browser", "navigate:https://www.cnews.fr"),
+    JarvisCommand("ouvrir_mediapart", "navigation", "Ouvrir Mediapart", [
+        "ouvre mediapart", "va sur mediapart", "articles mediapart",
+    ], "browser", "navigate:https://www.mediapart.fr"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PRODUCTIVITÉ — Outils de gestion de projet
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_trello", "navigation", "Ouvrir Trello", [
+        "ouvre trello", "va sur trello", "mes boards trello",
+        "kanban trello",
+    ], "browser", "navigate:https://trello.com"),
+    JarvisCommand("ouvrir_asana", "navigation", "Ouvrir Asana", [
+        "ouvre asana", "va sur asana", "projets asana",
+    ], "browser", "navigate:https://app.asana.com"),
+    JarvisCommand("ouvrir_monday", "navigation", "Ouvrir Monday.com", [
+        "ouvre monday", "va sur monday", "monday com",
+    ], "browser", "navigate:https://monday.com"),
+    JarvisCommand("ouvrir_clickup", "navigation", "Ouvrir ClickUp", [
+        "ouvre clickup", "va sur clickup", "projets clickup",
+    ], "browser", "navigate:https://app.clickup.com"),
+    # ══════════════════════════════════════════════════════════════════════
+    # SHOPPING FR — E-commerce français
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_darty", "navigation", "Ouvrir Darty", [
+        "ouvre darty", "va sur darty", "electromenager darty",
+    ], "browser", "navigate:https://www.darty.com"),
+    JarvisCommand("ouvrir_boulanger", "navigation", "Ouvrir Boulanger", [
+        "ouvre boulanger", "va sur boulanger", "electromenager boulanger",
+    ], "browser", "navigate:https://www.boulanger.com"),
+    JarvisCommand("ouvrir_leroy_merlin", "navigation", "Ouvrir Leroy Merlin (bricolage)", [
+        "ouvre leroy merlin", "bricolage", "va sur leroy merlin",
+    ], "browser", "navigate:https://www.leroymerlin.fr"),
+    JarvisCommand("ouvrir_castorama", "navigation", "Ouvrir Castorama (bricolage)", [
+        "ouvre castorama", "va sur castorama", "bricolage castorama",
+    ], "browser", "navigate:https://www.castorama.fr"),
+    JarvisCommand("ouvrir_vinted", "navigation", "Ouvrir Vinted", [
+        "ouvre vinted", "va sur vinted", "vetements vinted",
+    ], "browser", "navigate:https://www.vinted.fr"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # FINANCE FR — Banques et outils financiers
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_revolut", "navigation", "Ouvrir Revolut", [
+        "ouvre revolut", "va sur revolut", "compte revolut",
+    ], "browser", "navigate:https://app.revolut.com"),
+    JarvisCommand("ouvrir_n26", "navigation", "Ouvrir N26 (banque en ligne)", [
+        "ouvre n26", "va sur n26", "banque n26",
+    ], "browser", "navigate:https://app.n26.com"),
+    JarvisCommand("ouvrir_bankin", "navigation", "Ouvrir Bankin (agrégateur comptes)", [
+        "ouvre bankin", "va sur bankin", "mes comptes bankin",
+        "agregateur bancaire",
+    ], "browser", "navigate:https://bankin.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DESIGN / CRÉATIF — Outils design en ligne
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_dribbble", "navigation", "Ouvrir Dribbble (inspiration design)", [
+        "ouvre dribbble", "inspiration design", "va sur dribbble",
+    ], "browser", "navigate:https://dribbble.com"),
+    JarvisCommand("ouvrir_unsplash", "navigation", "Ouvrir Unsplash (photos libres)", [
+        "ouvre unsplash", "photos gratuites", "images libres",
+        "va sur unsplash",
+    ], "browser", "navigate:https://unsplash.com"),
+    JarvisCommand("ouvrir_coolors", "navigation", "Ouvrir Coolors (palettes couleurs)", [
+        "ouvre coolors", "palette de couleurs", "generateur couleurs",
+    ], "browser", "navigate:https://coolors.co"),
+    JarvisCommand("ouvrir_fontawesome", "navigation", "Ouvrir Font Awesome (icones)", [
+        "ouvre font awesome", "icones font awesome", "cherche une icone",
+    ], "browser", "navigate:https://fontawesome.com/icons"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # IA / ML — Outils d'intelligence artificielle
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_claude_ai", "navigation", "Ouvrir Claude AI", [
+        "ouvre claude", "va sur claude", "lance claude ai",
+    ], "browser", "navigate:https://claude.ai"),
+    JarvisCommand("ouvrir_gemini_web", "navigation", "Ouvrir Google Gemini", [
+        "ouvre gemini web", "va sur gemini", "google gemini",
+    ], "browser", "navigate:https://gemini.google.com"),
+    JarvisCommand("ouvrir_midjourney", "navigation", "Ouvrir Midjourney", [
+        "ouvre midjourney", "va sur midjourney", "genere une image ia",
+    ], "browser", "navigate:https://www.midjourney.com"),
+    JarvisCommand("ouvrir_replicate", "navigation", "Ouvrir Replicate (ML APIs)", [
+        "ouvre replicate", "va sur replicate", "api ml replicate",
+    ], "browser", "navigate:https://replicate.com"),
+    JarvisCommand("ouvrir_together_ai", "navigation", "Ouvrir Together AI (inference)", [
+        "ouvre together ai", "va sur together", "together inference",
+    ], "browser", "navigate:https://www.together.ai"),
+    JarvisCommand("ouvrir_ollama_web", "navigation", "Ouvrir Ollama (modeles locaux)", [
+        "ouvre ollama site", "va sur ollama", "site ollama",
+    ], "browser", "navigate:https://ollama.com"),
+    JarvisCommand("ouvrir_openrouter", "navigation", "Ouvrir OpenRouter (multi-model API)", [
+        "ouvre openrouter", "va sur openrouter", "api openrouter",
+    ], "browser", "navigate:https://openrouter.ai"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DOCUMENTATION DEV — Références et tutoriels
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_geeksforgeeks", "navigation", "Ouvrir GeeksForGeeks", [
+        "ouvre geeksforgeeks", "geeks for geeks", "gfg",
+    ], "browser", "navigate:https://www.geeksforgeeks.org"),
+    JarvisCommand("ouvrir_digitalocean_docs", "navigation", "Ouvrir DigitalOcean Tutorials", [
+        "ouvre digitalocean", "tutos digitalocean", "digital ocean docs",
+    ], "browser", "navigate:https://www.digitalocean.com/community/tutorials"),
+    JarvisCommand("ouvrir_realpython", "navigation", "Ouvrir Real Python (tutos Python)", [
+        "ouvre real python", "tutos python", "real python",
+    ], "browser", "navigate:https://realpython.com"),
+    JarvisCommand("ouvrir_css_tricks", "navigation", "Ouvrir CSS-Tricks", [
+        "ouvre css tricks", "astuces css", "css tricks",
+    ], "browser", "navigate:https://css-tricks.com"),
+    JarvisCommand("ouvrir_web_dev", "navigation", "Ouvrir web.dev (Google)", [
+        "ouvre web dev", "web dev google", "bonnes pratiques web",
+    ], "browser", "navigate:https://web.dev"),
+    # ══════════════════════════════════════════════════════════════════════
+    # MUSIQUE / AUDIO — Plateformes de streaming musical
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_bandcamp", "navigation", "Ouvrir Bandcamp", [
+        "ouvre bandcamp", "va sur bandcamp", "musique bandcamp",
+    ], "browser", "navigate:https://bandcamp.com"),
+    # ══════════════════════════════════════════════════════════════════════
+    # SERVICES PUBLICS FR — Sites gouvernementaux
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_data_gouv", "navigation", "Ouvrir data.gouv.fr (open data)", [
+        "ouvre data gouv", "open data france", "donnees publiques",
+    ], "browser", "navigate:https://www.data.gouv.fr"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # IMMOBILIER FR — Sites immobiliers
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_seloger", "navigation", "Ouvrir SeLoger", [
+        "ouvre seloger", "va sur seloger", "cherche un appart",
+        "immobilier seloger",
+    ], "browser", "navigate:https://www.seloger.com"),
+    JarvisCommand("ouvrir_pap", "navigation", "Ouvrir PAP (particulier a particulier)", [
+        "ouvre pap", "pap immobilier", "de particulier a particulier",
+    ], "browser", "navigate:https://www.pap.fr"),
+    JarvisCommand("ouvrir_bienici", "navigation", "Ouvrir Bien'ici (immobilier)", [
+        "ouvre bienici", "bien ici", "immobilier bienici",
+    ], "browser", "navigate:https://www.bienici.com"),
+    JarvisCommand("ouvrir_logic_immo", "navigation", "Ouvrir Logic-Immo", [
+        "ouvre logic immo", "logic immo", "logement logic immo",
+    ], "browser", "navigate:https://www.logic-immo.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # TRANSPORT FR — Mobilité et déplacements
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_ratp", "navigation", "Ouvrir RATP (metro Paris)", [
+        "ouvre ratp", "metro paris", "plan ratp",
+        "horaires metro",
+    ], "browser", "navigate:https://www.ratp.fr"),
+    JarvisCommand("ouvrir_citymapper", "navigation", "Ouvrir Citymapper (itineraires)", [
+        "ouvre citymapper", "itineraire transport", "citymapper",
+    ], "browser", "navigate:https://citymapper.com"),
+    # ══════════════════════════════════════════════════════════════════════
+    # CLOUD STORAGE — Services de stockage en ligne
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_onedrive_web", "navigation", "Ouvrir OneDrive Web", [
+        "ouvre onedrive", "va sur onedrive", "one drive web",
+    ], "browser", "navigate:https://onedrive.live.com"),
+    JarvisCommand("ouvrir_dropbox", "navigation", "Ouvrir Dropbox", [
+        "ouvre dropbox", "va sur dropbox", "fichiers dropbox",
+    ], "browser", "navigate:https://www.dropbox.com"),
+    JarvisCommand("ouvrir_mega", "navigation", "Ouvrir Mega (stockage chiffre)", [
+        "ouvre mega", "va sur mega", "mega cloud",
+    ], "browser", "navigate:https://mega.nz"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # COMMUNICATION — Messageries et visio
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_discord_web", "navigation", "Ouvrir Discord Web", [
+        "ouvre discord web", "discord en ligne", "va sur discord",
+    ], "browser", "navigate:https://discord.com/app"),
+    JarvisCommand("ouvrir_zoom", "navigation", "Ouvrir Zoom", [
+        "ouvre zoom", "va sur zoom", "lance zoom",
+        "reunion zoom",
+    ], "browser", "navigate:https://zoom.us"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # HÉBERGEMENT / DÉPLOIEMENT — Plateformes cloud
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_heroku", "navigation", "Ouvrir Heroku", [
+        "ouvre heroku", "va sur heroku", "apps heroku",
+    ], "browser", "navigate:https://dashboard.heroku.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # REGISTRES DE PACKAGES — NPM, PyPI, etc.
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_nuget", "navigation", "Ouvrir NuGet (packages .NET)", [
+        "ouvre nuget", "va sur nuget", "packages dotnet",
+    ], "browser", "navigate:https://www.nuget.org"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # TECH NEWS — Actualités tech
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_wired", "navigation", "Ouvrir Wired", [
+        "ouvre wired", "va sur wired", "news wired",
+    ], "browser", "navigate:https://www.wired.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # SCIENCE / RECHERCHE — Moteurs de recherche académique
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_semantic_scholar", "navigation", "Ouvrir Semantic Scholar (IA papers)", [
+        "ouvre semantic scholar", "semantic scholar", "papers ia",
+    ], "browser", "navigate:https://www.semanticscholar.org"),
+    JarvisCommand("ouvrir_researchgate", "navigation", "Ouvrir ResearchGate", [
+        "ouvre researchgate", "va sur researchgate", "recherche researchgate",
+    ], "browser", "navigate:https://www.researchgate.net"),
+    JarvisCommand("ouvrir_pubmed", "navigation", "Ouvrir PubMed (medecine)", [
+        "ouvre pubmed", "recherche pubmed", "articles medicaux",
+    ], "browser", "navigate:https://pubmed.ncbi.nlm.nih.gov"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CUISINE / RECETTES FR — Sites de recettes
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_marmiton", "navigation", "Ouvrir Marmiton (recettes)", [
+        "ouvre marmiton", "va sur marmiton", "recettes marmiton",
+        "qu'est ce qu'on mange",
+    ], "browser", "navigate:https://www.marmiton.org"),
+    JarvisCommand("ouvrir_750g", "navigation", "Ouvrir 750g (recettes)", [
+        "ouvre 750g", "recettes 750g", "va sur 750 grammes",
+    ], "browser", "navigate:https://www.750g.com"),
+    JarvisCommand("ouvrir_cuisine_az", "navigation", "Ouvrir Cuisine AZ", [
+        "ouvre cuisine az", "recettes cuisine az", "va sur cuisine az",
+    ], "browser", "navigate:https://www.cuisineaz.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # PHOTOS / VIDÉOS — Banques d'images et vidéo
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_pexels", "navigation", "Ouvrir Pexels (photos/videos gratuites)", [
+        "ouvre pexels", "photos pexels", "videos gratuites pexels",
+    ], "browser", "navigate:https://www.pexels.com"),
+    JarvisCommand("ouvrir_pixabay", "navigation", "Ouvrir Pixabay (images libres)", [
+        "ouvre pixabay", "images pixabay", "photos pixabay",
+    ], "browser", "navigate:https://pixabay.com"),
+    JarvisCommand("ouvrir_vimeo", "navigation", "Ouvrir Vimeo", [
+        "ouvre vimeo", "va sur vimeo", "videos vimeo",
+    ], "browser", "navigate:https://vimeo.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # FORMATION EN LIGNE — Plateformes d'apprentissage
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_codecademy", "navigation", "Ouvrir Codecademy", [
+        "ouvre codecademy", "va sur codecademy", "apprendre a coder",
+    ], "browser", "navigate:https://www.codecademy.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # EMAIL — Webmails
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_gmail", "navigation", "Ouvrir Gmail", [
+        "ouvre gmail", "va sur gmail", "mes mails gmail",
+        "boite mail",
+    ], "browser", "navigate:https://mail.google.com"),
+    JarvisCommand("ouvrir_outlook_web", "navigation", "Ouvrir Outlook Web", [
+        "ouvre outlook", "va sur outlook", "mails outlook",
+    ], "browser", "navigate:https://outlook.live.com"),
+    JarvisCommand("ouvrir_protonmail", "navigation", "Ouvrir ProtonMail (mail chiffre)", [
+        "ouvre protonmail", "va sur protonmail", "mail securise",
+    ], "browser", "navigate:https://mail.proton.me"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # MÉTÉO — Services météo
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_windy", "navigation", "Ouvrir Windy (meteo avancee)", [
+        "ouvre windy", "meteo windy", "carte meteo",
+        "previsions meteo avancees",
+    ], "browser", "navigate:https://www.windy.com"),
+    JarvisCommand("ouvrir_openstreetmap", "navigation", "Ouvrir OpenStreetMap", [
+        "ouvre openstreetmap", "osm", "carte libre",
+    ], "browser", "navigate:https://www.openstreetmap.org"),
+    JarvisCommand("ouvrir_waze", "navigation", "Ouvrir Waze (trafic)", [
+        "ouvre waze", "trafic waze", "embouteillages",
+    ], "browser", "navigate:https://www.waze.com/live-map"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # OUTILS DEV EN LIGNE — IDE et outils dans le navigateur
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_jsoncrack", "navigation", "Ouvrir JSON Crack (visualiser JSON)", [
+        "ouvre json crack", "visualise du json", "json viewer",
+    ], "browser", "navigate:https://jsoncrack.com"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # DIVERTISSEMENT — Jeux et détente en ligne
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_molotov", "navigation", "Ouvrir Molotov TV (TV en direct)", [
+        "ouvre molotov", "tv en direct", "molotov tv",
+    ], "browser", "navigate:https://www.molotov.tv"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # CRYPTO / DEFI — Outils DeFi et analytics
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_defillama", "navigation", "Ouvrir DeFi Llama (TVL tracker)", [
+        "ouvre defi llama", "tvl defi", "defi llama",
+    ], "browser", "navigate:https://defillama.com"),
+    JarvisCommand("ouvrir_dune", "navigation", "Ouvrir Dune Analytics (blockchain data)", [
+        "ouvre dune", "analytics blockchain", "dune analytics",
+    ], "browser", "navigate:https://dune.com"),
+    JarvisCommand("ouvrir_uniswap", "navigation", "Ouvrir Uniswap (DEX)", [
+        "ouvre uniswap", "swap crypto", "uniswap dex",
+    ], "browser", "navigate:https://app.uniswap.org"),
+    JarvisCommand("ouvrir_zapper", "navigation", "Ouvrir Zapper (portfolio DeFi)", [
+        "ouvre zapper", "portfolio defi", "zapper fi",
+    ], "browser", "navigate:https://zapper.xyz"),
+
+    # ══════════════════════════════════════════════════════════════════════
+    # UTILITAIRES WEB — Outils pratiques en ligne
+    # ══════════════════════════════════════════════════════════════════════
+    JarvisCommand("ouvrir_archive_org", "navigation", "Ouvrir Internet Archive / Wayback Machine", [
+        "ouvre archive org", "wayback machine", "internet archive",
+    ], "browser", "navigate:https://web.archive.org"),
+    JarvisCommand("ouvrir_temp_mail", "navigation", "Ouvrir Temp Mail (email jetable)", [
+        "email jetable", "temp mail", "mail temporaire",
+    ], "browser", "navigate:https://temp-mail.org"),
+    JarvisCommand("ouvrir_pastebin", "navigation", "Ouvrir Pastebin", [
+        "ouvre pastebin", "va sur pastebin", "colle du texte",
+    ], "browser", "navigate:https://pastebin.com"),
+]
