@@ -104,6 +104,16 @@ def route_voice_command(text: str) -> dict:
     except Exception:
         pass
 
+    # Enrichissement contextuel (commandes ambigues → commandes precises)
+    try:
+        from src.voice_context_engine import voice_context_engine
+        enriched = voice_context_engine.enrich_command(normalized)
+        if enriched != normalized:
+            text = enriched
+            normalized = enriched.lower().strip()
+    except Exception:
+        pass
+
     # Heuristique rapide: deviner le module le plus probable
     priority_modules = _guess_priority(normalized)
 
@@ -130,6 +140,16 @@ def route_voice_command(text: str) -> dict:
             _log_voice_analytics(original, result)
             _log_action_history(original, result)
             return result
+
+    # Context engine: suggestions contextuelles avant le fallback IA
+    context_result = _fallback_context_engine(text, original)
+    if context_result and context_result.get("success"):
+        context_result["latency_ms"] = round((time.time() - start) * 1000, 1)
+        if normalized != original:
+            context_result["corrected_from"] = original
+        _log_voice_analytics(original, context_result)
+        _log_action_history(original, context_result)
+        return context_result
 
     # Fallback IA: quand aucun module ne reconnait la commande,
     # envoyer a l'IA locale pour interpretation ou reponse conversationnelle
@@ -206,6 +226,41 @@ def _fallback_ia(text: str, original: str) -> dict | None:
         except Exception:
             continue
 
+    return None
+
+
+def _fallback_context_engine(text: str, original: str) -> dict | None:
+    """Fallback contextuel: consulte le context engine pour des suggestions."""
+    try:
+        from src.voice_context_engine import voice_context_engine
+
+        # Tenter d'enrichir la commande et re-router
+        enriched = voice_context_engine.enrich_command(text)
+        if enriched != text:
+            # Re-essayer avec la commande enrichie
+            for mod_name, fn_name in MODULES:
+                result = _try_module(mod_name, fn_name, enriched)
+                if result and result.get("confidence", 0) >= 0.5:
+                    result["enriched_from"] = text
+                    result["enriched_to"] = enriched
+                    return result
+
+        # Sinon, proposer les suggestions contextuelles
+        suggestions = voice_context_engine.get_fallback_suggestions(text, max=3)
+        if suggestions:
+            suggestion_text = "; ".join(
+                f"{s['command']} ({s['reason']})" for s in suggestions
+            )
+            return {
+                "success": True,
+                "method": "context_suggestions",
+                "result": f"Suggestions : {suggestion_text}",
+                "confidence": 0.45,
+                "module": "voice_context_engine",
+                "suggestions": suggestions,
+            }
+    except Exception:
+        pass
     return None
 
 

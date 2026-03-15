@@ -7885,5 +7885,2053 @@
     "last_used": 0.0,
     "success_rate": 1.0,
     "confirm": false
+  },
+  {
+    "name": "pomodoro_timer",
+    "description": "Timer Pomodoro 25min travail / 5min pause avec notification",
+    "triggers": [
+      "pomodoro",
+      "lance un pomodoro",
+      "timer pomodoro",
+      "session pomodoro",
+      "25 minutes de focus",
+      "demarre pomodoro"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '🍅 Pomodoro demarre: 25 minutes de travail' && notify-send 'Pomodoro' 'Session de 25 minutes demarree' -i clock"
+        },
+        "description": "Notification debut",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "(sleep 1500 && notify-send 'Pomodoro' 'Pause de 5 minutes!' -u critical -i clock && paplay /usr/share/sounds/freedesktop/stereo/complete.oga) &"
+        },
+        "description": "Timer 25min en background",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo \"$(date '+%Y-%m-%d %H:%M') pomodoro\" >> /home/turbo/jarvis/data/pomodoro_log.txt && wc -l /home/turbo/jarvis/data/pomodoro_log.txt | awk '{print \"Total sessions pomodoro: \" $1}'"
+        },
+        "description": "Logger la session",
+        "wait_for_result": true
+      }
+    ],
+    "category": "productivite",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "todo_vocal",
+    "description": "Gestion de todo list vocale: ajouter, lister, supprimer",
+    "triggers": [
+      "todo list",
+      "liste de taches",
+      "mes taches",
+      "montre mes todos",
+      "affiche ma todo list",
+      "que dois-je faire"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "touch /home/turbo/jarvis/data/todo.txt && cat -n /home/turbo/jarvis/data/todo.txt || echo 'Aucune tache en cours'"
+        },
+        "description": "Afficher les taches",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "wc -l < /home/turbo/jarvis/data/todo.txt | xargs -I{} echo '{} tache(s) en cours'"
+        },
+        "description": "Compter les taches",
+        "wait_for_result": true
+      }
+    ],
+    "category": "productivite",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "rappel_vocal",
+    "description": "Creer un rappel avec notification differee",
+    "triggers": [
+      "rappelle-moi",
+      "cree un rappel",
+      "mets un rappel",
+      "alarme dans",
+      "notifie-moi dans",
+      "rappel dans"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo 'Rappels programmes actifs:' && ps aux | grep -i 'notify-send.*Rappel' | grep -v grep | awk '{print $NF}' || echo 'Aucun rappel actif'"
+        },
+        "description": "Lister rappels actifs",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "(sleep 300 && notify-send 'Rappel JARVIS' 'Rappel programme!' -u critical -i dialog-information && paplay /usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga) &"
+        },
+        "description": "Programmer rappel 5min",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo \"$(date '+%Y-%m-%d %H:%M') rappel programme\" >> /home/turbo/jarvis/data/rappels_log.txt"
+        },
+        "description": "Logger le rappel",
+        "wait_for_result": true
+      }
+    ],
+    "category": "productivite",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "agenda_du_jour",
+    "description": "Affiche l'agenda du jour avec taches, rappels et events",
+    "triggers": [
+      "agenda du jour",
+      "mon agenda",
+      "planning du jour",
+      "programme du jour",
+      "qu'est-ce que j'ai aujourd'hui",
+      "journee aujourd'hui"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== AGENDA DU JOUR ===' && echo \"Date: $(date '+%A %d %B %Y')\" && echo ''"
+        },
+        "description": "En-tete agenda",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Taches en cours ---' && cat /home/turbo/jarvis/data/todo.txt 2>/dev/null || echo 'Aucune tache'"
+        },
+        "description": "Taches du jour",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Sessions Pomodoro ---' && grep \"$(date '+%Y-%m-%d')\" /home/turbo/jarvis/data/pomodoro_log.txt 2>/dev/null | wc -l | xargs -I{} echo '{} session(s) aujourd hui'"
+        },
+        "description": "Pomodoros du jour",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Crontabs actifs ---' && crontab -l 2>/dev/null | grep -v '^#' | head -10 || echo 'Aucun cron'"
+        },
+        "description": "Crons programmes",
+        "wait_for_result": true
+      }
+    ],
+    "category": "productivite",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "resume_hebdomadaire",
+    "description": "Resume de la semaine: activite, commits, sessions, stats",
+    "triggers": [
+      "resume de la semaine",
+      "bilan hebdomadaire",
+      "recap semaine",
+      "resume hebdo",
+      "cette semaine en resume",
+      "rapport hebdomadaire"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== RESUME HEBDOMADAIRE ===' && echo \"Semaine du $(date -d 'last monday' '+%d/%m') au $(date '+%d/%m/%Y')\" && echo ''"
+        },
+        "description": "En-tete resume",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Commits Git cette semaine ---' && git log --oneline --since='1 week ago' 2>/dev/null | wc -l | xargs -I{} echo '{} commits' && git log --oneline --since='1 week ago' 2>/dev/null | head -10"
+        },
+        "description": "Activite Git",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Pomodoros cette semaine ---' && week_start=$(date -d 'last monday' '+%Y-%m-%d'); grep -c \"$week_start\\|$(date '+%Y-%m-%d')\" /home/turbo/jarvis/data/pomodoro_log.txt 2>/dev/null || echo '0 sessions'"
+        },
+        "description": "Sessions pomodoro",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Uptime systeme ---' && uptime -p && echo '--- Espace disque ---' && df -h / | tail -1 | awk '{print \"Utilise: \" $3 \" / \" $2 \" (\" $5 \")\"}'"
+        },
+        "description": "Stats systeme",
+        "wait_for_result": true
+      }
+    ],
+    "category": "productivite",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "run_tests_project",
+    "description": "Lance les tests du projet courant (pytest, npm test, cargo test)",
+    "triggers": [
+      "lance les tests",
+      "run tests",
+      "execute les tests",
+      "test le projet",
+      "fais tourner les tests",
+      "verifie les tests"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "cd /home/turbo/jarvis && if [ -f pytest.ini ] || [ -f setup.py ] || [ -d tests ]; then echo 'Projet Python detecte'; elif [ -f package.json ]; then echo 'Projet Node detecte'; elif [ -f Cargo.toml ]; then echo 'Projet Rust detecte'; else echo 'Type de projet inconnu'; fi"
+        },
+        "description": "Detecter type de projet",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "cd /home/turbo/jarvis && if [ -d tests ] || [ -f pytest.ini ]; then python3 -m pytest tests/ -v --tb=short 2>&1 | tail -30; elif [ -f package.json ]; then npm test 2>&1 | tail -30; elif [ -f Cargo.toml ]; then cargo test 2>&1 | tail -30; else echo 'Aucun framework de test detecte'; fi"
+        },
+        "description": "Executer les tests",
+        "wait_for_result": true
+      }
+    ],
+    "category": "developpement",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "lint_code_project",
+    "description": "Analyse statique du code (flake8, eslint, clippy)",
+    "triggers": [
+      "lint le code",
+      "analyse le code",
+      "verifie la qualite du code",
+      "lint code",
+      "check code quality",
+      "analyse statique"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "cd /home/turbo/jarvis && echo '=== Analyse statique ===' && find . -name '*.py' -not -path './venv/*' -not -path './.git/*' | head -5 | xargs python3 -m flake8 --max-line-length=120 --statistics 2>&1 | tail -20 || echo 'flake8 non installe, essai avec pylint'"
+        },
+        "description": "Lint Python",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "cd /home/turbo/jarvis && echo '--- Fichiers Python avec erreurs potentielles ---' && find . -name '*.py' -not -path './venv/*' -not -path './.git/*' | xargs python3 -m py_compile 2>&1 | head -20 || echo 'Compilation OK'"
+        },
+        "description": "Check compilation",
+        "wait_for_result": true
+      }
+    ],
+    "category": "developpement",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "format_code_project",
+    "description": "Formate automatiquement le code (black, prettier, rustfmt)",
+    "triggers": [
+      "formate le code",
+      "format code",
+      "auto format",
+      "prettify code",
+      "nettoie le code",
+      "reformate le code"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "cd /home/turbo/jarvis && echo '=== Formatage du code ===' && find . -name '*.py' -not -path './venv/*' -not -path './.git/*' | wc -l | xargs -I{} echo '{} fichiers Python a formater'"
+        },
+        "description": "Compter fichiers",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "cd /home/turbo/jarvis && python3 -m black . --check --diff 2>&1 | tail -20 || echo 'black non disponible'"
+        },
+        "description": "Preview formatage",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "cd /home/turbo/jarvis && python3 -m isort . --check-only --diff 2>&1 | tail -20 || echo 'isort non disponible'"
+        },
+        "description": "Check imports",
+        "wait_for_result": true
+      }
+    ],
+    "category": "developpement",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "coverage_rapport",
+    "description": "Genere un rapport de couverture de tests",
+    "triggers": [
+      "rapport de couverture",
+      "test coverage",
+      "couverture des tests",
+      "coverage report",
+      "taux de couverture",
+      "analyse couverture"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "cd /home/turbo/jarvis && python3 -m pytest tests/ --cov=. --cov-report=term-missing 2>&1 | tail -40 || echo 'pytest-cov non installe'"
+        },
+        "description": "Generer couverture",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "cd /home/turbo/jarvis && python3 -m pytest tests/ --cov=. --cov-report=html 2>/dev/null && echo 'Rapport HTML genere dans htmlcov/' || echo 'Generation HTML echouee'"
+        },
+        "description": "Rapport HTML",
+        "wait_for_result": true
+      }
+    ],
+    "category": "developpement",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "debug_server_jarvis",
+    "description": "Debug le serveur MCP JARVIS: logs, ports, processus",
+    "triggers": [
+      "debug le serveur",
+      "debug server",
+      "probleme serveur",
+      "serveur plante",
+      "diagnostique le serveur",
+      "check serveur"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Status serveur MCP ===' && curl -s --max-time 3 http://127.0.0.1:8080/api/health 2>/dev/null || echo 'Serveur MCP non joignable'"
+        },
+        "description": "Check health MCP",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Processus serveur ---' && ps aux | grep -E 'flask|gunicorn|uvicorn|python.*server' | grep -v grep | head -10"
+        },
+        "description": "Processus serveur",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Ports ouverts ---' && ss -tlnp | grep -E '8080|5000|3000|9000|1234' | head -10"
+        },
+        "description": "Check ports",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Derniers logs erreur ---' && journalctl -u jarvis* --no-pager -n 20 --since '1 hour ago' 2>/dev/null || tail -20 /home/turbo/jarvis/logs/*.log 2>/dev/null | tail -30"
+        },
+        "description": "Logs recents",
+        "wait_for_result": true
+      }
+    ],
+    "category": "developpement",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "query_sql_vocal",
+    "description": "Execute une requete SQL sur la base JARVIS",
+    "triggers": [
+      "requete sql",
+      "query sql",
+      "interroge la base",
+      "sql query",
+      "cherche dans la base",
+      "execute du sql"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Base JARVIS ===' && ls -lh /home/turbo/jarvis/memory/long_term.db 2>/dev/null && echo '' && sqlite3 /home/turbo/jarvis/memory/long_term.db '.tables' 2>/dev/null || echo 'Base non trouvee'"
+        },
+        "description": "Info base",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "sqlite3 /home/turbo/jarvis/memory/long_term.db \"SELECT name, sql FROM sqlite_master WHERE type='table' LIMIT 10;\" 2>/dev/null || echo 'Impossible de lire le schema'"
+        },
+        "description": "Schema tables",
+        "wait_for_result": true
+      }
+    ],
+    "category": "database",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "export_csv_db",
+    "description": "Exporte une table de la base en CSV",
+    "triggers": [
+      "exporte en csv",
+      "export csv",
+      "base vers csv",
+      "telecharge la table",
+      "exporter les donnees",
+      "csv export"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Tables disponibles ===' && sqlite3 /home/turbo/jarvis/memory/long_term.db '.tables' 2>/dev/null"
+        },
+        "description": "Lister tables",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "sqlite3 -header -csv /home/turbo/jarvis/memory/long_term.db 'SELECT * FROM memories LIMIT 100;' > /home/turbo/jarvis/data/export_$(date +%Y%m%d).csv 2>/dev/null && echo \"Export: /home/turbo/jarvis/data/export_$(date +%Y%m%d).csv\" && wc -l /home/turbo/jarvis/data/export_$(date +%Y%m%d).csv || echo 'Export echoue'"
+        },
+        "description": "Exporter en CSV",
+        "wait_for_result": true
+      }
+    ],
+    "category": "database",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "import_data_db",
+    "description": "Importe des donnees dans la base JARVIS",
+    "triggers": [
+      "importe des donnees",
+      "import data",
+      "charge dans la base",
+      "import csv",
+      "insere dans la base",
+      "ajouter donnees"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Fichiers importables ===' && ls -lh /home/turbo/jarvis/data/*.csv /home/turbo/jarvis/data/*.json 2>/dev/null | head -10 || echo 'Aucun fichier CSV/JSON'"
+        },
+        "description": "Lister fichiers",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Schema actuel ---' && sqlite3 /home/turbo/jarvis/memory/long_term.db '.schema' 2>/dev/null | head -20"
+        },
+        "description": "Schema actuel",
+        "wait_for_result": true
+      }
+    ],
+    "category": "database",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "schema_viewer_db",
+    "description": "Affiche le schema complet de la base de donnees",
+    "triggers": [
+      "schema de la base",
+      "montre le schema",
+      "structure de la base",
+      "schema database",
+      "tables et colonnes",
+      "describe database"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== SCHEMA COMPLET ===' && sqlite3 /home/turbo/jarvis/memory/long_term.db '.schema' 2>/dev/null"
+        },
+        "description": "Schema complet",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Taille des tables ---' && for table in $(sqlite3 /home/turbo/jarvis/memory/long_term.db '.tables' 2>/dev/null); do count=$(sqlite3 /home/turbo/jarvis/memory/long_term.db \"SELECT COUNT(*) FROM $table;\" 2>/dev/null); echo \"$table: $count lignes\"; done"
+        },
+        "description": "Taille des tables",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "ls -lh /home/turbo/jarvis/memory/long_term.db 2>/dev/null | awk '{print \"Taille base: \" $5}'"
+        },
+        "description": "Taille fichier DB",
+        "wait_for_result": true
+      }
+    ],
+    "category": "database",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "table_stats_db",
+    "description": "Statistiques detaillees sur les tables de la base",
+    "triggers": [
+      "stats de la base",
+      "statistiques tables",
+      "table stats",
+      "analyse la base",
+      "metriques base de donnees",
+      "stats database"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== STATISTIQUES BASE ===' && sqlite3 /home/turbo/jarvis/memory/long_term.db \"SELECT 'Total tables: ' || COUNT(*) FROM sqlite_master WHERE type='table';\" 2>/dev/null"
+        },
+        "description": "Nombre de tables",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "for table in $(sqlite3 /home/turbo/jarvis/memory/long_term.db '.tables' 2>/dev/null); do echo \"--- $table ---\"; sqlite3 /home/turbo/jarvis/memory/long_term.db \"SELECT COUNT(*) || ' lignes' FROM $table; SELECT 'Colonnes: ' || GROUP_CONCAT(name, ', ') FROM pragma_table_info('$table');\" 2>/dev/null; done"
+        },
+        "description": "Details par table",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "sqlite3 /home/turbo/jarvis/memory/long_term.db 'PRAGMA integrity_check;' 2>/dev/null && echo 'Integrite: OK' || echo 'Integrite: ERREUR'"
+        },
+        "description": "Verification integrite",
+        "wait_for_result": true
+      }
+    ],
+    "category": "database",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "chercher_par_contenu",
+    "description": "Recherche de fichiers par contenu textuel",
+    "triggers": [
+      "cherche dans les fichiers",
+      "recherche par contenu",
+      "grep dans le projet",
+      "trouve le texte",
+      "cherche le mot",
+      "search in files"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Recherche dans /home/turbo/jarvis ===' && find /home/turbo/jarvis -type f -name '*.py' -o -name '*.json' -o -name '*.sh' -o -name '*.yaml' | wc -l | xargs -I{} echo '{} fichiers indexables'"
+        },
+        "description": "Compter fichiers",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "grep -rl --include='*.py' --include='*.json' --include='*.sh' 'TODO\\|FIXME\\|HACK\\|BUG' /home/turbo/jarvis/ 2>/dev/null | head -20"
+        },
+        "description": "Chercher TODOs/FIXMEs",
+        "wait_for_result": true
+      }
+    ],
+    "category": "fichiers",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "renommer_batch",
+    "description": "Renomme des fichiers en batch avec pattern",
+    "triggers": [
+      "renomme les fichiers",
+      "renommer en masse",
+      "batch rename",
+      "renommer en batch",
+      "renommage multiple",
+      "rename files"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Preview Renommage ===' && echo 'Fichiers dans le dossier courant:' && ls -la /home/turbo/jarvis/data/ | head -20"
+        },
+        "description": "Lister fichiers",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo 'Exemple: pour renommer *.txt en *.bak:' && echo 'for f in /path/*.txt; do mv \"$f\" \"${f%.txt}.bak\"; done' && echo '' && echo 'Specifie le pattern pour executer'"
+        },
+        "description": "Preview renommage",
+        "wait_for_result": true
+      }
+    ],
+    "category": "fichiers",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "deplacer_par_type",
+    "description": "Organise les fichiers par type dans des dossiers",
+    "triggers": [
+      "organise les fichiers",
+      "trie par type",
+      "range les fichiers",
+      "deplace par extension",
+      "classe les fichiers",
+      "organise par type"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Analyse des types de fichiers ===' && find /home/turbo/Downloads -maxdepth 1 -type f 2>/dev/null | sed 's/.*\\.//' | sort | uniq -c | sort -rn | head -15 || echo 'Dossier Downloads vide'"
+        },
+        "description": "Analyser types",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Plan de tri ---' && echo 'Images (.jpg,.png,.gif) -> Images/' && echo 'Documents (.pdf,.doc,.txt) -> Documents/' && echo 'Videos (.mp4,.mkv,.avi) -> Videos/' && echo 'Archives (.zip,.tar,.gz) -> Archives/' && echo '' && echo 'Pret a organiser /home/turbo/Downloads'"
+        },
+        "description": "Plan de tri",
+        "wait_for_result": true
+      }
+    ],
+    "category": "fichiers",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "comparer_fichiers",
+    "description": "Compare deux fichiers ou dossiers",
+    "triggers": [
+      "compare les fichiers",
+      "diff entre fichiers",
+      "difference entre",
+      "compare deux fichiers",
+      "fichiers differents",
+      "compare folders"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Outils de comparaison ===' && which diff colordiff meld 2>/dev/null; echo '' && echo 'Usage: diff fichier1 fichier2'"
+        },
+        "description": "Check outils",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Fichiers recemment modifies ---' && find /home/turbo/jarvis -name '*.py' -mtime -1 -type f 2>/dev/null | head -10"
+        },
+        "description": "Fichiers recents",
+        "wait_for_result": true
+      }
+    ],
+    "category": "fichiers",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "synchroniser_dossiers",
+    "description": "Synchronise deux dossiers avec rsync",
+    "triggers": [
+      "synchronise les dossiers",
+      "sync folders",
+      "rsync dossiers",
+      "copie synchronisee",
+      "miroir dossier",
+      "synchroniser"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Rsync disponible ===' && rsync --version | head -1 && echo '' && echo 'Derniere synchro:' && ls -la /home/turbo/jarvis/backups/ 2>/dev/null | tail -5"
+        },
+        "description": "Check rsync",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Preview sync (dry-run) ---' && rsync -avhn --stats /home/turbo/jarvis/data/ /home/turbo/jarvis/backups/data_sync/ 2>/dev/null | tail -10"
+        },
+        "description": "Preview sync",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "rsync -avh --stats /home/turbo/jarvis/data/ /home/turbo/jarvis/backups/data_sync/ 2>/dev/null && echo 'Synchronisation terminee' || echo 'Erreur de synchronisation'"
+        },
+        "description": "Executer sync",
+        "wait_for_result": true
+      }
+    ],
+    "category": "fichiers",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "port_forward_setup",
+    "description": "Configure un port forwarding SSH",
+    "triggers": [
+      "port forward",
+      "forward de port",
+      "tunnel ssh",
+      "redirection de port",
+      "port forwarding",
+      "ouvre un tunnel"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Tunnels SSH actifs ===' && ps aux | grep 'ssh.*-L\\|ssh.*-R\\|ssh.*-D' | grep -v grep | head -10 || echo 'Aucun tunnel actif'"
+        },
+        "description": "Tunnels actifs",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Ports en ecoute ---' && ss -tlnp | head -15"
+        },
+        "description": "Ports ouverts",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo 'Pour creer un tunnel:' && echo 'Local: ssh -L local_port:target:target_port user@host' && echo 'Remote: ssh -R remote_port:target:target_port user@host' && echo 'SOCKS: ssh -D 1080 user@host'"
+        },
+        "description": "Guide tunnel",
+        "wait_for_result": true
+      }
+    ],
+    "category": "reseau",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "proxy_socks_setup",
+    "description": "Configure et gere un proxy SOCKS",
+    "triggers": [
+      "proxy socks",
+      "lance le proxy",
+      "configure proxy",
+      "proxy ssh",
+      "socks proxy",
+      "active le proxy"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Status proxy ===' && ps aux | grep 'ssh.*-D' | grep -v grep && echo 'Proxy SOCKS actif' || echo 'Aucun proxy SOCKS actif'"
+        },
+        "description": "Check proxy",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Configuration reseau ---' && ip route show default && echo '' && cat /etc/resolv.conf | head -5"
+        },
+        "description": "Config reseau",
+        "wait_for_result": true
+      }
+    ],
+    "category": "reseau",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "vpn_status_check",
+    "description": "Verifie le statut VPN et la connexion",
+    "triggers": [
+      "status vpn",
+      "vpn status",
+      "est-ce que le vpn marche",
+      "check vpn",
+      "connexion vpn",
+      "verifie le vpn"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== VPN Status ===' && ip link show | grep -E 'tun|wg|vpn' && echo 'Interface VPN detectee' || echo 'Aucune interface VPN'"
+        },
+        "description": "Interface VPN",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- IP publique ---' && curl -s --max-time 5 https://ifconfig.me && echo '' && echo '--- Route par defaut ---' && ip route show default"
+        },
+        "description": "IP et route",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Services VPN ---' && systemctl is-active openvpn 2>/dev/null; systemctl is-active wg-quick@wg0 2>/dev/null; systemctl is-active wireguard 2>/dev/null || echo 'Aucun service VPN systemd'"
+        },
+        "description": "Services VPN",
+        "wait_for_result": true
+      }
+    ],
+    "category": "reseau",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "bandwidth_monitor",
+    "description": "Monitore la bande passante en temps reel",
+    "triggers": [
+      "bande passante",
+      "bandwidth monitor",
+      "debit reseau",
+      "vitesse reseau",
+      "monitore le reseau",
+      "network speed"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Bande passante ===' && cat /proc/net/dev | awk 'NR>2{print $1, \"RX:\", $2/1024/1024, \"MB\", \"TX:\", $10/1024/1024, \"MB\"}' | head -5"
+        },
+        "description": "Stats interfaces",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Connexions actives ---' && ss -s && echo '' && echo '--- Top connexions ---' && ss -tnp | head -10"
+        },
+        "description": "Connexions",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Speed test rapide ---' && curl -s --max-time 10 -o /dev/null -w 'Download: %{speed_download} bytes/sec\\nTime: %{time_total}s\\n' https://speed.cloudflare.com/__down?bytes=10000000 2>/dev/null || echo 'Test de vitesse echoue'"
+        },
+        "description": "Speed test",
+        "wait_for_result": true
+      }
+    ],
+    "category": "reseau",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "firewall_rule_manager",
+    "description": "Gere les regles du firewall (iptables/nftables/ufw)",
+    "triggers": [
+      "regles firewall",
+      "firewall rules",
+      "gere le firewall",
+      "iptables rules",
+      "ufw status",
+      "check firewall"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Firewall Status ===' && if command -v ufw &>/dev/null; then sudo ufw status verbose 2>/dev/null || echo 'UFW: permission refusee'; elif command -v nft &>/dev/null; then sudo nft list ruleset 2>/dev/null | head -20; else sudo iptables -L -n --line-numbers 2>/dev/null | head -20; fi"
+        },
+        "description": "Status firewall",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Ports ouverts exterieurs ---' && ss -tlnp | grep -v '127.0.0.1' | head -15"
+        },
+        "description": "Ports exposes",
+        "wait_for_result": true
+      }
+    ],
+    "category": "reseau",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "convertir_format_media",
+    "description": "Convertit des fichiers multimedia (audio, video, image)",
+    "triggers": [
+      "convertis le format",
+      "convertir format",
+      "change le format",
+      "convert media",
+      "transcoder",
+      "convertir fichier"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Outils multimedia ===' && which ffmpeg convert sox 2>/dev/null; echo '' && ffmpeg -version 2>/dev/null | head -1 || echo 'ffmpeg non installe'"
+        },
+        "description": "Check outils",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Fichiers multimedia recents ---' && find /home/turbo -maxdepth 3 -type f \\( -name '*.mp4' -o -name '*.mp3' -o -name '*.wav' -o -name '*.mkv' -o -name '*.avi' -o -name '*.flac' \\) -mtime -7 2>/dev/null | head -10"
+        },
+        "description": "Fichiers recents",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo 'Commandes utiles:' && echo 'Video MP4->MKV: ffmpeg -i input.mp4 -c copy output.mkv' && echo 'Audio MP3->WAV: ffmpeg -i input.mp3 output.wav' && echo 'Image PNG->JPG: convert input.png output.jpg'"
+        },
+        "description": "Guide conversion",
+        "wait_for_result": true
+      }
+    ],
+    "category": "multimedia",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "redimensionner_image",
+    "description": "Redimensionne des images (single ou batch)",
+    "triggers": [
+      "redimensionne l'image",
+      "resize image",
+      "change la taille de l'image",
+      "redimensionner",
+      "scale image",
+      "taille image"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== ImageMagick ===' && convert --version 2>/dev/null | head -1 || echo 'ImageMagick non installe, essai avec ffmpeg'"
+        },
+        "description": "Check ImageMagick",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Images recentes ---' && find /home/turbo -maxdepth 3 -type f \\( -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.webp' \\) -mtime -3 2>/dev/null | head -10"
+        },
+        "description": "Images recentes",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo 'Commandes utiles:' && echo 'Resize: convert input.png -resize 800x600 output.png' && echo 'Batch: mogrify -resize 50% *.jpg' && echo 'Thumbnail: convert input.png -thumbnail 200x200 thumb.png'"
+        },
+        "description": "Guide resize",
+        "wait_for_result": true
+      }
+    ],
+    "category": "multimedia",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "extraire_audio_video",
+    "description": "Extrait la piste audio d'une video",
+    "triggers": [
+      "extrais l'audio",
+      "extract audio",
+      "audio de la video",
+      "separe l'audio",
+      "piste audio",
+      "rip audio"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Extraction audio ===' && which ffmpeg 2>/dev/null && echo 'ffmpeg disponible' || echo 'ffmpeg non installe'"
+        },
+        "description": "Check ffmpeg",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Videos disponibles ---' && find /home/turbo -maxdepth 3 -type f \\( -name '*.mp4' -o -name '*.mkv' -o -name '*.avi' -o -name '*.webm' \\) -mtime -7 2>/dev/null | head -10"
+        },
+        "description": "Lister videos",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo 'Commandes:' && echo 'MP3: ffmpeg -i video.mp4 -vn -acodec libmp3lame -q:a 2 audio.mp3' && echo 'WAV: ffmpeg -i video.mp4 -vn audio.wav' && echo 'FLAC: ffmpeg -i video.mp4 -vn -acodec flac audio.flac'"
+        },
+        "description": "Guide extraction",
+        "wait_for_result": true
+      }
+    ],
+    "category": "multimedia",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "thumbnail_generator",
+    "description": "Genere des thumbnails pour images ou videos",
+    "triggers": [
+      "genere un thumbnail",
+      "cree une miniature",
+      "thumbnail",
+      "miniature video",
+      "vignette image",
+      "preview image"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "mkdir -p /home/turbo/jarvis/data/thumbnails && echo 'Dossier thumbnails pret: /home/turbo/jarvis/data/thumbnails'"
+        },
+        "description": "Creer dossier",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo 'Commandes thumbnail:' && echo 'Image: convert input.jpg -thumbnail 200x200^ -gravity center -extent 200x200 thumb.jpg' && echo 'Video: ffmpeg -i video.mp4 -ss 00:00:05 -vframes 1 -s 320x240 thumb.jpg' && echo 'Batch: for f in *.jpg; do convert \"$f\" -thumbnail 150x150 \"thumb_$f\"; done'"
+        },
+        "description": "Guide thumbnails",
+        "wait_for_result": true
+      }
+    ],
+    "category": "multimedia",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "metadata_media",
+    "description": "Affiche les metadonnees d'un fichier multimedia",
+    "triggers": [
+      "metadata du fichier",
+      "infos du media",
+      "exif data",
+      "metadata media",
+      "informations fichier",
+      "proprietes du fichier"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Outils metadata ===' && which exiftool ffprobe mediainfo 2>/dev/null; echo ''"
+        },
+        "description": "Check outils",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Fichiers multimedia recents ---' && find /home/turbo -maxdepth 3 -type f \\( -name '*.mp4' -o -name '*.jpg' -o -name '*.png' -o -name '*.mp3' \\) -mtime -3 2>/dev/null | head -10"
+        },
+        "description": "Fichiers recents",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo 'Commandes metadata:' && echo 'Image EXIF: exiftool image.jpg' && echo 'Video info: ffprobe -v quiet -show_format -show_streams video.mp4' && echo 'Mediainfo: mediainfo fichier.mkv'"
+        },
+        "description": "Guide metadata",
+        "wait_for_result": true
+      }
+    ],
+    "category": "multimedia",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "audit_permissions_files",
+    "description": "Audit des permissions fichiers sensibles",
+    "triggers": [
+      "audit permissions",
+      "verifie les permissions",
+      "check permissions",
+      "fichiers world-writable",
+      "securite fichiers",
+      "audit droits"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Audit permissions ===' && echo '--- Fichiers world-writable ---' && find /home/turbo -type f -perm -002 2>/dev/null | head -10 || echo 'Aucun'"
+        },
+        "description": "Fichiers world-writable",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- SUID/SGID suspects ---' && find /home/turbo -type f \\( -perm -4000 -o -perm -2000 \\) 2>/dev/null | head -10 || echo 'Aucun'"
+        },
+        "description": "SUID/SGID",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- SSH keys permissions ---' && ls -la /home/turbo/.ssh/ 2>/dev/null && echo '' && echo '--- Config sensible ---' && ls -la /home/turbo/.gnupg/ 2>/dev/null | head -5"
+        },
+        "description": "Cles SSH",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Fichiers recemment modifies (potentiel compromis) ---' && find /home/turbo -type f -mmin -60 -not -path '*/\\.git/*' -not -path '*/\\.cache/*' 2>/dev/null | head -15"
+        },
+        "description": "Modifs recentes",
+        "wait_for_result": true
+      }
+    ],
+    "category": "securite",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "check_signatures_binaires",
+    "description": "Verifie les signatures et checksums des binaires",
+    "triggers": [
+      "verifie les signatures",
+      "check signatures",
+      "checksum verify",
+      "integrite binaires",
+      "hash des fichiers",
+      "signature check"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Verification signatures ===' && which gpg sha256sum md5sum 2>/dev/null && echo '' && gpg --version 2>/dev/null | head -2"
+        },
+        "description": "Outils dispo",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Hash des binaires JARVIS ---' && sha256sum /home/turbo/jarvis/core/*.py 2>/dev/null | head -10"
+        },
+        "description": "Hash core files",
+        "wait_for_result": true
+      }
+    ],
+    "category": "securite",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "certificate_info_check",
+    "description": "Affiche les infos des certificats SSL/TLS",
+    "triggers": [
+      "info certificat",
+      "check certificat",
+      "ssl certificate",
+      "certificat ssl",
+      "verifie le certificat",
+      "cert info"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Certificats SSL locaux ===' && ls /etc/ssl/certs/ 2>/dev/null | wc -l | xargs -I{} echo '{} certificats dans /etc/ssl/certs/'"
+        },
+        "description": "Certificats locaux",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Certificat google.com ---' && echo | openssl s_client -connect google.com:443 -servername google.com 2>/dev/null | openssl x509 -noout -subject -issuer -dates 2>/dev/null || echo 'Check echoue'"
+        },
+        "description": "Check cert externe",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Certificats expirant bientot ---' && for cert in /etc/ssl/certs/*.pem; do expiry=$(openssl x509 -enddate -noout -in \"$cert\" 2>/dev/null | cut -d= -f2); if [ -n \"$expiry\" ]; then exp_epoch=$(date -d \"$expiry\" +%s 2>/dev/null); now_epoch=$(date +%s); diff=$(( (exp_epoch - now_epoch) / 86400 )); if [ \"$diff\" -lt 30 ] 2>/dev/null; then echo \"$cert: expire dans $diff jours\"; fi; fi; done | head -5 || echo 'Aucun certificat critique'"
+        },
+        "description": "Certs expirant",
+        "wait_for_result": true
+      }
+    ],
+    "category": "securite",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "hash_verify_files",
+    "description": "Calcule et verifie les hash de fichiers",
+    "triggers": [
+      "hash du fichier",
+      "calcule le hash",
+      "sha256 du fichier",
+      "md5sum",
+      "verifie le hash",
+      "checksum fichier"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Hash des fichiers importants ===' && sha256sum /home/turbo/jarvis/data/skills.json /home/turbo/jarvis/memory/long_term.db 2>/dev/null"
+        },
+        "description": "Hash fichiers cles",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Hash de tous les scripts ---' && find /home/turbo/jarvis -name '*.sh' -exec sha256sum {} \\; 2>/dev/null | head -15"
+        },
+        "description": "Hash scripts",
+        "wait_for_result": true
+      }
+    ],
+    "category": "securite",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "password_generator",
+    "description": "Genere des mots de passe securises",
+    "triggers": [
+      "genere un mot de passe",
+      "password generator",
+      "nouveau mot de passe",
+      "cree un password",
+      "mot de passe aleatoire",
+      "generer password"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Generateur de mots de passe ===' && echo '--- 16 caracteres (alphanum + special) ---' && tr -dc 'A-Za-z0-9!@#$%^&*()_+-=' < /dev/urandom | head -c 16; echo '' && echo '--- 32 caracteres (alphanum) ---' && tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 32; echo '' && echo '--- Passphrase (4 mots) ---' && shuf -n4 /usr/share/dict/words 2>/dev/null | tr '\\n' '-' | sed 's/-$/\\n/' || echo 'dict non disponible'"
+        },
+        "description": "Generer passwords",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- UUID ---' && cat /proc/sys/kernel/random/uuid && echo '--- Token hex 64 ---' && openssl rand -hex 32 2>/dev/null || python3 -c 'import secrets; print(secrets.token_hex(32))'"
+        },
+        "description": "Tokens et UUIDs",
+        "wait_for_result": true
+      }
+    ],
+    "category": "securite",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "top_io_processes",
+    "description": "Affiche les processus les plus gourmands en IO",
+    "triggers": [
+      "top io",
+      "processus io",
+      "qui utilise le disque",
+      "io intensif",
+      "disk io",
+      "iotop"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Top IO processes ===' && cat /proc/diskstats | awk '{if($4+$8>0) print $3, \"reads:\", $4, \"writes:\", $8}' | sort -k4 -rn | head -5"
+        },
+        "description": "Stats IO disque",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- IO par processus ---' && for pid in $(ls /proc/ | grep -E '^[0-9]+$' | head -30); do io=$(cat /proc/$pid/io 2>/dev/null | grep write_bytes | awk '{print $2}'); name=$(cat /proc/$pid/comm 2>/dev/null); if [ -n \"$io\" ] && [ \"$io\" -gt 1048576 ] 2>/dev/null; then echo \"$name (PID $pid): $(echo $io | awk '{printf \"%.1f MB\", $1/1048576}')\"; fi; done | sort -t: -k2 -rn | head -10"
+        },
+        "description": "IO par processus",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Load average & IO wait ---' && cat /proc/loadavg && iostat -x 1 1 2>/dev/null | tail -10 || echo 'iostat non disponible'"
+        },
+        "description": "IO wait",
+        "wait_for_result": true
+      }
+    ],
+    "category": "monitoring",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "latence_disque",
+    "description": "Mesure la latence des disques",
+    "triggers": [
+      "latence disque",
+      "disk latency",
+      "vitesse disque",
+      "performance disque",
+      "benchmark disque",
+      "test disque"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Latence disque ===' && dd if=/dev/zero of=/tmp/test_latency bs=4k count=1000 conv=fdatasync 2>&1 | tail -1 && rm -f /tmp/test_latency"
+        },
+        "description": "Test ecriture",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Test lecture ---' && dd if=/home/turbo/jarvis/data/skills.json of=/dev/null bs=4k 2>&1 | tail -1"
+        },
+        "description": "Test lecture",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- SMART status ---' && for disk in /dev/sd? /dev/nvme?n1; do [ -b \"$disk\" ] && echo \"$disk:\" && sudo smartctl -H \"$disk\" 2>/dev/null | grep -i 'overall\\|result' || echo 'smartctl non disponible'; done"
+        },
+        "description": "SMART health",
+        "wait_for_result": true
+      }
+    ],
+    "category": "monitoring",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "numa_stats_check",
+    "description": "Affiche les statistiques NUMA du systeme",
+    "triggers": [
+      "numa stats",
+      "statistiques numa",
+      "noeuds numa",
+      "numa nodes",
+      "memoire numa",
+      "check numa"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== NUMA Info ===' && numactl --hardware 2>/dev/null || echo 'numactl non installe' && echo '' && cat /proc/buddyinfo | head -10"
+        },
+        "description": "NUMA hardware",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- NUMA stats ---' && cat /proc/vmstat | grep numa | head -10 && echo '' && echo '--- Memory zones ---' && cat /proc/zoneinfo | grep -E 'Node|zone |free ' | head -20"
+        },
+        "description": "Stats NUMA",
+        "wait_for_result": true
+      }
+    ],
+    "category": "monitoring",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "interrupts_monitor",
+    "description": "Monitore les interruptions systeme",
+    "triggers": [
+      "interrupts systeme",
+      "monitor interrupts",
+      "irq stats",
+      "interruptions",
+      "check interrupts",
+      "irq balance"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Top Interrupts ===' && cat /proc/interrupts | head -1 && cat /proc/interrupts | sort -t: -k2 -rn | head -15"
+        },
+        "description": "Top interrupts",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- IRQ affinite ---' && for irq in $(ls /proc/irq/ | grep -E '^[0-9]+$' | head -10); do affinity=$(cat /proc/irq/$irq/smp_affinity_list 2>/dev/null); action=$(cat /proc/irq/$irq/actions 2>/dev/null | head -1); [ -n \"$action\" ] && echo \"IRQ $irq ($action): CPUs $affinity\"; done | head -10"
+        },
+        "description": "IRQ affinite",
+        "wait_for_result": true
+      }
+    ],
+    "category": "monitoring",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "context_switches_monitor",
+    "description": "Monitore les context switches et la charge scheduler",
+    "triggers": [
+      "context switches",
+      "changements de contexte",
+      "scheduler stats",
+      "charge cpu detaillee",
+      "context switch rate",
+      "vmstat detaille"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Context Switches ===' && vmstat 1 3 2>/dev/null || echo 'vmstat non disponible'"
+        },
+        "description": "vmstat",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Stats scheduler ---' && cat /proc/stat | head -5 && echo '' && echo '--- Context switches total ---' && grep ctxt /proc/stat"
+        },
+        "description": "Stats proc",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Processus avec le plus de switches ---' && for pid in $(ls /proc/ | grep -E '^[0-9]+$' | head -50); do switches=$(grep voluntary_ctxt_switches /proc/$pid/status 2>/dev/null | awk '{s+=$2}END{print s}'); name=$(cat /proc/$pid/comm 2>/dev/null); [ -n \"$switches\" ] && [ \"$switches\" -gt 1000 ] 2>/dev/null && echo \"$name ($pid): $switches\"; done | sort -t: -k2 -rn | head -10"
+        },
+        "description": "Top switches",
+        "wait_for_result": true
+      }
+    ],
+    "category": "monitoring",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "compare_models_ia",
+    "description": "Compare les modeles IA charges sur le cluster",
+    "triggers": [
+      "compare les modeles",
+      "quel modele est meilleur",
+      "compare models",
+      "benchmark modeles",
+      "comparaison ia",
+      "modeles dispo"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Modeles sur le cluster ===' && curl -s --max-time 5 http://127.0.0.1:1234/v1/models 2>/dev/null | python3 -m json.tool 2>/dev/null | head -30 || echo 'LM Studio non joignable'"
+        },
+        "description": "Liste modeles LM Studio",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Modeles Ollama ---' && curl -s --max-time 5 http://127.0.0.1:11434/api/tags 2>/dev/null | python3 -c 'import json,sys; d=json.load(sys.stdin); [print(f\"{m[\"name\"]}: {m.get(\"size\",0)/1e9:.1f}GB\") for m in d.get(\"models\",[])]' 2>/dev/null || echo 'Ollama non joignable'"
+        },
+        "description": "Modeles Ollama",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- GPU allocation ---' && nvidia-smi --query-gpu=name,memory.used,memory.total,utilization.gpu --format=csv,noheader 2>/dev/null || echo 'nvidia-smi non disponible'"
+        },
+        "description": "GPU usage",
+        "wait_for_result": true
+      }
+    ],
+    "category": "cluster_ia",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "benchmark_prompt_ia",
+    "description": "Benchmark un prompt sur differents modeles",
+    "triggers": [
+      "benchmark prompt",
+      "teste le prompt",
+      "benchmark ia",
+      "performance prompt",
+      "speed test modele",
+      "latence modele"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Benchmark Prompt ===' && start=$(date +%s%N) && curl -s --max-time 30 http://127.0.0.1:1234/v1/chat/completions -H 'Content-Type: application/json' -d '{\"messages\":[{\"role\":\"user\",\"content\":\"Reponds en un mot: 2+2=\"}],\"max_tokens\":10}' 2>/dev/null | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d[\"choices\"][0][\"message\"][\"content\"])' 2>/dev/null && end=$(date +%s%N) && echo \"Latence: $(( (end - start) / 1000000 ))ms\" || echo 'LM Studio non joignable'"
+        },
+        "description": "Benchmark LM Studio",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "start=$(date +%s%N) && curl -s --max-time 30 http://127.0.0.1:11434/api/generate -d '{\"model\":\"llama3\",\"prompt\":\"2+2=\",\"stream\":false}' 2>/dev/null | python3 -c 'import json,sys; d=json.load(sys.stdin); print(f\"Reponse: {d.get(\"response\",\"N/A\")}\"); print(f\"Tokens/s: {d.get(\"eval_count\",0)/max(d.get(\"eval_duration\",1)*1e-9,0.001):.1f}\")' 2>/dev/null && end=$(date +%s%N) && echo \"Total: $(( (end - start) / 1000000 ))ms\" || echo 'Ollama non joignable'"
+        },
+        "description": "Benchmark Ollama",
+        "wait_for_result": true
+      }
+    ],
+    "category": "cluster_ia",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "cost_estimate_ia",
+    "description": "Estime le cout d'utilisation des modeles IA",
+    "triggers": [
+      "cout ia",
+      "combien coute le modele",
+      "cost estimate",
+      "estimation cout",
+      "prix inference",
+      "cout utilisation ia"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Estimation couts IA ===' && echo '--- Consommation electrique GPU ---' && nvidia-smi --query-gpu=name,power.draw,power.limit --format=csv,noheader 2>/dev/null | while read line; do echo \"$line\"; done || echo 'GPU info non disponible'"
+        },
+        "description": "Conso GPU",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Cout electrique estime ---' && total_watts=$(nvidia-smi --query-gpu=power.draw --format=csv,noheader,nounits 2>/dev/null | awk '{s+=$1}END{printf \"%.0f\", s}') && if [ -n \"$total_watts\" ]; then kwh_day=$(echo \"$total_watts * 24 / 1000\" | bc -l 2>/dev/null); echo \"${total_watts}W total GPU\"; echo \"$(printf '%.2f' $kwh_day) kWh/jour\"; echo \"Cout estime: $(printf '%.2f' $(echo \"$kwh_day * 0.15\" | bc -l 2>/dev/null)) EUR/jour\"; else echo 'Calcul impossible'; fi"
+        },
+        "description": "Cout electrique",
+        "wait_for_result": true
+      }
+    ],
+    "category": "cluster_ia",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "token_counter_ia",
+    "description": "Compte les tokens d'un texte pour differents modeles",
+    "triggers": [
+      "compte les tokens",
+      "token counter",
+      "combien de tokens",
+      "tokenize",
+      "nombre de tokens",
+      "tokenizer"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Token Counter ===' && python3 -c \"import tiktoken; enc=tiktoken.get_encoding('cl100k_base'); text='Ceci est un test de comptage de tokens pour JARVIS'; tokens=enc.encode(text); print(f'Texte: {text}'); print(f'Tokens (GPT-4): {len(tokens)}'); print(f'Tokens list: {tokens[:10]}...')\" 2>/dev/null || echo 'tiktoken non installe, estimation approximative'"
+        },
+        "description": "Compter tokens",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Estimation rapide ---' && echo 'Regle approximative: 1 token ~ 4 caracteres en anglais, ~3 en francais' && echo '' && echo '--- Taille des fichiers JARVIS ---' && wc -c /home/turbo/jarvis/data/skills.json | awk '{printf \"skills.json: %d chars ~ %d tokens (approx)\\n\", $1, $1/3}'"
+        },
+        "description": "Estimation tokens",
+        "wait_for_result": true
+      }
+    ],
+    "category": "cluster_ia",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "model_info_detail",
+    "description": "Affiche les infos detaillees d'un modele IA",
+    "triggers": [
+      "infos modele",
+      "detail du modele",
+      "model info",
+      "quel modele tourne",
+      "specs modele",
+      "fiche modele"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Modeles LM Studio ===' && curl -s --max-time 5 http://127.0.0.1:1234/v1/models 2>/dev/null | python3 -m json.tool 2>/dev/null || echo 'LM Studio non disponible'"
+        },
+        "description": "Models LM Studio",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Modeles Ollama ===' && curl -s --max-time 5 http://127.0.0.1:11434/api/tags 2>/dev/null | python3 -m json.tool 2>/dev/null || echo 'Ollama non disponible'"
+        },
+        "description": "Models Ollama",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- VRAM disponible ---' && nvidia-smi --query-gpu=name,memory.free,memory.total --format=csv,noheader 2>/dev/null && echo '' && echo '--- RAM systeme ---' && free -h | head -2"
+        },
+        "description": "Ressources dispo",
+        "wait_for_result": true
+      }
+    ],
+    "category": "cluster_ia",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "watch_file_changes",
+    "description": "Surveille les changements de fichiers en temps reel",
+    "triggers": [
+      "surveille les fichiers",
+      "watch files",
+      "monitore les changements",
+      "inotify watch",
+      "file watcher",
+      "detecte les modifications"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== File Watcher ===' && which inotifywait 2>/dev/null && echo 'inotify-tools disponible' || echo 'Installer: sudo apt install inotify-tools'"
+        },
+        "description": "Check inotify",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Fichiers recemment modifies ---' && find /home/turbo/jarvis -type f -mmin -5 -not -path '*/.git/*' -not -path '*/__pycache__/*' 2>/dev/null | head -15"
+        },
+        "description": "Modifs recentes",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo 'Pour surveiller en continu:' && echo 'inotifywait -m -r /home/turbo/jarvis/src -e modify,create,delete' && echo '' && echo 'Avec action:' && echo 'inotifywait -m -r /path -e modify | while read path action file; do echo \"$file modifie\"; done'"
+        },
+        "description": "Guide watch",
+        "wait_for_result": true
+      }
+    ],
+    "category": "automatisation",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "trigger_on_event",
+    "description": "Declenche une action sur un evenement systeme",
+    "triggers": [
+      "declenche sur evenement",
+      "trigger on event",
+      "quand ca arrive fais",
+      "event trigger",
+      "action automatique",
+      "reagis a"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Triggers disponibles ===' && echo '1. Fichier modifie (inotifywait)' && echo '2. Processus demarre/arrete (systemd)' && echo '3. Heure specifique (cron/at)' && echo '4. Seuil CPU/RAM (script monitoring)' && echo '5. Evenement reseau (netfilter)'"
+        },
+        "description": "Lister triggers",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Crons actifs ---' && crontab -l 2>/dev/null | grep -v '^#' | head -10 && echo '' && echo '--- Timers systemd ---' && systemctl list-timers --no-pager 2>/dev/null | head -10"
+        },
+        "description": "Triggers actifs",
+        "wait_for_result": true
+      }
+    ],
+    "category": "automatisation",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "schedule_task_auto",
+    "description": "Planifie une tache automatique (cron, at, systemd timer)",
+    "triggers": [
+      "planifie une tache",
+      "schedule task",
+      "programme une tache",
+      "cron job",
+      "tache planifiee",
+      "automatise la tache"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Taches planifiees ===' && echo '--- Crontab utilisateur ---' && crontab -l 2>/dev/null || echo 'Aucun cron'"
+        },
+        "description": "Crons existants",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Timers systemd ---' && systemctl list-timers --all --no-pager 2>/dev/null | head -15"
+        },
+        "description": "Timers systemd",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Jobs at ---' && atq 2>/dev/null || echo 'at non disponible' && echo '' && echo 'Guide cron:' && echo '*/5 * * * * commande   # toutes les 5 min' && echo '0 9 * * * commande     # tous les jours a 9h' && echo '0 0 * * 0 commande     # tous les dimanches'"
+        },
+        "description": "Guide planification",
+        "wait_for_result": true
+      }
+    ],
+    "category": "automatisation",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "chain_commands_auto",
+    "description": "Chaine des commandes avec gestion d'erreurs",
+    "triggers": [
+      "chaine les commandes",
+      "chain commands",
+      "enchaine les taches",
+      "pipeline de commandes",
+      "execute en sequence",
+      "commandes en serie"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Chain Commands ===' && echo 'Exemple de chaine avec gestion erreurs:' && echo '---' && echo 'cmd1 && cmd2 && cmd3  # arrete si erreur' && echo 'cmd1; cmd2; cmd3       # continue malgre erreurs' && echo 'cmd1 || cmd2           # cmd2 si cmd1 echoue' && echo 'cmd1 | cmd2 | cmd3     # pipeline'"
+        },
+        "description": "Guide chaining",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Exemple pratique: backup + compress + verify ---' && echo 'tar czf /tmp/test_chain.tar.gz /home/turbo/jarvis/data/skills.json 2>/dev/null && ls -lh /tmp/test_chain.tar.gz && tar tzf /tmp/test_chain.tar.gz | wc -l | xargs -I{} echo \"{} fichiers archives\" && rm -f /tmp/test_chain.tar.gz && echo \"Chain complete avec succes\"'"
+        },
+        "description": "Demo chain",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "tar czf /tmp/test_chain.tar.gz /home/turbo/jarvis/data/skills.json 2>/dev/null && ls -lh /tmp/test_chain.tar.gz && tar tzf /tmp/test_chain.tar.gz | wc -l | xargs -I{} echo '{} fichiers archives' && rm -f /tmp/test_chain.tar.gz && echo 'Chain executee avec succes'"
+        },
+        "description": "Executer la chain",
+        "wait_for_result": true
+      }
+    ],
+    "category": "automatisation",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "parallel_exec_auto",
+    "description": "Execute des commandes en parallele avec GNU parallel ou xargs",
+    "triggers": [
+      "execute en parallele",
+      "parallel exec",
+      "lance en parallele",
+      "multi thread",
+      "commandes paralleles",
+      "parallelise"
+    ],
+    "steps": [
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '=== Execution parallele ===' && which parallel xargs 2>/dev/null && echo '' && nproc | xargs -I{} echo '{} cores disponibles'"
+        },
+        "description": "Check outils",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo '--- Demo parallele: hash de fichiers ---' && find /home/turbo/jarvis/src -name '*.py' 2>/dev/null | head -8 | xargs -P4 sha256sum 2>/dev/null && echo '' && echo 'Execution parallele sur 4 cores terminee'"
+        },
+        "description": "Demo parallele",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash_run",
+        "args": {
+          "command": "echo 'Guide parallel:' && echo 'xargs -P N      # N jobs en parallele' && echo 'parallel -j N   # GNU parallel, N jobs' && echo '& wait          # background + wait' && echo '' && echo 'Exemple: find . -name \"*.log\" | xargs -P4 gzip'"
+        },
+        "description": "Guide parallel",
+        "wait_for_result": true
+      }
+    ],
+    "category": "automatisation",
+    "created_at": 1773601799.084259,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
   }
 ]

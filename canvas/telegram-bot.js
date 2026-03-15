@@ -309,7 +309,7 @@ let messageHistory = []; // derniers messages reçus (max 50)
 
 // ─── RBAC — Role-Based Access Control ────────────────────────────────────────
 
-const ADMIN_COMMANDS = new Set(['/jarvis', '/exec', '/improve', '/gpu', '/voice', '/reload', '/correct', '/broadcast', '/linkedin', '/post', '/retry', '/kill', '/boot', '/diagnostic', '/demarre', '/fullstatus', '/autofix']);
+const ADMIN_COMMANDS = new Set(['/jarvis', '/exec', '/improve', '/gpu', '/voice', '/reload', '/correct', '/broadcast', '/linkedin', '/post', '/retry', '/kill', '/boot', '/diagnostic', '/demarre', '/fullstatus', '/autofix', '/linux_health', '/linux_maintenance', '/linux_security', '/linux_gpu', '/linux_network', '/linux_cleanup', '/linux_stats', '/linux_backup', '/linux_services', '/linux_cluster', '/brain_status', '/voice_stats', '/improve_status', '/profile', '/predict']);
 
 function isAdminCommand(cmd) {
   return ADMIN_COMMANDS.has(cmd);
@@ -595,6 +595,23 @@ async function handleCommand(chatId, cmd, args, isAdmin) {
           '`/correct a → b` — Ajouter correction phonetique',
           '`/broadcast <msg>` — Envoyer via API',
           '`/linkedin prompts|research|stats` — Growth LinkedIn',
+          '',
+          '*Linux Skills:*',
+          '`/linux_health` — Auto-diagnostic complet JARVIS',
+          '`/linux_maintenance` — Maintenance complete (apt, snap, logs)',
+          '`/linux_security` — Audit securite (ufw, fail2ban, ports)',
+          '`/linux_gpu` — Optimisation GPU (VRAM, temperatures)',
+          '`/linux_network` — Diagnostic reseau complet',
+          '`/linux_cleanup` — Nettoyage profond systeme',
+          '`/linux_stats` — Statistiques completes JARVIS',
+          '`/linux_backup` — Backup bases, skills, git bundle',
+          '`/linux_services` — Gestion services systemd JARVIS',
+          '`/linux_cluster` — Check cluster (M1/M2/M3/OL1)',
+          '`/brain_status` — Brain: skills, patterns, cycles',
+          '`/voice_stats` — Compteurs vocaux',
+          '`/improve_status` — Mega-improve loop status',
+          '`/profile [name]` — Profil vocal (dev/trading/gaming)',
+          '`/predict` — Suggestions prediction vocale',
         );
       }
       lines.push('', '`/tghistory [N]` — Derniers N messages');
@@ -1578,9 +1595,353 @@ conn.close()
       }
     }
 
+    // ── Linux Skills — commandes systeme via execute_skill.sh ou bash direct ──
+
+    case '/linux_health': {
+      await sendMessage(chatId, '🔍 Auto-diagnostic JARVIS en cours...');
+      return handleLinuxSkill(chatId, 'jarvis_self_diagnostic');
+    }
+
+    case '/linux_maintenance': {
+      await sendMessage(chatId, '🔧 Maintenance complete en cours...');
+      return handleLinuxSkill(chatId, 'maintenance_complete_linux');
+    }
+
+    case '/linux_security': {
+      await sendMessage(chatId, '🛡️ Audit securite en cours...');
+      return handleLinuxSkill(chatId, 'securite_audit_linux');
+    }
+
+    case '/linux_gpu': {
+      await sendMessage(chatId, '🎮 Optimisation GPU en cours...');
+      return handleLinuxSkill(chatId, 'optimise_gpu_linux');
+    }
+
+    case '/linux_network': {
+      await sendMessage(chatId, '🌐 Diagnostic reseau en cours...');
+      return handleLinuxSkill(chatId, 'diagnostic_reseau_linux');
+    }
+
+    case '/linux_cleanup': {
+      await sendMessage(chatId, '🧹 Nettoyage profond en cours...');
+      return handleLinuxSkill(chatId, 'nettoyage_profond_linux');
+    }
+
+    case '/linux_stats': {
+      await sendMessage(chatId, '📊 Collecte des stats JARVIS...');
+      return handleLinuxSkill(chatId, 'jarvis_stats_complete');
+    }
+
+    case '/linux_backup': {
+      await sendMessage(chatId, '💾 Backup JARVIS en cours...');
+      return handleLinuxSkill(chatId, 'backup_jarvis_linux');
+    }
+
+    case '/linux_services': {
+      await sendMessage(chatId, '⚙️ Verification services JARVIS...');
+      return handleLinuxSkill(chatId, 'service_manager_linux');
+    }
+
+    case '/linux_cluster': {
+      await sendMessage(chatId, '🖥️ Check cluster en cours...');
+      return handleLinuxSkill(chatId, 'cluster_check_linux');
+    }
+
+    case '/brain_status': {
+      return handleBrainStatus(chatId);
+    }
+
+    case '/voice_stats': {
+      return handleVoiceStats(chatId);
+    }
+
+    case '/improve_status': {
+      return handleImproveStatus(chatId);
+    }
+
+    case '/profile': {
+      const profileName = (args || '').trim().toLowerCase();
+      if (!profileName) {
+        return sendMessage(chatId, 'Usage: `/profile <nom>`\nProfils: `normal`, `dev`, `trading`, `gaming`, `presentation`, `sleep`, `debug`, `invite`', 'Markdown');
+      }
+      return handleProfileSwitch(chatId, profileName);
+    }
+
+    case '/predict': {
+      return handlePredictions(chatId);
+    }
+
     default:
       return null; // pas une commande reconnue
   }
+}
+
+// ─── Linux Skills — execution des skills via MCP ou bash direct ──────────────
+
+/**
+ * Execute un skill JARVIS par nom en lisant skills.json et en executant chaque etape.
+ * Tente d'abord via le serveur MCP (127.0.0.1:8080), fallback sur bash direct.
+ */
+async function handleLinuxSkill(chatId, skillName) {
+  try {
+    // Charger le skill depuis skills.json
+    const skillsPath = path.join(__dirname, '..', 'data', 'skills.json');
+    const skills = JSON.parse(fs.readFileSync(skillsPath, 'utf-8'));
+    const skill = skills.find(s => s.name === skillName);
+
+    if (!skill) {
+      return sendMessage(chatId, `Skill "${skillName}" introuvable dans skills.json`);
+    }
+
+    const results = [];
+    let hasError = false;
+
+    for (let i = 0; i < skill.steps.length; i++) {
+      const step = skill.steps[i];
+      const desc = step.description || step.tool;
+      const cmd = (step.args && step.args.command) || '';
+
+      if (!cmd) {
+        results.push(`[${i + 1}] ${desc}: skip (pas de commande)`);
+        continue;
+      }
+
+      try {
+        // Tentative via MCP server
+        const payload = JSON.stringify({ tool: step.tool, args: step.args });
+        const mcpResult = await new Promise((resolve, reject) => {
+          const req = http.request('http://127.0.0.1:8080/api/tool', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) },
+            timeout: 30000,
+            agent: httpAgent,
+          }, (res) => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => resolve(data));
+          });
+          req.on('error', reject);
+          req.on('timeout', () => { req.destroy(); reject(new Error('MCP timeout')); });
+          req.write(payload);
+          req.end();
+        });
+        results.push(`[${i + 1}] ${desc}:\n${mcpResult.slice(0, 500)}`);
+      } catch {
+        // Fallback: execution bash directe
+        try {
+          const out = execSync(cmd, {
+            timeout: 60000, encoding: 'utf-8', cwd: '/home/turbo/jarvis',
+            env: { ...process.env, HOME: '/home/turbo', PATH: process.env.PATH }
+          }).trim();
+          results.push(`[${i + 1}] ${desc}:\n${out.slice(0, 500)}`);
+        } catch (bashErr) {
+          hasError = true;
+          const errMsg = (bashErr.stdout || bashErr.message || '').slice(0, 200);
+          results.push(`[${i + 1}] ${desc}: ERREUR\n${errMsg}`);
+        }
+      }
+    }
+
+    // Formattage du resultat Telegram (limite 4000 chars)
+    const status = hasError ? '⚠️ Termine avec erreurs' : '✅ Termine';
+    let msg = `*${skill.description || skillName}*\n${status}\n\n\`\`\`\n${results.join('\n\n')}\n\`\`\``;
+    if (msg.length > 4000) msg = msg.slice(0, 3950) + '\n```\n... (tronque)';
+    return sendFullResponse(chatId, msg, 'Markdown');
+  } catch (e) {
+    return sendMessage(chatId, `Erreur skill ${skillName}: ${(e.message || '').slice(0, 300)}`);
+  }
+}
+
+/**
+ * Affiche le statut du brain JARVIS: skills, patterns, cycles d'apprentissage.
+ */
+async function handleBrainStatus(chatId) {
+  try {
+    const cmd = 'echo "=== BRAIN STATUS ===" && '
+      + 'echo "Skills: $(python3 -c \'import json;d=json.load(open("/home/turbo/jarvis/data/skills.json"));print(len(d))\' 2>/dev/null || echo N/A)" && '
+      + 'echo "Categories: $(python3 -c \'import json;d=json.load(open("/home/turbo/jarvis/data/skills.json"));cats=set(s.get("category","?") for s in d);print(", ".join(sorted(cats)))\' 2>/dev/null)" && '
+      + 'echo "Dominos: $(python3 -c \'import json;d=json.load(open("/home/turbo/jarvis/data/domino_pipelines.json"));print(len(d))\' 2>/dev/null || echo N/A)" && '
+      + 'echo "Improve cycles: $(wc -l < /home/turbo/jarvis/data/improve_cycles.jsonl 2>/dev/null || echo 0)" && '
+      + 'echo "Action history: $(wc -l < /home/turbo/jarvis/data/action_history.json 2>/dev/null || echo 0) lines" && '
+      + 'echo "Notifications: $(wc -l < /home/turbo/jarvis/data/notifications.jsonl 2>/dev/null || echo 0)" && '
+      + 'echo "=== TOP SKILLS (par usage) ===" && '
+      + 'python3 -c \'import json;d=json.load(open("/home/turbo/jarvis/data/skills.json"));top=sorted(d,key=lambda s:s.get("usage_count",0),reverse=True)[:10];[print(f"  {s[\\"name\\"]}: {s.get(\\"usage_count\\",0)} uses ({s.get(\\"success_rate\\",1)*100:.0f}%)") for s in top]\' 2>/dev/null';
+
+    const out = execSync(cmd, { timeout: 15000, encoding: 'utf-8', cwd: '/home/turbo/jarvis' }).trim();
+    let msg = '*Brain Status*\n```\n' + out + '\n```';
+    if (msg.length > 4000) msg = msg.slice(0, 3950) + '\n```\n... (tronque)';
+    return sendMessage(chatId, msg, 'Markdown');
+  } catch (e) {
+    return sendMessage(chatId, '❌ Brain status failed: ' + (e.message || '').slice(0, 300));
+  }
+}
+
+/**
+ * Affiche les compteurs vocaux: commandes, corrections, macros.
+ */
+async function handleVoiceStats(chatId) {
+  try {
+    const cmd = 'echo "=== VOICE STATS ===" && '
+      + 'echo "Commandes vocales: $(sqlite3 /home/turbo/jarvis/data/jarvis.db \'SELECT COUNT(*) FROM voice_commands\' 2>/dev/null || echo N/A)" && '
+      + 'echo "Corrections STT: $(sqlite3 /home/turbo/jarvis/data/jarvis.db \'SELECT COUNT(*) FROM voice_corrections\' 2>/dev/null || echo N/A)" && '
+      + 'echo "Macros: $(sqlite3 /home/turbo/jarvis/data/jarvis.db \'SELECT COUNT(*) FROM voice_macros\' 2>/dev/null || echo N/A)" && '
+      + 'echo "Dictionnaire: $(sqlite3 /home/turbo/jarvis/data/jarvis.db \'SELECT COUNT(*) FROM voice_dictionary\' 2>/dev/null || echo N/A) mots" && '
+      + 'echo "" && '
+      + 'echo "=== DERNIERES COMMANDES ===" && '
+      + 'sqlite3 /home/turbo/jarvis/data/jarvis.db \'SELECT command, COUNT(*) as cnt FROM voice_commands GROUP BY command ORDER BY cnt DESC LIMIT 10\' 2>/dev/null || echo "Table non disponible" && '
+      + 'echo "" && '
+      + 'echo "=== PROFIL ACTIF ===" && '
+      + 'python3 -c \'import sys;sys.path.insert(0,"/home/turbo/jarvis");from src.voice_profiles import profile_manager;p=profile_manager.current_profile;print(f"Profil: {p.name}" if p else "Aucun profil actif")\' 2>/dev/null || echo "Profils non disponibles"';
+
+    const out = execSync(cmd, { timeout: 15000, encoding: 'utf-8', cwd: '/home/turbo/jarvis' }).trim();
+    let msg = '*Voice Stats*\n```\n' + out + '\n```';
+    if (msg.length > 4000) msg = msg.slice(0, 3950) + '\n```\n... (tronque)';
+    return sendMessage(chatId, msg, 'Markdown');
+  } catch (e) {
+    return sendMessage(chatId, '❌ Voice stats failed: ' + (e.message || '').slice(0, 300));
+  }
+}
+
+/**
+ * Affiche le statut du mega-improve loop: cycles, gaps, derniere execution.
+ */
+async function handleImproveStatus(chatId) {
+  try {
+    const cmd = 'echo "=== MEGA-IMPROVE STATUS ===" && '
+      + 'echo "Total cycles: $(wc -l < /home/turbo/jarvis/data/improve_cycles.jsonl 2>/dev/null || echo 0)" && '
+      + 'echo "" && '
+      + 'echo "=== DERNIERS CYCLES ===" && '
+      + 'tail -5 /home/turbo/jarvis/data/improve_cycles.jsonl 2>/dev/null | python3 -c \'import sys,json;[print(f"  {json.loads(l).get(\\"timestamp\\",\\"?\\")[:19]}: {json.loads(l).get(\\"type\\",\\"?\\")} — {json.loads(l).get(\\"summary\\",\\"?\\")[:80]}") for l in sys.stdin]\' 2>/dev/null || echo "Pas de cycles" && '
+      + 'echo "" && '
+      + 'echo "=== GAPS DETECTES ===" && '
+      + 'python3 -c \'import json,os;f="/home/turbo/jarvis/data/improve_gaps.json";d=json.load(open(f)) if os.path.exists(f) else {};print(f"  Gaps ouverts: {len([g for g in d.get(\\"gaps\\",[]) if not g.get(\\"resolved\\",False)])}") if d else print("  Pas de fichier gaps")\' 2>/dev/null || echo "  Pas de gaps" && '
+      + 'echo "" && '
+      + 'echo "=== SELF-IMPROVE API ===" && '
+      + 'curl -s --max-time 3 http://127.0.0.1:9742/api/self-improve/status 2>/dev/null | python3 -c \'import sys,json;d=json.load(sys.stdin);print(f"  Running: {d.get(\\"running\\",\\"?\\")}, Cycles: {d.get(\\"total_cycles\\",\\"?\\")}")\' 2>/dev/null || echo "  API non disponible"';
+
+    const out = execSync(cmd, { timeout: 15000, encoding: 'utf-8', cwd: '/home/turbo/jarvis' }).trim();
+    let msg = '*Improve Status*\n```\n' + out + '\n```';
+    if (msg.length > 4000) msg = msg.slice(0, 3950) + '\n```\n... (tronque)';
+    return sendMessage(chatId, msg, 'Markdown');
+  } catch (e) {
+    return sendMessage(chatId, '❌ Improve status failed: ' + (e.message || '').slice(0, 300));
+  }
+}
+
+/**
+ * Change le profil vocal actif (dev, trading, gaming, etc.).
+ */
+async function handleProfileSwitch(chatId, profileName) {
+  // Profils valides
+  const validProfiles = ['normal', 'dev', 'trading', 'gaming', 'presentation', 'sleep', 'debug', 'invite'];
+  if (!validProfiles.includes(profileName)) {
+    return sendMessage(chatId, `Profil inconnu: \`${profileName}\`\nProfils valides: ${validProfiles.map(p => '`' + p + '`').join(', ')}`, 'Markdown');
+  }
+
+  try {
+    // profileName est valide (dans la liste blanche ci-dessus), pas d'injection possible
+    const cmd = `python3 -c "
+import sys
+sys.path.insert(0, '/home/turbo/jarvis')
+from src.voice_profiles import profile_manager
+r = profile_manager.activate_profile('${profileName}')
+print('Profil active: ${profileName}')
+print(f'Description: {r}' if r else 'OK')
+"`;
+
+    const out = execSync(cmd, {
+      timeout: 10000, encoding: 'utf-8', cwd: '/home/turbo/jarvis'
+    }).trim();
+    return sendMessage(chatId, `✅ ${out}`);
+  } catch (e) {
+    return sendMessage(chatId, `❌ Changement profil echoue: ${(e.message || '').slice(0, 300)}`);
+  }
+}
+
+/**
+ * Affiche les suggestions de prediction vocale.
+ */
+async function handlePredictions(chatId) {
+  try {
+    const cmd = `python3 -c '
+import sys, json
+sys.path.insert(0, "/home/turbo/jarvis")
+try:
+    from src.prediction_engine import predictor
+    suggestions = predictor.get_suggestions(limit=10)
+    if suggestions:
+        print("=== PREDICTIONS VOCALES ===")
+        for i, s in enumerate(suggestions, 1):
+            conf = s.get("confidence", 0) * 100
+            print(f"  {i}. {s.get(\"command\", \"?\")} ({conf:.0f}%)")
+    else:
+        print("  Aucune prediction disponible")
+except ImportError:
+    print("  Module prediction_engine non disponible")
+except Exception as e:
+    print(f"  Erreur: {e}")
+'`;
+
+    const out = execSync(cmd, { timeout: 10000, encoding: 'utf-8', cwd: '/home/turbo/jarvis' }).trim();
+    let msg = '*Predictions Vocales*\n```\n' + out + '\n```';
+    if (msg.length > 4000) msg = msg.slice(0, 3950) + '\n```\n... (tronque)';
+    return sendMessage(chatId, msg, 'Markdown');
+  } catch (e) {
+    return sendMessage(chatId, '❌ Predictions failed: ' + (e.message || '').slice(0, 300));
+  }
+}
+
+// ─── Smart Notifications → Telegram — surveillance alertes critiques ─────────
+
+/**
+ * Surveille le fichier de notifications JARVIS et envoie les alertes critiques via Telegram.
+ * Lit notifications.jsonl en continu et pousse les niveaux warning/critical.
+ */
+function startSmartNotificationWatcher() {
+  const notifFile = path.join(__dirname, '..', 'data', 'notifications.jsonl');
+  let lastSize = 0;
+
+  // Initialiser la taille actuelle pour ne pas envoyer les anciens
+  try {
+    const stat = fs.statSync(notifFile);
+    lastSize = stat.size;
+  } catch { /* fichier n'existe pas encore */ }
+
+  // Verification toutes les 30 secondes
+  const watchInterval = setInterval(() => {
+    if (!running) { clearInterval(watchInterval); return; }
+
+    try {
+      const stat = fs.statSync(notifFile);
+      if (stat.size <= lastSize) return;
+
+      // Lire seulement les nouvelles lignes
+      const fd = fs.openSync(notifFile, 'r');
+      const buf = Buffer.alloc(stat.size - lastSize);
+      fs.readSync(fd, buf, 0, buf.length, lastSize);
+      fs.closeSync(fd);
+      lastSize = stat.size;
+
+      const newLines = buf.toString('utf-8').trim().split('\n');
+      for (const line of newLines) {
+        if (!line.trim()) continue;
+        try {
+          const notif = JSON.parse(line);
+          // Envoyer seulement les alertes warning et critical
+          if (notif.level === 'critical' || notif.level === 'warning') {
+            const icon = notif.level === 'critical' ? '🔴' : '🟡';
+            const msg = `${icon} *ALERTE ${notif.level.toUpperCase()}*\n\n*${notif.title || 'Alerte'}*\n${notif.message || ''}\n\n_Source: ${notif.source || 'system'} — ${new Date((notif.ts || 0) * 1000).toLocaleString('fr-FR')}_`;
+            sendMessage(CHAT_ID, msg.slice(0, 4000), 'Markdown').catch(e => {
+              logErr('Smart notification send failed:', e.message);
+            });
+          }
+        } catch { /* ligne invalide, on ignore */ }
+      }
+    } catch { /* fichier pas encore cree ou erreur lecture */ }
+  }, 30000);
+
+  log('[SMART_NOTIF] Watcher demarre — surveille notifications.jsonl');
+  return watchInterval;
 }
 
 // ─── Cockpit Commands (via Python telegram_cockpit.py) ───────────────────────
@@ -3736,6 +4097,9 @@ async function main() {
 
   // Proactive notifications: check signal tracker every 2 min
   setInterval(() => checkProactiveAlerts().catch(e => logErr('proactive:', e.message)), 120000);
+
+  // Smart Notifications watcher — pousse les alertes critiques vers Telegram
+  startSmartNotificationWatcher();
 
   // Notifie l'utilisateur
   await sendMessage(CHAT_ID, 'JARVIS Telegram Bot demarre. Envoyez /help ou /menu pour les commandes.');
