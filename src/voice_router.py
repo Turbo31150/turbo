@@ -104,6 +104,21 @@ def route_voice_command(text: str) -> dict:
     except Exception:
         pass
 
+    # Detection multi-intent : si la phrase contient des separateurs
+    # ("et", "puis", "apres", "ou", "en meme temps"), router vers
+    # le parseur multi-intent AVANT les modules individuels
+    try:
+        from src.voice_multi_intent import has_multi_intent, multi_intent_parser
+        if has_multi_intent(normalized):
+            mi_result = multi_intent_parser.process(text)
+            if mi_result.get("intent_count", 0) > 1 or mi_result.get("method") == "delayed_scheduled":
+                mi_result["latency_ms"] = round((time.time() - start) * 1000, 1)
+                _log_voice_analytics(original, mi_result)
+                _log_action_history(original, mi_result)
+                return mi_result
+    except Exception:
+        pass  # Fallback vers le routage classique si multi-intent echoue
+
     # Enrichissement contextuel (commandes ambigues → commandes precises)
     try:
         from src.voice_context_engine import voice_context_engine

@@ -116,6 +116,8 @@ class ThemeController:
 
     def _read_dwm(self, value_name: str) -> int:
         """Read DWM registry value."""
+        if winreg is None:
+            return -1
         try:
             key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, ACCENT_KEY)
             try:

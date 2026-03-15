@@ -8,3 +8,4 @@
 {"title": "Disque presque plein", "message": "Utilisation : 92.3%", "level": "warning", "source": "disk_monitor", "ts": 1773601146.062123, "spoken": true, "metadata": {"disk_pct": 92.3}}
 {"title": "Disque presque plein", "message": "Utilisation : 92.4%", "level": "warning", "source": "disk_monitor", "ts": 1773601447.1347396, "spoken": true, "metadata": {"disk_pct": 92.4}}
 {"title": "Disque presque plein", "message": "Utilisation : 92.4%", "level": "warning", "source": "disk_monitor", "ts": 1773601748.2045, "spoken": true, "metadata": {"disk_pct": 92.4}}
+{"title": "Disque presque plein", "message": "Utilisation : 92.5%", "level": "warning", "source": "disk_monitor", "ts": 1773602049.542769, "spoken": true, "metadata": {"disk_pct": 92.5}}

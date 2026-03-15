@@ -1,0 +1,224 @@
+[
+  {
+    "name": "rapport_matin",
+    "skill": "rapport_systeme_linux",
+    "description": "Rapport système + météo du matin",
+    "schedule": {
+      "hours": [
+        7
+      ],
+      "minutes": [
+        0
+      ],
+      "days": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "extras": [
+      "meteo"
+    ],
+    "enabled": true,
+    "auto_execute": true,
+    "last_run": null
+  },
+  {
+    "name": "mode_dev",
+    "skill": "mode_dev_linux",
+    "description": "Activation mode développeur",
+    "schedule": {
+      "hours": [
+        8
+      ],
+      "minutes": [
+        0
+      ],
+      "days": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "extras": [],
+    "enabled": true,
+    "auto_execute": true,
+    "last_run": null
+  },
+  {
+    "name": "pause_dejeuner",
+    "skill": "notification",
+    "description": "Notification pause déjeuner",
+    "schedule": {
+      "hours": [
+        12
+      ],
+      "minutes": [
+        30
+      ],
+      "days": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "extras": [
+      "message:Pause déjeuner — pense à manger !"
+    ],
+    "enabled": true,
+    "auto_execute": true,
+    "last_run": null
+  },
+  {
+    "name": "backup_vendredi",
+    "skill": "backup_jarvis_linux",
+    "description": "Backup complet le vendredi soir",
+    "schedule": {
+      "hours": [
+        17
+      ],
+      "minutes": [
+        0
+      ],
+      "days": [
+        4
+      ]
+    },
+    "extras": [],
+    "enabled": true,
+    "auto_execute": true,
+    "last_run": null
+  },
+  {
+    "name": "bonne_nuit",
+    "skill": "bonne_nuit_linux",
+    "description": "Suggestion bonne nuit (pas d'auto-exécution)",
+    "schedule": {
+      "hours": [
+        22
+      ],
+      "minutes": [
+        0
+      ],
+      "days": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "extras": [],
+    "enabled": true,
+    "auto_execute": false,
+    "last_run": null
+  },
+  {
+    "name": "maintenance_dimanche",
+    "skill": "maintenance_complete_linux",
+    "description": "Maintenance complète le dimanche à 3h",
+    "schedule": {
+      "hours": [
+        3
+      ],
+      "minutes": [
+        0
+      ],
+      "days": [
+        6
+      ]
+    },
+    "extras": [],
+    "enabled": true,
+    "auto_execute": true,
+    "last_run": null
+  },
+  {
+    "name": "cluster_check_6h",
+    "skill": "cluster_check_linux",
+    "description": "Vérification cluster toutes les 6 heures",
+    "schedule": {
+      "hours": [
+        0,
+        6,
+        12,
+        18
+      ],
+      "minutes": [
+        0
+      ],
+      "days": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "extras": [],
+    "enabled": true,
+    "auto_execute": true,
+    "last_run": null
+  },
+  {
+    "name": "brain_learn_hourly",
+    "skill": "brain_learn",
+    "description": "Cycle d'apprentissage toutes les heures",
+    "schedule": {
+      "hours": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ],
+      "minutes": [
+        0
+      ],
+      "days": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "extras": [],
+    "enabled": true,
+    "auto_execute": true,
+    "last_run": null
+  }
+]

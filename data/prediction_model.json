@@ -1,9 +1,9 @@
 {
   "version": 1,
   "created_at": 1773601336.3003283,
-  "updated_at": 1773601820.8576956,
-  "total_transitions": 86,
-  "total_commands": 61,
+  "updated_at": 1773602111.3615859,
+  "total_transitions": 98,
+  "total_commands": 81,
   "last_command": "git clone",
   "transitions": {
     "ouvre terminal": {
@@ -119,22 +119,22 @@
       "rapport système": 2.0
     },
     "skill:consensus_trading": {
-      "test_fix": 6.0
+      "test_fix": 8.0
     },
     "test_fix": {
-      "voice_command": 6.0
+      "voice_command": 8.0
     },
     "voice_command": {
-      "perplexity_interaction": 6.0
+      "perplexity_interaction": 8.0
     },
     "perplexity_interaction": {
-      "test:pipeline_connect": 6.0
+      "test:pipeline_connect": 8.0
     },
     "test:pipeline_connect": {
-      "learn:pipeline:learned_test_apprentissage_pipeline": 6.0
+      "learn:pipeline:learned_test_apprentissage_pipeline": 8.0
     },
     "learn:pipeline:learned_test_apprentissage_pipeline": {
-      "brain:create_skill:auto_perplexity_interaction_perplexity_interaction": 6.0
+      "brain:create_skill:auto_perplexity_interaction_perplexity_interaction": 8.0
     }
   },
   "hourly_patterns": {
@@ -228,8 +228,8 @@
       "ouvre spotify": 1.0,
       "rapport trading": 0.75,
       "ouvre firefox": 0.75,
-      "test:pipeline_connect": 6.0,
-      "learn:pipeline:learned_test_apprentissage_pipeline": 6.0
+      "test:pipeline_connect": 8.0,
+      "learn:pipeline:learned_test_apprentissage_pipeline": 8.0
     },
     "19": {
       "mode weekend": 1.0,
@@ -237,7 +237,7 @@
       "ouvre spotify": 1.0,
       "rapport trading": 0.75,
       "ouvre firefox": 0.75,
-      "brain:create_skill:auto_perplexity_interaction_perplexity_interaction": 6.0
+      "brain:create_skill:auto_perplexity_interaction_perplexity_interaction": 8.0
     },
     "20": {
       "mode weekend": 1.0,
@@ -245,7 +245,7 @@
       "ouvre spotify": 1.0,
       "rapport trading": 0.75,
       "ouvre firefox": 0.75,
-      "skill:consensus_trading": 6.0,
+      "skill:consensus_trading": 8.0,
       "git clone": 1.0
     },
     "21": {
@@ -275,9 +275,9 @@
       "mode veille": 1.25,
       "rapport système": 0.5,
       "trading status": 0.5,
-      "test_fix": 6.0,
-      "voice_command": 6.0,
-      "perplexity_interaction": 24.0
+      "test_fix": 8.0,
+      "voice_command": 8.0,
+      "perplexity_interaction": 32.0
     },
     "1": {
       "bonne nuit": 2.0,
@@ -323,7 +323,7 @@
     "1": {
       "mode dev": 1.5,
       "trading scan": 1.25,
-      "skill:consensus_trading": 6.0
+      "skill:consensus_trading": 8.0
     },
     "2": {
       "mode dev": 1.5,
@@ -344,12 +344,12 @@
     "6": {
       "lance musique": 1.25,
       "rapport système": 1.0,
-      "test_fix": 6.0,
-      "voice_command": 6.0,
-      "perplexity_interaction": 24.0,
-      "test:pipeline_connect": 6.0,
-      "learn:pipeline:learned_test_apprentissage_pipeline": 6.0,
-      "brain:create_skill:auto_perplexity_interaction_perplexity_interaction": 6.0,
+      "test_fix": 8.0,
+      "voice_command": 8.0,
+      "perplexity_interaction": 32.0,
+      "test:pipeline_connect": 8.0,
+      "learn:pipeline:learned_test_apprentissage_pipeline": 8.0,
+      "brain:create_skill:auto_perplexity_interaction_perplexity_interaction": 8.0,
       "git clone": 1.0
     }
   },
