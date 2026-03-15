@@ -142,7 +142,9 @@ async def execute_command(cmd: JarvisCommand, params: dict[str, str]) -> str:
 
     if cmd.action_type == "learned_action":
         from src.domino_executor import execute_with_learned_actions
-        result = await asyncio.to_thread(execute_with_learned_actions, cmd.trigger if hasattr(cmd, "trigger") else cmd.action)
+        # Utiliser le premier trigger (phrase vocale) pour le re-match interne
+        replay_text = cmd.triggers[0] if cmd.triggers else cmd.action
+        result = await asyncio.to_thread(execute_with_learned_actions, replay_text)
         if result:
             steps_ok = sum(1 for r in result.get("results", []) if r["status"] == "PASS")
             total = len(result.get("results", []))

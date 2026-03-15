@@ -18,7 +18,8 @@ def test_get_platform_module_missing_returns_stub():
 
 
 def test_stub_message_includes_module_name():
+    """Stub pour un module qui n'existe PAS encore."""
     from src.platform_dispatch import get_platform_module
-    stub = get_platform_module("display")
-    with pytest.raises(NotImplementedError, match="linux_display"):
-        stub.get_resolution()
+    stub = get_platform_module("screen_recorder")  # N'existe pas
+    with pytest.raises(NotImplementedError, match="linux_screen_recorder"):
+        stub.record()

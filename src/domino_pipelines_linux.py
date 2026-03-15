@@ -143,6 +143,125 @@ LINUX_PIPELINES: dict[str, dict] = {
             {"type": "bash", "command": "cd ~/jarvis && uv run python scripts/system_audit.py --quick 2>&1 | tail -40", "label": "Audit"},
         ],
     },
+    # === VOIX / INTERACTION ===
+    "voice-learn": {
+        "name": "Apprendre Commande",
+        "triggers": ["apprends cette commande", "enregistre cette action", "sauvegarde cette commande", "mémorise ça"],
+        "category": "voice",
+        "steps": [
+            {"type": "python", "command": "from src.learned_actions import LearnedActionsEngine; e = LearnedActionsEngine(); print(f'Actions apprises: {len(e.list_actions())}')", "label": "Count actions"},
+        ],
+    },
+    "voice-list": {
+        "name": "Liste Commandes Apprises",
+        "triggers": ["liste mes commandes", "commandes apprises", "actions enregistrées", "ce que tu sais faire"],
+        "category": "voice",
+        "steps": [
+            {"type": "bash", "command": "sqlite3 ~/jarvis/data/learned_actions.db \"SELECT canonical_name, category, success_count FROM learned_actions ORDER BY success_count DESC LIMIT 30\"", "label": "Actions"},
+        ],
+    },
+    "voice-stats": {
+        "name": "Stats Commandes",
+        "triggers": ["stats commandes", "statistiques vocales", "combien de commandes"],
+        "category": "voice",
+        "steps": [
+            {"type": "bash", "command": "sqlite3 ~/jarvis/data/learned_actions.db \"SELECT category, COUNT(*) as nb, SUM(success_count) as total_exec FROM learned_actions GROUP BY category ORDER BY total_exec DESC\"", "label": "Stats par catégorie"},
+        ],
+    },
+    # === CLUSTER AVANCÉ ===
+    "model-swap": {
+        "name": "Changer de Modèle",
+        "triggers": ["change de modèle", "swap model", "charge un autre modèle", "modèle suivant"],
+        "category": "cluster",
+        "steps": [
+            {"type": "bash", "command": "curl -s http://127.0.0.1:1234/v1/models | python3 -c \"import sys,json; d=json.load(sys.stdin); [print(f'  {m[\\\"id\\\"]}') for m in d.get('data',[])]\" 2>/dev/null || echo 'M1 non disponible'", "label": "Modèles actuels"},
+        ],
+    },
+    "ollama-models": {
+        "name": "Modèles Ollama",
+        "triggers": ["modèles ollama", "ollama models", "liste ollama", "quels modèles ollama"],
+        "category": "cluster",
+        "steps": [
+            {"type": "bash", "command": "curl -s http://127.0.0.1:11434/api/tags | python3 -c \"import sys,json; d=json.load(sys.stdin); [print(f'  {m[\\\"name\\\"]} ({m[\\\"size\\\"]//1e9:.1f}GB)') for m in d.get('models',[])]\" 2>/dev/null || echo 'Ollama non disponible'", "label": "Models OL1"},
+        ],
+    },
+    "consensus-quick": {
+        "name": "Consensus Rapide",
+        "triggers": ["consensus sur {question}", "demande à tous", "avis du cluster"],
+        "category": "cluster",
+        "steps": [
+            {"type": "bash", "command": "echo '=== M1 ===' && curl -s --max-time 15 http://127.0.0.1:1234/api/v1/chat -H 'Content-Type: application/json' -d '{\"model\":\"qwen/qwen3-8b\",\"input\":\"/nothink\\n{question}\",\"max_output_tokens\":256,\"stream\":false,\"store\":false}' 2>/dev/null | python3 -c \"import sys,json; d=json.load(sys.stdin); [print(o.get('content','')) for o in d.get('output',[]) if o.get('type')=='message']\" 2>/dev/null || echo 'M1 timeout'", "label": "M1"},
+            {"type": "bash", "command": "echo '=== OL1 ===' && curl -s --max-time 15 http://127.0.0.1:11434/api/chat -d '{\"model\":\"qwen3:1.7b\",\"messages\":[{\"role\":\"user\",\"content\":\"{question}\"}],\"stream\":false,\"think\":false}' 2>/dev/null | python3 -c \"import sys,json; print(json.load(sys.stdin).get('message',{}).get('content',''))\" 2>/dev/null || echo 'OL1 timeout'", "label": "OL1"},
+        ],
+    },
+    # === MONITORING AVANCÉ ===
+    "docker-status": {
+        "name": "État Docker",
+        "triggers": ["état docker", "docker status", "containers actifs", "docker ps"],
+        "category": "system",
+        "steps": [
+            {"type": "bash", "command": "docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' 2>/dev/null || echo 'Docker non disponible'", "label": "Containers"},
+            {"type": "bash", "command": "docker stats --no-stream --format 'table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}' 2>/dev/null | head -10 || true", "label": "Stats"},
+        ],
+    },
+    "systemd-timers": {
+        "name": "Timers Systemd",
+        "triggers": ["timers actifs", "tâches planifiées", "cron systemd", "systemd timers"],
+        "category": "system",
+        "steps": [
+            {"type": "bash", "command": "systemctl --user list-timers --no-pager 2>/dev/null || echo 'Pas de timers utilisateur'", "label": "User timers"},
+            {"type": "bash", "command": "systemctl list-timers --no-pager 2>/dev/null | head -15 || echo 'Pas de timers système'", "label": "System timers"},
+        ],
+    },
+    "journal-errors": {
+        "name": "Erreurs Récentes",
+        "triggers": ["erreurs récentes", "journal errors", "bugs système", "quoi de cassé"],
+        "category": "system",
+        "steps": [
+            {"type": "bash", "command": "journalctl --priority=err --since='24 hours ago' --no-pager | tail -30", "label": "Errors 24h"},
+        ],
+    },
+    # === DEVOPS ===
+    "pip-outdated": {
+        "name": "Paquets Obsolètes",
+        "triggers": ["paquets obsolètes", "pip outdated", "mises à jour python", "dépendances à jour"],
+        "category": "dev",
+        "steps": [
+            {"type": "bash", "command": "cd ~/jarvis && uv pip list --outdated 2>/dev/null | head -20 || pip list --outdated 2>/dev/null | head -20", "label": "Outdated"},
+        ],
+    },
+    "git-branches": {
+        "name": "Branches Git",
+        "triggers": ["branches git", "git branches", "liste des branches"],
+        "category": "dev",
+        "steps": [
+            {"type": "bash", "command": "cd ~/jarvis && git branch -a --sort=-committerdate | head -15", "label": "Branches"},
+        ],
+    },
+    "git-diff": {
+        "name": "Différences Git",
+        "triggers": ["différences git", "git diff", "changements en cours", "quoi de modifié"],
+        "category": "dev",
+        "steps": [
+            {"type": "bash", "command": "cd ~/jarvis && git diff --stat | tail -20", "label": "Diff stats"},
+        ],
+    },
+    "test-coverage": {
+        "name": "Couverture Tests",
+        "triggers": ["couverture tests", "test coverage", "taux de couverture"],
+        "category": "dev",
+        "steps": [
+            {"type": "bash", "command": "cd ~/jarvis && uv run pytest --co -q 2>/dev/null | tail -3", "label": "Test count"},
+        ],
+    },
+    "ports-check": {
+        "name": "Vérifier Ports",
+        "triggers": ["vérifier les ports", "ports ouverts", "qui écoute", "ports actifs"],
+        "category": "system",
+        "steps": [
+            {"type": "bash", "command": "ss -tlnp 2>/dev/null | grep -E ':(1234|9742|18800|18789|11434|8080|9000)' || echo 'Aucun port JARVIS actif'", "label": "JARVIS ports"},
+        ],
+    },
 }
 
 

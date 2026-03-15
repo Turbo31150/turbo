@@ -4,7 +4,7 @@ import pytest
 
 def test_linux_pipelines_exist():
     from src.domino_pipelines_linux import LINUX_PIPELINES
-    assert len(LINUX_PIPELINES) >= 10
+    assert len(LINUX_PIPELINES) >= 25
 
 
 def test_pipeline_structure():
