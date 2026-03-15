@@ -113,8 +113,8 @@ def _fixup_paths(commands: list) -> None:
             _cmd.action = _cmd.action.replace("F:/BUREAU/turbo", _TURBO_DIR)
         if "/home/turbo/jarvis-m1-ops" in _cmd.action:
             _cmd.action = _cmd.action.replace("/home/turbo/jarvis-m1-ops", _TURBO_DIR_FWD)
-        if "/\Users/franc" in _cmd.action:
-            _cmd.action = _cmd.action.replace("/\Users/franc", _USER_HOME)
+        if "C:\\Users\\franc" in _cmd.action:
+            _cmd.action = _cmd.action.replace("C:\\Users\\franc", _USER_HOME)
         if "C:/Users/franc" in _cmd.action:
             _cmd.action = _cmd.action.replace("C:/Users/franc", _USER_HOME.replace("/", "/"))
 

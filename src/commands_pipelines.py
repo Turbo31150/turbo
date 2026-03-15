@@ -284,7 +284,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("dev_deploy_check", "pipeline", "Pre-deploy check: tests + git status + Docker status", [
         "check avant deploy", "pre deploy", "verification deploy",
         "pret a deployer", "deploy check",
-    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run pytest -x --tb=short 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:/BUREAU/turbo; git status -sb;;powershell:docker ps --format 'table {{.Names}}/t{{.Status}}' 2>&1 | Out-String"),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & 'C:/Users/franc/.local/bin/uv.exe' run pytest -x --tb=short 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:/BUREAU/turbo; git status -sb;;powershell:docker ps --format 'table {{.Names}}/t{{.Status}}' 2>&1 | Out-String"),
     JarvisCommand("dev_friday_report", "pipeline", "Rapport vendredi: stats git semaine + dashboard + todos", [
         "rapport vendredi", "friday report", "recap de la semaine",
         "bilan semaine", "rapport hebdo",
@@ -309,7 +309,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("maintenance_totale", "pipeline", "Maintenance totale: corbeille + temp + prefetch + DNS + thumbnails + check updates", [
         "maintenance totale", "grand nettoyage", "maintenance complete",
         "nettoie tout le pc", "gros menage",
-    ], "pipeline", "powershell:Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe';;powershell:Remove-Item $env:TEMP/* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye';;powershell:Remove-Item /\Windows/Prefetch/* -Force -ErrorAction SilentlyContinue; 'Prefetch nettoye';;powershell:ipconfig /flushdns; 'DNS purge';;powershell:Remove-Item \"$env:LOCALAPPDATA/Microsoft/Windows/Explorer/thumbcache_*\" -Force -ErrorAction SilentlyContinue; 'Thumbnails nettoyes';;powershell:wevtutil el | ForEach-Object { wevtutil cl $_ 2>$null }; 'Logs nettoyes'", confirm=True),
+    ], "pipeline", "powershell:Clear-RecycleBin -Force -ErrorAction SilentlyContinue; 'Corbeille videe';;powershell:Remove-Item $env:TEMP/* -Recurse -Force -ErrorAction SilentlyContinue; 'Temp nettoye';;powershell:Remove-Item C:/Windows/Prefetch/* -Force -ErrorAction SilentlyContinue; 'Prefetch nettoye';;powershell:ipconfig /flushdns; 'DNS purge';;powershell:Remove-Item \"$env:LOCALAPPDATA/Microsoft/Windows/Explorer/thumbcache_*\" -Force -ErrorAction SilentlyContinue; 'Thumbnails nettoyes';;powershell:wevtutil el | ForEach-Object { wevtutil cl $_ 2>$null }; 'Logs nettoyes'", confirm=True),
     JarvisCommand("sauvegarde_tous_projets", "pipeline", "Backup tous projets: git commit turbo + carV1 + serveur", [
         "sauvegarde tous les projets", "backup tous les projets",
         "backup global", "sauvegarde globale",
@@ -420,7 +420,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("verif_toutes_mises_a_jour", "pipeline", "Verifier MAJ: Windows Update + pip + npm + ollama", [
         "verifie toutes les mises a jour", "check toutes les updates",
         "mises a jour globales", "tout est a jour",
-    ], "pipeline", "powershell:try{$s=New-Object -ComObject Microsoft.Update.Session;$r=$s.CreateUpdateSearcher().Search('IsInstalled=0');\"Windows: $($r.Updates.Count) MAJ en attente\"}catch{'Windows: erreur verification'};;powershell:& '/\Users/franc/.local/bin/uv.exe' pip list --outdated 2>&1 | Select -First 5 | Out-String;;powershell:npm outdated -g 2>&1 | Select -First 5 | Out-String"),
+    ], "pipeline", "powershell:try{$s=New-Object -ComObject Microsoft.Update.Session;$r=$s.CreateUpdateSearcher().Search('IsInstalled=0');\"Windows: $($r.Updates.Count) MAJ en attente\"}catch{'Windows: erreur verification'};;powershell:& 'C:/Users/franc/.local/bin/uv.exe' pip list --outdated 2>&1 | Select -First 5 | Out-String;;powershell:npm outdated -g 2>&1 | Select -First 5 | Out-String"),
     JarvisCommand("snapshot_systeme", "pipeline", "Snapshot systeme: sauvegarder toutes les stats dans un fichier", [
         "snapshot systeme", "capture l'etat du systeme",
         "sauvegarde les stats", "photo du systeme",
@@ -441,7 +441,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("dev_merge_prep", "pipeline", "Preparation merge: lint + tests + git status + diff", [
         "prepare le merge", "pre merge", "merge prep",
         "pret a merger", "verification avant merge",
-    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run ruff check src/ 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run pytest -x --tb=short 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:/BUREAU/turbo; git diff --stat 2>&1 | Out-String"),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & 'C:/Users/franc/.local/bin/uv.exe' run ruff check src/ 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:/BUREAU/turbo; & 'C:/Users/franc/.local/bin/uv.exe' run pytest -x --tb=short 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:/BUREAU/turbo; git diff --stat 2>&1 | Out-String"),
     JarvisCommand("dev_database_check", "pipeline", "Check databases: taille + tables de jarvis.db et etoile.db", [
         "check les databases", "verifie les bases de donnees",
         "etat des databases", "database check",
@@ -453,7 +453,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("dev_cleanup", "pipeline", "Dev cleanup: git clean + cache Python + node_modules check", [
         "dev cleanup", "nettoie le projet", "clean le code",
         "nettoyage dev", "purge dev",
-    ], "pipeline", "powershell:cd F:/BUREAU/turbo; $pycache = (Get-ChildItem -Recurse -Directory -Filter '__pycache__').Count; Get-ChildItem -Recurse -Directory -Filter '__pycache__' | Remove-Item -Recurse -Force; \"$pycache dossiers __pycache__ supprimes\";;powershell:cd F:/BUREAU/turbo; $ruff = & '/\Users/franc/.local/bin/uv.exe' run ruff check src/ --statistics 2>&1 | Select -Last 3 | Out-String; $ruff"),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; $pycache = (Get-ChildItem -Recurse -Directory -Filter '__pycache__').Count; Get-ChildItem -Recurse -Directory -Filter '__pycache__' | Remove-Item -Recurse -Force; \"$pycache dossiers __pycache__ supprimes\";;powershell:cd F:/BUREAU/turbo; $ruff = & 'C:/Users/franc/.local/bin/uv.exe' run ruff check src/ --statistics 2>&1 | Select -Last 3 | Out-String; $ruff"),
 
     # ══════════════════════════════════════════════════════════════════════
     # MULTI-ÉCRANS & PRODUCTIVITÉ AVANCÉE
@@ -654,15 +654,15 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("mode_refactoring", "pipeline", "Mode refactoring: VSCode + ruff + tests + git diff", [
         "mode refactoring", "session refactoring", "lance le refactoring",
         "mode refacto", "nettoie le code",
-    ], "pipeline", "app_open:code;;sleep:1;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run ruff check src/ --statistics 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:/BUREAU/turbo; git diff --stat 2>&1 | Out-String"),
+    ], "pipeline", "app_open:code;;sleep:1;;powershell:cd F:/BUREAU/turbo; & 'C:/Users/franc/.local/bin/uv.exe' run ruff check src/ --statistics 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:/BUREAU/turbo; git diff --stat 2>&1 | Out-String"),
     JarvisCommand("mode_testing_complet", "pipeline", "Mode tests complet: pytest + coverage + lint + terminal", [
         "mode testing complet", "lance tous les tests", "session testing",
         "mode tests", "teste tout le projet",
-    ], "pipeline", "app_open:wt;;sleep:1;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run pytest -v --tb=short 2>&1 | Select -Last 20 | Out-String;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run ruff check src/ 2>&1 | Select -Last 5 | Out-String"),
+    ], "pipeline", "app_open:wt;;sleep:1;;powershell:cd F:/BUREAU/turbo; & 'C:/Users/franc/.local/bin/uv.exe' run pytest -v --tb=short 2>&1 | Select -Last 20 | Out-String;;powershell:cd F:/BUREAU/turbo; & 'C:/Users/franc/.local/bin/uv.exe' run ruff check src/ 2>&1 | Select -Last 5 | Out-String"),
     JarvisCommand("mode_deploy_checklist", "pipeline", "Checklist deploy: tests + lint + status git + build check", [
         "checklist deploy", "mode deploy", "pret pour le deploiement",
         "verification deploiement", "deploy checklist",
-    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run pytest -x --tb=short 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run ruff check src/ 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:/BUREAU/turbo; git status -sb;;powershell:cd F:/BUREAU/turbo; git log --oneline -3"),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & 'C:/Users/franc/.local/bin/uv.exe' run pytest -x --tb=short 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:/BUREAU/turbo; & 'C:/Users/franc/.local/bin/uv.exe' run ruff check src/ 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:/BUREAU/turbo; git status -sb;;powershell:cd F:/BUREAU/turbo; git log --oneline -3"),
     JarvisCommand("mode_documentation_code", "pipeline", "Mode doc code: VSCode + readthedocs + terminal + Notion", [
         "mode documentation code", "documente le code", "session docs code",
         "mode javadoc", "ecris la doc",
@@ -758,7 +758,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_code_and_test", "pipeline", "Code + test: lancer les tests + lint + afficher résultats", [
         "teste mon code", "code and test", "verifie tout mon code",
         "lint et test", "validation du code",
-    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run ruff check src/ 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run pytest -x --tb=short 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:/BUREAU/turbo; git diff --stat 2>&1 | Out-String"),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & 'C:/Users/franc/.local/bin/uv.exe' run ruff check src/ 2>&1 | Select -Last 5 | Out-String;;powershell:cd F:/BUREAU/turbo; & 'C:/Users/franc/.local/bin/uv.exe' run pytest -x --tb=short 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:/BUREAU/turbo; git diff --stat 2>&1 | Out-String"),
     JarvisCommand("sim_commit_and_push", "pipeline", "Commiter et pusher le code", [
         "commit et push", "sauvegarde et pousse", "envoie le code",
         "git push tout", "publie le code",
@@ -975,7 +975,7 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_new_project_python", "pipeline", "Nouveau projet Python: dossier + venv + git + VSCode", [
         "nouveau projet python", "init projet python", "cree un projet python",
         "setup python project",
-    ], "pipeline", "powershell:$name = 'new_project_' + (Get-Date -Format 'yyyyMMdd'); $path = \"F:/BUREAU/$name\"; New-Item $path -ItemType Directory -Force | Out-Null; cd $path; & '/\Users/franc/.local/bin/uv.exe' init 2>&1 | Out-String; \"Projet cree: $path\";;powershell:cd \"F:/BUREAU/$((Get-ChildItem F:/BUREAU -Directory | Sort LastWriteTime -Descending | Select -First 1).Name)\"; git init 2>&1 | Out-String;;app_open:code;;sleep:2;;powershell:\"Projet Python initialise et ouvert dans VSCode\""),
+    ], "pipeline", "powershell:$name = 'new_project_' + (Get-Date -Format 'yyyyMMdd'); $path = \"F:/BUREAU/$name\"; New-Item $path -ItemType Directory -Force | Out-Null; cd $path; & 'C:/Users/franc/.local/bin/uv.exe' init 2>&1 | Out-String; \"Projet cree: $path\";;powershell:cd \"F:/BUREAU/$((Get-ChildItem F:/BUREAU -Directory | Sort LastWriteTime -Descending | Select -First 1).Name)\"; git init 2>&1 | Out-String;;app_open:code;;sleep:2;;powershell:\"Projet Python initialise et ouvert dans VSCode\""),
     JarvisCommand("sim_new_project_node", "pipeline", "Nouveau projet Node.js: dossier + npm init + git + VSCode", [
         "nouveau projet node", "init projet javascript", "cree un projet node",
         "setup node project",
@@ -1146,11 +1146,11 @@ PIPELINE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("sim_fullstack_build", "pipeline", "Build complet: lint + tests + build + rapport", [
         "build complet du projet", "full build", "lance tout le build",
         "compile et teste tout",
-    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run ruff check src/ --output-format=concise 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python -m pytest tests/ -x --tb=short 2>&1 | Select -Last 15 | Out-String;;powershell:\"Build complet termine\""),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & 'C:/Users/franc/.local/bin/uv.exe' run ruff check src/ --output-format=concise 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:/BUREAU/turbo; & 'C:/Users/franc/.local/bin/uv.exe' run python -m pytest tests/ -x --tb=short 2>&1 | Select -Last 15 | Out-String;;powershell:\"Build complet termine\""),
     JarvisCommand("sim_deploy_check", "pipeline", "Pre-deploy: git status + tests + deps check + commit", [
         "check avant deploiement", "pre deploy check", "pret pour deployer",
         "verifie avant push",
-    ], "pipeline", "powershell:cd F:/BUREAU/turbo; git status -sb 2>&1 | Out-String;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python -m pytest tests/ -x --tb=line 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' pip check 2>&1 | Out-String;;powershell:\"Pre-deploy check termine — pret pour push\""),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; git status -sb 2>&1 | Out-String;;powershell:cd F:/BUREAU/turbo; & 'C:/Users/franc/.local/bin/uv.exe' run python -m pytest tests/ -x --tb=line 2>&1 | Select -Last 10 | Out-String;;powershell:cd F:/BUREAU/turbo; & 'C:/Users/franc/.local/bin/uv.exe' pip check 2>&1 | Out-String;;powershell:\"Pre-deploy check termine — pret pour push\""),
     JarvisCommand("sim_git_release", "pipeline", "Release: tag + changelog + push tags", [
         "fais une release", "prepare la release", "git release",
         "nouvelle version",
@@ -1310,7 +1310,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("sim_doc_generate", "pipeline", "Generer toute la doc: vocale + README + changelog", [
         "genere toute la doc", "regenere la documentation",
         "update la doc", "rafraichis la doc",
-    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python scripts/tools/gen_vocal_docs.py 2>&1 | Out-String;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python scripts/gen_readme_commands.py 2>&1 | Out-String;;powershell:\"Documentation regeneree — vocale + README\""),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & 'C:/Users/franc/.local/bin/uv.exe' run python scripts/tools/gen_vocal_docs.py 2>&1 | Out-String;;powershell:cd F:/BUREAU/turbo; & 'C:/Users/franc/.local/bin/uv.exe' run python scripts/gen_readme_commands.py 2>&1 | Out-String;;powershell:\"Documentation regeneree — vocale + README\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 39 — AI/ML WORKSPACE
@@ -1323,7 +1323,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("sim_model_eval", "pipeline", "Evaluation modele: benchmark cluster + comparaison", [
         "evalue les modeles", "benchmark modeles", "compare les modeles",
         "evaluation ia",
-    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python scripts/benchmark_cluster.py 2>&1 | Select -Last 20 | Out-String;;powershell:\"Evaluation modeles terminee — voir data/benchmark_report.json\""),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & 'C:/Users/franc/.local/bin/uv.exe' run python scripts/benchmark_cluster.py 2>&1 | Select -Last 20 | Out-String;;powershell:\"Evaluation modeles terminee — voir data/benchmark_report.json\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 40 — HOME OFFICE SETUP
@@ -1384,7 +1384,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("sim_datascience_setup", "pipeline", "Data Science: Jupyter + HuggingFace + GPU monitor", [
         "mode data science", "setup data science", "workspace datascience",
         "lance jupyter et compagnie",
-    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run jupyter lab --no-browser 2>&1 | Select -First 3 | Out-String;;browser:navigate:https://huggingface.co/datasets;;sleep:1;;powershell:nvidia-smi --query-gpu=name,memory.used,memory.total,utilization.gpu --format=csv,noheader 2>&1 | Out-String;;powershell:\"Data Science workspace pret — Jupyter + HuggingFace + GPU\""),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & 'C:/Users/franc/.local/bin/uv.exe' run jupyter lab --no-browser 2>&1 | Select -First 3 | Out-String;;browser:navigate:https://huggingface.co/datasets;;sleep:1;;powershell:nvidia-smi --query-gpu=name,memory.used,memory.total,utilization.gpu --format=csv,noheader 2>&1 | Out-String;;powershell:\"Data Science workspace pret — Jupyter + HuggingFace + GPU\""),
     JarvisCommand("sim_kaggle_session", "pipeline", "Session Kaggle: competitions + notebooks + datasets", [
         "session kaggle", "mode kaggle", "ouvre kaggle",
         "competitions kaggle",
@@ -1442,7 +1442,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("sim_jarvis_selfcheck", "pipeline", "Auto-diagnostic JARVIS: config + deps + DB + commands + cluster", [
         "auto diagnostic jarvis", "jarvis self check", "verifie toi meme",
         "diagnostic jarvis complet",
-    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python -c \"from src.config import *; print('Config: OK')\" 2>&1 | Out-String;;powershell:cd F:/BUREAU/turbo; & '/\Users/franc/.local/bin/uv.exe' run python -c \"from src.commands import COMMANDS; print(f'{len(COMMANDS)} commandes chargees')\" 2>&1 | Out-String;;powershell:$dbs=@('F:/BUREAU/turbo/data/jarvis.db','F:/BUREAU/turbo/data/etoile.db'); $dbs | ForEach-Object { if(Test-Path $_){$f=Get-Item $_; \"$($f.Name): $([math]::Round($f.Length/1KB))KB OK\"}else{\"$_ MANQUANT\"} } | Out-String;;powershell:try{Invoke-WebRequest http://127.0.0.1:11434/api/tags -UseBasicParsing -TimeoutSec 3 >$null; 'OL1: OK'}catch{'OL1: OFFLINE'};;powershell:\"Auto-diagnostic JARVIS termine\""),
+    ], "pipeline", "powershell:cd F:/BUREAU/turbo; & 'C:/Users/franc/.local/bin/uv.exe' run python -c \"from src.config import *; print('Config: OK')\" 2>&1 | Out-String;;powershell:cd F:/BUREAU/turbo; & 'C:/Users/franc/.local/bin/uv.exe' run python -c \"from src.commands import COMMANDS; print(f'{len(COMMANDS)} commandes chargees')\" 2>&1 | Out-String;;powershell:$dbs=@('F:/BUREAU/turbo/data/jarvis.db','F:/BUREAU/turbo/data/etoile.db'); $dbs | ForEach-Object { if(Test-Path $_){$f=Get-Item $_; \"$($f.Name): $([math]::Round($f.Length/1KB))KB OK\"}else{\"$_ MANQUANT\"} } | Out-String;;powershell:try{Invoke-WebRequest http://127.0.0.1:11434/api/tags -UseBasicParsing -TimeoutSec 3 >$null; 'OL1: OK'}catch{'OL1: OFFLINE'};;powershell:\"Auto-diagnostic JARVIS termine\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # SIMULATION 51 — WIFI & NETWORK DIAGNOSTIC
@@ -1754,17 +1754,17 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
         "verifie les bases", "integrite des bases", "check les databases",
         "bases de donnees ok", "sqlite integrity check",
         "verification integrite sql",
-    ], "pipeline", "powershell:$dbs = @('F:/BUREAU/turbo/data/etoile.db','F:/BUREAU/turbo/data/jarvis.db','F:/BUREAU/turbo/data/trading_latest.db'); foreach($db in $dbs){$name = [System.IO.Path]::GetFileName($db); if(Test-Path $db){$size = [math]::Round((Get-Item $db).Length/1KB); $result = & '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('$($db.Replace('/','//'))'); r=c.execute('PRAGMA integrity_check').fetchone()[0]; print(r); c.close()\" 2>&1; \"$name ($size KB): $result\"}else{\"$name: ABSENT\"}}"),
+    ], "pipeline", "powershell:$dbs = @('F:/BUREAU/turbo/data/etoile.db','F:/BUREAU/turbo/data/jarvis.db','F:/BUREAU/turbo/data/trading_latest.db'); foreach($db in $dbs){$name = [System.IO.Path]::GetFileName($db); if(Test-Path $db){$size = [math]::Round((Get-Item $db).Length/1KB); $result = & 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('$($db.Replace('/','//'))'); r=c.execute('PRAGMA integrity_check').fetchone()[0]; print(r); c.close()\" 2>&1; \"$name ($size KB): $result\"}else{\"$name: ABSENT\"}}"),
 
     JarvisCommand("db_vacuum_optimize", "pipeline", "Optimiser les bases SQLite (VACUUM + ANALYZE)", [
         "optimise les bases", "vacuum les databases", "compress les bases",
         "nettoie les bases sql", "optimize sqlite",
-    ], "pipeline", "powershell:$dbs = @('F:/BUREAU/turbo/data/etoile.db','F:/BUREAU/turbo/data/jarvis.db'); foreach($db in $dbs){$name = [System.IO.Path]::GetFileName($db); $before = (Get-Item $db).Length; & '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('$($db.Replace('/','//'))'); c.execute('VACUUM'); c.execute('ANALYZE'); c.close(); print('OK')\" 2>&1; $after = (Get-Item $db).Length; $saved = [math]::Round(($before-$after)/1KB); \"$name: $(if($saved -gt 0){\"$saved KB economises\"}else{'deja optimise'})\"}", confirm=True),
+    ], "pipeline", "powershell:$dbs = @('F:/BUREAU/turbo/data/etoile.db','F:/BUREAU/turbo/data/jarvis.db'); foreach($db in $dbs){$name = [System.IO.Path]::GetFileName($db); $before = (Get-Item $db).Length; & 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('$($db.Replace('/','//'))'); c.execute('VACUUM'); c.execute('ANALYZE'); c.close(); print('OK')\" 2>&1; $after = (Get-Item $db).Length; $saved = [math]::Round(($before-$after)/1KB); \"$name: $(if($saved -gt 0){\"$saved KB economises\"}else{'deja optimise'})\"}", confirm=True),
 
     JarvisCommand("db_stats_detaillees", "pipeline", "Statistiques detaillees des bases: tables, lignes, taille", [
         "stats des bases", "statistiques databases", "combien dans les bases",
         "taille des tables", "infos sur les bases",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,os; dbs=[('etoile.db','/home/turbo/jarvis-m1-ops/data/etoile.db'),('jarvis.db','/home/turbo/jarvis-m1-ops/data/jarvis.db')]; [print(f'{n}: {round(os.path.getsize(p)/1024)}KB') or [print(f'  {t[0]}: {sqlite3.connect(p).execute(f/\"SELECT COUNT(*) FROM {t[0]}/\").fetchone()[0]} rows') for t in sqlite3.connect(p).execute(/\"SELECT name FROM sqlite_master WHERE type='table'/\").fetchall()] for n,p in dbs]\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,os; dbs=[('etoile.db','/home/turbo/jarvis-m1-ops/data/etoile.db'),('jarvis.db','/home/turbo/jarvis-m1-ops/data/jarvis.db')]; [print(f'{n}: {round(os.path.getsize(p)/1024)}KB') or [print(f'  {t[0]}: {sqlite3.connect(p).execute(f/\"SELECT COUNT(*) FROM {t[0]}/\").fetchone()[0]} rows') for t in sqlite3.connect(p).execute(/\"SELECT name FROM sqlite_master WHERE type='table'/\").fetchall()] for n,p in dbs]\" 2>&1 | Out-String"),
 
     JarvisCommand("db_growth_monitor", "pipeline", "Monitorer la croissance des bases de donnees", [
         "croissance des bases", "evolution des bases", "taille des databases",
@@ -1803,22 +1803,22 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
         "liste les agents", "quels agents", "agents actifs",
         "status des agents", "agents sdk status",
         "mes agents ia",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); agents=c.execute('SELECT * FROM agents ORDER BY id').fetchall(); c.close(); [print(f'  {a[1]}: {a[3]} ({a[4]}) — {a[5]}') for a in agents]\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); agents=c.execute('SELECT * FROM agents ORDER BY id').fetchall(); c.close(); [print(f'  {a[1]}: {a[3]} ({a[4]}) — {a[5]}') for a in agents]\" 2>&1 | Out-String"),
 
     JarvisCommand("agent_metrics", "pipeline", "Metriques de performance des agents du cluster", [
         "metriques agents", "performance agents", "stats agents",
         "agents metrics", "comment marchent les agents",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); agents=c.execute('SELECT name, url, model_type, model_name, status, avg_latency FROM agents').fetchall(); c.close(); [print(f'  {a[0]:15} | {a[4]:7} | {a[3]:20} | {a[5] if a[5] else /\"N/A/\"}ms') for a in agents]\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); agents=c.execute('SELECT name, url, model_type, model_name, status, avg_latency FROM agents').fetchall(); c.close(); [print(f'  {a[0]:15} | {a[4]:7} | {a[3]:20} | {a[5] if a[5] else /\"N/A/\"}ms') for a in agents]\" 2>&1 | Out-String"),
 
     JarvisCommand("agent_run_deep", "pipeline", "Lancer l'agent ia-deep (Opus, architecte) pour une analyse", [
         "lance ia deep", "agent deep", "analyse profonde",
         "ia architecte", "agent opus",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"from agents import Agent, Runner; import asyncio; a=Agent(name='ia-deep',model='claude-opus-4-6',instructions='Architecte systeme.'); print(asyncio.run(Runner.run(a,'Analyse rapide du cluster JARVIS: 3 machines, 10 GPU, 6 noeuds IA. Quel est le point faible?')).final_output)\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"from agents import Agent, Runner; import asyncio; a=Agent(name='ia-deep',model='claude-opus-4-6',instructions='Architecte systeme.'); print(asyncio.run(Runner.run(a,'Analyse rapide du cluster JARVIS: 3 machines, 10 GPU, 6 noeuds IA. Quel est le point faible?')).final_output)\" 2>&1 | Out-String"),
 
     JarvisCommand("agent_run_fast", "pipeline", "Lancer l'agent ia-fast (Haiku, code) pour une tache rapide", [
         "lance ia fast", "agent fast", "agent rapide",
         "ia rapide", "agent haiku code",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"from agents import Agent, Runner; import asyncio; a=Agent(name='ia-fast',model='claude-haiku-4-5-20251001',instructions='Ingenieur code rapide.'); print(asyncio.run(Runner.run(a,'Liste 5 optimisations Python pour un serveur FastAPI avec SQLite.')).final_output)\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"from agents import Agent, Runner; import asyncio; a=Agent(name='ia-fast',model='claude-haiku-4-5-20251001',instructions='Ingenieur code rapide.'); print(asyncio.run(Runner.run(a,'Liste 5 optimisations Python pour un serveur FastAPI avec SQLite.')).final_output)\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # FINE-TUNING — Controle des operations de fine-tuning
@@ -1837,7 +1837,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("finetune_datasets_info", "pipeline", "Informations sur les datasets de fine-tuning disponibles", [
         "datasets finetuning", "donnees d'entrainement", "combien de donnees",
         "liste les datasets", "datasets disponibles",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import os,glob; path='/home/turbo/jarvis-m1-ops/finetuning'; files=glob.glob(os.path.join(path,'**/*.jsonl'),recursive=True); cc=lambda f:len(__import__('pathlib').Path(f).read_text(encoding='utf-8').splitlines()); [print(f'  {os.path.basename(f)}: {cc(f)} examples ({round(os.path.getsize(f)/1024)}KB)') for f in files[:10]] if files else print('Aucun dataset JSONL trouve')\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import os,glob; path='/home/turbo/jarvis-m1-ops/finetuning'; files=glob.glob(os.path.join(path,'**/*.jsonl'),recursive=True); cc=lambda f:len(__import__('pathlib').Path(f).read_text(encoding='utf-8').splitlines()); [print(f'  {os.path.basename(f)}: {cc(f)} examples ({round(os.path.getsize(f)/1024)}KB)') for f in files[:10]] if files else print('Aucun dataset JSONL trouve')\" 2>&1 | Out-String"),
 
     JarvisCommand("finetune_gpu_check", "pipeline", "Verifier si les GPU sont pretes pour le fine-tuning", [
         "gpu pret pour training", "check gpu finetuning", "assez de vram",
@@ -1851,7 +1851,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("trading_positions_resume", "pipeline", "Resume des positions trading ouvertes sur MEXC", [
         "positions ouvertes", "mes positions", "resume trading",
         "qu'est-ce qui est ouvert", "pnl actuel",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/trading_latest.db'); try: signals=c.execute('SELECT symbol,side,score,timestamp FROM signals ORDER BY timestamp DESC LIMIT 10').fetchall(); [print(f'  {s[0]} {s[1]} score:{s[2]} ({s[3]})') for s in signals] if signals else print('Aucun signal recent')\nexcept (sqlite3.OperationalError, sqlite3.DatabaseError): print('Table signals non trouvee')\nfinally: c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/trading_latest.db'); try: signals=c.execute('SELECT symbol,side,score,timestamp FROM signals ORDER BY timestamp DESC LIMIT 10').fetchall(); [print(f'  {s[0]} {s[1]} score:{s[2]} ({s[3]})') for s in signals] if signals else print('Aucun signal recent')\nexcept (sqlite3.OperationalError, sqlite3.DatabaseError): print('Table signals non trouvee')\nfinally: c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("trading_market_overview", "pipeline", "Vue d'ensemble du marche crypto: BTC + ETH + top movers", [
         "vue du marche", "marche crypto", "comment va le marche",
@@ -1866,7 +1866,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("trading_signals_history", "pipeline", "Historique des derniers signaux trading", [
         "historique signaux", "derniers signaux", "signaux recents",
         "history trading", "quels signaux",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/trading_latest.db'); try: r=c.execute('SELECT symbol,side,score,timestamp FROM signals ORDER BY timestamp DESC LIMIT 15').fetchall(); [print(f'  {s[3][:16]} | {s[0]:10} | {s[1]:5} | score:{s[2]}') for s in r] if r else print('Aucun signal')\nexcept Exception as e: print(f'Erreur: {e}')\nfinally: c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/trading_latest.db'); try: r=c.execute('SELECT symbol,side,score,timestamp FROM signals ORDER BY timestamp DESC LIMIT 15').fetchall(); [print(f'  {s[3][:16]} | {s[0]:10} | {s[1]:5} | score:{s[2]}') for s in r] if r else print('Aucun signal')\nexcept Exception as e: print(f'Erreur: {e}')\nfinally: c.close()\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # SKILL MANAGEMENT — Gestion des 108 skills etoile.db
@@ -1875,17 +1875,17 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("skill_list_all", "pipeline", "Lister tous les skills par categorie", [
         "liste les skills", "quels skills", "skills disponibles",
         "montre les skills", "combien de skills",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); cats=c.execute('SELECT parent, COUNT(*) FROM map WHERE entity_type=/\"skill/\" GROUP BY parent ORDER BY COUNT(*) DESC').fetchall(); total=sum(x[1] for x in cats); print(f'=== {total} SKILLS ==='); [print(f'  {cat}: {cnt}') for cat,cnt in cats]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); cats=c.execute('SELECT parent, COUNT(*) FROM map WHERE entity_type=/\"skill/\" GROUP BY parent ORDER BY COUNT(*) DESC').fetchall(); total=sum(x[1] for x in cats); print(f'=== {total} SKILLS ==='); [print(f'  {cat}: {cnt}') for cat,cnt in cats]; c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("skill_stats_performance", "pipeline", "Statistiques de performance des skills et pipelines", [
         "stats skills", "performance skills", "skills qui marchent",
         "metriques skills", "skills performance",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tests=c.execute('SELECT category,COUNT(*),SUM(CASE WHEN status=/\"PASS/\" THEN 1 ELSE 0 END) FROM pipeline_tests GROUP BY category').fetchall(); print('=== RESULTATS TESTS ==='); [print(f'  {cat}: {ok}/{total} PASS') for cat,total,ok in tests]; mem=c.execute('SELECT key,value FROM memories WHERE category=/\"stats/\"').fetchall(); print('/n=== STATS ==='); [print(f'  {k}: {v}') for k,v in mem]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tests=c.execute('SELECT category,COUNT(*),SUM(CASE WHEN status=/\"PASS/\" THEN 1 ELSE 0 END) FROM pipeline_tests GROUP BY category').fetchall(); print('=== RESULTATS TESTS ==='); [print(f'  {cat}: {ok}/{total} PASS') for cat,total,ok in tests]; mem=c.execute('SELECT key,value FROM memories WHERE category=/\"stats/\"').fetchall(); print('/n=== STATS ==='); [print(f'  {k}: {v}') for k,v in mem]; c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("skill_search", "pipeline", "Rechercher un skill par mot-cle dans etoile.db", [
         "cherche un skill", "trouve un skill", "skill pour",
         "quel skill fait", "recherche skill",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,sys; q='%'; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('SELECT entity_name,parent,role FROM map WHERE entity_type=/\"skill/\" AND (entity_name LIKE ? OR role LIKE ?) ORDER BY parent LIMIT 20',(q,q)).fetchall(); print(f'{len(r)} skills trouves:'); [print(f'  [{p}] {n}: {d}') for n,p,d in r]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,sys; q='%'; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('SELECT entity_name,parent,role FROM map WHERE entity_type=/\"skill/\" AND (entity_name LIKE ? OR role LIKE ?) ORDER BY parent LIMIT 20',(q,q)).fetchall(); print(f'{len(r)} skills trouves:'); [print(f'  [{p}] {n}: {d}') for n,p,d in r]; c.close()\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # CANVAS AUTOLEARN ENGINE — Gestion du moteur d'apprentissage (port 18800)
@@ -1952,27 +1952,27 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("plugin_list_enabled", "pipeline", "Lister tous les plugins Claude Code actifs avec versions", [
         "liste plugins", "plugins actifs", "quels plugins",
         "plugins installes", "combien de plugins",
-    ], "pipeline", "powershell:$settingsPath = '/\Users/franc/.claude/settings.json'; if (Test-Path $settingsPath) { $s = Get-Content $settingsPath | ConvertFrom-Json; $plugins = $s.plugins; Write-Output '=== PLUGINS ACTIFS ==='; $count = 0; foreach ($p in $plugins) { Write-Output \"  $p\"; $count++ }; Write-Output \"`n  Total: $count plugins\" } else { Write-Output 'settings.json non trouve' }"),
+    ], "pipeline", "powershell:$settingsPath = 'C:/Users/franc/.claude/settings.json'; if (Test-Path $settingsPath) { $s = Get-Content $settingsPath | ConvertFrom-Json; $plugins = $s.plugins; Write-Output '=== PLUGINS ACTIFS ==='; $count = 0; foreach ($p in $plugins) { Write-Output \"  $p\"; $count++ }; Write-Output \"`n  Total: $count plugins\" } else { Write-Output 'settings.json non trouve' }"),
 
     JarvisCommand("plugin_jarvis_status", "pipeline", "Status detaille du plugin jarvis-turbo local", [
         "status jarvis plugin", "jarvis turbo plugin", "plugin jarvis",
         "jarvis plugin status", "plugin local status",
-    ], "pipeline", "powershell:$pluginPath = '/\Users/franc/.claude/plugins/local/jarvis-turbo'; if (Test-Path \"$pluginPath/plugin.json\") { $p = Get-Content \"$pluginPath/plugin.json\" | ConvertFrom-Json; Write-Output '=== PLUGIN JARVIS-TURBO ==='; Write-Output \"  Version: $($p.version)\"; Write-Output \"  Commandes: $($p.commands.Count)\"; Write-Output \"  Agents: $($p.agents.Count)\"; Write-Output \"  Skills: $($p.skills.Count)\"; Write-Output \"  Hooks: $($p.hooks.Count)\" } else { Write-Output 'plugin.json non trouve' }"),
+    ], "pipeline", "powershell:$pluginPath = 'C:/Users/franc/.claude/plugins/local/jarvis-turbo'; if (Test-Path \"$pluginPath/plugin.json\") { $p = Get-Content \"$pluginPath/plugin.json\" | ConvertFrom-Json; Write-Output '=== PLUGIN JARVIS-TURBO ==='; Write-Output \"  Version: $($p.version)\"; Write-Output \"  Commandes: $($p.commands.Count)\"; Write-Output \"  Agents: $($p.agents.Count)\"; Write-Output \"  Skills: $($p.skills.Count)\"; Write-Output \"  Hooks: $($p.hooks.Count)\" } else { Write-Output 'plugin.json non trouve' }"),
 
     JarvisCommand("plugin_health_check", "pipeline", "Health check de tous les plugins actifs", [
         "health check plugins", "plugins ok", "verifier plugins",
         "plugins fonctionnent", "check plugins",
-    ], "pipeline", "powershell:Write-Output '=== HEALTH CHECK PLUGINS ==='; $localPath = '/\Users/franc/.claude/plugins/local'; $cachePath = '/\Users/franc/.claude/plugins/cache'; $localCount = if (Test-Path $localPath) { (Get-ChildItem $localPath -Directory | Measure-Object).Count } else { 0 }; $cacheCount = if (Test-Path $cachePath) { (Get-ChildItem $cachePath -Directory | Measure-Object).Count } else { 0 }; Write-Output \"  Plugins locaux: $localCount\"; Write-Output \"  Plugins cache: $cacheCount\"; if (Test-Path $localPath) { Get-ChildItem $localPath -Directory | ForEach-Object { $hasJson = Test-Path \"$($_.FullName)/plugin.json\"; Write-Output \"  [$( if ($hasJson) { 'OK' } else { 'MISSING' } )] $($_.Name)\" } }"),
+    ], "pipeline", "powershell:Write-Output '=== HEALTH CHECK PLUGINS ==='; $localPath = 'C:/Users/franc/.claude/plugins/local'; $cachePath = 'C:/Users/franc/.claude/plugins/cache'; $localCount = if (Test-Path $localPath) { (Get-ChildItem $localPath -Directory | Measure-Object).Count } else { 0 }; $cacheCount = if (Test-Path $cachePath) { (Get-ChildItem $cachePath -Directory | Measure-Object).Count } else { 0 }; Write-Output \"  Plugins locaux: $localCount\"; Write-Output \"  Plugins cache: $cacheCount\"; if (Test-Path $localPath) { Get-ChildItem $localPath -Directory | ForEach-Object { $hasJson = Test-Path \"$($_.FullName)/plugin.json\"; Write-Output \"  [$( if ($hasJson) { 'OK' } else { 'MISSING' } )] $($_.Name)\" } }"),
 
     JarvisCommand("plugin_reload_config", "pipeline", "Recharger la configuration des plugins sans redemarrer Claude", [
         "recharger plugins", "reload plugins", "refresh plugins",
         "actualiser plugins", "plugins reload",
-    ], "pipeline", "powershell:Write-Output '=== RELOAD PLUGINS ==='; Write-Output '  Action: Redemarrer Claude Code pour charger les nouveaux plugins'; Write-Output '  Commande: claude --resume ou /clear'; $settingsPath = '/\Users/franc/.claude/settings.json'; if (Test-Path $settingsPath) { $mod = (Get-Item $settingsPath).LastWriteTime; Write-Output \"  settings.json modifie: $mod\" }; Write-Output '  Note: Les plugins sont charges au demarrage de la session'"),
+    ], "pipeline", "powershell:Write-Output '=== RELOAD PLUGINS ==='; Write-Output '  Action: Redemarrer Claude Code pour charger les nouveaux plugins'; Write-Output '  Commande: claude --resume ou /clear'; $settingsPath = 'C:/Users/franc/.claude/settings.json'; if (Test-Path $settingsPath) { $mod = (Get-Item $settingsPath).LastWriteTime; Write-Output \"  settings.json modifie: $mod\" }; Write-Output '  Note: Les plugins sont charges au demarrage de la session'"),
 
     JarvisCommand("plugin_config_show", "pipeline", "Afficher la configuration complete des plugins", [
         "config plugins", "configuration plugins", "plugins config",
         "parametres plugins", "plugins settings",
-    ], "pipeline", "powershell:$localPath = '/\Users/franc/.claude/plugins/local'; if (Test-Path $localPath) { Get-ChildItem $localPath -Directory | ForEach-Object { $jsonPath = \"$($_.FullName)/plugin.json\"; if (Test-Path $jsonPath) { $p = Get-Content $jsonPath | ConvertFrom-Json; Write-Output \"=== $($_.Name) v$($p.version) ===\"; Write-Output \"  Commandes: $($p.commands.Count)\"; Write-Output \"  Agents: $($p.agents.Count)\"; Write-Output \"  Skills: $($p.skills.Count)\"; Write-Output \"  Hooks: $($p.hooks.Count)\" } } } else { Write-Output 'Aucun plugin local' }"),
+    ], "pipeline", "powershell:$localPath = 'C:/Users/franc/.claude/plugins/local'; if (Test-Path $localPath) { Get-ChildItem $localPath -Directory | ForEach-Object { $jsonPath = \"$($_.FullName)/plugin.json\"; if (Test-Path $jsonPath) { $p = Get-Content $jsonPath | ConvertFrom-Json; Write-Output \"=== $($_.Name) v$($p.version) ===\"; Write-Output \"  Commandes: $($p.commands.Count)\"; Write-Output \"  Agents: $($p.agents.Count)\"; Write-Output \"  Skills: $($p.skills.Count)\"; Write-Output \"  Hooks: $($p.hooks.Count)\" } } } else { Write-Output 'Aucun plugin local' }"),
 
     # ══════════════════════════════════════════════════════════════════════
     # EMBEDDING & VECTOR SEARCH — Gestion embeddings M1
@@ -2029,7 +2029,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("brain_memory_status", "pipeline", "Status de la memoire JARVIS: patterns, categories, taille", [
         "memoire jarvis", "brain status", "status memoire",
         "patterns appris", "jarvis memoire",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); cats=c.execute('SELECT category,COUNT(*) FROM memories GROUP BY category ORDER BY COUNT(*) DESC').fetchall(); total=sum(x[1] for x in cats); print(f'=== MEMOIRE JARVIS ({total} entries) ==='); [print(f'  {cat}: {cnt}') for cat,cnt in cats]; recent=c.execute('SELECT key,value FROM memories ORDER BY ROWID DESC LIMIT 5').fetchall(); print('/nDernieres:'); [print(f'  {k}: {v[:60]}') for k,v in recent]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); cats=c.execute('SELECT category,COUNT(*) FROM memories GROUP BY category ORDER BY COUNT(*) DESC').fetchall(); total=sum(x[1] for x in cats); print(f'=== MEMOIRE JARVIS ({total} entries) ==='); [print(f'  {cat}: {cnt}') for cat,cnt in cats]; recent=c.execute('SELECT key,value FROM memories ORDER BY ROWID DESC LIMIT 5').fetchall(); print('/nDernieres:'); [print(f'  {k}: {v[:60]}') for k,v in recent]; c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("brain_pattern_learn", "pipeline", "Apprendre un nouveau pattern depuis les interactions recentes", [
         "apprendre pattern", "learn pattern", "nouveau pattern",
@@ -2039,17 +2039,17 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("brain_memory_consolidate", "pipeline", "Consolider la memoire: fusionner doublons et optimiser", [
         "consolider memoire", "optimize memoire", "memoire optimiser",
         "fusionner memoire", "brain consolidate",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); dupes=c.execute('SELECT key,COUNT(*) FROM memories GROUP BY key HAVING COUNT(*)>1').fetchall(); print('=== CONSOLIDATION MEMOIRE ==='); print(f'  Doublons: {len(dupes)}'); [print(f'  {k}: {cnt}x') for k,cnt in dupes[:10]]; total=c.execute('SELECT COUNT(*) FROM memories').fetchone()[0]; cats=c.execute('SELECT COUNT(DISTINCT category) FROM memories').fetchone()[0]; print(f'  Total: {total} entries, {cats} categories'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); dupes=c.execute('SELECT key,COUNT(*) FROM memories GROUP BY key HAVING COUNT(*)>1').fetchall(); print('=== CONSOLIDATION MEMOIRE ==='); print(f'  Doublons: {len(dupes)}'); [print(f'  {k}: {cnt}x') for k,cnt in dupes[:10]]; total=c.execute('SELECT COUNT(*) FROM memories').fetchone()[0]; cats=c.execute('SELECT COUNT(DISTINCT category) FROM memories').fetchone()[0]; print(f'  Total: {total} entries, {cats} categories'); c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("brain_memory_export", "pipeline", "Exporter la memoire JARVIS vers un fichier JSON", [
         "export memoire", "sauvegarder memoire", "backup memoire",
         "memoire json", "brain export",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,json,datetime; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); rows=c.execute('SELECT category,key,value,confidence FROM memories').fetchall(); data=[{'category':r[0],'key':r[1],'value':r[2],'confidence':r[3]} for r in rows]; out=f'/home/turbo/jarvis-m1-ops/data/memories_export_{datetime.datetime.now().strftime(chr(37)+chr(89)+chr(37)+chr(109)+chr(37)+chr(100))}.json'; __import__('pathlib').Path(out).write_text(json.dumps(data,indent=2,ensure_ascii=False)); print(f'=== EXPORT MEMOIRE ==='); print(f'  {len(data)} entries exportees'); print(f'  Fichier: {out}'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,json,datetime; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); rows=c.execute('SELECT category,key,value,confidence FROM memories').fetchall(); data=[{'category':r[0],'key':r[1],'value':r[2],'confidence':r[3]} for r in rows]; out=f'/home/turbo/jarvis-m1-ops/data/memories_export_{datetime.datetime.now().strftime(chr(37)+chr(89)+chr(37)+chr(109)+chr(37)+chr(100))}.json'; __import__('pathlib').Path(out).write_text(json.dumps(data,indent=2,ensure_ascii=False)); print(f'=== EXPORT MEMOIRE ==='); print(f'  {len(data)} entries exportees'); print(f'  Fichier: {out}'); c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("brain_pattern_search", "pipeline", "Rechercher des patterns appris par mot-cle", [
         "cherche pattern", "search pattern", "pattern pour",
         "quel pattern", "brain search",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('SELECT category,key,value FROM memories ORDER BY ROWID DESC LIMIT 15').fetchall(); print('=== PATTERNS RECENTS ==='); [print(f'  [{cat}] {k}: {v[:60]}') for cat,k,v in r]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('SELECT category,key,value FROM memories ORDER BY ROWID DESC LIMIT 15').fetchall(); print('=== PATTERNS RECENTS ==='); [print(f'  [{cat}] {k}: {v[:60]}') for cat,k,v in r]; c.close()\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # RAG SYSTEM — Retrieval-Augmented Generation
@@ -2087,7 +2087,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("consensus_routing_rules", "pipeline", "Afficher les 22 regles de routage du consensus", [
         "regles routage", "routing rules", "regles consensus",
         "routage cluster", "matrice routage",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('SELECT entity_name,role FROM map WHERE entity_type=/\"routing_rule/\" ORDER BY entity_name').fetchall(); print(f'=== {len(r)} REGLES ROUTAGE ==='); [print(f'  {n}: {d[:60]}') for n,d in r]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('SELECT entity_name,role FROM map WHERE entity_type=/\"routing_rule/\" ORDER BY entity_name').fetchall(); print(f'=== {len(r)} REGLES ROUTAGE ==='); [print(f'  {n}: {d[:60]}') for n,d in r]; c.close()\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # SECURITY HARDENING — Securite avancee et hardening
@@ -2096,7 +2096,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("security_vuln_scan", "pipeline", "Scan de vulnerabilites: deps Python + npm + systeme", [
         "scan vulnerabilites", "vuln scan", "securite scan",
         "failles securite", "vulnerability check",
-    ], "pipeline", "powershell:Write-Output '=== SCAN VULNERABILITES ==='; $pipAudit = & '/\Users/franc/.local/bin/uv.exe' run pip list --outdated 2>$null | Select-Object -First 10; Write-Output '  Packages Python outdated:'; $pipAudit | ForEach-Object { Write-Output \"    $_\" }; if (Test-Path 'F:/BUREAU/turbo/electron/package.json') { $npmAudit = npm audit --prefix 'F:/BUREAU/turbo/electron' 2>$null | Select-Object -First 5; Write-Output '  NPM audit:'; $npmAudit | ForEach-Object { Write-Output \"    $_\" } }"),
+    ], "pipeline", "powershell:Write-Output '=== SCAN VULNERABILITES ==='; $pipAudit = & 'C:/Users/franc/.local/bin/uv.exe' run pip list --outdated 2>$null | Select-Object -First 10; Write-Output '  Packages Python outdated:'; $pipAudit | ForEach-Object { Write-Output \"    $_\" }; if (Test-Path 'F:/BUREAU/turbo/electron/package.json') { $npmAudit = npm audit --prefix 'F:/BUREAU/turbo/electron' 2>$null | Select-Object -First 5; Write-Output '  NPM audit:'; $npmAudit | ForEach-Object { Write-Output \"    $_\" } }"),
 
     JarvisCommand("security_firewall_check", "pipeline", "Verifier les regles firewall Windows actives", [
         "firewall status", "regles firewall", "firewall check",
@@ -2182,17 +2182,17 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("db_reindex_all", "pipeline", "Reconstruire tous les index des bases SQLite", [
         "reindex bases", "reconstruire index", "db reindex",
         "index rebuild", "optimiser index",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,os; dbs=['/home/turbo/jarvis-m1-ops/data/etoile.db','/home/turbo/jarvis-m1-ops/data/jarvis.db']; print('=== REINDEX DATABASES ==='); [print(f'  {os.path.basename(db)}: ' + (lambda c: (c.execute('REINDEX'), 'REINDEX OK')[1])(sqlite3.connect(db).cursor())) for db in dbs if os.path.exists(db)]\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,os; dbs=['/home/turbo/jarvis-m1-ops/data/etoile.db','/home/turbo/jarvis-m1-ops/data/jarvis.db']; print('=== REINDEX DATABASES ==='); [print(f'  {os.path.basename(db)}: ' + (lambda c: (c.execute('REINDEX'), 'REINDEX OK')[1])(sqlite3.connect(db).cursor())) for db in dbs if os.path.exists(db)]\" 2>&1 | Out-String"),
 
     JarvisCommand("db_schema_info", "pipeline", "Afficher le schema detaille de toutes les tables", [
         "schema bases", "db schema", "structure tables",
         "tables schema", "schema etoile",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tables=c.execute('SELECT name FROM sqlite_master WHERE type=/\"table/\"').fetchall(); print('=== SCHEMA ETOILE.DB ==='); [print(f'  {t[0]}: ' + ', '.join(col[1] for col in c.execute(f'PRAGMA table_info({t[0]})').fetchall())) for t in tables]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tables=c.execute('SELECT name FROM sqlite_master WHERE type=/\"table/\"').fetchall(); print('=== SCHEMA ETOILE.DB ==='); [print(f'  {t[0]}: ' + ', '.join(col[1] for col in c.execute(f'PRAGMA table_info({t[0]})').fetchall())) for t in tables]; c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("db_export_snapshot", "pipeline", "Exporter un snapshot versionne de etoile.db", [
         "export snapshot db", "snapshot base", "db snapshot",
         "sauvegarder snapshot", "export etoile",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,shutil,datetime,os; src='/home/turbo/jarvis-m1-ops/data/etoile.db'; ts=datetime.datetime.now().strftime('%Y%m%d_%H%M'); dst=f'/home/turbo/jarvis-m1-ops/data/etoile_snapshot_{ts}.db'; shutil.copy2(src,dst); size=os.path.getsize(dst)/1024; print(f'=== SNAPSHOT ==='); print(f'  Source: etoile.db ({os.path.getsize(src)/1024:.0f}KB)'); print(f'  Snapshot: {os.path.basename(dst)} ({size:.0f}KB)'); print(f'  Date: {ts}')\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,shutil,datetime,os; src='/home/turbo/jarvis-m1-ops/data/etoile.db'; ts=datetime.datetime.now().strftime('%Y%m%d_%H%M'); dst=f'/home/turbo/jarvis-m1-ops/data/etoile_snapshot_{ts}.db'; shutil.copy2(src,dst); size=os.path.getsize(dst)/1024; print(f'=== SNAPSHOT ==='); print(f'  Source: etoile.db ({os.path.getsize(src)/1024:.0f}KB)'); print(f'  Snapshot: {os.path.basename(dst)} ({size:.0f}KB)'); print(f'  Date: {ts}')\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # DASHBOARD WIDGETS — Gestion des widgets dashboard
@@ -2220,7 +2220,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("hotfix_verify_integrity", "pipeline", "Verifier l'integrite du projet apres un hotfix", [
         "verifier hotfix", "integrite hotfix", "hotfix ok",
         "verify hotfix", "hotfix integrity",
-    ], "pipeline", "powershell:Write-Output '=== VERIFICATION HOTFIX ==='; $importCheck = & '/\Users/franc/.local/bin/uv.exe' run python -c 'from src.commands_pipelines import PIPELINE_COMMANDS; print(f\"Pipelines: {len(PIPELINE_COMMANDS)} OK\")' 2>&1; Write-Output \"  $importCheck\"; $dbCheck = & '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); c.execute('PRAGMA integrity_check'); r=c.execute('SELECT COUNT(*) FROM map').fetchone()[0]; print(f'DB: {r} entries OK')\" 2>&1; Write-Output \"  $dbCheck\"; $gitStatus = git -C 'F:/BUREAU/turbo' status --porcelain 2>$null | Measure-Object; Write-Output \"  Git: $($gitStatus.Count) fichiers non commites\""),
+    ], "pipeline", "powershell:Write-Output '=== VERIFICATION HOTFIX ==='; $importCheck = & 'C:/Users/franc/.local/bin/uv.exe' run python -c 'from src.commands_pipelines import PIPELINE_COMMANDS; print(f\"Pipelines: {len(PIPELINE_COMMANDS)} OK\")' 2>&1; Write-Output \"  $importCheck\"; $dbCheck = & 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); c.execute('PRAGMA integrity_check'); r=c.execute('SELECT COUNT(*) FROM map').fetchone()[0]; print(f'DB: {r} entries OK')\" 2>&1; Write-Output \"  $dbCheck\"; $gitStatus = git -C 'F:/BUREAU/turbo' status --porcelain 2>$null | Measure-Object; Write-Output \"  Git: $($gitStatus.Count) fichiers non commites\""),
 
     # ══════════════════════════════════════════════════════════════════════
     # LEARNING CYCLES — Orchestration des cycles d'apprentissage
@@ -2229,7 +2229,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("learning_cycle_status", "pipeline", "Status des cycles d'apprentissage: dernier run, metriques, progression", [
         "status apprentissage", "learning cycle", "cycle apprentissage",
         "ou en est l'apprentissage", "learning status",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tests=c.execute('SELECT COUNT(*),SUM(CASE WHEN status=/\"PASS/\" THEN 1 ELSE 0 END) FROM pipeline_tests').fetchone(); cats=c.execute('SELECT COUNT(DISTINCT category) FROM pipeline_tests').fetchone()[0]; mem=c.execute('SELECT value FROM memories WHERE key=/\"pipeline_test_total/\"').fetchone(); print('=== LEARNING CYCLES ==='); print(f'  Tests: {tests[1]}/{tests[0]} PASS'); print(f'  Categories: {cats}'); print(f'  Score: {mem[0] if mem else /\"N/A/\"}'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tests=c.execute('SELECT COUNT(*),SUM(CASE WHEN status=/\"PASS/\" THEN 1 ELSE 0 END) FROM pipeline_tests').fetchone(); cats=c.execute('SELECT COUNT(DISTINCT category) FROM pipeline_tests').fetchone()[0]; mem=c.execute('SELECT value FROM memories WHERE key=/\"pipeline_test_total/\"').fetchone(); print('=== LEARNING CYCLES ==='); print(f'  Tests: {tests[1]}/{tests[0]} PASS'); print(f'  Categories: {cats}'); print(f'  Score: {mem[0] if mem else /\"N/A/\"}'); c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("learning_cycle_benchmark", "pipeline", "Lancer un benchmark rapide du cluster pour mesurer la progression", [
         "benchmark apprentissage", "learning benchmark", "benchmark progression",
@@ -2239,12 +2239,12 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("learning_cycle_metrics", "pipeline", "Analyser les metriques des cycles d'apprentissage passes", [
         "metriques apprentissage", "learning metrics", "stats cycles",
         "analyse cycles", "metrics learning",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); cats=c.execute('SELECT category,COUNT(*),SUM(CASE WHEN status=/\"PASS/\" THEN 1 ELSE 0 END) FROM pipeline_tests GROUP BY category ORDER BY COUNT(*) DESC').fetchall(); print('=== METRIQUES APPRENTISSAGE ==='); [print(f'  {cat}: {ok}/{tot} PASS ({100*ok//tot}%%)') for cat,tot,ok in cats]; total=sum(t for _,t,_ in cats); passed=sum(o for _,_,o in cats); print(f'/n  GLOBAL: {passed}/{total} ({100*passed//total}%%)'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); cats=c.execute('SELECT category,COUNT(*),SUM(CASE WHEN status=/\"PASS/\" THEN 1 ELSE 0 END) FROM pipeline_tests GROUP BY category ORDER BY COUNT(*) DESC').fetchall(); print('=== METRIQUES APPRENTISSAGE ==='); [print(f'  {cat}: {ok}/{tot} PASS ({100*ok//tot}%%)') for cat,tot,ok in cats]; total=sum(t for _,t,_ in cats); passed=sum(o for _,_,o in cats); print(f'/n  GLOBAL: {passed}/{total} ({100*passed//total}%%)'); c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("learning_cycle_feedback", "pipeline", "Boucle de feedback: analyser les echecs et proposer des ameliorations", [
         "feedback apprentissage", "learning feedback", "ameliorer apprentissage",
         "echecs apprentissage", "feedback loop",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); fails=c.execute('SELECT pipeline_name,category,details FROM pipeline_tests WHERE status!=/\"PASS/\"').fetchall(); print('=== FEEDBACK LOOP ==='); print(f'  Echecs: {len(fails)}'); [print(f'  [{cat}] {name}: {det[:50]}') for name,cat,det in fails[:10]]; print('  Recommandation: ' + ('Aucun echec - systeme stable' if not fails else f'Investiguer {len(fails)} echecs')); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); fails=c.execute('SELECT pipeline_name,category,details FROM pipeline_tests WHERE status!=/\"PASS/\"').fetchall(); print('=== FEEDBACK LOOP ==='); print(f'  Echecs: {len(fails)}'); [print(f'  [{cat}] {name}: {det[:50]}') for name,cat,det in fails[:10]]; print('  Recommandation: ' + ('Aucun echec - systeme stable' if not fails else f'Investiguer {len(fails)} echecs')); c.close()\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # SCENARIO & TESTING — Framework de test des 475 scenarios
@@ -2253,22 +2253,22 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("scenario_count_all", "pipeline", "Compter tous les scenarios de test dans les bases", [
         "combien scenarios", "scenarios test", "nombre scenarios",
         "total scenarios", "count scenarios",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,os; dbs=[('etoile.db','/home/turbo/jarvis-m1-ops/data/etoile.db'),('jarvis.db','/home/turbo/jarvis-m1-ops/data/jarvis.db')]; print('=== SCENARIOS TEST ==='); [print(f'  {name}: ' + str(sqlite3.connect(p).execute('SELECT COUNT(*) FROM sqlite_master WHERE type=/\"table/\"').fetchone()[0]) + ' tables') for name,p in dbs if os.path.exists(p)]; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tests=c.execute('SELECT COUNT(*) FROM pipeline_tests').fetchone()[0]; maps=c.execute('SELECT COUNT(*) FROM map').fetchone()[0]; print(f'  pipeline_tests: {tests}'); print(f'  map entries: {maps}'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,os; dbs=[('etoile.db','/home/turbo/jarvis-m1-ops/data/etoile.db'),('jarvis.db','/home/turbo/jarvis-m1-ops/data/jarvis.db')]; print('=== SCENARIOS TEST ==='); [print(f'  {name}: ' + str(sqlite3.connect(p).execute('SELECT COUNT(*) FROM sqlite_master WHERE type=/\"table/\"').fetchone()[0]) + ' tables') for name,p in dbs if os.path.exists(p)]; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tests=c.execute('SELECT COUNT(*) FROM pipeline_tests').fetchone()[0]; maps=c.execute('SELECT COUNT(*) FROM map').fetchone()[0]; print(f'  pipeline_tests: {tests}'); print(f'  map entries: {maps}'); c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("scenario_run_category", "pipeline", "Executer les tests d'une categorie specifique", [
         "tester categorie", "run tests categorie", "scenario categorie",
         "tests par categorie", "run category tests",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); cats=c.execute('SELECT category,COUNT(*),SUM(CASE WHEN status=/\"PASS/\" THEN 1 ELSE 0 END) FROM pipeline_tests GROUP BY category').fetchall(); print('=== TESTS PAR CATEGORIE ==='); [print(f'  {cat}: {ok}/{tot} PASS') for cat,tot,ok in cats]; print(f'/nPour tester: python scripts/test_pipelines_batch[N].py'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); cats=c.execute('SELECT category,COUNT(*),SUM(CASE WHEN status=/\"PASS/\" THEN 1 ELSE 0 END) FROM pipeline_tests GROUP BY category').fetchall(); print('=== TESTS PAR CATEGORIE ==='); [print(f'  {cat}: {ok}/{tot} PASS') for cat,tot,ok in cats]; print(f'/nPour tester: python scripts/test_pipelines_batch[N].py'); c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("scenario_report_generate", "pipeline", "Generer un rapport detaille des resultats de tests", [
         "rapport tests", "test report", "generer rapport",
         "rapport scenarios", "generate report",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,json; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tests=c.execute('SELECT test_date,pipeline_name,category,status,latency_ms,details,cluster_node FROM pipeline_tests ORDER BY test_date DESC').fetchall(); report={'total':len(tests),'pass':sum(1 for t in tests if t[3]=='PASS'),'fail':sum(1 for t in tests if t[3]!='PASS'),'categories':len(set(t[2] for t in tests)),'latest_date':tests[0][0] if tests else None}; print('=== RAPPORT TESTS ==='); print(json.dumps(report,indent=2)); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,json; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tests=c.execute('SELECT test_date,pipeline_name,category,status,latency_ms,details,cluster_node FROM pipeline_tests ORDER BY test_date DESC').fetchall(); report={'total':len(tests),'pass':sum(1 for t in tests if t[3]=='PASS'),'fail':sum(1 for t in tests if t[3]!='PASS'),'categories':len(set(t[2] for t in tests)),'latest_date':tests[0][0] if tests else None}; print('=== RAPPORT TESTS ==='); print(json.dumps(report,indent=2)); c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("scenario_regression_check", "pipeline", "Detecter les regressions de performance entre les batches", [
         "regression test", "check regression", "regression performance",
         "detection regression", "performance regression",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); dates=c.execute('SELECT DISTINCT substr(test_date,1,10) as d, COUNT(*), SUM(CASE WHEN status=/\"PASS/\" THEN 1 ELSE 0 END) FROM pipeline_tests GROUP BY d ORDER BY d').fetchall(); print('=== DETECTION REGRESSION ==='); [print(f'  {d}: {ok}/{tot} PASS ({100*ok//tot}%%)') for d,tot,ok in dates]; lats=c.execute('SELECT pipeline_name,latency_ms FROM pipeline_tests WHERE latency_ms IS NOT NULL ORDER BY latency_ms DESC LIMIT 5').fetchall(); print('/nPlus lentes:'); [print(f'  {n}: {l}ms') for n,l in lats]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); dates=c.execute('SELECT DISTINCT substr(test_date,1,10) as d, COUNT(*), SUM(CASE WHEN status=/\"PASS/\" THEN 1 ELSE 0 END) FROM pipeline_tests GROUP BY d ORDER BY d').fetchall(); print('=== DETECTION REGRESSION ==='); [print(f'  {d}: {ok}/{tot} PASS ({100*ok//tot}%%)') for d,tot,ok in dates]; lats=c.execute('SELECT pipeline_name,latency_ms FROM pipeline_tests WHERE latency_ms IS NOT NULL ORDER BY latency_ms DESC LIMIT 5').fetchall(); print('/nPlus lentes:'); [print(f'  {n}: {l}ms') for n,l in lats]; c.close()\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # API & SERVICE MANAGEMENT — Gestion unifiee des endpoints
@@ -2287,7 +2287,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("api_keys_status", "pipeline", "Verifier le status des cles API dans etoile.db", [
         "cles api", "api keys", "status cles",
         "verifier api keys", "api credentials",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); keys=c.execute('SELECT entity_name,role FROM map WHERE entity_type=/\"tool/\" AND role LIKE /\"%%key%%/\" OR role LIKE /\"%%api%%/\"').fetchall(); print('=== API KEYS STATUS ==='); print(f'  Cles referencees: {len(keys)}'); [print(f'  {n}: {r[:50]}') for n,r in keys[:10]]; envs=[f for f in __import__('glob').glob('/home/turbo/jarvis-m1-ops/**/.env',recursive=True)]; print(f'  Fichiers .env: {len(envs)}'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); keys=c.execute('SELECT entity_name,role FROM map WHERE entity_type=/\"tool/\" AND role LIKE /\"%%key%%/\" OR role LIKE /\"%%api%%/\"').fetchall(); print('=== API KEYS STATUS ==='); print(f'  Cles referencees: {len(keys)}'); [print(f'  {n}: {r[:50]}') for n,r in keys[:10]]; envs=[f for f in __import__('glob').glob('/home/turbo/jarvis-m1-ops/**/.env',recursive=True)]; print(f'  Fichiers .env: {len(envs)}'); c.close()\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # PERFORMANCE PROFILING — Profilage et optimisation continue
@@ -2306,7 +2306,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("profile_slow_queries", "pipeline", "Profiler les requetes lentes dans les bases SQLite", [
         "requetes lentes", "slow queries", "profiler base",
         "db lent", "queries performance",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,time; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); queries=[('SELECT COUNT(*) FROM map','count map'),('SELECT * FROM map WHERE entity_type=/\"skill/\"','skills'),('SELECT * FROM memories','memories'),('SELECT * FROM pipeline_tests','tests')]; print('=== SLOW QUERIES ==='); [print(f'  {name}: {round((time.time()-(t:=time.time()) or 1) and (c.execute(q).fetchall() and 0 or 0) or (time.time()-t)*1000,1)}ms') if False else None for q,name in queries]; [print(f'  {name}: ' + str(round(((lambda s: (c.execute(q).fetchall(), time.time()-s))(time.time()))[1]*1000,1)) + 'ms') for q,name in queries]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,time; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); queries=[('SELECT COUNT(*) FROM map','count map'),('SELECT * FROM map WHERE entity_type=/\"skill/\"','skills'),('SELECT * FROM memories','memories'),('SELECT * FROM pipeline_tests','tests')]; print('=== SLOW QUERIES ==='); [print(f'  {name}: {round((time.time()-(t:=time.time()) or 1) and (c.execute(q).fetchall() and 0 or 0) or (time.time()-t)*1000,1)}ms') if False else None for q,name in queries]; [print(f'  {name}: ' + str(round(((lambda s: (c.execute(q).fetchall(), time.time()-s))(time.time()))[1]*1000,1)) + 'ms') for q,name in queries]; c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("profile_optimize_auto", "pipeline", "Auto-optimisation basee sur les resultats de profilage", [
         "auto optimiser", "optimize auto", "optimisation auto",
@@ -2363,7 +2363,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("notification_channels_test", "pipeline", "Tester tous les canaux de notification disponibles", [
         "test notifications", "tester alertes", "notification test",
         "canaux notification", "test channels",
-    ], "pipeline", "powershell:Write-Output '=== CANAUX NOTIFICATION ==='; Write-Output '  [Telegram] @turboSSebot'; $tg = & '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('SELECT value FROM memories WHERE key=/\"telegram_bot_token/\"').fetchone(); print('OK' if r else 'non configure'); c.close()\" 2>$null; Write-Output \"    Status: $tg\"; Write-Output '  [Console] Toujours actif'; Write-Output '  [TTS] Edge fr-FR-DeniseNeural'; Write-Output '  [Dashboard] port 8080'"),
+    ], "pipeline", "powershell:Write-Output '=== CANAUX NOTIFICATION ==='; Write-Output '  [Telegram] @turboSSebot'; $tg = & 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); r=c.execute('SELECT value FROM memories WHERE key=/\"telegram_bot_token/\"').fetchone(); print('OK' if r else 'non configure'); c.close()\" 2>$null; Write-Output \"    Status: $tg\"; Write-Output '  [Console] Toujours actif'; Write-Output '  [TTS] Edge fr-FR-DeniseNeural'; Write-Output '  [Dashboard] port 8080'"),
 
     JarvisCommand("notification_config_show", "pipeline", "Afficher la configuration des notifications et alertes", [
         "config notifications", "notification config", "alertes config",
@@ -2373,7 +2373,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("notification_alert_history", "pipeline", "Historique des dernieres alertes systeme", [
         "historique alertes", "alert history", "dernieres alertes",
         "alertes recentes", "notification history",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tests=c.execute('SELECT test_date,pipeline_name,status,details FROM pipeline_tests WHERE status!=/\"PASS/\" ORDER BY test_date DESC LIMIT 10').fetchall(); print('=== HISTORIQUE ALERTES ==='); print(f'  Alertes totales: {len(tests)}'); [print(f'  {d[:16]} [{s}] {n}: {det[:40]}') for d,n,s,det in tests]; print('  (Aucune alerte = systeme stable)' if not tests else ''); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tests=c.execute('SELECT test_date,pipeline_name,status,details FROM pipeline_tests WHERE status!=/\"PASS/\" ORDER BY test_date DESC LIMIT 10').fetchall(); print('=== HISTORIQUE ALERTES ==='); print(f'  Alertes totales: {len(tests)}'); [print(f'  {d[:16]} [{s}] {n}: {det[:40]}') for d,n,s,det in tests]; print('  (Aucune alerte = systeme stable)' if not tests else ''); c.close()\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # DOCUMENTATION AUTO — Auto-generation et sync de documentation
@@ -2382,7 +2382,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("doc_auto_generate", "pipeline", "Auto-generer la documentation des commandes et pipelines", [
         "generer doc", "auto doc", "documentation auto",
         "generer documentation", "doc generate",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; cats={}; [cats.__setitem__(p.name.split('_')[0], cats.get(p.name.split('_')[0],0)+1) for p in PIPELINE_COMMANDS]; print('=== AUTO-DOC PIPELINES ==='); print(f'  Total: {len(PIPELINE_COMMANDS)} pipelines'); print(f'  Prefixes: {len(cats)}'); [print(f'    {k}: {v}') for k,v in sorted(cats.items(),key=lambda x:-x[1])[:15]]\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; cats={}; [cats.__setitem__(p.name.split('_')[0], cats.get(p.name.split('_')[0],0)+1) for p in PIPELINE_COMMANDS]; print('=== AUTO-DOC PIPELINES ==='); print(f'  Total: {len(PIPELINE_COMMANDS)} pipelines'); print(f'  Prefixes: {len(cats)}'); [print(f'    {k}: {v}') for k,v in sorted(cats.items(),key=lambda x:-x[1])[:15]]\" 2>&1 | Out-String"),
 
     JarvisCommand("doc_sync_check", "pipeline", "Verifier la synchronisation entre code et documentation", [
         "sync doc", "doc sync", "verifier documentation",
@@ -2392,7 +2392,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("doc_usage_examples", "pipeline", "Generer des exemples d'utilisation depuis les logs de tests", [
         "exemples doc", "usage examples", "exemples utilisation",
         "doc exemples", "examples generate",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tests=c.execute('SELECT pipeline_name,details FROM pipeline_tests WHERE status=/\"PASS/\" ORDER BY RANDOM() LIMIT 10').fetchall(); print('=== EXEMPLES UTILISATION ==='); [print(f'  {n}: {d[:60]}') for n,d in tests]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tests=c.execute('SELECT pipeline_name,details FROM pipeline_tests WHERE status=/\"PASS/\" ORDER BY RANDOM() LIMIT 10').fetchall(); print('=== EXEMPLES UTILISATION ==='); [print(f'  {n}: {d[:60]}') for n,d in tests]; c.close()\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # LOGGING & OBSERVABILITY — Observabilite centralisee
@@ -2487,12 +2487,12 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("collab_commands_export", "pipeline", "Exporter les commandes pour deploiement sur autre machine", [
         "exporter commandes", "export commands", "deploy commands",
         "commandes pour autre machine", "collab export",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; import json; data=[{'name':p.name,'category':p.category,'description':p.description,'triggers':p.triggers} for p in PIPELINE_COMMANDS]; print(f'=== EXPORT COMMANDES ==='); print(f'  {len(data)} pipelines exportables'); print(f'  Format: JSON'); __import__('pathlib').Path('/home/turbo/jarvis-m1-ops/data/pipelines_export.json').write_text(json.dumps(data,indent=2,ensure_ascii=False),encoding='utf-8'); print(f'  Fichier: data/pipelines_export.json')\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; import json; data=[{'name':p.name,'category':p.category,'description':p.description,'triggers':p.triggers} for p in PIPELINE_COMMANDS]; print(f'=== EXPORT COMMANDES ==='); print(f'  {len(data)} pipelines exportables'); print(f'  Format: JSON'); __import__('pathlib').Path('/home/turbo/jarvis-m1-ops/data/pipelines_export.json').write_text(json.dumps(data,indent=2,ensure_ascii=False),encoding='utf-8'); print(f'  Fichier: data/pipelines_export.json')\" 2>&1 | Out-String"),
 
     JarvisCommand("collab_db_merge_check", "pipeline", "Verifier la compatibilite pour fusion de bases entre machines", [
         "fusionner bases", "merge db", "db merge",
         "compatibilite bases", "collab merge",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,os; dbs=[('etoile.db','/home/turbo/jarvis-m1-ops/data/etoile.db'),('jarvis.db','/home/turbo/jarvis-m1-ops/data/jarvis.db')]; print('=== MERGE CHECK ==='); [print(f'  {n}: {os.path.getsize(p)/1024:.0f}KB, tables=' + str(sqlite3.connect(p).execute('SELECT COUNT(*) FROM sqlite_master WHERE type=/\"table/\"').fetchone()[0]) + ', integrity=' + sqlite3.connect(p).execute('PRAGMA integrity_check').fetchone()[0]) for n,p in dbs if os.path.exists(p)]\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,os; dbs=[('etoile.db','/home/turbo/jarvis-m1-ops/data/etoile.db'),('jarvis.db','/home/turbo/jarvis-m1-ops/data/jarvis.db')]; print('=== MERGE CHECK ==='); [print(f'  {n}: {os.path.getsize(p)/1024:.0f}KB, tables=' + str(sqlite3.connect(p).execute('SELECT COUNT(*) FROM sqlite_master WHERE type=/\"table/\"').fetchone()[0]) + ', integrity=' + sqlite3.connect(p).execute('PRAGMA integrity_check').fetchone()[0]) for n,p in dbs if os.path.exists(p)]\" 2>&1 | Out-String"),
 
     # ══════════════════════════════════════════════════════════════════════
     # BATCH 7 — COMPLETIONS AUDIT: 36 pipelines restantes toutes priorites
@@ -2514,12 +2514,12 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("plugin_install_new", "pipeline", "Installer un nouveau plugin Claude Code depuis le registre", [
         "installer plugin", "nouveau plugin", "install plugin",
         "ajouter plugin", "plugin install",
-    ], "pipeline", "powershell:Write-Output '=== INSTALLER PLUGIN ==='; Write-Output '  Methode 1: claude plugins add <nom>'; Write-Output '  Methode 2: git clone dans ~/.claude/plugins/local/'; Write-Output '  Methode 3: npm package dans ~/.claude/plugins/cache/'; $local = if (Test-Path '/\Users/franc/.claude/plugins/local') { (Get-ChildItem '/\Users/franc/.claude/plugins/local' -Directory | Measure-Object).Count } else { 0 }; $cache = if (Test-Path '/\Users/franc/.claude/plugins/cache') { (Get-ChildItem '/\Users/franc/.claude/plugins/cache' -Directory | Measure-Object).Count } else { 0 }; Write-Output \"  Actuels: $local local + $cache cache\"; Write-Output '  Redemarrer Claude Code apres installation'"),
+    ], "pipeline", "powershell:Write-Output '=== INSTALLER PLUGIN ==='; Write-Output '  Methode 1: claude plugins add <nom>'; Write-Output '  Methode 2: git clone dans ~/.claude/plugins/local/'; Write-Output '  Methode 3: npm package dans ~/.claude/plugins/cache/'; $local = if (Test-Path 'C:/Users/franc/.claude/plugins/local') { (Get-ChildItem 'C:/Users/franc/.claude/plugins/local' -Directory | Measure-Object).Count } else { 0 }; $cache = if (Test-Path 'C:/Users/franc/.claude/plugins/cache') { (Get-ChildItem 'C:/Users/franc/.claude/plugins/cache' -Directory | Measure-Object).Count } else { 0 }; Write-Output \"  Actuels: $local local + $cache cache\"; Write-Output '  Redemarrer Claude Code apres installation'"),
 
     JarvisCommand("plugin_disable_temporary", "pipeline", "Desactiver temporairement un plugin sans le desinstaller", [
         "desactiver plugin", "disable plugin", "plugin off",
         "couper plugin", "plugin desactiver",
-    ], "pipeline", "powershell:Write-Output '=== DESACTIVER PLUGIN ==='; Write-Output '  Methode: Editer ~/.claude/settings.json'; Write-Output '  Retirer le plugin de la liste \"plugins\"'; Write-Output '  Le plugin reste installe mais inactif'; $settingsPath = '/\Users/franc/.claude/settings.json'; if (Test-Path $settingsPath) { $mod = (Get-Item $settingsPath).LastWriteTime; Write-Output \"  settings.json: $mod\" }; Write-Output '  Redemarrer Claude Code pour appliquer'"),
+    ], "pipeline", "powershell:Write-Output '=== DESACTIVER PLUGIN ==='; Write-Output '  Methode: Editer ~/.claude/settings.json'; Write-Output '  Retirer le plugin de la liste \"plugins\"'; Write-Output '  Le plugin reste installe mais inactif'; $settingsPath = 'C:/Users/franc/.claude/settings.json'; if (Test-Path $settingsPath) { $mod = (Get-Item $settingsPath).LastWriteTime; Write-Output \"  settings.json: $mod\" }; Write-Output '  Redemarrer Claude Code pour appliquer'"),
 
     # --- VOICE COMPLETIONS (2) ---
     JarvisCommand("voice_speaker_profile_switch", "pipeline", "Changer de profil vocal: voix, vitesse, langue", [
@@ -2530,7 +2530,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("voice_recognition_retrain", "pipeline", "Re-entrainer la reconnaissance vocale avec corrections", [
         "entrainer voix", "retrain voice", "ameliorer reconnaissance",
         "corriger reconnaissance", "voice retrain",
-    ], "pipeline", "powershell:Write-Output '=== RETRAIN VOCAL ==='; if (Test-Path 'F:/BUREAU/turbo/src/voice_correction.py') { $corrections = (Get-Content 'F:/BUREAU/turbo/src/voice_correction.py' | Select-String 'def|class|correction' | Measure-Object).Count; $size = [math]::Round((Get-Item 'F:/BUREAU/turbo/src/voice_correction.py').Length / 1KB); Write-Output \"  voice_correction.py: ${size}KB, $corrections definitions\" } else { Write-Output '  voice_correction.py absent' }; & '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/jarvis.db'); r=c.execute('SELECT COUNT(*) FROM voice_corrections').fetchone()[0]; print(f'  Corrections en base: {r}'); c.close()\" 2>&1"),
+    ], "pipeline", "powershell:Write-Output '=== RETRAIN VOCAL ==='; if (Test-Path 'F:/BUREAU/turbo/src/voice_correction.py') { $corrections = (Get-Content 'F:/BUREAU/turbo/src/voice_correction.py' | Select-String 'def|class|correction' | Measure-Object).Count; $size = [math]::Round((Get-Item 'F:/BUREAU/turbo/src/voice_correction.py').Length / 1KB); Write-Output \"  voice_correction.py: ${size}KB, $corrections definitions\" } else { Write-Output '  voice_correction.py absent' }; & 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/jarvis.db'); r=c.execute('SELECT COUNT(*) FROM voice_corrections').fetchone()[0]; print(f'  Corrections en base: {r}'); c.close()\" 2>&1"),
 
     # --- EMBEDDING COMPLETIONS (2) ---
     JarvisCommand("embedding_index_rebuild", "pipeline", "Reconstruire l'index d'embeddings complet", [
@@ -2547,7 +2547,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("brain_memory_import", "pipeline", "Importer la memoire JARVIS depuis un fichier JSON de backup", [
         "importer memoire", "import memoire", "restaurer memoire",
         "brain import", "memoire restore",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import glob,os; exports=sorted(glob.glob('/home/turbo/jarvis-m1-ops/data/memories_export_*.json'), key=os.path.getmtime, reverse=True); print('=== IMPORT MEMOIRE ==='); print(f'  Backups disponibles: {len(exports)}'); [print(f'  {os.path.basename(f)}: {os.path.getsize(f)/1024:.0f}KB') for f in exports[:5]]; print('  Pour importer: uv run python -c /\"import json,sqlite3; .../\"') if exports else print('  Aucun backup disponible')\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import glob,os; exports=sorted(glob.glob('/home/turbo/jarvis-m1-ops/data/memories_export_*.json'), key=os.path.getmtime, reverse=True); print('=== IMPORT MEMOIRE ==='); print(f'  Backups disponibles: {len(exports)}'); [print(f'  {os.path.basename(f)}: {os.path.getsize(f)/1024:.0f}KB') for f in exports[:5]]; print('  Pour importer: uv run python -c /\"import json,sqlite3; .../\"') if exports else print('  Aucun backup disponible')\" 2>&1 | Out-String"),
 
     # --- DASHBOARD WIDGET COMPLETIONS (4) ---
     JarvisCommand("dashboard_widget_add", "pipeline", "Ajouter un widget au dashboard dynamiquement", [
@@ -2585,23 +2585,23 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("db_defragment_intensive", "pipeline", "Defragmentation intensive de toutes les bases SQLite", [
         "defragmenter bases", "db defrag", "defrag database",
         "optimiser bases intensif", "db defragment",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,os; dbs=[('etoile.db','/home/turbo/jarvis-m1-ops/data/etoile.db'),('jarvis.db','/home/turbo/jarvis-m1-ops/data/jarvis.db')]; print('=== DEFRAG INTENSIVE ==='); [(lambda p,n: (lambda c,s1: (c.execute('VACUUM'), c.execute('ANALYZE'), c.close(), print(f'  {n}: {s1/1024:.0f}KB -> {os.path.getsize(p)/1024:.0f}KB VACUUM+ANALYZE OK')))(sqlite3.connect(p).cursor(), os.path.getsize(p)))(p,n) for n,p in dbs if os.path.exists(p)]\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,os; dbs=[('etoile.db','/home/turbo/jarvis-m1-ops/data/etoile.db'),('jarvis.db','/home/turbo/jarvis-m1-ops/data/jarvis.db')]; print('=== DEFRAG INTENSIVE ==='); [(lambda p,n: (lambda c,s1: (c.execute('VACUUM'), c.execute('ANALYZE'), c.close(), print(f'  {n}: {s1/1024:.0f}KB -> {os.path.getsize(p)/1024:.0f}KB VACUUM+ANALYZE OK')))(sqlite3.connect(p).cursor(), os.path.getsize(p)))(p,n) for n,p in dbs if os.path.exists(p)]\" 2>&1 | Out-String"),
 
     JarvisCommand("db_consistency_check_deep", "pipeline", "Verification profonde de la consistance des donnees", [
         "consistance base", "deep check db", "verification profonde",
         "db consistency", "check consistance",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); print('=== DEEP CONSISTENCY ==='); integ=c.execute('PRAGMA integrity_check').fetchone()[0]; print(f'  Integrity: {integ}'); fk=c.execute('PRAGMA foreign_key_check').fetchall(); print(f'  FK violations: {len(fk)}'); tables=c.execute('SELECT name FROM sqlite_master WHERE type=/\"table/\"').fetchall(); print(f'  Tables: {len(tables)}'); [print(f'    {t[0]}: {c.execute(f/\"SELECT COUNT(*) FROM {t[0]}/\").fetchone()[0]} rows') for t in tables]; c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); print('=== DEEP CONSISTENCY ==='); integ=c.execute('PRAGMA integrity_check').fetchone()[0]; print(f'  Integrity: {integ}'); fk=c.execute('PRAGMA foreign_key_check').fetchall(); print(f'  FK violations: {len(fk)}'); tables=c.execute('SELECT name FROM sqlite_master WHERE type=/\"table/\"').fetchall(); print(f'  Tables: {len(tables)}'); [print(f'    {t[0]}: {c.execute(f/\"SELECT COUNT(*) FROM {t[0]}/\").fetchone()[0]} rows') for t in tables]; c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("db_split_archive", "pipeline", "Archiver les anciennes donnees dans une base separee", [
         "archiver donnees", "db archive", "split database",
         "archive vieilles donnees", "db split",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,os; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tests=c.execute('SELECT COUNT(*) FROM pipeline_tests').fetchone()[0]; old_tests=c.execute('SELECT COUNT(*) FROM pipeline_tests WHERE test_date < date(/\"now/\",/\"-30 days/\")').fetchone()[0]; print('=== ARCHIVE DATA ==='); print(f'  Tests totaux: {tests}'); print(f'  Tests >30j: {old_tests} (archivables)'); size=os.path.getsize('/home/turbo/jarvis-m1-ops/data/etoile.db')/1024; print(f'  Taille DB: {size:.0f}KB'); print(f'  Recommandation: {/\"archiver/\" if old_tests > 100 else /\"pas necessaire/\"}'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3,os; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); tests=c.execute('SELECT COUNT(*) FROM pipeline_tests').fetchone()[0]; old_tests=c.execute('SELECT COUNT(*) FROM pipeline_tests WHERE test_date < date(/\"now/\",/\"-30 days/\")').fetchone()[0]; print('=== ARCHIVE DATA ==='); print(f'  Tests totaux: {tests}'); print(f'  Tests >30j: {old_tests} (archivables)'); size=os.path.getsize('/home/turbo/jarvis-m1-ops/data/etoile.db')/1024; print(f'  Taille DB: {size:.0f}KB'); print(f'  Recommandation: {/\"archiver/\" if old_tests > 100 else /\"pas necessaire/\"}'); c.close()\" 2>&1 | Out-String"),
 
     # --- CONSENSUS COMPLETIONS (2) ---
     JarvisCommand("consensus_benchmark_scenarios", "pipeline", "Benchmarker les 58 scenarios de poids du consensus", [
         "benchmark consensus", "scenarios consensus", "tester consensus",
         "benchmark vote", "consensus scenarios",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); rules=c.execute('SELECT entity_name,role FROM map WHERE entity_type=/\"routing_rule/\"').fetchall(); print('=== BENCHMARK CONSENSUS ==='); print(f'  Regles de routage: {len(rules)}'); [print(f'    {n}: {r[:50]}') for n,r in rules]; weights={'M1':1.8,'M2':1.4,'OL1':1.3,'GEMINI':1.2,'CLAUDE':1.2,'M3':1.0}; print(f'  Poids: {weights}'); print(f'  Quorum: >= 0.65'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); rules=c.execute('SELECT entity_name,role FROM map WHERE entity_type=/\"routing_rule/\"').fetchall(); print('=== BENCHMARK CONSENSUS ==='); print(f'  Regles de routage: {len(rules)}'); [print(f'    {n}: {r[:50]}') for n,r in rules]; weights={'M1':1.8,'M2':1.4,'OL1':1.3,'GEMINI':1.2,'CLAUDE':1.2,'M3':1.0}; print(f'  Poids: {weights}'); print(f'  Quorum: >= 0.65'); c.close()\" 2>&1 | Out-String"),
 
     JarvisCommand("consensus_weight_auto_tune", "pipeline", "Auto-tuner les poids du consensus selon les performances", [
         "auto tune consensus", "ajuster poids", "tune weights",
@@ -2657,7 +2657,7 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("api_key_rotation_schedule", "pipeline", "Planifier la rotation des cles API", [
         "rotation cles", "key rotation", "renouveler cles",
         "api rotation", "cles rotation",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); keys=c.execute('SELECT entity_name,role FROM map WHERE entity_type=/\"tool/\" AND (role LIKE /\"%%key%%/\" OR role LIKE /\"%%token%%/\" OR role LIKE /\"%%api%%/\")').fetchall(); print('=== ROTATION CLES API ==='); print(f'  Cles referencees: {len(keys)}'); [print(f'  {n}: {r[:50]}') for n,r in keys[:10]]; print('  Recommandation: rotation tous les 90 jours'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/etoile.db'); keys=c.execute('SELECT entity_name,role FROM map WHERE entity_type=/\"tool/\" AND (role LIKE /\"%%key%%/\" OR role LIKE /\"%%token%%/\" OR role LIKE /\"%%api%%/\")').fetchall(); print('=== ROTATION CLES API ==='); print(f'  Cles referencees: {len(keys)}'); [print(f'  {n}: {r[:50]}') for n,r in keys[:10]]; print('  Recommandation: rotation tous les 90 jours'); c.close()\" 2>&1 | Out-String"),
 
     # --- WORKSPACE COMPLETIONS (2) ---
     JarvisCommand("workspace_restore_point", "pipeline", "Creer ou restaurer un point de restauration workspace", [
@@ -2691,12 +2691,12 @@ JarvisCommand("sim_db_backup_all", "pipeline", "Backup toutes les DBs: jarvis + 
     JarvisCommand("doc_self_heal_broken", "pipeline", "Auto-reparer les commandes cassees detectees", [
         "reparer commandes", "self heal", "auto repair",
         "commandes cassees", "fix broken commands",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; broken=[]; [broken.append(p.name) for p in PIPELINE_COMMANDS if not p.action_string or len(p.triggers)<1]; print('=== SELF-HEAL ==='); print(f'  Total pipelines: {len(PIPELINE_COMMANDS)}'); print(f'  Cassees (action vide ou 0 triggers): {len(broken)}'); [print(f'  BROKEN: {b}') for b in broken[:10]]; print('  Status: ' + ('TOUT OK' if not broken else f'{len(broken)} a reparer'))\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; broken=[]; [broken.append(p.name) for p in PIPELINE_COMMANDS if not p.action_string or len(p.triggers)<1]; print('=== SELF-HEAL ==='); print(f'  Total pipelines: {len(PIPELINE_COMMANDS)}'); print(f'  Cassees (action vide ou 0 triggers): {len(broken)}'); [print(f'  BROKEN: {b}') for b in broken[:10]]; print('  Status: ' + ('TOUT OK' if not broken else f'{len(broken)} a reparer'))\" 2>&1 | Out-String"),
 
     JarvisCommand("self_heal_broken_command", "pipeline", "Diagnostiquer et reparer une commande vocale specifique", [
         "diagnostiquer commande", "heal command", "reparer commande vocale",
         "commande ne marche pas", "debug commande",
-    ], "pipeline", "powershell:& '/\Users/franc/.local/bin/uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/jarvis.db'); db_cmds=c.execute('SELECT COUNT(*) FROM commands').fetchone()[0]; pipe_cmds=len(PIPELINE_COMMANDS); print('=== DIAGNOSTIC COMMANDE ==='); print(f'  Commandes jarvis.db: {db_cmds}'); print(f'  Pipelines: {pipe_cmds}'); print(f'  Total vocal: {db_cmds + pipe_cmds}'); dupes=[p.name for p in PIPELINE_COMMANDS]; seen=set(); dups=[x for x in dupes if x in seen or seen.add(x)]; print(f'  Doublons pipelines: {len(dups)}'); print('  Status: OK' if not dups else f'  DOUBLONS: {dups[:5]}'); c.close()\" 2>&1 | Out-String"),
+    ], "pipeline", "powershell:& 'C:/Users/franc/.local/bin/uv.exe' run python -c \"from src.commands_pipelines import PIPELINE_COMMANDS; import sqlite3; c=sqlite3.connect('/home/turbo/jarvis-m1-ops/data/jarvis.db'); db_cmds=c.execute('SELECT COUNT(*) FROM commands').fetchone()[0]; pipe_cmds=len(PIPELINE_COMMANDS); print('=== DIAGNOSTIC COMMANDE ==='); print(f'  Commandes jarvis.db: {db_cmds}'); print(f'  Pipelines: {pipe_cmds}'); print(f'  Total vocal: {db_cmds + pipe_cmds}'); dupes=[p.name for p in PIPELINE_COMMANDS]; seen=set(); dups=[x for x in dupes if x in seen or seen.add(x)]; print(f'  Doublons pipelines: {len(dups)}'); print('  Status: OK' if not dups else f'  DOUBLONS: {dups[:5]}'); c.close()\" 2>&1 | Out-String"),
     # ══════════════════════════════════════════════════════════════════════
     # PRODUCTION — Validation et model management (Session 29)
     # ══════════════════════════════════════════════════════════════════════
@@ -2870,6 +2870,6 @@ for _cmd in PIPELINE_COMMANDS:
         _cmd.action = _cmd.action.replace("F:/BUREAU/turbo", _TURBO_DIR)
     if "/home/turbo/jarvis-m1-ops" in _cmd.action:
         _cmd.action = _cmd.action.replace("/home/turbo/jarvis-m1-ops", _TURBO_DIR_FWD)
-    if "/\Users/franc" in _cmd.action:
-        _cmd.action = _cmd.action.replace("/\Users/franc", _USER_HOME)
+    if "C:\\Users\\franc" in _cmd.action:
+        _cmd.action = _cmd.action.replace("C:\\Users\\franc", _USER_HOME)
 del _cmd

@@ -254,12 +254,119 @@ LINUX_PIPELINES: dict[str, dict] = {
             {"type": "bash", "command": "cd ~/jarvis && uv run pytest --co -q 2>/dev/null | tail -3", "label": "Test count"},
         ],
     },
+    "manage-timers": {
+        "name": "Gérer Timers JARVIS",
+        "triggers": ["timers jarvis", "crons jarvis", "tâches planifiées jarvis", "jarvis timers"],
+        "category": "system",
+        "steps": [
+            {"type": "bash", "command": "systemctl --user list-timers --no-pager 2>/dev/null | grep jarvis || echo 'Aucun timer JARVIS actif'", "label": "Active timers"},
+        ],
+    },
     "ports-check": {
         "name": "Vérifier Ports",
         "triggers": ["vérifier les ports", "ports ouverts", "qui écoute", "ports actifs"],
         "category": "system",
         "steps": [
             {"type": "bash", "command": "ss -tlnp 2>/dev/null | grep -E ':(1234|9742|18800|18789|11434|8080|9000)' || echo 'Aucun port JARVIS actif'", "label": "JARVIS ports"},
+        ],
+    },
+    # === TRADING AVANCÉ ===
+    "trading-positions": {
+        "name": "Positions Trading",
+        "triggers": ["positions trading", "mes positions", "trades ouverts", "portefeuille"],
+        "category": "trading",
+        "steps": [
+            {"type": "bash", "command": "cd ~/jarvis && uv run python -c \"from src.trading_flow import get_positions; import json; print(json.dumps(get_positions(), indent=2, default=str))\" 2>/dev/null || echo 'Module trading non disponible'", "label": "Positions"},
+        ],
+    },
+    "trading-signals": {
+        "name": "Signaux Trading",
+        "triggers": ["signaux trading", "derniers signaux", "alertes trading", "signals crypto"],
+        "category": "trading",
+        "steps": [
+            {"type": "bash", "command": "cd ~/jarvis && sqlite3 data/sniper.db \"SELECT coin, signal_type, confidence, created_at FROM signals ORDER BY created_at DESC LIMIT 10\" 2>/dev/null || echo 'DB sniper non disponible'", "label": "Signals"},
+        ],
+    },
+    "trading-pnl": {
+        "name": "P&L Trading",
+        "triggers": ["profit et perte", "pnl trading", "combien j'ai gagné", "résultats trading"],
+        "category": "trading",
+        "steps": [
+            {"type": "bash", "command": "cd ~/jarvis && sqlite3 data/sniper.db \"SELECT SUM(pnl_usd) as total_pnl, COUNT(*) as trades FROM positions WHERE status='closed'\" 2>/dev/null || echo 'Pas de données P&L'", "label": "PnL"},
+        ],
+    },
+    # === NOTIFICATIONS ===
+    "notify-desktop": {
+        "name": "Notification Desktop",
+        "triggers": ["notification {message}", "notifie {message}", "alerte {message}"],
+        "category": "system",
+        "steps": [
+            {"type": "bash", "command": "notify-send 'JARVIS' '{message}' --icon=dialog-information 2>/dev/null || echo 'notify-send non disponible'", "label": "Notify"},
+        ],
+    },
+    "telegram-send": {
+        "name": "Envoyer Telegram",
+        "triggers": ["envoie sur telegram {message}", "telegram {message}", "message telegram"],
+        "category": "system",
+        "steps": [
+            {"type": "bash", "command": "cd ~/jarvis && uv run python -c \"from src.telegram_sender import send_message; send_message('{message}')\" 2>/dev/null || echo 'Telegram non configuré'", "label": "Telegram"},
+        ],
+    },
+    # === WORKFLOW AVANCÉ ===
+    "morning-routine": {
+        "name": "Routine du Matin",
+        "triggers": ["routine du matin", "bonjour jarvis", "morning check", "démarre la journée"],
+        "category": "system",
+        "steps": [
+            {"type": "bash", "command": "echo '=== SANTÉ SYSTÈME ===' && free -h && df -h / --output=avail | tail -1", "label": "System"},
+            {"type": "bash", "command": "echo '=== CLUSTER ===' && curl -s --max-time 3 http://127.0.0.1:1234/v1/models >/dev/null 2>&1 && echo 'M1 OK' || echo 'M1 OFF'", "label": "Cluster"},
+            {"type": "bash", "command": "echo '=== GPU ===' && nvidia-smi --query-gpu=temperature.gpu,utilization.gpu --format=csv,noheader 2>/dev/null || echo 'Pas de GPU'", "label": "GPU"},
+            {"type": "bash", "command": "echo '=== GIT ===' && cd ~/jarvis && git log --oneline -3", "label": "Git"},
+            {"type": "bash", "command": "echo '=== TRADING ===' && cd ~/jarvis && sqlite3 data/sniper.db \"SELECT COUNT(*) || ' signaux dernières 24h' FROM signals WHERE created_at > datetime('now', '-1 day')\" 2>/dev/null || echo 'Pas de données'", "label": "Trading"},
+        ],
+    },
+    "night-shutdown": {
+        "name": "Shutdown Soirée",
+        "triggers": ["bonne nuit jarvis", "shutdown soirée", "ferme tout", "night mode"],
+        "category": "system",
+        "steps": [
+            {"type": "bash", "command": "echo '=== SAUVEGARDE ===' && cd ~/jarvis && mkdir -p backups/$(date +%Y%m%d) && for db in data/*.db; do sqlite3 \"$db\" \".backup backups/$(date +%Y%m%d)/$(basename $db)\" 2>/dev/null && echo \"OK: $(basename $db)\"; done", "label": "Backup"},
+            {"type": "bash", "command": "echo '=== STATS JOURNÉE ===' && cd ~/jarvis && sqlite3 data/learned_actions.db \"SELECT COUNT(*) || ' actions exécutées aujourd\\'hui' FROM action_executions WHERE executed_at > date('now')\" 2>/dev/null", "label": "Stats"},
+        ],
+    },
+    "full-diagnostic": {
+        "name": "Diagnostic Complet",
+        "triggers": ["diagnostic complet", "full diagnostic", "tout vérifier", "check everything"],
+        "category": "system",
+        "steps": [
+            {"type": "bash", "command": "echo '=== SYSTÈME ===' && uname -a && free -h && df -h / /home --output=target,avail", "label": "System"},
+            {"type": "bash", "command": "echo '=== GPU ===' && nvidia-smi --query-gpu=index,name,temperature.gpu,utilization.gpu,memory.used --format=csv,noheader 2>/dev/null || echo 'No GPU'", "label": "GPU"},
+            {"type": "bash", "command": "echo '=== SERVICES ===' && systemctl --user list-units 'jarvis-*' --no-pager --plain 2>/dev/null || echo 'No services'", "label": "Services"},
+            {"type": "bash", "command": "echo '=== CLUSTER ===' && for url in http://127.0.0.1:1234 http://192.168.1.26:1234 http://192.168.1.113:1234 http://127.0.0.1:11434; do curl -s --max-time 3 $url/v1/models >/dev/null 2>&1 && echo \"$url OK\" || echo \"$url OFFLINE\"; done", "label": "Cluster"},
+            {"type": "bash", "command": "echo '=== DOCKER ===' && docker ps --format '{{.Names}}: {{.Status}}' 2>/dev/null || echo 'Docker off'", "label": "Docker"},
+            {"type": "bash", "command": "echo '=== PORTS ===' && ss -tlnp 2>/dev/null | grep -E ':(1234|9742|18800|18789|11434)' || echo 'No JARVIS ports'", "label": "Ports"},
+            {"type": "bash", "command": "echo '=== TESTS ===' && cd ~/jarvis && uv run pytest tests/test_learned_actions.py tests/test_domino_pipelines_linux.py -q 2>&1 | tail -3", "label": "Tests"},
+        ],
+    },
+    "cleanup-system": {
+        "name": "Nettoyage Système",
+        "triggers": ["nettoie le système", "cleanup", "libère de l'espace", "ménage système"],
+        "category": "system",
+        "steps": [
+            {"type": "bash", "command": "echo '=== AVANT ===' && df -h / --output=avail | tail -1", "label": "Before"},
+            {"type": "bash", "command": "find /tmp -maxdepth 1 -type f -mtime +3 -delete 2>/dev/null; echo 'tmp nettoyé'", "label": "Tmp"},
+            {"type": "bash", "command": "find ~/jarvis/data/logs -name '*.log' -mtime +14 -delete 2>/dev/null; echo 'vieux logs nettoyés'", "label": "Logs"},
+            {"type": "bash", "command": "docker system prune -f 2>/dev/null || true; echo 'docker pruné'", "label": "Docker"},
+            {"type": "bash", "command": "echo '=== APRÈS ===' && df -h / --output=avail | tail -1", "label": "After"},
+        ],
+    },
+    "who-is-connected": {
+        "name": "Qui est Connecté",
+        "triggers": ["qui est connecté", "connexions actives", "who is connected", "clients actifs"],
+        "category": "system",
+        "steps": [
+            {"type": "bash", "command": "who 2>/dev/null || echo 'who non dispo'", "label": "Users"},
+            {"type": "bash", "command": "ss -tn state established 2>/dev/null | grep -E ':(9742|18800|18789)' | wc -l | xargs -I{} echo '{} connexions JARVIS actives'", "label": "JARVIS connections"},
         ],
     },
 }

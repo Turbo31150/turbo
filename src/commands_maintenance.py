@@ -65,7 +65,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("nettoyer_prefetch", "systeme", "Nettoyer le dossier Prefetch", [
         "nettoie prefetch", "vide prefetch", "clean prefetch",
         "supprime prefetch",
-    ], "powershell", "Remove-Item /\Windows/Prefetch/* -Force -ErrorAction SilentlyContinue; 'Prefetch nettoye'", confirm=True),
+    ], "powershell", "Remove-Item C:/Windows/Prefetch/* -Force -ErrorAction SilentlyContinue; 'Prefetch nettoye'", confirm=True),
     JarvisCommand("nettoyer_thumbnails", "systeme", "Nettoyer le cache des miniatures", [
         "nettoie les miniatures", "vide le cache miniatures",
         "clean thumbnails", "supprime les thumbnails",
@@ -186,7 +186,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("nettoyer_windows_old", "systeme", "Taille du dossier Windows.old (ancien systeme)", [
         "taille windows old", "windows old", "combien pese windows old",
         "ancien systeme",
-    ], "powershell", "if(Test-Path '/\Windows.old'){ $s = (Get-ChildItem '/\Windows.old' -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1GB; \"Windows.old: $([math]::Round($s,1)) GB\" }else{ 'Pas de dossier Windows.old' }"),
+    ], "powershell", "if(Test-Path 'C:/Windows.old'){ $s = (Get-ChildItem 'C:/Windows.old' -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum/1GB; \"Windows.old: $([math]::Round($s,1)) GB\" }else{ 'Pas de dossier Windows.old' }"),
 
     # ══════════════════════════════════════════════════════════════════════
     # CLUSTER IA — Monitoring avance
@@ -270,7 +270,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("bluescreen_history", "systeme", "Historique des ecrans bleus (BSOD)", [
         "ecrans bleus", "bsod", "bluescreen", "historique bsod",
         "crashs windows", "blue screen of death",
-    ], "powershell", "$dumps = Get-ChildItem '/\Windows/Minidump' -ErrorAction SilentlyContinue; if($dumps){$dumps | Select Name, @{N='Date';E={$_.LastWriteTime.ToString('dd/MM/yyyy HH:mm')}}, @{N='Taille(KB)';E={[math]::Round($_.Length/1KB)}} | Out-String}else{'Aucun BSOD enregistre'}"),
+    ], "powershell", "$dumps = Get-ChildItem 'C:/Windows/Minidump' -ErrorAction SilentlyContinue; if($dumps){$dumps | Select Name, @{N='Date';E={$_.LastWriteTime.ToString('dd/MM/yyyy HH:mm')}}, @{N='Taille(KB)';E={[math]::Round($_.Length/1KB)}} | Out-String}else{'Aucun BSOD enregistre'}"),
     JarvisCommand("disk_smart_health", "systeme", "Etat de sante SMART des disques", [
         "sante disques", "smart disques", "disk health",
         "etat ssd", "disques en bonne sante",
@@ -1685,7 +1685,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     ], "powershell", "$c = (New-Object System.Drawing.Text.InstalledFontCollection).Families.Count; \"$c polices installees\""),
     JarvisCommand("fonts_folder", "systeme", "Ouvrir le dossier des polices", [
         "dossier polices", "ouvre les fonts", "ouvrir dossier fonts",
-    ], "powershell", "Start-Process '/\Windows/Fonts'"),
+    ], "powershell", "Start-Process 'C:/Windows/Fonts'"),
 
     # ══════════════════════════════════════════════════════════════════════
     # VARIABLES D'ENVIRONNEMENT — Gestion des env vars
@@ -1944,7 +1944,7 @@ MAINTENANCE_COMMANDS: list[JarvisCommand] = [
     JarvisCommand("windows_license", "systeme", "Statut de la licence Windows", [
         "licence windows", "windows active", "statut activation",
         "est ce que windows est active",
-    ], "powershell", "cscript //nologo /\Windows/System32/slmgr.vbs /dli 2>&1 | Out-String"),
+    ], "powershell", "cscript //nologo C:/Windows/System32/slmgr.vbs /dli 2>&1 | Out-String"),
     JarvisCommand("boot_config", "systeme", "Configuration de demarrage (BCD)", [
         "config demarrage", "boot config", "bcd edit",
         "configuration boot",

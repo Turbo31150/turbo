@@ -990,7 +990,7 @@ def _get_disk_usage() -> str:
     """Get disk usage for main drives."""
     import shutil
     results = []
-    for drive in ["/\", "F:/"]:
+    for drive in ["C:/", "F:/"]:
         try:
             usage = shutil.disk_usage(drive)
             free_gb = usage.free / (1024**3)

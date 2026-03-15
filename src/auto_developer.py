@@ -241,7 +241,7 @@ class AutoDeveloper:
             return False
 
         # Check for dangerous patterns
-        dangerous = ["rm -rf", "format", "del /s", "Remove-Item -Recurse -Force /\",
+        dangerous = ["rm -rf", "format", "del /s", "Remove-Item -Recurse -Force",
                       "shutdown", "restart", "Stop-Computer"]
         for d in dangerous:
             if d.lower() in cmd.action.lower():

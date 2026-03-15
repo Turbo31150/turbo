@@ -90,24 +90,6 @@ class VirtualMemoryManager:
         except Exception as e:
             self._record("get_top_consumers", False, str(e))
             return []
-            )
-            if result.returncode == 0 and result.stdout.strip():
-                data = json.loads(result.stdout)
-                if isinstance(data, dict):
-                    data = [data]
-                procs = []
-                for p in data:
-                    procs.append({
-                        "name": p.get("Name", ""),
-                        "pid": p.get("Id", 0),
-                        "working_set_mb": p.get("WorkingSetMB", 0),
-                        "virtual_mb": p.get("VirtualMB", 0),
-                    })
-                self._record("get_top_consumers", True, f"{len(procs)} processes")
-                return procs
-        except Exception as e:
-            self._record("get_top_consumers", False, str(e))
-        return []
 
     def _record(self, action: str, success: bool, detail: str = "") -> None:
         with self._lock:

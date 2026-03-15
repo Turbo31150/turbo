@@ -27,7 +27,7 @@ logger = logging.getLogger("jarvis.crash_dump_reader")
 
 _NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 
-MINIDUMP_DIR = os.path.join(os.environ.get("SystemRoot", "/\Windows"), "Minidump")
+MINIDUMP_DIR = os.path.join(os.environ.get("SystemRoot", "C:/Windows"), "Minidump")
 
 
 @dataclass

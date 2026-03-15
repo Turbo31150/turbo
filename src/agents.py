@@ -130,7 +130,7 @@ ia_system = AgentDefinition(
         "Tu es IA_SYSTEM, l'agent Systeme dans l'orchestrateur JARVIS.\n"
         "Tu as acces complet au systeme Windows.\n"
         "Ton role:\n"
-        "- Gerer les fichiers et dossiers (/\Users/franc, F:/BUREAU)\n"
+        "- Gerer les fichiers et dossiers (C:/Users/franc, F:/BUREAU)\n"
         "- Executer des commandes PowerShell\n"
         "- Gerer les processus et services\n"
         "- Automatiser des taches systeme\n"

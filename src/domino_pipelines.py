@@ -2287,7 +2287,7 @@ DOMINO_PIPELINES: list[DominoPipeline] = [
  trigger_vocal=["nettoie windows", "windows cleanup", "vide les temp", "menage windows"],
  steps=[
  DominoStep("clear_temp", "bash:rm -f $TEMP/* -r 2>/dev/null; 'Temp cleared'", "bash", timeout_s=15, on_fail="skip"),
- DominoStep("clear_prefetch", "bash:rm -f /\Windows/Prefetch/* 2>/dev/null; 'Prefetch cleared'", "bash", timeout_s=10, on_fail="skip"),
+ DominoStep("clear_prefetch", "bash:rm -f C:/Windows/Prefetch/* 2>/dev/null; 'Prefetch cleared'", "bash", timeout_s=10, on_fail="skip"),
  DominoStep("recycle_bin", "bash:Clear-RecycleBin 2>/dev/null; 'Recycle bin emptied'", "bash", timeout_s=10, on_fail="skip"),
  DominoStep("tts", "python:edge_tts_speak('Nettoyage Windows termine. Fichiers temp, prefetch et corbeille vides.')", "python"),
  ],

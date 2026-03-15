@@ -56,7 +56,7 @@ NODE_CONFIGS: dict[str, NodeConfig] = {
     "M1": NodeConfig(
         name="M1", node_type="lm_studio",
         url="http://127.0.0.1:1234",
-        restart_command='Start-Process "/\Program Files/LM Studio/LM Studio.exe" -WindowStyle Minimized',
+        restart_command='Start-Process "C:/Program Files/LM Studio/LM Studio.exe" -WindowStyle Minimized',
         max_retries=3, retry_delay_s=30.0
     ),
     "ollama": NodeConfig(
