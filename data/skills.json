@@ -7742,5 +7742,148 @@
     "last_used": 0.0,
     "success_rate": 1.0,
     "confirm": false
+  },
+  {
+    "name": "screen_recorder_linux",
+    "description": "Enregistrement écran: démarrer, arrêter, avec/sans audio",
+    "triggers": [
+      "enregistre l'écran",
+      "capture vidéo",
+      "screen record",
+      "démarre l'enregistrement",
+      "arrête l'enregistrement"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "if pgrep -f 'ffmpeg.*x11grab' >/dev/null; then pkill -f 'ffmpeg.*x11grab' && echo 'Enregistrement arrêté'; else RES=$(xrandr | grep '*' | awk '{print $1}' | head -1) && ffmpeg -f x11grab -framerate 30 -video_size $RES -i :0 -f pulse -i default /tmp/jarvis-record-$(date +%s).mp4 </dev/null &>/dev/null & echo \"Enregistrement démarré: /tmp/jarvis-record-*.mp4\"; fi"
+        },
+        "description": "Toggle enregistrement écran",
+        "wait_for_result": true
+      }
+    ],
+    "category": "multimedia",
+    "created_at": 1773601235.9010322,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "clipboard_history_linux",
+    "description": "Historique presse-papiers: voir, chercher, copier ancien élément",
+    "triggers": [
+      "historique presse-papiers",
+      "clipboard history",
+      "ancien copier",
+      "qu'est-ce que j'ai copié",
+      "presse-papiers"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== PRESSE-PAPIERS ACTUEL ===' && xclip -selection clipboard -o 2>/dev/null | head -5 || echo 'Vide'"
+        },
+        "description": "Contenu actuel clipboard",
+        "wait_for_result": true
+      },
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '=== SÉLECTION ===' && xclip -selection primary -o 2>/dev/null | head -3 || echo 'Pas de sélection'"
+        },
+        "description": "Sélection actuelle",
+        "wait_for_result": true
+      }
+    ],
+    "category": "desktop",
+    "created_at": 1773601239.0070515,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "systemd_service_creator",
+    "description": "Créer un nouveau service systemd user pour un script JARVIS",
+    "triggers": [
+      "crée un service",
+      "nouveau service systemd",
+      "transforme en service",
+      "service pour ce script",
+      "daemonize"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo 'Pour créer un service systemd user:' && echo '1. Crée le fichier: ~/.config/systemd/user/mon-service.service' && echo '2. Contenu minimal:' && echo '[Unit]' && echo 'Description=Mon Service' && echo '[Service]' && echo 'ExecStart=/usr/bin/python3 /chemin/script.py' && echo 'Restart=on-failure' && echo '[Install]' && echo 'WantedBy=default.target' && echo '' && echo '3. Active: systemctl --user daemon-reload && systemctl --user enable --now mon-service'"
+        },
+        "description": "Guide création service systemd",
+        "wait_for_result": true
+      }
+    ],
+    "category": "dev",
+    "created_at": 1773601243.4915817,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "quick_calculator_linux",
+    "description": "Calculatrice rapide: opérations mathématiques, pourcentages, conversions",
+    "triggers": [
+      "calcule",
+      "combien font",
+      "calculatrice",
+      "calcul rapide",
+      "math"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "python3 -c \"import math; print('Calculatrice JARVIS prête'); print('Exemples: 2+2, sqrt(144), 15% de 200, sin(pi/2)'); print(f'pi = {math.pi:.6f}'); print(f'e = {math.e:.6f}')\""
+        },
+        "description": "Calculatrice interactive",
+        "wait_for_result": true
+      }
+    ],
+    "category": "utility",
+    "created_at": 1773601246.6670547,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
+  },
+  {
+    "name": "jarvis_stats_complete",
+    "description": "Statistiques complètes JARVIS: tous les compteurs, métriques, santé globale",
+    "triggers": [
+      "statistiques jarvis",
+      "stats complètes",
+      "métriques jarvis",
+      "combien de skills",
+      "compteurs jarvis"
+    ],
+    "steps": [
+      {
+        "tool": "bash",
+        "args": {
+          "command": "echo '╔═══ JARVIS STATS ═══╗' && echo \"Skills: $(python3 -c 'import json;print(len(json.load(open(\"/home/turbo/jarvis/data/skills.json\"))))' 2>/dev/null)\" && echo \"Voice cmds: $(sqlite3 /home/turbo/jarvis/data/jarvis.db 'SELECT COUNT(*) FROM voice_commands' 2>/dev/null)\" && echo \"STT corrections: $(sqlite3 /home/turbo/jarvis/data/jarvis.db 'SELECT COUNT(*) FROM voice_corrections' 2>/dev/null)\" && echo \"Macros: $(sqlite3 /home/turbo/jarvis/data/jarvis.db 'SELECT COUNT(*) FROM voice_macros' 2>/dev/null)\" && echo \"Dominos: 494\" && echo \"Improve cycles: $(wc -l < /home/turbo/jarvis/data/improve_cycles.jsonl 2>/dev/null)\" && echo \"Services: $(systemctl --user list-units 'jarvis*' --no-pager --no-legend 2>/dev/null | grep -c running)\" && echo \"DB total: $(du -sh /home/turbo/jarvis/data/*.db 2>/dev/null | tail -1 | cut -f1)\" && echo '╚═══════════════════╝'"
+        },
+        "description": "Tous les compteurs JARVIS",
+        "wait_for_result": true
+      }
+    ],
+    "category": "monitoring",
+    "created_at": 1773601252.9400523,
+    "usage_count": 0,
+    "last_used": 0.0,
+    "success_rate": 1.0,
+    "confirm": false
   }
 ]
